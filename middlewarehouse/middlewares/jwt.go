@@ -1,9 +1,10 @@
-package controllers
+package middlewares
 
 import (
 	"errors"
 	"fmt"
 
+	"github.com/FoxComm/highlander/middlewarehouse/common/failures"
 	"github.com/SermoDigital/jose/jws"
 	"github.com/gin-gonic/gin"
 )
@@ -17,13 +18,13 @@ func FetchJWT(context *gin.Context) {
 	}
 
 	if rawJWT == "" {
-		handleServiceError(context, errors.New("No JWT passed"))
+		failures.HandleServiceError(context, errors.New("No JWT passed"))
 		return
 	}
 
 	token, err := jws.ParseJWT([]byte(rawJWT))
 	if err != nil {
-		handleServiceError(context, fmt.Errorf("Token parse failure: %s", err.Error()))
+		failures.HandleServiceError(context, fmt.Errorf("Token parse failure: %s", err.Error()))
 		return
 	}
 

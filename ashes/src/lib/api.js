@@ -1,5 +1,9 @@
 import superagent from 'superagent';
 import _ from 'lodash';
+import { Tracer, ExplicitContext, BatchRecorder } from '@foxcomm/zipkin';
+import { HttpLogger } from '@foxcomm/zipkin-transport-http';
+
+import zipkin from '../opt/superagent-zipkin';
 
 const isServer = typeof self === 'undefined';
 
@@ -73,10 +77,23 @@ export function request(method, uri, data, options = {}) {
   let error = null;
 
   const unauthorizedHandler = options.unauthorizedHandler ? options.unauthorizedHandler : () => {
-    window.location.href = '/login';
-  };
+      window.location.href = '/login';
+    };
 
   const abort = _.bind(result.abort, result);
+
+  if (!isServer && process.env.NODE_ENV !== 'test') {
+    const recorder = new BatchRecorder({
+      logger: new HttpLogger({
+        endpoint: `/zipkin/spans`,
+      })
+    });
+
+    const ctxImpl = new ExplicitContext();
+    const tracer = new Tracer({ recorder, ctxImpl });
+
+    result.use(zipkin(tracer)('ashes'));
+  }
 
   const promise = result
     .then(

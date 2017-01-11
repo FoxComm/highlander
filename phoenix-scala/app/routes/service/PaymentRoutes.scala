@@ -13,10 +13,18 @@ import utils.apis.Apis
 import utils.http.CustomDirectives._
 import utils.http.Http._
 
+import com.github.levkhomich.akka.tracing.TracingExtensionImpl
+
 object PaymentRoutes {
 
   //TODO: Instead of store auth.model, add service accounts and require service JWT tokens.
-  def routes(implicit ec: EC, es: ES, db: DB, auth: AuthData[User], apis: Apis) = {
+  def routes(implicit ec: EC,
+             es: ES,
+             db: DB,
+             auth: AuthData[User],
+             apis: Apis,
+             tr: TR,
+             tracer: TEI) = {
 
     activityContext(auth.model) { implicit ac ⇒
       pathPrefix("service") {

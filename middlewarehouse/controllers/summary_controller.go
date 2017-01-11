@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
+	"github.com/FoxComm/highlander/middlewarehouse/common/failures"
 	"github.com/FoxComm/highlander/middlewarehouse/services"
 
 	"github.com/gin-gonic/gin"
@@ -24,7 +25,7 @@ func (controller *summaryController) GetSummary() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		summary, err := controller.service.GetSummary()
 		if err != nil {
-			handleServiceError(context, err)
+			failures.HandleServiceError(context, err)
 			return
 		}
 
@@ -39,7 +40,7 @@ func (controller *summaryController) GetSummaryBySKU() gin.HandlerFunc {
 		skuCode := context.Params.ByName("code")
 		summary, err := controller.service.GetSummaryBySKU(skuCode)
 		if err != nil {
-			handleServiceError(context, err)
+			failures.HandleServiceError(context, err)
 			return
 		}
 

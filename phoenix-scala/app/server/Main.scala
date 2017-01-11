@@ -28,9 +28,11 @@ import slick.driver.PostgresDriver.api._
 import utils.FoxConfig.{Development, Staging}
 import utils.aliases._
 import utils.apis._
+import utils.http.CustomDirectives._
 import utils.http.CustomHandlers
 import utils.http.HttpLogger.logFailedRequests
 import utils.{ElasticsearchApi, FoxConfig}
+import com.github.levkhomich.akka.tracing.TracingExtension
 
 object Main extends App with LazyLogging {
   implicit val env = FoxConfig.environment
@@ -71,12 +73,17 @@ class Service(systemOverride: Option[ActorSystem] = None,
     ActorSystem.create("Orders", config)
   }
 
+  implicit val tracer = TracingExtension(system)
+
   val threadPool                = java.util.concurrent.Executors.newCachedThreadPool()
   implicit val executionContext = ExecutionContext.fromExecutor(threadPool)
 
   implicit val materializer: ActorMaterializer = ActorMaterializer()
 
   val logger = Logging(system, getClass)
+
+  logger.info(s"Tracing host: ${config.getString("akka.tracing.host")}")
+  logger.info(s"Tracing port: ${config.getString("akka.tracing.port")}")
 
   implicit val db: Database         = dbOverride.getOrElse(Database.forConfig("db", config))
   lazy val defaultApis: Apis        = Apis(setupStripe(), new AmazonS3, setupMiddlewarehouse())
@@ -91,43 +98,47 @@ class Service(systemOverride: Option[ActorSystem] = None,
   implicit val userAuth: UserAuthenticator = Authenticator.forUser(customerCreateContext)
 
   val defaultRoutes = {
-    pathPrefix("v1") {
-      routes.AuthRoutes.routes ~
-      routes.Public.routes(customerCreateContext) ~
-      routes.Customer.routes ~
-      requireAdminAuth(userAuth) { implicit auth ⇒
-        routes.admin.AdminRoutes.routes ~
-        routes.admin.NotificationRoutes.routes ~
-        routes.admin.AssignmentsRoutes.routes ~
-        routes.admin.OrderRoutes.routes ~
-        routes.admin.CustomerRoutes.routes ~
-        routes.admin.CustomerGroupsRoutes.routes ~
-        routes.admin.GiftCardRoutes.routes ~
-        routes.admin.ReturnRoutes.routes ~
-        routes.admin.Activity.routes ~
-        routes.admin.ProductRoutes.routes ~
-        routes.admin.SkuRoutes.routes ~
-        routes.admin.VariantRoutes.routes ~
-        routes.admin.DiscountRoutes.routes ~
-        routes.admin.PromotionRoutes.routes ~
-        routes.admin.ImageRoutes.routes ~
-        routes.admin.CouponRoutes.routes ~
-        routes.admin.CategoryRoutes.routes ~
-        routes.admin.GenericTreeRoutes.routes ~
-        routes.admin.StoreAdminRoutes.routes ~
-        routes.admin.ObjectRoutes.routes ~
-        routes.admin.PluginRoutes.routes ~
-        routes.admin.TaxonomyRoutes.routes ~
-        routes.service.PaymentRoutes.routes ~ //Migrate this to auth with service tokens once we have them
-        routes.service.MigrationRoutes.routes(customerCreateContext)
+    traceStart("phoenix", tracer) { implicit tr ⇒
+      pathPrefix("v1") {
+        routes.AuthRoutes.routes ~
+        routes.Public.routes(customerCreateContext) ~
+        routes.Customer.routes ~
+        requireAdminAuth(userAuth) { implicit auth ⇒
+          routes.admin.AdminRoutes.routes ~
+          routes.admin.NotificationRoutes.routes ~
+          routes.admin.AssignmentsRoutes.routes ~
+          routes.admin.OrderRoutes.routes ~
+          routes.admin.CustomerRoutes.routes ~
+          routes.admin.CustomerGroupsRoutes.routes ~
+          routes.admin.GiftCardRoutes.routes ~
+          routes.admin.ReturnRoutes.routes ~
+          routes.admin.Activity.routes ~
+          routes.admin.ProductRoutes.routes ~
+          routes.admin.SkuRoutes.routes ~
+          routes.admin.VariantRoutes.routes ~
+          routes.admin.DiscountRoutes.routes ~
+          routes.admin.PromotionRoutes.routes ~
+          routes.admin.ImageRoutes.routes ~
+          routes.admin.CouponRoutes.routes ~
+          routes.admin.CategoryRoutes.routes ~
+          routes.admin.GenericTreeRoutes.routes ~
+          routes.admin.StoreAdminRoutes.routes ~
+          routes.admin.ObjectRoutes.routes ~
+          routes.admin.PluginRoutes.routes ~
+          routes.admin.TaxonomyRoutes.routes ~
+          routes.service.PaymentRoutes.routes ~ //Migrate this to auth with service tokens once we have them
+          routes.service.MigrationRoutes.routes(customerCreateContext)
+        }
       }
     }
   }
 
   lazy val devRoutes = {
-    pathPrefix("v1") {
-      requireAdminAuth(userAuth) { implicit auth ⇒
-        routes.admin.DevRoutes.routes
+    traceStart("phoenix", tracer) { implicit tr ⇒
+      pathPrefix("v1") {
+        requireAdminAuth(userAuth) { implicit auth ⇒
+          routes.admin.DevRoutes.routes
+        }
       }
     }
   }

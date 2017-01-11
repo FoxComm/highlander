@@ -3,7 +3,6 @@ package controllers
 import (
 	"errors"
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 
@@ -12,7 +11,6 @@ import (
 
 	"github.com/SermoDigital/jose/jwt"
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
 )
 
 func parse(context *gin.Context, model interface{}) failures.Failure {
@@ -52,35 +50,10 @@ func paramUint(context *gin.Context, key string) (uint, failures.Failure) {
 	return uint(id), nil
 }
 
-func handleServiceError(context *gin.Context, err error) {
-	fail := getFailure(err)
-
-	logFailure(fail)
-
-	failures.Abort(context, fail)
-}
-
-func getFailure(err error) failures.Failure {
-	if err == gorm.ErrRecordNotFound {
-		return failures.NewNotFound(err)
-	}
-
-	return failures.NewBadRequest(err)
-}
-
-func logFailure(fail failures.Failure) {
-	messages := []string{}
-	for _, err := range fail.ToJSON().Errors {
-		messages = append(messages, fmt.Sprintf("ServiceError: %s", err))
-	}
-
-	log.Println(strings.Join(messages, "\n"))
-}
-
 func setScope(context *gin.Context, scopable payloads.IScopable) bool {
 	contextScope, err := getContextScope(context)
 	if err != nil {
-		handleServiceError(context, err)
+		failures.HandleServiceError(context, err)
 		return false
 	}
 
@@ -94,7 +67,7 @@ func setScope(context *gin.Context, scopable payloads.IScopable) bool {
 
 	//ensure payload scope is in context
 	if payloadScope != contextScope && !strings.HasPrefix(payloadScope, contextScope+".") {
-		handleServiceError(context, fmt.Errorf("Payload scope %s is not in JWT scope %s", payloadScope, contextScope))
+		failures.HandleServiceError(context, fmt.Errorf("Payload scope %s is not in JWT scope %s", payloadScope, contextScope))
 		return false
 	}
 

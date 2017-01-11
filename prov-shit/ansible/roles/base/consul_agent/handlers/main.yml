@@ -2,4 +2,4 @@
 
 - name: reload consul
   shell: "consul reload || true"
-  
+  service: name=mesos_consul state=restarted enabled=yes

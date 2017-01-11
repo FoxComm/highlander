@@ -9,6 +9,8 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/services"
 
+	"github.com/FoxComm/highlander/middlewarehouse/common/failures"
+	"github.com/FoxComm/highlander/middlewarehouse/middlewares"
 	"github.com/gin-gonic/gin"
 )
 
@@ -23,7 +25,7 @@ func NewShipmentController(
 }
 
 func (controller *shipmentController) SetUp(router gin.IRouter) {
-	router.Use(FetchJWT)
+	router.Use(middlewares.FetchJWT)
 	router.GET(":orderRef", controller.getShipmentsByOrder())
 	router.POST("", controller.createShipment())
 	router.PATCH("for-order/:orderRef", controller.updateShipmentForOrder())
@@ -35,7 +37,7 @@ func (controller *shipmentController) getShipmentsByOrder() gin.HandlerFunc {
 		referenceNumber := context.Params.ByName("orderRef")
 		shipments, err := controller.shipmentService.GetShipmentsByOrder(referenceNumber)
 		if err != nil {
-			handleServiceError(context, err)
+			failures.HandleServiceError(context, err)
 			return
 		}
 
@@ -43,7 +45,7 @@ func (controller *shipmentController) getShipmentsByOrder() gin.HandlerFunc {
 		for _, shipment := range shipments {
 			resp, err := responses.NewShipmentFromModel(shipment)
 			if err != nil {
-				handleServiceError(context, err)
+				failures.HandleServiceError(context, err)
 				return
 			}
 
@@ -67,13 +69,13 @@ func (controller *shipmentController) createShipment() gin.HandlerFunc {
 
 		shipment, err := controller.shipmentService.CreateShipment(models.NewShipmentFromPayload(payload))
 		if err != nil {
-			handleServiceError(context, err)
+			failures.HandleServiceError(context, err)
 			return
 		}
 
 		response, err := responses.NewShipmentFromModel(shipment)
 		if err != nil {
-			handleServiceError(context, err)
+			failures.HandleServiceError(context, err)
 			return
 		}
 
@@ -91,7 +93,7 @@ func (controller *shipmentController) updateShipmentForOrder() gin.HandlerFunc {
 		orderRef := context.Params.ByName("orderRef")
 		if orderRef == "" {
 			err := errors.New("Order Reference not specified")
-			handleServiceError(context, err)
+			failures.HandleServiceError(context, err)
 			return
 		}
 
@@ -100,13 +102,13 @@ func (controller *shipmentController) updateShipmentForOrder() gin.HandlerFunc {
 
 		shipment, err := controller.shipmentService.UpdateShipmentForOrder(model)
 		if err != nil {
-			handleServiceError(context, err)
+			failures.HandleServiceError(context, err)
 			return
 		}
 
 		response, err := responses.NewShipmentFromModel(shipment)
 		if err != nil {
-			handleServiceError(context, err)
+			failures.HandleServiceError(context, err)
 			return
 		}
 
@@ -127,7 +129,7 @@ func (controller *shipmentController) createShipmentFromOrder() gin.HandlerFunc 
 
 		shipment, err := controller.shipmentService.CreateShipment(models.NewShipmentFromOrderPayload(payload))
 		if err != nil {
-			handleServiceError(context, err)
+			failures.HandleServiceError(context, err)
 			return
 		}
 
@@ -147,14 +149,14 @@ func (controller *shipmentController) createShipmentFromOrder() gin.HandlerFunc 
 			shipment.State = models.ShipmentStateShipped
 			shipment, err = controller.shipmentService.UpdateShipment(shipment)
 			if err != nil {
-				handleServiceError(context, err)
+				failures.HandleServiceError(context, err)
 				return
 			}
 		}
 
 		response, err := responses.NewShipmentFromModel(shipment)
 		if err != nil {
-			handleServiceError(context, err)
+			failures.HandleServiceError(context, err)
 			return
 		}
 

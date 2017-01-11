@@ -33,7 +33,8 @@
     "LOG_LEVEL": "info",
     "DB_HOST": "{{docker_db_host}}",
     "KAFKA_BROKER": "{{kafka_server}}",
-    "DB_USER": "middlewarehouse"
+    "DB_USER": "middlewarehouse",
+    "ZIPKIN_SERVER_URL": "http://{{zipkin_server}}"
   },
   "constraints": [["hostname", "UNIQUE"]],
   "healthChecks": [

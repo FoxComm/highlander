@@ -8,6 +8,8 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/services"
 
+	"github.com/FoxComm/highlander/middlewarehouse/common/failures"
+	"github.com/FoxComm/highlander/middlewarehouse/middlewares"
 	"github.com/gin-gonic/gin"
 )
 
@@ -20,7 +22,7 @@ func NewCarrierController(service services.ICarrierService) IController {
 }
 
 func (controller *carrierController) SetUp(router gin.IRouter) {
-	router.Use(FetchJWT)
+	router.Use(middlewares.FetchJWT)
 	router.GET("", controller.getCarriers())
 	router.GET(":id", controller.getCarrierByID())
 	router.POST("", controller.createCarrier())
@@ -59,7 +61,7 @@ func (controller *carrierController) getCarrierByID() gin.HandlerFunc {
 		if err == nil {
 			context.JSON(http.StatusOK, responses.NewCarrierFromModel(carrier))
 		} else {
-			handleServiceError(context, err)
+			failures.HandleServiceError(context, err)
 		}
 	}
 }
@@ -81,7 +83,7 @@ func (controller *carrierController) createCarrier() gin.HandlerFunc {
 		if err == nil {
 			context.JSON(http.StatusCreated, responses.NewCarrierFromModel(carrier))
 		} else {
-			handleServiceError(context, err)
+			failures.HandleServiceError(context, err)
 		}
 	}
 }
@@ -108,7 +110,7 @@ func (controller *carrierController) updateCarrier() gin.HandlerFunc {
 		if err == nil {
 			context.JSON(http.StatusOK, responses.NewCarrierFromModel(carrier))
 		} else {
-			handleServiceError(context, err)
+			failures.HandleServiceError(context, err)
 		}
 	}
 }
@@ -123,7 +125,7 @@ func (controller *carrierController) deleteCarrier() gin.HandlerFunc {
 		if err := controller.service.DeleteCarrier(id); err == nil {
 			context.Status(http.StatusNoContent)
 		} else {
-			handleServiceError(context, err)
+			failures.HandleServiceError(context, err)
 		}
 	}
 }

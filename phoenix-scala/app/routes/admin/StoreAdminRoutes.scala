@@ -13,7 +13,7 @@ import utils.http.Http._
 
 object StoreAdminRoutes {
 
-  def routes(implicit ec: EC, db: DB, auth: AuthData[User]) = {
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User], tr: TR, tracer: TEI) = {
     activityContext(auth.model) { implicit ac ⇒
       pathPrefix("store-admins") {
         (post & pathEnd & entity(as[CreateStoreAdminPayload])) { payload ⇒

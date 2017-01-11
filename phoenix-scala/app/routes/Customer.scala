@@ -1,21 +1,17 @@
 package routes
 
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server._
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
-import models.account.User
 import models.cord.Cord.cordRefNumRegex
 import models.inventory.Sku.skuCodeRegex
 import models.payment.giftcard.GiftCard
-import models.product.ProductReference
-import org.json4s.jackson.Serialization.{write ⇒ json}
 import payloads.AddressPayloads._
 import payloads.CustomerPayloads._
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.PaymentPayloads._
 import payloads.UpdateShippingMethod
-import services.Authenticator.{AuthData, UserAuthenticator, requireCustomerAuth}
+import services.Authenticator.{UserAuthenticator, requireCustomerAuth}
 import services._
 import services.carts._
 import services.customers.CustomerManager
@@ -27,8 +23,13 @@ import utils.http.CustomDirectives._
 import utils.http.Http._
 
 object Customer {
-
-  def routes(implicit ec: EC, es: ES, db: DB, auth: UserAuthenticator, apis: Apis) = {
+  def routes(implicit ec: EC,
+             es: ES,
+             db: DB,
+             auth: UserAuthenticator,
+             apis: Apis,
+             tr: TR,
+             tracer: TEI) = {
 
     pathPrefix("my") {
       requireCustomerAuth(auth) { implicit auth ⇒

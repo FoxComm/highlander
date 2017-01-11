@@ -16,9 +16,11 @@ import utils.http.CustomDirectives._
 import utils.http.Http._
 
 object Public {
-
-  def routes(customerCreateContext: AccountCreateContext)(implicit ec: EC, db: DB, es: ES) = {
-
+  def routes(customerCreateContext: AccountCreateContext)(implicit ec: EC,
+                                                          db: DB,
+                                                          es: ES,
+                                                          tr: TR,
+                                                          tracer: TEI) = {
     activityContext() { implicit ac ⇒
       pathPrefix("public") {
         pathPrefix("registrations") {
@@ -83,7 +85,7 @@ object Public {
         } ~
         pathPrefix("ping") {
           (get & pathEnd) {
-            complete(renderPlain("pong"))
+            complete(traceEnd(renderPlain("pong")))
           }
         }
       }

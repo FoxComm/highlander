@@ -24,7 +24,13 @@ import utils.http.Http._
 
 object OrderRoutes {
 
-  def routes(implicit ec: EC, es: ES, db: DB, auth: AuthData[User], apis: Apis) = {
+  def routes(implicit ec: EC,
+             es: ES,
+             db: DB,
+             auth: AuthData[User],
+             apis: Apis,
+             tr: TR,
+             tracer: TEI) = {
 
     activityContext(auth.model) { implicit ac ⇒
       determineObjectContext(db, ec) { implicit ctx ⇒

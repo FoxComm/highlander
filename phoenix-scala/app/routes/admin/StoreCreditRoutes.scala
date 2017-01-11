@@ -12,7 +12,12 @@ import utils.http.CustomDirectives._
 import utils.http.Http._
 
 object StoreCreditRoutes {
-  private[admin] def storeCreditRoutes(implicit ec: EC, db: DB, ac: AC, auth: AuthData[User]) = {
+  private[admin] def storeCreditRoutes(implicit ec: EC,
+                                       db: DB,
+                                       ac: AC,
+                                       auth: AuthData[User],
+                                       tr: TR,
+                                       tracer: TEI) = {
     pathPrefix("store-credits") {
       (patch & pathEnd & entity(as[StoreCreditBulkUpdateStateByCsr])) { payload ⇒
         mutateOrFailures {

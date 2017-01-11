@@ -1,3 +1,6 @@
+// TODO: make it work
+process.hrtime = require('browser-process-hrtime');
+
 import get from 'lodash/get';
 import React from 'react';
 import { render } from 'react-dom';

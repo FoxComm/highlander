@@ -17,7 +17,7 @@ import utils.http.Http._
 
 object AssignmentsRoutes {
 
-  def routes(implicit ec: EC, db: DB, auth: AuthData[User]) = {
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User], tr: TR, tracer: TEI) = {
 
     activityContext(auth.model) { implicit ac ⇒
       // Customers Bulk Assignments

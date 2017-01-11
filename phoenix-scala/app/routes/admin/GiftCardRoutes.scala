@@ -17,7 +17,7 @@ import utils.http.Http._
 
 object GiftCardRoutes {
 
-  def routes(implicit ec: EC, db: DB, auth: AuthData[User]): Route = {
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User], tr: TR, tracer: TEI): Route = {
 
     activityContext(auth.model) { implicit ac ⇒
       path("customer-gift-cards") {

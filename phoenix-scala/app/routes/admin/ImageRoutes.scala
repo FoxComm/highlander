@@ -14,7 +14,13 @@ import utils.http.CustomDirectives._
 import utils.http.Http._
 
 object ImageRoutes {
-  def routes(implicit ec: EC, db: DB, am: Mat, auth: AuthData[User], apis: Apis) = {
+  def routes(implicit ec: EC,
+             db: DB,
+             am: Mat,
+             auth: AuthData[User],
+             apis: Apis,
+             tr: TR,
+             tracer: TEI) = {
     activityContext(auth.model) { implicit ac ⇒
       pathPrefix("albums") {
         pathPrefix(Segment) { context ⇒

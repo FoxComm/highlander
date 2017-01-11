@@ -1,6 +1,10 @@
-hash: 3fae8a417529827e392f05e5fa6098d186ed92a4ee5623bf256a7da248a31bd7
-updated: 2016-12-18T23:16:23.026650795+03:00
+hash: 54dc00475aeec342075051e3075d3f5fcb1d90ae67186a698e842e3cc4f0b032
+updated: 2016-12-27T01:21:22.518858167+03:00
 imports:
+- name: github.com/apache/thrift
+  version: fa133629a265284eeae2bfead4ea2cd6839bf1ff
+  subpackages:
+  - lib/go/thrift
 - name: github.com/cihub/seelog
   version: d2c6e5aa9fbfdd1c624e140287063c7730654115
 - name: github.com/davecgh/go-spew
@@ -32,10 +36,16 @@ imports:
   repo: git@github.com:FoxComm/metamorphosis.git
   vcs: git
 - name: github.com/gin-gonic/gin
-  version: f931d1ea80ae95a6fc739213cdd9399bd2967fb6
+  version: e2212d40c62a98b388a5eb48ecbdcf88534688ba
   subpackages:
   - binding
   - render
+- name: github.com/go-logfmt/logfmt
+  version: 390ab7935ee28ec6b286364bba9b4dd6410cb3d5
+- name: github.com/gogo/protobuf
+  version: 84af2615df1ba1d35cc975ba94b64ee67d6c196e
+  subpackages:
+  - proto
 - name: github.com/golang/protobuf
   version: 2402d76f3d41f928c7902a765dfc872356dd3aad
   subpackages:
@@ -50,12 +60,29 @@ imports:
   version: 8e0a68de05f21bcefcd581c6b934a1d1e4390fa1
   subpackages:
   - autoload
+- name: github.com/kr/logfmt
+  version: b84e30acd515aadc4b783ad4ff83aff3299bdfe0
 - name: github.com/lib/pq
   version: 55196ec83d60d789e27b2627549bf00974a70084
   subpackages:
   - oid
 - name: github.com/manucorporat/sse
   version: ee05b128a739a0fb76c7ebd3ae4810c1de808d6d
+- name: github.com/mattn/go-isatty
+  version: 30a891c33c7cde7b02a981314b4228ec99380cca
+- name: github.com/opentracing/opentracing-go
+  version: ac5446f53f2c0fc68dc16dc5f426eae1cd288b34
+  subpackages:
+  - ext
+  - log
+- name: github.com/openzipkin/zipkin-go-opentracing
+  version: 594640b9ef7e5c994e8d9499359d693c032d738c
+  subpackages:
+  - _thrift/gen-go/scribe
+  - _thrift/gen-go/zipkincore
+  - flag
+  - types
+  - wire
 - name: github.com/pmezard/go-difflib
   version: 792786c7400a136282c1664665ae0a8db921c6c2
   subpackages:
@@ -67,7 +94,7 @@ imports:
   subpackages:
   - zk
 - name: github.com/SermoDigital/jose
-  version: b10f12c5188d355a3eacc61aba9abd3eb6b3b787
+  version: 2bd9b81ac51d6d6134fcd4fd846bd2e7347a15f9
   subpackages:
   - crypto
   - jws
@@ -75,16 +102,16 @@ imports:
 - name: github.com/Shopify/sarama
   version: 094e483251042a52ce92f76dbcf140ad2bd7cffb
 - name: github.com/Sirupsen/logrus
-  version: 3ec0642a7fb6488f65b06f9040adc67e3990296a
+  version: 881bee4e20a5d11a6a88a5667c6f292072ac1963
 - name: github.com/stretchr/objx
   version: cbeaeb16a013161a98496fad62933b1d21786672
 - name: github.com/stretchr/testify
   version: f390dcf405f7b83c997eac1b06768bb9f44dec18
   subpackages:
-  - suite
-  - mock
   - assert
+  - mock
   - require
+  - suite
 - name: github.com/yanzay/cfg
   version: 3b647091f880406fdb14edcb309ce750a38d3e85
 - name: golang.org/x/net
@@ -92,7 +119,7 @@ imports:
   subpackages:
   - context
 - name: golang.org/x/sys
-  version: a646d33e2ee3172a661fc09bca23bb4889a41bc8
+  version: d75a52659825e75fff6158388dddc6a5b04f9ba5
   subpackages:
   - unix
 - name: gopkg.in/cihub/seelog.v2
@@ -100,5 +127,5 @@ imports:
 - name: gopkg.in/go-playground/validator.v8
   version: c193cecd124b5cc722d7ee5538e945bdb3348435
 - name: gopkg.in/yaml.v2
-  version: e4d366fc3c7938e2958e662b4258c7a89e1f0e3e
+  version: a5b47d31c556af34a302ce5d659e6fea44d90de0
 testImports: []

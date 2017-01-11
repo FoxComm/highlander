@@ -1,7 +1,9 @@
 package utils.http
 
+import java.io.{ByteArrayInputStream, DataInputStream}
+
 import scala.concurrent.Future
-import scala.util.{Failure, Success}
+import scala.util.{Failure, Random, Success, Try}
 import akka.http.scaladsl.model.Uri.Path
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers.RawHeader
@@ -24,8 +26,16 @@ import utils._
 import utils.aliases._
 import utils.db._
 import utils.http.Http._
+import com.github.levkhomich.akka.tracing._
+import com.github.levkhomich.akka.tracing.http.TracingHeaders._
+import com.typesafe.scalalogging.LazyLogging
+import akka.http.scaladsl.marshalling.{ToResponseMarshallable, _}
 
-object CustomDirectives {
+object CustomDirectives extends LazyLogging {
+
+  private val DebugFlag = 1L
+
+  final case class TracingRequest(override val spanName: String) extends TracingSupport
 
   val DefaultContextName = SimpleContext.default
 
@@ -57,6 +67,91 @@ object CustomDirectives {
         ActivityContext(userId = 0, userType = "guest", transactionId = generateUuid)
     }
   }
+
+  def traceStart(service: String, tracer: TEI): Directive1[TR] = {
+    extractRequest.map { request ⇒
+      def headers(name: String): Option[String] = request.headers.find(_.name == name).map(_.value)
+
+      val cr = TracingRequest("client")
+      val tr = TracingRequest(request.uri.path.toString())
+
+      extractSpan(headers) match {
+        case Some(span) ⇒
+          tracer.importMetadata(cr, span, "client")
+          tracer.createChild(tr, cr).foreach { md ⇒
+            tracer.importMetadata(tr, md, service)
+            tracer.record(tr, TracingAnnotations.ServerReceived)
+          }
+        case None ⇒
+          tracer.sample(tr, service, true)
+      }
+
+      tracer.recordKeyValue(tr, "request.uri", request.uri.toString())
+      tracer.recordKeyValue(tr, "request.path", request.uri.path.toString())
+      tracer.recordKeyValue(tr, "request.method", request.method.value)
+      request.uri.query().toMultiMap.foreach {
+        case (key, values) ⇒
+          values.foreach(tracer.recordKeyValue(tr, "request.query." + key, _))
+      }
+      tr
+    }
+  }
+
+  def traceEnd[T <: AnyRef](t: T)(implicit tr: TR, tracer: TEI): T = {
+    tracer.record(tr, TracingAnnotations.ServerSend)
+
+    t
+  }
+
+  private def idFromString(x: String): Option[Long] = {
+    try {
+      Option(BigInt(x.takeRight(16), 16).longValue())
+    } catch {
+      case _: Exception ⇒ None
+    }
+  }
+
+  private def extractSpan(headers: String ⇒ Option[String]): Option[SpanMetadata] = {
+    def headerLongValue(name: String): Option[Long] = headers(name).flatMap(idFromString)
+
+    def spanId: Long = headerLongValue(SpanId).getOrElse(Random.nextLong)
+
+    logger.info(s"trace spanId $spanId")
+
+    // debug flag forces sampling (see http://git.io/hdEVug)
+    val maybeForceSampling = headers(Sampled).map(_.toLowerCase) match {
+      case Some("0") | Some("false") ⇒
+        Some(false)
+      case Some("1") | Some("true") ⇒
+        Some(true)
+      case _ ⇒
+        headers(Flags).flatMap(flags ⇒
+              Try((java.lang.Long.parseLong(flags) & DebugFlag) == DebugFlag).toOption.filter(v ⇒
+                    v))
+    }
+
+    maybeForceSampling match {
+      case Some(false) ⇒ None
+      case _ ⇒
+        val forceSampling = maybeForceSampling.getOrElse(false)
+        headerLongValue(TraceId) match {
+          case Some(traceId) ⇒
+            logger.info(s"trace traceId $traceId")
+            val parentId = headerLongValue(ParentSpanId)
+            logger.info(s"trace parentId $parentId")
+            Some(SpanMetadata(traceId, spanId, parentId, forceSampling))
+          case _ ⇒
+            None
+        }
+    }
+  }
+
+  def traceServerSend[T](tr: TR)(implicit m: ToResponseMarshaller[T],
+                                 tracer: TEI): ToResponseMarshaller[T] =
+    m.compose { v ⇒
+      tracer.record(tr, TracingAnnotations.ServerSend)
+      v
+    }
 
   /**
     * At the moment we support one context. The input to this function will
@@ -104,26 +199,28 @@ object CustomDirectives {
       case None ⇒ getContextByName(DefaultContextName)
     }
 
-  def good[A <: AnyRef](a: Future[A])(implicit ec: EC): StandardRoute =
-    complete(a.map(render(_)))
+  def good[A <: AnyRef](a: Future[A])(implicit ec: EC, tr: TR, tracer: TEI): StandardRoute =
+    complete(ToResponseMarshallable(a.map(render(_)))(traceServerSend(tr)))
 
-  def good[A <: AnyRef](a: A): StandardRoute =
-    complete(render(a))
+  def good[A <: AnyRef](a: A)(implicit tr: TR, tracer: TEI): StandardRoute =
+    complete(ToResponseMarshallable(render(a))(traceServerSend(tr)))
 
   private def renderGoodOrFailures[G <: AnyRef](or: Failures Xor G): HttpResponse =
     or.fold(renderFailure(_), render(_))
 
-  def goodOrFailures[A <: AnyRef](a: Result[A])(implicit ec: EC): StandardRoute =
-    complete(a.map(renderGoodOrFailures))
+  def goodOrFailures[A <: AnyRef](
+      a: Result[A])(implicit ec: EC, tr: TR, tracer: TEI): StandardRoute =
+    complete(ToResponseMarshallable(a.map(renderGoodOrFailures))(traceServerSend(tr)))
 
-  def getOrFailures[A <: AnyRef](a: DbResultT[A])(implicit ec: EC, db: DB): StandardRoute =
-    complete(a.run().map(renderGoodOrFailures))
+  def getOrFailures[A <: AnyRef](a: DbResultT[A])(implicit ec: EC, db: DB, tracer: TEI): Route =
+    complete(ToResponseMarshallable(a.run().map(renderGoodOrFailures)))
 
-  def mutateOrFailures[A <: AnyRef](a: DbResultT[A])(implicit ec: EC, db: DB): StandardRoute =
-    complete(a.runTxn().map(renderGoodOrFailures))
+  def mutateOrFailures[A <: AnyRef](
+      a: DbResultT[A])(implicit ec: EC, db: DB, tr: TR, tracer: TEI): StandardRoute =
+    complete(ToResponseMarshallable(a.runTxn().map(renderGoodOrFailures))(traceServerSend(tr)))
 
-  def mutateWithNewTokenOrFailures[A <: AnyRef](a: DbResultT[(A, AuthPayload)])(implicit ec: EC,
-                                                                                db: DB): Route = {
+  def mutateWithNewTokenOrFailures[A <: AnyRef](
+      a: DbResultT[(A, AuthPayload)])(implicit ec: EC, db: DB, tr: TR, tracer: TEI): Route = {
     onSuccess(a.runTxn()) { result ⇒
       result.fold({ f ⇒
         complete(renderFailure(f))
@@ -141,13 +238,17 @@ object CustomDirectives {
     }
   }
 
-  def deleteOrFailures(a: DbResultT[_])(implicit ec: EC, db: DB): StandardRoute =
-    complete(a.runTxn().map(_.fold(renderFailure(_), _ ⇒ noContentResponse)))
+  def deleteOrFailures(
+      a: DbResultT[_])(implicit ec: EC, db: DB, tr: TR, tracer: TEI): StandardRoute =
+    complete(ToResponseMarshallable(
+            a.runTxn().map(_.fold(renderFailure(_), _ ⇒ noContentResponse)))(traceServerSend(tr)))
 
-  def doOrFailures(a: DbResultT[_])(implicit ec: EC, db: DB): StandardRoute =
-    complete(a.runTxn().map(_.fold(renderFailure(_), _ ⇒ noContentResponse)))
+  def doOrFailures(a: DbResultT[_])(implicit ec: EC, db: DB, tr: TR, tracer: TEI): StandardRoute =
+    complete(ToResponseMarshallable(
+            a.runTxn().map(_.fold(renderFailure(_), _ ⇒ noContentResponse)))(traceServerSend(tr)))
 
-  def entityOr[T](um: FromRequestUnmarshaller[T], failure: failures.Failure): Directive1[T] =
+  def entityOr[T](um: FromRequestUnmarshaller[T],
+                  failure: failures.Failure)(implicit tr: TR, tracer: TEI): Directive1[T] =
     extractRequestContext.flatMap[Tuple1[T]] { ctx ⇒
       import ctx.{executionContext, materializer}
       onComplete(um(ctx.request)).flatMap {

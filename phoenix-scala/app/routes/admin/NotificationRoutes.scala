@@ -15,7 +15,7 @@ import utils.http.Http._
 
 object NotificationRoutes {
 
-  def routes(implicit ec: EC, db: DB, mat: Mat, auth: AuthData[User]) = {
+  def routes(implicit ec: EC, db: DB, mat: Mat, auth: AuthData[User], tr: TR, tracer: TEI) = {
     activityContext(auth.model) { implicit ac ⇒
       pathPrefix("notifications") {
         (get & pathEnd) {

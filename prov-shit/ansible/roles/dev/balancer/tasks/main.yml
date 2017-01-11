@@ -15,6 +15,9 @@
   template: src=consul_template.json dest=/etc/consul.d/consul_template.json
   notify: reload consul
 
+- name: Copy Consul Template Config File
+  template: src=consul_template.conf dest=/var/consul/consul_template.conf
+
 - name: Install uuid4 Lua Lib
   copy: src=uuid4.lua dest=/etc/nginx/uuid4.lua
 

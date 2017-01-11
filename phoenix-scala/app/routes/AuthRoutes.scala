@@ -1,5 +1,5 @@
 package routes
-
+//
 import akka.http.scaladsl.model.{StatusCodes, Uri}
 import akka.http.scaladsl.server.Directives._
 
@@ -10,7 +10,6 @@ import payloads.UserPayloads._
 import services.Authenticator
 import services.account.AccountManager
 import services.auth.GoogleOauth.oauthServiceFromConfig
-import services.auth.GoogleOauthUser
 import services.auth.OauthDirectives._
 import utils.aliases._
 import utils.http.CustomDirectives._
@@ -18,7 +17,7 @@ import utils.http.Http._
 
 object AuthRoutes {
 
-  def routes(implicit ec: EC, db: DB) = {
+  def routes(implicit ec: EC, db: DB, tr: TR, tracer: TEI) = {
 
     pathPrefix("public") {
       (post & path("login") & entity(as[LoginPayload])) { payload ⇒

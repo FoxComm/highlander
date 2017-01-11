@@ -3,6 +3,7 @@ import path from 'path';
 import rewire from 'rewire';
 import register from 'ignore-styles';
 
+process.env.NODE_ENV = 'test';
 process.env.API_URL = 'http://api.foxcommerce'; // mock
 process.env.STRIPE_PUBLISHABLE_KEY = 'key_mock'; // mock
 

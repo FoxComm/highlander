@@ -2,39 +2,67 @@ package main
 
 import (
 	"log"
-	"os"
 
 	"github.com/FoxComm/highlander/middlewarehouse/common/config"
 	dbConfig "github.com/FoxComm/highlander/middlewarehouse/common/db/config"
+	"github.com/FoxComm/highlander/middlewarehouse/middlewares"
 	"github.com/FoxComm/highlander/middlewarehouse/routes"
+	"github.com/FoxComm/highlander/middlewarehouse/tracer"
 
 	"github.com/gin-gonic/gin"
+	"github.com/opentracing/opentracing-go"
 )
 
-func engine() (*gin.Engine, error) {
+func setRoutes(appConfig *config.AppConfig, engine *gin.Engine) error {
 	db, err := dbConfig.DefaultConnection()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	configuration := routes.RouterConfiguration{
-		Engine: gin.Default(),
-		Routes: routes.GetRoutes(db),
+		Engine: engine,
+		Routes: routes.GetRoutes(appConfig, db),
 	}
 
-	return routes.SetUp(configuration), nil
+	routes.SetUp(configuration)
+
+	return nil
+}
+
+func setTracer(appConfig *config.AppConfig, engine *gin.Engine) error {
+	tracerConfig, err := config.NewTracerConfig()
+	if err != nil {
+		log.Panicf("Failed to initialize middlewarehouse tracer config with error %s", err.Error())
+	}
+
+	tr, err := tracer.NewTracer(tracerConfig, appConfig.Port)
+	if err != nil {
+		return err
+	}
+
+	// explicitely set our tracer to be the default tracer.
+	opentracing.InitGlobalTracer(tr)
+
+	engine.Use(middlewares.TraceFromHTTPRequest(tr))
+
+	return nil
 }
 
 func main() {
-	if err := config.InitializeSiteConfig(); err != nil {
+	appConfig, err := config.NewAppConfig()
+	if err != nil {
 		log.Panicf("Failed to initialize middlewarehouse config with error %s", err.Error())
 	}
 
-	engine, err := engine()
-	if err != nil {
+	engine := gin.Default()
+
+	if err := setTracer(appConfig, engine); err != nil {
 		log.Panicf("Failed to start middlewarehouse with error %s", err.Error())
 	}
 
-    port:= os.Getenv("PORT")
-	engine.Run(":" + port)
+	if err := setRoutes(appConfig, engine); err != nil {
+		log.Panicf("Failed to start middlewarehouse with error %s", err.Error())
+	}
+
+	engine.Run(":" + appConfig.Port)
 }

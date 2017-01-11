@@ -22,7 +22,7 @@ import utils.FoxConfig._
 
 object CustomerRoutes {
 
-  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis) = {
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis, tr: TR, tracer: TEI) = {
 
     activityContext(auth.model) { implicit ac ⇒
       pathPrefix("customers") {
