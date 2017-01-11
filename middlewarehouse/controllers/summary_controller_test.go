@@ -92,22 +92,8 @@ func (suite *summaryControllerTestSuite) Test_GetSummaryBySKU() {
 	suite.Equal(13, summaryResp.Summary[0].OnHand)
 }
 
-// func (suite *summaryControllerTestSuite) Test_GetSummaryBySKUNoSKU() {
-// 	suite.service.On("GetSummaryBySKU", "NO-SKU").Return(nil, gorm.ErrRecordNotFound).Once()
-
-// 	res := suite.Get("/summary/NO-SKU")
-
-// 	suite.Equal(http.StatusNotFound, res.Code)
-// 	suite.Contains(res.Body.String(), "errors")
-// 	suite.service.AssertExpectations(suite.T())
-// }
-
-// func (suite *summaryControllerTestSuite) Test_GetSummaryBySKUServerError() {
-// 	suite.service.On("GetSummaryBySKU", "NO-SKU").Return(nil, gorm.ErrUnaddressable).Once()
-
-// 	res := suite.Get("/summary/NO-SKU")
-
-// 	suite.Equal(http.StatusBadRequest, res.Code)
-// 	suite.Contains(res.Body.String(), "errors")
-// 	suite.service.AssertExpectations(suite.T())
-// }
+func (suite *summaryControllerTestSuite) Test_GetSummaryBySKUNoSKU() {
+	res := suite.Get("/summary/NO-SKU")
+	suite.Equal(http.StatusNotFound, res.Code)
+	suite.Contains(res.Body.String(), "errors")
+}
