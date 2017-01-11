@@ -116,6 +116,9 @@ shortcuts:
   - name: Base United Image
     alias: base_united.json
     target: packer/base/base_united.json
+  - name: Base Appliance Image
+    alias: appliance.json
+    target: packer/appliance/appliance.json
 
   # Tinystack
   - name: Tinystack Amigo
