@@ -1,4 +1,5 @@
 ---
+
 - name: Kill Kafka if it is Running
   shell: systemctl stop kafka || true
 

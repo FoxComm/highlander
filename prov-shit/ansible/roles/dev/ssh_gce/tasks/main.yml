@@ -1,8 +1,8 @@
 ---
 
 - name: Install Private Key To Access Google Cloud Cluster
-  
-  copy: src=bk_rsa dest={{ item }} mode=600 owner="buildkite-agent"
+
+  copy: src=bk_rsa dest={{item}} mode=600 owner="buildkite-agent"
   with_items:
     - "/var/lib/buildkite-agent/.ssh/"
     - "/home/buildkite-agent/.ssh/"
@@ -10,8 +10,7 @@
     - "/home/root/.ssh/"
 
 - name: Install Public Key To Access Google Cloud Cluster
-  
-  copy: src=bk_rsa.pub dest={{ item }} mode=644 owner="buildkite-agent"
+  copy: src=bk_rsa.pub dest={{item}} mode=644 owner="buildkite-agent"
   with_items:
     - "/var/lib/buildkite-agent/.ssh/"
     - "/home/buildkite-agent/.ssh/"
@@ -19,5 +18,4 @@
     - "/home/root/.ssh/"
 
 - name: Copy SSH Agent boot file
-  
   copy: src=boot_ssh_agent.sh dest=/etc/profile.d mode=755 owner="buildkite-agent"
