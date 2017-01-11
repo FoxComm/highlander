@@ -13,13 +13,16 @@ import {
 } from 'victory';
 import moment from 'moment';
 import _ from 'lodash';
-import formatCurrency from '../../lib/format-currency';
 
 // components
 import ErrorAlerts from '../alerts/error-alerts';
 import WaitAnimation from '../common/wait-animation';
 import QuestionBox from './question-box';
 import Currency from '../common/currency';
+import TrendButton, { TrendType } from './trend-button';
+
+// styles
+import styles from './analytics.css';
 
 // redux
 import * as AnalyticsActions from '../../modules/analytics';
@@ -32,7 +35,7 @@ const verbs = {
   }
 }; 
 
-const colors = ["#2ca02c", "#ff7f0e", "#662ca0"];
+const colors = ['#2ca02c', '#ff7f0e', '#662ca0'];
 
 @connect((state, props) => ({analytics: state.analytics}), AnalyticsActions)
 export default class Analytics extends React.Component {
@@ -57,7 +60,8 @@ export default class Analytics extends React.Component {
         route: PropTypes.shape({
             action: PropTypes.string,
             idKey: PropTypes.string,
-    })}),
+        })
+    }),
     fetchAnalytics: PropTypes.func.isRequired
   };
 
@@ -95,7 +99,7 @@ export default class Analytics extends React.Component {
 
   @autobind
   newChart(allData) {
-    const title = { x: 25, y: 12, size: 12, text: "Last 60 Minutes" };
+    const title = { x: 25, y: 12, size: 12, text: 'Last 60 Minutes' };
     return (
       <VictoryChart
         domainPadding={20}>
@@ -192,13 +196,34 @@ export default class Analytics extends React.Component {
 
   render() {
     return (
-      <div className="fc-analytics-page">
-        <QuestionBox
-          title="Total Revenue"
-          content={<Currency value="578657"/>}
-          trendDisplay={null}
-          onClick={null}
-        />
+      <div styleName="analytics-page-container">
+        <div styleName="analytics-page-questions">
+          <QuestionBox
+            title="Total Revenue"
+            content={<Currency value="578657" />}
+            footer={<TrendButton trendType={TrendType.gain} value={90}/>}
+          />
+          <QuestionBox
+            title="Total Orders"
+            content={132}
+            footer={<TrendButton trendType={TrendType.loss} value={10}/>}
+          />
+          <QuestionBox
+            title="Avg. Num. Per Order"
+            content={1}
+            footer={<TrendButton trendType={TrendType.steady} value={0}/>}
+          />
+          <QuestionBox
+            title="Total In Carts"
+            content={132}
+            footer={<TrendButton trendType={TrendType.loss} value={10}/>}
+          />
+          <QuestionBox
+            title="Product Conversion"
+            content={'7.2%'}
+            footer={<TrendButton trendType={TrendType.gain} value={3}/>}
+          />
+        </div>
         {this.content}
       </div>
     );
