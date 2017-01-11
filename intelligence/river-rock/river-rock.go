@@ -76,6 +76,8 @@ func loadConfig() (*proxy.ProxyConfig, error) {
 		return nil, errors.New("PORT is not set")
 	}
 
+	bernardoUrl := "http://" + bernardoHost + ":" + bernardoPort
+
 	return &proxy.ProxyConfig{
 		DbConn:       conn,
 		UpstreamUrl:  upstreamUrl,
