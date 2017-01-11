@@ -1,4 +1,4 @@
-/* flow */
+/* @flow */
 
 // libs
 import noop from 'lodash/noop';
@@ -10,19 +10,19 @@ import { push } from 'react-router';
 import { Button, PrimaryButton } from './buttons';
 
 type Props = {
-  className: string;
+  className?: string;
   cancelTabIndex: string;
-  cancelTo: string;
-  cancelParams: object;
-  onCancel: Function;
+  cancelTo?: string;
+  cancelParams: Object;
+  onCancel?: Function;
   saveTabIndex: string;
   cancelText: string;
-  cancelDisabled: boolean;
-  onSave: Function;
+  cancelDisabled?: boolean;
+  onSave?: Function;
   saveText: string;
-  saveDisabled: boolean;
-  isLoading: boolean;
-}
+  saveDisabled?: boolean;
+  isLoading?: boolean;
+};
 
 /**
  * SaveCancel component implements simple wrapper over 2 components: Save and Cancel
