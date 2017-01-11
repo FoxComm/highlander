@@ -35,14 +35,13 @@ BACKUP=$1
 DB=$2
 
 if [ ! -e $BACKUP ]; then
- echo "Backup file or dir $BACKUP doesn't exist"
- _exit 1
+    echo "Backup file or dir $BACKUP doesn't exist"
+    _exit 1
 fi
 
 db_exists $DB && { echo "Db $DB for restoring is exists, exit now"; _exit 1; }
 
 createdb $DB
-
 
 test -f $BACKUP && args="-Fc"
 test -d $BACKUP && args="-Fd"

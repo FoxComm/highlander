@@ -33,8 +33,8 @@ BACKUP=$1
 DB=$2
 
 if [ -e $BACKUP ]; then
- echo "Backup file or dir $BACKUP already exist"
- _exit 1
+    echo "Backup file or dir $BACKUP already exist"
+    _exit 1
 fi
 
 db_exists $DB || { echo "Db $DB not exists, exit now"; _exit 1; }

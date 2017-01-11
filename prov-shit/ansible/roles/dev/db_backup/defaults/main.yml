@@ -1,0 +1,2 @@
+zk_data_dir: /var/lib/zookeeper
+gce_service_key: /etc/keys/gce_backup_service_key.json

@@ -9,12 +9,14 @@
   with_items:
     - restore_db.sh
     - backup_db.sh
+    - restore_zk.sh
+    - backup_zk.sh
 
 - name: Download gcsfuse
-  get_url: url=https://github.com/GoogleCloudPlatform/gcsfuse/releases/download/v0.18.2/gcsfuse_0.18.2_amd64.deb dest=/tmp/gcsfuse_0.18.2_amd64.deb
+  get_url: url={{gcsfuse_download_url}} dest="/tmp/{{gcfuse_filename}}"
 
 - name: Install gcsfuse
-  shell: dpkg -i /tmp/gcsfuse_0.18.2_amd64.deb
+  shell: dpkg -i /tmp/{{gcfuse_filename}}
 
 - name: Add Backup Directory Mount Service
   template: src=backup_mount.service dest={{dest_services}}/backup_mount.service
@@ -23,7 +25,7 @@
   file: path=/etc/keys state=directory owner={{user}} mode="0700"
 
 - name: Copy GCE service account key
-  copy: src={{service_key_file}} dest=/etc/keys/gce_backup_service_key.json mode="0600" owner={{user}}
+  copy: src={{service_key_file}} dest={{gce_service_key}} mode="0600" owner={{user}}
 
 - name: Setup Phoenix Database Backup Cron
   cron: name="phoenix db backup" minute="30" hour="4" job="{{usr_local}}bin/backup_db.sh /mnt/backups/{{ansible_hostname}}_{{db_name}}_$(date +\%F_\%H_\%M) {{db_name}}"
@@ -34,6 +36,9 @@
 - name: Setup Marketplace Database Backup Cron
   cron: name="marketplace db backup" minute="30" hour="4" job="{{usr_local}}bin/backup_db.sh /mnt/backups/{{ansible_hostname}}_{{marketplace_db_name}}_$(date +\%F_\%H_\%M) {{marketplace_db_name}}"
   when: with_marketplace
+
+- name: Setup Zookeeper Transaction Log Backup Cron
+  cron: name="zookeeper data dir backup" minute="30" hour="4" job="{{usr_local}}bin/backup_zk.sh /mnt/backups/{{ansible_hostname}}_zk_txn_logs_$(date +\%F_\%H_\%M).tar.gz {{zk_data_dir}}"
 
 - name: Reload Systemd for Postgresql
   command: systemctl daemon-reload
