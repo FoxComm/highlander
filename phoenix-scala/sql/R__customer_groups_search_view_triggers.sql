@@ -9,7 +9,8 @@ create or replace function update_customers_groups_view_insert_fn() returns trig
       cg.client_state as client_state,
       cg.elastic_request as elastic_request,
       to_char(cg.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as updated_at,
-      to_char(cg.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as created_at
+      to_char(cg.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as created_at,
+      cg.scope as scope
       from (select
           cdg.id,
           cdg.name,
@@ -17,7 +18,8 @@ create or replace function update_customers_groups_view_insert_fn() returns trig
           cdg.client_state,
           cdg.elastic_request,
           cdg.updated_at,
-          cdg.created_at
+          cdg.created_at,
+          cdg.scope
         from customer_dynamic_groups as cdg
         where cdg.id = new.id) as cg;
     return null;
@@ -32,13 +34,15 @@ create or replace function update_customers_groups_view_update_fn() returns trig
         customers_count = cg.customers_count,
         client_state = cg.client_state,
         elastic_request = cg.elastic_request,
-        updated_at = to_char(cg.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
+        updated_at = to_char(cg.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
+        scope = cg.scope
       from (select
           cdg.name,
           cdg.customers_count,
           cdg.client_state,
           cdg.elastic_request,
-          cdg.updated_at
+          cdg.updated_at,
+          cdg.scope
         from customer_dynamic_groups as cdg
         where cdg.id = new.id) as cg;
     return null;

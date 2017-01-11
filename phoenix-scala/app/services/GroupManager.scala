@@ -1,6 +1,6 @@
 package services
 
-import models.account.User
+import models.account.{Scope, User}
 import models.customer.{CustomerDynamicGroup, CustomerDynamicGroups}
 import payloads.CustomerGroupPayloads.CustomerDynamicGroupPayload
 import responses.DynamicGroupResponse.{Root, build}
@@ -19,21 +19,22 @@ object GroupManager {
       group ← * <~ CustomerDynamicGroups.mustFindById404(groupId)
     } yield build(group)
 
-  def create(payload: CustomerDynamicGroupPayload, admin: User)(implicit ec: EC,
-                                                                db: DB): DbResultT[Root] =
+  def create(payload: CustomerDynamicGroupPayload,
+             admin: User)(implicit ec: EC, db: DB, au: AU): DbResultT[Root] =
     for {
       group ← * <~ CustomerDynamicGroups.create(
-                 CustomerDynamicGroup.fromPayloadAndAdmin(payload, admin.accountId))
+                 CustomerDynamicGroup.fromPayloadAndAdmin(payload, admin.accountId, Scope.current))
     } yield build(group)
 
   def update(groupId: Int, payload: CustomerDynamicGroupPayload)(implicit ec: EC,
-                                                                 db: DB): DbResultT[Root] =
+                                                                 db: DB,
+                                                                 au: AU): DbResultT[Root] =
     for {
       group ← * <~ CustomerDynamicGroups.mustFindById404(groupId)
       groupEdited ← * <~ CustomerDynamicGroups.update(
                        group,
                        CustomerDynamicGroup
-                         .fromPayloadAndAdmin(payload, group.createdBy)
+                         .fromPayloadAndAdmin(payload, group.createdBy, Scope.current)
                          .copy(id = groupId))
     } yield build(groupEdited)
 }
