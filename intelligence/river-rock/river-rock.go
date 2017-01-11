@@ -12,22 +12,27 @@ import (
 	_ "github.com/lib/pq"
 )
 
-func lookupPort(host string) (string, error) {
+func lookupSrv(host string) (string, string, error) {
 	_, srvs, err := net.LookupSRV("", "", host)
 	if err != nil {
-		return "", err
+		return host, "", err
 	}
 
 	if len(srvs) == 0 {
-		return "", errors.New("Unable to find port for " + host)
+		return host, "", errors.New("Unable to find port for " + host)
 	}
 
-	port := strconv.Itoa(int(srvs[0].Port))
+	srv := srvs[0]
 
-	return port, nil
+	host = srv.Target
+	port := strconv.Itoa(int(srv.Port))
+
+	return host, port, nil
 }
 
 func loadConfig() (*proxy.ProxyConfig, error) {
+	var err error
+
 	dbName := os.Getenv("DB_NAME")
 	if dbName == "" {
 		return nil, errors.New("DB_NAME is not set")
@@ -62,12 +67,14 @@ func loadConfig() (*proxy.ProxyConfig, error) {
 
 	bernardoPort := os.Getenv("BERNARDO_PORT")
 	if bernardoPort == "" {
-		bernardoPort, err := lookupPort(bernardoHost)
-		log.Print("Bernardo port: " + bernardoPort)
+		bernardoHost, bernardoPort, err = lookupSrv(bernardoHost)
 		if err != nil {
 			return nil, err
 		}
 	}
+
+	log.Print("Bernardo host: " + bernardoHost)
+	log.Print("Bernardo port: " + bernardoPort)
 
 	port := os.Getenv("PORT")
 	if port == "" {
