@@ -1,0 +1,42 @@
+---
+
+- name: Create Backup Directory
+  file: path=/mnt/backups state=directory mode="0700"
+  run_once: true
+
+- name: Setup Backup and Restore Scripts
+  copy: src={{item}} dest="{{usr_local}}bin/{{item}}" mode="0777"
+  with_items:
+    - restore_db.sh
+    - backup_db.sh
+
+- name: Download gcsfuse
+  get_url: url={{gcsfuse_download_url}} dest="/tmp/{{gcsfuse_filename}}"
+
+- name: Install gcsfuse
+  shell: dpkg -i /tmp/{{gcsfuse_filename}}
+
+- name: Add Backup Directory Mount Service
+  template: src=backup_db.service dest={{dest_services}}/backup_db.service
+
+- name: Make sure keys dir exist
+  file: path=/etc/keys state=directory owner={{user}} mode="0700"
+
+- name: Copy GCE service account key
+  copy: src={{service_key_file}} dest={{gce_service_key}} mode="0600" owner={{user}}
+
+- name: Setup Phoenix Database Backup Cron
+  cron: name="phoenix db backup" minute="30" hour="4" job="{{usr_local}}bin/backup_db.sh {{db_backup_filename}} {{db_name}}"
+
+- name: Setup Middlewarehouse Database Backup Cron
+  cron: name="middlewarehouse db backup" minute="30" hour="4" job="{{usr_local}}bin/backup_db.sh {{db_backup_filename_mwh}} {{middlewarehouse_db_name}}"
+
+- name: Setup Marketplace Database Backup Cron
+  cron: name="marketplace db backup" minute="30" hour="4" job="{{usr_local}}bin/backup_db.sh {{db_backup_filename_marketplace}} {{marketplace_db_name}}"
+  when: with_marketplace
+
+- name: Reload Systemd for Backup DB Service
+  command: systemctl daemon-reload
+
+- name: Start Backup Mount service
+  service: name=backup_db state=started enabled=yes
