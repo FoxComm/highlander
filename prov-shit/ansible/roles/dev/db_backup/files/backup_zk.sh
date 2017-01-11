@@ -17,7 +17,7 @@ usage() {
 
 _exit() {
     rm "$LOCK"
-    exit $1
+    exit "$1"
 }
 
 if [ $# -ne 2 ]; then
@@ -28,12 +28,12 @@ fi
 BACKUP=$1
 ZK_DIR=$2
 
-if [ -e $BACKUP ]; then
+if [ -e "$BACKUP" ]; then
     echo "Backup file or dir $BACKUP already exist"
     _exit 1
 fi
 
-test -d $ZK_DIR
-tar -czvf $BACKUP $ZK_DIR
+test -d "$ZK_DIR"
+tar -czvf "$BACKUP" "$ZK_DIR"
 
 rm "$LOCK"

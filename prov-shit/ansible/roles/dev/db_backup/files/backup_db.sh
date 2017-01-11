@@ -17,11 +17,11 @@ usage() {
 
 _exit() {
 	rm "$LOCK"
-	exit $1
+	exit "$1"
 }
 
 db_exists() {
-	psql $1 -c '\q' > /dev/null 2>&1
+	psql "$1" -c '\q' > /dev/null 2>&1
 }
 
 if [ $# -ne 2 ]; then
@@ -32,13 +32,13 @@ fi
 BACKUP=$1
 DB=$2
 
-if [ -e $BACKUP ]; then
+if [ -e "$BACKUP" ]; then
     echo "Backup file or dir $BACKUP already exist"
     _exit 1
 fi
 
-db_exists $DB || { echo "Db $DB not exists, exit now"; _exit 1; }
+db_exists "$DB" || { echo "Database $DB doesn't exist, exit now"; _exit 1; }
 
-pg_dump -Fc -Z6 -d $DB -f $BACKUP
+pg_dump -Fc -Z6 -d "$DB" -f "$BACKUP"
 
 rm "$LOCK"
