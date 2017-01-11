@@ -4,11 +4,28 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net"
 	"os"
+	"strconv"
 	//"net/http"
 	"github.com/FoxComm/highlander/intelligence/river-rock/proxy"
 	_ "github.com/lib/pq"
 )
+
+func lookupPort(host string) (string, error) {
+	_, srvs, err := net.LookupSRV("", "", host)
+	if err != nil {
+		return "", err
+	}
+
+	if len(srvs) == 0 {
+		return "", errors.New("Unable to find port for " + host)
+	}
+
+	port := strconv.Itoa(int(srvs[0].Port))
+
+	return port, nil
+}
 
 func loadConfig() (*proxy.ProxyConfig, error) {
 	dbName := os.Getenv("DB_NAME")
@@ -38,15 +55,26 @@ func loadConfig() (*proxy.ProxyConfig, error) {
 		return nil, errors.New("UPSTREAM_URL is not set")
 	}
 
-	bernardoUrl := os.Getenv("BERNARDO_URL")
-	if bernardoUrl == "" {
-		return nil, errors.New("BERNARDO_URL is not set")
+	bernardoHost := os.Getenv("BERNARDO_HOST")
+	if bernardoHost == "" {
+		return nil, errors.New("BERNARDO_HOST is not set")
+	}
+
+	bernardoPort := os.Getenv("BERNARDO_PORT")
+	if bernardoPort == "" {
+		bernardoPort, err := lookupPort(bernardoHost)
+		log.Print("Bernardo port: " + bernardoPort)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	port := os.Getenv("PORT")
 	if port == "" {
 		return nil, errors.New("PORT is not set")
 	}
+
+	bernardoUrl := "http://" + bernardoHost + ":" + bernardoPort
 
 	return &proxy.ProxyConfig{
 		DbConn:      conn,
