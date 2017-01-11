@@ -9,6 +9,8 @@ import (
 
 	"os"
 
+	"fmt"
+
 	"github.com/labstack/echo"
 )
 
@@ -17,14 +19,15 @@ var port = os.Getenv("HENHOUSE_PORT")
 
 func GetProductFunnel(c echo.Context) error {
 	id := c.Param("id")
-	resp, err := henhouseProductFunnel(id)
+	from, to := c.QueryParam("from"), c.QueryParam("to")
+	resp, err := henhouseProductFunnel(id, from, to)
 	if err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 	return c.String(http.StatusOK, resp)
 }
 
-func henhouseProductFunnel(id string) (string, error) {
+func henhouseProductFunnel(id, a, b string) (string, error) {
 	if port == "" {
 		var portErr error
 		_, port, portErr = util.LookupSrv("henhouse.service.consul")
@@ -39,7 +42,15 @@ func henhouseProductFunnel(id string) (string, error) {
 		key += "track_product_" + id + "_" + step + ","
 	}
 
-	resp, reqErr := http.Get(url + ":" + port + "/summary?keys=" + key)
+	if a != "" {
+		key += "&a=" + a
+	}
+	if b != "" {
+		key += "&b=" + b
+	}
+
+	fmt.Println("requesting diff with keys=", key)
+	resp, reqErr := http.Get(url + ":" + port + "/diff?keys=" + key)
 	if reqErr != nil {
 		return "", reqErr
 	}

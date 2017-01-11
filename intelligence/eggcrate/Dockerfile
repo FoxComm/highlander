@@ -8,5 +8,5 @@ WORKDIR /eggcrate
 COPY eggcrate /eggcrate
 ADD .env /eggcrate
 
-EXPOSE 1323
+EXPOSE 10020
 CMD ["/eggcrate/eggcrate"] 
