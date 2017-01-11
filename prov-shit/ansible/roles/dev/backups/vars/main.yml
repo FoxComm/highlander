@@ -1,3 +1,3 @@
 gcsfuse_base_url: https://github.com/GoogleCloudPlatform/gcsfuse
 gcsfuse_filename: gcsfuse_0.18.2_amd64.deb
-gccfuse_download_url: "{{gcsfuse_base_url}}/releases/download/v0.18.2/{{gcsfuse_filename}}"
+gcsfuse_download_url: "{{gcsfuse_base_url}}/releases/download/v0.18.2/{{gcsfuse_filename}}"
