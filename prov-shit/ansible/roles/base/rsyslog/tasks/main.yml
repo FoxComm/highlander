@@ -7,7 +7,7 @@
     - rsyslog-elasticsearch
 
 - name: Remove Old Omelsticsearch Configuration
-  file: path=/etc/rsyslog/elastic-51.conf state=absent
+  file: path=/etc/rsyslog.d/elastic-51.conf state=absent
 
 - name: Install Base Rsyslog Config
   template: >
