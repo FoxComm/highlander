@@ -167,6 +167,7 @@ object Workers {
       "countries"                          → CountriesSearchView(),
       "customer_items_view"                → CustomerItemsView(),
       "customers_search_view"              → CustomersSearchView(),
+      "customer_groups_search_view"        → CustomerGroupsSearchView(),
       "failed_authorizations_search_view"  → FailedAuthorizationsSearchView(),
       "inventory_search_view"              → InventorySearchView(),
       "inventory_transactions_search_view" → InventoryTransactionSearchView(),
