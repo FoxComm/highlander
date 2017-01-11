@@ -13,10 +13,10 @@
     - backup_zk.sh
 
 - name: Download gcsfuse
-  get_url: url={{gcsfuse_download_url}} dest="/tmp/{{gcfuse_filename}}"
+  get_url: url={{gcsfuse_download_url}} dest="/tmp/{{gcsfuse_filename}}"
 
 - name: Install gcsfuse
-  shell: dpkg -i /tmp/{{gcfuse_filename}}
+  shell: dpkg -i /tmp/{{gcsfuse_filename}}
 
 - name: Add Backup Directory Mount Service
   template: src=backup_mount.service dest={{dest_services}}/backup_mount.service
