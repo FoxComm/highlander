@@ -32,7 +32,6 @@ import utils.http.CustomDirectives._
 import utils.http.CustomHandlers
 import utils.http.HttpLogger.logFailedRequests
 import utils.{ElasticsearchApi, FoxConfig}
-
 import com.github.levkhomich.akka.tracing.TracingExtension
 
 object Main extends App with LazyLogging {

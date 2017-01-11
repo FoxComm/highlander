@@ -11,6 +11,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.PathMatcher.Matched
 import akka.http.scaladsl.server._
 import akka.http.scaladsl.unmarshalling.{FromRequestUnmarshaller, Unmarshaller}
+
 import cats.data.Xor
 import failures._
 import models.account._
@@ -28,8 +29,7 @@ import utils.http.Http._
 import com.github.levkhomich.akka.tracing._
 import com.github.levkhomich.akka.tracing.http.TracingHeaders._
 import com.typesafe.scalalogging.LazyLogging
-
-import scala.annotation.tailrec
+import akka.http.scaladsl.marshalling.{ToResponseMarshallable, _}
 
 object CustomDirectives extends LazyLogging {
 
@@ -77,14 +77,12 @@ object CustomDirectives extends LazyLogging {
 
       extractSpan(headers) match {
         case Some(span) ⇒
-          logger.info(s"Child trace. ${tr.spanName}")
           tracer.importMetadata(cr, span, "client")
           tracer.createChild(tr, cr).foreach { md ⇒
             tracer.importMetadata(tr, md, service)
-            tracer.record(tr, TracingAnnotations.ServerReceived.text)
+            tracer.record(tr, TracingAnnotations.ServerReceived)
           }
         case None ⇒
-          logger.info(s"New trace. ${tr.spanName}")
           tracer.sample(tr, service, true)
       }
 
@@ -100,30 +98,16 @@ object CustomDirectives extends LazyLogging {
   }
 
   def traceEnd[T <: AnyRef](t: T)(implicit tr: TR, tracer: TEI): T = {
-    tracer.record(tr, TracingAnnotations.ServerSend.text)
-    logger.info(s"In traceEnd. ${TracingAnnotations.ServerSend}")
+    tracer.record(tr, TracingAnnotations.ServerSend)
 
     t
   }
 
-  @tailrec
   private def idFromString(x: String): Option[Long] = {
-    x match {
-      case x if x == null || x.length == 0 || x.length > 32 ⇒ None
-      case x if x.length > 16                               ⇒ idFromString(x.takeRight(16))
-      case x ⇒ {
-        val s = x match {
-          case x if x.length % 2 == 0 ⇒ x
-          case x ⇒ "0" + x
-        }
-        val bytes = new Array[Byte](8)
-        val start = 7 - (s.length + 1) / 2
-        (s.length until 0 by -2).foreach { i ⇒
-          val x = Integer.parseInt(s.substring(i - 2, i), 16).toByte
-          bytes.update(start + i / 2, x)
-        }
-        Some(new DataInputStream(new ByteArrayInputStream(bytes)).readLong)
-      }
+    try {
+      Option(BigInt(x.takeRight(16), 16).longValue())
+    } catch {
+      case _: Exception ⇒ None
     }
   }
 
@@ -131,6 +115,8 @@ object CustomDirectives extends LazyLogging {
     def headerLongValue(name: String): Option[Long] = headers(name).flatMap(idFromString)
 
     def spanId: Long = headerLongValue(SpanId).getOrElse(Random.nextLong)
+
+    logger.info(s"trace spanId $spanId")
 
     // debug flag forces sampling (see http://git.io/hdEVug)
     val maybeForceSampling = headers(Sampled).map(_.toLowerCase) match {
@@ -150,13 +136,22 @@ object CustomDirectives extends LazyLogging {
         val forceSampling = maybeForceSampling.getOrElse(false)
         headerLongValue(TraceId) match {
           case Some(traceId) ⇒
+            logger.info(s"trace traceId $traceId")
             val parentId = headerLongValue(ParentSpanId)
+            logger.info(s"trace parentId $parentId")
             Some(SpanMetadata(traceId, spanId, parentId, forceSampling))
           case _ ⇒
             None
         }
     }
   }
+
+  def traceServerSend[T](tr: TR)(implicit m: ToResponseMarshaller[T],
+                                 tracer: TEI): ToResponseMarshaller[T] =
+    m.compose { v ⇒
+      tracer.record(tr, TracingAnnotations.ServerSend)
+      v
+    }
 
   /**
     * At the moment we support one context. The input to this function will
@@ -205,25 +200,24 @@ object CustomDirectives extends LazyLogging {
     }
 
   def good[A <: AnyRef](a: Future[A])(implicit ec: EC, tr: TR, tracer: TEI): StandardRoute =
-    complete(traceEnd(a.map(render(_))))
+    complete(ToResponseMarshallable(a.map(render(_)))(traceServerSend(tr)))
 
   def good[A <: AnyRef](a: A)(implicit tr: TR, tracer: TEI): StandardRoute =
-    complete(traceEnd(render(a)))
+    complete(ToResponseMarshallable(render(a))(traceServerSend(tr)))
 
   private def renderGoodOrFailures[G <: AnyRef](or: Failures Xor G): HttpResponse =
     or.fold(renderFailure(_), render(_))
 
   def goodOrFailures[A <: AnyRef](
       a: Result[A])(implicit ec: EC, tr: TR, tracer: TEI): StandardRoute =
-    complete(traceEnd(a.map(renderGoodOrFailures)))
+    complete(ToResponseMarshallable(a.map(renderGoodOrFailures))(traceServerSend(tr)))
 
-  def getOrFailures[A <: AnyRef](
-      a: DbResultT[A])(implicit ec: EC, db: DB, tr: TR, tracer: TEI): StandardRoute =
-    complete(traceEnd(a.run().map(renderGoodOrFailures)))
+  def getOrFailures[A <: AnyRef](a: DbResultT[A])(implicit ec: EC, db: DB, tracer: TEI): Route =
+    complete(ToResponseMarshallable(a.run().map(renderGoodOrFailures)))
 
   def mutateOrFailures[A <: AnyRef](
       a: DbResultT[A])(implicit ec: EC, db: DB, tr: TR, tracer: TEI): StandardRoute =
-    complete(traceEnd(a.runTxn().map(renderGoodOrFailures)))
+    complete(ToResponseMarshallable(a.runTxn().map(renderGoodOrFailures))(traceServerSend(tr)))
 
   def mutateWithNewTokenOrFailures[A <: AnyRef](
       a: DbResultT[(A, AuthPayload)])(implicit ec: EC, db: DB, tr: TR, tracer: TEI): Route = {
@@ -243,12 +237,15 @@ object CustomDirectives extends LazyLogging {
       })
     }
   }
+
   def deleteOrFailures(
       a: DbResultT[_])(implicit ec: EC, db: DB, tr: TR, tracer: TEI): StandardRoute =
-    complete(a.runTxn().map(_.fold(renderFailure(_), _ ⇒ noContentResponse)))
+    complete(ToResponseMarshallable(
+            a.runTxn().map(_.fold(renderFailure(_), _ ⇒ noContentResponse)))(traceServerSend(tr)))
 
   def doOrFailures(a: DbResultT[_])(implicit ec: EC, db: DB, tr: TR, tracer: TEI): StandardRoute =
-    complete(a.runTxn().map(_.fold(renderFailure(_), _ ⇒ noContentResponse)))
+    complete(ToResponseMarshallable(
+            a.runTxn().map(_.fold(renderFailure(_), _ ⇒ noContentResponse)))(traceServerSend(tr)))
 
   def entityOr[T](um: FromRequestUnmarshaller[T],
                   failure: failures.Failure)(implicit tr: TR, tracer: TEI): Directive1[T] =
