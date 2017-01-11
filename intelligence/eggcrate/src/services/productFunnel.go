@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"responses"
 	"strings"
+	"util"
 
 	"os"
 
@@ -24,7 +25,14 @@ func GetProductFunnel(c echo.Context) error {
 }
 
 func henhouseProductFunnel(id string) (string, error) {
-	var pf responses.HenhouseResponse
+	if port == "" {
+		var portErr error
+		_, port, portErr = util.LookupSrv("henhouse.service.consul")
+		if portErr != nil {
+			return "", portErr
+		}
+	}
+
 	var key = ""
 	steps := [...]string{"list", "pdp", "cart", "checkout"}
 	for _, step := range steps {
@@ -36,6 +44,7 @@ func henhouseProductFunnel(id string) (string, error) {
 		return "", reqErr
 	}
 
+	var pf responses.HenhouseResponse
 	err := json.NewDecoder(resp.Body).Decode(&pf)
 	if err != nil {
 		return "", err

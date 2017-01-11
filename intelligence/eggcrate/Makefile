@@ -6,7 +6,7 @@ DOCKER_TAG ?= eggcrate
 DOCKER_BRANCH ?= master
 
 build:
-	go build -o eggcrate src/server.go
+	GOOS=linux CGO_ENABLED=0 go build -o eggcrate src/server.go
 
 docker:
 	$(call header, Dockerizing)
