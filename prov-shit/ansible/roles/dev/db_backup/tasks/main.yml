@@ -28,17 +28,17 @@
   copy: src={{service_key_file}} dest={{gce_service_key}} mode="0600" owner={{user}}
 
 - name: Setup Phoenix Database Backup Cron
-  cron: name="phoenix db backup" minute="30" hour="4" job="{{usr_local}}bin/backup_db.sh /mnt/backups/{{ansible_hostname}}_{{db_name}}_$(date +\%F_\%H_\%M) {{db_name}}"
+  cron: name="phoenix db backup" minute="30" hour="4" job="{{usr_local}}bin/backup_db.sh {{db_backup_filename}} {{db_name}}"
 
 - name: Setup Middlewarehouse Database Backup Cron
-  cron: name="middlewarehouse db backup" minute="30" hour="4" job="{{usr_local}}bin/backup_db.sh /mnt/backups/{{ansible_hostname}}_{{middlewarehouse_db_name}}_$(date +\%F_\%H_\%M) {{middlewarehouse_db_name}}"
+  cron: name="middlewarehouse db backup" minute="30" hour="4" job="{{usr_local}}bin/backup_db.sh {{db_backup_filename_mwh}} {{middlewarehouse_db_name}}"
 
 - name: Setup Marketplace Database Backup Cron
-  cron: name="marketplace db backup" minute="30" hour="4" job="{{usr_local}}bin/backup_db.sh /mnt/backups/{{ansible_hostname}}_{{marketplace_db_name}}_$(date +\%F_\%H_\%M) {{marketplace_db_name}}"
+  cron: name="marketplace db backup" minute="30" hour="4" job="{{usr_local}}bin/backup_db.sh {{db_backup_filename_marketplace}} {{marketplace_db_name}}"
   when: with_marketplace
 
 - name: Setup Zookeeper Transaction Log Backup Cron
-  cron: name="zookeeper data dir backup" minute="30" hour="4" job="{{usr_local}}bin/backup_zk.sh /mnt/backups/{{ansible_hostname}}_zk_txn_logs_$(date +\%F_\%H_\%M).tar.gz {{zk_data_dir}}"
+  cron: name="zookeeper data dir backup" minute="30" hour="4" job="{{usr_local}}bin/backup_zk.sh {{zk_backup_filename}} {{zk_data_dir}}"
 
 - name: Reload Systemd for Postgresql
   command: systemctl daemon-reload

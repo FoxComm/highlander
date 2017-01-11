@@ -1,2 +1,6 @@
 zk_data_dir: /var/lib/zookeeper
 gce_service_key: /etc/keys/gce_backup_service_key.json
+db_backup_filename: "/mnt/backups/{{ansible_hostname}}_{{db_name}}_$(date +\%F_\%H_\%M)"
+db_backup_filename_mwh: "/mnt/backups/{{ansible_hostname}}_{{middlewarehouse_db_name}}_$(date +\%F_\%H_\%M)"
+db_backup_filename_marketplace: "/mnt/backups/{{ansible_hostname}}_{{marketplace_db_name}}_$(date +\%F_\%H_\%M)"
+zk_backup_filename: "/mnt/backups/{{ansible_hostname}}_zk_txn_logs_$(date +\%F_\%H_\%M).tar.gz"
