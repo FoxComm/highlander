@@ -7,6 +7,8 @@ import (
 	"github.com/FoxComm/highlander/intelligence/eggcrate/src/responses"
 	"github.com/FoxComm/highlander/intelligence/eggcrate/src/util"
 
+	"fmt"
+
 	"github.com/labstack/echo"
 )
 
@@ -20,9 +22,6 @@ func ProductQuery(id string, verbs []string, a, b string) (responses.HenhouseRes
 
 func GetProductFunnel(c echo.Context) error {
 	id := c.Param("id")
-	if id != "" {
-		id += "_"
-	}
 	from, to := c.QueryParam("from"), c.QueryParam("to")
 	resp, err := henhouseProductFunnel(id, from, to)
 	if err != nil {
