@@ -4,7 +4,8 @@ import utils.aliases._
 
 object CustomerGroupPayloads {
 
-  case class CustomerDynamicGroupPayload(name: String,
+  case class CustomerDynamicGroupPayload(scope: Option[String] = None,
+                                         name: String,
                                          clientState: Json,
                                          elasticRequest: Json,
                                          customersCount: Option[Int])

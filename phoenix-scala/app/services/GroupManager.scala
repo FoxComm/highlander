@@ -22,19 +22,21 @@ object GroupManager {
   def create(payload: CustomerDynamicGroupPayload,
              admin: User)(implicit ec: EC, db: DB, au: AU): DbResultT[Root] =
     for {
+      scope ← * <~ Scope.resolveOverride(payload.scope)
       group ← * <~ CustomerDynamicGroups.create(
-                 CustomerDynamicGroup.fromPayloadAndAdmin(payload, admin.accountId, Scope.current))
+                 CustomerDynamicGroup.fromPayloadAndAdmin(payload, admin.accountId, scope))
     } yield build(group)
 
   def update(groupId: Int, payload: CustomerDynamicGroupPayload)(implicit ec: EC,
                                                                  db: DB,
                                                                  au: AU): DbResultT[Root] =
     for {
+      scope ← * <~ Scope.resolveOverride(payload.scope)
       group ← * <~ CustomerDynamicGroups.mustFindById404(groupId)
       groupEdited ← * <~ CustomerDynamicGroups.update(
                        group,
                        CustomerDynamicGroup
-                         .fromPayloadAndAdmin(payload, group.createdBy, Scope.current)
+                         .fromPayloadAndAdmin(payload, group.createdBy, scope)
                          .copy(id = groupId))
     } yield build(groupEdited)
 }
