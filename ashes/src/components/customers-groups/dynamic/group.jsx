@@ -11,7 +11,7 @@ import classNames from 'classnames';
 import criterions from '../../../paragons/customer-groups/criterions';
 import operators from '../../../paragons/customer-groups/operators';
 import requestAdapter from '../../../modules/customer-groups/request-adapter';
-import { actions as groupActions } from '../../../modules/customer-groups/dynamic/group';
+import * as groupActions from '../../../modules/customer-groups/dynamic/group';
 import { actions as listActions } from '../../../modules/customer-groups/dynamic/list';
 
 //helpers
@@ -24,7 +24,6 @@ import ContentBox from '../../content-box/content-box';
 import { PanelList, PanelListItem } from '../../panel/panel-list';
 import Currency from '../../common/currency';
 import Criterion from './criterion-view';
-import PrependIconInput from '../../icon-input/prepend-icon-input';
 import { SelectableSearchList, makeTotalCounter } from '../../list-page';
 import MultiSelectRow from '../../table/multi-select-row';
 

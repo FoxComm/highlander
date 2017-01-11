@@ -1,14 +1,16 @@
+/* @flow */
+
 // libs
-import _ from 'lodash';
-import { assoc } from 'sprout-data';
+import get from 'lodash/get';
+import { createReducer, createAction } from 'redux-act';
 
 // helpers
 import Api from 'lib/api';
 import * as search from 'lib/search';
 import { post } from 'lib/search';
-import createStore from 'lib/store-creator';
 import criterions, { getCriterion, getWidget } from 'paragons/customer-groups/criterions';
 import { aggregations } from 'elastic/request';
+import { createAsyncActions } from '@foxcomm/wings';
 import requestAdapter from './../request-adapter';
 
 const initialState = {
@@ -30,19 +32,73 @@ const initialState = {
   }
 };
 
-const fetchGroup = (actions, id) => dispatch => {
-  return Api.get(`/groups/${id}`).then(
-    (data) => {
-      dispatch(actions.setData(data));
-    }
-  );
-};
+/**
+ * Internal actions
+ */
+const _fetchGroup = createAsyncActions('fetchCustomerGroup', (groupId: number) => Api.get(`/groups/${groupId}`));
 
-const saveGroup = actions => (dispatch, getState) => {
-  const state = getState();
-  const getValue = (name) => _.get(state, ['customerGroups', 'dynamic', 'group', name]);
+const _saveGroup = createAsyncActions(
+  'saveCustomerGroup',
+  (groupId, data) => {
+    return new Promise((resolve, reject) => {
+      post('customers_search_view/_count', data.elasticRequest)
+        .then(response => {
+          data.customersCount = response.count;
 
-  const id = getValue('id');
+          let request;
+          if (data.id) {
+            request = Api.patch(`/groups/${data.id}`, data);
+          } else {
+            request = Api.post('/groups', data);
+          }
+
+          request
+            .then(data => resolve(data))
+            .catch(err => reject(err));
+        })
+        .catch(err => reject(err));
+    });
+  }
+);
+
+const _fetchStats = createAsyncActions('fetchStatsCustomerGroup', request =>
+  search.post('customers_search_view/_search?size=0', request)
+);
+
+/**
+ * External actions
+ */
+
+/**
+ * Reset customer group to initial state
+ */
+export const reset = createAction(`CUSTOMER_GROUP_RESET`);
+export const setName = createAction('CUSTOMER_GROUP_SET_NAME');
+export const setMainCondition = createAction('CUSTOMER_GROUP_SET_MAIN_CONDITION');
+export const setConditions = createAction('CUSTOMER_GROUP_SET_CONDITIONS');
+export const setFilterTerm = createAction('CUSTOMER_GROUP_SET_FILTER_TERM');
+export const setIsSaved = createAction('CUSTOMER_GROUP_SET_IS_SAVED');
+export const setGroupStats = createAction('CUSTOMER_GROUP_SET_GROUP_STATS');
+
+/**
+ * Fetch customer group
+ *
+ * @param {Number} groupId Customer group id
+ *
+ * @return Promise
+ */
+export const fetchGroup = (groupId: number) => dispatch => dispatch(_fetchGroup.perform(groupId));
+
+/**
+ * Save or create customer group
+ *
+ * @return Promise
+ */
+export const saveGroup = () => (dispatch, getState) => {
+  const state = this.getState();
+  const getValue = (name) => get(state, ['customerGroups', 'dynamic', 'group', name]);
+
+  const groupId = getValue('id');
   const name = getValue('name');
   const mainCondition = getValue('mainCondition');
   const conditions = getValue('conditions');
@@ -58,59 +114,29 @@ const saveGroup = actions => (dispatch, getState) => {
     customersCount: 0,
   };
 
-  return new Promise((resolve, reject) => {
-    post('customers_search_view/_count', elasticRequest)
-      .then(response => {
-        data.customersCount = response.count;
-
-        //create or update
-        let request;
-        if (id) {
-          request = Api.patch(`/groups/${id}`, data);
-        } else {
-          request = Api.post('/groups', data);
-        }
-
-        request
-          .then(data => {
-              resolve(data);
-
-              dispatch(actions.setData(data));
-              dispatch(actions.setIsSaved());
-            }
-          )
-          .catch(err => reject(err));
-      })
-      .catch(err => reject(err));
-  });
+  dispatch(_saveGroup.perform(groupId, data));
 };
 
-const fetchGroupStats = (actions, mainCondition, conditions) => dispatch => {
-  const request = requestAdapter(criterions, mainCondition, conditions);
-  request.aggregations
-    .add(
-      new aggregations.Count('ordersCount', 'orders.referenceNumber')
-    )
-    .add(
-      new aggregations.Sum('totalSales', 'revenue')
-    )
-    .add(
-      new aggregations.Average('averageOrderSize', 'orders.itemsCount')
-    )
-    .add(
-      new aggregations.Average('averageOrderSum', 'orders.grandTotal')
-    );
+/**
+ * Fetch customer group's stats
+ *
+ * @return Promise
+ */
+export const fetchGroupStats = () => (dispatch, getState) => {
+  const state = getState();
 
-  return search.post('customers_search_view/_search?size=0', request.toRequest()).then(
-    ({ result }) => {
-      dispatch(actions.setGroupStats({
-        ordersCount: _.get(result, 'ordersCount.ordersCount.value', 0),
-        totalSales: _.get(result, 'totalSales.totalSales.value', 0),
-        averageOrderSize: _.get(result, 'averageOrderSize.averageOrderSize.value', 0),
-        averageOrderSum: _.get(result, 'averageOrderSum.averageOrderSum.value', 0),
-      }));
-    }
-  );
+  const mainCondition = get(state, ['customerGroups', 'dynamic', 'group', 'mainCondition']);
+  const conditions = get(state, ['customerGroups', 'dynamic', 'group', 'conditions']);
+
+  const request = requestAdapter(criterions, mainCondition, conditions);
+
+  request.aggregations
+    .add(new aggregations.Count('ordersCount', 'orders.referenceNumber'))
+    .add(new aggregations.Sum('totalSales', 'revenue'))
+    .add(new aggregations.Average('averageOrderSize', 'orders.itemsCount'))
+    .add(new aggregations.Average('averageOrderSum', 'orders.grandTotal'));
+
+  dispatch(_fetchStats.perform(request.toRequest()));
 };
 
 const validateConditions = conditions => conditions.length && conditions.every(validateCondition);
@@ -126,75 +152,44 @@ const validateCondition = ([field, operator, value]) => {
   return isValid(value, criterion);
 };
 
-const reducers = {
-  reset: () => {
-    return initialState;
-  },
-  setData: (state, { id, type, name, createdAt, updatedAt, clientState: { mainCondition, conditions } }) => {
-    return {
-      ...state,
-      id,
-      type,
-      name,
-      createdAt,
-      updatedAt,
-      mainCondition,
-      conditions,
-      isValid: validateConditions(conditions),
-      isSaved: false,
-    };
-  },
-  setName: (state, name) => {
-    return {
-      ...state,
-      name,
-    };
-  },
-  setMainCondition: (state, mainCondition) => {
-    return {
-      ...state,
-      mainCondition,
-    };
-  },
-  setConditions: (state, conditions) => {
-    return {
-      ...state,
-      conditions,
-      isValid: validateConditions(conditions),
-    };
-  },
-  setFilterTerm: (state, filterTerm) => {
-    return {
-      ...state,
-      filterTerm,
-    };
-  },
-  setIsSaved: (state) => {
-    return {
-      ...state,
-      isSaved: true,
-    };
-  },
-  setGroupStats: (state, stats) => {
-    return {
-      ...state,
-      stats,
-    };
-  }
+type State = {
+  group: TCustomerGroup;
+}
+
+const setData = (state: State, { id, type, name, createdAt, updatedAt, clientState: { mainCondition, conditions } }) => {
+  return {
+    ...state,
+    id,
+    type,
+    name,
+    createdAt,
+    updatedAt,
+    mainCondition,
+    conditions,
+    isValid: validateConditions(conditions),
+    isSaved: false,
+  };
 };
 
-const { actions, reducer } = createStore({
-  path: 'customerGroups.dynamic.group',
-  actions: {
-    fetchGroup,
-    fetchGroupStats,
-    saveGroup,
-  },
-  reducers,
-  initialState,
-});
+const reducer = createReducer({
+  [reset]: (state: State) => initialState,
+  [_fetchGroup.succeeded]: setData,
+  [_saveGroup.succeeded]: setData,
+  [_fetchStats.succeeded]: (state: State, response: Object) => ({
+    ...state,
+    stats: {
+      ordersCount: get(response, 'ordersCount.ordersCount.value', 0),
+      totalSales: get(response, 'totalSales.totalSales.value', 0),
+      averageOrderSize: get(response, 'averageOrderSize.averageOrderSize.value', 0),
+      averageOrderSum: get(response, 'averageOrderSum.averageOrderSum.value', 0),
+    }
+  }),
+  [setName]: (state, name) => ({ ...state, name }),
+  [setMainCondition]: (state, mainCondition) => ({ ...state, mainCondition }),
+  [setConditions]: (state, conditions) => ({ ...state, conditions, isValid: validateConditions(conditions) }),
+  [setFilterTerm]: (state, filterTerm) => ({ ...state, filterTerm }),
+  [setIsSaved]: (state) => ({ ...state, isSaved: true }),
+  [setGroupStats]: (state, stats) => ({ ...state, stats })
+}, initialState);
 
-export {
-  actions,
-  reducer as default
-};
+export default reducer;

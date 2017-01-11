@@ -1,17 +1,19 @@
 /* @flow */
 
 //libs
-import React, { PropTypes } from 'react';
+import get from 'lodash/get';
+import React from 'react';
 import { connect } from 'react-redux';
 
-//data
-import { actions } from '../../modules/customer-groups/dynamic/group';
+import { reset, fetchGroup } from '../../modules/customer-groups/dynamic/group';
 
 //components
+import WaitAnimation from '../common/wait-animation';
 import DynamicGroup from './dynamic/group';
 
 type Props = {
   group: TCustomerGroup;
+  isLoading: boolean;
   reset: () => void;
   fetchGroup: (id: string) => Promise;
   params: {
@@ -35,19 +37,17 @@ class Group extends React.Component {
   }
 
   render() {
-    const { group } = this.props;
-
-    if (!group.id) {
-      return null;
+    if (this.props.isLoading) {
+      return <WaitAnimation />;
     }
 
-    return <DynamicGroup group={group} />;
+    return <DynamicGroup group={this.props.group} />;
   };
 }
 
-
 const mapStateToProps = state => ({
-  group: state.customerGroups.dynamic.group
+  isLoading: get(state, ['asyncActions', 'fetchCustomerGroup', 'inProgress'], false),
+  group: get(state, ['customerGroups', 'dynamic', 'group']),
 });
 
-export default connect(mapStateToProps, actions)(Group);
+export default connect(mapStateToProps, { reset, fetchGroup })(Group);

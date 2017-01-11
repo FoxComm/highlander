@@ -13,4 +13,5 @@ declare type TCustomerGroup = {
   mainCondition: string;
   createdAt: string;
   updatedAt: string;
+  stats: ?Object;
 };
