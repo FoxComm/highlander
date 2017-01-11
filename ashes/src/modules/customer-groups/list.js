@@ -1,10 +1,14 @@
-import makePagination from '../pagination';
+import makeLiveSearch from '../live-search';
 
-const {reducer, fetch, addEntity, updateStateAndFetch} = makePagination('/groups', 'customerGroups.list');
+const { reducer, actions } = makeLiveSearch(
+  'customerGroups.list',
+  [],
+  'customer_groups_search_view/_search',
+  'customerGroupsScope',
+  {}
+);
 
 export {
   reducer as default,
-  fetch,
-  addEntity as addGroup,
-  updateStateAndFetch
+  actions,
 };

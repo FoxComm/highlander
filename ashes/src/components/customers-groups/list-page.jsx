@@ -9,14 +9,14 @@ import { transitionTo } from 'browserHistory';
 import { ListPageContainer, makeTotalCounter } from '../list-page';
 
 // redux
-import { actions as customersActions } from '../../modules/customers/list';
+import { actions as customersActions } from '../../modules/customer-groups/list';
 
-type Props = {
-  children?: Element;
-}
+type Props {
+  children?: Array<Element>|Element;
+};
 
 const GroupsListPage = (props: Props) => {
-  const TotalCounter = makeTotalCounter(state => get(state, 'customers.list'), customersActions);
+  const TotalCounter = makeTotalCounter(state => state.customerGroups.list, customersActions);
 
   const navLinks = [
     { title: 'List', to: 'groups' },
