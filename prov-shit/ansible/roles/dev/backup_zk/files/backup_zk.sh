@@ -34,6 +34,6 @@ if [ -e "$BACKUP" ]; then
 fi
 
 test -d "$ZK_DIR"
-tar -czvf "$BACKUP" "$ZK_DIR"
+cd "$ZK_DIR" && tar -czvf "$BACKUP" .
 
 rm "$LOCK"
