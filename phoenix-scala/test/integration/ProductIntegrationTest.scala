@@ -9,7 +9,7 @@ import failures.ProductFailures
 import failures.ProductFailures._
 import models.account.Scope
 import models.account.User
-import models.inventory.{ProductVariantMwhSkuIds, ProductVariants}
+import models.inventory._
 import models.objects._
 import models.product._
 import org.json4s.JsonDSL._
@@ -139,7 +139,7 @@ class ProductIntegrationTest
         productResponse.variants.length must === (1)
         private val variant = productResponse.variants.head
         variant.attributes.code must === (skuName)
-        variant.middlewarehouseSkuId must === (1)
+        variant.middlewarehouseSkuId must be > 0
       }
 
       "a new variant with option successfully" in new Fixture {
@@ -811,6 +811,10 @@ class ProductIntegrationTest
       for {
         // Create the SKUs.
         skus ← * <~ Mvp.insertVariants(scope, ctx.id, simpleVariants)
+
+        _ ← * <~ ProductVariantMwhSkuIds.createAll(skus.map { variant ⇒
+             ProductVariantMwhSkuId(variantFormId = variant.formId, mwhSkuId = variant.formId)
+           })
 
         // Create the product.
         product ← * <~ Mvp.insertProductWithExistingSkus(scope, ctx.id, simpleProd, skus)

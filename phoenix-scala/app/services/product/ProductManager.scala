@@ -370,9 +370,6 @@ object ProductManager {
                 _ ← * <~ ProductVariantLinks.syncLinks(product,
                                                        if (createLinks) Seq(newVariant.model)
                                                        else Seq.empty)
-                // TODO: tax class?
-                _ ← * <~ apis.middlwarehouse.createSku(newVariant.form.id,
-                                                       CreateSku(newVariant.model.code))
               } yield newVariant
             }
         albums   ← * <~ ImageManager.getAlbumsForVariantInner(up.form.id)
