@@ -7,7 +7,7 @@
   get_url: url={{marathon_download_url}} dest=/usr/local/
 
 - name: Unarchive Marathon
-  unarchive: src=/usr/local/marathon-1.1.1.tgz dest=/usr/local/ copy=no
+  unarchive: src="/usr/local/{{marathon_filename}}" dest=/usr/local/ copy=no
 
 - name: Install Mesos Master Service Entry
   template:
