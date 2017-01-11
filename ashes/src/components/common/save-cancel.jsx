@@ -64,8 +64,6 @@ export default class SaveCancel extends Component {
 
     const { push } = this.context.router;
 
-    const saveClassName = 'fc-save-cancel__save';
-
     const cancelControl = (
       <Button
         type="button"
@@ -81,7 +79,7 @@ export default class SaveCancel extends Component {
       <PrimaryButton
         type={onSave ? "button" : "submit"}
         onClick={onSave ? onSave : noop}
-        className={saveClassName}
+        className="fc-save-cancel__save"
         tabIndex={saveTabIndex}
         isLoading={isLoading}
         disabled={saveDisabled}>
