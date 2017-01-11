@@ -41,9 +41,9 @@ shortcuts:
   - name: Bootstrap Marathon Alerts
     alias: marathon_alerts.yml
     target: ansible/bootstrap_marathon_alerts.yml
-  - name: Bootstrap Database Backup
-    alias: db_backup.yml
-    target: ansible/bootstrap_db_backup.yml
+  - name: Bootstrap Backups Script
+    alias: backups.yml
+    target: ansible/bootstrap_backups.yml
   - name: Bootstrap OpenVPN Key
     alias: openvpn_key.yml
     target: ansible/bootstrap_openvpn_key.yml
