@@ -4,7 +4,7 @@
   file: path=/mnt/backups state=directory mode="0700"
   run_once: true
 
-- name: Setup Database Backup and Restore Scripts
+- name: Setup Backup and Restore Scripts
   copy: src={{item}} dest="{{usr_local}}bin/{{item}}" mode="0777"
   with_items:
     - restore_db.sh
@@ -40,8 +40,8 @@
 - name: Setup Zookeeper Transaction Log Backup Cron
   cron: name="zookeeper data dir backup" minute="30" hour="4" job="{{usr_local}}bin/backup_zk.sh {{zk_backup_filename}} {{zk_data_dir}}"
 
-- name: Reload Systemd for Postgresql
+- name: Reload Systemd for Backup Mount Service
   command: systemctl daemon-reload
 
-- name: Start backup_mount service
+- name: Start Backup Mount service
   service: name=backup_mount state=started enabled=yes
