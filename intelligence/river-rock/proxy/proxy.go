@@ -116,11 +116,5 @@ func (p *RiverRock) StartProxy() error {
 		return nil
 	})
 
-	e.GET("/raw/*", func(c echo.Context) error {
-		req := c.Request()
-		log.Print(req.URL.Path)
-		return c.String(http.StatusOK, "STUFF HERE")
-	})
-
 	return e.Start(":" + p.Config.Port)
 }
