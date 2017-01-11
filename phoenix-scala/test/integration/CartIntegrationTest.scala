@@ -21,11 +21,11 @@ import payloads.OrderPayloads.CreateCart
 import payloads.UpdateShippingMethod
 import responses.cord.CartResponse
 import responses.cord.base.CordResponseLineItem
-import responses.{CustomerResponse, GiftCardResponse, TheResponse}
+import responses.{CustomerResponse, GiftCardResponse, StoreCreditResponse, TheResponse}
 import models.cord.CordPaymentState
 import models.payment.giftcard.{GiftCard, GiftCardManual, GiftCardManuals, GiftCards}
 import payloads.GiftCardPayloads.GiftCardCreateByCsr
-import payloads.PaymentPayloads.{GiftCardPayment, StoreCreditPayment}
+import payloads.PaymentPayloads.{CreateManualStoreCredit, GiftCardPayment, StoreCreditPayment}
 import services.carts.CartTotaler
 import slick.driver.PostgresDriver.api._
 import testutils._
@@ -92,17 +92,14 @@ class CartIntegrationTest
 
     "calculates customer’s expenses considering in-store payments" in new StoreAdmin_Seed
     with Customer_Seed with ProductSku_ApiFixture {
-      val refNum = cartsApi
-        .create(CreateCart(customerId = customer.id.some)) // faker.Internet.email.some))
-        .as[CartResponse]
-        .referenceNumber
+      val refNum =
+        cartsApi.create(CreateCart(customerId = customer.id.some)).as[CartResponse].referenceNumber
 
       cartsApi(refNum).lineItems.add(Seq(UpdateLineItemsPayload(skuCode, 1))).mustBeOk()
 
       val giftCardAmount    = 2500 // ¢
       val storeCreditAmount = 500  // ¢
 
-      // FIXME: Use API?
       val reason = (* <~ Reasons.create(Factories.reason(storeAdmin.accountId))).gimme
 
       val giftCard = giftCardsApi
@@ -113,8 +110,11 @@ class CartIntegrationTest
         .add(GiftCardPayment(giftCard.code, giftCardAmount.some))
         .asTheResult[CartResponse]
 
-      val afterCredit = cartsApi(refNum).payments.storeCredit.add(StoreCreditPayment(storeCreditAmount))
-      info(s"afterCredit = $afterCredit")
+      customersApi(customer.id).payments.storeCredit
+        .create(CreateManualStoreCredit(amount = storeCreditAmount, reasonId = reason.id))
+        .as[StoreCreditResponse.Root]
+
+      cartsApi(refNum).payments.storeCredit.add(StoreCreditPayment(storeCreditAmount))
 
       val fullCart = cartsApi(refNum).get().asTheResult[CartResponse]
 
