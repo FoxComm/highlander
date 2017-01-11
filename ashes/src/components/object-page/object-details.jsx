@@ -180,15 +180,25 @@ export default class ObjectDetails extends Component {
     return addKeys(name, section.map(desc => this.renderNode(desc, section)));
   }
 
-  render() {
-    return (
-      <Form ref="form" styleName="object-details">
-        <div styleName="main">
-          {this.renderSection('main')}
-        </div>
+  get aside() {
+    if (this.layout.aside != null) {
+      return (
         <div styleName="aside">
           {this.renderSection('aside')}
         </div>
+      );
+    }
+  }
+
+  render() {
+    const mainStyleName = this.layout.aside != null ? 'main' : 'full-page';
+
+    return (
+      <Form ref="form" styleName="object-details">
+        <div styleName={mainStyleName}>
+          {this.renderSection('main')}
+        </div>
+        {this.aside}
       </Form>
     );
   }

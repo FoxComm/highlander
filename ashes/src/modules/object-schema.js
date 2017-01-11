@@ -1,12 +1,18 @@
 
-import _ from 'lodash';
 import { createAsyncActions } from '@foxcomm/wings';
 import { createReducer, createAction } from 'redux-act';
 import Api from 'lib/api';
 
 const _fetchSchema = createAsyncActions(
   'fetchSchema',
-  (kind, id = void 0) => Api.get(`/object/schemas/byKind/${kind}`)
+  (kind, id = void 0) => {
+    if (kind === 'sku') {
+      const skuSchema = require('./schemas/sku.json');
+      return new Promise(resolve => resolve([{schema: skuSchema}]));
+    }
+
+    return Api.get(`/object/schemas/byKind/${kind}`);
+  }
 );
 export const saveSchema = createAction('SCHEMA_SAVE', (kind, schema) => [kind, schema]);
 

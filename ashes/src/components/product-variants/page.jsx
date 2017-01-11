@@ -1,10 +1,8 @@
-/**
- * @flow
- */
+// @flow
 
 // libs
 import _ from 'lodash';
-import React, { Element } from 'react';
+import React, { Element, PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 
 // components
@@ -20,7 +18,7 @@ import type { ProductVariant } from 'modules/product-variants/details';
 
 type Props = {
   actions: {
-    skuNew: () => void,
+    productVariantNew: () => void,
     fetchProductVariant: (code: string, context?: string) => Promise,
     createProductVariant: (variant: ProductVariant, context?: string) => Promise,
     updateProductVariant: (variant: ProductVariant, context?: string) => Promise,
@@ -34,16 +32,16 @@ type Props = {
 class ProductVariantPage extends ObjectPage {
   props: Props;
 
-  get code(): string {
-    return _.get(this.props.originalObject, 'attributes.code.v', '');
-  }
+  static contextTypes = {
+    router: PropTypes.object.isRequired,
+  };
 
   get pageTitle(): string {
     if (this.isNew) {
       return `New Product Variant`;
     }
 
-    return this.code.toUpperCase();
+    return _.get(this.props.originalObject, 'attributes.title.v', '');
   }
 
   get entityIdName(): string {

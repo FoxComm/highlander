@@ -1,7 +1,7 @@
 {
   "main": [
     {
-      "type": "inventoryAndTransactons"
+      "type": "inventoryAndTransactions"
     },
     {
       "type": "group",
@@ -21,31 +21,22 @@
         {
           "type": "fields",
           "value": [
-            "unitCost",
-            "taxClass"
+            "unitCost"
           ]
         }
       ]
     },
     {
       "type": "group",
-      "title": "Shipping & Return Settings",
+      "title": "Shipping Settings",
       "content": [
         {
           "type": "fields",
           "value": [
-            "requiresShipping"
-          ]
-        },
-        {
-          "type": "fields",
-          "value": [
-            "isReturnable",
-            "returnWindow",
-            "weight",
+            "width",
             "height",
-            "length",
-            "width"
+            "weight",
+            "length"
           ]
         }
       ]
@@ -58,25 +49,6 @@
           "type": "fields",
           "value": [
             "requiresInventoryTracking"
-          ]
-        },
-        {
-          "type": "inventoryWarningLevel"
-        },
-        {
-          "type": "maximumQuantityInCart"
-        },
-        {
-          "type": "minimumQuantityInCart"
-        },
-        {
-          "type": "fields",
-          "value": [
-            "allowBackorder",
-            "allowPreorder",
-            "requiresLotTracking",
-            "lotExpirationThreshold",
-            "lotExpirationWarningThreshold"
           ]
         }
       ]

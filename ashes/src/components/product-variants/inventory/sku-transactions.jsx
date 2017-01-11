@@ -21,13 +21,11 @@ type Actions = {
   updateStateAndFetch: Function,
 };
 
-type Params = {
-  skuCode: string,
-};
 
 type Props = {
+  skuId: number,
+  // connected
   actions: Actions,
-  params: Params,
   list: Object,
 };
 
@@ -52,7 +50,7 @@ class InventoryItemTransactions extends Component {
 
   componentDidMount() {
     this.props.actions.setExtraFilters([
-      dsl.termFilter('sku', this.props.params.skuCode)
+      dsl.termFilter('skuId', this.props.skuId)
     ]);
 
     this.props.actions.fetch();

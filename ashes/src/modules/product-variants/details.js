@@ -99,10 +99,10 @@ function updateProductVariantInState(state: ProductVariantState, productVariant:
 
 const reducer = createReducer({
   [productVariantNew]: (state) => {
-    return assoc(state,
-      'productVariant', createEmptyProductVariant(),
-      'err', null
-    );
+    return {
+      ...state,
+      productVariant: createEmptyProductVariant(),
+    };
   },
   [productVariantClear]: state => {
     return dissoc(state, 'productVariant');

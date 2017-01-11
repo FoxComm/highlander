@@ -54,8 +54,12 @@ export type WarehouseInventoryMap = {
 
 const _fetchSummary = createAsyncActions(
   'inventory-summary',
-  (skuCode) => {
-    return Api.get(`/inventory/summary/${skuCode}`).then(response => [response, skuCode]);
+  (skuId: number) => {
+    return new Promise(resolve => {
+      const tmpSummary = require('./tmp-summary-mock.json');
+      resolve([tmpSummary, skuId]);
+    });
+    //return Api.get(`/inventory/summary/${skuId}`).then(response => [response, skuId]);
   },
 );
 export const fetchSummary = _fetchSummary.perform;
@@ -96,7 +100,7 @@ export function pushStockItemChanges(sku) {
 const initialState = {};
 
 const reducer = createReducer({
-  [_fetchSummary.succeeded]: (state, [payload, sku]) => {
+  [_fetchSummary.succeeded]: (state, [payload, skuId]) => {
     const stockItems: Array<StockItemSummary> = payload.summary;
 
     const inventoryDetailsByLocations = _.reduce(stockItems, (acc, itemSummary: StockItemSummary) => {
@@ -130,7 +134,7 @@ const reducer = createReducer({
     }, {});
 
     return assoc(state,
-      ['details', sku], inventoryDetailsByLocations
+      ['details', skuId], inventoryDetailsByLocations
     );
   },
   [updateSkuItemsCount]: (state, [sku, stockItem, diff]) => {

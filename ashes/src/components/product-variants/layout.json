@@ -18,67 +18,8 @@
         {
           "type": "fields",
           "value": [
-            "unitCost"
-          ]
-        },
-        {
-          "type": "taxClass"
-        }
-      ]
-    },
-    {
-      "type": "group",
-      "title": "Shipping & Return Settings",
-      "content": [
-        {
-          "type": "fields",
-          "value": [
-            "requiresShipping"
-          ]
-        },
-        {
-          "type": "shippingClass"
-        },
-        {
-          "type": "fields",
-          "value": [
-            "isReturnable",
-            "returnWindow",
-            "weight",
-            "height",
-            "length",
-            "width"
-          ]
-        }
-      ]
-    },
-    {
-      "type": "group",
-      "title": "Inventory Settings",
-      "content": [
-        {
-          "type": "fields",
-          "value": [
-            "requiresInventoryTracking"
-          ]
-        },
-        {
-          "type": "inventoryWarningLevel"
-        },
-        {
-          "type": "maximumQuantityInCart"
-        },
-        {
-          "type": "minimumQuantityInCart"
-        },
-        {
-          "type": "fields",
-          "value": [
-            "allowBackorder",
-            "allowPreorder",
-            "requiresLotTracking",
-            "lotExpirationThreshold",
-            "lotExpirationWarningThreshold"
+            "salePrice",
+            "retailPrice"
           ]
         }
       ]

@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 
 // components
-import ExpandableTable from '../table/expandable-table';
+import ExpandableTable from 'components/table/expandable-table';
 import InventoryWarehouseRow from './sku-inventory-row';
 import WarehouseDrawer from './sku-inventory-drawer';
 
@@ -15,13 +15,13 @@ import * as WarehousesActions from 'modules/inventory/warehouses';
 import type { WarehouseInventorySummary, WarehouseInventoryMap } from 'modules/inventory/warehouses';
 
 const mapStateToProps = (state, props) => ({
-  inventoryDetails: _.get(state, ['inventory', 'warehouses', 'details', props.params.skuCode], {}),
+  inventoryDetails: _.get(state, ['inventory', 'warehouses', 'details', props.skuId], {}),
   fetchState: _.get(state, 'asyncActions.inventory-summary', {}),
   inventoryUpdated: _.get(state, 'asyncActions.inventory-increment.finished', false),
 });
 
 type Props = {
-  params: Object,
+  skuId: number;
   // connected
   inventoryDetails: WarehouseInventoryMap,
   fetchSummary: (id: number) => Promise,
@@ -44,12 +44,12 @@ class InventoryItemDetails extends Component {
   props: Props;
 
   componentDidMount() {
-    this.props.fetchSummary(this.props.params.productVariantId);
+    this.props.fetchSummary(this.props.skuId);
   }
 
   componentWillReceiveProps(nextProps: Props) {
     if (!this.props.inventoryUpdated && nextProps.inventoryUpdated) {
-      this.props.fetchSummary(this.props.params.productVariantId);
+      this.props.fetchSummary(this.props.skuId);
     }
   }
 

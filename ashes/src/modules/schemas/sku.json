@@ -27,7 +27,16 @@
           "widget": "options",
           "fieldsOptions": [
             ["default", "Default"],
-            ["other", "Other"],
+            ["other", "Other"]
+          ]
+        },
+        "shippingClass": {
+          "title": "Shipping Class",
+          "type": "string",
+          "widget": "options",
+          "fieldsOptions": [
+            ["default", "Default"],
+            ["other", "Other"]
           ]
         },
         "unitCost": {

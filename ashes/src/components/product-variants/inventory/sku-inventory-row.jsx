@@ -1,10 +1,10 @@
 
 // libs
-import React, { PropTypes } from 'react';
 import _ from 'lodash';
+import React, { PropTypes } from 'react';
 
 // components
-import ExpandableRow from '../table/expandable-row';
+import ExpandableRow from 'components/table/expandable-row';
 
 import type { WarehouseInventorySummary } from 'modules/inventory/warehouses';
 

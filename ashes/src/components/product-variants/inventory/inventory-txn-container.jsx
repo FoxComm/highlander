@@ -1,6 +1,6 @@
-/* @flow  */
+// @flow
 
-//libs
+// libs
 import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
 
@@ -8,20 +8,29 @@ import { autobind } from 'core-decorators';
 import TabListView from 'components/tabs/tabs';
 import TabView from 'components/tabs/tab';
 import SkuInventory from './sku-inventory';
+import SkuTransactions from './sku-transactions';
 
 type State = {
   currentView: 'inventory' | 'transactions',
 }
 
+type Props = {
+  skuId: number,
+}
+
 class InventoryTransactionsContainer extends Component {
+  props: Props;
   state: State = {
     currentView: 'inventory',
   };
 
-  get children() {
-    const { children, ...restProps } = this.props;
-
-    return React.cloneElement(children, restProps);
+  get body() {
+    const { skuId } = this.props;
+    if (this.state.currentView == 'inventory') {
+      return <SkuInventory skuId={skuId} />;
+    } else {
+      return <SkuTransactions skuId={skuId} />;
+    }
   }
 
   @autobind
@@ -61,7 +70,7 @@ class InventoryTransactionsContainer extends Component {
             </div>
           </div>
         </div>
-        {this.children}
+        {this.body}
       </div>
     );
   }
