@@ -5,7 +5,6 @@ import failures.LockFailures._
 import failures.ShippingMethodFailures._
 import failures.{NotFoundFailure400, NotFoundFailure404}
 import faker.Lorem
-import models.Reasons
 import models.cord._
 import models.cord.lineitems._
 import models.location._
@@ -21,11 +20,10 @@ import payloads.OrderPayloads.CreateCart
 import payloads.UpdateShippingMethod
 import responses.cord.CartResponse
 import responses.cord.base.CordResponseLineItem
-import responses.{CustomerResponse, GiftCardResponse, StoreCreditResponse, TheResponse}
+import responses._
 import models.cord.CordPaymentState
-import models.payment.giftcard.{GiftCard, GiftCardManual, GiftCardManuals, GiftCards}
 import payloads.GiftCardPayloads.GiftCardCreateByCsr
-import payloads.PaymentPayloads.{CreateManualStoreCredit, GiftCardPayment, StoreCreditPayment}
+import payloads.PaymentPayloads._
 import services.carts.CartTotaler
 import slick.driver.PostgresDriver.api._
 import testutils._
