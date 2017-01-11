@@ -1,0 +1,48 @@
+@import "variables.css";
+@import "media-queries.css";
+
+.subtitle {
+  font-family: var(--font-main);
+  font-weight: 300;
+  font-size: 20px;
+  color: #212121;
+  line-height: 33px;
+  text-align: center;
+  margin-top: -25px;
+}
+
+.content {
+  padding: 0 20px;
+}
+
+.input-field {
+  composes: text-input from "ui/css/input.css";
+  width: 100%;
+  border: 1px solid #3E3436;
+  margin-bottom: 15px;
+
+  /* Validation error */
+  & + div {
+    margin-top: -16px;
+    margin-bottom: 15px;
+  }
+
+  &::placeholder {
+    text-transform: uppercase;
+  }
+}
+
+.message-field {
+  composes: input-field;
+  height: 150px;
+  padding: 10px;
+}
+
+.submit-btn {
+  padding: 0 1.6em;
+  text-transform: uppercase;
+  font-size: 15px;
+  font-weight: 700;
+  height: 46px;
+  width: 100%;
+}
