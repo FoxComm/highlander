@@ -1,6 +1,6 @@
 ---
 
-- name: Bootstrap Database & Zookeeper Backups
+- name: Bootstrap Zookeeper Backup Script
   hosts: '{{hostname}}'
   become: true
   vars:
@@ -8,7 +8,7 @@
   vars_prompt:
     - name: "hostname"
       prompt: "Enter a hostname with a database to backup"
-      default: "foxcomm-stage-backend"
+      default: "foxcomm-stage-consul-server"
       private: no
     - name: "service_key_file"
       prompt: "Enter a local path to service key file"
@@ -20,4 +20,4 @@
       private: no
 
   roles:
-      - { role: dev/backups }
+      - { role: dev/backup_zk }

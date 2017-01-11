@@ -9,8 +9,6 @@
   with_items:
     - restore_db.sh
     - backup_db.sh
-    - restore_zk.sh
-    - backup_zk.sh
 
 - name: Download gcsfuse
   get_url: url={{gcsfuse_download_url}} dest="/tmp/{{gcsfuse_filename}}"
@@ -19,7 +17,7 @@
   shell: dpkg -i /tmp/{{gcsfuse_filename}}
 
 - name: Add Backup Directory Mount Service
-  template: src=backup_mount.service dest={{dest_services}}/backup_mount.service
+  template: src=backup_db.service dest={{dest_services}}/backup_db.service
 
 - name: Make sure keys dir exist
   file: path=/etc/keys state=directory owner={{user}} mode="0700"
@@ -37,11 +35,8 @@
   cron: name="marketplace db backup" minute="30" hour="4" job="{{usr_local}}bin/backup_db.sh {{db_backup_filename_marketplace}} {{marketplace_db_name}}"
   when: with_marketplace
 
-- name: Setup Zookeeper Transaction Log Backup Cron
-  cron: name="zookeeper data dir backup" minute="30" hour="4" job="{{usr_local}}bin/backup_zk.sh {{zk_backup_filename}} {{zk_data_dir}}"
-
-- name: Reload Systemd for Backup Mount Service
+- name: Reload Systemd for Backup DB Service
   command: systemctl daemon-reload
 
 - name: Start Backup Mount service
-  service: name=backup_mount state=started enabled=yes
+  service: name=backup_db state=started enabled=yes
