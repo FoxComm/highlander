@@ -2,7 +2,7 @@
 
 set -ue
 
-LOCK=/var/tmp/restore_db.lock
+LOCK=/var/tmp/restore_zk.lock
 
 if [ -e "$LOCK" ]; then
     echo "Zookeeper data dir restoration is in progress; Remove $LOCK if it's not true. Exit for now"
