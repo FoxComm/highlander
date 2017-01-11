@@ -1,5 +1,6 @@
 create table customer_groups_search_view (
-  id integer primary key,
+  id bigint primary key,
+  group_id bigint not null,
   name generic_string,
   customers_count integer null,
   client_state generic_string,
