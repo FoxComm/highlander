@@ -18,7 +18,7 @@
 - name: Setting Up Elasticsearch User
   user: name=elasticsearch groups=admin
 
-- name: Change permissions on package
+- name: Change Permissions on Package
   file: path={{es_path}}/config/{{item}} mode="u=rwx,g=rwx,o=rx" state=file
   with_items:
     - jvm.options
@@ -37,6 +37,9 @@
 
 - name: Set the maximum number of open files
   lineinfile: dest=/etc/security/limits.conf insertbefore='^# End of file' line='elasticsearch - nofile {{es_max_file_descriptors}}'
+
+- name: Set Max Virtual Memory Areas
+  command: sysctl -w vm.max_map_count=262145
 
 - name: Reload Systemd for Elastic Search
   command: systemctl daemon-reload
