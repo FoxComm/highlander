@@ -12,8 +12,8 @@ Highlander is the brand-spanking-new FoxCommerce mono-repo.
 | [green-river](green-river)         | An event-sourcing system based on Kafka and [bottledwater](https://github.com/confluentinc/bottledwater-pg). |
 | [middlewarehouse](middlewarehouse) | A lightweight and fast shipping and inventory management service written in Go.                              |
 | [isaac](isaac)                     | Our C++ authentication service.                                                                              |
-| [solomon](solomon)                 | Microservices that handles scopes, claims, roles and permissions, written in Elixir.                         |
-| [messaging](messaging)             | Kafka consumer that handles e-mail notifications through Mandrill and Mailchimp, written in Clojure.         |
+| [solomon](solomon)                 | A microservice that handles scopes, claims, roles and permissions, written in Elixir.                        |
+| [messaging](messaging)             | Kafka consumer that handles e-mail notifications through Mailchimp, written in Clojure.                      |
 | [ashes](ashes)                     | The Admin UI, written in React.js.                                                                           |
 | [api-js](api-js)                   | A JavaScript library for interacting with the FoxCommerce API.                                               |
 | [firebrand](firebrand)             | A demo storefront used to show off the capabilities of FoxCommerce APIs.                                     |
