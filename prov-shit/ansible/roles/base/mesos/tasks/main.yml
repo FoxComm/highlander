@@ -2,16 +2,13 @@
 
 - name: Copy Mesos Setup Script
   copy: src=mesos-setup.sh dest={{home}}/mesos-setup.sh mode="u+x,g+x,o+x"
-  
 
 - name: Run Mesos Setup Script
   shell: "{{home}}/mesos-setup.sh"
-  
 
 - name: Update Package Cache
   apt: update_cache=yes
-  
 
 - name: Install Mesos Package
   apt: name=mesos state=latest force=yes
-  
+

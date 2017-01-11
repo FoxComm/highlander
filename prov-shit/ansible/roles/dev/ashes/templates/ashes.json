@@ -2,7 +2,7 @@
   "id": "/ashes",
   "cmd": null,
   "cpus": 1,
-  "mem": 6144,
+  "mem": 2048,
   "disk": 0,
   "instances": 1,
   "env": {
