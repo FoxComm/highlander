@@ -46,9 +46,11 @@ func NewProxy(c *ProxyConfig) (*RiverRock, error) {
 	}, nil
 }
 
-func (p *RiverRock) StartProxy() {
+func (p *RiverRock) StartProxy() error {
 
 	bernardoUrl := p.Config.BernardoUrl + "/sfind"
+
+	selector := selection.NewSelector(p.Db)
 
 	e := echo.New()
 
@@ -61,7 +63,7 @@ func (p *RiverRock) StartProxy() {
 		//TODO: Take request and consult bernardo about the cluster
 		clusterId, err := clustering.MapRequestToCluster(req, bernardoUrl)
 
-		mappedResources, err := selection.GetMappedResources(p.Db, clusterId, path)
+		mappedResources, err := selector.GetMappedResources(clusterId, path)
 
 		proxy := httputil.NewSingleHostReverseProxy(p.Upstream)
 
@@ -70,7 +72,7 @@ func (p *RiverRock) StartProxy() {
 			log.Print("PASS: " + path + " => " + p.Config.UpstreamUrl + path)
 			proxy.ServeHTTP(res, req)
 		} else {
-			ref, err := selection.SelectResource(clusterId, mappedResources)
+			ref, err := selector.SelectResource(clusterId, mappedResources)
 			if err != nil {
 				log.Print(err)
 			} else {
@@ -91,5 +93,5 @@ func (p *RiverRock) StartProxy() {
 		return c.String(http.StatusOK, "STUFF HERE")
 	})
 
-	e.Logger.Fatal(e.Start(":" + p.Config.Port))
+	return e.Start(":" + p.Config.Port)
 }

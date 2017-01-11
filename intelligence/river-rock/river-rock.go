@@ -68,5 +68,5 @@ func main() {
 		log.Fatal(err)
 	}
 
-	proxy.StartProxy()
+	log.Fatal(proxy.StartProxy())
 }

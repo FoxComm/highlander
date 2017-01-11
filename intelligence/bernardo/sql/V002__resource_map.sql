@@ -13,6 +13,11 @@
 --    }
 --     
 
+create table fallback_cluster ( 
+  cluster_id integer references clusters(id),
+  fallback_id integer references clusters(id)
+);
+
 create table resource_map (
     id serial primary key,
     cluster_id integer references clusters(id),
