@@ -5,7 +5,9 @@ import { assoc } from 'sprout-data';
 import Api from '../lib/api';
 
 const startFetching = createAction('ANALYTICS_START_FETCHING');
-const receivedValues = createAction('ANALYTICS_RECEIVED',(keys, values, from, to, sizeSec, stepSec) => [keys, values, from, to, sizeSec, stepSec]);
+const receivedValues = createAction('ANALYTICS_RECEIVED',
+  (keys, values, from, to, sizeSec, stepSec) => [keys, values, from, to, sizeSec, stepSec]
+);
 const fetchFailed = createAction('ANALYTICS_FETCH_FAILED');
 export const resetAnalytics = createAction('ANALYTICS_RESET');
 
@@ -16,7 +18,7 @@ export function fetchAnalytics(keys, from, to, sizeSec, stepSec) {
     const keyStr = _.reduceRight(keys, (result, v) => {
       if(result) return `${result},${v.key}`;
       return v.key;
-    }, "");
+    }, '');
 
     const url = `time/values?keys=${keyStr}&a=${from}&b=${to}&size=${sizeSec}&step=${stepSec}&xy&sum`;
     return Api.get(url).then(
