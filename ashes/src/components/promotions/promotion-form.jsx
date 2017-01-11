@@ -101,6 +101,7 @@ export default class PromotionForm extends ObjectDetails {
     return [
       <div styleName="sub-title" key="title">Qualifier Type</div>,
       <DiscountAttrs
+        dropdownId="promo-qualifier-dd"
         key="attrs"
         discount={discount}
         attr="qualifier"
@@ -116,6 +117,7 @@ export default class PromotionForm extends ObjectDetails {
     return [
       <div styleName="sub-title" key="title">Offer Type</div>,
       <DiscountAttrs
+        dropdownId="promo-offer-dd"
         key="attrs"
         discount={discount}
         attr="offer"
