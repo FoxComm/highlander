@@ -37,4 +37,4 @@
   command: systemctl daemon-reload
 
 - name: Restart Rsyslog
-  service: name=rsyslog state=restarted
+  service: name=rsyslog state=restarted enabled=yes
