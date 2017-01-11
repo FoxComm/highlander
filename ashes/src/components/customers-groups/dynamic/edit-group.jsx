@@ -17,10 +17,9 @@ import { prefix } from '../../../lib/text-utils';
 import NewGroupBase from './../new-group';
 import DynamicGroupEditor from './group-editor';
 import Form from '../../forms/form';
-import { PrimaryButton, Button } from '../../common/buttons';
+import { PrimaryButton } from '../../common/buttons';
 import { Link } from '../../link';
 import { transitionTo } from 'browserHistory';
-
 
 const prefixed = prefix('fc-customer-group-dynamic-edit');
 
@@ -50,13 +49,21 @@ export default class EditDynamicGroup extends React.Component {
   };
 
   componentWillMount() {
-    this.props.actions.reset();
+    const { group, params } = this.props;
+
+    if (group.id != params.groupId) {
+      this.props.actions.reset();
+    }
   }
 
   componentDidMount() {
-    const { params, actions, fetchRegions } = this.props;
-    actions.fetchGroup(params.groupId);
+    const { group, params, actions, fetchRegions } = this.props;
+
     fetchRegions();
+
+    if (group.id != params.groupId) {
+      actions.fetchGroup(params.groupId);
+    }
   }
 
   componentDidUpdate() {

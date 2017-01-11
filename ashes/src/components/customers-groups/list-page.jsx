@@ -11,7 +11,7 @@ import { ListPageContainer, makeTotalCounter } from '../list-page';
 import { actions as customersActions } from '../../modules/customers/list';
 
 type Props = {
-  children?: Array<Element>|Element;
+  children?: Element;
 }
 
 const GroupsListPage = (props: Props) => {
