@@ -3,13 +3,13 @@ import _ from 'lodash';
 import { assoc } from 'sprout-data';
 
 // helpers
-import Api from '../../../lib/api';
-import * as search from '../../../lib/search';
-import createStore from '../../../lib/store-creator';
-import criterions, { getCriterion, getWidget } from './../../../paragons/customer-groups/criterions';
+import Api from 'lib/api';
+import * as search from 'lib/search';
+import { post } from 'lib/search';
+import createStore from 'lib/store-creator';
+import criterions, { getCriterion, getWidget } from 'paragons/customer-groups/criterions';
+import { aggregations } from 'elastic/request';
 import requestAdapter from './../request-adapter';
-import { aggregations } from '../../../elastic/request';
-
 
 const initialState = {
   id: null,
@@ -46,6 +46,7 @@ const saveGroup = actions => (dispatch, getState) => {
   const name = getValue('name');
   const mainCondition = getValue('mainCondition');
   const conditions = getValue('conditions');
+  const elasticRequest = requestAdapter(criterions, mainCondition, conditions).toRequest();
 
   const data = {
     name,
@@ -53,23 +54,35 @@ const saveGroup = actions => (dispatch, getState) => {
       mainCondition,
       conditions,
     },
-    elasticRequest: requestAdapter(criterions, mainCondition, conditions).toRequest(),
+    elasticRequest,
+    customersCount: 0,
   };
 
-  //create or update
-  let request;
-  if (id) {
-    request = Api.patch(`/groups/${id}`, data);
-  } else {
-    request = Api.post('/groups', data);
-  }
+  return new Promise((resolve, reject) => {
+    post('customers_search_view/_count', elasticRequest)
+      .then(response => {
+        data.customersCount = response.count;
 
-  return request.then(
-    (data) => {
-      dispatch(actions.setData(data));
-      dispatch(actions.setIsSaved());
-    }
-  );
+        //create or update
+        let request;
+        if (id) {
+          request = Api.patch(`/groups/${id}`, data);
+        } else {
+          request = Api.post('/groups', data);
+        }
+
+        request
+          .then(data => {
+              resolve(data);
+
+              dispatch(actions.setData(data));
+              dispatch(actions.setIsSaved());
+            }
+          )
+          .catch(err => reject(err));
+      })
+      .catch(err => reject(err));
+  });
 };
 
 const fetchGroupStats = (actions, mainCondition, conditions) => dispatch => {
