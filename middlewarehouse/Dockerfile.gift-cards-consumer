@@ -4,7 +4,6 @@ RUN curl https://glide.sh/get | sh
 
 ADD . /go/src/github.com/FoxComm/highlander/middlewarehouse
 RUN cd /go/src/github.com/FoxComm/highlander/middlewarehouse && glide install
-RUN go install github.com/FoxComm/highlander/middlewarehouse
+RUN go install github.com/FoxComm/highlander/middlewarehouse/consumers/gift-cards
 
-EXPOSE 9292
-ENTRYPOINT /go/bin/middlewarehouse
+ENTRYPOINT /go/bin/gift-cards
