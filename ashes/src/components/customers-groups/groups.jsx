@@ -20,14 +20,14 @@ import { PrimaryButton } from '../common/buttons';
 
 const prefixed = prefix('fc-customer-groups');
 
-const mapStateToProps = state => ({list: state.customerGroups.list});
-const mapDispatchToProps = dispatch => ({actions: bindActionCreators(actions, dispatch)});
+const mapStateToProps = state => ({ list: state.customerGroups.list });
+const mapDispatchToProps = dispatch => ({ actions: bindActionCreators(actions, dispatch) });
 
 const tableColumns = [
-  {field: 'name', text: 'Group Name'},
-  {field: 'type', text: 'Type'},
-  {field: 'createdAt', type: 'date', text: 'Date/Time Created'},
-  {field: 'modifiedAt', type: 'date', text: 'Date/Time Last Modified'},
+  { field: 'name', text: 'Group Name' },
+  { field: 'type', text: 'Type' },
+  { field: 'createdAt', type: 'date', text: 'Date/Time Created' },
+  { field: 'modifiedAt', type: 'date', text: 'Date/Time Last Modified' },
 ];
 
 @connect(mapStateToProps, mapDispatchToProps)
@@ -65,22 +65,16 @@ export default class Groups extends Component {
   }
 
   render() {
-    const {list, actions: {updateStateAndFetch}} = this.props;
+    const { list, actions: { updateStateAndFetch } } = this.props;
 
     return (
       <div className={classNames(prefixed())}>
-        <div className={classNames(prefixed('header'))}>
-          <h2 className={prefixed('header__title')}>Customers Groups</h2>
-          <PrimaryButton icon="add" onClick={this.handleAddGroup} />
-        </div>
-        <div className={classNames(prefixed('table'))}>
-          <MultiSelectTable
-            columns={tableColumns}
-            data={list}
-            renderRow={this.renderRow}
-            setState={updateStateAndFetch}
-            emptyMessage="No groups found." />
-        </div>
+        <MultiSelectTable
+          columns={tableColumns}
+          data={list}
+          renderRow={this.renderRow}
+          setState={updateStateAndFetch}
+          emptyMessage="No groups found." />
       </div>
     );
   }

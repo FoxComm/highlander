@@ -8,6 +8,7 @@ import { frn } from 'lib/frn';
 import Customers from 'components/customers/customers';
 import CustomersListPage from 'components/customers/list-page';
 import NewCustomer from 'components/customers/new-customer';
+import GroupsListPage from 'components/customers-groups/list-page';
 import Groups from 'components/customers-groups/groups';
 import Group from 'components/customers-groups/group';
 import NewDynamicGroup from 'components/customers-groups/dynamic/new-group';
@@ -38,7 +39,7 @@ const getRoutes = (jwt: Object) => {
          }),
       ]),
       router.read('groups-base', { path: 'groups', frn: frn.user.customerGroup }, [
-        router.read('customer-groups', { component: CustomersListPage }, [
+        router.read('customer-groups', { component: GroupsListPage }, [
           router.read('groups', { component: Groups, isIndex: true }),
         ]),
         router.create('new-dynamic-customer-group', {

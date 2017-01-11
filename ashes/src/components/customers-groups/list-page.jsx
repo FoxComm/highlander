@@ -1,6 +1,7 @@
+/* @flow */
 
 // libs
-import React, { PropTypes } from 'react';
+import React, { Element } from 'react';
 import { transitionTo } from 'browserHistory';
 
 // components
@@ -9,20 +10,23 @@ import { ListPageContainer, makeTotalCounter } from '../list-page';
 // redux
 import { actions as customersActions } from '../../modules/customers/list';
 
-const CustomersListPage = props => {
+type Props = {
+  children?: Array<Element>|Element;
+}
+
+const GroupsListPage = (props: Props) => {
   const TotalCounter = makeTotalCounter(state => state.customers.list, customersActions);
 
   const navLinks = [
-    { title: 'Lists', to: 'customers' },
-    { title: 'Activity Trail', to: 'customers-activity-trail' }
+    { title: 'List', to: 'groups' },
   ];
 
   return (
     <ListPageContainer
-      title="Customers"
+      title="Customer Groups"
       subtitle={<TotalCounter />}
-      addTitle="Customer"
-      handleAddAction={ () => transitionTo('customers-new') }
+      addTitle="Group"
+      handleAddAction={ () => transitionTo('new-dynamic-customer-group') }
       navLinks={navLinks}
     >
       {props.children}
@@ -30,8 +34,4 @@ const CustomersListPage = props => {
   );
 };
 
-CustomersListPage.propTypes = {
-  children: PropTypes.node,
-};
-
-export default CustomersListPage;
+export default GroupsListPage;
