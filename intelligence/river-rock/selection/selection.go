@@ -105,6 +105,9 @@ func (s *Selector) getFallbackCluster(clusterId int) (int, error) {
 }
 
 func (s *Selector) GetMappedResources(clusterId int, res string) (string, error) {
+	if clusterId < 0 {
+		panic("Non negative clusterId")
+	}
 
 	mappedResources, err := s.getMappedResourcesRaw(clusterId, res)
 	if err != nil {

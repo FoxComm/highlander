@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"strconv"
 
 	"github.com/labstack/echo"
 	//"net/http"
@@ -46,6 +47,15 @@ func NewProxy(c *ProxyConfig) (*RiverRock, error) {
 	}, nil
 }
 
+func getClusterIdFromHeader(req *http.Request) (int, error) {
+	if clusterHeader, ok := req.Header["X-Cluster"]; ok {
+		if len(clusterHeader) > 0 {
+			return strconv.Atoi(clusterHeader[0])
+		}
+	}
+	return -1, nil
+}
+
 func (p *RiverRock) StartProxy() error {
 
 	bernardoUrl := p.Config.BernardoUrl + "/sfind"
@@ -60,16 +70,36 @@ func (p *RiverRock) StartProxy() error {
 
 		path := req.URL.Path
 
-		//TODO: Take request and consult bernardo about the cluster
-		clusterId, err := clustering.MapRequestToCluster(req, bernardoUrl)
+		//Get pinned cluster Id from header
+		clusterId, err := getClusterIdFromHeader(req)
 
-		mappedResources, err := selector.GetMappedResources(clusterId, path)
+		var mappedResources string
+
+		//If no clusterId is pinned, then map the request to a cluster using bernardo.
+		if clusterId == -1 || err != nil {
+			clusterId, err = clustering.MapRequestToCluster(req, bernardoUrl)
+		}
+
+		//If we have a cluster id, get the set of mapped resources
+		if clusterId != -1 && err == nil {
+			mappedResources, err = selector.GetMappedResources(clusterId, path)
+		}
 
 		proxy := httputil.NewSingleHostReverseProxy(p.Upstream)
 
+		//If we have a cluster id, return it in a response header
+		if clusterId != -1 {
+			res.Header().Add("X-Cluster", strconv.Itoa(clusterId))
+		}
+
+		//If there was a problem with clustering or mapping, then just
+		//proxy original resource via the upstream server
+		//otherwise we will select a resource from the set and proxy that back
+		//to the client.
 		if err != nil {
 			log.Print(err)
 			log.Print("PASS: " + path + " => " + p.Config.UpstreamUrl + path)
+
 			proxy.ServeHTTP(res, req)
 		} else {
 			ref, err := selector.SelectResource(clusterId, mappedResources)
@@ -80,7 +110,6 @@ func (p *RiverRock) StartProxy() error {
 			}
 
 			log.Print("MAP: " + path + " => " + p.Config.UpstreamUrl + ref)
-
 			proxy.ServeHTTP(res, req)
 		}
 
