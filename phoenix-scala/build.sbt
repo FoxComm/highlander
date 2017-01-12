@@ -7,6 +7,8 @@ import sbtassembly.AssemblyKeys
 
 scalaVersion in ThisBuild := Versions.scala
 
+scalafmtConfig in ThisBuild := Some(file(".scalafmt.conf"))
+
 lazy val phoenixScala = (project in file("."))
   .settings(commonSettings)
   .configs(IT, ET)
@@ -56,7 +58,6 @@ lazy val phoenixScala = (project in file("."))
     test in assembly := {},
     addCommandAlias("assembly", "fullAssembly"),
     addCommandAlias("all", "; clean; gatling/clean; it:compile; gatling/compile; test; gatling/assembly"),
-    scalafmtConfig := Some(file(".scalafmt")),
     reformatOnCompileWithItSettings // scalafmt
   )
 
@@ -69,7 +70,6 @@ lazy val gatling = (project in file("gatling"))
     cleanFiles <+= baseDirectory(_ / "../gatling-classes"),
     cleanFiles <+= baseDirectory(_ / "../gatling-results"),
     assemblyJarName := (AssemblyKeys.assemblyJarName in assembly in phoenixScala).value,
-    scalafmtConfig := Some(file(".scalafmt")),
     reformatOnCompileSettings, // scalafmt,
     Revolver.settings,
     assemblyMergeStrategy in assembly := {

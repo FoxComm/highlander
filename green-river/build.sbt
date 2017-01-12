@@ -1,6 +1,10 @@
+scalafmtConfig in ThisBuild := Some(file(".scalafmt.conf"))
+
+version in ThisBuild := "1.0"
+
+scalaVersion in ThisBuild := "2.11.8"
+
 lazy val commonSettings = Seq(
-  version       := "1.0",
-  scalaVersion  := "2.11.8",
   updateOptions := updateOptions.value.withCachedResolution(true),
   scalacOptions ++= List(
     "-encoding", "UTF-8",
@@ -24,7 +28,6 @@ lazy val greenRiver = (project in file(".")).
   settings(commonSettings).
   settings(
     name      := "green-river",
-    version   := "1.0",
     resolvers ++= Seq(
       "confluent" at "http://packages.confluent.io/maven"
     ),
@@ -92,7 +95,6 @@ lazy val greenRiver = (project in file(".")).
             old(x)
         }
     },
-    scalafmtConfig := Some(file(".scalafmt")),
     reformatOnCompileSettings // scalafmt
     //test in assembly := {}
 )
