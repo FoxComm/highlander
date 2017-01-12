@@ -12,7 +12,7 @@ DESTINATION_URL=http://localhost:9200	# Local installation of Elasticsearch
 INDEX_NAME=phoenix						# Specific index to dump
 TYPE_NAMES=(							# Specific types to dump, others are ignored
 	"products_search_view"
-	"sku_search_view"
+	"product_variant_search_view"
 )
 BACKUP_DIR=$PWD/backup 					# Backup directory, will be cleaned before and after proceeding
 DUMP_FILENAME=data.json					# Dump filename suffix
