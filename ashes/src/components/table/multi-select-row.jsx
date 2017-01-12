@@ -52,6 +52,8 @@ const MultiSelectRow = (props, context) => {
     const cls = classNames({
       'row-head-left': col.field == 'selectColumn',
       'row-head-right': col.field == 'toggleColumns',
+      'retail-price-field' : col.field == 'retailPrice',
+      'sale-price-field' : col.field == 'salePrice',
     });
 
     visibleCells.push(

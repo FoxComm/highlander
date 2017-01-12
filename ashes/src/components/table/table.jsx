@@ -53,6 +53,7 @@ export type Props = {
   wrapToTbody: boolean;
   columns: Array<Column>;
   renderHeadIfEmpty: boolean;
+  tbodyId: string;
 }
 
 type State = {
@@ -181,12 +182,13 @@ export default class Table extends Component {
   }
 
   wrapBody(body: Element): Element {
+    const { tbodyId } = this.props;
     const firstRow = React.Children.toArray(body)[0];
     if (firstRow && (firstRow.type === 'tbody' || !this.props.wrapToTbody)) {
       return body;
     }
 
-    return <tbody className="fc-table-body">{body}</tbody>;
+    return <tbody id={tbodyId} className="fc-table-body">{body}</tbody>;
   }
 
   scrollToTop() {
