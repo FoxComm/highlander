@@ -9,7 +9,7 @@ import Customers from 'components/customers/customers';
 import CustomersListPage from 'components/customers/list-page';
 import NewCustomer from 'components/customers/new-customer';
 import GroupsListPage from 'components/customers-groups/list-page';
-import Groups from 'components/customers-groups/groups';
+import GroupsList from 'components/customers-groups/groups-list';
 import Group from 'components/customers-groups/group';
 import NewDynamicGroup from 'components/customers-groups/dynamic/new-group';
 import EditDynamicGroup from 'components/customers-groups/dynamic/edit-group';
@@ -40,7 +40,7 @@ const getRoutes = (jwt: Object) => {
       ]),
       router.read('groups-base', { path: 'groups', frn: frn.user.customerGroup }, [
         router.read('customer-groups', { component: GroupsListPage }, [
-          router.read('groups', { component: Groups, isIndex: true }),
+          router.read('groups', { component: GroupsList, isIndex: true }),
         ]),
         router.create('new-dynamic-customer-group', {
           path: 'new-dynamic',

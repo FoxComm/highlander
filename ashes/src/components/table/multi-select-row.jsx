@@ -45,7 +45,8 @@ const MultiSelectRow = (props, context) => {
         cellContents = <Checkbox id={`multi-select-${row.id}`} inline={true} checked={checked} onChange={onChange} />;
         break;
       default:
-        cellContents = setCellContents(row, col.field);
+        const setCellFn = setCellContents || _.get;
+        cellContents = setCellFn(row, col.field);
         break;
     }
 
@@ -77,7 +78,7 @@ MultiSelectRow.propTypes = {
   linkTo: PropTypes.string,
   linkParams: PropTypes.object,
   row: PropTypes.object.isRequired,
-  setCellContents: PropTypes.func.isRequired,
+  setCellContents: PropTypes.func,
   params: PropTypes.shape({
     checked: PropTypes.bool.isRequired,
     setChecked: PropTypes.func.isRequired,

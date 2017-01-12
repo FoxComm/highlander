@@ -4,14 +4,12 @@
 import get from 'lodash/get';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { autobind } from 'core-decorators';
-import { transitionTo } from 'browserHistory';
 
 import * as actions from 'modules/customer-groups/list';
 
 // components
 import MultiSelectTable from '../table/multi-select-table';
-import GroupRow from './group-row';
+import MultiSelectRow from '../table/multi-select-row';
 
 type Props = {
   list: Object;
@@ -28,30 +26,24 @@ const tableColumns = [
   { field: 'modifiedAt', type: 'date', text: 'Date/Time Last Modified' },
 ];
 
-class Groups extends Component {
+class GroupsList extends Component {
   props: Props;
 
   componentDidMount() {
     this.props.fetch();
   }
 
-  @autobind
-  handleAddGroup() {
-    transitionTo('new-dynamic-customer-group');
-  }
-
   get renderRow() {
-    return (row, index, columns, params) => {
-      const key = `group-${row.id}`;
-
-      return (
-        <GroupRow
-          key={key}
-          group={row}
-          columns={columns}
-          params={params} />
-      );
-    };
+    return (row, index, columns, params) => (
+      <MultiSelectRow
+        columns={columns}
+        linkTo="customer-group"
+        linkParams={{ groupId: row.id }}
+        row={row}
+        params={params}
+        key={row.id}
+      />
+    );
   }
 
   render() {
@@ -76,4 +68,4 @@ const mapStateToProps = state => ({
   list: state.customerGroups.list,
 });
 
-export default connect(mapStateToProps, actions)(Groups);
+export default connect(mapStateToProps, actions)(GroupsList);
