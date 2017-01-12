@@ -10,7 +10,6 @@
   template: src=agent.json dest="/etc/consul.d/agent.json"
 
 - name: Reload Systemd for Consul Agent
-
   command: systemctl daemon-reload
 
 - name: Restart Consul Agent
