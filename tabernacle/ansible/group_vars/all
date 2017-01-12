@@ -276,6 +276,19 @@ es5_jmx_port: 29111
 es5_max_file_descriptors: 65536
 es5_heap_size: 2048m
 
+#Bernardo
+bernardo_dir: /bernardo
+bernardo_src: ../../intelligence/bernardo/
+bernardo_db_name: ic
+bernardo_db_user: ic
+bernardo_db_host: "db.{{consul_suffix}}"
+bernardo_host: bernardo.service.consul
+
+#Henhouse
+henhouse_host: "henhouse.{{consul_suffix}}"
+henhouse_port: "9999"
+henhouse_server: "{{henhouse_host}}:{{henhouse_port}}"
+
 # Shipstation consumer
 shipstation_api_key: ""
 shipstation_api_secret: ""

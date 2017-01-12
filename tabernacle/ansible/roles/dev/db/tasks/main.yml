@@ -23,6 +23,9 @@
     - "{{marketplace_db_name}}"
   when: item != "{{marketplace_db_name}}" or with_marketplace
 
+- name: Create IC Database
+  postgresql_db: name={{bernardo_db_name}} encoding='UTF-8' lc_ctype='en_US.UTF-8' lc_collate='en_US.UTF-8' template='template0'
+
 - name: Enable Bottledwater Extensions in Postgres
   postgresql_ext: name=bottledwater db={{item}}
   with_items:
