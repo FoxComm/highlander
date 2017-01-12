@@ -10,7 +10,6 @@
   template: src=server.json dest="/etc/consul.d/server.json"
 
 - name: Reload Systemd for Consul Server
-
   command: systemctl daemon-reload
 
 - name: Restart Consul Server
