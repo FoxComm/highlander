@@ -2,26 +2,13 @@
 create or replace function update_customers_groups_view_insert_fn() returns trigger as $$
   begin
     insert into customer_groups_search_view select distinct on (new.id)
-      cg.id as id,
-      cg.id as group_id,
-      cg.name as name,
-      cg.customers_count as customers_count,
-      cg.client_state as client_state,
-      cg.elastic_request as elastic_request,
-      to_char(cg.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as updated_at,
-      to_char(cg.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as created_at,
-      cg.scope as scope
-      from (select
-          cdg.id,
-          cdg.name,
-          cdg.customers_count,
-          cdg.client_state,
-          cdg.elastic_request,
-          cdg.updated_at,
-          cdg.created_at,
-          cdg.scope
-        from customer_dynamic_groups as cdg
-        where cdg.id = new.id) as cg;
+      new.id as id,
+      new.id as group_id,
+      new.name as name,
+      new.customers_count as customers_count,
+      to_char(new.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as updated_at,
+      to_char(new.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as created_at,
+      new.scope as scope;
     return null;
   end;
 $$ language plpgsql;
@@ -30,21 +17,10 @@ $$ language plpgsql;
 create or replace function update_customers_groups_view_update_fn() returns trigger as $$
   begin
     update customer_groups_search_view set
-        name = cg.name,
-        customers_count = cg.customers_count,
-        client_state = cg.client_state,
-        elastic_request = cg.elastic_request,
-        updated_at = to_char(cg.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
-        scope = cg.scope
-      from (select
-          cdg.name,
-          cdg.customers_count,
-          cdg.client_state,
-          cdg.elastic_request,
-          cdg.updated_at,
-          cdg.scope
-        from customer_dynamic_groups as cdg
-        where cdg.id = new.id) as cg;
+        name = new.name,
+        customers_count = new.customers_count,
+        updated_at = to_char(new.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
+        scope = new.scope;
     return null;
   end;
 $$ language plpgsql;
