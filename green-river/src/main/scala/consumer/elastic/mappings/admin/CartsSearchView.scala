@@ -12,8 +12,8 @@ final case class CartsSearchView()(implicit ec: EC) extends AvroTransformer {
       field("id", IntegerType),
       field("scope", StringType).index("not_analyzed"),
       field("referenceNumber", StringType).analyzer("upper_cased"),
-      field("createdAt", DateType) format dateFormat,
-      field("updatedAt", DateType) format dateFormat,
+      field("createdAt", DateType).format(dateFormat),
+      field("updatedAt", DateType).format(dateFormat),
       field("currency", StringType) index "not_analyzed",
       // Totals
       field("subTotal", IntegerType),
