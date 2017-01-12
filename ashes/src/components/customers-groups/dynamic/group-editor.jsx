@@ -3,7 +3,6 @@ import React, { PropTypes } from 'react';
 import classNames from 'classnames';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { autobind } from 'core-decorators';
 
 //data
 import operators from '../../../paragons/customer-groups/operators';
@@ -12,15 +11,11 @@ import operators from '../../../paragons/customer-groups/operators';
 import { prefix } from '../../../lib/text-utils';
 
 //components
-import Form from '../../forms/form';
-
 import FormField from '../../forms/formfield';
-import { Dropdown, DropdownItem } from '../../dropdown';
-import { PrimaryButton, Button } from '../../common/buttons';
+import { Dropdown } from '../../dropdown';
 import QueryBuilder from './query-builder';
-import { Link } from '../../link';
 
-import { actions } from '../../../modules/customer-groups/dynamic/group';
+import * as actions from '../../../modules/customer-groups/group';
 
 const SELECT_CRITERIA = [
   [operators.and, 'all'],
@@ -29,7 +24,7 @@ const SELECT_CRITERIA = [
 
 const prefixed = prefix('fc-customer-group-dynamic-edit');
 
-const mapStateToProps = state => ({ group: state.customerGroups.dynamic.group });
+const mapStateToProps = state => ({ group: state.customerGroups.details.group });
 const mapDispatchToProps = dispatch => ({ actions: bindActionCreators(actions, dispatch) });
 
 @connect(mapStateToProps, mapDispatchToProps)

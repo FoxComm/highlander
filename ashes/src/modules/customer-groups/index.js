@@ -1,13 +1,13 @@
 import { combineReducers } from 'redux';
-import dynamic from './dynamic';
+// import dynamic from './dynamic';
 import list from './list';
-import all from './all';
+import details from './details';
 
 
 const reducer = combineReducers({
-  dynamic,
+  // dynamic,
   list,
-  all,
+  details,
 });
 
 export default reducer;

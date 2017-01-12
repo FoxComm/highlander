@@ -8,15 +8,15 @@ import moment from 'moment';
 import classNames from 'classnames';
 
 //data
-import criterions from '../../../paragons/customer-groups/criterions';
-import operators from '../../../paragons/customer-groups/operators';
-import requestAdapter from '../../../modules/customer-groups/request-adapter';
-import * as groupActions from '../../../modules/customer-groups/dynamic/group';
-import { actions as listActions } from '../../../modules/customer-groups/dynamic/list';
+import criterions from 'paragons/customer-groups/criterions';
+import operators from 'paragons/customer-groups/operators';
+import requestAdapter from 'modules/customer-groups/request-adapter';
+import * as groupActions from 'modules/customer-groups/group';
+import { actions as customersListActions } from 'modules/customer-groups/customers-list';
 
 //helpers
 import { transitionTo } from 'browserHistory';
-import { prefix } from '../../../lib/text-utils';
+import { prefix } from 'lib/text-utils';
 
 //components
 import { PrimaryButton } from '../../common/buttons';
@@ -30,25 +30,28 @@ import MultiSelectRow from '../../table/multi-select-row';
 
 const prefixed = prefix('fc-customer-group-dynamic');
 
-const mapStateToProps = state => ({list: state.customerGroups.dynamic.list});
+const mapStateToProps = state => {
+  return { customersList: state.customerGroups.details.customers };
+};
+
 const mapDispatchToProps = dispatch => ({
   groupActions: bindActionCreators(groupActions, dispatch),
-  listActions: bindActionCreators(listActions, dispatch),
+  customersListActions: bindActionCreators(customersListActions, dispatch),
 });
 
 const tableColumns = [
-  {field: 'name', text: 'Name'},
-  {field: 'email', text: 'Email'},
-  {field: 'joinedAt', text: 'Date/Time Joined', type: 'datetime'}
+  { field: 'name', text: 'Name' },
+  { field: 'email', text: 'Email' },
+  { field: 'joinedAt', text: 'Date/Time Joined', type: 'datetime' }
 ];
 
-const TotalCounter = makeTotalCounter(state => state.customerGroups.dynamic.list, listActions);
+const TotalCounter = makeTotalCounter(state => state.customerGroups.details.customers, customersListActions);
 
 @connect(mapStateToProps, mapDispatchToProps)
 export default class DynamicGroup extends Component {
 
   static propTypes = {
-    list: PropTypes.object,
+    customersList: PropTypes.object,
     group: PropTypes.shape({
       id: PropTypes.number,
       name: PropTypes.string,
@@ -68,7 +71,7 @@ export default class DynamicGroup extends Component {
       setFilterTerm: PropTypes.func.isRequired,
       fetchGroupStats: PropTypes.func.isRequired,
     }).isRequired,
-    listActions: PropTypes.shape({
+    customersListActions: PropTypes.shape({
       fetch: PropTypes.func.isRequired,
     }).isRequired,
   };
@@ -81,33 +84,33 @@ export default class DynamicGroup extends Component {
     this.refreshGroupData(this.props.group);
   }
 
-  componentWillReceiveProps({group}) {
+  componentWillReceiveProps({ group }) {
     if (group.id !== this.props.group.id) {
       this.refreshGroupData(group);
     }
   }
 
-  refreshGroupData({mainCondition, conditions}) {
-    const {listActions, groupActions} = this.props;
+  refreshGroupData({ mainCondition, conditions }) {
+    const { customersListActions, groupActions } = this.props;
 
-    listActions.resetSearch();
+    customersListActions.resetSearch();
 
-    listActions.setExtraFilters([
+    customersListActions.setExtraFilters([
       requestAdapter(criterions, mainCondition, conditions).toRequest().query,
     ]);
 
-    listActions.fetch();
+    customersListActions.fetch();
 
-    groupActions.fetchGroupStats(mainCondition, conditions);
+    groupActions.fetchGroupStats();
   }
 
   @autobind
   goToEdit() {
-    transitionTo('edit-dynamic-customer-group', {groupId: this.props.group.id});
+    transitionTo('edit-dynamic-customer-group', { groupId: this.props.group.id });
   }
 
   get header() {
-    const {group} = this.props;
+    const { group } = this.props;
 
     return (
       <header className={prefixed('header')}>
@@ -145,7 +148,7 @@ export default class DynamicGroup extends Component {
   }
 
   get criteria() {
-    const {mainCondition, conditions} = this.props.group;
+    const { mainCondition, conditions } = this.props.group;
     const main = mainCondition === operators.and ? 'all' : 'any';
 
     return (
@@ -164,7 +167,7 @@ export default class DynamicGroup extends Component {
   }
 
   get criteriaToggle() {
-    const {criteriaOpen} = this.state;
+    const { criteriaOpen } = this.state;
     const icon = criteriaOpen ? 'icon-chevron-up' : 'icon-chevron-down';
 
     return (
@@ -174,7 +177,7 @@ export default class DynamicGroup extends Component {
 
 
   get stats() {
-    const {stats} = this.props.group;
+    const { stats } = this.props.group;
 
     return (
       <PanelList className={prefixed('stats')}>
@@ -195,19 +198,19 @@ export default class DynamicGroup extends Component {
   }
 
   @autobind
-  setFilterTerm({target}) {
+  setFilterTerm({ target }) {
     this.props.groupActions.setFilterTerm(target.value);
     this.updateSearch();
   }
 
   @debounce(200)
   updateSearch() {
-    this.props.listActions.fetch();
+    this.props.customersListActions.fetch();
   }
 
   goToCustomer(id) {
     return () => {
-      transitionTo('customer', {customerId: id});
+      transitionTo('customer', { customerId: id });
     };
   }
 
@@ -225,16 +228,16 @@ export default class DynamicGroup extends Component {
   }
 
   get table() {
-    const {list, listActions} = this.props;
+    const { customersList, customersListActions } = this.props;
 
     return (
       <SelectableSearchList
-        entity="customerGroups.dynamic.list"
+        entity="customerGroups.details.customers"
         emptyMessage="No customers found."
-        list={list}
+        list={customersList}
         renderRow={this.renderRow}
         tableColumns={tableColumns}
-        searchActions={listActions}
+        searchActions={customersListActions}
         searchOptions={{singleSearch: true}} />
     );
   }

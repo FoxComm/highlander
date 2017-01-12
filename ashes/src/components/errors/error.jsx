@@ -16,7 +16,7 @@ type Props = {
 };
 
 const Error = (props: Props) => {
-  const status = _.get(props, 'err.status');
+  const status = _.get(props, 'err.response.status');
   const message = status == 404 ? props.notFound : props.otherProblem;
 
   return (

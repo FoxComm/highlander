@@ -77,7 +77,7 @@ export default class SaveCancel extends Component {
 
     const saveControl = (
       <PrimaryButton
-        type={onSave ? "button" : "submit"}
+        type={onSave ? 'button' : 'submit'}
         onClick={onSave ? onSave : noop}
         className="fc-save-cancel__save"
         tabIndex={saveTabIndex}

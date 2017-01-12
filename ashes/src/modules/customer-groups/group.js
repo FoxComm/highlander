@@ -11,7 +11,7 @@ import { post } from 'lib/search';
 import criterions, { getCriterion, getWidget } from 'paragons/customer-groups/criterions';
 import { aggregations } from 'elastic/request';
 import { createAsyncActions } from '@foxcomm/wings';
-import requestAdapter from './../request-adapter';
+import requestAdapter from './request-adapter';
 
 const initialState = {
   id: null,
@@ -96,7 +96,7 @@ export const fetchGroup = (groupId: number) => (dispatch: Function) => dispatch(
  */
 export const saveGroup = () => (dispatch: Function, getState: Function) => {
   const state = getState();
-  const getValue = (name) => get(state, ['customerGroups', 'dynamic', 'group', name]);
+  const getValue = (name) => get(state, ['customerGroups', 'details', 'group', name]);
 
   const groupId = getValue('id');
   const name = getValue('name');
@@ -125,8 +125,8 @@ export const saveGroup = () => (dispatch: Function, getState: Function) => {
 export const fetchGroupStats = () => (dispatch: Function, getState: Function) => {
   const state = getState();
 
-  const mainCondition = get(state, ['customerGroups', 'dynamic', 'group', 'mainCondition']);
-  const conditions = get(state, ['customerGroups', 'dynamic', 'group', 'conditions']);
+  const mainCondition = get(state, ['customerGroups', 'details', 'group', 'mainCondition']);
+  const conditions = get(state, ['customerGroups', 'details', 'group', 'conditions']);
 
   const request = requestAdapter(criterions, mainCondition, conditions);
 

@@ -1,10 +1,11 @@
 import { combineReducers } from 'redux';
+
 import group from './group';
-import list from './list';
+import customers from './customers-list';
 
 const reducer = combineReducers({
   group,
-  list,
+  customers,
 });
 
 export default reducer;
