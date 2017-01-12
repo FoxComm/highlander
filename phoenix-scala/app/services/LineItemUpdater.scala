@@ -149,32 +149,23 @@ object LineItemUpdater {
       _     ← * <~ logAct(res, li)
     } yield TheResponse.validated(res, valid)
 
-  def removeProductFromAllCarts(product: models.product.Product)(implicit ec: EC,
-                                                                 es: ES,
-                                                                 db: DB,
-                                                                 au: AU,
-                                                                 ac: AC,
-                                                                 ctx: OC): DbResultT[Seq[String]] =
+  def removeSkusFromCart(skuIds: Seq[Int], cart: Cart)(implicit ec: EC,
+                                                       es: ES,
+                                                       db: DB,
+                                                       au: AU,
+                                                       ac: AC,
+                                                       ctx: OC): DbResultT[Seq[String]] = {
     for {
-      skuIds ← * <~ ProductSkuLinks.filterLeft(product).map(_.rightId).result
-      result ← * <~ removeSkusFromAllCarts(skuIds)
-    } yield result
-
-  //TODO: inefficient fast implementation
-  def removeSkusFromAllCarts(skuIds: Seq[Int])(implicit ec: EC,
-                                               es: ES,
-                                               db: DB,
-                                               au: AU,
-                                               ac: AC,
-                                               ctx: OC): DbResultT[Seq[String]] = {
-    for {
-      affectedCarts ← * <~ CartLineItems.filter(_.skuId inSet skuIds).map(_.cordRef).result
-      _             ← * <~ CartLineItems.filter(_.skuId inSet skuIds).deleteAll(DbResultT.unit, DbResultT.unit)
-      _             ← * <~ CartPromotionUpdater.readjustAll(affectedCarts).recover { case _ ⇒ Unit }
-      carts         ← * <~ CartTotaler.saveTotalsForCarts(affectedCarts)
-      valid         ← * <~ carts.map(CartValidator(_).validate())
-      _             ← * <~ LogActivity.cartLineItemsRemoved(affectedCarts, skuIds, Some(au.model))
-    } yield affectedCarts
+      _ ← * <~ CartLineItems
+           .filter(li ⇒ li.skuId inSet skuIds)
+           .filter(li ⇒ li.cordRef === cart.referenceNumber)
+           .deleteAll(DbResultT.unit, DbResultT.unit)
+      _     ← * <~ CartPromotionUpdater.readjust(cart).recover { case _ ⇒ Unit }
+      carts ← * <~ CartTotaler.saveTotals(cart)
+      res   ← * <~ CartResponse.buildRefreshed(cart)
+      li    ← * <~ CartLineItems.byCordRef(cart.refNum).countSkus
+      _     ← * <~ LogActivity.orderLineItemsUpdated(res, li, Seq())
+    } yield Seq(cart.referenceNumber)
   }
 
   def foldQuantityPayload(payload: Seq[UpdateLineItemsPayload]): Map[String, Int] =

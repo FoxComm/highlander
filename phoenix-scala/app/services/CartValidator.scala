@@ -4,10 +4,14 @@ import failures.CartFailures._
 import failures.{Failure, Failures}
 import models.cord._
 import models.cord.lineitems.CartLineItems
+import models.inventory.{Sku, Skus}
+import models.objects.ProductSkuLinks
 import models.payment.giftcard.{GiftCardAdjustments, GiftCards}
 import models.payment.storecredit.{StoreCreditAdjustments, StoreCredits}
-import slick.driver.PostgresDriver.api._
+import models.product.Product
+import services.objects.ObjectManager
 import utils.aliases._
+import utils.db.ExPostgresDriver.api._
 import utils.db._
 
 trait CartValidation {
@@ -29,6 +33,7 @@ case class CartValidator(cart: Cart)(implicit ec: EC, db: DB) extends CartValida
       state ← hasShipAddress(state)
       state ← validShipMethod(state)
       state ← sufficientPayments(state, isCheckout)
+      state ← ensureHasActiveItemsOnly(state)
     } yield state
     if (fatalWarnings) {
       validationResult.dbresult.flatMap { validatorResponse ⇒
@@ -142,7 +147,46 @@ case class CartValidator(cart: Cart)(implicit ec: EC, db: DB) extends CartValida
     }
   }
 
-  private def warning(response: CartValidatorResponse, failure: Failure): CartValidatorResponse =
-    response.copy(warnings = response.warnings.fold(Failures(failure))(current ⇒
-              Failures(current.toList :+ failure: _*)))
+  private def ensureHasActiveItemsOnly(
+      response: CartValidatorResponse)(implicit ec: EC, db: DB): DBIO[CartValidatorResponse] =
+    (for {
+      productAndSkus ← * <~ getInactiveProductsAndSkus
+      (products, skus) = productAndSkus
+
+      failures = skus.map(_.code).distinct.map(InactiveSkuInCart) ++
+        products.map(_.formId).distinct.map(InactiveProductInCart)
+    } yield warning(response, failures: _*)).valueOr(fails ⇒ warning(response, fails.toList: _*))
+
+  private def getInactiveProductsAndSkus(implicit ec: EC): DbResultT[(Seq[Product], Seq[Sku])] = {
+    def productsForSkus(skus: Seq[Sku#Id]) =
+      for {
+        links   ← ProductSkuLinks if links.rightId inSet skus
+        product ← links.left
+      } yield product
+
+    for {
+      skuIds ← * <~ Skus
+                .filter(_.id in CartLineItems.byCordRef(cart.referenceNumber).map(_.skuId))
+                .result
+      skus ← * <~ ObjectManager.getFullObjects[Sku](skuIds)
+
+      (invalidSkus, validSkus) = skus.partition(sku ⇒
+            !sku.isActive || sku.model.archivedAt.isDefined)
+
+      validSkuProducts ← * <~ productsForSkus(validSkus.map(_.model.id)).result
+      products         ← * <~ ObjectManager.getFullObjects(validSkuProducts)
+
+      invalidProducts = products.filter(product ⇒
+            !product.isActive || product.model.archivedAt.isDefined)
+
+    } yield (invalidProducts.map(_.model), invalidSkus.map(_.model))
+  }
+
+  private def warning(response: CartValidatorResponse, failures: Failure*): CartValidatorResponse =
+    if (failures.isEmpty) {
+      response
+    } else {
+      response.copy(warnings = response.warnings.fold(Failures(failures: _*))(current ⇒
+                Failures(current.toList ++ failures: _*)))
+    }
 }

@@ -14,10 +14,10 @@ import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
 import responses.AlbumResponses._
 import responses.ObjectResponses.ObjectContextResponse
 import responses.SkuResponses._
+import services.LogActivity
 import services.image.ImageManager
 import services.image.ImageManager.FullAlbumWithImages
 import services.objects.ObjectManager
-import services.{LineItemUpdater, LogActivity}
 import slick.driver.PostgresDriver.api._
 import utils.JsonFormatters
 import utils.aliases._
@@ -74,8 +74,6 @@ object SkuManager {
     for {
       fullSku ← * <~ ObjectManager.getFullObject(
                    SkuManager.mustFindSkuByContextAndCode(oc.id, code))
-      _ ← * <~ LineItemUpdater.removeSkusFromAllCarts(Seq(fullSku.model.id))
-      _ ← * <~ fullSku.model.mustNotBePresentInCarts
       archivedSku ← * <~ Skus.update(fullSku.model,
                                      fullSku.model.copy(archivedAt = Some(Instant.now)))
       albumLinks ← * <~ SkuAlbumLinks.filter(_.leftId === archivedSku.id).result
@@ -131,9 +129,6 @@ object SkuManager {
 
     for {
       oldSkuFull ← * <~ ObjectManager.getFullObject(DbResultT.good(sku))
-      //remove sku from all carts if sku becomes explicitly inactive
-      _ ← * <~ doOrMeh(oldSkuFull.isActive && !newAttributes.isActive,
-                       LineItemUpdater.removeSkusFromAllCarts(Seq(sku.id)))
       mergedAttrs = oldSkuFull.shadow.attributes.merge(newAttributes.shadowAttributes)
       updated ← * <~ ObjectUtils.update(sku.formId,
                                         sku.shadowId,

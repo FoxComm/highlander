@@ -39,4 +39,14 @@ object CartFailures {
       s"item could not be added to cart $refNum. SKU $code does not have an " +
         s"associated product"
   }
+
+  case class InactiveProductInCart(id: Int) extends Failure {
+    override def description: String =
+      s"Product with id='$id' is no longer available and should be removed from cart"
+  }
+
+  case class InactiveSkuInCart(code: String) extends Failure {
+    override def description: String =
+      s"Product with sku '$code' is no longer available and should be removed from cart"
+  }
 }

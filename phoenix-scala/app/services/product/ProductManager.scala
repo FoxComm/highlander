@@ -128,9 +128,7 @@ object ProductManager {
     for {
       _          ← * <~ validateUpdate(payload)
       oldProduct ← * <~ Products.mustFindFullByReference(productId)
-      _ ← * <~ doOrMeh(oldProduct.isActive && !formAndShadow.isActive,
-        LineItemUpdater.removeProductFromAllCarts(oldProduct.model))
-      _ ← * <~ skusToBeUnassociatedMustNotBePresentInCarts(oldProduct.model.id, payloadSkus)
+      _          ← * <~ skusToBeUnassociatedMustNotBePresentInCarts(oldProduct.model.id, payloadSkus)
 
       mergedAttrs = oldProduct.shadow.attributes.merge(formAndShadow.shadow.attributes)
       updated ← * <~ ObjectUtils.update(oldProduct.form.id,
@@ -182,8 +180,6 @@ object ProductManager {
 
     for {
       productObject ← * <~ Products.mustFindFullByReference(productId)
-      _             ← * <~ LineItemUpdater.removeProductFromAllCarts(productObject.model)
-      _             ← * <~ productObject.model.mustNotBePresentInCarts
       mergedAttrs = productObject.shadow.attributes.merge(newShadowAttrs)
       inactive ← * <~ ObjectUtils.update(productObject.form.id,
                                          productObject.shadow.id,

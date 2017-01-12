@@ -21,7 +21,6 @@ import payloads.SkuPayloads.SkuPayload
 import payloads.VariantPayloads.{VariantPayload, VariantValuePayload}
 import responses.ProductResponses.ProductResponse
 import responses.ProductResponses.ProductResponse.Root
-import responses.TheResponse
 import responses.cord.CartResponse
 import testutils._
 import testutils.apis.PhoenixAdminApi
@@ -607,28 +606,6 @@ class ProductIntegrationTest
       }
     }
 
-    "Removes product from carts if it becomes inactive" in new Fixture {
-      override def simpleProd = super.simpleProd.copy(active = true)
-
-      val cart = cartsApi.create(CreateCart(email = "yax@yax.com".some)).as[CartResponse]
-
-      cartsApi(cart.referenceNumber).lineItems
-        .add(Seq(UpdateLineItemsPayload(skuRedSmallCode, 1)))
-        .mustBeOk()
-
-      productsApi(product.formId)
-        .update(UpdateProductPayload(attributes = Map.empty, skus = None, variants = None))
-        .mustBeOk()
-
-      cartsApi(cart.referenceNumber)
-        .get()
-        .as[TheResponse[CartResponse]]
-        .result
-        .lineItems
-        .skus
-        .exists(_.sku == skuRedSmallCode) must === (false)
-    }
-
     "Throws an error" - {
       "if updating adds too many SKUs" in new VariantFixture {
         val upPayload = UpdateProductPayload(
@@ -718,24 +695,6 @@ class ProductIntegrationTest
 
       activeTo must === (None)
       activeFrom must === (None)
-    }
-
-    "Removes product if it is present in carts" in new Fixture {
-      val cart = cartsApi.create(CreateCart(email = "yax@yax.com".some)).as[CartResponse]
-
-      cartsApi(cart.referenceNumber).lineItems
-        .add(Seq(UpdateLineItemsPayload(skuRedSmallCode, 1)))
-        .mustBeOk()
-
-      productsApi(product.formId).archive().mustBeOk()
-
-      cartsApi(cart.referenceNumber)
-        .get()
-        .as[TheResponse[CartResponse]]
-        .result
-        .lineItems
-        .skus
-        .exists(_.sku == skuRedSmallCode) must === (false)
     }
 
     "SKUs must be unlinked" in new VariantFixture {

@@ -25,9 +25,6 @@ case class ObjectShadow(id: Int = 0,
     with Validation[ObjectShadow]
 
 object ObjectShadow {
-  def fromPayload(attributes: Map[String, Json]): ObjectShadow =
-    ObjectShadow(attributes = attributesFromPayload(attributes))
-
   def attributesFromPayload(attributes: Map[String, Json]): Json = {
     attributes.foldLeft(JNothing: JValue) {
       case (acc, (key, value)) ⇒
@@ -36,6 +33,9 @@ object ObjectShadow {
         acc.merge(shadowJson)
     }
   }
+
+  def fromPayload(attributes: Map[String, Json]): ObjectShadow =
+    ObjectShadow(attributes = attributesFromPayload(attributes))
 }
 
 class ObjectShadows(tag: Tag) extends FoxTable[ObjectShadow](tag, "object_shadows") {
@@ -65,4 +65,6 @@ object ObjectShadows
 
   def filterByAttributes(key: String, value: String): QuerySeq =
     filter(_.attributes +>> key === value)
+
+  def filterByIds(ids: Seq[Int]): QuerySeq = filter(_.id inSet ids)
 }

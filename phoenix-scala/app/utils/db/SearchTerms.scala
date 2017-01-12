@@ -13,7 +13,7 @@ trait SearchById[M <: FoxModel[M], T <: FoxTable[M]] {
 
   def findOneById(id: M#Id): DBIO[Option[M]]
 
-  def notFound404K[K](searchKey: K) =
+  def notFound404K[K](searchKey: K): NotFoundFailure404 =
     NotFoundFailure404(
         s"${tableName.tableNameToCamel} with $primarySearchTerm=$searchKey not found")
 
