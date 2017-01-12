@@ -13,3 +13,12 @@ create table customer_groups_search_view (
   created_at json_timestamp,
   scope exts.ltree
 );
+
+-- Shared Searches
+alter domain shared_search_scope drop constraint shared_search_scope_check;
+
+alter domain shared_search_scope add constraint shared_search_scope_check check (value in (
+                                                        'customersScope', 'customerGroupsScope', 'ordersScope',
+                                                        'storeAdminsScope', 'giftCardsScope', 'productsScope',
+                                                        'inventoryScope', 'promotionsScope', 'couponsScope',
+                                                        'couponCodesScope', 'skusScope', 'cartsScope'));

@@ -28,17 +28,18 @@ case class SharedSearch(id: Int = 0,
 
 object SharedSearch {
   sealed trait Scope
-  case object CustomersScope   extends Scope
-  case object OrdersScope      extends Scope
-  case object GiftCardsScope   extends Scope
-  case object ProductsScope    extends Scope
-  case object InventoryScope   extends Scope
-  case object StoreAdminsScope extends Scope
-  case object PromotionsScope  extends Scope
-  case object CouponsScope     extends Scope
-  case object CouponCodesScope extends Scope
-  case object SkusScope        extends Scope
-  case object CartsScope       extends Scope
+  case object CustomersScope      extends Scope
+  case object CustomerGroupsScope extends Scope
+  case object OrdersScope         extends Scope
+  case object GiftCardsScope      extends Scope
+  case object ProductsScope       extends Scope
+  case object InventoryScope      extends Scope
+  case object StoreAdminsScope    extends Scope
+  case object PromotionsScope     extends Scope
+  case object CouponsScope        extends Scope
+  case object CouponCodesScope    extends Scope
+  case object SkusScope           extends Scope
+  case object CartsScope          extends Scope
 
   object Scope extends ADT[Scope] {
     def types = sealerate.values[Scope]
