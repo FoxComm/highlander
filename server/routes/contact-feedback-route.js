@@ -1,6 +1,16 @@
 import makeRouter from 'koa-router';
 import { Mandrill } from 'mandrill-api/mandrill';
 
+function formatMessage({ name, email, phone, subject, text }) {
+  return (
+    `Name: ${name}\n` +
+    `Email: ${email}\n` +
+    `Phone: ${phone}\n` +
+    `Subject: ${subject}\n` +
+    `Message:\n${text}`
+  );
+}
+
 function *sendMessage(mandrillClient, params) {
   return new Promise((resolve, reject) => {
     mandrillClient.messages.send(params, ([result]) => {
@@ -21,9 +31,10 @@ export default function mandrillRouter(apiKey) {
 
   const router = makeRouter()
     .post('/api/local/contact-feedback', function*() {
-      const { name, email, phone, subject, text } = this.request.body;
+      const { name, email, subject } = this.request.body;
+      const text = formatMessage(this.request.body);
       const message = {
-        text: `${text}\nPhone: ${phone}`,
+        text,
         subject,
         from_email: process.env.CONTACT_EMAIL, // send message from verified mandrill email
         from_name: name,
