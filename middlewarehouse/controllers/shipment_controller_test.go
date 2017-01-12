@@ -1,23 +1,34 @@
 package controllers
 
 import (
+	"database/sql"
+	"fmt"
 	"net/http"
 	"testing"
 
+	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
-	"github.com/FoxComm/highlander/middlewarehouse/controllers/mocks"
-
+	"github.com/FoxComm/highlander/middlewarehouse/common/db/config"
+	"github.com/FoxComm/highlander/middlewarehouse/common/db/tasks"
 	"github.com/FoxComm/highlander/middlewarehouse/fixtures"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
+	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
+	"github.com/FoxComm/highlander/middlewarehouse/services"
+
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
 
 type shipmentControllerTestSuite struct {
 	GeneralControllerTestSuite
-	shipmentService *mocks.ShipmentServiceMock
+	db               *gorm.DB
+	inventoryService services.InventoryService
+	shipmentService  services.ShipmentService
+	summaryService   services.SummaryService
+	shippingMethod   *models.ShippingMethod
+	stockItem        *models.StockItem
+	stockLocation    *models.StockLocation
 }
 
 func TestShipmentControllerSuite(t *testing.T) {
@@ -25,33 +36,87 @@ func TestShipmentControllerSuite(t *testing.T) {
 }
 
 func (suite *shipmentControllerTestSuite) SetupSuite() {
+	suite.db = config.TestConnection()
 	suite.router = gin.New()
 
-	suite.shipmentService = &mocks.ShipmentServiceMock{}
+	logger := &dummyLogger{}
+	suite.summaryService = services.NewSummaryService(suite.db)
+	suite.inventoryService = services.NewInventoryService(suite.db, suite.summaryService)
+	suite.shipmentService = services.NewShipmentService(
+		suite.db,
+		suite.inventoryService,
+		suite.summaryService,
+		logger,
+	)
 
 	controller := NewShipmentController(suite.shipmentService)
 	controller.SetUp(suite.router.Group("/shipments"))
+
+	tasks.TruncateTables(suite.db, []string{
+		"carriers",
+		"shipping_methods",
+		"inventory_search_view",
+		"stock_locations",
+	})
+
+	carrier := &models.Carrier{Name: "FedEx", TrackingTemplate: "test.png"}
+	suite.Nil(suite.db.Create(carrier).Error)
+
+	suite.shippingMethod = &models.ShippingMethod{
+		CarrierID:    carrier.ID,
+		Name:         "Test",
+		Code:         "EXPRESS",
+		ShippingType: models.ShippingTypeFlat,
+		Cost:         0,
+	}
+	suite.Nil(suite.db.Create(suite.shippingMethod).Error)
+
+	suite.stockLocation = fixtures.GetStockLocation()
+	suite.Nil(suite.db.Create(suite.stockLocation).Error)
 }
 
-func (suite *shipmentControllerTestSuite) TearDownTest() {
-	// clear mock calls expectations after each test
-	suite.shipmentService.AssertExpectations(suite.T())
-	suite.shipmentService.ExpectedCalls = []*mock.Call{}
-	suite.shipmentService.Calls = []mock.Call{}
+func (suite *shipmentControllerTestSuite) SetupTest() {
+	tasks.TruncateTables(suite.db, []string{
+		"inventory_search_view",
+		"stock_items",
+		"stock_item_units",
+		"stock_item_summaries",
+		"shipments",
+	})
+
+	stockItem := models.StockItem{
+		SKU:             "SKU-TEST1",
+		StockLocationID: suite.stockLocation.ID,
+		DefaultUnitCost: 0,
+	}
+
+	var err error
+	suite.stockItem, err = suite.inventoryService.CreateStockItem(&stockItem)
+	suite.Nil(err)
+
+	units := []*models.StockItemUnit{}
+	for i := 0; i < 2; i++ {
+		unit := models.StockItemUnit{
+			StockItemID: suite.stockItem.ID,
+			UnitCost:    0,
+			Status:      models.StatusOnHold,
+			Type:        models.Sellable,
+			RefNum:      sql.NullString{String: "BR10005", Valid: true},
+		}
+		units = append(units, &unit)
+	}
+
+	suite.Nil(suite.inventoryService.IncrementStockItemUnits(suite.stockItem.ID, models.Sellable, units))
 }
 
-func (suite *shipmentControllerTestSuite) Test_GetShipmentsByOrder_NotFound_ReturnsNotFoundError() {
-	//arrange
-	suite.shipmentService.On("GetShipmentsByOrder", "BR1005").Return(nil, gorm.ErrRecordNotFound).Once()
-
+func (suite *shipmentControllerTestSuite) Test_GetShipmentsByOrder_NotFound_ReturnsNoError() {
 	//act
-	errors := responses.Error{}
-	response := suite.Get("/shipments/BR1005", &errors)
+	shipments := responses.Shipments{}
+	response := suite.Get("/shipments/BR1005", &shipments)
 
 	//assert
-	suite.Equal(http.StatusNotFound, response.Code)
-	suite.Equal(1, len(errors.Errors))
-	suite.Equal(gorm.ErrRecordNotFound.Error(), errors.Errors[0])
+	suite.Equal(http.StatusOK, response.Code)
+	suite.Equal(0, len(shipments.Shipments))
 }
 
 // TODO: Re-enable later
@@ -81,7 +146,6 @@ func (suite *shipmentControllerTestSuite) Test_CreateShipment_ReturnsRecord() {
 	//arrange
 	shipment1 := fixtures.GetShipmentShort(uint(1))
 	payload := fixtures.ToShipmentPayload(shipment1)
-	suite.shipmentService.On("CreateShipment", payload.Model()).Return(shipment1, nil).Once()
 
 	//act
 	shipment := &responses.Shipment{}
@@ -89,9 +153,18 @@ func (suite *shipmentControllerTestSuite) Test_CreateShipment_ReturnsRecord() {
 
 	//assert
 	suite.Equal(http.StatusCreated, response.Code)
-	expectedResp, err := responses.NewShipmentFromModel(shipment1)
+	suite.Equal("BR10005", shipment.OrderRefNum)
+
+	var units []*models.StockItemUnit
+	err := suite.db.
+		Where("stock_item_id = ?", suite.stockItem.ID).
+		Where("type = ?", models.Sellable).
+		Where("status = ?", models.StatusReserved).
+		Where("ref_num = ?", shipment.OrderRefNum).
+		Find(&units).
+		Error
 	suite.Nil(err)
-	suite.Equal(expectedResp, shipment)
+	suite.Equal(2, len(units))
 }
 
 // TODO: Re-enable
@@ -115,23 +188,20 @@ func (suite *shipmentControllerTestSuite) Test_CreateShipment_ReturnsRecord() {
 
 func (suite *shipmentControllerTestSuite) Test_UpdateShipment_Found_ReturnsRecord() {
 	//arrange
-	shipment1 := fixtures.GetShipmentShort(uint(1))
-
-	updateShipment := fixtures.GetShipment(
-		uint(0), "", shipment1.ShippingMethodCode, &models.ShippingMethod{},
-		shipment1.AddressID, &shipment1.Address, nil)
-	updateShipment.ReferenceNumber = ""
-	updateShipment.OrderRefNum = "BR10001"
-
-	suite.shipmentService.
-		On("UpdateShipmentForOrder", updateShipment).
-		Return(shipment1, nil).Once()
+	shipment1, err := suite.shipmentService.CreateShipment(fixtures.GetShipmentShort(uint(1)))
+	suite.Nil(err)
+	payload := payloads.UpdateShipment{State: "shipped"}
 
 	//act
 	shipment := &responses.Shipment{}
-	response := suite.Patch("/shipments/for-order/BR10001", fixtures.ToShipmentPayload(shipment1), shipment)
+	url := fmt.Sprintf("/shipments/for-order/%s", shipment1.OrderRefNum)
+	response := suite.Patch(url, payload, shipment)
 
 	//assert
 	suite.Equal(http.StatusOK, response.Code)
 	//suite.Equal(responses.NewShipmentFromModel(shipment1), shipment)
 }
+
+type dummyLogger struct{}
+
+func (d dummyLogger) Log(activity activities.ISiteActivity) error { return nil }
