@@ -1,16 +1,17 @@
 import makeRouter from 'koa-router';
 import { Mandrill } from 'mandrill-api/mandrill';
-import util from 'util';
 
 function *sendMessage(mandrillClient, params) {
   return new Promise((resolve, reject) => {
-    mandrillClient.messages.send(params, result => {
-      resolve(result);
-      console.log('RESOLVED : ' + util.inspect(result));
+    mandrillClient.messages.send(params, ([result]) => {
+      if (result.status === 'rejected') {
+        reject(new Error(`Rejected. Reason: ${result.reject_reason}`));
+      } else {
+        resolve(result);
+      }
     }, error => {
       const err = new Error(error.message || error);
       reject(err);
-      console.log('REJECTED :' + error.message);
     });
   });
 }
@@ -24,22 +25,25 @@ export default function mandrillRouter(apiKey) {
       const message = {
         text: `${text}\nPhone: ${phone}`,
         subject,
-        from_email: email,
+        from_email: process.env.CONTACT_EMAIL, // send message from verified mandrill email
         from_name: name,
         to: [{
           email: process.env.CONTACT_EMAIL,
-          name: 'The Perfect Gourmet',
           type: 'to',
         }],
+        headers: {
+          'Reply-To': email,
+        },
       };
 
-      console.log('WE ARE SENDING!', message);
-      yield sendMessage(mandrillClient, {
-        message,
-        async: false,
-      });
-
-      this.body = {};
+      try {
+        yield sendMessage(mandrillClient, { message });
+        this.body = {};
+      } catch (err) {
+        this.status = 500;
+        this.body = { errors: [err.message] };
+        this.app.emit('error', err, this);
+      }
     });
 
   return router.routes();
