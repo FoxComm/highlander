@@ -20,6 +20,7 @@ import WaitAnimation from '../common/wait-animation';
 import QuestionBox from './question-box';
 import Currency from '../common/currency';
 import TrendButton, { TrendType } from './trend-button';
+import StaticColumnSelector from './static-column-selector';
 
 // styles
 import styles from './analytics.css';
@@ -36,6 +37,13 @@ const verbs = {
 }; 
 
 const colors = ['#2ca02c', '#ff7f0e', '#662ca0'];
+
+const sourceDropdownColumns = [
+  { field: 'google', text: 'Google' },
+  { field: 'facebook', text: 'Facebook' },
+  { field: 'email', text: 'Email' },
+  { field: 'direct', text: 'Direct' },
+];
 
 @connect((state, props) => ({analytics: state.analytics}), AnalyticsActions)
 export default class Analytics extends React.Component {
@@ -194,14 +202,31 @@ export default class Analytics extends React.Component {
     }
   }
 
+  renderActions() {
+    return (
+      <PrimaryButton onClick={null} disabled={false}>
+        Apply
+      </PrimaryButton>
+    );
+  }
+
   render() {
     return (
       <div styleName="analytics-page-container">
+        <div styleName="analytics-filters">
+          <StaticColumnSelector
+            setColumns={null}
+            columns={sourceDropdownColumns}
+            actionButtonText="Apply"
+            dropdownTitle="Sources"
+            identifier={'analytics-source-filter'} />
+        </div>
         <div styleName="analytics-page-questions">
           <QuestionBox
             title="Total Revenue"
             content={<Currency value="578657" />}
             footer={<TrendButton trendType={TrendType.gain} value={90}/>}
+            isActive={true}
           />
           <QuestionBox
             title="Total Orders"
