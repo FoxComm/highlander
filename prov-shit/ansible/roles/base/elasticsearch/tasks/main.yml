@@ -26,6 +26,9 @@
     - plugins
     - config/scripts
 
+- name: Remove Existing Elasticsearch Config
+  file: path={{es_path}}/config/elasticsearch.yml state=absent
+
 - name: Copy Elasticsearch Config
   template: src=elasticsearch.yml dest={{es_path}}/config/elasticsearch.yml
 
