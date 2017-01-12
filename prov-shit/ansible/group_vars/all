@@ -149,8 +149,17 @@ capture_consumer_src: "{{middlewarehouse_src}}/consumers/capture"
 capture_consumer_bin_src: "{{capture_consumer_src}}/capture-consumer"
 
 #Bernardo
+bernardo_dir: /bernardo
+bernardo_src: ../../intelligence/bernardo/
 bernardo_db_name: ic
 bernardo_db_user: ic
+bernardo_db_host: "db.{{consul_suffix}}"
+bernardo_host: bernardo.service.consul
+
+#Henhouse
+henhouse_host: "henhouse.{{consul_suffix}}"
+henhouse_port: "9999"
+henhouse_server: "{{henhouse_host}}:{{henhouse_port}}"
 
 # Shipstation consumer
 shipstation_api_key: ""

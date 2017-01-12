@@ -1,7 +1,7 @@
 
 upstream henhouse {
-  {{ range service "henhouse" }} server {{ .Address }}:{{ .Port }} max_fails=10 fail_timeout=30s weight=1;
-  {{ else }} server henhouse.service.consul:9999 fail_timeout=30s max_fails=10; {{ end }}
+  {{ '{{' }} range service "henhouse" {{ '}}' }} server {{ '{{' }} .Address {{ '}}' }}:{{ '{{' }} .Port {{ '}}' }} max_fails=10 fail_timeout=30s weight=1;
+  {{ '{{' }} else {{ '}}' }} server {{henhouse_server}} fail_timeout=30s max_fails=10; {{ '{{' }} end {{ '}}' }}
 }
 
 upstream search {

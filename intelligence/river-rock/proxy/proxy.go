@@ -64,6 +64,10 @@ func (p *RiverRock) StartProxy() error {
 
 	e := echo.New()
 
+	e.GET("/ping", func(c echo.Context) error {
+		return c.String(http.StatusOK, "pong")
+	})
+
 	e.GET("/v1/*", func(c echo.Context) error {
 		req := c.Request()
 		res := c.Response()

@@ -26,6 +26,18 @@
     "KAFKA": "kafka.service.consul",
     "HENHOUSE": "henhouse.service.consul"
   },
+  "healthChecks": [
+    {
+      "protocol": "COMMAND",
+      "command": {
+        "value": "ps -ef | grep -v grep | grep sphex"
+      },
+      "gracePeriodSeconds": 300,
+      "intervalSeconds": 20,
+      "timeoutSeconds": 20,
+      "maxConsecutiveFailures": 3
+    }
+  ],
   "portDefinitions": [
     {
       "port": 10009,
