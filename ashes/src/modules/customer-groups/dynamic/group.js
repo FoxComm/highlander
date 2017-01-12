@@ -87,15 +87,15 @@ export const setGroupStats = createAction('CUSTOMER_GROUP_SET_GROUP_STATS');
  *
  * @return Promise
  */
-export const fetchGroup = (groupId: number) => dispatch => dispatch(_fetchGroup.perform(groupId));
+export const fetchGroup = (groupId: number) => (dispatch: Function) => dispatch(_fetchGroup.perform(groupId));
 
 /**
  * Save or create customer group
  *
  * @return Promise
  */
-export const saveGroup = () => (dispatch, getState) => {
-  const state = this.getState();
+export const saveGroup = () => (dispatch: Function, getState: Function) => {
+  const state = getState();
   const getValue = (name) => get(state, ['customerGroups', 'dynamic', 'group', name]);
 
   const groupId = getValue('id');
@@ -122,7 +122,7 @@ export const saveGroup = () => (dispatch, getState) => {
  *
  * @return Promise
  */
-export const fetchGroupStats = () => (dispatch, getState) => {
+export const fetchGroupStats = () => (dispatch: Function, getState: Function) => {
   const state = getState();
 
   const mainCondition = get(state, ['customerGroups', 'dynamic', 'group', 'mainCondition']);
