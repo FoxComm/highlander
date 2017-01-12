@@ -2,7 +2,7 @@
 
 //libs
 import get from 'lodash/get';
-import React from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
 import { reset, fetchGroup } from '../../modules/customer-groups/group';
@@ -23,7 +23,7 @@ type Props = {
   };
 };
 
-class Group extends React.Component {
+class GroupPage extends Component {
   props: Props;
 
   componentWillMount() {
@@ -59,4 +59,4 @@ const mapStateToProps = state => ({
   group: get(state, ['customerGroups', 'details', 'group']),
 });
 
-export default connect(mapStateToProps, { reset, fetchGroup })(Group);
+export default connect(mapStateToProps, { reset, fetchGroup })(GroupPage);

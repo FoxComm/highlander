@@ -27,7 +27,7 @@ const GroupsListPage = (props: Props) => {
       title="Customer Groups"
       subtitle={<TotalCounter />}
       addTitle="Group"
-      handleAddAction={ () => transitionTo('new-dynamic-customer-group') }
+      handleAddAction={ () => transitionTo('new-customer-group') }
       navLinks={navLinks}
     >
       {props.children}

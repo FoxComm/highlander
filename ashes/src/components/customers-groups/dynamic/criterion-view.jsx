@@ -11,11 +11,7 @@ import { getCriterion, getOperators, getWidget } from '../../../paragons/custome
 //helpers
 import { prefix } from '../../../lib/text-utils';
 
-//components
-import { Dropdown, DropdownItem } from '../../dropdown';
-
-
-const prefixed = prefix('fc-customer-group-dynamic__criterion');
+const prefixed = prefix('fc-customer-group__criterion');
 
 const Criterion = ({field, operator, value}) => {
   const criterion = getCriterion(field);
@@ -26,7 +22,7 @@ const Criterion = ({field, operator, value}) => {
   const valueLabel = React.createElement(Label, {
     criterion,
     value,
-    className: 'fc-customer-group-dynamic__criterion',
+    className: 'fc-customer-group__criterion',
   });
 
   return (

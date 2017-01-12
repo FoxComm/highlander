@@ -20,7 +20,6 @@ type Props = {
 
 const tableColumns = [
   { field: 'name', text: 'Group Name' },
-  { field: 'type', text: 'Type' },
   { field: 'customersCount', text: 'Customers Count' },
   { field: 'createdAt', type: 'date', text: 'Date/Time Created' },
   { field: 'modifiedAt', type: 'date', text: 'Date/Time Last Modified' },

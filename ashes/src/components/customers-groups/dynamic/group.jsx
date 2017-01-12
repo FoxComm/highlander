@@ -28,7 +28,7 @@ import { SelectableSearchList, makeTotalCounter } from '../../list-page';
 import MultiSelectRow from '../../table/multi-select-row';
 
 
-const prefixed = prefix('fc-customer-group-dynamic');
+const prefixed = prefix('fc-customer-group');
 
 const mapStateToProps = state => {
   return { customersList: state.customerGroups.details.customers };
@@ -106,7 +106,7 @@ export default class DynamicGroup extends Component {
 
   @autobind
   goToEdit() {
-    transitionTo('edit-dynamic-customer-group', { groupId: this.props.group.id });
+    transitionTo('edit-customer-group', { groupId: this.props.group.id });
   }
 
   get header() {

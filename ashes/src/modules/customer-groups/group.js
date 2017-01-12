@@ -21,7 +21,6 @@ const initialState = {
   conditions: [],
   isValid: false,
   filterTerm: null,
-  isSaved: false,
   createdAt: null,
   updatedAt: null,
   stats: {
@@ -77,7 +76,6 @@ export const setName = createAction('CUSTOMER_GROUP_SET_NAME');
 export const setMainCondition = createAction('CUSTOMER_GROUP_SET_MAIN_CONDITION');
 export const setConditions = createAction('CUSTOMER_GROUP_SET_CONDITIONS');
 export const setFilterTerm = createAction('CUSTOMER_GROUP_SET_FILTER_TERM');
-export const setIsSaved = createAction('CUSTOMER_GROUP_SET_IS_SAVED');
 export const setGroupStats = createAction('CUSTOMER_GROUP_SET_GROUP_STATS');
 
 /**
@@ -114,7 +112,7 @@ export const saveGroup = () => (dispatch: Function, getState: Function) => {
     customersCount: 0,
   };
 
-  dispatch(_saveGroup.perform(groupId, data));
+  return dispatch(_saveGroup.perform(groupId, data));
 };
 
 /**
@@ -167,7 +165,6 @@ const setData = (state: State, { id, type, name, createdAt, updatedAt, clientSta
     mainCondition,
     conditions,
     isValid: validateConditions(conditions),
-    isSaved: false,
   };
 };
 
@@ -188,7 +185,6 @@ const reducer = createReducer({
   [setMainCondition]: (state, mainCondition) => ({ ...state, mainCondition }),
   [setConditions]: (state, conditions) => ({ ...state, conditions, isValid: validateConditions(conditions) }),
   [setFilterTerm]: (state, filterTerm) => ({ ...state, filterTerm }),
-  [setIsSaved]: (state) => ({ ...state, isSaved: true }),
   [setGroupStats]: (state, stats) => ({ ...state, stats })
 }, initialState);
 

@@ -22,7 +22,7 @@ const SELECT_CRITERIA = [
   [operators.or, 'any']
 ];
 
-const prefixed = prefix('fc-customer-group-dynamic-edit');
+const prefixed = prefix('fc-customer-group-edit');
 
 const mapStateToProps = state => ({ group: state.customerGroups.details.group });
 const mapDispatchToProps = dispatch => ({ actions: bindActionCreators(actions, dispatch) });

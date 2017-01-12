@@ -1,40 +1,46 @@
-import React, { PropTypes } from 'react';
-import { Link } from '../link';
+/* @flow */
 
-//helpers
-import { prefix } from '../../lib/text-utils';
+//libs
+import { autobind } from 'core-decorators';
+import React, { Component } from 'react';
 
-const prefixed = prefix('fc-customer-group-dynamic-edit');
+//components
+import Form from 'components/forms/form';
+import SaveCancel from 'components/common/save-cancel';
+import DynamicGroupEditor from './dynamic/group-editor';
 
-const NewGroupBase = ({title, alternative, children}) => {
-  return (
-    <div className={prefixed()}>
-      <header>
-        <h1 className="fc-title">
-          {title}
-        </h1>
-        {alternative ? (
-          <span>
-            or <Link className={prefixed('or')} to={alternative.id}>
-            create a {alternative.title}
-          </Link>
-          </span>
-        ) : null}
-      </header>
-      <article>
-        {children}
-      </article>
-    </div>
-  );
-};
+type Props = {
+  group: TCustomerGroup;
+  reset: () => void;
+  onSave: () => Promise;
+  fetchRegions: () => Promise;
+}
 
-NewGroupBase.propTypes = {
-  title: PropTypes.string.isRequired,
-  alternative: PropTypes.shape({
-    id: PropTypes.string.isRequired,
-    title: PropTypes.string.isRequired,
-  }),
-  children: PropTypes.node
-};
+export default class NewGroup extends Component {
+  props: Props;
 
-export default NewGroupBase;
+  componentWillMount() {
+    this.props.reset();
+  }
+
+  render() {
+    return (
+      <div>
+        <header>
+          <h1 className="fc-title">New Customer Group</h1>
+        </header>
+        <article>
+          <Form onSubmit={this.props.onSave}>
+            <DynamicGroupEditor />
+            <SaveCancel
+              className="fc-customer-group-edit__form-submits"
+              cancelTo="customer-groups"
+              saveText="Save Dynamic Group"
+              saveDisabled={!this.props.group.isValid}
+            />
+          </Form>
+        </article>
+      </div>
+    );
+  }
+}
