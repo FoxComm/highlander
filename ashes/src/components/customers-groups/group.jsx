@@ -15,6 +15,7 @@ import Error from 'components/errors/error';
 type Props = {
   group: TCustomerGroup;
   inProgress: boolean;
+  err: Object;
   reset: () => void;
   fetchGroup: (id: string) => Promise;
   params: {
@@ -53,7 +54,7 @@ class Group extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  inProgress: get(state, ['asyncActions', 'fetchCustomerGroup', 'inProgress'], false),
+  inProgress: get(state, 'asyncActions.fetchCustomerGroup.inProgress', false),
   err: get(state, ['asyncActions', 'fetchCustomerGroup', 'err'], false),
   group: get(state, ['customerGroups', 'details', 'group']),
 });

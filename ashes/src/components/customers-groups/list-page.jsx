@@ -1,6 +1,7 @@
 /* @flow */
 
 // libs
+import get from 'lodash/get';
 import React, { Element } from 'react';
 import { transitionTo } from 'browserHistory';
 
@@ -15,7 +16,7 @@ type Props = {
 }
 
 const GroupsListPage = (props: Props) => {
-  const TotalCounter = makeTotalCounter(state => state.customers.list, customersActions);
+  const TotalCounter = makeTotalCounter(state => get(state, 'customers.list'), customersActions);
 
   const navLinks = [
     { title: 'List', to: 'groups' },

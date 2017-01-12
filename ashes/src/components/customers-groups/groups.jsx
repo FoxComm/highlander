@@ -1,27 +1,24 @@
+/* @flow */
+
 // libs
-import React, { Component, PropTypes } from 'react';
-import { bindActionCreators } from 'redux';
+import get from 'lodash/get';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
-import classNames from 'classnames';
-
-// data
-import * as actions from '../../modules/customer-groups/list';
-
-// helpers
-import { prefix } from '../../lib/text-utils';
 import { transitionTo } from 'browserHistory';
+
+import * as actions from 'modules/customer-groups/list';
 
 // components
 import MultiSelectTable from '../table/multi-select-table';
 import GroupRow from './group-row';
-import { PrimaryButton } from '../common/buttons';
 
-
-const prefixed = prefix('fc-customer-groups');
-
-const mapStateToProps = state => ({ list: state.customerGroups.list });
-const mapDispatchToProps = dispatch => ({ actions: bindActionCreators(actions, dispatch) });
+type Props = {
+  list: Object;
+  inProgress: boolean;
+  fetch: () => Promise;
+  updateStateAndFetch: () => Promise;
+}
 
 const tableColumns = [
   { field: 'name', text: 'Group Name' },
@@ -31,19 +28,11 @@ const tableColumns = [
   { field: 'modifiedAt', type: 'date', text: 'Date/Time Last Modified' },
 ];
 
-@connect(mapStateToProps, mapDispatchToProps)
-export default class Groups extends Component {
-
-  static propTypes = {
-    actions: PropTypes.shape({
-      fetch: PropTypes.func.isRequired,
-      updateStateAndFetch: PropTypes.func.isRequired,
-    }),
-    list: PropTypes.object.isRequired,
-  };
+class Groups extends Component {
+  props: Props;
 
   componentDidMount() {
-    this.props.actions.fetch();
+    this.props.fetch();
   }
 
   @autobind
@@ -66,17 +55,25 @@ export default class Groups extends Component {
   }
 
   render() {
-    const { list, actions: { updateStateAndFetch } } = this.props;
+    const { list, inProgress, updateStateAndFetch } = this.props;
 
     return (
-      <div className={classNames(prefixed())}>
+      <div className="fc-customer-groups">
         <MultiSelectTable
           columns={tableColumns}
           data={list}
           renderRow={this.renderRow}
           setState={updateStateAndFetch}
+          isLoading={inProgress}
           emptyMessage="No groups found." />
       </div>
     );
   }
 }
+
+const mapStateToProps = state => ({
+  inProgress: get(state, 'customerGroups.list.isFetching', false),
+  list: state.customerGroups.list,
+});
+
+export default connect(mapStateToProps, actions)(Groups);
