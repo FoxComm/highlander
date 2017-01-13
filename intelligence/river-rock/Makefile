@@ -1,5 +1,5 @@
 include ../../makelib
-header = $(call baseheader, $(1), bernardo)
+header = $(call baseheader, $(1), river-rock)
 
 DOCKER_REPO ?= $(DOCKER_STAGE_REPO)
 DOCKER_TAG ?= river-rock

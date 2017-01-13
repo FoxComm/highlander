@@ -24,14 +24,18 @@ server {
   }
   {% if storefront_fixed_language %}set $accept_language {{storefront_default_language}};{% endif %}
 
-  # Proxy to storefront
-  location / {
-      proxy_pass http://storefront;
+  include /etc/nginx/service_locations.conf;
+
+  location /raw {
+      proxy_pass http://storefront/;
   }
 
   location @storefront {
-      proxy_pass http://storefront;
+	proxy_pass http://storefront;
   }
 
-  include /etc/nginx/service_locations.conf;
+  location / {
+      proxy_pass http://river-rock/proxy/;
+      break;
+  }
 }

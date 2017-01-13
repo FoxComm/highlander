@@ -1,6 +1,7 @@
 package proxy
 
 import (
+	"crypto/tls"
 	"database/sql"
 	"log"
 	"net/http"
@@ -58,6 +59,9 @@ func getClusterIdFromHeader(req *http.Request) (int, error) {
 
 func (p *RiverRock) StartProxy() error {
 
+	//Turn of SSL verification since we hit the balancer via internal endpoint
+	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+
 	bernardoUrl := p.Config.BernardoUrl + "/sfind"
 
 	selector := selection.NewSelector(p.Db)
@@ -68,11 +72,11 @@ func (p *RiverRock) StartProxy() error {
 		return c.String(http.StatusOK, "pong")
 	})
 
-	e.GET("/v1/*", func(c echo.Context) error {
+	e.Any("/proxy/*", func(c echo.Context) error {
 		req := c.Request()
 		res := c.Response()
 
-		path := req.URL.Path
+		path := req.URL.Path[6:]
 
 		//Get pinned cluster Id from header
 		clusterId, err := getClusterIdFromHeader(req)
@@ -104,6 +108,7 @@ func (p *RiverRock) StartProxy() error {
 			log.Print(err)
 			log.Print("PASS: " + path + " => " + p.Config.UpstreamUrl + path)
 
+			req.URL.Path = path
 			proxy.ServeHTTP(res, req)
 		} else {
 			ref, err := selector.SelectResource(clusterId, mappedResources)

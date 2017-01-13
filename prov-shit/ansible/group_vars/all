@@ -154,7 +154,14 @@ bernardo_src: ../../intelligence/bernardo/
 bernardo_db_name: ic
 bernardo_db_user: ic
 bernardo_db_host: "db.{{consul_suffix}}"
+bernardo_port: "9290"
 bernardo_host: bernardo.service.consul
+bernardo_server: "{{bernardo_host}}:{{bernardo_port}}"
+
+#River Rock
+river_rock_port: "9390"
+river_rock_host: river-rock.service.consul
+river_rock_server: "{{river_rock_host}}:{{river_rock_port}}"
 
 #Henhouse
 henhouse_host: "henhouse.{{consul_suffix}}"
