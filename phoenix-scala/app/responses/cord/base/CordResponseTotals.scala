@@ -1,24 +1,44 @@
 package responses.cord.base
 
-import models.cord.CordBase
+import models.cord.{Cart, Order}
 import responses.ResponseItem
 
-case class CordResponseTotals(subTotal: Int,
+case class OrderResponseTotals(subTotal: Int,
+                               taxes: Int,
+                               shipping: Int,
+                               adjustments: Int,
+                               total: Int)
+    extends ResponseItem
+
+object OrderResponseTotals {
+
+  def build(order: Order): OrderResponseTotals =
+    OrderResponseTotals(subTotal = order.subTotal,
+                        shipping = order.shippingTotal,
+                        adjustments = order.adjustmentsTotal,
+                        taxes = order.taxesTotal,
+                        total = order.grandTotal)
+
+}
+
+case class CartResponseTotals(subTotal: Int,
                               taxes: Int,
                               shipping: Int,
                               adjustments: Int,
-                              total: Int)
+                              total: Int,
+                              customersExpenses: Int)
     extends ResponseItem
 
-object CordResponseTotals {
+object CartResponseTotals {
 
-  def empty: CordResponseTotals = CordResponseTotals(0, 0, 0, 0, 0)
+  def empty: CartResponseTotals = CartResponseTotals(0, 0, 0, 0, 0, 0)
 
-  def build[C <: CordBase[C]](cord: C): CordResponseTotals =
-    CordResponseTotals(subTotal = cord.subTotal,
-                       shipping = cord.shippingTotal,
-                       adjustments = cord.adjustmentsTotal,
-                       taxes = cord.taxesTotal,
-                       total = cord.grandTotal)
+  def build(cart: Cart, coveredByInStoreMethods: Int): CartResponseTotals =
+    CartResponseTotals(subTotal = cart.subTotal,
+                       shipping = cart.shippingTotal,
+                       adjustments = cart.adjustmentsTotal,
+                       taxes = cart.taxesTotal,
+                       total = cart.grandTotal,
+                       customersExpenses = cart.grandTotal - coveredByInStoreMethods)
 
 }
