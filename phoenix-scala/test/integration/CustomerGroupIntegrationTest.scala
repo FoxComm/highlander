@@ -18,14 +18,6 @@ class CustomerGroupIntegrationTest
     with MockitoSugar
     with BakedFixtures {
 
-  "GET /v1/groups" - {
-    "lists customers groups" in new Fixture {
-      val groupRoot = DynamicGroupResponse.build(group)
-
-      customerGroupsApi.get().as[Seq[Root]] must === (Seq(groupRoot))
-    }
-  }
-
   "POST /v1/groups" - {
     "successfully creates customer group from payload" in new Fixture {
       val payload = CustomerDynamicGroupPayload(name = "Group number one",
