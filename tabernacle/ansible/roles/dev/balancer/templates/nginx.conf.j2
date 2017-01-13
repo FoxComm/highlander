@@ -121,7 +121,7 @@ http {
       function request_internal_search(idx)
         local req
         local jwt = ngx.req.get_headers()["JWT"]
-        local request_prefix = "api/search/" .. idx
+        local request_prefix = "raw/api/search/" .. idx
 
         req = ngx.re.sub(ngx.var.request_uri, request_prefix, "internal-search/" .. idx)
 
