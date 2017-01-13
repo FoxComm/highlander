@@ -87,5 +87,12 @@ case class CreditCardDetailsPayload(customerId: Int,
 
 case class CreditCardTokenResponse(token: String, brand: String, lastFour: String)
 
+/**
+  *
+  * @param logger is fully qualified name of class where logger are used
+  *               for example utils.ElasticsearchApi
+  * @param level Log Level from LogBack, for example DEBUG, INFO, ALL, etc.
+  *              In case of invalid level no changes will be applied.
+  */
 case class ChangeLogLevel(logger: String, level: String)
 case class ChangeLogLevelResponse(oldLevel: String, newLevel: String, logger: String)
