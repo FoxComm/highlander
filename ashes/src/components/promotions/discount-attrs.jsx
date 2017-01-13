@@ -45,6 +45,7 @@ type Props = {
   descriptions: Array<DescriptionType>;
   discount: Object;
   dropdownId: string;
+  blockId: string;
 };
 
 const DiscountAttrs = (props: Props): Element => {
@@ -99,7 +100,7 @@ const DiscountAttrs = (props: Props): Element => {
   };
 
   return (
-    <div>
+    <div id={props.blockId}>
       {_.map(currentDescription.content, renderContentRow)}
     </div>
   );
