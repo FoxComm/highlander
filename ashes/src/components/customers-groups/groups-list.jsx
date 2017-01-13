@@ -1,21 +1,17 @@
 /* @flow */
 
 // libs
-import get from 'lodash/get';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
-import * as actions from 'modules/customer-groups/list';
+import { actions } from 'modules/customer-groups/list';
 
 // components
-import MultiSelectTable from '../table/multi-select-table';
+import { SelectableSearchList } from 'components/list-page';
 import MultiSelectRow from '../table/multi-select-row';
 
 type Props = {
   list: Object;
-  inProgress: boolean;
-  fetch: () => Promise;
-  updateStateAndFetch: () => Promise;
 }
 
 const tableColumns = [
@@ -25,45 +21,32 @@ const tableColumns = [
   { field: 'modifiedAt', type: 'date', text: 'Date/Time Last Modified' },
 ];
 
-class GroupsList extends Component {
-  props: Props;
-
-  componentDidMount() {
-    this.props.fetch();
-  }
-
-  get renderRow() {
-    return (row, index, columns, params) => (
-      <MultiSelectRow
-        columns={columns}
-        linkTo="customer-group"
-        linkParams={{ groupId: row.id }}
-        row={row}
-        params={params}
-        key={row.id}
-      />
-    );
-  }
-
-  render() {
-    const { list, inProgress, updateStateAndFetch } = this.props;
-
-    return (
-      <div className="fc-customer-groups">
-        <MultiSelectTable
-          columns={tableColumns}
-          data={list}
-          renderRow={this.renderRow}
-          setState={updateStateAndFetch}
-          isLoading={inProgress}
-          emptyMessage="No groups found." />
-      </div>
-    );
-  }
+function renderRow(row, index, columns, params) {
+  return (
+    <MultiSelectRow
+      columns={columns}
+      linkTo="customer-group"
+      linkParams={{ groupId: row.id }}
+      row={row}
+      params={params}
+      key={row.id}
+    />
+  );
 }
 
+const GroupsList = ({ list }: Props) => (
+  <SelectableSearchList
+    entity="customerGroups.list"
+    emptyMessage="No groups found."
+    list={list}
+    renderRow={renderRow}
+    tableColumns={tableColumns}
+    searchActions={actions}
+    searchOptions={{ singleSearch: true }}
+  />
+);
+
 const mapStateToProps = state => ({
-  inProgress: get(state, 'customerGroups.list.isFetching', false),
   list: state.customerGroups.list,
 });
 

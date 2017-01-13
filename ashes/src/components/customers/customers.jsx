@@ -6,7 +6,6 @@ import React, { Component } from 'react';
 import { actions } from '../../modules/customers/list';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import _ from 'lodash';
 
 import CustomerRow from './customer-row';
 import { SelectableSearchList } from '../list-page';
@@ -51,6 +50,7 @@ class Customers extends Component {
 
   render() {
     const {list, tableColumns, actions} = this.props;
+
     return (
       <SelectableSearchList
         entity="customers.list"
