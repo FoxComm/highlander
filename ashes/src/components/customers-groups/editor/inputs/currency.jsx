@@ -1,5 +1,5 @@
 //libs
-import React  from 'react';
+import React from 'react';
 
 //components
 import CurrencyInput from 'components/forms/currency-input';
