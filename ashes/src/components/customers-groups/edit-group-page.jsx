@@ -25,6 +25,9 @@ type Props = {
   clearSaveErrors: () => void;
   fetchRegions: () => Promise;
   push: (location: Object) => void;
+  params: {
+    groupId: number;
+  };
   children: Element;
 };
 

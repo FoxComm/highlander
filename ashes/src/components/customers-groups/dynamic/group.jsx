@@ -68,7 +68,6 @@ export default class DynamicGroup extends Component {
       }),
     }),
     groupActions: PropTypes.shape({
-      setFilterTerm: PropTypes.func.isRequired,
       fetchGroupStats: PropTypes.func.isRequired,
     }).isRequired,
     customersListActions: PropTypes.shape({
@@ -197,21 +196,9 @@ export default class DynamicGroup extends Component {
     );
   }
 
-  @autobind
-  setFilterTerm({ target }) {
-    this.props.groupActions.setFilterTerm(target.value);
-    this.updateSearch();
-  }
-
   @debounce(200)
   updateSearch() {
     this.props.customersListActions.fetch();
-  }
-
-  goToCustomer(id) {
-    return () => {
-      transitionTo('customer', { customerId: id });
-    };
   }
 
   get renderRow() {
