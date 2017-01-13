@@ -45,8 +45,8 @@ const _saveGroup = createAsyncActions(
           data.customersCount = response.count;
 
           let request;
-          if (data.id) {
-            request = Api.patch(`/groups/${data.id}`, data);
+          if (groupId) {
+            request = Api.patch(`/groups/${groupId}`, data);
           } else {
             request = Api.post('/groups', data);
           }
@@ -77,6 +77,7 @@ export const setMainCondition = createAction('CUSTOMER_GROUP_SET_MAIN_CONDITION'
 export const setConditions = createAction('CUSTOMER_GROUP_SET_CONDITIONS');
 export const setFilterTerm = createAction('CUSTOMER_GROUP_SET_FILTER_TERM');
 export const setGroupStats = createAction('CUSTOMER_GROUP_SET_GROUP_STATS');
+export const clearSaveErrors = _saveGroup.clearErrors;
 
 /**
  * Fetch customer group

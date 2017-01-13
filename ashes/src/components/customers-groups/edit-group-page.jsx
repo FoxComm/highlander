@@ -6,7 +6,7 @@ import React, { Component, Element } from 'react';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 
-import { reset, fetchGroup, saveGroup } from 'modules/customer-groups/group';
+import { reset, fetchGroup, saveGroup, clearSaveErrors } from 'modules/customer-groups/group';
 import { fetchRegions } from 'modules/regions';
 
 import { Link } from 'components/link';
@@ -16,10 +16,13 @@ import Error from 'components/errors/error';
 type Props = {
   group: TCustomerGroup;
   fetchInProgress: boolean;
-  fetchErr: Object;
+  saveInProgress: boolean;
+  fetchError: Object;
+  saveError: Object;
   reset: () => void;
   fetchGroup: (id: number) => Promise;
   saveGroup: () => Promise;
+  clearSaveErrors: () => void;
   fetchRegions: () => Promise;
   push: (location: Object) => void;
   children: Element;
@@ -29,6 +32,8 @@ class NewGroupBase extends Component {
   props: Props;
 
   componentWillMount() {
+    this.props.clearSaveErrors();
+
     // reset group data if we have no :groupId param in url
     if (!this.props.params.groupId) {
       this.props.reset();
@@ -56,10 +61,10 @@ class NewGroupBase extends Component {
   }
 
   render() {
-    const { group, fetchInProgress, fetchErr, params, children, ...rest } = this.props;
+    const { group, fetchInProgress, fetchError, params, children, ...rest } = this.props;
 
-    if (fetchErr) {
-      return <Error err={fetchErr} />;
+    if (fetchError) {
+      return <Error err={fetchError} />;
     }
 
     // show loader if loading in progress or we have :groupId url param but have no group fetched
@@ -77,8 +82,12 @@ class NewGroupBase extends Component {
 
 const mapStateToProps = state => ({
   fetchInProgress: get(state, 'asyncActions.fetchCustomerGroup.inProgress', false),
-  fetchErr: get(state, ['asyncActions', 'fetchCustomerGroup', 'err'], false),
+  saveInProgress: get(state, 'asyncActions.saveCustomerGroup.inProgress', false),
+  fetchError: get(state, 'asyncActions.fetchCustomerGroup.err', false),
+  saveError: get(state, 'asyncActions.saveCustomerGroup.err', false),
   group: state.customerGroups.details.group
 });
 
-export default connect(mapStateToProps, { reset, fetchGroup, saveGroup, fetchRegions, push })(NewGroupBase);
+const mapActions = { reset, fetchGroup, saveGroup, clearSaveErrors, fetchRegions, push };
+
+export default connect(mapStateToProps, mapActions)(NewGroupBase);
