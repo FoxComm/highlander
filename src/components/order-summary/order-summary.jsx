@@ -105,23 +105,26 @@ class OrderSummary extends Component {
       return null;
     }
 
-    const google_conversion_id = 868108231;
-    const google_conversion_language = "en";
-    const google_conversion_format = "3";
-    const google_conversion_color = "ffffff";
-    const google_conversion_label = "AkdhCPzhm20Qx4_5nQM";
-    const google_remarketing_only = false;
-
     const value = formatCurrency(grandTotal);
     const url =
       `//www.googleadservices.com/pagead/conversion/868108231/` +
-      `?label=${google_conversion_label}&` +
+      `?label=AkdhCPzhm20Qx4_5nQM&` +
       `currency_code=USD&` +
       `value=${value}&` +
       `guid=ON&script=0`;
 
     return (
       <div>
+        <script type="text/javascript">
+          /* <![CDATA[ */
+          var google_conversion_id = 868108231;
+          var google_conversion_language = "en";
+          var google_conversion_format = "3";
+          var google_conversion_color = "ffffff";
+          var google_conversion_label = "AkdhCPzhm20Qx4_5nQM";
+          var google_remarketing_only = false;
+          /* ]]> */
+        </script>
         <script
           type="text/javascript"
           src="//www.googleadservices.com/pagead/conversion.js"
