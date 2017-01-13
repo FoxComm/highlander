@@ -39,6 +39,7 @@
     <!-- Log ONLY FAILED HTTP request and responses -->
     <logger name="io.gatling.http.ahc" level="DEBUG" />
     <logger name="io.gatling.http.response" level="DEBUG" />
+    <logger name="utils.ElasticsearchApi" level="DEBUG" />
 
     <root level="INFO">
         <appender-ref ref="Console" />

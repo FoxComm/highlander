@@ -13,6 +13,10 @@ import utils.aliases._
 import utils.http.CustomDirectives._
 import utils.http.Http._
 
+import org.slf4j.LoggerFactory
+import ch.qos.logback.classic.Level
+import ch.qos.logback.classic.{Logger ⇒ LogBackLogger}
+
 object DevRoutes {
 
   def routes(implicit ec: EC, db: DB, auth: AuthData[User]) = {
@@ -21,6 +25,19 @@ object DevRoutes {
         (post & pathEnd & entity(as[OrderTimeMachine])) { payload ⇒
           mutateOrFailures {
             TimeMachine.changePlacedAt(payload.referenceNumber, payload.placedAt)
+          }
+        }
+      } ~
+      pathPrefix("set-log-level") {
+        (post & pathEnd & entity(as[ChangeLogLevel])) { payload ⇒
+          complete {
+            val logger   = LoggerFactory.getLogger(payload.logger).asInstanceOf[LogBackLogger]
+            val oldLevel = logger.getLevel
+            val newLevel = Level.toLevel(payload.level, oldLevel)
+            logger.setLevel(newLevel)
+            ChangeLogLevelResponse(oldLevel = oldLevel.toString,
+                                   newLevel = newLevel.toString,
+                                   logger = logger.getName)
           }
         }
       } ~
@@ -69,3 +86,6 @@ case class CreditCardDetailsPayload(customerId: Int,
                                     address: CreateAddressPayload)
 
 case class CreditCardTokenResponse(token: String, brand: String, lastFour: String)
+
+case class ChangeLogLevel(logger: String, level: String)
+case class ChangeLogLevelResponse(oldLevel: String, newLevel: String, logger: String)
