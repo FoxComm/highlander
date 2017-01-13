@@ -6,6 +6,7 @@
 .analytics-filters {
   display: flex;
   margin-bottom: 40px;
+  justify-content: flex-end;
 }
 
 .analytics-filter-date-picker {
