@@ -189,6 +189,8 @@ class VariantIntegrationTest
                               formId = skuForm.id,
                               shadowId = skuShadow.id,
                               commitId = skuCommit.id))
+      _ ← * <~ ProductVariantMwhSkuIds.create(
+             ProductVariantMwhSkuId(variantFormId = skuForm.id, mwhSkuId = skuForm.id))
     } yield (sku, skuForm, skuShadow)).gimme
   }
 

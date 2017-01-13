@@ -1,20 +1,18 @@
 package services
 
 import (
-	"errors"
 	"testing"
 
+	"github.com/FoxComm/highlander/middlewarehouse/common/db/config"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
-	"github.com/FoxComm/highlander/middlewarehouse/services/mocks"
 
-	"github.com/stretchr/testify/mock"
+	"github.com/FoxComm/highlander/middlewarehouse/common/db/tasks"
 	"github.com/stretchr/testify/suite"
 )
 
 type StockLocationServiceTestSuite struct {
 	GeneralServiceTestSuite
-	repository *mocks.StockLocationRepositoryMock
-	service    IStockLocationService
+	service StockLocationService
 }
 
 func TestStockLocationServiceSuite(t *testing.T) {
@@ -22,14 +20,12 @@ func TestStockLocationServiceSuite(t *testing.T) {
 }
 
 func (suite *StockLocationServiceTestSuite) SetupSuite() {
-	suite.repository = &mocks.StockLocationRepositoryMock{}
-	suite.service = NewStockLocationService(suite.repository)
+	suite.db = config.TestConnection()
+	suite.service = NewStockLocationService(suite.db)
 }
 
-func (suite *StockLocationServiceTestSuite) TearDownTest() {
-	// clear service mock calls expectations after each test
-	suite.repository.ExpectedCalls = []*mock.Call{}
-	suite.repository.Calls = []mock.Call{}
+func (suite *StockLocationServiceTestSuite) SetupTest() {
+	tasks.TruncateTables(suite.db, []string{"stock_locations"})
 }
 
 func (suite *StockLocationServiceTestSuite) Test_GetLocations() {
@@ -37,92 +33,85 @@ func (suite *StockLocationServiceTestSuite) Test_GetLocations() {
 		{Name: "Location Name 1", Type: "Warehouse"},
 		{Name: "Location Name 2", Type: "Warehouse"},
 	}
-	suite.repository.On("GetLocations").Return(models, nil).Once()
+	suite.Nil(suite.db.Create(models[0]).Error)
+	suite.Nil(suite.db.Create(models[1]).Error)
 
 	locations, err := suite.service.GetLocations()
 
 	suite.Nil(err)
-	suite.Equal(models, locations)
-	suite.repository.AssertExpectations(suite.T())
+	suite.Equal(models[0].Name, locations[0].Name)
+	suite.Equal(models[0].Type, locations[0].Type)
+	suite.Equal(models[1].Name, locations[1].Name)
+	suite.Equal(models[1].Type, locations[1].Type)
 }
 
 func (suite *StockLocationServiceTestSuite) Test_GetLocationByID() {
 	model := &models.StockLocation{Name: "Location Name 1", Type: "Warehouse"}
-	suite.repository.On("GetLocationByID", uint(1)).Return(model, nil).Once()
+	suite.Nil(suite.db.Create(model).Error)
 
 	location, err := suite.service.GetLocationByID(1)
 
 	suite.Nil(err)
-	suite.Equal(model, location)
-	suite.repository.AssertExpectations(suite.T())
+	suite.Equal(model.Name, location.Name)
+	suite.Equal(model.Type, location.Type)
 }
 
 func (suite *StockLocationServiceTestSuite) Test_GetLocationByID_NotFound() {
-	suite.repository.On("GetLocationByID", uint(1)).Return(nil, errors.New("Error")).Once()
-
 	location, err := suite.service.GetLocationByID(1)
 
 	suite.NotNil(err)
 	suite.Nil(location)
-	suite.repository.AssertExpectations(suite.T())
 }
 
 func (suite *StockLocationServiceTestSuite) Test_CreateLocation() {
 	model := &models.StockLocation{Name: "Location Name 1", Type: "Warehouse"}
-	suite.repository.On("CreateLocation", model).Return(model, nil).Once()
 
 	location, err := suite.service.CreateLocation(model)
 
 	suite.Nil(err)
-	suite.Equal(model, location)
-	suite.repository.AssertExpectations(suite.T())
+	suite.Equal(model.Name, location.Name)
+	suite.Equal(model.Type, location.Type)
 }
 
 func (suite *StockLocationServiceTestSuite) Test_CreateLocation_Error() {
-	model := &models.StockLocation{Name: "Location Name 1", Type: "Warehouse"}
-	suite.repository.On("CreateLocation", model).Return(nil, errors.New("Error")).Once()
+	model := &models.StockLocation{Name: "Location Name 1", Type: "Wherehouse"}
 
 	location, err := suite.service.CreateLocation(model)
 
 	suite.NotNil(err)
 	suite.Nil(location)
-	suite.repository.AssertExpectations(suite.T())
 }
 
 func (suite *StockLocationServiceTestSuite) Test_UpdateLocation() {
 	model := &models.StockLocation{Name: "Location Name 1", Type: "Warehouse"}
-	suite.repository.On("UpdateLocation", model).Return(model, nil).Once()
+	suite.Nil(suite.db.Create(model).Error)
+	model.Name = "New Location Name"
 
 	location, err := suite.service.UpdateLocation(model)
 
 	suite.Nil(err)
-	suite.Equal(model, location)
-	suite.repository.AssertExpectations(suite.T())
+	suite.Equal(model.Name, location.Name)
+	suite.Equal(model.Type, location.Type)
 }
 
 func (suite *StockLocationServiceTestSuite) Test_UpdateLocation_Error() {
-	model := &models.StockLocation{Name: "Location Name 1", Type: "Warehouse"}
-	suite.repository.On("CreateLocation", model).Return(nil, errors.New("Error")).Once()
+	model := &models.StockLocation{Name: "Location Name 1", Type: "Wherehouse"}
 
 	location, err := suite.service.CreateLocation(model)
 
 	suite.NotNil(err)
 	suite.Nil(location)
-	suite.repository.AssertExpectations(suite.T())
 }
 
 func (suite *StockLocationServiceTestSuite) Test_DeleteLocation() {
-	suite.repository.On("DeleteLocation", uint(1)).Return(nil).Once()
+	model := &models.StockLocation{Name: "Location Name 1", Type: "Warehouse"}
+	suite.Nil(suite.db.Create(model).Error)
 
-	err := suite.service.DeleteLocation(1)
+	err := suite.service.DeleteLocation(model.ID)
 
 	suite.Nil(err)
 }
 
 func (suite *StockLocationServiceTestSuite) Test_DeleteLocation_Error() {
-	suite.repository.On("DeleteLocation", uint(1)).Return(errors.New("Error")).Once()
-
-	err := suite.service.DeleteLocation(1)
-
-	suite.NotNil(err)
+	suite.NotNil(suite.service.DeleteLocation(1))
 }
