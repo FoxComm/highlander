@@ -1,3 +1,4 @@
+import com.github.tminglei.slickpg.LTree
 import failures.NotFoundFailure404
 import models.customer.{CustomerDynamicGroup, CustomerDynamicGroups}
 import org.json4s.JObject
@@ -16,14 +17,6 @@ class CustomerGroupIntegrationTest
     with AutomaticAuth
     with MockitoSugar
     with BakedFixtures {
-
-  "GET /v1/groups" - {
-    "lists customers groups" in new Fixture {
-      val groupRoot = DynamicGroupResponse.build(group)
-
-      customerGroupsApi.get().as[Seq[Root]] must === (Seq(groupRoot))
-    }
-  }
 
   "POST /v1/groups" - {
     "successfully creates customer group from payload" in new Fixture {
@@ -71,7 +64,8 @@ class CustomerGroupIntegrationTest
   }
 
   trait Fixture extends StoreAdmin_Seed {
-    val group =
-      CustomerDynamicGroups.create(Factories.group.copy(createdBy = storeAdmin.accountId)).gimme
+    val group = CustomerDynamicGroups
+      .create(Factories.group(LTree("1")).copy(createdBy = storeAdmin.accountId))
+      .gimme
   }
 }

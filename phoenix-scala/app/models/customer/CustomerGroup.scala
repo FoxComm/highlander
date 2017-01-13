@@ -2,6 +2,8 @@ package models.customer
 
 import java.time.Instant
 
+import com.github.tminglei.slickpg.LTree
+import models.account.Scope
 import payloads.CustomerGroupPayloads.CustomerDynamicGroupPayload
 import shapeless._
 import slick.lifted.Tag
@@ -10,6 +12,7 @@ import utils.db.ExPostgresDriver.api._
 import utils.db._
 
 case class CustomerDynamicGroup(id: Int = 0,
+                                scope: LTree,
                                 createdBy: Int,
                                 name: String,
                                 customersCount: Option[Int],
@@ -21,8 +24,11 @@ case class CustomerDynamicGroup(id: Int = 0,
 
 object CustomerDynamicGroup {
 
-  def fromPayloadAndAdmin(p: CustomerDynamicGroupPayload, adminId: Int): CustomerDynamicGroup =
+  def fromPayloadAndAdmin(p: CustomerDynamicGroupPayload,
+                          adminId: Int,
+                          scope: LTree): CustomerDynamicGroup =
     CustomerDynamicGroup(id = 0,
+                         scope = scope,
                          createdBy = adminId,
                          name = p.name,
                          customersCount = p.customersCount,
@@ -33,6 +39,7 @@ object CustomerDynamicGroup {
 class CustomerDynamicGroups(tag: Tag)
     extends FoxTable[CustomerDynamicGroup](tag, "customer_dynamic_groups") {
   def id             = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def scope          = column[LTree]("scope")
   def createdBy      = column[Int]("created_by")
   def name           = column[String]("name")
   def customersCount = column[Option[Int]]("customers_count")
@@ -42,7 +49,7 @@ class CustomerDynamicGroups(tag: Tag)
   def createdAt      = column[Instant]("created_at")
 
   def * =
-    (id, createdBy, name, customersCount, clientState, elasticRequest, updatedAt, createdAt) <>
+    (id, scope, createdBy, name, customersCount, clientState, elasticRequest, updatedAt, createdAt) <>
       ((CustomerDynamicGroup.apply _).tupled, CustomerDynamicGroup.unapply)
 }
 
