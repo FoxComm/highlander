@@ -24,7 +24,7 @@ func GetRoutes(db *gorm.DB) map[string]controllers.IController {
 	//services
 	activityLogger := services.NewActivityLogger(producer)
 	summaryService := services.NewSummaryService(db)
-	inventoryService := services.NewInventoryService(db, summaryService)
+	inventoryService := services.NewInventoryService(db)
 	carrierService := services.NewCarrierService(db)
 	stockLocationService := services.NewStockLocationService(db)
 	shippingMethodService := services.NewShippingMethodService(db)

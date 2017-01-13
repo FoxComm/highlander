@@ -7,6 +7,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+// SKU is a collection of methods for creating and manipulating SKUs.
 type SKU interface {
 	GetByID(id uint) (*responses.SKU, error)
 	Create(payload *payloads.CreateSKU) (*responses.SKU, error)
@@ -14,6 +15,7 @@ type SKU interface {
 	Archive(id uint) error
 }
 
+// NewSKU creates a new SKU collection.
 func NewSKU(db *gorm.DB) SKU {
 	return &skuService{db}
 }

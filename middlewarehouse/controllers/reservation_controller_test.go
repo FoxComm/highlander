@@ -32,8 +32,7 @@ func (suite *reservationControllerTestSuite) SetupSuite() {
 	suite.db = config.TestConnection()
 	suite.router = gin.Default()
 
-	suite.summaryService = services.NewSummaryService(suite.db)
-	suite.service = services.NewInventoryService(suite.db, suite.summaryService)
+	suite.service = services.NewInventoryService(suite.db)
 
 	controller := NewReservationController(suite.service)
 	controller.SetUp(suite.router.Group("/reservations"))

@@ -41,7 +41,7 @@ func (suite *shipmentControllerTestSuite) SetupSuite() {
 
 	logger := &dummyLogger{}
 	suite.summaryService = services.NewSummaryService(suite.db)
-	suite.inventoryService = services.NewInventoryService(suite.db, suite.summaryService)
+	suite.inventoryService = services.NewInventoryService(suite.db)
 	suite.shipmentService = services.NewShipmentService(
 		suite.db,
 		suite.inventoryService,
