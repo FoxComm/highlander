@@ -4,7 +4,6 @@ import { Link } from '../link';
 //helpers
 import { prefix } from '../../lib/text-utils';
 
-
 const prefixed = prefix('fc-customer-group-dynamic-edit');
 
 const NewGroupBase = ({title, alternative, children}) => {

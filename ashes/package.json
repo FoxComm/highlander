@@ -143,7 +143,7 @@
     "gulp-plumber": "^1.0.1",
     "gulp-postcss": "^6.1.0",
     "gulp-rename": "^1.2.2",
-    "gulp-sourcemaps": "^1.5.2",
+    "gulp-sourcemaps": "^2.3.1",
     "gulp-spawn-mocha": "^2.2.2",
     "gulp-uglify": "^1.5.4",
     "gulp-util": "^3.0.6",

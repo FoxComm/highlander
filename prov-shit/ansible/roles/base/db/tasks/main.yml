@@ -2,11 +2,9 @@
 
 - name: Update System Package Cache
   apt: update_cache=yes
-  
 
 - name: Install PostgreSQL Packages
   apt: name={{item}} state=latest force=yes
-  
   with_items:
     - libpq-dev
     - python-psycopg2
@@ -23,19 +21,15 @@
 
 - name: Copy Postgres Configuration
   copy: src={{item}} dest="/etc/postgresql/9.5/main/{{item}}" mode="0644"
-  
   with_items:
       - postgresql.conf
       - pg_hba.conf
 
 - name: Reload Systemd for Postgresql
-  
   command: systemctl daemon-reload
 
 - name: Restart Postgresql
   service: name=postgresql state=restarted
-  
 
 - name: Copy Consul Service File
   template: src=db.json dest="/etc/consul.d/db.json"
-  

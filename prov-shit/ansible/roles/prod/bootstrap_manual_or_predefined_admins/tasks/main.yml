@@ -9,11 +9,9 @@
     - name: "store_admin_email"
       prompt: "Enter an email for new admin"
       private: no
-
     - name: "store_admin_name"
       prompt: "Enter a name for new admin"
       private: no
-
     - name: "store_admin_password"
       prompt: "Enter a password for new admin"
       private: no

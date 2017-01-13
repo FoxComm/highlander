@@ -31,11 +31,24 @@ template(name="elasticsearch-json" type="list") {
 }
 
 # this is where we actually send the logs to Elasticsearch (localhost:9200 by default)
-action(type="omelasticsearch"
+local1.*,local2.*,local3.*,local4.*,local5.*,local6.* action(type="omelasticsearch"
     template="elasticsearch-json"
     searchIndex="logstash-index"
     dynSearchIndex="on"
-    server="{{log_host}}"
+    server="{{search_host}}"
+    serverport="{{es_logs_port}}"
+    bulkmode="on"                         # send logs in batches
+    queue.dequeuebatchsize="1000"         # of up to 1000
+    queue.type="linkedlist"
+    queue.size="5000"
+    action.resumeretrycount="-1") & stop  # we don't want to store this logs twice on our hard drives
+
+kern.*,daemon.*,mail.*,auth.*,news.*,cron.*,security.* action(type="omelasticsearch"
+    template="elasticsearch-json"
+    searchIndex="logstash-index"
+    dynSearchIndex="on"
+    server="{{search_host}}"
+    serverport="{{es_logs_port}}"
     bulkmode="on"                   # send logs in batches
     queue.dequeuebatchsize="1000"   # of up to 1000
     queue.type="linkedlist"

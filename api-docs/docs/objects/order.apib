@@ -66,7 +66,25 @@
 + adjustments (required, array[Adjustment]) - Order adjustments.
 + fraudScore: 0 (required, number) - Fraud score.
 + customer (optional, CustomerResponse) - Associated customer.
-+ totals (required, Totals) - Order totals.
++ totals (required, OrderTotals) - Order totals.
++ shippingMethod (optional, ShippingMethod) - Shipping method.
++ shippingAddress (optional, OrderShippingAddress) - Shipping address.
++ remorsePeriodEnd: `2020-01-01T12:00:00Z` (optional, string) - Remorse period end.
++ paymentMethods (optional, array[DisplayPayment]) - Order payment.
++ lockedBy (optional, StoreAdminResponse) - Currently locked by.
++ warnings: `List of validation errors and warnings` (optional, array[string]) - Warnings.
+
+### FullCart
++ id: 1 (required, number) - Unique identifier.
++ referenceNumber: `ABC-123` (required, string) - Order reference number.
++ Include OrderState
++ Include ShippingState
++ Include PaymentState
++ lineItems (required, LineItems) - Line items with different types.
++ adjustments (required, array[Adjustment]) - Order adjustments.
++ fraudScore: 0 (required, number) - Fraud score.
++ customer (optional, CustomerResponse) - Associated customer.
++ totals (required, CartTotals) - Cart totals.
 + shippingMethod (optional, ShippingMethod) - Shipping method.
 + shippingAddress (optional, OrderShippingAddress) - Shipping address.
 + remorsePeriodEnd: `2020-01-01T12:00:00Z` (optional, string) - Remorse period end.
@@ -97,12 +115,20 @@
         + `GiftCard`
         + `StoreCredit`
 
-### Totals
+### OrderTotals
 + subTotal: 100 (required, number) - Subtotal.
 + taxes: 50 (required, number) - Taxes total.
 + shipping: 5 (required, number) - Taxes total.
 + adjustments: 50 (required, number) - Adjustments total.
 + total: 100 (required, number) - Total.
+
+### CartTotals
++ subTotal: 100 (required, number) - Subtotal.
++ taxes: 50 (required, number) - Taxes total.
++ shipping: 5 (required, number) - Taxes total.
++ adjustments: 50 (required, number) - Adjustments total.
++ total: 100 (required, number) - Total.
++ customersExpenses: 50 (required, number) - Amount that the customer will be actually charged (`total` decreased by gift cards and store credit).
 
 ### LineItems
 + skus (required, array[SkuLineItem]) - SKU's as line items.

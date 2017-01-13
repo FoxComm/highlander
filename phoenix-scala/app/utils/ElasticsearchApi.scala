@@ -45,14 +45,15 @@ case class ElasticsearchApi(host: String, cluster: String, index: String)(implic
         case _         ⇒ 0
       }
 
-    val queryString = compact(render(query))
+    val queryString  = compact(render(query))
+    val indexAndType = getIndexAndType(searchView)
 
     val request =
-      search in getIndexAndType(searchView) rawQuery queryString aggregations (
+      search in indexAndType rawQuery queryString aggregations (
           aggregation filter aggregationName filter termsQuery(fieldName, references.toList: _*)
       ) size 0
 
-    logQuery(request.show)
+    logQuery(indexAndType, request.show)
     client.execute(request).map(getDocCount)
   }
 
@@ -76,22 +77,26 @@ case class ElasticsearchApi(host: String, cluster: String, index: String)(implic
         case _         ⇒ List.empty
       }
 
-    val newQuery    = injectFilterReferences(esQuery, fieldName, references)
-    val queryString = compact(render(newQuery))
+    val newQuery     = injectFilterReferences(esQuery, fieldName, references)
+    val queryString  = compact(render(newQuery))
+    val indexAndType = getIndexAndType(searchView)
 
-    val request = search in getIndexAndType(searchView) rawQuery queryString aggregations (
+    val request = search in indexAndType rawQuery queryString aggregations (
           aggregation terms aggregationName script s"doc['$fieldName'].value"
       ) size 0
 
-    logQuery(request.show)
+    logQuery(indexAndType, request.show)
     client.execute(request).map(getBuckets)
   }
 
   /**
     * Render compact query for logging
     */
-  def logQuery(query: String): Unit =
-    logger.debug(s"Preparing Elasticsearch query: ${compact(render(parse(query)))}")
+  private def logQuery(indexAndType: IndexAndType, query: String): Unit = {
+    logger.debug(
+        s"Preparing Elasticsearch query to ${indexAndType.index}/${indexAndType.`type`}: ${compact(
+        render(parse(query)))}")
+  }
 
 }
 

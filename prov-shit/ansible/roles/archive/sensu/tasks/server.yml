@@ -1,0 +1,27 @@
+---
+
+- name: create api config
+  template: src=api.json dest={{ sensu_config_path }}
+
+- name: start sensu server
+  service: name=sensu-server state=started enabled=yes
+
+- name: start sensu api
+  service: name=sensu-api state=started enabled=yes
+
+- name: install uchiwa
+  apt: name=uchiwa state=latest
+
+- name: create uchiwa config
+  template: src=uchiwa.json dest=/etc/sensu
+
+- name: start uchiwa service
+  service: name=uchiwa state=started enabled=yes
+
+- name: deploy definitions to the master
+  template: src={{ item }} dest="{{ sensu_config_path }}/{{ item | basename }}"
+  with_fileglob: "{{ sensu_definitions }}/*"
+
+- name: restart sensu core
+  command: echo "restart sensu core services"
+  notify: "restart sensu core"
