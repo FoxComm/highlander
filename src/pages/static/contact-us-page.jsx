@@ -181,7 +181,7 @@ class ContactUsPage extends Component {
         </div>
         <div styleName="contacts">
           <div styleName="contact-title">Phone</div>
-          <div styleName="phone">(866) 461 - 4183</div>
+          <div styleName="contact-data">(866) 461 - 4183</div>
           <div styleName="contact-title">Address</div>
           <div styleName="contact-data">
             <div>8012 Bellona Ave Suite B</div>
