@@ -54,6 +54,9 @@ const MultiSelectRow = (props, context) => {
       'row-head-right': col.field == 'toggleColumns',
       'retail-price-field' : col.field == 'retailPrice',
       'sale-price-field' : col.field == 'salePrice',
+      'coupon-code' : col.field == 'code',
+      'total-uses' : col.field == 'totalUsed',
+      'current-carts' : col.field == 'currentCarts',
     });
 
     visibleCells.push(
