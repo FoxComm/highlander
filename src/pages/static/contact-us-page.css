@@ -8,7 +8,7 @@
   color: #212121;
   line-height: 33px;
   text-align: center;
-  margin-top: -25px;
+  margin-top: -30px;
 }
 
 .content {
@@ -45,4 +45,70 @@
   font-weight: 700;
   height: 46px;
   width: 100%;
+}
+
+.error {
+  margin-bottom: 20px;
+
+  & :global(.fc-alert) {
+    border-radius: 0;
+    margin-top: 0;
+  }
+}
+
+.message-preview {
+  font-weight: 300;
+  font-size: 20px;
+  color: #212121;
+  line-height: 33px;
+}
+
+.sent-info {
+  composes: subtitle;
+  font-size: 25px;
+  margin-top: 10px;
+}
+
+.contacts {
+  text-align: center;
+  margin-top: 35px;
+  margin-bottom: 80px;
+}
+
+.contact-title {
+  font-family: var(--font-main);
+  font-weight: 600;
+  font-size: 14px;
+  color: #212121;
+  letter-spacing: 1.58px;
+  text-transform: uppercase;
+  margin-top: 15px;
+  line-height: 33px;
+}
+
+
+.contact-data {
+  font-family: var(--font-main);
+  font-weight: 300;
+  font-size: 14px;
+  color: #212121;
+  line-height: 33px;
+}
+
+.phone {
+  composes: contact-data;
+  color: #988186;
+}
+
+@media (--medium) {
+  .content {
+    padding: 0 85px;
+  }
+}
+
+@media (--large) {
+  .content {
+    width: 60%;
+    margin: 0 auto;
+  }
 }

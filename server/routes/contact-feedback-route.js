@@ -1,7 +1,15 @@
 import makeRouter from 'koa-router';
 import { Mandrill } from 'mandrill-api/mandrill';
 
-function formatMessage({ name, email, phone, subject, text }) {
+function formatMessage(data) {
+  const {
+    name = '',
+    email = '',
+    phone = '',
+    subject = '',
+    text = '',
+  } = data;
+
   return (
     `Name: ${name}\n` +
     `Email: ${email}\n` +
