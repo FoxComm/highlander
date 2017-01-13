@@ -50,6 +50,4 @@ object ObjectForms
     extends FoxTableQuery[ObjectForm, ObjectForms](new ObjectForms(_))
     with ReturningId[ObjectForm, ObjectForms] {
   val returningLens: Lens[ObjectForm, Int] = lens[ObjectForm].id
-
-  def filterByIds(ids: Seq[Int]): QuerySeq = filter(_.id inSet ids)
 }

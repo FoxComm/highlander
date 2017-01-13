@@ -149,25 +149,6 @@ object LineItemUpdater {
       _     ← * <~ logAct(res, li)
     } yield TheResponse.validated(res, valid)
 
-  def removeSkusFromCart(skuIds: Seq[Int], cart: Cart)(implicit ec: EC,
-                                                       es: ES,
-                                                       db: DB,
-                                                       au: AU,
-                                                       ac: AC,
-                                                       ctx: OC): DbResultT[Seq[String]] = {
-    for {
-      _ ← * <~ CartLineItems
-           .filter(li ⇒ li.skuId inSet skuIds)
-           .filter(li ⇒ li.cordRef === cart.referenceNumber)
-           .deleteAll(DbResultT.unit, DbResultT.unit)
-      _     ← * <~ CartPromotionUpdater.readjust(cart).recover { case _ ⇒ Unit }
-      carts ← * <~ CartTotaler.saveTotals(cart)
-      res   ← * <~ CartResponse.buildRefreshed(cart)
-      li    ← * <~ CartLineItems.byCordRef(cart.refNum).countSkus
-      _     ← * <~ LogActivity.orderLineItemsUpdated(res, li, Seq())
-    } yield Seq(cart.referenceNumber)
-  }
-
   def foldQuantityPayload(payload: Seq[UpdateLineItemsPayload]): Map[String, Int] =
     payload.foldLeft(Map[String, Int]()) { (acc, item) ⇒
       val quantity = acc.getOrElse(item.sku, 0)

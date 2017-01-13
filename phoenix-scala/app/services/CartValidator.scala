@@ -165,12 +165,10 @@ case class CartValidator(cart: Cart)(implicit ec: EC, db: DB) extends CartValida
       } yield product
 
     for {
-      skuIds ← * <~ Skus
-                .filter(_.id in CartLineItems.byCordRef(cart.referenceNumber).map(_.skuId))
-                .result
-      skus ← * <~ ObjectManager.getFullObjects[Sku](skuIds)
+      skus     ← * <~ CartLineItems.byCordRef(cart.referenceNumber).flatMap(_.sku).result
+      fullSkus ← * <~ ObjectManager.getFullObjects[Sku](skus)
 
-      (invalidSkus, validSkus) = skus.partition(sku ⇒
+      (invalidSkus, validSkus) = fullSkus.partition(sku ⇒
             !sku.isActive || sku.model.archivedAt.isDefined)
 
       validSkuProducts ← * <~ productsForSkus(validSkus.map(_.model.id)).result
@@ -186,7 +184,8 @@ case class CartValidator(cart: Cart)(implicit ec: EC, db: DB) extends CartValida
     if (failures.isEmpty) {
       response
     } else {
-      response.copy(warnings = response.warnings.fold(Failures(failures: _*))(current ⇒
-                Failures(current.toList ++ failures: _*)))
+      val newWarnings = response.warnings.fold(Failures(failures: _*))(current ⇒
+        Failures(current.toList ++ failures: _*))
+      response.copy(warnings = newWarnings)
     }
 }

@@ -35,11 +35,6 @@ object CartTailored {
                                             admin: Option[UserResponse.Root])
       extends ActivityBase[CartLineItemsUpdatedQuantities]
 
-  case class CartLineItemsRemoved(carts: Seq[String],
-                                  skuIds: Seq[Int],
-                                  admin: Option[UserResponse.Root])
-      extends ActivityBase[CartLineItemsRemoved]
-
   /* Cart Shipping Methods */
   case class CartShippingMethodUpdated(cart: CartResponse,
                                        shippingMethod: Option[ShippingMethod],

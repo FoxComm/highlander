@@ -157,7 +157,7 @@ class SkuIntegrationTest
     }
 
     val (sku, skuForm, skuShadow) = (for {
-      simpleSku       ← * <~ simpleSku
+      simpleSku       ← * <~ SimpleSku("SKU-TEST", "Test SKU", 9999, Currency.USD)
       skuForm         ← * <~ ObjectForms.create(simpleSku.create)
       simpleSkuShadow ← * <~ SimpleSkuShadow(simpleSku)
       skuShadow       ← * <~ ObjectShadows.create(simpleSkuShadow.create.copy(formId = skuForm.id))
@@ -172,9 +172,6 @@ class SkuIntegrationTest
                    commitId = skuCommit.id))
     } yield (sku, skuForm, skuShadow)).gimme
 
-    def simpleSku: SimpleSku = {
-      SimpleSku("SKU-TEST", "Test SKU", 9999, Currency.USD)
-    }
   }
 
   trait FixtureWithProduct extends Fixture {

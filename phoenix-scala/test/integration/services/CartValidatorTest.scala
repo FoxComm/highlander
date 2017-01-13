@@ -108,10 +108,12 @@ class CartValidatorTest
         "inactive product" in new LineItemsFixture {
           val productAttributes =
             productsApi(product.formId).get.as[ProductResponse.Root].attributes
+
           val currentAttributes: Map[String, Json] = productAttributes match {
             case JObject(fields) ⇒ fields.map { case (n, v) ⇒ n → v }.toMap
             case _               ⇒ Map[String, Json]()
           }
+
           productsApi(product.formId)
             .update(UpdateProductPayload(
                     attributes = currentAttributes ++ Map("activeTo"   → tv(Instant.now)),

@@ -52,7 +52,6 @@ object SkuManager {
 
   def updateSku(admin: User, code: String, payload: SkuPayload)(
       implicit ec: EC,
-      es: ES,
       db: DB,
       ac: AC,
       oc: OC,
@@ -65,12 +64,7 @@ object SkuManager {
       _ ← * <~ LogActivity.fullSkuUpdated(Some(admin), response, ObjectContextResponse.build(oc))
     } yield response
 
-  def archiveByCode(code: String)(implicit ec: EC,
-                                  db: DB,
-                                  oc: OC,
-                                  es: ES,
-                                  au: AU,
-                                  ac: AC): DbResultT[SkuResponse.Root] =
+  def archiveByCode(code: String)(implicit ec: EC, db: DB, oc: OC): DbResultT[SkuResponse.Root] =
     for {
       fullSku ← * <~ ObjectManager.getFullObject(
                    SkuManager.mustFindSkuByContextAndCode(oc.id, code))
@@ -118,27 +112,32 @@ object SkuManager {
   }
 
   def updateSkuInner(sku: Sku, payload: SkuPayload)(implicit ec: EC,
-                                                    au: AU,
-                                                    es: ES,
-                                                    db: DB,
-                                                    ac: AC,
-                                                    oc: OC): DbResultT[FullObject[Sku]] = {
+                                                    db: DB): DbResultT[FullObject[Sku]] = {
 
-    val newAttributes = FormAndShadowAttributes.fromPayload(payload.attributes)
-    val code          = getSkuCode(payload.attributes).getOrElse(sku.code)
+    val newFormAttrs   = ObjectForm.fromPayload(Sku.kind, payload.attributes).attributes
+    val newShadowAttrs = ObjectShadow.fromPayload(payload.attributes).attributes
+    val code           = getSkuCode(payload.attributes).getOrElse(sku.code)
 
     for {
-      oldSkuFull ← * <~ ObjectManager.getFullObject(DbResultT.good(sku))
-      mergedAttrs = oldSkuFull.shadow.attributes.merge(newAttributes.shadowAttributes)
-      updated ← * <~ ObjectUtils.update(sku.formId,
-                                        sku.shadowId,
-                                        newAttributes.formAttributes,
-                                        mergedAttrs,
-                                        force = true)
+      oldForm   ← * <~ ObjectForms.mustFindById404(sku.formId)
+      oldShadow ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
+
+      mergedAttrs = oldShadow.attributes.merge(newShadowAttrs)
+      updated ← * <~ ObjectUtils
+                 .update(oldForm.id, oldShadow.id, newFormAttrs, mergedAttrs, force = true)
       commit      ← * <~ ObjectUtils.commit(updated)
       updatedHead ← * <~ updateHead(sku, code, updated.shadow, commit)
     } yield FullObject(updatedHead, updated.form, updated.shadow)
   }
+
+  def findOrCreateSku(skuPayload: SkuPayload)(implicit ec: EC, db: DB, oc: OC, au: AU) =
+    for {
+      code ← * <~ mustGetSkuCode(skuPayload)
+      sku ← * <~ Skus.filterByContextAndCode(oc.id, code).one.dbresult.flatMap {
+             case Some(sku) ⇒ SkuManager.updateSkuInner(sku, skuPayload)
+             case None      ⇒ SkuManager.createSkuInner(oc, skuPayload)
+           }
+    } yield sku
 
   private def updateHead(sku: Sku,
                          code: String,

@@ -44,7 +44,6 @@ object ProductManager {
 
   def createProduct(admin: User, payload: CreateProductPayload)(
       implicit ec: EC,
-      es: ES,
       db: DB,
       ac: AC,
       oc: OC,
@@ -115,7 +114,6 @@ object ProductManager {
 
   def updateProduct(productId: ProductReference, payload: UpdateProductPayload)(
       implicit ec: EC,
-      es: ES,
       db: DB,
       ac: AC,
       oc: OC,
@@ -168,10 +166,7 @@ object ProductManager {
   def archiveByContextAndId(productId: ProductReference)(
       implicit ec: EC,
       db: DB,
-      oc: OC,
-      es: ES,
-      au: AU,
-      ac: AC): DbResultT[ProductResponse.Root] = {
+      oc: OC): DbResultT[ProductResponse.Root] = {
     val payload = Map("activeFrom" → (("v" → JNull) ~ ("type" → JString("datetime"))),
                       "activeTo" → (("v" → JNull) ~ ("type" → JString("datetime"))))
 
@@ -337,7 +332,7 @@ object ProductManager {
   private def findOrCreateSkusForProduct(
       product: Product,
       skuPayloads: Seq[SkuPayload],
-      createLinks: Boolean = true)(implicit ec: EC, es: ES, db: DB, oc: OC, au: AU, ac: AC) =
+      createLinks: Boolean = true)(implicit ec: EC, db: DB, oc: OC, au: AU) =
     skuPayloads.map { payload ⇒
       val albumPayloads = payload.albums.getOrElse(Seq.empty)
 

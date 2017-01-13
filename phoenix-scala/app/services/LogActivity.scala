@@ -336,11 +336,6 @@ object LogActivity {
                                        foldQuantityPayload(payload),
                                        admin.map(buildUser)))
 
-  def cartLineItemsRemoved(carts: Seq[String], skuIds: Seq[Int], admin: Option[User] = None)(
-      implicit ec: EC,
-      ac: AC): DbResultT[Activity] =
-    Activities.log(CartLineItemsRemoved(carts, skuIds, admin.map(buildUser)))
-
   /* Order checkout & payments */
 
   def orderCheckoutCompleted(order: OrderResponse)(implicit ec: EC, ac: AC): DbResultT[Activity] =

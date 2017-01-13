@@ -22,20 +22,12 @@ import models.shipping
 import responses.TheResponse
 import responses.cord.CartResponse
 import services.discount.compilers._
-import services.objects.ObjectManager
 import services.{CartValidator, LineItemManager, LogActivity}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
 
 object CartPromotionUpdater {
-
-  def readjustAll(
-      cartRef: Seq[String])(implicit ec: EC, es: ES, db: DB, ctx: OC, au: AU): DbResultT[Unit] =
-    for {
-      carts ← * <~ Carts.filter(_.referenceNumber inSet cartRef).result
-      _     ← * <~ carts.map(readjust)
-    } yield {}
 
   def readjust(cart: Cart)(implicit ec: EC, es: ES, db: DB, ctx: OC, au: AU): DbResultT[Unit] =
     for {
@@ -44,21 +36,22 @@ object CartPromotionUpdater {
                     .filterByCordRef(cart.refNum)
                     .requiresCoupon
                     .mustFindOneOr(OrderHasNoPromotions)
-      promo ← * <~ ObjectManager.getFullObject(
-                 Promotions
+      // Fetch promotion
+      promotion ← * <~ Promotions
                    .filterByContextAndShadowId(ctx.id, orderPromo.promotionShadowId)
                    .requiresCoupon
                    .mustFindOneOr(
-                       PromotionShadowNotFoundForContext(orderPromo.promotionShadowId, ctx.id)))
-      // Fetch promotion
-      promoObject = IlluminatedPromotion.illuminate(ctx, promo)
+                       PromotionShadowNotFoundForContext(orderPromo.promotionShadowId, ctx.id))
+      promoForm   ← * <~ ObjectForms.mustFindById404(promotion.formId)
+      promoShadow ← * <~ ObjectShadows.mustFindById404(promotion.shadowId)
+      promoObject = IlluminatedPromotion.illuminate(ctx, promotion, promoForm, promoShadow)
       _         ← * <~ promoObject.mustBeActive
-      discounts ← * <~ PromotionDiscountLinks.queryRightByLeft(promo.model)
+      discounts ← * <~ PromotionDiscountLinks.queryRightByLeft(promotion)
       // Safe AST compilation
       discount    ← * <~ tryDiscount(discounts)
       qualifier   ← * <~ QualifierAstCompiler(discount.qualifier).compile()
       offer       ← * <~ OfferAstCompiler(discount.offer).compile()
-      adjustments ← * <~ getAdjustments(promo.shadow, cart, qualifier, offer)
+      adjustments ← * <~ getAdjustments(promoShadow, cart, qualifier, offer)
       // Delete previous adjustments and create new
       _ ← * <~ OrderLineItemAdjustments
            .filterByOrderRefAndShadow(cart.refNum, orderPromo.promotionShadowId)
