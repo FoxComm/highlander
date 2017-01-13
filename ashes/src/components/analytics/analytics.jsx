@@ -31,8 +31,8 @@ import * as AnalyticsActions from '../../modules/analytics';
 
 // types
 type State = {
-  dateRangeBegin: Date,
-  dateRangeEnd: Date,
+  dateRangeBegin: string, // Unix Timestamp
+  dateRangeEnd: string, // Unix Timestamp
   dateDisplay: string,
 }
 
@@ -99,8 +99,8 @@ export default class Analytics extends React.Component {
   };
 
   state: State = {
-    dateRangeBegin: moment().toDate(),
-    dateRangeEnd: moment().toDate(),
+    dateRangeBegin: moment().unix(),
+    dateRangeEnd: moment().unix(),
     dateDisplay: moment().format(datePickerFormat),
   };
 
@@ -202,8 +202,6 @@ export default class Analytics extends React.Component {
 
   @autobind
   onDatePickerChange(selectionIndex) {
-    const dateOption = datePickerOptions[selectionIndex];
-
     let displayText = '';
     let endDisplayText = '';
     let beginDisplayText = '';
@@ -212,21 +210,21 @@ export default class Analytics extends React.Component {
     let newDateRangeEnd = null;
 
     const setDisplayTexts = function(previousDays) {
-      newDateRangeEnd = moment();
-      newDateRangeBegin = moment().subtract(previousDays, 'days');
+      newDateRangeBegin = moment().subtract(previousDays, 'days').unix();
+      newDateRangeEnd = moment().unix();
 
-      endDisplayText = newDateRangeEnd.format(datePickerFormat);
-      beginDisplayText = newDateRangeBegin.format(datePickerFormat);
+      beginDisplayText = moment().subtract(previousDays, 'days').format(datePickerFormat);
+      endDisplayText = moment().format(datePickerFormat);
 
       displayText = `${beginDisplayText} - ${endDisplayText}`;
     };
 
     switch(selectionIndex) {
       case datePickerType.Today:
-        newDateRangeEnd = moment();
-        newDateRangeBegin = moment();
+        newDateRangeBegin = moment().startOf('day').unix();
+        newDateRangeEnd = moment().unix();
 
-        displayText = `${newDateRangeEnd.format(datePickerFormat)}`;
+        displayText = `${moment().format(datePickerFormat)}`;
         break;
       case datePickerType.Yesterday:
         setDisplayTexts(1);
@@ -248,8 +246,8 @@ export default class Analytics extends React.Component {
 
     this.setState({
       dateDisplay: displayText,
-      dateRangeBegin: newDateRangeBegin.toDate(),
-      dateRangeEnd: newDateRangeEnd.toDate(),
+      dateRangeBegin: newDateRangeBegin,
+      dateRangeEnd: newDateRangeEnd,
     });
   }
 
