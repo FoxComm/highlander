@@ -11,7 +11,7 @@ import { ListPageContainer, makeTotalCounter } from '../list-page';
 // redux
 import { actions as customersActions } from '../../modules/customer-groups/list';
 
-type Props {
+type Props = {
   children?: Array<Element>|Element;
 };
 
