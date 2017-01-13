@@ -121,17 +121,19 @@ class OrderSummary extends Component {
       `guid=ON&script=0`;
 
     return (
-      <script
-        type="text/javascript"
-        src="//www.googleadservices.com/pagead/conversion.js"
-      />
-      <img
-        width="1"
-        height="1"
-        style={{ borderStyle: 'none' }}
-        alt=""
-        src={url}
-      />
+      <div>
+        <script
+          type="text/javascript"
+          src="//www.googleadservices.com/pagead/conversion.js"
+        />
+        <img
+          width="1"
+          height="1"
+          style={{ borderStyle: 'none' }}
+          alt=""
+          src={url}
+        />
+      </div>
     );
   }
 
