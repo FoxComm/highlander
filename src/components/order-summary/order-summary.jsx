@@ -116,14 +116,12 @@ class OrderSummary extends Component {
     return (
       <div>
         <script type="text/javascript">
-          /* <![CDATA[ */
           var google_conversion_id = 868108231;
           var google_conversion_language = "en";
           var google_conversion_format = "3";
           var google_conversion_color = "ffffff";
           var google_conversion_label = "AkdhCPzhm20Qx4_5nQM";
           var google_remarketing_only = false;
-          /* ]]> */
         </script>
         <script
           type="text/javascript"
