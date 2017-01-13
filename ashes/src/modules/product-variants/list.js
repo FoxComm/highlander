@@ -51,7 +51,7 @@ const searchTerms = [
 const { reducer, actions } = makeLiveSearch(
   'productVariants.list',
   searchTerms,
-  'sku_search_view/_search',
+  'product_variant_search_view/_search',
   'skusScope',
   {
     rawSorts: ['title']
