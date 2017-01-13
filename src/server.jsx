@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom/server';
+import { renderToString } from 'react-dom/server';
 import { match, RouterContext } from 'react-router';
 import createHistory from 'history/lib/createMemoryHistory';
 import { useQueries } from 'history';
@@ -39,7 +39,7 @@ export default function *renderReact() {
       </I18nProvider>
     );
 
-    const appHtml = yield store.renderToString(ReactDOM, rootElement);
+    const appHtml = yield store.renderToString(renderToString, rootElement);
     this.body = renderPage({
       html: appHtml,
       state: JSON.stringify(store.getState()),

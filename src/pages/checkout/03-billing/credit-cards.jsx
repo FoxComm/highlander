@@ -10,7 +10,6 @@ import localized from 'lib/i18n';
 import styles from '../checkout.css';
 
 // components
-import Loader from 'ui/loader';
 import CreditCard from './credit-card';
 
 // actions
@@ -24,7 +23,6 @@ type Props = {
   selectCreditCard: Function,
   editCard: Function,
   deleteCard: Function,
-  isLoading: boolean,
   cardAdded: boolean,
   cart: Object,
 };
@@ -33,23 +31,20 @@ class CreditCards extends Component {
   props: Props;
 
   componentWillMount() {
-    this.props.fetchCreditCards()
-      .then(() => {
-        const { creditCards, selectCreditCard, cardAdded, cart } = this.props;
-        const paymentMethods = _.get(cart, 'paymentMethods', []);
-        const chosenCreditCard = _.find(paymentMethods, {type: 'creditCard'});
+    const { creditCards = [], selectCreditCard, cardAdded, cart } = this.props;
+    const paymentMethods = _.get(cart, 'paymentMethods', []);
+    const chosenCreditCard = _.find(paymentMethods, {type: 'creditCard'});
 
-        if (creditCards.length === 1 || cardAdded) {
-          selectCreditCard(creditCards[0]);
-        } else if (chosenCreditCard) {
-          selectCreditCard(chosenCreditCard);
-        } else {
-          const defaultCards = _.filter(creditCards, { isDefault: true });
-          if (defaultCards.length) {
-            selectCreditCard(defaultCards[0]);
-          }
-        }
-      });
+    if (creditCards.length === 1 || cardAdded) {
+      selectCreditCard(creditCards[0]);
+    } else if (chosenCreditCard) {
+      selectCreditCard(chosenCreditCard);
+    } else {
+      const defaultCards = _.filter(creditCards, { isDefault: true });
+      if (defaultCards.length) {
+        selectCreditCard(defaultCards[0]);
+      }
+    }
   }
 
   get creditCards() {
@@ -72,11 +67,11 @@ class CreditCards extends Component {
   }
 
   render() {
-    const { isLoading, creditCards } = this.props;
+    const { creditCards } = this.props;
 
-    if (isLoading) return <Loader size="m" />;
-
-    if (_.isEmpty(creditCards)) return null;
+    if (_.isEmpty(creditCards)) {
+      return null;
+    }
 
     return (
       <div>
@@ -88,8 +83,6 @@ class CreditCards extends Component {
 
 function mapStateToProps(state) {
   return {
-    isLoading: _.get(state.asyncActions, ['creditCards', 'inProgress'], true),
-    creditCards: state.checkout.creditCards,
     selectedCreditCard: _.get(state.cart, 'creditCard', {}),
     cart: state.cart,
   };

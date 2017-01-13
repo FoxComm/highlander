@@ -75,7 +75,7 @@
     "watchify": "^3.7.0"
   },
   "dependencies": {
-    "@foxcomm/api-js": "^1.1.1",
+    "@foxcomm/api-js": "^1.1.2",
     "@foxcomm/wings": "^1.8.0",
     "classnames": "^2.2.3",
     "core-decorators": "^0.11.0",
@@ -108,7 +108,7 @@
     "reduce-reducers": "^0.1.2",
     "redux": "^3.3.1",
     "redux-act": "1.1.0",
-    "redux-isomorphic-render": "^1.0.0",
+    "redux-isomorphic-render": "^1.2.1",
     "redux-logger": "^2.7.4",
     "reselect": "^2.1.0",
     "slick-carousel": "^1.6.0",

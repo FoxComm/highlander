@@ -93,6 +93,7 @@ class GuestShipping extends Component {
     return (
       <CheckoutForm
         submit={this.saveAndContinue}
+        buttonLabel="Save Address"
         inProgress={props.submitInProgress}
         error={props.submitError}
       >
