@@ -8,10 +8,11 @@ import models.sharedsearch.{SharedSearch, SharedSearchAssociation, SharedSearchA
 import org.json4s.jackson.JsonMethods._
 import utils.db._
 import slick.driver.PostgresDriver.api._
+import utils.aliases.AU
 
 trait SharedSearchSeeds {
 
-  def createSharedSearches(adminId: Int): DbResultT[SharedSearch] =
+  def createSharedSearches(adminId: Int)(implicit au: AU): DbResultT[SharedSearch] =
     for {
       search        ← * <~ SharedSearches.create(sharedSearch(adminId))
       productSearch ← * <~ SharedSearches.create(archivedProductsSearch(adminId))
@@ -29,14 +30,15 @@ trait SharedSearchSeeds {
          }
     } yield search
 
-  def sharedSearch(adminId: Int) =
+  def sharedSearch(adminId: Int)(implicit au: AU) =
     SharedSearch(title = "All Products",
                  query = parse("[]"),
                  rawQuery = parse("{}"),
                  storeAdminId = adminId,
-                 scope = SharedSearch.ProductsScope)
+                 scope = SharedSearch.ProductsScope,
+                 accessScope = Scope.current)
 
-  def archivedProductsSearch(adminId: Int) =
+  def archivedProductsSearch(adminId: Int)(implicit au: AU) =
     SharedSearch(title = "Archived",
                  query = parse("""[
                                  |    {
@@ -63,9 +65,10 @@ trait SharedSearchSeeds {
                                   |   }""".stripMargin),
                  storeAdminId = adminId,
                  scope = SharedSearch.ProductsScope,
+                 accessScope = Scope.current,
                  isSystem = true)
 
-  def archivedSkusSearch(adminId: Int) =
+  def archivedSkusSearch(adminId: Int)(implicit au: AU) =
     SharedSearch(title = "Archived",
                  query = parse("""[
                       |    {
@@ -92,5 +95,6 @@ trait SharedSearchSeeds {
                          | }""".stripMargin),
                  storeAdminId = adminId,
                  scope = SharedSearch.SkusScope,
+                 accessScope = Scope.current,
                  isSystem = true)
 }
