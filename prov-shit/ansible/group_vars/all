@@ -79,6 +79,12 @@ product_search_host: "product_search.{{consul_suffix}}"
 product_search_port: 5492
 product_search_server: "{{product_search_host}}:{{product_search_port}}"
 
+henhouse_host: "henhouse.{{consul_suffix}}"
+henhouse_server: "{{henhouse_host}}"
+
+eggcrate_host: "eggcrate.{{consul_suffix}}"
+eggcrate_server: "{{eggcrate_host}}"
+
 messaging_host: "messaging.{{consul_suffix}}"
 
 # Database & bottledwater
