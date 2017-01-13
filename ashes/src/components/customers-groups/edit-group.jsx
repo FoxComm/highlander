@@ -4,9 +4,7 @@
 import React, { Component } from 'react';
 
 //components
-import Form from 'components/forms/form';
-import SaveCancel from 'components/common/save-cancel';
-import DynamicGroupEditor from './dynamic/group-editor';
+import EditGroupBase from './edit-group-base';
 
 type Props = {
   group: TCustomerGroup;
@@ -16,22 +14,10 @@ type Props = {
 }
 
 export default (props: Props) => (
-  <div>
-    <header>
-      <h1 className="fc-title">Edit Customer Group</h1>
-    </header>
-    <article>
-      <Form onSubmit={props.onSave}>
-        <DynamicGroupEditor />
-
-        <SaveCancel
-          className="fc-customer-group-edit__form-submits"
-          cancelTo="customer-group"
-          cancelParams={{groupId: props.group.id}}
-          saveText="Save Dynamic Group"
-          saveDisabled={!props.group.isValid}
-        />
-      </Form>
-    </article>
-  </div>
+  <EditGroupBase
+    title="Edit Customer Group"
+    cancelTo="customer-group"
+    cancelParams={{groupId: props.group.id}}
+    {...props}
+  />
 );

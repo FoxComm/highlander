@@ -10,7 +10,7 @@ import CustomersListPage from 'components/customers/list-page';
 import NewCustomer from 'components/customers/new-customer';
 import GroupsListPage from 'components/customers-groups/list-page';
 import GroupsList from 'components/customers-groups/groups-list';
-import NewGroupBase from 'components/customers-groups/new-group-base';
+import EditGroupPage from 'components/customers-groups/edit-group-page';
 import GroupPage from 'components/customers-groups/group-page';
 import NewGroup from 'components/customers-groups/new-group';
 import EditGroup from 'components/customers-groups/edit-group';
@@ -44,11 +44,11 @@ const getRoutes = (jwt: Object) => {
           router.read('groups', { component: GroupsList, isIndex: true }),
         ]),
 
-        router.create('new-customer-group', { component: NewGroupBase }, [
+        router.create('new-customer-group', { component: EditGroupPage }, [
           router.create('new-customer-group', { path: 'new', component: NewGroup }),
         ]),
 
-        router.update('edit-customer-group', { component: NewGroupBase }, [
+        router.update('edit-customer-group', { component: EditGroupPage }, [
           router.update('edit-customer-group', { path: ':groupId/edit', component: EditGroup }),
         ]),
 
