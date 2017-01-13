@@ -75,11 +75,24 @@ class OrderPlaced extends Component {
     );
   }
 
+  get orderPlacedTrackingCode() {
+    return (
+      <img
+        width="1"
+        height="1"
+        style={{ borderStyle: 'none' }}
+        alt=""
+        src="//www.googleadservices.com/pagead/conversion/868108231/?label=AkdhCPzhm20Qx4_5nQM&guid=ON&script=0"
+      />
+    );
+  }
+
   render() {
     const { t, orderPlaced } = this.props;
 
     return (
       <div styleName="order-placed">
+        {this.orderPlacedTrackingCode}
         <div styleName="thank-you">
           <h1 styleName="title">Thank you for your order!</h1>
           <div styleName="order-number">
