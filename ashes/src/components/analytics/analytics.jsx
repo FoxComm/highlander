@@ -21,12 +21,20 @@ import QuestionBox from './question-box';
 import Currency from '../common/currency';
 import TrendButton, { TrendType } from './trend-button';
 import StaticColumnSelector from './static-column-selector';
+import { Dropdown } from '../dropdown';
 
 // styles
 import styles from './analytics.css';
 
 // redux
 import * as AnalyticsActions from '../../modules/analytics';
+
+// types
+type State = {
+  dateRangeBegin: Date,
+  dateRangeEnd: Date,
+  dateDisplay: string,
+}
 
 const verbs = {
   product: {
@@ -44,6 +52,23 @@ const sourceDropdownColumns = [
   { field: 'email', text: 'Email' },
   { field: 'direct', text: 'Direct' },
 ];
+
+const datePickerType = {
+  Today: 0,
+  Yesterday: 1,
+  LastWeek: 2,
+  Last30: 3,
+  Last90: 4,
+  Range: 5,
+};
+const datePickerOptions = [
+  { id: datePickerType.Today, displayText: 'Today'},
+  { id: datePickerType.Yesterday, displayText: 'Yesterday'},
+  { id: datePickerType.LastWeek, displayText: 'Last Week'},
+  { id: datePickerType.Last30, displayText: 'Last 30 Days'},
+  { id: datePickerType.Last90, displayText: 'Last 90 Days'},
+];
+const datePickerFormat = 'MM/DD/YYYY';
 
 @connect((state, props) => ({analytics: state.analytics}), AnalyticsActions)
 export default class Analytics extends React.Component {
@@ -71,6 +96,12 @@ export default class Analytics extends React.Component {
         })
     }),
     fetchAnalytics: PropTypes.func.isRequired
+  };
+
+  state: State = {
+    dateRangeBegin: moment().toDate(),
+    dateRangeEnd: moment().toDate(),
+    dateDisplay: moment().format(datePickerFormat),
   };
 
   componentDidMount() {
@@ -169,51 +200,79 @@ export default class Analytics extends React.Component {
     );
   }
 
-  get content() {
-    const { analytics } = this.props;
+  @autobind
+  onDatePickerChange(selectionIndex) {
+    const dateOption = datePickerOptions[selectionIndex];
 
-    if (analytics.isFetching === false) {
-      if (!analytics.err) {
+    let displayText = '';
+    let endDisplayText = '';
+    let beginDisplayText = '';
 
-        const data = _.map(analytics.values, (rawValues, k) => {
-          let values = _.map(rawValues, (v) => {
-            return {
-              x: new Date(v.x * 1000),
-              y: v.y
-            };
-          });
+    let newDateRangeBegin = null;
+    let newDateRangeEnd = null;
 
-          const verb = _.find(analytics.keys, {'key': k});
+    const setDisplayTexts = function(previousDays) {
+      newDateRangeEnd = moment();
+      newDateRangeBegin = moment().subtract(previousDays, 'days');
 
-          return {
-            name: verb.title,
-            values: values,
-            strokeWidth: verb.strokeWidth,
-            strokeDashArray: verb.strokeDashArray,
-          };
-        });
+      endDisplayText = newDateRangeEnd.format(datePickerFormat);
+      beginDisplayText = newDateRangeBegin.format(datePickerFormat);
 
-        return this.newChart(data);
-      } else {
-        return <ErrorAlerts error={analytics.err} />;
-      }
-    } else {
-      return <WaitAnimation />;
+      displayText = `${beginDisplayText} - ${endDisplayText}`;
+    };
+
+    switch(selectionIndex) {
+      case datePickerType.Today:
+        newDateRangeEnd = moment();
+        newDateRangeBegin = moment();
+
+        displayText = `${newDateRangeEnd.format(datePickerFormat)}`;
+        break;
+      case datePickerType.Yesterday:
+        setDisplayTexts(1);
+        break;
+      case datePickerType.LastWeek:
+        setDisplayTexts(7);
+        break;
+      case datePickerType.Last30:
+        setDisplayTexts(30);
+        break;
+      case datePickerType.Last90:
+        setDisplayTexts(90);
+        break;
+      default:
+        console.log('INVALID DATE RANGE');
+        displayText = moment().format(datePickerFormat);
+        break;
     }
+
+    this.setState({
+      dateDisplay: displayText,
+      dateRangeBegin: newDateRangeBegin.toDate(),
+      dateRangeEnd: newDateRangeEnd.toDate(),
+    });
   }
 
-  renderActions() {
-    return (
-      <PrimaryButton onClick={null} disabled={false}>
-        Apply
-      </PrimaryButton>
-    );
+  get dateDisplay() {
+    return this.state.dateDisplay;
   }
 
-  render() {
+  get filterHeaders() {
     return (
-      <div styleName="analytics-page-container">
+      <div>
         <div styleName="analytics-filters">
+          <Dropdown
+            styleName="analytics-filter-date-picker"
+            name="dateControl"
+            items={_.map(datePickerOptions, ({id, displayText}) => [id, displayText])}
+            placeholder={`${moment().format(datePickerFormat)}`}
+            changeable={true}
+            onChange={this.onDatePickerChange}
+            value={this.dateDisplay}
+            renderNullTitle={(value, placeholder) => {
+              return _.isNull(value) ? placeholder : value;
+            }}
+          />
           <StaticColumnSelector
             setColumns={null}
             columns={sourceDropdownColumns}
@@ -249,6 +308,47 @@ export default class Analytics extends React.Component {
             footer={<TrendButton trendType={TrendType.gain} value={3}/>}
           />
         </div>
+      </div>
+    );
+  }
+
+  get content() {
+    const { analytics } = this.props;
+
+    if (analytics.isFetching === false) {
+      if (!analytics.err) {
+
+        const data = _.map(analytics.values, (rawValues, k) => {
+          let values = _.map(rawValues, (v) => {
+            return {
+              x: new Date(v.x * 1000),
+              y: v.y
+            };
+          });
+
+          const verb = _.find(analytics.keys, {'key': k});
+
+          return {
+            name: verb.title,
+            values: values,
+            strokeWidth: verb.strokeWidth,
+            strokeDashArray: verb.strokeDashArray,
+          };
+        });
+
+        return this.newChart(data);
+      } else {
+        return <ErrorAlerts error={analytics.err} />;
+      }
+    } else {
+      return <WaitAnimation />;
+    }
+  }
+
+  render() {
+    return (
+      <div styleName="analytics-page-container">
+        {this.filterHeaders}
         {this.content}
       </div>
     );

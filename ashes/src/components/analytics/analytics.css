@@ -4,5 +4,12 @@
 }
 
 .analytics-filters {
+  display: flex;
   margin-bottom: 40px;
+}
+
+.analytics-filter-date-picker {
+  margin-right: 10px;
+  width: 220px;
+  max-width: 220px;
 }

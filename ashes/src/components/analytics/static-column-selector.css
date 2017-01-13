@@ -1,6 +1,8 @@
 .column-selector {
   position: relative;
   margin-right: 20px;
+  width: 200px;
+  min-width: 200px;
 }
 
 .control {
@@ -15,7 +17,7 @@
   }
 
   & :global(.fc-dropdown__items) {
-    min-width: 198px;
+    min-width: 200px;
     max-height: 300px;
     overflow: auto;
   }
@@ -74,9 +76,11 @@
   align-items: center;
   height: 60px;
   border-top: 1px solid #D9D9D9;
+  padding-left: 10px;
+  padding-right: 10px;
 
   & :global(.fc-btn-primary) {
-    min-width: 198px;
+    min-width: 178px;
   }
 }
 
