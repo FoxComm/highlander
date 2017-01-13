@@ -99,6 +99,7 @@ Set the following environment variables.
     $ export GOOGLE_SSH_USERNAME=ubuntu
     $ export GOOGLE_SSH_KEY=~/.ssh/google_compute_engine # Or the location of your key
     $ export GOOGLE_CLIENT_EMAIL=<Your FoxCommerce email>
+    $ export GOOGLE_INSTANCE_NAME=tony-test-instance-1 # Optional custom instance name
 
 Download a JSON key for our GCE environment. You can follow
 [Google's instructions for generating a private key](https://cloud.google.com/storage/docs/authentication#generating-a-private-key).
