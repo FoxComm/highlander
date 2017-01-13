@@ -15,7 +15,7 @@ import (
 type InventoryServiceTestSuite struct {
 	GeneralServiceTestSuite
 	sl      *models.StockLocation
-	service IInventoryService
+	service InventoryService
 }
 
 func TestInventoryServiceSuite(t *testing.T) {
@@ -31,10 +31,9 @@ func (suite *InventoryServiceTestSuite) SetupSuite() {
 
 	stockItemRepository := repositories.NewStockItemRepository(suite.db)
 	unitRepository := repositories.NewStockItemUnitRepository(suite.db)
-	stockLocationRepository := repositories.NewStockLocationRepository(suite.db)
 
-	summaryService := &SummaryServiceStub{}
-	stockLocationService := NewStockLocationService(stockLocationRepository)
+	summaryService := NewSummaryService(suite.db)
+	stockLocationService := NewStockLocationService(suite.db)
 	suite.service = &inventoryService{stockItemRepository, unitRepository, summaryService, nil}
 
 	suite.sl, _ = stockLocationService.CreateLocation(fixtures.GetStockLocation())

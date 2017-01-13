@@ -7,21 +7,18 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/common/db/config"
 	"github.com/FoxComm/highlander/middlewarehouse/common/db/tasks"
 	"github.com/FoxComm/highlander/middlewarehouse/fixtures"
-	"github.com/FoxComm/highlander/middlewarehouse/services/mocks"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
+	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
 	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 
 	"github.com/stretchr/testify/suite"
-	"github.com/stretchr/testify/mock"
-	"errors"
 )
 
 type ShipmentServiceTestSuite struct {
 	GeneralServiceTestSuite
-	service IShipmentService
-	inventoryService IInventoryService
-	summaryService ISummaryService
-	logger *mocks.ActivityLoggerMock
+	service          ShipmentService
+	inventoryService InventoryService
+	summaryService   SummaryService
 }
 
 func TestShipmentServiceSuite(t *testing.T) {
@@ -31,21 +28,18 @@ func TestShipmentServiceSuite(t *testing.T) {
 func (suite *ShipmentServiceTestSuite) SetupSuite() {
 	suite.db = config.TestConnection()
 
-	summaryRepository := repositories.NewSummaryRepository(suite.db)
 	stockItemRepository := repositories.NewStockItemRepository(suite.db)
 	unitRepository := repositories.NewStockItemUnitRepository(suite.db)
-	shipmentRepository := repositories.NewShipmentRepository(suite.db)
 
-	suite.summaryService = NewSummaryService(summaryRepository, stockItemRepository)
+	suite.summaryService = NewSummaryService(suite.db)
 	suite.inventoryService = &inventoryService{stockItemRepository, unitRepository, suite.summaryService, nil}
-	suite.logger = &mocks.ActivityLoggerMock{}
+	logger := &dummyLogger{}
 
 	suite.service = NewShipmentService(
 		suite.db,
 		suite.inventoryService,
-		shipmentRepository,
-		unitRepository,
-		suite.logger,
+		suite.summaryService,
+		logger,
 	)
 }
 
@@ -66,8 +60,6 @@ func (suite *ShipmentServiceTestSuite) SetupTest() {
 
 func (suite *ShipmentServiceTestSuite) TearDownSuite() {
 	suite.db.Close()
-	suite.logger.ExpectedCalls = []*mock.Call{}
-	suite.logger.Calls = []mock.Call{}
 }
 
 func (suite *ShipmentServiceTestSuite) Test_GetShipmentsByOrderRefNum_ReturnsShipmentModels() {
@@ -99,8 +91,6 @@ func (suite *ShipmentServiceTestSuite) Test_GetShipmentsByOrderRefNum_ReturnsShi
 
 func (suite *ShipmentServiceTestSuite) Test_CreateShipment_Succeed_ReturnsCreatedRecord() {
 	//arrange
-	suite.logger.On("Log", mock.Anything).Return(nil).Once()
-
 	shipment1 := fixtures.GetShipmentShort(uint(0))
 	shipment1.ShipmentLineItems[0].ID = 0
 	shipment1.ShipmentLineItems[1].ID = 0
@@ -143,8 +133,6 @@ func (suite *ShipmentServiceTestSuite) Test_CreateShipment_Succeed_ReturnsCreate
 
 func (suite *ShipmentServiceTestSuite) Test_UpdateShipment_Partial_ReturnsUpdatedRecord() {
 	//arrange
-	suite.logger.On("Log", mock.Anything).Return(nil).Twice()
-
 	shipment := fixtures.GetShipmentShort(uint(1))
 
 	suite.Nil(suite.db.Set("gorm:save_associations", false).Create(&shipment.Address).Error)
@@ -191,8 +179,6 @@ func (suite *ShipmentServiceTestSuite) Test_UpdateShipment_Partial_ReturnsUpdate
 
 func (suite *ShipmentServiceTestSuite) Test_CreateShipment_Failed() {
 	//arrange
-	suite.logger.On("Log", mock.Anything).Return(errors.New("Failed")).Once()
-
 	shipment1 := fixtures.GetShipmentShort(uint(0))
 	shipment1.ShipmentLineItems[0].ID = 0
 	shipment1.ShipmentLineItems[1].ID = 0
@@ -212,16 +198,16 @@ func (suite *ShipmentServiceTestSuite) Test_CreateShipment_Failed() {
 	suite.Nil(err)
 
 	suite.Nil(suite.inventoryService.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 5)))
-	suite.Nil(suite.inventoryService.HoldItems(shipment1.OrderRefNum, map[string]int{stockItem.SKU: 2}))
+	suite.Nil(suite.inventoryService.HoldItems(shipment1.OrderRefNum, map[string]int{stockItem.SKU: 1}))
 
 	// check summary updated properly before shipment created
 	summary, err := suite.summaryService.GetSummaryBySKU(stockItem.SKU)
 
 	suite.Nil(err)
 	suite.Equal(5, summary[0].OnHand)
-	suite.Equal(2, summary[0].OnHold)
+	suite.Equal(1, summary[0].OnHold)
 	suite.Equal(0, summary[0].Reserved)
-	suite.Equal(3, summary[0].AFS)
+	suite.Equal(4, summary[0].AFS)
 
 	//act
 	_, err = suite.service.CreateShipment(shipment1)
@@ -234,7 +220,11 @@ func (suite *ShipmentServiceTestSuite) Test_CreateShipment_Failed() {
 
 	suite.Nil(err)
 	suite.Equal(5, summary[0].OnHand)
-	suite.Equal(2, summary[0].OnHold)
+	suite.Equal(1, summary[0].OnHold)
 	suite.Equal(0, summary[0].Reserved)
-	suite.Equal(3, summary[0].AFS)
+	suite.Equal(4, summary[0].AFS)
 }
+
+type dummyLogger struct{}
+
+func (d dummyLogger) Log(activity activities.ISiteActivity) error { return nil }

@@ -1,24 +1,29 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"testing"
 
-	"github.com/FoxComm/highlander/middlewarehouse/controllers/mocks"
-	"github.com/FoxComm/highlander/middlewarehouse/models"
+	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
+	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
+	"github.com/FoxComm/highlander/middlewarehouse/common/db/config"
+	"github.com/FoxComm/highlander/middlewarehouse/common/db/tasks"
 	"github.com/FoxComm/highlander/middlewarehouse/fixtures"
-
-	"errors"
+	"github.com/FoxComm/highlander/middlewarehouse/models"
+	"github.com/FoxComm/highlander/middlewarehouse/services"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
 
 type stockItemControllerTestSuite struct {
 	GeneralControllerTestSuite
-	service *mocks.InventoryServiceMock
+	db            *gorm.DB
+	stockLocation *models.StockLocation
+	stockItem     *models.StockItem
+	summary       *models.StockItemSummary
 }
 
 func TestStockItemControllerSuite(t *testing.T) {
@@ -26,68 +31,65 @@ func TestStockItemControllerSuite(t *testing.T) {
 }
 
 func (suite *stockItemControllerTestSuite) SetupSuite() {
-	// set up test env once
-	suite.service = new(mocks.InventoryServiceMock)
-	suite.router = gin.Default()
+	suite.db = config.TestConnection()
+	suite.router = gin.New()
 
-	controller := NewStockItemController(suite.service)
+	summaryService := services.NewSummaryService(suite.db)
+	inventoryService := services.NewInventoryService(suite.db, summaryService)
+
+	controller := NewStockItemController(inventoryService)
 	controller.SetUp(suite.router.Group("/stock-items"))
+
+	tasks.TruncateTables(suite.db, []string{"stock_locations"})
+
+	suite.stockLocation = fixtures.GetStockLocation()
+	suite.Nil(suite.db.Create(suite.stockLocation).Error)
+
 }
 
-func (suite *stockItemControllerTestSuite) TearDownTest() {
-	// clear service mock calls expectations after each test
-	suite.service.ExpectedCalls = []*mock.Call{}
-	suite.service.Calls = []mock.Call{}
+func (suite *stockItemControllerTestSuite) SetupTest() {
+	tasks.TruncateTables(suite.db, []string{
+		"inventory_search_view",
+		"stock_items",
+		"stock_item_summaries",
+		"stock_item_units",
+	})
+
+	suite.stockItem = &models.StockItem{
+		SKU:             "SKU",
+		StockLocationID: suite.stockLocation.ID,
+	}
+	suite.Nil(suite.db.Create(suite.stockItem).Error)
+
+	suite.summary = &models.StockItemSummary{
+		StockItemID: suite.stockItem.ID,
+		Type:        models.Sellable,
+	}
+	suite.Nil(suite.db.Create(suite.summary).Error)
 }
 
 func (suite *stockItemControllerTestSuite) Test_GetStockItems() {
-	suite.service.On("GetStockItems").Return([]*models.StockItem{
-		{
-			SKU:             "SKU",
-			StockLocationID: 1,
-		},
-	}, nil).Once()
-
-	res := suite.Get("/stock-items")
+	result := []responses.StockItem{}
+	res := suite.Get("/stock-items", &result)
 
 	suite.Equal(http.StatusOK, res.Code)
-	suite.Contains(res.Body.String(), `"sku":"SKU"`)
-	suite.service.AssertExpectations(suite.T())
-}
-
-func (suite *stockItemControllerTestSuite) Test_GetStockItems_Error() {
-	errText := "Some error"
-	suite.service.On("GetStockItems").Return(nil, errors.New(errText)).Once()
-
-	res := suite.Get("/stock-items")
-
-	suite.Equal(http.StatusInternalServerError, res.Code)
-	suite.Contains(res.Body.String(), "errors")
-	suite.Contains(res.Body.String(), errText)
-	suite.service.AssertExpectations(suite.T())
+	suite.Equal(1, len(result))
 }
 
 func (suite *stockItemControllerTestSuite) Test_GetStockItemById() {
-	suite.service.On("GetStockItemById", uint(1)).Return(&models.StockItem{
-		SKU:             "SKU",
-		StockLocationID: 1,
-	}, nil).Once()
-
-	res := suite.Get("/stock-items/1")
+	url := fmt.Sprintf("/stock-items/%d", suite.stockItem.ID)
+	result := responses.StockItem{}
+	res := suite.Get(url, &result)
 
 	suite.Equal(http.StatusOK, res.Code)
-	suite.Contains(res.Body.String(), `"sku":"SKU"`)
-	suite.service.AssertExpectations(suite.T())
+	suite.Equal(suite.stockItem.SKU, result.SKU)
 }
 
 func (suite *stockItemControllerTestSuite) Test_GetStockItemById_NotFound() {
-	suite.service.On("GetStockItemById", uint(1)).Return(nil, gorm.ErrRecordNotFound).Once()
-
-	res := suite.Get("/stock-items/1")
+	res := suite.Get("/stock-items/100")
 
 	suite.Equal(http.StatusNotFound, res.Code)
 	suite.Contains(res.Body.String(), "errors")
-	suite.service.AssertExpectations(suite.T())
 }
 
 func (suite *stockItemControllerTestSuite) Test_GetStockItemById_WrongId() {
@@ -98,104 +100,160 @@ func (suite *stockItemControllerTestSuite) Test_GetStockItemById_WrongId() {
 }
 
 func (suite *stockItemControllerTestSuite) Test_CreateStockItem() {
-	stockItem := fixtures.GetStockItem(1, "SKU")
+	payload := payloads.StockItem{
+		SKU:             "SKU-NEW",
+		StockLocationID: suite.stockLocation.ID,
+		DefaultUnitCost: 999,
+	}
 
-	suite.service.On("CreateStockItem", stockItem).Return(stockItem, nil).Once()
-
-	var result models.StockItem
-	jsonStr := `{"sku":"SKU","stockLocationID":1,"defaultUnitCost":5000}`
-	res := suite.Post("/stock-items", jsonStr, &result)
+	var result responses.StockItem
+	res := suite.Post("/stock-items", payload, &result)
 
 	suite.Equal(http.StatusCreated, res.Code)
-	suite.Equal(stockItem.StockLocationID, result.StockLocationID)
-	suite.service.AssertExpectations(suite.T())
+	suite.Equal(payload.StockLocationID, result.StockLocationID)
 }
 
 func (suite *stockItemControllerTestSuite) Test_CreateStockItem_Error() {
-	stockItem := fixtures.GetStockItem(1, "SKU")
+	payload := payloads.StockItem{
+		SKU:             "SKU",
+		StockLocationID: 999,
+		DefaultUnitCost: 999,
+	}
 
-	suite.service.On("CreateStockItem", stockItem).Return(nil, gorm.ErrInvalidTransaction).Once()
-
-	jsonStr := `{"sku":"SKU","stockLocationID":1,"defaultUnitCost":5000}`
-	res := suite.Post("/stock-items", jsonStr)
+	var result responses.StockItem
+	res := suite.Post("/stock-items", payload, &result)
 
 	suite.Equal(http.StatusBadRequest, res.Code)
-	suite.service.AssertExpectations(suite.T())
 }
 
 func (suite *stockItemControllerTestSuite) Test_IncrementStockItemUnits() {
-	// couldn't find the way to set array of models to mock args expectation
-	suite.service.On("IncrementStockItemUnits", uint(1), models.Sellable, mock.AnythingOfType("[]*models.StockItemUnit")).Return(nil).Once()
+	payload := payloads.IncrementStockItemUnits{
+		Qty:      1,
+		UnitCost: 12000,
+		Status:   "onHand",
+		Type:     "Sellable",
+	}
 
-	jsonStr := `{"stockLocationId":1,"qty":1,"unit_cost":12000,"type":"Sellable","status":"onHand"}`
-	res := suite.Patch("/stock-items/1/increment", jsonStr)
+	url := fmt.Sprintf("/stock-items/%d/increment", suite.stockItem.ID)
+	res := suite.Patch(url, payload)
 
 	suite.Equal(http.StatusNoContent, res.Code)
-	suite.service.AssertExpectations(suite.T())
+
+	units := []*models.StockItemUnit{}
+	suite.Nil(suite.db.Where("stock_item_id = ?", suite.stockItem.ID).Find(&units).Error)
+	suite.Equal(1, len(units))
 }
 
 func (suite *stockItemControllerTestSuite) Test_IncrementStockItemUnits_WrongId() {
-	jsonStr := `{"stockLocationId":1,"qty": 1,"unit_cost": 12000,"type":"Sellable","status": "onHand"}`
-	res := suite.Patch("/stock-items/asdasd/increment", jsonStr)
+	payload := payloads.IncrementStockItemUnits{
+		Qty:      1,
+		UnitCost: 12000,
+		Status:   "onHand",
+		Type:     "Sellable",
+	}
+	res := suite.Patch("/stock-items/asdasd/increment", payload)
 
 	suite.Equal(http.StatusBadRequest, res.Code)
 }
 
 func (suite *stockItemControllerTestSuite) Test_IncrementStockItemUnits_WrongQty() {
-	jsonStr := `{"stockLocationId":1,"qty": -1,"unit_cost": 12000,"type":"Sellable","status": "onHand"}`
-	res := suite.Patch("/stock-items/1/increment", jsonStr)
+	payload := payloads.IncrementStockItemUnits{
+		Qty:      -1,
+		UnitCost: 12000,
+		Status:   "onHand",
+		Type:     "Sellable",
+	}
+	url := fmt.Sprintf("/stock-items/%d/increment", suite.stockItem.ID)
+	res := suite.Patch(url, payload)
 
 	suite.Equal(http.StatusBadRequest, res.Code)
 }
 
 func (suite *stockItemControllerTestSuite) Test_DecrementStockItemUnits() {
-	suite.service.On("DecrementStockItemUnits", uint(1), models.Sellable, 1).Return(nil).Once()
+	stockItemUnit := models.StockItemUnit{
+		StockItemID: suite.stockItem.ID,
+		Type:        models.Sellable,
+		Status:      models.StatusOnHand,
+	}
+	suite.Nil(suite.db.Create(&stockItemUnit).Error)
 
-	jsonStr := `{"stockLocationId":1,"qty": 1,"type":"Sellable"}`
-	res := suite.Patch("/stock-items/1/decrement", jsonStr)
+	payload := payloads.DecrementStockItemUnits{
+		Qty:  1,
+		Type: "Sellable",
+	}
+
+	url := fmt.Sprintf("/stock-items/%d/decrement", suite.stockItem.ID)
+	res := suite.Patch(url, payload)
 
 	suite.Equal(http.StatusNoContent, res.Code)
-	suite.service.AssertExpectations(suite.T())
 }
 
 func (suite *stockItemControllerTestSuite) Test_DecrementStockItemUnits_WrongId() {
-	jsonStr := `{"stockLocationId":1,"qty": 1,"type":"Sellable"}`
-	res := suite.Patch("/stock-items/asdasd/decrement", jsonStr)
-
+	payload := payloads.DecrementStockItemUnits{Qty: 1, Type: "Sellable"}
+	res := suite.Patch("/stock-items/asdasd/decrement", payload)
 	suite.Equal(http.StatusBadRequest, res.Code)
 }
 
 func (suite *stockItemControllerTestSuite) Test_DecrementStockItemUnits_WrongQty() {
-	jsonStr := `{"stockLocationId":1,"qty": -1,"type":"Sellable"}`
-	res := suite.Patch("/stock-items/1/decrement", jsonStr)
+	payload := payloads.DecrementStockItemUnits{Qty: -1, Type: "Sellable"}
+	url := fmt.Sprintf("/stock-items/%d/decrement", suite.stockItem.ID)
+	res := suite.Patch(url, payload)
 
 	suite.Equal(http.StatusBadRequest, res.Code)
 }
 
 func (suite *stockItemControllerTestSuite) Test_GetAFS_ById() {
-	suite.service.On("GetAFSByID", uint(1), models.Sellable).Return(&models.AFS{
-		StockItemID: 1,
-		SKU:         "SKU",
-		AFS:         10,
-	}, nil).Once()
+	stockItemUnit := models.StockItemUnit{
+		StockItemID: suite.stockItem.ID,
+		Type:        models.Sellable,
+		Status:      models.StatusOnHand,
+	}
+	suite.Nil(suite.db.Create(&stockItemUnit).Error)
 
-	res := suite.Get("/stock-items/1/afs/Sellable")
+	var summary models.StockItemSummary
+	err := suite.db.
+		Where("stock_item_id = ?", suite.stockItem.ID).
+		Where("type = ?", models.Sellable).
+		First(&summary).
+		Error
+	suite.Nil(err)
 
+	summary.OnHand = 1
+	summary.AFS = 1
+	suite.Nil(suite.db.Save(&summary).Error)
+
+	var result responses.AFS
+	url := fmt.Sprintf("/stock-items/%d/afs/Sellable", suite.stockItem.ID)
+
+	res := suite.Get(url, &result)
 	suite.Equal(http.StatusOK, res.Code)
-	suite.Contains(res.Body.String(), `"sku":"SKU"`)
-	suite.service.AssertExpectations(suite.T())
+	suite.Equal(1, result.AFS)
 }
 
 func (suite *stockItemControllerTestSuite) Test_GetAFS_BySKU() {
-	suite.service.On("GetAFSBySKU", "SKU", models.Sellable).Return(&models.AFS{
-		StockItemID: 1,
-		SKU:         "SKU",
-		AFS:         10,
-	}, nil).Once()
+	stockItemUnit := models.StockItemUnit{
+		StockItemID: suite.stockItem.ID,
+		Type:        models.Sellable,
+		Status:      models.StatusOnHand,
+	}
+	suite.Nil(suite.db.Create(&stockItemUnit).Error)
 
-	res := suite.Get("/stock-items/SKU/afs/Sellable")
+	var summary models.StockItemSummary
+	err := suite.db.
+		Where("stock_item_id = ?", suite.stockItem.ID).
+		Where("type = ?", models.Sellable).
+		First(&summary).
+		Error
+	suite.Nil(err)
 
+	summary.OnHand = 1
+	summary.AFS = 1
+	suite.Nil(suite.db.Save(&summary).Error)
+
+	var result responses.AFS
+	url := fmt.Sprintf("/stock-items/%s/afs/Sellable", suite.stockItem.SKU)
+
+	res := suite.Get(url, &result)
 	suite.Equal(http.StatusOK, res.Code)
-	suite.Contains(res.Body.String(), `"sku":"SKU"`)
-	suite.service.AssertExpectations(suite.T())
+	suite.Equal(1, result.AFS)
 }

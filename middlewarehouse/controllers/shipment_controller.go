@@ -13,11 +13,11 @@ import (
 )
 
 type shipmentController struct {
-	shipmentService services.IShipmentService
+	shipmentService services.ShipmentService
 }
 
 func NewShipmentController(
-	shipmentService services.IShipmentService,
+	shipmentService services.ShipmentService,
 ) IController {
 	return &shipmentController{shipmentService}
 }

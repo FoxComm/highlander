@@ -5,7 +5,6 @@ import (
 
 	"github.com/FoxComm/highlander/middlewarehouse/common/config"
 	"github.com/FoxComm/highlander/middlewarehouse/controllers"
-	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 	"github.com/FoxComm/highlander/middlewarehouse/services"
 	"github.com/FoxComm/metamorphosis"
 
@@ -22,23 +21,14 @@ func GetRoutes(db *gorm.DB) map[string]controllers.IController {
 		log.Panicf("Unable to initialize Kafka producer with error %s", err.Error())
 	}
 
-	//repositories
-	carrierRepository := repositories.NewCarrierRepository(db)
-	summaryRepository := repositories.NewSummaryRepository(db)
-	stockItemRepository := repositories.NewStockItemRepository(db)
-	unitRepository := repositories.NewStockItemUnitRepository(db)
-	stockLocationRepository := repositories.NewStockLocationRepository(db)
-	shipmentRepository := repositories.NewShipmentRepository(db)
-	shippingMethodRepository := repositories.NewShippingMethodRepository(db)
-
 	//services
 	activityLogger := services.NewActivityLogger(producer)
-	summaryService := services.NewSummaryService(summaryRepository, stockItemRepository)
-	inventoryService := services.NewInventoryService(stockItemRepository, unitRepository, summaryService)
-	carrierService := services.NewCarrierService(carrierRepository)
-	stockLocationService := services.NewStockLocationService(stockLocationRepository)
-	shippingMethodService := services.NewShippingMethodService(shippingMethodRepository)
-	shipmentService := services.NewShipmentService(db, inventoryService, shipmentRepository, unitRepository, activityLogger)
+	summaryService := services.NewSummaryService(db)
+	inventoryService := services.NewInventoryService(db, summaryService)
+	carrierService := services.NewCarrierService(db)
+	stockLocationService := services.NewStockLocationService(db)
+	shippingMethodService := services.NewShippingMethodService(db)
+	shipmentService := services.NewShipmentService(db, inventoryService, summaryService, activityLogger)
 
 	return map[string]controllers.IController{
 		"v1/public/ping":             controllers.NewPingController(),

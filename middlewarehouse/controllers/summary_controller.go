@@ -8,10 +8,10 @@ import (
 )
 
 type summaryController struct {
-	service services.ISummaryService
+	service services.SummaryService
 }
 
-func NewSummaryController(service services.ISummaryService) IController {
+func NewSummaryController(service services.SummaryService) IController {
 	return &summaryController{service}
 }
 
