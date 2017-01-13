@@ -88,8 +88,8 @@ def tune_vm(config, opts = {})
     g.zone = "us-central1-a"
     g.tags = ['vagrant', 'no-ports']
 
-    if ENV['NAME']
-      g.name = ENV['NAME']
+    if ENV['GOOGLE_INSTANCE_NAME']
+      g.name = ENV['GOOGLE_INSTANCE_NAME']
     end
   end
 
