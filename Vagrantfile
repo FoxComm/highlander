@@ -87,6 +87,10 @@ def tune_vm(config, opts = {})
     g.disk_size = 40
     g.zone = "us-central1-a"
     g.tags = ['vagrant', 'no-ports']
+
+    if ENV['NAME']
+      g.name = ENV['NAME']
+    end
   end
 
   config.vm.provider :aws do |aws, override|
