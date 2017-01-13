@@ -1,11 +1,10 @@
 ---
 
-- name: Provision The Perfect Gourmet Test Backend
-  hosts: perfect-gourmet-test-backend
+- name: Provision Target Test Backend
+  hosts: tgt-test-backend
   become: true
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
-    upload_phoenix_jar: true
     download_flyway: false
   tags:
     - backend
@@ -21,19 +20,18 @@
   handlers:
     - include: roles/base/consul_agent/handlers/main.yml
 
-- name: Provision The Perfect Gourmet Test Frontend
-  hosts: perfect-gourmet-test-frontend
+- name: Provision Target Test Frontend
+  hosts: tgt-test-frontend
   become: true
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
-    api_server: test-perfectgourmet.foxcommerce.com
-    self_host: test-perfectgourmet.foxcommerce.com
-    ashes_server_name: test-perfectgourmet.foxcommerce.com
-    storefront_server_name: test-perfectgourmet.foxcommerce.com
-    seeds_cmd: utils.seeds.Seeds seed --seedAdmins --seedStage --skipMigrate
+    api_server: test-target.foxcommerce.com
+    self_host: test-target.foxcommerce.com
+    ashes_server_name: test-target.foxcommerce.com
+    storefront_server_name: test-target.foxcommerce.com
     with_base_seeds: true
-    phoenix_tax_rule_region: 4146
-    phoenix_tax_rule_rate: 0
+    phoenix_tax_rule_region: 4129
+    phoenix_tax_rule_rate: 7.5
   tags:
     - frontend
   roles:
@@ -42,13 +40,16 @@
     - { role: dev/phoenix }
     - { role: dev/greenriver }
     - { role: dev/ashes }
-    - { role: ext/tpg/storefront }
     - { role: dev/middlewarehouse }
     - { role: dev/messaging }
     - { role: dev/isaac }
     - { role: dev/solomon }
+    - { role: dev/marketplace }
+    - { role: ext/tgt/marketplace-ui }
+    - { role: ext/tgt/product-search }
+    - { role: demo/search }
     - { role: dev/balancer }
-    - { role: demo/balancer }
+    - { role: ext/tgt/balancer }
     - { role: dev/consumers }
     - { role: dev/seeder, when: first_run }
 

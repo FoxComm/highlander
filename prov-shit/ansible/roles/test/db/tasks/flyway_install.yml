@@ -1,22 +1,19 @@
+---
+
 - name: Get Flyway
   get_url: url={{flyway_url}} dest={{home}}/flyway-{{flyway_vers}}.tar.gz
 
 - name: Unzip Flyway
   unarchive: src={{home}}/flyway-{{flyway_vers}}.tar.gz dest=/usr/local/share copy=no creates=/usr/local/share/flyway-{{flyway_vers}}
-  
 
 - name: Make Flyway Executable
   file: path={{flyway_dir}}/flyway mode="u+x,g+x,o+x"
-  
 
 - name: Add Flyway Home
   lineinfile: dest=/etc/profile line="FLYWAY_HOME={{flyway_dir}}"
-  
 
 - name: Add Flyway Path
   lineinfile: dest=/etc/profile line="PATH=$PATH:$FLYWAY_HOME" insertafter="^FLYWAY"
-  
 
 - name: Symlink Flyway Executable
   file: src="{{flyway_dir}}/flyway" dest="/usr/local/bin/flyway" state=link
-  

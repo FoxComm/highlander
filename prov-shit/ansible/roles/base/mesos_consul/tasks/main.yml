@@ -5,40 +5,30 @@
 
 - name: Unarchive mesos-consul release
   unarchive: src="{{home}}/{{mesos_consul_file}}" dest="{{home}}" copy=no
-  
 
 - name: Copy Mesos Consul build
   command: mv {{home}}/{{mesos_consul_dir}}/mesos-consul /usr/local/bin/mesos-consul
-  
 
 - name: Make Mesos Consul Executable
   command: chmod +x /usr/local/bin/mesos-consul
-  
 
 - name: Remove unarchive subdirectory
   file: path={{home}}/{{mesos_consul_dir}} state=absent
-  
 
 - name: Remove release archive
   file: path={{home}}/{{mesos_consul_file}} state=absent
-  
 
 - name: Copy Service File
   template: src=mesos_consul.service dest="{{dest_services}}/mesos_consul.service"
-  
 
 - name: Copy Execution File
   template: src=run_mesos_consul.sh dest=/usr/local/bin/run_mesos_consul.sh mode="u+x,g+x,o+x"
-  
 
 - name: Reload Systemd for Mesos Consul
   command: systemctl daemon-reload
-  
 
 - name: Restart Mesos Consul
   service: name=mesos_consul state=restarted enabled=yes
-  
 
 - name: Copy Consul Service File
   template: src=mesos_consul.json dest="/etc/consul.d/mesos_consul.json"
-  
