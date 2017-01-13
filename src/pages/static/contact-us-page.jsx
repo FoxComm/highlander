@@ -176,7 +176,7 @@ class ContactUsPage extends Component {
       <div>
         <PageTitle title="Contact Us" />
         <div styleName="content">
-          <h2 styleName="subtitle">We'd love to hear from you</h2>
+          <h2 styleName="subtitle">We'd love to hear from you!</h2>
           {content}
         </div>
         <div styleName="contacts">
