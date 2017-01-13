@@ -75,7 +75,7 @@
     "watchify": "^3.7.0"
   },
   "dependencies": {
-    "@foxcomm/api-js": "^1.1.1",
+    "@foxcomm/api-js": "^1.1.2",
     "@foxcomm/wings": "^1.8.0",
     "classnames": "^2.2.3",
     "core-decorators": "^0.11.0",
