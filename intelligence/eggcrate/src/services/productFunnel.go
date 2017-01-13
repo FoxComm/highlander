@@ -22,6 +22,9 @@ func ProductQuery(id string, verbs []string, a, b string) (responses.HenhouseRes
 
 func GetProductFunnel(c echo.Context) error {
 	id := c.Param("id")
+	if id == "" {
+		return c.String(http.StatusBadRequest, "id is required")
+	}
 	from, to := c.QueryParam("from"), c.QueryParam("to")
 	resp, err := henhouseProductFunnel(id, from, to)
 	if err != nil {
