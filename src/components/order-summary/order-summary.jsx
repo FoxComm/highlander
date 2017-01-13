@@ -105,15 +105,26 @@ class OrderSummary extends Component {
       return null;
     }
 
+    const google_conversion_id = 868108231;
+    const google_conversion_language = "en";
+    const google_conversion_format = "3";
+    const google_conversion_color = "ffffff";
+    const google_conversion_label = "AkdhCPzhm20Qx4_5nQM";
+    const google_remarketing_only = false;
+
     const value = formatCurrency(grandTotal);
     const url =
       `//www.googleadservices.com/pagead/conversion/868108231/` +
-      `?label=AkdhCPzhm20Qx4_5nQM&` +
+      `?label=${google_conversion_label}&` +
       `currency_code=USD&` +
       `value=${value}&` +
       `guid=ON&script=0`;
 
     return (
+      <script
+        type="text/javascript"
+        src="//www.googleadservices.com/pagead/conversion.js"
+      />
       <img
         width="1"
         height="1"
