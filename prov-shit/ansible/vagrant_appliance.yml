@@ -25,7 +25,6 @@
     - { role: dev/elasticsearch }
     - { role: base/bottledwater }
     - { role: dev/db }
-    - { role: dev/pgweb }
     - { role: dev/isaac }
     - { role: dev/phoenix }
     - { role: dev/solomon }

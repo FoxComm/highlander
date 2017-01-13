@@ -34,6 +34,7 @@
     - { role: base/bottledwater }
     - { role: base/rsyslog }
     - { role: base/kibana }
+    - { role: base/pgweb }
     - { role: base/node }
     - { role: base/balancer }
 
