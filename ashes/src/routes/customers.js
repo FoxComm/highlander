@@ -9,10 +9,11 @@ import Customers from 'components/customers/customers';
 import CustomersListPage from 'components/customers/list-page';
 import NewCustomer from 'components/customers/new-customer';
 import GroupsListPage from 'components/customers-groups/list-page';
-import Groups from 'components/customers-groups/groups';
-import Group from 'components/customers-groups/group';
-import NewDynamicGroup from 'components/customers-groups/dynamic/new-group';
-import EditDynamicGroup from 'components/customers-groups/dynamic/edit-group';
+import GroupsList from 'components/customers-groups/groups-list';
+import EditGroupPage from 'components/customers-groups/edit-group-page';
+import GroupPage from 'components/customers-groups/group-page';
+import NewGroup from 'components/customers-groups/new-group';
+import EditGroup from 'components/customers-groups/edit-group';
 import Customer from 'components/customers/customer';
 import CustomerDetails from 'components/customers/details';
 import Notes from 'components/notes/notes';
@@ -40,17 +41,18 @@ const getRoutes = (jwt: Object) => {
       ]),
       router.read('groups-base', { path: 'groups', frn: frn.user.customerGroup }, [
         router.read('customer-groups', { component: GroupsListPage }, [
-          router.read('groups', { component: Groups, isIndex: true }),
+          router.read('groups', { component: GroupsList, isIndex: true }),
         ]),
-        router.create('new-dynamic-customer-group', {
-          path: 'new-dynamic',
-          component: NewDynamicGroup,
-        }),
-        router.update('edit-dynamic-customer-group', {
-          path: 'edit-dynamic/:groupId',
-          component: EditDynamicGroup,
-        }),
-        router.read('customer-group', { path: ':groupId', title: 'Group', component: Group }),
+
+        router.create('new-customer-group', { component: EditGroupPage }, [
+          router.create('new-customer-group', { path: 'new', component: NewGroup }),
+        ]),
+
+        router.update('edit-customer-group', { component: EditGroupPage }, [
+          router.update('edit-customer-group', { path: ':groupId/edit', component: EditGroup }),
+        ]),
+
+        router.read('customer-group', { path: ':groupId', title: 'Group', component: GroupPage }),
       ]),
       router.create('customers-new', { path: 'new', component: NewCustomer }),
       router.read('customer', { path: ':customerId', component: Customer }, [

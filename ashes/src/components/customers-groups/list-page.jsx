@@ -1,6 +1,7 @@
 /* @flow */
 
 // libs
+import get from 'lodash/get';
 import React, { Element } from 'react';
 import { transitionTo } from 'browserHistory';
 
@@ -11,11 +12,11 @@ import { ListPageContainer, makeTotalCounter } from '../list-page';
 import { actions as customersActions } from '../../modules/customers/list';
 
 type Props = {
-  children?: Array<Element>|Element;
+  children?: Element;
 }
 
 const GroupsListPage = (props: Props) => {
-  const TotalCounter = makeTotalCounter(state => state.customers.list, customersActions);
+  const TotalCounter = makeTotalCounter(state => get(state, 'customers.list'), customersActions);
 
   const navLinks = [
     { title: 'List', to: 'groups' },
@@ -26,7 +27,7 @@ const GroupsListPage = (props: Props) => {
       title="Customer Groups"
       subtitle={<TotalCounter />}
       addTitle="Group"
-      handleAddAction={ () => transitionTo('new-dynamic-customer-group') }
+      handleAddAction={ () => transitionTo('new-customer-group') }
       navLinks={navLinks}
     >
       {props.children}

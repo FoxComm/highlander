@@ -1,10 +1,5 @@
-//libs
-import _ from 'lodash';
-
-//data
-import { Request, query, aggregations } from '../../elastic/request';
+import { Request, query } from '../../elastic/request';
 import operators from '../../paragons/customer-groups/operators';
-
 
 const requestAdapter = (criterions, mainCondition, conditions) => {
   const request = new Request(criterions);
