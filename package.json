@@ -106,7 +106,7 @@
     "reduce-reducers": "^0.1.2",
     "redux": "^3.3.1",
     "redux-act": "1.1.0",
-    "redux-isomorphic-render": "^1.0.0",
+    "redux-isomorphic-render": "^1.2.1",
     "redux-logger": "^2.7.4",
     "reselect": "^2.1.0",
     "slick-carousel": "^1.6.0",
