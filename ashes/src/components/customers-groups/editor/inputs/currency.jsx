@@ -1,11 +1,9 @@
 //libs
-import _ from 'lodash';
-import React, { PropTypes } from 'react';
+import React  from 'react';
 
 //components
-import CurrencyInput from '../../../forms/currency-input';
+import CurrencyInput from 'components/forms/currency-input';
 import propTypes from '../widgets/propTypes';
-
 
 export const Input = ({value, changeValue}) => {
   return (

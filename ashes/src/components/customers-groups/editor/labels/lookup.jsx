@@ -2,11 +2,10 @@
 import React, { PropTypes } from 'react';
 
 //helpers
-import { prefix } from '../../../../lib/text-utils';
+import { prefix } from 'lib/text-utils';
 
 //components
 import propTypes from '../widgets/propTypes';
-
 
 export const Label = ({value, className}) => {
   const prefixed = prefix(className);

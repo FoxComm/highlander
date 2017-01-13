@@ -1,14 +1,14 @@
 /* @flow */
 
 //libs
-import React, { PropTypes, Element } from 'react';
+import React, { Element } from 'react';
 
 //helpers
 import { prefix } from 'lib/text-utils';
 
 //components
-import propTypes from '../widgets/propTypes';
 import Currency from 'components/common/currency';
+import propTypes from '../widgets/propTypes';
 
 type LabelProps = {
   value: string|number,

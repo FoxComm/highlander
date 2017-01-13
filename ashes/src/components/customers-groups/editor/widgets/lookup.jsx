@@ -6,12 +6,11 @@ import { connect } from 'react-redux';
 import { Input, getDefault, isValid } from '../inputs/lookup';
 import { Label } from '../labels/lookup';
 
-
 const connected = getState => connect(state => ({
   data: _.mapValues(getState(state), ({id,name}) => ({id, label: name}))
 }));
 
-export default function(type) {
+export default function() {
   return {
     Input: connected(state => state.regions)(Input),
     getDefault,

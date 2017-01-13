@@ -1,13 +1,12 @@
 //libs
-import _ from 'lodash';
-import React, { PropTypes } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 
 //helpers
-import { prefix } from '../../../../lib/text-utils';
+import { prefix } from 'lib/text-utils';
 
 //components
-import { Button } from '../../../common/buttons';
+import { Button } from 'components/common/buttons';
 import propTypes from '../widgets/propTypes';
 
 

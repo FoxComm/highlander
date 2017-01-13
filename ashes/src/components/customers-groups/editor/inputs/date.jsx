@@ -1,9 +1,9 @@
 //libs
 import moment from 'moment';
-import React, { PropTypes } from 'react';
+import React from 'react';
 
 //components
-import DatePicker from '../../../datepicker/datepicker';
+import DatePicker from 'components/datepicker/datepicker';
 import propTypes from '../widgets/propTypes';
 import { storedDateFormat } from '../widgets/date';
 

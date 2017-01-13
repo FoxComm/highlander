@@ -3,10 +3,10 @@ import _ from 'lodash';
 import React, { PropTypes } from 'react';
 
 //helpers
-import { prefix } from '../../../../lib/text-utils';
+import { prefix } from 'lib/text-utils';
 
 //components
-import { LookupDropdown } from '../../../lookup';
+import { LookupDropdown } from 'components/lookup';
 import propTypes from '../widgets/propTypes';
 
 

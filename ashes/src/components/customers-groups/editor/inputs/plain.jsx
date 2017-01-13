@@ -1,12 +1,11 @@
 //libs
-import React, { PropTypes } from 'react';
+import React from 'react';
 
 //helpers
-import { prefix } from '../../../../lib/text-utils';
+import { prefix } from 'lib/text-utils';
 
 //components
 import propTypes from '../widgets/propTypes';
-
 
 export const Input = type => ({value, className, changeValue}) => {
   const prefixed = prefix(className);

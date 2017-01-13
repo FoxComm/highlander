@@ -1,11 +1,10 @@
 //libs
 import _ from 'lodash';
-import React, { PropTypes } from 'react';
+import React from 'react';
 
 //components
-import Dropdown from '../../../dropdown/dropdown';
+import Dropdown from 'components/dropdown/dropdown';
 import propTypes from '../widgets/propTypes';
-
 
 export const Input = ({criterion, value, changeValue}) => {
   return (

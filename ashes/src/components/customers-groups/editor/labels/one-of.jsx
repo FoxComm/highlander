@@ -1,13 +1,12 @@
 //libs
-import React, { PropTypes } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 
 //helpers
-import { prefix } from '../../../../lib/text-utils';
+import { prefix } from 'lib/text-utils';
 
 //components
 import propTypes from '../widgets/propTypes';
-
 
 export const Label = ({Label: Widget}) => ({criterion, value, className}) => {
   const values = value || [null];

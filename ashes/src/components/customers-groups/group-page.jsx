@@ -8,9 +8,9 @@ import { connect } from 'react-redux';
 import { reset, fetchGroup } from '../../modules/customer-groups/group';
 
 //components
-import WaitAnimation from '../common/wait-animation';
-import DynamicGroup from './dynamic/group';
 import Error from 'components/errors/error';
+import WaitAnimation from 'components/common/wait-animation';
+import DynamicGroup from './dynamic-group';
 
 type Props = {
   group: TCustomerGroup;

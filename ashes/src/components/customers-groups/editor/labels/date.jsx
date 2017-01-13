@@ -1,14 +1,13 @@
 //libs
 import moment from 'moment';
-import React, { PropTypes } from 'react';
+import React from 'react';
 
 //helpers
-import { prefix } from '../../../../lib/text-utils';
+import { prefix } from 'lib/text-utils';
 
 //components
 import propTypes from '../widgets/propTypes';
 import { labelDateFormat } from '../widgets/date';
-
 
 export const Label = ({value, className}) => {
   const prefixed = prefix(className);

@@ -3,14 +3,14 @@ import React, { PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 
 //data
-import criterions, { getCriterion, getOperators, getWidget } from '../../../paragons/customer-groups/criterions';
+import criterions, { getCriterion, getWidget } from 'paragons/customer-groups/criterions';
 
 //helpers
-import { prefix } from '../../../lib/text-utils';
+import { prefix } from 'lib/text-utils';
 
 //components
+import { AddButton } from 'components/common/buttons';
 import Criterion from './criterion-edit';
-import { AddButton } from '../../common/buttons';
 
 
 const prefixed = prefix('fc-customer-group-builder');

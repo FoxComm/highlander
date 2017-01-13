@@ -1,14 +1,12 @@
 //libs
 import _ from 'lodash';
-import React, { PropTypes } from 'react';
+import React from 'react';
 
 //helpers
-import { prefix } from '../../../../lib/text-utils';
+import { prefix } from 'lib/text-utils';
 
 //components
-import Dropdown from '../../../dropdown/dropdown';
 import propTypes from '../widgets/propTypes';
-
 
 export const Label = ({criterion, value, className}) => {
   const prefixed = prefix(className);

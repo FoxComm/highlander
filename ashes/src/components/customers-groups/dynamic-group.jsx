@@ -19,14 +19,13 @@ import { transitionTo } from 'browserHistory';
 import { prefix } from 'lib/text-utils';
 
 //components
-import { PrimaryButton } from '../../common/buttons';
-import ContentBox from '../../content-box/content-box';
-import { PanelList, PanelListItem } from '../../panel/panel-list';
-import Currency from '../../common/currency';
-import Criterion from './criterion-view';
-import { SelectableSearchList, makeTotalCounter } from '../../list-page';
-import MultiSelectRow from '../../table/multi-select-row';
-
+import { SelectableSearchList, makeTotalCounter } from 'components/list-page';
+import { PanelList, PanelListItem } from 'components/panel/panel-list';
+import { PrimaryButton } from 'components/common/buttons';
+import MultiSelectRow from 'components/table/multi-select-row';
+import ContentBox from 'components/content-box/content-box';
+import Currency from 'components/common/currency';
+import Criterion from './editor/criterion-view';
 
 const prefixed = prefix('fc-customer-group');
 

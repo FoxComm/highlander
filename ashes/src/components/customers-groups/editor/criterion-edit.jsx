@@ -1,22 +1,18 @@
 //libs
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
-import { autobind } from 'core-decorators';
-import FormField from '../../forms/formfield';
 import classNames from 'classnames';
 
 //data
-import criterions, { getCriterion, getOperators, getWidget } from '../../../paragons/customer-groups/criterions';
+import criterions, { getCriterion, getOperators, getWidget } from 'paragons/customer-groups/criterions';
 
 //helpers
-import { prefix } from '../../../lib/text-utils';
+import { prefix } from 'lib/text-utils';
 
 //components
-import { Dropdown, DropdownItem } from '../../dropdown';
-
+import { Dropdown, DropdownItem } from 'components/dropdown';
 
 const prefixed = prefix('fc-customer-group-builder');
-
 const fields = criterions.map(({field,label}) => [field, label]);
 
 const Criterion = ({field, operator, value, changeField, changeOperator, changeValue, remove}) => {

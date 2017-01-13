@@ -1,15 +1,12 @@
 //libs
-import _ from 'lodash';
 import React, { PropTypes } from 'react';
-import { autobind } from 'core-decorators';
-import FormField from '../../forms/formfield';
 import classNames from 'classnames';
 
 //data
-import { getCriterion, getOperators, getWidget } from '../../../paragons/customer-groups/criterions';
+import { getCriterion, getOperators, getWidget } from 'paragons/customer-groups/criterions';
 
 //helpers
-import { prefix } from '../../../lib/text-utils';
+import { prefix } from 'lib/text-utils';
 
 const prefixed = prefix('fc-customer-group__criterion');
 

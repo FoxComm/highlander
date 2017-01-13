@@ -1,12 +1,11 @@
 //libs
-import React, { PropTypes } from 'react';
+import React from 'react';
 
 //helpers
-import { prefix } from '../../../../lib/text-utils';
+import { prefix } from 'lib/text-utils';
 
 //components
 import propTypes from '../widgets/propTypes';
-
 
 export const Label = type => ({value, className}) => {
   const prefixed = prefix(className);
@@ -17,4 +16,5 @@ export const Label = type => ({value, className}) => {
     </div>
   );
 };
+
 Label.propTypes = propTypes;

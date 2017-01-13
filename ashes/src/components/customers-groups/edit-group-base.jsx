@@ -9,7 +9,7 @@ import { Link } from 'components/link';
 import Form from 'components/forms/form';
 import ErrorAlerts from 'components/alerts/error-alerts';
 import SaveCancel from 'components/common/save-cancel';
-import DynamicGroupEditor from './dynamic/group-editor';
+import DynamicGroupEditor from './editor/group-editor';
 
 type Props = {
   group: TCustomerGroup;

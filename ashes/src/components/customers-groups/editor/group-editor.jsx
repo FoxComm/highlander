@@ -5,17 +5,16 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
 //data
-import operators from '../../../paragons/customer-groups/operators';
+import operators from 'paragons/customer-groups/operators';
+import * as actions from 'modules/customer-groups/group';
 
 //helpers
-import { prefix } from '../../../lib/text-utils';
+import { prefix } from 'lib/text-utils';
 
 //components
-import FormField from '../../forms/formfield';
-import { Dropdown } from '../../dropdown';
+import FormField from 'components/forms/formfield';
+import { Dropdown } from 'components/dropdown';
 import QueryBuilder from './query-builder';
-
-import * as actions from '../../../modules/customer-groups/group';
 
 const SELECT_CRITERIA = [
   [operators.and, 'all'],

@@ -6,7 +6,7 @@ import types from './types';
 import ops from './operators';
 
 //components
-import widgets from '../../components/customers-groups/dynamic/widgets';
+import widgets from '../../components/customers-groups/editor/widgets';
 
 
 const criterions = [
