@@ -17,31 +17,43 @@ import responses.PromotionResponses.PromotionResponse
 import testutils.PayloadHelpers._
 import testutils._
 import testutils.apis.PhoenixAdminApi
-import testutils.fixtures.api.PromotionPayloadBuilder.{PromoOfferBuilder, PromoQualifierBuilder}
+import testutils.fixtures.api.ProductPayloadBuilder._
+import testutils.fixtures.api.PromotionPayloadBuilder._
 import utils.aliases.Json
 
 trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi { self: FoxSuite ⇒
 
-  trait ProductSku_ApiFixture {
-    private val productCode = s"testprod_${Lorem.numerify("####")}"
-    val skuCode             = s"$productCode-sku_${Lorem.letterify("????").toUpperCase}"
-    def skuPrice: Int = Random.nextInt(20000) + 100
+  trait ProductVariant_ApiFixture {
+    val productName: String        = randomProductCode
+    val productVariantCode: String = randomVariantCode(productName)
 
-    private val skuPayload = ProductVariantPayload(
-        attributes = Map("code"        → tv(skuCode),
-                         "title"       → tv(skuCode.capitalize),
-                         "salePrice"   → tv(("currency" → "USD") ~ ("value" → skuPrice), "price"),
-                         "retailPrice" → tv(("currency" → "USD") ~ ("value" → skuPrice), "price")))
+    def productVariantPrice: Int = Random.nextInt(20000) + 100
 
-    val productPayload =
-      CreateProductPayload(
-          attributes =
-            Map("name" → tv(productCode.capitalize), "title" → tv(productCode.capitalize)),
-          slug = productCode.toLowerCase,
-          variants = Seq(skuPayload),
-          options = None)
+    private val variantPayload = ProductVariantPayload(
+        attributes = variantAttrs(productVariantCode, productVariantPrice)
+    )
 
-    val product = productsApi.create(productPayload).as[ProductRoot]
+    val productPayload: CreateProductPayload = CreateProductPayload(attributes =
+                                                                      productAttrs(productName),
+                                                                    slug = productName.toLowerCase,
+                                                                    variants = Seq(variantPayload),
+                                                                    options = None)
+
+    val product: ProductRoot = productsApi.create(productPayload).as[ProductRoot]
+  }
+
+  trait Product_ColorSizeOptions_ApiFixture {
+    val productCode: String = randomProductCode
+
+    def price: Int = 2000
+
+    private val payload = ProductPayloadBuilder.build(
+        ProductOptionCfg(name = "Size", values = Seq("small", "large")),
+        ProductOptionCfg(name = "Color", values = Seq("red", "green")),
+        price,
+        productCode)
+
+    productsApi.create(payload).as[ProductRoot]
   }
 
   trait Coupon_TotalQualifier_PercentOff extends CouponFixtureBase {
@@ -94,6 +106,11 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi { sel
 
       activeTo.fold(commonAttrs)(act ⇒ commonAttrs + ("activeTo" → act)).asShadow
     }
-
   }
+
+  private def randomProductCode: String =
+    s"prod_${Lorem.numerify("####")}"
+
+  private def randomVariantCode(productCode: String): String =
+    s"$productCode-${Lorem.letterify("????").toUpperCase}"
 }

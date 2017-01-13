@@ -161,18 +161,18 @@ class CartIntegrationTest
     }
 
     "should successfully add a gift card line item" in new Customer_Seed
-    with ProductSku_ApiFixture {
+    with ProductVariant_ApiFixture {
       val refNum =
         cartsApi.create(CreateCart(email = customer.email)).as[CartResponse].referenceNumber
 
       cartsApi(refNum).lineItems
-        .update(addGiftCardPayload(skuCode))
+        .update(addGiftCardPayload(productVariantCode))
         .asTheResult[CartResponse]
         .lineItems
         .skus
         .map(sku ⇒ (sku.sku, sku.quantity, sku.attributes)) must contain theSameElementsAs Seq(
-          (skuCode, 1, attributes2),
-          (skuCode, 2, attributes))
+          (productVariantCode, 1, attributes2),
+          (productVariantCode, 2, attributes))
     }
 
     "adding a SKU with no product should return an error" in new OrderShippingMethodFixture
@@ -193,19 +193,20 @@ class CartIntegrationTest
     }
 
     "should successfully remove gift card line item" in new Customer_Seed
-    with ProductSku_ApiFixture {
+    with ProductVariant_ApiFixture {
       val refNum =
         cartsApi.create(CreateCart(email = customer.email)).as[CartResponse].referenceNumber
 
-      val regSkus = cartsApi(refNum).lineItems.update(addGiftCardPayload(skuCode)).mustBeOk()
+      val regSkus =
+        cartsApi(refNum).lineItems.update(addGiftCardPayload(productVariantCode)).mustBeOk()
 
       val skus = cartsApi(refNum).lineItems
-          .update(removeGiftCardPayload(skuCode))
+          .update(removeGiftCardPayload(productVariantCode))
           .asTheResult[CartResponse]
           .lineItems
           .skus
           .map(sku ⇒ (sku.sku, sku.quantity, sku.attributes)) must === (
-            Seq((skuCode, 1, attributes2)))
+            Seq((productVariantCode, 1, attributes2)))
     }
 
     "removing too many of an item should remove all of that item" in new OrderShippingMethodFixture
@@ -525,7 +526,7 @@ class CartIntegrationTest
     } yield (cc, op, ccc)).gimme
   }
 
-  class TaxesFixture(regionId: Int) extends ShipmentSeeds with ProductSku_ApiFixture {
+  class TaxesFixture(regionId: Int) extends ShipmentSeeds with ProductVariant_ApiFixture {
     // Shipping method
     val shipMethodId = ShippingMethods.create(shippingMethods(2)).gimme.id
 
@@ -533,7 +534,7 @@ class CartIntegrationTest
     val cartRef =
       cartsApi.create(CreateCart(email = "foo@bar.com".some)).as[CartResponse].referenceNumber
 
-    cartsApi(cartRef).lineItems.add(Seq(UpdateLineItemsPayload(skuCode, 1))).mustBeOk()
+    cartsApi(cartRef).lineItems.add(Seq(UpdateLineItemsPayload(productVariantCode, 1))).mustBeOk()
 
     private val randomAddress = CreateAddressPayload(regionId = regionId,
                                                      name = Lorem.letterify("???"),
