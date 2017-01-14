@@ -17,7 +17,8 @@ import _ from 'lodash';
 // components
 import ErrorAlerts from '../alerts/error-alerts';
 import WaitAnimation from '../common/wait-animation';
-import QuestionBox from './question-box';
+import QuestionBoxList from './question-box-list';
+import { Props as QuestionBoxType } from './question-box';
 import Currency from '../common/currency';
 import TrendButton, { TrendType } from './trend-button';
 import StaticColumnSelector from './static-column-selector';
@@ -34,6 +35,7 @@ type State = {
   dateRangeBegin: string, // Unix Timestamp
   dateRangeEnd: string, // Unix Timestamp
   dateDisplay: string,
+  question: any,
 }
 
 const verbs = {
@@ -51,6 +53,34 @@ const sourceDropdownColumns = [
   { field: 'facebook', text: 'Facebook' },
   { field: 'email', text: 'Email' },
   { field: 'direct', text: 'Direct' },
+];
+
+const questions: Array<QuestionBoxType> = [
+  {
+    title: 'Total Revenue',
+    content: <Currency value="578657" />,
+    footer: <TrendButton trendType={TrendType.gain} value={90}/>,
+  },
+  {
+    title: 'Total Orders',
+    content: 132,
+    footer: <TrendButton trendType={TrendType.loss} value={10}/>,
+  },
+  {
+    title: 'Avg. Num. Per Order',
+    content: 1,
+    footer: <TrendButton trendType={TrendType.steady} value={0}/>,
+  },
+  {
+    title: 'Total In Carts',
+    content: 132,
+    footer: <TrendButton trendType={TrendType.loss} value={10}/>,
+  },
+  {
+    title: 'Product Conversion',
+    content: '7.2%',
+    footer: <TrendButton trendType={TrendType.gain} value={3}/>,
+  },
 ];
 
 const datePickerType = {
@@ -99,9 +129,10 @@ export default class Analytics extends React.Component {
   };
 
   state: State = {
-    dateRangeBegin: moment().unix(),
+    dateRangeBegin: moment().startOf('day').unix(),
     dateRangeEnd: moment().unix(),
     dateDisplay: moment().format(datePickerFormat),
+    question: null,
   };
 
   componentDidMount() {
@@ -251,6 +282,11 @@ export default class Analytics extends React.Component {
     });
   }
 
+  @autobind
+  onQuestionBoxSelect(question) {
+    console.log(`Chosen Question => ${question}`);
+  }
+
   get dateDisplay() {
     return this.state.dateDisplay;
   }
@@ -279,31 +315,9 @@ export default class Analytics extends React.Component {
             identifier={'analytics-source-filter'} />
         </div>
         <div styleName="analytics-page-questions">
-          <QuestionBox
-            title="Total Revenue"
-            content={<Currency value="578657" />}
-            footer={<TrendButton trendType={TrendType.gain} value={90}/>}
-            isActive={true}
-          />
-          <QuestionBox
-            title="Total Orders"
-            content={132}
-            footer={<TrendButton trendType={TrendType.loss} value={10}/>}
-          />
-          <QuestionBox
-            title="Avg. Num. Per Order"
-            content={1}
-            footer={<TrendButton trendType={TrendType.steady} value={0}/>}
-          />
-          <QuestionBox
-            title="Total In Carts"
-            content={132}
-            footer={<TrendButton trendType={TrendType.loss} value={10}/>}
-          />
-          <QuestionBox
-            title="Product Conversion"
-            content={'7.2%'}
-            footer={<TrendButton trendType={TrendType.gain} value={3}/>}
+          <QuestionBoxList
+            onSelect={this.onQuestionBoxSelect}
+            items={questions}
           />
         </div>
       </div>
