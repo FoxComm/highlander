@@ -9,7 +9,8 @@ import { autobind } from 'core-decorators';
 import styles from './question-box.css';
 
 // types
-type Props = {
+export type Props = {
+  id?: number,
   title: string,
   content: any,
   footer: any,
@@ -51,11 +52,12 @@ class QuestionBox extends React.Component {
   @autobind
   onClickHandler() {
     const { onClick } = this.props;
+    const { isActive } = this.state;
 
     this.toggleActiveState();
 
-    if (!_.isNull(onClick)) {
-      return onClick();
+    if (!_.isNull(onClick) && !isActive) {
+      return onClick(this.props);
     }
 
     return null;

@@ -1,4 +1,4 @@
-.analytics-page-questions {
+.analytics-page-questions > div {
   display: flex;
   justify-content: space-between;
 }
