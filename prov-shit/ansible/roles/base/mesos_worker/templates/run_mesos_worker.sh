@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 WORK_DIR=/var/lib/mesos
+LOG_DIR=/var/log/mesos
 SANDBOX_DIR=/var/lib/sandbox
 IP=`hostname -I | awk '{print $1}'`
 
@@ -13,4 +14,5 @@ mesos-slave --hostname=$IP \
     --containerizers=docker,mesos \
     --docker_registry={{docker_registry}} \
     --work_dir=$WORK_DIR \
+    --log_dir=$LOG_DIR \
     --sandbox_directory=/$SANDBOX_DIR

@@ -19,7 +19,7 @@
   "env": {
     "DB_HOST": "{{docker_db_host}}",
     "DB_NAME": "{{bernardo_db_name}}",
-    "DB_USER": "{{bernardo_db_user}}"
+    "DB_USER": "{{bernardo_db_user}}",
     "PORT1" : "19090"
   },
   "constraints": [["hostname", "UNIQUE"]],

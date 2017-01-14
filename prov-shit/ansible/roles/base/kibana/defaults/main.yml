@@ -1,12 +1,12 @@
-kibana_version: "4.3.1"
-kibana_base_url: "https://download.elasticsearch.org/kibana/kibana"
-kibana_name: "kibana-{{kibana_version}}-linux-x64"
-kibana_download_url: "{{kibana_base_url}}/{{kibana_name}}.zip"
-kibana_archive: "{{kibana_name}}.zip"
+kibana_version: "5.1.1"
+kibana_base_url: "https://artifacts.elastic.co/downloads/kibana"
+kibana_name: "kibana-{{kibana_version}}-linux-x86_64"
+kibana_download_url: "{{kibana_base_url}}/{{kibana_name}}.tar.gz"
+kibana_archive: "{{kibana_name}}.tar.gz"
 kibana_dir: /opt/kibana
 kibana_bin: "{{kibana_dir}}/bin/kibana"
 
 kibana_cfg_host: "0.0.0.0"
 kibana_cfg_port: "5601"
-kibana_cfg_es_url: "http://localhost:9200"
+kibana_cfg_es_url: "http://{{log_host}}"
 kibana_cfg_index: ".kibana"

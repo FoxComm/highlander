@@ -405,7 +405,7 @@ activities = [...activities,
     createdAt,
     data: {
       newState: 'fraudHold',
-      orderRefNums: [
+      cordRefNums: [
         'BR10004',
         'BR10003',
         'BR10001',
@@ -713,7 +713,7 @@ activities = [...activities,
     createdAt,
     data: {
       assignee: user,
-      orderRefNums: [
+      cordRefNums: [
         'BR10001',
         'BR10002',
         'BR10003',
@@ -726,7 +726,7 @@ activities = [...activities,
     createdAt,
     data: {
       assignee: user,
-      orderRefNums: [
+      cordRefNums: [
         'BR10001',
         'BR10002',
         'BR10003',

@@ -6,18 +6,20 @@ Highlander is the brand-spanking-new FoxCommerce mono-repo.
 
 ## The Projects
 
-| Project                                | Description                                                                                                  |
-|:---------------------------------------|:-------------------------------------------------------------------------------------------------------------|
-| [phoenix-scala](phoenix-scala)         | Our main API that handles the business logic for the customer, merchandising, and order management systems.  |
-| [green-river](green-river)             | An event-sourcing system based on Kafka and [bottledwater](https://github.com/confluentinc/bottledwater-pg). |
-| [middlewarehouse](middlewarehouse)     | A lightweight and fast shipping and inventory management service written in Go.                              |
-| [isaac](isaac)                         | Our C++ authentication service.                                                                              |
-| [ashes](ashes)                         | The Admin UI, written in React.js.                                                                           |
-| [api-js](api-js)                       | A JavaScript library for interacting with the FoxCommerce API.                                               |
-| [firebrand](firebrand)                 | A demo storefront used to show off the capabilities of FoxCommerce APIs.                                     |
-| [prov-shit](prov-shit)                 | All of our DevOps tools for deploying the application to both development and production.                    |
-| [api-docs](api-docs)                   | Our API documentation in API Blueprint format and Postman query collections.                                 |
-| [intelligence](intelligence)           | Intelligent Commerce Projects |
+| Project                            | Description                                                                                                  |
+|:-----------------------------------|:-------------------------------------------------------------------------------------------------------------|
+| [phoenix-scala](phoenix-scala)     | Our main API that handles the business logic for the customer, merchandising, and order management systems.  |
+| [green-river](green-river)         | An event-sourcing system based on Kafka and [bottledwater](https://github.com/confluentinc/bottledwater-pg). |
+| [middlewarehouse](middlewarehouse) | A lightweight and fast shipping and inventory management service written in Go.                              |
+| [isaac](isaac)                     | Our C++ authentication service.                                                                              |
+| [solomon](solomon)                 | A microservice that handles scopes, claims, roles and permissions, written in Elixir.                        |
+| [messaging](messaging)             | Kafka consumer that handles e-mail notifications through Mailchimp, written in Clojure.                      |
+| [ashes](ashes)                     | The Admin UI, written in React.js.                                                                           |
+| [api-js](api-js)                   | A JavaScript library for interacting with the FoxCommerce API.                                               |
+| [firebrand](firebrand)             | A demo storefront used to show off the capabilities of FoxCommerce APIs.                                     |
+| [prov-shit](prov-shit)             | All of our DevOps tools for deploying the application to both development and production.                    |
+| [api-docs](api-docs)               | Our API documentation in API Blueprint format and Postman query collections.                                 |
+| [intelligence](intelligence)       | Intelligent Commerce Projects |
 
 ## Development Environment
 
@@ -98,6 +100,7 @@ Set the following environment variables.
     $ export GOOGLE_SSH_USERNAME=ubuntu
     $ export GOOGLE_SSH_KEY=~/.ssh/google_compute_engine # Or the location of your key
     $ export GOOGLE_CLIENT_EMAIL=<Your FoxCommerce email>
+    $ export GOOGLE_INSTANCE_NAME=tony-test-instance-1 # Optional custom instance name
 
 Download a JSON key for our GCE environment. You can follow
 [Google's instructions for generating a private key](https://cloud.google.com/storage/docs/authentication#generating-a-private-key).

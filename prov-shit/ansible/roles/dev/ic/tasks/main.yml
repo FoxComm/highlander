@@ -70,3 +70,20 @@
   retries: 60
   delay: 10
   when: vagrant
+
+- name: Copy Eggcrate Marathon JSON
+  template: src=eggcrate.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
+
+- name: Update Eggcrate in Marathon
+  shell: 'curl -X PUT -d@/marathon/applications/eggcrate.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/eggcrate'
+
+- name: Restart Eggcrate in Marathon
+  shell: 'curl -X POST http://{{marathon_server}}/v2/apps/eggcrate/restart'
+
+- name: Get Eggcrate Marathon tasks in `healthy` state
+  shell: curl -sS -XGET http://{{marathon_server}}/v2/apps/eggcrate | jq '.app.tasksHealthy > 0'
+  register: healthy_tasks_available
+  until: healthy_tasks_available.stdout == 'true'
+  retries: 60
+  delay: 10
+  when: vagrant
