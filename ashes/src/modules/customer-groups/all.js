@@ -2,7 +2,7 @@
 
 // it's module for customer-groups/select-groups component
 
-import createAsyncActions from '../async-utils';
+import { createAsyncActions } from '@foxcomm/wings';
 import Api from '../../lib/api';
 import { createReducer } from 'redux-act';
 

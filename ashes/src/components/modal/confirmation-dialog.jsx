@@ -17,7 +17,7 @@ type Props = {
   icon?: string,
   onCancel: Function,
   confirmAction: Function,
-  asyncState?: AsyncStatus,
+  asyncState?: AsyncState,
 };
 
 const ConfirmationDialog = (props: Props): Element => {

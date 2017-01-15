@@ -121,3 +121,15 @@
 - name: Download vagrant google box
   shell: vagrant box add gce {{vagrant_google_box}}
   tags: vagrant
+
+- name: Download terraform
+  get_url: url={{terraform_download_url}} dest="{{home}}/{{terraform_filename}}"
+  tags: terraform
+
+- name: Unzip terraform
+  unarchive: src="{{home}}/{{terraform_filename}}" dest="{{home}}" mode="u+x,g+x,o+x"
+  tags: terraform
+
+- name: Copy to Binaries Directory
+  command: mv {{home}}/terraform /usr/local/bin
+  tags: terraform

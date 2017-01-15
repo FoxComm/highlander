@@ -2,11 +2,17 @@ package mocks
 
 import (
 	"github.com/FoxComm/highlander/middlewarehouse/models"
+	"github.com/FoxComm/highlander/middlewarehouse/services"
+	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/mock"
 )
 
 type InventoryServiceMock struct {
 	mock.Mock
+}
+
+func (m *InventoryServiceMock) WithTransaction(txn *gorm.DB) services.IInventoryService {
+	return m
 }
 
 func (m *InventoryServiceMock) GetStockItems() ([]*models.StockItem, error) {
@@ -84,6 +90,18 @@ func (m *InventoryServiceMock) ReserveItems(refNum string) error {
 }
 
 func (m *InventoryServiceMock) ReleaseItems(refNum string) error {
+	args := m.Called(refNum)
+
+	return args.Error(0)
+}
+
+func (m *InventoryServiceMock) ShipItems(refNum string) error {
+	args := m.Called(refNum)
+
+	return args.Error(0)
+}
+
+func (m *InventoryServiceMock) DeleteItems(refNum string) error {
 	args := m.Called(refNum)
 
 	return args.Error(0)

@@ -4,6 +4,7 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 
+	"github.com/jinzhu/gorm"
 	"log"
 	"reflect"
 	"strings"
@@ -12,9 +13,12 @@ import (
 type summaryService struct {
 	summaryRepo   repositories.ISummaryRepository
 	stockItemRepo repositories.IStockItemRepository
+	txn           *gorm.DB
 }
 
 type ISummaryService interface {
+	WithTransaction(txn *gorm.DB) ISummaryService
+
 	CreateStockItemSummary(stockItemId uint) error
 	UpdateStockItemSummary(stockItemId uint, unitType models.UnitType, qty int, status models.StatusChange) error
 
@@ -25,7 +29,15 @@ type ISummaryService interface {
 }
 
 func NewSummaryService(summaryRepo repositories.ISummaryRepository, stockItemRepo repositories.IStockItemRepository) ISummaryService {
-	return &summaryService{summaryRepo, stockItemRepo}
+	return &summaryService{summaryRepo, stockItemRepo, nil}
+}
+
+func (service *summaryService) WithTransaction(txn *gorm.DB) ISummaryService {
+	return &summaryService{
+		summaryRepo:   service.summaryRepo,
+		stockItemRepo: service.stockItemRepo,
+		txn:           txn,
+	}
 }
 
 func (service *summaryService) GetSummary() ([]*models.StockItemSummary, error) {
@@ -44,7 +56,7 @@ func (service *summaryService) CreateStockItemSummary(stockItemId uint) error {
 		{StockItemID: stockItemId, Type: models.Preorder},
 	}
 
-	return service.summaryRepo.CreateStockItemSummary(summary)
+	return service.getSummaryRepo().CreateStockItemSummary(summary)
 }
 
 func (service *summaryService) UpdateStockItemSummary(stockItemId uint, unitType models.UnitType, qty int, status models.StatusChange) error {
@@ -53,7 +65,7 @@ func (service *summaryService) UpdateStockItemSummary(stockItemId uint, unitType
 		return err
 	}
 
-	summary, err := service.summaryRepo.GetSummaryItemByType(stockItemId, unitType)
+	summary, err := service.getSummaryRepo().GetSummaryItemByType(stockItemId, unitType)
 	if err != nil {
 		return err
 	}
@@ -69,12 +81,19 @@ func (service *summaryService) UpdateStockItemSummary(stockItemId uint, unitType
 		summary = updateStatusUnitsAmount(summary, status.To, qty)
 	}
 
+	// decrease OnHand items when item is shipped
+	if status.To == models.StatusShipped {
+		summary = updateStatusUnitsAmount(summary, models.StatusOnHand, -qty)
+	}
+
 	summary = updateAfs(summary, status, qty)
 	summary = updateAfsCost(summary, stockItem)
 
 	// update stock item summary values
-	if err := service.summaryRepo.UpdateStockItemSummary(summary); err != nil {
+	if err := service.getSummaryRepo().UpdateStockItemSummary(summary); err != nil {
 		log.Printf("Error updating stock_item_summaries with error: %s", err.Error())
+
+		return err
 	}
 
 	// create related stock item transaction
@@ -82,6 +101,12 @@ func (service *summaryService) UpdateStockItemSummary(stockItemId uint, unitType
 }
 
 func (service *summaryService) CreateStockItemTransaction(summary *models.StockItemSummary, status models.UnitStatus, qty int) error {
+	// If order was shipped create transaction for onHand items - delete qty items
+	if status == models.StatusShipped {
+		status = models.StatusOnHand
+		qty = -qty
+	}
+
 	transaction := &models.StockItemTransaction{
 		StockItemId:    summary.StockItemID,
 		Type:           summary.Type,
@@ -91,7 +116,7 @@ func (service *summaryService) CreateStockItemTransaction(summary *models.StockI
 		AFSNew:         uint(summary.AFS),
 	}
 
-	if err := service.summaryRepo.CreateStockItemTransaction(transaction); err != nil {
+	if err := service.getSummaryRepo().CreateStockItemTransaction(transaction); err != nil {
 		log.Printf("Error creating stock_item_transactions with error: %s", err.Error())
 	}
 
@@ -99,7 +124,7 @@ func (service *summaryService) CreateStockItemTransaction(summary *models.StockI
 }
 
 func updateStatusUnitsAmount(summary *models.StockItemSummary, status models.UnitStatus, qty int) *models.StockItemSummary {
-	if status == "" {
+	if status == models.StatusEmpty {
 		return summary
 	}
 
@@ -110,6 +135,8 @@ func updateStatusUnitsAmount(summary *models.StockItemSummary, status models.Uni
 		summary.OnHold += qty
 	case models.StatusReserved:
 		summary.Reserved += qty
+	case models.StatusShipped:
+		summary.Shipped += qty
 	}
 
 	return summary
@@ -139,4 +166,12 @@ func getStatusAmountChange(summary *models.StockItemSummary, status models.UnitS
 	f := reflect.Indirect(r).FieldByName(field)
 
 	return uint(f.Int())
+}
+
+func (service *summaryService) getSummaryRepo() repositories.ISummaryRepository {
+	if service.txn == nil {
+		return service.summaryRepo
+	}
+
+	return service.summaryRepo.WithTransaction(service.txn)
 }

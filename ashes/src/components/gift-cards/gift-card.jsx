@@ -87,7 +87,7 @@ export default class GiftCard extends React.Component {
     const content = React.cloneElement(this.props.children, {
       entity: {
         ...this.props.card,
-        entityType: "gift-card",
+        entityType: 'gift-card',
         entityId: params.giftCard,
       }
     });
@@ -252,7 +252,11 @@ export default class GiftCard extends React.Component {
 
                 <p><strong>Recipient Email</strong><br />{card.recipientEmail ? `${card.recipientEmail}` : 'None'}</p>
 
-                <p><strong>Recipient Cell (Optional)</strong><br />{card.recipientCell ? `${card.recipientCell}` : 'None'}</p>
+                <p>
+                  <strong>Recipient Cell (Optional)</strong>
+                  <br />
+                  {card.recipientCell ? `${card.recipientCell}` : 'None'}
+                  </p>
               </div>
               <div className="fc-col-md-2-3">
                 <p><strong>Message (optional)</strong></p>

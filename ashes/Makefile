@@ -41,14 +41,21 @@ run-production: setup stop
 hooks:
 	./node_modules/.bin/gulp hooks
 
-dev d:
+rev:
+	git describe --always | cat > .git-rev
+
+dev d: rev
 	test -f .env && export eval `cat .env` || true && ./node_modules/.bin/gulp dev
+
+prod p:
+	test -f .env && export eval `cat .env` || true && NODE_ENV=production ./node_modules/.bin/gulp build
+	test -f .env && export eval `cat .env` || true && NODE_ENV=production node boot.js
 
 build-dev: setup
 	./node_modules/.bin/flow check
 	test -f .env && export eval `cat .env` || true && ON_SERVER=true ./node_modules/.bin/gulp build
 
-build:
+build: rev
 	$(call header, Building)
 	make setup
 	./node_modules/.bin/flow check
@@ -63,4 +70,4 @@ docker-push:
 	docker tag $(DOCKER_TAG) $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
 	docker push $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
 
-.PHONY: hooks dev d build test test-cov tag docker docker-push
+.PHONY: hooks rev dev d prod p build test test-cov tag docker docker-push

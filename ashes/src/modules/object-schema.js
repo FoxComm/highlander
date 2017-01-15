@@ -1,6 +1,6 @@
 
 import _ from 'lodash';
-import createAsyncActions from './async-utils';
+import { createAsyncActions } from '@foxcomm/wings';
 import { createReducer, createAction } from 'redux-act';
 import Api from 'lib/api';
 

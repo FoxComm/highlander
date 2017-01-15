@@ -2,14 +2,11 @@ package utils
 
 import scala.concurrent.Future
 
-import cats.data.{NonEmptyList, Xor, XorT}
-import cats.implicits._
+import cats.data._
 import cats.{Applicative, Functor, Monad}
 import failures._
 import services.Result
-import slick.dbio.DBIOAction
 import slick.driver.PostgresDriver.api._
-import cats.FlatMap
 import slick.jdbc.SQLActionBuilder
 import slick.lifted.Query
 import slick.profile.SqlAction
@@ -56,6 +53,15 @@ package object db {
       dbResultT.value.run()
 
     def meh(implicit ec: EC): DbResultT[Unit] = for (_ ← * <~ dbResultT) yield {}
+
+    def resolveFailures(resolver: PartialFunction[Failure, Failure])(
+        implicit ec: EC): DbResultT[A] = {
+      def mapFailure(failure: Failure) = resolver.applyOrElse(failure, identity[Failure])
+
+      dbResultT.leftMap {
+        case NonEmptyList(h, t) ⇒ NonEmptyList(mapFailure(h), t.map(mapFailure))
+      }
+    }
   }
 
   final implicit class EnrichedOption[A](val option: Option[A]) extends AnyVal {

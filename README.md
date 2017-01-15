@@ -4,6 +4,22 @@
 
 Highlander is the brand-spanking-new FoxCommerce mono-repo.
 
+## The Projects
+
+| Project                            | Description                                                                                                  |
+|:-----------------------------------|:-------------------------------------------------------------------------------------------------------------|
+| [phoenix-scala](phoenix-scala)     | Our main API that handles the business logic for the customer, merchandising, and order management systems.  |
+| [green-river](green-river)         | An event-sourcing system based on Kafka and [bottledwater](https://github.com/confluentinc/bottledwater-pg). |
+| [middlewarehouse](middlewarehouse) | A lightweight and fast shipping and inventory management service written in Go.                              |
+| [isaac](isaac)                     | Our C++ authentication service.                                                                              |
+| [solomon](solomon)                 | A microservice that handles scopes, claims, roles and permissions, written in Elixir.                        |
+| [messaging](messaging)             | Kafka consumer that handles e-mail notifications through Mailchimp, written in Clojure.                      |
+| [ashes](ashes)                     | The Admin UI, written in React.js.                                                                           |
+| [api-js](api-js)                   | A JavaScript library for interacting with the FoxCommerce API.                                               |
+| [firebrand](firebrand)             | A demo storefront used to show off the capabilities of FoxCommerce APIs.                                     |
+| [prov-shit](prov-shit)             | All of our DevOps tools for deploying the application to both development and production.                    |
+| [api-docs](api-docs)               | Our API documentation in API Blueprint format and Postman query collections.                                 |
+
 ## Development Environment
 
 The simplest way to get started is to use Vagrant to build out a virtual
@@ -83,6 +99,7 @@ Set the following environment variables.
     $ export GOOGLE_SSH_USERNAME=ubuntu
     $ export GOOGLE_SSH_KEY=~/.ssh/google_compute_engine # Or the location of your key
     $ export GOOGLE_CLIENT_EMAIL=<Your FoxCommerce email>
+    $ export GOOGLE_INSTANCE_NAME=tony-test-instance-1 # Optional custom instance name
 
 Download a JSON key for our GCE environment. You can follow
 [Google's instructions for generating a private key](https://cloud.google.com/storage/docs/authentication#generating-a-private-key).
@@ -106,27 +123,12 @@ Get the private IP address
 
 Edit your hosts file so that `local.foxcommerce.com` points to the new box using the private IP address you just retrieved.
 
-## The Projects
+### Git hooks
 
-| Project                                | Description                                                                                                  |
-|:---------------------------------------|:-------------------------------------------------------------------------------------------------------------|
-| [phoenix-scala](phoenix-scala)         | Our main API that handles the business logic for the customer, merchandising, and order management systems.  |
-| [green-river](green-river)             | An event-sourcing system based on Kafka and [bottledwater](https://github.com/confluentinc/bottledwater-pg). |
-| [middlewarehouse](middlewarehouse)     | A lightweight and fast shipping and inventory management service written in Go.                              |
-| [isaac](isaac)                         | Our C++ authentication service.                                                                              |
-| [ashes](ashes)                         | The Admin UI, written in React.js.                                                                           |
-| [api-js](api-js)                       | A JavaScript library for interacting with the FoxCommerce API.                                               |
-| [firebrand](firebrand)                 | A demo storefront used to show off the capabilities of FoxCommerce APIs.                                     |
-| [prov-shit](prov-shit)                 | All of our DevOps tools for deploying the application to both development and production.                    |
-| [api-docs](api-docs)                   | Our API documentation in API Blueprint format and Postman query collections.                                 |
+During development, you might also want to use our Git hooks:
 
-## Usage
+    $ cd highlander/
+    $ cd .git ; rm -r hooks ; ln -s ../git-hooks hooks
 
-### Updating from Upstream
+Currently, there’s only one that by default adds `[skip ci]` to preformatted commit messages. This means it will only be added if you edit your commit messages with an external editor, `git commit -m <msg>` won’t be affected.  If you’re finishing your work on some branch and want to build it, simply remove the line.
 
-Updating from upstream will pull in all commits on each project's `master`
-branch. All commit history in each repository will be cloned into this repo.
-
-```
-$ make update
-```

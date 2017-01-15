@@ -110,7 +110,7 @@ class MultiTopicConsumer(topics: Seq[String],
     while (true) {
       val records = consumer.poll(timeout)
 
-      consumer.assignment.map(a ⇒ consumer.pause(a));
+      consumer.assignment.foreach(a ⇒ consumer.pause(a))
 
       val result = records.foldLeft(ProcessOffsetsResult()) {
         case (offsets, r) ⇒
@@ -140,7 +140,7 @@ class MultiTopicConsumer(topics: Seq[String],
           }
       }
 
-      consumer.assignment.map(a ⇒ consumer.resume(a));
+      consumer.assignment.foreach(a ⇒ consumer.resume(a))
 
       if (result.ok.nonEmpty) {
         Sync.commit(consumer, result.ok)
@@ -153,6 +153,11 @@ class MultiTopicConsumer(topics: Seq[String],
             case (tp, offset) ⇒
               Console.err.println(
                   s"NoNodeAvailableException workaround, seek to offset $offset again")
+              consumer.seek(tp, offset)
+          }
+        case Some(e) if e.isInstanceOf[TryAgainLater] ⇒
+          result.errorTopicAndOffset.foreach {
+            case (tp, offset) ⇒
               consumer.seek(tp, offset)
           }
         case _ ⇒

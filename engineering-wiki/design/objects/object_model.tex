@@ -255,14 +255,14 @@ We will create a pointer to a Commit called the Head.
 \end{quote}
 
 \begin{lstlisting}
-calse class ObjectHead(id: Int,
-                       viewId: Int,
-                       shadowId: Int,
-                       formId: Int,
-                       commitId: Int,
-                       kind: String,
-                       updatedAt: Instant,
-                       createdAt: Instant)
+case class ObjectHead(id: Int,
+                      viewId: Int,
+                      shadowId: Int,
+                      formId: Int,
+                      commitId: Int,
+                      kind: String,
+                      updatedAt: Instant,
+                      createdAt: Instant)
 \end{lstlisting}
 
 It also stores the \emph{shadowId}, \emph{formId} and \emph{kind} here for convenience.

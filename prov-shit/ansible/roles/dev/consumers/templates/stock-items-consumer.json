@@ -7,7 +7,13 @@
   "instances": 1,
   "container": {
     "type": "DOCKER",
-    "volumes": [],
+    "volumes": [
+      {
+        "containerPath": "{{docker_logs_dir}}",
+        "hostPath": "{{docker_logs_host_dir}}",
+        "mode": "RW"
+      }
+    ],
     "docker": {
       "image": "{{docker_registry}}:5000/stock-items-consumer:{{docker_branch}}",
       "network": "HOST",
@@ -24,7 +30,7 @@
     "PHOENIX_URL": "http://{{phoenix_server}}",
     "PHOENIX_USER": "{{phoenix_api_user}}",
     "PHOENIX_PASSWORD": "{{phoenix_api_password}}",
-    "PARTITION": "1"
+    "OFFSET_RESET_STRATEGY": "smallest"
   },
   "healthChecks": [
     {

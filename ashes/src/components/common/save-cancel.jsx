@@ -1,11 +1,28 @@
+/* @flow */
+
 // libs
-import React, { PropTypes } from 'react';
+import noop from 'lodash/noop';
+import React, { Component, PropTypes } from 'react';
 import classNames from 'classnames';
-import { autobind } from 'core-decorators';
+import { push } from 'react-router';
 
 // components
-import { Link } from '../../components/link';
-import { PrimaryButton } from './buttons';
+import { Button, PrimaryButton } from './buttons';
+
+type Props = {
+  className?: string;
+  cancelTabIndex: string;
+  cancelTo?: string;
+  cancelParams: Object;
+  onCancel?: Function;
+  saveTabIndex: string;
+  cancelText: string;
+  cancelDisabled?: boolean;
+  onSave?: Function;
+  saveText: string;
+  saveDisabled?: boolean;
+  isLoading?: boolean;
+};
 
 /**
  * SaveCancel component implements simple wrapper over 2 components: Save and Cancel
@@ -14,62 +31,57 @@ import { PrimaryButton } from './buttons';
  *
  * @class SaveCancel
  */
-const SaveCancel = props => {
-  const {
-    className,
-    cancelTabIndex,
-    cancelTo,
-    cancelParams,
-    onCancel,
-    saveTabIndex,
-    cancelText,
-    cancelDisabled,
-    onSave,
-    saveText,
-    saveDisabled,
-    isLoading,
-  } = props;
+export default class SaveCancel extends Component {
+  props: Props;
 
-  const cancelClassName = 'fc-save-cancel__cancel';
-  const saveClassName = 'fc-save-cancel__save';
+  static defaultProps = {
+    cancelTabIndex: '0',
+    cancelText: 'Cancel',
+    cancelParams: {},
+    saveTabIndex: '1',
+    saveText: 'Save',
+  };
 
-  const cancelControl = cancelTo
-    ? (
-        <Link
-          to={cancelTo}
-          className={classNames('fc-btn-link', cancelClassName)}
-          params={cancelParams}
-          tabIndex={cancelTabIndex}
-          disabled={cancelDisabled}>
-          {cancelText}
-        </Link>
-    ) : (
-      <a
+  static contextTypes = {
+    router: PropTypes.object.isRequired,
+  };
+
+  render() {
+    const {
+      className,
+      cancelTabIndex,
+      cancelTo,
+      cancelParams,
+      onCancel,
+      saveTabIndex,
+      cancelText,
+      cancelDisabled,
+      onSave,
+      saveText,
+      saveDisabled,
+      isLoading,
+    } = this.props;
+
+    const { push } = this.context.router;
+
+    const cancelControl = (
+      <Button
         id="modal-cancel-btn"
-        onClick={onCancel}
-        className={classNames('fc-btn-link', cancelClassName)}
-        href="javascript:void(0)"
-        tabIndex={saveTabIndex}
+        type="button"
+        onClick={onCancel ? onCancel : () => push({name: cancelTo, params: cancelParams})}
+        className="fc-save-cancel__cancel"
+        tabIndex={cancelTabIndex}
         disabled={cancelDisabled}>
         {cancelText}
-      </a>
+      </Button>
     );
 
-  const saveControl = onSave
-    ? (
+    const saveControl = (
       <PrimaryButton
         id="modal-confirm-btn"
-        onClick={onSave}
-        className={saveClassName}
-        tabIndex={cancelTabIndex}
-        isLoading={isLoading}
-        disabled={saveDisabled}>
-        {saveText}
-      </PrimaryButton>
-    ) : (
-      <PrimaryButton
-        type="submit"
-        className={saveClassName}
+        type={onSave ? "button" : "submit"}
+        onClick={onSave ? onSave : noop}
+        className="fc-save-cancel__save"
         tabIndex={saveTabIndex}
         isLoading={isLoading}
         disabled={saveDisabled}>
@@ -77,35 +89,11 @@ const SaveCancel = props => {
       </PrimaryButton>
     );
 
-  return (
-    <div className={classNames('fc-save-cancel', className)}>
-      {cancelControl}
-      {saveControl}
-    </div>
-  );
+    return (
+      <div className={classNames('fc-save-cancel', className)}>
+        {cancelControl}
+        {saveControl}
+      </div>
+    );
+  }
 };
-
-SaveCancel.propTypes = {
-  id: PropTypes.string,
-  className: PropTypes.string,
-  cancelTabIndex: PropTypes.string,
-  cancelTo: PropTypes.string,
-  cancelParams: PropTypes.object,
-  onCancel: PropTypes.func,
-  saveTabIndex: PropTypes.string,
-  cancelText: PropTypes.string,
-  cancelDisabled: PropTypes.bool,
-  onSave: PropTypes.func,
-  saveText: PropTypes.string,
-  saveDisabled: PropTypes.bool,
-  isLoading: PropTypes.bool,
-};
-
-SaveCancel.defaultProps = {
-  cancelTabIndex: '0',
-  cancelText: 'Cancel',
-  saveTabIndex: '1',
-  saveText: 'Save',
-};
-
-export default SaveCancel;

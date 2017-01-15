@@ -2,48 +2,37 @@
 
 - name: Copy Mesos Master Run Script
   template: src=run_mesos_master.sh dest=/usr/local/bin/run_mesos_master.sh mode="u+x,g+x,o+x"
-  
 
 - name: Get Marathon
-  get_url: url=http://downloads.mesosphere.com/marathon/v1.1.1/marathon-1.1.1.tgz dest=/usr/local/
-  
+  get_url: url={{marathon_download_url}} dest=/usr/local/
 
 - name: Unarchive Marathon
-  unarchive: src=/usr/local/marathon-1.1.1.tgz dest=/usr/local/ copy=no
-  
+  unarchive: src="/usr/local/{{marathon_filename}}" dest=/usr/local/ copy=no
 
 - name: Install Mesos Master Service Entry
-  
   template:
     src: mesos_master.service
     dest: "{{dest_services}}/mesos_master.service"
 
 - name: Install Marathon Service Entry
-  
   template:
     src: marathon.service
     dest: "{{dest_services}}/marathon.service"
 
 - name: Reload Systemd for Mesos Master
-  
   command: systemctl daemon-reload
 
 - name: Restart Mesos Master
   service: name=mesos_master state=restarted enabled=true
-  
 
 - name: Restart Marathon
   service: name=marathon state=restarted enabled=true
-  
 
 - name: Copy Mesos Healthcheck script
   copy: src=mesos_master_check.sh dest=/usr/local/bin/mesos_master_check.sh mode="u=rwx,g=rwx,o=rx"
-  
 
 - name: Copy Consul Mesos Master Service File
   template: src=mesos_master.json dest="/etc/consul.d/mesos_master.json"
-  
 
 - name: Copy Consul Marathon Service File
   template: src=marathon.json dest="/etc/consul.d/marathon.json"
-  

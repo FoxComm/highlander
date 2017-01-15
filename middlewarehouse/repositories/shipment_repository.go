@@ -13,6 +13,7 @@ const (
 )
 
 type IShipmentRepository interface {
+	WithTransaction(txn *gorm.DB) IShipmentRepository
 	GetShipmentsByOrder(orderRefNum string) ([]*models.Shipment, error)
 	GetShipmentByID(ref uint) (*models.Shipment, error)
 	CreateShipment(shipment *models.Shipment) (*models.Shipment, error)
@@ -26,6 +27,15 @@ type shipmentRepository struct {
 
 func NewShipmentRepository(db *gorm.DB) IShipmentRepository {
 	return &shipmentRepository{db}
+}
+
+// WithTransaction returns a shallow copy of repository with its db changed to txn. The provided txn must be non-nil.
+func (repository *shipmentRepository) WithTransaction(txn *gorm.DB) IShipmentRepository {
+	if txn == nil {
+		panic("nil transaction")
+	}
+
+	return NewShipmentRepository(txn)
 }
 
 func (repository *shipmentRepository) GetShipmentsByOrder(orderRefNum string) ([]*models.Shipment, error) {

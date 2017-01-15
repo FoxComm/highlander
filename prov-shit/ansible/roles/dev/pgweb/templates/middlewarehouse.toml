@@ -1,0 +1,1 @@
+url = "postgres://{{middlewarehouse_db_user}}@{{db_host}}/{{middlewarehouse_db_name}}?sslmode=disable"
