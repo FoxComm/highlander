@@ -86,13 +86,9 @@ Connect to the site through your browser.
 
 **Google Compute VM**
 
-Install the GCE vagrant provider
+Tweak Vagrant by running:
 
-    $ vagrant plugin install vagrant-google
-
-Add the following vagrant box.
-
-    $ vagrant box add gce https://github.com/mitchellh/vagrant-google/raw/master/google.box
+    $ make prepare
 
 Set the following environment variables.
 
