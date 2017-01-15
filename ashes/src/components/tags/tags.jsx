@@ -103,13 +103,16 @@ export default class Tags extends Component {
     const mainContent = _.isEmpty(tags)
       ? <div styleName="empty-text">Add a tag</div>
       : tags.map(tag => {
-        return <RoundedPill
-          closeBtnId={`${tag}-tag-close-btn`}
-          styleName="tag"
-          text={tag}
-          value={tag}
-          onClose={this.handleRemoveTag}
-          key={tag} />;
+        return (
+          <RoundedPill
+            closeBtnId={`${tag}-tag-close-btn`}
+            styleName="tag"
+            text={tag}
+            value={tag}
+            onClose={this.handleRemoveTag}
+            key={tag}
+          />
+        );
       });
 
     return (
