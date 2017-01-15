@@ -40,9 +40,7 @@ build all services.
 
 **Step 1: Build the VM**
 
-```
-$ vagrant up build
-```
+    $ vagrant up build
 
 **Step 2: Build the Services**
 
@@ -56,7 +54,7 @@ Navigate to the source directory
 
 Start all of the build scripts
 
-    $ make build
+    $ make -f Makefile.ci build
 
 Grab a cup of coffee... this will take a while.
 
