@@ -24,6 +24,6 @@ Current choices for `<step>` are
 - checkout
 
 ### date ranges
-To get restrict the date range use query params `to` and `from` with dates in unix time format.
+To restrict the date range use query params `to` and `from` with dates in unix time format.
 
 ```GET /api/v1/stats/productFunnel/1?from=1484315402&to=1484315462```
