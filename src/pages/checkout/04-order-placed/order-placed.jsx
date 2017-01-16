@@ -71,6 +71,7 @@ class OrderPlaced extends Component {
         styleName="summary"
         { ...order }
         skus={order.lineItems.skus}
+        orderPlaced
       />
     );
   }

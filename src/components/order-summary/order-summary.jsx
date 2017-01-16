@@ -6,6 +6,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import classNames from 'classnames/dedupe';
+import formatCurrency from 'lib/format-currency';
 
 // localization
 import localized from 'lib/i18n';
@@ -36,6 +37,7 @@ type Props = {
   className?: string,
   embedded?: boolean,
   totalTitle?: string,
+  orderPlaced?: boolean,
 };
 
 type State = {
@@ -98,6 +100,30 @@ class OrderSummary extends Component {
     });
   }
 
+  getOrderPlacedTrackingCode(grandTotal) {
+    if (grandTotal <= 0 || !this.props.orderPlaced) {
+      return null;
+    }
+
+    const value = formatCurrency(grandTotal);
+    const url =
+      `//www.googleadservices.com/pagead/conversion/868108231/` +
+      `?label=AkdhCPzhm20Qx4_5nQM&` +
+      `currency_code=USD&` +
+      `value=${value}&` +
+      `guid=ON&script=0`;
+
+    return (
+        <img
+          width="1"
+          height="1"
+          style={{ borderStyle: 'none' }}
+          alt=""
+          src={url}
+        />
+    );
+  }
+
   render() {
     const props = this.props;
     const { t } = props;
@@ -129,6 +155,7 @@ class OrderSummary extends Component {
 
     return (
       <section styleName="order-summary" className={style}>
+        {this.getOrderPlacedTrackingCode(grandTotalResult)}
         { this.props.header !== void 0 ? this.props.header : header }
 
         <div styleName="content">
