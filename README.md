@@ -90,15 +90,21 @@ Connect to the site through your browser.
 
 3. Run `.env.local` generator, required for Vagrant. You'll be prompted for you corporate e-mail and SSH/JSON key locations.
 
+    ```
     $ make dotenv
+    ```
 
 4. Pre-configure Vagrant by running:
 
+    ```
     $ make prepare
+    ```
 
 5. You're ready to spin up the machine! Do it by running:
 
+    ```
     $ make up
+    ```
 
 Test machines are created without a public facing IP address, so you'll need to use the VPN to access it.
 
