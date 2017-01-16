@@ -7,7 +7,7 @@ prepare:
 	vagrant box add --force gce https://github.com/mitchellh/vagrant-google/raw/master/google.box
 
 dotenv:
-	cd prov-shit && ansible-playbook -v --inventory-file=bin/envs/dev ansible/goldrush_env_local.yml
+	cd prov-shit && ansible-playbook --inventory-file=bin/envs/dev ansible/goldrush_env_local.yml
 
 up:
 	$(call header, Creating GCE Machine)
