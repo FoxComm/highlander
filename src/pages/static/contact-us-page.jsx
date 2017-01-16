@@ -56,14 +56,29 @@ class ContactUsPage extends Component {
         name, email, phone, subject, text,
       })
       .then(() => {
-        this.setState({ sent: true });
+        this.setState({ sent: true, sending: false });
       })
       .catch(error => {
-        this.setState({ error });
-      })
-      .then(() => {
-        this.setState({ sending: false });
+        this.setState({ error, sending: false });
       });
+  }
+
+  get errorAlert() {
+    return this.state.error ?
+      <div styleName="error">
+        <ErrorAlerts error={this.state.error} />
+      </div> : null;
+  }
+
+  get loader() {
+    return this.state.sending ? <Loader size="m" /> : null;
+  }
+
+  get submitButton() {
+    return !this.state.sending ?
+      <Button styleName="submit-btn" type="submit">
+        Submit
+      </Button> : null;
   }
 
   renderForm() {
@@ -73,8 +88,6 @@ class ContactUsPage extends Component {
       phone = '',
       subject = '',
       text = '',
-      error,
-      sending,
     } = this.state;
 
     return (
@@ -126,19 +139,9 @@ class ContactUsPage extends Component {
               value={text}
             />
           </FormField>
-
-          {error &&
-            <div styleName="error">
-              <ErrorAlerts error={error} />
-            </div>}
-
-          {sending &&
-            <Loader size="m" />}
-
-          {!sending &&
-            <Button styleName="submit-btn" type="submit">
-              Submit
-            </Button>}
+          {this.errorAlert}
+          {this.loader}
+          {this.submitButton}
         </Form>
       </div>
     );
