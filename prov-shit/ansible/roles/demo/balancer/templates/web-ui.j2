@@ -21,9 +21,8 @@ server {
   }
   {% if storefront_fixed_language %}set $accept_language {{storefront_default_language}};{% endif %}
 
-  include /etc/nginx/service_locations.conf;
 
-  location /raw {
+  location / {
       proxy_pass http://storefront/;
   }
 
@@ -31,10 +30,7 @@ server {
 	proxy_pass http://storefront;
   }
 
-  location / {
-      proxy_pass http://river-rock/proxy/;
-      break;
-  }
+  include /etc/nginx/service_locations.conf;
 }
 
 server {

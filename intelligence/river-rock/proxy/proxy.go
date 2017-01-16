@@ -76,7 +76,9 @@ func (p *RiverRock) StartProxy() error {
 		req := c.Request()
 		res := c.Response()
 
+		//strip out /proxy
 		path := req.URL.Path[6:]
+		reqUri := req.RequestURI[6:]
 
 		//Get pinned cluster Id from header
 		clusterId, err := getClusterIdFromHeader(req)
@@ -90,7 +92,7 @@ func (p *RiverRock) StartProxy() error {
 
 		//If we have a cluster id, get the set of mapped resources
 		if clusterId != -1 && err == nil {
-			mappedResources, err = selector.GetMappedResources(clusterId, path)
+			mappedResources, err = selector.GetMappedResources(clusterId, reqUri)
 		}
 
 		proxy := httputil.NewSingleHostReverseProxy(p.Upstream)
@@ -104,21 +106,25 @@ func (p *RiverRock) StartProxy() error {
 		//proxy original resource via the upstream server
 		//otherwise we will select a resource from the set and proxy that back
 		//to the client.
+
 		if err != nil {
 			log.Print(err)
-			log.Print("PASS: " + path + " => " + p.Config.UpstreamUrl + path)
+			log.Print("PASS: " + reqUri + " => " + p.Config.UpstreamUrl + reqUri)
 
 			req.URL.Path = path
+			req.RequestURI = req.URL.RequestURI()
 			proxy.ServeHTTP(res, req)
 		} else {
 			ref, err := selector.SelectResource(clusterId, mappedResources)
 			if err != nil {
 				log.Print(err)
+				req.URL.Path = path
 			} else {
 				req.URL.Path = ref
 			}
 
-			log.Print("MAP: " + path + " => " + p.Config.UpstreamUrl + ref)
+			log.Print("MAP: " + reqUri + " => " + p.Config.UpstreamUrl + ref)
+			req.RequestURI = req.URL.RequestURI()
 			proxy.ServeHTTP(res, req)
 		}
 
