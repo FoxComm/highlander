@@ -6,19 +6,20 @@ Highlander is the brand-spanking-new FoxCommerce mono-repo.
 
 ## The Projects
 
-| Project                            | Description                                                                                                  |
-|:-----------------------------------|:-------------------------------------------------------------------------------------------------------------|
-| [phoenix-scala](phoenix-scala)     | Our main API that handles the business logic for the customer, merchandising, and order management systems.  |
-| [green-river](green-river)         | An event-sourcing system based on Kafka and [bottledwater](https://github.com/confluentinc/bottledwater-pg). |
-| [middlewarehouse](middlewarehouse) | A lightweight and fast shipping and inventory management service written in Go.                              |
-| [isaac](isaac)                     | Our C++ authentication service.                                                                              |
-| [solomon](solomon)                 | A microservice that handles scopes, claims, roles and permissions, written in Elixir.                        |
-| [messaging](messaging)             | Kafka consumer that handles e-mail notifications through Mailchimp, written in Clojure.                      |
-| [ashes](ashes)                     | The Admin UI, written in React.js.                                                                           |
-| [api-js](api-js)                   | A JavaScript library for interacting with the FoxCommerce API.                                               |
-| [firebrand](firebrand)             | A demo storefront used to show off the capabilities of FoxCommerce APIs.                                     |
-| [prov-shit](prov-shit)             | All of our DevOps tools for deploying the application to both development and production.                    |
-| [api-docs](api-docs)               | Our API documentation in API Blueprint format and Postman query collections.                                 |
+| Project                              | Description                                                                                                  |
+|:-------------------------------------|:-------------------------------------------------------------------------------------------------------------|
+| [phoenix-scala](phoenix-scala)       | Our main API that handles the business logic for the customer, merchandising, and order management systems.  |
+| [green-river](green-river)           | An event-sourcing system based on Kafka and [bottledwater](https://github.com/confluentinc/bottledwater-pg). |
+| [middlewarehouse](middlewarehouse)   | A lightweight and fast shipping and inventory management service written in Go.                              |
+| [isaac](isaac)                       | Our C++ authentication service.                                                                              |
+| [solomon](solomon)                   | A microservice that handles scopes, claims, roles and permissions, written in Elixir.                        |
+| [messaging](messaging)               | Kafka consumer that handles e-mail notifications through Mailchimp, written in Clojure.                      |
+| [ashes](ashes)                       | The Admin UI, written in React.js.                                                                           |
+| [api-js](api-js)                     | A JavaScript library for interacting with the FoxCommerce API.                                               |
+| [firebrand](firebrand)               | A demo storefront used to show off the capabilities of FoxCommerce APIs.                                     |
+| [prov-shit](prov-shit)               | All of our DevOps tools for deploying the application to both development and production.                    |
+| [api-docs](api-docs)                 | Our API documentation in API Blueprint format and Postman query collections.                                 |
+| [enginnering-wiki](enginnering-wiki) | Internal design documents, guidelines and other tips in Markdown format.                                     |
 
 ## Development Environment
 
@@ -32,57 +33,7 @@ has a lot to do!
 - Install [Vagrant](https://www.vagrantup.com)
 - Install [Ansible 2.2.x](http://docs.ansible.com/ansible/intro_installation.html#installation)
 
-### Build the Application
-
-The easiest way to get the entire application built is to use the Vagrant Build
-environment. This will launch a VM that contains all the dependencies needed to
-build all services.
-
-**Step 1: Build the VM**
-
-    $ vagrant up build
-
-**Step 2: Build the Services**
-
-SSH into the build VM
-
-    $ vagrant ssh build
-
-Navigate to the source directory
-
-    $ cd /vagrant
-
-Start all of the build scripts
-
-    $ make -f Makefile.ci build
-
-Grab a cup of coffee... this will take a while.
-
-When everything is completed, all executables needed to build a development VM
-will have been created. You can exit the VM.
-
-### Launch a VM
-
-The appliance VM (a single VM containing all services) can be run either on your
-local environment through VirtualBox or VMWare Fusion, or in the cloud through
-Google Compute Engine. If you have sufficient hardware resources, a local VM
-will give you the most flexibility and performance. Currently, the VM is
-configured to use 8 GB of memory and 4 vCPUs, so it’s not worth trying unless
-you have 12+ GB of RAM.
-
-#### Local VM
-
-Provision a VM
-
-    $ vagrant up
-
-Set your hosts file so that you can access the site by adding the following to `/etc/hosts`
-
-    192.168.10.111 local.foxcommerce.com
-
-Connect to the site through your browser.
-
-#### Google Compute VM
+### Google Compute VM
 
 1. [Generate your SSH key for GCE](https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/) and put the public key to [project metadata](https://console.cloud.google.com/compute/metadata/sshKeys?project=foxcomm-staging).
 
@@ -115,12 +66,6 @@ Get the private IP address
 
 Edit your hosts file so that `local.foxcommerce.com` points to the new box using the private IP address you just retrieved.
 
-### Git hooks
+### Local VM
 
-During development, you might also want to use our Git hooks:
-
-    $ cd highlander/
-    $ cd .git ; rm -r hooks ; ln -s ../git-hooks hooks
-
-Currently, there’s only one that by default adds `[skip ci]` to preformatted commit messages. This means it will only be added if you edit your commit messages with an external editor, `git commit -m <msg>` won’t be affected.  If you’re finishing your work on some branch and want to build it, simply remove the line.
-
+There is another option to run development environment in a local VM. Please refer to related [wiki page](engineering-wiki/development/Local-VM-DevEnv.md) for more information.
