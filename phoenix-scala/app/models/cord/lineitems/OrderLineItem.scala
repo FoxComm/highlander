@@ -1,9 +1,9 @@
 package models.cord.lineitems
 
-import cats.data.{ValidatedNel, Xor}
+import cats.data.Xor
 import cats.implicits._
 import com.pellucid.sealerate
-import failures.{Failure, Failures}
+import failures.Failures
 import models.cord.lineitems.{OrderLineItem ⇒ OLI}
 import models.inventory.{Sku, Skus}
 import models.objects._
@@ -12,7 +12,6 @@ import org.json4s.Formats
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
-import utils.Validation._
 import utils._
 import utils.aliases._
 import utils.db.ExPostgresDriver.api._
@@ -30,6 +29,14 @@ trait LineItemProductData[LI] {
   def lineItemReferenceNumber: String
   def lineItemState: OrderLineItem.State
   def withLineItemReferenceNumber(newLineItemRef: String): LineItemProductData[LI]
+
+  def isEligibleForDiscount: Boolean = !isGiftCard
+
+  def isGiftCard: Boolean =
+    (for {
+      attrs ← attributes
+      _     ← attrs.giftCard
+    } yield {}).isDefined
 }
 
 case class OrderLineItemProductData(sku: Sku,

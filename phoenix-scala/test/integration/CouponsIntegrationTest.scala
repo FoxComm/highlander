@@ -94,27 +94,31 @@ class CouponsIntegrationTest
         response.coupon.value.code must === (couponCode)
         response.promotion mustBe 'defined
       }
-    }
 
-    "ignores purchased gift cards" - {
-      // coupon must fail to be applied to the cart because gc cost should be excluded from qualifier validation
+      "and excludes gift card cost from the applied discount" - {
+        // discount must be 10% off regular line item cost, not regular + gift card cost
 
-      "for cart total qualifier" in new Coupon_TotalQualifier_PercentOff
-      with GiftCardLineItemFixture {
-        override def qualifiedSubtotal: Int = 4000
+        "for cart total qualifier" in new Coupon_TotalQualifier_PercentOff
+        with RegularAndGiftCardLineItemFixture {
+          override def qualifiedSubtotal: Int = 2000
 
-        private val message = "qualifier orderTotalAmountQualifier rejected order with refNum=BR10001, " +
-            "reason: Order subtotal is less than 4000"
-        cartsApi(cartRef).coupon.add(couponCode).mustFailWithMessage(message)
-      }
+          cartsApi(cartRef).coupon
+            .add(couponCode)
+            .asTheResult[CartResponse]
+            .totals
+            .adjustments must === (300)
+        }
 
-      "for items total qualifier" in new Coupon_NumItemsQualifier_PercentOff
-      with GiftCardLineItemFixture {
-        override def qualifiedNumItems: Int = 2
+        "for items number qualifier" in new Coupon_NumItemsQualifier_PercentOff
+        with RegularAndGiftCardLineItemFixture {
+          override def qualifiedNumItems: Int = 1
 
-        private val message = "qualifier orderNumUnitsQualifier rejected order with refNum=BR10001, " +
-            "reason: Order unit count is less than 2"
-        cartsApi(cartRef).coupon.add(couponCode).mustFailWithMessage(message)
+          cartsApi(cartRef).coupon
+            .add(couponCode)
+            .asTheResult[CartResponse]
+            .totals
+            .adjustments must === (300)
+        }
       }
     }
 
@@ -142,6 +146,39 @@ class CouponsIntegrationTest
 
         POST(s"v1/orders/$cartRef/coupon/$couponCode").mustFailWith400(OrderAlreadyPlaced(cartRef))
       }
+
+      "because purchased gift card is excluded from qualifier judgement" - {
+
+        "for `carts any` qualifier (cart only has gift card line items)" in new Coupon_AnyQualifier_PercentOff {
+          private val skuCode = new ProductSku_ApiFixture {}.skuCode
+          private val cartRef = api_newGuestCart().referenceNumber
+
+          cartsApi(cartRef).lineItems
+            .add(Seq(UpdateLineItemsPayload(skuCode, 2, giftCardLineItemAttributes)))
+
+          private val message = "qualifier orderAnyQualifier rejected order with refNum=BR10001, " +
+              "reason: Items in cart are not eligible for discount"
+          cartsApi(cartRef).coupon.add(couponCode).mustFailWithMessage(message)
+        }
+
+        "for `cart total` qualifier" in new Coupon_TotalQualifier_PercentOff
+        with RegularAndGiftCardLineItemFixture {
+          override def qualifiedSubtotal: Int = 4000
+
+          private val message = "qualifier orderTotalAmountQualifier rejected order with refNum=BR10001, " +
+              "reason: Order subtotal is less than 4000"
+          cartsApi(cartRef).coupon.add(couponCode).mustFailWithMessage(message)
+        }
+
+        "for `items number` qualifier" in new Coupon_NumItemsQualifier_PercentOff
+        with RegularAndGiftCardLineItemFixture {
+          override def qualifiedNumItems: Int = 2
+
+          private val message = "qualifier orderNumUnitsQualifier rejected order with refNum=BR10001, " +
+              "reason: Order unit count is less than 2"
+          cartsApi(cartRef).coupon.add(couponCode).mustFailWithMessage(message)
+        }
+      }
     }
   }
 
@@ -167,7 +204,7 @@ class CouponsIntegrationTest
     }
   }
 
-  trait GiftCardLineItemFixture extends StoreAdmin_Seed {
+  trait RegularAndGiftCardLineItemFixture extends StoreAdmin_Seed {
     val cartRef = api_newGuestCart().referenceNumber
 
     private val skuCode   = new ProductSku_ApiFixture { override def skuPrice = 3000 }.skuCode
