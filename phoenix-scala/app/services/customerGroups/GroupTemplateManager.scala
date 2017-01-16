@@ -14,5 +14,4 @@ object GroupTemplateManager {
       usedTemplates ← * <~ GroupTemplateInstances.findByScope(scope).map(_.groupTemplateId).result
       templates     ← * <~ CustomerGroupTemplates.result
     } yield templates.filter(t ⇒ !usedTemplates.contains(t.id))
-
 }
