@@ -284,11 +284,15 @@ export default class Analytics extends React.Component {
 
   @autobind
   onQuestionBoxSelect(question) {
-    console.log(`Chosen Question => ${question}`);
+    this.setState({question: question});
   }
 
   get dateDisplay() {
     return this.state.dateDisplay;
+  }
+
+  get question() {
+    return this.state.question;
   }
 
   get filterHeaders() {
@@ -318,6 +322,7 @@ export default class Analytics extends React.Component {
           <QuestionBoxList
             onSelect={this.onQuestionBoxSelect}
             items={questions}
+            activeQuestion={this.question}
           />
         </div>
       </div>
