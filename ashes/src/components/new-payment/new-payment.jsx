@@ -90,6 +90,7 @@ class NewPayment extends Component {
             labelClassName="fc-new-order-payment__payment-type-label"
             label="Payment Type">
             <Dropdown
+              id="payment-type-dd"
               name="paymentType"
               value={this.state.paymentType}
               onChange={this.changePaymentType}
