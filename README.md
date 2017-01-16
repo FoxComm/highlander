@@ -40,9 +40,7 @@ build all services.
 
 **Step 1: Build the VM**
 
-```
-$ vagrant up build
-```
+    $ vagrant up build
 
 **Step 2: Build the Services**
 
@@ -56,7 +54,7 @@ Navigate to the source directory
 
 Start all of the build scripts
 
-    $ make build
+    $ make -f Makefile.ci build
 
 Grab a cup of coffee... this will take a while.
 
@@ -86,13 +84,9 @@ Connect to the site through your browser.
 
 **Google Compute VM**
 
-Install the GCE vagrant provider
+Tweak Vagrant by running:
 
-    $ vagrant plugin install vagrant-google
-
-Add the following vagrant box.
-
-    $ vagrant box add gce https://github.com/mitchellh/vagrant-google/raw/master/google.box
+    $ make prepare
 
 Set the following environment variables.
 
