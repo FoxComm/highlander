@@ -15,7 +15,7 @@ type Props = {
   status: string,
   toggleMenuItem: Function,
   claims: Claims,
-  id: string,
+  id?: string,
 };
 
 const giftCardClaims = readAction(frn.mkt.giftCard);

@@ -11,7 +11,6 @@ import { IndexLink, Link } from 'components/link';
 import type { Claims } from 'lib/claims';
 
 type Props = {
-  id: string,
   claims: Claims,
   routes: Array<Object>,
   collapsed: boolean,

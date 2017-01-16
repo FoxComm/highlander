@@ -9,7 +9,6 @@ import { Button } from '../common/buttons';
 import ArchiveConfirmation from './archive-confirmation';
 
 type Props = {
-  id: string,
   title: string,
   type: string,
   archive: Function,
