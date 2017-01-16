@@ -8,5 +8,6 @@ object CustomerGroupPayloads {
                                          name: String,
                                          clientState: Json,
                                          elasticRequest: Json,
-                                         customersCount: Option[Int])
+                                         customersCount: Option[Int],
+                                         templateId: Option[Int] = None)
 }
