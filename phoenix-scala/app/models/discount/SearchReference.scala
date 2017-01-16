@@ -69,10 +69,10 @@ case class ProductSearch(productSearchId: Int) extends SearchBuckets {
     input.lineItems.map(_.productForm.id.toString)
 }
 
-case class ProductVariantSearch(productVariantSearchId: Int) extends SearchBuckets {
-  val searchId: Int                   = productVariantSearchId
-  val searchView: SearchViewReference = productVariantSearchView
-  val fieldName: String               = productVariantSearchField
+case class ProductVariantSearch(productVariantsSearchId: Int) extends SearchBuckets {
+  val searchId: Int                   = productVariantsSearchId
+  val searchView: SearchViewReference = productVariantsSearchView
+  val fieldName: String               = productVariantsSearchField
 
   def references(input: DiscountInput): Seq[String] = input.lineItems.map(_.productVariant.code)
 }
@@ -82,12 +82,12 @@ object SearchReference {
     SearchViewReference("customers_search_view", scoped = false)
   def productsSearchView: SearchViewReference =
     SearchViewReference("products_search_view", scoped = true)
-  def productVariantSearchView: SearchViewReference =
-    SearchViewReference("product_variant_search_view", scoped = true)
+  def productVariantsSearchView: SearchViewReference =
+    SearchViewReference("product_variants_search_view", scoped = true)
 
-  def customersSearchField: String      = "id"
-  def productsSearchField: String       = "productId"
-  def productVariantSearchField: String = "code"
+  def customersSearchField: String       = "id"
+  def productsSearchField: String        = "productId"
+  def productVariantsSearchField: String = "code"
 
   def pureMetrics: Result[Long]    = Future.successful(Xor.Right(0))
   def pureBuckets: Result[Buckets] = Future.successful(Xor.Right(List.empty))

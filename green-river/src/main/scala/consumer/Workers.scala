@@ -178,7 +178,7 @@ object Workers {
       "coupons_search_view"                → CouponsSearchView(),
       "coupon_codes_search_view"           → CouponCodesSearchView(),
       "regions"                            → RegionsSearchView(),
-      "product_variant_search_view"        → ProductVariantSearchView(),
+      "product_variants_search_view"       → ProductVariantsSearchView(),
       "gift_card_transactions_view"        → GiftCardTransactionsSearchView(),
       "gift_cards_search_view"             → GiftCardsSearchView(),
       "store_admins_search_view"           → StoreAdminsSearchView(),

@@ -7,7 +7,7 @@ DESTINATION_URL=http://localhost:9200
 INDEX_NAME=phoenix
 TYPE_NAMES=(
 	"products_search_view"
-	"product_variant_search_view"
+	"product_variants_search_view"
 )
 BACKUP_DIR=$PWD/backup
 DUMP_FILENAME=data.json
