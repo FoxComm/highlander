@@ -1,0 +1,23 @@
+---
+
+- name: Provision Packer Tinyprod Frontend
+  hosts: all
+  become: true
+  tags:
+      - packer-tinyprod-frontend
+  vars:
+    user: ubuntu
+    packing: true
+  post_tasks:
+    - name: Sweet Dreams
+      pause: seconds=5
+
+  roles:
+    - { role: base/ssh_keys }
+    - { role: base/scala }
+    - { role: base/mesos_worker }
+    - { role: base/rsyslog }
+    - { role: base/balancer }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml
