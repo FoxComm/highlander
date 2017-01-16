@@ -2,11 +2,9 @@
 
 - name: Get Latest Phoenix Image
   shell: docker pull {{docker_registry}}:5000/phoenix:{{docker_branch}}
-  
 
 - name: Seed Phoenix Database
   shell: docker run --network host -t {{docker_registry}}:5000/phoenix:{{docker_branch}} java -Dphoenix.env={{phoenix_env}} -Ddb.host={{db_host}} -Ddb.url=jdbc:postgresql://{{db_host}}/{{db_name}}?user={{db_user}} -Ddb.name={{db_name}} -cp {{phoenix_jar}} {{seeds_cmd}}
-  
   when: with_base_seeds is defined and with_base_seeds
 
 - name: Wait for Phoenix to become available
@@ -14,12 +12,10 @@
 
 - name: Gatling Seed Db
   shell: docker run --network host -t {{docker_registry}}:5000/phoenix:{{docker_branch}} java -Dphoenix.env={{phoenix_env}} -Dapp.baseUrl=http://{{phoenix_server}} -Dhttp.interface={{phoenix_host}} -Ddb.host={{db_host}} -Ddb.url=jdbc:postgresql://{{db_host}}/{{db_name}}?user={{db_user}} -Ddb.name={{db_name}} -cp {{phoenix_jar}} {{gatling_oneshot_seeds_cmd}}
-  
   when: with_gatling_seeder
 
 - name: Copy Service
   template: src=seeder.service dest="{{dest_services}}/seeder.service"
-  
   when: with_seeder
 
 - name: Reload Systemd for Seeder
@@ -29,21 +25,16 @@
 
 - name: Restart Seeder
   service: name=seeder state=restarted enabled=yes
-  
   when: with_seeder
 
 - name: Create Middlewarehouse Seeder directory
   file: path={{middlewarehouse_dir}}/seeder state=directory
-  
 
 - name: Copy Middlewarehouse Seeder .env
   template: src=middlewarehouse.env dest={{middlewarehouse_dir}}/seeder/.env
-  
 
 - name: Get Latest Middlewarehouse Image
   shell: docker pull {{docker_registry}}:5000/middlewarehouse-seeder:{{docker_branch}}
-  
 
 - name: Run Middlewarehouse Seeder docker container
   command: docker run --env-file "{{middlewarehouse_dir}}/seeder/.env" --network host {{docker_registry}}:5000/middlewarehouse-seeder:{{docker_branch}}
-  

@@ -13,7 +13,8 @@
     "DB_PASSWORD": "",
     "PRIVATE_KEY": "{{private_keys_dest_dir}}/private_key.pem",
     "PUBLIC_KEY": "{{public_keys_dest_dir}}/public_key.pem",
-    "TOKEN_TTL": "{{solomon_token_ttl}}"
+    "TOKEN_TTL": "{{solomon_token_ttl}}",
+    "SOLOMON_SECRET": "{{solomon_secret_token}}"
   },
   "ports": [{{solomon_port}}],
   "constraints": [["hostname", "UNIQUE"]],
@@ -21,14 +22,14 @@
     "type": "DOCKER",
     "volumes": [
       {
-        "containerPath": "{{private_keys_dest_dir}}",
-        "hostPath": "{{private_keys_dest_dir}}",
-        "mode": "RO"
-      },
-      {
         "containerPath": "{{public_keys_dest_dir}}",
         "hostPath": "{{public_keys_dest_dir}}",
         "mode": "RO"
+      },
+      {
+        "containerPath": "{{docker_logs_dir}}",
+        "hostPath": "{{docker_logs_host_dir}}",
+        "mode": "RW"
       }
     ],
     "docker": {

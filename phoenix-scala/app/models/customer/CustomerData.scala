@@ -22,7 +22,7 @@ case class CustomerData(id: Int = 0,
                         accountId: Int,
                         isGuest: Boolean = false,
                         createdAt: Instant = Instant.now,
-                        udpatedAt: Instant = Instant.now,
+                        updatedAt: Instant = Instant.now,
                         deletedAt: Option[Instant] = None)
     extends FoxModel[CustomerData]
 

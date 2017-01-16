@@ -20,7 +20,7 @@ case class OrderResponse(referenceNumber: String,
                          lineItemAdjustments: Seq[CordResponseLineItemAdjustment] = Seq.empty,
                          promotion: Option[PromotionResponse.Root] = None,
                          coupon: Option[CordResponseCouponPair] = None,
-                         totals: CordResponseTotals,
+                         totals: OrderResponseTotals,
                          customer: Option[CustomerResponse.Root] = None,
                          shippingMethod: ShippingMethodsResponse.Root,
                          shippingAddress: AddressResponse,
@@ -68,7 +68,7 @@ object OrderResponse {
           lineItemAdjustments = lineItemAdj,
           promotion = promo.map { case (promotion, _) ⇒ promotion },
           coupon = promo.map { case (_, coupon)       ⇒ coupon },
-          totals = CordResponseTotals.build(order),
+          totals = OrderResponseTotals.build(order),
           customer = for {
             c  ← customer
             cu ← customerData

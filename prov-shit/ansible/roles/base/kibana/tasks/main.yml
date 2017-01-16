@@ -6,6 +6,9 @@
 - name: Unzip Kibana
   unarchive: src={{home}}/{{kibana_archive}} dest={{home}} copy=no
 
+- name: Cleanup Kibana Working Directory
+  file: path={{kibana_dir}} state=absent
+
 - name: Make Kibana Working Directory
   file: path={{kibana_dir}} state=directory
 
@@ -19,7 +22,7 @@
   file: path={{home}}/{{kibana_archive}} state=absent
 
 - name: Copy Kibana Config
-  template: src=kibana.yml dest={{kibana_dir}}/config/kibana.yml
+  template: src=kibana.yml dest={{kibana_dir}}/config
 
 - name: Copy Kibana service
   template: src=kibana.service.j2 dest={{dest_services}}/kibana.service
@@ -31,5 +34,5 @@
   service: name=kibana state=restarted
 
 - name: Copy Consul Service File
-  template: src=kibana.json dest="/etc/consul.d/kibana.json"
+  template: src=kibana.json dest=/etc/consul.d
   notify: reload consul

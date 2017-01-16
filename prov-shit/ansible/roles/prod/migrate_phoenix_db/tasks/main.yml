@@ -25,4 +25,3 @@
 
 - name: Setup Update Materialized Views SQL
   copy: src={{role_path}}/../../dev/db/files/update_materialized_views.sql dest={{update_materialized_views_sql}}
-  
