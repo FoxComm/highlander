@@ -7,4 +7,4 @@ RUN mkdir -p /gift-card-consumer
 WORKDIR /gift-card-consumer
 COPY gift-card-consumer /gift-card-consumer
 
-CMD ["/gift-card-consumer/gift-card-consumer"] 
+CMD /gift-card-consumer/gift-card-consumer 2>&1 | tee /logs/gift-card-consumer.log

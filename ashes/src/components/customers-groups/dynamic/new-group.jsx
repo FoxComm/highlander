@@ -20,6 +20,7 @@ import Form from '../../forms/form';
 import { PrimaryButton, Button } from '../../common/buttons';
 import { Link } from '../../link';
 import { transitionTo } from 'browserHistory';
+import SaveCancel from 'components/common/save-cancel';
 
 
 const prefixed = prefix('fc-customer-group-dynamic-edit');
@@ -72,8 +73,11 @@ export default class NewDynamicGroup extends React.Component {
         <Form onSubmit={() => actions.saveGroup()}>
           <DynamicGroupEditor />
           <div className={prefixed('form-submits')}>
-            <Link to="customer-groups">Cancel</Link>
-            <PrimaryButton type="submit" disabled={!group.isValid}>Save Dynamic Group</PrimaryButton>
+            <SaveCancel
+              cancelTo="customer-groups"
+              saveText="Save Dynamic Group"
+              saveDisabled={!group.isValid}
+            />
           </div>
         </Form>
       </NewGroupBase>
