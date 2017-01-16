@@ -1,0 +1,6 @@
+---
+
+  - name: Find out playbooks path
+    shell: pwd
+    register: playbook_path_output
+  - debug: var=playbook_path_output.stdout

@@ -1,0 +1,15 @@
+---
+
+- name: .env.local generator for vagrant-google
+  hosts: localhost
+  connection: local
+  vars:
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+  vars_prompt:
+    - name: "foxcomm_client_email"
+      prompt: "Enter your FoxCommerce corporate e-mail"
+      default: "newbie@foxcommerce.com"
+      private: no
+
+  roles:
+    - { role: dev/env_local }
