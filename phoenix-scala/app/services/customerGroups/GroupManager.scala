@@ -1,10 +1,9 @@
-package services
+package services.customerGroups
 
 import models.account.{Scope, User}
 import models.customer.{CustomerDynamicGroup, CustomerDynamicGroups}
 import payloads.CustomerGroupPayloads.CustomerDynamicGroupPayload
 import responses.DynamicGroupResponse.{Root, build}
-import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
 
