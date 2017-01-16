@@ -12,6 +12,7 @@ import QuestionBox, { Props as QuestionBoxType } from './question-box';
 export type Props = {
   items: Array<QuestionBoxType>,
   onSelect?: ?Function,
+  activeQuestion?: QuestionBoxType,
 };
 
 class QuestionBoxList extends Component {
@@ -21,11 +22,15 @@ class QuestionBoxList extends Component {
   static defaultProps = {
     items: [],
     onSelect: null,
+    activeQuestion: null,
   };
 
   @autobind
   renderItems(): ?Element {
-    const { items, onSelect } = this.props;
+    const { items, onSelect, activeQuestion } = this.props;
+
+    const activeQuestionId = !_.isNull(activeQuestion)
+      ? activeQuestion.id : false;
 
     return _.map(items, (item, index) => (
       <QuestionBox
@@ -33,7 +38,7 @@ class QuestionBoxList extends Component {
         title={item.title}
         content={item.content}
         footer={item.footer}
-        isActive={item.isActive}
+        isActive={(activeQuestionId === index)}
         onClick={onSelect}
         key={`question-list-${index}`}
       />

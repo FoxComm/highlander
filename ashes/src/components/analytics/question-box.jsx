@@ -18,10 +18,6 @@ export type Props = {
   onClick?: ?Function,
 }
 
-type State = {
-  isActive: boolean,
-}
-
 class QuestionBox extends React.Component {
 
   props: Props;
@@ -31,30 +27,9 @@ class QuestionBox extends React.Component {
     onClick: null,
   };
 
-  state: State = {
-    isActive: false
-  };
-
-  componentWillMount() {
-    const { isActive } = this.props;
-
-    if (isActive) {
-      this.toggleActiveState();
-    }
-  }
-
-  @autobind
-  toggleActiveState() {
-    const { isActive } = this.state;
-    this.setState({isActive: !isActive});
-  }
-
   @autobind
   onClickHandler() {
-    const { onClick } = this.props;
-    const { isActive } = this.state;
-
-    this.toggleActiveState();
+    const { onClick, isActive } = this.props;
 
     if (!_.isNull(onClick) && !isActive) {
       return onClick(this.props);
@@ -64,11 +39,11 @@ class QuestionBox extends React.Component {
   }
 
   render() {
-    const { content, title, footer } = this.props;
-    const isActive = this.state.isActive ? 'active' : 'inactive';
+    const { content, title, footer, isActive } = this.props;
+    const isActiveStyle = isActive ? 'active' : 'inactive';
 
     return (
-      <div styleName={`question-box-container-${isActive}`} onClick={this.onClickHandler}>
+      <div styleName={`question-box-container-${isActiveStyle}`} onClick={this.onClickHandler}>
         <div styleName="question-box-title">
           {title}
         </div>
