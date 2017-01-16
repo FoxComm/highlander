@@ -70,7 +70,7 @@ will give you the most flexibility and performance. Currently, the VM is
 configured to use 8 GB of memory and 4 vCPUs, so it’s not worth trying unless
 you have 12+ GB of RAM.
 
-**Local VM**
+#### Local VM
 
 Provision a VM
 
@@ -82,7 +82,7 @@ Set your hosts file so that you can access the site by adding the following to `
 
 Connect to the site through your browser.
 
-**Google Compute VM**
+#### Google Compute VM
 
 1. [Generate your SSH key for GCE](https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/) and put the public key to [project metadata](https://console.cloud.google.com/compute/metadata/sshKeys?project=foxcomm-staging).
 
