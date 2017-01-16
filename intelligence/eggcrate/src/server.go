@@ -30,5 +30,9 @@ func main() {
 	e.GET("/productSum/checkout/:id", services.GetProductSum("checkout"))
 	e.GET("/productStats/:channel/:id", services.GetProductStats)
 	e.GET("/productFunnel/:id", services.GetProductFunnel)
+	e.GET("/productSum/list/:id", services.GetProductSum("list"))
+	e.GET("/productSum/pdp/:id", services.GetProductSum("pdp"))
+	e.GET("/productSum/cart/:id", services.GetProductSum("cart"))
+	e.GET("/productSum/checkout/:id", services.GetProductSum("checkout"))
 	e.Logger.Fatal(e.Start(PORT))
 }
