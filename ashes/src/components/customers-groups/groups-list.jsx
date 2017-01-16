@@ -2,6 +2,7 @@
 
 // libs
 import React, { Component } from 'react';
+import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
 import { actions } from 'modules/customer-groups/list';
@@ -12,6 +13,7 @@ import MultiSelectRow from '../table/multi-select-row';
 
 type Props = {
   list: Object;
+  actions: Object;
 }
 
 const tableColumns = [
@@ -34,7 +36,7 @@ function renderRow(row, index, columns, params) {
   );
 }
 
-const GroupsList = ({ list }: Props) => (
+const GroupsList = ({ list, actions }: Props) => (
   <SelectableSearchList
     entity="customerGroups.list"
     emptyMessage="No groups found."
@@ -46,8 +48,12 @@ const GroupsList = ({ list }: Props) => (
   />
 );
 
-const mapStateToProps = state => ({
+const mapState = state => ({
   list: state.customerGroups.list,
 });
 
-export default connect(mapStateToProps, actions)(GroupsList);
+const mapActions = dispatch => ({
+  actions: bindActionCreators(actions, dispatch),
+});
+
+export default connect(mapState, mapActions)(GroupsList);

@@ -5,7 +5,9 @@ const { reducer, actions } = makeLiveSearch(
   [],
   'customer_groups_search_view/_search',
   'customerGroupsScope',
-  {}
+  {
+    initialState: { sortBy: '-createdAt' },
+  }
 );
 
 export {
