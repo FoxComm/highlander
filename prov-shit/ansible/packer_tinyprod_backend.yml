@@ -25,7 +25,7 @@
     - { role: base/db }
     - { role: base/bottledwater }
     - { role: base/rsyslog }
-    - { role: dev/pgweb }
+    - { role: base/pgweb }
 
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml
