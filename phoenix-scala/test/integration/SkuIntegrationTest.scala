@@ -171,7 +171,6 @@ class SkuIntegrationTest
                    shadowId = skuShadow.id,
                    commitId = skuCommit.id))
     } yield (sku, skuForm, skuShadow)).gimme
-
   }
 
   trait FixtureWithProduct extends Fixture {

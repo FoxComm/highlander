@@ -40,13 +40,12 @@ object CartFailures {
         s"associated product"
   }
 
-  case class InactiveProductInCart(id: Int) extends Failure {
+  case class LineItemHasInactiveProduct(productName: Option[String], sku: String) extends Failure {
     override def description: String =
-      s"Product with id='$id' is no longer available and should be removed from cart"
-  }
-
-  case class InactiveSkuInCart(code: String) extends Failure {
-    override def description: String =
-      s"Product with sku '$code' is no longer available and should be removed from cart"
+      productName match {
+        case Some(name) ⇒
+          s"Item '$name' (SKU '$sku') is no longer available and should be removed from cart"
+        case None ⇒ s"Item with SKU '$sku' is no longer available and should be removed from cart"
+      }
   }
 }

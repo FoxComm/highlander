@@ -94,15 +94,17 @@ class CartValidatorTest
 
           val result = CartValidator(refresh(cart)).validate().gimme
 
-          result.warnings.value.toList must contain(InactiveSkuInCart(sku.code))
+          result.warnings.value.toList must contain(
+              LineItemHasInactiveProduct(Mvp.title(productForm, productShadow), sku.code))
         }
 
         "archived sku" in new LineItemsFixture {
-          skusApi(sku.code).archive()
+          Skus.update(sku, sku.copy(archivedAt = Some(Instant.now))).gimme
 
           val result = CartValidator(refresh(cart)).validate().gimme
 
-          result.warnings.value.toList must contain(InactiveSkuInCart(sku.code))
+          result.warnings.value.toList must contain(
+              LineItemHasInactiveProduct(Mvp.title(productForm, productShadow), sku.code))
         }
 
         "inactive product" in new LineItemsFixture {
@@ -123,7 +125,8 @@ class CartValidatorTest
 
           val result = CartValidator(refresh(cart)).validate().gimme
 
-          result.warnings.value.toList must contain(InactiveProductInCart(product.formId))
+          result.warnings.value.toList must contain(
+              LineItemHasInactiveProduct(Mvp.title(productForm, productShadow), sku.code))
         }
 
         "archived product" in new LineItemsFixture {
@@ -131,7 +134,8 @@ class CartValidatorTest
 
           val result = CartValidator(refresh(cart)).validate().gimme
 
-          result.warnings.value.toList must contain(InactiveProductInCart(product.formId))
+          result.warnings.value.toList must contain(
+              LineItemHasInactiveProduct(Mvp.title(productForm, productShadow), sku.code))
         }
       }
     }
