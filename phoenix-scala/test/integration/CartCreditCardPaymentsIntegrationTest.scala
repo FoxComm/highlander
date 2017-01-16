@@ -107,7 +107,9 @@ class CartCreditCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestB
                          Factories.customer.copy(accountId = otherAccount.id,
                                                  email = Some("other.customer@email.com")))
       _ ← * <~ CustomersData.create(
-             CustomerData(userId = otherCustomer.id, accountId = otherAccount.id))
+             CustomerData(userId = otherCustomer.id,
+                          accountId = otherAccount.id,
+                          scope = Scope.current))
       otherCC ← * <~ CreditCards.create(Factories.creditCard.copy(accountId = otherAccount.id))
     } yield (cc, otherCC)).gimme
   }

@@ -5,7 +5,7 @@ import scala.util.control.NonFatal
 import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.{Directives, ExceptionHandler, RejectionHandler}
+import akka.http.scaladsl.server._
 import akka.stream.scaladsl.Flow
 import akka.util.ByteString
 
@@ -29,6 +29,9 @@ object CustomHandlers {
     RejectionHandler
       .newBuilder()
       .handle {
+        case _ @MalformedRequestContentRejection(_, FoxValidationException(failures)) ⇒
+          complete(Http.renderFailure(failures))
+
         case rejection if defaultRejectionHandler(immutable.Seq(rejection)).isDefined ⇒
           mapResponseEntity { entity ⇒
             entity.withContentType(ContentTypes.`application/json`).transformDataBytes {

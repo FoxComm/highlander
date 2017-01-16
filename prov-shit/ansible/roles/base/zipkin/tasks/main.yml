@@ -2,20 +2,15 @@
 
 - name: Download Zipkin
   get_url: url='https://search.maven.org/remote_content?g=io.zipkin.java&a=zipkin-server&v=LATEST&c=exec' dest=/usr/local/lib/zipkin.jar
-  sudo: true
 
 - name: Copy Zipkin Service File
   template: src=zipkin.service dest={{dest_services}}/
-  sudo: true
 
 - name: Reload Systemd for Kafka Related Services
-  sudo: yes
   command: systemctl daemon-reload
 
 - name: Start Zipkin Services
   service: name=zipkin state=started enabled=yes
-  sudo: true
 
 - name: Copy Consul Service Files
   template: src=zipkin.json dest=/etc/consul.d/
-  sudo: true

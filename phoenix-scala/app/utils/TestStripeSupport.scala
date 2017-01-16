@@ -3,22 +3,20 @@ package utils
 import java.time.ZonedDateTime
 
 import scala.collection.JavaConversions._
-
-import com.stripe.model.Token
+import com.stripe.model.{DeletedCustomer, Token}
 import faker.Lorem
 import models.location.Address
 import services.Result
+import utils.aliases.stripe.StripeCustomer
 import utils.apis.StripeWrapper
 import utils.seeds.Seeds.Factories
 
 object TestStripeSupport {
 
+  val stripe = new StripeWrapper()
+
   // "fox" suffix is to indicate its ours
   def randomStripeishId: String = Lorem.bothify("?#?#?#?####?#?#???_fox")
-
-  // Reuse existing customer id. If this one doesn't work anymore, head to Stripe dashboard and search for customer with
-  // active credit card.
-  val realStripeCustomerId = "cus_9OoHV3spTWn4n8"
 
   def createTokenForCard(cardNumber: String): Result[Token] =
     createToken(cardNumber = cardNumber,
@@ -43,7 +41,15 @@ object TestStripeSupport {
                                 "address_city"  → address.city,
                                 "address_zip"   → address.zip)
 
-    new StripeWrapper().inBlockingPool(Token.create(Map("card" → mapAsJavaMap(card))))
+    stripe.inBlockingPool(Token.create(Map("card" → mapAsJavaMap(card))))
+  }
+
+  def getCustomer(id: String): Result[StripeCustomer] = {
+    stripe.findCustomer(id)
+  }
+
+  def deleteCustomer(customer: StripeCustomer): Result[DeletedCustomer] = {
+    stripe.inBlockingPool(customer.delete)
   }
 
   // https://stripe.com/docs/testing#cards

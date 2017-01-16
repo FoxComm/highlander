@@ -1,3 +1,0 @@
-gatling_source_dir: "{{role_path}}/../../../../../integration-tests"
-gatling_users: 1
-gatling_pause: 30

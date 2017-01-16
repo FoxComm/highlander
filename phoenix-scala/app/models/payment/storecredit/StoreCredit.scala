@@ -5,18 +5,19 @@ import java.time.Instant
 import cats.data.Validated._
 import cats.data.{ValidatedNel, Xor}
 import cats.implicits._
+import com.github.tminglei.slickpg.LTree
 import com.pellucid.sealerate
 import failures.{Failure, Failures, GeneralFailure}
 import models.account._
 import models.cord.OrderPayment
-import models.payment.PaymentMethod
+import models.payment.{PaymentMethod, InStorePaymentStates}
 import models.payment.giftcard.GiftCard
 import models.payment.storecredit.StoreCredit._
 import models.payment.storecredit.{StoreCreditAdjustment ⇒ Adj, StoreCreditAdjustments ⇒ Adjs}
 import payloads.PaymentPayloads._
 import shapeless._
 import slick.ast.BaseTypedType
-import slick.driver.PostgresDriver.api._
+import utils.db.ExPostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.Money._
 import utils.Validation._
@@ -25,6 +26,7 @@ import utils.aliases._
 import utils.db._
 
 case class StoreCredit(id: Int = 0,
+                       scope: LTree,
                        accountId: Int,
                        originId: Int,
                        originType: OriginType = CsrAppeasement,
@@ -105,46 +107,6 @@ object StoreCredit {
     }
   }
 
-  def buildFromGcTransfer(accountId: Int, gc: GiftCard): StoreCredit = {
-    StoreCredit(accountId = accountId,
-                originId = 0,
-                originType = StoreCredit.GiftCardTransfer,
-                currency = gc.currency,
-                originalBalance = gc.currentBalance,
-                currentBalance = gc.currentBalance)
-  }
-
-  def buildAppeasement(accountId: Int,
-                       originId: Int,
-                       payload: CreateManualStoreCredit): StoreCredit = {
-    StoreCredit(accountId = accountId,
-                originId = originId,
-                originType = StoreCredit.CsrAppeasement,
-                subTypeId = payload.subTypeId,
-                currency = payload.currency,
-                originalBalance = payload.amount)
-  }
-
-  def buildFromExtension(accountId: Int,
-                         payload: CreateExtensionStoreCredit,
-                         originType: StoreCredit.OriginType = StoreCredit.Custom,
-                         originId: Int): StoreCredit = {
-    StoreCredit(accountId = accountId,
-                originType = originType,
-                originId = originId,
-                currency = payload.currency,
-                subTypeId = payload.subTypeId,
-                originalBalance = payload.amount)
-  }
-
-  def buildRmaProcess(accountId: Int, originId: Int, currency: Currency): StoreCredit = {
-    StoreCredit(accountId = accountId,
-                originId = originId,
-                originType = StoreCredit.RmaProcess,
-                currency = currency,
-                originalBalance = 0)
-  }
-
   implicit val stateColumnType: JdbcType[State] with BaseTypedType[State] = State.slickColumn
   implicit val originTypeColumnType: JdbcType[OriginType] with BaseTypedType[OriginType] =
     OriginType.slickColumn
@@ -171,6 +133,7 @@ object StoreCredit {
 
 class StoreCredits(tag: Tag) extends FoxTable[StoreCredit](tag, "store_credits") {
   def id               = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def scope            = column[LTree]("scope")
   def originId         = column[Int]("origin_id")
   def originType       = column[StoreCredit.OriginType]("origin_type")
   def subTypeId        = column[Option[Int]]("subtype_id")
@@ -186,6 +149,7 @@ class StoreCredits(tag: Tag) extends FoxTable[StoreCredit](tag, "store_credits")
 
   def * =
     (id,
+     scope,
      accountId,
      originId,
      originType,
@@ -207,7 +171,7 @@ object StoreCredits extends FoxTableQuery[StoreCredit, StoreCredits](new StoreCr
     debit(storeCredit = storeCredit,
           orderPaymentId = orderPaymentId,
           amount = amount,
-          state = Adj.Auth)
+          state = InStorePaymentStates.Auth)
 
   def authOrderPayment(
       storeCredit: StoreCredit,
@@ -230,7 +194,7 @@ object StoreCredits extends FoxTableQuery[StoreCredit, StoreCredits](new StoreCr
     debit(storeCredit = storeCredit,
           orderPaymentId = orderPaymentId,
           amount = amount,
-          state = Adj.Capture)
+          state = InStorePaymentStates.Capture)
 
   def cancelByCsr(storeCredit: StoreCredit, storeAdmin: User)(
       implicit ec: EC): DbResultT[StoreCreditAdjustment] = {
@@ -239,7 +203,7 @@ object StoreCredits extends FoxTableQuery[StoreCredit, StoreCredits](new StoreCr
                          storeAdminId = storeAdmin.accountId.some,
                          debit = storeCredit.availableBalance,
                          availableBalance = 0,
-                         state = Adj.CancellationCapture)
+                         state = InStorePaymentStates.CancellationCapture)
     Adjs.create(adjustment)
   }
 
@@ -250,7 +214,7 @@ object StoreCredits extends FoxTableQuery[StoreCredit, StoreCredits](new StoreCr
                          storeAdminId = storeAdmin.accountId.some,
                          debit = storeCredit.availableBalance,
                          availableBalance = 0,
-                         state = Adj.Capture)
+                         state = InStorePaymentStates.Capture)
     Adjs.create(adjustment)
   }
 
@@ -273,7 +237,7 @@ object StoreCredits extends FoxTableQuery[StoreCredit, StoreCredits](new StoreCr
   private def debit(storeCredit: StoreCredit,
                     orderPaymentId: Option[Int],
                     amount: Int = 0,
-                    state: StoreCreditAdjustment.State = Adj.Auth)(
+                    state: InStorePaymentStates.State = InStorePaymentStates.Auth)(
       implicit ec: EC): DbResultT[StoreCreditAdjustment] = {
     val adjustment = Adj(storeCreditId = storeCredit.id,
                          orderPaymentId = orderPaymentId,

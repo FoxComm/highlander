@@ -99,7 +99,7 @@ class PromotionsIntegrationTest
         }
 
       PromotionManager
-        .update(promotion.formId, UpdatePromotion(Coupon, attributes.toMap, Seq()), ctx.name)
+        .update(promotion.formId, UpdatePromotion(Coupon, attributes.toMap, Seq()), ctx.name, None)
         .gimme
 
       fullPromotion =
@@ -221,5 +221,4 @@ class PromotionsIntegrationTest
     override def createPromotionFromPayload(payload: CreatePromotion) =
       super.createPromotionFromPayload(payload.copy(applyType = Auto))
   }
-
 }

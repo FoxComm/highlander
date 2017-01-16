@@ -1,3 +1,4 @@
+import cats.syntax.order
 import failures.{NotFoundFailure404, StateTransitionNotAllowed}
 import models.account._
 import models.cord.Order._
@@ -9,6 +10,7 @@ import responses.cord._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
+import utils.aliases._
 import utils.db._
 import utils.seeds.Seeds.Factories
 
@@ -19,7 +21,7 @@ class AllOrdersIntegrationTest
     with BakedFixtures {
 
   "PATCH /v1/orders" - {
-    "bulk update states" in new StateUpdateFixture {
+    "bulk update states" in new StoreAdmin_Seed with StateUpdateFixture {
       val payload = BulkUpdateOrdersPayload(Seq("foo", "bar", "nonExistent"), FulfillmentStarted)
 
       val all = ordersApi.update(payload).as[BatchResponse[AllOrders.Root]]
@@ -45,19 +47,20 @@ class AllOrdersIntegrationTest
     }
   }
 
-  trait StateUpdateFixture {
+  trait StateUpdateFixture extends StoreAdmin_Seed {
     (for {
       acc  ← * <~ Accounts.create(Account())
       cust ← * <~ Users.create(Factories.customer.copy(accountId = acc.id))
-      _    ← * <~ CustomersData.create(CustomerData(userId = cust.id, accountId = acc.id))
-      c = Factories.cart.copy(accountId = acc.id)
+      _ ← * <~ CustomersData.create(
+             CustomerData(userId = cust.id, accountId = acc.id, scope = Scope.current))
+      c = Factories.cart(Scope.current).copy(accountId = acc.id)
       cart  ← * <~ Carts.create(c.copy(referenceNumber = "foo"))
-      order ← * <~ Orders.createFromCart(cart)
+      order ← * <~ Orders.createFromCart(cart, subScope = None)
       _     ← * <~ Orders.update(order, order.copy(state = FraudHold))
       cart  ← * <~ Carts.create(c.copy(referenceNumber = "bar"))
-      _     ← * <~ Orders.createFromCart(cart)
+      _     ← * <~ Orders.createFromCart(cart, subScope = None)
       cart  ← * <~ Carts.create(c.copy(referenceNumber = "baz"))
-      order ← * <~ Orders.createFromCart(cart)
+      order ← * <~ Orders.createFromCart(cart, subScope = None)
       _     ← * <~ Orders.update(order, order.copy(state = ManualHold))
     } yield {}).gimme
   }

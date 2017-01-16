@@ -142,13 +142,14 @@ class AddressesIntegrationTest
     }
   }
 
-  trait DeletedAddressFixture {
+  trait DeletedAddressFixture extends StoreAdmin_Seed {
     val (account, address) = (for {
       accountPre1 ← * <~ Accounts.create(Account())
       accountPre2 ← * <~ Accounts.create(Account())
       account     ← * <~ Accounts.create(Account())
       user        ← * <~ Users.create(Factories.customer.copy(accountId = account.id))
-      custData    ← * <~ CustomersData.create(CustomerData(userId = user.id, accountId = account.id))
+      custData ← * <~ CustomersData.create(
+                    CustomerData(userId = user.id, accountId = account.id, scope = Scope.current))
       address ← * <~ Addresses.create(
                    Factories.address.copy(accountId = account.id,
                                           isDefaultShipping = false,

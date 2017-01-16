@@ -2,7 +2,7 @@
 
 import { createAction, createReducer } from 'redux-act';
 import Api from 'lib/api';
-import createAsyncActions from 'modules/async-utils';
+import { createAsyncActions } from '@foxcomm/wings';
 
 const initialState = {
   list: [],

@@ -8,39 +8,31 @@
 
 - name: Install Babel globally
   shell: npm install babel-cli -g
-  sudo: true
 
 - name: Install Gulp globally
   shell: npm install gulp -g
-  sudo: true
 
 - name: Install Lein for clojure
   shell: 'bash -c "cd /usr/local/bin && wget https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein && chmod +x lein"'
-  sudo: true
 
 - name: Install Boot for Clojure
   shell: 'bash -c "cd /usr/local/bin && curl -fsSLo boot https://github.com/boot-clj/boot-bin/releases/download/latest/boot.sh && chmod 755 boot"'
-  sudo: true
   args:
       creates: "/usr/local/bin/boot"
 
 - name: Install Flow
-  sudo: true
   copy: src="flow" dest="/usr/local/bin/flow" mode="u=rwx,g=rwx,o=rx"
 
 - name: Restart Buildkite Agent
-  sudo: true
   command: systemctl restart buildkite-agent
   tags: buildkite
 
 - name: Make sure buildkite keys are available.
   file: path="/var/lib/buildkite-agent/.ssh/id_rsa" owner=buildkite-agent group=buildkite-agent mode="600"
-  sudo: true
   tags: buildkite
 
 - name: Install Packages for Isaac
   apt: name={{ item }} state=latest force=yes
-  sudo: true
   with_items:
     - cmake
     - libboost-all-dev
@@ -69,7 +61,6 @@
   shell: ./deps.sh && ./reinstall.sh
   args:
     chdir: "{{proxygen_install_dir}}/proxygen"
-  sudo: true
   tags: isaac
 
 - name: Create GOPATH Directories
@@ -86,33 +77,59 @@
 
 - name: Add Glide repository
   apt_repository: repo='ppa:masterminds/glide' update_cache=yes
-  sudo: true
   tags: golang
 
 - name: Install Glide
   apt: name={{ item }} state=latest force=yes
-  sudo: true
   with_items:
     - glide
   tags: golang
 
-- name: Remove Ansible 2.x
+- name: Remove Preinstalled Ansible
   command: pip uninstall -y ansible
-  tags: ansible19
-  sudo: true
+  tags: ansible
   ignore_errors: yes
 
-- name: Install Ansible 1.9.x
-  command: pip install ansible==1.9.4
-  tags: ansible19
-  sudo: true
+- name: Install Ansible 2.x.x
+  command: pip install ansible==2.2.0
+  tags: ansible
 
 - name: Install Package for Ansible Lint
   apt: name=libffi-dev state=latest force=yes
-  sudo: true
   tags: ansible-lint
 
 - name: Install ansible-lint
   pip: name=ansible-lint
-  sudo: true
   tags: ansible-lint
+
+- name: Download vagrant
+  get_url: url={{vagrant_download_url}} dest="{{home}}/{{vagrant_filename}}"
+  tags: vagrant
+
+- name: Install vagrant
+  shell: dpkg -i {{home}}/{{vagrant_filename}}
+  tags: vagrant
+
+- name: Cleanup vagrant deb package
+  file: path={{home}}/{{vagrant_filename}} state=absent
+  tags: vagrant
+
+- name: Install vagrant google plugin
+  shell: vagrant plugin install vagrant-google
+  tags: vagrant
+
+- name: Download vagrant google box
+  shell: vagrant box add gce {{vagrant_google_box}}
+  tags: vagrant
+
+- name: Download terraform
+  get_url: url={{terraform_download_url}} dest="{{home}}/{{terraform_filename}}"
+  tags: terraform
+
+- name: Unzip terraform
+  unarchive: src="{{home}}/{{terraform_filename}}" dest="{{home}}" mode="u+x,g+x,o+x"
+  tags: terraform
+
+- name: Copy to Binaries Directory
+  command: mv {{home}}/terraform /usr/local/bin
+  tags: terraform

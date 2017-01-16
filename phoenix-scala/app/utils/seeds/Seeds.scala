@@ -328,7 +328,7 @@ object Seeds {
 
     def giftCardPayment = OrderPayment.build(giftCard)
 
-    def storeCreditPayment = OrderPayment.build(storeCredit)
+    def storeCreditPayment(implicit au: AU) = OrderPayment.build(storeCredit)
 
     def shippingAddress =
       OrderShippingAddress(regionId = 4174,

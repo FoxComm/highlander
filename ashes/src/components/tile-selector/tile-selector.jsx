@@ -13,7 +13,7 @@ const TileSelector = props => {
         <div className="fc-tile-selector__title">
           {title}
         </div>
-        <AddButton onClick={onAddClick} />
+        <AddButton id={props.addButtonId} onClick={onAddClick} />
       </div>
       <TileItems emptyMessage={emptyMessage} isFetching={isFetching} items={items} />
     </div>
@@ -29,6 +29,7 @@ TileSelector.propTypes = {
 };
 
 TileSelector.defaultProps = {
+  addButtonId: null,
   onAddClick: _.noop,
   items: [],
 };

@@ -330,9 +330,6 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
     def create(payload: CreateCoupon)(implicit ctx: OC): HttpResponse =
       POST(couponsPrefix, payload)
-
-    def delete(formId: Int)(implicit ctx: OC): HttpResponse =
-      DELETE(s"$couponsPrefix/$formId")
   }
 
   case class couponsApi(formId: Int)(implicit ctx: OC) {
@@ -340,6 +337,9 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
     def get(): HttpResponse =
       GET(couponPath)
+
+    def archive(): HttpResponse =
+      DELETE(couponPath)
 
     object codes {
 
@@ -433,10 +433,12 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
     def create(payload: CreateProductPayload)(implicit ctx: OC): HttpResponse =
       POST(productsPrefix, payload)
+
+    def apply(formId: Int)(implicit ctx: OC): productsApi = productsApi(formId.toString)
   }
 
-  case class productsApi(formId: Int)(implicit ctx: OC) {
-    val productPath = s"${productsApi.productsPrefix}/$formId"
+  case class productsApi(reference: String)(implicit ctx: OC) {
+    val productPath = s"${productsApi.productsPrefix}/$reference"
 
     def get(): HttpResponse =
       GET(productPath)

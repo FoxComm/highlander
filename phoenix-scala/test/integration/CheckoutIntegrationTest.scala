@@ -13,6 +13,7 @@ import models.cord.lineitems._
 import models.customer._
 import models.inventory._
 import models.location.{Address, Addresses}
+import models.payment.InStorePaymentStates
 import models.payment.giftcard._
 import models.product.Mvp
 import models.shipping._
@@ -109,7 +110,7 @@ class CheckoutIntegrationTest
       orderResponse.remorsePeriodEnd.value.isAfter(Instant.now) mustBe true
 
       // Authorizes payments
-      GiftCardAdjustments.map(_.state).gimme must contain only GiftCardAdjustment.Auth
+      GiftCardAdjustments.map(_.state).gimme must contain only InStorePaymentStates.Auth
     }
 
     "fails if customer's credentials are empty" in new Fixture {
@@ -199,7 +200,9 @@ class CheckoutIntegrationTest
                                             isBlacklisted = true,
                                             blacklistedBy = Some(storeAdmin.accountId)))
       custData ← * <~ CustomersData.create(
-                    CustomerData(userId = customer.accountId, accountId = account.id))
+                    CustomerData(userId = customer.accountId,
+                                 accountId = account.id,
+                                 scope = Scope.current))
       address ← * <~ Addresses.create(Factories.usAddress1.copy(accountId = customer.accountId))
       _       ← * <~ Factories.shippingMethods.map(ShippingMethods.create)
       shipMethod ← * <~ ShippingMethods

@@ -6,7 +6,7 @@ import { createReducer } from 'redux-act';
 import { transitionTo } from 'browserHistory';
 import OrderParagon from 'paragons/order';
 
-import createAsyncActions from 'modules/async-utils';
+import { createAsyncActions } from '@foxcomm/wings';
 
 ////////////////////////////////////////////////////////////////////////////////
 // Cart Manipulation Actions
@@ -14,6 +14,7 @@ import createAsyncActions from 'modules/async-utils';
 type UpdateLineItemPayload = {
   sku: string;
   quantity: number;
+  attributes: ?Object;
 }
 
 const _fetchCart = createAsyncActions(
@@ -49,8 +50,10 @@ const _updateLineItemCount = createAsyncActions(
   (refNum: string, payload: Array<UpdateLineItemPayload>) => Api.patch(`/carts/${refNum}/line-items`, payload)
 );
 
-export function updateLineItemCount(refNum: string, skuCode: string, quantityDiff: number): Function {
-  return _updateLineItemCount.perform(refNum, [{ sku: skuCode, quantity: quantityDiff }]);
+export function updateLineItemCount(
+  refNum: string, skuCode: string, quantityDiff: number, attributes: ?Object
+): Promise {
+  return _updateLineItemCount.perform(refNum, [{ sku: skuCode, quantity: quantityDiff, attributes }]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

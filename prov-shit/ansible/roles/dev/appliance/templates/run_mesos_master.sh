@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-export MESOS_WEBUI_DIR=/usr/local/share/mesos/webui
+export MESOS_WEBUI_DIR=/usr/share/mesos/webui
 WORK_DIR=/var/lib/mesos
 IP={{mesos_ip}}
 QUORUM={{mesos_quorum}}
@@ -11,4 +11,3 @@ mesos-master --hostname=$IP \
     --work_dir=$WORK_DIR \
     --zk={{zookeepers}}/mesos \
     --cluster=fox
-

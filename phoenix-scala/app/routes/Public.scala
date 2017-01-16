@@ -13,8 +13,8 @@ import services.customers.CustomerManager
 import services.giftcards.GiftCardService
 import services.product.ProductManager
 import services.{ReasonService, StoreCreditService}
-import utils.http.CustomDirectives._
 import utils.aliases._
+import utils.http.CustomDirectives._
 import utils.http.Http._
 
 object Public {
@@ -31,7 +31,7 @@ object Public {
         } ~
         pathPrefix("products") {
           determineObjectContext(db, ec) { implicit productContext ⇒
-            pathPrefix(IntNumber) { productId ⇒
+            pathPrefix(ProductRef) { productId ⇒
               (get & pathEnd) {
                 getOrFailures {
                   ProductManager.getProduct(productId)

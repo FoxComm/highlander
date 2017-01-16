@@ -23,7 +23,7 @@ package object services {
       Future.successful(Xor.left[Failures, A](fs))
 
     def failure[A](failure: Failure): Result[A] =
-      failures[A](NonEmptyList(failure))
+      failures[A](NonEmptyList.of(failure))
   }
 
   type ResultT[A] = XorT[Future, Failures, A]

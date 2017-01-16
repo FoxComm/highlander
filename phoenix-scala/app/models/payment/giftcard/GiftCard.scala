@@ -5,26 +5,28 @@ import java.time.Instant
 import cats.data.Validated._
 import cats.data.{ValidatedNel, Xor}
 import cats.implicits._
+import com.github.tminglei.slickpg.LTree
 import com.pellucid.sealerate
 import failures.GiftCardFailures._
-import failures.{EmptyCancellationReasonFailure, Failure, Failures, GeneralFailure}
+import failures._
 import models.account._
 import models.cord.OrderPayment
-import models.payment.PaymentMethod
+import models.payment.{PaymentMethod, InStorePaymentStates}
 import models.payment.giftcard.GiftCard._
 import models.payment.giftcard.{GiftCardAdjustment ⇒ Adj, GiftCardAdjustments ⇒ Adjs}
 import payloads.GiftCardPayloads.{GiftCardCreateByCsr, GiftCardCreatedByCustomer}
 import shapeless._
 import slick.ast.BaseTypedType
-import utils.db.ExPostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.Money._
 import utils.Validation._
 import utils._
 import utils.aliases._
+import utils.db.ExPostgresDriver.api._
 import utils.db._
 
 case class GiftCard(id: Int = 0,
+                    scope: LTree,
                     originId: Int,
                     originType: OriginType = CustomerPurchase,
                     code: String = "",
@@ -125,8 +127,9 @@ object GiftCard {
 
   val giftCardCodeRegex = """([a-zA-Z0-9-_]*)""".r
 
-  def build(balance: Int, originId: Int, currency: Currency): GiftCard = {
+  def build(balance: Int, originId: Int, currency: Currency)(implicit au: AU): GiftCard = {
     GiftCard(
+        scope = Scope.current,
         originId = originId,
         originType = GiftCard.CustomerPurchase,
         state = GiftCard.Active,
@@ -137,8 +140,9 @@ object GiftCard {
     )
   }
 
-  def buildAppeasement(payload: GiftCardCreateByCsr, originId: Int): GiftCard = {
+  def buildAppeasement(payload: GiftCardCreateByCsr, originId: Int, scope: LTree): GiftCard = {
     GiftCard(
+        scope = scope,
         originId = originId,
         originType = GiftCard.CsrAppeasement,
         subTypeId = payload.subTypeId,
@@ -150,8 +154,11 @@ object GiftCard {
     )
   }
 
-  def buildByCustomerPurchase(payload: GiftCardCreatedByCustomer, originId: Int): GiftCard = {
+  def buildByCustomerPurchase(payload: GiftCardCreatedByCustomer,
+                              originId: Int,
+                              scope: LTree): GiftCard = {
     GiftCard(
+        scope = scope,
         originId = originId,
         originType = GiftCard.CustomerPurchase,
         subTypeId = payload.subTypeId,
@@ -167,8 +174,9 @@ object GiftCard {
     )
   }
 
-  def buildScTransfer(balance: Int, originId: Int, currency: Currency): GiftCard = {
+  def buildScTransfer(balance: Int, originId: Int, currency: Currency, scope: LTree): GiftCard = {
     GiftCard(
+        scope = scope,
         originId = originId,
         originType = GiftCard.FromStoreCredit,
         state = GiftCard.Active,
@@ -179,8 +187,9 @@ object GiftCard {
     )
   }
 
-  def buildLineItem(balance: Int, originId: Int, currency: Currency): GiftCard = {
+  def buildLineItem(balance: Int, originId: Int, currency: Currency)(implicit au: AU): GiftCard = {
     GiftCard(
+        scope = Scope.current,
         originId = originId,
         originType = GiftCard.CustomerPurchase,
         state = GiftCard.Cart,
@@ -191,8 +200,9 @@ object GiftCard {
     )
   }
 
-  def buildRmaProcess(originId: Int, currency: Currency): GiftCard = {
+  def buildRmaProcess(originId: Int, currency: Currency)(implicit au: AU): GiftCard = {
     GiftCard(
+        scope = Scope.current,
         originId = originId,
         originType = GiftCard.RmaProcess,
         state = GiftCard.Cart,
@@ -218,6 +228,7 @@ object GiftCard {
 
 class GiftCards(tag: Tag) extends FoxTable[GiftCard](tag, "gift_cards") {
   def id               = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def scope            = column[LTree]("scope")
   def originId         = column[Int]("origin_id")
   def originType       = column[GiftCard.OriginType]("origin_type")
   def subTypeId        = column[Option[Int]]("subtype_id")
@@ -239,6 +250,7 @@ class GiftCards(tag: Tag) extends FoxTable[GiftCard](tag, "gift_cards") {
 
   def * =
     (id,
+     scope,
      originId,
      originType,
      code,
@@ -267,7 +279,11 @@ object GiftCards
 
   def auth(giftCard: GiftCard, orderPaymentId: Option[Int], debit: Int = 0, credit: Int = 0)(
       implicit ec: EC): DbResultT[GiftCardAdjustment] =
-    adjust(giftCard, orderPaymentId, debit = debit, credit = credit, state = Adj.Auth)
+    adjust(giftCard,
+           orderPaymentId,
+           debit = debit,
+           credit = credit,
+           state = InStorePaymentStates.Auth)
 
   def authOrderPayment(
       giftCard: GiftCard,
@@ -283,7 +299,11 @@ object GiftCards
 
   def capture(giftCard: GiftCard, orderPaymentId: Option[Int], debit: Int, credit: Int = 0)(
       implicit ec: EC): DbResultT[GiftCardAdjustment] =
-    adjust(giftCard, orderPaymentId, debit = debit, credit = credit, state = Adj.Capture)
+    adjust(giftCard,
+           orderPaymentId,
+           debit = debit,
+           credit = credit,
+           state = InStorePaymentStates.Capture)
 
   def cancelByCsr(giftCard: GiftCard, storeAdmin: User)(
       implicit ec: EC): DbResultT[GiftCardAdjustment] = {
@@ -293,7 +313,7 @@ object GiftCards
                          debit = giftCard.availableBalance,
                          credit = 0,
                          availableBalance = 0,
-                         state = Adj.CancellationCapture)
+                         state = InStorePaymentStates.CancellationCapture)
     Adjs.create(adjustment)
   }
 
@@ -305,7 +325,7 @@ object GiftCards
                          debit = giftCard.availableBalance,
                          credit = 0,
                          availableBalance = 0,
-                         state = Adj.Capture)
+                         state = InStorePaymentStates.Capture)
     Adjs.create(adjustment)
   }
 
@@ -325,7 +345,7 @@ object GiftCards
                      orderPaymentId: Option[Int],
                      debit: Int = 0,
                      credit: Int = 0,
-                     state: GiftCardAdjustment.State = Adj.Auth)(
+                     state: InStorePaymentStates.State = InStorePaymentStates.Auth)(
       implicit ec: EC): DbResultT[GiftCardAdjustment] = {
     val balance = giftCard.availableBalance - debit + credit
     val adjustment = Adj(giftCardId = giftCard.id,

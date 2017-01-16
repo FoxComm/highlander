@@ -3,7 +3,6 @@ package server
 import scala.collection.immutable
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
-
 import akka.actor.{ActorSystem, Props}
 import akka.agent.Agent
 import akka.event.Logging
@@ -13,10 +12,11 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.RouteResult._
 import akka.http.scaladsl.server._
 import akka.stream.ActorMaterializer
+
 import com.stripe.Stripe
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.LazyLogging
-import models.account.User
+import models.account.{AccountAccessMethod, User}
 import org.json4s._
 import org.json4s.jackson._
 import services.account.AccountCreateContext
@@ -181,6 +181,7 @@ class Service(systemOverride: Option[ActorSystem] = None,
       assert(Keys.loadPrivateKey.isSuccess, "Can't load private key")
       assert(Keys.loadPublicKey.isSuccess, "Can't load public key")
     }
+    logger.info(s"Using password hash algorithm: ${AccountAccessMethod.passwordsHashAlgorithm}")
     logger.info("Self check complete")
   }
 

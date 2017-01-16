@@ -4,9 +4,11 @@ import cats.implicits._
 import failures.GeneralFailure
 import faker.Lorem
 import models.Reasons
+import models.account.Scope
 import models.cord._
 import models.inventory.Skus
 import models.objects.ObjectContexts
+import models.payment.InStorePaymentStates
 import models.payment.giftcard._
 import models.payment.storecredit._
 import models.product.{Mvp, SimpleContext}
@@ -81,7 +83,8 @@ class CheckoutTest
 
         import GiftCardAdjustment._
 
-        adjustments.map(_.state).toSet must === (Set[State](Auth))
+        adjustments.map(_.state).toSet must === (
+            Set[InStorePaymentStates.State](InStorePaymentStates.Auth))
         adjustments.map(_.debit) must === (List(gcAmount, cart.grandTotal - gcAmount))
       }
 
@@ -100,7 +103,8 @@ class CheckoutTest
 
         import StoreCreditAdjustment._
 
-        adjustments.map(_.state).toSet must === (Set[State](Auth))
+        adjustments.map(_.state).toSet must === (
+            Set[InStorePaymentStates.State](InStorePaymentStates.Auth))
         adjustments.map(_.debit) must === (List(scAmount, cart.grandTotal - scAmount))
       }
     }
@@ -148,7 +152,7 @@ class CheckoutTest
             // This is a silly guard to see real errors, not customer_has_only_one_cart constraint.
             _ ← * <~ Carts.deleteAll(DbResultT.unit, DbResultT.unit)
 
-            cart ← * <~ Carts.create(Cart(accountId = customer.accountId))
+            cart ← * <~ Carts.create(Cart(accountId = customer.accountId, scope = Scope.current))
 
             _ ← * <~ LineItemUpdater.updateQuantitiesOnCart(storeAdmin,
                                                             cart.refNum,
@@ -181,7 +185,7 @@ class CheckoutTest
           } yield totalAdjustments
 
           dbResultT
-            .fold(failures ⇒ false :| "\nFailures:\n" + failures.flatten.mkString("\n"),
+            .fold(failures ⇒ false :| "\nFailures:\n" + failures.toList.mkString("\n"),
                   result ⇒ Prop(result == total))
             .gimme
       }

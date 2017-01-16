@@ -116,6 +116,9 @@ object OrderPayments
       def byType(pmt: PaymentMethod.Type): QuerySeq =
         q.filter(_.paymentMethodType === (pmt: PaymentMethod.Type))
 
+      def inStoreMethods: QuerySeq =
+        q.filter(_.paymentMethodType.inSet(Seq(PaymentMethod.GiftCard, PaymentMethod.StoreCredit)))
+
       def byCartAndGiftCard(cart: Cart, giftCard: GiftCard): QuerySeq =
         q.giftCards.filter(_.paymentMethodId === giftCard.id).filter(_.cordRef === cart.refNum)
     }

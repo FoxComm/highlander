@@ -1,13 +1,11 @@
 package responses.cord
 
-import cats.data.Xor
 import cats.implicits._
-import models.account.User
+import models.account.{User, _}
 import models.cord._
 import models.cord.lineitems.CartLineItems
+import models.cord.OrderPayments.scope._
 import models.customer.{CustomerData, CustomersData}
-import models.account._
-import models.payment.creditcard._
 import responses.PromotionResponses.PromotionResponse
 import responses._
 import responses.cord.base._
@@ -15,15 +13,14 @@ import services.carts.CartQueries
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
-import scala.util.{Success, Failure}
 
 case class CartResponse(referenceNumber: String,
-                        paymentState: CreditCardCharge.State,
+                        paymentState: CordPaymentState.State,
                         lineItems: CordResponseLineItems,
                         lineItemAdjustments: Seq[CordResponseLineItemAdjustment] = Seq.empty,
                         promotion: Option[PromotionResponse.Root] = None,
                         coupon: Option[CordResponseCouponPair] = None,
-                        totals: CordResponseTotals,
+                        totals: CartResponseTotals,
                         customer: Option[CustomerResponse.Root] = None,
                         shippingMethod: Option[ShippingMethodsResponse.Root] = None,
                         shippingAddress: Option[AddressResponse] = None,
@@ -54,8 +51,15 @@ object CartResponse {
                          .fold(_ ⇒ None, good ⇒ good.some)
       paymentMethods ← * <~ (if (isGuest) DBIO.successful(Seq())
                              else CordResponsePayments.fetchAll(cart.refNum))
-      paymentState ← * <~ CartQueries.getPaymentState(cart.refNum)
+      paymentState ← * <~ CartQueries.getCordPaymentState(cart.refNum)
       lockedBy     ← * <~ currentLock(cart)
+      coveredByInStoreMethods ← * <~ OrderPayments
+                                 .findAllByCordRef(cart.refNum)
+                                 .inStoreMethods
+                                 .map(_.amount.getOrElse(0))
+                                 .sum
+                                 .getOrElse(0)
+                                 .result
     } yield
       CartResponse(
           referenceNumber = cart.refNum,
@@ -63,7 +67,8 @@ object CartResponse {
           lineItemAdjustments = lineItemAdj,
           promotion = promo.map { case (promotion, _) ⇒ promotion },
           coupon = promo.map { case (_, coupon)       ⇒ coupon },
-          totals = CordResponseTotals.build(cart),
+          totals =
+            CartResponseTotals.build(cart, coveredByInStoreMethods = coveredByInStoreMethods),
           customer = for {
             c  ← customer
             cu ← customerData
@@ -85,8 +90,8 @@ object CartResponse {
           c  ← customer
           cu ← customerData
         } yield CustomerResponse.build(c, cu),
-        totals = CordResponseTotals.empty,
-        paymentState = CreditCardCharge.Cart
+        totals = CartResponseTotals.empty,
+        paymentState = CordPaymentState.Cart
     )
   }
 

@@ -1,5 +1,5 @@
 import cats.implicits._
-import failures.{NotFoundFailure400, NotFoundFailure404}
+import failures.NotFoundFailure404
 import models.account._
 import payloads.CartPayloads.CreateCart
 import responses.cord.CartResponse

@@ -1,23 +1,25 @@
 package utils.http
 
-import akka.http.scaladsl.model.headers.RawHeader
-
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
+import akka.http.scaladsl.model.Uri.Path
 import akka.http.scaladsl.model._
+import akka.http.scaladsl.model.headers.RawHeader
 import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.PathMatcher.Matched
 import akka.http.scaladsl.server._
 import akka.http.scaladsl.unmarshalling.{FromRequestUnmarshaller, Unmarshaller}
+
 import cats.data.Xor
 import failures._
 import models.account._
 import models.activity.ActivityContext
 import models.objects.{ObjectContext, ObjectContexts}
-import models.product.SimpleContext
+import models.product.{ProductReference, SimpleContext}
 import org.json4s.jackson.Serialization.{write ⇒ json}
+import payloads.AuthPayload
 import services.{JwtCookie, Result}
 import slick.driver.PostgresDriver.api._
-import payloads.AuthPayload
 import utils._
 import utils.aliases._
 import utils.db._
@@ -26,6 +28,17 @@ import utils.http.Http._
 object CustomDirectives {
 
   val DefaultContextName = SimpleContext.default
+
+  object ProductRef extends PathMatcher1[ProductReference] {
+    def apply(path: Path) = {
+      path match {
+        case Path.Segment(segment, tail) if segment.exists(_.isLetter) ⇒
+          Matched(tail, Tuple1(ProductReference(segment)))
+        case _                                        ⇒
+          IntNumber.apply(path).map { case Tuple1(id) ⇒ Tuple1(ProductReference(id)) }
+      }
+    }
+  }
 
   def activityContext(user: User): Directive1[ActivityContext] = {
     optionalHeaderValueByName("x-request-id").map {

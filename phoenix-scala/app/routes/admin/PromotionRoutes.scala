@@ -18,7 +18,7 @@ object PromotionRoutes {
         pathPrefix(Segment) { (context) ⇒
           (post & pathEnd & entity(as[CreatePromotion])) { payload ⇒
             mutateOrFailures {
-              PromotionManager.create(payload, context)
+              PromotionManager.create(payload, context, Some(auth.model))
             }
           } ~
           pathPrefix(IntNumber) { id ⇒
@@ -29,7 +29,7 @@ object PromotionRoutes {
             } ~
             (patch & pathEnd & entity(as[UpdatePromotion])) { payload ⇒
               mutateOrFailures {
-                PromotionManager.update(id, payload, context)
+                PromotionManager.update(id, payload, context, Some(auth.model))
               }
             } ~
             (delete & pathEnd) {

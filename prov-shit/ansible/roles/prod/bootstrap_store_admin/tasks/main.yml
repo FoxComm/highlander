@@ -2,7 +2,5 @@
 
 - name: Create super admin
   shell: ADMIN_PASSWORD={{store_admin_password}} java -Ddb.host={{db_host}} -Ddb.url="jdbc:postgresql://{{db_host}}/{{db_name}}?user={{db_user}}" -Ddb.name={{db_name}} -cp {{phoenix_jar}} utils.seeds.Seeds createAdmin --name "{{store_admin_name}}" --email "{{store_admin_email}}" --org "{{store_admin_org}}" --roles "{{store_admin_roles}}"
-  sudo: true
   args:
     chdir: "{{phoenix_dir}}"
-

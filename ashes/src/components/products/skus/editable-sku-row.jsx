@@ -6,7 +6,7 @@ import React, { Component, Element, PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
 import { connect } from 'react-redux';
-import makeLocalStore from 'lib/make-local-store';
+import { makeLocalStore, addAsyncReducer } from '@foxcomm/wings';
 import styles from './editable-sku-row.css';
 
 import { FormField } from 'components/forms';
@@ -50,7 +50,7 @@ type State = {
 
 function mapLocalStateToProps(state) {
   return {
-    isFetchingSkus: _.get(state, 'skus-suggest.inProgress', null),
+    isFetchingSkus: _.get(state.asyncActions, 'skus-suggest.inProgress', null),
     suggestedSkus: _.get(state, 'skus', []),
   };
 }
@@ -187,6 +187,7 @@ class EditableSkuRow extends Component {
   get menuEmptyContent(): Element {
     return (
       <li
+        id="create-new-sku-item"
         styleName="sku-item"
         className="_new"
         onMouseDown={() => this.closeSkusMenu() }>
@@ -202,6 +203,7 @@ class EditableSkuRow extends Component {
     return items.map((sku: SearchViewSku) => {
       return (
         <li
+          id={`search-view-${sku.skuCode}`}
           styleName="sku-item"
           onMouseDown={() => { this.handleSelectSku(sku); }}
           key={`item-${sku.id}`}>
@@ -376,6 +378,6 @@ class EditableSkuRow extends Component {
 }
 
 export default _.flowRight(
-  makeLocalStore(reducer),
+  makeLocalStore(addAsyncReducer(reducer)),
   connect(mapLocalStateToProps, { suggestSkus })
 )(EditableSkuRow);

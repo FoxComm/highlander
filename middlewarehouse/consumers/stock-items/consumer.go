@@ -3,16 +3,18 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
 
+	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix"
 	"github.com/FoxComm/metamorphosis"
 )
 
-type Consumer struct {
-	c      metamorphosis.Consumer
-	mwhURL string
+type StockItemsConsumer struct {
+	phoenixClient phoenix.PhoenixClient
+	mwhURL        string
 }
 
 const (
@@ -20,23 +22,15 @@ const (
 	groupID  = "mwh-stock-items-consumers"
 )
 
-func NewConsumer(zookeeper string, schemaRepo string, mwhURL string) (*Consumer, error) {
-	consumer, err := metamorphosis.NewConsumer(zookeeper, schemaRepo)
-	if err != nil {
-		return nil, err
+func NewStockItemsConsumer(phoenixClient phoenix.PhoenixClient, mwhURL string) (*StockItemsConsumer, error) {
+	if mwhURL == "" {
+		return nil, errors.New("middlewarehouse URL must be set")
 	}
 
-	consumer.SetGroupID(groupID)
-	consumer.SetClientID(clientID)
-
-	return &Consumer{c: consumer, mwhURL: mwhURL}, nil
+	return &StockItemsConsumer{phoenixClient, mwhURL}, nil
 }
 
-func (consumer *Consumer) Run(topic string, partition int) {
-	consumer.c.RunTopic(topic, partition, consumer.handler)
-}
-
-func (consumer *Consumer) handler(m metamorphosis.AvroMessage) error {
+func (consumer *StockItemsConsumer) Handler(m metamorphosis.AvroMessage) error {
 	log.Printf("Received SKU %s", string(m.Bytes()))
 
 	sku, err := NewSKUFromAvro(m)
@@ -56,7 +50,12 @@ func (consumer *Consumer) handler(m metamorphosis.AvroMessage) error {
 		log.Panicf("Error creating POST request to MWH with error: %s", err.Error())
 	}
 
+	if err := consumer.phoenixClient.EnsureAuthentication(); err != nil {
+		log.Panicf("Error auth in phoenix with error: %s", err.Error())
+	}
+
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("JWT", consumer.phoenixClient.GetJwt())
 
 	client := &http.Client{}
 	if _, err := client.Do(req); err != nil {

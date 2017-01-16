@@ -30,7 +30,7 @@ export default class RemorseTimer extends Component {
 
   extendButton(): Element {
     return (
-      <AddButton className="fc-remorse-timer-extend" onClick={ this.props.onIncreaseClick }>
+      <AddButton id="remorse-timer-extend-btn" className="fc-remorse-timer-extend" onClick={ this.props.onIncreaseClick }>
         15 min
       </AddButton>
     );

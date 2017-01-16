@@ -28,6 +28,7 @@ import responses.SkuResponses.SkuResponse
 import responses.CaptureResponse
 import responses.UserResponse.{Root ⇒ UserResponse, build ⇒ buildUser}
 import responses.CustomerResponse.{Root ⇒ CustomerResponse}
+import responses.PromotionResponses.PromotionResponse
 import responses.cord.{CartResponse, OrderResponse}
 import responses.{AddressResponse, CreditCardsResponse, GiftCardResponse, StoreCreditResponse}
 import services.LineItemUpdater.foldQuantityPayload
@@ -42,6 +43,7 @@ import services.activity.MailTailored._
 import services.activity.NotesTailored._
 import services.activity.OrderTailored._
 import services.activity.ProductTailored._
+import services.activity.PromotionTailored._
 import services.activity.SharedSearchTailored._
 import services.activity.SkuTailored._
 import services.activity.StoreAdminsTailored._
@@ -502,6 +504,15 @@ object LogActivity {
       product: SkuResponse.Root,
       context: ObjectContextResponse.Root)(implicit ec: EC, ac: AC): DbResultT[Activity] =
     Activities.log(FullSkuUpdated(admin.map(buildUser), product, context))
+
+  /* Promotions */
+  def promotionCreated(promotionResponse: PromotionResponse.Root,
+                       admin: Option[User])(implicit ec: EC, ac: AC): DbResultT[Activity] =
+    Activities.log(PromotionCreated(promotionResponse, admin.map(buildUser(_))))
+
+  def promotionUpdated(promotionResponse: PromotionResponse.Root,
+                       admin: Option[User])(implicit ec: EC, ac: AC): DbResultT[Activity] =
+    Activities.log(PromotionUpdated(promotionResponse, admin.map(buildUser(_))))
 
   /* Coupons */
   def couponCreated(couponResponse: CouponResponse.Root,

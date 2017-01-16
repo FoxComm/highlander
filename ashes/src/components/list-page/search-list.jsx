@@ -4,7 +4,7 @@ import React, { PropTypes } from 'react';
 import localStorage from 'localStorage';
 
 import LiveSearchAdapter from '../live-search/live-search-adapter';
-import TableView from '../table/tableview.jsx';
+import TableView from '../table/tableview';
 
 export default class SearchList extends React.Component {
 

@@ -89,7 +89,7 @@ class ProductsQualifier extends Component {
 
   @autobind
   handleSelectReferences(ids: Array<RefId>) {
-    this.updateReferences(ids.map(id => ({referenceId: id, referenceType: 'SavedProductSearch'})));
+    this.updateReferences(ids.map(id => ({productSearchId: id})));
   }
 
   get productReferences(): Element {
@@ -100,10 +100,11 @@ class ProductsQualifier extends Component {
         .filter(search => search.id != null)
         .map(search => [search.id, search.title]);
 
-      const initialValue = references.length && references[0].referenceId || void 0;
+      const initialValue = references.length && references[0].productSearchId || void 0;
 
       return (
         <Dropdown
+          className="select-product-search-dd"
           styleName="wide-dropdown"
           value={initialValue}
           placeholder="- Select Product Search -"
@@ -120,7 +121,7 @@ class ProductsQualifier extends Component {
           return acc;
         }, {});
 
-      const indexedReferences = _.keyBy(references, 'referenceId');
+      const indexedReferences = _.keyBy(references, 'productSearchId');
 
       let counter = 1;
       const initialItems = _.transform(productSearches, (items, title, id) => {
@@ -155,7 +156,8 @@ class ProductsQualifier extends Component {
     return (
       <div styleName="products">
         <strong styleName="label">{this.props.label}</strong>
-        <Dropdown styleName="mode-dropdown"
+        <Dropdown className="modifier-dd"
+                  styleName="mode-dropdown"
                   value={this.state.selectMode}
                   onChange={this.handleChangeSelectMode}
                   items={SELECT_PRODUCT_ITEMS}

@@ -3,7 +3,7 @@
 - name: Migrate DB
   hosts: '{{hostname}}'
   vars:
-    user: '{{ansible_ssh_user}}'
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
     download_flyway: false
   vars_prompt:
     - name: "hostname"

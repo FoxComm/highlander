@@ -1,14 +1,13 @@
-
 ###############################
 # Setup VPC
 ###############################
 
 resource "aws_vpc" "default" {
-  cidr_block = "${var.vpc_cidr}"
+  cidr_block           = "${var.vpc_cidr}"
   enable_dns_hostnames = true
 
   tags {
-      name = "${var.name}"
+    name = "${var.name}"
   }
 }
 
@@ -16,7 +15,7 @@ resource "aws_internet_gateway" "default" {
   vpc_id = "${aws_vpc.default.id}"
 
   tags {
-      Name = "terraform_igw"
+    Name = "terraform_igw"
   }
 }
 
@@ -29,12 +28,12 @@ output "vpc_id" {
 ###############################
 
 resource "aws_subnet" "public" {
-  vpc_id = "${aws_vpc.default.id}"
-  cidr_block = "${var.public_subnet_cidr}"
+  vpc_id            = "${aws_vpc.default.id}"
+  cidr_block        = "${var.public_subnet_cidr}"
   availability_zone = "${element(var.availability_zones, 0)}"
 
   tags {
-      Name = "terraform_public_subnet"
+    Name = "terraform_public_subnet"
   }
 }
 
@@ -46,17 +45,17 @@ resource "aws_route_table" "public" {
   vpc_id = "${aws_vpc.default.id}"
 
   route {
-      cidr_block = "0.0.0.0/0"
-      gateway_id = "${aws_internet_gateway.default.id}"
+    cidr_block = "0.0.0.0/0"
+    gateway_id = "${aws_internet_gateway.default.id}"
   }
 
   tags {
-      Name = "terraform_public_subnet_route_table"
+    Name = "terraform_public_subnet_route_table"
   }
 }
 
 resource "aws_route_table_association" "public" {
-  subnet_id = "${aws_subnet.public.id}"
+  subnet_id      = "${aws_subnet.public.id}"
   route_table_id = "${aws_route_table.public.id}"
 }
 
@@ -65,11 +64,12 @@ resource "aws_route_table_association" "public" {
 ###############################
 
 resource "aws_subnet" "private" {
-  vpc_id = "${aws_vpc.default.id}"
-  cidr_block = "${var.private_subnet_cidr}"
+  vpc_id            = "${aws_vpc.default.id}"
+  cidr_block        = "${var.private_subnet_cidr}"
   availability_zone = "${element(var.availability_zones, 0)}"
+
   tags {
-      Name = "terraform_private_subnet"
+    Name = "terraform_private_subnet"
   }
 }
 
@@ -81,16 +81,16 @@ resource "aws_route_table" "private" {
   vpc_id = "${aws_vpc.default.id}"
 
   route {
-      cidr_block = "0.0.0.0/0"
-      instance_id = "${aws_instance.nat.id}"
+    cidr_block  = "0.0.0.0/0"
+    instance_id = "${aws_instance.nat.id}"
   }
 
   tags {
-      Name = "terraform_private_subnet_route_table"
+    Name = "terraform_private_subnet_route_table"
   }
 }
 
 resource "aws_route_table_association" "private" {
-  subnet_id = "${aws_subnet.private.id}"
+  subnet_id      = "${aws_subnet.private.id}"
   route_table_id = "${aws_route_table.private.id}"
 }

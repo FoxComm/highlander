@@ -1,6 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 WORK_DIR=/var/lib/mesos
+LOG_DIR=/var/log/mesos
 IP=`hostname -I | awk '{print $1}'`
 QUORUM={{mesos_quorum}}
 CLUSTER_NAME={{mesos_cluster_name}}
@@ -12,4 +13,5 @@ mesos-master --hostname=$IP \
     --quorum=$QUORUM \
     --zk={{zookeepers}}/mesos \
     --cluster=$CLUSTER_NAME \
-    --work_dir=$WORK_DIR
+    --work_dir=$WORK_DIR \
+    --log_dir=$LOG_DIR

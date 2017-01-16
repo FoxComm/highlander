@@ -2,38 +2,32 @@
 
 - name: Copy Mesos Worker Run Script
   template: src=run_mesos_worker.sh dest=/usr/local/bin/run_mesos_worker.sh mode="u+x,g+x,o+x"
-  sudo: true
 
 - name: Setup Mesos Data Dir
   file: path=/var/lib/sandbox state=directory
-  sudo: true
 
 - name: Install Mesos Worker Service Entry
-  sudo: true
   template:
     src: mesos_worker.service
     dest: "{{dest_services}}/mesos_worker.service"
 
 - name: Reload Systemd for Mesos Worker
-  sudo: yes
   command: systemctl daemon-reload
 
 - name: Restart Mesos Worker
   service: name=mesos_worker state=restarted enabled=true
-  sudo: true
 
 - name: Make Certs Directory
-  file: path=/certs state=directory mode="600"
-  sudo: true
+  file: path=/certs state=directory mode="0600"
 
 - name: Copy Cert
-  copyv: src="{{role_path}}/../secret_keys/files/certs/{{cert_path}}/frontend/domain.crt" dest=/certs/domain.crt mode="600"
-  sudo: true
+  copy: src="{{role_path}}/../secret_keys/files/certs/{{cert_path}}/frontend/domain.crt" dest=/certs/domain.crt mode="0600"
 
 - name: Copy Key
-  copyv: src="{{role_path}}/../secret_keys/files/certs/{{cert_path}}/frontend/domain.key" dest=/certs/domain.key mode="600"
-  sudo: true
+  copy: src="{{role_path}}/../secret_keys/files/certs/{{cert_path}}/frontend/domain.key" dest=/certs/domain.key mode="0600"
 
 - name: Copy Consul Mesos Worker Service File
   template: src=mesos_worker.json dest="/etc/consul.d/mesos_worker.json"
-  sudo: true
+
+- name: Create Log Directory For Docker Services
+  file: path="{{docker_logs_host_dir}}" state=directory mode="u+rw,g+rw,o+r"

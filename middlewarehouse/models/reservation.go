@@ -8,6 +8,7 @@ import (
 type Reservation struct {
 	gormfox.Base
 	RefNum string
+	Scope  string
 }
 
 func (r Reservation) Identifier() uint {
@@ -15,5 +16,5 @@ func (r Reservation) Identifier() uint {
 }
 
 func MakeReservationFromPayload(payload payloads.Reservation) Reservation {
-	return Reservation{RefNum: payload.RefNum}
+	return Reservation{RefNum: payload.RefNum, Scope: payload.Scope}
 }

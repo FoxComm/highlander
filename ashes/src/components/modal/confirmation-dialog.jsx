@@ -17,7 +17,7 @@ type Props = {
   icon?: string,
   onCancel: Function,
   confirmAction: Function,
-  asyncState?: AsyncStatus,
+  asyncState?: AsyncState,
 };
 
 const ConfirmationDialog = (props: Props): Element => {
@@ -56,10 +56,11 @@ const ConfirmationDialog = (props: Props): Element => {
           {props.body}
         </div>
         <div className='fc-modal-footer'>
-          <a tabIndex="2" className='fc-modal-close' onClick={() => props.onCancel()}>
+          <a id="modal-cancel-btn" tabIndex="2" className='fc-modal-close' onClick={() => props.onCancel()}>
             {props.cancel}
           </a>
-          <PrimaryButton tabIndex="1" autoFocus={true}
+          <PrimaryButton id="modal-confirm-btn"
+                         tabIndex="1" autoFocus={true}
                          isLoading={_.get(props.asyncState, 'inProgress', false)}
                          onClick={() => props.confirmAction()}>
             {props.confirm}

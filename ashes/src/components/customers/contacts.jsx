@@ -73,7 +73,7 @@ export default class CustomerContacts extends React.Component {
 
   get nameField() {
     if (!this.props.isContactsEditing) {
-      return <dd>{ this.props.details.name }</dd>;
+      return <dd id="customer-contacts-name">{ this.props.details.name }</dd>;
     }
 
     return (
@@ -92,7 +92,7 @@ export default class CustomerContacts extends React.Component {
 
   get emailField() {
     if (!this.props.isContactsEditing) {
-      return <dd>{ this.props.details.email }</dd>;
+      return <dd id="customer-contacts-email">{ this.props.details.email }</dd>;
     }
 
     return (
@@ -111,7 +111,7 @@ export default class CustomerContacts extends React.Component {
 
   get phoneField() {
     if (!this.props.isContactsEditing) {
-      return <dd>{ this.props.details.phoneNumber }</dd>;
+      return <dd id="customer-contacts-phone">{ this.props.details.phoneNumber }</dd>;
     }
 
     return (
@@ -137,7 +137,7 @@ export default class CustomerContacts extends React.Component {
   get actionBlock() {
     if (!this.props.isContactsEditing) {
       return (
-        <EditButton onClick={ this.onEditClick }/>
+        <EditButton id="customer-contacts-edit-btn" onClick={ this.onEditClick }/>
       );
     }
   }

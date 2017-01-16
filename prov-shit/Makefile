@@ -17,34 +17,29 @@ clean:
 lint:
 	ansible-lint -x ANSIBLE0007,ANSIBLE0004 ansible/*.yml
 
-test:
-	$(call header, Testing)
+test-go:
 	go get github.com/stretchr/testify
 	$(GO) test ./inventory/
 
-deploy-stage:
-	ansible-playbook -v -i bin/envs/staging ansible/stage.yml
+test-tf:
+	./terraform/testfmt.sh
 
-deploy-stage-highlander:
-	ansible-playbook -v -i bin/envs/staging ansible/highlander_staging.yml
+test:
+	$(call header, Testing)
+	make test-go
+	make test-tf
+
+deploy-stage:
+	ansible-playbook -v -i bin/envs/staging ansible/test_stage.yml
 
 deploy-td-test:
-	ansible-playbook -v -i bin/envs/staging ansible/td_test.yml
+	ansible-playbook -v -i bin/envs/staging ansible/test_topdrawer.yml
+
+deploy-tgt-test:
+	ansible-playbook -v -i bin/envs/staging ansible/test_target.yml
 
 deploy-tpg-test:
-	ansible-playbook -v -i bin/envs/staging ansible/tpg_test.yml
-
-deploy-gatling:
-	ansible-playbook -v -i bin/envs/staging ansible/gatling.yml
-
-deploy-gatling-highlander:
-	ansible-playbook -v -i bin/envs/staging ansible/highlander_gatling.yml --private-key=$(PRIVATE_KEY)
-
-run-gatling: deploy-gatling
-	ansible-playbook -v -i bin/envs/staging ansible/run_gatling.yml
-
-run-gatling-highlander: deploy-gatling-highlander
-	ansible-playbook -v -i bin/envs/staging ansible/run_gatling_highlander.yml
+	ansible-playbook -v -i bin/envs/staging ansible/test_perfectgourmet.yml
 
 docker:
 	$(call header, Dockerizing)

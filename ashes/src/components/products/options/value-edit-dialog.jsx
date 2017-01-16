@@ -78,6 +78,7 @@ class ValueEditDialog extends Component {
           required
         >
           <input
+            id="value-name-fld"
             type="text"
             value={name}
             ref="nameInput"

@@ -11,4 +11,4 @@ RUN rm  -rf /build
 
 EXPOSE 15054
 
-CMD java $JAVA_OPTS -jar messaging.jar
+CMD java $JAVA_OPTS -jar messaging.jar 2>&1 | tee /logs/messaging.log

@@ -7,6 +7,7 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 
 	"github.com/jinzhu/gorm"
+	"github.com/FoxComm/highlander/middlewarehouse/common/transaction"
 )
 
 const (
@@ -18,14 +19,17 @@ type stockItemUnitRepository struct {
 }
 
 type IStockItemUnitRepository interface {
+	WithTransaction(txn *gorm.DB) IStockItemUnitRepository
 	GetStockItemUnitIDs(stockItemID uint, unitStatus models.UnitStatus, unitType models.UnitType, count int) ([]uint, error)
 	GetUnitsInOrder(refNum string) ([]*models.StockItemUnit, error)
+	GetUnitForLineItem(refNum string, sku string) (*models.StockItemUnit, error)
+	GetQtyForOrder(refNum string) ([]*models.Release, error)
+
 	HoldUnitsInOrder(refNum string, ids []uint) (int, error)
 	ReserveUnitsInOrder(refNum string) (int, error)
 	UnsetUnitsInOrder(refNum string) (int, error)
-	GetUnitForLineItem(refNum string, sku string) (*models.StockItemUnit, error)
-
-	GetReleaseQtyByRefNum(refNum string) ([]*models.Release, error)
+	ShipUnitsInOrder(refNum string) (int, error)
+	DeleteUnitsInOrder(refNum string) (int, error)
 
 	CreateUnits(units []*models.StockItemUnit) error
 	DeleteUnits(ids []uint) error
@@ -35,8 +39,17 @@ func NewStockItemUnitRepository(db *gorm.DB) IStockItemUnitRepository {
 	return &stockItemUnitRepository{db}
 }
 
+// WithTransaction returns a shallow copy of repository with its db changed to txn. The provided txn must be non-nil.
+func (repository *stockItemUnitRepository) WithTransaction(txn *gorm.DB) IStockItemUnitRepository {
+	if txn == nil {
+		panic("nil transaction")
+	}
+
+	return NewStockItemUnitRepository(txn)
+}
+
 func (repository *stockItemUnitRepository) CreateUnits(units []*models.StockItemUnit) error {
-	txn := repository.db.Begin()
+	txn := transaction.NewTransaction(repository.db).Begin()
 	for _, v := range units {
 		if err := txn.Create(v).Error; err != nil {
 			txn.Rollback()
@@ -124,6 +137,16 @@ func (repository *stockItemUnitRepository) ReserveUnitsInOrder(refNum string) (i
 	return int(result.RowsAffected), result.Error
 }
 
+func (repository *stockItemUnitRepository) ShipUnitsInOrder(refNum string) (int, error) {
+	updateWith := map[string]interface{}{
+		"status": models.StatusShipped,
+	}
+
+	result := repository.db.Model(&models.StockItemUnit{}).Where("ref_num = ?", refNum).Updates(updateWith)
+
+	return int(result.RowsAffected), result.Error
+}
+
 func (repository *stockItemUnitRepository) UnsetUnitsInOrder(refNum string) (int, error) {
 	// gorm does not update empty fields when updating with struct, so use map here
 	updateWith := map[string]interface{}{
@@ -136,7 +159,13 @@ func (repository *stockItemUnitRepository) UnsetUnitsInOrder(refNum string) (int
 	return int(result.RowsAffected), result.Error
 }
 
-func (repository *stockItemUnitRepository) GetReleaseQtyByRefNum(refNum string) ([]*models.Release, error) {
+func (repository *stockItemUnitRepository) DeleteUnitsInOrder(refNum string) (int, error) {
+	result := repository.db.Delete(models.StockItemUnit{}, "ref_num = ?", refNum)
+
+	return int(result.RowsAffected), result.Error
+}
+
+func (repository *stockItemUnitRepository) GetQtyForOrder(refNum string) ([]*models.Release, error) {
 	res := []*models.Release{}
 
 	err := repository.db.Table("stock_item_units u").

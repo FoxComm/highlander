@@ -1,4 +1,3 @@
-
 # Common variables
 home: /home/{{ user }}
 self_host: 127.0.0.1
@@ -13,6 +12,8 @@ local_vagrant: false
 # Consul Service Discovery
 consul_data_dir: /var/consul
 consul_suffix: service.consul
+consul_port: 8500
+consul_server: "{{self_host}}:{{consul_port}}"
 
 db_host: "db.{{consul_suffix}}"
 docker_db_host: "db.{{consul_suffix}}"
@@ -27,7 +28,8 @@ isaac_port: 9190
 isaac_server: "{{isaac_host}}:{{isaac_port}}"
 
 search_host: "elasticsearch.{{consul_suffix}}"
-log_host: "{{search_host}}"
+es_logs_port: 9201
+log_host: "{{search_host}}:{{es_logs_port}}"
 search_server_http: "{{search_host}}:9200"
 search_server: "{{search_host}}:9300"
 
@@ -110,6 +112,7 @@ phoenix_tracing: "false"
 phoenix_db_connection_string: "postgresql://{{phoenix_db_user}}@{{db_host}}/{{phoenix_db_name}}"
 
 phoenix_api_version: v1
+phoenix_api_user_org: tenant
 phoenix_api_user: "api@foxcommerce.com"
 phoenix_api_password: "api$pass7!"
 
@@ -150,7 +153,6 @@ capture_consumer_bin_src: "{{capture_consumer_src}}/capture-consumer"
 shipstation_api_key: ""
 shipstation_api_secret: ""
 shipstation_topic: "activities"
-shipstation_partition: 1
 shipstation_interval: "10s"
 
 # Ashes
@@ -210,9 +212,6 @@ packing: false
 # Should we upload Phoenix / Green River JAR?
 # Should be seed DB, seed via Gatling?
 upload_phoenix_jar: true
-upload_greenriver_jar: true
-with_seeder: false
-with_gatling_seeder: true
 
 # Deploy marketplace?
 with_marketplace: false
@@ -236,6 +235,9 @@ with_gatling_seeder: true
 docker_branch: master
 docker_frontend_branch: master
 docker_registry: docker-stage.foxcommerce.com
+docker_registry_provider: gce
+docker_logs_dir: /logs
+docker_logs_host_dir: /var/log/docker
 
 # Marketplace
 marketplace_db_name: marketplace_development
@@ -245,3 +247,5 @@ marketplace_db_connection_string: "postgresql://{{marketplace_db_user}}@{{db_hos
 # Set this to true for first run deployments
 first_run: false
 
+# BuildKite Settings
+buildkite_env: gce
