@@ -1,4 +1,3 @@
-
 import KoaApp from 'koa';
 import serve from 'koa-better-static';
 import favicon from 'koa-favicon';
@@ -11,6 +10,8 @@ import verifyJwt from './verify-jwt';
 import onerror from 'koa-onerror';
 import moment from 'moment';
 import chalk from 'chalk';
+import bodyParser from 'koa-bodyparser';
+import contactFeedbackRoute from './routes/contact-feedback-route';
 
 function timestamp() {
   return moment().format('D MMM H:mm:ss');
@@ -22,12 +23,21 @@ export default class App extends KoaApp {
     super(...args);
     onerror(this);
 
+    if (process.env.MAILCHIMP_API_KEY === undefined ||
+      process.env.CONTACT_EMAIL === undefined) {
+      throw new Error(
+        'MAILCHIMP_API_KEY and CONTACT_EMAIL varibales should be defined in environment.'
+      );
+    }
+
     this.use(serve('public'))
       .use(favicon('public/favicon.png'))
       .use(makeApiProxy())
       .use(makeElasticProxy())
+      .use(bodyParser())
       .use(zipcodes.routes())
       .use(zipcodes.allowedMethods())
+      .use(contactFeedbackRoute(process.env.MAILCHIMP_API_KEY))
       .use(verifyJwt)
       .use(loadI18n)
       .use(renderReact);
