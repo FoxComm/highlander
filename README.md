@@ -70,7 +70,7 @@ will give you the most flexibility and performance. Currently, the VM is
 configured to use 8 GB of memory and 4 vCPUs, so it’s not worth trying unless
 you have 12+ GB of RAM.
 
-**Local VM**
+#### Local VM
 
 Provision a VM
 
@@ -82,31 +82,29 @@ Set your hosts file so that you can access the site by adding the following to `
 
 Connect to the site through your browser.
 
-**Google Compute VM**
+#### Google Compute VM
 
-Tweak Vagrant by running:
+1. [Generate your SSH key for GCE](https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/) and put the public key to [project metadata](https://console.cloud.google.com/compute/metadata/sshKeys?project=foxcomm-staging).
 
+2. [Generate Google service account key](https://cloud.google.com/storage/docs/authentication#generating-a-private-key) and download it in JSON format to your machine.
+
+3. Run `.env.local` generator, required for Vagrant. You'll be prompted for you corporate e-mail and SSH/JSON key locations.
+
+    ```
+    $ make dotenv
+    ```
+
+4. Pre-configure Vagrant by running:
+
+    ```
     $ make prepare
+    ```
 
-Set the following environment variables.
+5. You're ready to spin up the machine! Do it by running:
 
-    $ export GOOGLE_SSH_USERNAME=ubuntu
-    $ export GOOGLE_SSH_KEY=~/.ssh/google_compute_engine # Or the location of your key
-    $ export GOOGLE_CLIENT_EMAIL=<Your FoxCommerce email>
-    $ export GOOGLE_INSTANCE_NAME=tony-test-instance-1 # Optional custom instance name
-
-Download a JSON key for our GCE environment. You can follow
-[Google's instructions for generating a private key](https://cloud.google.com/storage/docs/authentication#generating-a-private-key).
-
-Make sure to generate a JSON key. And save it with the name `foxcomm-staging.json` in the root directory of this project.
-
-Once downloaded, set the location.
-
-    $ export GOOGLE_JSON_KEY_LOCATION=`pwd`/foxcomm-staging.json
-
-Then run
-
+    ```
     $ make up
+    ```
 
 Test machines are created without a public facing IP address, so you'll need to use the VPN to access it.
 

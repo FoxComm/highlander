@@ -65,6 +65,11 @@ shortcuts:
     alias: sinopia.yml
     target: ansible/bootstrap_sinopia.yml
 
+  # Goldrush
+  - name: Generate .env.local
+    alias: env_local.yml
+    target: ansible/goldrush_env_local.yml
+
   # Test Machines
   - name: Provision FoxComm Test
     alias: test_stage.yml
