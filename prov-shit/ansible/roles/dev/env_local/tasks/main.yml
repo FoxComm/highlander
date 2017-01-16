@@ -1,6 +1,10 @@
 ---
 
-  - name: Find out playbooks path
-    shell: pwd
-    register: playbook_path_output
-  - debug: var=playbook_path_output.stdout
+- name: Find out Highlander path
+  shell: "dirname $(dirname $(pwd))"
+  register: highlander_path_out
+
+- debug: var=highlander_path_out.stdout
+
+- name: Overwrite Highlander .env.local
+  template: src=env.local.j2 dest="{{highlander_path_out.stdout}}/.env.local"

@@ -6,6 +6,9 @@ prepare:
 	vagrant plugin install vagrant-google
 	vagrant box add --force gce https://github.com/mitchellh/vagrant-google/raw/master/google.box
 
+dotenv:
+	cd prov-shit && ansible-playbook -v --inventory-file=bin/envs/dev ansible/goldrush_env_local.yml
+
 up:
 	$(call header, Creating GCE Machine)
 	export eval `cat ./.env.local`; vagrant up --provider=google appliance
