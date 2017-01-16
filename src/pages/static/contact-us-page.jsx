@@ -64,10 +64,11 @@ class ContactUsPage extends Component {
   }
 
   get errorAlert() {
-    return this.state.error ?
+    return this.state.error ? (
       <div styleName="error">
         <ErrorAlerts error={this.state.error} />
-      </div> : null;
+      </div>
+    ) : null;
   }
 
   get loader() {
@@ -75,10 +76,11 @@ class ContactUsPage extends Component {
   }
 
   get submitButton() {
-    return !this.state.sending ?
+    return !this.state.sending ? (
       <Button styleName="submit-btn" type="submit">
         Submit
-      </Button> : null;
+      </Button>
+    ) : null;
   }
 
   renderForm() {
