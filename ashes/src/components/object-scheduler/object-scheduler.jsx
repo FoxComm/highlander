@@ -18,7 +18,6 @@ type Props = {
   onChange: (attributes: Attributes) => void,
   title: string,
   parent?: string,
-  id: string,
 };
 
 type State = {

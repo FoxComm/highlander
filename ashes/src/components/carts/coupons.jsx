@@ -81,7 +81,7 @@ class CartCoupons extends Component {
       <Button id="apply-coupon-btn" styleName="add-coupon-button" onClick={this.onAddClick}>Apply</Button>
     );
     const errorMessage = this.props.coupons.error && (
-        <div className="fc-form-field-error">{this.fancyErfc-sidebarrorMessage}</div>
+        <div className="fc-form-field-error">{this.fancyErrorMessage}</div>
       );
     return (
       <div styleName="add-coupon-block">
