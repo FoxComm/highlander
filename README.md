@@ -35,7 +35,7 @@ has a lot to do!
 
 ### Google Compute VM
 
-1. [Generate your SSH key for GCE](https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/) and put the public key to [project metadata](https://console.cloud.google.com/compute/metadata/sshKeys?project=foxcomm-staging).
+1. [Generate your SSH key](https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/) for GCE and put the public key to [project metadata](https://console.cloud.google.com/compute/metadata/sshKeys?project=foxcomm-staging).
 
 2. [Generate Google service account key](https://cloud.google.com/storage/docs/authentication#generating-a-private-key) and download it in JSON format to your machine.
 
@@ -59,10 +59,10 @@ has a lot to do!
 
 Test machines are created without a public facing IP address, so you'll need to use the VPN to access it.
 
-Get the private IP address
+Get the private IP address:
 
     $ vagrant ssh
-    $ ifconfig eth0
+    $ hostname -i
 
 Edit your hosts file so that `local.foxcommerce.com` points to the new box using the private IP address you just retrieved.
 
