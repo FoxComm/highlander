@@ -115,7 +115,7 @@ export class CartLineItem extends Component {
         <td><img src={item.imagePath} /></td>
         <td>{item.name}</td>
         <td><Link to="sku-details" params={{ skuCode: item.sku }}>{item.sku}</Link></td>
-        <td><Currency value={item.price} /></td>
+        <td><Currency className="item-price" value={item.price} /></td>
         <td>
           <Counter
             id={`line-item-quantity-${item.sku}`}
@@ -128,7 +128,7 @@ export class CartLineItem extends Component {
             increaseAction={() => this.handleButtonClick(1)}
           />
         </td>
-        <td><Currency value={item.totalPrice} /></td>
+        <td><Currency className="item-total-price" value={item.totalPrice} /></td>
         <td>
           <DeleteButton onClick={this.startDelete} />
           <ConfirmationDialog

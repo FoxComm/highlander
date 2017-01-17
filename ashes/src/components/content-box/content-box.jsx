@@ -19,7 +19,7 @@ const ContextBox = props => {
   );
 
   return (
-    <div className={ classNames('fc-content-box', props.className) }>
+    <div id={props.id} className={ classNames('fc-content-box', props.className) }>
       <header className="fc-content-box-header">
         <div className="fc-title">{ props.title }</div>
         <div className="fc-controls">{ props.actionBlock }</div>
@@ -33,6 +33,7 @@ const ContextBox = props => {
 };
 
 ContextBox.propTypes = {
+  id: PropTypes.string,
   title: PropTypes.node,
   className: PropTypes.string,
   bodyClassName: PropTypes.string,

@@ -48,9 +48,10 @@ class WarehouseDrawer extends Component {
     };
 
     const uniqId = `${row.type}-${row.id}`;
+    const rowId = row.type.toLowerCase();
 
     return (
-      <TableRow key={uniqId}>
+      <TableRow id={rowId} key={uniqId}>
         <td>{row.type}</td>
         <td>
           <AdjustQuantity
@@ -60,10 +61,10 @@ class WarehouseDrawer extends Component {
             togglePopup={(show) => this.togglePopupFor(uniqId, show)}
           />
         </td>
-        <td>{row.onHold}</td>
-        <td>{row.reserved}</td>
-        <td>{row.afs}</td>
-        <td><Currency value={row.afsCost}/></td>
+        <td className="hold">{row.onHold}</td>
+        <td className="reserved">{row.reserved}</td>
+        <td className="afs">{row.afs}</td>
+        <td><Currency className="afs-cost-value" value={row.afsCost}/></td>
       </TableRow>
     );
   }

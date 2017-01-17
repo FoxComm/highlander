@@ -86,7 +86,7 @@ export default class ObjectFormInner extends Component {
       return (
         <div className="fc-object-form__add-custom-property">
           Custom Property
-          <a className="fc-object-form__add-custom-property-icon"
+          <a id="add-customer-property-btn" className="fc-object-form__add-custom-property-icon"
              onClick={this.handleAddProperty}>
             <i className="icon-add" />
           </a>

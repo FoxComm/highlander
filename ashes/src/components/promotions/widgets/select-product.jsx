@@ -67,6 +67,7 @@ export default class SelectProduct extends Component {
   render() {
     return (
       <DropdownSearch
+        className="select-product-dd"
         name="selectProduct"
         placeholder="- Select Product -"
         styleName="full-width"

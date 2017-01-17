@@ -65,7 +65,7 @@ class OptionEntry extends Component {
 
     return (
       <table className="fc-table">
-        <tbody>
+        <tbody id={`product-option-${optionName}-values`}>
         {entries}
         </tbody>
       </table>
@@ -83,9 +83,20 @@ class OptionEntry extends Component {
   get titleBarActions(): Element {
     return (
       <div className="fc-option-entry__actions">
-        <a onClick={() => this.editValue('new')} styleName="action-icon"><i className="icon-add"/></a>
-        <a onClick={() => this.props.editOption(this.props.id)} styleName="action-icon"><i className="icon-edit"/></a>
         <a
+          className="option-add-btn"
+          onClick={() => this.editValue('new')}
+          styleName="action-icon">
+          <i className="icon-add"/>
+        </a>
+        <a
+          className="option-edit-btn"
+          onClick={() => this.props.editOption(this.props.id)}
+          styleName="action-icon">
+          <i className="icon-edit"/>
+        </a>
+        <a
+          className="option-delete-btn"
           onClick={() => this.props.deleteOption(this.props.id)}
           styleName="action-icon">
           <i className="icon-trash"/>
