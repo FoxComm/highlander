@@ -1,7 +1,7 @@
 package services.customerGroups
 
 import models.account.{Scope, User}
-import models.customer.{CustomerDynamicGroup, CustomerDynamicGroups}
+import models.customer._
 import payloads.CustomerGroupPayloads.CustomerDynamicGroupPayload
 import responses.DynamicGroupResponse.{Root, build}
 import utils.aliases._
@@ -16,11 +16,9 @@ object GroupManager {
 
   def create(payload: CustomerDynamicGroupPayload,
              admin: User)(implicit ec: EC, db: DB, au: AU): DbResultT[Root] =
-    for {
-      scope ← * <~ Scope.resolveOverride(payload.scope)
-      group ← * <~ CustomerDynamicGroups.create(
-                 CustomerDynamicGroup.fromPayloadAndAdmin(payload, admin.accountId, scope))
-    } yield build(group)
+    payload.templateId
+      .map(tid ⇒ createTemplateGroup(tid, payload, admin))
+      .getOrElse(createCustom(payload, admin))
 
   def update(groupId: Int, payload: CustomerDynamicGroupPayload)(implicit ec: EC,
                                                                  db: DB,
@@ -34,4 +32,26 @@ object GroupManager {
                          .fromPayloadAndAdmin(payload, group.createdBy, scope)
                          .copy(id = groupId))
     } yield build(groupEdited)
+
+  private def createCustom(payload: CustomerDynamicGroupPayload,
+                           admin: User)(implicit ec: EC, db: DB, au: AU): DbResultT[Root] =
+    for {
+      scope ← * <~ Scope.resolveOverride(payload.scope)
+      group ← * <~ CustomerDynamicGroups.create(
+                 CustomerDynamicGroup.fromPayloadAndAdmin(payload, admin.accountId, scope))
+    } yield build(group)
+
+  private def createTemplateGroup(templateId: Int,
+                                  payload: CustomerDynamicGroupPayload,
+                                  admin: User)(implicit ec: EC, db: DB, au: AU): DbResultT[Root] =
+    for {
+      scope    ← * <~ Scope.resolveOverride(payload.scope)
+      template ← * <~ CustomerGroupTemplates.mustFindById404(templateId)
+      group ← * <~ CustomerDynamicGroups.create(
+                 CustomerDynamicGroup.fromPayloadAndAdmin(payload, admin.accountId, scope))
+      _ ← * <~ GroupTemplateInstances.create(
+              GroupTemplateInstance(groupId = group.id,
+                                    groupTemplateId = template.id,
+                                    scope = scope))
+    } yield build(group)
 }

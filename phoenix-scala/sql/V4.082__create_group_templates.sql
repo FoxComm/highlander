@@ -7,7 +7,7 @@ create table customer_group_templates (
 
 create table group_template_instances (
   id serial primary key,
-  group_tempalte_id integer references customer_group_templates (id),
+  group_template_id integer references customer_group_templates (id),
   group_id integer references customer_dynamic_groups (id),
   scope exts.ltree
 );
