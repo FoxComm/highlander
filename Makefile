@@ -13,17 +13,18 @@ dotenv:
 up:
 	$(call header, Creating GCE Machine)
 	export eval `cat ./.env.local`; vagrant up --provider=google appliance
+	cat goldrush.log
 
 provision:
 	$(call header, Provisioning GCE Machine)
-	export eval `cat ./.env.local`; VAGRANT_DEFAULT_PROVIDER=google vagrant provision appliance
+	export eval `cat ./.env.local`; vagrant provision appliance
 
 destroy:
 	$(call header, Destroying GCE Machine)
-	export eval `cat ./.env.local`; VAGRANT_DEFAULT_PROVIDER=google vagrant destroy appliance --force
+	export eval `cat ./.env.local`; vagrant destroy appliance --force
 
 ssh:
 	$(call header, Connecting to GCE Machine)
-	export eval `cat ./.env.local`; VAGRANT_DEFAULT_PROVIDER=google vagrant ssh appliance
+	export eval `cat ./.env.local`; vagrant ssh appliance
 
 .PHONY: prepare dotenv up provision destroy ssh

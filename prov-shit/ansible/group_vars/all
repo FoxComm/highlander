@@ -210,9 +210,6 @@ zipkin_collector: localhost
 # Are we running packer?
 packing: false
 
-# Is it Buildkite running?
-buildkite: false
-
 # Should we upload Phoenix / Green River JAR?
 # Should be seed DB, seed via Gatling?
 upload_phoenix_jar: true
