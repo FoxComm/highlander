@@ -7,7 +7,7 @@ defmodule Solomon.Mixfile do
      elixir: "~> 1.2",
      elixirc_paths: elixirc_paths(Mix.env),
      compilers: [:phoenix, :gettext] ++ Mix.compilers,
-     build_embedded: Mix.env == :prod,
+     build_embedded: false,
      start_permanent: Mix.env == :prod,
      aliases: aliases(),
      deps: deps()]
