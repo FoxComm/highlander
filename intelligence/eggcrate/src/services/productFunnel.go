@@ -22,8 +22,8 @@ func ProductQuery(id string, verbs []string, a, b string) (responses.HenhouseRes
 
 func GetProductFunnel(c echo.Context) error {
 	id := c.Param("id")
-	if id == "" {
-		return c.String(http.StatusBadRequest, "id is required")
+	if id != "" {
+		id += "_"
 	}
 	from, to := c.QueryParam("from"), c.QueryParam("to")
 	resp, err := henhouseProductFunnel(id, from, to)
@@ -61,6 +61,9 @@ func buildResponse(pf responses.HenhouseResponse) string {
 	}
 	if checkoutPurchased = 0.0; checkoutClicks > 0.0 {
 		checkoutPurchased = float64(purchases) / float64(checkoutClicks)
+	}
+	if checkoutPurchased = 0.0; checkoutClicks > 0.0 {
+		checkoutPurchased = float32(purchases) / float32(checkoutClicks)
 	}
 
 	resp := responses.ProductFunnelResponse{
