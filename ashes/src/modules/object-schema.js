@@ -8,7 +8,11 @@ const _fetchSchema = createAsyncActions(
   (kind, id = void 0) => {
     if (kind === 'sku') {
       const skuSchema = require('./schemas/sku.json');
-      return new Promise(resolve => resolve([{schema: skuSchema}]));
+      return new Promise(resolve => {
+        setTimeout(() => {
+          resolve([{schema: skuSchema, kind}])
+        }, 100);
+      });
     }
 
     return Api.get(`/object/schemas/byKind/${kind}`);

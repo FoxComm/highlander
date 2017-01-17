@@ -9,6 +9,7 @@ import invariant from 'invariant';
 import { push } from 'react-router-redux';
 import { autobind } from 'core-decorators';
 import jsen from 'jsen';
+import { makeLocalStore, addAsyncReducer } from '@foxcomm/wings';
 
 import styles from './object-page.css';
 
@@ -30,6 +31,7 @@ import { supressTV } from 'paragons/object';
 
 // modules
 import * as SchemaActions from 'modules/object-schema';
+import schemaReducer from 'modules/object-schema';
 
 export function connectPage(namespace, actions, options = {}) {
   const capitalized = _.upperFirst(namespace);
@@ -53,11 +55,9 @@ export function connectPage(namespace, actions, options = {}) {
       schemaName,
       capitalized,
       requiredActions,
-      schema: _.get(state.objectSchemas, schemaName),
       details: state[plural].details,
       originalObject: _.get(state, [plural, 'details', namespace], {}),
       isFetching: _.get(state.asyncActions, `${actionNames.fetch}.inProgress`, null),
-      isSchemaFetching: _.get(state.asyncActions, 'fetchSchema.inProgress', null),
       fetchError: _.get(state.asyncActions, `${actionNames.fetch}.err`, null),
       createError: _.get(state.asyncActions, `${actionNames.create}.err`, null),
       updateError: _.get(state.asyncActions, `${actionNames.update}.err`, null),
@@ -76,7 +76,6 @@ export function connectPage(namespace, actions, options = {}) {
   function generalizeActions(actions) {
     const result = {
       ...actions,
-      ...SchemaActions
     };
 
     _.each(actionNames, (name, key) => {
@@ -93,8 +92,19 @@ export function connectPage(namespace, actions, options = {}) {
     };
   }
 
+  function mapSchemaProps(state) {
+    return {
+      schema: _.get(state, schemaName),
+      isSchemaFetching: _.get(state.asyncActions, 'fetchSchema.inProgress', null),
+    };
+  }
+
   return Page => {
-    return connect(mapStateToProps, mapDispatchToProps)(Page);
+    return _.flowRight(
+      connect(mapStateToProps, mapDispatchToProps),
+      makeLocalStore(addAsyncReducer(schemaReducer)),
+      connect(mapSchemaProps, SchemaActions)
+    )(Page);
   };
 }
 
@@ -481,7 +491,7 @@ export class ObjectPage extends Component {
       return <Error err={props.fetchError} notFound={`There is no ${props.namespace} with id ${this.entityId}`} />;
     }
 
-    console.log('render', this.constructor.displayName);
+    console.log('render', this.constructor.name);
 
     return this.body;
   }

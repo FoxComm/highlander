@@ -4,6 +4,9 @@
 import _ from 'lodash';
 import React, { Element } from 'react';
 import { autobind } from 'core-decorators';
+
+// components
+import Prompt from 'components/common/prompt';
 import { connectPage, ObjectPage } from 'components/object-page/object-page';
 
 // actions
@@ -34,6 +37,19 @@ class SkuInventoryPage extends ObjectPage {
     return this.props.skuId;
   }
 
+  componentDidMount() {
+    this.props.actions.clearFetchErrors();
+    this.props.actions.fetchSchema(this.props.schemaName);
+    if (this.isNew) {
+      this.props.actions.newEntity();
+    } else {
+      this.fetchEntity()
+        .then(({ payload }) => {
+          if (isArchived(payload)) this.transitionToList();
+        });
+    }
+  }
+
   receiveNewObject(nextObject) {
     this.setState({
       object: nextObject,
@@ -61,7 +77,7 @@ class SkuInventoryPage extends ObjectPage {
           when={this.unsaved}
         />
         {this.errors}
-        {this.children}
+        <div>hello</div>
       </div>
     );
   }
