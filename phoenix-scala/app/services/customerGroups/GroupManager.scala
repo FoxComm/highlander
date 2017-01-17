@@ -1,9 +1,9 @@
 package services.customerGroups
 
-import failures.CustomerGroupFailures.CustomerGroupTemplateInstanceCannotBeDeleted
+import failures.CustomerGroupFailures._
 import failures.NotFoundFailure404
 import models.account.{Scope, User}
-import models.customer.{CustomerDynamicGroups, _}
+import models.customer._
 import payloads.CustomerGroupPayloads.CustomerDynamicGroupPayload
 import responses.DynamicGroupResponse.{Root, build}
 import utils.aliases._
