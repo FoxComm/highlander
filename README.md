@@ -59,15 +59,6 @@ has a lot to do!
     $ make up
     ```
 
-Test machines are created without a public facing IP address, so you'll need to use the VPN to access it.
-
-Get the private IP address:
-
-    $ vagrant ssh
-    $ hostname -i
-
-Edit your hosts file so that `local.foxcommerce.com` points to the new box using the private IP address you just retrieved.
-
 ### Local VM
 
 There is another option to run development environment in a local VM. Please refer to related [wiki page](engineering-wiki/development/Local-VM-DevEnv.md) for more information.
