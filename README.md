@@ -35,7 +35,7 @@ has a lot to do!
 
 ### Google Compute VM
 
-1. Ask one of DevOps guys for Ansible Vault password and OpenVPN keys.
+1. Ask one of DevOps guys for Ansible Vault password and OpenVPN keys + client configuration.
 
 2. [Generate your SSH key](https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/) for GCE and put the public key to [project metadata](https://console.cloud.google.com/compute/metadata/sshKeys?project=foxcomm-staging).
 
