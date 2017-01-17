@@ -19,9 +19,9 @@
     phoenix_tax_rule_rate: 7.5
 
   roles:
+    - { role: dev/consul_agent }
     - { role: dev/appliance, run_once: true }
     - { role: base/secret_keys }
-    - { role: dev/consul_agent }
     - { role: base/marketplace, when: with_marketplace }
     - { role: dev/kafka }
     - { role: dev/elasticsearch }
