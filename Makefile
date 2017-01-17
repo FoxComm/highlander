@@ -3,6 +3,7 @@ include makelib
 header = $(call baseheader, $(1), root)
 
 prepare:
+	pip install dnsimple
 	vagrant plugin install vagrant-google
 	vagrant box add --force gce https://github.com/mitchellh/vagrant-google/raw/master/google.box
 
@@ -20,7 +21,6 @@ provision:
 destroy:
 	$(call header, Destroying GCE Machine)
 	export eval `cat ./.env.local`; VAGRANT_DEFAULT_PROVIDER=google vagrant destroy appliance --force
-	cd prov-shit && ansible-playbook --inventory-file=bin/envs/staging ansible/goldrush_dns_simple.yml
 
 ssh:
 	$(call header, Connecting to GCE Machine)

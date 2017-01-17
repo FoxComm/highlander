@@ -72,9 +72,6 @@ shortcuts:
   - name: Generate .env.local
     alias: env_local.yml
     target: ansible/goldrush_env_local.yml
-  - name: DNS Simple Test
-    alias: dns_simple.yml
-    target: ansible/goldrush_dns_simple.yml
 
   # Test Machines
   - name: Provision FoxComm Test

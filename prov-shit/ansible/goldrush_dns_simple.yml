@@ -1,9 +1,0 @@
----
-
-- name: Register DNS Record for Appliance
-  hosts: api-docs
-  vars:
-    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
-    vagrant_destroy: true
-  roles:
-    - { role: dev/appliance_dns }
