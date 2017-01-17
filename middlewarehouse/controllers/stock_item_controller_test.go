@@ -34,8 +34,7 @@ func (suite *stockItemControllerTestSuite) SetupSuite() {
 	suite.db = config.TestConnection()
 	suite.router = gin.New()
 
-	summaryService := services.NewSummaryService(suite.db)
-	inventoryService := services.NewInventoryService(suite.db, summaryService)
+	inventoryService := services.NewInventoryService(suite.db)
 
 	controller := NewStockItemController(inventoryService)
 	controller.SetUp(suite.router.Group("/stock-items"))

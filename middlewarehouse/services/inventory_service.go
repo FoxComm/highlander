@@ -39,9 +39,10 @@ type InventoryService interface {
 
 type updateItemsStatusFunc func() (int, error)
 
-func NewInventoryService(db *gorm.DB, summaryService SummaryService) InventoryService {
+func NewInventoryService(db *gorm.DB) InventoryService {
 	stockItemRepo := repositories.NewStockItemRepository(db)
 	unitRepo := repositories.NewStockItemUnitRepository(db)
+	summaryService := NewSummaryService(db)
 	return &inventoryService{stockItemRepo, unitRepo, summaryService, nil}
 }
 
