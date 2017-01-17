@@ -21,7 +21,7 @@
     "DB_NAME": "{{bernardo_db_name}}",
     "DB_USER": "{{bernardo_db_user}}",
     "BERNARDO_HOST": "{{bernardo_host}}",
-    "UPSTREAM_URL": "https://balancer.service.consul:8888"
+    "UPSTREAM_URL": "http://balancer.service.consul:8888"
   },
   "constraints": [["hostname", "UNIQUE"]],
   "healthChecks": [
