@@ -3,9 +3,10 @@ package services
 import (
 	"encoding/json"
 	"net/http"
-	"responses"
 	"strings"
-	"util"
+
+	"github.com/FoxComm/highlander/intelligence/eggcrate/src/responses"
+	"github.com/FoxComm/highlander/intelligence/eggcrate/src/util"
 
 	"github.com/labstack/echo"
 )

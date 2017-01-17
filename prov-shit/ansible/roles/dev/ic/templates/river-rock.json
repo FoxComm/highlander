@@ -1,5 +1,5 @@
 {
-  "id": "/bernardo",
+  "id": "/river-rock",
   "cmd": null,
   "cpus": 0.25,
   "mem": 64,
@@ -9,7 +9,7 @@
     "type": "DOCKER",
     "volumes": [],
     "docker": {
-      "image": "{{docker_registry}}:5000/bernardo:{{docker_branch}}",
+      "image": "{{docker_registry}}:5000/river-rock:{{docker_branch}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],
@@ -20,9 +20,9 @@
     "DB_HOST": "{{docker_db_host}}",
     "DB_NAME": "{{bernardo_db_name}}",
     "DB_USER": "{{bernardo_db_user}}",
-    "PORT1" : "19090"
+    "BERNARDO_HOST": "{{bernardo_host}}",
+    "UPSTREAM_URL": "http://balancer.service.consul:8888"
   },
-  "constraints": [["hostname", "UNIQUE"]],
   "healthChecks": [
     {
       "path": "/ping",

@@ -7,13 +7,6 @@
   "instances": 1,
   "container": {
     "type": "DOCKER",
-    "volumes": [
-      {
-        "containerPath": "/eggcrate",
-        "hostPath": "/eggcrate",
-        "mode": "RW"
-      }
-    ],
     "docker": {
       "image": "{{docker_registry}}:5000/eggcrate:{{docker_branch}}",
       "network": "HOST",
@@ -23,9 +16,7 @@
     }
   },
   "env": {
-      "API_URL": "https://{{storefront_server_name}}",
-      "HENHOUSE_PORT": "",
-      "PORT": "10020"
+      "API_URL": "https://{{storefront_server_name}}"
   },
   "healthChecks": [
     {

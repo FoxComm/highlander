@@ -34,7 +34,7 @@ po::options_description create_descriptions()
     d.add_options()
         ("help,h", "prints help")
         ("ip,b", po::value<std::string>()->default_value("0.0.0.0"), "ip to bind")
-        ("http_port,p", po::value<std::uint16_t>()->default_value(9190), "http port")
+        ("http_port,p", po::value<std::uint16_t>()->default_value(9290), "http port")
         ("http2_port,P", po::value<std::uint16_t>()->default_value(9191), "http 2.0 port")
         ("db,d", po::value<std::string>()->default_value("host=127.0.0.1 dbname=ic user=ic"), "db connection string")
         ("workers,w", po::value<std::size_t>()->default_value(workers), "worker threads");

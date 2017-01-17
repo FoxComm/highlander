@@ -1,6 +1,11 @@
 
+upstream river-rock {
+  {{ '{{' }} range service "river-rock" {{ '}}' }} server {{ '{{' }} .Address {{ '}}' }}:{{ '{{' }} .Port {{ '}}' }} max_fails=10 fail_timeout=30s weight=1;
+  {{ '{{' }} else {{ '}}' }} server {{river_rock_server}} fail_timeout=30s max_fails=10; {{ '{{' }} end {{ '}}' }}
+}
+
 upstream henhouse {
-  {{ '{{' }} range service "henhouse" {{ '}}'}} server {{ '{{'}} .Address {{ '}}' }}:{{ '{{' }} .Port {{ '}}' }} max_fails=10 fail_timeout=30s weight=1;
+  {{ '{{' }} range service "henhouse" {{ '}}' }} server {{ '{{' }} .Address {{ '}}' }}:{{ '{{' }} .Port {{ '}}' }} max_fails=10 fail_timeout=30s weight=1;
   {{ '{{' }} else {{ '}}' }} server {{henhouse_server}} fail_timeout=30s max_fails=10; {{ '{{' }} end {{ '}}' }}
 }
 

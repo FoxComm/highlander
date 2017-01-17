@@ -24,11 +24,7 @@
     - { role: dev/consul_agent }
     - { role: base/marketplace, when: with_marketplace }
     - { role: dev/kafka }
-    - { role: base/elasticsearch }
     - { role: dev/elasticsearch }
-    - { role: base/elasticsearch-5 }
-    - { role: base/kibana }
-    - { role: base/bottledwater }
     - { role: dev/db }
     - { role: dev/pgweb }
     - { role: dev/isaac }
@@ -42,11 +38,11 @@
     - { role: ext/tgt/marketplace-ui, when: with_marketplace }
     - { role: dev/seeder }
     - { role: dev/messaging, retailer_name: 'FoxCommerce' }
+    - { role: dev/db_ic }
     - { role: dev/ic }
     - { role: dev/balancer }
     - { role: demo/balancer }
     - { role: dev/consumers }
-    - { role: base/rsyslog }
     - { role: dev/healthcheck }
 
   handlers:

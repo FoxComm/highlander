@@ -45,6 +45,7 @@ namespace bernardo::cluster
 
     struct cluster
     {
+        int id;
         std::string reference;
         folly::dynamic traits;
         feature_vec features; 
@@ -78,7 +79,7 @@ namespace bernardo::cluster
             group(const definition&);
             group& operator=(const group& o);
 
-            void add_cluster(const std::string& reference, folly::dynamic attributes);
+            void add_cluster(const int id, const std::string& reference, const folly::dynamic& attributes);
             find_result find_cluster(const feature_vec&) const;
 
             void build_index();

@@ -1,15 +1,5 @@
 ---
 
-- name: Get libfastjson
-  git: repo=https://github.com/rsyslog/libfastjson.git dest={{home}}/
-
-- name: Build Libfastjson
-  shell: ./autogen.sh && ./configure && make && make install
-  args:
-      chdir: "{{home}}/libfastjson"
-
-  sudo: true
-
 - name: Install Rsyslog Dependencies
   apt: name={{item}} state=installed
   with_items:
@@ -21,9 +11,23 @@
       - libgcrypt-dev
       - liblogging-stdlog-dev
 
+- name: Get libfastjson
+  git: repo=https://github.com/rsyslog/libfastjson.git dest={{home}}/libfastjson
+
+- name: Build Libfastjson
+  shell: ./autogen.sh && ./configure && make && make install
+  args:
+      chdir: "{{home}}/libfastjson"
+
+  sudo: true
+
 - name: Get Rsyslog
   get_url: url=http://www.rsyslog.com/files/download/rsyslog/rsyslog-8.23.0.tar.gz dest={{home}}/
 
+- name: Untar Rsyslog
+  shell: tar -zxf rsyslog-8.23.0.tar.gz
+  args:
+      chdir: "{{home}}"
 
 - name: Configure Rsyslog
   shell: ./configure --enable-omkafka --enable-elasticsearch --enable-mmjsonparse --enable-imfile

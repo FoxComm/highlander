@@ -2,9 +2,9 @@ package services
 
 import (
 	"encoding/json"
+	"github.com/FoxComm/highlander/intelligence/eggcrate/src/responses"
+	"github.com/FoxComm/highlander/intelligence/eggcrate/src/util"
 	"net/http"
-	"responses"
-	"util"
 
 	"github.com/labstack/echo"
 )

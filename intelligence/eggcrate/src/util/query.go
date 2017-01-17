@@ -2,9 +2,9 @@ package util
 
 import (
 	"encoding/json"
+	"github.com/FoxComm/highlander/intelligence/eggcrate/src/responses"
 	"net/http"
 	"os"
-	"responses"
 )
 
 var url = os.Getenv("API_URL")

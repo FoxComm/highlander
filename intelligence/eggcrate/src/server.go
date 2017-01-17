@@ -1,7 +1,7 @@
 package main
 
 import (
-	"services"
+	"github.com/FoxComm/highlander/intelligence/eggcrate/src/services"
 
 	"net/http"
 	"os"

@@ -139,9 +139,9 @@ namespace bernardo::cluster
         if(o._index) _index = std::make_unique<index>(*o._index);
     }
 
-    void group::add_cluster(const std::string& reference, folly::dynamic traits)
+    void group::add_cluster(const int id, const std::string& reference, const folly::dynamic& traits)
     {
-        clusters.emplace_back( cluster { reference, traits, compile_traits(traits, def)});
+        clusters.emplace_back( cluster { id, reference, traits, compile_traits(traits, def)});
     }
 
     void group::build_index()
@@ -315,18 +315,20 @@ namespace bernardo::cluster
     void load_clusters(pqxx::read_transaction& w, size_t group_id, group& g)
     {
         std::stringstream cluster_query;
-        cluster_query << "select ref, traits from clusters where group_id = " << group_id;
+        cluster_query << "select id, ref, traits from clusters where group_id = " << group_id;
         auto clusters = w.exec(cluster_query.str());
         for(auto cluster: clusters)
         {
-            CHECK_EQUAL(cluster.size(), 2);
+            CHECK_EQUAL(cluster.size(), 3);
+            int id;
             std::string ref;
             std::string encoded_traits;
-            cluster[0].to(ref);
-            cluster[1].to(encoded_traits);
+            cluster[0].to(id);
+            cluster[1].to(ref);
+            cluster[2].to(encoded_traits);
 
             std::cout << "\t\tcluster: " << ref << " traits: " << encoded_traits << std::endl;
-            g.add_cluster(ref, folly::parseJson(encoded_traits));
+            g.add_cluster(id, ref, folly::parseJson(encoded_traits));
         }
         g.build_index();
     }
