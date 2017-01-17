@@ -104,6 +104,7 @@ class ProductsQualifier extends Component {
 
       return (
         <Dropdown
+          className="select-product-search-dd"
           styleName="wide-dropdown"
           value={initialValue}
           placeholder="- Select Product Search -"
@@ -155,7 +156,8 @@ class ProductsQualifier extends Component {
     return (
       <div styleName="products">
         <strong styleName="label">{this.props.label}</strong>
-        <Dropdown styleName="mode-dropdown"
+        <Dropdown className="modifier-dd"
+                  styleName="mode-dropdown"
                   value={this.state.selectMode}
                   onChange={this.handleChangeSelectMode}
                   items={SELECT_PRODUCT_ITEMS}

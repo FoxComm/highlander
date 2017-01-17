@@ -1,0 +1,27 @@
+---
+
+- name: Provision Kangaroos
+  hosts: kangaroos
+  become: true
+  vars:
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+    download_flyway: false
+    api_server: kangaroos.foxcommerce.com
+    self_host: kangaroos.foxcommerce.com
+    ashes_server_name: kangaroos.foxcommerce.com
+    storefront_server_name: kangaroos.foxcommerce.com
+  roles:
+    - { role: dev/phoenix }
+    - { role: dev/greenriver }
+    - { role: dev/ashes }
+    - { role: dev/firebrand }
+    - { role: dev/middlewarehouse }
+    - { role: dev/messaging }
+    - { role: dev/isaac }
+    - { role: dev/solomon }
+    - { role: dev/balancer }
+    - { role: demo/balancer }
+    - { role: dev/consumers }
+
+  handlers:
+    - include: roles/base/consul_agent/handlers/main.yml

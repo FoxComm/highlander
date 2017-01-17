@@ -61,7 +61,7 @@ export class UserMenu extends Component {
     return (
       <ul styleName="usermenu">
         {this.settingsLink}
-        <li><a onClick={this.handleLogout}>Log out</a></li>
+        <li><a id="log-out-btn" onClick={this.handleLogout}>Log out</a></li>
         <li styleName="copyright">
           &copy; FoxCommerce. All rights reserved.{' '}
           <span>Version {rev}</span>

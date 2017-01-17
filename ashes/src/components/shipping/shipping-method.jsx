@@ -77,10 +77,13 @@ const ShippingMethod = props => {
   return (
     <ShippingMethodContentBox
       className='fc-shipping-methods'
+      id={props.id}
       title={props.title}
       isEditing={props.isEditing}
       editAction={props.editAction}
+      editButtonId="shipping-method-edit-btn"
       doneAction={props.doneAction}
+      doneButtonId="shipping-method-done-btn"
       viewContent={viewContent(props)}
       editContent={editContent}
       indentContent={false}
@@ -89,6 +92,7 @@ const ShippingMethod = props => {
 };
 
 ShippingMethod.propTypes = {
+  id: PropTypes.string,
   order: PropTypes.object,
   availableShippingMethods: PropTypes.array,
   isEditing: PropTypes.bool.isRequired,

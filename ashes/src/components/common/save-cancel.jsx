@@ -66,6 +66,7 @@ export default class SaveCancel extends Component {
 
     const cancelControl = (
       <Button
+        id="modal-cancel-btn"
         type="button"
         onClick={onCancel ? onCancel : () => push({name: cancelTo, params: cancelParams})}
         className="fc-save-cancel__cancel"
@@ -78,6 +79,7 @@ export default class SaveCancel extends Component {
     const saveControl = (
       <PrimaryButton
         type={onSave ? 'button' : 'submit'}
+        id="modal-confirm-btn"
         onClick={onSave ? onSave : noop}
         className="fc-save-cancel__save"
         tabIndex={saveTabIndex}

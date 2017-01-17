@@ -126,6 +126,7 @@ export default class ButtonWithMenu extends Component {
         { open && <div styleName="overlay" onClick={this.handleBlur}></div> }
         <div styleName="controls">
           <PrimaryButton
+            id="primary-save-btn"
             className={buttonClassName}
             icon={icon}
             onClick={props.onPrimaryClick}
@@ -135,6 +136,7 @@ export default class ButtonWithMenu extends Component {
             {title}
           </PrimaryButton>
           <PrimaryButton
+            id="primary-save-menu-btn"
             className={menuButtonClassName}
             icon="chevron-down"
             onClick={this.handleToggleClick}
