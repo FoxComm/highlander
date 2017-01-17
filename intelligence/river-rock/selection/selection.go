@@ -6,7 +6,6 @@ import (
 	"errors"
 	_ "github.com/lib/pq"
 	"github.com/orcaman/concurrent-map"
-	"log"
 	"math/rand"
 	"strconv"
 )
@@ -58,7 +57,6 @@ func (s *Selector) SelectResource(clusterId int, encodedMappedResources string) 
 	var mappedResources interface{}
 	refBytes := []byte(encodedMappedResources)
 	if err := json.Unmarshal(refBytes, &mappedResources); err != nil {
-		log.Print(err)
 		return "", err
 	}
 

@@ -3,6 +3,7 @@ package clustering
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -73,34 +74,29 @@ func MapRequestToCluster(req *http.Request, bernardoUrl string) (int, error) {
 
 	data, err := json.Marshal(payload)
 	if err != nil {
-		log.Printf("Error creating bernardo payload: %s", err)
-		return 0, err
+		return 0, fmt.Errorf("Error creating bernardo payload: %s", err)
 	}
 
 	breq, err := http.NewRequest("GET", bernardoUrl, bytes.NewBuffer(data))
 	if err != nil {
-		log.Printf("Error creating bernardo req: %s", err)
-		return 0, err
+		return 0, fmt.Errorf("Error creating bernardo req: %s", err)
 	}
 
 	client := &http.Client{}
 	res, err := client.Do(breq)
 	if err != nil {
-		log.Printf("Error querying bernardo : %s", err)
-		return 0, err
+		return 0, fmt.Errorf("Error querying bernardo : %s", err)
 	}
 
 	defer res.Body.Close()
 	clusterStr, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		log.Printf("Error reading bernardo response: %s", err)
-		return 0, err
+		return 0, fmt.Errorf("Error reading bernardo response: %s", err)
 	}
 
 	cluster, err := strconv.Atoi(string(clusterStr))
 	if err != nil {
-		log.Printf("Error converting bernardo response to a cluster id: %s, %s", res, err)
-		return 0, err
+		return 0, fmt.Errorf("Error converting bernardo response to a cluster id: %s, %s", res, err)
 	}
 
 	log.Printf("cluster %v", cluster)
