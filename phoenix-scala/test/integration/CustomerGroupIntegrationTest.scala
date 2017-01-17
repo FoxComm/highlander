@@ -1,6 +1,6 @@
 import com.github.tminglei.slickpg.LTree
 import failures.NotFoundFailure404
-import models.customer.{CustomerDynamicGroup, CustomerDynamicGroups}
+import models.customer._
 import org.json4s.JObject
 import org.scalatest.mock.MockitoSugar
 import payloads.CustomerGroupPayloads.CustomerDynamicGroupPayload
@@ -10,6 +10,10 @@ import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import utils.seeds.Seeds.Factories
+import shapeless._
+import utils.db._
+import utils.aliases._
+import utils.db.ExPostgresDriver.api._
 
 class CustomerGroupIntegrationTest
     extends IntegrationTestBase
@@ -27,6 +31,38 @@ class CustomerGroupIntegrationTest
       val root    = customerGroupsApi.create(payload).as[Root]
       val created = CustomerDynamicGroups.mustFindById400(root.id).gimme
       created.id must === (root.id)
+    }
+
+    "successfully creates customer group and link to template" in new Fixture {
+      val scopeN = "1"
+      val payload = CustomerDynamicGroupPayload(name = "Group number one",
+                                                clientState = JObject(),
+                                                elasticRequest = JObject(),
+                                                customersCount = Some(1),
+                                                templateId = Some(groupTemplate.id),
+                                                scope = Some(scopeN))
+
+      val root    = customerGroupsApi.create(payload).as[Root]
+      val created = CustomerDynamicGroups.mustFindById400(root.id).gimme
+      created.id must === (root.id)
+      val templateLink = GroupTemplateInstances
+        .filter(_.groupId === root.id)
+        .filter(_.groupTemplateId === groupTemplate.id)
+        .mustFindOneOr(NotFoundFailure404(GroupTemplateInstances, "fakeId"))
+        .gimme
+      templateLink.scope must === (LTree(scopeN))
+    }
+
+    "fail to create customer group with nonexistnet tempalte id" in new Fixture {
+      val payload = CustomerDynamicGroupPayload(name = "Group number one",
+                                                clientState = JObject(),
+                                                elasticRequest = JObject(),
+                                                customersCount = Some(1),
+                                                templateId = Some(666))
+
+      customerGroupsApi
+        .create(payload)
+        .mustFailWith404(NotFoundFailure404(CustomerGroupTemplate, 666))
     }
   }
 
@@ -67,5 +103,7 @@ class CustomerGroupIntegrationTest
     val group = CustomerDynamicGroups
       .create(Factories.group(LTree("1")).copy(createdBy = storeAdmin.accountId))
       .gimme
+
+    val groupTemplate = CustomerGroupTemplates.create(Factories.template).gimme
   }
 }
