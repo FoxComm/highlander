@@ -8,6 +8,7 @@ private_keys_dest_dir: /etc/keys
 scala_version: scala-2.11
 vagrant: false
 local_vagrant: false
+foxcomm_domain: foxcommerce.com
 
 # Consul Service Discovery
 consul_data_dir: /var/consul
@@ -208,6 +209,9 @@ zipkin_collector: localhost
 
 # Are we running packer?
 packing: false
+
+# Are we running `vagrant destroy`?
+vagrant_destroy: false
 
 # Should we upload Phoenix / Green River JAR?
 # Should be seed DB, seed via Gatling?

@@ -68,6 +68,10 @@ Get the private IP address:
 
 Edit your hosts file so that `local.foxcommerce.com` points to the new box using the private IP address you just retrieved.
 
+After you've done, you can destroy you machine by simply running:
+
+    $ make destroy
+
 ### Local VM
 
 There is another option to run development environment in a local VM. Please refer to related [wiki page](engineering-wiki/development/Local-VM-DevEnv.md) for more information.

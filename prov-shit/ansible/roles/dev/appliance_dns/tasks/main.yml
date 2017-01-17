@@ -1,0 +1,31 @@
+---
+
+- name: Set Proper Variables
+  set_fact:
+    private_ip: "{{ansible_default_ipv4.address}}"
+    dns_record: "appliance-{{ansible_default_ipv4.address | replace(\".\", \"-\") }}"
+
+- name: Delete Previous DNS Records for Appliance
+  dnsimple:
+    account_email: "{{dnsimple_email}}"
+    account_api_token: "{{dnsimple_token}}"
+    domain: "{{foxcomm_domain}}"
+    record: "{{dns_record}}"
+    value: "{{private_ip}}"
+    type: A
+    state: absent
+  delegate_to: localhost
+  when: vagrant_destroy
+
+- name: Register DNS Record for Appliance
+  dnsimple:
+    account_email: "{{dnsimple_email}}"
+    account_api_token: "{{dnsimple_token}}"
+    domain: "{{foxcomm_domain}}"
+    record: "{{dns_record}}"
+    value: "{{private_ip}}"
+    type: A
+    ttl: 3600
+    state: present
+  delegate_to: localhost
+  when: not vagrant_destroy

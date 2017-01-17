@@ -47,6 +47,7 @@
     - { role: dev/consumers }
     - { role: base/rsyslog }
     - { role: dev/healthcheck }
+    - { role: dev/appliance_dns }
 
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml

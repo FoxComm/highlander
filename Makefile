@@ -20,9 +20,10 @@ provision:
 destroy:
 	$(call header, Destroying GCE Machine)
 	export eval `cat ./.env.local`; VAGRANT_DEFAULT_PROVIDER=google vagrant destroy appliance --force
+	cd prov-shit && ansible-playbook --inventory-file=bin/envs/staging ansible/goldrush_dns_simple.yml
 
 ssh:
 	$(call header, Connecting to GCE Machine)
 	export eval `cat ./.env.local`; VAGRANT_DEFAULT_PROVIDER=google vagrant ssh appliance
 
-.PHONY: up provision destroy ssh
+.PHONY: prepare dotenv up provision destroy ssh
