@@ -43,6 +43,7 @@ object Main extends App with LazyLogging {
     service.performSelfCheck()
     service.bind()
     service.setupRemorseTimers()
+    service.performMigrations()
 
     logger.info("Startup process complete")
   } catch {
@@ -194,5 +195,13 @@ class Service(systemOverride: Option[ActorSystem] = None,
   def setupMiddlewarehouse(): Middlewarehouse = {
     val url = config.getString("middlewarehouse.url")
     new Middlewarehouse(url)
+  }
+
+  def performMigrations(): Unit = {
+    implicit val au: AU = ??? // TODO
+
+    new SKUsMigration(apis.middlwarehouse)
+      .run()
+      .fold(errs ⇒ sys.error(s"Cannot migrate all SKUs: \n${errs.flatten.mkString("\n")}"), _ ⇒ ())
   }
 }

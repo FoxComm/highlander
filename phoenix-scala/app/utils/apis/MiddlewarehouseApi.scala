@@ -27,6 +27,8 @@ trait MiddlewarehouseApi {
   def cancelHold(orderRefNum: String)(implicit ec: EC, au: AU): Result[Unit]
   def createSku(variantFormId: Int, sku: CreateSku)(implicit ec: EC,
                                                     au: AU): DbResultT[ProductVariantMwhSkuId]
+  def createSkus(xs: Seq[(Int, CreateSku)],
+                 batchSize: Int)(implicit ec: EC, au: AU): DbResultT[Seq[ProductVariantMwhSkuId]]
 }
 
 class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
@@ -109,6 +111,19 @@ class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
         logger.error(s"Unable to parse MWH response as JSON. Response body was:\n$responseBody")
         DbResultT.failure[ProductVariantMwhSkuId](UnableToParseResponse)
     }
+
+  // TODO send real batched request to MWH
+  private def createSkus(batch: Seq[(Int, CreateSku)])(
+      implicit ec: EC,
+      au: AU): DbResultT[Seq[ProductVariantMwhSkuId]] = {
+    DbResultT.sequence(batch.map { case (formId, cmd) ⇒ createSku(formId, cmd) })
+  }
+
+  override def createSkus(skusToCreate: Seq[(Int, CreateSku)], batchSize: Int)(
+      implicit ec: EC,
+      au: AU): DbResultT[Seq[ProductVariantMwhSkuId]] = {
+    DbResultT.sequence(skusToCreate.grouped(batchSize).map(createSkus)).map(_.flatten.toSeq)
+  }
 }
 
 case class MwhResponse(statusCode: Int, content: String)
