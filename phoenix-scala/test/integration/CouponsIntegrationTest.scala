@@ -12,7 +12,7 @@ import models.objects.ObjectContext
 import org.json4s.JsonAST._
 import payloads.CouponPayloads._
 import payloads.LineItemPayloads.UpdateLineItemsPayload
-import payloads.OrderPayloads.CreateCart
+import payloads.CartPayloads.CreateCart
 import responses.CouponResponses.CouponResponse
 import responses.cord.CartResponse
 import testutils.PayloadHelpers._
