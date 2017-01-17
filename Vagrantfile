@@ -83,7 +83,7 @@ def tune_vm(config, opts = {})
     g.google_json_key_location = ENV['GOOGLE_JSON_KEY_LOCATION']
 
     g.machine_type = "n1-standard-4"
-    g.image = "appliance-base-161129-185737"
+    g.image = "appliance-base-170117-002554"
     g.disk_size = 40
     g.zone = "us-central1-a"
     g.tags = ['vagrant', 'no-ports']
@@ -119,8 +119,8 @@ Vagrant.configure("2") do |config|
   tune_vm(config, cpus: $vb_cpu, memory: $vb_memory)
 
   config.vm.define :appliance, primary: true do |app|
-    app.vm.box = "base_appliance_16.04_20161129"
-    app.vm.box_url = "https://s3.amazonaws.com/fc-dev-boxes/base_appliance_16.04_20161129.box"
+    app.vm.box = "base_appliance_16.04_20170116"
+    app.vm.box_url = "https://s3.amazonaws.com/fc-dev-boxes/base_appliance_16.04_20170116.box"
 
     app.vm.network :private_network, ip: $nginx_ip
     expose_ports(app)
