@@ -6,7 +6,7 @@ import React, { Component, Element } from 'react';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 
-import { reset, fetchGroup, saveGroup, clearFetchErrors, clearSaveErrors } from 'modules/customer-groups/group';
+import { reset, fetchGroup, saveGroup, clearFetchErrors, clearSaveErrors } from 'modules/customer-groups/details/group';
 import { fetchRegions } from 'modules/regions';
 
 import { Link } from 'components/link';

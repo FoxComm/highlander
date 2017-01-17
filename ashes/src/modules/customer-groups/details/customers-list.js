@@ -1,4 +1,4 @@
-import makeLiveSearch from '../live-search';
+import makeLiveSearch from 'modules/live-search';
 
 const searchTerms = [
   {

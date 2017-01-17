@@ -7,7 +7,7 @@ import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 
-import { reset, fetchGroup, archiveGroup, clearArchiveErrors } from 'modules/customer-groups/group';
+import { reset, fetchGroup, archiveGroup, clearArchiveErrors } from 'modules/customer-groups/details/group';
 
 //components
 import ArchiveActionsSection from 'components/archive-actions/archive-actions';

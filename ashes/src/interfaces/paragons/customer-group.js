@@ -17,3 +17,13 @@ declare type TCustomerGroup = TCustomerGroupShort & {
   updatedAt: string;
   stats: ?Object;
 };
+
+
+declare type TTemplate = {
+  id: number;
+  name: string;
+  clientState: Object; // JSON with dsl request handled by UI to build group constructor
+  elasticRequest: Object; // JSON with query sent to ES
+}
+
+declare type TTemplates = Array<TTemplate>;

@@ -2,16 +2,17 @@
 
 // libs
 import get from 'lodash/get';
-import { createReducer, createAction } from 'redux-act';
+import {createReducer, createAction} from 'redux-act';
 
 // helpers
 import Api from 'lib/api';
 import * as search from 'lib/search';
-import { post } from 'lib/search';
-import criterions, { getCriterion, getWidget } from 'paragons/customer-groups/criterions';
-import { aggregations } from 'elastic/request';
-import { createAsyncActions } from '@foxcomm/wings';
-import requestAdapter from './request-adapter';
+import {post} from 'lib/search';
+import criterions, {getCriterion, getWidget} from 'paragons/customer-groups/criterions';
+import {aggregations} from 'elastic/request';
+import {createAsyncActions} from '@foxcomm/wings';
+
+import requestAdapter from '../utils/request-adapter';
 
 const mapping = 'customers_search_view';
 
@@ -126,11 +127,20 @@ export const saveGroup = () => (dispatch: Function, getState: Function) => {
       conditions,
     },
     elasticRequest,
-    customersCount: 0,
   };
 
   return dispatch(_saveGroup.perform(groupId, data));
 };
+
+/**
+ * Save new group from predefined template
+ *
+ * @param {TTemplate} template
+ *
+ * @return Promise
+ */
+export const saveGroupFromTemplate = (template: TTemplate) => (dispatch: Function, getState: Function) =>
+  dispatch(_saveGroup.perform(void 0, template));
 
 /**
  * Fetch customer group's stats
@@ -162,7 +172,7 @@ const validateCondition = ([field, operator, value]) => {
   }
 
   const criterion = getCriterion(field);
-  const { isValid } = getWidget(criterion, operator);
+  const {isValid} = getWidget(criterion, operator);
 
   return isValid(value, criterion);
 };
@@ -171,9 +181,7 @@ type State = {
   group: TCustomerGroup;
 }
 
-const setData = (state: State, response: Object) => {
-  const { clientState: { mainCondition, conditions }, ...rest } = response;
-
+const setData = (state: State, {id, type, name, createdAt, updatedAt, clientState: {mainCondition, conditions}, ...rest}) => {
   return {
     ...rest,
     conditions,
@@ -196,10 +204,11 @@ const reducer = createReducer({
       averageOrderSum: get(aggregations, 'averageOrderSum.averageOrderSum.value'),
     }
   }),
-  [setName]: (state, name) => ({ ...state, name }),
-  [setMainCondition]: (state, mainCondition) => ({ ...state, mainCondition }),
-  [setConditions]: (state, conditions) => ({ ...state, conditions, isValid: validateConditions(conditions) }),
-  [setGroupStats]: (state, stats) => ({ ...state, stats })
+  [setName]: (state, name) => ({...state, name}),
+  [setMainCondition]: (state, mainCondition) => ({...state, mainCondition}),
+  [setConditions]: (state, conditions) => ({...state, conditions, isValid: validateConditions(conditions)}),
+  [setFilterTerm]: (state, filterTerm) => ({...state, filterTerm}),
+  [setGroupStats]: (state, stats) => ({...state, stats}),
 }, initialState);
 
 export default reducer;

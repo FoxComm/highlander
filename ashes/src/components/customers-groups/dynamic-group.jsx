@@ -10,9 +10,9 @@ import classNames from 'classnames';
 //data
 import criterions from 'paragons/customer-groups/criterions';
 import operators from 'paragons/customer-groups/operators';
-import requestAdapter from 'modules/customer-groups/request-adapter';
-import * as groupActions from 'modules/customer-groups/group';
-import { actions as customersListActions } from 'modules/customer-groups/customers-list';
+import requestAdapter from 'modules/customer-groups/utils/request-adapter';
+import * as groupActions from 'modules/customer-groups/details/group';
+import { actions as customersListActions } from 'modules/customer-groups/details/customers-list';
 
 //helpers
 import { transitionTo } from 'browserHistory';

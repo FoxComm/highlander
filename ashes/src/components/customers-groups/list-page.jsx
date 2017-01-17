@@ -15,19 +15,19 @@ type Props = {
   children?: Array<Element>|Element;
 };
 
+const navLinks = [
+  { title: 'List', to: 'groups' },
+];
+
 const GroupsListPage = (props: Props) => {
   const TotalCounter = makeTotalCounter(state => state.customerGroups.list, customersActions);
-
-  const navLinks = [
-    { title: 'List', to: 'groups' },
-  ];
 
   return (
     <ListPageContainer
       title="Customer Groups"
       subtitle={<TotalCounter />}
       addTitle="Group"
-      handleAddAction={ () => transitionTo('new-customer-group') }
+      handleAddAction={ () => transitionTo('customer-group-wizard') }
       navLinks={navLinks}
     >
       {props.children}

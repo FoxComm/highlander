@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 
 //data
 import operators from 'paragons/customer-groups/operators';
-import * as actions from 'modules/customer-groups/group';
+import * as actions from 'modules/customer-groups/details/group';
 
 //helpers
 import { prefix } from 'lib/text-utils';
