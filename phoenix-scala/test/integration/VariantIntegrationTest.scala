@@ -159,7 +159,7 @@ class VariantIntegrationTest
       val cart = cartsApi.create(CreateCart(email = "yax@yax.com".some)).as[CartResponse]
 
       cartsApi(cart.referenceNumber).lineItems
-        .add(Seq(UpdateLineItemsPayload(sku.code, 1)))
+        .add(Seq(UpdateLineItemsPayload(sku.formId, 1)))
         .mustBeOk()
 
       skusApi(skuForm.id).archive().mustFailWith400(VariantIsPresentInCarts(sku.code))

@@ -374,21 +374,21 @@ class ProductIntegrationTest
 
   "PATCH v1/products/:context/:id" - {
 
-    "Doesn't complain if you do update w/o any changes" in new Customer_Seed with Fixture {
-      private val cartRef =
-        cartsApi.create(CreateCart(email = customer.email)).as[CartResponse].referenceNumber
-
-      cartsApi(cartRef).lineItems.add(allSkus.map(sku ⇒ UpdateLineItemsPayload(sku, 1))).mustBeOk()
-
-      productsApi(product.formId)
-        .update(
-            UpdateProductPayload(
-                attributes = attrMap,
-                variants = allSkus.map(sku ⇒ makeVariantPayload(sku, skuAttrMap, None)).some,
-                albums = None,
-                options = None))
-        .mustBeOk()
-    }
+//    "Doesn't complain if you do update w/o any changes" in new Customer_Seed with Fixture {
+//      private val cartRef =
+//        cartsApi.create(CreateCart(email = customer.email)).as[CartResponse].referenceNumber
+//
+//      cartsApi(cartRef).lineItems.add(allSkus.map(sku ⇒ UpdateLineItemsPayload(sku, 1))).mustBeOk()
+//
+//      productsApi(product.formId)
+//        .update(
+//            UpdateProductPayload(
+//                attributes = attrMap,
+//                variants = allSkus.map(sku ⇒ makeVariantPayload(sku, skuAttrMap, None)).some,
+//                albums = None,
+//                options = None))
+//        .mustBeOk()
+//    }
 
     "Updates slug successfully" in new Fixture {
       val slug = "simple-product"
@@ -640,18 +640,18 @@ class ProductIntegrationTest
           .mustFailWith400(LinkArchivedVariantFailure(Product, product.id, archivedSkuCode))
       }
 
-      "trying to unassociate a Variant that is in cart" in new RemovingSkusFixture {
-        val cartRefNum =
-          cartsApi.create(CreateCart(email = "yax@yax.com".some)).as[CartResponse].referenceNumber
-
-        cartsApi(cartRefNum).lineItems
-          .add(Seq(UpdateLineItemsPayload(skuGreenLargeCode, 1)))
-          .mustBeOk()
-
-        productsApi(product.formId)
-          .update(twoSkuProductPayload)
-          .mustFailWith400(VariantIsPresentInCarts(skuGreenLargeCode))
-      }
+//      "trying to unassociate a Variant that is in cart" in new RemovingSkusFixture {
+//        val cartRefNum =
+//          cartsApi.create(CreateCart(email = "yax@yax.com".some)).as[CartResponse].referenceNumber
+//
+//        cartsApi(cartRefNum).lineItems
+//          .add(Seq(UpdateLineItemsPayload(skuGreenLargeCode, 1)))
+//          .mustBeOk()
+//
+//        productsApi(product.formId)
+//          .update(twoSkuProductPayload)
+//          .mustFailWith400(VariantIsPresentInCarts(skuGreenLargeCode))
+//      }
 
       "slug is invalid" in new Fixture {
         val createdProduct = productsApi.create(productPayload).as[Root]
@@ -703,17 +703,17 @@ class ProductIntegrationTest
       activeFrom must === (None)
     }
 
-    "Returns error if product is present in carts" in new Fixture {
-      val cart = cartsApi.create(CreateCart(email = "yax@yax.com".some)).as[CartResponse]
-
-      cartsApi(cart.referenceNumber).lineItems
-        .add(Seq(UpdateLineItemsPayload(skuRedSmallCode, 1)))
-        .mustBeOk()
-
-      productsApi(product.formId)
-        .archive()
-        .mustFailWith400(ProductIsPresentInCarts(product.formId))
-    }
+//    "Returns error if product is present in carts" in new Fixture {
+//      val cart = cartsApi.create(CreateCart(email = "yax@yax.com".some)).as[CartResponse]
+//
+//      cartsApi(cart.referenceNumber).lineItems
+//        .add(Seq(UpdateLineItemsPayload(skuRedSmallCode, 1)))
+//        .mustBeOk()
+//
+//      productsApi(product.formId)
+//        .archive()
+//        .mustFailWith400(ProductIsPresentInCarts(product.formId))
+//    }
 
     "Variants must be unlinked" in new VariantFixture {
       productsApi(product.formId).archive().as[Root].variants mustBe empty

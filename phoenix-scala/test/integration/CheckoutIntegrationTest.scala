@@ -45,7 +45,6 @@ class CheckoutIntegrationTest
                                    recipientEmail = "example@example.com",
                                    message = "Boop").some).some
 
-    val addGiftCardPayload = Seq(UpdateLineItemsPayload("SKU-YAX", 2, attributes))
     "should update attributes of order-line-items succesfully" in new Fixture {
       val refNum =
         cartsApi.create(CreateCart(customer.accountId.some)).as[CartResponse].referenceNumber
@@ -74,7 +73,7 @@ class CheckoutIntegrationTest
                    refNum: String): HttpResponse = {
       val _cartApi = cartsApi(refNum)
 
-      _cartApi.lineItems.add(Seq(UpdateLineItemsPayload(sku.code, 2))).mustBeOk()
+      _cartApi.lineItems.add(Seq(UpdateLineItemsPayload(sku.formId, 2))).mustBeOk()
 
       _cartApi.shippingAddress.updateFromAddress(address.id).mustBeOk()
 
@@ -151,7 +150,7 @@ class CheckoutIntegrationTest
         cartsApi.create(CreateCart(customer.accountId.some)).as[CartResponse].referenceNumber
       val _cartApi = cartsApi(refNum)
 
-      _cartApi.lineItems.add(Seq(UpdateLineItemsPayload(sku.code, 2))).mustBeOk()
+      _cartApi.lineItems.add(Seq(UpdateLineItemsPayload(sku.formId, 2))).mustBeOk()
 
       _cartApi.shippingAddress.updateFromAddress(address.id).mustBeOk()
 
