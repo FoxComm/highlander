@@ -12,8 +12,8 @@ import (
 func GetProductSum(step string) func(c echo.Context) error {
 	return func(c echo.Context) error {
 		id := c.Param("id")
-		if id == "" {
-			return c.String(http.StatusBadRequest, "id is required")
+		if id != "" {
+			id += "_"
 		}
 		from, to := c.QueryParam("from"), c.QueryParam("to")
 		resp, err := productSingleSum(id, step, from, to)

@@ -13,7 +13,7 @@ var port = os.Getenv("HENHOUSE_PORT")
 func ProductQuery(id string, steps []string, a, b string) (responses.HenhouseResponse, error) {
 	key := ""
 	for _, step := range steps {
-		key += "track_product_" + id + "_" + step + ","
+		key += "track_product_" + id + step + ","
 	}
 
 	if a != "" {

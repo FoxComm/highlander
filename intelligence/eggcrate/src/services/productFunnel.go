@@ -12,8 +12,8 @@ import (
 
 func GetProductFunnel(c echo.Context) error {
 	id := c.Param("id")
-	if id == "" {
-		return c.String(http.StatusBadRequest, "id is required")
+	if id != "" {
+		id += "_"
 	}
 	from, to := c.QueryParam("from"), c.QueryParam("to")
 	resp, err := henhouseProductFunnel(id, from, to)
@@ -38,7 +38,8 @@ func buildResponse(pf responses.HenhouseResponse) string {
 	pdpViews := getSum("pdp", pf)
 	cartClicks := getSum("cart", pf)
 	checkoutClicks := getSum("checkout", pf)
-	var searchToPdp, pdpToCart, cartToCheckout float32
+	purchases := getSum("purchase", pf)
+	var searchToPdp, pdpToCart, cartToCheckout, checkoutPurchased float32
 	if searchToPdp = 0.0; searchViews > 0.0 {
 		searchToPdp = float32(pdpViews) / float32(searchViews)
 	}
@@ -48,15 +49,20 @@ func buildResponse(pf responses.HenhouseResponse) string {
 	if cartToCheckout = 0.0; cartClicks > 0.0 {
 		cartToCheckout = float32(checkoutClicks) / float32(cartClicks)
 	}
+	if checkoutPurchased = 0.0; checkoutClicks > 0.0 {
+		checkoutPurchased = float32(purchases) / float32(checkoutClicks)
+	}
 
 	resp := responses.ProductFunnelResponse{
-		SearchViews:    searchViews,
-		PdpViews:       pdpViews,
-		CartClicks:     cartClicks,
-		CheckoutClicks: checkoutClicks,
-		SearchToPdp:    searchToPdp,
-		PdpToCart:      pdpToCart,
-		CartToCheckout: cartToCheckout,
+		SearchViews:       searchViews,
+		PdpViews:          pdpViews,
+		CartClicks:        cartClicks,
+		CheckoutClicks:    checkoutClicks,
+		Purchases:         purchases,
+		SearchToPdp:       searchToPdp,
+		PdpToCart:         pdpToCart,
+		CartToCheckout:    cartToCheckout,
+		CheckoutPurchased: checkoutPurchased,
 	}
 	out, _ := json.Marshal(&resp)
 	return string(out)
