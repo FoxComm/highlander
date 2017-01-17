@@ -165,7 +165,7 @@ http {
       ngx.var.request_time_ms = math.floor(tonumber(ngx.var.request_time) * 1000)
       ';
 
-  log_format phoenixformat '[$time_local] "$request" $status $request_length $bytes_sent $request_time_ms $uuid';
+  log_format phoenixformat '[$time_local] "$host $request" $status $request_length $bytes_sent $request_time_ms $uuid';
   access_log /var/log/nginx/access.log phoenixformat;
 
   error_log syslog:server=unix:/dev/log;
