@@ -40,4 +40,4 @@
   service: name=mesos_worker state=restarted enabled=true
 
 - name: Start Marathon
-  service: name=marathon state=restarted enabled=yes
+  service: name=marathon state=restarted enabled=true
