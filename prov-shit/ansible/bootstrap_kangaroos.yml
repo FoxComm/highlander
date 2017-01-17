@@ -5,11 +5,13 @@
   become: true
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
-    download_flyway: false
     api_server: kangaroos.foxcommerce.com
     self_host: kangaroos.foxcommerce.com
     ashes_server_name: kangaroos.foxcommerce.com
     storefront_server_name: kangaroos.foxcommerce.com
+    with_base_seeds: true
+    with_gatling_seeder: true
+    with_mwh_seeder: true
   roles:
     - { role: dev/phoenix }
     - { role: dev/greenriver }
@@ -22,6 +24,7 @@
     - { role: dev/balancer }
     - { role: demo/balancer }
     - { role: dev/consumers }
+    - { role: dev/seeder }
 
   handlers:
     - include: roles/base/consul_agent/handlers/main.yml
