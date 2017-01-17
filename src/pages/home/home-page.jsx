@@ -13,16 +13,16 @@ import styles from './home-page.css';
 
 const mainBlocks = [
   {
-    imageUrl: '/images/home-page/Home_Page_Holidays_NEW_2x.jpg',
-    description: '',
-    title: 'Make Every Day A Reason to Celebrate',
-    action: { title: 'Shop Entrées', link: '/ENTRÉES' },
-  },
-  {
     imageUrl: '/images/home-page/Home_Page_Favorites_2x.jpg',
     description: 'We’re got you covered with dinners ready in less than 30 minutes',
     title: 'Pressed for time?',
     action: { title: 'Shop our favorites', link: '/favorites' },
+  },
+  {
+    imageUrl: '/images/home-page/Home_Page_Holidays_NEW_2x_2.jpg',
+    description: '',
+    title: 'Make Every Day A Reason to Celebrate',
+    action: { title: 'Shop Entrées', link: '/ENTRÉES' },
   },
   {
     imageUrl: '/images/home-page/Home_Page_Best_Sellers_NEW_2x.jpg',
