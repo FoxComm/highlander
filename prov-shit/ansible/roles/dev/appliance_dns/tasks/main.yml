@@ -4,6 +4,10 @@
   set_fact:
     private_ip: "{{ansible_default_ipv4.address}}"
     dns_record: "appliance-{{ansible_default_ipv4.address | replace(\".\", \"-\") }}"
+    appliance_domain: "{{dns_record}}.{{foxcomm_domain}}"
+    appliance_hostname: "{{appliance_domain}}"
+    ashes_server_name: "{{appliance_domain}}"
+    storefront_server_name: "{{appliance_domain}}"
 
 - name: Register DNS Record for Appliance
   dnsimple:
