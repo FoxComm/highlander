@@ -227,9 +227,9 @@ cert_path: test/fox
 mesos_quorum: 2
 mesos_ip: 0.0.0.0
 
-# Use seeder service or not?
-with_seeder: false
+# Seeder flags
 with_gatling_seeder: true
+with_mwh_seeder: true
 
 # Docker Defaults
 docker_branch: master
