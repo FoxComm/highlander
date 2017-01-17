@@ -20,7 +20,8 @@ create or replace function update_customers_groups_view_update_fn() returns trig
         name = new.name,
         customers_count = new.customers_count,
         updated_at = to_char(new.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
-        scope = new.scope;
+        scope = new.scope
+    where id = new.id;
     return null;
   end;
 $$ language plpgsql;
