@@ -16,6 +16,7 @@ import models.sharedsearch.SharedSearch
 import models.shipping.ShippingMethod
 import models.Note
 import models.account.User
+import models.objects.ObjectForm
 import payloads.GiftCardPayloads.GiftCardUpdateStateByCsr
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.StoreCreditPayloads.StoreCreditUpdateStateByCsr
@@ -327,7 +328,7 @@ object LogActivity {
 
   def orderLineItemsUpdated(
       cart: CartResponse,
-      oldQtys: Map[String, Int],
+      oldQtys: Map[ObjectForm#Id, Int],
       payload: Seq[UpdateLineItemsPayload],
       admin: Option[User] = None)(implicit ec: EC, ac: AC): DbResultT[Activity] =
     Activities.log(

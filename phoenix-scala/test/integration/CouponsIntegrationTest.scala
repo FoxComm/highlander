@@ -160,7 +160,7 @@ class CouponsIntegrationTest
         .referenceNumber
 
       cartsApi(cartRef).lineItems
-        .add(Seq(UpdateLineItemsPayload(sku = productVariantCode, quantity = 1)))
+        .add(Seq(UpdateLineItemsPayload(productVariantId = productVariantCode, quantity = 1)))
         .mustBeOk()
 
       cartRef

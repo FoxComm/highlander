@@ -3,6 +3,7 @@ package services.activity
 import models.Note
 import models.cord.Cart
 import models.coupon.CouponCode
+import models.objects.ObjectForm
 import models.payment.PaymentMethod
 import models.shipping.ShippingMethod
 import responses.cord.CartResponse
@@ -30,8 +31,8 @@ object CartTailored {
       extends ActivityBase[CartLineItemsDeletedGiftCard]
 
   case class CartLineItemsUpdatedQuantities(cart: CartResponse,
-                                            oldQuantities: Map[String, Int],
-                                            newQuantities: Map[String, Int],
+                                            oldQuantities: Map[ObjectForm#Id, Int],
+                                            newQuantities: Map[ObjectForm#Id, Int],
                                             admin: Option[UserResponse.Root])
       extends ActivityBase[CartLineItemsUpdatedQuantities]
 

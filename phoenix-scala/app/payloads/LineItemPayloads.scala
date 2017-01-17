@@ -1,10 +1,11 @@
 package payloads
 
 import models.cord.lineitems._
+import models.objects.ObjectForm
 
 object LineItemPayloads {
 
-  case class UpdateLineItemsPayload(sku: String,
+  case class UpdateLineItemsPayload(productVariantId: ObjectForm#Id,
                                     quantity: Int,
                                     attributes: Option[LineItemAttributes] = None)
 
