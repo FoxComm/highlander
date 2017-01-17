@@ -99,6 +99,25 @@ class CustomerGroupIntegrationTest
     }
   }
 
+  "DELETE /v1/groups/:groupId" - {
+    "successfully deletes group" in new Fixture {
+      customerGroupsApi(group.id).delete.mustBeEmpty()
+
+      withClue(s"Customer group with id ${group.id} exists:") {
+        CustomerDynamicGroups.result.gimme.map(_.id).contains(group.id) must === (false)
+      }
+
+      val tis = GroupTemplateInstances.findByScopeAndGroupId(group.scope, group.id).result.gimme
+      withClue(s"Customer group template instances with for group ${group.id} exist:") {
+        tis.isEmpty must === (true)
+      }
+    }
+
+    "404 if group not found" in new Fixture {
+      customerGroupsApi(999).delete.mustFailWith404(NotFoundFailure404(CustomerDynamicGroup, 999))
+    }
+  }
+
   trait Fixture extends StoreAdmin_Seed {
     val group = CustomerDynamicGroups
       .create(Factories.group(LTree("1")).copy(createdBy = storeAdmin.accountId))

@@ -1,11 +1,14 @@
 package services.customerGroups
 
+import failures.CustomerGroupFailures._
+import failures.NotFoundFailure404
 import models.account.{Scope, User}
 import models.customer._
 import payloads.CustomerGroupPayloads.CustomerDynamicGroupPayload
 import responses.DynamicGroupResponse.{Root, build}
 import utils.aliases._
 import utils.db._
+import utils.db.ExPostgresDriver.api._
 
 object GroupManager {
 
@@ -33,6 +36,22 @@ object GroupManager {
                          .copy(id = groupId))
     } yield build(groupEdited)
 
+  def delete(groupId: Int)(implicit ec: EC, db: DB, au: AU): DbResultT[Unit] =
+    for {
+      scope ← * <~ Scope.current
+      group ← * <~ CustomerDynamicGroups.mustFindById404(groupId)
+      _ ← * <~ CustomerDynamicGroups.deleteById(group.id,
+                                                 DbResultT.unit,
+                                                 i ⇒ NotFoundFailure404(CustomerDynamicGroups, i))
+      templateInstances ← * <~ GroupTemplateInstances.findByScopeAndGroupId(scope, group.id).result
+      _ ← * <~ templateInstances.map { template ⇒
+           GroupTemplateInstances.deleteById(
+               template.id,
+               DbResultT.unit,
+               i ⇒ CustomerGroupTemplateInstanceCannotBeDeleted(group.id, i))
+         }
+    } yield DbResultT.unit
+
   private def createCustom(payload: CustomerDynamicGroupPayload,
                            admin: User)(implicit ec: EC, db: DB, au: AU): DbResultT[Root] =
     for {
@@ -50,8 +69,8 @@ object GroupManager {
       group ← * <~ CustomerDynamicGroups.create(
                  CustomerDynamicGroup.fromPayloadAndAdmin(payload, admin.accountId, scope))
       _ ← * <~ GroupTemplateInstances.create(
-              GroupTemplateInstance(groupId = group.id,
-                                    groupTemplateId = template.id,
-                                    scope = scope))
+             GroupTemplateInstance(groupId = group.id,
+                                   groupTemplateId = template.id,
+                                   scope = scope))
     } yield build(group)
 }

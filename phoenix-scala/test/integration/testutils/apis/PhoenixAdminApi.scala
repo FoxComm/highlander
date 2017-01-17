@@ -371,6 +371,9 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
     def update(payload: CustomerDynamicGroupPayload): HttpResponse =
       PATCH(customerGroupPath, payload)
+
+    def delete: HttpResponse =
+      DELETE(customerGroupPath)
   }
 
   case class genericTreesApi(name: String) {

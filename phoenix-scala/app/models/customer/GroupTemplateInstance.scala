@@ -25,7 +25,10 @@ object GroupTemplateInstances
         new GroupTemplateInstances(_))
     with ReturningId[GroupTemplateInstance, GroupTemplateInstances] {
 
-  def findByScope(scope: LTree) = filter(_.scope === scope)
+  def findByScope(scope: LTree): QuerySeq = filter(_.scope === scope)
+
+  def findByScopeAndGroupId(scope: LTree, groupId: Int): QuerySeq =
+    findByScope(scope).filter(_.groupId === groupId)
 
   val returningLens: Lens[GroupTemplateInstance, Int] = lens[GroupTemplateInstance].id
 }

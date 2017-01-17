@@ -38,6 +38,11 @@ object CustomerGroupsRoutes {
           mutateOrFailures {
             GroupManager.update(groupId, payload)
           }
+        } ~
+        (delete & pathEnd) {
+          deleteOrFailures {
+            GroupManager.delete(groupId)
+          }
         }
       }
     }
