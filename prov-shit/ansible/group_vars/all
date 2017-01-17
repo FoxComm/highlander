@@ -210,8 +210,8 @@ zipkin_collector: localhost
 # Are we running packer?
 packing: false
 
-# Are we running `vagrant destroy`?
-vagrant_destroy: false
+# Is it Buildkite running?
+buildkite: false
 
 # Should we upload Phoenix / Green River JAR?
 # Should be seed DB, seed via Gatling?
