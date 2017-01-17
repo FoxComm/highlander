@@ -14,7 +14,7 @@
       prompt: "Enter path to your private SSH key for GCE"
       default: "~/.ssh/id_rsa"
       private: no
-    - name: "google_ssh_key"
+    - name: "google_json_key_location"
       prompt: "Enter path to your Google service account key"
       default: "~/foxcomm-staging.json"
       private: no
