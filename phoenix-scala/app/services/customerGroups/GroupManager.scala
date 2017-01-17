@@ -1,8 +1,9 @@
 package services.customerGroups
 
 import failures.CustomerGroupFailures.CustomerGroupTemplateInstanceCannotBeDeleted
+import failures.NotFoundFailure404
 import models.account.{Scope, User}
-import models.customer._
+import models.customer.{CustomerDynamicGroups, _}
 import payloads.CustomerGroupPayloads.CustomerDynamicGroupPayload
 import responses.DynamicGroupResponse.{Root, build}
 import utils.aliases._
@@ -37,8 +38,11 @@ object GroupManager {
 
   def delete(groupId: Int)(implicit ec: EC, db: DB, au: AU): DbResultT[Unit] =
     for {
-      scope             ← * <~ Scope.current
-      group             ← * <~ CustomerDynamicGroups.mustFindById404(groupId)
+      scope ← * <~ Scope.current
+      group ← * <~ CustomerDynamicGroups.mustFindById404(groupId)
+      _ ← * <~ CustomerDynamicGroups.deleteById(group.id,
+                                                 DbResultT.unit,
+                                                 i ⇒ NotFoundFailure404(CustomerDynamicGroups, i))
       templateInstances ← * <~ GroupTemplateInstances.findByScopeAndGroupId(scope, group.id).result
       _ ← * <~ templateInstances.map { template ⇒
            GroupTemplateInstances.deleteById(
