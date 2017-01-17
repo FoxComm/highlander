@@ -35,23 +35,25 @@ has a lot to do!
 
 ### Google Compute VM
 
-1. [Generate your SSH key](https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/) for GCE and put the public key to [project metadata](https://console.cloud.google.com/compute/metadata/sshKeys?project=foxcomm-staging).
+1. Ask one of DevOps guys for Ansible Vault password and OpenVPN keys.
 
-2. [Generate Google service account key](https://cloud.google.com/storage/docs/authentication#generating-a-private-key) and download it in JSON format to your machine.
+2. [Generate your SSH key](https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/) for GCE and put the public key to [project metadata](https://console.cloud.google.com/compute/metadata/sshKeys?project=foxcomm-staging).
 
-3. Run `.env.local` generator, required for Vagrant. You'll be prompted for you corporate e-mail and SSH/JSON key locations.
+3. [Generate Google service account key](https://cloud.google.com/storage/docs/authentication#generating-a-private-key) and download it in JSON format to your machine.
+
+4. Run `.env.local` generator, required for Vagrant. You'll be prompted for you corporate e-mail and SSH/JSON key locations.
 
     ```
     $ make dotenv
     ```
 
-4. Pre-configure Vagrant by running:
+5. Pre-configure Vagrant by running:
 
     ```
     $ make prepare
     ```
 
-5. You're ready to spin up the machine! Do it by running:
+6. You're ready to spin up the machine! Do it by running:
 
     ```
     $ make up
