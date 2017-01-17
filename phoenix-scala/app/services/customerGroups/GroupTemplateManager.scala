@@ -1,15 +1,18 @@
 package services.customerGroups
 
-import models.customer.{CustomerGroupTemplate, CustomerGroupTemplates}
-import slick.driver.PostgresDriver.api._
+import models.account.Scope
+import models.customer._
 import utils.aliases._
-import utils.db.{*, DbResultT}
+import utils.db._
+import utils.db.ExPostgresDriver.api._
 
 object GroupTemplateManager {
 
   def getAll()(implicit ec: EC, db: DB, au: AU): DbResultT[Seq[CustomerGroupTemplate]] =
     for {
-      templates ← * <~ CustomerGroupTemplates.result.dbresult
-    } yield templates
+      scope         ← * <~ Scope.current
+      usedTemplates ← * <~ GroupTemplateInstances.findByScope(scope).map(_.groupTemplateId).result
+      templates     ← * <~ CustomerGroupTemplates.result
+    } yield templates.filter(t ⇒ !usedTemplates.contains(t.id))
 
 }
