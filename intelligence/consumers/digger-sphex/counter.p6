@@ -6,7 +6,8 @@ use HTTP::Client;
 
 grammar Nginx
 {
-    rule TOP {^ .* '"' <cmd> <path> <protocol> '"' <response> .* $}
+    rule TOP {^ .* '"' <host> <cmd> <path> <protocol> '"' <response> .* $}
+    token host { \S+ }
     regex path { '/' <path-elem>? <path>?}
     token path-elem { \S+ }
     regex protocol { 'HTTP/1.1'}  
@@ -62,10 +63,7 @@ sub MAIN ($kafka-host, $henhouse-host)
         }
     });
 
-    my $t1 = $rsyslog.consume-from-last(partition=>0);
-    #my $t1 = $rsyslog.consume-from-beginning(partition=>0);
-
-    await $t1;
+    await $rsyslog.consume-from-last(partition=>0);
 }
 
 sub count($henhouse, Str $key)
@@ -109,6 +107,9 @@ sub track($henhouse, $path)
 
 sub send-to-henhouse($r, $henhouse)
 {
+    #only count things river-rock proxies
+    return if not $r<host> ~~ m/river\-rock/;
+
     if $r<path> ~~ m/api\/v1\/hal/ {
         track($henhouse, $r<path>) 
     } 
