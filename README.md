@@ -19,7 +19,7 @@ Highlander is the brand-spanking-new FoxCommerce mono-repo.
 | [firebrand](firebrand)               | A demo storefront used to show off the capabilities of FoxCommerce APIs.                                     |
 | [prov-shit](prov-shit)               | All of our DevOps tools for deploying the application to both development and production.                    |
 | [api-docs](api-docs)                 | Our API documentation in API Blueprint format and Postman query collections.                                 |
-| [enginnering-wiki](enginnering-wiki) | Internal design documents, guidelines and other tips in Markdown format.                                     |
+| [engineering-wiki](engineering-wiki) | Internal design documents, guidelines and other tips in Markdown format.                                     |
 
 ## Development Environment
 
