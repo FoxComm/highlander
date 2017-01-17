@@ -2,18 +2,14 @@ package services
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/FoxComm/highlander/intelligence/eggcrate/src/responses"
 	"github.com/FoxComm/highlander/intelligence/eggcrate/src/util"
+
 	"github.com/labstack/echo"
 )
-
-var url = os.Getenv("API_URL")
-var port = os.Getenv("HENHOUSE_PORT")
 
 func GetProductFunnel(c echo.Context) error {
 	id := c.Param("id")
@@ -29,37 +25,10 @@ func GetProductFunnel(c echo.Context) error {
 }
 
 func henhouseProductFunnel(id, a, b string) (string, error) {
-	if port == "" {
-		var portErr error
-		_, port, portErr = util.LookupSrv("henhouse.service.consul")
-		if portErr != nil {
-			return "", portErr
-		}
-	}
-
-	var key = ""
-	steps := [...]string{"list", "pdp", "cart", "checkout"}
-	for _, step := range steps {
-		key += "track_product_" + id + "_" + step + ","
-	}
-
-	if a != "" {
-		key += "&a=" + a
-	}
-	if b != "" {
-		key += "&b=" + b
-	}
-
-	fmt.Println("requesting diff with keys=", key)
-	resp, reqErr := http.Get(url + ":" + port + "/diff?keys=" + key)
-	if reqErr != nil {
-		return "", reqErr
-	}
-
-	var pf responses.HenhouseResponse
-	err := json.NewDecoder(resp.Body).Decode(&pf)
-	if err != nil {
-		return "", err
+	steps := []string{"list", "pdp", "cart", "checkout"}
+	pf, qErr := util.ProductQuery(id, steps, a, b)
+	if qErr != nil {
+		return "", qErr
 	}
 
 	return buildResponse(pf), nil
@@ -88,7 +57,8 @@ func buildResponse(pf responses.HenhouseResponse) string {
 		CheckoutClicks: checkoutClicks,
 		SearchToPdp:    searchToPdp,
 		PdpToCart:      pdpToCart,
-		CartToCheckout: cartToCheckout}
+		CartToCheckout: cartToCheckout,
+	}
 	out, _ := json.Marshal(&resp)
 	return string(out)
 }
