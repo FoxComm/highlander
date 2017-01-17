@@ -33,7 +33,7 @@ object CouponFailures {
   }
 
   case class CouponCodeLengthIsTooSmall(prefix: String, quantity: Int) extends Failure {
-    val minSize = CouponCodes.charactersGivenQuantity(quantity) + prefix.length
+    val minSize              = CouponCodes.charactersGivenQuantity(quantity) + prefix.length
     override def description = s"Coupon code character length must be at least $minSize"
   }
 
@@ -45,7 +45,7 @@ object CouponFailures {
   object CouponNotFoundForContext {
     def apply(couponId: Int, contextName: String) =
       NotFoundFailure404(
-          s"Coupon with id=$couponId with coupon context $contextName cannot be found")
+        s"Coupon with id=$couponId with coupon context $contextName cannot be found")
   }
 
   object CouponNotFoundForDefaultContext {

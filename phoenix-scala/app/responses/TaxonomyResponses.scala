@@ -27,10 +27,10 @@ object TaxonomyResponses {
   object TaxonomyResponse {
     def build(taxon: FullObject[Taxonomy], taxons: Seq[LinkedTaxon]): TaxonomyResponse = {
       TaxonomyResponse(
-          taxon.model.formId,
-          taxon.model.hierarchical,
-          IlluminateAlgorithm.projectAttributes(taxon.form.attributes, taxon.shadow.attributes),
-          TaxonTreeResponse.buildTree(taxons))
+        taxon.model.formId,
+        taxon.model.hierarchical,
+        IlluminateAlgorithm.projectAttributes(taxon.form.attributes, taxon.shadow.attributes),
+        TaxonTreeResponse.buildTree(taxons))
     }
   }
 

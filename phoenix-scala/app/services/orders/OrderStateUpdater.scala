@@ -43,7 +43,7 @@ object OrderStateUpdater {
       // Turn failures into errors
       batchMetadata ← * <~ updateStatesDbio(admin, refNumbers, newState, skipActivity)
       response ← * <~ OrderQueries.findAllByQuery(
-                    Orders.filter(_.referenceNumber.inSetBind(refNumbers)))
+        Orders.filter(_.referenceNumber.inSetBind(refNumbers)))
     } yield response.copy(errors = batchMetadata.flatten, batch = Some(batchMetadata))
 
   private def updateStatesDbio(
@@ -64,7 +64,7 @@ object OrderStateUpdater {
         _ ⇒
           // Failure handling
           val invalid = invalidTransitions.map(o ⇒
-                (o.refNum, StateTransitionNotAllowed(o.state, newState, o.refNum).description))
+            (o.refNum, StateTransitionNotAllowed(o.state, newState, o.refNum).description))
           val notFound = refNumbers
             .filterNot(refNum ⇒ orders.map(_.referenceNumber).contains(refNum))
             .map(refNum ⇒ (refNum, NotFoundFailure400(Order, refNum).description))

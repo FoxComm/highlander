@@ -27,9 +27,9 @@ object SaveForLaterResponse {
   def forSkuId(skuId: Int, contextId: Int)(implicit ec: EC, db: DB): DbResultT[Root] =
     for {
       sfl ← * <~ SaveForLaters
-             .filter(_.skuId === skuId)
-             .mustFindOneOr(
-                 NotFoundFailure404(s"Save for later entry for sku with id=$skuId not found"))
+        .filter(_.skuId === skuId)
+        .mustFindOneOr(
+          NotFoundFailure404(s"Save for later entry for sku with id=$skuId not found"))
       sku    ← * <~ Skus.mustFindById404(skuId)
       form   ← * <~ ObjectForms.mustFindById404(sku.formId)
       shadow ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
@@ -41,11 +41,11 @@ object SaveForLaterResponse {
     val name  = Mvp.title(form, shadow)
 
     Root(
-        id = sfl.id,
-        name = name,
-        sku = sku.code,
-        price = price,
-        createdAt = sfl.createdAt
+      id = sfl.id,
+      name = name,
+      sku = sku.code,
+      price = price,
+      createdAt = sfl.createdAt
     )
   }
 }

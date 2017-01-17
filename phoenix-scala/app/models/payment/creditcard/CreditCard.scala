@@ -10,7 +10,10 @@ import models.account._
 import models.location._
 import models.payment.PaymentMethod
 import models.traits.Addressable
-import payloads.PaymentPayloads.{CreateCreditCardFromSourcePayload, CreateCreditCardFromTokenPayload}
+import payloads.PaymentPayloads.{
+  CreateCreditCardFromSourcePayload,
+  CreateCreditCardFromTokenPayload
+}
 import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils._
@@ -53,13 +56,13 @@ case class CreditCard(id: Int = 0,
 
   override def validate: ValidatedNel[Failure, CreditCard] = {
     (address.validate |@| matches(lastFour, "[0-9]{4}", "lastFour") |@| notExpired(
-            expYear,
-            expMonth,
-            "credit card is expired") |@| withinNumberOfYears(
-            expYear,
-            expMonth,
-            20,
-            "credit card expiration is too far in the future") |@| super.validate).map {
+      expYear,
+      expMonth,
+      "credit card is expired") |@| withinNumberOfYears(
+      expYear,
+      expMonth,
+      20,
+      "credit card expiration is too far in the future") |@| super.validate).map {
       case _ ⇒ this
     }
   }
@@ -73,12 +76,12 @@ case class CreditCard(id: Int = 0,
 
   def copyFromAddress(address: Address): CreditCard =
     this.copy(
-        address = this.address.copy(regionId = address.regionId,
-                                    name = address.name,
-                                    address1 = address.address1,
-                                    address2 = address.address2,
-                                    city = address.city,
-                                    zip = address.zip))
+      address = this.address.copy(regionId = address.regionId,
+                                  name = address.name,
+                                  address1 = address.address1,
+                                  address2 = address.address2,
+                                  city = address.city,
+                                  zip = address.zip))
 }
 
 object CreditCard {
@@ -203,21 +206,21 @@ class CreditCards(tag: Tag) extends FoxTable[CreditCard](tag, "credit_cards") {
       {
         def address(a: BillingAddress) = BillingAddress.unapply(a).get
         Some(
-            (c.id,
-             c.parentId,
-             c.accountId,
-             c.gatewayCustomerId,
-             c.gatewayCardId,
-             c.holderName,
-             c.lastFour,
-             c.expMonth,
-             c.expYear,
-             c.isDefault,
-             c.inWallet,
-             c.deletedAt,
-             c.brand,
-             address(c.address),
-             c.createdAt))
+          (c.id,
+           c.parentId,
+           c.accountId,
+           c.gatewayCustomerId,
+           c.gatewayCardId,
+           c.holderName,
+           c.lastFour,
+           c.expMonth,
+           c.expYear,
+           c.isDefault,
+           c.inWallet,
+           c.deletedAt,
+           c.brand,
+           address(c.address),
+           c.createdAt))
       }
     })
 

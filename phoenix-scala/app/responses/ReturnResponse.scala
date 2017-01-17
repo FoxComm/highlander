@@ -87,31 +87,30 @@ object ReturnResponse {
 
   def buildPayment(pmt: ReturnPayment): DisplayPayment =
     DisplayPayment(
-        id = pmt.id,
-        amount = pmt.amount,
-        currency = pmt.currency,
-        paymentMethodId = pmt.paymentMethodId,
-        paymentMethodType = pmt.paymentMethodType
+      id = pmt.id,
+      amount = pmt.amount,
+      currency = pmt.currency,
+      paymentMethodId = pmt.paymentMethodId,
+      paymentMethodType = pmt.paymentMethodType
     )
 
   def buildLineItems(skus: Seq[(Sku, ObjectForm, ObjectShadow, ReturnLineItem)],
                      giftCards: Seq[(GiftCard, ReturnLineItem)],
                      shipments: Seq[(Shipment, ReturnLineItem)]): LineItems = {
     LineItems(
-        skus = skus.map {
-          case (sku, form, shadow, li) ⇒
-            LineItemSku(lineItemId = li.id,
-                        sku = DisplaySku(sku = sku.code, price = Mvp.priceAsInt(form, shadow)))
-        },
-        giftCards = giftCards.map {
-          case (gc, li) ⇒
-            LineItemGiftCard(lineItemId = li.id, giftCard = GiftCardResponse.build(gc))
-        },
-        shippingCosts = shipments.map {
-          case (shipment, li) ⇒
-            LineItemShippingCost(lineItemId = li.id,
-                                 shippingCost = ShipmentResponse.build(shipment))
-        }
+      skus = skus.map {
+        case (sku, form, shadow, li) ⇒
+          LineItemSku(lineItemId = li.id,
+                      sku = DisplaySku(sku = sku.code, price = Mvp.priceAsInt(form, shadow)))
+      },
+      giftCards = giftCards.map {
+        case (gc, li) ⇒
+          LineItemGiftCard(lineItemId = li.id, giftCard = GiftCardResponse.build(gc))
+      },
+      shippingCosts = shipments.map {
+        case (shipment, li) ⇒
+          LineItemShippingCost(lineItemId = li.id, shippingCost = ShipmentResponse.build(shipment))
+      }
     )
   }
 
@@ -140,18 +139,18 @@ object ReturnResponse {
             shipments,
             subtotal) ⇒
         build(
-            rma = rma,
-            customer = for {
-              c  ← customer
-              cu ← customerData
-            } yield CustomerResponse.build(c, cu),
-            storeAdmin = for {
-              a  ← storeAdmin
-              au ← adminData
-            } yield StoreAdminResponse.build(a, au),
-            payments = payments.map(buildPayment),
-            lineItems = buildLineItems(lineItemData, giftCards, shipments),
-            totals = Some(buildTotals(subtotal, None, shipments))
+          rma = rma,
+          customer = for {
+            c  ← customer
+            cu ← customerData
+          } yield CustomerResponse.build(c, cu),
+          storeAdmin = for {
+            a  ← storeAdmin
+            au ← adminData
+          } yield StoreAdminResponse.build(a, au),
+          payments = payments.map(buildPayment),
+          lineItems = buildLineItems(lineItemData, giftCards, shipments),
+          totals = Some(buildTotals(subtotal, None, shipments))
         )
     }
   }
@@ -169,19 +168,19 @@ object ReturnResponse {
             shipments,
             subtotal) ⇒
         buildExpanded(
-            rma = rma,
-            order = order,
-            customer = for {
-              c  ← customer
-              cu ← customerData
-            } yield CustomerResponse.build(c, cu),
-            storeAdmin = for {
-              a  ← storeAdmin
-              au ← adminData
-            } yield StoreAdminResponse.build(a, au),
-            payments = payments.map(buildPayment),
-            lineItems = buildLineItems(lineItemData, giftCards, shipments),
-            totals = Some(buildTotals(subtotal, None, shipments))
+          rma = rma,
+          order = order,
+          customer = for {
+            c  ← customer
+            cu ← customerData
+          } yield CustomerResponse.build(c, cu),
+          storeAdmin = for {
+            a  ← storeAdmin
+            au ← adminData
+          } yield StoreAdminResponse.build(a, au),
+          payments = payments.map(buildPayment),
+          lineItems = buildLineItems(lineItemData, giftCards, shipments),
+          totals = Some(buildTotals(subtotal, None, shipments))
         )
     }
   }
@@ -215,30 +214,30 @@ object ReturnResponse {
                     payments: Seq[DisplayPayment] = Seq.empty,
                     totals: Option[ReturnTotals] = None): RootExpanded =
     RootExpanded(
-        id = rma.id,
-        referenceNumber = rma.refNum,
-        order = order,
-        rmaType = rma.returnType,
-        state = rma.state,
-        customer = customer,
-        storeAdmin = storeAdmin,
-        payments = payments,
-        lineItems = lineItems,
-        messageToCustomer = rma.messageToAccount,
-        canceledReason = rma.canceledReason,
-        createdAt = rma.createdAt,
-        updatedAt = rma.updatedAt,
-        totals = totals
+      id = rma.id,
+      referenceNumber = rma.refNum,
+      order = order,
+      rmaType = rma.returnType,
+      state = rma.state,
+      customer = customer,
+      storeAdmin = storeAdmin,
+      payments = payments,
+      lineItems = lineItems,
+      messageToCustomer = rma.messageToAccount,
+      canceledReason = rma.canceledReason,
+      createdAt = rma.createdAt,
+      updatedAt = rma.updatedAt,
+      totals = totals
     )
 
   private def fetchRmaDetails(rma: Return, withOrder: Boolean = false)(implicit db: DB, ec: EC) = {
     val orderQ: DbResultT[Option[OrderResponse]] = for {
       maybeOrder ← * <~ Orders.findByRefNum(rma.orderRef).one
       fullOrder ← * <~ ((maybeOrder, withOrder) match {
-                       case (Some(order), true) ⇒
-                         OrderResponse.fromOrder(order, grouped = true).map(Some(_))
-                       case _ ⇒ DbResultT.none[OrderResponse]
-                     })
+        case (Some(order), true) ⇒
+          OrderResponse.fromOrder(order, grouped = true).map(Some(_))
+        case _ ⇒ DbResultT.none[OrderResponse]
+      })
     } yield fullOrder
 
     for {
@@ -248,11 +247,11 @@ object ReturnResponse {
       customer     ← * <~ Users.findOneByAccountId(rma.accountId)
       customerData ← * <~ CustomersData.findOneByAccountId(rma.accountId)
       storeAdmin ← * <~ rma.storeAdminId
-                    .map(id ⇒ Users.findOneByAccountId(id))
-                    .getOrElse(lift(None))
+        .map(id ⇒ Users.findOneByAccountId(id))
+        .getOrElse(lift(None))
       adminData ← * <~ rma.storeAdminId
-                   .map(id ⇒ AdminsData.findOneByAccountId(id))
-                   .getOrElse(lift(None))
+        .map(id ⇒ AdminsData.findOneByAccountId(id))
+        .getOrElse(lift(None))
       // Payment methods
       payments ← * <~ ReturnPayments.filter(_.returnId === rma.id).result
       // Line items of each subtype

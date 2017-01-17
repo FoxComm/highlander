@@ -4,7 +4,12 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import models.account._
 import models.admin._
-import models.sharedsearch.{SharedSearch, SharedSearchAssociation, SharedSearchAssociations, SharedSearches}
+import models.sharedsearch.{
+  SharedSearch,
+  SharedSearchAssociation,
+  SharedSearchAssociations,
+  SharedSearches
+}
 import org.json4s.jackson.JsonMethods._
 import utils.db._
 import slick.driver.PostgresDriver.api._
@@ -18,15 +23,15 @@ trait SharedSearchSeeds {
       skusSearch    ← * <~ SharedSearches.create(archivedSkusSearch(adminId))
       storeAdmins   ← * <~ AdminsData.sortBy(_.accountId).result
       _ ← * <~ storeAdmins.map { admin ⇒
-           SharedSearchAssociations.create(
-               new SharedSearchAssociation(sharedSearchId = productSearch.id,
-                                           storeAdminId = admin.accountId))
-         }
+        SharedSearchAssociations.create(
+          new SharedSearchAssociation(sharedSearchId = productSearch.id,
+                                      storeAdminId = admin.accountId))
+      }
       _ ← * <~ storeAdmins.map { admin ⇒
-           SharedSearchAssociations.create(
-               new SharedSearchAssociation(sharedSearchId = skusSearch.id,
-                                           storeAdminId = admin.accountId))
-         }
+        SharedSearchAssociations.create(
+          new SharedSearchAssociation(sharedSearchId = skusSearch.id,
+                                      storeAdminId = admin.accountId))
+      }
     } yield search
 
   def sharedSearch(adminId: Int) =

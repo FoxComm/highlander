@@ -11,15 +11,15 @@ trait AddressSeeds {
   def createAddresses(customers: CustomerSeeds#CustomerIds): DbResultT[Unit] =
     for {
       _ ← * <~ Addresses.createAll(
-             Seq(
-                 usAddress1.copy(accountId = customers._1),
-                 usAddress2.copy(accountId = customers._1),
-                 usAddress3.copy(accountId = customers._2),
-                 usAddress4.copy(accountId = customers._2),
-                 canadaAddress1.copy(accountId = customers._3),
-                 canadaAddress2.copy(accountId = customers._3),
-                 rowAddress1.copy(accountId = customers._4)
-             ))
+        Seq(
+          usAddress1.copy(accountId = customers._1),
+          usAddress2.copy(accountId = customers._1),
+          usAddress3.copy(accountId = customers._2),
+          usAddress4.copy(accountId = customers._2),
+          canadaAddress1.copy(accountId = customers._3),
+          canadaAddress2.copy(accountId = customers._3),
+          rowAddress1.copy(accountId = customers._4)
+        ))
     } yield {}
 
   def usAddress1 =

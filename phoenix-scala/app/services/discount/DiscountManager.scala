@@ -28,12 +28,12 @@ object DiscountManager {
                                               db: DB): DbResultT[DiscountShadowResponse.Root] =
     for {
       context ← * <~ ObjectContexts
-                 .filterByName(contextName)
-                 .mustFindOneOr(ObjectContextNotFound(contextName))
+        .filterByName(contextName)
+        .mustFindOneOr(ObjectContextNotFound(contextName))
       discount ← * <~ Discounts
-                  .filter(_.contextId === context.id)
-                  .filter(_.formId === id)
-                  .mustFindOneOr(NotFoundFailure404(Discount, id))
+        .filter(_.contextId === context.id)
+        .filter(_.formId === id)
+        .mustFindOneOr(NotFoundFailure404(Discount, id))
       shadow ← * <~ ObjectShadows.mustFindById404(discount.shadowId)
     } yield DiscountShadowResponse.build(shadow)
 
@@ -41,12 +41,12 @@ object DiscountManager {
                                                 db: DB): DbResultT[DiscountResponse.Root] =
     for {
       context ← * <~ ObjectContexts
-                 .filterByName(contextName)
-                 .mustFindOneOr(ObjectContextNotFound(contextName))
+        .filterByName(contextName)
+        .mustFindOneOr(ObjectContextNotFound(contextName))
       discount ← * <~ Discounts
-                  .filter(_.contextId === context.id)
-                  .filter(_.formId === discountId)
-                  .mustFindOneOr(DiscountNotFoundForContext(discountId, context.id))
+        .filter(_.contextId === context.id)
+        .filter(_.formId === discountId)
+        .mustFindOneOr(DiscountNotFoundForContext(discountId, context.id))
       form   ← * <~ ObjectForms.mustFindById404(discount.formId)
       shadow ← * <~ ObjectShadows.mustFindById404(discount.shadowId)
     } yield DiscountResponse.build(form, shadow)
@@ -56,8 +56,8 @@ object DiscountManager {
       contextName: String)(implicit ec: EC, db: DB, au: AU): DbResultT[DiscountResponse.Root] =
     for {
       context ← * <~ ObjectContexts
-                 .filterByName(contextName)
-                 .mustFindOneOr(ObjectContextNotFound(contextName))
+        .filterByName(contextName)
+        .mustFindOneOr(ObjectContextNotFound(contextName))
       discount ← * <~ createInternal(payload, context)
     } yield DiscountResponse.build(discount.form, discount.shadow)
 
@@ -79,11 +79,11 @@ object DiscountManager {
       _     ← * <~ DiscountValidator.validate(fs)
       ins   ← * <~ ObjectUtils.insert(fs.form, fs.shadow, payload.schema)
       discount ← * <~ Discounts.create(
-                    Discount(scope = scope,
-                             contextId = context.id,
-                             formId = ins.form.id,
-                             shadowId = ins.shadow.id,
-                             commitId = ins.commit.id))
+        Discount(scope = scope,
+                 contextId = context.id,
+                 formId = ins.form.id,
+                 shadowId = ins.shadow.id,
+                 commitId = ins.commit.id))
     } yield CreateInternalResult(discount, ins.commit, ins.form, ins.shadow)
   }
 
@@ -92,8 +92,8 @@ object DiscountManager {
       db: DB): DbResultT[DiscountResponse.Root] =
     for {
       context ← * <~ ObjectContexts
-                 .filterByName(contextName)
-                 .mustFindOneOr(ObjectContextNotFound(contextName))
+        .filterByName(contextName)
+        .mustFindOneOr(ObjectContextNotFound(contextName))
       discount ← * <~ updateInternal(discountId, payload.attributes, context)
     } yield DiscountResponse.build(discount.form, discount.shadow)
 
@@ -111,9 +111,9 @@ object DiscountManager {
 
     for {
       discount ← * <~ Discounts
-                  .filter(_.contextId === context.id)
-                  .filter(_.formId === discountId)
-                  .mustFindOneOr(DiscountNotFoundForContext(discountId, context.id))
+        .filter(_.contextId === context.id)
+        .filter(_.formId === discountId)
+        .mustFindOneOr(DiscountNotFoundForContext(discountId, context.id))
       _ ← * <~ DiscountValidator.validate(fs)
       update ← * <~ ObjectUtils.update(discount.formId,
                                        discount.shadowId,
@@ -130,17 +130,17 @@ object DiscountManager {
       db: DB): DbResultT[IlluminatedDiscountResponse.Root] =
     for {
       context ← * <~ ObjectContexts
-                 .filterByName(contextName)
-                 .mustFindOneOr(ObjectContextNotFound(contextName))
+        .filterByName(contextName)
+        .mustFindOneOr(ObjectContextNotFound(contextName))
       discount ← * <~ Discounts
-                  .filter(_.contextId === context.id)
-                  .filter(_.formId === id)
-                  .mustFindOneOr(NotFoundFailure404(Discount, id))
+        .filter(_.contextId === context.id)
+        .filter(_.formId === id)
+        .mustFindOneOr(NotFoundFailure404(Discount, id))
       form   ← * <~ ObjectForms.mustFindById404(discount.formId)
       shadow ← * <~ ObjectShadows.mustFindById404(discount.shadowId)
     } yield
       IlluminatedDiscountResponse.build(
-          IlluminatedDiscount.illuminate(context = context.some, form, shadow))
+        IlluminatedDiscount.illuminate(context = context.some, form, shadow))
 
   private def updateHead(discount: Discount,
                          shadow: ObjectShadow,

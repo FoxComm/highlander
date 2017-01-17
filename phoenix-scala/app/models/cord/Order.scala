@@ -52,14 +52,14 @@ case class Order(id: Int = 0,
   import Order._
 
   val fsm: Map[State, Set[State]] = Map(
-      FraudHold →
-        Set(ManualHold, RemorseHold, FulfillmentStarted, Canceled),
-      RemorseHold →
-        Set(FraudHold, ManualHold, FulfillmentStarted, Canceled),
-      ManualHold →
-        Set(FraudHold, RemorseHold, FulfillmentStarted, Canceled),
-      FulfillmentStarted →
-        Set(Shipped, Canceled)
+    FraudHold →
+      Set(ManualHold, RemorseHold, FulfillmentStarted, Canceled),
+    RemorseHold →
+      Set(FraudHold, ManualHold, FulfillmentStarted, Canceled),
+    ManualHold →
+      Set(FraudHold, RemorseHold, FulfillmentStarted, Canceled),
+    FulfillmentStarted →
+      Set(Shipped, Canceled)
   )
 
   // If order is not in RemorseHold, remorsePeriodEnd should be None, but extra check wouldn't hurt
@@ -150,16 +150,16 @@ object Orders
       lineItems ← * <~ prepareOrderLineItemsFromCart(cart, contextId)
 
       order ← * <~ Orders.create(
-                 Order(referenceNumber = cart.referenceNumber,
-                       accountId = cart.accountId,
-                       scope = scope,
-                       currency = cart.currency,
-                       subTotal = cart.subTotal,
-                       shippingTotal = cart.shippingTotal,
-                       adjustmentsTotal = cart.adjustmentsTotal,
-                       taxesTotal = cart.taxesTotal,
-                       grandTotal = cart.grandTotal,
-                       contextId = contextId))
+        Order(referenceNumber = cart.referenceNumber,
+              accountId = cart.accountId,
+              scope = scope,
+              currency = cart.currency,
+              subTotal = cart.subTotal,
+              shippingTotal = cart.shippingTotal,
+              adjustmentsTotal = cart.adjustmentsTotal,
+              taxesTotal = cart.taxesTotal,
+              grandTotal = cart.grandTotal,
+              contextId = contextId))
 
       _ ← * <~ OrderLineItems.createAll(lineItems)
     } yield order
@@ -181,13 +181,13 @@ object Orders
       skuMaps   ← * <~ skus.toMap
       lineItems ← * <~ CartLineItems.byCordRef(cart.referenceNumber).result
       orderLineItems ← * <~ lineItems.map { cli ⇒
-                        val sku = skuMaps.get(cli.skuId).get
-                        OrderLineItem(cordRef = cart.referenceNumber,
-                                      skuId = sku.id,
-                                      skuShadowId = sku.shadowId,
-                                      state = OrderLineItem.Pending,
-                                      attributes = cli.attributes)
-                      }
+        val sku = skuMaps.get(cli.skuId).get
+        OrderLineItem(cordRef = cart.referenceNumber,
+                      skuId = sku.id,
+                      skuShadowId = sku.shadowId,
+                      state = OrderLineItem.Pending,
+                      attributes = cli.attributes)
+      }
     } yield orderLineItems
   }
 

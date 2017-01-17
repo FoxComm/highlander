@@ -45,7 +45,7 @@ class ElasticSearchProcessor(
   def process(offset: Long, topic: String, key: String, inputJson: String): Future[Unit] =
     getDocumentId(key, inputJson).fold {
       Console.err.println(
-          s"Can't find ID for document $inputJson and key $key for topic $topic, offset = $offset")
+        s"Can't find ID for document $inputJson and key $key for topic $topic, offset = $offset")
       futureUnit
     } { id ⇒
       inputJson match {

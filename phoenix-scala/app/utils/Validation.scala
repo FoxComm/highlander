@@ -140,8 +140,7 @@ object Validation {
         }
 
         Validated.Invalid(
-            NonEmptyList(errors.headOption.getOrElse(GeneralFailure("unknown error")),
-                         errors.tail))
+          NonEmptyList(errors.headOption.getOrElse(GeneralFailure("unknown error")), errors.tail))
 
       case accord.Success ⇒
         valid({})

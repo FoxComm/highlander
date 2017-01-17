@@ -14,8 +14,8 @@ object CouponNoteManager extends NoteManager[Int, IlluminatedObject] {
   def fetchEntity(id: Int)(implicit ec: EC, db: DB, ac: AC): DbResultT[IlluminatedObject] =
     for {
       coupon ← * <~ Coupons
-                .filterByContextAndFormId(defaultContextId, id)
-                .mustFindOneOr(CouponNotFoundForDefaultContext(id))
+        .filterByContextAndFormId(defaultContextId, id)
+        .mustFindOneOr(CouponNotFoundForDefaultContext(id))
       form   ← * <~ ObjectForms.mustFindById404(coupon.formId)
       shadow ← * <~ ObjectShadows.mustFindById404(coupon.shadowId)
     } yield IlluminatedObject.illuminate(form = form, shadow = shadow)

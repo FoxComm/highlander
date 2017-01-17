@@ -18,7 +18,7 @@ object PromotionFailures {
   object PromotionNotFoundForContext {
     def apply(promotionId: Int, contextName: String) =
       NotFoundFailure404(
-          s"Promotion with id=$promotionId with promotion context $contextName cannot be found")
+        s"Promotion with id=$promotionId with promotion context $contextName cannot be found")
   }
 
   case object PromotionIsNotActive extends Failure {

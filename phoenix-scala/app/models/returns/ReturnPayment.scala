@@ -62,7 +62,7 @@ class ReturnPayments(tag: Tag) extends FoxTable[ReturnPayment](tag, "return_paym
 
   def * =
     (id, returnId, amount, currency, paymentMethodId, paymentMethodType) <> ((ReturnPayment.apply _).tupled,
-        ReturnPayment.unapply)
+    ReturnPayment.unapply)
 
   def rma = foreignKey(Returns.tableName, returnId, Returns)(_.id)
 }

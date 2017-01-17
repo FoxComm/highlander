@@ -22,9 +22,9 @@ object PluginPayloads {
 
     def validate: ValidatedNel[Failure, RegisterPluginPayload] = {
       (notEmpty(name, "name")
-            |@| notEmpty(version, "version")
-            |@| notEmpty(apiHost, "API host")
-            |@| greaterThan(apiPort, 1, "Api port")).map { case _ ⇒ this }
+        |@| notEmpty(version, "version")
+        |@| notEmpty(apiHost, "API host")
+        |@| greaterThan(apiPort, 1, "Api port")).map { case _ ⇒ this }
     }
   }
 

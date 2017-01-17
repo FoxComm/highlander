@@ -29,10 +29,10 @@ trait OrderSeeds {
            body = body,
            scope = Scope.current)
     Seq(
-        newNote("This customer is a donkey."),
-        newNote("No, seriously."),
-        newNote("Like, an actual donkey."),
-        newNote("How did a donkey even place an order on our website?")
+      newNote("This customer is a donkey."),
+      newNote("No, seriously."),
+      newNote("Like, an actual donkey."),
+      newNote("How did a donkey even place an order on our website?")
     )
   }
 }

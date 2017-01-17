@@ -377,7 +377,7 @@ class ImageIntegrationTest
 
       "fail when uploading to archived album" in new ArchivedAlbumFixture {
         uploadImage(archivedAlbum).mustFailWith400(
-            AddImagesToArchivedAlbumFailure(archivedAlbum.id))
+          AddImagesToArchivedAlbumFailure(archivedAlbum.id))
       }
 
       def uploadImage(album: Album, count: Int = 1): HttpResponse = {
@@ -424,11 +424,11 @@ class ImageIntegrationTest
     val (album, albumImages) = (for {
       ins ← * <~ ObjectUtils.insert(form, shadow)
       album ← * <~ Albums.create(
-                 Album(scope = Scope.current,
-                       contextId = ctx.id,
-                       shadowId = ins.shadow.id,
-                       formId = ins.form.id,
-                       commitId = ins.commit.id))
+        Album(scope = Scope.current,
+              contextId = ctx.id,
+              shadowId = ins.shadow.id,
+              formId = ins.form.id,
+              commitId = ins.commit.id))
       albumImages ← * <~ ImageManager.createImagesForAlbum(album, Seq(testPayload), ctx)
     } yield (album, albumImages)).gimme
   }
@@ -440,14 +440,14 @@ class ImageIntegrationTest
       sSkuShadow ← * <~ SimpleSkuShadow(simpleSku)
       skuShadow  ← * <~ ObjectShadows.create(sSkuShadow.create.copy(formId = skuForm.id))
       skuCommit ← * <~ ObjectCommits.create(
-                     ObjectCommit(formId = skuForm.id, shadowId = skuShadow.id))
+        ObjectCommit(formId = skuForm.id, shadowId = skuShadow.id))
       sku ← * <~ Skus.create(
-               Sku(scope = Scope.current,
-                   contextId = ctx.id,
-                   formId = skuForm.id,
-                   shadowId = skuShadow.id,
-                   commitId = skuCommit.id,
-                   code = "SKU-TEST"))
+        Sku(scope = Scope.current,
+            contextId = ctx.id,
+            formId = skuForm.id,
+            shadowId = skuShadow.id,
+            commitId = skuCommit.id,
+            code = "SKU-TEST"))
       _ ← * <~ SkuAlbumLinks.create(SkuAlbumLink(leftId = sku.id, rightId = album.id))
 
       simpleProd ← * <~ SimpleProduct(title = "Test Product",
@@ -456,13 +456,13 @@ class ImageIntegrationTest
       sProdShadow ← * <~ SimpleProductShadow(simpleProd)
       prodShadow  ← * <~ ObjectShadows.create(sProdShadow.create.copy(formId = prodForm.id))
       prodCommit ← * <~ ObjectCommits.create(
-                      ObjectCommit(formId = prodForm.id, shadowId = prodShadow.id))
+        ObjectCommit(formId = prodForm.id, shadowId = prodShadow.id))
       product ← * <~ Products.create(
-                   Product(scope = Scope.current,
-                           contextId = ctx.id,
-                           formId = prodForm.id,
-                           shadowId = prodShadow.id,
-                           commitId = prodCommit.id))
+        Product(scope = Scope.current,
+                contextId = ctx.id,
+                formId = prodForm.id,
+                shadowId = prodShadow.id,
+                commitId = prodCommit.id))
 
       _ ← * <~ ProductAlbumLinks.create(ProductAlbumLink(leftId = product.id, rightId = album.id))
       _ ← * <~ ProductSkuLinks.create(ProductSkuLink(leftId = product.id, rightId = sku.id))

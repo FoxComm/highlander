@@ -140,9 +140,9 @@ trait RawFixtures extends RawPaymentFixtures with TestSeeds {
                          SimpleSku("SKU-TS2", "SKU test 2", 1000, Currency.USD, active = true))
 
       val simpleSizeVariant = SimpleCompleteVariant(
-          variant = SimpleVariant("Size"),
-          variantValues = Seq(SimpleVariantValue("Small", "", Seq("SKU-TST")),
-                              SimpleVariantValue("Large", "", Seq("SKU-TS2"))))
+        variant = SimpleVariant("Size"),
+        variantValues = Seq(SimpleVariantValue("Small", "", Seq("SKU-TST")),
+                            SimpleVariantValue("Large", "", Seq("SKU-TS2"))))
 
       for {
         skus    ← * <~ Mvp.insertSkus(scope, ctx.id, testSkus)

@@ -50,8 +50,8 @@ object OrderQueries extends CordQueries {
       ctx: OC): DbResultT[TheResponse[OrderResponse]] =
     for {
       order ← * <~ Orders
-               .findByRefNumAndAccountId(refNum, customer.accountId)
-               .mustFindOneOr(NotFoundFailure404(Orders, refNum))
+        .findByRefNumAndAccountId(refNum, customer.accountId)
+        .mustFindOneOr(NotFoundFailure404(Orders, refNum))
       response ← * <~ OrderResponse.fromOrder(order, grouped)
     } yield TheResponse.build(response)
 

@@ -16,7 +16,7 @@ class CreditCardIntegrationTest
       val anotherDefault =
         CreditCards.create(cc.copy(id = 0, isDefault = true)).run().futureValue.leftVal
       anotherDefault.getMessage must include(
-          "violates unique constraint \"credit_cards_default_idx\"")
+        "violates unique constraint \"credit_cards_default_idx\"")
     }
   }
 

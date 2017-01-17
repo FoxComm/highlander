@@ -54,8 +54,8 @@ object ImageManager {
       albums ← * <~ ProductAlbumLinks.queryRightByLeft(product)
       images ← * <~ albums.map(album ⇒ AlbumImageLinks.queryRightByLeft(album.model))
       result ← * <~ albums.zip(images).map {
-                case (album, image) ⇒ AlbumResponse.build(album, image)
-              }
+        case (album, image) ⇒ AlbumResponse.build(album, image)
+      }
     } yield result
 
   def getAlbumsForSku(code: String)(implicit ec: EC, db: DB, oc: OC): DbResultT[Seq[AlbumRoot]] =
@@ -76,8 +76,8 @@ object ImageManager {
       albums ← * <~ SkuAlbumLinks.queryRightByLeft(sku)
       images ← * <~ albums.map(album ⇒ AlbumImageLinks.queryRightByLeft(album.model))
       result ← * <~ albums.zip(images).map {
-                case (album, image) ⇒ AlbumResponse.build(album, image)
-              }
+        case (album, image) ⇒ AlbumResponse.build(album, image)
+      }
     } yield result
 
   def createAlbum(album: AlbumPayload,
@@ -95,14 +95,14 @@ object ImageManager {
       payload ← * <~ createPayload.validate
 
       album ← * <~ ObjectUtils.insertFullObject(
-                 payload.formAndShadow,
-                 ins ⇒ createAlbumHeadFromInsert(context, ins, createPayload.scope))
+        payload.formAndShadow,
+        ins ⇒ createAlbumHeadFromInsert(context, ins, createPayload.scope))
       images ← * <~ (payload.images match {
-                    case Some(imagesPayload) ⇒
-                      createImagesForAlbum(album.model, imagesPayload, context)
-                    case None ⇒
-                      DbResultT.good(Seq.empty)
-                  })
+        case Some(imagesPayload) ⇒
+          createImagesForAlbum(album.model, imagesPayload, context)
+        case None ⇒
+          DbResultT.good(Seq.empty)
+      })
     } yield (album, images)
 
   def createOrUpdateImagesForAlbum(
@@ -111,19 +111,17 @@ object ImageManager {
       context: ObjectContext)(implicit ec: EC, db: DB, au: AU): DbResultT[Seq[FullObject[Image]]] =
     for {
       updatedImages ← * <~ imagesPayload.zipWithIndex.map {
-                       case (payload, index) ⇒
-                         createOrUpdateImageForAlbum(album, payload, index, context)
-                     }
+        case (payload, index) ⇒
+          createOrUpdateImageForAlbum(album, payload, index, context)
+      }
       imageIds = updatedImages.map(_.model.id).toSet
       links ← * <~ AlbumImageLinks.filterLeft(album).result
       linksToDelete = links.filter(link ⇒ !imageIds.contains(link.rightId))
-      _ ← * <~ linksToDelete.map(
-             link ⇒
-               AlbumImageLinks
-                 .deleteById(link.id, DbResultT.unit, (id) ⇒ NotFoundFailure404(link, id)))
+      _ ← * <~ linksToDelete.map(link ⇒
+        AlbumImageLinks.deleteById(link.id, DbResultT.unit, (id) ⇒ NotFoundFailure404(link, id)))
       imagesToDelete ← * <~ Images.filterByIds(linksToDelete.map(_.rightId)).result
       _ ← * <~ imagesToDelete.map(img ⇒
-               Images.deleteById(img.id, DbResultT.unit, (id) ⇒ NotFoundFailure404(img, id)))
+        Images.deleteById(img.id, DbResultT.unit, (id) ⇒ NotFoundFailure404(img, id)))
     } yield updatedImages
 
   def createOrUpdateImageForAlbum(
@@ -135,12 +133,10 @@ object ImageManager {
       case None ⇒
         for {
           inserted ← * <~ ObjectUtils.insertFullObject(
-                        payload.formAndShadow,
-                        ins ⇒ createImageHeadFromInsert(context, ins, payload.scope))
+            payload.formAndShadow,
+            ins ⇒ createImageHeadFromInsert(context, ins, payload.scope))
           _ ← * <~ AlbumImageLinks.create(
-                 AlbumImageLink(leftId = album.id,
-                                position = position,
-                                rightId = inserted.model.id))
+            AlbumImageLink(leftId = album.id, position = position, rightId = inserted.model.id))
         } yield inserted
       case Some(id) ⇒
         for {
@@ -148,10 +144,8 @@ object ImageManager {
           link  ← * <~ mustFindAlbumImageLink404(album.id, id)
           _     ← * <~ AlbumImageLinks.update(link, link.copy(position = position))
           (newForm, newShadow) = payload.formAndShadow.tupled
-          updated ← * <~ ObjectUtils.commitUpdate(image,
-                                                  newForm.attributes,
-                                                  newShadow.attributes,
-                                                  updateImageHead)
+          updated ← * <~ ObjectUtils
+            .commitUpdate(image, newForm.attributes, newShadow.attributes, updateImageHead)
         } yield updated
     }
 
@@ -168,15 +162,14 @@ object ImageManager {
       au: AU): DbResultT[Seq[FullObject[Image]]] =
     for {
       images ← * <~ imagesPayload.map(
-                  img ⇒
-                    ObjectUtils.insertFullObject(
-                        img.formAndShadow,
-                        ins ⇒ createImageHeadFromInsert(context, ins, img.scope)))
+        img ⇒
+          ObjectUtils.insertFullObject(img.formAndShadow,
+                                       ins ⇒ createImageHeadFromInsert(context, ins, img.scope)))
       links ← * <~ images.zipWithIndex.map {
-               case (image, index) ⇒
-                 AlbumImageLinks.create(
-                     AlbumImageLink(leftId = album.id, position = index, rightId = image.model.id))
-             }
+        case (image, index) ⇒
+          AlbumImageLinks.create(
+            AlbumImageLink(leftId = album.id, position = index, rightId = image.model.id))
+      }
     } yield images
 
   def createAlbumForProduct(admin: User, productId: ProductReference, payload: AlbumPayload)(
@@ -263,21 +256,21 @@ object ImageManager {
                                          albumObject.model.copy(archivedAt = Some(Instant.now)))
       productLinks ← * <~ ProductAlbumLinks.filterRight(albumObject.model).result
       _ ← * <~ productLinks.map { link ⇒
-           ProductAlbumLinks.deleteById(link.id,
-                                        DbResultT.unit,
-                                        id ⇒ NotFoundFailure400(ProductAlbumLinks, id))
-         }
+        ProductAlbumLinks.deleteById(link.id,
+                                     DbResultT.unit,
+                                     id ⇒ NotFoundFailure400(ProductAlbumLinks, id))
+      }
       skuLinks ← * <~ SkuAlbumLinks.filterRight(albumObject.model).result
       _ ← * <~ skuLinks.map { link ⇒
-           SkuAlbumLinks.deleteById(link.id,
-                                    DbResultT.unit,
-                                    id ⇒ NotFoundFailure400(SkuAlbumLink, id))
-         }
+        SkuAlbumLinks.deleteById(link.id,
+                                 DbResultT.unit,
+                                 id ⇒ NotFoundFailure400(SkuAlbumLink, id))
+      }
       images ← * <~ getAlbumImages(albumObject.model)
     } yield
       AlbumResponse.build(
-          FullObject(model = archiveResult, form = albumObject.form, shadow = albumObject.shadow),
-          images)
+        FullObject(model = archiveResult, form = albumObject.form, shadow = albumObject.shadow),
+        images)
 
   def mustFindFullAlbumByFormIdAndContext404(id: ObjectForm#Id,
                                              context: ObjectContext)(implicit ec: EC, db: DB) =
@@ -293,21 +286,21 @@ object ImageManager {
     for {
       imageIds ← * <~ AlbumImageLinks.filterLeft(album).sortBy(_.position).map(_.rightId).result
       images ← * <~ imageIds.map(imgId ⇒
-                    ObjectManager.getFullObject(Images.mustFindById404(imgId)))
+        ObjectManager.getFullObject(Images.mustFindById404(imgId)))
     } yield images
 
   def getFirstImageForAlbum(album: Album)(implicit ec: EC, db: DB): DbResultT[Option[String]] =
     for {
       imageLink ← * <~ AlbumImageLinks.filterLeft(album).sortBy(_.position).one.dbresult
       src ← * <~ imageLink.fold(DbResultT.none[String]) { link ⇒
-             for {
-               fullImage ← * <~ ObjectManager.getFullObject(Images.mustFindById404(link.rightId))
-             } yield
-               ObjectUtils.get("src", fullImage.form, fullImage.shadow) match {
-                 case JString(src) ⇒ src.some
-                 case _            ⇒ None
-               }
-           }
+        for {
+          fullImage ← * <~ ObjectManager.getFullObject(Images.mustFindById404(link.rightId))
+        } yield
+          ObjectUtils.get("src", fullImage.form, fullImage.shadow) match {
+            case JString(src) ⇒ src.some
+            case _            ⇒ None
+          }
+      }
     } yield src
 
   private def createAlbumHeadFromInsert(
@@ -317,11 +310,11 @@ object ImageManager {
     for {
       scope ← * <~ Scope.resolveOverride(maybeScope)
       album ← * <~ Albums.create(
-                 Album(scope = scope,
-                       contextId = oc.id,
-                       shadowId = insert.shadow.id,
-                       formId = insert.form.id,
-                       commitId = insert.commit.id))
+        Album(scope = scope,
+              contextId = oc.id,
+              shadowId = insert.shadow.id,
+              formId = insert.form.id,
+              commitId = insert.commit.id))
     } yield album
 
   private def updateAlbumHead(fullObject: FullObject[Album], commitId: Int)(
@@ -329,8 +322,8 @@ object ImageManager {
       db: DB): DbResultT[FullObject[Album]] =
     for {
       newModel ← * <~ Albums.update(
-                    fullObject.model,
-                    fullObject.model.copy(shadowId = fullObject.shadow.id, commitId = commitId))
+        fullObject.model,
+        fullObject.model.copy(shadowId = fullObject.shadow.id, commitId = commitId))
     } yield fullObject.copy(model = newModel)
 
   private def createImageHeadFromInsert(
@@ -340,11 +333,11 @@ object ImageManager {
     for {
       scope ← * <~ Scope.resolveOverride(maybeScope)
       image ← * <~ Images.create(
-                 Image(scope = scope,
-                       contextId = oc.id,
-                       shadowId = ins.shadow.id,
-                       formId = ins.form.id,
-                       commitId = ins.commit.id))
+        Image(scope = scope,
+              contextId = oc.id,
+              shadowId = ins.shadow.id,
+              formId = ins.form.id,
+              commitId = ins.commit.id))
     } yield image
 
   private def updateImageHead(fullObject: FullObject[Image], commitId: Int)(
@@ -352,7 +345,7 @@ object ImageManager {
       db: DB): DbResultT[FullObject[Image]] =
     for {
       newModel ← * <~ Images.update(
-                    fullObject.model,
-                    fullObject.model.copy(shadowId = fullObject.shadow.id, commitId = commitId))
+        fullObject.model,
+        fullObject.model.copy(shadowId = fullObject.shadow.id, commitId = commitId))
     } yield fullObject.copy(model = newModel)
 }

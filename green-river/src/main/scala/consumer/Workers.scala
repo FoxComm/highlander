@@ -12,7 +12,11 @@ import consumer.utils.PhoenixConnectionInfo
 
 object Workers {
   def activityWorker(conf: MainConfig, connectionInfo: PhoenixConnectionInfo)(
-      implicit ec: EC, ac: AS, mat: AM, cp: CP, sc: SC): Future[Unit] = Future {
+      implicit ec: EC,
+      ac: AS,
+      mat: AM,
+      cp: CP,
+      sc: SC): Future[Unit] = Future {
     // Init
     val activityConnectors = Seq(AccountConnector,
                                  OrderConnector,
@@ -26,8 +30,8 @@ object Workers {
 
     val activityProcessor = new ActivityProcessor(connectionInfo, activityConnectors)
 
-    val avroProcessor = new AvroProcessor(
-        schemaRegistryUrl = conf.avroSchemaRegistryUrl, processor = activityProcessor)
+    val avroProcessor = new AvroProcessor(schemaRegistryUrl = conf.avroSchemaRegistryUrl,
+                                          processor = activityProcessor)
 
     val consumer = new MultiTopicConsumer(topics = Seq(conf.activityTopic),
                                           broker = conf.kafkaBroker,
@@ -41,56 +45,63 @@ object Workers {
   }
 
   def searchViewWorkers(conf: MainConfig, connectionInfo: PhoenixConnectionInfo)(
-      implicit ec: EC, ac: AS, mat: AM, cp: CP, sc: SC): Future[Unit] = Future {
+      implicit ec: EC,
+      ac: AS,
+      mat: AM,
+      cp: CP,
+      sc: SC): Future[Unit] = Future {
 
     val transformers = topicTransformers(connectionInfo)
     val indexTopics  = conf.indexTopics
 
     val futures = indexTopics.flatMap {
       case (index, topics) ⇒ {
-          topics.map { topic ⇒
-            Future {
+        topics.map { topic ⇒
+          Future {
 
-              val maybeTransformer = transformers.get(topic)
+            val maybeTransformer = transformers.get(topic)
 
-              maybeTransformer match {
-                case Some(transformer) ⇒
-                  // Init
-                  val esProcessor = new ElasticSearchProcessor(uri = conf.elasticSearchUrl,
-                                                               cluster = conf.elasticSearchCluster,
-                                                               indexName = index,
-                                                               topics = Seq(topic),
-                                                               jsonTransformers =
-                                                                 Map(topic → transformer))
+            maybeTransformer match {
+              case Some(transformer) ⇒
+                // Init
+                val esProcessor = new ElasticSearchProcessor(uri = conf.elasticSearchUrl,
+                                                             cluster = conf.elasticSearchCluster,
+                                                             indexName = index,
+                                                             topics = Seq(topic),
+                                                             jsonTransformers =
+                                                               Map(topic → transformer))
 
-                  val avroProcessor =
-                    new AvroProcessor(schemaRegistryUrl = conf.avroSchemaRegistryUrl,
-                                      processor = esProcessor)
+                val avroProcessor =
+                  new AvroProcessor(schemaRegistryUrl = conf.avroSchemaRegistryUrl,
+                                    processor = esProcessor)
 
-                  val consumer = new MultiTopicConsumer(topics = Seq(topic),
-                                                        broker = conf.kafkaBroker,
-                                                        groupId = s"${conf.kafkaGroupId}_$topic",
-                                                        processor = avroProcessor,
-                                                        startFromBeginning =
-                                                          conf.startFromBeginning)
+                val consumer = new MultiTopicConsumer(topics = Seq(topic),
+                                                      broker = conf.kafkaBroker,
+                                                      groupId = s"${conf.kafkaGroupId}_$topic",
+                                                      processor = avroProcessor,
+                                                      startFromBeginning = conf.startFromBeginning)
 
-                  // Start consuming & processing
-                  Console.out.println(s"Reading from broker ${conf.kafkaBroker}")
-                  consumer.readForever()
-                case None ⇒
-                  throw new IllegalArgumentException(
-                      s"The Topic '$topic' does not have a json transformer")
-              }
+                // Start consuming & processing
+                Console.out.println(s"Reading from broker ${conf.kafkaBroker}")
+                consumer.readForever()
+              case None ⇒
+                throw new IllegalArgumentException(
+                  s"The Topic '$topic' does not have a json transformer")
             }
           }
         }
+      }
     }
 
     Future.sequence(futures)
   }
 
   def scopedSearchViewWorkers(conf: MainConfig, connectionInfo: PhoenixConnectionInfo)(
-      implicit ec: EC, ac: AS, mat: AM, cp: CP, sc: SC): Future[Unit] = Future {
+      implicit ec: EC,
+      ac: AS,
+      mat: AM,
+      cp: CP,
+      sc: SC): Future[Unit] = Future {
 
     val transformers = topicTransformers(connectionInfo)
     val indexTopics  = conf.scopedIndexTopics
@@ -120,49 +131,50 @@ object Workers {
 
     val indexers = indexTopics.flatMap {
       case (index, topics) ⇒ {
-          topics.map { topic ⇒
-            Future {
+        topics.map { topic ⇒
+          Future {
 
-              val maybeTransformer = transformers.get(topic)
+            val maybeTransformer = transformers.get(topic)
 
-              maybeTransformer match {
-                case Some(transformer) ⇒
-                  // Init
-                  val esProcessor = new ScopedIndexer(uri = conf.elasticSearchUrl,
-                                                      cluster = conf.elasticSearchCluster,
-                                                      indexName = index,
-                                                      topics = Seq(topic),
-                                                      jsonTransformers = Map(topic → transformer))
+            maybeTransformer match {
+              case Some(transformer) ⇒
+                // Init
+                val esProcessor = new ScopedIndexer(uri = conf.elasticSearchUrl,
+                                                    cluster = conf.elasticSearchCluster,
+                                                    indexName = index,
+                                                    topics = Seq(topic),
+                                                    jsonTransformers = Map(topic → transformer))
 
-                  val avroProcessor =
-                    new AvroProcessor(schemaRegistryUrl = conf.avroSchemaRegistryUrl,
-                                      processor = esProcessor)
+                val avroProcessor =
+                  new AvroProcessor(schemaRegistryUrl = conf.avroSchemaRegistryUrl,
+                                    processor = esProcessor)
 
-                  val consumer =
-                    new MultiTopicConsumer(topics = Seq(topic),
-                                           broker = conf.kafkaBroker,
-                                           groupId = s"scoped_${conf.kafkaGroupId}_$topic",
-                                           processor = avroProcessor,
-                                           startFromBeginning = conf.startFromBeginning)
+                val consumer =
+                  new MultiTopicConsumer(topics = Seq(topic),
+                                         broker = conf.kafkaBroker,
+                                         groupId = s"scoped_${conf.kafkaGroupId}_$topic",
+                                         processor = avroProcessor,
+                                         startFromBeginning = conf.startFromBeginning)
 
-                  // Start consuming & processing
-                  Console.out.println(
-                      s"Scoped $topic Processor Reading from broker ${conf.kafkaBroker}")
-                  consumer.readForever()
-                case None ⇒
-                  throw new IllegalArgumentException(
-                      s"The Topic '$topic' does not have a json transformer")
-              }
+                // Start consuming & processing
+                Console.out.println(
+                  s"Scoped $topic Processor Reading from broker ${conf.kafkaBroker}")
+                consumer.readForever()
+              case None ⇒
+                throw new IllegalArgumentException(
+                  s"The Topic '$topic' does not have a json transformer")
             }
           }
         }
+      }
     }
 
     Future.sequence(Seq(scopeProcessorFuture) ++ indexers)
   }
 
-  def topicTransformers(connectionInfo: PhoenixConnectionInfo)(
-      implicit ec: EC, ac: AS, mat: AM, cp: CP, sc: SC) = Map(
+  def topicTransformers(
+      connectionInfo: PhoenixConnectionInfo)(implicit ec: EC, ac: AS, mat: AM, cp: CP, sc: SC) =
+    Map(
       "carts_search_view"                  → CartsSearchView(),
       "countries"                          → CountriesSearchView(),
       "customer_items_view"                → CustomerItemsView(),
@@ -186,5 +198,5 @@ object Workers {
       "store_credits_search_view"          → StoreCreditsSearchView(),
       "activity_connections_view"          → ActivityConnectionTransformer(connectionInfo),
       "taxonomies_search_view"             → TaxonomiesSearchView()
-  )
+    )
 }

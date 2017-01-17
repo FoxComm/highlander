@@ -30,7 +30,7 @@ object ObjectManager {
                                                   db: DB): DbResultT[ObjectContextResponse.Root] =
     for {
       context ← * <~ ObjectContexts.create(
-                   ObjectContext(name = payload.name, attributes = payload.attributes))
+        ObjectContext(name = payload.name, attributes = payload.attributes))
     } yield ObjectContextResponse.build(context)
 
   def updateContextByName(name: String, payload: UpdateObjectContext)(
@@ -38,9 +38,8 @@ object ObjectManager {
       db: DB): DbResultT[ObjectContextResponse.Root] =
     for {
       context ← * <~ mustFindByName404(name)
-      update ← * <~ ObjectContexts.update(
-                  context,
-                  context.copy(name = payload.name, attributes = payload.attributes))
+      update ← * <~ ObjectContexts
+        .update(context, context.copy(name = payload.name, attributes = payload.attributes))
     } yield ObjectContextResponse.build(update)
 
   def mustFindByName404(name: String)(implicit ec: EC): DbResultT[ObjectContext] =

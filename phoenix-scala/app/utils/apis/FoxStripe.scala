@@ -66,8 +66,8 @@ class FoxStripe(stripe: StripeWrapper)(implicit ec: EC) extends FoxStripeApi {
 
     def newCustomer: ResultT[(StripeCustomer, StripeCard)] = {
       val params = Map[String, Object](
-            "description" → "FoxCommerce",
-            "email"       → email
+          "description" → "FoxCommerce",
+          "email"       → email
         ) ++ source
 
       for {
@@ -81,10 +81,10 @@ class FoxStripe(stripe: StripeWrapper)(implicit ec: EC) extends FoxStripeApi {
 
   def authorizeAmount(customerId: String, amount: Int, currency: Currency): Result[StripeCharge] = {
     val chargeMap: Map[String, Object] = Map(
-        "amount"   → amount.toString,
-        "currency" → currency.toString,
-        "customer" → customerId,
-        "capture"  → (false: java.lang.Boolean)
+      "amount"   → amount.toString,
+      "currency" → currency.toString,
+      "customer" → customerId,
+      "capture"  → (false: java.lang.Boolean)
     )
 
     stripe.createCharge(chargeMap)
@@ -98,14 +98,14 @@ class FoxStripe(stripe: StripeWrapper)(implicit ec: EC) extends FoxStripeApi {
     def update(stripeCard: StripeCard): Result[StripeCard] = {
 
       val params = Map[String, Object](
-          "address_line1" → cc.address.address1,
-          "address_line2" → cc.address.address2,
-          // ("address_state" → cc.region),
-          "address_zip"  → cc.address.zip,
-          "address_city" → cc.address.city,
-          "name"         → cc.address.name,
-          "exp_year"     → cc.expYear.toString,
-          "exp_month"    → cc.expMonth.toString
+        "address_line1" → cc.address.address1,
+        "address_line2" → cc.address.address2,
+        // ("address_state" → cc.region),
+        "address_zip"  → cc.address.zip,
+        "address_city" → cc.address.city,
+        "name"         → cc.address.name,
+        "exp_year"     → cc.expYear.toString,
+        "exp_month"    → cc.expMonth.toString
       )
 
       stripe.updateCard(stripeCard, params)

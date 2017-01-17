@@ -30,7 +30,7 @@ class ReturnLineItemShippingCosts(tag: Tag)
 
 object ReturnLineItemShippingCosts
     extends FoxTableQuery[ReturnLineItemShippingCost, ReturnLineItemShippingCosts](
-        new ReturnLineItemShippingCosts(_))
+      new ReturnLineItemShippingCosts(_))
     with ReturningId[ReturnLineItemShippingCost, ReturnLineItemShippingCosts] {
 
   val returningLens: Lens[ReturnLineItemShippingCost, Int] = lens[ReturnLineItemShippingCost].id

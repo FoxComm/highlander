@@ -134,7 +134,7 @@ class GiftCardAdjustmentIntegrationTest
 
       val finalGc = GiftCards.refresh(giftCard).gimme
       (finalGc.originalBalance, finalGc.availableBalance, finalGc.currentBalance) must === (
-          (500, 500, 500))
+        (500, 500, 500))
     }
   }
 

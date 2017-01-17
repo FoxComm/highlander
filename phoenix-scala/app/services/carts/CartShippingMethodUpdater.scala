@@ -31,18 +31,18 @@ object CartShippingMethodUpdater {
       _              ← * <~ shippingMethod.mustBeActive
       _              ← * <~ ShippingManager.evaluateShippingMethodForCart(shippingMethod, cart)
       _ ← * <~ Shipments
-           .filter(_.cordRef === cart.refNum)
-           .map(_.orderShippingMethodId)
-           .update(None)
+        .filter(_.cordRef === cart.refNum)
+        .map(_.orderShippingMethodId)
+        .update(None)
       _ ← * <~ OrderShippingMethods.findByOrderRef(cart.refNum).delete
       orderShipMethod ← * <~ OrderShippingMethods.create(
-                           OrderShippingMethod(cordRef = cart.refNum,
-                                               shippingMethodId = shippingMethod.id,
-                                               price = shippingMethod.price))
+        OrderShippingMethod(cordRef = cart.refNum,
+                            shippingMethodId = shippingMethod.id,
+                            price = shippingMethod.price))
       _ ← * <~ Shipments
-           .filter(_.cordRef === cart.refNum)
-           .map(_.orderShippingMethodId)
-           .update(orderShipMethod.id.some)
+        .filter(_.cordRef === cart.refNum)
+        .map(_.orderShippingMethodId)
+        .update(orderShipMethod.id.some)
       // update changed totals
       _         ← * <~ CartPromotionUpdater.readjust(cart).recover { case _ ⇒ Unit }
       order     ← * <~ CartTotaler.saveTotals(cart)
@@ -61,8 +61,8 @@ object CartShippingMethodUpdater {
     for {
       cart ← * <~ getCartByOriginator(originator, refNum)
       shipMethod ← * <~ ShippingMethods
-                    .forCordRef(cart.refNum)
-                    .mustFindOneOr(NoShipMethod(cart.refNum))
+        .forCordRef(cart.refNum)
+        .mustFindOneOr(NoShipMethod(cart.refNum))
       _ ← * <~ OrderShippingMethods.findByOrderRef(cart.refNum).delete
       // update changed totals
       _     ← * <~ CartPromotionUpdater.readjust(cart).recover { case _ ⇒ Unit }

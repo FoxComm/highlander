@@ -43,9 +43,9 @@ trait ExPostgresDriver
 
     implicit val json4sJsonArrayTypeMapper: DriverJdbcType[List[Json]] =
       new AdvancedArrayJdbcType[Json](
-          pgjson,
-          (s) ⇒ SimpleArrayUtils.fromString[Json](jsonMethods.parse(_))(s).orNull,
-          (v) ⇒ SimpleArrayUtils.mkString[Json](_.toString())(v)).to(_.toList)
+        pgjson,
+        (s) ⇒ SimpleArrayUtils.fromString[Json](jsonMethods.parse(_))(s).orNull,
+        (v) ⇒ SimpleArrayUtils.mkString[Json](_.toString())(v)).to(_.toList)
   }
 }
 

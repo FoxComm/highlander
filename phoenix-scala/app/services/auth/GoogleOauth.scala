@@ -46,12 +46,12 @@ class GoogleOauthUser(options: GoogleOauthOptions)(implicit ec: EC, db: DB, ac: 
 
       //We must determine the org based on the domain of the user email
       scopeDomain ← * <~ ScopeDomains
-                     .findByDomain(domain)
-                     .mustFindOneOr(OrganizationNotFoundWithDomain(domain))
+        .findByDomain(domain)
+        .mustFindOneOr(OrganizationNotFoundWithDomain(domain))
       scope ← * <~ Scopes.mustFindById404(scopeDomain.scopeId)
       organization ← * <~ Organizations
-                      .findByScopeId(scopeDomain.scopeId)
-                      .mustFindOr(OrganizationNotFound(domain, scope.path))
+        .findByScopeId(scopeDomain.scopeId)
+        .mustFindOr(OrganizationNotFound(domain, scope.path))
 
       payload = CreateStoreAdminPayload(email = userInfo.email,
                                         name = userInfo.name,
@@ -71,8 +71,8 @@ class GoogleOauthUser(options: GoogleOauthOptions)(implicit ec: EC, db: DB, ac: 
       domain         ← * <~ extractUserDomain(userInfo)
       scopeDomainOpt ← * <~ ScopeDomains.findByDomain(domain).one
       scope ← * <~ scopeDomainOpt.map { scopeDomain ⇒
-               Scopes.mustFindById404(scopeDomain.scopeId)
-             }
+        Scopes.mustFindById404(scopeDomain.scopeId)
+      }
       claims ← * <~ AccountManager.getClaims(account.id,
                                              scope.map(_.id).getOrElse(options.scopeId))
       token ← * <~ UserToken.fromUserAccount(user, account, claims)
@@ -86,13 +86,13 @@ object GoogleOauth {
   def oauthServiceFromConfig(configPrefix: String)(implicit ec: EC, db: DB, ac: AC) = {
 
     val opts = GoogleOauthOptions(
-        roleName = config.getString(s"user.$configPrefix.role"),
-        orgName = config.getString(s"user.$configPrefix.org"),
-        scopeId = config.getInt(s"user.$configPrefix.scope_id"),
-        clientId = config.getString(s"oauth.$configPrefix.google.client_id"),
-        clientSecret = config.getString(s"oauth.$configPrefix.google.client_secret"),
-        redirectUri = config.getString(s"oauth.$configPrefix.google.redirect_uri"),
-        hostedDomain = config.getOptString(s"oauth.$configPrefix.google.hosted_domain"))
+      roleName = config.getString(s"user.$configPrefix.role"),
+      orgName = config.getString(s"user.$configPrefix.org"),
+      scopeId = config.getInt(s"user.$configPrefix.scope_id"),
+      clientId = config.getString(s"oauth.$configPrefix.google.client_id"),
+      clientSecret = config.getString(s"oauth.$configPrefix.google.client_secret"),
+      redirectUri = config.getString(s"oauth.$configPrefix.google.redirect_uri"),
+      hostedDomain = config.getOptString(s"oauth.$configPrefix.google.hosted_domain"))
 
     new GoogleOauthUser(opts)
   }

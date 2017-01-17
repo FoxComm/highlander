@@ -30,7 +30,7 @@ case class StoreCreditAdjustment(id: Int = 0,
   def getAmount: Int = debit
 
   val fsm: Map[State, Set[State]] = Map(
-      Auth → Set(Canceled, Capture)
+    Auth → Set(Canceled, Capture)
   )
 }
 
@@ -47,7 +47,7 @@ class StoreCreditAdjustments(tag: Tag)
 
 object StoreCreditAdjustments
     extends InStorePaymentAdjustmentQueries[StoreCreditAdjustment, StoreCreditAdjustments](
-        new StoreCreditAdjustments(_))
+      new StoreCreditAdjustments(_))
     with ReturningId[StoreCreditAdjustment, StoreCreditAdjustments] {
 
   val returningLens: Lens[StoreCreditAdjustment, Int] = lens[StoreCreditAdjustment].id

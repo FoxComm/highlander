@@ -2,8 +2,18 @@ package services
 
 import scala.concurrent.Future
 import akka.http.scaladsl.model.headers.{HttpChallenge, HttpCookie, RawHeader}
-import akka.http.scaladsl.model.{ContentTypes, DateTime, HttpEntity, HttpResponse, StatusCodes, Uri}
-import akka.http.scaladsl.server.AuthenticationFailedRejection.{CredentialsMissing, CredentialsRejected}
+import akka.http.scaladsl.model.{
+  ContentTypes,
+  DateTime,
+  HttpEntity,
+  HttpResponse,
+  StatusCodes,
+  Uri
+}
+import akka.http.scaladsl.server.AuthenticationFailedRejection.{
+  CredentialsMissing,
+  CredentialsRejected
+}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import akka.http.scaladsl.server.directives.CookieDirectives.setCookie
@@ -53,15 +63,15 @@ object AuthRejections {
 
 object JwtCookie {
   def apply(authPayload: AuthPayload): HttpCookie = HttpCookie(
-      name = "JWT",
-      value = authPayload.jwt,
-      secure = config.getOptBool("auth.cookieSecure").getOrElse(true),
-      httpOnly = true,
-      expires = config.getOptLong("auth.cookieTTL").map { ttl ⇒
-        DateTime.now + ttl * 1000
-      },
-      path = Some("/"),
-      domain = config.getOptString("auth.cookieDomain")
+    name = "JWT",
+    value = authPayload.jwt,
+    secure = config.getOptBool("auth.cookieSecure").getOrElse(true),
+    httpOnly = true,
+    expires = config.getOptLong("auth.cookieTTL").map { ttl ⇒
+      DateTime.now + ttl * 1000
+    },
+    path = Some("/"),
+    domain = config.getOptString("auth.cookieDomain")
   )
 }
 
@@ -105,8 +115,8 @@ object Authenticator {
         jwtCredentials ← * <~ credentials.toXor(AuthFailed("missing credentials").single)
         token          ← * <~ toUserToken(jwtCredentials)
         account ← * <~ Accounts
-                   .findByIdAndRatchet(token.id, token.ratchet)
-                   .mustFindOr(AuthFailed("account not found"))
+          .findByIdAndRatchet(token.id, token.ratchet)
+          .mustFindOr(AuthFailed("account not found"))
         user ← * <~ Users.mustFindByAccountId(token.id)
       } yield AuthData[User](token, user, account)).run().map {
         case Xor.Right(data) ⇒ AuthenticationResult.success(data)
@@ -162,7 +172,7 @@ object Authenticator {
         if (authData.token.hasRole(ADMIN_ROLE)) provide(authData)
         else
           AuthRejections.credentialsRejected[AuthData[User]](
-              FailureChallenge("admin", AuthFailed("Does not have admin role").single))
+            FailureChallenge("admin", AuthFailed("Does not have admin role").single))
       }
       case (Left(challenge), Some(creds)) ⇒
         AuthRejections.credentialsRejected[AuthData[User]](challenge)
@@ -184,12 +194,12 @@ object Authenticator {
         else {
           Console.out.println(s"AUTH ${authData}")
           AuthPayload(
-              token = UserToken.fromUserAccount(
-                  authData.model,
-                  authData.account,
-                  Account.ClaimSet(scope = authData.token.scope,
-                                   roles = authData.token.roles,
-                                   claims = authData.token.claims))) match {
+            token =
+              UserToken.fromUserAccount(authData.model,
+                                        authData.account,
+                                        Account.ClaimSet(scope = authData.token.scope,
+                                                         roles = authData.token.roles,
+                                                         claims = authData.token.claims))) match {
             case Xor.Right(authPayload) ⇒
               val header = respondWithHeader(RawHeader("JWT", authPayload.jwt))
               val cookie = setCookie(JwtCookie(authPayload))
@@ -218,8 +228,7 @@ object Authenticator {
   def authTokenLoginResponse(token: Token): Failures Xor Route = {
     authTokenBaseResponse(token, { payload ⇒
       complete(
-          HttpResponse(
-              entity = HttpEntity(ContentTypes.`application/json`, payload.claims.toJson)))
+        HttpResponse(entity = HttpEntity(ContentTypes.`application/json`, payload.claims.toJson)))
     })
   }
 
@@ -236,8 +245,8 @@ object Authenticator {
       user         ← * <~ Users.findByEmail(payload.email.toLowerCase).mustFindOneOr(LoginFailed)
       _            ← * <~ user.mustNotBeMigrated
       accessMethod ← * <~ AccountAccessMethods
-                      .findOneByAccountIdAndName(user.accountId, "login")
-                      .mustFindOr(LoginFailed)
+        .findOneByAccountIdAndName(user.accountId, "login")
+        .mustFindOr(LoginFailed)
       account ← * <~ Accounts.mustFindById404(user.accountId)
 
       // security checks
@@ -245,8 +254,8 @@ object Authenticator {
 
       adminUsers ← * <~ AdminsData.findOneByAccountId(user.accountId)
       _ ← * <~ adminUsers.map { adminData ⇒
-           DbResultT.fromXor(checkState(adminData))
-         }
+        DbResultT.fromXor(checkState(adminData))
+      }
 
       claimSet     ← * <~ AccountManager.getClaims(account.id, organization.scopeId)
       _            ← * <~ validateClaimSet(claimSet)

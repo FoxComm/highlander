@@ -261,10 +261,10 @@ class SharedSearchIntegrationTest
     val storeAdmin        = Users.create(authedUser.copy(accountId = storeAdminAccount.id)).gimme
     val storeAdminUser = AdminsData
       .create(
-          AdminData(userId = storeAdmin.id,
-                    accountId = storeAdmin.accountId,
-                    state = AdminData.Active,
-                    scope = scope))
+        AdminData(userId = storeAdmin.id,
+                  accountId = storeAdmin.accountId,
+                  state = AdminData.Active,
+                  scope = scope))
       .gimme
   }
 
@@ -351,27 +351,27 @@ class SharedSearchIntegrationTest
     val secondAccount = Accounts.create(Account()).gimme
     val secondAdmin = Users
       .create(
-          Factories.storeAdmin.copy(accountId = secondAccount.id,
-                                    name = "Junior".some,
-                                    email = "another@domain.com".some))
+        Factories.storeAdmin.copy(accountId = secondAccount.id,
+                                  name = "Junior".some,
+                                  email = "another@domain.com".some))
       .gimme
     val secondAdminUser = AdminsData
       .create(
-          AdminData(userId = secondAdmin.id,
-                    accountId = secondAdmin.accountId,
-                    state = AdminData.Active,
-                    scope = scope))
+        AdminData(userId = secondAdmin.id,
+                  accountId = secondAdmin.accountId,
+                  state = AdminData.Active,
+                  scope = scope))
       .gimme
   }
 
   trait SharedSearchAssociationFixture extends Fixture with SecondAdminFixture {
     val search = (for {
       search ← * <~ SharedSearches.create(
-                  SharedSearch(title = "Test",
-                               query = dummyJVal,
-                               rawQuery = dummyJVal,
-                               scope = CustomersScope,
-                               storeAdminId = secondAdmin.id))
+        SharedSearch(title = "Test",
+                     query = dummyJVal,
+                     rawQuery = dummyJVal,
+                     scope = CustomersScope,
+                     storeAdminId = secondAdmin.id))
       _ ← * <~ SharedSearchAssociations.create(buildAssociation(search, secondAdmin))
     } yield search).gimme
   }

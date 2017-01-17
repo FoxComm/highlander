@@ -47,51 +47,50 @@ object CartResponse {
       customerData   ← * <~ CustomersData.findOneByAccountId(cart.accountId)
       shippingMethod ← * <~ CordResponseShipping.shippingMethod(cart.refNum)
       shippingAddress ← * <~ CordResponseShipping
-                         .shippingAddress(cart.refNum)
-                         .fold(_ ⇒ None, good ⇒ good.some)
+        .shippingAddress(cart.refNum)
+        .fold(_ ⇒ None, good ⇒ good.some)
       paymentMethods ← * <~ (if (isGuest) DBIO.successful(Seq())
                              else CordResponsePayments.fetchAll(cart.refNum))
       paymentState ← * <~ CartQueries.getCordPaymentState(cart.refNum)
       lockedBy     ← * <~ currentLock(cart)
       coveredByInStoreMethods ← * <~ OrderPayments
-                                 .findAllByCordRef(cart.refNum)
-                                 .inStoreMethods
-                                 .map(_.amount.getOrElse(0))
-                                 .sum
-                                 .getOrElse(0)
-                                 .result
+        .findAllByCordRef(cart.refNum)
+        .inStoreMethods
+        .map(_.amount.getOrElse(0))
+        .sum
+        .getOrElse(0)
+        .result
     } yield
       CartResponse(
-          referenceNumber = cart.refNum,
-          lineItems = lineItems,
-          lineItemAdjustments = lineItemAdj,
-          promotion = promo.map { case (promotion, _) ⇒ promotion },
-          coupon = promo.map { case (_, coupon)       ⇒ coupon },
-          totals =
-            CartResponseTotals.build(cart, coveredByInStoreMethods = coveredByInStoreMethods),
-          customer = for {
-            c  ← customer
-            cu ← customerData
-          } yield CustomerResponse.build(c, cu),
-          shippingMethod = shippingMethod,
-          shippingAddress = shippingAddress,
-          paymentMethods = paymentMethods,
-          paymentState = paymentState,
-          lockedBy = lockedBy
+        referenceNumber = cart.refNum,
+        lineItems = lineItems,
+        lineItemAdjustments = lineItemAdj,
+        promotion = promo.map { case (promotion, _) ⇒ promotion },
+        coupon = promo.map { case (_, coupon)       ⇒ coupon },
+        totals = CartResponseTotals.build(cart, coveredByInStoreMethods = coveredByInStoreMethods),
+        customer = for {
+          c  ← customer
+          cu ← customerData
+        } yield CustomerResponse.build(c, cu),
+        shippingMethod = shippingMethod,
+        shippingAddress = shippingAddress,
+        paymentMethods = paymentMethods,
+        paymentState = paymentState,
+        lockedBy = lockedBy
       )
 
   def buildEmpty(cart: Cart,
                  customer: Option[User] = None,
                  customerData: Option[CustomerData] = None): CartResponse = {
     CartResponse(
-        referenceNumber = cart.refNum,
-        lineItems = CordResponseLineItems(),
-        customer = for {
-          c  ← customer
-          cu ← customerData
-        } yield CustomerResponse.build(c, cu),
-        totals = CartResponseTotals.empty,
-        paymentState = CordPaymentState.Cart
+      referenceNumber = cart.refNum,
+      lineItems = CordResponseLineItems(),
+      customer = for {
+        c  ← customer
+        cu ← customerData
+      } yield CustomerResponse.build(c, cu),
+      totals = CartResponseTotals.empty,
+      paymentState = CordPaymentState.Cart
     )
   }
 

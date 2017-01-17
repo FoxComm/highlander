@@ -35,9 +35,8 @@ object AccountManager {
                         actor: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
     for {
       user ← * <~ Users.mustFindByAccountId(accountId)
-      updated ← * <~ Users.update(
-                   user,
-                   user.copy(isBlacklisted = blacklisted, blacklistedBy = Some(actor.id)))
+      updated ← * <~ Users
+        .update(user, user.copy(isBlacklisted = blacklisted, blacklistedBy = Some(actor.id)))
       _ ← * <~ LogActivity.userBlacklisted(blacklisted, user, actor)
     } yield build(updated)
 
@@ -45,26 +44,26 @@ object AccountManager {
       email: String)(implicit ec: EC, db: DB, ac: AC): DbResultT[ResetPasswordSendAnswer] =
     for {
       user ← * <~ Users
-              .activeUserByEmail(Option(email))
-              .mustFindOneOr(NotFoundFailure404(User, email))
+        .activeUserByEmail(Option(email))
+        .mustFindOneOr(NotFoundFailure404(User, email))
 
       isGuestMaybe ← * <~
-                      CustomersData.findOneByAccountId(user.accountId).map(_.map(_.isGuest))
+        CustomersData.findOneByAccountId(user.accountId).map(_.map(_.isGuest))
       _ ← * <~ failIf(isGuestMaybe.getOrElse(false), ResetPasswordsForbiddenForGuests)
 
       resetPwInstance ← * <~ UserPasswordReset
-                         .optionFromUser(user)
-                         .toXor(UserHasNoEmail(user.id).single)
+        .optionFromUser(user)
+        .toXor(UserHasNoEmail(user.id).single)
       findOrCreate ← * <~ UserPasswordResets
-                      .findActiveByEmail(email)
-                      .one
-                      .findOrCreateExtended(UserPasswordResets.create(resetPwInstance))
+        .findActiveByEmail(email)
+        .one
+        .findOrCreateExtended(UserPasswordResets.create(resetPwInstance))
       (resetPw, foundOrCreated) = findOrCreate
       updatedResetPw ← * <~ (foundOrCreated match {
-                            case Found ⇒
-                              UserPasswordResets.update(resetPw, resetPw.updateCode())
-                            case Created ⇒ DbResultT.good(resetPw)
-                          })
+        case Found ⇒
+          UserPasswordResets.update(resetPw, resetPw.updateCode())
+        case Created ⇒ DbResultT.good(resetPw)
+      })
       _ ← * <~ LogActivity.userRemindPassword(user, updatedResetPw.code)
     } yield ResetPasswordSendAnswer(status = "ok")
 
@@ -73,18 +72,17 @@ object AccountManager {
       newPassword: String)(implicit ec: EC, db: DB, ac: AC): DbResultT[ResetPasswordDoneAnswer] = {
     for {
       remind ← * <~ UserPasswordResets
-                .findActiveByCode(code)
-                .mustFindOr(ResetPasswordCodeInvalid(code))
+        .findActiveByCode(code)
+        .mustFindOr(ResetPasswordCodeInvalid(code))
       user    ← * <~ Users.mustFindByAccountId(remind.accountId)
       account ← * <~ Accounts.mustFindById404(user.accountId)
       accessMethod ← * <~ AccountAccessMethods
-                      .findOneByAccountIdAndName(account.id, "login")
-                      .findOrCreate(AccountAccessMethods.create(
-                              AccountAccessMethod.buildInitial(account.id)))
+        .findOneByAccountIdAndName(account.id, "login")
+        .findOrCreate(AccountAccessMethods.create(AccountAccessMethod.buildInitial(account.id)))
       _ ← * <~ Users.update(user, user.copy(isMigrated = false))
-      _ ← * <~ UserPasswordResets.update(remind,
-                                         remind.copy(state = UserPasswordReset.PasswordRestored,
-                                                     activatedAt = Instant.now.some))
+      _ ← * <~ UserPasswordResets.update(
+        remind,
+        remind.copy(state = UserPasswordReset.PasswordRestored, activatedAt = Instant.now.some))
       updatedAccess ← * <~ AccountAccessMethods.update(accessMethod,
                                                        accessMethod.updatePassword(newPassword))
       _ ← * <~ LogActivity.userPasswordReset(user)
@@ -107,26 +105,26 @@ object AccountManager {
     for {
       scope ← * <~ Scopes.mustFindById404(context.scopeId)
       organization ← * <~ Organizations
-                      .findByNameInScope(context.org, scope.id)
-                      .mustFindOr(OrganizationNotFound(context.org, scope.path))
+        .findByNameInScope(context.org, scope.id)
+        .mustFindOr(OrganizationNotFound(context.org, scope.path))
 
       _ ← * <~ doOrMeh(checkEmail, email.fold(DbResultT.unit)(Users.createEmailMustBeUnique))
 
       account ← * <~ Accounts.create(Account())
 
       _ ← * <~ password.map { p ⇒
-           AccountAccessMethods.create(AccountAccessMethod.build(account.id, "login", p))
-         }
+        AccountAccessMethods.create(AccountAccessMethod.build(account.id, "login", p))
+      }
 
       user ← * <~ Users.create(
-                User(accountId = account.id, email = email, name = name, isMigrated = isMigrated))
+        User(accountId = account.id, email = email, name = name, isMigrated = isMigrated))
 
       _ ← * <~ AccountOrganizations.create(
-             AccountOrganization(accountId = account.id, organizationId = organization.id))
+        AccountOrganization(accountId = account.id, organizationId = organization.id))
 
       _ ← * <~ context.roles.map { r ⇒
-           addRole(account, r, scope)
-         }
+        addRole(account, r, scope)
+      }
     } yield user
   }
 
@@ -134,8 +132,8 @@ object AccountManager {
     //MAXDO Add claim check here.
     for {
       role ← * <~ Roles
-              .findByNameInScope(role, scope.id)
-              .mustFindOr(RoleNotFound(role, scope.path))
+        .findByNameInScope(role, scope.id)
+        .mustFindOr(RoleNotFound(role, scope.path))
       _ ← * <~ AccountRoles.create(AccountRole(accountId = account.id, roleId = role.id))
     } yield Unit
   }
@@ -153,8 +151,8 @@ object AccountManager {
       permissionIds = rolePermissions.map(_.permissionId)
       permissions ← * <~ Permissions.filter(_.id.inSet(permissionIds)).result
       claims ← * <~ permissions
-                .groupBy(_.frn)
-                .mapValues(_.map(_.actions))
-                .mapValues(_.flatten.toList)
+        .groupBy(_.frn)
+        .mapValues(_.map(_.actions))
+        .mapValues(_.flatten.toList)
     } yield Account.ClaimSet(scope = scope.path, roles = roleNames, claims = claims)
 }

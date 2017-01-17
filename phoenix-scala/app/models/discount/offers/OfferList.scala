@@ -20,7 +20,7 @@ case class OfferList(offers: Seq[Offer]) extends Offer {
     val adjustmentAttempts = Future.sequence(offers.map(_.adjust(input)))
 
     val adjustments = adjustmentAttempts.map(seq ⇒
-          seq.flatMap { o ⇒
+      seq.flatMap { o ⇒
         o.fold(f ⇒ Seq.empty, qs ⇒ qs.flatMap(q ⇒ Seq(q)))
     })
 

@@ -31,7 +31,7 @@ trait ADT[F] extends Read[F] with Show[F] { self ⇒
     */
   def jsonFormat(implicit m: Manifest[F]): CustomSerializer[F] =
     new CustomSerializer[F](format ⇒
-          ({
+      ({
         case JString(str) ⇒
           read(str)
             .getOrError(s"No such element: $str") // if we cannot deserialize then we throw. Yes, I know it's not *pure*.

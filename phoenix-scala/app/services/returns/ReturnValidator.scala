@@ -52,5 +52,5 @@ case class ReturnValidator(rma: Return)(implicit ec: EC) extends ReturnValidatio
   private def warning(response: ReturnValidatorResponse,
                       failure: Failure): ReturnValidatorResponse =
     response.copy(warnings = response.warnings.fold(Failures(failure))(current ⇒
-              Failures(current.toList :+ failure: _*)))
+      Failures(current.toList :+ failure: _*)))
 }

@@ -16,9 +16,9 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
   "New model create" - {
     "validates model" in {
       val failures = leftValue(
-          Addresses.create(Factories.address.copy(zip = "totallyNotAValidZip")).run().futureValue)
+        Addresses.create(Factories.address.copy(zip = "totallyNotAValidZip")).run().futureValue)
       failures must === (
-          GeneralFailure("zip must fully match regular expression '^\\d{5}(?:\\d{4})?$'").single)
+        GeneralFailure("zip must fully match regular expression '^\\d{5}(?:\\d{4})?$'").single)
     }
 
     "sanitizes model" in {
@@ -27,9 +27,9 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
         scope    ← * <~ Scopes.forOrganization(TENANT)
         customer ← * <~ Users.create(Factories.customer.copy(accountId = account.id))
         _ ← * <~ CustomersData.create(
-               CustomerData(userId = customer.id, accountId = account.id, scope = scope))
+          CustomerData(userId = customer.id, accountId = account.id, scope = scope))
         address ← * <~ Addresses.create(
-                     Factories.address.copy(zip = "123-45", accountId = customer.accountId))
+          Factories.address.copy(zip = "123-45", accountId = customer.accountId))
       } yield address).gimme
       result.zip must === ("12345")
     }
@@ -40,14 +40,13 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
         customer ← * <~ Users.create(Factories.customer.copy(accountId = account.id))
         scope    ← * <~ Scopes.forOrganization(TENANT)
         _ ← * <~ CustomersData.create(
-               CustomerData(userId = customer.id, accountId = account.id, scope = scope))
+          CustomerData(userId = customer.id, accountId = account.id, scope = scope))
         _       ← * <~ Addresses.create(Factories.address.copy(accountId = customer.accountId))
         copycat ← * <~ Addresses.create(Factories.address.copy(accountId = customer.accountId))
       } yield copycat).runTxn().futureValue
-      result.leftVal must === (
-          DatabaseFailure(
-              "ERROR: duplicate key value violates unique constraint \"address_shipping_default_idx\"\n" +
-                "  Detail: Key (account_id, is_default_shipping)=(1, t) already exists.").single)
+      result.leftVal must === (DatabaseFailure(
+        "ERROR: duplicate key value violates unique constraint \"address_shipping_default_idx\"\n" +
+          "  Detail: Key (account_id, is_default_shipping)=(1, t) already exists.").single)
     }
 
     "fails if model already exists" in {
@@ -90,7 +89,7 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
       val destination = origin.copy(state = Shipped)
       val failure     = leftValue(origin.updateTo(destination))
       failure must === (
-          StateTransitionNotAllowed(origin.state, destination.state, origin.refNum).single)
+        StateTransitionNotAllowed(origin.state, destination.state, origin.refNum).single)
     }
 
     "must update model successfully" in {

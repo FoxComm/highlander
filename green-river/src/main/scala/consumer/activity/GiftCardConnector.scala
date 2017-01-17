@@ -14,16 +14,13 @@ object GiftCardConnector extends ActivityConnector {
     Future {
       val giftCardIds =
         byGiftCardData(activity) ++: byAssignmentSingleData(activity) ++:
-        byAssignmentBulkData(activity) ++: byNoteData(activity)
+          byAssignmentBulkData(activity) ++: byNoteData(activity)
 
       giftCardIds.distinct.map(createConnection(_, activity.id))
     }
 
   def createConnection(code: String, activityId: Int): Connection = {
-    Connection(dimension = dimension,
-               objectId = code,
-               data = JNothing,
-               activityId = activityId)
+    Connection(dimension = dimension, objectId = code, data = JNothing, activityId = activityId)
   }
 
   private def byNoteData(activity: Activity): Seq[String] = {

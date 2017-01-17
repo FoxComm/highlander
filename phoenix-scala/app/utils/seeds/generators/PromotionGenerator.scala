@@ -47,7 +47,7 @@ case class SimplePromotionForm(percentOff: Percent, totalAmount: Int) {
 case class SimplePromotionShadow(f: SimplePromotionForm) {
 
   val shadow = ObjectUtils.newShadow(
-      parse("""
+    parse("""
       {
         "name" : {"type": "string", "ref": "name"},
         "storefrontName" : {"type": "richText", "ref": "storefrontName"},
@@ -57,7 +57,7 @@ case class SimplePromotionShadow(f: SimplePromotionForm) {
         "activeTo" : {"type": "date", "ref": "activeTo"},
         "tags" : {"type": "tags", "ref": "tags"}
       }"""),
-      f.keyMap)
+    f.keyMap)
 }
 
 trait PromotionGenerator {
@@ -78,29 +78,28 @@ trait PromotionGenerator {
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       promotions ← * <~ sourceData.map(source ⇒ {
-                    val promotionForm   = SimplePromotionForm(source.percentOff, source.totalAmount)
-                    val promotionShadow = SimplePromotionShadow(promotionForm)
-                    val discountForm    = SimpleDiscountForm(source.percentOff, source.totalAmount)
-                    val discountShadow  = SimpleDiscountShadow(discountForm)
+        val promotionForm   = SimplePromotionForm(source.percentOff, source.totalAmount)
+        val promotionShadow = SimplePromotionShadow(promotionForm)
+        val discountForm    = SimpleDiscountForm(source.percentOff, source.totalAmount)
+        val discountShadow  = SimpleDiscountShadow(discountForm)
 
-                    def discountFS: FormAndShadow = {
-                      (ObjectForm(kind = Promotion.kind, attributes = discountForm.form),
-                       ObjectShadow(attributes = discountShadow.shadow))
-                    }
-                    val promotionFS: FormAndShadow = {
-                      (ObjectForm(kind = Promotion.kind, attributes = promotionForm.form),
-                       ObjectShadow(attributes = promotionShadow.shadow))
-                    }
+        def discountFS: FormAndShadow = {
+          (ObjectForm(kind = Promotion.kind, attributes = discountForm.form),
+           ObjectShadow(attributes = discountShadow.shadow))
+        }
+        val promotionFS: FormAndShadow = {
+          (ObjectForm(kind = Promotion.kind, attributes = promotionForm.form),
+           ObjectShadow(attributes = promotionShadow.shadow))
+        }
 
-                    val payload =
-                      CreatePromotion(applyType = source.applyType,
-                                      attributes = promotionFS.toPayload,
-                                      discounts =
-                                        Seq(CreateDiscount(attributes = discountFS.toPayload)))
+        val payload =
+          CreatePromotion(applyType = source.applyType,
+                          attributes = promotionFS.toPayload,
+                          discounts = Seq(CreateDiscount(attributes = discountFS.toPayload)))
 
-                    PromotionManager.create(payload, context.name, None).map { newPromo ⇒
-                      source.copy(promotionId = newPromo.id)
-                    }
-                  })
+        PromotionManager.create(payload, context.name, None).map { newPromo ⇒
+          source.copy(promotionId = newPromo.id)
+        }
+      })
     } yield promotions
 }

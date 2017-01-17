@@ -18,13 +18,13 @@ object Discount {
   * A Discount allows the customer to help sell a product by providing an incentive
   * such as price reductions. The discount is composed of three parts.
   *
-  * 1. Merchandising 
+  * 1. Merchandising
   * 2. Qualifier
   * 3. Offer
   *
   * The qualifier and offer are stored as attributes in the discount object and
   * are stored as a JSON representation of the AST for the Discount Algebra.
-  * 
+  *
   * The algebra is used to define the qualifier predicate and offer function.
   * used by the discount engine to modify an order by creating line item adjustments.
   */
@@ -48,7 +48,7 @@ class Discounts(tag: Tag) extends ObjectHeads[Discount](tag, "discounts") {
 
   def * =
     (id, scope, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((Discount.apply _).tupled,
-        Discount.unapply)
+    Discount.unapply)
 }
 
 object Discounts

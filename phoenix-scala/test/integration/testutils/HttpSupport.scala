@@ -48,8 +48,7 @@ trait HttpSupport
     with ScalaFutures
     with MustMatchers
     with BeforeAndAfterAll
-    with TestObjectContext {
-  self: FoxSuite ⇒
+    with TestObjectContext { self: FoxSuite ⇒
 
   import HttpSupport._
 
@@ -118,8 +117,8 @@ trait HttpSupport
     val request = HttpRequest(method = HttpMethods.POST,
                               uri = pathToAbsoluteUrl(path),
                               entity = HttpEntity.Strict(
-                                  ContentTypes.`application/json`,
-                                  ByteString(rawBody)
+                                ContentTypes.`application/json`,
+                                ByteString(rawBody)
                               ))
 
     dispatchRequest(request)
@@ -135,8 +134,8 @@ trait HttpSupport
     val request = HttpRequest(method = HttpMethods.PATCH,
                               uri = pathToAbsoluteUrl(path),
                               entity = HttpEntity.Strict(
-                                  ContentTypes.`application/json`,
-                                  ByteString(rawBody)
+                                ContentTypes.`application/json`,
+                                ByteString(rawBody)
                               ))
 
     dispatchRequest(request)
@@ -207,8 +206,8 @@ trait HttpSupport
 
     def sseProbe(path: String, skipHeartbeat: Boolean = true): Probe[String] =
       probe(
-          if (skipHeartbeat) skipHeartbeatsAndAdminCreated(sseSource(path))
-          else sseSource(path))
+        if (skipHeartbeat) skipHeartbeatsAndAdminCreated(sseSource(path))
+        else sseSource(path))
 
     def sseSource(path: String): Source[String, Any] = {
       val localAddress = serverBinding.localAddress

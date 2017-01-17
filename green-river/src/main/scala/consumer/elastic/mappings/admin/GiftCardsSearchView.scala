@@ -8,17 +8,17 @@ import consumer.elastic.mappings.dateFormat
 
 final case class GiftCardsSearchView()(implicit ec: EC) extends AvroTransformer {
   def mapping() = esMapping("gift_cards_search_view").fields(
-      field("id", IntegerType),
-      field("code", StringType).analyzer("upper_cased"),
-      field("originType", StringType).index("not_analyzed"),
-      field("state", StringType).index("not_analyzed"),
-      field("currency", StringType).index("not_analyzed"),
-      field("originalBalance", IntegerType),
-      field("currentBalance", IntegerType),
-      field("availableBalance", IntegerType),
-      field("canceledAmount", IntegerType),
-      field("scope", StringType).index("not_analyzed"),
-      field("createdAt", DateType).format(dateFormat),
-      field("updatedAt", DateType).format(dateFormat)
+    field("id", IntegerType),
+    field("code", StringType).analyzer("upper_cased"),
+    field("originType", StringType).index("not_analyzed"),
+    field("state", StringType).index("not_analyzed"),
+    field("currency", StringType).index("not_analyzed"),
+    field("originalBalance", IntegerType),
+    field("currentBalance", IntegerType),
+    field("availableBalance", IntegerType),
+    field("canceledAmount", IntegerType),
+    field("scope", StringType).index("not_analyzed"),
+    field("createdAt", DateType).format(dateFormat),
+    field("updatedAt", DateType).format(dateFormat)
   )
 }

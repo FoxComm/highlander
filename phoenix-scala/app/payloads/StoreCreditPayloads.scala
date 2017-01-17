@@ -26,11 +26,12 @@ object StoreCreditPayloads {
 
     def validate: ValidatedNel[Failure, StoreCreditBulkUpdateStateByCsr] = {
       (StoreCredit.validateStateReason(state, reasonId) |@| validExpr(
-              ids.nonEmpty,
-              "Please provide at least one code to update") |@| lesserThanOrEqual(
-              ids.length,
-              bulkUpdateLimit,
-              "Quantity")).map { case _ ⇒ this }
+        ids.nonEmpty,
+        "Please provide at least one code to update") |@| lesserThanOrEqual(ids.length,
+                                                                            bulkUpdateLimit,
+                                                                            "Quantity")).map {
+        case _ ⇒ this
+      }
     }
   }
 }

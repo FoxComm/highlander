@@ -94,7 +94,7 @@ trait ItemsOffer {
     Future
       .sequence(inAnyOf)
       .flatMap(xorSequence ⇒
-            xorSequence.find(_.isRight) match {
+        xorSequence.find(_.isRight) match {
           case Some(Xor.Right(adj)) ⇒ Result.good(adj)
           case _                    ⇒ Result.good(Seq.empty)
       })

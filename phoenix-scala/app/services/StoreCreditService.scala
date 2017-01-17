@@ -75,13 +75,13 @@ object StoreCreditService {
                                  subReasonId = payload.subReasonId)
       origin ← * <~ StoreCreditManuals.create(manual)
       storeCredit ← * <~ StoreCredits.create(
-                       StoreCredit(accountId = customer.accountId,
-                                   originId = origin.id,
-                                   scope = scope,
-                                   originType = StoreCredit.CsrAppeasement,
-                                   subTypeId = payload.subTypeId,
-                                   currency = payload.currency,
-                                   originalBalance = payload.amount))
+        StoreCredit(accountId = customer.accountId,
+                    originId = origin.id,
+                    scope = scope,
+                    originType = StoreCredit.CsrAppeasement,
+                    subTypeId = payload.subTypeId,
+                    currency = payload.currency,
+                    originalBalance = payload.amount))
       _ ← * <~ LogActivity.scCreated(admin, customer, storeCredit)
     } yield build(storeCredit)
   }
@@ -100,13 +100,13 @@ object StoreCreditService {
       custom = StoreCreditCustom(adminId = admin.accountId, metadata = payload.metadata)
       origin ← * <~ StoreCreditCustoms.create(custom)
       storeCredit ← * <~ StoreCredits.create(
-                       StoreCredit(accountId = customer.accountId,
-                                   originType = StoreCredit.Custom,
-                                   originId = origin.id,
-                                   currency = payload.currency,
-                                   subTypeId = payload.subTypeId,
-                                   originalBalance = payload.amount,
-                                   scope = scope))
+        StoreCredit(accountId = customer.accountId,
+                    originType = StoreCredit.Custom,
+                    originId = origin.id,
+                    currency = payload.currency,
+                    subTypeId = payload.subTypeId,
+                    originalBalance = payload.amount,
+                    scope = scope))
       _ ← * <~ LogActivity.scCreated(admin, customer, storeCredit)
     } yield build(storeCredit)
 
@@ -119,8 +119,8 @@ object StoreCreditService {
                                                              db: DB): DbResultT[Root] =
     for {
       storeCredit ← * <~ StoreCredits
-                     .findByIdAndAccountId(storeCreditId, customer.accountId)
-                     .mustFindOr(NotFoundFailure404(StoreCredit, storeCreditId))
+        .findByIdAndAccountId(storeCreditId, customer.accountId)
+        .mustFindOr(NotFoundFailure404(StoreCredit, storeCreditId))
     } yield StoreCreditResponse.build(storeCredit)
 
   def bulkUpdateStateByCsr(
@@ -129,11 +129,9 @@ object StoreCreditService {
     for {
       _ ← * <~ payload.validate.toXor
       response ← * <~ payload.ids.map { id ⇒
-                  val itemPayload = StoreCreditUpdateStateByCsr(payload.state, payload.reasonId)
-                  updateStateByCsr(id, itemPayload, admin).value
-                    .map(buildItemResult(id, _))
-                    .dbresult
-                }
+        val itemPayload = StoreCreditUpdateStateByCsr(payload.state, payload.reasonId)
+        updateStateByCsr(id, itemPayload, admin).value.map(buildItemResult(id, _)).dbresult
+      }
     } yield response
 
   def updateStateByCsr(id: Int,
@@ -153,9 +151,9 @@ object StoreCreditService {
     case Canceled ⇒
       for {
         _ ← * <~ StoreCreditAdjustments
-             .lastAuthByStoreCreditId(storeCredit.id)
-             .one
-             .mustNotFindOr(OpenTransactionsFailure)
+          .lastAuthByStoreCreditId(storeCredit.id)
+          .one
+          .mustNotFindOr(OpenTransactionsFailure)
         _ ← * <~ reasonId.map(id ⇒ Reasons.mustFindById400(id)).getOrElse(DbResultT.unit)
         upd ← * <~ StoreCredits.update(storeCredit,
                                        storeCredit.copy(state = newState,

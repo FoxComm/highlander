@@ -29,11 +29,11 @@ object GenericTreeResponses {
     private def buildTree(level: Int, nodesSorted: Seq[GenericTreeNode]): Seq[TreeResponse.Node] = {
       val (heads, tail) = nodesSorted.span(_.path.value.size == level)
       heads.map(
-          head ⇒
-            Node(head.kind,
-                 head.objectId,
-                 head.index,
-                 buildTree(level + 1, tail.filter(_.path.value.startsWith(head.path.value)))))
+        head ⇒
+          Node(head.kind,
+               head.objectId,
+               head.index,
+               buildTree(level + 1, tail.filter(_.path.value.startsWith(head.path.value)))))
     }
   }
 }

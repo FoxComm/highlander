@@ -63,38 +63,38 @@ object CouponUsageService {
           context    ← * <~ ObjectContexts.mustFindById400(ctx.id)
           code       ← * <~ CouponCodes.mustFindById400(codeId)
           coupon ← * <~ Coupons
-                    .filterByContextAndFormId(context.id, code.couponFormId)
-                    .one
-                    .mustFindOr(CouponNotFoundForContext(code.couponFormId, context.name))
+            .filterByContextAndFormId(context.id, code.couponFormId)
+            .one
+            .mustFindOr(CouponNotFoundForContext(code.couponFormId, context.name))
           form ← * <~ ObjectForms.mustFindById400(coupon.formId)
           couponUsage ← * <~ CouponUsages
-                         .filterByCoupon(coupon.formId)
-                         .one
-                         .findOrCreate(CouponUsages.create(
-                                 CouponUsage(couponFormId = coupon.formId, count = 1)))
+            .filterByCoupon(coupon.formId)
+            .one
+            .findOrCreate(
+              CouponUsages.create(CouponUsage(couponFormId = coupon.formId, count = 1)))
           couponCodeUsage ← * <~ CouponCodeUsages
-                             .filterByCouponAndCode(coupon.formId, couponCode.id)
-                             .one
-                             .findOrCreate(
-                                 CouponCodeUsages.create(
-                                     CouponCodeUsage(couponFormId = coupon.formId,
-                                                     couponCodeId = couponCode.id,
-                                                     count = 0)))
+            .filterByCouponAndCode(coupon.formId, couponCode.id)
+            .one
+            .findOrCreate(
+              CouponCodeUsages.create(
+                CouponCodeUsage(couponFormId = coupon.formId,
+                                couponCodeId = couponCode.id,
+                                count = 0)))
           couponUsageByCustomer ← * <~ CouponCustomerUsages
-                                   .filterByCouponAndAccount(coupon.formId, customer.accountId)
-                                   .one
-                                   .findOrCreate(
-                                       CouponCustomerUsages.create(
-                                           CouponCustomerUsage(couponFormId = coupon.formId,
-                                                               accountId = customer.accountId,
-                                                               count = 0)))
+            .filterByCouponAndAccount(coupon.formId, customer.accountId)
+            .one
+            .findOrCreate(
+              CouponCustomerUsages.create(
+                CouponCustomerUsage(couponFormId = coupon.formId,
+                                    accountId = customer.accountId,
+                                    count = 0)))
           _ ← * <~ CouponUsages.update(couponUsage,
                                        couponUsage.copy(count = couponUsage.count + 1))
           _ ← * <~ CouponCodeUsages.update(couponCodeUsage,
                                            couponCodeUsage.copy(count = couponCodeUsage.count + 1))
           _ ← * <~ CouponCustomerUsages.update(
-                 couponUsageByCustomer,
-                 couponUsageByCustomer.copy(count = couponUsageByCustomer.count + 1))
+            couponUsageByCustomer,
+            couponUsageByCustomer.copy(count = couponUsageByCustomer.count + 1))
         } yield {}
       case _ ⇒
         DbResultT.unit

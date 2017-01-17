@@ -22,10 +22,10 @@ object ImagePayloads {
 
     def formAndShadow: FormAndShadow = {
       val jsonBuilder: AttributesBuilder = ObjectPayloads.optionalAttributes(
-          Some(StringField("src", src)),
-          title.map(StringField("title", _)),
-          alt.map(StringField("alt", _)),
-          baseUrl.map(StringField("baseUrl", _)))
+        Some(StringField("src", src)),
+        title.map(StringField("title", _)),
+        alt.map(StringField("alt", _)),
+        baseUrl.map(StringField("baseUrl", _)))
 
       (ObjectForm(kind = Image.kind, attributes = jsonBuilder.objectForm),
        ObjectShadow(attributes = jsonBuilder.objectShadow))

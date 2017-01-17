@@ -12,7 +12,7 @@ object JavaTimeJson4sSerializer {
 
   object jsonFormat
       extends CustomSerializer[Instant](format ⇒
-            ({
+        ({
           case JString(s) ⇒ Instant.from(formatter.parse(s))
           case JNull      ⇒ null
         }, {

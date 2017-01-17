@@ -50,7 +50,7 @@ class StoreCreditIntegrationTest
       "fails if subtypeId is not found" in new Fixture {
         customersApi(customer.accountId).payments.storeCredit
           .create(
-              CreateManualStoreCredit(amount = 25, reasonId = reason.id, subTypeId = Some(255)))
+            CreateManualStoreCredit(amount = 25, reasonId = reason.id, subTypeId = Some(255)))
           .mustFailWith400(NotFoundFailure404(StoreCreditSubtype, 255))
       }
 
@@ -153,8 +153,8 @@ class StoreCreditIntegrationTest
     "PATCH /v1/store-credits" - {
       "successfully changes statuses of multiple store credits" in new Fixture {
         val payload = StoreCreditBulkUpdateStateByCsr(
-            ids = Seq(storeCredit.id, scSecond.id),
-            state = StoreCredit.OnHold
+          ids = Seq(storeCredit.id, scSecond.id),
+          state = StoreCredit.OnHold
         )
 
         storeCreditsApi.update(payload).mustBeOk()
@@ -168,8 +168,8 @@ class StoreCreditIntegrationTest
 
       "returns multiple errors if no cancellation reason provided" in new Fixture {
         val payload = StoreCreditBulkUpdateStateByCsr(
-            ids = Seq(storeCredit.id, scSecond.id),
-            state = StoreCredit.Canceled
+          ids = Seq(storeCredit.id, scSecond.id),
+          state = StoreCredit.Canceled
         )
 
         storeCreditsApi.update(payload).mustFailWith400(EmptyCancellationReasonFailure)
@@ -230,18 +230,16 @@ class StoreCreditIntegrationTest
     val (storeCredit, adjustment, scSecond, payment, scSubType) = (for {
       scSubType ← * <~ StoreCreditSubtypes.create(Factories.storeCreditSubTypes.head)
       scOrigin ← * <~ StoreCreditManuals.create(
-                    StoreCreditManual(adminId = storeAdmin.accountId, reasonId = reason.id))
+        StoreCreditManual(adminId = storeAdmin.accountId, reasonId = reason.id))
       storeCredit ← * <~ StoreCredits.create(
-                       Factories.storeCredit.copy(originId = scOrigin.id,
-                                                  accountId = customer.accountId))
+        Factories.storeCredit.copy(originId = scOrigin.id, accountId = customer.accountId))
       scSecond ← * <~ StoreCredits.create(
-                    Factories.storeCredit.copy(originId = scOrigin.id,
-                                               accountId = customer.accountId))
+        Factories.storeCredit.copy(originId = scOrigin.id, accountId = customer.accountId))
       payment ← * <~ OrderPayments.create(
-                   Factories.storeCreditPayment.copy(cordRef = cart.refNum,
-                                                     paymentMethodId = storeCredit.id,
-                                                     paymentMethodType = PaymentMethod.StoreCredit,
-                                                     amount = Some(storeCredit.availableBalance)))
+        Factories.storeCreditPayment.copy(cordRef = cart.refNum,
+                                          paymentMethodId = storeCredit.id,
+                                          paymentMethodType = PaymentMethod.StoreCredit,
+                                          amount = Some(storeCredit.availableBalance)))
       adjustment ← * <~ StoreCredits.auth(storeCredit, Some(payment.id), 10)
     } yield (storeCredit, adjustment, scSecond, payment, scSubType)).gimme
   }

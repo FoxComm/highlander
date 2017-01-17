@@ -181,8 +181,8 @@ class ReturnPaymentsIntegrationTest
     val rma = (for {
       cc ← * <~ CreditCards.create(Factories.creditCard.copy(accountId = customer.accountId))
       orderPayment ← * <~ OrderPayments.create(
-                        Factories.orderPayment
-                          .copy(cordRef = order.refNum, paymentMethodId = cc.id, amount = None))
+        Factories.orderPayment
+          .copy(cordRef = order.refNum, paymentMethodId = cc.id, amount = None))
       rma ← * <~ Returns.create(Factories.rma.copy(referenceNumber = "ABCD1234-11.1"))
     } yield rma).gimme
   }

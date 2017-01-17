@@ -55,12 +55,12 @@ case class StoreCredit(id: Int = 0,
       }
 
     (canceledWithReason |@| invalidExpr(
-            originalBalance < currentBalance,
-            "originalBalance cannot be less than currentBalance") |@| invalidExpr(
-            originalBalance < availableBalance,
-            "originalBalance cannot be less than availableBalance") |@| invalidExpr(
-            originalBalance < 0,
-            "originalBalance must be greater than zero")).map {
+      originalBalance < currentBalance,
+      "originalBalance cannot be less than currentBalance") |@| invalidExpr(
+      originalBalance < availableBalance,
+      "originalBalance cannot be less than availableBalance") |@| invalidExpr(
+      originalBalance < 0,
+      "originalBalance must be greater than zero")).map {
       case _ ⇒ this
     }
   }
@@ -70,8 +70,8 @@ case class StoreCredit(id: Int = 0,
     super.transitionModel(newModel)
 
   val fsm: Map[State, Set[State]] = Map(
-      OnHold → Set(Active, Canceled),
-      Active → Set(OnHold, Canceled)
+    OnHold → Set(Active, Canceled),
+    Active → Set(OnHold, Canceled)
   )
 
   def isActive: Boolean = state == Active

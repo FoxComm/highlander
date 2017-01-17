@@ -47,11 +47,11 @@ class ProductsCatalogViewIntegrationTest
 
     def usingProductCatalogView: List[ViewAlbum] =
       parseJsonColumnValues(
-          sql"select albums from products_catalog_view where product_id = ${product.formId}")
+        sql"select albums from products_catalog_view where product_id = ${product.formId}")
 
     def usingProductAlbumLinksView: List[ViewAlbum] =
       parseJsonColumnValues(
-          sql"select albums from product_album_links_view where product_id = ${product.id}")
+        sql"select albums from product_album_links_view where product_id = ${product.id}")
 
     def usingAlbumSearchView: List[ViewAlbum] = {
       val columnValues =
@@ -86,11 +86,11 @@ class ProductsCatalogViewIntegrationTest
       fullAlbum ← * <~ ObjectUtils.insertFullObject(defaultAlbumPayload.formAndShadow,
                                                     ins ⇒
                                                       Albums.create(
-                                                          Album(scope = Scope.current,
-                                                                contextId = ctx.id,
-                                                                shadowId = ins.shadow.id,
-                                                                formId = ins.form.id,
-                                                                commitId = ins.commit.id)))
+                                                        Album(scope = Scope.current,
+                                                              contextId = ctx.id,
+                                                              shadowId = ins.shadow.id,
+                                                              formId = ins.form.id,
+                                                              commitId = ins.commit.id)))
       albumImages ← * <~ ImageManager.createImagesForAlbum(fullAlbum.model, Seq(imagePayload), ctx)
       sku ← * <~ Mvp.insertSku(scope,
                                ctx.id,
@@ -105,7 +105,7 @@ class ProductsCatalogViewIntegrationTest
                                                        Seq(sku))
 
       _ ← * <~ ProductAlbumLinks.create(
-             ProductAlbumLink(leftId = product.id, rightId = fullAlbum.model.id))
+        ProductAlbumLink(leftId = product.id, rightId = fullAlbum.model.id))
 
     } yield (fullAlbum.model, albumImages, product, sku)).gimmeTxn
   }

@@ -8,7 +8,7 @@ object ArchiveFailures {
   object LinkArchivedSkuFailure {
     def apply[T](target: T, targetId: Any, code: String): LinkArchivedSkuFailure = {
       LinkArchivedSkuFailure(
-          s"Cannot attach archived sku with code $code to ${friendlyClassName(target)} with id $targetId")
+        s"Cannot attach archived sku with code $code to ${friendlyClassName(target)} with id $targetId")
     }
   }
 

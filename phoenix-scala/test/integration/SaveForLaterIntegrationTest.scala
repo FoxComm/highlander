@@ -36,7 +36,7 @@ class SaveForLaterIntegrationTest
   "POST v1/save-for-later/:customerId/:sku" - {
     "adds sku to customer's save for later list" in new Fixture {
       saveForLaterApi(customer.accountId).create(product.code).as[SavedForLater].result must === (
-          roots)
+        roots)
 
       saveForLaterApi(customer.accountId).get().as[SavedForLater].result must === (roots)
     }

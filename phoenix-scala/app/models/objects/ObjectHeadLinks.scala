@@ -77,9 +77,9 @@ object ObjectHeadLinks {
         existingLinks ← * <~ filterLeft(left).result
         linkedRightIds = existingLinks.map(_.rightId)
         _ ← * <~ rights.collect {
-             case right if !linkedRightIds.contains(right.id) ⇒
-               create(build(left, right))
-           }
+          case right if !linkedRightIds.contains(right.id) ⇒
+            create(build(left, right))
+        }
       } yield {}
 
     def createIfNotExist(left: L, right: R)(implicit ec: EC, db: DB): DbResultT[Unit] =

@@ -25,10 +25,10 @@ case class AuthAs(admin: User, customer: User) extends FakeAuth {
   def checkAuthUser(creds: Option[String]): Future[AuthenticationResult[AuthData[User]]] = {
     val account = Account(id = admin.accountId)
     val token = UserToken.fromUserAccount(
-        admin,
-        account,
-        Account
-          .ClaimSet(scope = "1", roles = List("admin"), claims = Map("frn:filleme" → List("r"))))
+      admin,
+      account,
+      Account
+        .ClaimSet(scope = "1", roles = List("admin"), claims = Map("frn:filleme" → List("r"))))
     Future.successful(AuthenticationResult.success(AuthData[User](token, admin, account)))
   }
 

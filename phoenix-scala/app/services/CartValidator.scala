@@ -69,8 +69,8 @@ case class CartValidator(cart: Cart)(implicit ec: EC, db: DB) extends CartValida
         ShippingManager
           .evaluateShippingMethodForCart(sm, cart)
           .fold(
-              _ ⇒ warning(response, InvalidShippingMethod(cart.refNum)), // FIXME validator warning and actual failure differ
-              _ ⇒ response
+            _ ⇒ warning(response, InvalidShippingMethod(cart.refNum)), // FIXME validator warning and actual failure differ
+            _ ⇒ response
           )
 
       case None ⇒
@@ -96,18 +96,18 @@ case class CartValidator(cart: Cart)(implicit ec: EC, db: DB) extends CartValida
 
         val availableStoreCredits = for {
           (sc, op) ← StoreCredits
-                      .findActive()
-                      .filter(_.id.inSet(forType(_.isStoreCredit)))
-                      .join(OrderPayments)
-                      .on(_.id === _.paymentMethodId) if sc.availableBalance >= op.amount
+            .findActive()
+            .filter(_.id.inSet(forType(_.isStoreCredit)))
+            .join(OrderPayments)
+            .on(_.id === _.paymentMethodId) if sc.availableBalance >= op.amount
         } yield op.amount
 
         val availableGiftCards = for {
           (gc, op) ← GiftCards
-                      .findActive()
-                      .filter(_.id.inSet(forType(_.isGiftCard)))
-                      .join(OrderPayments)
-                      .on(_.id === _.paymentMethodId) if gc.availableBalance >= op.amount
+            .findActive()
+            .filter(_.id.inSet(forType(_.isGiftCard)))
+            .join(OrderPayments)
+            .on(_.id === _.paymentMethodId) if gc.availableBalance >= op.amount
         } yield op.amount
 
         availableStoreCredits.unionAll(availableGiftCards).sum.result
@@ -144,5 +144,5 @@ case class CartValidator(cart: Cart)(implicit ec: EC, db: DB) extends CartValida
 
   private def warning(response: CartValidatorResponse, failure: Failure): CartValidatorResponse =
     response.copy(warnings = response.warnings.fold(Failures(failure))(current ⇒
-              Failures(current.toList :+ failure: _*)))
+      Failures(current.toList :+ failure: _*)))
 }

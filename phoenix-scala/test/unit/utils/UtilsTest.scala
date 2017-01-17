@@ -21,7 +21,7 @@ class UtilsTest extends TestBase {
       snakeCaseName(Trail(dimensionId = 1, objectId = "1")) must === ("trail")
       snakeCaseName(CreateNote(body = "test")) must === ("create_note")
       snakeCaseName(GiftCardCreateByCsr(balance = 10, reasonId = 1)) must === (
-          "gift_card_create_by_csr")
+        "gift_card_create_by_csr")
     }
   }
 

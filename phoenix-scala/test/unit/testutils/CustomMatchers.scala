@@ -10,9 +10,9 @@ object CustomMatchers {
   class IncludeFailureMatcher(f: Failure) extends Matcher[NonEmptyList[Failure]] {
     def apply(left: NonEmptyList[Failure]) = {
       MatchResult(
-          left.exists(_.description.toSet.subsetOf(f.description.toSet)),
-          s"""$left does not contain "$f"""",
-          s"""$left contains "$f""""
+        left.exists(_.description.toSet.subsetOf(f.description.toSet)),
+        s"""$left does not contain "$f"""",
+        s"""$left contains "$f""""
       )
     }
   }

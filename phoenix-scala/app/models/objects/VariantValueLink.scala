@@ -29,9 +29,9 @@ class VariantValueLinks(tag: Tag)
 
 object VariantValueLinks
     extends ObjectHeadLinkQueries[VariantValueLink, VariantValueLinks, Variant, VariantValue](
-        new VariantValueLinks(_),
-        Variants,
-        VariantValues)
+      new VariantValueLinks(_),
+      Variants,
+      VariantValues)
     with ReturningId[VariantValueLink, VariantValueLinks] {
 
   val returningLens: Lens[VariantValueLink, Int] = lens[VariantValueLink].id

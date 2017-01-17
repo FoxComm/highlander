@@ -53,9 +53,9 @@ object PaymentHelper {
 
       for {
         adjustments ← * <~ payments.zip(limitedAmounts).collect {
-                       case ((payment, card), amount) if amount > 0 ⇒
-                         doTransaction(card, payment, amount.some)
-                     }
+          case ((payment, card), amount) if amount > 0 ⇒
+            doTransaction(card, payment, amount.some)
+        }
         total = adjustments.map(getAdjustmentAmount).sum.ensuring(_ <= maxPaymentAmount)
       } yield total
     }
@@ -83,10 +83,10 @@ object Checkout {
                                   au: AU): DbResultT[OrderResponse] =
     for {
       result ← * <~ Carts
-                .findByAccountId(customer.accountId)
-                .one
-                .findOrCreateExtended(Carts.create(
-                        Cart(accountId = customer.accountId, scope = LTree(au.token.scope))))
+        .findByAccountId(customer.accountId)
+        .one
+        .findOrCreateExtended(
+          Carts.create(Cart(accountId = customer.accountId, scope = LTree(au.token.scope))))
       (cart, _) = result
       order ← * <~ Checkout(cart, CartValidator(cart)).checkout
     } yield order
@@ -137,20 +137,21 @@ case class Checkout(
       liSkus               ← * <~ CartLineItems.byCordRef(cart.refNum).countSkus
       inventoryTrackedSkus ← * <~ filterInventoryTrackingSkus(liSkus)
       skusToHold ← * <~ inventoryTrackedSkus.map { s ⇒
-                    SkuInventoryHold(s.code, s.qty)
-                  }.toSeq
-      _ ← * <~ doOrMeh(skusToHold.size > 0,
-                       DbResultT(
-                           DBIO.from(apis.middlwarehouse.hold(
-                                   OrderInventoryHold(cart.referenceNumber, skusToHold)))))
+        SkuInventoryHold(s.code, s.qty)
+      }.toSeq
+      _ ← * <~ doOrMeh(
+        skusToHold.size > 0,
+        DbResultT(
+          DBIO.from(
+            apis.middlwarehouse.hold(OrderInventoryHold(cart.referenceNumber, skusToHold)))))
       mutating = externalCalls.middleWarehouseSuccess = skusToHold.size > 0
     } yield {}
 
   private def filterInventoryTrackingSkus(skus: Map[String, Int]) =
     for {
       skuInventoryData ← * <~ skus.map {
-                          case (skuCode, qty) ⇒ isInventoryTracked(skuCode, qty)
-                        }
+        case (skuCode, qty) ⇒ isInventoryTracked(skuCode, qty)
+      }
       // TODO: Add this back, but for gift cards we will track inventory (in the super short term).
       // inventoryTrackedSkus ← * <~ skuInventoryData.filter(_.isInventoryTracked)
     } yield skuInventoryData
@@ -181,9 +182,8 @@ case class Checkout(
       implicit ctx: OC): DbResultT[Unit] =
     for {
       promotion ← * <~ Promotions
-                   .filterByContextAndShadowId(ctx.id, orderPromotion.promotionShadowId)
-                   .mustFindOneOr(
-                       PromotionNotFoundForContext(orderPromotion.promotionShadowId, ctx.name))
+        .filterByContextAndShadowId(ctx.id, orderPromotion.promotionShadowId)
+        .mustFindOneOr(PromotionNotFoundForContext(orderPromotion.promotionShadowId, ctx.name))
       promoForm   ← * <~ ObjectForms.mustFindById404(promotion.formId)
       promoShadow ← * <~ ObjectShadows.mustFindById404(promotion.shadowId)
       promoObject = IlluminatedPromotion.illuminate(ctx, promotion, promoForm, promoShadow)
@@ -194,8 +194,8 @@ case class Checkout(
     for {
       couponCode ← * <~ CouponCodes.findById(codeId).extract.one.safeGet
       coupon ← * <~ Coupons
-                .filterByContextAndFormId(ctx.id, couponCode.couponFormId)
-                .mustFindOneOr(CouponWithCodeCannotBeFound(couponCode.code))
+        .filterByContextAndFormId(ctx.id, couponCode.couponFormId)
+        .mustFindOneOr(CouponWithCodeCannotBeFound(couponCode.code))
       couponForm   ← * <~ ObjectForms.mustFindById404(coupon.formId)
       couponShadow ← * <~ ObjectShadows.mustFindById404(coupon.shadowId)
       couponObject = IlluminatedCoupon.illuminate(ctx, coupon, couponForm, couponShadow)
@@ -207,8 +207,8 @@ case class Checkout(
     for {
       maybePromo ← * <~ OrderPromotions.filterByCordRef(cart.refNum).one
       _ ← * <~ maybePromo.map { promo ⇒
-           CouponUsageService.updateUsageCounts(promo.couponCodeId, customer)
-         }
+        CouponUsageService.updateUsageCounts(promo.couponCodeId, customer)
+      }
     } yield {}
 
   private def authPayments(customer: User): DbResultT[Unit] =
@@ -216,11 +216,11 @@ case class Checkout(
 
       scPayments ← * <~ OrderPayments.findAllStoreCreditsByCordRef(cart.refNum).result
       scTotal ← * <~ PaymentHelper.paymentTransaction(
-                   scPayments,
-                   cart.grandTotal,
-                   StoreCredits.authOrderPayment,
-                   (a: StoreCreditAdjustment) ⇒ a.getAmount.abs
-               )
+        scPayments,
+        cart.grandTotal,
+        StoreCredits.authOrderPayment,
+        (a: StoreCreditAdjustment) ⇒ a.getAmount.abs
+      )
 
       gcPayments ← * <~ OrderPayments.findAllGiftCardsByCordRef(cart.refNum).result
       gcTotal ← * <~ PaymentHelper.paymentTransaction(gcPayments,
@@ -253,7 +253,7 @@ case class Checkout(
         case Some((pmt, card)) ⇒
           for {
             stripeCharge ← * <~ apis.stripe
-                            .authorizeAmount(card.gatewayCustomerId, authAmount, cart.currency)
+              .authorizeAmount(card.gatewayCustomerId, authAmount, cart.currency)
             ourCharge = CreditCardCharge.authFromStripe(card, pmt, stripeCharge, cart.currency)
             _       ← * <~ LogActivity.creditCardAuth(cart, ourCharge)
             created ← * <~ CreditCardCharges.create(ourCharge)

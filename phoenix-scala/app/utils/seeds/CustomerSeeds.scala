@@ -37,15 +37,15 @@ trait CustomerSeeds {
   def createCustomers(scopeId: Int)(implicit db: DB, ac: AC): DbResultT[CustomerIds] =
     for {
       users ← * <~ customers.map(
-                 c ⇒
-                   createCustomer(user = c,
-                                  isGuest = c.accountId == 100,
-                                  scopeId = scopeId,
-                                  password = "password".some))
+        c ⇒
+          createCustomer(user = c,
+                         isGuest = c.accountId == 100,
+                         scopeId = scopeId,
+                         password = "password".some))
       accountIds = users.map(_.accountId)
       scope ← * <~ Scopes.mustFindById400(scopeId)
       _ ← * <~ Notes.createAll(
-             customerNotes(LTree(scope.path)).map(_.copy(referenceId = accountIds.head)))
+        customerNotes(LTree(scope.path)).map(_.copy(referenceId = accountIds.head)))
     } yield
       accountIds.toList match {
         case c1 :: c2 :: c3 :: c4 :: Nil ⇒ (c1, c2, c3, c4)
@@ -88,10 +88,10 @@ trait CustomerSeeds {
            body = body,
            scope = scope)
     Seq(
-        newNote("This customer is a donkey."),
-        newNote("No, seriously."),
-        newNote("Like, an actual donkey."),
-        newNote("How did a donkey even place an order on our website?")
+      newNote("This customer is a donkey."),
+      newNote("No, seriously."),
+      newNote("Like, an actual donkey."),
+      newNote("How did a donkey even place an order on our website?")
     )
   }
 }

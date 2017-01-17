@@ -40,10 +40,10 @@ class CheckoutIntegrationTest
 
   "PATCH /v1/orders/:refNum/order-line-items" - {
     val attributes = LineItemAttributes(
-        GiftCardLineItemAttributes(senderName = "senderName",
-                                   recipientName = "recipientName",
-                                   recipientEmail = "example@example.com",
-                                   message = "Boop").some).some
+      GiftCardLineItemAttributes(senderName = "senderName",
+                                 recipientName = "recipientName",
+                                 recipientEmail = "example@example.com",
+                                 message = "Boop").some).some
 
     val addGiftCardPayload = Seq(UpdateLineItemsPayload("SKU-YAX", 2, attributes))
     "should update attributes of order-line-items succesfully" in new Fixture {
@@ -54,15 +54,15 @@ class CheckoutIntegrationTest
       val lineItemToUpdate = orderResponse.lineItems.skus.head
       val root = cartsApi(orderResponse.referenceNumber)
         .updateorderLineItem(
-            Seq(UpdateOrderLineItemsPayload(lineItemToUpdate.state,
-                                            attributes,
-                                            lineItemToUpdate.referenceNumbers.headOption.get)))
+          Seq(
+            UpdateOrderLineItemsPayload(lineItemToUpdate.state,
+                                        attributes,
+                                        lineItemToUpdate.referenceNumbers.headOption.get)))
         .as[OrderResponse]
       val itemsToCheck = root.lineItems.skus.filter(oli ⇒
-            oli.referenceNumbers.headOption.get == lineItemToUpdate.referenceNumbers.headOption.get)
+        oli.referenceNumbers.headOption.get == lineItemToUpdate.referenceNumbers.headOption.get)
       itemsToCheck.size mustBe 1
-      itemsToCheck
-        .forall(oli ⇒ oli.attributes.get.toString == attributes.get.toString()) mustBe true
+      itemsToCheck.forall(oli ⇒ oli.attributes.get.toString == attributes.get.toString()) mustBe true
 
     }
 
@@ -139,7 +139,7 @@ class CheckoutIntegrationTest
 
     "fails if customer is blacklisted" in new BlacklistedFixture {
       doCheckout(customer, sku, address, shipMethod, reason).mustFailWith400(
-          UserIsBlacklisted(customer.accountId))
+        UserIsBlacklisted(customer.accountId))
     }
 
     def doCheckout(customer: User,
@@ -184,8 +184,8 @@ class CheckoutIntegrationTest
       _ ← * <~ Factories.shippingMethods.map(ShippingMethods.create)
       shipMethodName = ShippingMethod.expressShippingNameForAdmin
       shipMethod ← * <~ ShippingMethods
-                    .filter(_.adminDisplayName === shipMethodName)
-                    .mustFindOneOr(ShippingMethodNotFoundByName(shipMethodName))
+        .filter(_.adminDisplayName === shipMethodName)
+        .mustFindOneOr(ShippingMethodNotFoundByName(shipMethodName))
       product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head)
       sku     ← * <~ Skus.mustFindById404(product.skuId)
       reason  ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))
@@ -196,19 +196,16 @@ class CheckoutIntegrationTest
     val (customer, address, shipMethod, product, sku, reason) = (for {
       account ← * <~ Accounts.create(Account())
       customer ← * <~ Users.create(
-                    Factories.customer.copy(accountId = account.id,
-                                            isBlacklisted = true,
-                                            blacklistedBy = Some(storeAdmin.accountId)))
+        Factories.customer.copy(accountId = account.id,
+                                isBlacklisted = true,
+                                blacklistedBy = Some(storeAdmin.accountId)))
       custData ← * <~ CustomersData.create(
-                    CustomerData(userId = customer.accountId,
-                                 accountId = account.id,
-                                 scope = Scope.current))
+        CustomerData(userId = customer.accountId, accountId = account.id, scope = Scope.current))
       address ← * <~ Addresses.create(Factories.usAddress1.copy(accountId = customer.accountId))
       _       ← * <~ Factories.shippingMethods.map(ShippingMethods.create)
       shipMethod ← * <~ ShippingMethods
-                    .filter(_.adminDisplayName === ShippingMethod.expressShippingNameForAdmin)
-                    .mustFindOneOr(
-                        ShippingMethodNotFoundByName(ShippingMethod.expressShippingNameForAdmin))
+        .filter(_.adminDisplayName === ShippingMethod.expressShippingNameForAdmin)
+        .mustFindOneOr(ShippingMethodNotFoundByName(ShippingMethod.expressShippingNameForAdmin))
       product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head)
       sku     ← * <~ Skus.mustFindById404(product.skuId)
       reason  ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))

@@ -25,42 +25,40 @@ object CartPaymentUpdater {
 
   type TheFullCart = DbResultT[TheResponse[CartResponse]]
 
-  def addGiftCard(originator: User, payload: GiftCardPayment, refNum: Option[String] = None)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC,
-      ctx: OC): TheFullCart =
+  def addGiftCard(
+      originator: User,
+      payload: GiftCardPayment,
+      refNum: Option[String] = None)(implicit ec: EC, db: DB, ac: AC, ctx: OC): TheFullCart =
     for {
       cart   ← * <~ getCartByOriginator(originator, refNum)
       result ← * <~ validGiftCardWithAmount(payload)
       (gc, amount) = result
       _ ← * <~ OrderPayments
-           .byCartAndGiftCard(cart, gc)
-           .mustNotFindOneOr(GiftCardPaymentAlreadyAdded(cart.refNum, payload.code))
+        .byCartAndGiftCard(cart, gc)
+        .mustNotFindOneOr(GiftCardPaymentAlreadyAdded(cart.refNum, payload.code))
       _ ← * <~ OrderPayments.create(
-             OrderPayment.build(gc).copy(cordRef = cart.refNum, amount = amount.some))
+        OrderPayment.build(gc).copy(cordRef = cart.refNum, amount = amount.some))
       resp  ← * <~ CartResponse.buildRefreshed(cart)
       valid ← * <~ CartValidator(cart).validate()
       _     ← * <~ LogActivity.orderPaymentMethodAddedGc(originator, resp, gc, amount)
     } yield TheResponse.validated(resp, valid)
 
-  def editGiftCard(originator: User, payload: GiftCardPayment, refNum: Option[String] = None)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC,
-      ctx: OC): TheFullCart =
+  def editGiftCard(
+      originator: User,
+      payload: GiftCardPayment,
+      refNum: Option[String] = None)(implicit ec: EC, db: DB, ac: AC, ctx: OC): TheFullCart =
     for {
       cart   ← * <~ getCartByOriginator(originator, refNum)
       result ← * <~ validGiftCardWithAmount(payload)
       (gc, amount) = result
       orderPayment ← * <~ OrderPayments
-                      .byCartAndGiftCard(cart, gc)
-                      .mustFindOneOr(GiftCardPaymentNotFound(cart.refNum, payload.code))
+        .byCartAndGiftCard(cart, gc)
+        .mustFindOneOr(GiftCardPaymentNotFound(cart.refNum, payload.code))
       _     ← * <~ OrderPayments.update(orderPayment, orderPayment.copy(amount = amount.some))
       resp  ← * <~ CartResponse.buildRefreshed(cart)
       valid ← * <~ CartValidator(cart).validate()
       _ ← * <~ LogActivity
-           .orderPaymentMethodUpdatedGc(originator, resp, gc, orderPayment.amount, amount)
+        .orderPaymentMethodUpdatedGc(originator, resp, gc, orderPayment.amount, amount)
     } yield TheResponse.validated(resp, valid)
 
   private def validGiftCardWithAmount(payload: GiftCardPayment)(implicit ec: EC, db: DB, ac: AC) =
@@ -69,8 +67,8 @@ object CartPaymentUpdater {
       _  ← * <~ gc.mustNotBeCart
       _  ← * <~ gc.mustBeActive
       _ ← * <~ GiftCardAdjustments
-           .lastAuthByGiftCardId(gc.id)
-           .mustNotFindOneOr(OpenTransactionsFailure)
+        .lastAuthByGiftCardId(gc.id)
+        .mustNotFindOneOr(OpenTransactionsFailure)
       amount = selectGiftCardAmount(payload, gc)
       _ ← * <~ gc.mustHaveEnoughBalance(amount)
     } yield (gc, amount)
@@ -81,15 +79,14 @@ object CartPaymentUpdater {
       case _            ⇒ gc.availableBalance
     }
 
-  def addStoreCredit(originator: User, payload: StoreCreditPayment, refNum: Option[String] = None)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC,
-      ctx: OC): TheFullCart = {
+  def addStoreCredit(
+      originator: User,
+      payload: StoreCreditPayment,
+      refNum: Option[String] = None)(implicit ec: EC, db: DB, ac: AC, ctx: OC): TheFullCart = {
     def updateSC(has: Int, want: Int, cart: Cart, storeCredits: List[StoreCredit]) =
       if (has < want) {
         DbResultT.failure(
-            CustomerHasInsufficientStoreCredit(id = cart.accountId, has = has, want = want))
+          CustomerHasInsufficientStoreCredit(id = cart.accountId, has = has, want = want))
       } else {
         def payments = StoreCredit.processFifo(storeCredits, want).map {
           case (sc, amount) ⇒
@@ -98,9 +95,9 @@ object CartPaymentUpdater {
 
         for {
           _ ← * <~ OrderPayments
-               .filter(_.cordRef === cart.refNum)
-               .storeCredits
-               .deleteAll(onSuccess = DbResultT.unit, onFailure = DbResultT.unit)
+            .filter(_.cordRef === cart.refNum)
+            .storeCredits
+            .deleteAll(onSuccess = DbResultT.unit, onFailure = DbResultT.unit)
           _ ← * <~ OrderPayments.createAll(payments)
         } yield {}
       }
@@ -129,7 +126,7 @@ object CartPaymentUpdater {
       region ← * <~ Regions.findOneById(cc.address.regionId).safeGet
       _      ← * <~ OrderPayments.filter(_.cordRef === cart.refNum).creditCards.delete
       _ ← * <~ OrderPayments.create(
-             OrderPayment.build(cc).copy(cordRef = cart.refNum, amount = None))
+        OrderPayment.build(cc).copy(cordRef = cart.refNum, amount = None))
       valid ← * <~ CartValidator(cart).validate()
       resp  ← * <~ CartResponse.buildRefreshed(cart)
       _     ← * <~ LogActivity.orderPaymentMethodAddedCc(originator, resp, cc, region)
@@ -152,30 +149,29 @@ object CartPaymentUpdater {
     for {
       cart ← * <~ getCartByOriginator(originator, refNum)
       resp ← * <~ OrderPayments
-              .filter(_.cordRef === cart.refNum)
-              .byType(pmt)
-              .deleteAll(onSuccess = CartResponse.buildRefreshed(cart),
-                         onFailure = DbResultT.failure(OrderPaymentNotFoundFailure(pmt)))
+        .filter(_.cordRef === cart.refNum)
+        .byType(pmt)
+        .deleteAll(onSuccess = CartResponse.buildRefreshed(cart),
+                   onFailure = DbResultT.failure(OrderPaymentNotFoundFailure(pmt)))
       updatedCart ← * <~ getCartByOriginator(originator, refNum)
       valid       ← * <~ CartValidator(updatedCart).validate()
       _           ← * <~ LogActivity.orderPaymentMethodDeleted(originator, resp, pmt)
     } yield TheResponse.validated(resp, valid)
 
-  def deleteGiftCard(originator: User, code: String, refNum: Option[String] = None)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC,
-      ctx: OC): TheFullCart =
+  def deleteGiftCard(
+      originator: User,
+      code: String,
+      refNum: Option[String] = None)(implicit ec: EC, db: DB, ac: AC, ctx: OC): TheFullCart =
     for {
       cart     ← * <~ getCartByOriginator(originator, refNum)
       giftCard ← * <~ GiftCards.mustFindByCode(code)
       deleteRes ← * <~ OrderPayments
-                   .filter(_.paymentMethodId === giftCard.id)
-                   .filter(_.cordRef === cart.refNum)
-                   .giftCards
-                   .deleteAll(onSuccess = CartResponse.buildRefreshed(cart),
-                              onFailure = DbResultT.failure(
-                                  OrderPaymentNotFoundFailure(PaymentMethod.GiftCard)))
+        .filter(_.paymentMethodId === giftCard.id)
+        .filter(_.cordRef === cart.refNum)
+        .giftCards
+        .deleteAll(onSuccess = CartResponse.buildRefreshed(cart),
+                   onFailure =
+                     DbResultT.failure(OrderPaymentNotFoundFailure(PaymentMethod.GiftCard)))
       updatedCart ← * <~ getCartByOriginator(originator, refNum)
       validated   ← * <~ CartValidator(updatedCart).validate()
       _           ← * <~ LogActivity.orderPaymentMethodDeletedGc(originator, deleteRes, giftCard)

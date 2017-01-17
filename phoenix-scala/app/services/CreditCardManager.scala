@@ -42,10 +42,10 @@ object CreditCardManager {
       _        ← * <~ Regions.mustFindById400(payload.billingAddress.regionId)
       customer ← * <~ Users.mustFindByAccountId(accountId)
       customerToken ← * <~ CreditCards
-                       .filter(_.accountId === accountId)
-                       .take(1)
-                       .map(_.gatewayCustomerId)
-                       .one
+        .filter(_.accountId === accountId)
+        .take(1)
+        .map(_.gatewayCustomerId)
+        .one
       address = Address.fromPayload(payload.billingAddress, customer.accountId)
       _ ← * <~ doOrMeh(payload.addressIsNew, Addresses.create(address))
       stripes ← * <~ apis.stripe.createCardFromToken(email = customer.email,
@@ -54,11 +54,11 @@ object CreditCardManager {
                                                      address = address)
       (stripeCustomer, stripeCard) = stripes
       cc ← * <~ CreditCards.create(
-              CreditCard.buildFromToken(accountId = accountId,
-                                        customerToken = stripeCustomer.getId,
-                                        payload = payload,
-                                        address = address,
-                                        cardToken = stripeCard.getId))
+        CreditCard.buildFromToken(accountId = accountId,
+                                  customerToken = stripeCustomer.getId,
+                                  payload = payload,
+                                  address = address,
+                                  cardToken = stripeCard.getId))
       _        ← * <~ LogActivity.ccCreated(customer, cc, admin)
       response ← * <~ CreditCardsResponse.buildFromCreditCard(cc)
     } yield response
@@ -99,8 +99,7 @@ object CreditCardManager {
       stripeIdAndAddress ← * <~ getExistingStripeIdAndAddress
       (stripeId, address) = stripeIdAndAddress
       stripeStuff ← * <~ DBIO.from(
-                       apis.stripe
-                         .createCardFromSource(customer.email, payload, stripeId, address))
+        apis.stripe.createCardFromSource(customer.email, payload, stripeId, address))
       (stripeCustomer, stripeCard) = stripeStuff
       newCard ← * <~ createCard(customer, stripeCustomer, stripeCard, address)
     } yield newCard
@@ -137,10 +136,10 @@ object CreditCardManager {
 
     def update(customer: User, cc: CreditCard) = {
       val updated = cc.copy(
-          parentId = Some(cc.id),
-          holderName = payload.holderName.getOrElse(cc.holderName),
-          expYear = payload.expYear.getOrElse(cc.expYear),
-          expMonth = payload.expMonth.getOrElse(cc.expMonth)
+        parentId = Some(cc.id),
+        holderName = payload.holderName.getOrElse(cc.holderName),
+        expYear = payload.expYear.getOrElse(cc.expYear),
+        expMonth = payload.expMonth.getOrElse(cc.expMonth)
       )
       for {
         _  ← * <~ DBIO.from(apis.stripe.editCard(updated))
@@ -167,20 +166,20 @@ object CreditCardManager {
 
       for {
         cc ← OrderPayments
-              .filter(_.id.in(paymentIds))
-              .map(_.paymentMethodId)
-              .update(updated.id)
-              .map(_ ⇒ updated)
+          .filter(_.id.in(paymentIds))
+          .map(_.paymentMethodId)
+          .update(updated.id)
+          .map(_ ⇒ updated)
         region ← Regions.findOneById(cc.address.regionId).safeGet
       } yield buildResponse(cc, region)
     }
 
     val getCardAndAddressChange = for {
       creditCard ← * <~ CreditCards
-                    .findById(id)
-                    .extract
-                    .filter(_.accountId === accountId)
-                    .mustFindOneOr(NotFoundFailure404(CreditCard, id))
+        .findById(id)
+        .extract
+        .filter(_.accountId === accountId)
+        .mustFindOneOr(NotFoundFailure404(CreditCard, id))
       shippingAddress ← * <~ getOptionalShippingAddress(payload.addressId, payload.isShipping)
       address ← * <~ getAddressFromPayload(payload.addressId,
                                            payload.address,
@@ -209,8 +208,8 @@ object CreditCardManager {
                                                             db: DB): DbResultT[Root] =
     for {
       cc ← * <~ CreditCards
-            .findByIdAndAccountId(creditCardId, customer.accountId)
-            .mustFindOneOr(NotFoundFailure404(CreditCard, creditCardId))
+        .findByIdAndAccountId(creditCardId, customer.accountId)
+        .mustFindOneOr(NotFoundFailure404(CreditCard, creditCardId))
       region ← * <~ Regions.mustFindById404(cc.address.regionId)
     } yield buildResponse(cc, region)
 

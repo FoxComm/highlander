@@ -167,7 +167,7 @@ object Customer {
                 }
               } ~
               (pathPrefix("change-password") & pathEnd & post & entity(
-                      as[ChangeCustomerPasswordPayload])) { payload ⇒
+                as[ChangeCustomerPasswordPayload])) { payload ⇒
                 doOrFailures {
                   CustomerManager.changePassword(auth.account.id, payload)
                 }

@@ -31,8 +31,8 @@ object ObjectUtils {
 
   /**
     * We compute a SHA-1 hash of the json content and return the first
-    * 10 characters in hex representation of the hash. 
-    * We don't care about the whole hash because it would take up too much space. 
+    * 10 characters in hex representation of the hash.
+    * We don't care about the whole hash because it would take up too much space.
     * Collisions are handled below in the findKey function.
     */
   private def hash(content: Json): String =
@@ -46,8 +46,8 @@ object ObjectUtils {
   /**
     * The key algorithm will compute a hash of the content and then search
     * for a valid key. The search function looks for hash collisions.
-    * If a hash collision is found, an index is appended to the hash and the 
-    * new hash+index key is searched until we find a key with same content or 
+    * If a hash collision is found, an index is appended to the hash and the
+    * new hash+index key is searched until we find a key with same content or
     * we reach the end of the list.
     */
   private[objects] def key(content: Json, alreadyExistingFields: Json): String = {
@@ -141,15 +141,14 @@ object ObjectUtils {
       optSchema ← * <~ ObjectSchemasManager.getSchemaByOptNameOrKind(schema, formProto.kind)
       form      ← * <~ ObjectForms.create(formProto.copy(attributes = n.form))
       shadow ← * <~ ObjectShadows.create(
-                  shadowProto.copy(formId = form.id,
-                                   attributes = n.shadow,
-                                   jsonSchema = optSchema.map(_.name)))
+        shadowProto
+          .copy(formId = form.id, attributes = n.shadow, jsonSchema = optSchema.map(_.name)))
       _ ← * <~ failIfErrors(
-             IlluminateAlgorithm.validateAttributesTypes(form.attributes, shadow.attributes))
+        IlluminateAlgorithm.validateAttributesTypes(form.attributes, shadow.attributes))
       //Make sure form is correct and shadow links are correct
       _ ← * <~ optSchema.map { schema ⇒
-           IlluminateAlgorithm.validateObjectBySchema(schema, form, shadow)
-         }
+        IlluminateAlgorithm.validateObjectBySchema(schema, form, shadow)
+      }
       commit ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
     } yield InsertResult(form, shadow, commit)
   }
@@ -178,13 +177,13 @@ object ObjectUtils {
       updateResult ← * <~ updateFormAndShadow(fullObject, formAttributes, shadowAttributes, force)
       maybeCommit  ← * <~ ObjectUtils.commit(updateResult)
       committedObject ← * <~ (maybeCommit match {
-                             case Some(commit) ⇒
-                               val newObject = fullObject
-                                 .copy[T](form = updateResult.form, shadow = updateResult.shadow)
-                               updateHead(newObject, commit.id)
-                             case _ ⇒
-                               DbResultT.good(fullObject)
-                           })
+        case Some(commit) ⇒
+          val newObject =
+            fullObject.copy[T](form = updateResult.form, shadow = updateResult.shadow)
+          updateHead(newObject, commit.id)
+        case _ ⇒
+          DbResultT.good(fullObject)
+      })
     } yield committedObject
 
   private def updateFormAndShadow(
@@ -193,9 +192,8 @@ object ObjectUtils {
       shadowAttributes: Json,
       force: Boolean = false)(implicit ec: EC, db: DB): DbResultT[UpdateResult] = {
     for {
-      newAttributes ← * <~ ObjectUtils.updateFormAndShadow(oldFormAndShadow.form.attributes,
-                                                           formAttributes,
-                                                           shadowAttributes)
+      newAttributes ← * <~ ObjectUtils
+        .updateFormAndShadow(oldFormAndShadow.form.attributes, formAttributes, shadowAttributes)
       result ← * <~ updateIfDifferent(oldFormAndShadow,
                                       newAttributes.form,
                                       newAttributes.shadow,
@@ -236,20 +234,19 @@ object ObjectUtils {
       force: Boolean = false)(implicit ec: EC, db: DB): DbResultT[UpdateResult] = {
     if (old.shadow.attributes != newShadowAttributes || force)
       for {
-        form ← * <~ ObjectForms.update(
-                  old.form,
-                  old.form.copy(attributes = newFormAttributes, updatedAt = Instant.now))
+        form ← * <~ ObjectForms
+          .update(old.form, old.form.copy(attributes = newFormAttributes, updatedAt = Instant.now))
         shadow ← * <~ ObjectShadows.create(
-                    ObjectShadow(formId = form.id,
-                                 attributes = newShadowAttributes,
-                                 jsonSchema = old.shadow.jsonSchema))
+          ObjectShadow(formId = form.id,
+                       attributes = newShadowAttributes,
+                       jsonSchema = old.shadow.jsonSchema))
 
         optSchema ← * <~ old.shadow.jsonSchema.map { schemaName ⇒
-                     ObjectFullSchemas.mustFindByName404(schemaName)
-                   }
+          ObjectFullSchemas.mustFindByName404(schemaName)
+        }
         _ ← * <~ optSchema.map { schema ⇒
-             IlluminateAlgorithm.validateObjectBySchema(schema, form, shadow)
-           }
+          IlluminateAlgorithm.validateObjectBySchema(schema, form, shadow)
+        }
         _ ← * <~ validateShadow(form, shadow)
       } yield UpdateResult(form, shadow, updated = true)
     else DbResultT.pure(UpdateResult(old.form, old.shadow, updated = false))

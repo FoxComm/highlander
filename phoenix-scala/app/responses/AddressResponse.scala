@@ -94,14 +94,14 @@ object AddressResponse {
       fullAddress ← * <~ fullAddressDetails.result
       (addresses, regions) = fullAddress.unzip
       response ← * <~ ((addresses.headOption, regions.headOption) match {
-                      case (Some(address), Some(region)) ⇒
-                        DbResultT.good(buildOneShipping(address, region))
-                      case (None, _) ⇒
-                        DbResultT.failure(NotFoundFailure404(
-                                s"No addresses found for order with refNum=$cordRef"))
-                      case (Some(address), None) ⇒
-                        DbResultT.failure(NotFoundFailure404(Region, address.regionId))
-                    })
+        case (Some(address), Some(region)) ⇒
+          DbResultT.good(buildOneShipping(address, region))
+        case (None, _) ⇒
+          DbResultT.failure(
+            NotFoundFailure404(s"No addresses found for order with refNum=$cordRef"))
+        case (Some(address), None) ⇒
+          DbResultT.failure(NotFoundFailure404(Region, address.regionId))
+      })
     } yield response
   }
 }

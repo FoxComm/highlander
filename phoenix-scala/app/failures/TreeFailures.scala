@@ -14,11 +14,11 @@ object TreeFailures {
 
     def apply(treeName: String, context: String, nodeIndex: Int) =
       NotFoundFailure404(
-          s"Tree node with index=$nodeIndex in tree $treeName and context $context cannot be found")
+        s"Tree node with index=$nodeIndex in tree $treeName and context $context cannot be found")
 
     def apply(treeName: String, context: String, path: String) =
       NotFoundFailure404(
-          s"Tree node with path=$path in tree $treeName and context $context cannot be found")
+        s"Tree node with path=$path in tree $treeName and context $context cannot be found")
   }
 
   object TreeNotFound {

@@ -30,19 +30,19 @@ object CouponManager {
     for {
       scope ← * <~ Scope.resolveOverride(payload.scope)
       context ← * <~ ObjectContexts
-                 .filterByName(contextName)
-                 .mustFindOneOr(ObjectContextNotFound(contextName))
+        .filterByName(contextName)
+        .mustFindOneOr(ObjectContextNotFound(contextName))
       _ ← * <~ Promotions
-           .filterByContextAndFormId(context.id, payload.promotion)
-           .mustFindOneOr(PromotionNotFoundForContext(payload.promotion, context.name))
+        .filterByContextAndFormId(context.id, payload.promotion)
+        .mustFindOneOr(PromotionNotFoundForContext(payload.promotion, context.name))
       ins ← * <~ ObjectUtils.insert(formAndShadow.form, formAndShadow.shadow, payload.schema)
       coupon ← * <~ Coupons.create(
-                  Coupon(scope = scope,
-                         contextId = context.id,
-                         formId = ins.form.id,
-                         shadowId = ins.shadow.id,
-                         commitId = ins.commit.id,
-                         promotionId = payload.promotion))
+        Coupon(scope = scope,
+               contextId = context.id,
+               formId = ins.form.id,
+               shadowId = ins.shadow.id,
+               commitId = ins.commit.id,
+               promotionId = payload.promotion))
       response = CouponResponse.build(context, coupon, ins.form, ins.shadow)
       _ ← * <~ LogActivity.couponCreated(response, admin)
     } yield response
@@ -57,14 +57,14 @@ object CouponManager {
 
     for {
       context ← * <~ ObjectContexts
-                 .filterByName(contextName)
-                 .mustFindOneOr(ObjectContextNotFound(contextName))
+        .filterByName(contextName)
+        .mustFindOneOr(ObjectContextNotFound(contextName))
       _ ← * <~ Promotions
-           .filterByContextAndFormId(context.id, payload.promotion)
-           .mustFindOneOr(PromotionNotFoundForContext(payload.promotion, context.name))
+        .filterByContextAndFormId(context.id, payload.promotion)
+        .mustFindOneOr(PromotionNotFoundForContext(payload.promotion, context.name))
       coupon ← * <~ Coupons
-                .filterByContextAndFormId(context.id, id)
-                .mustFindOneOr(CouponNotFoundForContext(id, contextName))
+        .filterByContextAndFormId(context.id, id)
+        .mustFindOneOr(CouponNotFoundForContext(id, contextName))
       updated ← * <~ ObjectUtils.update(coupon.formId,
                                         coupon.shadowId,
                                         formAndShadow.form.attributes,
@@ -80,8 +80,8 @@ object CouponManager {
                                                    db: DB): DbResultT[CouponResponse.Root] =
     for {
       context ← * <~ ObjectContexts
-                 .filterByName(contextName)
-                 .mustFindOneOr(ObjectContextNotFound(contextName))
+        .filterByName(contextName)
+        .mustFindOneOr(ObjectContextNotFound(contextName))
       result ← * <~ getIlluminatedIntern(id, context)
     } yield result
 
@@ -90,11 +90,11 @@ object CouponManager {
       db: DB): DbResultT[CouponResponse.Root] =
     for {
       context ← * <~ ObjectContexts
-                 .filterByName(contextName)
-                 .mustFindOneOr(ObjectContextNotFound(contextName))
+        .filterByName(contextName)
+        .mustFindOneOr(ObjectContextNotFound(contextName))
       couponCode ← * <~ CouponCodes
-                    .filter(_.code.toLowerCase === code.toLowerCase)
-                    .mustFindOneOr(CouponWithCodeCannotBeFound(code))
+        .filter(_.code.toLowerCase === code.toLowerCase)
+        .mustFindOneOr(CouponWithCodeCannotBeFound(code))
       result ← * <~ getIlluminatedIntern(couponCode.couponFormId, context)
     } yield result
 
@@ -103,9 +103,9 @@ object CouponManager {
       db: DB): DbResultT[CouponResponse.Root] =
     for {
       coupon ← * <~ Coupons
-                .filter(_.contextId === context.id)
-                .filter(_.formId === id)
-                .mustFindOneOr(CouponNotFound(id))
+        .filter(_.contextId === context.id)
+        .filter(_.formId === id)
+        .mustFindOneOr(CouponNotFound(id))
       form   ← * <~ ObjectForms.mustFindById404(coupon.formId)
       shadow ← * <~ ObjectShadows.mustFindById404(coupon.shadowId)
     } yield CouponResponse.build(context, coupon, form, shadow)
@@ -114,11 +114,11 @@ object CouponManager {
                             formId: Int)(implicit ec: EC, db: DB): DbResultT[CouponResponse.Root] =
     for {
       context ← * <~ ObjectContexts
-                 .filterByName(contextName)
-                 .mustFindOneOr(ObjectContextNotFound(contextName))
+        .filterByName(contextName)
+        .mustFindOneOr(ObjectContextNotFound(contextName))
       model ← * <~ Coupons
-               .findOneByContextAndFormId(context.id, formId)
-               .mustFindOneOr(NotFoundFailure404(Coupon, formId))
+        .findOneByContextAndFormId(context.id, formId)
+        .mustFindOneOr(NotFoundFailure404(Coupon, formId))
       archiveResult ← * <~ Coupons.update(model, model.copy(archivedAt = Some(Instant.now)))
       form          ← * <~ ObjectForms.mustFindById404(archiveResult.formId)
       shadow        ← * <~ ObjectShadows.mustFindById404(archiveResult.shadowId)
@@ -155,14 +155,14 @@ object CouponManager {
 
   private def validateCouponCodePayload(p: GenerateCouponCodes)(implicit ec: EC) = {
     ObjectUtils.failIfErrors(
-        Seq(
-            if (p.quantity <= 0) Seq(CouponCodeQuanityMustBeGreaterThanZero)
-            else Seq.empty,
-            if (p.prefix.isEmpty) Seq(CouponCodePrefixNotSet) else Seq.empty,
-            if (CouponCodes.isCharacterLimitValid(p.prefix.length, p.quantity, p.length))
-              Seq.empty
-            else Seq(CouponCodeLengthIsTooSmall(p.prefix, p.quantity))
-        ).flatten)
+      Seq(
+        if (p.quantity <= 0) Seq(CouponCodeQuanityMustBeGreaterThanZero)
+        else Seq.empty,
+        if (p.prefix.isEmpty) Seq(CouponCodePrefixNotSet) else Seq.empty,
+        if (CouponCodes.isCharacterLimitValid(p.prefix.length, p.quantity, p.length))
+          Seq.empty
+        else Seq(CouponCodeLengthIsTooSmall(p.prefix, p.quantity))
+      ).flatten)
   }
 
   private def updateHead(coupon: Coupon,
@@ -172,8 +172,8 @@ object CouponManager {
     maybeCommit match {
       case Some(commit) ⇒
         Coupons.update(
-            coupon,
-            coupon.copy(shadowId = shadow.id, commitId = commit.id, promotionId = promotionId))
+          coupon,
+          coupon.copy(shadowId = shadow.id, commitId = commit.id, promotionId = promotionId))
       case None ⇒
         if (promotionId != coupon.promotionId)
           Coupons.update(coupon, coupon.copy(promotionId = promotionId))

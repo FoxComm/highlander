@@ -38,7 +38,7 @@ class CustomersData(tag: Tag) extends FoxTable[CustomerData](tag, "customer_data
 
   def * =
     (id, userId, scope, accountId, isGuest, createdAt, updatedAt, deletedAt) <> ((CustomerData.apply _).tupled,
-        CustomerData.unapply)
+    CustomerData.unapply)
 }
 
 object CustomersData
@@ -68,13 +68,13 @@ object CustomersData
 
         val customerWithShipRegion = for {
           ((c, a), r) ← query
-                         .joinLeft(Addresses)
-                         .on {
-                           case (a, b) ⇒
-                             a.accountId === b.accountId && b.isDefaultShipping === true
-                         }
-                         .joinLeft(Regions)
-                         .on(_._2.map(_.regionId) === _.id)
+            .joinLeft(Addresses)
+            .on {
+              case (a, b) ⇒
+                a.accountId === b.accountId && b.isDefaultShipping === true
+            }
+            .joinLeft(Regions)
+            .on(_._2.map(_.regionId) === _.id)
         } yield (c, r)
 
         val CcWithRegions = CreditCards.join(Regions).on {
@@ -83,15 +83,15 @@ object CustomersData
 
         val withRegions = for {
           ((c, shipRegion), billInfo) ← customerWithShipRegion
-                                         .joinLeft(CcWithRegions)
-                                         .on(_._1.accountId === _._1.accountId)
+            .joinLeft(CcWithRegions)
+            .on(_._1.accountId === _._1.accountId)
         } yield (c, shipRegion, billInfo.map(_._2))
 
         for {
           ((c, shipRegion, billRegion), rank) ← withRegions
-                                                 .joinLeft(CustomersRanks)
-                                                 //MAXDO Verify thid is correct
-                                                 .on(_._1.accountId === _.id)
+            .joinLeft(CustomersRanks)
+            //MAXDO Verify thid is correct
+            .on(_._1.accountId === _.id)
         } yield (c, shipRegion, billRegion, rank)
       }
     }

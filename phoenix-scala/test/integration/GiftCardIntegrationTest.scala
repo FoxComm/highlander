@@ -122,12 +122,12 @@ class GiftCardIntegrationTest
                  "recipientEmail":"example@example.com"}}}""".stripMargin))
         val root = giftCardsApi
           .createFromCustomer(
-              GiftCardCreatedByCustomer(balance = 555,
-                                        senderName = "senderName",
-                                        recipientName = "recipienName",
-                                        recipientEmail = "recipientEmail@mail.com",
-                                        message = "test message",
-                                        cordRef = cordInsert.referenceNumber))
+            GiftCardCreatedByCustomer(balance = 555,
+                                      senderName = "senderName",
+                                      recipientName = "recipienName",
+                                      recipientEmail = "recipientEmail@mail.com",
+                                      message = "test message",
+                                      cordRef = cordInsert.referenceNumber))
           .as[GiftCardResponse.Root]
         root.currency must === (Currency.USD)
         root.availableBalance must === (555)
@@ -138,22 +138,22 @@ class GiftCardIntegrationTest
 
       "successfully creates gift cards  as a custumer from payload" in new Reason_Baked {
         val cordInsert = Carts.create(Factories.cart(LTree("1"))).gimme
-        val attributes = Some(
-            parse("""{"attributes":{"giftCard":{"senderName":"senderName","recipientName":"recipientName","recipientEmail":"example@example.com"}}}"""))
+        val attributes = Some(parse(
+          """{"attributes":{"giftCard":{"senderName":"senderName","recipientName":"recipientName","recipientEmail":"example@example.com"}}}"""))
         val root = giftCardsApi
           .createMultipleFromCustomer(
-              Seq(GiftCardCreatedByCustomer(balance = 555,
-                                            senderName = "senderName",
-                                            recipientName = "recipienName",
-                                            recipientEmail = "recipientEmail@mail.com",
-                                            message = "test message",
-                                            cordRef = cordInsert.referenceNumber),
-                  GiftCardCreatedByCustomer(balance = 100,
-                                            senderName = "senderName2",
-                                            recipientName = "recipienName2",
-                                            recipientEmail = "recipientEmail@mail.com2",
-                                            message = "test message2",
-                                            cordRef = cordInsert.referenceNumber)))
+            Seq(GiftCardCreatedByCustomer(balance = 555,
+                                          senderName = "senderName",
+                                          recipientName = "recipienName",
+                                          recipientEmail = "recipientEmail@mail.com",
+                                          message = "test message",
+                                          cordRef = cordInsert.referenceNumber),
+                GiftCardCreatedByCustomer(balance = 100,
+                                          senderName = "senderName2",
+                                          recipientName = "recipienName2",
+                                          recipientEmail = "recipientEmail@mail.com2",
+                                          message = "test message2",
+                                          cordRef = cordInsert.referenceNumber)))
           .as[Seq[GiftCardResponse.Root]]
         root.head.currency must === (Currency.USD)
         root.head.availableBalance must === (555)
@@ -288,8 +288,8 @@ class GiftCardIntegrationTest
         private val bothCodes = Seq(giftCard1.code, giftCard2.code)
 
         private val payload = GiftCardBulkUpdateStateByCsr(
-            codes = bothCodes,
-            state = GiftCard.OnHold
+          codes = bothCodes,
+          state = GiftCard.OnHold
         )
 
         giftCardsApi.updateBulk(payload).mustBeOk()
@@ -302,8 +302,8 @@ class GiftCardIntegrationTest
 
       "returns multiple errors if no cancellation reason provided" in new Fixture {
         val payload = GiftCardBulkUpdateStateByCsr(
-            codes = Seq(giftCard1.code, giftCard2.code),
-            state = GiftCard.Canceled
+          codes = Seq(giftCard1.code, giftCard2.code),
+          state = GiftCard.Canceled
         )
 
         giftCardsApi.updateBulk(payload).mustFailWith400(EmptyCancellationReasonFailure)

@@ -69,47 +69,44 @@ object Seeds {
         .action((_, c) ⇒ c.copy(mode = Seed))
         .text("Insert seeds")
         .children(
-            opt[Unit]("skipMigrate")
-              .action((_, c) ⇒ c.copy(migrateDb = false))
-              .text("Skip migration step for database."),
-            opt[Unit]("skipBase")
-              .action((x, c) ⇒ c.copy(seedBase = false))
-              .text("Skip seed base seeds."),
-            opt[Unit]("seedShippingRules")
-              .action((_, c) ⇒ c.copy(seedShippingRules = true))
-              .text("Create predefined admins"),
-            opt[Unit]("seedAdmins")
-              .action((_, c) ⇒ c.copy(seedAdmins = true))
-              .text("Create predefined admins"),
-            opt[Int]("seedRandom")
-              .action((x, c) ⇒ c.copy(seedRandom = x))
-              .text("Create random seeds"),
-            opt[Int]("customersScaleMultiplier")
-              .action((x, c) ⇒ c.copy(customersScaleMultiplier = x))
-              .text("Customers scale multiplier for random seeds"),
-            opt[Unit]("seedStage")
-              .action((x, c) ⇒ c.copy(seedStage = true))
-              .text("Create stage seeds"),
-            opt[Int]("seedDemo").action((x, c) ⇒ c.copy(seedDemo = x)).text("Create demo seeds"))
+          opt[Unit]("skipMigrate")
+            .action((_, c) ⇒ c.copy(migrateDb = false))
+            .text("Skip migration step for database."),
+          opt[Unit]("skipBase")
+            .action((x, c) ⇒ c.copy(seedBase = false))
+            .text("Skip seed base seeds."),
+          opt[Unit]("seedShippingRules")
+            .action((_, c) ⇒ c.copy(seedShippingRules = true))
+            .text("Create predefined admins"),
+          opt[Unit]("seedAdmins")
+            .action((_, c) ⇒ c.copy(seedAdmins = true))
+            .text("Create predefined admins"),
+          opt[Int]("seedRandom")
+            .action((x, c) ⇒ c.copy(seedRandom = x))
+            .text("Create random seeds"),
+          opt[Int]("customersScaleMultiplier")
+            .action((x, c) ⇒ c.copy(customersScaleMultiplier = x))
+            .text("Customers scale multiplier for random seeds"),
+          opt[Unit]("seedStage")
+            .action((x, c) ⇒ c.copy(seedStage = true))
+            .text("Create stage seeds"),
+          opt[Int]("seedDemo").action((x, c) ⇒ c.copy(seedDemo = x)).text("Create demo seeds"))
 
       cmd("createAdmin")
         .action((_, c) ⇒ c.copy(mode = CreateAdmin))
         .text(
-            "Create Admin. Password prompts via stdin or can be set via admin_password env or prop")
+          "Create Admin. Password prompts via stdin or can be set via admin_password env or prop")
         .children(
-            opt[String]("name")
-              .required()
-              .action((x, c) ⇒ c.copy(adminName = x))
-              .text("Admin name"),
-            opt[String]("email")
-              .required()
-              .action((x, c) ⇒ c.copy(adminEmail = x))
-              .text("Admin email"),
-            opt[String]("org").required().action((x, c) ⇒ c.copy(adminOrg = x)).text("Admin Org"),
-            opt[String]("roles")
-              .required()
-              .action((x, c) ⇒ c.copy(adminRoles = x))
-              .text("Admin Roles")
+          opt[String]("name").required().action((x, c) ⇒ c.copy(adminName = x)).text("Admin name"),
+          opt[String]("email")
+            .required()
+            .action((x, c) ⇒ c.copy(adminEmail = x))
+            .text("Admin email"),
+          opt[String]("org").required().action((x, c) ⇒ c.copy(adminOrg = x)).text("Admin Org"),
+          opt[String]("roles")
+            .required()
+            .action((x, c) ⇒ c.copy(adminRoles = x))
+            .text("Admin Roles")
         )
     }
 
@@ -213,11 +210,11 @@ object Seeds {
                   ac: AC): DbResultT[(Organization, User, Account, Account.ClaimSet)] =
     for {
       organization ← * <~ Organizations
-                      .findByName(MERCHANT)
-                      .mustFindOr(OrganizationNotFoundByName(MERCHANT))
+        .findByName(MERCHANT)
+        .mustFindOr(OrganizationNotFoundByName(MERCHANT))
       merchant ← * <~ Users
-                  .findByEmail(MERCHANT_EMAIL)
-                  .mustFindOneOr(NotFoundFailure404(User, MERCHANT_EMAIL))
+        .findByEmail(MERCHANT_EMAIL)
+        .mustFindOneOr(NotFoundFailure404(User, MERCHANT_EMAIL))
       account ← * <~ Accounts.mustFindById404(merchant.accountId)
       claims  ← * <~ AccountManager.getClaims(merchant.accountId, organization.scopeId)
     } yield (organization, merchant, account, claims)
@@ -240,15 +237,15 @@ object Seeds {
         r ← * <~ getMerchant
         (organization, merchant, account, claims) = r
         _ ← * <~ ({
-             implicit val au =
-               AuthData[User](token = UserToken.fromUserAccount(merchant, account, claims),
-                              model = merchant,
-                              account = account)
+          implicit val au =
+            AuthData[User](token = UserToken.fromUserAccount(merchant, account, claims),
+                           model = merchant,
+                           account = account)
 
-             for {
-               _ ← * <~ SeedsGenerator.insertRandomizedSeeds(batchSize, appeasementsPerBatch)
-             } yield {}
-           })
+          for {
+            _ ← * <~ SeedsGenerator.insertRandomizedSeeds(batchSize, appeasementsPerBatch)
+          } yield {}
+        })
       } yield {}
 
       val result = Await.result(r.runTxn(), (120 * scale).second)
@@ -277,31 +274,31 @@ object Seeds {
       r ← * <~ getMerchant
       (organization, merchant, account, claims) = r
       _ ← * <~ ({
-           implicit val au = AuthData[User](token =
-                                              UserToken.fromUserAccount(merchant, account, claims),
-                                            model = merchant,
-                                            account = account)
+        implicit val au = AuthData[User](token =
+                                           UserToken.fromUserAccount(merchant, account, claims),
+                                         model = merchant,
+                                         account = account)
 
-           for {
-             context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
-             ruContext ← * <~ ObjectContexts.create(
-                            SimpleContext.create(name = SimpleContext.ru, lang = "ru"))
-             customers  ← * <~ Factories.createCustomers(organization.scopeId)
-             _          ← * <~ Factories.createAddresses(customers)
-             _          ← * <~ Factories.createCreditCards(customers)
-             products   ← * <~ Factories.createProducts
-             ruProducts ← * <~ Factories.createRuProducts(products)
-             _          ← * <~ Reasons.createAll(Factories.reasons.map(_.copy(storeAdminId = adminId)))
-             _          ← * <~ Factories.createGiftCards
-             _          ← * <~ Factories.createStoreCredits(adminId, customers._1, customers._3)
-             _          ← * <~ Factories.createShipmentRules
-             // Promotions
-             search     ← * <~ Factories.createSharedSearches(adminId)
-             discounts  ← * <~ Factories.createDiscounts(search)
-             promotions ← * <~ Factories.createCouponPromotions(discounts)
-             coupons    ← * <~ Factories.createCoupons(promotions)
-           } yield {}
-         })
+        for {
+          context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
+          ruContext ← * <~ ObjectContexts.create(
+            SimpleContext.create(name = SimpleContext.ru, lang = "ru"))
+          customers  ← * <~ Factories.createCustomers(organization.scopeId)
+          _          ← * <~ Factories.createAddresses(customers)
+          _          ← * <~ Factories.createCreditCards(customers)
+          products   ← * <~ Factories.createProducts
+          ruProducts ← * <~ Factories.createRuProducts(products)
+          _          ← * <~ Reasons.createAll(Factories.reasons.map(_.copy(storeAdminId = adminId)))
+          _          ← * <~ Factories.createGiftCards
+          _          ← * <~ Factories.createStoreCredits(adminId, customers._1, customers._3)
+          _          ← * <~ Factories.createShipmentRules
+          // Promotions
+          search     ← * <~ Factories.createSharedSearches(adminId)
+          discounts  ← * <~ Factories.createDiscounts(search)
+          promotions ← * <~ Factories.createCouponPromotions(discounts)
+          coupons    ← * <~ Factories.createCoupons(promotions)
+        } yield {}
+      })
     } yield {}
 
   object Factories
@@ -350,37 +347,37 @@ object Seeds {
 
     def reasons: Seq[Reason] =
       Seq(
-          // Gift card creation reasons
-          Reason(body = "Gift to loyal customer",
-                 reasonType = GiftCardCreation,
-                 parentId = None,
-                 storeAdminId = 0),
-          Reason(body = "New year GC giveaway",
-                 reasonType = GiftCardCreation,
-                 parentId = None,
-                 storeAdminId = 0),
-          // Store credit creation reasons
-          Reason(body = "Gift to loyal customer",
-                 reasonType = StoreCreditCreation,
-                 parentId = None,
-                 storeAdminId = 0),
-          Reason(body = "New year SC giveaway",
-                 reasonType = StoreCreditCreation,
-                 parentId = None,
-                 storeAdminId = 0),
-          // Cancellation reasons
-          Reason(body = "Cancelled by customer request",
-                 reasonType = Cancellation,
-                 parentId = None,
-                 storeAdminId = 0),
-          Reason(body = "Cancelled because duplication",
-                 reasonType = Cancellation,
-                 parentId = None,
-                 storeAdminId = 0),
-          Reason(body = "Other cancellation reason",
-                 reasonType = Cancellation,
-                 parentId = None,
-                 storeAdminId = 0)
+        // Gift card creation reasons
+        Reason(body = "Gift to loyal customer",
+               reasonType = GiftCardCreation,
+               parentId = None,
+               storeAdminId = 0),
+        Reason(body = "New year GC giveaway",
+               reasonType = GiftCardCreation,
+               parentId = None,
+               storeAdminId = 0),
+        // Store credit creation reasons
+        Reason(body = "Gift to loyal customer",
+               reasonType = StoreCreditCreation,
+               parentId = None,
+               storeAdminId = 0),
+        Reason(body = "New year SC giveaway",
+               reasonType = StoreCreditCreation,
+               parentId = None,
+               storeAdminId = 0),
+        // Cancellation reasons
+        Reason(body = "Cancelled by customer request",
+               reasonType = Cancellation,
+               parentId = None,
+               storeAdminId = 0),
+        Reason(body = "Cancelled because duplication",
+               reasonType = Cancellation,
+               parentId = None,
+               storeAdminId = 0),
+        Reason(body = "Other cancellation reason",
+               reasonType = Cancellation,
+               parentId = None,
+               storeAdminId = 0)
       )
   }
 

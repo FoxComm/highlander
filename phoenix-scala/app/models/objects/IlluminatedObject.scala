@@ -8,7 +8,7 @@ case class IlluminatedContext(name: String, attributes: Json)
 
 /**
   * An IlluminatedObject is what you get when you combine the product shadow and
-  * the product. 
+  * the product.
   */
 case class IlluminatedObject(id: Int = 0, attributes: Json) extends Identity[IlluminatedObject]
 

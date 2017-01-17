@@ -29,7 +29,7 @@ class ReturnLineItemGiftCards(tag: Tag)
 
 object ReturnLineItemGiftCards
     extends FoxTableQuery[ReturnLineItemGiftCard, ReturnLineItemGiftCards](
-        new ReturnLineItemGiftCards(_))
+      new ReturnLineItemGiftCards(_))
     with ReturningId[ReturnLineItemGiftCard, ReturnLineItemGiftCards] {
 
   val returningLens: Lens[ReturnLineItemGiftCard, Int] = lens[ReturnLineItemGiftCard].id

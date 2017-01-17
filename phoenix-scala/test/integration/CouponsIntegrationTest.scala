@@ -40,13 +40,13 @@ class CouponsIntegrationTest
     "create coupon with invalid date should fail" in new StoreAdmin_Seed
     with Coupon_TotalQualifier_PercentOff {
       private val invalidAttrs = Map[String, Any](
-          "name"       → "donkey coupon",
-          "activeFrom" → ShadowValue("2016-07-19T08:28:21.405+00:00", "datetime")).asShadow
+        "name"       → "donkey coupon",
+        "activeFrom" → ShadowValue("2016-07-19T08:28:21.405+00:00", "datetime")).asShadow
 
       couponsApi
         .create(CreateCoupon(attributes = invalidAttrs, promotion = promotion.id))
         .mustFailWith400(
-            ShadowAttributeInvalidTime("activeFrom", "JString(2016-07-19T08:28:21.405+00:00)"))
+          ShadowAttributeInvalidTime("activeFrom", "JString(2016-07-19T08:28:21.405+00:00)"))
     }
   }
 

@@ -33,15 +33,14 @@ object CartPromotionUpdater {
     for {
       // Fetch base stuff
       orderPromo ← * <~ OrderPromotions
-                    .filterByCordRef(cart.refNum)
-                    .requiresCoupon
-                    .mustFindOneOr(OrderHasNoPromotions)
+        .filterByCordRef(cart.refNum)
+        .requiresCoupon
+        .mustFindOneOr(OrderHasNoPromotions)
       // Fetch promotion
       promotion ← * <~ Promotions
-                   .filterByContextAndShadowId(ctx.id, orderPromo.promotionShadowId)
-                   .requiresCoupon
-                   .mustFindOneOr(
-                       PromotionShadowNotFoundForContext(orderPromo.promotionShadowId, ctx.id))
+        .filterByContextAndShadowId(ctx.id, orderPromo.promotionShadowId)
+        .requiresCoupon
+        .mustFindOneOr(PromotionShadowNotFoundForContext(orderPromo.promotionShadowId, ctx.id))
       promoForm   ← * <~ ObjectForms.mustFindById404(promotion.formId)
       promoShadow ← * <~ ObjectShadows.mustFindById404(promotion.shadowId)
       promoObject = IlluminatedPromotion.illuminate(ctx, promotion, promoForm, promoShadow)
@@ -55,8 +54,8 @@ object CartPromotionUpdater {
       adjustments ← * <~ getAdjustments(promoShadow, cart, qualifier, offer)
       // Delete previous adjustments and create new
       _ ← * <~ OrderLineItemAdjustments
-           .filterByOrderRefAndShadow(cart.refNum, orderPromo.promotionShadowId)
-           .delete
+        .filterByOrderRefAndShadow(cart.refNum, orderPromo.promotionShadowId)
+        .delete
       _ ← * <~ OrderLineItemAdjustments.createAll(adjustments)
     } yield {}
 
@@ -71,14 +70,14 @@ object CartPromotionUpdater {
       // Fetch base data
       cart ← * <~ getCartByOriginator(originator, refNum)
       _ ← * <~ OrderPromotions
-           .filterByCordRef(cart.refNum)
-           .requiresCoupon
-           .mustNotFindOneOr(OrderAlreadyHasCoupon)
+        .filterByCordRef(cart.refNum)
+        .requiresCoupon
+        .mustNotFindOneOr(OrderAlreadyHasCoupon)
       // Fetch coupon + validate
       couponCode ← * <~ CouponCodes.mustFindByCode(code)
       coupon ← * <~ Coupons
-                .filterByContextAndFormId(ctx.id, couponCode.couponFormId)
-                .mustFindOneOr(CouponWithCodeCannotBeFound(code))
+        .filterByContextAndFormId(ctx.id, couponCode.couponFormId)
+        .mustFindOneOr(CouponWithCodeCannotBeFound(code))
       couponForm   ← * <~ ObjectForms.mustFindById404(coupon.formId)
       couponShadow ← * <~ ObjectShadows.mustFindById404(coupon.shadowId)
       couponObject = IlluminatedCoupon.illuminate(ctx, coupon, couponForm, couponShadow)
@@ -86,9 +85,9 @@ object CartPromotionUpdater {
       _ ← * <~ couponObject.mustBeApplicable(couponCode, cart.accountId)
       // Fetch promotion + validate
       promotion ← * <~ Promotions
-                   .filterByContextAndFormId(ctx.id, coupon.promotionId)
-                   .requiresCoupon
-                   .mustFindOneOr(PromotionNotFoundForContext(coupon.promotionId, ctx.name))
+        .filterByContextAndFormId(ctx.id, coupon.promotionId)
+        .requiresCoupon
+        .mustFindOneOr(PromotionNotFoundForContext(coupon.promotionId, ctx.name))
       // Create connected promotion and line item adjustments
       _ ← * <~ OrderPromotions.create(OrderPromotion.buildCoupon(cart, promotion, couponCode))
       _ ← * <~ readjust(cart)
@@ -116,8 +115,8 @@ object CartPromotionUpdater {
       // Write
       _ ← * <~ OrderPromotions.filterByOrderRefAndShadows(cart.refNum, deleteShadowIds).delete
       _ ← * <~ OrderLineItemAdjustments
-           .filterByOrderRefAndShadows(cart.refNum, deleteShadowIds)
-           .delete
+        .filterByOrderRefAndShadows(cart.refNum, deleteShadowIds)
+        .delete
       _         ← * <~ CartTotaler.saveTotals(cart)
       _         ← * <~ LogActivity.orderCouponDetached(cart)
       validated ← * <~ CartValidator(cart).validate()
@@ -132,11 +131,10 @@ object CartPromotionUpdater {
     case _              ⇒ Xor.Left(EmptyDiscountFailure.single)
   }
 
-  private def getAdjustments(promo: ObjectShadow, cart: Cart, qualifier: Qualifier, offer: Offer)(
-      implicit ec: EC,
-      es: ES,
-      db: DB,
-      au: AU) =
+  private def getAdjustments(promo: ObjectShadow,
+                             cart: Cart,
+                             qualifier: Qualifier,
+                             offer: Offer)(implicit ec: EC, es: ES, db: DB, au: AU) =
     for {
       lineItems      ← * <~ LineItemManager.getCartLineItems(cart.refNum)
       shippingMethod ← * <~ shipping.ShippingMethods.forCordRef(cart.refNum).one

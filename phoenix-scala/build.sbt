@@ -22,8 +22,8 @@ lazy val phoenixScala = (project in file("."))
     ivyScala := ivyScala.value.map(_.copy(overrideScalaVersion = true)),
     resolvers ++= Seq(
       "hseeberger bintray" at "http://dl.bintray.com/hseeberger/maven",
-      "pellucid bintray"   at "http://dl.bintray.com/pellucid/maven",
-      "justwrote"          at "http://repo.justwrote.it/releases/",
+      "pellucid bintray" at "http://dl.bintray.com/pellucid/maven",
+      "justwrote" at "http://repo.justwrote.it/releases/",
       Resolver.bintrayRepo("kwark", "maven") // Slick with deadlock patch
     ),
     libraryDependencies ++= {
@@ -31,13 +31,13 @@ lazy val phoenixScala = (project in file("."))
       akka ++ http ++ auth ++ db ++ slick ++ json4s ++ fasterxml ++ apis ++ logging ++ test ++ misc
     },
     scalaSource in Compile <<= baseDirectory(_ / "app"),
-    scalaSource in Test    <<= baseDirectory(_ / "test" / "unit"),
-    scalaSource in IT      <<= baseDirectory(_ / "test" / "integration"),
-    scalaSource in ET      <<= baseDirectory(_ / "test" / "integration"),
+    scalaSource in Test <<= baseDirectory(_ / "test" / "unit"),
+    scalaSource in IT <<= baseDirectory(_ / "test" / "integration"),
+    scalaSource in ET <<= baseDirectory(_ / "test" / "integration"),
     resourceDirectory in Compile <<= baseDirectory(_ / "resources"),
-    resourceDirectory in Test    <<= baseDirectory(_ / "test" / "resources"),
-    resourceDirectory in IT      <<= resourceDirectory in Test,
-    resourceDirectory in ET      <<= resourceDirectory in Test,
+    resourceDirectory in Test <<= baseDirectory(_ / "test" / "resources"),
+    resourceDirectory in IT <<= resourceDirectory in Test,
+    resourceDirectory in ET <<= resourceDirectory in Test,
     Revolver.settings,
     (mainClass in Compile) := Some("server.Main"),
     initialCommands in console := fromFile("project/console_init").getLines.mkString("\n"),
@@ -47,17 +47,18 @@ lazy val phoenixScala = (project in file("."))
     testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oD"),
     javaOptions in Test ++= Seq("-Xmx2G", "-XX:+UseConcMarkSweepGC", "-Dphoenix.env=test"),
     parallelExecution in Test := true,
-    parallelExecution in IT   := false,
-    parallelExecution in ET   := false,
+    parallelExecution in IT := false,
+    parallelExecution in ET := false,
     fork in Test := false,
-    fork in IT   := true, /** FIXME: We couldn’t run ITs in parallel if we fork */
-    fork in ET   := true,
+    fork in IT := true, /** FIXME: We couldn’t run ITs in parallel if we fork */
+    fork in ET := true,
     logBuffered in Test := false,
-    logBuffered in IT   := false,
-    logBuffered in ET   := false,
+    logBuffered in IT := false,
+    logBuffered in ET := false,
     test in assembly := {},
     addCommandAlias("assembly", "fullAssembly"),
-    addCommandAlias("all", "; clean; gatling/clean; it:compile; gatling/compile; test; gatling/assembly"),
+    addCommandAlias("all",
+                    "; clean; gatling/clean; it:compile; gatling/compile; test; gatling/assembly"),
     reformatOnCompileWithItSettings // scalafmt
   )
 
@@ -90,26 +91,32 @@ fullAssembly <<= Def.task().dependsOn(writeVersion in phoenixScala, assembly in 
 
 // Injected seeds
 val seedCommand = " utils.seeds.Seeds seed --seedAdmins"
-seed     := (runMain in Compile in phoenixScala).partialInput(seedCommand).evaluated
-seedDemo := (runMain in Compile in phoenixScala).partialInput(s"$seedCommand --seedDemo 1").evaluated
+seed := (runMain in Compile in phoenixScala).partialInput(seedCommand).evaluated
+seedDemo := (runMain in Compile in phoenixScala)
+  .partialInput(s"$seedCommand --seedDemo 1")
+  .evaluated
 
 // Gatling seeds
-seedOneshot    := (runMain in Compile in gatling).partialInput(" seeds.OneshotSeeds").evaluated
+seedOneshot := (runMain in Compile in gatling).partialInput(" seeds.OneshotSeeds").evaluated
 seedContinuous := (runMain in Compile in gatling).partialInput(" seeds.ContinuousSeeds").evaluated
 
 // Scalafmt
-scalafmtAll <<= Def.task().dependsOn(scalafmt in Compile in phoenixScala,
-                                     scalafmt in Test    in phoenixScala,
-                                     scalafmt in IT      in phoenixScala,
-                                     scalafmt in ET      in phoenixScala,
-                                     scalafmt in Compile in gatling)
+scalafmtAll <<= Def
+  .task()
+  .dependsOn(scalafmt in Compile in phoenixScala,
+             scalafmt in Test in phoenixScala,
+             scalafmt in IT in phoenixScala,
+             scalafmt in ET in phoenixScala,
+             scalafmt in Compile in gatling)
 
-scalafmtTestAll <<= Def.task().dependsOn(scalafmtTest in Compile in phoenixScala,
-                                         scalafmtTest in Test    in phoenixScala,
-                                         scalafmtTest in IT      in phoenixScala,
-                                         scalafmtTest in ET      in phoenixScala,
-                                         scalafmtTest in Compile in gatling)
+scalafmtTestAll <<= Def
+  .task()
+  .dependsOn(scalafmtTest in Compile in phoenixScala,
+             scalafmtTest in Test in phoenixScala,
+             scalafmtTest in IT in phoenixScala,
+             scalafmtTest in ET in phoenixScala,
+             scalafmtTest in Compile in gatling)
 
 // Test
-test <<= Def.sequential(compile in Test, compile in IT, compile in ET,
-                        test    in Test, test    in IT, test    in ET)
+test <<= Def
+  .sequential(compile in Test, compile in IT, compile in ET, test in Test, test in IT, test in ET)

@@ -37,7 +37,7 @@ trait ItemsQualifier extends Qualifier {
     Future
       .sequence(inAnyOf)
       .flatMap(xorSequence ⇒
-            xorSequence.find(_.isRight) match {
+        xorSequence.find(_.isRight) match {
           case Some(x) ⇒ Result.unit
           case None    ⇒ Result.failure(SearchFailure)
       })

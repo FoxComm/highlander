@@ -44,7 +44,7 @@ package object db {
         .flatMap(a ⇒ a) // flatten...
         .transactionally
         .dbresult // just a DBIO ⇒ DbResultT wrapper
-        .run()    // throws a FoxFailureException :/
+        .run() // throws a FoxFailureException :/
         .recover { // don't actually want an exception thrown, so wrap it back
           case e: FoxFailureException ⇒ Xor.left(e.failures)
         }

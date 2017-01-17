@@ -25,7 +25,7 @@ object OrderPayloads {
       import Validation._
 
       (validExpr(customerId.isDefined || email.isDefined, "customerId or email must be given") |@| email
-            .fold(ok)(notEmpty(_, "email"))).map { case _ ⇒ this }
+        .fold(ok)(notEmpty(_, "email"))).map { case _ ⇒ this }
     }
   }
 

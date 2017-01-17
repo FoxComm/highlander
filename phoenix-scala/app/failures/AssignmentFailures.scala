@@ -14,7 +14,7 @@ object AssignmentFailures {
       val model = friendlyClassName(a)
       val term  = searchTerm(a)
       AlreadyAssignedFailure(
-          s"storeAdmin with id=$storeAdminId is already assigned to $model with $term=$searchKey")
+        s"storeAdmin with id=$storeAdminId is already assigned to $model with $term=$searchKey")
     }
   }
 
@@ -27,7 +27,7 @@ object AssignmentFailures {
       val model = friendlyClassName(a)
       val term  = searchTerm(a)
       NotAssignedFailure(
-          s"storeAdmin with id=$storeAdminId is not assigned to $model with $term=$searchKey")
+        s"storeAdmin with id=$storeAdminId is not assigned to $model with $term=$searchKey")
     }
   }
 
@@ -40,7 +40,7 @@ object AssignmentFailures {
       val model = friendlyClassName(a)
       val term  = searchTerm(a)
       AssigneeNotFoundFailure(
-          s"storeAdmin with id=$assigneeId is not assigned to $model with $term=$searchKey")
+        s"storeAdmin with id=$assigneeId is not assigned to $model with $term=$searchKey")
     }
   }
 }

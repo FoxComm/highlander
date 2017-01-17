@@ -43,7 +43,7 @@ class OrderPromotions(tag: Tag) extends FoxTable[OrderPromotion](tag, "order_pro
 
   def * =
     (id, cordRef, promotionShadowId, applyType, couponCodeId, createdAt) <> ((OrderPromotion.apply _).tupled,
-        OrderPromotion.unapply)
+    OrderPromotion.unapply)
 
   def order           = foreignKey(Carts.tableName, cordRef, Carts)(_.referenceNumber)
   def promotionShadow = foreignKey(ObjectShadows.tableName, promotionShadowId, ObjectShadows)(_.id)

@@ -13,9 +13,7 @@ object TrailManager {
   def createTrail(payload: CreateTrail)(implicit ec: EC, db: DB): DbResultT[Int] =
     for {
       trail ← * <~ Trails.create(
-                 Trail(dimensionId = payload.dimensionId,
-                       objectId = payload.objectId,
-                       data = payload.data))
+        Trail(dimensionId = payload.dimensionId, objectId = payload.objectId, data = payload.data))
     } yield trail.id
 
   /**
@@ -42,17 +40,16 @@ object TrailManager {
 
       //find or create
       trail ← * <~ Trails.findByObjectId(dimension.id, objectId).one.findOrCreate {
-               Trails.create(
-                   Trail(dimensionId = dimension.id, objectId = objectId, data = newTrailData))
-             }
+        Trails.create(Trail(dimensionId = dimension.id, objectId = objectId, data = newTrailData))
+      }
 
       //insert new tail, point previous to old tail
       newTail ← * <~ Connections.create(
-                   Connection(dimensionId = dimension.id,
-                              trailId = trail.id,
-                              activityId = payload.activityId,
-                              data = payload.data,
-                              connectedBy = context))
+        Connection(dimensionId = dimension.id,
+                   trailId = trail.id,
+                   activityId = payload.activityId,
+                   data = payload.data,
+                   connectedBy = context))
 
       //update trail to point to new tail
       updatedTrail ← * <~ Trails.update(trail, trail.copy(tailConnectionId = Some(newTail.id)))

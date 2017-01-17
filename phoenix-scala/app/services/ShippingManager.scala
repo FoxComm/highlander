@@ -83,9 +83,9 @@ object ShippingManager {
   private def getShippingData(cart: Cart)(implicit ec: EC, db: DB): DbResultT[ShippingData] =
     for {
       orderShippingAddress ← * <~ OrderShippingAddresses
-                              .findByOrderRefWithRegions(cart.refNum)
-                              .result
-                              .headOption
+        .findByOrderRefWithRegions(cart.refNum)
+        .result
+        .headOption
 
       lineItems ← * <~ LineItemManager.getCartLineItems(cart.refNum)
     } yield
@@ -131,7 +131,7 @@ object ShippingManager {
           shippingData.shippingRegion.fold(false)(sr ⇒ Condition.matches(sr.name, condition))
         case "regionAbbrev" ⇒
           shippingData.shippingRegion.fold(false)(sr ⇒
-                Condition.matches(sr.abbreviation, condition))
+            Condition.matches(sr.abbreviation, condition))
         case "zip" ⇒
           Condition.matches(shippingAddress.zip, condition)
         case _ ⇒

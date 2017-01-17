@@ -55,34 +55,34 @@ object OrderResponse {
       customer     ← * <~ Users.findOneByAccountId(order.accountId)
       customerData ← * <~ CustomersData.findOneByAccountId(order.accountId)
       shippingMethod ← * <~ CordResponseShipping
-                        .shippingMethod(order.refNum)
-                        .mustFindOr(ShippingMethodNotFoundInOrder(order.refNum))
+        .shippingMethod(order.refNum)
+        .mustFindOr(ShippingMethodNotFoundInOrder(order.refNum))
       shippingAddress ← * <~ CordResponseShipping.shippingAddress(order.refNum)
       paymentMethods  ← * <~ CordResponsePayments.fetchAll(order.refNum)
       ccResponse = getCreditCardResponse(paymentMethods)
     } yield
       OrderResponse(
-          referenceNumber = order.refNum,
-          paymentState = payState,
-          lineItems = lineItems,
-          lineItemAdjustments = lineItemAdj,
-          promotion = promo.map { case (promotion, _) ⇒ promotion },
-          coupon = promo.map { case (_, coupon)       ⇒ coupon },
-          totals = OrderResponseTotals.build(order),
-          customer = for {
-            c  ← customer
-            cu ← customerData
-          } yield CustomerResponse.build(c, cu),
-          shippingMethod = shippingMethod,
-          shippingAddress = shippingAddress,
-          billingCreditCardInfo = ccResponse,
-          billingAddress = ccResponse.map(_.address),
-          paymentMethods = paymentMethods,
-          orderState = order.state,
-          shippingState = order.getShippingState,
-          fraudScore = order.fraudScore,
-          remorsePeriodEnd = order.remorsePeriodEnd,
-          placedAt = order.placedAt
+        referenceNumber = order.refNum,
+        paymentState = payState,
+        lineItems = lineItems,
+        lineItemAdjustments = lineItemAdj,
+        promotion = promo.map { case (promotion, _) ⇒ promotion },
+        coupon = promo.map { case (_, coupon)       ⇒ coupon },
+        totals = OrderResponseTotals.build(order),
+        customer = for {
+          c  ← customer
+          cu ← customerData
+        } yield CustomerResponse.build(c, cu),
+        shippingMethod = shippingMethod,
+        shippingAddress = shippingAddress,
+        billingCreditCardInfo = ccResponse,
+        billingAddress = ccResponse.map(_.address),
+        paymentMethods = paymentMethods,
+        orderState = order.state,
+        shippingState = order.getShippingState,
+        fraudScore = order.fraudScore,
+        remorsePeriodEnd = order.remorsePeriodEnd,
+        placedAt = order.placedAt
       )
 
 }

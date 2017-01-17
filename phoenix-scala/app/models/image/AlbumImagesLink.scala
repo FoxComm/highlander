@@ -30,9 +30,9 @@ class AlbumImageLinks(tag: Tag)
 
 object AlbumImageLinks
     extends OrderedObjectHeadLinkQueries[AlbumImageLink, AlbumImageLinks, Album, Image](
-        new AlbumImageLinks(_),
-        Albums,
-        Images)
+      new AlbumImageLinks(_),
+      Albums,
+      Images)
     with ReturningId[AlbumImageLink, AlbumImageLinks] {
 
   val returningLens: Lens[AlbumImageLink, Int] = lens[AlbumImageLink].id

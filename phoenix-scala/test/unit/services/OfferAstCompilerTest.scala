@@ -20,7 +20,7 @@ class OfferAstCompilerTest extends TestBase {
 
     "fails when typo in configuration found" in new OrderPercentOfferTypoFixture {
       leftValue(compiler.compile()) must === (
-          OfferAttributesExtractionFailure(OrderPercentOff).single)
+        OfferAttributesExtractionFailure(OrderPercentOff).single)
     }
   }
 

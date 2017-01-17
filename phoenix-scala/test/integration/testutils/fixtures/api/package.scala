@@ -7,9 +7,9 @@ package object api {
 
   def giftCardLineItemAttributes: Option[LineItemAttributes] =
     LineItemAttributes(
-        GiftCardLineItemAttributes(recipientName = faker.Name.name,
-                                   recipientEmail = faker.Internet.email,
-                                   senderName = faker.Name.name,
-                                   message = faker.Lorem.sentence()).some).some
+      GiftCardLineItemAttributes(recipientName = faker.Name.name,
+                                 recipientEmail = faker.Internet.email,
+                                 senderName = faker.Name.name,
+                                 message = faker.Lorem.sentence()).some).some
 
 }

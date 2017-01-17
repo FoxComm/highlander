@@ -13,8 +13,7 @@ import org.json4s.JsonAST._
 
 object ObjectSchemaValidation {
 
-  trait SchemaValidation[M] {
-    this: M ⇒
+  trait SchemaValidation[M] { this: M ⇒
     def defaultSchemaName: String
     val schema: Option[String] = None
 

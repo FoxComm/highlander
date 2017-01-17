@@ -28,24 +28,24 @@ final case class ActivityConnectionTransformer(
   val phoenix = Phoenix(conn)
 
   def mapping() = esMapping("activity_connections_view").fields(
+    field("id", IntegerType),
+    field("dimensionId", IntegerType),
+    field("objectId", StringType).index("not_analyzed"),
+    field("trailId", IntegerType),
+    field("activity").nested(
       field("id", IntegerType),
-      field("dimensionId", IntegerType),
-      field("objectId", StringType).index("not_analyzed"),
-      field("trailId", IntegerType),
-      field("activity").nested(
-          field("id", IntegerType),
-          field("createdAt", DateType).format(dateFormat),
-          field("kind", StringType).index("not_analyzed"),
-          field("context").nested(
-              field("transactionId", StringType).index("not_analyzed"),
-              field("userId", IntegerType),
-              field("userType", StringType).index("not_analyzed")
-          ),
-          field("data", ObjectType)
+      field("createdAt", DateType).format(dateFormat),
+      field("kind", StringType).index("not_analyzed"),
+      field("context").nested(
+        field("transactionId", StringType).index("not_analyzed"),
+        field("userId", IntegerType),
+        field("userType", StringType).index("not_analyzed")
       ),
-      field("data", ObjectType),
-      field("connectedBy", ObjectType),
-      field("createdAt", DateType).format(dateFormat)
+      field("data", ObjectType)
+    ),
+    field("data", ObjectType),
+    field("connectedBy", ObjectType),
+    field("createdAt", DateType).format(dateFormat)
   )
 
   def transform(json: String): Future[String] = {

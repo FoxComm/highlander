@@ -25,10 +25,10 @@ object CustomerImportService {
                                             checkEmail = true,
                                             isMigrated = true)
       custData ← * <~ CustomersData.create(
-                    CustomerData(accountId = user.accountId,
-                                 userId = user.id,
-                                 scope = scope.ltree,
-                                 isGuest = payload.isGuest.getOrElse(false)))
+        CustomerData(accountId = user.accountId,
+                     userId = user.id,
+                     scope = scope.ltree,
+                     isGuest = payload.isGuest.getOrElse(false)))
       result = build(user, custData)
       _ ← * <~ LogActivity.customerCreated(result, admin)
     } yield result

@@ -48,11 +48,11 @@ object SharedSearch {
 
   def byAdmin(admin: User, payload: SharedSearchPayload): SharedSearch =
     SharedSearch(
-        title = payload.title,
-        query = payload.query,
-        rawQuery = payload.rawQuery,
-        storeAdminId = admin.accountId,
-        scope = payload.scope
+      title = payload.title,
+      query = payload.query,
+      rawQuery = payload.rawQuery,
+      storeAdminId = admin.accountId,
+      scope = payload.scope
     )
 
   implicit val scopeColumnType: JdbcType[Scope] with BaseTypedType[Scope] = Scope.slickColumn

@@ -68,29 +68,29 @@ object SkuManager {
   def archiveByCode(code: String)(implicit ec: EC, db: DB, oc: OC): DbResultT[SkuResponse.Root] =
     for {
       fullSku ← * <~ ObjectManager.getFullObject(
-                   SkuManager.mustFindSkuByContextAndCode(oc.id, code))
+        SkuManager.mustFindSkuByContextAndCode(oc.id, code))
       _ ← * <~ fullSku.model.mustNotBePresentInCarts
       archivedSku ← * <~ Skus.update(fullSku.model,
                                      fullSku.model.copy(archivedAt = Some(Instant.now)))
       albumLinks ← * <~ SkuAlbumLinks.filter(_.leftId === archivedSku.id).result
       _ ← * <~ albumLinks.map { link ⇒
-           SkuAlbumLinks.deleteById(link.id,
-                                    DbResultT.unit,
-                                    id ⇒ NotFoundFailure400(SkuAlbumLinks, id))
-         }
+        SkuAlbumLinks.deleteById(link.id,
+                                 DbResultT.unit,
+                                 id ⇒ NotFoundFailure400(SkuAlbumLinks, id))
+      }
       albums       ← * <~ ImageManager.getAlbumsForSkuInner(archivedSku.code, oc)
       productLinks ← * <~ ProductSkuLinks.filter(_.rightId === archivedSku.id).result
       _ ← * <~ productLinks.map { link ⇒
-           ProductSkuLinks.deleteById(link.id,
-                                      DbResultT.unit,
-                                      id ⇒ NotFoundFailure400(ProductSkuLinks, id))
-         }
+        ProductSkuLinks.deleteById(link.id,
+                                   DbResultT.unit,
+                                   id ⇒ NotFoundFailure400(ProductSkuLinks, id))
+      }
     } yield
       SkuResponse.build(
-          IlluminatedSku.illuminate(
-              oc,
-              FullObject(model = archivedSku, form = fullSku.form, shadow = fullSku.shadow)),
-          albums)
+        IlluminatedSku.illuminate(
+          oc,
+          FullObject(model = archivedSku, form = fullSku.form, shadow = fullSku.shadow)),
+        albums)
 
   def createSkuInner(
       context: ObjectContext,
@@ -104,12 +104,12 @@ object SkuManager {
       code  ← * <~ mustGetSkuCode(payload)
       ins   ← * <~ ObjectUtils.insert(form, shadow, payload.schema)
       sku ← * <~ Skus.create(
-               Sku(scope = scope,
-                   contextId = context.id,
-                   code = code,
-                   formId = ins.form.id,
-                   shadowId = ins.shadow.id,
-                   commitId = ins.commit.id))
+        Sku(scope = scope,
+            contextId = context.id,
+            code = code,
+            formId = ins.form.id,
+            shadowId = ins.shadow.id,
+            commitId = ins.commit.id))
     } yield FullObject(sku, ins.form, ins.shadow)
   }
 
@@ -126,7 +126,7 @@ object SkuManager {
 
       mergedAttrs = oldShadow.attributes.merge(newShadowAttrs)
       updated ← * <~ ObjectUtils
-                 .update(oldForm.id, oldShadow.id, newFormAttrs, mergedAttrs, force = true)
+        .update(oldForm.id, oldShadow.id, newFormAttrs, mergedAttrs, force = true)
       commit      ← * <~ ObjectUtils.commit(updated)
       updatedHead ← * <~ updateHead(sku, code, updated.shadow, commit)
     } yield FullObject(updatedHead, updated.form, updated.shadow)
@@ -136,9 +136,9 @@ object SkuManager {
     for {
       code ← * <~ mustGetSkuCode(skuPayload)
       sku ← * <~ Skus.filterByContextAndCode(oc.id, code).one.dbresult.flatMap {
-             case Some(sku) ⇒ SkuManager.updateSkuInner(sku, skuPayload)
-             case None      ⇒ SkuManager.createSkuInner(oc, skuPayload)
-           }
+        case Some(sku) ⇒ SkuManager.updateSkuInner(sku, skuPayload)
+        case None      ⇒ SkuManager.createSkuInner(oc, skuPayload)
+      }
     } yield sku
 
   private def updateHead(sku: Sku,
@@ -186,8 +186,8 @@ object SkuManager {
   def mustFindSkuByContextAndCode(contextId: Int, code: String)(implicit ec: EC): DbResultT[Sku] =
     for {
       sku ← * <~ Skus
-             .filterByContextAndCode(contextId, code)
-             .mustFindOneOr(SkuNotFoundForContext(code, contextId))
+        .filterByContextAndCode(contextId, code)
+        .mustFindOneOr(SkuNotFoundForContext(code, contextId))
     } yield sku
 
   def mustFindFullSkuById(id: Int)(implicit ec: EC, db: DB): DbResultT[FullObject[Sku]] =

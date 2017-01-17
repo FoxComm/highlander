@@ -31,14 +31,14 @@ class SharedSearchAssociations(tag: Tag)
 
   def * =
     (id, sharedSearchId, storeAdminId, createdAt) <> ((SharedSearchAssociation.apply _).tupled,
-        SharedSearchAssociation.unapply)
+    SharedSearchAssociation.unapply)
   def sharedSearch = foreignKey(SharedSearches.tableName, sharedSearchId, Carts)(_.id)
   def storeAdmin   = foreignKey(Users.tableName, storeAdminId, Users)(_.accountId)
 }
 
 object SharedSearchAssociations
     extends FoxTableQuery[SharedSearchAssociation, SharedSearchAssociations](
-        new SharedSearchAssociations(_))
+      new SharedSearchAssociations(_))
     with ReturningId[SharedSearchAssociation, SharedSearchAssociations] {
 
   val returningLens: Lens[SharedSearchAssociation, Int] = lens[SharedSearchAssociation].id

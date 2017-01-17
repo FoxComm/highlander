@@ -6,7 +6,7 @@ import utils.aliases._
 
 /**
   * An IlluminatedCategory is what you get when you combine the category shadow and
-  * the form. 
+  * the form.
   */
 case class IlluminatedCategory(id: Int, context: IlluminatedContext, attributes: Json)
 

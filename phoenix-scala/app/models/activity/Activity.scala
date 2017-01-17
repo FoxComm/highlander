@@ -23,8 +23,8 @@ object ActivityContext {
   implicit val ActivityContextColumn: JdbcType[ActivityContext] with BaseTypedType[ActivityContext] = {
     implicit val formats = JsonFormatters.phoenixFormats
     MappedColumnType.base[ActivityContext, Json](
-        c ⇒ Extraction.decompose(c),
-        j ⇒ j.extract[ActivityContext]
+      c ⇒ Extraction.decompose(c),
+      j ⇒ j.extract[ActivityContext]
     )
   }
 

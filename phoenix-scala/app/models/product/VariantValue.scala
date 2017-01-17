@@ -35,7 +35,7 @@ case class VariantValue(id: Int = 0,
 class VariantValues(tag: Tag) extends ObjectHeads[VariantValue](tag, "variant_values") {
   def * =
     (id, scope, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((VariantValue.apply _).tupled,
-        VariantValue.unapply)
+    VariantValue.unapply)
 }
 
 object VariantValues

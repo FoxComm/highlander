@@ -30,8 +30,8 @@ class AvroProcessor(schemaRegistryUrl: String, processor: JsonProcessor)(implici
     extends AbstractKafkaAvroDeserializer
     with MessageProcessor {
 
-  this.schemaRegistry = new CachedSchemaRegistryClient(
-      schemaRegistryUrl, DEFAULT_MAX_SCHEMAS_PER_SUBJECT)
+  this.schemaRegistry =
+    new CachedSchemaRegistryClient(schemaRegistryUrl, DEFAULT_MAX_SCHEMAS_PER_SUBJECT)
   val encoderFactory = EncoderFactory.get()
 
   def process(offset: Long, topic: String, key: Array[Byte], message: Array[Byte]): Future[Unit] = {
@@ -40,7 +40,7 @@ class AvroProcessor(schemaRegistryUrl: String, processor: JsonProcessor)(implici
       val keyJson =
         if (key.isEmpty) {
           Console.err.println(
-              s"Warning, message has no key for topic ${topic}: ${new String(message, "UTF-8")}")
+            s"Warning, message has no key for topic ${topic}: ${new String(message, "UTF-8")}")
           ""
         } else {
           deserializeAvro(key)
@@ -55,7 +55,7 @@ class AvroProcessor(schemaRegistryUrl: String, processor: JsonProcessor)(implici
           val readableKey     = new String(key, "UTF-8")
           val readableMessage = new String(message, "UTF-8")
           Console.err.println(
-              s"Error deserializing avro message with key $readableKey: error $e\n\t$readableMessage")
+            s"Error deserializing avro message with key $readableKey: error $e\n\t$readableMessage")
           e
         }
       case e: Throwable ⇒ Future.failed(e)
@@ -98,23 +98,23 @@ object AvroJsonHelper {
   private def deannotateAvroTypes(input: JValue): JValue = {
     input.transformField {
       case JField(name, (JObject(JField(typeName, value) :: Nil))) ⇒ {
-          (name, convertType(typeName, value))
-        }
+        (name, convertType(typeName, value))
+      }
     }
   }
 
   private def stringToJson(input: JValue, fields: List[String]): JValue = {
     input.transformField {
       case JField(name, JString(text)) if fields.contains(name) ⇒ {
-          // Try to parse the text as json, otherwise treat it as text
-          try {
-            (name, parse(text))
-          } catch {
-            case NonFatal(e) ⇒
-              Console.println(s"Error during parsing field $name: ${e.getMessage}")
-              (name, JString(text))
-          }
+        // Try to parse the text as json, otherwise treat it as text
+        try {
+          (name, parse(text))
+        } catch {
+          case NonFatal(e) ⇒
+            Console.println(s"Error during parsing field $name: ${e.getMessage}")
+            (name, JString(text))
         }
+      }
     }
   }
 }

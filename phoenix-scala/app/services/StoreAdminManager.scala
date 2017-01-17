@@ -27,8 +27,8 @@ object StoreAdminManager {
 
     for {
       organization ← * <~ Organizations
-                      .findByName(payload.org)
-                      .mustFindOr(OrganizationNotFoundByName(payload.org))
+        .findByName(payload.org)
+        .mustFindOr(OrganizationNotFoundByName(payload.org))
 
       context = AccountCreateContext(payload.roles, payload.org, organization.scopeId)
 
@@ -39,10 +39,10 @@ object StoreAdminManager {
       organizationScope ← * <~ Scopes.mustFindById400(organization.scopeId)
       scope             ← * <~ Scope.overwrite(organizationScope.path, payload.scope)
       adminUser ← * <~ AdminsData.create(
-                     AdminData(accountId = admin.accountId,
-                               userId = admin.id,
-                               state = AdminData.Invited,
-                               scope = scope))
+        AdminData(accountId = admin.accountId,
+                  userId = admin.id,
+                  state = AdminData.Invited,
+                  scope = scope))
 
       _ ← * <~ LogActivity.storeAdminCreated(admin, author)
     } yield StoreAdminResponse.build(admin, adminUser)
@@ -66,7 +66,7 @@ object StoreAdminManager {
     for {
       adminUser ← * <~ AdminsData.mustFindByAccountId(accountId)
       _ ← * <~ AdminsData
-           .deleteById(adminUser.id, DbResultT.unit, i ⇒ NotFoundFailure404(AdminData, i))
+        .deleteById(adminUser.id, DbResultT.unit, i ⇒ NotFoundFailure404(AdminData, i))
       admin  ← * <~ Users.mustFindByAccountId(accountId)
       result ← * <~ Users.deleteById(admin.id, DbResultT.unit, i ⇒ NotFoundFailure404(User, i))
       _      ← * <~ AccountAccessMethods.findByAccountId(accountId).delete

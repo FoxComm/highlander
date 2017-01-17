@@ -71,7 +71,7 @@ class OrderPayments(tag: Tag) extends FoxTable[OrderPayment](tag, "order_payment
 
   def * =
     (id, cordRef, amount, currency, paymentMethodId, paymentMethodType) <> ((OrderPayment.apply _).tupled,
-        OrderPayment.unapply)
+    OrderPayment.unapply)
 
   def order      = foreignKey(Carts.tableName, cordRef, Carts)(_.referenceNumber)
   def creditCard = foreignKey(CreditCards.tableName, paymentMethodId, CreditCards)(_.id)

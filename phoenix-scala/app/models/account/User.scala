@@ -56,9 +56,9 @@ case class User(id: Int = 0,
     if (name.isEmpty) Validated.Valid(this)
     else
       (notEmpty(name, "name") |@| notEmpty(name.getOrElse(""), "name") |@| matches(
-              name.getOrElse(""),
-              User.namePattern,
-              "name")).map {
+        name.getOrElse(""),
+        User.namePattern,
+        "name")).map {
         case _ ⇒
           this
       }

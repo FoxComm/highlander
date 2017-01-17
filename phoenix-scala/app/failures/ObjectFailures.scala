@@ -62,6 +62,6 @@ object ObjectFailures {
   case object ObjectHeadCannotBeFoundByFormId {
     def apply(tableName: String, formId: ObjectForm#Id, contextName: String): NotFoundFailure404 =
       NotFoundFailure404(
-          s"Object '$tableName' with id $formId cannot be found in context '$contextName'")
+        s"Object '$tableName' with id $formId cannot be found in context '$contextName'")
   }
 }

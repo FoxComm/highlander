@@ -35,7 +35,7 @@ class Taxons(tag: Tag) extends ObjectHeads[Taxon](tag, "taxons") {
 
   def * =
     (id, scope, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <> ((Taxon.apply _).tupled,
-        Taxon.unapply)
+    Taxon.unapply)
 }
 
 object Taxons

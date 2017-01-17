@@ -44,8 +44,8 @@ object AddressManager {
     for {
       customer ← * <~ Users.mustFindByAccountId(accountId)
       oldAddress ← * <~ Addresses
-                    .findActiveByIdAndAccount(addressId, accountId)
-                    .mustFindOneOr(addressNotFound(addressId))
+        .findActiveByIdAndAccount(addressId, accountId)
+        .mustFindOneOr(addressNotFound(addressId))
       address     ← * <~ Address.fromPayload(payload, accountId).copy(id = addressId).validate
       _           ← * <~ Addresses.insertOrUpdate(address)
       response    ← * <~ AddressResponse.fromAddress(address)
@@ -59,8 +59,8 @@ object AddressManager {
     for {
       customer ← * <~ Users.mustFindByAccountId(accountId)
       address ← * <~ Addresses
-                 .findActiveByIdAndAccount(addressId, accountId)
-                 .mustFindOneOr(addressNotFound(addressId))
+        .findActiveByIdAndAccount(addressId, accountId)
+        .mustFindOneOr(addressNotFound(addressId))
       softDelete ← * <~ address.copy(deletedAt = Instant.now.some, isDefaultShipping = false)
       updated    ← * <~ Addresses.update(address, softDelete)
       response   ← * <~ AddressResponse.fromAddress(updated)
@@ -73,12 +73,12 @@ object AddressManager {
     for {
       customer ← * <~ Users.mustFindByAccountId(accountId)
       _ ← * <~ Addresses
-           .findShippingDefaultByAccountId(accountId)
-           .map(_.isDefaultShipping)
-           .update(false)
+        .findShippingDefaultByAccountId(accountId)
+        .map(_.isDefaultShipping)
+        .update(false)
       address ← * <~ Addresses
-                 .findActiveByIdAndAccount(addressId, accountId)
-                 .mustFindOneOr(addressNotFound(addressId))
+        .findActiveByIdAndAccount(addressId, accountId)
+        .mustFindOneOr(addressNotFound(addressId))
       newAddress = address.copy(isDefaultShipping = true)
       _        ← * <~ Addresses.update(address, newAddress)
       response ← * <~ AddressResponse.fromAddress(newAddress)
@@ -86,7 +86,7 @@ object AddressManager {
 
   def removeDefaultShippingAddress(accountId: Int)(implicit ec: EC, db: DB): DbResultT[Int] =
     ExceptionWrapper.wrapDbio(
-        Addresses.findShippingDefaultByAccountId(accountId).map(_.isDefaultShipping).update(false))
+      Addresses.findShippingDefaultByAccountId(accountId).map(_.isDefaultShipping).update(false))
 
   private def findByOriginator(originator: User, addressId: Int, accountId: Int)(implicit ec: EC) =
     if (originator.accountId == accountId)

@@ -37,7 +37,7 @@ class SkuIntegrationTest
   "POST v1/skus/:context" - {
     "Creates a SKU successfully" in new Fixture {
       val priceValue = ("currency" → "USD") ~ ("value" → 9999)
-      val priceJson  = ("t"        → "price") ~ ("v" → priceValue)
+      val priceJson  = ("t" → "price") ~ ("v" → priceValue)
       val attrMap    = Map("price" → priceJson)
 
       skusApi.create(makeSkuPayload("SKU-NEW-TEST", attrMap, None)).mustBeOk()
@@ -45,7 +45,7 @@ class SkuIntegrationTest
 
     "Tries to create a SKU with no code" in new Fixture {
       val priceValue = ("currency" → "USD") ~ ("value" → 9999)
-      val priceJson  = ("t"        → "price") ~ ("v" → priceValue)
+      val priceJson  = ("t" → "price") ~ ("v" → priceValue)
       val attrMap    = Map("price" → priceJson)
 
       skusApi
@@ -176,14 +176,14 @@ class SkuIntegrationTest
       simpleSkuShadow ← * <~ SimpleSkuShadow(simpleSku)
       skuShadow       ← * <~ ObjectShadows.create(simpleSkuShadow.create.copy(formId = skuForm.id))
       skuCommit ← * <~ ObjectCommits.create(
-                     ObjectCommit(formId = skuForm.id, shadowId = skuShadow.id))
+        ObjectCommit(formId = skuForm.id, shadowId = skuShadow.id))
       sku ← * <~ Skus.create(
-               Sku(scope = Scope.current,
-                   contextId = ctx.id,
-                   code = simpleSku.code,
-                   formId = skuForm.id,
-                   shadowId = skuShadow.id,
-                   commitId = skuCommit.id))
+        Sku(scope = Scope.current,
+            contextId = ctx.id,
+            code = simpleSku.code,
+            formId = skuForm.id,
+            shadowId = skuShadow.id,
+            commitId = skuCommit.id))
     } yield (sku, skuForm, skuShadow)).gimme
   }
 

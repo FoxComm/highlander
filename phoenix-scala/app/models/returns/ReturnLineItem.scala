@@ -49,13 +49,13 @@ object ReturnLineItem {
                origin: ReturnLineItemSku,
                payload: ReturnSkuLineItemsPayload): ReturnLineItem = {
     ReturnLineItem(
-        returnId = rma.id,
-        reasonId = reason.id,
-        quantity = payload.quantity,
-        originId = origin.id,
-        originType = SkuItem,
-        isReturnItem = payload.isReturnItem,
-        inventoryDisposition = payload.inventoryDisposition
+      returnId = rma.id,
+      reasonId = reason.id,
+      quantity = payload.quantity,
+      originId = origin.id,
+      originType = SkuItem,
+      isReturnItem = payload.isReturnItem,
+      inventoryDisposition = payload.inventoryDisposition
     )
   }
 
@@ -63,10 +63,10 @@ object ReturnLineItem {
                     reason: ReturnReason,
                     origin: ReturnLineItemGiftCard): ReturnLineItem = {
     ReturnLineItem(
-        returnId = rma.id,
-        reasonId = reason.id,
-        originId = origin.id,
-        originType = GiftCardItem
+      returnId = rma.id,
+      reasonId = reason.id,
+      originId = origin.id,
+      originType = GiftCardItem
     )
   }
 
@@ -74,17 +74,17 @@ object ReturnLineItem {
                        reason: ReturnReason,
                        origin: ReturnLineItemShippingCost): ReturnLineItem = {
     ReturnLineItem(
-        returnId = rma.id,
-        reasonId = reason.id,
-        originId = origin.id,
-        originType = ShippingCost
+      returnId = rma.id,
+      reasonId = reason.id,
+      originId = origin.id,
+      originType = ShippingCost
     )
   }
 
   implicit val OriginTypeColumnType: JdbcType[OriginType] with BaseTypedType[OriginType] =
     OriginType.slickColumn
   implicit val InvDispColumnType: JdbcType[InventoryDisposition] with BaseTypedType[
-      InventoryDisposition] = InventoryDisposition.slickColumn
+    InventoryDisposition] = InventoryDisposition.slickColumn
 }
 
 class ReturnLineItems(tag: Tag) extends FoxTable[ReturnLineItem](tag, "return_line_items") {
