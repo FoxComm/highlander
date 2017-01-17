@@ -22,7 +22,7 @@ export default class PhoneNumber extends React.Component {
 
   render() {
     return (
-      <span>{this.phoneNumber}</span>
+      <span className="phone">{this.phoneNumber}</span>
     );
   }
 }

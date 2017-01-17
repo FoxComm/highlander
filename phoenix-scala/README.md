@@ -4,40 +4,6 @@
   <img src="http://images2.alphacoders.com/451/451370.jpg">
 </p>
 
-## Development
-
-Phoenix can be run in development by running either running the application natively on your computer or through Vagrant. Instructions for both are below:
-
-### Using Vagrant
-
-1. Provision a new guest instance in Vagrant
-
-    ```bash
-    vagrant up
-    ```
-
-2. SSH into the guest and navigate to the working directory
-
-    ```bash
-    vagrant ssh
-    cd /vagrant
-    ```
-
-3. Run SBT and verify that the application compiles
-
-    ```bash
-    sbt compile
-    ```
-
-4. If you plan on running the local development server, execute the seeds and starte the server
-
-    ```bash
-    sbt seed
-    sbt '~re-start'
-    ```
-
-    The server will now be accessible on port 9090 on the host.
-
 ### Running Locally
 
 #### Dependencies on OSX

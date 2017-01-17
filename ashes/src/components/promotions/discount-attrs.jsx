@@ -10,11 +10,12 @@ import { Dropdown } from '../dropdown';
 import type { ItemDesc, DiscountRow, DescriptionType, Context } from './types';
 
 const renderers = {
-  type(item: ItemDesc, context: Context): Element {
+  type(item: ItemDesc, context: Context, dropdownId: Props): Element {
     const typeItems = _.map(context.root, entry => [entry.type, entry.title]);
 
     return (
       <Dropdown
+        id={dropdownId}
         styleName="type-chooser"
         items={typeItems}
         value={context.type}
@@ -43,6 +44,8 @@ type Props = {
   attr: string;
   descriptions: Array<DescriptionType>;
   discount: Object;
+  dropdownId: string;
+  blockId: string;
 };
 
 const DiscountAttrs = (props: Props): Element => {
@@ -88,7 +91,7 @@ const DiscountAttrs = (props: Props): Element => {
 
           return (
             <div key={i}>
-              {renderer(item, context)}
+              {renderer(item, context, props.dropdownId)}
             </div>
           );
         })}
@@ -97,7 +100,7 @@ const DiscountAttrs = (props: Props): Element => {
   };
 
   return (
-    <div>
+    <div id={props.blockId}>
       {_.map(currentDescription.content, renderContentRow)}
     </div>
   );

@@ -45,15 +45,26 @@ class ValueEntry extends Component {
 
   render(): Element {
     const { id, value } = this.props;
+    const valueName = value.name.toLowerCase();
 
     return (
-      <TableRow>
-        <TableCell>{value.name}</TableCell>
+      <TableRow id={`${valueName}-value-row`}>
+        <TableCell id={`${valueName}-value-name`}>{value.name}</TableCell>
         <TableCell>{this.swatchBlock}</TableCell>
         <TableCell>{this.imageBlock}</TableCell>
         <TableCell>
-          <a onClick={() => this.props.editValue(id, value)} styleName="action-icon"><i className="icon-edit"/></a>
-          <a onClick={() => this.props.deleteValue(id)} styleName="action-icon"><i className="icon-trash"/></a>
+          <a
+            id={`${valueName}-value-edit-btn`}
+            onClick={() => this.props.editValue(id, value)}
+            styleName="action-icon">
+            <i className="icon-edit"/>
+          </a>
+          <a
+            id={`${valueName}-value-delete-btn`}
+            onClick={() => this.props.deleteValue(id)}
+            styleName="action-icon">
+            <i className="icon-trash"/>
+          </a>
         </TableCell>
       </TableRow>
     );

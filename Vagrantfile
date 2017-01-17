@@ -132,7 +132,7 @@ Vagrant.configure("2") do |config|
     else
       provider = (ENV['VAGRANT_DEFAULT_PROVIDER'] || "virtualbox").chomp
     end
-    puts "Detected #{provider} provider"
+
     if provider == "google"
       puts 'Overriding Google-specific variables'
       $nginx_ip = "`hostname -I | awk '{print $1}'`"
