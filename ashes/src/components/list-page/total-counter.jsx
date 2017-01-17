@@ -61,7 +61,7 @@ class TotalCounter extends React.Component {
                        transitionLeave={false}
                        transitionAppearTimeout={300}
                        transitionEnterTimeout={300}>
-        <span key={count}>{count}</span>
+        <span id="total-counter-value" key={count}>{count}</span>
       </TransitionGroup>
     );
   }

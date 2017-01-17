@@ -56,6 +56,7 @@ class ArchiveActions extends Component {
     return (
       <div className="fc-archive-actions">
         <Button
+          id="archive-btn"
           type="button"
           onClick={this.showArchiveConfirmation}>
           Archive {this.props.type}
