@@ -7,12 +7,13 @@ All of our DevOps tools for deploying the application to both development and pr
 #### Required
 
 - [Ansible](http://ansible.com) 2.2.x or above
+- [AWS CLI](https://aws.amazon.com/cli)
 - [Docker](https://docker.com) 1.12 or above
 - [Go](https://golang.org) 1.6 or above
 - [Google Cloud SDK](https://cloud.google.com/sdk/gcloud)
 - [Packer](https://packer.io)
 - [Terraform](https://terraform.io)
-- [Vagrant](https://www.vagrantup.com)
+- [Vagrant](https://www.vagrantup.com) 1.8.5 or above
 
 #### Optional
 
