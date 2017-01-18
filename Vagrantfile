@@ -83,7 +83,7 @@ def tune_vm(config, opts = {})
     g.google_json_key_location = ENV['GOOGLE_JSON_KEY_LOCATION']
 
     g.machine_type = "n1-standard-4"
-    g.image = "appliance-base-161129-185737"
+    g.image = "appliance-base-170118-201353"
     g.disk_size = 40
     g.zone = "us-central1-a"
     g.tags = ['vagrant', 'no-ports']
