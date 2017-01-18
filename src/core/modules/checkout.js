@@ -174,7 +174,7 @@ export function removeCouponCode() {
   return (dispatch) => {
     return foxApi.cart.removeCoupon()
       .then(res => {
-        dispatch(updateCart());
+        dispatch(updateCart(res.result));
       });
   };
 }
