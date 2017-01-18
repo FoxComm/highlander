@@ -1,8 +1,8 @@
 package testutils.fixtures.api
 
 import cats.implicits._
-import faker.Internet.{email => randomEmail}
-import faker.Name.{name => randomName}
+import faker.Internet.{email ⇒ randomEmail}
+import faker.Name.{name ⇒ randomName}
 import payloads.CartPayloads.CreateCart
 import payloads.CustomerPayloads.CreateCustomerPayload
 import responses.CustomerResponse
