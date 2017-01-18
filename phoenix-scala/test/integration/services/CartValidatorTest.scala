@@ -99,7 +99,7 @@ class CartValidatorTest
         }
 
         "archived sku" in new LineItemsFixture {
-          Skus.update(sku, sku.copy(archivedAt = Some(Instant.now))).gimme
+          skusApi(sku.code).archive()
 
           val result = CartValidator(refresh(cart)).validate().gimme
 
@@ -130,7 +130,7 @@ class CartValidatorTest
         }
 
         "archived product" in new LineItemsFixture {
-          Products.update(product, product.copy(archivedAt = Some(Instant.now))).gimme
+          productsApi(product.formId).archive()
 
           val result = CartValidator(refresh(cart)).validate().gimme
 

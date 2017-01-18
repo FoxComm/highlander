@@ -78,11 +78,8 @@ object SkuManager {
          }
       albums       ← * <~ ImageManager.getAlbumsForSkuInner(archivedSku.code, oc)
       productLinks ← * <~ ProductSkuLinks.filter(_.rightId === archivedSku.id).result
-      _ ← * <~ productLinks.map { link ⇒
-           ProductSkuLinks.deleteById(link.id,
-                                      DbResultT.unit,
-                                      id ⇒ NotFoundFailure400(ProductSkuLinks, id))
-         }
+      _ ← * <~ productLinks.map(link ⇒
+               ProductSkuLinks.update(link, link.copy(archivedAt = Some(Instant.now))))
     } yield
       SkuResponse.build(
           IlluminatedSku.illuminate(
