@@ -71,7 +71,7 @@ export default class Breadcrumb extends React.Component {
       } else {
         return (
           <li className="fc-breadcrumbs__item" key={`${route.name}-breadcrumbs-link`}>
-            <IndexLink to={route.indexRoute.name} params={this.props.params} className="fc-breadcrumbs__link">
+            <IndexLink id="item-id" to={route.indexRoute.name} params={this.props.params} className="fc-breadcrumbs__link">
               {this.readableName(route)}
             </IndexLink>
           </li>

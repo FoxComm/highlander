@@ -2,35 +2,27 @@
 
 - name: Kill Bottledwater
   shell: systemctl stop bottledwater_phoenix || true
-  
 
 - name: Kill Materialized Views
   shell: systemctl stop materialized_views || true
-  
 
 - name: Restart Postgres
   service: name=postgresql state=restarted
-  
 
 - name: Create Phoenix Directory
   file: path={{phoenix_dir}} state=directory owner="{{user}}"
-  
 
 - name: Synchronize Phoenix SQL
   synchronize: src="{{phoenix_src}}/sql" dest="{{phoenix_dir}}" delete=yes recursive=yes
-  
 
 - name: Delete Phoenix Log Directory
   file: path="{{phoenix_dir}}/log" state=absent
-  
 
 - name: Create Phoenix Log Directory
   file: path="{{phoenix_dir}}/log" state=directory owner="{{user}}"  mode="0777"
-  
 
 - name: Setup Flyway Config
   template: src=flyway.conf dest="{{phoenix_dir}}/sql/flyway.conf" mode="u+x,g+x,o+x"
-  
 
 - name: Clean Phoenix Database
   shell: sudo -u root FLYWAY_HOME={{flyway_dir}} {{flyway}} clean
@@ -43,13 +35,10 @@
     chdir: "{{phoenix_dir}}"
 
 - name: Reload Systemd for Materialized Views
-  
   command: systemctl daemon-reload
 
 - name: Start Materialized Views Service
   service: name=materialized_views state=started enabled=yes
-  
 
 - name: Start Bottledwater
   service: name=bottledwater_phoenix state=started enabled=yes
-  

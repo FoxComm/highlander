@@ -152,6 +152,7 @@ export default class SkuList extends Component {
     return (
       <div className="fc-sku-list">
         <MultiSelectTable
+          tbodyId="sku-list"
           styleName="sku-list"
           columns={this.tableColumns()}
           dataTable={false}
