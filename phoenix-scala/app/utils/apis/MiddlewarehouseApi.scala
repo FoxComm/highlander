@@ -27,8 +27,9 @@ trait MiddlewarehouseApi {
   def cancelHold(orderRefNum: String)(implicit ec: EC, au: AU): Result[Unit]
   def createSku(variantFormId: Int, sku: CreateSku)(implicit ec: EC,
                                                     au: AU): DbResultT[ProductVariantMwhSkuId]
-  def createSkus(xs: Seq[(Int, CreateSku)],
-                 batchSize: Int)(implicit ec: EC, au: AU): DbResultT[Seq[ProductVariantMwhSkuId]]
+  def createSkus(xs: Seq[(Int, CreateSku)], batchSize: Int)(
+      implicit ec: EC,
+      au: AU): DbResultT[Vector[ProductVariantMwhSkuId]]
 }
 
 class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
@@ -115,14 +116,22 @@ class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
   // TODO send real batched request to MWH
   private def createSkus(batch: Seq[(Int, CreateSku)])(
       implicit ec: EC,
-      au: AU): DbResultT[Seq[ProductVariantMwhSkuId]] = {
-    DbResultT.sequence(batch.map { case (formId, cmd) ⇒ createSku(formId, cmd) })
+      au: AU): DbResultT[Vector[ProductVariantMwhSkuId]] = {
+    DbResultT.sequence(
+        batch.map { case (formId, cmd) ⇒ createSku(formId, cmd) }(collection.breakOut))
   }
 
   override def createSkus(skusToCreate: Seq[(Int, CreateSku)], batchSize: Int)(
       implicit ec: EC,
-      au: AU): DbResultT[Seq[ProductVariantMwhSkuId]] = {
-    DbResultT.sequence(skusToCreate.grouped(batchSize).map(createSkus)).map(_.flatten.toSeq)
+      au: AU): DbResultT[Vector[ProductVariantMwhSkuId]] = {
+    skusToCreate
+      .grouped(if (batchSize > 0) batchSize else 1)
+      .foldLeft(DbResultT.good(Vector.empty[ProductVariantMwhSkuId])) { (acc, batch) ⇒
+        for {
+          ids    ← acc
+          newIds ← createSkus(batch)
+        } yield ids ++ newIds
+      }
   }
 }
 

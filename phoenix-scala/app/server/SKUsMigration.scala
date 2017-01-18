@@ -13,17 +13,17 @@ import utils.FoxConfig
 import utils.aliases._
 
 class SKUsMigration(api: MiddlewarehouseApi) {
+  lazy val batchSize: Int = Try(FoxConfig.config.getInt("migrations.batchSize")).getOrElse(100)
+  lazy val timeout: Duration =
+    Try(FoxConfig.config.getDuration("migrations.timeout", TimeUnit.SECONDS).seconds)
+      .getOrElse(Duration.Inf)
+
   @inline private def getMissingSKUs =
     for {
       (pv, mwh) ← ProductVariants
                    .joinLeft(ProductVariantMwhSkuIds)
                    .on(_.formId === _.variantFormId) if mwh.isEmpty
     } yield (pv.formId, pv.code)
-
-  lazy val batchSize: Int = Try(FoxConfig.config.getInt("migrations.batchSize")).getOrElse(100)
-  lazy val timeout: Duration =
-    Try(FoxConfig.config.getDuration("migrations.timeout", TimeUnit.SECONDS).seconds)
-      .getOrElse(Duration.Inf)
 
   def run()(implicit ec: EC, db: DB, au: AU) = {
     val migration: DbResultT[Unit] = {
