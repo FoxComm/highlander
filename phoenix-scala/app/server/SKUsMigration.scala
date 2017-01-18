@@ -1,22 +1,19 @@
 package server
 
-import java.util.concurrent.TimeUnit
 import models.inventory.{ProductVariantMwhSkuIds, ProductVariants}
 import scala.concurrent.Await
-import utils.apis.{CreateSku, MiddlewarehouseApi}
-import utils.db._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
-import scala.util.Try
 import slick.driver.PostgresDriver.api._
-import utils.FoxConfig
+import utils.FoxConfig._
 import utils.aliases._
+import utils.apis.{CreateSku, MiddlewarehouseApi}
+import utils.db._
 
 class SKUsMigration(api: MiddlewarehouseApi) {
-  lazy val batchSize: Int = Try(FoxConfig.config.getInt("migrations.batchSize")).getOrElse(100)
-  lazy val timeout: Duration =
-    Try(FoxConfig.config.getDuration("migrations.timeout", TimeUnit.SECONDS).seconds)
-      .getOrElse(Duration.Inf)
+
+  lazy val batchSize: Int    = config.getOptInt("migrations.batchSize").getOrElse(100)
+  lazy val timeout: Duration = config.getOptDuration("migrations.timeout").getOrElse(Duration.Inf)
 
   @inline private def getMissingSKUs =
     for {

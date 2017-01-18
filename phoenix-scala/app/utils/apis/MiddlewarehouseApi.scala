@@ -114,24 +114,25 @@ class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
     }
 
   // TODO send real batched request to MWH
-  private def createSkus(batch: Seq[(Int, CreateSku)])(
+  def createSkus(batch: Seq[(Int, CreateSku)])(
       implicit ec: EC,
       au: AU): DbResultT[Vector[ProductVariantMwhSkuId]] = {
     DbResultT.sequence(
         batch.map { case (formId, cmd) ⇒ createSku(formId, cmd) }(collection.breakOut))
   }
 
-  override def createSkus(skusToCreate: Seq[(Int, CreateSku)], batchSize: Int)(
+  def createSkus(skusToCreate: Seq[(Int, CreateSku)], batchSize: Int)(
       implicit ec: EC,
       au: AU): DbResultT[Vector[ProductVariantMwhSkuId]] = {
-    skusToCreate
-      .grouped(if (batchSize > 0) batchSize else 1)
-      .foldLeft(DbResultT.good(Vector.empty[ProductVariantMwhSkuId])) { (acc, batch) ⇒
-        for {
-          ids    ← acc
-          newIds ← createSkus(batch)
-        } yield ids ++ newIds
-      }
+    if (skusToCreate.nonEmpty)
+      skusToCreate
+        .grouped(if (batchSize > 0) batchSize else skusToCreate.length)
+        .foldLeft(DbResultT.good(Vector.empty[ProductVariantMwhSkuId])) { (acc, batch) ⇒
+          for {
+            ids    ← acc
+            newIds ← createSkus(batch)
+          } yield ids ++ newIds
+        } else DbResultT.good(Vector.empty)
   }
 }
 

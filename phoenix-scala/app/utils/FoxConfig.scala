@@ -3,6 +3,7 @@ package utils
 import cats.Show
 import cats.implicits._
 import com.typesafe.config.{Config, ConfigFactory}
+import scala.concurrent.duration._
 
 object FoxConfig {
 
@@ -20,6 +21,8 @@ object FoxConfig {
     def getOptInt    = getOptionalSetting[Int](underlying.getInt)(_)
     def getOptLong   = getOptionalSetting[Long](underlying.getLong)(_)
     def getOptDouble = getOptionalSetting[Double](underlying.getDouble)(_)
+    def getOptDuration =
+      getOptionalSetting[FiniteDuration](underlying.getDuration(_).toMillis.millis)(_)
   }
 
   sealed trait Environment
