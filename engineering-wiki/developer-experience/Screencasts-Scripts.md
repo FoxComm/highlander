@@ -49,8 +49,7 @@ In sake of the length of this video, we did a dry-run instead of actual provisio
 
     <goldrush logs appear>
 
-Your instance is ready! In next video, we will learn how to change things there.
-
+Your instance is ready! In next video, we will learn how to actually change things there.
 ```
 
 ## Deploying and Testing Custom Branch of Application
