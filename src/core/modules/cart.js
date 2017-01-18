@@ -5,6 +5,8 @@ import { createAction, createReducer } from 'redux-act';
 import { createAsyncActions } from '@foxcomm/wings';
 import { skuIdentity } from '@foxcomm/wings/lib/paragons/sku';
 import { api as foxApi } from 'lib/api';
+import { bindActionCreators } from 'redux';
+import * as checkoutActions from 'modules/checkout';
 
 export const toggleCart = createAction('TOGGLE_CART');
 export const hideCart = createAction('HIDE_CART');
@@ -114,15 +116,25 @@ function fetchMyCart(user): global.Promise {
   return api.cart.get();
 }
 
+function getCartPromotions(cart) {
+  const couponCode = _.get(cart, 'coupon.code', null);
+  const giftCard = _.find(cart.paymentMethods, method => method.type == 'giftCard');
+
+  return { couponCode, giftCard };
+}
+
 // push cart to server
 export function saveLineItemsAndCoupons(merge: boolean = false) {
   return (dispatch, getState) => {
     const state = getState();
     const guestLineItems = _.get(state, ['cart', 'skus'], []);
-    const guestCouponCode = _.get(state, 'cart.coupon.code', null);
     const guestLineItemsToSubmit = collectItemsToSubmit(guestLineItems);
+    const guestCart = state.cart;
+    let userCart;
+
     return fetchMyCart().then((data) => {
       let newCartItems = [];
+      userCart = data;
 
       // We are merging a guest cart what is already persisted for this user (because they are logging in).
       if (merge) {
@@ -153,8 +165,8 @@ export function saveLineItemsAndCoupons(merge: boolean = false) {
 
         newCartItems = originalCart.concat(guestCartSkus);
 
-      // We are going to only persist the items in the guest cart on the case of signup.
-      // We will delete any items that are persisted, although there should be no persisted items for a freshly signed-up user.
+        // We are going to only persist the items in the guest cart on the case of signup.
+        // We will delete any items that are persisted, although there should be no persisted items for a freshly signed-up user.
       } else {
         const lis = _.get(data, 'lineItems.skus', []);
         const newSkus = _.map(guestLineItemsToSubmit, li => li.sku);
@@ -173,15 +185,35 @@ export function saveLineItemsAndCoupons(merge: boolean = false) {
         newCartItems = guestLineItemsToSubmit.concat(itemsToDelete);
       }
 
+      // userCart.lineItems.skus = newCartItems;
+
       return newCartItems;
     }).then((newCartItems) => {
       return dispatch(submitLineItemChange(newCartItems));
     }).then(() => {
-      if (!_.isNil(guestCouponCode)) {
-        foxApi.cart.addCoupon(guestCouponCode)
-          .then(res => {
-            dispatch(updateCart(res.result));
-          });
+      dispatch(updateCart(userCart));
+
+      const {
+        saveGiftCard,
+        removeGiftCard,
+        saveCouponCode,
+        removeCouponCode,
+      } = bindActionCreators(checkoutActions, dispatch);
+
+      const { couponCode: guestCouponCode, giftCard: guestGiftCard } = getCartPromotions(guestCart);
+      const { couponCode: userCouponCode, giftCard: userGiftCard } = getCartPromotions(userCart);
+
+      // Override user promotions with guest promotions
+      if (guestCouponCode) {
+        Promise.resolve(userCouponCode && removeCouponCode()).then(() => {
+          saveCouponCode(guestCouponCode);
+        });
+      }
+
+      if (guestGiftCard) {
+        Promise.resolve(userGiftCard && removeGiftCard(userGiftCard)).then(() => {
+          saveGiftCard(guestGiftCard);
+        });
       }
     });
   };
@@ -218,6 +250,8 @@ function updateCartState(state, cart) {
     skus: data,
     quantity,
     shippingAddress,
+    coupon: cart.coupon,
+    promotion: cart.promotion,
     ...cart,
   };
 }
