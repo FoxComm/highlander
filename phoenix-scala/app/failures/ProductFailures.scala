@@ -1,5 +1,6 @@
 package failures
 
+import models.objects.ObjectForm
 import models.product.Product
 
 object ProductFailures {
@@ -34,7 +35,7 @@ object ProductFailures {
   }
 
   object ProductVariantNotFoundForContextAndId {
-    def apply(formId: Int, productContextId: Int) =
+    def apply(formId: ObjectForm#Id, productContextId: Int) =
       NotFoundFailure404(
           s"ProductVariant $formId with product context $productContextId cannot be found")
   }

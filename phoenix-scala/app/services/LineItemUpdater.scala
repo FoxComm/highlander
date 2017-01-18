@@ -2,7 +2,7 @@ package services
 
 import failures.CartFailures._
 import failures.OrderFailures.OrderLineItemNotFound
-import failures.ProductFailures.ProductVariantNotFoundForContext
+import failures.ProductFailures.{ProductVariantNotFoundForContext, ProductVariantNotFoundForContextAndId}
 import models.account._
 import models.activity.Activity
 import models.cord._
@@ -168,9 +168,9 @@ object LineItemUpdater {
       productVariant ← * <~ ProductVariants
                         .filterByContext(ctx.id)
                         .filter(_.formId === lineItem.productVariantId)
-                        .mustFindOneOr(ProductVariantNotFoundForContext(
-                                s"form-id:${lineItem.productVariantId}",
-                                ctx.id))
+                        .mustFindOneOr(
+                            ProductVariantNotFoundForContextAndId(lineItem.productVariantId,
+                                                                  ctx.id))
       _ ← * <~ mustFindProductIdForVariant(productVariant, cart.refNum)
       updateResult ← * <~ createLineItems(productVariant.id,
                                           lineItem.quantity,
