@@ -4,9 +4,11 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
+	"github.com/FoxComm/highlander/middlewarehouse/repositories"
 	"github.com/jinzhu/gorm"
 )
 
+// SKU is a collection of methods for creating and manipulating SKUs.
 type SKU interface {
 	GetByID(id uint) (*responses.SKU, error)
 	Create(payload *payloads.CreateSKU) (*responses.SKU, error)
@@ -14,6 +16,7 @@ type SKU interface {
 	Archive(id uint) error
 }
 
+// NewSKU creates a new SKU collection.
 func NewSKU(db *gorm.DB) SKU {
 	return &skuService{db}
 }
@@ -39,7 +42,43 @@ func (s *skuService) Create(payload *payloads.CreateSKU) (*responses.SKU, error)
 		return nil, err
 	}
 
-	if err := s.db.Create(sku).Error; err != nil {
+	txn := s.db.Begin()
+	if err := txn.Create(sku).Error; err != nil {
+		txn.Rollback()
+		return nil, err
+	}
+
+	// By default, create a stock item in each existing stock location.
+	stockLocationRepo := repositories.NewStockLocationRepository(txn)
+	locations, err := stockLocationRepo.GetLocations()
+	if err != nil {
+		txn.Rollback()
+		return nil, err
+	}
+
+	stockItemRepo := repositories.NewStockItemRepository(txn)
+	for _, location := range locations {
+		stockItem := models.StockItem{
+			SKU:             sku.Code,
+			StockLocationID: location.ID,
+			DefaultUnitCost: sku.UnitCostValue,
+		}
+
+		createdStockItem, err := stockItemRepo.CreateStockItem(&stockItem)
+		if err != nil {
+			txn.Rollback()
+			return nil, err
+		}
+
+		summaryService := NewSummaryService(txn)
+		if err := summaryService.CreateStockItemSummary(createdStockItem.ID); err != nil {
+			txn.Rollback()
+			return nil, err
+		}
+	}
+
+	if err := txn.Commit().Error; err != nil {
+		txn.Rollback()
 		return nil, err
 	}
 

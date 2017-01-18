@@ -98,7 +98,11 @@ export default class CustomerAddressBook extends React.Component {
     return (
       <ContentBox title="Address Book"
                   className="fc-customer-address-book"
-                  actionBlock={ <AddButton onClick={() => props.startAddingAddress(props.customerId)}/> }
+                  actionBlock={
+                    <AddButton id="customer-add-new-address-btn"
+                               onClick={() => props.startAddingAddress(props.customerId)}
+                    />
+                  }
                   editAction={() => props.startEditingAddress(address.id)}
       >
 

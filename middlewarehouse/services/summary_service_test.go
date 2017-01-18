@@ -38,8 +38,7 @@ func (suite *summaryServiceTestSuite) SetupSuite() {
 	})
 
 	suite.service = NewSummaryService(suite.db)
-
-	inventoryService := NewInventoryService(suite.db, suite.service)
+	inventoryService := NewInventoryService(suite.db)
 	stockLocationService := NewStockLocationService(suite.db)
 
 	sl, _ := stockLocationService.CreateLocation(fixtures.GetStockLocation())

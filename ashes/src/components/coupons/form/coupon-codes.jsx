@@ -143,6 +143,7 @@ class CouponCodes extends Component {
           <FormField label="Quantity">
             <div>
               <Counter
+                counterId="code-quantity-counter"
                 id="codesQuantity"
                 name="codesQuantity"
                 value={codesQuantity}
@@ -171,6 +172,7 @@ class CouponCodes extends Component {
           <FormField label="Code Character Length" >
             <div>
               <Counter
+                counterId="code-character-length-counter"
                 id="codesLength"
                 name="codesLength"
                 value={this.props.codeGeneration.codesLength}
