@@ -74,7 +74,7 @@ object CartLineItems
 
   object scope {
     implicit class ExtractLineItems(q: QuerySeq) {
-      // Map [SKU code → quantity in cart/order]
+      // Map [product variant ID → quantity in cart/order]
       def countProductVariants(implicit ec: EC): DBIO[Map[ObjectForm#Id, Int]] =
         (for {
           cartLineItems  ← q

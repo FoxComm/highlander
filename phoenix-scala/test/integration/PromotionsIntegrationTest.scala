@@ -20,7 +20,7 @@ import services.promotion.PromotionManager
 import testutils.PayloadHelpers.tv
 import testutils._
 import testutils.apis.PhoenixAdminApi
-import testutils.fixtures.api.ApiFixtures
+import testutils.fixtures.api._
 import testutils.fixtures.{BakedFixtures, PromotionFixtures}
 import utils.IlluminateAlgorithm
 import utils.aliases._
@@ -157,46 +157,46 @@ class PromotionsIntegrationTest
       couponsApi(couponId).codes.generate("boom").as[String]
     }
 
-//    "from admin UI" in new StoreAdmin_Seed with Customer_Seed with ProductAndSkus_Baked {
-//
-//      private val couponCode = setupPromoAndCoupon()
-//
-//      private val cartRefNum =
-//        cartsApi.create(CreateCart(email = customer.email)).as[CartResponse].referenceNumber
-//
-//      private val cartTotal = cartsApi(cartRefNum).lineItems
-//        .add(Seq(UpdateLineItemsPayload("TEST", 1)))
-//        .asTheResult[CartResponse]
-//        .totals
-//        .total
-//
-//      private val cartWithCoupon =
-//        cartsApi(cartRefNum).coupon.add(couponCode).asTheResult[CartResponse]
-//
-//      cartWithCoupon.promotion mustBe 'defined
-//      cartWithCoupon.coupon mustBe 'defined
-//
-//      cartWithCoupon.totals.adjustments.toDouble must === (cartTotal * 0.4)
-//      cartWithCoupon.totals.total.toDouble must === (cartTotal * 0.6)
-//    }
+    "from admin UI" in new StoreAdmin_Seed with Customer_Seed with ProductAndSkus_Baked {
 
-//    "from storefront UI" in new StoreAdmin_Seed with Customer_Seed with ProductAndSkus_Baked {
-//
-//      private val couponCode = setupPromoAndCoupon()
-//
-//      private val cartTotal = POST("v1/my/cart/line-items", Seq(UpdateLineItemsPayload("TEST", 1)))
-//        .asTheResult[CartResponse]
-//        .totals
-//        .total
-//
-//      private val cartWithCoupon = POST(s"v1/my/cart/coupon/$couponCode").asTheResult[CartResponse]
-//
-//      cartWithCoupon.promotion mustBe 'defined
-//      cartWithCoupon.coupon mustBe 'defined
-//
-//      cartWithCoupon.totals.adjustments.toDouble must === (cartTotal * 0.4)
-//      cartWithCoupon.totals.total.toDouble must === (cartTotal * 0.6)
-//    }
+      private val couponCode = setupPromoAndCoupon()
+
+      private val cartRefNum =
+        cartsApi.create(CreateCart(email = customer.email)).as[CartResponse].referenceNumber
+
+      private val cartTotal = cartsApi(cartRefNum).lineItems
+        .add(Seq(UpdateLineItemsPayload(TEMPORARY_skuCodeToVariantFormId("TEST"), 1)))
+        .asTheResult[CartResponse]
+        .totals
+        .total
+
+      private val cartWithCoupon =
+        cartsApi(cartRefNum).coupon.add(couponCode).asTheResult[CartResponse]
+
+      cartWithCoupon.promotion mustBe 'defined
+      cartWithCoupon.coupon mustBe 'defined
+
+      cartWithCoupon.totals.adjustments.toDouble must === (cartTotal * 0.4)
+      cartWithCoupon.totals.total.toDouble must === (cartTotal * 0.6)
+    }
+
+    "from storefront UI" in new StoreAdmin_Seed with Customer_Seed with ProductAndSkus_Baked {
+
+      private val couponCode = setupPromoAndCoupon()
+
+      private val cartTotal = POST("v1/my/cart/line-items", Seq(UpdateLineItemsPayload(TEMPORARY_skuCodeToVariantFormId("TEST"), 1)))
+        .asTheResult[CartResponse]
+        .totals
+        .total
+
+      private val cartWithCoupon = POST(s"v1/my/cart/coupon/$couponCode").asTheResult[CartResponse]
+
+      cartWithCoupon.promotion mustBe 'defined
+      cartWithCoupon.coupon mustBe 'defined
+
+      cartWithCoupon.totals.adjustments.toDouble must === (cartTotal * 0.4)
+      cartWithCoupon.totals.total.toDouble must === (cartTotal * 0.6)
+    }
 
     "should update coupon discount when cart becomes clean" in new Fixture
     with ProductVariant_ApiFixture {
