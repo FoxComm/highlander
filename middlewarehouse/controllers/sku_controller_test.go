@@ -84,6 +84,7 @@ func (suite *skuControllerTestSuite) Test_CreateSKU_Success() {
 
 func (suite *skuControllerTestSuite) Test_CreateSKU_CreatesStockItem() {
 	payload := fixtures.GetCreateSKUPayload()
+	payload.RequiresInventoryTracking = true
 	res := suite.Post("/skus", payload)
 	suite.Equal(http.StatusCreated, res.Code)
 
@@ -94,6 +95,7 @@ func (suite *skuControllerTestSuite) Test_CreateSKU_CreatesStockItem() {
 
 func (suite *skuControllerTestSuite) Test_CreateSKU_CreatesStockItemSummary() {
 	payload := fixtures.GetCreateSKUPayload()
+	payload.RequiresInventoryTracking = true
 	res := suite.Post("/skus", payload)
 	suite.Equal(http.StatusCreated, res.Code)
 

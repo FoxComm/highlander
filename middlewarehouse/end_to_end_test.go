@@ -68,6 +68,7 @@ func (suite *endToEndTestSuite) SetupTest() {
 
 func (suite *endToEndTestSuite) Test_HoldSKU() {
 	skuPayload := fixtures.GetCreateSKUPayload()
+	skuPayload.RequiresInventoryTracking = true
 	skuRes := suite.server.Post("/skus", skuPayload)
 	suite.Equal(http.StatusCreated, skuRes.Code)
 
@@ -139,4 +140,27 @@ func (suite *endToEndTestSuite) Test_HoldSKU() {
 			suite.Equal(0, summary.AFSCost)
 		}
 	}
+}
+
+func (suite *endToEndTestSuite) Test_HoldSKU_NoInventoryTracking() {
+	skuPayload := fixtures.GetCreateSKUPayload()
+	skuPayload.RequiresInventoryTracking = false
+	skuRes := suite.server.Post("/skus", skuPayload)
+	suite.Equal(http.StatusCreated, skuRes.Code)
+
+	var stockItems []*models.StockItem
+	suite.Nil(suite.db.Where("sku = ?", skuPayload.Code).Find(&stockItems).Error)
+	suite.Equal(0, len(stockItems))
+
+	reservationPayload := payloads.Reservation{
+		RefNum: "BR10001",
+		Items: []payloads.ItemReservation{
+			payloads.ItemReservation{
+				Qty: 2,
+				SKU: skuPayload.Code,
+			},
+		},
+	}
+	reservationRes := suite.server.Post("/reservations/hold", reservationPayload)
+	suite.Equal(http.StatusNoContent, reservationRes.Code)
 }

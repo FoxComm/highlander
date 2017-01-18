@@ -56,24 +56,26 @@ func (s *skuService) Create(payload *payloads.CreateSKU) (*responses.SKU, error)
 		return nil, err
 	}
 
-	stockItemRepo := repositories.NewStockItemRepository(txn)
-	for _, location := range locations {
-		stockItem := models.StockItem{
-			SKU:             sku.Code,
-			StockLocationID: location.ID,
-			DefaultUnitCost: sku.UnitCostValue,
-		}
+	if sku.RequiresInventoryTracking {
+		stockItemRepo := repositories.NewStockItemRepository(txn)
+		for _, location := range locations {
+			stockItem := models.StockItem{
+				SKU:             sku.Code,
+				StockLocationID: location.ID,
+				DefaultUnitCost: sku.UnitCostValue,
+			}
 
-		createdStockItem, err := stockItemRepo.CreateStockItem(&stockItem)
-		if err != nil {
-			txn.Rollback()
-			return nil, err
-		}
+			createdStockItem, err := stockItemRepo.CreateStockItem(&stockItem)
+			if err != nil {
+				txn.Rollback()
+				return nil, err
+			}
 
-		summaryService := NewSummaryService(txn)
-		if err := summaryService.CreateStockItemSummary(createdStockItem.ID); err != nil {
-			txn.Rollback()
-			return nil, err
+			summaryService := NewSummaryService(txn)
+			if err := summaryService.CreateStockItemSummary(createdStockItem.ID); err != nil {
+				txn.Rollback()
+				return nil, err
+			}
 		}
 	}
 

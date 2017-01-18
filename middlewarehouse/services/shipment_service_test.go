@@ -19,6 +19,7 @@ type ShipmentServiceTestSuite struct {
 	service          ShipmentService
 	inventoryService InventoryService
 	summaryService   SummaryService
+	skuService       SKU
 }
 
 func TestShipmentServiceSuite(t *testing.T) {
@@ -32,7 +33,7 @@ func (suite *ShipmentServiceTestSuite) SetupSuite() {
 	unitRepository := repositories.NewStockItemUnitRepository(suite.db)
 
 	suite.summaryService = NewSummaryService(suite.db)
-	suite.inventoryService = &inventoryService{stockItemRepository, unitRepository, suite.summaryService, nil}
+	suite.inventoryService = &inventoryService{stockItemRepository, unitRepository, suite.summaryService, suite.db, nil}
 	logger := &dummyLogger{}
 
 	suite.service = NewShipmentService(
@@ -41,6 +42,8 @@ func (suite *ShipmentServiceTestSuite) SetupSuite() {
 		suite.summaryService,
 		logger,
 	)
+
+	suite.skuService = NewSKU(suite.db)
 }
 
 func (suite *ShipmentServiceTestSuite) SetupTest() {
@@ -50,6 +53,7 @@ func (suite *ShipmentServiceTestSuite) SetupTest() {
 		"shipping_methods",
 		"shipments",
 		"shipment_line_items",
+		"skus",
 		"stock_items",
 		"stock_item_units",
 		"stock_locations",
@@ -105,12 +109,28 @@ func (suite *ShipmentServiceTestSuite) Test_CreateShipment_Succeed_ReturnsCreate
 	stockLocation := fixtures.GetStockLocation()
 	suite.Nil(suite.db.Create(stockLocation).Error)
 
-	stockItem := fixtures.GetStockItem(stockLocation.ID, shipment1.ShipmentLineItems[0].SKU)
-	stockItem, err := suite.inventoryService.CreateStockItem(stockItem)
+	skuPayload := fixtures.GetCreateSKUPayload()
+	skuPayload.Code = shipment1.ShipmentLineItems[0].SKU
+	skuPayload.RequiresInventoryTracking = true
+	_, err := suite.skuService.Create(skuPayload)
+	suite.Nil(err)
+
+	stockItem := &models.StockItem{}
+	err = suite.db.
+		Where("sku = ?", skuPayload.Code).
+		Where("stock_location_id = ?", stockLocation.ID).
+		First(stockItem).
+		Error
 	suite.Nil(err)
 
 	suite.Nil(suite.inventoryService.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 5)))
-	suite.Nil(suite.inventoryService.HoldItems(shipment1.OrderRefNum, map[string]int{stockItem.SKU: 2}))
+	payload := &payloads.Reservation{
+		RefNum: shipment1.OrderRefNum,
+		Items: []payloads.ItemReservation{
+			payloads.ItemReservation{SKU: stockItem.SKU, Qty: 2},
+		},
+	}
+	suite.Nil(suite.inventoryService.HoldItems(payload))
 
 	//act
 	shipment, err := suite.service.CreateShipment(shipment1)
@@ -143,12 +163,29 @@ func (suite *ShipmentServiceTestSuite) Test_UpdateShipment_Partial_ReturnsUpdate
 	stockLocation := fixtures.GetStockLocation()
 	suite.Nil(suite.db.Create(stockLocation).Error)
 
-	stockItem := fixtures.GetStockItem(stockLocation.ID, shipment.ShipmentLineItems[0].SKU)
-	stockItem, err := suite.inventoryService.CreateStockItem(stockItem)
+	skuPayload := fixtures.GetCreateSKUPayload()
+	skuPayload.Code = shipment.ShipmentLineItems[0].SKU
+	skuPayload.RequiresInventoryTracking = true
+	_, err := suite.skuService.Create(skuPayload)
+	suite.Nil(err)
+
+	stockItem := &models.StockItem{}
+	err = suite.db.
+		Where("sku = ?", skuPayload.Code).
+		Where("stock_location_id = ?", stockLocation.ID).
+		First(stockItem).
+		Error
 	suite.Nil(err)
 
 	suite.Nil(suite.inventoryService.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 5)))
-	suite.Nil(suite.inventoryService.HoldItems(shipment.OrderRefNum, map[string]int{stockItem.SKU: 2}))
+
+	resPayload := &payloads.Reservation{
+		RefNum: shipment.OrderRefNum,
+		Items: []payloads.ItemReservation{
+			payloads.ItemReservation{SKU: stockItem.SKU, Qty: 2},
+		},
+	}
+	suite.Nil(suite.inventoryService.HoldItems(resPayload))
 
 	_, err = suite.service.CreateShipment(shipment)
 	suite.Nil(err)
@@ -193,12 +230,29 @@ func (suite *ShipmentServiceTestSuite) Test_CreateShipment_Failed() {
 	stockLocation := fixtures.GetStockLocation()
 	suite.Nil(suite.db.Create(stockLocation).Error)
 
-	stockItem := fixtures.GetStockItem(stockLocation.ID, shipment1.ShipmentLineItems[0].SKU)
-	stockItem, err := suite.inventoryService.CreateStockItem(stockItem)
+	skuPayload := fixtures.GetCreateSKUPayload()
+	skuPayload.Code = shipment1.ShipmentLineItems[0].SKU
+	skuPayload.RequiresInventoryTracking = true
+	_, err := suite.skuService.Create(skuPayload)
 	suite.Nil(err)
 
-	suite.Nil(suite.inventoryService.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 5)))
-	suite.Nil(suite.inventoryService.HoldItems(shipment1.OrderRefNum, map[string]int{stockItem.SKU: 1}))
+	var stockItem models.StockItem
+	err = suite.db.
+		Where("sku = ?", skuPayload.Code).
+		Where("stock_location_id = ?", stockLocation.ID).
+		First(&stockItem).
+		Error
+	suite.Nil(err)
+
+	suite.Nil(suite.inventoryService.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(&stockItem, 5)))
+
+	payload := &payloads.Reservation{
+		RefNum: shipment1.OrderRefNum,
+		Items: []payloads.ItemReservation{
+			payloads.ItemReservation{SKU: stockItem.SKU, Qty: 1},
+		},
+	}
+	suite.Nil(suite.inventoryService.HoldItems(payload))
 
 	// check summary updated properly before shipment created
 	summary, err := suite.summaryService.GetSummaryBySKU(stockItem.SKU)

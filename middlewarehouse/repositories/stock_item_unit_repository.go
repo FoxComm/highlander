@@ -25,6 +25,7 @@ type IStockItemUnitRepository interface {
 	GetUnitForLineItem(refNum string, sku string) (*models.StockItemUnit, error)
 	GetQtyForOrder(refNum string) ([]*models.Release, error)
 
+	HoldUnits(orderRefNum string, skuCode string, qty uint) ([]*models.StockItemUnit, error)
 	ReserveUnit(orderRefNum string, skuCode string) (*models.StockItemUnit, error)
 
 	HoldUnitsInOrder(refNum string, ids []uint) (int, error)
@@ -99,6 +100,32 @@ func (repository *stockItemUnitRepository) GetUnitsInOrder(refNum string) ([]*mo
 		Error
 
 	if err != nil {
+		return nil, err
+	}
+
+	return units, nil
+}
+
+func (repository *stockItemUnitRepository) HoldUnits(orderRefNum string, skuCode string, qty uint) ([]*models.StockItemUnit, error) {
+	query := `
+		UPDATE stock_item_units
+			SET status = 'onHold',
+					ref_num = ?	
+			FROM (
+				SELECT siu2.id AS id
+				FROM stock_items AS si2
+				INNER JOIN stock_item_units AS siu2 ON si2.id = siu2.stock_item_id
+				WHERE si2.sku = ? AND
+						  siu2.status = 'onHand'
+				FOR UPDATE SKIP LOCKED
+				LIMIT ?
+			) AS query
+			WHERE stock_item_units.id = query.id
+			RETURNING stock_item_units.*
+	`
+
+	var units []*models.StockItemUnit
+	if err := repository.db.Raw(query, orderRefNum, skuCode, qty).Scan(&units).Error; err != nil {
 		return nil, err
 	}
 
