@@ -1,13 +1,22 @@
 # prov-shit
 
-All of our DevOps tools for deploying the application to both development and production
+All of our DevOps tools for deploying the application to both development and production.
 
 ### Prerequisites
 
-- [Ansible](http://docs.ansible.com/ansible/intro_installation.html#installation) (2.2.x)
-- [ansible-lint](https://github.com/willthames/ansible-lint#setup) (3.x.x)
-- [Go](https://golang.org/doc/install) (1.6 or greater)
-- [gcloud](https://cloud.google.com/sdk/gcloud)
+#### Required
+
+- [Ansible](http://ansible.com) 2.2.x or above
+- [Docker](https://docker.com)
+- [Go](https://golang.org) 1.6 or above
+- [Google Cloud SDK](https://cloud.google.com/sdk/gcloud)
+- [Packer](https://packer.io)
+- [Terraform](https://terraform.io)
+
+#### Optional
+
+- [ansible-lint](https://github.com/willthames/ansible-lint) (3.x.x)
+- [shellcheck](https://www.shellcheck.net)
 
 ### Description
 
