@@ -19,7 +19,6 @@ type ShipmentServiceTestSuite struct {
 	service          ShipmentService
 	inventoryService InventoryService
 	summaryService   SummaryService
-	skuService       SKU
 }
 
 func TestShipmentServiceSuite(t *testing.T) {
@@ -42,8 +41,6 @@ func (suite *ShipmentServiceTestSuite) SetupSuite() {
 		suite.summaryService,
 		logger,
 	)
-
-	suite.skuService = NewSKU(suite.db)
 }
 
 func (suite *ShipmentServiceTestSuite) SetupTest() {
@@ -55,6 +52,7 @@ func (suite *ShipmentServiceTestSuite) SetupTest() {
 		"shipment_line_items",
 		"skus",
 		"stock_items",
+		"stock_item_summaries",
 		"stock_item_units",
 		"stock_locations",
 		"inventory_search_view",
@@ -109,18 +107,9 @@ func (suite *ShipmentServiceTestSuite) Test_CreateShipment_Succeed_ReturnsCreate
 	stockLocation := fixtures.GetStockLocation()
 	suite.Nil(suite.db.Create(stockLocation).Error)
 
-	skuPayload := fixtures.GetCreateSKUPayload()
-	skuPayload.Code = shipment1.ShipmentLineItems[0].SKU
-	skuPayload.RequiresInventoryTracking = true
-	_, err := suite.skuService.Create(skuPayload)
-	suite.Nil(err)
-
-	stockItem := &models.StockItem{}
-	err = suite.db.
-		Where("sku = ?", skuPayload.Code).
-		Where("stock_location_id = ?", stockLocation.ID).
-		First(stockItem).
-		Error
+	sku := suite.createSKU(shipment1.ShipmentLineItems[0].SKU)
+	stockItem := fixtures.GetStockItem(stockLocation.ID, sku.Code)
+	stockItem, err := suite.inventoryService.CreateStockItem(stockItem)
 	suite.Nil(err)
 
 	suite.Nil(suite.inventoryService.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 5)))
@@ -163,18 +152,9 @@ func (suite *ShipmentServiceTestSuite) Test_UpdateShipment_Partial_ReturnsUpdate
 	stockLocation := fixtures.GetStockLocation()
 	suite.Nil(suite.db.Create(stockLocation).Error)
 
-	skuPayload := fixtures.GetCreateSKUPayload()
-	skuPayload.Code = shipment.ShipmentLineItems[0].SKU
-	skuPayload.RequiresInventoryTracking = true
-	_, err := suite.skuService.Create(skuPayload)
-	suite.Nil(err)
-
-	stockItem := &models.StockItem{}
-	err = suite.db.
-		Where("sku = ?", skuPayload.Code).
-		Where("stock_location_id = ?", stockLocation.ID).
-		First(stockItem).
-		Error
+	sku := suite.createSKU(shipment.ShipmentLineItems[0].SKU)
+	stockItem := fixtures.GetStockItem(stockLocation.ID, sku.Code)
+	stockItem, err := suite.inventoryService.CreateStockItem(stockItem)
 	suite.Nil(err)
 
 	suite.Nil(suite.inventoryService.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 5)))
@@ -230,21 +210,11 @@ func (suite *ShipmentServiceTestSuite) Test_CreateShipment_Failed() {
 	stockLocation := fixtures.GetStockLocation()
 	suite.Nil(suite.db.Create(stockLocation).Error)
 
-	skuPayload := fixtures.GetCreateSKUPayload()
-	skuPayload.Code = shipment1.ShipmentLineItems[0].SKU
-	skuPayload.RequiresInventoryTracking = true
-	_, err := suite.skuService.Create(skuPayload)
-	suite.Nil(err)
+	suite.createSKU(shipment1.ShipmentLineItems[0].SKU)
+	stockItem := fixtures.GetStockItem(stockLocation.ID, shipment1.ShipmentLineItems[0].SKU)
+	stockItem, err := suite.inventoryService.CreateStockItem(stockItem)
 
-	var stockItem models.StockItem
-	err = suite.db.
-		Where("sku = ?", skuPayload.Code).
-		Where("stock_location_id = ?", stockLocation.ID).
-		First(&stockItem).
-		Error
-	suite.Nil(err)
-
-	suite.Nil(suite.inventoryService.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(&stockItem, 5)))
+	suite.Nil(suite.inventoryService.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 5)))
 
 	payload := &payloads.Reservation{
 		RefNum: shipment1.OrderRefNum,
@@ -282,3 +252,11 @@ func (suite *ShipmentServiceTestSuite) Test_CreateShipment_Failed() {
 type dummyLogger struct{}
 
 func (d dummyLogger) Log(activity activities.ISiteActivity) error { return nil }
+
+func (suite *ShipmentServiceTestSuite) createSKU(code string) *models.SKU {
+	sku := fixtures.GetSKU()
+	sku.Code = code
+	sku.RequiresInventoryTracking = true
+	suite.Nil(suite.db.Create(sku).Error)
+	return sku
+}

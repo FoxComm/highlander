@@ -116,15 +116,8 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_DecrementStockItemUnits_
 }
 
 func (suite *InventoryServiceIntegrationTestSuite) Test_ReleaseItems_MultipleSKUsSummary() {
-	sku1 := fixtures.GetSKU()
-	sku1.Code = "TEST-RESERVATION-A"
-	sku1.RequiresInventoryTracking = true
-	suite.Nil(suite.db.Create(sku1).Error)
-
-	sku2 := fixtures.GetSKU()
-	sku2.Code = "TEST-RESERVATION-B"
-	sku2.RequiresInventoryTracking = true
-	suite.Nil(suite.db.Create(sku2).Error)
+	sku1 := suite.createSKU("TEST-RESERVATION-A")
+	sku2 := suite.createSKU("TEST-RESERVATION-B")
 
 	stockItem1, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, sku1.Code))
 	suite.Nil(err)
@@ -157,11 +150,7 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_ReleaseItems_MultipleSKU
 }
 
 func (suite *InventoryServiceIntegrationTestSuite) Test_ReleaseItems_SubsequentSummary() {
-	sku := fixtures.GetSKU()
-	sku.Code = suite.sku
-	sku.RequiresInventoryTracking = true
-	suite.Nil(suite.db.Create(sku).Error)
-
+	suite.createSKU(suite.sku)
 	stockItem, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, suite.sku))
 	suite.Nil(err)
 
@@ -288,4 +277,12 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_GetAFSBySKU_NotFound() {
 
 	suite.Equal(gorm.ErrRecordNotFound, err)
 	suite.Nil(afs)
+}
+
+func (suite *InventoryServiceIntegrationTestSuite) createSKU(code string) *models.SKU {
+	sku := fixtures.GetSKU()
+	sku.Code = code
+	sku.RequiresInventoryTracking = true
+	suite.Nil(suite.db.Create(sku).Error)
+	return sku
 }

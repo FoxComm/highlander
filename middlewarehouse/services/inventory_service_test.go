@@ -15,9 +15,8 @@ import (
 
 type InventoryServiceTestSuite struct {
 	GeneralServiceTestSuite
-	sl         *models.StockLocation
-	service    InventoryService
-	skuService SKU
+	sl      *models.StockLocation
+	service InventoryService
 }
 
 func TestInventoryServiceSuite(t *testing.T) {
@@ -37,7 +36,6 @@ func (suite *InventoryServiceTestSuite) SetupSuite() {
 	summaryService := NewSummaryService(suite.db)
 	stockLocationService := NewStockLocationService(suite.db)
 	suite.service = &inventoryService{stockItemRepository, unitRepository, summaryService, suite.db, nil}
-	suite.skuService = NewSKU(suite.db)
 
 	suite.sl, _ = stockLocationService.CreateLocation(fixtures.GetStockLocation())
 }
@@ -147,18 +145,8 @@ func (suite *InventoryServiceTestSuite) Test_DecrementStockItemUnits() {
 }
 
 func (suite *InventoryServiceTestSuite) Test_ReserveItems_SingleSKU() {
-	skuPayload := fixtures.GetCreateSKUPayload()
-	skuPayload.Code = "TEST-RESERVATION"
-	skuPayload.RequiresInventoryTracking = true
-	_, err := suite.skuService.Create(skuPayload)
-	suite.Nil(err)
-
-	stockItem := &models.StockItem{}
-	err = suite.db.
-		Where("sku = ?", skuPayload.Code).
-		Where("stock_location_id = ?", suite.sl.ID).
-		First(stockItem).
-		Error
+	sku := suite.createSKU("TEST-RESERVATION")
+	stockItem, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, sku.Code))
 	suite.Nil(err)
 
 	suite.Nil(suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 1)))
@@ -166,7 +154,7 @@ func (suite *InventoryServiceTestSuite) Test_ReserveItems_SingleSKU() {
 	payload := &payloads.Reservation{
 		RefNum: "BR10001",
 		Items: []payloads.ItemReservation{
-			payloads.ItemReservation{SKU: skuPayload.Code, Qty: 1},
+			payloads.ItemReservation{SKU: sku.Code, Qty: 1},
 		},
 	}
 
@@ -180,15 +168,8 @@ func (suite *InventoryServiceTestSuite) Test_ReserveItems_SingleSKU() {
 }
 
 func (suite *InventoryServiceTestSuite) Test_ReserveItems_MultipleSKUs() {
-	sku1 := fixtures.GetSKU()
-	sku1.Code = "TEST-RESERVATION-A"
-	sku1.RequiresInventoryTracking = true
-	suite.Nil(suite.db.Create(sku1).Error)
-
-	sku2 := fixtures.GetSKU()
-	sku2.Code = "TEST-RESERVATION-B"
-	sku2.RequiresInventoryTracking = true
-	suite.Nil(suite.db.Create(sku2).Error)
+	sku1 := suite.createSKU("TEST-RESERVATION-A")
+	sku2 := suite.createSKU("TEST-RESERVATION-B")
 
 	sl := []models.StockLocation{}
 	suite.db.Find(&sl)
@@ -254,10 +235,7 @@ func (suite *InventoryServiceTestSuite) Test_ReleaseItems_NoReservedSKUs() {
 }
 
 func (suite *InventoryServiceTestSuite) Test_ReleaseItems_Single() {
-	sku := fixtures.GetSKU()
-	sku.Code = "TEST-UNRESERVATION-A"
-	sku.RequiresInventoryTracking = true
-	suite.Nil(suite.db.Create(sku).Error)
+	sku := suite.createSKU("TEST-UNRESERVATION-A")
 
 	payload := &payloads.Reservation{
 		RefNum: "BR10001",
@@ -281,4 +259,12 @@ func (suite *InventoryServiceTestSuite) Test_ReleaseItems_Single() {
 
 	suite.db.Model(&models.StockItemUnit{}).Where("ref_num = ? AND status = ?", payload.RefNum, models.StatusOnHold).Count(&onHoldUnitsCount)
 	suite.Equal(0, onHoldUnitsCount, "There should not be units in onHold status")
+}
+
+func (suite *InventoryServiceTestSuite) createSKU(code string) *models.SKU {
+	sku := fixtures.GetSKU()
+	sku.Code = code
+	sku.RequiresInventoryTracking = true
+	suite.Nil(suite.db.Create(sku).Error)
+	return sku
 }
