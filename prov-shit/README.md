@@ -16,6 +16,7 @@ All of our DevOps tools for deploying the application to both development and pr
 #### Optional
 
 - [ansible-lint](https://github.com/willthames/ansible-lint) (3.x.x)
+- [easy](https://github.com/kpashka/easy)
 - [shellcheck](https://www.shellcheck.net)
 
 ### Description
