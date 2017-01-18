@@ -44,7 +44,7 @@ class LineItemUpdaterTest
       import root.lineItems.skus
       skus.map(_.sku) must contain theSameElementsAs Seq("1")
       // TODO: check if *variant* IDs match?
-      skus.find(_.sku === "1").map(_.quantity) must be (Some(3))
+      skus.find(_.sku === "1").map(_.quantity) must be(Some(3))
       skus.map(_.quantity).sum must === (CartLineItems.size.gimme)
     }
 
@@ -68,7 +68,7 @@ class LineItemUpdaterTest
       import root.lineItems.skus
       skus.map(_.sku) must contain theSameElementsAs Seq("1", "3")
       // TODO: check if *variant* IDs match?
-      skus.find(_.sku === "1").map(_.quantity) must be (Some(3))
+      skus.find(_.sku === "1").map(_.quantity) must be(Some(3))
       skus.map(_.quantity).sum must === (CartLineItems.gimme.size)
     }
   }

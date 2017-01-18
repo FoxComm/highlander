@@ -184,10 +184,12 @@ class PromotionsIntegrationTest
 
       private val couponCode = setupPromoAndCoupon()
 
-      private val cartTotal = POST("v1/my/cart/line-items", Seq(UpdateLineItemsPayload(TEMPORARY_skuCodeToVariantFormId("TEST"), 1)))
-        .asTheResult[CartResponse]
-        .totals
-        .total
+      private val cartTotal =
+        POST("v1/my/cart/line-items",
+             Seq(UpdateLineItemsPayload(TEMPORARY_skuCodeToVariantFormId("TEST"), 1)))
+          .asTheResult[CartResponse]
+          .totals
+          .total
 
       private val cartWithCoupon = POST(s"v1/my/cart/coupon/$couponCode").asTheResult[CartResponse]
 

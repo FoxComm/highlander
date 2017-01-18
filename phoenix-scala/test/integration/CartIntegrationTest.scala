@@ -178,9 +178,10 @@ class CartIntegrationTest
 
     "should successfully remove line items" in new OrderShippingMethodFixture
     with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
-      val subtractPayload = Seq(UpdateLineItemsPayload(TEMPORARY_skuCodeToVariantFormId("SKU-YAX"), -1))
-      val root            = cartsApi(cart.refNum).lineItems.update(subtractPayload).asTheResult[CartResponse]
-      val skus            = root.lineItems.skus
+      val subtractPayload =
+        Seq(UpdateLineItemsPayload(TEMPORARY_skuCodeToVariantFormId("SKU-YAX"), -1))
+      val root = cartsApi(cart.refNum).lineItems.update(subtractPayload).asTheResult[CartResponse]
+      val skus = root.lineItems.skus
       skus must have size 1
       skus.map(_.sku).headOption.value must === ("SKU-YAX")
       skus.map(_.quantity).headOption.value must === (1)
@@ -205,7 +206,8 @@ class CartIntegrationTest
 
     "removing too many of an item should remove all of that item" in new OrderShippingMethodFixture
     with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
-      val subtractPayload = Seq(UpdateLineItemsPayload(TEMPORARY_skuCodeToVariantFormId("SKU-YAX"), -3))
+      val subtractPayload =
+        Seq(UpdateLineItemsPayload(TEMPORARY_skuCodeToVariantFormId("SKU-YAX"), -3))
       cartsApi(cart.refNum).lineItems
         .update(subtractPayload)
         .asTheResult[CartResponse]

@@ -2,7 +2,6 @@ package testutils.fixtures
 
 import cats.implicits._
 import models.cord.lineitems.{GiftCardLineItemAttributes, LineItemAttributes}
-import models.objects.ObjectForm
 
 package object api {
 
@@ -12,8 +11,5 @@ package object api {
                                    recipientEmail = faker.Internet.email,
                                    senderName = faker.Name.name,
                                    message = faker.Lorem.sentence()).some).some
-
-  // TODO
-  def TEMPORARY_skuCodeToVariantFormId(skuCode: String): ObjectForm#Id = ???
 
 }

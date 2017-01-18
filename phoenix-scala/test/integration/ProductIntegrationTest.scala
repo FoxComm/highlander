@@ -378,7 +378,9 @@ class ProductIntegrationTest
       private val cartRef =
         cartsApi.create(CreateCart(email = customer.email)).as[CartResponse].referenceNumber
 
-      cartsApi(cartRef).lineItems.add(allSkus.map(sku ⇒ UpdateLineItemsPayload(TEMPORARY_skuCodeToVariantFormId(sku), 1))).mustBeOk()
+      cartsApi(cartRef).lineItems
+        .add(allSkus.map(sku ⇒ UpdateLineItemsPayload(TEMPORARY_skuCodeToVariantFormId(sku), 1)))
+        .mustBeOk()
 
       productsApi(product.formId)
         .update(
