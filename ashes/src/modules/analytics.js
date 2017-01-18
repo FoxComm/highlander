@@ -1,16 +1,25 @@
-
+// libs
 import _ from 'lodash';
 import {createAction, createReducer} from 'redux-act';
 import { assoc } from 'sprout-data';
 import Api from '../lib/api';
 
+// action types
+/* generic */
 const startFetching = createAction('ANALYTICS_START_FETCHING');
+const fetchFailed = createAction('ANALYTICS_FETCH_FAILED');
+export const resetAnalytics = createAction('ANALYTICS_RESET');
+/* time */
 const receivedValues = createAction('ANALYTICS_RECEIVED',
   (keys, values, from, to, sizeSec, stepSec) => [keys, values, from, to, sizeSec, stepSec]
 );
-const fetchFailed = createAction('ANALYTICS_FETCH_FAILED');
-export const resetAnalytics = createAction('ANALYTICS_RESET');
+/* stats */
+const productConversionReceivedValues = createAction('ANALYTICS_PRODUCTCONVERSION_RECEIVED',
+  (values) => [values]
+);
 
+// actions
+/* time */
 export function fetchAnalytics(keys, from, to, sizeSec, stepSec) {
   return dispatch => {
     dispatch(startFetching());
@@ -27,7 +36,21 @@ export function fetchAnalytics(keys, from, to, sizeSec, stepSec) {
     );
   };
 }
+/* stats */
+export function fetchProductConversion(productId) {
+  return dispatch => {
+    dispatch(startFetching());
 
+    const url = `stats/productFunnel/${productId}`;
+
+    return Api.get(url).then(
+      values => dispatch(productConversionReceivedValues(values)),
+      err => dispatch(fetchFailed(err))
+    );
+  };
+}
+
+// redux store
 const initialState = {
   isFetching: null,
   err: null,
@@ -39,7 +62,6 @@ const initialState = {
   keys: [],
   verbs: []
 };
-
 const reducer = createReducer({
   [startFetching]: state => {
     return assoc(state,
@@ -60,6 +82,16 @@ const reducer = createReducer({
         ['sizeSec'], sizeSec,
         ['stepSec'], stepSec,
         ['isFetching'], false
+      )
+    );
+
+    return updater(state);
+  },
+  [productConversionReceivedValues]: (state, [values]) => {
+    const updater = _.flow(
+      _.partialRight(assoc,
+        ['values'], values,
+        ['isFetching'], false,
       )
     );
 
