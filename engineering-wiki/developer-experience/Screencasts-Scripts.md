@@ -56,11 +56,24 @@ Your instance is ready! In next video, we will learn how to actually change thin
 
 TBD.
 
-Notes: short note about Mesos, running `docker build && docker push`, swapping containers in Marathon, checking for Firebrand changes. Running seeders. Link to Anna's doc.
+Plans:
+
+    * Opening created appliance in web browser
+    * Short note about Mesos.
+    * Running `docker build && docker push`.
+    * Swapping containers in Marathon.
+    * Checking for Firebrand / Ashes for changes.
+    * Mentioning Anna's doc for more info.
 
 ## Using Bundled Software to Solve Problems
 
 TBD.
 
-Notes: showcase of third-party services we have inside appliances: Systemd, Consul, Elasticsearch, Mesos, Kibana, Pgweb.
+Showcase of third-party services we have inside appliances:
 
+    * Systemd
+    * Consul
+    * Elasticsearch
+    * Mesos
+    * Kibana
+    * Pgweb
