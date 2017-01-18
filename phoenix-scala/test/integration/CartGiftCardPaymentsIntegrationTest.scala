@@ -154,9 +154,9 @@ class CartGiftCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestBas
     val giftCard = (for {
       reason ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))
       origin ← * <~ GiftCardManuals.create(
-                  GiftCardManual(adminId = storeAdmin.accountId, reasonId = reason.id))
+        GiftCardManual(adminId = storeAdmin.accountId, reasonId = reason.id))
       giftCard ← * <~ GiftCards.create(
-                    Factories.giftCard.copy(originId = origin.id, state = GiftCard.Active))
+        Factories.giftCard.copy(originId = origin.id, state = GiftCard.Active))
     } yield giftCard).gimme
   }
 

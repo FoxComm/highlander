@@ -60,10 +60,10 @@ class PaymentPayloadsTest extends TestBase {
                                  expYear = today.minusYears(1).getYear.some)
 
         val cards = Table(
-            ("payload", "errors"),
-            (expired, NonEmptyList.of(GeneralFailure("credit card is expired"))),
-            (expired.copy(expYear = 2000.some),
-             NonEmptyList.of(GeneralFailure("credit card is expired")))
+          ("payload", "errors"),
+          (expired, NonEmptyList.of(GeneralFailure("credit card is expired"))),
+          (expired.copy(expYear = 2000.some),
+           NonEmptyList.of(GeneralFailure("credit card is expired")))
         )
 
         forAll(cards) { (card, errors) ⇒

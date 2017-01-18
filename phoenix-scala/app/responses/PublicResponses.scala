@@ -17,7 +17,7 @@ object PublicResponses {
   object CountryWithRegions {
 
     val jsonFormat = new CustomSerializer[CountryWithRegions](format ⇒
-          ({
+      ({
         case json: JObject ⇒
           val country = json.extract[Country]
           val regions = (json \ "regions").extract[Seq[Region]]

@@ -42,12 +42,10 @@ object LineItemUpdater {
     } yield response
   }
 
-  def updateOrderLineItems(admin: User, payload: Seq[UpdateOrderLineItemsPayload], refNum: String)(
-      implicit ec: EC,
-      es: ES,
-      db: DB,
-      ac: AC,
-      ctx: OC): DbResultT[OrderResponse] =
+  def updateOrderLineItems(
+      admin: User,
+      payload: Seq[UpdateOrderLineItemsPayload],
+      refNum: String)(implicit ec: EC, es: ES, db: DB, ac: AC, ctx: OC): DbResultT[OrderResponse] =
     for {
       _             ← * <~ runOrderLineItemUpdates(payload)
       orderUpdated  ← * <~ Orders.mustFindByRefNum(refNum)
@@ -60,10 +58,10 @@ object LineItemUpdater {
                                                                                  ac: AC,
                                                                                  ctx: OC) =
     DbResultT.sequence(payload.map(updatePayload ⇒
-              for {
+      for {
         orderLineItem ← * <~ OrderLineItems
-                         .filter(_.referenceNumber === updatePayload.referenceNumber)
-                         .mustFindOneOr(OrderLineItemNotFound(updatePayload.referenceNumber))
+          .filter(_.referenceNumber === updatePayload.referenceNumber)
+          .mustFindOneOr(OrderLineItemNotFound(updatePayload.referenceNumber))
         patch = orderLineItem.copy(state = updatePayload.state,
                                    attributes = updatePayload.attributes)
         updatedItem ← * <~ OrderLineItems.update(orderLineItem, patch)
@@ -160,8 +158,8 @@ object LineItemUpdater {
       ctx: OC): DbResultT[Seq[CartLineItem]] =
     for {
       _ ← * <~ CartLineItems
-           .byCordRef(cart.referenceNumber)
-           .deleteAll(DbResultT.unit, DbResultT.unit)
+        .byCordRef(cart.referenceNumber)
+        .deleteAll(DbResultT.unit, DbResultT.unit)
       updateResult ← * <~ payload.filter(_.quantity > 0).map(updateLineItems(cart, _))
     } yield updateResult.flatten
 
@@ -169,9 +167,9 @@ object LineItemUpdater {
                                                                             ctx: OC) =
     for {
       sku ← * <~ Skus
-             .filterByContext(ctx.id)
-             .filter(_.code === lineItem.sku)
-             .mustFindOneOr(SkuNotFoundForContext(lineItem.sku, ctx.id))
+        .filterByContext(ctx.id)
+        .filter(_.code === lineItem.sku)
+        .mustFindOneOr(SkuNotFoundForContext(lineItem.sku, ctx.id))
       _ ← * <~ mustFindProductIdForSku(sku, cart.refNum)
       updateResult ← * <~ createLineItems(sku.id,
                                           lineItem.quantity,
@@ -194,9 +192,9 @@ object LineItemUpdater {
     val lineItemUpdActions = payload.map { lineItem ⇒
       for {
         sku ← * <~ Skus
-               .filterByContext(ctx.id)
-               .filter(_.code === lineItem.sku)
-               .mustFindOneOr(SkuNotFoundForContext(lineItem.sku, ctx.id))
+          .filterByContext(ctx.id)
+          .filter(_.code === lineItem.sku)
+          .mustFindOneOr(SkuNotFoundForContext(lineItem.sku, ctx.id))
         _ ← * <~ mustFindProductIdForSku(sku, cart.refNum)
         _ ← * <~ (if (lineItem.quantity > 0)
                     createLineItems(sku.id, lineItem.quantity, cart.refNum, lineItem.attributes).meh
@@ -210,21 +208,21 @@ object LineItemUpdater {
   private def mustFindProductIdForSku(sku: Sku, refNum: String)(implicit ec: EC, oc: OC) = {
     for {
       link ← * <~ ProductSkuLinks.filter(_.rightId === sku.id).one.dbresult.flatMap {
-              case Some(productLink) ⇒
-                DbResultT.good(productLink.leftId)
-              case None ⇒
-                for {
-                  valueLink ← * <~ VariantValueSkuLinks
-                               .filter(_.rightId === sku.id)
-                               .mustFindOneOr(SkuWithNoProductAdded(refNum, sku.code))
-                  variantLink ← * <~ VariantValueLinks
-                                 .filter(_.rightId === valueLink.leftId)
-                                 .mustFindOneOr(SkuWithNoProductAdded(refNum, sku.code))
-                  productLink ← * <~ ProductVariantLinks
-                                 .filter(_.rightId === variantLink.leftId)
-                                 .mustFindOneOr(SkuWithNoProductAdded(refNum, sku.code))
-                } yield productLink.leftId
-            }
+        case Some(productLink) ⇒
+          DbResultT.good(productLink.leftId)
+        case None ⇒
+          for {
+            valueLink ← * <~ VariantValueSkuLinks
+              .filter(_.rightId === sku.id)
+              .mustFindOneOr(SkuWithNoProductAdded(refNum, sku.code))
+            variantLink ← * <~ VariantValueLinks
+              .filter(_.rightId === valueLink.leftId)
+              .mustFindOneOr(SkuWithNoProductAdded(refNum, sku.code))
+            productLink ← * <~ ProductVariantLinks
+              .filter(_.rightId === variantLink.leftId)
+              .mustFindOneOr(SkuWithNoProductAdded(refNum, sku.code))
+          } yield productLink.leftId
+      }
     } yield link
   }
 

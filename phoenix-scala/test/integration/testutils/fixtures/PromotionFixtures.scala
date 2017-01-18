@@ -24,15 +24,15 @@ trait PromotionFixtures extends TestFixtureBase {
 
     def makeDiscountAttrs(qualifier: String, qualifierValue: JObject): Map[String, Json] = {
       Map[String, Any](
-          "title"       → s"Get $percentOff% off when you spend $totalAmount dollars",
-          "description" → s"$percentOff% off when you spend over $totalAmount dollars",
-          "tags"        → tv(JArray(List.empty[JString]), "tags"),
-          "qualifier"   → JObject(qualifier → qualifierValue).asShadowVal(t = "qualifier"),
-          "offer" → JObject(
-              "orderPercentOff" → JObject(
-                  "discount" → JInt(percentOff)
-              )
-          ).asShadowVal("offer")
+        "title"       → s"Get $percentOff% off when you spend $totalAmount dollars",
+        "description" → s"$percentOff% off when you spend over $totalAmount dollars",
+        "tags"        → tv(JArray(List.empty[JString]), "tags"),
+        "qualifier"   → JObject(qualifier → qualifierValue).asShadowVal(t = "qualifier"),
+        "offer" → JObject(
+          "orderPercentOff" → JObject(
+            "discount" → JInt(percentOff)
+          )
+        ).asShadowVal("offer")
       ).asShadow
     }
 
@@ -49,15 +49,15 @@ trait PromotionFixtures extends TestFixtureBase {
                                          Seq(CreateDiscount(attributes = discountAttributes)))
 
     val (promoRoot: PromotionResponse.Root, promotion: Promotion) = createPromotionFromPayload(
-        promoPayload)
+      promoPayload)
 
     def createPromotionFromPayload(promoPayload: CreatePromotion) = {
       (for {
         promoRoot ← * <~ PromotionManager.create(promoPayload, ctx.name, None)
         promotion ← * <~ Promotions
-                     .filter(_.contextId === ctx.id)
-                     .filter(_.formId === promoRoot.id)
-                     .mustFindOneOr(NotFoundFailure404(Promotion, "test"))
+          .filter(_.contextId === ctx.id)
+          .filter(_.formId === promoRoot.id)
+          .mustFindOneOr(NotFoundFailure404(Promotion, "test"))
       } yield (promoRoot, promotion)).gimme
     }
 

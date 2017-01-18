@@ -64,7 +64,7 @@ class UserPasswordResets(tag: Tag)
 
   def * =
     (id, accountId, email, state, code, activatedAt, createdAt) <> ((UserPasswordReset.apply _).tupled,
-        UserPasswordReset.unapply)
+    UserPasswordReset.unapply)
 }
 
 object UserPasswordResets

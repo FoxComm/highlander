@@ -19,8 +19,8 @@ object SharedSearchService {
     for {
       scope ← * <~ rawScope.toXor(SharedSearchScopeNotFound.single)
       searchScope ← * <~ SharedSearch.Scope
-                     .read(scope)
-                     .toXor(NotFoundFailure404(SharedSearch, scope).single)
+        .read(scope)
+        .toXor(NotFoundFailure404(SharedSearch, scope).single)
       result ← * <~ SharedSearchAssociations.associatedWith(admin, searchScope).result
     } yield result
 
@@ -38,7 +38,7 @@ object SharedSearchService {
     for {
       search ← * <~ SharedSearches.create(SharedSearch.byAdmin(admin, payload))
       _ ← * <~ SharedSearchAssociations.create(
-             SharedSearchAssociation(sharedSearchId = search.id, storeAdminId = admin.accountId))
+        SharedSearchAssociation(sharedSearchId = search.id, storeAdminId = admin.accountId))
     } yield search
 
   def update(admin: User, code: String, payload: SharedSearchPayload)(
@@ -47,7 +47,7 @@ object SharedSearchService {
     for {
       search ← * <~ mustFindActiveByCode(code)
       updated ← * <~ SharedSearches
-                 .update(search, search.copy(title = payload.title, query = payload.query))
+        .update(search, search.copy(title = payload.title, query = payload.query))
     } yield updated
 
   def delete(admin: User, code: String)(implicit ec: EC, db: DB): DbResultT[Unit] =
@@ -63,9 +63,9 @@ object SharedSearchService {
     for {
       search ← * <~ mustFindActiveByCode(code)
       adminIds ← * <~ Users
-                  .filter(_.accountId.inSetBind(requestedAssigneeIds))
-                  .map(_.accountId)
-                  .result
+        .filter(_.accountId.inSetBind(requestedAssigneeIds))
+        .map(_.accountId)
+        .result
       associates ← * <~ SharedSearchAssociations.associatedAdmins(search).result
       newAssociations = adminIds
         .diff(associates.map(_.id))
@@ -83,8 +83,8 @@ object SharedSearchService {
       search    ← * <~ mustFindActiveByCode(code)
       associate ← * <~ Users.mustFindByAccountId(assigneeId)
       assignment ← * <~ SharedSearchAssociations
-                    .byStoreAdmin(associate)
-                    .mustFindOneOr(SharedSearchAssociationNotFound(code, assigneeId))
+        .byStoreAdmin(associate)
+        .mustFindOneOr(SharedSearchAssociationNotFound(code, assigneeId))
       _ ← * <~ SharedSearchAssociations.byStoreAdmin(associate).delete
       _ ← * <~ LogActivity.unassociatedFromSearch(admin, search, associate)
     } yield search

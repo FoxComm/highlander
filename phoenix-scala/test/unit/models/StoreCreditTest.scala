@@ -25,9 +25,9 @@ class StoreCreditTest extends TestBase {
 
         result mustBe 'invalid
         result.fold(identity, m ⇒ NEL.of(m.modelName)) mustBe NEL.of(
-            GeneralFailure("originalBalance cannot be less than currentBalance"),
-            GeneralFailure("originalBalance cannot be less than availableBalance"),
-            GeneralFailure("originalBalance must be greater than zero")
+          GeneralFailure("originalBalance cannot be less than currentBalance"),
+          GeneralFailure("originalBalance cannot be less than availableBalance"),
+          GeneralFailure("originalBalance must be greater than zero")
         )
       }
 
@@ -37,7 +37,7 @@ class StoreCreditTest extends TestBase {
 
         result mustBe 'invalid
         result.fold(identity, m ⇒ NEL.of(m.modelName)) mustBe NEL.of(
-            GeneralFailure("canceledAmount must be present when canceled")
+          GeneralFailure("canceledAmount must be present when canceled")
         )
       }
 

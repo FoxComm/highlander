@@ -53,18 +53,18 @@ object CordResponsePromotions {
     for {
       // Coupon
       couponCode ← * <~ CouponCodes
-                    .findOneById(couponCodeId)
-                    .mustFindOr(CouponCodeNotFound(couponCodeId))
+        .findOneById(couponCodeId)
+        .mustFindOr(CouponCodeNotFound(couponCodeId))
       coupon ← * <~ Coupons
-                .filterByContextAndFormId(ctx.id, couponCode.couponFormId)
-                .mustFindOneOr(CouponWithCodeCannotBeFound(couponCode.code))
+        .filterByContextAndFormId(ctx.id, couponCode.couponFormId)
+        .mustFindOneOr(CouponWithCodeCannotBeFound(couponCode.code))
       couponForm   ← * <~ ObjectForms.mustFindById404(coupon.formId)
       couponShadow ← * <~ ObjectShadows.mustFindById404(coupon.shadowId)
       // Promotion
       promotion ← * <~ Promotions
-                   .filterByContextAndFormId(ctx.id, coupon.promotionId)
-                   .requiresCoupon
-                   .mustFindOneOr(PromotionNotFound(coupon.promotionId))
+        .filterByContextAndFormId(ctx.id, coupon.promotionId)
+        .requiresCoupon
+        .mustFindOneOr(PromotionNotFound(coupon.promotionId))
       promoForm   ← * <~ ObjectForms.mustFindById404(promotion.formId)
       promoShadow ← * <~ ObjectShadows.mustFindById404(promotion.shadowId)
 
@@ -72,7 +72,7 @@ object CordResponsePromotions {
       // Illuminate
       theCoupon = IlluminatedCoupon.illuminate(ctx, coupon, couponForm, couponShadow)
       theDiscounts = discounts.map(discount ⇒
-            IlluminatedDiscount.illuminate(ctx.some, discount.form, discount.shadow))
+        IlluminatedDiscount.illuminate(ctx.some, discount.form, discount.shadow))
       thePromotion = IlluminatedPromotion.illuminate(ctx, promotion, promoForm, promoShadow)
       // Responses
       respPromo      = PromotionResponse.build(thePromotion, theDiscounts, promotion)

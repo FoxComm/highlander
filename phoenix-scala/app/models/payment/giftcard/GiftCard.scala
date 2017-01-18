@@ -64,11 +64,10 @@ case class GiftCard(id: Int = 0,
       }
 
     (canceledWithReason
-        // |@| notEmpty(code, "code") // FIXME: this check does not allow to create models
-          |@| validExpr(originalBalance >= 0,
-                        "originalBalance should be greater or equal than zero") |@| validExpr(
-            currentBalance >= 0,
-            "currentBalance should be greater or equal than zero")).map {
+    // |@| notEmpty(code, "code") // FIXME: this check does not allow to create models
+      |@| validExpr(originalBalance >= 0, "originalBalance should be greater or equal than zero") |@| validExpr(
+      currentBalance >= 0,
+      "currentBalance should be greater or equal than zero")).map {
       case _ ⇒ this
     }
   }
@@ -79,9 +78,9 @@ case class GiftCard(id: Int = 0,
     super.transitionModel(newModel)
 
   val fsm: Map[State, Set[State]] = Map(
-      OnHold → Set(Active, Canceled),
-      Active → Set(OnHold, Canceled),
-      Cart   → Set(Canceled)
+    OnHold → Set(Active, Canceled),
+    Active → Set(OnHold, Canceled),
+    Cart   → Set(Canceled)
   )
 
   def isActive: Boolean = state == Active
@@ -129,28 +128,28 @@ object GiftCard {
 
   def build(balance: Int, originId: Int, currency: Currency)(implicit au: AU): GiftCard = {
     GiftCard(
-        scope = Scope.current,
-        originId = originId,
-        originType = GiftCard.CustomerPurchase,
-        state = GiftCard.Active,
-        currency = currency,
-        originalBalance = balance,
-        availableBalance = balance,
-        currentBalance = balance
+      scope = Scope.current,
+      originId = originId,
+      originType = GiftCard.CustomerPurchase,
+      state = GiftCard.Active,
+      currency = currency,
+      originalBalance = balance,
+      availableBalance = balance,
+      currentBalance = balance
     )
   }
 
   def buildAppeasement(payload: GiftCardCreateByCsr, originId: Int, scope: LTree): GiftCard = {
     GiftCard(
-        scope = scope,
-        originId = originId,
-        originType = GiftCard.CsrAppeasement,
-        subTypeId = payload.subTypeId,
-        state = GiftCard.Active,
-        currency = payload.currency,
-        originalBalance = payload.balance,
-        availableBalance = payload.balance,
-        currentBalance = payload.balance
+      scope = scope,
+      originId = originId,
+      originType = GiftCard.CsrAppeasement,
+      subTypeId = payload.subTypeId,
+      state = GiftCard.Active,
+      currency = payload.currency,
+      originalBalance = payload.balance,
+      availableBalance = payload.balance,
+      currentBalance = payload.balance
     )
   }
 
@@ -158,58 +157,58 @@ object GiftCard {
                               originId: Int,
                               scope: LTree): GiftCard = {
     GiftCard(
-        scope = scope,
-        originId = originId,
-        originType = GiftCard.CustomerPurchase,
-        subTypeId = payload.subTypeId,
-        state = GiftCard.Active,
-        currency = payload.currency,
-        originalBalance = payload.balance,
-        availableBalance = payload.balance,
-        currentBalance = payload.balance,
-        senderName = Some(payload.senderName),
-        recipientName = Some(payload.recipientName),
-        recipientEmail = Some(payload.recipientEmail),
-        message = Some(payload.message)
+      scope = scope,
+      originId = originId,
+      originType = GiftCard.CustomerPurchase,
+      subTypeId = payload.subTypeId,
+      state = GiftCard.Active,
+      currency = payload.currency,
+      originalBalance = payload.balance,
+      availableBalance = payload.balance,
+      currentBalance = payload.balance,
+      senderName = Some(payload.senderName),
+      recipientName = Some(payload.recipientName),
+      recipientEmail = Some(payload.recipientEmail),
+      message = Some(payload.message)
     )
   }
 
   def buildScTransfer(balance: Int, originId: Int, currency: Currency, scope: LTree): GiftCard = {
     GiftCard(
-        scope = scope,
-        originId = originId,
-        originType = GiftCard.FromStoreCredit,
-        state = GiftCard.Active,
-        currency = currency,
-        originalBalance = balance,
-        availableBalance = balance,
-        currentBalance = balance
+      scope = scope,
+      originId = originId,
+      originType = GiftCard.FromStoreCredit,
+      state = GiftCard.Active,
+      currency = currency,
+      originalBalance = balance,
+      availableBalance = balance,
+      currentBalance = balance
     )
   }
 
   def buildLineItem(balance: Int, originId: Int, currency: Currency)(implicit au: AU): GiftCard = {
     GiftCard(
-        scope = Scope.current,
-        originId = originId,
-        originType = GiftCard.CustomerPurchase,
-        state = GiftCard.Cart,
-        currency = currency,
-        originalBalance = balance,
-        availableBalance = balance,
-        currentBalance = balance
+      scope = Scope.current,
+      originId = originId,
+      originType = GiftCard.CustomerPurchase,
+      state = GiftCard.Cart,
+      currency = currency,
+      originalBalance = balance,
+      availableBalance = balance,
+      currentBalance = balance
     )
   }
 
   def buildRmaProcess(originId: Int, currency: Currency)(implicit au: AU): GiftCard = {
     GiftCard(
-        scope = Scope.current,
-        originId = originId,
-        originType = GiftCard.RmaProcess,
-        state = GiftCard.Cart,
-        currency = currency,
-        originalBalance = 0,
-        availableBalance = 0,
-        currentBalance = 0
+      scope = Scope.current,
+      originId = originId,
+      originType = GiftCard.RmaProcess,
+      state = GiftCard.Cart,
+      currency = currency,
+      originalBalance = 0,
+      availableBalance = 0,
+      currentBalance = 0
     )
   }
 

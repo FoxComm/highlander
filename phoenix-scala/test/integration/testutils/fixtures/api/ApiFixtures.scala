@@ -25,21 +25,20 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi { sel
   trait ProductSku_ApiFixture {
     private val productCode = s"testprod_${Lorem.numerify("####")}"
     val skuCode             = s"$productCode-sku_${Lorem.letterify("????").toUpperCase}"
-    def skuPrice: Int = Random.nextInt(20000) + 100
+    def skuPrice: Int       = Random.nextInt(20000) + 100
 
     private val skuPayload = SkuPayload(
-        attributes = Map("code"        → tv(skuCode),
-                         "title"       → tv(skuCode.capitalize),
-                         "salePrice"   → tv(("currency" → "USD") ~ ("value" → skuPrice), "price"),
-                         "retailPrice" → tv(("currency" → "USD") ~ ("value" → skuPrice), "price")))
+      attributes = Map("code"        → tv(skuCode),
+                       "title"       → tv(skuCode.capitalize),
+                       "salePrice"   → tv(("currency" → "USD") ~ ("value" → skuPrice), "price"),
+                       "retailPrice" → tv(("currency" → "USD") ~ ("value" → skuPrice), "price")))
 
     val productPayload =
-      CreateProductPayload(
-          attributes =
-            Map("name" → tv(productCode.capitalize), "title" → tv(productCode.capitalize)),
-          slug = productCode.toLowerCase,
-          skus = Seq(skuPayload),
-          variants = None)
+      CreateProductPayload(attributes = Map("name"  → tv(productCode.capitalize),
+                                            "title" → tv(productCode.capitalize)),
+                           slug = productCode.toLowerCase,
+                           skus = Seq(skuPayload),
+                           variants = None)
 
     val product = productsApi.create(productPayload).as[ProductRoot]
   }
@@ -49,8 +48,8 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi { sel
     def percentOff: Int        = 10
 
     private lazy val promoPayload = PromotionPayloadBuilder.build(
-        PromoOfferBuilder.CartPercentOff(percentOff),
-        PromoQualifierBuilder.CartTotalAmount(qualifiedSubtotal))
+      PromoOfferBuilder.CartPercentOff(percentOff),
+      PromoQualifierBuilder.CartTotalAmount(qualifiedSubtotal))
 
     def promotion = promotionsApi.create(promoPayload).as[PromotionResponse.Root]
   }
@@ -60,8 +59,8 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi { sel
     def percentOff: Int        = 10
 
     private lazy val promoPayload = PromotionPayloadBuilder.build(
-        PromoOfferBuilder.CartPercentOff(percentOff),
-        PromoQualifierBuilder.CartNumUnits(qualifiedNumItems))
+      PromoOfferBuilder.CartPercentOff(percentOff),
+      PromoQualifierBuilder.CartNumUnits(qualifiedNumItems))
 
     lazy val promotion = promotionsApi.create(promoPayload).as[PromotionResponse.Root]
   }

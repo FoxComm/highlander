@@ -51,16 +51,16 @@ object TreeManager {
       context ← * <~ ObjectManager.mustFindByName404(contextName)
       tree    ← * <~ getOrCreateDbTree(treeName, context)
       newChildNode ← * <~ GenericTreeNodes
-                      .findNodesByIndex(tree.id, moveSpec.child)
-                      .mustFindOneOr(TreeNodeNotFound(treeName, contextName, moveSpec.child))
+        .findNodesByIndex(tree.id, moveSpec.child)
+        .mustFindOneOr(TreeNodeNotFound(treeName, contextName, moveSpec.child))
       shouldBeDeleted = moveSpec.index.isEmpty
       _ ← * <~ (if (shouldBeDeleted)
                   GenericTreeNodes.deleteById(
-                      newChildNode.id,
-                      DbResultT.unit,
-                      _ ⇒
-                        DatabaseFailure(
-                            s"cannot delete node: index=${newChildNode.index}, tree=$treeName, context=$contextName"))
+                    newChildNode.id,
+                    DbResultT.unit,
+                    _ ⇒
+                      DatabaseFailure(
+                        s"cannot delete node: index=${newChildNode.index}, tree=$treeName, context=$contextName"))
                 else moveNode(tree.id, moveSpec.index.get, newChildNode))
       resultTree ← * <~ getFullTree(treeName, context)
     } yield resultTree
@@ -72,10 +72,10 @@ object TreeManager {
       context ← * <~ ObjectManager.mustFindByName404(contextName)
       tree    ← * <~ getByNameAndContext(treeName, context)
       node ← * <~ GenericTreeNodes
-              .findNodesByPath(tree.id, LTree(path))
-              .mustFindOneOr(TreeNodeNotFound(treeName, contextName, path))
+        .findNodesByPath(tree.id, LTree(path))
+        .mustFindOneOr(TreeNodeNotFound(treeName, contextName, path))
       _ ← * <~ GenericTreeNodes
-           .update(node, node.copy(kind = newValues.kind, objectId = newValues.objectId))
+        .update(node, node.copy(kind = newValues.kind, objectId = newValues.objectId))
       result ← * <~ getFullTree(treeName, context)
     } yield result
 
@@ -116,8 +116,8 @@ object TreeManager {
       db: DB): DbResultT[Int] =
     for {
       parentNode ← * <~ GenericTreeNodes
-                    .findNodesByIndex(treeId, parentIndex)
-                    .mustFindOneOr(TreeNodeNotFound(treeId, parentIndex))
+        .findNodesByIndex(treeId, parentIndex)
+        .mustFindOneOr(TreeNodeNotFound(treeId, parentIndex))
       _ ← * <~ (if (parentNode.path.value.contains(childNode.index.toString))
                   DbResultT.failure(ParentChildSwapFailure(parentNode.index, childNode.index))
                 else DbResultT.none)

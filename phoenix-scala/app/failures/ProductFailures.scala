@@ -48,17 +48,17 @@ object ProductFailures {
   object ProductNotFoundForContext {
     def apply(productId: Int, productContextId: Int) =
       NotFoundFailure404(
-          s"Product with id=$productId with product context $productContextId cannot be found")
+        s"Product with id=$productId with product context $productContextId cannot be found")
 
     def apply(slug: String, productContextId: Int) =
       NotFoundFailure404(
-          s"Product with slug=$slug with product context $productContextId cannot be found")
+        s"Product with slug=$slug with product context $productContextId cannot be found")
   }
 
   object ProductFormNotFoundForContext {
     def apply(formId: Int, productContextId: Int) =
       NotFoundFailure404(
-          s"Product form with id=$formId with product context $productContextId cannot be found")
+        s"Product form with id=$formId with product context $productContextId cannot be found")
   }
 
   object NoAlbumsFoundForProduct {

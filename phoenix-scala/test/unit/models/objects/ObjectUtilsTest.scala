@@ -48,7 +48,7 @@ class ObjectUtilsTest extends TestBase with GeneratorDrivenPropertyChecks {
             ObjectUtils.updateForm(oldForm, toJObject(humanFormUpdate))
 
           updatedForm.asInstanceOf[JObject].obj.toMap must === (
-              toForm(oldHumanForm) ++ toForm(humanFormUpdate))
+            toForm(oldHumanForm) ++ toForm(humanFormUpdate))
           updatedKeymap must === (toKeyMap(humanFormUpdate))
       }
     }

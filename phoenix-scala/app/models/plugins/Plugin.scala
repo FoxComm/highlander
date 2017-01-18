@@ -37,9 +37,9 @@ case class Plugin(id: Int = 0,
   override def validate: ValidatedNel[Failure, Plugin] = {
 
     (notEmpty(name, "name")
-          |@| notEmpty(version, "version")
-          |@| greaterThan(apiPort, 1, "Api port must be greater than 1")
-          |@| notEmpty(apiHost, "apiHost")).map {
+      |@| notEmpty(version, "version")
+      |@| greaterThan(apiPort, 1, "Api port must be greater than 1")
+      |@| notEmpty(apiHost, "apiHost")).map {
       case _ ⇒ this
     }
   }

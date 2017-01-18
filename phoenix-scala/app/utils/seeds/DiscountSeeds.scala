@@ -36,9 +36,9 @@ trait DiscountSeeds {
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       results ← * <~ discounts(search).map {
-                 case (title, payload) ⇒
-                   insertDiscount(title, payload, context)
-               }
+        case (title, payload) ⇒
+          insertDiscount(title, payload, context)
+      }
     } yield results
 
   def insertDiscount(title: String, payload: CreateDiscount, context: ObjectContext)(
@@ -50,11 +50,11 @@ trait DiscountSeeds {
       shadow ← * <~ ObjectShadow(attributes = payload.shadow.attributes)
       ins    ← * <~ ObjectUtils.insert(form, shadow, schema = None)
       discount ← * <~ Discounts.create(
-                    Discount(scope = scope,
-                             contextId = context.id,
-                             formId = ins.form.id,
-                             shadowId = ins.shadow.id,
-                             commitId = ins.commit.id))
+        Discount(scope = scope,
+                 contextId = context.id,
+                 formId = ins.form.id,
+                 shadowId = ins.shadow.id,
+                 commitId = ins.commit.id))
     } yield
       BaseDiscount(title = title,
                    discountId = discount.id,
@@ -65,24 +65,24 @@ trait DiscountSeeds {
     Seq(ProductSearch(productSearchId = search.id))
 
   def qualifiers(search: SharedSearch): Seq[Qualifier] = Seq(
-      OrderAnyQualifier,
-      OrderTotalAmountQualifier(1000),
-      OrderNumUnitsQualifier(2),
-      ItemsAnyQualifier(productSearch(search)),
-      ItemsTotalAmountQualifier(1500, productSearch(search)),
-      ItemsNumUnitsQualifier(2, productSearch(search))
+    OrderAnyQualifier,
+    OrderTotalAmountQualifier(1000),
+    OrderNumUnitsQualifier(2),
+    ItemsAnyQualifier(productSearch(search)),
+    ItemsTotalAmountQualifier(1500, productSearch(search)),
+    ItemsNumUnitsQualifier(2, productSearch(search))
   )
 
   def offers(search: SharedSearch): Seq[Offer] = Seq(
-      OrderAmountOffer(3000),
-      OrderPercentOffer(30),
-      ItemAmountOffer(1000, productSearch(search)),
-      ItemPercentOffer(50, productSearch(search)),
-      ItemsAmountOffer(3000, productSearch(search)),
-      ItemsPercentOffer(30, productSearch(search)),
-      FreeShippingOffer,
-      DiscountedShippingOffer(500),
-      SetPriceOffer(2500, 2, productSearch(search))
+    OrderAmountOffer(3000),
+    OrderPercentOffer(30),
+    ItemAmountOffer(1000, productSearch(search)),
+    ItemPercentOffer(50, productSearch(search)),
+    ItemsAmountOffer(3000, productSearch(search)),
+    ItemsPercentOffer(30, productSearch(search)),
+    FreeShippingOffer,
+    DiscountedShippingOffer(500),
+    SetPriceOffer(2500, 2, productSearch(search))
   )
 
   def discounts(search: SharedSearch): Seq[(String, CreateDiscount)] =

@@ -30,14 +30,14 @@ trait GiftCardSeeds {
       gc1    ← * <~ GiftCards.create(giftCard.copy(originId = origin.id))
       _      ← * <~ GiftCards.capture(gc1, debit = 1000, orderPaymentId = None)
       _ ← * <~ GiftCards.create(
-             build(payload(balance = 10000, reasonId = 1), originId = origin.id, scope = scope))
+        build(payload(balance = 10000, reasonId = 1), originId = origin.id, scope = scope))
       _ ← * <~ Notes.createAll(giftCardNotes.map(_.copy(referenceId = gc1.id)))
     } yield {}
 
   def giftCardSubTypes: Seq[GiftCardSubtype] = Seq(
-      GiftCardSubtype(title = "Appeasement Subtype A", originType = GiftCard.CsrAppeasement),
-      GiftCardSubtype(title = "Appeasement Subtype B", originType = GiftCard.CsrAppeasement),
-      GiftCardSubtype(title = "Appeasement Subtype C", originType = GiftCard.CsrAppeasement)
+    GiftCardSubtype(title = "Appeasement Subtype A", originType = GiftCard.CsrAppeasement),
+    GiftCardSubtype(title = "Appeasement Subtype B", originType = GiftCard.CsrAppeasement),
+    GiftCardSubtype(title = "Appeasement Subtype C", originType = GiftCard.CsrAppeasement)
   )
 
   def giftCardNotes(implicit au: AU): Seq[Note] = {
@@ -48,10 +48,10 @@ trait GiftCardSeeds {
            body = body,
            scope = Scope.current)
     Seq(
-        newNote("This customer is a donkey."),
-        newNote("No, seriously."),
-        newNote("Like, an actual donkey."),
-        newNote("How did a donkey even place an order on our website?")
+      newNote("This customer is a donkey."),
+      newNote("No, seriously."),
+      newNote("Like, an actual donkey."),
+      newNote("How did a donkey even place an order on our website?")
     )
   }
 }

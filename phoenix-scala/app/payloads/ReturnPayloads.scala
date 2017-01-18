@@ -63,9 +63,9 @@ object ReturnPayloads {
 
     def validate: ValidatedNel[Failure, ReturnMessageToCustomerPayload] = {
       (greaterThanOrEqual(message.length, 0, "Message length") |@| lesserThanOrEqual(
-              message.length,
-              Return.messageToAccountMaxLength,
-              "Message length")).map {
+        message.length,
+        Return.messageToAccountMaxLength,
+        "Message length")).map {
         case _ ⇒ this
       }
     }

@@ -237,7 +237,7 @@ class NotificationIntegrationTest
       Activities.gimme must have size 5
       // No new notification connections must appear
       connections must contain allOf ((customerDimension, 3), (customerDimension, 4),
-          (Dimension.notification, 4), (customerDimension, 5), (Dimension.notification, 5))
+      (Dimension.notification, 4), (customerDimension, 5), (Dimension.notification, 5))
     }
 
     def connections =

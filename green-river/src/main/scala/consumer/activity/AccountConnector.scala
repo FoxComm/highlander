@@ -14,20 +14,20 @@ object AccountConnector extends ActivityConnector {
     Future {
       val accountIds =
         byContextType(activity) ++:
-        byNoteData(activity) ++:
-        byData(activity, "account") ++:
-        byData(activity, "user") ++:
-        byData(activity, "admin") ++:
-        byData(activity, "customer") ++:
-        byData(activity, "assignee") ++:
-        byId(activity, "accountId") ++:
-        byId(activity, "userId") ++:
-        byId(activity, "customerId") ++:
-        byId(activity, "adminId") ++:
-        byUpdatedActivity(activity) ++:
-        byAssignmentSingleData(activity) ++:
-        byAssignmentBulkData(activity) ++:
-        byAssigneesData(activity)
+          byNoteData(activity) ++:
+            byData(activity, "account") ++:
+              byData(activity, "user") ++:
+                byData(activity, "admin") ++:
+                  byData(activity, "customer") ++:
+                    byData(activity, "assignee") ++:
+                      byId(activity, "accountId") ++:
+                        byId(activity, "userId") ++:
+                          byId(activity, "customerId") ++:
+                            byId(activity, "adminId") ++:
+                              byUpdatedActivity(activity) ++:
+                                byAssignmentSingleData(activity) ++:
+                                  byAssignmentBulkData(activity) ++:
+                                    byAssigneesData(activity)
 
       accountIds.distinct.map(createConnection(_, activity.id))
     }

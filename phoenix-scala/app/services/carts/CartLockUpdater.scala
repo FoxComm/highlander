@@ -15,7 +15,7 @@ object CartLockUpdater {
       _    ← * <~ cart.mustNotBeLocked
       _    ← * <~ Carts.update(cart, cart.copy(isLocked = true))
       _ ← * <~ CartLockEvents.create(
-             CartLockEvent(cartRef = cart.refNum, lockedBy = admin.accountId))
+        CartLockEvent(cartRef = cart.refNum, lockedBy = admin.accountId))
       resp ← * <~ CartResponse.buildRefreshed(cart)
     } yield resp
 

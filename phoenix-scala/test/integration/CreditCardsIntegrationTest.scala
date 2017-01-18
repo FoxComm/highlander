@@ -197,7 +197,7 @@ class CreditCardsIntegrationTest
       verify(stripeWrapperMock).deleteCard(m.argThat(cardStripeIdMatches(stripeCard2.getId)))
 
       customersApi(customer.accountId).payments.creditCards.get().as[Seq[Root]] must === (
-          Seq(ccResp1))
+        Seq(ccResp1))
     }
 
     "errors 404 if customer not found" in {
@@ -219,7 +219,7 @@ class CreditCardsIntegrationTest
     "returns valid phone number" in new StoreAdmin_Seed with Customer_Seed {
       val testPhoneNumber = "1234567890"
       val payloadWithPhoneNumber = thePayload.copy(
-          billingAddress = thePayload.billingAddress.copy(phoneNumber = testPhoneNumber.some))
+        billingAddress = thePayload.billingAddress.copy(phoneNumber = testPhoneNumber.some))
       POST("v1/my/payment-methods/credit-cards", payloadWithPhoneNumber).mustBeOk()
 
       val ccs = GET("v1/my/payment-methods/credit-cards").as[Seq[CreditCardsResponse.Root]]
@@ -308,14 +308,14 @@ class CreditCardsIntegrationTest
     "errors 400 if wrong region id" in new Customer_Seed {
       val payload = thePayload.copy(billingAddress = theAddressPayload.copy(regionId = -1))
       POST("v1/my/payment-methods/credit-cards", payload).mustFailWith400(
-          NotFoundFailure400(Region, -1))
+        NotFoundFailure400(Region, -1))
     }
 
     "validates payload" in {
       val validationErrors = crookedPayload.validate.toXor.leftVal.toList.map(_.description)
 
       POST("v1/my/payment-methods/credit-cards", crookedPayload).mustFailWithMessage(
-          validationErrors: _*)
+        validationErrors: _*)
     }
   }
 

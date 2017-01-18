@@ -43,15 +43,15 @@ object OrderShippingAddress {
 
   def fromPatchPayload(a: OrderShippingAddress, p: UpdateAddressPayload) = {
     OrderShippingAddress(
-        id = a.id,
-        cordRef = a.cordRef,
-        regionId = p.regionId.getOrElse(a.regionId),
-        name = p.name.getOrElse(a.name),
-        address1 = p.address1.getOrElse(a.address1),
-        address2 = p.address2.fold(a.address2)(Some(_)),
-        city = p.city.getOrElse(a.city),
-        zip = p.zip.getOrElse(a.zip),
-        phoneNumber = p.phoneNumber.fold(a.phoneNumber)(Some(_))
+      id = a.id,
+      cordRef = a.cordRef,
+      regionId = p.regionId.getOrElse(a.regionId),
+      name = p.name.getOrElse(a.name),
+      address1 = p.address1.getOrElse(a.address1),
+      address2 = p.address2.fold(a.address2)(Some(_)),
+      city = p.city.getOrElse(a.city),
+      zip = p.zip.getOrElse(a.zip),
+      phoneNumber = p.phoneNumber.fold(a.phoneNumber)(Some(_))
     )
   }
 }
@@ -80,7 +80,7 @@ class OrderShippingAddresses(tag: Tag)
 
 object OrderShippingAddresses
     extends FoxTableQuery[OrderShippingAddress, OrderShippingAddresses](
-        new OrderShippingAddresses(_))
+      new OrderShippingAddresses(_))
     with ReturningId[OrderShippingAddress, OrderShippingAddresses] {
 
   val returningLens: Lens[OrderShippingAddress, Int] = lens[OrderShippingAddress].id

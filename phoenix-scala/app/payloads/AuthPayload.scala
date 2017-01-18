@@ -28,7 +28,7 @@ object AuthPayload {
 
   class JwtClaimsSerializerImpl
       extends CustomSerializer[JwtClaims](format ⇒
-            ({
+        ({
           case jv ⇒
             JwtClaims.parse(compactJson(jv))
         }, {

@@ -91,7 +91,7 @@ class VariantIntegrationTest
       variantsApi(variant.variant.variantFormId)
         .update(payload)
         .mustFailWith400(
-            LinkArchivedSkuFailure(Variant, variant.variant.variantFormId, archivedSkuCode))
+          LinkArchivedSkuFailure(Variant, variant.variant.variantFormId, archivedSkuCode))
     }
   }
 
@@ -140,9 +140,9 @@ class VariantIntegrationTest
                                        price = 5999)
 
     val simpleSizeVariant = SimpleCompleteVariant(
-        variant = SimpleVariant("Size"),
-        variantValues = Seq(SimpleVariantValue("Small", "", Seq(skus.head.code)),
-                            SimpleVariantValue("Large", "", Seq(skus(1).code))))
+      variant = SimpleVariant("Size"),
+      variantValues = Seq(SimpleVariantValue("Small", "", Seq(skus.head.code)),
+                          SimpleVariantValue("Large", "", Seq(skus(1).code))))
 
     val (product, variant) = (for {
       productData ← * <~ Mvp.insertProduct(ctx.id, simpleProd)
@@ -155,8 +155,8 @@ class VariantIntegrationTest
 
     val archivedSkus = (for {
       archivedSkus ← * <~ skus.map { sku ⇒
-                      Skus.update(sku, sku.copy(archivedAt = Some(Instant.now)))
-                    }
+        Skus.update(sku, sku.copy(archivedAt = Some(Instant.now)))
+      }
     } yield archivedSkus).gimme
 
     val archivedSku     = archivedSkus.head

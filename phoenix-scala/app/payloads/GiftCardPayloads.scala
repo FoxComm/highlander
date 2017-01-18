@@ -35,7 +35,7 @@ object GiftCardPayloads {
 
     def validate: ValidatedNel[Failure, GiftCardCreateByCsr] = {
       (greaterThan(balance, 0, "Balance") |@| scope.fold[ValidatedNel[Failure, Unit]](ok)(s ⇒
-                notEmpty(s, "scope"))).map {
+        notEmpty(s, "scope"))).map {
         case _ ⇒ this
       }
     }
@@ -53,9 +53,9 @@ object GiftCardPayloads {
 
     def validate: ValidatedNel[Failure, GiftCardBulkCreateByCsr] = {
       (greaterThan(balance, 0, "Balance") |@| greaterThan(quantity, 0, "Quantity") |@| lesserThanOrEqual(
-              quantity,
-              bulkCreateLimit,
-              "Quantity") |@| scope.fold(ok)(s ⇒ notEmpty(s, "scope"))).map { case _ ⇒ this }
+        quantity,
+        bulkCreateLimit,
+        "Quantity") |@| scope.fold(ok)(s ⇒ notEmpty(s, "scope"))).map { case _ ⇒ this }
     }
   }
 
@@ -76,11 +76,12 @@ object GiftCardPayloads {
 
     def validate: ValidatedNel[Failure, GiftCardBulkUpdateStateByCsr] = {
       (GiftCard.validateStateReason(state, reasonId) |@| validExpr(
-              codes.nonEmpty,
-              "Please provide at least one code to update") |@| lesserThanOrEqual(
-              codes.length,
-              bulkUpdateLimit,
-              "Quantity")).map { case _ ⇒ this }
+        codes.nonEmpty,
+        "Please provide at least one code to update") |@| lesserThanOrEqual(codes.length,
+                                                                            bulkUpdateLimit,
+                                                                            "Quantity")).map {
+        case _ ⇒ this
+      }
     }
   }
 }

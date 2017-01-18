@@ -13,11 +13,11 @@ trait CreditCardSeeds extends CreditCardGenerator {
   def createCreditCards(customers: CustomerSeeds#CustomerIds): DbResultT[Unit] =
     for {
       _ ← * <~ CreditCards.createAll(
-             Seq(creditCard1.copy(accountId = customers._1),
-                 creditCard2.copy(accountId = customers._1),
-                 creditCard3.copy(accountId = customers._2),
-                 creditCard4.copy(accountId = customers._3),
-                 creditCard5.copy(accountId = customers._4)))
+        Seq(creditCard1.copy(accountId = customers._1),
+            creditCard2.copy(accountId = customers._1),
+            creditCard3.copy(accountId = customers._2),
+            creditCard4.copy(accountId = customers._3),
+            creditCard5.copy(accountId = customers._4)))
     } yield {}
 
   def creditCard1 = {

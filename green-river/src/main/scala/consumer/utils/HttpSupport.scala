@@ -65,13 +65,12 @@ case class Phoenix(conn: PhoenixConnectionInfo)(implicit ec: EC, ac: AS, mat: AM
   }
 
   private def authenticate(): HttpResult = {
-    val request = HttpRequest(
-        method = HttpMethods.POST,
-        uri = authUri,
-        entity = HttpEntity.Strict(
-            ContentTypes.`application/json`,
-            ByteString(authBodyTemplate.format(conn.user, conn.pass, conn.org))
-        ))
+    val request = HttpRequest(method = HttpMethods.POST,
+                              uri = authUri,
+                              entity = HttpEntity.Strict(
+                                ContentTypes.`application/json`,
+                                ByteString(authBodyTemplate.format(conn.user, conn.pass, conn.org))
+                              ))
 
     HttpResult.right(Http().singleRequest(request, settings = cp))
   }
@@ -91,8 +90,8 @@ case class Phoenix(conn: PhoenixConnectionInfo)(implicit ec: EC, ac: AS, mat: AM
     val request = HttpRequest(method = HttpMethods.POST,
                               uri = fullUri(suffix),
                               entity = HttpEntity.Strict(
-                                  ContentTypes.`application/json`,
-                                  ByteString(body)
+                                ContentTypes.`application/json`,
+                                ByteString(body)
                               )).addHeader(RawHeader(authHeaderName, token))
 
     HttpResult.right(Http().singleRequest(request, settings = cp))

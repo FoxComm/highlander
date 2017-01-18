@@ -45,7 +45,7 @@ class NotificationSubscriptions(tag: Tag)
 
   def * =
     (id, adminId, dimensionId, objectId, createdAt, reason) <> ((NotificationSubscription.apply _).tupled,
-        NotificationSubscription.unapply)
+    NotificationSubscription.unapply)
 
   def dimension = foreignKey(Dimensions.tableName, dimensionId, Dimensions)(_.id)
   def admin     = foreignKey(Users.tableName, adminId, Users)(_.accountId)
@@ -53,7 +53,7 @@ class NotificationSubscriptions(tag: Tag)
 
 object NotificationSubscriptions
     extends FoxTableQuery[NotificationSubscription, NotificationSubscriptions](
-        new NotificationSubscriptions(_))
+      new NotificationSubscriptions(_))
     with ReturningId[NotificationSubscription, NotificationSubscriptions] {
 
   val returningLens: Lens[NotificationSubscription, Int] = lens[NotificationSubscription].id

@@ -15,11 +15,11 @@ trait SearchById[M <: FoxModel[M], T <: FoxTable[M]] {
 
   protected def notFound404K[K](searchKey: K) =
     NotFoundFailure404(
-        s"${tableName.tableNameToCamel} with $primarySearchTerm=$searchKey not found")
+      s"${tableName.tableNameToCamel} with $primarySearchTerm=$searchKey not found")
 
   protected def notFound400K[K](searchKey: K) =
     NotFoundFailure400(
-        s"${tableName.tableNameToCamel} with $primarySearchTerm=$searchKey not found")
+      s"${tableName.tableNameToCamel} with $primarySearchTerm=$searchKey not found")
 
   def mustFindById404(id: M#Id)(implicit ec: EC, db: DB): DbResultT[M] = mustFindById(id)
 

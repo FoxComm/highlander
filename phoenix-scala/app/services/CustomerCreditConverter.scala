@@ -24,26 +24,26 @@ object CustomerCreditConverter {
       _        ← * <~ failIf(!giftCard.isActive, GiftCardConvertFailure(giftCard))
       _        ← * <~ Users.mustFindByAccountId(accountId)
       _ ← * <~ GiftCardAdjustments
-           .lastAuthByGiftCardId(giftCard.id)
-           .mustNotFindOneOr(OpenTransactionsFailure)
+        .lastAuthByGiftCardId(giftCard.id)
+        .mustNotFindOneOr(OpenTransactionsFailure)
       // Update state and make adjustment
       _ ← * <~ GiftCards
-           .findActiveByCode(giftCard.code)
-           .map(_.state)
-           .update(GiftCard.FullyRedeemed)
+        .findActiveByCode(giftCard.code)
+        .map(_.state)
+        .update(GiftCard.FullyRedeemed)
       _ ← * <~ GiftCards.redeemToStoreCredit(giftCard, admin)
 
       // Finally, convert to Store Credit
       conversion ← * <~ StoreCreditFromGiftCards.create(
-                      StoreCreditFromGiftCard(giftCardId = giftCard.id))
+        StoreCreditFromGiftCard(giftCardId = giftCard.id))
       storeCredit ← * <~ StoreCredits.create(
-                       StoreCredit(accountId = accountId,
-                                   originId = conversion.id,
-                                   scope = giftCard.scope,
-                                   originType = StoreCredit.GiftCardTransfer,
-                                   currency = giftCard.currency,
-                                   originalBalance = giftCard.currentBalance,
-                                   currentBalance = giftCard.currentBalance))
+        StoreCredit(accountId = accountId,
+                    originId = conversion.id,
+                    scope = giftCard.scope,
+                    originType = StoreCredit.GiftCardTransfer,
+                    currency = giftCard.currency,
+                    originalBalance = giftCard.currentBalance,
+                    currentBalance = giftCard.currentBalance))
 
       // Activity
       _ ← * <~ LogActivity.gcConvertedToSc(admin, giftCard, storeCredit)
@@ -58,25 +58,25 @@ object CustomerCreditConverter {
       _      ← * <~ failIf(!credit.isActive, StoreCreditConvertFailure(credit))
       _      ← * <~ Users.mustFindByAccountId(accountId)
       _ ← * <~ StoreCreditAdjustments
-           .lastAuthByStoreCreditId(credit.id)
-           .one
-           .mustNotFindOr(OpenTransactionsFailure)
+        .lastAuthByStoreCreditId(credit.id)
+        .one
+        .mustNotFindOr(OpenTransactionsFailure)
       // Update state and make adjustment
       scUpdated ← * <~ StoreCredits
-                   .findActiveById(credit.id)
-                   .map(_.state)
-                   .update(StoreCredit.FullyRedeemed)
+        .findActiveById(credit.id)
+        .map(_.state)
+        .update(StoreCredit.FullyRedeemed)
       adjustment ← * <~ StoreCredits.redeemToGiftCard(credit, admin)
       // Convert to Gift Card
       conversion ← * <~ GiftCardFromStoreCredits.create(
-                      GiftCardFromStoreCredit(storeCreditId = credit.id))
+        GiftCardFromStoreCredit(storeCreditId = credit.id))
       giftCard ← * <~ GiftCards.create(
-                    GiftCard(scope = Scope.current,
-                             originId = conversion.id,
-                             originType = GiftCard.FromStoreCredit,
-                             currency = credit.currency,
-                             originalBalance = credit.currentBalance,
-                             currentBalance = credit.currentBalance))
+        GiftCard(scope = Scope.current,
+                 originId = conversion.id,
+                 originType = GiftCard.FromStoreCredit,
+                 currency = credit.currency,
+                 originalBalance = credit.currentBalance,
+                 currentBalance = credit.currentBalance))
 
       // Activity
       _ ← * <~ LogActivity.scConvertedToGc(admin, giftCard, credit)

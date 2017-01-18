@@ -8,18 +8,18 @@ import consumer.elastic.mappings.dateFormat
 
 final case class SkuSearchView()(implicit ec: EC) extends AvroTransformer {
   def mapping() = esMapping("sku_search_view").fields(
-      field("id", IntegerType),
-      field("skuCode", StringType).analyzer("upper_cased"),
-      field("context", StringType).index("not_analyzed"),
-      field("scope", StringType).index("not_analyzed"),
-      field("title", StringType)
-        .analyzer("autocomplete")
-        .fields(field("raw", StringType).index("not_analyzed")),
-      field("salePrice", IntegerType),
-      field("salePriceCurrency", StringType),
-      field("retailPrice", IntegerType),
-      field("retailPriceCurrency", StringType),
-      field("archivedAt", DateType).format(dateFormat),
-      field("externalId", StringType).index("not_analyzed")
+    field("id", IntegerType),
+    field("skuCode", StringType).analyzer("upper_cased"),
+    field("context", StringType).index("not_analyzed"),
+    field("scope", StringType).index("not_analyzed"),
+    field("title", StringType)
+      .analyzer("autocomplete")
+      .fields(field("raw", StringType).index("not_analyzed")),
+    field("salePrice", IntegerType),
+    field("salePriceCurrency", StringType),
+    field("retailPrice", IntegerType),
+    field("retailPriceCurrency", StringType),
+    field("archivedAt", DateType).format(dateFormat),
+    field("externalId", StringType).index("not_analyzed")
   )
 }

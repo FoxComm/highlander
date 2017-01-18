@@ -30,6 +30,6 @@ trait FoxModel[M <: FoxModel[M]] extends Validation[M] with Identity[M] { self: 
   def mustBeCreated: Failures Xor M =
     if (id == 0)
       Xor.Left(
-          GeneralFailure(s"Refusing to update unsaved ${friendlyClassName(this)} model").single)
+        GeneralFailure(s"Refusing to update unsaved ${friendlyClassName(this)} model").single)
     else Xor.right(this)
 }

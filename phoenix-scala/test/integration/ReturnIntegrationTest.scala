@@ -174,7 +174,7 @@ class ReturnIntegrationTest
 
       "fails if message is too long" in new Fixture {
         val payload = ReturnMessageToCustomerPayload(
-            message = List.fill(Return.messageToAccountMaxLength)("Yax").mkString)
+          message = List.fill(Return.messageToAccountMaxLength)("Yax").mkString)
         val response = POST(s"v1/returns/99/message", payload)
 
         response.status must === (StatusCodes.BadRequest)
@@ -462,17 +462,15 @@ class ReturnIntegrationTest
 
       gcReason ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))
       gcOrigin ← * <~ GiftCardManuals.create(
-                    GiftCardManual(adminId = storeAdmin.accountId, reasonId = gcReason.id))
+        GiftCardManual(adminId = storeAdmin.accountId, reasonId = gcReason.id))
       giftCard ← * <~ GiftCards.create(
-                    Factories.giftCard.copy(originId = gcOrigin.id,
-                                            originType = GiftCard.RmaProcess))
+        Factories.giftCard.copy(originId = gcOrigin.id, originType = GiftCard.RmaProcess))
 
       shippingAddress ← * <~ OrderShippingAddresses.create(
-                           Factories.shippingAddress.copy(cordRef = order.refNum, regionId = 1))
+        Factories.shippingAddress.copy(cordRef = order.refNum, regionId = 1))
       shippingMethod ← * <~ ShippingMethods.create(Factories.shippingMethods.head)
       orderShippingMethod ← * <~ OrderShippingMethods.create(
-                               OrderShippingMethod.build(cordRef = order.refNum,
-                                                         method = shippingMethod))
+        OrderShippingMethod.build(cordRef = order.refNum, method = shippingMethod))
       shipment ← * <~ Shipments.create(Factories.shipment)
     } yield (returnReason, sku, giftCard, shipment)).gimme
   }

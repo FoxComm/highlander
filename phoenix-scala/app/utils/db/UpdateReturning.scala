@@ -37,7 +37,7 @@ object UpdateReturning {
         notFoundFailure: Failure)(implicit ec: EC): DbResultT[F] = {
       val returningResult = updateReturning(returningQuery, v)
       val withFailure = returningResult.headOption.dbresult.flatMap(res ⇒
-            DbResultT.fromXor(Xor.fromOption(res, notFoundFailure.single)))
+        DbResultT.fromXor(Xor.fromOption(res, notFoundFailure.single)))
       ExceptionWrapper.wrapDbResultT(withFailure)
     }
 

@@ -24,10 +24,10 @@ class FSMTest extends TestBase {
       super.transitionModel(newModel)
 
     val fsm: Map[Operation, Set[Operation]] = Map(
-        Pop        → Set(Lock, LockAndPop),
-        Lock       → Set(Pop, PopAndLock),
-        PopAndLock → Set(Pop, BreakItDown),
-        LockAndPop → Set(Lock, BreakItDown)
+      Pop        → Set(Lock, LockAndPop),
+      Lock       → Set(Pop, PopAndLock),
+      PopAndLock → Set(Pop, BreakItDown),
+      LockAndPop → Set(Lock, BreakItDown)
     )
   }
 
@@ -46,12 +46,12 @@ class FSMTest extends TestBase {
 
     "can always transition to identity state" in {
       val states = Table(
-          "state",
-          Pop,
-          Lock,
-          PopAndLock,
-          LockAndPop,
-          BreakItDown
+        "state",
+        Pop,
+        Lock,
+        PopAndLock,
+        LockAndPop,
+        BreakItDown
       )
 
       forAll(states) {

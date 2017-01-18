@@ -90,8 +90,9 @@ class AssignmentsIntegrationTest
 
     "can be assigned to multiple orders with graceful error handling" in new BulkAssignmentFixture {
       private val response = ordersApi
-        .assign(BulkAssignmentPayload(entityIds = Seq(order1.refNum, order2.refNum, "NOPE"),
-                                      storeAdminId = storeAdmin.accountId))
+        .assign(
+          BulkAssignmentPayload(entityIds = Seq(order1.refNum, order2.refNum, "NOPE"),
+                                storeAdminId = storeAdmin.accountId))
         .as[TheResponse[Seq[AllOrders.Root]]]
 
       response.result.size mustBe 2
@@ -99,9 +100,9 @@ class AssignmentsIntegrationTest
       private val assertFailures =
         Map[String, String]("NOPE" → NotFoundFailure404(Order, "NOPE").description,
                             order1.refNum → AlreadyAssignedFailure(
-                                Order,
-                                order1.refNum,
-                                storeAdmin.accountId).description)
+                              Order,
+                              order1.refNum,
+                              storeAdmin.accountId).description)
 
       response.errors.value must contain theSameElementsAs assertFailures.values
 
@@ -114,8 +115,9 @@ class AssignmentsIntegrationTest
 
     "can be unassigned from multiple orders with graceful error handling" in new BulkAssignmentFixture {
       private val response = ordersApi
-        .unassign(BulkAssignmentPayload(entityIds = Seq(order1.refNum, order2.refNum, "NOPE"),
-                                        storeAdminId = storeAdmin.accountId))
+        .unassign(
+          BulkAssignmentPayload(entityIds = Seq(order1.refNum, order2.refNum, "NOPE"),
+                                storeAdminId = storeAdmin.accountId))
         .as[TheResponse[Seq[AllOrders.Root]]]
 
       response.result must have size 2
@@ -136,38 +138,36 @@ class AssignmentsIntegrationTest
   trait AssignmentFixture extends Order_Baked {
     val (assignee, secondAdmin) = (for {
       assignee ← * <~ Assignments.create(
-                    Assignment(referenceType = Assignment.Order,
-                               referenceId = order.id,
-                               storeAdminId = storeAdmin.accountId,
-                               assignmentType = Assignment.Assignee))
+        Assignment(referenceType = Assignment.Order,
+                   referenceId = order.id,
+                   storeAdminId = storeAdmin.accountId,
+                   assignmentType = Assignment.Assignee))
       account ← * <~ Accounts.create(Account())
       secondAdmin ← * <~ Users.create(
-                       Factories.storeAdmin
-                         .copy(accountId = account.id, email = "a@b.c".some, name = "Admin2".some))
+        Factories.storeAdmin
+          .copy(accountId = account.id, email = "a@b.c".some, name = "Admin2".some))
       custData ← * <~ AdminsData.create(
-                    AdminData(userId = secondAdmin.id,
-                              accountId = account.id,
-                              scope = Scope.current))
+        AdminData(userId = secondAdmin.id, accountId = account.id, scope = Scope.current))
     } yield (assignee, secondAdmin)).gimme
   }
 
   trait BulkAssignmentFixture extends Customer_Seed with StoreAdmin_Seed {
     val (order1, order2) = (for {
       cart ← * <~ Carts.create(
-                Factories
-                  .cart(Scope.current)
-                  .copy(accountId = customer.accountId, referenceNumber = "foo"))
+        Factories
+          .cart(Scope.current)
+          .copy(accountId = customer.accountId, referenceNumber = "foo"))
       order1 ← * <~ Orders.createFromCart(cart, None)
       cart ← * <~ Carts.create(
-                Factories
-                  .cart(Scope.current)
-                  .copy(accountId = customer.accountId, referenceNumber = "bar"))
+        Factories
+          .cart(Scope.current)
+          .copy(accountId = customer.accountId, referenceNumber = "bar"))
       order2 ← * <~ Orders.createFromCart(cart, None)
       _ ← * <~ Assignments.create(
-             Assignment(referenceType = Assignment.Order,
-                        referenceId = order1.id,
-                        storeAdminId = storeAdmin.accountId,
-                        assignmentType = Assignment.Assignee))
+        Assignment(referenceType = Assignment.Order,
+                   referenceId = order1.id,
+                   storeAdminId = storeAdmin.accountId,
+                   assignmentType = Assignment.Assignee))
     } yield (order1, order2)).gimme
 
     val orderRef1 = order1.referenceNumber

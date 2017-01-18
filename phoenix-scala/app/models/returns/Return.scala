@@ -43,12 +43,12 @@ case class Return(id: Int = 0,
   override def primarySearchKey: String = referenceNumber
 
   val fsm: Map[State, Set[State]] = Map(
-      Pending →
-        Set(Processing, Canceled),
-      Processing →
-        Set(Review, Complete, Canceled),
-      Review →
-        Set(Complete, Canceled)
+    Pending →
+      Set(Processing, Canceled),
+    Processing →
+      Set(Review, Complete, Canceled),
+    Review →
+      Set(Complete, Canceled)
   )
 }
 
@@ -82,11 +82,11 @@ object Return {
 
   def build(order: Order, admin: User, rmaType: ReturnType = Return.Standard): Return = {
     Return(
-        orderId = order.id,
-        orderRef = order.refNum,
-        returnType = rmaType,
-        accountId = order.accountId,
-        storeAdminId = Some(admin.accountId)
+      orderId = order.id,
+      orderRef = order.refNum,
+      returnType = rmaType,
+      accountId = order.accountId,
+      storeAdminId = Some(admin.accountId)
     )
   }
 

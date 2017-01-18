@@ -20,7 +20,7 @@ class GiftCardFromStoreCredits(tag: Tag)
 
 object GiftCardFromStoreCredits
     extends FoxTableQuery[GiftCardFromStoreCredit, GiftCardFromStoreCredits](
-        new GiftCardFromStoreCredits(_))
+      new GiftCardFromStoreCredits(_))
     with ReturningId[GiftCardFromStoreCredit, GiftCardFromStoreCredits] {
   val returningLens: Lens[GiftCardFromStoreCredit, Int] = lens[GiftCardFromStoreCredit].id
 }

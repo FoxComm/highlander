@@ -4,7 +4,12 @@ import scala.collection.JavaConverters._
 import scala.concurrent.Future
 
 import com.sksamuel.elastic4s.ElasticDsl._
-import com.sksamuel.elastic4s.{ElasticClient, ElasticsearchClientUri, IndexAndType, RichSearchResponse}
+import com.sksamuel.elastic4s.{
+  ElasticClient,
+  ElasticsearchClientUri,
+  IndexAndType,
+  RichSearchResponse
+}
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.LazyLogging
 import org.elasticsearch.common.settings.Settings
@@ -50,7 +55,7 @@ case class ElasticsearchApi(host: String, cluster: String, index: String)(implic
 
     val request =
       search in indexAndType rawQuery queryString aggregations (
-          aggregation filter aggregationName filter termsQuery(fieldName, references.toList: _*)
+        aggregation filter aggregationName filter termsQuery(fieldName, references.toList: _*)
       ) size 0
 
     logQuery(indexAndType, request.show)
@@ -82,7 +87,7 @@ case class ElasticsearchApi(host: String, cluster: String, index: String)(implic
     val indexAndType = getIndexAndType(searchView)
 
     val request = search in indexAndType rawQuery queryString aggregations (
-          aggregation terms aggregationName script s"doc['$fieldName'].value"
+        aggregation terms aggregationName script s"doc['$fieldName'].value"
       ) size 0
 
     logQuery(indexAndType, request.show)
@@ -94,7 +99,7 @@ case class ElasticsearchApi(host: String, cluster: String, index: String)(implic
     */
   private def logQuery(indexAndType: IndexAndType, query: String): Unit = {
     logger.debug(
-        s"Preparing Elasticsearch query to ${indexAndType.index}/${indexAndType.`type`}: ${compact(
+      s"Preparing Elasticsearch query to ${indexAndType.index}/${indexAndType.`type`}: ${compact(
         render(parse(query)))}")
   }
 

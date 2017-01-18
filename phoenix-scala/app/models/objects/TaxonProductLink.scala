@@ -31,9 +31,9 @@ class ProductTaxonLinks(tag: Tag)
 
 object ProductTaxonLinks
     extends ObjectHeadLinkQueries[ProductTaxonLink, ProductTaxonLinks, Product, Taxon](
-        new ProductTaxonLinks(_),
-        Products,
-        Taxons)
+      new ProductTaxonLinks(_),
+      Products,
+      Taxons)
     with ReturningId[ProductTaxonLink, ProductTaxonLinks] {
 
   val returningLens: Lens[ProductTaxonLink, Int] = lens[ProductTaxonLink].id

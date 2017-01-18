@@ -20,7 +20,7 @@ object StoreAdminPayloads {
 
     def validate: ValidatedNel[Failure, CreateStoreAdminPayload] = {
       (notEmpty(name, "name") |@| notEmpty(email, "email") |@|
-            nullOrNotEmpty(phoneNumber, "phoneNumber") |@| nullOrNotEmpty(password, "password")).map {
+        nullOrNotEmpty(phoneNumber, "phoneNumber") |@| nullOrNotEmpty(password, "password")).map {
         case _ ⇒ this
       }
     }
@@ -33,7 +33,7 @@ object StoreAdminPayloads {
 
     def validate: ValidatedNel[Failure, UpdateStoreAdminPayload] = {
       (notEmpty(name, "name") |@| notEmpty(email, "email") |@|
-            nullOrNotEmpty(phoneNumber, "phoneNumber")).map {
+        nullOrNotEmpty(phoneNumber, "phoneNumber")).map {
         case _ ⇒ this
       }
     }

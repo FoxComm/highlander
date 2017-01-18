@@ -23,7 +23,12 @@ import payloads.SharedSearchPayloads._
 import payloads.SkuPayloads._
 import payloads.StoreAdminPayloads._
 import payloads.StoreCreditPayloads._
-import payloads.TaxonomyPayloads.{CreateTaxonPayload, CreateTaxonomyPayload, UpdateTaxonPayload, UpdateTaxonomyPayload}
+import payloads.TaxonomyPayloads.{
+  CreateTaxonPayload,
+  CreateTaxonomyPayload,
+  UpdateTaxonPayload,
+  UpdateTaxonomyPayload
+}
 import payloads.UserPayloads._
 import payloads.VariantPayloads._
 import payloads._
@@ -396,7 +401,7 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
   }
 
   case object skusApi {
-    val skusPrefix = s"$rootPrefix/skus"
+    val skusPrefix                 = s"$rootPrefix/skus"
     def skusPath(implicit ctx: OC) = s"$skusPrefix/${ctx.name}"
 
     def create(payload: SkuPayload)(implicit ctx: OC): HttpResponse =

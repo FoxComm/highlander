@@ -33,21 +33,21 @@ object AllReturns {
             admin: Option[User] = None,
             adminData: Option[AdminData] = None): Root =
     Root(
-        id = rma.id,
-        referenceNumber = rma.referenceNumber,
-        cordRefNum = rma.orderRef,
-        rmaType = rma.returnType,
-        state = rma.state,
-        customer = for {
-          c  ← customer
-          cu ← customerData
-        } yield CustomerResponse.build(c, cu),
-        storeAdmin = for {
-          a  ← admin
-          au ← adminData
-        } yield StoreAdminResponse.build(a, au),
-        createdAt = rma.createdAt,
-        updatedAt = rma.updatedAt,
-        total = Some(mockTotal)
+      id = rma.id,
+      referenceNumber = rma.referenceNumber,
+      cordRefNum = rma.orderRef,
+      rmaType = rma.returnType,
+      state = rma.state,
+      customer = for {
+        c  ← customer
+        cu ← customerData
+      } yield CustomerResponse.build(c, cu),
+      storeAdmin = for {
+        a  ← admin
+        au ← adminData
+      } yield StoreAdminResponse.build(a, au),
+      createdAt = rma.createdAt,
+      updatedAt = rma.updatedAt,
+      total = Some(mockTotal)
     )
 }

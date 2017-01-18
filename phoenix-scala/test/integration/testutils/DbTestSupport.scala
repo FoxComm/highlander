@@ -15,8 +15,7 @@ import utils.aliases.EC
 import utils.db.flyway.newFlyway
 import utils.seeds.Seeds
 
-trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport {
-  this: Suite ⇒
+trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport { this: Suite ⇒
 
   import DbTestSupport._
 

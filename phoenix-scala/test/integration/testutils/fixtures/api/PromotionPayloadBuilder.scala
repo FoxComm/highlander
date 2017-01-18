@@ -17,11 +17,11 @@ object PromotionPayloadBuilder {
             description: String = faker.Lorem.sentence()): CreatePromotion = {
 
     val discountAttrs = Map[String, Json](
-        "title"       → tv(title),
-        "description" → tv(description),
-        "tags"        → tags.payloadJson,
-        "qualifier"   → qualifier.payloadJson,
-        "offer"       → offer.payloadJson
+      "title"       → tv(title),
+      "description" → tv(description),
+      "tags"        → tags.payloadJson,
+      "qualifier"   → qualifier.payloadJson,
+      "offer"       → offer.payloadJson
     )
 
     CreatePromotion(applyType = Promotion.Coupon,

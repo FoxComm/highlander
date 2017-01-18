@@ -149,11 +149,10 @@ class AddressesIntegrationTest
       account     ← * <~ Accounts.create(Account())
       user        ← * <~ Users.create(Factories.customer.copy(accountId = account.id))
       custData ← * <~ CustomersData.create(
-                    CustomerData(userId = user.id, accountId = account.id, scope = Scope.current))
+        CustomerData(userId = user.id, accountId = account.id, scope = Scope.current))
       address ← * <~ Addresses.create(
-                   Factories.address.copy(accountId = account.id,
-                                          isDefaultShipping = false,
-                                          deletedAt = Some(Instant.now)))
+        Factories.address
+          .copy(accountId = account.id, isDefaultShipping = false, deletedAt = Some(Instant.now)))
     } yield (account, address)).gimme
   }
 

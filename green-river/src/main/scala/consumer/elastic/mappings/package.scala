@@ -12,40 +12,40 @@ package object mappings {
   }
 
   val autocompleteAnalyzer = CustomAnalyzerDefinition(
-      "autocomplete",
-      NGramTokenizer("autocomplete_tokenizer",
-                     3,
-                     20,
-                     Seq("letter", "digit", "punctuation", "symbol", "whitespace")),
-      LowercaseTokenFilter
+    "autocomplete",
+    NGramTokenizer("autocomplete_tokenizer",
+                   3,
+                   20,
+                   Seq("letter", "digit", "punctuation", "symbol", "whitespace")),
+    LowercaseTokenFilter
   )
 
   val lowerCasedAnalyzer = CustomAnalyzerDefinition(
-      "lower_cased",
-      KeywordTokenizer("lower_cased_keyword_tokenizer"),
-      LowercaseTokenFilter
+    "lower_cased",
+    KeywordTokenizer("lower_cased_keyword_tokenizer"),
+    LowercaseTokenFilter
   )
 
   val upperCasedAnalyzer = CustomAnalyzerDefinition(
-      "upper_cased",
-      KeywordTokenizer("upper_cased_keyword_tokenizer"),
-      UppercaseTokenFilter
+    "upper_cased",
+    KeywordTokenizer("upper_cased_keyword_tokenizer"),
+    UppercaseTokenFilter
   )
 
   def address(name: String) = field(name).nested(
-      field("address1", StringType).analyzer("autocomplete"),
-      field("address2", StringType).analyzer("autocomplete"),
-      field("city", StringType)
-        .analyzer("autocomplete")
-        .fields(field("raw", StringType).index("not_analyzed")),
-      field("zip", StringType).index("not_analyzed"),
-      field("region", StringType).index("not_analyzed"),
-      field("country", StringType)
-        .analyzer("autocomplete")
-        .fields(field("raw", StringType).index("not_analyzed")),
-      field("continent", StringType)
-        .analyzer("autocomplete")
-        .fields(field("raw", StringType).index("not_analyzed")),
-      field("currency", StringType).index("not_analyzed")
+    field("address1", StringType).analyzer("autocomplete"),
+    field("address2", StringType).analyzer("autocomplete"),
+    field("city", StringType)
+      .analyzer("autocomplete")
+      .fields(field("raw", StringType).index("not_analyzed")),
+    field("zip", StringType).index("not_analyzed"),
+    field("region", StringType).index("not_analyzed"),
+    field("country", StringType)
+      .analyzer("autocomplete")
+      .fields(field("raw", StringType).index("not_analyzed")),
+    field("continent", StringType)
+      .analyzer("autocomplete")
+      .fields(field("raw", StringType).index("not_analyzed")),
+    field("currency", StringType).index("not_analyzed")
   )
 }

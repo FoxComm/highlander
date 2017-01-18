@@ -28,8 +28,8 @@ private object Sync {
     }
   }
 
-  def commit[A, B](
-      consumer: KafkaConsumer[A, B], offsets: Map[TopicPartition, OffsetAndMetadata]): Unit = {
+  def commit[A, B](consumer: KafkaConsumer[A, B],
+                   offsets: Map[TopicPartition, OffsetAndMetadata]): Unit = {
     try {
       consumer.commitSync(offsets)
     } catch {
@@ -49,7 +49,7 @@ private case class StartFromBeginning[A, B](consumer: KafkaConsumer[A, B])
   def onPartitionsAssigned(partitions: Collection[TopicPartition]): Unit = {
     partitions.foreach { p ⇒
       Console.out.println(
-          s"Consuming from beggining for topic ${p.topic} using partition ${p.partition}")
+        s"Consuming from beggining for topic ${p.topic} using partition ${p.partition}")
       consumer.seekToBeginning(p)
     }
   }
@@ -67,11 +67,11 @@ private case class StartFromLastCommit[A, B](consumer: KafkaConsumer[A, B])
       val offsetMetadata = consumer.committed(p)
       if (offsetMetadata == null) {
         Console.out.println(
-            s"No offset commited. Consuming from beggining for topic ${p.topic} using partition ${p.partition}")
+          s"No offset commited. Consuming from beggining for topic ${p.topic} using partition ${p.partition}")
         consumer.seekToBeginning(p)
       } else {
         Console.out.println(
-            s"Consuming from offset ${offsetMetadata.offset} for topic ${p.topic} using partition ${p.partition}")
+          s"Consuming from offset ${offsetMetadata.offset} for topic ${p.topic} using partition ${p.partition}")
         consumer.seek(p, offsetMetadata.offset)
       }
     }
@@ -152,7 +152,7 @@ class MultiTopicConsumer(topics: Seq[String],
           result.errorTopicAndOffset.foreach {
             case (tp, offset) ⇒
               Console.err.println(
-                  s"NoNodeAvailableException workaround, seek to offset $offset again")
+                s"NoNodeAvailableException workaround, seek to offset $offset again")
               consumer.seek(tp, offset)
           }
         case Some(e) if e.isInstanceOf[TryAgainLater] ⇒

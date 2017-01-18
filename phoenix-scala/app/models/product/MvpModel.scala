@@ -61,14 +61,14 @@ case class SimpleProduct(title: String,
 case class SimpleProductShadow(p: SimpleProduct) {
 
   val shadow = ObjectUtils.newShadow(
-      parse("""
+    parse("""
         {
           "title" : {"type": "string", "ref": "title"},
           "description" : {"type": "richText", "ref": "description"},
           "activeFrom" : {"type": "date", "ref": "activeFrom"},
           "tags" : {"type": "tags", "ref": "tags"}
         }"""),
-      p.keyMap)
+    p.keyMap)
 
   def create: ObjectShadow =
     ObjectShadow(attributes = shadow)
@@ -78,10 +78,10 @@ case class SimpleAlbum(payload: AlbumPayload) {
 
   def this(name: String, image: String) =
     this(
-        AlbumPayload(name = Some(name),
-                     position = Some(1),
-                     images =
-                       Seq(ImagePayload(src = image, title = image.some, alt = image.some)).some))
+      AlbumPayload(name = Some(name),
+                   position = Some(1),
+                   images =
+                     Seq(ImagePayload(src = image, title = image.some, alt = image.some)).some))
 
   val (keyMap, form) = ObjectUtils.createForm(payload.formAndShadow.form.attributes)
 
@@ -230,16 +230,16 @@ object Mvp {
       simpleProduct ← * <~ SimpleProduct(p.title, p.description, p.active, p.tags)
       //find product form other context, get old form and merge with new
       product ← * <~ Products
-                 .filter(_.contextId === oldContextId)
-                 .filter(_.id === p.productId)
-                 .mustFindOneOr(ProductNotFoundForContext(p.productId, oldContextId))
+        .filter(_.contextId === oldContextId)
+        .filter(_.id === p.productId)
+        .mustFindOneOr(ProductNotFoundForContext(p.productId, oldContextId))
       oldForm     ← * <~ ObjectForms.mustFindById404(product.formId)
       productForm ← * <~ ObjectForms.update(oldForm, simpleProduct.update(oldForm))
 
       //find sku form for the product and update it with new sku
       link ← * <~ ProductSkuLinks
-              .filterLeft(product)
-              .mustFindOneOr(ObjectLeftLinkCannotBeFound(product.shadowId))
+        .filterLeft(product)
+        .mustFindOneOr(ObjectLeftLinkCannotBeFound(product.shadowId))
 
       sku ← * <~ Skus.filter(_.id === link.rightId).mustFindOneOr(SkuNotFound(link.rightId))
 
@@ -249,11 +249,11 @@ object Mvp {
 
       //find album form for the product and update it
       albumLink ← * <~ ProductAlbumLinks
-                   .filterLeft(product)
-                   .mustFindOneOr(NoAlbumsFoundForProduct(product.id))
+        .filterLeft(product)
+        .mustFindOneOr(NoAlbumsFoundForProduct(product.id))
       album ← * <~ Albums
-               .filter(_.id === albumLink.rightId)
-               .mustFindOneOr(AlbumNotFoundForContext(albumLink.rightId, oldContextId))
+        .filter(_.id === albumLink.rightId)
+        .mustFindOneOr(AlbumNotFoundForContext(albumLink.rightId, oldContextId))
 
       simpleAlbum  ← * <~ new SimpleAlbum(p.title, p.image)
       oldAlbumForm ← * <~ ObjectForms.mustFindById404(album.formId)
@@ -309,18 +309,17 @@ object Mvp {
       simpleShadow  ← * <~ SimpleProductShadow(simpleProduct)
       productSchema ← * <~ ObjectFullSchemas.findOneByName("product")
       productShadow ← * <~ ObjectShadows.create(
-                         simpleShadow.create.copy(formId = productForm.id,
-                                                  jsonSchema = productSchema.map(_.name)))
+        simpleShadow.create.copy(formId = productForm.id, jsonSchema = productSchema.map(_.name)))
 
       productCommit ← * <~ ObjectCommits.create(
-                         ObjectCommit(formId = productForm.id, shadowId = productShadow.id))
+        ObjectCommit(formId = productForm.id, shadowId = productShadow.id))
 
       product ← * <~ Products.create(
-                   Product(scope = scope,
-                           contextId = contextId,
-                           formId = productForm.id,
-                           shadowId = productShadow.id,
-                           commitId = productCommit.id))
+        Product(scope = scope,
+                contextId = contextId,
+                formId = productForm.id,
+                shadowId = productShadow.id,
+                commitId = productCommit.id))
 
       _ ← * <~ skus.map(sku ⇒ linkProductAndSku(product, sku))
     } yield product
@@ -337,15 +336,15 @@ object Mvp {
       sShadow   ← * <~ SimpleSkuShadow(s)
       skuSchema ← * <~ ObjectFullSchemas.findOneByName("sku")
       shadow ← * <~ ObjectShadows.create(
-                  sShadow.create.copy(formId = form.id, jsonSchema = skuSchema.map(_.name)))
+        sShadow.create.copy(formId = form.id, jsonSchema = skuSchema.map(_.name)))
       commit ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
       sku ← * <~ Skus.create(
-               Sku(scope = scope,
-                   contextId = contextId,
-                   code = s.code,
-                   formId = form.id,
-                   shadowId = shadow.id,
-                   commitId = commit.id))
+        Sku(scope = scope,
+            contextId = contextId,
+            code = s.code,
+            formId = form.id,
+            shadowId = shadow.id,
+            commitId = commit.id))
     } yield sku
 
   def insertSkus(scope: LTree, contextId: Int, ss: Seq[SimpleSku]): DbResultT[Seq[Sku]] =
@@ -363,13 +362,13 @@ object Mvp {
       shadow  ← * <~ ObjectShadows.create(sShadow.create.copy(formId = form.id))
       commit  ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
       variant ← * <~ Variants.create(
-                   Variant(scope = scope,
-                           contextId = contextId,
-                           formId = form.id,
-                           shadowId = shadow.id,
-                           commitId = commit.id))
+        Variant(scope = scope,
+                contextId = contextId,
+                formId = form.id,
+                shadowId = shadow.id,
+                commitId = commit.id))
       _ ← * <~ ProductVariantLinks.create(
-             ProductVariantLink(leftId = product.id, rightId = variant.id))
+        ProductVariantLink(leftId = product.id, rightId = variant.id))
     } yield
       SimpleVariantData(variantId = variant.id,
                         variantFormId = variant.formId,
@@ -388,16 +387,16 @@ object Mvp {
       shadow  ← * <~ ObjectShadows.create(sShadow.create.copy(formId = form.id))
       commit  ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
       value ← * <~ VariantValues.create(
-                 VariantValue(scope = scope,
-                              contextId = contextId,
-                              formId = form.id,
-                              shadowId = shadow.id,
-                              commitId = commit.id))
+        VariantValue(scope = scope,
+                     contextId = contextId,
+                     formId = form.id,
+                     shadowId = shadow.id,
+                     commitId = commit.id))
       _ ← * <~ VariantValueLinks.create(VariantValueLink(leftId = variantId, rightId = value.id))
       skuCodes ← * <~ v.skuCodes.map(code ⇒
-                      SkuManager.mustFindSkuByContextAndCode(contextId, code))
+        SkuManager.mustFindSkuByContextAndCode(contextId, code))
       _ ← * <~ skuCodes.map(s ⇒
-               VariantValueSkuLinks.create(VariantValueSkuLink(leftId = value.id, rightId = s.id)))
+        VariantValueSkuLinks.create(VariantValueSkuLink(leftId = value.id, rightId = s.id)))
     } yield
       SimpleVariantValueData(valueId = value.id,
                              variantShadowId = variantShadowId,
@@ -412,13 +411,8 @@ object Mvp {
       simpleCompleteVariant: SimpleCompleteVariant): DbResultT[SimpleCompleteVariantData] =
     for {
       variant ← * <~ insertVariant(scope, contextId, simpleCompleteVariant.variant, product)
-      values ← * <~ simpleCompleteVariant.variantValues.map(
-                  variantValue ⇒
-                    insertVariantValue(scope,
-                                       contextId,
-                                       variantValue,
-                                       variant.shadowId,
-                                       variant.variantId))
+      values ← * <~ simpleCompleteVariant.variantValues.map(variantValue ⇒
+        insertVariantValue(scope, contextId, variantValue, variant.shadowId, variant.variantId))
     } yield SimpleCompleteVariantData(variant, values)
 
   def insertProductIntoContext(
@@ -435,35 +429,33 @@ object Mvp {
       simpleShadow  ← * <~ SimpleProductShadow(simpleProduct)
       productSchema ← * <~ ObjectFullSchemas.findOneByName("product")
       productShadow ← * <~ ObjectShadows.create(
-                         simpleShadow.create.copy(formId = productForm.id,
-                                                  jsonSchema = productSchema.map(_.name)))
+        simpleShadow.create.copy(formId = productForm.id, jsonSchema = productSchema.map(_.name)))
 
       productCommit ← * <~ ObjectCommits.create(
-                         ObjectCommit(formId = productForm.id, shadowId = productShadow.id))
+        ObjectCommit(formId = productForm.id, shadowId = productShadow.id))
 
       product ← * <~ Products.create(
-                   Product(scope = scope,
-                           contextId = contextId,
-                           formId = productForm.id,
-                           shadowId = productShadow.id,
-                           commitId = productCommit.id))
+        Product(scope = scope,
+                contextId = contextId,
+                formId = productForm.id,
+                shadowId = productShadow.id,
+                commitId = productCommit.id))
 
       simpleSkuShadow ← * <~ SimpleSkuShadow(simpleSku)
       skuSchema       ← * <~ ObjectFullSchemas.findOneByName("sku")
       skuShadow ← * <~ ObjectShadows.create(
-                     simpleSkuShadow.create.copy(formId = skuForm.id,
-                                                 jsonSchema = skuSchema.map(_.name)))
+        simpleSkuShadow.create.copy(formId = skuForm.id, jsonSchema = skuSchema.map(_.name)))
 
       skuCommit ← * <~ ObjectCommits.create(
-                     ObjectCommit(formId = skuForm.id, shadowId = skuShadow.id))
+        ObjectCommit(formId = skuForm.id, shadowId = skuShadow.id))
 
       sku ← * <~ Skus.create(
-               Sku(scope = scope,
-                   contextId = contextId,
-                   code = p.code,
-                   formId = skuForm.id,
-                   shadowId = skuShadow.id,
-                   commitId = skuCommit.id))
+        Sku(scope = scope,
+            contextId = contextId,
+            code = p.code,
+            formId = skuForm.id,
+            shadowId = skuShadow.id,
+            commitId = skuCommit.id))
 
       _ ← * <~ linkProductAndSku(product, sku)
 
@@ -481,21 +473,21 @@ object Mvp {
       scope       ← * <~ Scope.resolveOverride(None)
       albumSchema ← * <~ ObjectFullSchemas.findOneByName("album")
       albumShadow ← * <~ ObjectShadows.create(
-                       SimpleAlbumShadow(simpleAlbum).create
-                         .copy(formId = albumForm.id, jsonSchema = albumSchema.map(_.name)))
+        SimpleAlbumShadow(simpleAlbum).create
+          .copy(formId = albumForm.id, jsonSchema = albumSchema.map(_.name)))
       albumCommit ← * <~ ObjectCommits.create(
-                       ObjectCommit(formId = albumForm.id, shadowId = albumShadow.id))
+        ObjectCommit(formId = albumForm.id, shadowId = albumShadow.id))
 
       album ← * <~ Albums.create(
-                 Album(scope = scope,
-                       contextId = context.id,
-                       formId = albumForm.id,
-                       shadowId = albumShadow.id,
-                       commitId = albumCommit.id))
+        Album(scope = scope,
+              contextId = context.id,
+              formId = albumForm.id,
+              shadowId = albumShadow.id,
+              commitId = albumCommit.id))
       albumLink ← * <~ ProductAlbumLinks.create(
-                     ProductAlbumLink(leftId = product.id, rightId = album.id))
+        ProductAlbumLink(leftId = product.id, rightId = album.id))
       _ ← * <~ ImageManager
-           .createImagesForAlbum(album, simpleAlbum.payload.images.toSeq.flatten, context)
+        .createImagesForAlbum(album, simpleAlbum.payload.images.toSeq.flatten, context)
     } yield album
   }
 

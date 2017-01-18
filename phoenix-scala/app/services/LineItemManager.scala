@@ -67,47 +67,47 @@ object LineItemManager {
   private def getProductForSku(sku: Sku)(implicit ec: EC, db: DB) =
     for {
       productId ← * <~ ProductSkuLinks.filter(_.rightId === sku.id).one.dbresult.flatMap {
-                   case Some(productLink) ⇒
-                     DbResultT.good(productLink.leftId)
-                   case None ⇒
-                     for {
-                       valueLink ← * <~ VariantValueSkuLinks
-                                    .filter(_.rightId === sku.id)
-                                    .mustFindOneOr(NoProductFoundForSku(sku.id))
-                       variantLink ← * <~ VariantValueLinks
-                                      .filter(_.rightId === valueLink.leftId)
-                                      .mustFindOneOr(NoProductFoundForSku(sku.id))
-                       productLink ← * <~ ProductVariantLinks
-                                      .filter(_.rightId === variantLink.leftId)
-                                      .mustFindOneOr(NoProductFoundForSku(sku.id))
-                     } yield productLink.leftId
-                 }
+        case Some(productLink) ⇒
+          DbResultT.good(productLink.leftId)
+        case None ⇒
+          for {
+            valueLink ← * <~ VariantValueSkuLinks
+              .filter(_.rightId === sku.id)
+              .mustFindOneOr(NoProductFoundForSku(sku.id))
+            variantLink ← * <~ VariantValueLinks
+              .filter(_.rightId === valueLink.leftId)
+              .mustFindOneOr(NoProductFoundForSku(sku.id))
+            productLink ← * <~ ProductVariantLinks
+              .filter(_.rightId === variantLink.leftId)
+              .mustFindOneOr(NoProductFoundForSku(sku.id))
+          } yield productLink.leftId
+      }
       product ← * <~ ProductManager.mustFindFullProductById(productId)
     } yield product
 
   private def getLineItemImage(sku: Sku, product: Product)(implicit ec: EC, db: DB) =
     for {
       image ← * <~ getLineItemAlbumId(sku, product).flatMap {
-               case Some(albumId) ⇒
-                 for {
-                   album ← * <~ Albums.mustFindById404(albumId)
-                   image ← * <~ ImageManager.getFirstImageForAlbum(album)
-                 } yield image
+        case Some(albumId) ⇒
+          for {
+            album ← * <~ Albums.mustFindById404(albumId)
+            image ← * <~ ImageManager.getFirstImageForAlbum(album)
+          } yield image
 
-               case None ⇒
-                 DbResultT.none[String]
-             }
+        case None ⇒
+          DbResultT.none[String]
+      }
     } yield image
 
   private def getLineItemAlbumId(sku: Sku, product: Product)(implicit ec: EC, db: DB) =
     for {
       albumId ← * <~ SkuAlbumLinks.filterLeft(sku).one.dbresult.flatMap {
-                 case Some(albumLink) ⇒
-                   DbResultT.good(albumLink.rightId.some)
-                 case None ⇒
-                   for {
-                     albumLink ← * <~ ProductAlbumLinks.filterLeft(product).one.dbresult
-                   } yield albumLink.map(_.rightId)
-               }
+        case Some(albumLink) ⇒
+          DbResultT.good(albumLink.rightId.some)
+        case None ⇒
+          for {
+            albumLink ← * <~ ProductAlbumLinks.filterLeft(product).one.dbresult
+          } yield albumLink.map(_.rightId)
+      }
     } yield albumId
 }

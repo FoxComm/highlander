@@ -81,8 +81,10 @@ class ScopedIndexer(uri: String,
     }.distinct
   }
 
-  private def indexScopes(
-      scopes: Seq[String], documentId: BigInt, document: String, topic: String): Future[Unit] = {
+  private def indexScopes(scopes: Seq[String],
+                          documentId: BigInt,
+                          document: String,
+                          topic: String): Future[Unit] = {
     Future
       .sequence(scopes.map { scope ⇒
         val scopedIndexName = s"${indexName}_${scope}"

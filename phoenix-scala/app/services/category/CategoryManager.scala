@@ -27,8 +27,8 @@ object CategoryManager {
     for {
       context ← * <~ contextByName(contextName)
       category ← * <~ Categories
-                  .withContextAndForm(context.id, formId)
-                  .mustFindOneOr(CategoryNotFoundForContext(formId, context.id))
+        .withContextAndForm(context.id, formId)
+        .mustFindOneOr(CategoryNotFoundForContext(formId, context.id))
       shadow ← * <~ ObjectShadows.mustFindById404(category.shadowId)
     } yield CategoryShadowResponse.build(shadow)
 
@@ -36,7 +36,7 @@ object CategoryManager {
       implicit ec: EC,
       db: DB): DbResultT[FullCategoryResponse.Root] =
     getCategoryFull(categoryId, contextName).map(c ⇒
-          FullCategoryResponse.build(c.category, c.form, c.shadow))
+      FullCategoryResponse.build(c.category, c.form, c.shadow))
 
   def createCategory(admin: User, payload: CreateFullCategory, contextName: String)(
       implicit ec: EC,
@@ -52,7 +52,7 @@ object CategoryManager {
       category ← * <~ Categories.create(Category.build(scope, context.id, insert))
       response = FullCategoryResponse.build(category, insert.form, insert.shadow)
       _ ← * <~ LogActivity
-           .fullCategoryCreated(Some(admin), response, ObjectContextResponse.build(context))
+        .fullCategoryCreated(Some(admin), response, ObjectContextResponse.build(context))
     } yield response
 
   def updateCategory(
@@ -89,13 +89,13 @@ object CategoryManager {
       context  ← * <~ contextByName(contextName)
       category ← * <~ categoryById(categoryId, context)
       commit ← * <~ ObjectCommits
-                .filter(commit ⇒ commit.id === commitId && commit.formId === categoryId)
-                .mustFindOneOr(CategoryNotFoundAtCommit(categoryId, commitId))
+        .filter(commit ⇒ commit.id === commitId && commit.formId === categoryId)
+        .mustFindOneOr(CategoryNotFoundAtCommit(categoryId, commitId))
       categoryForm   ← * <~ ObjectForms.mustFindById404(commit.formId)
       categoryShadow ← * <~ ObjectShadows.mustFindById404(commit.shadowId)
     } yield
       IlluminatedCategoryResponse.build(
-          IlluminatedCategory.illuminate(context, category, categoryForm, categoryShadow))
+        IlluminatedCategory.illuminate(context, category, categoryForm, categoryShadow))
 
   private def updateCategoryHead(
       category: Category,

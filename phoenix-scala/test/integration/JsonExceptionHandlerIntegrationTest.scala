@@ -16,15 +16,15 @@ class JsonExceptionHandlerIntegrationTest
   val exceptionText               = "A test exception"
 
   override protected def additionalRoutes = immutable.Seq(
-      path("testThrowAnExcepton") {
-        complete(throw new Exception(exceptionText))
-      },
-      path("testThrowAnIllegalRequestException") {
-        complete(
-            throw new IllegalRequestException(
-                new ErrorInfo(illegalRequestExceptionText),
-                StatusCodes.custom(400, "test").asInstanceOf[ClientError]))
-      }
+    path("testThrowAnExcepton") {
+      complete(throw new Exception(exceptionText))
+    },
+    path("testThrowAnIllegalRequestException") {
+      complete(
+        throw new IllegalRequestException(
+          new ErrorInfo(illegalRequestExceptionText),
+          StatusCodes.custom(400, "test").asInstanceOf[ClientError]))
+    }
   )
 
   "return a valid JSON exception on an IllegalRequestException" in {

@@ -34,9 +34,9 @@ trait CouponSeeds {
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       results ← * <~ promotions.map { promotion ⇒
-                 val payload = createCoupon(promotion)
-                 insertCoupon(promotion, payload, context)
-               }
+        val payload = createCoupon(promotion)
+        insertCoupon(promotion, payload, context)
+      }
     } yield results
 
   private def insertCoupon(promo: BasePromotion, payload: CreateCoupon, context: ObjectContext)(
@@ -50,12 +50,12 @@ trait CouponSeeds {
       shadow ← * <~ ObjectShadow(attributes = payload.shadow.attributes)
       ins    ← * <~ ObjectUtils.insert(form, shadow, None)
       coupon ← * <~ Coupons.create(
-                  Coupon(scope = scope,
-                         contextId = context.id,
-                         formId = ins.form.id,
-                         shadowId = ins.shadow.id,
-                         commitId = ins.commit.id,
-                         promotionId = payload.promotion))
+        Coupon(scope = scope,
+               contextId = context.id,
+               formId = ins.form.id,
+               shadowId = ins.shadow.id,
+               commitId = ins.commit.id,
+               promotionId = payload.promotion))
       // Generate codes for it
       codes ← * <~ CouponCodes.generateCodes(codePrefix, codeLength, codesQty)
       unsaved = codes.map { c ⇒

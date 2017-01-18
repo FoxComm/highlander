@@ -39,7 +39,7 @@ case class SimpleCouponForm(percentOff: Percent, totalAmount: Int) {
 case class SimpleCouponShadow(f: SimpleCouponForm) {
 
   val shadow = ObjectUtils.newShadow(
-      parse("""
+    parse("""
         {
           "name" : {"type": "string", "ref": "name"},
           "storefrontName" : {"type": "richText", "ref": "storefrontName"},
@@ -49,7 +49,7 @@ case class SimpleCouponShadow(f: SimpleCouponForm) {
           "activeTo" : {"type": "date", "ref": "activeTo"},
           "tags" : {"type": "tags", "ref": "tags"}
         }"""),
-      f.keyMap)
+    f.keyMap)
 }
 
 trait CouponGenerator {
@@ -66,19 +66,19 @@ trait CouponGenerator {
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       coupons ← * <~ sourceData.map(source ⇒ {
-                 val couponForm   = SimpleCouponForm(source.percentOff, source.totalAmount)
-                 val couponShadow = SimpleCouponShadow(couponForm)
-                 def couponFS: FormAndShadow = {
-                   (ObjectForm(kind = models.coupon.Coupon.kind, attributes = couponForm.form),
-                    ObjectShadow(attributes = couponShadow.shadow))
-                 }
+        val couponForm   = SimpleCouponForm(source.percentOff, source.totalAmount)
+        val couponShadow = SimpleCouponShadow(couponForm)
+        def couponFS: FormAndShadow = {
+          (ObjectForm(kind = models.coupon.Coupon.kind, attributes = couponForm.form),
+           ObjectShadow(attributes = couponShadow.shadow))
+        }
 
-                 val payload =
-                   CreateCoupon(attributes = couponFS.toPayload, promotion = source.promotionId)
+        val payload =
+          CreateCoupon(attributes = couponFS.toPayload, promotion = source.promotionId)
 
-                 CouponManager.create(payload, context.name, None).map { newCoupon ⇒
-                   source.copy(formId = newCoupon.id)
-                 }
-               })
+        CouponManager.create(payload, context.name, None).map { newCoupon ⇒
+          source.copy(formId = newCoupon.id)
+        }
+      })
     } yield coupons
 }

@@ -15,8 +15,8 @@ object ReturnLockUpdater {
       event ← * <~ ReturnLockEvents.latestLockByRma(rma.id).one
       admin ← * <~ event.map(e ⇒ Users.findOneByAccountId(e.lockedBy)).getOrElse(lift(None))
       adminData ← * <~ admin
-                   .map(a ⇒ AdminsData.findOneByAccountId(a.accountId))
-                   .getOrElse(lift(None))
+        .map(a ⇒ AdminsData.findOneByAccountId(a.accountId))
+        .getOrElse(lift(None))
     } yield ReturnLockResponse.build(rma, event, admin, adminData)
 
   def lock(refNum: String, admin: User)(implicit ec: EC, db: DB): DbResultT[ReturnResponse.Root] =
@@ -25,7 +25,7 @@ object ReturnLockUpdater {
       _   ← * <~ rma.mustNotBeLocked
       _   ← * <~ Returns.update(rma, rma.copy(isLocked = true))
       _ ← * <~ ReturnLockEvents.create(
-             ReturnLockEvent(returnId = rma.id, lockedBy = admin.accountId))
+        ReturnLockEvent(returnId = rma.id, lockedBy = admin.accountId))
       rma  ← * <~ Returns.refresh(rma)
       resp ← * <~ ReturnResponse.fromRma(rma)
     } yield resp

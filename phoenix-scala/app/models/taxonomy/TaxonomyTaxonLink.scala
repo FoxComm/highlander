@@ -66,9 +66,9 @@ class TaxonomyTaxonLinks(tag: Tag)
 
 object TaxonomyTaxonLinks
     extends ObjectHeadLinkQueries[TaxonomyTaxonLink, TaxonomyTaxonLinks, Taxonomy, Taxon](
-        new TaxonomyTaxonLinks(_),
-        Taxonomies,
-        Taxons)
+      new TaxonomyTaxonLinks(_),
+      Taxonomies,
+      Taxons)
     with ReturningId[TaxonomyTaxonLink, TaxonomyTaxonLinks] {
 
   def hasChildren(link: TaxonomyTaxonLink) =
@@ -108,13 +108,12 @@ object TaxonomyTaxonLinks
     require(position.fold(true)(_ >= 0))
 
     for {
-      newPosition ← * <~ position
-                     .fold(getNextPosition(link.taxonomyId, link.path).result.dbresult) {
-                       newPosition ⇒
-                         for {
-                           _ ← * <~ shiftPositions(link.taxonomyId, link.path, newPosition)
-                         } yield newPosition
-                     }
+      newPosition ← * <~ position.fold(getNextPosition(link.taxonomyId, link.path).result.dbresult) {
+        newPosition ⇒
+          for {
+            _ ← * <~ shiftPositions(link.taxonomyId, link.path, newPosition)
+          } yield newPosition
+      }
       newLink = link.copy(position = newPosition)
       _       = assert(newLink.id == link.id && newLink.position == newPosition)
     } yield newLink

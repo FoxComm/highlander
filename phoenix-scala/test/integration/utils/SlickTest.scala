@@ -37,11 +37,11 @@ class SlickTest extends IntegrationTestBase {
     val (customer, updatedCustomer) = (for {
       account ← * <~ Accounts.create(Account())
       customer ← * <~ Users.create(
-                    Factories.customer.copy(accountId = account.id, name = "Jane".some))
+        Factories.customer.copy(accountId = account.id, name = "Jane".some))
       updatedCustomer ← * <~ Users
-                         .filter(_.id === 1)
-                         .map(_.name)
-                         .updateReturningHead(Users.map(identity), "Sally".some)
+        .filter(_.id === 1)
+        .map(_.name)
+        .updateReturningHead(Users.map(identity), "Sally".some)
     } yield (customer, updatedCustomer.value)).gimme
 
     customer must !==(updatedCustomer)
@@ -52,11 +52,11 @@ class SlickTest extends IntegrationTestBase {
     val (customer, updatedCustomer) = (for {
       account ← * <~ Accounts.create(Account())
       customer ← * <~ Users.create(
-                    Factories.customer.copy(accountId = account.id, name = "Jane".some))
+        Factories.customer.copy(accountId = account.id, name = "Jane".some))
       updatedCustomer ← * <~ Users
-                         .filter(_.id === 1)
-                         .map(_.name)
-                         .updateReturningHead(Users.map(identity), "Sally".some)
+        .filter(_.id === 1)
+        .map(_.name)
+        .updateReturningHead(Users.map(identity), "Sally".some)
     } yield (customer, updatedCustomer.value)).gimme
 
     customer must !==(updatedCustomer)

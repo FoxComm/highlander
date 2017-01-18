@@ -26,14 +26,14 @@ object AllOrders {
   def build(order: Order,
             customer: Option[User] = None,
             paymentState: Option[CordPaymentState.State] = None): Root = Root(
-      referenceNumber = order.referenceNumber,
-      orderState = order.state,
-      name = customer.flatMap(_.name),
-      email = customer.flatMap(_.email),
-      paymentState = paymentState,
-      shippingState = order.getShippingState,
-      placedAt = order.placedAt,
-      remorsePeriodEnd = order.getRemorsePeriodEnd,
-      total = order.grandTotal
+    referenceNumber = order.referenceNumber,
+    orderState = order.state,
+    name = customer.flatMap(_.name),
+    email = customer.flatMap(_.email),
+    paymentState = paymentState,
+    shippingState = order.getShippingState,
+    placedAt = order.placedAt,
+    remorsePeriodEnd = order.getRemorsePeriodEnd,
+    total = order.grandTotal
   )
 }

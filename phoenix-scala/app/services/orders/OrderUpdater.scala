@@ -17,8 +17,8 @@ object OrderUpdater {
       order     ← * <~ Orders.mustFindByRefNum(refNum)
       isRemorse ← * <~ order.mustBeRemorseHold
       updated ← * <~ Orders.update(
-                   order,
-                   order.copy(remorsePeriodEnd = order.remorsePeriodEnd.map(_.plusMinutes(15))))
+        order,
+        order.copy(remorsePeriodEnd = order.remorsePeriodEnd.map(_.plusMinutes(15))))
       response ← * <~ OrderResponse.fromOrder(updated, grouped = true)
       _        ← * <~ LogActivity.orderRemorsePeriodIncreased(admin, response, order.remorsePeriodEnd)
     } yield response

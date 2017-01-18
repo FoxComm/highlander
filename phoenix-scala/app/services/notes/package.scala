@@ -27,11 +27,11 @@ package object notes {
                     payload: CreateNote)(implicit ec: EC, ac: AC, au: AU): DbResultT[Note] =
     for {
       note ← * <~ Notes.create(
-                Note(storeAdminId = author.id,
-                     referenceId = refId,
-                     referenceType = refType,
-                     body = payload.body,
-                     scope = Scope.current))
+        Note(storeAdminId = author.id,
+             referenceId = refId,
+             referenceType = refType,
+             body = payload.body,
+             scope = Scope.current))
       _ ← * <~ LogActivity.noteCreated(author, entity, note)
     } yield note
 
@@ -40,8 +40,8 @@ package object notes {
       ac: AC): DbResultT[Root] =
     for {
       oldNote ← * <~ Notes
-                 .filterByIdAndAdminId(noteId, author.id)
-                 .mustFindOneOr(NotFoundFailure404(Note, noteId))
+        .filterByIdAndAdminId(noteId, author.id)
+        .mustFindOneOr(NotFoundFailure404(Note, noteId))
       newNote ← * <~ Notes.update(oldNote, oldNote.copy(body = payload.body))
       _       ← * <~ LogActivity.noteUpdated(author, entity, oldNote, newNote)
     } yield AdminNotes.build(newNote, author)
@@ -51,9 +51,8 @@ package object notes {
                                                          ac: AC): DbResultT[Unit] =
     for {
       note ← * <~ Notes.mustFindById404(noteId)
-      _ ← * <~ Notes.update(
-             note,
-             note.copy(deletedAt = Some(Instant.now), deletedBy = Some(admin.accountId)))
+      _ ← * <~ Notes
+        .update(note, note.copy(deletedAt = Some(Instant.now), deletedBy = Some(admin.accountId)))
       _ ← * <~ LogActivity.noteDeleted(admin, entity, note)
     } yield {}
 }

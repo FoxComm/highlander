@@ -70,7 +70,7 @@ trait AssignmentsManager[K, M <: FoxModel[M]] {
       _ ← * <~ subscribe(this, assignedAdmins.map(_.id), Seq(key.toString))
       responseItem = buildResponse(entity)
       _ ← * <~ LogActivity
-           .assigned(originator, responseItem, assignedAdmins, assignmentType, referenceType)
+        .assigned(originator, responseItem, assignedAdmins, assignmentType, referenceType)
     } yield TheResponse.build(response, errors = notFoundAdmins)
 
   def unassign(key: K, assigneeId: Int, originator: User)(implicit ec: EC,
@@ -89,7 +89,7 @@ trait AssignmentsManager[K, M <: FoxModel[M]] {
       // Activity log + notifications subscription
       responseItem = buildResponse(entity)
       _ ← * <~ LogActivity
-           .unassigned(originator, responseItem, admin, assignmentType, referenceType)
+        .unassigned(originator, responseItem, admin, assignmentType, referenceType)
       _ ← * <~ unsubscribe(this, adminIds = Seq(assigneeId), objectIds = Seq(key.toString))
     } yield response
 
@@ -147,11 +147,11 @@ trait AssignmentsManager[K, M <: FoxModel[M]] {
   // DbResultT builders
   private def build(entity: M, newAssigneeIds: Seq[Int]): Seq[Assignment] =
     newAssigneeIds.map(
-        adminId ⇒
-          Assignment(assignmentType = assignmentType,
-                     storeAdminId = adminId,
-                     referenceType = referenceType,
-                     referenceId = entity.id))
+      adminId ⇒
+        Assignment(assignmentType = assignmentType,
+                   storeAdminId = adminId,
+                   referenceType = referenceType,
+                   referenceId = entity.id))
 
   private def buildSeq(entities: Seq[M], storeAdminId: Int): Seq[Assignment] =
     for (e ← entities)

@@ -38,8 +38,8 @@ object VariantResponses {
         variantValues: Seq[FullObject[VariantValue]],
         variantValueSkus: VariantValueSkuLinks): Seq[IlluminatedVariantValueResponse.Root] =
       variantValues.map(
-          vv ⇒
-            IlluminatedVariantValueResponse
-              .build(vv, variantValueSkus.getOrElse(vv.model.id, Seq.empty)))
+        vv ⇒
+          IlluminatedVariantValueResponse
+            .build(vv, variantValueSkus.getOrElse(vv.model.id, Seq.empty)))
   }
 }

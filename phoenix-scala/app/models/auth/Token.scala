@@ -91,8 +91,8 @@ sealed trait Token extends Product {
 object Token {
   implicit val formats = DefaultFormats
   val algorithmConstraints = new AlgorithmConstraints(
-      AlgorithmConstraints.ConstraintType.WHITELIST,
-      config.getString("auth.keyAlgorithm"))
+    AlgorithmConstraints.ConstraintType.WHITELIST,
+    config.getString("auth.keyAlgorithm"))
 
   import collection.JavaConversions.seqAsJavaList
 

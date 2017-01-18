@@ -27,7 +27,7 @@ class ShippingMethodsIntegrationTest
 
       "Shipping method is returned when actual order total is greater than $25" in new ShippingMethodsFixture {
         val conditions = parse(
-            """
+          """
             | {
             |   "comparison": "and",
             |   "conditions": [{
@@ -51,7 +51,7 @@ class ShippingMethodsIntegrationTest
 
       "No shipping rules found when order total is less than $100" in new ShippingMethodsFixture {
         val conditions = parse(
-            """
+          """
             | {
             |   "comparison": "and",
             |   "conditions": [{
@@ -114,7 +114,7 @@ class ShippingMethodsIntegrationTest
     val (address, orderShippingAddress) = (for {
       productContext ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       address ← * <~ Addresses.create(
-                   Factories.address.copy(accountId = customer.accountId, regionId = californiaId))
+        Factories.address.copy(accountId = customer.accountId, regionId = californiaId))
       shipAddress ← * <~ OrderShippingAddresses.copyFromAddress(address = address,
                                                                 cordRef = cart.refNum)
       product ← * <~ Mvp.insertProduct(productContext.id,
@@ -235,8 +235,8 @@ class ShippingMethodsIntegrationTest
 
     val shippingMethod = (for {
       shippingMethod ← shipping.ShippingMethods.create(
-                          Factories.shippingMethods.head.copy(conditions = Some(conditions),
-                                                              restrictions = Some(restrictions)))
+        Factories.shippingMethods.head
+          .copy(conditions = Some(conditions), restrictions = Some(restrictions)))
     } yield shippingMethod).gimme
   }
 }

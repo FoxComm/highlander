@@ -14,17 +14,14 @@ object OrderConnector extends ActivityConnector {
     Future {
       val orderIds =
         byOrderData(activity) ++: byCartData(activity) ++: byOrderReferenceNumber(activity) ++:
-        byAssignmentBulkData(activity) ++: byAssignmentSingleData(activity) ++:
-        byBulkData(activity) ++: byNoteData(activity)
+          byAssignmentBulkData(activity) ++: byAssignmentSingleData(activity) ++:
+            byBulkData(activity) ++: byNoteData(activity)
 
       orderIds.distinct.map(createConnection(_, activity.id))
     }
 
   def createConnection(refNum: String, activityId: Int): Connection = {
-    Connection(dimension = dimension,
-               objectId = refNum,
-               data = JNothing,
-               activityId = activityId)
+    Connection(dimension = dimension, objectId = refNum, data = JNothing, activityId = activityId)
   }
 
   private def byNoteData(activity: Activity): Seq[String] = {

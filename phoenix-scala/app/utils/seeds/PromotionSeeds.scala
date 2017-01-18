@@ -38,9 +38,9 @@ trait PromotionSeeds {
     for {
       context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       results ← * <~ discounts.map { discount ⇒
-                 val payload = createPromotion(discount.title, Promotion.Coupon)
-                 insertPromotion(payload, discount, context)
-               }
+        val payload = createPromotion(discount.title, Promotion.Coupon)
+        insertPromotion(payload, discount, context)
+      }
     } yield results
 
   def insertPromotion(payload: CreatePromotion, discount: BaseDiscount, context: ObjectContext)(
@@ -53,14 +53,14 @@ trait PromotionSeeds {
       shadow ← * <~ ObjectShadow(attributes = payload.shadow.attributes)
       ins    ← * <~ ObjectUtils.insert(form, shadow, None)
       promotion ← * <~ Promotions.create(
-                     Promotion(scope = scope,
-                               contextId = context.id,
-                               applyType = payload.applyType,
-                               formId = ins.form.id,
-                               shadowId = ins.shadow.id,
-                               commitId = ins.commit.id))
+        Promotion(scope = scope,
+                  contextId = context.id,
+                  applyType = payload.applyType,
+                  formId = ins.form.id,
+                  shadowId = ins.shadow.id,
+                  commitId = ins.commit.id))
       link ← * <~ PromotionDiscountLinks.create(
-                PromotionDiscountLink(leftId = promotion.id, rightId = discount.discountId))
+        PromotionDiscountLink(leftId = promotion.id, rightId = discount.discountId))
     } yield
       BasePromotion(promotion.id, ins.form.id, ins.shadow.id, payload.applyType, discount.title)
 
@@ -69,8 +69,8 @@ trait PromotionSeeds {
     val promotionShadow = BasePromotionShadow(promotionForm)
 
     CreatePromotion(
-        applyType = applyType,
-        form = CreatePromotionForm(attributes = promotionForm.form, discounts = Seq.empty),
-        shadow = CreatePromotionShadow(attributes = promotionShadow.shadow, discounts = Seq.empty))
+      applyType = applyType,
+      form = CreatePromotionForm(attributes = promotionForm.form, discounts = Seq.empty),
+      shadow = CreatePromotionShadow(attributes = promotionShadow.shadow, discounts = Seq.empty))
   }
 }

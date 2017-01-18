@@ -44,7 +44,7 @@ object AccountAccessMethod extends LazyLogging {
       case "plainText" ⇒ Some(HashPasswords.PlainText)
       case unknown ⇒
         logger.error(
-            s"Unsupported hash password algorithm $unknown. Check app.overrideHashPasswordAlgorithm option")
+          s"Unsupported hash password algorithm $unknown. Check app.overrideHashPasswordAlgorithm option")
         None
     }
 
@@ -97,7 +97,7 @@ object AccountAccessMethods
     with SearchById[AccountAccessMethod, AccountAccessMethods] {
 
   implicit lazy val PasswordAlgorithmColumn: JdbcType[HashAlgorithm] with BaseTypedType[
-      HashAlgorithm] = {
+    HashAlgorithm] = {
     MappedColumnType.base[HashAlgorithm, Int](c ⇒ c.code, {
       case HashPasswords.SCrypt.code    ⇒ HashPasswords.SCrypt
       case HashPasswords.PlainText.code ⇒ HashPasswords.PlainText

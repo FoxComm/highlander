@@ -38,8 +38,8 @@ object GiftCardService {
       case (GiftCard.CsrAppeasement, _) ⇒
         for {
           origin ← * <~ GiftCardManuals
-                    .filter(_.id === giftCard.originId)
-                    .mustFindOneOr(NotFoundFailure400(GiftCardManuals, giftCard.originId))
+            .filter(_.id === giftCard.originId)
+            .mustFindOneOr(NotFoundFailure400(GiftCardManuals, giftCard.originId))
           admin ← * <~ Users.mustFindByAccountId(origin.adminId)
         } yield GiftCardResponse.build(giftCard, None, Some(UserResponse.build(admin)))
 
@@ -61,13 +61,13 @@ object GiftCardService {
       _     ← * <~ Reasons.mustFindById400(payload.reasonId)
       // If `subTypeId` is absent, don't query. Check for model existence otherwise.
       subtype ← * <~ payload.subTypeId.fold(DbResultT.none[GiftCardSubtype]) { subId ⇒
-                 GiftCardSubtypes.csrAppeasements
-                   .filter(_.id === subId)
-                   .mustFindOneOr(NotFoundFailure400(GiftCardSubtype, subId))
-                   .map(Some(_)) // A bit silly but need to rewrap it back
-               }
+        GiftCardSubtypes.csrAppeasements
+          .filter(_.id === subId)
+          .mustFindOneOr(NotFoundFailure400(GiftCardSubtype, subId))
+          .map(Some(_)) // A bit silly but need to rewrap it back
+      }
       origin ← * <~ GiftCardManuals.create(
-                  GiftCardManual(adminId = admin.accountId, reasonId = payload.reasonId))
+        GiftCardManual(adminId = admin.accountId, reasonId = payload.reasonId))
       giftCard ← * <~ GiftCards.create(GiftCard.buildAppeasement(payload, origin.id, scope))
       adminResp = Some(UserResponse.build(admin))
       _ ← * <~ LogActivity.gcCreated(admin, giftCard)
@@ -99,8 +99,8 @@ object GiftCardService {
                                             currency = payload.currency,
                                             scope = scope.toString.some)
       response ← * <~ (1 to payload.quantity).value.map { num ⇒
-                  createByAdmin(admin, gcCreatePayload).value.map(buildItemResult(_)).dbresult
-                }
+        createByAdmin(admin, gcCreatePayload).value.map(buildItemResult(_)).dbresult
+      }
     } yield response
 
   def bulkUpdateStateByCsr(
@@ -109,17 +109,16 @@ object GiftCardService {
     for {
       _ ← * <~ payload.validate.toXor
       response ← * <~ payload.codes.map { code ⇒
-                  val itemPayload = GiftCardUpdateStateByCsr(payload.state, payload.reasonId)
-                  updateStateByCsr(code, itemPayload, admin).value
-                    .map(buildItemResult(_, Some(code)))
-                    .dbresult
-                }
+        val itemPayload = GiftCardUpdateStateByCsr(payload.state, payload.reasonId)
+        updateStateByCsr(code, itemPayload, admin).value
+          .map(buildItemResult(_, Some(code)))
+          .dbresult
+      }
     } yield response
 
-  def updateStateByCsr(code: String, payload: GiftCardUpdateStateByCsr, admin: User)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC): DbResultT[Root] =
+  def updateStateByCsr(code: String,
+                       payload: GiftCardUpdateStateByCsr,
+                       admin: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
     for {
       _        ← * <~ payload.validate
       _        ← * <~ payload.reasonId.map(id ⇒ Reasons.mustFindById400(id)).getOrElse(DbResultT.unit)
@@ -135,8 +134,8 @@ object GiftCardService {
     case Canceled ⇒
       for {
         _ ← * <~ GiftCardAdjustments
-             .lastAuthByGiftCardId(giftCard.id)
-             .mustNotFindOneOr(OpenTransactionsFailure)
+          .lastAuthByGiftCardId(giftCard.id)
+          .mustNotFindOneOr(OpenTransactionsFailure)
         upd ← * <~ GiftCards.update(giftCard,
                                     giftCard.copy(state = newState,
                                                   canceledReason = reasonId,

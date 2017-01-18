@@ -1,6 +1,10 @@
 package models.auth
 
-import akka.http.scaladsl.model.headers.{BasicHttpCredentials, GenericHttpCredentials, HttpCredentials}
+import akka.http.scaladsl.model.headers.{
+  BasicHttpCredentials,
+  GenericHttpCredentials,
+  HttpCredentials
+}
 
 import cats.data.Xor
 import failures.Failures

@@ -34,8 +34,8 @@ object QueryStatement {
   implicit val QueryStatementColumn: JdbcType[QueryStatement] with BaseTypedType[QueryStatement] = {
     implicit val formats = JsonFormatters.phoenixFormats
     MappedColumnType.base[QueryStatement, Json](
-        q ⇒ Extraction.decompose(q),
-        j ⇒ j.extract[QueryStatement]
+      q ⇒ Extraction.decompose(q),
+      j ⇒ j.extract[QueryStatement]
     )
   }
 

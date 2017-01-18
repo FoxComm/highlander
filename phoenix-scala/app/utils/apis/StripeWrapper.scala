@@ -8,7 +8,13 @@ import scala.concurrent.{ExecutionContext, Future, blocking}
 import cats.data.Xor
 import cats.implicits._
 import com.stripe.exception.{CardException, StripeException}
-import com.stripe.model.{DeletedCard, ExternalAccount, Card ⇒ StripeCard, Charge ⇒ StripeCharge, Customer ⇒ StripeCustomer}
+import com.stripe.model.{
+  DeletedCard,
+  ExternalAccount,
+  Card ⇒ StripeCard,
+  Charge ⇒ StripeCharge,
+  Customer ⇒ StripeCustomer
+}
 import com.typesafe.scalalogging.LazyLogging
 import failures.StripeFailures.{CardNotFoundForNewCustomer, StripeFailure}
 import failures.{Failures, GeneralFailure}
@@ -32,7 +38,7 @@ class StripeWrapper extends StripeApiWrapper with LazyLogging {
 
   def findCardByCustomerId(gatewayCustomerId: String, gatewayCardId: String): Result[StripeCard] = {
     logger.info(
-        s"Find card for customer, customer id: $gatewayCustomerId, card id: $gatewayCardId")
+      s"Find card for customer, customer id: $gatewayCustomerId, card id: $gatewayCardId")
     inBlockingPool(StripeCustomer.retrieve(gatewayCustomerId).getSources.retrieve(gatewayCardId))
       .flatMap(accountToCard)(blockingIOPool)
   }

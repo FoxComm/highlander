@@ -36,8 +36,8 @@ object SeedsGenerator
     customers.flatMap { c ⇒
       generateAddress(customer = c, isDefault = true) +:
       ((0 to Random.nextInt(2)) map { i ⇒
-            generateAddress(customer = c, isDefault = false)
-          })
+        generateAddress(customer = c, isDefault = false)
+      })
     }
   }
 
@@ -74,22 +74,22 @@ object SeedsGenerator
       skuIds             = skus.map(_.id)
       generatedCustomers = generateCustomers(customersCount)
       accountIds ← * <~ Accounts.createAllReturningIds(generatedCustomers.map { _ ⇒
-                    Account()
-                  })
+        Account()
+      })
       accountCustomers = accountIds zip generatedCustomers
       customerIds ← * <~ Users.createAllReturningIds(accountCustomers.map {
-                     case (accountId, customer) ⇒
-                       customer.copy(accountId = accountId)
-                   })
+        case (accountId, customer) ⇒
+          customer.copy(accountId = accountId)
+      })
       customers ← * <~ Users.filter(_.id.inSet(customerIds)).result
       _ ← * <~ CustomersData.createAll(customers.map { c ⇒
-           CustomerData(accountId = c.accountId, userId = c.id, scope = Scope.current)
-         })
+        CustomerData(accountId = c.accountId, userId = c.id, scope = Scope.current)
+      })
       _ ← * <~ Addresses.createAll(generateAddresses(customers))
       _ ← * <~ CreditCards.createAll(generateCreditCards(customers))
       orderedGcs ← * <~ randomSubset(customerIds).map { id ⇒
-                    generateGiftCardPurchase(id, context)
-                  }
+        generateGiftCardPurchase(id, context)
+      }
       appeasements ← * <~ (1 to appeasementCount).map(i ⇒ generateGiftCardAppeasement)
 
       giftCards ← * <~ orderedGcs ++ appeasements
@@ -100,8 +100,8 @@ object SeedsGenerator
       unsavedCodes   ← * <~ makeCouponCodes(coupons)
       _              ← * <~ CouponCodes.createAll(unsavedCodes)
       _ ← * <~ randomSubset(customerIds, customerIds.length).map { id ⇒
-           generateOrders(id, context, skuIds, pickOne(giftCards))
-         }
+        generateOrders(id, context, skuIds, pickOne(giftCards))
+      }
     } yield {}
   }
 }

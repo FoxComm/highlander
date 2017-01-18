@@ -44,25 +44,25 @@ trait TestSeeds extends TestFixtureBase {
 
     private val (_storeAdminAccount, _storeAdmin, _storeAdminUser, _storeAdminClaims) = (for {
       maybeAdmin ← * <~ Users
-                    .findByEmail(Factories.storeAdmin.email.getOrElse(""))
-                    .result
-                    .headOption
+        .findByEmail(Factories.storeAdmin.email.getOrElse(""))
+        .result
+        .headOption
 
       ad ← * <~ (maybeAdmin match {
-                case Some(admin) ⇒ DbResultT.pure(admin)
-                case None ⇒
-                  Factories.createStoreAdmin(user = Factories.storeAdmin,
-                                             password = "password",
-                                             state = AdminData.Active,
-                                             org = "tenant",
-                                             roles = List("admin"),
-                                             author = None)
-              })
+        case Some(admin) ⇒ DbResultT.pure(admin)
+        case None ⇒
+          Factories.createStoreAdmin(user = Factories.storeAdmin,
+                                     password = "password",
+                                     state = AdminData.Active,
+                                     org = "tenant",
+                                     roles = List("admin"),
+                                     author = None)
+      })
       adu ← * <~ AdminsData.mustFindByAccountId(ad.accountId)
       ac  ← * <~ Accounts.mustFindById404(ad.accountId)
       organization ← * <~ Organizations
-                      .findByName(TENANT)
-                      .mustFindOr(OrganizationNotFoundByName(TENANT))
+        .findByName(TENANT)
+        .mustFindOr(OrganizationNotFoundByName(TENANT))
       claims ← * <~ AccountManager.getClaims(ac.id, organization.scopeId)
     } yield (ac, ad, adu, claims)).gimmeTxn
 
@@ -87,11 +87,11 @@ trait TestSeeds extends TestFixtureBase {
       a  ← * <~ Accounts.mustFindById404(c.accountId)
       cu ← * <~ CustomersData.mustFindByAccountId(c.accountId)
       am ← * <~ AccountAccessMethods
-            .findOneByAccountIdAndName(c.accountId, "login")
-            .mustFindOr(GeneralFailure("access method not found"))
+        .findOneByAccountIdAndName(c.accountId, "login")
+        .mustFindOr(GeneralFailure("access method not found"))
       organization ← * <~ Organizations
-                      .findByName(TENANT)
-                      .mustFindOr(OrganizationNotFoundByName(TENANT))
+        .findByName(TENANT)
+        .mustFindOr(OrganizationNotFoundByName(TENANT))
       claims ← * <~ AccountManager.getClaims(a.id, organization.scopeId)
     } yield (a, c, cu, am, claims)).gimmeTxn
 

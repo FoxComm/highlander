@@ -40,12 +40,12 @@ object CustomHandlers {
               }
             }
           }(defaultRejectionHandler(immutable.Seq(rejection)).getOrError(
-                  "defaultRejectionHandler(immutable.Seq(rejection)) should be defined"))
+            "defaultRejectionHandler(immutable.Seq(rejection)) should be defined"))
       }
       .handleNotFound {
         complete(
-            HttpResponse(NotFound,
-                         entity = errorsJsonEntity("The requested resource could not be found.")))
+          HttpResponse(NotFound,
+                       entity = errorsJsonEntity("The requested resource could not be found.")))
       }
       .result()
 
@@ -59,17 +59,17 @@ object CustomHandlers {
                           status)
           ctx.complete(HttpResponse(status, entity = errorsJsonEntity(info.format(isProduction))))
         }
-      case e: IllegalArgumentException ⇒
+    case e: IllegalArgumentException ⇒
       ctx ⇒
         {
           ctx.log.warning("Bad request: {}", ctx.request)
           ctx.complete(HttpResponse(BadRequest, entity = errorsJsonEntity(e.getMessage)))
         }
-      // This is not a part of our control flow, but I'll leave it here just in case of unanticipated DBIO.failed
-      case FoxFailureException(failures) ⇒
+    // This is not a part of our control flow, but I'll leave it here just in case of unanticipated DBIO.failed
+    case FoxFailureException(failures) ⇒
       ctx ⇒
         ctx.complete(Http.renderFailure(failures))
-      case NonFatal(e) ⇒
+    case NonFatal(e) ⇒
       ctx ⇒
         {
           val errMsg = if (isProduction) "There was an internal server error." else e.getMessage

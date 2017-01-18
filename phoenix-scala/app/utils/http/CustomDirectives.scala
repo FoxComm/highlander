@@ -34,7 +34,7 @@ object CustomDirectives {
       path match {
         case Path.Segment(segment, tail) if segment.exists(_.isLetter) ⇒
           Matched(tail, Tuple1(ProductReference(segment)))
-        case _                                        ⇒
+        case _ ⇒
           IntNumber.apply(path).map { case Tuple1(id) ⇒ Tuple1(ProductReference(id)) }
       }
     }
@@ -132,9 +132,9 @@ object CustomDirectives {
           val (body, auth) = resp
           respondWithHeader(RawHeader("JWT", auth.jwt)).&(setCookie(JwtCookie(auth))) {
             complete(
-                HttpResponse(
-                    entity = HttpEntity(ContentTypes.`application/json`, json(body))
-                ))
+              HttpResponse(
+                entity = HttpEntity(ContentTypes.`application/json`, json(body))
+              ))
           }
         }
       })

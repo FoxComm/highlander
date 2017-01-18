@@ -32,9 +32,9 @@ class SkuAlbumLinks(tag: Tag)
 
 object SkuAlbumLinks
     extends OrderedObjectHeadLinkQueries[SkuAlbumLink, SkuAlbumLinks, Sku, Album](
-        new SkuAlbumLinks(_),
-        Skus,
-        Albums)
+      new SkuAlbumLinks(_),
+      Skus,
+      Albums)
     with ReturningId[SkuAlbumLink, SkuAlbumLinks] {
 
   val returningLens: Lens[SkuAlbumLink, Int] = lens[SkuAlbumLink].id

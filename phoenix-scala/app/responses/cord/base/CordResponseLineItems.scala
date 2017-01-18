@@ -66,11 +66,11 @@ object CordResponseLineItems {
     for {
       _ ← * <~ lineItems.map(data ⇒ createResponse(data, Seq(data.lineItemReferenceNumber), 1))
       result ← * <~ lineItems
-                .groupBy(lineItem ⇒ groupKey(lineItem, adjustmentMap, lineItem.attributes))
-                .map {
-                  case (_, lineItemGroup) ⇒ createResponseGrouped(lineItemGroup, adjustmentMap)
-                }
-                .toSeq
+        .groupBy(lineItem ⇒ groupKey(lineItem, adjustmentMap, lineItem.attributes))
+        .map {
+          case (_, lineItemGroup) ⇒ createResponseGrouped(lineItemGroup, adjustmentMap)
+        }
+        .toSeq
     } yield result
 
   def cordLineItemsFromOrderGrouped(cordRef: String, adjustmentMap: AdjustmentMap)(
@@ -95,7 +95,7 @@ object CordResponseLineItems {
     for {
       lineItems ← * <~ LineItemManager.getCartLineItems(cordRef)
       result ← * <~ lineItems.map(data ⇒
-                    createResponse(data, Seq(data.lineItemReferenceNumber), 1))
+        createResponse(data, Seq(data.lineItemReferenceNumber), 1))
     } yield result
 
   private val NOT_A_REF = "not_a_ref"

@@ -30,13 +30,13 @@ trait TaxonomySeeds extends TestFixtureBase {
       (for {
         ins ← * <~ ObjectUtils.insert(form, shadow)
         taxonomy ← * <~ Taxonomies.create(
-                      Taxonomy(id = 0,
-                               scope = Scope.current,
-                               hierarchical = taxonomyHierarchical,
-                               ctx.id,
-                               ins.form.id,
-                               ins.shadow.id,
-                               ins.commit.id))
+          Taxonomy(id = 0,
+                   scope = Scope.current,
+                   hierarchical = taxonomyHierarchical,
+                   ctx.id,
+                   ins.form.id,
+                   ins.shadow.id,
+                   ins.commit.id))
       } yield taxonomy).gimme
     }
 
@@ -53,7 +53,7 @@ trait TaxonomySeeds extends TestFixtureBase {
       (for {
         ins ← * <~ ObjectUtils.insert(form, shadow)
         term ← * <~ Taxons.create(
-                  Taxon(0, Scope.current, ctx.id, ins.shadow.id, ins.form.id, ins.commit.id))
+          Taxon(0, Scope.current, ctx.id, ins.shadow.id, ins.form.id, ins.commit.id))
       } yield term).gimme
     }
 
@@ -89,7 +89,7 @@ trait TaxonomySeeds extends TestFixtureBase {
 
     val taxonNames = (1 to 6).map("taxon" + _.toString)
     val taxons: Seq[Taxon] = createTaxons(
-        taxonNames.map(name ⇒ Map("name" → (("t" → "string") ~ ("v" → name)))))
+      taxonNames.map(name ⇒ Map("name" → (("t" → "string") ~ ("v" → name)))))
 
     val links: Seq[TaxonomyTaxonLink] = {
       require(taxonomy.hierarchical)

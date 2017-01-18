@@ -48,7 +48,7 @@ class CustomerDynamicGroups(tag: Tag)
 
 object CustomerDynamicGroups
     extends FoxTableQuery[CustomerDynamicGroup, CustomerDynamicGroups](
-        new CustomerDynamicGroups(_))
+      new CustomerDynamicGroups(_))
     with ReturningId[CustomerDynamicGroup, CustomerDynamicGroups] {
 
   val returningLens: Lens[CustomerDynamicGroup, Int] = lens[CustomerDynamicGroup].id

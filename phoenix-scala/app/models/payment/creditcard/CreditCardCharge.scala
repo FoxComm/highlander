@@ -33,12 +33,12 @@ case class CreditCardCharge(id: Int = 0,
     super.transitionModel(newModel)
 
   val fsm: Map[State, Set[State]] = Map(
-      Cart →
-        Set(Auth),
-      Auth →
-        Set(FullCapture, FailedCapture, CanceledAuth, ExpiredAuth),
-      ExpiredAuth →
-        Set(Auth)
+    Cart →
+      Set(Auth),
+    Auth →
+      Set(FullCapture, FailedCapture, CanceledAuth, ExpiredAuth),
+    ExpiredAuth →
+      Set(Auth)
   )
 }
 

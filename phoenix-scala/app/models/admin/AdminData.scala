@@ -34,9 +34,9 @@ case class AdminData(id: Int = 0,
   def stateLens = lens[AdminData].state
 
   val fsm: Map[State, Set[State]] = Map(
-      Invited  → Set(Active, Inactive, Archived),
-      Active   → Set(Inactive, Archived),
-      Inactive → Set(Active, Archived)
+    Invited  → Set(Active, Inactive, Archived),
+    Active   → Set(Inactive, Archived),
+    Inactive → Set(Active, Archived)
   )
 
   private val canLoginWithStates = Set(Active, Invited)

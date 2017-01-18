@@ -27,9 +27,9 @@ class CustomerTest extends TestBase {
           val c = Factories.customer
 
           val customers = Table(
-              ("users", "errors"),
-              (c.copy(email = Some("")), "email must not be empty"),
-              (c.copy(name = Some("")), "name must not be empty")
+            ("users", "errors"),
+            (c.copy(email = Some("")), "email must not be empty"),
+            (c.copy(name = Some("")), "name must not be empty")
           )
 
           forAll(customers) {

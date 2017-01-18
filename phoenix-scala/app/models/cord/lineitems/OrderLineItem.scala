@@ -65,14 +65,14 @@ case class OrderLineItem(id: Int = 0,
     super.transitionModel(newModel)
 
   val fsm: Map[State, Set[State]] = Map(
-      OLI.Cart →
-        Set(Pending, PreOrdered, BackOrdered, Canceled),
-      Pending →
-        Set(Shipped, Canceled),
-      PreOrdered →
-        Set(Shipped, Canceled),
-      BackOrdered →
-        Set(Shipped, Canceled)
+    OLI.Cart →
+      Set(Pending, PreOrdered, BackOrdered, Canceled),
+    Pending →
+      Set(Shipped, Canceled),
+    PreOrdered →
+      Set(Shipped, Canceled),
+    BackOrdered →
+      Set(Shipped, Canceled)
   )
 }
 

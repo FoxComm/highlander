@@ -40,12 +40,11 @@ abstract class OrderedObjectHeadLinkQueries[M <: OrderedObjectHeadLink[M],
     val allLefts = filterLeft(left)
     for {
       link ← * <~ allLefts
-              .filter(_.rightId === right.id)
-              .mustFindOneOr(LinkCannotBeFound(baseTableRow.getClass, left.id, right.id))
+        .filter(_.rightId === right.id)
+        .mustFindOneOr(LinkCannotBeFound(baseTableRow.getClass, left.id, right.id))
       replacedLink ← * <~ allLefts
-                      .filter(_.position === newPosition)
-                      .mustFindOneOr(
-                          LinkAtPositionCannotBeFound(baseTableRow.getClass, left.id, newPosition))
+        .filter(_.position === newPosition)
+        .mustFindOneOr(LinkAtPositionCannotBeFound(baseTableRow.getClass, left.id, newPosition))
       newLinks ← * <~ (if (link.position == newPosition) DbResultT.good((link, replacedLink))
                        else swapLinkPositions(link, replacedLink))
       (updatedLink, _) = newLinks

@@ -33,8 +33,11 @@ final case class Scope(id: Int = 0, parentPath: Option[String]) {
 class ScopeProcessor(uri: String,
                      cluster: String,
                      indexTopics: IndexTopicMap,
-                     jsonTransformers: Map[String, JsonTransformer])(
-    implicit ec: EC, ac: AS, mat: AM, cp: CP, sc: SC)
+                     jsonTransformers: Map[String, JsonTransformer])(implicit ec: EC,
+                                                                     ac: AS,
+                                                                     mat: AM,
+                                                                     cp: CP,
+                                                                     sc: SC)
     extends JsonProcessor {
 
   implicit val formats: DefaultFormats.type = DefaultFormats
@@ -57,26 +60,26 @@ class ScopeProcessor(uri: String,
   private def createIndex(scope: Scope): Future[Unit] = {
     val futures: Iterable[Future[Unit]] = indexTopics.map {
       case (indexName, topics) ⇒ {
-          val scopedIndexName = s"${indexName}_${scope.path}"
-          Console.out.println(s"Creating type mappings for index: ${scopedIndexName}")
-          //get json mappings for topics
-          val jsonMappings = jsonTransformers.filter {
-            case (key, _) ⇒ topics.contains(key)
-          }.mapValues(_.mapping()).values.toSeq
+        val scopedIndexName = s"${indexName}_${scope.path}"
+        Console.out.println(s"Creating type mappings for index: ${scopedIndexName}")
+        //get json mappings for topics
+        val jsonMappings = jsonTransformers.filter {
+          case (key, _) ⇒ topics.contains(key)
+        }.mapValues(_.mapping()).values.toSeq
 
-          // create index with scope in the
-          client.execute {
-            create index scopedIndexName mappings (jsonMappings: _*) analysis (autocompleteAnalyzer, lowerCasedAnalyzer, upperCasedAnalyzer)
-          }.map { _ ⇒
-            ()
-          }.recover {
-            case e: RemoteTransportException
-                if e.getCause.isInstanceOf[IndexAlreadyExistsException] ⇒
-              Console.out.println(s"Index $scopedIndexName already exists, skip")
-            case other ⇒
-              Console.println(s"Creation of index $scopedIndexName failed with error: $other")
-          }
+        // create index with scope in the
+        client.execute {
+          create index scopedIndexName mappings (jsonMappings: _*) analysis (autocompleteAnalyzer, lowerCasedAnalyzer, upperCasedAnalyzer)
+        }.map { _ ⇒
+          ()
+        }.recover {
+          case e: RemoteTransportException
+              if e.getCause.isInstanceOf[IndexAlreadyExistsException] ⇒
+            Console.out.println(s"Index $scopedIndexName already exists, skip")
+          case other ⇒
+            Console.println(s"Creation of index $scopedIndexName failed with error: $other")
         }
+      }
     }
     Future.sequence(futures).map(_ ⇒ ())
   }

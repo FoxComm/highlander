@@ -53,11 +53,11 @@ object FullActivityConnectionResponse {
          objectId = objectId,
          trailId = c.trailId,
          activity = ActivityResp(
-             id = a.id,
-             kind = a.activityType,
-             data = a.data,
-             context = a.context,
-             createdAt = a.createdAt
+           id = a.id,
+           kind = a.activityType,
+           data = a.data,
+           context = a.context,
+           createdAt = a.createdAt
          ),
          data = c.data,
          connectedBy = c.connectedBy,

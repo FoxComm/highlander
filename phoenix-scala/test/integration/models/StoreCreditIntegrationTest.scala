@@ -48,13 +48,13 @@ class StoreCreditIntegrationTest
     val (origin, storeCredit, payment) = (for {
       reason ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))
       origin ← * <~ StoreCreditManuals.create(
-                  StoreCreditManual(adminId = storeAdmin.accountId, reasonId = reason.id))
+        StoreCreditManual(adminId = storeAdmin.accountId, reasonId = reason.id))
       sc ← * <~ StoreCredits.create(
-              Factories.storeCredit.copy(accountId = customer.accountId, originId = origin.id))
+        Factories.storeCredit.copy(accountId = customer.accountId, originId = origin.id))
       sCredit ← * <~ StoreCredits.findOneById(sc.id)
       payment ← * <~ OrderPayments.create(
-                   Factories.storeCreditPayment
-                     .copy(cordRef = cart.refNum, paymentMethodId = sc.id, amount = Some(25)))
+        Factories.storeCreditPayment
+          .copy(cordRef = cart.refNum, paymentMethodId = sc.id, amount = Some(25)))
     } yield (origin, sCredit.value, payment)).gimme
   }
 }

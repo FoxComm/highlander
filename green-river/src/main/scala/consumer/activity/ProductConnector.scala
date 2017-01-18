@@ -17,10 +17,7 @@ object ProductConnector extends ActivityConnector {
     }
 
   def createConnection(formId: String, activityId: Int): Connection = {
-    Connection(dimension = dimension,
-               objectId = formId,
-               data = JNothing,
-               activityId = activityId)
+    Connection(dimension = dimension, objectId = formId, data = JNothing, activityId = activityId)
   }
 
   private def byProductData(activity: Activity): Seq[String] = {

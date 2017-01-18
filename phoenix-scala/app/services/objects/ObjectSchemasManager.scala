@@ -13,8 +13,8 @@ object ObjectSchemasManager {
   def getSchema(name: String)(implicit ec: EC, db: DB): DbResultT[Root] =
     for {
       schema ← * <~ ObjectFullSchemas
-                .findOneByName(name)
-                .mustFindOr(NotFoundFailure404(ObjectFullSchema, name))
+        .findOneByName(name)
+        .mustFindOr(NotFoundFailure404(ObjectFullSchema, name))
     } yield build(schema)
 
   def getSchemasForKind(kind: String)(implicit ec: EC, db: DB): DbResultT[Seq[Root]] =

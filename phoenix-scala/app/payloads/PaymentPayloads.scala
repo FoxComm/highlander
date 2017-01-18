@@ -54,13 +54,12 @@ object PaymentPayloads {
         validExpr(address.isDefined || addressId.isDefined, "address or addressId")
 
       (notEmpty(holderName, "holderName") |@| matches(cardNumber, "[0-9]+", "number") |@| matches(
-              cvv,
-              "[0-9]{3,4}",
-              "cvv") |@| withinTwentyYears(expYear, "expiration") |@| isMonth(expMonth,
-                                                                              "expiration") |@| notExpired(
-              expYear,
-              expMonth,
-              "credit card is expired") |@| someAddress).map { case _ ⇒ this }
+        cvv,
+        "[0-9]{3,4}",
+        "cvv") |@| withinTwentyYears(expYear, "expiration") |@| isMonth(expMonth, "expiration") |@| notExpired(
+        expYear,
+        expMonth,
+        "credit card is expired") |@| someAddress).map { case _ ⇒ this }
     }
 
     def lastFour: String = this.cardNumber.takeRight(4)
@@ -87,9 +86,9 @@ object PaymentPayloads {
         case (y, m) ⇒ notExpired(y, m, "credit card is expired")
       }
 
-      (holderName.fold(ok)(notEmpty(_, "holderName")) |@| expYear
-            .fold(ok)(withinTwentyYears(_, "expiration")) |@| expMonth.fold(ok)(
-              isMonth(_, "expiration")) |@| expired).map {
+      (holderName.fold(ok)(notEmpty(_, "holderName")) |@| expYear.fold(ok)(withinTwentyYears(
+        _,
+        "expiration")) |@| expMonth.fold(ok)(isMonth(_, "expiration")) |@| expired).map {
         case _ ⇒ this
       }
     }

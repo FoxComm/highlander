@@ -114,13 +114,13 @@ class CartStoreCreditPaymentsIntegrationTest extends CartPaymentsIntegrationTest
     val storeCredits = (for {
       reason ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))
       _ ← * <~ StoreCreditManuals.createAll((1 to 5).map { _ ⇒
-           StoreCreditManual(adminId = storeAdmin.accountId, reasonId = reason.id)
-         })
+        StoreCreditManual(adminId = storeAdmin.accountId, reasonId = reason.id)
+      })
       _ ← * <~ StoreCredits.createAll((1 to 5).map { i ⇒
-           Factories.storeCredit.copy(state = StoreCredit.Active,
-                                      accountId = customer.accountId,
-                                      originId = i)
-         })
+        Factories.storeCredit.copy(state = StoreCredit.Active,
+                                   accountId = customer.accountId,
+                                   originId = i)
+      })
       storeCredits ← * <~ StoreCredits.findAllByAccountId(customer.accountId).result
     } yield storeCredits).gimme
   }

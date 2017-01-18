@@ -55,7 +55,7 @@ abstract class InStorePaymentAdjustmentTable[M <: InStorePaymentAdjustment[M]](t
 }
 
 abstract class InStorePaymentAdjustmentQueries[M <: InStorePaymentAdjustment[M],
-    T <: InStorePaymentAdjustmentTable[M]](construct: Tag ⇒ T)
+T <: InStorePaymentAdjustmentTable[M]](construct: Tag ⇒ T)
     extends FoxTableQuery[M, T](construct) {
 
   def cancel(id: Int): DBIO[Int] = filter(_.id === id).map(_.state).update(Canceled)

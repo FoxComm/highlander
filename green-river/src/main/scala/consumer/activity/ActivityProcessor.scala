@@ -27,31 +27,38 @@ final case class Activity(id: Int = 0,
 final case class Connection(dimension: String, objectId: String, data: JValue, activityId: Int)
 
 final case class AppendActivity(activityId: Int, data: JValue)
-final case class AppendNotification(
-    sourceDimension: String, sourceObjectId: String, activityId: Int, data: JValue)
+final case class AppendNotification(sourceDimension: String,
+                                    sourceObjectId: String,
+                                    activityId: Int,
+                                    data: JValue)
 
 trait ActivityConnector {
   def process(offset: Long, activity: Activity)(implicit ec: EC): Future[Seq[Connection]]
 }
 
-final case class FailedToConnectActivity(
-    activityId: Int, dimension: String, objectId: String, failures: Failures)
+final case class FailedToConnectActivity(activityId: Int,
+                                         dimension: String,
+                                         objectId: String,
+                                         failures: Failures)
     extends RuntimeException(
-        s"Failed to connect activity $activityId to dimension '$dimension' and object $objectId " +
+      s"Failed to connect activity $activityId to dimension '$dimension' and object $objectId " +
         s"failures: $failures")
 
-final case class FailedToConnectNotification(
-    activityId: Int, dimension: String, objectId: String, response: HttpResponse)
+final case class FailedToConnectNotification(activityId: Int,
+                                             dimension: String,
+                                             objectId: String,
+                                             response: HttpResponse)
     extends RuntimeException(
-        s"Failed to create notification for connection of activity $activityId to dimension " +
+      s"Failed to create notification for connection of activity $activityId to dimension " +
         s"'$dimension' and object $objectId response: $response")
 
 /**
   * This is a JsonProcessor which listens to the activity stream and processes the activity
   * using a sequence of activity connectors
   */
-class ActivityProcessor(conn: PhoenixConnectionInfo, connectors: Seq[ActivityConnector])(
-    implicit ec: EC, ac: AS, mat: AM, cp: CP, sc: SC)
+class ActivityProcessor(
+    conn: PhoenixConnectionInfo,
+    connectors: Seq[ActivityConnector])(implicit ec: EC, ac: AS, mat: AM, cp: CP, sc: SC)
     extends JsonProcessor {
 
   implicit val formats: DefaultFormats.type = DefaultFormats
@@ -68,7 +75,7 @@ class ActivityProcessor(conn: PhoenixConnectionInfo, connectors: Seq[ActivityCon
     Console.err.println(s"Got Activity ${activity.activityType} with ID ${activity.id}")
     if (activity.context == null) {
       Console.err.println(
-          s"Warning, got Activity ${activity.activityType} with ID ${activity.id} without a context, skipping...")
+        s"Warning, got Activity ${activity.activityType} with ID ${activity.id} without a context, skipping...")
       Future { () }
     } else {
       val result = connectors.map { connector ⇒
@@ -111,8 +118,10 @@ class ActivityProcessor(conn: PhoenixConnectionInfo, connectors: Seq[ActivityCon
           // TODO: check errors?
           createPhoenixNotification(c, phoenix)
         } else {
-          throw FailedToConnectActivity(
-              c.activityId, c.dimension, c.objectId, GeneralFailure(s"response: $resp").single)
+          throw FailedToConnectActivity(c.activityId,
+                                        c.dimension,
+                                        c.objectId,
+                                        GeneralFailure(s"response: $resp").single)
         }
         resp
       })
@@ -129,8 +138,10 @@ class ActivityProcessor(conn: PhoenixConnectionInfo, connectors: Seq[ActivityCon
 
     phoenix.post("notifications", notification).map { response ⇒
       if (response.status != StatusCodes.OK) {
-        throw new FailedToConnectNotification(
-            conn.activityId, conn.dimension, conn.objectId, response)
+        throw new FailedToConnectNotification(conn.activityId,
+                                              conn.dimension,
+                                              conn.objectId,
+                                              response)
       }
       response
     }

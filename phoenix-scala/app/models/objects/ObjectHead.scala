@@ -51,7 +51,7 @@ abstract class ObjectHeadsQueries[M <: ObjectHead[M], T <: ObjectHeads[M]](const
 
   def mustFindByFormId404(formId: ObjectForm#Id)(implicit oc: OC, ec: EC): DbResultT[M] =
     findOneByFormId(formId).mustFindOneOr(
-        ObjectHeadCannotBeFoundByFormId(baseTableRow.tableName, formId, oc.name))
+      ObjectHeadCannotBeFoundByFormId(baseTableRow.tableName, formId, oc.name))
 
   def findOneByFormId(formId: Int)(implicit oc: OC): QuerySeq =
     filter(_.contextId === oc.id).filter(_.formId === formId)
@@ -66,5 +66,5 @@ abstract class ObjectHeadsQueries[M <: ObjectHead[M], T <: ObjectHeads[M]](const
       implicit ec: EC): DbResultT[FullObject[M]] =
     update(fullObject.model,
            fullObject.model.withNewShadowAndCommit(fullObject.shadow.id, commitId)).map(updated ⇒
-          fullObject.copy(model = updated))
+      fullObject.copy(model = updated))
 }

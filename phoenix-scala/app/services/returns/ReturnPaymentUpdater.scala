@@ -24,7 +24,7 @@ object ReturnPaymentUpdater {
       cc        ← * <~ CreditCards.mustFindById404(payment.paymentMethodId)
       deleteAll ← * <~ deleteCc(rma.id)
       ccRefund ← * <~ ReturnPayments.create(
-                    ReturnPayment.build(cc, rma.id, payload.amount, payment.currency))
+        ReturnPayment.build(cc, rma.id, payload.amount, payment.currency))
       updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(rma)
     } yield response
@@ -40,7 +40,7 @@ object ReturnPaymentUpdater {
       origin    ← * <~ GiftCardRefunds.create(GiftCardRefund(returnId = rma.id))
       gc        ← * <~ GiftCards.create(GiftCard.buildRmaProcess(origin.id, payment.currency))
       pmt ← * <~ ReturnPayments.create(
-               ReturnPayment.build(gc, rma.id, payload.amount, payment.currency))
+        ReturnPayment.build(gc, rma.id, payload.amount, payment.currency))
       updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(rma)
     } yield response
@@ -55,14 +55,14 @@ object ReturnPaymentUpdater {
       payment   ← * <~ mustFindCcPaymentsByOrderRef(rma.orderRef)
       origin    ← * <~ StoreCreditRefunds.create(StoreCreditRefund(returnId = rma.id))
       sc ← * <~ StoreCredits.create(
-              StoreCredit(accountId = rma.accountId,
-                          scope = Scope.current,
-                          originId = origin.id,
-                          originType = StoreCredit.RmaProcess,
-                          currency = payment.currency,
-                          originalBalance = 0))
+        StoreCredit(accountId = rma.accountId,
+                    scope = Scope.current,
+                    originId = origin.id,
+                    originType = StoreCredit.RmaProcess,
+                    currency = payment.currency,
+                    originalBalance = 0))
       pmt ← * <~ ReturnPayments.create(
-               ReturnPayment.build(sc, rma.id, payload.amount, payment.currency))
+        ReturnPayment.build(sc, rma.id, payload.amount, payment.currency))
       updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(rma)
     } yield response

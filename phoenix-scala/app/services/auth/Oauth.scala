@@ -34,8 +34,7 @@ object OauthDirectives {
     }
 }
 
-trait OauthService[M] {
-  this: Oauth ⇒
+trait OauthService[M] { this: Oauth ⇒
 
   def createCustomerByUserInfo(info: UserInfo): DbResultT[M]
   def createAdminByUserInfo(info: UserInfo): DbResultT[M]
@@ -51,16 +50,16 @@ trait OauthService[M] {
       implicit ec: EC): DbResultT[UserInfo] = {
     for {
       code ← XorT
-              .fromXor[DBIO](oauthResponse.getCode)
-              .leftMap(t ⇒ GeneralFailure(t.toString).single)
+        .fromXor[DBIO](oauthResponse.getCode)
+        .leftMap(t ⇒ GeneralFailure(t.toString).single)
       accessTokenResp ← * <~ this
-                         .accessToken(code)
-                         .leftMap(t ⇒ GeneralFailure(t.toString).single)
-                         .value
+        .accessToken(code)
+        .leftMap(t ⇒ GeneralFailure(t.toString).single)
+        .value
       info ← * <~ this
-              .userInfo(accessTokenResp.access_token)
-              .leftMap(t ⇒ GeneralFailure(t.toString).single)
-              .value
+        .userInfo(accessTokenResp.access_token)
+        .leftMap(t ⇒ GeneralFailure(t.toString).single)
+        .value
     } yield info
   }
 

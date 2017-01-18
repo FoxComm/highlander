@@ -16,12 +16,12 @@ class QualifierAstCompilerTest extends TestBase {
 
     "succeeds for case class with valid attributes" in new OrderTotalAmountValidFixture {
       rightValue(compiler.compile()) must === (
-          AndQualifier(Seq(OrderTotalAmountQualifier(totalAmount = 1))))
+        AndQualifier(Seq(OrderTotalAmountQualifier(totalAmount = 1))))
     }
 
     "fails when typo in configuration found" in new OrderTotalAmountTypoFixture {
       leftValue(compiler.compile()) must === (
-          QualifierAttributesExtractionFailure(OrderTotalAmount).single)
+        QualifierAttributesExtractionFailure(OrderTotalAmount).single)
     }
   }
 

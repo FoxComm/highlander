@@ -29,8 +29,8 @@ object CartQueries extends CordQueries {
       ctx: OC): DbResultT[TheResponse[CartResponse]] =
     for {
       cart ← * <~ Carts
-              .findByRefNumAndAccountId(refNum, customer.accountId)
-              .mustFindOneOr(NotFoundFailure404(Carts, refNum))
+        .findByRefNumAndAccountId(refNum, customer.accountId)
+        .mustFindOneOr(NotFoundFailure404(Carts, refNum))
       validated ← * <~ CartValidator(cart).validate()
       response  ← * <~ CartResponse.fromCart(cart, grouped)
     } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)
@@ -64,10 +64,10 @@ object CartQueries extends CordQueries {
       ctx: OC): DbResultT[CartResponse] =
     for {
       result ← * <~ Carts
-                .findByAccountId(customer.accountId)
-                .one
-                .findOrCreateExtended(
-                    Carts.create(Cart(accountId = customer.accountId, scope = Scope.current)))
+        .findByAccountId(customer.accountId)
+        .one
+        .findOrCreateExtended(
+          Carts.create(Cart(accountId = customer.accountId, scope = Scope.current)))
       (cart, foundOrCreated) = result
       fullOrder ← * <~ CartResponse.fromCart(cart, grouped, au.isGuest)
       _         ← * <~ logCartCreation(foundOrCreated, fullOrder, admin)

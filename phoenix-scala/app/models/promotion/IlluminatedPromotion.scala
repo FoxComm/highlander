@@ -51,10 +51,10 @@ object IlluminatedPromotion {
                  shadow: ObjectShadow): IlluminatedPromotion = {
 
     IlluminatedPromotion(
-        id = form.id, //Id points to form since that is constant across contexts
-        applyType = promotion.applyType,
-        context = IlluminatedContext(context.name, context.attributes),
-        attributes = IlluminateAlgorithm.projectAttributes(form.attributes, shadow.attributes))
+      id = form.id, //Id points to form since that is constant across contexts
+      applyType = promotion.applyType,
+      context = IlluminatedContext(context.name, context.attributes),
+      attributes = IlluminateAlgorithm.projectAttributes(form.attributes, shadow.attributes))
   }
 
   def validatePromotion(applyType: ApplyType, promotion: FormAndShadow): FormAndShadow = {

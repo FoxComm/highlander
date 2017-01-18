@@ -24,6 +24,6 @@ object JavaTimeSlickMapper {
     */
   implicit def instantAndTimestampWithoutZone: BaseColumnType[time.Instant] =
     PostgresDriver.MappedColumnType.base[time.Instant, Timestamp](
-        instant ⇒ Timestamp.valueOf(instant.atZone(UTC).toLocalDateTime),
-        timestamp ⇒ timestamp.toLocalDateTime.toInstant(ZoneOffset.UTC))
+      instant ⇒ Timestamp.valueOf(instant.atZone(UTC).toLocalDateTime),
+      timestamp ⇒ timestamp.toLocalDateTime.toInstant(ZoneOffset.UTC))
 }

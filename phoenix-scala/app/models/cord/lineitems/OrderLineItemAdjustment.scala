@@ -46,12 +46,12 @@ object OrderLineItemAdjustment {
   }
 
   implicit val adjustmentTypeColumnType: JdbcType[AdjustmentType] with BaseTypedType[
-      AdjustmentType] = AdjustmentType.slickColumn
+    AdjustmentType] = AdjustmentType.slickColumn
 }
 
 object OrderLineItemAdjustments
     extends FoxTableQuery[OrderLineItemAdjustment, OrderLineItemAdjustments](
-        new OrderLineItemAdjustments(_))
+      new OrderLineItemAdjustments(_))
     with ReturningId[OrderLineItemAdjustment, OrderLineItemAdjustments] {
 
   val returningLens: Lens[OrderLineItemAdjustment, Int] = lens[OrderLineItemAdjustment].id
