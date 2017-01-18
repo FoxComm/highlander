@@ -150,10 +150,7 @@ object LineItemUpdater {
     } yield TheResponse.validated(res, valid)
 
   def foldQuantityPayload(payload: Seq[UpdateLineItemsPayload]): Map[ObjectForm#Id, Int] =
-    payload.foldLeft(Map[Int, Int]()) { (acc, item) ⇒
-      val quantity = acc.getOrElse(item.productVariantId, 0)
-      acc.updated(item.productVariantId, quantity + item.quantity)
-    }
+    payload.groupBy(_.productVariantId).mapValues(_.map(_.quantity).sum)
 
   private def updateQuantities(cart: Cart, payload: Seq[UpdateLineItemsPayload])(
       implicit ec: EC,

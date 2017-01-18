@@ -79,21 +79,13 @@ object CartLineItems
         (for {
           cartLineItems  ← q
           productVariant ← cartLineItems.productVariant
-        } yield productVariant.formId).result.map(_.foldLeft(Map[ObjectForm#Id, Int]()) {
-          case (acc, formId) ⇒
-            val quantity = acc.getOrElse(formId, 0)
-            acc.updated(formId, quantity + 1)
-        })
+        } yield productVariant.formId).result.map(_.groupBy(identity).mapValues(_.size))
 
       def REMOVE_ME_countProductVariantsBySkuCodes(implicit ec: EC): DBIO[Map[String, Int]] =
         (for {
           cartLineItems  ← q
           productVariant ← cartLineItems.productVariant
-        } yield productVariant.code).result.map(_.foldLeft(Map[String, Int]()) {
-          case (acc, skuCode) ⇒
-            val quantity = acc.getOrElse(skuCode, 0)
-            acc.updated(skuCode, quantity + 1)
-        })
+        } yield productVariant.code).result.map(_.groupBy(identity).mapValues(_.size))
     }
   }
 }
