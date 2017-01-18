@@ -42,12 +42,9 @@ class LineItemUpdaterTest
         LineItemUpdater.updateQuantitiesOnCart(storeAdmin, cart.refNum, payload).gimme.result
 
       import root.lineItems.skus
-      skus.count(_.sku == "1") must be(1)
-      skus.count(_.sku == "2") must be(0)
+      skus.map(_.sku) must contain theSameElementsAs Seq("1")
       // TODO: check if *variant* IDs match?
-
       skus.find(_.sku === "1").map(_.quantity) must be (Some(3))
-
       skus.map(_.quantity).sum must === (CartLineItems.size.gimme)
     }
 
@@ -69,12 +66,9 @@ class LineItemUpdaterTest
         LineItemUpdater.updateQuantitiesOnCart(storeAdmin, cart.refNum, payload).gimme.result
 
       import root.lineItems.skus
-      skus.count(_.sku == "1") must be(1)
-      skus.count(_.sku == "2") must be(0)
-      skus.count(_.sku == "3") must be(1)
-
+      skus.map(_.sku) must contain theSameElementsAs Seq("1", "3")
+      // TODO: check if *variant* IDs match?
       skus.find(_.sku === "1").map(_.quantity) must be (Some(3))
-
       skus.map(_.quantity).sum must === (CartLineItems.gimme.size)
     }
   }
