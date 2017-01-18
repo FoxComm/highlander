@@ -64,6 +64,9 @@ shortcuts:
   - name: Bootstrap Sinopia
     alias: sinopia.yml
     target: ansible/bootstrap_sinopia.yml
+  - name: Bootstrap Kangaroo
+    alias: kangaroos.yml
+    target: ansible/bootstrap_kangaroos.yml
 
   # Goldrush
   - name: Generate .env.local
