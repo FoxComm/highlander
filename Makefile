@@ -13,7 +13,7 @@ dotenv:
 up:
 	$(call header, Creating GCE Machine)
 	export eval `cat ./.env.local`; vagrant up --provider=google appliance
-	cat goldrush.log
+	@cat goldrush.log
 
 status:
 	export eval `cat ./.env.local`; vagrant status appliance
