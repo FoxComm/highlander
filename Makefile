@@ -15,6 +15,9 @@ up:
 	export eval `cat ./.env.local`; vagrant up --provider=google appliance
 	cat goldrush.log
 
+status:
+	export eval `cat ./.env.local`; vagrant status appliance
+
 provision:
 	$(call header, Provisioning GCE Machine)
 	export eval `cat ./.env.local`; vagrant provision appliance
@@ -27,4 +30,4 @@ ssh:
 	$(call header, Connecting to GCE Machine)
 	export eval `cat ./.env.local`; vagrant ssh appliance
 
-.PHONY: prepare dotenv up provision destroy ssh
+.PHONY: status prepare dotenv up provision destroy ssh
