@@ -61,8 +61,9 @@ export default class SkuList extends Component {
     let columns = [
       ...variantColumns,
       { field: 'sku', text: 'SKU' },
-      { field: 'retailPrice', text: 'Retail Price' },
-      { field: 'salePrice', text: 'Sale Price' },
+      { field: 'salePrice', text: 'Price' },
+      { field: 'retailPrice', text: 'Compare At' },
+
     ];
 
     if (!_.isEmpty(variants) && this.props.skus.length > 1) {
