@@ -80,7 +80,7 @@ If you want to spin up an appliance with custom tag for any project, please buil
 
 And then override `DOCKER_TAG_PHOENIX` to `my-custom-debug-build`.
 
-TODO: Automate this process.
+**TODO**: Automate this process.
 
 ### Local VM
 
