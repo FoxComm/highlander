@@ -144,10 +144,10 @@ export const fetchGroupStats = () => (dispatch: Function, getState: Function) =>
   const request = requestAdapter(criterions, mainCondition, conditions);
 
   request.aggregations
-    .add(new aggregations.Count('ordersCount', 'orders.referenceNumber'))
+    .add(new aggregations.Sum('ordersCount', 'orderCount'))
     .add(new aggregations.Sum('totalSales', 'revenue'))
     .add(new aggregations.Average('averageOrderSize', 'orders.itemsCount'))
-    .add(new aggregations.Average('averageOrderSum', 'orders.grandTotal'));
+    .add(new aggregations.Average('averageOrderSum', 'orders.subTotal'));
 
   dispatch(_fetchStats.perform(request.toRequest()));
 };

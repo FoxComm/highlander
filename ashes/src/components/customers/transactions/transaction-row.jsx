@@ -8,16 +8,16 @@ const computePaymentState = order => {
   // We'll beef it up when we get shipping and payment capture in the system.
   const authorizations = _.reduce(order.payments, (result, payment) => {
     const { paymentMethodType } = payment;
-    if ((paymentMethodType == 'creditCard' && payment.creditCardState == 'auth') ||
-        (paymentMethodType == 'giftCard' && payment.giftCardState == 'auth') ||
-        (paymentMethodType == 'storeCredit' && payment.storeCreditState == 'auth')) {
+    if ((paymentMethodType == 'creditCard' && payment.creditCardState == 'capture') ||
+        (paymentMethodType == 'giftCard' && payment.giftCardState == 'capture') ||
+        (paymentMethodType == 'storeCredit' && payment.storeCreditState == 'capture')) {
       return result + 1;
     }
 
     return result;
   }, 0);
 
-  return authorizations > 0 && authorizations == order.payments.length ? 'Auth' : 'Cart';
+  return authorizations > 0 && authorizations == order.payments.length ? 'Captured' : 'Auth';
 };
 
 const setCellContents = (order, field) => {
