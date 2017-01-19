@@ -94,7 +94,9 @@ class CartIntegrationTest
       val refNum =
         cartsApi.create(CreateCart(customerId = customer.id.some)).as[CartResponse].referenceNumber
 
-      cartsApi(refNum).lineItems.add(Seq(UpdateLineItemsPayload(product.variants.head.id, 1))).mustBeOk()
+      cartsApi(refNum).lineItems
+        .add(Seq(UpdateLineItemsPayload(product.variants.head.id, 1)))
+        .mustBeOk()
 
       val giftCardAmount    = 2500 // ¢
       val storeCreditAmount = 500  // ¢
