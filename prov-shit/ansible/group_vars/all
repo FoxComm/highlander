@@ -10,6 +10,34 @@ vagrant: false
 local_vagrant: false
 foxcomm_domain: foxcommerce.com
 
+# Docker Defaults
+docker_tag: master
+docker_registry: docker-stage.foxcommerce.com
+docker_registry_provider: gce
+docker_logs_dir: /logs
+docker_logs_host_dir: /var/log/docker
+
+# Default docker branches for containers
+docker_tag_ashes: master
+docker_tag_firebrand: master
+docker_tag_phoenix: master
+docker_tag_greenriver: master
+docker_tag_middlewarehouse: master
+docker_tag_messaging: master
+docker_tag_isaac: master
+docker_tag_solomon: master
+docker_tag_capture_consumer: master
+docker_tag_gift_card_consumer: master
+docker_tag_shipments_consumer: master
+docker_tag_shipstation_consumer: master
+docker_tag_stock_items_consumer: master
+docker_tag_storefront_topdrawer: master
+docker_tag_storefront_tpg: master
+docker_tag_marketplace: master
+docker_tag_marketplace_ui: master
+docker_tag_product_search: master
+docker_tag_demo_search: master
+
 # Consul Service Discovery
 consul_data_dir: /var/consul
 consul_suffix: service.consul
@@ -231,14 +259,6 @@ mesos_ip: 0.0.0.0
 # Seeder flags
 with_gatling_seeder: true
 with_mwh_seeder: true
-
-# Docker Defaults
-docker_branch: master
-docker_frontend_branch: master
-docker_registry: docker-stage.foxcommerce.com
-docker_registry_provider: gce
-docker_logs_dir: /logs
-docker_logs_host_dir: /var/log/docker
 
 # Marketplace
 marketplace_db_name: marketplace_development

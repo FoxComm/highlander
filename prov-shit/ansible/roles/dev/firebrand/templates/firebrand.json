@@ -38,7 +38,7 @@
       }
     ],
     "docker": {
-      "image": "{{docker_registry}}:5000/firebrand:{{docker_frontend_branch}}",
+      "image": "{{docker_registry}}:5000/firebrand:{{docker_tag_firebrand}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],

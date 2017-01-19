@@ -15,7 +15,7 @@
       }
     ],
     "docker": {
-      "image": "{{docker_registry}}:5000/capture-consumer:{{docker_branch}}",
+      "image": "{{docker_registry}}:5000/capture-consumer:{{docker_tag_capture_consumer}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],
