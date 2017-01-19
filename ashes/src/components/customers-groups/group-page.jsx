@@ -21,7 +21,7 @@ type Props = {
   err: Object;
   deleteState: AsyncState;
   reset: () => void;
-  clearDeleteErrors: () => void;
+  clearDeleteErrors: () => Promise;
   fetchGroup: (id: string) => Promise;
   deleteGroup: (id: string) => Promise;
   push: (location: Object) => void;
