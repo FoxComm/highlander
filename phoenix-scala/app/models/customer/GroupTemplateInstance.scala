@@ -1,12 +1,18 @@
 package models.customer
 
+import java.time.Instant
+
 import shapeless._
 import utils.db._
 import utils.aliases._
 import com.github.tminglei.slickpg.LTree
 import utils.db.ExPostgresDriver.api._
 
-case class GroupTemplateInstance(id: Int = 0, groupTemplateId: Int, groupId: Int, scope: LTree)
+case class GroupTemplateInstance(id: Int = 0,
+                                 groupTemplateId: Int,
+                                 groupId: Int,
+                                 scope: LTree,
+                                 deletedAt: Option[Instant] = None)
     extends FoxModel[GroupTemplateInstance]
 
 class GroupTemplateInstances(tag: Tag)
@@ -15,9 +21,10 @@ class GroupTemplateInstances(tag: Tag)
   def groupTemplateId = column[Int]("group_template_id")
   def groupId         = column[Int]("group_id")
   def scope           = column[LTree]("scope")
+  def deletedAt       = column[Option[Instant]]("deleted_at")
 
   def * =
-    (id, groupTemplateId, groupId, scope) <> ((GroupTemplateInstance.apply _).tupled, GroupTemplateInstance.unapply)
+    (id, groupTemplateId, groupId, scope, deletedAt) <> ((GroupTemplateInstance.apply _).tupled, GroupTemplateInstance.unapply)
 }
 
 object GroupTemplateInstances

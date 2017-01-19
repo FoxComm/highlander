@@ -13,6 +13,7 @@ case class CustomerGroupsSearchView()(implicit ec: EC) extends AvroTransformer {
       field("customersCount", IntegerType),
       field("scope", StringType).index("not_analyzed"),
       field("createdAt", DateType).format(dateFormat),
-      field("updatedAt", DateType).format(dateFormat)
+      field("updatedAt", DateType).format(dateFormat),
+      field("deletedAt", DateType).format(dateFormat)
   )
 }

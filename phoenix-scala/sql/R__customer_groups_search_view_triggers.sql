@@ -1,14 +1,24 @@
 -- insert customer group function
 create or replace function update_customers_groups_view_insert_fn() returns trigger as $$
   begin
-    insert into customer_groups_search_view select distinct on (new.id)
-      new.id as id,
-      new.id as group_id,
-      new.name as name,
-      new.customers_count as customers_count,
-      to_char(new.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as updated_at,
-      to_char(new.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as created_at,
-      new.scope as scope;
+    insert into customer_groups_search_view (
+      id,
+      group_id,
+      name,
+      customers_count,
+      scope,
+      created_at,
+      updated_at,
+      deleted_at
+    ) select distinct on (new.id)
+        new.id as id,
+        new.id as group_id,
+        new.name as name,
+        new.customers_count as customers_count,
+        new.scope as scope,
+        to_char(new.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as created_at,
+        to_char(new.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as updated_at,
+        to_char(new.deleted_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as deleted_at;
     return null;
   end;
 $$ language plpgsql;
@@ -20,6 +30,7 @@ create or replace function update_customers_groups_view_update_fn() returns trig
         name = new.name,
         customers_count = new.customers_count,
         updated_at = to_char(new.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
+        deleted_at = to_char(new.deleted_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
         scope = new.scope
     where id = new.id;
     return null;
@@ -27,12 +38,7 @@ create or replace function update_customers_groups_view_update_fn() returns trig
 $$ language plpgsql;
 
 -- delete customer group function
-create or replace function update_customers_groups_view_delete_fn() returns trigger as $$
-  begin
-    delete from customer_groups_search_view where id = old.id;
-    return null;
-  end;
-$$ language plpgsql;
+drop function if exists update_customers_groups_view_delete_fn();
 
 -- recreate insert customer group trigger
 drop trigger if exists update_customers_groups_view_insert_trigger on customer_dynamic_groups;
@@ -50,7 +56,3 @@ create trigger update_customers_groups_view_update_trigger
 
 -- recreate delete customer group trigger
 drop trigger if exists update_customers_groups_view_delete_trigger on customer_dynamic_groups;
-create trigger update_customers_groups_view_delete_trigger
-  after delete on customer_dynamic_groups
-  for each row
-  execute procedure update_customers_groups_view_delete_fn();

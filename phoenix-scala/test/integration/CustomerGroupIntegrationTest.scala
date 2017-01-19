@@ -104,10 +104,18 @@ class CustomerGroupIntegrationTest
       customerGroupsApi(group.id).delete.mustBeEmpty()
 
       withClue(s"Customer group with id ${group.id} exists:") {
-        CustomerDynamicGroups.result.gimme.map(_.id).contains(group.id) must === (false)
+        CustomerDynamicGroups
+          .filter(_.id === group.id)
+          .filter(_.deletedAt.isEmpty)
+          .gimme
+          .isEmpty must === (true)
       }
 
-      val tis = GroupTemplateInstances.findByScopeAndGroupId(group.scope, group.id).result.gimme
+      val tis = GroupTemplateInstances
+        .findByScopeAndGroupId(group.scope, group.id)
+        .filter(_.deletedAt.isEmpty)
+        .result
+        .gimme
       withClue(s"Customer group template instances with for group ${group.id} exist:") {
         tis.isEmpty must === (true)
       }

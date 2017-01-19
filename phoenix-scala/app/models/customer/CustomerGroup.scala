@@ -19,7 +19,8 @@ case class CustomerDynamicGroup(id: Int = 0,
                                 clientState: Json,
                                 elasticRequest: Json,
                                 updatedAt: Instant = Instant.now,
-                                createdAt: Instant = Instant.now)
+                                createdAt: Instant = Instant.now,
+                                deletedAt: Option[Instant] = None)
     extends FoxModel[CustomerDynamicGroup]
 
 object CustomerDynamicGroup {
@@ -47,9 +48,19 @@ class CustomerDynamicGroups(tag: Tag)
   def elasticRequest = column[Json]("elastic_request")
   def updatedAt      = column[Instant]("updated_at")
   def createdAt      = column[Instant]("created_at")
+  def deletedAt      = column[Option[Instant]]("deleted_at")
 
   def * =
-    (id, scope, createdBy, name, customersCount, clientState, elasticRequest, updatedAt, createdAt) <>
+    (id,
+     scope,
+     createdBy,
+     name,
+     customersCount,
+     clientState,
+     elasticRequest,
+     updatedAt,
+     createdAt,
+     deletedAt) <>
       ((CustomerDynamicGroup.apply _).tupled, CustomerDynamicGroup.unapply)
 }
 
