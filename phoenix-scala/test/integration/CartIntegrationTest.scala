@@ -123,7 +123,7 @@ class CartIntegrationTest
   }
 
   "POST /v1/orders/:refNum/line-items" - {
-    val payload = Seq(UpdateLineItemsPayload(TEMPORARY_skuCodeToVariantFormId("SKU-YAX"), 2))
+    def payload = Seq(UpdateLineItemsPayload(TEMPORARY_skuCodeToVariantFormId("SKU-YAX"), 2))
 
     "should successfully update line items" in new OrderShippingMethodFixture
     with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
@@ -154,13 +154,13 @@ class CartIntegrationTest
       litems must have size 1
     }
 
-    "should respond with 404 if cart is not found" in {
+    "should respond with 404 if cart is not found" in new ShippingMethodFixture {
       cartsApi("NOPE").lineItems.add(payload).mustFailWith404(NotFoundFailure404(Cart, "NOPE"))
     }
   }
 
   "PATCH /v1/orders/:refNum/line-items" - {
-    val addPayload = Seq(UpdateLineItemsPayload(TEMPORARY_skuCodeToVariantFormId("SKU-YAX"), 2))
+    def addPayload = Seq(UpdateLineItemsPayload(TEMPORARY_skuCodeToVariantFormId("SKU-YAX"), 2))
 
     val giftCardAttrs1, giftCardAttrs2 = giftCardLineItemAttributes
 
@@ -248,7 +248,7 @@ class CartIntegrationTest
         .skus mustBe empty
     }
 
-    "should respond with 404 if cart is not found" in {
+    "should respond with 404 if cart is not found" in new ShippingMethodFixture {
       cartsApi("NOPE").lineItems.add(addPayload).mustFailWith404(NotFoundFailure404(Cart, "NOPE"))
     }
 
