@@ -6,7 +6,6 @@ import (
 
 	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
-	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/services"
 
 	"github.com/gin-gonic/gin"
@@ -116,48 +115,57 @@ func (controller *shipmentController) updateShipmentForOrder() gin.HandlerFunc {
 
 func (controller *shipmentController) createShipmentFromOrder() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		payload := &payloads.Order{}
-		if parse(context, payload) != nil {
-			return
-		}
+		// payload := &payloads.Order{}
+		// if parse(context, payload) != nil {
+		// 	return
+		// }
 
-		if !setScope(context, payload) {
-			return
-		}
+		// if !setScope(context, payload) {
+		// 	return
+		// }
 
-		shipment, err := controller.shipmentService.CreateShipment(payload.ShipmentModel())
-		if err != nil {
-			handleServiceError(context, err)
-			return
-		}
+		// shipmentModel, err := payload.ShipmentModel()
+		// if err != nil {
+		// 	fmt.Printf("STastarstarst\n")
+		// 	handleServiceError(context, err)
+		// 	return
+		// }
 
-		//If the shipment has no line items with tracked inventory, then it can be automatically shipped.
-		//Most useful in the case of gift cards.
-		hasTrackedInventory := false
-		for _, lineItem := range payload.LineItems.SKUs {
-			// We only care about the line items if we're tracking inventory.
-			if lineItem.TrackInventory {
-				hasTrackedInventory = true
-				break
-			}
-		}
+		// shipment, err := controller.shipmentService.CreateShipment(shipmentModel)
+		// if err != nil {
+		// 	fmt.Printf("aoienastoienarsoietnaoirsetnarstnaneoi\n")
+		// 	handleServiceError(context, err)
+		// 	return
+		// }
 
-		//This means that it's only digital items (eg. gift cards)
-		if !hasTrackedInventory {
-			shipment.State = models.ShipmentStateShipped
-			shipment, err = controller.shipmentService.UpdateShipment(shipment)
-			if err != nil {
-				handleServiceError(context, err)
-				return
-			}
-		}
+		// //If the shipment has no line items with tracked inventory, then it can be automatically shipped.
+		// //Most useful in the case of gift cards.
+		// hasTrackedInventory := false
+		// for _, lineItem := range payload.LineItems.SKUs {
+		// 	// We only care about the line items if we're tracking inventory.
+		// 	if lineItem.TrackInventory {
+		// 		hasTrackedInventory = true
+		// 		break
+		// 	}
+		// }
 
-		response, err := responses.NewShipmentFromModel(shipment)
-		if err != nil {
-			handleServiceError(context, err)
-			return
-		}
+		// //This means that it's only digital items (eg. gift cards)
+		// if !hasTrackedInventory {
+		// 	shipment.State = models.ShipmentStateShipped
+		// 	shipment, err = controller.shipmentService.UpdateShipment(shipment)
+		// 	if err != nil {
+		// 		handleServiceError(context, err)
+		// 		return
+		// 	}
+		// }
 
-		context.JSON(http.StatusCreated, response)
+		// response, err := responses.NewShipmentFromModel(shipment)
+		// if err != nil {
+		// 	handleServiceError(context, err)
+		// 	return
+		// }
+
+		// context.JSON(http.StatusCreated, response)
+		context.JSON(http.StatusCreated, nil)
 	}
 }

@@ -13,6 +13,7 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/controllers"
 	"github.com/FoxComm/highlander/middlewarehouse/fixtures"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
+	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
 	"github.com/FoxComm/highlander/middlewarehouse/services"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
@@ -21,10 +22,11 @@ import (
 
 type endToEndTestSuite struct {
 	suite.Suite
-	db       *gorm.DB
-	router   *gin.Engine
-	location *models.StockLocation
-	server   *tests.TestWebServer
+	db             *gorm.DB
+	router         *gin.Engine
+	location       *models.StockLocation
+	shippingMethod *models.ShippingMethod
+	server         *tests.TestWebServer
 }
 
 func TestEndToEndSuite(t *testing.T) {
@@ -49,6 +51,10 @@ func (suite *endToEndTestSuite) SetupSuite() {
 	summaryController := controllers.NewSummaryController(summaryService)
 	summaryController.SetUp(suite.router.Group("/summary"))
 
+	shipmentService := services.NewShipmentService(suite.db, inventoryService, summaryService, dummyLogger{})
+	shipmentController := controllers.NewShipmentController(shipmentService)
+	shipmentController.SetUp(suite.router.Group("/shipments"))
+
 	suite.server = &tests.TestWebServer{Router: suite.router}
 }
 
@@ -60,7 +66,16 @@ func (suite *endToEndTestSuite) SetupTest() {
 		"stock_item_units",
 		"stock_item_summaries",
 		"stock_locations",
+		"shipments",
+		"carriers",
+		"shipping_methods",
 	})
+
+	carrier := fixtures.GetCarrier(uint(0))
+	suite.Nil(suite.db.Create(carrier).Error)
+
+	suite.shippingMethod = fixtures.GetShippingMethod(uint(0), carrier.ID, carrier)
+	suite.Nil(suite.db.Create(suite.shippingMethod).Error)
 
 	suite.location = fixtures.GetStockLocation()
 	suite.Nil(suite.db.Create(suite.location).Error)
@@ -229,3 +244,93 @@ func (suite *endToEndTestSuite) Test_HoldSKU_MixedInventoryTracking() {
 		}
 	}
 }
+
+func (suite *endToEndTestSuite) Test_CreateShipment_MixedInventoryTracking() {
+	skuPayload1 := fixtures.GetCreateSKUPayload()
+	skuPayload1.RequiresInventoryTracking = true
+	skuRes := suite.server.Post("/skus", skuPayload1)
+	suite.Equal(http.StatusCreated, skuRes.Code)
+
+	skuPayload2 := fixtures.GetCreateSKUPayload()
+	skuPayload2.RequiresInventoryTracking = false
+	skuRes = suite.server.Post("/skus", skuPayload2)
+	suite.Equal(http.StatusCreated, skuRes.Code)
+
+	var stockItem1 models.StockItem
+	suite.Nil(suite.db.Where("sku = ?", skuPayload1.Code).First(&stockItem1).Error)
+
+	incrementURL := fmt.Sprintf("/stock-items/%d/increment", stockItem1.ID)
+	incrementPayload := payloads.IncrementStockItemUnits{
+		Qty:    10,
+		Status: "onHand",
+		Type:   "Sellable",
+	}
+	incrementRes := suite.server.Patch(incrementURL, incrementPayload)
+	suite.Equal(http.StatusNoContent, incrementRes.Code)
+
+	reservationPayload := payloads.Reservation{
+		RefNum: "BR10001",
+		Items: []payloads.ItemReservation{
+			payloads.ItemReservation{
+				Qty: 2,
+				SKU: skuPayload1.Code,
+			},
+			payloads.ItemReservation{
+				Qty: 1,
+				SKU: skuPayload2.Code,
+			},
+		},
+	}
+
+	reservationRes := suite.server.Post("/reservations/hold", reservationPayload)
+	suite.Equal(http.StatusNoContent, reservationRes.Code)
+
+	summaryURL := fmt.Sprintf("/summary/%s", skuPayload1.Code)
+	summaryRes := suite.server.Get(summaryURL)
+	suite.Equal(http.StatusOK, summaryRes.Code)
+
+	order := fixtures.GetOrder("BR10004", 0)
+	order.LineItems.SKUs = []payloads.OrderLineItem{
+		payloads.OrderLineItem{
+			SKU:              skuPayload1.Code,
+			Name:             "Some name",
+			Price:            5999,
+			State:            "pending",
+			ReferenceNumbers: []string{"abc"},
+			ImagePath:        "test.com/test.png",
+		},
+		payloads.OrderLineItem{
+			SKU:              skuPayload1.Code,
+			Name:             "Some name",
+			Price:            5999,
+			State:            "pending",
+			ReferenceNumbers: []string{"def"},
+			ImagePath:        "test.com/test.png",
+		},
+		payloads.OrderLineItem{
+			SKU:              skuPayload2.Code,
+			Name:             "Another name",
+			Price:            2500,
+			State:            "pending",
+			ReferenceNumbers: []string{"hig"},
+			ImagePath:        "test.com/test.png",
+		},
+	}
+	order.ShippingMethod = &payloads.OrderShippingMethod{
+		ID:        suite.shippingMethod.ID,
+		Name:      suite.shippingMethod.Name,
+		Code:      suite.shippingMethod.Code,
+		Price:     int(suite.shippingMethod.Cost),
+		IsEnabled: true,
+	}
+
+	var shipmentResponse responses.Shipment
+	shipmentRes := suite.server.Post("/shipments/from-order", order, &shipmentResponse)
+	suite.Equal(http.StatusCreated, shipmentRes.Code)
+
+	fmt.Printf("%s\n", shipmentRes.Body.String())
+}
+
+type dummyLogger struct{}
+
+func (d dummyLogger) Log(activity activities.ISiteActivity) error { return nil }
