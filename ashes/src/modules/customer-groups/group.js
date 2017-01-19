@@ -60,6 +60,8 @@ const _saveGroup = createAsyncActions(
   }
 );
 
+const _deleteGroup = createAsyncActions('deleteCustomerGroup', (groupId: number) => Api.delete(`/groups/${groupId}`));
+
 const _fetchStats = createAsyncActions('fetchStatsCustomerGroup', request =>
   search.post('customers_search_view/_search?size=0', request)
 );
@@ -77,7 +79,10 @@ export const setMainCondition = createAction('CUSTOMER_GROUP_SET_MAIN_CONDITION'
 export const setConditions = createAction('CUSTOMER_GROUP_SET_CONDITIONS');
 export const setFilterTerm = createAction('CUSTOMER_GROUP_SET_FILTER_TERM');
 export const setGroupStats = createAction('CUSTOMER_GROUP_SET_GROUP_STATS');
+
+export const clearFetchErrors = _fetchGroup.clearErrors;
 export const clearSaveErrors = _saveGroup.clearErrors;
+export const clearDeleteErrors = _deleteGroup.clearErrors;
 
 /**
  * Fetch customer group
@@ -87,6 +92,15 @@ export const clearSaveErrors = _saveGroup.clearErrors;
  * @return Promise
  */
 export const fetchGroup = (groupId: number) => (dispatch: Function) => dispatch(_fetchGroup.perform(groupId));
+
+/**
+ * Delete customer group
+ *
+ * @param {Number} groupId Customer group id
+ *
+ * @return Promise
+ */
+export const deleteGroup = (groupId: number) => (dispatch: Function) => dispatch(_deleteGroup.perform(groupId));
 
 /**
  * Save or create customer group
