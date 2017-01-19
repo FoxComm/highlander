@@ -16,11 +16,7 @@ trait FormAndShadow {
     val attributes = IlluminateAlgorithm
       .projectAttributes(formJson = this.form.attributes, shadowJson = this.shadow.attributes)
     attributes match {
-      case JObject(o) ⇒
-        o.foldLeft(Map.empty[String, Json]) {
-          case (acc, (fieldName, jvalue)) ⇒
-            acc + (fieldName → jvalue)
-        }
+      case JObject(o) ⇒ o.toMap
       case _ ⇒ throw new IllegalArgumentException("Invalid attributes")
     }
 
