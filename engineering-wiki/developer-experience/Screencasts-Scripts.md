@@ -58,8 +58,8 @@ TBD.
 
 Plans:
 
-    * Opening created appliance in web browser
-    * Short note about Mesos.
+    * Opening created appliance in web browser.
+    * Short note about Mesos workers.
     * Running `docker build && docker push`.
     * Swapping containers in Marathon.
     * Checking for Firebrand / Ashes for changes.
