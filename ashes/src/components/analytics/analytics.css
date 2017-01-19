@@ -1,0 +1,16 @@
+.analytics-page-questions > div {
+  display: flex;
+  justify-content: space-between;
+}
+
+.analytics-filters {
+  display: flex;
+  margin-bottom: 40px;
+  justify-content: flex-end;
+}
+
+.analytics-filter-date-picker {
+  margin-right: 10px;
+  width: 220px;
+  max-width: 220px;
+}
