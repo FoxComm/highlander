@@ -8,7 +8,7 @@ const { reducer, actions } = makeLiveSearch(
   'customer_groups_search_view/_search',
   'customerGroupsScope',
   {
-    processQuery: (query) => addNativeFilters(query,[dsl.existsFilter('archivedAt', 'missing')]),
+    processQuery: (query) => addNativeFilters(query,[dsl.existsFilter('deletedAt', 'missing')]),
     initialState: { sortBy: '-createdAt' },
   }
 );
