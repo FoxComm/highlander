@@ -53,6 +53,7 @@ func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*mode
 	txnUpdates := models.NewTransactionUpdates()
 	unitRepo := repositories.NewStockItemUnitRepository(txn)
 
+	hasInventory := false
 	for i, lineItem := range shipment.ShipmentLineItems {
 		var sku models.SKU
 		if err := service.db.Where("code = ?", lineItem.SKU).First(&sku).Error; err != nil {
@@ -84,7 +85,12 @@ func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*mode
 			txnUpdates.AddUpdate(siu.StockItemID, holdTxn)
 			txnUpdates.AddUpdate(siu.StockItemID, reservedTxn)
 			shipment.ShipmentLineItems[i].StockItemUnitID = siu.ID
+			hasInventory = true
 		}
+	}
+
+	if !hasInventory {
+		shipment.State = models.ShipmentStateShipped
 	}
 
 	result, err := service.shipmentRepo.WithTransaction(txn).CreateShipment(shipment)
@@ -93,7 +99,13 @@ func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*mode
 		return nil, err
 	}
 
-	activity, err := activities.NewShipmentCreated(result, result.CreatedAt)
+	var activity activities.ISiteActivity
+	if hasInventory {
+		activity, err = activities.NewShipmentCreated(result, result.CreatedAt)
+	} else {
+		activity, err = activities.NewShipmentShipped(result, result.CreatedAt)
+	}
+
 	if err != nil {
 		txn.Rollback()
 		return nil, err

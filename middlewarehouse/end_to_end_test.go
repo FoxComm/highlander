@@ -326,6 +326,7 @@ func (suite *endToEndTestSuite) Test_CreateShipment_MixedInventoryTracking() {
 	var shipmentResponse responses.Shipment
 	shipmentRes := suite.server.Post("/shipments/from-order", order, &shipmentResponse)
 	suite.Equal(http.StatusCreated, shipmentRes.Code)
+	suite.Equal("pending", shipmentResponse.State)
 
 	var summaryResponse responses.StockItemSummary
 	summaryURL := fmt.Sprintf("/summary/%s", skuPayload1.Code)
@@ -350,6 +351,52 @@ func (suite *endToEndTestSuite) Test_CreateShipment_MixedInventoryTracking() {
 			suite.Equal(0, summary.AFSCost)
 		}
 	}
+}
+
+func (suite *endToEndTestSuite) Test_CreateShipment_NoInventoryTracking() {
+	skuPayload := fixtures.GetCreateSKUPayload()
+	skuPayload.RequiresInventoryTracking = false
+	skuRes := suite.server.Post("/skus", skuPayload)
+	suite.Equal(http.StatusCreated, skuRes.Code)
+
+	reservationPayload := payloads.Reservation{
+		RefNum: "BR10001",
+		Items: []payloads.ItemReservation{
+			payloads.ItemReservation{
+				Qty: 1,
+				SKU: skuPayload.Code,
+			},
+		},
+	}
+
+	reservationRes := suite.server.Post("/reservations/hold", reservationPayload)
+	suite.Equal(http.StatusNoContent, reservationRes.Code)
+
+	order := fixtures.GetOrder("BR10001", 0)
+	order.LineItems.SKUs = []payloads.OrderLineItem{
+		payloads.OrderLineItem{
+			SKU:              skuPayload.Code,
+			Name:             "Another name",
+			Price:            2500,
+			State:            "pending",
+			ReferenceNumbers: []string{"hig"},
+			ImagePath:        "test.com/test.png",
+			Quantity:         1,
+		},
+	}
+
+	order.ShippingMethod = &payloads.OrderShippingMethod{
+		ID:        suite.shippingMethod.ID,
+		Name:      suite.shippingMethod.Name,
+		Code:      suite.shippingMethod.Code,
+		Price:     int(suite.shippingMethod.Cost),
+		IsEnabled: true,
+	}
+
+	var shipmentResponse responses.Shipment
+	shipmentRes := suite.server.Post("/shipments/from-order", order, &shipmentResponse)
+	suite.Equal(http.StatusCreated, shipmentRes.Code)
+	suite.Equal("shipped", shipmentResponse.State)
 }
 
 type dummyLogger struct{}
