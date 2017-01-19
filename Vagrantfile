@@ -114,32 +114,8 @@ def tune_vm(config, opts = {})
 end
 
 Vagrant.configure("2") do |config|
-  user = ENV['GOOGLE_SSH_USERNAME'] || "vagrant"
-
-
-  # Customer Docker branches
   $master = "master"
-  $docker_branches = {
-    ashes:                 ENV['DOCKER_TAG_ASHES'] || $master,
-    firebrand:             ENV['DOCKER_TAG_FIREBRAND'] || $master,
-    phoenix:               ENV['DOCKER_TAG_PHOENIX'] || $master,
-    greenriver:            ENV['DOCKER_TAG_GREENRIVER'] || $master,
-    middlewarehouse:       ENV['DOCKER_TAG_MIDDLEWAREHOUSE'] || $master,
-    messaging:             ENV['DOCKER_TAG_MESSAGING'] || $master,
-    isaac:                 ENV['DOCKER_TAG_ISAAC'] || $master,
-    solomon:               ENV['DOCKER_TAG_SOLOMON'] || $master,
-    capture_consumer:      ENV['DOCKER_TAG_CAPTURE_CONSUMER'] || $master,
-    gift_card_consumer:    ENV['DOCKER_TAG_GIFT_CARD_CONSUMER'] || $master,
-    shipments_consumer:    ENV['DOCKER_TAG_SHIPMENTS_CONSUMER'] || $master,
-    shipstation_consumer:  ENV['DOCKER_TAG_SHIPSTATION_CONSUMER'] || $master,
-    stock_items_consumer:  ENV['DOCKER_TAG_STOCK_ITEMS_CONSUMER'] || $master,
-    storefront_topdrawer:  ENV['DOCKER_TAG_STOREFRONT_TOPDRAWER'] || $master,
-    storefront_tpg:        ENV['DOCKER_TAG_STOREFRONT_TPG'] || $master,
-    marketplace:           ENV['DOCKER_TAG_MARKETPLACE'] || $master,
-    marketplace_ui:        ENV['DOCKER_TAG_MARKETPLACE_UI'] || $master,
-    product_search:        ENV['DOCKER_TAG_PRODUCT_SEARCH'] || $master,
-    demo_search:           ENV['DOCKER_TAG_DEMO_SEARCH'] || $master,
-  }
+  user = ENV['GOOGLE_SSH_USERNAME'] || "vagrant"
 
   tune_vm(config, cpus: $vb_cpu, memory: $vb_memory)
 
@@ -174,25 +150,25 @@ Vagrant.configure("2") do |config|
         mesos_ip: $nginx_ip,
         local_vagrant: $local,
         first_run: true,
-        docker_tag_ashes: $docker_branches[:ashes],
-        docker_tag_firebrand: $docker_branches[:firebrand],
-        docker_tag_phoenix: $docker_branches[:phoenix],
-        docker_tag_greenriver: $docker_branches[:greenriver],
-        docker_tag_middlewarehouse: $docker_branches[:middlewarehouse],
-        docker_tag_messaging: $docker_branches[:messaging],
-        docker_tag_isaac: $docker_branches[:isaac],
-        docker_tag_solomon: $docker_branches[:solomon],
-        docker_tag_capture_consumer: $docker_branches[:capture_consumer],
-        docker_tag_gift_card_consumer: $docker_branches[:gift_card_consumer],
-        docker_tag_shipments_consumer: $docker_branches[:shipments_consumer],
-        docker_tag_shipstation_consumer: $docker_branches[:shipstation_consumer],
-        docker_tag_stock_items_consumer: $docker_branches[:stock_items_consumer],
-        docker_tag_storefront_topdrawer: $docker_branches[:storefront_topdrawer],
-        docker_tag_storefront_tpg: $docker_branches[:storefront_tpg],
-        docker_tag_marketplace: $docker_branches[:marketplace],
-        docker_tag_marketplace_ui: $docker_branches[:marketplace_ui],
-        docker_tag_product_search: $docker_branches[:product_search],
-        docker_tag_demo_search: $docker_branches[:demo_search]
+        docker_tag_ashes: ENV['DOCKER_TAG_ASHES'] || $master,
+        docker_tag_firebrand: ENV['DOCKER_TAG_FIREBRAND'] || $master,
+        docker_tag_phoenix: ENV['DOCKER_TAG_PHOENIX'] || $master,
+        docker_tag_greenriver: ENV['DOCKER_TAG_GREENRIVER'] || $master,
+        docker_tag_middlewarehouse: ENV['DOCKER_TAG_MIDDLEWAREHOUSE'] || $master,
+        docker_tag_messaging: ENV['DOCKER_TAG_MESSAGING'] || $master,
+        docker_tag_isaac: ENV['DOCKER_TAG_ISAAC'] || $master,
+        docker_tag_solomon: ENV['DOCKER_TAG_SOLOMON'] || $master,
+        docker_tag_capture_consumer: ENV['DOCKER_TAG_CAPTURE_CONSUMER'] || $master,
+        docker_tag_gift_card_consumer: ENV['DOCKER_TAG_GIFT_CARD_CONSUMER'] || $master,
+        docker_tag_shipments_consumer: ENV['DOCKER_TAG_SHIPMENTS_CONSUMER'] || $master,
+        docker_tag_shipstation_consumer: ENV['DOCKER_TAG_SHIPSTATION_CONSUMER'] || $master,
+        docker_tag_stock_items_consumer: ENV['DOCKER_TAG_STOCK_ITEMS_CONSUMER'] || $master,
+        docker_tag_storefront_topdrawer: ENV['DOCKER_TAG_STOREFRONT_TOPDRAWER'] || $master,
+        docker_tag_storefront_tpg: ENV['DOCKER_TAG_STOREFRONT_TPG'] || $master,
+        docker_tag_marketplace: ENV['DOCKER_TAG_MARKETPLACE'] || $master,
+        docker_tag_marketplace_ui: ENV['DOCKER_TAG_MARKETPLACE_UI'] || $master,
+        docker_tag_product_search: ENV['DOCKER_TAG_PRODUCT_SEARCH'] || $master,
+        docker_tag_demo_search: ENV['DOCKER_TAG_DEMO_SEARCH'] || $master
       }
     end
   end
