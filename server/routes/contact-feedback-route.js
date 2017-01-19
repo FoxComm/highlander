@@ -38,7 +38,7 @@ export default function mandrillRouter(apiKey) {
   const mandrillClient = new Mandrill(apiKey);
 
   const router = makeRouter()
-    .post('/api/local/contact-feedback', function*() {
+    .post('/local/contact-feedback', function*() {
       const { name, email, subject } = this.request.body;
       const text = formatMessage(this.request.body);
       const message = {
