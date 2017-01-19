@@ -43,9 +43,18 @@ class FoxApi extends Api {
   }
 }
 
-const api = new FoxApi({
+function createApi(options) {
+  return new FoxApi({
+    stripe_key: (isServer ? process.env : window).STRIPE_PUBLISHABLE_KEY,
+    ...options,
+  });
+}
+
+const api = createApi({
   api_url: isServer ? `${process.env.API_URL}/api` : '/api',
-  stripe_key: process.env.STRIPE_PUBLISHABLE_KEY,
 });
 
-export { api };
+export {
+  api,
+  createApi,
+};

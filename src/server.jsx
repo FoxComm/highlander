@@ -44,6 +44,7 @@ export default function *renderReact() {
       html: appHtml,
       state: JSON.stringify(store.getState()),
       i18n: JSON.stringify(i18n),
+      stripeApiKey: JSON.stringify(process.env.STRIPE_PUBLISHABLE_KEY || null),
     });
   }
 }
