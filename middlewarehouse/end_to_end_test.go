@@ -164,3 +164,68 @@ func (suite *endToEndTestSuite) Test_HoldSKU_NoInventoryTracking() {
 	reservationRes := suite.server.Post("/reservations/hold", reservationPayload)
 	suite.Equal(http.StatusNoContent, reservationRes.Code)
 }
+
+func (suite *endToEndTestSuite) Test_HoldSKU_MixedInventoryTracking() {
+	skuPayload1 := fixtures.GetCreateSKUPayload()
+	skuPayload1.RequiresInventoryTracking = true
+	skuRes := suite.server.Post("/skus", skuPayload1)
+	suite.Equal(http.StatusCreated, skuRes.Code)
+
+	skuPayload2 := fixtures.GetCreateSKUPayload()
+	skuPayload2.RequiresInventoryTracking = false
+	skuRes = suite.server.Post("/skus", skuPayload2)
+	suite.Equal(http.StatusCreated, skuRes.Code)
+
+	var stockItem1 models.StockItem
+	suite.Nil(suite.db.Where("sku = ?", skuPayload1.Code).First(&stockItem1).Error)
+
+	incrementURL := fmt.Sprintf("/stock-items/%d/increment", stockItem1.ID)
+	incrementPayload := payloads.IncrementStockItemUnits{
+		Qty:    10,
+		Status: "onHand",
+		Type:   "Sellable",
+	}
+	incrementRes := suite.server.Patch(incrementURL, incrementPayload)
+	suite.Equal(http.StatusNoContent, incrementRes.Code)
+
+	reservationPayload := payloads.Reservation{
+		RefNum: "BR10001",
+		Items: []payloads.ItemReservation{
+			payloads.ItemReservation{
+				Qty: 2,
+				SKU: skuPayload1.Code,
+			},
+			payloads.ItemReservation{
+				Qty: 10,
+				SKU: skuPayload2.Code,
+			},
+		},
+	}
+
+	reservationRes := suite.server.Post("/reservations/hold", reservationPayload)
+	suite.Equal(http.StatusNoContent, reservationRes.Code)
+
+	summaryURL := fmt.Sprintf("/summary/%s", skuPayload1.Code)
+	var summaryResponse responses.StockItemSummary
+	summaryRes := suite.server.Get(summaryURL, &summaryResponse)
+	suite.Equal(http.StatusOK, summaryRes.Code)
+
+	for _, summary := range summaryResponse.Summary {
+		suite.Equal(skuPayload1.Code, summary.SKU)
+		suite.Equal(0, summary.Reserved)
+		suite.Equal(0, summary.Shipped)
+
+		switch summary.Type {
+		case "Sellable":
+			suite.Equal(2, summary.OnHold)
+			suite.Equal(10, summary.OnHand)
+			suite.Equal(8, summary.AFS)
+			suite.Equal(skuPayload1.UnitCost.Value*8, summary.AFSCost)
+		default:
+			suite.Equal(0, summary.OnHold)
+			suite.Equal(0, summary.OnHand)
+			suite.Equal(0, summary.AFS)
+			suite.Equal(0, summary.AFSCost)
+		}
+	}
+}
