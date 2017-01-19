@@ -39,8 +39,8 @@ export class Skus extends Component {
   static tableColumns: Array<Column> = [
     { field: 'skuCode', text: 'SKU', type: null },
     { field: 'title', text: 'Title', type: null },
-    { field: 'salePrice', currencyField: 'salePriceCurrency', text: 'Sale Price', type: 'currency' },
-    { field: 'retailPrice', currencyField: 'retailPriceCurrency', text: 'Retail Price', type: 'currency' }
+    { field: 'salePrice', currencyField: 'salePriceCurrency', text: 'Price', type: 'currency' },
+    { field: 'retailPrice', currencyField: 'retailPriceCurrency', text: 'Compare At', type: 'currency' }
   ];
 
   @autobind
