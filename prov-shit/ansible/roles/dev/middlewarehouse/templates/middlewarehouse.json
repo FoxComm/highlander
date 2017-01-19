@@ -15,7 +15,7 @@
       }
     ],
     "docker": {
-      "image": "{{docker_registry}}:5000/middlewarehouse:{{docker_tag}}",
+      "image": "{{docker_registry}}:5000/middlewarehouse:{{docker_tag_middlewarehouse}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],
