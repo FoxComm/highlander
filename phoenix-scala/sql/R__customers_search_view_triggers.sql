@@ -13,7 +13,7 @@ create or replace function update_customers_view_from_customers_insert_fn() retu
             new.is_guest as is_guest,
             u.is_blacklisted as is_blacklisted,
             u.phone_number as phone_number,
-            u.blacklisted_by as blacklisted_by,
+            u.blacklisted_by,
             to_char(u.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as joined_at,
             c.scope as scope
             from customer_data as c, users as u
@@ -236,7 +236,7 @@ begin
         from (
 			select
 				c.account_id as id,
-		    	coalesce(sum(ccc.amount), 0) + coalesce(sum(sca.debit), 0) + coalesce(sum(gca.debit), 0) as revenue
+			coalesce(sum(ccc.amount), 0) + coalesce(sum(sca.debit), 0) + coalesce(sum(gca.debit), 0) as revenue
 		    from customer_data as c
 		    inner join orders on (c.account_id = orders.account_id and orders.state = 'shipped')
 		    inner join order_payments as op on (op.cord_ref = orders.reference_number)
