@@ -34,7 +34,7 @@ object Cart {
     val skusInOrder   = Random.nextInt(5) + 1
     val numberOfItems = Random.nextInt(3) + 1
     feed(dbFeeder("select code as sku from skus").random, _ ⇒ skusInOrder).exec { session ⇒
-      def newPayloadItem(skuCode: String) = UpdateLineItemsPayload(skuCode, numberOfItems, None)
+      def newPayloadItem(skuCode: String) = UpdateLineItemsPayload(??? /* skuCode */, numberOfItems, None)
 
       val payload =
         if (skusInOrder == 1)
