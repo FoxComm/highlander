@@ -38,10 +38,12 @@ const ProductDetails = (props: Props) => {
   const TwitterHandle = 'perfectgourmet1';
   const retailPrice = skus[0].attributes.retailPrice.v.value;
   const retailPriceEl = retailPrice > price ?
-    <Currency styleName="retail-price"
-              value={retailPrice}
-              currency={currency} />
-    : null;
+    <Currency 
+      styleName="retail-price"
+      value={retailPrice}
+      currency={currency}
+     /> :
+    null;
 
   return (
     <div>
