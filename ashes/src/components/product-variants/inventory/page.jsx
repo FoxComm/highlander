@@ -37,19 +37,6 @@ class SkuInventoryPage extends ObjectPage {
     return this.props.skuId;
   }
 
-  componentDidMount() {
-    this.props.actions.clearFetchErrors();
-    this.props.actions.fetchSchema(this.props.schemaName);
-    if (this.isNew) {
-      this.props.actions.newEntity();
-    } else {
-      this.fetchEntity()
-        .then(({ payload }) => {
-          if (isArchived(payload)) this.transitionToList();
-        });
-    }
-  }
-
   receiveNewObject(nextObject) {
     this.setState({
       object: nextObject,
@@ -77,7 +64,7 @@ class SkuInventoryPage extends ObjectPage {
           when={this.unsaved}
         />
         {this.errors}
-        <div>hello</div>
+        <div>{this.children}</div>
       </div>
     );
   }

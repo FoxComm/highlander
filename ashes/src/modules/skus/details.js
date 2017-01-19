@@ -16,7 +16,9 @@ export const skuNew = createAction();
 const _fetchSku = createAsyncActions(
   'fetchSku',
   function(id: number) {
-    return Api.get(`/inventory/skus/${id}`);
+    const r = require('./tmp-sku-mock');
+    return new Promise(resolve => resolve(r));
+    //return Api.get(`/inventory/skus/${id}`);
   }
 );
 

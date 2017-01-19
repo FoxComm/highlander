@@ -1,6 +1,4 @@
-/**
- * @flow
- */
+// @flow
 
 // libs
 import React, { Component, Element } from 'react';
@@ -15,6 +13,7 @@ import { isDefined } from 'lib/utils';
 import { FormField, FormFieldError } from '../forms';
 import { SliderCheckbox } from '../checkbox/checkbox';
 import CurrencyInput from '../forms/currency-input';
+import UnitInput from '../forms/unit-input';
 import CustomProperty from '../products/custom-property';
 import DatePicker from '../datepicker/datepicker';
 import RichTextEditor from '../rich-text-editor/rich-text-editor';
@@ -281,28 +280,14 @@ export default class ObjectFormInner extends Component {
     const onInputChange = v => this.handleChange(name, 'unitInput', assoc(value, 'value', v));
     const onUnitChange = v => this.handleChange(name, 'unitInput', assoc(value, 'units', v));
 
-    const input = (
-      <input
-        type="text"
-        name={name}
-        value={inputValue || ''}
-        onChange={onInputChange}
-      />
-    );
-
-    const dropdown = (
-      <Dropdown
-        value={unit}
-        items={units}
-        onChange={onUnitChange}
-      />
-    );
-
     const field = (
-      <div>
-        {input}
-        {dropdown}
-      </div>
+      <UnitInput
+        inputValue={inputValue}
+        unit={unit}
+        units={units}
+        onInputChange={onInputChange}
+        onUnitChange={onUnitChange}
+      />
     );
 
     return renderFormField(name, field, options);

@@ -179,7 +179,7 @@ export class ObjectPage extends Component {
 
   componentDidMount() {
     this.props.actions.clearFetchErrors();
-    this.props.actions.fetchSchema(this.props.schemaName);
+    this.props.fetchSchema(this.props.schemaName);
     if (this.isNew) {
       this.props.actions.newEntity();
     } else {

@@ -26,10 +26,8 @@ export default class SkuInventoryDetails extends ObjectDetails {
   }
 
   renderInventoryAndTransactions() {
-    return <div>hello kitty</div>;
-
-    /*return (
+    return (
       <InventoryAndTransactions skuId={this.props.entity.entityId} />
-    );*/
+    );
   }
 }
