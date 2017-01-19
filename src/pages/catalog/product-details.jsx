@@ -29,18 +29,24 @@ const ProductDetails = (props: Props) => {
     description,
     currency,
     price,
+    skus,
     amountOfServings,
     servingSize,
   } = props.product;
 
   const ProductURL = `http://theperfectgourmet.com${props.product.pathName}`;
   const TwitterHandle = 'perfectgourmet1';
+  const retailPrice = skus[0].attributes.retailPrice.v.value;  
+
+  const retailPriceEl = retailPrice > price ? <Currency styleName="retail-price" value={retailPrice} currency={currency} /> : null;
+
 
   return (
     <div>
       <h1 styleName="title">{title}</h1>
       <div styleName="price">
         <Currency value={price} currency={currency} />
+        {retailPriceEl}
       </div>
 
       <div styleName="servings">
