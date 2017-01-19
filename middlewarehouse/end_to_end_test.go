@@ -464,29 +464,35 @@ func (suite *endToEndTestSuite) Test_ShipmentShipment_Success() {
 	shipmentRes := suite.server.Post("/shipments/from-order", order, &shipmentResponse)
 	suite.Equal(http.StatusCreated, shipmentRes.Code)
 
-	// var summaryResponse responses.StockItemSummary
-	// summaryURL := fmt.Sprintf("/summary/%s", skuPayload1.Code)
-	// summaryRes := suite.server.Get(summaryURL, &summaryResponse)
-	// suite.Equal(http.StatusOK, summaryRes.Code)
+	updateShipmentPayload := payloads.UpdateShipment{State: "shipped"}
+	updateURL := fmt.Sprintf("/shipments/for-order/%s", "BR10001")
+	updateRes := suite.server.Patch(updateURL, updateShipmentPayload, &shipmentResponse)
+	suite.Equal(http.StatusOK, updateRes.Code)
+	suite.Equal("shipped", shipmentResponse.State)
 
-	// for _, summary := range summaryResponse.Summary {
-	// 	suite.Equal(skuPayload1.Code, summary.SKU)
-	// 	suite.Equal(0, summary.Shipped)
-	// 	suite.Equal(0, summary.OnHold)
+	var summaryResponse responses.StockItemSummary
+	summaryURL := fmt.Sprintf("/summary/%s", skuPayload1.Code)
+	summaryRes := suite.server.Get(summaryURL, &summaryResponse)
+	suite.Equal(http.StatusOK, summaryRes.Code)
 
-	// 	switch summary.Type {
-	// 	case "Sellable":
-	// 		suite.Equal(2, summary.Reserved)
-	// 		suite.Equal(10, summary.OnHand)
-	// 		suite.Equal(8, summary.AFS)
-	// 		suite.Equal(skuPayload1.UnitCost.Value*8, summary.AFSCost)
-	// 	default:
-	// 		suite.Equal(0, summary.Reserved)
-	// 		suite.Equal(0, summary.OnHand)
-	// 		suite.Equal(0, summary.AFS)
-	// 		suite.Equal(0, summary.AFSCost)
-	// 	}
-	// }
+	for _, summary := range summaryResponse.Summary {
+		suite.Equal(skuPayload1.Code, summary.SKU)
+		suite.Equal(0, summary.OnHold)
+		suite.Equal(0, summary.Reserved)
+
+		switch summary.Type {
+		case "Sellable":
+			suite.Equal(2, summary.Shipped)
+			suite.Equal(8, summary.OnHand)
+			suite.Equal(8, summary.AFS)
+			suite.Equal(skuPayload1.UnitCost.Value*8, summary.AFSCost)
+		default:
+			suite.Equal(0, summary.Shipped)
+			suite.Equal(0, summary.OnHand)
+			suite.Equal(0, summary.AFS)
+			suite.Equal(0, summary.AFSCost)
+		}
+	}
 }
 
 type dummyLogger struct{}
