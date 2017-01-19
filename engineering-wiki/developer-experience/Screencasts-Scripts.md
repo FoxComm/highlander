@@ -46,7 +46,7 @@ Please note that provisioning process can take 20-30 minutes, depending on your 
 
     <ansible logs appear>
 
-In sake of the length of this video, we did a dry-run instead of actual provisioning.
+In sake of the length of this video, we will perform a dry-run instead of actual provisioning.
 
     <goldrush logs appear>
 
@@ -76,7 +76,7 @@ Plans:
 
 TBD.
 
-Showcase of third-party services we have inside appliances:
+Showcase of 3rd-party services we have inside appliances:
 
     * Systemd
     * Consul
