@@ -15,7 +15,7 @@
       }
     ],
     "docker": {
-      "image": "{{docker_registry}}:5000/stock-items-consumer:{{docker_branch}}",
+      "image": "{{docker_registry}}:5000/stock-items-consumer:{{docker_tag_stock_items_consumer}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],

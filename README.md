@@ -59,6 +59,29 @@ has a lot to do!
     $ make up
     ```
 
+#### Deploying custom branch
+
+Your generated `.env.local` will have all docker tags set to `master`:
+
+```
+export DOCKER_TAG_ASHES=master
+export DOCKER_TAG_FIREBRAND=master
+export DOCKER_TAG_PHOENIX=master
+export DOCKER_TAG_GREENRIVER=master
+# ... other project tags ...
+```
+
+If you want to spin up an appliance with custom tag for any project, please build and push it to our Docker Registry, for example:
+
+    $ cd phoenix
+    $ make build
+    $ make docker
+    $ DOCKER_TAG=my-custom-debug-build make docker-push
+
+And then override `DOCKER_TAG_PHOENIX` to `my-custom-debug-build`.
+
+**TODO**: Automate this process.
+
 ### Local VM
 
 There is another option to run development environment in a local VM. Please refer to related [wiki page](engineering-wiki/development/Local-VM-DevEnv.md) for more information.

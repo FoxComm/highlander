@@ -27,7 +27,7 @@
       }
     ],
     "docker": {
-      "image": "{{docker_registry}}:5000/marketplace:{{docker_branch}}",
+      "image": "{{docker_registry}}:5000/marketplace:{{docker_tag_marketplace}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],

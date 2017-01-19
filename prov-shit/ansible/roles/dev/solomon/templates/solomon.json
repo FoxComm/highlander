@@ -33,7 +33,7 @@
       }
     ],
     "docker": {
-      "image": "{{docker_registry}}:5000/solomon:{{docker_branch}}",
+      "image": "{{docker_registry}}:5000/solomon:{{docker_tag_solomon}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],

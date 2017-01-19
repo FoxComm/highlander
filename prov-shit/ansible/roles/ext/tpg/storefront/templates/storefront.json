@@ -40,7 +40,7 @@
       }
     ],
     "docker": {
-      "image": "{{docker_registry}}:5000/tpg-storefront:{{docker_frontend_branch}}",
+      "image": "{{docker_registry}}:5000/tpg-storefront:{{docker_tag_storefront_tpg}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],
