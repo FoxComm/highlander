@@ -1,16 +1,14 @@
-## Orders [/v1/orders/{refNum}]
+# Carts [/v1/carts/{refNum}]
 
 + Parameters
-    + refNum: `ABC-123` (required, string) - Order referenceNumber.
+    + refNum: `ABC-123` (required, string) - Cart referenceNumber.
 
 ### View [GET]
 
 + Response 200 (application/json)
   + Attributes (FullOrder)
 
-### Create [POST /v1/orders]
-
-This route is deprecated in favor of `/v1/carts/`.
+### Create [POST /v1/carts]
 
 Creates a cart for an existing customer (or guest account) when `customerId`
 given or creates a cart along with a new guest account when `email` is given.
@@ -20,9 +18,7 @@ given or creates a cart along with a new guest account when `email` is given.
 + Response 200 (application/json)
     + Attributes (FullOrder)
 
-### Checkout [POST /v1/orders/{refNum}/checkout]
-
-This route is deprecated in favor of `/v1/carts/`.
+### Checkout [POST /v1/carts/{refNum}/checkout]
 
 Place order from cart with provided reference number.
 
@@ -31,50 +27,28 @@ Place order from cart with provided reference number.
 + Response 200 (application/json)
     + Attributes (FullOrder)
 
-### Bulk Update State [PATCH /v1/orders]
-
-+ Request (application/json)
-    + Attributes (OrderBulkStateUpdatePayload)
-+ Response 200 (application/json)
-    + Attributes (OrderList)
-
-### Lock [POST /v1/orders/{refNum}/lock]
-
-This route is deprecated in favor of `/v1/carts/`.
+### Lock [POST /v1/carts/{refNum}/lock]
 
 + Parameters
-    + refNum: `ABC-123` (required, string) - Order reference number
+    + refNum: `ABC-123` (required, string) - Cart reference number
 + Response 200 (application/json)
     + Attributes (FullOrder)
 
-### Unlock [POST /v1/orders/{refNum}/unlock]
-
-This route is deprecated in favor of `/v1/carts/`.
+### Unlock [POST /v1/carts/{refNum}/unlock]
 
 + Parameters
-    + refNum: `ABC-123` (required, string) - Order reference number
+    + refNum: `ABC-123` (required, string) - Cart reference number
 + Response 200 (application/json)
     + Attributes (FullOrder)
 
-### Increase Remorse Period [POST /v1/orders/{refNum}/increase-remorse-period]
-
-Order must be in `remorseHold` state.
-
-+ Parameters
-    + refNum: `ABC-123` (required, string) - Order reference number
-+ Response 200 (application/json)
-    + Attributes (FullOrder)
-
-## SKU Line Items [/v1/orders/{refNum}/line-items]
+## SKU Line Items [/v1/carts/{refNum}/line-items]
 
 ### Set SKU Line Items [POST]
-
-This route is deprecated in favor of `/v1/carts/`.
 
 Set the number of line items. Upon completion, cart line items will match the quantities in this payload.
 
 + Parameters
-    + refNum: `ABC-123` (required, string) - Order referenceNumber.
+    + refNum: `ABC-123` (required, string) - Cart referenceNumber.
 + Request (application/json)
     + Attributes (array[UpdateLineItemsPayload])
 + Response 200 (application/json)
@@ -82,25 +56,21 @@ Set the number of line items. Upon completion, cart line items will match the qu
 
 ### Update SKU Line Items [PATCH]
 
-This route is deprecated in favor of `/v1/carts/`.
-
 Add to or remove from the number of line items that are currently stored in your cart.
 
 + Parameters
-    + refNum: `ABC-123` (required, string) - Order referenceNumber.
+    + refNum: `ABC-123` (required, string) - Cart referenceNumber.
 + Request (application/json)
     + Attributes (array[UpdateLineItemsPayload])
 + Response 200 (application/json)
     + Attributes (FullOrder)
 
-## Gift Card Line Items [/v1/orders/{refNum}/gift-cards/{code}]
+## Gift Card Line Items [/v1/carts/{refNum}/gift-cards/{code}]
 
-### Add [POST /v1/orders/{refNum}/gift-cards]
-
-This route is deprecated in favor of `/v1/carts/`.
+### Add [POST /v1/carts/{refNum}/gift-cards]
 
 + Parameters
-    + refNum: `ABC-123` (required, string) - Order referenceNumber.
+    + refNum: `ABC-123` (required, string) - Cart referenceNumber.
 + Request (application/json)
     + Attributes (GiftCardSingleCreatePayload)
 + Response 200 (application/json)
@@ -108,10 +78,8 @@ This route is deprecated in favor of `/v1/carts/`.
 
 ### Edit [PATCH]
 
-This route is deprecated in favor of `/v1/carts/`.
-
 + Parameters
-    + refNum: `ABC-123` (required, string) - Order referenceNumber.
+    + refNum: `ABC-123` (required, string) - Cart referenceNumber.
     + code: `ABC-123` (required, string) - Gift Card code.
 + Request (application/json)
     + Attributes (GiftCardSingleCreatePayload)
@@ -120,24 +88,18 @@ This route is deprecated in favor of `/v1/carts/`.
 
 ### Delete [DELETE]
 
-This route is deprecated in favor of `/v1/carts/`.
-
 + Parameters
-    + refNum: `ABC-123` (required, string) - Order referenceNumber.
+    + refNum: `ABC-123` (required, string) - Cart referenceNumber.
     + code: `ABC-123` (required, string) - Gift Card code.
 + Response 200 (application/json)
     + Attributes (FullOrder)
 
-## Credit Card Payments [/v1/orders/{refNum}/payment-methods/credit-cards]
-
-This route is deprecated in favor of `/v1/carts/`.
+## Credit Card Payments [/v1/carts/{refNum}/payment-methods/credit-cards]
 
 + Parameters
-    + refNum: `ABC-123` (required, string) - Order reference number
+    + refNum: `ABC-123` (required, string) - Cart reference number
 
 ### Add [POST]
-
-This route is deprecated in favor of `/v1/carts/`.
 
 + Request (application/json)
     + Attributes (CreditCardPaymentPayload)
@@ -146,21 +108,15 @@ This route is deprecated in favor of `/v1/carts/`.
 
 ### Delete [DELETE]
 
-This route is deprecated in favor of `/v1/carts/`.
-
 + Response 200 (application/json)
     + Attributes (FullOrder)
 
-## Gift Card Payments [/v1/orders/{refNum}/payment-methods/gift-cards]
-
-This route is deprecated in favor of `/v1/carts/`.
+## Gift Card Payments [/v1/carts/{refNum}/payment-methods/gift-cards]
 
 + Parameters
-    + refNum: `ABC-123` (required, string) - Order reference number
+    + refNum: `ABC-123` (required, string) - Cart reference number
 
 ### Add [POST]
-
-This route is deprecated in favor of `/v1/carts/`.
 
 + Request (application/json)
     + Attributes (GiftCardPaymentPayload)
@@ -169,33 +125,25 @@ This route is deprecated in favor of `/v1/carts/`.
 
 ### Edit [PATCH]
 
-This route is deprecated in favor of `/v1/carts/`.
-
 + Request (application/json)
     + Attributes (GiftCardPaymentPayload)
 + Response 200 (application/json)
     + Attributes (FullOrder)
 
-### Delete [DELETE /v1/orders/{refNum}/payment-methods/gift-cards/{code}]
-
-This route is deprecated in favor of `/v1/carts/`.
+### Delete [DELETE /v1/carts/{refNum}/payment-methods/gift-cards/{code}]
 
 + Parameters
-    + refNum: `ABC-123` (required, string) - Order reference number
+    + refNum: `ABC-123` (required, string) - Cart reference number
     + code: `ABC-123` (required, string) - Gift card code.
 + Response 200 (application/json)
     + Attributes (FullOrder)
 
-## Store Credit Payments [/v1/orders/{refNum}/payment-methods/store-credits]
-
-This route is deprecated in favor of `/v1/carts/`.
+## Store Credit Payments [/v1/carts/{refNum}/payment-methods/store-credits]
 
 + Parameters
-    + refNum: `ABC-123` (required, string) - Order reference number
+    + refNum: `ABC-123` (required, string) - Cart reference number
 
 ### Add [POST]
-
-This route is deprecated in favor of `/v1/carts/`.
 
 + Request (application/json)
     + Attributes (StoreCreditPaymentPayload)
@@ -204,14 +152,10 @@ This route is deprecated in favor of `/v1/carts/`.
 
 ### Delete [DELETE]
 
-This route is deprecated in favor of `/v1/carts/`.
-
 + Response 200 (application/json)
     + Attributes (FullOrder)
 
-## Shipping Method [/v1/orders/{refNum}/shipping-methods]
-
-This route is deprecated in favor of `/v1/carts/`.
+## Shipping Method [/v1/carts/{refNum}/shipping-methods]
 
 Shipping methods are used to describe the ways that the contents of a cart can
 transported to the customer. All actions that occur against this set of
@@ -219,12 +163,10 @@ endpoints modify which shipping method is used by the cart.
 
 ### Update [PATCH]
 
-This route is deprecated in favor of `/v1/carts/`.
-
 Changes the shipping method to a cart.
 
 + Parameters
-    + refNum: 1 (required, string) - Order referenceNumber
+    + refNum: 1 (required, string) - Cart referenceNumber
 + Request (application/json)
     + Attributes (UpdateShippingMethodPayload)
 + Response 200 (application/json)
@@ -232,43 +174,33 @@ Changes the shipping method to a cart.
 
 ### Delete [DELETE]
 
-This route is deprecated in favor of `/v1/carts/`.
-
 Removes the shipping method from the cart.
 
 + Parameters
-    + refNum: 1 (required, string) - Order reference number
+    + refNum: 1 (required, string) - Cart reference number
 + Response 204
 
-## Shipping Address [/v1/orders/{refNum}/shipping-address]
-
-This route is deprecated in favor of `/v1/carts/`.
+## Shipping Address [/v1/carts/{refNum}/shipping-address]
 
 + Parameters
-    + refNum: `ABC-123` (required, string) - Order reference number
+    + refNum: `ABC-123` (required, string) - Cart reference number
 
 ### Add [POST]
-
-This route is deprecated in favor of `/v1/carts/`.
 
 + Request (application/json)
     + Attributes (CreateAddressPayload)
 + Response 200 (application/json)
     + Attributes (FullOrder)
 
-### Add By Address ID [PATCH /v1/orders/{refNum}/shipping-address/{addressId}]
-
-This route is deprecated in favor of `/v1/carts/`.
+### Add By Address ID [PATCH /v1/carts/{refNum}/shipping-address/{addressId}]
 
 + Parameters
-    + refNum: `ABC-123` (required, string) - Order reference number.
+    + refNum: `ABC-123` (required, string) - Cart reference number.
     + addressId: 1 (required, number) - Address ID.
 + Response 200 (application/json)
     + Attributes (FullOrder)
 
 ### Update [PATCH]
-
-This route is deprecated in favor of `/v1/carts/`.
 
 + Request (application/json)
     + Attributes (UpdateAddressPayload)
@@ -276,8 +208,6 @@ This route is deprecated in favor of `/v1/carts/`.
     + Attributes (FullOrder)
 
 ### Delete [DELETE]
-
-This route is deprecated in favor of `/v1/carts/`.
 
 + Response 200 (application/json)
     + Attributes (FullOrder)

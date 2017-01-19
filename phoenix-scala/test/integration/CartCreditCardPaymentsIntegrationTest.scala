@@ -14,7 +14,7 @@ import utils.seeds.Seeds.Factories
 
 class CartCreditCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestBase {
 
-  "POST /v1/orders/:ref/payment-methods/credit-cards" - {
+  "POST /v1/carts/:ref/payment-methods/credit-cards" - {
     "succeeds" in new CreditCardFixture {
       cartsApi(cart.refNum).payments.creditCard.add(CreditCardPayment(creditCard.id)).mustBeOk()
       val payments = creditCardPayments(cart)
@@ -74,7 +74,7 @@ class CartCreditCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestB
     }
   }
 
-  "DELETE /v1/orders/:ref/payment-methods/credit-cards" - {
+  "DELETE /v1/carts/:ref/payment-methods/credit-cards" - {
     "successfully deletes an existing card" in new CreditCardFixture {
       cartsApi(cart.refNum).payments.creditCard.add(CreditCardPayment(creditCard.id)).mustBeOk()
       cartsApi(cart.refNum).payments.creditCard.delete().mustBeOk()

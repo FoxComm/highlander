@@ -15,7 +15,7 @@ import org.json4s.JsonAST.JNothing
 import org.json4s.JsonDSL._
 import payloads.ImagePayloads._
 import payloads.LineItemPayloads.UpdateLineItemsPayload
-import payloads.OrderPayloads.CreateCart
+import payloads.CartPayloads.CreateCart
 import payloads.ProductPayloads.UpdateProductPayload
 import payloads.SkuPayloads.SkuPayload
 import responses.SkuResponses.SkuResponse
