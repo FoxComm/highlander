@@ -25,8 +25,8 @@
       "title": "Pricing",
       "fields": {
         "value": [
-          "retailPrice",
           "salePrice",
+          "retailPrice",
           "unitCost"
         ]
       }
