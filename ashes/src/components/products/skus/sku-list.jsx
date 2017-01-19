@@ -63,7 +63,6 @@ export default class SkuList extends Component {
       { field: 'sku', text: 'SKU' },
       { field: 'salePrice', text: 'Price' },
       { field: 'retailPrice', text: 'Compare At' },
-
     ];
 
     if (!_.isEmpty(variants) && this.props.skus.length > 1) {
