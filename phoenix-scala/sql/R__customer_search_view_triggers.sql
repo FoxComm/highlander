@@ -4,7 +4,7 @@
 
 create or replace function update_customers_view_from_customers_insert_fn() returns trigger as $$
     begin
-        insert into customers_search_view select
+        insert into customers_search_view (id, name, email, is_disabled, is_guest, is_blacklisted, phone_number, blacklisted_by, joined_at, scope) select
             -- customer
             new.account_id as id,
             u.name as name,
@@ -13,8 +13,9 @@ create or replace function update_customers_view_from_customers_insert_fn() retu
             new.is_guest as is_guest,
             u.is_blacklisted as is_blacklisted,
             u.phone_number as phone_number,
-            u.blacklisted_by,
-            to_char(u.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as joined_at
+            u.blacklisted_by as blacklisted_by,
+            to_char(u.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as joined_at,
+            c.scope as scope
             from customer_data as c, users as u
             where c.account_id = new.account_id and u.account_id = new.account_id;
 
@@ -43,7 +44,8 @@ begin
     end;
 $$ language plpgsql;
 
-drop trigger if exists update_customers_view_from_customers_update on customer_data;
+drop trigger if exists update_customers_view_from_customers_data_update on customer_data;
+drop trigger if exists update_customers_view_from_users_update on users;
 
 create trigger update_customers_view_from_customers_data_update
     after update on customer_data
