@@ -3,7 +3,7 @@
 // libs
 import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
-import Api from '@foxcomm/api-js';
+import { createApi } from 'lib/api';
 
 // components
 import PageTitle from '../../components/cms/page-title';
@@ -27,10 +27,7 @@ type State = {
   error?: any,
 };
 
-const api = new Api({
-  api_url: '/local',
-  stripe_key: process.env.STRIPE_PUBLISHABLE_KEY,
-});
+const api = createApi({ api_url: '/local' });
 
 class ContactUsPage extends Component {
   state: State = {
