@@ -42,8 +42,8 @@ const ProductDetails = (props: Props) => {
       styleName="retail-price"
       value={retailPrice}
       currency={currency}
-     /> :
-     null;
+     /> 
+    : null;
 
   return (
     <div>
