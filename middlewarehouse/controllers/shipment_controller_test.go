@@ -82,7 +82,13 @@ func (suite *shipmentControllerTestSuite) SetupTest() {
 		"stock_item_units",
 		"stock_item_summaries",
 		"shipments",
+		"skus",
 	})
+
+	sku := fixtures.GetSKU()
+	sku.Code = "SKU-TEST1"
+	sku.RequiresInventoryTracking = true
+	suite.Nil(suite.db.Create(sku).Error)
 
 	stockItem := models.StockItem{
 		SKU:             "SKU-TEST1",

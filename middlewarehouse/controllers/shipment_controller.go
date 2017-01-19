@@ -115,28 +115,26 @@ func (controller *shipmentController) updateShipmentForOrder() gin.HandlerFunc {
 
 func (controller *shipmentController) createShipmentFromOrder() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		// payload := &payloads.Order{}
-		// if parse(context, payload) != nil {
-		// 	return
-		// }
+		payload := &payloads.Order{}
+		if parse(context, payload) != nil {
+			return
+		}
 
-		// if !setScope(context, payload) {
-		// 	return
-		// }
+		if !setScope(context, payload) {
+			return
+		}
 
-		// shipmentModel, err := payload.ShipmentModel()
-		// if err != nil {
-		// 	fmt.Printf("STastarstarst\n")
-		// 	handleServiceError(context, err)
-		// 	return
-		// }
+		shipmentModel, err := payload.ShipmentModel()
+		if err != nil {
+			handleServiceError(context, err)
+			return
+		}
 
-		// shipment, err := controller.shipmentService.CreateShipment(shipmentModel)
-		// if err != nil {
-		// 	fmt.Printf("aoienastoienarsoietnaoirsetnarstnaneoi\n")
-		// 	handleServiceError(context, err)
-		// 	return
-		// }
+		shipment, err := controller.shipmentService.CreateShipment(shipmentModel)
+		if err != nil {
+			handleServiceError(context, err)
+			return
+		}
 
 		// //If the shipment has no line items with tracked inventory, then it can be automatically shipped.
 		// //Most useful in the case of gift cards.
@@ -159,13 +157,12 @@ func (controller *shipmentController) createShipmentFromOrder() gin.HandlerFunc 
 		// 	}
 		// }
 
-		// response, err := responses.NewShipmentFromModel(shipment)
-		// if err != nil {
-		// 	handleServiceError(context, err)
-		// 	return
-		// }
+		response, err := responses.NewShipmentFromModel(shipment)
+		if err != nil {
+			handleServiceError(context, err)
+			return
+		}
 
-		// context.JSON(http.StatusCreated, response)
-		context.JSON(http.StatusCreated, nil)
+		context.JSON(http.StatusCreated, response)
 	}
 }

@@ -48,6 +48,9 @@ func GetOrder(refNum string, lineItemCount int) *payloads.Order {
 				CountryID:   234,
 				CountryName: "United States",
 			},
+			City:     "Seattle",
+			Zip:      "98109",
+			Address1: "3131 Elliot Ave",
 		},
 	}
 

@@ -285,11 +285,7 @@ func (suite *endToEndTestSuite) Test_CreateShipment_MixedInventoryTracking() {
 	reservationRes := suite.server.Post("/reservations/hold", reservationPayload)
 	suite.Equal(http.StatusNoContent, reservationRes.Code)
 
-	summaryURL := fmt.Sprintf("/summary/%s", skuPayload1.Code)
-	summaryRes := suite.server.Get(summaryURL)
-	suite.Equal(http.StatusOK, summaryRes.Code)
-
-	order := fixtures.GetOrder("BR10004", 0)
+	order := fixtures.GetOrder("BR10001", 0)
 	order.LineItems.SKUs = []payloads.OrderLineItem{
 		payloads.OrderLineItem{
 			SKU:              skuPayload1.Code,
@@ -298,6 +294,7 @@ func (suite *endToEndTestSuite) Test_CreateShipment_MixedInventoryTracking() {
 			State:            "pending",
 			ReferenceNumbers: []string{"abc"},
 			ImagePath:        "test.com/test.png",
+			Quantity:         1,
 		},
 		payloads.OrderLineItem{
 			SKU:              skuPayload1.Code,
@@ -306,6 +303,7 @@ func (suite *endToEndTestSuite) Test_CreateShipment_MixedInventoryTracking() {
 			State:            "pending",
 			ReferenceNumbers: []string{"def"},
 			ImagePath:        "test.com/test.png",
+			Quantity:         1,
 		},
 		payloads.OrderLineItem{
 			SKU:              skuPayload2.Code,
@@ -314,6 +312,7 @@ func (suite *endToEndTestSuite) Test_CreateShipment_MixedInventoryTracking() {
 			State:            "pending",
 			ReferenceNumbers: []string{"hig"},
 			ImagePath:        "test.com/test.png",
+			Quantity:         1,
 		},
 	}
 	order.ShippingMethod = &payloads.OrderShippingMethod{
@@ -328,7 +327,29 @@ func (suite *endToEndTestSuite) Test_CreateShipment_MixedInventoryTracking() {
 	shipmentRes := suite.server.Post("/shipments/from-order", order, &shipmentResponse)
 	suite.Equal(http.StatusCreated, shipmentRes.Code)
 
-	fmt.Printf("%s\n", shipmentRes.Body.String())
+	var summaryResponse responses.StockItemSummary
+	summaryURL := fmt.Sprintf("/summary/%s", skuPayload1.Code)
+	summaryRes := suite.server.Get(summaryURL, &summaryResponse)
+	suite.Equal(http.StatusOK, summaryRes.Code)
+
+	for _, summary := range summaryResponse.Summary {
+		suite.Equal(skuPayload1.Code, summary.SKU)
+		suite.Equal(0, summary.Shipped)
+		suite.Equal(0, summary.OnHold)
+
+		switch summary.Type {
+		case "Sellable":
+			suite.Equal(2, summary.Reserved)
+			suite.Equal(10, summary.OnHand)
+			suite.Equal(8, summary.AFS)
+			suite.Equal(skuPayload1.UnitCost.Value*8, summary.AFSCost)
+		default:
+			suite.Equal(0, summary.Reserved)
+			suite.Equal(0, summary.OnHand)
+			suite.Equal(0, summary.AFS)
+			suite.Equal(0, summary.AFSCost)
+		}
+	}
 }
 
 type dummyLogger struct{}
