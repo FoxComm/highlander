@@ -399,6 +399,96 @@ func (suite *endToEndTestSuite) Test_CreateShipment_NoInventoryTracking() {
 	suite.Equal("shipped", shipmentResponse.State)
 }
 
+func (suite *endToEndTestSuite) Test_ShipmentShipment_Success() {
+	skuPayload1 := fixtures.GetCreateSKUPayload()
+	skuPayload1.RequiresInventoryTracking = true
+	skuRes := suite.server.Post("/skus", skuPayload1)
+	suite.Equal(http.StatusCreated, skuRes.Code)
+
+	var stockItem1 models.StockItem
+	suite.Nil(suite.db.Where("sku = ?", skuPayload1.Code).First(&stockItem1).Error)
+
+	incrementURL := fmt.Sprintf("/stock-items/%d/increment", stockItem1.ID)
+	incrementPayload := payloads.IncrementStockItemUnits{
+		Qty:    10,
+		Status: "onHand",
+		Type:   "Sellable",
+	}
+	incrementRes := suite.server.Patch(incrementURL, incrementPayload)
+	suite.Equal(http.StatusNoContent, incrementRes.Code)
+
+	reservationPayload := payloads.Reservation{
+		RefNum: "BR10001",
+		Items: []payloads.ItemReservation{
+			payloads.ItemReservation{
+				Qty: 2,
+				SKU: skuPayload1.Code,
+			},
+		},
+	}
+
+	reservationRes := suite.server.Post("/reservations/hold", reservationPayload)
+	suite.Equal(http.StatusNoContent, reservationRes.Code)
+
+	order := fixtures.GetOrder("BR10001", 0)
+	order.LineItems.SKUs = []payloads.OrderLineItem{
+		payloads.OrderLineItem{
+			SKU:              skuPayload1.Code,
+			Name:             "Some name",
+			Price:            5999,
+			State:            "pending",
+			ReferenceNumbers: []string{"abc"},
+			ImagePath:        "test.com/test.png",
+			Quantity:         1,
+		},
+		payloads.OrderLineItem{
+			SKU:              skuPayload1.Code,
+			Name:             "Some name",
+			Price:            5999,
+			State:            "pending",
+			ReferenceNumbers: []string{"def"},
+			ImagePath:        "test.com/test.png",
+			Quantity:         1,
+		},
+	}
+
+	order.ShippingMethod = &payloads.OrderShippingMethod{
+		ID:        suite.shippingMethod.ID,
+		Name:      suite.shippingMethod.Name,
+		Code:      suite.shippingMethod.Code,
+		Price:     int(suite.shippingMethod.Cost),
+		IsEnabled: true,
+	}
+
+	var shipmentResponse responses.Shipment
+	shipmentRes := suite.server.Post("/shipments/from-order", order, &shipmentResponse)
+	suite.Equal(http.StatusCreated, shipmentRes.Code)
+
+	// var summaryResponse responses.StockItemSummary
+	// summaryURL := fmt.Sprintf("/summary/%s", skuPayload1.Code)
+	// summaryRes := suite.server.Get(summaryURL, &summaryResponse)
+	// suite.Equal(http.StatusOK, summaryRes.Code)
+
+	// for _, summary := range summaryResponse.Summary {
+	// 	suite.Equal(skuPayload1.Code, summary.SKU)
+	// 	suite.Equal(0, summary.Shipped)
+	// 	suite.Equal(0, summary.OnHold)
+
+	// 	switch summary.Type {
+	// 	case "Sellable":
+	// 		suite.Equal(2, summary.Reserved)
+	// 		suite.Equal(10, summary.OnHand)
+	// 		suite.Equal(8, summary.AFS)
+	// 		suite.Equal(skuPayload1.UnitCost.Value*8, summary.AFSCost)
+	// 	default:
+	// 		suite.Equal(0, summary.Reserved)
+	// 		suite.Equal(0, summary.OnHand)
+	// 		suite.Equal(0, summary.AFS)
+	// 		suite.Equal(0, summary.AFSCost)
+	// 	}
+	// }
+}
+
 type dummyLogger struct{}
 
 func (d dummyLogger) Log(activity activities.ISiteActivity) error { return nil }
