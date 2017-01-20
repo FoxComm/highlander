@@ -60,6 +60,8 @@ const _saveGroup = createAsyncActions(
   }
 );
 
+const _archiveGroup = createAsyncActions('archiveCustomerGroup', (groupId: number) => Api.delete(`/groups/${groupId}`));
+
 const _fetchStats = createAsyncActions('fetchStatsCustomerGroup', request =>
   search.post('customers_search_view/_search?size=0', request)
 );
@@ -77,7 +79,10 @@ export const setMainCondition = createAction('CUSTOMER_GROUP_SET_MAIN_CONDITION'
 export const setConditions = createAction('CUSTOMER_GROUP_SET_CONDITIONS');
 export const setFilterTerm = createAction('CUSTOMER_GROUP_SET_FILTER_TERM');
 export const setGroupStats = createAction('CUSTOMER_GROUP_SET_GROUP_STATS');
+
+export const clearFetchErrors = _fetchGroup.clearErrors;
 export const clearSaveErrors = _saveGroup.clearErrors;
+export const clearArchiveErrors = _archiveGroup.clearErrors;
 
 /**
  * Fetch customer group
@@ -87,6 +92,15 @@ export const clearSaveErrors = _saveGroup.clearErrors;
  * @return Promise
  */
 export const fetchGroup = (groupId: number) => (dispatch: Function) => dispatch(_fetchGroup.perform(groupId));
+
+/**
+ * Archive customer group (soft delete)
+ *
+ * @param {Number} groupId Customer group id
+ *
+ * @return Promise
+ */
+export const archiveGroup = (groupId: number) => (dispatch: Function) => dispatch(_archiveGroup.perform(groupId));
 
 /**
  * Save or create customer group
@@ -130,10 +144,10 @@ export const fetchGroupStats = () => (dispatch: Function, getState: Function) =>
   const request = requestAdapter(criterions, mainCondition, conditions);
 
   request.aggregations
-    .add(new aggregations.Count('ordersCount', 'orders.referenceNumber'))
+    .add(new aggregations.Sum('ordersCount', 'orderCount'))
     .add(new aggregations.Sum('totalSales', 'revenue'))
     .add(new aggregations.Average('averageOrderSize', 'orders.itemsCount'))
-    .add(new aggregations.Average('averageOrderSum', 'orders.grandTotal'));
+    .add(new aggregations.Average('averageOrderSum', 'orders.subTotal'));
 
   dispatch(_fetchStats.perform(request.toRequest()));
 };

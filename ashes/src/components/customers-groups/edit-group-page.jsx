@@ -6,7 +6,7 @@ import React, { Component, Element } from 'react';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 
-import { reset, fetchGroup, saveGroup, clearSaveErrors } from 'modules/customer-groups/group';
+import { reset, fetchGroup, saveGroup, clearFetchErrors, clearSaveErrors } from 'modules/customer-groups/group';
 import { fetchRegions } from 'modules/regions';
 
 import { Link } from 'components/link';
@@ -22,6 +22,7 @@ type Props = {
   reset: () => void;
   fetchGroup: (id: number) => Promise;
   saveGroup: () => Promise;
+  clearFetchErrors: () => void;
   clearSaveErrors: () => void;
   fetchRegions: () => Promise;
   push: (location: Object) => void;
@@ -35,6 +36,7 @@ class NewGroupBase extends Component {
   props: Props;
 
   componentWillMount() {
+    this.props.clearFetchErrors();
     this.props.clearSaveErrors();
 
     // reset group data if we have no :groupId param in url
@@ -66,7 +68,7 @@ class NewGroupBase extends Component {
   render() {
     const { group, fetchInProgress, fetchError, params, children, ...rest } = this.props;
 
-    if (fetchError) {
+    if (params.groupId && fetchError) {
       return <Error err={fetchError} />;
     }
 
@@ -91,6 +93,6 @@ const mapStateToProps = state => ({
   group: state.customerGroups.details.group
 });
 
-const mapActions = { reset, fetchGroup, saveGroup, clearSaveErrors, fetchRegions, push };
+const mapActions = { reset, fetchGroup, saveGroup, clearFetchErrors, clearSaveErrors, fetchRegions, push };
 
 export default connect(mapStateToProps, mapActions)(NewGroupBase);
