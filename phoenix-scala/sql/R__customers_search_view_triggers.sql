@@ -185,18 +185,24 @@ begin
                   then
                     '[]'
                 else
-                  json_agg((
-                    o.account_id,
-                    o.reference_number,
-                    o.state,
-                    to_char(o.placed_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
-                    o.sub_total,
-                    o.shipping_total,
-                    o.adjustments_total,
-                    o.taxes_total,
-                    o.grand_total,
-                    0 -- FIXME
-                  )::export_orders)::jsonb
+                  (select json_agg((ord)::export_orders)::jsonb
+                    from (
+                      select
+                        o.account_id,
+                        o.reference_number,
+                        o.state,
+                        to_char(o.placed_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
+                        o.sub_total,
+                        o.shipping_total,
+                        o.adjustments_total,
+                        o.taxes_total,
+                        o.grand_total,
+                        count(oli) as items_count
+                      from orders o
+                      left join order_line_items as oli on (o.reference_number = oli.cord_ref)
+                      where o.account_id = c.account_id
+                      group by o.id
+                    ) ord)
                 end as orders
               from customer_data as c
               left join orders as o on (c.account_id = o.account_id)

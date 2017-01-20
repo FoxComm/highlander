@@ -47,12 +47,14 @@ const tableColumns = [
 
 const TotalCounter = makeTotalCounter(state => state.customerGroups.details.customers, customersListActions);
 
-const StatsValue = ({ value, currency }) => {
+const StatsValue = ({ value, currency, preprocess = _.identity }) => {
   if (!_.isNumber(value)) {
     return <span>—</span>;
   }
 
-  return currency ? <Currency value={value} /> : <span>{value}</span>;
+  const v = preprocess(value);
+
+  return currency ? <Currency value={v} /> : <span>{v}</span>;
 };
 
 @connect(mapStateToProps, mapDispatchToProps)
@@ -196,7 +198,7 @@ export default class DynamicGroup extends Component {
           <StatsValue value={stats.totalSales} currency />
         </PanelListItem>
         <PanelListItem title="Avg. Order Size">
-          <StatsValue value={stats.averageOrderSize} />
+          <StatsValue value={stats.averageOrderSize} preprocess={Math.round} />
         </PanelListItem>
         <PanelListItem title="Avg. Order Value">
           <StatsValue value={stats.averageOrderSum} currency />

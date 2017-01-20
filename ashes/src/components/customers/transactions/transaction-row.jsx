@@ -68,19 +68,3 @@ OrderTransactionRow.propTypes = {
 };
 
 export default OrderTransactionRow;
-
-const c = {
-  "query": { "bool": { "must": [{ "term": { "name": "tony" } }] } },
-  "aggregations": {
-    "ordersCount": { "sum": { "field": "orderCount" } },
-    "totalSales": { "sum": { "field": "revenue" } },
-    "averageOrderSize": {
-      "nested": { "path": "orders" },
-      "aggregations": { "averageOrderSize": { "avg": { "field": "orders.itemsCount" } } }
-    },
-    "averageOrderSum": {
-      "nested": { "path": "orders" },
-      "aggregations": { "averageOrderSum": { "avg": { "field": "orders.subTotal" } } }
-    }
-  }
-}
