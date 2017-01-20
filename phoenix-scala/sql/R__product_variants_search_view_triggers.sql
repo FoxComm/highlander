@@ -1,7 +1,7 @@
 create or replace function insert_skus_view_from_skus_fn() returns trigger as $$
 begin
   insert into product_variants_search_view select
-    new.id as id,
+    new.form_id as id,
     new.code as sku_code,
     context.name as context,
     context.id as context_id,
@@ -13,10 +13,12 @@ begin
     illuminate_obj(sku_form, sku_shadow, 'retailPrice')->>'value' as retail_price,
     illuminate_obj(sku_form, sku_shadow, 'retailPrice')->>'currency' as retail_price_currency,
     illuminate_obj(sku_form, sku_shadow, 'externalId') as external_id,
-    new.scope as scope
+    new.scope as scope,
+    mwh_sku.id as mwh_sku_id
     from object_contexts as context
-       inner join object_shadows as sku_shadow on (sku_shadow.id = new.shadow_id)
-       inner join object_forms as sku_form on (sku_form.id = new.form_id)
+      inner join object_shadows as sku_shadow on (sku_shadow.id = new.shadow_id)
+      inner join object_forms as sku_form on (sku_form.id = new.form_id)
+      inner join product_variant_mwh_sku_ids as mwh_sku on (mwh_sku.variant_form_id = new.form_id)
     where context.id = new.context_id;
 
   return null;
@@ -27,7 +29,6 @@ $$ language plpgsql;
 create or replace function update_skus_view_from_object_attrs_fn() returns trigger as $$
 begin
   update product_variants_search_view set
-    sku_code = subquery.code,
     title = subquery.title,
     sale_price = subquery.sale_price,
     sale_price_currency = subquery.sale_price_currency,
@@ -46,8 +47,8 @@ begin
         illuminate_obj(form, shadow, 'retailPrice')->>'currency' as retail_price_currency,
         form.attributes->(shadow.attributes->'externalId'->>'ref') as external_id
       from product_variants as variant
-      inner join object_forms as form on (form.id = variant.form_id)
-      inner join object_shadows as shadow on (shadow.id = variant.shadow_id)
+        inner join object_forms as form on (form.id = variant.form_id)
+        inner join object_shadows as shadow on (shadow.id = variant.shadow_id)
       where variant.id = new.id) as subquery
       where subquery.id = product_variants_search_view.id;
 
