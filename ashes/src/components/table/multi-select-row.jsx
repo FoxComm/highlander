@@ -55,10 +55,10 @@ const MultiSelectRow = (props, context) => {
       'id' : col.field == 'id',
       'name': col.field == 'name',
       'storefront-name' : col.field == 'storefrontName',
+      'code' : col.field == 'code',
       'state' : col.field == 'state',
       'retail-price-field' : col.field == 'retailPrice',
       'sale-price-field' : col.field == 'salePrice',
-      'coupon-code' : col.field == 'code',
       'total-uses' : col.field == 'totalUsed',
       'current-carts' : col.field == 'currentCarts',
       'line-item-sku': col.field == 'sku',
@@ -69,7 +69,10 @@ const MultiSelectRow = (props, context) => {
       'email' : col.field == 'email',
       'ship-region' : col.field == 'shipRegion',
       'bill-region' : col.field == 'billRegion',
-      'rank' : col.field == 'rank'
+      'rank' : col.field == 'rank',
+      'original-balance' : col.field == 'originalBalance',
+      'current-balance' : col.field == 'currentBalance',
+      'available-balance' : col.field == 'availableBalance'
     });
 
     visibleCells.push(
