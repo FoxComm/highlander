@@ -33,4 +33,6 @@
   --input-text-color: var(--bunker-transparent);
   --text-color-dark: var(--bunker);
   --text-color-main: var(--bunker);
+
+  --on-sale-color: #AA0F0F;
 }
