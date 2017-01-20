@@ -15,6 +15,7 @@ import TrendButton, { TrendType } from './trend-button';
 import StaticColumnSelector from './static-column-selector';
 import { Dropdown } from '../dropdown';
 import ProductConversionChart from './charts/product-conversion-chart';
+import TotalRevenueChart from './charts/total-revenue-chart';
 
 // styles
 import styles from './analytics.css';
@@ -194,6 +195,9 @@ export default class Analytics extends React.Component {
       case questionTitles.productConversion:
         this.props.fetchProductConversion(this.props.entity.entityId);
         break;
+      case questionTitles.totalRevenue:
+        this.props.fetchProductTotalRevenue();
+        break;
     }
   }
 
@@ -216,6 +220,8 @@ export default class Analytics extends React.Component {
       switch (this.question.title) {
         case questionTitles.productConversion:
           return <ProductConversionChart jsonData={analytics.values}/>;
+        case questionTitles.totalRevenue:
+          return <TotalRevenueChart jsonData={{}} debugMode={true}/>; 
         default:
           return false;
       }

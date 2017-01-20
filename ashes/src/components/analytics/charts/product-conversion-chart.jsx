@@ -152,6 +152,10 @@ class ProductConversionChart extends React.Component {
       return _.round(parseFloat(deltaStr) * 100, 2);
     };
 
+    const deltaDisplay = (deltaStr) => {
+      return _.round(parseFloat(deltaStr) * 100, 2);
+    };
+
     return [
       {
         key: dataTickValues[0],

@@ -17,6 +17,9 @@ const receivedValues = createAction('ANALYTICS_RECEIVED',
 const productConversionReceivedValues = createAction('ANALYTICS_PRODUCTCONVERSION_RECEIVED',
   (values) => [values]
 );
+const productTotalRevenueReceivedValues = createAction('ANALYTICS_PRODUCTTOTALREVENUE_RECEIVED',
+  (values) => [values]
+);
 
 // actions
 /* time */
@@ -45,6 +48,18 @@ export function fetchProductConversion(productId) {
 
     return Api.get(url).then(
       values => dispatch(productConversionReceivedValues(values)),
+      err => dispatch(fetchFailed(err))
+    );
+  };
+}
+export function fetchProductTotalRevenue() {
+  return dispatch => {
+    dispatch(startFetching());
+    
+    const url = `stats/productSum/list/9`;
+
+    return Api.get(url).then(
+      values => dispatch(productTotalRevenueReceivedValues(values)),
       err => dispatch(fetchFailed(err))
     );
   };
@@ -88,6 +103,16 @@ const reducer = createReducer({
     return updater(state);
   },
   [productConversionReceivedValues]: (state, [values]) => {
+    const updater = _.flow(
+      _.partialRight(assoc,
+        ['values'], values,
+        ['isFetching'], false,
+      )
+    );
+
+    return updater(state);
+  },
+  [productTotalRevenueReceivedValues]: (state, [values]) => {
     const updater = _.flow(
       _.partialRight(assoc,
         ['values'], values,
