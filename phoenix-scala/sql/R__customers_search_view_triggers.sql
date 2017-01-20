@@ -314,21 +314,26 @@ $$ language plpgsql;
 create or replace function update_customers_view_from_carts_fn() returns trigger as $$
 begin
     update customers_search_view set
-        cart = subquery.cart
+        carts = subquery.carts
         from (select
                 c.account_id as id,
-                json_agg((
-                  crt.account_id,
-                  crt.reference_number,
-                  to_char(crt.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
-                  to_char(crt.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
-                  crt.sub_total,
-                  crt.shipping_total,
-                  crt.adjustments_total,
-                  crt.taxes_total,
-                  crt.grand_total,
-                  0 -- FIXME
-                )::export_carts)::jsonb as cart
+                case when count(crt) = 0
+                  then
+                    '[]'
+                else
+                  json_agg((
+                    crt.account_id,
+                    crt.reference_number,
+                    to_char(crt.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
+                    to_char(crt.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
+                    crt.sub_total,
+                    crt.shipping_total,
+                    crt.adjustments_total,
+                    crt.taxes_total,
+                    crt.grand_total,
+                    0 -- FIXME
+                  )::export_carts)::jsonb
+                end as carts
               from customer_data as c
               left join carts as crt on (c.account_id = crt.account_id)
               where c.account_id = new.account_id

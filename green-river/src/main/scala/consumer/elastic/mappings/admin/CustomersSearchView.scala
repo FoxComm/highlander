@@ -29,7 +29,7 @@ final case class CustomersSearchView()(implicit ec: EC) extends AvroTransformer 
       field("revenue", IntegerType),
       field("rank", IntegerType),
       // Cart
-      field("cart").nested(
+      field("carts").nested(
           field("customerId", IntegerType),
           field("referenceNumber", StringType).analyzer("upper_cased"),
           field("createdAt", DateType).format(dateFormat),
@@ -71,6 +71,7 @@ final case class CustomersSearchView()(implicit ec: EC) extends AvroTransformer 
 
   override def nestedFields() = List(
       "orders",
+      "carts",
       "shipping_addresses",
       "billing_addresses"
   )

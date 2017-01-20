@@ -1,4 +1,4 @@
-alter table customers_search_view add column cart jsonb default '{}';
+alter table customers_search_view add column carts jsonb not null default '[]';
 
 create table export_carts (
     customer_id         integer,
