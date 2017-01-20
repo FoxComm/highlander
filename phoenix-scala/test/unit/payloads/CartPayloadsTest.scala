@@ -3,7 +3,7 @@ package payloads
 import java.time.ZonedDateTime
 
 import cats.implicits._
-import payloads.OrderPayloads.CreateCart
+import payloads.CartPayloads.CreateCart
 import testutils.CustomMatchers._
 import testutils.TestBase
 import utils.seeds.Seeds.Factories

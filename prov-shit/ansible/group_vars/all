@@ -8,6 +8,35 @@ private_keys_dest_dir: /etc/keys
 scala_version: scala-2.11
 vagrant: false
 local_vagrant: false
+foxcomm_domain: foxcommerce.com
+
+# Docker Defaults
+docker_tag: master
+docker_registry: docker-stage.foxcommerce.com
+docker_registry_provider: gce
+docker_logs_dir: /logs
+docker_logs_host_dir: /var/log/docker
+
+# Default docker branches for containers
+docker_tag_ashes: master
+docker_tag_firebrand: master
+docker_tag_phoenix: master
+docker_tag_greenriver: master
+docker_tag_middlewarehouse: master
+docker_tag_messaging: master
+docker_tag_isaac: master
+docker_tag_solomon: master
+docker_tag_capture_consumer: master
+docker_tag_gift_card_consumer: master
+docker_tag_shipments_consumer: master
+docker_tag_shipstation_consumer: master
+docker_tag_stock_items_consumer: master
+docker_tag_storefront_topdrawer: master
+docker_tag_storefront_tpg: master
+docker_tag_marketplace: master
+docker_tag_marketplace_ui: master
+docker_tag_product_search: master
+docker_tag_demo_search: master
 
 # Consul Service Discovery
 consul_data_dir: /var/consul
@@ -28,7 +57,8 @@ isaac_port: 9190
 isaac_server: "{{isaac_host}}:{{isaac_port}}"
 
 search_host: "elasticsearch.{{consul_suffix}}"
-log_host: "{{search_host}}"
+es_logs_port: 9201
+log_host: "{{search_host}}:{{es_logs_port}}"
 search_server_http: "{{search_host}}:9200"
 search_server: "{{search_host}}:9300"
 
@@ -226,15 +256,9 @@ cert_path: test/fox
 mesos_quorum: 2
 mesos_ip: 0.0.0.0
 
-# Use seeder service or not?
-with_seeder: false
+# Seeder flags
 with_gatling_seeder: true
-
-# Docker Defaults
-docker_branch: master
-docker_frontend_branch: master
-docker_registry: docker-stage.foxcommerce.com
-docker_registry_provider: gce
+with_mwh_seeder: true
 
 # Marketplace
 marketplace_db_name: marketplace_development

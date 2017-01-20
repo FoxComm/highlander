@@ -12,7 +12,6 @@ import models.payment.creditcard.CreditCards
 import payloads.CustomerPayloads.CreateCustomerPayload
 import shapeless._
 import utils.db.ExPostgresDriver.api._
-import utils.Passwords._
 import utils.Validation
 import utils.aliases._
 import utils.db._
@@ -23,7 +22,7 @@ case class CustomerData(id: Int = 0,
                         accountId: Int,
                         isGuest: Boolean = false,
                         createdAt: Instant = Instant.now,
-                        udpatedAt: Instant = Instant.now,
+                        updatedAt: Instant = Instant.now,
                         deletedAt: Option[Instant] = None)
     extends FoxModel[CustomerData]
 

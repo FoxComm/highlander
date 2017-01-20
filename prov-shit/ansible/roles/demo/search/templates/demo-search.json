@@ -16,11 +16,23 @@
   "container": {
     "type": "DOCKER",
     "docker": {
-      "image": "{{docker_registry}}:5000/demo-search:{{docker_branch}}",
+      "image": "{{docker_registry}}:5000/demo-search:{{docker_tag_demo_search}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],
       "forcePullImage": true
     }
-  }
+  },
+  "healthChecks": [
+    {
+      "protocol": "COMMAND",
+      "command": {
+        "value": "ps -ef | grep -v grep | grep npm start"
+      },
+      "gracePeriodSeconds": 300,
+      "intervalSeconds": 20,
+      "timeoutSeconds": 20,
+      "maxConsecutiveFailures": 3
+    }
+  ]
 }

@@ -48,6 +48,7 @@
     "co-body": "^4.0.0",
     "core-decorators": "^0.8.0",
     "currency-symbol-map": "^2.1.0",
+    "del": "^2.2.2",
     "draft-js": "^0.7.0",
     "draft-js-export-html": "^0.2.2",
     "draft-js-export-markdown": "^0.2.0",
@@ -83,7 +84,7 @@
     "react-dnd": "^2.1.4",
     "react-dnd-html5-backend": "^2.1.2",
     "react-dom": "^15.4.0",
-    "react-input-mask": "anru/react-input-mask#a7b8dc04debe9e8dfe7eee3ad31facb79b7c1826",
+    "react-input-mask": "github:anru/react-input-mask#a7b8dc04debe9e8dfe7eee3ad31facb79b7c1826",
     "react-motion": "^0.4.4",
     "react-redux": "^4.4.0",
     "react-router": "^2.3.0",
@@ -141,7 +142,7 @@
     "gulp-plumber": "^1.0.1",
     "gulp-postcss": "^6.1.0",
     "gulp-rename": "^1.2.2",
-    "gulp-sourcemaps": "^1.5.2",
+    "gulp-sourcemaps": "^2.3.1",
     "gulp-spawn-mocha": "^2.2.2",
     "gulp-uglify": "^1.5.4",
     "gulp-util": "^3.0.6",
@@ -179,5 +180,8 @@
     "vinyl-source-stream": "^1.1.0",
     "watchify": "^3.3.1",
     "xmlhttprequest": "^1.7.0"
+  },
+  "directories": {
+    "test": "test"
   }
 }

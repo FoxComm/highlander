@@ -12,11 +12,23 @@
   "container": {
     "type": "DOCKER",
     "docker": {
-      "image": "{{docker_registry}}:5000/product-search:{{docker_branch}}",
+      "image": "{{docker_registry}}:5000/product-search:{{docker_tag_product_search}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],
       "forcePullImage": true
     }
-  }
+  },
+  "healthChecks": [
+    {
+      "protocol": "COMMAND",
+      "command": {
+        "value": "ps -ef | grep -v grep | grep product-search"
+      },
+      "gracePeriodSeconds": 300,
+      "intervalSeconds": 20,
+      "timeoutSeconds": 20,
+      "maxConsecutiveFailures": 3
+    }
+  ]
 }

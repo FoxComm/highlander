@@ -49,6 +49,7 @@ export default class PromotionForm extends ObjectDetails {
       >
         <div>
           <Dropdown
+            id="apply-type-dd"
             placeholder="- Select -"
             value={promotion.applyType}
             onChange={this.handleApplyTypeChange}
@@ -100,6 +101,8 @@ export default class PromotionForm extends ObjectDetails {
     return [
       <div styleName="sub-title" key="title">Qualifier Type</div>,
       <DiscountAttrs
+        blockId="promo-qualifier-block"
+        dropdownId="promo-qualifier-dd"
         key="attrs"
         discount={discount}
         attr="qualifier"
@@ -115,6 +118,8 @@ export default class PromotionForm extends ObjectDetails {
     return [
       <div styleName="sub-title" key="title">Offer Type</div>,
       <DiscountAttrs
+        blockId="promo-offer-block"
+        dropdownId="promo-offer-dd"
         key="attrs"
         discount={discount}
         attr="offer"

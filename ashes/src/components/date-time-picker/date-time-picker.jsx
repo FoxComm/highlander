@@ -16,6 +16,7 @@ type Props = {
   dateTime: ?string,
   onCancel: () => void,
   onChange: (dateTime: string) => void,
+  pickerCloseBtnId: string,
 };
 
 type State = {
@@ -205,6 +206,7 @@ export default class DateTimePicker extends Component<void, Props, State> {
               onBlur={this.updateDateTime} />
           </DateTimeCounter>
           <a
+            id={this.props.pickerCloseBtnId}
             className="fc-date-time-picker__close"
             onClick={this.props.onCancel}>
             <i className="icon-close" />

@@ -30,10 +30,15 @@
         "containerPath": "/keys",
         "hostPath": "{{public_keys_dest_dir}}",
         "mode": "RO"
+      },
+      {
+        "containerPath": "{{docker_logs_dir}}",
+        "hostPath": "{{docker_logs_host_dir}}",
+        "mode": "RW"
       }
     ],
     "docker": {
-      "image": "{{docker_registry}}:5000/firebrand:{{docker_frontend_branch}}",
+      "image": "{{docker_registry}}:5000/firebrand:{{docker_tag_firebrand}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],

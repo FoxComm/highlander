@@ -1,5 +1,4 @@
 import akka.http.scaladsl.model.StatusCodes
-
 import cats.implicits._
 import failures.CartFailures._
 import failures.LockFailures._
@@ -17,11 +16,14 @@ import org.json4s.jackson.JsonMethods._
 import payloads.AddressPayloads.{CreateAddressPayload, UpdateAddressPayload}
 import payloads.CustomerPayloads.CreateCustomerPayload
 import payloads.LineItemPayloads._
-import payloads.OrderPayloads.CreateCart
+import payloads.CartPayloads.CreateCart
 import payloads.UpdateShippingMethod
 import responses.cord.CartResponse
 import responses.cord.base.CordResponseLineItem
-import responses.{CustomerResponse, TheResponse}
+import responses._
+import models.cord.CordPaymentState
+import payloads.GiftCardPayloads.GiftCardCreateByCsr
+import payloads.PaymentPayloads._
 import services.carts.CartTotaler
 import slick.driver.PostgresDriver.api._
 import testutils._
@@ -44,14 +46,14 @@ class CartIntegrationTest
 
       "displays 'cart' payment state" in new Fixture {
         val fullCart = cartsApi(cart.refNum).get().asTheResult[CartResponse]
-        fullCart.paymentState must === (CreditCardCharge.Cart)
+        fullCart.paymentState must === (CordPaymentState.Cart)
       }
 
       "displays 'auth' payment state" in new PaymentStateFixture {
         CreditCardCharges.findById(ccc.id).extract.map(_.state).update(CreditCardCharge.Auth).gimme
 
         val fullCart = cartsApi(cart.refNum).get().asTheResult[CartResponse]
-        fullCart.paymentState must === (CreditCardCharge.Auth)
+        fullCart.paymentState must === (CordPaymentState.Auth)
       }
     }
 
@@ -67,7 +69,7 @@ class CartIntegrationTest
     }
 
     "returns correct image path" in new Fixture {
-      val imgUrl = "testImgUrl";
+      val imgUrl = "testImgUrl"
       (for {
         product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head.copy(image = imgUrl))
         _       ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))
@@ -78,16 +80,46 @@ class CartIntegrationTest
       fullCart.lineItems.skus.head.imagePath must === (imgUrl)
     }
 
-    "empty paymenth methods having a guest customer" in new Fixture {
+    "empty payment methods having a guest customer" in new Fixture {
       val guestCustomer = customersApi
         .create(CreateCustomerPayload(email = "foo@bar.com", isGuest = Some(true)))
         .as[CustomerResponse.Root]
       val fullCart = customersApi(guestCustomer.id).cart().as[CartResponse]
       fullCart.paymentMethods.size must === (0)
     }
+
+    "calculates customer’s expenses considering in-store payments" in new StoreAdmin_Seed
+    with Customer_Seed with ProductSku_ApiFixture with Reason_Baked {
+      val refNum =
+        cartsApi.create(CreateCart(customerId = customer.id.some)).as[CartResponse].referenceNumber
+
+      cartsApi(refNum).lineItems.add(Seq(UpdateLineItemsPayload(skuCode, 1))).mustBeOk()
+
+      val giftCardAmount    = 2500 // ¢
+      val storeCreditAmount = 500  // ¢
+
+      val giftCard = giftCardsApi
+        .create(GiftCardCreateByCsr(giftCardAmount, reasonId = reason.id))
+        .as[GiftCardResponse.Root]
+
+      cartsApi(refNum).payments.giftCard
+        .add(GiftCardPayment(giftCard.code, giftCardAmount.some))
+        .asTheResult[CartResponse]
+
+      customersApi(customer.id).payments.storeCredit
+        .create(CreateManualStoreCredit(amount = storeCreditAmount, reasonId = reason.id))
+        .as[StoreCreditResponse.Root]
+
+      cartsApi(refNum).payments.storeCredit.add(StoreCreditPayment(storeCreditAmount))
+
+      val fullCart = cartsApi(refNum).get().asTheResult[CartResponse]
+
+      fullCart.totals.customersExpenses must === (
+          fullCart.totals.total - giftCardAmount - storeCreditAmount)
+    }
   }
 
-  "POST /v1/orders/:refNum/line-items" - {
+  "POST /v1/carts/:refNum/line-items" - {
     val payload = Seq(UpdateLineItemsPayload("SKU-YAX", 2))
 
     "should successfully update line items" in new OrderShippingMethodFixture
@@ -123,7 +155,7 @@ class CartIntegrationTest
     }
   }
 
-  "PATCH /v1/orders/:refNum/line-items" - {
+  "PATCH /v1/carts/:refNum/line-items" - {
     val addPayload = Seq(UpdateLineItemsPayload("SKU-YAX", 2))
 
     val attributes = LineItemAttributes(
@@ -234,7 +266,7 @@ class CartIntegrationTest
     }
   }
 
-  "POST /v1/orders/:refNum/lock" - {
+  "POST /v1/carts/:refNum/lock" - {
     "successfully locks a cart" in new Fixture {
       cartsApi(cart.refNum).lock().mustBeOk()
 
@@ -262,7 +294,7 @@ class CartIntegrationTest
     }
   }
 
-  "POST /v1/orders/:refNum/unlock" - {
+  "POST /v1/carts/:refNum/unlock" - {
     "unlocks cart" in new Fixture {
       cartsApi(cart.refNum).lock().mustBeOk()
       cartsApi(cart.refNum).unlock().mustBeOk()
@@ -275,7 +307,7 @@ class CartIntegrationTest
     }
   }
 
-  "PATCH /v1/orders/:refNum/shipping-address/:id" - {
+  "PATCH /v1/carts/:refNum/shipping-address/:id" - {
 
     "copying a shipping address from a customer's book" - {
 
@@ -342,7 +374,7 @@ class CartIntegrationTest
     }
   }
 
-  "PATCH /v1/orders/:refNum/shipping-address" - {
+  "PATCH /v1/carts/:refNum/shipping-address" - {
 
     "succeeds when a subset of the fields in the address change" in new EmptyCartWithShipAddress_Baked {
       cartsApi(cart.refNum).shippingAddress
@@ -391,7 +423,7 @@ class CartIntegrationTest
     }
   }
 
-  "DELETE /v1/orders/:refNum/shipping-address" - {
+  "DELETE /v1/carts/:refNum/shipping-address" - {
     "succeeds if an address exists" in new EmptyCartWithShipAddress_Baked {
       cartsApi(cart.refNum).get().asThe[CartResponse].result.shippingAddress mustBe defined
 
@@ -421,7 +453,7 @@ class CartIntegrationTest
     }
   }
 
-  "PATCH /v1/orders/:refNum/shipping-method" - {
+  "PATCH /v1/carts/:refNum/shipping-method" - {
     "succeeds if the cart meets the shipping restrictions" in new ShippingMethodFixture {
       cartsApi(cart.refNum).shippingMethod
         .update(UpdateShippingMethod(lowShippingMethod.id))
@@ -483,7 +515,7 @@ class CartIntegrationTest
     val highSm: ShippingMethod = Factories.shippingMethods.head
       .copy(adminDisplayName = "High", conditions = highConditions.some, code = "LOW")
 
-    val (lowShippingMethod, inactiveShippingMethod, highShippingMethod) = ({
+    val (lowShippingMethod, inactiveShippingMethod, highShippingMethod) = {
       for {
         product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head.copy(price = 100))
         _       ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))
@@ -496,7 +528,7 @@ class CartIntegrationTest
 
         _ ← * <~ CartTotaler.saveTotals(cart)
       } yield (lowShippingMethod, inactiveShippingMethod, highShippingMethod)
-    }).gimme
+    }.gimme
   }
 
   trait OrderShippingMethodFixture extends ShippingMethodFixture {

@@ -74,6 +74,7 @@ export default class SelectableSearchList extends React.Component {
         noGutter={props.noGutter}
       >
         <MultiSelectTable
+          tbodyId="coupon-codes-list"
           columns={props.tableColumns}
           data={results}
           renderRow={props.renderRow}

@@ -245,7 +245,8 @@ export default class AddressForm extends React.Component {
               </li>
               <li>
                 <FormField label="Country">
-                  <Dropdown name="countryId"
+                  <Dropdown id="country-dd"
+                            name="countryId"
                             value={this.state.countryId}
                             onChange={value => this.handleCountryChange(Number(value))}
                             items={this.countryItems}
@@ -269,7 +270,8 @@ export default class AddressForm extends React.Component {
               </li>
               <li>
                 <FormField label={regionName(countryCode)} required>
-                  <Dropdown name="regionId"
+                  <Dropdown id="region-dd"
+                            name="regionId"
                             value={this.state.stateId}
                             onChange={value => this.handleStateChange(Number(value))}
                             items={this.regionItems}

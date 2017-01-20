@@ -18,7 +18,7 @@ object OrderQueries extends CordQueries {
 
     def build(order: Order, customer: User) =
       for {
-        paymentState ← * <~ getPaymentState(order.refNum)
+        paymentState ← * <~ getCordPaymentState(order.refNum)
       } yield AllOrders.build(order, customer.some, paymentState.some)
 
     for {

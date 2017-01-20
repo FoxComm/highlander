@@ -49,7 +49,9 @@ EditableContentBox.propTypes = {
   editContent: PropTypes.node,
   viewContent: PropTypes.node,
   isEditing: PropTypes.bool,
+  editButtonId: PropTypes.string,
   editAction: PropTypes.func,
+  doneButtonId: PropTypes.func,
   doneAction: PropTypes.func,
   editingActions: PropTypes.node,
   editFooter: PropTypes.node,
@@ -62,6 +64,7 @@ EditableContentBox.propTypes = {
 
 EditableContentBox.defaultProps = {
   editingActions: null,
+  editButtonId: null,
 };
 
 // eslint you are drunk, renderFooter and renderActions are just functions
@@ -76,7 +79,7 @@ EditableContentBox.defaultProps = {
       return (
         <footer className="fc-editable-content-box-footer">
           {footer}
-          <EditDoneButton doneAction={props.doneAction} />
+          <EditDoneButton id={props.doneButtonId} doneAction={props.doneAction} />
         </footer>
       );
     } else {
@@ -88,8 +91,8 @@ EditableContentBox.defaultProps = {
       return props.editingActions;
     } else {
       return props.editAction
-        ? <EditButton onClick={props.editAction} />
-        : <EditButton disabled={true} />;
+        ? <EditButton id={props.editButtonId} onClick={props.editAction} />
+        : <EditButton id={props.editButtonId} disabled={true} />;
     }
   },
 };

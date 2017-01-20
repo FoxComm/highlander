@@ -1,0 +1,35 @@
+---
+
+- name: Create Backup Directory
+  file: path=/mnt/backups state=directory mode="0700"
+  run_once: true
+
+- name: Setup Backup and Restore Scripts
+  copy: src={{item}} dest="{{usr_local}}bin/{{item}}" mode="0777"
+  with_items:
+    - restore_zk.sh
+    - backup_zk.sh
+
+- name: Download gcsfuse
+  get_url: url={{gcsfuse_download_url}} dest="/tmp/{{gcsfuse_filename}}"
+
+- name: Install gcsfuse
+  shell: dpkg -i /tmp/{{gcsfuse_filename}}
+
+- name: Add Backup Directory Mount Service
+  template: src=backup_zk.service dest={{dest_services}}/backup_zk.service
+
+- name: Make sure keys dir exist
+  file: path=/etc/keys state=directory owner={{user}} mode="0700"
+
+- name: Copy GCE service account key
+  copy: src={{service_key_file}} dest={{gce_service_key}} mode="0600" owner={{user}}
+
+- name: Setup Zookeeper Transaction Log Backup Cron
+  cron: name="zookeeper data dir backup" minute="30" hour="4" job="{{usr_local}}bin/backup_zk.sh {{zk_backup_filename}} {{zk_data_dir}}"
+
+- name: Reload Systemd for Backup Zookeeper Service
+  command: systemctl daemon-reload
+
+- name: Start Backup Mount service
+  service: name=backup_zk state=started enabled=yes

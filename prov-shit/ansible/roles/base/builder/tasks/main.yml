@@ -94,6 +94,10 @@
   command: pip install ansible==2.2.0
   tags: ansible
 
+- name: Install DNS Simple Module
+  command: pip install dnsimple
+  tags: ansible
+
 - name: Install Package for Ansible Lint
   apt: name=libffi-dev state=latest force=yes
   tags: ansible-lint
@@ -121,3 +125,15 @@
 - name: Download vagrant google box
   shell: vagrant box add gce {{vagrant_google_box}}
   tags: vagrant
+
+- name: Download terraform
+  get_url: url={{terraform_download_url}} dest="{{home}}/{{terraform_filename}}"
+  tags: terraform
+
+- name: Unzip terraform
+  unarchive: src="{{home}}/{{terraform_filename}}" dest="{{home}}" mode="u+x,g+x,o+x"
+  tags: terraform
+
+- name: Copy to Binaries Directory
+  command: mv {{home}}/terraform /usr/local/bin
+  tags: terraform

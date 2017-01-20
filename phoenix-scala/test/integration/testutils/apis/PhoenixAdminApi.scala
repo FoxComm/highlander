@@ -6,6 +6,7 @@ import models.objects.ObjectForm
 import payloads.ActivityTrailPayloads._
 import payloads.AddressPayloads._
 import payloads.AssignmentPayloads._
+import payloads.CartPayloads._
 import payloads.CategoryPayloads._
 import payloads.CouponPayloads._
 import payloads.CustomerGroupPayloads._
@@ -213,8 +214,7 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
   }
 
   object cartsApi {
-    // TODO @anna: update this to `/carts` when routes are fixed
-    val cartsPrefix = s"$rootPrefix/orders"
+    val cartsPrefix = s"$rootPrefix/carts"
 
     def create(payload: CreateCart): HttpResponse =
       POST(cartsPrefix, payload)
@@ -222,16 +222,15 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
   case class cartsApi(refNum: String) {
 
-    val cartPath      = s"${cartsApi.cartsPrefix}/$refNum"
-    val updateOrderLI = s"$cartPath/order-line-items"
+    val cartPath     = s"${cartsApi.cartsPrefix}/$refNum"
+    val updateLIAttr = s"$cartPath/line-items/attributes"
 
-    def updateorderLineItem(payload: Seq[UpdateOrderLineItemsPayload]): HttpResponse = {
-      PATCH(updateOrderLI, payload)
+    def updateCartLineItem(payload: Seq[UpdateOrderLineItemsPayload]): HttpResponse = {
+      PATCH(updateLIAttr, payload)
     }
 
-    // TODO @anna: update this to `cartPath` when routes are fixed
     def get(): HttpResponse =
-      GET(s"$rootPrefix/carts/$refNum")
+      GET(cartPath)
 
     def lock(): HttpResponse =
       POST(s"$cartPath/lock")
@@ -331,9 +330,6 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
     def create(payload: CreateCoupon)(implicit ctx: OC): HttpResponse =
       POST(couponsPrefix, payload)
-
-    def delete(formId: Int)(implicit ctx: OC): HttpResponse =
-      DELETE(s"$couponsPrefix/$formId")
   }
 
   case class couponsApi(formId: Int)(implicit ctx: OC) {
@@ -341,6 +337,9 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
     def get(): HttpResponse =
       GET(couponPath)
+
+    def archive(): HttpResponse =
+      DELETE(couponPath)
 
     object codes {
 

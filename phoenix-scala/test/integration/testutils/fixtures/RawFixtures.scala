@@ -2,25 +2,19 @@ package testutils.fixtures
 
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
-import failures.UserFailures.OrganizationNotFoundByName
 import models._
 import models.account._
-import models.auth.UserToken
 import models.cord._
 import models.inventory.Sku
 import models.location._
 import models.payment.giftcard.GiftCard
 import models.product._
-import payloads.OrderPayloads
-import payloads.OrderPayloads.CreateCart
+import payloads.CartPayloads.CreateCart
 import payloads.PaymentPayloads.GiftCardPayment
-import services.Authenticator.AuthData
-import services.account.AccountManager
 import services.carts._
 import testutils._
 import testutils.fixtures.raw._
 import utils.Money.Currency
-import utils.aliases._
 import utils.db._
 import utils.seeds.Seeds.Factories
 

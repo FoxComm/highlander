@@ -21,7 +21,7 @@ export default class Customer extends React.Component {
 
     if (customer.name) {
       return (
-        <div styleName="name">
+        <div id="customer-title-name" styleName="name">
           {customer.name}
         </div>
       );
@@ -61,7 +61,7 @@ export default class Customer extends React.Component {
             <div className="fc-col-md-11-12">
               <div className="fc-col-md-1-1 fc-customer-name-block">
                 {this.customerName}
-                <div styleName="email">
+                <div id="customer-title-email" styleName="email">
                   {customer.email}
                 </div>
               </div>

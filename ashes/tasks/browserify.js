@@ -98,7 +98,7 @@ module.exports = function(gulp, opts, $) {
       })
       .pipe(source(`admin.js`))
       .pipe(buffer())
-      .pipe($.if(production, $.sourcemaps.init({loadMaps: true})))
+      .pipe($.if(production, $.sourcemaps.init({loadMaps: true, largeFile: true})))
       .pipe($.if(production, $.uglify()))
       .pipe($.if(production, $.sourcemaps.write('_', {addComment: false})))
       .pipe(gulp.dest(opts.assetsDir));

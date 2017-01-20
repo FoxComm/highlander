@@ -15,7 +15,7 @@ import org.json4s.JsonDSL._
 import org.json4s._
 import payloads.ImagePayloads._
 import payloads.LineItemPayloads.UpdateLineItemsPayload
-import payloads.OrderPayloads.CreateCart
+import payloads.CartPayloads.CreateCart
 import payloads.ProductPayloads._
 import payloads.SkuPayloads.SkuPayload
 import payloads.VariantPayloads.{VariantPayload, VariantValuePayload}
@@ -105,10 +105,10 @@ class ProductIntegrationTest
           val slugClue = s"slug: $slug"
 
           val productResponse = doQuery(productPayload.copy(slug = slug))
-          productResponse.slug must === (slug).withClue(slugClue)
+          productResponse.slug must === (slug.toLowerCase).withClue(slugClue)
 
           val getProductResponse = productsApi(slug).get().as[Root]
-          getProductResponse.slug must === (slug).withClue(slugClue)
+          getProductResponse.slug must === (slug.toLowerCase).withClue(slugClue)
           getProductResponse.id must === (productResponse.id).withClue(slugClue)
         }
       }
@@ -408,7 +408,7 @@ class ProductIntegrationTest
                                          variants = None,
                                          albums = None)
 
-      doQuery(product.formId, payload).slug must === (slug)
+      doQuery(product.formId, payload).slug must === (slug.toLowerCase)
     }
 
     "Updates the SKUs on a product successfully" in new Fixture {

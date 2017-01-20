@@ -11,12 +11,19 @@
   "container": {
     "type": "DOCKER",
     "docker": {
-      "image": "{{docker_registry}}:5000/greenriver:{{docker_branch}}",
+      "image": "{{docker_registry}}:5000/greenriver:{{docker_tag_greenriver}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],
       "forcePullImage": true
-    }
+    },
+    "volumes": [
+      {
+        "containerPath": "{{docker_logs_dir}}",
+        "hostPath": "{{docker_logs_host_dir}}",
+        "mode": "RW"
+      }
+    ]
   },
   "portDefinitions": [
     {

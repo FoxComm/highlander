@@ -7,9 +7,15 @@
   "instances": 1,
   "container": {
     "type": "DOCKER",
-    "volumes": [],
+    "volumes": [
+      {
+        "containerPath": "{{docker_logs_dir}}",
+        "hostPath": "{{docker_logs_host_dir}}",
+        "mode": "RW"
+      }
+    ],
     "docker": {
-      "image": "{{docker_registry}}:5000/stock-items-consumer:{{docker_branch}}",
+      "image": "{{docker_registry}}:5000/stock-items-consumer:{{docker_tag_stock_items_consumer}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],

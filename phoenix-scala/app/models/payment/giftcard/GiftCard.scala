@@ -11,7 +11,7 @@ import failures.GiftCardFailures._
 import failures._
 import models.account._
 import models.cord.OrderPayment
-import models.payment.PaymentMethod
+import models.payment.{PaymentMethod, InStorePaymentStates}
 import models.payment.giftcard.GiftCard._
 import models.payment.giftcard.{GiftCardAdjustment ⇒ Adj, GiftCardAdjustments ⇒ Adjs}
 import payloads.GiftCardPayloads.{GiftCardCreateByCsr, GiftCardCreatedByCustomer}
@@ -279,7 +279,7 @@ object GiftCards
 
   def auth(giftCard: GiftCard, orderPaymentId: Int, debit: Int = 0)(
       implicit ec: EC): DbResultT[GiftCardAdjustment] =
-    adjust(giftCard, orderPaymentId.some, debit = debit, state = Adj.Auth)
+    adjust(giftCard, orderPaymentId.some, debit = debit, state = InStorePaymentStates.Auth)
 
   def authOrderPayment(
       giftCard: GiftCard,
@@ -300,7 +300,7 @@ object GiftCards
       _ ← * <~ (
              require(debit <= auth.debit)
          )
-      cap ← * <~ GiftCardAdjustments.update(auth, auth.copy(debit = debit, state = Adj.Capture))
+      cap ← * <~ GiftCardAdjustments.update(auth, auth.copy(debit = debit, state = InStorePaymentStates.Capture))
     } yield cap
 
   def cancelByCsr(giftCard: GiftCard, storeAdmin: User)(
@@ -311,7 +311,7 @@ object GiftCards
                          debit = giftCard.availableBalance,
                          credit = 0,
                          availableBalance = 0,
-                         state = Adj.CancellationCapture)
+                         state = InStorePaymentStates.CancellationCapture)
     Adjs.create(adjustment)
   }
 
@@ -323,7 +323,7 @@ object GiftCards
                          debit = giftCard.availableBalance,
                          credit = 0,
                          availableBalance = 0,
-                         state = Adj.Capture)
+                         state = InStorePaymentStates.Capture)
     Adjs.create(adjustment)
   }
 
@@ -339,12 +339,11 @@ object GiftCards
   def findActive(): QuerySeq =
     filter(_.state === (GiftCard.Active: GiftCard.State))
 
-  //Public because tests use it to validate DB constraints
-  def adjust(giftCard: GiftCard,
-             orderPaymentId: Option[Int],
-             debit: Int = 0,
-             credit: Int = 0,
-             state: GiftCardAdjustment.State = Adj.Auth)(
+  private def adjust(giftCard: GiftCard,
+                     orderPaymentId: Option[Int],
+                     debit: Int = 0,
+                     credit: Int = 0,
+                     state: InStorePaymentStates.State = InStorePaymentStates.Auth)(
       implicit ec: EC): DbResultT[GiftCardAdjustment] = {
     val balance = giftCard.availableBalance - debit + credit
     val adjustment = Adj(giftCardId = giftCard.id,

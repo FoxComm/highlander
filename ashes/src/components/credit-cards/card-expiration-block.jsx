@@ -34,6 +34,7 @@ export default class ExpirationBlock extends Component {
           <div className="fc-col-md-1-2">
             <FormField getTargetValue={() => month} validationLabel="Month" required>
               <Dropdown name="expMonth"
+                        id="expMonth"
                         items={CardUtils.monthList()}
                         placeholder="Month"
                         value={month}
@@ -44,6 +45,7 @@ export default class ExpirationBlock extends Component {
           <div className="fc-col-md-1-2">
             <FormField getTargetValue={() => year} validationLabel="Year" required>
               <Dropdown name="expYear"
+                        id="expYear"
                         items={CardUtils.expirationYears()}
                         placeholder="Year"
                         value={year}

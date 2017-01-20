@@ -17,19 +17,29 @@ clean:
 lint:
 	ansible-lint -x ANSIBLE0007,ANSIBLE0004 ansible/*.yml
 
-test:
-	$(call header, Testing)
+test-go:
 	go get github.com/stretchr/testify
 	$(GO) test ./inventory/
 
+test-tf:
+	./terraform/testfmt.sh
+
+test:
+	$(call header, Testing)
+	make test-go
+	make test-tf
+
 deploy-stage:
-	ansible-playbook -v -i bin/envs/staging ansible/stage.yml
+	ansible-playbook -v -i bin/envs/staging ansible/test_stage.yml
 
 deploy-td-test:
-	ansible-playbook -v -i bin/envs/staging ansible/td_test.yml
+	ansible-playbook -v -i bin/envs/staging ansible/test_topdrawer.yml
+
+deploy-tgt-test:
+	ansible-playbook -v -i bin/envs/staging ansible/test_target.yml
 
 deploy-tpg-test:
-	ansible-playbook -v -i bin/envs/staging ansible/tpg_test.yml
+	ansible-playbook -v -i bin/envs/staging ansible/test_perfectgourmet.yml
 
 docker:
 	$(call header, Dockerizing)

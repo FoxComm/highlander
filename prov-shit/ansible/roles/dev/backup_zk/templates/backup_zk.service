@@ -1,0 +1,16 @@
+[Service]
+WorkingDirectory=/usr/local
+ExecStart=/usr/bin/gcsfuse --foreground --key-file={{gce_service_key}} {{backups_bucket}} /mnt/backups
+Restart=always
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=backup_zk
+TimeoutStartSec=30
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+
+[Unit]
+Requires=network.target
+After=network.target

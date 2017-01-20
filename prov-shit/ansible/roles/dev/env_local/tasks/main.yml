@@ -1,0 +1,8 @@
+---
+
+- name: Find out Highlander path
+  shell: "dirname $(dirname $(pwd))"
+  register: highlander_path_out
+
+- name: Overwrite Highlander .env.local
+  template: src=env.local.j2 dest="{{highlander_path_out.stdout}}/.env.local"
