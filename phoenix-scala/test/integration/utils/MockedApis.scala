@@ -94,12 +94,12 @@ trait MockedApis extends MockitoSugar {
       }
     }
 
-    when(mocked.createSkus(any[Seq[(Int, CreateSku)]], anyInt)(any[EC], any[AU])).thenAnswer {
+    when(mocked.createSkus(any[Seq[CreateSkuBatchElement]], anyInt)(any[EC], any[AU])).thenAnswer {
       new Answer[DbResultT[Seq[ProductVariantMwhSkuId]]] {
         def answer(invocation: InvocationOnMock): DbResultT[Seq[ProductVariantMwhSkuId]] = {
-          val toCreate: Seq[(Int, CreateSku)] = invocation.getArgument(0)
+          val toCreate: Seq[CreateSkuBatchElement] = invocation.getArgument(0)
           val created = toCreate.map {
-            case (id, _) ⇒
+            case CreateSkuBatchElement(id, _) ⇒
               ProductVariantMwhSkuIds.create(
                   ProductVariantMwhSkuId(variantFormId = id, mwhSkuId = id))
           }

@@ -1,13 +1,8 @@
 import models.inventory.{ProductVariantMwhSkuIds, ProductVariants}
-import org.json4s.JsonDSL._
-import org.scalacheck.Gen
-import org.scalatest.EitherValues._
 import org.scalatest.prop.PropertyChecks
-import payloads.ImagePayloads.AlbumPayload
-import payloads.ProductVariantPayloads.ProductVariantPayload
 import responses.ProductVariantResponses.ProductVariantResponse
 import scala.util.Random
-import server.SKUsMigration
+import server.SkusMigration
 import slick.driver.PostgresDriver.api._
 import testutils.apis.PhoenixAdminApi
 import testutils._
@@ -15,26 +10,19 @@ import utils.MockedApis
 import utils.aliases._
 import utils.db._
 
-class SKUsMigrationIntegrationTest
+class SkusMigrationIntegrationTest
     extends IntegrationTestBase
     with AutomaticAuth
+    with GimmeSupport
+    with ProductVariantHelpers
     with MockedApis
     with PhoenixAdminApi
     with PropertyChecks {
-  def makeSkuPayload(code: String,
-                     attrMap: Map[String, Json],
-                     albums: Option[Seq[AlbumPayload]] = None) = {
-    val codeJson   = ("t"              → "string") ~ ("v" → code)
-    val attributes = attrMap + ("code" → codeJson)
-    ProductVariantPayload(attributes = attributes, albums = albums)
-  }
 
   "SKUsMigration should send request to MWH for all product variants that don't have sku id created" in {
-    implicit val au: AU =
-      AuthAs(authedUser, authedCustomer).checkAuthUser(None).futureValue.right.value
-    val migration  = new SKUsMigration(middlewarehouseApiMock)
-    val payloads   = (1 to 100).map(_ ⇒ makeSkuPayload(Random.nextString(10), Map.empty, None)).toSet
-    val variantIds = payloads.map(skusApi.create(_).as[ProductVariantResponse.Root].id)
+    implicit val au: AU = AuthAs(authedUser, authedCustomer).checkAuthUser(None).gimme
+    val payloads        = (1 to 100).map(_ ⇒ makeSkuPayload(Random.nextString(10), Map.empty, None)).toSet
+    val variantIds      = payloads.map(skusApi.create(_).as[ProductVariantResponse.Root].id)
 
     val validations = for {
       // insert product variants
@@ -43,7 +31,7 @@ class SKUsMigrationIntegrationTest
       // we need this to replicate state before mvh sku ids table was created
       deleted ← * <~ ProductVariantMwhSkuIds.filter(_.variantFormId inSet formIds).delete
       // run actual migration
-      _          ← * <~ migration.run()
+      _          ← * <~ SkusMigration.run()
       toValidate ← * <~ formIds.map(ProductVariantMwhSkuIds.mustFindMwhSkuId)
       // clean
       _ ← * <~ ProductVariants.filter(_.id inSet variantIds).delete
@@ -52,6 +40,6 @@ class SKUsMigrationIntegrationTest
       toValidate.foreach(id ⇒ formIds must contain(id))
     }
 
-    validations.run().futureValue.fold(errs ⇒ sys.error(errs.flatten.mkString("\n")), _ ⇒ ())
+    validations.gimme
   }
 }

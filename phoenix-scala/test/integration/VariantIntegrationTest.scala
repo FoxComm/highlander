@@ -166,14 +166,7 @@ class VariantIntegrationTest
     }
   }
 
-  trait Fixture extends StoreAdmin_Seed {
-    def makeSkuPayload(code: String,
-                       attrMap: Map[String, Json],
-                       albums: Option[Seq[AlbumPayload]] = None) = {
-      val codeJson   = ("t"              → "string") ~ ("v" → code)
-      val attributes = attrMap + ("code" → codeJson)
-      ProductVariantPayload(attributes = attributes, albums = albums)
-    }
+  trait Fixture extends ProductVariantHelpers with StoreAdmin_Seed {
 
     val (sku, skuForm, skuShadow) = (for {
       simpleSku       ← * <~ SimpleVariant("SKU-TEST", "Test SKU", 9999, Currency.USD)

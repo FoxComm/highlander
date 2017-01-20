@@ -43,7 +43,7 @@ object Main extends App with LazyLogging {
     service.performSelfCheck()
     service.bind()
     service.setupRemorseTimers()
-    service.performMigrations()
+    service.createUnsyncedSkusInMwh()
 
     logger.info("Startup process complete")
   } catch {
@@ -197,10 +197,10 @@ class Service(systemOverride: Option[ActorSystem] = None,
     new Middlewarehouse(url)
   }
 
-  def performMigrations(): Unit = {
+  def createUnsyncedSkusInMwh(): Unit = {
     implicit val au: AU = ??? // TODO
 
-    new SKUsMigration(apis.middlwarehouse)
+    SkusMigration
       .run()
       .fold(errs ⇒ sys.error(s"Cannot migrate all SKUs: \n${errs.flatten.mkString("\n")}"), _ ⇒ ())
   }

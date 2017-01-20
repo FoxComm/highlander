@@ -739,26 +739,7 @@ class ProductIntegrationTest
     }
   }
 
-  trait Fixture extends StoreAdmin_Seed with Schemas_Seed {
-
-    def makeVariantPayload(code: String,
-                           name: String,
-                           albums: Option[Seq[AlbumPayload]]): ProductVariantPayload = {
-      val attrMap = Map("title" → (("t" → "string") ~ ("v" → name)),
-                        "name" → (("t" → "string") ~ ("v" → name)),
-                        "code" → (("t" → "string") ~ ("v" → code)))
-
-      ProductVariantPayload(attributes = attrMap, albums = albums)
-    }
-
-    def makeVariantPayload(code: String,
-                           attrMap: Map[String, Json],
-                           albums: Option[Seq[AlbumPayload]]) = {
-      val codeJson   = ("t"               → "string") ~ ("v"      → code)
-      val titleJson  = ("t"               → "string") ~ ("v"      → ("title_" + code))
-      val attributes = (attrMap + ("code" → codeJson)) + ("title" → titleJson)
-      ProductVariantPayload(attributes = attributes, albums = albums)
-    }
+  trait Fixture extends ProductVariantHelpers with StoreAdmin_Seed with Schemas_Seed {
 
     val priceValue = ("currency" → "USD") ~ ("value" → 9999)
     val priceJson  = ("t" → "price") ~ ("v" → priceValue)
