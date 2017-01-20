@@ -11,7 +11,7 @@ import {
 } from 'victory';
 import _ from 'lodash';
 
-const axisTickColor = "#9BA3A7";
+const axisTickColor = '#9BA3A7';
 const yAxisStyle = {
   axis: { stroke: axisTickColor },
   grid: { stroke: axisTickColor, strokeWidth: 0.25, strokeDasharray: 2.5, opacity: 0.6 },
@@ -24,17 +24,17 @@ const xAxisStyle = {
 };
 
 const dataTickValues = [
-  "Category/Search View",
-  "PDP View",
-  "Add to Cart",
-  "Enter Checkout",
-  "Purchased",
+  'Category/Search View',
+  'PDP View',
+  'Add to Cart',
+  'Enter Checkout',
+  'Purchased',
 ];
 
 const barStyle = {
-  data: { fill: "#4FC2C9", width: 15 },
+  data: { fill: '#4FC2C9', width: 15 },
   labels: { fontSize: 12 },
-  parent: { border: "1px solid #ccc" },
+  parent: { border: '1px solid #ccc' },
 };
 
 // Dummy response payload for UI debugging
@@ -53,11 +53,11 @@ const dummyJsonData = {
 const barEvents = [
   {
     // Event: Always show tooltip label onMouseOut
-    target: "data",
+    target: 'data',
     eventHandlers: {
       onMouseOut: () => {
         return [{
-          target: "labels",
+          target: 'labels',
           mutation: (props) => {
             return props.label;
           }
@@ -82,11 +82,11 @@ class CustomToolTip extends React.Component {
     };
 
     const deltaToolTipFlyoutStyle = {
-      stroke: "#363636",
-      fill: "#3A4350",
+      stroke: '#363636',
+      fill: '#3A4350',
     };
     const deltaToolTipStyle = {
-      fill: "white",
+      fill: 'white',
       fontSize: 6,
     };
     const deltaValue = getDelta(datum);
@@ -151,6 +151,10 @@ class ProductConversionChart extends Component {
     
     const jsonDisplay = (debugMode) ? dummyJsonData : jsonData;
 
+    const deltaDisplay = (deltaStr) => {
+      return _.round(parseFloat(deltaStr) * 100, 2);
+    };
+
     return [
       {
         key: dataTickValues[0],
@@ -160,25 +164,25 @@ class ProductConversionChart extends Component {
       {
         key: dataTickValues[1],
         value: jsonDisplay.PdpViews,
-        delta: _.round(jsonDisplay.SearchToPdp, 2),
+        delta: deltaDisplay(jsonDisplay.SearchToPdp),
         label: jsonDisplay.PdpViews.toString(),
       },
       {
         key: dataTickValues[2],
         value: jsonDisplay.CartClicks,
-        delta: _.round(jsonDisplay.PdpToCart, 2),
+        delta: deltaDisplay(jsonDisplay.PdpToCart),
         label: jsonDisplay.CartClicks.toString(),
       },
       {
         key: dataTickValues[3],
         value: jsonDisplay.CheckoutClicks,
-        delta: _.round(jsonDisplay.CartToCheckout, 2),
+        delta: deltaDisplay(jsonDisplay.CartToCheckout),
         label: jsonDisplay.CheckoutClicks.toString(),
       },
       {
         key: dataTickValues[4],
         value: jsonDisplay.Purchases,
-        delta: _.round(jsonDisplay.CheckoutToPurchase, 2),
+        delta: deltaDisplay(jsonDisplay.CheckoutToPurchase),
         label: jsonDisplay.Purchases.toString(),
       },
     ];
