@@ -29,6 +29,7 @@ $$ language plpgsql;
 create or replace function update_skus_view_from_object_attrs_fn() returns trigger as $$
 begin
   update product_variants_search_view set
+    sku_code = subquery.code,
     title = subquery.title,
     sale_price = subquery.sale_price,
     sale_price_currency = subquery.sale_price_currency,
