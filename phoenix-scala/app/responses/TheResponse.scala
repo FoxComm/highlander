@@ -49,19 +49,10 @@ object BatchMetadata {
   def apply(input: BatchMetadataSource): BatchMetadata      = buildInner(Seq(input))
   def apply(input: Seq[BatchMetadataSource]): BatchMetadata = buildInner(input)
 
-  private def buildInner(input: Seq[BatchMetadataSource]): BatchMetadata = {
-    val success = input.foldLeft(Map[EntityType, SuccessData]()) {
-      case (acc, src) ⇒
-        acc.updated(src.className, src.success)
-    }
-
-    val failures = input.foldLeft(Map[EntityType, FailureData]()) {
-      case (acc, src) ⇒
-        acc.updated(src.className, src.failures)
-    }
-
-    BatchMetadata(success = success, failures = failures)
-  }
+  private def buildInner(input: Seq[BatchMetadataSource]): BatchMetadata =
+    BatchMetadata(
+      success = input.map(src ⇒ src.className → src.success).toMap,
+      failures = input.map(src ⇒ src.className → src.failures).toMap)
 
   def flattenErrors(input: FailureData): Option[List[String]] = {
     val errors = input.values.toList

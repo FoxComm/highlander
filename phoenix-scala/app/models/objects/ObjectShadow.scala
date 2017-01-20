@@ -26,12 +26,11 @@ case class ObjectShadow(id: Int = 0,
 
 object ObjectShadow {
   def fromPayload(attributes: Map[String, Json]): ObjectShadow = {
-    val attributesJson = attributes.foldLeft(JNothing: JValue) {
-      case (acc, (key, value)) ⇒
+    val attributesJson = JObject(attributes.map {
+      case (key, value) ⇒
         // TODO: Clean this up and make a case class to represent the shadow ref.
-        val shadowJson: JValue = key → (("type" → (value \ "t")) ~ ("ref" → key))
-        acc.merge(shadowJson)
-    }
+        key → (("type" → (value \ "t")) ~ ("ref" → key))
+    }.toList)
 
     ObjectShadow(attributes = attributesJson)
   }

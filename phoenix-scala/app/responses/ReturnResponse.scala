@@ -120,9 +120,7 @@ object ReturnResponse {
                   shipments: Seq[(Shipment, ReturnLineItem)]): ReturnTotals = {
     val finalSubtotal = subtotal.getOrElse(0)
     val finalTaxes    = taxes.getOrElse(0)
-    val finalShipping = shipments.foldLeft(0) {
-      case (acc, (shipment, li)) ⇒ acc + shipment.shippingPrice.getOrElse(0)
-    }
+    val finalShipping = shipments.flatMap(_._1.shippingPrice).sum
     val grandTotal = finalSubtotal + finalShipping + finalTaxes
     ReturnTotals(finalSubtotal, finalTaxes, finalShipping, grandTotal)
   }
