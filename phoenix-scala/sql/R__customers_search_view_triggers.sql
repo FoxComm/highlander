@@ -240,18 +240,18 @@ begin
     update customers_search_view set
         revenue = subquery.revenue
         from (
-			select
-				c.account_id as id,
-			coalesce(sum(ccc.amount), 0) + coalesce(sum(sca.debit), 0) + coalesce(sum(gca.debit), 0) as revenue
-		    from customer_data as c
-		    inner join orders on (c.account_id = orders.account_id and orders.state = 'shipped')
-		    inner join order_payments as op on (op.cord_ref = orders.reference_number)
-		    left join credit_card_charges as ccc on (ccc.order_payment_id = op.id and ccc.state = 'fullCapture')
-		    left join store_credit_adjustments as sca on (sca.order_payment_id = op.id and sca.state = 'capture')
-		    left join gift_card_adjustments as gca on (gca.order_payment_id = op.id and gca.state = 'capture')
-		    where is_guest = false and c.account_id = new.account_id
-		    group by c.account_id
-		    order by c.account_id) as subquery
+            select
+                c.account_id as id,
+            coalesce(sum(ccc.amount), 0) + coalesce(sum(sca.debit), 0) + coalesce(sum(gca.debit), 0) as revenue
+            from customer_data as c
+            inner join orders on (c.account_id = orders.account_id and orders.state = 'shipped')
+            inner join order_payments as op on (op.cord_ref = orders.reference_number)
+            left join credit_card_charges as ccc on (ccc.order_payment_id = op.id and ccc.state = 'fullCapture')
+            left join store_credit_adjustments as sca on (sca.order_payment_id = op.id and sca.state = 'capture')
+            left join gift_card_adjustments as gca on (gca.order_payment_id = op.id and gca.state = 'capture')
+            where is_guest = false and c.account_id = new.account_id
+            group by c.account_id
+            order by c.account_id) as subquery
     where customers_search_view.id = subquery.id;
     return null;
 end;
@@ -261,7 +261,7 @@ $$ language plpgsql;
 
 create or replace function update_customers_ranking() returns boolean as $$
 begin
-	 -- Update customers ranks
+     -- Update customers ranks
       update customers_search_view
         set rank = q.rank from (
             select
@@ -305,7 +305,7 @@ begin
         ) as q
         where orders_search_view.id = q.id;
 
-	return true;
+    return true;
 end;
 $$ language plpgsql;
 
