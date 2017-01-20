@@ -48,6 +48,11 @@ const comparisonBarStyles = {
     parent: { border: '1px solid #ccc' },
   },
 };
+const barStyle = {
+  data: { fill: '#4FC2C9', width: 15 },
+  labels: { fontSize: 12 },
+  parent: { border: '1px solid #ccc' },
+};
 
 const dataTickValues = [
   'Category/Search View',

@@ -172,4 +172,3 @@ export default class ProductConversionToolTip extends React.Component {
     return this.tooltips;
   }
 }
-
