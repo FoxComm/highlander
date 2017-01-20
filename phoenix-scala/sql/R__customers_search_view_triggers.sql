@@ -321,18 +321,24 @@ begin
                   then
                     '[]'
                 else
-                  json_agg((
-                    crt.account_id,
-                    crt.reference_number,
-                    to_char(crt.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
-                    to_char(crt.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
-                    crt.sub_total,
-                    crt.shipping_total,
-                    crt.adjustments_total,
-                    crt.taxes_total,
-                    crt.grand_total,
-                    0 -- FIXME
-                  )::export_carts)::jsonb
+                  (select json_agg((cart)::export_carts)::jsonb
+                    from (
+                      select
+                        crt.account_id,
+                        crt.reference_number,
+                        to_char(crt.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
+                        to_char(crt.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
+                        crt.sub_total,
+                        crt.shipping_total,
+                        crt.adjustments_total,
+                        crt.taxes_total,
+                        crt.grand_total,
+                        count(cli) as items_count
+                      from carts crt
+                      left join cart_line_items as cli on (crt.reference_number = cli.cord_ref)
+                      where crt.account_id = c.account_id
+                      group by crt.id
+                    ) cart)
                 end as carts
               from customer_data as c
               left join carts as crt on (c.account_id = crt.account_id)
