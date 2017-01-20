@@ -36,8 +36,9 @@ const ProductDetails = (props: Props) => {
 
   const ProductURL = `http://theperfectgourmet.com${props.product.pathName}`;
   const TwitterHandle = 'perfectgourmet1';
+  const salePrice = skus[0].attributes.salePrice.v.value;
   const retailPrice = skus[0].attributes.retailPrice.v.value;
-  const isOnSale = retailPrice > price ?
+  const isOnSale = retailPrice > salePrice ?
     <div styleName="price">
       <Currency
         styleName="retail-price"
@@ -46,7 +47,7 @@ const ProductDetails = (props: Props) => {
       />
       <Currency
         styleName="on-sale-price"
-        value={price}
+        value={salePrice}
         currency={currency}
       />
     </div> :
