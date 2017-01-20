@@ -52,16 +52,24 @@ const MultiSelectRow = (props, context) => {
     const cls = classNames({
       'row-head-left': col.field == 'selectColumn',
       'row-head-right': col.field == 'toggleColumns',
+      'id' : col.field == 'id',
+      'name': col.field == 'name',
+      'storefront-name' : col.field == 'storefrontName',
+      'state' : col.field == 'state',
       'retail-price-field' : col.field == 'retailPrice',
       'sale-price-field' : col.field == 'salePrice',
       'coupon-code' : col.field == 'code',
       'total-uses' : col.field == 'totalUsed',
       'current-carts' : col.field == 'currentCarts',
-      'line-item-name': col.field == 'name',
       'line-item-sku': col.field == 'sku',
       'line-item-price': col.field == 'price',
       'line-item-quantity': col.field == 'quantity',
-      'line-item-total-price': col.field == 'totalPrice'
+      'line-item-total-price': col.field == 'totalPrice',
+      'coupon-codes' : col.field == 'codes',
+      'email' : col.field == 'email',
+      'ship-region' : col.field == 'shipRegion',
+      'bill-region' : col.field == 'billRegion',
+      'rank' : col.field == 'rank'
     });
 
     visibleCells.push(
