@@ -1,0 +1,1 @@
+alter table customers_search_view add column cart jsonb default '{}';
