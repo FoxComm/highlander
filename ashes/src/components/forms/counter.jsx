@@ -33,10 +33,9 @@ const Counter = (props: Props) => {
         />
       </div>
       <input
-        id="adjust-quantity-input"
         type="number"
         value={value}
-        className={classNames('fc-counter__input', props.className, {disabled})}
+        className={classNames('fc-counter__input', props.className, 'adjust-quantity-input', {disabled})}
         disabled={disabled}
         {...rest} />
       <div className="fc-input-append">
