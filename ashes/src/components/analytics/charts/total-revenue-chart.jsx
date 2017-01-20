@@ -8,56 +8,20 @@ import { autobind } from 'core-decorators';
 
 // components
 import {
-  VictoryTooltip,
   VictoryScatter,
   VictoryArea,
   VictoryChart,
   VictoryAxis,
 } from 'victory';
+import TotalRevenueToolTip from './total-revenue-tooltip';
 
 const colors = {
-  tealGreenish: "#78CFD4",
-  gray: "gray",
-  teal: "teal",
-  white: "white",
-  darkBlue: "#3A434F",
+  tealGreenish: '#78CFD4',
+  gray: '#808080',
+  teal: '#008080',
+  white: '#FFFFFF',
+  darkBlue: '#3A434F',
 };
-
-class CustomToolTip extends React.Component {
-
-  static defaultEvents = VictoryTooltip.defaultEvents;
-
-  render() {
-    const toolTipCornerRadius = () => {
-      return 0;
-    };
-    const toolTipFlyoutStyle = {
-      stroke: colors.darkBlue,
-      fill: colors.darkBlue,
-    };
-    const toolTipStyle = {
-      fill: colors.white,
-      fontSize: 6
-    };
-
-    return (
-      <g>
-        <VictoryTooltip
-          {...this.props}
-          pointerLength={2}
-          pointerWidth={4}
-          cornerRadius={toolTipCornerRadius}
-          style={toolTipStyle}
-          flyoutStyle={toolTipFlyoutStyle}
-          orientation="right"
-          dx={4}
-          dy={-10}
-          renderInPortal={false}
-          />
-      </g>
-    );
-  }
-}
 
 const areaStyle = {
   data: { fill: colors.tealGreenish, opacity: 0.25, stroke: colors.teal }
@@ -73,7 +37,7 @@ const gridStyle = {
   tickLabels: { fontSize: 8, fill: colors.gray },
 };
 
-const unixTimeToDateFormat = (unixTimeStr, dateFormat = "MMM D, YYYY") => {
+const unixTimeToDateFormat = (unixTimeStr, dateFormat = 'MMM D, YYYY') => {
   return moment.unix(parseInt(unixTimeStr, 10)).format(dateFormat);
 };
 
@@ -97,7 +61,10 @@ const dummyJsonData = [
   { revenue: 1900000, timestamp: 1479801600 },
 ];
 const dummyDataTickValues = [
-  "Nov 1", "Nov 8", "Nov 15", "Nov 22"
+  'Nov 1', 
+  'Nov 8', 
+  'Nov 15', 
+  'Nov 22',
 ];
 
 type Props = {
@@ -180,7 +147,7 @@ class TotalRevenueChart extends React.Component {
             x="x"
             y="revenue" />
           <VictoryScatter
-            labelComponent={<CustomToolTip />}
+            labelComponent={<TotalRevenueToolTip />}
             style={scatterStyle}
             data={displayData}
             x="x"

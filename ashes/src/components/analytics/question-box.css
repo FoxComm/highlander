@@ -15,7 +15,7 @@
   height: 179px;
   max-height: 179px;
   background-color: #F2F2F2;
-  border: 1px solid #9BA3A7;
+  border: 1px solid #D9D9D9;
   text-align: center;
   cursor: pointer;
 }
@@ -35,4 +35,3 @@
 .question-box-footer-display {
   margin-top: 19px;
 }
-
