@@ -300,7 +300,8 @@ object GiftCards
       _ ← * <~ (
              require(debit <= auth.debit)
          )
-      cap ← * <~ GiftCardAdjustments.update(auth, auth.copy(debit = debit, state = InStorePaymentStates.Capture))
+      cap ← * <~ GiftCardAdjustments
+             .update(auth, auth.copy(debit = debit, state = InStorePaymentStates.Capture))
     } yield cap
 
   def cancelByCsr(giftCard: GiftCard, storeAdmin: User)(

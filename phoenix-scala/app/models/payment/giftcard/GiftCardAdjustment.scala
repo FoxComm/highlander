@@ -76,14 +76,6 @@ object GiftCardAdjustments
   def lastAuthByGiftCardId(id: Int): QuerySeq =
     filterByGiftCardId(id).filter(_.state === (Auth: State)).sortBy(_.createdAt).take(1)
 
-  def cancel(id: Int): DBIO[Int] = filter(_.id === id).map(_.state).update(Canceled)
-
-  def authorizedOrderPayments(orderPaymentIds: Seq[Int]): QuerySeq =
-    filter(adj ⇒ adj.orderPaymentId.inSet(orderPaymentIds) && adj.state === (Auth: State))
-
-  def authorizedOrderPayment(orderPaymentId: Int): QuerySeq =
-    filter(adj ⇒ adj.orderPaymentId === orderPaymentId && adj.state === (Auth: State))
-
   object scope {
     implicit class GCAQuerySeqAdditions(val query: QuerySeq) extends QuerySeqAdditions
   }

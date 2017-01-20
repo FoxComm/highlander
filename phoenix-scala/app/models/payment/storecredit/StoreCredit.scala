@@ -198,8 +198,8 @@ object StoreCredits extends FoxTableQuery[StoreCredit, StoreCredits](new StoreCr
       _ ← * <~ (
              require(amount <= auth.debit)
          )
-      cap ← * <~ StoreCreditAdjustments.update(auth,
-                                               auth.copy(debit = amount, state = InStorePaymentStates.Capture))
+      cap ← * <~ StoreCreditAdjustments
+             .update(auth, auth.copy(debit = amount, state = InStorePaymentStates.Capture))
     } yield cap
 
   def cancelByCsr(storeCredit: StoreCredit, storeAdmin: User)(
