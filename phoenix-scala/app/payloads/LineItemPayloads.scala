@@ -7,7 +7,9 @@ object LineItemPayloads {
 
   case class UpdateLineItemsPayload(productVariantId: ObjectForm#Id,
                                     quantity: Int,
-                                    attributes: Option[LineItemAttributes] = None)
+                                    attributes: Option[LineItemAttributes] = None) {
+    val variantFormId: Int = productVariantId
+  }
 
   case class UpdateOrderLineItemsPayload(
       state: OrderLineItem.State,

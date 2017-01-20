@@ -2,7 +2,7 @@ package services
 
 import failures.CartFailures._
 import failures.OrderFailures.OrderLineItemNotFound
-import failures.ProductFailures.{ProductVariantNotFoundForContext, ProductVariantNotFoundForContextAndId}
+import failures.ProductFailures._
 import models.account._
 import models.activity.Activity
 import models.cord._
@@ -165,9 +165,10 @@ object LineItemUpdater {
   private def updateLineItems(cart: Cart, lineItem: UpdateLineItemsPayload)(implicit ec: EC,
                                                                             ctx: OC) =
     for {
+      // TODO: deduplicate with `addQuantities` below?
       productVariant ← * <~ ProductVariants
                         .filterByContext(ctx.id)
-                        .filter(_.formId === lineItem.productVariantId)
+                        .filter(_.formId === lineItem.variantFormId)
                         .mustFindOneOr(
                             ProductVariantNotFoundForContextAndId(lineItem.productVariantId,
                                                                   ctx.id))
@@ -196,9 +197,9 @@ object LineItemUpdater {
         productVariant ← * <~ ProductVariants
                           .filterByContext(ctx.id)
                           .filter(_.formId === lineItem.productVariantId)
-                          .mustFindOneOr(ProductVariantNotFoundForContext(
-                                  s"form-id:${lineItem.productVariantId}",
-                                  ctx.id))
+                          .mustFindOneOr(
+                              ProductVariantNotFoundForContextAndId(lineItem.productVariantId,
+                                                                    ctx.id))
         _ ← * <~ mustFindProductIdForVariant(productVariant, cart.refNum)
         _ ← * <~ (if (lineItem.quantity > 0)
                     createLineItems(productVariant.id,
