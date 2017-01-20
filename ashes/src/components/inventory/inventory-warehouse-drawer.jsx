@@ -50,7 +50,7 @@ class WarehouseDrawer extends Component {
 
     const uniqId = `${row.type}-${row.id}`;
     const rowId = row.type.toLowerCase();
-    const counterId = `${rowId}-adjust-quantity-block`;
+    const counterId = `${rowId}-counter`;
 
     return (
       <TableRow id={rowId} key={uniqId}>
