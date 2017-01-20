@@ -35,36 +35,52 @@ has a lot to do!
 
 ### Google Compute VM
 
-1. [Generate your SSH key](https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/) for GCE and put the public key to [project metadata](https://console.cloud.google.com/compute/metadata/sshKeys?project=foxcomm-staging).
+1. Ask one of DevOps guys for Ansible Vault password and OpenVPN keys + client configuration.
 
-2. [Generate Google service account key](https://cloud.google.com/storage/docs/authentication#generating-a-private-key) and download it in JSON format to your machine.
+2. [Generate your SSH key](https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/) for GCE and put the public key to [project metadata](https://console.cloud.google.com/compute/metadata/sshKeys?project=foxcomm-staging).
 
-3. Run `.env.local` generator, required for Vagrant. You'll be prompted for you corporate e-mail and SSH/JSON key locations.
+3. [Generate Google service account key](https://cloud.google.com/storage/docs/authentication#generating-a-private-key) and download it in JSON format to your machine.
+
+4. Run `.env.local` generator, required for Vagrant. You'll be prompted for you corporate e-mail and SSH/JSON key locations.
 
     ```
     $ make dotenv
     ```
 
-4. Pre-configure Vagrant by running:
+5. Pre-configure Vagrant by running:
 
     ```
     $ make prepare
     ```
 
-5. You're ready to spin up the machine! Do it by running:
+6. You're ready to spin up the machine! Do it by running:
 
     ```
     $ make up
     ```
 
-Test machines are created without a public facing IP address, so you'll need to use the VPN to access it.
+#### Deploying custom branch
 
-Get the private IP address:
+Your generated `.env.local` will have all docker tags set to `master`:
 
-    $ vagrant ssh
-    $ hostname -i
+```
+export DOCKER_TAG_ASHES=master
+export DOCKER_TAG_FIREBRAND=master
+export DOCKER_TAG_PHOENIX=master
+export DOCKER_TAG_GREENRIVER=master
+# ... other project tags ...
+```
 
-Edit your hosts file so that `local.foxcommerce.com` points to the new box using the private IP address you just retrieved.
+If you want to spin up an appliance with custom tag for any project, please build and push it to our Docker Registry, for example:
+
+    $ cd phoenix
+    $ make build
+    $ make docker
+    $ DOCKER_TAG=my-custom-debug-build make docker-push
+
+And then override `DOCKER_TAG_PHOENIX` to `my-custom-debug-build`.
+
+**TODO**: Automate this process.
 
 ### Local VM
 

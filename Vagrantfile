@@ -114,6 +114,7 @@ def tune_vm(config, opts = {})
 end
 
 Vagrant.configure("2") do |config|
+  $master = "master"
   user = ENV['GOOGLE_SSH_USERNAME'] || "vagrant"
 
   tune_vm(config, cpus: $vb_cpu, memory: $vb_memory)
@@ -148,7 +149,26 @@ Vagrant.configure("2") do |config|
         appliance_hostname: $nginx_ip,
         mesos_ip: $nginx_ip,
         local_vagrant: $local,
-        first_run: true
+        first_run: true,
+        docker_tag_ashes: ENV['DOCKER_TAG_ASHES'] || $master,
+        docker_tag_firebrand: ENV['DOCKER_TAG_FIREBRAND'] || $master,
+        docker_tag_phoenix: ENV['DOCKER_TAG_PHOENIX'] || $master,
+        docker_tag_greenriver: ENV['DOCKER_TAG_GREENRIVER'] || $master,
+        docker_tag_middlewarehouse: ENV['DOCKER_TAG_MIDDLEWAREHOUSE'] || $master,
+        docker_tag_messaging: ENV['DOCKER_TAG_MESSAGING'] || $master,
+        docker_tag_isaac: ENV['DOCKER_TAG_ISAAC'] || $master,
+        docker_tag_solomon: ENV['DOCKER_TAG_SOLOMON'] || $master,
+        docker_tag_capture_consumer: ENV['DOCKER_TAG_CAPTURE_CONSUMER'] || $master,
+        docker_tag_gift_card_consumer: ENV['DOCKER_TAG_GIFT_CARD_CONSUMER'] || $master,
+        docker_tag_shipments_consumer: ENV['DOCKER_TAG_SHIPMENTS_CONSUMER'] || $master,
+        docker_tag_shipstation_consumer: ENV['DOCKER_TAG_SHIPSTATION_CONSUMER'] || $master,
+        docker_tag_stock_items_consumer: ENV['DOCKER_TAG_STOCK_ITEMS_CONSUMER'] || $master,
+        docker_tag_storefront_topdrawer: ENV['DOCKER_TAG_STOREFRONT_TOPDRAWER'] || $master,
+        docker_tag_storefront_tpg: ENV['DOCKER_TAG_STOREFRONT_TPG'] || $master,
+        docker_tag_marketplace: ENV['DOCKER_TAG_MARKETPLACE'] || $master,
+        docker_tag_marketplace_ui: ENV['DOCKER_TAG_MARKETPLACE_UI'] || $master,
+        docker_tag_product_search: ENV['DOCKER_TAG_PRODUCT_SEARCH'] || $master,
+        docker_tag_demo_search: ENV['DOCKER_TAG_DEMO_SEARCH'] || $master
       }
     end
   end

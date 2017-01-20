@@ -13,8 +13,8 @@ BUILD_PATH=$(BUILD_ROOT_PATH)/middlewarehouse
 HIGHLANDER_PATH=$(CURDIR)/..
 
 DOCKER_REPO ?= $(DOCKER_STAGE_REPO)
-DOCKER_TAG ?= middlewarehouse
-DOCKER_BRANCH ?= master
+DOCKER_IMAGE ?= middlewarehouse
+DOCKER_TAG ?= master
 
 prep:
 	rm $(BUILD_ROOT_PATH) || true
@@ -38,7 +38,7 @@ build:
 
 docker:
 	$(call header, Dockerizing)
-	docker build -t $(DOCKER_TAG) .
+	docker build -t $(DOCKER_IMAGE) .
 	docker build -t stock-items-consumer consumers/stock-items/
 	docker build -t shipments-consumer consumers/shipments/
 	docker build -t capture-consumer consumers/capture/
@@ -48,20 +48,20 @@ docker:
 
 docker-push:
 	$(call header, Registering)
-	docker tag $(DOCKER_TAG) $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
-	docker tag stock-items-consumer $(DOCKER_REPO)/stock-items-consumer:$(DOCKER_BRANCH)
-	docker tag gift-card-consumer $(DOCKER_REPO)/gift-card-consumer:$(DOCKER_BRANCH)
-	docker tag shipments-consumer $(DOCKER_REPO)/shipments-consumer:$(DOCKER_BRANCH)
-	docker tag capture-consumer $(DOCKER_REPO)/capture-consumer:$(DOCKER_BRANCH)
-	docker tag shipstation-consumer $(DOCKER_REPO)/shipstation-consumer:$(DOCKER_BRANCH)
-	docker tag middlewarehouse-seeder $(DOCKER_REPO)/middlewarehouse-seeder:$(DOCKER_BRANCH)
-	docker push $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
-	docker push $(DOCKER_REPO)/stock-items-consumer:$(DOCKER_BRANCH)
-	docker push $(DOCKER_REPO)/gift-card-consumer:$(DOCKER_BRANCH)
-	docker push $(DOCKER_REPO)/shipments-consumer:$(DOCKER_BRANCH)
-	docker push $(DOCKER_REPO)/capture-consumer:$(DOCKER_BRANCH)
-	docker push $(DOCKER_REPO)/shipstation-consumer:$(DOCKER_BRANCH)
-	docker push $(DOCKER_REPO)/middlewarehouse-seeder:$(DOCKER_BRANCH)
+	docker tag $(DOCKER_IMAGE) $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
+	docker tag stock-items-consumer $(DOCKER_REPO)/stock-items-consumer:$(DOCKER_TAG)
+	docker tag gift-card-consumer $(DOCKER_REPO)/gift-card-consumer:$(DOCKER_TAG)
+	docker tag shipments-consumer $(DOCKER_REPO)/shipments-consumer:$(DOCKER_TAG)
+	docker tag capture-consumer $(DOCKER_REPO)/capture-consumer:$(DOCKER_TAG)
+	docker tag shipstation-consumer $(DOCKER_REPO)/shipstation-consumer:$(DOCKER_TAG)
+	docker tag middlewarehouse-seeder $(DOCKER_REPO)/middlewarehouse-seeder:$(DOCKER_TAG)
+	docker push $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
+	docker push $(DOCKER_REPO)/stock-items-consumer:$(DOCKER_TAG)
+	docker push $(DOCKER_REPO)/gift-card-consumer:$(DOCKER_TAG)
+	docker push $(DOCKER_REPO)/shipments-consumer:$(DOCKER_TAG)
+	docker push $(DOCKER_REPO)/capture-consumer:$(DOCKER_TAG)
+	docker push $(DOCKER_REPO)/shipstation-consumer:$(DOCKER_TAG)
+	docker push $(DOCKER_REPO)/middlewarehouse-seeder:$(DOCKER_TAG)
 
 clean:
 	rm -rf ./vendor

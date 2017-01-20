@@ -1,0 +1,213 @@
+# Carts [/v1/carts/{refNum}]
+
++ Parameters
+    + refNum: `ABC-123` (required, string) - Cart referenceNumber.
+
+### View [GET]
+
++ Response 200 (application/json)
+  + Attributes (FullOrder)
+
+### Create [POST /v1/carts]
+
+Creates a cart for an existing customer (or guest account) when `customerId`
+given or creates a cart along with a new guest account when `email` is given.
+
++ Request (application/json)
+    + Attributes (CreateCartPayload)
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+### Checkout [POST /v1/carts/{refNum}/checkout]
+
+Place order from cart with provided reference number.
+
++ Parameters
+    + refNum: `ABC-123` (required, string) - Cart reference number
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+### Lock [POST /v1/carts/{refNum}/lock]
+
++ Parameters
+    + refNum: `ABC-123` (required, string) - Cart reference number
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+### Unlock [POST /v1/carts/{refNum}/unlock]
+
++ Parameters
+    + refNum: `ABC-123` (required, string) - Cart reference number
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+## SKU Line Items [/v1/carts/{refNum}/line-items]
+
+### Set SKU Line Items [POST]
+
+Set the number of line items. Upon completion, cart line items will match the quantities in this payload.
+
++ Parameters
+    + refNum: `ABC-123` (required, string) - Cart referenceNumber.
++ Request (application/json)
+    + Attributes (array[UpdateLineItemsPayload])
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+### Update SKU Line Items [PATCH]
+
+Add to or remove from the number of line items that are currently stored in your cart.
+
++ Parameters
+    + refNum: `ABC-123` (required, string) - Cart referenceNumber.
++ Request (application/json)
+    + Attributes (array[UpdateLineItemsPayload])
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+## Gift Card Line Items [/v1/carts/{refNum}/gift-cards/{code}]
+
+### Add [POST /v1/carts/{refNum}/gift-cards]
+
++ Parameters
+    + refNum: `ABC-123` (required, string) - Cart referenceNumber.
++ Request (application/json)
+    + Attributes (GiftCardSingleCreatePayload)
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+### Edit [PATCH]
+
++ Parameters
+    + refNum: `ABC-123` (required, string) - Cart referenceNumber.
+    + code: `ABC-123` (required, string) - Gift Card code.
++ Request (application/json)
+    + Attributes (GiftCardSingleCreatePayload)
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+### Delete [DELETE]
+
++ Parameters
+    + refNum: `ABC-123` (required, string) - Cart referenceNumber.
+    + code: `ABC-123` (required, string) - Gift Card code.
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+## Credit Card Payments [/v1/carts/{refNum}/payment-methods/credit-cards]
+
++ Parameters
+    + refNum: `ABC-123` (required, string) - Cart reference number
+
+### Add [POST]
+
++ Request (application/json)
+    + Attributes (CreditCardPaymentPayload)
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+### Delete [DELETE]
+
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+## Gift Card Payments [/v1/carts/{refNum}/payment-methods/gift-cards]
+
++ Parameters
+    + refNum: `ABC-123` (required, string) - Cart reference number
+
+### Add [POST]
+
++ Request (application/json)
+    + Attributes (GiftCardPaymentPayload)
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+### Edit [PATCH]
+
++ Request (application/json)
+    + Attributes (GiftCardPaymentPayload)
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+### Delete [DELETE /v1/carts/{refNum}/payment-methods/gift-cards/{code}]
+
++ Parameters
+    + refNum: `ABC-123` (required, string) - Cart reference number
+    + code: `ABC-123` (required, string) - Gift card code.
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+## Store Credit Payments [/v1/carts/{refNum}/payment-methods/store-credits]
+
++ Parameters
+    + refNum: `ABC-123` (required, string) - Cart reference number
+
+### Add [POST]
+
++ Request (application/json)
+    + Attributes (StoreCreditPaymentPayload)
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+### Delete [DELETE]
+
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+## Shipping Method [/v1/carts/{refNum}/shipping-methods]
+
+Shipping methods are used to describe the ways that the contents of a cart can
+transported to the customer. All actions that occur against this set of
+endpoints modify which shipping method is used by the cart.
+
+### Update [PATCH]
+
+Changes the shipping method to a cart.
+
++ Parameters
+    + refNum: 1 (required, string) - Cart referenceNumber
++ Request (application/json)
+    + Attributes (UpdateShippingMethodPayload)
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+### Delete [DELETE]
+
+Removes the shipping method from the cart.
+
++ Parameters
+    + refNum: 1 (required, string) - Cart reference number
++ Response 204
+
+## Shipping Address [/v1/carts/{refNum}/shipping-address]
+
++ Parameters
+    + refNum: `ABC-123` (required, string) - Cart reference number
+
+### Add [POST]
+
++ Request (application/json)
+    + Attributes (CreateAddressPayload)
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+### Add By Address ID [PATCH /v1/carts/{refNum}/shipping-address/{addressId}]
+
++ Parameters
+    + refNum: `ABC-123` (required, string) - Cart reference number.
+    + addressId: 1 (required, number) - Address ID.
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+### Update [PATCH]
+
++ Request (application/json)
+    + Attributes (UpdateAddressPayload)
++ Response 200 (application/json)
+    + Attributes (FullOrder)
+
+### Delete [DELETE]
+
++ Response 200 (application/json)
+    + Attributes (FullOrder)
