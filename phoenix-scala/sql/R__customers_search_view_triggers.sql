@@ -308,3 +308,39 @@ begin
 	return true;
 end;
 $$ language plpgsql;
+
+-- Update customer's orders after cart inserted or updated
+
+create or replace function update_customers_view_from_carts_fn() returns trigger as $$
+begin
+    update customers_search_view set
+        cart = subquery.cart
+        from (select
+                c.account_id as id,
+                json_agg((
+                  crt.account_id,
+                  crt.reference_number,
+                  to_char(crt.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
+                  to_char(crt.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
+                  crt.sub_total,
+                  crt.shipping_total,
+                  crt.adjustments_total,
+                  crt.taxes_total,
+                  crt.grand_total,
+                  0 -- FIXME
+                )::export_carts)::jsonb as cart
+              from customer_data as c
+              left join carts as crt on (c.account_id = crt.account_id)
+              where c.account_id = new.account_id
+              group by c.account_id) as subquery
+    where customers_search_view.id = subquery.id;
+
+    return null;
+end;
+$$ language plpgsql;
+
+drop trigger if exists update_customers_view_from_carts_trigger on carts;
+create trigger update_customers_view_from_carts_trigger
+    after insert or update on carts
+    for each row
+    execute procedure update_customers_view_from_carts_fn();
