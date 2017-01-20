@@ -1,6 +1,4 @@
-/**
- * @flow
- */
+// @flow
 
 // libs
 import React, { Element } from 'react';
@@ -13,10 +11,15 @@ import ObjectFormFlat from '../object-form/object-form-flat';
 
 import type { Fields, NodeDesc } from '../object-form/object-form-inner';
 
-const layout = require('./layout.json');
+const layouts = {
+  details: require('./layouts/details.json'),
+  inventory: require('./layouts/inventory.json'),
+};
 
 export default class SkuDetails extends ObjectDetails {
-  layout = layout;
+  get layout() {
+    return layouts[this.props.route.layout];
+  }
 
   get attributes(): Object {
     return this.props.object;

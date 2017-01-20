@@ -11,7 +11,6 @@ import SkuListPage from '../components/skus/list-page';
 import SkuList from '../components/skus/list';
 import SkuPage from '../components/skus/page';
 import SkuDetails from '../components/skus/details';
-import SkuInventory from '../components/skus/inventory';
 
 import ProductsListPage from 'components/products/list-page';
 import Products from 'components/products/products';
@@ -119,10 +118,15 @@ const getRoutes = (jwt: Object) => {
           }),
         ]),
         router.read('sku', { path: ':skuId', component: SkuPage }, [
-          router.read('sku-details', { component: SkuDetails, isIndex: true }),
+          router.read('sku-details', {
+            component: SkuDetails,
+            isIndex: true,
+            layout: 'details',
+          }),
           router.read('sku-inventory', {
             path: 'inventory',
-            component: SkuInventory,
+            component: SkuDetails,
+            layout: 'inventory',
             frn: frn.mdl.summary,
           }),
         ])
