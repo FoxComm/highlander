@@ -72,7 +72,12 @@ const MultiSelectRow = (props, context) => {
       'rank' : col.field == 'rank',
       'original-balance' : col.field == 'originalBalance',
       'current-balance' : col.field == 'currentBalance',
-      'available-balance' : col.field == 'availableBalance'
+      'available-balance' : col.field == 'availableBalance',
+      'on-hand' : col.field == 'onHand',
+      'hold' : col.field == 'onHold',
+      'reserved' : col.field == 'reserved',
+      'afs' : col.field == 'afs',
+      'afs-cost' : col.field == 'afsCost'
     });
 
     visibleCells.push(
