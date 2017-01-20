@@ -8,20 +8,20 @@ const computePaymentState = order => {
   // We'll beef it up when we get shipping and payment capture in the system.
   const authorizations = _.reduce(order.payments, (result, payment) => {
     const { paymentMethodType } = payment;
-    if ((paymentMethodType == 'creditCard' && payment.creditCardState == 'capture') ||
-        (paymentMethodType == 'giftCard' && payment.giftCardState == 'capture') ||
-        (paymentMethodType == 'storeCredit' && payment.storeCreditState == 'capture')) {
+    if ((paymentMethodType == 'creditCard' && payment.creditCardState == 'fullCapture') ||
+      (paymentMethodType == 'giftCard' && payment.giftCardState == 'fullCapture') ||
+      (paymentMethodType == 'storeCredit' && payment.storeCreditState == 'fullCapture')) {
       return result + 1;
     }
 
     return result;
   }, 0);
 
-  return authorizations > 0 && authorizations == order.payments.length ? 'Captured' : 'Auth';
+  return authorizations > 0 && authorizations == order.payments.length ? 'Full Capture' : 'Auth';
 };
 
 const setCellContents = (order, field) => {
-  switch(field) {
+  switch (field) {
     case 'referenceNumber':
     case 'placedAt':
     case 'customer.modality':
@@ -68,3 +68,19 @@ OrderTransactionRow.propTypes = {
 };
 
 export default OrderTransactionRow;
+
+const c = {
+  "query": { "bool": { "must": [{ "term": { "name": "tony" } }] } },
+  "aggregations": {
+    "ordersCount": { "sum": { "field": "orderCount" } },
+    "totalSales": { "sum": { "field": "revenue" } },
+    "averageOrderSize": {
+      "nested": { "path": "orders" },
+      "aggregations": { "averageOrderSize": { "avg": { "field": "orders.itemsCount" } } }
+    },
+    "averageOrderSum": {
+      "nested": { "path": "orders" },
+      "aggregations": { "averageOrderSum": { "avg": { "field": "orders.subTotal" } } }
+    }
+  }
+}

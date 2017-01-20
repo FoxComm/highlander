@@ -1,35 +1,31 @@
-import React, { PropTypes } from 'react';
+/* @flow */
 
-export const PanelList = props => {
-  const classList = `${props.className ? props.className : ''} fc-panel-list`;
-  return (
-    <div className={classList}>
-      {props.children}
+import classNames from 'classnames';
+import React, { Element } from 'react';
+
+type PanelListProps = {
+  className?: string;
+  children?: Element;
+}
+
+export const PanelList = ({ className, children }: PanelListProps) => (
+  <div className={classNames('fc-panel-list', className)}>
+    {children}
+  </div>
+);
+
+type PanelListItemProps = {
+  title: Element;
+  children: Element;
+}
+
+export const PanelListItem = ({ title, children }: PanelListItemProps) => (
+  <div className="fc-panel-list-panel">
+    <div className="fc-panel-list-header">
+      {title}
     </div>
-  );
-};
-
-PanelList.propTypes = {
-  children: PropTypes.node,
-  className: PropTypes.string
-};
-
-export const PanelListItem = props => {
-  return (
-    <div className="fc-panel-list-panel">
-      <div className="fc-panel-list-header">
-        {props.title}
-      </div>
-      <div className="fc-panel-list-content">
-        {props.container && props.container.props.children}
-        {props.children}
-      </div>
+    <div className="fc-panel-list-content">
+      {children}
     </div>
-  );
-};
-
-PanelListItem.propTypes = {
-  children: PropTypes.node,
-  content: PropTypes.node,
-  title: PropTypes.node
-};
+  </div>
+);

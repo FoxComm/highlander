@@ -13,21 +13,24 @@ import { aggregations } from 'elastic/request';
 import { createAsyncActions } from '@foxcomm/wings';
 import requestAdapter from './request-adapter';
 
+const mapping = 'customers_search_view';
+
 const initialState = {
   id: null,
   type: null,
   name: null,
-  mainCondition: null,
   conditions: [],
+  mainCondition: null,
+  elasticRequest: {},
   isValid: false,
-  filterTerm: null,
+  customersCount: 0,
   createdAt: null,
   updatedAt: null,
   stats: {
-    ordersCount: 0,
-    totalSales: 0,
-    averageOrderSize: 0,
-    averageOrderSum: 0,
+    ordersCount: null,
+    totalSales: null,
+    averageOrderSize: null,
+    averageOrderSum: null,
   }
 };
 
@@ -40,7 +43,7 @@ const _saveGroup = createAsyncActions(
   'saveCustomerGroup',
   (groupId, data) => {
     return new Promise((resolve, reject) => {
-      post('customers_search_view/_count', data.elasticRequest)
+      post(`${mapping}/_count`, data.elasticRequest)
         .then(response => {
           data.customersCount = response.count;
 
@@ -63,7 +66,7 @@ const _saveGroup = createAsyncActions(
 const _archiveGroup = createAsyncActions('archiveCustomerGroup', (groupId: number) => Api.delete(`/groups/${groupId}`));
 
 const _fetchStats = createAsyncActions('fetchStatsCustomerGroup', request =>
-  search.post('customers_search_view/_search?size=0', request)
+  search.post(`${mapping}/_search?size=0`, request)
 );
 
 /**
@@ -77,7 +80,6 @@ export const reset = createAction(`CUSTOMER_GROUP_RESET`);
 export const setName = createAction('CUSTOMER_GROUP_SET_NAME');
 export const setMainCondition = createAction('CUSTOMER_GROUP_SET_MAIN_CONDITION');
 export const setConditions = createAction('CUSTOMER_GROUP_SET_CONDITIONS');
-export const setFilterTerm = createAction('CUSTOMER_GROUP_SET_FILTER_TERM');
 export const setGroupStats = createAction('CUSTOMER_GROUP_SET_GROUP_STATS');
 
 export const clearFetchErrors = _fetchGroup.clearErrors;
@@ -145,7 +147,7 @@ export const fetchGroupStats = () => (dispatch: Function, getState: Function) =>
 
   request.aggregations
     .add(new aggregations.Sum('ordersCount', 'orderCount'))
-    .add(new aggregations.Sum('totalSales', 'revenue'))
+    .add(new aggregations.Sum('totalSales', 'orders.subTotal'))
     .add(new aggregations.Average('averageOrderSize', 'orders.itemsCount'))
     .add(new aggregations.Average('averageOrderSum', 'orders.subTotal'));
 
@@ -169,17 +171,15 @@ type State = {
   group: TCustomerGroup;
 }
 
-const setData = (state: State, { id, type, name, createdAt, updatedAt, clientState: { mainCondition, conditions } }) => {
+const setData = (state: State, response: Object) => {
+  const { clientState: { mainCondition, conditions }, ...rest } = response;
+
   return {
-    ...state,
-    id,
-    type,
-    name,
-    createdAt,
-    updatedAt,
-    mainCondition,
+    ...rest,
     conditions,
+    mainCondition,
     isValid: validateConditions(conditions),
+    stats: initialState.stats,
   };
 };
 
@@ -187,19 +187,18 @@ const reducer = createReducer({
   [reset]: (state: State) => initialState,
   [_fetchGroup.succeeded]: setData,
   [_saveGroup.succeeded]: setData,
-  [_fetchStats.succeeded]: (state: State, response: Object) => ({
+  [_fetchStats.succeeded]: (state: State, { aggregations }: Object) => ({
     ...state,
     stats: {
-      ordersCount: get(response, 'ordersCount.ordersCount.value', 0),
-      totalSales: get(response, 'totalSales.totalSales.value', 0),
-      averageOrderSize: get(response, 'averageOrderSize.averageOrderSize.value', 0),
-      averageOrderSum: get(response, 'averageOrderSum.averageOrderSum.value', 0),
+      ordersCount: get(aggregations, 'ordersCount.value'),
+      totalSales: get(aggregations, 'totalSales.totalSales.value'),
+      averageOrderSize: get(aggregations, 'averageOrderSize.averageOrderSize.value'),
+      averageOrderSum: get(aggregations, 'averageOrderSum.averageOrderSum.value'),
     }
   }),
   [setName]: (state, name) => ({ ...state, name }),
   [setMainCondition]: (state, mainCondition) => ({ ...state, mainCondition }),
   [setConditions]: (state, conditions) => ({ ...state, conditions, isValid: validateConditions(conditions) }),
-  [setFilterTerm]: (state, filterTerm) => ({ ...state, filterTerm }),
   [setGroupStats]: (state, stats) => ({ ...state, stats })
 }, initialState);
 

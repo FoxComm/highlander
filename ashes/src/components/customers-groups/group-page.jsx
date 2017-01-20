@@ -17,7 +17,7 @@ import DynamicGroup from './dynamic-group';
 
 type Props = {
   group: TCustomerGroup;
-  inProgress: boolean;
+  fetched: boolean;
   err: Object;
   archiveState: AsyncState;
   reset: () => void;
@@ -34,15 +34,19 @@ class GroupPage extends Component {
   props: Props;
 
   componentWillMount() {
-    const { group, reset, params: { groupId } } = this.props;
-
-    if (groupId != group.id) reset();
+    if (!this.isRequestedGroup) {
+      this.props.reset();
+    }
   }
 
   componentDidMount() {
-    const { group, fetchGroup, params: { groupId } } = this.props;
+    if (!this.isRequestedGroup) {
+      this.props.fetchGroup(this.props.params.groupId);
+    }
+  }
 
-    if (groupId != group.id) fetchGroup(groupId);
+  get isRequestedGroup() {
+    return this.props.group.id == this.props.params.groupId;
   }
 
   @autobind
@@ -55,13 +59,13 @@ class GroupPage extends Component {
   }
 
   render() {
-    const { group, inProgress, err } = this.props;
+    const { group, fetched, err } = this.props;
 
     if (err) {
       return <Error err={err} />;
     }
 
-    if (inProgress || !group.id) {
+    if (!fetched || !this.isRequestedGroup) {
       return <div><WaitAnimation /></div>;
     }
 
@@ -82,7 +86,7 @@ class GroupPage extends Component {
 }
 
 const mapStateToProps = state => ({
-  inProgress: get(state, 'asyncActions.fetchCustomerGroup.inProgress', false),
+  fetched: get(state, 'asyncActions.fetchCustomerGroup.finished', false),
   err: get(state, ['asyncActions', 'fetchCustomerGroup', 'err'], false),
   group: get(state, ['customerGroups', 'details', 'group']),
   archiveState: get(state, ['asyncActions', 'archiveCustomerGroup'], {}),
