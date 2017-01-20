@@ -68,11 +68,11 @@ begin
       f.attributes->>(s.attributes->'description'->>'ref') as description,
       sku.sale_price as sale_price,
       sku.sale_price_currency as currency,
-      sku.retail_price as retail_price,
       f.attributes->>(s.attributes->'tags'->>'ref') as tags,
       albumLink.albums as albums,
       p.scope as scope,
-      sv.skus as skus
+      sv.skus as skus,
+      sku.retail_price as retail_price
       from products as p
         inner join object_contexts as context on (p.context_id = context.id)
         inner join object_forms as f on (f.id = p.form_id)
