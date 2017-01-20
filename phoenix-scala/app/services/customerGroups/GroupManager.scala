@@ -1,6 +1,7 @@
 package services.customerGroups
 
-import failures.CustomerGroupFailures._
+import java.time.Instant
+
 import failures.NotFoundFailure404
 import models.account.{Scope, User}
 import models.customer._
@@ -9,6 +10,7 @@ import responses.DynamicGroupResponse.{Root, build}
 import utils.aliases._
 import utils.db._
 import utils.db.ExPostgresDriver.api._
+import utils.time._
 
 object GroupManager {
 
@@ -29,26 +31,23 @@ object GroupManager {
     for {
       scope ← * <~ Scope.resolveOverride(payload.scope)
       group ← * <~ CustomerDynamicGroups.mustFindById404(groupId)
+      _ ← * <~ failIf(group.deletedAt.isDefined && group.deletedAt.get.isBeforeNow,
+                      NotFoundFailure404(CustomerDynamicGroup, groupId))
       groupEdited ← * <~ CustomerDynamicGroups.update(
                        group,
                        CustomerDynamicGroup
                          .fromPayloadAndAdmin(payload, group.createdBy, scope)
-                         .copy(id = groupId))
+                         .copy(id = groupId, updatedAt = Instant.now))
     } yield build(groupEdited)
 
   def delete(groupId: Int)(implicit ec: EC, db: DB, au: AU): DbResultT[Unit] =
     for {
-      scope ← * <~ Scope.current
-      group ← * <~ CustomerDynamicGroups.mustFindById404(groupId)
-      _ ← * <~ CustomerDynamicGroups.deleteById(group.id,
-                                                 DbResultT.unit,
-                                                 i ⇒ NotFoundFailure404(CustomerDynamicGroups, i))
+      scope             ← * <~ Scope.current
+      group             ← * <~ CustomerDynamicGroups.mustFindById404(groupId)
+      _                 ← * <~ CustomerDynamicGroups.update(group, group.copy(deletedAt = Option(Instant.now)))
       templateInstances ← * <~ GroupTemplateInstances.findByScopeAndGroupId(scope, group.id).result
       _ ← * <~ templateInstances.map { template ⇒
-           GroupTemplateInstances.deleteById(
-               template.id,
-               DbResultT.unit,
-               i ⇒ CustomerGroupTemplateInstanceCannotBeDeleted(group.id, i))
+           GroupTemplateInstances.update(template, template.copy(deletedAt = Option(Instant.now)))
          }
     } yield DbResultT.unit
 
