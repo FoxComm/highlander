@@ -57,20 +57,10 @@ class ProductVariantPage extends ObjectPage {
 
     return [
       <Link to="product-variant-images" params={params} key="images">Images</Link>,
-      <Link to="product-variant-inventory-details" params={params} key="inventory">Inventory</Link>,
+      <Link to="product-variant-inventory" params={params} key="inventory">Inventory</Link>,
       <Link to="product-variant-notes" params={params} key="notes">Notes</Link>,
       <Link to="product-variant-activity-trail" params={params} key="activity-trail">Activity Trail</Link>,
     ];
-  }
-
-  @autobind
-  sanitizeError(error: string): string {
-    if (error.indexOf('duplicate key value violates unique constraint "skus_code_context_id"') != -1) {
-      const code = _.get(this.state, 'entity.attributes.code.v');
-      return `SKU with code ${code} already exists in the system`;
-    }
-
-    return error;
   }
 
   subNav() {

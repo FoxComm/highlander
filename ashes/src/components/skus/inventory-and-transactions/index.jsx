@@ -18,7 +18,7 @@ type Props = {
   skuId: number,
 }
 
-class InventoryTransactionsContainer extends Component {
+class InventoryAndTransactions extends Component {
   props: Props;
   state: State = {
     currentView: 'inventory',
@@ -53,22 +53,18 @@ class InventoryTransactionsContainer extends Component {
     return (
       <div className="fc-inventory-item-details">
         <div className="fc-inventory-item-details__summary">
-          <div className="fc-grid">
-            <div className="fc-col-md-1-1">
-              <TabListView>
-                <TabView draggable={false} selected={!transactionsTabActive} onClick={this.selectInventory}>
-                  <div className="fc-inventory-item-details__tab-link" >
-                    Inventory
-                  </div>
-                </TabView>
-                <TabView draggable={false} selected={transactionsTabActive} onClick={this.selectTransactions}>
-                  <div className="fc-inventory-item-details__tab-link">
-                    Transactions
-                  </div>
-                </TabView>
-              </TabListView>
-            </div>
-          </div>
+            <TabListView>
+              <TabView draggable={false} selected={!transactionsTabActive} onClick={this.selectInventory}>
+                <div className="fc-inventory-item-details__tab-link" >
+                  Inventory
+                </div>
+              </TabView>
+              <TabView draggable={false} selected={transactionsTabActive} onClick={this.selectTransactions}>
+                <div className="fc-inventory-item-details__tab-link">
+                  Transactions
+                </div>
+              </TabView>
+            </TabListView>
         </div>
         {this.body}
       </div>
@@ -76,4 +72,4 @@ class InventoryTransactionsContainer extends Component {
   }
 }
 
-export default InventoryTransactionsContainer;
+export default InventoryAndTransactions;

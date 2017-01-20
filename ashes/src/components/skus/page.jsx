@@ -6,7 +6,8 @@ import React, { Element } from 'react';
 import { autobind } from 'core-decorators';
 
 // components
-import Prompt from 'components/common/prompt';
+import { Link, IndexLink } from '../link';
+import LocalNav from '../local-nav/local-nav';
 import { connectPage, ObjectPage } from 'components/object-page/object-page';
 
 // actions
@@ -29,22 +30,31 @@ type Props = {
   object: ProductVariant,
 };
 
-class SkuInventoryPage extends ObjectPage {
+class SkuPage extends ObjectPage {
   props: Props;
 
-  get entityId() {
-    return 1;
-    return this.props.skuId;
+  get pageTitle(): string {
+    if (this.isNew) {
+      return `New SKU`;
+    }
+
+    return _.get(this.props.originalObject, 'title', '');
   }
 
-  receiveNewObject(nextObject) {
-    this.setState({
-      object: nextObject,
-    });
+  get entityIdName(): string {
+    return 'skuId';
   }
 
-  transitionTo() {}
-  transitionToList() {}
+  subNav() {
+    const { params } = this.props;
+
+    return (
+      <LocalNav>
+        <IndexLink to="sku-details" params={params}>Details</IndexLink>
+        <Link to="sku-inventory" params={params}>Inventory</Link>
+      </LocalNav>
+    );
+  }
 
   @autobind
   sanitizeError(error: string): string {
@@ -55,19 +65,6 @@ class SkuInventoryPage extends ObjectPage {
 
     return error;
   }
-
-  get body() {
-    return (
-      <div>
-        <Prompt
-          message="You have unsaved changes. Are you sure you want to leave this page?"
-          when={this.unsaved}
-        />
-        {this.errors}
-        <div>{this.children}</div>
-      </div>
-    );
-  }
 }
 
-export default connectPage('sku', SkuActions)(SkuInventoryPage);
+export default connectPage('sku', SkuActions)(SkuPage);

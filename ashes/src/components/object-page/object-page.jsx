@@ -323,7 +323,7 @@ export class ObjectPage extends Component {
       }
     }
     if (this.state.schema) {
-      this.props.actions.saveSchema(this.props.namespace, this.state.schema);
+      this.props.saveSchema(this.props.namespace, this.state.schema);
     }
 
     return mayBeSaved;
@@ -490,8 +490,6 @@ export class ObjectPage extends Component {
     if (!object) {
       return <Error err={props.fetchError} notFound={`There is no ${props.namespace} with id ${this.entityId}`} />;
     }
-
-    console.log('render', this.constructor.name);
 
     return this.body;
   }

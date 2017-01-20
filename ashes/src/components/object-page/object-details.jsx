@@ -25,14 +25,14 @@ type Layout = {
   aside: Array<Object>,
 }
 
-type Fields = {
+export type Fields = {
   canAddProperty: boolean,
   value: Array<string>,
   includeRest: boolean,
   omit: Array<string>,
 }
 
-type NodeDesc = {
+export type NodeDesc = {
   type: string,
   title?: string,
   fields?: Fields,
