@@ -1,21 +1,28 @@
-DOCKER_REPO ?= docker-stage.foxcommerce.com:5000
-DOCKER_TAG ?= phoenix
-DOCKER_BRANCH ?= master
+include ../makelib
+header = $(call baseheader, $(1), phoenix-scala)
+
+DOCKER_REPO ?= $(DOCKER_STAGE_REPO)
+DOCKER_IMAGE ?= phoenix
+DOCKER_TAG ?= master
 
 build:
+	$(call header, Building)
 	sbt assembly
 
 clean:
 	sbt clean
 
 test:
-	sbt test
+	$(call header, Testing)
+	sbt '; scalafmtTestAll ; test'
 
 docker:
-	docker build -t $(DOCKER_TAG) .
+	$(call header, Dockerizing)
+	docker build -t $(DOCKER_IMAGE) .
 
 docker-push:
-	docker tag $(DOCKER_TAG) $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
-	docker push $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
+	$(call header, Registering)
+	docker tag $(DOCKER_IMAGE) $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
+	docker push $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
 
 .PHONY: build test clean docker docker-push

@@ -2,7 +2,7 @@ package services
 
 import cats.implicits._
 import failures.{NotFoundFailure400, NotFoundFailure404, OpenTransactionsFailure}
-import models.account.{User, Users}
+import models.account.{Scope, User, Users}
 import models.payment.storecredit.StoreCredit.Canceled
 import models.payment.storecredit.StoreCreditSubtypes.scope._
 import models.payment.storecredit._
@@ -62,20 +62,27 @@ object StoreCreditService {
   def createManual(admin: User, accountId: Int, payload: CreateManualStoreCredit)(
       implicit ec: EC,
       db: DB,
-      ac: AC): DbResultT[Root] = {
+      ac: AC,
+      au: AU): DbResultT[Root] = {
     val reason400 = NotFoundFailure400(Reason, payload.reasonId)
     for {
       customer ← * <~ Users.mustFindByAccountId(accountId)
       _        ← * <~ Reasons.findById(payload.reasonId).extract.mustFindOneOr(reason400)
       _        ← * <~ checkSubTypeExists(payload.subTypeId, StoreCredit.CsrAppeasement)
+      scope    ← * <~ Scope.resolveOverride(payload.scope)
       manual = StoreCreditManual(adminId = admin.accountId,
                                  reasonId = payload.reasonId,
                                  subReasonId = payload.subReasonId)
       origin ← * <~ StoreCreditManuals.create(manual)
-      appeasement = StoreCredit
-        .buildAppeasement(accountId = customer.accountId, originId = origin.id, payload = payload)
-      storeCredit ← * <~ StoreCredits.create(appeasement)
-      _           ← * <~ LogActivity.scCreated(admin, customer, storeCredit)
+      storeCredit ← * <~ StoreCredits.create(
+                       StoreCredit(accountId = customer.accountId,
+                                   originId = origin.id,
+                                   scope = scope,
+                                   originType = StoreCredit.CsrAppeasement,
+                                   subTypeId = payload.subTypeId,
+                                   currency = payload.currency,
+                                   originalBalance = payload.amount))
+      _ ← * <~ LogActivity.scCreated(admin, customer, storeCredit)
     } yield build(storeCredit)
   }
 
@@ -84,18 +91,23 @@ object StoreCreditService {
   def createFromExtension(admin: User, accountId: Int, payload: CreateExtensionStoreCredit)(
       implicit ec: EC,
       db: DB,
-      ac: AC): DbResultT[Root] =
+      ac: AC,
+      au: AU): DbResultT[Root] =
     for {
       customer ← * <~ Users.mustFindByAccountId(accountId)
+      scope    ← * <~ Scope.resolveOverride(payload.scope)
       _        ← * <~ checkSubTypeExists(payload.subTypeId, StoreCredit.Custom)
       custom = StoreCreditCustom(adminId = admin.accountId, metadata = payload.metadata)
       origin ← * <~ StoreCreditCustoms.create(custom)
-      customSC = StoreCredit.buildFromExtension(accountId = customer.accountId,
-                                                payload = payload,
-                                                originType = StoreCredit.Custom,
-                                                originId = origin.id)
-      storeCredit ← * <~ StoreCredits.create(customSC)
-      _           ← * <~ LogActivity.scCreated(admin, customer, storeCredit)
+      storeCredit ← * <~ StoreCredits.create(
+                       StoreCredit(accountId = customer.accountId,
+                                   originType = StoreCredit.Custom,
+                                   originId = origin.id,
+                                   currency = payload.currency,
+                                   subTypeId = payload.subTypeId,
+                                   originalBalance = payload.amount,
+                                   scope = scope))
+      _ ← * <~ LogActivity.scCreated(admin, customer, storeCredit)
     } yield build(storeCredit)
 
   def getById(id: Int)(implicit ec: EC, db: DB): DbResultT[Root] =

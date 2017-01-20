@@ -37,7 +37,11 @@ export default class GiftCard extends React.Component {
   static propTypes = {
     card: PropTypes.shape({
       code: PropTypes.string,
-      state: PropTypes.string
+      state: PropTypes.string,
+      senderName: PropTypes.string,
+      recipientName: PropTypes.string,
+      recipientEmail: PropTypes.string,
+      recipientCell: PropTypes.string,
     }),
     children: PropTypes.node,
     editGiftCard: PropTypes.func,
@@ -73,11 +77,6 @@ export default class GiftCard extends React.Component {
     this.props.changeGiftCardStatus(this.props.card.code, value);
   }
 
-  @autobind
-  resendGiftCard() {
-    console.log('Resend');
-  }
-
   get subNav() {
     const params = { giftCard: this.props.card.code };
 
@@ -85,7 +84,13 @@ export default class GiftCard extends React.Component {
       return null;
     }
 
-    const content = React.cloneElement(this.props.children, { entity: this.props.card });
+    const content = React.cloneElement(this.props.children, {
+      entity: {
+        ...this.props.card,
+        entityType: 'gift-card',
+        entityId: params.giftCard,
+      }
+    });
 
     return (
       <div>
@@ -117,6 +122,7 @@ export default class GiftCard extends React.Component {
 
     return (
       <Dropdown
+        id="gift-card-state-dd"
         placeholder={stateTitles[state]}
         value={dropdownValue}
         onChange={this.onChangeState}
@@ -208,13 +214,11 @@ export default class GiftCard extends React.Component {
 
     return (
       <div className="fc-gift-card">
-        <PageTitle title="Gift Card" subtitle={<GiftCardCode value={card.code} />}>
-          <PrimaryButton onClick={this.resendGiftCard}>Resend Gift Card</PrimaryButton>
-        </PageTitle>
+        <PageTitle title="Gift Card" subtitle={<GiftCardCode value={card.code} />}/>
         <div className="fc-grid fc-grid-gutter">
           <div className="fc-col-md-1-3">
             <Panel title="Available Balance" featured={true}>
-              <Currency value={card.availableBalance} />
+              <Currency id="gift-card-available-banace" value={card.availableBalance} />
             </Panel>
           </div>
         </div>
@@ -241,14 +245,18 @@ export default class GiftCard extends React.Component {
               <div className="fc-col-md-1-3">
                 <p>
                   <strong>Created By</strong><br />
-                  {card.storeAdmin ? `${card.storeAdmin.name}` : 'None'}
+                  {card.senderName ? `${card.senderName}` : 'None'}
                 </p>
 
-                <p><strong>Recipient</strong><br />None</p>
+                <p><strong>Recipient</strong><br />{card.recipientName ? `${card.recipientName}` : 'None'}</p>
 
-                <p><strong>Recipient Email</strong><br />None</p>
+                <p><strong>Recipient Email</strong><br />{card.recipientEmail ? `${card.recipientEmail}` : 'None'}</p>
 
-                <p><strong>Recipient Cell (Optional)</strong><br />None</p>
+                <p>
+                  <strong>Recipient Cell (Optional)</strong>
+                  <br />
+                  {card.recipientCell ? `${card.recipientCell}` : 'None'}
+                  </p>
               </div>
               <div className="fc-col-md-2-3">
                 <p><strong>Message (optional)</strong></p>

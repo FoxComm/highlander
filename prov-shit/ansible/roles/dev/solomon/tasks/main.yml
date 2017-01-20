@@ -2,14 +2,20 @@
 
 - name: Creates Marathon JSON directory
   file: path=/marathon/applications state=directory
-  sudo: true
 
 - name: Copy Solomon Marathon JSON
   template: src=solomon.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
-  sudo: true
 
-- name: Update solomon in Marathon
+- name: Update Solomon in Marathon
   shell: 'curl -X PUT -d@/marathon/applications/solomon.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/solomon'
-  
-- name: Restart solomon in Marathon
+
+- name: Restart Solomon in Marathon
   shell: 'curl -X POST http://{{marathon_server}}/v2/apps/solomon/restart'
+
+- name: Get Solomon Marathon tasks in `healthy` state
+  shell: curl -sS -XGET http://{{marathon_server}}/v2/apps/solomon | jq '.app.tasksHealthy > 0'
+  register: healthy_tasks_available
+  until: healthy_tasks_available.stdout == 'true'
+  retries: 60
+  delay: 10
+  when: vagrant

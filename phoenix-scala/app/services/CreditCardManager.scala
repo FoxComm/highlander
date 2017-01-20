@@ -12,7 +12,6 @@ import failures.{Failures, NotFoundFailure404}
 import models.account._
 import models.cord.OrderPayments.scope._
 import models.cord._
-import models.customer._
 import models.location._
 import models.payment.creditcard.{CreditCard, CreditCards}
 import payloads.AddressPayloads.CreateAddressPayload
@@ -79,7 +78,7 @@ object CreditCardManager {
         _ ← * <~ doOrMeh(address.isNew, Addresses.create(address.copy(accountId = accountId)))
         cc = CreditCard.buildFromSource(accountId, sCustomer, sCard, payload, address)
         newCard ← * <~ CreditCards.create(cc)
-        region  ← * <~ Regions.findOneById(newCard.regionId).safeGet
+        region  ← * <~ Regions.findOneById(newCard.address.regionId).safeGet
         _       ← * <~ LogActivity.ccCreated(customer, cc, admin)
       } yield buildResponse(newCard, region)
 
@@ -115,7 +114,7 @@ object CreditCardManager {
       cc ← * <~ CreditCards.mustFindByIdAndAccountId(cardId, accountId)
       default = cc.copy(isDefault = true)
       _      ← * <~ CreditCards.filter(_.id === cardId).map(_.isDefault).update(true)
-      region ← * <~ Regions.findOneById(cc.regionId).safeGet
+      region ← * <~ Regions.findOneById(cc.address.regionId).safeGet
     } yield buildResponse(default, region)
 
   def deleteCreditCard(
@@ -172,7 +171,7 @@ object CreditCardManager {
               .map(_.paymentMethodId)
               .update(updated.id)
               .map(_ ⇒ updated)
-        region ← Regions.findOneById(cc.regionId).safeGet
+        region ← Regions.findOneById(cc.address.regionId).safeGet
       } yield buildResponse(cc, region)
     }
 
@@ -212,7 +211,7 @@ object CreditCardManager {
       cc ← * <~ CreditCards
             .findByIdAndAccountId(creditCardId, customer.accountId)
             .mustFindOneOr(NotFoundFailure404(CreditCard, creditCardId))
-      region ← * <~ Regions.mustFindById404(cc.regionId)
+      region ← * <~ Regions.mustFindById404(cc.address.regionId)
     } yield buildResponse(cc, region)
 
   private def validateOptionalAddressOwnership(address: Option[Address],

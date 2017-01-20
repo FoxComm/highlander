@@ -26,6 +26,7 @@ type Target = {
 type Props = CouponModuleActions & {
   readOnly: bool,
   coupons: CouponModuleProps,
+  id: string,
   cart: {
     coupon: Object,
     referenceNumber: string,
@@ -77,7 +78,7 @@ class CartCoupons extends Component {
 
   get editFooter(): Element {
     const plate = (
-      <Button styleName="add-coupon-button" onClick={this.onAddClick}>Apply</Button>
+      <Button id="apply-coupon-btn" styleName="add-coupon-button" onClick={this.onAddClick}>Apply</Button>
     );
     const errorMessage = this.props.coupons.error && (
         <div className="fc-form-field-error">{this.fancyErrorMessage}</div>
@@ -150,15 +151,20 @@ class CartCoupons extends Component {
   }
 
   render(): Element {
+    const { id } = this.props;
+
     return (
       <EditableContentBox
+        id={id}
         title={this.title}
         indentContent={false}
         viewContent={this.content}
         editContent={this.content}
         editFooter={this.editFooter}
         isEditing={this.isEditing}
+        editButtonId="coupons-edit-btn"
         editAction={this.handleEditAction}
+        doneButtonId="coupons-done-btn"
         doneAction={this.handleDoneAction}
       />
     );

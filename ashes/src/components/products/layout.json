@@ -29,13 +29,18 @@
     {
       "type": "group",
       "title": "SEO",
-      "fields": {
-        "value": [
-          "url",
-          "metaTitle",
-          "metaDescription"
-        ]
-      }
+      "content": [
+        {
+          "type": "slug"
+        },
+        {
+          "type": "fields",
+          "value": [
+            "metaTitle",
+            "metaDescription"
+          ]
+        }
+      ]
     }
   ],
   "aside": [

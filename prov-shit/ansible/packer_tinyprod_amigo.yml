@@ -2,6 +2,7 @@
 
 - name: Packing Tinyprod Amigo
   hosts: all
+  become: true
   tags:
     - packer
   vars:
@@ -16,6 +17,7 @@
     - { role: base/docker_registry }
     - { role: base/mesos_master }
     - { role: base/mesos_consul }
+    - { role: base/kibana }
 
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml

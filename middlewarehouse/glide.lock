@@ -1,5 +1,5 @@
-hash: ed26a33fce45881735d3504aaaab441d71bcaa058a21bb2b8529218eb22a6f73
-updated: 2016-11-07T15:04:51.305267423-08:00
+hash: 3fae8a417529827e392f05e5fa6098d186ed92a4ee5623bf256a7da248a31bd7
+updated: 2016-12-18T23:16:23.026650795+03:00
 imports:
 - name: github.com/cihub/seelog
   version: d2c6e5aa9fbfdd1c624e140287063c7730654115
@@ -28,7 +28,7 @@ imports:
 - name: github.com/elodina/siesta-producer
   version: a374fc36c515243efb438aed41c536af55d8b19b
 - name: github.com/FoxComm/metamorphosis
-  version: 530d7e205c9221ab2d7cb928bb8ba227ee938e8e
+  version: f357818171523aa95aafb58ca8cf419cb4f0e291
   repo: git@github.com:FoxComm/metamorphosis.git
   vcs: git
 - name: github.com/gin-gonic/gin
@@ -66,6 +66,12 @@ imports:
   version: 218e9c81c0dd8b3b18172b2bbfad92cc7d6db55f
   subpackages:
   - zk
+- name: github.com/SermoDigital/jose
+  version: b10f12c5188d355a3eacc61aba9abd3eb6b3b787
+  subpackages:
+  - crypto
+  - jws
+  - jwt
 - name: github.com/Shopify/sarama
   version: 094e483251042a52ce92f76dbcf140ad2bd7cffb
 - name: github.com/Sirupsen/logrus

@@ -2,14 +2,20 @@
 
 - name: Creates Marathon JSON directory
   file: path=/marathon/applications state=directory
-  sudo: true
 
 - name: Copy Firebrand Marathon JSON
   template: src=firebrand.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
-  sudo: true
 
 - name: Update Firebrand in Marathon
-  shell: 'curl -X PUT -d@/marathon/applications/firebrand.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/firebrand'
+  shell: 'curl -X PUT -d@/marathon/applications/firebrand.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/storefront'
 
 - name: Restart Firebrand in Marathon
-  shell: 'curl -X POST http://{{marathon_server}}/v2/apps/firebrand/restart'
+  shell: 'curl -X POST http://{{marathon_server}}/v2/apps/storefront/restart'
+
+- name: Get Firebrand Marathon tasks in `healthy` state
+  shell: curl -sS -XGET http://{{marathon_server}}/v2/apps/storefront | jq '.app.tasksHealthy > 0'
+  register: healthy_tasks_available
+  until: healthy_tasks_available.stdout == 'true'
+  retries: 60
+  delay: 10
+  when: vagrant

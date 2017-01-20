@@ -11,4 +11,5 @@ type Shipment struct {
 	ShipmentLineItems  []ShipmentLineItem `json:"lineItems" binding:"required"`
 	TrackingNumber     *string            `json:"trackingNumber"`
 	ShippingPrice      int                `json:"shippingPrice"`
+	Scopable
 }

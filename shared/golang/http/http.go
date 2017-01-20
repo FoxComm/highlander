@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 )
 
@@ -39,6 +40,8 @@ func request(method string, url string, headers map[string]string, payload inter
 			return nil, fmt.Errorf("Unable to marshal payload: %s", err.Error())
 		}
 
+		log.Printf("HTTP --> %s %s %s", method, url, payloadBytes)
+
 		req, err = http.NewRequest(method, url, bytes.NewBuffer(payloadBytes))
 	}
 
@@ -56,6 +59,8 @@ func request(method string, url string, headers map[string]string, payload inter
 	if err != nil {
 		return nil, fmt.Errorf("Unable to make %s request: %s", method, err.Error())
 	}
+
+	log.Printf("HTTP <-- %s %s %s", method, url, resp.Status)
 
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
 		respBody := new(map[string]interface{})

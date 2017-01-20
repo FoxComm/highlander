@@ -1,6 +1,6 @@
 [Service]
 WorkingDirectory={{es_home}}
-ExecStart=/bin/bash {{es_home}}/run_elasticsearch.sh {{es_path}}
+ExecStart=/usr/bin/env bash {{es_home}}/run_elasticsearch.sh {{es_path}}
 Restart=always
 StandardOutput=syslog
 StandardError=syslog

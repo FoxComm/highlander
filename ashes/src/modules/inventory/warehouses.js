@@ -4,7 +4,7 @@ import _ from 'lodash';
 import { assoc } from 'sprout-data';
 import Api from '../../lib/api';
 import { createAction, createReducer } from 'redux-act';
-import createAsyncActions from '../async-utils';
+import { createAsyncActions } from '@foxcomm/wings';
 
 export const updateSkuItemsCount = createAction(
   'SKU_UPDATE_ITEMS_COUNT',

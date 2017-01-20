@@ -1,8 +1,7 @@
 ---
 
 - name: Install Private Key So Buildkite Agents Can Work
-  sudo: true
-  copyv: src=id_rsa dest={{ item }} mode="0600"
+  copy: src=id_rsa dest={{item}} mode="0600"
   with_items:
     - "/var/lib/buildkite-agent/.ssh/"
     - "/home/buildkite-agent/.ssh/"
@@ -10,8 +9,7 @@
     - "/home/root/.ssh/"
 
 - name: Install Public SSH Keys
-  sudo: true
-  copyv: src=id_rsa.pub dest={{ item }} mode="u=rw,g=r,o=r"
+  copy: src=id_rsa.pub dest={{item}} mode="u=rw,g=r,o=r"
   with_items:
     - "/var/lib/buildkite-agent/.ssh/"
     - "/home/buildkite-agent/.ssh/"
@@ -19,8 +17,7 @@
     - "/home/root/.ssh/"
 
 - name: Update SSH config
-  sudo: true
-  copyv: src=config dest={{ item }} mode="u=rw,g=r,o=r"
+  copy: src=config dest={{item}} mode="u=rw,g=r,o=r"
   with_items:
     - "/var/lib/buildkite-agent/.ssh/"
     - "/home/buildkite-agent/.ssh/"
@@ -28,7 +25,6 @@
     - "/home/root/.ssh/"
 
 - name: Correct Ownership
-  sudo: true
   file: path="/home/{{item}}/.ssh/" state=directory owner={{item}} group={{item}} recurse=yes
   with_items:
     - "{{user}}"

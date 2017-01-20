@@ -1,7 +1,7 @@
 import cats.implicits._
-import failures.{NotFoundFailure400, NotFoundFailure404}
+import failures.NotFoundFailure404
 import models.account._
-import payloads.OrderPayloads.CreateCart
+import payloads.CartPayloads.CreateCart
 import responses.cord.CartResponse
 import services.carts.CartCreator
 import testutils._
@@ -15,7 +15,7 @@ class CartCreatorIntegrationTest
     with TestActivityContext.AdminAC
     with BakedFixtures {
 
-  "POST /v1/orders" - {
+  "POST /v1/carts" - {
     "for an existing customer" - {
       "succeeds" in new Fixture {
         cartsApi

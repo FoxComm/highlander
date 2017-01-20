@@ -4,7 +4,7 @@ import cats.implicits._
 import failures.{GeneralFailure, NotFoundFailure400, NotFoundFailure404}
 import models.account._
 import models.location.{Addresses, Region}
-import models.payment.creditcard.{CreditCard, CreditCards}
+import models.payment.creditcard.{BillingAddress, CreditCard, CreditCards}
 import org.mockito.Mockito._
 import org.mockito.{ArgumentMatchers ⇒ m, _}
 import org.scalatest.BeforeAndAfterEach
@@ -84,17 +84,18 @@ class CreditCardsIntegrationTest
                                 gatewayCustomerId = stripeCustomer.getId,
                                 gatewayCardId = stripeCard.getId,
                                 accountId = customer.accountId,
-                                addressName = theAddress.name,
-                                address1 = theAddress.address1,
-                                address2 = theAddress.address2,
-                                city = theAddress.city,
-                                zip = theAddress.zip,
-                                regionId = theAddress.regionId,
+                                address = BillingAddress(name = theAddress.name,
+                                                         address1 = theAddress.address1,
+                                                         address2 = theAddress.address2,
+                                                         city = theAddress.city,
+                                                         zip = theAddress.zip,
+                                                         regionId = theAddress.regionId),
                                 brand = "Mona Visa",
                                 holderName = "Leo",
                                 lastFour = "1234",
                                 expMonth = 1,
-                                expYear = expYear)
+                                expYear = expYear,
+                                createdAt = creditCards.head.createdAt)
 
       creditCards.head must === (expected)
 
@@ -234,24 +235,26 @@ class CreditCardsIntegrationTest
       Mockito.verify(stripeWrapperMock).createCustomer(customerSourceMap(customer))
 
       CreditCards.result.gimme must have size 1
+      val result: CreditCard = CreditCards.result.gimme.head
 
       val expected = CreditCard(id = 1,
                                 gatewayCustomerId = stripeCustomer.getId,
                                 accountId = customer.accountId,
-                                addressName = theAddress.name,
-                                address1 = theAddress.address1,
-                                address2 = theAddress.address2,
-                                city = theAddress.city,
-                                zip = theAddress.zip,
-                                regionId = theAddress.regionId,
+                                address = BillingAddress(name = theAddress.name,
+                                                         address1 = theAddress.address1,
+                                                         address2 = theAddress.address2,
+                                                         city = theAddress.city,
+                                                         zip = theAddress.zip,
+                                                         regionId = theAddress.regionId),
                                 holderName = "Leo",
                                 brand = "Mona Visa",
                                 lastFour = "1234",
                                 expMonth = 1,
                                 expYear = expYear,
-                                gatewayCardId = stripeCard.getId)
+                                gatewayCardId = stripeCard.getId,
+                                createdAt = result.createdAt)
 
-      CreditCards.result.gimme.head must === (expected)
+      result must === (expected)
 
       // With existing Stripe customer
       Mockito.clearInvocations(stripeWrapperMock)

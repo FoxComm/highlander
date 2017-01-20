@@ -1,3 +1,0 @@
-demo_domain: gatling.foxcommerce.com
-ashes_server_name: "{{demo_domain}}"
-retailer_name: FoxCommerce

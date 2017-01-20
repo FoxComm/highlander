@@ -15,7 +15,7 @@ import CartPayments from './payments';
 import CartShippingAddress from './shipping-address';
 import CartShippingMethod from './shipping-method';
 import DiscountsPanel from 'components/discounts-panel/discounts-panel';
-import Watchers from '../watchers/watchers';
+import ParticipantsPanel from '../participants';
 
 import type { Cart } from 'paragons/order';
 
@@ -57,19 +57,19 @@ export default class CartDetails extends Component {
       <div className="fc-order-details">
         <div className="fc-order-details-body">
           <div className="fc-order-details-main">
-            <CartLineItems status={itemsStatus} cart={cart} />
-            <DiscountsPanel promotion={cart.promotion} />
-            <CartShippingAddress status={shippingAddressStatus} cart={cart} />
-            <CartShippingMethod status={shippingMethodStatus} cart={cart} />
-            <CartCoupons cart={cart} />
-            <CartPayments cart={cart} status={paymentMethodStatus} />
+            <CartLineItems id="cart-items-block" status={itemsStatus} cart={cart} />
+            <DiscountsPanel id="cart-discounts-block" promotion={cart.promotion} />
+            <CartShippingAddress id="cart-shipping-address-block" status={shippingAddressStatus} cart={cart} />
+            <CartShippingMethod id="cart-shipping-method-block" status={shippingMethodStatus} cart={cart} />
+            <CartCoupons id="cart-coupons-block" cart={cart} />
+            <CartPayments id="cart-payment-method-block" cart={cart} status={paymentMethodStatus} />
             <Checkout cart={cart} validations={details.validations} />
           </div>
           <div className="fc-order-details-aside">
             <Messages errors={errors} warnings={warnings} />
             <TotalsSummary entity={cart} title="Cart" />
             <CustomerCard customer={cart.customer} />
-            <Watchers entity={{entityId: cart.referenceNumber, entityType: 'carts'}} />
+            <ParticipantsPanel entity={{entityId: cart.referenceNumber, entityType: 'carts'}} />
           </div>
         </div>
       </div>

@@ -2,20 +2,15 @@
 
 - name: Copy Schema Service Files
   copy: src=schema-registry.service dest={{dest_services}}/schema-registry.service
-  sudo: true
 
 - name: Copy Schema Registry Config
   template: src=schema-registry.properties dest="/etc/schema-registry/schema-registry.properties"
-  sudo: true
 
 - name: Reload Systemd for Kafka Related Services
-  sudo: yes
   command: systemctl daemon-reload
 
 - name: Setup Schema Registry
   service: name=schema-registry state=restarted enabled=yes
-  sudo: true
 
 - name: Copy Consul Service File
   template: src=schema-registry.json dest="/etc/consul.d/schema-registry.json"
-  sudo: true

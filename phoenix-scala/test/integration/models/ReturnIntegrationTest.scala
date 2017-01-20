@@ -1,10 +1,12 @@
 package models
 
 import failures.DatabaseFailure
+import models.account.Scope
 import models.cord.Cart
 import models.returns._
 import testutils._
 import testutils.fixtures.BakedFixtures
+import utils.aliases._
 import utils.db._
 
 class ReturnIntegrationTest extends IntegrationTestBase with TestObjectContext with BakedFixtures {
@@ -32,6 +34,6 @@ class ReturnIntegrationTest extends IntegrationTestBase with TestObjectContext w
   }
 
   trait Fixture extends Order_Baked with StoreAdmin_Seed {
-    Cart(referenceNumber = "ABC-123", accountId = customer.accountId)
+    Cart(referenceNumber = "ABC-123", scope = Scope.current, accountId = customer.accountId)
   }
 }

@@ -1,8 +1,12 @@
-DOCKER_REPO ?= docker-stage.foxcommerce.com:5000
-DOCKER_TAG ?= isaac
-DOCKER_BRANCH ?= master
+include ../makelib
+header = $(call baseheader, $(1), isaac)
+
+DOCKER_REPO ?= $(DOCKER_STAGE_REPO)
+DOCKER_IMAGE ?= isaac
+DOCKER_TAG ?= master
 
 build:
+	$(call header, Building)
 	mkdir -p build
 	cd build && cmake .. && make
 
@@ -10,13 +14,16 @@ clean:
 	rm -rf ./build
 
 test:
+	$(call header, Testing)
 	true
 
 docker:
-	docker build -t $(DOCKER_TAG) .
+	$(call header, Dockerizing)
+	docker build -t $(DOCKER_IMAGE) .
 
 docker-push:
-	docker tag $(DOCKER_TAG) $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
-	docker push $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
+	$(call header, Registering)
+	docker tag $(DOCKER_IMAGE) $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
+	docker push $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
 
-.PHONY: build test
+.PHONY: build test docker docker-push

@@ -2,11 +2,19 @@ package models
 
 import cats.data.{NonEmptyList ⇒ NEL}
 import failures.GeneralFailure
+import models.account.User
+import models.auth.UserToken
 import models.payment.storecredit.StoreCredit
+import services.Authenticator.AuthData
 import testutils.TestBase
+import utils.aliases._
 import utils.seeds.Seeds.Factories
 
 class StoreCreditTest extends TestBase {
+
+  private implicit val totallyFakeAuthData: AU =
+    AuthData[User](UserToken(0, None, None, Seq.empty, "foo", 1, Map.empty), null, null)
+
   "StoreCredit" - {
     ".validateNew" - {
       "fails when originalBalance is less than zero" in {
@@ -16,7 +24,7 @@ class StoreCreditTest extends TestBase {
         val result = sc.validate
 
         result mustBe 'invalid
-        result.fold(identity, m ⇒ NEL(m.modelName)) mustBe NEL(
+        result.fold(identity, m ⇒ NEL.of(m.modelName)) mustBe NEL.of(
             GeneralFailure("originalBalance cannot be less than currentBalance"),
             GeneralFailure("originalBalance cannot be less than availableBalance"),
             GeneralFailure("originalBalance must be greater than zero")
@@ -28,7 +36,7 @@ class StoreCreditTest extends TestBase {
         val result = sc.validate
 
         result mustBe 'invalid
-        result.fold(identity, m ⇒ NEL(m.modelName)) mustBe NEL(
+        result.fold(identity, m ⇒ NEL.of(m.modelName)) mustBe NEL.of(
             GeneralFailure("canceledAmount must be present when canceled")
         )
       }

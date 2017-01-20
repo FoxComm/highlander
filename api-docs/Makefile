@@ -1,3 +1,6 @@
+include ../makelib
+header = $(call baseheader, $(1), api-docs)
+
 BUILD_DIR ?= ./build
 PORT ?= 3000
 
@@ -6,7 +9,9 @@ all: clean install build
 install:
 	yarn --pure-lockfile
 
-build: install
+build:
+	$(call header, Building)
+	make install
 	mkdir -p $(BUILD_DIR)
 	./node_modules/.bin/aglio --theme-template ./template/index.jade -i ./docs/public.apib -o $(BUILD_DIR)/public.html
 	./node_modules/.bin/aglio --theme-template ./template/index.jade -i ./docs/customer.apib -o $(BUILD_DIR)/storefront.html
@@ -34,12 +39,15 @@ clean:
 	rm -rf $(BUILD_DIR)
 
 test:
+	$(call header, Testing)
 	true
 
 docker:
+	$(call header, Dockerizing)
 	true
 
 docker-push:
+	$(call header, Registering)
 	true
 
 .PHONY: install build watch clean test

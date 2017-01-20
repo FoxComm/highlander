@@ -16,7 +16,7 @@ import akka.stream.ActorMaterializer
 import com.stripe.Stripe
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.LazyLogging
-import models.account.User
+import models.account.{AccountAccessMethod, User}
 import org.json4s._
 import org.json4s.jackson._
 import services.account.AccountCreateContext
@@ -24,9 +24,9 @@ import services.Authenticator
 import services.Authenticator.UserAuthenticator
 import services.Authenticator.requireAdminAuth
 import services.actors._
-
 import slick.driver.PostgresDriver.api._
 import utils.FoxConfig.{Development, Staging}
+import utils.aliases._
 import utils.apis._
 import utils.http.CustomHandlers
 import utils.http.HttpLogger.logFailedRequests
@@ -100,6 +100,7 @@ class Service(systemOverride: Option[ActorSystem] = None,
         routes.admin.NotificationRoutes.routes ~
         routes.admin.AssignmentsRoutes.routes ~
         routes.admin.OrderRoutes.routes ~
+        routes.admin.CartRoutes.routes ~
         routes.admin.CustomerRoutes.routes ~
         routes.admin.CustomerGroupsRoutes.routes ~
         routes.admin.GiftCardRoutes.routes ~
@@ -180,6 +181,7 @@ class Service(systemOverride: Option[ActorSystem] = None,
       assert(Keys.loadPrivateKey.isSuccess, "Can't load private key")
       assert(Keys.loadPublicKey.isSuccess, "Can't load public key")
     }
+    logger.info(s"Using password hash algorithm: ${AccountAccessMethod.passwordsHashAlgorithm}")
     logger.info("Self check complete")
   }
 

@@ -1,37 +1,36 @@
 ---
 
+- include_vars: "{{role_path}}/../secret_keys/files/aws/aws.yml"
+  when: docker_registry_provider == "aws"
+
 - name: Setup docker_registry config
   file: path=/etc/docker_registry/ state=directory
-  sudo: true
 
-- name: Copy Docker Registry Config
-  template: src=config.yml dest="/etc/docker_registry/config.yml"
-  sudo: true
+- name: Copy GCE Docker Registry Config
+  template: src=config_gce.yml dest="/etc/docker_registry/config.yml"
+  when: docker_registry_provider == "gce"
+
+- name: Copy AWS Docker Registry Config
+  template: src=config_aws.yml dest="/etc/docker_registry/config.yml"
+  when: docker_registry_provider == "aws"
 
 - name: Copy Service
   template: src=docker_registry.service dest="{{dest_services}}/docker_registry.service"
-  sudo: true
 
 - name: Make Certs Directory
   file: path=/certs state=directory mode="600"
-  sudo: true
 
 - name: Copy Cert
-  copyv: src="{{role_path}}/../secret_keys/files/certs/{{cert_path}}/docker/domain.crt" dest=/certs/domain.crt
-  sudo: true
+  copy: src="{{role_path}}/../secret_keys/files/certs/{{cert_path}}/docker/domain.crt" dest=/certs/domain.crt
 
 - name: Copy Key
-  copyv: src="{{role_path}}/../secret_keys/files/certs/{{cert_path}}/docker/domain.key" dest=/certs/domain.key
-  sudo: true
+  copy: src="{{role_path}}/../secret_keys/files/certs/{{cert_path}}/docker/domain.key" dest=/certs/domain.key
 
 - name: Reload Systemd for Docker Registry
-  sudo: true
   command: systemctl daemon-reload
 
 - name: Restart Docker Registry Server
   service: name=docker_registry state=restarted enabled=yes
-  sudo: true
 
 - name: Copy Consul Service File
   template: src=docker_registry.json dest="/etc/consul.d/docker_registry.json"
-  sudo: true

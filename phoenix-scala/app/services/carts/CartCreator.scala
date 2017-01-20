@@ -4,7 +4,7 @@ import cats.implicits._
 import models.account._
 import models.customer._
 import models.cord.{Cart, Carts}
-import payloads.OrderPayloads.CreateCart
+import payloads.CartPayloads.CreateCart
 import responses.cord.CartResponse
 import services._
 import utils.aliases._
@@ -36,9 +36,13 @@ object CartCreator {
         account ← * <~ Accounts.create(Account())
         guest   ← * <~ Users.create(User(accountId = account.id, email = email.some))
         custData ← * <~ CustomersData.create(
-                      CustomerData(userId = guest.id, accountId = account.id, isGuest = true))
-        cart ← * <~ Carts.create(Cart(accountId = account.id))
-        _    ← * <~ LogActivity.cartCreated(Some(admin), root(cart, guest, custData))
+                      CustomerData(userId = guest.id,
+                                   accountId = account.id,
+                                   isGuest = true,
+                                   scope = Scope.current))
+        scope ← * <~ Scope.resolveOverride(payload.scope)
+        cart  ← * <~ Carts.create(Cart(accountId = account.id, scope = scope))
+        _     ← * <~ LogActivity.cartCreated(Some(admin), root(cart, guest, custData))
       } yield root(cart, guest, custData)
 
     for {

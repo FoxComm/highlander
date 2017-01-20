@@ -6,7 +6,7 @@ import scala.util.Random
 
 import faker._
 import models.account.User
-import models.payment.creditcard.CreditCard;
+import models.payment.creditcard.{BillingAddress, CreditCard};
 
 trait CreditCardGenerator extends AddressGenerator {
 
@@ -51,12 +51,12 @@ trait CreditCardGenerator extends AddressGenerator {
                expMonth = today.getMonthValue,
                expYear = today.getYear + 2,
                isDefault = true,
-               regionId = 4129,
-               addressName = customer.name.getOrElse(Name.name),
-               address1 = address.address1,
-               address2 = address.address2,
-               city = address.city,
-               zip = address.zip,
+               address = BillingAddress(regionId = 4129,
+                                        name = customer.name.getOrElse(Name.name),
+                                        address1 = address.address1,
+                                        address2 = address.address2,
+                                        city = address.city,
+                                        zip = address.zip),
                brand = "Visa")
   }
 

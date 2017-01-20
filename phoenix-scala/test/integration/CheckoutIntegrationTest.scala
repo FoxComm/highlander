@@ -1,6 +1,7 @@
 import java.time.Instant
 
 import akka.http.scaladsl.model.HttpResponse
+
 import cats.implicits._
 import failures.NotFoundFailure404
 import failures.ShippingMethodFailures.ShippingMethodNotFoundByName
@@ -8,18 +9,18 @@ import failures.UserFailures._
 import models.account._
 import models.cord.Order.RemorseHold
 import models.cord._
+import models.cord.lineitems._
 import models.customer._
 import models.inventory._
 import models.location.{Address, Addresses}
+import models.payment.InStorePaymentStates
 import models.payment.giftcard._
 import models.product.Mvp
 import models.shipping._
 import models.{Reason, Reasons}
-import org.json4s.JsonAST._
-import org.json4s.jackson.JsonMethods._
 import payloads.GiftCardPayloads.GiftCardCreateByCsr
-import payloads.LineItemPayloads.{UpdateLineItemsPayload, UpdateOrderLineItemsPayload}
-import payloads.OrderPayloads.CreateCart
+import payloads.LineItemPayloads._
+import payloads.CartPayloads.CreateCart
 import payloads.PaymentPayloads.GiftCardPayment
 import payloads.UpdateShippingMethod
 import responses.GiftCardResponse
@@ -28,7 +29,6 @@ import slick.driver.PostgresDriver.api._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
-import utils.aliases.Json
 import utils.db._
 import utils.seeds.Seeds.Factories
 
@@ -38,18 +38,22 @@ class CheckoutIntegrationTest
     with AutomaticAuth
     with BakedFixtures {
 
-  "PATCH /v1/orders/:refNum/order-line-items" - {
-    val attributes = Some(
-        parse("""{"attributes":{"giftCard":{"senderName":"senderName","recipientName":"recipientName","recipientEmail":"example@example.com"}}}"""))
+  "PATCH /v1/carts/:refNum/line-items/attributes" - {
+    val attributes = LineItemAttributes(
+        GiftCardLineItemAttributes(senderName = "senderName",
+                                   recipientName = "recipientName",
+                                   recipientEmail = "example@example.com",
+                                   message = "Boop").some).some
+
     val addGiftCardPayload = Seq(UpdateLineItemsPayload("SKU-YAX", 2, attributes))
-    "should update attributes of order-line-items succesfully" in new Fixture {
+    "should update attributes of line-items succesfully" in new Fixture {
       val refNum =
         cartsApi.create(CreateCart(customer.accountId.some)).as[CartResponse].referenceNumber
       val orderResponse =
         doCheckout(customer, sku, address, shipMethod, reason, refNum).as[OrderResponse]
       val lineItemToUpdate = orderResponse.lineItems.skus.head
       val root = cartsApi(orderResponse.referenceNumber)
-        .updateorderLineItem(
+        .updateCartLineItem(
             Seq(UpdateOrderLineItemsPayload(lineItemToUpdate.state,
                                             attributes,
                                             lineItemToUpdate.referenceNumbers.headOption.get)))
@@ -91,7 +95,7 @@ class CheckoutIntegrationTest
     }
   }
 
-  "POST v1/orders/:refNum/checkout" - {
+  "POST v1/carts/:refNum/checkout" - {
 
     "places order as admin" in new Fixture {
       val orderResponse = doCheckout(customer, sku, address, shipMethod, reason).as[OrderResponse]
@@ -106,7 +110,7 @@ class CheckoutIntegrationTest
       orderResponse.remorsePeriodEnd.value.isAfter(Instant.now) mustBe true
 
       // Authorizes payments
-      GiftCardAdjustments.map(_.state).gimme must contain only GiftCardAdjustment.Auth
+      GiftCardAdjustments.map(_.state).gimme must contain only InStorePaymentStates.Auth
     }
 
     "fails if customer's credentials are empty" in new Fixture {
@@ -196,7 +200,9 @@ class CheckoutIntegrationTest
                                             isBlacklisted = true,
                                             blacklistedBy = Some(storeAdmin.accountId)))
       custData ← * <~ CustomersData.create(
-                    CustomerData(userId = customer.accountId, accountId = account.id))
+                    CustomerData(userId = customer.accountId,
+                                 accountId = account.id,
+                                 scope = Scope.current))
       address ← * <~ Addresses.create(Factories.usAddress1.copy(accountId = customer.accountId))
       _       ← * <~ Factories.shippingMethods.map(ShippingMethods.create)
       shipMethod ← * <~ ShippingMethods

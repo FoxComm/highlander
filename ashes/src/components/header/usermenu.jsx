@@ -56,11 +56,16 @@ export class UserMenu extends Component {
   }
 
   render() {
+    const rev = process.env.GIT_REVISION;
+
     return (
       <ul styleName="usermenu">
         {this.settingsLink}
-        <li><a onClick={this.handleLogout}>Log out</a></li>
-        <li styleName="copyright">&copy; FoxCommerce. All rights reserved.</li>
+        <li><a id="log-out-btn" onClick={this.handleLogout}>Log out</a></li>
+        <li styleName="copyright">
+          &copy; FoxCommerce. All rights reserved.{' '}
+          <span>Version {rev}</span>
+        </li>
       </ul>
     );
   }

@@ -1,4 +1,4 @@
-FROM openjdk:8
+FROM openjdk:8-alpine
 
 RUN mkdir -p /phoenix/gatling-classes
 RUN mkdir -p /phoenix/sql
@@ -10,4 +10,4 @@ COPY sql/ /phoenix/sql
 WORKDIR /phoenix
 
 EXPOSE 9090
-CMD java $JAVA_OPTS -cp phoenix.jar server.Main
+CMD java $JAVA_OPTS -cp phoenix.jar server.Main 2>&1 | tee /logs/phoenix.log

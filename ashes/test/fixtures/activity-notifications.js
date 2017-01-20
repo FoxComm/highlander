@@ -348,7 +348,7 @@ activities = [...activities,
     createdAt,
     data: {
       newState: 'fraudHold',
-      orderRefNums: [
+      cordRefNums: [
         'BR10004',
         'BR10003',
         'BR10001',

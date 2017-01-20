@@ -143,6 +143,7 @@ class CouponCodes extends Component {
           <FormField label="Quantity">
             <div>
               <Counter
+                counterId="code-quantity-counter"
                 id="codesQuantity"
                 name="codesQuantity"
                 value={codesQuantity}
@@ -171,6 +172,7 @@ class CouponCodes extends Component {
           <FormField label="Code Character Length" >
             <div>
               <Counter
+                counterId="code-character-length-counter"
                 id="codesLength"
                 name="codesLength"
                 value={this.props.codeGeneration.codesLength}
@@ -185,12 +187,6 @@ class CouponCodes extends Component {
           <div styleName="field-comment">
             Excludes prefix
           </div>
-        </div>
-        <div styleName="form-group">
-          <Checkbox id="downloadCSVCheckbox">Download a CSV file of the coupon codes</Checkbox>
-        </div>
-        <div styleName="form-group">
-          <Checkbox id="emailCSVCheckbox">Email a CSV file of the coupon codes to other users</Checkbox>
         </div>
         <PrimaryButton
           type="button"
@@ -242,4 +238,11 @@ class CouponCodes extends Component {
   }
 }
 
-export default connect(null, actions)(CouponCodes);
+const mergeProps = (stateProps, dispatchProps, ownProps) => {
+  return {
+    ...dispatchProps,
+    ...ownProps
+  };
+};
+
+export default connect(null, actions, mergeProps)(CouponCodes);

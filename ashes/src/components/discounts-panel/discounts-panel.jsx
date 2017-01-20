@@ -61,6 +61,7 @@ export default class DiscountsPanel extends Component {
   }
 
   render(): Element {
+    
     return (
       <ContentBox
         title={this.title}

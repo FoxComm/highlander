@@ -3,16 +3,17 @@ shortcuts:
 
 # Ansible shortcuts
 - type: snowflake
-  process: ansible-playbook -vvvv
+  process: ansible-playbook -v
   alias: ansible
 
   flags:
   - name: Inventory Files
     flag: "--inventory-file"
     aliases:
-      api_docs: bin/envs/api_docs
+      dev: bin/envs/dev
       stage_vpn: bin/envs/stage_vpn
       staging: bin/envs/staging
+      target_dev: bin/envs/target_dev
       topdrawer: bin/envs/topdrawer
       tpg: bin/envs/tpg
   - name: Private Key Files
@@ -25,58 +26,74 @@ shortcuts:
     flag: "--user"
     aliases:
       ejik: ejik
+      kpashka: kpashka
       pavel: pavel
       ubuntu: ubuntu
 
   targets:
   # Bootstrappers
-  - name: Bootstrap Annabelle
-    alias: annabelle.yml
-    target: ansible/bootstrap_annabelle.yml
   - name: Bootstrap Build Agents Keys
     alias: build_agent_keys.yml
     target: ansible/bootstrap_build_agent_keys.yml
   - name: Bootstrap Consul Alerts
     alias: consul_alerts.yml
     target: ansible/bootstrap_consul_alerts.yml
-  - name: Bootstrap Docker Clean
-    alias: docker_clean.yml
-    target: ansible/bootstrap_docker_clean.yml
   - name: Bootstrap Marathon Alerts
     alias: marathon_alerts.yml
     target: ansible/bootstrap_marathon_alerts.yml
-  - name: Bootstrap Database Backup
-    alias: db_backup.yml
-    target: ansible/bootstrap_db_backup.yml
-  - name: Provision Kibana
-    alias: bootstrap_kibana.yml
-    target: ansible/bootstrap_kibana.yml
+  - name: Bootstrap DB Backup Script
+    alias: backup_db.yml
+    target: ansible/bootstrap_backup_db.yml
+  - name: Bootstrap ZK Backup Script
+    alias: backup_zk.yml
+    target: ansible/bootstrap_backup_zk.yml
   - name: Bootstrap OpenVPN Key
     alias: openvpn_key.yml
     target: ansible/bootstrap_openvpn_key.yml
-  - name: Bootstrap Phoenix JAR
-    alias: phoenix.yml
-    target: ansible/bootstrap_phoenix.yml
   - name: Bootstrap Store Admin User
     alias: store_admin.yml
     target: ansible/bootstrap_store_admin.yml
-  - name: Bootstrap Tinystack
-    alias: tinystack.yml
-    target: ansible/bootstrap_tinystack.yml
 
-  # TPG
-  - name: Provision TPG Staging
-    alias: tpg_stage.yml
-    target: ansible/tpg_stage.yml
-  - name: Provision TPG Production Backend
-    alias: tpg_backend.yml
-    target: ansible/tpg_backend.yml
-  - name: Provision TPG Production
-    alias: tpg_production.yml
-    target: ansible/tpg_production.yml
-  - name: Provision Tony Staging
-    alias: easy_tony.yml
-    target: ansible/easy_tony.yml
+  # Custom
+  - name: Bootstrap Annabelle
+    alias: annabelle.yml
+    target: ansible/bootstrap_annabelle.yml
+  - name: Bootstrap Pgweb
+    alias: pgweb.yml
+    target: ansible/bootstrap_pgweb.yml
+  - name: Bootstrap Sinopia
+    alias: sinopia.yml
+    target: ansible/bootstrap_sinopia.yml
+  - name: Bootstrap Kangaroo
+    alias: kangaroos.yml
+    target: ansible/bootstrap_kangaroos.yml
+
+  # Goldrush
+  - name: Generate .env.local
+    alias: env_local.yml
+    target: ansible/goldrush_env_local.yml
+
+  # Test Machines
+  - name: Provision FoxComm Test
+    alias: test_stage.yml
+    target: ansible/test_stage.yml
+  - name: Provision Top Drawer Test
+    alias: test_topdrawer.yml
+    target: ansible/test_topdrawer.yml
+  - name: Provision Perfect Gourmet Test
+    alias: test_perfectgourmet.yml
+    target: ansible/test_perfectgourmet.yml
+  - name: Provision Target Test
+    alias: test_target.yml
+    target: ansible/test_target.yml
+
+  # Migration
+  - name: Migrate Phoenix DB
+    alias: migrate_phoenix_db.yml
+    target: ansible/migrate_phoenix_db.yml
+  - name: Migrate MWH DB
+    alias: migrate_middlewarehouse_db.yml
+    target: ansible/migrate_middlewarehouse_db.yml
 
 # Packer shortcuts
 - type: snowflake
@@ -102,6 +119,9 @@ shortcuts:
   - name: Base United Image
     alias: base_united.json
     target: packer/base/base_united.json
+  - name: Base Appliance Image
+    alias: appliance.json
+    target: packer/appliance/appliance.json
 
   # Tinystack
   - name: Tinystack Amigo
@@ -129,37 +149,42 @@ shortcuts:
       dev: terraform/envs/gce_dev/terraform.tfstate
       staging: terraform/envs/gce_staging/terraform.tfstate
       stable: terraform/envs/gce_staging_stable/terraform.tfstate
-      gatling: terraform/envs/gce_gatling/terraform.tfstate
       target: terraform/envs/aws_target/terraform.tfstate
       topdrawer: terraform/envs/gce_topdrawer/terraform.tfstate
+      td_test: terraform/envs/gce_td_test/terraform.tfstate
       tpg: terraform/envs/gce_tpg/terraform.tfstate
+      tpg_test: terraform/envs/gce_tpg_test/terraform.tfstate
   - name: Variable Files
     flag: "-var-file"
     aliases:
       dev: terraform/envs/gce_dev/dev.tfvars
       staging: terraform/envs/gce_staging/staging.tfvars
       stable: terraform/envs/gce_staging_stable/staging.tfvars
-      gatling: terraform/envs/gce_gatling/gatling.tfvars
       target: terraform/envs/aws_target/target.tfvars
       topdrawer: terraform/envs/gce_topdrawer/topdrawer.tfvars
+      td_test: terraform/envs/gce_td_test/td_test.tfvars
       tpg: terraform/envs/gce_tpg/tpg.tfvars
+      tpg_test: terraform/envs/gce_tpg_test/tpg_test.tfvars
 
   targets:
-  - name: Staging Legacy
+  - name: FoxCommerce Core
     alias: dev
     target: terraform/base/gce_dev
-  - name: Staging Highlander
+  - name: FoxCommerce Test
     alias: staging
     target: terraform/base/gce_staging
-  - name: Staging Gatling
-    alias: gatling
-    target: terraform/base/gce_gatling
+  - name: TopDrawer Test
+    alias: td_test
+    target: terraform/base/gce_td_test
+  - name: TPG Test
+    alias: tpg_test
+    target: terraform/base/gce_tpg_test
   - name: Target AWS Networking
     alias: target
     target: terraform/base/aws_target
-  - name: TopDrawer
+  - name: TopDrawer Production
     alias: topdrawer
     target: terraform/base/gce_topdrawer
-  - name: The Perfect Gourmet
+  - name: TPG Production
     alias: tpg
     target: terraform/base/gce_tpg

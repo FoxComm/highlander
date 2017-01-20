@@ -3,6 +3,7 @@ import akka.http.scaladsl.model.HttpResponse
 import cats.implicits._
 import failures.CartFailures._
 import failures.Failure
+import models.account.Scope
 import models.cord._
 import models.inventory.Skus
 import models.location.Addresses
@@ -35,25 +36,25 @@ class CartValidatorIntegrationTest
 
   "Cart validator must be applied to" - {
 
-    "/v1/orders/:refNum/payment-methods/gift-cards" in new GiftCardFixture {
+    "/v1/carts/:refNum/payment-methods/gift-cards" in new GiftCardFixture {
       val api = cartsApi(refNum).payments.giftCard
       checkResponse(api.add(GiftCardPayment(giftCard.code)), expectedWarnings)
       checkResponse(api.delete(giftCard.code), expectedWarnings)
     }
 
-    "/v1/orders/:refNum/payment-methods/store-credit" in new StoreCreditFixture {
+    "/v1/carts/:refNum/payment-methods/store-credit" in new StoreCreditFixture {
       val api = cartsApi(refNum).payments.storeCredit
       checkResponse(api.add(StoreCreditPayment(500)), expectedWarnings)
       checkResponse(api.delete(), expectedWarnings)
     }
 
-    "/v1/orders/:refNum/payment-methods/credit-cards" in new CreditCardFixture {
+    "/v1/carts/:refNum/payment-methods/credit-cards" in new CreditCardFixture {
       val api = cartsApi(refNum).payments.creditCard
       checkResponse(api.add(CreditCardPayment(creditCard.id)), expectedWarnings)
       checkResponse(api.delete(), expectedWarnings)
     }
 
-    "/v1/orders/:refNum/shipping-address" in new ShippingAddressFixture {
+    "/v1/carts/:refNum/shipping-address" in new ShippingAddressFixture {
       val api = cartsApi(refNum).shippingAddress
 
       checkResponse(api.create(CreateAddressPayload("a", 1, "b", None, "c", "11111")),
@@ -67,20 +68,20 @@ class CartValidatorIntegrationTest
       checkResponse(api.updateFromAddress(address.id), expectedWarnings)
     }
 
-    "/v1/orders/:refNum/shipping-method" in new ShippingMethodFixture {
+    "/v1/carts/:refNum/shipping-method" in new ShippingMethodFixture {
       val api = cartsApi(refNum).shippingMethod
       checkResponse(api.update(UpdateShippingMethod(shipMethod.id)),
                     Seq(EmptyCart(refNum), InsufficientFunds(refNum)))
       checkResponse(api.delete(), Seq(EmptyCart(refNum), NoShipMethod(refNum)))
     }
 
-    "/v1/orders/:refNum/line-items" in new LineItemFixture {
+    "/v1/carts/:refNum/line-items" in new LineItemFixture {
 
       checkResponse(cartsApi(refNum).lineItems.add(Seq(UpdateLineItemsPayload(sku.code, 1))),
                     Seq(InsufficientFunds(refNum), NoShipAddress(refNum), NoShipMethod(refNum)))
     }
 
-    "/v1/orders/:refNum/coupon" in new CouponFixture {
+    "/v1/carts/:refNum/coupon" in new CouponFixture {
       checkResponse(cartsApi(refNum).coupon.add(couponCode), expectedWarnings)
       checkResponse(cartsApi(refNum).coupon.delete(), expectedWarnings)
     }
@@ -142,7 +143,6 @@ class CartValidatorIntegrationTest
   }
 
   trait ShippingMethodFixture extends EmptyCustomerCart_Baked {
-
     val (shipMethod) = (for {
       address ← * <~ Addresses.create(
                    Factories.address.copy(accountId = customer.accountId, regionId = 4129))
@@ -199,7 +199,7 @@ class CartValidatorIntegrationTest
       _          ← * <~ Addresses.create(Factories.address.copy(accountId = customer.accountId))
       cc         ← * <~ CreditCards.create(Factories.creditCard.copy(accountId = customer.accountId))
       productCtx ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
-      cart       ← * <~ Carts.create(Factories.cart.copy(accountId = customer.accountId))
+      cart       ← * <~ Carts.create(Factories.cart(Scope.current).copy(accountId = customer.accountId))
       product    ← * <~ Mvp.insertProduct(productCtx.id, Factories.products.head)
       sku        ← * <~ Skus.mustFindById404(product.skuId)
       manual ← * <~ StoreCreditManuals.create(

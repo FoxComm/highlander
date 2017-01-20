@@ -2,25 +2,19 @@ package testutils.fixtures
 
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
-import failures.UserFailures.OrganizationNotFoundByName
 import models._
 import models.account._
-import models.auth.UserToken
 import models.cord._
 import models.inventory.Sku
 import models.location._
 import models.payment.giftcard.GiftCard
 import models.product._
-import payloads.OrderPayloads
-import payloads.OrderPayloads.CreateCart
+import payloads.CartPayloads.CreateCart
 import payloads.PaymentPayloads.GiftCardPayment
-import services.Authenticator.AuthData
-import services.account.AccountManager
 import services.carts._
 import testutils._
 import testutils.fixtures.raw._
 import utils.Money.Currency
-import utils.aliases._
 import utils.db._
 import utils.seeds.Seeds.Factories
 
@@ -50,10 +44,9 @@ trait RawFixtures extends RawPaymentFixtures with TestSeeds {
   }
 
   // Cart
-  trait EmptyCart_Raw {
+  trait EmptyCart_Raw extends StoreAdmin_Seed {
     def customer: User
     def storeAdmin: User
-    implicit def au: AU
 
     def cart: Cart = _cart
 
@@ -105,10 +98,13 @@ trait RawFixtures extends RawPaymentFixtures with TestSeeds {
   trait FullCart_Raw extends EmptyCart_Raw with CartWithPayments_Raw
 
   // Order
-  trait Order_Raw {
+  trait Order_Raw extends Customer_Seed {
+
+    implicit lazy val au = customerAuthData
+
     def cart: Cart
 
-    val order: Order = Orders.createFromCart(cart).gimme
+    val order: Order = Orders.createFromCart(cart, None).gimme
   }
 
   // Product
@@ -130,11 +126,8 @@ trait RawFixtures extends RawPaymentFixtures with TestSeeds {
 
   trait Sku_Raw extends StoreAdmin_Seed {
 
-    val simpleSku: Sku = Mvp
-      .insertSku(LTree(storeAdminAuthData.token.scope),
-                 ctx.id,
-                 SimpleSku("BY-ITSELF", "A lonely item", 9999))
-      .gimme
+    val simpleSku: Sku =
+      Mvp.insertSku(Scope.current, ctx.id, SimpleSku("BY-ITSELF", "A lonely item", 9999)).gimme
   }
 
   trait ProductWithVariants_Raw extends StoreAdmin_Seed {

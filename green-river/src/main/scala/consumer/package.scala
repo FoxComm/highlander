@@ -35,3 +35,11 @@ trait MessageProcessor {
 }
 
 final case class PassthroughSource(json: String) extends DocumentSource
+
+/**
+  * Used in processors when they want to indicate this document should be processed
+  * again later by MultiTopicConsumer (re-seek to this offset again)
+  */
+trait TryAgainLater { this: Throwable ⇒ }
+
+case class ErrorTryAgainLater(cause: String) extends Throwable with TryAgainLater

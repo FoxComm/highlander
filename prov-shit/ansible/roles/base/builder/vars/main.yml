@@ -1,0 +1,6 @@
+vagrant_filename: vagrant_1.9.1_x86_64.deb
+vagrant_download_url: "https://releases.hashicorp.com/vagrant/1.9.1/{{vagrant_filename}}"
+vagrant_google_box: https://github.com/mitchellh/vagrant-google/raw/master/google.box
+
+terraform_filename: terraform_0.8.2_linux_amd64.zip
+terraform_download_url: "https://releases.hashicorp.com/terraform/0.8.2/{{terraform_filename}}"

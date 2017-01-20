@@ -2,13 +2,14 @@
 
 const _ = require('lodash');
 const fs = require('fs');
+const del = require('del');
 const path = require('path');
 const gulp = require('gulp');
 const runSequence = require('run-sequence');
 const $ = require('gulp-load-plugins')();
 const Config = require('./config');
 
-process.env.NODE_PATH = `${process.env.NODE_PATH}:${path.resolve('./src')}`;
+process.env.NODE_PATH = `${process.env.NODE_PATH}:${path.resolve('./lib')}`;
 
 const opts = new Config().gulp;
 
@@ -19,8 +20,10 @@ for (let task of fs.readdirSync(opts.taskDir)) {
   require(file)(gulp, opts, $);
 }
 
+gulp.task('clean', () => del(['build/**/*', 'lib/**/*']));
+
 gulp.task('build', function(cb) {
-  runSequence('imagemin', 'less', 'browserify', 'css', cb);
+  runSequence('clean', 'imagemin', 'less', 'precompile', 'browserify', 'css', cb);
 });
 
 gulp.task('dev', function(cb) {

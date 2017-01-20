@@ -9,15 +9,15 @@ import { transitionTo } from 'browserHistory';
 import * as CustomersActions from 'modules/customers/new';
 
 // components
-import FormField from '../forms/formfield.jsx';
-import Form from '../forms/form.jsx';
+import FormField from '../forms/formfield';
+import Form from '../forms/form';
 import SaveCancel from '../common/save-cancel';
 import ErrorAlerts from '../alerts/error-alerts';
 
 import type { NewCustomerPayload } from 'modules/customers/new';
 
 type Props = {
-  submitStatus: AsyncStatus,
+  submitStatus: AsyncState,
   createCustomer: (payload: NewCustomerPayload) => Promise,
   clearErrors: () => void,
 }

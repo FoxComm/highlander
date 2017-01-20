@@ -2,6 +2,7 @@
 
 - name: Provision All The Things
   hosts: all
+  become: true
   tags:
     - packer
   vars:
@@ -11,6 +12,8 @@
     ashes_server_name: local.foxcommerce.com
     storefront_server_name: local.foxcommerce.com
     join_type: join
+    consul_expect: 1
+    mesos_quorum: 1
   roles:
     - { role: base/common }
     - { role: base/consul }
@@ -20,6 +23,7 @@
     - { role: base/mesos }
     - { role: base/mesos_master }
     - { role: base/mesos_worker }
+    - { role: base/mesos_consul }
     - { role: base/confluence }
     - { role: base/zookeeper }
     - { role: base/kafka }
@@ -27,10 +31,10 @@
     - { role: base/elasticsearch }
     - { role: base/db }
     - { role: base/bottledwater }
-    - { role: base/rsyslog, sudo: yes }
-    - { role: base/kibana, sudo: yes }
-    - { role: base/node, sudo: yes }
-    - { role: base/balancer, sudo: yes }
+    - { role: base/rsyslog }
+    - { role: base/kibana }
+    - { role: base/node }
+    - { role: base/balancer }
 
   handlers:
     - include: roles/base/consul_agent/handlers/main.yml

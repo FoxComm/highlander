@@ -7,7 +7,7 @@ require('babel-polyfill');
 const htmlescape = require('htmlescape');
 const errors = require('./errors');
 
-import { isPathRequiredAuth } from '../src/route-rules';
+const { isPathRequiredAuth } = require('../lib/route-rules');
 
 function loadPublicKey(config) {
   try {
@@ -28,11 +28,9 @@ module.exports = function(app) {
   // lets do renderReact property is lazy
   Object.defineProperty(app, 'renderReact', {
     get: function() {
-      return require('../src/render').renderReact;
+      return require('../lib/render').renderReact;
     }
   });
-
-  const publicKey = loadPublicKey(config);
 
   function getToken(ctx) {
     const jwtToken = ctx.cookies.get(config.api.auth.cookieName);
@@ -41,12 +39,19 @@ module.exports = function(app) {
     }
     ctx.state.jwt = jwtToken;
     try {
-      const token = jwt.verify(jwtToken, publicKey, {
-        issuer: 'FC',
-        audience: 'user',
-        algorithms: ['RS256', 'RS384', 'RS512']
-      });
+      let token;
+      if (process.env.DEV_SKIP_JWT_VERIFY) {
+        console.info('DEV_SKIP_JWT_VERIFY is enabled, JWT is not verified');
+        token = jwt.decode(jwtToken);
+      } else {
+        token = jwt.verify(jwtToken, loadPublicKey(config), {
+          issuer: 'FC',
+          audience: 'user',
+          algorithms: ['RS256', 'RS384', 'RS512']
+        });
+      }
       if (!_.includes(token.roles, 'admin')) {
+        console.log('token.roles doesn\'t contain admin role', token.roles);
         return null; // only admins allowed to proceed
       }
       return token;

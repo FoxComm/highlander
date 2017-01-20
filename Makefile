@@ -1,71 +1,33 @@
-SUBDIRS = $(shell ./projects.sh)
-$(info $(SUBDIRS))
-UPDATEDIRS = $(SUBDIRS:%=update-%)
-BUILDDIRS = $(SUBDIRS:%=build-%)
-TESTDIRS = $(SUBDIRS:%=test-%)
-CLEANDIRS = $(SUBDIRS:%=clean-%)
-DOCKERDIRS = $(SUBDIRS:%=docker-%)
-DOCKERPUSHDIRS = $(SUBDIRS:%=docker-push-%)
+# Development environment Makefile
+include makelib
+header = $(call baseheader, $(1), root)
 
-SUBDIRS_ALL = $(shell ./projects.sh -all)
-$(info $(SUBDIRS_ALL))
-BUILDDIRS_ALL = $(SUBDIRS_ALL:%=build-all-%)
-TESTDIRS_ALL = $(SUBDIRS_ALL:%=test-all-%)
-DOCKERDIRS_ALL = $(SUBDIRS_ALL:%=docker-all-%)
-DOCKERPUSHDIRS_ALL = $(SUBDIRS_ALL:%=docker-push-all-%)
+prepare:
+	pip install dnsimple
+	vagrant plugin install vagrant-google
+	vagrant box add --force gce https://github.com/mitchellh/vagrant-google/raw/master/google.box
 
-clean: $(CLEANDIRS)
-$(CLEANDIRS): REPO = $(@:clean-%=%)
-$(CLEANDIRS):
-	$(MAKE) -C $(REPO) clean
+dotenv:
+	cd prov-shit && ansible-playbook --inventory-file=bin/envs/dev ansible/goldrush_env_local.yml
 
-build: $(BUILDDIRS)
-$(BUILDDIRS): REPO = $(@:build-%=%)
-$(BUILDDIRS):
-	$(MAKE) -C $(REPO) build
+up:
+	$(call header, Creating GCE Machine)
+	export eval `cat ./.env.local`; vagrant up --provider=google appliance
+	@cat goldrush.log
 
-build-all: $(BUILDDIRS_ALL)
-$(BUILDDIRS_ALL): REPO = $(@:build-all-%=%)
-$(BUILDDIRS_ALL):
-	$(MAKE) -C $(REPO) build
+status:
+	export eval `cat ./.env.local`; vagrant status appliance
 
-test: $(TESTDIRS)
+provision:
+	$(call header, Provisioning GCE Machine)
+	export eval `cat ./.env.local`; vagrant provision appliance
 
-$(TESTDIRS): REPO = $(@:test-%=%)
-$(TESTDIRS):
-	$(MAKE) -C $(REPO) test
+destroy:
+	$(call header, Destroying GCE Machine)
+	export eval `cat ./.env.local`; vagrant destroy appliance --force
 
-test-all: $(TESTDIRS_ALL)
+ssh:
+	$(call header, Connecting to GCE Machine)
+	export eval `cat ./.env.local`; vagrant ssh appliance
 
-$(TESTDIRS_ALL): REPO = $(@:test-all-%=%)
-$(TESTDIRS_ALL):
-	$(MAKE) -C $(REPO) test
-
-update: $(UPDATEDIRS)
-	git subtree pull --prefix api-js git@github.com:FoxComm/api-js gh-pages
-$(UPDATEDIRS): REPO = $(@:update-%=%)
-$(UPDATEDIRS): REPOGIT = $(addsuffix .git,$(REPO))
-$(UPDATEDIRS):
-	git subtree pull --prefix $(REPO) git@github.com:FoxComm/$(REPOGIT) master
-
-docker: $(DOCKERDIRS)
-$(DOCKERDIRS): REPO = $(@:docker-%=%)
-$(DOCKERDIRS):
-	$(MAKE) -C $(REPO) docker
-
-docker-push: $(DOCKERPUSHDIRS)
-$(DOCKERPUSHDIRS): REPO = $(@:docker-push-%=%)
-$(DOCKERPUSHDIRS):
-	$(MAKE) -C $(REPO) docker-push
-
-docker-all: $(DOCKERDIRS_ALL)
-$(DOCKERDIRS_ALL): REPO = $(@:docker-all-%=%)
-$(DOCKERDIRS_ALL):
-	$(MAKE) -C $(REPO) docker
-
-docker-push-all: $(DOCKERPUSHDIRS_ALL)
-$(DOCKERPUSHDIRS_ALL): REPO = $(@:docker-push-all-%=%)
-$(DOCKERPUSHDIRS_ALL):
-	$(MAKE) -C $(REPO) docker-push
-
-.PHONY: update build $(UPDATEDIRS) $(SUBDIRS) $(BUILDDIRS)
+.PHONY: status prepare dotenv up provision destroy ssh

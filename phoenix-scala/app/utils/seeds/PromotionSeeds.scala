@@ -1,8 +1,8 @@
 package utils.seeds
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import com.github.tminglei.slickpg.LTree
 
+import models.account._
 import models.objects._
 import models.product.SimpleContext
 import models.promotion.Promotion.ApplyType
@@ -22,7 +22,8 @@ object PromotionSeeds {
 
   case class CreatePromotion(applyType: ApplyType,
                              form: CreatePromotionForm,
-                             shadow: CreatePromotionShadow)
+                             shadow: CreatePromotionShadow,
+                             scope: Option[String] = None)
 
   case class UpdatePromotionForm(attributes: Json, discounts: Seq[UpdatePromoDiscountForm])
   case class UpdatePromotionShadow(attributes: Json, discounts: Seq[UpdatePromoDiscountShadow])
@@ -47,11 +48,12 @@ trait PromotionSeeds {
       ac: AC,
       au: AU): DbResultT[BasePromotion] =
     for {
+      scope  ← * <~ Scope.resolveOverride(payload.scope)
       form   ← * <~ ObjectForm(kind = Promotion.kind, attributes = payload.form.attributes)
       shadow ← * <~ ObjectShadow(attributes = payload.shadow.attributes)
       ins    ← * <~ ObjectUtils.insert(form, shadow, None)
       promotion ← * <~ Promotions.create(
-                     Promotion(scope = LTree(au.token.scope),
+                     Promotion(scope = scope,
                                contextId = context.id,
                                applyType = payload.applyType,
                                formId = ins.form.id,

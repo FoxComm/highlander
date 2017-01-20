@@ -8,9 +8,10 @@ import utils.aliases._
 
 /**
   * An IlluminatedProduct is what you get when you combine the product shadow and
-  * the form. 
+  * the form.
   */
 case class IlluminatedProduct(id: Int,
+                              slug: String,
                               context: IlluminatedContext,
                               attributes: Json,
                               archivedAt: Option[Instant])
@@ -22,7 +23,8 @@ object IlluminatedProduct {
                  form: ObjectForm,
                  shadow: ObjectShadow): IlluminatedProduct = {
 
-    IlluminatedProduct(id = form.id, //Products should have a code like skus.
+    IlluminatedProduct(id = form.id,
+                       slug = product.slug,
                        context = IlluminatedContext(context.name, context.attributes),
                        attributes =
                          IlluminateAlgorithm.projectAttributes(form.attributes, shadow.attributes),

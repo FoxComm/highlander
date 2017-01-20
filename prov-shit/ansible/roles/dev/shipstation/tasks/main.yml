@@ -2,11 +2,9 @@
 
 - name: Creates Marathon JSON directory
   file: path=/marathon/applications state=directory
-  sudo: true
 
 - name: Copy Shipstation Consumer Marathon JSON
   template: src=shipstation.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
-  sudo: true
 
 - name: Update Shipstation Consumer in Marathon
   shell: 'curl -X PUT -d@/marathon/applications/shipstation.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/shipstation'
@@ -17,3 +15,11 @@
 
 - name: Restart Shipstation Consumer in Marathon
   shell: 'curl -X POST http://{{marathon_server}}/v2/apps/shipstation/restart'
+
+- name: Get Shipstation Marathon tasks in `healthy` state
+  shell: curl -sS -XGET http://{{marathon_server}}/v2/apps/shipstation | jq '.app.tasksHealthy > 0'
+  register: healthy_tasks_available
+  until: healthy_tasks_available.stdout == 'true'
+  retries: 60
+  delay: 10
+  when: vagrant

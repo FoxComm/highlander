@@ -11,11 +11,9 @@
 
 - name: Move Account.json File
   command: mv /tmp/account.json {{agent_home}}/account.json
-  sudo: true
 
 - name: Move Vault Pass File
   command: mv /tmp/.vault_pass {{agent_home}}/.vault_pass
-  sudo: true  
 
 - name: Init Google Cloud
   command: gcloud auth activate-service-account --key-file={{agent_home}}/account.json

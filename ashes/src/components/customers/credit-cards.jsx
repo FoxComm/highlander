@@ -105,7 +105,7 @@ export default class CustomerCreditCards extends React.Component {
   }
 
   get actionBlock() {
-    return <AddButton onClick={this.onAddClick} />;
+    return <AddButton id="customer-add-credit-card-btn" onClick={this.onAddClick} />;
   }
 
   @autobind
@@ -152,7 +152,7 @@ export default class CustomerCreditCards extends React.Component {
       <ContentBox title="Credit Cards"
                   className="fc-customer-credit-cards"
                   actionBlock={ this.actionBlock }>
-        <ul className="fc-float-list">
+        <ul id="customer-credit-cards-list" className="fc-float-list">
           {props.newCreditCard || (cards && cards.length)
             ? cards.map(this.createCardBox)
             : this.emptyText}

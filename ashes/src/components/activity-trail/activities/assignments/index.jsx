@@ -2,7 +2,7 @@
 import React from 'react';
 import types from '../base/types';
 import { joinEntities } from '../base/utils';
-import { assignmentTypes } from '../../../../paragons/watcher';
+import { assignmentTypes } from 'paragons/participants';
 
 // components
 import CordTarget from '../base/cord-target';

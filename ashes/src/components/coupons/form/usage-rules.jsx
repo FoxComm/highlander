@@ -90,6 +90,7 @@ export default class UsageRules extends Component {
             </div>
             <div>
               <Counter
+                counterId="uses-per-coupon-counter"
                 id="couponUsesForCode"
                 value={this.props.usesPerCode}
                 disabled={this.props.isUnlimitedPerCode}
@@ -118,6 +119,7 @@ export default class UsageRules extends Component {
             </div>
             <div>
               <Counter
+                counterId="uses-per-customer-counter"
                 id="couponUsesNumberForCustomer"
                 value={this.props.usesPerCustomer}
                 disabled={this.props.isUnlimitedPerCustomer}

@@ -41,6 +41,7 @@ class SwatchInput extends Component {
     return (
       <div styleName="swatch-input">
         <input
+          id="swatch-fld"
           type="text"
           maxLength="6"
           className="fc-text-input"

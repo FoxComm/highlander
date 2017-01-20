@@ -14,7 +14,7 @@ import utils.seeds.Seeds.Factories
 
 class CartCreditCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestBase {
 
-  "POST /v1/orders/:ref/payment-methods/credit-cards" - {
+  "POST /v1/carts/:ref/payment-methods/credit-cards" - {
     "succeeds" in new CreditCardFixture {
       cartsApi(cart.refNum).payments.creditCard.add(CreditCardPayment(creditCard.id)).mustBeOk()
       val payments = creditCardPayments(cart)
@@ -74,7 +74,7 @@ class CartCreditCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestB
     }
   }
 
-  "DELETE /v1/orders/:ref/payment-methods/credit-cards" - {
+  "DELETE /v1/carts/:ref/payment-methods/credit-cards" - {
     "successfully deletes an existing card" in new CreditCardFixture {
       cartsApi(cart.refNum).payments.creditCard.add(CreditCardPayment(creditCard.id)).mustBeOk()
       cartsApi(cart.refNum).payments.creditCard.delete().mustBeOk()
@@ -107,7 +107,9 @@ class CartCreditCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestB
                          Factories.customer.copy(accountId = otherAccount.id,
                                                  email = Some("other.customer@email.com")))
       _ ← * <~ CustomersData.create(
-             CustomerData(userId = otherCustomer.id, accountId = otherAccount.id))
+             CustomerData(userId = otherCustomer.id,
+                          accountId = otherAccount.id,
+                          scope = Scope.current))
       otherCC ← * <~ CreditCards.create(Factories.creditCard.copy(accountId = otherAccount.id))
     } yield (cc, otherCC)).gimme
   }

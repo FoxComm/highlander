@@ -15,9 +15,8 @@ import type { Context } from '../types';
 
 type RefId = string|number;
 
-type Reference = {
-  referenceId: RefId;
-  referenceType: string;
+type ProductSearch = {
+  productSearchId: RefId;
 };
 
 type Props = {
@@ -28,18 +27,18 @@ type Props = {
 export default class SelectProduct extends Component {
   props: Props;
 
-  get references(): Array<Reference> {
+  get search(): Array<ProductSearch> {
     return _.get(this.props.context.params, this.props.name, []);
   }
 
-  updateReferences(references: Array<Reference>): void {
+  updateSearches(searches: Array<ProductSearch>): void {
     this.props.context.setParams({
-      [this.props.name]: references,
+      [this.props.name]: searches,
     });
   }
 
   get selectedProduct(): ?RefId {
-    return _.get(this.references, '0.referenceId');
+    return _.get(this.search, '0.productSearchId');
   }
 
   handleProductSearch(token: string): Promise {
@@ -60,15 +59,15 @@ export default class SelectProduct extends Component {
 
   @autobind
   handleSelectProduct(value: string) {
-    this.updateReferences([{
-      referenceId: value,
-      referenceType: 'product',
+    this.updateSearches([{
+      productSearchId: value,
     }]);
   }
 
   render() {
     return (
       <DropdownSearch
+        className="select-product-dd"
         name="selectProduct"
         placeholder="- Select Product -"
         styleName="full-width"

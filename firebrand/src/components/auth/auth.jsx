@@ -12,8 +12,8 @@ import type { HTMLElement } from 'types';
 import Icon from 'ui/icon';
 import Login from './login';
 import Signup from './signup';
-import ResetPassword from './reset-password.jsx';
-import RestorePassword from './restore-password.jsx';
+import ResetPassword from './reset-password';
+import RestorePassword from './restore-password';
 
 type Props = {
   authBlockType: string,

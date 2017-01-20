@@ -9,4 +9,5 @@ type UpdateShipment struct {
 	Address            *Address `json:"address"`
 	TrackingNumber     *string  `json:"trackingNumber"`
 	ShippingPrice      *int     `json:"shippingPrice"`
+	Scopable
 }

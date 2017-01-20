@@ -1,0 +1,25 @@
+---
+
+- name: Install Consul Template Service
+  template: src=demo_consul_template.service dest="{{dest_services}}/demo_consul_template.service"
+
+- name: Install Demo Service Upstreams
+  template: src=demo-services.j2 dest=/etc/nginx/demo-services.template
+
+- name: Install Web UI Hosts
+  template: src=web-ui.j2 dest=/etc/nginx/sites-available/web-ui
+
+- name: Enable Web UI Hosts
+  file: src=/etc/nginx/sites-available/web-ui dest=/etc/nginx/sites-enabled/web-ui owner=root group=root state=link force=true
+
+- name: Restart Consul Template
+  service: name=demo_consul_template state=restarted
+  when: not packing
+
+- name: Restart Nginx every 30 secons, Try for 30 minutes
+  shell: 'systemctl restart nginx'
+  register: nginx
+  until: nginx.rc == 0
+  retries: 60
+  delay: 30
+  when: not packing

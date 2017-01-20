@@ -34,6 +34,13 @@ const excludeList = [
 
 module.exports = function(gulp, opts, $) {
   let production = (process.env.NODE_ENV === 'production');
+  let rev;
+
+  try {
+    rev = fs.readFileSync(path.resolve(__dirname, '..', '.git-rev'), 'utf8').trim();
+  } catch (e) {
+    rev = 'unknown';
+  }
 
   const plugins = require('../src/postcss').plugins;
   let bundler = null;
@@ -41,13 +48,10 @@ module.exports = function(gulp, opts, $) {
   function getBundler() {
     if (bundler) return bundler;
 
-    let entries = path.join(opts.srcDir, 'client.js');
+    let entries = path.resolve('lib', 'client.js');
     bundler = browserify({
       entries: [entries],
       standalone: 'App',
-      transform: [
-        'babelify',
-      ],
       extensions: ['.jsx'],
       debug: true,
       cache: {},
@@ -57,6 +61,7 @@ module.exports = function(gulp, opts, $) {
       DEMO_AUTH_TOKEN: process.env.DEMO_AUTH_TOKEN,
       API_URL: process.env.API_URL,
       ON_SERVER: process.env.ON_SERVER,
+      GIT_REVISION: rev
     }));
 
     if (production) {
@@ -93,7 +98,7 @@ module.exports = function(gulp, opts, $) {
       })
       .pipe(source(`admin.js`))
       .pipe(buffer())
-      .pipe($.if(production, $.sourcemaps.init({loadMaps: true})))
+      .pipe($.if(production, $.sourcemaps.init({loadMaps: true, largeFile: true})))
       .pipe($.if(production, $.uglify()))
       .pipe($.if(production, $.sourcemaps.write('_', {addComment: false})))
       .pipe(gulp.dest(opts.assetsDir));

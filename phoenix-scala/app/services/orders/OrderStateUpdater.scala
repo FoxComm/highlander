@@ -1,5 +1,6 @@
 package services.orders
 
+import cats.implicits._
 import failures.{NotFoundFailure400, StateTransitionNotAllowed}
 import models.account._
 import models.cord.Order._
@@ -82,7 +83,7 @@ object OrderStateUpdater {
     if (skipActivity)
       updateQueries(admin, cordRefs, newState)
     else
-      orderBulkStateChanged(admin, newState, cordRefs).value >>
+      orderBulkStateChanged(newState, cordRefs, admin.some).value >>
       updateQueries(admin, cordRefs, newState)
   }
 

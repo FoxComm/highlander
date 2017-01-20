@@ -1,5 +1,7 @@
 package services.carts
 
+import scala.util.Try
+
 import models.cord.lineitems._
 import models.cord._
 import slick.driver.PostgresDriver.api._
@@ -60,9 +62,11 @@ object CartTotaler {
       maybeAddress ← * <~ OrderShippingAddresses.findByOrderRef(cart.refNum).one
       optionalCustomRate = for {
         address        ← maybeAddress
-        cfgTaxRegionId ← config.getOptInt("tax_rules.region_id")
-        cfgTaxRate     ← config.getOptDouble("tax_rules.rate")
-      } yield if (address.regionId == cfgTaxRegionId) cfgTaxRate / 100 else defaultTaxRate
+        cfgTaxRegionId ← config.getOptString("tax_rules.region_id")
+        cfgTaxRate     ← config.getOptString("tax_rules.rate")
+        taxRegionId    ← Try(cfgTaxRegionId.toInt).toOption
+        taxRate        ← Try(cfgTaxRate.toDouble).toOption
+      } yield if (address.regionId == taxRegionId) taxRate / 100 else defaultTaxRate
       taxRate = optionalCustomRate.getOrElse(defaultTaxRate)
     } yield ((subTotal - adjustments + shipping) * taxRate).toInt
 

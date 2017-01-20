@@ -1,7 +1,7 @@
 package routes.admin
 
 import akka.http.scaladsl.server.Directives._
-
+import akka.http.scaladsl.server.Route
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import de.heikoseeberger.akkasse.EventStreamMarshalling._
 import facades.NotificationFacade
@@ -15,7 +15,7 @@ import utils.http.Http._
 
 object NotificationRoutes {
 
-  def routes(implicit ec: EC, db: DB, mat: Mat, auth: AuthData[User]) = {
+  def routes(implicit ec: EC, db: DB, mat: Mat, auth: AuthData[User]): Route = {
     activityContext(auth.model) { implicit ac ⇒
       pathPrefix("notifications") {
         (get & pathEnd) {

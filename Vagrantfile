@@ -8,6 +8,7 @@ CONFIG = File.join(File.dirname(__FILE__), "vagrant.local.rb")
 $vb_memory = 1024*8
 $vb_cpu = 4
 $nginx_ip = "192.168.10.111"
+$local = true
 user = "vagrant"
 
 require CONFIG if File.readable?(CONFIG)
@@ -72,6 +73,8 @@ def tune_vm(config, opts = {})
     user = "ubuntu"
 
     override.vm.box = "gce"
+    override.vm.synced_folder '.', '/vagrant', disabled: true
+
     override.ssh.username = ENV['GOOGLE_SSH_USERNAME']
     override.ssh.private_key_path = ENV['GOOGLE_SSH_KEY']
 
@@ -79,11 +82,15 @@ def tune_vm(config, opts = {})
     g.google_client_email = ENV['GOOGLE_CLIENT_EMAIL']
     g.google_json_key_location = ENV['GOOGLE_JSON_KEY_LOCATION']
 
-    g.machine_type = "n1-standard-2"
-    g.image = "appliance-base-1474521767"
-    g.disk_size = 20
+    g.machine_type = "n1-standard-4"
+    g.image = "appliance-base-161129-185737"
+    g.disk_size = 40
     g.zone = "us-central1-a"
     g.tags = ['vagrant', 'no-ports']
+
+    if ENV['GOOGLE_INSTANCE_NAME']
+      g.name = ENV['GOOGLE_INSTANCE_NAME']
+    end
   end
 
   config.vm.provider :aws do |aws, override|
@@ -107,13 +114,14 @@ def tune_vm(config, opts = {})
 end
 
 Vagrant.configure("2") do |config|
+  $master = "master"
   user = ENV['GOOGLE_SSH_USERNAME'] || "vagrant"
 
   tune_vm(config, cpus: $vb_cpu, memory: $vb_memory)
 
   config.vm.define :appliance, primary: true do |app|
-    app.vm.box = "base_appliance_16.04_20161111"
-    app.vm.box_url = "https://s3.amazonaws.com/fc-dev-boxes/base_appliance_16.04_20161111.box"
+    app.vm.box = "base_appliance_16.04_20161129"
+    app.vm.box_url = "https://s3.amazonaws.com/fc-dev-boxes/base_appliance_16.04_20161129.box"
 
     app.vm.network :private_network, ip: $nginx_ip
     expose_ports(app)
@@ -121,24 +129,46 @@ Vagrant.configure("2") do |config|
     # Workaround for mitchellh/vagrant#1867
     if ARGV[1] and \
        (ARGV[1].split('=')[0] == "--provider" or ARGV[2])
-      provider = (ARGV[1].split('=')[1] || ARGV[2])
+      provider = (ARGV[1].split('=')[1] || ARGV[2]).chomp
     else
-      provider = (ENV['VAGRANT_DEFAULT_PROVIDER'] || :virtualbox).to_sym
+      provider = (ENV['VAGRANT_DEFAULT_PROVIDER'] || "virtualbox").chomp
     end
-    puts "Detected #{provider} provider"
 
     if provider == "google"
       puts 'Overriding Google-specific variables'
-      $nginx_ip = "0.0.0.0"
+      $nginx_ip = "`hostname -I | awk '{print $1}'`"
+      $local = false
     end
 
     app.vm.provision "ansible" do |ansible|
-      ansible.verbose = "vvvv"
+
+      ansible.verbose = "v"
       ansible.playbook = "prov-shit/ansible/vagrant_appliance.yml"
       ansible.extra_vars = {
         user: user,
         appliance_hostname: $nginx_ip,
         mesos_ip: $nginx_ip,
+        local_vagrant: $local,
+        first_run: true,
+        docker_tag_ashes: ENV['DOCKER_TAG_ASHES'] || $master,
+        docker_tag_firebrand: ENV['DOCKER_TAG_FIREBRAND'] || $master,
+        docker_tag_phoenix: ENV['DOCKER_TAG_PHOENIX'] || $master,
+        docker_tag_greenriver: ENV['DOCKER_TAG_GREENRIVER'] || $master,
+        docker_tag_middlewarehouse: ENV['DOCKER_TAG_MIDDLEWAREHOUSE'] || $master,
+        docker_tag_messaging: ENV['DOCKER_TAG_MESSAGING'] || $master,
+        docker_tag_isaac: ENV['DOCKER_TAG_ISAAC'] || $master,
+        docker_tag_solomon: ENV['DOCKER_TAG_SOLOMON'] || $master,
+        docker_tag_capture_consumer: ENV['DOCKER_TAG_CAPTURE_CONSUMER'] || $master,
+        docker_tag_gift_card_consumer: ENV['DOCKER_TAG_GIFT_CARD_CONSUMER'] || $master,
+        docker_tag_shipments_consumer: ENV['DOCKER_TAG_SHIPMENTS_CONSUMER'] || $master,
+        docker_tag_shipstation_consumer: ENV['DOCKER_TAG_SHIPSTATION_CONSUMER'] || $master,
+        docker_tag_stock_items_consumer: ENV['DOCKER_TAG_STOCK_ITEMS_CONSUMER'] || $master,
+        docker_tag_storefront_topdrawer: ENV['DOCKER_TAG_STOREFRONT_TOPDRAWER'] || $master,
+        docker_tag_storefront_tpg: ENV['DOCKER_TAG_STOREFRONT_TPG'] || $master,
+        docker_tag_marketplace: ENV['DOCKER_TAG_MARKETPLACE'] || $master,
+        docker_tag_marketplace_ui: ENV['DOCKER_TAG_MARKETPLACE_UI'] || $master,
+        docker_tag_product_search: ENV['DOCKER_TAG_PRODUCT_SEARCH'] || $master,
+        docker_tag_demo_search: ENV['DOCKER_TAG_DEMO_SEARCH'] || $master
       }
     end
   end
@@ -156,7 +186,7 @@ Vagrant.configure("2") do |config|
 
     app.vm.provision "shell", inline: "apt-get install -y python-minimal"
     app.vm.provision "ansible" do |ansible|
-      ansible.verbose = "vvvv"
+      ansible.verbose = "v"
       ansible.playbook = "prov-shit/ansible/vagrant_appliance_base.yml"
       ansible.extra_vars = {
         user: user
@@ -170,7 +200,7 @@ Vagrant.configure("2") do |config|
 
     app.vm.provision "shell", inline: "apt-get install -y python-minimal"
     app.vm.provision "ansible" do |ansible|
-      ansible.verbose = "vvvv"
+      ansible.verbose = "v"
       ansible.skip_tags = "buildkite"
       ansible.playbook = "prov-shit/ansible/vagrant_builder.yml"
       ansible.extra_vars = {

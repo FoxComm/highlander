@@ -1,6 +1,6 @@
 [Service]
 WorkingDirectory=/usr/local
-ExecStart=/bin/bash /usr/local/bin/run_bottledwater_{{item}}.sh
+ExecStart=/usr/bin/env bash /usr/local/bin/run_bottledwater_{{item}}.sh
 Restart=always
 StandardOutput=syslog
 StandardError=syslog

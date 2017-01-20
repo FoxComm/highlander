@@ -6,38 +6,34 @@
   "disk": 0,
   "instances": 1,
   "env": {
+    "PORT": "{{solomon_port}}",
     "DB_USER": "{{db_user}}",
     "DB_HOST": "{{docker_db_host}}",
     "DB_NAME": "{{phoenix_db_name}}",
     "DB_PASSWORD": "",
     "PRIVATE_KEY": "{{private_keys_dest_dir}}/private_key.pem",
     "PUBLIC_KEY": "{{public_keys_dest_dir}}/public_key.pem",
-    "TOKEN_TTL": "{{solomon_token_ttl}}"
+    "TOKEN_TTL": "{{solomon_token_ttl}}",
+    "SOLOMON_SECRET": "{{solomon_secret_token}}"
   },
-  "portDefinitions": [
-    {
-      "port": 10006,
-      "protocol": "tcp",
-      "name": "4002",
-      "labels": {}
-    }
-  ],
+  "ports": [{{solomon_port}}],
+  "constraints": [["hostname", "UNIQUE"]],
   "container": {
     "type": "DOCKER",
     "volumes": [
       {
-        "containerPath": "{{private_keys_dest_dir}}",
-        "hostPath": "{{private_keys_dest_dir}}",
-        "mode": "RO"
-      },
-      {
         "containerPath": "{{public_keys_dest_dir}}",
         "hostPath": "{{public_keys_dest_dir}}",
         "mode": "RO"
+      },
+      {
+        "containerPath": "{{docker_logs_dir}}",
+        "hostPath": "{{docker_logs_host_dir}}",
+        "mode": "RW"
       }
     ],
     "docker": {
-      "image": "{{docker_registry}}:5000/solomon:{{docker_branch}}",
+      "image": "{{docker_registry}}:5000/solomon:{{docker_tag_solomon}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],
@@ -49,11 +45,11 @@
       "path": "/ping",
       "protocol": "HTTP",
       "gracePeriodSeconds": 300,
-      "intervalSeconds": 60,
+      "intervalSeconds": 30,
       "timeoutSeconds": 20,
       "maxConsecutiveFailures": 3,
       "ignoreHttp1xx": false,
-      "port": 4002
+      "port": {{solomon_port}}
     }
   ]
 }

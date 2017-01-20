@@ -1,107 +1,84 @@
 variable "ssh_user" {}
+
 variable "ssh_private_key" {}
 
 variable "account_file" {}
+
 variable "gce_project" {}
+
 variable "region" {}
+
 variable "base_image" {}
+
 variable "tiny_backend_image" {}
+
 variable "tiny_frontend_image" {}
+
 variable "consul_server_image" {}
+
 variable "gatling_image" {}
+
 variable "consul_leader" {}
 
-provider "google"
-{
-    credentials = "${file(var.account_file)}"
-    project = "${var.gce_project}"
-    region = "${var.region}"
+variable "dnsimple_token" {}
+
+variable "dnsimple_email" {}
+
+provider "google" {
+  credentials = "${file(var.account_file)}"
+  project     = "${var.gce_project}"
+  region      = "${var.region}"
 }
-
-##############################################
-# Setup Gatling Machines
-##############################################
-# module "foxcomm-gatling" {
-#     source = "../../modules/gce/tinystack"
-#     datacenter = "foxcomm-gatling"
-#     backend_image = "${var.tiny_backend_image}"
-#     frontend_image = "${var.tiny_frontend_image}"
-#     ssh_user = "${var.ssh_user}"
-#     ssh_private_key = "${var.ssh_private_key}"
-#     consul_leader = "${module.consul_cluster.leader}"
-#     consul_server_image = "${var.consul_server_image}"
-# }
-
-# resource "google_compute_instance" "foxcomm-gatling-gun" {
-#     name = "foxcomm-gatling-gun"
-#     machine_type = "n1-standard-2"
-#     tags = ["no-ip", "foxcomm-gatling-gun"]
-#     zone = "us-central1-a"
-
-#     disk {
-#         image = "${var.gatling_image}"
-#         type = "pd-ssd"
-#         size = "30"
-#     }
-
-#     network_interface {
-#         network = "default"
-#     }
-
-#     connection {
-#         type = "ssh"
-#         user = "${var.ssh_user}"
-#         private_key = "${file(var.ssh_private_key)}"
-#     }
-
-#     provisioner "remote-exec" {
-#         inline = [
-#           "/usr/local/bin/bootstrap.sh",
-#           "/usr/local/bin/bootstrap_consul.sh foxcomm-gatling ${module.foxcomm-gatling.consul_address}"
-#         ]
-#     }
-# }
 
 ##############################################
 # Setup Staging
 ##############################################
 module "foxcomm-staging" {
-    source = "../../modules/gce/tinystack"
-    datacenter = "foxcomm-stage"
-    backend_image = "${var.tiny_backend_image}"
-    frontend_image = "${var.tiny_frontend_image}"
-    ssh_user = "${var.ssh_user}"
-    ssh_private_key = "${var.ssh_private_key}"
-    consul_leader = "${var.consul_leader}"
-    consul_server_image = "${var.consul_server_image}"
-    frontend_machine_type = "n1-highmem-8"
+  source                = "../../modules/gce/tinystack"
+  datacenter            = "foxcomm-stage"
+  backend_image         = "${var.tiny_backend_image}"
+  frontend_image        = "${var.tiny_frontend_image}"
+  ssh_user              = "${var.ssh_user}"
+  ssh_private_key       = "${var.ssh_private_key}"
+  consul_leader         = "${var.consul_leader}"
+  consul_server_image   = "${var.consul_server_image}"
+  frontend_machine_type = "n1-highmem-8"
 }
 
 ##############################################
 # Target Setup Staging
 ##############################################
 module "target-staging" {
-    source = "../../modules/gce/tinystack"
-    datacenter = "target-stage"
-    backend_image = "${var.tiny_backend_image}"
-    frontend_image = "${var.tiny_frontend_image}"
-    ssh_user = "${var.ssh_user}"
-    ssh_private_key = "${var.ssh_private_key}"
-    consul_leader = "${var.consul_leader}"
-    consul_server_image = "${var.consul_server_image}"
+  source              = "../../modules/gce/tinystack"
+  datacenter          = "tgt-test"
+  backend_image       = "${var.tiny_backend_image}"
+  frontend_image      = "${var.tiny_frontend_image}"
+  ssh_user            = "${var.ssh_user}"
+  ssh_private_key     = "${var.ssh_private_key}"
+  consul_leader       = "${var.consul_leader}"
+  consul_server_image = "${var.consul_server_image}"
 }
 
 ##############################################
-# Early Easy Cluster
+# Setup DNS
 ##############################################
-module "tony-staging" {
-    source = "../../modules/gce/tinystack"
-    datacenter = "foxcomm-tony"
-    backend_image = "tinystack-backend-1477553953"
-    frontend_image = "tinystack-frontend-1477026455"
-    ssh_user = "${var.ssh_user}"
-    ssh_private_key = "${var.ssh_private_key}"
-    consul_leader = "10.240.0.10"
-    consul_server_image = "tinystack-amigo-1476574475"
-    frontend_disk_size = "40"
+provider "dnsimple" {
+  token = "${var.dnsimple_token}"
+  email = "${var.dnsimple_email}"
+}
+
+resource "dnsimple_record" "frontend-dns-record" {
+  domain = "foxcommerce.com"
+  name   = "stage"
+  value  = "${module.foxcomm-staging.frontend_address}"
+  type   = "A"
+  ttl    = 3600
+}
+
+resource "dnsimple_record" "frontend-dns-record-target" {
+  domain = "foxcommerce.com"
+  name   = "test-target"
+  value  = "${module.target-staging.frontend_address}"
+  type   = "A"
+  ttl    = 3600
 }

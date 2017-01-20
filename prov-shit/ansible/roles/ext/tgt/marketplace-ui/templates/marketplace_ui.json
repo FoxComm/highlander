@@ -9,23 +9,27 @@
     "API_URL": "https://{{storefront_server_name}}/api/v1/mkt",
     "ASHES_URL": "https://{{storefront_server_name}}/admin"
   },
-  "portDefinitions": [
-    {
-      "port": 10007,
-      "protocol": "tcp",
-      "name": "4042",
-      "labels": {}
-    }
-  ],
   "container": {
     "type": "DOCKER",
     "volumes": [],
     "docker": {
-      "image": "{{docker_registry}}:5000/marketplace-ui:{{docker_branch}}",
+      "image": "{{docker_registry}}:5000/marketplace-ui:{{docker_tag_marketplace_ui}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],
       "forcePullImage": true
     }
-  }
+  },
+  "healthChecks": [
+    {
+      "protocol": "COMMAND",
+      "command": {
+        "value": "ps -ef | grep -v grep | grep gulp dev"
+      },
+      "gracePeriodSeconds": 300,
+      "intervalSeconds": 20,
+      "timeoutSeconds": 20,
+      "maxConsecutiveFailures": 3
+    }
+  ]
 }

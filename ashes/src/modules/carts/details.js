@@ -6,7 +6,7 @@ import { createReducer } from 'redux-act';
 import { transitionTo } from 'browserHistory';
 import OrderParagon from 'paragons/order';
 
-import createAsyncActions from 'modules/async-utils';
+import { createAsyncActions } from '@foxcomm/wings';
 
 ////////////////////////////////////////////////////////////////////////////////
 // Cart Manipulation Actions
@@ -14,6 +14,7 @@ import createAsyncActions from 'modules/async-utils';
 type UpdateLineItemPayload = {
   sku: string;
   quantity: number;
+  attributes: ?Object;
 }
 
 const _fetchCart = createAsyncActions(
@@ -27,11 +28,11 @@ const _fetchCustomerCart = createAsyncActions(
 );
 
 const _lockCart = createAsyncActions('lockCart', (refNum) => {
-  return Api.post(`/orders/${refNum}/lock`);
+  return Api.post(`/carts/${refNum}/lock`);
 });
 
 const _unlockCart = createAsyncActions('unlockCart', (refNum) => {
-  return Api.post(`/orders/${refNum}/unlock`);
+  return Api.post(`/carts/${refNum}/unlock`);
 });
 
 export const lockCart = _lockCart.perform;
@@ -46,11 +47,13 @@ export const clearFetchCartErrors = _fetchCart.clearErrors;
 
 const _updateLineItemCount = createAsyncActions(
   'updateLineItemCount',
-  (refNum: string, payload: Array<UpdateLineItemPayload>) => Api.patch(`/orders/${refNum}/line-items`, payload)
+  (refNum: string, payload: Array<UpdateLineItemPayload>) => Api.patch(`/carts/${refNum}/line-items`, payload)
 );
 
-export function updateLineItemCount(refNum: string, skuCode: string, quantityDiff: number): Function {
-  return _updateLineItemCount.perform(refNum, [{ sku: skuCode, quantity: quantityDiff }]);
+export function updateLineItemCount(
+  refNum: string, skuCode: string, quantityDiff: number, attributes: ?Object
+): Promise {
+  return _updateLineItemCount.perform(refNum, [{ sku: skuCode, quantity: quantityDiff, attributes }]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -58,22 +61,22 @@ export function updateLineItemCount(refNum: string, skuCode: string, quantityDif
 
 const _chooseShippingAddress = createAsyncActions(
   'chooseShippingAddress',
-  (refNum: string, addressId: number) => Api.patch(`/orders/${refNum}/shipping-address/${addressId}`)
+  (refNum: string, addressId: number) => Api.patch(`/carts/${refNum}/shipping-address/${addressId}`)
 );
 
 const _createShippingAddress = createAsyncActions(
   'createShippingAddress',
-  (refNum: string, payload: Object) => Api.post(`/orders/${refNum}/shipping-address`, payload)
+  (refNum: string, payload: Object) => Api.post(`/carts/${refNum}/shipping-address`, payload)
 );
 
 const _updateShippingAddress = createAsyncActions(
   'updateShippingAddress',
-  (refNum: string, payload: Object) => Api.patch(`/orders/${refNum}/shipping-address`, payload)
+  (refNum: string, payload: Object) => Api.patch(`/carts/${refNum}/shipping-address`, payload)
 );
 
 const _deleteShippingAddress = createAsyncActions(
   'deleteShippingAddress',
-  (refNum: string) => Api.delete(`/orders/${refNum}/shipping-address`)
+  (refNum: string) => Api.delete(`/carts/${refNum}/shipping-address`)
 );
 
 export const chooseShippingAddress = _chooseShippingAddress.perform;
@@ -88,7 +91,7 @@ const _updateShippingMethod = createAsyncActions(
   'updateShippingMethod',
   (refNum: string, shippingMethodId: number) => {
     const payload = { shippingMethodId };
-    return Api.patch(`/orders/${refNum}/shipping-method`, payload);
+    return Api.patch(`/carts/${refNum}/shipping-method`, payload);
   }
 );
 
@@ -155,7 +158,7 @@ export const deleteGiftCardPayment = _deleteGiftCardPayment.perform;
 export const deleteStoreCreditPayment = _deleteStoreCreditPayment.perform;
 
 function paymentsBasePath(refNum: string): string {
-  return `/orders/${refNum}/payment-methods`;
+  return `/carts/${refNum}/payment-methods`;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -163,7 +166,7 @@ function paymentsBasePath(refNum: string): string {
 
 const _checkout = createAsyncActions(
   'checkout',
-  (refNum: string) => Api.post(`/orders/${refNum}/checkout`)
+  (refNum: string) => Api.post(`/carts/${refNum}/checkout`)
 );
 
 export function checkout(refNum: string): Function {

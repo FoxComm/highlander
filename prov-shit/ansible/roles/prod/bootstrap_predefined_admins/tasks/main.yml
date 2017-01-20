@@ -2,7 +2,5 @@
 
 - name: Seed predefined admins
   shell: java -Ddb.host={{db_host}} -Ddb.url="jdbc:postgresql://{{db_host}}/{{db_name}}?user={{db_user}}" -Ddb.name={{db_name}} -cp {{phoenix_jar}} utils.seeds.Seeds seed --skipMigrate --skipBase --seedAdmins
-  sudo: true
   args:
     chdir: "{{phoenix_dir}}"
-

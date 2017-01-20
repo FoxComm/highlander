@@ -21,7 +21,7 @@ const SkusListPage = (props: Props) => {
   const addAction = () => transitionTo('sku-details', { skuCode: 'new' });
   const navLinks = [
     { title: 'Lists', to: 'skus' },
-    { title: 'Activity Trail', to: 'home' },
+    { title: 'Activity Trail', to: 'skus-activity-trail' },
   ];
 
   return (

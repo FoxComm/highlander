@@ -52,7 +52,7 @@ function formatLabel(label: string): string {
   });
 }
 
-function renderFormField(name: string, content: Element, options: AttrOptions): Element {
+export function renderFormField(name: string, content: Element, options: AttrOptions): Element {
   return (
     <FormField
       {...options}
@@ -86,7 +86,7 @@ export default class ObjectFormInner extends Component {
       return (
         <div className="fc-object-form__add-custom-property">
           Custom Property
-          <a className="fc-object-form__add-custom-property-icon"
+          <a id="add-customer-property-btn" className="fc-object-form__add-custom-property-icon"
              onClick={this.handleAddProperty}>
             <i className="icon-add" />
           </a>
