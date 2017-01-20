@@ -77,7 +77,9 @@ const MultiSelectRow = (props, context) => {
       'hold' : col.field == 'onHold',
       'reserved' : col.field == 'reserved',
       'afs' : col.field == 'afs',
-      'afs-cost' : col.field == 'afsCost'
+      'afs-cost' : col.field == 'afsCost',
+      'product-name' : col.field == 'title',
+      'product-id' : col.field == 'productId'
     });
 
     visibleCells.push(
