@@ -1,5 +1,5 @@
-import { Request, query } from '../../elastic/request';
-import operators from '../../paragons/customer-groups/operators';
+import { Request, query } from 'elastic/request';
+import operators from 'paragons/customer-groups/operators';
 
 const requestAdapter = (criterions, mainCondition, conditions) => {
   const request = new Request(criterions);

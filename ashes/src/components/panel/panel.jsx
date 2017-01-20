@@ -1,30 +1,24 @@
-import React, { PropTypes } from 'react';
+/* @flow */
+
 import classNames from 'classnames';
+import React, { PropTypes } from 'react';
 
-const Panel = props => {
-  return (
-    <div className={classNames('fc-panel', props.className)}>
-      <div className="fc-panel-header">
-        {props.title}
-      </div>
-      <div className={classNames('fc-panel-content', {'fc-panel-content-featured': props.featured})}>
-        {props.container && props.container.props.children}
-        {props.children}
-      </div>
+type Props = {
+  title: Element;
+  featured?: boolean;
+  className?: string;
+  children?: Element;
+};
+
+const Panel = ({ title, featured, className, children }: Props) => (
+  <div className={classNames('fc-panel', className)}>
+    <div className="fc-panel-header">
+      {title}
     </div>
-  );
-};
-
-Panel.propTypes = {
-  children: PropTypes.any,
-  title: PropTypes.string,
-  content: PropTypes.any,
-  featured: PropTypes.bool,
-  className: PropTypes.string
-};
-
-Panel.defaultProps = {
-  featured: false
-};
+    <div className={classNames('fc-panel-content', { 'fc-panel-content-featured': featured })}>
+      {children}
+    </div>
+  </div>
+);
 
 export default Panel;

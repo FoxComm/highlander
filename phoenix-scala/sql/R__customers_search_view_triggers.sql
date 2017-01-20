@@ -13,7 +13,7 @@ create or replace function update_customers_view_from_customers_insert_fn() retu
             new.is_guest as is_guest,
             u.is_blacklisted as is_blacklisted,
             u.phone_number as phone_number,
-            u.blacklisted_by as blacklisted_by,
+            u.blacklisted_by,
             to_char(u.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as joined_at,
             c.scope as scope
             from customer_data as c, users as u
@@ -185,18 +185,24 @@ begin
                   then
                     '[]'
                 else
-                  json_agg((
-                    o.account_id,
-                    o.reference_number,
-                    o.state,
-                    to_char(o.placed_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
-                    o.sub_total,
-                    o.shipping_total,
-                    o.adjustments_total,
-                    o.taxes_total,
-                    o.grand_total,
-                    0 -- FIXME
-                  )::export_orders)::jsonb
+                  (select json_agg((ord)::export_orders)::jsonb
+                    from (
+                      select
+                        o.account_id,
+                        o.reference_number,
+                        o.state,
+                        to_char(o.placed_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
+                        o.sub_total,
+                        o.shipping_total,
+                        o.adjustments_total,
+                        o.taxes_total,
+                        o.grand_total,
+                        count(oli) as items_count
+                      from orders o
+                      left join order_line_items as oli on (o.reference_number = oli.cord_ref)
+                      where o.account_id = c.account_id
+                      group by o.id
+                    ) ord)
                 end as orders
               from customer_data as c
               left join orders as o on (c.account_id = o.account_id)
@@ -236,7 +242,7 @@ begin
         from (
 			select
 				c.account_id as id,
-		    	coalesce(sum(ccc.amount), 0) + coalesce(sum(sca.debit), 0) + coalesce(sum(gca.debit), 0) as revenue
+			coalesce(sum(ccc.amount), 0) + coalesce(sum(sca.debit), 0) + coalesce(sum(gca.debit), 0) as revenue
 		    from customer_data as c
 		    inner join orders on (c.account_id = orders.account_id and orders.state = 'shipped')
 		    inner join order_payments as op on (op.cord_ref = orders.reference_number)

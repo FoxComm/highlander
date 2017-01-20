@@ -43,13 +43,13 @@ export type Props = {
   setState?: Function;
   predicate: (row: RowType) => string|number;
   processRows: (rows: Array<Element>) => Element;
-  detectNewRows?: boolean;
-  isLoading?: boolean;
-  failed?: boolean;
-  emptyMessage?: string;
-  errorMessage?: string;
+  detectNewRows: boolean;
+  isLoading: boolean;
+  failed: boolean;
+  emptyMessage: string;
+  errorMessage: string;
   className?: string;
-  showLoadingOnMount?: boolean;
+  showLoadingOnMount: boolean;
   wrapToTbody: boolean;
   columns: Array<Column>;
   renderHeadIfEmpty: boolean;
@@ -163,14 +163,18 @@ export default class Table extends Component {
 
     if (showLoading) {
       return tableMessage(<WaitAnimation />, this.loadingInline);
-    } else if (props.failed && props.errorMessage) {
+    } else if (props.failed) {
       return tableMessage(props.errorMessage);
-    } else if (isEmpty && props.emptyMessage) {
+    } else if (isEmpty) {
       return tableMessage(props.emptyMessage);
     }
   }
 
   get body(): ?Element {
+    if (this.props.failed) {
+      return;
+    }
+
     const { tableRows } = this;
     // $FlowFixMe: respect lodash typechecks!
     const dataExists = _.isArray(tableRows) ? tableRows.length > 0 : !!tableRows;

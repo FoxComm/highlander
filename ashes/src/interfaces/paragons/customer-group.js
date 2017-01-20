@@ -5,12 +5,11 @@ declare type TCustomerGroup = {
   name: string;
   type: string;
   customersCount: number;
-  isSaved: boolean;
   isValid: boolean;
   stats: Object;
-  filterTerm: ?any;
   conditions: Array<Condition>;
   mainCondition: string;
+  elasticRequest: Object;
   createdAt: string;
   updatedAt: string;
   stats: ?Object;

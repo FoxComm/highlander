@@ -29,9 +29,10 @@ import Criterion from './editor/criterion-view';
 
 const prefixed = prefix('fc-customer-group');
 
-const mapStateToProps = state => {
-  return { customersList: state.customerGroups.details.customers };
-};
+const mapStateToProps = state => ({
+  customersList: _.get(state, 'customerGroups.details.customers'),
+  statsLoading: _.get(state, 'asyncActions.fetchStatsCustomerGroup.inProgress', false),
+});
 
 const mapDispatchToProps = dispatch => ({
   groupActions: bindActionCreators(groupActions, dispatch),
@@ -46,11 +47,22 @@ const tableColumns = [
 
 const TotalCounter = makeTotalCounter(state => state.customerGroups.details.customers, customersListActions);
 
+const StatsValue = ({ value, currency, preprocess = _.identity }) => {
+  if (!_.isNumber(value)) {
+    return <span>—</span>;
+  }
+
+  const v = preprocess(value);
+
+  return currency ? <Currency value={v} /> : <span>{v}</span>;
+};
+
 @connect(mapStateToProps, mapDispatchToProps)
 export default class DynamicGroup extends Component {
 
   static propTypes = {
     customersList: PropTypes.object,
+    statsLoading: PropTypes.bool,
     group: PropTypes.shape({
       id: PropTypes.number,
       name: PropTypes.string,
@@ -175,21 +187,21 @@ export default class DynamicGroup extends Component {
 
 
   get stats() {
-    const { stats } = this.props.group;
+    const { statsLoading, group: { stats } } = this.props;
 
     return (
-      <PanelList className={prefixed('stats')}>
+      <PanelList className={classNames(prefixed('stats'), { _loading: statsLoading })}>
         <PanelListItem title="Total Orders">
-          {stats.ordersCount}
+          <StatsValue value={stats.ordersCount} />
         </PanelListItem>
         <PanelListItem title="Total Sales">
-          <Currency value={stats.totalSales} />
+          <StatsValue value={stats.totalSales} currency />
         </PanelListItem>
         <PanelListItem title="Avg. Order Size">
-          {Math.floor(stats.averageOrderSize)}
+          <StatsValue value={stats.averageOrderSize} preprocess={Math.round} />
         </PanelListItem>
         <PanelListItem title="Avg. Order Value">
-          <Currency value={stats.averageOrderSum} />
+          <StatsValue value={stats.averageOrderSum} currency />
         </PanelListItem>
       </PanelList>
     );

@@ -1,7 +1,5 @@
 import { toQuery } from './common';
 import { post } from '../lib/search';
-import _ from 'lodash';
-import { assoc } from 'sprout-data';
 
 const mapping = 'customers_search_view/_search';
 
