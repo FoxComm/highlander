@@ -38,22 +38,23 @@ const ProductDetails = (props: Props) => {
   const TwitterHandle = 'perfectgourmet1';
   const salePrice = skus[0].attributes.salePrice.v.value;
   const retailPrice = skus[0].attributes.retailPrice.v.value;
-  const isOnSale = retailPrice > salePrice ?
-    <div styleName="price">
-      <Currency
-        styleName="retail-price"
-        value={retailPrice}
-        currency={currency}
-      />
-      <Currency
-        styleName="on-sale-price"
-        value={salePrice}
-        currency={currency}
-      />
-    </div> :
-    <div styleName="price">
-      <Currency value={price} currency={currency} />
-    </div>;
+
+  const isOnSale = (retailPrice > salePrice)
+    ? <div styleName="price">
+        <Currency
+          styleName="retail-price"
+          value={retailPrice}
+          currency={currency}
+        />
+        <Currency
+          styleName="on-sale-price"
+          value={salePrice}
+          currency={currency}
+        />
+      </div>
+    : <div styleName="price">
+        <Currency value={price} currency={currency} />
+      </div>;
 
   return (
     <div>
