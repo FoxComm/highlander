@@ -57,8 +57,8 @@ const MultiSelectRow = (props, context) => {
       'storefront-name' : col.field == 'storefrontName',
       'code' : col.field == 'code',
       'state' : col.field == 'state',
-      'retail-price-field' : col.field == 'retailPrice',
-      'sale-price-field' : col.field == 'salePrice',
+      'retail-price' : col.field == 'retailPrice',
+      'sale-price' : col.field == 'salePrice',
       'total-uses' : col.field == 'totalUsed',
       'current-carts' : col.field == 'currentCarts',
       'line-item-sku': col.field == 'sku',
@@ -81,7 +81,8 @@ const MultiSelectRow = (props, context) => {
       'product-name' : col.field == 'title',
       'product-id' : col.field == 'productId',
       'promo-name' : col.field == 'promotionName',
-      'apply-type' : col.field == 'applyType'
+      'apply-type' : col.field == 'applyType',
+      'sku-code' : col.field == 'skuCode'
     });
 
     visibleCells.push(
