@@ -143,6 +143,7 @@ class ProductConversionChart extends React.Component {
             <ProductConversionToolTip
               barWidth={barStyle.data.width}
               getDelta={(datum) => datum.delta}
+              getConversion={(datum) => Math.floor(Math.random() * 200) + 1} 
             />
           }
           style={barStyle}
