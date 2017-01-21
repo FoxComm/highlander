@@ -94,11 +94,15 @@ class ListItem extends React.Component {
   }
 
   isOnSale(): HTMLElement {
-    const {
-      currency,
+    const { currency } = this.props;
+
+    let {
       salePrice,
       retailPrice,
     } = this.props;
+
+    salePrice = Number(salePrice);
+    retailPrice = Number(retailPrice);
 
     return (retailPrice > salePrice)
       ? <div styleName="price">
