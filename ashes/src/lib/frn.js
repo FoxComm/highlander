@@ -15,6 +15,9 @@ export const frn = {
     sku: 'frn:activity:sku',
     user: 'frn:activity:user',
   },
+  merch: {
+    taxonomy: 'frn:merch:taxonomy',
+  },
   mkt: {
     coupon: 'frn:mkt:coupon',
     giftCard: 'frn:mkt:giftCard',
