@@ -93,20 +93,14 @@ class ListItem extends React.Component {
     tracking.clickPdp(props, props.index);
   }
 
-  render(): HTMLElement {
+  isOnSale(): HTMLElement {
     const {
-      productId,
-      slug,
-      title,
-      description,
+      currency,
       salePrice,
       retailPrice,
-      currency,
     } = this.props;
 
-    const productSlug = slug != null && !_.isEmpty(slug) ? slug : productId;
-
-    const isOnSale = (retailPrice > salePrice)
+    return (retailPrice > salePrice)
       ? <div styleName="price">
           <Currency
             styleName="retail-price"
@@ -122,6 +116,17 @@ class ListItem extends React.Component {
       : <div styleName="price">
           <Currency value={salePrice} currency={currency} />
         </div>;
+  }
+
+  render(): HTMLElement {
+    const {
+      productId,
+      slug,
+      title,
+      description,
+    } = this.props;
+
+    const productSlug = slug != null && !_.isEmpty(slug) ? slug : productId;
 
     return (
       <div styleName="list-item">
@@ -143,9 +148,7 @@ class ListItem extends React.Component {
           </h1>
           <h2 styleName="description">{/* serving size */}</h2>
           <div styleName="price-line">
-
-            {isOnSale}
-
+            {this.isOnSale()}
             <div styleName="add-to-cart-btn">
               <AddToCartBtn onClick={this.addToCart} expanded />
             </div>
