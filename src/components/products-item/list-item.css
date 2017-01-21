@@ -95,6 +95,15 @@
   letter-spacing: 1.5px;
 }
 
+.on-sale-price {
+  color: var(--on-sale-color);
+}
+
+.retail-price {
+  margin-right: 7px;
+  text-decoration: line-through;
+}
+
 @media (--small-only) {
   .title {
     font-weight: 400;
