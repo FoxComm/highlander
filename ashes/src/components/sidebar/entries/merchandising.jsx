@@ -33,7 +33,7 @@ export default class MerchandisingEntry extends Component {
     return (
       <li>
         <NavigationItem
-          to="products"
+          to="taxonomies"
           icon="icon-hierarchy"
           title="Merchandising"
           isIndex={true}
@@ -43,7 +43,7 @@ export default class MerchandisingEntry extends Component {
           status={status}
           toggleMenuItem={toggleMenuItem}>
           <IndexLink
-            to="products"
+            to="taxonomies"
             className="fc-navigation-item__sublink"
             actualClaims={claims}
             expectedClaims={taxonomyClaims}>
