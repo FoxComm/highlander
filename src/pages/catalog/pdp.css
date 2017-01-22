@@ -55,12 +55,20 @@
   font-size: 18px;
   color: #363636;
   opacity: 0.64;
-}
-
-@media (--medium) {
-  .price {
+  
+  @media (--medium) {
     font-size: 22px;
   }
+}
+
+
+.on-sale-price {
+  color: var(--on-sale-color);
+}
+
+.retail-price {
+  margin-right: 7px;
+  text-decoration: line-through;
 }
 
 .cart-actions {
@@ -228,13 +236,4 @@
 
 .not-found {
   composes: not-found from '../../components/products-list/products-list.css';
-}
-
-.on-sale-price {
-  color: var(--on-sale-color);
-}
-
-.retail-price {
-  margin-right: 7px;
-  text-decoration: line-through;
 }

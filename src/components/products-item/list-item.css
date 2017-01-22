@@ -95,13 +95,25 @@
   letter-spacing: 1.5px;
 }
 
+.on-sale-price,
+.retail-price {
+  display: block;
+
+  @media (--medium) {
+    display: inline-block;
+  }
+}
+
 .on-sale-price {
   color: var(--on-sale-color);
 }
 
 .retail-price {
-  margin-right: 7px;
   text-decoration: line-through;
+
+  @media (--medium) {
+    margin-right: 7px;    
+  }
 }
 
 @media (--small-only) {
