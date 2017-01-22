@@ -34,5 +34,5 @@
   --text-color-dark: var(--bunker);
   --text-color-main: var(--bunker);
 
-  --on-sale-color: #AA0F0F;
+  --text-color-on-sale: #AA0F0F;
 }

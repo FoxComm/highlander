@@ -55,15 +55,14 @@
   font-size: 18px;
   color: #363636;
   opacity: 0.64;
-  
+
   @media (--medium) {
     font-size: 22px;
   }
 }
 
-
 .on-sale-price {
-  color: var(--on-sale-color);
+  color: var(--text-color-on-sale);
 }
 
 .retail-price {
