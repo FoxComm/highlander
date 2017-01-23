@@ -1,2 +1,3 @@
-marathon_filename: marathon-1.3.7.tgz
-marathon_download_url: "http://downloads.mesosphere.com/marathon/v1.3.7/{{marathon_filename}}"
+marathon_version: 1.3.8
+marathon_filename: marathon-{{marathon_version}}.tgz
+marathon_download_url: "http://downloads.mesosphere.com/marathon/v{{marathon_version}}/{{marathon_filename}}"
