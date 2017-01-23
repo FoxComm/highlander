@@ -17,7 +17,7 @@ trait FormAndShadow {
       .projectAttributes(formJson = this.form.attributes, shadowJson = this.shadow.attributes)
     attributes match {
       case JObject(o) ⇒ o.toMap
-      case _ ⇒ throw new IllegalArgumentException("Invalid attributes")
+      case _          ⇒ throw new IllegalArgumentException("Invalid attributes")
     }
 
   }

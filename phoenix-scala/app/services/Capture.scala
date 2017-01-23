@@ -68,7 +68,8 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
 
       orderAdjustmentCost = adjustments
         .filter(_.adjustmentType == OrderLineItemAdjustment.OrderAdjustment)
-        .map(_.subtract).sum
+        .map(_.subtract)
+        .sum
 
       //find the shipping method used for the order, take the minimum between 
       //shipping method and what shipping cost was passed in payload because
@@ -188,13 +189,13 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
   private def subtractGcPayments(total: Int,
                                  gcPayments: Seq[(OrderPayment, GiftCard)],
                                  currency: Currency): Int = {
-    Math.max(0, total - gcPayments.map{ case (op, _) ⇒ getPaymentAmount(op, currency) }.sum)
+    Math.max(0, total - gcPayments.map { case (op, _) ⇒ getPaymentAmount(op, currency) }.sum)
   } ensuring (remaining ⇒ remaining >= 0 && remaining <= total)
 
   private def subtractScPayments(total: Int,
                                  scPayments: Seq[(OrderPayment, StoreCredit)],
                                  currency: Currency): Int = {
-    Math.max(0, total - scPayments.map{case (op, _) ⇒ getPaymentAmount(op, currency)}.sum)
+    Math.max(0, total - scPayments.map { case (op, _) ⇒ getPaymentAmount(op, currency) }.sum)
   } ensuring (remaining ⇒ remaining >= 0 && remaining <= total)
 
   private def getPaymentAmount(op: OrderPayment, currency: Currency): Int = {

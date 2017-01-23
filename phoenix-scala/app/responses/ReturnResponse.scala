@@ -121,7 +121,7 @@ object ReturnResponse {
     val finalSubtotal = subtotal.getOrElse(0)
     val finalTaxes    = taxes.getOrElse(0)
     val finalShipping = shipments.flatMap(_._1.shippingPrice).sum
-    val grandTotal = finalSubtotal + finalShipping + finalTaxes
+    val grandTotal    = finalSubtotal + finalShipping + finalTaxes
     ReturnTotals(finalSubtotal, finalTaxes, finalShipping, grandTotal)
   }
 

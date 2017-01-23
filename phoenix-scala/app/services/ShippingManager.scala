@@ -166,9 +166,9 @@ object ShippingManager {
 
   private def hasTag(lineItem: CartLineItemProductData, tag: String): Boolean =
     ObjectUtils.get("tags", lineItem.productForm, lineItem.productShadow) match {
-      case JArray(tags) ⇒
-        tags.exists { case JString(t) ⇒ t.contains(tag) ; case _ ⇒ false }
-      case _ ⇒ false
+      case JArray(tags)               ⇒
+        tags.exists { case JString(t) ⇒ t.contains(tag); case _ ⇒ false }
+      case _                          ⇒ false
     }
 
 }

@@ -70,8 +70,8 @@ object ObjectUtils {
     humanReadableForm match {
       case JObject(o) ⇒
         val zeroAccumObj = existingForm.merge(humanReadableForm)
+        // TODO: simplify this, what is happening here‽
         val (_, keyMap, newForm) =
-          // TODO: simplify this, what is happening here‽
           o.obj.foldLeft((zeroAccumObj, Map.empty: KeyMap, List.empty[(String, JValue)])) {
             case ((accumObj, keyMap, newForm), (attr, value)) ⇒
               val k            = key(value, accumObj)

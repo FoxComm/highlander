@@ -47,7 +47,9 @@ object PluginsManager extends LazyLogging {
       plugin: Plugin,
       schema: SettingsSchema,
       payload: RegisterPluginPayload)(implicit ec: EC): DbResultT[Plugin] = {
-    val newSettings = plugin.settings ++ schema.filterNot(plugin.settings contains _.name).map(s ⇒ s.name → s.default)
+    val newSettings = plugin.settings ++ schema
+        .filterNot(plugin.settings contains _.name)
+        .map(s ⇒ s.name → s.default)
     Plugins.update(plugin,
                    plugin.copy(settings = newSettings,
                                schemaSettings = schema,

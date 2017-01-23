@@ -50,9 +50,8 @@ object BatchMetadata {
   def apply(input: Seq[BatchMetadataSource]): BatchMetadata = buildInner(input)
 
   private def buildInner(input: Seq[BatchMetadataSource]): BatchMetadata =
-    BatchMetadata(
-      success = input.map(src ⇒ src.className → src.success).toMap,
-      failures = input.map(src ⇒ src.className → src.failures).toMap)
+    BatchMetadata(success = input.map(src ⇒ src.className  → src.success).toMap,
+                  failures = input.map(src ⇒ src.className → src.failures).toMap)
 
   def flattenErrors(input: FailureData): Option[List[String]] = {
     val errors = input.values.toList
