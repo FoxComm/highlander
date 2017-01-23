@@ -118,7 +118,7 @@ sub send-to-henhouse($r, $henhouse)
     } 
     else 
     {
-        count($henhouse, "$r<path>.$r<cmd>.$r<response>");
+        count($henhouse, 1, "$r<path>.$r<cmd>.$r<response>");
     }
 }
 
