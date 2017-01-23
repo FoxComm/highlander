@@ -10,4 +10,6 @@ object CustomerGroupPayloads {
                                          elasticRequest: Json,
                                          customersCount: Option[Int],
                                          templateId: Option[Int] = None)
+
+  case class CustomerGroupMemberSyncPayload(customers: Seq[Int])
 }
