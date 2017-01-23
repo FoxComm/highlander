@@ -3,6 +3,7 @@
 // libs
 import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
+import styles from './container.css';
 
 // components
 import TabListView from 'components/tabs/tabs';
@@ -51,16 +52,16 @@ class InventoryAndTransactions extends Component {
     const transactionsTabActive = this.state.currentView == 'transactions';
 
     return (
-      <div className="fc-inventory-item-details">
-        <div className="fc-inventory-item-details__summary">
+      <div styleName="root">
+        <div styleName="summary">
             <TabListView>
               <TabView draggable={false} selected={!transactionsTabActive} onClick={this.selectInventory}>
-                <div className="fc-inventory-item-details__tab-link" >
+                <div styleName="tab-link" >
                   Inventory
                 </div>
               </TabView>
               <TabView draggable={false} selected={transactionsTabActive} onClick={this.selectTransactions}>
-                <div className="fc-inventory-item-details__tab-link">
+                <div styleName="tab-link">
                   Transactions
                 </div>
               </TabView>

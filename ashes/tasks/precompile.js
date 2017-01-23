@@ -25,7 +25,11 @@ module.exports = function(gulp, opts) {
 
   gulp.task('precompile', ['precompile.static', 'precompile.source']);
 
-  gulp.task('precompile.watch', function() {
+  gulp.task('precompile-source.watch', function() {
     runScript(`watch-precompile`);
+  });
+
+  gulp.task('precompile-static.watch', function() {
+    gulp.watch(['src/**/*.css', 'src/**/*.json'], ['precompile.static']);
   });
 };

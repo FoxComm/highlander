@@ -3,6 +3,7 @@
 import React, { Element, Component } from 'react';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
+import styles from './inventory.css';
 
 // components
 import Table from 'components/table/table';
@@ -75,7 +76,7 @@ class WarehouseDrawer extends Component {
         <div>
           <Table
             {...props}
-            className="fc-inventory-item-details__warehouse-details-table"
+            styleName="warehouse-details-table"
             renderRow={this.renderRow}
             emptyMessage="No warehouse data found."
           />

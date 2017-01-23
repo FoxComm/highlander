@@ -4,6 +4,7 @@ import _ from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
+import styles from './inventory.css';
 
 // components
 import ExpandableTable from 'components/table/expandable-table';
@@ -128,7 +129,7 @@ class InventoryItemDetails extends Component {
         isLoading={isFetching}
         failed={failed}
         emptyMessage="No warehouse data found."
-        className="fc-inventory-item-details__warehouses-table"
+        styleName="warehouses-table"
       />
     );
   }
