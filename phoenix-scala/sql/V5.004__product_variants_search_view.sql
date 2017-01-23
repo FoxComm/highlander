@@ -13,7 +13,7 @@ where product_variants.id = product_variants_search_view.id;
 alter table product_variants_search_view
   add foreign key (id) references object_forms (id) on delete restrict on update cascade,
   add foreign key (context_id) references object_contexts (id) on delete restrict on update cascade,
-  add foreign key (middlewarehouse_sku_id) references product_variant_mwh_sku_ids (id) on delete restrict on update cascade;
+  add foreign key (middlewarehouse_sku_id) references product_variant_mwh_sku_ids (mwh_sku_id) on delete restrict on update cascade;
 
 ----- we drop old triggers here, but create new renamed one
 ----- in repeatable migration file: R__product_variants_search_view_triggers.sql

@@ -14,7 +14,7 @@ begin
     illuminate_obj(form, shadow, 'retailPrice')->>'currency' as retail_price_currency,
     illuminate_obj(form, shadow, 'externalId') as external_id,
     new.scope as scope,
-    mwh_sku.id as middlewarehouse_sku_id
+    mwh_sku.mwh_sku_id as middlewarehouse_sku_id
     from object_contexts as context
       inner join object_shadows as shadow  on (shadow.id = new.shadow_id)
       inner join object_forms as form on (form.id = new.form_id)
