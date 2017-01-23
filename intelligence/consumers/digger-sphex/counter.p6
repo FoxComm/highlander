@@ -85,7 +85,7 @@ sub track($henhouse, $path)
     my $verb = %args<v>;
     my $object = %args<ob>;
     my $object-id = %args<id>;
-    my $count = val(%args<c>);
+    my $count = %args<c>:exists ?? val(%args<c>) !! 1;
 
     return if $count.WHAT === Str;
 
