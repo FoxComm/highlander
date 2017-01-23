@@ -24,7 +24,7 @@ class AuthIntegrationTest
     val secret = "letmein".some
     val org    = "merchant" // todo get from seeds or context?
 
-    def createUser(name: Option[String], isGuest: Option[Boolean] = None) = {
+    def createCustomer(name: Option[String], isGuest: Option[Boolean] = None) = {
       val root = customersApi
         .create(
             CreateCustomerPayload(email = email,
@@ -40,16 +40,16 @@ class AuthIntegrationTest
 
     val payload = LoginPayload(email, secret.get, org)
 
-    "should create customer and get logged in" in new Customer_Seed {
+    "should create customer and get logged in" in {
       publicApi.doLogin(payload).mustFailWith400(LoginFailed)
-      createUser("test".some)
+      createCustomer("test".some)
       publicApi.doLogin(payload).mustBeOk()
     }
 
     "should create guest with same email" in {
-      createUser("test".some)
+      createCustomer("test".some)
       publicApi.doLogin(payload).mustBeOk()
-      createUser("guest".some, true.some)
+      createCustomer("guest".some, true.some)
       publicApi.doLogin(payload).mustBeOk()
     }
 
