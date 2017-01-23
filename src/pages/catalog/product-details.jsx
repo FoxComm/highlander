@@ -39,8 +39,8 @@ const ProductDetails = (props: Props) => {
   const salePrice = skus[0].attributes.salePrice.v.value;
   const retailPrice = skus[0].attributes.retailPrice.v.value;
 
-  const isOnSale = (retailPrice > salePrice)
-    ? <div styleName="price">
+  const isOnSale = retailPrice > salePrice ? (
+    <div styleName="price">
         <Currency
           styleName="retail-price"
           value={retailPrice}
@@ -52,9 +52,11 @@ const ProductDetails = (props: Props) => {
           currency={currency}
         />
       </div>
-    : <div styleName="price">
+    ) : (
+      <div styleName="price">
         <Currency value={price} currency={currency} />
-      </div>;
+      </div>
+    );
 
   return (
     <div>

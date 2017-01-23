@@ -104,8 +104,8 @@ class ListItem extends React.Component {
     salePrice = Number(salePrice);
     retailPrice = Number(retailPrice);
 
-    return (retailPrice > salePrice)
-      ? <div styleName="price">
+    return (retailPrice > salePrice) ? (
+      <div styleName="price">
           <Currency
             styleName="retail-price"
             value={retailPrice}
@@ -117,9 +117,11 @@ class ListItem extends React.Component {
             currency={currency}
           />
         </div>
-      : <div styleName="price">
+      ) : (
+        <div styleName="price">
           <Currency value={salePrice} currency={currency} />
-        </div>;
+        </div>
+      );
   }
 
   render(): HTMLElement {
