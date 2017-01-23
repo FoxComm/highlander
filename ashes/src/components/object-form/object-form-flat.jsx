@@ -6,8 +6,8 @@ import React from 'react';
 import ObjectFormInner from './object-form-inner';
 
 function objectFromAttributes(attributes: Attributes): Object {
-  return _.reduce(attributes, (acc: Object, attr: Attribute, key: string) => {
-    acc[key] = attr.v;
+  return _.reduce(attributes, (acc: Object, attr: Attribute|any, key: string) => {
+    acc[key] = _.get(attr, 'v', attr);
     return acc;
   }, {});
 }
