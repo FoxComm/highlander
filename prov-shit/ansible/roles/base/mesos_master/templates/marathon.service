@@ -5,6 +5,8 @@ RestartSec=5
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=marathon
+Requires=mesos_master.service
+After=zookeeper.service mesos_master.service
 
 [Install]
 WantedBy=multi-user.target
