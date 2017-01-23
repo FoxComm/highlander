@@ -54,7 +54,7 @@ export default class AboutPage extends React.Component {
                 then flash frozen, so that when you’re ready to enjoy, it tastes
                  as fresh and flavorful as if just prepared minutes ago.  Each
                  individual serving is conveniently wrapped and ready to cook
-                 from frozen-- no thawing required! Cook <i>what</i> you want,
+                 from frozen – no thawing required! Cook <i>what</i> you want,
                  <i> when</i> you want it. The rest can be stored in your freezer
                   for six months to a year, eliminating waste and facilitating
                   meal planning.</p>
