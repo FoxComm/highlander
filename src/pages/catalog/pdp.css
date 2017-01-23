@@ -55,10 +55,6 @@
   font-size: 18px;
   color: #363636;
   opacity: 0.64;
-
-  @media (--medium) {
-    font-size: 22px;
-  }
 }
 
 .on-sale-price {
@@ -180,6 +176,12 @@
   font-size: 13px;
   line-height: 26px;
   font-weight: 300;
+}
+
+@media (--medium) {
+  .price {
+    font-size: 22px;
+  }
 }
 
 @media (--large) {

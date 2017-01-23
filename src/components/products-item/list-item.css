@@ -98,10 +98,6 @@
 .on-sale-price,
 .retail-price {
   display: block;
-
-  @media (--medium) {
-    display: inline-block;
-  }
 }
 
 .on-sale-price {
@@ -110,10 +106,6 @@
 
 .retail-price {
   text-decoration: line-through;
-
-  @media (--medium) {
-    margin-right: 7px;    
-  }
 }
 
 @media (--small-only) {
@@ -162,6 +154,15 @@
       color: white;
       line-height: 33px;
     }
+  }
+
+  .on-sale-price,
+  .retail-price {
+    display: inline-block;
+  }
+
+  .retail-price {
+    margin-right: 7px;
   }
 }
 
