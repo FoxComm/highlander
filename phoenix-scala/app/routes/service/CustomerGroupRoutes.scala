@@ -11,14 +11,14 @@ import utils.http.Http._
 
 object CustomerGroupRoutes {
 
-  def routes()(implicit ec: EC, db: DB, es: ES): Route = {
+  def routes(implicit ec: EC, db: DB, es: ES): Route = {
 
     activityContext() { implicit ac ⇒
-      pathPrefix("customerGroups" / IntNumber) { groupId =>
+      pathPrefix("customerGroups" / IntNumber) { groupId ⇒
         pathPrefix("users") {
-          (post & pathEnd & entity(as[CustomerGroupMemberSyncPayload])) { data =>
+          (post & pathEnd & entity(as[CustomerGroupMemberSyncPayload])) { payload ⇒
             doOrFailures(
-              GroupMemberManager.sync()
+                GroupMemberManager.sync(groupId, payload)
             )
           }
         }

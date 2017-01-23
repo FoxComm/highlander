@@ -2,7 +2,6 @@ package routes.service
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import cats.implicits._
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.account.User
 import services.Capture
@@ -19,12 +18,10 @@ object PaymentRoutes {
   def routes(implicit ec: EC, es: ES, db: DB, auth: AuthData[User], apis: Apis): Route = {
 
     activityContext(auth.model) { implicit ac ⇒
-      pathPrefix("service") {
-        pathPrefix("capture") {
-          (post & pathEnd & entity(as[CapturePayloads.Capture])) { payload ⇒
-            mutateOrFailures {
-              Capture.capture(payload)
-            }
+      pathPrefix("capture") {
+        (post & pathEnd & entity(as[CapturePayloads.Capture])) { payload ⇒
+          mutateOrFailures {
+            Capture.capture(payload)
           }
         }
       }
