@@ -29,6 +29,7 @@ const ProductDetails = (props: Props) => {
     description,
     currency,
     price,
+    skus,
     amountOfServings,
     servingSize,
   } = props.product;
@@ -36,12 +37,33 @@ const ProductDetails = (props: Props) => {
   const ProductURL = `http://theperfectgourmet.com${props.product.pathName}`;
   const TwitterHandle = 'perfectgourmet1';
 
-  return (
-    <div>
-      <h1 styleName="title">{title}</h1>
+  const salePrice = _.get(skus[0], 'attributes.salePrice.v.value', 0);
+  const retailPrice = _.get(skus[0], 'attributes.retailPrice.v.value', 0);
+
+  const isOnSale = (retailPrice > salePrice) ? (
+    <div styleName="price">
+        <Currency
+          styleName="retail-price"
+          value={retailPrice}
+          currency={currency}
+        />
+        <Currency
+          styleName="on-sale-price"
+          value={salePrice}
+          currency={currency}
+        />
+      </div>
+    ) : (
       <div styleName="price">
         <Currency value={price} currency={currency} />
       </div>
+    );
+
+  return (
+    <div>
+      <h1 styleName="title">{title}</h1>
+
+      {isOnSale}
 
       <div styleName="servings">
         <div>{amountOfServings}</div>
