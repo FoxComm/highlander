@@ -5,12 +5,12 @@ import java.time.Instant
 import cats.data.Xor
 import failures.Failures
 import models.cord.OrderPayment
-import models.payment._
 import models.payment.InStorePaymentStates._
+import models.payment._
 import shapeless._
 import slick.driver.PostgresDriver.api._
-import utils.db._
 import utils.FSM
+import utils.db._
 
 case class GiftCardAdjustment(id: Int = 0,
                               giftCardId: Int,
@@ -66,10 +66,10 @@ class GiftCardAdjustments(tag: Tag)
 
 object GiftCardAdjustments
     extends InStorePaymentAdjustmentQueries[GiftCardAdjustment, GiftCardAdjustments](
-        new GiftCardAdjustments(_))
-    with ReturningId[GiftCardAdjustment, GiftCardAdjustments] {
+        new GiftCardAdjustments(_)) {
 
-  val returningLens: Lens[GiftCardAdjustment, Int] = lens[GiftCardAdjustment].id
+  private val rootLens                                    = lens[GiftCardAdjustment]
+  val returningLens: Lens[GiftCardAdjustment, (Int, Int)] = rootLens.id ~ rootLens.availableBalance
 
   def filterByGiftCardId(id: Int): QuerySeq = filter(_.giftCardId === id)
 

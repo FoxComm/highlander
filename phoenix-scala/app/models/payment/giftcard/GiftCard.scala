@@ -11,9 +11,9 @@ import failures.GiftCardFailures._
 import failures._
 import models.account._
 import models.cord.OrderPayment
-import models.payment.{PaymentMethod, InStorePaymentStates}
 import models.payment.giftcard.GiftCard._
 import models.payment.giftcard.{GiftCardAdjustment ⇒ Adj, GiftCardAdjustments ⇒ Adjs}
+import models.payment.{InStorePaymentStates, PaymentMethod}
 import payloads.GiftCardPayloads.{GiftCardCreateByCsr, GiftCardCreatedByCustomer}
 import shapeless._
 import slick.ast.BaseTypedType
@@ -325,6 +325,7 @@ object GiftCards
                          debit = giftCard.availableBalance,
                          credit = 0,
                          availableBalance = 0,
+                         // FIXME: change state to Redeemed, Capture is misleading
                          state = InStorePaymentStates.Capture)
     Adjs.create(adjustment)
   }

@@ -6,7 +6,7 @@ import models.cord.OrderPayments
 import models.payment.giftcard.GiftCard
 import models.payment.storecredit.StoreCredit._
 import models.payment.storecredit._
-import models.payment.{PaymentMethod, InStorePaymentStates, giftcard}
+import models.payment.{InStorePaymentStates, PaymentMethod, giftcard}
 import payloads.PaymentPayloads.CreateManualStoreCredit
 import payloads.StoreCreditPayloads._
 import responses.StoreCreditResponse.Root
@@ -15,6 +15,7 @@ import slick.driver.PostgresDriver.api._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
+import testutils.fixtures.api._
 import utils.db._
 import utils.seeds.Seeds.Factories
 
@@ -23,6 +24,8 @@ class StoreCreditIntegrationTest
     with HttpSupport
     with AutomaticAuth
     with PhoenixAdminApi
+    with ApiFixtures
+    with ApiFixtureHelpers
     with BakedFixtures {
 
   "StoreCredits" - {
@@ -177,17 +180,25 @@ class StoreCreditIntegrationTest
     }
 
     "POST /v1/customers/:customerId/payment-methods/store-credit/:id/convert" - {
-      "successfully converts SC to GC" in new Fixture {
-        val root = customersApi(customer.accountId).payments
-          .storeCredit(scSecond.id)
+      "successfully converts SC to GC" in new StoreAdmin_Seed with Reason_Baked {
+
+        val customerId = api_newCustomer().id
+        val cartRef    = api_newCustomerCart(customerId).referenceNumber
+
+        val storeCredit = customersApi(customerId).payments.storeCredit
+          .create(CreateManualStoreCredit(amount = 5000, reasonId = reason.id))
+          .as[StoreCreditResponse.Root]
+
+        val gcFromSc = customersApi(customerId).payments
+          .storeCredit(storeCredit.id)
           .convert()
           .as[GiftCardResponse.Root]
 
-        root.originType must === (GiftCard.FromStoreCredit)
-        root.state must === (giftcard.GiftCard.Active)
-        root.originalBalance must === (scSecond.originalBalance)
+        gcFromSc.originType must === (GiftCard.FromStoreCredit)
+        gcFromSc.state must === (giftcard.GiftCard.Active)
+        gcFromSc.originalBalance must === (storeCredit.originalBalance)
 
-        val redeemedSc = StoreCredits.filter(_.id === scSecond.id).one.gimme.value
+        val redeemedSc = StoreCredits.mustFindById400(storeCredit.id).gimme
         redeemedSc.state must === (StoreCredit.FullyRedeemed)
         redeemedSc.availableBalance must === (0)
         redeemedSc.currentBalance must === (0)

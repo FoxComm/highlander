@@ -31,6 +31,7 @@ object InStorePaymentStates {
   case object Canceled            extends State
   case object Capture             extends State
   case object CancellationCapture extends State
+  case object Redeemed            extends State // For SC<>GC conversions
 
   object State extends ADT[State] {
     def types = sealerate.values[State]
@@ -56,7 +57,8 @@ abstract class InStorePaymentAdjustmentTable[M <: InStorePaymentAdjustment[M]](t
 
 abstract class InStorePaymentAdjustmentQueries[M <: InStorePaymentAdjustment[M],
     T <: InStorePaymentAdjustmentTable[M]](construct: Tag ⇒ T)
-    extends FoxTableQuery[M, T](construct) {
+    extends FoxTableQuery[M, T](construct)
+    with ReturningTableQuery[M, T] {
 
   def cancel(id: Int): DBIO[Int] = filter(_.id === id).map(_.state).update(Canceled)
 
@@ -65,6 +67,13 @@ abstract class InStorePaymentAdjustmentQueries[M <: InStorePaymentAdjustment[M],
 
   def lastPaymentState(orderPaymentId: Int): DBIO[Option[State]] =
     filter(_.orderPaymentId === orderPaymentId).sortBy(_.createdAt.desc).map(_.state).one
+
+  type Ret       = (Int, Int)
+  type PackedRet = (Rep[Int], Rep[Int])
+
+  override val returningQuery = map { adj ⇒
+    (adj.id, adj.availableBalance)
+  }
 
   trait QuerySeqAdditions {
     val query: QuerySeq

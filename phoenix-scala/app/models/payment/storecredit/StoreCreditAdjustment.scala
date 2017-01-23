@@ -4,12 +4,12 @@ import java.time.Instant
 
 import cats.data.Xor
 import failures.Failures
-import models.payment._
 import models.payment.InStorePaymentStates._
+import models.payment._
 import shapeless._
 import slick.driver.PostgresDriver.api._
-import utils.db._
 import utils.FSM
+import utils.db._
 
 case class StoreCreditAdjustment(id: Int = 0,
                                  storeCreditId: Int,
@@ -47,15 +47,16 @@ class StoreCreditAdjustments(tag: Tag)
 
 object StoreCreditAdjustments
     extends InStorePaymentAdjustmentQueries[StoreCreditAdjustment, StoreCreditAdjustments](
-        new StoreCreditAdjustments(_))
-    with ReturningId[StoreCreditAdjustment, StoreCreditAdjustments] {
-
-  val returningLens: Lens[StoreCreditAdjustment, Int] = lens[StoreCreditAdjustment].id
+        new StoreCreditAdjustments(_)) {
 
   def filterByStoreCreditId(id: Int): QuerySeq = filter(_.storeCreditId === id)
 
   def lastAuthByStoreCreditId(id: Int): QuerySeq =
     filterByStoreCreditId(id).filter(_.state === (Auth: State)).sortBy(_.createdAt).take(1)
+
+  private val rootLens = lens[StoreCreditAdjustment]
+
+  val returningLens: Lens[StoreCreditAdjustment, (Int, Int)] = rootLens.id ~ rootLens.availableBalance
 
   object scope {
     implicit class SCAQuerySeqAdditions(val query: QuerySeq) extends QuerySeqAdditions
