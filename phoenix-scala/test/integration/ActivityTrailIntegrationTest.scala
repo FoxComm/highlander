@@ -5,7 +5,7 @@ import models.activity._
 import org.json4s.{DefaultFormats, Extraction}
 import org.scalacheck.Prop.forAll
 import org.scalacheck.{Gen, Test ⇒ QTest}
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import payloads.ActivityTrailPayloads.AppendActivity
 import payloads.CustomerPayloads.UpdateCustomerPayload
 import responses.ActivityConnectionResponse
