@@ -824,11 +824,8 @@ class ProductIntegrationTest
                              Mvp.insertVariantWithValues(scope, ctx.id, product, scv)
                            }
 
-        variants ← * <~ variantsAndValues.map(_.variant)
-        variantValues ← * <~ variantsAndValues.foldLeft(Seq.empty[SimpleProductValueData]) {
-                         (acc, item) ⇒
-                           acc ++ item.variantValues
-                       }
+        variants      ← * <~ variantsAndValues.map(_.variant)
+        variantValues ← * <~ variantsAndValues.flatMap(_.variantValues)
 
         // Map the SKUs to the ProductOption Values
         skuMap ← * <~ skuValueMapping.map {
