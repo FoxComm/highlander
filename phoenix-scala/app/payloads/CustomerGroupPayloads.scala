@@ -1,5 +1,6 @@
 package payloads
 
+import models.account.User
 import utils.aliases._
 
 object CustomerGroupPayloads {
