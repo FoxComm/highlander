@@ -2,9 +2,13 @@
 
 import React from 'react';
 
-const InventoryPage = () => {
+import InventoryAndTransactions from '../skus/inventory-and-transactions';
+
+const InventoryPage = (props) => {
   return (
-    <div>inventory page</div>
+    <InventoryAndTransactions
+      skuId={props.object.middlewarehouseSkuId}
+    />
   );
 };
 
