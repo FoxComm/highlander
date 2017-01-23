@@ -185,8 +185,6 @@ export function saveLineItemsAndCoupons(merge: boolean = false) {
         newCartItems = guestLineItemsToSubmit.concat(itemsToDelete);
       }
 
-      // userCart.lineItems.skus = newCartItems;
-
       return newCartItems;
     }).then((newCartItems) => {
       return dispatch(submitLineItemChange(newCartItems));
