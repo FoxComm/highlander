@@ -26,7 +26,7 @@ export default class App extends KoaApp {
     if (process.env.MAILCHIMP_API_KEY === undefined ||
       process.env.CONTACT_EMAIL === undefined) {
       throw new Error(
-        'MAILCHIMP_API_KEY and CONTACT_EMAIL varibales should be defined in environment.'
+        'MAILCHIMP_API_KEY and CONTACT_EMAIL variables should be defined in environment.'
       );
     }
 
