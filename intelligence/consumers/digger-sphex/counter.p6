@@ -66,10 +66,9 @@ sub MAIN ($kafka-host, $henhouse-host)
     await $rsyslog.consume-from-last(partition=>0);
 }
 
-sub count($henhouse, Str $key)
+sub count($henhouse, Int $count, Str $key)
 {
-    my $count = 1;
-    my $stat = "{$key} {$count} {DateTime.now.posix}";
+    my $stat = "$key $count {DateTime.now.posix}";
     say "HEN: $stat";
 
     #send to henhouse
@@ -86,23 +85,27 @@ sub track($henhouse, $path)
     my $verb = %args<v>;
     my $object = %args<ob>;
     my $object-id = %args<id>;
+    my $count = val(%args<c>);
+
+    return if $count.WHAT === Str;
+
     my $cluster = 1; #TODO, get these from tracking url
     my $context = 1; #TODO, get these from tracking url
 
-    count($henhouse, "track.$channel.$cluster.$context.$object.$object-id.$verb.$subject");
-    count($henhouse, "track.$channel.$cluster.$context.$object.$object-id.$verb");
-    count($henhouse, "track.$channel.$cluster.$context.$object.$verb");
-    count($henhouse, "track.$channel.$cluster.$object.$object-id.$verb.$subject");
-    count($henhouse, "track.$channel.$cluster.$object.$object-id.$verb");
-    count($henhouse, "track.$channel.$cluster.$object.$verb");
-    count($henhouse, "track.$channel.$object.$object-id.$verb.$subject");
-    count($henhouse, "track.$channel.$object.$object-id.$verb");
-    count($henhouse, "track.$channel.$object.$verb");
-    count($henhouse, "track.$object.$object-id.$verb.$subject");
-    count($henhouse, "track.$object.$object-id.$verb");
-    count($henhouse, "track.$object.$verb");
-    count($henhouse, "track.$verb.$subject");
-    count($henhouse, "track.$verb");
+    count($henhouse, $count, "track.$channel.$cluster.$context.$object.$object-id.$verb.$subject");
+    count($henhouse, $count, "track.$channel.$cluster.$context.$object.$object-id.$verb");
+    count($henhouse, $count, "track.$channel.$cluster.$context.$object.$verb");
+    count($henhouse, $count, "track.$channel.$cluster.$object.$object-id.$verb.$subject");
+    count($henhouse, $count, "track.$channel.$cluster.$object.$object-id.$verb");
+    count($henhouse, $count, "track.$channel.$cluster.$object.$verb");
+    count($henhouse, $count, "track.$channel.$object.$object-id.$verb.$subject");
+    count($henhouse, $count, "track.$channel.$object.$object-id.$verb");
+    count($henhouse, $count, "track.$channel.$object.$verb");
+    count($henhouse, $count, "track.$object.$object-id.$verb.$subject");
+    count($henhouse, $count, "track.$object.$object-id.$verb");
+    count($henhouse, $count, "track.$object.$verb");
+    count($henhouse, $count, "track.$verb.$subject");
+    count($henhouse, $count, "track.$verb");
 }
 
 sub send-to-henhouse($r, $henhouse)
