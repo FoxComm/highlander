@@ -7,27 +7,9 @@ import { createAsyncActions } from '@foxcomm/wings';
 export const reset = createAction();
 export const clearSubmitErrors = createAction();
 export const clearArchiveErrors = createAction();
-export const updateSku = createAction();
 export const createSku = createAction();
 export const archiveSku = createAction();
 export const skuNew = createAction();
-
-
-const _fetchSku = createAsyncActions(
-  'fetchSku',
-  function(id: number) {
-    const r = require('./tmp-sku-mock');
-    return new Promise(resolve => resolve(r));
-    //return Api.get(`/inventory/skus/${id}`);
-  }
-);
-
-export const fetchSku = _fetchSku.perform;
-export const clearFetchErrors = _fetchSku.clearErrors;
-
-const initialState = {
-  sku: null,
-};
 
 type Dimension = {
   value: number,
@@ -39,9 +21,7 @@ type QuantityLevel = {
   level: number,
 }
 
-
-export type Sku = {
-  id: number,
+type SkuBase = {
   code: string,
   upc: string,
   title: string,
@@ -66,13 +46,48 @@ export type Sku = {
   lotExpirationWarningThreshold: Dimension,
 }
 
+
+export type Sku = SkuBase & {
+  id: number,
+}
+
+const _fetchSku = createAsyncActions(
+  'fetchSku',
+  function(id: number) {
+    const r = require('./tmp-sku-mock');
+    return new Promise(resolve => resolve(r));
+    //return Api.get(`/inventory/skus/${id}`);
+  }
+);
+
+export const fetchSku = _fetchSku.perform;
+export const clearFetchErrors = _fetchSku.clearErrors;
+
+const _updateSku = createAsyncActions(
+  'updateSku',
+  function(sku: Sku) {
+    const {id, ...payload} = sku;
+    return Api.patch(`/inventory/skus/${id}`, payload);
+  }
+);
+
+export const updateSku = _updateSku.perform;
+
+
+const initialState = {
+  sku: null,
+};
+
+function updateSkuInState(state, sku: Sku) {
+  return {
+    ...state,
+    sku,
+  };
+}
+
 const reducer = createReducer({
-  [_fetchSku.succeeded]: (state, sku: Sku) => {
-    return {
-      ...state,
-      sku,
-    };
-  },
+  [_fetchSku.succeeded]: updateSkuInState,
+  [_updateSku.succeeded]: updateSkuInState,
 }, initialState);
 
 export default reducer;

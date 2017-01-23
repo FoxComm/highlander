@@ -95,7 +95,7 @@ export function connectPage(namespace, actions, options = {}) {
   function mapSchemaProps(state) {
     return {
       schema: _.get(state, schemaName),
-      isSchemaFetching: _.get(state.asyncActions, 'fetchSchema.inProgress', null),
+      isSchemaFetching: _.get(state.asyncActions, 'fetchSchema.inProgress', false),
     };
   }
 
