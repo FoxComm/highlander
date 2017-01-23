@@ -11,7 +11,6 @@ final case class ProductVariantsSearchView()(implicit ec: EC) extends AvroTransf
       field("id", IntegerType),
       field("skuCode", StringType).analyzer("upper_cased"),
       field("context", StringType).index("not_analyzed"),
-      field("contextId", IntegerType),
       field("scope", StringType).index("not_analyzed"),
       field("title", StringType)
         .analyzer("autocomplete")
@@ -22,6 +21,6 @@ final case class ProductVariantsSearchView()(implicit ec: EC) extends AvroTransf
       field("retailPriceCurrency", StringType),
       field("archivedAt", DateType).format(dateFormat),
       field("externalId", StringType).index("not_analyzed"),
-      field("mwhSkuId", IntegerType).index("not_analyzed")
+      field("middlewarehouseSkuId", IntegerType).index("not_analyzed")
   )
 }
