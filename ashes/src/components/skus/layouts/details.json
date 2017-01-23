@@ -22,21 +22,6 @@
           ]
         }
       ]
-    },
-    {
-      "type": "group",
-      "title": "Shipping Settings",
-      "content": [
-        {
-          "type": "fields",
-          "value": [
-            "width",
-            "height",
-            "weight",
-            "length"
-          ]
-        }
-      ]
     }
   ],
   "aside": null

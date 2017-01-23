@@ -10,8 +10,6 @@ import _ from 'lodash';
 
 import { createEmptyProductVariant, configureProductVariant } from 'paragons/product-variant';
 
-import { pushStockItemChanges } from '../inventory/warehouses';
-
 export type ProductVariant = {
   code?: string,
   feCode?: string,

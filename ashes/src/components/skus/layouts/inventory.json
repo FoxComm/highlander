@@ -10,7 +10,11 @@
         {
           "type": "fields",
           "value": [
-            "requiresInventoryTracking"
+            "requiresInventoryTracking",
+            "width",
+            "height",
+            "weight",
+            "length"
           ]
         }
       ]
