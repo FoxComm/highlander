@@ -39,16 +39,21 @@ export default class AboutPage extends React.Component {
             <div styleName="intro-title">THE PERFECT GOURMET IS PERFECT FOR</div>
             <IntroSLider />
             <div styleName="intro-text">
-              <p>We know that life can be hectic, and time is not always abundant.
-                We want dinner to be an enjoyable end to your busy day, not another reason to stress.
-                The Perfect Gourmet has been delivering delectable frozen entrées and appetizers nationwide since 2006,
-                and ships over 200,000 orders a year.
-                Our goal is to deliver delicious, restaurant quality food to your door,
-                so that you can spend less time preparing and more time enjoying.
-                Whether you’re looking for cocktail party appetizers or a quick and easy dinner,
-                we have a variety of delicious foods to help simplify your busy life,
-                without sacrificing taste and quality. Every dish is prepared with quality ingredients,
-                then flash frozen to lock in flavors and freshness.</p>
+              <p>We believe that every dinner should be an enjoyable end to your busy day, not another reason to stress.
+                Our goal is to bring you delicious but affordable food, which you can spend less time preparing and more
+                time enjoying.</p>
+
+              <p>We offer a variety of seafood, poultry, beef, and vegetarian options, most around $5 per serving.
+                Perfect for young professionals with limited time and kitchenware, big families in need of quick dinner
+                solutions, couples looking for relaxing nights in, and everyone in between.</p>
+
+              <p>Every dish starts with fresh, quality ingredients. It&apos;s then flash frozen, so that when you’re ready to
+                enjoy, it tastes as fresh and flavorful as if just prepared minutes ago.  Each individual serving is
+                conveniently wrapped and ready to cook from frozen-- no thawing required! Cook <i>what</i> you want, <i>when </i>
+                you want it. The rest can be stored in your freezer for six months to a year, eliminating waste and facilitating
+                meal planning.</p>
+
+              <p>What are you waiting for? Discover for yourself why <i>frozen</i> is the <i>new fresh.</i></p>
             </div>
 
             <Link to="/best-sellers" styleName="action-link">
