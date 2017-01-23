@@ -73,7 +73,7 @@ const questions: Array<QuestionBoxType> = [
     footer: <TrendButton trendType={TrendType.steady} value={0}/>,
   },
   {
-    title: questionTitles.avgNumPerOrder,
+    title: questionTitles.totalInCarts,
     content: 132,
     footer: <TrendButton trendType={TrendType.loss} value={10}/>,
   },
