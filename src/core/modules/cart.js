@@ -116,7 +116,7 @@ function fetchMyCart(user): global.Promise {
   return api.cart.get();
 }
 
-function getCartPromotions(cart) {
+function getCartDiscounts(cart) {
   const couponCode = _.get(cart, 'coupon.code', null);
   const giftCard = _.find(cart.paymentMethods, method => method.type == 'giftCard');
 
@@ -198,8 +198,8 @@ export function saveLineItemsAndCoupons(merge: boolean = false) {
         removeCouponCode,
       } = bindActionCreators(checkoutActions, dispatch);
 
-      const { couponCode: guestCouponCode, giftCard: guestGiftCard } = getCartPromotions(guestCart);
-      const { couponCode: userCouponCode, giftCard: userGiftCard } = getCartPromotions(userCart);
+      const { couponCode: guestCouponCode, giftCard: guestGiftCard } = getCartDiscounts(guestCart);
+      const { couponCode: userCouponCode, giftCard: userGiftCard } = getCartDiscounts(userCart);
 
       // Override user promotions with guest promotions
       if (guestCouponCode) {
