@@ -95,9 +95,7 @@ object OrderStateUpdater {
       case Canceled ⇒
         cancelOrders(cordRefs)
       case _ ⇒
-        for {
-          _ ← * <~ Orders.filter(_.referenceNumber.inSet(cordRefs)).map(_.state).update(newState)
-        } yield ()
+        Orders.filter(_.referenceNumber.inSet(cordRefs)).map(_.state).update(newState).dbresult
     }
 
   private def cancelOrders(cordRefs: Seq[String])(implicit ec: EC, db: DB) =
