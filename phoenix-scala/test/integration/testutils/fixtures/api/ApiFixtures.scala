@@ -3,57 +3,67 @@ package testutils.fixtures.api
 import java.time.Instant
 import java.time.temporal.ChronoUnit.DAYS
 
-import scala.util.Random
-
 import faker.Lorem
 import org.json4s.JsonDSL._
 import org.scalatest.SuiteMixin
 import payloads.CouponPayloads.CreateCoupon
-import payloads.ProductPayloads.CreateProductPayload
-import payloads.ProductVariantPayloads.ProductVariantPayload
 import responses.CouponResponses.CouponResponse
 import responses.ProductResponses.ProductResponse.{Root ⇒ ProductRoot}
+import responses.ProductVariantResponses.ProductVariantResponse.{Root ⇒ VariantRoot}
 import responses.PromotionResponses.PromotionResponse
 import testutils.PayloadHelpers._
 import testutils._
 import testutils.apis.PhoenixAdminApi
-import testutils.fixtures.api.ProductPayloadBuilder._
 import testutils.fixtures.api.PromotionPayloadBuilder._
+import testutils.fixtures.api.products._
 import utils.aliases.Json
 
 trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi { self: FoxSuite ⇒
 
   trait ProductVariant_ApiFixture {
-    val productName: String        = randomProductCode
-    val productVariantCode: String = randomVariantCode(productName)
+    def productVariantPrice: Int = 20000
 
-    def productVariantPrice: Int = Random.nextInt(20000) + 100
+    val payloadBuilder: InvariantProductPayloadBuilder = InvariantProductPayloadBuilder(
+        price = productVariantPrice)
 
-    private val variantPayload = ProductVariantPayload(
-        attributes = variantAttrs(productVariantCode, productVariantPrice)
-    )
+    val product: ProductRoot = productsApi.create(payloadBuilder.createPayload).as[ProductRoot]
 
-    val productPayload: CreateProductPayload = CreateProductPayload(attributes =
-                                                                      productAttrs(productName),
-                                                                    slug = productName.toLowerCase,
-                                                                    variants = Seq(variantPayload),
-                                                                    options = None)
-
-    val product: ProductRoot = productsApi.create(productPayload).as[ProductRoot]
+    val productVariant: VariantRoot = product.variants.onlyElement
+    val productVariantCode: String  = productVariant.attributes.code
   }
 
+  // Generates all possible variant codes and attaches them to all appropriate options
+  // To change the behavior, provide a `def` override defaulting to `AllVariantsCfg`
   trait Product_ColorSizeOptions_ApiFixture {
-    val productCode: String = randomProductCode
+    val productName: String = randomProductName
 
-    def price: Int = 2000
+    def price: Int = 20000
 
-    private val payload = ProductPayloadBuilder.build(
-        ProductOptionCfg(name = "Size", values = Seq("small", "large")),
-        ProductOptionCfg(name = "Color", values = Seq("red", "green")),
+    object sizes {
+      val small: String    = "small"
+      val large: String    = "large"
+      val all: Seq[String] = Seq(small, large)
+    }
+
+    object colors {
+      val red: String      = "red"
+      val green: String    = "green"
+      val all: Seq[String] = Seq(red, green)
+    }
+
+    val payloadBuilder: TwoOptionProductPayloadBuilder = TwoOptionProductPayloadBuilder(
+        ProductOptionCfg(name = "Size", values = sizes.all),
+        ProductOptionCfg(name = "Color", values = colors.all),
+        AllVariantsCfg,
+        AllVariantsCfg,
         price,
-        productCode)
+        productName)
 
-    productsApi.create(payload).as[ProductRoot]
+    val variantsQty: Int = payloadBuilder.createProductPayload.variants.length
+    val optionsQty: Int  = payloadBuilder.createProductPayload.options.map(_.length).getOrElse(0)
+
+    val product: ProductRoot =
+      productsApi.create(payloadBuilder.createProductPayload).as[ProductRoot]
   }
 
   trait Coupon_TotalQualifier_PercentOff extends CouponFixtureBase {
@@ -107,10 +117,4 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi { sel
       activeTo.fold(commonAttrs)(act ⇒ commonAttrs + ("activeTo" → act)).asShadow
     }
   }
-
-  private def randomProductCode: String =
-    s"prod_${Lorem.numerify("####")}"
-
-  private def randomVariantCode(productCode: String): String =
-    s"$productCode-${Lorem.letterify("????").toUpperCase}"
 }

@@ -3,24 +3,42 @@ import scala.concurrent.duration._
 import akka.http.scaladsl.model.{HttpResponse, StatusCode, StatusCodes}
 
 import failures.Failure
-import org.json4s.Formats
 import org.json4s.jackson.JsonMethods._
 import org.scalatest.concurrent.PatienceConfiguration
 import org.scalatest.{AppendedClues, MustMatchers, OptionValues, Suite}
 import responses.TheResponse
+import utils.JsonFormatters
 import utils.aliases._
 
-package object testutils {
+package object testutils extends MustMatchers with OptionValues with AppendedClues {
+
+  implicit val formats = JsonFormatters.phoenixFormats
 
   def originalSourceClue(implicit line: SL, file: SF) =
     s"""\n(Original source: ${file.value.split("/").last}:${line.value})"""
 
   type FoxSuite = Suite with PatienceConfiguration with DbTestSupport
 
-  implicit class RichHttpResponse(response: HttpResponse)(implicit ec: EC, mat: Mat, fm: Formats)
-      extends MustMatchers
-      with OptionValues
-      with AppendedClues {
+  implicit class RichAttributes(val attributes: Json) extends AnyVal {
+    def get[A](field: String)(implicit mf: Manifest[A]): A =
+      (attributes \ field \ "v").extract[A]
+
+    def getOpt[A](field: String)(implicit mf: Manifest[A]): Option[A] =
+      (attributes \ field \ "v").extractOpt[A]
+
+    def getString(field: String): String = get[String](field)
+
+    def code: String = getString("code")
+  }
+
+  implicit class RichTraversable[A](val sequence: Traversable[A]) extends AnyVal {
+    def onlyElement(implicit sl: SL, sf: SF): A = {
+      sequence must have size 1
+      sequence.head
+    } withClue originalSourceClue
+  }
+
+  implicit class RichHttpResponse(response: HttpResponse)(implicit ec: EC, mat: Mat) {
 
     lazy val bodyText: String =
       result(response.entity.toStrict(1.second).map(_.data.utf8String), 1.second)

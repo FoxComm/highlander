@@ -8,6 +8,7 @@ object LineItemPayloads {
   case class UpdateLineItemsPayload(productVariantId: ObjectForm#Id,
                                     quantity: Int,
                                     attributes: Option[LineItemAttributes] = None) {
+
     /** This alias is added so that comparisons between
       * `productVariantId`s and `formId`s don’t look weird. We’re
       * using form IDs to identify variants when communicating with
