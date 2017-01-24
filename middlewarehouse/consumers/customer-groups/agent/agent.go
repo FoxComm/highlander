@@ -62,7 +62,7 @@ func SetElasticIndex(index string) AgentOptionFunc {
 
 func SetElasticTopic(topic string) AgentOptionFunc {
 	return func(a *Agent) {
-		a.esIndex = topic
+		a.esTopic = topic
 	}
 }
 

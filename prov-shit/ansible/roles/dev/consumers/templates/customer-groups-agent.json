@@ -23,8 +23,7 @@
     }
   },
   "env": {
-    "ES_URL": "http://{{search_server_http}}",
-    "ES_INDEX": "admin_1",
+    "ELASTIC_URL": "http://{{search_server_http}}",
     "PHOENIX_URL": "http://{{phoenix_server}}",
     "PHOENIX_USER": "{{phoenix_api_user}}",
     "PHOENIX_PASSWORD": "{{phoenix_api_password}}",

@@ -20,7 +20,6 @@ func main() {
 
 	groupsAgent, err := agent.NewAgent(
 		agent.SetElasticURL(agentConfig.ElasticURL),
-		agent.SetElasticIndex(agentConfig.ElasticIndex),
 		agent.SetPhoenixURL(phoenixConfig.URL),
 		agent.SetPhoenixAuth(phoenixConfig.User, phoenixConfig.Password),
 		agent.SetTimeout(agentConfig.PollingInterval),

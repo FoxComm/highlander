@@ -7,8 +7,7 @@ import (
 )
 
 const (
-	ElasticURLKey   = "ES_URL"
-	ElasticIndexKey = "ES_INDEX"
+	ElasticURLKey   = "ELASTIC_URL"
 	PollingInterval = "POLLING_INTERVAL"
 )
 
@@ -28,11 +27,6 @@ func makeAgentConfig() (agentConfig, error) {
 	config.ElasticURL = os.Getenv(ElasticURLKey)
 	if config.ElasticURL == "" {
 		return config, fmt.Errorf(configErrorMsg, ElasticURLKey)
-	}
-
-	config.ElasticIndex = os.Getenv(ElasticIndexKey)
-	if config.ElasticIndex == "" {
-		return config, fmt.Errorf(configErrorMsg, ElasticIndexKey)
 	}
 
 	config.PollingInterval, err = time.ParseDuration(os.Getenv(PollingInterval))
