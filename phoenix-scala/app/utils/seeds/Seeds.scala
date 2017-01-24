@@ -300,6 +300,7 @@ object Seeds {
              discounts  ← * <~ Factories.createDiscounts(search)
              promotions ← * <~ Factories.createCouponPromotions(discounts)
              coupons    ← * <~ Factories.createCoupons(promotions)
+             _          ← * <~ Factories.createGroupTemplates(organization.scopeId)
            } yield {}
          })
     } yield {}
