@@ -131,6 +131,9 @@ object Users extends FoxTableQuery[User, Users](new Users(_)) with ReturningId[U
   def findByAccountId(accountId: Int): QuerySeq =
     filter(_.accountId === accountId)
 
+  def findAllByAccountIds(accountIds: Set[Int]): QuerySeq =
+    filter(_.accountId.inSet(accountIds))
+
   def mustFindByAccountId(accountId: Int)(implicit ec: EC): DbResultT[User] =
     filter(_.accountId === accountId).mustFindOneOr(UserWithAccountNotFound(accountId))
 

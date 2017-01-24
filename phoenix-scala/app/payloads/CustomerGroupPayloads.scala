@@ -1,5 +1,6 @@
 package payloads
 
+import models.account.User
 import utils.aliases._
 
 object CustomerGroupPayloads {
@@ -10,4 +11,6 @@ object CustomerGroupPayloads {
                                          elasticRequest: Json,
                                          customersCount: Option[Int],
                                          templateId: Option[Int] = None)
+
+  case class CustomerGroupMemberSyncPayload(customers: Seq[Int])
 }
