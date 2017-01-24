@@ -26,6 +26,7 @@ type PhoenixClient interface {
 	GetOrderForShipstation(refNum string) (*http.Response, error)
 	UpdateOrderLineItems(updatePayload []mwhPayloads.UpdateOrderLineItem, refNum string) error
 	GetCustomerGroups() ([]responses.CustomerGroupResponse, error)
+	SetGroupToCustomers(groupID int, customers []int) error
 }
 
 func NewPhoenixClient(baseURL, email, password string) PhoenixClient {
@@ -265,7 +266,7 @@ func (c *phoenixClient) GetCustomerGroups() ([]responses.CustomerGroupResponse, 
 		return nil, err
 	}
 
-	url := fmt.Sprintf("%s/v1/groups", c.baseURL)
+	url := fmt.Sprintf("%s/v1/service/customer-groups", c.baseURL)
 	headers := map[string]string{
 		"JWT": c.jwt,
 	}
@@ -283,4 +284,17 @@ func (c *phoenixClient) GetCustomerGroups() ([]responses.CustomerGroupResponse, 
 	}
 
 	return groups, nil
+}
+
+func (c *phoenixClient) SetGroupToCustomers(groupID int, customerIDs []int) error {
+	if err := c.EnsureAuthentication(); err != nil {
+		return err
+	}
+
+	url := fmt.Sprintf("%s/v1/service/customer-groups/%d/users", c.baseURL, groupID)
+	headers := map[string]string{"JWT": c.jwt}
+
+	_, err := consumers.Post(url, headers, customerIDs)
+
+	return err
 }

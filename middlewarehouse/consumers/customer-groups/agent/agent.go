@@ -8,7 +8,6 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix"
 	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix/responses"
 	elastic "gopkg.in/olivere/elastic.v3"
-	//"os"
 )
 
 const (
@@ -107,7 +106,6 @@ func NewAgent(options ...AgentOptionFunc) (*Agent, error) {
 
 	esClient, err := elastic.NewClient(
 		elastic.SetURL(agent.esURL),
-		//elastic.SetTraceLog(log.New(os.Stdout, "", 0)),
 	)
 	if err != nil {
 		return nil, err
@@ -140,12 +138,18 @@ func (agent *Agent) processGroups() error {
 	}
 
 	for _, group := range groups {
-		ids, err := agent.getCustomersIDs(group)
-		if err != nil {
-			return err
-		}
+		go func(group responses.CustomerGroupResponse) {
+			ids, err := agent.getCustomersIDs(group)
+			if err != nil {
+				log.Panicf("An error occured getting customers: %s", err)
+			}
 
-		log.Printf("Uniq customers of group %s: %#v", group.Name, ids)
+			log.Printf("Uniq customers of group %s: %#v", group.Name, ids)
+
+			if err := agent.phoenixClient.SetGroupToCustomers(group.ID, ids); err != nil {
+				log.Panicf("An error occured setting group to customers: %s", err)
+			}
+		}(group)
 	}
 
 	return nil
