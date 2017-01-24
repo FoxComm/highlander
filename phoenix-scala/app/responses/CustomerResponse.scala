@@ -23,7 +23,8 @@ object CustomerResponse {
                   numOrders: Option[Int] = None,
                   billingRegion: Option[Region] = None,
                   shippingRegion: Option[Region] = None,
-                  lastOrderDays: Option[Long] = None)
+                  lastOrderDays: Option[Long] = None,
+                  groups: Seq[DynamicGroupResponse.Root])
       extends ResponseItem
 
   def build(customer: User,
@@ -33,7 +34,8 @@ object CustomerResponse {
             numOrders: Option[Int] = None,
             rank: Option[CustomerRank] = None,
             lastOrderDays: Option[Long] = None,
-            scTotals: Option[Totals] = None): Root = {
+            scTotals: Option[Totals] = None,
+            groups: Seq[DynamicGroupResponse.Root] = Seq.empty): Root = {
 
     require(customerData.userId == customer.id)
     require(customerData.accountId == customer.accountId)
@@ -52,6 +54,7 @@ object CustomerResponse {
          storeCreditTotals = scTotals.getOrElse(Totals(0, 0)),
          billingRegion = billingRegion,
          shippingRegion = shippingRegion,
-         lastOrderDays = lastOrderDays)
+         lastOrderDays = lastOrderDays,
+         groups = groups)
   }
 }
