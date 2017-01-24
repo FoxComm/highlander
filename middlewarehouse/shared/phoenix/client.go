@@ -292,7 +292,7 @@ func (c *phoenixClient) UpdateCustomerGroup(groupID int, group *payloads.UpdateC
 		return err
 	}
 
-	url := fmt.Sprintf("%s/v1/groups/%d", c.baseURL, groupID)
+	url := fmt.Sprintf("%s/v1/customer-groups/%d", c.baseURL, groupID)
 	headers := map[string]string{"JWT": c.jwt}
 
 	_, err := consumers.Patch(url, headers, group)
