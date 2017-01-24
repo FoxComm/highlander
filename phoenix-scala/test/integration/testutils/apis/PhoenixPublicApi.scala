@@ -13,6 +13,9 @@ trait PhoenixPublicApi extends HttpSupport { self: FoxSuite ⇒
     def doLogin(payload: LoginPayload): HttpResponse =
       POST(s"$rootPrefix/login", payload)
 
+    def doLogout(): HttpResponse =
+      POST(s"$rootPrefix/logout")
+
     def sendPasswordReset(payload: ResetPasswordSend): HttpResponse =
       POST(s"$rootPrefix/send-password-reset", payload)
 
