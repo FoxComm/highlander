@@ -16,6 +16,8 @@ import StaticColumnSelector from './static-column-selector';
 import { Dropdown } from '../dropdown';
 import ProductConversionChart from './charts/product-conversion-chart';
 import TotalRevenueChart from './charts/total-revenue-chart';
+import SegmentControlList from './segment-control-list';
+import { Props as SegmentControlType } from './segment-control';
 
 // styles
 import styles from './analytics.css';
@@ -29,6 +31,7 @@ type State = {
   dateRangeEnd: string, // Unix Timestamp
   dateDisplay: string,
   question: QuestionBoxType,
+  segment: SegmentControlType,
 }
 
 const verbs = {
@@ -134,6 +137,7 @@ export default class Analytics extends React.Component {
     dateRangeEnd: moment().unix(),
     dateDisplay: moment().format(datePickerFormat),
     question: null,
+    segment: null,
   };
 
   @autobind
@@ -201,12 +205,21 @@ export default class Analytics extends React.Component {
     }
   }
 
+  @autobind
+  onSegmentControlSelect(segment) {
+    this.setState({segment: segment});
+  }
+
   get dateDisplay() {
     return this.state.dateDisplay;
   }
 
   get question() {
     return this.state.question;
+  }
+
+  get segment() {
+    return this.state.segment;
   }
 
   get chartFromQuestion() {
@@ -221,7 +234,22 @@ export default class Analytics extends React.Component {
         case questionTitles.productConversion:
           return <ProductConversionChart jsonData={analytics.values}/>;
         case questionTitles.totalRevenue:
-          return <TotalRevenueChart jsonData={{}} debugMode={true}/>; 
+          const segments: Array<SegmentControlType> = [
+            { title: 'Day' },
+            { title: 'Week' },
+            { title: 'Month' },
+          ];
+
+          return(
+            <div>
+              <SegmentControlList
+                items={segments}
+                onSelect={this.onSegmentControlSelect}
+                activeSegment={this.segment}
+                />
+              <TotalRevenueChart jsonData={{}} debugMode={true}/>
+            </div>
+          );
         default:
           return false;
       }

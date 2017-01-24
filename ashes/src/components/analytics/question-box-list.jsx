@@ -1,7 +1,7 @@
 // @flow
 
 // libs
-import React, { Component, Element } from 'react';
+import React, { Component } from 'react';
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
 
@@ -26,7 +26,7 @@ class QuestionBoxList extends Component {
   };
 
   @autobind
-  renderItems(): ?Element {
+  renderItems() {
     const { items, onSelect, activeQuestion } = this.props;
 
     const activeQuestionId = !_.isNull(activeQuestion)
