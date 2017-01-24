@@ -8,7 +8,7 @@ import { createAsyncActions } from '@foxcomm/wings';
 
 export const updateSkuItemsCount = createAction(
   'SKU_UPDATE_ITEMS_COUNT',
-  (sku, stockItem, qty) => [sku, stockItem, qty]
+  (skuId, stockItem, qty) => [skuId, stockItem, qty]
 );
 
 const clearSkuItemsChanges = createAction('SKU_CLEAR_ITEMS_CHANGES');
@@ -81,16 +81,16 @@ const _changeItemUnits = createAsyncActions(
 
 export const changeItemUnits = _changeItemUnits.perform;
 
-export function pushStockItemChanges(sku) {
+export function pushStockItemChanges(skuId) {
   return (dispatch, getState) => {
-    const stockItemChanges = _.get(getState(), ['inventory', 'warehouses', 'stockItemChanges', sku]);
+    const stockItemChanges = _.get(getState(), ['inventory', 'warehouses', 'stockItemChanges', skuId]);
 
     if (stockItemChanges) {
       const promises = _.map(stockItemChanges, (payload: Object, key: string) => {
         return dispatch(changeItemUnits(payload.id, payload.diff, payload.type));
       });
 
-      dispatch(clearSkuItemsChanges(sku));
+      dispatch(clearSkuItemsChanges(skuId));
 
       return Promise.all(promises);
     }
@@ -138,14 +138,14 @@ const reducer = createReducer({
       ['details', skuId], inventoryDetailsByLocations
     );
   },
-  [updateSkuItemsCount]: (state, [sku, stockItem, diff]) => {
+  [updateSkuItemsCount]: (state, [skuId, stockItem, diff]) => {
     return assoc(state,
-      ['stockItemChanges', sku, `${stockItem.type}-${stockItem.id}`], {diff, type: stockItem.type, id: stockItem.id}
+      ['stockItemChanges', skuId, `${stockItem.type}-${stockItem.id}`], {diff, type: stockItem.type, id: stockItem.id}
     );
   },
-  [clearSkuItemsChanges]: (state, sku) => {
+  [clearSkuItemsChanges]: (state, skuId) => {
     return assoc(state,
-      ['stockItemChanges', sku], {}
+      ['stockItemChanges', skuId], {}
     );
   }
 }, initialState);

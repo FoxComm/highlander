@@ -96,6 +96,7 @@ class InventoryItemDetails extends Component {
         failed={!!_.get(this.props, ['fetchState', 'err'])}
         params={params}
         readOnly={this.props.readOnly}
+        skuId={this.props.skuId}
       />
     );
   }

@@ -21,11 +21,12 @@ type State = {
 }
 
 type Props = {
-  updateSkuItemsCount: (sku: string, stockItem: StockItemFlat, diff: number) => void,
+  updateSkuItemsCount: (skuId: number, stockItem: StockItemFlat, diff: number) => void,
   data: {
     rows: Array<StockItemFlat>
   },
   readOnly?: boolean,
+  skuId: number,
 }
 
 class WarehouseDrawer extends Component {
@@ -45,7 +46,7 @@ class WarehouseDrawer extends Component {
   renderRow(row: StockItemFlat): Element {
     const { state } = this;
     const handleChangeQuantity = (diff: number) => {
-      this.props.updateSkuItemsCount(row.sku, row, diff);
+      this.props.updateSkuItemsCount(this.props.skuId, row, diff);
     };
     const uniqId = `${row.type}-${row.id}`;
 

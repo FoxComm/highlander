@@ -4,6 +4,8 @@ import Api from 'lib/api';
 import { createReducer, createAction } from 'redux-act';
 import { createAsyncActions } from '@foxcomm/wings';
 
+import { pushStockItemChanges } from 'modules/inventory/warehouses';
+
 export const reset = createAction();
 export const clearSubmitErrors = createAction();
 export const clearArchiveErrors = createAction();
@@ -67,7 +69,11 @@ const _updateSku = createAsyncActions(
   'updateSku',
   function(sku: Sku) {
     const {id, ...payload} = sku;
-    return Api.patch(`/inventory/skus/${id}`, payload);
+    const willUpdateObject = Api.patch(`/inventory/skus/${id}`, payload);
+    const willUpdateStockCounts = pushStockItemChanges(id);
+
+    return Promise.all([willUpdateObject, willUpdateStockCounts])
+      .then(responses => responses[0]);
   }
 );
 
