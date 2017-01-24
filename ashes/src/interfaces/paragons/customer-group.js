@@ -1,9 +1,12 @@
 type Condition = Array<String>;
 
-declare type TCustomerGroup = {
+declare type TCustomerGroupShort = {
   id: string;
   name: string;
   type: string;
+}
+
+declare type TCustomerGroup = TCustomerGroupShort & {
   customersCount: number;
   isValid: boolean;
   stats: Object;

@@ -20,7 +20,7 @@ import org.json4s.native.Serialization._
 import payloads.AuthPayload
 import payloads.CustomerPayloads._
 import responses.CustomerResponse._
-import responses.DynamicGroupResponse
+import responses.DynamicGroupResponses.CustomerGroupResponse
 import services._
 import services.account._
 import slick.driver.PostgresDriver.api._
@@ -79,7 +79,7 @@ object CustomerManager {
             rank = rank,
             scTotals = totals,
             lastOrderDays = maxOrdersDate.map(DAYS.between(_, Instant.now)),
-            groups = groups.map(DynamicGroupResponse.build(_)))
+            groups = groups.map(CustomerGroupResponse.build(_)))
   }
 
   def create(payload: CreateCustomerPayload,

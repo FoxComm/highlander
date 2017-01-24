@@ -6,6 +6,7 @@ import CustomerAccountPassword from './account-password';
 import CustomerAddressBook from './address-book';
 import CustomerCreditCards from './credit-cards';
 import CustomerAccountStatus from './account-status';
+import CustomerGroups from './groups/groups';
 import SectionSubtitle from '../section-title/section-subtitle';
 import { connect } from 'react-redux';
 import * as AddressesActions from '../../modules/customers/addresses';
@@ -33,10 +34,13 @@ export default class CustomerDetails extends React.Component {
       <div className="fc-customer-details">
         <SectionSubtitle>Details</SectionSubtitle>
         <div className="fc-grid fc-grid-gutter">
-          <div className="fc-col-md-1-2">
+          <div className="fc-col-md-1-3">
             <CustomerContacts customerId={ customer.id } />
           </div>
-          <div className="fc-col-md-1-2">
+          <div className="fc-col-md-1-3">
+            <CustomerGroups groups={customer.groups} />
+          </div>
+          <div className="fc-col-md-1-3">
             <CustomerAccountPassword />
           </div>
         </div>

@@ -1,0 +1,26 @@
+.group {
+  display: flex;
+  justify-content: space-between;
+  line-height: 36px;
+
+  &:hover {
+    & .name {
+      color: #1a1a1a;
+    }
+  }
+}
+
+.name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #484848;
+  transition: color .2s;
+
+  & i {
+    vertical-align: initial;
+  }
+}
+
+.type {
+  color: #999;
+}
