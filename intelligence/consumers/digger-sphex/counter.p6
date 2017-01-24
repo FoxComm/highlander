@@ -33,23 +33,23 @@ class HalArgs
     method TOP ($/) { $/.make: Map.new($<arg>».made)}
 };
 
-sub MAIN ($kafka-host, $henhouse-host) 
+sub MAIN ($kafka-host, $kafka-topic, $henhouse-host) 
 {
     my $config = PKafka::Config.new("group.id"=> "hal-test-1");
-    my $rsyslog = PKafka::Consumer.new( topic=>"nginx", brokers=>$kafka-host, config=>$config);
+    my $log = PKafka::Consumer.new( topic=>$kafka-topic, brokers=>$kafka-host, config=>$config);
 
     my $henhouse = IO::Socket::INET.new(:host($henhouse-host), :port<2003>);
 
-    $rsyslog.messages.tap(-> $msg 
+    $log.messages.tap(-> $msg 
     {
         given $msg 
         {
             when PKafka::Message
             {
-                my $r = Nginx.parse($msg.payload-str);
                 say "MSG: {$msg.payload-str}";
+                my $r = Nginx.parse($msg.payload-str);
                 send-to-henhouse($r, $henhouse) if $r<cmd>;
-                $rsyslog.save-offset($msg);
+                $log.save-offset($msg);
             }
             when PKafka::EOF
             {
@@ -58,12 +58,14 @@ sub MAIN ($kafka-host, $henhouse-host)
             when PKafka::Error
             {
                 say "Error {$msg.what}";
-                $rsyslog.stop;
+                $log.stop;
             }
         }
     });
 
-    await $rsyslog.consume-from-last(partition=>0);
+    my $log-promise = $log.consume-from-last(partition=>0);
+
+    await $log-promise;
 }
 
 sub count($henhouse, Int $count, Str $key)
