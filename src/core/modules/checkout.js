@@ -174,11 +174,7 @@ export function removeCouponCode() {
   return (dispatch) => {
     return foxApi.cart.removeCoupon()
       .then(res => {
-        dispatch(updateCart({
-          ...res.result,
-          coupon: null,
-          promotion: null,
-        }));
+        dispatch(updateCart(res.result));
       });
   };
 }
