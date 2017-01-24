@@ -2,7 +2,6 @@ package agent
 
 import (
 	"log"
-	"os"
 	"strconv"
 	"time"
 
