@@ -27,6 +27,9 @@
 - name: Copy Mesos Healthcheck script
   template: src=mesos_master_check.sh dest=/usr/local/bin/mesos_master_check.sh mode="u=rwx,g=rwx,o=rx"
 
+- name: Restart Zookeeper
+  service: name=zookeeper state=restarted enabled=true
+
 - name: Restart Docker
   service: name=docker state=restarted enabled=true
 
@@ -35,3 +38,6 @@
 
 - name: Restart Mesos Worker
   service: name=mesos_worker state=restarted enabled=true
+
+- name: Restart Marathon
+  service: name=marathon state=restarted enabled=true

@@ -29,10 +29,12 @@
     - { role: base/kafka }
     - { role: base/schema-registry }
     - { role: base/elasticsearch }
+    - { role: base/elasticsearch-5 }
     - { role: base/db }
     - { role: base/bottledwater }
     - { role: base/rsyslog }
     - { role: base/kibana }
+    - { role: base/pgweb }
     - { role: base/node }
     - { role: base/balancer }
 

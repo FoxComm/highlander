@@ -1,10 +1,12 @@
 [Service]
-ExecStart=/usr/local/marathon-1.1.1/bin/start --master {{zookeepers}}/mesos --zk {{zookeepers}}/marathon
+ExecStart=/usr/local/marathon-{{marathon_version}}/bin/start --master {{zookeepers}}/mesos --zk {{zookeepers}}/marathon
 Restart=always
 RestartSec=5
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=marathon
+Requires=mesos_master.service
+After=zookeeper.service mesos_master.service
 
 [Install]
 WantedBy=multi-user.target
