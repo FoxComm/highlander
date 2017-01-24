@@ -7,6 +7,7 @@ import models.discount._
 import services.Result
 import utils.ElasticsearchApi._
 import utils.aliases._
+import scala.util.Try
 
 case class ItemsTotalAmountQualifier(totalAmount: Int, search: Seq[ProductSearch])
     extends Qualifier
@@ -20,7 +21,8 @@ case class ItemsTotalAmountQualifier(totalAmount: Int, search: Seq[ProductSearch
 
   def matchXor(input: DiscountInput)(xor: Failures Xor Buckets): Failures Xor Unit = xor match {
     case Xor.Right(buckets) ⇒
-      val matchedProductFormIds = buckets.filter(_.docCount > 0).map(_.key)
+      val matchedProductFormIds =
+        buckets.filter(_.docCount > 0).flatMap(b ⇒ Try(b.key.toInt).toOption).toSet
       if (totalAmount >= totalByProducts(input.lineItems, matchedProductFormIds)) Xor.Right(Unit)
       rejectXor(input, "Total amount is less than required")
     case _ ⇒

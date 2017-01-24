@@ -5,15 +5,19 @@ import java.io.File
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import com.stripe.model.DeletedCard
-import org.mockito.ArgumentMatcher
+import models.inventory.{ProductVariantMwhSkuId, ProductVariantMwhSkuIds}
+import org.mockito.{ArgumentCaptor, ArgumentMatcher}
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
+import org.mockito.invocation.InvocationOnMock
+import org.mockito.stubbing.Answer
 import org.scalatest.mock.MockitoSugar
 import services.Result
 import utils.TestStripeSupport.randomStripeishId
 import utils.aliases._
 import utils.aliases.stripe._
 import utils.apis._
+import utils.db._
 
 trait MockedApis extends MockitoSugar {
 
@@ -79,7 +83,17 @@ trait MockedApis extends MockitoSugar {
     val mocked = mock[MiddlewarehouseApi]
     when(mocked.hold(any[OrderInventoryHold])(any[EC], any[AU])).thenReturn(Result.unit)
     when(mocked.cancelHold(any[String])(any[EC], any[AU])).thenReturn(Result.unit)
-    when(mocked.createSku(any[CreateSku])(any[EC], any[AU])).thenReturn(Result.unit)
+
+    when(mocked.createSku(anyInt, any[CreateSku])(any[EC], any[AU])).thenAnswer {
+      new Answer[DbResultT[ProductVariantMwhSkuId]] {
+        override def answer(invocation: InvocationOnMock) = {
+          val variantFormId: Int = invocation.getArgument(0)
+          ProductVariantMwhSkuIds.create(
+              ProductVariantMwhSkuId(variantFormId = variantFormId, mwhSkuId = variantFormId))
+        }
+      }
+    }
+
     mocked
   }
 

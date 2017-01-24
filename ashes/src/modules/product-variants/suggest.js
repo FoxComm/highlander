@@ -26,7 +26,7 @@ const _suggestSkus = createAsyncActions(
       })];
     }
 
-    return post('sku_search_view/_search', dsl.query({
+    return post('product_variants_search_view/_search', dsl.query({
       bool: {
         filter: contextFilter,
         should: [

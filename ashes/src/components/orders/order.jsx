@@ -210,6 +210,7 @@ export default class Order extends React.Component {
 
     return (
       <Dropdown
+        id="order-state-dd"
         name="orderState"
         items={_.map(visibleAndSortedOrderStates, state => [state, states.order[state]])}
         placeholder={'Order state'}

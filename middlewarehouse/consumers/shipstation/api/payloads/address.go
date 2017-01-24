@@ -22,7 +22,7 @@ type Address struct {
 	Residential bool
 }
 
-func NewAddressFromPhoenix(name string, address mwhPayloads.Address) (*Address, error) {
+func NewAddressFromPhoenix(name string, address *mwhPayloads.Address) (*Address, error) {
 	state, err := convertRegionFromPhoenix(address.Region.Name)
 	if err != nil {
 		return nil, err

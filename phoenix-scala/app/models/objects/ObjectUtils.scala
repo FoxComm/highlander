@@ -13,6 +13,7 @@ import utils.IlluminateAlgorithm
 import services.objects.ObjectSchemasManager
 import utils.aliases._
 import utils.db._
+import scala.annotation.tailrec
 
 object ObjectUtils {
 
@@ -23,47 +24,69 @@ object ObjectUtils {
     override def update(form: ObjectForm, shadow: ObjectShadow): FormAndShadow = (form, shadow)
   }
 
-  def get(attr: String, form: ObjectForm, shadow: ObjectShadow): Json = {
+  def get(attr: String, form: ObjectForm, shadow: ObjectShadow): Json =
     IlluminateAlgorithm.get(attr, form.attributes, shadow.attributes)
-  }
 
-  def key(content: Json): String = {
-    val KEY_LENGTH = 5
-    val md         = java.security.MessageDigest.getInstance("SHA-1")
-    md.digest(compact(render(content)).getBytes)
-      .slice(0, KEY_LENGTH)
+  val KeyLength = 5
+
+  /**
+    * We compute a SHA-1 hash of the json content and return the first
+    * 10 characters in hex representation of the hash.
+    * We don't care about the whole hash because it would take up too much space.
+    * Collisions are handled below in the findKey function.
+    */
+  private def hash(content: Json): String =
+    java.security.MessageDigest
+      .getInstance("SHA-1") // shared instance would not be thread-safe
+      .digest(compact(render(content)).getBytes)
+      .slice(0, KeyLength)
       .map("%02x".format(_))
       .mkString
+
+  /**
+    * The key algorithm will compute a hash of the content and then search
+    * for a valid key. The search function looks for hash collisions.
+    * If a hash collision is found, an index is appended to the hash and the
+    * new hash+index key is searched until we find a key with same content or
+    * we reach the end of the list.
+    */
+  private[objects] def key(content: Json, alreadyExistingFields: Json): String = {
+    val hashKey = hash(content)
+
+    def noHashCollision(newHash: String): Boolean = {
+      val value = alreadyExistingFields \ newHash
+      value == JNothing || value == content
+    }
+
+    Stream
+      .from(0)
+      .map(i ⇒ if (i == 0) hashKey else s"$hashKey/$i")
+      .find(noHashCollision)
+      .get // safe as the stream is [0;∞)
   }
-
-  def key(content: String): String = key(JString(content))
-
-  def attribute(content: Json): JField = {
-    (key(content), content)
-  }
-
-  def attributes(values: Seq[Json]): Json =
-    JObject(values.map(attribute).toList)
 
   type KeyMap = Map[String, String]
-  def createForm(form: Json): (KeyMap, Json) = {
-    form match {
+  def createForm(humanReadableForm: Json, existingForm: Json = JNothing): (KeyMap, Json) = {
+    humanReadableForm match {
       case JObject(o) ⇒
-        val m = o.obj.map {
-          case (attr, value) ⇒
-            val k = key(value)
-            (Map(attr → k), (k, value))
-        }
-        val keyMap  = m.map(_._1).reduceOption(_ ++ _).getOrElse(Map.empty)
-        val newForm = JObject(m.map(_._2).toList.distinct)
-        (keyMap, newForm)
+        val zeroAccumObj = existingForm.merge(humanReadableForm)
+        // TODO: simplify this, what is happening here‽
+        val (_, keyMap, newForm) =
+          o.obj.foldLeft((zeroAccumObj, Map.empty: KeyMap, List.empty[(String, JValue)])) {
+            case ((accumObj, keyMap, newForm), (attr, value)) ⇒
+              val k            = key(value, accumObj)
+              val field        = (k, value)
+              val nextAccumObj = accumObj.merge(JObject(List(field)))
+              (nextAccumObj, keyMap + (attr → k), field :: newForm)
+          }
+        (keyMap, JObject(newForm.distinct))
       case _ ⇒
         (Map(), JNothing)
     }
   }
 
-  def updateForm(oldForm: Json, updatedForm: Json): (KeyMap, Json) = {
-    val (keyMap, newForm) = createForm(updatedForm)
+  private[objects] def updateForm(oldForm: Json, humanReadableUpdatedForm: Json): (KeyMap, Json) = {
+    val (keyMap, newForm) = createForm(humanReadableUpdatedForm, oldForm)
     (keyMap, oldForm.merge(newForm))
   }
 
@@ -83,13 +106,15 @@ object ObjectUtils {
     }
 
   case class FormShadowAttributes(form: Json, shadow: Json)
-  def updateFormAndShadow(oldForm: Json, newForm: Json, oldShadow: Json): FormShadowAttributes = {
+  private def updateFormAndShadow(oldForm: Json,
+                                  newForm: Json,
+                                  oldShadow: Json): FormShadowAttributes = {
     val (keyMap, updatedForm) = updateForm(oldForm, newForm)
     val updatedShadow         = newShadow(oldShadow, keyMap)
     FormShadowAttributes(updatedForm, updatedShadow)
   }
 
-  def newFormAndShadow(oldForm: Json, oldShadow: Json): FormShadowAttributes = {
+  private def newFormAndShadow(oldForm: Json, oldShadow: Json): FormShadowAttributes = {
     val (keyMap, form) = createForm(oldForm)
     val shadow         = newShadow(oldShadow, keyMap)
     FormShadowAttributes(form, shadow)
@@ -100,9 +125,6 @@ object ObjectUtils {
     override def update(form: ObjectForm, shadow: ObjectShadow): FormAndShadow =
       copy(form = form, shadow = shadow)
   }
-
-  def insert(formAndShadow: FormAndShadow)(implicit ec: EC): DbResultT[InsertResult] =
-    insert(formAndShadow, None)
 
   def insert(formProto: ObjectForm, shadowProto: ObjectShadow)(
       implicit ec: EC): DbResultT[InsertResult] =
@@ -166,7 +188,7 @@ object ObjectUtils {
                            })
     } yield committedObject
 
-  def updateFormAndShadow(
+  private def updateFormAndShadow(
       oldFormAndShadow: FormAndShadow,
       formAttributes: Json,
       shadowAttributes: Json,

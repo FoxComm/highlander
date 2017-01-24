@@ -24,9 +24,13 @@
     - { role: dev/consul_agent }
     - { role: base/marketplace, when: with_marketplace }
     - { role: dev/kafka }
+    - { role: base/elasticsearch }
     - { role: dev/elasticsearch }
-    - { role: dev/kibana }
+    - { role: base/elasticsearch-5 }
+    - { role: base/kibana }
+    - { role: base/bottledwater }
     - { role: dev/db }
+    - { role: dev/pgweb }
     - { role: dev/isaac }
     - { role: dev/phoenix }
     - { role: dev/solomon }
@@ -41,6 +45,7 @@
     - { role: dev/balancer }
     - { role: demo/balancer }
     - { role: dev/consumers }
+    - { role: base/rsyslog }
     - { role: dev/healthcheck }
 
   handlers:

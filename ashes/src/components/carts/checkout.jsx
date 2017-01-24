@@ -31,7 +31,7 @@ export class Checkout extends Component {
 
     return (
       <div className="fc-order-checkout fc-col-md-1-1">
-        <PrimaryButton onClick={() => this.props.checkout(refNum)} disabled={isDisabled}>
+        <PrimaryButton id="place-order-btn" onClick={() => this.props.checkout(refNum)} disabled={isDisabled}>
           Place order
         </PrimaryButton>
       </div>

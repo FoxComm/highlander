@@ -5,8 +5,8 @@ import (
 
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 
-	"github.com/jinzhu/gorm"
 	"github.com/FoxComm/highlander/middlewarehouse/common/transaction"
+	"github.com/jinzhu/gorm"
 )
 
 const (
@@ -31,6 +31,7 @@ type ISummaryRepository interface {
 	UpdateStockItemSummary(summary *models.StockItemSummary) error
 
 	CreateStockItemTransaction(transaction *models.StockItemTransaction) error
+	UpdateSummariesFromTransactions(transactions []*models.StockItemTransaction) error
 }
 
 func NewSummaryRepository(db *gorm.DB) ISummaryRepository {
@@ -123,4 +124,42 @@ func (repository *summaryRepository) UpdateStockItemSummary(summary *models.Stoc
 
 func (repository *summaryRepository) CreateStockItemTransaction(transaction *models.StockItemTransaction) error {
 	return repository.db.Create(transaction).Error
+}
+
+func (repository *summaryRepository) UpdateSummariesFromTransactions(transactions []*models.StockItemTransaction) error {
+	for _, txn := range transactions {
+		if err := repository.db.Create(txn).Error; err != nil {
+			return err
+		}
+
+		summary := models.StockItemSummary{}
+		err := repository.db.
+			Where("stock_item_id = ?", txn.StockItemId).
+			Where("type = ?", txn.Type).
+			First(&summary).
+			Error
+
+		if err != nil {
+			return err
+		}
+
+		switch txn.Status {
+		case models.StatusOnHand:
+			summary.OnHand += txn.QuantityChange
+		case models.StatusOnHold:
+			summary.OnHold += txn.QuantityChange
+		case models.StatusReserved:
+			summary.Reserved += txn.QuantityChange
+		case models.StatusShipped:
+			summary.Shipped += txn.QuantityChange
+		default:
+			return fmt.Errorf("Unexpected transaction status %d", txn.Status)
+		}
+
+		if err := repository.db.Save(&summary).Error; err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

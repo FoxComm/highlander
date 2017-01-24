@@ -41,13 +41,13 @@ object OrderTotaler {
   def shippingTotal(order: Order)(implicit ec: EC): DbResultT[Int] =
     for {
       orderShippingMethods ← * <~ OrderShippingMethods.findByOrderRef(order.refNum).result
-      sum = orderShippingMethods.foldLeft(0)(_ + _.price)
+      sum = orderShippingMethods.map(_.price).sum
     } yield sum
 
   def adjustmentsTotal(order: Order)(implicit ec: EC): DbResultT[Int] =
     for {
       lineItemAdjustments ← * <~ OrderLineItemAdjustments.filter(_.cordRef === order.refNum).result
-      sum = lineItemAdjustments.foldLeft(0)(_ + _.subtract)
+      sum = lineItemAdjustments.map(_.subtract).sum
     } yield sum
 
   def totals(cart: Cart, order: Order)(implicit ec: EC): DbResultT[Totals] =

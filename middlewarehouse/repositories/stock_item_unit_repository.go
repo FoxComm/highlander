@@ -6,8 +6,8 @@ import (
 
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 
-	"github.com/jinzhu/gorm"
 	"github.com/FoxComm/highlander/middlewarehouse/common/transaction"
+	"github.com/jinzhu/gorm"
 )
 
 const (
@@ -24,6 +24,9 @@ type IStockItemUnitRepository interface {
 	GetUnitsInOrder(refNum string) ([]*models.StockItemUnit, error)
 	GetUnitForLineItem(refNum string, sku string) (*models.StockItemUnit, error)
 	GetQtyForOrder(refNum string) ([]*models.Release, error)
+
+	HoldUnits(orderRefNum string, skuCode string, qty uint) ([]*models.StockItemUnit, error)
+	ReserveUnit(orderRefNum string, skuCode string) (*models.StockItemUnit, error)
 
 	HoldUnitsInOrder(refNum string, ids []uint) (int, error)
 	ReserveUnitsInOrder(refNum string) (int, error)
@@ -103,9 +106,63 @@ func (repository *stockItemUnitRepository) GetUnitsInOrder(refNum string) ([]*mo
 	return units, nil
 }
 
+func (repository *stockItemUnitRepository) HoldUnits(orderRefNum string, skuCode string, qty uint) ([]*models.StockItemUnit, error) {
+	query := `
+		UPDATE stock_item_units
+			SET status = 'onHold',
+					ref_num = ?	
+			FROM (
+				SELECT siu2.id AS id
+				FROM stock_items AS si2
+				INNER JOIN stock_item_units AS siu2 ON si2.id = siu2.stock_item_id
+				WHERE si2.sku = ? AND
+						  siu2.status = 'onHand'
+				FOR UPDATE SKIP LOCKED
+				LIMIT ?
+			) AS query
+			WHERE stock_item_units.id = query.id
+			RETURNING stock_item_units.*
+	`
+
+	var units []*models.StockItemUnit
+	if err := repository.db.Raw(query, orderRefNum, skuCode, qty).Scan(&units).Error; err != nil {
+		return nil, err
+	}
+
+	return units, nil
+}
+
+func (repository *stockItemUnitRepository) ReserveUnit(orderRefNum, skuCode string) (*models.StockItemUnit, error) {
+	query := `
+		UPDATE stock_item_units
+			SET status = 'reserved'
+			FROM (
+				SELECT siu2.id AS id
+				FROM stock_items AS si2
+				INNER JOIN stock_item_units AS siu2 ON si2.id = siu2.stock_item_id
+				WHERE si2.sku = ? AND
+			  			siu2.ref_num = ? AND
+			  			siu2.status = 'onHold'
+  			FOR UPDATE SKIP LOCKED
+				LIMIT 1
+			) AS query
+			WHERE stock_item_units.id = query.id
+			RETURNING stock_item_units.*
+	`
+
+	unit := new(models.StockItemUnit)
+	if err := repository.db.Raw(query, skuCode, orderRefNum).Scan(unit).Error; err != nil {
+		return nil, err
+	}
+
+	return unit, nil
+}
+
 func (repository *stockItemUnitRepository) GetUnitForLineItem(refNum string, sku string) (*models.StockItemUnit, error) {
 	unit := new(models.StockItemUnit)
+
 	err := repository.db.
+		Set("gorm:query_option", "FOR UPDATE").
 		Joins("JOIN stock_items ON stock_items.id = stock_item_units.stock_item_id").
 		Where("stock_items.sku = ?", sku).
 		Where("stock_item_units.ref_num = ?", refNum).

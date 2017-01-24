@@ -40,6 +40,12 @@
     <logger name="io.gatling.http.ahc" level="DEBUG" />
     <logger name="io.gatling.http.response" level="DEBUG" />
 
+    <!-- External APIs -->
+    <logger name="utils.ElasticsearchApi" level="DEBUG" />
+    <logger name="utils.apis.MiddlewarehouseApi" level="DEBUG"/>
+    <logger name="utils.apis.AmazonApi" level="DEBUG"/>
+    <logger name="utils.apis.FoxStripe" level="DEBUG"/>
+
     <root level="INFO">
         <appender-ref ref="Console" />
     </root>

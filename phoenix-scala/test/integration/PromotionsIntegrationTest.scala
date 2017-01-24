@@ -199,15 +199,15 @@ class PromotionsIntegrationTest
     }
 
     "should update coupon discount when cart becomes clean" in new Fixture
-    with ProductSku_ApiFixture {
+    with ProductVariant_ApiFixture {
       private val couponCode = setupPromoAndCoupon()
 
-      POST("v1/my/cart/line-items", Seq(UpdateLineItemsPayload(skuCode, 1))).mustBeOk()
+      POST("v1/my/cart/line-items", Seq(UpdateLineItemsPayload(productVariantCode, 1))).mustBeOk()
 
       POST(s"v1/my/cart/coupon/$couponCode").mustBeOk()
 
       private val emptyCartWithCoupon =
-        POST(s"v1/my/cart/line-items", Seq(UpdateLineItemsPayload(skuCode, 0)))
+        POST(s"v1/my/cart/line-items", Seq(UpdateLineItemsPayload(productVariantCode, 0)))
           .asTheResult[CartResponse]
 
       emptyCartWithCoupon.totals.adjustments must === (0)

@@ -16,8 +16,8 @@ type summaryService struct {
 	txn           *gorm.DB
 }
 
-type ISummaryService interface {
-	WithTransaction(txn *gorm.DB) ISummaryService
+type SummaryService interface {
+	WithTransaction(txn *gorm.DB) SummaryService
 
 	CreateStockItemSummary(stockItemId uint) error
 	UpdateStockItemSummary(stockItemId uint, unitType models.UnitType, qty int, status models.StatusChange) error
@@ -28,11 +28,15 @@ type ISummaryService interface {
 	GetSummaryBySKU(sku string) ([]*models.StockItemSummary, error)
 }
 
-func NewSummaryService(summaryRepo repositories.ISummaryRepository, stockItemRepo repositories.IStockItemRepository) ISummaryService {
-	return &summaryService{summaryRepo, stockItemRepo, nil}
+func NewSummaryService(db *gorm.DB) SummaryService {
+	return &summaryService{
+		summaryRepo:   repositories.NewSummaryRepository(db),
+		stockItemRepo: repositories.NewStockItemRepository(db),
+		txn:           nil,
+	}
 }
 
-func (service *summaryService) WithTransaction(txn *gorm.DB) ISummaryService {
+func (service *summaryService) WithTransaction(txn *gorm.DB) SummaryService {
 	return &summaryService{
 		summaryRepo:   service.summaryRepo,
 		stockItemRepo: service.stockItemRepo,

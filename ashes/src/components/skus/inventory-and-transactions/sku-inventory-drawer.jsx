@@ -49,6 +49,7 @@ class WarehouseDrawer extends Component {
       this.props.updateSkuItemsCount(this.props.skuId, row, diff);
     };
     const uniqId = `${row.type}-${row.id}`;
+    const rowId = row.type.toLowerCase();
 
     let quantityField = row.onHand;
     if (!this.props.readOnly) {
@@ -63,7 +64,7 @@ class WarehouseDrawer extends Component {
     }
 
     return (
-      <TableRow key={uniqId}>
+      <TableRow id={rowId} key={uniqId}>
         <td>{row.type}</td>
         <td>{quantityField}</td>
         <td>{row.onHold}</td>

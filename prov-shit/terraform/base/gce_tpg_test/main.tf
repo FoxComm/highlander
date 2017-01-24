@@ -20,6 +20,10 @@ variable "gatling_image" {}
 
 variable "consul_leader" {}
 
+variable "dnsimple_token" {}
+
+variable "dnsimple_email" {}
+
 provider "google" {
   credentials = "${file(var.account_file)}"
   project     = "${var.gce_project}"
@@ -39,4 +43,20 @@ module "perfect-gourmet-test" {
   consul_leader         = "${var.consul_leader}"
   consul_server_image   = "${var.consul_server_image}"
   frontend_machine_type = "n1-highmem-8"
+}
+
+##############################################
+# Setup DNS
+##############################################
+provider "dnsimple" {
+  token = "${var.dnsimple_token}"
+  email = "${var.dnsimple_email}"
+}
+
+resource "dnsimple_record" "frontend-dns-record" {
+  domain = "foxcommerce.com"
+  name   = "test-perfectgourmet"
+  value  = "${module.perfect-gourmet-test.frontend_address}"
+  type   = "A"
+  ttl    = 3600
 }

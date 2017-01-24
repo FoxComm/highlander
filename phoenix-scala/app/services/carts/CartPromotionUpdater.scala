@@ -70,10 +70,10 @@ object CartPromotionUpdater {
     for {
       // Fetch base data
       cart ← * <~ getCartByOriginator(originator, refNum)
-      orderPromotions ← * <~ OrderPromotions
-                         .filterByCordRef(cart.refNum)
-                         .requiresCoupon
-                         .mustNotFindOneOr(OrderAlreadyHasCoupon)
+      _ ← * <~ OrderPromotions
+           .filterByCordRef(cart.refNum)
+           .requiresCoupon
+           .mustNotFindOneOr(OrderAlreadyHasCoupon)
       // Fetch coupon + validate
       couponCode ← * <~ CouponCodes.mustFindByCode(code)
       coupon ← * <~ Coupons

@@ -1,0 +1,23 @@
+---
+
+- name: Bootstrap Database Backup Script
+  hosts: '{{hostname}}'
+  become: true
+  vars:
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+  vars_prompt:
+    - name: "hostname"
+      prompt: "Enter a hostname with a database to backup"
+      default: "foxcomm-stage-backend"
+      private: no
+    - name: "service_key_file"
+      prompt: "Enter a local path to service key file"
+      default: "~/foxcomm-staging.json"
+      private: no
+    - name: "backups_bucket"
+      prompt: "Enter storage bucket name"
+      default: "test-backups"
+      private: no
+
+  roles:
+      - { role: dev/backup_db }

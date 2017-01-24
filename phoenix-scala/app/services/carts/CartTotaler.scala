@@ -1,5 +1,7 @@
 package services.carts
 
+import scala.util.Try
+
 import models.cord.lineitems._
 import models.cord._
 import models.inventory.ProductVariants
@@ -45,13 +47,13 @@ object CartTotaler {
   def shippingTotal(cart: Cart)(implicit ec: EC): DbResultT[Int] =
     for {
       orderShippingMethods ← * <~ OrderShippingMethods.findByOrderRef(cart.refNum).result
-      sum = orderShippingMethods.foldLeft(0)(_ + _.price)
+      sum = orderShippingMethods.map(_.price).sum
     } yield sum
 
   def adjustmentsTotal(cart: Cart)(implicit ec: EC): DbResultT[Int] =
     for {
       lineItemAdjustments ← * <~ OrderLineItemAdjustments.filter(_.cordRef === cart.refNum).result
-      sum = lineItemAdjustments.foldLeft(0)(_ + _.subtract)
+      sum = lineItemAdjustments.map(_.subtract).sum
     } yield sum
 
   def taxesTotal(cart: Cart, subTotal: Int, shipping: Int, adjustments: Int)(
@@ -60,9 +62,11 @@ object CartTotaler {
       maybeAddress ← * <~ OrderShippingAddresses.findByOrderRef(cart.refNum).one
       optionalCustomRate = for {
         address        ← maybeAddress
-        cfgTaxRegionId ← config.getOptInt("tax_rules.region_id")
-        cfgTaxRate     ← config.getOptDouble("tax_rules.rate")
-      } yield if (address.regionId == cfgTaxRegionId) cfgTaxRate / 100 else defaultTaxRate
+        cfgTaxRegionId ← config.getOptString("tax_rules.region_id")
+        cfgTaxRate     ← config.getOptString("tax_rules.rate")
+        taxRegionId    ← Try(cfgTaxRegionId.toInt).toOption
+        taxRate        ← Try(cfgTaxRate.toDouble).toOption
+      } yield if (address.regionId == taxRegionId) taxRate / 100 else defaultTaxRate
       taxRate = optionalCustomRate.getOrElse(defaultTaxRate)
     } yield ((subTotal - adjustments + shipping) * taxRate).toInt
 

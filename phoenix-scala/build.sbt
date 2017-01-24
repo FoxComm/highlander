@@ -42,7 +42,7 @@ lazy val phoenixScala = (project in file("."))
     initialCommands in (Compile, consoleQuick) := "",
     writeVersion <<= sh.toTask(fromFile("project/write_version").getLines.mkString),
     unmanagedResources in Compile += file("version"),
-    testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oDF"),
+    testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oD"),
     javaOptions in Test ++= Seq("-Xmx2G", "-XX:+UseConcMarkSweepGC", "-Dphoenix.env=test"),
     parallelExecution in Test := true,
     parallelExecution in IT   := false,
@@ -89,7 +89,9 @@ lazy val gatling = (project in file("gatling"))
 fullAssembly <<= Def.task().dependsOn(writeVersion in phoenixScala, assembly in gatling)
 
 // Injected seeds
-seed := (runMain in Compile in phoenixScala).partialInput(" utils.seeds.Seeds seed --seedAdmins --seedDemo 1").evaluated
+val seedCommand = " utils.seeds.Seeds seed --seedAdmins"
+seed     := (runMain in Compile in phoenixScala).partialInput(seedCommand).evaluated
+seedDemo := (runMain in Compile in phoenixScala).partialInput(s"$seedCommand --seedDemo 1").evaluated
 
 // Gatling seeds
 seedOneshot    := (runMain in Compile in gatling).partialInput(" seeds.OneshotSeeds").evaluated

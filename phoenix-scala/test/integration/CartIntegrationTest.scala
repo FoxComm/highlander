@@ -1,5 +1,4 @@
 import akka.http.scaladsl.model.StatusCodes
-
 import cats.implicits._
 import failures.CartFailures._
 import failures.LockFailures._
@@ -21,8 +20,10 @@ import payloads.OrderPayloads.CreateCart
 import payloads.UpdateShippingMethod
 import responses.cord.CartResponse
 import responses.cord.base.CordResponseLineItem
-import responses.{CustomerResponse, TheResponse}
+import responses._
 import models.cord.CordPaymentState
+import payloads.GiftCardPayloads.GiftCardCreateByCsr
+import payloads.PaymentPayloads._
 import services.carts.CartTotaler
 import slick.driver.PostgresDriver.api._
 import testutils._
@@ -68,7 +69,7 @@ class CartIntegrationTest
     }
 
     "returns correct image path" in new Fixture {
-      val imgUrl = "testImgUrl";
+      val imgUrl = "testImgUrl"
       (for {
         product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head.copy(image = imgUrl))
         _ ← * <~ CartLineItems.create(
@@ -80,12 +81,42 @@ class CartIntegrationTest
       fullCart.lineItems.skus.head.imagePath must === (imgUrl)
     }
 
-    "empty paymenth methods having a guest customer" in new Fixture {
+    "empty payment methods having a guest customer" in new Fixture {
       val guestCustomer = customersApi
         .create(CreateCustomerPayload(email = "foo@bar.com", isGuest = Some(true)))
         .as[CustomerResponse.Root]
       val fullCart = customersApi(guestCustomer.id).cart().as[CartResponse]
       fullCart.paymentMethods.size must === (0)
+    }
+
+    "calculates customer’s expenses considering in-store payments" in new StoreAdmin_Seed
+    with Customer_Seed with ProductVariant_ApiFixture with Reason_Baked {
+      val refNum =
+        cartsApi.create(CreateCart(customerId = customer.id.some)).as[CartResponse].referenceNumber
+
+      cartsApi(refNum).lineItems.add(Seq(UpdateLineItemsPayload(productVariantCode, 1))).mustBeOk()
+
+      val giftCardAmount    = 2500 // ¢
+      val storeCreditAmount = 500  // ¢
+
+      val giftCard = giftCardsApi
+        .create(GiftCardCreateByCsr(giftCardAmount, reasonId = reason.id))
+        .as[GiftCardResponse.Root]
+
+      cartsApi(refNum).payments.giftCard
+        .add(GiftCardPayment(giftCard.code, giftCardAmount.some))
+        .asTheResult[CartResponse]
+
+      customersApi(customer.id).payments.storeCredit
+        .create(CreateManualStoreCredit(amount = storeCreditAmount, reasonId = reason.id))
+        .as[StoreCreditResponse.Root]
+
+      cartsApi(refNum).payments.storeCredit.add(StoreCreditPayment(storeCreditAmount))
+
+      val fullCart = cartsApi(refNum).get().asTheResult[CartResponse]
+
+      fullCart.totals.customersExpenses must === (
+          fullCart.totals.total - giftCardAmount - storeCreditAmount)
     }
   }
 
@@ -161,18 +192,18 @@ class CartIntegrationTest
     }
 
     "should successfully add a gift card line item" in new Customer_Seed
-    with ProductSku_ApiFixture {
+    with ProductVariant_ApiFixture {
       val refNum =
         cartsApi.create(CreateCart(email = customer.email)).as[CartResponse].referenceNumber
 
       cartsApi(refNum).lineItems
-        .update(addGiftCardPayload(skuCode))
+        .update(addGiftCardPayload(productVariantCode))
         .asTheResult[CartResponse]
         .lineItems
         .skus
         .map(sku ⇒ (sku.sku, sku.quantity, sku.attributes)) must contain theSameElementsAs Seq(
-          (skuCode, 1, attributes2),
-          (skuCode, 2, attributes))
+          (productVariantCode, 1, attributes2),
+          (productVariantCode, 2, attributes))
     }
 
     "adding a SKU with no product should return an error" in new OrderShippingMethodFixture
@@ -193,19 +224,20 @@ class CartIntegrationTest
     }
 
     "should successfully remove gift card line item" in new Customer_Seed
-    with ProductSku_ApiFixture {
+    with ProductVariant_ApiFixture {
       val refNum =
         cartsApi.create(CreateCart(email = customer.email)).as[CartResponse].referenceNumber
 
-      val regSkus = cartsApi(refNum).lineItems.update(addGiftCardPayload(skuCode)).mustBeOk()
+      val regSkus =
+        cartsApi(refNum).lineItems.update(addGiftCardPayload(productVariantCode)).mustBeOk()
 
       val skus = cartsApi(refNum).lineItems
-          .update(removeGiftCardPayload(skuCode))
+          .update(removeGiftCardPayload(productVariantCode))
           .asTheResult[CartResponse]
           .lineItems
           .skus
           .map(sku ⇒ (sku.sku, sku.quantity, sku.attributes)) must === (
-            Seq((skuCode, 1, attributes2)))
+            Seq((productVariantCode, 1, attributes2)))
     }
 
     "removing too many of an item should remove all of that item" in new OrderShippingMethodFixture
@@ -485,7 +517,7 @@ class CartIntegrationTest
     val highSm: ShippingMethod = Factories.shippingMethods.head
       .copy(adminDisplayName = "High", conditions = highConditions.some, code = "LOW")
 
-    val (lowShippingMethod, inactiveShippingMethod, highShippingMethod) = ({
+    val (lowShippingMethod, inactiveShippingMethod, highShippingMethod) = {
       for {
         product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head.copy(price = 100))
         _ ← * <~ CartLineItems.create(
@@ -500,7 +532,7 @@ class CartIntegrationTest
 
         _ ← * <~ CartTotaler.saveTotals(cart)
       } yield (lowShippingMethod, inactiveShippingMethod, highShippingMethod)
-    }).gimme
+    }.gimme
   }
 
   trait OrderShippingMethodFixture extends ShippingMethodFixture {
@@ -525,7 +557,7 @@ class CartIntegrationTest
     } yield (cc, op, ccc)).gimme
   }
 
-  class TaxesFixture(regionId: Int) extends ShipmentSeeds with ProductSku_ApiFixture {
+  class TaxesFixture(regionId: Int) extends ShipmentSeeds with ProductVariant_ApiFixture {
     // Shipping method
     val shipMethodId = ShippingMethods.create(shippingMethods(2)).gimme.id
 
@@ -533,7 +565,7 @@ class CartIntegrationTest
     val cartRef =
       cartsApi.create(CreateCart(email = "foo@bar.com".some)).as[CartResponse].referenceNumber
 
-    cartsApi(cartRef).lineItems.add(Seq(UpdateLineItemsPayload(skuCode, 1))).mustBeOk()
+    cartsApi(cartRef).lineItems.add(Seq(UpdateLineItemsPayload(productVariantCode, 1))).mustBeOk()
 
     private val randomAddress = CreateAddressPayload(regionId = regionId,
                                                      name = Lorem.letterify("???"),

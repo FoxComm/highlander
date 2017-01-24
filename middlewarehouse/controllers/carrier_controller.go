@@ -11,10 +11,10 @@ import (
 )
 
 type carrierController struct {
-	service services.ICarrierService
+	service services.CarrierService
 }
 
-func NewCarrierController(service services.ICarrierService) IController {
+func NewCarrierController(service services.CarrierService) IController {
 	return &carrierController{service}
 }
 

@@ -6,18 +6,17 @@ import (
 
 	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
-	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/services"
 
 	"github.com/gin-gonic/gin"
 )
 
 type shipmentController struct {
-	shipmentService services.IShipmentService
+	shipmentService services.ShipmentService
 }
 
 func NewShipmentController(
-	shipmentService services.IShipmentService,
+	shipmentService services.ShipmentService,
 ) IController {
 	return &shipmentController{shipmentService}
 }
@@ -125,31 +124,16 @@ func (controller *shipmentController) createShipmentFromOrder() gin.HandlerFunc 
 			return
 		}
 
-		shipment, err := controller.shipmentService.CreateShipment(payload.ShipmentModel())
+		shipmentModel, err := payload.ShipmentModel()
 		if err != nil {
 			handleServiceError(context, err)
 			return
 		}
 
-		//If the shipment has no line items with tracked inventory, then it can be automatically shipped.
-		//Most useful in the case of gift cards.
-		hasTrackedInventory := false
-		for _, lineItem := range payload.LineItems.SKUs {
-			// We only care about the line items if we're tracking inventory.
-			if lineItem.TrackInventory {
-				hasTrackedInventory = true
-				break
-			}
-		}
-
-		//This means that it's only digital items (eg. gift cards)
-		if !hasTrackedInventory {
-			shipment.State = models.ShipmentStateShipped
-			shipment, err = controller.shipmentService.UpdateShipment(shipment)
-			if err != nil {
-				handleServiceError(context, err)
-				return
-			}
+		shipment, err := controller.shipmentService.CreateShipment(shipmentModel)
+		if err != nil {
+			handleServiceError(context, err)
+			return
 		}
 
 		response, err := responses.NewShipmentFromModel(shipment)

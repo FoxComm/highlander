@@ -11,13 +11,14 @@ type Props = {
   value: string,
   onClose: (value: string) => void,
   className?: string,
+  closeBtnId: string,
 };
 
 const RoundedPill = (props: Props) => {
   let closeButton = null;
   if (props.onClose) {
     closeButton = (
-      <button styleName="button" onClick={() => props.onClose(props.value)}>
+      <button id={props.closeBtnId} styleName="button" onClick={() => props.onClose(props.value)}>
         <i className="icon-close" />
       </button>
     );

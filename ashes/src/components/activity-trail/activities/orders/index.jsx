@@ -43,7 +43,7 @@ const representatives = {
   },
   [types.ORDER_BULK_STATE_CHANGED]: {
     title: data => {
-      const orders = data.orderRefNums.map(ref => {
+      const orders = data.cordRefNums.map(ref => {
         return <CordLink key={ref} cord={{referenceNumber: ref}} />;
       });
 

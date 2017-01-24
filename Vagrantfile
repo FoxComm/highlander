@@ -87,6 +87,10 @@ def tune_vm(config, opts = {})
     g.disk_size = 40
     g.zone = "us-central1-a"
     g.tags = ['vagrant', 'no-ports']
+
+    if ENV['GOOGLE_INSTANCE_NAME']
+      g.name = ENV['GOOGLE_INSTANCE_NAME']
+    end
   end
 
   config.vm.provider :aws do |aws, override|
@@ -128,7 +132,7 @@ Vagrant.configure("2") do |config|
     else
       provider = (ENV['VAGRANT_DEFAULT_PROVIDER'] || "virtualbox").chomp
     end
-    puts "Detected #{provider} provider"
+
     if provider == "google"
       puts 'Overriding Google-specific variables'
       $nginx_ip = "`hostname -I | awk '{print $1}'`"

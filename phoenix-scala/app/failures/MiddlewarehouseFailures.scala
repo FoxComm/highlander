@@ -17,4 +17,13 @@ object MiddlewarehouseFailures {
   case object UnableToCreateSku extends Failure {
     override def description = "Unable to create SKU"
   }
+
+  object NoSkuIdInResponse extends Failure {
+    override def description = "No SKU ID found in Middlewarehouse response"
+  }
+
+  object UnableToParseResponse extends Failure {
+    override def description = "Unable to parse Middlewarehouse response as JSON"
+  }
+
 }

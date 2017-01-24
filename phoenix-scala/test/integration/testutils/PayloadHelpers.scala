@@ -28,6 +28,9 @@ object PayloadHelpers {
       case _         ⇒ ("t" → t) ~ ("v" → decompose(v))
     }
 
+  def usdPrice(price: Int): JObject =
+    tv(("currency" → "USD") ~ ("value" → price), "price")
+
   implicit class AttributesJsonifyValues(val attrs: Map[String, Any]) extends AnyVal {
     def asShadow: Map[String, Json] =
       attrs.mapValues {

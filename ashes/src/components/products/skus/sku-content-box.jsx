@@ -57,7 +57,7 @@ class SkuContentBox extends Component {
     }
 
     return (
-      <a styleName="add-icon" onClick={this.addAction}>
+      <a id="sku-block-add-sku-btn" styleName="add-icon" onClick={this.addAction}>
         <i className="icon-add" />
       </a>
     );
@@ -77,6 +77,7 @@ class SkuContentBox extends Component {
 
     const list = _.map(availableVariants, (values: Array<OptionValue>, i) => {
       const key = this.getValuesKey(values);
+      const name = values.map(value => value.name).join('-').toLowerCase();
       const checked = !!selectedOptions[key];
       const content = values.map(value => value.name).join(', ');
 
@@ -84,6 +85,7 @@ class SkuContentBox extends Component {
         <li key={`sku-${key}`}>
           <Checkbox
             id={`sku-option-${i}`}
+            name={`${name}-option-chbox`}
             onChange={() => this.toggleAddedOption(values)}
             checked={checked}
           >

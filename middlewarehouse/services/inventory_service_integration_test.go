@@ -3,6 +3,7 @@ package services
 import (
 	"testing"
 
+	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/common/db/config"
 	"github.com/FoxComm/highlander/middlewarehouse/common/db/tasks"
 	"github.com/FoxComm/highlander/middlewarehouse/fixtures"
@@ -18,8 +19,8 @@ import (
 type InventoryServiceIntegrationTestSuite struct {
 	GeneralServiceTestSuite
 	itemResp       *models.StockItem
-	service        IInventoryService
-	summaryService ISummaryService
+	service        InventoryService
+	summaryService SummaryService
 	sl             *models.StockLocation
 	sku            string
 }
@@ -35,15 +36,13 @@ func (suite *InventoryServiceIntegrationTestSuite) SetupSuite() {
 		"stock_locations",
 	})
 
-	summaryRepository := repositories.NewSummaryRepository(suite.db)
 	stockItemRepository := repositories.NewStockItemRepository(suite.db)
 	unitRepository := repositories.NewStockItemUnitRepository(suite.db)
-	stockLocationRepository := repositories.NewStockLocationRepository(suite.db)
 
-	stockLocationService := NewStockLocationService(stockLocationRepository)
+	stockLocationService := NewStockLocationService(suite.db)
 
-	suite.summaryService = NewSummaryService(summaryRepository, stockItemRepository)
-	suite.service = &inventoryService{stockItemRepository, unitRepository, suite.summaryService, nil}
+	suite.summaryService = NewSummaryService(suite.db)
+	suite.service = &inventoryService{stockItemRepository, unitRepository, suite.summaryService, suite.db, nil}
 
 	suite.sl, _ = stockLocationService.CreateLocation(fixtures.GetStockLocation())
 	suite.sku = "SKU-INTEGRATION"
@@ -117,55 +116,68 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_DecrementStockItemUnits_
 }
 
 func (suite *InventoryServiceIntegrationTestSuite) Test_ReleaseItems_MultipleSKUsSummary() {
-	sku1 := "TEST-RESERVATION-A"
-	sku2 := "TEST-RESERVATION-B"
+	sku1 := suite.createSKU("TEST-RESERVATION-A")
+	sku2 := suite.createSKU("TEST-RESERVATION-B")
 
-	stockItem1, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, sku1))
+	stockItem1, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, sku1.Code))
 	suite.Nil(err)
 
 	suite.Nil(suite.service.IncrementStockItemUnits(stockItem1.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem1, 5)))
 
-	stockItem2, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, sku2))
+	stockItem2, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, sku2.Code))
 	suite.Nil(err)
 
 	suite.Nil(suite.service.IncrementStockItemUnits(stockItem2.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem2, 5)))
 
-	refNum := "BR10001"
-	skus := map[string]int{
-		sku1: 3,
-		sku2: 5,
+	payload := &payloads.Reservation{
+		RefNum: "BR10001",
+		Items: []payloads.ItemReservation{
+			payloads.ItemReservation{SKU: sku1.Code, Qty: 3},
+			payloads.ItemReservation{SKU: sku2.Code, Qty: 5},
+		},
 	}
 
-	suite.service.HoldItems(refNum, skus)
+	suite.Nil(suite.service.HoldItems(payload))
 
-	summary1, err := suite.summaryService.GetSummaryBySKU(sku1)
+	summary1, err := suite.summaryService.GetSummaryBySKU(sku1.Code)
 	suite.Nil(err)
 
-	summary2, err := suite.summaryService.GetSummaryBySKU(sku2)
+	summary2, err := suite.summaryService.GetSummaryBySKU(sku2.Code)
 	suite.Nil(err)
 
-	suite.Equal(skus[sku1], summary1[0].OnHold)
-	suite.Equal(skus[sku2], summary2[0].OnHold)
+	suite.Equal(int(payload.Items[0].Qty), summary1[0].OnHold)
+	suite.Equal(int(payload.Items[1].Qty), summary2[0].OnHold)
 }
 
 func (suite *InventoryServiceIntegrationTestSuite) Test_ReleaseItems_SubsequentSummary() {
+	suite.createSKU(suite.sku)
 	stockItem, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, suite.sku))
 	suite.Nil(err)
 
 	suite.Nil(suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 10)))
 
-	skus := map[string]int{suite.sku: 3}
+	payload := &payloads.Reservation{
+		RefNum: "BR10001",
+		Items: []payloads.ItemReservation{
+			payloads.ItemReservation{SKU: suite.sku, Qty: 3},
+		},
+	}
 
-	suite.Nil(suite.service.HoldItems("BR10001", skus))
+	suite.Nil(suite.service.HoldItems(payload))
 
 	summary, err := suite.summaryService.GetSummaryBySKU(suite.sku)
 	suite.Nil(err)
 
-	suite.Equal(skus[suite.sku], summary[0].OnHold)
+	suite.Equal(int(payload.Items[0].Qty), summary[0].OnHold)
 
-	skus[suite.sku] = 5
+	payload = &payloads.Reservation{
+		RefNum: "BR10002",
+		Items: []payloads.ItemReservation{
+			payloads.ItemReservation{SKU: suite.sku, Qty: 5},
+		},
+	}
 
-	suite.Nil(suite.service.HoldItems("BR10002", skus))
+	suite.Nil(suite.service.HoldItems(payload))
 
 	summary, err = suite.summaryService.GetSummaryBySKU(suite.sku)
 	suite.Nil(err)
@@ -174,14 +186,19 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_ReleaseItems_SubsequentS
 }
 
 func (suite *InventoryServiceIntegrationTestSuite) Test_ReleaseItems_Summary() {
-	skus := map[string]int{suite.sku: 1}
-	refNum := "BR10001"
+	payload := &payloads.Reservation{
+		RefNum: "BR10001",
+		Items: []payloads.ItemReservation{
+			payloads.ItemReservation{SKU: suite.sku, Qty: 1},
+		},
+	}
+
 	stockItem, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, suite.sku))
 	suite.Nil(err)
 	suite.Nil(suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 1)))
-	suite.Nil(suite.service.HoldItems(refNum, skus))
+	suite.Nil(suite.service.HoldItems(payload))
 
-	suite.Nil(suite.service.ReleaseItems(refNum))
+	suite.Nil(suite.service.ReleaseItems(payload.RefNum))
 
 	summary, err := suite.summaryService.GetSummaryBySKU(suite.sku)
 	suite.Nil(err)
@@ -190,14 +207,19 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_ReleaseItems_Summary() {
 }
 
 func (suite *InventoryServiceIntegrationTestSuite) Test_ShipItems_Summary() {
-	skus := map[string]int{suite.sku: 1}
-	refNum := "BR10001"
+	payload := &payloads.Reservation{
+		RefNum: "BR10001",
+		Items: []payloads.ItemReservation{
+			payloads.ItemReservation{SKU: suite.sku, Qty: 1},
+		},
+	}
+
 	stockItem, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, suite.sku))
 	suite.Nil(err)
 	suite.Nil(suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 1)))
-	suite.Nil(suite.service.HoldItems(refNum, skus))
-	suite.Nil(suite.service.ReserveItems(refNum))
-	suite.Nil(suite.service.ShipItems(refNum))
+	suite.Nil(suite.service.HoldItems(payload))
+	suite.Nil(suite.service.ReserveItems(payload.RefNum))
+	suite.Nil(suite.service.ShipItems(payload.RefNum))
 
 	summary, err := suite.summaryService.GetSummaryBySKU(suite.sku)
 	suite.Nil(err)
@@ -255,4 +277,12 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_GetAFSBySKU_NotFound() {
 
 	suite.Equal(gorm.ErrRecordNotFound, err)
 	suite.Nil(afs)
+}
+
+func (suite *InventoryServiceIntegrationTestSuite) createSKU(code string) *models.SKU {
+	sku := fixtures.GetSKU()
+	sku.Code = code
+	sku.RequiresInventoryTracking = true
+	suite.Nil(suite.db.Create(sku).Error)
+	return sku
 }

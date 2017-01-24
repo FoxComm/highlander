@@ -49,7 +49,7 @@ class LineItemUpdaterTest
           fail("Should have found sku 1")
       }
 
-      root.lineItems.skus.foldLeft(0)(_ + _.quantity) must === (CartLineItems.size.gimme)
+      root.lineItems.skus.map(_.quantity).sum must === (CartLineItems.size.gimme)
     }
 
     "Updates line items when the ProductVariant already is in cart" in new Fixture {
@@ -79,7 +79,7 @@ class LineItemUpdaterTest
           fail("Should have found sku 1")
       }
 
-      root.lineItems.skus.foldLeft(0)(_ + _.quantity) must === (CartLineItems.gimme.size)
+      root.lineItems.skus.map(_.quantity).sum must === (CartLineItems.gimme.size)
     }
   }
 

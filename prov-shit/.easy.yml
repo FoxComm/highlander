@@ -41,9 +41,12 @@ shortcuts:
   - name: Bootstrap Marathon Alerts
     alias: marathon_alerts.yml
     target: ansible/bootstrap_marathon_alerts.yml
-  - name: Bootstrap Database Backup
-    alias: db_backup.yml
-    target: ansible/bootstrap_db_backup.yml
+  - name: Bootstrap DB Backup Script
+    alias: backup_db.yml
+    target: ansible/bootstrap_backup_db.yml
+  - name: Bootstrap ZK Backup Script
+    alias: backup_zk.yml
+    target: ansible/bootstrap_backup_zk.yml
   - name: Bootstrap OpenVPN Key
     alias: openvpn_key.yml
     target: ansible/bootstrap_openvpn_key.yml
@@ -55,17 +58,31 @@ shortcuts:
   - name: Bootstrap Annabelle
     alias: annabelle.yml
     target: ansible/bootstrap_annabelle.yml
+  - name: Bootstrap Pgweb
+    alias: pgweb.yml
+    target: ansible/bootstrap_pgweb.yml
   - name: Bootstrap Sinopia
     alias: sinopia.yml
     target: ansible/bootstrap_sinopia.yml
 
-  # Production
-  - name: Provision TD Test
-    alias: td_test.yml
-    target: ansible/td_test.yml
-  - name: Provision TPG Test
-    alias: tpg_test.yml
-    target: ansible/tpg_test.yml
+  # Goldrush
+  - name: Generate .env.local
+    alias: env_local.yml
+    target: ansible/goldrush_env_local.yml
+
+  # Test Machines
+  - name: Provision FoxComm Test
+    alias: test_stage.yml
+    target: ansible/test_stage.yml
+  - name: Provision Top Drawer Test
+    alias: test_topdrawer.yml
+    target: ansible/test_topdrawer.yml
+  - name: Provision Perfect Gourmet Test
+    alias: test_perfectgourmet.yml
+    target: ansible/test_perfectgourmet.yml
+  - name: Provision Target Test
+    alias: test_target.yml
+    target: ansible/test_target.yml
 
   # Migration
   - name: Migrate Phoenix DB
@@ -74,11 +91,6 @@ shortcuts:
   - name: Migrate MWH DB
     alias: migrate_middlewarehouse_db.yml
     target: ansible/migrate_middlewarehouse_db.yml
-
-  # Healthchecks
-  - name: Perform Healthchecks
-    alias: healthchecks.yml
-    target: ansible/healthchecks.yml
 
 # Packer shortcuts
 - type: snowflake
@@ -104,6 +116,9 @@ shortcuts:
   - name: Base United Image
     alias: base_united.json
     target: packer/base/base_united.json
+  - name: Base Appliance Image
+    alias: appliance.json
+    target: packer/appliance/appliance.json
 
   # Tinystack
   - name: Tinystack Amigo

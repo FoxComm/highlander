@@ -467,6 +467,8 @@ class ImageIntegrationTest
       _ ← * <~ ProductAlbumLinks.create(ProductAlbumLink(leftId = product.id, rightId = album.id))
       _ ← * <~ ProductVariantLinks.create(
              ProductVariantLink(leftId = product.id, rightId = sku.id))
+      _ ← * <~ ProductVariantMwhSkuIds.create(
+             ProductVariantMwhSkuId(variantFormId = skuForm.id, mwhSkuId = skuForm.id))
     } yield (product, prodForm, prodShadow, sku, skuForm, skuShadow)).gimme
   }
 
