@@ -16,8 +16,8 @@
         {
           "type": "fields",
           "value": [
-            "salePrice",
-            "retailPrice"
+            "retailPrice",
+            "salePrice"
           ]
         }
       ]

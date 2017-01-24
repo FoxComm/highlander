@@ -56,7 +56,10 @@ export default class FormField extends Component {
 
   static defaultProps = {
     target: 'input,textarea,select',
-    getTargetValue: node => node.type == 'checkbox' ? node.checked : node.value,
+    getTargetValue: node => {
+      if (!node) return void 0;
+      return node.type == 'checkbox' ? node.checked : node.value
+    },
     isDefined: isDefined,
   };
 
@@ -271,7 +274,7 @@ export default class FormField extends Component {
   get errorMessages() {
     if (this.errors.length && this.readyToShowErrors) {
       return (
-        <div>
+        <div key="errors">
           {this.errors.map((error, index) => {
             return (
               <FormFieldError
@@ -309,9 +312,7 @@ export default class FormField extends Component {
       { '_form-field-error': this.hasError },
       { '_form-field-required': this.props.required }
     );
-    const children = React.cloneElement(this.props.children, {
-      key: 'children',
-    });
+    const { children } = this.props;
 
     const content = this.props.labelAfterInput
       ? [children, this.label]

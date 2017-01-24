@@ -37,6 +37,7 @@ type State = {
 type AttrSchema = {
   type: string,
   title?: string,
+  description?: string,
   widget?: string,
   properties?: Object,
 }
@@ -44,6 +45,7 @@ type AttrSchema = {
 type AttrOptions = {
   required: boolean,
   label: string,
+  description?: string,
   isDefined: (value: any) => boolean,
 }
 
@@ -56,28 +58,32 @@ function formatLabel(label: string): string {
 }
 
 export function renderFormField(name: string, content: Element, options: AttrOptions): Element {
+  const { description, ...formFieldOptions } = options;
+  let descriptionField = null;
+  let body = content;
+
+  if (description) {
+    descriptionField = (
+      <div key="desc" className="fc-object-form__field-description">{description}</div>
+    );
+    body = (
+      <div>
+        {content}
+        {descriptionField}
+      </div>
+    );
+  }
+
   return (
     <FormField
-      {...options}
+      {...formFieldOptions}
       className="fc-object-form__field"
       labelClassName="fc-object-form__field-label"
       key={`object-form-attribute-${name}`}
     >
-      {content}
+      {body}
     </FormField>
   );
-}
-
-function guessType(value: any): string {
-  const typeOf = typeof value;
-  switch (typeOf) {
-    case 'string':
-    case 'number':
-    case 'boolean':
-      return typeOf;
-    default:
-      return 'string';
-  }
 }
 
 export default class ObjectFormInner extends Component {
@@ -374,6 +380,7 @@ export default class ObjectFormInner extends Component {
     const options = {
       required: this.isRequired(name),
       label: schema && schema.title || formatLabel(name),
+      description: schema && schema.description,
       isDefined: isDefined,
     };
     if (schema && schema.widget == 'richText') {
