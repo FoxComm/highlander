@@ -34,6 +34,9 @@ object CustomerGroupMembers
   def findByGroupId(groupId: Int): QuerySeq =
     filter(_.groupId === groupId)
 
+  def findByCustomerDataId(customerDataId: Int): QuerySeq =
+    filter(_.customerDataId === customerDataId)
+
   def findByGroupIdAndCustomerDataId(customerDataId: Int, groupId: Int) =
     filter(_.groupId === groupId).filter(_.customerDataId === customerDataId)
 
