@@ -14,11 +14,12 @@ func main() {
 
 	zookeeper := config.ZookeeperURL
 	schemaRepo := config.SchemaRepositoryURL
+	offsetStrategy := config.OffsetResetStrategy
 
-	consumer, err := NewConsumer(zookeeper, schemaRepo)
+	consumer, err := NewConsumer(zookeeper, schemaRepo, offsetStrategy)
 	if err != nil {
 		log.Fatalf("Unable to start consumer with err: %s", err)
 	}
 
-	consumer.Run(config.Topic, config.Partition)
+	consumer.Run(config.Topic)
 }

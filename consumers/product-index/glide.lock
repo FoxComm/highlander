@@ -31,7 +31,7 @@ imports:
   - shared/golang/api
   - shared/golang/elastic
 - name: github.com/FoxComm/metamorphosis
-  version: 530d7e205c9221ab2d7cb928bb8ba227ee938e8e
+  version: f357818171523aa95aafb58ca8cf419cb4f0e291
   repo: git@github.com:FoxComm/metamorphosis.git
   vcs: git
 - name: github.com/golang/snappy

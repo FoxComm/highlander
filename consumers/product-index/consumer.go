@@ -18,8 +18,8 @@ const (
 	groupID  = "product-indexer-group"
 )
 
-func NewConsumer(zookeeper, schemaRepo string) (*Consumer, error) {
-	consumer, err := metamorphosis.NewConsumer(zookeeper, schemaRepo)
+func NewConsumer(zookeeper, schemaRepo, offsetStrategy string) (*Consumer, error) {
+	consumer, err := metamorphosis.NewConsumer(zookeeper, schemaRepo, offsetStrategy)
 	if err != nil {
 		return nil, err
 	}
@@ -36,8 +36,8 @@ func NewConsumer(zookeeper, schemaRepo string) (*Consumer, error) {
 	return &Consumer{c: consumer, i: idxer}, nil
 }
 
-func (consumer *Consumer) Run(topic string, partition int) {
-	consumer.c.RunTopic(topic, partition, consumer.handler)
+func (consumer *Consumer) Run(topic string) {
+	consumer.c.RunTopic(topic, consumer.handler)
 }
 
 type ConsumerProduct struct {
