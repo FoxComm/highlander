@@ -210,6 +210,10 @@ class PromotionsIntegrationTest
         POST(s"v1/my/cart/line-items", Seq(UpdateLineItemsPayload(skuCode, 0)))
           .asTheResult[CartResponse]
 
+      info(s"skuPrice = $skuPrice")
+      // why are totals increased for an empty cart if we add a coupon?
+      info(s"totals = ${emptyCartWithCoupon.totals}")
+      info(s"cart = ${emptyCartWithCoupon}")
       emptyCartWithCoupon.totals.adjustments must === (0)
       emptyCartWithCoupon.totals.total must === (0)
     }
