@@ -4,22 +4,29 @@ import _ from 'lodash';
 import React, { PropTypes } from 'react';
 
 // components
+import { Link } from 'components/link';
 import ExpandableRow from 'components/table/expandable-row';
 
 import type { WarehouseInventorySummary } from 'modules/inventory/warehouses';
 
-const setCellContents = (warehouse, field, params) => {
-  return _.get(warehouse, field);
+const setCellContents = (skuId, warehouse, field, params) => {
+  switch (field) {
+    case 'sku':
+      return <Link to="sku-details" params={{skuId: skuId}}>{warehouse.sku}</Link>;
+    default:
+      return _.get(warehouse, field);
+  }
 };
 
 type Props = {
   warehouse: WarehouseInventorySummary,
   columns: Array<any>,
   params: Object,
+  skuId: number,
 }
 
 const InventoryWarehouseRow = (props: Props) => {
-  const { warehouse, columns, params } = props;
+  const { warehouse, columns, params, skuId } = props;
   const key = `inventory-list-${warehouse.stockLocation.id}`;
 
   return (
@@ -28,7 +35,7 @@ const InventoryWarehouseRow = (props: Props) => {
       columns={columns}
       row={warehouse}
       params={params}
-      setCellContents={setCellContents}
+      setCellContents={(...args) => setCellContents(skuId, ...args)}
     />
   );
 };

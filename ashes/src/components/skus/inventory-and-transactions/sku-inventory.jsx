@@ -29,7 +29,8 @@ type Props = {
   fetchState: {
     inProgress?: boolean,
     err?: any,
-  }
+  },
+  showSkuLink: boolean,
 }
 
 function array2tableData(rows) {
@@ -55,7 +56,7 @@ class InventoryItemDetails extends Component {
   }
 
   get tableColumns() {
-    return [
+    let fields = [
       { field: 'stockLocation.name', text: 'Warehouse' },
       { field: 'onHand', text: 'On Hand' },
       { field: 'onHold', text: 'Hold' },
@@ -63,6 +64,14 @@ class InventoryItemDetails extends Component {
       { field: 'afs', text: 'AFS' },
       { field: 'afsCost', text: 'AFS Cost Value', type: 'currency' },
     ];
+    if (this.props.showSkuLink) {
+      fields = [
+        { field: 'sku', text: 'SKU'},
+        ...fields
+      ]
+    }
+
+    return fields;
   }
 
   get drawerColumns() {
@@ -95,6 +104,7 @@ class InventoryItemDetails extends Component {
     return (
       <InventoryWarehouseRow
         key={key}
+        skuId={this.props.skuId}
         warehouse={row}
         columns={columns}
         params={params}

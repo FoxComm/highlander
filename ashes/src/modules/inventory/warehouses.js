@@ -108,6 +108,7 @@ const reducer = createReducer({
         acc[itemSummary.stockLocation.id] = acc[itemSummary.stockLocation.id] || {
         stockItems: [],
         stockLocation: itemSummary.stockLocation,
+        sku: itemSummary.sku, // since we have only one sku in response we can do it
         onHand: 0,
         onHold: 0,
         reserved: 0,
