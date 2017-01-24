@@ -4,8 +4,7 @@ import models.customer._
 import org.json4s.JObject
 import org.scalatest.mock.MockitoSugar
 import payloads.CustomerGroupPayloads.CustomerDynamicGroupPayload
-import responses.DynamicGroupResponse
-import responses.DynamicGroupResponse.Root
+import responses.DynamicGroupResponses.DynamicGroupResponse.{Root, build}
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
@@ -68,7 +67,7 @@ class CustomerGroupIntegrationTest
 
   "GET /v1/groups/:groupId" - {
     "fetches group info" in new Fixture {
-      customerGroupsApi(group.id).get().as[Root] must === (DynamicGroupResponse.build(group))
+      customerGroupsApi(group.id).get().as[Root] must === (build(group))
     }
 
     "404 if group not found" in new Fixture {

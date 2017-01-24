@@ -2,7 +2,7 @@ import models.customer.{CustomerGroupTemplate, CustomerGroupTemplates}
 import org.json4s.JObject
 import org.scalatest.mock.MockitoSugar
 import payloads.CustomerGroupPayloads.CustomerDynamicGroupPayload
-import responses.DynamicGroupResponse.Root
+import responses.DynamicGroupResponses.DynamicGroupResponse.Root
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures

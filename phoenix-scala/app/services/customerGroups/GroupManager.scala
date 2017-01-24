@@ -7,7 +7,7 @@ import failures.NotFoundFailure404
 import models.account.{Scope, User}
 import models.customer._
 import payloads.CustomerGroupPayloads.CustomerDynamicGroupPayload
-import responses.DynamicGroupResponse.{Root, build}
+import responses.DynamicGroupResponses.DynamicGroupResponse.{Root, build}
 import utils.aliases._
 import utils.db._
 import utils.db.ExPostgresDriver.api._
