@@ -30,7 +30,8 @@ type Props = {
     inProgress?: boolean,
     err?: any,
   },
-  showSkuLink: boolean,
+  showSkuLink?: boolean,
+  readOnly?: boolean,
 }
 
 function array2tableData(rows) {
@@ -94,6 +95,7 @@ class InventoryItemDetails extends Component {
         isLoading={_.get(this.props, ['fetchState', 'inProgress'], true)}
         failed={!!_.get(this.props, ['fetchState', 'err'])}
         params={params}
+        readOnly={this.props.readOnly}
       />
     );
   }

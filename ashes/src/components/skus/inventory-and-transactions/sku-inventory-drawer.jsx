@@ -25,6 +25,7 @@ type Props = {
   data: {
     rows: Array<StockItemFlat>
   },
+  readOnly?: boolean,
 }
 
 class WarehouseDrawer extends Component {
@@ -43,24 +44,27 @@ class WarehouseDrawer extends Component {
   @autobind
   renderRow(row: StockItemFlat): Element {
     const { state } = this;
-
     const handleChangeQuantity = (diff: number) => {
       this.props.updateSkuItemsCount(row.sku, row, diff);
     };
-
     const uniqId = `${row.type}-${row.id}`;
+
+    let quantityField = row.onHand;
+    if (!this.props.readOnly) {
+      quantityField = (
+        <AdjustQuantity
+          value={row.onHand}
+          onChange={handleChangeQuantity}
+          isPopupShown={state.popupOpenedFor === uniqId}
+          togglePopup={(show) => this.togglePopupFor(uniqId, show)}
+        />
+      );
+    }
 
     return (
       <TableRow key={uniqId}>
         <td>{row.type}</td>
-        <td>
-          <AdjustQuantity
-            value={row.onHand}
-            onChange={handleChangeQuantity}
-            isPopupShown={state.popupOpenedFor === uniqId}
-            togglePopup={(show) => this.togglePopupFor(uniqId, show)}
-          />
-        </td>
+        <td>{quantityField}</td>
         <td>{row.onHold}</td>
         <td>{row.reserved}</td>
         <td>{row.afs}</td>

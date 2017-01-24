@@ -17,7 +17,8 @@ type State = {
 
 type Props = {
   skuId: number,
-  showSkuLink: boolean,
+  showSkuLink?: boolean,
+  readOnly?: boolean,
 }
 
 class InventoryAndTransactions extends Component {
@@ -27,9 +28,15 @@ class InventoryAndTransactions extends Component {
   };
 
   get body() {
-    const { skuId, showSkuLink } = this.props;
+    const { skuId, showSkuLink, readOnly } = this.props;
     if (this.state.currentView == 'inventory') {
-      return <SkuInventory skuId={skuId} showSkuLink={showSkuLink} />;
+      return (
+        <SkuInventory
+          skuId={skuId}
+          showSkuLink={showSkuLink}
+          readOnly={readOnly}
+        />
+      );
     } else {
       return <SkuTransactions skuId={skuId} />;
     }

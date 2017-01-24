@@ -9,6 +9,7 @@ const InventoryPage = (props) => {
     <InventoryAndTransactions
       skuId={props.object.middlewarehouseSkuId}
       showSkuLink
+      readOnly
     />
   );
 };
