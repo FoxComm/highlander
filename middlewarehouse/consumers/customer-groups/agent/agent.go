@@ -1,8 +1,9 @@
 package agent
 
 import (
-	"encoding/json"
 	"log"
+	"os"
+	"strconv"
 	"time"
 
 	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix"
@@ -21,12 +22,6 @@ const (
 	DefaultElasticTopic    = "customers_search_view"
 	DefaultElasticSize     = 100
 )
-
-type Customer struct {
-	ID    int
-	Name  string
-	Email string
-}
 
 type Agent struct {
 	esClient      *elastic.Client
@@ -119,7 +114,7 @@ func NewAgent(options ...AgentOptionFunc) (*Agent, error) {
 }
 
 func (agent *Agent) Run() {
-	log.Print("Running customer-groups agent")
+	log.Println("Running customer-groups agent")
 
 	ticker := time.NewTicker(agent.timeout)
 
@@ -171,23 +166,20 @@ func (agent *Agent) getCustomersIDs(group responses.CustomerGroupResponse) ([]in
 
 	for !done {
 		log.Printf("Quering ES. From: %d, Size: %d, Query: %s", from, agent.esSize, query)
-		res, err := agent.esClient.Search().Type(agent.esTopic).Query(raw).From(from).Size(agent.esSize).Do()
+		res, err := agent.esClient.Search().Type(agent.esTopic).Query(raw).Fields().From(from).Size(agent.esSize).Do()
 
 		if err != nil {
 			return nil, err
 		}
 
-		if res.Hits.TotalHits > 0 {
-			for _, hit := range res.Hits.Hits {
-				var customer Customer
-				err := json.Unmarshal(*hit.Source, &customer)
-				if err != nil {
-					return nil, err
-				}
+		for _, hit := range res.Hits.Hits {
+			customerId, err := strconv.Atoi(hit.Id)
+			if err != nil {
+				return nil, err
+			}
 
-				if !ids[customer.ID] {
-					ids[customer.ID] = true
-				}
+			if !ids[customerId] {
+				ids[customerId] = true
 			}
 		}
 

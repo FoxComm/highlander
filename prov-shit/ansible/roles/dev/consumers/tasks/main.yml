@@ -1,7 +1,5 @@
 ---
 
-- include_vars: main.yml
-
 - name: Creates Marathon JSON directory
   file: path=/marathon/applications state=directory
 
