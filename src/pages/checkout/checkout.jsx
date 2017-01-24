@@ -230,6 +230,13 @@ class Checkout extends Component {
     );
   }
 
+  sanitizeError(error) {
+    if (/is blacklisted/.test(error)) {
+       return 'Your account has been blocked from making purchases on this site';
+    }
+    return error;
+  }
+
   render() {
     const props = this.props;
 
