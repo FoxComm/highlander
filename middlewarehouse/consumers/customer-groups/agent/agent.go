@@ -118,6 +118,8 @@ func NewAgent(options ...AgentOptionFunc) (*Agent, error) {
 }
 
 func (agent *Agent) Run() {
+	log.Print("Running customer-groups agent")
+
 	ticker := time.NewTicker(agent.timeout)
 
 	for {

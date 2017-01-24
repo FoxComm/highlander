@@ -55,11 +55,11 @@ object GroupManager {
          }
       members ← * <~ CustomerGroupMembers.findByGroupId(groupId).result
       _ ← * <~ members.map { member ⇒
-            CustomerGroupMembers.deleteById(
-                member.id,
-                DbResultT.unit,
-                id ⇒ CustomerGroupMemberCannotBeDeleted(groupId, member.id))
-          }
+           CustomerGroupMembers.deleteById(
+               member.id,
+               DbResultT.unit,
+               id ⇒ CustomerGroupMemberCannotBeDeleted(groupId, member.id))
+         }
     } yield DbResultT.unit
 
   private def createCustom(payload: CustomerDynamicGroupPayload,

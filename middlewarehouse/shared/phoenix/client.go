@@ -291,10 +291,16 @@ func (c *phoenixClient) SetGroupToCustomers(groupID int, customerIDs []int) erro
 		return err
 	}
 
+	payload := struct {
+		Customers []int `json:"customers"`
+	}{
+		Customers: customerIDs,
+	}
+
 	url := fmt.Sprintf("%s/v1/service/customer-groups/%d/users", c.baseURL, groupID)
 	headers := map[string]string{"JWT": c.jwt}
 
-	_, err := consumers.Post(url, headers, customerIDs)
+	_, err := consumers.Post(url, headers, payload)
 
 	return err
 }

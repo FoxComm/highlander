@@ -2,43 +2,32 @@ package main
 
 import (
 	"log"
-	"time"
 
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/customer-groups/agent"
-	"os"
-)
-
-const (
-	ElasticURLKey      = "ES_URL"
-	ElasticIndexKey    = "ES_INDEX"
-	PhoenixURLKey      = "PHOENIX_URL"
-	PhoenixUserKey     = "PHOENIX_USER"
-	PhoenixPasswordKey = "PHOENIX_PASSWORD"
+	"github.com/FoxComm/highlander/middlewarehouse/shared"
 )
 
 func main() {
-	esURL := os.Getenv(ElasticURLKey)
-	esIndex := os.Getenv(ElasticIndexKey)
-	phoenixUrl := os.Getenv(PhoenixURLKey)
-	phoenixUser := os.Getenv(PhoenixUserKey)
-	phoenixPassword := os.Getenv(PhoenixPasswordKey)
+	agentConfig, err := makeAgentConfig()
+	if err != nil {
+		log.Panicf("Unable to initialize agent with error: %s", err.Error())
+	}
 
-	log.Printf("ES URL: %s", esURL)
-	log.Printf("ES Index: %s", esIndex)
-	log.Printf("Phoenix URL: %s", phoenixUrl)
-	log.Printf("Phoenix Auth: %s:%s", phoenixUser, phoenixPassword)
+	phoenixConfig, err := shared.MakePhoenixConfig()
+	if err != nil {
+		log.Panicf("Unable to initialize agent with error: %s", err.Error())
+	}
 
 	groupsAgent, err := agent.NewAgent(
-		agent.SetElasticURL(esURL),
-		agent.SetElasticIndex(esIndex),
-		agent.SetElasticQierySize(3),
-		agent.SetPhoenixURL(phoenixUrl),
-		agent.SetPhoenixAuth(phoenixUser, phoenixPassword),
-		agent.SetTimeout(30*time.Second),
+		agent.SetElasticURL(agentConfig.ElasticURL),
+		agent.SetElasticIndex(agentConfig.ElasticIndex),
+		agent.SetPhoenixURL(phoenixConfig.URL),
+		agent.SetPhoenixAuth(phoenixConfig.User, phoenixConfig.Password),
+		agent.SetTimeout(agentConfig.PollingInterval),
 	)
 
 	if err != nil {
-		log.Fatalf("Couldn't create ES client with error %s", err)
+		log.Panicf("Couldn't create ES client with error %s", err)
 	}
 
 	groupsAgent.Run()

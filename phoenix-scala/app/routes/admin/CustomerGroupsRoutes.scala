@@ -15,11 +15,6 @@ object CustomerGroupsRoutes {
 
     activityContext(auth.model) { implicit ac ⇒
       pathPrefix("groups") {
-        (get & pathEnd) {
-          getOrFailures {
-            GroupManager.findAll
-          }
-        } ~
         (post & pathEnd & entity(as[CustomerDynamicGroupPayload])) { payload ⇒
           mutateOrFailures {
             GroupManager.create(payload, auth.model)
