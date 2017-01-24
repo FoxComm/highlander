@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix"
+	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix/responses"
 	elastic "gopkg.in/olivere/elastic.v3"
 )
@@ -149,6 +150,10 @@ func (agent *Agent) processGroups() error {
 			if err := agent.phoenixClient.SetGroupToCustomers(group.ID, ids); err != nil {
 				log.Panicf("An error occured setting group to customers: %s", err)
 			}
+
+			if err := agent.updateGroup(group, len(ids)); err != nil {
+				log.Panicf("An error occured update group info: %s", err)
+			}
 		}(group)
 	}
 
@@ -197,4 +202,15 @@ func (agent *Agent) getCustomersIDs(group responses.CustomerGroupResponse) ([]in
 	}
 
 	return result, nil
+}
+
+func (agent *Agent) updateGroup(group responses.CustomerGroupResponse, customersCount int) error {
+	updateGroup := &payloads.UpdateCustomerGroupPayload{
+		Name:           group.Name,
+		CustomersCount: customersCount,
+		ClientState:    group.ClientState,
+		ElasticRequest: group.ElasticRequest,
+	}
+
+	return agent.phoenixClient.UpdateCustomerGroup(group.ID, updateGroup)
 }
