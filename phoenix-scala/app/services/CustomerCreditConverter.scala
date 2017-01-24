@@ -53,7 +53,7 @@ object CustomerCreditConverter {
       admin: User)(implicit ec: EC, db: DB, ac: AC, au: AU): DbResultT[GiftCardResponse.Root] =
     for {
       credit ← * <~ StoreCredits.mustFindById404(storeCreditId)
-      _      ← * <~ failIf(!credit.isActive, StoreCreditConvertFailure(credit))
+      _      ← * <~ failIf(!credit.isActive, StoreCreditConvertFailure(credit.state))
       _      ← * <~ Users.mustFindByAccountId(accountId)
       _ ← * <~ StoreCreditAdjustments
            .lastAuthByStoreCreditId(credit.id)
