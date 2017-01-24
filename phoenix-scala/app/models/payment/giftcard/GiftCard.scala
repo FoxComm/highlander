@@ -340,11 +340,11 @@ object GiftCards
   def findActive(): QuerySeq =
     filter(_.state === (GiftCard.Active: GiftCard.State))
 
-  private def adjust(giftCard: GiftCard,
-                     orderPaymentId: Option[Int],
-                     debit: Int = 0,
-                     credit: Int = 0,
-                     state: InStorePaymentStates.State = InStorePaymentStates.Auth)(
+  def adjust(giftCard: GiftCard,
+             orderPaymentId: Option[Int],
+             debit: Int = 0,
+             credit: Int = 0,
+             state: InStorePaymentStates.State = InStorePaymentStates.Auth)(
       implicit ec: EC): DbResultT[GiftCardAdjustment] = {
     val balance = giftCard.availableBalance - debit + credit
     val adjustment = Adj(giftCardId = giftCard.id,
