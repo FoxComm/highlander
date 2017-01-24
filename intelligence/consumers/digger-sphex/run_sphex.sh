@@ -1,3 +1,3 @@
 #!/bin/bash
 
-./counter.p6 $KAFKA $HENHOUSE
+./counter.p6 $KAFKA $TOPIC $HENHOUSE
