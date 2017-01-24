@@ -1,0 +1,45 @@
+{
+  "id": "/customer-groups-agent",
+  "cmd": null,
+  "cpus": 0.25,
+  "mem": 64,
+  "disk": 0,
+  "instances": 1,
+  "container": {
+    "type": "DOCKER",
+    "volumes": [
+      {
+        "containerPath": "{{docker_logs_dir}}",
+        "hostPath": "{{docker_logs_host_dir}}",
+        "mode": "RW"
+      }
+    ],
+    "docker": {
+      "image": "{{docker_registry}}:5000/customer-groups-agent:{{docker_tag_customer_groups_agent}}",
+      "network": "HOST",
+      "privileged": false,
+      "parameters": [],
+      "forcePullImage": true
+    }
+  },
+  "env": {
+    "ES_URL": "http://{{search_server_http}}",
+    "ES_INDEX": "admin_1",
+    "PHOENIX_URL": "http://{{phoenix_server}}",
+    "PHOENIX_USER": "{{phoenix_api_user}}",
+    "PHOENIX_PASSWORD": "{{phoenix_api_password}}",
+    "POLLING_INTERVAL": "1m"
+  },
+  "healthChecks": [
+    {
+      "protocol": "COMMAND",
+      "command": {
+        "value": "ps -ef | grep -v grep | grep customer-groups-agent"
+      },
+      "gracePeriodSeconds": 300,
+      "intervalSeconds": 30,
+      "timeoutSeconds": 20,
+      "maxConsecutiveFailures": 3
+    }
+  ]
+}

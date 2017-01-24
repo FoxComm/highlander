@@ -163,6 +163,7 @@ Vagrant.configure("2") do |config|
         docker_tag_shipments_consumer: ENV['DOCKER_TAG_SHIPMENTS_CONSUMER'] || $master,
         docker_tag_shipstation_consumer: ENV['DOCKER_TAG_SHIPSTATION_CONSUMER'] || $master,
         docker_tag_stock_items_consumer: ENV['DOCKER_TAG_STOCK_ITEMS_CONSUMER'] || $master,
+        docker_tag_customer_groups_agent: ENV['DOCKER_TAG_CUSTOMER_GROUPS_AGENT'] || $master,
         docker_tag_storefront_topdrawer: ENV['DOCKER_TAG_STOREFRONT_TOPDRAWER'] || $master,
         docker_tag_storefront_tpg: ENV['DOCKER_TAG_STOREFRONT_TPG'] || $master,
         docker_tag_marketplace: ENV['DOCKER_TAG_MARKETPLACE'] || $master,

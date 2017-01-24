@@ -31,6 +31,7 @@ docker_tag_gift_card_consumer: master
 docker_tag_shipments_consumer: master
 docker_tag_shipstation_consumer: master
 docker_tag_stock_items_consumer: master
+docker_tag_customer_groups_agent: master
 docker_tag_storefront_topdrawer: master
 docker_tag_storefront_tpg: master
 docker_tag_marketplace: master
