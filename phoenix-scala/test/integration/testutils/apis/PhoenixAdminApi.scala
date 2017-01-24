@@ -363,7 +363,7 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
   }
 
   case class customerGroupsMembersApi(groupId: Int) {
-    val customerGroupMembersPrefix = s"$rootPrefix/service/customerGroups/$groupId"
+    val customerGroupMembersPrefix = s"$rootPrefix/service/customer-groups/$groupId"
 
     def syncCustomers(payload: CustomerGroupMemberSyncPayload): HttpResponse =
       POST(s"$customerGroupMembersPrefix/users", payload)
