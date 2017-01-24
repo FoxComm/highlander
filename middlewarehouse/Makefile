@@ -35,6 +35,7 @@ build:
 	cd $(BUILD_PATH) && go build -o consumers/capture/capture-consumer consumers/capture/*.go
 	cd $(BUILD_PATH) && go build -o consumers/shipstation/shipstation-consumer consumers/shipstation/*.go
 	cd $(BUILD_PATH) && go build -o common/db/seeds/seeder common/db/seeds/main.go
+	cd $(BUILD_PATH) && go build -o consumers/customer-groups/customer-groups-agent consumers/customer-groups/*.go
 
 docker:
 	$(call header, Dockerizing)
@@ -45,6 +46,7 @@ docker:
 	docker build -t shipstation-consumer consumers/shipstation/
 	docker build -t middlewarehouse-seeder common/db/seeds/
 	docker build -t gift-card-consumer consumers/gift-cards/
+	docker build -t customer-groups-agent consumers/customer-groups/
 
 docker-push:
 	$(call header, Registering)
@@ -55,6 +57,7 @@ docker-push:
 	docker tag capture-consumer $(DOCKER_REPO)/capture-consumer:$(DOCKER_TAG)
 	docker tag shipstation-consumer $(DOCKER_REPO)/shipstation-consumer:$(DOCKER_TAG)
 	docker tag middlewarehouse-seeder $(DOCKER_REPO)/middlewarehouse-seeder:$(DOCKER_TAG)
+	docker tag customer-groups-agent $(DOCKER_REPO)/customer-groups-agent:$(DOCKER_TAG)
 	docker push $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
 	docker push $(DOCKER_REPO)/stock-items-consumer:$(DOCKER_TAG)
 	docker push $(DOCKER_REPO)/gift-card-consumer:$(DOCKER_TAG)
@@ -62,6 +65,7 @@ docker-push:
 	docker push $(DOCKER_REPO)/capture-consumer:$(DOCKER_TAG)
 	docker push $(DOCKER_REPO)/shipstation-consumer:$(DOCKER_TAG)
 	docker push $(DOCKER_REPO)/middlewarehouse-seeder:$(DOCKER_TAG)
+	docker push $(DOCKER_REPO)/customer-groups-agent:$(DOCKER_TAG)
 
 clean:
 	rm -rf ./vendor

@@ -23,11 +23,11 @@ object GroupMemberManager {
       forCreation = newIds.diff(memberIds)
       forDeletion = memberIds.diff(newIds)
       _ ← * <~ forCreation.map { userId ⇒
-            createGroupMember(userId, groupId)
-          }
+           createGroupMember(userId, groupId)
+         }
       _ ← * <~ forDeletion.map { userId ⇒
-            deleteGroupMember(userId, groupId)
-          }
+           deleteGroupMember(userId, groupId)
+         }
     } yield {}
 
   private def createGroupMember(userId: Int, groupId: Int)(implicit ec: EC,
@@ -43,10 +43,10 @@ object GroupMemberManager {
     for {
       customerData ← * <~ CustomersData.mustFindByAccountId(userId)
       membership ← * <~ CustomerGroupMembers
-                     .findByGroupIdAndCustomerDataId(customerData.id, groupId)
-                     .mustFindOneOr(NotFoundFailure400(User, userId))
+                    .findByGroupIdAndCustomerDataId(customerData.id, groupId)
+                    .mustFindOneOr(NotFoundFailure400(User, userId))
       _ ← * <~ CustomerGroupMembers
-            .deleteById(membership.id, DbResultT.unit, userId ⇒ NotFoundFailure400(User, userId))
+           .deleteById(membership.id, DbResultT.unit, userId ⇒ NotFoundFailure400(User, userId))
     } yield {}
 
 }

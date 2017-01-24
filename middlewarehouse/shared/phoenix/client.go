@@ -25,6 +25,9 @@ type PhoenixClient interface {
 	GetOrder(refNum string) (*mwhPayloads.OrderResult, error)
 	GetOrderForShipstation(refNum string) (*http.Response, error)
 	UpdateOrderLineItems(updatePayload []mwhPayloads.UpdateOrderLineItem, refNum string) error
+	GetCustomerGroups() ([]responses.CustomerGroupResponse, error)
+	UpdateCustomerGroup(groupID int, group *payloads.UpdateCustomerGroupPayload) error
+	SetGroupToCustomers(groupID int, customers []int) error
 }
 
 func NewPhoenixClient(baseURL, email, password string) PhoenixClient {
@@ -257,4 +260,61 @@ func (c *phoenixClient) UpdateOrderLineItems(updatePayload []mwhPayloads.UpdateO
 	}
 
 	return nil
+}
+
+func (c *phoenixClient) GetCustomerGroups() ([]responses.CustomerGroupResponse, error) {
+	if err := c.EnsureAuthentication(); err != nil {
+		return nil, err
+	}
+
+	url := fmt.Sprintf("%s/v1/service/customer-groups", c.baseURL)
+	headers := map[string]string{
+		"JWT": c.jwt,
+	}
+
+	resp, err := consumers.Get(url, headers)
+	defer resp.Body.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	var groups []responses.CustomerGroupResponse
+	if err := json.NewDecoder(resp.Body).Decode(&groups); err != nil {
+		log.Printf("Unable to read customer groups response from Phoenix with error: %s", err.Error())
+		return nil, err
+	}
+
+	return groups, nil
+}
+
+func (c *phoenixClient) UpdateCustomerGroup(groupID int, group *payloads.UpdateCustomerGroupPayload) error {
+	if err := c.EnsureAuthentication(); err != nil {
+		return err
+	}
+
+	url := fmt.Sprintf("%s/v1/groups/%d", c.baseURL, groupID)
+	headers := map[string]string{"JWT": c.jwt}
+
+	_, err := consumers.Patch(url, headers, group)
+
+	return err
+}
+
+func (c *phoenixClient) SetGroupToCustomers(groupID int, customerIDs []int) error {
+	if err := c.EnsureAuthentication(); err != nil {
+		return err
+	}
+
+	payload := struct {
+		Customers []int `json:"customers"`
+	}{
+		Customers: customerIDs,
+	}
+
+	url := fmt.Sprintf("%s/v1/service/customer-groups/%d/users", c.baseURL, groupID)
+	headers := map[string]string{"JWT": c.jwt}
+
+	_, err := consumers.Post(url, headers, payload)
+
+	return err
 }

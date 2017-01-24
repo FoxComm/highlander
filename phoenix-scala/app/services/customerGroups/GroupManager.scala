@@ -15,6 +15,9 @@ import utils.time._
 
 object GroupManager {
 
+  def findAll(implicit ec: EC, db: DB): DbResultT[Seq[Root]] =
+    CustomerDynamicGroups.result.map(_.map(build)).dbresult
+
   def getById(groupId: Int)(implicit ec: EC, db: DB): DbResultT[Root] =
     for {
       group ← * <~ CustomerDynamicGroups.mustFindById404(groupId)
@@ -52,11 +55,11 @@ object GroupManager {
          }
       members ← * <~ CustomerGroupMembers.findByGroupId(groupId).result
       _ ← * <~ members.map { member ⇒
-            CustomerGroupMembers.deleteById(
-                member.id,
-                DbResultT.unit,
-                id ⇒ CustomerGroupMemberCannotBeDeleted(groupId, member.id))
-          }
+           CustomerGroupMembers.deleteById(
+               member.id,
+               DbResultT.unit,
+               id ⇒ CustomerGroupMemberCannotBeDeleted(groupId, member.id))
+         }
     } yield DbResultT.unit
 
   private def createCustom(payload: CustomerDynamicGroupPayload,
