@@ -349,14 +349,14 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
   }
 
   object customerGroupsApi {
-    val customerGroupsPrefix = s"$rootPrefix/groups"
+    val customerGroupsPrefix = s"$rootPrefix/customer-groups"
 
     def create(payload: CustomerDynamicGroupPayload): HttpResponse =
       POST(customerGroupsPrefix, payload)
   }
 
   object customerGroupTemplateApi {
-    val customerGroupTemplatePrefix = s"$rootPrefix/groups/templates"
+    val customerGroupTemplatePrefix = s"$rootPrefix/customer-groups/templates"
 
     def get(): HttpResponse =
       GET(customerGroupTemplatePrefix)
