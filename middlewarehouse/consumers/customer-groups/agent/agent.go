@@ -146,8 +146,6 @@ func (agent *Agent) processGroups() error {
 				log.Panicf("An error occured getting customers: %s", err)
 			}
 
-			log.Printf("Uniq customers of group %s: %#v", group.Name, ids)
-
 			if err := agent.phoenixClient.SetGroupToCustomers(group.ID, ids); err != nil {
 				log.Panicf("An error occured setting group to customers: %s", err)
 			}
