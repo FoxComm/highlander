@@ -56,7 +56,7 @@ export function connectPage(namespace, actions, options = {}) {
       capitalized,
       requiredActions,
       details: state[plural].details,
-      originalObject: _.get(state, [plural, 'details', namespace], {}),
+      originalObject: _.get(state, [plural, 'details', namespace]),
       isFetching: _.get(state.asyncActions, `${actionNames.fetch}.inProgress`, null),
       fetchError: _.get(state.asyncActions, `${actionNames.fetch}.err`, null),
       createError: _.get(state.asyncActions, `${actionNames.create}.err`, null),
