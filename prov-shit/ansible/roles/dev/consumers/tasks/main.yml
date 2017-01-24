@@ -1,34 +1,21 @@
 ---
 
+- include_vars: main.yml
+
 - name: Creates Marathon JSON directory
   file: path=/marathon/applications state=directory
 
 - name: Copy Consumers Marathon JSON
   template: src={{item}}.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
-  with_items:
-    - shipments-consumer
-    - capture-consumer
-    - gift-card-consumer
-    - stock-items-consumer
-    - customer-groups-agent
+  with_items: "{{consumers}}"
 
 - name: Update Consumers in Marathon
   shell: 'curl -X PUT -d@/marathon/applications/{{item}}.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/{{item}}'
-  with_items:
-    - shipments-consumer
-    - capture-consumer
-    - gift-card-consumer
-    - stock-items-consumer
-    - customer-groups-agent
+  with_items: "{{consumers}}"
 
 - name: Restart Consumers in Marathon
   shell: 'curl -X POST http://{{marathon_server}}/v2/apps/{{item}}/restart'
-  with_items:
-    - shipments-consumer
-    - capture-consumer
-    - gift-card-consumer
-    - stock-items-consumer
-    - customer-groups-agent
+  with_items: "{{consumers}}"
 
 - name: Get Consumers Marathon tasks in `healthy` state
   shell: curl -sS -XGET http://{{marathon_server}}/v2/apps/{{item}} | jq '.app.tasksHealthy > 0'
@@ -37,9 +24,4 @@
   retries: 60
   delay: 10
   when: vagrant
-  with_items:
-    - shipments-consumer
-    - capture-consumer
-    - gift-card-consumer
-    - stock-items-consumer
-    - customer-groups-agent
+  with_items: "{{consumers}}"

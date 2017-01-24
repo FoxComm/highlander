@@ -163,21 +163,7 @@ middlewarehouse_db_user: middlewarehouse
 middlewarehouse_db_connection_string: "postgresql://{{middlewarehouse_db_user}}@{{db_host}}/{{middlewarehouse_db_name}}"
 middlewarehouse_test_db_name: middlewarehouse_test
 
-middlewarehouse_consumers_dir: "{{middlewarehouse_dir}}/consumers"
-stock_items_consumer_bin: "{{middlewarehouse_consumers_dir}}/stock-items-consumer"
-shipments_consumer_bin: "{{middlewarehouse_consumers_dir}}/shipments-consumer"
-capture_consumer_bin: "{{middlewarehouse_consumers_dir}}/capture-consumer"
-
 middlewarehouse_src: ../../middlewarehouse/
-middlewarehouse_bin_src: "{{middlewarehouse_src}}/middlewarehouse"
-middlewarehouse_seeder_bin_src: "{{middlewarehouse_src}}/seeder"
-
-stock_items_consumer_src: "{{middlewarehouse_src}}/consumers/stock-items"
-stock_items_consumer_bin_src: "{{stock_items_consumer_src}}/stock-items-consumer"
-shipments_consumer_src: "{{middlewarehouse_src}}/consumers/shipments"
-shipments_consumer_bin_src: "{{shipments_consumer_src}}/shipments-consumer"
-capture_consumer_src: "{{middlewarehouse_src}}/consumers/capture"
-capture_consumer_bin_src: "{{capture_consumer_src}}/capture-consumer"
 
 # Shipstation consumer
 shipstation_api_key: ""

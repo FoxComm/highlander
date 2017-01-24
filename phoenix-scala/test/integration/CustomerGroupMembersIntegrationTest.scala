@@ -20,7 +20,7 @@ class CustomerGroupMembersIntegrationTest
     with MockitoSugar
     with BakedFixtures {
 
-  "POST /v1/service/customerGroups/users" - {
+  "POST /v1/service/customer-groups/users" - {
 
     "handles users" in new Fixture {
       val payload = CustomerGroupMemberSyncPayload(Seq(account2.id, account3.id))
