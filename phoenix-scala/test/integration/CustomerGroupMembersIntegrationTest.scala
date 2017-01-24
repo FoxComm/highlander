@@ -29,7 +29,8 @@ class CustomerGroupMembersIntegrationTest
         .syncCustomers(payload)
         .mustHaveStatus(StatusCodes.NoContent)
 
-      val updatedMemberships = CustomerGroupMembers.findByGroupId(group.id).gimme.map(_.customerDataId)
+      val updatedMemberships =
+        CustomerGroupMembers.findByGroupId(group.id).gimme.map(_.customerDataId)
 
       withClue(s"Customer ${account1.id} was not deleted from group member list: ") {
         (updatedMemberships.contains(custData1.id)) must === (false)
