@@ -6,6 +6,7 @@ import React, { Component } from 'react';
 import { autobind, debounce } from 'core-decorators';
 import { isElementInViewport } from 'lib/dom-utils';
 import * as tracking from 'lib/analytics';
+import shallowCompare from 'react-addons-shallow-compare';
 
 // styles
 import styles from './products-list.css';
@@ -40,6 +41,14 @@ class ProductsList extends Component {
   componentWillUnmount() {
     this._willUnmount = true;
     window.removeEventListener('scroll', this.handleScroll);
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    if (!nextProps.isLoading) {
+      return shallowCompare(this, nextProps, nextState);
+    }
+
+    return false;
   }
 
   @autobind
