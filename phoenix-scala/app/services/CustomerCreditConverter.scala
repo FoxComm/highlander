@@ -1,11 +1,9 @@
 package services
 
-import cats.instances.map
 import failures.GiftCardFailures.GiftCardConvertFailure
 import failures.OpenTransactionsFailure
 import failures.StoreCreditFailures.StoreCreditConvertFailure
 import models.account._
-import models.admin.AdminsData
 import models.payment.giftcard._
 import models.payment.storecredit._
 import responses.{GiftCardResponse, StoreCreditResponse, UserResponse}
@@ -55,18 +53,18 @@ object CustomerCreditConverter {
       admin: User)(implicit ec: EC, db: DB, ac: AC, au: AU): DbResultT[GiftCardResponse.Root] =
     for {
       credit ← * <~ StoreCredits.mustFindById404(storeCreditId)
-      _      ← * <~ failIf(!credit.isActive, StoreCreditConvertFailure(credit))
+      _      ← * <~ failIf(!credit.isActive, StoreCreditConvertFailure(credit.state))
       _      ← * <~ Users.mustFindByAccountId(accountId)
       _ ← * <~ StoreCreditAdjustments
            .lastAuthByStoreCreditId(credit.id)
            .one
            .mustNotFindOr(OpenTransactionsFailure)
       // Update state and make adjustment
-      scUpdated ← * <~ StoreCredits
-                   .findActiveById(credit.id)
-                   .map(_.state)
-                   .update(StoreCredit.FullyRedeemed)
-      adjustment ← * <~ StoreCredits.redeemToGiftCard(credit, admin)
+      _ ← * <~ StoreCredits
+           .findActiveById(credit.id)
+           .map(_.state)
+           .update(StoreCredit.FullyRedeemed)
+      _ ← * <~ StoreCredits.redeemToGiftCard(credit, admin)
       // Convert to Gift Card
       conversion ← * <~ GiftCardFromStoreCredits.create(
                       GiftCardFromStoreCredit(storeCreditId = credit.id))

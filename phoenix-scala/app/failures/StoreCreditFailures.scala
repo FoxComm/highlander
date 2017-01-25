@@ -4,8 +4,8 @@ import models.payment.storecredit.StoreCredit
 
 object StoreCreditFailures {
 
-  case class StoreCreditConvertFailure(sc: StoreCredit) extends Failure {
-    override def description = s"cannot convert a store credit with state '${sc.state}'"
+  case class StoreCreditConvertFailure(state: StoreCredit.State) extends Failure {
+    override def description = s"cannot convert a store credit with state '$state'"
   }
 
   case class StoreCreditIsInactive(sc: StoreCredit) extends Failure {

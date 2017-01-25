@@ -8,8 +8,6 @@ import utils.db._
 case class StoreCreditSubtype(id: Int = 0, title: String, originType: OriginType)
     extends FoxModel[StoreCreditSubtype]
 
-object StoreCreditSubtype {}
-
 class StoreCreditSubtypes(tag: Tag)
     extends FoxTable[StoreCreditSubtype](tag, "store_credit_subtypes") {
 

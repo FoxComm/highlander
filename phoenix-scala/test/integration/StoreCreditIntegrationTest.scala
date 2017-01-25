@@ -1,3 +1,4 @@
+import cats.implicits._
 import failures.StoreCreditFailures.StoreCreditConvertFailure
 import failures._
 import models.Reason
@@ -6,23 +7,24 @@ import models.cord.OrderPayments
 import models.payment.giftcard.GiftCard
 import models.payment.storecredit.StoreCredit._
 import models.payment.storecredit._
-import models.payment.{PaymentMethod, InStorePaymentStates, giftcard}
-import payloads.PaymentPayloads.CreateManualStoreCredit
+import models.payment.{InStorePaymentStates, giftcard}
+import payloads.PaymentPayloads.{CreateManualStoreCredit, StoreCreditPayment}
 import payloads.StoreCreditPayloads._
 import responses.StoreCreditResponse.Root
 import responses.{GiftCardResponse, StoreCreditResponse}
-import slick.driver.PostgresDriver.api._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
+import testutils.fixtures.api._
 import utils.db._
-import utils.seeds.Seeds.Factories
 
 class StoreCreditIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
     with AutomaticAuth
     with PhoenixAdminApi
+    with ApiFixtures
+    with ApiFixtureHelpers
     with BakedFixtures {
 
   "StoreCredits" - {
@@ -30,38 +32,42 @@ class StoreCreditIntegrationTest
       "when successful" - {
         "responds with the new storeCredit" in new Fixture {
           val payload = CreateManualStoreCredit(amount = 25, reasonId = reason.id)
-          val sc      = customersApi(customer.accountId).payments.storeCredit.create(payload).as[Root]
-          sc.state must === (StoreCredit.Active)
+          customersApi(customerId).payments.storeCredit.create(payload).as[Root].state must === (
+              StoreCredit.Active)
 
           // Check that proper link is created
-          val manual = StoreCreditManuals.findOneById(sc.originId).gimme.value
+          val originId =
+            customersApi(customerId).payments.storeCredit.create(payload).as[Root].originId
+          val manual = StoreCreditManuals.findOneById(originId).gimme.value
           manual.reasonId must === (reason.id)
           manual.adminId must === (storeAdmin.accountId)
         }
       }
 
       "succeeds with valid subTypeId" in new Fixture {
-        customersApi(customer.accountId).payments.storeCredit
-          .create(CreateManualStoreCredit(amount = 25, reasonId = reason.id, subTypeId = Some(1)))
+        customersApi(customerId).payments.storeCredit
+          .create(CreateManualStoreCredit(amount = 25,
+                                          reasonId = reason.id,
+                                          subTypeId = Some(subtype.id)))
           .as[Root]
-          .subTypeId must === (Some(1))
+          .subTypeId
+          .value must === (1)
       }
 
       "fails if subtypeId is not found" in new Fixture {
-        customersApi(customer.accountId).payments.storeCredit
-          .create(
-              CreateManualStoreCredit(amount = 25, reasonId = reason.id, subTypeId = Some(255)))
+        customersApi(customerId).payments.storeCredit
+          .create(CreateManualStoreCredit(amount = 25, reasonId = reason.id, subTypeId = 255.some))
           .mustFailWith400(NotFoundFailure404(StoreCreditSubtype, 255))
       }
 
-      "fails if the customer is not found" in {
+      "fails if the customer is not found" in new Reason_Baked {
         customersApi(99).payments.storeCredit
-          .create(CreateManualStoreCredit(amount = 25, reasonId = 1))
+          .create(CreateManualStoreCredit(amount = 25, reasonId = reason.id))
           .mustFailWith404(NotFoundFailure404(User, 99))
       }
 
       "fails if the reason is not found" in new Fixture {
-        customersApi(customer.accountId).payments.storeCredit
+        customersApi(customerId).payments.storeCredit
           .create(CreateManualStoreCredit(amount = 25, reasonId = 255))
           .mustFailWith400(NotFoundFailure404(Reason, 255))
       }
@@ -69,15 +75,14 @@ class StoreCreditIntegrationTest
 
     "GET /v1/customers/:id/payment-methods/store-credit/total" - {
       "returns total available and current store credit for customer" in new Fixture {
-        val totals = customersApi(customer.accountId).payments.storeCredit
-          .totals()
-          .as[StoreCreditResponse.Totals]
+        val totals =
+          customersApi(customerId).payments.storeCredit.totals().as[StoreCreditResponse.Totals]
 
-        val fst = StoreCredits.refresh(storeCredit).gimme
-        val snd = StoreCredits.refresh(scSecond).gimme
+        val bothStoreCredits = Seq(adjustedStoreCredit, storeCredit)
 
-        totals.availableBalance must === (fst.availableBalance + snd.availableBalance)
-        totals.currentBalance must === (fst.currentBalance + snd.currentBalance)
+        totals.availableBalance must === (
+            bothStoreCredits.map(_.availableBalance).sum - adjustmentAmount)
+        totals.currentBalance must === (bothStoreCredits.map(_.currentBalance).sum)
       }
 
       "returns 404 when customer doesn't exist" in new Fixture {
@@ -89,23 +94,23 @@ class StoreCreditIntegrationTest
 
     "PATCH /v1/store-credits/:id" - {
       "successfully changes status from Active to OnHold and vice-versa" in new Fixture {
-        storeCreditsApi(storeCredit.id)
+        storeCreditsApi(adjustedStoreCredit.id)
           .update(StoreCreditUpdateStateByCsr(state = OnHold))
           .mustBeOk()
-        storeCreditsApi(storeCredit.id)
+        storeCreditsApi(adjustedStoreCredit.id)
           .update(StoreCreditUpdateStateByCsr(state = Active))
           .mustBeOk()
       }
 
       "returns error if no cancellation reason provided" in new Fixture {
-        storeCreditsApi(storeCredit.id)
+        storeCreditsApi(adjustedStoreCredit.id)
           .update(StoreCreditUpdateStateByCsr(state = Canceled))
           .mustFailWith400(EmptyCancellationReasonFailure)
       }
 
       "returns error on cancellation if store credit has auths" in new Fixture {
-        storeCreditsApi(storeCredit.id)
-          .update(StoreCreditUpdateStateByCsr(state = Canceled, reasonId = Some(1)))
+        storeCreditsApi(adjustedStoreCredit.id)
+          .update(StoreCreditUpdateStateByCsr(state = Canceled, reasonId = reason.id.some))
           .mustFailWith400(OpenTransactionsFailure)
       }
 
@@ -113,39 +118,43 @@ class StoreCreditIntegrationTest
         // Cancel pending adjustment (should be done before cancellation)
         StoreCreditAdjustments.cancel(adjustment.id).gimme
 
-        val root = storeCreditsApi(storeCredit.id)
-          .update(StoreCreditUpdateStateByCsr(state = Canceled, reasonId = Some(1)))
+        storeCreditsApi(adjustedStoreCredit.id)
+          .update(StoreCreditUpdateStateByCsr(state = Canceled, reasonId = reason.id.some))
           .as[Root]
-        root.canceledAmount must === (Some(storeCredit.originalBalance))
+          .canceledAmount
+          .value must === (adjustedStoreCredit.originalBalance)
 
         // Ensure that cancel adjustment is automatically created
-        val adjustments = StoreCreditAdjustments.filterByStoreCreditId(storeCredit.id).gimme
-        adjustments.size mustBe 2
+        val adjustments =
+          StoreCreditAdjustments.filterByStoreCreditId(adjustedStoreCredit.id).gimme
+        adjustments must have size 2
         adjustments.head.state must === (InStorePaymentStates.CancellationCapture)
       }
 
       "successfully cancels store credit with zero balance" in new Fixture {
         // Cancel pending adjustment (should be done before cancellation)
         StoreCreditAdjustments.cancel(adjustment.id).gimme
-        // Update balance
-        StoreCredits.update(storeCredit, storeCredit.copy(availableBalance = 0)).gimme
 
-        val root = storeCreditsApi(storeCredit.id)
-          .update(StoreCreditUpdateStateByCsr(state = Canceled, reasonId = Some(1)))
+        StoreCredits.update(adjustedScModel, adjustedScModel.copy(availableBalance = 0)).gimme
+
+        storeCreditsApi(adjustedStoreCredit.id)
+          .update(StoreCreditUpdateStateByCsr(state = Canceled, reasonId = reason.id.some))
           .as[Root]
-        root.canceledAmount must === (Some(0))
+          .canceledAmount
+          .value must === (0)
 
         // Ensure that cancel adjustment is automatically created
-        val adjustments = StoreCreditAdjustments.filterByStoreCreditId(storeCredit.id).gimme
-        adjustments.size mustBe 2
+        val adjustments =
+          StoreCreditAdjustments.filterByStoreCreditId(adjustedStoreCredit.id).gimme
+        adjustments must have size 2
         adjustments.head.state must === (InStorePaymentStates.CancellationCapture)
       }
 
       "fails to cancel store credit if invalid reason provided" in new Fixture {
         StoreCreditAdjustments.cancel(adjustment.id).gimme
 
-        val response = storeCreditsApi(storeCredit.id)
-          .update(StoreCreditUpdateStateByCsr(state = Canceled, reasonId = Some(999)))
+        val response = storeCreditsApi(adjustedStoreCredit.id)
+          .update(StoreCreditUpdateStateByCsr(state = Canceled, reasonId = 999.some))
           .mustFailWith400(NotFoundFailure400(Reason, 999))
       }
     }
@@ -153,22 +162,22 @@ class StoreCreditIntegrationTest
     "PATCH /v1/store-credits" - {
       "successfully changes statuses of multiple store credits" in new Fixture {
         val payload = StoreCreditBulkUpdateStateByCsr(
-            ids = Seq(storeCredit.id, scSecond.id),
+            ids = Seq(adjustedStoreCredit.id, storeCredit.id),
             state = StoreCredit.OnHold
         )
 
         storeCreditsApi.update(payload).mustBeOk()
 
-        val firstUpdated = StoreCredits.findOneById(storeCredit.id).gimme
+        val firstUpdated = StoreCredits.findOneById(adjustedStoreCredit.id).gimme
         firstUpdated.value.state must === (StoreCredit.OnHold)
 
-        val secondUpdated = StoreCredits.findOneById(scSecond.id).gimme
+        val secondUpdated = StoreCredits.findOneById(storeCredit.id).gimme
         secondUpdated.value.state must === (StoreCredit.OnHold)
       }
 
       "returns multiple errors if no cancellation reason provided" in new Fixture {
         val payload = StoreCreditBulkUpdateStateByCsr(
-            ids = Seq(storeCredit.id, scSecond.id),
+            ids = Seq(adjustedStoreCredit.id, storeCredit.id),
             state = StoreCredit.Canceled
         )
 
@@ -178,23 +187,23 @@ class StoreCreditIntegrationTest
 
     "POST /v1/customers/:customerId/payment-methods/store-credit/:id/convert" - {
       "successfully converts SC to GC" in new Fixture {
-        val root = customersApi(customer.accountId).payments
-          .storeCredit(scSecond.id)
+        val gcFromSc = customersApi(customerId).payments
+          .storeCredit(storeCredit.id)
           .convert()
           .as[GiftCardResponse.Root]
 
-        root.originType must === (GiftCard.FromStoreCredit)
-        root.state must === (giftcard.GiftCard.Active)
-        root.originalBalance must === (scSecond.originalBalance)
+        gcFromSc.originType must === (GiftCard.FromStoreCredit)
+        gcFromSc.state must === (giftcard.GiftCard.Active)
+        gcFromSc.originalBalance must === (storeCredit.originalBalance)
 
-        val redeemedSc = StoreCredits.filter(_.id === scSecond.id).one.gimme.value
+        val redeemedSc = StoreCredits.mustFindById400(storeCredit.id).gimme
         redeemedSc.state must === (StoreCredit.FullyRedeemed)
         redeemedSc.availableBalance must === (0)
         redeemedSc.currentBalance must === (0)
       }
 
       "fails to convert when SC not found" in new Fixture {
-        customersApi(customer.accountId).payments
+        customersApi(customerId).payments
           .storeCredit(555)
           .convert()
           .mustFailWith404(NotFoundFailure404(StoreCredit, 555))
@@ -202,47 +211,59 @@ class StoreCreditIntegrationTest
 
       "fails to convert when customer not found" in new Fixture {
         customersApi(666).payments
-          .storeCredit(scSecond.id)
+          .storeCredit(storeCredit.id)
           .convert()
           .mustFailWith404(NotFoundFailure404(User, 666))
       }
 
       "fails to convert SC to GC if open transactions are present" in new Fixture {
-        customersApi(customer.accountId).payments
-          .storeCredit(storeCredit.id)
+        customersApi(customerId).payments
+          .storeCredit(adjustedStoreCredit.id)
           .convert()
           .mustFailWith400(OpenTransactionsFailure)
       }
 
       "fails to convert inactive SC to GC" in new Fixture {
-        StoreCredits.findActiveById(scSecond.id).map(_.state).update(StoreCredit.OnHold).gimme
-        val updatedSc = StoreCredits.findActiveById(scSecond.id).one.gimme.value
+        storeCreditsApi(storeCredit.id)
+          .update(StoreCreditUpdateStateByCsr(StoreCredit.OnHold))
+          .mustBeOk()
 
-        customersApi(customer.accountId).payments
-          .storeCredit(scSecond.id)
+        customersApi(customerId).payments
+          .storeCredit(storeCredit.id)
           .convert()
-          .mustFailWith400(StoreCreditConvertFailure(updatedSc))
+          .mustFailWith400(StoreCreditConvertFailure(StoreCredit.OnHold))
       }
     }
   }
 
-  trait Fixture extends Reason_Baked with EmptyCustomerCart_Baked {
-    val (storeCredit, adjustment, scSecond, payment, scSubType) = (for {
-      scSubType ← * <~ StoreCreditSubtypes.create(Factories.storeCreditSubTypes.head)
-      scOrigin ← * <~ StoreCreditManuals.create(
-                    StoreCreditManual(adminId = storeAdmin.accountId, reasonId = reason.id))
-      storeCredit ← * <~ StoreCredits.create(
-                       Factories.storeCredit.copy(originId = scOrigin.id,
-                                                  accountId = customer.accountId))
-      scSecond ← * <~ StoreCredits.create(
-                    Factories.storeCredit.copy(originId = scOrigin.id,
-                                               accountId = customer.accountId))
-      payment ← * <~ OrderPayments.create(
-                   Factories.storeCreditPayment.copy(cordRef = cart.refNum,
-                                                     paymentMethodId = storeCredit.id,
-                                                     paymentMethodType = PaymentMethod.StoreCredit,
-                                                     amount = Some(storeCredit.availableBalance)))
-      adjustment ← * <~ StoreCredits.auth(storeCredit, Some(payment.id), 10)
-    } yield (storeCredit, adjustment, scSecond, payment, scSubType)).gimme
+  trait Fixture extends Reason_Baked {
+
+    val customerId = api_newCustomer().id
+    val cartRef    = api_newCustomerCart(customerId).referenceNumber
+
+    val adjustedStoreCredit = customersApi(customerId).payments.storeCredit
+      .create(CreateManualStoreCredit(amount = 5000, reasonId = reason.id))
+      .as[StoreCreditResponse.Root]
+
+    val storeCredit = customersApi(customerId).payments.storeCredit
+      .create(CreateManualStoreCredit(amount = 2000, reasonId = reason.id))
+      .as[StoreCreditResponse.Root]
+
+    cartsApi(cartRef).payments.storeCredit
+      .add(StoreCreditPayment(amount = adjustedStoreCredit.availableBalance))
+      .mustBeOk()
+
+    val adjustmentAmount = 10
+
+    val (payment, adjustedScModel, adjustment, subtype) = (for {
+      gcSubtype ← * <~ StoreCreditSubtypes.create(
+                     StoreCreditSubtype(title = "foo", originType = CsrAppeasement))
+      storeCreditModel ← * <~ StoreCredits.mustFindById400(adjustedStoreCredit.id)
+      payment          ← * <~ OrderPayments.findAllByCordRef(cartRef).one
+      // FIXME @anna Must be replaced by checkout
+      adjustment ← * <~ StoreCredits.auth(storeCreditModel,
+                                          payment.value.id.some,
+                                          adjustmentAmount)
+    } yield (payment.value, storeCreditModel, adjustment, gcSubtype)).gimme
   }
 }

@@ -10,19 +10,17 @@ import com.pellucid.sealerate
 import failures.{Failure, Failures, GeneralFailure}
 import models.account._
 import models.cord.OrderPayment
-import models.payment.{PaymentMethod, InStorePaymentStates}
-import models.payment.giftcard.GiftCard
 import models.payment.storecredit.StoreCredit._
 import models.payment.storecredit.{StoreCreditAdjustment ⇒ Adj, StoreCreditAdjustments ⇒ Adjs}
-import payloads.PaymentPayloads._
+import models.payment.{InStorePaymentStates, PaymentMethod}
 import shapeless._
 import slick.ast.BaseTypedType
-import utils.db.ExPostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.Money._
 import utils.Validation._
 import utils._
 import utils.aliases._
+import utils.db.ExPostgresDriver.api._
 import utils.db._
 
 case class StoreCredit(id: Int = 0,
@@ -214,7 +212,7 @@ object StoreCredits extends FoxTableQuery[StoreCredit, StoreCredits](new StoreCr
                          storeAdminId = storeAdmin.accountId.some,
                          debit = storeCredit.availableBalance,
                          availableBalance = 0,
-                         state = InStorePaymentStates.Capture)
+                         state = InStorePaymentStates.Redeemed)
     Adjs.create(adjustment)
   }
 
