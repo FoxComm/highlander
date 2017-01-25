@@ -19,8 +19,19 @@
         },
         "salePrice": {
           "type": "object",
+          "widget": "price",
+          "description": "Add a price here to put the item on sale",
           "properties": {
-            "$ref": "#/definitions/price"
+            "value": {
+              "type": "number",
+              "default": 0,
+              "minimum": 0
+            },
+            "currency": {
+              "type": "string",
+              "maxLength": 3,
+              "minLength": 3
+            }
           }
         },
         "retailPrice": {
