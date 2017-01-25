@@ -56,9 +56,7 @@ export type Sku = SkuBase & {
 const _fetchSku = createAsyncActions(
   'fetchSku',
   function(id: number) {
-    const r = require('./tmp-sku-mock');
-    return new Promise(resolve => resolve(r));
-    //return Api.get(`/inventory/skus/${id}`);
+    return Api.get(`/inventory/skus/${id}`);
   }
 );
 
