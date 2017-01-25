@@ -37,7 +37,7 @@ const initialState = {
 /**
  * Internal actions
  */
-const _fetchGroup = createAsyncActions('fetchCustomerGroup', (groupId: number) => Api.get(`/groups/${groupId}`));
+const _fetchGroup = createAsyncActions('fetchCustomerGroup', (groupId: number) => Api.get(`/customer-groups/${groupId}`));
 
 const _saveGroup = createAsyncActions(
   'saveCustomerGroup',
@@ -49,9 +49,9 @@ const _saveGroup = createAsyncActions(
 
           let request;
           if (groupId) {
-            request = Api.patch(`/groups/${groupId}`, data);
+            request = Api.patch(`/customer-groups/${groupId}`, data);
           } else {
-            request = Api.post('/groups', data);
+            request = Api.post('/customer-groups', data);
           }
 
           request
@@ -63,7 +63,7 @@ const _saveGroup = createAsyncActions(
   }
 );
 
-const _archiveGroup = createAsyncActions('archiveCustomerGroup', (groupId: number) => Api.delete(`/groups/${groupId}`));
+const _archiveGroup = createAsyncActions('archiveCustomerGroup', (groupId: number) => Api.delete(`/customer-groups/${groupId}`));
 
 const _fetchStats = createAsyncActions('fetchStatsCustomerGroup', request =>
   search.post(`${mapping}/_search?size=0`, request)

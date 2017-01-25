@@ -14,7 +14,7 @@ object CustomerGroupsRoutes {
   def routes(implicit ec: EC, db: DB, auth: AuthData[User]) = {
 
     activityContext(auth.model) { implicit ac ⇒
-      pathPrefix("groups") {
+      pathPrefix("customer-groups") {
         (post & pathEnd & entity(as[CustomerDynamicGroupPayload])) { payload ⇒
           mutateOrFailures {
             GroupManager.create(payload, auth.model)
@@ -28,7 +28,7 @@ object CustomerGroupsRoutes {
           }
         }
       } ~
-      pathPrefix("groups" / IntNumber) { groupId ⇒
+      pathPrefix("customer-groups" / IntNumber) { groupId ⇒
         (get & pathEnd) {
           getOrFailures {
             GroupManager.getById(groupId)

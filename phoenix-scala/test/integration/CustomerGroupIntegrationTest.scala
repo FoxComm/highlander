@@ -21,7 +21,7 @@ class CustomerGroupIntegrationTest
     with MockitoSugar
     with BakedFixtures {
 
-  "POST /v1/groups" - {
+  "POST /v1/customer-groups" - {
     "successfully creates customer group from payload" in new Fixture {
       val payload = CustomerDynamicGroupPayload(name = "Group number one",
                                                 clientState = JObject(),
@@ -65,7 +65,7 @@ class CustomerGroupIntegrationTest
     }
   }
 
-  "GET /v1/groups/:groupId" - {
+  "GET /v1/customer-groups/:groupId" - {
     "fetches group info" in new Fixture {
       customerGroupsApi(group.id).get().as[Root] must === (build(group))
     }
@@ -75,7 +75,7 @@ class CustomerGroupIntegrationTest
     }
   }
 
-  "PATCH /v1/groups/:groupId" - {
+  "PATCH /v1/customer-groups/:groupId" - {
     "successfully updates group attributes" in new Fixture {
       val payload = CustomerDynamicGroupPayload(name = "New name for group",
                                                 customersCount = Some(777),
@@ -98,7 +98,7 @@ class CustomerGroupIntegrationTest
     }
   }
 
-  "DELETE /v1/groups/:groupId" - {
+  "DELETE /v1/customer-groups/:groupId" - {
     "successfully deletes group" in new Fixture {
       customerGroupsApi(group.id).delete.mustBeEmpty()
 
