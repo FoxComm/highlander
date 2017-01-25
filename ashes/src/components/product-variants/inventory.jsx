@@ -8,6 +8,8 @@ const InventoryPage = (props) => {
   return (
     <InventoryAndTransactions
       skuId={props.object.middlewarehouseSkuId}
+      // @TODO: get rid of passing code here
+      skuCode={props.object.attributes.code.v}
       showSkuLink
       readOnly
     />

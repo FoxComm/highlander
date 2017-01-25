@@ -22,10 +22,12 @@ const mapStateToProps = (state, props) => ({
 });
 
 type Props = {
-  skuId: number;
+  skuId: number,
+  // @TODO: get rid of passing skuCode here
+  skuCode: string,
   // connected
   inventoryDetails: WarehouseInventoryMap,
-  fetchSummary: (id: number) => Promise,
+  fetchSummary: (id: number, code: string) => Promise,
   fetchState: {
     inProgress?: boolean,
     err?: any,
@@ -47,13 +49,18 @@ class InventoryItemDetails extends Component {
   props: Props;
 
   componentDidMount() {
-    this.props.fetchSummary(this.props.skuId);
+    this.fetchSummary();
   }
 
   componentWillReceiveProps(nextProps: Props) {
     if (!this.props.inventoryUpdated && nextProps.inventoryUpdated) {
-      this.props.fetchSummary(this.props.skuId);
+      this.fetchSummary();
     }
+  }
+
+  fetchSummary() {
+    // @TODO: get rid of passing skuCode here
+    return this.props.fetchSummary(this.props.skuId, this.props.skuCode);
   }
 
   get tableColumns() {

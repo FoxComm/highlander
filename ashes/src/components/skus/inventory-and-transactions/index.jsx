@@ -17,6 +17,9 @@ type State = {
 
 type Props = {
   skuId: number,
+  // @TODO: get rid of passing skuCode here, as /inventory/summary/<sku-code>
+  // will be changed to /inventory/summary/<sku-id>
+  skuCode: string,
   showSkuLink?: boolean,
   readOnly?: boolean,
 }
@@ -28,11 +31,13 @@ class InventoryAndTransactions extends Component {
   };
 
   get body() {
-    const { skuId, showSkuLink, readOnly } = this.props;
+    const { skuId, skuCode, showSkuLink, readOnly } = this.props;
     if (this.state.currentView == 'inventory') {
       return (
         <SkuInventory
           skuId={skuId}
+          // @TODO: get rid of passing sku code here
+          skuCode={skuCode}
           showSkuLink={showSkuLink}
           readOnly={readOnly}
         />

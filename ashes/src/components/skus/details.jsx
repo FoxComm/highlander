@@ -50,7 +50,11 @@ export default class SkuDetails extends ObjectDetails {
 
   renderInventoryAndTransactions() {
     return (
-      <InventoryAndTransactions skuId={this.props.entity.entityId} />
+      <InventoryAndTransactions
+        skuId={this.props.entity.entityId}
+        // @TODO: get rid of passing skuCode here
+        skuCode={this.attributes.code}
+      />
     );
   }
 }

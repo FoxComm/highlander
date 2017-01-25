@@ -54,12 +54,8 @@ export type WarehouseInventoryMap = {
 
 const _fetchSummary = createAsyncActions(
   'inventory-summary',
-  (skuId: number) => {
-    return new Promise(resolve => {
-      const tmpSummary = require('./tmp-summary-mock.json');
-      resolve([tmpSummary, skuId]);
-    });
-    //return Api.get(`/inventory/summary/${skuId}`).then(response => [response, skuId]);
+  (skuId: number, skuCode: string) => {
+    return Api.get(`/inventory/summary/${skuCode}`).then(response => [response, skuId]);
   },
 );
 export const fetchSummary = _fetchSummary.perform;
