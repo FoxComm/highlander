@@ -35,7 +35,7 @@ export type Props = {
   renderNullTitle?: Function,
   renderPrepend?: Function,
   renderAppend?: Function,
-  onChange?: Function,
+  onChange?: (value: any, title: string) => void,
   dropdownProps?: Object,
   detached?: boolean,
 };

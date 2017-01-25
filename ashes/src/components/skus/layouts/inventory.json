@@ -1,0 +1,24 @@
+{
+  "main": [
+    {
+      "type": "inventoryAndTransactions"
+    },
+    {
+      "type": "group",
+      "title": "Inventory Settings",
+      "content": [
+        {
+          "type": "fields",
+          "value": [
+            "requiresInventoryTracking",
+            "width",
+            "height",
+            "weight",
+            "length"
+          ]
+        }
+      ]
+    }
+  ],
+  "aside": null
+}

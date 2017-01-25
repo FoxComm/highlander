@@ -1,10 +1,8 @@
-/**
- * @flow
- */
+// @flow
 
 // libs
 import _ from 'lodash';
-import React, { Element } from 'react';
+import React, { Element, PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 
 // components
@@ -13,14 +11,14 @@ import LocalNav from '../local-nav/local-nav';
 import { connectPage, ObjectPage } from '../object-page/object-page';
 
 // actions
-import * as SkuActions from 'modules/product-variants/details';
+import * as ProductVariantActions from 'modules/product-variants/details';
 
 // types
 import type { ProductVariant } from 'modules/product-variants/details';
 
 type Props = {
   actions: {
-    skuNew: () => void,
+    productVariantNew: () => void,
     fetchProductVariant: (code: string, context?: string) => Promise,
     createProductVariant: (variant: ProductVariant, context?: string) => Promise,
     updateProductVariant: (variant: ProductVariant, context?: string) => Promise,
@@ -34,16 +32,16 @@ type Props = {
 class ProductVariantPage extends ObjectPage {
   props: Props;
 
-  get code(): string {
-    return _.get(this.props.originalObject, 'attributes.code.v', '');
-  }
+  static contextTypes = {
+    router: PropTypes.object.isRequired,
+  };
 
   get pageTitle(): string {
     if (this.isNew) {
       return `New Product Variant`;
     }
 
-    return this.code.toUpperCase();
+    return _.get(this.props.originalObject, 'attributes.title.v', '');
   }
 
   get entityIdName(): string {
@@ -59,20 +57,10 @@ class ProductVariantPage extends ObjectPage {
 
     return [
       <Link to="product-variant-images" params={params} key="images">Images</Link>,
-      <Link to="product-variant-inventory-details" params={params} key="inventory">Inventory</Link>,
+      <Link to="product-variant-inventory" params={params} key="inventory">Inventory</Link>,
       <Link to="product-variant-notes" params={params} key="notes">Notes</Link>,
       <Link to="product-variant-activity-trail" params={params} key="activity-trail">Activity Trail</Link>,
     ];
-  }
-
-  @autobind
-  sanitizeError(error: string): string {
-    if (error.indexOf('duplicate key value violates unique constraint "skus_code_context_id"') != -1) {
-      const code = _.get(this.state, 'entity.attributes.code.v');
-      return `SKU with code ${code} already exists in the system`;
-    }
-
-    return error;
   }
 
   subNav() {
@@ -87,4 +75,6 @@ class ProductVariantPage extends ObjectPage {
   }
 }
 
-export default connectPage('productVariant', SkuActions, {schemaName: 'product-variant'})(ProductVariantPage);
+export default connectPage(
+  'productVariant', ProductVariantActions, {schemaName: 'product-variant'}
+)(ProductVariantPage);

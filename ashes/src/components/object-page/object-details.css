@@ -11,6 +11,14 @@
   }
 }
 
+.full-page {
+  lost-column: 12/12;
+
+  & > div {
+    margin-bottom: 20px;
+  }
+}
+
 .main {
   lost-column: 8/12;
 

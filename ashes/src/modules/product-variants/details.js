@@ -8,11 +8,21 @@ import { createAction, createReducer } from 'redux-act';
 import { createAsyncActions } from '@foxcomm/wings';
 import _ from 'lodash';
 
-import { createEmptyProductVariant } from 'paragons/product-variant';
-
-import { pushStockItemChanges } from '../inventory/warehouses';
+import { createEmptyProductVariant, configureProductVariant } from 'paragons/product-variant';
 
 export type ProductVariant = {
+  code?: string,
+  feCode?: string,
+  attributes: Attributes,
+  id: number,
+  context: {
+    attributes?: Object,
+    name: string,
+  },
+  middlewarehouseSkuId: number,
+};
+
+export type NewProductVariant = {
   code?: string,
   feCode?: string,
   attributes: Attributes,
@@ -20,8 +30,8 @@ export type ProductVariant = {
   context: {
     attributes?: Object,
     name: string,
-  }
-};
+  },
+}
 
 const defaultContext = 'default';
 
@@ -93,16 +103,16 @@ const initialState: ProductVariantState = {
 function updateProductVariantInState(state: ProductVariantState, productVariant: ProductVariant) {
   return {
     ...state,
-    productVariant,
+    productVariant: configureProductVariant(productVariant),
   };
 }
 
 const reducer = createReducer({
   [productVariantNew]: (state) => {
-    return assoc(state,
-      'productVariant', createEmptyProductVariant(),
-      'err', null
-    );
+    return {
+      ...state,
+      productVariant: createEmptyProductVariant(),
+    };
   },
   [productVariantClear]: state => {
     return dissoc(state, 'productVariant');

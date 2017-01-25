@@ -7,7 +7,7 @@ import { autobind } from 'core-decorators';
 import styles from './plugin.css';
 
 import { PageTitle } from 'components/section-title';
-import ObjectFormInner from 'components/object-form/object-form-inner';
+import ObjectFormFlat from 'components/object-form/object-form-flat';
 import SaveCancel from 'components/common/save-cancel';
 import WaitAnimation from 'components/common/wait-animation';
 
@@ -52,13 +52,6 @@ function attributesFromSettings(settingsWithSchema: Object): Attributes {
         t: guessType(value),
         v: value
       };
-    return acc;
-  }, {});
-}
-
-function settingsFromAttributes(attributes: Attributes): Object {
-  return _.reduce(attributes, (acc: Object, attr: Attribute, key: string) => {
-    acc[key] = attr.v;
     return acc;
   }, {});
 }
@@ -109,9 +102,9 @@ class Plugin extends Component {
   }
 
   @autobind
-  handleChange(attributes: Attributes) {
+  handleChange(attributes: Object) {
     this.setState({
-      settings: settingsFromAttributes(attributes),
+      settings: attributes,
     });
   }
 
@@ -128,7 +121,7 @@ class Plugin extends Component {
     } else {
       return (
         <div>
-          <ObjectFormInner
+          <ObjectFormFlat
             title={this.pluginName}
             attributes={this.attributes}
             onChange={this.handleChange}

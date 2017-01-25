@@ -2,33 +2,38 @@
 
 import _ from 'lodash';
 import React, { Component } from 'react';
-import { haveType } from '../../modules/state-helpers';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
+import styles from './inventory.css';
 
 // components
-import ExpandableTable from '../table/expandable-table';
-import InventoryWarehouseRow from './inventory-warehouse-row';
-import WarehouseDrawer from './inventory-warehouse-drawer';
+import ExpandableTable from 'components/table/expandable-table';
+import InventoryWarehouseRow from './sku-inventory-row';
+import WarehouseDrawer from './sku-inventory-drawer';
 
 // redux
 import * as WarehousesActions from 'modules/inventory/warehouses';
 import type { WarehouseInventorySummary, WarehouseInventoryMap } from 'modules/inventory/warehouses';
 
 const mapStateToProps = (state, props) => ({
-  inventoryDetails: _.get(state, ['inventory', 'warehouses', 'details', props.params.skuCode], {}),
+  inventoryDetails: _.get(state, ['inventory', 'warehouses', 'details', props.skuId], {}),
   fetchState: _.get(state, 'asyncActions.inventory-summary', {}),
   inventoryUpdated: _.get(state, 'asyncActions.inventory-increment.finished', false),
 });
 
 type Props = {
+  skuId: number,
+  // @TODO: get rid of passing skuCode here
+  skuCode: string,
+  // connected
   inventoryDetails: WarehouseInventoryMap,
-  params: Object,
-  fetchSummary: (id: number) => Promise,
+  fetchSummary: (id: number, code: string) => Promise,
   fetchState: {
     inProgress?: boolean,
     err?: any,
-  }
+  },
+  showSkuLink?: boolean,
+  readOnly?: boolean,
 }
 
 function array2tableData(rows) {
@@ -44,17 +49,22 @@ class InventoryItemDetails extends Component {
   props: Props;
 
   componentDidMount() {
-    this.props.fetchSummary(this.props.params.productVariantId);
+    this.fetchSummary();
   }
 
   componentWillReceiveProps(nextProps: Props) {
     if (!this.props.inventoryUpdated && nextProps.inventoryUpdated) {
-      this.props.fetchSummary(this.props.params.productVariantId);
+      this.fetchSummary();
     }
   }
 
+  fetchSummary() {
+    // @TODO: get rid of passing skuCode here
+    return this.props.fetchSummary(this.props.skuId, this.props.skuCode);
+  }
+
   get tableColumns() {
-    return [
+    let fields = [
       { field: 'stockLocation.name', text: 'Warehouse' },
       { field: 'onHand', text: 'On Hand' },
       { field: 'onHold', text: 'Hold' },
@@ -62,6 +72,14 @@ class InventoryItemDetails extends Component {
       { field: 'afs', text: 'AFS' },
       { field: 'afsCost', text: 'AFS Cost Value', type: 'currency' },
     ];
+    if (this.props.showSkuLink) {
+      fields = [
+        { field: 'sku', text: 'SKU'},
+        ...fields
+      ];
+    }
+
+    return fields;
   }
 
   get drawerColumns() {
@@ -84,6 +102,8 @@ class InventoryItemDetails extends Component {
         isLoading={_.get(this.props, ['fetchState', 'inProgress'], true)}
         failed={!!_.get(this.props, ['fetchState', 'err'])}
         params={params}
+        readOnly={this.props.readOnly}
+        skuId={this.props.skuId}
       />
     );
   }
@@ -94,6 +114,7 @@ class InventoryItemDetails extends Component {
     return (
       <InventoryWarehouseRow
         key={key}
+        skuId={this.props.skuId}
         warehouse={row}
         columns={columns}
         params={params}
@@ -119,21 +140,17 @@ class InventoryItemDetails extends Component {
     const failed = !!this.props.fetchState.err;
 
     return (
-      <div className="fc-grid">
-        <div className="fc-col-md-1-1">
-          <ExpandableTable
-            columns={this.tableColumns}
-            data={this.summaryData}
-            renderRow={this.renderRow}
-            renderDrawer={this.renderDrawer}
-            idField="stockLocation.id"
-            isLoading={isFetching}
-            failed={failed}
-            emptyMessage="No warehouse data found."
-            className="fc-inventory-item-details__warehouses-table"
-          />
-        </div>
-      </div>
+      <ExpandableTable
+        columns={this.tableColumns}
+        data={this.summaryData}
+        renderRow={this.renderRow}
+        renderDrawer={this.renderDrawer}
+        idField="stockLocation.id"
+        isLoading={isFetching}
+        failed={failed}
+        emptyMessage="No warehouse data found."
+        styleName="warehouses-table"
+      />
     );
   }
 }

@@ -3,11 +3,13 @@
     {
       "type": "group",
       "title": "General",
-      "content": [
-        {
-          "type": "generalSection"
-        }
-      ]
+      "fields": {
+        "canAddProperty": false,
+        "value": [
+          "code",
+          "upc"
+        ]
+      }
     },
     {
       "type": "group",
@@ -16,19 +18,11 @@
         {
           "type": "fields",
           "value": [
-            "retailPrice",
-            "salePrice"
+            "unitCost"
           ]
         }
       ]
     }
   ],
-  "aside": [
-    {
-      "type": "tags"
-    },
-    {
-      "type": "state"
-    }
-  ]
+  "aside": null
 }
