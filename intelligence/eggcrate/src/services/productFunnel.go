@@ -63,7 +63,7 @@ func buildResponse(pf responses.HenhouseResponse) string {
 		checkoutPurchased = float64(purchases) / float64(checkoutClicks)
 	}
 	if checkoutPurchased = 0.0; checkoutClicks > 0.0 {
-		checkoutPurchased = float32(purchases) / float32(checkoutClicks)
+		checkoutPurchased = float64(purchases) / float64(checkoutClicks)
 	}
 
 	resp := responses.ProductFunnelResponse{
