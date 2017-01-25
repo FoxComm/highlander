@@ -3,6 +3,7 @@ package utils.seeds
 import models.cord.{Cord, Cords}
 
 import com.github.tminglei.slickpg.LTree
+
 import models.account.Scope
 import scala.concurrent.ExecutionContext.Implicits.global
 import models.payment.giftcard.GiftCard.{buildAppeasement ⇒ build}
@@ -25,12 +26,10 @@ trait GiftCardSeeds {
 
   def createGiftCards(implicit au: AU): DbResultT[Unit] =
     for {
-      scope        ← * <~ Scope.resolveOverride()
-      _            ← * <~ GiftCardSubtypes.createAll(giftCardSubTypes)
-      origin       ← * <~ GiftCardManuals.create(GiftCardManual(adminId = 1, reasonId = 1))
-      gc1          ← * <~ GiftCards.create(giftCard.copy(originId = origin.id))
-      orderPayment ← * <~ OrderPayments.create(OrderPayment.build(gc1))
-      _            ← * <~ GiftCards.capture(gc1, orderPaymentId = orderPayment.id, debit = 1000)
+      scope  ← * <~ Scope.resolveOverride()
+      _      ← * <~ GiftCardSubtypes.createAll(giftCardSubTypes)
+      origin ← * <~ GiftCardManuals.create(GiftCardManual(adminId = 1, reasonId = 1))
+      gc1    ← * <~ GiftCards.create(giftCard.copy(originId = origin.id))
       _ ← * <~ GiftCards.create(
              build(payload(balance = 10000, reasonId = 1), originId = origin.id, scope = scope))
       _ ← * <~ Notes.createAll(giftCardNotes.map(_.copy(referenceId = gc1.id)))
