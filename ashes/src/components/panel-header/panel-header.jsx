@@ -6,14 +6,12 @@ import styles from './panel-header.css';
 
 type Props = {
   text: string,
-  isOptional: bool,
-  showStatus: bool,
-  status: string,
+  isOptional?: bool,
+  showStatus?: bool,
+  status?: string,
 };
 
-const PanelHeader = (props: Props): Element => {
-  const { text, isOptional, showStatus, status } = props;
-
+const PanelHeader = ({isOptional = false, showStatus = false, status, text}: Props): Element => {
   const optional = isOptional
     ? <span styleName="optional">(optional)</span>
     : null;
