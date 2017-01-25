@@ -65,7 +65,7 @@ class GroupPage extends Component {
       return <Error err={err} />;
     }
 
-    if (!fetched || !this.isRequestedGroup) {
+    if (!this.isRequestedGroup && !fetched) {
       return <div><WaitAnimation /></div>;
     }
 
