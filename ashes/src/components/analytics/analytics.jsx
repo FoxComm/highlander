@@ -42,11 +42,11 @@ const sourceDropdownColumns = [
 ];
 
 const questionTitles = {
-  totalRevenue: 'Total Revenue',
-  totalOrders: 'Total Orders',
-  avgNumPerOrder: 'Avg. Num. Per Order',
-  totalInCarts: 'Total In Carts',
-  productConversion: 'Product Conversion',
+  TotalRevenue: 'Total Revenue',
+  TotalOrders: 'Total Orders',
+  AverageNumberPerOrder: 'Avg. Num. Per Order',
+  TotalInCarts: 'Total In Carts',
+  ProductConversionRate: 'Product Conversion',
 };
 
 const datePickerType = {
@@ -98,27 +98,32 @@ export default class Analytics extends React.Component {
   static defaultProps = {
     questionBoxes: [
       {
-        title: questionTitles.totalRevenue,
+        id: 'TotalRevenue',
+        title: questionTitles.TotalRevenue,
         content: <Currency value="0" />,
         footer: <TrendButton trendType={TrendType.steady} value={0} />,
       },
       {
-        title: questionTitles.totalOrders,
+        id: 'TotalOrders',
+        title: questionTitles.TotalOrders,
         content: 0,
         footer: <TrendButton trendType={TrendType.steady} value={0} />,
       },
       {
-        title: questionTitles.avgNumPerOrder,
+        id: 'AverageNumberPerOrder',
+        title: questionTitles.AverageNumberPerOrder,
         content: 0,
         footer: <TrendButton trendType={TrendType.steady} value={0} />,
       },
       {
-        title: questionTitles.totalInCarts,
+        id: 'TotalInCarts',
+        title: questionTitles.TotalInCarts,
         content: 0,
         footer: <TrendButton trendType={TrendType.steady} value={0} />,
       },
       {
-        title: questionTitles.productConversion,
+        id: 'ProductConversionRate',
+        title: questionTitles.ProductConversionRate,
         content: '0%',
         footer: <TrendButton trendType={TrendType.steady} value={0} />,
       },
@@ -137,6 +142,10 @@ export default class Analytics extends React.Component {
     question: null,
     segment: null,
   };
+
+  componentDidMount() {
+    this.props.fetchProductStats(this.props.entity.entityId);
+  }
 
   @autobind
   onDatePickerChange(selectionIndex) {
@@ -194,19 +203,12 @@ export default class Analytics extends React.Component {
     const { segments } = this.props;
 
     switch(question.title) {
-      case questionTitles.productConversion:
+      case questionTitles.ProductConversionRate:
         this.setState({question: question});
-        break;
-      case questionTitles.totalRevenue:
-        this.setState({question: question, segment: _.head(segments)});
-        break;
-    }
-
-    switch(question.title) {
-      case questionTitles.productConversion:
         this.props.fetchProductConversion(this.props.entity.entityId);
         break;
-      case questionTitles.totalRevenue:
+      case questionTitles.TotalRevenue:
+        this.setState({question: question, segment: _.head(segments)});
         this.props.fetchProductTotalRevenue();
         break;
     }
@@ -215,6 +217,47 @@ export default class Analytics extends React.Component {
   @autobind
   onSegmentControlSelect(segment) {
     this.setState({segment: segment});
+  }
+
+  @autobind
+  setQuestionBoxesFromStats(questionBoxes, stats) {
+    const avgName = 'Average';
+
+    if (!_.isEmpty(stats)) {
+      _.map(questionBoxes, (qb) => {
+        switch(qb.title) {
+          case questionTitles.TotalRevenue:
+            const value = stats[qb.id].toString();
+            qb.content = <Currency value={value} />;
+            break;
+          case questionTitles.TotalOrders:
+          case questionTitles.AverageNumberPerOrder:
+          case questionTitles.TotalInCarts:
+            const productValue = stats[qb.id];
+            const avgValue = stats[`${avgName}${qb.id}`];
+
+            let trendValue = null;
+            let trend = TrendType.steady
+
+            if (avgValue === 0) {
+              trendValue = 0;
+            } else {
+              trendValue = _.round(((productValue - avgValue) / avgValue) * 100, 0);
+              trend = (trendValue > 0) ? TrendType.gain : TrendType.loss;
+            }
+
+            qb.footer = <TrendButton
+              trendType={trend}
+              value={`${Math.abs(trendValue)}`}
+              />;
+            qb.content = productValue.toString();
+            break;
+          case questionTitles.ProductConversionRate:
+            qb.content = `${stats[qb.id]}%`;
+            break;
+        }
+      });
+    }
   }
 
   get dateDisplay() {
@@ -238,9 +281,9 @@ export default class Analytics extends React.Component {
 
     if (!analytics.isFetching) {
       switch (this.question.title) {
-        case questionTitles.productConversion:
+        case questionTitles.ProductConversionRate:
           return <ProductConversionChart jsonData={analytics.values}/>;
-        case questionTitles.totalRevenue:
+        case questionTitles.TotalRevenue:
           return(
             <div>
               <SegmentControlList
@@ -259,8 +302,10 @@ export default class Analytics extends React.Component {
     }
   }
 
-  get filterHeaders() {
-    const { questionBoxes } = this.props;
+  get productStats() {
+    const { analytics, questionBoxes } = this.props;
+
+    this.setQuestionBoxesFromStats(questionBoxes, analytics.stats);
 
     return (
       <div>
@@ -276,23 +321,38 @@ export default class Analytics extends React.Component {
             renderNullTitle={(value, placeholder) => {
               return _.isNull(value) ? placeholder : value;
             }}
-          />
+            />
           <StaticColumnSelector
             setColumns={null}
             columns={sourceDropdownColumns}
             actionButtonText="Apply"
             dropdownTitle="Sources"
-            identifier={'analytics-source-filter'} />
+            identifier={'analytics-source-filter'}
+            />
         </div>
         <div styleName="analytics-page-questions">
           <QuestionBoxList
             onSelect={this.onQuestionBoxSelect}
             items={questionBoxes}
             activeQuestion={this.question}
-          />
+            />
         </div>
       </div>
     );
+  }
+
+  get filterHeaders() {
+    const { analytics } = this.props;
+
+    if (!analytics.isFetching) {
+      if (!analytics.err) {
+        return this.productStats;
+      } else {
+        return <ErrorAlerts error={analytics.err} />;
+      }
+    } else {
+      return <WaitAnimation />;
+    }
   }
 
   get content() {
