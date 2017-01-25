@@ -164,7 +164,8 @@ export const fetchGroupStats = () => (dispatch: Function, getState: Function) =>
   dispatch(_fetchStats.perform(request.toRequest()));
 };
 
-const validateConditions = conditions => conditions.length && conditions.every(validateCondition);
+const validateConditions = conditions =>
+  conditions && conditions.length && conditions.every(validateCondition);
 
 const validateCondition = ([field, operator, value]) => {
   if (!field || !operator) {
