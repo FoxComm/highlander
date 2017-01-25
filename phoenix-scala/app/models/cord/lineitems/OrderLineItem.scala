@@ -32,11 +32,7 @@ trait LineItemProductData[LI] {
 
   def isEligibleForDiscount: Boolean = !isGiftCard
 
-  def isGiftCard: Boolean =
-    (for {
-      attrs ← attributes
-      _     ← attrs.giftCard
-    } yield {}).isDefined
+  def isGiftCard: Boolean = attributes.flatMap(_.giftCard).isDefined
 }
 
 case class OrderLineItemProductData(sku: Sku,

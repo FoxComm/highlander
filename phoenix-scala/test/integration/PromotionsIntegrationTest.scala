@@ -210,12 +210,11 @@ class PromotionsIntegrationTest
         POST(s"v1/my/cart/line-items", Seq(UpdateLineItemsPayload(skuCode, 0)))
           .asTheResult[CartResponse]
 
+      println(org.json4s.jackson.Serialization.writePretty(emptyCartWithCoupon.totals))
       info(s"skuPrice = $skuPrice")
-      // why are totals increased for an empty cart if we add a coupon?
-      info(s"totals = ${emptyCartWithCoupon.totals}")
-      info(s"cart = ${emptyCartWithCoupon}")
-      emptyCartWithCoupon.totals.adjustments must === (0)
+      info(s"totals = ${org.json4s.jackson.Serialization.writePretty(emptyCartWithCoupon.totals)}")
       emptyCartWithCoupon.totals.total must === (0)
+      emptyCartWithCoupon.totals.adjustments must === (0)
     }
   }
 

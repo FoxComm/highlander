@@ -141,7 +141,11 @@ object LineItemUpdater {
       ctx: OC,
       au: AU): DbResultT[TheResponse[CartResponse]] =
     for {
-      _     ← * <~ CartPromotionUpdater.readjust(cart).recover { case _ ⇒ Unit }
+      _ ← * <~ CartPromotionUpdater.readjust(cart).recover {
+           case err ⇒
+             println(s"CartPromotionUpdater.getAdjustments error: $err")
+             Unit
+         }
       cart  ← * <~ CartTotaler.saveTotals(cart)
       valid ← * <~ CartValidator(cart).validate()
       res   ← * <~ CartResponse.buildRefreshed(cart)
