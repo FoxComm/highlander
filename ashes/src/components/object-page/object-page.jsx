@@ -435,7 +435,7 @@ export class ObjectPage extends Component {
   }
 
   get children() {
-    return React.cloneElement(this.props.children, this.childrenProps())
+    return React.cloneElement(this.props.children, this.childrenProps());
   }
 
   get errors() {

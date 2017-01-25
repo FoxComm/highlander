@@ -76,7 +76,7 @@ class InventoryItemDetails extends Component {
       fields = [
         { field: 'sku', text: 'SKU'},
         ...fields
-      ]
+      ];
     }
 
     return fields;

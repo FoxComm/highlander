@@ -75,4 +75,6 @@ class ProductVariantPage extends ObjectPage {
   }
 }
 
-export default connectPage('productVariant', ProductVariantActions, {schemaName: 'product-variant'})(ProductVariantPage);
+export default connectPage(
+  'productVariant', ProductVariantActions, {schemaName: 'product-variant'}
+)(ProductVariantPage);

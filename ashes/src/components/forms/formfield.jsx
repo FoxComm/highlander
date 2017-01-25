@@ -58,7 +58,7 @@ export default class FormField extends Component {
     target: 'input,textarea,select',
     getTargetValue: node => {
       if (!node) return void 0;
-      return node.type == 'checkbox' ? node.checked : node.value
+      return node.type == 'checkbox' ? node.checked : node.value;
     },
     isDefined: isDefined,
   };
