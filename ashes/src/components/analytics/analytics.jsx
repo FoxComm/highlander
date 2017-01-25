@@ -34,16 +34,6 @@ type State = {
   segment: SegmentControlType,
 }
 
-const verbs = {
-  product: {
-    list: 'Shown in Category',
-    pdp: 'Viewed Pdp',
-    cart: 'Added To Cart',
-  }
-}; 
-
-const colors = ['#2ca02c', '#ff7f0e', '#662ca0'];
-
 const sourceDropdownColumns = [
   { field: 'google', text: 'Google' },
   { field: 'facebook', text: 'Facebook' },
@@ -58,34 +48,6 @@ const questionTitles = {
   totalInCarts: 'Total In Carts',
   productConversion: 'Product Conversion',
 };
-
-const questions: Array<QuestionBoxType> = [
-  {
-    title: questionTitles.totalRevenue,
-    content: <Currency value="578657" />,
-    footer: <TrendButton trendType={TrendType.gain} value={90}/>,
-  },
-  {
-    title: questionTitles.totalOrders,
-    content: 132,
-    footer: <TrendButton trendType={TrendType.loss} value={10}/>,
-  },
-  {
-    title: questionTitles.avgNumPerOrder,
-    content: 1,
-    footer: <TrendButton trendType={TrendType.steady} value={0}/>,
-  },
-  {
-    title: questionTitles.totalInCarts,
-    content: 132,
-    footer: <TrendButton trendType={TrendType.loss} value={10}/>,
-  },
-  {
-    title: questionTitles.productConversion,
-    content: '7.2%',
-    footer: <TrendButton trendType={TrendType.gain} value={3}/>,
-  },
-];
 
 const datePickerType = {
   Today: 0,
@@ -116,20 +78,56 @@ export default class Analytics extends React.Component {
       entityType: PropTypes.string,
     }),
     analytics: PropTypes.shape({
-        analyticsKey: PropTypes.string,
-        values: PropTypes.object,
-        from: PropTypes.number,
-        to: PropTypes.number,
-        sizeSec: PropTypes.number,
-        stepSec: PropTypes.number,
-        err: PropTypes.any,
-        isFetching: PropTypes.bool,
-        route: PropTypes.shape({
-            action: PropTypes.string,
-            idKey: PropTypes.string,
-        })
+      analyticsKey: PropTypes.string,
+      values: PropTypes.object,
+      from: PropTypes.number,
+      to: PropTypes.number,
+      sizeSec: PropTypes.number,
+      stepSec: PropTypes.number,
+      err: PropTypes.any,
+      isFetching: PropTypes.bool,
+      route: PropTypes.shape({
+        action: PropTypes.string,
+        idKey: PropTypes.string,
+      })
     }),
-    fetchAnalytics: PropTypes.func.isRequired
+    fetchAnalytics: PropTypes.func.isRequired,
+    questionBoxes: PropTypes.array,
+  };
+
+  static defaultProps = {
+    questionBoxes: [
+      {
+        title: questionTitles.totalRevenue,
+        content: <Currency value="0" />,
+        footer: <TrendButton trendType={TrendType.steady} value={0} />,
+      },
+      {
+        title: questionTitles.totalOrders,
+        content: 0,
+        footer: <TrendButton trendType={TrendType.steady} value={0} />,
+      },
+      {
+        title: questionTitles.avgNumPerOrder,
+        content: 0,
+        footer: <TrendButton trendType={TrendType.steady} value={0} />,
+      },
+      {
+        title: questionTitles.totalInCarts,
+        content: 0,
+        footer: <TrendButton trendType={TrendType.steady} value={0} />,
+      },
+      {
+        title: questionTitles.productConversion,
+        content: '0%',
+        footer: <TrendButton trendType={TrendType.steady} value={0} />,
+      },
+    ],
+    segments: [
+      { id: 0, title: 'Day', isActive: true },
+      { id: 1, title: 'Week' },
+      { id: 2, title: 'Month' },
+    ],
   };
 
   state: State = {
@@ -193,7 +191,16 @@ export default class Analytics extends React.Component {
 
   @autobind
   onQuestionBoxSelect(question) {
-    this.setState({question: question});
+    const { segments } = this.props;
+
+    switch(question.title) {
+      case questionTitles.productConversion:
+        this.setState({question: question});
+        break;
+      case questionTitles.totalRevenue:
+        this.setState({question: question, segment: _.head(segments)});
+        break;
+    }
 
     switch(question.title) {
       case questionTitles.productConversion:
@@ -227,19 +234,13 @@ export default class Analytics extends React.Component {
       return false;
     }
 
-    const { analytics } = this.props;
+    const { analytics, segments } = this.props;
 
     if (!analytics.isFetching) {
       switch (this.question.title) {
         case questionTitles.productConversion:
           return <ProductConversionChart jsonData={analytics.values}/>;
         case questionTitles.totalRevenue:
-          const segments: Array<SegmentControlType> = [
-            { title: 'Day' },
-            { title: 'Week' },
-            { title: 'Month' },
-          ];
-
           return(
             <div>
               <SegmentControlList
@@ -259,6 +260,8 @@ export default class Analytics extends React.Component {
   }
 
   get filterHeaders() {
+    const { questionBoxes } = this.props;
+
     return (
       <div>
         <div styleName="analytics-filters">
@@ -284,7 +287,7 @@ export default class Analytics extends React.Component {
         <div styleName="analytics-page-questions">
           <QuestionBoxList
             onSelect={this.onQuestionBoxSelect}
-            items={questions}
+            items={questionBoxes}
             activeQuestion={this.question}
           />
         </div>
