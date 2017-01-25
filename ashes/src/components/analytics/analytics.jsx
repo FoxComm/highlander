@@ -79,13 +79,15 @@ export default class Analytics extends React.Component {
     }),
     analytics: PropTypes.shape({
       analyticsKey: PropTypes.string,
-      values: PropTypes.object,
+      chartValues: PropTypes.object,
+      stats: PropTypes.object,
       from: PropTypes.number,
       to: PropTypes.number,
       sizeSec: PropTypes.number,
       stepSec: PropTypes.number,
       err: PropTypes.any,
       isFetching: PropTypes.bool,
+      isFetchingStats: PropTypes.bool,
       route: PropTypes.shape({
         action: PropTypes.string,
         idKey: PropTypes.string,
@@ -282,7 +284,7 @@ export default class Analytics extends React.Component {
     if (!analytics.isFetching) {
       switch (this.question.title) {
         case questionTitles.ProductConversionRate:
-          return <ProductConversionChart jsonData={analytics.values}/>;
+          return <ProductConversionChart jsonData={analytics.chartValues}/>;
         case questionTitles.TotalRevenue:
           return(
             <div>
@@ -344,7 +346,7 @@ export default class Analytics extends React.Component {
   get filterHeaders() {
     const { analytics } = this.props;
 
-    if (!analytics.isFetching) {
+    if (!analytics.isFetchingStats) {
       if (!analytics.err) {
         return this.productStats;
       } else {
