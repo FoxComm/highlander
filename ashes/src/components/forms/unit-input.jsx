@@ -19,7 +19,7 @@ class UnitInput extends Component {
   props: Props;
 
   @autobind
-  handleInputChange(e: SyntheticEvent) {
+  handleInputChange(e: InputEvent) {
     this.props.onInputChange(e.target.value, e);
   }
 

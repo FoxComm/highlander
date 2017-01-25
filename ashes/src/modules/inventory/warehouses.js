@@ -37,6 +37,7 @@ export type StockItemSummary = StockCounts & {
   stockLocation: StockLocation,
   stockItem: StockItem,
   type: string,
+  sku: string,
 }
 
 export type StockItemFlat = StockCounts & StockItem & {

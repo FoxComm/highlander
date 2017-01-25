@@ -4,6 +4,7 @@ import _ from 'lodash';
 import React from 'react';
 
 import ObjectFormInner from './object-form-inner';
+import type { Props as InnerProps } from './object-form-inner';
 
 function objectFromAttributes(attributes: Attributes): Object {
   return _.reduce(attributes, (acc: Object, attr: Attribute|any, key: string) => {
@@ -12,7 +13,11 @@ function objectFromAttributes(attributes: Attributes): Object {
   }, {});
 }
 
-const ObjectFormFlat = props => {
+type Props = InnerProps & {
+  onChange: (attributes: Object) => void,
+}
+
+const ObjectFormFlat = (props: Props) => {
   const { onChange, ...rest } = props;
 
   const handleChange = (attributes: Attributes) => {

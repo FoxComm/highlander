@@ -20,10 +20,11 @@ import type { ProductVariant } from 'modules/product-variants/details';
 type Props = {
   skuId: number,
   children: Element,
+  params: Object,
   // connected
   actions: {
     skuNew: () => void,
-    fetchSku: (skuId) => Promise,
+    fetchSku: (skuId: number) => Promise,
     updateSku: (sku: Sku) => Promise,
   },
   originalObject: Sku,

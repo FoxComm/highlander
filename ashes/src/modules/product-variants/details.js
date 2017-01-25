@@ -14,12 +14,24 @@ export type ProductVariant = {
   code?: string,
   feCode?: string,
   attributes: Attributes,
+  id: number,
+  context: {
+    attributes?: Object,
+    name: string,
+  },
+  middlewarehouseSkuId: number,
+};
+
+export type NewProductVariant = {
+  code?: string,
+  feCode?: string,
+  attributes: Attributes,
   id: any,
   context: {
     attributes?: Object,
     name: string,
-  }
-};
+  },
+}
 
 const defaultContext = 'default';
 

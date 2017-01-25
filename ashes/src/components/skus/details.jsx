@@ -9,7 +9,7 @@ import ObjectDetails from 'components/object-page/object-details';
 import InventoryAndTransactions from './inventory-and-transactions';
 import ObjectFormFlat from '../object-form/object-form-flat';
 
-import type { Fields, NodeDesc } from '../object-form/object-form-inner';
+import type { Fields, NodeDesc } from '../object-page/object-details';
 
 const layouts = {
   details: require('./layouts/details.json'),
@@ -17,7 +17,7 @@ const layouts = {
 };
 
 export default class SkuDetails extends ObjectDetails {
-  get layout() {
+  get layout(): Object {
     return layouts[this.props.route.layout];
   }
 
@@ -48,7 +48,7 @@ export default class SkuDetails extends ObjectDetails {
     );
   }
 
-  renderInventoryAndTransactions() {
+  renderInventoryAndTransactions(): Element {
     return (
       <InventoryAndTransactions
         skuId={this.props.entity.entityId}

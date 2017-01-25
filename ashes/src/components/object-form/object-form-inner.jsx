@@ -20,7 +20,7 @@ import RichTextEditor from '../rich-text-editor/rich-text-editor';
 import { Dropdown } from '../dropdown';
 import { BooleanOptions } from '../boolean-options/boolean-options';
 
-type Props = {
+export type Props = {
   canAddProperty?: boolean,
   fieldsToRender?: Array<string>,
   fieldsOptions?: Object,
@@ -43,10 +43,10 @@ type AttrSchema = {
 }
 
 type AttrOptions = {
-  required: boolean,
+  required?: boolean,
   label: string,
   description?: string,
-  isDefined: (value: any) => boolean,
+  isDefined?: (value: any) => boolean,
 }
 
 const inputClass = 'fc-object-form__field-value';

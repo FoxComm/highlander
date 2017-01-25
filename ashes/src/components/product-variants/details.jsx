@@ -2,7 +2,7 @@
 
 // libs
 import _ from 'lodash';
-import React, { Component } from 'react';
+import React, { Element } from 'react';
 
 // components
 import { Link } from '../link';
@@ -21,11 +21,11 @@ export default class ProductVariantDetails extends ObjectDetails {
     return `${productTitle} — ${optionsString}`;
   }
 
-  get titleField() {
+  get titleField(): Element {
     return renderFormField('title', <span>{this.title}</span>, {label: 'title'});
   }
 
-  get skuField() {
+  get skuField(): Element {
     const skuCode = _.get(this.props.object, 'attributes.code.v');
     const skuId = this.props.object.middlewarehouseSkuId;
 
