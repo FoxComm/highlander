@@ -92,11 +92,7 @@ sub track($henhouse, $path)
     return if $count.WHAT === Str;
 
     my $cluster = 1; #TODO, get these from tracking url
-    my $context = 1; #TODO, get these from tracking url
 
-    count($henhouse, $count, "track.$channel.$cluster.$context.$object.$object-id.$verb.$subject");
-    count($henhouse, $count, "track.$channel.$cluster.$context.$object.$object-id.$verb");
-    count($henhouse, $count, "track.$channel.$cluster.$context.$object.$verb");
     count($henhouse, $count, "track.$channel.$cluster.$object.$object-id.$verb.$subject");
     count($henhouse, $count, "track.$channel.$cluster.$object.$object-id.$verb");
     count($henhouse, $count, "track.$channel.$cluster.$object.$verb");
