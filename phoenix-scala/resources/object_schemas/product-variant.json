@@ -39,7 +39,7 @@
           "properties": {
             "$ref": "#/definitions/price"
           }
-        },
+        }
       },
       "required": [
         "code"
