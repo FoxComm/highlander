@@ -20,6 +20,7 @@ const productConversionReceivedValues = createAction('ANALYTICS_PRODUCTCONVERSIO
 const productTotalRevenueReceivedValues = createAction('ANALYTICS_PRODUCTTOTALREVENUE_RECEIVED',
   (values) => [values]
 );
+const productStatsReceivedValues = createAction('ANALYTICS_PRODUCTSTATS_RECEIVED', (stats) => [stats]);
 
 // actions
 /* time */
@@ -64,6 +65,18 @@ export function fetchProductTotalRevenue() {
     );
   };
 }
+export function fetchProductStats(productId, channel = 1) {
+  return dispatch => {
+    dispatch(startFetching());
+
+    const url = `stats/productStats/${channel}/${productId}`;
+
+    return Api.get(url).then(
+      stats => dispatch(productStatsReceivedValues(stats)),
+      err => dispatch(fetchFailed(err))
+    );
+  };
+}
 
 // redux store
 const initialState = {
@@ -75,7 +88,8 @@ const initialState = {
   from: 0,
   to: 0,
   keys: [],
-  verbs: []
+  verbs: [],
+  stats: {},
 };
 const reducer = createReducer({
   [startFetching]: state => {
@@ -116,6 +130,16 @@ const reducer = createReducer({
     const updater = _.flow(
       _.partialRight(assoc,
         ['values'], values,
+        ['isFetching'], false,
+      )
+    );
+
+    return updater(state);
+  },
+  [productStatsReceivedValues]: (state, [stats]) => {
+    const updater = _.flow(
+      _.partialRight(assoc,
+        ['stats'], stats,
         ['isFetching'], false,
       )
     );
