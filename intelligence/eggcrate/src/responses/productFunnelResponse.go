@@ -6,8 +6,8 @@ type ProductFunnelResponse struct {
 	CartClicks        int
 	CheckoutClicks    int
 	Purchases         int
-	SearchToPdp       float32
-	PdpToCart         float32
-	CartToCheckout    float32
-	CheckoutPurchased float32
+	SearchToPdp       float64
+	PdpToCart         float64
+	CartToCheckout    float64
+	CheckoutPurchased float64
 }
