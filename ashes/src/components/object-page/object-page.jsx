@@ -99,11 +99,20 @@ export function connectPage(namespace, actions, options = {}) {
     };
   }
 
+  function mapSchemaActions(dispatch, props) {
+    return {
+      actions: {
+        ...props.actions,
+        ...bindActionCreators(SchemaActions, dispatch),
+      },
+    };
+  }
+
   return Page => {
     return _.flowRight(
       connect(mapStateToProps, mapDispatchToProps),
       makeLocalStore(addAsyncReducer(schemaReducer)),
-      connect(mapSchemaProps, SchemaActions)
+      connect(mapSchemaProps, mapSchemaActions)
     )(Page);
   };
 }
@@ -179,7 +188,7 @@ export class ObjectPage extends Component {
 
   componentDidMount() {
     this.props.actions.clearFetchErrors();
-    this.props.fetchSchema(this.props.schemaName);
+    this.props.actions.fetchSchema(this.props.schemaName);
     if (this.isNew) {
       this.props.actions.newEntity();
     } else {
@@ -323,7 +332,7 @@ export class ObjectPage extends Component {
       }
     }
     if (this.state.schema) {
-      this.props.saveSchema(this.props.namespace, this.state.schema);
+      this.props.actions.saveSchema(this.props.namespace, this.state.schema);
     }
 
     return mayBeSaved;
