@@ -10,7 +10,9 @@ import Api from 'lib/api';
 
 type State = TTemplates;
 
-const _fetchTemplates = createAsyncActions('fetchCustomerGroupsTemplates', () => Api.get('/groups/templates'));
+const _fetchTemplates = createAsyncActions('fetchCustomerGroupsTemplates',
+  () => Api.get('/customer-groups/templates')
+);
 
 export const fetchTemplates = _fetchTemplates.perform;
 
