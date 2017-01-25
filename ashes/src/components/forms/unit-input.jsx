@@ -39,6 +39,7 @@ class UnitInput extends Component {
           onChange={this.handleInputChange}
         />
         <Dropdown
+          styleName="dropdown"
           value={props.unit}
           items={props.units}
           onChange={this.handleUnitChange}
