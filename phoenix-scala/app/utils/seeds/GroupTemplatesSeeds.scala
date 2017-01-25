@@ -14,11 +14,36 @@ trait GroupTemplatesSeeds {
     } yield DbResultT.unit
 
   private def abandonedCartsTemplate() =
-    CustomerGroupTemplate(
-        name = "Abandoned Carts",
-        elasticRequest = parse(
-            """{"query":{"bool":{"filter": [{"range": {"carts.updatedAt":{"lte": "now-3d"}}}]}}}"""),
-        clientState = fakeQuery)
+    CustomerGroupTemplate(name = "Abandoned Carts",
+                          elasticRequest = parse("""{
+              |  "query": {
+              |    "bool": {
+              |      "filter": [
+              |        {
+              |          "nested": {
+              |            "path": "carts",
+              |            "query": {
+              |              "bool": {
+              |                "filter": {
+              |                  "range": {
+              |                    "carts.updatedAt": {
+              |                      "lte": "now-3d/d"
+              |                    }
+              |                  }
+              |                }
+              |              }
+              |            }
+              |          }
+              |        }, {
+              |          "term": {
+              |            "isGuest": false
+              |          }
+              |        }
+              |      ]
+              |    }
+              |  }
+              |}""".stripMargin),
+                          clientState = fakeQuery)
 
   type GroupTemplates = (CustomerGroupTemplate#Id, CustomerGroupTemplate#Id)
 
