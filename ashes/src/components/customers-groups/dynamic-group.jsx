@@ -121,6 +121,7 @@ export default class DynamicGroup extends Component {
 
   get header() {
     const { group } = this.props;
+    console.log(group);
 
     return (
       <header className={prefixed('header')}>
@@ -150,10 +151,12 @@ export default class DynamicGroup extends Component {
   @autobind
   renderCriterion([field, operator, value], index) {
     return (
-      <Criterion key={index}
-                 field={field}
-                 operator={operator}
-                 value={value} />
+      <Criterion
+        key={index}
+        field={field}
+        operator={operator}
+        value={value}
+      />
     );
   }
 
@@ -161,7 +164,9 @@ export default class DynamicGroup extends Component {
     const { mainCondition, conditions } = this.props.group;
     const main = mainCondition === operators.and ? 'all' : 'any';
 
-    return (
+    const conditionBlock = _.map(conditions, c => this.renderCriterion(c));
+
+    return conditions && (
       <ContentBox title="Criteria"
                   className={prefixed('criteria')}
                   bodyClassName={classNames({'_open': this.state.criteriaOpen})}
@@ -171,7 +176,7 @@ export default class DynamicGroup extends Component {
           &nbsp;<span className={prefixed('inline-label')}>{main}</span>&nbsp;
           of the following criteria:
         </span>
-        {conditions.map(this.renderCriterion)}
+        {conditionBlock}
       </ContentBox>
     );
   }
@@ -221,7 +226,8 @@ export default class DynamicGroup extends Component {
         linkParams={{customerId: row.id}}
         row={row}
         setCellContents={(customer, field) => _.get(customer, field)}
-        params={params} />
+        params={params}
+      />
     );
   }
 
@@ -236,7 +242,8 @@ export default class DynamicGroup extends Component {
         renderRow={this.renderRow}
         tableColumns={tableColumns}
         searchActions={customersListActions}
-        searchOptions={{singleSearch: true}} />
+        searchOptions={{singleSearch: true}}
+      />
     );
   }
 

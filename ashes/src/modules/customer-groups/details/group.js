@@ -182,7 +182,7 @@ type State = {
   group: TCustomerGroup;
 }
 
-const setData = (state: State, {id, type, name, createdAt, updatedAt, clientState: {mainCondition, conditions}, ...rest}) => {
+const setData = (state: State, {clientState: {mainCondition, conditions}, ...rest}) => {
   return {
     ...rest,
     conditions,

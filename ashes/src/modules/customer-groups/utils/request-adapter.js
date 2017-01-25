@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { Request, query } from 'elastic/request';
 import operators from 'paragons/customer-groups/operators';
 
@@ -6,8 +7,8 @@ const requestAdapter = (criterions, mainCondition, conditions) => {
   request.query = mainCondition === operators.and ? new query.ConditionAnd() : new query.ConditionOr();
 
   let fields = {};
-  for (let i = 0; i < conditions.length; i++) {
-    const [name, operator, value] = conditions[i];
+  _.each(conditions, (condition) => {
+    const [name, operator, value] = condition;
 
     let field;
     if (fields[name]) {
@@ -18,7 +19,8 @@ const requestAdapter = (criterions, mainCondition, conditions) => {
     }
 
     field.add(operator, value);
-  }
+  });
+
 
   return request;
 };
