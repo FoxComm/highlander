@@ -10,10 +10,11 @@ import (
 var url = os.Getenv("API_URL")
 var port = os.Getenv("HENHOUSE_PORT")
 
-func ProductQuery(id string, steps []string, a, b string) (responses.HenhouseResponse, error) {
+func HenhouseQuery(keys []string, a, b string) (responses.HenhouseResponse, error) {
 	key := ""
-	for _, step := range steps {
-		key += "track_product_" + id + step + ","
+
+	for _, k := range keys {
+		key += k + ","
 	}
 
 	if a != "" {
