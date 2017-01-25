@@ -107,6 +107,8 @@ class Checkout extends Component {
   sanitizeError(error) {
     if (error && error.startsWith('Not enough onHand units')) {
       return 'Unable to checkout — item is out of stock';
+    } else if (/is blacklisted/.test(error)) {
+      return 'Your account has been blocked from making purchases on this site';
     }
 
     return error;
@@ -228,13 +230,6 @@ class Checkout extends Component {
         />
       </div>
     );
-  }
-
-  sanitizeError(error) {
-    if (/is blacklisted/.test(error)) {
-      return 'Your account has been blocked from making purchases on this site';
-    }
-    return error;
   }
 
   render() {
