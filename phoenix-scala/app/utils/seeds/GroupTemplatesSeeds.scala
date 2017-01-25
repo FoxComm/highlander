@@ -2,10 +2,48 @@ package utils.seeds
 
 import models.customer.{CustomerGroupTemplate, CustomerGroupTemplates}
 import org.json4s.JObject
+import org.json4s.jackson.JsonMethods.parse
 import utils.aliases._
 import utils.db._
 
 trait GroupTemplatesSeeds {
+
+  def createGroupTemplates(scopeId: Int)(implicit db: DB, ac: AC, ec: EC): DbResultT[Unit] =
+    for {
+      _ ← CustomerGroupTemplates.create(abandonedCartsTemplate)
+    } yield DbResultT.unit
+
+  private def abandonedCartsTemplate() =
+    CustomerGroupTemplate(name = "Abandoned Carts",
+                          elasticRequest = parse("""{
+              |  "query": {
+              |    "bool": {
+              |      "filter": [
+              |        {
+              |          "nested": {
+              |            "path": "carts",
+              |            "query": {
+              |              "bool": {
+              |                "filter": {
+              |                  "range": {
+              |                    "carts.updatedAt": {
+              |                      "lte": "now-3d/d"
+              |                    }
+              |                  }
+              |                }
+              |              }
+              |            }
+              |          }
+              |        }, {
+              |          "term": {
+              |            "isGuest": false
+              |          }
+              |        }
+              |      ]
+              |    }
+              |  }
+              |}""".stripMargin),
+                          clientState = fakeQuery)
 
   type GroupTemplates = (CustomerGroupTemplate#Id, CustomerGroupTemplate#Id)
 
