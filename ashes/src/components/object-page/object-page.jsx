@@ -95,7 +95,7 @@ export function connectPage(namespace, actions, options = {}) {
   function mapSchemaProps(state) {
     return {
       schema: _.get(state, schemaName),
-      isSchemaFetching: _.get(state.asyncActions, 'fetchSchema.inProgress', false),
+      isSchemaFetching: _.get(state.asyncActions, 'fetchSchema.inProgress', null),
     };
   }
 
@@ -492,7 +492,7 @@ export class ObjectPage extends Component {
     const props = this.props;
     const { object } = this.state;
 
-    if ((props.isFetching !== false && !object) || (props.isSchemaFetching !== false || !props.schema)) {
+    if (props.isFetching !== false || props.isSchemaFetching !== false) {
       return <div><WaitAnimation /></div>;
     }
 

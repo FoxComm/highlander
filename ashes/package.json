@@ -38,7 +38,7 @@
   "contributors": "https://github.com/FoxComm/highlander/graphs/contributors",
   "homepage": "https://github.com/FoxComm/highlander#readme",
   "dependencies": {
-    "@foxcomm/wings": "^1.9.0",
+    "@foxcomm/wings": "1.9.1",
     "babel-polyfill": "^6.13.0",
     "browserHistory": "file:src/opt/browserHistory",
     "chance": "^0.7.6",
