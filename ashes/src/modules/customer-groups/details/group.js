@@ -207,7 +207,6 @@ const reducer = createReducer({
   [setName]: (state, name) => ({...state, name}),
   [setMainCondition]: (state, mainCondition) => ({...state, mainCondition}),
   [setConditions]: (state, conditions) => ({...state, conditions, isValid: validateConditions(conditions)}),
-  [setFilterTerm]: (state, filterTerm) => ({...state, filterTerm}),
   [setGroupStats]: (state, stats) => ({...state, stats}),
 }, initialState);
 
