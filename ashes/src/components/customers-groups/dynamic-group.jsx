@@ -105,9 +105,11 @@ export default class DynamicGroup extends Component {
 
     customersListActions.resetSearch();
 
-    customersListActions.setExtraFilters([
-      requestAdapter(criterions, mainCondition, conditions).toRequest().query,
-    ]);
+    if (criterions) {
+      customersListActions.setExtraFilters([
+        requestAdapter(criterions, mainCondition, conditions).toRequest().query,
+      ]);
+    }
 
     customersListActions.fetch();
 
