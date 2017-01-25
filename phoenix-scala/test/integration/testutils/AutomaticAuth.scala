@@ -19,6 +19,10 @@ abstract class FakeAuth extends UserAuthenticator {
   def readCredentials(): Directive1[Option[String]] = provide(Some("ok"))
 }
 
+abstract class NoAuth extends UserAuthenticator {
+  def readCredentials(): Directive1[Option[String]] = provide(None)
+}
+
 case class AuthAs(admin: User, customer: User) extends FakeAuth {
 
   //TODO Provide correct claim map
