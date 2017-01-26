@@ -73,9 +73,7 @@ export DOCKER_TAG_GREENRIVER=master
 
 If you want to spin up an appliance with custom tag for any project, please build and push it to our Docker Registry, for example:
 
-    $ cd phoenix
-    $ make build
-    $ make docker
+    $ cd phoenix-scala && make build && make docker
     $ DOCKER_TAG=my-custom-debug-build make docker-push
 
 And then override `DOCKER_TAG_PHOENIX` to `my-custom-debug-build`.

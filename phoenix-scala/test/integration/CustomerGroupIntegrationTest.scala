@@ -2,7 +2,7 @@ import com.github.tminglei.slickpg.LTree
 import failures.NotFoundFailure404
 import models.customer._
 import org.json4s.JObject
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import payloads.CustomerGroupPayloads.CustomerDynamicGroupPayload
 import responses.DynamicGroupResponses.DynamicGroupResponse.{Root, build}
 import testutils._

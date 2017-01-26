@@ -257,3 +257,6 @@ first_run: false
 
 # BuildKite Settings
 buildkite_env: gce
+
+# Logrotate
+logrotate_dir: /etc/logrotate.d

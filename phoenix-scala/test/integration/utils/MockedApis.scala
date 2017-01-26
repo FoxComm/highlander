@@ -8,7 +8,7 @@ import com.stripe.model.DeletedCard
 import org.mockito.ArgumentMatcher
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import services.Result
 import utils.TestStripeSupport.randomStripeishId
 import utils.aliases._

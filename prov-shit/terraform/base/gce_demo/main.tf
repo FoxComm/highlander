@@ -31,11 +31,11 @@ provider "google" {
 }
 
 ##############################################
-# Setup Staging
+# Setup Demo Tiny Stack 
 ##############################################
-module "foxcomm-staging" {
+module "foxdemo" {
   source                = "../../modules/gce/tinystack"
-  datacenter            = "foxcomm-stage"
+  datacenter            = "foxdemo"
   backend_image         = "${var.tiny_backend_image}"
   frontend_image        = "${var.tiny_frontend_image}"
   ssh_user              = "${var.ssh_user}"
@@ -55,8 +55,8 @@ provider "dnsimple" {
 
 resource "dnsimple_record" "frontend-dns-record" {
   domain = "foxcommerce.com"
-  name   = "stage"
-  value  = "${module.foxcomm-staging.frontend_address}"
+  name   = "foxdemo"
+  value  = "${module.foxdemo.frontend_address}"
   type   = "A"
   ttl    = 3600
 }
