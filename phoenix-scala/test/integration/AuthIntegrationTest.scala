@@ -47,19 +47,20 @@ class AuthIntegrationTest
       info(myAccount.entity.toString)
     }
 
-    "should create customer and get logged in" in {
+    "should create customer and get logged in" in new Customer_Seed {
       normalAuth()
+      create("test".some)
       myApi.myCart().mustBeOk()
       checkAcc()
 
       noAuth()
       checkAcc()
 
-      myApi.patchAccount(UpdateCustomerPayload(email = "guest@gmail.com".some)).mustBeOk()
+      myApi.patchAccount(UpdateCustomerPayload(email = payload.email.some)).mustBeOk()
       checkAcc()
 
-//      info("do login")
-//      publicApi.doLogin(payload).mustBeOk()
+      info("do login")
+      publicApi.doLogin(payload).mustBeOk()
     }
 
 //    "should create guest with same email" in new Customer_Seed {

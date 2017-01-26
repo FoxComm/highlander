@@ -8,7 +8,6 @@ import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl.client.RequestBuilding.Get
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Route
-import akka.http.scaladsl.server.directives.BasicDirectives.provide
 import akka.http.scaladsl.settings.ConnectionPoolSettings
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.ActorMaterializer
@@ -25,9 +24,7 @@ import org.json4s.jackson.Serialization.{write ⇒ writeJson}
 import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
 import server.Service
-import services.Authenticator
 import services.Authenticator.UserAuthenticator
-import services.account.AccountCreateContext
 import utils.apis.Apis
 import utils.seeds.Seeds.Factories
 import utils.{FoxConfig, JsonFormatters}
@@ -45,6 +42,21 @@ object HttpSupport {
   protected var materializer: ActorMaterializer = _
   protected var service: Service                = _
   protected var serverBinding: ServerBinding    = _
+
+  var adminUser: Option[User]    = _
+  var customerData: Option[User] = _
+
+  def normalAuth() = {
+    adminUser = Some(Factories.storeAdmin.copy(id = 1, accountId = 1))
+    customerData = Some(Factories.customer.copy(id = 2, accountId = 2))
+  }
+
+  def noAuth() = {
+    adminUser = None
+    customerData = None
+  }
+
+  noAuth()
 }
 
 trait HttpSupport
@@ -76,11 +88,15 @@ trait HttpSupport
       akkaConfigured = true
     }
 
-    service = makeService
+    rebind()
+  }
 
+  // looks like a dirty hack
+  def rebind() = {
+    service = makeService
     serverBinding = service.bind(ConfigFactory.parseString(s"""
-         |http.interface = 127.0.0.1
-         |http.port      = $getFreePort
+                                                              |http.interface = 127.0.0.1
+                                                              |http.port      = $getFreePort
         """.stripMargin)).futureValue
   }
 
@@ -99,24 +115,19 @@ trait HttpSupport
         |}
       """.stripMargin).withFallback(ConfigFactory.load())
 
-  var adminUser: Option[User]    = _
-  var customerData: Option[User] = _
-
-  noAuth()
-  def overrideUserAuth: UserAuthenticator = {
-    val customerCreateContext = AccountCreateContext(List("customer"), "merchant", 2)
-    val guestAuthenticator    = Authenticator.forUser(customerCreateContext)
-    VariableAuth(adminUser, customerData, guestAuthenticator)
-  }
+  def overrideUserAuth: UserAuthenticator =
+    VariableAuth(HttpSupport.adminUser, HttpSupport.customerData)
 
   def normalAuth() = {
-    adminUser = Some(Factories.storeAdmin.copy(id = 1, accountId = 1))
-    customerData = Some(Factories.customer.copy(id = 2, accountId = 2))
+    HttpSupport.normalAuth()
+    rebind()
+    Option(service).foreach(s ⇒ println(s.userAuth.toString))
   }
 
   def noAuth() = {
-    adminUser = Some(Factories.storeAdmin.copy(id = 1, accountId = 1))
-    customerData = None
+    HttpSupport.noAuth()
+    rebind()
+    Option(service).foreach(s ⇒ println(s.userAuth.toString))
   }
 
   implicit val env = FoxConfig.Test

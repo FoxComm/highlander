@@ -8,7 +8,9 @@ import akka.http.scaladsl.server.directives.SecurityDirectives.AuthenticationRes
 import models.account._
 import models.auth.UserToken
 import org.scalatest.SuiteMixin
+import services.Authenticator
 import services.Authenticator.{AuthData, UserAuthenticator}
+import services.account.AccountCreateContext
 import utils.aliases.{DB, EC}
 import utils.db.{*, _}
 import utils.seeds.Seeds.Factories
@@ -20,10 +22,12 @@ abstract class FakeAuth extends UserAuthenticator {
   def readCredentials(): Directive1[Option[String]] = provide(Some("ok"))
 }
 
-case class VariableAuth(var admin: Option[User],
-                        var customer: Option[User],
-                        guestAuthenticator: UserAuthenticator)(implicit ex: EC)
+case class VariableAuth(var admin: Option[User], var customer: Option[User])(implicit ex: EC,
+                                                                             db: DB)
     extends UserAuthenticator {
+
+  private val customerCreateContext = AccountCreateContext(List("customer"), "merchant", 2)
+  private val guestAuthenticator    = Authenticator.forUser(customerCreateContext)
 
   def readCredentials(): Directive1[Option[String]] = {
     provide(customer.map(_ ⇒ "ok"))
