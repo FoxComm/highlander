@@ -33,8 +33,9 @@ async function simulate(persona) {
 
   var context = {
     page: Nightmare({
+        show: true,
         webPreferences: {
-          partition: "stimulator-"+Math.random()
+          partition: 'nopersist'
     }}),
     persona: persona,
     state: persona.start,
@@ -42,8 +43,6 @@ async function simulate(persona) {
   };
 
   while(context.state) {
-    try {
-
       //process state
       var f = stateFunctions[context.state];
 
@@ -57,10 +56,6 @@ async function simulate(persona) {
 
       context.state = trans.state;
       context.args = trans.args;
-
-    } catch (e) {
-      console.error(e);
-    }
   }
 
   context.page.end();
