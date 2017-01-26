@@ -29,7 +29,7 @@
   when: branch_name != "master" and auto_build == "y" or auto_build == "yes"
 
 - name: Push Application to Registry
-  shell: "DOCKER_TAG={{tag_name}} docker-push"
+  shell: "DOCKER_TAG={{tag_name}} make docker-push"
   args:
     chdir: "{{highlander_path_out.stdout}}/{{app_name}}"
   when: branch_name != "master" and auto_build == "y" or auto_build == "yes"
