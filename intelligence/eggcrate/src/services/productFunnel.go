@@ -32,7 +32,7 @@ func GetProductFunnel(c echo.Context) error {
 }
 
 func henhouseProductFunnel(id, a, b string) (string, error) {
-	steps := []string{"list", "pdp", "cart", "checkout"}
+	steps := []string{"list", "pdp", "cart", "checkout", "purchase-quantity"}
 	pf, qErr := ProductQuery(id, steps, a, b)
 	if qErr != nil {
 		return "", qErr
@@ -46,7 +46,7 @@ func buildResponse(pf responses.HenhouseResponse) string {
 	pdpViews := responses.GetSum("pdp", pf)
 	cartClicks := responses.GetSum("cart", pf)
 	checkoutClicks := responses.GetSum("checkout", pf)
-	purchases := responses.GetSum("purchase", pf)
+	purchases := responses.GetSum("purchase-quantity", pf)
 	var searchToPdp, pdpToCart, cartToCheckout, checkoutPurchased float64
 	if searchToPdp = 0.0; searchViews > 0.0 {
 		searchToPdp = float64(pdpViews) / float64(searchViews)
