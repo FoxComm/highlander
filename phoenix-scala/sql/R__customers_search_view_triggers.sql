@@ -242,7 +242,7 @@ begin
         from (
             select
                 c.account_id as id,
-            coalesce(sum(ccc.amount), 0) + coalesce(sum(sca.debit), 0) + coalesce(sum(gca.debit), 0) as revenue
+                coalesce(sum(ccc.amount), 0) + coalesce(sum(sca.debit), 0) + coalesce(sum(gca.debit), 0) as revenue
             from customer_data as c
             inner join orders on (c.account_id = orders.account_id and orders.state = 'shipped')
             inner join order_payments as op on (op.cord_ref = orders.reference_number)

@@ -64,7 +64,7 @@ class StoreCreditTransactions extends Component {
 
   componentDidMount() {
     this.props.actions.setExtraFilters([
-      {term: {customerId: this.customerId}}
+      { term: { accountId: this.customerId } }
     ]);
     this.props.totalsActions.fetchTotals(this.customerId);
     this.props.actions.fetch();
