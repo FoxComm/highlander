@@ -79,15 +79,18 @@ trait TaxonomySeeds extends TestFixtureBase {
       attributes.map(i ⇒ createTaxon(i))
   }
 
-  /*creates tree
+  /**
+  Creates tree:
        1   2
       /\  /\
      3 4 5 6
-   */
+    /
+   7
+    */
   trait HierarchicalTaxons_Raw extends TaxonSeedBase {
     def taxonomy: Taxonomy
 
-    val taxonNames = (1 to 6).map("taxon" + _.toString)
+    val taxonNames = (1 to 7).map("taxon" + _.toString)
     val taxons: Seq[Taxon] = createTaxons(
         taxonNames.map(name ⇒ Map("name" → (("t" → "string") ~ ("v" → name)))))
 
@@ -95,7 +98,8 @@ trait TaxonomySeeds extends TestFixtureBase {
       require(taxonomy.hierarchical)
       Seq(createLink(taxonomy, taxons.head, "", 1, 0), createLink(taxonomy, taxons(1), "", 2, 1)) ++
       Seq(createLink(taxonomy, taxons(2), "1", 3, 0), createLink(taxonomy, taxons(3), "1", 4, 1)) ++
-      Seq(createLink(taxonomy, taxons(4), "2", 5, 0), createLink(taxonomy, taxons(5), "2", 6, 1))
+      Seq(createLink(taxonomy, taxons(4), "2", 5, 0), createLink(taxonomy, taxons(5), "2", 6, 1)) ++
+      Seq(createLink(taxonomy, taxons(6), "1.3", 7, 1))
     }
 
     def createTaxons(attributes: Seq[Map[String, Json]]): Seq[Taxon] =

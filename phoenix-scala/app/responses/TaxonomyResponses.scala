@@ -69,7 +69,7 @@ object TaxonomyResponses {
       headsByPosition.map {
         case (taxon, link) ⇒
           TaxonTreeResponse(Taxon.build(taxon), buildTree(level + 1, tail.filter {
-            case (_, lnk) ⇒ lnk.parentIndex.contains(link.index)
+            case (_, lnk) ⇒ lnk.path.value.startsWith(link.childPath.value)
           }))
       }
     }
