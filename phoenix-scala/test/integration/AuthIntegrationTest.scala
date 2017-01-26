@@ -1,5 +1,6 @@
 import cats.implicits._
 import failures.AuthFailures.LoginFailed
+import models.account.User
 import payloads.CustomerPayloads.{CreateCustomerPayload, UpdateCustomerPayload}
 import payloads.LoginPayload
 import responses.CustomerResponse.Root
@@ -8,6 +9,7 @@ import services.customers.CustomerManager
 import testutils.apis.{PhoenixAdminApi, PhoenixMyApi, PhoenixPublicApi}
 import testutils.fixtures._
 import testutils.{IntegrationTestBase, TestActivityContext, _}
+import utils.seeds.CustomerSeeds
 
 class AuthIntegrationTest
     extends IntegrationTestBase
@@ -15,7 +17,8 @@ class AuthIntegrationTest
     with PhoenixMyApi
     with PhoenixPublicApi
     with TestActivityContext.AdminAC
-    with BakedFixtures {
+    with BakedFixtures
+    with CustomerSeeds {
 
   "POST /v1/public/login" - {
     // todo get org from seeds or context?
@@ -54,10 +57,15 @@ class AuthIntegrationTest
       checkAcc()
 
       noAuth()
+      myApi.myCart()
       checkAcc()
+      checkAuth()
 
-      myApi.patchAccount(UpdateCustomerPayload(email = payload.email.some)).mustBeOk()
+      val patchAccount = myApi.patchAccount(UpdateCustomerPayload(email = payload.email.some))
+      patchAccount.mustBeOk()
+      info(patchAccount.entity.toString)
       checkAcc()
+      checkAuth()
 
       info("do login")
       publicApi.doLogin(payload).mustBeOk()

@@ -121,13 +121,19 @@ trait HttpSupport
   def normalAuth() = {
     HttpSupport.normalAuth()
     rebind()
-    Option(service).foreach(s ⇒ println(s.userAuth.toString))
+    checkAuth()
   }
 
   def noAuth() = {
     HttpSupport.noAuth()
     rebind()
+    checkAuth()
+  }
+
+  def checkAuth() = {
     Option(service).foreach(s ⇒ println(s.userAuth.toString))
+    println("while in memory " + overrideUserAuth.toString)
+
   }
 
   implicit val env = FoxConfig.Test

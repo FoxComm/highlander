@@ -44,6 +44,7 @@ case class VariableAuth(var admin: Option[User], var customer: Option[User])(imp
           user   ← * <~ result.fold(_ ⇒ None, d ⇒ Some(d.model))
         } yield {
           admin = user
+          println("!!!!  look " + user.toString)
         }
 
         check
@@ -62,6 +63,7 @@ case class VariableAuth(var admin: Option[User], var customer: Option[User])(imp
           user   ← * <~ result.fold(_ ⇒ None, d ⇒ Some(d.model))
         } yield {
           customer = user
+          println("!!!!  look " + user.toString)
         }
 
         authCustomer
