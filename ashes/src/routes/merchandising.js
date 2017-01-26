@@ -4,7 +4,7 @@ import React from 'react';
 import FoxRouter from 'lib/fox-router';
 import { frn } from 'lib/frn';
 
-import TaxonomiesListPage from 'v2/containers/taxonomies/list-page';
+import TaxonomiesListPage from 'components/taxonomies/taxonomies';
 
 import type { Claims } from 'lib/claims';
 
