@@ -309,7 +309,7 @@ begin
 end;
 $$ language plpgsql;
 
--- Update customer's orders after cart inserted or updated
+-- Update customer's carts after cart inserted or updated
 
 create or replace function update_customers_view_from_carts_fn() returns trigger as $$
 begin
@@ -355,3 +355,35 @@ create trigger update_customers_view_from_carts_trigger
     after insert or update on carts
     for each row
     execute procedure update_customers_view_from_carts_fn();
+
+-- Update customer's groups after group membership is changed
+
+create or replace function update_customers_view_from_group_membership_fn() returns trigger as $$
+begin
+    update customers_search_view set
+         groups = subquery.groups
+         from (select
+                 c.account_id as id,
+                 case when count(cgm) = 0
+                   then
+                     '[]'
+                 else
+                   json_agg(cgm.group_id)::jsonb
+                 end as groups
+               from customer_data as c
+               left join customer_group_members as cgm on (c.id = cgm.customer_data_id)
+               where cgm.customer_data_id = new.customer_data_id
+               group by c.account_id) as subquery
+    where customers_search_view.id = subquery.id;
+
+    return null;
+end;
+$$ language plpgsql;
+
+drop trigger if exists update_customers_view_from_group_membership_trigger on customer_group_members;
+create trigger update_customers_view_from_group_membership_trigger
+    after insert or update on customer_group_members
+    for each row
+    execute procedure update_customers_view_from_group_membership_fn();
+
+    //TODO trigger on delete
