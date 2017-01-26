@@ -19,13 +19,13 @@ const mainBlocks = [
     action: { title: 'Shop Now', link: '/VALENTINE' },
   },
   {
-    imageUrl: '/images/home-page/Cat_Weeknights_2x.jpg',
+    imageUrl: '/images/home-page/Home_Page_Kid_2x.jpg',
     description: 'Under $5 Per Entrée',
     title: 'Weeknight Favorites',
     action: { title: 'Shop Now', link: '/WEEKNIGHT' },
   },
   {
-    imageUrl: '/images/home-page/Cat_Spin_2x.jpg',
+    imageUrl: '/images/home-page/Home_Page_EggRolls.jpg',
     description: 'Dishes you know and love, revisited with unique and delicious twists',
     title: 'A New Spin On The Classics',
     action: { title: 'Shop Now', link: '/SPIN' },
