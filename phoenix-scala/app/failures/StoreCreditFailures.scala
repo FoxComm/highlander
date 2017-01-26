@@ -16,4 +16,9 @@ object StoreCreditFailures {
     override def description =
       s"customer with id=$id has storeCredit=$has less than requestedAmount=$want"
   }
+
+  case class StoreCreditAuthAdjustmentNotFound(orderPaymentId: Int) extends Failure {
+    override def description =
+      s"Cannot capture a Store Credit using order payment $orderPaymentId because no adjustment in auth"
+  }
 }
