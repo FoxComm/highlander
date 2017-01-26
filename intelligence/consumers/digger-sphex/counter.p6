@@ -22,7 +22,7 @@ grammar Hal
 {
     rule TOP {<path> '?' <arg>+}
     rule path { '/' \w+ <path>?}
-    token identifier {\w+}
+    token identifier {(\w || '-')+}
     rule arg { <key=identifier> '=' <value=identifier> '&'?} 
 };
 
