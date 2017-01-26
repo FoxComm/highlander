@@ -1,5 +1,10 @@
 ---
 
+- name: Find out current Git Branch
+  shell: "git branch | sed -n '/\* /s///p'"
+  register: git_branch_out
+  when: branch_name != "master" and auto_build == "y" or auto_build == "yes"
+
 - name: Find out Highlander path
   shell: "dirname $(dirname $(pwd))"
   register: highlander_path_out
@@ -12,7 +17,7 @@
   when: branch_name != "master" and auto_build == "y" or auto_build == "yes"
 
 - name: Build Application
-  shell: "GOOS=linux make build && make docker && DOCKER_TAG={{tag_name}} docker-push"
+  shell: "GOOS=linux make build"
   args:
     chdir: "{{highlander_path_out.stdout}}/{{app_name}}"
   when: branch_name != "master" and auto_build == "y" or auto_build == "yes"
@@ -54,3 +59,9 @@
 
 - name: Cleanup
   file: path=/tmp/{{app_name}}.json state=absent
+
+- name: Checkout Branch You Were On
+  shell: "git checkout {{git_branch_out.stdout}}"
+  args:
+    chdir: "{{highlander_path_out.stdout}}"
+  when: branch_name != "master" and auto_build == "y" or auto_build == "yes"
