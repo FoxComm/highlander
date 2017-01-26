@@ -1,26 +1,28 @@
 ---
 
+- name: Find out Highlander path
+  shell: "dirname $(dirname $(pwd))"
+  register: highlander_path_out
+  when: auto_build == "y" or auto_build == "yes"
+
+- name: Checkout Specified Branch
+  shell: "git checkout {{branch_name}}"
+  args:
+    chdir: "{{highlander_path_out.stdout}}/{{app_name}}"
+  when: auto_build == "y" or auto_build == "yes"
+
+- name: Build and Dockerize Application
+  shell: "GOOS=linux make build && make docker && DOCKER_TAG={{tag_name}} docker-push"
+  when: auto_build == "y" or auto_build == "yes"
+
 - name: Find out Playbook path
   shell: "pwd"
   register: playbook_path_out
 
-- name: Find out Highlander path
-  shell: "dirname $(dirname $(pwd))"
-  register: highlander_path_out
-  when: auto_build == "y" || auto_build == "yes"
-
-- name: Checkout Specified Branch
-  shell: "git checkout {{branch_name}}"
-  chdir: "{{highlander_path_out.stdout}}/{{app_name}}"
-  when: auto_build == "y" || auto_build == "yes"
-
-- name: Build and Dockerize Application
-  shell: "GOOS=linux make build && make docker && DOCKER_TAG={{tag_name}} docker-push"
-  when: auto_build == "y" || auto_build == "yes"
-
 - name: Copy Application Marathon JSON
   template: src={{playbook_path_out.stdout}}/roles/dev/{{app_name}}/templates/{{app_name}}.json dest=/tmp
-  chdir: "{{playbook_path_out.stdout}}"
+  args:
+    chdir: "{{playbook_path_out.stdout}}"
 
 - name: Delete Application in Marathon
   shell: 'curl -sS -XDELETE http://{{marathon_server}}/v2/apps/{{app_name}}'
