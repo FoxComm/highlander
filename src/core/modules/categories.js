@@ -49,6 +49,24 @@ function apiCall(): Promise {
       description: 'Gift cards will be here',
       imageUrl: '',
     },
+    {
+      id: 7,
+      name: 'VALENTINE',
+      description: 'Valentine\'s Day Picks',
+      imageUrl: '/images/categories/Cat_Valentine_2x.jpg',
+    },
+    {
+      id: 8,
+      name: 'WEEKNIGHT',
+      description: 'Weeknight Favorites',
+      imageUrl: '/images/categories/Cat_Weeknights_2x.jpg',
+    },
+    {
+      id: 9,
+      name: 'SPIN',
+      description: 'Classics Revisited',
+      imageUrl: '/images/categories/Cat_Spin_2x.jpg',
+    },
   ];
   return Promise.resolve(result);
 }
