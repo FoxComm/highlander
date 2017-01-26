@@ -23,8 +23,6 @@
 
 - name: Copy Application Marathon JSON
   template: src={{playbook_path_out.stdout}}/roles/dev/{{app_name}}/templates/{{app_name}}.json dest=/tmp
-  args:
-    chdir: "{{playbook_path_out.stdout}}"
 
 - name: Delete Application in Marathon
   shell: 'curl -sS -XDELETE http://{{marathon_server}}/v2/apps/{{app_name}}'
