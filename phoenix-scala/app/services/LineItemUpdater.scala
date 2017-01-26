@@ -141,17 +141,25 @@ object LineItemUpdater {
       ctx: OC,
       au: AU): DbResultT[TheResponse[CartResponse]] =
     for {
-      _ ← * <~ CartPromotionUpdater.readjust(cart).recover {
-           case err ⇒
-             println(s"CartPromotionUpdater.getAdjustments error: $err")
-             Unit
-         }
-      cart  ← * <~ CartTotaler.saveTotals(cart)
+      readjustedCartWithWarnings ← * <~ CartPromotionUpdater.readjust(cart).recover {
+                                    case err ⇒
+                                      println(
+                                          s"CartPromotionUpdater.getAdjustments error (should we swallow it?): $err")
+                                      TheResponse(cart)
+                                  }
+      cart  ← * <~ CartTotaler.saveTotals(readjustedCartWithWarnings.result)
       valid ← * <~ CartValidator(cart).validate()
       res   ← * <~ CartResponse.buildRefreshed(cart)
       li    ← * <~ CartLineItems.byCordRef(cart.refNum).countSkus
       _     ← * <~ logAct(res, li)
-    } yield TheResponse.validated(res, valid)
+    } yield {
+      val blah = TheResponse.validated(res, valid)
+      // TheResponse doesn’t compose well?
+      blah.copy(warnings = {
+        val xs = readjustedCartWithWarnings.warnings.toList.flatten ::: blah.warnings.toList.flatten
+        if (xs.isEmpty) None else Some(xs)
+      })
+    }
 
   def foldQuantityPayload(payload: Seq[UpdateLineItemsPayload]): Map[String, Int] =
     payload.foldLeft(Map[String, Int]()) { (acc, item) ⇒

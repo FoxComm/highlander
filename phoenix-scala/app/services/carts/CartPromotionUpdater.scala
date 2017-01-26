@@ -29,7 +29,8 @@ import utils.db._
 
 object CartPromotionUpdater {
 
-  def readjust(cart: Cart)(implicit ec: EC, es: ES, db: DB, ctx: OC, au: AU): DbResultT[Unit] =
+  def readjust(
+      cart: Cart)(implicit ec: EC, es: ES, db: DB, ctx: OC, au: AU): DbResultT[TheResponse[Cart]] =
     for {
       // Fetch base stuff
       orderPromo ← * <~ OrderPromotions
@@ -52,13 +53,14 @@ object CartPromotionUpdater {
       (form, shadow) = discount.tupled
       qualifier   ← * <~ QualifierAstCompiler(qualifier(form, shadow)).compile()
       offer       ← * <~ OfferAstCompiler(offer(form, shadow)).compile()
+      // TODO: this gentleman returns a Left
       adjustments ← * <~ getAdjustments(promoShadow, cart, qualifier, offer)
       // Delete previous adjustments and create new
       _ ← * <~ OrderLineItemAdjustments
            .filterByOrderRefAndShadow(cart.refNum, orderPromo.promotionShadowId)
            .delete
       _ ← * <~ OrderLineItemAdjustments.createAll(adjustments)
-    } yield {}
+    } yield TheResponse(cart)
 
   def attachCoupon(originator: User, refNum: Option[String] = None, code: String)(
       implicit ec: EC,
@@ -136,7 +138,7 @@ object CartPromotionUpdater {
       implicit ec: EC,
       es: ES,
       db: DB,
-      au: AU) =
+      au: AU): DbResultT[Seq[OrderLineItemAdjustment]] =
     for {
       lineItems      ← * <~ LineItemManager.getCartLineItems(cart.refNum)
       shippingMethod ← * <~ shipping.ShippingMethods.forCordRef(cart.refNum).one

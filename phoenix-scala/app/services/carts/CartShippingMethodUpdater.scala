@@ -44,12 +44,24 @@ object CartShippingMethodUpdater {
            .map(_.orderShippingMethodId)
            .update(orderShipMethod.id.some)
       // update changed totals
-      _         ← * <~ CartPromotionUpdater.readjust(cart).recover { case _ ⇒ Unit }
+      readjustedCartWithWarnings ← * <~ CartPromotionUpdater.readjust(cart).recover {
+                                    case err ⇒
+                                      println(
+                                          s"CartPromotionUpdater.getAdjustments error (should we swallow it?): $err")
+                                      TheResponse(cart)
+                                  }
       order     ← * <~ CartTotaler.saveTotals(cart)
       validated ← * <~ CartValidator(order).validate()
       response  ← * <~ CartResponse.buildRefreshed(order)
       _         ← * <~ LogActivity.orderShippingMethodUpdated(originator, response, oldShipMethod)
-    } yield TheResponse.validated(response, validated)
+    } yield {
+      val blah = TheResponse.validated(response, validated)
+      // TheResponse doesn’t compose well?
+      blah.copy(warnings = {
+        val xs = readjustedCartWithWarnings.warnings.toList.flatten ::: blah.warnings.toList.flatten
+        if (xs.isEmpty) None else Some(xs)
+      })
+    }
 
   def deleteShippingMethod(originator: User, refNum: Option[String] = None)(
       implicit ec: EC,
@@ -65,10 +77,22 @@ object CartShippingMethodUpdater {
                     .mustFindOneOr(NoShipMethod(cart.refNum))
       _ ← * <~ OrderShippingMethods.findByOrderRef(cart.refNum).delete
       // update changed totals
-      _     ← * <~ CartPromotionUpdater.readjust(cart).recover { case _ ⇒ Unit }
-      cart  ← * <~ CartTotaler.saveTotals(cart)
+      readjustedCartWithWarnings ← * <~ CartPromotionUpdater.readjust(cart).recover {
+                                    case err ⇒
+                                      println(
+                                          s"CartPromotionUpdater.getAdjustments error (should we swallow it?): $err")
+                                      TheResponse(cart)
+                                  }
+      cart  ← * <~ CartTotaler.saveTotals(readjustedCartWithWarnings.result)
       valid ← * <~ CartValidator(cart).validate()
       resp  ← * <~ CartResponse.buildRefreshed(cart)
       _     ← * <~ LogActivity.orderShippingMethodDeleted(originator, resp, shipMethod)
-    } yield TheResponse.validated(resp, valid)
+    } yield {
+      val blah = TheResponse.validated(resp, valid)
+      // TheResponse doesn’t compose well?
+      blah.copy(warnings = {
+        val xs = readjustedCartWithWarnings.warnings.toList.flatten ::: blah.warnings.toList.flatten
+        if (xs.isEmpty) None else Some(xs)
+      })
+    }
 }
