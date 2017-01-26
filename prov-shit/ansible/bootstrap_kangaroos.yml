@@ -9,7 +9,9 @@
     self_host: kangaroos.foxcommerce.com
     ashes_server_name: kangaroos.foxcommerce.com
     storefront_server_name: kangaroos.foxcommerce.com
+    docker_tag_ashes: kangaroos
     docker_tag_phoenix: kangaroos
+    docker_tag_greenriver: master
     docker_tag_middlewarehouse: kangaroos
     docker_tag_capture_consumer: kangaroos
     docker_tag_gift_card_consumer: kangaroos
