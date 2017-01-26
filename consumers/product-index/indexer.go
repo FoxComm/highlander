@@ -15,16 +15,16 @@ const productUpdatedActivity = "full_product_updated"
 
 type Indexer struct {
 	esClient       *elastic.Client
-	visualVariants []string
+	IndexerConfig
 }
 
-func NewIndexer(esURL string, esIndex string, esMapping string, visualVariants []string) (*Indexer, error) {
+func NewIndexer(esURL string, esIndex string, esMapping string, idxConfig *IndexerConfig) (*Indexer, error) {
 	esClient, err := elastic.NewClient(esURL, esIndex, esMapping)
 	if err != nil {
 		return nil, err
 	}
 
-	return &Indexer{esClient, visualVariants}, nil
+	return &Indexer{esClient, *idxConfig}, nil
 }
 
 func (i Indexer) Run(activity activities.ISiteActivity) error {

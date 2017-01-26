@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 
+	"github.com/FoxComm/highlander/middlewarehouse/consumers"
 	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
 	"github.com/FoxComm/highlander/shared/golang/api"
 	"github.com/FoxComm/metamorphosis"
@@ -18,8 +19,8 @@ const (
 	groupID  = "product-indexer-group"
 )
 
-func NewConsumer(zookeeper, schemaRepo, offsetStrategy string) (*Consumer, error) {
-	consumer, err := metamorphosis.NewConsumer(zookeeper, schemaRepo, offsetStrategy)
+func NewConsumer(consumerCfg *consumers.ConsumerConfig, indexerCfg *IndexerConfig) (*Consumer, error) {
+	consumer, err := metamorphosis.NewConsumer(consumerCfg.ZookeeperURL, consumerCfg.SchemaRepositoryURL, consumerCfg.OffsetResetStrategy)
 	if err != nil {
 		return nil, err
 	}
@@ -27,8 +28,7 @@ func NewConsumer(zookeeper, schemaRepo, offsetStrategy string) (*Consumer, error
 	consumer.SetGroupID(groupID)
 	consumer.SetClientID(clientID)
 
-	visualVariants := []string{"color", "pattern", "material", "style"}
-	idxer, err := NewIndexer("http://localhost:9200", "public", "products_catalog_view", visualVariants)
+	idxer, err := NewIndexer("http://localhost:9200", "public", "products_catalog_view", indexerCfg)
 	if err != nil {
 		return nil, err
 	}

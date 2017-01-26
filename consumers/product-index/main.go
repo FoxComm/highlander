@@ -11,12 +11,15 @@ func main() {
 	if err != nil {
 		log.Fatalf("Unable to initialize consumer with error %s", err.Error())
 	}
+	idxConfig, err := MakeIndexerConfig()
 
-	zookeeper := config.ZookeeperURL
-	schemaRepo := config.SchemaRepositoryURL
-	offsetStrategy := config.OffsetResetStrategy
+	if err != nil {
+		log.Fatalf("Unable to initialize consumer with error %s", err.Error())
+	}
 
-	consumer, err := NewConsumer(zookeeper, schemaRepo, offsetStrategy)
+	log.Printf("visualVariants: %v\n", idxConfig.visualVariants)
+
+	consumer, err := NewConsumer(&config, &idxConfig)
 	if err != nil {
 		log.Fatalf("Unable to start consumer with err: %s", err)
 	}
