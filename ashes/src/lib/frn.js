@@ -68,7 +68,13 @@ export function readAction(frn: string): Claims {
 export function superAdmin(): Claims {
   return _.reduce(frn, (claimsList, systemClaims) => {
     const leaves = _.reduce(systemClaims, (systemList, resourceClaim) => {
-      return { ...systemList, [resourceClaim]: ['c', 'r', 'u', 'd'] };
+      // Dirty hack for feature switches. Just remove the permission to the module.
+      switch (resourceClaim) {
+        case frn.merch.taxonomy:
+          return systemList;
+        default:
+          return { ...systemList, [resourceClaim]: ['c', 'r', 'u', 'd'] };
+      }
     }, {});
 
     return { ...claimsList, ...leaves };
