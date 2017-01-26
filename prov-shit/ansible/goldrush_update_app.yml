@@ -15,12 +15,12 @@
       prompt: "Enter Highlander sub-project to re-deploy"
       default: "middlewarehouse"
       private: no
-    - name: "tag_name"
-      prompt: "Enter Docker tag to be deployed"
+    - name: "branch_name"
+      prompt: "Enter branch/tag to be deployed"
       default: "master"
       private: no
-    - name: "build_and_push"
-      prompt: "Should we build and push a tag (y/n)?"
+    - name: "auto_build"
+      prompt: "Automatically build a branch/tag (y/n)?"
       default: "n"
       private: no
 

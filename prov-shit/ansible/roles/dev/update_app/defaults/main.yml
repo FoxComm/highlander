@@ -1,2 +1,3 @@
 app_name: middlewarehouse
-tag_name: master
+branch_name: master
+tag_name: "{{ branch_name | replace('/', '-') }}"
