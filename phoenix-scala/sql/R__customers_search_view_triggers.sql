@@ -386,4 +386,4 @@ create trigger update_customers_view_from_group_membership_trigger
     for each row
     execute procedure update_customers_view_from_group_membership_fn();
 
-    //TODO trigger on delete
+--/TODO trigger on delete
