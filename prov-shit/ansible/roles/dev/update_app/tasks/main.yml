@@ -3,19 +3,31 @@
 - name: Find out Highlander path
   shell: "dirname $(dirname $(pwd))"
   register: highlander_path_out
-  when: auto_build == "y" or auto_build == "yes"
+  when: branch_name != "master" and auto_build == "y" or auto_build == "yes"
 
 - name: Checkout Specified Branch
   shell: "git checkout {{branch_name}}"
   args:
     chdir: "{{highlander_path_out.stdout}}/{{app_name}}"
-  when: auto_build == "y" or auto_build == "yes"
+  when: branch_name != "master" and auto_build == "y" or auto_build == "yes"
 
-- name: Build and Dockerize Application
+- name: Build Application
   shell: "GOOS=linux make build && make docker && DOCKER_TAG={{tag_name}} docker-push"
   args:
     chdir: "{{highlander_path_out.stdout}}/{{app_name}}"
-  when: auto_build == "y" or auto_build == "yes"
+  when: branch_name != "master" and auto_build == "y" or auto_build == "yes"
+
+- name: Dockerize Application
+  shell: "make docker"
+  args:
+    chdir: "{{highlander_path_out.stdout}}/{{app_name}}"
+  when: branch_name != "master" and auto_build == "y" or auto_build == "yes"
+
+- name: Push Application to Registry
+  shell: "DOCKER_TAG={{tag_name}} docker-push"
+  args:
+    chdir: "{{highlander_path_out.stdout}}/{{app_name}}"
+  when: branch_name != "master" and auto_build == "y" or auto_build == "yes"
 
 - name: Find out Playbook path
   shell: "pwd"
