@@ -16,18 +16,16 @@ DOCKER_REPO ?= $(DOCKER_STAGE_REPO)
 DOCKER_IMAGE ?= middlewarehouse
 DOCKER_TAG ?= master
 
-prep:
+prepare:
 	rm $(BUILD_ROOT_PATH) || true
 	mkdir -p $(GOPATH)/src/github.com/FoxComm
 	ln -s $(HIGHLANDER_PATH) $(BUILD_ROOT_PATH) || true
-
-glide: prep
 	cd $(BUILD_PATH) && glide install
-	rm -rf $(BUILD_PATH)/vendor/github.com/FoxComm/highlander
+	rm -rf $(BUILD_PATH)/vendor/github.com/FoxComm/highlander 
 
 build:
 	$(call header, Building)
-	make glide
+	make prepare
 	cd $(BUILD_PATH) && go build -o middlewarehouse main.go
 	cd $(BUILD_PATH) && go build -o consumers/shipments/shipments-consumer consumers/shipments/*.go
 	cd $(BUILD_PATH) && go build -o consumers/stock-items/stock-items-consumer consumers/stock-items/*.go
@@ -38,13 +36,13 @@ build:
 
 docker:
 	$(call header, Dockerizing)
-	docker build -t $(DOCKER_IMAGE) .
-	docker build -t stock-items-consumer consumers/stock-items/
-	docker build -t shipments-consumer consumers/shipments/
-	docker build -t capture-consumer consumers/capture/
-	docker build -t shipstation-consumer consumers/shipstation/
-	docker build -t middlewarehouse-seeder common/db/seeds/
-	docker build -t gift-card-consumer consumers/gift-cards/
+	cd $(BUILD_PATH) && docker build -t $(DOCKER_IMAGE) .
+	cd $(BUILD_PATH) && docker build -t stock-items-consumer -f consumers/stock-items/Dockerfile .
+	cd $(BUILD_PATH) && docker build -t shipments-consumer -f consumers/shipments/Dockerfile .
+	cd $(BUILD_PATH) && docker build -t capture-consumer -f consumers/capture/Dockerfile .
+	cd $(BUILD_PATH) && docker build -t shipstation-consumer -f consumers/shipstation/Dockerfile .
+	cd $(BUILD_PATH) && docker build -t middlewarehouse-seeder -f common/db/seeds/Dockerfile .
+	cd $(BUILD_PATH) && docker build -t gift-card-consumer -f consumers/gift-cards/Dockerfile .
 
 docker-push:
 	$(call header, Registering)
@@ -98,7 +96,8 @@ create-user:
 
 test:
 	$(call header, Testing)
-	make glide
+	make prepare
 	make reset-test
 	# -p 1 serves to run tests sequentially, as it is required for non-isolated database tests
 	cd $(BUILD_PATH) && GOENV=test go test -p 1 `glide nv`
+
