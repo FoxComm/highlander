@@ -1,7 +1,7 @@
 ---
 
 - name: Find out current Git Branch
-  shell: "git branch | sed -n '/\* /s///p'"
+  shell: "git rev-parse --abbrev-ref HEAD"
   register: git_branch_out
   when: branch_name != "master" and auto_build == "y" or auto_build == "yes"
 
