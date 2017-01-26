@@ -48,7 +48,7 @@ func buildResponse(pf responses.HenhouseResponse) string {
 	pdpViews := responses.GetSum("pdp", pf)
 	cartClicks := responses.GetSum("cart", pf)
 	checkoutClicks := responses.GetSum("checkout", pf)
-	purchases := responses.GetSum("purchase", pf)
+	purchases := responses.GetSum("purchase-quantity", pf)
 	var searchToPdp, pdpToCart, cartToCheckout, checkoutPurchased float64
 	if searchToPdp = 0.0; searchViews > 0.0 {
 		searchToPdp = float64(pdpViews) / float64(searchViews)
