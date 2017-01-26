@@ -1,26 +1,69 @@
 package testutils
 
-import scala.concurrent.Future
 import akka.http.scaladsl.model.headers.HttpChallenge
 import akka.http.scaladsl.server.Directive1
 import akka.http.scaladsl.server.directives.AuthenticationResult
 import akka.http.scaladsl.server.directives.BasicDirectives.provide
-import akka.http.scaladsl.server.directives.SecurityDirectives._
-
+import akka.http.scaladsl.server.directives.SecurityDirectives.AuthenticationResult
 import models.account._
 import models.auth.UserToken
 import org.scalatest.SuiteMixin
-import org.scalatest.concurrent.ScalaFutures
 import services.Authenticator.{AuthData, UserAuthenticator}
+import utils.aliases.{DB, EC}
+import utils.db.{*, _}
 import utils.seeds.Seeds.Factories
+
+import scala.concurrent.Future
 
 abstract class FakeAuth extends UserAuthenticator {
   type C = String
   def readCredentials(): Directive1[Option[String]] = provide(Some("ok"))
 }
 
-abstract class NoAuth extends UserAuthenticator {
-  def readCredentials(): Directive1[Option[String]] = provide(None)
+case class VariableAuth(var admin: Option[User],
+                        var customer: Option[User],
+                        guestAuthenticator: UserAuthenticator)(implicit ex: EC)
+    extends UserAuthenticator {
+
+  def readCredentials(): Directive1[Option[String]] = {
+    provide(customer.map(_ ⇒ "ok"))
+  }
+
+  def checkAuthUser(creds: Option[String]): Future[AuthenticationResult[AuthData[User]]] = {
+    admin match {
+      case Some(a) ⇒
+        AuthAs(a, a).checkAuthUser(creds)
+      case None ⇒
+        val check = guestAuthenticator.checkAuthUser(creds)
+        for {
+          result ← * <~ check
+          user   ← * <~ result.fold(_ ⇒ None, d ⇒ Some(d.model))
+        } yield {
+          admin = user
+        }
+
+        check
+    }
+
+  }
+
+  def checkAuthCustomer(creds: Option[String]): Future[AuthenticationResult[AuthData[User]]] = {
+    customer match {
+      case Some(c) ⇒
+        AuthAs(c, c).checkAuthCustomer(creds)
+      case None ⇒
+        val authCustomer = guestAuthenticator.checkAuthCustomer(creds)
+        for {
+          result ← * <~ authCustomer
+          user   ← * <~ result.fold(_ ⇒ None, d ⇒ Some(d.model))
+        } yield {
+          customer = user
+        }
+
+        authCustomer
+    }
+
+  }
 }
 
 case class AuthAs(admin: User, customer: User) extends FakeAuth {

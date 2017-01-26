@@ -41,24 +41,33 @@ class AuthIntegrationTest
       CustomerManager.createGuest(createContext)
     }
 
-    "should create customer and get logged in" in new Customer_Seed {
-      publicApi.doLogin(payload).mustFailWith400(LoginFailed)
-      create("test".some)
-
+    def checkAcc() = {
       val myAccount = myApi.myAccount()
       myAccount.mustBeOk()
       info(myAccount.entity.toString)
-
-      myApi.patchAccount(UpdateCustomerPayload(email = payload.email.some)).mustBeOk()
-      publicApi.doLogin(payload).mustBeOk()
     }
 
-    "should create guest with same email" in new Customer_Seed {
-      create("test".some)
-      publicApi.doLogin(payload).mustBeOk()
-      create("test".some, isGuest = true.some)
-      publicApi.doLogin(payload).mustBeOk()
+    "should create customer and get logged in" in {
+      normalAuth()
+      myApi.myCart().mustBeOk()
+      checkAcc()
+
+      noAuth()
+      checkAcc()
+
+      myApi.patchAccount(UpdateCustomerPayload(email = "guest@gmail.com".some)).mustBeOk()
+      checkAcc()
+
+//      info("do login")
+//      publicApi.doLogin(payload).mustBeOk()
     }
+
+//    "should create guest with same email" in new Customer_Seed {
+//      create("test".some)
+//      publicApi.doLogin(payload).mustBeOk()
+//      create("test".some, isGuest = true.some)
+//      publicApi.doLogin(payload).mustBeOk()
+//    }
 
   }
 

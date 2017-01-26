@@ -2,16 +2,13 @@ package testutils
 
 import java.net.ServerSocket
 
-import scala.collection.immutable
-import scala.concurrent.Await
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration._
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl.client.RequestBuilding.Get
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Route
+import akka.http.scaladsl.server.directives.BasicDirectives.provide
 import akka.http.scaladsl.settings.ConnectionPoolSettings
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.ActorMaterializer
@@ -19,19 +16,26 @@ import akka.stream.scaladsl.{Flow, Sink, Source}
 import akka.stream.testkit.TestSubscriber.Probe
 import akka.stream.testkit.scaladsl.TestSink
 import akka.util.ByteString
-
 import com.typesafe.config.ConfigFactory
 import de.heikoseeberger.akkasse.EventStreamUnmarshalling._
 import de.heikoseeberger.akkasse.ServerSentEvent
+import models.account.User
 import org.json4s.Formats
 import org.json4s.jackson.Serialization.{write ⇒ writeJson}
 import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
 import server.Service
+import services.Authenticator
 import services.Authenticator.UserAuthenticator
+import services.account.AccountCreateContext
 import utils.apis.Apis
 import utils.seeds.Seeds.Factories
 import utils.{FoxConfig, JsonFormatters}
+
+import scala.collection.immutable
+import scala.concurrent.Await
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
 
 // TODO: Move away from root package when `Service' moverd
 object HttpSupport {
@@ -75,8 +79,8 @@ trait HttpSupport
     service = makeService
 
     serverBinding = service.bind(ConfigFactory.parseString(s"""
-           |http.interface = 127.0.0.1
-           |http.port      = $getFreePort
+         |http.interface = 127.0.0.1
+         |http.port      = $getFreePort
         """.stripMargin)).futureValue
   }
 
@@ -90,16 +94,30 @@ trait HttpSupport
 
   private def actorSystemConfig =
     ConfigFactory.parseString("""
-      |akka {
-      |  log-dead-letters = off
-      |}
-    """.stripMargin).withFallback(ConfigFactory.load())
+        |akka {
+        |  log-dead-letters = off
+        |}
+      """.stripMargin).withFallback(ConfigFactory.load())
 
-  val adminUser    = Factories.storeAdmin.copy(id = 1, accountId = 1)
-  val customerData = Factories.customer.copy(id = 2, accountId = 2)
+  var adminUser: Option[User]    = _
+  var customerData: Option[User] = _
 
-  def overrideUserAuth: UserAuthenticator =
-    AuthAs(adminUser, customerData)
+  noAuth()
+  def overrideUserAuth: UserAuthenticator = {
+    val customerCreateContext = AccountCreateContext(List("customer"), "merchant", 2)
+    val guestAuthenticator    = Authenticator.forUser(customerCreateContext)
+    VariableAuth(adminUser, customerData, guestAuthenticator)
+  }
+
+  def normalAuth() = {
+    adminUser = Some(Factories.storeAdmin.copy(id = 1, accountId = 1))
+    customerData = Some(Factories.customer.copy(id = 2, accountId = 2))
+  }
+
+  def noAuth() = {
+    adminUser = Some(Factories.storeAdmin.copy(id = 1, accountId = 1))
+    customerData = None
+  }
 
   implicit val env = FoxConfig.Test
 
@@ -228,4 +246,5 @@ trait HttpSupport
     def probe(source: Source[String, Any]): Probe[String] =
       source.runWith(TestSink.probe[String])
   }
+
 }
