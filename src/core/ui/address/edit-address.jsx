@@ -4,13 +4,14 @@ import _ from 'lodash';
 import React, { Component } from 'react';
 import { autobind, debounce } from 'core-decorators';
 import { connect } from 'react-redux';
+import { createNumberMask } from 'lib/i18n/field-masks';
 
 // localization
 import localized, { phoneMask } from 'lib/i18n';
 import type { Localized } from 'lib/i18n';
 
 // components
-import InputMask from 'react-input-mask';
+import MaskedInput from 'react-text-mask';
 import { TextInput } from '../inputs';
 import { FormField } from 'ui/forms';
 import Select from 'ui/select/select';
@@ -166,12 +167,15 @@ export default class EditAddress extends Component {
 
     if (this.countryCode === 'USA') {
       const onChange = ({ target: { value }}) => this.handlePhoneChange(value);
+      const mask = createNumberMask(phoneMask());
+
       input = (
-        <InputMask
+        <MaskedInput
           {...inputAttributes}
           onChange={onChange}
-          mask={phoneMask(this.countryCode)}
+          mask={mask}
           styleName="text-input"
+          placeholderChar={'\u2000'}
         />
       );
     } else {
