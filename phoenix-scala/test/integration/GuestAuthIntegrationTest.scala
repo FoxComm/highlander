@@ -17,12 +17,12 @@ class GuestAuthIntegrationTest
     with PhoenixAdminApi
     with PhoenixMyApi
     with PhoenixPublicApi
-    with BakedFixtures {
+    with BakedFixtures
+    with AccountContext {
 
   "POST /v1/my/" - {
-    val createContext = AccountCreateContext(List("customer"), "merchant", 2)
-    val payload       = LoginPayload("test@example.com", "letmein", "merchant")
-    val customer      = CreateCustomerPayload(email = payload.email, password = payload.password.some)
+    val payload  = LoginPayload("test@example.com", "letmein", "merchant")
+    val customer = CreateCustomerPayload(email = payload.email, password = payload.password.some)
 
     "should create customer" in new Guest_Seed {
       publicApi.doLogin(payload).mustFailWith400(LoginFailed)
@@ -58,8 +58,7 @@ class GuestAuthIntegrationTest
 
   // acting as a guest
   override def overrideUserAuth: UserAuthenticator = {
-    val customerCreateContext = AccountCreateContext(List("customer"), "merchant", 2)
-    Authenticator.forUser(customerCreateContext)
+    Authenticator.forUser(customerContext)
   }
 
 }

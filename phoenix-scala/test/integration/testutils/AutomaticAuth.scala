@@ -11,6 +11,7 @@ import org.scalatest.SuiteMixin
 import services.Authenticator
 import services.Authenticator.{AuthData, UserAuthenticator}
 import services.account.AccountCreateContext
+import testutils.fixtures.AccountContext
 import utils.aliases.{DB, EC}
 import utils.db.{*, _}
 import utils.seeds.Seeds.Factories
@@ -24,10 +25,10 @@ abstract class FakeAuth extends UserAuthenticator {
 
 case class VariableAuth(var admin: Option[User], var customer: Option[User])(implicit ex: EC,
                                                                              db: DB)
-    extends UserAuthenticator {
+    extends UserAuthenticator
+    with AccountContext {
 
-  private val customerCreateContext = AccountCreateContext(List("customer"), "merchant", 2)
-  private val guestAuthenticator    = Authenticator.forUser(customerCreateContext)
+  private val guestAuthenticator = Authenticator.forUser(customerContext)
 
   def readCredentials(): Directive1[Option[String]] = {
     provide(customer.map(_ ⇒ "ok"))

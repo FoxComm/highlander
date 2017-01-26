@@ -1,10 +1,7 @@
 import cats.implicits._
-import failures.AuthFailures.LoginFailed
-import models.account.User
 import payloads.CustomerPayloads.{CreateCustomerPayload, UpdateCustomerPayload}
 import payloads.LoginPayload
 import responses.CustomerResponse.Root
-import services.account.AccountCreateContext
 import services.customers.CustomerManager
 import testutils.apis.{PhoenixAdminApi, PhoenixMyApi, PhoenixPublicApi}
 import testutils.fixtures._
@@ -18,13 +15,13 @@ class AuthIntegrationTest
     with PhoenixPublicApi
     with TestActivityContext.AdminAC
     with BakedFixtures
-    with CustomerSeeds {
+    with CustomerSeeds
+    with AccountContext {
 
   "POST /v1/public/login" - {
     // todo get org from seeds or context?
-    val createContext = AccountCreateContext(List("customer"), "merchant", 2)
-    val payload       = LoginPayload("test@example.com", "letmein", "merchant")
-    val customer      = CreateCustomerPayload(email = payload.email, password = payload.password.some)
+    val payload  = LoginPayload("test@example.com", "letmein", "merchant")
+    val customer = CreateCustomerPayload(email = payload.email, password = payload.password.some)
 
     def create(name: Option[String], isGuest: Option[Boolean] = None) = {
       val root = customersApi
@@ -37,11 +34,11 @@ class AuthIntegrationTest
     }
 
     def createCustomer() = {
-      CustomerManager.createFromAdmin(payload = customer, context = createContext)
+      CustomerManager.createFromAdmin(payload = customer, context = customerContext)
     }
 
     def createGuest() = {
-      CustomerManager.createGuest(createContext)
+      CustomerManager.createGuest(customerContext)
     }
 
     def checkAcc() = {
@@ -71,12 +68,12 @@ class AuthIntegrationTest
       publicApi.doLogin(payload).mustBeOk()
     }
 
-//    "should create guest with same email" in new Customer_Seed {
-//      create("test".some)
-//      publicApi.doLogin(payload).mustBeOk()
-//      create("test".some, isGuest = true.some)
-//      publicApi.doLogin(payload).mustBeOk()
-//    }
+    //    "should create guest with same email" in new Customer_Seed {
+    //      create("test".some)
+    //      publicApi.doLogin(payload).mustBeOk()
+    //      create("test".some, isGuest = true.some)
+    //      publicApi.doLogin(payload).mustBeOk()
+    //    }
 
   }
 
