@@ -13,6 +13,8 @@
 
 - name: Build and Dockerize Application
   shell: "GOOS=linux make build && make docker && DOCKER_TAG={{tag_name}} docker-push"
+  args:
+    chdir: "{{highlander_path_out.stdout}}/{{app_name}}"
   when: auto_build == "y" or auto_build == "yes"
 
 - name: Find out Playbook path
