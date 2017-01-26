@@ -7,10 +7,10 @@
   template: src=middlewarehouse.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
 
 - name: Update Middlewarehouse in Marathon
-  shell: 'curl -X PUT -d@/marathon/applications/middlewarehouse.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/middlewarehouse'
+  shell: 'curl -sS -XPUT -d@/marathon/applications/middlewarehouse.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/middlewarehouse'
 
 - name: Restart Middlewarehouse in Marathon
-  shell: 'curl -X POST http://{{marathon_server}}/v2/apps/middlewarehouse/restart'
+  shell: 'curl -sS -XPOST http://{{marathon_server}}/v2/apps/middlewarehouse/restart'
 
 - name: Get Middlewarehouse Marathon tasks in `healthy` state
   shell: curl -sS -XGET http://{{marathon_server}}/v2/apps/middlewarehouse | jq '.app.tasksHealthy > 0'

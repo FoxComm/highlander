@@ -1,0 +1,28 @@
+---
+
+- name: Update Application Docker Tag in Developer Appliance
+  hosts: localhost
+  connection: local
+  vars:
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+    marathon_server: "{{instance_ip}}:8080"
+  vars_prompt:
+    - name: "instance_ip"
+      prompt: "Enter your appliance IP"
+      default: "10.240.0.x"
+      private: no
+    - name: "app_name"
+      prompt: "Enter Highlander sub-project to re-deploy"
+      default: "middlewarehouse"
+      private: no
+    - name: "tag_name"
+      prompt: "Enter Docker tag to be deployed"
+      default: "master"
+      private: no
+    - name: "build_and_push"
+      prompt: "Should we build and push a tag (y/n)?"
+      default: "n"
+      private: no
+
+  roles:
+    - { role: dev/update_app }
