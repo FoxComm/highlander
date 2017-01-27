@@ -15,7 +15,7 @@ import TrendButton, { TrendType } from './trend-button';
 import StaticColumnSelector from './static-column-selector';
 import { Dropdown } from '../dropdown';
 import ProductConversionChart from './charts/product-conversion-chart';
-import TotalRevenueChart from './charts/total-revenue-chart';
+import TotalRevenueChart, { ChartSegmentType } from './charts/total-revenue-chart';
 import SegmentControlList from './segment-control-list';
 import { Props as SegmentControlType } from './segment-control';
 
@@ -65,6 +65,12 @@ const datePickerOptions = [
   { id: datePickerType.Last90, displayText: 'Last 90 Days'},
 ];
 const datePickerFormat = 'MM/DD/YYYY';
+const unixTimes = {
+  hour: 7200,
+  day: 86400,
+  week: 604800,
+  month: 2628000, // 1 month is about 730 hours
+};
 
 @connect((state, props) => ({analytics: state.analytics}), AnalyticsActions)
 export default class Analytics extends React.Component {
@@ -202,16 +208,17 @@ export default class Analytics extends React.Component {
 
   @autobind
   onQuestionBoxSelect(question) {
-    const { segments } = this.props;
+    const { segments, entity } = this.props;
+    const { dateRangeBegin, dateRangeEnd } = this.state;
 
     switch(question.title) {
       case questionTitles.ProductConversionRate:
         this.setState({question: question});
-        this.props.fetchProductConversion(this.props.entity.entityId);
+        this.props.fetchProductConversion(entity.entityId);
         break;
       case questionTitles.TotalRevenue:
         this.setState({question: question, segment: _.head(segments)});
-        this.props.fetchProductTotalRevenue();
+        this.props.fetchProductTotalRevenue(dateRangeBegin, dateRangeEnd, entity.entityId, unixTimes.hour);
         break;
     }
   }
@@ -223,39 +230,40 @@ export default class Analytics extends React.Component {
 
   @autobind
   setQuestionBoxesFromStats(questionBoxes, stats) {
-    const avgName = 'Average';
 
     if (!_.isEmpty(stats)) {
       _.map(questionBoxes, (qb) => {
-        switch(qb.title) {
+        const productValue = stats[qb.id];
+        const avgValue = stats[`Average${qb.id}`];
+
+        let trendValue = null;
+        let trend = TrendType.steady;
+
+        if (avgValue === 0) {
+          trendValue = 0;
+        } else {
+          trendValue = _.round(((productValue - avgValue) / avgValue) * 100, 0);
+          trend = (trendValue > 0) ? TrendType.gain : TrendType.loss;
+        }
+
+        qb.footer = (
+          <TrendButton
+            trendType={trend}
+            value={Math.abs(trendValue)}
+            />
+        );
+
+        switch (qb.title) {
           case questionTitles.TotalRevenue:
-            const value = stats[qb.id].toString();
-            qb.content = <Currency value={value} />;
+            qb.content = <Currency value={productValue.toString()} />;
             break;
           case questionTitles.TotalOrders:
           case questionTitles.AverageNumberPerOrder:
           case questionTitles.TotalInCarts:
-            const productValue = stats[qb.id];
-            const avgValue = stats[`${avgName}${qb.id}`];
-
-            let trendValue = null;
-            let trend = TrendType.steady
-
-            if (avgValue === 0) {
-              trendValue = 0;
-            } else {
-              trendValue = _.round(((productValue - avgValue) / avgValue) * 100, 0);
-              trend = (trendValue > 0) ? TrendType.gain : TrendType.loss;
-            }
-
-            qb.footer = <TrendButton
-              trendType={trend}
-              value={`${Math.abs(trendValue)}`}
-              />;
             qb.content = productValue.toString();
             break;
           case questionTitles.ProductConversionRate:
-            qb.content = `${stats[qb.id]}%`;
+            qb.content = `${_.round(productValue, 2)}%`;
             break;
         }
       });
@@ -293,7 +301,12 @@ export default class Analytics extends React.Component {
                 onSelect={this.onSegmentControlSelect}
                 activeSegment={this.segment}
                 />
-              <TotalRevenueChart jsonData={{}} debugMode={true}/>
+              <TotalRevenueChart
+                jsonData={analytics.chartValues} 
+                queryKey={analytics.keys}
+                segmentType={ChartSegmentType.Day}
+                debugMode={false}
+                />
             </div>
           );
         default:
