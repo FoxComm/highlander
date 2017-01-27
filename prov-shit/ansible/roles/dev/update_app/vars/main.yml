@@ -43,6 +43,33 @@ app_template_paths:
 app_marathon_names:
     firebrand: storefront
 
+# Custom `make build` targets
+app_build_targets:
+    middlewarehouse: make prepare && make build-middlewarehouse
+    capture-consumer: make prepare && make build-capture-consumer
+    gift-card-consumer: make prepare && make build-gift-card-consumer
+    shipments-consumer: make prepare && make build-shipments-consumer
+    shipstation: make prepare && make build-shipstation-consumer
+    stock-items-consumer: make prepare && make build-stock-items-consumer
+
+# Custom `make docker` targets
+app_docker_targets:
+    middlewarehouse: make docker-middlewarehouse
+    capture-consumer: make docker-capture-consumer
+    gift-card-consumer: make docker-gift-card-consumer
+    shipments-consumer: make docker-shipments-consumer
+    shipstation: make docker-shipstation-consumer
+    stock-items-consumer: make docker-stock-items-consumer
+
+# Custom `make docker-push` targets
+app_push_targets:
+    middlewarehouse: make push-middlewarehouse
+    capture-consumer: make push-capture-consumer
+    gift-card-consumer: make push-gift-card-consumer
+    shipments-consumer: make push-shipments-consumer
+    shipstation: make push-shipstation-consumer
+    stock-items-consumer: make push-stock-items-consumer
+
 # Override default Docker tags
 docker_tags:
     ashes: "{{tag_name}}"

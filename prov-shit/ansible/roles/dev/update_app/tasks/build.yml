@@ -10,19 +10,19 @@
     chdir: "{{highlander_path_out.stdout}}/{{app_name}}"
 
 - name: Build Application
-  shell: "make build"
+  shell: "{{app_build_target}}"
   environment:
     GOOS: linux
   args:
     chdir: "{{app_path}}"
 
 - name: Dockerize Application
-  shell: "make docker"
+  shell: "{{app_docker_target}}"
   args:
     chdir: "{{app_path}}"
 
 - name: Push Application to Registry
-  shell: "make docker-push"
+  shell: "{{app_push_target}}"
   environment:
     DOCKER_TAG: "{{tag_name}}"
   args:

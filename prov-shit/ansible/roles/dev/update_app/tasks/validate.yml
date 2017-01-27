@@ -44,20 +44,34 @@
     app_template_path: "{{highlander_path_out.stdout}}/{{app_template_paths[app_name]}}"
   when: app_template_paths.has_key(app_name)
 
-- name: Set Default Marathon App Name
-  set_fact:
-    app_name_marathon: "{{app_name}}"
-
 - name: Override Marathon App Name
   set_fact:
     app_name_marathon: "{{app_marathon_names[app_name]}}"
   when: app_marathon_names.has_key(app_name)
 
+- name: Override Build Command
+  set_fact:
+    app_build_target: "{{app_build_targets[app_name]}}"
+  when: app_build_targets.has_key(app_name)
+
+- name: Override Docker Build Command
+  set_fact:
+    app_docker_target: "{{app_docker_targets[app_name]}}"
+  when: app_docker_targets.has_key(app_name)
+
+- name: Override Docker Push Command
+  set_fact:
+    app_push_target: "{{app_push_targets[app_name]}}"
+  when: app_push_targets.has_key(app_name)
+
 - name: Debug Message
   debug:
     msg:
-        - Instance IP is {{instance_ip}}
-        - Canonical app name is {{app_name}}
-        - Marathon app name is {{app_name_marathon}}
-        - Application path is {{app_path}}
-        - Application template path is {{app_template_path}}
+        - "Instance IP: {{instance_ip}}"
+        - "Canonical app name: {{app_name}}"
+        - "Marathon app name: {{app_name_marathon}}"
+        - "Application path: {{app_path}}"
+        - "Application template path: {{app_template_path}}"
+        - "Build target: {{app_build_target}}"
+        - "Docker build target: {{app_docker_target}}"
+        - "Docker push target: {{app_push_target}}"
