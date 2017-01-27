@@ -81,8 +81,9 @@ const searchTerms = [
 const { reducer, actions } = makeLiveSearch(
   'customers.storeCreditTransactions',
   searchTerms,
-  'store_credit_transactions_view/_search',
+  'store_credit_transactions_search_view/_search',
   'customerStoreCreditTransactionsScope', {
+    initialState: { sortBy: '-createdAt' },
     skipInitialFetch: true
   }
 );
