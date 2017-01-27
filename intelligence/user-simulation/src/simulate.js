@@ -24,8 +24,6 @@ function transition(state, states) {
     });
   }
 
-  console.log("Transition state: " + state + " => " + trans.state);
-
   return trans;
 }
 
@@ -33,7 +31,7 @@ async function simulate(persona) {
 
   var context = {
     page: Nightmare({
-        show: true,
+        show: false,
         webPreferences: {
           partition: 'nopersist'
     }}),
@@ -44,6 +42,8 @@ async function simulate(persona) {
 
   while(context.state) {
       //process state
+      console.log(context.state);
+
       var f = stateFunctions[context.state];
 
       if(_.isNil(f)) {
@@ -63,4 +63,16 @@ async function simulate(persona) {
   console.log("Simulation Complete: " + persona.name);
 }
 
-simulate(personas[0]);
+
+var personaName = process.argv[2];
+var persona = personas[personaName];
+
+if(_.isNil(persona)) {
+  console.log("'" + personaName + "' is not a valid persona, choose one of the following...");
+  var personaNames = _.map(personas, (v, key) => { return key});
+  console.log(personaNames);
+  process.exit(0);
+}
+
+console.log("Processing persona: " + personaName);
+simulate(persona);
