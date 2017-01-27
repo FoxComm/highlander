@@ -57,7 +57,7 @@ class CustomerGroupMembersIntegrationTest
     val scope = LTree("1")
 
     val (group, account1, custData1, account2, custData2, account3, custData3) = (for {
-      group ← * <~ CustomerDynamicGroups.create(Factories.group(scope))
+      group ← * <~ CustomerGroups.create(Factories.group(scope))
 
       account1 ← * <~ Accounts.create(Account())
       user1    ← * <~ Users.create(Factories.customer.copy(accountId = account1.id))

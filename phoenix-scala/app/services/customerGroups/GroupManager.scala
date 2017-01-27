@@ -17,11 +17,11 @@ import utils.time._
 object GroupManager {
 
   def findAll(implicit ec: EC, db: DB): DbResultT[Seq[Root]] =
-    CustomerDynamicGroups.filterActive().result.map(_.map(build)).dbresult
+    CustomerGroups.filterActive().result.map(_.map(build)).dbresult
 
   def getById(groupId: Int)(implicit ec: EC, db: DB): DbResultT[Root] =
     for {
-      group ← * <~ CustomerDynamicGroups.mustFindById404(groupId)
+      group ← * <~ CustomerGroups.mustFindById404(groupId)
     } yield build(group)
 
   def create(payload: CustomerDynamicGroupPayload,
@@ -35,10 +35,10 @@ object GroupManager {
              admin: User)(implicit ec: EC, db: DB, au: AU, ac: AC): DbResultT[Root] =
     for {
       scope ← * <~ Scope.resolveOverride(payload.scope)
-      group ← * <~ CustomerDynamicGroups.mustFindById404(groupId)
+      group ← * <~ CustomerGroups.mustFindById404(groupId)
       _ ← * <~ failIf(group.deletedAt.isDefined && group.deletedAt.get.isBeforeNow,
                       NotFoundFailure404(CustomerDynamicGroup, groupId))
-      groupEdited ← * <~ CustomerDynamicGroups.update(
+      groupEdited ← * <~ CustomerGroups.update(
                        group,
                        CustomerDynamicGroup
                          .fromPayloadAndAdmin(payload, group.createdBy, scope)
@@ -49,8 +49,8 @@ object GroupManager {
   def delete(groupId: Int, admin: User)(implicit ec: EC, db: DB, au: AU, ac: AC): DbResultT[Unit] =
     for {
       scope             ← * <~ Scope.current
-      group             ← * <~ CustomerDynamicGroups.mustFindById404(groupId)
-      _                 ← * <~ CustomerDynamicGroups.update(group, group.copy(deletedAt = Option(Instant.now)))
+      group             ← * <~ CustomerGroups.mustFindById404(groupId)
+      _                 ← * <~ CustomerGroups.update(group, group.copy(deletedAt = Option(Instant.now)))
       templateInstances ← * <~ GroupTemplateInstances.findByScopeAndGroupId(scope, group.id).result
       _ ← * <~ templateInstances.map { template ⇒
            GroupTemplateInstances.update(template, template.copy(deletedAt = Option(Instant.now)))
@@ -69,7 +69,7 @@ object GroupManager {
                            admin: User)(implicit ec: EC, db: DB, au: AU, ac: AC): DbResultT[Root] =
     for {
       scope ← * <~ Scope.resolveOverride(payload.scope)
-      group ← * <~ CustomerDynamicGroups.create(
+      group ← * <~ CustomerGroups.create(
                  CustomerDynamicGroup.fromPayloadAndAdmin(payload, admin.accountId, scope))
       _ ← * <~ LogActivity.customerGroupCreated(group, admin)
     } yield build(group)
@@ -81,7 +81,7 @@ object GroupManager {
     for {
       scope    ← * <~ Scope.resolveOverride(payload.scope)
       template ← * <~ CustomerGroupTemplates.mustFindById404(templateId)
-      group ← * <~ CustomerDynamicGroups.create(
+      group ← * <~ CustomerGroups.create(
                  CustomerDynamicGroup.fromPayloadAndAdmin(payload, admin.accountId, scope))
       _ ← * <~ GroupTemplateInstances.create(
              GroupTemplateInstance(groupId = group.id,

@@ -16,7 +16,7 @@ import models.sharedsearch.SharedSearch
 import models.shipping.ShippingMethod
 import models.Note
 import models.account.User
-import models.customer.CustomerDynamicGroup
+import models.customer.CustomerGroup
 import payloads.GiftCardPayloads.GiftCardUpdateStateByCsr
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.StoreCreditPayloads.StoreCreditUpdateStateByCsr
@@ -551,15 +551,15 @@ object LogActivity {
     Activities.log(StoreAdminStateChanged(entity, oldState, newState, admin))
 
   /* Customer Groups */
-  def customerGroupCreated(customerGroup: CustomerDynamicGroup,
+  def customerGroupCreated(customerGroup: CustomerGroup,
                            admin: User)(implicit ec: EC, ac: AC): DbResultT[Activity] =
     Activities.log(CustomerGroupCreated(customerGroup, admin))
 
-  def customerGroupUpdated(customerGroup: CustomerDynamicGroup,
+  def customerGroupUpdated(customerGroup: CustomerGroup,
                            admin: User)(implicit ec: EC, ac: AC): DbResultT[Activity] =
     Activities.log(CustomerGroupUpdated(customerGroup, admin))
 
-  def customerGroupArchived(customerGroup: CustomerDynamicGroup,
+  def customerGroupArchived(customerGroup: CustomerGroup,
                             admin: User)(implicit ec: EC, ac: AC): DbResultT[Activity] =
     Activities.log(CustomerGroupArchived(customerGroup, admin))
 

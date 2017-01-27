@@ -2,7 +2,7 @@ package responses
 
 import java.time.Instant
 
-import models.customer.CustomerDynamicGroup
+import models.customer.CustomerGroup
 import utils.aliases._
 
 object DynamicGroupResponses {
@@ -20,7 +20,7 @@ object DynamicGroupResponses {
         createdAt: Instant
     ) extends ResponseItem
 
-    def build(group: CustomerDynamicGroup): Root =
+    def build(group: CustomerGroup): Root =
       Root(id = group.id,
            name = group.name,
            clientState = group.clientState,
@@ -33,7 +33,7 @@ object DynamicGroupResponses {
   object CustomerGroupResponse {
     case class Root(id: Int = 0, name: String, `type`: String = "dynamic")
 
-    def build(group: CustomerDynamicGroup): Root =
+    def build(group: CustomerGroup): Root =
       Root(id = group.id, name = group.name)
   }
 

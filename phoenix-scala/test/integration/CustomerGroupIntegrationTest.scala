@@ -28,7 +28,7 @@ class CustomerGroupIntegrationTest
                                                 elasticRequest = JObject(),
                                                 customersCount = 1)
       val root    = customerGroupsApi.create(payload).as[Root]
-      val created = CustomerDynamicGroups.mustFindById400(root.id).gimme
+      val created = CustomerGroups.mustFindById400(root.id).gimme
       created.id must === (root.id)
     }
 
@@ -42,7 +42,7 @@ class CustomerGroupIntegrationTest
                                                 scope = Some(scopeN))
 
       val root    = customerGroupsApi.create(payload).as[Root]
-      val created = CustomerDynamicGroups.mustFindById400(root.id).gimme
+      val created = CustomerGroups.mustFindById400(root.id).gimme
       created.id must === (root.id)
       val templateLink = GroupTemplateInstances
         .filter(_.groupId === root.id)
@@ -103,7 +103,7 @@ class CustomerGroupIntegrationTest
       customerGroupsApi(group.id).delete.mustBeEmpty()
 
       withClue(s"Customer group with id ${group.id} exists:") {
-        CustomerDynamicGroups
+        CustomerGroups
           .filter(_.id === group.id)
           .filter(_.deletedAt.isEmpty)
           .gimme
@@ -126,7 +126,7 @@ class CustomerGroupIntegrationTest
   }
 
   trait Fixture extends StoreAdmin_Seed {
-    val group = CustomerDynamicGroups
+    val group = CustomerGroups
       .create(Factories.group(LTree("1")).copy(createdBy = storeAdmin.accountId))
       .gimme
 

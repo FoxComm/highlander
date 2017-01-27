@@ -14,7 +14,7 @@ object GroupMemberManager {
   def sync(groupId: Int, payload: CustomerGroupMemberSyncPayload)(implicit ec: EC,
                                                                   db: DB): DbResultT[Unit] =
     for {
-      group          ← * <~ CustomerDynamicGroups.mustFindById404(groupId)
+      group          ← * <~ CustomerGroups.mustFindById404(groupId)
       currentMembers ← * <~ CustomerGroupMembers.findByGroupId(group.id).result
       dataIds = currentMembers.map(_.customerDataId).toSet
       currentMemberData ← * <~ CustomersData.findAllByIds(dataIds).result

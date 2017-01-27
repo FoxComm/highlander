@@ -70,7 +70,7 @@ object CustomerManager {
                                     None)
       groupMembership ← * <~ CustomerGroupMembers.findByCustomerDataId(customerData.id).result
       groupIds = groupMembership.map(_.groupId).toSet
-      groups ← * <~ CustomerDynamicGroups.findAllByIds(groupIds).result
+      groups ← * <~ CustomerGroups.findAllByIds(groupIds).result
     } yield
       build(customer.copy(phoneNumber = customer.phoneNumber.orElse(phoneOverride)),
             customerData,
@@ -79,7 +79,7 @@ object CustomerManager {
             rank = rank,
             scTotals = totals,
             lastOrderDays = maxOrdersDate.map(DAYS.between(_, Instant.now)),
-            groups = groups.map(CustomerGroupResponse.build(_)))
+            groups = groups.map(CustomerGroupResponse.build))
   }
 
   def create(payload: CreateCustomerPayload,
