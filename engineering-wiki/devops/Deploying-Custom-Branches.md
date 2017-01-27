@@ -37,12 +37,12 @@ Run this from the root of Highlander:
 
 The script will prompt you for various info:
 
-1. Your appliance **IP address**. To be replaced by Goldrush statefile.
-2. A **name of Highlander sub-project** to re-deploy. Supported values (for now):
+1. A **name of Highlander sub-project** to re-deploy. Supported values (for now):
     * `ashes`, `firebrand`, `middlewarehouse`, `messaging`, `isaac`, `solomon`
-3. A **name of a branch / tag** to re-deploy.
-4. Whether script should automatically checkout specified branch and try to build, dockerize and push it to repo? Notes:
+2. A **name of a branch / tag** to re-deploy.
+3. Whether script should automatically checkout specified branch and try to build, dockerize and push it to repo? Notes:
     * Default value is `no`.
     * If you've set `yes`, you shouldn't have uncommited files in your current repository state.
     * If you've set `master` branch, build phase will be skipped to avoid accidental overwrites.
     * Docker doesn't support slashes in tag names, so `feature/awesome` branch will be converted to `feature-awesome` tag.
+4. Optional override of your appliance **IP address**. By default it's being read from `goldrush.state` file created during `make up`.

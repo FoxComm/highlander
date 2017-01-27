@@ -1,0 +1,17 @@
+---
+
+- name: Find out Highlander path
+  shell: "dirname $(dirname $(pwd))"
+  register: highlander_path_out
+
+- name: Check Goldrush Statefile Existence
+  stat: path="{{highlander_path_out.stdout}}/goldrush.state"
+  register: statefile
+
+- name: Set Instance IP value from Statefile
+  set_fact:
+    instance_ip: "{{ lookup('file', highlander_path_out.stdout+'/goldrush.state') }}"
+  when: statefile.stat.exists == True
+
+- debug: msg="Defined instance IP is {{instance_ip}}"
+

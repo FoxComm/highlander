@@ -1,36 +1,11 @@
 ---
 
-- include: build.yml
-  when: branch_name != "master" and auto_build == "y" or auto_build == "yes"
+- include: validate.yml
 
-- name: Find out Playbook path
-  shell: "pwd"
-  register: playbook_path_out
+# - include: build.yml
+#   when: branch_name != "master" and auto_build == "y" or auto_build == "yes"
 
-- name: Copy Application Marathon JSON
-  template: src={{playbook_path_out.stdout}}/roles/dev/{{app_name}}/templates/{{app_name}}.json dest=/tmp
+# - include: deploy.yml
 
-- name: Delete Application in Marathon
-  shell: 'curl -sS -XDELETE http://{{marathon_server}}/v2/apps/{{app_name}}'
-
-- name: Create Application in Marathon
-  shell: 'curl -sS -XPOST -d@/tmp/{{app_name}}.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps?force=true'
-
-- name: Pause for 15 seconds
-  pause: seconds=15
-
-- name: Get Application Marathon tasks in `healthy` state
-  shell: curl -sS -XGET http://{{marathon_server}}/v2/apps/{{app_name}} | jq '.app.tasksHealthy > 0'
-  register: healthy_tasks_available
-  until: healthy_tasks_available.stdout == 'true'
-  retries: "{{marathon_retries}}"
-  delay: "{{marathon_delay}}"
-
-- name: Cleanup
-  file: path=/tmp/{{app_name}}.json state=absent
-
-- name: Checkout Branch You Were On
-  shell: "git checkout {{git_branch_out.stdout}}"
-  args:
-    chdir: "{{highlander_path_out.stdout}}"
-  when: branch_name != "master" and auto_build == "y" or auto_build == "yes"
+# - include: build_after.yml
+#   when: branch_name != "master" and auto_build == "y" or auto_build == "yes"

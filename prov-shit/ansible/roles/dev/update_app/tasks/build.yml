@@ -4,10 +4,6 @@
   shell: "git rev-parse --abbrev-ref HEAD"
   register: git_branch_out
 
-- name: Find out Highlander path
-  shell: "dirname $(dirname $(pwd))"
-  register: highlander_path_out
-
 - name: Checkout Specified Branch
   shell: "git checkout {{branch_name}}"
   args:

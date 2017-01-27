@@ -7,10 +7,6 @@
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
     marathon_server: "{{instance_ip}}:8080"
   vars_prompt:
-    - name: "instance_ip"
-      prompt: "Enter your appliance IP"
-      default: "10.240.0.x"
-      private: no
     - name: "app_name"
       prompt: "Enter Highlander sub-project to re-deploy"
       default: "middlewarehouse"
@@ -22,6 +18,10 @@
     - name: "auto_build"
       prompt: "Automatically build a branch/tag (y/n)?"
       default: "n"
+      private: no
+    - name: "instance_ip"
+      prompt: "Override your appliance IP (optional)"
+      default: "10.240.0.x"
       private: no
 
   roles:
