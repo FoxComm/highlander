@@ -1,37 +1,6 @@
 ---
 
-- name: Find out current Git Branch
-  shell: "git rev-parse --abbrev-ref HEAD"
-  register: git_branch_out
-  when: branch_name != "master" and auto_build == "y" or auto_build == "yes"
-
-- name: Find out Highlander path
-  shell: "dirname $(dirname $(pwd))"
-  register: highlander_path_out
-  when: branch_name != "master" and auto_build == "y" or auto_build == "yes"
-
-- name: Checkout Specified Branch
-  shell: "git checkout {{branch_name}}"
-  args:
-    chdir: "{{highlander_path_out.stdout}}/{{app_name}}"
-  when: branch_name != "master" and auto_build == "y" or auto_build == "yes"
-
-- name: Build Application
-  shell: "GOOS=linux make build"
-  args:
-    chdir: "{{highlander_path_out.stdout}}/{{app_name}}"
-  when: branch_name != "master" and auto_build == "y" or auto_build == "yes"
-
-- name: Dockerize Application
-  shell: "make docker"
-  args:
-    chdir: "{{highlander_path_out.stdout}}/{{app_name}}"
-  when: branch_name != "master" and auto_build == "y" or auto_build == "yes"
-
-- name: Push Application to Registry
-  shell: "DOCKER_TAG={{tag_name}} make docker-push"
-  args:
-    chdir: "{{highlander_path_out.stdout}}/{{app_name}}"
+- include: build.yml
   when: branch_name != "master" and auto_build == "y" or auto_build == "yes"
 
 - name: Find out Playbook path
