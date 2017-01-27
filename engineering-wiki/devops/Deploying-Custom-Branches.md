@@ -37,7 +37,7 @@ Run this from the root of Highlander:
 
 The script will prompt you for various info:
 
-1. A **name of Highlander sub-project** to re-deploy. See list of [support values](../prov-shit/ansible/roles/dev/update_app/vars/main.yml#L8).
+1. A **name of Highlander sub-project** to re-deploy. See list of [support values](https://github.com/FoxComm/highlander/blob/master/prov-shit/ansible/roles/dev/update_app/vars/main.yml#L8).
 2. A **name of a branch / tag** to re-deploy.
 3. Whether script should automatically checkout specified branch and try to build, dockerize and push it to repo? Notes:
     * Default value is `no`.
