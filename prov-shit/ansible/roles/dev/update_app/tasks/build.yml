@@ -26,6 +26,8 @@
     chdir: "{{highlander_path_out.stdout}}/{{app_name}}"
 
 - name: Push Application to Registry
-  shell: "DOCKER_TAG={{tag_name}} make docker-push"
+  shell: "make docker-push"
+  environment:
+    DOCKER_TAG: "{{tag_name}}"
   args:
     chdir: "{{highlander_path_out.stdout}}/{{app_name}}"
