@@ -21,45 +21,45 @@ prepare:
 	mkdir -p $(GOPATH)/src/github.com/FoxComm
 	ln -s $(HIGHLANDER_PATH) $(BUILD_ROOT_PATH) || true
 	cd $(BUILD_PATH) && glide install
-	rm -rf $(BUILD_PATH)/vendor/github.com/FoxComm/highlander 
+	rm -rf $(BUILD_PATH)/vendor/github.com/FoxComm/highlander
 
 build:
 	$(call header, Building)
 	make prepare
 	cd $(BUILD_PATH) && go build -o middlewarehouse main.go
-	cd $(BUILD_PATH) && go build -o consumers/shipments/shipments-consumer consumers/shipments/*.go
-	cd $(BUILD_PATH) && go build -o consumers/stock-items/stock-items-consumer consumers/stock-items/*.go
-	cd $(BUILD_PATH) && go build -o consumers/gift-cards/gift-card-consumer consumers/gift-cards/*.go
-	cd $(BUILD_PATH) && go build -o consumers/capture/capture-consumer consumers/capture/*.go
-	cd $(BUILD_PATH) && go build -o consumers/shipstation/shipstation-consumer consumers/shipstation/*.go
-	cd $(BUILD_PATH) && go build -o common/db/seeds/seeder common/db/seeds/main.go
+	# cd $(BUILD_PATH) && go build -o consumers/shipments/shipments-consumer consumers/shipments/*.go
+	# cd $(BUILD_PATH) && go build -o consumers/stock-items/stock-items-consumer consumers/stock-items/*.go
+	# cd $(BUILD_PATH) && go build -o consumers/gift-cards/gift-card-consumer consumers/gift-cards/*.go
+	# cd $(BUILD_PATH) && go build -o consumers/capture/capture-consumer consumers/capture/*.go
+	# cd $(BUILD_PATH) && go build -o consumers/shipstation/shipstation-consumer consumers/shipstation/*.go
+	# cd $(BUILD_PATH) && go build -o common/db/seeds/seeder common/db/seeds/main.go
 
 docker:
 	$(call header, Dockerizing)
 	cd $(BUILD_PATH) && docker build -t $(DOCKER_IMAGE) .
-	cd $(BUILD_PATH) && docker build -t stock-items-consumer -f consumers/stock-items/Dockerfile .
-	cd $(BUILD_PATH) && docker build -t shipments-consumer -f consumers/shipments/Dockerfile .
-	cd $(BUILD_PATH) && docker build -t capture-consumer -f consumers/capture/Dockerfile .
-	cd $(BUILD_PATH) && docker build -t shipstation-consumer -f consumers/shipstation/Dockerfile .
-	cd $(BUILD_PATH) && docker build -t middlewarehouse-seeder -f common/db/seeds/Dockerfile .
-	cd $(BUILD_PATH) && docker build -t gift-card-consumer -f consumers/gift-cards/Dockerfile .
+	# cd $(BUILD_PATH) && docker build -t stock-items-consumer -f consumers/stock-items/Dockerfile .
+	# cd $(BUILD_PATH) && docker build -t shipments-consumer -f consumers/shipments/Dockerfile .
+	# cd $(BUILD_PATH) && docker build -t capture-consumer -f consumers/capture/Dockerfile .
+	# cd $(BUILD_PATH) && docker build -t shipstation-consumer -f consumers/shipstation/Dockerfile .
+	# cd $(BUILD_PATH) && docker build -t middlewarehouse-seeder -f common/db/seeds/Dockerfile .
+	# cd $(BUILD_PATH) && docker build -t gift-card-consumer -f consumers/gift-cards/Dockerfile .
 
 docker-push:
 	$(call header, Registering)
 	docker tag $(DOCKER_IMAGE) $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
-	docker tag stock-items-consumer $(DOCKER_REPO)/stock-items-consumer:$(DOCKER_TAG)
-	docker tag gift-card-consumer $(DOCKER_REPO)/gift-card-consumer:$(DOCKER_TAG)
-	docker tag shipments-consumer $(DOCKER_REPO)/shipments-consumer:$(DOCKER_TAG)
-	docker tag capture-consumer $(DOCKER_REPO)/capture-consumer:$(DOCKER_TAG)
-	docker tag shipstation-consumer $(DOCKER_REPO)/shipstation-consumer:$(DOCKER_TAG)
-	docker tag middlewarehouse-seeder $(DOCKER_REPO)/middlewarehouse-seeder:$(DOCKER_TAG)
+	# docker tag stock-items-consumer $(DOCKER_REPO)/stock-items-consumer:$(DOCKER_TAG)
+	# docker tag gift-card-consumer $(DOCKER_REPO)/gift-card-consumer:$(DOCKER_TAG)
+	# docker tag shipments-consumer $(DOCKER_REPO)/shipments-consumer:$(DOCKER_TAG)
+	# docker tag capture-consumer $(DOCKER_REPO)/capture-consumer:$(DOCKER_TAG)
+	# docker tag shipstation-consumer $(DOCKER_REPO)/shipstation-consumer:$(DOCKER_TAG)
+	# docker tag middlewarehouse-seeder $(DOCKER_REPO)/middlewarehouse-seeder:$(DOCKER_TAG)
 	docker push $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
-	docker push $(DOCKER_REPO)/stock-items-consumer:$(DOCKER_TAG)
-	docker push $(DOCKER_REPO)/gift-card-consumer:$(DOCKER_TAG)
-	docker push $(DOCKER_REPO)/shipments-consumer:$(DOCKER_TAG)
-	docker push $(DOCKER_REPO)/capture-consumer:$(DOCKER_TAG)
-	docker push $(DOCKER_REPO)/shipstation-consumer:$(DOCKER_TAG)
-	docker push $(DOCKER_REPO)/middlewarehouse-seeder:$(DOCKER_TAG)
+	# docker push $(DOCKER_REPO)/stock-items-consumer:$(DOCKER_TAG)
+	# docker push $(DOCKER_REPO)/gift-card-consumer:$(DOCKER_TAG)
+	# docker push $(DOCKER_REPO)/shipments-consumer:$(DOCKER_TAG)
+	# docker push $(DOCKER_REPO)/capture-consumer:$(DOCKER_TAG)
+	# docker push $(DOCKER_REPO)/shipstation-consumer:$(DOCKER_TAG)
+	# docker push $(DOCKER_REPO)/middlewarehouse-seeder:$(DOCKER_TAG)
 
 clean:
 	rm -rf ./vendor
