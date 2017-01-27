@@ -4,7 +4,7 @@ Contents:
 
 * [Deploying Custom Branches](Deploying-Custom-Branches.md)
 * [Git Hooks](Git-Hooks.md)
-* [Local VM Development Environment](Local-Vm-DevEnv.md)
+* [Local VM Development Environment](Local-VM-DevEnv.md)
 
 External:
 
