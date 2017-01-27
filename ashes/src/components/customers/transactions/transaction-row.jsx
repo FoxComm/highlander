@@ -9,8 +9,8 @@ const computePaymentState = order => {
   const authorizations = _.reduce(order.payments, (result, payment) => {
     const { paymentMethodType } = payment;
     if ((paymentMethodType == 'creditCard' && payment.creditCardState == 'fullCapture') ||
-      (paymentMethodType == 'giftCard' && payment.giftCardState == 'fullCapture') ||
-      (paymentMethodType == 'storeCredit' && payment.storeCreditState == 'fullCapture')) {
+      (paymentMethodType == 'giftCard' && payment.giftCardState == 'capture') ||
+      (paymentMethodType == 'storeCredit' && payment.storeCreditState == 'capture')) {
       return result + 1;
     }
 

@@ -7,7 +7,7 @@ import consumer.elastic.AvroTransformer
 import consumer.elastic.mappings.dateFormat
 
 final case class StoreCreditTransactionsSearchView()(implicit ec: EC) extends AvroTransformer {
-  def mapping() = esMapping("store_credit_transactions_view").fields(
+  def mapping() = esMapping("store_credit_transactions_search_view").fields(
       // Adjustment
       field("id", IntegerType),
       field("debit", IntegerType),
