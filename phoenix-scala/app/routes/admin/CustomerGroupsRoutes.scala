@@ -36,12 +36,12 @@ object CustomerGroupsRoutes {
         } ~
         (patch & pathEnd & entity(as[CustomerDynamicGroupPayload])) { payload ⇒
           mutateOrFailures {
-            GroupManager.update(groupId, payload)
+            GroupManager.update(groupId, payload, auth.model)
           }
         } ~
         (delete & pathEnd) {
           deleteOrFailures {
-            GroupManager.delete(groupId)
+            GroupManager.delete(groupId, auth.model)
           }
         }
       }
