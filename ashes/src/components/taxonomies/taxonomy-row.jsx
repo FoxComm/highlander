@@ -37,12 +37,6 @@ const TaxonomyRow = (props: Props): Element => {
     params,
   };
 
-  if (isArchived(taxonomy)) {
-    return <MultiSelectRow {...commonParams} />;
-  }
-
-  const { taxonomyId, context } = taxonomy;
-
   return (
     <MultiSelectRow
       {...commonParams}

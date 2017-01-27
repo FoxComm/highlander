@@ -1,6 +1,4 @@
-/* @flow */
-
-export type Customer = {
+type Customer = {
   id: number,
   email: string,
   phoneNumber?: string,

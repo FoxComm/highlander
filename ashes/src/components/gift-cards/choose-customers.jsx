@@ -11,7 +11,6 @@ import CustomerRow from './customer-row';
 
 import styles from '../selectable-list/selectable-list.css';
 
-import type { Customer } from 'paragons/customer';
 import type { ItemType } from '../selectable-list/selectable-list';
 
 type Props = {
@@ -40,7 +39,7 @@ class ChooseCustomers extends Component {
   render() {
     return (
       <SelectableList
-        visible={true}
+        visible
         popup={false}
         items={this.props.items}
         ref="customers"
