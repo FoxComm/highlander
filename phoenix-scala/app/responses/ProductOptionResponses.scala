@@ -35,11 +35,11 @@ object ProductOptionResponses {
            values = illuminateValues(productValues, productValueVariants))
 
     def buildNested(productOption: IlluminatedProductOption,
-                    productValue: FullObject[ProductOptionValue]): Root =
+                    productValues: Seq[FullObject[ProductOptionValue]]): Root =
       Root(id = productOption.id,
            attributes = productOption.attributes,
            context = ObjectContextResponse.build(productOption.context).some,
-           values = ProductValueResponse.buildNested(productValue) :: Nil)
+           values = productValues.map(ProductValueResponse.buildNested))
 
     def illuminateValues(
         productValues: Seq[FullObject[ProductOptionValue]],

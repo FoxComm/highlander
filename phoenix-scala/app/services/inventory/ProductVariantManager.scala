@@ -311,11 +311,14 @@ object ProductVariantManager {
                              }
                          }
     } yield
-      optionsWithValues.map {
-        case (option, value) ⇒
-          ProductOptionResponse.buildNested(
-              IlluminatedProductOption.illuminate(oc, option),
-              value
-          )
-      }
+      optionsWithValues
+        .groupBy(_._1.model.id)
+        .valuesIterator
+        .flatMap { seq ⇒
+          val (options, values) = seq.unzip
+          options.headOption.map(option ⇒
+                ProductOptionResponse.buildNested(IlluminatedProductOption.illuminate(oc, option),
+                                                  values))
+        }
+        .toSeq
 }
