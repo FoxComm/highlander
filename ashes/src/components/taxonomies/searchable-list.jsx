@@ -1,25 +1,23 @@
-/**
- * @flow
- */
+// @flow
 
 // libs
 import React, { Component, Element } from 'react';
+import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { autobind } from 'core-decorators';
 
 // data
-import { actions } from 'modules/products/list';
+import { actions } from 'modules/taxonomies/list';
 
 // components
-import SelectableSearchList from '../list-page/selectable-search-list';
-import ProductRow from './product-row';
+import SelectableSearchList from 'components/list-page/selectable-search-list';
+import TaxonomyRow from './taxonomy-row';
 
 // helpers
 import { filterArchived } from 'elastic/archive';
 
 // types
-import type { Product } from 'paragons/product';
+import type { Taxonomy } from 'paragons/taxonomy';
 import type { SearchFilter } from 'elastic/common';
 
 type Column = {
@@ -33,14 +31,14 @@ type Props = {
   list: Object,
 };
 
-const tableColumns: Array<Column> = [
-  { field: 'productId', text: 'Product ID', type: null },
-  { field: 'image', text: 'Image', type: 'image' },
-  { field: 'title', text: 'Name', type: null },
-  { field: 'state', text: 'State', type: null },
+const tableColumns = [
+  { field: 'taxonomyId', text: 'ID' },
+  { field: 'name', text: 'Name' },
+  { field: 'type', text: 'Type' },
+  { field: 'valuesCount', text: 'Values' },
 ];
 
-export class Products extends Component {
+export class SearchableList extends Component {
   props: Props;
 
   @autobind
@@ -48,9 +46,9 @@ export class Products extends Component {
     return this.props.actions.addSearchFilters(filterArchived(filters), initial);
   }
 
-  renderRow(row: Product, index: number, columns: Array<Column>, params: Object) {
-    const key = `products-${row.id}`;
-    return <ProductRow key={key} product={row} columns={columns} params={params} />;
+  renderRow(row: Taxonomy, index: number, columns: Array<Column>, params: Object) {
+    const key = `taxonomies-${row.id}`;
+    return <TaxonomyRow key={key} taxonomy={row} columns={columns} params={params} />;
   }
 
   render(): Element {
@@ -62,10 +60,10 @@ export class Products extends Component {
     };
 
     return (
-      <div className="fc-products-list">
+      <div>
         <SelectableSearchList
-          entity="products.list"
-          emptyMessage="No products found."
+          entity="taxonomies.list"
+          emptyMessage="No taxonomies found."
           list={list}
           renderRow={this.renderRow}
           tableColumns={tableColumns}
@@ -76,7 +74,7 @@ export class Products extends Component {
   }
 }
 
-function mapStateToProps({ products: { list } }) {
+function mapStateToProps({ taxonomies: { list } }) {
   return { list };
 }
 
@@ -86,4 +84,4 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Products);
+export default connect(mapStateToProps, mapDispatchToProps)(SearchableList);

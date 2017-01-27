@@ -35,7 +35,7 @@ type Props = {
   updateField: (code: string, field: string, value: any) => void,
   updateFields: (code: string, toUpdate: Array<Array<any>>) => void,
   onDeleteClick: (id: string) => void,
-  isFetchingSkus: boolean|null,
+  isFetchingSkus: boolean,
   variantsSkusIndex: Object,
   suggestSkus: (code: string, context?: SuggestOptions) => Promise,
   suggestedSkus: Array<SearchViewSku>,
@@ -50,7 +50,7 @@ type State = {
 
 function mapLocalStateToProps(state) {
   return {
-    isFetchingSkus: _.get(state.asyncActions, 'skus-suggest.inProgress', null),
+    isFetchingSkus: _.get(state.asyncActions, 'skus-suggest.inProgress', false),
     suggestedSkus: _.get(state, 'skus', []),
   };
 }

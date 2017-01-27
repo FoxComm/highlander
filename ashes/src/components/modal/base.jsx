@@ -1,29 +1,29 @@
 /* @flow */
 
-import React, { PropTypes } from 'react';
+import React, { Element, PropTypes } from 'react';
 import Transition from 'react-addons-css-transition-group';
 
 type Props = {
   isVisible: boolean,
-  onCancel: () => void,
-  children: Element|Array<Element>
+  onCancel?: () => void,
+  children?: Element|Array<Element> // This is an ugly bug in Flow :(
 };
 
-const ModalContainer = (props: Props) => {
+const ModalContainer = ({children, isVisible, onCancel = () => {}}: Props) => {
   let content;
 
   const handleEscKeyPress = (event) => {
     if (event.keyCode === 27 /*esc*/) {
       event.preventDefault();
-      props.onCancel();
+      onCancel();
     }
   };
 
-  if (props.isVisible) {
+  if (isVisible) {
     content = (
       <div className="fc-modal">
         <div className="fc-modal-container" onKeyDown={handleEscKeyPress}>
-          {props.children}
+          {children}
         </div>
       </div>
     );
@@ -40,12 +40,6 @@ const ModalContainer = (props: Props) => {
       {content}
     </Transition>
   );
-};
-
-ModalContainer.propTypes = {
-  isVisible: PropTypes.bool.isRequired,
-  children: PropTypes.node,
-  onCancel: PropTypes.func
 };
 
 export {

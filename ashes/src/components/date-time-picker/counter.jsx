@@ -5,7 +5,7 @@
 import React, { Element, PropTypes } from 'react';
 
 type Props = {
-  children: Element,
+  children?: Element,
   onClickUp: () => void,
   onClickDown: () => void,
 };
