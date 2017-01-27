@@ -39,12 +39,7 @@ The script will prompt you for various info:
 
 1. Your appliance **IP address**. To be replaced by Goldrush statefile.
 2. A **name of Highlander sub-project** to re-deploy. Supported values (for now):
-    * `ashes`
-    * `firebrand`
-    * `middlewarehouse`
-    * `messaging`
-    * `isaac`
-    * `solomon`
+    * `ashes`, `firebrand`, `middlewarehouse`, `messaging`, `isaac`, `solomon`
 3. A **name of a branch / tag** to re-deploy.
 4. Whether script should automatically checkout specified branch and try to build, dockerize and push it to repo? Notes:
     * Default value is `no`.
