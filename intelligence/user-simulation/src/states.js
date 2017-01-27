@@ -20,6 +20,7 @@ async function signup(c) {
     insert('input#signup-username', name).
     insert('input#signup-email', email).
     insert('input#signup-password', pass).
+    wait('button#signup-submit').
     click('button#signup-submit').
     wait(1000);
 }
@@ -64,6 +65,7 @@ async function purchase(c) {
   var card = faker.helpers.createCard();
   if(!_.isNil(c.alreadyPurchased)) {
     return c.page.
+      wait('#cart-checkout').
       click('#cart-checkout').
       wait(1000).
       goto(checkoutPage).
@@ -89,8 +91,10 @@ async function purchase(c) {
       type('input[name="phone-number"]', '6666666666').
       click('input[name="phone-number"]').
       type('input[name="phone-number"]', '6666666666').
+      wait('#add-address-submit').
       click('#add-address-submit').
       wait('label[for="address-radio-0"]').
+      wait('#shipping-address-submit').
       click('#shipping-address-submit').
       wait('input[name="delivery"]').
       click('input[name="delivery"]').
@@ -105,6 +109,7 @@ async function purchase(c) {
       type('input[name="billing-cvc', '123').
       type('input[name="billing-month', '01').
       type('input[name="billing-year', '2020').
+      wait('#add-card-submit').
       click('#add-card-submit').
       wait('#payment-method-submit').
       click('#payment-method-submit');
