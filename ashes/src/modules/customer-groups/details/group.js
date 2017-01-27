@@ -152,7 +152,6 @@ export const fetchGroupStats = () => (dispatch: Function, getState: Function) =>
   const group = get(state, ['customerGroups', 'details', 'group']);
 
   const request = new Request([]);
-  request.query = { term: { 'groups': group.id } };
 
   request.aggregations
     .add(new aggregations.Sum('ordersCount', 'orderCount'))
@@ -160,11 +159,16 @@ export const fetchGroupStats = () => (dispatch: Function, getState: Function) =>
     .add(new aggregations.Average('averageOrderSize', 'orders.itemsCount'))
     .add(new aggregations.Average('averageOrderSum', 'orders.subTotal'));
 
-  dispatch(_fetchStats.perform(request.toRequest()));
+  const req = {
+    ...request.toRequest(),
+    term: { 'groups': group.id }
+  };
+
+  dispatch(_fetchStats.perform(req));
 };
 
 const validateConditions = conditions =>
-  conditions && conditions.length && conditions.every(validateCondition);
+conditions && conditions.length && conditions.every(validateCondition);
 
 const validateCondition = ([field, operator, value]) => {
   if (!field || !operator) {

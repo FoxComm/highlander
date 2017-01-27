@@ -10,7 +10,7 @@ const requestAdapter = (criterions, mainCondition, conditions) => {
 
   let fields = {};
   _.each(conditions, (condition) => {
-    const [name, operator, value] = conditions;
+    const [name, operator, value] = condition;
 
     let field;
     if (fields[name]) {
