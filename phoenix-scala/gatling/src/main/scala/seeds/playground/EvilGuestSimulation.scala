@@ -8,21 +8,26 @@ import scala.concurrent.duration._
 import scala.language.postfixOps
 import scala.util.Random
 
+// may we keep this simulation somewhere? @_@
 object RunEvilGuestSimulation extends App with Seeder {
-  runSimulation[EvilGuestSimulation]()
+  runSimulation[EvilGuestSimulationConfirmed]()
+  runSimulation[EvilGuestSimulationNOTConfirmed]()
 }
 
-// may we keep this simulation somewhere? @_@
-class EvilGuestSimulation extends Simulation {
+class EvilGuestSimulationConfirmed extends Scenarios {
+  setup("https://appliance-10-240-0-5.foxcommerce.com/api/")
+  //  or ("https://stage-tpg.foxcommerce.com/api/")
+}
 
-  val httpProtocol = http
-//    .baseURL("http://localhost:9090")
-//    .baseURL("https://stage-tpg.foxcommerce.com/api/")
-    .baseURL("https://appliance-10-240-0-5.foxcommerce.com/api/")
-    .contentTypeHeader("application/json;charset=UTF-8")
-    .disableFollowRedirect
+class EvilGuestSimulationNOTConfirmed extends Scenarios {
+  setup("http://localhost:9090")
+}
 
-  val userEmail = "guest%d@guest.com".format(Random.nextInt(1000))
+trait Scenarios extends Simulation {
+
+  val connection = http.contentTypeHeader("application/json;charset=UTF-8").disableFollowRedirect
+
+  private val userEmail = "guest%d@guest.com".format(Random.nextInt(1000))
   private val loginPayload = StringBody(
       "{\"email\":\"%s\",\"password\":\"123\",\"org\":\"merchant\"}".format(userEmail))
 
@@ -50,5 +55,8 @@ class EvilGuestSimulation extends Simulation {
           .check(status.is(400))
           .check(bodyString.is("{\"errors\":[\"Invalid credentials\"]}")))
 
-  setUp(scn.inject(atOnceUsers(1))).protocols(httpProtocol)
+  def setup(url: String) = {
+    val conn = connection.baseURL(url)
+    setUp(scn.inject(atOnceUsers(1))).protocols(conn)
+  }
 }
