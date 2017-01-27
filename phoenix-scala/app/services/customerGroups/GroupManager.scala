@@ -37,7 +37,7 @@ object GroupManager {
       scope ← * <~ Scope.resolveOverride(payload.scope)
       group ← * <~ CustomerGroups.mustFindById404(groupId)
       _ ← * <~ failIf(group.deletedAt.isDefined && group.deletedAt.get.isBeforeNow,
-                      NotFoundFailure404(CustomerDynamicGroup, groupId))
+                      NotFoundFailure404(CustomerGroup, groupId))
       groupEdited ← * <~ CustomerGroups.update(
                        group,
                        CustomerDynamicGroup

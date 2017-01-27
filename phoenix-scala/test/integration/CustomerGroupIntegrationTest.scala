@@ -71,7 +71,7 @@ class CustomerGroupIntegrationTest
     }
 
     "404 if group not found" in new Fixture {
-      customerGroupsApi(999).get().mustFailWith404(NotFoundFailure404(CustomerDynamicGroup, 999))
+      customerGroupsApi(999).get().mustFailWith404(NotFoundFailure404(CustomerGroup, 999))
     }
   }
 
@@ -94,7 +94,7 @@ class CustomerGroupIntegrationTest
                                                 elasticRequest = JObject())
       customerGroupsApi(999)
         .update(payload)
-        .mustFailWith404(NotFoundFailure404(CustomerDynamicGroup, 999))
+        .mustFailWith404(NotFoundFailure404(CustomerGroup, 999))
     }
   }
 
@@ -121,7 +121,7 @@ class CustomerGroupIntegrationTest
     }
 
     "404 if group not found" in new Fixture {
-      customerGroupsApi(999).delete.mustFailWith404(NotFoundFailure404(CustomerDynamicGroup, 999))
+      customerGroupsApi(999).delete.mustFailWith404(NotFoundFailure404(CustomerGroup, 999))
     }
   }
 

@@ -48,7 +48,7 @@ class CustomerGroupMembersIntegrationTest
     "404 if group not found" in new Fixture {
       customerGroupsMembersApi(666)
         .syncCustomers(CustomerGroupMemberSyncPayload(Seq.empty))
-        .mustFailWith404(NotFoundFailure404(CustomerDynamicGroup, 666))
+        .mustFailWith404(NotFoundFailure404(CustomerGroup, 666))
     }
   }
 

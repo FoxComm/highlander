@@ -41,18 +41,18 @@ $$ language plpgsql;
 drop function if exists update_customers_groups_view_delete_fn();
 
 -- recreate insert customer group trigger
-drop trigger if exists update_customers_groups_view_insert_trigger on customer_dynamic_groups;
+drop trigger if exists update_customers_groups_view_insert_trigger on customer_groups;
 create trigger update_customers_groups_view_insert_trigger
-  after insert on customer_dynamic_groups
+  after insert on customer_groups
   for each row
   execute procedure update_customers_groups_view_insert_fn();
 
 -- recreate update customer group trigger
-drop trigger if exists update_customers_groups_view_update_trigger on customer_dynamic_groups;
+drop trigger if exists update_customers_groups_view_update_trigger on customer_groups;
 create trigger update_customers_groups_view_update_trigger
-  after update on customer_dynamic_groups
+  after update on customer_groups
   for each row
   execute procedure update_customers_groups_view_update_fn();
 
 -- recreate delete customer group trigger
-drop trigger if exists update_customers_groups_view_delete_trigger on customer_dynamic_groups;
+drop trigger if exists update_customers_groups_view_delete_trigger on customer_groups;

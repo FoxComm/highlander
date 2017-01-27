@@ -57,7 +57,7 @@ object CustomerDynamicGroup {
                   elasticRequest = p.elasticRequest)
 }
 
-class CustomerGroups(tag: Tag) extends FoxTable[CustomerGroup](tag, "customer_dynamic_groups") {
+class CustomerGroups(tag: Tag) extends FoxTable[CustomerGroup](tag, "customer_groups") {
   def id             = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def scope          = column[LTree]("scope")
   def createdBy      = column[Int]("created_by")
