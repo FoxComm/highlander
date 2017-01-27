@@ -14,7 +14,9 @@
     chdir: "{{highlander_path_out.stdout}}/{{app_name}}"
 
 - name: Build Application
-  shell: "GOOS=linux make build"
+  shell: "make build"
+  environment:
+    GOOS: linux
   args:
     chdir: "{{highlander_path_out.stdout}}/{{app_name}}"
 
