@@ -43,7 +43,6 @@ build-middlewarehouse:
 build-middlewarehouse-seeder:
 	cd $(BUILD_PATH) && go build -o common/db/seeds/seeder common/db/seeds/main.go
 
-
 build-capture-consumer:
 	cd $(BUILD_PATH) && go build -o consumers/capture/capture-consumer consumers/capture/*.go
 
