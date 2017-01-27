@@ -8,7 +8,7 @@ type ProductStatsResponse struct {
 	ProductConversionRate        float64
 	AverageTotalRevenue          float64
 	AverageTotalOrders           float64
-	AveragePdPViews              float64
+	AverageTotalPdPViews         float64
 	AverageTotalInCarts          float64
 	AverageProductConversionRate float64
 	ActiveProducts               int
