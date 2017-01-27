@@ -45,3 +45,4 @@ The script will prompt you for various info:
     * Default value is `no`.
     * If you've set `yes`, you shouldn't have uncommited files in your current repository state.
     * If you've set `master` branch, build phase will be skipped to avoid accidental overwrites.
+    * Docker doesn't support slashes in tag names, so `feature/awesome` branch will be converted to `feature-awesome` tag.
