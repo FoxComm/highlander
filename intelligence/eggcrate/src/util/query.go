@@ -34,6 +34,10 @@ func HenhouseQuery(action string, keys []string, from, to string, params string)
 		key += "&" + params
 	}
 
+	if params != "" {
+		key += "&" + params
+	}
+
 	port, err := getPort()
 	if err != nil {
 		return nil, err
