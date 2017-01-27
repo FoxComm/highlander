@@ -410,6 +410,6 @@ $$ language plpgsql;
 
 drop trigger if exists update_customers_view_from_group_membership_delete_trigger on customer_group_members;
 create trigger update_customers_view_from_group_membership_delete_trigger
-    after insert or update on customer_group_members
+    after delete on customer_group_members
     for each row
     execute procedure update_customers_view_from_group_membership_delete_fn();
