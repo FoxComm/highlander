@@ -3,7 +3,7 @@ import com.github.tminglei.slickpg.LTree
 import failures.NotFoundFailure404
 import models.account._
 import models.customer._
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import payloads.CustomerGroupPayloads.CustomerGroupMemberSyncPayload
 import testutils._
 import testutils.apis.PhoenixAdminApi
