@@ -1,3 +1,48 @@
+# Input aliases (left will be corrected to right)
+input_aliases:
+    phoenix-scala: phoenix
+    green-river: greenriver
+    shiptation-consumer: shipstation
+
+# Supported aliases (otherwise, playbook fails fast)
+supported_aliases:
+    - ashes
+    - firebrand
+    - phoenix
+    - greenriver
+    - isaac
+    - solomon
+    - messaging
+    - capture-consumer
+    - gift-card-consumer
+    - shipments-consumer
+    - stock-items-consumer
+    - shipstation
+    - marketplace
+
+# Mapping app name to application path
+highlander_paths:
+    greenriver: green-river
+    phoenix: phoenix-scala
+    capture-consumer: middlewarehouse
+    gift-card-consumer: middlewarehouse
+    shipments-consumer: middlewarehouse
+    shipstation-consumer: middlewarehouse
+    stock-items-consumer: middlewarehouse
+
+# Mapping app name to Mararthon template path
+marathon_config_paths:
+    capture-consumer: dev/consumers/templates/capture-consumer.json
+    gift-card-consumer: dev/consumers/templates/gift-card-consumer.json
+    shipments-consumer: dev/consumers/templates/shipments-consumer.json
+    shipstation: dev/shipstation/templates/shipstation.json
+    stock-items-consumer: dev/consumers/templates/stock-items-consumer.json
+
+# Mapping app name to Marathon app name
+marathon_app_names:
+    firebrand: storefront
+
+# TODO: rewrite this using arrays
 docker_tag_ashes: "{{tag_name}}"
 docker_tag_firebrand: "{{tag_name}}"
 docker_tag_phoenix: "{{tag_name}}"
