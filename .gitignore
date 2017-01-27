@@ -20,3 +20,6 @@ ashes/public_key.pem
 
 # target folder
 middlewarehouse/consumers/shipstation/shipstation-consumer
+
+# goldrush files
+goldursh.state

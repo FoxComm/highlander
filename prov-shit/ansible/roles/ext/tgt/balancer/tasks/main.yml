@@ -26,6 +26,6 @@
   shell: 'systemctl restart nginx'
   register: nginx
   until: nginx.rc == 0
-  retries: {{marathon_retries}}
+  retries: "{{marathon_retries}}"
   delay: 30
   when: not packing
