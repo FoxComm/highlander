@@ -14,6 +14,7 @@ import models.objects._
 import models.product._
 import org.json4s.JsonDSL._
 import org.json4s._
+import org.scalatest.OptionValues._
 import payloads.ImagePayloads._
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.OrderPayloads.CreateCart
@@ -157,7 +158,7 @@ class ProductIntegrationTest
         productResponse.options.size must === (1)
         val variant = productResponse.options.head
         variant.values.size must === (1)
-        variant.values.head.skuCodes must contain only skuName
+        variant.values.head.skuCodes.value must contain only skuName
       }
 
       "Gets an associated variant after creating a product with a variant" in new Fixture {
@@ -190,9 +191,10 @@ class ProductIntegrationTest
         productResponse.options.length must === (1)
         productResponse.options.head.values.length must === (2)
 
-        val skuCodes        = productResponse.variants.map(s ⇒ s.attributes.code)
-        val variantSkuCodes = productResponse.options.head.values.flatMap(v ⇒ v.skuCodes)
-        val expectedSkus    = justColorVariantPayload.values.getOrElse(Seq.empty).flatMap(_.skuCodes)
+        val skuCodes = productResponse.variants.map(s ⇒ s.attributes.code)
+        val variantSkuCodes =
+          productResponse.options.head.values.flatMap(_.skuCodes.getOrElse(Seq.empty))
+        val expectedSkus = justColorVariantPayload.values.getOrElse(Seq.empty).flatMap(_.skuCodes)
 
         skuCodes must contain only (expectedSkus: _*)
         variantSkuCodes must contain only (expectedSkus: _*)
@@ -228,7 +230,7 @@ class ProductIntegrationTest
 
         response.options.length must === (1)
         response.options.head.values.length must === (1)
-        response.options.head.values.head.skuCodes.length must === (0)
+        response.options.head.values.head.skuCodes.value.length must === (0)
         response.variants.length must === (0)
       }
 

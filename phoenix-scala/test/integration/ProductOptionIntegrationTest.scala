@@ -1,6 +1,5 @@
 import java.time.Instant
 
-import com.github.tminglei.slickpg.LTree
 import failures.ArchiveFailures.LinkArchivedVariantFailure
 import failures.ProductFailures.ProductOptionNotFoundForContext
 import models.account.Scope
@@ -10,7 +9,6 @@ import org.json4s.JsonDSL._
 import payloads.ProductOptionPayloads._
 import responses.ProductOptionResponses.ProductOptionResponse.{Root ⇒ OptionRoot}
 import responses.ProductValueResponses.ProductValueResponse.{Root ⇒ ValueRoot}
-import services.product.ProductManager
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
@@ -40,7 +38,7 @@ class ProductOptionIntegrationTest
       private val value = variantResponse.values.head
       value.name must === ("Red")
       value.swatch must === (Some("ff0000"))
-      value.skuCodes must === (Seq(skus.head.code))
+      value.skuCodes.value must === (Seq(skus.head.code))
 
       (variantResponse.attributes \ "name" \ "v").extract[String] must === ("Color")
     }
@@ -61,7 +59,7 @@ class ProductOptionIntegrationTest
 
       variantResponse.values.map(_.name).toSet must === (Set("Small", "Large"))
 
-      val valueSkus = variantResponse.values.map(_.skuCodes).toSet
+      val valueSkus = variantResponse.values.flatMap(_.skuCodes).toSet
       valueSkus must contain theSameElementsAs skus.map(s ⇒ Seq(s.code))
     }
 
@@ -104,7 +102,7 @@ class ProductOptionIntegrationTest
         variantsApi(variantResponse.id).createValues(createVariantValuePayload).as[ValueRoot]
 
       valueResponse.swatch must === (Some("ff0000"))
-      valueResponse.skuCodes must === (Seq(skus.head.code))
+      valueResponse.skuCodes.value must === (Seq(skus.head.code))
     }
 
     "Fails when attaching archived SKU to productOption as productOption value" in new ArchivedSkusFixture {

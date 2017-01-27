@@ -34,6 +34,13 @@ object ProductOptionResponses {
            context = None,
            values = illuminateValues(productValues, productValueVariants))
 
+    def buildNested(productOption: IlluminatedProductOption,
+                    productValue: FullObject[ProductOptionValue]): Root =
+      Root(id = productOption.id,
+           attributes = productOption.attributes,
+           context = ObjectContextResponse.build(productOption.context).some,
+           values = ProductValueResponse.buildNested(productValue) :: Nil)
+
     def illuminateValues(
         productValues: Seq[FullObject[ProductOptionValue]],
         productValueVariants: ProductValueVariantLinks): Seq[ProductValueResponse.Root] =
