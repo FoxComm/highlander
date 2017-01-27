@@ -10,6 +10,7 @@ vagrant: false
 local_vagrant: false
 foxcomm_domain: foxcommerce.com
 
+# Marathon Defaults
 marathon_retries: 60
 marathon_delay: 10
 
