@@ -19,6 +19,10 @@ final case class ProductsSearchView()(implicit ec: EC) extends AvroTransformer {
       field("description", StringType).analyzer("autocomplete"),
       field("skus", StringType).analyzer("upper_cased"),
       field("tags", StringType).index("not_analyzed"),
+      field("taxonomies", StringType).nested(
+          field("taxons", StringType).index("not_analyzed)"),
+          field("taxonomy", StringType).index("not_analyzed)")
+      ),
       field("activeFrom", DateType).format(dateFormat),
       field("activeTo", DateType).format(dateFormat),
       field("archivedAt", DateType).format(dateFormat),
@@ -35,5 +39,5 @@ final case class ProductsSearchView()(implicit ec: EC) extends AvroTransformer {
       )
   )
 
-  override def nestedFields() = List("albums", "skus", "tags")
+  override def nestedFields() = List("albums", "skus", "tags", "taxonomies", "taxons")
 }
