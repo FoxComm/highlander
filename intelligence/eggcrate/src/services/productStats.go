@@ -110,7 +110,7 @@ func buildStatResponse(pf responses.HenhouseResponse, activeProducts int) string
 		ProductConversionRate:        conversionRate,
 		AverageTotalRevenue:          avgRevenue,
 		AverageTotalOrders:           avgOrdered,
-		AveragePdPViews:              avgPdpViews,
+		AverageTotalPdPViews:         avgPdpViews,
 		AverageTotalInCarts:          avgInCart,
 		AverageProductConversionRate: avgConversionRate,
 		ActiveProducts:               activeProducts,
