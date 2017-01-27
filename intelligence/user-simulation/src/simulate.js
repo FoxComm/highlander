@@ -7,7 +7,7 @@ const {stateFunctions} = require('./states.js');
 var home = "https://hal.foxcommerce.com";
 
 function transition(state, states) {
-  var trans = null;
+  let trans = null;
   if (_.size(states) == 0) {
     return null;
   }
@@ -29,8 +29,8 @@ function transition(state, states) {
 
 async function simulate(persona) {
 
-  var procId = Math.floor(Math.random() * 1000);
-  var context = {
+  let procId = Math.floor(Math.random() * 1000);
+  let context = {
     page: Nightmare({
         show: false,
         webPreferences: {
@@ -46,7 +46,7 @@ async function simulate(persona) {
       //process state
       console.log(procId + ": " + context.state);
 
-      var f = stateFunctions[context.state];
+      let f = stateFunctions[context.state];
 
       if(_.isNil(f)) {
         throw "State " + context.state + " is undefined";
@@ -54,7 +54,7 @@ async function simulate(persona) {
       await f(context);
 
       //transition
-      var trans = transition(context.state, context.persona.states[context.state]);
+      let trans = transition(context.state, context.persona.states[context.state]);
 
       context.state = trans.state;
       context.args = trans.args;
@@ -70,12 +70,12 @@ async function simulate(persona) {
 }
 
 
-var personaName = process.argv[2];
-var persona = personas[personaName];
+let personaName = process.argv[2];
+let persona = personas[personaName];
 
 if(_.isNil(persona)) {
   console.log("'" + personaName + "' is not a valid persona, choose one of the following...");
-  var personaNames = _.map(personas, (v, key) => { return key});
+  let personaNames = _.map(personas, (v, key) => { return key});
   console.log(personaNames);
   process.exit(0);
 }
