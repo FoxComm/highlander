@@ -16,6 +16,7 @@ import models.sharedsearch.SharedSearch
 import models.shipping.ShippingMethod
 import models.Note
 import models.account.User
+import models.customer.CustomerDynamicGroup
 import payloads.GiftCardPayloads.GiftCardUpdateStateByCsr
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.StoreCreditPayloads.StoreCreditUpdateStateByCsr
@@ -36,6 +37,7 @@ import services.activity.AssignmentsTailored._
 import services.activity.CartTailored._
 import services.activity.CategoryTailored._
 import services.activity.CouponsTailored._
+import services.activity.CustomerGroupsTailored._
 import services.activity.UserTailored._
 import services.activity.CustomerTailored._
 import services.activity.GiftCardTailored._
@@ -547,6 +549,19 @@ object LogActivity {
                              newState: AdminData.State,
                              admin: User)(implicit ec: EC, ac: AC): DbResultT[Activity] =
     Activities.log(StoreAdminStateChanged(entity, oldState, newState, admin))
+
+  /* Customer Groups */
+  def customerGroupCreated(customerGroup: CustomerDynamicGroup,
+                           admin: User)(implicit ec: EC, ac: AC): DbResultT[Activity] =
+    Activities.log(CustomerGroupCreated(customerGroup, admin))
+
+  def customerGroupUpdated(customerGroup: CustomerDynamicGroup,
+                           admin: User)(implicit ec: EC, ac: AC): DbResultT[Activity] =
+    Activities.log(CustomerGroupUpdated(customerGroup, admin))
+
+  def customerGroupArchived(customerGroup: CustomerDynamicGroup,
+                            admin: User)(implicit ec: EC, ac: AC): DbResultT[Activity] =
+    Activities.log(CustomerGroupArchived(customerGroup, admin))
 
   /* Mail stuff */
 
