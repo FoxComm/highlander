@@ -42,14 +42,14 @@ async function product(c) {
       while(!clicked && products.length > 0) {
         for(var i = 0; i < products.length; i++)
         {
-          if(Math.random() < prob) {
+          if(Math.random() <= prob) {
             products[i].click();
             clicked = true;
             break;
           }
         }
       }
-    }, 0.3);
+    }, 0.1);
 }
 
 async function cart(c) {
