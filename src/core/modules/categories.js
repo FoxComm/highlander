@@ -54,18 +54,21 @@ function apiCall(): Promise {
       name: 'VALENTINE',
       description: 'Valentine\'s Day Picks',
       imageUrl: '/images/categories/Cat_Valentine_2x.jpg',
+      hiddenInNavigation: true,
     },
     {
       id: 8,
       name: 'WEEKNIGHT',
       description: 'Weeknight Favorites',
       imageUrl: '/images/categories/Cat_Weeknights_2x.jpg',
+      hiddenInNavigation: true,
     },
     {
       id: 9,
       name: 'SPIN',
       description: 'Classics Revisited',
       imageUrl: '/images/categories/Cat_Spin_2x.jpg',
+      hiddenInNavigation: true,
     },
   ];
   return Promise.resolve(result);
