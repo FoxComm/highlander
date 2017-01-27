@@ -46,7 +46,6 @@ sub MAIN ($kafka-host, $kafka-topic, $henhouse-host)
         {
             when PKafka::Message
             {
-                say "MSG: {$msg.payload-str}";
                 my $r = Nginx.parse($msg.payload-str);
                 send-to-henhouse($r, $henhouse) if $r<cmd>;
                 $log.save-offset($msg);
