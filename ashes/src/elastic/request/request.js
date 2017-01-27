@@ -36,7 +36,8 @@ export default class Request extends Element {
     return this._query;
   }
 
-  set query(value) {
+  set query(value: Condition) {
+    value.root = this;
     this._query = value;
   }
 
@@ -67,11 +68,9 @@ export default class Request extends Element {
       request._source = this.select.toRequest();
     }
 
-    if (this.query) {
+    if (this.query && this.query.length) {
       request.query = {
-        bool: {
-          filter: [ this.query ],
-        },
+        bool: this.query.toRequest()
       };
     }
 
