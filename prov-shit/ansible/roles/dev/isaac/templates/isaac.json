@@ -20,7 +20,7 @@
       }
     ],
     "docker": {
-      "image": "docker-stage.foxcommerce.com:5000/isaac:{{docker_tag_isaac}}",
+      "image": "docker-stage.foxcommerce.com:5000/isaac:{{docker_tags.isaac}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],

@@ -4,30 +4,26 @@
   shell: "git rev-parse --abbrev-ref HEAD"
   register: git_branch_out
 
-- name: Find out Highlander path
-  shell: "dirname $(dirname $(pwd))"
-  register: highlander_path_out
-
 - name: Checkout Specified Branch
   shell: "git checkout {{branch_name}}"
   args:
     chdir: "{{highlander_path_out.stdout}}/{{app_name}}"
 
 - name: Build Application
-  shell: "make build"
+  shell: "{{app_build_target}}"
   environment:
     GOOS: linux
   args:
-    chdir: "{{highlander_path_out.stdout}}/{{app_name}}"
+    chdir: "{{app_path}}"
 
 - name: Dockerize Application
-  shell: "make docker"
+  shell: "{{app_docker_target}}"
   args:
-    chdir: "{{highlander_path_out.stdout}}/{{app_name}}"
+    chdir: "{{app_path}}"
 
 - name: Push Application to Registry
-  shell: "make docker-push"
+  shell: "{{app_push_target}}"
   environment:
     DOCKER_TAG: "{{tag_name}}"
   args:
-    chdir: "{{highlander_path_out.stdout}}/{{app_name}}"
+    chdir: "{{app_path}}"

@@ -9,15 +9,15 @@
     self_host: kangaroos.foxcommerce.com
     ashes_server_name: kangaroos.foxcommerce.com
     storefront_server_name: kangaroos.foxcommerce.com
-    docker_tag_ashes: kangaroos
-    docker_tag_phoenix: kangaroos
-    docker_tag_greenriver: kangaroos
-    docker_tag_middlewarehouse: kangaroos
-    docker_tag_capture_consumer: kangaroos
-    docker_tag_gift_card_consumer: kangaroos
-    docker_tag_shipments_consumer: kangaroos
-    docker_tag_shipstation_consumer: kangaroos
-    docker_tag_stock_items_consumer: kangaroos
+    docker_tags.ashes: kangaroos
+    docker_tags.phoenix: kangaroos
+    docker_tags.greenriver: kangaroos
+    docker_tags.middlewarehouse: kangaroos
+    docker_tags.capture-consumer: kangaroos
+    docker_tags.gift-card-consumer: kangaroos
+    docker_tags.shipments-consumer: kangaroos
+    docker_tags.shipstation-consumer: kangaroos
+    docker_tags.stock-items-consumer: kangaroos
     with_base_seeds: true
     with_gatling_seeder: true
     with_mwh_seeder: true
