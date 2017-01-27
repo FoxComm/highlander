@@ -13,7 +13,6 @@ const fetchStatsForStatKey = (statKey, from, to, productId, size, statNames, cha
     const stepSize = `step=${size}&size=${size}`;
     const statsQuery = _.join(statNames, '&');
 
-    // [ sum, xy ] => 'sum&xy'
     const url = `time/values?keys=${keys}&a=${from}&b=${to}&${stepSize}&${statsQuery}`;
 
     return Api.get(url).then(
@@ -21,7 +20,7 @@ const fetchStatsForStatKey = (statKey, from, to, productId, size, statNames, cha
       err => dispatch(fetchFailed(err))
     );
   };
-}
+};
 
 // action types
 /* generic */
@@ -35,7 +34,7 @@ const receivedValues = createAction('ANALYTICS_RECEIVED',
   (keys, chartValues, from, to, sizeSec, stepSec) => [keys, chartValues, from, to, sizeSec, stepSec]
 );
 /* stats */
-const productConversionReceivedValues = createAction('ANALYTICS_PRODUCTCONVERSION_RECEIVED',
+const productConversionReceivedValues = createAction('ANALYTICS_PRODUCT_CONVERSION_RECEIVED',
   (chartValues) => [chartValues]
 );
 const productStatsForStatKeyReceivedValues = createAction('ANALYTICS_PRODUCT_STATS_FOR_STAT_KEY_RECEIVED',
