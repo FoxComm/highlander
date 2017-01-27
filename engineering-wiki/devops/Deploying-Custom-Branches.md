@@ -6,7 +6,7 @@ There are multiple different approaches of deploying custom container tags to yo
 
 [Second one](#existing-instance) implies that you already have a running instance, a CLI script will use Marathon API to deploy the tags. There is an option to build some of the supported projects automatically.
 
-Theoretical third way is a smart combination of both ways, just by running `make provision`. We're looking forward to implement it.
+Theoretical **third way** is a smart combination of both ways, just by running `make provision`, which will handle all possible corner cases. We're looking forward to implement it.
 
 ## From scratch
 
