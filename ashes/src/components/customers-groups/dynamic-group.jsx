@@ -189,6 +189,7 @@ export default class DynamicGroup extends Component {
 
 
   get stats() {
+    // $FlowFixMe
     const { statsLoading, group: { stats } } = this.props;
 
     if (stats == null) return null;

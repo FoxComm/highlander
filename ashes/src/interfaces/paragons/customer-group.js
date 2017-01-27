@@ -14,7 +14,6 @@ type TCustomerGroupStats = {
 };
 
 type TCustomerGroup = TCustomerGroupShort & {
-  stats: TCustomerGroupStats,
   customersCount: number,
   isValid: boolean,
   conditions: Array<Condition>,
@@ -22,6 +21,7 @@ type TCustomerGroup = TCustomerGroupShort & {
   elasticRequest: Object,
   createdAt: string,
   updatedAt: string,
+  stats: ?TCustomerGroupStats,
 };
 
 

@@ -151,11 +151,6 @@ export const fetchGroupStats = () => (dispatch: Function, getState: Function) =>
   const state = getState();
   const group = get(state, ['customerGroups', 'details', 'group']);
 
-  //const mainCondition = get(state, ['customerGroups', 'details', 'group', 'mainCondition']);
-  //const conditions = get(state, ['customerGroups', 'details', 'group', 'conditions']);
-
-  //const request = requestAdapter(criterions, mainCondition, conditions);
-
   const request = new Request([]);
   request.query = { term: { 'groups': group.id } };
 
