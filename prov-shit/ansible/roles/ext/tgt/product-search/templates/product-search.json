@@ -12,7 +12,7 @@
   "container": {
     "type": "DOCKER",
     "docker": {
-      "image": "{{docker_registry}}:5000/product-search:{{docker_tag_product_search}}",
+      "image": "{{docker_registry}}:5000/product-search:{{docker_tags.product-search}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],

@@ -15,7 +15,7 @@
       }
     ],
     "docker": {
-      "image": "{{docker_registry}}:5000/gift-card-consumer:{{docker_tag_gift_card_consumer}}",
+      "image": "{{docker_registry}}:5000/gift-card-consumer:{{docker_tags.gift-card-consumer}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],

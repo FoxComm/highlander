@@ -14,16 +14,16 @@
   environment:
     GOOS: linux
   args:
-    chdir: "{{highlander_path_out.stdout}}/{{app_name}}"
+    chdir: "{{app_path}}"
 
 - name: Dockerize Application
   shell: "make docker"
   args:
-    chdir: "{{highlander_path_out.stdout}}/{{app_name}}"
+    chdir: "{{app_path}}"
 
 - name: Push Application to Registry
   shell: "make docker-push"
   environment:
     DOCKER_TAG: "{{tag_name}}"
   args:
-    chdir: "{{highlander_path_out.stdout}}/{{app_name}}"
+    chdir: "{{app_path}}"

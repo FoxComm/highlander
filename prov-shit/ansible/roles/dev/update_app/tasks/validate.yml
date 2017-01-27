@@ -4,6 +4,10 @@
   shell: "dirname $(dirname $(pwd))"
   register: highlander_path_out
 
+- name: Find out Playbook path
+  shell: "pwd"
+  register: playbook_path_out
+
 - name: Check Goldrush Statefile Existence
   stat: path="{{highlander_path_out.stdout}}/goldrush.state"
   register: statefile
@@ -13,5 +17,45 @@
     instance_ip: "{{ lookup('file', highlander_path_out.stdout+'/goldrush.state') }}"
   when: statefile.stat.exists == True
 
-- debug: msg="Defined instance IP is {{instance_ip}}"
+- name: Set Canonical App Name
+  set_fact:
+    app_name: "{{input_aliases[app_name]}}"
+  when: input_aliases.has_key(app_name)
 
+- name: Fail Fast on unsupported app
+  fail: msg="{{app_name}} is not supported (yet)"
+  when: app_name not in supported_apps
+
+- name: Set Default Application Path
+  set_fact:
+    app_path: "{{highlander_path_out.stdout}}/{{app_name}}"
+
+- name: Override Application Path
+  set_fact:
+    app_path: "{{highlander_path_out.stdout}}/{{app_highlander_paths[app_name]}}"
+  when: app_highlander_paths.has_key(app_name)
+
+- name: Set Default Marathon Template Path
+  set_fact:
+    app_template_path: "{{playbook_path_out.stdout}}/roles/dev/{{app_name}}/templates/{{app_name}}.json"
+
+- name: Override Marathon Template Path
+  set_fact:
+    app_template_path: "{{highlander_path_out.stdout}}/{{app_template_paths[app_name]}}"
+  when: app_template_paths.has_key(app_name)
+
+- name: Set Default Marathon App Name
+  set_fact:
+    app_name_marathon: "{{app_name}}"
+
+- name: Override Marathon App Name
+  set_fact:
+    app_name_marathon: "{{app_marathon_names[app_name]}}"
+  when: app_marathon_names.has_key(app_name)
+
+- debug: msg="Instance IP is {{instance_ip}}"
+- debug: msg="Canonical app name is {{app_name}}"
+- debug: msg="Marathon app name is {{app_name_marathon}}"
+- debug: msg="Application path is {{app_path}}"
+- debug: msg="Application template path is {{app_template_path}}"
+- debug: msg="Ashes tag is {{docker_tags.ashes}}"
