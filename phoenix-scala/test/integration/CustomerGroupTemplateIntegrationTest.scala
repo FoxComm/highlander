@@ -1,6 +1,6 @@
 import models.customer.{CustomerGroupTemplate, CustomerGroupTemplates}
 import org.json4s.JObject
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import payloads.CustomerGroupPayloads.CustomerDynamicGroupPayload
 import responses.DynamicGroupResponses.DynamicGroupResponse.Root
 import testutils._
