@@ -1,3 +1,5 @@
+// @flow
+
 // libs
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
@@ -44,9 +46,15 @@ const sourceDropdownColumns = [
 const questionTitles = {
   TotalRevenue: 'Total Revenue',
   TotalOrders: 'Total Orders',
-  AverageNumberPerOrder: 'Avg. Num. Per Order',
+  TotalPdPViews: 'Total PDP Views',
   TotalInCarts: 'Total In Carts',
   ProductConversionRate: 'Product Conversion',
+};
+
+const segmentTitles = {
+  day: 'Day',
+  week: 'Week',
+  month: 'Month',
 };
 
 const datePickerType = {
@@ -66,7 +74,7 @@ const datePickerOptions = [
 ];
 const datePickerFormat = 'MM/DD/YYYY';
 const unixTimes = {
-  hour: 7200,
+  twoHour: 7200,
   day: 86400,
   week: 604800,
   month: 2628000, // 1 month is about 730 hours
@@ -101,15 +109,17 @@ export default class Analytics extends React.Component {
     }),
     fetchAnalytics: PropTypes.func.isRequired,
     questionBoxes: PropTypes.array,
+    segments: PropTypes.array,
   };
 
-  static defaultProps = {
+  static defaultProps: { questionBoxes: Array<QuestionBoxType>, segments: Array<SegmentControlType> } = {
     questionBoxes: [
       {
         id: 'TotalRevenue',
         title: questionTitles.TotalRevenue,
         content: <Currency value="0" />,
         footer: <TrendButton trendType={TrendType.steady} value={0} />,
+        isActive: true,
       },
       {
         id: 'TotalOrders',
@@ -118,8 +128,8 @@ export default class Analytics extends React.Component {
         footer: <TrendButton trendType={TrendType.steady} value={0} />,
       },
       {
-        id: 'AverageNumberPerOrder',
-        title: questionTitles.AverageNumberPerOrder,
+        id: 'TotalPdPViews',
+        title: questionTitles.TotalPdPViews,
         content: 0,
         footer: <TrendButton trendType={TrendType.steady} value={0} />,
       },
@@ -137,9 +147,9 @@ export default class Analytics extends React.Component {
       },
     ],
     segments: [
-      { id: 0, title: 'Day', isActive: true },
-      { id: 1, title: 'Week' },
-      { id: 2, title: 'Month' },
+      { id: 0, title: segmentTitles.day, isActive: true },
+      { id: 1, title: segmentTitles.week },
+      { id: 2, title: segmentTitles.month },
     ],
   };
 
@@ -151,8 +161,41 @@ export default class Analytics extends React.Component {
     segment: null,
   };
 
+  constructor(props) {
+    super(props);
+    this.state.question = _.head(props.questionBoxes);
+    this.state.segment = _.head(props.segments);
+  }
+
   componentDidMount() {
     this.props.fetchProductStats(this.props.entity.entityId);
+  }
+
+  // TODO: FINISH THIS
+  @autobind
+  unixTimeFromSegment(segment: SegmentControlType) {
+    switch(segment.title) {
+
+    }
+  }
+
+  @autobind
+  fetchData(question: QuestionBoxType) {
+    if (_.isNil(question)) {
+      return;
+    }
+
+    const { segments, entity } = this.props;
+    const { dateRangeBegin, dateRangeEnd } = this.state;
+
+    switch(question.title) {
+      case questionTitles.ProductConversionRate:
+        this.props.fetchProductConversion(entity.entityId);
+        break;
+      case questionTitles.TotalRevenue:
+        this.props.fetchProductTotalRevenue(dateRangeBegin, dateRangeEnd, entity.entityId, unixTimes.twoHour);
+        break;
+    }
   }
 
   @autobind
@@ -204,23 +247,22 @@ export default class Analytics extends React.Component {
       dateRangeBegin: newDateRangeBegin,
       dateRangeEnd: newDateRangeEnd,
     });
+
+    this.fetchData(this.question);
   }
 
   @autobind
   onQuestionBoxSelect(question) {
-    const { segments, entity } = this.props;
-    const { dateRangeBegin, dateRangeEnd } = this.state;
-
     switch(question.title) {
       case questionTitles.ProductConversionRate:
         this.setState({question: question});
-        this.props.fetchProductConversion(entity.entityId);
         break;
       case questionTitles.TotalRevenue:
-        this.setState({question: question, segment: _.head(segments)});
-        this.props.fetchProductTotalRevenue(dateRangeBegin, dateRangeEnd, entity.entityId, unixTimes.hour);
+        this.setState({question: question, segment: _.head(this.props.segments)});
         break;
     }
+
+    this.fetchData(question);
   }
 
   @autobind
@@ -236,6 +278,7 @@ export default class Analytics extends React.Component {
         const productValue = stats[qb.id];
         const avgValue = stats[`Average${qb.id}`];
 
+        // set QuestionBox Trends
         let trendValue = null;
         let trend = TrendType.steady;
 
@@ -253,12 +296,13 @@ export default class Analytics extends React.Component {
             />
         );
 
+        // set QuestionBox Content
         switch (qb.title) {
           case questionTitles.TotalRevenue:
             qb.content = <Currency value={productValue.toString()} />;
             break;
           case questionTitles.TotalOrders:
-          case questionTitles.AverageNumberPerOrder:
+          case questionTitles.TotalPdPViews:
           case questionTitles.TotalInCarts:
             qb.content = productValue.toString();
             break;
@@ -267,6 +311,8 @@ export default class Analytics extends React.Component {
             break;
         }
       });
+
+      //this.fetchData(this.question);
     }
   }
 
@@ -283,13 +329,13 @@ export default class Analytics extends React.Component {
   }
 
   get chartFromQuestion() {
-    if (_.isNull(this.question)) {
+    if (_.isNil(this.question)) {
       return false;
     }
 
     const { analytics, segments } = this.props;
 
-    if (!analytics.isFetching) {
+    if (!_.isNil(analytics.isFetching) && !analytics.isFetching) {
       switch (this.question.title) {
         case questionTitles.ProductConversionRate:
           return <ProductConversionChart jsonData={analytics.chartValues}/>;
@@ -359,7 +405,7 @@ export default class Analytics extends React.Component {
   get filterHeaders() {
     const { analytics } = this.props;
 
-    if (!analytics.isFetchingStats) {
+    if (!_.isNil(analytics.isFetchingStats) && !analytics.isFetchingStats) {
       if (!analytics.err) {
         return this.productStats;
       } else {
@@ -373,7 +419,7 @@ export default class Analytics extends React.Component {
   get content() {
     const { analytics } = this.props;
 
-    if (!analytics.isFetching && !_.isNull(this.question)) {
+    if (!_.isNil(analytics.isFetching) && !analytics.isFetching && !_.isNil(this.question)) {
       if (!analytics.err) {
         return this.chartFromQuestion;
       } else {

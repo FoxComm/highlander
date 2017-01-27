@@ -29,16 +29,13 @@ class QuestionBoxList extends Component {
   renderItems() {
     const { items, onSelect, activeQuestion } = this.props;
 
-    const activeQuestionId = !_.isNull(activeQuestion)
-      ? activeQuestion.id : false;
-
     return _.map(items, (item, index) => (
       <QuestionBox
-        id={index}
+        id={item.id}
         title={item.title}
         content={item.content}
         footer={item.footer}
-        isActive={(activeQuestionId === index)}
+        isActive={(activeQuestion.id === item.id)}
         onClick={onSelect}
         key={`question-list-${index}`}
       />

@@ -10,12 +10,12 @@ import styles from './question-box.css';
 
 // types
 export type Props = {
-  id?: number,
+  id: string,
   title: string,
   content: any,
   footer: any,
   isActive?: boolean,
-  onClick?: ?Function,
+  onClick?: Function,
 }
 
 class QuestionBox extends React.Component {
