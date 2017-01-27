@@ -41,7 +41,7 @@
 
 - name: Override Marathon Template Path
   set_fact:
-    app_template_path: "{{highlander_path_out.stdout}}/prov-shit/ansible/roles/{{app_template_paths[app_name]}}"
+    app_template_path: "{{playbook_path_out.stdout}}/roles/{{app_template_paths[app_name]}}"
   when: app_template_paths.has_key(app_name)
 
 - name: Override Marathon App Name
