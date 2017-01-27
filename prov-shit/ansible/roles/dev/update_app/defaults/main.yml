@@ -6,3 +6,8 @@ app_name_marathon: "{{app_name}}"
 app_build_target: "make build"
 app_docker_target: "make docker"
 app_push_target: "make docker-push"
+
+valid_answers:
+    - y
+    - yes
+    - yep

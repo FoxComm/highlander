@@ -2,10 +2,10 @@
 
 - include: validate.yml
 
-# - include: build.yml
-#   when: branch_name != "master" and auto_build == "y" or auto_build == "yes"
+- include: build.yml
+  when: branch_name != "master" and auto_build in valid_answers
 
-# - include: deploy.yml
+- include: deploy.yml
 
-# - include: build_after.yml
-#   when: branch_name != "master" and auto_build == "y" or auto_build == "yes"
+- include: build_after.yml
+  when: branch_name != "master" and auto_build in valid_answers
