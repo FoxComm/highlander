@@ -8,7 +8,7 @@ import failures.{Failures, GeneralFailure, NotFoundFailure400}
 import models.account._
 import models.inventory._
 import models.objects._
-import models.product.{IlluminatedProductOption, ProductOptionValues, ProductOptions, ProductValueVariantLinks}
+import models.product._
 import payloads.ImagePayloads.AlbumPayload
 import payloads.ProductVariantPayloads._
 import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
@@ -294,31 +294,22 @@ object ProductVariantManager {
       db: DB,
       oc: OC): DbResultT[Seq[ProductOptionResponse.Root]] =
     for {
-      valueLinks ← * <~ ProductValueVariantLinks.filter(_.rightId === variant.id).result
-      optionValueIds = valueLinks.map(_.leftId)
-      optionLinksWithValues ← * <~ optionValueIds.map(
-                                 id ⇒
-                                   (ProductOptionValueLinks.mustFindById404(id) |@|
-                                         ObjectUtils.getFullObject(
-                                             ProductOptionValues.mustFindById400(id))).map {
-                                 case (l, r) ⇒ (l, r)
-                             })
-      optionsWithValues ← * <~ optionLinksWithValues.map {
-                           case (link, value) ⇒
-                             (ObjectUtils.getFullObject(ProductOptions.mustFindById404(
-                                         link.leftId)) |@| DbResultT.good(value)).map {
-                               case (l, r) ⇒ (l, r)
-                             }
-                         }
+      optionValues ← * <~ ProductValueVariantLinks.queryLeftByRight(variant)
+      optionsAndValues ← * <~ optionValues.map(value ⇒
+                              ProductOptionValueLinks.queryLeftByRight(value.model).map(_ → value))
+      optionsWithValues = optionsAndValues.foldLeft(
+          Map.empty[FullObject[ProductOption], Set[FullObject[ProductOptionValue]]]) {
+        case (acc, (options, value)) ⇒
+          options.foldLeft(acc) {
+            case (optionWithValues, option) ⇒
+              val values = optionWithValues.get(option).fold(Set(value))(_ + value)
+              optionWithValues + (option → values)
+          }
+      }
     } yield
-      optionsWithValues
-        .groupBy(_._1.model.id)
-        .valuesIterator
-        .flatMap { seq ⇒
-          val (options, values) = seq.unzip
-          options.headOption.map(option ⇒
-                ProductOptionResponse.buildNested(IlluminatedProductOption.illuminate(oc, option),
-                                                  values))
-        }
-        .toSeq
+      optionsWithValues.map {
+        case (option, values) ⇒
+          ProductOptionResponse.buildNested(IlluminatedProductOption.illuminate(oc, option),
+                                            values.toSeq)
+      }.toSeq
 }
