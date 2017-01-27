@@ -4,7 +4,7 @@
 import noop from 'lodash/noop';
 import React, { Component, PropTypes } from 'react';
 import classNames from 'classnames';
-import { push } from 'react-router';
+import { transitionTo } from 'browserHistory';
 
 // components
 import { Button, PrimaryButton } from './buttons';
@@ -42,10 +42,6 @@ export default class SaveCancel extends Component {
     saveText: 'Save',
   };
 
-  static contextTypes = {
-    router: PropTypes.object.isRequired,
-  };
-
   render() {
     const {
       className,
@@ -62,13 +58,11 @@ export default class SaveCancel extends Component {
       isLoading,
     } = this.props;
 
-    const { push } = this.context.router;
-
     const cancelControl = (
       <Button
         id="modal-cancel-btn"
         type="button"
-        onClick={onCancel ? onCancel : () => push({name: cancelTo, params: cancelParams})}
+        onClick={onCancel ? onCancel : () => transitionTo(cancelTo, cancelParams )}
         className="fc-save-cancel__cancel"
         tabIndex={cancelTabIndex}
         disabled={cancelDisabled}>
