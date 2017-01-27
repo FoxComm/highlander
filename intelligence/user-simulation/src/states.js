@@ -10,12 +10,12 @@ async function homepage(c) {
 }
 
 async function signup(c) {
-  var signupPage = home + '/?auth=SIGNUP';
-  var name = faker.name.firstName() + ' ' + faker.name.lastName();
+  let signupPage = home + '/?auth=SIGNUP';
+  let name = faker.name.firstName() + ' ' + faker.name.lastName();
   c.name = name;
 
-  var email = faker.internet.email();
-  var pass = faker.internet.password();
+  let email = faker.internet.email();
+  let pass = faker.internet.password();
   return c.page.goto(signupPage).refresh().
     insert('input#signup-username', name).
     insert('input#signup-email', email).
@@ -27,9 +27,9 @@ async function signup(c) {
 
 async function category(c) {
 
-  var cat = _.sample(c.args['select']);
+  let cat = _.sample(c.args['select']);
 
-  var url = home + '/' + cat;
+  let url = home + '/' + cat;
 
   return c.page.goto(url);
 }
@@ -37,10 +37,10 @@ async function category(c) {
 async function product(c) {
   return c.page
     .evaluate((prob) => { 
-      var products = document.getElementById('products-list').childNodes;
-      var clicked = false;
+      let products = document.getElementById('products-list').childNodes;
+      let clicked = false;
       while(!clicked && products.length > 0) {
-        for(var i = 0; i < products.length; i++)
+        for(let i = 0; i < products.length; i++)
         {
           if(Math.random() <= prob) {
             products[i].click();
@@ -61,8 +61,8 @@ async function cart(c) {
 }
 
 async function purchase(c) {
-  var checkoutPage = home + '/checkout';
-  var card = faker.helpers.createCard();
+  let checkoutPage = home + '/checkout';
+  let card = faker.helpers.createCard();
   if(!_.isNil(c.alreadyPurchased)) {
     return c.page.
       wait('#cart-checkout').
