@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 )
 
-type UpdateCustomerGroupPayload struct {
+type CustomerGroupPayload struct {
 	Name           string          `json:"name"`
 	CustomersCount int             `json:"customersCount"`
 	ClientState    json.RawMessage `json:"clientState"`

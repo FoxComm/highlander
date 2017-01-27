@@ -145,8 +145,10 @@ func (agent *Agent) processGroups() error {
 				log.Panicf("An error occured setting group to customers: %s", err)
 			}
 
-			if err := agent.updateGroup(group, len(ids)); err != nil {
-				log.Panicf("An error occured update group info: %s", err)
+			if group.CustomersCount != len(ids) {
+				if err := agent.updateGroup(group, len(ids)); err != nil {
+					log.Panicf("An error occured update group info: %s", err)
+				}
 			}
 		}(group)
 	}
@@ -196,7 +198,7 @@ func (agent *Agent) getCustomersIDs(group responses.CustomerGroupResponse) ([]in
 }
 
 func (agent *Agent) updateGroup(group responses.CustomerGroupResponse, customersCount int) error {
-	updateGroup := &payloads.UpdateCustomerGroupPayload{
+	updateGroup := &payloads.CustomerGroupPayload{
 		Name:           group.Name,
 		CustomersCount: customersCount,
 		ClientState:    group.ClientState,

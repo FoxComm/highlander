@@ -26,7 +26,7 @@ type PhoenixClient interface {
 	GetOrderForShipstation(refNum string) (*http.Response, error)
 	UpdateOrderLineItems(updatePayload []mwhPayloads.UpdateOrderLineItem, refNum string) error
 	GetCustomerGroups() ([]responses.CustomerGroupResponse, error)
-	UpdateCustomerGroup(groupID int, group *payloads.UpdateCustomerGroupPayload) error
+	UpdateCustomerGroup(groupID int, group *payloads.CustomerGroupPayload) error
 	SetGroupToCustomers(groupID int, customers []int) error
 }
 
@@ -287,7 +287,7 @@ func (c *phoenixClient) GetCustomerGroups() ([]responses.CustomerGroupResponse, 
 	return groups, nil
 }
 
-func (c *phoenixClient) UpdateCustomerGroup(groupID int, group *payloads.UpdateCustomerGroupPayload) error {
+func (c *phoenixClient) UpdateCustomerGroup(groupID int, group *payloads.CustomerGroupPayload) error {
 	if err := c.EnsureAuthentication(); err != nil {
 		return err
 	}
