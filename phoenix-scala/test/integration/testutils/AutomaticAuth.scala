@@ -39,16 +39,7 @@ case class VariableAuth(var admin: Option[User], var customer: Option[User])(imp
       case Some(a) ⇒
         AuthAs(a, a).checkAuthUser(creds)
       case None ⇒
-        val check = guestAuthenticator.checkAuthUser(creds)
-        for {
-          result ← * <~ check
-          user   ← * <~ result.fold(_ ⇒ None, d ⇒ Some(d.model))
-        } yield {
-          admin = user
-          println("!!!!  look " + user.toString)
-        }
-
-        check
+        guestAuthenticator.checkAuthUser(creds)
     }
 
   }
@@ -58,16 +49,7 @@ case class VariableAuth(var admin: Option[User], var customer: Option[User])(imp
       case Some(c) ⇒
         AuthAs(c, c).checkAuthCustomer(creds)
       case None ⇒
-        val authCustomer = guestAuthenticator.checkAuthCustomer(creds)
-        for {
-          result ← * <~ authCustomer
-          user   ← * <~ result.fold(_ ⇒ None, d ⇒ Some(d.model))
-        } yield {
-          customer = user
-          println("!!!!  look " + user.toString)
-        }
-
-        authCustomer
+        guestAuthenticator.checkAuthCustomer(creds)
     }
 
   }

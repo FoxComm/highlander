@@ -51,29 +51,25 @@ class AuthIntegrationTest
       normalAuth()
       create("test".some)
       myApi.myCart().mustBeOk()
-      checkAcc()
 
-      noAuth()
+//      noAuth()
       myApi.myCart()
-      checkAcc()
-      checkAuth()
 
       val patchAccount = myApi.patchAccount(UpdateCustomerPayload(email = payload.email.some))
       patchAccount.mustBeOk()
       info(patchAccount.entity.toString)
-      checkAcc()
-      checkAuth()
 
       info("do login")
       publicApi.doLogin(payload).mustBeOk()
     }
 
-    //    "should create guest with same email" in new Customer_Seed {
-    //      create("test".some)
-    //      publicApi.doLogin(payload).mustBeOk()
-    //      create("test".some, isGuest = true.some)
-    //      publicApi.doLogin(payload).mustBeOk()
-    //    }
+    "should create guest with same email" in new Customer_Seed {
+      normalAuth()
+      create("test".some)
+      publicApi.doLogin(payload).mustBeOk()
+      create("test".some, isGuest = true.some)
+      publicApi.doLogin(payload).mustBeOk()
+    }
 
   }
 
