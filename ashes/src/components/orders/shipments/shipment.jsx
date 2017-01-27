@@ -28,8 +28,6 @@ const viewColumns = [
   {field: 'items', text: 'Items'},
   {field: 'shipmentDate', text: 'Shipment Date'},
   {field: 'carrier', text: 'Carrier'},
-  {field: 'estimatedArrival', text: 'Estimated Arrival'},
-  {field: 'deliveredDate', text: 'Delivered On'},
   {field: 'trackingNumber', text: 'Tracking Number'},
 ];
 
