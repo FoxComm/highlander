@@ -29,6 +29,7 @@ function transition(state, states) {
 
 async function simulate(persona) {
 
+  var procId = Math.floor(Math.random() * 1000);
   var context = {
     page: Nightmare({
         show: false,
@@ -41,8 +42,9 @@ async function simulate(persona) {
   };
 
   while(context.state) {
+    try {
       //process state
-      console.log(context.state);
+      console.log(procId + ": " + context.state);
 
       var f = stateFunctions[context.state];
 
@@ -56,6 +58,10 @@ async function simulate(persona) {
 
       context.state = trans.state;
       context.args = trans.args;
+    } catch(e) {
+      console.error(e);
+      process.exit(1);
+    }
   }
 
   context.page.end();
@@ -74,5 +80,4 @@ if(_.isNil(persona)) {
   process.exit(0);
 }
 
-console.log("Processing persona: " + personaName);
 simulate(persona);

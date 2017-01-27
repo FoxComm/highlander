@@ -54,6 +54,7 @@ async function product(c) {
 async function cart(c) {
   return c.page.
     wait(1000).
+    wait("button#add-to-cart").
     click("button#add-to-cart").
     wait(1000);
 }
