@@ -2,15 +2,15 @@
 
 // libs
 import get from 'lodash/get';
-import {createReducer, createAction} from 'redux-act';
+import { createReducer, createAction } from 'redux-act';
 
 // helpers
 import Api from 'lib/api';
 import * as search from 'lib/search';
-import {post} from 'lib/search';
-import criterions, {getCriterion, getWidget} from 'paragons/customer-groups/criterions';
-import {Request, aggregations} from 'elastic/request';
-import {createAsyncActions} from '@foxcomm/wings';
+import { post } from 'lib/search';
+import criterions, { getCriterion, getWidget } from 'paragons/customer-groups/criterions';
+import { Request, aggregations } from 'elastic/request';
+import { createAsyncActions } from '@foxcomm/wings';
 
 import requestAdapter from '../utils/request-adapter';
 
@@ -172,7 +172,7 @@ const validateCondition = ([field, operator, value]) => {
   }
 
   const criterion = getCriterion(field);
-  const {isValid} = getWidget(criterion, operator);
+  const { isValid } = getWidget(criterion, operator);
 
   return isValid(value, criterion);
 };
@@ -181,7 +181,7 @@ type State = {
   group: TCustomerGroup,
 };
 
-const setData = (state: State, {clientState: {mainCondition, conditions}, ...rest}) => {
+const setData = (state: State, { clientState: { mainCondition, conditions }, ...rest }) => {
   return {
     ...rest,
     conditions,
@@ -204,10 +204,10 @@ const reducer = createReducer({
       averageOrderSum: get(aggregations, 'averageOrderSum.averageOrderSum.value'),
     }
   }),
-  [setName]: (state, name) => ({...state, name}),
-  [setMainCondition]: (state, mainCondition) => ({...state, mainCondition}),
-  [setConditions]: (state, conditions) => ({...state, conditions, isValid: validateConditions(conditions)}),
-  [setGroupStats]: (state, stats) => ({...state, stats}),
+  [setName]: (state, name) => ({ ...state, name }),
+  [setMainCondition]: (state, mainCondition) => ({ ...state, mainCondition }),
+  [setConditions]: (state, conditions) => ({ ...state, conditions, isValid: validateConditions(conditions) }),
+  [setGroupStats]: (state, stats) => ({ ...state, stats }),
 }, initialState);
 
 export default reducer;
