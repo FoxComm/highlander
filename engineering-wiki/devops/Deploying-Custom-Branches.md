@@ -2,9 +2,9 @@
 
 There are two different approaches of deploying custom container tags to your developer appliance.
 
-[First one](#from-scratch) implies that you don't have a running instance and you'll specify the tags in `.env.local` before running `make up`.
+[First one](#from-scratch) implies that you don't have a running instance and you'll specify the tags in `.env.local` before running `make up`. You will have to build and push this tags manually.
 
-[Second one](#existing-instance) implies that you already have a running instance
+[Second one](#existing-instance) implies that you already have a running instance, a CLI script will use Marathon API to deploy the tags. There is an option to build some of the supported projects automatically.
 
 Theoretical third way is a smart combination of both ways, just by running `make provision`. We're looking forward to implement it.
 
