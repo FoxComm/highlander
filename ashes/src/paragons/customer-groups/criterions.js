@@ -199,7 +199,7 @@ const criterions = [
     },
     field: 'isGuest',
     label: 'User Status',
-  }
+  },
 ];
 
 export const getCriterion = field => _.find(criterions, {field: field});

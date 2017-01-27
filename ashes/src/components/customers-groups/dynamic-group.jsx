@@ -101,15 +101,11 @@ export default class DynamicGroup extends Component {
   }
 
   refreshGroupData({ mainCondition, conditions }) {
-    const { customersListActions, groupActions } = this.props;
+    const { customersListActions, groupActions, group } = this.props;
 
     customersListActions.resetSearch();
 
-    if (criterions) {
-      customersListActions.setExtraFilters([
-        requestAdapter(criterions, mainCondition, conditions).toRequest().query,
-      ]);
-    }
+    customersListActions.setExtraFilters([requestAdapter(group.id)]);
 
     customersListActions.fetch();
 
@@ -123,7 +119,6 @@ export default class DynamicGroup extends Component {
 
   get header() {
     const { group } = this.props;
-    console.log(group);
 
     return (
       <header className={prefixed('header')}>
