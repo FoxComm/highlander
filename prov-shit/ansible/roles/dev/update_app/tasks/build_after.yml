@@ -1,6 +1,6 @@
 ---
 
-- name: Checkout Branch You Were On
+- name: Checkout To Initial Branch
   shell: "git checkout {{git_branch_out.stdout}}"
   args:
     chdir: "{{highlander_path_out.stdout}}"

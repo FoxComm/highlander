@@ -53,9 +53,11 @@
     app_name_marathon: "{{app_marathon_names[app_name]}}"
   when: app_marathon_names.has_key(app_name)
 
-- debug: msg="Instance IP is {{instance_ip}}"
-- debug: msg="Canonical app name is {{app_name}}"
-- debug: msg="Marathon app name is {{app_name_marathon}}"
-- debug: msg="Application path is {{app_path}}"
-- debug: msg="Application template path is {{app_template_path}}"
-- debug: msg="Ashes tag is {{docker_tags.ashes}}"
+- name: Debug Message
+  debug:
+    msg:
+        - Instance IP is {{instance_ip}}
+        - Canonical app name is {{app_name}}
+        - Marathon app name is {{app_name_marathon}}
+        - Application path is {{app_path}}
+        - Application template path is {{app_template_path}}
