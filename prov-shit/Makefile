@@ -52,7 +52,4 @@ docker-push:
 	$(call header, Registering)
 	true
 
-update-app:
-	ansible-playbook -v -i bin/envs/dev ansible/goldrush_update_app.yml
-
-.PHONY: all build lint test docker docker-push update-app
+.PHONY: all build lint test docker docker-push

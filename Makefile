@@ -15,6 +15,9 @@ up:
 	export eval `cat ./.env.local`; vagrant up --provider=google appliance
 	@cat goldrush.log
 
+update-app:
+	cd prov-shit && ansible-playbook -v -i bin/envs/dev ansible/goldrush_update_app.yml
+
 status:
 	export eval `cat ./.env.local`; vagrant status appliance
 
@@ -30,4 +33,4 @@ ssh:
 	$(call header, Connecting to GCE Machine)
 	export eval `cat ./.env.local`; vagrant ssh appliance
 
-.PHONY: status prepare dotenv up provision destroy ssh
+.PHONY: status prepare dotenv up provision destroy ssh update-app
