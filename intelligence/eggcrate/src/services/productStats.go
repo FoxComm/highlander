@@ -27,41 +27,45 @@ func productStatKeys(id string, channel string) []string {
 	single := all + id + "."
 	return []string{
 		single + "revenue",
-		single + "purchase",
 		single + "purchase-quantity",
 		single + "cart",
 		single + "list",
+		single + "pdp",
 		all + "revenue",
 		all + "purchase",
 		all + "purchase-quantity",
 		all + "cart",
 		all + "list",
-		all + "active",
+		all + "pdp",
 	}
 }
 
 func henhouseProductStats(id, channel, a, b string) (string, error) {
 	keys := productStatKeys(id, channel)
-	pf, qErr := util.HenhouseQuery(keys, a, b)
+	pf, qErr := util.HenhouseQuery("diff", keys, a, b, "")
 	if qErr != nil {
 		return "", qErr
 	}
 
-	return buildStatResponse(pf), nil
+	activeKey := []string{"track." + channel + ".product.active"}
+	activeRes, qErr := util.HenhouseQuery("diff", activeKey, a, b, "agg")
+	if qErr != nil {
+		return "", qErr
+	}
+
+	activeProducts := responses.GetSum("product.active", activeRes)
+
+	return buildStatResponse(pf, activeProducts), nil
 }
 
-func buildStatResponse(pf responses.HenhouseResponse) string {
+func buildStatResponse(pf responses.HenhouseResponse, activeProducts int) string {
 	//get stats for the particular product
 	revenue := responses.GetSum("revenue", pf)
-	ordersWithProduct := responses.GetSum("purchase.", pf)
 	ordered := responses.GetSum("purchase-quantity", pf)
 	addedToCart := responses.GetSum("cart", pf)
 	listed := responses.GetSum("list", pf)
+	pdpViews := responses.GetSum("pdp", pf)
 	inCart := addedToCart - int(ordered)
-	numberPerOrder := 0.0
-	if ordersWithProduct > 0 {
-		numberPerOrder = float64(ordered) / float64(ordersWithProduct)
-	}
 
 	conversionRate := 0.0
 	if listed > 0 {
@@ -70,14 +74,10 @@ func buildStatResponse(pf responses.HenhouseResponse) string {
 
 	//get stats across all products
 	allRevenue := responses.GetSum("product.revenue", pf)
-	allOrdersWithProduct := responses.GetSum("product.purchase.", pf)
 	allOrdered := responses.GetSum("product.purchase-quantity", pf)
 	allAddedToCart := responses.GetSum("product.cart", pf)
 	allListed := responses.GetSum("product.list", pf)
-	allNumberPerOrder := 0.0
-	if allOrdersWithProduct > 0 {
-		allNumberPerOrder = float64(allOrdered) / float64(allOrdersWithProduct)
-	}
+	allPdpViews := responses.GetSum("product.pdp", pf)
 
 	allInCart := allAddedToCart - allOrdered
 
@@ -89,31 +89,31 @@ func buildStatResponse(pf responses.HenhouseResponse) string {
 	avgRevenue := 0.0
 	avgOrdered := 0.0
 	avgInCart := 0.0
-	avgNumberPerOrder := 0.0
+	avgPdpViews := 0.0
 	avgConversionRate := 0.0
 
 	//stores the count of all products active
-	activeProducts := float64(responses.GetSum("product.active", pf))
-
 	if activeProducts > 0 {
-		avgRevenue = float64(allRevenue) / activeProducts
-		avgOrdered = float64(allOrdered) / activeProducts
-		avgInCart = float64(allInCart) / activeProducts
-		avgNumberPerOrder = allNumberPerOrder / activeProducts
-		avgConversionRate = allConversionRate / activeProducts
+		flActive := float64(activeProducts)
+		avgRevenue = float64(allRevenue) / flActive
+		avgOrdered = float64(allOrdered) / flActive
+		avgInCart = float64(allInCart) / flActive
+		avgPdpViews = float64(allPdpViews) / flActive
+		avgConversionRate = allConversionRate / flActive
 	}
 
 	resp := responses.ProductStatsResponse{
 		TotalRevenue:                 revenue,
 		TotalOrders:                  ordered,
-		AverageNumberPerOrder:        numberPerOrder,
+		TotalPdPViews:                pdpViews,
 		TotalInCarts:                 inCart,
 		ProductConversionRate:        conversionRate,
 		AverageTotalRevenue:          avgRevenue,
 		AverageTotalOrders:           avgOrdered,
-		AverageAverageNumberPerOrder: avgNumberPerOrder,
+		AveragePdPViews:              avgPdpViews,
 		AverageTotalInCarts:          avgInCart,
 		AverageProductConversionRate: avgConversionRate,
+		ActiveProducts:               activeProducts,
 	}
 	out, _ := json.Marshal(&resp)
 	return string(out)

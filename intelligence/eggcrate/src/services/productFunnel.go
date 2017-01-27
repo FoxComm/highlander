@@ -15,7 +15,7 @@ func ProductQuery(id string, verbs []string, a, b string) (responses.HenhouseRes
 	for _, verb := range verbs {
 		keys = append(keys, "track_product_"+id+verb)
 	}
-	return util.HenhouseQuery(keys, a, b)
+	return util.HenhouseQuery("diff", keys, a, b, "")
 }
 
 func GetProductFunnel(c echo.Context) error {

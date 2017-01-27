@@ -2,6 +2,7 @@ package util
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/FoxComm/highlander/intelligence/eggcrate/src/responses"
 	"net/http"
 	"os"
@@ -10,8 +11,12 @@ import (
 var url = os.Getenv("API_URL")
 var port = os.Getenv("HENHOUSE_PORT")
 
-func HenhouseQuery(keys []string, a, b string) (responses.HenhouseResponse, error) {
+func HenhouseQuery(action string, keys []string, a, b string, params string) (responses.HenhouseResponse, error) {
 	key := ""
+
+	if action != "diff" && action != "summary" {
+		return nil, errors.New("The action " + action + " is not supported")
+	}
 
 	for _, k := range keys {
 		key += k + ","
@@ -24,12 +29,16 @@ func HenhouseQuery(keys []string, a, b string) (responses.HenhouseResponse, erro
 		key += "&b=" + b
 	}
 
+	if params != "" {
+		key += "&" + params
+	}
+
 	port, err := getPort()
 	if err != nil {
 		return nil, err
 	}
 
-	resp, reqErr := http.Get(url + ":" + port + "/diff?keys=" + key)
+	resp, reqErr := http.Get(url + ":" + port + "/" + action + "?keys=" + key)
 	if reqErr != nil {
 		return nil, reqErr
 	}
