@@ -4,11 +4,30 @@ import {createAction, createReducer} from 'redux-act';
 import { assoc } from 'sprout-data';
 import Api from '../lib/api';
 
+// helpers
+const fetchStatsForStatKey = (statKey, from, to, productId, size, statNames, channel) => {
+  return dispatch => {
+    dispatch(startFetching());
+
+    const keys = `track.${channel}.product.${productId}.${statKey}`;
+    const stepSize = `step=${size}&size=${size}`;
+    const statsQuery = _.join(statNames, '&');
+
+    // [ sum, xy ] => 'sum&xy'
+    const url = `time/values?keys=${keys}&a=${from}&b=${to}&${stepSize}&${statsQuery}`;
+
+    return Api.get(url).then(
+      chartValues => dispatch(productStatsForStatKeyReceivedValues(chartValues, keys, size, from, to)),
+      err => dispatch(fetchFailed(err))
+    );
+  };
+}
+
 // action types
 /* generic */
 const startFetching = createAction('ANALYTICS_START_FETCHING');
-const startFetchingStats = createAction('ANALYTICS_START_FETCHING_STATS');
 const fetchFailed = createAction('ANALYTICS_FETCH_FAILED');
+const startFetchingStats = createAction('ANALYTICS_START_FETCHING_STATS');
 const fetchStatsFailed = createAction('ANALYTICS_FETCH_STATS_FAILED');
 export const resetAnalytics = createAction('ANALYTICS_RESET');
 /* time */
@@ -19,10 +38,10 @@ const receivedValues = createAction('ANALYTICS_RECEIVED',
 const productConversionReceivedValues = createAction('ANALYTICS_PRODUCTCONVERSION_RECEIVED',
   (chartValues) => [chartValues]
 );
-const productTotalRevenueReceivedValues = createAction('ANALYTICS_PRODUCTTOTALREVENUE_RECEIVED',
-  (chartValues) => [chartValues]
+const productStatsForStatKeyReceivedValues = createAction('ANALYTICS_PRODUCT_STATS_FOR_STAT_KEY_RECEIVED',
+  (chartValues, keys, size, from, to) => [chartValues, keys, size, from, to]
 );
-const productStatsReceivedValues = createAction('ANALYTICS_PRODUCTSTATS_RECEIVED', (stats) => [stats]);
+const productStatsReceivedValues = createAction('ANALYTICS_PRODUCT_STATS_RECEIVED', (stats) => [stats]);
 
 // actions
 /* time */
@@ -55,18 +74,6 @@ export function fetchProductConversion(productId) {
     );
   };
 }
-export function fetchProductTotalRevenue() {
-  return dispatch => {
-    dispatch(startFetching());
-    
-    const url = `stats/productSum/list/9`;
-
-    return Api.get(url).then(
-      chartValues => dispatch(productTotalRevenueReceivedValues(chartValues)),
-      err => dispatch(fetchFailed(err))
-    );
-  };
-}
 export function fetchProductStats(productId, channel = 1) {
   return dispatch => {
     dispatch(startFetching());
@@ -79,6 +86,12 @@ export function fetchProductStats(productId, channel = 1) {
     );
   };
 }
+export function fetchProductTotalRevenue(from, to, productId, size, channel = 1) {
+  return fetchStatsForStatKey('revenue', from, to, productId, size, ['agg', 'xy'], channel);
+}
+export function fetchProductTotalOrders(from, to, productId, size, channel = 1) {
+  return fetchStatsForStatKey('purchase-quantity', from, to, productId, size, ['sum', 'xy'], channel);
+}
 
 // redux store
 const initialState = {
@@ -86,11 +99,11 @@ const initialState = {
   isFetchingStats: null,
   err: null,
   chartValues: {},
-  sizeSec: 1,
-  stepSec: 1,
-  from: 0,
-  to: 0,
-  keys: [],
+  sizeSec: -1,
+  stepSec: -1,
+  from: -1,
+  to: -1,
+  keys: '',
   verbs: [],
   stats: {},
 };
@@ -136,11 +149,16 @@ const reducer = createReducer({
 
     return updater(state);
   },
-  [productTotalRevenueReceivedValues]: (state, [chartValues]) => {
+  [productStatsForStatKeyReceivedValues]: (state, [chartValues, keys, size, from, to]) => {
     const updater = _.flow(
       _.partialRight(assoc,
-        ['chartValues'], chartValues,
         ['isFetching'], false,
+        ['chartValues'], chartValues,
+        ['sizeSec'], size,
+        ['stepSec'], size,
+        ['from'], from,
+        ['to'], to,
+        ['keys'], keys,
       )
     );
 

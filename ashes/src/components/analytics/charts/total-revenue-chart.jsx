@@ -28,7 +28,7 @@ const areaStyle = {
 };
 
 const scatterStyle = {
-  data: { fill: colors.tealGreenish, opacity: 1 }
+  data: { fill: colors.tealGreenish, opacity: 0 }
 };
 
 const gridStyle = {
@@ -54,23 +54,28 @@ const formatRevenue = (moneyInCents, fractionDigits = 0) => {
 };
 
 // Dummy data for UI debugging
-const dummyJsonData = [
-  { revenue: 750000, timestamp: 1477983600 },
-  { revenue: 1650000, timestamp: 1478592000 },
-  { revenue: 1425000, timestamp: 1479196800 },
-  { revenue: 1900000, timestamp: 1479801600 },
-];
-const dummyDataTickValues = [
-  'Nov 1', 
-  'Nov 8', 
-  'Nov 15', 
-  'Nov 22',
-];
+const dummyQueryKey = 'track.1.product.2.debug';
+const dummyJsonData = {
+  dummyQueryKey: [
+    // y: Revenue in cents, x: UnixTimestamp
+    { y: 750000, x: 1477983600 },
+    { y: 1650000, x: 1478592000 },
+    { y: 1425000, x: 1479196800 },
+    { y: 1900000, x: 1479801600 },
+  ],
+};
+
+export const ChartSegmentType = {
+  Day: 'd',
+  Week: 'w',
+  Month: 'm',
+};
 
 type Props = {
   jsonData: Object,
-  debugMode?: ?boolean,
-  dayWeekOrMonth?: ?string, // d = days, w = weeks, m = month
+  debugMode?: boolean,
+  segmentType?: string,
+  queryKey?: string,
 }
 
 class TotalRevenueChart extends React.Component {
@@ -80,48 +85,43 @@ class TotalRevenueChart extends React.Component {
   static defaultProps = {
     jsonData: {},
     debugMode: false,
-    dayWeekOrMonth: 'd',
+    segmentType: ChartSegmentType.Day,
+    queryKey: '',
   };
-
-  get data() {
-    const { jsonData, debugMode } = this.props;
-
-    const jsonDisplay = (debugMode) ? dummyJsonData : jsonData;
-
-    // This is for dummyJsonData
-    // TODO: Update when real JSON response format is known
-    for (let idx = 0; idx < jsonDisplay.length; idx++) {
-      jsonDisplay[idx].x = idx + 1;
-      const revenueDisplay = formatRevenue(jsonDisplay[idx].revenue);
-
-      if (idx + 1 < jsonDisplay.length) {
-        const beginTime = unixTimeToDateFormat(jsonDisplay[idx].timestamp);
-        const endTime = unixTimeToDateFormat(jsonDisplay[idx + 1].timestamp);
-        const dateRange = `${beginTime} - ${endTime}`;
-        jsonDisplay[idx].label = `${revenueDisplay}\n${dateRange}`;
-      } else {
-        const dateRange = unixTimeToDateFormat(jsonDisplay[idx].timestamp);
-        jsonDisplay[idx].label = `${revenueDisplay}\n${dateRange}`;
-      }
-    }
-
-    return jsonDisplay;
-  }
 
   @autobind
   generateDataTickValues(fromData) {
-    const { debugMode } = this.props;
+    const { jsonData, debugMode, queryKey, segmentType } = this.props;
 
-    if (debugMode) {
-      return dummyDataTickValues;
-    }
+    const jsonDisplay = (debugMode) ? dummyJsonData[dummyQueryKey] : jsonData[queryKey];
 
-    //TODO: Generate "MMM D" date formats to go along x-axis from json response data
-    return [];
+    let tickValues = [];
+
+    _.each(jsonDisplay, (d) => {
+      const integerTime = parseInt(d.x);
+      let timeFormat = null;
+
+      switch(segmentType) {
+        case ChartSegmentType.Day:
+          timeFormat = 'h A';
+          break;
+        case ChartSegmentType.Week:
+          timeFormat = 'MMM D';
+          break;
+        case ChartSegmentType.Month:
+          timeFormat = 'MMM';
+          break;
+      }
+
+      tickValues = _.concat(tickValues, moment.unix(integerTime).format(timeFormat));
+    });
+
+    return tickValues;
   }
 
   get chart() {
     const displayData = this.data;
+    const dataTickValues = this.generateDataTickValues(displayData);
 
     return (
       <div>
@@ -134,7 +134,7 @@ class TotalRevenueChart extends React.Component {
               tickLabels: { fontSize: 8, fill: colors.gray },
             }}
             orientation="bottom"
-            tickValues={this.generateDataTickValues(displayData)} />
+            tickValues={dataTickValues} />
           <VictoryAxis
             dependentAxis
             standalone={false}
@@ -144,17 +144,43 @@ class TotalRevenueChart extends React.Component {
           <VictoryArea
             style={areaStyle}
             data={this.data}
-            x="x"
-            y="revenue" />
+            x="tick"
+            y="y" />
           <VictoryScatter
             labelComponent={<TotalRevenueToolTip />}
             style={scatterStyle}
             data={displayData}
-            x="x"
-            y="revenue" />
+            x="tick"
+            y="y" />
         </VictoryChart>
       </div>
     );
+  }
+
+  get data() {
+    const { jsonData, debugMode, queryKey } = this.props;
+
+    const jsonDisplay = (debugMode) ? dummyJsonData[dummyQueryKey] : jsonData[queryKey];
+
+    // For each datum, set the x-axis tick value, mouseOver label and dateRange display
+    for (let idx = 0; idx < jsonDisplay.length; idx++) {
+      jsonDisplay[idx].tick = idx + 1;
+      const revenueDisplay = formatRevenue(jsonDisplay[idx].y);
+
+      if (idx + 1 < jsonDisplay.length) {
+        const beginTime = unixTimeToDateFormat(jsonDisplay[idx].x);
+        const endTime = unixTimeToDateFormat(jsonDisplay[idx + 1].x);
+        const dateRange = `${beginTime} - ${endTime}`;
+
+        jsonDisplay[idx].label = `${revenueDisplay}\n${dateRange}`;
+      } else {
+        const dateRange = unixTimeToDateFormat(jsonDisplay[idx].x);
+
+        jsonDisplay[idx].label = `${revenueDisplay}\n${dateRange}`;
+      }
+    }
+
+    return jsonDisplay;
   }
 
   render() {
