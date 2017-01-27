@@ -1,6 +1,8 @@
+/* @flow weak */
+
 //libs
 import _ from 'lodash';
-import React, { PropTypes, Component } from 'react';
+import React, { PropTypes, Component, Element } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { autobind, debounce } from 'core-decorators';
@@ -10,9 +12,9 @@ import classNames from 'classnames';
 //data
 import criterions from 'paragons/customer-groups/criterions';
 import operators from 'paragons/customer-groups/operators';
-import requestAdapter from 'modules/customer-groups/request-adapter';
-import * as groupActions from 'modules/customer-groups/group';
-import { actions as customersListActions } from 'modules/customer-groups/customers-list';
+import requestAdapter from 'modules/customer-groups/utils/request-adapter';
+import * as groupActions from 'modules/customer-groups/details/group';
+import { actions as customersListActions } from 'modules/customer-groups/details/customers-list';
 
 //helpers
 import { transitionTo } from 'browserHistory';
@@ -26,6 +28,24 @@ import MultiSelectRow from 'components/table/multi-select-row';
 import ContentBox from 'components/content-box/content-box';
 import Currency from 'components/common/currency';
 import Criterion from './editor/criterion-view';
+
+type State = {
+  criteriaOpen: boolean,
+};
+
+type Props = {
+  customersList: Object,
+  statsLoading: boolean,
+  group: TCustomerGroup,
+  groupActions: {
+    fetchGroupStats: Function,
+  },
+  customersListActions: {
+    resetSearch: Function,
+    setExtraFilters: Function,
+    fetch: Function,
+  },
+};
 
 const prefixed = prefix('fc-customer-group');
 
@@ -60,54 +80,32 @@ const StatsValue = ({ value, currency, preprocess = _.identity }) => {
 @connect(mapStateToProps, mapDispatchToProps)
 export default class DynamicGroup extends Component {
 
-  static propTypes = {
-    customersList: PropTypes.object,
-    statsLoading: PropTypes.bool,
-    group: PropTypes.shape({
-      id: PropTypes.number,
-      name: PropTypes.string,
-      mainCondition: PropTypes.oneOf([
-        operators.and,
-        operators.or,
-      ]),
-      conditions: PropTypes.arrayOf(PropTypes.array),
-      stats: PropTypes.shape({
-        ordersCount: PropTypes.number,
-        totalSales: PropTypes.number,
-        averageOrderSize: PropTypes.number,
-        averageOrderSum: PropTypes.number,
-      }),
-    }),
-    groupActions: PropTypes.shape({
-      fetchGroupStats: PropTypes.func.isRequired,
-    }).isRequired,
-    customersListActions: PropTypes.shape({
-      fetch: PropTypes.func.isRequired,
-    }).isRequired,
+  props: Props;
+
+  static defaultProps = {
+    customersList: [],
   };
 
-  state = {
+  state: State = {
     criteriaOpen: true,
   };
 
   componentDidMount() {
-    this.refreshGroupData(this.props.group);
+    this.refreshGroupData();
   }
 
-  componentWillReceiveProps({ group }) {
+  componentWillReceiveProps({ group }: Props) {
     if (group.id !== this.props.group.id) {
-      this.refreshGroupData(group);
+      this.refreshGroupData();
     }
   }
 
-  refreshGroupData({ mainCondition, conditions }) {
-    const { customersListActions, groupActions } = this.props;
+  refreshGroupData() {
+    const { customersListActions, groupActions, group } = this.props;
 
     customersListActions.resetSearch();
 
-    customersListActions.setExtraFilters([
-      requestAdapter(criterions, mainCondition, conditions).toRequest().query,
-    ]);
+    customersListActions.setExtraFilters([ { term: { 'groups': group.id } } ]);
 
     customersListActions.fetch();
 
@@ -148,20 +146,24 @@ export default class DynamicGroup extends Component {
   }
 
   @autobind
-  renderCriterion([field, operator, value], index) {
+  renderCriterion([field, operator, value]: Array<Object>, index?: number): Element {
     return (
-      <Criterion key={index}
-                 field={field}
-                 operator={operator}
-                 value={value} />
+      <Criterion
+        key={index}
+        field={field}
+        operator={operator}
+        value={value}
+      />
     );
   }
 
-  get criteria() {
+  get criteria(): ?Element {
     const { mainCondition, conditions } = this.props.group;
     const main = mainCondition === operators.and ? 'all' : 'any';
 
-    return (
+    const conditionBlock = _.map(conditions, c => this.renderCriterion(c));
+
+    return conditions && (
       <ContentBox title="Criteria"
                   className={prefixed('criteria')}
                   bodyClassName={classNames({'_open': this.state.criteriaOpen})}
@@ -171,12 +173,12 @@ export default class DynamicGroup extends Component {
           &nbsp;<span className={prefixed('inline-label')}>{main}</span>&nbsp;
           of the following criteria:
         </span>
-        {conditions.map(this.renderCriterion)}
+        {conditionBlock}
       </ContentBox>
     );
   }
 
-  get criteriaToggle() {
+  get criteriaToggle(): Element {
     const { criteriaOpen } = this.state;
     const icon = criteriaOpen ? 'icon-chevron-up' : 'icon-chevron-down';
 
@@ -187,7 +189,10 @@ export default class DynamicGroup extends Component {
 
 
   get stats() {
+    // $FlowFixMe
     const { statsLoading, group: { stats } } = this.props;
+
+    if (stats == null) return null;
 
     return (
       <PanelList className={classNames(prefixed('stats'), { _loading: statsLoading })}>
@@ -212,7 +217,7 @@ export default class DynamicGroup extends Component {
     this.props.customersListActions.fetch();
   }
 
-  get renderRow() {
+  get renderRow(): Function {
     return (row, index, columns, params) => (
       <MultiSelectRow
         key={index}
@@ -221,11 +226,12 @@ export default class DynamicGroup extends Component {
         linkParams={{customerId: row.id}}
         row={row}
         setCellContents={(customer, field) => _.get(customer, field)}
-        params={params} />
+        params={params}
+      />
     );
   }
 
-  get table() {
+  get table(): Element {
     const { customersList, customersListActions } = this.props;
 
     return (
@@ -236,7 +242,8 @@ export default class DynamicGroup extends Component {
         renderRow={this.renderRow}
         tableColumns={tableColumns}
         searchActions={customersListActions}
-        searchOptions={{singleSearch: true}} />
+        searchOptions={{singleSearch: true}}
+      />
     );
   }
 

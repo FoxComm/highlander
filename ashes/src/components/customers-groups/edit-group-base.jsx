@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-import { reset, fetchGroup, saveGroup } from 'modules/customer-groups/group';
+import { reset, fetchGroup, saveGroup } from 'modules/customer-groups/details/group';
 import { fetchRegions } from 'modules/regions';
 
 import { Link } from 'components/link';

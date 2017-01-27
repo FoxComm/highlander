@@ -1,4 +1,4 @@
-import makeLiveSearch from '../live-search';
+import makeLiveSearch from 'modules/live-search';
 
 const searchTerms = [
   {
@@ -23,7 +23,10 @@ const { reducer, actions } = makeLiveSearch(
   searchTerms,
   'customers_search_view/_search',
   'customersScope',
-  { skipInitialFetch: true }
+  {
+    skipInitialFetch: true,
+    initialState: { sortBy: '-joinedAt' }
+  }
 );
 
 export {

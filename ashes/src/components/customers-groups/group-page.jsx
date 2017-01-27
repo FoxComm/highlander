@@ -7,7 +7,7 @@ import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 
-import { reset, fetchGroup, archiveGroup, clearArchiveErrors } from 'modules/customer-groups/group';
+import { reset, fetchGroup, archiveGroup, clearArchiveErrors } from 'modules/customer-groups/details/group';
 
 //components
 import ArchiveActionsSection from 'components/archive-actions/archive-actions';
@@ -16,18 +16,18 @@ import WaitAnimation from 'components/common/wait-animation';
 import DynamicGroup from './dynamic-group';
 
 type Props = {
-  group: TCustomerGroup;
-  fetched: boolean;
-  err: Object;
-  archiveState: AsyncState;
-  reset: () => void;
-  clearArchiveErrors: () => Promise;
-  fetchGroup: (id: string) => Promise;
-  archiveGroup: (id: string) => Promise;
-  push: (location: Object) => void;
+  group: TCustomerGroup,
+  fetched: boolean,
+  err: Object,
+  archiveState: AsyncState,
+  reset: () => void,
+  clearArchiveErrors: () => Promise,
+  fetchGroup: (id: number) => Promise,
+  archiveGroup: (id: number) => Promise,
+  push: (location: Object) => void,
   params: {
-    groupId: string;
-  };
+    groupId: string,
+  },
 };
 
 class GroupPage extends Component {
@@ -41,12 +41,12 @@ class GroupPage extends Component {
 
   componentDidMount() {
     if (!this.isRequestedGroup) {
-      this.props.fetchGroup(this.props.params.groupId);
+      this.props.fetchGroup(parseInt(this.props.params.groupId, 10));
     }
   }
 
   get isRequestedGroup() {
-    return this.props.group.id == this.props.params.groupId;
+    return this.props.group.id == parseInt(this.props.params.groupId, 10);
   }
 
   @autobind

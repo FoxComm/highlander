@@ -6,13 +6,11 @@ import Selector from './selector';
 import Sorter from './sorter';
 import Aggregator from './aggregations/aggregator';
 
-
 export type RequestType = {
-  _source?: Array<string>;
-  query?: Object;
-  sort?: Array<Object>;
+  _source?: Array<string>,
+  query?: Object,
+  sort?: Array<Object>,
 };
-
 
 export default class Request extends Element {
 
@@ -38,8 +36,7 @@ export default class Request extends Element {
     return this._query;
   }
 
-  set query(value: Condition) {
-    value.root = this;
+  set query(value) {
     this._query = value;
   }
 
@@ -70,9 +67,11 @@ export default class Request extends Element {
       request._source = this.select.toRequest();
     }
 
-    if (this.query && this.query.length) {
+    if (this.query) {
       request.query = {
-        bool: this.query.toRequest()
+        bool: {
+          filter: [ this.query ],
+        },
       };
     }
 

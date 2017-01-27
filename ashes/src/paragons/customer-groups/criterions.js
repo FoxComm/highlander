@@ -182,6 +182,24 @@ const criterions = [
     field: 'joinedAt',
     label: 'Date Joined',
   },
+  {
+    type: types.enum,
+    operators: [
+      ops.equal,
+      ops.notEqual,
+    ],
+    widget: {
+      default: widgets.dropdown,
+      config: {
+        choices: [
+          [false, 'Registered User'],
+          [true, 'Guest'],
+        ],
+      },
+    },
+    field: 'isGuest',
+    label: 'User Status',
+  },
 ];
 
 export const getCriterion = field => _.find(criterions, {field: field});

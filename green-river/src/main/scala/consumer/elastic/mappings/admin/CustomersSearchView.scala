@@ -66,13 +66,16 @@ final case class CustomersSearchView()(implicit ec: EC) extends AvroTransformer 
       field("storeCreditCount", IntegerType),
       // Revenue and rank
       field("revenue", IntegerType),
-      field("rank", IntegerType)
+      field("rank", IntegerType),
+      // Groups
+      field("groups", StringType).index("not_analyzed")
   )
 
   override def nestedFields() = List(
       "orders",
       "carts",
       "shipping_addresses",
-      "billing_addresses"
+      "billing_addresses",
+      "groups"
   )
 }

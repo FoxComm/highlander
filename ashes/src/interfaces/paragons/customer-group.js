@@ -1,19 +1,35 @@
 type Condition = Array<String>;
 
-declare type TCustomerGroupShort = {
-  id: string;
-  name: string;
-  type: string;
-}
-
-declare type TCustomerGroup = TCustomerGroupShort & {
-  customersCount: number;
-  isValid: boolean;
-  stats: Object;
-  conditions: Array<Condition>;
-  mainCondition: string;
-  elasticRequest: Object;
-  createdAt: string;
-  updatedAt: string;
-  stats: ?Object;
+type TCustomerGroupShort = {
+  id: number,
+  name: string,
+  type: string,
 };
+
+type TCustomerGroupStats = {
+  orderCount: ?number,
+  totalSales: ?number,
+  averageOrderSize: ?number,
+  averageorderSum: ?number,
+};
+
+type TCustomerGroup = TCustomerGroupShort & {
+  customersCount: number,
+  isValid: boolean,
+  conditions: Array<Condition>,
+  mainCondition: string,
+  elasticRequest: Object,
+  createdAt: string,
+  updatedAt: string,
+  stats: ?TCustomerGroupStats,
+};
+
+
+type TTemplate = {
+  id: number,
+  name: string,
+  clientState: Object, // JSON with dsl request handled by UI to build group constructor
+  elasticRequest: Object, // JSON with query sent to ES
+};
+
+type TTemplates = Array<TTemplate>;

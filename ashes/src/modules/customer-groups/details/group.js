@@ -9,9 +9,10 @@ import Api from 'lib/api';
 import * as search from 'lib/search';
 import { post } from 'lib/search';
 import criterions, { getCriterion, getWidget } from 'paragons/customer-groups/criterions';
-import { aggregations } from 'elastic/request';
+import { Request, aggregations } from 'elastic/request';
 import { createAsyncActions } from '@foxcomm/wings';
-import requestAdapter from './request-adapter';
+
+import requestAdapter from '../utils/request-adapter';
 
 const mapping = 'customers_search_view';
 
@@ -126,11 +127,20 @@ export const saveGroup = () => (dispatch: Function, getState: Function) => {
       conditions,
     },
     elasticRequest,
-    customersCount: 0,
   };
 
   return dispatch(_saveGroup.perform(groupId, data));
 };
+
+/**
+ * Save new group from predefined template
+ *
+ * @param {TTemplate} template
+ *
+ * @return Promise
+ */
+export const saveGroupFromTemplate = (template: TTemplate) => (dispatch: Function, getState: Function) =>
+  dispatch(_saveGroup.perform(void 0, template));
 
 /**
  * Fetch customer group's stats
@@ -139,11 +149,10 @@ export const saveGroup = () => (dispatch: Function, getState: Function) => {
  */
 export const fetchGroupStats = () => (dispatch: Function, getState: Function) => {
   const state = getState();
+  const group = get(state, ['customerGroups', 'details', 'group']);
 
-  const mainCondition = get(state, ['customerGroups', 'details', 'group', 'mainCondition']);
-  const conditions = get(state, ['customerGroups', 'details', 'group', 'conditions']);
-
-  const request = requestAdapter(criterions, mainCondition, conditions);
+  const request = new Request([]);
+  request.query = { term: { 'groups': group.id } };
 
   request.aggregations
     .add(new aggregations.Sum('ordersCount', 'orderCount'))
@@ -154,7 +163,8 @@ export const fetchGroupStats = () => (dispatch: Function, getState: Function) =>
   dispatch(_fetchStats.perform(request.toRequest()));
 };
 
-const validateConditions = conditions => conditions.length && conditions.every(validateCondition);
+const validateConditions = conditions =>
+  conditions && conditions.length && conditions.every(validateCondition);
 
 const validateCondition = ([field, operator, value]) => {
   if (!field || !operator) {
@@ -168,12 +178,10 @@ const validateCondition = ([field, operator, value]) => {
 };
 
 type State = {
-  group: TCustomerGroup;
-}
+  group: TCustomerGroup,
+};
 
-const setData = (state: State, response: Object) => {
-  const { clientState: { mainCondition, conditions }, ...rest } = response;
-
+const setData = (state: State, { clientState: { mainCondition, conditions }, ...rest }) => {
   return {
     ...rest,
     conditions,
@@ -199,7 +207,7 @@ const reducer = createReducer({
   [setName]: (state, name) => ({ ...state, name }),
   [setMainCondition]: (state, mainCondition) => ({ ...state, mainCondition }),
   [setConditions]: (state, conditions) => ({ ...state, conditions, isValid: validateConditions(conditions) }),
-  [setGroupStats]: (state, stats) => ({ ...state, stats })
+  [setGroupStats]: (state, stats) => ({ ...state, stats }),
 }, initialState);
 
 export default reducer;
