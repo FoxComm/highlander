@@ -90,7 +90,7 @@ trait TaxonomySeeds extends TestFixtureBase {
   trait HierarchicalTaxons_Raw extends TaxonSeedBase {
     def taxonomy: Taxonomy
 
-    val taxonNames = (1 to 7).map("taxon" + _.toString)
+    val taxonNames = (1 to 7).map(i ⇒ s"taxon$i")
     val taxons: Seq[Taxon] = createTaxons(
         taxonNames.map(name ⇒ Map("name" → (("t" → "string") ~ ("v" → name)))))
 

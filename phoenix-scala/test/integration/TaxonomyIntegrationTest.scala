@@ -26,7 +26,7 @@ class TaxonomyIntegrationTest
     with TaxonomySeeds
     with PhoenixAdminApi {
 
-  def findTaxonsById(taxons: TaxonList, id: Int): Option[TaxonTreeResponse] =
+  def findTaxonsById(taxons: Seq[TaxonTreeResponse], id: Int): Option[TaxonTreeResponse] =
     taxons
       .find(_.taxon.id == id)
       .orElse(
