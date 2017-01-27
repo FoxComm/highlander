@@ -1,9 +1,10 @@
 ----- update view
 alter table product_variants_search_view add column middlewarehouse_sku_id int;
 
+drop index if exists sku_search_view_idx;
 alter table product_variants_search_view
-  drop constraint sku_search_view_pkey,
-  add constraint product_variants_search_view_pkey primary key (id, context_id);
+  drop constraint if exists sku_search_view_pkey,
+  drop constraint if exists sku_search_view_id;
 
 update product_variants_search_view
 set id = product_variants.form_id
@@ -11,6 +12,7 @@ from product_variants
 where product_variants.id = product_variants_search_view.id;
 
 alter table product_variants_search_view
+  add constraint product_variants_search_view_pkey primary key (id, context_id),
   add foreign key (id) references object_forms (id) on delete restrict on update cascade,
   add foreign key (context_id) references object_contexts (id) on delete restrict on update cascade,
   add foreign key (middlewarehouse_sku_id) references product_variant_mwh_sku_ids (mwh_sku_id) on delete restrict on update cascade;
