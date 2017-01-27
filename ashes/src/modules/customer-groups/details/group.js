@@ -151,20 +151,14 @@ export const fetchGroupStats = () => (dispatch: Function, getState: Function) =>
   const state = getState();
   const group = get(state, ['customerGroups', 'details', 'group']);
 
-/*  const mainCondition = get(state, ['customerGroups', 'details', 'group', 'mainCondition']);
-  const conditions = get(state, ['customerGroups', 'details', 'group', 'conditions']);
+  //const mainCondition = get(state, ['customerGroups', 'details', 'group', 'mainCondition']);
+  //const conditions = get(state, ['customerGroups', 'details', 'group', 'conditions']);
 
-  const request = requestAdapter(criterions, mainCondition, conditions);
-
-  request.aggregations
-    .add(new aggregations.Sum('ordersCount', 'orderCount'))
-    .add(new aggregations.Sum('totalSales', 'orders.subTotal'))
-    .add(new aggregations.Average('averageOrderSize', 'orders.itemsCount'))
-    .add(new aggregations.Average('averageOrderSum', 'orders.subTotal'));*/
+  //const request = requestAdapter(criterions, mainCondition, conditions);
 
   const request = new Request([]);
-  request.query = requestAdapter(group.id);
-  console.log(request);
+  request.query = { term: { 'groups': group.id } };
+
   request.aggregations
     .add(new aggregations.Sum('ordersCount', 'orderCount'))
     .add(new aggregations.Sum('totalSales', 'orders.subTotal'))
@@ -189,8 +183,8 @@ const validateCondition = ([field, operator, value]) => {
 };
 
 type State = {
-  group: TCustomerGroup;
-}
+  group: TCustomerGroup,
+};
 
 const setData = (state: State, {clientState: {mainCondition, conditions}, ...rest}) => {
   return {

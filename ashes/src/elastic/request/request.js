@@ -7,9 +7,9 @@ import Sorter from './sorter';
 import Aggregator from './aggregations/aggregator';
 
 export type RequestType = {
-  _source?: Array<string>;
-  query?: Object;
-  sort?: Array<Object>;
+  _source?: Array<string>,
+  query?: Object,
+  sort?: Array<Object>,
 };
 
 export default class Request extends Element {
@@ -37,7 +37,6 @@ export default class Request extends Element {
   }
 
   set query(value) {
-//    value.root = this;
     this._query = value;
   }
 
