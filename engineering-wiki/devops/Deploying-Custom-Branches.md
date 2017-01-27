@@ -1,6 +1,6 @@
 # Deploying Custom Branches
 
-There are two different approaches of deploying custom container tags to your developer appliance.
+There are multiple different approaches of deploying custom container tags to your developer appliance:
 
 [First one](#from-scratch) implies that you don't have a running instance and you'll specify the tags in `.env.local` before running `make up`. You will have to build and push this tags manually.
 
@@ -37,15 +37,16 @@ Run this from the root of Highlander:
 
 The script will prompt you for various info:
 
-1. Your appliance IP address. To be replaced by Goldrush statefile.
-2. A name of highlander sub-project to re-deploy. Supported values (for now):
+1. Your appliance **IP address**. To be replaced by Goldrush statefile.
+2. A **name of Highlander sub-project** to re-deploy. Supported values (for now):
     * `ashes`
     * `firebrand`
     * `middlewarehouse`
     * `messaging`
     * `isaac`
     * `solomon`
-3. A name of a branch or a tag to be re-deployed.
-4. Whether script should (`no` by default) automatically checkout specified branch and try to build, dockerize and push it to repo? Notes:
-    * You shouldn't have uncommited files in your current repository state.
+3. A **name of a branch / tag** to re-deploy.
+4. Whether script should automatically checkout specified branch and try to build, dockerize and push it to repo? Notes:
+    * Default value is `no`.
+    * If you've set `yes`, you shouldn't have uncommited files in your current repository state.
     * If you've set `master` branch, build phase will be skipped to avoid accidental overwrites.
