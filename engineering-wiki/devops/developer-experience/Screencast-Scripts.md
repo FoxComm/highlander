@@ -61,16 +61,7 @@ In the next video, we will learn how to actually change things there.
 
 ## Deploying and Testing Custom Branch of Application
 
-TBD.
-
-Plans:
-
-    * Opening created appliance in web browser.
-    * Short note about Mesos workers.
-    * Running `docker build && docker push`.
-    * Swapping containers in Marathon.
-    * Checking for Firebrand / Ashes for changes.
-    * Mentioning Anna's doc for more info.
+Plan: show how-to use [Deploying-Custom-Branches.md](engineering-wiki/devops/Deploying-Custom-Branches.md) `make update-app` CLI tool.
 
 ## Using Bundled Software to Solve Problems
 
