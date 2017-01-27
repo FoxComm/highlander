@@ -6,6 +6,10 @@ Contents:
 * [Git Hooks](Git-Hooks.md)
 * [Local VM Development Environment](Local-Vm-DevEnv.md)
 
-Subdirectories:
+External:
+
+* [Anna's guide to GCE](https://docs.google.com/document/d/1Jfm6svDqsSJ57k9ezwDUHzUaGwHiR6I2xlcgUeIpcD4/edit)
+
+Miscellaneous:
 
 * [buildkite](buildkite) - Old Buildkite pipelines backups.
