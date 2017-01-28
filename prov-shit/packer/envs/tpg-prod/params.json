@@ -13,7 +13,5 @@
     "google_oauth_frontend_redirect_uri": "",
     "mesos_quorum": 1,
     "mesos_cluster_name": "perfect-gourmet",
-    "phoenix_tracing": false,
-    "zookeeper_server": "zookeeper.service.consul:2181",
-    "zookeepers" : "zk://zookeeper.service.consul:2181"
+    "phoenix_tracing": false
 }

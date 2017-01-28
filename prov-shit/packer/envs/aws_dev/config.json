@@ -1,15 +1,14 @@
 {
-  "project_base": "aws_dev",
-  "ssh_username": "ubuntu",
-  "source_ami": "ami-9ece19fe",
-  "instance_type": "m4.large",
-  "region": "us-west-2",
-  "vpc_id": "vpc-ec476d88",
-  "security_group_id": "sg-60051106",
-  "subnet_id": "subnet-9794cdf3",
-
-  "base_united_ami": "ami-d48d24b4",
-  "amigo_instance_type": "m4.large",
-  "backend_instance_type": "m4.xlarge",
-  "frontend_instance_type": "m4.large"
+    "project_base": "aws_dev",
+    "ssh_username": "ubuntu",
+    "source_ami": "ami-9ece19fe",
+    "instance_type": "m4.large",
+    "region": "us-west-2",
+    "vpc_id": "vpc-ec476d88",
+    "security_group_id": "sg-60051106",
+    "subnet_id": "subnet-9794cdf3",
+    "base_united_ami": "ami-d48d24b4",
+    "amigo_instance_type": "m4.large",
+    "backend_instance_type": "m4.xlarge",
+    "frontend_instance_type": "m4.large"
 }

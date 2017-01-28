@@ -10,17 +10,6 @@ vagrant: false
 local_vagrant: false
 foxcomm_domain: foxcommerce.com
 
-# Marathon Defaults
-marathon_retries: 60
-marathon_delay: 10
-
-# Docker Defaults
-docker_tag: master
-docker_registry: docker-stage.foxcommerce.com
-docker_registry_provider: gce
-docker_logs_dir: /logs
-docker_logs_host_dir: /var/log/docker
-
 # Default docker tags for containers
 docker_tags:
     ashes: master
@@ -46,11 +35,10 @@ docker_tags:
 # Consul Service Discovery
 consul_data_dir: /var/consul
 consul_suffix: service.consul
-consul_port: 8500
-consul_server: "{{self_host}}:{{consul_port}}"
 
 consul_hosts:
     ashes: "ashes.{{consul_suffix}}"
+    consul: "{{self_host}}"
     db: "db.{{consul_suffix}}"
     docker_db: "db.{{consul_suffix}}"
     elasticsearch: "elasticsearch.{{consul_suffix}}"
@@ -71,6 +59,7 @@ consul_hosts:
 
 consul_ports:
     ashes: 4000
+    consul: 8500
     es_http: 9200
     es_tcp: 9300
     es_logs: 9201
@@ -93,6 +82,7 @@ consul_ports:
 
 consul_services:
     ashes: "{{consul_hosts.ashes}}.{{consul_ports.ashes}}"
+    consul: "{{consul_hosts.consul}}.{{consul_ports.consul}}"
     isaac: "{{consul_hosts.isaac}}.{{consul_ports.isaac}}"
     es_http: "{{consul_hosts.elasticsearch}}.{{consul_ports.es_http}}"
     es_tcp: "{{consul_hosts.elasticsearch}}.{{consul_ports.es_tcp}}"
@@ -109,6 +99,17 @@ consul_services:
     storefront: "{{consul_hosts.storefront}}.{{consul_ports.storefront}}"
     zookeeper: "{{consul_hosts.zookeeper}}.{{consul_ports.zookeeper}}"
     zookeepers: "zk://{{consul_services.zookeeper}}"
+
+# Docker Defaults
+docker_tag: master
+docker_registry: docker-stage.foxcommerce.com
+docker_registry_provider: gce
+docker_logs_dir: /logs
+docker_logs_host_dir: /var/log/docker
+
+# Marathon Defaults
+marathon_retries: 60
+marathon_delay: 10
 
 # Database & bottledwater
 db_user: phoenix
@@ -169,13 +170,9 @@ shipstation_api_secret: ""
 shipstation_topic: "activities"
 shipstation_interval: "10s"
 
-# Ashes
-ashes_env: production
-
 # Firebrand variables
 firebrand_env: production
 firebrand_default_language: en
-firebrand_fixed_language: false
 
 # Storefront variables
 storefront_default_language: en
@@ -206,10 +203,6 @@ zipkin_collector: localhost
 # Are we running packer?
 packing: false
 
-# Should we upload Phoenix / Green River JAR?
-# Should be seed DB, seed via Gatling?
-upload_phoenix_jar: true
-
 # Deploy marketplace?
 with_marketplace: false
 
@@ -235,9 +228,6 @@ marketplace_db_connection_string: "postgresql://{{marketplace_db_user}}@{{consul
 
 # Set this to true for first run deployments
 first_run: false
-
-# BuildKite Settings
-buildkite_env: gce
 
 # Logrotate
 logrotate_dir: /etc/logrotate.d
