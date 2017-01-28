@@ -110,12 +110,13 @@ class Products extends Component {
     const description = (category && category.description && category.description !== 'Valentine\'s Day Picks')
       ? <p styleName="description">{category.description}</p>
       : '';
+
     const bgImageStyle = category.imageUrl ?
     { backgroundImage: `url(${category.imageUrl})` } : {};
 
     const className = `header-${categoryName}`;
 
-    const newCategoryName = category.name !== 'VALENTINE'
+    const title = category.name !== 'VALENTINE'
       ? <h1 styleName="title">{category.name}</h1>
       : <h1 styleName="title">{category.description}</h1>;
 
@@ -124,7 +125,7 @@ class Products extends Component {
         <div styleName="header-wrap" style={bgImageStyle}>
           <div styleName="text-wrap">
             <span styleName="description">{description}</span>
-            {newCategoryName}
+            {title}
           </div>
         </div>
       </header>
