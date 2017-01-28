@@ -49,40 +49,9 @@ const MultiSelectRow = (props, context) => {
         break;
     }
 
-    const cls = classNames({
+    const cls = classNames(`fct-${col.field}`, {
       'row-head-left': col.field == 'selectColumn',
-      'row-head-right': col.field == 'toggleColumns',
-      'id' : col.field == 'id',
-      'name': col.field == 'name',
-      'storefront-name' : col.field == 'storefrontName',
-      'code' : col.field == 'code',
-      'state' : col.field == 'state',
-      'retail-price' : col.field == 'retailPrice',
-      'sale-price' : col.field == 'salePrice',
-      'total-uses' : col.field == 'totalUsed',
-      'current-carts' : col.field == 'currentCarts',
-      'line-item-sku': col.field == 'sku',
-      'line-item-price': col.field == 'price',
-      'line-item-quantity': col.field == 'quantity',
-      'line-item-total-price': col.field == 'totalPrice',
-      'coupon-codes' : col.field == 'codes',
-      'email' : col.field == 'email',
-      'ship-region' : col.field == 'shipRegion',
-      'bill-region' : col.field == 'billRegion',
-      'rank' : col.field == 'rank',
-      'original-balance' : col.field == 'originalBalance',
-      'current-balance' : col.field == 'currentBalance',
-      'available-balance' : col.field == 'availableBalance',
-      'on-hand' : col.field == 'onHand',
-      'hold' : col.field == 'onHold',
-      'reserved' : col.field == 'reserved',
-      'afs' : col.field == 'afs',
-      'afs-cost' : col.field == 'afsCost',
-      'product-name' : col.field == 'title',
-      'product-id' : col.field == 'productId',
-      'promo-name' : col.field == 'promotionName',
-      'apply-type' : col.field == 'applyType',
-      'sku-code' : col.field == 'skuCode'
+      'row-head-right': col.field == 'toggleColumns'
     });
 
     visibleCells.push(
