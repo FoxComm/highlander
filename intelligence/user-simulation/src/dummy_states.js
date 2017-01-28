@@ -2,6 +2,10 @@ const _ = require('lodash');
 const faker  = require('faker');
 const system = require('system');
 
+function setup(c) {
+  console.log("dummy setup");
+}
+
 async function homepage(c) {
   console.log("dummy homepage");
 }
@@ -41,5 +45,6 @@ const stateFunctions = {
   clear_cart: clear_cart
 };
 
+exports.setup = setup;
 exports.stateFunctions = stateFunctions;
 
