@@ -117,15 +117,17 @@ func (agent *Agent) Run() {
 
 	ticker := time.NewTicker(agent.timeout)
 
-	for {
-		select {
-		case <-ticker.C:
-			err := agent.processGroups()
-			if err != nil {
-				log.Panicf("An error occured processing groups: %s", err)
+	go func() {
+		for {
+			select {
+			case <-ticker.C:
+				err := agent.processGroups()
+				if err != nil {
+					log.Panicf("An error occured processing groups: %s", err)
+				}
 			}
 		}
-	}
+	}()
 }
 
 func (agent *Agent) processGroups() error {
