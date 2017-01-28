@@ -71,7 +71,6 @@ const lineItemAttributes = (item: SkuItem, columns: Array<Column>): Array<?Eleme
 const SkuLineItems = (props: Props): Element => {
   const { items, renderRow, withAttributes, className } = props;
   const columns = props.columns ? props.columns : defaultColumns;
-  console.log(defaultColumns);
 
   const processRows = (rows, columns) =>
     _.flatMap(rows, (row, index) => {
@@ -87,6 +86,7 @@ const SkuLineItems = (props: Props): Element => {
   if (items.length > 0) {
     return (
       <TableView
+        tbodyId="cart-line-items"
         className={className}
         columns={columns}
         emptyMessage="No items yet."
