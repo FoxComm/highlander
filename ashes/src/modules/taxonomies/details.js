@@ -49,21 +49,21 @@ const _archiveTaxonomy = createAsyncActions(
 // Public actions.
 ////////////////////////////////////////////////////////////////////////////////
 
-export const taxonomyNew = createAction('TAXONOMY_NEW');
+export const reset = createAction('TAXONOMY_RESET');
 export const clearArchiveErrors = _archiveTaxonomy.clearErrors;
 
-export const createTaxonomy = _createTaxonomy.perform;
-export const updateTaxonomy = _updateTaxonomy.perform;
-export const archiveTaxonomy = _archiveTaxonomy.perform;
+export const create = _createTaxonomy.perform;
+export const update = _updateTaxonomy.perform;
+export const archive = _archiveTaxonomy.perform;
 
-export const fetchTaxonomy = (id: number|string, context: string = defaultContext): ActionDispatch => {
-  if (typeof id == 'number') {
-    return dispatch(_fetchTaxonomy.perform(id, context));
-  } else if (typeof id == 'string' && id.toLowerCase() == 'new') {
-    return dispatch(taxonomyNew());
+export const fetch = (id: string, context: string = defaultContext): ActionDispatch => {
+  return dispatch => {
+    if (id.toLowerCase() === 'new') {
+      return dispatch(reset());
+    } else {
+      return dispatch(_fetchTaxonomy.perform(id, context));
+    }
   }
-
-  throw new Error(`Invalid ID ${id} for taxonomy`);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -73,7 +73,7 @@ export const fetchTaxonomy = (id: number|string, context: string = defaultContex
 const initialState = { taxonomy: null };
 
 const reducer = createReducer({
-  [taxonomyNew]: () => ({ taxonomy: createEmptyTaxonomy(defaultContext, 'hierarchical') }),
+  [reset]: () => ({ taxonomy: createEmptyTaxonomy(defaultContext, true) }),
   [_fetchTaxonomy.succeeded]: (state, taxonomy) => ({ ...state, taxonomy }),
   [_createTaxonomy.succeeded]: (state, taxonomy) => ({ ...state, taxonomy }),
   [_updateTaxonomy.succeeded]: (state, taxonomy) => ({ ...state, taxonomy }),

@@ -1,6 +1,13 @@
 // @flow
 
 export type Taxonomy = {
+  id?: number,
+  hierarchical: boolean,
+  attributes: Attributes,
+  taxons: Array<Object>,
+};
+
+export type TaxonomyResult = {
   id: number,
   taxonomyId: number,
   name: string,
@@ -12,16 +19,13 @@ export type Taxonomy = {
   archivedAt: ?string,
 };
 
-export const createEmptyTaxonomy = (context: string, type: string): Taxonomy => {
+export const createEmptyTaxonomy = (context: string, isHierarchical: boolean): Taxonomy => {
   return {
-    id: 0,
-    taxonomyId: 0,
-    name: '',
-    valuesCount: 0,
-    activeFrom: null,
-    activeTo: null,
-    archivedAt: null,
-    context,
-    type,
+    attributes: {
+      name: { t: 'string', v: '' },
+      description: { t: 'richText', v: '' },
+    },
+    hierarchical: isHierarchical,
+    taxons: [],
   };
 };

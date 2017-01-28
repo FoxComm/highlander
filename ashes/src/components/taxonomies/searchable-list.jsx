@@ -17,7 +17,7 @@ import TaxonomyRow from './taxonomy-row';
 import { filterArchived } from 'elastic/archive';
 
 // types
-import type { Taxonomy } from 'paragons/taxonomy';
+import type { TaxonomyResult } from 'paragons/taxonomy';
 import type { SearchFilter } from 'elastic/common';
 
 type Column = {
@@ -46,7 +46,7 @@ export class SearchableList extends Component {
     return this.props.actions.addSearchFilters(filterArchived(filters), initial);
   }
 
-  renderRow(row: Taxonomy, index: number, columns: Array<Column>, params: Object) {
+  renderRow(row: TaxonomyResult, index: number, columns: Array<Column>, params: Object) {
     const key = `taxonomies-${row.id}`;
     return <TaxonomyRow key={key} taxonomy={row} columns={columns} params={params} />;
   }
