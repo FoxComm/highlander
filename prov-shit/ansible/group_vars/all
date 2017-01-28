@@ -74,13 +74,17 @@ consul_ports:
     es_http: 9200
     es_tcp: 9300
     es_logs: 9201
+    es_jmx: 29010
+    greenriver_jmx: 39011
     isaac: 9190
     kafka: 9092
     marathon: 8080
     marketplace: 4003
     marketplace_ui: 4042
+    messaging_jmx: 39012
     middlewarehouse: 9292
     phoenix: 9090
+    phoenix_jmx: 39014
     product_search: 5492
     schema_registry: 8081
     solomon: 4002
@@ -129,6 +133,7 @@ phoenix_jar_src: "{{phoenix_src}}/gatling/target/{{scala_version}}/phoenix-scala
 
 phoenix_dir: /phoenix
 phoenix_jar: "{{phoenix_dir}}/phoenix.jar"
+
 phoenix_db_name: phoenix_development
 phoenix_db_user: phoenix
 phoenix_test_db_name: phoenix_test
@@ -150,28 +155,13 @@ solomon_token_ttl: 365
 
 # Middlewarehouse
 middlewarehouse_env: staging
+middlewarehouse_src: ../../middlewarehouse/
 middlewarehouse_dir: /middlewarehouse
-middlewarehouse_bin: "{{middlewarehouse_dir}}/middlewarehouse"
+
 middlewarehouse_db_name: middlewarehouse_development
 middlewarehouse_db_user: middlewarehouse
 middlewarehouse_db_connection_string: "postgresql://{{middlewarehouse_db_user}}@{{consul_hosts.db}}/{{middlewarehouse_db_name}}"
 middlewarehouse_test_db_name: middlewarehouse_test
-
-middlewarehouse_consumers_dir: "{{middlewarehouse_dir}}/consumers"
-stock_items_consumer_bin: "{{middlewarehouse_consumers_dir}}/stock-items-consumer"
-shipments_consumer_bin: "{{middlewarehouse_consumers_dir}}/shipments-consumer"
-capture_consumer_bin: "{{middlewarehouse_consumers_dir}}/capture-consumer"
-
-middlewarehouse_src: ../../middlewarehouse/
-middlewarehouse_bin_src: "{{middlewarehouse_src}}/middlewarehouse"
-middlewarehouse_seeder_bin_src: "{{middlewarehouse_src}}/seeder"
-
-stock_items_consumer_src: "{{middlewarehouse_src}}/consumers/stock-items"
-stock_items_consumer_bin_src: "{{stock_items_consumer_src}}/stock-items-consumer"
-shipments_consumer_src: "{{middlewarehouse_src}}/consumers/shipments"
-shipments_consumer_bin_src: "{{shipments_consumer_src}}/shipments-consumer"
-capture_consumer_src: "{{middlewarehouse_src}}/consumers/capture"
-capture_consumer_bin_src: "{{capture_consumer_src}}/capture-consumer"
 
 # Shipstation consumer
 shipstation_api_key: ""
@@ -191,12 +181,6 @@ firebrand_fixed_language: false
 storefront_default_language: en
 storefront_fixed_language: false
 
-# JMX ports
-es_jmx_port: 29010
-phoenix_jmx_port: 39014
-greenriver_jmx_port: 39011
-messaging_jmx_port: 39012
-
 # Seeds
 seeds_cmd: utils.seeds.Seeds seed --seedAdmins --seedDemo 1
 gatling_oneshot_seeds_cmd: seeds.OneshotSeeds
@@ -215,12 +199,6 @@ google_oauth_frontend_redirect_uri: ""
 # VM swap size
 swap_file: /swap
 swap_size_mb: 2000
-
-# Fix Ansible 2 rsync
-rsync_opts: ssh -l {{user}}
-
-# Used to prefix service names in consul
-namespace: setme
 
 # Zipkin
 zipkin_collector: localhost

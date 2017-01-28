@@ -29,7 +29,7 @@
     "API_HOST": "{{consul_hosts.messaging}}",
     "KAFKA_BROKER": "{{consul_services.kafka}}",
     "SCHEMA_REGISTRY_URL": "http://{{consul_services.schema_registry}}",
-    "JAVA_OPTS": "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port={{messaging_jmx_port}} -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
+    "JAVA_OPTS": "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port={{consul_ports.messaging_jmx}} -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
   },
   "healthChecks": [
     {
