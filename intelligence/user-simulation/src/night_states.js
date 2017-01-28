@@ -3,6 +3,15 @@ const faker  = require('faker');
 const Nightmare = require('nightmare');
 const system = require('system');
 
+function setup(c) {
+  c.page = Nightmare({
+      show: false,
+      webPreferences: {
+        partition: 'nopersist'
+  }});
+
+}
+
 async function homepage(c) {
     return c.page.goto(c.home);
 }
@@ -129,5 +138,6 @@ const stateFunctions = {
   clear_cart: clear_cart
 };
 
+exports.setup = setup;
 exports.stateFunctions = stateFunctions;
 

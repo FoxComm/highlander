@@ -120,15 +120,12 @@ let home = "https://hal.foxcommerce.com";
  *************************************/
 let context = {
   home: home,
-  page: Nightmare({
-      show: false,
-      webPreferences: {
-        partition: 'nopersist'
-  }}),
   persona: persona,
   state: persona.start,
   args: {}
 };
+
+simulator.setup(context);
 
 /*************************************
  *do it, pick up your boots and do it!
