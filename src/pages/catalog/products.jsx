@@ -116,7 +116,7 @@ class Products extends Component {
 
     const className = `header-${categoryName}`;
 
-    const title = category.name !== 'VALENTINE'
+    const title = (category.name !== 'VALENTINE')
       ? <h1 styleName="title">{category.name}</h1>
       : <h1 styleName="title">{category.description}</h1>;
 
