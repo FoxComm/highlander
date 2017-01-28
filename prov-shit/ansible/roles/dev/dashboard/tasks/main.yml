@@ -1,21 +1,24 @@
 ---
 
-- name: Install Dashboard Server
-  shell: go get github.com/kpashka/dashboard
-
 - name: Create Dashboard Server Directory
   file: path={{dashboard_assets_location}} state=directory owner="{{user}}"
+
+- name: Install Dashboard Server
+  unarchive: src={{dashboard_url}} dest=/usr/local/bin/ remote_src=yes
+
+- name: Make Dashboard Executable
+  file: path=/usr/local/bin/dashboard mode=750
 
 - name: Copy Dashboard Assets
   copy: src=assets dest="{{dashboard_assets_location}}"
 
 - name: Set Facts for Template
   set_fact:
-    consul_ui_url: "https://{{private_ip}}:{{consul_port}}"
-    mesos_ui_url: "https://{{private_ip}}:{{mesos_port}}"
-    marathon_ui_url: "https://{{private_ip}}:{{marathon_port}}"
-    kibana_url: "https://{{private_ip}}:{{consul_port}}"
-    pgweb_url: "https://{{private_ip}}:{{pgweb_port}}"
+    consul_ui_url: "http://{{private_ip}}:{{consul_port}}"
+    mesos_ui_url: "http://{{private_ip}}:{{mesos_port}}"
+    marathon_ui_url: "http://{{private_ip}}:{{marathon_port}}"
+    kibana_url: "http://{{private_ip}}:{{consul_port}}"
+    pgweb_url: "http://{{private_ip}}:{{pgweb_port}}"
 
 - name: Copy Dashboard Index Template
   template: src=index.html.j2 dest="{{dashboard_assets_location}}/index.html"

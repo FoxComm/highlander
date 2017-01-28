@@ -27,26 +27,25 @@
     - { role: base/elasticsearch-5 }
     - { role: base/logrotate }
     - { role: base/kibana }
-    - { role: base/logrotate }
     - { role: base/bottledwater }
     - { role: dev/db }
     - { role: dev/pgweb }
-    # - { role: dev/isaac }
-    # - { role: dev/phoenix }
-    # - { role: dev/solomon }
-    # - { role: dev/marketplace, when: with_marketplace }
-    # - { role: dev/middlewarehouse }
-    # - { role: dev/greenriver }
-    # - { role: dev/ashes }
-    # - { role: dev/firebrand }
-    # - { role: ext/tgt/marketplace-ui, when: with_marketplace }
-    # - { role: dev/seeder }
-    # - { role: dev/messaging, retailer_name: 'FoxCommerce' }
-    # - { role: dev/balancer }
-    # - { role: demo/balancer }
-    # - { role: dev/consumers }
+    - { role: dev/isaac }
+    - { role: dev/phoenix }
+    - { role: dev/solomon }
+    - { role: dev/marketplace, when: with_marketplace }
+    - { role: dev/middlewarehouse }
+    - { role: dev/greenriver }
+    - { role: dev/ashes }
+    - { role: dev/firebrand }
+    - { role: ext/tgt/marketplace-ui, when: with_marketplace }
+    - { role: dev/seeder }
+    - { role: dev/messaging, retailer_name: 'FoxCommerce' }
+    - { role: dev/balancer }
+    - { role: demo/balancer }
+    - { role: dev/consumers }
     - { role: base/rsyslog }
-    # - { role: dev/healthcheck }
+    - { role: dev/healthcheck }
     - { role: dev/dashboard, run_once: true }
     - { role: dev/appliance_dns, run_once: true }
 
