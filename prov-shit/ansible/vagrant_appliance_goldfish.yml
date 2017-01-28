@@ -9,9 +9,9 @@
     storefront_server_name: local.foxcommerce.com
     with_marketplace: true
     mesos_ip: "`hostname -I | awk '{print $1}'`"
-    docker_db_host: 172.17.0.1
+    consul_hosts:
+        docker_db: 172.17.0.1
   roles:
-    - { role: base/phoenix }
     - { role: base/marketplace }
     - { role: dev/kafka }
     - { role: dev/elasticsearch }

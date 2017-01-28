@@ -7,13 +7,13 @@
   template: src=product-search.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
 
 - name: Update product-search in Marathon
-  shell: 'curl -X PUT -d@/marathon/applications/product-search.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/product-search'
+  shell: 'curl -X PUT -d@/marathon/applications/product-search.json -H "Content-Type: application/json" http://{{consul_services.marathon}}/v2/apps/product-search'
 
 - name: Restart product-search in Marathon
-  shell: 'curl -X POST http://{{marathon_server}}/v2/apps/product-search/restart'
+  shell: 'curl -X POST http://{{consul_services.marathon}}/v2/apps/product-search/restart'
 
 - name: Get product-search Marathon tasks in `healthy` state
-  shell: curl -sS -XGET http://{{marathon_server}}/v2/apps/product-search | jq '.app.tasksHealthy > 0'
+  shell: curl -sS -XGET http://{{consul_services.marathon}}/v2/apps/product-search | jq '.app.tasksHealthy > 0'
   register: healthy_tasks_available
   until: healthy_tasks_available.stdout == 'true'
   retries: "{{marathon_retries}}"

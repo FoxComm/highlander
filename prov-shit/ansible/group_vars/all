@@ -46,80 +46,76 @@ docker_tags:
 # Consul Service Discovery
 consul_data_dir: /var/consul
 consul_suffix: service.consul
-consul_port: 8500
-consul_server: "{{self_host}}:{{consul_port}}"
 
-db_host: "db.{{consul_suffix}}"
-docker_db_host: "db.{{consul_suffix}}"
-api_server: "balancer.{{consul_suffix}}"
+consul_hosts:
+    ashes: "ashes.{{consul_suffix}}"
+    consul: "{{self_host}}"
+    db: "db.{{consul_suffix}}"
+    docker_db: "db.{{consul_suffix}}"
+    elasticsearch: "elasticsearch.{{consul_suffix}}"
+    isaac: "isaac.{{consul_suffix}}"
+    kafka: "kafka.{{consul_suffix}}"
+    mararthon: "mararthon.{{consul_suffix}}"
+    marketplace: "marketplace.{{consul_suffix}}"
+    marketplace_ui: "marketplace_ui.{{consul_suffix}}"
+    mesos_master: "mesos_master.{{consul_suffix}}"
+    messaging: "messaging.{{consul_suffix}}"
+    middlewarehouse: "middlewarehouse.{{consul_suffix}}"
+    phoenix: "phoenix.{{consul_suffix}}"
+    product_search: "product_search.{{consul_suffix}}"
+    schema_registry: "schema.{{consul_suffix}}"
+    solomon: "solomon.{{consul_suffix}}"
+    storefront: "storefront.{{consul_suffix}}"
+    zookeeper: "zookeeper.{{consul_suffix}}"
 
-phoenix_host: "phoenix.{{consul_suffix}}"
-phoenix_port: 9090
-phoenix_server: "{{phoenix_host}}:{{phoenix_port}}"
+consul_ports:
+    ashes: 4000
+    consul: 8500
+    es_http: 9200
+    es_tcp: 9300
+    es_logs: 9201
+    es_jmx: 29010
+    greenriver_jmx: 39011
+    isaac: 9190
+    kafka: 9092
+    marathon: 8080
+    marketplace: 4003
+    marketplace_ui: 4042
+    messaging_jmx: 39012
+    middlewarehouse: 9292
+    phoenix: 9090
+    phoenix_jmx: 39014
+    product_search: 5492
+    schema_registry: 8081
+    solomon: 4002
+    storefront: 4041
+    zookeeper: 2181
 
-isaac_host: "isaac.{{consul_suffix}}"
-isaac_port: 9190
-isaac_server: "{{isaac_host}}:{{isaac_port}}"
+consul_services:
+    ashes: "{{consul_hosts.ashes}}.{{consul_ports.ashes}}"
+    consul: "{{consul_hosts.consul}}.{{consul_ports.consul}}"
+    isaac: "{{consul_hosts.isaac}}.{{consul_ports.isaac}}"
+    es_http: "{{consul_hosts.elasticsearch}}.{{consul_ports.es_http}}"
+    es_tcp: "{{consul_hosts.elasticsearch}}.{{consul_ports.es_tcp}}"
+    es_logs: "{{consul_hosts.elasticsearch}}.{{consul_ports.es_logs}}"
+    kafka: "{{consul_hosts.kafka}}.{{consul_ports.kafka}}"
+    marathon: "{{consul_hosts.marathon}}.{{consul_ports.marathon}}"
+    marketplace: "{{consul_hosts.marketplace}}.{{consul_ports.marketplace}}"
+    marketplace_ui: "{{consul_hosts.marketplace_ui}}.{{consul_ports.marketplace_ui}}"
+    middlewarehouse: "{{consul_hosts.middlewarehouse}}.{{consul_ports.middlewarehouse}}"
+    phoenix: "{{consul_hosts.phoenix}}.{{consul_ports.phoenix}}"
+    product_search: "{{consul_hosts.product_search}}.{{consul_ports.product_search}}"
+    schema_registry: "{{consul_hosts.schema_registry}}.{{consul_ports.schema_registry}}"
+    solomon: "{{consul_hosts.solomon}}.{{consul_ports.solomon}}"
+    storefront: "{{consul_hosts.storefront}}.{{consul_ports.storefront}}"
+    zookeeper: "{{consul_hosts.zookeeper}}.{{consul_ports.zookeeper}}"
 
-search_host: "elasticsearch.{{consul_suffix}}"
-es_logs_port: 9201
-log_host: "{{search_host}}:{{es_logs_port}}"
-search_server_http: "{{search_host}}:9200"
-search_server: "{{search_host}}:9300"
-
-ashes_host: "ashes.{{consul_suffix}}"
-ashes_port: 4000
-ashes_server: "{{ashes_host}}:{{ashes_port}}"
-
-storefront_host: "storefront.{{consul_suffix}}"
-storefront_port: 4041
-storefront_server: "{{storefront_host}}:{{storefront_port}}"
-
-kafka_host: "kafka.{{consul_suffix}}"
-kafka_port: 9092
-kafka_server: "{{kafka_host}}:{{kafka_port}}"
-
-zookeeper_host: "zookeeper.{{consul_suffix}}"
-zookeeper_port: 2181
-zookeeper_server: "{{zookeeper_host}}:{{zookeeper_port}}"
-zookeepers: zk://{{zookeeper_server}}
-
-schema_host: "schema-registry.{{consul_suffix}}"
-schema_port: 8081
-schema_server: "{{schema_host}}:{{schema_port}}"
-
-middlewarehouse_host: "middlewarehouse.{{consul_suffix}}"
-middlewarehouse_port: 9292
-middlewarehouse_server: "{{middlewarehouse_host}}:{{middlewarehouse_port}}"
-
-solomon_host: "solomon.{{consul_suffix}}"
-solomon_port: 4002
-solomon_server: "{{solomon_host}}:{{solomon_port}}"
-
-mesos_master: "mesos-master.{{consul_suffix}}"
-
-marathon_host: "marathon.{{consul_suffix}}"
-marathon_port: 8080
-marathon_server: "{{marathon_host}}:{{marathon_port}}"
-
-marketplace_host: "marketplace.{{consul_suffix}}"
-marketplace_port: 4003
-marketplace_server: "{{marketplace_host}}:{{marketplace_port}}"
-
-marketplace_ui_host: "marketplace_ui.{{consul_suffix}}"
-marketplace_ui_port: 4042
-marketplace_ui_server: "{{marketplace_ui_host}}:{{marketplace_ui_port}}"
-
-product_search_host: "product_search.{{consul_suffix}}"
-product_search_port: 5492
-product_search_server: "{{product_search_host}}:{{product_search_port}}"
-
-messaging_host: "messaging.{{consul_suffix}}"
+zookeepers: "zk://{{consul_services.zookeeper}}"
 
 # Database & bottledwater
 db_user: phoenix
 db_name: phoenix_development
-db_connection_string: "postgresql://{{db_host}}/phoenix_development?user={{db_user}}"
+db_connection_string: "postgresql://{{consul_hosts.db}}/phoenix_development?user={{db_user}}"
 bottledwater_slot_phoenix: bottledwater_phoenix
 bottledwater_slot_middlewarehouse: bottledwater_middlewarehouse
 bottledwater_slot_marketplace: bottledwater_marketplace
@@ -139,11 +135,12 @@ phoenix_jar_src: "{{phoenix_src}}/gatling/target/{{scala_version}}/phoenix-scala
 
 phoenix_dir: /phoenix
 phoenix_jar: "{{phoenix_dir}}/phoenix.jar"
+
 phoenix_db_name: phoenix_development
 phoenix_db_user: phoenix
 phoenix_test_db_name: phoenix_test
 phoenix_tracing: "false"
-phoenix_db_connection_string: "postgresql://{{phoenix_db_user}}@{{db_host}}/{{phoenix_db_name}}"
+phoenix_db_connection_string: "postgresql://{{phoenix_db_user}}@{{consul_hosts.db}}/{{phoenix_db_name}}"
 
 phoenix_api_version: v1
 phoenix_api_user_org: tenant
@@ -160,28 +157,13 @@ solomon_token_ttl: 365
 
 # Middlewarehouse
 middlewarehouse_env: staging
+middlewarehouse_src: ../../middlewarehouse/
 middlewarehouse_dir: /middlewarehouse
-middlewarehouse_bin: "{{middlewarehouse_dir}}/middlewarehouse"
+
 middlewarehouse_db_name: middlewarehouse_development
 middlewarehouse_db_user: middlewarehouse
-middlewarehouse_db_connection_string: "postgresql://{{middlewarehouse_db_user}}@{{db_host}}/{{middlewarehouse_db_name}}"
+middlewarehouse_db_connection_string: "postgresql://{{middlewarehouse_db_user}}@{{consul_hosts.db}}/{{middlewarehouse_db_name}}"
 middlewarehouse_test_db_name: middlewarehouse_test
-
-middlewarehouse_consumers_dir: "{{middlewarehouse_dir}}/consumers"
-stock_items_consumer_bin: "{{middlewarehouse_consumers_dir}}/stock-items-consumer"
-shipments_consumer_bin: "{{middlewarehouse_consumers_dir}}/shipments-consumer"
-capture_consumer_bin: "{{middlewarehouse_consumers_dir}}/capture-consumer"
-
-middlewarehouse_src: ../../middlewarehouse/
-middlewarehouse_bin_src: "{{middlewarehouse_src}}/middlewarehouse"
-middlewarehouse_seeder_bin_src: "{{middlewarehouse_src}}/seeder"
-
-stock_items_consumer_src: "{{middlewarehouse_src}}/consumers/stock-items"
-stock_items_consumer_bin_src: "{{stock_items_consumer_src}}/stock-items-consumer"
-shipments_consumer_src: "{{middlewarehouse_src}}/consumers/shipments"
-shipments_consumer_bin_src: "{{shipments_consumer_src}}/shipments-consumer"
-capture_consumer_src: "{{middlewarehouse_src}}/consumers/capture"
-capture_consumer_bin_src: "{{capture_consumer_src}}/capture-consumer"
 
 # Shipstation consumer
 shipstation_api_key: ""
@@ -189,28 +171,13 @@ shipstation_api_secret: ""
 shipstation_topic: "activities"
 shipstation_interval: "10s"
 
-# Ashes
-ashes_env: production
-
 # Firebrand variables
 firebrand_env: production
 firebrand_default_language: en
-firebrand_fixed_language: false
 
 # Storefront variables
 storefront_default_language: en
 storefront_fixed_language: false
-
-# Loyalty
-loyalty_jar_src: ../../fox-loyalty/target/loyalty.jar
-loyalty_jar: /usr/local/bin/loyalty.jar
-
-# JMX ports
-es_jmx_port: 29010
-phoenix_jmx_port: 39014
-greenriver_jmx_port: 39011
-messaging_jmx_port: 39012
-loyalty_jmx_port: 39013
 
 # Seeds
 seeds_cmd: utils.seeds.Seeds seed --seedAdmins --seedDemo 1
@@ -231,21 +198,11 @@ google_oauth_frontend_redirect_uri: ""
 swap_file: /swap
 swap_size_mb: 2000
 
-# Fix Ansible 2 rsync
-rsync_opts: ssh -l {{user}}
-
-# Used to prefix service names in consul
-namespace: setme
-
 # Zipkin
 zipkin_collector: localhost
 
 # Are we running packer?
 packing: false
-
-# Should we upload Phoenix / Green River JAR?
-# Should be seed DB, seed via Gatling?
-upload_phoenix_jar: true
 
 # Deploy marketplace?
 with_marketplace: false
@@ -268,13 +225,10 @@ with_mwh_seeder: true
 # Marketplace
 marketplace_db_name: marketplace_development
 marketplace_db_user: marketplace
-marketplace_db_connection_string: "postgresql://{{marketplace_db_user}}@{{db_host}}/{{marketplace_db_name}}"
+marketplace_db_connection_string: "postgresql://{{marketplace_db_user}}@{{consul_hosts.db}}/{{marketplace_db_name}}"
 
 # Set this to true for first run deployments
 first_run: false
-
-# BuildKite Settings
-buildkite_env: gce
 
 # Logrotate
 logrotate_dir: /etc/logrotate.d

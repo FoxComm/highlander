@@ -7,13 +7,13 @@
   template: src=solomon.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
 
 - name: Update Solomon in Marathon
-  shell: 'curl -sS -XPUT -d@/marathon/applications/solomon.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/solomon'
+  shell: 'curl -sS -XPUT -d@/marathon/applications/solomon.json -H "Content-Type: application/json" http://{{consul_services.marathon}}/v2/apps/solomon'
 
 - name: Restart Solomon in Marathon
-  shell: 'curl -sS -XPOST http://{{marathon_server}}/v2/apps/solomon/restart'
+  shell: 'curl -sS -XPOST http://{{consul_services.marathon}}/v2/apps/solomon/restart'
 
 - name: Get Solomon Marathon tasks in `healthy` state
-  shell: curl -sS -XGET http://{{marathon_server}}/v2/apps/solomon | jq '.app.tasksHealthy > 0'
+  shell: curl -sS -XGET http://{{consul_services.marathon}}/v2/apps/solomon | jq '.app.tasksHealthy > 0'
   register: healthy_tasks_available
   until: healthy_tasks_available.stdout == 'true'
   retries: "{{marathon_retries}}"

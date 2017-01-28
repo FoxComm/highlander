@@ -7,17 +7,17 @@
   template: src=shipstation.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
 
 - name: Update Shipstation Consumer in Marathon
-  shell: 'curl -sS -XPUT -d@/marathon/applications/shipstation.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/shipstation'
+  shell: 'curl -sS -XPUT -d@/marathon/applications/shipstation.json -H "Content-Type: application/json" http://{{consul_services.marathon}}/v2/apps/shipstation'
 
 - name: Wait for Middlewarehouse become available
-  wait_for: host={{middlewarehouse_host}} port={{middlewarehouse_port}}
+  wait_for: host={{consul_hosts.middlewarehouse}} port={{consul_ports.middlewarehouse}}
   ignore_errors: true
 
 - name: Restart Shipstation Consumer in Marathon
-  shell: 'curl -sS -XPOST http://{{marathon_server}}/v2/apps/shipstation/restart'
+  shell: 'curl -sS -XPOST http://{{consul_services.marathon}}/v2/apps/shipstation/restart'
 
 - name: Get Shipstation Marathon tasks in `healthy` state
-  shell: curl -sS -XGET http://{{marathon_server}}/v2/apps/shipstation | jq '.app.tasksHealthy > 0'
+  shell: curl -sS -XGET http://{{consul_services.marathon}}/v2/apps/shipstation | jq '.app.tasksHealthy > 0'
   register: healthy_tasks_available
   until: healthy_tasks_available.stdout == 'true'
   retries: "{{marathon_retries}}"

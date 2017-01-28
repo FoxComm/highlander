@@ -53,10 +53,10 @@
   when: not packing
 
 - name: Wait for Middlewarehouse become available
-  wait_for: host={{middlewarehouse_host}} port={{middlewarehouse_port}} timeout=1200
+  wait_for: host={{consul_hosts.middlewarehouse}} port={{consul_ports.middlewarehouse}} timeout=1200
 
 - name: Wait for Phoenix become available
-  wait_for: host={{phoenix_host}} port={{phoenix_port}} timeout=1200
+  wait_for: host={{consul_hosts.phoenix}} port={{consul_ports.phoenix}} timeout=1200
 
 - name: Wait for Solomon become available
-  wait_for: host={{solomon_host}} port={{solomon_port}} timeout=1200
+  wait_for: host={{consul_hosts.solomon}} port={{consul_ports.solomon}} timeout=1200

@@ -5,8 +5,8 @@
   become: true
   vars:
     cert_path: test/fox
-    storefront_host: storefront.service.consul
-    docker_db_host: 172.17.0.1
+    consul_hosts:
+        docker_db: 172.17.0.1
     install_public_keys: true
     install_private_keys: true
     with_base_seeds: true

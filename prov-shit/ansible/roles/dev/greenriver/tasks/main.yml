@@ -4,7 +4,7 @@
   template: src=create_es_mappings.sh dest=/usr/local/bin/create_es_mappings.sh mode="u+x,g+x,o+x"
 
 - name: Stop Running Green River Tasks
-  shell: 'curl -sS -XDELETE http://{{marathon_server}}/v2/apps/greenriver/tasks?scale=true'
+  shell: 'curl -sS -XDELETE http://{{consul_services.marathon}}/v2/apps/greenriver/tasks?scale=true'
   when: first_run
 
 - name: Create ES Mappings
@@ -18,13 +18,13 @@
   template: src=greenriver.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
 
 - name: Update Green River in Marathon
-  shell: 'curl -sS -XPUT -d@/marathon/applications/greenriver.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/greenriver'
+  shell: 'curl -sS -XPUT -d@/marathon/applications/greenriver.json -H "Content-Type: application/json" http://{{consul_services.marathon}}/v2/apps/greenriver'
 
 - name: Restart Green River in Marathon
-  shell: 'curl -sS -XPOST http://{{marathon_server}}/v2/apps/greenriver/restart'
+  shell: 'curl -sS -XPOST http://{{consul_services.marathon}}/v2/apps/greenriver/restart'
 
 - name: Get Green River Marathon tasks in `healthy` state
-  shell: curl -sS -XGET http://{{marathon_server}}/v2/apps/greenriver | jq '.app.tasksHealthy > 0'
+  shell: curl -sS -XGET http://{{consul_services.marathon}}/v2/apps/greenriver | jq '.app.tasksHealthy > 0'
   register: healthy_tasks_available
   until: healthy_tasks_available.stdout == 'true'
   retries: "{{marathon_retries}}"

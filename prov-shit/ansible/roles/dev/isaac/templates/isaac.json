@@ -29,7 +29,7 @@
   },
   "env": {
     "PUBLIC_KEY": "/certs/public_key.pem",
-    "DB_HOST": "{{docker_db_host}}",
+    "DB_HOST": "{{consul_hosts.docker_db}}",
     "DB_NAME": "{{phoenix_db_name}}",
     "DB_USER": "{{db_user}}"
   },

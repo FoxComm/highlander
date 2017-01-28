@@ -3,11 +3,9 @@
     "user": "ubuntu",
     "phoenix_tracing": true,
     "phoenix_token_ttl": 10080,
-    "log_host": "es-log.service.consul",
-    "zipkin_collector": "zipkin.service.consul",
     "cert_path": "stage/target",
     "docker_registry_bucket": "tgt-docker",
-    "docker_registry":"https://docker-tgt.foxcommerce.com",
+    "docker_registry": "https://docker-tgt.foxcommerce.com",
     "docker_registry_provider": "aws",
     "docker_registry_region": "us-west-2"
 }

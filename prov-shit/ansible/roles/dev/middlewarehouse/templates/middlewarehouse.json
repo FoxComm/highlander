@@ -22,17 +22,17 @@
       "forcePullImage": true
     }
   },
-  "ports": [{{middlewarehouse_port}}],
+  "ports": [{{consul_ports.middlewarehouse}}],
   "env": {
-    "PORT": "{{middlewarehouse_port}}",
+    "PORT": "{{consul_ports.middlewarehouse}}",
     "DB_SSLMODE": "disable",
-    "SCHEMA_REGISTRY_URL": "http://{{schema_server}}",
+    "SCHEMA_REGISTRY_URL": "http://{{consul_services.schema_registry}}",
     "DB_NAME": "{{middlewarehouse_db_name}}",
-    "PHOENIX_URL": "http://{{phoenix_server}}",
-    "ZOOKEEPER_URL": "{{zookeeper_server}}",
+    "PHOENIX_URL": "http://{{consul_services.phoenix}}",
+    "ZOOKEEPER_URL": "{{consul_services.zookeeper}}",
     "LOG_LEVEL": "info",
-    "DB_HOST": "{{docker_db_host}}",
-    "KAFKA_BROKER": "{{kafka_server}}",
+    "DB_HOST": "{{consul_hosts.docker_db}}",
+    "KAFKA_BROKER": "{{consul_services.kafka}}",
     "DB_USER": "middlewarehouse"
   },
   "constraints": [["hostname", "UNIQUE"]],
@@ -45,7 +45,7 @@
       "timeoutSeconds": 20,
       "maxConsecutiveFailures": 3,
       "ignoreHttp1xx": false,
-      "port": {{middlewarehouse_port}}
+      "port": {{consul_ports.middlewarehouse}}
     }
   ]
 }

@@ -10,8 +10,8 @@
   file: path="/etc/consul.d/env" state=touch
 
 - name: Specify Server
-  lineinfile: dest="/etc/consul.d/env" line="CONSUL_SERVER={{consul_server}}"
-  when: consul_server is defined
+  lineinfile: dest="/etc/consul.d/env" line="CONSUL_SERVER={{consul_services.consul}}"
+  when: consul_services.consul is defined
 
 - name: Specify Datacenter
   lineinfile: dest="/etc/consul.d/env" line="CONSUL_DC={{consul_dc}}"

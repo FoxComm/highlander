@@ -17,14 +17,14 @@
     }
   },
   "env": {
-    "SCHEMA_REPOSITORY_URL": "http://{{schema_server}}",
-    "ZOOKEEPER_URL": "{{zookeeper_server}}",
-    "MWH_URL": "http://{{middlewarehouse_server}}",
+    "SCHEMA_REPOSITORY_URL": "http://{{consul_services.schema_registry}}",
+    "ZOOKEEPER_URL": "{{consul_services.zookeeper}}",
+    "MWH_URL": "http://{{consul_services.middlewarehouse}}",
     "API_KEY": "{{shipstation_api_key}}",
     "API_SECRET": "{{shipstation_api_secret}}",
     "TOPIC": "{{shipstation_topic}}",
     "POLLING_INTERVAL": "{{shipstation_interval}}",
-    "PHOENIX_URL": "http://{{phoenix_server}}",
+    "PHOENIX_URL": "http://{{consul_services.phoenix}}",
     "PHOENIX_USER": "{{phoenix_api_user}}",
     "PHOENIX_PASSWORD": "{{phoenix_api_password}}"
   },

@@ -6,9 +6,9 @@
   "disk": 0,
   "instances": 1,
   "env": {
-    "PORT": "{{solomon_port}}",
+    "PORT": "{{consul_ports.solomon}}",
     "DB_USER": "{{db_user}}",
-    "DB_HOST": "{{docker_db_host}}",
+    "DB_HOST": "{{consul_hosts.docker_db}}",
     "DB_NAME": "{{phoenix_db_name}}",
     "DB_PASSWORD": "",
     "PRIVATE_KEY": "{{private_keys_dest_dir}}/private_key.pem",
@@ -16,7 +16,7 @@
     "TOKEN_TTL": "{{solomon_token_ttl}}",
     "SOLOMON_SECRET": "{{solomon_secret_token}}"
   },
-  "ports": [{{solomon_port}}],
+  "ports": [{{consul_ports.solomon}}],
   "constraints": [["hostname", "UNIQUE"]],
   "container": {
     "type": "DOCKER",
@@ -49,7 +49,7 @@
       "timeoutSeconds": 20,
       "maxConsecutiveFailures": 3,
       "ignoreHttp1xx": false,
-      "port": {{solomon_port}}
+      "port": {{consul_ports.solomon}}
     }
   ]
 }
