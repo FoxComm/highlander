@@ -9,7 +9,7 @@
     "type": "DOCKER",
     "volumes": [],
     "docker": {
-      "image": "{{docker_registry}}:5000/shipstation-consumer:{{docker_tags.shipstation-consumer}}",
+      "image": "{{docker_registry}}:5000/shipstation-consumer:{{docker_tags.shipstation_consumer}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],

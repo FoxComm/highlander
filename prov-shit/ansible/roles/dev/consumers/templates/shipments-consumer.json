@@ -15,7 +15,7 @@
       }
     ],
     "docker": {
-      "image": "{{docker_registry}}:5000/shipments-consumer:{{docker_tags.shipments-consumer}}",
+      "image": "{{docker_registry}}:5000/shipments-consumer:{{docker_tags.shipments_consumer}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],
