@@ -23,7 +23,7 @@ grammar Hal
     rule TOP {<path> '?' <arg>+}
     rule path { '/' \w+ <path>?}
     token identifier {(\w || '-')+}
-    rule arg { <key=identifier> '=' <value=identifier> '&'?} 
+    rule arg { <key=identifier> '=' <value=identifier>? '&'?} 
 };
 
 class HalArgs
@@ -80,6 +80,10 @@ sub track($henhouse, $path)
 {
     my %args = Hal.parse($path, actions=>HalArgs).made;
     return if not %args<ch>:exists;
+    return if not %args<sub>:exists;
+    return if not %args<v>:exists;
+    return if not %args<ob>:exists;
+    return if not %args<id>:exists;
 
     my $channel = %args<ch>;
     my $subject = %args<sub>;
