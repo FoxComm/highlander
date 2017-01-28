@@ -31,17 +31,17 @@ docker_tags:
     messaging: master
     isaac: master
     solomon: master
-    capture-consumer: master
-    gift-card-consumer: master
-    shipments-consumer: master
-    shipstation-consumer: master
-    stock-items-consumer: master
-    storefront-td: master
-    storefront-tpg: master
+    capture_consumer: master
+    gift_card_consumer: master
+    shipments_consumer: master
+    shipstation_consumer: master
+    stock_items_consumer: master
+    storefront_td: master
+    storefront_tpg: master
     marketplace: master
-    marketplace-ui: master
-    product-search: master
-    demo-search: master
+    marketplace_ui: master
+    product_search: master
+    demo_search: master
 
 # Consul Service Discovery
 consul_data_dir: /var/consul

@@ -16,7 +16,7 @@
   "container": {
     "type": "DOCKER",
     "docker": {
-      "image": "{{docker_registry}}:5000/demo-search:{{docker_tags.demo-search}}",
+      "image": "{{docker_registry}}:5000/demo-search:{{docker_tags.demo_search}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],
