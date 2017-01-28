@@ -66,6 +66,7 @@ const dummyJsonData = {
 };
 
 export const ChartSegmentType = {
+  Hour: 'h',
   Day: 'd',
   Week: 'w',
   Month: 'm',
@@ -102,9 +103,10 @@ class TotalRevenueChart extends React.Component {
       let timeFormat = null;
 
       switch(segmentType) {
-        case ChartSegmentType.Day:
+        case ChartSegmentType.Hour:
           timeFormat = 'h A';
           break;
+        case ChartSegmentType.Day:
         case ChartSegmentType.Week:
           timeFormat = 'MMM D';
           break;

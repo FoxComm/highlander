@@ -75,7 +75,7 @@ export function fetchProductConversion(productId) {
 }
 export function fetchProductStats(productId, channel = 1) {
   return dispatch => {
-    dispatch(startFetching());
+    dispatch(startFetchingStats());
 
     const url = `stats/productStats/${channel}/${productId}`;
 

@@ -34,6 +34,7 @@ type State = {
   dateDisplay: string,
   question: QuestionBoxType,
   segment: SegmentControlType,
+  dataFetchTimeSize: number,
 }
 
 const sourceDropdownColumns = [
@@ -57,6 +58,13 @@ const segmentTitles = {
   month: 'Month',
 };
 
+const unixTimes = {
+  twoHour: 7200,
+  day: 86400,
+  week: 604800,
+  month: 2628000, // 1 month is about 730 hours
+};
+
 const datePickerType = {
   Today: 0,
   Yesterday: 1,
@@ -73,12 +81,6 @@ const datePickerOptions = [
   { id: datePickerType.Last90, displayText: 'Last 90 Days'},
 ];
 const datePickerFormat = 'MM/DD/YYYY';
-const unixTimes = {
-  twoHour: 7200,
-  day: 86400,
-  week: 604800,
-  month: 2628000, // 1 month is about 730 hours
-};
 
 @connect((state, props) => ({analytics: state.analytics}), AnalyticsActions)
 export default class Analytics extends React.Component {
@@ -107,7 +109,6 @@ export default class Analytics extends React.Component {
         idKey: PropTypes.string,
       })
     }),
-    fetchAnalytics: PropTypes.func.isRequired,
     questionBoxes: PropTypes.array,
     segments: PropTypes.array,
   };
@@ -159,41 +160,39 @@ export default class Analytics extends React.Component {
     dateDisplay: moment().format(datePickerFormat),
     question: null,
     segment: null,
+    dataFetchTimeSize: 0,
   };
 
   constructor(props) {
     super(props);
     this.state.question = _.head(props.questionBoxes);
     this.state.segment = _.head(props.segments);
+    this.state.dataFetchTimeSize = unixTimes.twoHour; 
   }
 
   componentDidMount() {
     this.props.fetchProductStats(this.props.entity.entityId);
   }
 
-  // TODO: FINISH THIS
   @autobind
-  unixTimeFromSegment(segment: SegmentControlType) {
-    switch(segment.title) {
-
-    }
-  }
-
-  @autobind
-  fetchData(question: QuestionBoxType) {
+  fetchData(
+    question = this.question, 
+    dateRangeBegin = this.dateRangeBegin, 
+    dateRangeEnd = this.dateRangeEnd,
+    dataFetchTimeSize = this.dataFetchTimeSize
+  ) {
     if (_.isNil(question)) {
       return;
     }
 
     const { segments, entity } = this.props;
-    const { dateRangeBegin, dateRangeEnd } = this.state;
 
     switch(question.title) {
       case questionTitles.ProductConversionRate:
         this.props.fetchProductConversion(entity.entityId);
         break;
       case questionTitles.TotalRevenue:
-        this.props.fetchProductTotalRevenue(dateRangeBegin, dateRangeEnd, entity.entityId, unixTimes.twoHour);
+        this.props.fetchProductTotalRevenue(dateRangeBegin, dateRangeEnd, entity.entityId, dataFetchTimeSize);
         break;
     }
   }
@@ -206,6 +205,7 @@ export default class Analytics extends React.Component {
 
     let newDateRangeBegin = null;
     let newDateRangeEnd = null;
+    let newDataFetchTimeSize = null;
 
     const setDisplayTexts = function(previousDays) {
       newDateRangeBegin = moment().subtract(previousDays, 'days').unix();
@@ -223,48 +223,54 @@ export default class Analytics extends React.Component {
         newDateRangeEnd = moment().unix();
 
         displayText = `${moment().format(datePickerFormat)}`;
+        newDataFetchTimeSize = unixTimes.twoHour;
         break;
       case datePickerType.Yesterday:
         setDisplayTexts(1);
+        newDataFetchTimeSize = unixTimes.day;
         break;
       case datePickerType.LastWeek:
         setDisplayTexts(7);
+        newDataFetchTimeSize = unixTimes.day;
         break;
       case datePickerType.Last30:
         setDisplayTexts(30);
+        newDataFetchTimeSize = unixTimes.week;
         break;
       case datePickerType.Last90:
         setDisplayTexts(90);
+        newDataFetchTimeSize = unixTimes.month;
         break;
       default:
         console.log('INVALID DATE RANGE');
         displayText = moment().format(datePickerFormat);
+        newDataFetchTimeSize = unixTimes.twoHour;
         break;
     }
 
     this.setState({
-      dateDisplay: displayText,
-      dateRangeBegin: newDateRangeBegin,
-      dateRangeEnd: newDateRangeEnd,
-    });
-
-    this.fetchData(this.question);
+        dateDisplay: displayText,
+        dateRangeBegin: newDateRangeBegin,
+        dateRangeEnd: newDateRangeEnd,
+        dataFetchTimeSize: newDataFetchTimeSize,
+      },
+      this.fetchData(this.question, newDateRangeBegin, newDateRangeEnd, newDataFetchTimeSize)
+    );
   }
 
   @autobind
   onQuestionBoxSelect(question) {
     switch(question.title) {
       case questionTitles.ProductConversionRate:
-        this.setState({question: question});
+        this.setState({question: question}, this.fetchData(question));
         break;
       case questionTitles.TotalRevenue:
-        this.setState({question: question, segment: _.head(this.props.segments)});
+        this.setState({question: question, segment: _.head(this.props.segments)}, this.fetchData(question));
         break;
     }
-
-    this.fetchData(question);
   }
 
+  // TODO: Handle when the x-axis time segments are chosen
   @autobind
   onSegmentControlSelect(segment) {
     this.setState({segment: segment});
@@ -311,13 +317,19 @@ export default class Analytics extends React.Component {
             break;
         }
       });
-
-      //this.fetchData(this.question);
     }
   }
 
   get dateDisplay() {
     return this.state.dateDisplay;
+  }
+
+  get dateRangeBegin() {
+    return this.state.dateRangeBegin;
+  }
+
+  get dateRangeEnd() {
+    return this.state.dateRangeEnd;
   }
 
   get question() {
@@ -328,12 +340,32 @@ export default class Analytics extends React.Component {
     return this.state.segment;
   }
 
+  get dataFetchTimeSize() {
+    return this.state.dataFetchTimeSize;
+  }
+
   get chartFromQuestion() {
     if (_.isNil(this.question)) {
       return false;
     }
 
     const { analytics, segments } = this.props;
+
+    let segmentTypeHack;
+    switch(this.dataFetchTimeSize) {
+      case unixTimes.twoHour:
+        segmentTypeHack = ChartSegmentType.Hour;
+        break;
+      case unixTimes.day:
+        segmentTypeHack = ChartSegmentType.Day;
+        break;
+      case unixTimes.week:
+        segmentTypeHack = ChartSegmentType.Week;
+        break;
+      case unixTimes.month:
+        segmentTypeHack = ChartSegmentType.Month;
+        break;
+    }
 
     if (!_.isNil(analytics.isFetching) && !analytics.isFetching) {
       switch (this.question.title) {
@@ -350,8 +382,7 @@ export default class Analytics extends React.Component {
               <TotalRevenueChart
                 jsonData={analytics.chartValues} 
                 queryKey={analytics.keys}
-                segmentType={ChartSegmentType.Day}
-                debugMode={false}
+                segmentType={segmentTypeHack}
                 />
             </div>
           );
@@ -407,7 +438,14 @@ export default class Analytics extends React.Component {
 
     if (!_.isNil(analytics.isFetchingStats) && !analytics.isFetchingStats) {
       if (!analytics.err) {
-        return this.productStats;
+        const productStats = this.productStats;
+
+        // Initial fetch to display the first Question
+        if(_.isNil(analytics.isFetching)) {
+          this.fetchData();
+        }
+
+        return productStats;
       } else {
         return <ErrorAlerts error={analytics.err} />;
       }
