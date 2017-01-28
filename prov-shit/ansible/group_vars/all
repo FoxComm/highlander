@@ -10,16 +10,16 @@ vagrant: false
 local_vagrant: false
 foxcomm_domain: foxcommerce.com
 
+# Marathon Defaults
+marathon_retries: 60
+marathon_delay: 10
+
 # Docker Defaults
 docker_tag: master
 docker_registry: docker-stage.foxcommerce.com
 docker_registry_provider: gce
 docker_logs_dir: /logs
 docker_logs_host_dir: /var/log/docker
-
-# Marathon Defaults
-marathon_retries: 60
-marathon_delay: 10
 
 # Default docker tags for containers
 docker_tags:
