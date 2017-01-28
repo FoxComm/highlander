@@ -5,7 +5,6 @@
   become: true
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
-    api_server: kangaroos.foxcommerce.com
     self_host: kangaroos.foxcommerce.com
     ashes_server_name: kangaroos.foxcommerce.com
     storefront_server_name: kangaroos.foxcommerce.com

@@ -25,7 +25,6 @@
   become: true
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
-    api_server: test-perfectgourmet.foxcommerce.com
     self_host: test-perfectgourmet.foxcommerce.com
     ashes_server_name: test-perfectgourmet.foxcommerce.com
     storefront_server_name: test-perfectgourmet.foxcommerce.com
