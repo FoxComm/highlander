@@ -8,5 +8,5 @@ kibana_bin: "{{kibana_dir}}/bin/kibana"
 
 kibana_cfg_host: "0.0.0.0"
 kibana_cfg_port: "5601"
-kibana_cfg_es_url: "http://{{log_host}}"
+kibana_cfg_es_url: "http://{{consul_services.es_logs}}"
 kibana_cfg_index: ".kibana"

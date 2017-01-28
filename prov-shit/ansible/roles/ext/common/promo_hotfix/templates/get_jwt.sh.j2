@@ -1,4 +1,4 @@
 #!/bin/sh
 
-export PHOENIX_URL=http://{{phoenix_server}}
+export PHOENIX_URL=http://{{consul_services.phoenix}}
 export JWT=$(curl -sSL -X POST -H "Accept: application/json" -H "Content-Type: application/json" -d @credentials.json -i ${PHOENIX_URL}/v1/public/login | grep 'JWT:' | cut -d':' -f2 | cut -c 2-)

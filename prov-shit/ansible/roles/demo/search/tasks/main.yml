@@ -7,7 +7,7 @@
   template: src=demo-search.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
 
 - name: Update demo-search in Marathon
-  shell: 'curl -X PUT -d@/marathon/applications/demo-search.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/demo-search'
+  shell: 'curl -X PUT -d@/marathon/applications/demo-search.json -H "Content-Type: application/json" http://{{consul_services.marathon}}/v2/apps/demo-search'
 
 - name: Restart demo-search in Marathon
-  shell: 'curl -X POST http://{{marathon_server}}/v2/apps/demo-search/restart'
+  shell: 'curl -X POST http://{{consul_services.marathon}}/v2/apps/demo-search/restart'

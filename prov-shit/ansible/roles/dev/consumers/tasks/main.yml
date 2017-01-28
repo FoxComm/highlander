@@ -16,31 +16,31 @@
   template: src=gift-card-consumer.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
 
 - name: Update Stock Items Consumer in Marathon
-  shell: 'curl -sS -XPUT -d@/marathon/applications/stock-items-consumer.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/stock-items-consumer'
+  shell: 'curl -sS -XPUT -d@/marathon/applications/stock-items-consumer.json -H "Content-Type: application/json" http://{{consul_services.marathon}}/v2/apps/stock-items-consumer'
 
 - name: Restart Stock Items Consumer in Marathon
-  shell: 'curl -sS -XPOST http://{{marathon_server}}/v2/apps/stock-items-consumer/restart'
+  shell: 'curl -sS -XPOST http://{{consul_services.marathon}}/v2/apps/stock-items-consumer/restart'
 
 - name: Update Shipments Consumer in Marathon
-  shell: 'curl -sS -XPUT -d@/marathon/applications/shipments-consumer.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/shipments-consumer'
+  shell: 'curl -sS -XPUT -d@/marathon/applications/shipments-consumer.json -H "Content-Type: application/json" http://{{consul_services.marathon}}/v2/apps/shipments-consumer'
 
 - name: Restart Shipments Consumer in Marathon
-  shell: 'curl -sS -XPOST http://{{marathon_server}}/v2/apps/shipments-consumer/restart'
+  shell: 'curl -sS -XPOST http://{{consul_services.marathon}}/v2/apps/shipments-consumer/restart'
 
 - name: Update Capture Consumer in Marathon
-  shell: 'curl -sS -XPUT -d@/marathon/applications/capture-consumer.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/capture-consumer'
+  shell: 'curl -sS -XPUT -d@/marathon/applications/capture-consumer.json -H "Content-Type: application/json" http://{{consul_services.marathon}}/v2/apps/capture-consumer'
 
 - name: Restart Capture Consumer in Marathon
-  shell: 'curl -sS -XPOST http://{{marathon_server}}/v2/apps/capture-consumer/restart'
+  shell: 'curl -sS -XPOST http://{{consul_services.marathon}}/v2/apps/capture-consumer/restart'
 
 - name: Update Gift Card Consumer in Marathon
-  shell: 'curl -sS -XPUT -d@/marathon/applications/gift-card-consumer.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/gift-card-consumer'
+  shell: 'curl -sS -XPUT -d@/marathon/applications/gift-card-consumer.json -H "Content-Type: application/json" http://{{consul_services.marathon}}/v2/apps/gift-card-consumer'
 
 - name: Restart Gift Card Consumer in Marathon
-  shell: 'curl -sS -XPOST http://{{marathon_server}}/v2/apps/gift-card-consumer/restart'
+  shell: 'curl -sS -XPOST http://{{consul_services.marathon}}/v2/apps/gift-card-consumer/restart'
 
 - name: Get Consumers Marathon tasks in `healthy` state
-  shell: curl -sS -XGET http://{{marathon_server}}/v2/apps/{{item}} | jq '.app.tasksHealthy > 0'
+  shell: curl -sS -XGET http://{{consul_services.marathon}}/v2/apps/{{item}} | jq '.app.tasksHealthy > 0'
   register: healthy_tasks_available
   until: healthy_tasks_available.stdout == 'true'
   retries: "{{marathon_retries}}"

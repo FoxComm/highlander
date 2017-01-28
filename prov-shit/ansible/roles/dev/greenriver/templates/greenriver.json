@@ -6,7 +6,7 @@
   "disk": 0,
   "instances": 1,
   "env": {
-    "JAVA_OPTS": "-Denv={{greenriver_env}} -D{{greenriver_env}}.kafka.broker={{kafka_server}} -D{{greenriver_env}}.elastic.host=elasticsearch://{{search_server}} -D{{greenriver_env}}.activity.phoenix.url=http://{{phoenix_server}}/v1 -D{{greenriver_env}}.avro.schemaRegistryUrl=http://{{schema_server}} -D{{greenriver_env}}.consume.restart={{greenriver_restart}} -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port={{greenriver_jmx_port}} -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
+    "JAVA_OPTS": "-Denv={{greenriver_env}} -D{{greenriver_env}}.kafka.broker={{consul_services.kafka}} -D{{greenriver_env}}.elastic.host=elasticsearch://{{consul_services.es_tcp}} -D{{greenriver_env}}.activity.phoenix.url=http://{{consul_services.phoenix}}/v1 -D{{greenriver_env}}.avro.schemaRegistryUrl=http://{{consul_services.schema_registry}} -D{{greenriver_env}}.consume.restart={{greenriver_restart}} -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port={{greenriver_jmx_port}} -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
   },
   "container": {
     "type": "DOCKER",

@@ -17,7 +17,7 @@
   when: consul_critical_services_output.stdout != "[]"
 
 - name: Get Marathon services in `unhealthy` state
-  shell: 'curl -sS -XGET http://{{marathon_server}}/v2/apps | {{jq_query}}'
+  shell: 'curl -sS -XGET http://{{consul_services.marathon}}/v2/apps | {{jq_query}}'
   register: marathon_unhealthy_services_output
 
 - name: Ensure there is no services in `critical` state

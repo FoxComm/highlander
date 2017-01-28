@@ -4,5 +4,5 @@
         --allow-unkeyed \
         --slot {{item.slot}} \
         --postgres {{item.db_connection_string}} \
-        --broker {{kafka_server}} \
-        --schema-registry "http://{{schema_server}}"
+        --broker {{consul_services.kafka}} \
+        --schema-registry "http://{{consul_services.schema_registry}}"

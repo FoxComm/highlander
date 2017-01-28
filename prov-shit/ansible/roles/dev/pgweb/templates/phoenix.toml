@@ -1,1 +1,1 @@
-url = "postgres://{{marketplace_db_user}}@{{db_host}}/{{marketplace_db_name}}?sslmode=disable"
+url = "postgres://{{marketplace_db_user}}@{{consul_hosts.db}}/{{marketplace_db_name}}?sslmode=disable"

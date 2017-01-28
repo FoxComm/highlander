@@ -1,8 +1,8 @@
 [Service]
 Environment="PHOENIX_ENV={{phoenix_env}}"
-Environment="MIDDLEWAREHOUSE_URL=http://{{middlewarehouse_server}}"
+Environment="MIDDLEWAREHOUSE_URL=http://{{consul_services.middlewarehouse}}"
 WorkingDirectory=/usr/share
-ExecStart=/usr/bin/java -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port={{phoenix_jmx_port}} -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dphoenix.env={{phoenix_env}} -Dhttp.interface="0.0.0.0" -Ddb.host={{db_host}} -Ddb.url="jdbc:postgresql://{{db_host}}/{{db_name}}?user={{db_user}}" -Ddb.name={{db_name}} -Dakka.tracing.host={{zipkin_collector}} -Dakka.tracing.enabled={{phoenix_tracing}} -Dauth.tokenTTL={{phoenix_token_ttl}} -cp {{phoenix_jar}} server.Main
+ExecStart=/usr/bin/java -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port={{phoenix_jmx_port}} -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dphoenix.env={{phoenix_env}} -Dhttp.interface="0.0.0.0" -Ddb.host={{consul_hosts.db}} -Ddb.url="jdbc:postgresql://{{consul_hosts.db}}/{{db_name}}?user={{db_user}}" -Ddb.name={{db_name}} -Dakka.tracing.host={{zipkin_collector}} -Dakka.tracing.enabled={{phoenix_tracing}} -Dauth.tokenTTL={{phoenix_token_ttl}} -cp {{phoenix_jar}} server.Main
 Restart=always
 StandardOutput=syslog
 StandardError=syslog

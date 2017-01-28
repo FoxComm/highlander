@@ -7,13 +7,13 @@
   template: src=storefront.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
 
 - name: Update Storefront in Marathon
-  shell: 'curl -X PUT -d@/marathon/applications/storefront.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/storefront'
+  shell: 'curl -X PUT -d@/marathon/applications/storefront.json -H "Content-Type: application/json" http://{{consul_services.marathon}}/v2/apps/storefront'
 
 - name: Restart Storefront in Marathon
-  shell: 'curl -X POST http://{{marathon_server}}/v2/apps/storefront/restart'
+  shell: 'curl -X POST http://{{consul_services.marathon}}/v2/apps/storefront/restart'
 
 - name: Get Storefront Marathon tasks in `healthy` state
-  shell: curl -sS -XGET http://{{marathon_server}}/v2/apps/storefront | jq '.app.tasksHealthy > 0'
+  shell: curl -sS -XGET http://{{consul_services.marathon}}/v2/apps/storefront | jq '.app.tasksHealthy > 0'
   register: healthy_tasks_available
   until: healthy_tasks_available.stdout == 'true'
   retries: "{{marathon_retries}}"

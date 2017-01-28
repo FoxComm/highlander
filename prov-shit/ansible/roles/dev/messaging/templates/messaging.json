@@ -25,10 +25,10 @@
   "env": {
     "PHOENIX_USER": "{{phoenix_api_user}}",
     "PHOENIX_PASSWORD": "{{phoenix_api_password}}",
-    "PHOENIX_URL": "http://{{phoenix_server}}",
-    "API_HOST": "{{messaging_host}}",
-    "KAFKA_BROKER": "{{kafka_server}}",
-    "SCHEMA_REGISTRY_URL": "http://{{schema_server}}",
+    "PHOENIX_URL": "http://{{consul_services.phoenix}}",
+    "API_HOST": "{{consul_hosts.messaging}}",
+    "KAFKA_BROKER": "{{consul_services.kafka}}",
+    "SCHEMA_REGISTRY_URL": "http://{{consul_services.schema_registry}}",
     "JAVA_OPTS": "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port={{messaging_jmx_port}} -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
   },
   "healthChecks": [
