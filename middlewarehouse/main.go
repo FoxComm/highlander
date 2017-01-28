@@ -26,6 +26,8 @@ func engine() (*gin.Engine, error) {
 }
 
 func main() {
+	log.Println("Test...")
+
 	if err := config.InitializeSiteConfig(); err != nil {
 		log.Panicf("Failed to initialize middlewarehouse config with error %s", err.Error())
 	}
