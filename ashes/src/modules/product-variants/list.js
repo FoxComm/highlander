@@ -1,10 +1,11 @@
-/**
- * @flow
- */
+// @flow
 
-import makeLiveSearch from '../live-search';
+import { post } from 'lib/search';
+import * as dsl from 'elastic/dsl';
+import { createAsyncActions } from '@foxcomm/wings';
+import { createReducer } from 'redux-act';
 
-export type Sku = {
+export type ProductVariant = {
   id: number;
   image: string|null,
   context: string,
@@ -16,49 +17,35 @@ export type Sku = {
   retailPriceCurrency: string,
 };
 
-const searchTerms = [
-  {
-    title: 'SKU : Code',
-    type: 'identifier',
-    term: 'skuCode',
-  },
-  {
-    title: 'SKU : Title',
-    type: 'string',
-    term: 'title',
-  },
-  {
-    title: 'SKU : Price',
-    type: 'currency',
-    term: 'price'
-  },
-  {
-    title: 'SKU : Archived At',
-    type: 'date',
-    term: 'archivedAt',
-  },
-  {
-    title: 'SKU : Is Archived',
-    type: 'exists',
-    term: 'archivedAt',
-    suggestions: [
-      { display: 'Yes', operator: 'exists' },
-      { display: 'No', operator: 'missing' },
-    ],
-  },
-];
 
-const { reducer, actions } = makeLiveSearch(
-  'productVariants.list',
-  searchTerms,
-  'product_variants_search_view/_search',
-  'skusScope',
-  {
-    rawSorts: ['title']
+const _fetchProductVariants = createAsyncActions(
+  'fetchProductVariants',
+  function(productId) {
+    const query = dsl.query({
+      bool: {
+        filter: [
+          dsl.termFilter('productId', productId),
+        ]
+      }
+    });
+
+    // @TODO: use product_variants_search_view instead
+    return post('sku_search_view/_search', query);
   }
 );
+export const fetchProductVariants = _fetchProductVariants.perform;
 
-export {
-  reducer as default,
-  actions
+const initialState = {
+  list: [],
 };
+
+const reducer = createReducer({
+  [_fetchProductVariants.succeeded]: (state, response) => {
+    return {
+      ...state,
+      list: response.result,
+    };
+  },
+}, initialState);
+
+export default reducer;

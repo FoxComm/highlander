@@ -1,0 +1,28 @@
+
+.products-table {
+  & :global(.fc-table) {
+    margin-left: 96px !important;
+  }
+
+  & :global(.fc-table-head .row-head-left) {
+    min-width: 96px !important;
+    max-width: 96px !important;
+  }
+
+  & :global(.fc-table-body .row-head-left) {
+    min-width: 96px !important;
+    max-width: 96px !important;
+  }
+}
+
+.toggle-icon {
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  margin-top: -16px;
+
+  width: 28px;
+  height: 28px;
+  padding-left: 6px;
+  padding-top: 6px;
+}

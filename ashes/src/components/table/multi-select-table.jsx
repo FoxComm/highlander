@@ -1,8 +1,7 @@
 // libs
 import _ from 'lodash';
-import React, { PropTypes } from 'react';
+import React, { PropTypes, Component } from 'react';
 import { autobind } from 'core-decorators';
-import { connect } from 'react-redux';
 import classNames from 'classnames';
 import localStorage from 'localStorage';
 
@@ -10,7 +9,7 @@ import localStorage from 'localStorage';
 import TableView from './tableview';
 import MultiSelectHead, { selectionState } from './multi-select-head';
 
-export default class MultiSelectTable extends React.Component {
+export default class MultiSelectTable extends Component {
   static propTypes = {
     columns: PropTypes.array.isRequired,
     dataTable: PropTypes.bool,
@@ -143,9 +142,11 @@ export default class MultiSelectTable extends React.Component {
     }
 
     return (
-      <MultiSelectHead pageChecked={pageChecked}
-                       setAllChecked={this.setAllChecked}
-                       setPageChecked={this.setPageChecked} />
+      <MultiSelectHead
+        pageChecked={pageChecked}
+        setAllChecked={this.setAllChecked}
+        setPageChecked={this.setPageChecked}
+      />
     );
   }
 
