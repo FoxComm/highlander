@@ -1,0 +1,33 @@
+---
+
+- name: Install Dashboard Server
+  shell: go get github.com/kpashka/dashboard
+
+- name: Create Dashboard Server Directory
+  file: path={{dashboard_assets_location}} state=directory owner="{{user}}"
+
+- name: Copy Dashboard Assets
+  copy: src=assets dest="{{dashboard_assets_location}}"
+
+- name: Set Facts for Template
+  set_fact:
+    consul_ui_url: "https://{{private_ip}}:{{consul_port}}"
+    mesos_ui_url: "https://{{private_ip}}:{{mesos_port}}"
+    marathon_ui_url: "https://{{private_ip}}:{{marathon_port}}"
+    kibana_url: "https://{{private_ip}}:{{consul_port}}"
+    pgweb_url: "https://{{private_ip}}:{{pgweb_port}}"
+
+- name: Copy Dashboard Index Template
+  template: src=index.html.j2 dest="{{dashboard_assets_location}}/index.html"
+
+- name: Install Dashboard run script
+  template: src=run_dashboard.sh.j2 dest="{{dashboard_assets_location}}/run_dashboard.sh" mode="u=rwx,g=rwx,o=r"
+
+- name: Install Dashboard service entry
+  template: src="dashboard.service.j2" dest="{{dest_services}}/dashboard.service"
+
+- name: Reload Systemd for Dashboard
+  command: systemctl daemon-reload
+
+- name: Restart Dashboard
+  service: name=dashboard state=restarted enabled=true
