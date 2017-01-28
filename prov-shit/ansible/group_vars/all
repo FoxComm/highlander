@@ -109,7 +109,8 @@ consul_services:
     solomon: "{{consul_hosts.solomon}}.{{consul_ports.solomon}}"
     storefront: "{{consul_hosts.storefront}}.{{consul_ports.storefront}}"
     zookeeper: "{{consul_hosts.zookeeper}}.{{consul_ports.zookeeper}}"
-    zookeepers: "zk://{{consul_services.zookeeper}}"
+
+zookeepers: "zk://{{consul_services.zookeeper}}"
 
 # Database & bottledwater
 db_user: phoenix
