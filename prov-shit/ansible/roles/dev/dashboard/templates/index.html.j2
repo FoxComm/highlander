@@ -23,9 +23,9 @@
           <div class="col-sm-4 py-4">
             <h4 class="text-white">Links</h4>
             <ul class="list-unstyled">
-              <li><a href="https://github.com/FoxComm" class="text-white">GitHub</a></li>
-              <li><a href="https://foxcommerce.slack.com" class="text-white">Slack</a></li>
-              <li><a href="http://foxcommerce.com" class="text-white">Website</a></li>
+              <li><a href="https://github.com/FoxComm" class="text-white" target="_blank">GitHub</a></li>
+              <li><a href="https://foxcommerce.slack.com" class="text-white" target="_blank">Slack</a></li>
+              <li><a href="http://foxcommerce.com" class="text-white" target="_blank">Website</a></li>
             </ul>
           </div>
         </div>
@@ -45,8 +45,8 @@
         <h1 class="jumbotron-heading">Your instance is ready!</h1>
         <p class="lead text-muted">You can start your development by exploring our web UI applications.<br>If you encounter any problems, a variety of handy DevOps tools are available at your service.</p>
         <p>
-          <a href="https://{{dns_record}}.{{foxcomm_domain}}" class="btn btn-primary">Open Storefront</a>
-          <a href="https://{{dns_record}}.{{foxcomm_domain}}/admin" class="btn btn-secondary">Open Admin UI</a>
+          <a href="https://{{dns_record}}.{{foxcomm_domain}}" class="btn btn-primary" target="_blank">Open Storefront</a>
+          <a href="https://{{dns_record}}.{{foxcomm_domain}}/admin" class="btn btn-secondary" target="_blank">Open Admin UI</a>
         </p>
       </div>
     </section>
@@ -56,24 +56,24 @@
 
         <div class="row">
           <div class="card">
-            <a href="{{consul_ui_url}}"><img src="assets/images/ui_consul.png" alt="Consul UI" title="Consul UI"></a>
+            <a href="{{consul_ui_url}}" target="_blank"><img src="assets/images/ui_consul.png" alt="Consul UI" title="Consul UI"></a>
             <p class="card-text"><b>Consul</b> is a backbone of our platform which provides distributed highly-available service discovery.</p>
           </div>
           <div class="card">
-            <a href="{{mesos_ui_url}}"><img src="assets/images/ui_mesos.png" alt="Mesos UI" title="Mesos UI"></a>
+            <a href="{{mesos_ui_url}}" target="_blank"><img src="assets/images/ui_mesos.png" alt="Mesos UI" title="Mesos UI"></a>
             <p class="card-text"><b>Mesos</b> makes our datacenters multi-tenant, allowing multiple applications to work on the same machine.</p>
           </div>
           <div class="card">
-            <a href="{{marathon_ui_url}}"><img src="assets/images/ui_marathon.png" alt="Marathon UI" title="Marathon UI"></a>
+            <a href="{{marathon_ui_url}}" target="_blank"><img src="assets/images/ui_marathon.png" alt="Marathon UI" title="Marathon UI"></a>
             <p class="card-text"><b>Marathon</b> provides production-grade container orchestration mechanisms for Mesos.</p>
           </div>
 
           <div class="card">
-            <a href="{{kibana_url}}"><img src="assets/images/ui_kibana.png" alt="Kibana" title="Kibana"></a>
+            <a href="{{kibana_url}}" target="_blank"><img src="assets/images/ui_kibana.png" alt="Kibana" title="Kibana"></a>
             <p class="card-text"><b>Kibana</b> is a centralized interface for analyzing and visualizing platform logs.</p>
           </div>
           <div class="card">
-            <a href="{{pgweb_url}}"><img src="assets/images/ui_pgweb.png" alt="Pgweb" title="Pgweb"></a>
+            <a href="{{pgweb_url}}" target="_blank"><img src="assets/images/ui_pgweb.png" alt="Pgweb" title="Pgweb"></a>
             <p class="card-text">A simple web-based PostgreSQL UI called <b>Pgweb</b> can help when you don't have any client by hand.</p>
           </div>
           <div class="card">
@@ -90,7 +90,7 @@
         <p class="float-right">
           <a href="#">Back to top</a>
         </p>
-        <p>For bug reports or any other feedback, please message to <a href="javascript:void(0)">@devops</a> group in <a href="https://foxcommerce.slack.com/messages/engineering">#engineering</a> channel.</p>
+        <p>For bug reports or any other feedback, please message to <a href="javascript:void(0)">@devops</a> group in <a href="https://foxcommerce.slack.com/messages/engineering" target="_blank">#engineering</a> channel.</p>
       </div>
     </footer>
 
