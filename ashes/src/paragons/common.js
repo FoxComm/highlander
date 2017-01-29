@@ -40,7 +40,7 @@ export const SAVE_COMBO = {
   CLOSE: 'save_and_close',
 };
 
-type SaveComboItems = Array<Array<string>>;
+export type SaveComboItems = Array<Array<string>>;
 
 export const SAVE_COMBO_ITEMS: SaveComboItems = [
   [SAVE_COMBO.NEW, 'Save and Create New'],
