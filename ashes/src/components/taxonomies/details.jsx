@@ -16,6 +16,11 @@ import * as TaxonomyActions from 'modules/taxonomies/details';
 import type { ObjectActions } from 'components/object-page/object-page-deux';
 import type { Taxonomy } from 'paragons/taxonomy';
 
+type TaxonomyParams = {
+  taxonomyId: string,
+  context: string,
+};
+
 type Props = {
   actions: ObjectActions<Taxonomy>,
   details: {
@@ -23,10 +28,7 @@ type Props = {
   },
   isFetching: boolean,
   fetchError: ?Object,
-  params: {
-    taxonomyId: string,
-    context: string,
-  },
+  params: TaxonomyParams,
 };
 
 class TaxonomyDetailsPage extends Component {
@@ -51,6 +53,15 @@ class TaxonomyDetailsPage extends Component {
     return isFetching || (!taxonomy && !fetchError);
   }
 
+  get navLinks(): NavLinks<TaxonomyParams> {
+    return [{
+      title: 'Details',
+      to: 'taxonomy-details',
+      params: this.props.params,
+      key: 'taxonomy-details-link',
+    }];
+  }
+
   render(): Element {
     const { taxonomyId, context } = this.props.params;
 
@@ -61,6 +72,7 @@ class TaxonomyDetailsPage extends Component {
         identifier={taxonomyId}
         isFetching={this.isFetching}
         fetchError={this.props.fetchError}
+        navLinks={this.navLinks}
         object={this.props.details.taxonomy}
         objectType="taxonomy"
       />
