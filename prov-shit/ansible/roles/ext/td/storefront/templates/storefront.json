@@ -40,7 +40,7 @@
       }
     ],
     "docker": {
-      "image": "{{docker_registry}}:5000/td-storefront:{{docker_frontend_branch}}",
+      "image": "{{docker_registry}}:5000/td-storefront:{{docker_tags.storefront_td}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],

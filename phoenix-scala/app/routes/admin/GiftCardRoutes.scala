@@ -2,7 +2,6 @@ package routes.admin
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.account.User
 import models.payment.giftcard.GiftCard.giftCardCodeRegex

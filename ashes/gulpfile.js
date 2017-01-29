@@ -2,6 +2,7 @@
 
 const _ = require('lodash');
 const fs = require('fs');
+const del = require('del');
 const path = require('path');
 const gulp = require('gulp');
 const runSequence = require('run-sequence');
@@ -19,8 +20,10 @@ for (let task of fs.readdirSync(opts.taskDir)) {
   require(file)(gulp, opts, $);
 }
 
+gulp.task('clean', () => del(['build/**/*', 'lib/**/*']));
+
 gulp.task('build', function(cb) {
-  runSequence('imagemin', 'less', 'precompile', 'browserify', 'css', cb);
+  runSequence('clean', 'imagemin', 'less', 'precompile', 'browserify', 'css', cb);
 });
 
 gulp.task('dev', function(cb) {

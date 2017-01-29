@@ -22,7 +22,7 @@ func NewClient(key, secret string) (*Client, error) {
 	if key == "" {
 		return nil, errors.New("API key must be specified")
 	} else if secret == "" {
-		return nil, errors.New("API secret must be specifid")
+		return nil, errors.New("API secret must be specified")
 	}
 
 	authStr := fmt.Sprintf("%s:%s", key, secret)
@@ -70,7 +70,7 @@ func (c *Client) UpdateProduct(payload *payloads.Product) (*responses.Product, e
 
 func (c *Client) Shipments() (*responses.ShipmentCollection, error) {
 	collection := new(responses.ShipmentCollection)
-	url := fmt.Sprintf("%s/%s", baseURL, "shipments")
+	url := fmt.Sprintf("%s/%s?sortDir=DESC", baseURL, "shipments")
 	err := c.httpClient.Get(url, collection)
 	return collection, err
 }

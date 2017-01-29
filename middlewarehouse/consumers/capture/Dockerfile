@@ -1,10 +1,13 @@
-FROM ubuntu:16.04
+FROM golang:alpine
 
-RUN apt-get update && apt-get install -y ca-certificates
-RUN apt-get clean
+RUN apk add --no-cache ca-certificates
 
 RUN mkdir -p /capture-consumer
+ADD . /go/src/github.com/FoxComm/highlander/middlewarehouse
+WORKDIR /go/src/github.com/FoxComm/highlander/middlewarehouse
+RUN go build -o consumers/capture/capture-consumer consumers/capture/*.go && \
+    cp consumers/capture/capture-consumer /capture-consumer && \
+    rm -rf /go
 WORKDIR /capture-consumer
-COPY capture-consumer /capture-consumer
 
 CMD /capture-consumer/capture-consumer 2>&1 | tee /logs/capture-consumer.log

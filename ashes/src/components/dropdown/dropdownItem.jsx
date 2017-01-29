@@ -4,24 +4,28 @@ import React, { PropTypes, Element } from 'react';
 import classNames from 'classnames';
 
 type ItemProps = {
-  onSelect: Function,
+  onSelect?: Function,
   value: number|string|bool,
-  children: Element,
-  className: string,
-  isHidden: bool,
+  children?: Element,
+  className?: string,
+  isHidden?: bool,
 };
 
-const DropdownItem = (props: ItemProps) => {
-  const {value, children, onSelect} = props;
-
+const DropdownItem = ({
+  children, 
+  className, 
+  isHidden = false, 
+  value, 
+  onSelect = () => {},
+}: ItemProps) => {
   const handleClick = event => {
     event.preventDefault();
     onSelect(value, children);
   };
 
-  const classnames = classNames(props.className, {
+  const classnames = classNames(className, {
     'fc-dropdown__item': true,
-    'fc-dropdown__item-hidden': props.isHidden,
+    'fc-dropdown__item-hidden': isHidden,
   });
 
   return (
@@ -29,20 +33,6 @@ const DropdownItem = (props: ItemProps) => {
       {children}
     </li>
   );
-};
-
-DropdownItem.propTypes = {
-  onSelect: PropTypes.func,
-  value: PropTypes.oneOfType([
-    PropTypes.bool,
-    PropTypes.string,
-    PropTypes.number,
-  ]),
-  children: PropTypes.node,
-};
-
-DropdownItem.defaultProps = {
-  onSelect: () => {},
 };
 
 export default DropdownItem;

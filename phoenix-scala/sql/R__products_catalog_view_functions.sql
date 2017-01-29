@@ -58,7 +58,7 @@ begin
 
   if array_length(insert_ids, 1) > 0 then
     insert into products_catalog_view(id, product_id, slug, context, title, description, sale_price, currency, tags,
-                                      albums, scope, skus)
+                                      albums, scope, skus, retail_price)
       select
       p.id,
       f.id as product_id,
@@ -71,7 +71,8 @@ begin
       f.attributes->>(s.attributes->'tags'->>'ref') as tags,
       albumLink.albums as albums,
       p.scope as scope,
-      sv.skus as skus
+      sv.skus as skus,
+      sku.retail_price as retail_price
       from products as p
         inner join object_contexts as context on (p.context_id = context.id)
         inner join object_forms as f on (f.id = p.form_id)
@@ -90,6 +91,7 @@ begin
         title = subquery.title,
         description = subquery.description,
         sale_price = subquery.sale_price,
+        retail_price = subquery.retail_price,
         currency = subquery.currency,
         tags = subquery.tags,
         albums = subquery.albums,
@@ -103,6 +105,7 @@ begin
                 f.attributes->>(s.attributes->'title'->>'ref') as title,
                 f.attributes->>(s.attributes->'description'->>'ref') as description,
                 sku.sale_price as sale_price,
+                sku.retail_price as retail_price,
                 sku.sale_price_currency as currency,
                 f.attributes->>(s.attributes->'tags'->>'ref') as tags,
                 albumLink.albums as albums,

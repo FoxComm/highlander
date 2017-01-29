@@ -24,12 +24,11 @@ function setCellContentsFunctionFactory(onDelete: Function): Function {
 type Props = {
   item: Object,
   columns: Array<any>,
-  params: any,
-  onDelete: Function,
+  params?: any,
+  onDelete?: Function,
 };
 
-const CouponRow = (props: Props): Element => {
-  const { item, columns, params, onDelete } = props;
+const CouponRow = ({item, columns, params, onDelete = () => {}}: Props): Element => {
   const checkedParams = params || {checked: false, setChecked: noop };
 
   const setCellContents = setCellContentsFunctionFactory(onDelete);
