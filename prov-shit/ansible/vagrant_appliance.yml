@@ -26,6 +26,7 @@
     - { role: dev/elasticsearch }
     - { role: base/elasticsearch-5 }
     - { role: base/kibana }
+    - { role: base/logrotate }
     - { role: base/bottledwater }
     - { role: dev/db }
     - { role: dev/pgweb }
