@@ -48,10 +48,6 @@
 - name: Reload Systemd for Nginx
   command: systemctl daemon-reload
 
-- name: Restart Mesos Consul
-  service: name=mesos_consul state=restarted
-  when: not packing
-
 - name: Restart Consul Template
   service: name=consul_template state=restarted
   when: not packing
