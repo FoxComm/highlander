@@ -109,6 +109,7 @@ export class CartLineItem extends Component {
   render() {
     const { item, className } = this.props;
     const { isDeleting, quantity } = this.state;
+    const skuQtyInput = item.sku.replace(/\s+/g, '-').toLowerCase();
 
     return (
       <tr className={classNames('line-item', className)}>
@@ -118,7 +119,7 @@ export class CartLineItem extends Component {
         <td><Currency className="item-price" value={item.price} /></td>
         <td class="line-item-quantity">
           <Counter
-            id={`item-quantity-input-${item.sku}`}
+            id={`item-quantity-input-${skuQtyInput}`}
             value={quantity}
             min={1}
             max={1000000}
