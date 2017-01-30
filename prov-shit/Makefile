@@ -32,6 +32,9 @@ test:
 deploy-stage:
 	ansible-playbook -v -i bin/envs/staging ansible/test_stage.yml
 
+deploy-demo:
+	ansible-playbook -v -i bin/envs/staging ansible/test_stage.yml
+
 deploy-td-test:
 	ansible-playbook -v -i bin/envs/staging ansible/test_topdrawer.yml
 

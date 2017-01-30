@@ -374,6 +374,6 @@ class GiftCardIntegrationTest
     val (cart, customer, payment) = (setup.cart, setup.customer, setup.orderPayments.head)
 
     // TODO: replace with checkout?
-    val adjustment1 = GiftCards.auth(giftCard1, Some(payment.id), 10).gimme
+    val adjustment1 = GiftCards.auth(giftCard1, payment.id, 10).gimme
   }
 }

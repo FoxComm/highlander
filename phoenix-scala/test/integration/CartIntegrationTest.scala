@@ -16,7 +16,7 @@ import org.json4s.jackson.JsonMethods._
 import payloads.AddressPayloads.{CreateAddressPayload, UpdateAddressPayload}
 import payloads.CustomerPayloads.CreateCustomerPayload
 import payloads.LineItemPayloads._
-import payloads.OrderPayloads.CreateCart
+import payloads.CartPayloads.CreateCart
 import payloads.UpdateShippingMethod
 import responses.cord.CartResponse
 import responses.cord.base.CordResponseLineItem
@@ -120,7 +120,7 @@ class CartIntegrationTest
     }
   }
 
-  "POST /v1/orders/:refNum/line-items" - {
+  "POST /v1/carts/:refNum/line-items" - {
     val payload = Seq(UpdateLineItemsPayload("SKU-YAX", 2))
 
     "should successfully update line items" in new OrderShippingMethodFixture
@@ -156,7 +156,7 @@ class CartIntegrationTest
     }
   }
 
-  "PATCH /v1/orders/:refNum/line-items" - {
+  "PATCH /v1/carts/:refNum/line-items" - {
     val addPayload = Seq(UpdateLineItemsPayload("SKU-YAX", 2))
 
     val attributes = LineItemAttributes(
@@ -268,7 +268,7 @@ class CartIntegrationTest
     }
   }
 
-  "POST /v1/orders/:refNum/lock" - {
+  "POST /v1/carts/:refNum/lock" - {
     "successfully locks a cart" in new Fixture {
       cartsApi(cart.refNum).lock().mustBeOk()
 
@@ -296,7 +296,7 @@ class CartIntegrationTest
     }
   }
 
-  "POST /v1/orders/:refNum/unlock" - {
+  "POST /v1/carts/:refNum/unlock" - {
     "unlocks cart" in new Fixture {
       cartsApi(cart.refNum).lock().mustBeOk()
       cartsApi(cart.refNum).unlock().mustBeOk()
@@ -309,7 +309,7 @@ class CartIntegrationTest
     }
   }
 
-  "PATCH /v1/orders/:refNum/shipping-address/:id" - {
+  "PATCH /v1/carts/:refNum/shipping-address/:id" - {
 
     "copying a shipping address from a customer's book" - {
 
@@ -376,7 +376,7 @@ class CartIntegrationTest
     }
   }
 
-  "PATCH /v1/orders/:refNum/shipping-address" - {
+  "PATCH /v1/carts/:refNum/shipping-address" - {
 
     "succeeds when a subset of the fields in the address change" in new EmptyCartWithShipAddress_Baked {
       cartsApi(cart.refNum).shippingAddress
@@ -425,7 +425,7 @@ class CartIntegrationTest
     }
   }
 
-  "DELETE /v1/orders/:refNum/shipping-address" - {
+  "DELETE /v1/carts/:refNum/shipping-address" - {
     "succeeds if an address exists" in new EmptyCartWithShipAddress_Baked {
       cartsApi(cart.refNum).get().asThe[CartResponse].result.shippingAddress mustBe defined
 
@@ -455,7 +455,7 @@ class CartIntegrationTest
     }
   }
 
-  "PATCH /v1/orders/:refNum/shipping-method" - {
+  "PATCH /v1/carts/:refNum/shipping-method" - {
     "succeeds if the cart meets the shipping restrictions" in new ShippingMethodFixture {
       cartsApi(cart.refNum).shippingMethod
         .update(UpdateShippingMethod(lowShippingMethod.id))

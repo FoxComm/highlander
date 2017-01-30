@@ -2,9 +2,8 @@ package routes
 
 import akka.http.scaladsl.model.{StatusCodes, Uri}
 import akka.http.scaladsl.server.Directives._
-
+import akka.http.scaladsl.server.Route
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
-
 import payloads.LoginPayload
 import payloads.UserPayloads._
 import services.Authenticator
@@ -18,7 +17,7 @@ import utils.http.Http._
 
 object AuthRoutes {
 
-  def routes(implicit ec: EC, db: DB) = {
+  def routes(implicit ec: EC, db: DB): Route = {
 
     pathPrefix("public") {
       (post & path("login") & entity(as[LoginPayload])) { payload ⇒

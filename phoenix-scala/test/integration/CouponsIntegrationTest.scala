@@ -12,7 +12,7 @@ import models.objects.ObjectContext
 import org.json4s.JsonAST._
 import payloads.CouponPayloads._
 import payloads.LineItemPayloads.UpdateLineItemsPayload
-import payloads.OrderPayloads.CreateCart
+import payloads.CartPayloads.CreateCart
 import responses.CouponResponses.CouponResponse
 import responses.cord.CartResponse
 import testutils.PayloadHelpers._
@@ -70,7 +70,7 @@ class CouponsIntegrationTest
     }
   }
 
-  "POST /v1/orders/:refNum/coupon/:code" - {
+  "POST /v1/carts/:refNum/coupon/:code" - {
     "attaches coupon successfully" - {
       "when activeFrom is before now" in new CartCouponFixture {
         val response = cartsApi(cartRef).coupon.add(couponCode).asTheResult[CartResponse]
@@ -131,16 +131,6 @@ class CouponsIntegrationTest
         override def couponActiveTo   = now.minus(1, DAYS).some
 
         cartsApi(cartRef).coupon.add(couponCode).mustFailWith400(CouponIsNotActive)
-      }
-
-      // TODO @anna: This can be removed once /orders vs /carts routes are split
-      "when attaching to order" in new CartCouponFixture {
-        (for {
-          cart  ← * <~ Carts.mustFindByRefNum(cartRef)
-          order ← * <~ Orders.createFromCart(cart, subScope = None)
-        } yield order).gimme
-
-        POST(s"v1/orders/$cartRef/coupon/$couponCode").mustFailWith400(OrderAlreadyPlaced(cartRef))
       }
     }
   }

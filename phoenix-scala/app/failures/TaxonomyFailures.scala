@@ -5,23 +5,24 @@ import models.taxonomy._
 
 object TaxonomyFailures {
 
-  case class NoChildrenForFlatTaxonomy(taxonId: Int) extends Failure {
-    override def description: String = s"Taxon with id=$taxonId is flat. Cannot add child term."
+  case class NoChildrenForFlatTaxonomy(taxonomyId: ObjectForm#Id) extends Failure {
+    override def description: String =
+      s"Taxonomy with id=$taxonomyId is flat. Cannot add child taxon."
   }
 
   case object NoTermInTaxonomy {
     def apply(taxon: Taxonomy, term: Taxon): Failure = apply(taxon.formId, term.formId)
 
-    def apply(taxonFormId: ObjectForm#Id, termFormId: ObjectForm#Id): Failure = new Failure {
+    def apply(taxonomyFormId: ObjectForm#Id, taxonFormId: ObjectForm#Id): Failure = new Failure {
       override def description: String =
-        s"Taxon with id=$taxonFormId does not contain term with id=$termFormId"
+        s"Taxonomy with id=$taxonomyFormId does not contain taxon with id=$taxonFormId"
     }
   }
 
-  case class InvalidTaxonomiesForTaxon(term: Taxon, taxonsCount: Int) extends Failure {
+  case class InvalidTaxonomiesForTaxon(taxon: Taxon, taxonsCount: Int) extends Failure {
     override def description: String =
-      if (taxonsCount == 0) s"Term with id = ${term.id} is not linked to any taxon"
-      else s"Term with id = ${term.id} is linked to multiple taxons"
+      if (taxonsCount == 0) s"Taxon with id = ${taxon.id} is not linked to any taxonomy"
+      else s"Taxon with id = ${taxon.id} is linked to multiple taxonomies"
   }
 
   case class TaxonIsArchived(taxonId: ObjectForm#Id) extends Failure {
@@ -40,7 +41,8 @@ object TaxonomyFailures {
     override def description: String = "cannot move parent taxon under itself or one of its child"
   }
 
-  case class CannotUnassignProduct(taxonId: Int, productId: Int) extends Failure {
+  case class CannotUnassignProduct(taxonId: Taxon#Id, productId: models.product.Product#Id)
+      extends Failure {
     override def description: String =
       s"Cannot delete taxon-product link. TaxonId:$taxonId, productId: $productId"
   }

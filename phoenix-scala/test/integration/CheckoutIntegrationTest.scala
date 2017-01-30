@@ -20,7 +20,7 @@ import models.shipping._
 import models.{Reason, Reasons}
 import payloads.GiftCardPayloads.GiftCardCreateByCsr
 import payloads.LineItemPayloads._
-import payloads.OrderPayloads.CreateCart
+import payloads.CartPayloads.CreateCart
 import payloads.PaymentPayloads.GiftCardPayment
 import payloads.UpdateShippingMethod
 import responses.GiftCardResponse
@@ -38,7 +38,7 @@ class CheckoutIntegrationTest
     with AutomaticAuth
     with BakedFixtures {
 
-  "PATCH /v1/orders/:refNum/order-line-items" - {
+  "PATCH /v1/carts/:refNum/line-items/attributes" - {
     val attributes = LineItemAttributes(
         GiftCardLineItemAttributes(senderName = "senderName",
                                    recipientName = "recipientName",
@@ -46,14 +46,14 @@ class CheckoutIntegrationTest
                                    message = "Boop").some).some
 
     val addGiftCardPayload = Seq(UpdateLineItemsPayload("SKU-YAX", 2, attributes))
-    "should update attributes of order-line-items succesfully" in new Fixture {
+    "should update attributes of line-items succesfully" in new Fixture {
       val refNum =
         cartsApi.create(CreateCart(customer.accountId.some)).as[CartResponse].referenceNumber
       val orderResponse =
         doCheckout(customer, sku, address, shipMethod, reason, refNum).as[OrderResponse]
       val lineItemToUpdate = orderResponse.lineItems.skus.head
       val root = cartsApi(orderResponse.referenceNumber)
-        .updateorderLineItem(
+        .updateCartLineItem(
             Seq(UpdateOrderLineItemsPayload(lineItemToUpdate.state,
                                             attributes,
                                             lineItemToUpdate.referenceNumbers.headOption.get)))
@@ -95,7 +95,7 @@ class CheckoutIntegrationTest
     }
   }
 
-  "POST v1/orders/:refNum/checkout" - {
+  "POST v1/carts/:refNum/checkout" - {
 
     "places order as admin" in new Fixture {
       val orderResponse = doCheckout(customer, sku, address, shipMethod, reason).as[OrderResponse]

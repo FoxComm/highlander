@@ -11,18 +11,17 @@ type Props = {
     phoneNumber?: string,
     name: string,
   },
-  checked: boolean,
-  onToggle: (id: number) => void,
+  checked?: boolean,
+  onToggle?: (id: number) => void,
 };
 
-const CustomerRow = (props: Props) => {
-  const { customer } = props;
+const CustomerRow = ({customer, checked = false, onToggle = (id) => {}}: Props) => {
   return (
     <li className="fc-choose-customers__entry" key={customer.id}>
       <Checkbox
         id={`choose-customers-${customer.id}`}
-        checked={props.checked}
-        onChange={() => props.onToggle(customer.id)}>
+        checked={checked}
+        onChange={() => onToggle(customer.id)}>
         {customer.name}
       </Checkbox>
       <div className="fc-choose-customers__info">
@@ -35,10 +34,6 @@ const CustomerRow = (props: Props) => {
       </div>
     </li>
   );
-};
-
-CustomerRow.defaultProps = {
-  checked: false,
 };
 
 export default CustomerRow;

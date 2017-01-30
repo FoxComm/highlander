@@ -94,6 +94,10 @@
   command: pip install ansible==2.2.0
   tags: ansible
 
+- name: Install DNS Simple Module
+  command: pip install dnsimple
+  tags: ansible
+
 - name: Install Package for Ansible Lint
   apt: name=libffi-dev state=latest force=yes
   tags: ansible-lint

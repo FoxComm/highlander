@@ -1,6 +1,7 @@
 package routes
 
 import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server._
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
@@ -27,8 +28,7 @@ import utils.http.CustomDirectives._
 import utils.http.Http._
 
 object Customer {
-
-  def routes(implicit ec: EC, es: ES, db: DB, auth: UserAuthenticator, apis: Apis) = {
+  def routes(implicit ec: EC, es: ES, db: DB, auth: UserAuthenticator, apis: Apis): Route = {
 
     pathPrefix("my") {
       requireCustomerAuth(auth) { implicit auth ⇒
