@@ -18,6 +18,7 @@
   roles:
     - { role: dev/appliance_ip }
     - { role: dev/appliance, run_once: true }
+    - { role: dev/common }
     - { role: base/secret_keys }
     - { role: dev/consul_agent }
     - { role: base/marketplace, when: with_marketplace }

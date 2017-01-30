@@ -17,9 +17,7 @@
     - curl
     - debconf-utils
     - golang-go
-    - jq
     - make
-    - ncdu
 
 - name: Install Packages 2
   apt: name={{item}} state=latest force=yes
