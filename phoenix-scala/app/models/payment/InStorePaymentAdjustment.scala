@@ -63,6 +63,9 @@ abstract class InStorePaymentAdjustmentQueries[M <: InStorePaymentAdjustment[M],
   def authorizedOrderPayments(orderPaymentIds: Seq[Int]): QuerySeq =
     filter(adj ⇒ adj.orderPaymentId.inSet(orderPaymentIds) && adj.state === (Auth: State))
 
+  def authorizedOrderPayment(orderPaymentId: Int): QuerySeq =
+    filter(adj ⇒ adj.orderPaymentId === orderPaymentId && adj.state === (Auth: State))
+
   def lastPaymentState(orderPaymentId: Int): DBIO[Option[State]] =
     filter(_.orderPaymentId === orderPaymentId).sortBy(_.createdAt.desc).map(_.state).one
 

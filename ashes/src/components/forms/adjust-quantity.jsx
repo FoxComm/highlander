@@ -108,7 +108,6 @@ export default class AdjustQuantity extends Component {
               value={this.state.diff}
               increaseAction={() => this.adjustValue(this.state.value + 1)}
               decreaseAction={() => this.adjustValue(this.state.value - 1)}
-              min={null}
               onBlur={evt => evt.stopPropagation()}
             />
           </div>

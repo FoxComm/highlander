@@ -30,7 +30,7 @@ lazy val greenRiver = (project in file(".")).
     ),
     libraryDependencies ++= {
       val akkaV      = "2.4.4"
-      val scalaTestV = "2.2.6"
+      val scalaTestV = "3.0.1"
       val json4sV    = "3.3.0"
 
       Seq(

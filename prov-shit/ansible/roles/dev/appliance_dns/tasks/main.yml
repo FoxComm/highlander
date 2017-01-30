@@ -13,8 +13,11 @@
   delegate_to: localhost
   become: false
 
-- name: Copy Success Message
-  template: src=goldrush.log.j2 dest="{{home}}/goldrush.log"
+- name: Copy Goldrush Data
+  template: src="{{item}}.j2" dest="{{home}}/{{item}}"
+  with_items:
+    - goldrush.log
+    - goldrush.state
 
 - name: Find out Highlander path
   shell: "dirname $(dirname $(pwd))"
@@ -22,5 +25,8 @@
   become: false
   register: highlander_path_out
 
-- name: Download Success Message
-  fetch: src="{{home}}/goldrush.log" dest="{{highlander_path_out.stdout}}/goldrush.log" flat=yes
+- name: Download Goldrush Data
+  fetch: src="{{home}}/{{item}}" dest="{{highlander_path_out.stdout}}/{{item}}" flat=yes
+  with_items:
+    - goldrush.log
+    - goldrush.state

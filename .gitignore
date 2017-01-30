@@ -25,3 +25,6 @@ target/
 consumers/product-index/product-index-consumer
 consumers/product-index/vendor/
 middlewarehouse/consumers/shipstation/shipstation-consumer
+
+# goldrush files
+goldrush.state

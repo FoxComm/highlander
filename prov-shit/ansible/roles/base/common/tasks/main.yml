@@ -12,16 +12,17 @@
     state: absent
 
 - name: Install Packages 1
-  apt: name={{ item }} state=latest force=yes
+  apt: name={{item}} state=latest force=yes
   with_items:
     - curl
     - debconf-utils
     - golang-go
     - jq
     - make
+    - ncdu
 
 - name: Install Packages 2
-  apt: name={{ item }} state=latest force=yes
+  apt: name={{item}} state=latest force=yes
   with_items:
     - python-httplib2
     - python-pip
@@ -30,7 +31,7 @@
     - tmux
 
 - name: Install Packages 3
-  apt: name={{ item }} state=latest force=yes
+  apt: name={{item}} state=latest force=yes
   with_items:
     - vim
     - nmap
@@ -41,7 +42,7 @@
     - g++
 
 - name: Install Packages 4
-  apt: name={{ item }} state=latest force=yes
+  apt: name={{item}} state=latest force=yes
   with_items:
     - libcairo2-dev
     - libjpeg8-dev
@@ -61,7 +62,7 @@
   shell: echo "oracle-java8-installer shared/accepted-oracle-license-v1-1 select true" | sudo debconf-set-selections
 
 - name: Install Java Packages
-  apt: name={{ item }} state=latest force=yes
+  apt: name={{item}} state=latest force=yes
   with_items:
     - oracle-java8-installer
     - oracle-java8-set-default

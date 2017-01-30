@@ -25,6 +25,7 @@
     - { role: base/elasticsearch }
     - { role: dev/elasticsearch }
     - { role: base/elasticsearch-5 }
+    - { role: base/logrotate }
     - { role: base/kibana }
     - { role: base/bottledwater }
     - { role: dev/db }
@@ -45,6 +46,7 @@
     - { role: dev/consumers }
     - { role: base/rsyslog }
     - { role: dev/healthcheck }
+    - { role: dev/dashboard, run_once: true }
     - { role: dev/appliance_dns, run_once: true }
 
   handlers:
