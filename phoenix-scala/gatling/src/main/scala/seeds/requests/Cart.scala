@@ -24,27 +24,29 @@ object Cart {
     })
     .check(jsonPath("$.referenceNumber").ofType[String].saveAs("referenceNumber"))
 
-  val addSkusToCart = http("Add SKUs to cart")
+  val addProductVariantsToCart = http("Add variants to cart")
     .post("/v1/orders/${referenceNumber}/line-items")
     .requireAdminAuth
-    .body(StringBody(session ⇒ session.get("skuPayload").as[String]))
+    .body(StringBody(session ⇒ session.get("variantPayload").as[String]))
 
   // TODO ask #middlewarehouse if SKUs are available
-  val pickRandomSkus = {
-    val skusInOrder   = Random.nextInt(5) + 1
-    val numberOfItems = Random.nextInt(3) + 1
-    feed(dbFeeder("select code as sku from skus").random, _ ⇒ skusInOrder).exec { session ⇒
-      def newPayloadItem(skuCode: String) = UpdateLineItemsPayload(??? /* skuCode */, numberOfItems, None)
+  val pickRandomProductVariants = {
+    val differentVariantsQty = Random.nextInt(5) + 1
+    val numberOfItems        = Random.nextInt(3) + 1
+    feed(dbFeeder("select form_id as variant_id from product_variants").random,
+         _ ⇒ differentVariantsQty).exec { session ⇒
+      def newPayloadItem(variantId: Int) =
+        UpdateLineItemsPayload(variantId, numberOfItems, None)
 
       val payload =
-        if (skusInOrder == 1)
-          Seq(newPayloadItem(session.get("sku").as[String]))
+        if (differentVariantsQty == 1)
+          Seq(newPayloadItem(session.get("variant_id").as[Int]))
         else
-          (1 until skusInOrder).map { i ⇒
-            val skuCode = session.get(s"sku$i").as[String]
-            newPayloadItem(skuCode)
+          (1 until differentVariantsQty).map { i ⇒
+            val variantId = session.get(s"variant_id$i").as[Int]
+            newPayloadItem(variantId)
           }
-      session.set("skuPayload", json(payload))
+      session.set("variantPayload", json(payload))
     }
   }
 
@@ -69,8 +71,8 @@ object Cart {
   val checkout = http("Checkout").post("/v1/orders/${referenceNumber}/checkout")
 
   val placeOrder = exec(newCart)
-    .exec(pickRandomSkus)
-    .exec(addSkusToCart)
+    .exec(pickRandomProductVariants)
+    .exec(addProductVariantsToCart)
     .exec(setShippingAddress)
     .exec(findShippingMethods)
     .exec(setShippingMethod)
