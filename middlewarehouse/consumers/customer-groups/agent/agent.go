@@ -2,11 +2,10 @@ package agent
 
 import (
 	"log"
-	"strconv"
 	"time"
 
+	"github.com/FoxComm/highlander/middlewarehouse/consumers/customer-groups/manager"
 	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix"
-	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix/responses"
 	elastic "gopkg.in/olivere/elastic.v3"
 )
@@ -88,8 +87,8 @@ func (agent *Agent) processGroups() error {
 	}
 
 	for _, group := range groups {
-		go func(group responses.CustomerGroupResponse) {
-			ids, err := agent.getCustomersIDs(group)
+		go func(group *responses.CustomerGroupResponse) {
+			ids, err := manager.GetCustomersIDs(agent.esClient, group, agent.esTopic, agent.esSize)
 			if err != nil {
 				log.Panicf("An error occured getting customers: %s", err)
 			}
@@ -99,7 +98,7 @@ func (agent *Agent) processGroups() error {
 			}
 
 			if group.CustomersCount != len(ids) {
-				if err := agent.updateGroup(group, len(ids)); err != nil {
+				if err := manager.UpdateGroup(agent.phoenixClient, group, len(ids)); err != nil {
 					log.Panicf("An error occured update group info: %s", err)
 				}
 			}
@@ -107,56 +106,4 @@ func (agent *Agent) processGroups() error {
 	}
 
 	return nil
-}
-
-func (agent *Agent) getCustomersIDs(group responses.CustomerGroupResponse) ([]int, error) {
-	query := string(group.ElasticRequest)
-	raw := elastic.RawStringQuery(query)
-
-	from := 0
-	done := false
-
-	ids := map[int]bool{}
-
-	for !done {
-		log.Printf("Quering ES. From: %d, Size: %d, Query: %s", from, agent.esSize, query)
-		res, err := agent.esClient.Search().Type(agent.esTopic).Query(raw).Fields().From(from).Size(agent.esSize).Do()
-
-		if err != nil {
-			return nil, err
-		}
-
-		for _, hit := range res.Hits.Hits {
-			customerId, err := strconv.Atoi(hit.Id)
-			if err != nil {
-				return nil, err
-			}
-
-			if !ids[customerId] {
-				ids[customerId] = true
-			}
-		}
-
-		from += agent.esSize
-
-		done = res.Hits.TotalHits <= int64(from)
-	}
-
-	result := []int{}
-	for key := range ids {
-		result = append(result, key)
-	}
-
-	return result, nil
-}
-
-func (agent *Agent) updateGroup(group responses.CustomerGroupResponse, customersCount int) error {
-	updateGroup := &payloads.CustomerGroupPayload{
-		Name:           group.Name,
-		CustomersCount: customersCount,
-		ClientState:    group.ClientState,
-		ElasticRequest: group.ElasticRequest,
-	}
-
-	return agent.phoenixClient.UpdateCustomerGroup(group.ID, updateGroup)
 }

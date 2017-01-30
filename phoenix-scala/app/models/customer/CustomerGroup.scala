@@ -71,4 +71,6 @@ object CustomerDynamicGroups
 
   val returningLens: Lens[CustomerDynamicGroup, Int] = lens[CustomerDynamicGroup].id
 
+  def filterArchived(): QuerySeq = filter(_.deletedAt.isEmpty)
+
 }

@@ -17,7 +17,7 @@ import utils.time._
 object GroupManager {
 
   def findAll(implicit ec: EC, db: DB): DbResultT[Seq[Root]] =
-    CustomerDynamicGroups.result.map(_.map(build)).dbresult
+    CustomerDynamicGroups.filterArchived().result.map(_.map(build)).dbresult
 
   def getById(groupId: Int)(implicit ec: EC, db: DB): DbResultT[Root] =
     for {

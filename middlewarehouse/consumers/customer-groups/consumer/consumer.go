@@ -4,14 +4,14 @@ import (
 	"log"
 
 	"fmt"
+	"github.com/FoxComm/highlander/middlewarehouse/consumers/customer-groups/manager"
 	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
 	"github.com/FoxComm/highlander/middlewarehouse/shared"
 	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix"
-	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix/responses"
 	"github.com/FoxComm/metamorphosis"
+
 	"gopkg.in/olivere/elastic.v3"
-	"strconv"
 )
 
 const (
@@ -90,7 +90,7 @@ func (c CustomerGroupsConsumer) Handler(message metamorphosis.AvroMessage) error
 
 // Handle activity for single order
 func (c CustomerGroupsConsumer) handlerInner(group *responses.CustomerGroupResponse) error {
-	ids, err := c.getCustomersIDs(group)
+	ids, err := manager.GetCustomersIDs(c.esClient, group, c.esTopic, c.esSize)
 	if err != nil {
 		return fmt.Errorf("An error occured getting customers: %s", err)
 	}
@@ -100,62 +100,10 @@ func (c CustomerGroupsConsumer) handlerInner(group *responses.CustomerGroupRespo
 	}
 
 	if group.CustomersCount != len(ids) {
-		if err := c.updateGroup(group, len(ids)); err != nil {
+		if err := manager.UpdateGroup(c.phoenixClient, group, len(ids)); err != nil {
 			return fmt.Errorf("An error occured update group info: %s", err)
 		}
 	}
 
 	return nil
-}
-
-func (c *CustomerGroupsConsumer) getCustomersIDs(group *responses.CustomerGroupResponse) ([]int, error) {
-	query := string(group.ElasticRequest)
-	raw := elastic.RawStringQuery(query)
-
-	from := 0
-	done := false
-
-	ids := map[int]bool{}
-
-	for !done {
-		log.Printf("Quering ES. From: %d, Size: %d, Query: %s", from, c.esSize, query)
-		res, err := c.esClient.Search().Type(c.esTopic).Query(raw).Fields().From(from).Size(c.esSize).Do()
-
-		if err != nil {
-			return nil, err
-		}
-
-		for _, hit := range res.Hits.Hits {
-			customerId, err := strconv.Atoi(hit.Id)
-			if err != nil {
-				return nil, err
-			}
-
-			if !ids[customerId] {
-				ids[customerId] = true
-			}
-		}
-
-		from += c.esSize
-
-		done = res.Hits.TotalHits <= int64(from)
-	}
-
-	result := []int{}
-	for key := range ids {
-		result = append(result, key)
-	}
-
-	return result, nil
-}
-
-func (c *CustomerGroupsConsumer) updateGroup(group *responses.CustomerGroupResponse, customersCount int) error {
-	updateGroup := &payloads.CustomerGroupPayload{
-		Name:           group.Name,
-		CustomersCount: customersCount,
-		ClientState:    group.ClientState,
-		ElasticRequest: group.ElasticRequest,
-	}
-
-	return c.phoenixClient.UpdateCustomerGroup(group.ID, updateGroup)
 }
