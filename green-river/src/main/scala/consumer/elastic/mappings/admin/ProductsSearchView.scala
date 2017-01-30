@@ -20,8 +20,8 @@ final case class ProductsSearchView()(implicit ec: EC) extends AvroTransformer {
       field("skus", StringType).analyzer("upper_cased"),
       field("tags", StringType).index("not_analyzed"),
       field("taxonomies", StringType).nested(
-          field("taxons", StringType).index("not_analyzed)"),
-          field("taxonomy", StringType).index("not_analyzed)")
+          field("taxons", StringType).index("not_analyzed"),
+          field("taxonomy", StringType).index("not_analyzed")
       ),
       field("activeFrom", DateType).format(dateFormat),
       field("activeTo", DateType).format(dateFormat),
