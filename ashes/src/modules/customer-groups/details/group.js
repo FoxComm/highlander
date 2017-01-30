@@ -69,6 +69,7 @@ const _fetchStats = createAsyncActions('fetchStatsCustomerGroup', request =>
  */
 export const reset = createAction(`CUSTOMER_GROUP_RESET`);
 export const setName = createAction('CUSTOMER_GROUP_SET_NAME');
+export const setType = createAction('CUSTOMER_GROUP_SET_TYPE');
 export const setMainCondition = createAction('CUSTOMER_GROUP_SET_MAIN_CONDITION');
 export const setConditions = createAction('CUSTOMER_GROUP_SET_CONDITIONS');
 export const setGroupStats = createAction('CUSTOMER_GROUP_SET_GROUP_STATS');
@@ -104,6 +105,7 @@ export const saveGroup = () => (dispatch: Function, getState: Function) => {
   const state = getState();
   const getValue = (name) => get(state, ['customerGroups', 'details', 'group', name]);
 
+  const type = getValue('type');
   const groupId = getValue('id');
   const name = getValue('name');
   const mainCondition = getValue('mainCondition');
@@ -112,6 +114,7 @@ export const saveGroup = () => (dispatch: Function, getState: Function) => {
 
   const data = {
     name,
+    type,
     clientState: {
       mainCondition,
       conditions,
@@ -152,8 +155,12 @@ export const fetchGroupStats = () => (dispatch: Function, getState: Function) =>
   dispatch(_fetchStats.perform(request.toRequest()));
 };
 
-const validateConditions = conditions =>
-conditions && conditions.length && conditions.every(validateCondition);
+const validateConditions = (type, conditions) => {
+  if (type == 'manual') return true;
+
+  return conditions &&
+    conditions.length && conditions.every(validateCondition);
+};
 
 const validateCondition = ([field, operator, value]) => {
   if (!field || !operator) {
@@ -170,12 +177,13 @@ type State = {
   group: TCustomerGroup,
 };
 
-const setData = (state: State, { clientState: { mainCondition, conditions }, ...rest }) => {
+const setData = (state: State, { clientState: { mainCondition, conditions }, type, ...rest }) => {
   return {
     ...rest,
+    type,
     conditions,
     mainCondition,
-    isValid: validateConditions(conditions),
+    isValid: validateConditions(type, conditions),
     stats: initialState.stats,
   };
 };
@@ -194,8 +202,9 @@ const reducer = createReducer({
     }
   }),
   [setName]: (state, name) => ({ ...state, name }),
+  [setType]: (state, type) => ({ ...state, type, isValid: validateConditions(type, state.conditions) }),
   [setMainCondition]: (state, mainCondition) => ({ ...state, mainCondition }),
-  [setConditions]: (state, conditions) => ({ ...state, conditions, isValid: validateConditions(conditions) }),
+  [setConditions]: (state, conditions) => ({ ...state, conditions, isValid: validateConditions(state.type, conditions) }),
   [setGroupStats]: (state, stats) => ({ ...state, stats }),
 }, initialState);
 

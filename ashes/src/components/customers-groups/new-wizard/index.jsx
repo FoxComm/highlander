@@ -54,8 +54,10 @@ class NewGroupWizardPage extends Component {
   }
 
   @autobind
-  handleCustomGroup() {
-    this.props.push({ name: 'new-custom-group' });
+  handleCustomGroup(type: string) {
+    return () => {
+      this.props.push({ name: 'new-custom-group', params: { type }});
+    };
   }
 
   render() {
@@ -71,11 +73,12 @@ class NewGroupWizardPage extends Component {
 
     return (
       <div className={styles.wizard}>
+        <Template name="Dynamic Group" onClick={this.handleCustomGroup('dynamic')} icon="customers" />
+        <Template name="Manual Group" onClick={this.handleCustomGroup('manual')} icon="customers" />
+
         {templates.map((tpl: TTemplate) => (
           <Template id={tpl.id} name={tpl.name} onClick={this.handleSave} key={tpl.id} />
         ))}
-
-        <Template name="Custom Group" onClick={this.handleCustomGroup} icon="customers" />
       </div>
     );
   }

@@ -160,26 +160,24 @@ export default class DynamicGroup extends Component {
   }
 
   get criteria(): ?Element {
-    const { mainCondition, conditions } = this.props.group;
+    const { mainCondition, conditions, type } = this.props.group;
     const main = mainCondition === operators.and ? 'all' : 'any';
 
     const conditionBlock = _.map(conditions, c => this.renderCriterion(c));
 
-    return conditions && (
-        <ContentBox
-          title="Criteria"
-          className={prefixed('criteria')}
-          bodyClassName={classNames({'_closed': !this.state.criteriaOpen})}
-          actionBlock={this.criteriaToggle}
-        >
-          <span className={prefixed('main')}>
-            Customers match
-            &nbsp;<span className={prefixed('inline-label')}>{main}</span>&nbsp;
-            of the following criteria:
-          </span>
-          {conditionBlock}
-        </ContentBox>
-      );
+    return type != 'manual' && conditions && (
+      <ContentBox title="Criteria"
+                  className={prefixed('criteria')}
+                  bodyClassName={classNames({'_open': this.state.criteriaOpen})}
+                  actionBlock={this.criteriaToggle}>
+        <span className={prefixed('main')}>
+          Customers match
+          &nbsp;<span className={prefixed('inline-label')}>{main}</span>&nbsp;
+          of the following criteria:
+        </span>
+        {conditionBlock}
+      </ContentBox>
+    );
   }
 
   get criteriaToggle(): Element {

@@ -48,7 +48,7 @@ const getRoutes = (jwt: Object) => {
         router.create('customer-group-wizard', { path: 'new', component: NewGroupWizardPage }),
 
         router.create('new-custom-group', { component: EditGroupPage }, [
-          router.create('new-custom-group', { path: 'new/dynamic', component: NewGroup }),
+          router.create('new-custom-group', { path: 'new/:type', component: NewGroup }),
         ]),
 
         router.update('edit-customer-group', { component: EditGroupPage }, [
