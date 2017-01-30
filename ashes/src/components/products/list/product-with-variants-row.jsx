@@ -31,6 +31,7 @@ type Props = {
 
 type State = {
   expanded: boolean,
+  allowAnimation: boolean,
 }
 
 function mapLocalState(state) {
@@ -42,9 +43,11 @@ function mapLocalState(state) {
 
 class ProductWithVariantsRow extends Component {
   props: Props;
+  _waitTimer: number|void;
 
   state: State = {
     expanded: false,
+    allowAnimation: false,
   };
 
   @autobind
@@ -60,7 +63,23 @@ class ProductWithVariantsRow extends Component {
 
     if (newState) {
       this.props.fetchProductVariants(this.props.product.id);
+      this._waitTimer = setTimeout(this.enableWaitAnimation, 450);
+    } else {
+      this.setState({
+        allowAnimation: false,
+      });
     }
+  }
+
+  @autobind
+  enableWaitAnimation() {
+    this.setState({
+      allowAnimation: true,
+    });
+  }
+
+  componentWillUnmount() {
+    clearTimeout(this._waitTimer);
   }
 
   get toggleIcon(): Element {
@@ -78,10 +97,13 @@ class ProductWithVariantsRow extends Component {
 
   get productVariants(): Array<Element>|Element|void {
     if (!this.state.expanded) return void 0;
-    if (this.props.fetchState.inProgress) {
+    if (this.props.fetchState.inProgress && this.state.allowAnimation) {
       return (
         <tr className="fc-table-tr">
-          <WaitAnimation/>
+          <td className="row-head-left" styleName="wait-td-left" />
+          <td colSpan={this.props.columns.length - 1} styleName="wait-td">
+            <WaitAnimation/>
+          </td>
         </tr>
       );
     }
@@ -117,8 +139,6 @@ class ProductWithVariantsRow extends Component {
 }
 
 export default _.flowRight(
-  makeLocalStore(productVariantsReducer),
+  makeLocalStore(addAsyncReducer(productVariantsReducer)),
   connect(mapLocalState, { fetchProductVariants })
 )(ProductWithVariantsRow);
-
-

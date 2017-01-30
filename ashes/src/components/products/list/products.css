@@ -26,3 +26,16 @@
   padding-left: 6px;
   padding-top: 6px;
 }
+
+.wait-td {
+  padding-right: 96px !important;
+
+  & :global(.fc-wait-animation) {
+    margin: 0 auto;
+  }
+}
+
+.wait-td-left {
+  height: 93px !important;
+  border-right: 0 none !important;
+}
