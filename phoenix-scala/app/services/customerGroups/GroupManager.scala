@@ -43,7 +43,7 @@ object GroupManager {
                        CustomerDynamicGroup
                          .fromPayloadAndAdmin(payload, group.createdBy, scope)
                          .copy(id = groupId, updatedAt = Instant.now))
-      _ ← * <~ LogActivity.customerGroupUpdated(group, admin)
+      _ ← * <~ LogActivity.customerGroupUpdated(groupEdited, admin)
     } yield build(groupEdited)
 
   def delete(groupId: Int, admin: User)(implicit ec: EC, db: DB, au: AU, ac: AC): DbResultT[Unit] =

@@ -12,26 +12,17 @@ import (
 )
 
 const (
-	DefaultTimeout         = 30 * time.Minute
-	DefaultPhoenixURL      = "http:/127.0.0.1:9090"
-	DefaultPhoenixUser     = "api"
-	DefaultPhoenixPassword = "password"
-	DefaultElasticURL      = "http://127.0.0.1:9200"
-	DefaultElasticIndex    = "admin"
-	DefaultElasticTopic    = "customers_search_view"
-	DefaultElasticSize     = 100
+	DefaultElasticIndex = "admin"
+	DefaultElasticTopic = "customers_search_view"
+	DefaultElasticSize  = 100
+	DefaultTimeout      = 30 * time.Minute
 )
 
 type Agent struct {
 	esClient      *elastic.Client
 	phoenixClient phoenix.PhoenixClient
-	esURL         string
-	esIndex       string
 	esTopic       string
 	esSize        int
-	phoenixURL    string
-	phoenixUser   string
-	phoenixPass   string
 	timeout       time.Duration
 }
 
@@ -40,18 +31,6 @@ type AgentOptionFunc func(*Agent)
 func SetTimeout(t time.Duration) AgentOptionFunc {
 	return func(a *Agent) {
 		a.timeout = t
-	}
-}
-
-func SetElasticURL(url string) AgentOptionFunc {
-	return func(a *Agent) {
-		a.esURL = url
-	}
-}
-
-func SetElasticIndex(index string) AgentOptionFunc {
-	return func(a *Agent) {
-		a.esIndex = index
 	}
 }
 
@@ -67,30 +46,12 @@ func SetElasticQierySize(size int) AgentOptionFunc {
 	}
 }
 
-func SetPhoenixURL(url string) AgentOptionFunc {
-	return func(a *Agent) {
-		a.phoenixURL = url
-	}
-}
-
-func SetPhoenixAuth(user, password string) AgentOptionFunc {
-	return func(a *Agent) {
-		a.phoenixUser = user
-		a.phoenixPass = password
-	}
-}
-
-func NewAgent(options ...AgentOptionFunc) (*Agent, error) {
+func NewAgent(esClient *elastic.Client, phoenixClient phoenix.PhoenixClient, options ...AgentOptionFunc) (*Agent, error) {
 	agent := &Agent{
-		nil,
-		nil,
-		DefaultElasticURL,
-		DefaultElasticIndex,
+		esClient,
+		phoenixClient,
 		DefaultElasticTopic,
 		DefaultElasticSize,
-		DefaultPhoenixURL,
-		DefaultPhoenixUser,
-		DefaultPhoenixPassword,
 		DefaultTimeout,
 	}
 
@@ -98,16 +59,6 @@ func NewAgent(options ...AgentOptionFunc) (*Agent, error) {
 	for _, opt := range options {
 		opt(agent)
 	}
-
-	esClient, err := elastic.NewClient(
-		elastic.SetURL(agent.esURL),
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	agent.esClient = esClient
-	agent.phoenixClient = phoenix.NewPhoenixClient(agent.phoenixURL, agent.phoenixUser, agent.phoenixPass)
 
 	return agent, nil
 }
