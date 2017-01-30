@@ -101,14 +101,13 @@ object ProductManager {
       (productOptionVariants, productOptionResponses) = productOptionsWithVariants
 
       taxons ← * <~ TaxonomyManager.getAssignedTaxons(oldProduct.model)
-    } yield {
+    } yield
       ProductResponse.build(
           IlluminatedProduct.illuminate(oc, oldProduct.model, oldProduct.form, oldProduct.shadow),
           albums,
           if (hasOptions) productOptionVariants else productVariants,
           productOptionResponses,
           taxons)
-    }
 
   def updateProduct(productId: ProductReference, payload: UpdateProductPayload)(
       implicit ec: EC,

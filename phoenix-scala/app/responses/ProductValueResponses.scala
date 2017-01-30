@@ -13,11 +13,7 @@ object ProductValueResponses {
                     swatch: Option[String] = None,
                     skuCodes: Option[Seq[String]])
 
-    def build(value: FullObject[ProductOptionValue], skuCodes: Seq[String]): Root = {
-      buildNested(value).copy(skuCodes = Some(skuCodes))
-    }
-
-    def buildNested(value: FullObject[ProductOptionValue]): Root = {
+    def apply(value: FullObject[ProductOptionValue], skuCodes: Option[Seq[String]]): Root = {
       val model       = value.model
       val formAttrs   = value.form.attributes
       val shadowAttrs = value.shadow.attributes
@@ -25,7 +21,13 @@ object ProductValueResponses {
       val name   = IlluminateAlgorithm.get("name", formAttrs, shadowAttrs).extract[String]
       val swatch = IlluminateAlgorithm.get("swatch", formAttrs, shadowAttrs).extractOpt[String]
 
-      Root(id = model.formId, name = name, swatch = swatch, None)
+      Root(id = model.formId, name = name, swatch = swatch, skuCodes = skuCodes)
     }
+
+    def build(value: FullObject[ProductOptionValue], skuCodes: Seq[String]): Root =
+      apply(value, skuCodes = Some(skuCodes))
+
+    def buildNested(value: FullObject[ProductOptionValue]): Root =
+      apply(value, skuCodes = None)
   }
 }

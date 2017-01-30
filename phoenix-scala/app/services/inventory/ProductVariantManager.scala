@@ -47,7 +47,7 @@ object ProductVariantManager {
           IlluminatedVariant.illuminate(oc, variant),
           albumResponse,
           mwhSkuId,
-          Seq.empty) // should be empty as options will be attached only on product creation
+          options = Seq.empty) // should be empty as options will be attached only on product creation
       _ ← * <~ LogActivity
            .fullVariantCreated(Some(admin), response, ObjectContextResponse.build(oc))
     } yield response
@@ -289,27 +289,43 @@ object ProductVariantManager {
       ProductVariantResponse
         .buildLite(IlluminatedVariant.illuminate(oc, fullVariant), albums, mwhSkuId, options)
 
+  private def findProductOptionValueLinks(optionValueIds: Seq[Int])(
+      implicit ec: EC,
+      db: DB): DbResultT[Seq[(ProductOptionValueLink, FullObject[ProductOptionValue])]] =
+    DbResultT.sequence(
+        optionValueIds.map(id ⇒
+              (ProductOptionValueLinks.mustFindById404(id) |@|
+                    ObjectUtils.getFullObject(ProductOptionValues.mustFindById404(id))).map {
+        case (l, r) ⇒ (l, r)
+    }))
+
+  private def getProductOptions(
+      optionLinksWithValues: Seq[(ProductOptionValueLink, FullObject[ProductOptionValue])])(
+      implicit ec: EC,
+      db: DB): DbResultT[Seq[(FullObject[ProductOption], FullObject[ProductOptionValue])]] = {
+    DbResultT.sequence(optionLinksWithValues.map {
+      case (link, value) ⇒
+        (ObjectUtils.getFullObject(ProductOptions.mustFindById404(link.leftId)) |@| DbResultT.pure(
+                value)).map {
+          case (l, r) ⇒ (l, r)
+        }
+    })
+  }
+
   def optionValuesForVariant(variant: ProductVariant)(
       implicit ec: EC,
       db: DB,
       oc: OC): DbResultT[Seq[ProductOptionResponse.Root]] =
     for {
-      optionValues ← * <~ ProductValueVariantLinks.queryLeftByRight(variant)
-      optionsAndValues ← * <~ optionValues.map(value ⇒
-                              ProductOptionValueLinks.queryLeftByRight(value.model).map(_ → value))
-      optionsWithValues = optionsAndValues.foldLeft(
-          Map.empty[FullObject[ProductOption], Set[FullObject[ProductOptionValue]]]) {
-        case (acc, (options, value)) ⇒
-          options.foldLeft(acc) {
-            case (optionWithValues, option) ⇒
-              val values = optionWithValues.get(option).fold(Set(value))(_ + value)
-              optionWithValues + (option → values)
-          }
-      }
+      valueLinks            ← * <~ ProductValueVariantLinks.filter(_.rightId === variant.id).result
+      optionLinksWithValues ← * <~ findProductOptionValueLinks(valueLinks.map(_.leftId))
+      optionsWithValues     ← * <~ getProductOptions(optionLinksWithValues)
     } yield
       optionsWithValues.map {
-        case (option, values) ⇒
-          ProductOptionResponse.buildNested(IlluminatedProductOption.illuminate(oc, option),
-                                            values.toSeq)
-      }.toSeq
+        case (option, value) ⇒
+          ProductOptionResponse.buildNested(
+              IlluminatedProductOption.illuminate(oc, option),
+              value
+          )
+      }
 }

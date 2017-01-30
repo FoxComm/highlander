@@ -215,7 +215,7 @@ object ProductOptionManager {
                               ProductVariantManager.mustFindByContextAndCode(contextId, _))
       newProductVariantIds = newProductVariants.map(_.id).toSet
 
-      variantValueLinks ← * <~ ProductValueVariantLinks.filterLeft(value).result
+      variantValueLinks ← * <~ ProductValueVariantLinks.filterLeft(value.id).result
       linkedSkuIds = variantValueLinks.map(_.rightId).toSet
 
       toDelete = variantValueLinks.filter(link ⇒ !newProductVariantIds.contains(link.rightId))
