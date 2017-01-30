@@ -6,14 +6,12 @@ import React, { Component } from 'react';
 import { autobind, debounce } from 'core-decorators';
 import { isElementInViewport } from 'lib/dom-utils';
 import * as tracking from 'lib/analytics';
-import shallowCompare from 'react-addons-shallow-compare';
 
 // styles
 import styles from './products-list.css';
 
 // components
 import ListItem from '../products-item/list-item';
-import Loader from 'ui/loader';
 
 // types
 import type { HTMLElement } from 'types';
@@ -41,14 +39,6 @@ class ProductsList extends Component {
   componentWillUnmount() {
     this._willUnmount = true;
     window.removeEventListener('scroll', this.handleScroll);
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    if (!nextProps.isLoading) {
-      return shallowCompare(this, nextProps, nextState);
-    }
-
-    return false;
   }
 
   @autobind
@@ -128,11 +118,12 @@ class ProductsList extends Component {
       ? this.renderProducts()
       : <div styleName="not-found">No products found.</div>;
 
-    if (isLoading) return <Loader />;
-
     return (
-      <div styleName="list" ref={this.handleListRendered}>
-        {items}
+      <div styleName="list-wrapper">
+        {isLoading && <div styleName="loader-fader" />}
+        <div styleName="list" ref={this.handleListRendered}>
+          {items}
+        </div>
       </div>
     );
   }

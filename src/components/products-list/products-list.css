@@ -2,6 +2,18 @@
 @import "media-queries";
 @import "colors";
 
+.list-wrapper {
+  position: relative;
+}
+
+.loader-fader {
+  background: rgba(235, 234, 234, 0.5);
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
 .list {
   margin-top: 90px;
   display: flex;
