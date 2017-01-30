@@ -34,7 +34,6 @@ type State = {
 };
 
 
-// TODO: bring group.type back instead hard-coded "Dynamic" string
 class SelectCustomerGroups extends Component {
   props: Props;
 
@@ -144,7 +143,7 @@ class SelectCustomerGroups extends Component {
     return (
       <TableRow key={`row-${group.id}`}>
         <TableCell styleName="row-name">{group.name}</TableCell>
-        <TableCell styleName="row-type">Dynamic</TableCell>
+        <TableCell styleName="row-type">{group.type}</TableCell>
         <TableCell>
           <i
             className="icon-trash"
