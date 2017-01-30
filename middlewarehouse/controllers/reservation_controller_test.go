@@ -47,14 +47,20 @@ func (suite *reservationControllerTestSuite) SetupSuite() {
 
 func (suite *reservationControllerTestSuite) SetupTest() {
 	tasks.TruncateTables(suite.db, []string{
+		"skus",
 		"inventory_search_view",
 		"stock_items",
 		"stock_item_units",
 		"stock_item_summaries",
 	})
 
+	sku := fixtures.GetSKU()
+	sku.Code = "TEST-SKU"
+	sku.RequiresInventoryTracking = true
+	suite.Nil(suite.db.Create(sku).Error)
+
 	stockItem := models.StockItem{
-		SKU:             "TEST-SKU",
+		SKU:             sku.Code,
 		StockLocationID: suite.stockLocation.ID,
 		DefaultUnitCost: 0,
 	}
@@ -119,7 +125,7 @@ func (suite *reservationControllerTestSuite) Test_ReserveItems_WrongSKUs() {
 	}
 
 	res := suite.Post("/reservations/hold", payload)
-	suite.Equal(http.StatusBadRequest, res.Code)
+	suite.Equal(http.StatusNotFound, res.Code)
 	suite.Contains(res.Body.String(), "errors")
 }
 

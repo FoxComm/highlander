@@ -3,6 +3,7 @@ package services
 import (
 	"testing"
 
+	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/common/db/config"
 	"github.com/FoxComm/highlander/middlewarehouse/common/db/tasks"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
@@ -34,13 +35,14 @@ func (suite *InventoryServiceTestSuite) SetupSuite() {
 
 	summaryService := NewSummaryService(suite.db)
 	stockLocationService := NewStockLocationService(suite.db)
-	suite.service = &inventoryService{stockItemRepository, unitRepository, summaryService, nil}
+	suite.service = &inventoryService{stockItemRepository, unitRepository, summaryService, suite.db, nil}
 
 	suite.sl, _ = stockLocationService.CreateLocation(fixtures.GetStockLocation())
 }
 
 func (suite *InventoryServiceTestSuite) SetupTest() {
 	tasks.TruncateTables(suite.db, []string{
+		"skus",
 		"stock_items",
 		"stock_item_units",
 		"stock_item_summaries",
@@ -143,70 +145,84 @@ func (suite *InventoryServiceTestSuite) Test_DecrementStockItemUnits() {
 }
 
 func (suite *InventoryServiceTestSuite) Test_ReserveItems_SingleSKU() {
-	sku := "TEST-RESERVATION"
-	stockItem, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, sku))
+	sku := suite.createSKU("TEST-RESERVATION")
+	stockItem, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, sku.Code))
 	suite.Nil(err)
 
 	suite.Nil(suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 1)))
 
-	refNum := "BR10001"
-	skus := map[string]int{sku: 1}
+	payload := &payloads.Reservation{
+		RefNum: "BR10001",
+		Items: []payloads.ItemReservation{
+			payloads.ItemReservation{SKU: sku.Code, Qty: 1},
+		},
+	}
 
-	err = suite.service.HoldItems(refNum, skus)
+	err = suite.service.HoldItems(payload)
 
 	var units []models.StockItemUnit
-	suite.db.Where("ref_num = ?", refNum).Find(&units)
+	suite.db.Where("ref_num = ?", payload.RefNum).Find(&units)
 
 	suite.Nil(err)
 	suite.Equal(1, len(units))
 }
 
 func (suite *InventoryServiceTestSuite) Test_ReserveItems_MultipleSKUs() {
-	sku1 := "TEST-RESERVATION-A"
-	sku2 := "TEST-RESERVATION-B"
+	sku1 := suite.createSKU("TEST-RESERVATION-A")
+	sku2 := suite.createSKU("TEST-RESERVATION-B")
 
 	sl := []models.StockLocation{}
 	suite.db.Find(&sl)
 
-	stockItem1, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, sku1))
+	stockItem1, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, sku1.Code))
 	suite.Nil(err)
 	suite.Nil(suite.service.IncrementStockItemUnits(stockItem1.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem1, 5)))
 
-	stockItem2, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, sku2))
+	stockItem2, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, sku2.Code))
 	suite.Nil(err)
 	suite.Nil(suite.service.IncrementStockItemUnits(stockItem2.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem2, 5)))
 
-	refNum := "BR10001"
-	skus := map[string]int{
-		sku1: 5,
-		sku2: 5,
+	payload := &payloads.Reservation{
+		RefNum: "BR10001",
+		Items: []payloads.ItemReservation{
+			payloads.ItemReservation{SKU: sku1.Code, Qty: 5},
+			payloads.ItemReservation{SKU: sku2.Code, Qty: 5},
+		},
 	}
 
-	suite.Nil(suite.service.HoldItems(refNum, skus))
+	suite.Nil(suite.service.HoldItems(payload))
 
 	var units []models.StockItemUnit
-	suite.Nil(suite.db.Where("ref_num = ?", refNum).Where("stock_item_id = ?", stockItem1.ID).Find(&units).Error)
+	suite.Nil(suite.db.Where("ref_num = ?", payload.RefNum).Where("stock_item_id = ?", stockItem1.ID).Find(&units).Error)
 
 	suite.Equal(5, len(units))
 
-	suite.Nil(suite.db.Where("ref_num = ?", refNum).Where("stock_item_id = ?", stockItem2.ID).Find(&units).Error)
+	suite.Nil(suite.db.Where("ref_num = ?", payload.RefNum).Where("stock_item_id = ?", stockItem2.ID).Find(&units).Error)
 
-	suite.Equal(skus[sku1], len(units))
+	suite.Equal(5, len(units))
 }
 
 func (suite *InventoryServiceTestSuite) Test_ReserveItems_NoOnHand() {
-	refNum := "BR10001"
-	skus := map[string]int{"TEST-DEFAULT": 1}
+	payload := &payloads.Reservation{
+		RefNum: "BR10001",
+		Items: []payloads.ItemReservation{
+			payloads.ItemReservation{SKU: "TEST-DEFAULT", Qty: 1},
+		},
+	}
 
-	err := suite.service.HoldItems(refNum, skus)
+	err := suite.service.HoldItems(payload)
 	suite.NotNil(err)
 }
 
 func (suite *InventoryServiceTestSuite) Test_ReserveItems_NoSKU() {
-	refNum := "BR10001"
-	skus := map[string]int{"NO-SKU": 1}
+	payload := &payloads.Reservation{
+		RefNum: "BR10001",
+		Items: []payloads.ItemReservation{
+			payloads.ItemReservation{SKU: "NO-SKU", Qty: 1},
+		},
+	}
 
-	err := suite.service.HoldItems(refNum, skus)
+	err := suite.service.HoldItems(payload)
 	suite.NotNil(err)
 }
 
@@ -219,23 +235,36 @@ func (suite *InventoryServiceTestSuite) Test_ReleaseItems_NoReservedSKUs() {
 }
 
 func (suite *InventoryServiceTestSuite) Test_ReleaseItems_Single() {
-	sku := "TEST-UNRESERVATION-A"
-	skus := map[string]int{sku: 1}
-	refNum := "BR10001"
-	stockItem, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, sku))
+	sku := suite.createSKU("TEST-UNRESERVATION-A")
+
+	payload := &payloads.Reservation{
+		RefNum: "BR10001",
+		Items: []payloads.ItemReservation{
+			payloads.ItemReservation{SKU: sku.Code, Qty: 1},
+		},
+	}
+	stockItem, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, sku.Code))
 	suite.Nil(err)
 	suite.Nil(suite.service.IncrementStockItemUnits(stockItem.ID, models.Sellable, fixtures.GetStockItemUnits(stockItem, 1)))
 
-	err = suite.service.HoldItems(refNum, skus)
+	err = suite.service.HoldItems(payload)
 
 	onHoldUnitsCount := 0
-	suite.db.Model(&models.StockItemUnit{}).Where("ref_num = ? AND status = ?", refNum, models.StatusOnHold).Count(&onHoldUnitsCount)
+	suite.db.Model(&models.StockItemUnit{}).Where("ref_num = ? AND status = ?", payload.RefNum, models.StatusOnHold).Count(&onHoldUnitsCount)
 	suite.Equal(1, onHoldUnitsCount, "There should be one unit in onHold status")
 
 	// send release request and check if it was processed successfully
-	err = suite.service.ReleaseItems(refNum)
+	err = suite.service.ReleaseItems(payload.RefNum)
 	suite.Nil(err, "Reservation should be successfully removed")
 
-	suite.db.Model(&models.StockItemUnit{}).Where("ref_num = ? AND status = ?", refNum, models.StatusOnHold).Count(&onHoldUnitsCount)
+	suite.db.Model(&models.StockItemUnit{}).Where("ref_num = ? AND status = ?", payload.RefNum, models.StatusOnHold).Count(&onHoldUnitsCount)
 	suite.Equal(0, onHoldUnitsCount, "There should not be units in onHold status")
+}
+
+func (suite *InventoryServiceTestSuite) createSKU(code string) *models.SKU {
+	sku := fixtures.GetSKU()
+	sku.Code = code
+	sku.RequiresInventoryTracking = true
+	suite.Nil(suite.db.Create(sku).Error)
+	return sku
 }

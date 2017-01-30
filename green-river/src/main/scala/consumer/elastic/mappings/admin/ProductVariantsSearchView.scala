@@ -20,6 +20,7 @@ final case class ProductVariantsSearchView()(implicit ec: EC) extends AvroTransf
       field("retailPrice", IntegerType),
       field("retailPriceCurrency", StringType),
       field("archivedAt", DateType).format(dateFormat),
-      field("externalId", StringType).index("not_analyzed")
+      field("externalId", StringType).index("not_analyzed"),
+      field("middlewarehouseSkuId", IntegerType).index("not_analyzed")
   )
 }

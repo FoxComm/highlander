@@ -3,8 +3,8 @@ import { get, isString, capitalize } from 'lodash';
 import React, { PropTypes } from 'react';
 
 /** Components */
-import Row from '../table/row';
-import Cell from '../table/cell';
+import Row from 'components/table/row';
+import Cell from 'components/table/cell';
 
 /** InventoryItemTransactionsRow Component */
 const InventoryItemTransactionsRow = props => {

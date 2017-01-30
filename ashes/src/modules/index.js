@@ -20,6 +20,7 @@ import siteMenu from './site-menu';
 import inventory from './inventory';
 import products from './products';
 import productVariants from './product-variants';
+import skus from './skus';
 import user from './user';
 import usermenu from './usermenu';
 import promotions from './promotions';
@@ -53,6 +54,7 @@ const rootReducer = combineReducers({
   inventory,
   products,
   productVariants,
+  skus,
   promotions,
   coupons,
   users,

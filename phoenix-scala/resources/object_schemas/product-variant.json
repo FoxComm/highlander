@@ -12,74 +12,38 @@
           "minLength": 1
         },
         "title": {
-          "type": ["string", "null"]
-        },
-        "upc": {
-          "title": "UPC",
-          "type": "string"
-        },
-        "description": {
-          "type": "string",
-          "widget": "richText"
-        },
-        "retailPrice": {
-          "type":"object",
-          "widget": "price",
-          "properties": {
-            "currency": {
-              "type": "string",
-              "minLength": 3,
-              "maxLength": 3
-            },
-            "value": {
-              "type": "number",
-              "minimum": 0,
-              "default": 0
-            }
-          }
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "salePrice": {
-          "type":"object",
+          "type": "object",
           "widget": "price",
+          "description": "Add a price here to put the item on sale",
           "properties": {
-            "currency": {
-              "type": "string",
-              "minLength": 3,
-              "maxLength": 3
-            },
             "value": {
               "type": "number",
-              "minimum": 0,
-              "default": 0
+              "default": 0,
+              "minimum": 0
+            },
+            "currency": {
+              "type": "string",
+              "maxLength": 3,
+              "minLength": 3
             }
           }
         },
-        "unitCost": {
-          "type":"object",
-          "widget": "price",
+        "retailPrice": {
+          "type": "object",
           "properties": {
-            "currency": {
-              "type": "string",
-              "minLength": 3,
-              "maxLength": 3
-            },
-            "value": {
-              "type": "number",
-              "minimum": 0,
-              "default": 0
-            }
+            "$ref": "#/definitions/price"
           }
-        },
-        "activeFrom": {
-          "type": ["string", "null"],
-          "format": "date-time"
-        },
-        "activeTo": {
-          "type": ["string", "null"],
-          "format": "date-time"
         }
       },
-      "required": ["code"]
+      "required": [
+        "code"
+      ]
     }
   }
 }

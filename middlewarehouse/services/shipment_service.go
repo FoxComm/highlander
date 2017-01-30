@@ -20,6 +20,8 @@ type shipmentService struct {
 	updateSummaryAsync bool
 }
 
+// ShipmentService is an interface for creating and manipulating shipments.
+// Manipulating the shipments will also manipulate inventory counts.
 type ShipmentService interface {
 	GetShipmentsByOrder(orderRefNum string) ([]*models.Shipment, error)
 	CreateShipment(shipment *models.Shipment) (*models.Shipment, error)
@@ -27,6 +29,7 @@ type ShipmentService interface {
 	UpdateShipmentForOrder(shipment *models.Shipment) (*models.Shipment, error)
 }
 
+// NewShipmentService creates a new shipment service.
 func NewShipmentService(db *gorm.DB,
 	inventoryService InventoryService,
 	summaryService SummaryService,
@@ -48,31 +51,46 @@ func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*mode
 	// item unit for each line item. As that's happening, maintain a mapping of
 	// what is being updated so that summaries and transactions can be updated.
 	txnUpdates := models.NewTransactionUpdates()
+	unitRepo := repositories.NewStockItemUnitRepository(txn)
 
+	hasInventory := false
 	for i, lineItem := range shipment.ShipmentLineItems {
-		siu, err := service.unitRepo.WithTransaction(txn).ReserveUnit(shipment.OrderRefNum, lineItem.SKU)
-		if err != nil {
+		var sku models.SKU
+		if err := service.db.Where("code = ?", lineItem.SKU).First(&sku).Error; err != nil {
 			txn.Rollback()
 			return nil, err
 		}
 
-		holdTxn := &models.StockItemTransaction{
-			StockItemId:    siu.StockItemID,
-			Type:           models.Sellable,
-			Status:         models.StatusOnHold,
-			QuantityChange: -1,
-		}
+		if sku.RequiresInventoryTracking {
+			siu, err := unitRepo.ReserveUnit(shipment.OrderRefNum, lineItem.SKU)
+			if err != nil {
+				txn.Rollback()
+				return nil, err
+			}
 
-		reservedTxn := &models.StockItemTransaction{
-			StockItemId:    siu.StockItemID,
-			Type:           models.Sellable,
-			Status:         models.StatusReserved,
-			QuantityChange: 1,
-		}
+			holdTxn := &models.StockItemTransaction{
+				StockItemId:    siu.StockItemID,
+				Type:           models.Sellable,
+				Status:         models.StatusOnHold,
+				QuantityChange: -1,
+			}
 
-		txnUpdates.AddUpdate(siu.StockItemID, holdTxn)
-		txnUpdates.AddUpdate(siu.StockItemID, reservedTxn)
-		shipment.ShipmentLineItems[i].StockItemUnitID = siu.ID
+			reservedTxn := &models.StockItemTransaction{
+				StockItemId:    siu.StockItemID,
+				Type:           models.Sellable,
+				Status:         models.StatusReserved,
+				QuantityChange: 1,
+			}
+
+			txnUpdates.AddUpdate(siu.StockItemID, holdTxn)
+			txnUpdates.AddUpdate(siu.StockItemID, reservedTxn)
+			shipment.ShipmentLineItems[i].StockItemUnitID = siu.ID
+			hasInventory = true
+		}
+	}
+
+	if !hasInventory {
+		shipment.State = models.ShipmentStateShipped
 	}
 
 	result, err := service.shipmentRepo.WithTransaction(txn).CreateShipment(shipment)
@@ -81,7 +99,13 @@ func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*mode
 		return nil, err
 	}
 
-	activity, err := activities.NewShipmentCreated(result, result.CreatedAt)
+	var activity activities.ISiteActivity
+	if hasInventory {
+		activity, err = activities.NewShipmentCreated(result, result.CreatedAt)
+	} else {
+		activity, err = activities.NewShipmentShipped(result, result.CreatedAt)
+	}
+
 	if err != nil {
 		txn.Rollback()
 		return nil, err

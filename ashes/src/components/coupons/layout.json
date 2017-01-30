@@ -13,15 +13,15 @@
             "details"
           ]
         }, {
-          "type": "promotions-selector"
+          "type": "promotionsSelector"
         }
       ]
     },
     {
-      "type": "coupon-codes"
+      "type": "couponCodes"
     },
     {
-      "type": "usage-rules"
+      "type": "usageRules"
     }
   ],
   "aside": [

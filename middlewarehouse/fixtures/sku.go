@@ -15,7 +15,7 @@ func randomBool() bool {
 
 func randomFloat() float64 {
 	num, _ := strconv.ParseFloat(fake.Digits(), 64)
-	return num
+	return num + 1.0
 }
 
 func randomInt() int {

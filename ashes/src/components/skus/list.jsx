@@ -5,10 +5,10 @@ import { bindActionCreators } from 'redux';
 
 // component
 import { SelectableSearchList } from '../list-page';
-import InventoryListRow from './inventory-list-row';
+import SkuListRow from './sku-list-row';
 
 // redux
-import { actions } from '../../modules/inventory/list';
+import { actions } from 'modules/inventory/list';
 
 const getState = state => ({ list: state.inventory.list });
 
@@ -27,27 +27,26 @@ const tableColumns = [
   { field: 'afsCost', text: 'AFS Cost', type: 'currency' },
 ];
 
-const InventoryList = props => {
-
+const SkusList = props => {
   const renderRow = (row, index, columns, params) => {
-    const key = `inventory-sku-${row.id}`;
-    return <InventoryListRow sku={row} columns={columns} params={params} key={key} />;
+    return <SkuListRow sku={row} columns={columns} params={params} key={row.id} />;
   };
 
   return (
     <SelectableSearchList
       entity="inventory.list"
-      emptyMessage="No inventory units found."
+      emptyMessage="No SKUs found."
       list={props.list}
       renderRow={renderRow}
       tableColumns={tableColumns}
-      searchActions={props.actions} />
+      searchActions={props.actions}
+    />
   );
 };
 
-InventoryList.propTypes = {
+SkusList.propTypes = {
   list: PropTypes.object.isRequired,
   actions: PropTypes.object.isRequired
 };
 
-export default connect(getState, mapDispatchToProps)(InventoryList);
+export default connect(getState, mapDispatchToProps)(SkusList);

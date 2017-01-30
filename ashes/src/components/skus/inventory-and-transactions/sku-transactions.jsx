@@ -6,14 +6,14 @@ import { get, isString, capitalize } from 'lodash';
 import React, { PropTypes, Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as dsl from '../../elastic/dsl';
+import * as dsl from 'elastic/dsl';
 
 /** Components */
-import SearchList from '../list-page/search-list';
-import InventoryItemTransactionsRow from './item-transactions-row';
+import SearchList from 'components/list-page/search-list';
+import InventoryItemTransactionsRow from './sku-transactions-row';
 
 /** Redux */
-import { actions } from '../../modules/inventory/transactions';
+import { actions } from 'modules/inventory/transactions';
 
 type Actions = {
   setExtraFilters: Function,
@@ -21,13 +21,11 @@ type Actions = {
   updateStateAndFetch: Function,
 };
 
-type Params = {
-  skuCode: string,
-};
 
 type Props = {
+  skuId: number,
+  // connected
   actions: Actions,
-  params: Params,
   list: Object,
 };
 
@@ -52,7 +50,7 @@ class InventoryItemTransactions extends Component {
 
   componentDidMount() {
     this.props.actions.setExtraFilters([
-      dsl.termFilter('sku', this.props.params.skuCode)
+      dsl.termFilter('skuId', this.props.skuId)
     ]);
 
     this.props.actions.fetch();

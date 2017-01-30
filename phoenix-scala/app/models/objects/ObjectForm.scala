@@ -23,12 +23,7 @@ object ObjectForm {
   val coupon         = "coupon"
 
   def fromPayload(kind: String, attributes: Map[String, Json]): ObjectForm = {
-    val attributesJson = attributes.foldLeft(JNothing: JValue) {
-      case (acc, (key, value)) ⇒
-        val attributeJson: JValue = key → (value \ "v")
-        acc.merge(attributeJson)
-    }
-
+    val attributesJson = JObject(attributes.mapValues(_ \ "v").toList)
     ObjectForm(kind = kind, attributes = attributesJson)
   }
 }
