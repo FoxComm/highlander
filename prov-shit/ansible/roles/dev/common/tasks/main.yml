@@ -18,7 +18,7 @@
   unarchive: src={{kt_download_url}} dest=/usr/local/bin/ remote_src=yes
 
 - name: Make kt Executable
-  file: path=/usr/local/bin/kt mode=750
+  file: path=/usr/local/bin/kt mode=755
 
 - name: Download docker-clean Installer
   get_url: url={{docker_clean_url}} dest=/usr/local/bin/docker-clean mode=0555
