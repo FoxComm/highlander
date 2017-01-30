@@ -165,7 +165,9 @@ export default class DynamicGroup extends Component {
 
     const conditionBlock = _.map(conditions, c => this.renderCriterion(c));
 
-    return type != 'manual' && conditions && (
+    if (type != 'manual' && conditions) return null;
+
+    return (
       <ContentBox title="Criteria"
                   className={prefixed('criteria')}
                   bodyClassName={classNames({'_open': this.state.criteriaOpen})}
