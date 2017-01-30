@@ -25,8 +25,8 @@ type PhoenixClient interface {
 	GetOrder(refNum string) (*mwhPayloads.OrderResult, error)
 	GetOrderForShipstation(refNum string) (*http.Response, error)
 	UpdateOrderLineItems(updatePayload []mwhPayloads.UpdateOrderLineItem, refNum string) error
-	GetCustomerGroups() ([]responses.CustomerGroupResponse, error)
-	UpdateCustomerGroup(groupID int, group *payloads.UpdateCustomerGroupPayload) error
+	GetCustomerGroups() ([]*responses.CustomerGroupResponse, error)
+	UpdateCustomerGroup(groupID int, group *payloads.CustomerGroupPayload) error
 	SetGroupToCustomers(groupID int, customers []int) error
 }
 
@@ -262,7 +262,7 @@ func (c *phoenixClient) UpdateOrderLineItems(updatePayload []mwhPayloads.UpdateO
 	return nil
 }
 
-func (c *phoenixClient) GetCustomerGroups() ([]responses.CustomerGroupResponse, error) {
+func (c *phoenixClient) GetCustomerGroups() ([]*responses.CustomerGroupResponse, error) {
 	if err := c.EnsureAuthentication(); err != nil {
 		return nil, err
 	}
@@ -278,7 +278,7 @@ func (c *phoenixClient) GetCustomerGroups() ([]responses.CustomerGroupResponse, 
 		return nil, err
 	}
 
-	var groups []responses.CustomerGroupResponse
+	var groups []*responses.CustomerGroupResponse
 	if err := json.NewDecoder(resp.Body).Decode(&groups); err != nil {
 		log.Printf("Unable to read customer groups response from Phoenix with error: %s", err.Error())
 		return nil, err
@@ -287,7 +287,7 @@ func (c *phoenixClient) GetCustomerGroups() ([]responses.CustomerGroupResponse, 
 	return groups, nil
 }
 
-func (c *phoenixClient) UpdateCustomerGroup(groupID int, group *payloads.UpdateCustomerGroupPayload) error {
+func (c *phoenixClient) UpdateCustomerGroup(groupID int, group *payloads.CustomerGroupPayload) error {
 	if err := c.EnsureAuthentication(); err != nil {
 		return err
 	}

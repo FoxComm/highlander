@@ -200,6 +200,22 @@ const criterions = [
     field: 'isGuest',
     label: 'User Status',
   },
+  {
+    type: types.number,
+    operators: [
+      ops.equal,
+      ops.notEqual,
+      ops.oneOf,
+      ops.notOneOf,
+    ],
+    widget: {
+      default: widgets.plain('number'),
+      [ops.oneOf]: widgets.oneOf(widgets.plain('number')),
+      [ops.notOneOf]: widgets.oneOf(widgets.plain('number')),
+    },
+    field: 'groups',
+    label: 'Groups',
+  },
 ];
 
 export const getCriterion = field => _.find(criterions, {field: field});

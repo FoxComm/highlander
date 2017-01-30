@@ -43,24 +43,14 @@ const _fetchGroup = createAsyncActions('fetchCustomerGroup', (groupId: number) =
 const _saveGroup = createAsyncActions(
   'saveCustomerGroup',
   (groupId, data) => {
-    return new Promise((resolve, reject) => {
-      post(`${mapping}/_count`, data.elasticRequest)
-        .then(response => {
-          data.customersCount = response.count;
+    let request;
+    if (groupId) {
+      request = Api.patch(`/customer-groups/${groupId}`, data);
+    } else {
+      request = Api.post('/customer-groups', data);
+    }
 
-          let request;
-          if (groupId) {
-            request = Api.patch(`/customer-groups/${groupId}`, data);
-          } else {
-            request = Api.post('/customer-groups', data);
-          }
-
-          request
-            .then(data => resolve(data))
-            .catch(err => reject(err));
-        })
-        .catch(err => reject(err));
-    });
+    return request;
   }
 );
 
@@ -118,7 +108,7 @@ export const saveGroup = () => (dispatch: Function, getState: Function) => {
   const name = getValue('name');
   const mainCondition = getValue('mainCondition');
   const conditions = getValue('conditions');
-  const elasticRequest = requestAdapter(criterions, mainCondition, conditions).toRequest();
+  const elasticRequest = requestAdapter(groupId, criterions, mainCondition, conditions).toRequest();
 
   const data = {
     name,
@@ -151,7 +141,7 @@ export const fetchGroupStats = () => (dispatch: Function, getState: Function) =>
   const state = getState();
   const group = get(state, ['customerGroups', 'details', 'group']);
 
-  const request = new Request([]);
+  const request = requestAdapter(group.id, criterions, group.mainCondition, group.conditions);
 
   request.aggregations
     .add(new aggregations.Sum('ordersCount', 'orderCount'))
@@ -159,12 +149,7 @@ export const fetchGroupStats = () => (dispatch: Function, getState: Function) =>
     .add(new aggregations.Average('averageOrderSize', 'orders.itemsCount'))
     .add(new aggregations.Average('averageOrderSum', 'orders.subTotal'));
 
-  const req = {
-    ...request.toRequest(),
-    term: { 'groups': group.id }
-  };
-
-  dispatch(_fetchStats.perform(req));
+  dispatch(_fetchStats.perform(request.toRequest()));
 };
 
 const validateConditions = conditions =>

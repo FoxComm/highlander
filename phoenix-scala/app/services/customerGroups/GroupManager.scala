@@ -17,7 +17,7 @@ import utils.time._
 object GroupManager {
 
   def findAll(implicit ec: EC, db: DB): DbResultT[Seq[Root]] =
-    CustomerDynamicGroups.result.map(_.map(build)).dbresult
+    CustomerDynamicGroups.filterActive().result.map(_.map(build)).dbresult
 
   def getById(groupId: Int)(implicit ec: EC, db: DB): DbResultT[Root] =
     for {
@@ -43,7 +43,7 @@ object GroupManager {
                        CustomerDynamicGroup
                          .fromPayloadAndAdmin(payload, group.createdBy, scope)
                          .copy(id = groupId, updatedAt = Instant.now))
-      _ ← * <~ LogActivity.customerGroupUpdated(group, admin)
+      _ ← * <~ LogActivity.customerGroupUpdated(groupEdited, admin)
     } yield build(groupEdited)
 
   def delete(groupId: Int, admin: User)(implicit ec: EC, db: DB, au: AU, ac: AC): DbResultT[Unit] =
