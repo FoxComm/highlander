@@ -1,10 +1,14 @@
-FROM ubuntu:16.04
+FROM golang:alpine
 
-RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache ca-certificates
 
 RUN mkdir -p /middlewarehouse
+ADD . /go/src/github.com/FoxComm/highlander/middlewarehouse
+WORKDIR /go/src/github.com/FoxComm/highlander/middlewarehouse
+RUN go build -o middlewarehouse main.go && \
+    cp middlewarehouse /middlewarehouse && \
+    rm -rf /go
 WORKDIR /middlewarehouse
-COPY middlewarehouse /middlewarehouse
 ADD .env /middlewarehouse
 
 EXPOSE 9292

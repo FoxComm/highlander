@@ -1,11 +1,10 @@
 import scala.concurrent.Await._
 import scala.concurrent.duration._
 import akka.http.scaladsl.model.{HttpResponse, StatusCode, StatusCodes}
-
 import failures.Failure
 import org.json4s.jackson.JsonMethods._
 import org.scalatest.concurrent.PatienceConfiguration
-import org.scalatest.{AppendedClues, MustMatchers, OptionValues, Suite}
+import org.scalatest._
 import responses.TheResponse
 import utils.JsonFormatters
 import utils.aliases._
@@ -17,7 +16,7 @@ package object testutils extends MustMatchers with OptionValues with AppendedClu
   def originalSourceClue(implicit line: SL, file: SF) =
     s"""\n(Original source: ${file.value.split("/").last}:${line.value})"""
 
-  type FoxSuite = Suite with PatienceConfiguration with DbTestSupport
+  type FoxSuite = TestSuite with PatienceConfiguration with DbTestSupport
 
   implicit class RichAttributes(val attributes: Json) extends AnyVal {
     def get[A](field: String)(implicit mf: Manifest[A]): A =

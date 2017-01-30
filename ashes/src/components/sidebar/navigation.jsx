@@ -10,6 +10,7 @@ import NavigationItem from './navigation-item';
 import CatalogEntry from './entries/catalog';
 import CustomersEntry from './entries/customers';
 import MarketingEntry from './entries/marketing';
+import MerchandisingEntry from './entries/merchandising';
 import OrdersEntry from './entries/orders';
 import SettingsEntry from './entries/settings';
 
@@ -51,6 +52,12 @@ const Navigation = (props: Props): Element => {
           status={getMenuItemState(props, 'orders')}
           toggleMenuItem={props.toggleMenuItem} />
         <CatalogEntry
+          claims={claims}
+          routes={props.routes}
+          collapsed={props.collapsed}
+          status={getMenuItemState(props, 'products')}
+          toggleMenuItem={props.toggleMenuItem} />
+        <MerchandisingEntry
           claims={claims}
           routes={props.routes}
           collapsed={props.collapsed}

@@ -3,10 +3,10 @@ import React, { Element } from 'react';
 import { Link, IndexLink } from 'components/link';
 import LocalNav from 'components/local-nav/local-nav';
 
+import type { Cart } from 'paragons/order';
+
 type Props = {
-  cart: {
-    referenceNumber: string,
-  },
+  cart: Cart,
 };
 
 const SubNav = (props: Props): Element => {

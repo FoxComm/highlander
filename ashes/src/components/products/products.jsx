@@ -19,6 +19,7 @@ import ProductRow from './product-row';
 import { filterArchived } from 'elastic/archive';
 
 // types
+import type { Product } from 'paragons/product';
 import type { SearchFilter } from 'elastic/common';
 
 type Column = {
@@ -30,12 +31,6 @@ type Column = {
 type Props = {
   actions: Object,
   list: Object,
-};
-
-type Product = {
-  id: number,
-  image: string,
-  title: string,
 };
 
 const tableColumns: Array<Column> = [

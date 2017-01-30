@@ -243,7 +243,7 @@ class CartIntegrationTest
     }
   }
 
-  "POST /v1/orders/:refNum/lock" - {
+  "POST /v1/carts/:refNum/lock" - {
     "successfully locks a cart" in new Fixture {
       cartsApi(cartRef).lock().mustBeOk()
       Carts.findByRefNum(cartRef).gimme.head.isLocked must === (true)
@@ -266,7 +266,7 @@ class CartIntegrationTest
     }
   }
 
-  "POST /v1/orders/:refNum/unlock" - {
+  "POST /v1/carts/:refNum/unlock" - {
     "unlocks cart" in new Fixture {
       cartsApi(cartRef).lock().mustBeOk()
       cartsApi(cartRef).unlock().mustBeOk()
@@ -279,7 +279,7 @@ class CartIntegrationTest
     }
   }
 
-  "PATCH /v1/orders/:refNum/shipping-address/:id" - {
+  "PATCH /v1/carts/:refNum/shipping-address/:id" - {
 
     "copying a shipping address from a customer's book" - {
 
@@ -329,7 +329,7 @@ class CartIntegrationTest
     }
   }
 
-  "PATCH /v1/orders/:refNum/shipping-address" - {
+  "PATCH /v1/carts/:refNum/shipping-address" - {
 
     "succeeds when a subset of the fields in the address change" in new CartWithShipAddressFixture {
       cartsApi(cartRef).shippingAddress
@@ -403,7 +403,7 @@ class CartIntegrationTest
     }
   }
 
-  "PATCH /v1/orders/:refNum/shipping-method" - {
+  "PATCH /v1/carts/:refNum/shipping-method" - {
     "succeeds if the cart meets the shipping restrictions" in new ShippingMethodFixture {
       cartsApi(cartRef).shippingMethod
         .update(UpdateShippingMethod(lowShippingMethod.id))

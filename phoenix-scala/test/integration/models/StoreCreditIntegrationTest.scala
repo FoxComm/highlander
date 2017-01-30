@@ -20,7 +20,7 @@ class StoreCreditIntegrationTest
     }
 
     "updates availableBalance if auth adjustment is created + cancel handling" in new Fixture {
-      val adjustment = StoreCredits.auth(storeCredit, Some(payment.id), 1000).gimme
+      val adjustment = StoreCredits.auth(storeCredit, payment.id, 1000).gimme
 
       val updatedStoreCredit = StoreCredits.findOneById(storeCredit.id).run().futureValue.value
       updatedStoreCredit.availableBalance must === (storeCredit.availableBalance - 1000)
@@ -31,16 +31,14 @@ class StoreCreditIntegrationTest
     }
 
     "updates availableBalance and currentBalance if capture adjustment is created + cancel handling" in new Fixture {
-      val adjustment = StoreCredits.capture(storeCredit, Some(payment.id), 1000).gimme
+      val auth = StoreCredits.auth(storeCredit, payment.id, 1000).gimme
 
       val updatedStoreCredit = StoreCredits.findOneById(storeCredit.id).run().futureValue.value
       updatedStoreCredit.availableBalance must === (storeCredit.availableBalance - 1000)
-      updatedStoreCredit.currentBalance must === (storeCredit.currentBalance - 1000)
 
-      StoreCreditAdjustments.cancel(adjustment.id).run().futureValue
+      StoreCreditAdjustments.cancel(auth.id).run().futureValue
       val canceledStoreCredit = StoreCredits.findOneById(storeCredit.id).run().futureValue.value
       canceledStoreCredit.availableBalance must === (storeCredit.availableBalance)
-      canceledStoreCredit.currentBalance must === (storeCredit.currentBalance)
     }
   }
 

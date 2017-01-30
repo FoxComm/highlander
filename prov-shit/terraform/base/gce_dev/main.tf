@@ -56,7 +56,7 @@ module "buildagents" {
   prefix          = "buildkite-agent"
   queue           = "core"
   network         = "default"
-  servers         = 8
+  servers         = 6
   image           = "${var.builder_image}"
   ssh_user        = "${var.ssh_user}"
   ssh_private_key = "${var.ssh_private_key}"

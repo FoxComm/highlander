@@ -15,5 +15,11 @@ ashes/public_key.pem
 .env.local
 /foxcomm-staging.json
 
+# Logs
+*.log
+
 # target folder
 middlewarehouse/consumers/shipstation/shipstation-consumer
+
+# goldrush files
+goldrush.state

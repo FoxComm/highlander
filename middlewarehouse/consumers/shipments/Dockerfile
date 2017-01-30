@@ -1,10 +1,13 @@
-FROM ubuntu:16.04
+FROM golang:alpine
 
-RUN apt-get update && apt-get install -y ca-certificates
-RUN apt-get clean
+RUN apk add --no-cache ca-certificates
 
 RUN mkdir -p /shipments-consumer
+ADD . /go/src/github.com/FoxComm/highlander/middlewarehouse
+WORKDIR /go/src/github.com/FoxComm/highlander/middlewarehouse
+RUN go build -o consumers/shipments/shipments-consumer consumers/shipments/*.go && \
+    cp consumers/shipments/shipments-consumer /shipments-consumer/ && \
+    rm -rf /go
 WORKDIR /shipments-consumer
-COPY shipments-consumer /shipments-consumer
 
 CMD /shipments-consumer/shipments-consumer 2>&1 | tee /log/shipment-consumer.log

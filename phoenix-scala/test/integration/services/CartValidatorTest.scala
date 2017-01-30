@@ -114,7 +114,7 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext with 
         result1.alerts mustBe 'empty
         result1.warnings.value.toList must contain(InsufficientFunds(cart.refNum))
         // Approves authrorized funds
-        GiftCards.auth(giftCard, orderPayment.id.some, grandTotal, 0).gimme
+        GiftCards.auth(giftCard, orderPayment.id, grandTotal).gimme
         val result2 = CartValidator(refresh(cart)).validate(isCheckout = true).gimme
         result2.alerts mustBe 'empty
         result2.warnings.value.toList mustNot contain(InsufficientFunds(cart.refNum))
@@ -132,7 +132,7 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext with 
         result1.alerts mustBe 'empty
         result1.warnings.value.toList must contain(InsufficientFunds(cart.refNum))
         // Approves authrorized funds
-        StoreCredits.auth(storeCredit, orderPayment.id.some, grandTotal).gimme
+        StoreCredits.auth(storeCredit, orderPayment.id, grandTotal).gimme
         val result2 = CartValidator(refresh(cart)).validate(isCheckout = true).gimme
         result2.alerts mustBe 'empty
         result2.warnings.value.toList mustNot contain(InsufficientFunds(cart.refNum))

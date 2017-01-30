@@ -4,10 +4,7 @@
   hosts: all
   become: true
   vars:
-    appliance_hostname: local.foxcommerce.com
     cert_path: test/fox
-    ashes_server_name: local.foxcommerce.com
-    storefront_server_name: local.foxcommerce.com
     storefront_host: storefront.service.consul
     docker_db_host: 172.17.0.1
     install_public_keys: true
@@ -19,6 +16,7 @@
     phoenix_tax_rule_rate: 7.5
 
   roles:
+    - { role: dev/appliance_ip }
     - { role: dev/appliance, run_once: true }
     - { role: base/secret_keys }
     - { role: dev/consul_agent }
@@ -27,6 +25,7 @@
     - { role: base/elasticsearch }
     - { role: dev/elasticsearch }
     - { role: base/elasticsearch-5 }
+    - { role: base/logrotate }
     - { role: base/kibana }
     - { role: base/bottledwater }
     - { role: dev/db }
@@ -47,6 +46,8 @@
     - { role: dev/consumers }
     - { role: base/rsyslog }
     - { role: dev/healthcheck }
+    - { role: dev/dashboard, run_once: true }
+    - { role: dev/appliance_dns, run_once: true }
 
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml

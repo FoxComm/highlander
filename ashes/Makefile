@@ -2,8 +2,8 @@ include ../makelib
 header = $(call baseheader, $(1), ashes)
 
 DOCKER_REPO ?= $(DOCKER_STAGE_REPO)
-DOCKER_TAG ?= ashes
-DOCKER_BRANCH ?= master
+DOCKER_IMAGE ?= ashes
+DOCKER_TAG ?= master
 
 default: test
 NODE_ENV = test
@@ -63,11 +63,11 @@ build: rev
 
 docker:
 	$(call header, Dockerizing)
-	docker build -t $(DOCKER_TAG) .
+	docker build -t $(DOCKER_IMAGE) .
 
 docker-push:
 	$(call header, Registering)
-	docker tag $(DOCKER_TAG) $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
-	docker push $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
+	docker tag $(DOCKER_IMAGE) $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
+	docker push $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
 
 .PHONY: hooks rev dev d prod p build test test-cov tag docker docker-push

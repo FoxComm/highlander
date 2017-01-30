@@ -30,13 +30,16 @@ class ChooseCustomers extends Component {
     this.props.clearInputState();
   };
 
-  renderCustomer(customer: ItemType) {
+  renderCustomer(item: ItemType) {
+    // Cast the ItemType to a customer row.
+    const customer = ((item: any): Customer);
     return <CustomerRow customer={customer} key={customer.id}/>;
   }
 
   render() {
     return (
       <SelectableList
+        visible
         popup={false}
         items={this.props.items}
         ref="customers"
