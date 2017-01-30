@@ -20,7 +20,7 @@ import org.json4s.native.Serialization._
 import payloads.AuthPayload
 import payloads.CustomerPayloads._
 import responses.CustomerResponse._
-import responses.DynamicGroupResponses.CustomerGroupResponse
+import responses.GroupResponses.CustomerGroupResponse
 import services._
 import services.account._
 import slick.driver.PostgresDriver.api._

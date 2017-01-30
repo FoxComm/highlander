@@ -351,7 +351,7 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
   object customerGroupsApi {
     val customerGroupsPrefix = s"$rootPrefix/customer-groups"
 
-    def create(payload: CustomerDynamicGroupPayload): HttpResponse =
+    def create(payload: CustomerGroupPayload): HttpResponse =
       POST(customerGroupsPrefix, payload)
   }
 
@@ -375,7 +375,7 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
     def get(): HttpResponse =
       GET(customerGroupPath)
 
-    def update(payload: CustomerDynamicGroupPayload): HttpResponse =
+    def update(payload: CustomerGroupPayload): HttpResponse =
       PATCH(customerGroupPath, payload)
 
     def delete: HttpResponse =

@@ -3,7 +3,7 @@ package routes.admin
 import akka.http.scaladsl.server.Directives._
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.account.User
-import payloads.CustomerGroupPayloads.CustomerDynamicGroupPayload
+import payloads.CustomerGroupPayloads.CustomerGroupPayload
 import services.Authenticator.AuthData
 import services.customerGroups.{GroupManager, GroupTemplateManager}
 import utils.aliases._
@@ -15,7 +15,7 @@ object CustomerGroupsRoutes {
 
     activityContext(auth.model) { implicit ac ⇒
       pathPrefix("customer-groups") {
-        (post & pathEnd & entity(as[CustomerDynamicGroupPayload])) { payload ⇒
+        (post & pathEnd & entity(as[CustomerGroupPayload])) { payload ⇒
           mutateOrFailures {
             GroupManager.create(payload, auth.model)
           }
@@ -34,7 +34,7 @@ object CustomerGroupsRoutes {
             GroupManager.getById(groupId)
           }
         } ~
-        (patch & pathEnd & entity(as[CustomerDynamicGroupPayload])) { payload ⇒
+        (patch & pathEnd & entity(as[CustomerGroupPayload])) { payload ⇒
           mutateOrFailures {
             GroupManager.update(groupId, payload, auth.model)
           }

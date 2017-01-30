@@ -6,8 +6,8 @@ import failures.CustomerGroupFailures.CustomerGroupMemberCannotBeDeleted
 import failures.NotFoundFailure404
 import models.account.{Scope, User}
 import models.customer._
-import payloads.CustomerGroupPayloads.CustomerDynamicGroupPayload
-import responses.DynamicGroupResponses.DynamicGroupResponse.{Root, build}
+import payloads.CustomerGroupPayloads.CustomerGroupPayload
+import responses.GroupResponses.GroupResponse.{Root, build}
 import services.LogActivity
 import utils.aliases._
 import utils.db._
@@ -24,14 +24,14 @@ object GroupManager {
       group ← * <~ CustomerGroups.mustFindById404(groupId)
     } yield build(group)
 
-  def create(payload: CustomerDynamicGroupPayload,
+  def create(payload: CustomerGroupPayload,
              admin: User)(implicit ec: EC, db: DB, au: AU, ac: AC): DbResultT[Root] =
     payload.templateId
       .map(tid ⇒ createTemplateGroup(tid, payload, admin))
       .getOrElse(createCustom(payload, admin))
 
   def update(groupId: Int,
-             payload: CustomerDynamicGroupPayload,
+             payload: CustomerGroupPayload,
              admin: User)(implicit ec: EC, db: DB, au: AU, ac: AC): DbResultT[Root] =
     for {
       scope ← * <~ Scope.resolveOverride(payload.scope)
@@ -40,7 +40,7 @@ object GroupManager {
                       NotFoundFailure404(CustomerGroup, groupId))
       groupEdited ← * <~ CustomerGroups.update(
                        group,
-                       CustomerDynamicGroup
+                       CustomerGroup
                          .fromPayloadAndAdmin(payload, group.createdBy, scope)
                          .copy(id = groupId, updatedAt = Instant.now))
       _ ← * <~ LogActivity.customerGroupUpdated(groupEdited, admin)
@@ -65,24 +65,25 @@ object GroupManager {
       _ ← * <~ LogActivity.customerGroupArchived(group, admin)
     } yield DbResultT.unit
 
-  private def createCustom(payload: CustomerDynamicGroupPayload,
+  private def createCustom(payload: CustomerGroupPayload,
                            admin: User)(implicit ec: EC, db: DB, au: AU, ac: AC): DbResultT[Root] =
     for {
       scope ← * <~ Scope.resolveOverride(payload.scope)
       group ← * <~ CustomerGroups.create(
-                 CustomerDynamicGroup.fromPayloadAndAdmin(payload, admin.accountId, scope))
+                 CustomerGroup.fromPayloadAndAdmin(payload, admin.accountId, scope))
       _ ← * <~ LogActivity.customerGroupCreated(group, admin)
     } yield build(group)
 
-  private def createTemplateGroup(
-      templateId: Int,
-      payload: CustomerDynamicGroupPayload,
-      admin: User)(implicit ec: EC, db: DB, au: AU, ac: AC): DbResultT[Root] =
+  private def createTemplateGroup(templateId: Int, payload: CustomerGroupPayload, admin: User)(
+      implicit ec: EC,
+      db: DB,
+      au: AU,
+      ac: AC): DbResultT[Root] =
     for {
       scope    ← * <~ Scope.resolveOverride(payload.scope)
       template ← * <~ CustomerGroupTemplates.mustFindById404(templateId)
       group ← * <~ CustomerGroups.create(
-                 CustomerDynamicGroup.fromPayloadAndAdmin(payload, admin.accountId, scope))
+                 CustomerGroup.fromPayloadAndAdmin(payload, admin.accountId, scope))
       _ ← * <~ GroupTemplateInstances.create(
              GroupTemplateInstance(groupId = group.id,
                                    groupTemplateId = template.id,

@@ -6,7 +6,7 @@ import com.github.tminglei.slickpg.LTree
 import com.pellucid.sealerate
 import models.account.Scope
 import models.customer.CustomerGroup._
-import payloads.CustomerGroupPayloads.CustomerDynamicGroupPayload
+import payloads.CustomerGroupPayloads.CustomerGroupPayload
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
@@ -41,20 +41,16 @@ object CustomerGroup {
 
   implicit val stateColumnType: JdbcType[GroupType] with BaseTypedType[GroupType] =
     GroupType.slickColumn
-}
 
-object CustomerDynamicGroup {
-
-  def fromPayloadAndAdmin(p: CustomerDynamicGroupPayload,
-                          adminId: Int,
-                          scope: LTree): CustomerGroup =
+  def fromPayloadAndAdmin(p: CustomerGroupPayload, adminId: Int, scope: LTree): CustomerGroup =
     CustomerGroup(id = 0,
                   scope = scope,
                   createdBy = adminId,
                   name = p.name,
                   customersCount = p.customersCount,
                   clientState = p.clientState,
-                  elasticRequest = p.elasticRequest)
+                  elasticRequest = p.elasticRequest,
+                  groupType = p.`type`)
 }
 
 class CustomerGroups(tag: Tag) extends FoxTable[CustomerGroup](tag, "customer_groups") {
