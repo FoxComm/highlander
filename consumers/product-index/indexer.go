@@ -10,8 +10,9 @@ import (
 	"github.com/FoxComm/highlander/shared/golang/elastic"
 )
 
-const productCreatedActivity = "full_product_created"
-const productUpdatedActivity = "full_product_updated"
+const productCreatedActivity  = "full_product_created"
+const productUpdatedActivity  = "full_product_updated"
+const productArchivedActivity = "full_product_archived"
 
 type Indexer struct {
 	esClient       *elastic.Client
@@ -27,8 +28,28 @@ func NewIndexer(esURL string, esIndex string, esMapping string, idxConfig *Index
 	return &Indexer{esClient, *idxConfig}, nil
 }
 
+func (i Indexer) onArchiveProduct(prod *ConsumerProduct) error {
+	existingRows, err := i.existingSearchRows(prod.Product.ID)
+	if err != nil {
+		return err
+	}
+	for id, _ := range existingRows {
+		if err := i.esClient.RemoveDocument(id); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func isProductActivity(activity activities.ISiteActivity) bool {
+	at := activity.Type()
+	return at == productCreatedActivity || at == productUpdatedActivity ||
+		at == productArchivedActivity
+
+}
+
 func (i Indexer) Run(activity activities.ISiteActivity) error {
-	if activity.Type() != productCreatedActivity && activity.Type() != productUpdatedActivity {
+	if !isProductActivity(activity) {
 		return nil
 	}
 
@@ -39,6 +60,10 @@ func (i Indexer) Run(activity activities.ISiteActivity) error {
 
 	if err := json.Unmarshal(bt, prod); err != nil {
 		return fmt.Errorf("Error unmarshalling activity data into product with error: %s", err.Error())
+	}
+
+	if activity.Type() == productArchivedActivity {
+		return i.onArchiveProduct(prod)
 	}
 
 	existingRows, err := i.existingSearchRows(prod.Product.ID)

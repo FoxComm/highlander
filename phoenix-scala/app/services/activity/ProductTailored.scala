@@ -14,4 +14,9 @@ object ProductTailored {
                                 product: ProductResponse.Root,
                                 context: ObjectContextResponse.Root)
       extends ActivityBase[FullProductUpdated]
+
+  case class FullProductArchived(admin: Option[UserResponse.Root],
+                                 product: ProductResponse.Root,
+                                 context: ObjectContextResponse.Root)
+      extends ActivityBase[FullProductArchived]
 }
