@@ -1,0 +1,25 @@
+{
+  "main": [
+    {
+      "type": "group",
+      "title": "General",
+      "fields": {
+        "canAddProperty": true,
+        "value": [
+          "title",
+          "description"
+        ],
+        "includeRest": true,
+        "omit": [
+          "activeFrom",
+          "activeTo"
+        ]
+      }
+    }
+  ],
+  "aside": [
+    {
+      "type": "state"
+    }
+  ]
+}

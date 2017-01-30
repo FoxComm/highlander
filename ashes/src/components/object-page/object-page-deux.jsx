@@ -23,6 +23,7 @@ export type ObjectActions<T> = {
 
 export type ObjectProps<T, U> = {
   actions: ObjectActions<T>,
+  children?: Element|Array<Element>,
   context?: string,
   identifier: string,
   isFetching: boolean,
@@ -92,7 +93,7 @@ class ObjectPageDeux extends Component {
   }
 
   render(): Element {
-    const { identifier, isFetching, fetchError, object, objectType } = this.props;
+    const { children, identifier, isFetching, fetchError, object, objectType } = this.props;
     if (isFetching) {
       return <div><WaitAnimation /></div>;
     }
@@ -107,6 +108,7 @@ class ObjectPageDeux extends Component {
           {this.renderButtonCluster()}
         </PageTitle>
         {this.localNav}
+        {children}
       </div>
     );
   }

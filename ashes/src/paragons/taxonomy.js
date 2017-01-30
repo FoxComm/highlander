@@ -1,7 +1,9 @@
 // @flow
+import type { Context } from 'paragons/object';
 
 export type Taxonomy = {
   id?: number,
+  context: Context,
   hierarchical: boolean,
   attributes: Attributes,
   taxons: Array<Object>,
@@ -24,6 +26,9 @@ export const createEmptyTaxonomy = (context: string, isHierarchical: boolean): T
     attributes: {
       name: { t: 'string', v: '' },
       description: { t: 'richText', v: '' },
+    },
+    context: {
+      name: context,
     },
     hierarchical: isHierarchical,
     taxons: [],
