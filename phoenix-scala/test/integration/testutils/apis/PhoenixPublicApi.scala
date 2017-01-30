@@ -1,7 +1,7 @@
 package testutils.apis
 
 import akka.http.scaladsl.model.HttpResponse
-import payloads.LoginPayload
+
 import payloads.UserPayloads._
 import testutils._
 
@@ -9,12 +9,6 @@ trait PhoenixPublicApi extends HttpSupport { self: FoxSuite ⇒
 
   object publicApi {
     val rootPrefix: String = "v1/public"
-
-    def doLogin(payload: LoginPayload): HttpResponse =
-      POST(s"$rootPrefix/login", payload)
-
-    def doLogout(): HttpResponse =
-      POST(s"$rootPrefix/logout")
 
     def sendPasswordReset(payload: ResetPasswordSend): HttpResponse =
       POST(s"$rootPrefix/send-password-reset", payload)
