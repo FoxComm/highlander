@@ -11,16 +11,18 @@ type Props = {
   value?: string,
   onClose?: (value: string) => void,
   className?: string,
-  closeBtnId?: string,
+  pillId?: string,
+  closeBtnClass?: string,
+  textClassName?: string,
 };
 
 const RoundedPill = (props: Props) => {
-  const { closeBtnId, className, onClose, value, text } = props;
+  const { pillId, textClassName, closeBtnClass, className, onClose, value, text } = props;
 
   let closeButton = null;
   if (onClose && value) {
     closeButton = (
-      <button id={closeBtnId} styleName="button" onClick={() => onClose(value)}>
+      <button className={closeBtnClass} styleName="button" onClick={() => onClose(value)}>
         <i className="icon-close" />
       </button>
     );
@@ -29,8 +31,8 @@ const RoundedPill = (props: Props) => {
   const styleName = onClose ? 'main-closable' : 'main';
 
   return (
-    <div styleName={styleName} className={className}>
-      <div styleName="text">{text}</div>
+    <div id={pillId} styleName={styleName} className={className}>
+      <div className={textClassName} styleName="text">{text}</div>
       {closeButton}
     </div>
   );
