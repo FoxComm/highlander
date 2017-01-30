@@ -1,0 +1,6 @@
+---
+
+- name: Install Packages
+  apt: name={{item}} state=latest force=yes
+  with_items:
+    - pgcli

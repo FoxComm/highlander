@@ -29,6 +29,7 @@
     - python-software-properties
     - software-properties-common
     - tmux
+    - pgcli
 
 - name: Install Packages 3
   apt: name={{item}} state=latest force=yes
