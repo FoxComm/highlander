@@ -1,8 +1,7 @@
 package services
 
-import scala.concurrent.Future
 import akka.http.scaladsl.model.headers.{HttpChallenge, HttpCookie, RawHeader}
-import akka.http.scaladsl.model.{ContentTypes, DateTime, HttpEntity, HttpResponse, StatusCodes, Uri}
+import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.AuthenticationFailedRejection.{CredentialsMissing, CredentialsRejected}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
@@ -10,14 +9,13 @@ import akka.http.scaladsl.server.directives.CookieDirectives.setCookie
 import akka.http.scaladsl.server.directives.RespondWithDirectives.respondWithHeader
 import akka.http.scaladsl.server.directives.SecurityDirectives.AuthenticationResult
 import akka.http.scaladsl.server.directives.{AuthenticationDirective, AuthenticationResult}
-
 import cats.data.Xor
 import failures.AuthFailures._
 import failures._
 import models.account._
 import models.admin._
 import models.auth._
-import org.jose4j.jwt.JwtClaims
+import models.customer.{CustomerData, CustomersData}
 import payloads.{AuthPayload, LoginPayload}
 import services.account._
 import services.customers.CustomerManager
@@ -25,6 +23,8 @@ import slick.driver.PostgresDriver.api._
 import utils.FoxConfig.{RichConfig, config}
 import utils.aliases._
 import utils.db._
+
+import scala.concurrent.Future
 
 // TODO: Implement real session-based authentication with JWT
 // TODO: Probably abstract this out so that we use one for both AdminUsers and Customers
@@ -233,8 +233,16 @@ object Authenticator {
 
     val tokenResult = (for {
       organization ← * <~ Organizations.findByName(payload.org).mustFindOr(LoginFailed)
-      user         ← * <~ Users.findByEmail(payload.email.toLowerCase).mustFindOneOr(LoginFailed)
-      _            ← * <~ user.mustNotBeMigrated
+
+      user ← * <~ Users
+              .findByEmail(payload.email.toLowerCase)
+              .join(CustomersData)
+              .on(_.accountId === _.accountId)
+              .filterNot { case (user, data) ⇒ data.isGuest }
+              .map { case (user, data)       ⇒ user }
+              .mustFindOneOr(LoginFailed)
+
+      _ ← * <~ user.mustNotBeMigrated
       accessMethod ← * <~ AccountAccessMethods
                       .findOneByAccountIdAndName(user.accountId, "login")
                       .mustFindOr(LoginFailed)
