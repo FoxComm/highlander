@@ -17,7 +17,6 @@
     - curl
     - debconf-utils
     - golang-go
-    - jq
     - make
 
 - name: Install Packages 2

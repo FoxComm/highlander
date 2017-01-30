@@ -4,14 +4,21 @@
   apt: name={{item}} state=latest force=yes
   with_items:
     - httpie
+    - jq
     - ncdu
     - pgcli
 
 - name: Download zookeepercli
-  get_url: url={{zkcli_download_url}} dest="/tmp/{{zkcli_filename}}"
+  get_url: url={{zkcli_download_url}} dest="{{home}}/{{zkcli_filename}}"
 
 - name: Install zookeepercli
-  shell: dpkg -i /tmp/{{zkcli_filename}}
+  shell: dpkg -i {{home}}/{{zkcli_filename}}
+
+- name: Install kt
+  unarchive: src={{kt_download_url}} dest=/usr/local/bin/ remote_src=yes
+
+- name: Make kt Executable
+  file: path=/usr/local/bin/kt mode=750
 
 - name: Download docker-clean Installer
   get_url: url={{docker_clean_url}} dest=/usr/local/bin/docker-clean mode=0555
