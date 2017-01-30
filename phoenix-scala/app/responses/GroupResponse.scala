@@ -15,7 +15,7 @@ object DynamicGroupResponses {
         `type`: String = "dynamic",
         clientState: Json,
         elasticRequest: Json,
-        customersCount: Option[Int] = None,
+        customersCount: Int = 0,
         updatedAt: Instant,
         createdAt: Instant
     ) extends ResponseItem

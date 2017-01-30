@@ -15,7 +15,7 @@ case class CustomerDynamicGroup(id: Int = 0,
                                 scope: LTree,
                                 createdBy: Int,
                                 name: String,
-                                customersCount: Option[Int],
+                                customersCount: Int,
                                 clientState: Json,
                                 elasticRequest: Json,
                                 updatedAt: Instant = Instant.now,
@@ -43,7 +43,7 @@ class CustomerDynamicGroups(tag: Tag)
   def scope          = column[LTree]("scope")
   def createdBy      = column[Int]("created_by")
   def name           = column[String]("name")
-  def customersCount = column[Option[Int]]("customers_count")
+  def customersCount = column[Int]("customers_count")
   def clientState    = column[Json]("client_state")
   def elasticRequest = column[Json]("elastic_request")
   def updatedAt      = column[Instant]("updated_at")
@@ -71,6 +71,6 @@ object CustomerDynamicGroups
 
   val returningLens: Lens[CustomerDynamicGroup, Int] = lens[CustomerDynamicGroup].id
 
-  def filterArchived(): QuerySeq = filter(_.deletedAt.isEmpty)
+  def filterActive(): QuerySeq = filter(_.deletedAt.isEmpty)
 
 }

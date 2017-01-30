@@ -31,7 +31,7 @@ trait CustomersGroupSeeds {
                          clientState = fakeJson,
                          createdBy = 1,
                          elasticRequest = fakeJson,
-                         customersCount = Some(500))
+                         customersCount = 500)
 
   def group2(scope: LTree) =
     CustomerDynamicGroup(name = "Top 10%",
@@ -39,7 +39,7 @@ trait CustomersGroupSeeds {
                          clientState = fakeJson,
                          createdBy = 1,
                          elasticRequest = fakeJson,
-                         customersCount = Some(200))
+                         customersCount = 200)
 
   def groups(scope: LTree): Seq[CustomerDynamicGroup] = Seq(group1(scope), group2(scope))
 

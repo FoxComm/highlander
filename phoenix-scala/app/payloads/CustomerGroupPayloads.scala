@@ -9,7 +9,7 @@ object CustomerGroupPayloads {
                                          name: String,
                                          clientState: Json,
                                          elasticRequest: Json,
-                                         customersCount: Option[Int] = Some(0),
+                                         customersCount: Int = 0,
                                          templateId: Option[Int] = None)
 
   case class CustomerGroupMemberSyncPayload(customers: Seq[Int])
