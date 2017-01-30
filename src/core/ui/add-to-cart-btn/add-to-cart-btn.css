@@ -19,6 +19,11 @@
     & .add-btn-title {
       opacity: 1;
     }
+
+    & .pdp-add-btn-title {
+    opacity: 1;
+    }
+
   }
 
   &.expanded:hover {
@@ -35,6 +40,19 @@
   justify-content: center;
   align-items: center;
   line-height: 0;
+}
+
+.pdp-add-btn-title {
+  display: inline-block;
+  padding-left: 10px;
+  padding-right: 22px;
+  line-height: 40px;
+  vertical-align: top;
+  font-family: var(--font-main);
+  font-size: 13px;
+  font-weight: normal;
+
+  opacity: 0;
 }
 
 .add-icon {
