@@ -105,7 +105,9 @@ export default class DynamicGroup extends Component {
 
     customersListActions.resetSearch();
 
-    customersListActions.setExtraFilters([ { term: { 'groups': group.id } } ]);
+    customersListActions.setExtraFilters([
+      requestAdapter(group.id, criterions, group.mainCondition, group.conditions).toRequest().query,
+    ]);
 
     customersListActions.fetch();
 
@@ -129,7 +131,7 @@ export default class DynamicGroup extends Component {
               <TotalCounter />
             </span>
           </h1>
-          <PrimaryButton onClick={this.goToEdit}>Edit Group</PrimaryButton>
+          {group.conditions && <PrimaryButton onClick={this.goToEdit}>Edit Group</PrimaryButton>}
         </div>
         <div className={prefixed('about')}>
           <div>
@@ -164,18 +166,20 @@ export default class DynamicGroup extends Component {
     const conditionBlock = _.map(conditions, c => this.renderCriterion(c));
 
     return conditions && (
-      <ContentBox title="Criteria"
-                  className={prefixed('criteria')}
-                  bodyClassName={classNames({'_open': this.state.criteriaOpen})}
-                  actionBlock={this.criteriaToggle}>
-        <span className={prefixed('main')}>
-          Customers match
-          &nbsp;<span className={prefixed('inline-label')}>{main}</span>&nbsp;
-          of the following criteria:
-        </span>
-        {conditionBlock}
-      </ContentBox>
-    );
+        <ContentBox
+          title="Criteria"
+          className={prefixed('criteria')}
+          bodyClassName={classNames({'_closed': !this.state.criteriaOpen})}
+          actionBlock={this.criteriaToggle}
+        >
+          <span className={prefixed('main')}>
+            Customers match
+            &nbsp;<span className={prefixed('inline-label')}>{main}</span>&nbsp;
+            of the following criteria:
+          </span>
+          {conditionBlock}
+        </ContentBox>
+      );
   }
 
   get criteriaToggle(): Element {

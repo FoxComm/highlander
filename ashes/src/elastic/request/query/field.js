@@ -55,6 +55,10 @@ export default class Field extends Element {
     return result;
   }
 
+  get length(): number {
+    return Object.keys(this._clauses).length;
+  }
+
 
   set(clauses: Object): Field {
     this._clauses = clauses;
