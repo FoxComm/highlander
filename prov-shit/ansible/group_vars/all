@@ -97,6 +97,7 @@ solomon_port: 4002
 solomon_server: "{{solomon_host}}:{{solomon_port}}"
 
 mesos_master: "mesos-master.{{consul_suffix}}"
+mesos_port: 5050
 
 marathon_host: "marathon.{{consul_suffix}}"
 marathon_port: 8080
@@ -115,6 +116,9 @@ product_search_port: 5492
 product_search_server: "{{product_search_host}}:{{product_search_port}}"
 
 messaging_host: "messaging.{{consul_suffix}}"
+kibana_port: 5601
+pgweb_port: 8082
+dashboard_port: 3000
 
 # Database & bottledwater
 db_user: phoenix
