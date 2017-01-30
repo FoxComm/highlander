@@ -203,9 +203,11 @@ export default class ObjectFormInner extends Component {
     const classForContainer = classNames('fc-object-form__field', {
       '_has-error': error != null,
     });
+    const nameVal = name.replace(/\s+/g, '-').toLowerCase();
     return (
       <div className={classForContainer}>
         <RichTextEditor
+          className={`fc-rich-text__name-${nameVal}`}
           label={options.label}
           value={value}
           onChange={onChange}

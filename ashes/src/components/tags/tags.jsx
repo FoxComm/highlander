@@ -106,7 +106,7 @@ export default class Tags extends Component {
         const tagVal = tag.replace(/\s+/g, '-').toLowerCase();
         return (
           <RoundedPill
-            pillId={`fct-${tagVal}-tag`}
+            pillId={`fct-tag__${tagVal}`}
             closeBtnClass="fct-tag-close-btn"
             textClassName="fct-tag-label"
             styleName="tag"
