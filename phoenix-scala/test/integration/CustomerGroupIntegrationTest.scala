@@ -26,7 +26,7 @@ class CustomerGroupIntegrationTest
       val payload = CustomerDynamicGroupPayload(name = "Group number one",
                                                 clientState = JObject(),
                                                 elasticRequest = JObject(),
-                                                customersCount = Some(1))
+                                                customersCount = 1)
       val root    = customerGroupsApi.create(payload).as[Root]
       val created = CustomerDynamicGroups.mustFindById400(root.id).gimme
       created.id must === (root.id)
@@ -37,7 +37,7 @@ class CustomerGroupIntegrationTest
       val payload = CustomerDynamicGroupPayload(name = "Group number one",
                                                 clientState = JObject(),
                                                 elasticRequest = JObject(),
-                                                customersCount = Some(1),
+                                                customersCount = 1,
                                                 templateId = Some(groupTemplate.id),
                                                 scope = Some(scopeN))
 
@@ -56,7 +56,7 @@ class CustomerGroupIntegrationTest
       val payload = CustomerDynamicGroupPayload(name = "Group number one",
                                                 clientState = JObject(),
                                                 elasticRequest = JObject(),
-                                                customersCount = Some(1),
+                                                customersCount = 1,
                                                 templateId = Some(666))
 
       customerGroupsApi
@@ -78,7 +78,7 @@ class CustomerGroupIntegrationTest
   "PATCH /v1/customer-groups/:groupId" - {
     "successfully updates group attributes" in new Fixture {
       val payload = CustomerDynamicGroupPayload(name = "New name for group",
-                                                customersCount = Some(777),
+                                                customersCount = 777,
                                                 clientState = JObject(),
                                                 elasticRequest = JObject())
       (payload.name, payload.customersCount) must !==((group.name, group.customersCount))
@@ -89,7 +89,7 @@ class CustomerGroupIntegrationTest
 
     "404 if group not found" in new Fixture {
       val payload = CustomerDynamicGroupPayload(name = "New name for group",
-                                                customersCount = Some(777),
+                                                customersCount = 777,
                                                 clientState = JObject(),
                                                 elasticRequest = JObject())
       customerGroupsApi(999)

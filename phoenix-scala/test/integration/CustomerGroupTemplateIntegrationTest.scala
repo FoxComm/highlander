@@ -24,7 +24,7 @@ class CustomerGroupTemplateIntegrationTest
     val payload = CustomerDynamicGroupPayload(name = "Group number one",
                                               clientState = JObject(),
                                               elasticRequest = JObject(),
-                                              customersCount = Some(1),
+                                              customersCount = 1,
                                               templateId = Some(groupTemplates.head.id),
                                               scope = Some(scopeN))
 
