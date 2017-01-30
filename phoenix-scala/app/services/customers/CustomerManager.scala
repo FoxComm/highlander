@@ -32,7 +32,7 @@ object CustomerManager {
 
   implicit val formatters = phoenixFormats
 
-  private def resolvePhoneNumber(accountId: Int)(implicit ec: EC): DbResultT[Option[String]] = {
+  def resolvePhoneNumber(accountId: Int)(implicit ec: EC): DbResultT[Option[String]] = {
     def resolveFromShipments(accountId: Int) =
       (for {
         order    ← Orders if order.accountId === accountId

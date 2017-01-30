@@ -2,8 +2,11 @@ package models.customer
 
 import java.time.Instant
 
+import cats.data.Xor
 import com.github.tminglei.slickpg.LTree
 import com.pellucid.sealerate
+import failures.CustomerGroupFailures.CustomerGroupTypeIsWrong
+import failures.Failures
 import models.account.Scope
 import models.customer.CustomerGroup._
 import payloads.CustomerGroupPayloads.CustomerGroupPayload
@@ -23,11 +26,18 @@ case class CustomerGroup(id: Int = 0,
                          customersCount: Int = 0,
                          clientState: Json,
                          elasticRequest: Json,
-                         groupType: GroupType = Dynamic,
+                         groupType: GroupType,
                          updatedAt: Instant = Instant.now,
                          createdAt: Instant = Instant.now,
                          deletedAt: Option[Instant] = None)
-    extends FoxModel[CustomerGroup]
+    extends FoxModel[CustomerGroup] {
+
+  def mustBeOfType(expected: GroupType): Failures Xor CustomerGroup = {
+    if (groupType == expected) Xor.Right(this)
+    else Xor.Left(CustomerGroupTypeIsWrong(id, groupType, expected).single)
+  }
+
+}
 
 object CustomerGroup {
   sealed trait GroupType
@@ -89,4 +99,6 @@ object CustomerGroups
 
   def filterActive(): QuerySeq = filter(_.deletedAt.isEmpty)
 
+  def fildAllByIdsAndType(ids: Set[Int], groupType: GroupType) =
+    filter(_.id.inSet(ids)).filter(_.groupType === groupType)
 }

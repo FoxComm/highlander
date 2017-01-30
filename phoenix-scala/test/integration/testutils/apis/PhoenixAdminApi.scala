@@ -1,7 +1,6 @@
 package testutils.apis
 
 import akka.http.scaladsl.model.HttpResponse
-
 import models.objects.ObjectForm
 import payloads.ActivityTrailPayloads._
 import payloads.AddressPayloads._
@@ -9,7 +8,7 @@ import payloads.AssignmentPayloads._
 import payloads.CartPayloads._
 import payloads.CategoryPayloads._
 import payloads.CouponPayloads._
-import payloads.CustomerGroupPayloads._
+import payloads.CustomerGroupPayloads.{AddCustomerToGroups, _}
 import payloads.CustomerPayloads._
 import payloads.GenericTreePayloads._
 import payloads.GiftCardPayloads._
@@ -138,6 +137,13 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
         def convert(): HttpResponse =
           POST(s"$storeCreditPath/convert")
       }
+    }
+
+    object groups {
+      val customerGroupsPath = s"$customerPath/customer-groups"
+
+      def syncGroups(payload: AddCustomerToGroups): HttpResponse =
+        POST(customerGroupsPath, payload)
     }
   }
 

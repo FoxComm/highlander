@@ -2,6 +2,7 @@ package utils.seeds
 
 import com.github.tminglei.slickpg.LTree
 import models.account.Scopes
+import models.customer.CustomerGroup.Dynamic
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import models.customer._
@@ -27,19 +28,21 @@ trait CustomersGroupSeeds {
 
   def group1(scope: LTree) =
     CustomerGroup(name = "Super awesome group",
-                         scope = scope,
-                         clientState = fakeJson,
-                         createdBy = 1,
-                         elasticRequest = fakeJson,
-                         customersCount = 500)
+                  scope = scope,
+                  clientState = fakeJson,
+                  createdBy = 1,
+                  elasticRequest = fakeJson,
+                  customersCount = 500,
+                  groupType = Dynamic)
 
   def group2(scope: LTree) =
     CustomerGroup(name = "Top 10%",
-                         scope = scope,
-                         clientState = fakeJson,
-                         createdBy = 1,
-                         elasticRequest = fakeJson,
-                         customersCount = 200)
+                  scope = scope,
+                  clientState = fakeJson,
+                  createdBy = 1,
+                  elasticRequest = fakeJson,
+                  customersCount = 200,
+                  groupType = Dynamic)
 
   def groups(scope: LTree): Seq[CustomerGroup] = Seq(group1(scope), group2(scope))
 
