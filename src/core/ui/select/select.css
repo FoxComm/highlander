@@ -18,7 +18,7 @@
 
 .select {
   background: #fff;
-  height: 46px;
+  height: 44px;
   width: 100%;
   font-size: 14px;
   color: #212121;
@@ -30,16 +30,4 @@
 .state-select {
   composes: select;
   background: #f4f4f4;
-}
-
-@media (--small-only) {
-  .select {
-    height: 30px;
-    font-size: 12px;
-  }
-
-  .state-select {
-    height: 46px;
-    font-size: 14px;
-  }
 }
