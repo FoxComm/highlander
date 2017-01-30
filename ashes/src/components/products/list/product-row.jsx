@@ -11,11 +11,8 @@ import { isArchived } from 'paragons/common';
 import StatePill from 'components/object-page/state-pill';
 import MultiSelectRow from 'components/table/multi-select-row';
 
-// types
-import type { Product } from 'paragons/product';
-
 type Props = {
-  product: Product,
+  product: TSearchViewProduct,
   columns?: Array<Object>,
   params: Object,
   toggleIcon: Element,

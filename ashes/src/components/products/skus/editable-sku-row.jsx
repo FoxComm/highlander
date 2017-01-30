@@ -1,6 +1,4 @@
-/**
- * @flow
- */
+// @flow
 
 import React, { Component, Element, PropTypes } from 'react';
 import { autobind } from 'core-decorators';
@@ -18,7 +16,7 @@ import { DeleteButton } from 'components/common/buttons';
 import reducer, { suggestSkus } from 'modules/product-variants/suggest';
 import type { SuggestOptions } from 'modules/product-variants/suggest';
 import type { ProductVariant } from 'modules/product-variants/details';
-import type { Sku as SearchViewSku } from 'modules/product-variants/list';
+import type { ProductVariant as SearchViewProductVariant } from 'modules/product-variants/list';
 import { productVariantId } from 'paragons/product';
 
 type Column = {
@@ -38,7 +36,7 @@ type Props = {
   isFetchingSkus: boolean,
   variantsSkusIndex: Object,
   suggestSkus: (code: string, context?: SuggestOptions) => Promise,
-  suggestedSkus: Array<SearchViewSku>,
+  suggestedSkus: Array<SearchViewProductVariant>,
   options: Array<any>,
 };
 
@@ -59,17 +57,17 @@ function stop(event: SyntheticEvent) {
   event.stopPropagation();
 }
 
-function pickSkuAttrs(searchViewSku: SearchViewSku) {
-  const sku = _.pick(searchViewSku, ['title', 'context']);
+function pickSkuAttrs(searchViewProductVariant: SearchViewProductVariant) {
+  const sku = _.pick(searchViewProductVariant, ['title', 'context']);
   sku.salePrice = {
-    value: Number(searchViewSku.salePrice),
-    currency: searchViewSku.salePriceCurrency,
+    value: Number(searchViewProductVariant.salePrice),
+    currency: searchViewProductVariant.salePriceCurrency,
   };
   sku.retailPrice = {
-    value: Number(searchViewSku.retailPrice),
-    currency: searchViewSku.retailPriceCurrency,
+    value: Number(searchViewProductVariant.retailPrice),
+    currency: searchViewProductVariant.retailPriceCurrency,
   };
-  sku.code = searchViewSku.skuCode;
+  sku.code = searchViewProductVariant.skuCode;
   return sku;
 }
 
@@ -130,7 +128,7 @@ class EditableSkuRow extends Component {
     if (!_.isEmpty(props.suggestedSkus)) {
       const matchedSku = _.find(props.suggestedSkus, {code: this.skuCodeValue.toUpperCase()});
       if (matchedSku) {
-        this.updateAttrsBySearchViewSku(matchedSku);
+        this.updateAttrsBySVProductVariant(matchedSku);
       }
     }
   }
@@ -167,14 +165,14 @@ class EditableSkuRow extends Component {
     });
   }
 
-  updateAttrsBySearchViewSku(searchViewSku: SearchViewSku) {
-    this.updateSku(pickSkuAttrs(searchViewSku));
+  updateAttrsBySVProductVariant(searchViewProductVariant: SearchViewProductVariant) {
+    this.updateSku(pickSkuAttrs(searchViewProductVariant));
   }
 
   @autobind
-  handleSelectSku(searchViewSku: SearchViewSku) {
+  handleSelectSku(searchViewProductVariant: SearchViewProductVariant) {
     this.closeSkusMenu(
-      () => this.updateAttrsBySearchViewSku(searchViewSku)
+      () => this.updateAttrsBySVProductVariant(searchViewProductVariant)
     );
   }
 
@@ -200,14 +198,14 @@ class EditableSkuRow extends Component {
   get menuItemsContent(): Array<Element> {
     const items = this.props.suggestedSkus;
 
-    return items.map((sku: SearchViewSku) => {
+    return items.map((pv: SearchViewProductVariant) => {
       return (
         <li
-          id={`search-view-${sku.skuCode}`}
+          id={`search-view-${pv.skuCode}`}
           styleName="sku-item"
-          onMouseDown={() => { this.handleSelectSku(sku); }}
-          key={`item-${sku.id}`}>
-          <strong>{sku.skuCode}</strong>
+          onMouseDown={() => { this.handleSelectSku(pv); }}
+          key={`item-${pv.id}`}>
+          <strong>{pv.skuCode}</strong>
         </li>
       );
     });

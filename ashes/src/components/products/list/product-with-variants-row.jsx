@@ -17,12 +17,11 @@ import ErrorAlerts from 'components/alerts/error-alerts';
 import productVariantsReducer, { fetchProductVariants } from 'modules/product-variants/list';
 
 // types
-import type { Product } from 'paragons/product';
 import type { ProductVariant } from 'modules/product-variants/list';
 
 type Props = {
-  product: Product,
-  columns?: Array<Object>,
+  product: TSearchViewProduct,
+  columns: Array<Object>,
   params: Object,
   // connected
   fetchState: AsyncState,
@@ -63,7 +62,7 @@ class ProductWithVariantsRow extends Component {
     });
 
     if (newState) {
-      this.props.fetchProductVariants(this.props.product.id);
+      this.props.fetchProductVariants(this.props.product.productId);
       this._waitTimer = setTimeout(this.enableWaitAnimation, 450);
     } else {
       this.setState({

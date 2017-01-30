@@ -22,7 +22,7 @@ import type { SearchFilter } from 'elastic/common';
 type Column = {
   field: string,
   text: string,
-  type: ?string,
+  type?: string,
 };
 
 type Props = {

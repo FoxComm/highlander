@@ -8,8 +8,8 @@ import RoundedPill from '../rounded-pill/rounded-pill';
 
 type Props = {
   object: {
-    activeFrom?: string,
-    activeTo?: string,
+    activeFrom: ?string,
+    activeTo: ?string,
   },
 }
 
