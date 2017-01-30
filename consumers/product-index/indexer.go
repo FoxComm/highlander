@@ -46,6 +46,16 @@ func (i Indexer) Run(activity activities.ISiteActivity) error {
 		return err
 	}
 
+	if !prod.Product.IsActive() {
+		for id := range existingRows {
+			log.Printf("Delete inactive product %d, %s", prod.Product.ID, id)
+			if err := i.esClient.RemoveDocument(id); err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+
 	partialProducts, err := search.MakePartialProducts(prod.Product, i.visualVariants)
 	if err != nil {
 		return fmt.Errorf("Error creating partial products with error: %s", err.Error())

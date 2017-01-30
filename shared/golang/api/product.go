@@ -1,5 +1,9 @@
 package api
 
+import (
+    "time"
+)
+
 type Product struct {
 	ID         int              `json:"id"`
 	Context    Context          `json:"context"`
@@ -29,6 +33,21 @@ func (p Product) FirstImage() string {
 	}
 
 	return p.Albums[0].Images[0].Source
+}
+
+func (p Product) IsActive() bool {
+    activeFrom, err := p.Attributes.LookupDateTime("activeFrom")
+    if err != nil {
+        return false
+    }
+    activeTo, err := p.Attributes.LookupDateTime("activeTo")
+    if err != nil {
+        return false
+    }
+    if activeFrom == nil {
+        return false
+    }
+    return activeFrom.Before(time.Now()) && (activeTo == nil || activeTo.After(time.Now()))
 }
 
 func (p Product) Tags() interface{} {
