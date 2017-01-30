@@ -27,15 +27,16 @@
   padding-top: 6px;
 }
 
-.wait-td {
+.status-td {
   padding-right: 96px !important;
+  height: 93px !important;
 
   & :global(.fc-wait-animation) {
     margin: 0 auto;
   }
 }
 
-.wait-td-left {
+.status-td-left {
   height: 93px !important;
   border-right: 0 none !important;
 }

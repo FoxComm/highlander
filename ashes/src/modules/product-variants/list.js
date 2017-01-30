@@ -29,8 +29,7 @@ const _fetchProductVariants = createAsyncActions(
       }
     });
 
-    // @TODO: use product_variants_search_view instead
-    return post('sku_search_view/_search', query);
+    return post('product_variants_search_view/_search', query);
   }
 );
 export const fetchProductVariants = _fetchProductVariants.perform;

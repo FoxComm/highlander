@@ -11,6 +11,7 @@ import { connect } from 'react-redux';
 import ProductRow from './product-row';
 import ProductVariantRow from './product-variant-row';
 import WaitAnimation from 'components/common/wait-animation';
+import ErrorAlerts from 'components/alerts/error-alerts';
 
 // data
 import productVariantsReducer, { fetchProductVariants } from 'modules/product-variants/list';
@@ -95,18 +96,31 @@ class ProductWithVariantsRow extends Component {
     );
   }
 
+  renderStatusRow(content: Element): Element {
+    return (
+      <tr className="fc-table-tr">
+        <td className="row-head-left" styleName="status-td-left" />
+        <td colSpan={this.props.columns.length - 1} styleName="status-td">
+          {content}
+        </td>
+      </tr>
+    );
+  }
+
   get productVariants(): Array<Element>|Element|void {
     if (!this.state.expanded) return void 0;
-    if (this.props.fetchState.inProgress && this.state.allowAnimation) {
-      return (
-        <tr className="fc-table-tr">
-          <td className="row-head-left" styleName="wait-td-left" />
-          <td colSpan={this.props.columns.length - 1} styleName="wait-td">
-            <WaitAnimation/>
-          </td>
-        </tr>
+    const { fetchState } = this.props;
+
+    if (fetchState.err) {
+      return this.renderStatusRow(
+        <ErrorAlerts error={fetchState.err} />
       );
     }
+
+    if (fetchState.inProgress && this.state.allowAnimation) {
+      return this.renderStatusRow(<WaitAnimation/>);
+    }
+
     if (!_.isEmpty(this.props.productVariants)) {
       return _.map(this.props.productVariants, pv => {
         return (
