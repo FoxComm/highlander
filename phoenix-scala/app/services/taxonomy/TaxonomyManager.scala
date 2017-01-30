@@ -58,7 +58,7 @@ object TaxonomyManager {
                                                  oc: OC,
                                                  db: DB): DbResultT[TaxonomyResponse] =
     for {
-      taxonomy ← * <~ ObjectUtils.getFullObject(Taxonomies.mustFindByFormId404(taxonomyFormId))
+      taxonomy ← * <~ ObjectManager.getFullObject(Taxonomies.mustFindByFormId404(taxonomyFormId))
       taxons   ← * <~ TaxonomyTaxonLinks.queryRightByLeftWithLinks(taxonomy.model)
     } yield TaxonomyResponse.build(taxonomy, taxons)
 
@@ -89,7 +89,7 @@ object TaxonomyManager {
     val shadow = ObjectShadow.fromPayload(payload.attributes)
 
     for {
-      taxonomy ← * <~ ObjectUtils.getFullObject(Taxonomies.mustFindByFormId404(taxonomyFormId))
+      taxonomy ← * <~ ObjectManager.getFullObject(Taxonomies.mustFindByFormId404(taxonomyFormId))
       _        ← * <~ failIf(taxonomy.model.archivedAt.isDefined, TaxonomyIsArchived(taxonomyFormId))
       newTaxonomy ← * <~ ObjectUtils.commitUpdate(
                        taxonomy,
@@ -111,7 +111,7 @@ object TaxonomyManager {
                                            oc: OC,
                                            db: DB): DbResultT[SingleTaxonResponse] =
     for {
-      taxonFull ← * <~ ObjectUtils.getFullObject(Taxons.mustFindByFormId404(taxonFormId))
+      taxonFull ← * <~ ObjectManager.getFullObject(Taxons.mustFindByFormId404(taxonFormId))
       response  ← * <~ buildSingleTaxonResponse(taxonFull)
     } yield response
 
@@ -247,7 +247,7 @@ object TaxonomyManager {
     val (form, shadow) = payload.formAndShadow.tupled
 
     for {
-      fullTaxon ← * <~ ObjectUtils.getFullObject(DbResultT.good(taxon))
+      fullTaxon ← * <~ ObjectManager.getFullObject(DbResultT.good(taxon))
       newTaxon ← * <~ ObjectUtils.commitUpdate(
                     fullTaxon,
                     form.attributes,
