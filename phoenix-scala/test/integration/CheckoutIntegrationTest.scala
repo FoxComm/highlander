@@ -1,8 +1,8 @@
 import java.time.Instant
 
 import akka.http.scaladsl.model.HttpResponse
+
 import cats.implicits._
-import failures.AuthFailures.LoginFailed
 import failures.NotFoundFailure404
 import failures.ShippingMethodFailures.ShippingMethodNotFoundByName
 import failures.UserFailures._
@@ -21,23 +21,20 @@ import models.{Reason, Reasons}
 import payloads.GiftCardPayloads.GiftCardCreateByCsr
 import payloads.LineItemPayloads._
 import payloads.CartPayloads.CreateCart
-import payloads.CustomerPayloads.CreateCustomerPayload
 import payloads.PaymentPayloads.GiftCardPayment
-import payloads.{LoginPayload, UpdateShippingMethod}
+import payloads.UpdateShippingMethod
 import responses.GiftCardResponse
 import responses.cord._
 import slick.driver.PostgresDriver.api._
 import testutils._
-import testutils.apis.{PhoenixAdminApi, PhoenixPublicApi}
+import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
-import responses.CustomerResponse.Root
 
 class CheckoutIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
-    with PhoenixPublicApi
     with AutomaticAuth
     with BakedFixtures {
 
@@ -133,40 +130,6 @@ class CheckoutIntegrationTest
       doCheckout(customer, sku, address, shipMethod, reason)
         .as[OrderResponse]
         .orderState must === (RemorseHold)
-    }
-
-    "do auth after checkout" in new CustomerFixture {
-      // todo move to fixture later
-      val payload = LoginPayload("test@test.com", "letmein", "merchant")
-      def createCustomer(n: String, isGuest: Option[Boolean] = None) = {
-        val root = customersApi
-          .create(
-              CreateCustomerPayload(email = payload.email,
-                                    name = n.some,
-                                    password = payload.password.some,
-                                    isGuest = isGuest))
-          .as[Root]
-
-        val created = Users.findOneByAccountId(root.id).gimme.value
-        created.id must === (root.id)
-        created.name must === (root.name)
-        created
-      }
-
-      // registered user and guest sharing same email
-      val user  = createCustomer("user")
-      val guest = createCustomer("guest", true.some)
-
-      // guest with the same email doing checkout
-      info("do checkout as a guest")
-      val _address: Address = Addresses
-        .create(Factories.address.copy(accountId = guest.accountId, isDefaultShipping = true))
-        .gimme
-      val orderResponse = doCheckout(guest, sku, _address, shipMethod, reason).as[OrderResponse]
-      orderResponse.orderState must === (Order.RemorseHold) // ok
-
-      info("try login")
-      publicApi.doLogin(payload).mustBeOk()
 
     }
 
@@ -217,19 +180,6 @@ class CheckoutIntegrationTest
       with CartWithGiftCardPayment_Raw
 
   trait Fixture extends StoreAdmin_Seed with CustomerAddress_Baked {
-    val (shipMethod, product, sku, reason) = (for {
-      _ ← * <~ Factories.shippingMethods.map(ShippingMethods.create)
-      shipMethodName = ShippingMethod.expressShippingNameForAdmin
-      shipMethod ← * <~ ShippingMethods
-                    .filter(_.adminDisplayName === shipMethodName)
-                    .mustFindOneOr(ShippingMethodNotFoundByName(shipMethodName))
-      product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head)
-      sku     ← * <~ Skus.mustFindById404(product.skuId)
-      reason  ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))
-    } yield (shipMethod, product, sku, reason)).gimme
-  }
-
-  trait CustomerFixture extends CustomerAddress_Baked { // todo bake custom fixture from here
     val (shipMethod, product, sku, reason) = (for {
       _ ← * <~ Factories.shippingMethods.map(ShippingMethods.create)
       shipMethodName = ShippingMethod.expressShippingNameForAdmin
