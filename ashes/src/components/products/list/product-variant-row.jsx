@@ -3,11 +3,11 @@
 // libs
 import _ from 'lodash';
 import React, { Component, Element } from 'react';
-import { activeStatus, isArchived } from 'paragons/common';
+import { isArchived } from 'paragons/common';
 
 // components
 import MultiSelectRow from 'components/table/multi-select-row';
-import RoundedPill from 'components/rounded-pill/rounded-pill';
+import StatePill from 'components/object-page/state-pill';
 
 // types
 import type { ProductVariant } from 'modules/product-variants/list';
@@ -23,7 +23,7 @@ function setCellContents(productVariant, field) {
     //case 'image':
       //return _.get(productVariant, ['albums', 0, 'images', 0, 'src']);
     case 'state':
-      return <RoundedPill text={activeStatus(productVariant)} />;
+      return <StatePill object={productVariant} />;
     case 'skus':
       return '—';
     case 'createdAt':
