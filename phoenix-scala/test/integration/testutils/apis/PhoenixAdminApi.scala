@@ -8,7 +8,7 @@ import payloads.AssignmentPayloads._
 import payloads.CartPayloads._
 import payloads.CategoryPayloads._
 import payloads.CouponPayloads._
-import payloads.CustomerGroupPayloads.{AddCustomerToGroups, _}
+import payloads.CustomerGroupPayloads._
 import payloads.CustomerPayloads._
 import payloads.GenericTreePayloads._
 import payloads.GiftCardPayloads._
@@ -18,12 +18,12 @@ import payloads.NotePayloads._
 import payloads.OrderPayloads._
 import payloads.PaymentPayloads._
 import payloads.ProductPayloads._
-import payloads.PromotionPayloads.{CreatePromotion, UpdatePromotion}
+import payloads.PromotionPayloads._
 import payloads.SharedSearchPayloads._
 import payloads.SkuPayloads._
 import payloads.StoreAdminPayloads._
 import payloads.StoreCreditPayloads._
-import payloads.TaxonomyPayloads.{CreateTaxonPayload, CreateTaxonomyPayload, UpdateTaxonPayload, UpdateTaxonomyPayload}
+import payloads.TaxonomyPayloads._
 import payloads.UserPayloads._
 import payloads.VariantPayloads._
 import payloads._
