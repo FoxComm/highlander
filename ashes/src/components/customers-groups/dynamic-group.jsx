@@ -161,11 +161,11 @@ export default class DynamicGroup extends Component {
 
   get criteria(): ?Element {
     const { mainCondition, conditions, groupType } = this.props.group;
+
+    if (groupType != 'dynamic') return null;
+
     const main = mainCondition === operators.and ? 'all' : 'any';
-
     const conditionBlock = _.map(conditions, c => this.renderCriterion(c));
-
-    if (groupType == 'manual' || !conditions) return null;
 
     return (
       <ContentBox title="Criteria"
