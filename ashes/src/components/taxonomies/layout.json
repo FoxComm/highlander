@@ -6,7 +6,7 @@
       "fields": {
         "canAddProperty": true,
         "value": [
-          "title",
+          "name",
           "description"
         ],
         "includeRest": true,
@@ -20,6 +20,9 @@
   "aside": [
     {
       "type": "state"
+    },
+    {
+      "type": "watchers"
     }
   ]
 }

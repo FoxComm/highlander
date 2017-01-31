@@ -164,18 +164,19 @@ export default class ObjectDetailsDeux extends Component {
     );
   }
 
-  renderNode(description: NodeDesc, section: Array<NodeDesc>): Element {
+  renderNode(description: NodeDesc, section: Array<NodeDesc>): ?Element {
     switch (description.type) {
       case 'group':
         return this.renderGroup(description, section);
       case 'state':
-        // Do something.
+        return this.renderState();
       case 'tags':
-        // Do something.
+        return this.renderTags();
       case 'watchers':
-        // Do something.
+        return this.renderWatchers();
     }
-    return <div></div>;
+
+    return null;
   }
 
   renderSection(name: string): Element {

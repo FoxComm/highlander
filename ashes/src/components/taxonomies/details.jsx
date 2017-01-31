@@ -36,13 +36,52 @@ class TaxonomyDetails extends Component {
       return <div></div>;
     }
 
+    const schema = {
+      "type": "object",
+      "title": "Taxonomy",
+      "$schema": "http://json-schema.org/draft-04/schema#",
+      "properties": {
+        "attributes": {
+          "type": "object",
+          "required": [
+            "name"
+          ],
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 1
+            },
+            "activeTo": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "format": "date-time"
+            },
+            "activeFrom": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "format": "date-time"
+            },
+            "description": {
+              "type": "string",
+              "widget": "richText"
+            },
+          },
+          "description": "Taxonomy attributes itself"
+        }
+      }
+    };
+
     return (
       <ObjectDetailsDeux
         layout={layout}
         title="taxonomy"
         plural="taxonomies"
         object={taxonomy}
-        schema={{}}
+        schema={schema}
         onUpdateObject={(o) => {}}
       />
     );
