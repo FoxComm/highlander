@@ -15,6 +15,15 @@ export type ObjectView = {
   context: Context;
 }
 
+export type ObjectSchema = {
+  type: string,
+  title: string,
+  properties: {
+    attributes: { [key:string]: any },
+    description: string,
+  },
+};
+
 export function guessType(value: any): string {
   const typeOf = typeof value;
   switch (typeOf) {

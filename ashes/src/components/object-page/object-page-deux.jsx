@@ -17,6 +17,7 @@ export type ObjectActions<T> = {
   create: (object: T, context?: string) => void,
   update: (object: T, context?: string) => void,
   archive: (object: T, context?: string) => void,
+  cancel: () => void,
 
   getTitle: (object: T) => string,
 };
@@ -31,6 +32,7 @@ export type ObjectProps<T, U> = {
   navLinks: NavLinks<U>,
   object: ?T,
   objectType: string,
+  originalObject: ?T,
 };
 
 class ObjectPageDeux extends Component {
@@ -74,19 +76,23 @@ class ObjectPageDeux extends Component {
       return `New ${objectType}`;
     }
 
-    const { object } = this.props;
+    const { originalObject } = this.props;
     const { getTitle } = this.props.actions;
-    return getTitle(object);
+    return getTitle(originalObject);
   }
 
   renderButtonCluster(): Element {
-    const { isFetching } = this.props;
+    const { isFetching, context, object } = this.props;
+    const save = () => this.isNew
+      ? this.props.actions.create(object, context)
+      : this.props.actions.update(object, context);
+
     return (
       <SaveCancelWithMenu
         isLoading={isFetching}
-        onCancel={() => {}}
+        onCancel={this.props.actions.cancel}
         primaryItems={SAVE_COMBO_ITEMS}
-        onPrimaryClick={() => {}}
+        onPrimaryClick={save}
         onPrimarySelect={() => {}}
       />
     );
