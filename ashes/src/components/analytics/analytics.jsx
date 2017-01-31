@@ -282,10 +282,29 @@ export default class Analytics extends React.Component {
     }
   }
 
-  // TODO: Handle when the x-axis time segments are chosen
+  //TODO: Work out the size and step henhouse logic
   @autobind
   onSegmentControlSelect(segment) {
-    this.setState({segment: segment});
+    const { question, dateRangeBegin, dateRangeEnd } = this.state;
+
+    let newDataFetchTimeSize;
+
+    switch(segment.title) {
+      case segmentTitles.day:
+        newDataFetchTimeSize = unixTimes.day;
+      break;
+      case segmentTitles.week:
+        newDataFetchTimeSize = unixTimes.week;
+      break;
+      case segmentTitles.month:
+        newDataFetchTimeSize = unixTimes.month;
+      break;
+    }
+
+    this.setState({
+      segment: segment,
+      dataFetchTimeSize: newDataFetchTimeSize,
+    }, this.fetchData(question, dateRangeBegin, dateRangeEnd, newDataFetchTimeSize));
   }
 
   @autobind
@@ -332,6 +351,7 @@ export default class Analytics extends React.Component {
     }
   }
 
+  //TODO: Get rid of these state getters... its not really that good of an idea
   get dateDisplay() {
     return this.state.dateDisplay;
   }
