@@ -1,87 +1,86 @@
 package services
 
 import models.cord.lineitems._
-import models.objects._
-import models.product.{Mvp, SimpleContext, SimpleProductData}
 import payloads.LineItemPayloads.{UpdateLineItemsPayload ⇒ Payload}
+import responses.ProductVariantResponses.ProductVariantResponse
 import testutils._
 import testutils.fixtures.BakedFixtures
+import testutils.fixtures.api._
 import utils.MockedApis
-import utils.aliases._
-import utils.db._
-import utils.seeds.Seeds.Factories
 
 class LineItemUpdaterTest
     extends IntegrationTestBase
     with TestObjectContext
     with TestActivityContext.AdminAC
     with MockedApis
+    with ApiFixtures
+    with ApiFixtureHelpers
     with BakedFixtures {
 
-  def createProducts(num: Int)(
-      implicit au: AU): DbResultT[(ObjectContext, Seq[SimpleProductData])] =
-    for {
-      context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
-      products ← * <~ Mvp.insertProducts((1 to num).map { i ⇒
-                  Factories.products.head.copy(code = i.toString, price = 5)
-                }, context.id)
-    } yield (context, products)
+  def createProducts(num: Int): Seq[ProductVariantResponse.Root] = {
+    (1 to num).map { _ ⇒
+      new ProductVariant_ApiFixture {}.productVariant
+    }
+  }
 
   "LineItemUpdater" - {
 
     "Adds line items when the sku doesn't exist in cart" in new Fixture {
-      val (context, products) = createProducts(2).gimme
+      val variants = createProducts(2)
 
       val payload = Seq[Payload](
-          Payload(sku = "1", quantity = 3),
-          Payload(sku = "2", quantity = 0)
+          Payload(productVariantId = variants(0).id, quantity = 3),
+          Payload(productVariantId = variants(1).id, quantity = 0)
       )
 
-      val root =
-        LineItemUpdater.updateQuantitiesOnCart(storeAdmin, cart.refNum, payload).gimme.result
-      root.lineItems.skus.count(_.sku == "1") must be(1)
-      root.lineItems.skus.count(_.sku == "2") must be(0)
+      val skus = LineItemUpdater
+        .updateQuantitiesOnCart(storeAdmin, cartRef, payload)
+        .gimme
+        .result
+        .lineItems
+        .skus
 
-      root.lineItems.skus.find(_.sku === "1") match {
-        case Some(s) ⇒
-          s.quantity must be(3)
-        case None ⇒
-          fail("Should have found sku 1")
-      }
-
-      root.lineItems.skus.map(_.quantity).sum must === (CartLineItems.size.gimme)
+      skus.map(_.sku) must contain theSameElementsAs Seq(variants(0).attributes.code)
+      // TODO: check if *variant* IDs match?
+      skus.find(_.sku === variants(0).attributes.code).map(_.quantity) must be(Some(3))
+      skus.map(_.quantity).sum must === (CartLineItems.size.gimme)
     }
 
     "Updates line items when the ProductVariant already is in cart" in new Fixture {
-      val (context, products) = createProducts(3).gimme
-      val seedItems = Seq(1, 1, 1, 1, 1, 1, 2, 3, 3).map { skuId ⇒
-        CartLineItem(cordRef = cart.refNum, productVariantId = skuId)
-      }
+      val variants = createProducts(3)
 
-      CartLineItems.createAll(seedItems).gimme
+      val lineItemPayload = {
+        val variantIds = Seq.fill(variants(0).id)(6) ++ Seq(variants(1).id) ++ Seq.fill(
+              variants(2).id)(2)
+        variantIds.map { variantId ⇒
+          Payload(productVariantId = variantId, quantity = 1)
+        }
+      }
+      cartsApi(cartRef).lineItems.add(lineItemPayload).mustBeOk()
 
       val payload = Seq[Payload](
-          Payload(sku = "1", quantity = 3),
-          Payload(sku = "2", quantity = 0),
-          Payload(sku = "3", quantity = 1)
+          Payload(productVariantId = variants(0).id, quantity = 3),
+          Payload(productVariantId = variants(1).id, quantity = 0),
+          Payload(productVariantId = variants(2).id, quantity = 1)
       )
 
-      val root =
-        LineItemUpdater.updateQuantitiesOnCart(storeAdmin, cart.refNum, payload).gimme.result
-      root.lineItems.skus.count(_.sku == "1") must be(1)
-      root.lineItems.skus.count(_.sku == "2") must be(0)
-      root.lineItems.skus.count(_.sku == "3") must be(1)
+      val skus = LineItemUpdater
+        .updateQuantitiesOnCart(storeAdmin, cartRef, payload)
+        .gimme
+        .result
+        .lineItems
+        .skus
 
-      root.lineItems.skus.find(_.sku === "1") match {
-        case Some(s) ⇒
-          s.quantity must be(3)
-        case None ⇒
-          fail("Should have found sku 1")
-      }
-
-      root.lineItems.skus.map(_.quantity).sum must === (CartLineItems.gimme.size)
+      skus.map(_.sku) must contain theSameElementsAs Seq(variants(0), variants(2))
+        .map(_.attributes.code)
+      // TODO: check if *variant* IDs match?
+      skus.find(_.sku === variants(0).attributes.code).map(_.quantity) must be(Some(3))
+      skus.map(_.quantity).sum must === (CartLineItems.gimme.size)
     }
   }
 
-  trait Fixture extends EmptyCustomerCart_Baked with StoreAdmin_Seed
+  trait Fixture extends StoreAdmin_Seed {
+
+    val cartRef = api_newGuestCart().referenceNumber
+  }
 }

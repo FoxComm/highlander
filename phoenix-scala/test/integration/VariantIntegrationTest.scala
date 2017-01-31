@@ -40,7 +40,7 @@ class VariantIntegrationTest
       val priceJson  = ("t"        → "price") ~ ("v" → priceValue)
       val attrMap    = Map("price" → priceJson)
 
-      skusApi.create(makeSkuPayload("SKU-NEW-TEST", attrMap, None)).mustBeOk()
+      productVariantsApi.create(makeSkuPayload("SKU-NEW-TEST", attrMap, None)).mustBeOk()
     }
 
     "Tries to create a variant with no code" in new Fixture {
@@ -48,7 +48,7 @@ class VariantIntegrationTest
       val priceJson  = ("t"        → "price") ~ ("v" → priceValue)
       val attrMap    = Map("price" → priceJson)
 
-      skusApi
+      productVariantsApi
         .create(ProductVariantPayload(attributes = attrMap, albums = None))
         .mustFailWithMessage("SKU code not found in payload")
     }
@@ -63,11 +63,11 @@ class VariantIntegrationTest
       val imagePayload = ImagePayload(src = src)
       val albumPayload = AlbumPayload(name = "Default".some, images = Seq(imagePayload).some)
 
-      val resp = skusApi.create(makeSkuPayload(code, attrMap, Seq(albumPayload).some))
+      val resp = productVariantsApi.create(makeSkuPayload(code, attrMap, Seq(albumPayload).some))
       resp.mustBeOk()
       val createResponse = resp.as[ProductVariantResponse.Root]
 
-      val getResponse = skusApi(createResponse.id).get().as[ProductVariantResponse.Root]
+      val getResponse = productVariantsApi(createResponse.id).get().as[ProductVariantResponse.Root]
       getResponse.albums.length must === (1)
       getResponse.albums.head.images.length must === (1)
       getResponse.albums.head.images.head.src must === (src)
@@ -76,7 +76,7 @@ class VariantIntegrationTest
 
   "GET v1/variants/:context/:code" - {
     "Get a created variant successfully" in new Fixture {
-      val skuResponse = skusApi(skuForm.id).get().as[ProductVariantResponse.Root]
+      val skuResponse = productVariantsApi(skuForm.id).get().as[ProductVariantResponse.Root]
       val code        = skuResponse.attributes \ "code" \ "v"
       code.extract[String] must === (sku.code)
 
@@ -85,7 +85,7 @@ class VariantIntegrationTest
     }
 
     "Throws a 404 if given an invalid code" in new Fixture {
-      val response = skusApi(99).get()
+      val response = productVariantsApi(99).get()
       response.status must === (StatusCodes.NotFound)
     }
   }
@@ -96,7 +96,8 @@ class VariantIntegrationTest
                                             Map("name" → (("t" → "string") ~ ("v" → "Test"))),
                                           albums = None)
 
-      val skuResponse = skusApi(skuForm.id).update(payload).as[ProductVariantResponse.Root]
+      val skuResponse =
+        productVariantsApi(skuForm.id).update(payload).as[ProductVariantResponse.Root]
 
       (skuResponse.attributes \ "code" \ "v").extract[String] must === (sku.code)
       (skuResponse.attributes \ "name" \ "v").extract[String] must === ("Test")
@@ -107,9 +108,9 @@ class VariantIntegrationTest
       val payload = ProductVariantPayload(attributes =
                                             Map("code" → (("t" → "string") ~ ("v" → "UPCODE"))),
                                           albums = None)
-      skusApi(skuForm.id).update(payload).mustBeOk()
+      productVariantsApi(skuForm.id).update(payload).mustBeOk()
 
-      val skuResponse = skusApi(skuForm.id).get().as[ProductVariantResponse.Root]
+      val skuResponse = productVariantsApi(skuForm.id).get().as[ProductVariantResponse.Root]
       (skuResponse.attributes \ "code" \ "v").extract[String] must === ("UPCODE")
 
       (skuResponse.attributes \ "salePrice" \ "v" \ "value").extract[Int] must === (9999)
@@ -118,7 +119,7 @@ class VariantIntegrationTest
 
   "DELETE v1/products/:context/:id" - {
     "Archives SKU successfully" in new Fixture {
-      val result = skusApi(skuForm.id).archive().as[ProductVariantResponse.Root]
+      val result = productVariantsApi(skuForm.id).archive().as[ProductVariantResponse.Root]
 
       withClue(result.archivedAt.value → Instant.now) {
         result.archivedAt.value.isBeforeNow mustBe true
@@ -132,7 +133,7 @@ class VariantIntegrationTest
                              options = None)
       productsApi(product.formId).update(updateProductPayload).mustBeOk
 
-      val result = skusApi(skuForm.id).archive().as[ProductVariantResponse.Root]
+      val result = productVariantsApi(skuForm.id).archive().as[ProductVariantResponse.Root]
 
       withClue(result.archivedAt.value → Instant.now) {
         result.archivedAt.value.isBeforeNow mustBe true
@@ -140,17 +141,19 @@ class VariantIntegrationTest
     }
 
     "SKU Albums must be unlinked" in new Fixture {
-      skusApi(skuForm.id).archive().as[ProductVariantResponse.Root].albums mustBe empty
+      productVariantsApi(skuForm.id).archive().as[ProductVariantResponse.Root].albums mustBe empty
     }
 
     "Responds with NOT FOUND when SKU is requested with wrong code" in new Fixture {
-      skusApi(666).archive().mustFailWith404(ProductVariantNotFoundForContext("666", ctx.id))
+      productVariantsApi(666)
+        .archive()
+        .mustFailWith404(ProductVariantNotFoundForContext("666", ctx.id))
     }
 
     "Responds with NOT FOUND when SKU is requested with wrong context" in new Fixture {
       implicit val donkeyContext = ObjectContext(name = "donkeyContext", attributes = JNothing)
 
-      skusApi(skuForm.id)(donkeyContext)
+      productVariantsApi(skuForm.id)(donkeyContext)
         .archive()
         .mustFailWith404(ObjectContextNotFound("donkeyContext"))
     }
@@ -159,10 +162,10 @@ class VariantIntegrationTest
       val cart = cartsApi.create(CreateCart(email = "yax@yax.com".some)).as[CartResponse]
 
       cartsApi(cart.referenceNumber).lineItems
-        .add(Seq(UpdateLineItemsPayload(sku.code, 1)))
+        .add(Seq(UpdateLineItemsPayload(sku.formId, 1)))
         .mustBeOk()
 
-      skusApi(skuForm.id).archive().mustFailWith400(VariantIsPresentInCarts(sku.code))
+      productVariantsApi(skuForm.id).archive().mustFailWith400(VariantIsPresentInCarts(sku.code))
     }
   }
 

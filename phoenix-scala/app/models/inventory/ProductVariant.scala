@@ -25,6 +25,11 @@ object ProductVariant {
   * This data structure stores a pointer to a commit of a version of a variant in
   * the object context referenced. The same ProductVariant can have a different version
   * in a different context.
+  *
+  * When communicating with the outside world, we’re using the
+  * `formId`, not `id`, BUT we’re still calling it `id`. Therefore,
+  * you’ll often find comparisons between `variantId`s in payloads and
+  * `formId`s in our internal represantation.
   */
 case class ProductVariant(id: Int = 0,
                           scope: LTree,

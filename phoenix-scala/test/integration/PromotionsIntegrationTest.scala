@@ -20,7 +20,7 @@ import services.promotion.PromotionManager
 import testutils.PayloadHelpers.tv
 import testutils._
 import testutils.apis.PhoenixAdminApi
-import testutils.fixtures.api.ApiFixtures
+import testutils.fixtures.api._
 import testutils.fixtures.{BakedFixtures, PromotionFixtures}
 import utils.IlluminateAlgorithm
 import utils.aliases._
@@ -157,7 +157,7 @@ class PromotionsIntegrationTest
       couponsApi(couponId).codes.generate("boom").as[String]
     }
 
-    "from admin UI" in new StoreAdmin_Seed with Customer_Seed with ProductAndSkus_Baked {
+    "from admin UI" in new StoreAdmin_Seed with Customer_Seed with ProductVariant_ApiFixture {
 
       private val couponCode = setupPromoAndCoupon()
 
@@ -165,7 +165,7 @@ class PromotionsIntegrationTest
         cartsApi.create(CreateCart(email = customer.email)).as[CartResponse].referenceNumber
 
       private val cartTotal = cartsApi(cartRefNum).lineItems
-        .add(Seq(UpdateLineItemsPayload("TEST", 1)))
+        .add(Seq(UpdateLineItemsPayload(productVariant.id, 1)))
         .asTheResult[CartResponse]
         .totals
         .total
@@ -180,14 +180,13 @@ class PromotionsIntegrationTest
       cartWithCoupon.totals.total.toDouble must === (cartTotal * 0.6)
     }
 
-    "from storefront UI" in new StoreAdmin_Seed with Customer_Seed with ProductAndSkus_Baked {
+    "from storefront UI" in new StoreAdmin_Seed with Customer_Seed with ProductVariant_ApiFixture {
 
       private val couponCode = setupPromoAndCoupon()
 
-      private val cartTotal = POST("v1/my/cart/line-items", Seq(UpdateLineItemsPayload("TEST", 1)))
-        .asTheResult[CartResponse]
-        .totals
-        .total
+      private val cartTotal = POST(
+          "v1/my/cart/line-items",
+          Seq(UpdateLineItemsPayload(productVariant.id, 1))).asTheResult[CartResponse].totals.total
 
       private val cartWithCoupon = POST(s"v1/my/cart/coupon/$couponCode").asTheResult[CartResponse]
 
@@ -202,12 +201,12 @@ class PromotionsIntegrationTest
     with ProductVariant_ApiFixture {
       private val couponCode = setupPromoAndCoupon()
 
-      POST("v1/my/cart/line-items", Seq(UpdateLineItemsPayload(productVariantCode, 1))).mustBeOk()
+      POST("v1/my/cart/line-items", Seq(UpdateLineItemsPayload(productVariant.id, 1))).mustBeOk()
 
       POST(s"v1/my/cart/coupon/$couponCode").mustBeOk()
 
       private val emptyCartWithCoupon =
-        POST(s"v1/my/cart/line-items", Seq(UpdateLineItemsPayload(productVariantCode, 0)))
+        POST(s"v1/my/cart/line-items", Seq(UpdateLineItemsPayload(productVariant.id, 0)))
           .asTheResult[CartResponse]
 
       emptyCartWithCoupon.totals.adjustments must === (0)

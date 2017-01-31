@@ -77,7 +77,7 @@ class CartValidatorIntegrationTest
 
     "/v1/carts/:refNum/line-items" in new LineItemFixture {
 
-      checkResponse(cartsApi(refNum).lineItems.add(Seq(UpdateLineItemsPayload(sku.code, 1))),
+      checkResponse(cartsApi(refNum).lineItems.add(Seq(UpdateLineItemsPayload(sku.formId, 1))),
                     Seq(InsufficientFunds(refNum), NoShipAddress(refNum), NoShipMethod(refNum)))
     }
 
@@ -89,21 +89,21 @@ class CartValidatorIntegrationTest
     "must validate funds with line items:" - {
       "must return warning when credit card is removed" in new LineItemAndFundsFixture {
         val api = cartsApi(refNum)
-        api.lineItems.add(Seq(UpdateLineItemsPayload(sku.code, 1))).mustBeOk()
+        api.lineItems.add(Seq(UpdateLineItemsPayload(sku.formId, 1))).mustBeOk()
         api.payments.creditCard.add(CreditCardPayment(creditCard.id)).mustBeOk()
         checkResponse(api.payments.creditCard.delete(),
                       Seq(NoShipAddress(refNum), NoShipMethod(refNum), InsufficientFunds(refNum)))
       }
 
       "must return warning when store credits are removed" in new LineItemAndFundsFixture {
-        cartsApi(refNum).lineItems.add(Seq(UpdateLineItemsPayload(sku.code, 1))).mustBeOk()
+        cartsApi(refNum).lineItems.add(Seq(UpdateLineItemsPayload(sku.formId, 1))).mustBeOk()
         cartsApi(refNum).payments.storeCredit.add(StoreCreditPayment(500)).mustBeOk()
         checkResponse(cartsApi(refNum).payments.storeCredit.delete(),
                       Seq(NoShipAddress(refNum), NoShipMethod(refNum), InsufficientFunds(refNum)))
       }
 
       "must return warning when gift card is removed" in new LineItemAndFundsFixture {
-        cartsApi(refNum).lineItems.add(Seq(UpdateLineItemsPayload(sku.code, 1))).mustBeOk()
+        cartsApi(refNum).lineItems.add(Seq(UpdateLineItemsPayload(sku.formId, 1))).mustBeOk()
         cartsApi(refNum).payments.giftCard.add(GiftCardPayment(giftCard.code)).mustBeOk()
         checkResponse(cartsApi(refNum).payments.giftCard.delete(giftCard.code),
                       Seq(NoShipAddress(refNum), NoShipMethod(refNum), InsufficientFunds(refNum)))

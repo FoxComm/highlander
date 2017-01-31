@@ -18,15 +18,15 @@ import payloads.LineItemPayloads._
 import payloads.NotePayloads._
 import payloads.OrderPayloads._
 import payloads.PaymentPayloads._
+import payloads.ProductOptionPayloads._
 import payloads.ProductPayloads._
+import payloads.ProductVariantPayloads._
 import payloads.PromotionPayloads.{CreatePromotion, UpdatePromotion}
 import payloads.SharedSearchPayloads._
-import payloads.ProductVariantPayloads._
 import payloads.StoreAdminPayloads._
 import payloads.StoreCreditPayloads._
 import payloads.TaxonomyPayloads.{CreateTaxonPayload, CreateTaxonomyPayload, UpdateTaxonPayload, UpdateTaxonomyPayload}
 import payloads.UserPayloads._
-import payloads.ProductOptionPayloads._
 import payloads._
 import testutils._
 import utils.aliases.OC
@@ -394,28 +394,28 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
       GET(s"$shippingMethodsPrefix/$refNum")
   }
 
-  case object skusApi {
-    val skusPrefix = s"$rootPrefix/product-variants"
-    def skusPath(implicit ctx: OC) = s"$skusPrefix/${ctx.name}"
+  case object productVariantsApi {
+    val variantsPrefix = s"$rootPrefix/product-variants"
+    def variantsPath(implicit ctx: OC) = s"$variantsPrefix/${ctx.name}"
 
     def create(payload: ProductVariantPayload)(implicit ctx: OC): HttpResponse =
-      POST(skusPath, payload)
+      POST(variantsPath, payload)
   }
 
-  case class skusApi(formId: Int)(implicit val ctx: OC) {
-    val skuPath = s"${skusApi.skusPath}/$formId"
+  case class productVariantsApi(formId: Int)(implicit val ctx: OC) {
+    val variantPath = s"${productVariantsApi.variantsPath}/$formId"
 
     def get(): HttpResponse =
-      GET(skuPath)
+      GET(variantPath)
 
     def update(payload: ProductVariantPayload): HttpResponse =
-      PATCH(skuPath, payload)
+      PATCH(variantPath, payload)
 
     def archive(): HttpResponse =
-      DELETE(skuPath)
+      DELETE(variantPath)
 
     object albums {
-      val albumsPrefix = s"$skuPath/albums"
+      val albumsPrefix = s"$variantPath/albums"
 
       def get(): HttpResponse =
         GET(albumsPrefix)
@@ -492,24 +492,24 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
       DELETE(storeAdminPath)
   }
 
-  object variantsApi {
-    def variantsPrefix()(implicit ctx: OC) = s"$rootPrefix/product-options/${ctx.name}"
+  object productOptionsApi {
+    def optionsPrefix(implicit ctx: OC) = s"$rootPrefix/product-options/${ctx.name}"
 
     def create(payload: ProductOptionPayload)(implicit ctx: OC): HttpResponse =
-      POST(variantsPrefix, payload)
+      POST(optionsPrefix, payload)
   }
 
-  case class variantsApi(formId: Int)(implicit ctx: OC) {
-    val variantPath = s"${variantsApi.variantsPrefix}/$formId"
+  case class productOptionsApi(formId: Int)(implicit ctx: OC) {
+    val optionPath = s"${productOptionsApi.optionsPrefix}/$formId"
 
-    def get()(implicit ctx: OC): HttpResponse =
-      GET(variantPath)
+    def get(): HttpResponse =
+      GET(optionPath)
 
-    def update(payload: ProductOptionPayload)(implicit ctx: OC): HttpResponse =
-      PATCH(variantPath, payload)
+    def update(payload: ProductOptionPayload): HttpResponse =
+      PATCH(optionPath, payload)
 
-    def createValues(payload: ProductOptionValuePayload)(implicit ctx: OC): HttpResponse =
-      POST(s"$variantPath/values", payload)
+    def createValues(payload: ProductOptionValuePayload): HttpResponse =
+      POST(s"$optionPath/values", payload)
   }
 
   object albumsApi {

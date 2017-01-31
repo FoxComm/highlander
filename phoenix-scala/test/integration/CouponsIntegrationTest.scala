@@ -150,7 +150,8 @@ class CouponsIntegrationTest
         .referenceNumber
 
       cartsApi(cartRef).lineItems
-        .add(Seq(UpdateLineItemsPayload(sku = productVariantCode, quantity = 1)))
+        .add(
+            Seq(UpdateLineItemsPayload(productVariantId = product.variants.head.id, quantity = 1)))
         .mustBeOk()
 
       cartRef
@@ -160,14 +161,16 @@ class CouponsIntegrationTest
   trait GiftCardLineItemFixture extends StoreAdmin_Seed {
     val cartRef = api_newGuestCart().referenceNumber
 
-    private val skuCode = new ProductVariant_ApiFixture { override def productVariantPrice = 3000 }.productVariantCode
-    private val gcSkuCode = new ProductVariant_ApiFixture {
+    private val skuVariantId = new ProductVariant_ApiFixture {
+      override def productVariantPrice = 3000
+    }.product.variants.head.id
+    private val gcSkuVariantId = new ProductVariant_ApiFixture {
       override def productVariantPrice = 2000
-    }.productVariantCode
+    }.product.variants.head.id
 
     cartsApi(cartRef).lineItems
-      .add(Seq(UpdateLineItemsPayload(skuCode, 1),
-               UpdateLineItemsPayload(gcSkuCode, 1, giftCardLineItemAttributes)))
+      .add(Seq(UpdateLineItemsPayload(skuVariantId, 1),
+               UpdateLineItemsPayload(gcSkuVariantId, 1, giftCardLineItemAttributes)))
       .mustBeOk()
   }
 }
