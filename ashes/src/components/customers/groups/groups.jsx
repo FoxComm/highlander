@@ -1,5 +1,6 @@
 /* @flow */
 
+import _ from 'lodash';
 import React from 'react';
 import { Link } from 'components/link';
 
@@ -16,7 +17,7 @@ export default (props: Props) => (
     {props.groups.map((group: TCustomerGroupShort) => (
       <Link className={styles.group} to="customer-group" params={{groupId: group.id}} key={group.id}>
         <span className={styles.name}><i className="icon icon-customers"></i> {group.name}</span>
-        <span className={styles.type}>{group.type}</span>
+        <span className={styles.type}>{_.capitalize(group.groupType)}</span>
       </Link>
     ))}
   </ContentBox>

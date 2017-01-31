@@ -60,7 +60,7 @@ export default class DynamicGroupEditor extends React.Component {
 
   get type() {
     const { type, group } = this.props;
-    return type || group.type;
+    return type || group.groupType;
   }
 
   get nameField() {

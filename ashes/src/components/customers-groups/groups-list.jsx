@@ -29,6 +29,7 @@ const tableColumns = [
 const groupTypes = {
   manual: 'Manual',
   dynamic: 'Dynamic',
+  template: 'Template',
 };
 
 function setCellContents(group, field) {
