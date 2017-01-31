@@ -8,7 +8,7 @@
     download_flyway: false
   roles:
     - { role: dev/stage_mesos, when: first_run }
-    # - { role: dev/kafka, when: first_run }
+    - { role: dev/zookeeper, when: first_run }
     - { role: dev/elasticsearch, when: first_run }
     - { role: dev/db, when: first_run }
     - { role: prod/migrate_phoenix_db }
@@ -43,7 +43,7 @@
     - { role: dev/balancer }
     - { role: demo/balancer }
     - { role: dev/consumers }
-    # - { role: dev/seeder, when: first_run }
+    - { role: dev/seeder, when: first_run }
 
   handlers:
     - include: roles/base/consul_agent/handlers/main.yml
