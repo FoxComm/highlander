@@ -58,7 +58,7 @@ class CustomerGroupMembersIntegrationTest
     "400 if group is manual" in new Fixture {
       customerGroupsMembersApi(manualGroup.id)
         .syncCustomers(CustomerGroupMemberSyncPayload(Seq(account3.id)))
-        .mustFailWith400(CustomerGroupTypeIsWrong(manualGroup.id, Manual, Dynamic))
+        .mustFailWith400(CustomerGroupTypeIsWrong(manualGroup.id, Manual, Set(Dynamic, Template)))
     }
   }
 
@@ -99,7 +99,7 @@ class CustomerGroupMembersIntegrationTest
     "400 if group is dynamic" in new FixtureForCustomerGroups {
       customersApi(account.id).groups
         .syncGroups(AddCustomerToGroups(Seq(groupDynamic2.id)))
-        .mustFailWith400(CustomerGroupTypeIsWrong(groupDynamic2.id, Dynamic, Manual))
+        .mustFailWith400(CustomerGroupTypeIsWrong(groupDynamic2.id, Dynamic, Set(Manual)))
     }
   }
 

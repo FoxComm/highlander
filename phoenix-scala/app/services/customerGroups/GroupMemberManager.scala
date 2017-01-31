@@ -25,7 +25,7 @@ object GroupMemberManager {
                                                                   db: DB): DbResultT[Unit] =
     for {
       group          ← * <~ CustomerGroups.mustFindById404(groupId)
-      _              ← * <~ group.mustBeOfType(Dynamic)
+      _              ← * <~ group.mustNotBeOfType(Manual)
       currentMembers ← * <~ CustomerGroupMembers.findByGroupId(group.id).result
       dataIds = currentMembers.map(_.customerDataId).toSet
       currentMemberData ← * <~ CustomersData.findAllByIds(dataIds).result

@@ -34,7 +34,16 @@ case class CustomerGroup(id: Int = 0,
 
   def mustBeOfType(expected: GroupType): Failures Xor CustomerGroup = {
     if (groupType == expected) Xor.Right(this)
-    else Xor.Left(CustomerGroupTypeIsWrong(id, groupType, expected).single)
+    else Xor.Left(CustomerGroupTypeIsWrong(id, groupType, Set(expected)).single)
+  }
+
+  def mustNotBeOfType(expectedNot: GroupType): Failures Xor CustomerGroup = {
+    if (groupType != expectedNot) Xor.Right(this)
+    else
+      Xor.Left(
+          CustomerGroupTypeIsWrong(id,
+                                   groupType,
+                                   CustomerGroup.types.filterNot(_ == expectedNot).toSet).single)
   }
 
 }
@@ -42,12 +51,15 @@ case class CustomerGroup(id: Int = 0,
 object CustomerGroup {
   sealed trait GroupType
 
-  case object Manual  extends GroupType
-  case object Dynamic extends GroupType
+  case object Manual   extends GroupType
+  case object Dynamic  extends GroupType
+  case object Template extends GroupType
 
   object GroupType extends ADT[GroupType] {
     def types = sealerate.values[GroupType]
   }
+
+  val types = Seq(Manual, Dynamic, Template)
 
   implicit val stateColumnType: JdbcType[GroupType] with BaseTypedType[GroupType] =
     GroupType.slickColumn
