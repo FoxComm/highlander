@@ -6,7 +6,7 @@ import (
 
 type CustomerGroupPayload struct {
 	Name           string          `json:"name"`
-	Type           string          `json:"type"`
+	GroupType      string          `json:"groupType"`
 	CustomersCount int             `json:"customersCount"`
 	ClientState    json.RawMessage `json:"clientState"`
 	ElasticRequest json.RawMessage `json:"elasticRequest"`

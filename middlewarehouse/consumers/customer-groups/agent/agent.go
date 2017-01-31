@@ -87,10 +87,10 @@ func (agent *Agent) processGroups() error {
 	}
 
 	for _, group := range groups {
-		if group.Type == "manual" {
+		if group.GroupType == "manual" {
 			log.Printf("Group %s with id %d is manual, skipping.\n", group.Name, group.ID)
 		} else {
-			log.Printf("Group %s with id %d is dynamic, processing.\n", group.Name, group.ID)
+			log.Printf("Group %s with id %d is %s, processing.\n", group.Name, group.ID, group.GroupType)
 
 			go func(group *responses.CustomerGroupResponse) {
 				ids, err := manager.GetCustomersIDs(agent.esClient, group, agent.esTopic, agent.esSize)

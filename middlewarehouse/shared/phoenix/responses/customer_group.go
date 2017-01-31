@@ -3,10 +3,10 @@ package responses
 import "encoding/json"
 
 type CustomerGroupResponse struct {
-	ID             int
-	Name           string
-	Type           string
-	CustomersCount int
-	ClientState    json.RawMessage
-	ElasticRequest json.RawMessage
+	ID             int             `json:"id"`
+	Name           string          `json:"name"`
+	GroupType      string          `json:"groupType"`
+	CustomersCount int             `json:"customersCount"`
+	ClientState    json.RawMessage `json:"clientState"`
+	ElasticRequest json.RawMessage `json:"elasticRequest"`
 }

@@ -57,6 +57,7 @@ func GetCustomersIDs(esClient *elastic.Client, group *responses.CustomerGroupRes
 func UpdateGroup(phoenixClient phoenix.PhoenixClient, group *responses.CustomerGroupResponse, customersCount int) error {
 	updateGroup := &payloads.CustomerGroupPayload{
 		Name:           group.Name,
+		GroupType:      group.GroupType,
 		CustomersCount: customersCount,
 		ClientState:    group.ClientState,
 		ElasticRequest: group.ElasticRequest,
