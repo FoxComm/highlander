@@ -67,16 +67,29 @@ const _saveGroup = createAsyncActions(
 
 const _archiveGroup = createAsyncActions('archiveCustomerGroup', (groupId: number) => Api.delete(`/customer-groups/${groupId}`));
 
-const _fetchStats = createAsyncActions('fetchStatsCustomerGroup', request =>
-  search.post(`${mapping}/_search?size=0`, request)
-);
+const makeStatsRequest = (request): Object => {
+  Object.keys(statsPeriodsMapping).forEach((period: string) => {
+    request.aggregations
+      .add(
+        new aggregations.DateRange(period, 'orders.placedAt', statsPeriodsMapping[period])
+          .add(new aggregations.Stats('sales', 'orders.subTotal'))
+          .add(new aggregations.Stats('items', 'orders.itemsCount'))
+      );
+  });
+
+  return request;
+};
+
+const _fetchStats = createAsyncActions('fetchStatsCustomerGroup', request => {
+  return Promise.all([
+    search.post(`${mapping}/_search?size=0`, makeStatsRequest(request).toRequest()),
+    search.post(`${mapping}/_search?size=0`, makeStatsRequest(new Request()).toRequest()),
+  ]);
+});
+
 
 /**
  * External actions
- */
-
-/**
- * Reset customer group to initial state
  */
 export const reset = createAction(`CUSTOMER_GROUP_RESET`);
 export const setName = createAction('CUSTOMER_GROUP_SET_NAME');
@@ -157,16 +170,7 @@ export const fetchGroupStats = () => (dispatch: Function, getState: Function) =>
 
   const request = requestAdapter(group.id, criterions, group.mainCondition, group.conditions);
 
-  Object.keys(statsPeriodsMapping).forEach((period: string) => {
-    request.aggregations
-      .add(
-        new aggregations.DateRange(period, 'orders.placedAt', statsPeriodsMapping[period])
-          .add(new aggregations.Stats('sales', 'orders.subTotal'))
-          .add(new aggregations.Stats('items', 'orders.itemsCount'))
-      );
-  });
-
-  dispatch(_fetchStats.perform(request.toRequest()));
+  dispatch(_fetchStats.perform(request));
 };
 
 const validateConditions = (type, conditions) => {
@@ -225,13 +229,19 @@ const setData = (state: State, { clientState: { mainCondition, conditions }, gro
  *    }
  * }
  */
-const setStats = (aggregations: Object) => {
+
+const setS = (aggregations: Object, period: string) => ({
+  ordersCount: get(aggregations, [period, period, 'buckets', 0, 'doc_count']),
+  totalSales: get(aggregations, [period, period, 'buckets', 0, 'sales', 'sum']),
+  averageOrderSize: get(aggregations, [period, period, 'buckets', 0, 'items', 'avg']),
+  averageOrderSum: get(aggregations, [period, period, 'buckets', 0, 'sales', 'avg']),
+});
+
+const setStats = ({ aggregations: groupAggs }: Object, { aggregations: overallAggs }: Object) => {
   return Object.keys(statsPeriodsMapping).reduce((stats: Object, period: string) => {
     stats[period] = {
-      ordersCount: get(aggregations, [period, period, 'buckets', 0, 'doc_count']),
-      totalSales: get(aggregations, [period, period, 'buckets', 0, 'sales', 'sum']),
-      averageOrderSize: get(aggregations, [period, period, 'buckets', 0, 'items', 'avg']),
-      averageOrderSum: get(aggregations, [period, period, 'buckets', 0, 'sales', 'avg']),
+      group: { ...setS(groupAggs, period) },
+      overall: { ...setS(overallAggs, period) },
     };
 
     return stats;
@@ -242,9 +252,9 @@ const reducer = createReducer({
   [reset]: (state: State) => initialState,
   [_fetchGroup.succeeded]: setData,
   [_saveGroup.succeeded]: setData,
-  [_fetchStats.succeeded]: (state: State, { aggregations }: Object) => ({
+  [_fetchStats.succeeded]: (state: State, [groupStats, overallStats]: Object) => ({
     ...state,
-    stats: setStats(aggregations),
+    stats: setStats(groupStats, overallStats),
   }),
   [setName]: (state, name) => ({ ...state, name }),
   [setType]: (state, groupType) => ({ ...state, groupType, isValid: validateConditions(groupType, state.conditions) }),

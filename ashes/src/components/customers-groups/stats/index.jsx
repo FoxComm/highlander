@@ -11,7 +11,7 @@ import RadioButton from 'components/forms/radio-button';
 import styles from './stats.css';
 
 type Props = {
-  stats: Object,
+  stats: TCustomerGroupStats,
   isLoading: boolean,
 };
 
@@ -71,16 +71,16 @@ class CustomerGroupStats extends Component {
         {this.timeframes}
         <PanelList className={classNames(styles.stats, { [styles._loading]: isLoading })}>
           <PanelListItem title="Total Orders">
-            <StatsValue value={get(stats, [this.state.period, 'ordersCount'])} />
+            <StatsValue value={get(stats, [this.state.period, 'group', 'ordersCount'])} />
           </PanelListItem>
           <PanelListItem title="Total Sales">
-            <StatsValue value={get(stats, [this.state.period, 'totalSales'])} currency />
+            <StatsValue value={get(stats, [this.state.period, 'group', 'totalSales'])} currency />
           </PanelListItem>
           <PanelListItem title="Avg. Order Size">
-            <StatsValue value={get(stats, [this.state.period, 'averageOrderSize'])} preprocess={Math.round} />
+            <StatsValue value={get(stats, [this.state.period, 'group', 'averageOrderSize'])} preprocess={Math.round} />
           </PanelListItem>
           <PanelListItem title="Avg. Order Value">
-            <StatsValue value={get(stats, [this.state.period, 'averageOrderSum'])} currency />
+            <StatsValue value={get(stats, [this.state.period, 'group', 'averageOrderSum'])} currency />
           </PanelListItem>
         </PanelList>
       </div>

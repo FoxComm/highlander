@@ -6,13 +6,25 @@ type TCustomerGroupShort = {
   groupType: string,
 };
 
+type TStatsUnit = {
+  ordersCount: number,
+  totalSales: number,
+  averageOrderSize: number,
+  averageOrderSum: number,
+}
+
+type TStatsPeriodUnit = {
+  group: TStatsUnit,
+  overall: TStatsUnit,
+}
+
 type TCustomerGroupStats = {
-  day: ?Object,
-  week: ?Object,
-  month: ?Object,
-  quarter: ?Object,
-  year: ?Object,
-  overall: ?Object,
+  day: ?TStatsPeriodUnit,
+  week: ?TStatsPeriodUnit,
+  month: ?TStatsPeriodUnit,
+  quarter: ?TStatsPeriodUnit,
+  year: ?TStatsPeriodUnit,
+  overall: ?TStatsPeriodUnit,
 };
 
 type TCustomerGroup = TCustomerGroupShort & {
