@@ -54,7 +54,7 @@ class ProductInvariantIT
     "Creates a product with" - {
       "a new variant successfully" in new ProductVariant_ApiFixture {
         productVariant.attributes.code must === (productVariantCode)
-        productVariant.middlewarehouseSkuId must be > 0
+        productVariant.skuId must be > 0
       }
 
       "an existing variant successfully" in new ProductVariant_ApiFixture {
