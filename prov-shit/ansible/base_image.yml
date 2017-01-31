@@ -45,20 +45,20 @@
     # # Nginx
     # - { role: base/balancer }
     # Core Configuration
-    # - { role: dev/appliance_ip }
+    - { role: dev/appliance_ip }
     # - { role: dev/appliance, run_once: true }
     # - { role: dev/consul_agent }
     # - { role: dev/kafka }
-    - { role: dev/elasticsearch }
-    - { role: dev/db }
+    # - { role: dev/elasticsearch }
+    # - { role: dev/db }
     # Marathon Applications
-    - { role: dev/isaac }
-    - { role: dev/phoenix }
-    - { role: dev/solomon }
-    - { role: dev/marketplace, when: with_marketplace }
-    - { role: dev/middlewarehouse }
-    - { role: dev/greenriver }
-    - { role: dev/ashes }
+    # - { role: dev/isaac }
+    # - { role: dev/phoenix }
+    # - { role: dev/solomon }
+    # - { role: dev/marketplace, when: with_marketplace }
+    # - { role: dev/middlewarehouse }
+    # - { role: dev/greenriver }
+    # - { role: dev/ashes }
     - { role: dev/firebrand }
     - { role: ext/tgt/marketplace-ui, when: with_marketplace }
     - { role: dev/seeder }

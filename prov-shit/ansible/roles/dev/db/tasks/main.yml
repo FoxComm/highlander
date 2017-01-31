@@ -20,7 +20,7 @@
     - "{{phoenix_db_name}}"
     - "{{middlewarehouse_db_name}}"
     - "{{marketplace_db_name}}"
-  when: item != {{marketplace_db_name}} or with_marketplace
+  when: item != "{{marketplace_db_name}}" or with_marketplace
 
 - name: Enable Bottledwater Extensions in Postgres
   postgresql_ext: name=bottledwater db={{item}}
@@ -28,7 +28,7 @@
     - "{{phoenix_db_name}}"
     - "{{middlewarehouse_db_name}}"
     - "{{marketplace_db_name}}"
-  when: item != {{marketplace_db_name}} or with_marketplace
+  when: item != "{{marketplace_db_name}}" or with_marketplace
 
 - name: Configure Database Users
   postgresql_user: name={{item}} state=present role_attr_flags=SUPERUSER
@@ -38,7 +38,7 @@
     - phoenix
     - middlewarehouse
     - marketplace
-  when: item != 'marketplace' or with_marketplace
+  when: item != "marketplace" or with_marketplace
 
 - name: Create Phoenix Directory
   file: path={{phoenix_dir}} state=directory owner="{{user}}"
@@ -105,4 +105,4 @@
     - phoenix
     - middlewarehouse
     - marketplace
-  when: item != 'marketplace' or with_marketplace
+  when: item != "marketplace" or with_marketplace
