@@ -89,7 +89,13 @@ export function fetchProductTotalRevenue(from, to, productId, size, channel = 1)
   return fetchStatsForStatKey('revenue', from, to, productId, size, ['agg', 'xy'], channel);
 }
 export function fetchProductTotalOrders(from, to, productId, size, channel = 1) {
-  return fetchStatsForStatKey('purchase-quantity', from, to, productId, size, ['sum', 'xy'], channel);
+  return fetchStatsForStatKey('purchase-quantity', from, to, productId, size, ['agg', 'xy'], channel);
+}
+export function fetchProductTotalInCarts(from, to, productId, size, channel = 1) {
+  return fetchStatsForStatKey('cart', from, to, productId, size, ['agg', 'xy'], channel);
+}
+export function fetchProductTotalPdPViews(from, to, productId, size, channel = 1) {
+  return fetchStatsForStatKey('pdp', from, to, productId, size, ['sum', 'xy'], channel);
 }
 
 // redux store

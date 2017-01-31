@@ -41,16 +41,24 @@ const unixTimeToDateFormat = (unixTimeStr, dateFormat = 'MMM D, YYYY') => {
   return moment.unix(parseInt(unixTimeStr, 10)).format(dateFormat);
 };
 
-const formatRevenue = (moneyInCents, fractionDigits = 0) => {
+const formatCurrency = (value, currencyCode = 'USD', fractionDigits = 0) => {
   const formatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: 'USD',
+    currency: currencyCode,
     minimumFractionDigits: fractionDigits,
   });
 
-  const moneyInCentsDecimal = parseFloat(moneyInCents) / 100.0;
+  const moneyInCentsDecimal = parseFloat(value) / 100.0;
 
   return formatter.format(moneyInCentsDecimal);
+};
+
+const formatValue = (value, currencyCode = 'USD', fractionDigits = 0) => {
+  if (!_.isNil(currencyCode)) {
+    return formatCurrency(value, currencyCode, fractionDigits);
+  } else {
+    return parseInt(value);
+  }
 };
 
 // Dummy data for UI debugging
@@ -77,6 +85,7 @@ type Props = {
   debugMode?: boolean,
   segmentType?: string,
   queryKey?: string,
+  currencyCode?: string,
 }
 
 class TotalRevenueChart extends React.Component {
@@ -88,6 +97,7 @@ class TotalRevenueChart extends React.Component {
     debugMode: false,
     segmentType: ChartSegmentType.Day,
     queryKey: '',
+    currencyCode: null,
   };
 
   @autobind
@@ -124,6 +134,7 @@ class TotalRevenueChart extends React.Component {
   get chart() {
     const displayData = this.data;
     const dataTickValues = this.generateDataTickValues(displayData);
+    const { currencyCode } = this.props;
 
     return (
       <div>
@@ -142,7 +153,7 @@ class TotalRevenueChart extends React.Component {
             standalone={false}
             style={gridStyle}
             orientation="left"
-            tickFormat={(rawRevenue) => (`${formatRevenue(rawRevenue)}`)} />
+            tickFormat={(rawValue) => (`${formatValue(rawValue, currencyCode)}`)} />
           <VictoryArea
             style={areaStyle}
             data={this.data}
@@ -160,25 +171,25 @@ class TotalRevenueChart extends React.Component {
   }
 
   get data() {
-    const { jsonData, debugMode, queryKey } = this.props;
+    const { jsonData, debugMode, queryKey, currencyCode } = this.props;
 
     const jsonDisplay = (debugMode) ? dummyJsonData[dummyQueryKey] : jsonData[queryKey];
 
     // For each datum, set the x-axis tick value, mouseOver label and dateRange display
     for (let idx = 0; idx < jsonDisplay.length; idx++) {
       jsonDisplay[idx].tick = idx + 1;
-      const revenueDisplay = formatRevenue(jsonDisplay[idx].y);
+      const valueDisplay = formatValue(jsonDisplay[idx].y, currencyCode);
 
       if (idx + 1 < jsonDisplay.length) {
         const beginTime = unixTimeToDateFormat(jsonDisplay[idx].x);
         const endTime = unixTimeToDateFormat(jsonDisplay[idx + 1].x);
         const dateRange = `${beginTime} - ${endTime}`;
 
-        jsonDisplay[idx].label = `${revenueDisplay}\n${dateRange}`;
+        jsonDisplay[idx].label = `${valueDisplay}\n${dateRange}`;
       } else {
         const dateRange = unixTimeToDateFormat(jsonDisplay[idx].x);
 
-        jsonDisplay[idx].label = `${revenueDisplay}\n${dateRange}`;
+        jsonDisplay[idx].label = `${valueDisplay}\n${dateRange}`;
       }
     }
 
