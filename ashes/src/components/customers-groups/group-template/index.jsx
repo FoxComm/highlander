@@ -6,9 +6,9 @@ import React from 'react';
 import styles from './styles.css';
 
 type Props = {
-  id: number;
+  id?: number;
   name: string;
-  onClick: (id: number) => Promise;
+  onClick: (id?: number) => any;
 };
 
 export default (props: Props) => (

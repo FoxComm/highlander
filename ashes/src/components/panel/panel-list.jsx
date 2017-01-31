@@ -15,8 +15,8 @@ export const PanelList = ({ className, children }: PanelListProps) => (
 );
 
 type PanelListItemProps = {
-  title: Element;
-  children: Element;
+  title: Element|string;
+  children?: Element;
 }
 
 export const PanelListItem = ({ title, children }: PanelListItemProps) => (

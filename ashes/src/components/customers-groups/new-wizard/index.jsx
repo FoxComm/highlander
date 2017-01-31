@@ -42,7 +42,7 @@ class NewGroupWizardPage extends Component {
   }
 
   @autobind
-  handleSave(templateId: number) {
+  handleSave(templateId?: number) {
     const { templates, saveGroup, push } = this.props;
     const template = find(templates, (template: TTemplate) => template.id === templateId);
 

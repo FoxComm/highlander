@@ -8,11 +8,13 @@ import React, { Component } from 'react';
 import EditGroupBase from './edit-group-base';
 
 type Props = {
+  group: TCustomerGroup,
+  onSave: () => Promise,
+  saveInProgress: boolean,
+  saveError: boolean,
   params: {
-    type: string;
-  };
-  group: TCustomerGroup;
-  onSave: () => Promise;
+    type: string,
+  },
 };
 
 export default (props: Props) => {
@@ -23,6 +25,7 @@ export default (props: Props) => {
     <EditGroupBase
       title={title}
       cancelTo="customer-groups"
+      cancelParams={{/* flow fix */}}
       {...props}
     />
   );

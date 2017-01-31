@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import React, { PropTypes } from 'react';
 
 type Props = {
-  title: Element;
+  title?: Element|string;
   featured?: boolean;
   className?: string;
   children?: Element;
