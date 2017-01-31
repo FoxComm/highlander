@@ -36,6 +36,7 @@ build:
 	make build-shipments-consumer
 	make build-shipstation-consumer
 	make build-stock-items-consumer
+	make build-customer-groups-consumer
 
 build-middlewarehouse:
 	cd $(BUILD_PATH) && go build -o middlewarehouse main.go

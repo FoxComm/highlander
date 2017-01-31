@@ -23,7 +23,7 @@ stock-items-consumer
 shipments-consumer
 capture-consumer
 gift-card-consumer
-customer-groups-agent
+customer-groups-consumer
 
 # other binaries
 seeder
