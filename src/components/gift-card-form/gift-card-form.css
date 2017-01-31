@@ -12,6 +12,7 @@
 
 .form {
   margin-top: 40px;
+  margin-bottom: 70px;
 }
 
 .price-selector {
@@ -39,11 +40,6 @@
   composes: input-field;
   height: 100px;
   padding: 10px;
-}
-
-.add-to-cart-btn {
-  width: 100%;
-  margin-bottom: 70px;
 }
 
 @media (--large) {
