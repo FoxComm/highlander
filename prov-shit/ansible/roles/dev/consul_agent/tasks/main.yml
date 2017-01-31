@@ -26,3 +26,7 @@
 
 - name: Restart Dnsmasq
   service: name=dnsmasq state=restarted enabled=yes
+
+- name: Restart Mesos Consul Because It Stops Updating Consul
+  service: name=mesos_consul state=restarted enabled=yes
+
