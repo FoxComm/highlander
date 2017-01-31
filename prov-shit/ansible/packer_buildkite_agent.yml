@@ -10,12 +10,9 @@
 
   roles:
     - { role: base/common }
-    - { role: dev/common }
+    - { role: base/languages }
+    - { role: base/devkit }
     - { role: base/ssh_keys }
-    - { role: base/docker }
-    - { role: base/scala }
-    - { role: base/clojure }
-    - { role: base/node }
     - { role: base/builder }
     - { role: test/db }
     - { role: test/selenium }

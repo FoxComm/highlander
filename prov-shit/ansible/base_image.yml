@@ -61,7 +61,7 @@
     # - { role: dev/ashes }
     # - { role: dev/firebrand }
     # - { role: ext/tgt/marketplace-ui, when: with_marketplace }
-    - { role: dev/seeder }
+    # - { role: dev/seeder }
     # Nginx Balancer
     - { role: dev/balancer }
     - { role: demo/balancer }
@@ -72,3 +72,6 @@
     - { role: dev/healthcheck }
     - { role: dev/dashboard, run_once: true }
     - { role: dev/appliance_dns, run_once: true }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml

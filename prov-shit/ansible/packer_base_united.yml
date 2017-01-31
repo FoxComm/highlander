@@ -8,6 +8,8 @@
   vars:
     user: ubuntu
     packing: true
+    install_public_keys: true
+    install_private_keys: true
   gather_facts: no
   pre_tasks:
     - name: Update Apt Cache
@@ -22,8 +24,8 @@
 
   roles:
     - { role: base/common }
-    - { role: base/secret_keys, install_public_keys: true, install_private_keys: true }
+    - { role: base/devkit }
+    - { role: base/secret_keys }
     - { role: base/consul }
-    - { role: base/docker }
     - { role: base/mesos }
     - { role: base/consul_agent }
