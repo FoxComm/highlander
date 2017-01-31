@@ -59,8 +59,8 @@
     # - { role: dev/middlewarehouse }
     # - { role: dev/greenriver }
     # - { role: dev/ashes }
-    - { role: dev/firebrand }
-    - { role: ext/tgt/marketplace-ui, when: with_marketplace }
+    # - { role: dev/firebrand }
+    # - { role: ext/tgt/marketplace-ui, when: with_marketplace }
     - { role: dev/seeder }
     # Nginx Balancer
     - { role: dev/balancer }

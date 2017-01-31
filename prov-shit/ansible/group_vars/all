@@ -266,6 +266,7 @@ mesos_quorum: 2
 mesos_ip: 0.0.0.0
 
 # Seeder flags
+with_base_seeds: true
 with_gatling_seeder: true
 with_mwh_seeder: true
 
