@@ -53,6 +53,7 @@
   when: not packing
 
 - name: Wait for Services become available
+  wait_for: host={{item.host}} port={{item.port}} timeout=1200
   with_items:
     - { host: "{{middlewarehouse_host}}", port: "{{middlewarehouse_port}}" }
     - { host: "{{phoenix_host}}", port: "{{phoenix_port}}" }
