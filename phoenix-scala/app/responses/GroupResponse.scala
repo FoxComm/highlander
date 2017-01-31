@@ -13,7 +13,7 @@ object GroupResponses {
     case class Root(
         id: Int = 0,
         name: String,
-        `type`: GroupType = Dynamic,
+        groupType: GroupType = Dynamic,
         clientState: Json,
         elasticRequest: Json,
         customersCount: Int = 0,
@@ -24,7 +24,7 @@ object GroupResponses {
     def build(group: CustomerGroup): Root =
       Root(id = group.id,
            name = group.name,
-           `type` = group.groupType,
+           groupType = group.groupType,
            clientState = group.clientState,
            elasticRequest = group.elasticRequest,
            customersCount = group.customersCount,
@@ -33,23 +33,23 @@ object GroupResponses {
   }
 
   object CustomerGroupResponse {
-    case class Root(id: Int = 0, name: String, `type`: GroupType = Dynamic)
+    case class Root(id: Int = 0, name: String, groupType: GroupType = Dynamic)
 
     def build(group: CustomerGroup): Root =
-      Root(id = group.id, name = group.name, `type` = group.groupType)
+      Root(id = group.id, name = group.name, groupType = group.groupType)
   }
 
   object GroupTemplateResponse {
     case class Root(id: Int = 0,
                     name: String,
-                    `type`: GroupType = Dynamic,
+                    groupType: GroupType = Dynamic,
                     clientState: Json,
                     elasticRequest: Json)
 
     def build(groupTemplate: CustomerGroupTemplate): Root =
       Root(id = groupTemplate.id,
            name = groupTemplate.name,
-           `type` = CustomerGroup.Template,
+           groupType = CustomerGroup.Template,
            clientState = groupTemplate.clientState,
            elasticRequest = groupTemplate.elasticRequest)
   }

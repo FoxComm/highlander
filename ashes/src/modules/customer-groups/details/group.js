@@ -18,7 +18,7 @@ const mapping = 'customers_search_view';
 
 const initialState = {
   id: null,
-  type: null,
+  groupType: null,
   name: null,
   conditions: [],
   mainCondition: null,
@@ -105,7 +105,7 @@ export const saveGroup = () => (dispatch: Function, getState: Function) => {
   const state = getState();
   const getValue = (name) => get(state, ['customerGroups', 'details', 'group', name]);
 
-  const type = getValue('type');
+  const groupType = getValue('groupType');
   const groupId = getValue('id');
   const name = getValue('name');
   const mainCondition = getValue('mainCondition');
@@ -114,7 +114,7 @@ export const saveGroup = () => (dispatch: Function, getState: Function) => {
 
   const data = {
     name,
-    type,
+    groupType,
     clientState: {
       mainCondition,
       conditions,
@@ -177,13 +177,13 @@ type State = {
   group: TCustomerGroup,
 };
 
-const setData = (state: State, { clientState: { mainCondition, conditions }, type, ...rest }) => {
+const setData = (state: State, { clientState: { mainCondition, conditions }, groupType, ...rest }) => {
   return {
     ...rest,
-    type,
+    groupType,
     conditions,
     mainCondition,
-    isValid: validateConditions(type, conditions),
+    isValid: validateConditions(groupType, conditions),
     stats: initialState.stats,
   };
 };
@@ -202,9 +202,9 @@ const reducer = createReducer({
     }
   }),
   [setName]: (state, name) => ({ ...state, name }),
-  [setType]: (state, type) => ({ ...state, type, isValid: validateConditions(type, state.conditions) }),
+  [setType]: (state, groupType) => ({ ...state, groupType, isValid: validateConditions(groupType, state.conditions) }),
   [setMainCondition]: (state, mainCondition) => ({ ...state, mainCondition }),
-  [setConditions]: (state, conditions) => ({ ...state, conditions, isValid: validateConditions(state.type, conditions) }),
+  [setConditions]: (state, conditions) => ({ ...state, conditions, isValid: validateConditions(state.groupType, conditions) }),
   [setGroupStats]: (state, stats) => ({ ...state, stats }),
 }, initialState);
 

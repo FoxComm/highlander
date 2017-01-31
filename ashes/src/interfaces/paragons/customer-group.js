@@ -3,7 +3,7 @@ type Condition = Array<String>;
 type TCustomerGroupShort = {
   id: number,
   name: string,
-  type: string,
+  groupType: string,
 };
 
 type TCustomerGroupStats = {
@@ -28,6 +28,7 @@ type TCustomerGroup = TCustomerGroupShort & {
 type TTemplate = {
   id: number,
   name: string,
+  groupType: string,
   clientState: Object, // JSON with dsl request handled by UI to build group constructor
   elasticRequest: Object, // JSON with query sent to ES
 };

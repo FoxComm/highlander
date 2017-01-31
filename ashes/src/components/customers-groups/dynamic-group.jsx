@@ -131,12 +131,12 @@ export default class DynamicGroup extends Component {
               <TotalCounter />
             </span>
           </h1>
-          {group.conditions && <PrimaryButton onClick={this.goToEdit}>Edit Group</PrimaryButton>}
+          {group.groupType != 'template' && <PrimaryButton onClick={this.goToEdit}>Edit Group</PrimaryButton>}
         </div>
         <div className={prefixed('about')}>
           <div>
             <span className={prefixed('about__key')}>Type:&nbsp;</span>
-            <span className={prefixed('about__value')}>{_.capitalize(group.type)}</span>
+            <span className={prefixed('about__value')}>{_.capitalize(group.groupType)}</span>
           </div>
           <div>
             <span className={prefixed('about__key')}>Created:&nbsp;</span>
@@ -160,12 +160,12 @@ export default class DynamicGroup extends Component {
   }
 
   get criteria(): ?Element {
-    const { mainCondition, conditions, type } = this.props.group;
+    const { mainCondition, conditions, groupType } = this.props.group;
+
+    if (groupType != 'dynamic') return null;
+
     const main = mainCondition === operators.and ? 'all' : 'any';
-
     const conditionBlock = _.map(conditions, c => this.renderCriterion(c));
-
-    if (type != 'manual' && conditions) return null;
 
     return (
       <ContentBox title="Criteria"
