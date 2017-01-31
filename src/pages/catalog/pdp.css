@@ -240,7 +240,7 @@
 
   .item-title {
     width: 33%;
-    margin: 0px 4px 0px 4px;
+    margin: 0px 4px;
     display: flex;
     justify-content: center;
   }
@@ -258,7 +258,7 @@
 
   .item-title {
     width: 30%;
-    margin: 0px 4px 0px 4px;
+    margin: 0px 4px;
     display: flex;
     justify-content: center;
   }
