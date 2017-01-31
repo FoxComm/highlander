@@ -23,7 +23,7 @@ const Error = ({
   notFound = NOT_FOUND_ERROR,
   otherProblem = UNEXPECTED_ERROR,
 }: Props) => {
-  const status = _.get(err, 'status');
+  const status = _.get(err, 'response.status');
   const message = status == 404 ? notFound : otherProblem;
 
   return (
