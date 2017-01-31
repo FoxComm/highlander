@@ -3,8 +3,6 @@
 - name: Packing Base Image
   hosts: all
   become: true
-  tags:
-    - packer
   vars:
     user: ubuntu
     packing: true

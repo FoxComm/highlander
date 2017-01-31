@@ -98,11 +98,6 @@ shortcuts:
     alias: migrate_middlewarehouse_db.yml
     target: ansible/migrate_middlewarehouse_db.yml
 
-  # Base Image
-  - name: Base Image
-    alias: base_image.yml
-    target: ansible/base_image.yml
-
 # Packer shortcuts
 - type: snowflake
   process: packer build

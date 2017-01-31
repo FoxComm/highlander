@@ -3,9 +3,8 @@
 - name: Pack Buildkite Agent image
   hosts: all
   become: true
-  tags:
-    - packer
   vars:
+    packing: true
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
 
   roles:
