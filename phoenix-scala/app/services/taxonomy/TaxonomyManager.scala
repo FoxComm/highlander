@@ -1,15 +1,14 @@
 package services.taxonomy
 
 import java.time.Instant
-import com.github.tminglei.slickpg.LTree
 
 import cats.data.ValidatedNel
 import cats.implicits._
+import com.github.tminglei.slickpg.LTree
 import failures.TaxonomyFailures._
 import failures.{Failure, TaxonomyFailures}
-import models.objects.ObjectHeadLinks.ObjectHeadLinkQueries
-import models.objects._
 import models.account._
+import models.objects._
 import models.product.{ProductReference, Products}
 import models.taxonomy.TaxonomyTaxonLinks.scope._
 import models.taxonomy.{TaxonLocation ⇒ _, _}
@@ -309,26 +308,28 @@ object TaxonomyManager {
       oc: OC,
       db: DB): DbResultT[Seq[AssignedTaxonsResponse]] = {
 
-    val taxonsQuery = ProductTaxonLinks
-      .filterLeft(product).flatMap(_.right)
+    val assignedTaxons = ProductTaxonLinks.filterLeft(product).flatMap(_.right)
 
-    val taxonomiesQuery = TaxonomyTaxonLinks.join(taxonsQuery).on { case (link, taxons) ⇒ link.rightId === taxons.id }
-      .join(Taxonomies).on { case ((link, _), taxonomy) ⇒ link.leftId === taxonomy.id }
+    //get taxonomies and taxons assigned to the product grouped into (taxonomy, taxon) pairs
+    val assignedTaxonomiesQuery = TaxonomyTaxonLinks
+      .join(assignedTaxons)
+      .on { case (link, taxons) ⇒ link.rightId === taxons.id }
+      .join(Taxonomies)
+      .on { case ((link, _), taxonomy)   ⇒ link.leftId === taxonomy.id }
       .map { case ((_, taxon), taxonomy) ⇒ (taxonomy, taxon) }
 
     for {
-      taxonomyPairs ← * <~ taxonomiesQuery.result
-      (taxonomies, taxons) = taxonomyPairs.groupBy(_._1).mapValues(_.map(_._2)).unzip
+      assignedTaxonomies ← * <~ assignedTaxonomiesQuery.result
+      (taxonomies, taxons) = assignedTaxonomies.groupBy { case (taxonomy, _) ⇒ taxonomy }
+        .mapValues(_.map { case (_, taxon) ⇒ taxon })
+        .unzip
 
-      fullTaxonomies ← * <~ taxonomies.map(t ⇒ ObjectManager.getFullObject(DbResultT.good(t)))
-      fullTaxons ← * <~ taxons.map(ts ⇒
-                        DbResultT.sequence(ts.map(t ⇒
-                                  ObjectManager.getFullObject(DbResultT.good(t)))))
+      fullTaxonomies ← * <~ ObjectManager.getFullObjects(taxonomies.toSeq)
+      fullTaxons     ← * <~ taxons.map(ObjectManager.getFullObjects)
 
-      pairs = fullTaxonomies.zip(fullTaxons)
-      response ← * <~ pairs.map {
-                  case (taxonomy, items) ⇒ AssignedTaxonsResponse.build(taxonomy, items)
-                }
-    } yield response.toSeq
+    } yield
+      fullTaxonomies.zip(fullTaxons).map {
+        case (taxonomy, items) ⇒ AssignedTaxonsResponse.build(taxonomy, items)
+      }
   }
 }
