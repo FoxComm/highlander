@@ -188,11 +188,20 @@ export default class Analytics extends React.Component {
     const { segments, entity } = this.props;
 
     switch(question.title) {
-      case questionTitles.ProductConversionRate:
-        this.props.fetchProductConversion(entity.entityId);
-        break;
       case questionTitles.TotalRevenue:
         this.props.fetchProductTotalRevenue(dateRangeBegin, dateRangeEnd, entity.entityId, dataFetchTimeSize);
+        break;
+      case questionTitles.TotalOrders:
+        this.props.fetchProductTotalOrders(dateRangeBegin, dateRangeEnd, entity.entityId, dataFetchTimeSize);
+        break;
+      case questionTitles.TotalPdPViews:
+        this.props.fetchProductTotalPdPViews(dateRangeBegin, dateRangeEnd, entity.entityId, dataFetchTimeSize);
+        break;
+      case questionTitles.TotalInCarts:
+        this.props.fetchProductTotalInCarts(dateRangeBegin, dateRangeEnd, entity.entityId, dataFetchTimeSize);
+        break;
+      case questionTitles.ProductConversionRate:
+        this.props.fetchProductConversion(entity.entityId);
         break;
     }
   }
@@ -261,11 +270,14 @@ export default class Analytics extends React.Component {
   @autobind
   onQuestionBoxSelect(question) {
     switch(question.title) {
+      case questionTitles.TotalRevenue:
+      case questionTitles.TotalOrders:
+      case questionTitles.TotalPdPViews:
+      case questionTitles.TotalInCarts:
+        this.setState({question: question, segment: _.head(this.props.segments)}, this.fetchData(question));
+        break;
       case questionTitles.ProductConversionRate:
         this.setState({question: question}, this.fetchData(question));
-        break;
-      case questionTitles.TotalRevenue:
-        this.setState({question: question, segment: _.head(this.props.segments)}, this.fetchData(question));
         break;
     }
   }
@@ -368,24 +380,41 @@ export default class Analytics extends React.Component {
     }
 
     if (!_.isNil(analytics.isFetching) && !analytics.isFetching) {
+      const segmentCtrlList = (
+        <SegmentControlList
+        items={segments}
+        onSelect={this.onSegmentControlSelect}
+        activeSegment={this.segment}
+      />);
+
       switch (this.question.title) {
-        case questionTitles.ProductConversionRate:
-          return <ProductConversionChart jsonData={analytics.chartValues}/>;
         case questionTitles.TotalRevenue:
           return(
             <div>
-              <SegmentControlList
-                items={segments}
-                onSelect={this.onSegmentControlSelect}
-                activeSegment={this.segment}
-                />
+              { segmentCtrlList }
               <TotalRevenueChart
                 jsonData={analytics.chartValues} 
+                queryKey={analytics.keys}
+                segmentType={segmentTypeHack}
+                currencyCode="USD"
+                />
+            </div>
+          );
+        case questionTitles.TotalOrders:
+        case questionTitles.TotalPdPViews:
+        case questionTitles.TotalInCarts:
+          return (
+            <div>
+              {segmentCtrlList}
+              <TotalRevenueChart
+                jsonData={analytics.chartValues}
                 queryKey={analytics.keys}
                 segmentType={segmentTypeHack}
                 />
             </div>
           );
+        case questionTitles.ProductConversionRate:
+          return <ProductConversionChart jsonData={analytics.chartValues}/>;
         default:
           return false;
       }
