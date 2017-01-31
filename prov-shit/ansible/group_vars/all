@@ -265,7 +265,11 @@ cert_path: test/fox
 mesos_quorum: 2
 mesos_ip: 0.0.0.0
 
+# On Amigo server?
+is_amigo: false
+
 # Seeder flags
+with_base_seeds: true
 with_gatling_seeder: true
 with_mwh_seeder: true
 

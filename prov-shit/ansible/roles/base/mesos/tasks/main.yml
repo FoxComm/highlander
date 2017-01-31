@@ -1,13 +1,10 @@
 ---
 
-- name: Copy Mesos Setup Script
-  copy: src=mesos-setup.sh dest={{home}}/mesos-setup.sh mode="u+x,g+x,o+x"
+- name: Add APT Key
+  apt_key: keyserver=keyserver.ubuntu.com id=E56151BF
 
-- name: Run Mesos Setup Script
-  shell: "{{home}}/mesos-setup.sh"
-
-- name: Update Package Cache
-  apt: update_cache=yes
+- name: Add Mesos Repository
+  apt_repository: repo='deb http://repos.mesosphere.com/ubuntu xenial main' state=present update_cache=yes
 
 - name: Install Mesos Package
   apt: name=mesos state=latest force=yes

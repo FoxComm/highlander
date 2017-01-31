@@ -4,12 +4,13 @@
   hosts: all
   become: true
   vars:
-      user: vagrant
+    user: vagrant
   roles:
     - { role: base/common }
+    - { role: base/languages }
+    - { role: base/devkit }
     - { role: base/ssh_keys }
-    - { role: base/scala }
-    - { role: base/node }
+    - { role: base/builder }
     - { role: test/db }
     - { role: base/builder }
 
