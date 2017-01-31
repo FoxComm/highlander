@@ -1,4 +1,4 @@
-import models.customer.CustomerGroup.Dynamic
+import models.customer.CustomerGroup._
 import models.customer.{CustomerGroupTemplate, CustomerGroupTemplates}
 import org.json4s.JObject
 import org.scalatest.mockito.MockitoSugar
@@ -30,7 +30,7 @@ class CustomerGroupTemplateIntegrationTest
                                        customersCount = 1,
                                        templateId = groupTemplates.head.id.some,
                                        scope = scopeN.some,
-                                       `type` = Dynamic)
+                                       groupType = Template)
 
     val root = customerGroupsApi.create(payload).as[Root]
 

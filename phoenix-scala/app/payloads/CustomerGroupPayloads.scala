@@ -11,7 +11,7 @@ object CustomerGroupPayloads {
                                   elasticRequest: Json,
                                   customersCount: Int = 0,
                                   templateId: Option[Int] = None,
-                                  `type`: GroupType = Dynamic)
+                                  groupType: GroupType = Dynamic)
 
   case class CustomerGroupMemberSyncPayload(customers: Seq[Int])
 

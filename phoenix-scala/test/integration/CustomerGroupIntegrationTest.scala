@@ -29,7 +29,7 @@ class CustomerGroupIntegrationTest
                                          clientState = JObject(),
                                          elasticRequest = JObject(),
                                          customersCount = 1,
-                                         `type` = Manual)
+                                         groupType = Manual)
 
       val root    = customerGroupsApi.create(payload).as[Root]
       val created = CustomerGroups.mustFindById400(root.id).gimme
@@ -46,7 +46,7 @@ class CustomerGroupIntegrationTest
                                          customersCount = 1,
                                          templateId = groupTemplate.id.some,
                                          scope = scopeN.some,
-                                         `type` = Dynamic)
+                                         groupType = Dynamic)
 
       val root    = customerGroupsApi.create(payload).as[Root]
       val created = CustomerGroups.mustFindById400(root.id).gimme
@@ -66,7 +66,7 @@ class CustomerGroupIntegrationTest
                                          elasticRequest = JObject(),
                                          customersCount = 1,
                                          templateId = 666.some,
-                                         `type` = Dynamic)
+                                         groupType = Dynamic)
 
       customerGroupsApi
         .create(payload)
@@ -90,7 +90,7 @@ class CustomerGroupIntegrationTest
                                          customersCount = 777,
                                          clientState = JObject(),
                                          elasticRequest = JObject(),
-                                         `type` = Dynamic)
+                                         groupType = Dynamic)
 
       (payload.name, payload.customersCount) must !==((group.name, group.customersCount))
 
@@ -103,7 +103,7 @@ class CustomerGroupIntegrationTest
                                          customersCount = 777,
                                          clientState = JObject(),
                                          elasticRequest = JObject(),
-                                         `type` = Dynamic)
+                                         groupType = Dynamic)
 
       customerGroupsApi(999)
         .update(payload)

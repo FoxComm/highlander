@@ -72,7 +72,7 @@ object CustomerGroup {
                   customersCount = p.customersCount,
                   clientState = p.clientState,
                   elasticRequest = p.elasticRequest,
-                  groupType = p.`type`)
+                  groupType = p.groupType)
 }
 
 class CustomerGroups(tag: Tag) extends FoxTable[CustomerGroup](tag, "customer_groups") {
