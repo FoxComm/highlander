@@ -48,5 +48,5 @@ object ProductVariantMwhSkuIds
     byVariantFormId(variantFormId)
       .map(_.mwhSkuId)
       .mustFindOneOr(NotFoundFailure400(
-              s"Middlwarehouse SKU id not found for variant with id=$variantFormId"))
+              s"Middlewarehouse SKU id not found for variant with id=$variantFormId"))
 }

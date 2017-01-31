@@ -1,0 +1,46 @@
+
+.root {
+  & :global(.fc-table__table) > :global(.fc-table-wrap) {
+    padding: 40px 20px 60px;
+    border-top: none;
+    background: #fff;
+
+    & :global(.fc-table-wrap) {
+      padding: 0;
+      border: none;
+    }
+  }
+
+  & :global(.fc-live-search) {
+    padding: 0;
+    margin-bottom: 40px;
+
+    & :global(.fc-list-page-content):first-child {
+      border-top: none;
+    }
+
+    & :global(.fc-list-page-content):last-child {
+      padding-bottom: 20px;
+    }
+  }
+}
+
+.summary {
+  background: #f2f2f2;
+}
+
+.tab-link {
+  width: 100%;
+  height: 100%;
+  padding-top: 20px;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 14px;
+  color: #484848;
+}
+
+:global(.fc-tab._selected) .tab-link {
+  font-weight: 600;
+}
+
+

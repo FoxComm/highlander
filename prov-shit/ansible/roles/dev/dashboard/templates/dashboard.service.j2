@@ -1,0 +1,11 @@
+[Service]
+WorkingDirectory={{dashboard_assets_location}}
+ExecStart=/usr/bin/env bash ./run_dashboard.sh
+Restart=always
+RestartSec=5
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=dashboard
+
+[Install]
+WantedBy=multi-user.target

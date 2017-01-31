@@ -3,6 +3,7 @@ package models
 import models.payment.giftcard._
 import testutils._
 import testutils.fixtures.BakedFixtures
+import cats.implicits._
 import utils.db._
 
 class GiftCardAdjustmentIntegrationTest
@@ -17,10 +18,7 @@ class GiftCardAdjustmentIntegrationTest
       override def gcPaymentAmount = giftCard.availableBalance
 
       val failure = GiftCards
-        .auth(giftCard = giftCard,
-              orderPaymentId = Some(orderPayments.head.id),
-              debit = 0,
-              credit = -1)
+        .auth(giftCard = giftCard, orderPaymentId = orderPayments.head.id, debit = -1)
         .runTxn()
         .futureValue
         .leftVal
@@ -28,13 +26,12 @@ class GiftCardAdjustmentIntegrationTest
     }
 
     "only one of credit or debit can be greater than zero" in new Fixture {
-      override def gcPaymentAmount = 50
-
+      override def gcPaymentAmount = giftCard.availableBalance
       val failure = GiftCards
-        .auth(giftCard = giftCard,
-              orderPaymentId = Some(orderPayments.head.id),
-              debit = 50,
-              credit = 50)
+        .adjust(giftCard = giftCard,
+                orderPaymentId = orderPayments.head.id.some,
+                debit = 50,
+                credit = 50)
         .runTxn()
         .futureValue
         .leftVal
@@ -45,10 +42,12 @@ class GiftCardAdjustmentIntegrationTest
       override def gcPaymentAmount = 50
 
       val adjustment = (for {
+        auth ← * <~ GiftCards.auth(giftCard = giftCard,
+                                   orderPaymentId = orderPayments.head.id,
+                                   debit = 50)
         adjustment ← * <~ GiftCards.capture(giftCard = giftCard,
-                                            orderPaymentId = Some(orderPayments.head.id),
-                                            debit = 50,
-                                            credit = 0)
+                                            orderPaymentId = orderPayments.head.id,
+                                            debit = 50)
       } yield adjustment).gimme
 
       adjustment.id must === (1)
@@ -60,55 +59,27 @@ class GiftCardAdjustmentIntegrationTest
       val pmtId = orderPayments.head.id
 
       val updated = (for {
-        _ ← * <~ GiftCards.capture(giftCard = giftCard,
-                                   orderPaymentId = Some(pmtId),
-                                   debit = 50,
-                                   credit = 0)
-        _ ← * <~ GiftCards.capture(giftCard = giftCard,
-                                   orderPaymentId = Some(pmtId),
-                                   debit = 25,
-                                   credit = 0)
-        _ ← * <~ GiftCards.capture(giftCard = giftCard,
-                                   orderPaymentId = Some(pmtId),
-                                   debit = 15,
-                                   credit = 0)
-        _ ← * <~ GiftCards.capture(giftCard = giftCard,
-                                   orderPaymentId = Some(pmtId),
-                                   debit = 10,
-                                   credit = 0)
-        _ ← * <~ GiftCards.auth(giftCard = giftCard,
-                                orderPaymentId = Some(pmtId),
-                                debit = 100,
-                                credit = 0)
-        _ ← * <~ GiftCards.auth(giftCard = giftCard,
-                                orderPaymentId = Some(pmtId),
-                                debit = 50,
-                                credit = 0)
-        _ ← * <~ GiftCards.auth(giftCard = giftCard,
-                                orderPaymentId = Some(pmtId),
-                                debit = 50,
-                                credit = 0)
-        _ ← * <~ GiftCards.capture(giftCard = giftCard,
-                                   orderPaymentId = Some(pmtId),
-                                   debit = 200,
-                                   credit = 0)
+        _        ← * <~ GiftCards.auth(giftCard = giftCard, orderPaymentId = pmtId, debit = 100)
+        _        ← * <~ GiftCards.auth(giftCard = giftCard, orderPaymentId = pmtId, debit = 50)
+        _        ← * <~ GiftCards.auth(giftCard = giftCard, orderPaymentId = pmtId, debit = 50)
+        _        ← * <~ GiftCards.capture(giftCard = giftCard, orderPaymentId = pmtId, debit = 50)
+        _        ← * <~ GiftCards.capture(giftCard = giftCard, orderPaymentId = pmtId, debit = 25)
+        _        ← * <~ GiftCards.capture(giftCard = giftCard, orderPaymentId = pmtId, debit = 15)
         giftCard ← * <~ GiftCards.refresh(giftCard)
       } yield giftCard).gimme
 
-      updated.availableBalance must === (0)
-      updated.currentBalance must === (200)
+      updated.availableBalance must === (500 - 50 - 25 - 15)
+      updated.currentBalance must === (500 - 50 - 25 - 15)
     }
 
     "a Postgres trigger updates the adjustment's availableBalance before insert" in new Fixture {
       override def gcPaymentAmount = giftCard.availableBalance
 
-      val (adj, updated) = (for {
-        adj ← * <~ GiftCards.capture(giftCard = giftCard,
-                                     orderPaymentId = Some(orderPayments.head.id),
-                                     debit = 50,
-                                     credit = 0)
-        giftCard ← * <~ GiftCards.refresh(giftCard)
-      } yield (adj, giftCard)).value.gimme
+      GiftCards.auth(giftCard = giftCard, orderPaymentId = orderPayments.head.id, debit = 50).gimme
+      val adj = GiftCards
+        .capture(giftCard = giftCard, orderPaymentId = orderPayments.head.id, debit = 50)
+        .gimme
+      val updated = GiftCards.refresh(giftCard).gimme
 
       updated.availableBalance must === (450)
       updated.currentBalance must === (450)
@@ -119,18 +90,13 @@ class GiftCardAdjustmentIntegrationTest
       override def gcPaymentAmount = giftCard.availableBalance
 
       val debits = List(50, 25, 15, 10)
-      def capture(amount: Int) =
-        GiftCards.capture(giftCard = giftCard,
-                          orderPaymentId = Some(orderPayments.head.id),
-                          debit = amount,
-                          credit = 0)
-      val adjustments = DbResultT.sequence((1 to 4).map(capture)).gimme
+      def auth(amount: Int) =
+        GiftCards.auth(giftCard = giftCard, orderPaymentId = orderPayments.head.id, debit = amount)
+      val adjustments = DbResultT.sequence((1 to 4).map(auth)).gimme
 
-      DBIO
-        .sequence(adjustments.map { adj ⇒
-          GiftCardAdjustments.cancel(adj.id)
-        })
-        .gimme
+      adjustments.map { adj ⇒
+        GiftCardAdjustments.cancel(adj.id).gimme
+      }
 
       val finalGc = GiftCards.refresh(giftCard).gimme
       (finalGc.originalBalance, finalGc.availableBalance, finalGc.currentBalance) must === (

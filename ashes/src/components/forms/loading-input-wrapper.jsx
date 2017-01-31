@@ -7,7 +7,7 @@ import styles from './css/loading-input-wrapper.css';
 import WaitAnimation from '../common/wait-animation';
 
 type Props = {
-  children: Element,
+  children?: Element,
   inProgress: boolean,
 }
 

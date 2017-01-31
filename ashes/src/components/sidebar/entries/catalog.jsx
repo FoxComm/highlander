@@ -48,22 +48,17 @@ export default class CatalogEntry extends Component {
             to="products"
             className="fc-navigation-item__sublink"
             actualClaims={claims}
-            expectedClaims={productClaims}>
+            expectedClaims={productClaims}
+          >
             Products
           </IndexLink>
           <IndexLink
-            to="variants"
+            to="skus"
             className="fc-navigation-item__sublink"
             actualClaims={claims}
-            expectedClaims={productVariantClaims}>
-            Product Variants
-          </IndexLink>
-          <IndexLink
-            to="inventory"
-            className="fc-navigation-item__sublink"
-            actualClaims={claims}
-            expectedClaims={inventoryClaims}>
-            Inventory
+            expectedClaims={inventoryClaims}
+          >
+            SKUs
           </IndexLink>
         </NavigationItem>
       </li>

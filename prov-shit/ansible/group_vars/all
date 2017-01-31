@@ -8,6 +8,39 @@ private_keys_dest_dir: /etc/keys
 scala_version: scala-2.11
 vagrant: false
 local_vagrant: false
+foxcomm_domain: foxcommerce.com
+
+# Marathon Defaults
+marathon_retries: 60
+marathon_delay: 10
+
+# Docker Defaults
+docker_tag: master
+docker_registry: docker-stage.foxcommerce.com
+docker_registry_provider: gce
+docker_logs_dir: /logs
+docker_logs_host_dir: /var/log/docker
+
+# Default docker tags for containers
+docker_tags:
+    ashes: master
+    firebrand: master
+    phoenix: master
+    greenriver: master
+    middlewarehouse: master
+    messaging: master
+    isaac: master
+    solomon: master
+    capture_consumer: master
+    gift_card_consumer: master
+    shipments_consumer: master
+    shipstation_consumer: master
+    storefront_td: master
+    storefront_tpg: master
+    marketplace: master
+    marketplace_ui: master
+    product_search: master
+    demo_search: master
 
 # Consul Service Discovery
 consul_data_dir: /var/consul
@@ -63,6 +96,7 @@ solomon_port: 4002
 solomon_server: "{{solomon_host}}:{{solomon_port}}"
 
 mesos_master: "mesos-master.{{consul_suffix}}"
+mesos_port: 5050
 
 marathon_host: "marathon.{{consul_suffix}}"
 marathon_port: 8080
@@ -81,6 +115,9 @@ product_search_port: 5492
 product_search_server: "{{product_search_host}}:{{product_search_port}}"
 
 messaging_host: "messaging.{{consul_suffix}}"
+kibana_port: 5601
+pgweb_port: 8082
+dashboard_port: 3000
 
 # Database & bottledwater
 db_user: phoenix
@@ -134,7 +171,6 @@ middlewarehouse_db_connection_string: "postgresql://{{middlewarehouse_db_user}}@
 middlewarehouse_test_db_name: middlewarehouse_test
 
 middlewarehouse_consumers_dir: "{{middlewarehouse_dir}}/consumers"
-stock_items_consumer_bin: "{{middlewarehouse_consumers_dir}}/stock-items-consumer"
 shipments_consumer_bin: "{{middlewarehouse_consumers_dir}}/shipments-consumer"
 capture_consumer_bin: "{{middlewarehouse_consumers_dir}}/capture-consumer"
 
@@ -142,8 +178,6 @@ middlewarehouse_src: ../../middlewarehouse/
 middlewarehouse_bin_src: "{{middlewarehouse_src}}/middlewarehouse"
 middlewarehouse_seeder_bin_src: "{{middlewarehouse_src}}/seeder"
 
-stock_items_consumer_src: "{{middlewarehouse_src}}/consumers/stock-items"
-stock_items_consumer_bin_src: "{{stock_items_consumer_src}}/stock-items-consumer"
 shipments_consumer_src: "{{middlewarehouse_src}}/consumers/shipments"
 shipments_consumer_bin_src: "{{shipments_consumer_src}}/shipments-consumer"
 capture_consumer_src: "{{middlewarehouse_src}}/consumers/capture"
@@ -227,17 +261,9 @@ cert_path: test/fox
 mesos_quorum: 2
 mesos_ip: 0.0.0.0
 
-# Use seeder service or not?
-with_seeder: false
+# Seeder flags
 with_gatling_seeder: true
-
-# Docker Defaults
-docker_branch: master
-docker_frontend_branch: master
-docker_registry: docker-stage.foxcommerce.com
-docker_registry_provider: gce
-docker_logs_dir: /logs
-docker_logs_host_dir: /var/log/docker
+with_mwh_seeder: true
 
 # Marketplace
 marketplace_db_name: marketplace_development
@@ -249,3 +275,6 @@ first_run: false
 
 # BuildKite Settings
 buildkite_env: gce
+
+# Logrotate
+logrotate_dir: /etc/logrotate.d

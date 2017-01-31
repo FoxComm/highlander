@@ -68,7 +68,8 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
 
       orderAdjustmentCost = adjustments
         .filter(_.adjustmentType == OrderLineItemAdjustment.OrderAdjustment)
-        .foldLeft(0)(_ + _.subtract)
+        .map(_.subtract)
+        .sum
 
       //find the shipping method used for the order, take the minimum between 
       //shipping method and what shipping cost was passed in payload because
@@ -104,8 +105,8 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
                                                            scPayments,
                                                            order.currency)
       internalCaptureTotal = total - externalCaptureTotal
-      _ ← * <~ externalCapture(externalCaptureTotal, order)
       _ ← * <~ internalCapture(internalCaptureTotal, order, customer, gcPayments, scPayments)
+      _ ← * <~ externalCapture(externalCaptureTotal, order)
 
       resp = CaptureResponse(order = order.refNum,
                              captured = total,
@@ -188,13 +189,13 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
   private def subtractGcPayments(total: Int,
                                  gcPayments: Seq[(OrderPayment, GiftCard)],
                                  currency: Currency): Int = {
-    Math.max(0, total - gcPayments.foldLeft(0)((a, op) ⇒ a + getPaymentAmount(op._1, currency)))
+    Math.max(0, total - gcPayments.map { case (op, _) ⇒ getPaymentAmount(op, currency) }.sum)
   } ensuring (remaining ⇒ remaining >= 0 && remaining <= total)
 
   private def subtractScPayments(total: Int,
                                  scPayments: Seq[(OrderPayment, StoreCredit)],
                                  currency: Currency): Int = {
-    Math.max(0, total - scPayments.foldLeft(0)((a, op) ⇒ a + getPaymentAmount(op._1, currency)))
+    Math.max(0, total - scPayments.map { case (op, _) ⇒ getPaymentAmount(op, currency) }.sum)
   } ensuring (remaining ⇒ remaining >= 0 && remaining <= total)
 
   private def getPaymentAmount(op: OrderPayment, currency: Currency): Int = {
@@ -235,12 +236,8 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
   } ensuring (_ >= 0)
 
   private def aggregatePrices(adjustedPrices: Seq[LineItemPrice]): Int = {
-    val total = adjustedPrices.foldLeft(0)({ (sum, lineItem) ⇒
-      require(lineItem.price >= 0)
-      sum + lineItem.price
-    })
-
-    total
+    require(adjustedPrices.forall(_.price >= 0)) // what is this…
+    adjustedPrices.map(_.price).sum
   } ensuring (_ >= 0)
 
   private val NO_REF = "no_ref"

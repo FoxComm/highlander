@@ -1,7 +1,8 @@
 import scala.concurrent.duration._
 
 import io.gatling.core.Predef._
-import io.gatling.core.structure.StructureBuilder
+import io.gatling.core.structure.{ChainBuilder, StructureBuilder}
+import io.gatling.http.request.builder.HttpRequestBuilder
 import io.gatling.jdbc.Predef._
 import seeds.Conf._
 
@@ -23,5 +24,13 @@ package object seeds {
 
   implicit class DefaultPause[B <: StructureBuilder[B]](val builder: B) extends AnyVal {
     def doPause = builder.pause(100.milliseconds, 1.second)
+  }
+
+  def step(chains: ChainBuilder*)    = exec(chains).stopOnFailure.doPause
+  def step(http: HttpRequestBuilder) = exec(http).stopOnFailure.doPause
+
+  implicit class Stepper[B <: StructureBuilder[B]](val builder: B) extends AnyVal {
+    def step(chains: ChainBuilder*)    = builder.exec(chains).stopOnFailure.doPause
+    def step(http: HttpRequestBuilder) = builder.exec(http).stopOnFailure.doPause
   }
 }

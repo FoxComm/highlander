@@ -18,9 +18,7 @@ trait ADT[F] extends Read[F] with Show[F] { self ⇒
 
   def types: Set[F]
 
-  val typeMap: Map[String, F] = types.foldLeft(Map[String, F]()) {
-    case (m, f) ⇒ m.updated(show(f), f)
-  }
+  val typeMap: Map[String, F] = types.map(f ⇒ show(f) → f).toMap
 
   def read(s: String): Option[F] = typeMap.get(s)
 

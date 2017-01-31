@@ -12,11 +12,11 @@
       private: no
     - name: "google_ssh_key"
       prompt: "Enter path to your private SSH key for GCE"
-      default: "~/.ssh/id_rsa"
+      default: "/home/newcomer/.ssh/id_rsa"
       private: no
-    - name: "google_ssh_key"
+    - name: "google_json_key_location"
       prompt: "Enter path to your Google service account key"
-      default: "~/foxcomm-staging.json"
+      default: "/home/newcomer/foxcomm-staging.json"
       private: no
     - name: "google_instance_name"
       prompt: "Enter preferred development instance name (optional)"

@@ -22,7 +22,7 @@ class SkusMigrationIntegrationTest
   "SKUsMigration should send request to MWH for all product variants that don't have sku id created" in {
     implicit val au: AU = AuthAs(authedUser, authedCustomer).checkAuthUser(None).gimme
     val payloads        = (1 to 100).map(_ ⇒ makeSkuPayload(Random.nextString(10), Map.empty, None)).toSet
-    val variantIds      = payloads.map(skusApi.create(_).as[ProductVariantResponse.Root].id)
+    val variantIds      = payloads.map(productVariantsApi.create(_).as[ProductVariantResponse.Root].id)
 
     val validations = for {
       // insert product variants

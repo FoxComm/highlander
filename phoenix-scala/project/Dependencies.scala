@@ -11,13 +11,10 @@ object Versions {
   val akka      = "2.4.7"
   val slickPg   = "0.14.2"
   val gatling   = "2.2.1"
-  val scalatest = "2.2.6"
   val dispatch  = "0.11.3"
   val fasterxml = "2.8.2"
-
-  // For now, we have to use a 1.12.× branch, that’s still compatible with ScalaTest.
-  // cf. https://github.com/rickynils/scalacheck/issues/217#issuecomment-210070553
-  val scalacheck = "1.12.6"
+  val scalatest = "3.0.1"
+  val scalacheck = "1.13.4"
 }
 
 object Dependencies {
@@ -75,12 +72,12 @@ object Dependencies {
   )
 
   val test = Seq(
-    "org.scalatest"     %% "scalatest"           % Versions.scalatest,
-    "org.scalacheck"    %% "scalacheck"          % Versions.scalacheck,
-    "com.github.alexarchambault" %%	"scalacheck-shapeless_1.12" % "0.3.1",
-    "org.mockito"       % "mockito-core"         % "2.1.0-beta.125",
-    "com.typesafe.akka" %% "akka-testkit"        % Versions.akka,
-    "com.typesafe.akka" %% "akka-stream-testkit" % Versions.akka
+    "org.scalatest"              %% "scalatest"                 % Versions.scalatest,
+    "org.scalacheck"             %% "scalacheck"                % Versions.scalacheck,
+    "com.github.alexarchambault" %% "scalacheck-shapeless_1.13" % "1.1.3",
+    "org.mockito"                % "mockito-core"               % "2.1.0-beta.125",
+    "com.typesafe.akka"          %% "akka-testkit"              % Versions.akka,
+    "com.typesafe.akka"          %% "akka-stream-testkit"       % Versions.akka
   ).map { testDep ⇒
     testDep % "test,it,et"
   }

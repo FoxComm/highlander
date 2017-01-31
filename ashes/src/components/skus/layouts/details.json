@@ -1,0 +1,28 @@
+{
+  "main": [
+    {
+      "type": "group",
+      "title": "General",
+      "fields": {
+        "canAddProperty": false,
+        "value": [
+          "code",
+          "upc"
+        ]
+      }
+    },
+    {
+      "type": "group",
+      "title": "Pricing",
+      "content": [
+        {
+          "type": "fields",
+          "value": [
+            "unitCost"
+          ]
+        }
+      ]
+    }
+  ],
+  "aside": null
+}

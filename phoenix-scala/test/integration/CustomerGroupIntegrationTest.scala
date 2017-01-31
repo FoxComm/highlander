@@ -1,7 +1,7 @@
 import failures.NotFoundFailure404
 import models.customer.{CustomerDynamicGroup, CustomerDynamicGroups}
 import org.json4s.JObject
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import payloads.CustomerGroupPayloads.CustomerDynamicGroupPayload
 import responses.DynamicGroupResponse
 import responses.DynamicGroupResponse.Root

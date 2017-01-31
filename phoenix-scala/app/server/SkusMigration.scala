@@ -18,7 +18,7 @@ object SkusMigration {
   def migrate(batchSize: Int)(implicit apis: Apis, ec: EC, db: DB, au: AU): DbResultT[Unit] = {
     for {
       pv ← * <~ getUnsyncedSKUs.result
-      _ ← * <~ apis.middlwarehouse.createSkus(pv.map {
+      _ ← * <~ apis.middlewarehouse.createSkus(pv.map {
            case (formId, code) ⇒ CreateSkuBatchElement(formId, CreateSku(code))
          }, batchSize)
     } yield ()

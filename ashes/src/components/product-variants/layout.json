@@ -3,36 +3,30 @@
     {
       "type": "group",
       "title": "General",
-      "fields": {
-        "canAddProperty": true,
-        "value": [
-          "code",
-          "title",
-          "upc",
-          "description"
-        ],
-        "includeRest": true,
-        "omit": [
-          "activeFrom",
-          "activeTo",
-          "tags",
-          "context"
-        ]
-      }
+      "content": [
+        {
+          "type": "generalSection"
+        }
+      ]
     },
     {
       "type": "group",
       "title": "Pricing",
-      "fields": {
-        "value": [
-          "retailPrice",
-          "salePrice",
-          "unitCost"
-        ]
-      }
+      "content": [
+        {
+          "type": "fields",
+          "value": [
+            "retailPrice",
+            "salePrice"
+          ]
+        }
+      ]
     }
   ],
   "aside": [
+    {
+      "type": "tags"
+    },
     {
       "type": "state"
     }

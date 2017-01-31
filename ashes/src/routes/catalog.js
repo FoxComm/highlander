@@ -7,11 +7,10 @@ import { frn } from 'lib/frn';
 import ActivityTrailPage from 'components/activity-trail/activity-trail-page';
 import Notes from 'components/notes/notes';
 
-import InventoryListPage from 'components/inventory/list-page';
-import InventoryList from 'components/inventory/list';
-import InventoryItemDetailsBase from 'components/inventory/item-details-base';
-import InventoryItemDetails from 'components/inventory/item-details';
-import InventoryItemTransactions from 'components/inventory/item-transactions';
+import SkuListPage from '../components/skus/list-page';
+import SkuList from '../components/skus/list';
+import SkuPage from '../components/skus/page';
+import SkuDetails from '../components/skus/details';
 
 import ProductsListPage from 'components/products/list-page';
 import Products from 'components/products/products';
@@ -24,6 +23,7 @@ import ProductVariantsListPage from 'components/product-variants/list-page';
 import ProductVariantPage from 'components/product-variants/page';
 import ProductVariantDetails from 'components/product-variants/details';
 import ProductVariantImages from 'components/product-variants/images';
+import ProductVariantInventory from 'components/product-variants/inventory';
 
 import type { Claims } from 'lib/claims';
 
@@ -87,22 +87,11 @@ const getRoutes = (jwt: Object) => {
           component: ProductVariantImages,
           frn: frn.pim.album,
         }),
-        router.read('product-variant-inventory-details-base', {
+        router.read('product-variant-inventory', {
           path: 'inventory',
-          component: InventoryItemDetailsBase,
+          component: ProductVariantInventory,
           frn: frn.mdl.summary,
-        }, [
-          router.read('product-variant-inventory-details', {
-            component: InventoryItemDetails,
-            isIndex: true,
-          }),
-          router.read('product-variant-inventory-transactions', {
-            title: 'Transactions',
-            path: 'transactions',
-            component: InventoryItemTransactions,
-            frn: frn.mdl.transaction,
-          }),
-        ]),
+        }),
         router.read('product-variant-notes', {
           path: 'notes',
           title: 'Notes',
@@ -118,16 +107,29 @@ const getRoutes = (jwt: Object) => {
     ]);
 
   const inventoryRoutes =
-      router.read('inventory-base', { path: 'inventory', frn: frn.mdl.summary }, [
-        router.read('inventory-list-page',{ component: InventoryListPage }, [
-          router.read('inventory', { component: InventoryList, isIndex: true }),
-          router.read('inventory-activity-trail', {
+      router.read('skus-base', { path: 'skus', frn: frn.mdl.summary }, [
+        router.read('sku-list-page',{ component: SkuListPage }, [
+          router.read('skus', { component: SkuList, isIndex: true }),
+          router.read('skus-activity-trail', {
              path: 'activity-trail',
              dimension: 'inventory',
              component: ActivityTrailPage,
              frn: frn.activity.inventory,
           }),
         ]),
+        router.read('sku', { path: ':skuId', component: SkuPage }, [
+          router.read('sku-details', {
+            component: SkuDetails,
+            isIndex: true,
+            layout: 'details',
+          }),
+          router.read('sku-inventory', {
+            path: 'inventory',
+            component: SkuDetails,
+            layout: 'inventory',
+            frn: frn.mdl.summary,
+          }),
+        ])
       ]);
 
   return (

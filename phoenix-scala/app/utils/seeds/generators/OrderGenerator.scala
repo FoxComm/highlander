@@ -117,7 +117,8 @@ trait OrderGenerator extends ShipmentSeeds {
                           originalBalance = totals))
       op ← * <~ OrderPayments.create(
               OrderPayment.build(sc).copy(cordRef = cart.refNum, amount = totals.some))
-      _             ← * <~ StoreCredits.capture(sc, op.id.some, totals)
+      _             ← * <~ StoreCredits.auth(sc, op.id, totals)
+      _             ← * <~ StoreCredits.capture(sc, op.id, totals)
       addr          ← * <~ getDefaultAddress(accountId)
       shipMethodIds ← * <~ ShippingMethods.map(_.id).result
       shipMethod    ← * <~ getShipMethod(1 + Random.nextInt(shipMethodIds.length))

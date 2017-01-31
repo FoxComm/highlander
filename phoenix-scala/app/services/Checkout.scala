@@ -134,14 +134,14 @@ case class Checkout(
 
   private def holdInMiddleWarehouse(implicit ctx: OC): DbResultT[Unit] =
     for {
-      liSkus               ← * <~ CartLineItems.byCordRef(cart.refNum).countProductVariants
+      liSkus               ← * <~ CartLineItems.byCordRef(cart.refNum).REMOVE_ME_countProductVariantsBySkuCodes
       inventoryTrackedSkus ← * <~ filterInventoryTrackingSkus(liSkus)
       skusToHold ← * <~ inventoryTrackedSkus.map { s ⇒
                     SkuInventoryHold(s.code, s.qty)
                   }.toSeq
       _ ← * <~ doOrMeh(skusToHold.size > 0,
                        DbResultT(
-                           DBIO.from(apis.middlwarehouse.hold(
+                           DBIO.from(apis.middlewarehouse.hold(
                                    OrderInventoryHold(cart.referenceNumber, skusToHold)))))
       mutating = externalCalls.middleWarehouseSuccess = skusToHold.size > 0
     } yield {}
@@ -167,7 +167,7 @@ case class Checkout(
     } yield InventoryTrackedSku(trackInventory, skuCode, qty)
 
   private def cancelHoldInMiddleWarehouse: Result[Unit] =
-    apis.middlwarehouse.cancelHold(cart.referenceNumber)
+    apis.middlewarehouse.cancelHold(cart.referenceNumber)
 
   private def activePromos: DbResultT[Unit] =
     for {

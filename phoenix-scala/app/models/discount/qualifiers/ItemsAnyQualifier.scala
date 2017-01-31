@@ -20,8 +20,8 @@ case class ItemsAnyQualifier(search: Seq[ProductSearch])
 
   def matchXor(input: DiscountInput)(xor: Failures Xor Buckets): Failures Xor Unit = xor match {
     case Xor.Right(buckets) ⇒
-      val bucketDocCount = buckets.foldLeft(0.toLong)((acc, bucket) ⇒ acc + bucket.docCount)
-      if (bucketDocCount > 0) Xor.Right(Unit) else Xor.Left(SearchFailure.single)
+      val bucketDocCount = buckets.map(_.docCount).sum
+      if (bucketDocCount > 0L) Xor.Right(Unit) else Xor.Left(SearchFailure.single)
     case _ ⇒
       Xor.Left(SearchFailure.single)
   }
