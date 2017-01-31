@@ -109,7 +109,7 @@ export class CartLineItem extends Component {
   render() {
     const { item, className } = this.props;
     const { isDeleting, quantity } = this.state;
-    const skuQtyInput = item.sku.replace(/\s+/g, '-').toLowerCase();
+    const skuQtyInput = _.kebabCase(item.sku);
 
     return (
       <tr className={classNames('line-item', className)}>

@@ -12,17 +12,15 @@ type Props = {
   onClose?: (value: string) => void,
   className?: string,
   pillId?: string,
-  closeBtnClass?: string,
-  textClassName?: string,
 };
 
 const RoundedPill = (props: Props) => {
-  const { pillId, textClassName, closeBtnClass, className, onClose, value, text } = props;
+  const { pillId, className, onClose, value, text } = props;
 
   let closeButton = null;
   if (onClose && value) {
     closeButton = (
-      <button className={closeBtnClass} styleName="button" onClick={() => onClose(value)}>
+      <button className="fct-pill-close-btn" styleName="button" onClick={() => onClose(value)}>
         <i className="icon-close" />
       </button>
     );
@@ -32,7 +30,7 @@ const RoundedPill = (props: Props) => {
 
   return (
     <div id={pillId} styleName={styleName} className={className}>
-      <div className={textClassName} styleName="text">{text}</div>
+      <div className="fct-pill-label" styleName="text">{text}</div>
       {closeButton}
     </div>
   );

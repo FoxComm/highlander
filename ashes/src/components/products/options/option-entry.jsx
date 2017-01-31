@@ -50,7 +50,7 @@ class OptionEntry extends Component {
 
   get content(): Element {
     const optionName = _.get(this.props, 'option.attributes.name.v', '');
-    const optionId = optionName.replace(/\s+/g, '-').toLowerCase();
+    const optionId = _.kebabCase(optionName);
 
     const entries = _.map(this.values, (value, key) => {
       return (
@@ -156,7 +156,7 @@ class OptionEntry extends Component {
     const values = this.values;
     const name = _.get(this.props, 'option.attributes.name.v');
     const content = _.isEmpty(values) ? this.emptyContent : this.content;
-    const optionId = name.replace(/\s+/g, '-').toLowerCase();
+    const optionId = _.kebabCase(name);
 
     return (
       <ContentBox

@@ -103,12 +103,10 @@ export default class Tags extends Component {
     const mainContent = _.isEmpty(tags)
       ? <div styleName="empty-text">Add a tag</div>
       : tags.map(tag => {
-        const tagVal = tag.replace(/\s+/g, '-').toLowerCase();
+        const tagVal = _.kebabCase(tag);
         return (
           <RoundedPill
             pillId={`fct-tag__${tagVal}`}
-            closeBtnClass="fct-tag-close-btn"
-            textClassName="fct-tag-label"
             styleName="tag"
             text={tag}
             value={tag}

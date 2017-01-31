@@ -49,7 +49,7 @@ const MultiSelectRow = (props, context) => {
         break;
     }
 
-    const cls = classNames(`fct-${col.field}`, {
+    const cls = classNames(`fct-row__${col.field}`, {
       'row-head-left': col.field == 'selectColumn',
       'row-head-right': col.field == 'toggleColumns'
     });
