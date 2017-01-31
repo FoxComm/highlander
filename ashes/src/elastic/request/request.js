@@ -86,20 +86,3 @@ export default class Request extends Element {
   }
 
 }
-
-const a = {
-  "query": { "bool": { "must": [{ "term": { "name": "tony" } }] } },
-  "aggs": {
-    "day": {
-      "nested": { "path": "orders" },
-      "aggregations": {
-        "day": {
-          "date_range": {
-            "field": "orders.placedAt",
-            "ranges": [{ "from": "now-1d/d" }]
-          }
-        }
-      }
-    }
-  }
-}

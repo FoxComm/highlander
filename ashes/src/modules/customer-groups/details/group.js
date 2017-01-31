@@ -17,12 +17,12 @@ import requestAdapter from '../utils/request-adapter';
 const mapping = 'customers_search_view';
 
 const statsPeriodsMapping = {
-  day: { 'from': 'now-1d/d' },
-  week: { 'from': 'now-1w/d' },
-  month: { 'from': 'now-1M/d' },
-  quarter: { 'from': 'now-3M/d' },
-  year: { 'from': 'now-1y/d' },
-  overall: { 'to': 'now' },
+  day: [{ 'from': 'now-1d/d' }],
+  week: [{ 'from': 'now-1w/d' }],
+  month: [{ 'from': 'now-1M/d' }],
+  quarter: [{ 'from': 'now-3M/d' }],
+  year: [{ 'from': 'now-1y/d' }],
+  overall: [{ 'to': 'now' }],
 };
 
 const initialState = {
@@ -37,10 +37,12 @@ const initialState = {
   createdAt: null,
   updatedAt: null,
   stats: {
-    ordersCount: null,
-    totalSales: null,
-    averageOrderSize: null,
-    averageOrderSum: null,
+    day: null,
+    week: null,
+    month: null,
+    quarter: null,
+    year: null,
+    overall: null,
   }
 };
 
@@ -158,18 +160,11 @@ export const fetchGroupStats = () => (dispatch: Function, getState: Function) =>
   Object.keys(statsPeriodsMapping).forEach((period: string) => {
     request.aggregations
       .add(
-        new aggregations.DateRange(period, 'orders.placedAt', [{ 'from': statsPeriodsMapping[period] }])
+        new aggregations.DateRange(period, 'orders.placedAt', statsPeriodsMapping[period])
           .add(new aggregations.Stats('sales', 'orders.subTotal'))
           .add(new aggregations.Stats('items', 'orders.itemsCount'))
       );
   });
-
-  request.aggregations
-    .add(
-      new aggregations.DateRange('overall', 'orders.placedAt', [{ 'to': 'now' }])
-        .add(new aggregations.Stats('sales', 'orders.subTotal'))
-        .add(new aggregations.Stats('items', 'orders.itemsCount'))
-    );
 
   dispatch(_fetchStats.perform(request.toRequest()));
 };
@@ -207,18 +202,49 @@ const setData = (state: State, { clientState: { mainCondition, conditions }, gro
   };
 };
 
+
+/*
+ * Aggregations response example
+ *
+ * "aggregations": {
+ *    "day": {
+ *      "doc_count": 3,
+ *        "day": {
+ *          "buckets": [{
+ *            "from_as_string": "2017-01-30T00:00:00.000+0000",
+ *            "doc_count": 3,
+ *            "from": 1485734400000,
+ *            "key": "2017-01-30T00:00:00.000+0000-*",
+ *            "items": { "max": 3, "sum": 5, "count": 3, "min": 1, "avg": 1.6666666666667 },
+ *            "sales": { "max": 28600, "sum": 31600, "count": 3, "min": 1500, "avg": 10533.333333333 }
+ *          }]
+ *        }
+ *    },
+ *    "month": {
+ *      ...
+ *    }
+ * }
+ */
+const setStats = (aggregations: Object) => {
+  return Object.keys(statsPeriodsMapping).reduce((stats: Object, period: string) => {
+    stats[period] = {
+      ordersCount: get(aggregations, [period, period, 'buckets', 0, 'doc_count']),
+      totalSales: get(aggregations, [period, period, 'buckets', 0, 'sales', 'sum']),
+      averageOrderSize: get(aggregations, [period, period, 'buckets', 0, 'items', 'avg']),
+      averageOrderSum: get(aggregations, [period, period, 'buckets', 0, 'sales', 'avg']),
+    };
+
+    return stats;
+  }, {});
+};
+
 const reducer = createReducer({
   [reset]: (state: State) => initialState,
   [_fetchGroup.succeeded]: setData,
   [_saveGroup.succeeded]: setData,
   [_fetchStats.succeeded]: (state: State, { aggregations }: Object) => ({
     ...state,
-    stats: {
-      ordersCount: get(aggregations, 'ordersCount.value'),
-      totalSales: get(aggregations, 'totalSales.totalSales.value'),
-      averageOrderSize: get(aggregations, 'averageOrderSize.averageOrderSize.value'),
-      averageOrderSum: get(aggregations, 'averageOrderSum.averageOrderSum.value'),
-    }
+    stats: setStats(aggregations),
   }),
   [setName]: (state, name) => ({ ...state, name }),
   [setType]: (state, groupType) => ({ ...state, groupType, isValid: validateConditions(groupType, state.conditions) }),

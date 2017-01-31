@@ -22,12 +22,11 @@ import { prefix } from 'lib/text-utils';
 
 //components
 import { SelectableSearchList, makeTotalCounter } from 'components/list-page';
-import { PanelList, PanelListItem } from 'components/panel/panel-list';
 import { PrimaryButton } from 'components/common/buttons';
 import MultiSelectRow from 'components/table/multi-select-row';
 import ContentBox from 'components/content-box/content-box';
-import Currency from 'components/common/currency';
 import Criterion from './editor/criterion-view';
+import CustomerGroupStats from './stats';
 
 type State = {
   criteriaOpen: boolean,
@@ -49,16 +48,6 @@ type Props = {
 
 const prefixed = prefix('fc-customer-group');
 
-const mapStateToProps = state => ({
-  customersList: _.get(state, 'customerGroups.details.customers'),
-  statsLoading: _.get(state, 'asyncActions.fetchStatsCustomerGroup.inProgress', false),
-});
-
-const mapDispatchToProps = dispatch => ({
-  groupActions: bindActionCreators(groupActions, dispatch),
-  customersListActions: bindActionCreators(customersListActions, dispatch),
-});
-
 const tableColumns = [
   { field: 'name', text: 'Name' },
   { field: 'email', text: 'Email' },
@@ -67,18 +56,7 @@ const tableColumns = [
 
 const TotalCounter = makeTotalCounter(state => state.customerGroups.details.customers, customersListActions);
 
-const StatsValue = ({ value, currency, preprocess = _.identity }) => {
-  if (!_.isNumber(value)) {
-    return <span>—</span>;
-  }
-
-  const v = preprocess(value);
-
-  return currency ? <Currency value={v} /> : <span>{v}</span>;
-};
-
-@connect(mapStateToProps, mapDispatchToProps)
-export default class DynamicGroup extends Component {
+class DynamicGroup extends Component {
 
   props: Props;
 
@@ -165,7 +143,7 @@ export default class DynamicGroup extends Component {
     if (groupType != 'dynamic') return null;
 
     const main = mainCondition === operators.and ? 'all' : 'any';
-    const conditionBlock = _.map(conditions, c => this.renderCriterion(c));
+    const conditionBlock = _.map(conditions, this.renderCriterion);
 
     return (
       <ContentBox title="Criteria"
@@ -188,31 +166,6 @@ export default class DynamicGroup extends Component {
 
     return (
       <i className={icon} onClick={() => this.setState({criteriaOpen: !criteriaOpen})} />
-    );
-  }
-
-
-  get stats() {
-    // $FlowFixMe
-    const { statsLoading, group: { stats } } = this.props;
-
-    if (stats == null) return null;
-
-    return (
-      <PanelList className={classNames(prefixed('stats'), { _loading: statsLoading })}>
-        <PanelListItem title="Total Orders">
-          <StatsValue value={stats.ordersCount} />
-        </PanelListItem>
-        <PanelListItem title="Total Sales">
-          <StatsValue value={stats.totalSales} currency />
-        </PanelListItem>
-        <PanelListItem title="Avg. Order Size">
-          <StatsValue value={stats.averageOrderSize} preprocess={Math.round} />
-        </PanelListItem>
-        <PanelListItem title="Avg. Order Value">
-          <StatsValue value={stats.averageOrderSum} currency />
-        </PanelListItem>
-      </PanelList>
     );
   }
 
@@ -252,13 +205,15 @@ export default class DynamicGroup extends Component {
   }
 
   render() {
+    const { group, statsLoading } = this.props;
+
     return (
       <div className={classNames(prefixed(), 'fc-list-page')}>
         <div className={classNames(prefixed('details'))}>
           <article>
             {this.header}
             {this.criteria}
-            {this.stats}
+            <CustomerGroupStats stats={group.stats} isLoading={statsLoading} />
           </article>
         </div>
         {this.table}
@@ -266,3 +221,15 @@ export default class DynamicGroup extends Component {
     );
   }
 }
+
+const mapState = state => ({
+  customersList: _.get(state, 'customerGroups.details.customers'),
+  statsLoading: _.get(state, 'asyncActions.fetchStatsCustomerGroup.inProgress', false),
+});
+
+const mapDispatch = dispatch => ({
+  groupActions: bindActionCreators(groupActions, dispatch),
+  customersListActions: bindActionCreators(customersListActions, dispatch),
+});
+
+export default connect(mapState, mapDispatch)(DynamicGroup);
