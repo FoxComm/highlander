@@ -15,7 +15,7 @@
       }
     ],
     "docker": {
-      "image": "{{docker_registry}}:5000/messaging:{{docker_tag_messaging}}",
+      "image": "{{docker_registry}}:5000/messaging:{{docker_tags.messaging}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],

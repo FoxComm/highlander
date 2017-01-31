@@ -58,7 +58,7 @@
       }
     ],
     "docker": {
-      "image": "{{docker_registry}}:5000/phoenix:{{docker_tag_phoenix}}",
+      "image": "{{docker_registry}}:5000/phoenix:{{docker_tags.phoenix}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],

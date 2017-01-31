@@ -3115,9 +3115,9 @@ fleck@^0.5.1:
   version "0.5.1"
   resolved "https://registry.yarnpkg.com/fleck/-/fleck-0.5.1.tgz#4d25e3c30eba2d8c0f3f0dae02554f0311ebf078"
 
-flow-bin@^0.25.0:
-  version "0.25.0"
-  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.25.0.tgz#bb85717e566686bef1372b70a924b9fa4c218388"
+flow-bin@0.26.0:
+  version "0.26.0"
+  resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.26.0.tgz#54a2364687c95198d173e22608b02428aadf4caa"
   dependencies:
     bin-wrapper "^3.0.2"
     logalot "^2.0.0"

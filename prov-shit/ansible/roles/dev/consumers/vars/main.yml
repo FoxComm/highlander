@@ -3,4 +3,4 @@ consumers:
   - capture-consumer
   - gift-card-consumer
   - stock-items-consumer
-  - customer-groups-agent
+  - customer-groups-consumer

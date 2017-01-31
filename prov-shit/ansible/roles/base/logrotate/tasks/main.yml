@@ -21,3 +21,6 @@
     owner: root
     group: root
     mode: 0644
+
+- name: Copy logrotate to cron.hourly
+  shell: mv /etc/cron.daily/logrotate /etc/cron.hourly

@@ -72,6 +72,9 @@ shortcuts:
   - name: Generate .env.local
     alias: env_local.yml
     target: ansible/goldrush_env_local.yml
+  - name: Update Application Docker Tag
+    alias: update_app.yml
+    target: ansible/goldrush_update_app.yml
 
   # Test Machines
   - name: Provision FoxComm Test

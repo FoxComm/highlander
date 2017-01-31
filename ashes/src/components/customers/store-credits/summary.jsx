@@ -17,7 +17,7 @@ type Props = {
   totals: Object,
   params: Object,
   transactionsSelected: ?boolean,
-  children: ?Element
+  children?: Element
 }
 
 const Summary = (props: Props) => {

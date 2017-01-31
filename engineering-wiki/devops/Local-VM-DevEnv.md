@@ -7,8 +7,9 @@ has a lot to do!
 
 ### Install Prerequisites
 
-- Install [Vagrant](https://www.vagrantup.com)
-- Install [Ansible 2.2.x](http://docs.ansible.com/ansible/intro_installation.html#installation)
+- [VirtualBox](https://virtualbox.org)
+- [Vagrant](https://www.vagrantup.com)
+- [Ansible](https://ansible.com) 2.2.x
 
 ### Build the Application
 

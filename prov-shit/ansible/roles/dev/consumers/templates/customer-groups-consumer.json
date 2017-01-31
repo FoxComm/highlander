@@ -1,5 +1,5 @@
 {
-  "id": "/customer-groups-agent",
+  "id": "/customer-groups-consumer",
   "cmd": null,
   "cpus": 0.25,
   "mem": 64,
@@ -15,7 +15,7 @@
       }
     ],
     "docker": {
-      "image": "{{docker_registry}}:5000/customer-groups-agent:{{docker_tag_customer_groups_agent}}",
+      "image": "{{docker_registry}}:5000/customer-groups-consumer:{{docker_tag_customer_groups_consumer}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],
@@ -37,7 +37,7 @@
     {
       "protocol": "COMMAND",
       "command": {
-        "value": "ps -ef | grep -v grep | grep customer-groups-agent"
+        "value": "ps -ef | grep -v grep | grep customer-groups-consumer"
       },
       "gracePeriodSeconds": 300,
       "intervalSeconds": 30,
