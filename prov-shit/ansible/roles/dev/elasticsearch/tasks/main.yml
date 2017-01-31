@@ -7,7 +7,7 @@
     - elasticsearch_5
 
 - include_vars:
-    file: ../../elasticsearch/vars/main.yml
+    file: ../../../base/elasticsearch/vars/main.yml
 
 - name: Purge Elasticsearch data
   file: path={{es_path}}/data state=absent
@@ -16,7 +16,7 @@
   file: path={{es_path}}/data owner=elasticsearch state=directory mode="u=rwx,g=rwx,o=r"
 
 - include_vars:
-    file: ../../elasticsearch-5/vars/main.yml
+    file: ../../../base/elasticsearch-5/vars/main.yml
 
 - name: Purge Elasticsearch data
   file: path={{es_path}}/data state=absent
