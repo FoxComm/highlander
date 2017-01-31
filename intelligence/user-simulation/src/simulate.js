@@ -2,9 +2,9 @@ const _ = require('lodash');
 const { faker}  = require('faker');
 const Nightmare = require('nightmare');
 const personas  = require('./personas.json');
-const nightSimulator = require('./night_states.js');
-const dummySimulator = require('./dummy_states.js');
-const apiSimulator = require('./api_states.js');
+const nightSimulator = require('./night_simulator.js');
+const dummySimulator = require('./dummy_simulator.js');
+const apiSimulator = require('./api_simulator.js');
 
 /** 
  * The simulation processes a state machine until the terminal state is reached.
