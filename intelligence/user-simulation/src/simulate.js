@@ -118,11 +118,13 @@ let home = "https://hal.foxcommerce.com";
 /*************************************
  * setup simulation context
  *************************************/
+let stripeKey = process.env.STRIPE_PUBLISHABLE_KEY; 
 let context = {
   home: home,
   persona: persona,
   state: persona.start,
-  args: {}
+  args: {},
+  stripeKey: stripeKey
 };
 
 simulator.setup(context);

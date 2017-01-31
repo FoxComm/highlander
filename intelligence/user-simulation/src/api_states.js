@@ -5,7 +5,7 @@ const fox = require('api-js');
 const superagent = require('superagent');
 const countries = require('./countries.json');
 
-function createApi(apiBaseUrl ,options = {}) {
+function createApi(apiBaseUrl ,stripeKey, options = {}) {
 
   if (!apiBaseUrl) {
     throw new Error('API_URL is not defined in process.env');
@@ -19,14 +19,17 @@ function createApi(apiBaseUrl ,options = {}) {
 
   return new fox.default({
     api_url: apiBaseUrl + '/api',
-    stripe_key: 'pk_test_JvTXpI3DrkV6QwdcmZarmlfk',
+    stripe_key: stripeKey,
     agent,
     handleResponse: options.handleResponse,
   });
 }
 
 function setup(c) {
-  c.api = createApi(c.home);
+  const stripe = require('stripe')(c.stripeKey);
+
+  c.stripe = stripe;
+  c.api = createApi(c.home, c.stripeKey);
 }
 
 async function homepage(c) {
@@ -148,7 +151,16 @@ async function purchase(c) {
     country: address.country
   }
 
-  let card = await c.api.creditCards.create(creditCard, address, false);
+  let token = await c.stripe.tokens.create({
+        card: {
+          "name": c.name,
+          "number": '4242424242424242',
+          "exp_month": 12,
+          "exp_year": 2018,
+          "cvc": '123'
+        }
+  });
+  let card = await c.api.creditCards.createCardFromStripeToken(token, address, false);
   await c.api.cart.addCreditCard(card.id);
 
   await c.api.cart.checkout();
@@ -158,7 +170,7 @@ async function purchase(c) {
       subject: 1,
       verb: 'purchase',
       obj: 'order',
-      objId: cartState.referenceNumber,
+      objId: cart.referenceNumber,
   });
   _.map(cart.skus, async sku => {
       const productId = _.get(sku, 'productFormId', null);
