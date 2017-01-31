@@ -16,9 +16,11 @@ object CustomerGroupFailures {
       s"Customer group member $memberId cannot be deleted from group $groupId"
   }
 
-  case class CustomerGroupTypeIsWrong(groupId: Int, realGroupType: GroupType, expected: GroupType)
+  case class CustomerGroupTypeIsWrong(groupId: Int,
+                                      realGroupType: GroupType,
+                                      expected: Set[GroupType])
       extends Failure {
     override def description =
-      s"Customer group with id $groupId has $realGroupType type but is expected to have $expected"
+      s"Customer group with id $groupId has $realGroupType type but is expected to have ${expected.mkString(",")}"
   }
 }

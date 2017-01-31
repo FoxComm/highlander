@@ -2,7 +2,7 @@ package responses
 
 import java.time.Instant
 
-import models.customer.CustomerGroup
+import models.customer.{CustomerGroup, CustomerGroupTemplate}
 import models.customer.CustomerGroup._
 import utils.aliases._
 
@@ -37,6 +37,21 @@ object GroupResponses {
 
     def build(group: CustomerGroup): Root =
       Root(id = group.id, name = group.name, `type` = group.groupType)
+  }
+
+  object GroupTemplateResponse {
+    case class Root(id: Int = 0,
+                    name: String,
+                    `type`: GroupType = Dynamic,
+                    clientState: Json,
+                    elasticRequest: Json)
+
+    def build(groupTemplate: CustomerGroupTemplate): Root =
+      Root(id = groupTemplate.id,
+           name = groupTemplate.name,
+           `type` = CustomerGroup.Template,
+           clientState = groupTemplate.clientState,
+           elasticRequest = groupTemplate.elasticRequest)
   }
 
 }
