@@ -37,9 +37,15 @@ const TaxonomyRow = (props: Props) => {
     params,
   };
 
+  if (isArchived(taxonomy)) {
+    return <MultiSelectRow {...commonParams} />;
+  }
+
   return (
     <MultiSelectRow
       {...commonParams}
+      linkTo="taxonomy-details"
+      linkParams={{taxonomyId: taxonomy.taxonomyId, context: taxonomy.context}}
     />
   );
 };
