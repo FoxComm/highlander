@@ -176,10 +176,10 @@ export default class Analytics extends React.Component {
 
   @autobind
   fetchData(
-    question = this.question, 
-    dateRangeBegin = this.dateRangeBegin, 
-    dateRangeEnd = this.dateRangeEnd,
-    dataFetchTimeSize = this.dataFetchTimeSize
+    question = this.state.question,
+    dateRangeBegin = this.state.dateRangeBegin,
+    dateRangeEnd = this.state.dateRangeEnd,
+    dataFetchTimeSize = this.state.dataFetchTimeSize
   ) {
     if (_.isNil(question)) {
       return;
@@ -208,13 +208,15 @@ export default class Analytics extends React.Component {
 
   @autobind
   onDatePickerChange(selectionIndex) {
+    const { question, segment } = this.state;
+
     let displayText = '';
     let endDisplayText = '';
     let beginDisplayText = '';
 
     let newDateRangeBegin = null;
     let newDateRangeEnd = null;
-    let newDataFetchTimeSize = null;
+    let newDataFetchTimeSize = this.state.dataFetchTimeSize;
 
     const setDisplayTexts = function(previousDays) {
       newDateRangeBegin = moment().subtract(previousDays, 'days').unix();
@@ -257,13 +259,28 @@ export default class Analytics extends React.Component {
         break;
     }
 
+    // TODO: Redo this logic, datePickerType.Today is a special case
+    if (datePickerType.Today !== selectionIndex) {
+      switch (segment.title) {
+        case segmentTitles.day:
+          newDataFetchTimeSize = unixTimes.day;
+          break;
+        case segmentTitles.week:
+          newDataFetchTimeSize = unixTimes.week;
+          break;
+        case segmentTitles.month:
+          newDataFetchTimeSize = unixTimes.month;
+          break;
+      }
+    }
+
     this.setState({
         dateDisplay: displayText,
         dateRangeBegin: newDateRangeBegin,
         dateRangeEnd: newDateRangeEnd,
         dataFetchTimeSize: newDataFetchTimeSize,
       },
-      this.fetchData(this.question, newDateRangeBegin, newDateRangeEnd, newDataFetchTimeSize)
+      this.fetchData(question, newDateRangeBegin, newDateRangeEnd, newDataFetchTimeSize)
     );
   }
 
@@ -274,7 +291,7 @@ export default class Analytics extends React.Component {
       case questionTitles.TotalOrders:
       case questionTitles.TotalPdPViews:
       case questionTitles.TotalInCarts:
-        this.setState({question: question, segment: _.head(this.props.segments)}, this.fetchData(question));
+        this.setState({question: question}, this.fetchData(question));
         break;
       case questionTitles.ProductConversionRate:
         this.setState({question: question}, this.fetchData(question));
@@ -351,63 +368,43 @@ export default class Analytics extends React.Component {
     }
   }
 
-  //TODO: Get rid of these state getters... its not really that good of an idea
-  get dateDisplay() {
-    return this.state.dateDisplay;
-  }
+  get chartSegmentType() {
+    const { dataFetchTimeSize } = this.state;
 
-  get dateRangeBegin() {
-    return this.state.dateRangeBegin;
-  }
-
-  get dateRangeEnd() {
-    return this.state.dateRangeEnd;
-  }
-
-  get question() {
-    return this.state.question;
-  }
-
-  get segment() {
-    return this.state.segment;
-  }
-
-  get dataFetchTimeSize() {
-    return this.state.dataFetchTimeSize;
+    switch(dataFetchTimeSize) {
+      case unixTimes.twoHour:
+        return ChartSegmentType.Hour;
+        break;
+      case unixTimes.day:
+        return ChartSegmentType.Day;
+        break;
+      case unixTimes.week:
+        return ChartSegmentType.Week;
+        break;
+      case unixTimes.month:
+        return ChartSegmentType.Month;
+        break;
+    }
   }
 
   get chartFromQuestion() {
-    if (_.isNil(this.question)) {
+    const { question, dataFetchTimeSize, segment } = this.state;
+
+    if (_.isNil(question)) {
       return false;
     }
 
     const { analytics, segments } = this.props;
-
-    let segmentTypeHack;
-    switch(this.dataFetchTimeSize) {
-      case unixTimes.twoHour:
-        segmentTypeHack = ChartSegmentType.Hour;
-        break;
-      case unixTimes.day:
-        segmentTypeHack = ChartSegmentType.Day;
-        break;
-      case unixTimes.week:
-        segmentTypeHack = ChartSegmentType.Week;
-        break;
-      case unixTimes.month:
-        segmentTypeHack = ChartSegmentType.Month;
-        break;
-    }
 
     if (!_.isNil(analytics.isFetching) && !analytics.isFetching) {
       const segmentCtrlList = (
         <SegmentControlList
         items={segments}
         onSelect={this.onSegmentControlSelect}
-        activeSegment={this.segment}
+        activeSegment={segment}
       />);
 
-      switch (this.question.title) {
+      switch (question.title) {
         case questionTitles.TotalRevenue:
           return(
             <div>
@@ -415,7 +412,7 @@ export default class Analytics extends React.Component {
               <TotalRevenueChart
                 jsonData={analytics.chartValues} 
                 queryKey={analytics.keys}
-                segmentType={segmentTypeHack}
+                segmentType={this.chartSegmentType}
                 currencyCode="USD"
                 />
             </div>
@@ -429,7 +426,7 @@ export default class Analytics extends React.Component {
               <TotalRevenueChart
                 jsonData={analytics.chartValues}
                 queryKey={analytics.keys}
-                segmentType={segmentTypeHack}
+                segmentType={this.chartSegmentType}
                 />
             </div>
           );
@@ -445,6 +442,7 @@ export default class Analytics extends React.Component {
 
   get productStats() {
     const { analytics, questionBoxes } = this.props;
+    const { dateDisplay, question } = this.state;
 
     this.setQuestionBoxesFromStats(questionBoxes, analytics.stats);
 
@@ -458,7 +456,7 @@ export default class Analytics extends React.Component {
             placeholder={`${moment().format(datePickerFormat)}`}
             changeable={true}
             onChange={this.onDatePickerChange}
-            value={this.dateDisplay}
+            value={dateDisplay}
             renderNullTitle={(value, placeholder) => {
               return _.isNull(value) ? placeholder : value;
             }}
@@ -475,7 +473,7 @@ export default class Analytics extends React.Component {
           <QuestionBoxList
             onSelect={this.onQuestionBoxSelect}
             items={questionBoxes}
-            activeQuestion={this.question}
+            activeQuestion={question}
             />
         </div>
       </div>
@@ -505,8 +503,9 @@ export default class Analytics extends React.Component {
 
   get content() {
     const { analytics } = this.props;
+    const { question } = this.state;
 
-    if (!_.isNil(analytics.isFetching) && !analytics.isFetching && !_.isNil(this.question)) {
+    if (!_.isNil(analytics.isFetching) && !analytics.isFetching && !_.isNil(question)) {
       if (!analytics.err) {
         return this.chartFromQuestion;
       } else {
