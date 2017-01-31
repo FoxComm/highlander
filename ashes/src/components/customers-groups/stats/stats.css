@@ -54,3 +54,8 @@
     }
   }
 }
+
+.percent {
+  display: block;
+  font-size: 16px;
+}

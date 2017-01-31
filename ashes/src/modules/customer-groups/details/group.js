@@ -46,6 +46,19 @@ const initialState = {
   }
 };
 
+const makeStatsRequest = (request): Object => {
+  Object.keys(statsPeriodsMapping).forEach((period: string) => {
+    request.aggregations
+      .add(
+        new aggregations.DateRange(period, 'orders.placedAt', statsPeriodsMapping[period])
+          .add(new aggregations.Stats('sales', 'orders.subTotal'))
+          .add(new aggregations.Stats('items', 'orders.itemsCount'))
+      );
+  });
+
+  return request;
+};
+
 /**
  * Internal actions
  */
@@ -66,19 +79,6 @@ const _saveGroup = createAsyncActions(
 );
 
 const _archiveGroup = createAsyncActions('archiveCustomerGroup', (groupId: number) => Api.delete(`/customer-groups/${groupId}`));
-
-const makeStatsRequest = (request): Object => {
-  Object.keys(statsPeriodsMapping).forEach((period: string) => {
-    request.aggregations
-      .add(
-        new aggregations.DateRange(period, 'orders.placedAt', statsPeriodsMapping[period])
-          .add(new aggregations.Stats('sales', 'orders.subTotal'))
-          .add(new aggregations.Stats('items', 'orders.itemsCount'))
-      );
-  });
-
-  return request;
-};
 
 const _fetchStats = createAsyncActions('fetchStatsCustomerGroup', request => {
   return Promise.all([
@@ -229,8 +229,7 @@ const setData = (state: State, { clientState: { mainCondition, conditions }, gro
  *    }
  * }
  */
-
-const setS = (aggregations: Object, period: string) => ({
+const setStatsUnits = (aggregations: Object, period: string) => ({
   ordersCount: get(aggregations, [period, period, 'buckets', 0, 'doc_count']),
   totalSales: get(aggregations, [period, period, 'buckets', 0, 'sales', 'sum']),
   averageOrderSize: get(aggregations, [period, period, 'buckets', 0, 'items', 'avg']),
@@ -240,8 +239,8 @@ const setS = (aggregations: Object, period: string) => ({
 const setStats = ({ aggregations: groupAggs }: Object, { aggregations: overallAggs }: Object) => {
   return Object.keys(statsPeriodsMapping).reduce((stats: Object, period: string) => {
     stats[period] = {
-      group: { ...setS(groupAggs, period) },
-      overall: { ...setS(overallAggs, period) },
+      group: setStatsUnits(groupAggs, period),
+      overall: setStatsUnits(overallAggs, period),
     };
 
     return stats;
