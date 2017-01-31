@@ -39,8 +39,9 @@
     - { role: dev/messaging, retailer_name: 'FoxCommerce' }
     - { role: dev/consumers }
     # Finale
-    - { role: dev/healthcheck }
     - { role: dev/dashboard, run_once: true }
+    - { role: dev/mesos_consul }
+    - { role: dev/healthcheck }
     - { role: dev/appliance_dns, run_once: true }
 
   handlers:
