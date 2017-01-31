@@ -51,7 +51,6 @@ export default class DynamicGroupEditor extends React.Component {
   componentDidMount() {
     const { group, actions } = this.props;
 
-    console.log(this.type, this.props.type, group.type);
     actions.setType(this.type);
 
     if (!group.mainCondition) {
@@ -83,13 +82,12 @@ export default class DynamicGroupEditor extends React.Component {
   }
 
   get typeField() {
-    const type = this.type;
     return (
       <FormField>
         <input
           type="hidden"
           name="type"
-          value={type}
+          value={this.type}
         />
       </FormField>
     );
@@ -116,9 +114,8 @@ export default class DynamicGroupEditor extends React.Component {
 
   get dynamicGroupControls() {
     const { group, actions } = this.props;
-    const type = this.type;
 
-    if (type == 'manual') return null;
+    if (this.type == 'manual') return null;
 
     return (
       <div>

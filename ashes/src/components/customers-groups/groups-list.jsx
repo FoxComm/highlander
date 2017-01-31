@@ -14,8 +14,8 @@ import MultiSelectRow from 'components/table/multi-select-row';
 import RoundedPill from 'components/rounded-pill/rounded-pill';
 
 type Props = {
-  list: Object;
-  actions: Object;
+  list: Object,
+  actions: Object,
 };
 
 const tableColumns = [
