@@ -22,15 +22,15 @@ const AddToCartBtn = (props: Props) => {
   const classNames = cx(className, styles['add-to-cart-btn'], {
     [styles.expanded]: expanded,
   });
-
+  const iconWrapper = cx(className, styles['add-icon-wrapper'], {[styles.pdp]: pdp});
+  const buttonTitle = cx(className, styles['add-btn-title'], {[styles.pdp]: pdp});
 
   return (
-    <button className={classNames} onClick={onClick}>
-      <span styleName="add-icon-wrapper">
+    <button className={classNames} onClick={onClick} {...restProps}>
+      <span className={iconWrapper}>
         <Icon name="fc-add" styleName="add-icon" />
       </span>
-      { pdp && <span styleName="pdp-add-btn-title">ADD TO CART</span>}
-      { !pdp && <span styleName="add-btn-title">ADD TO CART</span>}
+      <span className={buttonTitle}>ADD TO CART</span>
     </button>
   );
 };
