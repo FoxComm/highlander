@@ -139,7 +139,7 @@ class ProductIntegrationTest
         productResponse.variants.length must === (1)
         private val variant = productResponse.variants.head
         variant.attributes.code must === (skuName)
-        variant.middlewarehouseSkuId must be > 0
+        variant.skuId must be > 0
       }
 
       "a new variant with option successfully" in new Fixture {
