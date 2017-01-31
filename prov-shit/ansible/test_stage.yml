@@ -10,7 +10,7 @@
     - backend
   roles:
     - { role: dev/stage_mesos, when: first_run }
-    - { role: dev/kafka, when: first_run }
+    # - { role: dev/kafka, when: first_run }
     - { role: dev/elasticsearch, when: first_run }
     - { role: dev/db, when: first_run }
     - { role: prod/migrate_phoenix_db }

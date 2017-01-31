@@ -48,7 +48,6 @@
     - { role: dev/appliance_ip }
     # - { role: dev/appliance, run_once: true }
     # - { role: dev/consul_agent }
-    # - { role: dev/kafka }
     # - { role: dev/elasticsearch }
     # - { role: dev/db }
     # Marathon Applications
@@ -65,12 +64,12 @@
     # Nginx Balancer
     - { role: dev/balancer }
     - { role: demo/balancer }
-    # Consumer Applications
-    - { role: dev/messaging, retailer_name: 'FoxCommerce' }
-    - { role: dev/consumers }
-    # Finale
-    - { role: dev/healthcheck }
-    - { role: dev/dashboard, run_once: true }
+    # # Consumer Applications
+    # - { role: dev/messaging, retailer_name: 'FoxCommerce' }
+    # - { role: dev/consumers }
+    # # Finale
+    # - { role: dev/healthcheck }
+    # - { role: dev/dashboard, run_once: true }
     - { role: dev/appliance_dns, run_once: true }
 
   handlers:

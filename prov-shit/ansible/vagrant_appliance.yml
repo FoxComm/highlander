@@ -18,7 +18,6 @@
     - { role: dev/appliance_ip }
     - { role: dev/appliance, run_once: true }
     - { role: dev/consul_agent }
-    - { role: dev/kafka }
     - { role: dev/elasticsearch }
     - { role: dev/db }
     # Marathon Applications
