@@ -263,4 +263,8 @@
     justify-content: center;
   }
 
+  .add-to-cart-btn {
+    height: 32px;
+  }
+
 }
