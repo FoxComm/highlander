@@ -2,17 +2,18 @@ package responses
 
 import java.time.Instant
 
-import models.customer.CustomerDynamicGroup
+import models.customer.CustomerGroup
+import models.customer.CustomerGroup._
 import utils.aliases._
 
-object DynamicGroupResponses {
+object GroupResponses {
 
-  object DynamicGroupResponse {
+  object GroupResponse {
 
     case class Root(
         id: Int = 0,
         name: String,
-        `type`: String = "dynamic",
+        `type`: GroupType = Dynamic,
         clientState: Json,
         elasticRequest: Json,
         customersCount: Int = 0,
@@ -20,9 +21,10 @@ object DynamicGroupResponses {
         createdAt: Instant
     ) extends ResponseItem
 
-    def build(group: CustomerDynamicGroup): Root =
+    def build(group: CustomerGroup): Root =
       Root(id = group.id,
            name = group.name,
+           `type` = group.groupType,
            clientState = group.clientState,
            elasticRequest = group.elasticRequest,
            customersCount = group.customersCount,
@@ -31,10 +33,10 @@ object DynamicGroupResponses {
   }
 
   object CustomerGroupResponse {
-    case class Root(id: Int = 0, name: String, `type`: String = "dynamic")
+    case class Root(id: Int = 0, name: String, `type`: GroupType = Dynamic)
 
-    def build(group: CustomerDynamicGroup): Root =
-      Root(id = group.id, name = group.name)
+    def build(group: CustomerGroup): Root =
+      Root(id = group.id, name = group.name, `type` = group.groupType)
   }
 
 }

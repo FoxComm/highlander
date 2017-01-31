@@ -10,6 +10,7 @@ case class CustomerGroupsSearchView()(implicit ec: EC) extends AvroTransformer {
   def mapping() = esMapping("customer_groups_search_view").fields(
       field("id", IntegerType),
       field("name", StringType).analyzer("autocomplete"),
+      field("groupType", StringType).index("not_analyzed"),
       field("customersCount", IntegerType),
       field("scope", StringType).index("not_analyzed"),
       field("createdAt", DateType).format(dateFormat),

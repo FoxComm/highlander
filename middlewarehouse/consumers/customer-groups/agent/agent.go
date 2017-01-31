@@ -87,22 +87,28 @@ func (agent *Agent) processGroups() error {
 	}
 
 	for _, group := range groups {
-		go func(group *responses.CustomerGroupResponse) {
-			ids, err := manager.GetCustomersIDs(agent.esClient, group, agent.esTopic, agent.esSize)
-			if err != nil {
-				log.Panicf("An error occured getting customers: %s", err)
-			}
+		if group.Type == "manual" {
+			log.Printf("Group %s with id %d is manual, skipping.\n", group.Name, group.ID)
+		} else {
+			log.Printf("Group %s with id %d is dynamic, processing.\n", group.Name, group.ID)
 
-			if err := agent.phoenixClient.SetGroupToCustomers(group.ID, ids); err != nil {
-				log.Panicf("An error occured setting group to customers: %s", err)
-			}
-
-			if group.CustomersCount != len(ids) {
-				if err := manager.UpdateGroup(agent.phoenixClient, group, len(ids)); err != nil {
-					log.Panicf("An error occured update group info: %s", err)
+			go func(group *responses.CustomerGroupResponse) {
+				ids, err := manager.GetCustomersIDs(agent.esClient, group, agent.esTopic, agent.esSize)
+				if err != nil {
+					log.Panicf("An error occured getting customers: %s", err)
 				}
-			}
-		}(group)
+
+				if err := agent.phoenixClient.SetGroupToCustomers(group.ID, ids); err != nil {
+					log.Panicf("An error occured setting group to customers: %s", err)
+				}
+
+				if group.CustomersCount != len(ids) {
+					if err := manager.UpdateGroup(agent.phoenixClient, group, len(ids)); err != nil {
+						log.Panicf("An error occured update group info: %s", err)
+					}
+				}
+			}(group)
+		}
 	}
 
 	return nil

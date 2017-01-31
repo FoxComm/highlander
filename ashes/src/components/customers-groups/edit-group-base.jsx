@@ -12,16 +12,19 @@ import SaveCancel from 'components/common/save-cancel';
 import DynamicGroupEditor from './editor/group-editor';
 
 type Props = {
-  group: TCustomerGroup;
-  title: string;
-  cancelTo: string;
-  cancelParams: Object;
-  saveInProgress: boolean;
-  saveError: boolean;
-  onSave: () => Promise;
+  group: TCustomerGroup,
+  title: string,
+  cancelTo: string,
+  cancelParams: Object,
+  saveInProgress: boolean,
+  saveError: boolean,
+  onSave: () => Promise,
+  params: {
+    type: string,
+  },
 };
 
-export default ({ group, title, onSave, cancelTo, cancelParams, saveInProgress, saveError }: Props) => (
+export default ({ group, title, onSave, cancelTo, cancelParams, saveInProgress, saveError, params }: Props) => (
   <div>
     <header>
       <h1 className="fc-title">{title}</h1>
@@ -29,7 +32,7 @@ export default ({ group, title, onSave, cancelTo, cancelParams, saveInProgress, 
     <ErrorAlerts error={saveError} />
     <article>
       <Form onSubmit={onSave}>
-        <DynamicGroupEditor />
+        <DynamicGroupEditor type={params.type}/>
 
         <SaveCancel
           className="fc-customer-group-edit__form-submits"

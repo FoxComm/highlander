@@ -1,12 +1,14 @@
+import models.customer.CustomerGroup.Dynamic
 import models.customer.{CustomerGroupTemplate, CustomerGroupTemplates}
 import org.json4s.JObject
 import org.scalatest.mockito.MockitoSugar
-import payloads.CustomerGroupPayloads.CustomerDynamicGroupPayload
-import responses.DynamicGroupResponses.DynamicGroupResponse.Root
+import payloads.CustomerGroupPayloads.CustomerGroupPayload
+import responses.GroupResponses.GroupResponse.Root
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import utils.seeds.Seeds.Factories
+import cats.implicits._
 
 class CustomerGroupTemplateIntegrationTest
     extends IntegrationTestBase
@@ -21,12 +23,14 @@ class CustomerGroupTemplateIntegrationTest
 
   "sends unused templates only when templates are not used" in new Fixture {
     val scopeN = "1"
-    val payload = CustomerDynamicGroupPayload(name = "Group number one",
-                                              clientState = JObject(),
-                                              elasticRequest = JObject(),
-                                              customersCount = 1,
-                                              templateId = Some(groupTemplates.head.id),
-                                              scope = Some(scopeN))
+
+    val payload = CustomerGroupPayload(name = "Group number one",
+                                       clientState = JObject(),
+                                       elasticRequest = JObject(),
+                                       customersCount = 1,
+                                       templateId = groupTemplates.head.id.some,
+                                       scope = scopeN.some,
+                                       `type` = Dynamic)
 
     val root = customerGroupsApi.create(payload).as[Root]
 

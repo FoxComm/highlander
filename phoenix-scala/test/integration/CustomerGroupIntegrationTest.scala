@@ -1,10 +1,11 @@
 import com.github.tminglei.slickpg.LTree
 import failures.NotFoundFailure404
+import models.customer.CustomerGroup._
 import models.customer._
 import org.json4s.JObject
 import org.scalatest.mockito.MockitoSugar
-import payloads.CustomerGroupPayloads.CustomerDynamicGroupPayload
-import responses.DynamicGroupResponses.DynamicGroupResponse.{Root, build}
+import payloads.CustomerGroupPayloads.CustomerGroupPayload
+import responses.GroupResponses.GroupResponse.{Root, build}
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
@@ -13,6 +14,7 @@ import shapeless._
 import utils.db._
 import utils.aliases._
 import utils.db.ExPostgresDriver.api._
+import cats.implicits._
 
 class CustomerGroupIntegrationTest
     extends IntegrationTestBase
@@ -23,27 +25,33 @@ class CustomerGroupIntegrationTest
 
   "POST /v1/customer-groups" - {
     "successfully creates customer group from payload" in new Fixture {
-      val payload = CustomerDynamicGroupPayload(name = "Group number one",
-                                                clientState = JObject(),
-                                                elasticRequest = JObject(),
-                                                customersCount = 1)
+      val payload = CustomerGroupPayload(name = "Group number one",
+                                         clientState = JObject(),
+                                         elasticRequest = JObject(),
+                                         customersCount = 1,
+                                         `type` = Manual)
+
       val root    = customerGroupsApi.create(payload).as[Root]
-      val created = CustomerDynamicGroups.mustFindById400(root.id).gimme
+      val created = CustomerGroups.mustFindById400(root.id).gimme
       created.id must === (root.id)
+      created.groupType must === (Manual)
     }
 
     "successfully creates customer group and link to template" in new Fixture {
       val scopeN = "1"
-      val payload = CustomerDynamicGroupPayload(name = "Group number one",
-                                                clientState = JObject(),
-                                                elasticRequest = JObject(),
-                                                customersCount = 1,
-                                                templateId = Some(groupTemplate.id),
-                                                scope = Some(scopeN))
+
+      val payload = CustomerGroupPayload(name = "Group number one",
+                                         clientState = JObject(),
+                                         elasticRequest = JObject(),
+                                         customersCount = 1,
+                                         templateId = groupTemplate.id.some,
+                                         scope = scopeN.some,
+                                         `type` = Dynamic)
 
       val root    = customerGroupsApi.create(payload).as[Root]
-      val created = CustomerDynamicGroups.mustFindById400(root.id).gimme
+      val created = CustomerGroups.mustFindById400(root.id).gimme
       created.id must === (root.id)
+      created.groupType must === (Dynamic)
       val templateLink = GroupTemplateInstances
         .filter(_.groupId === root.id)
         .filter(_.groupTemplateId === groupTemplate.id)
@@ -53,11 +61,12 @@ class CustomerGroupIntegrationTest
     }
 
     "fail to create customer group with nonexistnet tempalte id" in new Fixture {
-      val payload = CustomerDynamicGroupPayload(name = "Group number one",
-                                                clientState = JObject(),
-                                                elasticRequest = JObject(),
-                                                customersCount = 1,
-                                                templateId = Some(666))
+      val payload = CustomerGroupPayload(name = "Group number one",
+                                         clientState = JObject(),
+                                         elasticRequest = JObject(),
+                                         customersCount = 1,
+                                         templateId = 666.some,
+                                         `type` = Dynamic)
 
       customerGroupsApi
         .create(payload)
@@ -71,16 +80,18 @@ class CustomerGroupIntegrationTest
     }
 
     "404 if group not found" in new Fixture {
-      customerGroupsApi(999).get().mustFailWith404(NotFoundFailure404(CustomerDynamicGroup, 999))
+      customerGroupsApi(999).get().mustFailWith404(NotFoundFailure404(CustomerGroup, 999))
     }
   }
 
   "PATCH /v1/customer-groups/:groupId" - {
     "successfully updates group attributes" in new Fixture {
-      val payload = CustomerDynamicGroupPayload(name = "New name for group",
-                                                customersCount = 777,
-                                                clientState = JObject(),
-                                                elasticRequest = JObject())
+      val payload = CustomerGroupPayload(name = "New name for group",
+                                         customersCount = 777,
+                                         clientState = JObject(),
+                                         elasticRequest = JObject(),
+                                         `type` = Dynamic)
+
       (payload.name, payload.customersCount) must !==((group.name, group.customersCount))
 
       val updated = customerGroupsApi(group.id).update(payload).as[Root]
@@ -88,13 +99,15 @@ class CustomerGroupIntegrationTest
     }
 
     "404 if group not found" in new Fixture {
-      val payload = CustomerDynamicGroupPayload(name = "New name for group",
-                                                customersCount = 777,
-                                                clientState = JObject(),
-                                                elasticRequest = JObject())
+      val payload = CustomerGroupPayload(name = "New name for group",
+                                         customersCount = 777,
+                                         clientState = JObject(),
+                                         elasticRequest = JObject(),
+                                         `type` = Dynamic)
+
       customerGroupsApi(999)
         .update(payload)
-        .mustFailWith404(NotFoundFailure404(CustomerDynamicGroup, 999))
+        .mustFailWith404(NotFoundFailure404(CustomerGroup, 999))
     }
   }
 
@@ -103,7 +116,7 @@ class CustomerGroupIntegrationTest
       customerGroupsApi(group.id).delete.mustBeEmpty()
 
       withClue(s"Customer group with id ${group.id} exists:") {
-        CustomerDynamicGroups
+        CustomerGroups
           .filter(_.id === group.id)
           .filter(_.deletedAt.isEmpty)
           .gimme
@@ -121,12 +134,12 @@ class CustomerGroupIntegrationTest
     }
 
     "404 if group not found" in new Fixture {
-      customerGroupsApi(999).delete.mustFailWith404(NotFoundFailure404(CustomerDynamicGroup, 999))
+      customerGroupsApi(999).delete.mustFailWith404(NotFoundFailure404(CustomerGroup, 999))
     }
   }
 
   trait Fixture extends StoreAdmin_Seed {
-    val group = CustomerDynamicGroups
+    val group = CustomerGroups
       .create(Factories.group(LTree("1")).copy(createdBy = storeAdmin.accountId))
       .gimme
 

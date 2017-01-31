@@ -2,8 +2,9 @@ package utils
 
 import models.admin.AdminData
 import models.auth.Identity.IdentityKind
-import models.cord.{Order, CordPaymentState}
+import models.cord.{CordPaymentState, Order}
 import models.cord.lineitems._
+import models.customer.CustomerGroup
 import models.discount.offers.OfferType
 import models.discount.qualifiers.QualifierType
 import models.inventory.SkuType
@@ -42,5 +43,5 @@ object JsonFormatters {
       QueryStatement.Comparison.jsonFormat + Condition.Operator.jsonFormat +
       PaymentMethod.Type.jsonFormat + SkuType.jsonFormat + SharedSearch.Scope.jsonFormat +
       IdentityKind.jsonFormat + AdminData.State.jsonFormat + PluginSettings.SettingType.jsonFormat +
-      AuthPayload.JwtClaimsSerializer
+      AuthPayload.JwtClaimsSerializer + CustomerGroup.GroupType.jsonFormat
 }

@@ -5,15 +5,16 @@ import akka.http.scaladsl.server.Route
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.account.User
 import payloads.AddressPayloads.CreateAddressPayload
+import payloads.CustomerGroupPayloads.AddCustomerToGroups
 import payloads.CustomerPayloads._
 import payloads.UserPayloads._
 import payloads.PaymentPayloads._
 import services.carts.CartQueries
-import services.account._
 import services.customers._
 import services.account._
 import services.{AddressManager, CreditCardManager, CustomerCreditConverter, StoreCreditService}
 import services.Authenticator.AuthData
+import services.customerGroups.GroupMemberManager
 import utils.aliases._
 import utils.apis.Apis
 import utils.http.CustomDirectives._
@@ -158,6 +159,13 @@ object CustomerRoutes {
           (post & path(IntNumber / "convert") & pathEnd) { storeCreditId ⇒
             mutateOrFailures {
               CustomerCreditConverter.toGiftCard(storeCreditId, accountId, auth.model)
+            }
+          }
+        } ~
+        pathPrefix("customer-groups") {
+          (post & pathEnd & entity(as[AddCustomerToGroups])) { payload ⇒
+            mutateOrFailures {
+              GroupMemberManager.addCustomerToGroups(accountId, payload.groups)
             }
           }
         }

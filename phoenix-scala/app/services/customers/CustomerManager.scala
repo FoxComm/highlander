@@ -20,7 +20,7 @@ import org.json4s.native.Serialization._
 import payloads.AuthPayload
 import payloads.CustomerPayloads._
 import responses.CustomerResponse._
-import responses.DynamicGroupResponses.CustomerGroupResponse
+import responses.GroupResponses.CustomerGroupResponse
 import services._
 import services.account._
 import slick.driver.PostgresDriver.api._
@@ -32,7 +32,7 @@ object CustomerManager {
 
   implicit val formatters = phoenixFormats
 
-  private def resolvePhoneNumber(accountId: Int)(implicit ec: EC): DbResultT[Option[String]] = {
+  def resolvePhoneNumber(accountId: Int)(implicit ec: EC): DbResultT[Option[String]] = {
     def resolveFromShipments(accountId: Int) =
       (for {
         order    ← Orders if order.accountId === accountId
@@ -70,7 +70,7 @@ object CustomerManager {
                                     None)
       groupMembership ← * <~ CustomerGroupMembers.findByCustomerDataId(customerData.id).result
       groupIds = groupMembership.map(_.groupId).toSet
-      groups ← * <~ CustomerDynamicGroups.findAllByIds(groupIds).result
+      groups ← * <~ CustomerGroups.findAllByIds(groupIds).result
     } yield
       build(customer.copy(phoneNumber = customer.phoneNumber.orElse(phoneOverride)),
             customerData,
@@ -79,7 +79,7 @@ object CustomerManager {
             rank = rank,
             scTotals = totals,
             lastOrderDays = maxOrdersDate.map(DAYS.between(_, Instant.now)),
-            groups = groups.map(CustomerGroupResponse.build(_)))
+            groups = groups.map(CustomerGroupResponse.build))
   }
 
   def create(payload: CreateCustomerPayload,

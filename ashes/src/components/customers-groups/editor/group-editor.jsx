@@ -30,6 +30,7 @@ const mapDispatchToProps = dispatch => ({ actions: bindActionCreators(actions, d
 export default class DynamicGroupEditor extends React.Component {
 
   static propTypes = {
+    type: PropTypes.string.isRequired,
     group: PropTypes.shape({
       id: PropTypes.number,
       name: PropTypes.string,
@@ -50,9 +51,16 @@ export default class DynamicGroupEditor extends React.Component {
   componentDidMount() {
     const { group, actions } = this.props;
 
+    actions.setType(this.type);
+
     if (!group.mainCondition) {
       actions.setMainCondition(operators.and);
     }
+  }
+
+  get type() {
+    const { type, group } = this.props;
+    return type || group.type;
   }
 
   get nameField() {
@@ -73,6 +81,18 @@ export default class DynamicGroupEditor extends React.Component {
     );
   }
 
+  get typeField() {
+    return (
+      <FormField>
+        <input
+          type="hidden"
+          name="type"
+          value={this.type}
+        />
+      </FormField>
+    );
+  }
+
   get mainCondition() {
     const { group: { mainCondition }, actions: { setMainCondition } } = this.props;
 
@@ -80,10 +100,11 @@ export default class DynamicGroupEditor extends React.Component {
       <div className={prefixed('match-div')}>
         <span className={prefixed('match-span')}>Customers match</span>
         <span className={prefixed('match-dropdown')}>
-          <Dropdown name="matchCriteria"
-                    value={mainCondition}
-                    onChange={value => setMainCondition(value)}
-                    items={SELECT_CRITERIA}
+          <Dropdown
+            name="matchCriteria"
+            value={mainCondition}
+            onChange={value => setMainCondition(value)}
+            items={SELECT_CRITERIA}
           />
         </span>
         <span className={prefixed('form-name')}>of the following criteria:</span>
@@ -91,16 +112,29 @@ export default class DynamicGroupEditor extends React.Component {
     );
   }
 
-  render() {
+  get dynamicGroupControls() {
     const { group, actions } = this.props;
+
+    if (this.type == 'manual') return null;
 
     return (
       <div>
-        {this.nameField}
         {this.mainCondition}
-        <QueryBuilder conditions={group.conditions}
-                      isValid={group.isValid}
-                      setConditions={actions.setConditions} />
+        <QueryBuilder
+          conditions={group.conditions}
+          isValid={group.isValid}
+          setConditions={actions.setConditions}
+        />
+      </div>
+    );
+  }
+
+  render() {
+    return (
+      <div>
+        {this.typeField}
+        {this.nameField}
+        {this.dynamicGroupControls}
       </div>
     );
   }

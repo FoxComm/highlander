@@ -24,7 +24,7 @@ object CustomerResponse {
                   billingRegion: Option[Region] = None,
                   shippingRegion: Option[Region] = None,
                   lastOrderDays: Option[Long] = None,
-                  groups: Seq[DynamicGroupResponses.CustomerGroupResponse.Root])
+                  groups: Seq[GroupResponses.CustomerGroupResponse.Root])
       extends ResponseItem
 
   def build(customer: User,
@@ -35,7 +35,7 @@ object CustomerResponse {
             rank: Option[CustomerRank] = None,
             lastOrderDays: Option[Long] = None,
             scTotals: Option[Totals] = None,
-            groups: Seq[DynamicGroupResponses.CustomerGroupResponse.Root] = Seq.empty): Root = {
+            groups: Seq[GroupResponses.CustomerGroupResponse.Root] = Seq.empty): Root = {
 
     require(customerData.userId == customer.id)
     require(customerData.accountId == customer.accountId)
