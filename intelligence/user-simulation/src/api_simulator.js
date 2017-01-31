@@ -4,19 +4,6 @@ const system = require('system');
 const fox = require('api-js');
 const superagent = require('superagent');
 const countries = require('./countries.json');
-const SHA1 = require('crypto-js/sha1');
-
-function productHash(productId) {
-  return SHA1(`products/${productId}`).toString();
-}
-
-function cartHash(cartRefNum) {
-  return SHA1(`carts/${cartRefNum}`).toString();
-}
-
-function orderHash(cartRefNum) {
-  return SHA1(`orders/${cartRefNum}`).toString();
-}
 
 function createApi(apiBaseUrl ,stripeKey, options = {}) {
 
@@ -76,35 +63,28 @@ async function category(c) {
         subject: 1,
         verb: 'list',
         obj: 'product',
-        objId: productHash(product.productId),
+        objId: product.id,
     });
   });
 
   c.product = _.sample(products.result);
-  console.log("PROD: " + c.product.productId);
+  console.log("PROD: " + c.product.id);
 }
 
 async function product(c) {
   console.log("api product");
-  await c.api.analytics.trackEvent({
+  return c.api.analytics.trackEvent({
       channel: 1,
       subject: 1,
       verb: 'pdp',
       obj: 'product',
-      objId: productHash(c.product.productId),
+      objId: c.product.id,
   });
 }
 
 async function cart(c) {
   console.log("api cart");
-  await c.api.cart.addSku(c.product.skus[0], 1);
-  await c.api.analytics.trackEvent({
-      channel: 1,
-      subject: 1,
-      verb: 'cart',
-      obj: 'product',
-      objId: productHash(c.product.productId),
-  });
+  return c.api.cart.addSku(c.product.skus[0], 1);
 }
 
 function getRegion(state) {
@@ -125,17 +105,16 @@ async function purchase(c) {
       subject: 1,
       verb: 'checkout',
       obj: 'cart',
-      objId: cartHash(cart.referenceNumber),
+      objId: cart.referenceNumber,
   });
-  _.forEach(cart.lineItems.skus, async sku => {
-      const productId = sku.productFormId;
+  _.map(cart.skus, async sku => {
+      const productId = _.get(sku, 'productFormId', null);
       await c.api.analytics.trackEvent({
           channel: 1,
           subject: 1,
           verb: 'checkout',
           obj: 'product',
-          count: sku.quantity,
-          objId: productHash(productId),
+          objId: productId,
       });
   });
 
@@ -185,6 +164,40 @@ async function purchase(c) {
   await c.api.cart.addCreditCard(card.id);
 
   await c.api.cart.checkout();
+
+  await c.api.analytics.trackEvent({
+      channel: 1,
+      subject: 1,
+      verb: 'purchase',
+      obj: 'order',
+      objId: cart.referenceNumber,
+  });
+  _.map(cart.skus, async sku => {
+      const productId = _.get(sku, 'productFormId', null);
+      await c.api.analytics.trackEvent({
+          channel: 1,
+          subject: 1,
+          verb: 'purchase',
+          obj: 'product',
+          objId: productId,
+      });
+      foxApi.analytics.trackEvent({
+          channel: 1,
+          subject: 1,
+          verb: 'purchase-quantity',
+          obj: 'product',
+          count: sku.quantity,
+          objId: productId
+      });
+      foxApi.analytics.trackEvent({
+          channel: 1,
+          subject: 1,
+          verb: 'revenue',
+          obj: 'product',
+          count: sku.price,
+          objId: productId,
+      });
+  });
 }
 
 async function clear_cart(c) {
@@ -203,3 +216,4 @@ const stateFunctions = {
 
 exports.setup = setup;
 exports.stateFunctions = stateFunctions;
+
