@@ -5,15 +5,14 @@
   become: true
   vars:
     cert_path: test/fox
-    storefront_host: storefront.service.consul
     docker_db_host: 172.17.0.1
     install_public_keys: true
     install_private_keys: true
-    with_base_seeds: true
     mesos_quorum: 1
-    vagrant: true
     phoenix_tax_rule_region: 4129
     phoenix_tax_rule_rate: 7.5
+    vagrant: true
+    with_base_seeds: true
   roles:
     # Core Configuration
     - { role: dev/appliance_ip }
