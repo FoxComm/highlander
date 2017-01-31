@@ -1,7 +1,7 @@
 ---
 
 - name: Get Consul Template
-  get_url: url=https://releases.hashicorp.com/consul-template/0.16.0/consul-template_0.16.0_linux_amd64.zip dest=/tmp/consul-template.zip
+  get_url: url={{consul_template_url}} dest=/tmp/consul-template.zip
 
 - name: Unzip Consul Template
   unarchive: src="/tmp/consul-template.zip" dest="/usr/local/bin/" copy=no
@@ -30,11 +30,11 @@
 - name: Make Certs Directory
   file: path=/certs state=directory mode="600"
 
-- name: Copy Cert
-  copy: src="{{role_path}}/../../base/secret_keys/files/certs/{{cert_path}}/frontend/domain.crt" dest=/certs/domain.crt mode="600"
-
-- name: Copy Key
-  copy: src="{{role_path}}/../../base/secret_keys/files/certs/{{cert_path}}/frontend/domain.key" dest=/certs/domain.key mode="600"
+- name: Copy Cert and Key
+  copy: src="{{role_path}}/../../base/secret_keys/files/certs/{{cert_path}}/frontend/{{item}}" dest="/certs/{{item}}" mode="600"
+  with_items:
+    - domain.crt
+    - domain.key
 
 - name: Make Sure Nginx Restarts After Failure
   lineinfile: dest=/etc/systemd/system/multi-user.target.wants/nginx.service line="Restart=always" insertafter="^KillMode" state=present
@@ -52,11 +52,8 @@
   service: name=consul_template state=restarted
   when: not packing
 
-- name: Wait for Middlewarehouse become available
-  wait_for: host={{middlewarehouse_host}} port={{middlewarehouse_port}} timeout=1200
-
-- name: Wait for Phoenix become available
-  wait_for: host={{phoenix_host}} port={{phoenix_port}} timeout=1200
-
-- name: Wait for Solomon become available
-  wait_for: host={{solomon_host}} port={{solomon_port}} timeout=1200
+- name: Wait for Services become available
+  with_items:
+    - { host: "{{middlewarehouse_host}}", port: "{{middlewarehouse_port}}" }
+    - { host: "{{phoenix_host}}", port: "{{phoenix_port}}" }
+    - { host: "{{solomon_host}}", port: "{{solomon_port}}" }
