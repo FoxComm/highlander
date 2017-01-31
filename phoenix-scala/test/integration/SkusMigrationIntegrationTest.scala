@@ -31,7 +31,7 @@ class SkusMigrationIntegrationTest
       // we need this to replicate state before mvh sku ids table was created
       deleted ← * <~ ProductVariantMwhSkuIds.filter(_.variantFormId inSet formIds).delete
       // run actual migration
-      _          ← * <~ SkusMigration.run()
+      _          ← * <~ SkusMigration.migrate(10)
       toValidate ← * <~ formIds.map(ProductVariantMwhSkuIds.mustFindMwhSkuId)
       // clean
       _ ← * <~ ProductVariants.filter(_.id inSet variantIds).delete

@@ -230,8 +230,15 @@ object Authenticator {
   }
 
   def authenticate(payload: LoginPayload)(implicit ec: EC, db: DB): Result[Route] = {
+    getAuthData(payload)
+      .run()
+      .map(_.flatMap { au ⇒
+        authTokenLoginResponse(au.token)
+      })
+  }
 
-    val tokenResult = (for {
+  def getAuthData(payload: LoginPayload)(implicit ec: EC, db: DB): DbResultT[AuthData[User]] = {
+    for {
       organization ← * <~ Organizations.findByName(payload.org).mustFindOr(LoginFailed)
       user         ← * <~ Users.findByEmail(payload.email.toLowerCase).mustFindOneOr(LoginFailed)
       _            ← * <~ user.mustNotBeMigrated
@@ -251,11 +258,7 @@ object Authenticator {
       claimSet     ← * <~ AccountManager.getClaims(account.id, organization.scopeId)
       _            ← * <~ validateClaimSet(claimSet)
       checkedToken ← * <~ UserToken.fromUserAccount(user, account, claimSet)
-    } yield checkedToken).run()
-
-    tokenResult.map(_.flatMap { token ⇒
-      authTokenLoginResponse(token)
-    })
+    } yield AuthData[User](checkedToken, user, account)
   }
 
   //A user must have at least some role in an organization to login under that

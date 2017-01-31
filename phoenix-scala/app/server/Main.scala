@@ -2,7 +2,7 @@ package server
 
 import scala.collection.immutable
 import scala.concurrent.duration._
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Await, ExecutionContext, Future}
 import akka.actor.{ActorSystem, Props}
 import akka.agent.Agent
 import akka.event.Logging
@@ -12,22 +12,23 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.RouteResult._
 import akka.http.scaladsl.server._
 import akka.stream.ActorMaterializer
-
 import com.stripe.Stripe
 import com.typesafe.config.Config
 import com.typesafe.scalalogging.LazyLogging
 import models.account.{AccountAccessMethod, User}
 import org.json4s._
 import org.json4s.jackson._
+import payloads.LoginPayload
 import services.account.AccountCreateContext
 import services.Authenticator
 import services.Authenticator.UserAuthenticator
 import services.Authenticator.requireAdminAuth
 import services.actors._
 import slick.driver.PostgresDriver.api._
-import utils.FoxConfig.{Development, Staging}
+import utils.FoxConfig._
 import utils.aliases._
 import utils.apis._
+import utils.db._
 import utils.http.CustomHandlers
 import utils.http.HttpLogger.logFailedRequests
 import utils.{ElasticsearchApi, FoxConfig}
@@ -197,11 +198,21 @@ class Service(systemOverride: Option[ActorSystem] = None,
     new Middlewarehouse(url)
   }
 
-  def createUnsyncedSkusInMwh(): Unit = {
-    implicit val au: AU = ??? // TODO
+  def readMigrationsCredentials(): LoginPayload = {
+    val user = config.getString("migrations.credentials.user")
+    val pass = config.getString("migrations.credentials.pass")
+    val org  = config.getString("migrations.credentials.org")
+    LoginPayload(email = user, password = pass, org = org)
+  }
 
-    SkusMigration
-      .run()
-      .fold(errs ⇒ sys.error(s"Cannot migrate all SKUs: \n${errs.flatten.mkString("\n")}"), _ ⇒ ())
+  def createUnsyncedSkusInMwh(): Unit = {
+    val batchSize: Int    = config.getOptInt("migrations.batchSize").getOrElse(100)
+    val timeout: Duration = config.getOptDuration("migrations.timeout").getOrElse(Duration.Inf)
+
+    val migration = Authenticator
+      .getAuthData(readMigrationsCredentials())
+      .flatMap(implicit au ⇒ SkusMigration.migrate(batchSize))
+    val result = Await.result(migration.runTxn(), timeout)
+    result.fold(errs ⇒ sys.error(s"Cannot migrate all SKUs: \n${errs.dump}"), _ ⇒ ())
   }
 }
