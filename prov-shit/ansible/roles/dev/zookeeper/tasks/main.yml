@@ -15,6 +15,13 @@
     - marathon
   when: item != "bottledwater_marketplace" or with_marketplace
 
+- name: Stop Amigo Services
+  service: name={{item}} state=stopped enabled=true
+  with_items:
+    - mesos_master
+    - marathon
+  when: is_amigo
+
 - name: Purge Zookeeper Data
   file: path=/var/lib/zookeeper state=absent
 
@@ -41,3 +48,10 @@
     - mesos_worker
     - marathon
   when: item != "bottledwater_marketplace" or with_marketplace
+
+- name: Start Amigo Services
+  service: name={{item}} state=started enabled=true
+  with_items:
+    - mesos_master
+    - marathon
+  when: is_amigo
