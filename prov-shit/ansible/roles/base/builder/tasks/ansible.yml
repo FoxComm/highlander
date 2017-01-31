@@ -1,0 +1,17 @@
+---
+
+- name: Remove Preinstalled Ansible
+  command: pip uninstall -y ansible
+  ignore_errors: yes
+
+- name: Install Ansible 2.x.x
+  command: pip install ansible==2.2.0
+
+- name: Install DNS Simple Module
+  command: pip install dnsimple
+
+- name: Install Package for Ansible Lint
+  apt: name=libffi-dev state=latest force=yes
+
+- name: Install ansible-lint
+  pip: name=ansible-lint

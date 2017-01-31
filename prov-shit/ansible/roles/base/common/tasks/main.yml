@@ -7,98 +7,48 @@
   changed_when: kill_result.rc == 0
 
 - name: Remove Unattended Upgrades
-  apt:
-    name: unattended-upgrades
-    state: absent
+  apt: name=unattended-upgrades state=absent
 
-- name: Install Packages 1
+- name: Copy logrotate to cron.hourly
+  shell: mv /etc/cron.daily/logrotate /etc/cron.hourly
+
+- name: Install Core Packages
   apt: name={{item}} state=latest force=yes
   with_items:
     - curl
-    - debconf-utils
-    - golang-go
+    - htop
     - make
-
-- name: Install Packages 2
-  apt: name={{item}} state=latest force=yes
-  with_items:
+    - nmap
     - python-httplib2
     - python-pip
     - python-software-properties
     - software-properties-common
     - tmux
-
-- name: Install Packages 3
-  apt: name={{item}} state=latest force=yes
-  with_items:
-    - vim
-    - nmap
-    - htop
-    - unzip
     - tree
-    - build-essential
-    - g++
-
-- name: Install Packages 4
-  apt: name={{item}} state=latest force=yes
-  with_items:
-    - libcairo2-dev
-    - libjpeg8-dev
-    - libpango1.0-dev
-    - libgif-dev
+    - unzip
+    - vim
 
 - name: Create /etc/profile.d Directory
   file: path=/etc/profile.d state=directory
 
-- name: Set GOPATH for all users
-  copy: src=go-path.sh dest=/etc/profile.d
-
-- name: Add Oracle Java Repository
-  apt_repository: repo='ppa:webupd8team/java' update_cache=yes
-
-- name: Automatically select the Oracle License
-  shell: echo "oracle-java8-installer shared/accepted-oracle-license-v1-1 select true" | sudo debconf-set-selections
-
-- name: Install Java Packages
-  apt: name={{item}} state=latest force=yes
-  with_items:
-    - oracle-java8-installer
-    - oracle-java8-set-default
-    - ca-certificates-java
-
-- name: Setup Unprivileged
+- name: Setup Unprivileged User
   command: /usr/sbin/usermod -a -G systemd-journal {{user}}
 
-- name: Create Swap File
-  shell: "dd if=/dev/zero of={{ swap_file }} bs=1048576 count={{ swap_size_mb }}"
-  args:
-      creates: "{{ swap_file }}"
+- name: Install Bootstrap Scripts
+  copy: src={{item}} dest=/usr/local/bin mode=775
+  with_items:
+    - bootstrap.sh
+    - bootstrap_consul.sh
+    - bootstrap_consul_aws.sh
 
-- name: Change Swap File Permissions
-  file: path="{{ swap_file}}" owner=root group=root mode=0600
+- name: Install Docker
+  include: docker.yml
 
-- name: Make Swap File
-  shell: "sudo mkswap {{ swap_file }} || true"
+- name: Configure Swap
+  include: swap.yml
 
-- name: Add Swap to Fstab
-  lineinfile: dest=/etc/fstab line="/swap none swap sw 0 0"
+- name: Configure VM limits
+  include: vm.yml
 
-- name: Install Bootstrap
-  copy: src=bootstrap.sh dest=/usr/local/bin/bootstrap.sh mode=775
-
-- name: Install Consul Bootstrap for GCE
-  copy: src=bootstrap_consul.sh dest=/usr/local/bin/bootstrap_consul.sh mode=775
-
-- name: Install Consul Bootstrap for AWS
-  copy: src=bootstrap_consul_aws.sh dest=/usr/local/bin/bootstrap_consul_aws.sh mode=775
-
-- name: Remove Unattended Upgrades Again
-  apt:
-    name: unattended-upgrades
-    state: absent
-
-- name: Increase the VM limits system-wide
-  lineinfile: dest=/etc/sysctl.conf insertafter=EOF line='vm.max_map_count=262144'
-
-- name: Apply VM limits settings
-  command: sysctl -p
+- name: Remove Unattended Upgrades
+  apt: name=unattended-upgrades state=absent

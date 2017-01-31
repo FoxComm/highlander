@@ -1,7 +1,13 @@
 ---
 
 - name: Kill Elasticsearch if it is Running
-  shell: systemctl stop elasticsearch || true
+  shell: systemctl stop {{item}} || true
+  with_items:
+    - elasticsearch
+    - elasticsearch_5
+
+- include_vars:
+    file: ../../elasticsearch/vars/main.yml
 
 - name: Purge Elasticsearch data
   file: path={{es_path}}/data state=absent
@@ -9,8 +15,23 @@
 - name: Create Elasticsearch subdirectories
   file: path={{es_path}}/data owner=elasticsearch state=directory mode="u=rwx,g=rwx,o=r"
 
-- name: Setup Service
-  service: name=elasticsearch state=restarted enabled=yes
+- include_vars:
+    file: ../../elasticsearch-5/vars/main.yml
+
+- name: Purge Elasticsearch data
+  file: path={{es_path}}/data state=absent
+
+- name: Create Elasticsearch subdirectories
+  file: path={{es_path}}/data owner=elasticsearch state=directory mode="u=rwx,g=rwx,o=r"
+
+- name: Restart Elasticsearch
+  service: name={{item}} state=restarted enabled=yes
+  with_items:
+    - elasticsearch
+    - elasticsearch_5
 
 - name: Sleep
   shell: sleep 20
+
+- name: Restart Kibana
+  service: name=kibana state=restarted enabled=yes

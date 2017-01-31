@@ -13,7 +13,6 @@
     - { role: base/kafka }
     - { role: base/schema-registry }
     - { role: base/elasticsearch }
-    - { role: base/logrotate }
     - { role: base/rsyslog }
     - { role: base/db }
     - { role: base/bottledwater }

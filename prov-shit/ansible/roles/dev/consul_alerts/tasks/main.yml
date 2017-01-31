@@ -3,9 +3,6 @@
 - name: Build Consul Alerts from Fork Repository
   command: go get github.com/FoxComm/consul-alerts
 
-- name: Install Consulate
-  shell: sudo easy_install consulate
-
 - name: Copy Consul Alerts Binary
   command: mv $GOPATH/bin/consul-alerts /usr/local/bin/consul-alerts
 

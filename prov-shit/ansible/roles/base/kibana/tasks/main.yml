@@ -35,4 +35,3 @@
 
 - name: Copy Consul Service File
   template: src=kibana.json dest=/etc/consul.d
-  notify: reload consul

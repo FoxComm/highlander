@@ -1,0 +1,34 @@
+---
+
+- name: Install Node Dependencies
+  apt: name={{item}} state=latest
+  with_items:
+    - build-essential
+    - g++
+    - libcairo2-dev
+    - libjpeg8-dev
+    - libpango1.0-dev
+    - libgif-dev
+
+- name: Install node Packages
+  apt: name={{item}} state=latest force=yes
+  with_items:
+    - nodejs
+    - npm
+
+- name: Upgrade NPM
+  shell: npm update -g npm
+
+- name: Install Node Version Selector
+  shell: npm install -g n
+
+- name: Install Specific Node Version
+  shell: n {{node_version}}
+
+- name: Install NPM Packages
+  shell: npm install -g {{item}}
+  with_items:
+    - babel-cli
+    - flow-bin
+    - gulp
+    - yarn

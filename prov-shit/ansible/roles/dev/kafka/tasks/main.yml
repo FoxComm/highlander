@@ -8,10 +8,6 @@
 
 - name: Create Kafka dir
   file: path=/var/lib/kafka state=directory
-
-- name: Override Kafka config
-  template: src=server.properties dest="/etc/kafka/server.properties"
-
 - name: Restart Kafka
   service: name=kafka state=started enabled=yes
 
