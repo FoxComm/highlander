@@ -27,7 +27,7 @@ object ProductValueResponses {
     def build(value: FullObject[ProductOptionValue], skuCodes: Seq[String]): Root =
       apply(value, skuCodes = Some(skuCodes))
 
-    def buildNested(value: FullObject[ProductOptionValue]): Root =
+    def buildPartial(value: FullObject[ProductOptionValue]): Root =
       apply(value, skuCodes = None)
   }
 }

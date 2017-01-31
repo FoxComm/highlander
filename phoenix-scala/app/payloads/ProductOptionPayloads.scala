@@ -22,15 +22,15 @@ object ProductOptionPayloads {
         value ← values.getOrElse(Seq.empty)
         code  ← value.skuCodes
       } yield code → value
-      val variantOptionValues = variantPerOptionValue.groupBy(_._1).iterator
+      val variantOptionValues = variantPerOptionValue.groupBy { case (code, _) ⇒ code }
       variantOptionValues.foldLeft(
           Validated.valid[NonEmptyList[Failure], ProductOptionPayload](this)) {
         case (acc, (code, optionValues)) ⇒
           if (optionValues.size > 1)
-            (acc |@| Validated.invalidNel[Failure, ProductOptionPayload](GeneralFailure(
-                        s"Variant $code has multiple option values attached: ${optionValues
-                  .map(_._2.name.getOrElse("Nameless"))
-                  .mkString(", ")}"))).map { case (p, _) ⇒ p } else
+            (acc |@| Validated.invalidNel[Failure, ProductOptionPayload](
+                    GeneralFailure(s"Variant $code cannot have more than one option value"))).map {
+              case (p, _) ⇒ p
+            } else
             acc
       }
     }

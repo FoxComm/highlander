@@ -2,7 +2,7 @@ package utils
 
 import models.admin.AdminData
 import models.auth.Identity.IdentityKind
-import models.cord.{Order, CordPaymentState}
+import models.cord.{CordPaymentState, Order}
 import models.cord.lineitems._
 import models.discount.offers.OfferType
 import models.discount.qualifiers.QualifierType
@@ -20,6 +20,7 @@ import models.shipping.Shipment
 import models.{Assignment, Note, Reason}
 import org.json4s.jackson
 import payloads.AuthPayload
+import responses.ProductOptionResponses.ProductOptionResponse
 import responses.PublicResponses.CountryWithRegions
 
 object JsonFormatters {
@@ -42,5 +43,5 @@ object JsonFormatters {
       QueryStatement.Comparison.jsonFormat + Condition.Operator.jsonFormat +
       PaymentMethod.Type.jsonFormat + ProductVariantType.jsonFormat + SharedSearch.Scope.jsonFormat +
       IdentityKind.jsonFormat + AdminData.State.jsonFormat + PluginSettings.SettingType.jsonFormat +
-      AuthPayload.JwtClaimsSerializer
+      AuthPayload.JwtClaimsSerializer + ProductOptionResponse.Serializer
 }

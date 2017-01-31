@@ -2,7 +2,6 @@ package services.inventory
 
 import java.time.Instant
 import cats.data._
-import cats.implicits._
 import failures.ProductFailures._
 import failures.{Failures, GeneralFailure, NotFoundFailure400}
 import models.account._
@@ -289,27 +288,17 @@ object ProductVariantManager {
       ProductVariantResponse
         .buildLite(IlluminatedVariant.illuminate(oc, fullVariant), albums, mwhSkuId, options)
 
-  private def findProductOptionValueLinks(optionValueIds: Seq[Int])(
-      implicit ec: EC,
-      db: DB): DbResultT[Seq[(ProductOptionValueLink, FullObject[ProductOptionValue])]] =
-    DbResultT.sequence(
-        optionValueIds.map(id ⇒
-              (ProductOptionValueLinks.mustFindById404(id) |@|
-                    ObjectUtils.getFullObject(ProductOptionValues.mustFindById404(id))).map {
-        case (l, r) ⇒ (l, r)
-    }))
-
-  private def getProductOptions(
-      optionLinksWithValues: Seq[(ProductOptionValueLink, FullObject[ProductOptionValue])])(
+  private def findProductOptionsWithValues(optionValueIds: Seq[Int])(
       implicit ec: EC,
       db: DB): DbResultT[Seq[(FullObject[ProductOption], FullObject[ProductOptionValue])]] = {
-    DbResultT.sequence(optionLinksWithValues.map {
-      case (link, value) ⇒
-        (ObjectUtils.getFullObject(ProductOptions.mustFindById404(link.leftId)) |@| DbResultT.pure(
-                value)).map {
-          case (l, r) ⇒ (l, r)
-        }
-    })
+    @inline def findProductOption(id: Int) =
+      for {
+        link        ← * <~ ProductOptionValueLinks.mustFindById404(id)
+        option      ← * <~ ObjectManager.getFullObject(ProductOptions.mustFindById404(link.leftId))
+        optionValue ← * <~ ObjectManager.getFullObject(ProductOptionValues.mustFindById404(id))
+      } yield (option, optionValue)
+
+    DbResultT.sequence(optionValueIds.map(findProductOption))
   }
 
   def optionValuesForVariant(variant: ProductVariant)(
@@ -317,13 +306,12 @@ object ProductVariantManager {
       db: DB,
       oc: OC): DbResultT[Seq[ProductOptionResponse.Root]] =
     for {
-      valueLinks            ← * <~ ProductValueVariantLinks.filter(_.rightId === variant.id).result
-      optionLinksWithValues ← * <~ findProductOptionValueLinks(valueLinks.map(_.leftId))
-      optionsWithValues     ← * <~ getProductOptions(optionLinksWithValues)
+      valueLinks        ← * <~ ProductValueVariantLinks.filter(_.rightId === variant.id).result
+      optionsWithValues ← * <~ findProductOptionsWithValues(valueLinks.map(_.leftId))
     } yield
       optionsWithValues.map {
         case (option, value) ⇒
-          ProductOptionResponse.buildNested(
+          ProductOptionResponse.buildPartial(
               IlluminatedProductOption.illuminate(oc, option),
               value
           )
