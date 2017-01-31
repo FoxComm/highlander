@@ -79,10 +79,27 @@ export default class Request extends Element {
     }
 
     if (this.aggregations.length) {
-      request.aggregations = this.aggregations.toRequest();
+      request.aggs = this.aggregations.toRequest();
     }
 
     return request;
   }
 
+}
+
+const a = {
+  "query": { "bool": { "must": [{ "term": { "name": "tony" } }] } },
+  "aggs": {
+    "day": {
+      "nested": { "path": "orders" },
+      "aggregations": {
+        "day": {
+          "date_range": {
+            "field": "orders.placedAt",
+            "ranges": [{ "from": "now-1d/d" }]
+          }
+        }
+      }
+    }
+  }
 }

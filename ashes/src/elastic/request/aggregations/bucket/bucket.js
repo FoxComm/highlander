@@ -23,11 +23,11 @@ export default class BucketAggregation extends Aggregation {
   }
 
   wrap(aggregation: Object): Object {
-    const aggregations = {};
+    const aggregations = this._aggregations.reduce((res, aggregation) => {
+      res[aggregation.name] = aggregation.toRequest();
 
-    this._aggregations.forEach(aggregation => {
-      aggregations[aggregation.name] = aggregation.toRequest();
-    });
+      return res;
+    }, {});
 
     //inheritance || direct field || aggregations given
     if (!this.inheritedPath) {

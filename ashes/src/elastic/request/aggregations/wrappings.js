@@ -6,7 +6,7 @@ import { isDirectField, getNestedPath } from '../helpers';
 export function wrapInheritedDirectLeave(aggregation: Object): Object {
   return {
     reverse_nested: {},
-    aggregations: {
+    aggs: {
       [this.name]: aggregation,
     },
   };
@@ -15,7 +15,7 @@ export function wrapInheritedDirectLeave(aggregation: Object): Object {
 export function wrapInheritedDirectParent(aggregation: Object, aggregations: Object): Object {
   return {
     reverse_nested: {},
-    aggregations: {
+    aggs: {
       [this.name]: aggregation,
       aggregations,
     },
@@ -38,7 +38,7 @@ export function wrapPlainIndirectLeave(aggregation: Object): Object {
     nested: {
       path: getNestedPath(this.field)
     },
-    aggregations: {
+    aggs: {
       [this.name]: aggregation,
     }
   };
@@ -49,7 +49,7 @@ export function wrapPlainIndirectParent(aggregation: Object, aggregations: Objec
     nested: {
       path: getNestedPath(this.field)
     },
-    aggregations: {
+    aggs: {
       [this.name]: {
         ...aggregation,
         aggregations,

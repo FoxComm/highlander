@@ -16,6 +16,15 @@ import requestAdapter from '../utils/request-adapter';
 
 const mapping = 'customers_search_view';
 
+const statsPeriodsMapping = {
+  day: { 'from': 'now-1d/d' },
+  week: { 'from': 'now-1w/d' },
+  month: { 'from': 'now-1M/d' },
+  quarter: { 'from': 'now-3M/d' },
+  year: { 'from': 'now-1y/d' },
+  overall: { 'to': 'now' },
+};
+
 const initialState = {
   id: null,
   groupType: null,
@@ -146,11 +155,21 @@ export const fetchGroupStats = () => (dispatch: Function, getState: Function) =>
 
   const request = requestAdapter(group.id, criterions, group.mainCondition, group.conditions);
 
+  Object.keys(statsPeriodsMapping).forEach((period: string) => {
+    request.aggregations
+      .add(
+        new aggregations.DateRange(period, 'orders.placedAt', [{ 'from': statsPeriodsMapping[period] }])
+          .add(new aggregations.Stats('sales', 'orders.subTotal'))
+          .add(new aggregations.Stats('items', 'orders.itemsCount'))
+      );
+  });
+
   request.aggregations
-    .add(new aggregations.Sum('ordersCount', 'orderCount'))
-    .add(new aggregations.Sum('totalSales', 'orders.subTotal'))
-    .add(new aggregations.Average('averageOrderSize', 'orders.itemsCount'))
-    .add(new aggregations.Average('averageOrderSum', 'orders.subTotal'));
+    .add(
+      new aggregations.DateRange('overall', 'orders.placedAt', [{ 'to': 'now' }])
+        .add(new aggregations.Stats('sales', 'orders.subTotal'))
+        .add(new aggregations.Stats('items', 'orders.itemsCount'))
+    );
 
   dispatch(_fetchStats.perform(request.toRequest()));
 };
