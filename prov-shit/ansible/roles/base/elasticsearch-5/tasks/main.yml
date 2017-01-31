@@ -1,6 +1,6 @@
 ---
 
-- name: Get ElasticSearch 5.0
+- name: Get Elasticsearch 5.x
   get_url: url={{es_download_url}} dest={{home}}/{{es_zip}}
 
 - name: Unzip ElasticSearch

@@ -13,6 +13,7 @@
     consul_expect: 1
     mesos_quorum: 1
     mesos_ip: "$(hostname -i)"
+    docker_db_host: 172.17.0.1
   roles:
     # # Common Packages
     # - { role: base/common }
@@ -28,18 +29,46 @@
     # - { role: base/consul_agent }
     # # Confluent Platform
     # - { role: base/confluent_platform }
-    # Mesosphere
-    - { role: base/mesos }
-    - { role: base/mesos_master }
-    - { role: base/mesos_worker }
-    - { role: base/mesos_consul }
-    # PostgreSQL
-    - { role: base/db }
-    - { role: base/bottledwater }
-    - { role: base/pgweb }
-    # Elasticsearch
-    - { role: base/elasticsearch }
-    - { role: base/elasticsearch-5 }
-    - { role: base/kibana }
-    # Nginx
-    - { role: base/balancer }
+    # # Mesosphere
+    # - { role: base/mesos }
+    # - { role: base/mesos_master }
+    # - { role: base/mesos_worker }
+    # - { role: base/mesos_consul }
+    # # PostgreSQL
+    # - { role: base/db }
+    # - { role: base/bottledwater }
+    # - { role: base/pgweb }
+    # # Elasticsearch
+    # - { role: base/elasticsearch }
+    # - { role: base/elasticsearch-5 }
+    # - { role: base/kibana }
+    # # Nginx
+    # - { role: base/balancer }
+    # Core Configuration
+    - { role: dev/appliance_ip }
+    - { role: dev/appliance, run_once: true }
+    - { role: dev/consul_agent }
+    - { role: dev/kafka }
+    - { role: dev/elasticsearch }
+    - { role: dev/db }
+    # Marathon Applications
+    - { role: dev/isaac }
+    - { role: dev/phoenix }
+    - { role: dev/solomon }
+    - { role: dev/marketplace, when: with_marketplace }
+    - { role: dev/middlewarehouse }
+    - { role: dev/greenriver }
+    - { role: dev/ashes }
+    - { role: dev/firebrand }
+    - { role: ext/tgt/marketplace-ui, when: with_marketplace }
+    - { role: dev/seeder }
+    # Nginx Balancer
+    - { role: dev/balancer }
+    - { role: demo/balancer }
+    # Consumer Applications
+    - { role: dev/messaging, retailer_name: 'FoxCommerce' }
+    - { role: dev/consumers }
+    # Finale
+    - { role: dev/healthcheck }
+    - { role: dev/dashboard, run_once: true }
+    - { role: dev/appliance_dns, run_once: true }
