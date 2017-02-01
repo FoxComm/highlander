@@ -146,9 +146,9 @@ class ProductConversionChart extends Component {
     debugMode: false,
   };
 
-  get data() {
+  get data(): Array<Object> {
     const { jsonData, debugMode } = this.props;
-    
+
     const jsonDisplay = (debugMode) ? dummyJsonData : jsonData;
 
     return [

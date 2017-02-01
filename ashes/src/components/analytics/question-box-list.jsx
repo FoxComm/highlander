@@ -6,7 +6,8 @@ import _ from 'lodash';
 import { autobind } from 'core-decorators';
 
 // components
-import QuestionBox, { Props as QuestionBoxType } from './question-box';
+import QuestionBox from './question-box';
+import type { Props as QuestionBoxType } from './question-box';
 
 // types
 export type Props = {
@@ -21,16 +22,18 @@ class QuestionBoxList extends Component {
 
   static defaultProps = {
     items: [],
-    onSelect: null,
+    onSelect: _.noop,
     activeQuestion: null,
   };
 
   @autobind
   renderItems(): ?Element {
     const { items, onSelect, activeQuestion } = this.props;
+    let activeQuestionId = false;
 
-    const activeQuestionId = !_.isNull(activeQuestion)
-      ? activeQuestion.id : false;
+    if(activeQuestion !== undefined && _.isNull(activeQuestion)) {
+      activeQuestionId = activeQuestion.id;
+    }
 
     return _.map(items, (item, index) => (
       <QuestionBox

@@ -24,18 +24,18 @@ class QuestionBox extends React.Component {
 
   static defaultProps = {
     isActive: false,
-    onClick: null,
+    onClick: _.noop,
   };
 
   @autobind
   onClickHandler() {
     const { onClick, isActive } = this.props;
 
-    if (!_.isNull(onClick) && !isActive) {
-      return onClick(this.props);
+    if (!isActive) {
+      return onClick;
     }
 
-    return null;
+    return _.noop;
   }
 
   render() {
