@@ -12,7 +12,6 @@ import styles from './products-list.css';
 
 // components
 import ListItem from '../products-item/list-item';
-import Loader from 'ui/loader';
 
 // types
 import type { HTMLElement } from 'types';
@@ -119,11 +118,12 @@ class ProductsList extends Component {
       ? this.renderProducts()
       : <div styleName="not-found">No products found.</div>;
 
-    if (isLoading) return <Loader />;
-
     return (
-      <div styleName="list" ref={this.handleListRendered}>
-        {items}
+      <div styleName="list-wrapper">
+        {isLoading && <div styleName="loader-fader" />}
+        <div styleName="list" ref={this.handleListRendered}>
+          {items}
+        </div>
       </div>
     );
   }
