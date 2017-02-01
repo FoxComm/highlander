@@ -7,7 +7,12 @@ import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 
 import { fetchTemplates } from 'modules/customer-groups/templates';
-import { saveGroupFromTemplate as saveGroup, clearSaveErrors } from 'modules/customer-groups/details/group';
+import {
+  saveGroupFromTemplate as saveGroup,
+  clearSaveErrors,
+  GROUP_TYPE_DYNAMIC,
+  GROUP_TYPE_MANUAL
+} from 'modules/customer-groups/details/group';
 
 import { Link } from 'components/link';
 import WaitAnimation from 'components/common/wait-animation';
@@ -56,7 +61,7 @@ class NewGroupWizardPage extends Component {
   @autobind
   handleCustomGroup(type: string) {
     return () => {
-      this.props.push({ name: 'new-custom-group', params: { type }});
+      this.props.push({ name: 'new-custom-group', params: { type } });
     };
   }
 
@@ -73,8 +78,8 @@ class NewGroupWizardPage extends Component {
 
     return (
       <div className={styles.wizard}>
-        <Template name="Dynamic Group" onClick={this.handleCustomGroup('dynamic')} icon="customers" />
-        <Template name="Manual Group" onClick={this.handleCustomGroup('manual')} icon="customers" />
+        <Template name="Dynamic Group" onClick={this.handleCustomGroup(GROUP_TYPE_DYNAMIC)} icon="customers" />
+        <Template name="Manual Group" onClick={this.handleCustomGroup(GROUP_TYPE_MANUAL)} icon="customers" />
 
         {templates.map((tpl: TTemplate) => (
           <Template id={tpl.id} name={tpl.name} onClick={this.handleSave} key={tpl.id} />

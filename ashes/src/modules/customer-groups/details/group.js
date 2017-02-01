@@ -17,6 +17,10 @@ import requestAdapter from '../utils/request-adapter';
 const mapping = 'customers_search_view';
 const statsUrl = `${mapping}/_search?size=0`;
 
+export const GROUP_TYPE_MANUAL = 'manual';
+export const GROUP_TYPE_DYNAMIC = 'dynamic';
+export const GROUP_TYPE_TEMPLATE = 'template';
+
 const statsPeriodsMapping = {
   day: [{ 'from': 'now-1d/d' }],
   week: [{ 'from': 'now-1w/d' }],
@@ -144,7 +148,7 @@ export const saveGroup = () => (dispatch: Function, getState: Function) => {
       mainCondition,
       conditions,
     },
-    elasticRequest,
+    elasticRequest : groupType !== GROUP_TYPE_MANUAL ? elasticRequest : null,
   };
 
   return dispatch(_saveGroup.perform(groupId, data));
@@ -175,7 +179,7 @@ export const fetchGroupStats = () => (dispatch: Function, getState: Function) =>
 };
 
 const validateConditions = (type, conditions) => {
-  if (type == 'manual') return true;
+  if (type === GROUP_TYPE_MANUAL) return true;
 
   return conditions &&
     conditions.length && conditions.every(validateCondition);

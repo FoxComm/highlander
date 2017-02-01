@@ -13,7 +13,7 @@ import { reset, fetchGroup, archiveGroup, clearArchiveErrors } from 'modules/cus
 import ArchiveActionsSection from 'components/archive-actions/archive-actions';
 import Error from 'components/errors/error';
 import WaitAnimation from 'components/common/wait-animation';
-import DynamicGroup from './dynamic-group';
+import GroupDetails from './group-details';
 
 type Props = {
   group: TCustomerGroup,
@@ -71,7 +71,7 @@ class GroupPage extends Component {
 
     return (
       <div>
-        <DynamicGroup group={group} />
+        <GroupDetails group={group} />
 
         <ArchiveActionsSection
           type="Group"

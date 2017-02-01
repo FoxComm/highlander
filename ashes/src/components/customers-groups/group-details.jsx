@@ -11,7 +11,7 @@ import classNames from 'classnames';
 import criterions from 'paragons/customer-groups/criterions';
 import operators from 'paragons/customer-groups/operators';
 import requestAdapter from 'modules/customer-groups/utils/request-adapter';
-import * as groupActions from 'modules/customer-groups/details/group';
+import { fetchGroupStats, GROUP_TYPE_DYNAMIC } from 'modules/customer-groups/details/group';
 import { actions as customersListActions } from 'modules/customer-groups/details/customers-list';
 
 import { transitionTo } from 'browserHistory';
@@ -52,7 +52,7 @@ const tableColumns = [
 
 const TotalCounter = makeTotalCounter(state => state.customerGroups.details.customers, customersListActions);
 
-class DynamicGroup extends Component {
+class GroupDetails extends Component {
 
   props: Props;
 
@@ -136,7 +136,7 @@ class DynamicGroup extends Component {
   get criteria(): ?Element {
     const { mainCondition, conditions, groupType } = this.props.group;
 
-    if (groupType != 'dynamic') return null;
+    if (groupType != GROUP_TYPE_DYNAMIC) return null;
 
     const main = mainCondition === operators.and ? 'all' : 'any';
     const conditionBlock = _.map(conditions, this.renderCriterion);
@@ -224,8 +224,8 @@ const mapState = state => ({
 });
 
 const mapDispatch = dispatch => ({
-  groupActions: bindActionCreators(groupActions, dispatch),
+  groupActions: bindActionCreators({ fetchGroupStats }, dispatch),
   customersListActions: bindActionCreators(customersListActions, dispatch),
 });
 
-export default connect(mapState, mapDispatch)(DynamicGroup);
+export default connect(mapState, mapDispatch)(GroupDetails);

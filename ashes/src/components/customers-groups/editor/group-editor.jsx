@@ -6,7 +6,13 @@ import { connect } from 'react-redux';
 
 //data
 import operators from 'paragons/customer-groups/operators';
-import * as actions from 'modules/customer-groups/details/group';
+import {
+  setType,
+  setName,
+  setConditions,
+  setMainCondition,
+  GROUP_TYPE_MANUAL
+} from 'modules/customer-groups/details/group';
 
 //helpers
 import { prefix } from 'lib/text-utils';
@@ -23,11 +29,7 @@ const SELECT_CRITERIA = [
 
 const prefixed = prefix('fc-customer-group-edit');
 
-const mapStateToProps = state => ({ group: state.customerGroups.details.group });
-const mapDispatchToProps = dispatch => ({ actions: bindActionCreators(actions, dispatch) });
-
-@connect(mapStateToProps, mapDispatchToProps)
-export default class DynamicGroupEditor extends React.Component {
+class GroupEditor extends React.Component {
 
   static propTypes = {
     type: PropTypes.string.isRequired,
@@ -43,6 +45,7 @@ export default class DynamicGroupEditor extends React.Component {
     }),
     actions: PropTypes.shape({
       setName: PropTypes.func.isRequired,
+      setType: PropTypes.func.isRequired,
       setMainCondition: PropTypes.func.isRequired,
       setConditions: PropTypes.func.isRequired,
     }).isRequired,
@@ -115,7 +118,7 @@ export default class DynamicGroupEditor extends React.Component {
   get dynamicGroupControls() {
     const { group, actions } = this.props;
 
-    if (this.type == 'manual') return null;
+    if (this.type == GROUP_TYPE_MANUAL) return null;
 
     return (
       <div>
@@ -139,3 +142,13 @@ export default class DynamicGroupEditor extends React.Component {
     );
   }
 }
+
+const mapState = state => ({
+  group: state.customerGroups.details.group,
+});
+
+const mapActions = dispatch => ({
+  actions: bindActionCreators({ setType, setConditions, setMainCondition }, dispatch),
+});
+
+export default connect(mapState, mapActions)(GroupEditor);
