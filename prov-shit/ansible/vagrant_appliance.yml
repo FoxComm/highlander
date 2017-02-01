@@ -10,8 +10,6 @@
     install_private_keys: true
     is_amigo: true
     mesos_quorum: 1
-    phoenix_tax_rule_region: 4129
-    phoenix_tax_rule_rate: 7.5
     vagrant: true
     with_base_seeds: true
   roles:
