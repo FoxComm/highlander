@@ -11,7 +11,7 @@
     is_amigo: true
     mesos_quorum: 1
     vagrant: true
-    with_base_seeds: true
+    with_base_seeds: false
   roles:
     # Core Configuration
     - { role: dev/appliance_ip }

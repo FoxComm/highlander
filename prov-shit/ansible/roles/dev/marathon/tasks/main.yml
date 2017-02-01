@@ -9,6 +9,9 @@
 - name: Start Phoenix
   include: phoenix.yml
 
+- name: Start Solomon
+  include: solomon.yml
+
 - name: Start Marketplace
   include: marketplace.yml
   when: with_marketplace
