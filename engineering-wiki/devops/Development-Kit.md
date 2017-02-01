@@ -7,7 +7,7 @@ Navigation:
 * [Core software](#core-software)
 * [Programming languages](#programming-languages)
 * [Build tools](#build-tools)
-* [Command line Utilities](#command-line-utilities)
+* [Command line utilities](#command-line-utilities)
 
 ## Core software
 
@@ -50,7 +50,7 @@ Pre-installed compilers and runtimes, in case you need to build or test somethin
 * Oracle JVM 1.8
 * [Go](https://golang.org) 1.7.4
 * [Node](https://nodejs.org) 7.1.0
-* [Elixir](http://elixir-lang.org)
+* [Elixir](http://elixir-lang.org) 1.1.0
 
 ## Build tools
 
@@ -65,7 +65,7 @@ Various package management and build systems which are necessary for modern deve
 
 ## Command line utilities
 
-Baked in command-line utilities which help with problem solving:
+Baked in command-line utilities which ease problem solving:
 
 * [babel-cli](https://github.com/babel/babel) - command-line compiler for writing next generation JavaScript.
 * [consulate](https://github.com/gmr/consulate) - command-line client for the Consul HTTP API.
