@@ -1,8 +1,5 @@
 ---
 
-- name: Creates Marathon JSON directory
-  file: path=/marathon/applications state=directory
-
 - name: Copy Shipstation Consumer Marathon JSON
   template: src=shipstation.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
 
@@ -11,7 +8,6 @@
 
 - name: Wait for Middlewarehouse become available
   wait_for: host={{middlewarehouse_host}} port={{middlewarehouse_port}}
-  ignore_errors: true
 
 - name: Restart Shipstation Consumer in Marathon
   shell: 'curl -sS -XPOST http://{{marathon_server}}/v2/apps/shipstation/restart'

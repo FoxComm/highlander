@@ -1,8 +1,5 @@
 ---
 
-- name: Creates Marathon JSON directory
-  file: path=/marathon/applications state=directory
-
 - name: Copy Middlewarehouse Marathon JSON
   template: src=middlewarehouse.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
 

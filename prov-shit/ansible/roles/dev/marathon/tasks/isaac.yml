@@ -1,8 +1,5 @@
 ---
 
-- name: Creates Marathon JSON directory
-  file: path=/marathon/applications state=directory
-
 - name: Copy Isaac Marathon JSON
   template: src=isaac.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
 

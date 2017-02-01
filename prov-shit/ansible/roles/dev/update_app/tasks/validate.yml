@@ -37,7 +37,7 @@
 
 - name: Set Default Marathon Template Path
   set_fact:
-    app_template_path: "{{playbook_path_out.stdout}}/roles/dev/{{app_name}}/templates/{{app_name}}.json"
+    app_template_path: "{{playbook_path_out.stdout}}/roles/dev/marathon/templates/{{app_name}}.json"
 
 - name: Override Marathon Template Path
   set_fact:

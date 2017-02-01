@@ -23,22 +23,12 @@
     - { role: dev/elasticsearch }
     - { role: dev/db }
     # Marathon Applications
-    - { role: dev/isaac }
-    - { role: dev/phoenix }
-    - { role: dev/solomon }
-    - { role: dev/marketplace, when: with_marketplace }
-    - { role: dev/middlewarehouse }
-    - { role: dev/greenriver }
-    - { role: dev/ashes }
-    - { role: dev/firebrand }
+    - { role: dev/marathon }
     - { role: ext/tgt/marketplace-ui, when: with_marketplace }
     - { role: dev/seeder }
     # Nginx Balancer
     - { role: dev/balancer }
     - { role: demo/balancer }
-    # Consumer Applications
-    - { role: dev/messaging, retailer_name: 'FoxCommerce' }
-    - { role: dev/consumers }
     # Finale
     - { role: dev/dashboard, run_once: true }
     - { role: dev/mesos_consul }

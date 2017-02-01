@@ -3,9 +3,6 @@
 - include_vars: "{{role_path}}/../../base/secret_keys/files/aws/aws.yml"
 - include_vars: stripe.yml
 
-- name: Creates Marathon JSON directory
-  file: path=/marathon/applications state=directory
-
 - name: Copy Phoenix Marathon JSON
   template: src=phoenix.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
 

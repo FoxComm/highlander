@@ -11,9 +11,6 @@
   command: /usr/local/bin/create_es_mappings.sh
   when: first_run
 
-- name: Creates Marathon JSON directory
-  file: path=/marathon/applications state=directory
-
 - name: Copy Green River Marathon JSON
   template: src=greenriver.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
 

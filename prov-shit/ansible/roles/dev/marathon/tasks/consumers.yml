@@ -1,8 +1,5 @@
 ---
 
-- name: Creates Marathon JSON directory
-  file: path=/marathon/applications state=directory
-
 - name: Copy Stock Items Consumer Marathon JSON
   template: src=stock-items-consumer.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
 

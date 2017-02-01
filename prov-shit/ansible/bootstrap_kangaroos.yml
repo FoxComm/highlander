@@ -23,17 +23,9 @@
     with_gatling_seeder: true
     with_mwh_seeder: true
   roles:
-    - { role: dev/phoenix }
-    - { role: dev/greenriver }
-    - { role: dev/ashes }
-    - { role: dev/firebrand }
-    - { role: dev/middlewarehouse }
-    - { role: dev/messaging }
-    - { role: dev/isaac }
-    - { role: dev/solomon }
+    - { role: dev/marathon }
     - { role: dev/balancer }
     - { role: demo/balancer }
-    - { role: dev/consumers }
     - { role: dev/seeder }
 
   handlers:

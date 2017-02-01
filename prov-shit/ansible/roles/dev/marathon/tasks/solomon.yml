@@ -1,7 +1,6 @@
 ---
 
-- name: Creates Marathon JSON directory
-  file: path=/marathon/applications state=directory
+- include_vars: solomon.yml
 
 - name: Copy Solomon Marathon JSON
   template: src=solomon.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
