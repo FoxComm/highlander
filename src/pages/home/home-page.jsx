@@ -13,22 +13,22 @@ import styles from './home-page.css';
 
 const mainBlocks = [
   {
-    imageUrl: '/images/home-page/Home_Page_Favorites_2x.jpg',
-    description: 'We’ve got you covered with dinners ready in less than 30 minutes',
-    title: 'Pressed for time?',
-    action: { title: 'Shop our favorites', link: '/favorites' },
-  },
-  {
-    imageUrl: '/images/home-page/Home_Page_Holidays_NEW_2x_2.jpg',
+    imageUrl: '/images/home-page/Home_Page_Valentines.jpg',
     description: '',
-    title: 'Make Every Day A Reason to Celebrate',
-    action: { title: 'Shop Entrées', link: '/ENTRÉES' },
+    title: 'Dinners In That Feel Like Nights Out',
+    action: { title: 'Shop Now', link: '/VALENTINE' },
   },
   {
-    imageUrl: '/images/home-page/Home_Page_Best_Sellers_NEW_2x.jpg',
-    description: 'Our tried and true favorites you keep coming back for',
-    title: 'Best sellers',
-    action: { title: 'Shop best sellers', link: '/best-sellers' },
+    imageUrl: '/images/home-page/Home_Page_Kid_2x.jpg',
+    description: 'Under $5 Per Entrée',
+    title: 'Weeknight Favorites',
+    action: { title: 'Shop Now', link: '/WEEKNIGHT' },
+  },
+  {
+    imageUrl: '/images/home-page/Home_Page_EggRolls.jpg',
+    description: 'Dishes you know and love, revisited with unique and delicious twists',
+    title: 'A New Spin On The Classics',
+    action: { title: 'Shop Now', link: '/SPIN' },
   },
 ];
 

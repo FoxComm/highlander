@@ -99,6 +99,7 @@
     "react-addons-css-transition-group": "^15.3.2",
     "react-dom": "^15.2.0",
     "react-gestures": "^0.1.8",
+    "react-input-mask": "github:anru/react-input-mask#a7b8dc04debe9e8dfe7eee3ad31facb79b7c1826",
     "react-redux": "^4.4.0",
     "react-router": "^2.7.0",
     "react-router-redux": "^3.0.0",

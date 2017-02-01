@@ -31,10 +31,11 @@
 }
 
 .title {
+  max-width: 1440px;
   font-family: var(--font-playfair);
   font-weight: 400;
   color: var(--whitish);
-  margin: 0;
+  margin: 0 auto;
   text-transform: uppercase;
 
   &:after {
