@@ -6,8 +6,6 @@
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
     download_flyway: false
-  tags:
-    - backend
   roles:
     - { role: dev/stage_mesos, when: first_run }
     - { role: dev/zookeeper, when: first_run }
@@ -29,24 +27,12 @@
     ashes_server_name: stage.foxcommerce.com
     storefront_server_name: stage.foxcommerce.com
     with_base_seeds: true
-    phoenix_tax_rule_region: 4129
-    phoenix_tax_rule_rate: 7.5
-  tags:
-    - frontend
   roles:
     - { role: dev/stage_mesos, when: first_run }
     - { role: base/ssh_keys, when: first_run }
-    - { role: dev/phoenix }
-    - { role: dev/greenriver }
-    - { role: dev/ashes }
-    - { role: dev/firebrand }
-    - { role: dev/middlewarehouse }
-    - { role: dev/messaging }
-    - { role: dev/isaac }
-    - { role: dev/solomon }
+    - { role: dev/marathon }
     - { role: dev/balancer }
     - { role: demo/balancer }
-    - { role: dev/consumers }
     - { role: dev/seeder, when: first_run }
 
   handlers:

@@ -9,10 +9,6 @@
 - name: Remove Daily Apt
   file: path=/etc/cron.daily/apt-compat state=absent
 
-- name: Set Hostname
-  hostname: name={{appliance_hostname}}
-  when: local_vagrant
-
 - name: Override Mesos Worker Script
   template: src=run_mesos_worker.sh dest=/usr/local/bin mode="u+x,g+x,o+x" force=yes
 

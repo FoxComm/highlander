@@ -1,0 +1,39 @@
+---
+
+- name: Creates Marathon JSON directory
+  file: path=/marathon/applications state=directory
+
+- name: Start Isaac
+  include: isaac.yml
+
+- name: Start Phoenix
+  include: phoenix.yml
+
+- name: Start Solomon
+  include: solomon.yml
+
+- name: Start Marketplace
+  include: marketplace.yml
+  when: with_marketplace
+
+- name: Start Middlewarehouse
+  include: middlewarehouse.yml
+
+- name: Start Green River
+  include: greenriver.yml
+
+- name: Start Ashes
+  include: ashes.yml
+
+- name: Start Firebrand
+  include: firebrand.yml
+
+- name: Start Messaging
+  include: messaging.yml
+
+- name: Start Consumers
+  include: consumers.yml
+
+- name: Start Shipstation Consumer
+  include: shipstation.yml
+  when: with_shipstation
