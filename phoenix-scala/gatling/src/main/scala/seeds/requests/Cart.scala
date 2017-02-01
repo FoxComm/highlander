@@ -11,7 +11,7 @@ import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.CartPayloads.CreateCart
 import payloads.OrderPayloads.OrderTimeMachine
 import payloads.UpdateShippingMethod
-import seeds.dbFeeder
+import helpers.dbFeeder
 import seeds.requests.Auth._
 import seeds.requests.Payments._
 
