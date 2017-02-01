@@ -39,22 +39,16 @@ trait Scenarios extends Simulation {
   val scn = scenario("EvilGuestSimulation")
     .step(http("user should not exist")
           .post("/v1/public/login")
-          .body(StringBody(json {
-        loginPayload
-      }))
+          .body(StringBody(json(loginPayload)))
           .check(status.is(400)))
     .step(http("create a new user")
           .post("/v1/public/registrations/new")
-          .body(StringBody(json {
-        customerPayload
-      })))
+          .body(StringBody(json(customerPayload))))
     .step(http("see my cart").get("/v1/my/cart"))
     .step(http("do logout").post("/v1/public/logout").check(status.is(302)))
     .step(http("do login")
           .post("/v1/public/login")
-          .body(StringBody(json {
-        loginPayload
-      }))
+          .body(StringBody(json(loginPayload)))
           .check(status.is(200)))
     .step(http("do logout").post("/v1/public/logout").check(status.is(302)))
     .step(http("see my cart").get("/v1/my/cart"))
@@ -65,9 +59,7 @@ trait Scenarios extends Simulation {
     .exec(flushCookieJar) // no JWT token goes further
     .step(http("second login")
           .post("/v1/public/login")
-          .body(StringBody(json {
-        loginPayload
-      }))
+          .body(StringBody(json(loginPayload)))
           .check(status.is(200)))
 
   def setup(url: String) = {
