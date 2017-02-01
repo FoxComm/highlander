@@ -12,6 +12,10 @@
     "STRIPE_PUBLISHABLE_KEY": "{{stripe_publishable_key}}",
     "GA_TRACKING_ID": "{{ashes_ga_tracking_id}}"
   },
+  "labels": {
+    "LAYER": "frontend",
+    "LANG": "javascript"
+  },
   "healthChecks": [
     {
       "path": "/admin/login",

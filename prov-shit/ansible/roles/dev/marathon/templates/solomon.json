@@ -5,6 +5,10 @@
   "mem": 256,
   "disk": 0,
   "instances": 1,
+  "labels": {
+    "LAYER": "backend",
+    "LANG": "elixir"
+  },
   "env": {
     "PORT": "{{solomon_port}}",
     "DB_USER": "{{db_user}}",

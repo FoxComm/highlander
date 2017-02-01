@@ -5,6 +5,10 @@
   "mem": 4096,
   "disk": 0,
   "instances": 1,
+  "labels": {
+    "LAYER": "frontend",
+    "LANG": "js"
+  },
   "env": {
     "API_URL": "https://{{storefront_server_name}}",
     "NODE_ENV": "production",

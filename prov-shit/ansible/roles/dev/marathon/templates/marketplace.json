@@ -5,6 +5,10 @@
   "mem": 256,
   "disk": 0,
   "instances": 1,
+  "labels": {
+    "LAYER": "backend",
+    "LANG": "elixir"
+  },
   "env": {
     "DB_NAME": "{{marketplace_db_name}}",
     "PHOENIX_URL": "{{phoenix_host}}",
