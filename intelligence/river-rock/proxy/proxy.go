@@ -108,9 +108,6 @@ func (p *RiverRock) StartProxy() error {
 		//to the client.
 
 		if err != nil {
-			log.Print(err)
-			log.Print("PASS: " + reqUri + " => " + p.Config.UpstreamUrl + reqUri)
-
 			req.URL.Path = path
 			req.RequestURI = req.URL.RequestURI()
 			proxy.ServeHTTP(res, req)

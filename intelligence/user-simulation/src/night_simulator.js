@@ -3,14 +3,21 @@ const faker  = require('faker');
 const Nightmare = require('nightmare');
 const system = require('system');
 
-var home = "https://hal.foxcommerce.com";
+function setup(c) {
+  c.page = Nightmare({
+      show: false,
+      webPreferences: {
+        partition: 'nopersist'
+  }});
+
+}
 
 async function homepage(c) {
-    return c.page.goto(home);
+    return c.page.goto(c.home);
 }
 
 async function signup(c) {
-  let signupPage = home + '/?auth=SIGNUP';
+  let signupPage = c.home + '/?auth=SIGNUP';
   let name = faker.name.firstName() + ' ' + faker.name.lastName();
   c.name = name;
 
@@ -29,7 +36,7 @@ async function category(c) {
 
   let cat = _.sample(c.args['select']);
 
-  let url = home + '/' + cat;
+  let url = c.home + '/' + cat;
 
   return c.page.goto(url);
 }
@@ -61,7 +68,7 @@ async function cart(c) {
 }
 
 async function purchase(c) {
-  let checkoutPage = home + '/checkout';
+  let checkoutPage = c.home + '/checkout';
   let card = faker.helpers.createCard();
   if(!_.isNil(c.alreadyPurchased)) {
     return c.page.
@@ -131,5 +138,6 @@ const stateFunctions = {
   clear_cart: clear_cart
 };
 
+exports.setup = setup;
 exports.stateFunctions = stateFunctions;
 
