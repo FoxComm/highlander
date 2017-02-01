@@ -12,6 +12,10 @@ import GroupsTypeahead from './groups-typeahead';
 
 export default class SearchGroupModal extends Component {
 
+  state = {
+    groups: [],
+  };
+
   get actionBlock() {
     return (
       <a className='fc-modal-close' onClick={this.props.onCancel}>
@@ -25,10 +29,20 @@ export default class SearchGroupModal extends Component {
       <SaveCancel
         className="fc-modal-footer fc-add-watcher-modal__footer"
         onCancel={this.props.onCancel}
-        onSave={this.props.handleSave}
+        onSave={this.handleSave}
         saveDisabled={this.isSaveDisabled}
       />
     );
+  }
+
+  @autobind
+  handleSave() {
+    this.props.handleSave(this.state.groups);
+  }
+
+  @autobind
+  handleSelect(groups: Array<TShortCustomerGroup>) {
+    this.setState({ groups });
   }
 
   render() {
@@ -46,6 +60,7 @@ export default class SearchGroupModal extends Component {
               suggestGroups={props.suggestGroups}
               suggested={props.suggested}
               suggestState={props.suggestState}
+              onSelect={this.handleSelect}
             />
           </div>
         </ContentBox>

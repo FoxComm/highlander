@@ -77,6 +77,17 @@ export function toggleBlacklisted(id, isBlacklisted) {
   };
 }
 
+export function saveGroups(id, groups) {
+  const groupIds = _.map(groups, group => group.id);
+  return dispatch => {
+    return Api.post(`/customers/${id}/customer-groups`, { groups: groupIds })
+      .then(
+        customer => dispatch(updateCustomer(id, customer)),
+        err => dispatch(failCustomer(id, err, saveGroups))
+      );
+  };
+}
+
 const initialState = {
   isDisablingStarted: false,
   isBlacklistedStarted: false,

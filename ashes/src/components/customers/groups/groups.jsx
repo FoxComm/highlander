@@ -11,6 +11,7 @@ import { EditButton } from 'components/common/buttons';
 import SearchGroupModal from './search-group-modal';
 
 import { suggestGroups } from 'modules/customer-groups/suggest';
+import { saveGroups } from 'modules/customers/details';
 
 import styles from './groups.css';
 
@@ -53,8 +54,12 @@ class CustomerGroupsBlock extends Component {
   }
 
   @autobind
-  onEditGroupsSave(): void {
-    this.setState({ modalShown: false });
+  onEditGroupsSave(groups: Array<TCustomerGroupsShort>): void {
+    const id = this.props.customerId;
+    const payload = groups.concat(this.props.groups);
+    this.props.saveGroups(id, payload).then(() => {
+      this.setState({ modalShown: false });
+    });
   }
 
   get groups(): Element|Array<Element> {
@@ -77,8 +82,6 @@ class CustomerGroupsBlock extends Component {
   }
 
   render() {
-    console.log(this.props);
-    console.log(this.props.suggested);
     return (
       <ContentBox title="Groups" actionBlock={this.actionBlock}>
         {this.groups}
@@ -97,5 +100,5 @@ class CustomerGroupsBlock extends Component {
 
 export default connect(
   mapStateToProps,
-  { suggestGroups }
+  { suggestGroups, saveGroups }
 )(CustomerGroupsBlock);

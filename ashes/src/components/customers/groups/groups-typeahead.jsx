@@ -31,6 +31,12 @@ export default class GroupsTypeahead extends Component {
     term: '',
   };
 
+  componentWillUpdate(nextProps: Props, nextState: State) {
+    if (nextState.selected != this.state.selected) {
+      this.props.onSelect(nextState.selected);
+    }
+  }
+
   setTerm(term: string) {
     this.setState({
       term,
