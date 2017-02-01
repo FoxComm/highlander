@@ -5,6 +5,10 @@
   "mem": 1024,
   "disk": 0,
   "instances": 1,
+  "labels": {
+    "LAYER": "frontend",
+    "LANG": "js"
+  },
   "env": {
     "API_URL": "https://{{storefront_server_name}}/api/v1/mkt",
     "ASHES_URL": "https://{{storefront_server_name}}/admin"

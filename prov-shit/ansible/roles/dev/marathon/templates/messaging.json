@@ -5,6 +5,10 @@
   "mem": 512,
   "disk": 0,
   "instances": 1,
+  "labels": {
+    "LAYER": "consumer",
+    "LANG": "clojure"
+  },
   "container": {
     "type": "DOCKER",
     "volumes": [

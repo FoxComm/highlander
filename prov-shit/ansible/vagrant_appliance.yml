@@ -24,6 +24,7 @@
     - { role: dev/marathon }
     - { role: ext/tgt/marketplace-ui, when: with_marketplace }
     - { role: dev/seeder }
+    - { role: dev/marathon, only_consumers: true }
     # Nginx Balancer
     - { role: dev/balancer }
     - { role: demo/balancer }

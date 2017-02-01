@@ -5,6 +5,10 @@
   "mem": 4096,
   "disk": 0,
   "instances": 1,
+  "labels": {
+    "LAYER": "backend",
+    "LANG": "scala"
+  },
   "env": {
     "PORT":"{{phoenix_port}}",
     "PHOENIX_PUBLIC_KEY": "/keys/public_key.der",
