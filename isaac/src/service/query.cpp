@@ -110,8 +110,13 @@ namespace isaac
         bool query_request_handler::user_has_role(const folly::dynamic& user, const std::string& role)
         {
             const auto roles = user["roles"];
-            const auto pos = roles.find(role);
-            return pos != roles.items().end();
+            const auto pos =
+                std::find_if(std::begin(roles), std::end(roles), [&role](const auto& v)
+                {
+                    return v.getString() == role;
+                });
+
+            return pos != std::end(roles);
         }
 
         token_data get_token(proxygen::HTTPMessage& msg, const std::string& key)
