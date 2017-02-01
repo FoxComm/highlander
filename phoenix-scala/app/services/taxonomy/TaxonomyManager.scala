@@ -1,15 +1,14 @@
 package services.taxonomy
 
 import java.time.Instant
-import com.github.tminglei.slickpg.LTree
 
 import cats.data.ValidatedNel
 import cats.implicits._
+import com.github.tminglei.slickpg.LTree
 import failures.TaxonomyFailures._
 import failures.{Failure, TaxonomyFailures}
-import models.objects.ObjectHeadLinks.ObjectHeadLinkQueries
-import models.objects._
 import models.account._
+import models.objects._
 import models.product.{ProductReference, Products}
 import models.taxonomy.TaxonomyTaxonLinks.scope._
 import models.taxonomy.{TaxonLocation ⇒ _, _}
@@ -56,15 +55,15 @@ object TaxonomyManager {
 
   def getTaxonomy(taxonomyFormId: ObjectForm#Id)(implicit ec: EC,
                                                  oc: OC,
-                                                 db: DB): DbResultT[TaxonomyResponse] =
+                                                 db: DB): DbResultT[FullTaxonomyResponse] =
     for {
       taxonomy ← * <~ ObjectManager.getFullObject(Taxonomies.mustFindByFormId404(taxonomyFormId))
       taxons   ← * <~ TaxonomyTaxonLinks.queryRightByLeftWithLinks(taxonomy.model)
-    } yield TaxonomyResponse.build(taxonomy, taxons)
+    } yield FullTaxonomyResponse.build(taxonomy, taxons)
 
   def createTaxonomy(payload: CreateTaxonomyPayload)(implicit ec: EC,
                                                      oc: OC,
-                                                     au: AU): DbResultT[TaxonomyResponse] = {
+                                                     au: AU): DbResultT[FullTaxonomyResponse] = {
     val form   = ObjectForm.fromPayload(Taxonomy.kind, payload.attributes)
     val shadow = ObjectShadow.fromPayload(payload.attributes)
 
@@ -78,13 +77,13 @@ object TaxonomyManager {
                              formId = ins.form.id,
                              shadowId = ins.shadow.id,
                              commitId = ins.commit.id))
-    } yield TaxonomyResponse.build(FullObject(taxonomy, ins.form, ins.shadow), Seq())
+    } yield FullTaxonomyResponse.build(FullObject(taxonomy, ins.form, ins.shadow), Seq())
   }
 
   def updateTaxonomy(taxonomyFormId: ObjectForm#Id, payload: UpdateTaxonomyPayload)(
       implicit ec: EC,
       oc: OC,
-      db: DB): DbResultT[TaxonomyResponse] = {
+      db: DB): DbResultT[FullTaxonomyResponse] = {
     val form   = ObjectForm.fromPayload(Taxonomy.kind, payload.attributes)
     val shadow = ObjectShadow.fromPayload(payload.attributes)
 
@@ -97,7 +96,7 @@ object TaxonomyManager {
                        taxonomy.shadow.attributes.merge(shadow.attributes),
                        Taxonomies.updateHead)
       taxons ← * <~ TaxonomyTaxonLinks.queryRightByLeftWithLinks(newTaxonomy.model)
-    } yield TaxonomyResponse.build(newTaxonomy, taxons)
+    } yield FullTaxonomyResponse.build(newTaxonomy, taxons)
   }
 
   def archiveByContextAndId(
@@ -271,7 +270,7 @@ object TaxonomyManager {
   def assignProduct(taxonFormId: ObjectForm#Id, productFormId: ObjectForm#Id)(
       implicit ec: EC,
       oc: OC,
-      db: DB): DbResultT[Seq[SingleTaxonResponse]] =
+      db: DB): DbResultT[Seq[AssignedTaxonsResponse]] =
     for {
       taxon    ← * <~ Taxons.mustFindByFormId404(taxonFormId)
       product  ← * <~ Products.mustFindByFormId404(productFormId)
@@ -282,7 +281,7 @@ object TaxonomyManager {
   def unassignProduct(taxonFormId: ObjectForm#Id, productFormId: ObjectForm#Id)(
       implicit ec: EC,
       oc: OC,
-      db: DB): DbResultT[Seq[SingleTaxonResponse]] =
+      db: DB): DbResultT[Seq[AssignedTaxonsResponse]] =
     for {
       taxon   ← * <~ Taxons.mustFindByFormId404(taxonFormId)
       product ← * <~ Products.mustFindByFormId404(productFormId)
@@ -298,7 +297,7 @@ object TaxonomyManager {
   def getAssignedTaxons(productRef: ProductReference)(
       implicit ec: EC,
       oc: OC,
-      db: DB): DbResultT[Seq[SingleTaxonResponse]] =
+      db: DB): DbResultT[Seq[AssignedTaxonsResponse]] =
     for {
       product  ← * <~ Products.mustFindByReference(productRef)
       assigned ← * <~ getAssignedTaxons(product)
@@ -307,10 +306,30 @@ object TaxonomyManager {
   def getAssignedTaxons(product: models.product.Product)(
       implicit ec: EC,
       oc: OC,
-      db: DB): DbResultT[Seq[SingleTaxonResponse]] =
-    for {
-      taxons   ← * <~ ProductTaxonLinks.queryRightByLeft(product)
-      response ← * <~ taxons.map(buildSingleTaxonResponse)
-    } yield response
+      db: DB): DbResultT[Seq[AssignedTaxonsResponse]] = {
 
+    val assignedTaxons = ProductTaxonLinks.filterLeft(product).flatMap(_.right)
+
+    //get taxonomies and taxons assigned to the product grouped into (taxonomy, taxon) pairs
+    val assignedTaxonomiesQuery = TaxonomyTaxonLinks
+      .join(assignedTaxons)
+      .on { case (link, taxons) ⇒ link.rightId === taxons.id }
+      .join(Taxonomies)
+      .on { case ((link, _), taxonomy)   ⇒ link.leftId === taxonomy.id }
+      .map { case ((_, taxon), taxonomy) ⇒ (taxonomy, taxon) }
+
+    for {
+      assignedTaxonomies ← * <~ assignedTaxonomiesQuery.result
+      (taxonomies, taxons) = assignedTaxonomies.groupBy { case (taxonomy, _) ⇒ taxonomy }
+        .mapValues(_.map { case (_, taxon) ⇒ taxon })
+        .unzip
+
+      fullTaxonomies ← * <~ ObjectManager.getFullObjects(taxonomies.toSeq)
+      fullTaxons     ← * <~ taxons.map(ObjectManager.getFullObjects)
+
+    } yield
+      fullTaxonomies.zip(fullTaxons).map {
+        case (taxonomy, items) ⇒ AssignedTaxonsResponse.build(taxonomy, items)
+      }
+  }
 }
