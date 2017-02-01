@@ -49,29 +49,33 @@ Pre-installed compilers and runtimes, in case you need to build or test somethin
 
 * Oracle JVM 1.8
 * [Go](https://golang.org) 1.7.4
-* [Node](https://nodejs.org) 7.1.0
+* [Node.js](https://nodejs.org) 7.1.0
 * [Elixir](http://elixir-lang.org) 1.1.0
 
 ## Build tools
 
 Various package management and build systems which are necessary for modern development:
 
-* [sbt](http://www.scala-sbt.org) - interactive build tool for Scala.
-* [glide](https://github.com/Masterminds/glide) - package management for Golang.
-* [gulp](https://github.com/gulpjs/gulp) - streaming build system for Node.js.
-* [yarn](https://yarnpkg.com) - fast, reliable, and secure dependency management for Node.js.
-* [lein](https://github.com/technomancy/leiningen) - automating Clojure projects without setting your hair on fire.
-* [boot](https://github.com/boot-clj/boot) - Clojure build framework and ad-hoc Clojure script evaluator.
+* Scala
+    * [sbt](http://www.scala-sbt.org) - interactive build tool for Scala.
+* Go
+    * [glide](https://github.com/Masterminds/glide) - package management for Golang.
+* Clojure
+    * [lein](https://github.com/technomancy/leiningen) - automating Clojure projects without setting your hair on fire.
+    * [boot](https://github.com/boot-clj/boot) - Clojure build framework and ad-hoc Clojure script evaluator.
+* JavaScript
+    * [babel-cli](https://github.com/babel/babel) - command-line compiler for writing next generation JavaScript.
+    * [flow-bin](https://github.com/flowtype/flow-bin) - Binary wrapper for Flow - a static type checker for JavaScript.
+    * [gulp](https://github.com/gulpjs/gulp) - streaming build system for Node.js.
+    * [yarn](https://yarnpkg.com) - fast, reliable, and secure dependency management for Node.js.
 
 ## Command line utilities
 
 Baked in command-line utilities which ease problem solving:
 
-* [babel-cli](https://github.com/babel/babel) - command-line compiler for writing next generation JavaScript.
 * [consulate](https://github.com/gmr/consulate) - command-line client for the Consul HTTP API.
 * [docker-clean](https://github.com/ZZROTDesign/docker-clean) - a simple shell script to clean up the Docker Daemon.
 * [docker-compose](https://github.com/docker/compose) - define and run multi-container applications with Docker.
-* [flow-bin](https://github.com/flowtype/flow-bin) - Binary wrapper for Flow - a static type checker for JavaScript.
 * [httpie](https://httpie.org) - a command line HTTP client that will make you smile.
 * [jq](https://stedolan.github.io/jq) - lightweight and flexible command-line JSON processor.
 * [kt](https://github.com/fgeller/kt) - commandline tool for Apache Kafka.
