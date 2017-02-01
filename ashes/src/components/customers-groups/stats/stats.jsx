@@ -65,7 +65,7 @@ class CustomerGroupStats extends Component {
     period: 'month',
   };
 
-  get timeframes() {
+  get timeframes(): Array<Element> {
     return Object.keys(this.props.stats).map((period: string) => (
       <RadioButton
         id={period}

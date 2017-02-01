@@ -1,6 +1,5 @@
-/* @flow weak */
+/* @flow */
 
-//libs
 import _ from 'lodash';
 import React, { PropTypes, Component, Element } from 'react';
 import { connect } from 'react-redux';
@@ -9,18 +8,15 @@ import { autobind, debounce } from 'core-decorators';
 import moment from 'moment';
 import classNames from 'classnames';
 
-//data
 import criterions from 'paragons/customer-groups/criterions';
 import operators from 'paragons/customer-groups/operators';
 import requestAdapter from 'modules/customer-groups/utils/request-adapter';
 import * as groupActions from 'modules/customer-groups/details/group';
 import { actions as customersListActions } from 'modules/customer-groups/details/customers-list';
 
-//helpers
 import { transitionTo } from 'browserHistory';
 import { prefix } from 'lib/text-utils';
 
-//components
 import { SelectableSearchList, makeTotalCounter } from 'components/list-page';
 import { PrimaryButton } from 'components/common/buttons';
 import MultiSelectRow from 'components/table/multi-select-row';
@@ -148,7 +144,7 @@ class DynamicGroup extends Component {
     return (
       <ContentBox title="Criteria"
                   className={prefixed('criteria')}
-                  bodyClassName={classNames({'_open': this.state.criteriaOpen})}
+                  bodyClassName={classNames({'_closed': !this.state.criteriaOpen})}
                   actionBlock={this.criteriaToggle}>
         <span className={prefixed('main')}>
           Customers match
