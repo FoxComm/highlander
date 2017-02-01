@@ -80,12 +80,6 @@ object CartLineItems
           cartLineItems  ← q
           productVariant ← cartLineItems.productVariant
         } yield productVariant.formId).result.map(_.groupBy(identity).mapValues(_.size))
-
-      def REMOVE_ME_countProductVariantsBySkuCodes(implicit ec: EC): DBIO[Map[String, Int]] =
-        (for {
-          cartLineItems  ← q
-          productVariant ← cartLineItems.productVariant
-        } yield productVariant.code).result.map(_.groupBy(identity).mapValues(_.size))
     }
   }
 }
