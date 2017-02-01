@@ -1,54 +1,42 @@
 package payloads
 
 import cats.implicits._
-import failures.GeneralFailure
-import org.scalacheck.{Gen, Shrink}
-import org.scalatest.prop.PropertyChecks
+import failures.ProductFailures.DuplicatedOptionValueForVariant
 import payloads.ProductOptionPayloads.{ProductOptionPayload, ProductOptionValuePayload}
 import scala.util.Random
 import testutils.TestBase
 import utils.FoxValidationException
 
-class ProductOptionTest extends TestBase with PropertyChecks {
+class ProductOptionTest extends TestBase {
   "ProductOptionPayload" - {
     "creation" - {
       "fails when multiple options are attached to the same variant" in {
-        val skuCodesGen = for {
-          invalid    ← Gen.nonEmptyContainerOf[Set, String](Gen.alphaStr)
-          times      ← Gen.choose(2, 10)
-          repeated   ← Gen.listOfN(times, Gen.const(invalid))
-          validFront ← Gen.containerOf[Set, String](Gen.alphaStr)
-          validBack ← Gen.containerOf[Set, String](Gen.alphaStr.suchThat(c ⇒
-                               !validFront.contains(c)))
-        } yield
-          (validFront.toList ++ Random.shuffle(repeated.flatten) ++ validBack.toList, invalid)
-        forAll(skuCodesGen) {
-          case (all, repeated) ⇒
-            val expected = repeated.map(code ⇒
-                  GeneralFailure(s"Variant $code cannot have more than one option value"))
-            intercept[FoxValidationException] {
-              ProductOptionPayload(attributes = Map.empty,
-                                   values = List(
-                                       ProductOptionValuePayload(
-                                           name = Random.nextString(10).some,
-                                           swatch = None,
-                                           skuCodes = all
-                                       )).some)
-            }.failures.toList must contain theSameElementsAs expected
-        }
-      }
-
-      "passes when valid" in {
-        val skuCodesGen = Gen.containerOf[Set, String](Gen.alphaStr)
-        forAll(skuCodesGen) { skuCodes ⇒
+        intercept[FoxValidationException] {
           ProductOptionPayload(attributes = Map.empty,
                                values = List(
                                    ProductOptionValuePayload(
                                        name = Random.nextString(10).some,
                                        swatch = None,
-                                       skuCodes = skuCodes.toList
-                                   )).some).validate.isValid must === (true)
-        }
+                                       skuCodes = List("duplicated1",
+                                                       "whatever1",
+                                                       "duplicated1",
+                                                       "duplicated2",
+                                                       "duplicated2",
+                                                       "whatever2")
+                                   )).some)
+        }.failures.toList must contain theSameElementsAs List(
+            DuplicatedOptionValueForVariant("duplicated1"),
+            DuplicatedOptionValueForVariant("duplicated2"))
+      }
+
+      "passes when valid" in {
+        ProductOptionPayload(attributes = Map.empty,
+                             values = List(
+                                 ProductOptionValuePayload(
+                                     name = Random.nextString(10).some,
+                                     swatch = None,
+                                     skuCodes = List("whatever1", "whatever2", "whatever3")
+                                 )).some).validate.isValid must === (true)
       }
     }
   }

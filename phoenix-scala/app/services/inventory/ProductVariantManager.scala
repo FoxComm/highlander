@@ -288,23 +288,24 @@ object ProductVariantManager {
       ProductVariantResponse
         .buildLite(IlluminatedVariant.illuminate(oc, fullVariant), albums, mwhSkuId, options)
 
+  private def findProductOption(id: Int)(
+      implicit ec: EC,
+      db: DB): DbResultT[(FullObject[ProductOption], FullObject[ProductOptionValue])] =
+    for {
+      link        ← * <~ ProductOptionValueLinks.mustFindById404(id)
+      option      ← * <~ ObjectManager.getFullObject(ProductOptions.mustFindById404(link.leftId))
+      optionValue ← * <~ ObjectManager.getFullObject(ProductOptionValues.mustFindById404(id))
+    } yield (option, optionValue)
+
   private def findProductOptionsWithValues(optionValueIds: Seq[Int])(
       implicit ec: EC,
-      db: DB): DbResultT[Seq[(FullObject[ProductOption], FullObject[ProductOptionValue])]] = {
-    @inline def findProductOption(id: Int) =
-      for {
-        link        ← * <~ ProductOptionValueLinks.mustFindById404(id)
-        option      ← * <~ ObjectManager.getFullObject(ProductOptions.mustFindById404(link.leftId))
-        optionValue ← * <~ ObjectManager.getFullObject(ProductOptionValues.mustFindById404(id))
-      } yield (option, optionValue)
-
+      db: DB): DbResultT[Seq[(FullObject[ProductOption], FullObject[ProductOptionValue])]] =
     DbResultT.sequence(optionValueIds.map(findProductOption))
-  }
 
   def optionValuesForVariant(variant: ProductVariant)(
       implicit ec: EC,
       db: DB,
-      oc: OC): DbResultT[Seq[ProductOptionResponse.Root]] =
+      oc: OC): DbResultT[Seq[ProductOptionResponse.Partial]] =
     for {
       valueLinks        ← * <~ ProductValueVariantLinks.filter(_.rightId === variant.id).result
       optionsWithValues ← * <~ findProductOptionsWithValues(valueLinks.map(_.leftId))

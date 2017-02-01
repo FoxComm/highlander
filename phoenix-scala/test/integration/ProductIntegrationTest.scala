@@ -39,7 +39,7 @@ class ProductIntegrationTest
         val variantCode   = payloadBuilder.variantCodes.onlyElement
         val variantOption = product.variants.onlyElement.options.onlyElement
         product.variants.onlyElement.attributes.code must === (variantCode)
-        variantOption mustBe a[ProductOptionResponse.Root.Partial]
+        variantOption mustBe a[ProductOptionResponse.Partial]
         variantOption.values.onlyElement.name must === (singleOptionCfg.values.onlyElement)
         product.options.onlyElement.values.onlyElement.skuCodes.value.onlyElement must === (
             variantCode)
@@ -64,10 +64,10 @@ class ProductIntegrationTest
         product2OptionValues.map(_.name) must === (fixture1.colors.all)
 
         val variantOptionValues = for {
-          pv ← product2.variants
-          o  ← pv.options
-          v  ← o.values
-        } yield v.name
+          variant ← product2.variants
+          option  ← variant.options
+          optionValue  ← option.values
+        } yield optionValue.name
         variantOptionValues must === (product2PayloadBuilder.optionCfg.values)
 
         val variantCodes       = product2.variants.map(_.attributes.code)

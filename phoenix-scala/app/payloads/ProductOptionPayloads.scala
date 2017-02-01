@@ -2,12 +2,13 @@ package payloads
 
 import cats.data._
 import cats.implicits._
-import failures.{Failure, GeneralFailure}
+import failures.{Failure, Failures}
+import failures.ProductFailures.DuplicatedOptionValueForVariant
 import models.objects.ObjectUtils._
 import models.objects.{FormAndShadow, ObjectForm, ObjectShadow}
 import models.product.ProductOptionValue
 import payloads.ObjectPayloads._
-import utils.{ValidatedPayload, Validation}
+import utils.ValidatedPayload
 import utils.aliases._
 
 object ProductOptionPayloads {
@@ -20,18 +21,16 @@ object ProductOptionPayloads {
     def validate: ValidatedNel[Failure, ProductOptionPayload] = {
       val variantPerOptionValue = for {
         value ← values.getOrElse(Seq.empty)
-        code  ← value.skuCodes
-      } yield code → value
+        sku   ← value.skuCodes
+      } yield sku → value
       val variantOptionValues = variantPerOptionValue.groupBy { case (code, _) ⇒ code }
-      variantOptionValues.foldLeft(
-          Validated.valid[NonEmptyList[Failure], ProductOptionPayload](this)) {
-        case (acc, (code, optionValues)) ⇒
-          if (optionValues.size > 1)
-            (acc |@| Validated.invalidNel[Failure, ProductOptionPayload](
-                    GeneralFailure(s"Variant $code cannot have more than one option value"))).map {
-              case (p, _) ⇒ p
-            } else
-            acc
+      variantOptionValues.foldLeft(Validated.valid[Failures, ProductOptionPayload](this)) {
+        case (acc, (sku, optionValues)) if optionValues.size > 1 ⇒
+          (acc |@| Validated.invalidNel[Failure, ProductOptionPayload](
+                  DuplicatedOptionValueForVariant(sku))).map {
+            case (payload, _) ⇒ payload
+          }
+        case (acc, _) ⇒ acc
       }
     }
   }
