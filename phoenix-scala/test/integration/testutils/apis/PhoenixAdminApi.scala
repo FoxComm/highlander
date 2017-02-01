@@ -1,7 +1,6 @@
 package testutils.apis
 
 import akka.http.scaladsl.model.HttpResponse
-
 import models.objects.ObjectForm
 import payloads.ActivityTrailPayloads._
 import payloads.AddressPayloads._
@@ -20,6 +19,7 @@ import payloads.OrderPayloads._
 import payloads.PaymentPayloads._
 import payloads.ProductPayloads._
 import payloads.PromotionPayloads.{CreatePromotion, UpdatePromotion}
+import payloads.ReturnPayloads._
 import payloads.SharedSearchPayloads._
 import payloads.SkuPayloads._
 import payloads.StoreAdminPayloads._
@@ -182,6 +182,99 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
     def convertToStoreCredit(customerId: Int): HttpResponse =
       POST(s"$giftCardPath/convert/$customerId")
+  }
+
+  object returnsApi {
+    val returnsPrefix = s"$rootPrefix/returns"
+
+    def create(payload: ReturnCreatePayload): HttpResponse =
+      POST(returnsPrefix, payload)
+  }
+
+  case class returnsApi(refNum: String) { returns ⇒
+    val requestPath = s"${returnsApi.returnsPrefix}/$refNum"
+
+    def update(payload: ReturnUpdateStatePayload): HttpResponse =
+      PATCH(requestPath, payload)
+
+    def get(): HttpResponse =
+      GET(requestPath)
+
+    // TODO is this endpoint necessary ?
+    def getExpanded(): HttpResponse =
+      GET(s"$requestPath/expanded")
+
+    def getLock(): HttpResponse =
+      GET(s"$requestPath/lock")
+
+    def lock(): HttpResponse =
+      POST(s"$requestPath/lock")
+
+    def unlock(): HttpResponse =
+      POST(s"$requestPath/unlock")
+
+    def message(payload: ReturnMessageToCustomerPayload) =
+      POST(s"$requestPath/message", payload)
+
+    object lineItems {
+      val requestPath = s"${returns.requestPath}/line-items"
+
+      // TODO consider adding line item type to the payload and specify different payload versions for each
+      object skus {
+        val requestPath = s"${lineItems.requestPath}/skus"
+
+        def add(payload: ReturnSkuLineItemsPayload): HttpResponse =
+          POST(requestPath, payload)
+
+        def delete(lineItemId: Int): HttpResponse =
+          DELETE(s"$requestPath/$lineItemId")
+      }
+
+      object shippingCosts {
+        val requestPath = s"${lineItems.requestPath}/shipping-costs"
+
+        def add(payload: ReturnShippingCostLineItemsPayload): HttpResponse =
+          POST(requestPath, payload)
+
+        def delete(lineItemId: Int): HttpResponse =
+          DELETE(s"$requestPath/$lineItemId")
+      }
+    }
+
+    object paymentMethods { paymentMethods ⇒
+      val requestPath = s"${returns.requestPath}/payment-methods"
+
+      // TODO add paymentMethodType to payload and remove all those routes duplicates
+      object creditCards {
+        val requestPath = s"${paymentMethods.requestPath}/credit-cards"
+
+        def add(payload: ReturnPaymentPayload): HttpResponse =
+          POST(requestPath, payload)
+
+        def delete(): HttpResponse =
+          DELETE(s"$requestPath")
+      }
+
+      object giftCards {
+        val requestPath = s"${paymentMethods.requestPath}/gift-cards"
+
+        def add(payload: ReturnPaymentPayload): HttpResponse =
+          POST(requestPath, payload)
+
+        def delete(): HttpResponse =
+          DELETE(s"$requestPath")
+      }
+
+      object storeCredit {
+        val requestPath = s"${paymentMethods.requestPath}/store-credit"
+
+        def add(payload: ReturnPaymentPayload): HttpResponse =
+          POST(requestPath, payload)
+
+        def delete(): HttpResponse =
+          DELETE(s"$requestPath")
+      }
+    }
   }
 
   object ordersApi {

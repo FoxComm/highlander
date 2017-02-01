@@ -1,5 +1,4 @@
 import akka.http.scaladsl.model.StatusCodes
-
 import failures.LockFailures._
 import failures._
 import models.Reasons
@@ -16,12 +15,14 @@ import payloads.ReturnPayloads._
 import responses.{AllReturns, ReturnLockResponse, ReturnResponse}
 import services.returns.{ReturnLineItemUpdater, ReturnLockUpdater}
 import testutils._
+import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
 
 class ReturnIntegrationTest
     extends IntegrationTestBase
+    with PhoenixAdminApi
     with HttpSupport
     with AutomaticAuth
     with BakedFixtures {
