@@ -6,7 +6,6 @@ import cats.data.{Validated, ValidatedNel, Xor}
 import cats.implicits._
 import failures.UserFailures._
 import failures._
-import models.customer.CustomersData
 import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils.Validation
@@ -117,14 +116,6 @@ object Users extends FoxTableQuery[User, Users](new Users(_)) with ReturningId[U
 
   def findByEmail(email: String): QuerySeq = {
     filter(_.email === email)
-  }
-
-  def findNonGuestByEmail(email: String): QuerySeq = {
-    findByEmail(email)
-      .join(CustomersData)
-      .on(_.accountId === _.accountId)
-      .filterNot { case (_, data) ⇒ data.isGuest }
-      .map { case (user, _)       ⇒ user }
   }
 
   def activeUserByEmail(email: Option[String]): QuerySeq =

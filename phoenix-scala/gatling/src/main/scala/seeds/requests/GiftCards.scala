@@ -8,7 +8,7 @@ import models.Reason
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import payloads.GiftCardPayloads._
 import payloads.PaymentPayloads.GiftCardPayment
-import helpers.dbFeeder
+import seeds.dbFeeder
 import utils.Money.Currency
 import utils.Strings._
 
