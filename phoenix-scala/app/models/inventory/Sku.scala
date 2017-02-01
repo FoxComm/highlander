@@ -41,6 +41,9 @@ case class Sku(id: Int = 0,
   def withNewShadowAndCommit(shadowId: Int, commitId: Int): Sku =
     this.copy(shadowId = shadowId, commitId = commitId)
 
+  def copyForCreate(contextId: Int, formId: Int, shadowId: Int, commitId: Int): Sku =
+    this.copy(contextId = contextId, formId = formId, shadowId = shadowId, commitId = commitId)
+
   def mustNotBeArchived[T](target: T, targetId: Any): Failures Xor Sku = {
     if (archivedAt.isEmpty) Xor.right(this)
     else Xor.left(LinkArchivedSkuFailure(target, targetId, code).single)

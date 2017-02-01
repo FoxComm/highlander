@@ -38,6 +38,9 @@ case class Category(id: Int = 0,
 
   def withNewShadowAndCommit(shadowId: Int, commitId: Int): Category =
     this.copy(shadowId = shadowId, commitId = commitId)
+
+  def copyForCreate(contextId: Int, formId: Int, shadowId: Int, commitId: Int): Category =
+    this.copy(contextId = contextId, formId = formId, shadowId = shadowId, commitId = commitId)
 }
 
 class Categories(tag: Tag) extends ObjectHeads[Category](tag, "categories") {

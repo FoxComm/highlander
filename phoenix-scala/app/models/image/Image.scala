@@ -30,6 +30,9 @@ case class Image(id: Int = 0,
 
   def withNewShadowAndCommit(shadowId: Int, commitId: Int): Image =
     this.copy(shadowId = shadowId, commitId = commitId)
+
+  def copyForCreate(contextId: Int, formId: Int, shadowId: Int, commitId: Int): Image =
+    this.copy(contextId = contextId, formId = formId, shadowId = shadowId, commitId = commitId)
 }
 
 class Images(tag: Tag) extends ObjectHeads[Image](tag, "images") {

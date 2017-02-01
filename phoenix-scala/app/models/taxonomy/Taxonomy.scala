@@ -29,6 +29,9 @@ case class Taxonomy(id: Int = 0,
 
   def withNewShadowAndCommit(shadowId: Int, commitId: Int): Taxonomy =
     this.copy(shadowId = shadowId, commitId = commitId)
+
+  def copyForCreate(contextId: Int, formId: Int, shadowId: Int, commitId: Int): Taxonomy =
+    this.copy(contextId = contextId, formId = formId, shadowId = shadowId, commitId = commitId)
 }
 
 class Taxonomies(tag: Tag) extends ObjectHeads[Taxonomy](tag, "taxonomies") {

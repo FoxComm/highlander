@@ -58,6 +58,9 @@ case class Product(id: Int = 0,
   def withNewShadowAndCommit(shadowId: Int, commitId: Int): Product =
     this.copy(shadowId = shadowId, commitId = commitId)
 
+  def copyForCreate(contextId: Int, formId: Int, shadowId: Int, commitId: Int): Product =
+    this.copy(contextId = contextId, formId = formId, shadowId = shadowId, commitId = commitId)
+
   def mustNotBePresentInCarts(implicit ec: EC, db: DB): DbResultT[Unit] =
     for {
       skus        ← * <~ ProductSkuLinks.filter(_.leftId === id).result

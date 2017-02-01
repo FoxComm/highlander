@@ -42,6 +42,9 @@ case class Discount(id: Int = 0,
 
   def withNewShadowAndCommit(shadowId: Int, commitId: Int): Discount =
     this.copy(shadowId = shadowId, commitId = commitId)
+
+  def copyForCreate(contextId: Int, formId: Int, shadowId: Int, commitId: Int): Discount =
+    this.copy(contextId = contextId, formId = formId, shadowId = shadowId, commitId = commitId)
 }
 
 class Discounts(tag: Tag) extends ObjectHeads[Discount](tag, "discounts") {

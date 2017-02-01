@@ -34,6 +34,9 @@ case class Album(id: Int = 0,
   def withNewShadowAndCommit(shadowId: Int, commitId: Int): Album =
     this.copy(shadowId = shadowId, commitId = commitId)
 
+  def copyForCreate(contextId: Int, formId: Int, shadowId: Int, commitId: Int): Album =
+    this.copy(contextId = contextId, formId = formId, shadowId = shadowId, commitId = commitId)
+
   def mustNotBeArchived: Failures Xor Album = {
     if (archivedAt.isEmpty) Xor.right(this)
     else Xor.left(AddImagesToArchivedAlbumFailure(id).single)
