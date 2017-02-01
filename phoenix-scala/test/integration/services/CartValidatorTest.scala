@@ -17,6 +17,7 @@ import org.json4s.JsonAST.JObject
 import payloads.ProductPayloads.UpdateProductPayload
 import payloads.SkuPayloads.SkuPayload
 import responses.ProductResponses.ProductResponse
+import responses.cord.CartResponse
 import services.carts.CartTotaler
 import testutils.PayloadHelpers.tv
 import testutils._
@@ -90,20 +91,21 @@ class CartValidatorTest
 
       "if cart contains" - {
         "inactive sku" in new LineItemsFixture {
-          skusApi(sku.code).update(SkuPayload(attributes = Map("activeTo" → tv(Instant.now))));
+          skusApi(sku.code)
+            .update(SkuPayload(attributes = Map("activeTo" → tv(Instant.now, "datetime"))));
 
-          val result = CartValidator(refresh(cart)).validate().gimme
+          val warnings = cartsApi(cart.referenceNumber).get().asThe[CartResponse].warnings
 
-          result.warnings.value.toList must contain(
+          warnings.value.toList must contain(
               LineItemHasInactiveProduct(Mvp.title(productForm, productShadow), sku.code))
         }
 
         "archived sku" in new LineItemsFixture {
           skusApi(sku.code).archive()
 
-          val result = CartValidator(refresh(cart)).validate().gimme
+          val warnings = cartsApi(cart.referenceNumber).get().asThe[CartResponse].warnings
 
-          result.warnings.value.toList must contain(
+          warnings.value.toList must contain(
               LineItemHasInactiveProduct(Mvp.title(productForm, productShadow), sku.code))
         }
 
@@ -112,29 +114,31 @@ class CartValidatorTest
             productsApi(product.formId).get.as[ProductResponse.Root].attributes
 
           val currentAttributes: Map[String, Json] = productAttributes match {
-            case JObject(fields) ⇒ fields.map { case (n, v) ⇒ n → v }.toMap
+            case JObject(fields) ⇒ fields.toMap
             case _               ⇒ Map[String, Json]()
           }
 
           productsApi(product.formId)
-            .update(UpdateProductPayload(
-                    attributes = currentAttributes ++ Map("activeTo"   → tv(Instant.now)),
+            .update(
+                UpdateProductPayload(
+                    attributes = currentAttributes ++ Map(
+                          "activeTo"                                   → tv(Instant.now, "datetime")),
                     skus = Some(Seq(SkuPayload(attributes = Map("code" → tv(sku.code))))),
                     variants = None))
             .as[ProductResponse.Root]
 
-          val result = CartValidator(refresh(cart)).validate().gimme
+          val warnings = cartsApi(cart.referenceNumber).get().asThe[CartResponse].warnings
 
-          result.warnings.value.toList must contain(
+          warnings.value.toList must contain(
               LineItemHasInactiveProduct(Mvp.title(productForm, productShadow), sku.code))
         }
 
         "archived product" in new LineItemsFixture {
           productsApi(product.formId).archive()
 
-          val result = CartValidator(refresh(cart)).validate().gimme
+          val warnings = cartsApi(cart.referenceNumber).get().asThe[CartResponse].warnings
 
-          result.warnings.value.toList must contain(
+          warnings.value.toList must contain(
               LineItemHasInactiveProduct(Mvp.title(productForm, productShadow), sku.code))
         }
       }

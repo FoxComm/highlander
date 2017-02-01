@@ -4,11 +4,11 @@ import failures.CartFailures._
 import failures.{Failure, Failures}
 import models.cord._
 import models.cord.lineitems.CartLineItems
-import models.inventory.{Sku, Skus}
+import models.inventory.Sku
 import models.objects.{FullObject, ProductSkuLinks}
 import models.payment.giftcard.{GiftCardAdjustments, GiftCards}
 import models.payment.storecredit.{StoreCreditAdjustments, StoreCredits}
-import models.product.{Mvp, Product, Products}
+import models.product.{Mvp, Product}
 import services.objects.ObjectManager
 import utils.aliases._
 import utils.db.ExPostgresDriver.api._
@@ -148,30 +148,24 @@ case class CartValidator(cart: Cart)(implicit ec: EC, db: DB) extends CartValida
   }
 
   private def ensureHasActiveItemsOnly(
-      response: CartValidatorResponse)(implicit ec: EC, db: DB): DBIO[CartValidatorResponse] =
-    (for {
-      invalidProducts ← * <~ getInactiveLineItemProducts
-      failures = invalidProducts.map {
-        case (sku, product) ⇒
-          LineItemHasInactiveProduct(Mvp.title(product.form, product.shadow), sku.model.code)
-      }
-    } yield warning(response, failures: _*)).valueOr(fails ⇒ warning(response, fails.toList: _*))
+      response: CartValidatorResponse)(implicit ec: EC, db: DB): DBIO[CartValidatorResponse] = {
+    val inactiveProductToFailure = (sku: FullObject[Sku], product: FullObject[Product]) ⇒
+      LineItemHasInactiveProduct(Mvp.title(product.form, product.shadow), sku.model.code)
+
+    getInactiveLineItemProducts.fold(
+        failures ⇒ warning(response, failures.toList: _*),
+        items ⇒ warning(response, items.map(inactiveProductToFailure.tupled): _*)
+    )
+  }
 
   private def getInactiveLineItemProducts(
       implicit ec: EC): DbResultT[Seq[(FullObject[Sku], FullObject[Product])]] =
     for {
       skuIds ← * <~ CartLineItems.byCordRef(cart.referenceNumber).map(_.skuId).distinct.result
-      skusAndProducts ← * <~ ProductSkuLinks
-                         .filter(_.rightId inSet skuIds)
-                         .join(Skus)
-                         .join(Products)
-                         .on {
-                           case ((link, sku), product) ⇒
-                             link.leftId === product.id && link.rightId === sku.id
-                         }
-                         .map { case ((_, sku), product) ⇒ (sku, product) }
-                         .result
-      (skus, products) = skusAndProducts.unzip
+      skusAndProducts ← * <~ ProductSkuLinks.joinLeftAndRight.filter {
+                         case (_, sku) ⇒ sku.id inSet skuIds
+                       }.result
+      (products, skus) = skusAndProducts.unzip
 
       fullSkus     ← * <~ ObjectManager.getFullObjects[Sku](skus)
       fullProducts ← * <~ ObjectManager.getFullObjects[Product](products)

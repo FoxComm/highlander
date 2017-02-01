@@ -46,4 +46,13 @@ object ProductSkuLinks
     super.filterRightId(rightId).filter(_.archivedAt.isEmpty)
 
   def build(left: Product, right: Sku) = ProductSkuLink(leftId = left.id, rightId = right.id)
+
+  def joinLeftAndRight: Query[(Products, Skus), (Product, Sku), Seq] =
+    join(Products)
+      .join(Skus)
+      .on {
+        case ((link, product), sku) ⇒
+          link.leftId === product.id && link.rightId === sku.id
+      }
+      .map { case ((_, product), sku) ⇒ (product, sku) }
 }
