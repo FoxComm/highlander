@@ -32,5 +32,8 @@ package object helpers {
   implicit class Stepper[B <: StructureBuilder[B]](val builder: B) extends AnyVal {
     def step(chains: ChainBuilder*)    = builder.exec(chains).stopOnFailure.doPause
     def step(http: HttpRequestBuilder) = builder.exec(http).stopOnFailure.doPause
+
+    // go = instant step
+    def go(http: HttpRequestBuilder) = builder.exec(http).stopOnFailure
   }
 }

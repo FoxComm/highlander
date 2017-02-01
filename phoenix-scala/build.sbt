@@ -97,6 +97,10 @@ seedDemo := (runMain in Compile in phoenixScala).partialInput(s"$seedCommand --s
 seedOneshot    := (runMain in Compile in gatling).partialInput(" seeds.OneshotSeeds").evaluated
 seedContinuous := (runMain in Compile in gatling).partialInput(" seeds.ContinuousSeeds").evaluated
 
+// Gatling tests
+testSimulations := (runMain in Compile in gatling).partialInput(" playground.GatlingSimulations")
+  .toTask(" GatlingSimulations").value
+
 // Scalafmt
 scalafmtAll <<= Def.task().dependsOn(scalafmt in Compile in phoenixScala,
                                      scalafmt in Test    in phoenixScala,
@@ -112,4 +116,5 @@ scalafmtTestAll <<= Def.task().dependsOn(scalafmtTest in Compile in phoenixScala
 
 // Test
 test <<= Def.sequential(compile in Test, compile in IT, compile in ET,
-                        test    in Test, test    in IT, test    in ET)
+                        test    in Test, test    in IT, test    in ET,
+                        testSimulations)
