@@ -55,6 +55,7 @@
 @media (--small-only), (--medium-only) {
   .mobile-sidebar {
     display: block;
+    position: relative;
     z-index: 10;
   }
 }
