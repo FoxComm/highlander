@@ -175,39 +175,4 @@ Vagrant.configure("2") do |config|
     end
   end
 
-  config.vm.define :build, autostart: false do |app|
-    app.vm.box = "build16.04"
-    app.vm.box_url = "https://s3.amazonaws.com/fc-dev-boxes/build16.04.box"
-    app.vm.box_download_checksum = "550f65256533c6dd4bcb5278dfa46ffe"
-    app.vm.box_download_checksum_type = "md5"
-  end
-
-  config.vm.define :appliance_base, autostart: false do |app|
-    app.vm.box = "boxcutter/ubuntu1604"
-    app.vm.network :private_network, ip: $nginx_ip
-
-    app.vm.provision "shell", inline: "apt-get install -y python-minimal"
-    app.vm.provision "ansible" do |ansible|
-      ansible.verbose = "v"
-      ansible.playbook = "prov-shit/ansible/vagrant_appliance_base.yml"
-      ansible.extra_vars = {
-        user: user
-      }
-    end
-  end
-
-  config.vm.define :build_base, autostart: false do |app|
-    app.vm.box = "boxcutter/ubuntu1604"
-    app.vm.network :private_network, ip: $nginx_ip
-
-    app.vm.provision "shell", inline: "apt-get install -y python-minimal"
-    app.vm.provision "ansible" do |ansible|
-      ansible.verbose = "v"
-      ansible.skip_tags = "buildkite"
-      ansible.playbook = "prov-shit/ansible/vagrant_builder.yml"
-      ansible.extra_vars = {
-        user: user
-      }
-    end
-  end
 end

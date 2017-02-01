@@ -7,8 +7,8 @@ public_keys_dest_dir: /etc/keys
 private_keys_dest_dir: /etc/keys
 scala_version: scala-2.11
 vagrant: false
-local_vagrant: false
 foxcomm_domain: foxcommerce.com
+logrotate_dir: /etc/logrotate.d
 
 # Marathon Defaults
 marathon_retries: 60
@@ -164,6 +164,7 @@ solomon_token_ttl: 365
 
 # Middlewarehouse
 middlewarehouse_env: staging
+middlewarehouse_src: ../../middlewarehouse/
 middlewarehouse_dir: /middlewarehouse
 middlewarehouse_bin: "{{middlewarehouse_dir}}/middlewarehouse"
 middlewarehouse_db_name: middlewarehouse_development
@@ -171,43 +172,19 @@ middlewarehouse_db_user: middlewarehouse
 middlewarehouse_db_connection_string: "postgresql://{{middlewarehouse_db_user}}@{{db_host}}/{{middlewarehouse_db_name}}"
 middlewarehouse_test_db_name: middlewarehouse_test
 
-middlewarehouse_consumers_dir: "{{middlewarehouse_dir}}/consumers"
-stock_items_consumer_bin: "{{middlewarehouse_consumers_dir}}/stock-items-consumer"
-shipments_consumer_bin: "{{middlewarehouse_consumers_dir}}/shipments-consumer"
-capture_consumer_bin: "{{middlewarehouse_consumers_dir}}/capture-consumer"
-
-middlewarehouse_src: ../../middlewarehouse/
-middlewarehouse_bin_src: "{{middlewarehouse_src}}/middlewarehouse"
-middlewarehouse_seeder_bin_src: "{{middlewarehouse_src}}/seeder"
-
-stock_items_consumer_src: "{{middlewarehouse_src}}/consumers/stock-items"
-stock_items_consumer_bin_src: "{{stock_items_consumer_src}}/stock-items-consumer"
-shipments_consumer_src: "{{middlewarehouse_src}}/consumers/shipments"
-shipments_consumer_bin_src: "{{shipments_consumer_src}}/shipments-consumer"
-capture_consumer_src: "{{middlewarehouse_src}}/consumers/capture"
-capture_consumer_bin_src: "{{capture_consumer_src}}/capture-consumer"
-
 # Shipstation consumer
 shipstation_api_key: ""
 shipstation_api_secret: ""
 shipstation_topic: "activities"
 shipstation_interval: "10s"
 
-# Ashes
-ashes_env: production
-
 # Firebrand variables
 firebrand_env: production
 firebrand_default_language: en
-firebrand_fixed_language: false
 
 # Storefront variables
 storefront_default_language: en
 storefront_fixed_language: false
-
-# Loyalty
-loyalty_jar_src: ../../fox-loyalty/target/loyalty.jar
-loyalty_jar: /usr/local/bin/loyalty.jar
 
 # JMX ports
 es_jmx_port: 29010
@@ -235,21 +212,11 @@ google_oauth_frontend_redirect_uri: ""
 swap_file: /swap
 swap_size_mb: 2000
 
-# Fix Ansible 2 rsync
-rsync_opts: ssh -l {{user}}
-
-# Used to prefix service names in consul
-namespace: setme
-
 # Zipkin
 zipkin_collector: localhost
 
 # Are we running packer?
 packing: false
-
-# Should we upload Phoenix / Green River JAR?
-# Should be seed DB, seed via Gatling?
-upload_phoenix_jar: true
 
 # Deploy marketplace?
 with_marketplace: false
@@ -280,9 +247,3 @@ marketplace_db_connection_string: "postgresql://{{marketplace_db_user}}@{{db_hos
 
 # Set this to true for first run deployments
 first_run: false
-
-# BuildKite Settings
-buildkite_env: gce
-
-# Logrotate
-logrotate_dir: /etc/logrotate.d
