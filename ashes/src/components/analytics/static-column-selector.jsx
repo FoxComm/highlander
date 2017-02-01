@@ -21,10 +21,10 @@ import styles from './static-column-selector.css';
 type Props = {
   columns: Array<Object>,
   onChange: Function,
-  setColumns?: ?Function,
+  setColumns?: Function,
   identifier: string,
   actionButtonText?: ?string,
-  dropdownTitle?: ?string,
+  dropdownTitle?: string,
 }
 
 type State = {
@@ -38,6 +38,7 @@ export default class StaticColumnSelector extends React.Component {
   static defaultProps = {
     actionButtonText: 'Save',
     dropdownTitle: 'Options',
+    setColumns: _.noop,
   };
 
   state: State = {
@@ -79,7 +80,7 @@ export default class StaticColumnSelector extends React.Component {
 
     const filteredColumns = _.filter(columnState, { isVisible: true });
 
-    if (filteredColumns.length > 0 && !_.isNull(setColumns)) {
+    if (filteredColumns.length > 0 && setColumns !== undefined) {
       // update table data
       setColumns(filteredColumns);
 
