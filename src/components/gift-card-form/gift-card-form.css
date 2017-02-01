@@ -12,6 +12,7 @@
 
 .form {
   margin-top: 40px;
+  margin-bottom: 70px;
 }
 
 .price-selector {
@@ -41,11 +42,6 @@
   padding: 10px;
 }
 
-.add-to-cart-btn {
-  width: 100%;
-  margin-bottom: 70px;
-}
-
 @media (--large) {
   .card-image {
     width: 602px;
@@ -59,7 +55,7 @@
   }
 
   .form {
-    width: 500px;
+    max-width: 500px;
     margin: 0 auto;
   }
 }

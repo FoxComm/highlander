@@ -51,13 +51,25 @@ class CheckoutForm extends Component {
     }
   }
 
+  sanitizeError(error : string) {
+    if (/The credit card was declined/.test(error)) {
+      return `Your Credit Card has been declined.
+              Please try another card or contact your provider for more information`;
+    }
+
+    return error;
+  }
+
   render() {
     const { props } = this;
     return (
       <Form onSubmit={props.submit} styleName="root">
         {this.header}
         {props.children}
-        <ErrorAlerts error={props.error} />
+        <ErrorAlerts
+          sanitizeError={this.sanitizeError}
+          error={props.error}
+        />
         <div styleName="button-wrap">
           <Button styleName="checkout-submit" type="submit" isLoading={props.inProgress}>{this.buttonLabel}</Button>
         </div>

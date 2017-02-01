@@ -85,7 +85,11 @@ const ProductDetails = (props: Props) => {
         </div>
 
         <div styleName="add-to-cart-btn">
-          <AddToCartBtn expanded onClick={props.addToCart} />
+          <AddToCartBtn
+            pdp
+            expanded
+            onClick={props.addToCart}
+          />
         </div>
       </div>
 

@@ -54,7 +54,7 @@ class Header extends React.Component {
   }
 
   checkScroll = () => {
-    const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
     const isScrolled = scrollTop > 136;
 
     this.setState({isScrolled});

@@ -233,8 +233,38 @@
   .info-block {
     /* padding: 0 60px; */
   }
+
+  .items-title-wrap {
+    justify-content: space-around;
+  }
+
+  .item-title {
+    width: 33%;
+    margin: 0px 4px;
+    display: flex;
+    justify-content: center;
+  }
 }
 
 .not-found {
   composes: not-found from '../../components/products-list/products-list.css';
+}
+
+@media (--small-only) {
+
+  .items-title-wrap {
+    justify-content: space-around;
+  }
+
+  .item-title {
+    width: 30%;
+    margin: 0px 4px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .add-to-cart-btn {
+    height: 32px;
+  }
+
 }

@@ -75,7 +75,7 @@
   }
 }
 
-@media (--medium) {
+@media (--large) {
   .box {
     padding: 20px 0;
   }
@@ -93,8 +93,9 @@
   }
 
   .image {
-    width: 90px;
-    height: 90px;
+    width: 25%;
+    max-width: 90px;
+    height: auto;
     margin-right: 10px;
   }
 

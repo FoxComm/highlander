@@ -10,7 +10,7 @@ function convertOrderData(orderDetails) {
   if (!orderDetails.grandTotal) {
     return {
       ...orderDetails,
-      grandTotal: orderDetails.totals.total,
+      grandTotal: orderDetails.total,
       currency: 'USD',
       state: orderDetails.orderState,
     };
