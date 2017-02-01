@@ -3,6 +3,8 @@ begin
 
     update products_search_view set
         skus = subquery.skus
+        -- what about archived_at on UPDATE?
+        -- what about retail_price on UPDATE?
         from (select
                 p.id,
                 link.skus
@@ -28,9 +30,11 @@ begin
     f.attributes->>(s.attributes->'activeFrom'->>'ref') as active_from,
     f.attributes->>(s.attributes->'activeTo'->>'ref') as active_to,
     f.attributes->>(s.attributes->'tags'->>'ref') as tags,
+    f.attributes->>(s.attributes->'retailPrice'->>'ref') as retail_price,
     link.skus as skus,
     albumLink.albums as albums,
-    to_char(new.archived_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as archived_at,
+    to_json_timestamp(new.archived_at) as archived_at,
+    to_json_timestamp(new.created_at) as created_at,
     f.attributes->>(s.attributes->'externalId'->>'ref') as external_id,
     p.scope as scope
     from products as p

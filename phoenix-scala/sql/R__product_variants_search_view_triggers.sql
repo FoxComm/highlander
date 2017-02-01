@@ -9,7 +9,8 @@ begin
     illuminate_obj(form, shadow, 'images')->>0 as image,
     illuminate_obj(form, shadow, 'salePrice')->>'value' as sale_price,
     illuminate_obj(form, shadow, 'salePrice')->>'currency' as sale_price_currency,
-    to_char(new.archived_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as archived_at,
+    to_json_timestamp(new.archived_at) as archived_at,
+    to_json_timestamp(new.created_at) as created_at,
     illuminate_obj(form, shadow, 'retailPrice')->>'value' as retail_price,
     illuminate_obj(form, shadow, 'retailPrice')->>'currency' as retail_price_currency,
     illuminate_obj(form, shadow, 'externalId') as external_id,
@@ -37,6 +38,7 @@ begin
     sale_price = subquery.sale_price,
     sale_price_currency = subquery.sale_price_currency,
     archived_at = subquery.archived_at,
+    created_at = subquery.created_at,
     retail_price = subquery.retail_price,
     retail_price_currency = subquery.retail_price_currency,
     external_id = subquery.external_id
@@ -47,6 +49,7 @@ begin
         illuminate_obj(form, shadow, 'salePrice')->>'value' as sale_price,
         illuminate_obj(form, shadow, 'salePrice')->>'currency' as sale_price_currency,
         to_json_timestamp(variant.archived_at) as archived_at,
+        to_json_timestamp(variant.created_at) as created_at,
         illuminate_obj(form, shadow, 'retailPrice')->>'value' as retail_price,
         illuminate_obj(form, shadow, 'retailPrice')->>'currency' as retail_price_currency,
         form.attributes->(shadow.attributes->'externalId'->>'ref') as external_id
@@ -65,7 +68,8 @@ create trigger update_product_variants_view_from_object_head_and_shadows
   when (old.form_id is distinct from new.form_id or
         old.shadow_id is distinct from new.shadow_id or
         old.code is distinct from new.code or
-        old.archived_at is distinct from new.archived_at)
+        old.archived_at is distinct from new.archived_at or
+        old.created_at is distinct from new.created_at)
   execute procedure update_product_variants_view_from_object_attrs_fn();
 
 create or replace function update_product_variants_view_from_object_context_fn() returns trigger as $$
@@ -74,11 +78,13 @@ begin
     context = subquery.name,
     context_id = subquery.id,
     archived_at = subquery.archived_at
+    created_at = subquery.created_at
     from (select
         o.id,
         o.name,
         variants.id as product_variant_id,
-        to_json_timestamp(variants.archived_at) as archived_at
+        to_json_timestamp(variants.archived_at) as archived_at,
+        to_json_timestamp(variants.created_at) as created_at
       from object_contexts as o
       inner join product_variants as variants on (variants.context_id = o.id)
       where variants.id = new.id) as subquery
@@ -110,10 +116,11 @@ begin
   end case;
 
   update product_variants_search_view
-    set image = subquery.image
+    set image = subquery.image,
+        album_id = 77777 -- is this really needed?
   from (select variant.id as id,
                variant.code as code,
-               (product_album_links_view.albums #>> '{0, images, 0, src}') as image
+               (product_album_links_view.albums #>> '{0, images, 0, src}') as image,
         from product_variants as variant
           inner join product_to_variant_links on variant.id = product_to_variant_links.right_id
           inner join product_album_links_view on product_to_variant_links.left_id = product_album_links_view.product_id
