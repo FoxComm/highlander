@@ -3,11 +3,17 @@
 - name: Copy Application Marathon JSON
   template: src={{app_template_path}} dest=/tmp
 
-- name: Delete Application in Marathon
-  shell: 'curl -sS -XDELETE http://{{marathon_server}}/v2/apps/{{app_name_marathon}}'
+- name: Kill Application Tasks in Marathon
+  shell: 'curl -sS -XDELETE http://{{marathon_server}}/v2/apps/{{app_name_marathon}}/tasks'
 
-- name: Create Application in Marathon
-  shell: 'curl -sS -XPOST -d@/tmp/{{app_name}}.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps?force=true'
+- name: Update Application in Marathon
+  shell: 'curl -sS -XPUT -d@/tmp/{{app_name}}.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/{{app_name_marathon}}'
+
+- name: Restart Application in Marathon
+  shell: 'curl -sS -XPOST http://{{marathon_server}}/v2/apps/{{app_name_marathon}}/restart'
+
+# - name: Create Application in Marathon
+#   shell: 'curl -sS -XPOST -d@/tmp/{{app_name}}.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps?force=true'
 
 - name: Pause for 15 seconds
   pause: seconds=15
