@@ -14,7 +14,7 @@ import utils.seeds.Seeds.Factories
 
 class CartGiftCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestBase {
 
-  "POST /v1/orders/:ref/payment-methods/gift-cards" - {
+  "POST /v1/carts/:ref/payment-methods/gift-cards" - {
     "succeeds" in new CartWithGcFixture {
       val payload = GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance.some)
       cartsApi(cart.refNum).payments.giftCard.add(payload).mustBeOk()
@@ -88,7 +88,7 @@ class CartGiftCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestBas
     }
   }
 
-  "PATCH /v1/orders/:ref/payment-methods/gift-cards" - {
+  "PATCH /v1/carts/:ref/payment-methods/gift-cards" - {
     "successfully updates giftCard payment" in new CartWithGcFixture {
       val payload = GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance.some)
       cartsApi(cart.refNum).payments.giftCard.add(payload).mustBeOk()
@@ -114,7 +114,7 @@ class CartGiftCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestBas
     }
   }
 
-  "DELETE /v1/orders/:ref/payment-methods/gift-cards/:code" - {
+  "DELETE /v1/carts/:ref/payment-methods/gift-cards/:code" - {
     "successfully deletes a giftCard" in new CartWithGcFixture {
       val payload = GiftCardPayment(code = giftCard.code, amount = giftCard.availableBalance.some)
       cartsApi(cart.refNum).payments.giftCard.add(payload).mustBeOk()

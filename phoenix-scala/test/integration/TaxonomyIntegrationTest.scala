@@ -26,7 +26,7 @@ class TaxonomyIntegrationTest
     with TaxonomySeeds
     with PhoenixAdminApi {
 
-  def findTaxonsById(taxons: TaxonList, id: Int): Option[TaxonTreeResponse] =
+  def findTaxonsById(taxons: Seq[TaxonTreeResponse], id: Int): Option[TaxonTreeResponse] =
     taxons
       .find(_.taxon.id == id)
       .orElse(
@@ -42,6 +42,16 @@ class TaxonomyIntegrationTest
       response.id must === (taxonomy.formId)
       response.taxons mustBe empty
       response.attributes must === (JObject(taxonomyAttributes.toList: _*))
+    }
+
+    "gets full hierarchy" in new HierarchyTaxonsFixture {
+      val response = queryGetTaxonomy(taxonomy.formId)
+
+      response.id must === (taxonomy.formId)
+
+      response.taxons.map(_.taxon.name) must === (Seq("taxon1", "taxon2"))
+      response.taxons.head.children.map(_.taxon.name) must === (Seq("taxon3", "taxon4"))
+      response.taxons.head.children.head.children.map(_.taxon.name) must === (Seq("taxon7"))
     }
   }
 
@@ -86,7 +96,7 @@ class TaxonomyIntegrationTest
     }
   }
 
-  "GET v1/taxonomy/:contextName/taxon/:taxonFormId" - {
+  "GET v1/taxon/:contextName/:taxonFormId" - {
     "gets taxon" in new FlatTaxonsFixture {
       private val taxonToQuery: ModelTaxon = taxons.head
       val taxonToQueryName                 = taxonNames.head

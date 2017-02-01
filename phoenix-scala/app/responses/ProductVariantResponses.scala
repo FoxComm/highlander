@@ -100,31 +100,31 @@ object ProductVariantResponses {
                     attributes: Json,
                     albums: Seq[AlbumResponse.Root],
                     options: Seq[ProductOptionResponse.Root],
-                    middlewarehouseSkuId: Int,
+                    skuId: Int,
                     archivedAt: Option[Instant])
         extends ResponseItem
 
     def build(variant: IlluminatedVariant,
               albums: Seq[AlbumResponse.Root],
-              middlewarehouseSkuId: Int,
+              mwhSkuId: Int,
               options: Seq[ProductOptionResponse.Root]): Root =
       Root(id = variant.id,
            archivedAt = variant.archivedAt,
            attributes = variant.attributes,
            context = ObjectContextResponse.build(variant.context).some,
-           middlewarehouseSkuId = middlewarehouseSkuId,
+           skuId = mwhSkuId,
            albums = albums,
            options = options)
 
     def buildLite(variant: IlluminatedVariant,
                   albums: Seq[AlbumResponse.Root],
-                  middlewarehouseSkuId: Int,
+                  mwhSkuId: Int,
                   options: Seq[ProductOptionResponse.Root]): Root =
       Root(id = variant.id,
            archivedAt = variant.archivedAt,
            attributes = variant.attributes,
            context = None,
-           middlewarehouseSkuId = middlewarehouseSkuId,
+           skuId = mwhSkuId,
            albums = albums,
            options = options)
   }

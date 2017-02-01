@@ -8,29 +8,35 @@ import styles from './selectable-list.css';
 
 type Props = {
   id: number,
-  onToggle: (id: number) => void,
-  checked: boolean,
+  onToggle?: (id: number) => void,
+  checked?: boolean,
   title?: string|Element,
   children?: string|Element,
 };
 
-const SelectableItem = (props: Props) => {
+const SelectableItem = ({
+  id, 
+  onToggle = (id) => {},
+  checked = false,
+  title, 
+  children,
+}: Props) => {
   const handleItemClick = (event: SyntheticEvent) => {
     event.stopPropagation();
     event.preventDefault();
 
-    props.onToggle(props.id);
+    onToggle(id);
   };
 
-  const id = `selectable-list-${props.id}`;
-  const content = props.children || <strong>{props.title}</strong>;
+  const listId = `selectable-list-${id}`;
+  const content = children || <strong>{title}</strong>;
 
   return (
-    <li styleName="item" key={props.id} onClick={handleItemClick}>
+    <li styleName="item" key={id} onClick={handleItemClick}>
       <Checkbox
-        id={id}
-        checked={props.checked}
-        onChange={() => props.onToggle(props.id)}
+        id={listId}
+        checked={checked}
+        onChange={() => onToggle(id)}
         onClick={(event: SyntheticEvent) => event.stopPropagation()} >
         {content}
       </Checkbox>

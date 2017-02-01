@@ -114,6 +114,7 @@ def tune_vm(config, opts = {})
 end
 
 Vagrant.configure("2") do |config|
+  $master = "master"
   user = ENV['GOOGLE_SSH_USERNAME'] || "vagrant"
 
   tune_vm(config, cpus: $vb_cpu, memory: $vb_memory)
@@ -148,7 +149,27 @@ Vagrant.configure("2") do |config|
         appliance_hostname: $nginx_ip,
         mesos_ip: $nginx_ip,
         local_vagrant: $local,
-        first_run: true
+        first_run: true,
+        docker_tags: {
+            ashes: ENV['DOCKER_TAG_ASHES'] || $master,
+            firebrand: ENV['DOCKER_TAG_FIREBRAND'] || $master,
+            phoenix: ENV['DOCKER_TAG_PHOENIX'] || $master,
+            greenriver: ENV['DOCKER_TAG_GREENRIVER'] || $master,
+            middlewarehouse: ENV['DOCKER_TAG_MIDDLEWAREHOUSE'] || $master,
+            messaging: ENV['DOCKER_TAG_MESSAGING'] || $master,
+            isaac: ENV['DOCKER_TAG_ISAAC'] || $master,
+            solomon: ENV['DOCKER_TAG_SOLOMON'] || $master,
+            capture_consumer: ENV['DOCKER_TAG_CAPTURE_CONSUMER'] || $master,
+            gift_card_consumer: ENV['DOCKER_TAG_GIFT_CARD_CONSUMER'] || $master,
+            shipments_consumer: ENV['DOCKER_TAG_SHIPMENTS_CONSUMER'] || $master,
+            shipstation_consumer: ENV['DOCKER_TAG_SHIPSTATION_CONSUMER'] || $master,
+            storefront_topdrawer: ENV['DOCKER_TAG_STOREFRONT_TOPDRAWER'] || $master,
+            storefront_tpg: ENV['DOCKER_TAG_STOREFRONT_TPG'] || $master,
+            marketplace: ENV['DOCKER_TAG_MARKETPLACE'] || $master,
+            marketplace_ui: ENV['DOCKER_TAG_MARKETPLACE_UI'] || $master,
+            product_search: ENV['DOCKER_TAG_PRODUCT_SEARCH'] || $master,
+            demo_search: ENV['DOCKER_TAG_DEMO_SEARCH'] || $master
+        }
       }
     end
   end

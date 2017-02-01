@@ -7,58 +7,122 @@ FLYWAY_TEST=flyway -configFile=sql/flyway.test.conf -locations=filesystem:sql/
 DB=middlewarehouse_development
 DB_TEST=middlewarehouse_test
 DB_USER=middlewarehouse
-GOPATH=/tmp/go
+GOPATH = /tmp/go
 BUILD_ROOT_PATH=$(GOPATH)/src/github.com/FoxComm/highlander
 BUILD_PATH=$(BUILD_ROOT_PATH)/middlewarehouse
 HIGHLANDER_PATH=$(CURDIR)/..
 
 DOCKER_REPO ?= $(DOCKER_STAGE_REPO)
-DOCKER_TAG ?= middlewarehouse
-DOCKER_BRANCH ?= master
+DOCKER_IMAGE ?= middlewarehouse
+DOCKER_TAG ?= master
 
-prep:
+prepare:
 	rm $(BUILD_ROOT_PATH) || true
 	mkdir -p $(GOPATH)/src/github.com/FoxComm
 	ln -s $(HIGHLANDER_PATH) $(BUILD_ROOT_PATH) || true
-
-glide: prep
 	cd $(BUILD_PATH) && glide install
 	rm -rf $(BUILD_PATH)/vendor/github.com/FoxComm/highlander
 
+####################################################################
+# Build targets                                                    #
+####################################################################
 build:
 	$(call header, Building)
-	make glide
+	make prepare
+	make build-middlewarehouse
+	make build-middlewarehouse-seeder
+	make build-capture-consumer
+	make build-gift-card-consumer
+	make build-shipments-consumer
+	make build-shipstation-consumer
+
+build-middlewarehouse:
 	cd $(BUILD_PATH) && go build -o middlewarehouse main.go
-	cd $(BUILD_PATH) && go build -o consumers/shipments/shipments-consumer consumers/shipments/*.go
-	cd $(BUILD_PATH) && go build -o consumers/gift-cards/gift-card-consumer consumers/gift-cards/*.go
-	cd $(BUILD_PATH) && go build -o consumers/capture/capture-consumer consumers/capture/*.go
-	cd $(BUILD_PATH) && go build -o consumers/shipstation/shipstation-consumer consumers/shipstation/*.go
+
+build-middlewarehouse-seeder:
 	cd $(BUILD_PATH) && go build -o common/db/seeds/seeder common/db/seeds/main.go
 
+build-capture-consumer:
+	cd $(BUILD_PATH) && go build -o consumers/capture/capture-consumer consumers/capture/*.go
+
+build-gift-card-consumer:
+	cd $(BUILD_PATH) && go build -o consumers/gift-cards/gift-card-consumer consumers/gift-cards/*.go
+
+build-shipments-consumer:
+	cd $(BUILD_PATH) && go build -o consumers/shipments/shipments-consumer consumers/shipments/*.go
+
+build-shipstation-consumer:
+	cd $(BUILD_PATH) && go build -o consumers/shipstation/shipstation-consumer consumers/shipstation/*.go
+
+####################################################################
+# Docker build targets                                             #
+####################################################################
 docker:
 	$(call header, Dockerizing)
-	docker build -t $(DOCKER_TAG) .
-	docker build -t shipments-consumer consumers/shipments/
-	docker build -t capture-consumer consumers/capture/
-	docker build -t shipstation-consumer consumers/shipstation/
-	docker build -t middlewarehouse-seeder common/db/seeds/
-	docker build -t gift-card-consumer consumers/gift-cards/
+	make docker-middlewarehouse
+	make docker-middlewarehouse-seeder
+	make docker-capture-consumer
+	make docker-gift-card-consumer
+	make docker-shipments-consumer
+	make docker-shipstation-consumer
 
+docker-middlewarehouse:
+	cd $(BUILD_PATH) && docker build -t $(DOCKER_IMAGE) .
+
+docker-middlewarehouse-seeder:
+	cd $(BUILD_PATH) && docker build -t middlewarehouse-seeder -f common/db/seeds/Dockerfile .
+
+docker-capture-consumer:
+	cd $(BUILD_PATH) && docker build -t capture-consumer -f consumers/capture/Dockerfile .
+
+docker-gift-card-consumer:
+	cd $(BUILD_PATH) && docker build -t gift-card-consumer -f consumers/gift-cards/Dockerfile .
+
+docker-shipments-consumer:
+	cd $(BUILD_PATH) && docker build -t shipments-consumer -f consumers/shipments/Dockerfile .
+
+docker-shipstation-consumer:
+	cd $(BUILD_PATH) && docker build -t shipstation-consumer -f consumers/shipstation/Dockerfile .
+
+####################################################################
+# Docker push targets                                              #
+####################################################################
 docker-push:
 	$(call header, Registering)
-	docker tag $(DOCKER_TAG) $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
-	docker tag gift-card-consumer $(DOCKER_REPO)/gift-card-consumer:$(DOCKER_BRANCH)
-	docker tag shipments-consumer $(DOCKER_REPO)/shipments-consumer:$(DOCKER_BRANCH)
-	docker tag capture-consumer $(DOCKER_REPO)/capture-consumer:$(DOCKER_BRANCH)
-	docker tag shipstation-consumer $(DOCKER_REPO)/shipstation-consumer:$(DOCKER_BRANCH)
-	docker tag middlewarehouse-seeder $(DOCKER_REPO)/middlewarehouse-seeder:$(DOCKER_BRANCH)
-	docker push $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
-	docker push $(DOCKER_REPO)/gift-card-consumer:$(DOCKER_BRANCH)
-	docker push $(DOCKER_REPO)/shipments-consumer:$(DOCKER_BRANCH)
-	docker push $(DOCKER_REPO)/capture-consumer:$(DOCKER_BRANCH)
-	docker push $(DOCKER_REPO)/shipstation-consumer:$(DOCKER_BRANCH)
-	docker push $(DOCKER_REPO)/middlewarehouse-seeder:$(DOCKER_BRANCH)
+	make push-middlewarehouse
+	make push-middlewarehouse-seeder
+	make push-capture-consumer
+	make push-gift-card-consumer
+	make push-shipments-consumer
+	make push-shipstation-consumer
 
+push-middlewarehouse:
+	docker tag $(DOCKER_IMAGE) $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
+	docker push $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
+
+push-middlewarehouse-seeder:
+	docker tag middlewarehouse-seeder $(DOCKER_REPO)/middlewarehouse-seeder:$(DOCKER_TAG)
+	docker push $(DOCKER_REPO)/middlewarehouse-seeder:$(DOCKER_TAG)
+
+push-capture-consumer:
+	docker tag capture-consumer $(DOCKER_REPO)/capture-consumer:$(DOCKER_TAG)
+	docker push $(DOCKER_REPO)/capture-consumer:$(DOCKER_TAG)
+
+push-gift-card-consumer:
+	docker tag gift-card-consumer $(DOCKER_REPO)/gift-card-consumer:$(DOCKER_TAG)
+	docker push $(DOCKER_REPO)/gift-card-consumer:$(DOCKER_TAG)
+
+push-shipments-consumer:
+	docker tag shipments-consumer $(DOCKER_REPO)/shipments-consumer:$(DOCKER_TAG)
+	docker push $(DOCKER_REPO)/shipments-consumer:$(DOCKER_TAG)
+
+push-shipstation-consumer:
+	docker tag shipstation-consumer $(DOCKER_REPO)/shipstation-consumer:$(DOCKER_TAG)
+	docker push $(DOCKER_REPO)/shipstation-consumer:$(DOCKER_TAG)
+
+####################################################################
+# Miscellaneous targets                                            #
+####################################################################
 clean:
 	rm -rf ./vendor
 
@@ -94,12 +158,7 @@ create-user:
 
 test:
 	$(call header, Testing)
-	make glide
+	make prepare
 	make reset-test
 	# -p 1 serves to run tests sequentially, as it is required for non-isolated database tests
 	cd $(BUILD_PATH) && GOENV=test go test -p 1 `glide nv`
-
-test-local:
-	make reset-test
-	GOENV=test go test -p 1 `glide nv`
-

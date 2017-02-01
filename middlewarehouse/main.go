@@ -26,6 +26,8 @@ func engine() (*gin.Engine, error) {
 }
 
 func main() {
+	log.Println("Test...")
+
 	if err := config.InitializeSiteConfig(); err != nil {
 		log.Panicf("Failed to initialize middlewarehouse config with error %s", err.Error())
 	}
@@ -35,6 +37,6 @@ func main() {
 		log.Panicf("Failed to start middlewarehouse with error %s", err.Error())
 	}
 
-    port:= os.Getenv("PORT")
+	port := os.Getenv("PORT")
 	engine.Run(":" + port)
 }

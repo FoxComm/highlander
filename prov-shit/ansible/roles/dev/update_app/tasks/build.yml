@@ -1,0 +1,29 @@
+---
+
+- name: Find out current Git Branch
+  shell: "git rev-parse --abbrev-ref HEAD"
+  register: git_branch_out
+
+- name: Checkout Specified Branch
+  shell: "git checkout {{branch_name}}"
+  args:
+    chdir: "{{highlander_path_out.stdout}}/{{app_name}}"
+
+- name: Build Application
+  shell: "{{app_build_target}}"
+  environment:
+    GOOS: linux
+  args:
+    chdir: "{{app_path}}"
+
+- name: Dockerize Application
+  shell: "{{app_docker_target}}"
+  args:
+    chdir: "{{app_path}}"
+
+- name: Push Application to Registry
+  shell: "{{app_push_target}}"
+  environment:
+    DOCKER_TAG: "{{tag_name}}"
+  args:
+    chdir: "{{app_path}}"

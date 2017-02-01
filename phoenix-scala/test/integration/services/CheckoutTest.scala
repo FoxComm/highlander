@@ -16,7 +16,7 @@ import models.shipping.ShippingMethods
 import org.mockito.Mockito._
 import org.scalacheck.Prop.BooleanOperators
 import org.scalacheck.{Gen, Prop, Test ⇒ QTest}
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import slick.driver.PostgresDriver.api._
 import testutils._
@@ -211,7 +211,7 @@ class CheckoutTest
                      Factories.products.head.copy(price = cost, code = Lorem.letterify("?????")))
         sku ← * <~ ProductVariants.mustFindById404(product.skuId)
       } yield sku).gimme
-      Seq(UpdateLineItemsPayload(sku.code, 1))
+      Seq(UpdateLineItemsPayload(sku.formId, 1))
     }
 
     def generateGiftCards(amount: Seq[Int]) =

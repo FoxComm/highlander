@@ -151,7 +151,7 @@ object ProductVariantManager {
                                   shadowId = ins.shadow.id,
                                   commitId = ins.commit.id))
       // TODO: tax class?
-      _ ← * <~ apis.middlwarehouse.createSku(ins.form.id, CreateSku(code))
+      _ ← * <~ apis.middlewarehouse.createSku(ins.form.id, CreateSku(code))
     } yield FullObject(variant, ins.form, ins.shadow)
   }
 

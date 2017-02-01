@@ -1,7 +1,7 @@
 package routes.service
 
 import akka.http.scaladsl.server.Directives._
-
+import akka.http.scaladsl.server.Route
 import cats.implicits._
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.account.User
@@ -16,7 +16,7 @@ import utils.http.Http._
 object PaymentRoutes {
 
   //TODO: Instead of store auth.model, add service accounts and require service JWT tokens.
-  def routes(implicit ec: EC, es: ES, db: DB, auth: AuthData[User], apis: Apis) = {
+  def routes(implicit ec: EC, es: ES, db: DB, auth: AuthData[User], apis: Apis): Route = {
 
     activityContext(auth.model) { implicit ac ⇒
       pathPrefix("service") {

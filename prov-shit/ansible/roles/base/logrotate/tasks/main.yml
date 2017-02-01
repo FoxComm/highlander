@@ -1,0 +1,26 @@
+---
+
+- include_vars:
+    file: ../../elasticsearch/vars/main.yml
+
+- name: Add Logrotate Config for ES2.1.2
+  template:
+    src: elasticsearch-2.j2
+    dest: "{{logrotate_dir}}/elasticsearch-2"
+    owner: root
+    group: root
+    mode: 0644
+
+- include_vars:
+    file: ../../elasticsearch-5/vars/main.yml
+
+- name: Add Logrotate Config for ES5.1.1
+  template:
+    src: elasticsearch-5.j2
+    dest: "{{logrotate_dir}}/elasticsearch-5"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Copy logrotate to cron.hourly
+  shell: mv /etc/cron.daily/logrotate /etc/cron.hourly

@@ -25,7 +25,7 @@ class ProductOptionIntegrationTest
 
   "POST v1/options/:context" - {
     "Creates a product option successfully" in new Fixture {
-      val optionResponse = variantsApi.create(createProductOptionPayload).as[OptionRoot]
+      val optionResponse = productOptionsApi.create(createProductOptionPayload).as[OptionRoot]
       optionResponse.values.length must === (0)
 
       (optionResponse.attributes \ "name" \ "v").extract[String] must === ("Color")
@@ -33,7 +33,7 @@ class ProductOptionIntegrationTest
 
     "Creates a productOption with a value successfully" in new Fixture {
       val payload         = createProductOptionPayload.copy(values = Some(Seq(createVariantValuePayload)))
-      val variantResponse = variantsApi.create(payload).as[OptionRoot]
+      val variantResponse = productOptionsApi.create(payload).as[OptionRoot]
       variantResponse.values.length must === (1)
       private val value = variantResponse.values.head
       value.name must === ("Red")
@@ -44,7 +44,7 @@ class ProductOptionIntegrationTest
     }
 
     "Fails when trying to create productOption with archived variant as value" in new ArchivedSkusFixture {
-      variantsApi
+      productOptionsApi
         .create(archivedSkuVariantPayload)
         .mustFailWith400(LinkArchivedVariantFailure(ProductOption, 10, archivedSkuCode))
     }
@@ -52,7 +52,7 @@ class ProductOptionIntegrationTest
 
   "GET v1/options/:context/:id" - {
     "Gets a created productOption successfully" in new VariantFixture {
-      val variantResponse = variantsApi(variant.variant.variantFormId).get().as[OptionRoot]
+      val variantResponse = productOptionsApi(variant.variant.variantFormId).get().as[OptionRoot]
       variantResponse.values.length must === (2)
 
       (variantResponse.attributes \ "name" \ "v").extract[String] must === ("Size")
@@ -64,7 +64,7 @@ class ProductOptionIntegrationTest
     }
 
     "Throws a 404 if given an invalid id" in new Fixture {
-      variantsApi(123).get().mustFailWith404(ProductOptionNotFoundForContext(123, ctx.id))
+      productOptionsApi(123).get().mustFailWith404(ProductOptionNotFoundForContext(123, ctx.id))
     }
   }
 
@@ -73,7 +73,8 @@ class ProductOptionIntegrationTest
       val payload = ProductOptionPayload(values = None,
                                          attributes =
                                            Map("name" → (("t" → "wtring") ~ ("v" → "New Size"))))
-      val response = variantsApi(variant.variant.variantFormId).update(payload).as[OptionRoot]
+      val response =
+        productOptionsApi(variant.variant.variantFormId).update(payload).as[OptionRoot]
       response.values.length must === (2)
 
       (response.attributes \ "name" \ "v").extract[String] must === ("New Size")
@@ -86,7 +87,7 @@ class ProductOptionIntegrationTest
                                          attributes =
                                            Map("name" → (("t" → "wtring") ~ ("v" → "New Size"))))
 
-      variantsApi(variant.variant.variantFormId)
+      productOptionsApi(variant.variant.variantFormId)
         .update(payload)
         .mustFailWith400(LinkArchivedVariantFailure(ProductOption,
                                                     variant.variant.variantFormId,
@@ -96,19 +97,19 @@ class ProductOptionIntegrationTest
 
   "POST v1/options/:context/:id/values" - {
     "Creates a productOption value successfully" in new Fixture {
-      val variantResponse = variantsApi.create(createProductOptionPayload).as[OptionRoot]
+      val variantResponse = productOptionsApi.create(createProductOptionPayload).as[OptionRoot]
 
       val valueResponse =
-        variantsApi(variantResponse.id).createValues(createVariantValuePayload).as[ValueRoot]
+        productOptionsApi(variantResponse.id).createValues(createVariantValuePayload).as[ValueRoot]
 
       valueResponse.swatch must === (Some("ff0000"))
       valueResponse.skuCodes.value must === (Seq(skus.head.code))
     }
 
     "Fails when attaching archived SKU to productOption as productOption value" in new ArchivedSkusFixture {
-      val variantResponse = variantsApi.create(createProductOptionPayload).as[OptionRoot]
+      val variantResponse = productOptionsApi.create(createProductOptionPayload).as[OptionRoot]
 
-      variantsApi(variantResponse.id)
+      productOptionsApi(variantResponse.id)
         .createValues(archivedSkuVariantValuePayload)
         .mustFailWith400(
             LinkArchivedVariantFailure(ProductOption, variantResponse.id, archivedSkuCode))

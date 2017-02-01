@@ -8,7 +8,6 @@ import utils.aliases.Json
 
 object TaxonomyResponses {
 
-  type TaxonList   = Seq[TaxonTreeResponse]
   type LinkedTaxon = (FullObject[ModelTaxon], TaxonomyTaxonLink)
 
   implicit class LTreeExtension(ltree: LTree) {
@@ -22,7 +21,10 @@ object TaxonomyResponses {
     }
   }
 
-  case class TaxonomyResponse(id: Int, hierarchical: Boolean, attributes: Json, taxons: TaxonList)
+  case class TaxonomyResponse(id: Int,
+                              hierarchical: Boolean,
+                              attributes: Json,
+                              taxons: Seq[TaxonTreeResponse])
 
   object TaxonomyResponse {
     def build(taxon: FullObject[Taxonomy], taxons: Seq[LinkedTaxon]): TaxonomyResponse = {
@@ -40,7 +42,7 @@ object TaxonomyResponses {
       SingleTaxonResponse(taxonomyId, Taxon.build(taxon), parentTaxonId)
   }
 
-  case class TaxonTreeResponse(taxon: Taxon, children: TaxonList)
+  case class TaxonTreeResponse(taxon: Taxon, children: Seq[TaxonTreeResponse])
 
   case class Taxon(id: Int, name: String)
 
@@ -60,16 +62,16 @@ object TaxonomyResponses {
       TaxonTreeResponse(Taxon.build(taxon), Seq())
     }
 
-    def buildTree(nodes: Seq[LinkedTaxon]): TaxonList =
+    def buildTree(nodes: Seq[LinkedTaxon]): Seq[TaxonTreeResponse] =
       buildTree(0, nodes.sortBy { case (_, link) ⇒ link.path.level })
 
-    private def buildTree(level: Int, nodesSorted: Seq[LinkedTaxon]): TaxonList = {
+    private def buildTree(level: Int, nodesSorted: Seq[LinkedTaxon]): Seq[TaxonTreeResponse] = {
       val (heads, tail)   = nodesSorted.span { case (_, link) ⇒ link.path.level == level }
       val headsByPosition = heads.sortBy { case (_, link)     ⇒ link.position }
       headsByPosition.map {
         case (taxon, link) ⇒
           TaxonTreeResponse(Taxon.build(taxon), buildTree(level + 1, tail.filter {
-            case (_, lnk) ⇒ lnk.parentIndex.contains(link.index)
+            case (_, lnk) ⇒ lnk.path.value.startsWith(link.childPath.value)
           }))
       }
     }

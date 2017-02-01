@@ -61,8 +61,8 @@ object MainConfig {
 
   def getIndexMap(conf: Config, key: String): IndexTopicMap = {
     val topicConf = conf.getConfig(key)
-    topicConf.entrySet.map {
-      entry ⇒ entry.getKey → topicConf.getStringList(entry.getKey).toSeq
+    topicConf.entrySet.map { entry ⇒
+      entry.getKey → topicConf.getStringList(entry.getKey).toSeq
     }.toMap
   }
 }

@@ -12,7 +12,8 @@ begin
       where link.taxonomy_id = t.id and link.archived_at is null)         as values_count,
       illuminate_text(f, s, 'activeFrom')                                 as active_from,
       illuminate_text(f, s, 'activeTo')                                   as active_to,
-      to_char(t.archived_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')             as archived_at
+      to_char(t.archived_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')             as archived_at,
+      t.scope                                                             as scope
     from taxonomies as t
       inner join object_contexts as context on (t.context_id = context.id)
       inner join object_forms as f on (f.id = t.form_id)
@@ -49,6 +50,7 @@ begin
   update taxonomies_search_view
   set
     taxonomy_id  = t.form_id,
+    scope        = t.scope,
     name         = illuminate_text(f, s, 'name'),
     context      = context.name,
     values_count = (select count(*) from taxonomy_taxon_links as link
