@@ -4,7 +4,7 @@
 
 .add-to-cart-btn {
   white-space: nowrap;
-  max-width: 40px;
+  width: 100%;
   overflow: hidden;
   cursor: pointer;
   display: flex;
@@ -19,6 +19,7 @@
     & .add-btn-title {
       opacity: 1;
     }
+
   }
 
   &.expanded:hover {
@@ -59,5 +60,18 @@
 @media (--small-only) {
   .add-btn-title {
     display: none;
+
+  &.pdp {
+     line-height: 32px;
+     display: inline-block;
+   }
+}
+
+  .add-icon-wrapper {
+
+    &.pdp {
+       height: 32px;
+    }
   }
+
 }
