@@ -4,7 +4,7 @@
 import noop from 'lodash/noop';
 import React, { Component, PropTypes } from 'react';
 import classNames from 'classnames';
-import { withRouter } from 'react-router';
+import { push } from 'react-router';
 
 // components
 import { Button, PrimaryButton } from './buttons';
@@ -31,7 +31,7 @@ type Props = {
  *
  * @class SaveCancel
  */
-class SaveCancel extends Component {
+export default class SaveCancel extends Component {
   props: Props;
 
   static defaultProps = {
@@ -40,6 +40,10 @@ class SaveCancel extends Component {
     cancelParams: {},
     saveTabIndex: '1',
     saveText: 'Save',
+  };
+
+  static contextTypes = {
+    router: PropTypes.object.isRequired,
   };
 
   render() {
@@ -58,7 +62,7 @@ class SaveCancel extends Component {
       isLoading,
     } = this.props;
 
-    const { push } = this.props.router;
+    const { push } = this.context.router;
 
     const cancelControl = (
       <Button
@@ -93,5 +97,3 @@ class SaveCancel extends Component {
     );
   }
 };
-
-export default withRouter(SaveCancel);
