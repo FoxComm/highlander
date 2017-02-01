@@ -1,8 +1,4 @@
-/**
- * @flow
- */
-
-// libs
+// @flow
 import React, { Component, Element, PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
@@ -72,7 +68,7 @@ class ProductPage extends ObjectPage {
     return this.props.actions.fetchProduct(this.entityId, this.entityContext);
   }
 
-  removeEmptySkus(object) {
+  removeEmptyVariants(object) {
     let existsCodes = {};
 
     let variants = _.reduce(object.variants, (acc, variant) => {
@@ -110,11 +106,11 @@ class ProductPage extends ObjectPage {
   }
 
   prepareObjectForValidation(object) {
-    return this.removeEmptySkus(object);
+    return this.removeEmptyVariants(object);
   }
 
   prepareObjectForSaving(object) {
-    return this.removeEmptySkus(object);
+    return this.removeEmptyVariants(object);
   }
 
   get selectContextDropdown() {

@@ -86,7 +86,7 @@ export function createEmptyProduct(): Product {
     product = { ...product, ...merchantAttributes };
   }
 
-  return configureProduct(addEmptySku(product));
+  return configureProduct(addEmptyProductVariant(product));
 }
 
 export function duplicateProduct(product: Product): Product {
@@ -99,7 +99,7 @@ export function duplicateProduct(product: Product): Product {
   });
 }
 
-export function createEmptySku(): Object {
+export function createEmptyProductVariant(): Object {
   const pseudoRandomCode = generateSkuCode();
   const emptyPrice = t.price({ currency: 'USD', value: 0 });
 
@@ -132,11 +132,11 @@ export function createEmptySku(): Object {
   return emptySku;
 }
 
-export function addEmptySku(product: Product): Product {
-  const emptySku = createEmptySku();
-  const newSkus = [emptySku, ...product.variants];
+export function addEmptyProductVariant(product: Product): Product {
+  const emptyVariant = createEmptyProductVariant();
+  const newVariants = [emptyVariant, ...product.variants];
 
-  return assoc(product, 'variants', newSkus);
+  return assoc(product, 'variants', newVariants);
 }
 
 /**
@@ -154,7 +154,7 @@ export function configureProduct(product: Product): Product {
 function ensureProductHasSkus(product: Product): Product {
   if (_.isEmpty(product.variants)) {
     return assoc(product,
-      'variants', [createEmptySku()]
+      'variants', [createEmptyProductVariant()]
     );
   }
   return product;
