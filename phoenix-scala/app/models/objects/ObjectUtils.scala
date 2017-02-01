@@ -4,7 +4,7 @@ import java.time.Instant
 
 import cats.data.NonEmptyList
 import cats.implicits._
-import failures.{Failure, Failures}
+import failures.Failure
 import org.json4s.JsonAST.{JNothing, JObject, JString}
 import org.json4s.JsonDSL._
 import org.json4s._
@@ -13,7 +13,6 @@ import services.objects.ObjectSchemasManager
 import utils.IlluminateAlgorithm
 import utils.aliases._
 import utils.db._
-import ExPostgresDriver.api._
 
 object ObjectUtils {
 

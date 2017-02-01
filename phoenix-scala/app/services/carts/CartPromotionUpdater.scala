@@ -48,9 +48,10 @@ object CartPromotionUpdater {
       _         ← * <~ promoObject.mustBeActive
       discounts ← * <~ PromotionDiscountLinks.queryRightByLeft(promotion)
       // Safe AST compilation
-      discount    ← * <~ tryDiscount(discounts)
-      qualifier   ← * <~ QualifierAstCompiler(discount.qualifier).compile()
-      offer       ← * <~ OfferAstCompiler(discount.offer).compile()
+      discount ← * <~ tryDiscount(discounts)
+      (form, shadow) = discount.tupled
+      qualifier   ← * <~ QualifierAstCompiler(qualifier(form, shadow)).compile()
+      offer       ← * <~ OfferAstCompiler(offer(form, shadow)).compile()
       adjustments ← * <~ getAdjustments(promoShadow, cart, qualifier, offer)
       // Delete previous adjustments and create new
       _ ← * <~ OrderLineItemAdjustments

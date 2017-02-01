@@ -414,25 +414,27 @@ object ProductManager {
       productId: Int,
       payloadSkus: Seq[SkuPayload])(implicit ec: EC, db: DB): DbResultT[Unit] =
     for {
-      skuIdsForProduct ← * <~ ProductSkuLinks.filter(link ⇒ link.leftId === productId && link.archivedAt.isEmpty)
-        .result.flatMap {
-                          case links @ Seq(_) ⇒
-                            lift(links.map(_.rightId))
-                          case _ ⇒
-                            for {
-                              variantLinks ← ProductVariantLinks
-                                              .filter(_.leftId === productId)
+      skuIdsForProduct ← * <~ ProductSkuLinks
+                          .filter(link ⇒ link.leftId === productId && link.archivedAt.isEmpty)
+                          .result
+                          .flatMap {
+                            case links @ Seq(_) ⇒
+                              lift(links.map(_.rightId))
+                            case _ ⇒
+                              for {
+                                variantLinks ← ProductVariantLinks
+                                                .filter(_.leftId === productId)
+                                                .result
+                                variantIds = variantLinks.map(_.rightId)
+                                valueLinks ← VariantValueLinks
+                                              .filter(_.leftId.inSet(variantIds))
                                               .result
-                              variantIds = variantLinks.map(_.rightId)
-                              valueLinks ← VariantValueLinks
-                                            .filter(_.leftId.inSet(variantIds))
+                                valueIds = valueLinks.map(_.rightId)
+                                skuLinks ← VariantValueSkuLinks
+                                            .filter(_.leftId.inSet(valueIds))
                                             .result
-                              valueIds = valueLinks.map(_.rightId)
-                              skuLinks ← VariantValueSkuLinks
-                                          .filter(_.leftId.inSet(valueIds))
-                                          .result
-                            } yield skuLinks.map(_.rightId)
-                        }
+                              } yield skuLinks.map(_.rightId)
+                          }
       skuCodesForProduct ← * <~ Skus.filter(_.id.inSet(skuIdsForProduct)).map(_.code).result
       skuCodesFromPayload = payloadSkus.map(ps ⇒ SkuManager.getSkuCode(ps.attributes)).flatten
       skuCodesToBeGone    = skuCodesForProduct.diff(skuCodesFromPayload)

@@ -5,8 +5,11 @@ import utils.aliases._
 
 object DiscountHelpers {
 
-  implicit class DiscountAttributeExtractor(fs: FormAndShadow) {
-    def offer: Json     = fs.getAttribute("offer")
-    def qualifier: Json = fs.getAttribute("qualifier")
+  def offer(form: ObjectForm, shadow: ObjectShadow): Json = {
+    ObjectUtils.get("offer", form, shadow)
+  }
+
+  def qualifier(form: ObjectForm, shadow: ObjectShadow): Json = {
+    ObjectUtils.get("qualifier", form, shadow)
   }
 }
