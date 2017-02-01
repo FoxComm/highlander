@@ -2,6 +2,7 @@ package failures
 
 import models.objects.ObjectForm
 import models.product.Product
+import utils.aliases.OC
 
 object ProductFailures {
 
@@ -45,8 +46,8 @@ object ProductFailures {
   }
 
   object ProductOptionNotFoundForContext {
-    def apply(id: Int, contextId: Int) =
-      NotFoundFailure404(s"Product option $id with context $contextId cannot be found")
+    def apply(id: Int)(implicit ctx: OC) =
+      NotFoundFailure404(s"Product option $id not found in context ${ctx.name}")
   }
 
   object ProductValueNotFoundForContext {
