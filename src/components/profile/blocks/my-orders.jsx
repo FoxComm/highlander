@@ -38,8 +38,8 @@ class MyOrders extends Component {
   }
 
   @autobind
-  renderOrder(order) {
-    return <OrderRow order={order} showDetailsLink />;
+  renderOrder(order, i) {
+    return <OrderRow order={order} showDetailsLink key={i} />;
   }
 
   get content() {
