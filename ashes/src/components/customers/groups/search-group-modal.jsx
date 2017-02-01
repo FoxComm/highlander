@@ -8,6 +8,7 @@ import { autobind } from 'core-decorators';
 import { ModalContainer } from 'components/modal/base';
 import ContentBox from 'components/content-box/content-box';
 import SaveCancel from 'components/common/save-cancel';
+import GroupsTypeahead from './groups-typeahead';
 
 export default class SearchGroupModal extends Component {
 
@@ -41,7 +42,11 @@ export default class SearchGroupModal extends Component {
           className="fc-add-watcher-modal"
         >
           <div className="fc-modal-body fc-add-watcher-modal__content">
-            Content
+            <GroupsTypeahead
+              suggestGroups={props.suggestGroups}
+              suggested={props.suggested}
+              suggestState={props.suggestState}
+            />
           </div>
         </ContentBox>
       </ModalContainer>

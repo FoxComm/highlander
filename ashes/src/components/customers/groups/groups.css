@@ -24,3 +24,14 @@
 .type {
   color: #999;
 }
+
+.label {
+  margin-bottom: 15px;
+}
+
+.group-row {
+  height: 44px;
+  line-height: 44px;
+  padding: 0 20px;
+  font-size: 16px;
+}

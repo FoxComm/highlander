@@ -4,10 +4,13 @@ import _ from 'lodash';
 import React, { Component } from 'react';
 import { Link } from 'components/link';
 import { autobind } from 'core-decorators';
+import { connect } from 'react-redux';
 
 import ContentBox from 'components/content-box/content-box';
 import { EditButton } from 'components/common/buttons';
 import SearchGroupModal from './search-group-modal';
+
+import { suggestGroups } from 'modules/customer-groups/suggest';
 
 import styles from './groups.css';
 
@@ -19,7 +22,14 @@ type State = {
   modalShown: boolean,
 };
 
-export default class CustomerGroupsBlock extends Component {
+function mapStateToProps(state) {
+  return {
+    suggested: state.customerGroups.suggest.groups,
+    suggestState: _.get(state.asyncActions, 'suggestGroups', {}),
+  };
+}
+
+class CustomerGroupsBlock extends Component {
   props: Props
 
   state: State = {
@@ -47,7 +57,7 @@ export default class CustomerGroupsBlock extends Component {
     this.setState({ modalShown: false });
   }
 
-  get groups(): Array<Element> {
+  get groups(): Element|Array<Element> {
     const { groups } = this.props;
 
     if (_.isEmpty(groups)) {
@@ -67,6 +77,8 @@ export default class CustomerGroupsBlock extends Component {
   }
 
   render() {
+    console.log(this.props);
+    console.log(this.props.suggested);
     return (
       <ContentBox title="Groups" actionBlock={this.actionBlock}>
         {this.groups}
@@ -74,8 +86,16 @@ export default class CustomerGroupsBlock extends Component {
           isVisible={this.state.modalShown}
           onCancel={this.onEditGroupsCancel}
           handleSave={this.onEditGroupsSave}
+          suggestGroups={this.props.suggestGroups}
+          suggested={this.props.suggested}
+          suggestState={this.props.suggestState}
         />
       </ContentBox>
     );
   }
 };
+
+export default connect(
+  mapStateToProps,
+  { suggestGroups }
+)(CustomerGroupsBlock);
