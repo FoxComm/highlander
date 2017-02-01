@@ -65,8 +65,14 @@ def tune_vm(config, opts = {})
   end
 
   config.vm.provider :vmware_fusion do |v, override|
+    user = "vagrant"
     v.vmx["memsize"] = memory if memory
     v.vmx["numvcpus"] = cpus if cpus
+    #override.ssh.insert_key = false
+    #override.ssh.username = "vagrant"
+    #override.ssh.password = "vagrant"
+    override.vm.box = "fox/vmare_fusion_appliance_base_2016"
+    override.vm.box_url = "file://fox_vmare_fusion_appliance_base_2016.12.12.box"
   end
 
   config.vm.provider :google do |g, override|
@@ -185,6 +191,7 @@ Vagrant.configure("2") do |config|
   config.vm.define :appliance_base, autostart: false do |app|
     app.vm.box = "boxcutter/ubuntu1604"
     app.vm.network :private_network, ip: $nginx_ip
+    app.ssh.insert_key = false
 
     app.vm.provision "shell", inline: "apt-get install -y python-minimal"
     app.vm.provision "ansible" do |ansible|
