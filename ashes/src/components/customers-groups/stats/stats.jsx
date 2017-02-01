@@ -16,13 +16,13 @@ type Props = {
 };
 
 type State = {
-  period: string;
+  period: string,
 }
 
 function getPercent(stats, period, fieldName) {
   const groupValue = get(stats, [period, 'group', fieldName]);
 
-  if (!isNumber(groupValue)) {
+  if (!groupValue) {
     return void 0;
   }
 
@@ -30,7 +30,7 @@ function getPercent(stats, period, fieldName) {
 }
 
 const StatsValue = ({ value, currency, preprocess = identity, className = '' }) => {
-  if (!isNumber(value) || isNaN(value)) {
+  if (!value) {
     return <span className={className}>—</span>;
   }
 
@@ -66,24 +66,18 @@ class CustomerGroupStats extends Component {
   };
 
   get timeframes() {
-    const { isLoading, stats } = this.props;
-
-    return (
-      <div className={styles.periods}>
-        {Object.keys(stats).map((period: string) => (
-          <RadioButton
-            id={period}
-            className={styles.period}
-            checked={this.state.period === period}
-            onChange={() => this.setState({ period })}
-            disabled={isLoading}
-            key={period}
-          >
-            <label htmlFor={period}>{capitalize(period)}</label>
-          </RadioButton>
-        ))}
-      </div>
-    );
+    return Object.keys(this.props.stats).map((period: string) => (
+      <RadioButton
+        id={period}
+        className={styles.period}
+        checked={this.state.period === period}
+        onChange={() => this.setState({ period })}
+        disabled={this.props.isLoading}
+        key={period}
+      >
+        <label htmlFor={period}>{capitalize(period)}</label>
+      </RadioButton>
+    ));
   }
 
   render() {
@@ -97,7 +91,9 @@ class CustomerGroupStats extends Component {
 
     return (
       <div>
-        {this.timeframes}
+        <div className={styles.periods}>
+          {this.timeframes}
+        </div>
         <PanelList className={classNames(styles.stats, { [styles._loading]: isLoading })}>
           <Stats title="Total Orders" fieldName="ordersCount" />
           <Stats title="Total Sales" fieldName="totalSales" currency />

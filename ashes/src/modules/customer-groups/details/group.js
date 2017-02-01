@@ -15,6 +15,7 @@ import { createAsyncActions } from '@foxcomm/wings';
 import requestAdapter from '../utils/request-adapter';
 
 const mapping = 'customers_search_view';
+const statsUrl = `${mapping}/_search?size=0`;
 
 const statsPeriodsMapping = {
   day: [{ 'from': 'now-1d/d' }],
@@ -82,8 +83,8 @@ const _archiveGroup = createAsyncActions('archiveCustomerGroup', (groupId: numbe
 
 const _fetchStats = createAsyncActions('fetchStatsCustomerGroup', request => {
   return Promise.all([
-    search.post(`${mapping}/_search?size=0`, makeStatsRequest(request).toRequest()),
-    search.post(`${mapping}/_search?size=0`, makeStatsRequest(new Request()).toRequest()),
+    search.post(statsUrl, makeStatsRequest(request).toRequest()),
+    search.post(statsUrl, makeStatsRequest(new Request()).toRequest()),
   ]);
 });
 

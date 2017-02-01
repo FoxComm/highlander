@@ -3,8 +3,8 @@
 import BucketAggregation from './bucket';
 
 type Range = {
-  from?: number|string;
-  to?: number|string;
+  from?: number|string,
+  to?: number|string,
 };
 
 export default class RangeAggregation extends BucketAggregation {
