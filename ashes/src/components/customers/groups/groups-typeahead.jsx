@@ -61,9 +61,13 @@ export default class GroupsTypeahead extends Component {
     }
   }
 
+  groupPill(group: TShortCustomerGroup) {
+    return `${group.name} : ${group.id}`;
+  }
+
   get pilledInput() {
     const { state, props } = this;
-    const pills = state.selected;
+    const pills = state.selected.map(this.groupPill);
 
     return (
       <PilledInput
