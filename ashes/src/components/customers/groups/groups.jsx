@@ -5,9 +5,10 @@ import React, { Component } from 'react';
 import { Link } from 'components/link';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
+import classNames from 'classnames';
 
 import ContentBox from 'components/content-box/content-box';
-import { EditButton } from 'components/common/buttons';
+import { EditButton, DeleteButton } from 'components/common/buttons';
 import SearchGroupModal from './search-group-modal';
 
 import { suggestGroups } from 'modules/customer-groups/suggest';
@@ -56,10 +57,17 @@ class CustomerGroupsBlock extends Component {
   @autobind
   onEditGroupsSave(groups: Array<TCustomerGroupsShort>): void {
     const id = this.props.customerId;
-    const payload = groups.concat(this.props.groups);
-    this.props.saveGroups(id, payload).then(() => {
-      this.setState({ modalShown: false });
+    const payload = _.filter(this.props.groups, { groupType: 'manual' }).concat(groups);
+    this.setState({ modalShown: false }, () => {
+      this.props.saveGroups(id, payload);
     });
+  }
+
+  @autobind
+  handleDelete(id: number) {
+    const { customerId, groups } = this.props;
+    const payload = _.filter(groups, g => g.id != id && g.groupType == 'manual');
+    this.props.saveGroups(customerId, payload);
   }
 
   get groups(): Element|Array<Element> {
@@ -73,12 +81,20 @@ class CustomerGroupsBlock extends Component {
       );
     }
 
-    return this.props.groups.map((group: TCustomerGroupShort) => (
-      <Link className={styles.group} to="customer-group" params={{groupId: group.id}} key={group.id}>
-        <span className={styles.name}><i className="icon icon-customers"></i> {group.name}</span>
-        <span className={styles.type}>{_.capitalize(group.groupType)}</span>
-      </Link>
-    ));
+    const groupList = this.props.groups.map((group: TCustomerGroupShort) => {
+      const linkClass = classNames(styles.group, {[styles.dynamic]: group.groupType != 'manual'});
+      return (
+        <div className={styles['group-container']} key={group.id}>
+          <Link className={linkClass} to="customer-group" params={{groupId: group.id}}>
+            <span className={styles.name}><i className="icon icon-customers"></i> {group.name}</span>
+            <span className={styles.type}>{_.capitalize(group.groupType)}</span>
+          </Link>
+          {group.groupType == 'manual' && <DeleteButton onClick={() => this.handleDelete(group.id)} />}
+        </div>
+      );
+    });
+
+    return <div styleName="groups">{groupList}</div>;
   }
 
   render() {
