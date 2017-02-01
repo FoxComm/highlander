@@ -2,12 +2,11 @@
 
 import classNames from 'classnames';
 import React from 'react';
-import type { HTMLElement } from '../types';
 
-function wrapSpinner(svg: HTMLElement, className: string) {
+function wrapSpinner(svg: string, className: string) {
   if (className.indexOf('spinner') > -1) {
     return (
-      <span className="icon__spinner">{svg}</span>
+      `<span class="icon__spinner">${svg}</span>`
     );
   }
 
@@ -26,7 +25,6 @@ type IconProps = {
 const Icon = (props: IconProps) => {
   const name = `#${props.name}-icon`;
   const size = props.size || 's';
-  const useTag = `<use xlink:href=${name} />`;
 
   const className = classNames(
     'icon',
@@ -35,14 +33,21 @@ const Icon = (props: IconProps) => {
     props.className
   );
 
-  const svgNode = (
-    <svg className="icon__cnt" dangerouslySetInnerHTML={{__html: useTag }}/>
-  );
+  const svg =
+    `<svg class="icon__cnt">
+      <!-- SAFARI TAB NAVIGATION FIX -->
+      <use xlink:href=${name} />
+      <!-- SAFARI TAB NAVIGATION FIX -->
+    </svg>`;
+
+  const svgNode = wrapSpinner(svg, className);
 
   return (
-    <span className={className} onClick={props.onClick}>
-      {wrapSpinner(svgNode, className)}
-    </span>
+    <span
+      className={className}
+      onClick={props.onClick}
+      dangerouslySetInnerHTML={{__html: svgNode }}
+    />
   );
 };
 

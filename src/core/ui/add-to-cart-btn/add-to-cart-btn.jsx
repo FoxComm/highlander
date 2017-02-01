@@ -11,23 +11,26 @@ import styles from './add-to-cart-btn.css';
 import Icon from 'ui/icon';
 
 type Props = {
+  pdp?: bool,
   expanded?: bool,
   onClick?: Function,
   className?: string,
 };
 
 const AddToCartBtn = (props: Props) => {
-  const { expanded = false, onClick, className, ...restProps } = props;
+  const { pdp, expanded = false, onClick, className, ...restProps } = props;
   const classNames = cx(className, styles['add-to-cart-btn'], {
     [styles.expanded]: expanded,
   });
+  const iconWrapper = cx(className, styles['add-icon-wrapper'], {[styles.pdp]: pdp});
+  const buttonTitle = cx(className, styles['add-btn-title'], {[styles.pdp]: pdp});
 
   return (
     <button className={classNames} onClick={onClick} {...restProps}>
-      <span styleName="add-icon-wrapper">
+      <span className={iconWrapper}>
         <Icon name="fc-add" styleName="add-icon" />
       </span>
-      <span styleName="add-btn-title">ADD TO CART</span>
+      <span className={buttonTitle}>ADD TO CART</span>
     </button>
   );
 };

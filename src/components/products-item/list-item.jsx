@@ -36,6 +36,7 @@ type Product = {
   title: string,
   description: ?string,
   salePrice: string,
+  retailPrice: string,
   currency: string,
   albums: ?Array<Album> | Object,
   skus: Array<string>,
@@ -92,14 +93,43 @@ class ListItem extends React.Component {
     tracking.clickPdp(props, props.index);
   }
 
+  isOnSale(): HTMLElement {
+    const { currency } = this.props;
+
+    let {
+      salePrice,
+      retailPrice,
+    } = this.props;
+
+    salePrice = Number(salePrice);
+    retailPrice = Number(retailPrice);
+
+    return (retailPrice > salePrice) ? (
+      <div styleName="price">
+          <Currency
+            styleName="retail-price"
+            value={retailPrice}
+            currency={currency}
+          />
+          <Currency
+            styleName="on-sale-price"
+            value={salePrice}
+            currency={currency}
+          />
+        </div>
+      ) : (
+        <div styleName="price">
+          <Currency value={salePrice} currency={currency} />
+        </div>
+      );
+  }
+
   render(): HTMLElement {
     const {
       productId,
       slug,
       title,
       description,
-      salePrice,
-      currency,
     } = this.props;
 
     const productSlug = slug != null && !_.isEmpty(slug) ? slug : productId;
@@ -124,10 +154,7 @@ class ListItem extends React.Component {
           </h1>
           <h2 styleName="description">{/* serving size */}</h2>
           <div styleName="price-line">
-            <div styleName="price">
-              <Currency value={salePrice} currency={currency} />
-            </div>
-
+            {this.isOnSale()}
             <div styleName="add-to-cart-btn">
               <AddToCartBtn onClick={this.addToCart} expanded />
             </div>

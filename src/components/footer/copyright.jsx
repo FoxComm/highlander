@@ -10,7 +10,7 @@ import { Link } from 'react-router';
 const Copyright = () : HTMLElement => {
   return (
     <div styleName="copyright">
-      <p>&copy; COPYRIGHT 2016. THE PERFECT GOURMET</p>
+      <p>&copy; THE PERFECT GOURMET</p>
       <ul>
         <li><Link to="terms-of-use">Terms</Link></li>
         <li><Link to="privacy-policy">Privacy</Link></li>

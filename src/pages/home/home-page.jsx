@@ -14,7 +14,7 @@ import styles from './home-page.css';
 const mainBlocks = [
   {
     imageUrl: '/images/home-page/Home_Page_Favorites_2x.jpg',
-    description: 'We’re got you covered with dinners ready in less than 30 minutes',
+    description: 'We’ve got you covered with dinners ready in less than 30 minutes',
     title: 'Pressed for time?',
     action: { title: 'Shop our favorites', link: '/favorites' },
   },

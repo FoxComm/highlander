@@ -95,6 +95,19 @@
   letter-spacing: 1.5px;
 }
 
+.on-sale-price,
+.retail-price {
+  display: block;
+}
+
+.on-sale-price {
+  color: var(--text-color-on-sale);
+}
+
+.retail-price {
+  text-decoration: line-through;
+}
+
 @media (--small-only) {
   .title {
     font-weight: 400;
@@ -141,6 +154,15 @@
       color: white;
       line-height: 33px;
     }
+  }
+
+  .on-sale-price,
+  .retail-price {
+    display: inline-block;
+  }
+
+  .retail-price {
+    margin-right: 7px;
   }
 }
 
