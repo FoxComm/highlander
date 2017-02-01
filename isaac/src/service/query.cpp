@@ -140,7 +140,7 @@ namespace isaac
             return r;
         }
 
-        void query_request_handler::check_token(proxygen::HTTPMessage& msg) 
+        void query_request_handler::check_role(proxygen::HTTPMessage& msg)
         {
             const auto token = get_token(msg, _c.token_header);
 
@@ -161,7 +161,7 @@ namespace isaac
             }
         }
 
-        void query_request_handler::check_role(proxygen::HTTPMessage& msg) 
+        void query_request_handler::check_token(proxygen::HTTPMessage& msg)
         {
             const auto token = get_token(msg, _c.token_header);
 
