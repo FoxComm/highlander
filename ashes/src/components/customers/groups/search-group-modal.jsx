@@ -3,6 +3,7 @@
 // libs
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
+import { isEmpty } from 'lodash';
 
 // components
 import { ModalContainer } from 'components/modal/base';
@@ -10,9 +11,23 @@ import ContentBox from 'components/content-box/content-box';
 import SaveCancel from 'components/common/save-cancel';
 import GroupsTypeahead from './groups-typeahead';
 
+type Props = {
+  isVisible: boolean,
+  suggestState: string,
+  suggested: Array<TCustomerGroupShort>,
+  onCancel: Function,
+  handleSave: Function,
+  suggestGroups: Function,
+};
+
+type State = {
+  groups: Array<TCustomerGroupShort>,
+};
+
 export default class SearchGroupModal extends Component {
 
-  state = {
+  props: Props;
+  state: State = {
     groups: [],
   };
 
@@ -35,13 +50,17 @@ export default class SearchGroupModal extends Component {
     );
   }
 
+  get isSaveDisabled(): boolean {
+    return isEmpty(this.state.groups);
+  }
+
   @autobind
   handleSave() {
     this.props.handleSave(this.state.groups);
   }
 
   @autobind
-  handleSelect(groups: Array<TShortCustomerGroup>) {
+  handleSelect(groups: Array<TCustomerGroupShort>) {
     this.setState({ groups });
   }
 

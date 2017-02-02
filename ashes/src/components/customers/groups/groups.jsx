@@ -1,7 +1,7 @@
 /* @flow */
 
 import _ from 'lodash';
-import React, { Component } from 'react';
+import React, { Component, Element } from 'react';
 import { Link } from 'components/link';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
@@ -18,6 +18,11 @@ import styles from './groups.css';
 
 type Props = {
   groups: Array<TCustomerGroupShort>,
+  suggested: Array<TCustomerGroupShort>,
+  suggestState: string,
+  customerId: number,
+  saveGroups: Function,
+  suggestGroups: Function,
 };
 
 type State = {
@@ -55,7 +60,7 @@ class CustomerGroupsBlock extends Component {
   }
 
   @autobind
-  onEditGroupsSave(groups: Array<TCustomerGroupsShort>): void {
+  onEditGroupsSave(groups: Array<TCustomerGroupShort>): void {
     const id = this.props.customerId;
     const payload = _.filter(this.props.groups, { groupType: 'manual' }).concat(groups);
     this.setState({ modalShown: false }, () => {

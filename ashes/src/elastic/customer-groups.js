@@ -6,7 +6,7 @@ import * as dsl from './dsl';
 const MAX_RESULTS = 1000;
 const searchUrl = `customer_groups_search_view/_search?size=${MAX_RESULTS}`;
 
-export function searchGroups(token) {
+export function searchGroups(token: string) {
   let filters = [];
   if (token) {
     const caseInsensitiveToken = token.toLowerCase();

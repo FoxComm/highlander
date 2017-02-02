@@ -12,7 +12,14 @@ import GroupRow from './group-row';
 
 import styles from './groups.css';
 
-type Props = {};
+type Props = {
+  hideOnBlur: boolean,
+  maxUsers: number,
+  suggestState: string,
+  suggested: Array<TCustomerGroupShort>,
+  suggestGroups: Function,
+  onSelect: Function,
+};
 
 type State = {
   term: string,
@@ -53,7 +60,7 @@ export default class GroupsTypeahead extends Component {
   }
 
   @autobind
-  handleSelectItem(item: TUser, event: Object) {
+  handleSelectItem(item: TCustomerGroupShort, event: Object) {
     if (_.find(this.state.selected, {id: item.id})) {
       event.preventHiding();
     } else {
@@ -67,7 +74,7 @@ export default class GroupsTypeahead extends Component {
     }
   }
 
-  groupPill(group: TShortCustomerGroup) {
+  groupPill(group: TCustomerGroupShort) {
     return `${group.name} : ${group.id}`;
   }
 
