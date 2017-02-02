@@ -15,6 +15,7 @@ import {
 } from 'victory';
 import TotalRevenueToolTip from './total-revenue-tooltip';
 
+// styles
 const colors = {
   tealGreenish: '#78CFD4',
   gray: '#808080',
@@ -37,6 +38,7 @@ const gridStyle = {
   tickLabels: { fontSize: 8, fill: colors.gray },
 };
 
+// helpers
 const unixTimeToDateFormat = (unixTimeStr, dateFormat = 'MMM D, YYYY') => {
   return moment.unix(parseInt(unixTimeStr, 10)).format(dateFormat);
 };
@@ -62,6 +64,24 @@ const formatValue = (value, currencyCode = 'USD', fractionDigits = 0) => {
   }
 };
 
+const formatTickValue = (datum: any, totalDataSize: number, groupSize: number = 16) => {
+  if (_.inRange(totalDataSize, 0, groupSize)) {
+    return datum.tickValue;
+  }
+
+  if (_.inRange(totalDataSize, groupSize, groupSize * 2)) {
+    return (datum.tick % 2)
+      ? ''
+      : datum.tickValue;
+  }
+
+  if (_.inRange(totalDataSize, groupSize * 2, groupSize * 6)) {
+    return (datum.tick % 2 || datum.tick % 3)
+      ? ''
+      : datum.tickValue;
+  }
+};
+
 // Dummy data for UI debugging
 const dummyQueryKey: string = 'track.1.product.2.debug';
 const dummyJsonData: { dummyQueryKey: [ {x: number, y: number } ] } = {
@@ -81,6 +101,7 @@ export const ChartSegmentType = {
   Month: 'm',
 };
 
+// types
 type Props = {
   jsonData: Object,
   debugMode?: boolean,
@@ -102,12 +123,10 @@ class TotalRevenueChart extends React.Component {
   };
 
   @autobind
-  generateDataTickValues(fromData: any) {
-    const { jsonData, debugMode, queryKey, segmentType } = this.props;
+  generateDataTickValues(jsonData: any) {
+    const { debugMode, queryKey, segmentType } = this.props;
 
-    const jsonDisplay = (debugMode) ? dummyJsonData[dummyQueryKey] : jsonData[queryKey];
-
-    let tickValues: Array<any> = [];
+    const jsonDisplay = (debugMode) ? dummyJsonData[dummyQueryKey] : jsonData;
 
     _.each(jsonDisplay, (d) => {
       const integerTime = parseInt(d.x);
@@ -126,16 +145,17 @@ class TotalRevenueChart extends React.Component {
           break;
       }
 
-      tickValues = _.concat(tickValues, moment.unix(integerTime).format(timeFormat));
+      d.tickValue = moment.unix(integerTime).format(timeFormat);
     });
 
-    return tickValues;
+    return jsonDisplay;
   }
 
   get chart() {
-    const displayData = this.data;
-    const dataTickValues = this.generateDataTickValues(displayData);
     const { currencyCode } = this.props;
+
+    const displayData = this.generateDataTickValues(this.data);
+    const dataSize = _.size(displayData);
 
     return (
       <div>
@@ -145,10 +165,11 @@ class TotalRevenueChart extends React.Component {
             standalone={false}
             style={{
               axis: { stroke: colors.gray },
-              tickLabels: { fontSize: 8, fill: colors.gray },
+              tickLabels: { fontSize: (dataSize < 90) ? 8 : 6, fill: colors.gray },
             }}
             orientation="bottom"
-            tickValues={dataTickValues} />
+            tickFormat={(x) => (x) => { return formatTickValue(displayData[x - 1], dataSize) }}
+            tickValues={_.map(displayData, (datum) => { return datum.tickValue; })} />
           <VictoryAxis
             dependentAxis
             standalone={false}
@@ -157,7 +178,7 @@ class TotalRevenueChart extends React.Component {
             tickFormat={(rawValue) => (`${formatValue(rawValue, currencyCode)}`)} />
           <VictoryArea
             style={areaStyle}
-            data={this.data}
+            data={displayData}
             x="tick"
             y="y" />
           <VictoryScatter
