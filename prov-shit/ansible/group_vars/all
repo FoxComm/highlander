@@ -98,6 +98,7 @@ solomon_server: "{{solomon_host}}:{{solomon_port}}"
 
 mesos_master: "mesos-master.{{consul_suffix}}"
 mesos_port: 5050
+mesos_server: "{{mesos_master}}:{{mesos_port}}"
 
 marathon_host: "marathon.{{consul_suffix}}"
 marathon_port: 8080
@@ -116,9 +117,18 @@ product_search_port: 5492
 product_search_server: "{{product_search_host}}:{{product_search_port}}"
 
 messaging_host: "messaging.{{consul_suffix}}"
+
+dashboard_host: "dashboard.{{consul_suffix}}"
+dashboard_port: 4198
+dashboard_server: "{{dashboard_host}}:{{dashboard_port}}"
+
+kibana_host: "kibana.{{consul_suffix}}"
 kibana_port: 5601
+kibana_server: "{{kibana_host}}:{{kibana_port}}"
+
+pgweb_host: "pgweb.{{consul_suffix}}"
 pgweb_port: 8082
-dashboard_port: 3000
+pgweb_server: "{{pgweb_host}}:{{pgweb_port}}"
 
 # Database & bottledwater
 db_user: phoenix
@@ -235,6 +245,7 @@ mesos_ip: 0.0.0.0
 
 # On Amigo server?
 is_amigo: false
+is_appliance: false
 
 # Seeder flags
 with_base_seeds: true
