@@ -31,7 +31,7 @@
     - { role: dev/marathon, only_consumers: true }
     # Nginx
     - { role: dev/balancer }
-    - { role: dev/mesos_consul }
+    - { role: hotfix/mesos_consul }
     - { role: demo/balancer }
     # Finale
     - { role: dev/healthcheck }

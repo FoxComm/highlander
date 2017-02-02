@@ -10,8 +10,9 @@
     - { role: dev/stage_mesos, when: first_run }
     - { role: dev/zookeeper, when: first_run }
     - { role: dev/elasticsearch, when: first_run }
-    - { role: dev/kibana, when: first_run }
     - { role: dev/db, when: first_run }
+    - { role: hotfix/db }
+    - { role: hotfix/kibana }
     - { role: prod/migrate_phoenix_db }
     - { role: prod/migrate_middlewarehouse_db }
 
@@ -34,6 +35,7 @@
     - { role: dev/marathon }
     - { role: dev/marathon, only_consumers: true }
     - { role: dev/balancer }
+    - { role: hotfix/mesos_consul }
     - { role: demo/balancer }
     - { role: dev/seeder, when: first_run }
 
