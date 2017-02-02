@@ -14,7 +14,7 @@
 
 - name: Set Facts for Template
   set_fact:
-    consul_ui_url: "https://{{dns_record}}.{{foxcomm_domain}}/private/consul"
+    consul_ui_url: "http://{{private_ip}}.{{consul_port}}"
     mesos_ui_url: "http://{{private_ip}}::{{mesos_port}}"
     marathon_ui_url: "https://{{dns_record}}.{{foxcomm_domain}}/private/marathon"
     kibana_url: "http://{{private_ip}}::{{kibana_port}}"
