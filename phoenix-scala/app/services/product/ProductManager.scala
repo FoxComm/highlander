@@ -381,7 +381,7 @@ object ProductManager {
       oc: OC,
       au: AU): DbResultT[Seq[FullProductOption]] =
     for {
-      productOptions ← * <~ payload.map(ProductOptionManager.updateOrCreate(oc, _))
+      productOptions ← * <~ payload.map(ProductOptionManager.updateOrCreate)
       _ ← * <~ ProductOptionLinks.syncLinks(product, productOptions.map {
            case (option, _) ⇒ option.model
          })
