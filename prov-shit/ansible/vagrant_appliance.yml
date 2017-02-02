@@ -8,6 +8,7 @@
     docker_db_host: 172.17.0.1
     install_public_keys: true
     install_private_keys: true
+    is_appliance: true
     is_amigo: true
     mesos_quorum: 1
     vagrant: true
