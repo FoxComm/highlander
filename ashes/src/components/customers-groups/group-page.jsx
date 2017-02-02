@@ -59,13 +59,13 @@ class GroupPage extends Component {
   }
 
   render() {
-    const { group, fetched, err } = this.props;
+    const { group, err } = this.props;
 
     if (err) {
       return <Error err={err} />;
     }
 
-    if (!this.isRequestedGroup && !fetched) {
+    if (!this.isRequestedGroup) {
       return <div><WaitAnimation /></div>;
     }
 

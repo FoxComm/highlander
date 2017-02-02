@@ -148,7 +148,7 @@ const mapState = state => ({
 });
 
 const mapActions = dispatch => ({
-  actions: bindActionCreators({ setType, setConditions, setMainCondition }, dispatch),
+  actions: bindActionCreators({ setType, setName, setConditions, setMainCondition }, dispatch),
 });
 
 export default connect(mapState, mapActions)(GroupEditor);

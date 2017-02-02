@@ -82,14 +82,14 @@ export default class ImageCard extends Component {
   }
 
   get description(): ?Element {
-    let { title, secondaryTitle, src } = this.props;
+    let { title, secondaryTitle, src, loading } = this.props;
 
     if (!title) {
       title = src;
     }
 
     return (
-      <div className={styles.description}>
+      <div className={classNames(styles.description, { [styles._loading]: loading })}>
         <div className={styles.title}>{title}</div>
         <div className={styles.secondaryTitle}>{secondaryTitle}</div>
       </div>
@@ -97,14 +97,10 @@ export default class ImageCard extends Component {
   }
 
   render(): Element {
-    const { id, src, loading, className } = this.props;
-
-    const cls = classNames(styles.card, {
-      [styles.loading]: loading,
-    }, className);
+    const { id, src, className } = this.props;
 
     return (
-      <div className={cls}>
+      <div className={classNames(styles.card, className)}>
         <div className={styles.image} onMouseOver={this.showActions} onMouseOut={this.hideActions}>
           <Image id={id} src={src} />
         </div>
