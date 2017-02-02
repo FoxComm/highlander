@@ -9,15 +9,14 @@ import _ from 'lodash';
 import styles from './segment-control-list.css';
 
 // components
-import SegmentControl, { 
-  Props as SegmentControlType
-} from './segment-control';
+import SegmentControl from './segment-control';
+import type { Props as SegmentControlType } from './segment-control';
 
 // types
 type Props = {
   items: Array<SegmentControlType>,
-  onSelect?: ?Function,
-  activeSegment?: SegmentControlType,
+  onSelect: Function,
+  activeSegment: SegmentControlType,
   legend: string,
 };
 
@@ -27,8 +26,8 @@ class SegmentControlList extends Component {
 
   static defaultProps = {
     items: [],
-    onSelect: null,
-    activeSegment: null,
+    onSelect: _.noop,
+    activeSegment: _.noop,
     legend: 'X axis',
   };
 
@@ -37,10 +36,10 @@ class SegmentControlList extends Component {
     return <div styleName="segment-control-list-legend">{legend}</div>;
   }
 
-  get segments() {
+  get segments(): Array<HTMLElement> {
     const { items, activeSegment, onSelect } = this.props;
 
-    const activeSegmentId = !_.isNull(activeSegment)    
+    const activeSegmentId = !_.isNil(activeSegment)    
       ? activeSegment.id : false;
 
     return _.map(items, (item, index) => (

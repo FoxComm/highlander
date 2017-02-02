@@ -12,7 +12,7 @@ export type Props = {
   id?: number,
   isActive?: boolean,
   title: string,
-  onClick?: ?Function,
+  onClick: Function,
 };
 
 class SegmentControl extends Component {
@@ -21,7 +21,7 @@ class SegmentControl extends Component {
 
   static defaultProps = {
     isActive: false,
-    onClick: null,
+    onClick: _.noop,
   };
 
   @autobind

@@ -80,7 +80,7 @@ class ProductConversionChart extends React.Component {
     debugMode: false,
   };
 
-  get data() {
+  get data(): Array<any> {
     const { jsonData, debugMode } = this.props;
     
     const jsonDisplay = (debugMode) ? dummyJsonData : jsonData;

@@ -10,7 +10,8 @@ import { VictoryTooltip, VictoryLabel } from 'victory';
 type Props = {
   barWidth: number,
   getDelta: Function,
-  datum: Object,
+  getConversion: Function,
+  datum?: any,
 };
 
 const DeltaFlyout = ({x, y}) => {

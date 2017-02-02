@@ -42,6 +42,7 @@ const unixTimeToDateFormat = (unixTimeStr, dateFormat = 'MMM D, YYYY') => {
 };
 
 const formatCurrency = (value, currencyCode = 'USD', fractionDigits = 0) => {
+  // $FlowFixMe: Can't figure out how to fix 'identifier `Intl`. Could not resolve name'
   const formatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: currencyCode,
@@ -62,8 +63,8 @@ const formatValue = (value, currencyCode = 'USD', fractionDigits = 0) => {
 };
 
 // Dummy data for UI debugging
-const dummyQueryKey = 'track.1.product.2.debug';
-const dummyJsonData = {
+const dummyQueryKey: string = 'track.1.product.2.debug';
+const dummyJsonData: { dummyQueryKey: [ {x: number, y: number } ] } = {
   dummyQueryKey: [
     // y: Revenue in cents, x: UnixTimestamp
     { y: 750000, x: 1477983600 },
@@ -97,16 +98,16 @@ class TotalRevenueChart extends React.Component {
     debugMode: false,
     segmentType: ChartSegmentType.Day,
     queryKey: '',
-    currencyCode: null,
+    currencyCode: 'USD',
   };
 
   @autobind
-  generateDataTickValues(fromData) {
+  generateDataTickValues(fromData: any) {
     const { jsonData, debugMode, queryKey, segmentType } = this.props;
 
     const jsonDisplay = (debugMode) ? dummyJsonData[dummyQueryKey] : jsonData[queryKey];
 
-    let tickValues = [];
+    let tickValues: Array<any> = [];
 
     _.each(jsonDisplay, (d) => {
       const integerTime = parseInt(d.x);
@@ -170,7 +171,7 @@ class TotalRevenueChart extends React.Component {
     );
   }
 
-  get data() {
+  get data(): any {
     const { jsonData, debugMode, queryKey, currencyCode } = this.props;
 
     const jsonDisplay = (debugMode) ? dummyJsonData[dummyQueryKey] : jsonData[queryKey];
