@@ -11,6 +11,5 @@ ES_JAVA_OPTS="${ES_JAVA_OPTS} -Dcom.sun.management.jmxremote.authenticate=false"
 ES_JAVA_OPTS="${ES_JAVA_OPTS} -Dcom.sun.management.jmxremote.ssl=false"
 export ES_JAVA_OPTS
 
-
 cd {{es_path}}
 bin/elasticsearch
