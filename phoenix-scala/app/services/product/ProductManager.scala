@@ -237,19 +237,17 @@ object ProductManager {
       implicit ec: EC,
       db: DB,
       oc: OC): DbResultT[(Seq[ProductVariantResponse.Root], Seq[ProductOptionResponse.Root])] = {
-    val productValueIds = productOptions.flatMap { case (_, variantValue) ⇒ variantValue }
-      .map(_.model.id)
+    val optionIds = productOptions.flatMap { case (_, optionValue) ⇒ optionValue }.map(_.model.id)
     for {
-      productValueSkuCodes ← * <~ ProductOptionManager.getProductValueSkuCodes(productValueIds)
-      productValueSkuCodesSet = productValueSkuCodes.values.toSeq.flatten.distinct
-      productVariants ← * <~ productValueSkuCodesSet.map(skuCode ⇒
-                             ProductVariantManager.getBySkuCode(skuCode))
+      optionValueToVariantIdMap ← * <~ ProductOptionManager.mapOptionValuesToVariantIds(optionIds)
+      variantIds = optionValueToVariantIdMap.values.toSet.flatten
+      productVariants ← * <~ variantIds.map(ProductVariantManager.getByFormId)
       illuminated = productOptions.map {
         case (fullOption, values) ⇒
           val variant = IlluminatedProductOption.illuminate(oc, fullOption)
-          ProductOptionResponse.buildLite(variant, values, productValueSkuCodes)
+          ProductOptionResponse.buildLite(variant, values, optionValueToVariantIdMap)
       }
-    } yield (productVariants, illuminated)
+    } yield (productVariants.toSeq, illuminated)
   }
 
   private def validateCreate(

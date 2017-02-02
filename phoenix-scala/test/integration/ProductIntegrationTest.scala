@@ -37,7 +37,7 @@ class ProductIntegrationTest
 
         val variantCode = payloadBuilder.variantCodes.onlyElement
         product.variants.onlyElement.attributes.code must === (variantCode)
-        product.options.onlyElement.values.onlyElement.skuCodes.onlyElement must === (variantCode)
+        product.options.onlyElement.values.onlyElement.variantIds must have size 1
       }
 
       "an existing variant with options successfully" in {
@@ -58,11 +58,11 @@ class ProductIntegrationTest
         val product2OptionValues = product2.options.onlyElement.values
         product2OptionValues.map(_.name) must === (fixture1.colors.all)
 
-        val variantCodes       = product2.variants.map(_.attributes.code)
-        val optionVariantCodes = product2OptionValues.flatMap(_.skuCodes)
+        product2.variants
+          .map(_.attributes.code) must contain theSameElementsAs product2PayloadBuilder.variantCodes
 
-        variantCodes must contain theSameElementsAs product2PayloadBuilder.variantCodes
-        optionVariantCodes must contain theSameElementsAs product2PayloadBuilder.variantCodes
+        product2OptionValues.flatMap(_.variantIds).length must === (
+            product2PayloadBuilder.variantCodes.length)
       }
 
       "empty productOption successfully" in {
@@ -72,7 +72,7 @@ class ProductIntegrationTest
                                          optionVariantCfg = NoneVariantsCfg).createProductPayload
 
         val product = productsApi.create(createPayload).as[Root]
-        product.options.onlyElement.values.onlyElement.skuCodes mustBe empty
+        product.options.onlyElement.values.onlyElement.variantIds mustBe empty
         product.variants mustBe empty
       }
     }

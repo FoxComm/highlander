@@ -9,7 +9,7 @@ import utils.aliases._
 
 object ProductOptionResponses {
 
-  type ProductValueVariantLinks = Map[Int, Seq[String]]
+  type ProductValueVariantLinks = Map[Int, Seq[Int]]
 
   object ProductOptionResponse {
     case class Root(id: Int,
