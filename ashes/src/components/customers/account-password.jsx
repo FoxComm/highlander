@@ -10,7 +10,7 @@ export default class CustomerAccountPassword extends React.Component {
   render() {
     return (
       <ContentBox title="Account Password" className="fc-customer-account-password">
-        <button id="customer-reset-password-btn" className="fc-btn">Reset Password</button>
+        <button id="customer-reset-password-btn" className="fc-btn fc-btn-reset-password">Reset Password</button>
       </ContentBox>
     );
   }

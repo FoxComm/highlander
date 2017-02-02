@@ -13,6 +13,7 @@ import utils.seeds.Seeds.Factories
 import cats.implicits._
 import failures.CustomerGroupFailures.CustomerGroupTypeIsWrong
 import models.customer.CustomerGroup._
+import responses.CustomerResponse.Root
 import utils.db.ExPostgresDriver.api._
 
 class CustomerGroupMembersIntegrationTest
@@ -67,7 +68,9 @@ class CustomerGroupMembersIntegrationTest
     "adds user to manual groups" in new FixtureForCustomerGroups {
       val payload = AddCustomerToGroups(Seq(group2.id, group3.id))
 
-      customersApi(account.id).groups.syncGroups(payload).mustHaveStatus(StatusCodes.OK)
+      val response = customersApi(account.id).groups.syncGroups(payload).as[Root]
+
+      response.groups.length must === (3)
 
       val updatedMemberships =
         CustomerGroupMembers.findByCustomerDataId(custData.id).gimme.map(_.groupId)

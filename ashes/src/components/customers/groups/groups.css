@@ -1,7 +1,21 @@
+.empty {
+  font-size: 16px;
+}
+
+.group-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  line-height: 44px;
+  height: 44px;
+}
+
 .group {
   display: flex;
   justify-content: space-between;
   line-height: 36px;
+  width: 100%;
+  margin-right: 10px;
 
   &:hover {
     & .name {
@@ -23,4 +37,23 @@
 
 .type {
   color: #999;
+}
+
+.label {
+  margin-bottom: 15px;
+}
+
+.group-row {
+  height: 50px;
+  line-height: 50px;
+  padding: 0 20px;
+  font-size: 16px;
+}
+
+.groups {
+  padding: 4px 0;
+}
+
+.dynamic {
+  margin-right: 50px;
 }
