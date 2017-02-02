@@ -116,9 +116,9 @@ product_search_port: 5492
 product_search_server: "{{product_search_host}}:{{product_search_port}}"
 
 messaging_host: "messaging.{{consul_suffix}}"
+dashboard_port: 4198
 kibana_port: 5601
 pgweb_port: 8082
-dashboard_port: 3000
 
 # Database & bottledwater
 db_user: phoenix

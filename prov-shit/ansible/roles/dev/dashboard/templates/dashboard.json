@@ -1,0 +1,14 @@
+{
+    "service": {
+        "name": "dashboard",
+        "tags": ["dashboard"],
+        "checks": [
+            {
+                "name": "HTTP API on port {{dashboard_port}}",
+                "http": "http://localhost:{{dashboard_port}}/ping",
+                "interval": "30s",
+                "status": "passing"
+            }
+        ]
+    }
+}

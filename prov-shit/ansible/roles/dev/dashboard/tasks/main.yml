@@ -34,3 +34,6 @@
 
 - name: Restart Dashboard
   service: name=dashboard state=restarted enabled=true
+
+- name: Copy Consul Service File
+  template: src=dashboard.json dest=/etc/consul.d
