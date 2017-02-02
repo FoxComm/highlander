@@ -6,7 +6,7 @@ import * as dsl from './dsl';
 const MAX_RESULTS = 1000;
 const searchUrl = `customer_groups_search_view/_search?size=${MAX_RESULTS}`;
 
-export function searchGroups(token: string) {
+export function searchGroups(excludeGroups, token: string) {
   let filters = [];
   if (token) {
     const caseInsensitiveToken = token.toLowerCase();
@@ -22,8 +22,10 @@ export function searchGroups(token: string) {
   const matchRule = dsl.query({
     bool: {
       must: [
+        dsl.existsFilter('deletedAt', 'missing'),
         dsl.termFilter('groupType', 'manual'),
       ],
+      must_not: dsl.ids(excludeGroups),
       should: filters,
       minimum_number_should_match: 1,
     },

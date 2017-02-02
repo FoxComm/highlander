@@ -1,10 +1,10 @@
 /* @flow */
 
 import _ from 'lodash';
-import className from 'classnames';
 import React, { Component, Element } from 'react';
 import { Link } from 'components/link';
 import { autobind } from 'core-decorators';
+import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 
@@ -18,6 +18,7 @@ import { saveGroups } from 'modules/customers/details';
 import styles from './groups.css';
 
 type Props = {
+  customer: Object,
   groups: Array<TCustomerGroupShort>,
   suggested: Array<TCustomerGroupShort>,
   suggestState: string,
@@ -30,13 +31,6 @@ type State = {
   modalShown: boolean,
 };
 
-function mapStateToProps(state) {
-  return {
-    suggested: state.customerGroups.suggest.groups,
-    suggestState: _.get(state.asyncActions, 'suggestGroups', {}),
-  };
-}
-
 class CustomerGroupsBlock extends Component {
   props: Props
 
@@ -46,12 +40,12 @@ class CustomerGroupsBlock extends Component {
 
   @autobind
   toggleModal(): void {
-    this.setState({modalShown: !this.state.modalShown});
+    this.setState({ modalShown: !this.state.modalShown });
   }
 
   get actionBlock(): Element {
     return (
-      <AddButton onClick={this.toggleModal}/>
+      <AddButton onClick={this.toggleModal} />
     );
   }
 
@@ -88,7 +82,7 @@ class CustomerGroupsBlock extends Component {
     }
 
     const groupList = this.props.groups.map((group: TCustomerGroupShort) => {
-      const linkClass = classNames(styles.group, {[styles.dynamic]: group.groupType != 'manual'});
+      const linkClass = classNames(styles.group, { [styles.dynamic]: group.groupType != 'manual' });
       return (
         <div className={styles['group-container']} key={group.id}>
           <Link className={linkClass} to="customer-group" params={{groupId: group.id}}>
@@ -104,6 +98,7 @@ class CustomerGroupsBlock extends Component {
   }
 
   render() {
+
     return (
       <ContentBox className={styles.contentBox} title="Groups" actionBlock={this.actionBlock}>
         {this.groups}
@@ -118,9 +113,20 @@ class CustomerGroupsBlock extends Component {
       </ContentBox>
     );
   }
+}
+
+const mapState = state => ({
+  suggested: state.customerGroups.suggest.groups,
+  suggestState: _.get(state.asyncActions, 'suggestGroups', {}),
+});
+
+const mapActions = (dispatch, props) => {
+  const customerGroups = _.map(props.customer.groups, group => group.id);
+
+  return bindActionCreators({
+    suggestGroups: suggestGroups(customerGroups),
+    saveGroups,
+  }, dispatch);
 };
 
-export default connect(
-  mapStateToProps,
-  { suggestGroups, saveGroups }
-)(CustomerGroupsBlock);
+export default connect(mapState, mapActions)(CustomerGroupsBlock);

@@ -6,11 +6,9 @@ import { createReducer } from 'redux-act';
 import { createAsyncActions } from '@foxcomm/wings';
 import { searchGroups } from 'elastic/customer-groups';
 
-const _suggestGroups = createAsyncActions(
-  'suggestGroups',
-  term => searchGroups(term)
-);
-export const suggestGroups = _suggestGroups.perform;
+const _suggestGroups = createAsyncActions('suggestGroups', searchGroups);
+
+export const suggestGroups = (notIds: Array<number>) => _suggestGroups.perform.bind(null, notIds);
 
 const initialState = {
   groups: [],

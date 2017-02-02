@@ -27,8 +27,8 @@ export default class CustomerDetails extends React.Component {
   }
 
   render() {
-    const customer = this.props.entity;
-    const addresses = this.props.addresses;
+    const { entity: customer, addresses } = this.props;
+
     return (
       <div className="fc-customer-details">
         <SectionSubtitle>Details</SectionSubtitle>
@@ -37,7 +37,7 @@ export default class CustomerDetails extends React.Component {
             <CustomerContacts customerId={customer.id} />
           </div>
           <div className="fc-col-md-1-3">
-            <CustomerGroups groups={customer.groups} customerId={customer.id} />
+            <CustomerGroups customer={customer} groups={customer.groups} customerId={customer.id} />
           </div>
           <div className="fc-col-md-1-3">
             <CustomerAccountPassword />
