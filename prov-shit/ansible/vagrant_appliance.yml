@@ -24,7 +24,7 @@
     - { role: dev/elasticsearch }
     - { role: dev/kibana }
     - { role: dev/db }
-    # Maratho
+    # Marathon
     - { role: dev/marathon }
     - { role: ext/tgt/marketplace-ui, when: with_marketplace }
     - { role: dev/seeder }
