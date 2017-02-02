@@ -12,7 +12,7 @@
     - { role: dev/elasticsearch, when: first_run }
     - { role: dev/db, when: first_run }
     - { role: hotfix/db }
-    - { role: hotfix/kibana }
+    - { role: hotfix/kibana, when: first_run }
     - { role: prod/migrate_phoenix_db }
     - { role: prod/migrate_middlewarehouse_db }
 
