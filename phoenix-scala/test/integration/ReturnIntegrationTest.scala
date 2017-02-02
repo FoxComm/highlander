@@ -13,11 +13,12 @@ import models.returns._
 import models.shipping.{Shipments, ShippingMethods}
 import payloads.ReturnPayloads._
 import responses.{AllReturns, ReturnLockResponse, ReturnResponse}
-import services.returns.{ReturnLineItemUpdater, ReturnLockUpdater}
+import services.returns.{ReturnLineItemUpdater, ReturnLockUpdater, ReturnService}
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import utils.db._
+import utils.seeds.ReturnSeeds
 import utils.seeds.Seeds.Factories
 
 class ReturnIntegrationTest
@@ -26,6 +27,37 @@ class ReturnIntegrationTest
     with HttpSupport
     with AutomaticAuth
     with BakedFixtures {
+
+  // I'm gonna move tests here once they're good
+  "Revive Retuns" - {
+    "should get rma from fixture" in new Fixture {
+      val response = returnsApi(rma.referenceNumber).get()
+      response.status must === (StatusCodes.OK)
+
+      val root = response.asTheResult[Seq[AllReturns.Root]]
+      // todo check response
+    }
+
+    "successfully creates new Return" in new Fixture {
+      val response = returnsApi.create(
+          ReturnCreatePayload(cordRefNum = order.refNum, returnType = Return.Standard))
+      response.status must === (StatusCodes.OK)
+
+      val root = response.as[ReturnResponse.Root]
+      root.referenceNumber must === (s"${order.refNum}.2")
+      root.customer.head.id must === (order.accountId)
+      root.storeAdmin.head.id must === (storeAdmin.accountId)
+      println("in test root.referenceNumber " + root.referenceNumber)
+
+      val getRma = returnsApi(root.referenceNumber).get()
+      getRma.status must === (StatusCodes.OK)
+
+      // just checking, service should return rma. todo remove later
+      val createdRma = ReturnService.getByRefNum(root.referenceNumber).gimme
+      createdRma.referenceNumber must === (root.referenceNumber)
+    }
+
+  }
 
   "Returns" - {
     pending
@@ -226,7 +258,9 @@ class ReturnIntegrationTest
       }
 
       "avoids race condition" in new Fixture {
-        pending // FIXME when DbResultT gets `select for update` https://github.com/FoxComm/phoenix-scala/issues/587
+        pending
+
+        // FIXME when DbResultT gets `select for update` https://github.com/FoxComm/phoenix-scala/issues/587
         def request = POST(s"v1/returns/${rma.referenceNumber}/lock")
 
         val responses = Seq(0, 1).par.map(_ ⇒ request)
