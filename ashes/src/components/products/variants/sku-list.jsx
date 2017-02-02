@@ -16,12 +16,11 @@ import { mapVariantsToOptions } from 'paragons/variants';
 import type { Product } from 'paragons/product';
 import type { ProductVariant } from 'modules/product-variants/details';
 
-type UpdateFn = (code: string, field: string, value: any) => void;
 
 type Props = {
   fullProduct: Product,
   variants: Array<any>,
-  updateField: UpdateFn,
+  updateField: (code: string, field: string, value: any) => void,
   updateFields: (code: string, toUpdate: Array<Array<any>>) => void,
   options: Array<any>,
   onDeleteSku: (skuCode: string) => void,
@@ -134,7 +133,7 @@ export default class SkuList extends Component {
         <EditableSkuRow
           skuContext={this.productContext}
           columns={columns}
-          sku={row}
+          productVariant={row}
           index={index}
           params={params}
           options={this.props.options}

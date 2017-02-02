@@ -11,10 +11,9 @@ import _ from 'lodash';
 import { createEmptyProductVariant, configureProductVariant } from 'paragons/product-variant';
 
 export type ProductVariant = {
-  code?: string,
+  id: number,
   feCode?: string,
   attributes: Attributes,
-  id: number,
   context: {
     attributes?: Object,
     name: string,

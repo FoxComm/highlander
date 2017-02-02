@@ -14,7 +14,6 @@ import * as t from 'paragons/object-types';
 // types
 import type { ProductVariant } from 'modules/product-variants/details';
 import type { ObjectView } from './object';
-import type { JWT } from 'lib/claims';
 
 export type OptionValue = {
   name: string,
@@ -40,7 +39,7 @@ export type Product = ObjectView & {
 
 // we should identity sku be feCode first
 // because we want to persist sku even if code has been changes
-export function productVariantId(productVariant: ProductVariant): string {
+export function productVariantCode(productVariant: ProductVariant): string {
   return productVariant.feCode || _.get(productVariant.attributes, 'code.v');
 }
 
@@ -103,7 +102,7 @@ export function createEmptyProductVariant(): Object {
   const pseudoRandomCode = generateSkuCode();
   const emptyPrice = t.price({ currency: 'USD', value: 0 });
 
-  let emptySku = {
+  let emptyVariant = {
     feCode: pseudoRandomCode,
     attributes: {
       code: t.string(''),
@@ -126,10 +125,10 @@ export function createEmptyProductVariant(): Object {
       },
     };
 
-    emptySku = { ...emptySku, ...merchantAttributes };
+    emptyVariant = { ...emptyVariant, ...merchantAttributes };
   }
 
-  return emptySku;
+  return emptyVariant;
 }
 
 export function addEmptyProductVariant(product: Product): Product {
@@ -148,10 +147,10 @@ export function addEmptyProductVariant(product: Product): Product {
  * @return {Product}
  */
 export function configureProduct(product: Product): Product {
-  return ensureProductHasSkus(product);
+  return ensureProductHasVariants(product);
 }
 
-function ensureProductHasSkus(product: Product): Product {
+function ensureProductHasVariants(product: Product): Product {
   if (_.isEmpty(product.variants)) {
     return assoc(product,
       'variants', [createEmptyProductVariant()]
@@ -160,20 +159,20 @@ function ensureProductHasSkus(product: Product): Product {
   return product;
 }
 
-export function setSkuAttribute(product: Product,
-                                code: string,
-                                label: string,
-                                value: any): Product {
+export function setVariantAttribute(product: Product,
+                                    code: string,
+                                    field: string,
+                                    value: any): Product {
 
-  const updateAttribute = sku => {
-    const skuCode = _.get(sku, 'attributes.code.v');
+  const updateAttribute = variant => {
+    const variantCode = _.get(variant, 'attributes.code.v');
 
-    return (skuCode == code || sku.feCode == code)
-      ? assoc(sku, ['attributes', label, 'v'], value)
-      : sku;
+    return (variantCode == code || variant.feCode == code)
+      ? assoc(variant, ['attributes', field, 'v'], value)
+      : variant;
   };
 
-  const newSkus = product.variants.map(sku => updateAttribute(sku));
+  const newVariants = product.variants.map(variant => updateAttribute(variant));
 
-  return assoc(product, 'variants', newSkus);
+  return assoc(product, 'variants', newVariants);
 }

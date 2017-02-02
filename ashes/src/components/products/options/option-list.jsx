@@ -7,7 +7,7 @@ import { autobind } from 'core-decorators';
 import _ from 'lodash';
 import { assoc, dissoc } from 'sprout-data';
 import { autoAssignOptions } from 'paragons/variants';
-import { productVariantId } from 'paragons/product';
+import { productVariantCode } from 'paragons/product';
 
 // components
 import ContentBox from 'components/content-box/content-box';
@@ -194,11 +194,11 @@ class OptionList extends Component {
 
   getRemovedSkusByNewOptions(newOptions: Array<Option>): Array<ProductVariant> {
     const newProduct = autoAssignOptions(this.props.product, newOptions);
-    const newVariants = _.keyBy(newProduct.variants, productVariantId);
+    const newVariants = _.keyBy(newProduct.variants, productVariantCode);
 
     return _.filter(this.props.product.variants, variant => {
       const hasRealCode = !!_.get(variant.attributes, 'code.v');
-      return hasRealCode && !(productVariantId(variant) in newVariants);
+      return hasRealCode && !(productVariantCode(variant) in newVariants);
     });
   }
 

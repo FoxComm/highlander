@@ -7,7 +7,7 @@ import { post } from 'lib/search';
 import * as dsl from 'elastic/dsl';
 import { createAsyncActions } from '@foxcomm/wings';
 
-const resetSuggestedSkus = createAction('PRODUCTS_RESET_SUGGESTED_SKUS');
+const resetSuggestedVariants = createAction('PRODUCTS_RESET_SUGGESTED_VARIANTS');
 
 export type SuggestOptions = {
   context?: string,
@@ -45,7 +45,7 @@ const _suggestSkus = createAsyncActions(
 export function suggestSkus(value: string, options: SuggestOptions = {}): ActionDispatch {
   return (dispatch: Function) => {
     if (!value) {
-      return dispatch(resetSuggestedSkus());
+      return dispatch(resetSuggestedVariants());
     }
 
     return dispatch(_suggestSkus.perform(value, options));
@@ -63,7 +63,7 @@ const reducer = createReducer({
       skus: _.get(response, 'result', []),
     };
   },
-  [resetSuggestedSkus]: state => {
+  [resetSuggestedVariants]: state => {
     return {
       ...state,
       skus: [],

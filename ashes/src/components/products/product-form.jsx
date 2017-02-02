@@ -11,12 +11,12 @@ import _ from 'lodash';
 // components
 import ObjectDetails from '../object-page/object-details';
 import OptionList from './options/option-list';
-import SkuContentBox from './skus/sku-content-box';
+import SkuContentBox from './variants/variants';
 import InputMask from 'react-input-mask';
 
 import { renderFormField } from 'components/object-form/object-form-inner';
 
-import { autoAssignOptions, deleteVariantCombination, addSkusForVariants } from 'paragons/variants';
+import { autoAssignOptions, deleteVariantCombination, addProductVariantsByOptionTuples } from 'paragons/variants';
 
 import styles from './form.css';
 
@@ -37,16 +37,16 @@ export default class ProductForm extends ObjectDetails {
   layout = layout;
   props: Props;
 
-  renderSkuList(): Element<any> {
+  renderVariants(): Element<any> {
     const { props } = this;
     return (
-      <SkuContentBox
+      <Variants
         // $FlowFixMe: WTF?
         fullProduct={props.object}
-        updateField={props.onSetSkuProperty}
-        updateFields={props.onSetSkuProperties}
+        updateField={props.onSetVariantProperty}
+        updateFields={props.onSetVariantProperties}
         onDeleteSku={this.handleDeleteSku}
-        onAddNewVariants={this.handleAddVariants}
+        onAddNewOptions={this.handleAddOptionValues}
         options={props.object.options}
       />
     );
@@ -97,16 +97,16 @@ export default class ProductForm extends ObjectDetails {
   }
 
   @autobind
-  handleDeleteSku(skuCode: string) {
+  handleDeleteSku(variantId: string) {
     this.props.onUpdateObject(
-      deleteVariantCombination(this.props.object, skuCode)
+      deleteVariantCombination(this.props.object, variantId)
     );
   }
 
   @autobind
-  handleAddVariants(variantValues: Array<Array<OptionValue>>) {
+  handleAddOptionValues(optionValuesTuples: Array<Array<OptionValue>>) {
     this.props.onUpdateObject(
-      addSkusForVariants(this.props.object, variantValues)
+      addProductVariantsByOptionTuples(this.props.object, optionValuesTuples)
     );
   }
 

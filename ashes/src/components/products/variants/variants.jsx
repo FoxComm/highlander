@@ -24,14 +24,12 @@ import styles from './sku-content-box.css';
 import type { Product, OptionValue } from 'paragons/product';
 import type { ProductVariant } from 'modules/product-variants/details';
 
-type UpdateFn = (code: string, field: string, value: any) => void;
-
 type Props = {
   fullProduct: Product,
-  updateField: UpdateFn,
+  updateField: (id: string, field: string, value: any) => void,
   onDeleteSku: (skuCode: string) => void,
-  onAddNewVariants: (options: Array<Array<OptionValue>>) => void,
-  updateFields: (code: string, toUpdate: Array<Array<any>>) => void,
+  onAddNewOptions: (options: Array<Array<OptionValue>>) => void,
+  updateFields: (id: string, toUpdate: Array<Array<any>>) => void,
   options: Array<any>,
 };
 
@@ -40,7 +38,7 @@ type State = {
   selectedOptions: {[key: string]: Array<OptionValue>},
 };
 
-class SkuContentBox extends Component {
+class Variants extends Component {
   props: Props;
   state: State = {
     addDialogIsShown: false,
@@ -123,7 +121,7 @@ class SkuContentBox extends Component {
     this.setState({
       selectedOptions: {}
     }, () => {
-      this.props.onAddNewVariants(newOptions);
+      this.props.onAddNewOptions(newOptions);
       this.closeAction();
     });
   }
@@ -158,7 +156,7 @@ class SkuContentBox extends Component {
   render() {
     const { props } = this;
     return (
-      <ContentBox title="SKUs" actionBlock={ this.actions }>
+      <ContentBox title="Variants" actionBlock={ this.actions }>
         <SkuList
           key="sku-list"
           fullProduct={props.fullProduct}
@@ -174,4 +172,4 @@ class SkuContentBox extends Component {
   }
 }
 
-export default SkuContentBox;
+export default Variants;

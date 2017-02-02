@@ -2,7 +2,7 @@
 import React, { Component, Element, PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
-import { setSkuAttribute, productVariantId } from 'paragons/product';
+import { setVariantAttribute, productVariantCode } from 'paragons/product';
 import { assoc } from 'sprout-data';
 
 // actions
@@ -74,7 +74,7 @@ class ProductPage extends ObjectPage {
     let variants = _.reduce(object.variants, (acc, variant) => {
       const code = _.get(variant.attributes, 'code.v');
       if (code) {
-        existsCodes[productVariantId(variant)] = 1;
+        existsCodes[productVariantCode(variant)] = 1;
         return [...acc, variant];
       }
       return acc;
@@ -83,7 +83,7 @@ class ProductPage extends ObjectPage {
     if (!variants.length && object.variants.length) {
       const firstVariant = object.variants[0];
       variants = [firstVariant];
-      existsCodes[productVariantId(firstVariant)] = 1;
+      existsCodes[productVariantCode(firstVariant)] = 1;
     }
 
     const options = _.map(object.options, option => {
@@ -139,23 +139,23 @@ class ProductPage extends ObjectPage {
   }
 
   @autobind
-  handleSetSkuProperty(code: string, field: string, value: string) {
+  handleSetVariantProperty(id: string, field: string, value: string) {
     const { object } = this.state;
 
     if (object) {
       this.setState({
-        object: setSkuAttribute(object, code, field, value),
+        object: setVariantAttribute(object, id, field, value),
       });
     }
   }
 
   @autobind
-  handleSetSkuProperties(code: string, updateArray: Array<Array<any>>) {
+  handleSetVariantProperties(id: string, updateArray: Array<Array<any>>) {
     const { object } = this.state;
 
     if (object) {
       const newProduct = _.reduce(updateArray, (p, [field, value]) => {
-        return setSkuAttribute(p, code, field, value);
+        return setVariantAttribute(p, id, field, value);
       }, object);
       this.setState({object: newProduct});
     }
@@ -191,8 +191,8 @@ class ProductPage extends ObjectPage {
   childrenProps() {
     return {
       ...super.childrenProps(),
-      onSetSkuProperty: this.handleSetSkuProperty,
-      onSetSkuProperties: this.handleSetSkuProperties,
+      onSetVariantProperty: this.handleSetVariantProperty,
+      onSetVariantProperties: this.handleSetVariantProperties,
     };
   }
 

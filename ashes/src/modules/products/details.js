@@ -71,13 +71,13 @@ const _createProduct = createAsyncActions(
 function cleanProductPayload(product) {
   // get rid of temp. skus
   const feCodes = {};
-  const variants = _.reduce(product.variants, (acc, sku) => {
-    const code = _.get(sku, 'attributes.code.v');
-    if (sku.feCode) {
-      feCodes[sku.feCode] = code || '';
+  const variants = _.reduce(product.variants, (acc, variant) => {
+    const code = _.get(variant, 'attributes.code.v');
+    if (variant.feCode) {
+      feCodes[variant.feCode] = code || '';
     }
     if (code) {
-      return [...acc, dissoc(sku, 'feCode')];
+      return [...acc, dissoc(variant, 'feCode')];
     }
     return acc;
   }, []);
