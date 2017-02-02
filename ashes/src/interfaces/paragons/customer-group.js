@@ -6,11 +6,25 @@ type TCustomerGroupShort = {
   groupType: string,
 };
 
+type TStatsUnit = {
+  ordersCount: number,
+  totalSales: number,
+  averageOrderSize: number,
+  averageOrderSum: number,
+}
+
+type TStatsPeriodUnit = {
+  group: TStatsUnit,
+  overall: TStatsUnit,
+}
+
 type TCustomerGroupStats = {
-  orderCount: ?number,
-  totalSales: ?number,
-  averageOrderSize: ?number,
-  averageorderSum: ?number,
+  day: ?TStatsPeriodUnit,
+  week: ?TStatsPeriodUnit,
+  month: ?TStatsPeriodUnit,
+  quarter: ?TStatsPeriodUnit,
+  year: ?TStatsPeriodUnit,
+  overall: ?TStatsPeriodUnit,
 };
 
 type TCustomerGroup = TCustomerGroupShort & {
@@ -21,7 +35,7 @@ type TCustomerGroup = TCustomerGroupShort & {
   elasticRequest: Object,
   createdAt: string,
   updatedAt: string,
-  stats: ?TCustomerGroupStats,
+  stats: TCustomerGroupStats,
 };
 
 

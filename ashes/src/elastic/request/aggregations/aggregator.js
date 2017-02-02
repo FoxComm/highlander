@@ -17,13 +17,11 @@ export default class Aggregator extends Element {
   }
 
   toRequest(): Object {
-    const result = {};
+    return this._aggregations.reduce((res, aggregation) => {
+        res[aggregation.name] = aggregation.toRequest();
 
-    this._aggregations.forEach(aggregation => {
-      result[aggregation.name] = aggregation.toRequest();
-    });
-
-    return result;
+        return res;
+      }, {});
   }
 
   add(aggregation: Aggregation): Aggregator {

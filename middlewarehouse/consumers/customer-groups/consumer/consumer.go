@@ -85,6 +85,12 @@ func (c CustomerGroupsConsumer) Handler(message metamorphosis.AvroMessage) error
 		return nil
 	}
 
+	if group.GroupType == "manual" {
+		log.Printf("Group %s with id %d is manual, skipping.\n", group.Name, group.ID)
+
+		return nil
+	}
+
 	return c.handlerInner(group)
 }
 

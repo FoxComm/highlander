@@ -7,6 +7,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
 import { actions } from 'modules/customer-groups/list';
+import { GROUP_TYPE_MANUAL, GROUP_TYPE_DYNAMIC, GROUP_TYPE_TEMPLATE } from 'modules/customer-groups/details/group';
 
 // components
 import { SelectableSearchList } from 'components/list-page';
@@ -23,18 +24,18 @@ const tableColumns = [
   { field: 'customersCount', text: 'Customers Count' },
   { field: 'groupType', text: 'Type' },
   { field: 'createdAt', type: 'date', text: 'Date/Time Created' },
-  { field: 'modifiedAt', type: 'date', text: 'Date/Time Last Modified' },
+  { field: 'updatedAt', type: 'date', text: 'Date/Time Last Modified' },
 ];
 
 const groupTypes = {
-  manual: 'Manual',
-  dynamic: 'Dynamic',
-  template: 'Template',
+  [GROUP_TYPE_MANUAL]: 'Manual',
+  [GROUP_TYPE_DYNAMIC]: 'Dynamic',
+  [GROUP_TYPE_TEMPLATE]: 'Template',
 };
 
 function setCellContents(group, field) {
   if (field == 'groupType') {
-    const type = groupTypes[_.get(group, 'groupType', 'dynamic')];
+    const type = groupTypes[_.get(group, 'groupType', GROUP_TYPE_DYNAMIC)];
     return <RoundedPill text={type} />;
   }
 

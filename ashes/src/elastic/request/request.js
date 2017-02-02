@@ -79,7 +79,7 @@ export default class Request extends Element {
     }
 
     if (this.aggregations.length) {
-      request.aggregations = this.aggregations.toRequest();
+      request.aggs = this.aggregations.toRequest();
     }
 
     return request;

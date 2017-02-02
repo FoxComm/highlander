@@ -15,6 +15,20 @@ import { createAsyncActions } from '@foxcomm/wings';
 import requestAdapter from '../utils/request-adapter';
 
 const mapping = 'customers_search_view';
+const statsUrl = `${mapping}/_search?size=0`;
+
+export const GROUP_TYPE_MANUAL = 'manual';
+export const GROUP_TYPE_DYNAMIC = 'dynamic';
+export const GROUP_TYPE_TEMPLATE = 'template';
+
+const statsPeriodsMapping = {
+  day: [{ 'from': 'now-1d/d' }],
+  week: [{ 'from': 'now-1w/d' }],
+  month: [{ 'from': 'now-1M/d' }],
+  quarter: [{ 'from': 'now-3M/d' }],
+  year: [{ 'from': 'now-1y/d' }],
+  overall: [{ 'to': 'now' }],
+};
 
 const initialState = {
   id: null,
@@ -28,11 +42,26 @@ const initialState = {
   createdAt: null,
   updatedAt: null,
   stats: {
-    ordersCount: null,
-    totalSales: null,
-    averageOrderSize: null,
-    averageOrderSum: null,
+    day: null,
+    week: null,
+    month: null,
+    quarter: null,
+    year: null,
+    overall: null,
   }
+};
+
+const makeStatsRequest = (request): Object => {
+  Object.keys(statsPeriodsMapping).forEach((period: string) => {
+    request.aggregations
+      .add(
+        new aggregations.DateRange(period, 'orders.placedAt', statsPeriodsMapping[period])
+          .add(new aggregations.Stats('sales', 'orders.subTotal'))
+          .add(new aggregations.Stats('items', 'orders.itemsCount'))
+      );
+  });
+
+  return request;
 };
 
 /**
@@ -56,16 +85,16 @@ const _saveGroup = createAsyncActions(
 
 const _archiveGroup = createAsyncActions('archiveCustomerGroup', (groupId: number) => Api.delete(`/customer-groups/${groupId}`));
 
-const _fetchStats = createAsyncActions('fetchStatsCustomerGroup', request =>
-  search.post(`${mapping}/_search?size=0`, request)
-);
+const _fetchStats = createAsyncActions('fetchStatsCustomerGroup', request => {
+  return Promise.all([
+    search.post(statsUrl, makeStatsRequest(request).toRequest()),
+    search.post(statsUrl, makeStatsRequest(new Request()).toRequest()),
+  ]);
+});
+
 
 /**
  * External actions
- */
-
-/**
- * Reset customer group to initial state
  */
 export const reset = createAction(`CUSTOMER_GROUP_RESET`);
 export const setName = createAction('CUSTOMER_GROUP_SET_NAME');
@@ -119,7 +148,7 @@ export const saveGroup = () => (dispatch: Function, getState: Function) => {
       mainCondition,
       conditions,
     },
-    elasticRequest,
+    elasticRequest : groupType !== GROUP_TYPE_MANUAL ? elasticRequest : null,
   };
 
   return dispatch(_saveGroup.perform(groupId, data));
@@ -146,17 +175,11 @@ export const fetchGroupStats = () => (dispatch: Function, getState: Function) =>
 
   const request = requestAdapter(group.id, criterions, group.mainCondition, group.conditions);
 
-  request.aggregations
-    .add(new aggregations.Sum('ordersCount', 'orderCount'))
-    .add(new aggregations.Sum('totalSales', 'orders.subTotal'))
-    .add(new aggregations.Average('averageOrderSize', 'orders.itemsCount'))
-    .add(new aggregations.Average('averageOrderSum', 'orders.subTotal'));
-
-  dispatch(_fetchStats.perform(request.toRequest()));
+  dispatch(_fetchStats.perform(request));
 };
 
 const validateConditions = (type, conditions) => {
-  if (type == 'manual') return true;
+  if (type === GROUP_TYPE_MANUAL) return true;
 
   return conditions &&
     conditions.length && conditions.every(validateCondition);
@@ -188,18 +211,54 @@ const setData = (state: State, { clientState: { mainCondition, conditions }, gro
   };
 };
 
+
+/*
+ * Aggregations response example
+ *
+ * "aggregations": {
+ *    "day": {
+ *      "doc_count": 3,
+ *        "day": {
+ *          "buckets": [{
+ *            "from_as_string": "2017-01-30T00:00:00.000+0000",
+ *            "doc_count": 3,
+ *            "from": 1485734400000,
+ *            "key": "2017-01-30T00:00:00.000+0000-*",
+ *            "items": { "max": 3, "sum": 5, "count": 3, "min": 1, "avg": 1.6666666666667 },
+ *            "sales": { "max": 28600, "sum": 31600, "count": 3, "min": 1500, "avg": 10533.333333333 }
+ *          }]
+ *        }
+ *    },
+ *    "month": {
+ *      ...
+ *    }
+ * }
+ */
+const setStatsUnits = (aggregations: Object, period: string) => ({
+  ordersCount: get(aggregations, [period, period, 'buckets', 0, 'doc_count']),
+  totalSales: get(aggregations, [period, period, 'buckets', 0, 'sales', 'sum']),
+  averageOrderSize: get(aggregations, [period, period, 'buckets', 0, 'items', 'avg']),
+  averageOrderSum: get(aggregations, [period, period, 'buckets', 0, 'sales', 'avg']),
+});
+
+const setStats = ({ aggregations: groupAggs }: Object, { aggregations: overallAggs }: Object) => {
+  return Object.keys(statsPeriodsMapping).reduce((stats: Object, period: string) => {
+    stats[period] = {
+      group: setStatsUnits(groupAggs, period),
+      overall: setStatsUnits(overallAggs, period),
+    };
+
+    return stats;
+  }, {});
+};
+
 const reducer = createReducer({
   [reset]: (state: State) => initialState,
   [_fetchGroup.succeeded]: setData,
   [_saveGroup.succeeded]: setData,
-  [_fetchStats.succeeded]: (state: State, { aggregations }: Object) => ({
+  [_fetchStats.succeeded]: (state: State, [groupStats, overallStats]: Object) => ({
     ...state,
-    stats: {
-      ordersCount: get(aggregations, 'ordersCount.value'),
-      totalSales: get(aggregations, 'totalSales.totalSales.value'),
-      averageOrderSize: get(aggregations, 'averageOrderSize.averageOrderSize.value'),
-      averageOrderSum: get(aggregations, 'averageOrderSum.averageOrderSum.value'),
-    }
+    stats: setStats(groupStats, overallStats),
   }),
   [setName]: (state, name) => ({ ...state, name }),
   [setType]: (state, groupType) => ({ ...state, groupType, isValid: validateConditions(groupType, state.conditions) }),
