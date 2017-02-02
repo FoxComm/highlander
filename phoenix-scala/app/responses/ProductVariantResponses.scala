@@ -1,12 +1,12 @@
 package responses
 
 import java.time.Instant
-
 import cats.implicits._
 import models.inventory._
 import models.objects._
 import responses.AlbumResponses.AlbumResponse
 import responses.ObjectResponses.ObjectContextResponse
+import responses.ProductOptionResponses.ProductOptionResponse
 import utils.aliases._
 
 object ProductVariantResponses {
@@ -99,26 +99,33 @@ object ProductVariantResponses {
                     context: Option[ObjectContextResponse.Root],
                     attributes: Json,
                     albums: Seq[AlbumResponse.Root],
+                    options: Seq[ProductOptionResponse.Partial],
                     skuId: Int,
                     archivedAt: Option[Instant])
         extends ResponseItem
 
-    def build(variant: IlluminatedVariant, albums: Seq[AlbumResponse.Root], mwhSkuId: Int): Root =
+    def build(variant: IlluminatedVariant,
+              albums: Seq[AlbumResponse.Root],
+              mwhSkuId: Int,
+              options: Seq[ProductOptionResponse.Partial]): Root =
       Root(id = variant.id,
            archivedAt = variant.archivedAt,
            attributes = variant.attributes,
            context = ObjectContextResponse.build(variant.context).some,
            skuId = mwhSkuId,
-           albums = albums)
+           albums = albums,
+           options = options)
 
     def buildLite(variant: IlluminatedVariant,
                   albums: Seq[AlbumResponse.Root],
-                  mwhSkuId: Int): Root =
+                  mwhSkuId: Int,
+                  options: Seq[ProductOptionResponse.Partial]): Root =
       Root(id = variant.id,
            archivedAt = variant.archivedAt,
            attributes = variant.attributes,
            context = None,
            skuId = mwhSkuId,
-           albums = albums)
+           albums = albums,
+           options = options)
   }
 }

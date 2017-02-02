@@ -108,4 +108,8 @@ object ProductFailures {
     override def description: String =
       s"Product slug '$slugValue' is already defined for other product"
   }
+
+  case class DuplicatedOptionValueForVariant(skuCode: String) extends Failure {
+    def description: String = s"Variant $skuCode cannot have more than one option value"
+  }
 }

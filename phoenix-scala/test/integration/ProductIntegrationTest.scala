@@ -2,6 +2,7 @@ import cats.implicits._
 import models.objects.{ProductOptionLinks, ProductVariantLinks}
 import models.product.Products
 import payloads.ProductPayloads._
+import responses.ProductOptionResponses.ProductOptionResponse
 import responses.ProductResponses.ProductResponse.Root
 import testutils._
 import testutils.apis.PhoenixAdminApi
@@ -35,9 +36,13 @@ class ProductIntegrationTest
 
         val product = productsApi.create(createPayload).as[Root]
 
-        val variantCode = payloadBuilder.variantCodes.onlyElement
+        val variantCode   = payloadBuilder.variantCodes.onlyElement
+        val variantOption = product.variants.onlyElement.options.onlyElement
         product.variants.onlyElement.attributes.code must === (variantCode)
-        product.options.onlyElement.values.onlyElement.skuCodes.onlyElement must === (variantCode)
+        variantOption mustBe a[ProductOptionResponse.Partial]
+        variantOption.values.onlyElement.name must === (singleOptionCfg.values.onlyElement)
+        product.options.onlyElement.values.onlyElement.skuCodes.value.onlyElement must === (
+            variantCode)
       }
 
       "an existing variant with options successfully" in {
@@ -58,8 +63,15 @@ class ProductIntegrationTest
         val product2OptionValues = product2.options.onlyElement.values
         product2OptionValues.map(_.name) must === (fixture1.colors.all)
 
+        val variantOptionValues = for {
+          variant     ← product2.variants
+          option      ← variant.options
+          optionValue ← option.values
+        } yield optionValue.name
+        variantOptionValues must === (product2PayloadBuilder.optionCfg.values)
+
         val variantCodes       = product2.variants.map(_.attributes.code)
-        val optionVariantCodes = product2OptionValues.flatMap(_.skuCodes)
+        val optionVariantCodes = product2OptionValues.flatMap(_.skuCodes.value)
 
         variantCodes must contain theSameElementsAs product2PayloadBuilder.variantCodes
         optionVariantCodes must contain theSameElementsAs product2PayloadBuilder.variantCodes
@@ -72,7 +84,7 @@ class ProductIntegrationTest
                                          optionVariantCfg = NoneVariantsCfg).createProductPayload
 
         val product = productsApi.create(createPayload).as[Root]
-        product.options.onlyElement.values.onlyElement.skuCodes mustBe empty
+        product.options.onlyElement.values.onlyElement.skuCodes.value mustBe empty
         product.variants mustBe empty
       }
     }
