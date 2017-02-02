@@ -492,26 +492,6 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
       DELETE(storeAdminPath)
   }
 
-  object productOptionsApi {
-    def optionsPrefix(implicit ctx: OC) = s"$rootPrefix/product-options/${ctx.name}"
-
-    def create(payload: ProductOptionPayload)(implicit ctx: OC): HttpResponse =
-      POST(optionsPrefix, payload)
-  }
-
-  case class productOptionsApi(formId: Int)(implicit ctx: OC) {
-    val optionPath = s"${productOptionsApi.optionsPrefix}/$formId"
-
-    def get(): HttpResponse =
-      GET(optionPath)
-
-    def update(payload: ProductOptionPayload): HttpResponse =
-      PATCH(optionPath, payload)
-
-    def createValues(payload: ProductOptionValuePayload): HttpResponse =
-      POST(s"$optionPath/values", payload)
-  }
-
   object albumsApi {
     def albumsPrefix()(implicit ctx: OC) = s"$rootPrefix/albums/${ctx.name}"
 
