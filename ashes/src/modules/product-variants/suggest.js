@@ -14,8 +14,8 @@ export type SuggestOptions = {
   useTitle?: boolean,
 }
 
-const _suggestSkus = createAsyncActions(
-  'skus-suggest',
+const _suggestVariants = createAsyncActions(
+  'suggestVariants',
   (value: string, options: SuggestOptions = {}) => {
     const contextFilter = options.context ? [dsl.termFilter('context', options.context)] : void 0;
     let titleMatch = [];
@@ -42,31 +42,31 @@ const _suggestSkus = createAsyncActions(
   }
 );
 
-export function suggestSkus(value: string, options: SuggestOptions = {}): ActionDispatch {
+export function suggestVariants(value: string, options: SuggestOptions = {}): ActionDispatch {
   return (dispatch: Function) => {
     if (!value) {
       return dispatch(resetSuggestedVariants());
     }
 
-    return dispatch(_suggestSkus.perform(value, options));
+    return dispatch(_suggestVariants.perform(value, options));
   };
 }
 
 const initialState = {
-  skus: [],
+  variants: [],
 };
 
 const reducer = createReducer({
-  [_suggestSkus.succeeded]: (state, response) => {
+  [_suggestVariants.succeeded]: (state, response) => {
     return {
       ...state,
-      skus: _.get(response, 'result', []),
+      variants: _.get(response, 'result', []),
     };
   },
   [resetSuggestedVariants]: state => {
     return {
       ...state,
-      skus: [],
+      variants: [],
     };
   },
 }, initialState);

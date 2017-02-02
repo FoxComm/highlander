@@ -5,7 +5,7 @@ import { autobind } from 'core-decorators';
 import _ from 'lodash';
 import { connect } from 'react-redux';
 import { makeLocalStore, addAsyncReducer } from '@foxcomm/wings';
-import styles from './editable-sku-row.css';
+import styles from './editable-variant-row.css';
 
 import { FormField } from 'components/forms';
 import CurrencyInput from 'components/forms/currency-input';
@@ -13,7 +13,7 @@ import MultiSelectRow from 'components/table/multi-select-row';
 import LoadingInputWrapper from 'components/forms/loading-input-wrapper';
 import { DeleteButton } from 'components/common/buttons';
 
-import reducer, { suggestSkus } from 'modules/product-variants/suggest';
+import reducer, { suggestVariants } from 'modules/product-variants/suggest';
 import type { SuggestOptions } from 'modules/product-variants/suggest';
 import type { ProductVariant } from 'modules/product-variants/details';
 import type { ProductVariant as SearchViewProductVariant } from 'modules/product-variants/list';
@@ -33,10 +33,10 @@ type Props = {
   updateField: (id: string, field: string, value: any) => void,
   updateFields: (id: string, toUpdate: Array<Array<any>>) => void,
   onDeleteClick: (id: string) => void,
-  isFetchingSkus: boolean,
-  variantsSkusIndex: Object,
-  suggestSkus: (code: string, context?: SuggestOptions) => Promise,
-  suggestedSkus: Array<SearchViewProductVariant>,
+  isFetchingVariants: boolean,
+  skuOptionsMap: Object,
+  suggestVariants: (code: string, context?: SuggestOptions) => Promise,
+  suggestedVariants: Array<SearchViewProductVariant>,
   options: Array<any>,
 };
 
@@ -48,8 +48,8 @@ type State = {
 
 function mapLocalStateToProps(state) {
   return {
-    isFetchingSkus: _.get(state.asyncActions, 'skus-suggest.inProgress', false),
-    suggestedSkus: _.get(state, 'skus', []),
+    isFetchingVariants: _.get(state.asyncActions, 'suggestVariants.inProgress', false),
+    suggestedVariants: _.get(state, 'variants', []),
   };
 }
 
@@ -71,7 +71,7 @@ function pickProductVariantAttrs(searchViewProductVariant: SearchViewProductVari
   return productVariant;
 }
 
-class EditableSkuRow extends Component {
+class EditableVariantRow extends Component {
   props: Props;
 
   state: State = {
@@ -115,7 +115,7 @@ class EditableSkuRow extends Component {
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    if (this.props.isFetchingSkus && !nextProps.isFetchingSkus) {
+    if (this.props.isFetchingVariants && !nextProps.isFetchingVariants) {
       this.setState({
         isMenuVisible: true,
       });
@@ -125,8 +125,8 @@ class EditableSkuRow extends Component {
   updateSkuFromSuggest() {
     const { props } = this;
 
-    if (!_.isEmpty(props.suggestedSkus)) {
-      const matchedSku = _.find(props.suggestedSkus, {code: this.skuCodeValue.toUpperCase()});
+    if (!_.isEmpty(props.suggestedVariants)) {
+      const matchedSku = _.find(props.suggestedVariants, {code: this.skuCodeValue.toUpperCase()});
       if (matchedSku) {
         this.updateAttrsBySVProductVariant(matchedSku);
       }
@@ -139,7 +139,7 @@ class EditableSkuRow extends Component {
     const currency = _.get(productVariant, ['attributes', field, 'v', 'currency'], 'USD');
     const onChange = (value) => this.handleUpdatePrice(field, value, currency);
     return (
-      <div className="fc-editable-sku-row__price">
+      <div styleName="price">
         <CurrencyInput value={value} currency={currency} onChange={onChange} />
       </div>
     );
@@ -159,8 +159,8 @@ class EditableSkuRow extends Component {
     return productVariantCode(this.props.productVariant);
   }
 
-  suggestSkus(text: string): Promise|void {
-    return this.props.suggestSkus(text, {
+  suggestVariants(text: string): Promise|void {
+    return this.props.suggestVariants(text, {
       context: this.props.skuContext
     });
   }
@@ -171,12 +171,12 @@ class EditableSkuRow extends Component {
 
   @autobind
   handleSelectSku(searchViewProductVariant: SearchViewProductVariant) {
-    this.closeSkusMenu(
+    this.closeVariantsMenu(
       () => this.updateAttrsBySVProductVariant(searchViewProductVariant)
     );
   }
 
-  closeSkusMenu(callback: Function = _.noop) {
+  closeVariantsMenu(callback: Function = _.noop) {
     this.setState({
       isMenuVisible: false
     }, callback);
@@ -186,25 +186,25 @@ class EditableSkuRow extends Component {
     return (
       <li
         id="create-new-sku-item"
-        styleName="sku-item"
+        styleName="variant-row"
         className="_new"
-        onMouseDown={() => this.closeSkusMenu() }>
-        <div>New SKU</div>
+        onMouseDown={() => this.closeVariantsMenu() }>
+        <div>New Variant</div>
         <strong>{this.state.variant.code}</strong>
       </li>
     );
   }
 
   get menuItemsContent(): Array<Element> {
-    const items = this.props.suggestedSkus;
+    const items = this.props.suggestedVariants;
 
     return items.map((pv: SearchViewProductVariant) => {
       return (
         <li
           id={`search-view-${pv.skuCode}`}
-          styleName="sku-item"
+          styleName="variant-row"
           onMouseDown={() => { this.handleSelectSku(pv); }}
-          key={`item-${pv.id}`}>
+          key={`row-${pv.id}`}>
           <strong>{pv.skuCode}</strong>
         </li>
       );
@@ -212,14 +212,14 @@ class EditableSkuRow extends Component {
   }
 
   get skusMenu(): Element {
-    const content = _.isEmpty(this.props.suggestedSkus) ? this.menuEmptyContent : this.menuItemsContent;
+    const content = _.isEmpty(this.props.suggestedVariants) ? this.menuEmptyContent : this.menuItemsContent;
     const openMenu =
-      this.state.isMenuVisible && this.skuCodeValue.length > 0 && !this.props.isFetchingSkus;
+      this.state.isMenuVisible && this.skuCodeValue.length > 0 && !this.props.isFetchingVariants;
 
     const className = openMenu ? '_visible' : void 0;
 
     return (
-      <ul styleName="skus-menu" className={className} onMouseEnter={stop}>
+      <ul styleName="variants-menu" className={className} onMouseEnter={stop}>
         {content}
       </ul>
     );
@@ -235,9 +235,9 @@ class EditableSkuRow extends Component {
     const { codeError } = this.state;
     const error = codeError ? `SKU Code violates constraint: ${codeError.keyword}` : void 0;
     return (
-      <div styleName="sku-cell">
+      <div styleName="variant-cell">
         <FormField error={error} scrollToErrors>
-          <LoadingInputWrapper inProgress={this.props.isFetchingSkus}>
+          <LoadingInputWrapper inProgress={this.props.isFetchingVariants}>
             <input
               className="fc-text-input"
               type="text"
@@ -274,7 +274,7 @@ class EditableSkuRow extends Component {
     }
 
     const idx = parseInt(field);
-    const mapping = this.props.variantsSkusIndex;
+    const mapping = this.props.skuOptionsMap;
 
     const option = _.get(this.props.options, idx, {});
     const optionName = _.get(option, 'attributes.name.v');
@@ -323,7 +323,7 @@ class EditableSkuRow extends Component {
     this.updateVariant({
       code: value,
     });
-    const promise = this.suggestSkus(value);
+    const promise = this.suggestVariants(value);
     if (promise) {
       promise.then(() => {
         this.updateSkuFromSuggest();
@@ -377,5 +377,5 @@ class EditableSkuRow extends Component {
 
 export default _.flowRight(
   makeLocalStore(addAsyncReducer(reducer)),
-  connect(mapLocalStateToProps, { suggestSkus })
-)(EditableSkuRow);
+  connect(mapLocalStateToProps, { suggestVariants })
+)(EditableVariantRow);

@@ -10,7 +10,7 @@ import { assoc, dissoc } from 'sprout-data';
 
 // components
 import ContentBox from 'components/content-box/content-box';
-import SkuList from './sku-list';
+import VariantList from './variant-list';
 import ConfirmationDialog from 'components/modal/confirmation-dialog';
 import { Checkbox } from 'components/checkbox/checkbox';
 
@@ -18,7 +18,7 @@ import { Checkbox } from 'components/checkbox/checkbox';
 import { availableOptionsValues, optionsWithMultipleValues } from 'paragons/variants';
 
 // styles
-import styles from './sku-content-box.css';
+import styles from './variants.css';
 
 // types
 import type { Product, OptionValue } from 'paragons/product';
@@ -69,7 +69,7 @@ class Variants extends Component {
     return [];
   }
 
-  get addSkuDialog(): Element {
+  get addOptionsDialog(): Element {
     const availableVariants = availableOptionsValues(this.props.fullProduct);
     const { selectedOptions } = this.state;
 
@@ -103,20 +103,19 @@ class Variants extends Component {
     );
     return (
       <ConfirmationDialog
-        key="add-skus"
+        key="add-options"
         isVisible={this.state.addDialogIsShown}
-        header="Add SKUs"
+        header="Add Variants"
         body={body}
         cancel="Cancel"
         confirm="Add"
         onCancel={() => this.closeAction()}
-        confirmAction={() => this.addNewSkus()}
+        confirmAction={() => this.addNewOptions()}
       />
     );
   }
 
-  @autobind
-  addNewSkus() {
+  addNewOptions() {
     const newOptions = _.values(this.state.selectedOptions);
     this.setState({
       selectedOptions: {}
@@ -157,16 +156,16 @@ class Variants extends Component {
     const { props } = this;
     return (
       <ContentBox title="Variants" actionBlock={ this.actions }>
-        <SkuList
-          key="sku-list"
+        <VariantList
+          key="variants-list"
           fullProduct={props.fullProduct}
           updateField={props.updateField}
           updateFields={props.updateFields}
-          onDeleteSku={props.onDeleteSku}
+          onDeleteVariant={props.onDeleteVariant}
           variants={this.variants}
           options={optionsWithMultipleValues(props.options)}
         />
-        { this.addSkuDialog }
+        { this.addOptionsDialog }
       </ContentBox>
     );
   }

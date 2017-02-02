@@ -11,8 +11,7 @@ import _ from 'lodash';
 // components
 import ObjectDetails from '../object-page/object-details';
 import OptionList from './options/option-list';
-import SkuContentBox from './variants/variants';
-import InputMask from 'react-input-mask';
+import Variants from './variants/variants';
 
 import { renderFormField } from 'components/object-form/object-form-inner';
 
@@ -45,7 +44,7 @@ export default class ProductForm extends ObjectDetails {
         fullProduct={props.object}
         updateField={props.onSetVariantProperty}
         updateFields={props.onSetVariantProperties}
-        onDeleteSku={this.handleDeleteSku}
+        onDeleteVariant={this.handleDeleteVariant}
         onAddNewOptions={this.handleAddOptionValues}
         options={props.object.options}
       />
@@ -97,9 +96,9 @@ export default class ProductForm extends ObjectDetails {
   }
 
   @autobind
-  handleDeleteSku(variantId: string) {
+  handleDeleteVariant(variantCode: string) {
     this.props.onUpdateObject(
-      deleteVariantCombination(this.props.object, variantId)
+      deleteVariantCombination(this.props.object, variantCode)
     );
   }
 

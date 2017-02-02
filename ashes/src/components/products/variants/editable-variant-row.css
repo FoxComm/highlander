@@ -1,5 +1,5 @@
 
-.sku-cell {
+.variant-cell {
   position: relative;
 
   & :global(.fc-text-input) {
@@ -7,7 +7,7 @@
   }
 }
 
-.skus-menu {
+.variants-menu {
   max-height: 350px;
   overflow-y: auto;
   overflow-x: hidden;
@@ -27,7 +27,7 @@
   }
 }
 
-.sku-item {
+.variant-row {
   padding: 12px;
   cursor: pointer;
   &:hover {
@@ -62,4 +62,12 @@
   border: 1px solid #ced2d5;
   padding: 10px;
   white-space: nowrap;
+}
+
+.price {
+  max-width: 120px;
+
+  & :global(.fc-prepend-input__input-field) {
+    width: 100%;
+  }
 }

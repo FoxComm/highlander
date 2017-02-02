@@ -4,10 +4,10 @@
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
-import styles from './sku-list.css';
+import styles from './variant-list.css';
 
 // components
-import EditableSkuRow from './editable-sku-row';
+import EditableSkuRow from './editable-variant-row';
 import MultiSelectTable from 'components/table/multi-select-table';
 import ConfirmationDialog from 'components/modal/confirmation-dialog';
 
@@ -23,27 +23,27 @@ type Props = {
   updateField: (code: string, field: string, value: any) => void,
   updateFields: (code: string, toUpdate: Array<Array<any>>) => void,
   options: Array<any>,
-  onDeleteSku: (skuCode: string) => void,
+  onDeleteVariant: (skuCode: string) => void,
 };
 
 type State = {
   isDeleteConfirmationVisible: boolean,
-  skuId: ?string,
-  variantsSkusIndex: Object,
+  skuCode: ?string,
+  skuOptionsMap: Object,
 };
 
-export default class SkuList extends Component {
+export default class VariantList extends Component {
   props: Props;
   state: State = {
     isDeleteConfirmationVisible: false,
-    skuId: null,
-    variantsSkusIndex: mapVariantsToOptions(this.props.options),
+    skuCode: null,
+    skuOptionsMap: mapVariantsToOptions(this.props.options),
   };
 
   componentWillReceiveProps(nextProps: Props) {
     if (this.props.options != nextProps.options || this.props.fullProduct.variants !== nextProps.fullProduct.variants) {
-      const variantsSkusIndex = mapVariantsToOptions(nextProps.options);
-      this.setState({variantsSkusIndex});
+      const skuOptionsMap = mapVariantsToOptions(nextProps.options);
+      this.setState({skuOptionsMap});
     }
   }
 
@@ -86,20 +86,18 @@ export default class SkuList extends Component {
 
   @autobind
   closeDeleteConfirmation(): void {
-    this.setState({ isDeleteConfirmationVisible: false, skuId: null });
+    this.setState({ isDeleteConfirmationVisible: false, skuCode: null });
   }
 
   @autobind
-  showDeleteConfirmation(skuId: string): void {
-    this.setState({ isDeleteConfirmationVisible: true, skuId });
+  showDeleteConfirmation(skuCode: string): void {
+    this.setState({ isDeleteConfirmationVisible: true, skuCode });
   }
 
-  @autobind
-  deleteSku(): void {
-    //ToDo: call something to delete SKU from product and variant
-    const { skuId } = this.state;
-    if (skuId) {
-      this.props.onDeleteSku(skuId);
+  deleteVariant(): void {
+    const { skuCode } = this.state;
+    if (skuCode) {
+      this.props.onDeleteVariant(skuCode);
     }
 
     this.closeDeleteConfirmation();
@@ -120,7 +118,7 @@ export default class SkuList extends Component {
         cancel="Cancel"
         confirm="Yes, Remove"
         onCancel={() => this.closeDeleteConfirmation()}
-        confirmAction={() => this.deleteSku()}
+        confirmAction={() => this.deleteVariant()}
       />
     );
   }
@@ -137,7 +135,7 @@ export default class SkuList extends Component {
           index={index}
           params={params}
           options={this.props.options}
-          variantsSkusIndex={this.state.variantsSkusIndex}
+          skuOptionsMap={this.state.skuOptionsMap}
           updateField={this.props.updateField}
           updateFields={this.props.updateFields}
           onDeleteClick={this.showDeleteConfirmation}

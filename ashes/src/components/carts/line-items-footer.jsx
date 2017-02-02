@@ -4,44 +4,48 @@ import React, { Component, Element } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
+import { makeLocalStore, addAsyncReducer } from '@foxcomm/wings';
 
 import SkuResult from './sku-result';
 import Typeahead from 'components/typeahead/typeahead';
 import ErrorAlerts from '../alerts/error-alerts';
 
-import { suggestSkus } from 'modules/product-variants/suggest';
+import reducer, { suggestVariants } from 'modules/product-variants/suggest';
 import { updateLineItemCount } from 'modules/carts/details';
 
 import type { SuggestOptions } from 'modules/product-variants/suggest';
 
 import type { ProductVariant } from 'modules/product-variants/list';
 
-const mapStateToProps = state => {
+function mapLocalStateToProps(state) {
   return {
-    suggestedSkus: _.get(state, 'skus.suggest.skus', []),
-    isFetchingSkus: _.get(state.asyncActions, 'skus-suggest.inProgress', null),
+    isFetchingVariants: _.get(state.asyncActions, 'suggestVariants.inProgress', false),
+    suggestedVariants: _.get(state, 'variants', []),
+  };
+}
+
+const mapGlobalStateToProps = state => {
+  return {
     updateLineItemErrors: _.get(state.asyncActions, 'updateLineItemCount.err.response.body.errors', null),
   };
 };
-
-const mapDispatchToProps = { suggestSkus, updateLineItemCount };
 
 type Props = {
   cart: {
     referenceNumber: string,
   },
-  suggestedSkus: Array<ProductVariant>,
-  isFetchingSkus: boolean,
-  suggestSkus: (code: string, options?: SuggestOptions) => Promise,
+  suggestedVariants: Array<ProductVariant>,
+  isFetchingVariants: boolean,
+  suggestVariants: (code: string, options?: SuggestOptions) => Promise,
   updateLineItemCount: Function,
-  updateLineItemErrors: Array<string>
+  updateLineItemErrors: Array<string>,
 };
 
 export class CartLineItemsFooter extends Component {
   props: Props;
 
   @autobind
-  skuSelected(item: ProductVariant) {
+  variantSelected(item: ProductVariant) {
     const { cart: { referenceNumber }, updateLineItemCount } = this.props;
 
     const skus = _.get(this.props, 'cart.lineItems.skus', []);
@@ -55,14 +59,14 @@ export class CartLineItemsFooter extends Component {
   }
 
   @autobind
-  suggestSkus(value: string): Promise {
-    return this.props.suggestSkus(value, {
+  suggestVariants(value: string): Promise {
+    return this.props.suggestVariants(value, {
       useTitle: true,
     });
   }
 
   render() {
-    const { updateLineItemErrors, isFetchingSkus, suggestedSkus } = this.props;
+    const { updateLineItemErrors, isFetchingVariants, suggestedVariants } = this.props;
 
     return (
       <div className="fc-line-items-add">
@@ -70,11 +74,11 @@ export class CartLineItemsFooter extends Component {
           <strong>Add Item</strong>
         </div>
         <Typeahead
-          onItemSelected={this.skuSelected}
+          onItemSelected={this.variantSelected}
           component={SkuResult}
-          isFetching={isFetchingSkus}
-          fetchItems={this.suggestSkus}
-          items={suggestedSkus}
+          isFetching={isFetchingVariants}
+          fetchItems={this.suggestVariants}
+          items={suggestedVariants}
           placeholder="Product name or SKU..."
         />
 
@@ -84,4 +88,8 @@ export class CartLineItemsFooter extends Component {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(CartLineItemsFooter);
+export default _.flowRight(
+  connect(mapGlobalStateToProps, { updateLineItemCount }),
+  makeLocalStore(addAsyncReducer(reducer)),
+  connect(mapLocalStateToProps, { suggestVariants }),
+)(CartLineItemsFooter);
