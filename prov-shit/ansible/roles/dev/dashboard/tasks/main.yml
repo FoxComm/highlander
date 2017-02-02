@@ -14,11 +14,11 @@
 
 - name: Set Facts for Template
   set_fact:
-    consul_ui_url: "http://{{private_ip}}:{{consul_port}}"
-    mesos_ui_url: "http://{{private_ip}}:{{mesos_port}}"
-    marathon_ui_url: "http://{{private_ip}}:{{marathon_port}}"
-    kibana_url: "http://{{private_ip}}:{{kibana_port}}"
-    pgweb_url: "http://{{private_ip}}:{{pgweb_port}}"
+    consul_ui_url: "http://{{dns_record}}.{{foxcomm_domain}}/private/consul"
+    mesos_ui_url: "http://{{dns_record}}.{{foxcomm_domain}}/private/mesos"
+    marathon_ui_url: "http://{{dns_record}}.{{foxcomm_domain}}/private/marathon"
+    kibana_url: "http://{{dns_record}}.{{foxcomm_domain}}/private/kibana"
+    pgweb_url: "http://{{dns_record}}.{{foxcomm_domain}}/private/pgweb"
 
 - name: Copy Dashboard Index Template
   template: src=index.html.j2 dest="{{dashboard_assets_location}}/index.html"
@@ -37,3 +37,4 @@
 
 - name: Copy Consul Service File
   template: src=dashboard.json dest=/etc/consul.d
+  notify: reload consul
