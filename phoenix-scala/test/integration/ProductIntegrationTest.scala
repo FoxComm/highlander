@@ -64,9 +64,9 @@ class ProductIntegrationTest
         product2OptionValues.map(_.name) must === (fixture1.colors.all)
 
         val variantOptionValues = for {
-          variant ← product2.variants
-          option  ← variant.options
-          optionValue  ← option.values
+          variant     ← product2.variants
+          option      ← variant.options
+          optionValue ← option.values
         } yield optionValue.name
         variantOptionValues must === (product2PayloadBuilder.optionCfg.values)
 
