@@ -36,20 +36,8 @@ upstream dashboard {
    server {{dashboard_server}} max_fails=10 fail_timeout=30s weight=1;
 }
 
-upstream consul {
-   server {{consul_server}} max_fails=10 fail_timeout=30s weight=1;
-}
-
-upstream mesos {
-   server {{mesos_server}} max_fails=10 fail_timeout=30s weight=1;
-}
-
 upstream marathon {
    server {{marathon_server}} max_fails=10 fail_timeout=30s weight=1;
-}
-
-upstream kibana {
-   server {{kibana_server}} max_fails=10 fail_timeout=30s weight=1;
 }
 
 upstream pgweb {

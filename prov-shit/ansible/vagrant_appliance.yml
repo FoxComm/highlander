@@ -17,7 +17,7 @@
     # Core
     - { role: dev/appliance_ip }
     - { role: dev/appliance, run_once: true }
-    - { role: dev/dashboard, run_once: true }
+    - { role: dev/dashboard }
     # Services
     - { role: dev/zookeeper, run_once: true }
     - { role: dev/consul_agent }
