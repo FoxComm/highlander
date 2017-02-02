@@ -1,6 +1,7 @@
 /* @flow */
 
 import _ from 'lodash';
+import className from 'classnames';
 import React, { Component, Element } from 'react';
 import { Link } from 'components/link';
 import { autobind } from 'core-decorators';
@@ -8,7 +9,7 @@ import { connect } from 'react-redux';
 import classNames from 'classnames';
 
 import ContentBox from 'components/content-box/content-box';
-import { EditButton, DeleteButton } from 'components/common/buttons';
+import { AddButton, DeleteButton } from 'components/common/buttons';
 import SearchGroupModal from './search-group-modal';
 
 import { suggestGroups } from 'modules/customer-groups/suggest';
@@ -50,7 +51,7 @@ class CustomerGroupsBlock extends Component {
 
   get actionBlock(): Element {
     return (
-      <EditButton onClick={this.toggleModal}/>
+      <AddButton onClick={this.toggleModal}/>
     );
   }
 
@@ -80,7 +81,7 @@ class CustomerGroupsBlock extends Component {
 
     if (_.isEmpty(groups)) {
       return (
-        <div className="fc-content-box__empty-row">
+        <div className={classNames('fc-content-box__empty-row', styles.empty)}>
           Customer does not have group membership.
         </div>
       );
@@ -104,7 +105,7 @@ class CustomerGroupsBlock extends Component {
 
   render() {
     return (
-      <ContentBox title="Groups" actionBlock={this.actionBlock}>
+      <ContentBox className={styles.contentBox} title="Groups" actionBlock={this.actionBlock}>
         {this.groups}
         <SearchGroupModal
           isVisible={this.state.modalShown}
