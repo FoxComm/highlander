@@ -11,7 +11,7 @@ import _ from 'lodash';
 import ErrorAlerts from '../alerts/error-alerts';
 import WaitAnimation from '../common/wait-animation';
 import QuestionBoxList from './question-box-list';
-import { Props as QuestionBoxType } from './question-box';
+import type { Props as QuestionBoxType } from './question-box';
 import Currency from '../common/currency';
 import TrendButton, { TrendType } from './trend-button';
 import StaticColumnSelector from './static-column-selector';
@@ -19,7 +19,7 @@ import { Dropdown } from '../dropdown';
 import ProductConversionChart from './charts/product-conversion-chart';
 import TotalRevenueChart, { ChartSegmentType } from './charts/total-revenue-chart';
 import SegmentControlList from './segment-control-list';
-import { Props as SegmentControlType } from './segment-control';
+import type { Props as SegmentControlType } from './segment-control';
 
 // styles
 import styles from './analytics.css';
@@ -35,6 +35,31 @@ type State = {
   question: QuestionBoxType,
   segment: SegmentControlType,
   dataFetchTimeSize: number,
+}
+
+type Props = {
+  entity: {
+    entityId: string|number,
+    entityType: string,
+  },
+  analytics: {
+    analyticsKey: string,
+    chartValues: mixed,
+    stats: any,
+    from: number,
+    to: number,
+    sizeSec: number,
+    stepSec: number,
+    err: mixed,
+    isFetching: boolean,
+    isFetchingStats: boolean,
+    route: {
+      action: string,
+      idKey: string,
+    },
+  },
+  questionBoxes: Array<QuestionBoxType>,
+  segments: Array<SegmentControlType>, 
 }
 
 const sourceDropdownColumns = [
@@ -85,34 +110,6 @@ const datePickerFormat = 'MM/DD/YYYY';
 @connect((state, props) => ({analytics: state.analytics}), AnalyticsActions)
 export default class Analytics extends React.Component {
 
-  static propTypes = {
-    entity: PropTypes.shape({
-      entityId: PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.number,
-      ]),
-      entityType: PropTypes.string,
-    }),
-    analytics: PropTypes.shape({
-      analyticsKey: PropTypes.string,
-      chartValues: PropTypes.object,
-      stats: PropTypes.object,
-      from: PropTypes.number,
-      to: PropTypes.number,
-      sizeSec: PropTypes.number,
-      stepSec: PropTypes.number,
-      err: PropTypes.any,
-      isFetching: PropTypes.bool,
-      isFetchingStats: PropTypes.bool,
-      route: PropTypes.shape({
-        action: PropTypes.string,
-        idKey: PropTypes.string,
-      })
-    }),
-    questionBoxes: PropTypes.array,
-    segments: PropTypes.array,
-  };
-
   static defaultProps: { questionBoxes: Array<QuestionBoxType>, segments: Array<SegmentControlType> } = {
     questionBoxes: [
       {
@@ -121,36 +118,54 @@ export default class Analytics extends React.Component {
         content: <Currency value="0" />,
         footer: <TrendButton trendType={TrendType.steady} value={0} />,
         isActive: true,
+        onClick: _.noop,
       },
       {
         id: 'TotalOrders',
         title: questionTitles.TotalOrders,
         content: 0,
         footer: <TrendButton trendType={TrendType.steady} value={0} />,
+        onClick: _.noop,
       },
       {
         id: 'TotalPdPViews',
         title: questionTitles.TotalPdPViews,
         content: 0,
         footer: <TrendButton trendType={TrendType.steady} value={0} />,
+        onClick: _.noop,
       },
       {
         id: 'TotalInCarts',
         title: questionTitles.TotalInCarts,
         content: 0,
         footer: <TrendButton trendType={TrendType.steady} value={0} />,
+        onClick: _.noop,
       },
       {
         id: 'ProductConversionRate',
         title: questionTitles.ProductConversionRate,
         content: '0%',
         footer: <TrendButton trendType={TrendType.steady} value={0} />,
+        onClick: _.noop,
       },
     ],
     segments: [
-      { id: 0, title: segmentTitles.day, isActive: true },
-      { id: 1, title: segmentTitles.week },
-      { id: 2, title: segmentTitles.month },
+      { 
+        id: 0, 
+        title: segmentTitles.day, 
+        onClick: _.noop,
+        isActive: true 
+      },
+      { 
+        id: 1, 
+        title: segmentTitles.week,
+        onClick: _.noop,
+      },
+      { 
+        id: 2, 
+        title: segmentTitles.month, 
+        onClick: _.noop,
+      },
     ],
   };
 
@@ -158,12 +173,12 @@ export default class Analytics extends React.Component {
     dateRangeBegin: moment().startOf('day').unix(),
     dateRangeEnd: moment().unix(),
     dateDisplay: moment().format(datePickerFormat),
-    question: null,
-    segment: null,
+    question: _.noop,
+    segment: _.noop,
     dataFetchTimeSize: 0,
   };
 
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
     this.state.question = _.head(props.questionBoxes);
     this.state.segment = _.head(props.segments);
@@ -176,10 +191,10 @@ export default class Analytics extends React.Component {
 
   @autobind
   fetchData(
-    question = this.state.question,
-    dateRangeBegin = this.state.dateRangeBegin,
-    dateRangeEnd = this.state.dateRangeEnd,
-    dataFetchTimeSize = this.state.dataFetchTimeSize
+    question: QuestionBoxType,
+    dateRangeBegin: string,
+    dateRangeEnd: string,
+    dataFetchTimeSize: number
   ) {
     if (_.isNil(question)) {
       return;
@@ -207,16 +222,16 @@ export default class Analytics extends React.Component {
   }
 
   @autobind
-  onDatePickerChange(selectionIndex) {
-    const { question, segment } = this.state;
+  onDatePickerChange(selectionIndex: number) {
+    const { question, segment, dataFetchTimeSize } = this.state;
 
     let displayText = '';
     let endDisplayText = '';
     let beginDisplayText = '';
 
-    let newDateRangeBegin = null;
-    let newDateRangeEnd = null;
-    let newDataFetchTimeSize = this.state.dataFetchTimeSize;
+    let newDateRangeBegin = '';
+    let newDateRangeEnd = '';
+    let newDataFetchTimeSize = dataFetchTimeSize;
 
     const setDisplayTexts = function(previousDays) {
       newDateRangeBegin = moment().subtract(previousDays, 'days').unix();
@@ -285,26 +300,28 @@ export default class Analytics extends React.Component {
   }
 
   @autobind
-  onQuestionBoxSelect(question) {
+  onQuestionBoxSelect(question: QuestionBoxType) {
+    const { dateRangeBegin, dateRangeEnd, dataFetchTimeSize } = this.state;
+
     switch(question.title) {
       case questionTitles.TotalRevenue:
       case questionTitles.TotalOrders:
       case questionTitles.TotalPdPViews:
       case questionTitles.TotalInCarts:
-        this.setState({question: question}, this.fetchData(question));
-        break;
       case questionTitles.ProductConversionRate:
-        this.setState({question: question}, this.fetchData(question));
+        this.setState({ question: question },
+          this.fetchData(question, dateRangeBegin, dateRangeEnd, dataFetchTimeSize)
+        );
         break;
     }
   }
 
   //TODO: Work out the size and step henhouse logic
   @autobind
-  onSegmentControlSelect(segment) {
-    const { question, dateRangeBegin, dateRangeEnd } = this.state;
+  onSegmentControlSelect(segment: SegmentControlType) {
+    const { question, dateRangeBegin, dateRangeEnd, dataFetchTimeSize } = this.state;
 
-    let newDataFetchTimeSize;
+    let newDataFetchTimeSize = dataFetchTimeSize;
 
     switch(segment.title) {
       case segmentTitles.day:
@@ -325,7 +342,7 @@ export default class Analytics extends React.Component {
   }
 
   @autobind
-  setQuestionBoxesFromStats(questionBoxes, stats) {
+  setQuestionBoxesFromStats(questionBoxes: Array<QuestionBoxType>, stats: any) {
 
     if (!_.isEmpty(stats)) {
       _.map(questionBoxes, (qb) => {
@@ -368,22 +385,20 @@ export default class Analytics extends React.Component {
     }
   }
 
-  get chartSegmentType() {
+  get chartSegmentType(): string {
     const { dataFetchTimeSize } = this.state;
 
     switch(dataFetchTimeSize) {
       case unixTimes.twoHour:
         return ChartSegmentType.Hour;
-        break;
       case unixTimes.day:
         return ChartSegmentType.Day;
-        break;
       case unixTimes.week:
         return ChartSegmentType.Week;
-        break;
       case unixTimes.month:
         return ChartSegmentType.Month;
-        break;
+      default:
+        return ChartSegmentType.Day;
     }
   }
 
@@ -482,6 +497,8 @@ export default class Analytics extends React.Component {
 
   get filterHeaders() {
     const { analytics } = this.props;
+    const { question, dateRangeBegin, dateRangeEnd, dataFetchTimeSize } = this.state;
+
 
     if (!_.isNil(analytics.isFetchingStats) && !analytics.isFetchingStats) {
       if (!analytics.err) {
@@ -489,7 +506,7 @@ export default class Analytics extends React.Component {
 
         // Initial fetch to display the first Question
         if(_.isNil(analytics.isFetching)) {
-          this.fetchData();
+          this.fetchData(question, dateRangeBegin, dateRangeEnd, dataFetchTimeSize);
         }
 
         return productStats;
