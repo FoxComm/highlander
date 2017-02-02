@@ -52,13 +52,13 @@ prod p:
 	test -f .env && export eval `cat .env` || true && NODE_ENV=production node boot.js
 
 build-dev: setup
-	./node_modules/.bin/flow check
+	#./node_modules/.bin/flow check
 	test -f .env && export eval `cat .env` || true && ON_SERVER=true ./node_modules/.bin/gulp build
 
 build: rev
 	$(call header, Building)
 	make setup
-	./node_modules/.bin/flow check
+	#./node_modules/.bin/flow check
 	test -f .env && export eval `cat .env` || true && NODE_ENV=production ON_SERVER=true ./node_modules/.bin/gulp build
 
 docker:

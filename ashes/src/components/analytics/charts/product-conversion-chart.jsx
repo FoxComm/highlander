@@ -36,8 +36,8 @@ const dataTickValues = [
   'Purchased',
 ];
 
-// Dummy response payload for UI debugging
-const dummyJsonData = {
+// Debug response payload for UI testing
+const debugJsonData = {
   'SearchViews': 876,
   'PdpViews': 500,
   'CartClicks': 379,
@@ -83,7 +83,7 @@ class ProductConversionChart extends React.Component {
   get data(): Array<any> {
     const { jsonData, debugMode } = this.props;
     
-    const jsonDisplay = (debugMode) ? dummyJsonData : jsonData;
+    const jsonDisplay = (debugMode) ? debugJsonData : jsonData;
 
     const deltaDisplay = (deltaStr) => {
       return _.round(parseFloat(deltaStr) * 100, 2);

@@ -57,7 +57,7 @@ const formatCurrency = (value, currencyCode = 'USD', fractionDigits = 0) => {
 };
 
 const formatValue = (value, currencyCode = 'USD', fractionDigits = 0) => {
-  if (!_.isNil(currencyCode)) {
+  if (!_.isEmpty(currencyCode)) {
     return formatCurrency(value, currencyCode, fractionDigits);
   } else {
     return parseInt(value);
@@ -83,9 +83,9 @@ const formatTickValue = (datum: any, totalDataSize: number, groupSize: number = 
 };
 
 // Dummy data for UI debugging
-const dummyQueryKey: string = 'track.1.product.2.debug';
-const dummyJsonData: { dummyQueryKey: [ {x: number, y: number } ] } = {
-  dummyQueryKey: [
+const debugQueryKey: string = 'track.1.product.2.debug';
+const debugJsonData: { debugQueryKey: [ {x: number, y: number } ] } = {
+  debugQueryKey: [
     // y: Revenue in cents, x: UnixTimestamp
     { y: 750000, x: 1477983600 },
     { y: 1650000, x: 1478592000 },
@@ -119,14 +119,14 @@ class TotalRevenueChart extends React.Component {
     debugMode: false,
     segmentType: ChartSegmentType.Day,
     queryKey: '',
-    currencyCode: 'USD',
+    currencyCode: '',
   };
 
   @autobind
   generateDataTickValues(jsonData: any) {
     const { debugMode, queryKey, segmentType } = this.props;
 
-    const jsonDisplay = (debugMode) ? dummyJsonData[dummyQueryKey] : jsonData;
+    const jsonDisplay = (debugMode) ? debugJsonData[debugQueryKey] : jsonData;
 
     _.each(jsonDisplay, (d) => {
       const integerTime = parseInt(d.x);
@@ -195,7 +195,7 @@ class TotalRevenueChart extends React.Component {
   get data(): any {
     const { jsonData, debugMode, queryKey, currencyCode } = this.props;
 
-    const jsonDisplay = (debugMode) ? dummyJsonData[dummyQueryKey] : jsonData[queryKey];
+    const jsonDisplay = (debugMode) ? debugJsonData[debugQueryKey] : jsonData[queryKey];
 
     // For each datum, set the x-axis tick value, mouseOver label and dateRange display
     for (let idx = 0; idx < jsonDisplay.length; idx++) {
