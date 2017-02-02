@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "Build Verification Tests for Highlander",
   "scripts": {
-    "test": "ava"
+    "test": "ava",
+    "test-auth": "ava tests/auth.test.js",
+    "test-cart": "ava tests/cart.test.js"
   },
   "dependencies": {
     "@foxcomm/api-js": "^1.1.3",
