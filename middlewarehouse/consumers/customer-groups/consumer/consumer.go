@@ -91,25 +91,5 @@ func (c CustomerGroupsConsumer) Handler(message metamorphosis.AvroMessage) error
 		return nil
 	}
 
-	return c.handlerInner(group)
-}
-
-// Handle activity for single order
-func (c CustomerGroupsConsumer) handlerInner(group *responses.CustomerGroupResponse) error {
-	ids, err := manager.GetCustomersIDs(c.esClient, group, c.esTopic, c.esSize)
-	if err != nil {
-		return fmt.Errorf("An error occured getting customers: %s", err)
-	}
-
-	if err := c.phoenixClient.SetGroupToCustomers(group.ID, ids); err != nil {
-		return fmt.Errorf("An error occured setting group to customers: %s", err)
-	}
-
-	if group.CustomersCount != len(ids) {
-		if err := manager.UpdateGroup(c.phoenixClient, group, len(ids)); err != nil {
-			return fmt.Errorf("An error occured update group info: %s", err)
-		}
-	}
-
-	return nil
+	return manager.ProcessGroup(c.esClient, c.phoenixClient, group, c.esTopic, c.esSize)
 }

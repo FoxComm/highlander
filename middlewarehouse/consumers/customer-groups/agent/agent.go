@@ -6,8 +6,8 @@ import (
 
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/customer-groups/manager"
 	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix"
-	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix/responses"
-	elastic "gopkg.in/olivere/elastic.v3"
+
+	"gopkg.in/olivere/elastic.v3"
 )
 
 const (
@@ -87,28 +87,7 @@ func (agent *Agent) processGroups() error {
 	}
 
 	for _, group := range groups {
-		if group.GroupType == "manual" {
-			log.Printf("Group %s with id %d is manual, skipping.\n", group.Name, group.ID)
-		} else {
-			log.Printf("Group %s with id %d is %s, processing.\n", group.Name, group.ID, group.GroupType)
-
-			go func(group *responses.CustomerGroupResponse) {
-				ids, err := manager.GetCustomersIDs(agent.esClient, group, agent.esTopic, agent.esSize)
-				if err != nil {
-					log.Panicf("An error occured getting customers: %s", err)
-				}
-
-				if err := agent.phoenixClient.SetGroupToCustomers(group.ID, ids); err != nil {
-					log.Panicf("An error occured setting group to customers: %s", err)
-				}
-
-				if group.CustomersCount != len(ids) {
-					if err := manager.UpdateGroup(agent.phoenixClient, group, len(ids)); err != nil {
-						log.Panicf("An error occured update group info: %s", err)
-					}
-				}
-			}(group)
-		}
+		manager.ProcessGroup(agent.esClient, agent.phoenixClient, group, agent.esTopic, agent.esSize)
 	}
 
 	return nil

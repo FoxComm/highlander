@@ -40,6 +40,15 @@ const criterions = [
     label: 'Total Sales',
   },
   {
+    type: types.number,
+    widget: {
+      default: widgets.plain('number'),
+      [ops.between]: widgets.range(widgets.plain('number')),
+    },
+    field: 'orderCount',
+    label: 'Total Orders',
+  },
+  {
     type: types.enum,
     widget: {
       default: widgets.dropdown,
