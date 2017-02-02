@@ -8,7 +8,7 @@ import { autobind } from 'core-decorators';
 // components
 import Typeahead from 'components/typeahead/typeahead';
 import PilledInput from 'components/pilled-search/pilled-input';
-import GroupRow from './group-row';
+import GroupRow from './groups-typeahead-row';
 
 import styles from './groups.css';
 
