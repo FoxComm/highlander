@@ -88,13 +88,13 @@ class ProductPage extends ObjectPage {
 
     const options = _.map(object.options, option => {
       const values = _.map(option.values, value => {
-        const skuCodes = _.reduce(value.skuCodes, (acc, code) => {
+        const skus = _.reduce(value.skus, (acc, code) => {
           if (code in existsCodes) {
             return [...acc, code];
           }
           return acc;
         }, []);
-        return assoc(value, 'skuCodes', skuCodes);
+        return assoc(value, 'skus', skus);
       });
       return assoc(option, 'values', values);
     });

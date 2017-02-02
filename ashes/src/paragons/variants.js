@@ -19,7 +19,7 @@ export function mapVariantsToOptions(options: Array<Option>): Object {
   return _.reduce(options, (res, option) => {
     const optionName = _.get(option, 'attributes.name.v');
     return _.reduce(option.values, (res, value) => {
-      return _.reduce(value.skuCodes, (res, skuCode) => {
+      return _.reduce(value.skus, (res, skuCode) => {
         return assoc(res, [skuCode, optionName], value.name);
       }, res);
     }, res);
@@ -66,7 +66,7 @@ function indexBySku(options: Array<Option>): Object {
     const db = Wharf();
     _.each(options, option => {
       _.each(option.values, option => {
-        _.each(option.skuCodes, code => {
+        _.each(option.skus, code => {
           db.add({
             sku: code,
             option,
@@ -122,7 +122,7 @@ export function deleteVariantCombination(product: Product, code: string): Produc
   const newOptions = _.cloneDeep(product.options);
   _.each(newOptions, option => {
     _.each(option.values, optionValue => {
-      optionValue.skuCodes = _.filter(optionValue.skuCodes, boundSku => boundSku != code);
+      optionValue.skus = _.filter(optionValue.skus, boundSku => boundSku != code);
     });
   });
 
@@ -174,7 +174,7 @@ export function availableOptionsValues(product: Product): Array<Array<OptionValu
 
 function bindProductVariantToOptionsTuple(tuple: Array<OptionValue>, productVariant: ProductVariant): void {
   _.each(tuple, optionValue => {
-    optionValue.skuCodes = _.uniq([...optionValue.skuCodes, productVariantCode(productVariant)]);
+    optionValue.skus = _.uniq([...optionValue.skus, productVariantCode(productVariant)]);
   });
 }
 
@@ -195,7 +195,7 @@ export function autoAssignOptions(product: Product, options: Array<Option>): Pro
     // unbind all variants
     _.each(newOptions, option => {
       _.each(option.values, optionValue => {
-        optionValue.skuCodes = [];
+        optionValue.skus = [];
       });
     });
   };

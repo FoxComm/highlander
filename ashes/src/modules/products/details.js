@@ -89,7 +89,7 @@ function cleanProductPayload(product) {
     const option = options[i];
     for (let j = 0; j < option.values.length; j++) {
       const value = option.values[j];
-      value.skuCodes = _.reduce(value.skuCodes, (acc, code) => {
+      value.skus = _.reduce(value.skus, (acc, code) => {
         if (code) {
           const value = _.get(feCodes, code, code);
           if (value) {

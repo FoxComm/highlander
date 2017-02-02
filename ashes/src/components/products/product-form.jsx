@@ -56,7 +56,7 @@ export default class ProductForm extends ObjectDetails {
   updateOptions(newOptions: Array<Option>): void {
     // here we have new variants, but
     // we don't have empty skus in order user be able to edit them
-    // also we need skuCodes for them in variant.values
+    // also we need skus for them in variant.values
     const newProduct = autoAssignOptions(this.props.object, newOptions);
     this.props.onUpdateObject(newProduct);
   }
