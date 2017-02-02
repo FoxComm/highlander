@@ -49,7 +49,7 @@ const searchTerms = [
 ];
 
 const { reducer, actions } = makeLiveSearch(
-  'inventory.transactions',
+  'skus.transactions',
   searchTerms,
   'inventory_transactions_search_view/_search',
   'inventoryScope',

@@ -42,6 +42,8 @@ export type SkuItem = {
   quantity: number,
   totalPrice: number,
   attributes: ?Object,
+  // @TODO: this field is not exists right now
+  productVariantId: number,
 };
 
 export const states = {

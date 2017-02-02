@@ -8,9 +8,9 @@ import { SelectableSearchList } from '../list-page';
 import SkuListRow from './sku-list-row';
 
 // redux
-import { actions } from 'modules/inventory/list';
+import { actions } from 'modules/skus/list';
 
-const getState = state => ({ list: state.inventory.list });
+const getState = state => ({ list: state.skus.list });
 
 const mapDispatchToProps = dispatch => {
   return { actions: bindActionCreators(actions, dispatch) };

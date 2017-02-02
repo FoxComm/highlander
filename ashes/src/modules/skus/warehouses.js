@@ -2,7 +2,7 @@
 
 import _ from 'lodash';
 import { assoc } from 'sprout-data';
-import Api from '../../lib/api';
+import Api from 'lib/api';
 import { createAction, createReducer } from 'redux-act';
 import { createAsyncActions } from '@foxcomm/wings';
 
@@ -80,7 +80,7 @@ export const changeItemUnits = _changeItemUnits.perform;
 
 export function pushStockItemChanges(skuId) {
   return (dispatch, getState) => {
-    const stockItemChanges = _.get(getState(), ['inventory', 'warehouses', 'stockItemChanges', skuId]);
+    const stockItemChanges = _.get(getState(), ['skus', 'warehouses', 'stockItemChanges', skuId]);
 
     if (stockItemChanges) {
       const promises = _.map(stockItemChanges, (payload: Object, key: string) => {

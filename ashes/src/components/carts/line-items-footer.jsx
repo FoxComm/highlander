@@ -14,7 +14,6 @@ import reducer, { suggestVariants } from 'modules/product-variants/suggest';
 import { updateLineItemCount } from 'modules/carts/details';
 
 import type { SuggestOptions } from 'modules/product-variants/suggest';
-
 import type { ProductVariant } from 'modules/product-variants/list';
 
 function mapLocalStateToProps(state) {
@@ -49,13 +48,13 @@ export class CartLineItemsFooter extends Component {
     const { cart: { referenceNumber }, updateLineItemCount } = this.props;
 
     const skus = _.get(this.props, 'cart.lineItems.skus', []);
-    const matched = _.find(skus, { sku: item.skuCode });
+    const matched = _.find(skus, { productVariantId: item.id });
 
     if (!_.isEmpty(matched)) {
       return;
     }
 
-    updateLineItemCount(referenceNumber, item.skuCode, 1);
+    updateLineItemCount(referenceNumber, item.id, 1);
   }
 
   @autobind
