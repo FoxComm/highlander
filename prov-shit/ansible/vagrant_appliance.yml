@@ -14,24 +14,26 @@
     vagrant: true
     with_base_seeds: true
   roles:
-    # Core Configuration
+    # Core
     - { role: dev/appliance_ip }
     - { role: dev/appliance, run_once: true }
+    - { role: dev/dashboard, run_once: true }
+    # Services
     - { role: dev/zookeeper, run_once: true }
     - { role: dev/consul_agent }
     - { role: dev/elasticsearch }
+    - { role: dev/kibana }
     - { role: dev/db }
-    # Marathon Applications
+    # Maratho
     - { role: dev/marathon }
     - { role: ext/tgt/marketplace-ui, when: with_marketplace }
     - { role: dev/seeder }
     - { role: dev/marathon, only_consumers: true }
-    # Nginx Balancer
+    # Nginx
     - { role: dev/balancer }
+    - { role: dev/mesos_consul }
     - { role: demo/balancer }
     # Finale
-    - { role: dev/dashboard, run_once: true }
-    - { role: dev/mesos_consul }
     - { role: dev/healthcheck }
     - { role: dev/appliance_dns, run_once: true }
 

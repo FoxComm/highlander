@@ -2,6 +2,7 @@
     "service": {
         "name": "dashboard",
         "tags": ["dashboard"],
+        "port": {{dashboard_port}},
         "checks": [
             {
                 "name": "HTTP API on port {{dashboard_port}}",

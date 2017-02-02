@@ -33,32 +33,26 @@ upstream ashes {
 
 {% if is_appliance %}
 upstream dashboard {
-  {{ '{{' }} range service "dashboard" {{ '}}'}} server {{ '{{'}} .Address {{ '}}' }}:{{ '{{' }} .Port {{ '}}' }} max_fails=10 fail_timeout=30s weight=1;
-  {{ '{{' }} else {{ '}}' }} server {{dashboard_server}} fail_timeout=30s max_fails=10; {{ '{{' }} end {{ '}}' }}
+   server {{dashboard_server}} max_fails=10 fail_timeout=30s weight=1;
 }
 
 upstream consul {
-  {{ '{{' }} range service "consul" {{ '}}'}} server {{ '{{'}} .Address {{ '}}' }}:{{ '{{' }} .Port {{ '}}' }} max_fails=10 fail_timeout=30s weight=1;
-  {{ '{{' }} else {{ '}}' }} server {{consul_server}} fail_timeout=30s max_fails=10; {{ '{{' }} end {{ '}}' }}
+   server {{consul_server}} max_fails=10 fail_timeout=30s weight=1;
 }
 
 upstream mesos {
-  {{ '{{' }} range service "mesos-master" {{ '}}'}} server {{ '{{'}} .Address {{ '}}' }}:{{ '{{' }} .Port {{ '}}' }} max_fails=10 fail_timeout=30s weight=1;
-  {{ '{{' }} else {{ '}}' }} server {{mesos_server}} fail_timeout=30s max_fails=10; {{ '{{' }} end {{ '}}' }}
+   server {{mesos_server}} max_fails=10 fail_timeout=30s weight=1;
 }
 
 upstream marathon {
-  {{ '{{' }} range service "marathon" {{ '}}'}} server {{ '{{'}} .Address {{ '}}' }}:{{ '{{' }} .Port {{ '}}' }} max_fails=10 fail_timeout=30s weight=1;
-  {{ '{{' }} else {{ '}}' }} server {{marathon_server}} fail_timeout=30s max_fails=10; {{ '{{' }} end {{ '}}' }}
+   server {{marathon_server}} max_fails=10 fail_timeout=30s weight=1;
 }
 
 upstream kibana {
-  {{ '{{' }} range service "kibana" {{ '}}'}} server {{ '{{'}} .Address {{ '}}' }}:{{ '{{' }} .Port {{ '}}' }} max_fails=10 fail_timeout=30s weight=1;
-  {{ '{{' }} else {{ '}}' }} server {{kibana_server}} fail_timeout=30s max_fails=10; {{ '{{' }} end {{ '}}' }}
+   server {{kibana_server}} max_fails=10 fail_timeout=30s weight=1;
 }
 
 upstream pgweb {
-  {{ '{{' }} range service "pgweb" {{ '}}'}} server {{ '{{'}} .Address {{ '}}' }}:{{ '{{' }} .Port {{ '}}' }} max_fails=10 fail_timeout=30s weight=1;
-  {{ '{{' }} else {{ '}}' }} server {{pgweb_server}} fail_timeout=30s max_fails=10; {{ '{{' }} end {{ '}}' }}
+   server {{pgweb_server}} max_fails=10 fail_timeout=30s weight=1;
 }
 {% endif %}

@@ -239,23 +239,15 @@ location /sse/ {
 # Proxy to dashboard and other web UIs
 {% if is_appliance %}
 location /private/dashboard/ {
-    proxy_pass http://mesos/;
+    proxy_pass http://dashboard/;
 }
 
 location /private/consul/ {
     proxy_pass http://consul/;
 }
 
-location /private/mesos/ {
-    proxy_pass http://mesos/;
-}
-
 location /private/marathon/ {
     proxy_pass http://marathon/;
-}
-
-location /private/kibana/ {
-    proxy_pass http://kibana/;
 }
 
 location /private/pgweb/ {
