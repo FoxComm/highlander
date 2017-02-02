@@ -72,11 +72,7 @@ object GroupMemberManager {
       _ ← * <~ forDeletion.map { groupId ⇒
            deleteGroupMember(accountId, groupId)
          }
-      updatedGroupMembership ← * <~ CustomerGroupMembers
-                                .findByCustomerDataId(customerData.id)
-                                .result
-      updatedGroupIds = updatedGroupMembership.map(_.id).toSet
-      updatedGroups ← * <~ CustomerGroups.findAllByIds(updatedGroupIds).result
+      dynamicGroupsOfUser ← * <~ CustomerGroups.fildAllByIdsAndType(groupIds, Dynamic).result
     } yield
       build(customer.copy(phoneNumber = customer.phoneNumber.orElse(phoneOverride)),
             customerData,
@@ -85,7 +81,7 @@ object GroupMemberManager {
             rank = rank,
             scTotals = totals,
             lastOrderDays = maxOrdersDate.map(DAYS.between(_, Instant.now)),
-            groups = updatedGroups.map(CustomerGroupResponse.build))
+            groups = (dynamicGroupsOfUser ++ newGroups).map(CustomerGroupResponse.build _))
 
   private def createGroupMember(userId: Int, groupId: Int)(
       implicit ec: EC,
