@@ -168,7 +168,7 @@ class TotalRevenueChart extends React.Component {
               tickLabels: { fontSize: (dataSize < 90) ? 8 : 6, fill: colors.gray },
             }}
             orientation="bottom"
-            tickFormat={(x) => (x) => { return formatTickValue(displayData[x - 1], dataSize) }}
+            tickFormat={(x) => (x) => { return formatTickValue(displayData[x - 1], dataSize); }}
             tickValues={_.map(displayData, (datum) => { return datum.tickValue; })} />
           <VictoryAxis
             dependentAxis
