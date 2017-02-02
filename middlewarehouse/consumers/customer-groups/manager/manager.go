@@ -11,7 +11,32 @@ import (
 	"gopkg.in/olivere/elastic.v3"
 )
 
-func GetCustomersIDs(esClient *elastic.Client, group *responses.CustomerGroupResponse, topic string, size int) ([]int, error) {
+func ProcessGroup(esClient *elastic.Client, phoenixClient phoenix.PhoenixClient, group *responses.CustomerGroupResponse, topic string, size int) error {
+	if group.GroupType == "manual" {
+		log.Printf("Group %s with id %d is manual, skipping.\n", group.Name, group.ID)
+	} else {
+		go func(group *responses.CustomerGroupResponse) {
+			ids, err := getCustomersIDs(esClient, group, topic, size)
+			if err != nil {
+				log.Panicf("An error occured getting customers: %s", err)
+			}
+
+			if err := phoenixClient.SetGroupToCustomers(group.ID, ids); err != nil {
+				log.Panicf("An error occured setting group to customers: %s", err)
+			}
+
+			if group.CustomersCount != len(ids) {
+				if err := updateGroup(phoenixClient, group, len(ids)); err != nil {
+					log.Panicf("An error occured update group info: %s", err)
+				}
+			}
+		}(group)
+	}
+
+	return nil
+}
+
+func getCustomersIDs(esClient *elastic.Client, group *responses.CustomerGroupResponse, topic string, size int) ([]int, error) {
 	query := string(group.ElasticRequest)
 	raw := elastic.RawStringQuery(query)
 
@@ -21,7 +46,7 @@ func GetCustomersIDs(esClient *elastic.Client, group *responses.CustomerGroupRes
 	ids := map[int]bool{}
 
 	for !done {
-		//log.Printf("Quering ES. From: %d, Size: %d, Query: %s", from, size, query)
+		log.Printf("Quering ES. From: %d, Size: %d, Query: %s", from, size, query)
 		res, err := esClient.Search().Type(topic).Query(raw).Fields().From(from).Size(size).Do()
 
 		if err != nil {
@@ -39,8 +64,6 @@ func GetCustomersIDs(esClient *elastic.Client, group *responses.CustomerGroupRes
 			}
 		}
 
-		log.Printf("Queried ES. From: %d, Size: %d, TotalHits: %d, Query: %s", from, size, res.Hits.TotalHits, query)
-
 		from += size
 
 		done = res.Hits.TotalHits <= int64(from)
@@ -54,7 +77,7 @@ func GetCustomersIDs(esClient *elastic.Client, group *responses.CustomerGroupRes
 	return result, nil
 }
 
-func UpdateGroup(phoenixClient phoenix.PhoenixClient, group *responses.CustomerGroupResponse, customersCount int) error {
+func updateGroup(phoenixClient phoenix.PhoenixClient, group *responses.CustomerGroupResponse, customersCount int) error {
 	updateGroup := &payloads.CustomerGroupPayload{
 		Name:           group.Name,
 		GroupType:      group.GroupType,
