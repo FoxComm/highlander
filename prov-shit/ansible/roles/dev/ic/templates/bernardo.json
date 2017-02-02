@@ -9,7 +9,7 @@
     "type": "DOCKER",
     "volumes": [],
     "docker": {
-      "image": "{{docker_registry}}:5000/bernardo:{{docker_branch}}",
+      "image": "{{docker_registry}}:5000/bernardo:{{docker_tags.bernardo}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],

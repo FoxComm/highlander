@@ -60,7 +60,7 @@ function createOrder(customer, isGuest = false) {
 
   return dispatch => {
     dispatch(createOrderStart());
-    return Api.post('/orders', payload)
+    return Api.post('/carts', payload)
       .then(
         res => dispatch(createOrderSuccess(res)),
         err => dispatch(createOrderFailure(err))

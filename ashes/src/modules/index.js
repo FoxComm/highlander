@@ -30,6 +30,7 @@ import plugins from './plugins';
 import objectSchemas from './object-schema';
 import applications from './merchant-applications';
 import originIntegrations from './origin-integrations';
+import taxonomies from './taxonomies';
 
 const rootReducer = combineReducers({
   routing: routerReducer,
@@ -62,6 +63,7 @@ const rootReducer = combineReducers({
   objectSchemas,
   applications,
   originIntegrations,
+  taxonomies,
 });
 
 export default rootReducer;

@@ -23,6 +23,7 @@ type Props = {
   isPopupShown: boolean,
   togglePopup: (visible: boolean) => void,
   min: number,
+  counterId: string,
 }
 
 export default class AdjustQuantity extends Component {
@@ -88,6 +89,7 @@ export default class AdjustQuantity extends Component {
     const popupState = classNames({
       '_open': this.props.isPopupShown,
     });
+    const { counterId } = this.props;
 
     return (
       <div styleName="block">
@@ -105,10 +107,10 @@ export default class AdjustQuantity extends Component {
           <div styleName="popup" className={popupState} ref={p => this._popup = p}>
             <div styleName="title">Adjust Quantity</div>
             <Counter
+              counterId={counterId}
               value={this.state.diff}
               increaseAction={() => this.adjustValue(this.state.value + 1)}
               decreaseAction={() => this.adjustValue(this.state.value - 1)}
-              min={null}
               onBlur={evt => evt.stopPropagation()}
             />
           </div>

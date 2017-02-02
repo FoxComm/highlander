@@ -14,11 +14,13 @@
 - name: Restart Postgres
   service: name=postgresql state=restarted
 
-- name: Create Phoenix Database
-  postgresql_db: name={{phoenix_db_name}} encoding='UTF-8' lc_ctype='en_US.UTF-8' lc_collate='en_US.UTF-8' template='template0'
-
-- name: Create Middlewarehouse Database
-  postgresql_db: name={{middlewarehouse_db_name}} encoding='UTF-8' lc_ctype='en_US.UTF-8' lc_collate='en_US.UTF-8' template='template0'
+- name: Create App Databases
+  postgresql_db: name={{item}} encoding='UTF-8' lc_ctype='en_US.UTF-8' lc_collate='en_US.UTF-8' template='template0'
+  with_items:
+    - "{{phoenix_db_name}}"
+    - "{{middlewarehouse_db_name}}"
+    - "{{marketplace_db_name}}"
+  when: item != "{{marketplace_db_name}}" or with_marketplace
 
 - name: Create IC Database
   postgresql_db: name={{bernardo_db_name}} encoding='UTF-8' lc_ctype='en_US.UTF-8' lc_collate='en_US.UTF-8' template='template0'
@@ -34,11 +36,13 @@
 - name: Configure Database Users
   postgresql_user: name={{item}} state=present role_attr_flags=SUPERUSER
   with_items:
-      - root
-      - "'{{user}}'"
-      - phoenix
-      - ic
-      - middlewarehouse
+    - root
+    - "'{{user}}'"
+    - phoenix
+    - middlewarehouse
+    - marketplace
+    - ic
+  when: item != "marketplace" or with_marketplace
 
 - name: Create Phoenix Directory
   file: path={{phoenix_dir}} state=directory owner="{{user}}"
@@ -71,22 +75,22 @@
   template: src=flyway.conf dest="{{phoenix_dir}}/sql/flyway.conf" mode="u+x,g+x,o+x"
 
 - name: Clean Phoenix Database
-  shell: sudo -u root FLYWAY_HOME={{flyway_dir}} {{flyway}} clean
+  shell: FLYWAY_HOME={{flyway_dir}} {{flyway}} clean
   args:
     chdir: "{{phoenix_dir}}"
 
 - name: Migrate Phoenix Database
-  shell: sudo -u root FLYWAY_HOME={{flyway_dir}} {{flyway}} migrate
+  shell: FLYWAY_HOME={{flyway_dir}} {{flyway}} migrate
   args:
     chdir: "{{phoenix_dir}}"
 
 - name: Clean Middlewarehouse Database
-  shell: sudo -u root FLYWAY_HOME={{flyway_dir}} {{flyway}} clean
+  shell: FLYWAY_HOME={{flyway_dir}} {{flyway}} clean
   args:
     chdir: "{{middlewarehouse_dir}}"
 
 - name: Migrate Middlewarehouse Database
-  shell: sudo -u root FLYWAY_HOME={{flyway_dir}} {{flyway}} migrate
+  shell: FLYWAY_HOME={{flyway_dir}} {{flyway}} migrate
   args:
     chdir: "{{middlewarehouse_dir}}"
 
@@ -105,4 +109,4 @@
     - phoenix
     - middlewarehouse
     - marketplace
-  when: item != 'marketplace' or with_marketplace
+  when: item != "marketplace" or with_marketplace

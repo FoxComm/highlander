@@ -1,5 +1,5 @@
 [Service]
-WorkingDirectory=/usr/local/lib/
+WorkingDirectory=/usr/local/lib
 ExecStart=/usr/bin/java -jar zipkin.jar
 Restart=always
 StandardOutput=syslog

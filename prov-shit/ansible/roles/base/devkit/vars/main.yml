@@ -1,0 +1,7 @@
+docker_clean_url: https://raw.githubusercontent.com/ZZROTDesign/docker-clean/v2.0.4/docker-clean
+
+zkcli_filename: "zookeepercli_1.0.10_amd64.deb"
+zkcli_download_url: "https://github.com/outbrain/zookeepercli/releases/download/v1.0.10/{{zkcli_filename}}"
+
+kt_filename: "kt-v10.0.0-linux-amd64.txz"
+kt_download_url: "https://github.com/fgeller/kt/releases/download/v10.0.0/{{kt_filename}}"

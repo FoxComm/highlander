@@ -9,7 +9,7 @@ import models.inventory.Sku
 import models.location._
 import models.payment.giftcard.GiftCard
 import models.product._
-import payloads.OrderPayloads.CreateCart
+import payloads.CartPayloads.CreateCart
 import payloads.PaymentPayloads.GiftCardPayment
 import services.carts._
 import testutils._

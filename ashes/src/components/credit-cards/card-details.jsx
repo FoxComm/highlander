@@ -18,7 +18,7 @@ export default class CreditCardDetails extends React.Component {
         </div>
         <dl>
           <dt className="fc-credit-card__label">Name on Card</dt>
-          <dd className="fc-credit-card__content">{card.holderName}</dd>
+          <dd className="fc-credit-card__content fct-card-holder-name">{card.holderName}</dd>
         </dl>
         <dl>
           <dt className="fc-credit-card__label">Billing Address</dt>

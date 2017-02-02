@@ -8,7 +8,7 @@
   "container": {
     "type": "DOCKER",
     "docker": {
-      "image": "{{docker_registry}}:5000/eggcrate:{{docker_branch}}",
+      "image": "{{docker_registry}}:5000/eggcrate:{{docker_tags.eggcrate}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],

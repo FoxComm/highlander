@@ -9,7 +9,7 @@
     "type": "DOCKER",
     "volumes": [],
     "docker": {
-      "image": "{{docker_registry}}:5000/river-rock:{{docker_branch}}",
+      "image": "{{docker_registry}}:5000/river-rock:{{docker_tags.river_rock}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],

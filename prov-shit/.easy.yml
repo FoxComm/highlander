@@ -72,6 +72,9 @@ shortcuts:
   - name: Generate .env.local
     alias: env_local.yml
     target: ansible/goldrush_env_local.yml
+  - name: Update Application Docker Tag
+    alias: update_app.yml
+    target: ansible/goldrush_update_app.yml
 
   # Test Machines
   - name: Provision FoxComm Test
@@ -151,9 +154,7 @@ shortcuts:
       stable: terraform/envs/gce_staging_stable/terraform.tfstate
       target: terraform/envs/aws_target/terraform.tfstate
       topdrawer: terraform/envs/gce_topdrawer/terraform.tfstate
-      td_test: terraform/envs/gce_td_test/terraform.tfstate
       tpg: terraform/envs/gce_tpg/terraform.tfstate
-      tpg_test: terraform/envs/gce_tpg_test/terraform.tfstate
   - name: Variable Files
     flag: "-var-file"
     aliases:
@@ -162,9 +163,7 @@ shortcuts:
       stable: terraform/envs/gce_staging_stable/staging.tfvars
       target: terraform/envs/aws_target/target.tfvars
       topdrawer: terraform/envs/gce_topdrawer/topdrawer.tfvars
-      td_test: terraform/envs/gce_td_test/td_test.tfvars
       tpg: terraform/envs/gce_tpg/tpg.tfvars
-      tpg_test: terraform/envs/gce_tpg_test/tpg_test.tfvars
 
   targets:
   - name: FoxCommerce Core
@@ -173,12 +172,6 @@ shortcuts:
   - name: FoxCommerce Test
     alias: staging
     target: terraform/base/gce_staging
-  - name: TopDrawer Test
-    alias: td_test
-    target: terraform/base/gce_td_test
-  - name: TPG Test
-    alias: tpg_test
-    target: terraform/base/gce_tpg_test
   - name: Target AWS Networking
     alias: target
     target: terraform/base/aws_target

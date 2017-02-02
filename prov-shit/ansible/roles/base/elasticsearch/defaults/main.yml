@@ -1,5 +1,2 @@
-
----
-
 es_heap_size: 512m
 search_service_name: elasticsearch

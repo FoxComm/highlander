@@ -7,6 +7,7 @@ import seeds.requests.Addresses._
 import seeds.requests.Auth._
 import seeds.requests.Cart._
 import seeds.requests.Customers._
+import helpers._
 
 class CustomerActivitySimulation extends Simulation {
 

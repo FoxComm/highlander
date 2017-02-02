@@ -21,7 +21,8 @@ class GiftCardIntegrationTest
     }
 
     "updates availableBalance if auth adjustment is created + cancel handling" in new Fixture {
-      val adjustment = GiftCards.capture(giftCard, Some(orderPayments.head.id), 10).gimme
+      val auth       = GiftCards.auth(giftCard, orderPayments.head.id, 10).gimme
+      val adjustment = GiftCards.capture(giftCard, orderPayments.head.id, 10).gimme
 
       val updatedGiftCard = GiftCards.refresh(giftCard).gimme
       updatedGiftCard.availableBalance must === (giftCard.originalBalance - 10)
@@ -29,19 +30,6 @@ class GiftCardIntegrationTest
       GiftCardAdjustments.cancel(adjustment.id).gimme
       val canceledGiftCard = GiftCards.refresh(giftCard).gimme
       canceledGiftCard.availableBalance must === (giftCard.originalBalance)
-    }
-
-    "updates availableBalance and currentBalance if capture adjustment is created + cancel handling" in new Fixture {
-      val adjustment = GiftCards.capture(giftCard, Some(orderPayments.head.id), 0, 10).gimme
-
-      val updatedGiftCard = GiftCards.refresh(giftCard).gimme
-      updatedGiftCard.availableBalance must === (giftCard.originalBalance + 10)
-      updatedGiftCard.currentBalance must === (giftCard.originalBalance + 10)
-
-      GiftCardAdjustments.cancel(adjustment.id).gimme
-      val canceledGiftCard = GiftCards.refresh(giftCard).gimme
-      canceledGiftCard.availableBalance must === (giftCard.originalBalance)
-      canceledGiftCard.currentBalance must === (giftCard.originalBalance)
     }
   }
 

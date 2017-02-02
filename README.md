@@ -31,8 +31,9 @@ has a lot to do!
 
 ### Install Prerequisites
 
-- Install [Vagrant](https://www.vagrantup.com)
-- Install [Ansible 2.2.x](http://docs.ansible.com/ansible/intro_installation.html#installation)
+- [VirtualBox](https://www.virtualbox.org)
+- [Vagrant](https://www.vagrantup.com)
+- [Ansible](https://ansible.com) 2.2.x
 
 ### Google Compute VM
 
@@ -60,15 +61,6 @@ has a lot to do!
     $ make up
     ```
 
-Test machines are created without a public facing IP address, so you'll need to use the VPN to access it.
+#### Deploying Custom Branches
 
-Get the private IP address:
-
-    $ vagrant ssh
-    $ hostname -i
-
-Edit your hosts file so that `local.foxcommerce.com` points to the new box using the private IP address you just retrieved.
-
-### Local VM
-
-There is another option to run development environment in a local VM. Please refer to related [wiki page](engineering-wiki/development/Local-VM-DevEnv.md) for more information.
+Please refer to related [wiki page](engineering-wiki/devops/Deploying-Custom-Branches.md) for more information.

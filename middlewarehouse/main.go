@@ -35,6 +35,6 @@ func main() {
 		log.Panicf("Failed to start middlewarehouse with error %s", err.Error())
 	}
 
-    port:= os.Getenv("PORT")
+	port := os.Getenv("PORT")
 	engine.Run(":" + port)
 }

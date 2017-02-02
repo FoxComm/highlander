@@ -5,6 +5,10 @@
   "mem": 1024,
   "disk": 0,
   "instances": 1,
+  "labels": {
+    "LAYER": "frontend",
+    "LANG": "js"
+  },
   "env": {
     "API_URL": "https://{{storefront_server_name}}/api/v1/mkt",
     "ASHES_URL": "https://{{storefront_server_name}}/admin"
@@ -13,7 +17,7 @@
     "type": "DOCKER",
     "volumes": [],
     "docker": {
-      "image": "{{docker_registry}}:5000/marketplace-ui:{{docker_branch}}",
+      "image": "{{docker_registry}}:5000/marketplace-ui:{{docker_tags.marketplace_ui}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],

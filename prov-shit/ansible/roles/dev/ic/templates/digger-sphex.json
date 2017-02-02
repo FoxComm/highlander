@@ -15,7 +15,7 @@
     "type": "DOCKER",
     "volumes": [],
     "docker": {
-      "image": "{{docker_registry}}:5000/digger-sphex:{{docker_branch}}",
+      "image": "{{docker_registry}}:5000/digger-sphex:{{docker_tags.digger_sphex}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],

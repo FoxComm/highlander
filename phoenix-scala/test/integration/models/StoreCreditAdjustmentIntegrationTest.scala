@@ -29,8 +29,8 @@ class StoreCreditAdjustmentIntegrationTest
 
       val adjustments = Table(
           "adjustments",
-          StoreCredits.auth(storeCredit = sc, orderPaymentId = Some(payment.id), amount = -1),
-          StoreCredits.auth(storeCredit = sc, orderPaymentId = Some(payment.id), amount = 0)
+          StoreCredits.auth(storeCredit = sc, orderPaymentId = payment.id, amount = -1),
+          StoreCredits.auth(storeCredit = sc, orderPaymentId = payment.id, amount = 0)
       )
 
       forAll(adjustments) { adjustment ⇒
@@ -49,21 +49,17 @@ class StoreCreditAdjustmentIntegrationTest
                                            accountId = customer.accountId))
         pay ← * <~ OrderPayments.create(Factories.giftCardPayment
                    .copy(cordRef = cart.refNum, paymentMethodId = sc.id, amount = Some(500)))
-        _ ← * <~ StoreCredits.capture(storeCredit = sc, orderPaymentId = Some(pay.id), amount = 50)
-        _ ← * <~ StoreCredits.capture(storeCredit = sc, orderPaymentId = Some(pay.id), amount = 25)
-        _ ← * <~ StoreCredits.capture(storeCredit = sc, orderPaymentId = Some(pay.id), amount = 15)
-        _ ← * <~ StoreCredits.capture(storeCredit = sc, orderPaymentId = Some(pay.id), amount = 10)
-        _ ← * <~ StoreCredits.auth(storeCredit = sc, orderPaymentId = Some(pay.id), amount = 100)
-        _ ← * <~ StoreCredits.auth(storeCredit = sc, orderPaymentId = Some(pay.id), amount = 50)
-        _ ← * <~ StoreCredits.auth(storeCredit = sc, orderPaymentId = Some(pay.id), amount = 50)
-        _ ← * <~ StoreCredits.capture(storeCredit = sc,
-                                      orderPaymentId = Some(pay.id),
-                                      amount = 200)
+        _  ← * <~ StoreCredits.auth(storeCredit = sc, orderPaymentId = pay.id, amount = 100)
+        _  ← * <~ StoreCredits.auth(storeCredit = sc, orderPaymentId = pay.id, amount = 50)
+        _  ← * <~ StoreCredits.auth(storeCredit = sc, orderPaymentId = pay.id, amount = 50)
+        _  ← * <~ StoreCredits.capture(storeCredit = sc, orderPaymentId = pay.id, amount = 50)
+        _  ← * <~ StoreCredits.capture(storeCredit = sc, orderPaymentId = pay.id, amount = 25)
+        _  ← * <~ StoreCredits.capture(storeCredit = sc, orderPaymentId = pay.id, amount = 15)
         sc ← * <~ StoreCredits.findOneById(sc.id)
       } yield sc.value).gimme
 
-      sc.availableBalance must === (0)
-      sc.currentBalance must === (200)
+      sc.availableBalance must === (500 - 50 - 25 - 15)
+      sc.currentBalance must === (500 - 50 - 25 - 15)
     }
 
     "a Postgres trigger updates the adjustment's availableBalance before insert" in new Fixture {
@@ -76,11 +72,10 @@ class StoreCreditAdjustmentIntegrationTest
                                            accountId = customer.accountId))
         pay ← * <~ OrderPayments.create(Factories.giftCardPayment
                    .copy(cordRef = cart.refNum, paymentMethodId = sc.id, amount = Some(500)))
-        adj ← * <~ StoreCredits.capture(storeCredit = sc,
-                                        orderPaymentId = Some(pay.id),
-                                        amount = 50)
-        adj ← * <~ StoreCreditAdjustments.refresh(adj)
-        sc  ← * <~ StoreCredits.refresh(sc)
+        auth ← * <~ StoreCredits.auth(storeCredit = sc, orderPaymentId = pay.id, amount = 50)
+        adj  ← * <~ StoreCredits.capture(storeCredit = sc, orderPaymentId = pay.id, amount = 50)
+        adj  ← * <~ StoreCreditAdjustments.refresh(adj)
+        sc   ← * <~ StoreCredits.refresh(sc)
       } yield (adj, sc)).value.gimme
 
       sc.availableBalance must === (450)
@@ -101,19 +96,15 @@ class StoreCreditAdjustmentIntegrationTest
       } yield (sc, payment)).gimme
 
       val debits = List(50, 25, 15, 10)
-      val adjustments = DbResultT
+      val auths = DbResultT
         .sequence(debits.map { amount ⇒
-          StoreCredits.capture(storeCredit = sc,
-                               orderPaymentId = Some(payment.id),
-                               amount = amount)
+          StoreCredits.auth(storeCredit = sc, orderPaymentId = payment.id, amount = amount)
         })
         .gimme
 
-      DBIO
-        .sequence(adjustments.map { adj ⇒
-          StoreCreditAdjustments.cancel(adj.id)
-        })
-        .gimme
+      auths.map { adj ⇒
+        StoreCreditAdjustments.cancel(adj.id).gimme
+      }
 
       val finalSc = StoreCredits.findOneById(sc.id).gimme.value
       (finalSc.originalBalance, finalSc.availableBalance, finalSc.currentBalance) must === (

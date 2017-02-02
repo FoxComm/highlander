@@ -57,7 +57,7 @@ class OptionList extends Component {
 
   get actions(): Element {
     return (
-      <a styleName="action-icon" onClick={() => this.startEditOption('new')}>
+      <a id="add-new-option-btn" styleName="action-icon" onClick={() => this.startEditOption('new')}>
         <i className="icon-add" />
       </a>
     );

@@ -1,8 +1,8 @@
 import java.time.Instant
 
 import akka.http.scaladsl.model.StatusCodes
-import cats.implicits._
 
+import cats.implicits._
 import failures.TaxonomyFailures._
 import models.objects.ObjectForm
 import models.taxonomy.{Taxon ⇒ ModelTaxon, _}
@@ -10,13 +10,11 @@ import org.json4s.JsonDSL._
 import org.json4s._
 import payloads.TaxonomyPayloads._
 import responses.TaxonomyResponses._
+import slick.jdbc.GetResult
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
-import utils.aliases._
 import utils.db.ExPostgresDriver.api._
-
-import slick.jdbc.GetResult
 
 class TaxonomyIntegrationTest
     extends IntegrationTestBase
@@ -26,15 +24,15 @@ class TaxonomyIntegrationTest
     with TaxonomySeeds
     with PhoenixAdminApi {
 
-  def findTaxonsById(taxons: TaxonList, id: Int): Option[TaxonTreeResponse] =
+  def findTaxonsById(taxons: Seq[TaxonTreeResponse], id: Int): Option[TaxonTreeResponse] =
     taxons
       .find(_.taxon.id == id)
       .orElse(
           taxons.map(t ⇒ findTaxonsById(t.children.toList, id)).find(_.isDefined).flatten
       )
 
-  def queryGetTaxonomy(formId: Int): TaxonomyResponse =
-    taxonomyApi(formId).get.as[TaxonomyResponse]
+  def queryGetTaxonomy(formId: Int): FullTaxonomyResponse =
+    taxonomyApi(formId).get.as[FullTaxonomyResponse]
 
   "GET v1/taxonomy/:contextName/:taxonomyFormId" - {
     "gets taxonomy" in new TaxonomyFixture {
@@ -43,6 +41,16 @@ class TaxonomyIntegrationTest
       response.taxons mustBe empty
       response.attributes must === (JObject(taxonomyAttributes.toList: _*))
     }
+
+    "gets full hierarchy" in new HierarchyTaxonsFixture {
+      val response = queryGetTaxonomy(taxonomy.formId)
+
+      response.id must === (taxonomy.formId)
+
+      response.taxons.map(_.taxon.name) must === (Seq("taxon1", "taxon2"))
+      response.taxons.head.children.map(_.taxon.name) must === (Seq("taxon3", "taxon4"))
+      response.taxons.head.children.head.children.map(_.taxon.name) must === (Seq("taxon7"))
+    }
   }
 
   "POST v1/taxonomy/:contextName" - {
@@ -50,7 +58,7 @@ class TaxonomyIntegrationTest
       val payload = CreateTaxonomyPayload(Map("name" → (("t" → "string") ~ ("v" → "name"))),
                                           hierarchical = false,
                                           scope = None)
-      val taxonResp = taxonomyApi.create(payload).as[TaxonomyResponse]
+      val taxonResp = taxonomyApi.create(payload).as[FullTaxonomyResponse]
       queryGetTaxonomy(taxonResp.id) must === (taxonResp)
       taxonResp.attributes must === (JObject(payload.attributes.toList: _*))
       taxonResp.taxons mustBe empty
@@ -61,7 +69,7 @@ class TaxonomyIntegrationTest
     "updates taxonomy" in new TaxonomyFixture {
       val newAttributes = taxonomyAttributes + ("testValue" → (("t" → "string") ~ ("v" → "test")))
       val payload       = UpdateTaxonomyPayload(newAttributes)
-      val taxonomyResp  = taxonomyApi(taxonomy.formId).update(payload).as[TaxonomyResponse]
+      val taxonomyResp  = taxonomyApi(taxonomy.formId).update(payload).as[FullTaxonomyResponse]
       taxonomyResp.attributes must === (JObject(payload.attributes.toList: _*))
     }
   }
@@ -86,7 +94,7 @@ class TaxonomyIntegrationTest
     }
   }
 
-  "GET v1/taxonomy/:contextName/taxon/:taxonFormId" - {
+  "GET v1/taxon/:contextName/:taxonFormId" - {
     "gets taxon" in new FlatTaxonsFixture {
       private val taxonToQuery: ModelTaxon = taxons.head
       val taxonToQueryName                 = taxonNames.head
@@ -304,8 +312,9 @@ class TaxonomyIntegrationTest
     private val taxonToBeAssigned: ObjectForm#Id = taxons.head.formId
     taxonApi(taxonToBeAssigned).assignProduct(simpleProduct.formId).mustBeOk
 
-    val productTaxons = productsApi(simpleProduct.formId).taxons.get.as[Seq[SingleTaxonResponse]]
-    productTaxons.map(_.taxon.id) must contain only taxonToBeAssigned
+    val productTaxons =
+      productsApi(simpleProduct.formId).taxons.get.as[Seq[AssignedTaxonsResponse]]
+    productTaxons.flatMap(_.taxons.map(_.id)) must contain only taxonToBeAssigned
   }
 
   "Taxon is unassigned to a product" in new ProductAndSkus_Baked with FlatTaxonsFixture {
@@ -313,8 +322,9 @@ class TaxonomyIntegrationTest
     taxonApi(taxonToBeAssigned).assignProduct(simpleProduct.formId).mustBeOk()
     taxonApi(taxonToBeAssigned).unassignProduct(simpleProduct.formId).mustBeOk()
 
-    val productTaxons = productsApi(simpleProduct.formId).taxons.get.as[Seq[SingleTaxonResponse]]
-    productTaxons.map(_.taxon.id) mustBe empty
+    val productTaxons =
+      productsApi(simpleProduct.formId).taxons.get.as[Seq[AssignedTaxonsResponse]]
+    productTaxons.flatMap(_.taxons.map(_.id)) mustBe empty
   }
 
   trait FlatTaxonsFixture extends StoreAdmin_Seed with FlatTaxons_Baked

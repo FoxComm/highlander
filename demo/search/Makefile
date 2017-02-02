@@ -1,18 +1,18 @@
 DOCKER_REPO ?= docker-stage.foxcommerce.com:5000
-DOCKER_TAG ?= demo-search
-DOCKER_BRANCH ?= master
+DOCKER_IMAGE ?= demo-search
+DOCKER_TAG ?= master
 
 setup:
 	true
 
-build: 
+build:
 	npm install
 
 docker:
-	docker build -t $(DOCKER_TAG) .
+	docker build -t $(DOCKER_IMAGE) .
 
 docker-push:
-	docker tag $(DOCKER_TAG) $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
-	docker push $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
+	docker tag $(DOCKER_IMAGE) $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
+	docker push $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
 
 .PHONY: setup build docker docker-push

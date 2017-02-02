@@ -1,0 +1,18 @@
+env:
+  BUILDKITE_CLEAN_CHECKOUT: true
+  GOPATH: "/var/lib/buildkite-agent/go"
+  GITHUB_API_TOKEN: 20d1fc8b78dca5bf192176f6e69513b769da2c69
+  STRIPE_PUBLISHABLE_KEY: pk_test_1H2C9nTZpy8szPmboOEDwdwN
+  STRIPE_KEY: sk_test_13rnEgvA4DGHgv4f2GMCDtes
+  STRIPE_API_KEY: sk_test_13rnEgvA4DGHgv4f2GMCDtes
+
+steps:
+  - command: |-
+      cd prov-shit
+      make build
+      cp /var/lib/buildkite-agent/account.json ./
+      cp /var/lib/buildkite-agent/.vault_pass ./
+      make deploy-tpg-test
+    label: Deploy
+    agents:
+      - queue=core

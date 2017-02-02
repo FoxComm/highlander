@@ -82,7 +82,7 @@ export function request(method, uri, data, options = {}) {
     .then(
       response => response.body,
       err => {
-        if (err.statusCode == 401) {
+        if (err.status == 401) {
           unauthorizedHandler(err.response);
         }
 

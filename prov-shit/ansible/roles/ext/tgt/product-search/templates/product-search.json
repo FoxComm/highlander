@@ -5,6 +5,10 @@
   "mem": 128,
   "disk": 0,
   "instances": 1,
+  "labels": {
+    "LAYER": "backend",
+    "LANG": "go"
+  },
   "env": {
     "PHOENIX_URL": "https://{{storefront_server_name}}",
     "ELASTIC_URL": "https://{{storefront_server_name}}"
@@ -12,7 +16,7 @@
   "container": {
     "type": "DOCKER",
     "docker": {
-      "image": "{{docker_registry}}:5000/product-search:{{docker_branch}}",
+      "image": "{{docker_registry}}:5000/product-search:{{docker_tags.product_search}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],

@@ -1,7 +1,13 @@
-FROM ubuntu:16.04
+FROM golang:alpine
 
-RUN apt update
-RUN apt install -y ca-certificates
+RUN apk add --no-cache ca-certificates
 
-ADD shipstation-consumer /
-CMD /shipstation-consumer 2>&1 | tee /logs/shipstation-consumer.log
+RUN mkdir -p /shipstation-consumer
+ADD . /go/src/github.com/FoxComm/highlander/middlewarehouse
+WORKDIR /go/src/github.com/FoxComm/highlander/middlewarehouse
+RUN go build -o consumers/shipstation/shipstation-consumer consumers/shipstation/*.go && \
+    cp consumers/shipstation/shipstation-consumer /shipstation-consumer && \
+    rm -rf /go
+WORKDIR /shipstation-consumer
+
+CMD /shipstation-consumer/shipstation-consumer 2>&1 | tee /logs/shipstation-consumer.log

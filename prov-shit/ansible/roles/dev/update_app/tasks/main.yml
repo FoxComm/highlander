@@ -1,0 +1,13 @@
+---
+
+- include_vars: secret.yml
+
+- include: validate.yml
+
+- include: build.yml
+  when: branch_name != "master" and auto_build in valid_answers
+
+- include: deploy.yml
+
+- include: build_after.yml
+  when: branch_name != "master" and auto_build in valid_answers

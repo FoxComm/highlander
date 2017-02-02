@@ -40,3 +40,6 @@
 
 - name: Copy Consul Service File
   template: src=elastic.json dest="/etc/consul.d/elastic.json"
+
+- name: Add Logrotate Config for Elasticsearch 2.x
+  template: src=elasticsearch-2.j2 dest="{{logrotate_dir}}/elasticsearch-2" mode=0644

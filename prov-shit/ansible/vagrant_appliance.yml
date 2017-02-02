@@ -4,46 +4,37 @@
   hosts: all
   become: true
   vars:
-    appliance_hostname: local.foxcommerce.com
     cert_path: test/fox
-    ashes_server_name: local.foxcommerce.com
-    storefront_server_name: local.foxcommerce.com
-    storefront_host: storefront.service.consul
     docker_db_host: 172.17.0.1
     install_public_keys: true
     install_private_keys: true
-    with_base_seeds: true
+    is_amigo: true
     mesos_quorum: 1
     vagrant: true
-    phoenix_tax_rule_region: 4129
-    phoenix_tax_rule_rate: 7.5
-
+    with_base_seeds: true
   roles:
-    - { role: dev/consul_agent }
+    # Core Configuration
+    - { role: dev/appliance_ip }
     - { role: dev/appliance, run_once: true }
-    - { role: base/secret_keys }
-    - { role: base/marketplace, when: with_marketplace }
-    - { role: dev/kafka }
+    - { role: dev/zookeeper, run_once: true }
+    - { role: dev/consul_agent }
     - { role: dev/elasticsearch }
     - { role: dev/db }
-    - { role: dev/pgweb }
-    - { role: dev/isaac }
-    - { role: dev/phoenix }
-    - { role: dev/solomon }
-    - { role: dev/marketplace, when: with_marketplace }
-    - { role: dev/middlewarehouse }
-    - { role: dev/greenriver }
-    - { role: dev/ashes }
-    - { role: dev/firebrand }
+    - { role: dev/db_ic }
+    # Marathon Applications
+    - { role: dev/marathon }
     - { role: ext/tgt/marketplace-ui, when: with_marketplace }
     - { role: dev/seeder }
-    - { role: dev/messaging, retailer_name: 'FoxCommerce' }
-    - { role: dev/db_ic }
+    - { role: dev/marathon, only_consumers: true }
     - { role: dev/ic }
+    # Nginx Balancer
     - { role: dev/balancer }
     - { role: demo/balancer }
-    - { role: dev/consumers }
+    # Finale
+    - { role: dev/dashboard, run_once: true }
+    - { role: dev/mesos_consul }
     - { role: dev/healthcheck }
+    - { role: dev/appliance_dns, run_once: true }
 
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml

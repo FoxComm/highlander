@@ -3,6 +3,9 @@
 - name: Install Rsyslog Dependencies
   apt: name={{item}} state=installed
   with_items:
+      - debconf-utils
+      - librdkafka-dev
+      - libcurl4-gnutls-dev
       - libestr-dev
       - autoconf
       - automake
@@ -45,7 +48,7 @@
       chdir: "{{home}}/rsyslog-8.23.0"
 
 - name: Remove Old Omelsticsearch Configuration
-  file: path=/etc/rsyslog.d/elastic-51.conf state=absent
+  file: path=/etc/rsyslog.d/51-elastic.conf state=absent
 
 - name: Install Base Rsyslog Config
   template: >
