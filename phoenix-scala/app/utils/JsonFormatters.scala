@@ -21,6 +21,7 @@ import models.{Assignment, Note, Reason}
 import org.json4s.jackson
 import payloads.AuthPayload
 import responses.PublicResponses.CountryWithRegions
+import models.search.SearchField
 
 object JsonFormatters {
   val serialization = jackson.Serialization
@@ -42,5 +43,5 @@ object JsonFormatters {
       QueryStatement.Comparison.jsonFormat + Condition.Operator.jsonFormat +
       PaymentMethod.Type.jsonFormat + SkuType.jsonFormat + SharedSearch.Scope.jsonFormat +
       IdentityKind.jsonFormat + AdminData.State.jsonFormat + PluginSettings.SettingType.jsonFormat +
-      AuthPayload.JwtClaimsSerializer
+      AuthPayload.JwtClaimsSerializer + SearchField.Analyzer.jsonFormat
 }

@@ -1,5 +1,7 @@
 package models.search
 
+import java.time.Instant
+
 import com.pellucid.sealerate
 import models.search.SearchField.Analyzer
 import shapeless.{Lens, lens}
@@ -8,6 +10,7 @@ import slick.jdbc.JdbcType
 import utils.ADT
 import utils.db._
 import utils.db.ExPostgresDriver.api._
+import failures.NotFoundFailure404
 
 object SearchField {
 
@@ -26,7 +29,13 @@ object SearchField {
     Analyzer.slickColumn
 }
 
-case class SearchField(id: Int = 0, name: String, analyzer: Analyzer, indexId: SearchIndex#Id)
+case class SearchField(id: Int = 0,
+                       name: String,
+                       analyzer: Analyzer,
+                       indexId: SearchIndex#Id,
+                       createdAt: Instant = Instant.now,
+                       updatedAt: Instant = Instant.now,
+                       deletedAt: Option[Instant] = None)
     extends FoxModel[SearchField]
 
 class SearchFields(tag: Tag) extends FoxTable[SearchField](tag, "search_fields") {
@@ -35,9 +44,14 @@ class SearchFields(tag: Tag) extends FoxTable[SearchField](tag, "search_fields")
   def analyzer = column[Analyzer]("analyzer")
   def indexId  = column[SearchIndex#Id]("index_id")
 
+  def createdAt = column[Instant]("created_at")
+  def updatedAt = column[Instant]("updated_at")
+  def deletedAt = column[Option[Instant]]("deleted_at")
+
   def index = foreignKey(SearchIndexes.tableName, indexId, SearchIndexes)(_.id)
 
-  def * = (id, name, analyzer, indexId) <> ((SearchField.apply _).tupled, SearchField.unapply)
+  def * =
+    (id, name, analyzer, indexId, createdAt, updatedAt, deletedAt) <> ((SearchField.apply _).tupled, SearchField.unapply)
 }
 
 object SearchFields
