@@ -8,6 +8,9 @@ import { autobind } from 'core-decorators';
 // funcs
 import { percentDifferenceFromAvg } from '../analytics';
 
+// funcs
+import { percentDifferenceFromAvg } from '../analytics';
+
 // components
 import {
   VictoryBar,
@@ -157,7 +160,7 @@ class ProductConversionChart extends React.Component {
       return _.round(parseFloat(deltaStr) * 100, 2);
     };
 
-    const deltaDisplay = (deltaStr) => {
+    const deltaDisplay = (deltaStr: number): number => {
       return _.round(parseFloat(deltaStr) * 100, 2);
     };
 
@@ -218,14 +221,14 @@ class ProductConversionChart extends React.Component {
         <VictoryAxis
           standalone={false}
           style={xAxisStyle}
-          orientation="bottom"
+          orientation='bottom'
           tickValues={dataTickValues} />
         <VictoryAxis
           dependentAxis
           standalone={false}
           style={yAxisStyle}
           tickCount={3}
-          orientation="left" />
+          orientation='left' />
         <VictoryBar
           labelComponent={
             <ProductConversionToolTip

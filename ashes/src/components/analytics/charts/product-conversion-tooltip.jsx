@@ -130,7 +130,7 @@ export default class ProductConversionToolTip extends React.Component {
       y: deltaToolTipCoordinates.y,
     };
 
-    const deltaToolTip = (deltaValue > 0) ?
+    const deltaToolTip = !_.isNil(deltaValue) ?
       (
         <g>
           <VictoryTooltip
