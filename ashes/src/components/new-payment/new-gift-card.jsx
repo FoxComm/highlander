@@ -9,10 +9,12 @@ import * as PaymentMethodActions from 'modules/carts/payment-methods';
 
 import DebitCredit from 'components/payment-row/debit-credit';
 import { Form, FormField } from 'components/forms';
+import Alert from '../alerts/alert';
 
 function mapStateToProps(state) {
   return {
     paymentMethods: state.carts.paymentMethods,
+    isSearchingGiftCards: _.get(state, 'asyncActions.orders/giftCards.inProgress', false),
   };
 }
 
@@ -30,9 +32,9 @@ export default class NewGiftCard extends Component {
   static propTypes = {
     order: PropTypes.object.isRequired,
     paymentMethods: PropTypes.shape({
-      isSearchingGiftCards: PropTypes.bool.isRequired,
       giftCards: PropTypes.array,
     }).isRequired,
+    isSearchingGiftCards: PropTypes.bool.isRequired,
     cancelAction: PropTypes.func.isRequired,
 
     actions: PropTypes.shape({
@@ -48,13 +50,23 @@ export default class NewGiftCard extends Component {
   };
 
   componentWillReceiveProps(nextProps) {
+    const { isSearchingGiftCards } = nextProps;
     const gcResults = _.get(nextProps, 'paymentMethods.giftCards', []);
     const gcCode = _.get(gcResults, [0, 'code'], '');
-    if (gcResults.length == 1 && _.startsWith(gcCode.toLowerCase(), this.codeValue.toLowerCase())) {
+
+    if (!isSearchingGiftCards &&
+      gcResults.length == 1 &&
+      _.startsWith(gcCode.toLowerCase(), this.codeValue.toLowerCase())) {
+
       this.setState({
         giftCard: gcResults[0],
         giftCardCode: gcCode,
         showGiftCardSummary: true,
+      });
+    } else {
+      this.setState({
+        giftCard: null,
+        showGiftCardSummary: false,
       });
     }
   }
@@ -81,6 +93,26 @@ export default class NewGiftCard extends Component {
       return giftCardCode.replace(/\s+/g, '');
     }
     return giftCardCode;
+  }
+
+  get codeIsValid() {
+    const { giftCardCode } = this.state;
+
+    // @todo validation for length & maybe mask
+    return !!giftCardCode;
+  }
+
+  get error() {
+    // @todo figure out why array but not just one
+    const { paymentMethods: { giftCards = [] }, isSearchingGiftCards } = this.props;
+    const giftCard = giftCards[0];
+    const { giftCardCode } = this.state;
+
+    if (!isSearchingGiftCards && this.codeIsValid && !giftCard) {
+      return <Alert type="warning">{`Gift Card ${giftCardCode} not found`}</Alert>;
+    }
+
+    return null;
   }
 
   @autobind
@@ -111,6 +143,7 @@ export default class NewGiftCard extends Component {
                    value={this.state.giftCardCode} />
           </FormField>
         </Form>
+        {this.error}
         {this.giftCardSummary}
       </div>
     );

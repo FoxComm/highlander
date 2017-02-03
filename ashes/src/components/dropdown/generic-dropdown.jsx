@@ -17,6 +17,7 @@ export type DropdownItemType = [ValueType, string|Element, bool];
 
 export type Props = {
   id?: string,
+  dropdownValueId?: string,
   name?: string,
   value: ValueType,
   className?: string,

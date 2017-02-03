@@ -1,7 +1,7 @@
 ---
 
-- name: Copy Consul Bin
-  copy: src=consul dest=/usr/local/bin/consul mode="u+x,g+x,o+x"
+- name: Download Consul
+  unarchive: src={{consul_download_url}} dest=/usr/local/bin mode="u+x,g+x,o+x" remote_src=yes
 
 - name: Create Config Directory
   file: path=/etc/consul.d state=directory
@@ -28,9 +28,6 @@
   file: path=/usr/local/share/consul state=directory
 
 - name: Copy Consul Web UI
-  copy: src=consul_0.6.4_web_ui.zip dest={{home}}/consul_0.6.4_web_ui.zip
-
-- name: Unzip Consul Web UI
-  unarchive: src="{{home}}/consul_0.6.4_web_ui.zip" dest="/usr/local/share/consul" copy=no
+  unarchive: src={{consul_web_ui_url}} dest=/usr/local/share/consul remote_src=yes
   args:
     creates: "/usr/local/share/consul/static"

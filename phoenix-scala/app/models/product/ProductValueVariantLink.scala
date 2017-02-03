@@ -40,11 +40,11 @@ object ProductValueVariantLinks
 
   def filterLeft(leftIds: Seq[Int]): QuerySeq = filter(_.leftId.inSet(leftIds))
 
-  def findProductVariantsForProductValues(
-      productValueHeadIds: Seq[Int]): Query[(Rep[Int], Rep[String]), (Int, String), Seq] = {
+  def optionValueToVariantIdMapping(
+      optionValueIds: Seq[Int]): Query[(Rep[Int], Rep[Int]), (Int, Int), Seq] = {
     for {
-      link    ← filterLeft(productValueHeadIds)
+      link    ← filterLeft(optionValueIds)
       variant ← ProductVariants if link.rightId === variant.id
-    } yield (link.leftId, variant.code)
+    } yield (link.leftId, variant.formId)
   }
 }

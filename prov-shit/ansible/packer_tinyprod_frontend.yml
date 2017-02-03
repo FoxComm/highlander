@@ -3,8 +3,6 @@
 - name: Provision Packer Tinyprod Frontend
   hosts: all
   become: true
-  tags:
-      - packer-tinyprod-frontend
   vars:
     user: ubuntu
     packing: true

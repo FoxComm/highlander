@@ -2,6 +2,7 @@
     "service": {
         "name": "kibana",
         "tags": ["kibana"],
+        "port": 5601,
         "checks": [
             {
                 "name": "HTTP API on port 5601",

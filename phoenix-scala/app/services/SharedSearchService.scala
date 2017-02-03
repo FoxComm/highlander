@@ -34,9 +34,10 @@ object SharedSearchService {
     } yield associates.map(UserResponse.build)
 
   def create(admin: User, payload: SharedSearchPayload)(implicit ec: EC,
-                                                        db: DB): DbResultT[SharedSearch] =
+                                                        db: DB,
+                                                        au: AU): DbResultT[SharedSearch] =
     for {
-      search ← * <~ SharedSearches.create(SharedSearch.byAdmin(admin, payload))
+      search ← * <~ SharedSearches.create(SharedSearch.byAdmin(admin, payload, Scope.current))
       _ ← * <~ SharedSearchAssociations.create(
              SharedSearchAssociation(sharedSearchId = search.id, storeAdminId = admin.accountId))
     } yield search

@@ -1,0 +1,14 @@
+---
+
+- name: Start Green River
+  include: app_greenriver.yml
+
+- name: Start Messaging
+  include: app_messaging.yml
+
+- name: Start Middlewarehouse Consumers
+  include: app_consumers.yml
+
+- name: Start Shipstation Consumer
+  include: app_shipstation.yml
+  when: with_shipstation

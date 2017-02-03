@@ -1,0 +1,7 @@
+---
+
+- name: Increase the VM limits system-wide
+  lineinfile: dest=/etc/sysctl.conf insertafter=EOF line='vm.max_map_count=262144'
+
+- name: Apply VM limits settings
+  command: sysctl -p

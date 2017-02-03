@@ -53,7 +53,7 @@ object ProductVariantManager {
     } yield response
   }
 
-  def get(
+  def getByFormId(
       variantId: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[ProductVariantResponse.Root] =
     for {
       variant    ← * <~ ProductVariantManager.mustFindFullByContextAndFormId(oc.id, variantId)

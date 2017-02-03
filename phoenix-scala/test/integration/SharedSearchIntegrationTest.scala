@@ -273,42 +273,50 @@ class SharedSearchIntegrationTest
                                      query = dummyJVal,
                                      rawQuery = dummyJVal,
                                      scope = CustomersScope,
-                                     storeAdminId = storeAdmin.accountId)
+                                     storeAdminId = storeAdmin.accountId,
+                                     accessScope = scope)
     val orderScope = SharedSearch(title = "Manual Hold",
                                   query = dummyJVal,
                                   rawQuery = dummyJVal,
                                   scope = OrdersScope,
-                                  storeAdminId = storeAdmin.accountId)
+                                  storeAdminId = storeAdmin.accountId,
+                                  accessScope = scope)
     val storeAdminScope = SharedSearch(title = "Some Store Admin",
                                        query = dummyJVal,
                                        rawQuery = dummyJVal,
                                        scope = StoreAdminsScope,
-                                       storeAdminId = storeAdmin.accountId)
+                                       storeAdminId = storeAdmin.accountId,
+                                       accessScope = scope)
     val giftCardScope = SharedSearch(title = "Some Gift Card",
                                      query = dummyJVal,
                                      rawQuery = dummyJVal,
                                      scope = GiftCardsScope,
-                                     storeAdminId = storeAdmin.accountId)
+                                     storeAdminId = storeAdmin.accountId,
+                                     accessScope = scope)
     val productScope = SharedSearch(title = "Some Product",
                                     query = dummyJVal,
                                     rawQuery = dummyJVal,
                                     scope = ProductsScope,
-                                    storeAdminId = storeAdmin.accountId)
+                                    storeAdminId = storeAdmin.accountId,
+                                    accessScope = scope)
     val inventoryScope = SharedSearch(title = "Some Inventory",
                                       query = dummyJVal,
                                       rawQuery = dummyJVal,
                                       scope = InventoryScope,
-                                      storeAdminId = storeAdmin.accountId)
+                                      storeAdminId = storeAdmin.accountId,
+                                      accessScope = scope)
     val promotionsScope = SharedSearch(title = "Some Promotions",
                                        query = dummyJVal,
                                        rawQuery = dummyJVal,
                                        scope = PromotionsScope,
-                                       storeAdminId = storeAdmin.accountId)
+                                       storeAdminId = storeAdmin.accountId,
+                                       accessScope = scope)
     val couponsScope = SharedSearch(title = "Some Coupons",
                                     query = dummyJVal,
                                     rawQuery = dummyJVal,
                                     scope = CouponsScope,
-                                    storeAdminId = storeAdmin.accountId)
+                                    storeAdminId = storeAdmin.accountId,
+                                    accessScope = scope)
 
     val (customersSearch,
          ordersSearch,
@@ -371,7 +379,8 @@ class SharedSearchIntegrationTest
                                query = dummyJVal,
                                rawQuery = dummyJVal,
                                scope = CustomersScope,
-                               storeAdminId = secondAdmin.id))
+                               storeAdminId = secondAdmin.id,
+                               accessScope = scope))
       _ ← * <~ SharedSearchAssociations.create(buildAssociation(search, secondAdmin))
     } yield search).gimme
   }
@@ -381,7 +390,8 @@ class SharedSearchIntegrationTest
                                      query = dummyJVal,
                                      rawQuery = dummyJVal,
                                      scope = CustomersScope,
-                                     storeAdminId = storeAdmin.accountId)
+                                     storeAdminId = storeAdmin.accountId,
+                                     accessScope = scope)
 
     val search = SharedSearches.create(customerScope).gimme
   }
