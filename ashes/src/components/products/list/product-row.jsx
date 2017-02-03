@@ -27,10 +27,8 @@ const ProductRow = (props: Props) => {
         return _.get(product, ['albums', 0, 'images', 0, 'src']);
       case 'state':
         return <StatePill object={product} />;
-      case 'skus':
-        return product.skus.length;
-      case 'createdAt':
-        return new Date().toISOString();
+      case 'variants':
+        return product.variants.length;
       case 'skuCode':
         return '—';
       case 'selectColumn':

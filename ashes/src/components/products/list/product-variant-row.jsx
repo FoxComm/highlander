@@ -20,14 +20,10 @@ type Props = {
 
 function setCellContents(productVariant, field) {
   switch (field) {
-    //case 'image':
-      //return _.get(productVariant, ['albums', 0, 'images', 0, 'src']);
     case 'state':
       return <StatePill object={productVariant} />;
-    case 'skus':
+    case 'variants':
       return '—';
-    case 'createdAt':
-      return new Date().toISOString();
     default:
       return _.get(productVariant, field);
   }

@@ -33,7 +33,7 @@ type Props = {
 const tableColumns: Array<Column> = [
   { field: 'image', text: 'Image', type: 'image' },
   { field: 'title', text: 'Name' },
-  { field: 'skus', text: 'Variants' },
+  { field: 'variants', text: 'Variants' },
   { field: 'skuCode', text: 'SKU'},
   { field: 'createdAt', text: 'Date/Time created', type: 'datetime'},
   { field: 'retailPrice', text: 'Price', type: 'currency', currencyField: 'retailPriceCurrency'},
