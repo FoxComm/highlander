@@ -11,11 +11,12 @@ import org.scalactic.TolerantNumerics
 import payloads.CouponPayloads.CreateCoupon
 import payloads.DiscountPayloads.CreateDiscount
 import payloads.LineItemPayloads.UpdateLineItemsPayload
-import payloads.OrderPayloads.CreateCart
+import payloads.CartPayloads.CreateCart
 import payloads.PromotionPayloads._
 import responses.CouponResponses.CouponResponse
 import responses.PromotionResponses.PromotionResponse
 import responses.cord.CartResponse
+import services.objects.ObjectManager
 import services.promotion.PromotionManager
 import testutils.PayloadHelpers.tv
 import testutils._
@@ -80,7 +81,7 @@ class PromotionsIntegrationTest
   "promotion with 'coupon' apply type should be active on" - {
 
     "creation" in new StoreAdmin_Seed with Promotion_Seed {
-      ObjectUtils
+      ObjectManager
         .getFullObject(DbResultT.pure(promotion))
         .gimme
         .getAttribute("activeFrom") must !==(JNothing)
@@ -88,7 +89,7 @@ class PromotionsIntegrationTest
 
     "updating" in new AutoApplyPromotionSeed {
 
-      var fullPromotion = ObjectUtils.getFullObject(DbResultT.pure(promotion)).gimme
+      var fullPromotion = ObjectManager.getFullObject(DbResultT.pure(promotion)).gimme
       fullPromotion.getAttribute("activeFrom") must === (JNothing)
 
       val attributes: List[(String, JValue)] =
@@ -103,7 +104,7 @@ class PromotionsIntegrationTest
         .gimme
 
       fullPromotion =
-        ObjectUtils.getFullObject(Promotions.mustFindById400(fullPromotion.model.id)).gimme
+        ObjectManager.getFullObject(Promotions.mustFindById400(fullPromotion.model.id)).gimme
       fullPromotion.getAttribute("activeFrom") must !==(JNothing)
     }
   }

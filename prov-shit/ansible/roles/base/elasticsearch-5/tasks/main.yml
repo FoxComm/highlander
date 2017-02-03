@@ -1,10 +1,10 @@
 ---
 
-- name: Get ElasticSearch 5.0
-  get_url: url=https://artifacts.elastic.co/downloads/elasticsearch/{{es_zip}} dest={{home}}/{{es_zip}}
+- name: Get Elasticsearch 5.x
+  get_url: url={{es5_download_url}} dest={{home}}/{{es5_zip}}
 
 - name: Unzip ElasticSearch
-  unarchive: src={{home}}/{{es_zip}} dest={{usr_local}} copy=no
+  unarchive: src={{home}}/{{es5_zip}} dest={{usr_local}} copy=no
 
 - name: Copy Run Script
   template: src=run_elasticsearch.sh dest={{usr_local}}/run_elasticsearch_5.sh mode="u=rwx,g=rwx,o=rx"
@@ -19,13 +19,13 @@
   user: name=elasticsearch groups=admin
 
 - name: Change Permissions on Package
-  file: path={{es_path}}/config/{{item}} mode="u=rwx,g=rwx,o=rx" state=file
+  file: path={{es5_path}}/config/{{item}} mode="u=rwx,g=rwx,o=rx" state=file
   with_items:
     - jvm.options
     - log4j2.properties
 
 - name: Create Elasticsearch subdirectories
-  file: path={{es_path}}/{{item}} owner=elasticsearch state=directory mode="u=rwx,g=rwx,o=r"
+  file: path={{es5_path}}/{{item}} owner=elasticsearch state=directory mode="u=rwx,g=rwx,o=r"
   with_items:
     - data
     - logs
@@ -33,10 +33,10 @@
     - config/scripts
 
 - name: Copy Elasticsearch Config
-  template: src=elasticsearch.yml dest={{es_path}}/config owner=elasticsearch mode="u=rwx,g=rwx,o=r"
+  template: src=elasticsearch.yml dest={{es5_path}}/config owner=elasticsearch mode="u=rwx,g=rwx,o=r"
 
 - name: Set the maximum number of open files
-  lineinfile: dest=/etc/security/limits.conf insertbefore='^# End of file' line='elasticsearch - nofile {{es_max_file_descriptors}}'
+  lineinfile: dest=/etc/security/limits.conf insertbefore='^# End of file' line='elasticsearch - nofile {{es5_max_file_descriptors}}'
 
 - name: Set Max Virtual Memory Areas
   command: sysctl -w vm.max_map_count=262145
@@ -49,3 +49,6 @@
 
 - name: Copy Consul Service File
   template: src=elastic.json dest="/etc/consul.d/elastic_5.json"
+
+- name: Add Logrotate Config for Elasticsearch 5.x
+  template: src=elasticsearch-5.j2 dest="{{logrotate_dir}}/elasticsearch-5" mode=0644

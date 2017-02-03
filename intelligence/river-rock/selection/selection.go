@@ -4,10 +4,11 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
-	_ "github.com/lib/pq"
-	"github.com/orcaman/concurrent-map"
 	"math/rand"
 	"strconv"
+
+	_ "github.com/lib/pq"
+	"github.com/orcaman/concurrent-map"
 )
 
 const (
@@ -54,6 +55,10 @@ func (s *Selector) selectResourceFromArray(clusterId int, mappedResources []inte
 }
 
 func (s *Selector) SelectResource(clusterId int, encodedMappedResources string) (string, error) {
+	if encodedMappedResources == "" {
+		return "", nil
+	}
+
 	var mappedResources interface{}
 	refBytes := []byte(encodedMappedResources)
 	if err := json.Unmarshal(refBytes, &mappedResources); err != nil {
@@ -80,6 +85,9 @@ func (s *Selector) getMappedResourcesRaw(clusterId int, res string) (string, err
 
 	row := stmt.QueryRow(clusterId, res)
 	if err := row.Scan(&mappedResources); err != nil {
+		if err == sql.ErrNoRows {
+			return "", nil
+		}
 		return mappedResources, err
 	}
 
@@ -96,6 +104,9 @@ func (s *Selector) getFallbackCluster(clusterId int) (int, error) {
 
 	row := stmt.QueryRow(clusterId)
 	if err := row.Scan(&fallbackClusterId); err != nil {
+		if err == sql.ErrNoRows {
+			return clusterId, nil
+		}
 		return clusterId, err
 	}
 
@@ -108,12 +119,15 @@ func (s *Selector) GetMappedResources(clusterId int, res string) (string, error)
 	}
 
 	mappedResources, err := s.getMappedResourcesRaw(clusterId, res)
-	if err != nil {
+	if err != nil || mappedResources == "" {
 		fallbackClusterId, err := s.getFallbackCluster(clusterId)
 		if err != nil {
 			return mappedResources, err
 		}
 
+		if fallbackClusterId == clusterId {
+			return mappedResources, nil
+		}
 		return s.getMappedResourcesRaw(fallbackClusterId, res)
 	}
 

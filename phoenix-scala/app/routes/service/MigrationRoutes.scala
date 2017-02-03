@@ -1,6 +1,7 @@
 package routes.service
 
 import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.Route
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import payloads.CustomerPayloads._
 import services.account.AccountCreateContext
@@ -10,7 +11,7 @@ import utils.aliases._
 import utils.http.Http._
 
 object MigrationRoutes {
-  def routes(customerCreateContext: AccountCreateContext)(implicit ec: EC, db: DB, es: ES) = {
+  def routes(customerCreateContext: AccountCreateContext)(implicit ec: EC, db: DB, es: ES): Route = {
 
     activityContext() { implicit ac ⇒
       pathPrefix("migration") {

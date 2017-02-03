@@ -2,8 +2,8 @@ include ../makelib
 header = $(call baseheader, $(1), ashes)
 
 DOCKER_REPO ?= $(DOCKER_STAGE_REPO)
-DOCKER_TAG ?= ashes
-DOCKER_BRANCH ?= master
+DOCKER_IMAGE ?= ashes
+DOCKER_TAG ?= master
 
 default: test
 NODE_ENV = test
@@ -52,22 +52,22 @@ prod p:
 	test -f .env && export eval `cat .env` || true && NODE_ENV=production node boot.js
 
 build-dev: setup
-	./node_modules/.bin/flow check
+	#./node_modules/.bin/flow check
 	test -f .env && export eval `cat .env` || true && ON_SERVER=true ./node_modules/.bin/gulp build
 
 build: rev
 	$(call header, Building)
 	make setup
-	./node_modules/.bin/flow check
+	#./node_modules/.bin/flow check
 	test -f .env && export eval `cat .env` || true && NODE_ENV=production ON_SERVER=true ./node_modules/.bin/gulp build
 
 docker:
 	$(call header, Dockerizing)
-	docker build -t $(DOCKER_TAG) .
+	docker build -t $(DOCKER_IMAGE) .
 
 docker-push:
 	$(call header, Registering)
-	docker tag $(DOCKER_TAG) $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
-	docker push $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
+	docker tag $(DOCKER_IMAGE) $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
+	docker push $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
 
 .PHONY: hooks rev dev d prod p build test test-cov tag docker docker-push

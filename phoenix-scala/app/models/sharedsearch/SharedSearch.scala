@@ -2,6 +2,7 @@ package models.sharedsearch
 
 import java.time.Instant
 
+import com.github.tminglei.slickpg.LTree
 import com.pellucid.sealerate
 import models.account._
 import models.sharedsearch.SharedSearch._
@@ -16,6 +17,7 @@ import utils.{ADT, JsonFormatters}
 
 case class SharedSearch(id: Int = 0,
                         code: String = "",
+                        accessScope: LTree,
                         title: String,
                         query: Json,
                         rawQuery: Json,
@@ -46,13 +48,14 @@ object SharedSearch {
 
   val sharedSearchRegex = """([a-z0-9]*)""".r
 
-  def byAdmin(admin: User, payload: SharedSearchPayload): SharedSearch =
+  def byAdmin(admin: User, payload: SharedSearchPayload, scope: LTree): SharedSearch =
     SharedSearch(
         title = payload.title,
         query = payload.query,
         rawQuery = payload.rawQuery,
         storeAdminId = admin.accountId,
-        scope = payload.scope
+        scope = payload.scope,
+        accessScope = scope
     )
 
   implicit val scopeColumnType: JdbcType[Scope] with BaseTypedType[Scope] = Scope.slickColumn
@@ -61,6 +64,7 @@ object SharedSearch {
 class SharedSearches(tag: Tag) extends FoxTable[SharedSearch](tag, "shared_searches") {
   def id           = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def code         = column[String]("code")
+  def accessScope  = column[LTree]("access_scope")
   def title        = column[String]("title")
   def query        = column[Json]("query")
   def rawQuery     = column[Json]("raw_query")
@@ -71,7 +75,17 @@ class SharedSearches(tag: Tag) extends FoxTable[SharedSearch](tag, "shared_searc
   def deletedAt    = column[Option[Instant]]("deleted_at")
 
   def * =
-    (id, code, title, query, rawQuery, scope, storeAdminId, isSystem, createdAt, deletedAt) <> ((SharedSearch.apply _).tupled, SharedSearch.unapply)
+    (id,
+     code,
+     accessScope,
+     title,
+     query,
+     rawQuery,
+     scope,
+     storeAdminId,
+     isSystem,
+     createdAt,
+     deletedAt) <> ((SharedSearch.apply _).tupled, SharedSearch.unapply)
 }
 
 object SharedSearches

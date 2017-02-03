@@ -22,8 +22,8 @@ grammar Hal
 {
     rule TOP {<path> '?' <arg>+}
     rule path { '/' \w+ <path>?}
-    token identifier {\w+}
-    rule arg { <key=identifier> '=' <value=identifier> '&'?} 
+    token identifier {(\w || '-')+}
+    rule arg { <key=identifier> '=' <value=identifier>? '&'?} 
 };
 
 class HalArgs
@@ -33,23 +33,22 @@ class HalArgs
     method TOP ($/) { $/.make: Map.new($<arg>».made)}
 };
 
-sub MAIN ($kafka-host, $henhouse-host) 
+sub MAIN ($kafka-host, $kafka-topic, $henhouse-host) 
 {
     my $config = PKafka::Config.new("group.id"=> "hal-test-1");
-    my $rsyslog = PKafka::Consumer.new( topic=>"nginx", brokers=>$kafka-host, config=>$config);
+    my $log = PKafka::Consumer.new( topic=>$kafka-topic, brokers=>$kafka-host, config=>$config);
 
     my $henhouse = IO::Socket::INET.new(:host($henhouse-host), :port<2003>);
 
-    $rsyslog.messages.tap(-> $msg 
+    $log.messages.tap(-> $msg 
     {
         given $msg 
         {
             when PKafka::Message
             {
                 my $r = Nginx.parse($msg.payload-str);
-                say "MSG: {$msg.payload-str}";
                 send-to-henhouse($r, $henhouse) if $r<cmd>;
-                $rsyslog.save-offset($msg);
+                $log.save-offset($msg);
             }
             when PKafka::EOF
             {
@@ -58,18 +57,19 @@ sub MAIN ($kafka-host, $henhouse-host)
             when PKafka::Error
             {
                 say "Error {$msg.what}";
-                $rsyslog.stop;
+                $log.stop;
             }
         }
     });
 
-    await $rsyslog.consume-from-last(partition=>0);
+    my $log-promise = $log.consume-from-last(partition=>0);
+
+    await $log-promise;
 }
 
-sub count($henhouse, Str $key)
+sub count($henhouse, Int $count, Str $key)
 {
-    my $count = 1;
-    my $stat = "{$key} {$count} {DateTime.now.posix}";
+    my $stat = "$key $count {DateTime.now.posix}";
     say "HEN: $stat";
 
     #send to henhouse
@@ -80,29 +80,33 @@ sub track($henhouse, $path)
 {
     my %args = Hal.parse($path, actions=>HalArgs).made;
     return if not %args<ch>:exists;
+    return if not %args<sub>:exists;
+    return if not %args<v>:exists;
+    return if not %args<ob>:exists;
+    return if not %args<id>:exists;
 
     my $channel = %args<ch>;
     my $subject = %args<sub>;
     my $verb = %args<v>;
     my $object = %args<ob>;
     my $object-id = %args<id>;
-    my $cluster = 1; #TODO, get these from tracking url
-    my $context = 1; #TODO, get these from tracking url
+    my $count = %args<c>:exists ?? val(%args<c>) !! 1;
 
-    count($henhouse, "track.$channel.$cluster.$context.$object.$object-id.$verb.$subject");
-    count($henhouse, "track.$channel.$cluster.$context.$object.$object-id.$verb");
-    count($henhouse, "track.$channel.$cluster.$context.$object.$verb");
-    count($henhouse, "track.$channel.$cluster.$object.$object-id.$verb.$subject");
-    count($henhouse, "track.$channel.$cluster.$object.$object-id.$verb");
-    count($henhouse, "track.$channel.$cluster.$object.$verb");
-    count($henhouse, "track.$channel.$object.$object-id.$verb.$subject");
-    count($henhouse, "track.$channel.$object.$object-id.$verb");
-    count($henhouse, "track.$channel.$object.$verb");
-    count($henhouse, "track.$object.$object-id.$verb.$subject");
-    count($henhouse, "track.$object.$object-id.$verb");
-    count($henhouse, "track.$object.$verb");
-    count($henhouse, "track.$verb.$subject");
-    count($henhouse, "track.$verb");
+    return if $count.WHAT === Str;
+
+    my $cluster = 1; #TODO, get these from tracking url
+
+    count($henhouse, $count, "track.$channel.$cluster.$object.$object-id.$verb.$subject");
+    count($henhouse, $count, "track.$channel.$cluster.$object.$object-id.$verb");
+    count($henhouse, $count, "track.$channel.$cluster.$object.$verb");
+    count($henhouse, $count, "track.$channel.$object.$object-id.$verb.$subject");
+    count($henhouse, $count, "track.$channel.$object.$object-id.$verb");
+    count($henhouse, $count, "track.$channel.$object.$verb");
+    count($henhouse, $count, "track.$object.$object-id.$verb.$subject");
+    count($henhouse, $count, "track.$object.$object-id.$verb");
+    count($henhouse, $count, "track.$object.$verb");
+    count($henhouse, $count, "track.$verb.$subject");
+    count($henhouse, $count, "track.$verb");
 }
 
 sub send-to-henhouse($r, $henhouse)
@@ -115,7 +119,7 @@ sub send-to-henhouse($r, $henhouse)
     } 
     else 
     {
-        count($henhouse, "$r<path>.$r<cmd>.$r<response>");
+        count($henhouse, 1, "$r<path>.$r<cmd>.$r<response>");
     }
 }
 

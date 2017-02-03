@@ -1,8 +1,12 @@
-FROM ubuntu:16.04
+FROM golang:alpine
 
-RUN mkdir -p /middlewarehouse
+RUN mkdir -p /middlewarehouse && \
+    touch /middlewarehouse/.env
+ADD . /go/src/github.com/FoxComm/highlander/middlewarehouse
+WORKDIR /go/src/github.com/FoxComm/highlander/middlewarehouse
+RUN go build -o common/db/seeds/seeder common/db/seeds/*.go && \
+    cp common/db/seeds/seeder /middlewarehouse && \
+    rm -rf /go
 WORKDIR /middlewarehouse
-COPY seeder /middlewarehouse
-RUN touch /middlewarehouse/.env
 
 CMD ["/middlewarehouse/seeder"]

@@ -13,7 +13,7 @@ function setCellContents(item: Object, field: string): any {
 type Props = {
   item: Object,
   columns: Array<any>,
-  params: any,
+  params?: any,
 };
 
 const DiscountRow = (props: Props): Element => {

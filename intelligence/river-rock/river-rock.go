@@ -3,13 +3,12 @@ package main
 import (
 	"errors"
 	"fmt"
+	"github.com/FoxComm/highlander/intelligence/river-rock/proxy"
+	_ "github.com/lib/pq"
 	"log"
 	"net"
 	"os"
 	"strconv"
-	//"net/http"
-	"github.com/FoxComm/highlander/intelligence/river-rock/proxy"
-	_ "github.com/lib/pq"
 )
 
 func lookupSrv(host string) (string, string, error) {
@@ -31,8 +30,6 @@ func lookupSrv(host string) (string, string, error) {
 }
 
 func loadConfig() (*proxy.ProxyConfig, error) {
-	var err error
-
 	dbName := os.Getenv("DB_NAME")
 	if dbName == "" {
 		return nil, errors.New("DB_NAME is not set")
@@ -66,11 +63,9 @@ func loadConfig() (*proxy.ProxyConfig, error) {
 	}
 
 	bernardoPort := os.Getenv("BERNARDO_PORT")
-	if bernardoPort == "" {
-		bernardoHost, bernardoPort, err = lookupSrv(bernardoHost)
-		if err != nil {
-			return nil, err
-		}
+	bernardoUrl := ""
+	if len(bernardoPort) > 0 {
+		bernardoUrl = "http://" + bernardoHost + ":" + bernardoPort + "/sfind"
 	}
 
 	log.Print("Bernardo host: " + bernardoHost)
@@ -81,13 +76,12 @@ func loadConfig() (*proxy.ProxyConfig, error) {
 		return nil, errors.New("PORT is not set")
 	}
 
-	bernardoUrl := "http://" + bernardoHost + ":" + bernardoPort
-
 	return &proxy.ProxyConfig{
-		DbConn:      conn,
-		UpstreamUrl: upstreamUrl,
-		Port:        port,
-		BernardoUrl: bernardoUrl,
+		DbConn:       conn,
+		UpstreamUrl:  upstreamUrl,
+		Port:         port,
+		BernardoHost: bernardoHost,
+		BernardoUrl:  bernardoUrl,
 	}, nil
 }
 

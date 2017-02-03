@@ -3,7 +3,6 @@ package services
 import (
 	"encoding/json"
 	"github.com/FoxComm/highlander/intelligence/eggcrate/src/responses"
-	"github.com/FoxComm/highlander/intelligence/eggcrate/src/util"
 	"net/http"
 
 	"github.com/labstack/echo"
@@ -26,7 +25,7 @@ func GetProductSum(step string) func(c echo.Context) error {
 
 func productSingleSum(id, step, from, to string) (string, error) {
 	steps := []string{step}
-	resp, err := util.ProductQuery(id, steps, from, to)
+	resp, err := ProductQuery(id, steps, from, to)
 	if err != nil {
 		return "", err
 	}

@@ -3,13 +3,20 @@ package services
 import (
 	"encoding/json"
 	"net/http"
-	"strings"
 
 	"github.com/FoxComm/highlander/intelligence/eggcrate/src/responses"
 	"github.com/FoxComm/highlander/intelligence/eggcrate/src/util"
 
 	"github.com/labstack/echo"
 )
+
+func ProductQuery(id string, verbs []string, a, b string) (responses.HenhouseResponse, error) {
+	var keys []string
+	for _, verb := range verbs {
+		keys = append(keys, "track_product_"+id+verb)
+	}
+	return util.HenhouseQuery("diff", keys, a, b, "")
+}
 
 func GetProductFunnel(c echo.Context) error {
 	id := c.Param("id")
@@ -25,8 +32,8 @@ func GetProductFunnel(c echo.Context) error {
 }
 
 func henhouseProductFunnel(id, a, b string) (string, error) {
-	steps := []string{"list", "pdp", "cart", "checkout"}
-	pf, qErr := util.ProductQuery(id, steps, a, b)
+	steps := []string{"list", "pdp", "cart", "checkout", "purchase-quantity"}
+	pf, qErr := ProductQuery(id, steps, a, b)
 	if qErr != nil {
 		return "", qErr
 	}
@@ -35,23 +42,23 @@ func henhouseProductFunnel(id, a, b string) (string, error) {
 }
 
 func buildResponse(pf responses.HenhouseResponse) string {
-	searchViews := getSum("list", pf)
-	pdpViews := getSum("pdp", pf)
-	cartClicks := getSum("cart", pf)
-	checkoutClicks := getSum("checkout", pf)
-	purchases := getSum("purchase", pf)
-	var searchToPdp, pdpToCart, cartToCheckout, checkoutPurchased float32
+	searchViews := responses.GetSum("list", pf)
+	pdpViews := responses.GetSum("pdp", pf)
+	cartClicks := responses.GetSum("cart", pf)
+	checkoutClicks := responses.GetSum("checkout", pf)
+	purchases := responses.GetSum("purchase-quantity", pf)
+	var searchToPdp, pdpToCart, cartToCheckout, checkoutPurchased float64
 	if searchToPdp = 0.0; searchViews > 0.0 {
-		searchToPdp = float32(pdpViews) / float32(searchViews)
+		searchToPdp = float64(pdpViews) / float64(searchViews)
 	}
 	if pdpToCart = 0.0; pdpViews > 0.0 {
-		pdpToCart = float32(cartClicks) / float32(pdpViews)
+		pdpToCart = float64(cartClicks) / float64(pdpViews)
 	}
 	if cartToCheckout = 0.0; cartClicks > 0.0 {
-		cartToCheckout = float32(checkoutClicks) / float32(cartClicks)
+		cartToCheckout = float64(checkoutClicks) / float64(cartClicks)
 	}
 	if checkoutPurchased = 0.0; checkoutClicks > 0.0 {
-		checkoutPurchased = float32(purchases) / float32(checkoutClicks)
+		checkoutPurchased = float64(purchases) / float64(checkoutClicks)
 	}
 
 	resp := responses.ProductFunnelResponse{
@@ -67,13 +74,4 @@ func buildResponse(pf responses.HenhouseResponse) string {
 	}
 	out, _ := json.Marshal(&resp)
 	return string(out)
-}
-
-func getSum(step string, pf responses.HenhouseResponse) int {
-	for i := range pf {
-		if strings.Contains(pf[i].Key, step) {
-			return pf[i].Stats.Sum
-		}
-	}
-	return 0
 }

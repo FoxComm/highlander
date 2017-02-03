@@ -86,7 +86,7 @@ export default class ObjectFormInner extends Component {
       return (
         <div className="fc-object-form__add-custom-property">
           Custom Property
-          <a id="add-customer-property-btn" className="fc-object-form__add-custom-property-icon"
+          <a id="add-custom-property-btn" className="fc-object-form__add-custom-property-icon"
              onClick={this.handleAddProperty}>
             <i className="icon-add" />
           </a>
@@ -203,9 +203,11 @@ export default class ObjectFormInner extends Component {
     const classForContainer = classNames('fc-object-form__field', {
       '_has-error': error != null,
     });
+    const nameVal = _.kebabCase(name);
     return (
       <div className={classForContainer}>
         <RichTextEditor
+          className={`fc-rich-text__name-${nameVal}`}
           label={options.label}
           value={value}
           onChange={onChange}

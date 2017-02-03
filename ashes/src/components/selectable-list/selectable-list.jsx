@@ -18,7 +18,7 @@ export type ItemType = {
 
 type Props = {
   className?: string,
-  visible?: boolean,
+  visible: boolean,
   items: Array<ItemType>,
   onSelect?: (itemIds: Array<number>, event: SyntheticEvent) => any,
   onBlur?: Function,

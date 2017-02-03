@@ -1,0 +1,58 @@
+{
+    "McShopFace" : {
+        "start" : "signup",
+        "states" : {
+            "homepage" : {
+                "signup" : {"p": 1.0}
+            },
+            "signup" : {
+                "category" : {"p": 1.0, "select": ["sunglasses", "eyeglasses"]}
+            },
+            "category" : { 
+                "product" : {"p": 0.5},
+                "category" : {"p": 0.5, "select": ["sunglasses", "eyeglasses"]}
+            },
+            "product" : {
+                "cart" : {"p": 0.5 },
+                "category" : {"p": 0.5 , "select": ["sunglasses", "eyeglasses"]}
+            },
+            "cart" : {
+                "purchase" : {"p": 0.5},
+                "category" : {"p": 0.5, "select": ["sunglasses", "eyeglasses"]},
+                "clear_cart" : {"p": 0.1}
+            },
+            "purchase": {
+                "category": {"p": 1.0, "select": ["sunglasses", "eyeglasses"]}
+            },
+            "clear_cart" : {
+                "category" : {"p": 1.0, "select": ["sunglasses", "eyeglasses"]}
+            }
+        }
+    },
+    "hoarder" : {
+        "start" : "signup",
+        "states" : {
+            "homepage" : {
+                "signup" : {"p": 1.0}
+            },
+            "signup" : {
+                "category" : {"p": 1.0, "select": ["sunglasses", "eyeglasses"]}
+            },
+            "category" : { 
+                "product" : {"p": 1.0}
+            },
+            "product" : {
+                "cart" : {"p": 1.0, "quantity": {"from": 1, "to": 2} }
+            },
+            "cart" : {
+                "purchase" : {"p": 1.0}
+            },
+            "purchase": {
+                "category": {"p": 1.0, "select": ["sunglasses", "eyeglasses"]}
+            },
+            "clear_cart" : {
+                "category" : {"p": 1.0, "select": ["sunglasses", "eyeglasses"]}
+            }
+        }
+    }
+}

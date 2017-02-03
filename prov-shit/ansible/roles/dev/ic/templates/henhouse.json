@@ -15,7 +15,7 @@
       }
     ],
     "docker": {
-      "image": "{{docker_registry}}:5000/henhouse:{{docker_branch}}",
+      "image": "{{docker_registry}}:5000/henhouse:{{docker_tags.henhouse}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],

@@ -99,6 +99,7 @@ export default class NewCreditCard extends Component {
       const isFetching = _.get(this.props, 'creditCards.isFetching', null);
       return (
         <TileSelector
+          addButtonId="payment-methods-create-credit-cart"
           isFetching={isFetching}
           items={this.creditCards}
           onAddClick={this.toggleCreditCardForm}

@@ -12,7 +12,6 @@
 
   roles:
     - { role: base/consul_server }
-    - { role: base/zookeeper }
     - { role: base/docker_registry }
     - { role: base/mesos_master }
     - { role: base/mesos_consul }
