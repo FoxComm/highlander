@@ -4,7 +4,10 @@ include .env.local
 header = $(call baseheader, $(1), root)
 
 prepare:
-	pip install -r prov-shit/requirements.txt
+	sudo pip install -r prov-shit/requirements.txt
+
+legacy: prepare
+	awk '{printf "export GOOGLE_INSTANCE_NAME=%s", $1}' .vagrant/machines/appliance/google/id >> .env.local
 
 dotenv:
 	cd prov-shit && ansible-playbook --inventory-file=bin/envs/dev ansible/goldrush_env_local.yml
@@ -23,4 +26,4 @@ destroy:
 update-app:
 	cd prov-shit && ansible-playbook -v -i bin/envs/dev ansible/goldrush_update_app.yml
 
-.PHONY: up destroy update-app dotenv prepare clean
+.PHONY: up legacy destroy update-app dotenv prepare clean
