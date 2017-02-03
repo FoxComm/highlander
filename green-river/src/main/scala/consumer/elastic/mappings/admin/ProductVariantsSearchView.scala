@@ -16,13 +16,13 @@ final case class ProductVariantsSearchView()(implicit ec: EC) extends AvroTransf
       field("title", StringType)
         .analyzer("autocomplete")
         .fields(field("raw", StringType).index("not_analyzed")),
+      field("image", StringType).index("not_analyzed"),
       field("salePrice", IntegerType),
       field("salePriceCurrency", StringType),
       field("retailPrice", IntegerType),
       field("retailPriceCurrency", StringType),
       field("archivedAt", DateType).format(dateFormat),
       field("createdAt", DateType).format(dateFormat),
-      field("albumId", IntegerType),
       field("externalId", StringType).index("not_analyzed"),
       field("middlewarehouseSkuId", IntegerType).index("not_analyzed")
   )

@@ -30,7 +30,18 @@ begin
     f.attributes->>(s.attributes->'activeFrom'->>'ref') as active_from,
     f.attributes->>(s.attributes->'activeTo'->>'ref') as active_to,
     f.attributes->>(s.attributes->'tags'->>'ref') as tags,
-    f.attributes->>(s.attributes->'retailPrice'->>'ref') as retail_price,
+
+    (select
+       pv_form.attributes->(pv_shadow.attributes->'retailPrice'->>'ref')->>'value'
+       from product_variants as pv
+         inner join product_to_variant_links as pv_link on (pv.id = pv_link.right_id)
+           inner join object_forms as pv_form on (pv_form.id = pv.form_id)
+             inner join object_shadows as pv_shadow on (pv_shadow.id = pv.shadow_id)
+       where pv_link.left_id = p.id
+       order by 1 -- which variant is first?
+       limit 1
+    ) as retail_price,
+
     link.skus as skus,
     albumLink.albums as albums,
     to_json_timestamp(new.archived_at) as archived_at,
