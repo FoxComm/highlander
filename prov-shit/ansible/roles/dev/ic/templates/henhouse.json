@@ -9,9 +9,13 @@
     "type": "DOCKER",
     "volumes": [
       {
-        "containerPath": "/hendata",
-        "hostPath": "/hendata",
-        "mode": "RW"
+        "containerPath": "hendata",
+        "mode": "RW",
+        "persistent" : {
+            "type":"root",
+            "size": 100,
+            "constraints": []
+        }
       }
     ],
     "docker": {
@@ -22,8 +26,9 @@
       "forcePullImage": true
     }
   },
+  "residency": { "taskLostBehavior": "WAIT_FOREVER" },
   "env": {
-    "DATA": "/hendata"
+    "DATA": "hendata"
   },
   "healthChecks": [
     {

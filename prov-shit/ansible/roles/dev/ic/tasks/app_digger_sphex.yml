@@ -1,0 +1,18 @@
+---
+
+- name: Copy Digger Sphex Marathon JSON
+  template: src=digger-sphex.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
+
+- name: Update Digger Sphex in Marathon
+  shell: 'curl -X PUT -d@/marathon/applications/digger-sphex.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/digger-sphex'
+
+- name: Restart Digger Sphex in Marathon
+  shell: 'curl -X POST http://{{marathon_server}}/v2/apps/digger-sphex/restart'
+
+- name: Get Digger Sphex Marathon tasks in `healthy` state
+  shell: curl -sS -XGET http://{{marathon_server}}/v2/apps/digger-sphex | jq '.app.tasksHealthy > 0'
+  register: healthy_tasks_available
+  until: healthy_tasks_available.stdout == 'true'
+  retries: 60
+  delay: 10
+  when: vagrant
