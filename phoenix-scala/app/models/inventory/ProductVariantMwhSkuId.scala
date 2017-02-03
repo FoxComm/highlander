@@ -45,6 +45,10 @@ object ProductVariantSkus
   def byVariantFormId(variantFormId: Int): QuerySeq =
     filter(_.variantFormId === variantFormId)
 
+  def mustFindByVariantFormId(variantFormId: Int)(implicit ec: EC): DbResultT[ProductVariantSku] =
+    byVariantFormId(variantFormId).mustFindOneOr(
+        NotFoundFailure400(s"SKU not found for variant with id=$variantFormId"))
+
   def mustFindSkuId(variantFormId: Int)(implicit ec: EC): DbResultT[Int] =
     byVariantFormId(variantFormId)
       .map(_.skuId)

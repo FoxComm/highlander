@@ -367,12 +367,15 @@ object ProductManager {
                                                        else Seq.empty)
               } yield newVariant
             }
-        albums   ← * <~ ImageManager.getAlbumsForVariantInner(up.form.id)
-        mwhSkuId ← * <~ ProductVariantSkus.mustFindSkuId(up.form.id)
-        options  ← * <~ ProductVariantManager.optionValuesForVariant(up.model)
+        albums     ← * <~ ImageManager.getAlbumsForVariantInner(up.form.id)
+        skuMapping ← * <~ ProductVariantSkus.mustFindByVariantFormId(up.form.id)
+        options    ← * <~ ProductVariantManager.optionValuesForVariant(up.model)
       } yield
-        ProductVariantResponse
-          .buildLite(IlluminatedVariant.illuminate(oc, up), albums, mwhSkuId, options)
+        ProductVariantResponse.buildLite(IlluminatedVariant.illuminate(oc, up),
+                                         albums,
+                                         skuMapping.skuId,
+                                         skuMapping.skuCode,
+                                         options)
     }
 
   private def findOrCreateOptionsForProduct(product: Product, payload: Seq[ProductOptionPayload])(
