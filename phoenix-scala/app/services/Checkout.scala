@@ -253,7 +253,7 @@ case class Checkout(
         case Some((pmt, card)) ⇒
           for {
             stripeCharge ← * <~ apis.stripe.authorizeAmount(card.gatewayCustomerId,
-                                                            card.gatewayCustomerId,
+                                                            card.gatewayCardId,
                                                             authAmount,
                                                             cart.currency)
             ourCharge = CreditCardCharge.authFromStripe(card, pmt, stripeCharge, cart.currency)
