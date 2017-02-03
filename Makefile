@@ -24,9 +24,9 @@ update-app:
 	cd prov-shit && ansible-playbook -v -i bin/envs/dev ansible/goldrush_update_app.yml
 
 # Legacy commands
-legacy: prepare
+migrate: prepare
 	@awk '{ printf "\nexport GOOGLE_INSTANCE_NAME=%s", $$1 }' .vagrant/machines/appliance/google/id >> .env.local
 
 provision: up
 
-.PHONY: up legacy provision destroy update-app dotenv prepare clean
+.PHONY: up migrate provision destroy update-app dotenv prepare clean
