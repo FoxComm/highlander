@@ -175,14 +175,12 @@ object ProductOptionManager {
       db: DB): DbResultT[Seq[FullObject[ProductOptionValue]]] =
     ProductOptionValueLinks.queryRightByLeft(productOption.model)
 
-  def getProductValueSkuCodes(
-      variantValueHeadIds: Seq[Int])(implicit ec: EC, db: DB): DbResultT[Map[Int, Seq[String]]] =
+  def mapOptionValuesToVariantIds(
+      optionValueIds: Seq[Int])(implicit ec: EC, db: DB): DbResultT[Map[Int, Seq[Int]]] =
     for {
-      links ← * <~ ProductValueVariantLinks
-               .findProductVariantsForProductValues(variantValueHeadIds)
-               .result
+      links ← * <~ ProductValueVariantLinks.optionValueToVariantIdMapping(optionValueIds).result
       linksMapping = links.groupBy { case (valueId, _) ⇒ valueId }.mapValues(_.map {
-        case (_, skuCode) ⇒ skuCode
+        case (_, variantId) ⇒ variantId
       })
     } yield linksMapping
 

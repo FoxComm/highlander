@@ -11,9 +11,9 @@ object ProductValueResponses {
     case class Root(id: Int,
                     name: String,
                     swatch: Option[String] = None,
-                    skuCodes: Option[Seq[String]])
+                    variantIds: Option[Seq[Int]])
 
-    def apply(value: FullObject[ProductOptionValue], skuCodes: Option[Seq[String]]): Root = {
+    def apply(value: FullObject[ProductOptionValue], variantIds: Option[Seq[Int]]): Root = {
       val model       = value.model
       val formAttrs   = value.form.attributes
       val shadowAttrs = value.shadow.attributes
@@ -21,13 +21,13 @@ object ProductValueResponses {
       val name   = IlluminateAlgorithm.get("name", formAttrs, shadowAttrs).extract[String]
       val swatch = IlluminateAlgorithm.get("swatch", formAttrs, shadowAttrs).extractOpt[String]
 
-      Root(id = model.formId, name = name, swatch = swatch, skuCodes = skuCodes)
+      Root(id = model.formId, name = name, swatch = swatch, variantIds = variantIds)
     }
 
-    def build(value: FullObject[ProductOptionValue], skuCodes: Seq[String]): Root =
-      apply(value, skuCodes = Some(skuCodes))
+    def build(value: FullObject[ProductOptionValue], variantIds: Seq[Int]): Root =
+      apply(value, variantIds = Some(variantIds))
 
     def buildPartial(value: FullObject[ProductOptionValue]): Root =
-      apply(value, skuCodes = None)
+      apply(value, variantIds = None)
   }
 }

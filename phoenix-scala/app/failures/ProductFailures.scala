@@ -52,7 +52,7 @@ object ProductFailures {
 
   object ProductValueNotFoundForContext {
     def apply(id: Int, contextId: Int) =
-      NotFoundFailure404(s"Product value value $id with context $contextId cannot be found")
+      NotFoundFailure404(s"Option value $id with context $contextId cannot be found")
   }
 
   object ProductNotFoundForContext {

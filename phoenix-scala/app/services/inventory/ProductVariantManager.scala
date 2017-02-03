@@ -52,7 +52,7 @@ object ProductVariantManager {
     } yield response
   }
 
-  def get(
+  def getByFormId(
       variantId: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[ProductVariantResponse.Root] =
     for {
       variant  ← * <~ ProductVariantManager.mustFindFullByContextAndFormId(oc.id, variantId)
@@ -62,22 +62,6 @@ object ProductVariantManager {
     } yield
       ProductVariantResponse
         .build(IlluminatedVariant.illuminate(oc, variant), albums, mwhSkuId, options)
-
-  def getBySkuCode(
-      code: String)(implicit ec: EC, db: DB, oc: OC): DbResultT[ProductVariantResponse.Root] =
-    for {
-      variant  ← * <~ ProductVariantManager.mustFindByContextAndCode(oc.id, code)
-      form     ← * <~ ObjectForms.mustFindById404(variant.formId)
-      shadow   ← * <~ ObjectShadows.mustFindById404(variant.shadowId)
-      albums   ← * <~ ImageManager.getAlbumsForVariantInner(form.id)
-      mwhSkuId ← * <~ ProductVariantMwhSkuIds.mustFindMwhSkuId(variant.formId)
-      options  ← * <~ optionValuesForVariant(variant)
-    } yield
-      ProductVariantResponse.build(
-          IlluminatedVariant.illuminate(oc, FullObject(variant, form, shadow)),
-          albums,
-          mwhSkuId,
-          options)
 
   def update(admin: User, variantId: Int, payload: ProductVariantPayload)(
       implicit ec: EC,

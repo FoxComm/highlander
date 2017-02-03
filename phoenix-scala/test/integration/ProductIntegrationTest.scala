@@ -56,8 +56,7 @@ class ProductIntegrationTest
         product.variants.onlyElement.attributes.code must === (variantCode)
         variantOption mustBe a[ProductOptionResponse.Partial]
         variantOption.values.onlyElement.name must === (singleOptionCfg.values.onlyElement)
-        product.options.onlyElement.values.onlyElement.skuCodes.value.onlyElement must === (
-            variantCode)
+        product.options.onlyElement.values.onlyElement.variantIds.value must have size 1
       }
 
       "an existing variant with options successfully" in {
@@ -83,13 +82,11 @@ class ProductIntegrationTest
           option      ← variant.options
           optionValue ← option.values
         } yield optionValue.name
-        variantOptionValues must === (product2PayloadBuilder.optionCfg.values)
+        variantOptionValues must contain theSameElementsAs product2PayloadBuilder.optionCfg.values
 
-        val variantCodes       = product2.variants.map(_.attributes.code)
-        val optionVariantCodes = product2OptionValues.flatMap(_.skuCodes.value)
-
-        variantCodes must contain theSameElementsAs product2PayloadBuilder.variantCodes
-        optionVariantCodes must contain theSameElementsAs product2PayloadBuilder.variantCodes
+        val optionValueVariantIds = product2OptionValues.flatMap(_.variantIds.value)
+        optionValueVariantIds must contain theSameElementsAs product2.variants.map(_.id)
+        optionValueVariantIds.length must === (product2PayloadBuilder.variantCodes.length)
       }
 
       "empty productOption successfully" in {
@@ -99,7 +96,8 @@ class ProductIntegrationTest
                                          optionVariantCfg = NoneVariantsCfg).createProductPayload
 
         val product = productsApi.create(createPayload).as[Root]
-        product.options.onlyElement.values.onlyElement.skuCodes.value mustBe empty
+        // FIXME: Some(empty sequence) is just a terrible API design
+        product.options.onlyElement.values.onlyElement.variantIds.value mustBe empty
         product.variants mustBe empty
       }
     }
