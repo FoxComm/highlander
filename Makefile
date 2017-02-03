@@ -25,12 +25,16 @@ provision:
 	$(call header, Provisioning GCE Machine)
 	export eval `cat ./.env.local`; vagrant provision appliance
 
-destroy:
+destroy: clean
 	$(call header, Destroying GCE Machine)
 	export eval `cat ./.env.local`; vagrant destroy appliance --force
+
+clean:
+	@rm -rf goldrush.log
+	@rm -rf goldrush.state
 
 ssh:
 	$(call header, Connecting to GCE Machine)
 	export eval `cat ./.env.local`; vagrant ssh appliance
 
-.PHONY: status prepare dotenv up provision destroy ssh update-app
+.PHONY: clean status prepare dotenv up provision destroy ssh update-app

@@ -1,8 +1,0 @@
-es_version: elasticsearch-5.1.2
-es_zip: "{{es_version}}.zip"
-es_base_url: https://artifacts.elastic.co/downloads/elasticsearch
-es_download_url: "{{es_base_url}}/{{es_zip}}"
-es_home: /usr/local
-es_path: "{{es_home}}/{{es_version}}"
-es5_jmx_port: 29111
-es_max_file_descriptors: 65536

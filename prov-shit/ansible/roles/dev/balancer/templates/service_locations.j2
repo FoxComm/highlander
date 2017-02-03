@@ -13,7 +13,7 @@ error_page 502 @502;
 error_page 503 @503;
 error_page 504 @504;
 
-# Use Isaac to auth by passing headers but not body to isaac. 
+# Use Isaac to auth by passing headers but not body to isaac.
 # Isaac will look for the JWT header and return 200 if it is valid, otherwise
 # 4xx errors.
 location = /internal-auth {
@@ -278,12 +278,20 @@ location /sse/ {
     proxy_cache off;
 }
 
-# Proxy to marathon 
-location /fc-admin/marathon/ {
-    auth_request /internal-auth;
-    default_type 'application/json';
-    proxy_pass http://marathon//;
+# Proxy to dashboard and other web UIs
+{% if is_appliance %}
+location /private/dashboard/ {
+    proxy_pass http://dashboard/;
 }
+
+location /private/marathon/ {
+    proxy_pass http://marathon/;
+}
+
+location /private/pgweb/ {
+    proxy_pass http://pgweb/;
+}
+{% endif %}
 
 # Error pages
 location @500 {
