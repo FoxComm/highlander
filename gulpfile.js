@@ -10,7 +10,6 @@ const opts = require('./config/gulp');
 const rev = require('gulp-rev');
 const revdel = require('gulp-rev-delete-original');
 const del = require('del');
-const cleanCSS = require('gulp-clean-css');
 
 let exitStatus = 0;
 
@@ -23,17 +22,23 @@ for (const task of fs.readdirSync('./tasks')) {
 }
 
 gulp.task('build', function(cb) {
-  runSequence('templates', 'browserify', 'css', 'images', 'fonts', cb);
+  const buildTasks = ['templates', 'browserify', 'css', 'images', 'fonts'];
+  let tasks = buildTasks;
+
+  if (process.env.NODE_ENV === 'production') {
+    tasks = [
+      'build:clean',
+      ...buildTasks,
+      'css-min',
+      'rev',
+    ];
+  }
+
+  runSequence.apply(this, tasks.concat(cb));
 });
 
 gulp.task('build:clean', function() {
-  return del(['build', 'public']);
-});
-
-gulp.task('css-min', function () {
-  return gulp.src('public/app.css')
-    .pipe(cleanCSS({ restructuring: false }))
-    .pipe(gulp.dest('public'));
+  return del(['build', 'public/{*.js,*.css,fonts,images}']);
 });
 
 gulp.task('rev', function () {
@@ -44,17 +49,6 @@ gulp.task('rev', function () {
     .pipe(gulp.dest('public'))
     .pipe(rev.manifest())
     .pipe(gulp.dest('build'));
-});
-
-gulp.task('release', function(cb) {
-  const tasks = [
-    'build:clean',
-    'build',
-    'css-min',
-    'rev',
-  ];
-
-  runSequence.apply(this, tasks.concat(cb));
 });
 
 gulp.task('dev', function(cb) {
