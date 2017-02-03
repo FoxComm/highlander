@@ -8,9 +8,6 @@
   args:
     creates: "/usr/local/bin/consul-template"
 
-- name: Install 1x1 GIF Image
-  copy: src=1x1.gif dest=/var/www/
-
 - name: Install Consul Template Service
   template: src=consul_template.service dest="{{dest_services}}/consul_template.service"
 
