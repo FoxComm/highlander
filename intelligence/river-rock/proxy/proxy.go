@@ -13,14 +13,16 @@ import (
 	//"net/http"
 	"github.com/FoxComm/highlander/intelligence/river-rock/clustering"
 	"github.com/FoxComm/highlander/intelligence/river-rock/selection"
+	"github.com/FoxComm/highlander/intelligence/river-rock/utils"
 	_ "github.com/lib/pq"
 )
 
 type ProxyConfig struct {
-	DbConn      string
-	UpstreamUrl string
-	Port        string
-	BernardoUrl string
+	DbConn       string
+	UpstreamUrl  string
+	Port         string
+	BernardoHost string
+	BernardoUrl  string
 }
 
 type RiverRock struct {
@@ -57,12 +59,32 @@ func getClusterIdFromHeader(req *http.Request) (int, error) {
 	return -1, nil
 }
 
+func getBernardoUrl(c *ProxyConfig) (string, error) {
+	//lookup bernardo host and port using SRV records
+	if len(c.BernardoUrl) == 0 {
+		bernardoHost, bernardoPort, err := utils.LookupHostAndPort(c.BernardoHost)
+		if err != nil {
+			return "", err
+		}
+		return "http://" + bernardoHost + ":" + bernardoPort + "/sfind", nil
+	}
+	return c.BernardoUrl, nil
+}
+
+func selectResource(selector *selection.Selector, clusterId int, originalPath string, mappedResources string) (bool, string, error) {
+	mappedPath, err := selector.SelectResource(clusterId, mappedResources)
+	if err != nil {
+		return false, originalPath, err
+	} else if len(mappedPath) == 0 {
+		return false, originalPath, nil
+	}
+	return true, mappedPath, nil
+}
+
 func (p *RiverRock) StartProxy() error {
 
 	//Turn of SSL verification since we hit the balancer via internal endpoint
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
-
-	bernardoUrl := p.Config.BernardoUrl + "/sfind"
 
 	selector := selection.NewSelector(p.Db)
 
@@ -77,7 +99,7 @@ func (p *RiverRock) StartProxy() error {
 		res := c.Response()
 
 		//strip out /proxy
-		path := req.URL.Path[6:]
+		originalPath := req.URL.Path[6:]
 		reqUri := req.RequestURI[6:]
 
 		//Get pinned cluster Id from header
@@ -87,7 +109,10 @@ func (p *RiverRock) StartProxy() error {
 
 		//If no clusterId is pinned, then map the request to a cluster using bernardo.
 		if clusterId == -1 || err != nil {
-			clusterId, err = clustering.MapRequestToCluster(req, bernardoUrl)
+			bernardoUrl, err := getBernardoUrl(p.Config)
+			if err == nil {
+				clusterId, err = clustering.MapRequestToCluster(req, bernardoUrl)
+			}
 		}
 
 		//If we have a cluster id, get the set of mapped resources
@@ -108,22 +133,22 @@ func (p *RiverRock) StartProxy() error {
 		//to the client.
 
 		if err != nil {
-			req.URL.Path = path
-			req.RequestURI = req.URL.RequestURI()
-			proxy.ServeHTTP(res, req)
+			log.Printf("CLUSTER ERROR: %v : %v", req.URL.RequestURI(), err)
+			req.URL.Path = originalPath
+		} else if clusterId == -1 {
+			req.URL.Path = originalPath
 		} else {
-			ref, err := selector.SelectResource(clusterId, mappedResources)
+			mapped, mappedPath, err := selectResource(selector, clusterId, originalPath, mappedResources)
 			if err != nil {
-				log.Print(err)
-				req.URL.Path = path
-			} else {
-				req.URL.Path = ref
+				log.Printf("SELECT ERROR: %v : %v", req.URL.RequestURI(), err)
+			} else if mapped {
+				log.Print("MAP: " + reqUri + " => " + p.Config.UpstreamUrl + mappedPath)
 			}
-
-			log.Print("MAP: " + reqUri + " => " + p.Config.UpstreamUrl + ref)
-			req.RequestURI = req.URL.RequestURI()
-			proxy.ServeHTTP(res, req)
+			req.URL.Path = mappedPath
 		}
+
+		req.RequestURI = req.URL.RequestURI()
+		proxy.ServeHTTP(res, req)
 
 		return nil
 	})
