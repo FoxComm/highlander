@@ -12,11 +12,7 @@ import scala.language.postfixOps
 import scala.util.Random
 
 // test scenarios for https://github.com/FoxComm/highlander/pull/732
-class EvilGuestSimulationLocally extends Scenarios {
-  setup("http://localhost:9090") // todo get from config?
-}
-
-trait Scenarios extends Simulation {
+class EvilGuestSimulationLocally extends Simulation {
   implicit val formats = JsonFormatters.phoenixFormats
   val connection       = http.contentTypeHeader("application/json;charset=UTF-8").disableFollowRedirect
 
@@ -56,4 +52,6 @@ trait Scenarios extends Simulation {
     val conn = connection.baseURL(url)
     setUp(scn.inject(atOnceUsers(1))).protocols(conn)
   }
+
+  setup("http://localhost:9090") // todo get from config?
 }
