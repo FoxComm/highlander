@@ -10,12 +10,12 @@ import styles from './question-box.css';
 
 // types
 export type Props = {
-  id?: number,
+  id: string,
   title: string,
   content: any,
   footer: any,
   isActive?: boolean,
-  onClick?: ?Function,
+  onClick: Function,
 }
 
 class QuestionBox extends React.Component {
@@ -24,14 +24,14 @@ class QuestionBox extends React.Component {
 
   static defaultProps = {
     isActive: false,
-    onClick: null,
+    onClick: _.noop,
   };
 
   @autobind
   onClickHandler() {
     const { onClick, isActive } = this.props;
 
-    if (!_.isNull(onClick) && !isActive) {
+    if (!_.isNil(onClick) && !isActive) {
       return onClick(this.props);
     }
 
