@@ -124,6 +124,16 @@
     }
   }
 
+  tbody:last-child, .fc-table-body:last-child {
+    tr, .fc-table-tr {
+      &:last-child {
+        td, .fc-table-td {
+          border-bottom: none;
+        }
+      }
+    }
+  }
+
   tbody, .fc-table-body {
     display: table-row-group;
 
@@ -132,12 +142,6 @@
       width: 100%;
 
       transition: background-color 500ms;
-
-      &:last-child {
-        td, .fc-table-td {
-          border-bottom: none;
-        }
-      }
 
       &:nth-child(odd),
       &.odd {

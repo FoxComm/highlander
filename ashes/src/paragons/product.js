@@ -34,7 +34,6 @@ export type Option = {
 // exported types
 export type Product = ObjectView & {
   id?: number,
-  productId: ?number,
   variants: Array<ProductVariant>,
   options: Array<Option>,
 };
@@ -57,7 +56,6 @@ function isMerchant(): boolean {
 
 export function createEmptyProduct(): Product {
   let product = {
-    productId: null,
     attributes: {
       title: t.string(''),
     },
