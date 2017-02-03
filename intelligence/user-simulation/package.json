@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "api-js": "git+ssh://git@github.com/FoxComm/api-js.git#feature/ic-develop",
+    "crypto-js": "^3.1.9-1",
     "faker": "^3.1.0",
     "lodash": "^4.17.4",
     "nightmare": "2.7.0",
