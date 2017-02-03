@@ -252,8 +252,10 @@ case class Checkout(
       } yield (pmt, card)).one.dbresult.flatMap {
         case Some((pmt, card)) ⇒
           for {
-            stripeCharge ← * <~ apis.stripe
-                            .authorizeAmount(card.gatewayCustomerId, authAmount, cart.currency)
+            stripeCharge ← * <~ apis.stripe.authorizeAmount(card.gatewayCustomerId,
+                                                            card.gatewayCustomerId,
+                                                            authAmount,
+                                                            cart.currency)
             ourCharge = CreditCardCharge.authFromStripe(card, pmt, stripeCharge, cart.currency)
             _       ← * <~ LogActivity.creditCardAuth(cart, ourCharge)
             created ← * <~ CreditCardCharges.create(ourCharge)
