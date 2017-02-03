@@ -2,6 +2,7 @@ package testutils.apis
 
 import akka.http.scaladsl.model.HttpResponse
 import models.objects.ObjectForm
+import models.payment.PaymentMethod
 import payloads.ActivityTrailPayloads._
 import payloads.AddressPayloads._
 import payloads.AssignmentPayloads._
@@ -241,39 +242,14 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
       }
     }
 
-    object paymentMethods { paymentMethods ⇒
+    object paymentMethods {
       val requestPath = s"${returns.requestPath}/payment-methods"
 
-      // TODO add paymentMethodType to payload and remove all those routes duplicates
-      object creditCards {
-        val requestPath = s"${paymentMethods.requestPath}/credit-cards"
+      def add(payload: ReturnPaymentPayload): HttpResponse =
+        POST(requestPath, payload)
 
-        def add(payload: ReturnPaymentPayload): HttpResponse =
-          POST(requestPath, payload)
-
-        def delete(): HttpResponse =
-          DELETE(s"$requestPath")
-      }
-
-      object giftCards {
-        val requestPath = s"${paymentMethods.requestPath}/gift-cards"
-
-        def add(payload: ReturnPaymentPayload): HttpResponse =
-          POST(requestPath, payload)
-
-        def delete(): HttpResponse =
-          DELETE(s"$requestPath")
-      }
-
-      object storeCredit {
-        val requestPath = s"${paymentMethods.requestPath}/store-credit"
-
-        def add(payload: ReturnPaymentPayload): HttpResponse =
-          POST(requestPath, payload)
-
-        def delete(): HttpResponse =
-          DELETE(s"$requestPath")
-      }
+      def delete(paymentMethod: PaymentMethod.Type): HttpResponse =
+        DELETE(s"$requestPath/${PaymentMethod.Type.show(paymentMethod)}")
     }
   }
 

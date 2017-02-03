@@ -76,20 +76,8 @@ object ReturnPayments
   def findAllByRmaId(returnId: Int): QuerySeq =
     filter(_.returnId === returnId)
 
-  def findAllStoreCredit: QuerySeq =
-    filter(_.paymentMethodType === (PaymentMethod.StoreCredit: PaymentMethod.Type))
-
-  def findAllPaymentMethodmentsFor(
-      returnId: Int): Query[(ReturnPayments, CreditCards), (ReturnPayment, CreditCard), Seq] = {
-    for {
-      payments ← this.filter(_.returnId === returnId)
-      cards    ← CreditCards if cards.id === payments.id
-    } yield (payments, cards)
-  }
-
-  def findAllCreditCardsForOrder(returnId: Rep[Int]): QuerySeq =
-    filter(_.returnId === returnId)
-      .filter(_.paymentMethodType === (PaymentMethod.CreditCard: PaymentMethod.Type))
+  def findAllPaymentIdsByRmaId(returnId: Int) =
+    findAllByRmaId(returnId).map(_.paymentMethodId).to[Set]
 
   object scope {
     implicit class RmaPaymentsQuerySeqConversions(q: QuerySeq) {
