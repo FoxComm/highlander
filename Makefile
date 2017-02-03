@@ -7,7 +7,7 @@ prepare:
 	sudo pip install -r prov-shit/requirements.txt
 
 legacy: prepare
-	awk '{printf "export GOOGLE_INSTANCE_NAME=%s", $1}' .vagrant/machines/appliance/google/id >> .env.local
+	@awk '{ printf "\nexport GOOGLE_INSTANCE_NAME=%s", $$1 }' .vagrant/machines/appliance/google/id >> .env.local
 
 dotenv:
 	cd prov-shit && ansible-playbook --inventory-file=bin/envs/dev ansible/goldrush_env_local.yml
