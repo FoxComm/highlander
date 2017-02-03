@@ -5,11 +5,11 @@ import { assoc } from 'sprout-data';
 import Api from '../lib/api';
 
 // helpers
-const fetchStatsForStatKey = (statKey, from, to, productId, size, statNames, channel) => {
+const fetchStatsForStatKey = (statType, statKey, from, to, productId, size, statNames, channel) => {
   return dispatch => {
     dispatch(startFetching());
 
-    const keys = `track.${channel}.product.${productId}.${statKey}`;
+    const keys = `track.${channel}.${statType}.${productId}.${statKey}`;
     const stepSize = `step=${size}&size=${size}`;
     const statsQuery = _.join(statNames, '&');
 
@@ -85,17 +85,17 @@ export function fetchProductStats(productId, channel = 1) {
     );
   };
 }
-export function fetchProductTotalRevenue(from, to, productId, size, channel = 1) {
-  return fetchStatsForStatKey('revenue', from, to, productId, size, ['agg', 'xy'], channel);
+export function fetchProductTotalRevenue(from, to, productId, size, channel = 1, statType = 'product') {
+  return fetchStatsForStatKey(statType, 'revenue', from, to, productId, size, ['agg', 'xy'], channel);
 }
-export function fetchProductTotalOrders(from, to, productId, size, channel = 1) {
-  return fetchStatsForStatKey('purchase-quantity', from, to, productId, size, ['agg', 'xy'], channel);
+export function fetchProductTotalOrders(from, to, productId, size, channel = 1, statType = 'product') {
+  return fetchStatsForStatKey(statType, 'purchase-quantity', from, to, productId, size, ['agg', 'xy'], channel);
 }
-export function fetchProductTotalInCarts(from, to, productId, size, channel = 1) {
-  return fetchStatsForStatKey('cart', from, to, productId, size, ['agg', 'xy'], channel);
+export function fetchProductTotalInCarts(from, to, productId, size, channel = 1, statType = 'product') {
+  return fetchStatsForStatKey(statType, 'cart', from, to, productId, size, ['agg', 'xy'], channel);
 }
-export function fetchProductTotalPdPViews(from, to, productId, size, channel = 1) {
-  return fetchStatsForStatKey('pdp', from, to, productId, size, ['sum', 'xy'], channel);
+export function fetchProductTotalPdPViews(from, to, productId, size, channel = 1, statType = 'product') {
+  return fetchStatsForStatKey(statType, 'pdp', from, to, productId, size, ['sum', 'xy'], channel);
 }
 
 // redux store
