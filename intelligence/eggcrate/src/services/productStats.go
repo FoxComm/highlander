@@ -102,18 +102,22 @@ func buildStatResponse(pf responses.HenhouseResponse, activeProducts int) string
 		avgConversionRate = allConversionRate / flActive
 	}
 
+	average := &responses.AverageProductStatsResponse{
+		TotalRevenue:          avgRevenue,
+		TotalOrders:           avgOrdered,
+		TotalPdPViews:         avgPdpViews,
+		TotalInCarts:          avgInCart,
+		ProductConversionRate: avgConversionRate,
+	}
+
 	resp := responses.ProductStatsResponse{
-		TotalRevenue:                 revenue,
-		TotalOrders:                  ordered,
-		TotalPdPViews:                pdpViews,
-		TotalInCarts:                 inCart,
-		ProductConversionRate:        conversionRate,
-		AverageTotalRevenue:          avgRevenue,
-		AverageTotalOrders:           avgOrdered,
-		AverageTotalPdPViews:         avgPdpViews,
-		AverageTotalInCarts:          avgInCart,
-		AverageProductConversionRate: avgConversionRate,
-		ActiveProducts:               activeProducts,
+		TotalRevenue:          revenue,
+		TotalOrders:           ordered,
+		TotalPdPViews:         pdpViews,
+		TotalInCarts:          inCart,
+		ProductConversionRate: conversionRate,
+		Average:               average,
+		ActiveProducts:        activeProducts,
 	}
 	out, _ := json.Marshal(&resp)
 	return string(out)
