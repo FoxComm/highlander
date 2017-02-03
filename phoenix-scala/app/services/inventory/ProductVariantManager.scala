@@ -40,7 +40,7 @@ object ProductVariantManager {
     for {
       variant  ← * <~ createInner(oc, payload)
       albums   ← * <~ findOrCreateAlbumsForVariant(variant.model, albumPayloads)
-      mwhSkuId ← * <~ ProductVariantMwhSkuIds.mustFindMwhSkuId(variant.form.id)
+      mwhSkuId ← * <~ ProductVariantSkus.mustFindSkuId(variant.form.id)
       albumResponse = albums.map { case (album, images) ⇒ AlbumResponse.build(album, images) }
       response = ProductVariantResponse.build(
           IlluminatedVariant.illuminate(oc, variant),
@@ -57,7 +57,7 @@ object ProductVariantManager {
     for {
       variant  ← * <~ ProductVariantManager.mustFindFullByContextAndFormId(oc.id, variantId)
       albums   ← * <~ ImageManager.getAlbumsByVariant(variant.model)
-      mwhSkuId ← * <~ ProductVariantMwhSkuIds.mustFindMwhSkuId(variantId)
+      mwhSkuId ← * <~ ProductVariantSkus.mustFindSkuId(variantId)
       options  ← * <~ optionValuesForVariant(variant.model)
     } yield
       ProductVariantResponse
@@ -70,7 +70,7 @@ object ProductVariantManager {
       form     ← * <~ ObjectForms.mustFindById404(variant.formId)
       shadow   ← * <~ ObjectShadows.mustFindById404(variant.shadowId)
       albums   ← * <~ ImageManager.getAlbumsForVariantInner(form.id)
-      mwhSkuId ← * <~ ProductVariantMwhSkuIds.mustFindMwhSkuId(variant.formId)
+      mwhSkuId ← * <~ ProductVariantSkus.mustFindSkuId(variant.formId)
       options  ← * <~ optionValuesForVariant(variant)
     } yield
       ProductVariantResponse.build(
@@ -89,7 +89,7 @@ object ProductVariantManager {
       variant        ← * <~ ProductVariantManager.mustFindByContextAndFormId(oc.id, variantId)
       updatedVariant ← * <~ updateInner(variant, payload)
       albums         ← * <~ updateAssociatedAlbums(updatedVariant.model, payload.albums)
-      mwhSkuId       ← * <~ ProductVariantMwhSkuIds.mustFindMwhSkuId(variantId)
+      mwhSkuId       ← * <~ ProductVariantSkus.mustFindSkuId(variantId)
       options        ← * <~ optionValuesForVariant(updatedVariant.model)
       response = ProductVariantResponse
         .build(IlluminatedVariant.illuminate(oc, updatedVariant), albums, mwhSkuId, options)
@@ -118,7 +118,7 @@ object ProductVariantManager {
                                           DbResultT.unit,
                                           id ⇒ NotFoundFailure400(ProductVariantLinks, id))
          }
-      mwhSkuId ← * <~ ProductVariantMwhSkuIds.mustFindMwhSkuId(variantId)
+      mwhSkuId ← * <~ ProductVariantSkus.mustFindSkuId(variantId)
       options  ← * <~ optionValuesForVariant(archivedVariant)
     } yield
       ProductVariantResponse.build(
@@ -282,7 +282,7 @@ object ProductVariantManager {
       oc: OC): DbResultT[ProductVariantResponse.Root] =
     for {
       albums   ← * <~ ImageManager.getAlbumsByVariant(fullVariant.model)
-      mwhSkuId ← * <~ ProductVariantMwhSkuIds.mustFindMwhSkuId(fullVariant.form.id)
+      mwhSkuId ← * <~ ProductVariantSkus.mustFindSkuId(fullVariant.form.id)
       options  ← * <~ optionValuesForVariant(fullVariant.model)
     } yield
       ProductVariantResponse

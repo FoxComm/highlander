@@ -368,7 +368,7 @@ object ProductManager {
               } yield newVariant
             }
         albums   ← * <~ ImageManager.getAlbumsForVariantInner(up.form.id)
-        mwhSkuId ← * <~ ProductVariantMwhSkuIds.mustFindMwhSkuId(up.form.id)
+        mwhSkuId ← * <~ ProductVariantSkus.mustFindSkuId(up.form.id)
         options  ← * <~ ProductVariantManager.optionValuesForVariant(up.model)
       } yield
         ProductVariantResponse
