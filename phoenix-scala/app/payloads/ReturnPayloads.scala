@@ -49,13 +49,6 @@ object ReturnPayloads {
     }
   }
 
-  case class ReturnCcPaymentPayload(amount: Int) extends Validation[ReturnCcPaymentPayload] {
-
-    def validate: ValidatedNel[Failure, ReturnCcPaymentPayload] = {
-      greaterThan(amount, 0, "Amount").map { case _ ⇒ this }
-    }
-  }
-
   /* Misc */
 
   case class ReturnMessageToCustomerPayload(message: String)
