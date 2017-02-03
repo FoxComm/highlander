@@ -121,9 +121,9 @@ object Users extends FoxTableQuery[User, Users](new Users(_)) with ReturningId[U
 
   def findNonGuestByEmail(email: String): QuerySeq = {
     findByEmail(email)
-      .join(CustomersData)
+      .joinLeft(CustomersData)
       .on(_.accountId === _.accountId)
-      .filterNot { case (_, data) ⇒ data.isGuest }
+      .filterNot { case (_, data) ⇒ data.map(_.isGuest).getOrElse(false) }
       .map { case (user, _)       ⇒ user }
   }
 
