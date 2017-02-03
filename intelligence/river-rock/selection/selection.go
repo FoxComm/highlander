@@ -55,7 +55,7 @@ func (s *Selector) selectResourceFromArray(clusterId int, mappedResources []inte
 }
 
 func (s *Selector) SelectResource(clusterId int, encodedMappedResources string) (string, error) {
-	if len(encodedMappedResources) == 0 {
+	if encodedMappedResources == "" {
 		return "", nil
 	}
 
@@ -119,7 +119,7 @@ func (s *Selector) GetMappedResources(clusterId int, res string) (string, error)
 	}
 
 	mappedResources, err := s.getMappedResourcesRaw(clusterId, res)
-	if err != nil || len(mappedResources) == 0 {
+	if err != nil || mappedResources == "" {
 		fallbackClusterId, err := s.getFallbackCluster(clusterId)
 		if err != nil {
 			return mappedResources, err

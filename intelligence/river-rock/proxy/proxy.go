@@ -61,7 +61,7 @@ func getClusterIdFromHeader(req *http.Request) (int, error) {
 
 func getBernardoUrl(c *ProxyConfig) (string, error) {
 	//lookup bernardo host and port using SRV records
-	if len(c.BernardoUrl) == 0 {
+	if c.BernardoUrl == "" {
 		bernardoHost, bernardoPort, err := utils.LookupHostAndPort(c.BernardoHost)
 		if err != nil {
 			return "", err
@@ -75,7 +75,7 @@ func selectResource(selector *selection.Selector, clusterId int, originalPath st
 	mappedPath, err := selector.SelectResource(clusterId, mappedResources)
 	if err != nil {
 		return false, originalPath, err
-	} else if len(mappedPath) == 0 {
+	} else if mappedPath == "" {
 		return false, originalPath, nil
 	}
 	return true, mappedPath, nil
