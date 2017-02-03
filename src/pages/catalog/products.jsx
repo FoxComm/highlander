@@ -107,7 +107,7 @@ class Products extends Component {
       return;
     }
 
-    const description = (category && category.description && category.description !== 'Valentine\'s Day Picks')
+    const description = (category && category.description && category.showNameCatPage)
       ? <p styleName="description">{category.description}</p>
       : '';
 
@@ -116,7 +116,7 @@ class Products extends Component {
 
     const className = `header-${categoryName}`;
 
-    const title = (category.name !== 'VALENTINE')
+    const title = (category.showNameCatPage)
       ? <h1 styleName="title">{category.name}</h1>
       : <h1 styleName="title">{category.description}</h1>;
 
