@@ -1,16 +1,11 @@
 package services.product
 
 import java.time.Instant
-
-import com.github.tminglei.slickpg.LTree
 import cats.data._
 import cats.implicits._
-import cats.data.ValidatedNel
-import cats.instances.map
 import failures._
 import failures.ArchiveFailures._
 import failures.ProductFailures._
-import models.image.{AlbumImageLinks, Albums}
 import models.inventory._
 import models.objects._
 import models.product._
@@ -372,8 +367,10 @@ object ProductManager {
             }
         albums   ← * <~ ImageManager.getAlbumsForVariantInner(up.form.id)
         mwhSkuId ← * <~ ProductVariantMwhSkuIds.mustFindMwhSkuId(up.form.id)
+        options  ← * <~ ProductVariantManager.optionValuesForVariant(up.model)
       } yield
-        ProductVariantResponse.buildLite(IlluminatedVariant.illuminate(oc, up), albums, mwhSkuId)
+        ProductVariantResponse
+          .buildLite(IlluminatedVariant.illuminate(oc, up), albums, mwhSkuId, options)
     }
 
   private def findOrCreateOptionsForProduct(product: Product, payload: Seq[ProductOptionPayload])(

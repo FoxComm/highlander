@@ -12,6 +12,7 @@ import (
 type SKU interface {
 	GetByID(id uint) (*responses.SKU, error)
 	Create(payload *payloads.CreateSKU) (*responses.SKU, error)
+	CreateBulk(payload []*payloads.CreateSKU) ([]*responses.SKU, error)
 	Update(id uint, payload *payloads.UpdateSKU) (*responses.SKU, error)
 	Archive(id uint) error
 }
@@ -35,48 +36,18 @@ func (s *skuService) GetByID(id uint) (*responses.SKU, error) {
 	return responses.NewSKUFromModel(sku), nil
 }
 
-func (s *skuService) Create(payload *payloads.CreateSKU) (*responses.SKU, error) {
-	sku := payload.Model()
-
-	if err := sku.Validate(); err != nil {
-		return nil, err
-	}
-
+func (s *skuService) CreateBulk(payloads []*payloads.CreateSKU) ([]*responses.SKU, error) {
+	resps := []*responses.SKU{}
 	txn := s.db.Begin()
-	if err := txn.Create(sku).Error; err != nil {
-		txn.Rollback()
-		return nil, err
-	}
 
-	// By default, create a stock item in each existing stock location.
-	stockLocationRepo := repositories.NewStockLocationRepository(txn)
-	locations, err := stockLocationRepo.GetLocations()
-	if err != nil {
-		txn.Rollback()
-		return nil, err
-	}
-
-	if sku.RequiresInventoryTracking {
-		stockItemRepo := repositories.NewStockItemRepository(txn)
-		for _, location := range locations {
-			stockItem := models.StockItem{
-				SKU:             sku.Code,
-				StockLocationID: location.ID,
-				DefaultUnitCost: sku.UnitCostValue,
-			}
-
-			createdStockItem, err := stockItemRepo.CreateStockItem(&stockItem)
-			if err != nil {
-				txn.Rollback()
-				return nil, err
-			}
-
-			summaryService := NewSummaryService(txn)
-			if err := summaryService.CreateStockItemSummary(createdStockItem.ID); err != nil {
-				txn.Rollback()
-				return nil, err
-			}
+	for _, payload := range payloads {
+		resp, err := s.createInner(txn, payload)
+		if err != nil {
+			txn.Rollback()
+			return nil, err
 		}
+
+		resps = append(resps, resp)
 	}
 
 	if err := txn.Commit().Error; err != nil {
@@ -84,7 +55,23 @@ func (s *skuService) Create(payload *payloads.CreateSKU) (*responses.SKU, error)
 		return nil, err
 	}
 
-	return responses.NewSKUFromModel(sku), nil
+	return resps, nil
+}
+
+func (s *skuService) Create(payload *payloads.CreateSKU) (*responses.SKU, error) {
+	txn := s.db.Begin()
+	resp, err := s.createInner(txn, payload)
+	if err != nil {
+		txn.Rollback()
+		return nil, err
+	}
+
+	if err := txn.Commit().Error; err != nil {
+		txn.Rollback()
+		return nil, err
+	}
+
+	return resp, nil
 }
 
 func (s *skuService) Update(id uint, payload *payloads.UpdateSKU) (*responses.SKU, error) {
@@ -120,4 +107,46 @@ func (s *skuService) Archive(id uint) error {
 	sku.ID = id
 
 	return s.db.Delete(&sku).Error
+}
+
+func (s *skuService) createInner(txn *gorm.DB, payload *payloads.CreateSKU) (*responses.SKU, error) {
+	sku := payload.Model()
+
+	if err := sku.Validate(); err != nil {
+		return nil, err
+	}
+
+	if err := txn.Create(sku).Error; err != nil {
+		return nil, err
+	}
+
+	// By default, create a stock item in each existing stock location.
+	stockLocationRepo := repositories.NewStockLocationRepository(txn)
+	locations, err := stockLocationRepo.GetLocations()
+	if err != nil {
+		return nil, err
+	}
+
+	if sku.RequiresInventoryTracking {
+		stockItemRepo := repositories.NewStockItemRepository(txn)
+		for _, location := range locations {
+			stockItem := models.StockItem{
+				SKU:             sku.Code,
+				StockLocationID: location.ID,
+				DefaultUnitCost: sku.UnitCostValue,
+			}
+
+			createdStockItem, err := stockItemRepo.CreateStockItem(&stockItem)
+			if err != nil {
+				return nil, err
+			}
+
+			summaryService := NewSummaryService(txn)
+			if err := summaryService.CreateStockItemSummary(createdStockItem.ID); err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	return responses.NewSKUFromModel(sku), nil
 }

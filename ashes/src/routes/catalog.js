@@ -13,13 +13,11 @@ import SkuPage from '../components/skus/page';
 import SkuDetails from '../components/skus/details';
 
 import ProductsListPage from 'components/products/list-page';
-import Products from 'components/products/products';
+import Products from 'components/products/list/products';
 import ProductPage from 'components/products/page';
 import ProductForm from 'components/products/product-form';
 import ProductImages from 'components/products/images';
 
-import ProductVariants from 'components/product-variants/skus';
-import ProductVariantsListPage from 'components/product-variants/list-page';
 import ProductVariantPage from 'components/product-variants/page';
 import ProductVariantDetails from 'components/product-variants/details';
 import ProductVariantImages from 'components/product-variants/images';
@@ -70,15 +68,6 @@ const getRoutes = (jwt: Object) => {
 
   const productVariantRoutes =
     router.read('product-variants-base', { title: 'Product Variants', path: 'variants', frn: frn.pim.sku }, [
-      router.read('product-variants-list-pages', { component: ProductVariantsListPage }, [
-        router.read('variants', { component: ProductVariants, isIndex: true }),
-        router.read('product-variants-activity-trail', {
-          path: 'activity-trail',
-          dimension: 'product-variant',
-          component: ActivityTrailPage,
-          frn: frn.activity.sku,
-        }),
-      ]),
       router.read('product-variant', { path: ':productVariantId', component: ProductVariantPage }, [
         router.read('product-variant-details', { component: ProductVariantDetails, isIndex: true }),
         router.read('product-variant-images', {

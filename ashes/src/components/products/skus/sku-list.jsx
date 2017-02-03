@@ -1,6 +1,4 @@
-/**
- * @flow
- */
+// @flow
 
 // libs
 import React, { Component, Element } from 'react';

@@ -44,7 +44,8 @@ package object testutils extends MustMatchers with OptionValues with AppendedClu
 
     def as[A <: AnyRef](implicit mf: Manifest[A], line: SL, file: SF): A = {
       response.mustBeOk()
-      parse(bodyText).extractOpt[A].value.withClue(s"Failed to parse body!")
+      val json = parse(bodyText)
+      json.extractOpt[A].value.withClue(s"Failed to deserialize json: $json")
     } withClue originalSourceClue
 
     def asTheResult[A <: AnyRef](implicit mf: Manifest[A], line: SL, file: SF): A =
