@@ -28,7 +28,7 @@ const startFetching = createAction('ANALYTICS_START_FETCHING');
 const fetchFailed = createAction('ANALYTICS_FETCH_FAILED');
 const startFetchingStats = createAction('ANALYTICS_START_FETCHING_STATS');
 const fetchStatsFailed = createAction('ANALYTICS_FETCH_STATS_FAILED');
-export const resetAnalytics = createAction('ANALYTICS_RESET');
+const resetAnalytics = createAction('ANALYTICS_RESET');
 /* time */
 const receivedValues = createAction('ANALYTICS_RECEIVED',
   (keys, chartValues, from, to, sizeSec, stepSec) => [keys, chartValues, from, to, sizeSec, stepSec]
@@ -43,6 +43,12 @@ const productStatsForStatKeyReceivedValues = createAction('ANALYTICS_PRODUCT_STA
 const productStatsReceivedValues = createAction('ANALYTICS_PRODUCT_STATS_RECEIVED', (stats) => [stats]);
 
 // actions
+/* generic */
+export function resetAnalyticsValues() {
+  return dispatch => {
+    dispatch(resetAnalytics());
+  };
+}
 /* time */
 export function fetchAnalytics(keys, from, to, sizeSec, stepSec) {
   return dispatch => {
@@ -65,9 +71,23 @@ export function fetchProductConversion(productId) {
   return dispatch => {
     dispatch(startFetching());
 
-    const url = `stats/productFunnel/${productId}`;
+    const baseUrl = 'stats/productFunnel/';
+    const productUrl = `${baseUrl}${productId}`;
 
-    return Api.get(url).then(
+    return Api.get(baseUrl).then( // GET avg conversion values
+      avgChartValues => {
+        Api.get(productUrl).then( // GET product conversion values
+          chartValues => {
+            const chartValuesWithAvgs = Object.assign({}, chartValues, { Average:  avgChartValues });
+            dispatch(productConversionReceivedValues(chartValuesWithAvgs));
+          },
+          err => dispatch(fetchFailed(err))
+        );
+      },
+      err => dispatch(fetchFailed(err))
+    );
+
+    return Api.get(productUrl).then(
       chartValues => dispatch(productConversionReceivedValues(chartValues)),
       err => dispatch(fetchFailed(err))
     );

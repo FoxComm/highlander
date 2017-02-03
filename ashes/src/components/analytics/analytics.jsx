@@ -62,6 +62,7 @@ type Props = {
   segments: Array<SegmentControlType>, 
 }
 
+// consts
 const sourceDropdownColumns = [
   { field: 'google', text: 'Google' },
   { field: 'facebook', text: 'Facebook' },
@@ -96,7 +97,7 @@ const datePickerType = {
   LastWeek: 2,
   Last30: 3,
   Last90: 4,
-  Range: 5,
+  Range: 5, //TODO: Implement DatePicker for custom date ranges
 };
 const datePickerOptions = [
   { id: datePickerType.Today, displayText: 'Today'},
@@ -106,6 +107,13 @@ const datePickerOptions = [
   { id: datePickerType.Last90, displayText: 'Last 90 Days'},
 ];
 const datePickerFormat = 'MM/DD/YYYY';
+
+// helpers
+export function
+percentDifferenceFromAvg(percentValue: number, avgPercentValue: number): number {
+  if (avgPercentValue === 0) return 0;
+  return _.round(((percentValue - avgPercentValue) / avgPercentValue) * 100, 0);
+};
 
 @connect((state, props) => ({analytics: state.analytics}), AnalyticsActions)
 export default class Analytics extends React.Component {
@@ -187,6 +195,10 @@ export default class Analytics extends React.Component {
 
   componentDidMount() {
     this.props.fetchProductStats(this.props.entity.entityId);
+  }
+
+  componentWillUnmount() {
+    this.props.resetAnalyticsValues();
   }
 
   @autobind
@@ -350,15 +362,11 @@ export default class Analytics extends React.Component {
         const avgValue = stats[`Average${qb.id}`];
 
         // set QuestionBox Trends
-        let trendValue = null;
+        let trendValue = 0;
         let trend = TrendType.steady;
 
-        if (avgValue === 0) {
-          trendValue = 0;
-        } else {
-          trendValue = _.round(((productValue - avgValue) / avgValue) * 100, 0);
-          trend = (trendValue > 0) ? TrendType.gain : TrendType.loss;
-        }
+        trendValue = percentDifferenceFromAvg(productValue, avgValue);
+        trend = (trendValue > 0) ? TrendType.gain : TrendType.loss;
 
         qb.footer = (
           <TrendButton
@@ -446,7 +454,7 @@ export default class Analytics extends React.Component {
             </div>
           );
         case questionTitles.ProductConversionRate:
-          return <ProductConversionChart jsonData={analytics.chartValues}/>;
+          return <ProductConversionChart jsonData={analytics.chartValues} />;
         default:
           return false;
       }

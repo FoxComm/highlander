@@ -76,7 +76,7 @@ export default class ProductConversionToolTip extends React.Component {
       y: 180,
     };
 
-    const deltaToolTip = (deltaValue > 0) ?
+    const deltaToolTip = !_.isNil(deltaValue) ?
       (
         <g>
           <VictoryTooltip
