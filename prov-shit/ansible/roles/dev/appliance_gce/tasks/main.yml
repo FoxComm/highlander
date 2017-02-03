@@ -20,21 +20,24 @@
     zone: "{{gce_zone}}"
     instance_names: "{{gce_instance_name}}"
     machine_type: "{{gce_machine_type}}"
+    external_ip: none
     disks:
       - name: "{{gce_instance_name}}-disk"
         mode: READ_WRITE
+    tags:
+      - no-ip
     state: present
   register: gce
 
-- name: Save Host Info
+- name: Save Host Information
   add_host: hostname="{{item.private_ip}}" groupname=gce_instances_ips
   with_items: "{{gce.instance_data}}"
 
-- name: Wait for SSH
+- name: Waiting for SSH...
   wait_for:
     delay: 1
     host: "{{item.private_ip}}"
     port: 22
     state: started
-    timeout: 300
+    timeout: 600
   with_items: "{{gce.instance_data}}"

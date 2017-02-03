@@ -14,10 +14,6 @@ up:
 	ansible-playbook prov-shit/ansible/goldrush_appliance.yml
 	@cat goldrush.log
 
-provision:
-	$(call header, Provisioning GCE Machine)
-	ansible-playbook prov-shit/ansible/goldrush_appliance.yml
-
 destroy:
 	$(call header, Destroying GCE Machine)
 	ansible-playbook prov-shit/ansible/goldrush_appliance_destroy.yml
@@ -27,4 +23,4 @@ destroy:
 update-app:
 	cd prov-shit && ansible-playbook -v -i bin/envs/dev ansible/goldrush_update_app.yml
 
-.PHONY: up provision destroy update-app dotenv prepare clean
+.PHONY: up destroy update-app dotenv prepare clean

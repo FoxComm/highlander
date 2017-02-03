@@ -8,15 +8,15 @@
   vars_prompt:
     - name: "google_service_account_email"
       prompt: "Enter your service account key e-mail"
-      default: "newcomer@foxcomm-staging.iam.gserviceaccount.com"
+      default: "username@foxcomm-staging.iam.gserviceaccount.com"
       private: no
     - name: "google_json_key_location"
       prompt: "Enter your service account key location"
-      default: "/home/newcomer/foxcomm-staging.json"
+      default: "/home/username/foxcomm-staging.json"
       private: no
     - name: "google_ssh_key"
       prompt: "Enter path to your private SSH key for GCE"
-      default: "/home/newcomer/.ssh/id_rsa"
+      default: "/home/username/.ssh/id_rsa"
       private: no
     - name: "google_instance_name"
       prompt: "Enter preferred development instance name (optional)"

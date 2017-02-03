@@ -1,5 +1,5 @@
 # Common variables
-home: /home/{{ user }}
+home: /home/{{user}}
 self_host: 127.0.0.1
 dest_services: /etc/systemd/system
 usr_local: /usr/local/
