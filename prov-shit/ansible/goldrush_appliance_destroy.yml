@@ -1,0 +1,26 @@
+---
+
+- name: Destroy Developer Appliance
+  hosts: localhost
+  vars:
+    gce_service_account_email: "{{ lookup('env', 'GOOGLE_SERVICE_ACCOUNT_EMAIL') }}"
+    gce_credentials_file: "{{ lookup('env', 'GOOGLE_JSON_KEY_LOCATION') }}"
+    gce_instance_name: "{{ lookup('env', 'GOOGLE_INSTANCE_NAME') }}"
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+  tasks:
+    - name: Destroy Instance
+      gce:
+        service_account_email: "{{gce_service_account_email}}"
+        credentials_file: "{{gce_credentials_file}}"
+        project_id: "{{gce_project_id}}"
+        zone: "{{gce_zone}}"
+        instance_names: "{{gce_instance_name}}"
+        state: absent
+    - name: Destroy Disk
+      gce_pd:
+        service_account_email: "{{gce_service_account_email}}"
+        credentials_file: "{{gce_credentials_file}}"
+        project_id: "{{gce_project_id}}"
+        zone: "{{gce_zone}}"
+        name: "{{gce_instance_name}}-disk"
+        state: absent

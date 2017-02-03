@@ -6,20 +6,27 @@ usr_local: /usr/local/
 public_keys_dest_dir: /etc/keys
 private_keys_dest_dir: /etc/keys
 scala_version: scala-2.11
-vagrant: false
 foxcomm_domain: foxcommerce.com
 logrotate_dir: /etc/logrotate.d
+appliance_prefix: appliance
 
-# Marathon Defaults
+# Marathon defaults
 marathon_retries: 60
 marathon_delay: 10
 
-# Docker Defaults
+# Docker defaults
 docker_tag: master
 docker_registry: docker-stage.foxcommerce.com
 docker_registry_provider: gce
 docker_logs_dir: /logs
 docker_logs_host_dir: /var/log/docker
+
+# Google Cloud defaults
+gce_disk_size: 40
+gce_image: appliance-base-170131-101633
+gce_machine_type: n1-standard-4
+gce_project_id: "foxcomm-staging"
+gce_zone: "us-central1-a"
 
 # Default docker tags for containers
 docker_tags:
@@ -258,8 +265,8 @@ stripe_publishable_key: pk_test_1H2C9nTZpy8szPmboOEDwdwN
 cert_path: test/fox
 
 # Mesos
-mesos_quorum: 2
-mesos_ip: 0.0.0.0
+mesos_quorum: 1
+mesos_ip: "$(hostname -i)"
 
 # On Amigo server?
 is_amigo: false
@@ -267,7 +274,7 @@ is_appliance: false
 
 # Seeder flags
 with_base_seeds: true
-with_gatling_seeder: true
+with_gatling_seeder: false
 with_mwh_seeder: true
 
 # Marketplace

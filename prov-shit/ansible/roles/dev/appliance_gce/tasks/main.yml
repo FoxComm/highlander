@@ -1,0 +1,40 @@
+---
+
+- name: Make Boot Disk
+  gce_pd:
+    service_account_email: "{{gce_service_account_email}}"
+    credentials_file: "{{gce_credentials_file}}"
+    project_id: "{{gce_project_id}}"
+    zone: "{{gce_zone}}"
+    disk_type: pd-standard
+    image: "{{gce_image}}"
+    name: "{{gce_instance_name}}-disk"
+    size_gb: "{{gce_disk_size}}"
+    state: present
+
+- name: Create Instance in Google Cloud
+  gce:
+    service_account_email: "{{gce_service_account_email}}"
+    credentials_file: "{{gce_credentials_file}}"
+    project_id: "{{gce_project_id}}"
+    zone: "{{gce_zone}}"
+    instance_names: "{{gce_instance_name}}"
+    machine_type: "{{gce_machine_type}}"
+    disks:
+      - name: "{{gce_instance_name}}-disk"
+        mode: READ_WRITE
+    state: present
+  register: gce
+
+- name: Save Host Info
+  add_host: hostname="{{item.private_ip}}" groupname=gce_instances_ips
+  with_items: "{{gce.instance_data}}"
+
+- name: Wait for SSH
+  wait_for:
+    delay: 1
+    host: "{{item.private_ip}}"
+    port: 22
+    state: started
+    timeout: 300
+  with_items: "{{gce.instance_data}}"
