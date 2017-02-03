@@ -34,7 +34,7 @@ export default class App extends KoaApp {
 
     log4js.configure(path.join(`${__dirname}`, '../log4js.json'));
 
-    this.use(serve('public'))
+    this.use(serve('public', { maxage: 31536000 }))
       .use(favicon('public/favicon.png'))
       .use(log4js.koaLogger(log4js.getLogger('http'), { level: 'auto' }))
       .use(makeApiProxy())

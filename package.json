@@ -53,6 +53,7 @@
     "gulp-mocha": "^2.2.0",
     "gulp-postcss": "^6.1.0",
     "gulp-rev": "^7.1.2",
+    "gulp-rev-all": "^0.9.7",
     "gulp-rev-delete-original": "^0.2.2",
     "gulp-sourcemaps": "^1.6.0",
     "gulp-svgmin": "^1.2.2",
