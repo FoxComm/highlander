@@ -3,7 +3,7 @@
 
 /* Medium screens */
 @custom-media --medium only screen and (min-width: 48em); /* min-width 768px, medium screens */
-@custom-media --medium-only only screen and (min-width: 48em) and (max-width: 63,9375em); /* min-width 768px and max-width 1024px, use when QAing tablet-only issues */
+@custom-media --medium-only only screen and (min-width: 48em) and (max-width: 63.9375em); /* min-width 768px and max-width 1024px, use when QAing tablet-only issues */
 
 /* Large screens */
 @custom-media --large only screen and (min-width: 64em); /* min-width 1024px, large screens */
