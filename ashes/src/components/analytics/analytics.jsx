@@ -359,7 +359,7 @@ export default class Analytics extends React.Component {
     if (!_.isEmpty(stats)) {
       _.map(questionBoxes, (qb) => {
         const productValue = stats[qb.id];
-        const avgValue = stats[`Average${qb.id}`];
+        const avgValue = stats.Average[qb.id];
 
         // set QuestionBox Trends
         let trendValue = 0;
