@@ -5,11 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
-	//"net/http"
+
 	_ "github.com/lib/pq"
 )
 
@@ -63,8 +62,6 @@ type BernardoPayload struct {
 
 func MapRequestToCluster(req *http.Request, bernardoUrl string) (int, error) {
 	traits := extractTraits(req)
-	jsonTraits, _ := json.Marshal(traits)
-	log.Print("Traits: " + string(jsonTraits))
 
 	payload := &BernardoPayload{
 		Group:  "client",
@@ -98,8 +95,6 @@ func MapRequestToCluster(req *http.Request, bernardoUrl string) (int, error) {
 	if err != nil {
 		return 0, fmt.Errorf("Error converting bernardo response to a cluster id: %s, %s", res, err)
 	}
-
-	log.Printf("cluster %v", cluster)
 
 	return cluster, nil
 }
