@@ -75,13 +75,11 @@ after insert on taxons
 for each row
 execute procedure insert_taxons_search_view_from_taxons_fn();
 
-
 drop trigger if exists update_taxons_search_view_from_taxons_fn on taxons;
 create trigger update_taxons_search_view_from_taxons_fn
 after update on taxons
 for each row
 execute procedure update_taxons_search_view_from_taxons_fn();
-
 
 drop trigger if exists update_taxons_search_view_from_taxonomy_taxon_links_fn on taxonomy_taxon_links;
 create trigger update_taxons_search_view_from_taxonomy_taxon_links_fn
