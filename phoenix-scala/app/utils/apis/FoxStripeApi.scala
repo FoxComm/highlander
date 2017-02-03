@@ -24,7 +24,10 @@ trait FoxStripeApi {
                            stripeCustomerId: Option[String],
                            address: Address): Result[(StripeCustomer, StripeCard)]
 
-  def authorizeAmount(customerId: String, amount: Int, currency: Currency): Result[StripeCharge]
+  def authorizeAmount(customerId: String,
+                      creditCardId: String,
+                      amount: Int,
+                      currency: Currency): Result[StripeCharge]
 
   def captureCharge(chargeId: String, amount: Int): Result[StripeCharge]
 
