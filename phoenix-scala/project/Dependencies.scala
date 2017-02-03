@@ -72,11 +72,12 @@ object Dependencies {
   )
 
   val test = Seq(
-    "org.scalatest"     %% "scalatest"           % Versions.scalatest,
-    "org.scalacheck"    %% "scalacheck"          % Versions.scalacheck,
-    "org.mockito"       % "mockito-core"         % "2.1.0-beta.125",
-    "com.typesafe.akka" %% "akka-testkit"        % Versions.akka,
-    "com.typesafe.akka" %% "akka-stream-testkit" % Versions.akka
+    "org.scalatest"              %% "scalatest"                 % Versions.scalatest,
+    "org.scalacheck"             %% "scalacheck"                % Versions.scalacheck,
+    "com.github.alexarchambault" %% "scalacheck-shapeless_1.13" % "1.1.3",
+    "org.mockito"                % "mockito-core"               % "2.1.0-beta.125",
+    "com.typesafe.akka"          %% "akka-testkit"              % Versions.akka,
+    "com.typesafe.akka"          %% "akka-stream-testkit"       % Versions.akka
   ).map { testDep ⇒
     testDep % "test,it,et"
   }

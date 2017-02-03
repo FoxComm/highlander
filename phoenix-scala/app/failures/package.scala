@@ -23,6 +23,8 @@ package object failures {
 
   implicit class FailuresOps(val underlying: Failures) extends AnyVal {
     def flatten: List[String] = underlying.toList.map(_.description)
+
+    def dump: String = flatten.mkString("\n")
   }
 
   object Util {

@@ -15,9 +15,10 @@ import payloads.AuthPayload
 import utils.aliases._
 import utils.db._
 
-case class SkuInventoryHold(sku: String, qty: Int)
-case class OrderInventoryHold(refNum: String, items: Seq[SkuInventoryHold])
-case class CreateSku(code: String, taxClass: String = "default")
+final case class SkuInventoryHold(sku: String, qty: Int)
+final case class OrderInventoryHold(refNum: String, items: Seq[SkuInventoryHold])
+final case class CreateSku(code: String, taxClass: String = "default")
+final case class CreateSkuBatchElement(variantFormId: Int, cmd: CreateSku)
 
 trait MiddlewarehouseApi {
 
@@ -27,6 +28,9 @@ trait MiddlewarehouseApi {
   def cancelHold(orderRefNum: String)(implicit ec: EC, au: AU): Result[Unit]
   def createSku(variantFormId: Int, sku: CreateSku)(implicit ec: EC,
                                                     au: AU): DbResultT[ProductVariantMwhSkuId]
+  def createSkus(skusToCreate: Seq[CreateSkuBatchElement], batchSize: Int)(
+      implicit ec: EC,
+      au: AU): DbResultT[Vector[ProductVariantMwhSkuId]]
 }
 
 class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
@@ -109,9 +113,32 @@ class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
         logger.error(s"Unable to parse MWH response as JSON. Response body was:\n$responseBody")
         DbResultT.failure[ProductVariantMwhSkuId](UnableToParseResponse)
     }
+
+  // TODO send real batched request to MWH
+  protected def executeSkusBatch(batch: Seq[CreateSkuBatchElement])(
+      implicit ec: EC,
+      au: AU): DbResultT[Vector[ProductVariantMwhSkuId]] = {
+    DbResultT.sequence(batch.map {
+      case CreateSkuBatchElement(formId, cmd) ⇒ createSku(formId, cmd)
+    }(collection.breakOut))
+  }
+
+  def createSkus(skusToCreate: Seq[CreateSkuBatchElement], batchSize: Int = 100)(
+      implicit ec: EC,
+      au: AU): DbResultT[Vector[ProductVariantMwhSkuId]] = {
+    if (skusToCreate.nonEmpty)
+      skusToCreate
+        .grouped(if (batchSize > 0) batchSize else skusToCreate.length)
+        .foldLeft(DbResultT.good(Vector.empty[ProductVariantMwhSkuId])) { (acc, batch) ⇒
+          for {
+            ids    ← acc
+            newIds ← executeSkusBatch(batch)
+          } yield ids ++ newIds
+        } else DbResultT.good(Vector.empty)
+  }
 }
 
-case class MwhResponse(statusCode: Int, content: String)
+final case class MwhResponse(statusCode: Int, content: String)
 
 object AsMwhResponse extends (client.Response ⇒ MwhResponse) {
 

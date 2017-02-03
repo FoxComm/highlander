@@ -1,18 +1,18 @@
 package testutils
 
 import scala.language.implicitConversions
-import scala.reflect.runtime.universe.TypeTag
-
 import cats.data.{Xor, XorT}
 import failures.Failures
-import org.scalatest.AppendedClues
+import org.scalatest.{AppendedClues, EitherValues}
 import org.scalatest.concurrent.ScalaFutures
+import scala.concurrent.Future
+import scala.reflect.runtime.universe.TypeTag
 import services.Result
 import slick.driver.PostgresDriver.api._
 import slick.lifted.Query
 import utils.aliases._
 
-trait GimmeSupport extends ScalaFutures with CatsHelpers with AppendedClues {
+trait GimmeSupport extends ScalaFutures with EitherValues with CatsHelpers with AppendedClues {
 
   implicit class GimmeQuery[E, U, C[_]](val query: Query[E, U, C]) {
     // allows us to do Table.someQuery.gimme vs Table.someQuery.result.run().futureValue
@@ -61,10 +61,13 @@ trait GimmeSupport extends ScalaFutures with CatsHelpers with AppendedClues {
 
   implicit class GimmeResult[R](val res: Result[R]) {
 
-    def gimme(implicit tt: TypeTag[R], ec: EC, db: DB, line: SL, file: SF): R =
+    def gimme(implicit tt: TypeTag[R], ec: EC, line: SL, file: SF): R =
       res.futureValue.rightVal withClue originalSourceClue
+  }
 
-    def gimmeTxn(implicit tt: TypeTag[R], ec: EC, db: DB, line: SL, file: SF): R =
-      res.futureValue.rightVal withClue originalSourceClue
+  implicit class GimmeFutureResult[L, R](val res: Future[Either[L, R]]) {
+
+    def gimme(implicit tt: TypeTag[R], ec: EC, line: SL, file: SF): R =
+      res.futureValue.right.value withClue originalSourceClue
   }
 }
