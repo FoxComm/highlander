@@ -1,7 +1,7 @@
 create or replace function insert_product_variants_view_from_product_variants_fn() returns trigger as $$
 begin
   insert into product_variants_search_view select
-    new.form_id as id,
+    new.id as id,
     new.code as sku_code,
     context.name as context,
     context.id as context_id,
@@ -14,6 +14,7 @@ begin
     illuminate_obj(form, shadow, 'retailPrice')->>'currency' as retail_price_currency,
     illuminate_obj(form, shadow, 'externalId') as external_id,
     new.scope as scope,
+    new.form_id as variant_id,
     mwh_sku.mwh_sku_id as middlewarehouse_sku_id
     from object_contexts as context
       inner join object_shadows as shadow  on (shadow.id = new.shadow_id)
@@ -24,6 +25,7 @@ begin
   return null;
 end;
 $$ language plpgsql;
+
 create trigger insert_product_variants_view_from_product_variants
   after insert on product_variants
   for each row
@@ -41,7 +43,7 @@ begin
     retail_price_currency = subquery.retail_price_currency,
     external_id = subquery.external_id
     from (select
-        variant.id,
+        variant.form_id,
         variant.code,
         illuminate_text(form, shadow, 'title') as title,
         illuminate_obj(form, shadow, 'salePrice')->>'value' as sale_price,
@@ -53,8 +55,8 @@ begin
       from product_variants as variant
         inner join object_forms as form on (form.id = variant.form_id)
         inner join object_shadows as shadow on (shadow.id = variant.shadow_id)
-      where variant.id = new.id) as subquery
-      where subquery.id = product_variants_search_view.id;
+      where variant.form_id = new.variant_id) as subquery
+      where subquery.form_id = product_variants_search_view.variant_id;
 
     return null;
 end;
@@ -77,12 +79,12 @@ begin
     from (select
         o.id,
         o.name,
-        variants.id as product_variant_id,
+        variants.form_id as product_variant_id,
         to_json_timestamp(variants.archived_at) as archived_at
       from object_contexts as o
       inner join product_variants as variants on (variants.context_id = o.id)
       where variants.id = new.id) as subquery
-      where subquery.product_variant_id = product_variants_search_view.id;
+      where subquery.product_variant_id = product_variants_search_view.variant_id;
 
     return null;
 end;

@@ -18,7 +18,7 @@ begin
         from products as p
           inner join object_contexts as context on (p.context_id = context.id)
           inner join object_forms as f on (p.form_id = f.id)
-          inner join product_variants_search_view as inv on (inv.context_id = context.id and inv.id = f.id)
+          inner join product_variants_search_view as inv on (inv.context_id = context.id and inv.variant_id = f.id)
         where inv.id = new.id;
   end case;
 
@@ -77,7 +77,7 @@ begin
         inner join object_forms as f on (f.id = p.form_id)
         inner join object_shadows as s on (s.id = p.shadow_id)
         inner join product_to_variant_links_view as pv on (pv.product_id = p.id) --get list of sku codes for the product
-        inner join product_variants_search_view as inv on (inv.context_id = context.id and inv.id = f.id)
+        inner join product_variants_search_view as inv on (inv.context_id = context.id and inv.variant_id = f.id)
         left join product_album_links_view as albumLink on (albumLink.product_id = p.id)
       where p.id = any(insert_ids);
     end if;
@@ -118,7 +118,7 @@ begin
                 inner join object_contexts as context on (p.context_id = context.id)
                 inner join object_forms as f on (f.id = p.form_id)
                 inner join object_shadows as s on (s.id = p.shadow_id)
-                inner join product_variants_search_view as inv on (inv.context_id = context.id and inv.id = f.id)
+                inner join product_variants_search_view as inv on (inv.context_id = context.id and inv.variant_id = f.id)
                 left join product_album_links_view as albumLink on (albumLink.product_id = p.id)
               where p.id = any(update_ids)
            ) as subquery
