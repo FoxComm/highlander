@@ -8,7 +8,7 @@
     zone: "{{gce_zone}}"
     disk_type: pd-standard
     image: "{{gce_image}}"
-    name: "{{gce_instance_name}}-disk"
+    name: "{{gce_instance_name}}"
     size_gb: "{{gce_disk_size}}"
     state: present
 
@@ -22,7 +22,7 @@
     machine_type: "{{gce_machine_type}}"
     external_ip: none
     disks:
-      - name: "{{gce_instance_name}}-disk"
+      - name: "{{gce_instance_name}}"
         mode: READ_WRITE
     tags:
       - no-ip

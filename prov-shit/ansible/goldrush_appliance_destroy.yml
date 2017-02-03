@@ -22,5 +22,5 @@
         credentials_file: "{{gce_credentials_file}}"
         project_id: "{{gce_project_id}}"
         zone: "{{gce_zone}}"
-        name: "{{gce_instance_name}}-disk"
+        name: "{{gce_instance_name}}"
         state: absent
