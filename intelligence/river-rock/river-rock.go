@@ -30,8 +30,6 @@ func lookupSrv(host string) (string, string, error) {
 }
 
 func loadConfig() (*proxy.ProxyConfig, error) {
-	var err error
-
 	dbName := os.Getenv("DB_NAME")
 	if dbName == "" {
 		return nil, errors.New("DB_NAME is not set")
@@ -77,8 +75,6 @@ func loadConfig() (*proxy.ProxyConfig, error) {
 	if port == "" {
 		return nil, errors.New("PORT is not set")
 	}
-
-	bernardoUrl := "http://" + bernardoHost + ":" + bernardoPort
 
 	return &proxy.ProxyConfig{
 		DbConn:       conn,
