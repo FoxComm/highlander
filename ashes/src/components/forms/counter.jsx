@@ -42,10 +42,9 @@ const Counter = ({
         />
       </div>
       <input
-        id="adjust-quantity-input"
         type="number"
         value={value}
-        className={classNames('fc-counter__input', className, {disabled})}
+        className={classNames('fc-counter__input', className, 'adjust-quantity-input', {disabled})}
         disabled={disabled}
         {...rest} />
       <div className="fc-input-append">

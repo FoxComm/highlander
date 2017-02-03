@@ -3,8 +3,6 @@
 - name: Provision Packer Tinyprod Backend
   hosts: all
   become: true
-  tags:
-      - packer-tinyprod-backend
   vars:
     user: ubuntu
     packing: true
@@ -21,7 +19,6 @@
     - { role: base/kafka }
     - { role: base/schema-registry }
     - { role: base/elasticsearch }
-    - { role: base/logrotate }
     - { role: base/db }
     - { role: base/bottledwater }
     - { role: base/rsyslog }

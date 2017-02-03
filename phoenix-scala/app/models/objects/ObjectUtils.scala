@@ -5,15 +5,14 @@ import java.time.Instant
 import cats.data.NonEmptyList
 import cats.implicits._
 import failures.Failure
-import org.json4s.JsonAST.{JField, JNothing, JObject, JString}
+import org.json4s.JsonAST.{JNothing, JObject, JString}
 import org.json4s.JsonDSL._
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
-import utils.IlluminateAlgorithm
 import services.objects.ObjectSchemasManager
+import utils.IlluminateAlgorithm
 import utils.aliases._
 import utils.db._
-import scala.annotation.tailrec
 
 object ObjectUtils {
 
@@ -264,12 +263,4 @@ object ObjectUtils {
     case head :: tail ⇒ DbResultT.failures(NonEmptyList(head, tail))
     case Nil          ⇒ DbResultT.pure(Unit)
   }
-
-  def getFullObject[T <: ObjectHead[T]](
-      readHead: ⇒ DbResultT[T])(implicit ec: EC, db: DB): DbResultT[FullObject[T]] =
-    for {
-      head   ← * <~ readHead
-      form   ← * <~ ObjectForms.mustFindById404(head.formId)
-      shadow ← * <~ ObjectShadows.mustFindById404(head.shadowId)
-    } yield FullObject(head, form, shadow)
 }

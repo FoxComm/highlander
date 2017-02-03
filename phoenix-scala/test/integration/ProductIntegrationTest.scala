@@ -20,6 +20,21 @@ class ProductIntegrationTest
     with ApiFixtureHelpers
     with TaxonomySeeds {
 
+  "GET v1/products/:context" - {
+    "returns assigned taxonomies" in new ProductAndSkus_Baked with FlatTaxons_Baked {
+      taxonApi(taxons.head.formId).assignProduct(simpleProduct.formId).mustBeOk()
+      val product = productsApi(simpleProduct.formId).get().as[Root]
+      product.taxons.flatMap(_.taxons.map(_.id)) must contain(taxons.head.formId)
+    }
+
+    "queries product by slug" in new Product_ColorSizeOptions_ApiFixture {
+      val slug          = "simple-product"
+      val simpleProduct = Products.mustFindById404(product.id).gimme
+
+      val updated = simpleProduct.copy(slug = slug)
+    }
+  }
+
   val singleOptionCfg = ProductOptionCfg("snow", Seq("white")) // yellow if you're naughty
 
   "GET v1/products/:context" - {

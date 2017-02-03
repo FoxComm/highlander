@@ -1,0 +1,17 @@
+---
+
+- name: Download Golang
+  unarchive: src="{{golang_url}}" dest=/usr/local remote_src=yes mode=0755
+
+- name: Symlink Golang binaries
+  file: src="/usr/local/go/bin/{{item}}" dest="/usr/bin/{{item}}" state=link
+  with_items:
+    - go
+    - gofmt
+    - godoc
+
+- name: Set GOPATH for all users
+  copy: src=go-path.sh dest=/etc/profile.d
+
+- name: Download Glide
+  unarchive: src="{{glide_url}}" dest=/usr/local/bin remote_src=yes mode=0755
