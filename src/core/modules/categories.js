@@ -10,24 +10,28 @@ function apiCall(): Promise {
       name: 'APPETIZERS',
       description: 'Starters in 10 Minutes',
       imageUrl: '/images/categories/Cat_Appetizers_2x.jpg',
+      showNameCatPage: true,
     },
     {
       id: 1,
       name: 'ENTRÉES',
       description: 'Dinner in 30 minutes',
       imageUrl: '/images/categories/Cat_Entrees_2x.jpg',
+      showNameCatPage: true,
     },
     {
       id: 2,
       name: 'SIDES',
       description: '',
       imageUrl: '/images/categories/Cat_Sides_2x.jpg',
+      showNameCatPage: true,
     },
     {
       id: 3,
       name: 'BEST SELLERS',
       description: 'Dinner in 30 minutes',
       imageUrl: '/images/categories/Cat_Best_Sellers_2x.jpg',
+      showNameCatPage: true,
     },
     {
       id: 4,
@@ -35,6 +39,7 @@ function apiCall(): Promise {
       description: '',
       imageUrl: '',
       hiddenInNavigation: true,
+      showNameCatPage: true,
     },
     {
       id: 5,
@@ -42,12 +47,14 @@ function apiCall(): Promise {
       description: '',
       imageUrl: '',
       hiddenInNavigation: true,
+      showNameCatPage: true,
     },
     {
       id: 6,
       name: 'GIFT CARDS',
       description: 'Gift cards will be here',
       imageUrl: '',
+      showNameCatPage: true,
     },
     {
       id: 7,
@@ -55,6 +62,7 @@ function apiCall(): Promise {
       description: 'Valentine\'s Day Picks',
       imageUrl: '/images/categories/Cat_Valentine_2x.jpg',
       hiddenInNavigation: true,
+      showNameCatPage: false,
     },
     {
       id: 8,
@@ -62,6 +70,7 @@ function apiCall(): Promise {
       description: 'Weeknight Favorites',
       imageUrl: '/images/categories/Cat_Weeknights_2x.jpg',
       hiddenInNavigation: true,
+      showNameCatPage: false,
     },
     {
       id: 9,
@@ -69,6 +78,7 @@ function apiCall(): Promise {
       description: 'Classics Revisited',
       imageUrl: '/images/categories/Cat_Spin_2x.jpg',
       hiddenInNavigation: true,
+      showNameCatPage: false,
     },
   ];
   return Promise.resolve(result);
