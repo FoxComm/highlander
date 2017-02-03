@@ -4,6 +4,19 @@ const system = require('system');
 const fox = require('api-js');
 const superagent = require('superagent');
 const countries = require('./countries.json');
+const SHA1 = require('crypto-js/sha1');
+
+function productHash(productId) {
+  return SHA1(`products/${productId}`).toString();
+}
+
+function cartHash(cartRefNum) {
+  return SHA1(`carts/${cartRefNum}`).toString();
+}
+
+function orderHash(cartRefNum) {
+  return SHA1(`orders/${cartRefNum}`).toString();
+}
 
 function createApi(apiBaseUrl ,stripeKey, options = {}) {
 
@@ -63,7 +76,7 @@ async function category(c) {
         subject: 1,
         verb: 'list',
         obj: 'product',
-        objId: product.id,
+        objId: productHash(product.id),
     });
   });
 
@@ -78,7 +91,7 @@ async function product(c) {
       subject: 1,
       verb: 'pdp',
       obj: 'product',
-      objId: c.product.id,
+      objId: productHash(product.id),
   });
 }
 
@@ -105,7 +118,7 @@ async function purchase(c) {
       subject: 1,
       verb: 'checkout',
       obj: 'cart',
-      objId: cart.referenceNumber,
+      objId: cartHash(cart.referenceNumber),
   });
   _.map(cart.skus, async sku => {
       const productId = _.get(sku, 'productFormId', null);
@@ -114,7 +127,7 @@ async function purchase(c) {
           subject: 1,
           verb: 'checkout',
           obj: 'product',
-          objId: productId,
+          objId: productHash(product.id),
       });
   });
 
@@ -170,7 +183,7 @@ async function purchase(c) {
       subject: 1,
       verb: 'purchase',
       obj: 'order',
-      objId: cart.referenceNumber,
+      objId: orderHash(cart.referenceNumber),
   });
   _.map(cart.skus, async sku => {
       const productId = _.get(sku, 'productFormId', null);
@@ -179,7 +192,7 @@ async function purchase(c) {
           subject: 1,
           verb: 'purchase',
           obj: 'product',
-          objId: productId,
+          objId: productHash(productId),
       });
       foxApi.analytics.trackEvent({
           channel: 1,
@@ -187,7 +200,7 @@ async function purchase(c) {
           verb: 'purchase-quantity',
           obj: 'product',
           count: sku.quantity,
-          objId: productId
+          objId: productHash(productId),
       });
       foxApi.analytics.trackEvent({
           channel: 1,
@@ -195,7 +208,7 @@ async function purchase(c) {
           verb: 'revenue',
           obj: 'product',
           count: sku.price,
-          objId: productId,
+          objId: productHash(productId),
       });
   });
 }
@@ -216,4 +229,3 @@ const stateFunctions = {
 
 exports.setup = setup;
 exports.stateFunctions = stateFunctions;
-
