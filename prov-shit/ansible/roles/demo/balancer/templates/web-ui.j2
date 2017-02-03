@@ -52,6 +52,7 @@ server {
   {% if storefront_fixed_language %}set $accept_language {{storefront_default_language}};{% endif %}
 
   location / {
+      add_header X-Host $host;
       proxy_pass http://river-rock/proxy/;
       break;
   }

@@ -102,6 +102,10 @@ func (p *RiverRock) StartProxy() error {
 		originalPath := req.URL.Path[6:]
 		reqUri := req.RequestURI[6:]
 
+		if xhost, ok := req.Header["X-Host"]; ok {
+			req.Header["Host"] = xhost
+		}
+
 		//Get pinned cluster Id from header
 		clusterId, err := getClusterIdFromHeader(req)
 
