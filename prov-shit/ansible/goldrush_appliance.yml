@@ -1,0 +1,73 @@
+---
+
+- name: Launch Developer Appliance
+  hosts: localhost
+  vars:
+    gce_service_account_email: "{{ lookup('env', 'GOOGLE_SERVICE_ACCOUNT_EMAIL') }}"
+    gce_credentials_file: "{{ lookup('env', 'GOOGLE_JSON_KEY_LOCATION') }}"
+    gce_instance_name: "{{ lookup('env', 'GOOGLE_INSTANCE_NAME') }}"
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+  roles:
+    - { role: dev/appliance_gce }
+
+- name: Provision Developer Appliance
+  hosts: gce_instances_ips
+  become: true
+  vars:
+    cert_path: test/fox
+    docker_db_host: 172.17.0.1
+    docker_tags:
+        ashes: "{{ lookup('env', 'DOCKER_TAG_ASHES') }}"
+        firebrand: "{{ lookup('env', 'DOCKER_TAG_FIREBRAND') }}"
+        phoenix: "{{ lookup('env', 'DOCKER_TAG_PHOENIX') }}"
+        greenriver: "{{ lookup('env', 'DOCKER_TAG_GREENRIVER') }}"
+        middlewarehouse: "{{ lookup('env', 'DOCKER_TAG_MIDDLEWAREHOUSE') }}"
+        messaging: "{{ lookup('env', 'DOCKER_TAG_MESSAGING') }}"
+        isaac: "{{ lookup('env', 'DOCKER_TAG_ISAAC') }}"
+        solomon: "{{ lookup('env', 'DOCKER_TAG_SOLOMON') }}"
+        capture_consumer: "{{ lookup('env', 'DOCKER_TAG_CAPTURE_CONSUMER') }}"
+        gift_card_consumer: "{{ lookup('env', 'DOCKER_TAG_GIFT_CARD_CONSUMER') }}"
+        shipments_consumer: "{{ lookup('env', 'DOCKER_TAG_SHIPMENTS_CONSUMER') }}"
+        shipstation_consumer: "{{ lookup('env', 'DOCKER_TAG_SHIPSTATION_CONSUMER') }}"
+        stock_items_consumer: "{{ lookup('env', 'DOCKER_TAG_STOCK_ITEMS_CONSUMER') }}"
+    install_public_keys: true
+    install_private_keys: true
+    is_appliance: true
+    is_amigo: true
+    mesos_quorum: 1
+    with_base_seeds: true
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+  pre_tasks:
+    - name: Set IP/DNS Facts
+      set_fact:
+        private_ip: "{{ansible_default_ipv4.address}}"
+        dns_record: "appliance-{{ansible_default_ipv4.address | replace(\".\", \"-\") }}"
+    - name: Override hostnames
+      set_fact:
+        appliance_hostname: "{{dns_record}}.{{foxcomm_domain}}"
+        ashes_server_name: "{{dns_record}}.{{foxcomm_domain}}"
+        storefront_server_name: "{{dns_record}}.{{foxcomm_domain}}"
+  roles:
+    # Core
+    - { role: dev/appliance }
+    - { role: dev/dashboard }
+    # Services
+    - { role: dev/zookeeper }
+    - { role: dev/consul_agent }
+    - { role: dev/elasticsearch }
+    - { role: hotfix/kibana }
+    - { role: dev/db }
+    # Marathon
+    - { role: dev/marathon }
+    - { role: dev/seeder }
+    - { role: dev/marathon, only_consumers: true }
+    # Nginx
+    - { role: dev/balancer }
+    - { role: hotfix/mesos_consul }
+    - { role: demo/balancer }
+    # Finale
+    - { role: dev/healthcheck }
+    - { role: dev/appliance_dns }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml

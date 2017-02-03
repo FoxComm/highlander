@@ -10,4 +10,4 @@
       private: no
 
   roles:
-      - { role: ext/common/promo_hotfix }
+      - { role: hotfix/promotions }
