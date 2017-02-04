@@ -6,7 +6,7 @@ import models.product._
 import responses.AlbumResponses._
 import responses.ObjectResponses._
 import responses.SkuResponses._
-import responses.TaxonomyResponses.SingleTaxonResponse
+import responses.TaxonomyResponses.AssignedTaxonsResponse
 import responses.VariantResponses._
 import utils.aliases._
 
@@ -31,14 +31,14 @@ object ProductResponses {
                     skus: Seq[SkuResponse.Root],
                     variants: Seq[IlluminatedVariantResponse.Root],
                     archivedAt: Option[Instant],
-                    taxons: Seq[SingleTaxonResponse])
+                    taxons: Seq[AssignedTaxonsResponse])
         extends ResponseItem
 
     def build(product: IlluminatedProduct,
               albums: Seq[AlbumResponse.Root],
               skus: Seq[SkuResponse.Root],
               variants: Seq[IlluminatedVariantResponse.Root],
-              taxons: Seq[SingleTaxonResponse]): Root =
+              taxons: Seq[AssignedTaxonsResponse]): Root =
       Root(id = product.id,
            slug = product.slug,
            attributes = product.attributes,

@@ -50,14 +50,9 @@ const MultiSelectRow = (props, context) => {
         break;
     }
 
-    const cls = classNames({
+    const cls = classNames(`fct-row__${col.field}`, {
       'row-head-left': col.field == 'selectColumn',
-      'row-head-right': col.field == 'toggleColumns',
-      'retail-price-field' : col.field == 'retailPrice',
-      'sale-price-field' : col.field == 'salePrice',
-      'coupon-code' : col.field == 'code',
-      'total-uses' : col.field == 'totalUsed',
-      'current-carts' : col.field == 'currentCarts',
+      'row-head-right': col.field == 'toggleColumns'
     });
 
     visibleCells.push(

@@ -21,14 +21,14 @@ object TaxonomyResponses {
     }
   }
 
-  case class TaxonomyResponse(id: Int,
-                              hierarchical: Boolean,
-                              attributes: Json,
-                              taxons: Seq[TaxonTreeResponse])
+  case class FullTaxonomyResponse(id: Int,
+                                  hierarchical: Boolean,
+                                  attributes: Json,
+                                  taxons: Seq[TaxonTreeResponse])
 
-  object TaxonomyResponse {
-    def build(taxon: FullObject[Taxonomy], taxons: Seq[LinkedTaxon]): TaxonomyResponse = {
-      TaxonomyResponse(
+  object FullTaxonomyResponse {
+    def build(taxon: FullObject[Taxonomy], taxons: Seq[LinkedTaxon]): FullTaxonomyResponse = {
+      FullTaxonomyResponse(
           taxon.model.formId,
           taxon.model.hierarchical,
           IlluminateAlgorithm.projectAttributes(taxon.form.attributes, taxon.shadow.attributes),
@@ -36,7 +36,25 @@ object TaxonomyResponses {
     }
   }
 
+  case class AssignedTaxonsResponse(taxonomyId: Int,
+                                    hierarchical: Boolean,
+                                    attributes: Json,
+                                    taxons: Seq[Taxon])
+  object AssignedTaxonsResponse {
+    def build(taxonomy: FullObject[Taxonomy],
+              taxons: Seq[FullObject[ModelTaxon]]): AssignedTaxonsResponse = {
+      val taxonAttributes =
+        IlluminateAlgorithm.projectAttributes(taxonomy.form.attributes, taxonomy.shadow.attributes)
+
+      AssignedTaxonsResponse(taxonomy.model.formId,
+                             taxonomy.model.hierarchical,
+                             taxonAttributes,
+                             taxons.map(Taxon.build))
+    }
+  }
+
   case class SingleTaxonResponse(taxonomyId: Int, taxon: Taxon, parentId: Option[Integer])
+
   object SingleTaxonResponse {
     def build(taxonomyId: Integer, taxon: FullObject[ModelTaxon], parentTaxonId: Option[Integer]) =
       SingleTaxonResponse(taxonomyId, Taxon.build(taxon), parentTaxonId)

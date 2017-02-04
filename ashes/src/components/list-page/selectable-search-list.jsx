@@ -37,6 +37,7 @@ export default class SelectableSearchList extends React.Component {
     predicate: PropTypes.func,
     hasActionsColumn: PropTypes.bool,
     autoRefresh: PropTypes.bool,
+    tbodyId: PropTypes.string,
   };
 
   static defaultProps = {
@@ -74,7 +75,7 @@ export default class SelectableSearchList extends React.Component {
         noGutter={props.noGutter}
       >
         <MultiSelectTable
-          tbodyId="coupon-codes-list"
+          tbodyId={props.tbodyId}
           columns={props.tableColumns}
           data={results}
           renderRow={props.renderRow}

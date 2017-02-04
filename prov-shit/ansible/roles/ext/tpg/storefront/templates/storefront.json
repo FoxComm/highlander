@@ -11,6 +11,10 @@
     "PHOENIX_PUBLIC_KEY": "/keys/public_key.pem",
     "STRIPE_PUBLISHABLE_KEY": "{{stripe_publishable_key}}"
   },
+  "labels": {
+    "LAYER": "frontend",
+    "LANG": "js"
+  },
   "healthChecks": [
     {
       "path": "/",

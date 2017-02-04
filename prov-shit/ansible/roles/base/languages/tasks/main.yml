@@ -1,0 +1,19 @@
+---
+
+- name: Install Java
+  include: java.yml
+
+- name: Install SBT
+  include: sbt.yml
+
+- name: Install Clojure
+  include: clojure.yml
+
+- name: Install Go
+  include: go.yml
+
+- name: Install Node
+  include: node.yml
+
+- name: Install Elixir
+  include: elixir.yml
