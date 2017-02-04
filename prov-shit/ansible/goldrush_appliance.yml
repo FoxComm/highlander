@@ -6,6 +6,7 @@
     gce_service_account_email: "{{ lookup('env', 'GOOGLE_SERVICE_ACCOUNT_EMAIL') }}"
     gce_credentials_file: "{{ lookup('env', 'GOOGLE_JSON_KEY_LOCATION') }}"
     gce_instance_name: "{{ lookup('env', 'GOOGLE_INSTANCE_NAME') }}"
+    is_ci: "{{ ansible_user | default(lookup('env', 'IS_CI')) }}"
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
   roles:
     - { role: dev/appliance_gce }
