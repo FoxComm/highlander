@@ -1,11 +1,8 @@
 #!/usr/bin/env bash
 # A script executed on BuildKite to test developer appliance provisioning on GCE
 
-echo -e "--- Executing \033[33mmake up\033[0m"
 make up
 MAKE_UP_EXIT_CODE=$?
-
-echo -e "--- Executing \033[33mmake destroy\033[0m"
 make destroy
 
 if [ $MAKE_UP_EXIT_CODE -eq 0 ]; then
