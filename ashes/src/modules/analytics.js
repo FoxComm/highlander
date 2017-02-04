@@ -3,6 +3,7 @@ import _ from 'lodash';
 import {createAction, createReducer} from 'redux-act';
 import { assoc } from 'sprout-data';
 import Api from '../lib/api';
+import SHA1 from 'crypto-js/sha1';
 
 // helpers
 const fetchStatsForStatKey = (statType, statKey, from, to, productId, size, statNames, channel) => {
