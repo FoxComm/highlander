@@ -13,10 +13,9 @@ import MultiSelectRow from 'components/table/multi-select-row';
 import LoadingInputWrapper from 'components/forms/loading-input-wrapper';
 import { DeleteButton } from 'components/common/buttons';
 
-import reducer, { suggestVariants } from 'modules/product-variants/suggest';
-import type { SuggestOptions } from 'modules/product-variants/suggest';
+import reducer, { suggestSkus } from 'modules/skus/suggest';
+import type { SuggestOptions } from 'modules/skus/suggest';
 import type { ProductVariant } from 'modules/product-variants/details';
-import type { ProductVariant as SearchViewProductVariant } from 'modules/product-variants/list';
 import { productVariantCode } from 'paragons/product';
 
 type Column = {
@@ -33,10 +32,10 @@ type Props = {
   updateField: (id: string, field: string, value: any) => void,
   updateFields: (id: string, toUpdate: Array<Array<any>>) => void,
   onDeleteClick: (id: string) => void,
-  isFetchingVariants: boolean,
+  isFetchingSkus: boolean,
   skuOptionsMap: Object,
-  suggestVariants: (code: string, context?: SuggestOptions) => Promise,
-  suggestedVariants: Array<SearchViewProductVariant>,
+  suggestSkus: (code: string, context?: SuggestOptions) => Promise,
+  suggestedSkus: Array<TSearchViewSku>,
   options: Array<any>,
 };
 
@@ -48,8 +47,8 @@ type State = {
 
 function mapLocalStateToProps(state) {
   return {
-    isFetchingVariants: _.get(state.asyncActions, 'suggestVariants.inProgress', false),
-    suggestedVariants: _.get(state, 'variants', []),
+    isFetchingSkus: _.get(state.asyncActions, 'suggestSkus.inProgress', false),
+    suggestedSkus: _.get(state, 'skus', []),
   };
 }
 
@@ -57,18 +56,10 @@ function stop(event: SyntheticEvent) {
   event.stopPropagation();
 }
 
-function pickProductVariantAttrs(searchViewProductVariant: SearchViewProductVariant) {
-  const productVariant = _.pick(searchViewProductVariant, ['title', 'context']);
-  productVariant.salePrice = {
-    value: Number(searchViewProductVariant.salePrice),
-    currency: searchViewProductVariant.salePriceCurrency,
+function pickProductVariantAttrs(sku: TSearchViewSku) {
+  return {
+    code: sku.sku,
   };
-  productVariant.retailPrice = {
-    value: Number(searchViewProductVariant.retailPrice),
-    currency: searchViewProductVariant.retailPriceCurrency,
-  };
-  productVariant.code = searchViewProductVariant.skuCode;
-  return productVariant;
 }
 
 class EditableVariantRow extends Component {
@@ -115,7 +106,7 @@ class EditableVariantRow extends Component {
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    if (this.props.isFetchingVariants && !nextProps.isFetchingVariants) {
+    if (this.props.isFetchingSkus && !nextProps.isFetchingSkus) {
       this.setState({
         isMenuVisible: true,
       });
@@ -125,10 +116,10 @@ class EditableVariantRow extends Component {
   updateSkuFromSuggest() {
     const { props } = this;
 
-    if (!_.isEmpty(props.suggestedVariants)) {
-      const matchedSku = _.find(props.suggestedVariants, {code: this.skuCodeValue.toUpperCase()});
+    if (!_.isEmpty(props.suggestedSkus)) {
+      const matchedSku = _.find(props.suggestedSkus, {code: this.skuCodeValue.toUpperCase()});
       if (matchedSku) {
-        this.updateAttrsBySVProductVariant(matchedSku);
+        this.updateAttrsBySku(matchedSku);
       }
     }
   }
@@ -159,20 +150,20 @@ class EditableVariantRow extends Component {
     return productVariantCode(this.props.productVariant);
   }
 
-  suggestVariants(text: string): Promise|void {
-    return this.props.suggestVariants(text, {
+  suggestSkus(text: string): Promise|void {
+    return this.props.suggestSkus(text, {
       context: this.props.skuContext
     });
   }
 
-  updateAttrsBySVProductVariant(searchViewProductVariant: SearchViewProductVariant) {
-    this.updateVariant(pickProductVariantAttrs(searchViewProductVariant));
+  updateAttrsBySku(sku: TSearchViewSku) {
+    this.updateVariant(pickProductVariantAttrs(sku));
   }
 
   @autobind
-  handleSelectSku(searchViewProductVariant: SearchViewProductVariant) {
+  handleSelectSku(sku: TSearchViewSku) {
     this.closeVariantsMenu(
-      () => this.updateAttrsBySVProductVariant(searchViewProductVariant)
+      () => this.updateAttrsBySku(sku)
     );
   }
 
@@ -189,32 +180,32 @@ class EditableVariantRow extends Component {
         styleName="variant-row"
         className="_new"
         onMouseDown={() => this.closeVariantsMenu() }>
-        <div>New Variant</div>
+        <div>New SKU</div>
         <strong>{this.state.variant.code}</strong>
       </li>
     );
   }
 
   get menuItemsContent(): Array<Element> {
-    const items = this.props.suggestedVariants;
+    const items = this.props.suggestedSkus;
 
-    return items.map((pv: SearchViewProductVariant) => {
+    return items.map((sku: TSearchViewSku) => {
       return (
         <li
-          id={`search-view-${pv.skuCode}`}
+          id={`search-view-${sku.sku}`}
           styleName="variant-row"
-          onMouseDown={() => { this.handleSelectSku(pv); }}
-          key={`row-${pv.id}`}>
-          <strong>{pv.skuCode}</strong>
+          onMouseDown={() => { this.handleSelectSku(sku); }}
+          key={`row-${sku.id}`}>
+          <strong>{sku.sku}</strong>
         </li>
       );
     });
   }
 
   get skusMenu(): Element {
-    const content = _.isEmpty(this.props.suggestedVariants) ? this.menuEmptyContent : this.menuItemsContent;
+    const content = _.isEmpty(this.props.suggestedSkus) ? this.menuEmptyContent : this.menuItemsContent;
     const openMenu =
-      this.state.isMenuVisible && this.skuCodeValue.length > 0 && !this.props.isFetchingVariants;
+      this.state.isMenuVisible && this.skuCodeValue.length > 0 && !this.props.isFetchingSkus;
 
     const className = openMenu ? '_visible' : void 0;
 
@@ -237,7 +228,7 @@ class EditableVariantRow extends Component {
     return (
       <div styleName="variant-cell">
         <FormField error={error} scrollToErrors>
-          <LoadingInputWrapper inProgress={this.props.isFetchingVariants}>
+          <LoadingInputWrapper inProgress={this.props.isFetchingSkus}>
             <input
               className="fc-text-input"
               type="text"
@@ -323,7 +314,7 @@ class EditableVariantRow extends Component {
     this.updateVariant({
       code: value,
     });
-    const promise = this.suggestVariants(value);
+    const promise = this.suggestSkus(value);
     if (promise) {
       promise.then(() => {
         this.updateSkuFromSuggest();
@@ -377,5 +368,5 @@ class EditableVariantRow extends Component {
 
 export default _.flowRight(
   makeLocalStore(addAsyncReducer(reducer)),
-  connect(mapLocalStateToProps, { suggestVariants })
+  connect(mapLocalStateToProps, { suggestSkus })
 )(EditableVariantRow);

@@ -34,7 +34,7 @@ const SkusList = props => {
 
   return (
     <SelectableSearchList
-      entity="inventory.list"
+      entity="skus.list"
       emptyMessage="No SKUs found."
       list={props.list}
       renderRow={renderRow}

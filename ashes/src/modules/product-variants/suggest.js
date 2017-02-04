@@ -1,5 +1,4 @@
 // @flow
-// if you want suggest skus in your UI use this module
 
 import _ from 'lodash';
 import { createAction, createReducer } from 'redux-act';
@@ -32,7 +31,7 @@ const _suggestVariants = createAsyncActions(
         should: [
           dsl.matchQuery('skuCode', {
             query: value,
-            operator: 'and',
+            type: 'phrase_prefix',
           }),
           ...titleMatch
         ],

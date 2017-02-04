@@ -13,39 +13,19 @@ export const updateSkuItemsCount = createAction(
 
 const clearSkuItemsChanges = createAction('SKU_CLEAR_ITEMS_CHANGES');
 
-export type StockCounts = {
-  onHand: number,
-  onHold: number,
-  reserved: number,
-  shipped: number,
-  afs: number,
-  afsCost: number,
-}
-
-export type StockLocation = {
-  id: number,
-  name: string,
-}
-
-export type StockItem = {
-  id: number,
-  sku: string,
-  defaultUnitCost: number,
-}
-
-export type StockItemSummary = StockCounts & {
-  stockLocation: StockLocation,
-  stockItem: StockItem,
+export type StockItemSummary = TStockCounts & {
+  stockLocation: TStockLocation,
+  stockItem: TStockItem,
   type: string,
   sku: string,
 }
 
-export type StockItemFlat = StockCounts & StockItem & {
+export type StockItemFlat = TStockCounts & TStockItem & {
   type: string,
 };
 
-export type WarehouseInventorySummary = StockCounts & {
-  stockLocation: StockLocation,
+export type WarehouseInventorySummary = TStockCounts & {
+  stockLocation: TStockLocation,
   stockItems: Array<StockItemFlat>,
 }
 
