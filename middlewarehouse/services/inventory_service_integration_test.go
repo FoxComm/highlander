@@ -34,6 +34,7 @@ func (suite *InventoryServiceIntegrationTestSuite) SetupSuite() {
 
 	tasks.TruncateTables(suite.db, []string{
 		"stock_locations",
+		"skus",
 	})
 
 	stockItemRepository := repositories.NewStockItemRepository(suite.db)
@@ -45,7 +46,11 @@ func (suite *InventoryServiceIntegrationTestSuite) SetupSuite() {
 	suite.service = &inventoryService{stockItemRepository, unitRepository, suite.summaryService, suite.db, nil}
 
 	suite.sl, _ = stockLocationService.CreateLocation(fixtures.GetStockLocation())
-	suite.sku = "SKU-INTEGRATION"
+
+	sku := fixtures.GetSKU()
+	suite.Nil(suite.db.Create(sku).Error)
+
+	suite.sku = sku.Code
 }
 
 func (suite *InventoryServiceIntegrationTestSuite) SetupTest() {
