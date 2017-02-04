@@ -11,7 +11,7 @@ dotenv:
 
 up:
 	$(call header, Creating GCE Machine)
-	ansible-playbook --user=$(GOOGLE_SSH_USER) --private-key=$(GOOGLE_SSH_KEY) prov-shit/ansible/goldrush_appliance.yml
+	ansible-playbook --user=$(GOOGLE_SSH_USERNAME) --private-key=$(GOOGLE_SSH_KEY) prov-shit/ansible/goldrush_appliance.yml
 	@cat goldrush.log
 
 destroy:
