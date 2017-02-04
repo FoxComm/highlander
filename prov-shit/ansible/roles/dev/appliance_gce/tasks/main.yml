@@ -33,6 +33,10 @@
   add_host: hostname="{{item.private_ip}}" groupname=gce_instances_ips
   with_items: "{{gce.instance_data}}"
 
+- name: Pausing for a bit...
+  pause: seconds=60
+  when: is_ci
+
 - name: Waiting for SSH...
   wait_for:
     delay: 1
