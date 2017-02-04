@@ -10,7 +10,7 @@ if [ $MAKE_UP_EXIT_CODE -eq 0 ]; then
     echo "make up exit code: $MAKE_UP_EXIT_CODE"
     exit 0
 else
-    echo -e "--- Appliance creation \033[41mfailure\033[0m"
+    echo -e "--- Appliance creation \041[41mfailure\041[0m"
     echo "make up exit code: $MAKE_UP_EXIT_CODE"
     exit 1
 fi
