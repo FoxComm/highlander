@@ -18,19 +18,19 @@
     cert_path: test/fox
     docker_db_host: 172.17.0.1
     docker_tags:
-        ashes: "{{ lookup('env', 'DOCKER_TAG_ASHES') }}"
-        firebrand: "{{ lookup('env', 'DOCKER_TAG_FIREBRAND') }}"
-        phoenix: "{{ lookup('env', 'DOCKER_TAG_PHOENIX') }}"
-        greenriver: "{{ lookup('env', 'DOCKER_TAG_GREENRIVER') }}"
-        middlewarehouse: "{{ lookup('env', 'DOCKER_TAG_MIDDLEWAREHOUSE') }}"
-        messaging: "{{ lookup('env', 'DOCKER_TAG_MESSAGING') }}"
-        isaac: "{{ lookup('env', 'DOCKER_TAG_ISAAC') }}"
-        solomon: "{{ lookup('env', 'DOCKER_TAG_SOLOMON') }}"
-        capture_consumer: "{{ lookup('env', 'DOCKER_TAG_CAPTURE_CONSUMER') }}"
-        gift_card_consumer: "{{ lookup('env', 'DOCKER_TAG_GIFT_CARD_CONSUMER') }}"
-        shipments_consumer: "{{ lookup('env', 'DOCKER_TAG_SHIPMENTS_CONSUMER') }}"
-        shipstation_consumer: "{{ lookup('env', 'DOCKER_TAG_SHIPSTATION_CONSUMER') }}"
-        stock_items_consumer: "{{ lookup('env', 'DOCKER_TAG_STOCK_ITEMS_CONSUMER') }}"
+        ashes: "{{ lookup('env', 'DOCKER_TAG_ASHES') | default('master') }}"
+        firebrand: "{{ lookup('env', 'DOCKER_TAG_FIREBRAND') | default('master') }}"
+        phoenix: "{{ lookup('env', 'DOCKER_TAG_PHOENIX') | default('master') }}"
+        greenriver: "{{ lookup('env', 'DOCKER_TAG_GREENRIVER') | default('master') }}"
+        middlewarehouse: "{{ lookup('env', 'DOCKER_TAG_MIDDLEWAREHOUSE') | default('master') }}"
+        messaging: "{{ lookup('env', 'DOCKER_TAG_MESSAGING') | default('master') }}"
+        isaac: "{{ lookup('env', 'DOCKER_TAG_ISAAC') | default('master') }}"
+        solomon: "{{ lookup('env', 'DOCKER_TAG_SOLOMON') | default('master') }}"
+        capture_consumer: "{{ lookup('env', 'DOCKER_TAG_CAPTURE_CONSUMER') | default('master') }}"
+        gift_card_consumer: "{{ lookup('env', 'DOCKER_TAG_GIFT_CARD_CONSUMER') | default('master') }}"
+        shipments_consumer: "{{ lookup('env', 'DOCKER_TAG_SHIPMENTS_CONSUMER') | default('master') }}"
+        shipstation_consumer: "{{ lookup('env', 'DOCKER_TAG_SHIPSTATION_CONSUMER') | default('master') }}"
+        stock_items_consumer: "{{ lookup('env', 'DOCKER_TAG_STOCK_ITEMS_CONSUMER') | default('master') }}"
     install_public_keys: true
     install_private_keys: true
     is_appliance: true
