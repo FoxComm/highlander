@@ -77,8 +77,9 @@ class CartValidatorIntegrationTest
 
     "/v1/carts/:refNum/line-items" in new LineItemFixture {
 
-      checkResponse(cartsApi(refNum).lineItems.add(Seq(UpdateLineItemsPayload(sku.formId, 1))),
-                    Seq(InsufficientFunds(refNum), NoShipAddress(refNum), NoShipMethod(refNum)))
+      checkResponse(
+          cartsApi(refNum).lineItems.add(Seq(UpdateLineItemsPayload(productVariant.formId, 1))),
+          Seq(InsufficientFunds(refNum), NoShipAddress(refNum), NoShipMethod(refNum)))
     }
 
     "/v1/carts/:refNum/coupon" in new CouponFixture {
@@ -89,21 +90,25 @@ class CartValidatorIntegrationTest
     "must validate funds with line items:" - {
       "must return warning when credit card is removed" in new LineItemAndFundsFixture {
         val api = cartsApi(refNum)
-        api.lineItems.add(Seq(UpdateLineItemsPayload(sku.formId, 1))).mustBeOk()
+        api.lineItems.add(Seq(UpdateLineItemsPayload(productVariant.formId, 1))).mustBeOk()
         api.payments.creditCard.add(CreditCardPayment(creditCard.id)).mustBeOk()
         checkResponse(api.payments.creditCard.delete(),
                       Seq(NoShipAddress(refNum), NoShipMethod(refNum), InsufficientFunds(refNum)))
       }
 
       "must return warning when store credits are removed" in new LineItemAndFundsFixture {
-        cartsApi(refNum).lineItems.add(Seq(UpdateLineItemsPayload(sku.formId, 1))).mustBeOk()
+        cartsApi(refNum).lineItems
+          .add(Seq(UpdateLineItemsPayload(productVariant.formId, 1)))
+          .mustBeOk()
         cartsApi(refNum).payments.storeCredit.add(StoreCreditPayment(500)).mustBeOk()
         checkResponse(cartsApi(refNum).payments.storeCredit.delete(),
                       Seq(NoShipAddress(refNum), NoShipMethod(refNum), InsufficientFunds(refNum)))
       }
 
       "must return warning when gift card is removed" in new LineItemAndFundsFixture {
-        cartsApi(refNum).lineItems.add(Seq(UpdateLineItemsPayload(sku.formId, 1))).mustBeOk()
+        cartsApi(refNum).lineItems
+          .add(Seq(UpdateLineItemsPayload(productVariant.formId, 1)))
+          .mustBeOk()
         cartsApi(refNum).payments.giftCard.add(GiftCardPayment(giftCard.code)).mustBeOk()
         checkResponse(cartsApi(refNum).payments.giftCard.delete(giftCard.code),
                       Seq(NoShipAddress(refNum), NoShipMethod(refNum), InsufficientFunds(refNum)))
@@ -135,10 +140,10 @@ class CartValidatorIntegrationTest
   }
 
   trait LineItemFixture extends EmptyCustomerCart_Baked {
-    val (sku) = (for {
+    val (productVariant) = (for {
       product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head)
-      sku     ← * <~ ProductVariants.mustFindById404(product.skuId)
-    } yield sku).gimme
+      variant ← * <~ ProductVariants.mustFindById404(product.variantId)
+    } yield variant).gimme
     val refNum = cart.refNum
   }
 
@@ -195,13 +200,13 @@ class CartValidatorIntegrationTest
   }
 
   trait LineItemAndFundsFixture extends Reason_Baked with Customer_Seed {
-    val (refNum, sku, creditCard, giftCard) = (for {
+    val (refNum, productVariant, creditCard, giftCard) = (for {
       _          ← * <~ Addresses.create(Factories.address.copy(accountId = customer.accountId))
       cc         ← * <~ CreditCards.create(Factories.creditCard.copy(accountId = customer.accountId))
       productCtx ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       cart       ← * <~ Carts.create(Factories.cart(Scope.current).copy(accountId = customer.accountId))
       product    ← * <~ Mvp.insertProduct(productCtx.id, Factories.products.head)
-      sku        ← * <~ ProductVariants.mustFindById404(product.skuId)
+      variant    ← * <~ ProductVariants.mustFindById404(product.variantId)
       manual ← * <~ StoreCreditManuals.create(
                   StoreCreditManual(adminId = storeAdmin.accountId, reasonId = reason.id))
       _ ← * <~ StoreCredits.create(
@@ -212,7 +217,7 @@ class CartValidatorIntegrationTest
                   GiftCardManual(adminId = storeAdmin.accountId, reasonId = reason.id))
       giftCard ← * <~ GiftCards.create(
                     Factories.giftCard.copy(originId = origin.id, state = GiftCard.Active))
-    } yield (cart.refNum, sku, cc, giftCard)).gimme
+    } yield (cart.refNum, variant, cc, giftCard)).gimme
   }
 
   trait ExpectedWarningsForPayment {

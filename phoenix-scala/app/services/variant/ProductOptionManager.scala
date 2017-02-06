@@ -93,10 +93,10 @@ object ProductOptionManager {
 
     for {
       scope ← * <~ Scope.resolveOverride(payload.scope)
-      skuCodes ← * <~ payload.skuCodes.map(
-                    ProductVariantManager.mustFindByContextAndCode(ctx.id, _))
-      _ ← * <~ skuCodes.map(sku ⇒
-               DbResultT.fromXor(sku.mustNotBeArchived(ProductOption, variant.formId)))
+      productVariants ← * <~ payload.skus.map(
+                           ProductVariantManager.mustFindByContextAndCode(ctx.id, _))
+      _ ← * <~ productVariants.map(variant ⇒
+               DbResultT.fromXor(variant.mustNotBeArchived(ProductOption, variant.formId)))
       ins ← * <~ ObjectUtils.insert(form, shadow, payload.schema)
       variantValue ← * <~ ProductOptionValues.create(
                         ProductOptionValue(scope = scope,
@@ -106,7 +106,7 @@ object ProductOptionManager {
                                            commitId = ins.commit.id))
       _ ← * <~ ProductOptionValueLinks.create(
              ProductOptionValueLink(leftId = variant.id, rightId = variantValue.id))
-      _ ← * <~ skuCodes.map(
+      _ ← * <~ productVariants.map(
              s ⇒
                ProductValueVariantLinks.create(
                    ProductValueVariantLink(leftId = variantValue.id, rightId = s.id)))
@@ -130,7 +130,7 @@ object ProductOptionManager {
       commit      ← * <~ ObjectUtils.commit(updated)
       updatedHead ← * <~ updateValueHead(value, updated.shadow, commit)
 
-      newProductVariants ← * <~ payload.skuCodes.map(
+      newProductVariants ← * <~ payload.skus.map(
                               ProductVariantManager.mustFindByContextAndCode(ctx.id, _))
       newProductVariantIds = newProductVariants.map(_.id).toSet
 

@@ -425,6 +425,7 @@ object ProductManager {
     ObjectManager.getFullObject(Products.mustFindById404(productId))
 
   // This is an inefficient intensely quering method that does the trick
+  // TODO @anna migrate to variant form id
   private def productVariantsToBeUnassociatedMustNotBePresentInCarts(
       productId: Int,
       payloadVariants: Seq[ProductVariantPayload])(implicit ec: EC, db: DB): DbResultT[Unit] =
@@ -437,27 +438,28 @@ object ProductManager {
                                          lift(links.map(_.rightId))
                                        case _ ⇒
                                          for {
-                                           variantLinks ← ProductOptionLinks
-                                                           .filter(_.leftId === productId)
-                                                           .result
-                                           variantIds = variantLinks.map(_.rightId)
-                                           valueLinks ← ProductOptionValueLinks
-                                                         .filter(_.leftId.inSet(variantIds))
-                                                         .result
-                                           valueIds = valueLinks.map(_.rightId)
-                                           skuLinks ← ProductValueVariantLinks
-                                                       .filter(_.leftId.inSet(valueIds))
-                                                       .result
-                                         } yield skuLinks.map(_.rightId)
+                                           optionLinks ← ProductOptionLinks
+                                                          .filter(_.leftId === productId)
+                                                          .result
+                                           variantIds = optionLinks.map(_.rightId)
+                                           optionValueLinks ← ProductOptionValueLinks
+                                                               .filter(_.leftId.inSet(variantIds))
+                                                               .result
+                                           optionValueIds = optionValueLinks.map(_.rightId)
+                                           optionValueToVariantLinks ← ProductValueVariantLinks
+                                                                        .filter(_.leftId.inSet(
+                                                                                optionValueIds))
+                                                                        .result
+                                         } yield optionValueToVariantLinks.map(_.rightId)
                                      }
-      skuCodesForProduct ← * <~ ProductVariants
-                            .filter(_.id.inSet(productVariantIdsForProduct))
-                            .map(_.code)
-                            .result
-      skuCodesFromPayload = payloadVariants
+      productSkus ← * <~ ProductVariants
+                     .filter(_.id.inSet(productVariantIdsForProduct))
+                     .map(_.code)
+                     .result
+      payloadSkus = payloadVariants
         .map(ps ⇒ ProductVariantManager.getSkuCode(ps.attributes))
         .flatten
-      skuCodesToBeGone = skuCodesForProduct.diff(skuCodesFromPayload)
+      skuCodesToBeGone = productSkus.diff(payloadSkus)
       _ ← * <~ (skuCodesToBeGone.map { codeToUnassociate ⇒
                for {
                  skuToUnassociate ← * <~ ProductVariants.mustFindByCode(codeToUnassociate)

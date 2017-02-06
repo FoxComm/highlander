@@ -21,7 +21,7 @@ object ProductOptionPayloads {
     def validate: ValidatedNel[Failure, ProductOptionPayload] = {
       val variantPerOptionValue = for {
         value ← values.getOrElse(Seq.empty)
-        sku   ← value.skuCodes
+        sku   ← value.skus
       } yield sku → value
       val variantOptionValues = variantPerOptionValue.groupBy { case (code, _) ⇒ code }
       variantOptionValues.foldLeft(Validated.valid[Failures, ProductOptionPayload](this)) {
@@ -38,7 +38,7 @@ object ProductOptionPayloads {
   case class ProductOptionValuePayload(id: Option[Int] = None,
                                        name: Option[String],
                                        swatch: Option[String],
-                                       skuCodes: Seq[String],
+                                       skus: Seq[String],
                                        schema: Option[String] = None,
                                        scope: Option[String] = None) {
 

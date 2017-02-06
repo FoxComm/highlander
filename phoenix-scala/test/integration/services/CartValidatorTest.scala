@@ -52,8 +52,8 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext with 
 
       "if the cart has no credit card and insufficient GC/SC available balances" in new LineItemsFixture
       with StoreAdmin_Seed {
-        val skuPrice       = Mvp.priceAsInt(skuForm, skuShadow)
-        val notEnoughFunds = skuPrice - 1
+        val variantPrice   = Mvp.priceAsInt(variantForm, variantShadow)
+        val notEnoughFunds = variantPrice - 1
 
         (for {
           reason ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))
@@ -144,35 +144,37 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext with 
 
   trait LineItemsFixture extends Fixture {
 
-    val (product, productForm, productShadow, sku, skuForm, skuShadow, items) = (for {
+    val (product, productForm, productShadow, variant, variantForm, variantShadow, items) = (for {
       productData   ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head)
       product       ← * <~ Products.mustFindById404(productData.productId)
       productForm   ← * <~ ObjectForms.mustFindById404(product.formId)
       productShadow ← * <~ ObjectShadows.mustFindById404(product.shadowId)
-      sku           ← * <~ ProductVariants.mustFindById404(productData.skuId)
-      skuForm       ← * <~ ObjectForms.mustFindById404(sku.formId)
-      skuShadow     ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
+      variant       ← * <~ ProductVariants.mustFindById404(productData.variantId)
+      variantForm   ← * <~ ObjectForms.mustFindById404(variant.formId)
+      variantShadow ← * <~ ObjectShadows.mustFindById404(variant.shadowId)
       items ← * <~ CartLineItems.create(
-                 CartLineItem(cordRef = cart.refNum, productVariantId = sku.id))
+                 CartLineItem(cordRef = cart.refNum, productVariantId = variant.id))
       _ ← * <~ CartTotaler.saveTotals(cart)
-    } yield (product, productForm, productShadow, sku, skuForm, skuShadow, items)).gimme
+    } yield
+      (product, productForm, productShadow, variant, variantForm, variantShadow, items)).gimme
 
     val grandTotal = refresh(cart).grandTotal
   }
 
   trait LineItemsFixture0 extends Fixture {
-    val (product, productForm, productShadow, sku, skuForm, skuShadow, items) = (for {
+    val (product, productForm, productShadow, variant, variantForm, variantShadow, items) = (for {
       productData   ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head.copy(price = 0))
       product       ← * <~ Products.mustFindById404(productData.productId)
       productForm   ← * <~ ObjectForms.mustFindById404(product.formId)
       productShadow ← * <~ ObjectShadows.mustFindById404(product.shadowId)
-      sku           ← * <~ ProductVariants.mustFindById404(productData.skuId)
-      skuForm       ← * <~ ObjectForms.mustFindById404(sku.formId)
-      skuShadow     ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
+      variant       ← * <~ ProductVariants.mustFindById404(productData.variantId)
+      variantForm   ← * <~ ObjectForms.mustFindById404(variant.formId)
+      variantShadow ← * <~ ObjectShadows.mustFindById404(variant.shadowId)
       items ← * <~ CartLineItems.create(
-                 CartLineItem(cordRef = cart.refNum, productVariantId = sku.id))
+                 CartLineItem(cordRef = cart.refNum, productVariantId = variant.id))
       _ ← * <~ CartTotaler.saveTotals(cart)
-    } yield (product, productForm, productShadow, sku, skuForm, skuShadow, items)).gimme
+    } yield
+      (product, productForm, productShadow, variant, variantForm, variantShadow, items)).gimme
 
     val grandTotal = refresh(cart).grandTotal
   }

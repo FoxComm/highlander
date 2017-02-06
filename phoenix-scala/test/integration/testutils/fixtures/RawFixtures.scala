@@ -124,32 +124,12 @@ trait RawFixtures extends RawPaymentFixtures with TestSeeds {
     }.gimme
   }
 
-  trait Sku_Raw extends StoreAdmin_Seed {
+  trait Variant_Raw extends StoreAdmin_Seed {
 
-    val simpleSku: ProductVariant = Mvp
-      .insertVariant(Scope.current, ctx.id, SimpleVariant("BY-ITSELF", "A lonely item", 9999))
+    val simpleVariant: ProductVariant = Mvp
+      .insertProductVariant(Scope.current,
+                            ctx.id,
+                            SimpleVariant("BY-ITSELF", "A lonely item", 9999))
       .gimme
-  }
-
-  trait ProductWithVariants_Raw extends StoreAdmin_Seed {
-    def simpleProduct: Product
-
-    val productWithVariants: (Product, SimpleCompleteVariantData, Seq[ProductVariant]) = {
-      val scope = LTree(au.token.scope)
-
-      val testSkus = Seq(SimpleVariant("SKU-TST", "SKU test", 1000, Currency.USD, active = true),
-                         SimpleVariant("SKU-TS2", "SKU test 2", 1000, Currency.USD, active = true))
-
-      val simpleSizeVariant = SimpleCompleteOption(
-          option = SimpleProductOption("Size"),
-          productValues = Seq(SimpleProductValue("Small", "", Seq("SKU-TST")),
-                              SimpleProductValue("Large", "", Seq("SKU-TS2"))))
-
-      for {
-        skus    ← * <~ Mvp.insertVariants(scope, ctx.id, testSkus)
-        product ← * <~ Products.mustFindById404(simpleProduct.id)
-        variant ← * <~ Mvp.insertVariantWithValues(scope, ctx.id, product, simpleSizeVariant)
-      } yield (product, variant, skus)
-    }.gimme
   }
 }
