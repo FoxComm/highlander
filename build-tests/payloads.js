@@ -16,7 +16,7 @@ export default {
     address1: faker.address.streetAddress(),
     address2: faker.address.secondaryAddress(),
     city: faker.address.city(),
-    zip: faker.address.zipCode(),
+    zip: faker.address.zipCode().replace('-', ''),
     isDefault: false,
     phoneNumber: faker.phone.phoneNumber('##########'),
   }),
