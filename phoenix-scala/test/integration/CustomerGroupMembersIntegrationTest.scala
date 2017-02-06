@@ -25,7 +25,7 @@ class CustomerGroupMembersIntegrationTest
 
   val scope = LTree("1")
 
-  "POST /v1/service/customer-groups/users" - {
+  "POST /v1/service/customer-groups/customers" - {
 
     "handles users" in new Fixture {
       val payload = CustomerGroupMemberServiceSyncPayload(Seq(account2.id, account3.id))

@@ -21,7 +21,7 @@ object CustomerGroupRoutes {
         }
       } ~
       pathPrefix("customer-groups" / IntNumber) { groupId ⇒
-        pathPrefix("users") {
+        pathPrefix("customers") {
           (post & pathEnd & entity(as[CustomerGroupMemberServiceSyncPayload])) { payload ⇒
             doOrFailures(
                 GroupMemberManager.sync(groupId, payload)
