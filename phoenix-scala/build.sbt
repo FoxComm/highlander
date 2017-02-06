@@ -90,8 +90,9 @@ fullAssembly <<= Def.task().dependsOn(writeVersion in phoenixScala, assembly in 
 
 // Injected seeds
 val seedCommand = " utils.seeds.Seeds seed --seedAdmins"
-seed     := (runMain in Compile in phoenixScala).partialInput(seedCommand).evaluated
-seedDemo := (runMain in Compile in phoenixScala).partialInput(s"$seedCommand --seedDemo 1").evaluated
+seed      := (runMain in Compile in phoenixScala).partialInput(seedCommand).evaluated
+seedStage := (runMain in Compile in phoenixScala).partialInput(s"$seedCommand --seedStage").evaluated
+seedDemo  := (runMain in Compile in phoenixScala).partialInput(s"$seedCommand --seedDemo 1").evaluated
 
 // Gatling seeds
 seedOneshot    := (runMain in Compile in gatling).partialInput(" seeds.OneshotSeeds").evaluated
