@@ -75,10 +75,10 @@ class CartTotalerTest extends IntegrationTestBase with TestObjectContext with Ba
       simpleProduct  ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head)
       tup            ← * <~ Mvp.getProductTuple(simpleProduct)
       _ ← * <~ CartLineItems.create(
-             CartLineItem(cordRef = cart.refNum, productVariantId = tup.sku.id))
-      skuPrice ← * <~ Mvp.priceAsInt(tup.skuForm, tup.skuShadow)
+             CartLineItem(cordRef = cart.refNum, productVariantId = tup.variant.id))
+      skuPrice ← * <~ Mvp.priceAsInt(tup.variantForm, tup.variantShadow)
     } yield
-      (productContext, tup.product, tup.productShadow, tup.sku, tup.skuShadow, skuPrice)).gimme
+      (productContext, tup.product, tup.productShadow, tup.variant, tup.variantShadow, skuPrice)).gimme
   }
 
   trait ShippingMethodFixture extends Fixture {

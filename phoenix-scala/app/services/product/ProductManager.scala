@@ -426,6 +426,7 @@ object ProductManager {
                                               db: DB): DbResultT[FullObject[Product]] =
     ObjectManager.getFullObject(Products.mustFindById404(productId))
 
+  // Kangaroos upd: this logic is to be gone in master, don't bother fixing -- @anna
   // This is an inefficient intensely quering method that does the trick
   private def productVariantsToBeUnassociatedMustNotBePresentInCarts(
       productId: Int,

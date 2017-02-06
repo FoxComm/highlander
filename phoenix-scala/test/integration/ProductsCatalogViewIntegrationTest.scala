@@ -92,17 +92,18 @@ class ProductsCatalogViewIntegrationTest
                                                                 formId = ins.form.id,
                                                                 commitId = ins.commit.id)))
       albumImages ← * <~ ImageManager.createImagesForAlbum(fullAlbum.model, Seq(imagePayload), ctx)
-      sku ← * <~ Mvp.insertVariant(scope,
-                                   ctx.id,
-                                   SimpleVariant("SKU-TEST", "Test SKU", 9999, Currency.USD))
+      sku ← * <~ Mvp.insertProductVariant(
+               scope,
+               ctx.id,
+               SimpleVariant("SKU-TEST", "Test SKU", 9999, Currency.USD))
 
-      product ← * <~ Mvp.insertProductWithExistingSkus(scope,
-                                                       ctx.id,
-                                                       SimpleProduct(title = "Test Product",
-                                                                     active = true,
-                                                                     description =
-                                                                       "Test product description"),
-                                                       Seq(sku))
+      product ← * <~ Mvp.insertProductWithExistingVariants(
+                   scope,
+                   ctx.id,
+                   SimpleProduct(title = "Test Product",
+                                 active = true,
+                                 description = "Test product description"),
+                   Seq(sku))
 
       _ ← * <~ ProductAlbumLinks.create(
              ProductAlbumLink(leftId = product.id, rightId = fullAlbum.model.id))

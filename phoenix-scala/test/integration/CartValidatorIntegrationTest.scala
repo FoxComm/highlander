@@ -137,7 +137,7 @@ class CartValidatorIntegrationTest
   trait LineItemFixture extends EmptyCustomerCart_Baked {
     val (sku) = (for {
       product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head)
-      sku     ← * <~ ProductVariants.mustFindById404(product.skuId)
+      sku     ← * <~ ProductVariants.mustFindById404(product.variantId)
     } yield sku).gimme
     val refNum = cart.refNum
   }
@@ -201,7 +201,7 @@ class CartValidatorIntegrationTest
       productCtx ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       cart       ← * <~ Carts.create(Factories.cart(Scope.current).copy(accountId = customer.accountId))
       product    ← * <~ Mvp.insertProduct(productCtx.id, Factories.products.head)
-      sku        ← * <~ ProductVariants.mustFindById404(product.skuId)
+      sku        ← * <~ ProductVariants.mustFindById404(product.variantId)
       manual ← * <~ StoreCreditManuals.create(
                   StoreCreditManual(adminId = storeAdmin.accountId, reasonId = reason.id))
       _ ← * <~ StoreCredits.create(

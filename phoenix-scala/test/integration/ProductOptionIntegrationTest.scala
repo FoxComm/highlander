@@ -26,21 +26,21 @@ class ProductOptionIntegrationTest
   "POST v1/options/:context" - {
     "Creates a product option successfully" in new Fixture {
       val optionResponse = productOptionsApi.create(createProductOptionPayload).as[OptionRoot]
-      optionResponse.values.length must === (0)
+      optionResponse.values mustBe empty
 
-      (optionResponse.attributes \ "name" \ "v").extract[String] must === ("Color")
+      optionResponse.attributes.getString("name") must === ("Color")
     }
 
     "Creates a productOption with a value successfully" in new Fixture {
-      val payload         = createProductOptionPayload.copy(values = Some(Seq(createVariantValuePayload)))
-      val variantResponse = productOptionsApi.create(payload).as[OptionRoot]
-      variantResponse.values.length must === (1)
-      private val value = variantResponse.values.head
-      value.name must === ("Red")
-      value.swatch must === (Some("ff0000"))
-      value.skuCodes must === (Seq(skus.head.code))
+      val payload = createProductOptionPayload.copy(values = Some(Seq(createVariantValuePayload)))
+      private val productOption =
+        productOptionsApi.create(payload).as[OptionRoot].values.onlyElement
+      productOption.name must === ("Red")
+      productOption.swatch must === (Some("ff0000"))
+      productOption.skuCodes must === (Seq(variants.head.code))
 
-      (variantResponse.attributes \ "name" \ "v").extract[String] must === ("Color")
+      productOptionsApi.create(payload).as[OptionRoot].attributes.getString("name") must === (
+          "Color")
     }
 
     "Fails when trying to create productOption with archived variant as value" in new ArchivedSkusFixture {
@@ -52,15 +52,13 @@ class ProductOptionIntegrationTest
 
   "GET v1/options/:context/:id" - {
     "Gets a created productOption successfully" in new VariantFixture {
-      val variantResponse = productOptionsApi(variant.variant.variantFormId).get().as[OptionRoot]
-      variantResponse.values.length must === (2)
+      val optionResponse = productOptionsApi(variant.option.optionFormId).get().as[OptionRoot]
+      optionResponse.values must have size 2
+      optionResponse.attributes.getString("name") must === ("Size")
+      optionResponse.values.map(_.name).toSet must === (Set("Small", "Large"))
 
-      (variantResponse.attributes \ "name" \ "v").extract[String] must === ("Size")
-
-      variantResponse.values.map(_.name).toSet must === (Set("Small", "Large"))
-
-      val valueSkus = variantResponse.values.map(_.skuCodes).toSet
-      valueSkus must contain theSameElementsAs skus.map(s ⇒ Seq(s.code))
+      val valueSkus = optionResponse.values.map(_.skuCodes).toSet
+      valueSkus must contain theSameElementsAs variants.map(_.code)
     }
 
     "Throws a 404 if given an invalid id" in new Fixture {
@@ -73,8 +71,7 @@ class ProductOptionIntegrationTest
       val payload = ProductOptionPayload(values = None,
                                          attributes =
                                            Map("name" → (("t" → "wtring") ~ ("v" → "New Size"))))
-      val response =
-        productOptionsApi(variant.variant.variantFormId).update(payload).as[OptionRoot]
+      val response = productOptionsApi(variant.option.optionFormId).update(payload).as[OptionRoot]
       response.values.length must === (2)
 
       (response.attributes \ "name" \ "v").extract[String] must === ("New Size")
@@ -87,10 +84,10 @@ class ProductOptionIntegrationTest
                                          attributes =
                                            Map("name" → (("t" → "wtring") ~ ("v" → "New Size"))))
 
-      productOptionsApi(variant.variant.variantFormId)
+      productOptionsApi(variant.option.optionFormId)
         .update(payload)
         .mustFailWith400(LinkArchivedVariantFailure(ProductOption,
-                                                    variant.variant.variantFormId,
+                                                    variant.option.optionFormId,
                                                     archivedSkuCode))
     }
   }
@@ -103,16 +100,16 @@ class ProductOptionIntegrationTest
         productOptionsApi(variantResponse.id).createValues(createVariantValuePayload).as[ValueRoot]
 
       valueResponse.swatch must === (Some("ff0000"))
-      valueResponse.skuCodes must === (Seq(skus.head.code))
+      valueResponse.skuCodes must === (Seq(variants.head.code))
     }
 
     "Fails when attaching archived SKU to productOption as productOption value" in new ArchivedSkusFixture {
-      val variantResponse = productOptionsApi.create(createProductOptionPayload).as[OptionRoot]
+      val optionResponse = productOptionsApi.create(createProductOptionPayload).as[OptionRoot]
 
-      productOptionsApi(variantResponse.id)
+      productOptionsApi(optionResponse.id)
         .createValues(archivedSkuVariantValuePayload)
         .mustFailWith400(
-            LinkArchivedVariantFailure(ProductOption, variantResponse.id, archivedSkuCode))
+            LinkArchivedVariantFailure(ProductOption, optionResponse.id, archivedSkuCode))
     }
   }
 
@@ -126,11 +123,11 @@ class ProductOptionIntegrationTest
     val testSkus = Seq(SimpleVariant("SKU-TST", "SKU test", 1000, Currency.USD, active = true),
                        SimpleVariant("SKU-TS2", "SKU test 2", 1000, Currency.USD, active = true))
 
-    val skus = Mvp.insertVariants(scope, ctx.id, testSkus).gimme
+    val variants = Mvp.insertProductVariants(scope, ctx.id, testSkus).gimme
 
     val createVariantValuePayload = ProductOptionValuePayload(name = Some("Red"),
                                                               swatch = Some("ff0000"),
-                                                              skuCodes = Seq(skus.head.code))
+                                                              skus = Seq(variants.head.code))
   }
 
   trait VariantFixture extends Fixture {
@@ -142,28 +139,28 @@ class ProductOptionIntegrationTest
 
     val simpleSizeVariant = SimpleCompleteOption(
         option = SimpleProductOption("Size"),
-        productValues = Seq(SimpleProductValue("Small", "", Seq(skus.head.code)),
-                            SimpleProductValue("Large", "", Seq(skus(1).code))))
+        productValues = Seq(SimpleProductOptionValue("Small", "", Seq(variants.head.code)),
+                            SimpleProductOptionValue("Large", "", Seq(variants(1).code))))
 
     val (product, variant) = (for {
       productData ← * <~ Mvp.insertProduct(ctx.id, simpleProd)
       product     ← * <~ Products.mustFindById404(productData.productId)
-      variant     ← * <~ Mvp.insertVariantWithValues(scope, ctx.id, product, simpleSizeVariant)
+      variant     ← * <~ Mvp.insertProductOptionWithValues(scope, ctx.id, product, simpleSizeVariant)
     } yield (product, variant)).gimme
   }
 
   trait ArchivedSkusFixture extends VariantFixture {
 
-    val archivedSkus = (for {
-      archivedSkus ← * <~ skus.map { sku ⇒
-                      ProductVariants.update(sku, sku.copy(archivedAt = Some(Instant.now)))
-                    }
-    } yield archivedSkus).gimme
+    val archivedVariants = DbResultT
+      .sequence(variants.map { variant ⇒
+        ProductVariants.update(variant, variant.copy(archivedAt = Some(Instant.now)))
+      })
+      .gimme
 
-    val archivedSku     = archivedSkus.head
-    val archivedSkuCode = archivedSku.code
+    val archivedVariant = archivedVariants.head
+    val archivedSkuCode = archivedVariant.code
     val archivedSkuVariantValuePayload =
-      createVariantValuePayload.copy(skuCodes = Seq(archivedSkuCode))
+      createVariantValuePayload.copy(skus = Seq(archivedSkuCode))
     val archivedSkuVariantPayload =
       createProductOptionPayload.copy(values = Some(Seq(archivedSkuVariantValuePayload)))
   }

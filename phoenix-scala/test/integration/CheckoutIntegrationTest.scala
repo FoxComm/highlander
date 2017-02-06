@@ -186,7 +186,7 @@ class CheckoutIntegrationTest
                     .filter(_.adminDisplayName === shipMethodName)
                     .mustFindOneOr(ShippingMethodNotFoundByName(shipMethodName))
       product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head)
-      sku     ← * <~ ProductVariants.mustFindById404(product.skuId)
+      sku     ← * <~ ProductVariants.mustFindById404(product.variantId)
       reason  ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))
     } yield (shipMethod, product, sku, reason)).gimme
   }
@@ -209,7 +209,7 @@ class CheckoutIntegrationTest
                     .mustFindOneOr(
                         ShippingMethodNotFoundByName(ShippingMethod.expressShippingNameForAdmin))
       product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head)
-      sku     ← * <~ ProductVariants.mustFindById404(product.skuId)
+      sku     ← * <~ ProductVariants.mustFindById404(product.variantId)
       reason  ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))
     } yield (customer, address, shipMethod, product, sku, reason)).gimme
   }

@@ -209,7 +209,7 @@ class CheckoutTest
         product ← * <~ Mvp.insertProduct(
                      productCtx.id,
                      Factories.products.head.copy(price = cost, code = Lorem.letterify("?????")))
-        sku ← * <~ ProductVariants.mustFindById404(product.skuId)
+        sku ← * <~ ProductVariants.mustFindById404(product.variantId)
       } yield sku).gimme
       Seq(UpdateLineItemsPayload(sku.formId, 1))
     }

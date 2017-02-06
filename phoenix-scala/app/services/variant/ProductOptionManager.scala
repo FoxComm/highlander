@@ -31,8 +31,8 @@ object ProductOptionManager {
         .getOrElse(Seq.empty)
         .zip(values)
         .collect {
-          case (vvPayload, vvDb) if vvPayload.skuCodes.nonEmpty ⇒
-            (vvDb.model.id, vvPayload.skuCodes)
+          case (optionValuePayload, optionValueObject) if optionValuePayload.skus.nonEmpty ⇒
+            (optionValueObject.model.id, optionValuePayload.skus)
         }
         .toMap
     } yield
@@ -160,7 +160,7 @@ object ProductOptionManager {
                  .filterByContextAndFormId(context.id, variantId)
                  .mustFindOneOr(ProductOptionNotFoundForContext(variantId, context.id))
       value ← * <~ createProductOptionValueInner(context, variant, payload)
-    } yield ProductValueResponse.build(value, payload.skuCodes)
+    } yield ProductValueResponse.build(value, payload.skus)
 
   private def createProductOptionValueInner(context: ObjectContext,
                                             variant: ProductOption,
@@ -173,10 +173,10 @@ object ProductOptionManager {
 
     for {
       scope ← * <~ Scope.resolveOverride(payload.scope)
-      skuCodes ← * <~ payload.skuCodes.map(
-                    ProductVariantManager.mustFindByContextAndCode(context.id, _))
-      _ ← * <~ skuCodes.map(sku ⇒
-               DbResultT.fromXor(sku.mustNotBeArchived(ProductOption, variant.formId)))
+      productVariants ← * <~ payload.skus.map(
+                           ProductVariantManager.mustFindByContextAndCode(context.id, _))
+      _ ← * <~ productVariants.map(variant ⇒
+               DbResultT.fromXor(variant.mustNotBeArchived(ProductOption, variant.formId)))
       ins ← * <~ ObjectUtils.insert(form, shadow, payload.schema)
       variantValue ← * <~ ProductOptionValues.create(
                         ProductOptionValue(scope = scope,
@@ -186,7 +186,7 @@ object ProductOptionManager {
                                            commitId = ins.commit.id))
       _ ← * <~ ProductOptionValueLinks.create(
              ProductOptionValueLink(leftId = variant.id, rightId = variantValue.id))
-      _ ← * <~ skuCodes.map(
+      _ ← * <~ productVariants.map(
              s ⇒
                ProductValueVariantLinks.create(
                    ProductValueVariantLink(leftId = variantValue.id, rightId = s.id)))
@@ -211,7 +211,7 @@ object ProductOptionManager {
       commit      ← * <~ ObjectUtils.commit(updated)
       updatedHead ← * <~ updateValueHead(value, updated.shadow, commit)
 
-      newProductVariants ← * <~ payload.skuCodes.map(
+      newProductVariants ← * <~ payload.skus.map(
                               ProductVariantManager.mustFindByContextAndCode(contextId, _))
       newProductVariantIds = newProductVariants.map(_.id).toSet
 

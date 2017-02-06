@@ -204,7 +204,8 @@ class VariantIntegrationTest
                                                image = "image.png",
                                                price = 5999)
 
-    val product =
-      Mvp.insertProductWithExistingSkus(LTree(au.token.scope), ctx.id, simpleProd, Seq(sku)).gimme
+    val product = Mvp
+      .insertProductWithExistingVariants(LTree(au.token.scope), ctx.id, simpleProd, Seq(sku))
+      .gimme
   }
 }

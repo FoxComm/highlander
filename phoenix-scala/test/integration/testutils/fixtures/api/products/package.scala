@@ -44,7 +44,7 @@ package object products {
   def buildOptionPayload(optionCfg: ProductOptionCfg, variantCodes: Seq[String]) = {
     val optionValues = optionCfg.values.map { optionValue ⇒
       ProductOptionValuePayload(name = optionValue.some,
-                                skuCodes = variantCodes.filter(_.contains(optionValue)),
+                                skus = variantCodes.filter(_.contains(optionValue)),
                                 swatch = None)
     }
     ProductOptionPayload(attributes = optionAttrs(optionCfg.name), values = optionValues.some)

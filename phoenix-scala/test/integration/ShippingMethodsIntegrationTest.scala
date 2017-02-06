@@ -120,7 +120,7 @@ class ShippingMethodsIntegrationTest
       product ← * <~ Mvp.insertProduct(productContext.id,
                                        Factories.products.head.copy(title = "Donkey", price = 27))
       _ ← * <~ CartLineItems.create(
-             CartLineItem(cordRef = cart.refNum, productVariantId = product.skuId))
+             CartLineItem(cordRef = cart.refNum, productVariantId = product.variantId))
       _ ← * <~ CartTotaler.saveTotals(cart)
     } yield (address, shipAddress)).gimme
   }

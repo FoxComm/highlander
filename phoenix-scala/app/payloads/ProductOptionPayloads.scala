@@ -16,7 +16,7 @@ object ProductOptionPayloads {
   case class ProductOptionValuePayload(id: Option[Int] = None,
                                        name: Option[String],
                                        swatch: Option[String],
-                                       skuCodes: Seq[String],
+                                       skus: Seq[String],
                                        schema: Option[String] = None,
                                        scope: Option[String] = None) {
 

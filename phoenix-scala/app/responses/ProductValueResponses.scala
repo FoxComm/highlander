@@ -7,6 +7,7 @@ import utils.{IlluminateAlgorithm, JsonFormatters}
 object ProductValueResponses {
   implicit val formats = JsonFormatters.phoenixFormats
 
+  // Kangaroos TODO: replace skuCodes with variantIds -- @anna
   object ProductValueResponse {
     case class Root(id: Int, name: String, swatch: Option[String] = None, skuCodes: Seq[String])
 

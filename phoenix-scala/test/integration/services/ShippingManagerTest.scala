@@ -152,7 +152,7 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
       product ← * <~ Mvp.insertProduct(ctx.id,
                                        Factories.products.head.copy(title = "Donkey", price = 27))
       _ ← * <~ CartLineItems.create(
-             CartLineItem(cordRef = cart.refNum, productVariantId = product.skuId))
+             CartLineItem(cordRef = cart.refNum, productVariantId = product.variantId))
 
       cart ← * <~ CartTotaler.saveTotals(cart)
     } yield cart).gimme
@@ -284,7 +284,7 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
                                                                          price = 10,
                                                                          code = "SKU-CHP"))
       _ ← * <~ CartLineItems.create(
-             CartLineItem(cordRef = cheapCart.refNum, productVariantId = cheapProduct.skuId))
+             CartLineItem(cordRef = cheapCart.refNum, productVariantId = cheapProduct.variantId))
 
       cheapAddress ← * <~ Addresses.create(
                         Factories.address.copy(accountId = customer.accountId,
@@ -307,7 +307,7 @@ class ShippingManagerTest extends IntegrationTestBase with TestObjectContext wit
                                                                              code = "SKU-EXP"))
       _ ← * <~ CartLineItems.create(
              CartLineItem(cordRef = expensiveCart.refNum,
-                          productVariantId = expensiveProduct.skuId))
+                          productVariantId = expensiveProduct.variantId))
       expensiveAddress ← * <~ Addresses.create(
                             Factories.address.copy(accountId = customer.accountId,
                                                    isDefaultShipping = false))
