@@ -19,11 +19,11 @@ class CartTotalerTest extends IntegrationTestBase with TestObjectContext with Ba
         CartTotaler.subTotal(cart).gimme must === (0)
       }
 
-      "includes both SKU line items and purchased gift cards" in new SkuLineItemsFixture {
+      "includes both SKU line items and purchased gift cards" in new LineItemsFixture {
         CartTotaler.subTotal(cart).gimme must === (variantPrice)
       }
 
-      "uses SKU line items only if order purchases no gift cards" in new SkuLineItemsFixture {
+      "uses SKU line items only if order purchases no gift cards" in new LineItemsFixture {
         CartTotaler.subTotal(cart).gimme must === (variantPrice)
       }
     }
@@ -49,7 +49,7 @@ class CartTotalerTest extends IntegrationTestBase with TestObjectContext with Ba
 
   trait Fixture extends EmptyCustomerCart_Baked with CustomerAddress_Raw
 
-  trait SkuLineItemsFixture extends Fixture {
+  trait LineItemsFixture extends Fixture {
     val (productContext, product, productShadow, variant, variantShadow, variantPrice) = (for {
       productContext ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       simpleProduct  ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head)
