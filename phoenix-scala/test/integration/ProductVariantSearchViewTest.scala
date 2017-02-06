@@ -12,20 +12,20 @@ import utils.db.ExPostgresDriver.api._
 // TODO @anna extract query to shared package
 
 case class ProductVariantSearchViewResult(id: Int,
-                                          variant_id: Int,
-                                          sku_code: String,
+                                          variantId: Int,
+                                          skuCode: String,
                                           context: String,
-                                          context_id: Int,
+                                          contextId: Int,
                                           title: String,
                                           image: Option[String],
-                                          sale_price: String,
-                                          sale_price_currency: String,
-                                          archived_at: Option[String],
-                                          retail_price: String,
-                                          retail_price_currency: String,
-                                          external_id: Option[Int],
+                                          salePrice: String,
+                                          salePriceCurrency: String,
+                                          archivedAt: Option[String],
+                                          retailPrice: String,
+                                          retailPriceCurrency: String,
+                                          externalId: Option[Int],
                                           scope: String,
-                                          middlewarehouse_sku_id: Int)
+                                          middlewarehouseSkuId: Int)
 
 class ProductVariantSearchViewTest
     extends IntegrationTestBase
@@ -44,7 +44,7 @@ class ProductVariantSearchViewTest
     withClue("Query result was empty. Slick returns Vector(null) instead of empty Vector.\n") {
       jsonString must not be null
     }
-    parseJson(jsonString).extract[Seq[ProductVariantSearchViewResult]].onlyElement
+    parseJson(jsonString).camelizeKeys.extract[Seq[ProductVariantSearchViewResult]].onlyElement
   }
 
   def priceAsString(attrs: Json, field: String): String =
@@ -58,16 +58,16 @@ class ProductVariantSearchViewTest
       {
         import variantSv._
 
-        variant_id must === (productVariant.id)
-        middlewarehouse_sku_id must === (productVariant.skuId)
-        archived_at must not be defined
-        retail_price must === (priceAsString(productVariant.attributes, "retailPrice"))
-        sale_price must === (priceAsString(productVariant.attributes, "salePrice"))
-        retail_price_currency must === ("USD")
-        sale_price_currency must === ("USD")
+        variantId must === (productVariant.id)
+        middlewarehouseSkuId must === (productVariant.skuId)
+        archivedAt must not be defined
+        retailPrice must === (priceAsString(productVariant.attributes, "retailPrice"))
+        salePrice must === (priceAsString(productVariant.attributes, "salePrice"))
+        retailPriceCurrency must === ("USD")
+        salePriceCurrency must === ("USD")
         image must not be defined
-        sku_code must === (productVariantCode)
-        external_id must not be defined
+        skuCode must === (productVariantCode)
+        externalId must not be defined
         title must === (productVariant.attributes.getString("title"))
         // scope?
         // context is not built for variant as part of product response; can call get
