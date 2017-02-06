@@ -29,7 +29,6 @@ gulp.task('build', function(cb) {
     tasks = [
       'build:clean',
       ...buildTasks,
-      'css-min',
       'rev',
     ];
   }
