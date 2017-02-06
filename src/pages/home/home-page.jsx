@@ -49,7 +49,7 @@ const HomePage = () => {
     return (
       <div
         styleName="instagram-image"
-        style={{ backgroundImage: `url(/images/home-page/Instagram_Feed_${i}_2x.jpg)`}}
+        style={{ backgroundImage: `url(/images/home-page/Instagram_${i}_2x.jpg)`}}
         key={i}
       >
         <a href={instagramLinks[i - 1]} target="_blank">
