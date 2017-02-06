@@ -10,7 +10,8 @@ alter table product_variants_search_view
 update product_variants_search_view
 set variant_id = product_variants.form_id
 from product_variants
-where variant_id = null;
+where product_variants_search_view.variant_id = null
+and product_variants.id = product_variants_search_view.id;
 
 alter table product_variants_search_view
   add foreign key (variant_id) references object_forms (id) on delete restrict on update cascade,
