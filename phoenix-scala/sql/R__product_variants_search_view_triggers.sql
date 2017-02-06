@@ -55,7 +55,7 @@ begin
       from product_variants as variant
         inner join object_forms as form on (form.id = variant.form_id)
         inner join object_shadows as shadow on (shadow.id = variant.shadow_id)
-      where variant.form_id = new.variant_id) as subquery
+      where variant.id = new.id) as subquery
       where subquery.form_id = product_variants_search_view.variant_id;
 
     return null;
