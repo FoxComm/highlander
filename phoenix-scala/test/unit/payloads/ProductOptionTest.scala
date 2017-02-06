@@ -17,12 +17,12 @@ class ProductOptionTest extends TestBase {
                                    ProductOptionValuePayload(
                                        name = Random.nextString(10).some,
                                        swatch = None,
-                                       skuCodes = List("duplicated1",
-                                                       "whatever1",
-                                                       "duplicated1",
-                                                       "duplicated2",
-                                                       "duplicated2",
-                                                       "whatever2")
+                                       skus = List("duplicated1",
+                                                   "whatever1",
+                                                   "duplicated1",
+                                                   "duplicated2",
+                                                   "duplicated2",
+                                                   "whatever2")
                                    )).some)
         }.failures.toList must contain theSameElementsAs List(
             DuplicatedOptionValueForVariant("duplicated1"),
@@ -35,7 +35,7 @@ class ProductOptionTest extends TestBase {
                                  ProductOptionValuePayload(
                                      name = Random.nextString(10).some,
                                      swatch = None,
-                                     skuCodes = List("whatever1", "whatever2", "whatever3")
+                                     skus = List("whatever1", "whatever2", "whatever3")
                                  )).some).validate.isValid must === (true)
       }
     }

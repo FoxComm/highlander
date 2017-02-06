@@ -131,7 +131,7 @@ object ProductOptionManager {
       updatedHead ← * <~ updateValueHead(value, updated.shadow, commit)
 
       newProductVariants ← * <~ payload.skus.map(
-                              ProductVariantManager.mustFindByContextAndCode(ctx, _))
+                              ProductVariantManager.mustFindByContextAndCode(ctx.id, _))
       newProductVariantIds = newProductVariants.map(_.id).toSet
 
       variantValueLinks ← * <~ ProductValueVariantLinks.filterLeft(value.id).result

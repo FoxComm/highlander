@@ -350,6 +350,10 @@ object Mvp {
                                   formId = form.id,
                                   shadowId = shadow.id,
                                   commitId = commit.id))
+      _ ← * <~ ProductVariantSkus.create(
+             ProductVariantSku(variantFormId = variant.formId,
+                               skuId = variant.formId,
+                               skuCode = simpleVariant.code))
     } yield variant
 
   def insertProductVariants(scope: LTree,
@@ -472,6 +476,11 @@ object Mvp {
                                   formId = variantForm.id,
                                   shadowId = variantShadow.id,
                                   commitId = variantCommit.id))
+
+      _ ← * <~ ProductVariantSkus.create(
+             ProductVariantSku(variantFormId = variant.formId,
+                               skuId = variant.formId,
+                               skuCode = p.code))
 
       _ ← * <~ linkProductAndVariant(product, variant)
 
