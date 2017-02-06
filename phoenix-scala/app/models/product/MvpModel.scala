@@ -325,11 +325,11 @@ object Mvp {
                            shadowId = productShadow.id,
                            commitId = productCommit.id))
 
-      _ ← * <~ skus.map(sku ⇒ linkProductAndSku(product, sku))
+      _ ← * <~ skus.map(sku ⇒ linkProductAndVariant(product, sku))
     } yield product
 
   // Temporary convenience method to use until ObjectLink is replaced.
-  private def linkProductAndSku(product: Product, sku: ProductVariant)(implicit ec: EC) =
+  private def linkProductAndVariant(product: Product, sku: ProductVariant)(implicit ec: EC) =
     for {
       _ ← * <~ ProductVariantLinks.create(
              ProductVariantLink(leftId = product.id, rightId = sku.id))
@@ -343,14 +343,18 @@ object Mvp {
       shadow ← * <~ ObjectShadows.create(
                   sShadow.create.copy(formId = form.id, jsonSchema = variantSchema.map(_.name)))
       commit ← * <~ ObjectCommits.create(ObjectCommit(formId = form.id, shadowId = shadow.id))
-      sku ← * <~ ProductVariants.create(
-               ProductVariant(scope = scope,
-                              contextId = contextId,
-                              code = s.code,
-                              formId = form.id,
-                              shadowId = shadow.id,
-                              commitId = commit.id))
-    } yield sku
+      variant ← * <~ ProductVariants.create(
+                   ProductVariant(scope = scope,
+                                  contextId = contextId,
+                                  code = s.code,
+                                  formId = form.id,
+                                  shadowId = shadow.id,
+                                  commitId = commit.id))
+      _ ← * <~ ProductVariantSkus.create(
+             ProductVariantSku(variantFormId = variant.formId,
+                               skuId = variant.formId,
+                               skuCode = s.code))
+    } yield variant
 
   def insertVariants(scope: LTree,
                      contextId: Int,
@@ -433,10 +437,10 @@ object Mvp {
   def insertProductIntoContext(
       contextId: Int,
       productForm: ObjectForm,
-      skuForm: ObjectForm,
+      variantForm: ObjectForm,
       albumForm: ObjectForm,
       simpleProduct: SimpleProduct,
-      simpleSku: SimpleVariant,
+      simpleVariant: SimpleVariant,
       simpleAlbum: SimpleAlbum,
       p: SimpleProductData)(implicit db: DB, au: AU): DbResultT[SimpleProductData] =
     for {
@@ -457,29 +461,34 @@ object Mvp {
                            shadowId = productShadow.id,
                            commitId = productCommit.id))
 
-      simpleSkuShadow ← * <~ SimpleVariantShadow(simpleSku)
-      variantSchema   ← * <~ ObjectFullSchemas.findOneByName("variant")
-      skuShadow ← * <~ ObjectShadows.create(
-                     simpleSkuShadow.create.copy(formId = skuForm.id,
-                                                 jsonSchema = variantSchema.map(_.name)))
+      simpleVariantShadow ← * <~ SimpleVariantShadow(simpleVariant)
+      variantSchema       ← * <~ ObjectFullSchemas.findOneByName("variant")
+      variantShadow ← * <~ ObjectShadows.create(
+                         simpleVariantShadow.create.copy(formId = variantForm.id,
+                                                         jsonSchema = variantSchema.map(_.name)))
 
-      skuCommit ← * <~ ObjectCommits.create(
-                     ObjectCommit(formId = skuForm.id, shadowId = skuShadow.id))
+      variantCommit ← * <~ ObjectCommits.create(
+                         ObjectCommit(formId = variantForm.id, shadowId = variantShadow.id))
 
-      sku ← * <~ ProductVariants.create(
-               ProductVariant(scope = scope,
-                              contextId = contextId,
-                              code = p.code,
-                              formId = skuForm.id,
-                              shadowId = skuShadow.id,
-                              commitId = skuCommit.id))
+      variant ← * <~ ProductVariants.create(
+                   ProductVariant(scope = scope,
+                                  contextId = contextId,
+                                  code = p.code,
+                                  formId = variantForm.id,
+                                  shadowId = variantShadow.id,
+                                  commitId = variantCommit.id))
 
-      _ ← * <~ linkProductAndSku(product, sku)
+      _ ← * <~ ProductVariantSkus.create(
+             ProductVariantSku(variantFormId = variant.formId,
+                               skuId = variant.formId,
+                               skuCode = p.code))
+
+      _ ← * <~ linkProductAndVariant(product, variant)
 
       context ← * <~ ObjectContexts.mustFindById404(contextId)
       album   ← * <~ insertAlbumIntoContext(context, simpleAlbum, albumForm, productShadow, product)
 
-    } yield p.copy(productId = product.id, skuId = sku.id, albumId = album.id)
+    } yield p.copy(productId = product.id, skuId = variant.id, albumId = album.id)
 
   def insertAlbumIntoContext(context: ObjectContext,
                              simpleAlbum: SimpleAlbum,
