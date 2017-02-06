@@ -2,19 +2,19 @@ package services.returns
 
 import failures.InvalidCancellationReasonFailure
 import models.cord.Orders
-import models.returns.Return.Canceled
+import models.returns.Return.{Canceled, Pending}
 import models.returns._
 import models.{Reason, Reasons}
 import models.account._
 import models.customer.CustomersData
 import models.admin.AdminsData
-
 import payloads.ReturnPayloads._
 import responses.ReturnResponse._
 import responses.{CustomerResponse, ReturnResponse, StoreAdminResponse}
 import services.returns.Helpers._
 import utils.aliases._
 import utils.db._
+import slick.driver.PostgresDriver.api._
 
 object ReturnService {
   def updateMessageToCustomer(refNum: String, payload: ReturnMessageToCustomerPayload)(
@@ -35,6 +35,7 @@ object ReturnService {
     for {
       _        ← * <~ payload.validate
       rma      ← * <~ Returns.mustFindByRefNum(refNum)
+      _        ← * <~ rma.transitionState(payload.state)
       reason   ← * <~ payload.reasonId.map(Reasons.findOneById).getOrElse(lift(None))
       _        ← * <~ cancelOrUpdate(rma, reason, payload)
       updated  ← * <~ Returns.refresh(rma)
@@ -65,6 +66,18 @@ object ReturnService {
       adminResponse    = Some(StoreAdminResponse.build(admin, adminData))
       customerResponse = CustomerResponse.build(customer, custData)
     } yield build(rma, Some(customerResponse), adminResponse)
+
+  def list(implicit ec: EC, db: DB): DbResultT[Seq[Root]] =
+    for {
+      rma      ← * <~ Returns.result
+      response ← * <~ rma.map(r ⇒ fromRma(r))
+    } yield response
+
+  def getByCustomer(customerId: Int)(implicit ec: EC, db: DB): DbResultT[Seq[Root]] =
+    for {
+      rma      ← * <~ Returns.filter(_.accountId === customerId).result
+      response ← * <~ rma.map(r ⇒ fromRma(r))
+    } yield response
 
   def getByRefNum(refNum: String)(implicit ec: EC, db: DB): DbResultT[Root] =
     for {

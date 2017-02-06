@@ -190,6 +190,12 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
     def create(payload: ReturnCreatePayload): HttpResponse =
       POST(returnsPrefix, payload)
+
+    def get(): HttpResponse =
+      GET(returnsPrefix)
+
+    def getByCustomer(id: Int): HttpResponse =
+      GET(s"$returnsPrefix/customer/$id")
   }
 
   case class returnsApi(refNum: String) { returns ⇒

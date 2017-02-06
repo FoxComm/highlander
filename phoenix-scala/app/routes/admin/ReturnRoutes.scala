@@ -25,6 +25,18 @@ object ReturnRoutes {
             mutateOrFailures {
               ReturnService.createByAdmin(auth.model, payload)
             }
+          } ~
+          (get & pathEnd) {
+            getOrFailures {
+              ReturnService.list
+            }
+          }
+        } ~
+        pathPrefix("returns" / "customer") {
+          (get & path(IntNumber) & pathEnd) { refNum ⇒
+            getOrFailures {
+              ReturnService.getByCustomer(refNum)
+            }
           }
         } ~
         pathPrefix("returns" / Return.returnRefNumRegex) { refNum ⇒
