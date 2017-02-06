@@ -35,8 +35,6 @@ function setHeaders(serverResponse, filePath, stats) {
       const ims = this.ctx.request.get('If-Modified-Since');
       const ms = Date.parse(ims);
 
-      // console.log(ims, ms, Math.floor(ms / 1000), Math.floor(stats.mtime.getTime() / 1000));
-
       // https://github.com/ohomer/koa-better-static/blob/master/send.js
       if (ms && Math.floor(ms / 1000) === Math.floor(stats.mtime.getTime() / 1000)) {
         this.ctx.response.status = 304; // not modified
