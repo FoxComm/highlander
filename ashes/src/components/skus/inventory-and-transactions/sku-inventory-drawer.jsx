@@ -27,6 +27,7 @@ type Props = {
   },
   readOnly?: boolean,
   skuId: number,
+  counterId: string,
 }
 
 class WarehouseDrawer extends Component {
@@ -50,6 +51,7 @@ class WarehouseDrawer extends Component {
     };
     const uniqId = `${row.type}-${row.id}`;
     const rowId = row.type.toLowerCase();
+    const counterId = `${rowId}-counter`;
 
     let quantityField = row.onHand;
     if (!this.props.readOnly) {
@@ -66,11 +68,11 @@ class WarehouseDrawer extends Component {
     return (
       <TableRow id={rowId} key={uniqId}>
         <td>{row.type}</td>
-        <td>{quantityField}</td>
-        <td>{row.onHold}</td>
-        <td>{row.reserved}</td>
-        <td>{row.afs}</td>
-        <td><Currency value={row.afsCost}/></td>
+        <td className="quantity">{quantityField}</td>
+        <td className="hold">{row.onHold}</td>
+        <td className="reserved">{row.reserved}</td>
+        <td className="afs">{row.afs}</td>
+        <td><Currency className="afs-cost-value" value={row.afsCost}/></td>
       </TableRow>
     );
   }

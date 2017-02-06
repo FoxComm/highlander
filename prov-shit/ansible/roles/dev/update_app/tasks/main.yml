@@ -1,5 +1,7 @@
 ---
 
+- include_vars: secret.yml
+
 - include: validate.yml
 
 - include: build.yml

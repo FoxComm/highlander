@@ -3,7 +3,6 @@ package payloads
 import "github.com/FoxComm/highlander/middlewarehouse/models"
 
 type UpdateSKU struct {
-	Code                          *string        `json:"code"`
 	UPC                           *string        `json:"upc"`
 	Title                         *string        `json:"title"`
 	UnitCost                      *Money         `json:"unitCost"`
@@ -31,12 +30,7 @@ type UpdateSKU struct {
 func (sku UpdateSKU) Model(original *models.SKU) *models.SKU {
 	model := new(models.SKU)
 	model.ID = original.ID
-
-	if sku.Code != nil {
-		model.Code = *sku.Code
-	} else {
-		model.Code = original.Code
-	}
+	model.Code = original.Code
 
 	if sku.UPC != nil {
 		model.UPC = *sku.UPC

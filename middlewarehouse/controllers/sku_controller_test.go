@@ -107,18 +107,18 @@ func (suite *skuControllerTestSuite) Test_CreateSKU_CreatesStockItemSummary() {
 	suite.Equal(4, len(summaries))
 }
 
-func (suite *skuControllerTestSuite) Test_UpdateSKUCode_Success() {
-	code := "UPDATED"
-	payload := &payloads.UpdateSKU{Code: &code}
+func (suite *skuControllerTestSuite) Test_UpdateSKUTitle_Success() {
+	title := "UPDATED"
+	payload := &payloads.UpdateSKU{Title: &title}
 
 	url := fmt.Sprintf("/skus/%d", suite.sku.ID)
 	res := suite.Patch(url, payload)
 	suite.Equal(http.StatusOK, res.Code)
 }
 
-func (suite *skuControllerTestSuite) Test_UpdateSKUCodeAndRequest_Success() {
-	code := "UPDATED"
-	payload := &payloads.UpdateSKU{Code: &code}
+func (suite *skuControllerTestSuite) Test_UpdateSKUTitleAndRequest_Success() {
+	title := "UPDATED"
+	payload := &payloads.UpdateSKU{Title: &title}
 
 	url := fmt.Sprintf("/skus/%d", suite.sku.ID)
 	res := suite.Patch(url, payload)
@@ -131,16 +131,7 @@ func (suite *skuControllerTestSuite) Test_UpdateSKUCodeAndRequest_Success() {
 	err := json.NewDecoder(getRes.Body).Decode(respBody)
 	suite.Nil(err)
 	suite.Equal(suite.sku.ID, respBody.ID)
-	suite.Equal(code, respBody.Code)
-}
-
-func (suite *skuControllerTestSuite) Test_UpdateSKUCodeBlank_Failure() {
-	code := ""
-	payload := &payloads.UpdateSKU{Code: &code}
-
-	url := fmt.Sprintf("/skus/%d", suite.sku.ID)
-	res := suite.Patch(url, payload)
-	suite.Equal(http.StatusBadRequest, res.Code)
+	suite.Equal(title, respBody.Title)
 }
 
 func (suite *skuControllerTestSuite) Test_DeleteSKU_Success() {

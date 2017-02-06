@@ -1,0 +1,27 @@
+---
+
+- name: Install Packages for Isaac
+  apt: name={{item}} state=latest force=yes
+  with_items:
+    - cmake
+    - libboost-all-dev
+    - libbotan1.10-dev
+    - libsnappy-dev
+    - libpqxx-dev
+
+- name: Get Proxygen
+  git: repo=https://github.com/facebook/proxygen.git dest={{proxygen_install_dir}} version={{proxygen_version}} force=yes
+
+- name: Get Folly
+  git: repo=https://github.com/facebook/folly.git dest={{folly_install_dir}} version={{folly_version}} force=yes
+
+- name: Get Wangle
+  git: repo=https://github.com/facebook/wangle.git dest={{wangle_install_dir}} version={{wangle_version}} force=yes
+
+- name: Remove `git checkout master` from Proxygen Build Script
+  lineinfile: dest={{proxygen_install_dir}}/proxygen/deps.sh state=absent regexp="checkout master"
+
+- name: Build Proxygen
+  shell: ./deps.sh && ./reinstall.sh
+  args:
+    chdir: "{{proxygen_install_dir}}/proxygen"

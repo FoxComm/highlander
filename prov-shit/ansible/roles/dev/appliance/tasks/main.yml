@@ -4,34 +4,13 @@
   file: path=/var/lib/dpkg/lock state=absent
 
 - name: Remove Unattended Upgrades
-  apt:
-    name: unattended-upgrades
-    state: absent
+  apt: name=unattended-upgrades state=absent
 
 - name: Remove Daily Apt
   file: path=/etc/cron.daily/apt-compat state=absent
 
-- name: Set Hostname
-  hostname: name={{appliance_hostname}}
-  when: local_vagrant
-
-- name: Copy Mesos Master Run Script
-  template: src=run_mesos_master.sh dest=/usr/local/bin/run_mesos_master.sh mode="u+x,g+x,o+x"
-
-- name: Copy Mesos Worker Run Script
-  template: src=run_mesos_worker.sh dest=/usr/local/bin/run_mesos_worker.sh mode="u+x,g+x,o+x"
+- name: Override Mesos Worker Script
+  template: src=run_mesos_worker.sh dest=/usr/local/bin mode="u+x,g+x,o+x" force=yes
 
 - name: Copy Mesos Resources Config
   template: src=resources.json dest=/var/lib/mesos/resources.json mode="u+r,g+r,o+r"
-
-- name: Copy Mesos Healthcheck script
-  template: src=mesos_master_check.sh dest=/usr/local/bin/mesos_master_check.sh mode="u=rwx,g=rwx,o=rx"
-
-- name: Restart Docker
-  service: name=docker state=restarted enabled=true
-
-- name: Restart Mesos Master
-  service: name=mesos_master state=restarted enabled=true
-
-- name: Restart Mesos Worker
-  service: name=mesos_worker state=restarted enabled=true

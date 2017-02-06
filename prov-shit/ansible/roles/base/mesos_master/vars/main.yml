@@ -1,2 +1,0 @@
-marathon_filename: marathon-1.3.5.tgz
-marathon_download_url: "http://downloads.mesosphere.com/marathon/v1.3.5/{{marathon_filename}}"

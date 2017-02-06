@@ -1,3 +1,3 @@
 dashboard_assets_location: /usr/local/dashboard
-dashboard_port: 3000
-dashboard_url: https://github.com/kpashka/dashboard/releases/download/v1.0/dashboard_linux_amd64.zip
+dashboard_port: 4198
+dashboard_url: https://github.com/kpashka/dashboard/releases/download/1.0.1/dashboard_linux_amd64.tar.gz

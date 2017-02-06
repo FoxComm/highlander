@@ -190,7 +190,7 @@ export default class Order extends React.Component {
 
     if (order.orderState === 'canceled' ||
         order.orderState === 'shipped') {
-      return <State value={order.shippingState} model="order" />;
+      return <State stateId="order-state-value" value={order.shippingState} model="order" />;
     }
 
     let holdStates = ['manualHold'];
@@ -211,6 +211,7 @@ export default class Order extends React.Component {
     return (
       <Dropdown
         id="order-state-dd"
+        dropdownValueId="order-state-value"
         name="orderState"
         items={_.map(visibleAndSortedOrderStates, state => [state, states.order[state]])}
         placeholder={'Order state'}
@@ -233,7 +234,7 @@ export default class Order extends React.Component {
     const shippingState = isPermitted(shippingClaims, claims)
       ? (
           <PanelListItem title="Shipping State">
-            <State value={order.shippingState} model="shipment" />
+            <State stateId="order-shipping-state-value" value={order.shippingState} model="shipment" />
           </PanelListItem>
         ) : null;
 
@@ -246,7 +247,7 @@ export default class Order extends React.Component {
             </PanelListItem>
             {shippingState}
             <PanelListItem title="Payment State">
-              <State value={order.paymentState} model="payment" />
+              <State stateId="order-payment-state-value" value={order.paymentState} model="payment" />
             </PanelListItem>
             <PanelListItem title="Date/Time Placed">
               <DateTime value={order.placedAt} />

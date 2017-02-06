@@ -33,7 +33,7 @@ const OriginType = (props) => {
 
   return (
     <div className="fc-origin-type">
-      <div className="fc-origin-type__type">{formattedType}</div>
+      <div className="fc-origin-type__type gift-card-type">{formattedType}</div>
       {content && <div className="fc-origin-type__content">{content}</div>}
     </div>
   );

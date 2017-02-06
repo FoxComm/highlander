@@ -1,0 +1,8 @@
+---
+
+- name: Restart Kibana
+  service: name=kibana state=restarted
+
+- name: Copy Consul Service File
+  template: src=kibana.json dest=/etc/consul.d force=yes
+  notify: reload consul
