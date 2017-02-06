@@ -3,7 +3,7 @@ package routes
 import akka.http.scaladsl.model.{StatusCodes, Uri}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
+import utils.http.JsonSupport._
 import payloads.LoginPayload
 import payloads.UserPayloads._
 import services.Authenticator
