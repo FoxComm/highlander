@@ -124,6 +124,7 @@ class CartIntegrationTest
         .skus
         .onlyElement
       sku.sku must === (productVariantCode)
+      sku.variantId must === (productVariant.id)
       sku.quantity must === (2)
       // TODO: check if *variant* IDs match?
     }
