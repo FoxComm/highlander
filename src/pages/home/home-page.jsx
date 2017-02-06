@@ -33,11 +33,11 @@ const mainBlocks = [
 ];
 
 const instagramLinks = [
-  'https://www.instagram.com/p/BKn_-8wh1mw',
-  'https://www.instagram.com/p/BHvPmVLBDaP',
+  'https://www.instagram.com/p/BPvzneyhjGD',
+  'https://www.instagram.com/p/BPTXM6qhcQ6',
   'https://www.instagram.com/p/BJI5BhJhGpO',
-  'https://www.instagram.com/p/BHm4-IJhgtx',
-  'https://www.instagram.com/p/BGzWL8gEaqM',
+  'https://www.instagram.com/p/BOAOMe_BiKB',
+  'https://www.instagram.com/p/BPd3_L9Bjk1',
 ];
 
 const HomePage = () => {
@@ -49,7 +49,7 @@ const HomePage = () => {
     return (
       <div
         styleName="instagram-image"
-        style={{ backgroundImage: `url(/images/home-page/Instagram_Feed_${i}_2x.jpg)`}}
+        style={{ backgroundImage: `url(/images/home-page/Instagram_${i}_2x.jpg)`}}
         key={i}
       >
         <a href={instagramLinks[i - 1]} target="_blank">
