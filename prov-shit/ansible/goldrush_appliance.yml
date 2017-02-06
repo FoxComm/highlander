@@ -31,6 +31,7 @@
         shipments_consumer: "{{ lookup('env', 'DOCKER_TAG_SHIPMENTS_CONSUMER') | default('master') }}"
         shipstation_consumer: "{{ lookup('env', 'DOCKER_TAG_SHIPSTATION_CONSUMER') | default('master') }}"
         stock_items_consumer: "{{ lookup('env', 'DOCKER_TAG_STOCK_ITEMS_CONSUMER') | default('master') }}"
+        customer_groups_consumer: "{{ lookup('env', 'DOCKER_TAG_CUSTOMER_GROUPS_CONSUMER') | default('master') }}"
     install_public_keys: true
     install_private_keys: true
     is_appliance: true
