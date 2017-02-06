@@ -12,9 +12,9 @@ import CurrencyInput from 'components/forms/currency-input';
 import MultiSelectRow from 'components/table/multi-select-row';
 import LoadingInputWrapper from 'components/forms/loading-input-wrapper';
 import { DeleteButton } from 'components/common/buttons';
+import { Link } from 'components/link';
 
 import reducer, { suggestSkus } from 'modules/skus/suggest';
-import type { SuggestOptions } from 'modules/skus/suggest';
 import type { ProductVariant } from 'modules/product-variants/details';
 import { productVariantCode } from 'paragons/product';
 
@@ -28,13 +28,12 @@ type Props = {
   productVariant: ProductVariant,
   index: number,
   params: Object,
-  skuContext: string,
   updateField: (id: string, field: string, value: any) => void,
   updateFields: (id: string, toUpdate: Array<Array<any>>) => void,
   onDeleteClick: (id: string) => void,
   isFetchingSkus: boolean,
   skuOptionsMap: Object,
-  suggestSkus: (code: string, context?: SuggestOptions) => Promise,
+  suggestSkus: (code: string) => Promise,
   suggestedSkus: Array<TSearchViewSku>,
   options: Array<any>,
 };
@@ -151,9 +150,7 @@ class EditableVariantRow extends Component {
   }
 
   suggestSkus(text: string): Promise|void {
-    return this.props.suggestSkus(text, {
-      context: this.props.skuContext
-    });
+    return this.props.suggestSkus(text);
   }
 
   updateAttrsBySku(sku: TSearchViewSku) {
@@ -223,6 +220,13 @@ class EditableVariantRow extends Component {
 
   skuCell(productVariant: ProductVariant): Element {
     const code = _.get(productVariant, 'attributes.code.v');
+    if (productVariant.middlewarehouseSkuId && productVariant.id) {
+      return (
+        <Link to="sku-details" styleName="sku-link" params={{skuId: productVariant.middlewarehouseSkuId}}>
+          {code}
+        </Link>
+      );
+    }
     const { codeError } = this.state;
     const error = codeError ? `SKU Code violates constraint: ${codeError.keyword}` : void 0;
     return (

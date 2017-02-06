@@ -71,3 +71,10 @@
     width: 100%;
   }
 }
+.sku-link {
+  color: #484848;
+
+  &:hover {
+    color: #4fc2c9;
+  }
+}
