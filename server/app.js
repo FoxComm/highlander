@@ -13,7 +13,7 @@ import bodyParser from 'koa-bodyparser';
 import contactFeedbackRoute from './routes/contact-feedback-route';
 import log4js from 'koa-log4';
 import path from 'path';
-import serve from 'koa-static';
+import serve from 'koa-better-static';
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -21,26 +21,18 @@ function timestamp() {
   return moment().format('D MMM H:mm:ss');
 }
 
-/**
- * Set conditional headers to response
- * @param {http.ServerResponse} serverResponse native node server response
- * @param {String} filePath     path to requested file
- * @param {Object} stats        file stats
- */
-function setHeaders(serverResponse, filePath, stats) {
-  if (isProduction) {
-    if (filePath.match(/public\/app.*\.(js|css)/)) {
-      this.ctx.response.set('Cache-Control', 'max-age=31536000');
+function test(middleware, fn) {
+  return function *(next) {
+    if (fn(this)) {
+      yield middleware.call(this, next);
     } else {
-      const ims = this.ctx.request.get('If-Modified-Since');
-      const ms = Date.parse(ims);
-
-      // https://github.com/ohomer/koa-better-static/blob/master/send.js
-      if (ms && Math.floor(ms / 1000) === Math.floor(stats.mtime.getTime() / 1000)) {
-        this.ctx.response.status = 304; // not modified
-      }
+      yield next;
     }
-  }
+  };
+}
+
+function isAppStatic(ctx) {
+  return ctx.path.match(/\/app.*\.(js|css)/);
 }
 
 export default class App extends KoaApp {
@@ -59,14 +51,11 @@ export default class App extends KoaApp {
 
     log4js.configure(path.join(`${__dirname}`, '../log4js.json'));
 
-    const context = {};
-
     this
-      .use(function * (next) {
-        context.ctx = this;
-        yield next;
-      })
-      .use(serve('public', { setHeaders: setHeaders.bind(context) }))
+      // serve all static in dev mode through one middleware,
+      // enable the second one to add cache headers to app*.js and app*.css
+      .use(test(serve('public'), ctx => !isProduction || !isAppStatic(ctx)))
+      .use(test(serve('public', { maxage: 31536000 }), ctx => isProduction && isAppStatic(ctx)))
       .use(favicon('public/favicon.png'))
       .use(log4js.koaLogger(log4js.getLogger('http'), { level: 'auto' }))
       .use(makeApiProxy())
