@@ -92,15 +92,15 @@ abstract class FoxTableQuery[M <: FoxModel[M], T <: FoxTable[M]](construct: Tag 
   type QuerySeq = Query[T, M, Seq]
 
   implicit class EnrichedTableQuery(q: QuerySeq) {
+    def deleteAll(implicit ec: EC): DbResultT[Int] = wrapDbio(q.delete)
 
     def deleteAll[A](onSuccess: ⇒ DbResultT[A], onFailure: ⇒ DbResultT[A])(
-        implicit ec: EC): DbResultT[A] =
-      for {
-        deletedQty ← * <~ q.delete
-        result ← * <~ (deletedQty match {
-                      case 0 ⇒ onFailure
-                      case _ ⇒ onSuccess
-                    })
-      } yield result
+        implicit ec: EC): DbResultT[A] = {
+      val deleteResult = q.delete.dbresult.flatMap {
+        case 0 ⇒ onFailure
+        case _ ⇒ onSuccess
+      }
+      wrapDbResultT(deleteResult)
+    }
   }
 }

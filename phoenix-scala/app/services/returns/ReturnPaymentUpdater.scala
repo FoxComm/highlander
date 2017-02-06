@@ -43,8 +43,8 @@ object ReturnPaymentUpdater {
       implicit ec: EC,
       db: DB): DbResultT[ReturnPayment] =
     for {
-      cc        ← * <~ CreditCards.mustFindById404(payment.paymentMethodId)
-      deleteAll ← * <~ deleteCc(returnId)
+      cc ← * <~ CreditCards.mustFindById404(payment.paymentMethodId)
+      _  ← * <~ deleteCc(returnId)
       ccRefund ← * <~ ReturnPayments.create(
                     ReturnPayment.build(cc, returnId, amount, payment.currency))
     } yield ccRefund
@@ -53,10 +53,10 @@ object ReturnPaymentUpdater {
                           payment: OrderPayment,
                           amount: Int)(implicit ec: EC, db: DB, au: AU): DbResultT[ReturnPayment] =
     for {
-      deleteAll ← * <~ deleteGc(returnId)
-      origin    ← * <~ GiftCardRefunds.create(GiftCardRefund(returnId = returnId))
-      gc        ← * <~ GiftCards.create(GiftCard.buildRmaProcess(origin.id, payment.currency))
-      pmt       ← * <~ ReturnPayments.create(ReturnPayment.build(gc, returnId, amount, payment.currency))
+      _      ← * <~ deleteGc(returnId)
+      origin ← * <~ GiftCardRefunds.create(GiftCardRefund(returnId = returnId))
+      gc     ← * <~ GiftCards.create(GiftCard.buildRmaProcess(origin.id, payment.currency))
+      pmt    ← * <~ ReturnPayments.create(ReturnPayment.build(gc, returnId, amount, payment.currency))
     } yield pmt
 
   private def addStoreCredit(returnId: Int, accountId: Int, payment: OrderPayment, amount: Int)(
@@ -64,8 +64,8 @@ object ReturnPaymentUpdater {
       db: DB,
       au: AU): DbResultT[ReturnPayment] =
     for {
-      deleteAll ← * <~ deleteGc(returnId)
-      origin    ← * <~ StoreCreditRefunds.create(StoreCreditRefund(returnId = returnId))
+      _      ← * <~ deleteSc(returnId)
+      origin ← * <~ StoreCreditRefunds.create(StoreCreditRefund(returnId = returnId))
       sc ← * <~ StoreCredits.create(
               StoreCredit(accountId = accountId,
                           scope = Scope.current,
@@ -95,33 +95,31 @@ object ReturnPaymentUpdater {
     }
 
   private def deleteCc(returnId: Int)(implicit ec: EC): DbResultT[Unit] =
-    for {
-      _ ← * <~ ReturnPayments.filter(_.returnId === returnId).creditCards.delete
-    } yield ()
+    ReturnPayments.findAllByReturnId(returnId).creditCards.deleteAll.meh
 
   private def deleteGc(returnId: Int)(implicit ec: EC): DbResultT[Unit] =
     for {
-      paymentMethodIds ← * <~ ReturnPayments.findAllPaymentIdsByRmaId(returnId).result
+      paymentMethodIds ← * <~ ReturnPayments.findAllPaymentIdsByReturnId(returnId).result
       giftCardOriginIds ← * <~ GiftCards
                            .findAllByIds(paymentMethodIds)
                            .map(_.originId)
                            .to[Set]
                            .result
-      _ ← * <~ ReturnPayments.findAllByRmaId(returnId).delete
-      _ ← * <~ GiftCards.findAllByIds(paymentMethodIds).delete
-      _ ← * <~ GiftCardRefunds.findAllByIds(giftCardOriginIds).delete
+      _ ← * <~ ReturnPayments.findAllByReturnId(returnId).deleteAll
+      _ ← * <~ GiftCards.findAllByIds(paymentMethodIds).deleteAll
+      _ ← * <~ GiftCardRefunds.findAllByIds(giftCardOriginIds).deleteAll
     } yield ()
 
   private def deleteSc(returnId: Int)(implicit ec: EC): DbResultT[Unit] =
     for {
-      paymentMethodIds ← * <~ ReturnPayments.findAllPaymentIdsByRmaId(returnId).result
+      paymentMethodIds ← * <~ ReturnPayments.findAllPaymentIdsByReturnId(returnId).result
       storeCreditOriginIds ← * <~ StoreCredits
                               .findAllByIds(paymentMethodIds)
                               .map(_.originId)
                               .to[Set]
                               .result
-      _ ← * <~ ReturnPayments.findAllByRmaId(returnId).delete
-      _ ← * <~ StoreCredits.findAllByIds(paymentMethodIds).delete
-      _ ← * <~ StoreCreditRefunds.findAllByIds(storeCreditOriginIds).delete
+      _ ← * <~ ReturnPayments.findAllByReturnId(returnId).deleteAll
+      _ ← * <~ StoreCredits.findAllByIds(paymentMethodIds).deleteAll
+      _ ← * <~ StoreCreditRefunds.findAllByIds(storeCreditOriginIds).deleteAll
     } yield ()
 }

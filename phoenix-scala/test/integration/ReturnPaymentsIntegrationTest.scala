@@ -57,7 +57,7 @@ class ReturnPaymentsIntegrationTest
       "successfully delete any supported payment method" in new Fixture {
         forAll(paymentMethodTable) { paymentType ⇒
           val response = returnsApi(freshRma.referenceNumber).paymentMethods
-            .delete(paymentType)
+            .remove(paymentType)
             .as[ReturnResponse.Root]
 
           response.payments mustBe 'empty
@@ -66,7 +66,7 @@ class ReturnPaymentsIntegrationTest
 
       "fails if the RMA is not found" in new Fixture {
         forAll(paymentMethodTable) { paymentType ⇒
-          val response = returnsApi("TRY_HARDER").paymentMethods.delete(paymentType)
+          val response = returnsApi("TRY_HARDER").paymentMethods.remove(paymentType)
 
           response.mustFailWith404(NotFoundFailure404(Return, "TRY_HARDER"))
         }
