@@ -187,7 +187,7 @@ case class SimpleProductOptionValueShadow(v: SimpleProductOptionValue) {
 }
 
 case class SimpleCompleteOption(option: SimpleProductOption,
-                                productValues: Seq[SimpleProductOptionValue])
+                                optionValues: Seq[SimpleProductOptionValue])
 
 case class SimpleProductData(productId: Int = 0,
                              variantId: Int = 0,
@@ -424,7 +424,7 @@ object Mvp {
       simpleCompleteOption: SimpleCompleteOption): DbResultT[SimpleCompleteOptionData] =
     for {
       option ← * <~ insertProductOption(scope, contextId, simpleCompleteOption.option, product)
-      values ← * <~ simpleCompleteOption.productValues.map { optionValue ⇒
+      values ← * <~ simpleCompleteOption.optionValues.map { optionValue ⇒
                 insertProductOptionValue(scope = scope,
                                          contextId = contextId,
                                          simpleOptionValue = optionValue,

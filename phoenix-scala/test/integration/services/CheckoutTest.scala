@@ -204,14 +204,14 @@ class CheckoutTest
     } yield (reason, shipMethod)).gimme
 
     def lineItemPayload(cost: Int) = {
-      val sku = (for {
+      val productVariant = (for {
         productCtx ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
         product ← * <~ Mvp.insertProduct(
                      productCtx.id,
                      Factories.products.head.copy(price = cost, code = Lorem.letterify("?????")))
-        sku ← * <~ ProductVariants.mustFindById404(product.variantId)
-      } yield sku).gimme
-      Seq(UpdateLineItemsPayload(sku.formId, 1))
+        productVariant ← * <~ ProductVariants.mustFindById404(product.variantId)
+      } yield productVariant).gimme
+      Seq(UpdateLineItemsPayload(productVariant.formId, 1))
     }
 
     def generateGiftCards(amount: Seq[Int]) =

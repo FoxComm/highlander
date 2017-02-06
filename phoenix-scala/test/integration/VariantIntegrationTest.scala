@@ -40,7 +40,7 @@ class VariantIntegrationTest
       val priceJson  = ("t"        → "price") ~ ("v" → priceValue)
       val attrMap    = Map("price" → priceJson)
 
-      productVariantsApi.create(makeSkuPayload("SKU-NEW-TEST", attrMap, None)).mustBeOk()
+      productVariantsApi.create(makeVariantPayload("SKU-NEW-TEST", attrMap, None)).mustBeOk()
     }
 
     "Tries to create a variant with no code" in new Fixture {
@@ -63,7 +63,8 @@ class VariantIntegrationTest
       val imagePayload = ImagePayload(src = src)
       val albumPayload = AlbumPayload(name = "Default".some, images = Seq(imagePayload).some)
 
-      val resp = productVariantsApi.create(makeSkuPayload(code, attrMap, Seq(albumPayload).some))
+      val resp =
+        productVariantsApi.create(makeVariantPayload(code, attrMap, Seq(albumPayload).some))
       resp.mustBeOk()
       val createResponse = resp.as[ProductVariantResponse.Root]
 
@@ -76,11 +77,11 @@ class VariantIntegrationTest
 
   "GET v1/variants/:context/:code" - {
     "Get a created variant successfully" in new Fixture {
-      val skuResponse = productVariantsApi(skuForm.id).get().as[ProductVariantResponse.Root]
-      val code        = skuResponse.attributes \ "code" \ "v"
-      code.extract[String] must === (sku.code)
+      val variantResponse =
+        productVariantsApi(variantForm.id).get().as[ProductVariantResponse.Root]
+      variantResponse.attributes.code must === (variant.code)
 
-      val salePrice = skuResponse.attributes \ "salePrice" \ "v" \ "value"
+      val salePrice = variantResponse.attributes \ "salePrice" \ "v" \ "value"
       salePrice.extract[Int] must === (9999)
     }
 
@@ -91,112 +92,118 @@ class VariantIntegrationTest
   }
 
   "PATCH v1/variants/:context/:code" - {
-    "Adds a new attribute to the SKU" in new Fixture {
+    "Adds a new attribute to the variant" in new Fixture {
       val payload = ProductVariantPayload(attributes =
                                             Map("name" → (("t" → "string") ~ ("v" → "Test"))),
                                           albums = None)
 
-      val skuResponse =
-        productVariantsApi(skuForm.id).update(payload).as[ProductVariantResponse.Root]
+      val variantResponse =
+        productVariantsApi(variantForm.id).update(payload).as[ProductVariantResponse.Root]
 
-      (skuResponse.attributes \ "code" \ "v").extract[String] must === (sku.code)
-      (skuResponse.attributes \ "name" \ "v").extract[String] must === ("Test")
-      (skuResponse.attributes \ "salePrice" \ "v" \ "value").extract[Int] must === (9999)
+      variantResponse.attributes.code must === (variant.code)
+      variantResponse.attributes.getString("name") must === ("Test")
+      (variantResponse.attributes \ "salePrice" \ "v" \ "value").extract[Int] must === (9999)
     }
 
-    "Updates the SKU's code" in new Fixture {
+    "Updates variant's code" in new Fixture {
       val payload = ProductVariantPayload(attributes =
                                             Map("code" → (("t" → "string") ~ ("v" → "UPCODE"))),
                                           albums = None)
-      productVariantsApi(skuForm.id).update(payload).mustBeOk()
+      productVariantsApi(variantForm.id).update(payload).mustBeOk()
 
-      val skuResponse = productVariantsApi(skuForm.id).get().as[ProductVariantResponse.Root]
-      (skuResponse.attributes \ "code" \ "v").extract[String] must === ("UPCODE")
-
-      (skuResponse.attributes \ "salePrice" \ "v" \ "value").extract[Int] must === (9999)
+      val variantResponse =
+        productVariantsApi(variantForm.id).get().as[ProductVariantResponse.Root]
+      variantResponse.attributes.code must === ("UPCODE")
+      (variantResponse.attributes \ "salePrice" \ "v" \ "value").extract[Int] must === (9999)
     }
   }
 
   "DELETE v1/products/:context/:id" - {
-    "Archives SKU successfully" in new Fixture {
-      val result = productVariantsApi(skuForm.id).archive().as[ProductVariantResponse.Root]
+    "Archives variant successfully" in new Fixture {
+      val result = productVariantsApi(variantForm.id).archive().as[ProductVariantResponse.Root]
 
       withClue(result.archivedAt.value → Instant.now) {
         result.archivedAt.value.isBeforeNow mustBe true
       }
     }
 
-    "Successfully archives SKU which is linked to a product" in new FixtureWithProduct {
+    "Successfully archives variant which is linked to a product" in new FixtureWithProduct {
       private val updateProductPayload: UpdateProductPayload =
         UpdateProductPayload(attributes = Map(),
-                             variants = Some(List(makeSkuPayload(sku.code, Map()))),
+                             variants = Some(List(makeVariantPayload(variant.code, Map()))),
                              options = None)
       productsApi(product.formId).update(updateProductPayload).mustBeOk
 
-      val result = productVariantsApi(skuForm.id).archive().as[ProductVariantResponse.Root]
+      val result = productVariantsApi(variantForm.id).archive().as[ProductVariantResponse.Root]
 
       withClue(result.archivedAt.value → Instant.now) {
         result.archivedAt.value.isBeforeNow mustBe true
       }
     }
 
-    "SKU Albums must be unlinked" in new Fixture {
-      productVariantsApi(skuForm.id).archive().as[ProductVariantResponse.Root].albums mustBe empty
+    "Variant albums must be unlinked" in new Fixture {
+      productVariantsApi(variantForm.id)
+        .archive()
+        .as[ProductVariantResponse.Root]
+        .albums mustBe empty
     }
 
-    "Responds with NOT FOUND when SKU is requested with wrong code" in new Fixture {
+    // FIXME: we actually moved to form id...
+    "Responds with NOT FOUND when variant is requested with wrong code" in new Fixture {
       productVariantsApi(666)
         .archive()
         .mustFailWith404(ProductVariantNotFoundForContext("666", ctx.id))
     }
 
-    "Responds with NOT FOUND when SKU is requested with wrong context" in new Fixture {
-      implicit val donkeyContext = ObjectContext(name = "donkeyContext", attributes = JNothing)
-
-      productVariantsApi(skuForm.id)(donkeyContext)
+    "Responds with NOT FOUND when variant is requested with wrong context" in new Fixture {
+      productVariantsApi(variantForm.id)(
+          ObjectContext(name = "donkeyContext", attributes = JNothing))
         .archive()
         .mustFailWith404(ObjectContextNotFound("donkeyContext"))
     }
 
-    "Returns error if SKU is present in carts" in new FixtureWithProduct {
+    "Returns error if variant is present in carts" in new FixtureWithProduct {
       val cart = cartsApi.create(CreateCart(email = "yax@yax.com".some)).as[CartResponse]
 
       cartsApi(cart.referenceNumber).lineItems
-        .add(Seq(UpdateLineItemsPayload(sku.formId, 1)))
+        .add(Seq(UpdateLineItemsPayload(variant.formId, 1)))
         .mustBeOk()
 
-      productVariantsApi(skuForm.id).archive().mustFailWith400(VariantIsPresentInCarts(sku.code))
+      productVariantsApi(variantForm.id)
+        .archive()
+        .mustFailWith400(VariantIsPresentInCarts(variant.code))
     }
   }
 
   trait Fixture extends StoreAdmin_Seed {
-    def makeSkuPayload(code: String,
-                       attrMap: Map[String, Json],
-                       albums: Option[Seq[AlbumPayload]] = None) = {
+    def makeVariantPayload(code: String,
+                           attrMap: Map[String, Json],
+                           albums: Option[Seq[AlbumPayload]] = None) = {
       val codeJson   = ("t"              → "string") ~ ("v" → code)
       val attributes = attrMap + ("code" → codeJson)
       ProductVariantPayload(attributes = attributes, albums = albums)
     }
 
-    val (sku, skuForm, skuShadow) = (for {
-      simpleSku       ← * <~ SimpleVariant("SKU-TEST", "Test SKU", 9999, Currency.USD)
-      skuForm         ← * <~ ObjectForms.create(simpleSku.create)
-      simpleSkuShadow ← * <~ SimpleVariantShadow(simpleSku)
-      skuShadow       ← * <~ ObjectShadows.create(simpleSkuShadow.create.copy(formId = skuForm.id))
-      skuCommit ← * <~ ObjectCommits.create(
-                     ObjectCommit(formId = skuForm.id, shadowId = skuShadow.id))
-      sku ← * <~ ProductVariants.create(
-               ProductVariant(scope = Scope.current,
-                              contextId = ctx.id,
-                              code = simpleSku.code,
-                              formId = skuForm.id,
-                              shadowId = skuShadow.id,
-                              commitId = skuCommit.id))
+    val (variant, variantForm, variantShadow) = (for {
+      simpleVariant       ← * <~ SimpleVariant("SKU-TEST", "Test SKU", 9999, Currency.USD)
+      variantForm         ← * <~ ObjectForms.create(simpleVariant.create)
+      simpleVariantShadow ← * <~ SimpleVariantShadow(simpleVariant)
+      variantShadow ← * <~ ObjectShadows.create(
+                         simpleVariantShadow.create.copy(formId = variantForm.id))
+      variantCommit ← * <~ ObjectCommits.create(
+                         ObjectCommit(formId = variantForm.id, shadowId = variantShadow.id))
+      variant ← * <~ ProductVariants.create(
+                   ProductVariant(scope = Scope.current,
+                                  contextId = ctx.id,
+                                  code = simpleVariant.code,
+                                  formId = variantForm.id,
+                                  shadowId = variantShadow.id,
+                                  commitId = variantCommit.id))
       _ ← * <~ ProductVariantSkus.create(
-             ProductVariantSku(variantFormId = skuForm.id,
-                               skuId = skuForm.id,
-                               skuCode = simpleSku.code))
-    } yield (sku, skuForm, skuShadow)).gimme
+             ProductVariantSku(variantFormId = variantForm.id,
+                               skuId = variantForm.id,
+                               skuCode = simpleVariant.code))
+    } yield (variant, variantForm, variantShadow)).gimme
   }
 
   trait FixtureWithProduct extends Fixture {
@@ -207,7 +214,7 @@ class VariantIntegrationTest
                                                price = 5999)
 
     val product = Mvp
-      .insertProductWithExistingVariants(LTree(au.token.scope), ctx.id, simpleProd, Seq(sku))
+      .insertProductWithExistingVariants(LTree(au.token.scope), ctx.id, simpleProd, Seq(variant))
       .gimme
   }
 }

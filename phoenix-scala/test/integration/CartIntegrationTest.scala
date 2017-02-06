@@ -128,12 +128,12 @@ class CartIntegrationTest
       // TODO: check if *variant* IDs match?
     }
 
-    "adding a SKU with no product should return an error" in new Sku_Raw {
+    "adding a SKU with no product should return an error" in new Variant_Raw {
       val cartRef = api_newGuestCart().referenceNumber
 
       cartsApi(cartRef).lineItems
-        .add(Seq(UpdateLineItemsPayload(simpleSku.formId, 1)))
-        .mustFailWith400(SkuWithNoProductAdded(cartRef, simpleSku.code))
+        .add(Seq(UpdateLineItemsPayload(simpleVariant.formId, 1)))
+        .mustFailWith400(SkuWithNoProductAdded(cartRef, simpleVariant.code))
     }
 
     "adding a SKU that's associated through a productOption should succeed" in new Fixture {
@@ -192,12 +192,12 @@ class CartIntegrationTest
           (productVariantCode, 2, giftCardAttrs1))
     }
 
-    "adding a SKU with no product should return an error" in new Sku_Raw {
+    "adding a SKU with no product should return an error" in new Variant_Raw {
       val cartRef = api_newGuestCart().referenceNumber
 
       cartsApi(cartRef).lineItems
-        .update(Seq(UpdateLineItemsPayload(simpleSku.formId, 1)))
-        .mustFailWith400(SkuWithNoProductAdded(cartRef, simpleSku.code))
+        .update(Seq(UpdateLineItemsPayload(simpleVariant.formId, 1)))
+        .mustFailWith400(SkuWithNoProductAdded(cartRef, simpleVariant.code))
     }
 
     "should successfully remove line items" in new Fixture {

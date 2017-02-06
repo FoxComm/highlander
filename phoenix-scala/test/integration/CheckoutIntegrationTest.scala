@@ -49,7 +49,7 @@ class CheckoutIntegrationTest
       val refNum =
         cartsApi.create(CreateCart(customer.accountId.some)).as[CartResponse].referenceNumber
       val orderResponse =
-        doCheckout(customer, sku, address, shipMethod, reason, refNum).as[OrderResponse]
+        doCheckout(customer, productVariant, address, shipMethod, reason, refNum).as[OrderResponse]
       val lineItemToUpdate = orderResponse.lineItems.skus.head
       val root = cartsApi(orderResponse.referenceNumber)
         .updateCartLineItem(
@@ -66,14 +66,14 @@ class CheckoutIntegrationTest
     }
 
     def doCheckout(customer: User,
-                   sku: ProductVariant,
+                   productVariant: ProductVariant,
                    address: Address,
                    shipMethod: ShippingMethod,
                    reason: Reason,
                    refNum: String): HttpResponse = {
       val _cartApi = cartsApi(refNum)
 
-      _cartApi.lineItems.add(Seq(UpdateLineItemsPayload(sku.formId, 2))).mustBeOk()
+      _cartApi.lineItems.add(Seq(UpdateLineItemsPayload(productVariant.formId, 2))).mustBeOk()
 
       _cartApi.shippingAddress.updateFromAddress(address.id).mustBeOk()
 
@@ -97,7 +97,8 @@ class CheckoutIntegrationTest
   "POST v1/carts/:refNum/checkout" - {
 
     "places order as admin" in new Fixture {
-      val orderResponse = doCheckout(customer, sku, address, shipMethod, reason).as[OrderResponse]
+      val orderResponse =
+        doCheckout(customer, productVariant, address, shipMethod, reason).as[OrderResponse]
 
       // Checkout:
       // Triggers cart → order transition
@@ -126,7 +127,7 @@ class CheckoutIntegrationTest
       // FIXME #middlewarehouse
       pending
 
-      doCheckout(customer, sku, address, shipMethod, reason)
+      doCheckout(customer, productVariant, address, shipMethod, reason)
         .as[OrderResponse]
         .orderState must === (RemorseHold)
 
@@ -137,12 +138,12 @@ class CheckoutIntegrationTest
     }
 
     "fails if customer is blacklisted" in new BlacklistedFixture {
-      doCheckout(customer, sku, address, shipMethod, reason).mustFailWith400(
+      doCheckout(customer, productVariant, address, shipMethod, reason).mustFailWith400(
           UserIsBlacklisted(customer.accountId))
     }
 
     def doCheckout(customer: User,
-                   sku: ProductVariant,
+                   productVariant: ProductVariant,
                    address: Address,
                    shipMethod: ShippingMethod,
                    reason: Reason): HttpResponse = {
@@ -150,7 +151,7 @@ class CheckoutIntegrationTest
         cartsApi.create(CreateCart(customer.accountId.some)).as[CartResponse].referenceNumber
       val _cartApi = cartsApi(refNum)
 
-      _cartApi.lineItems.add(Seq(UpdateLineItemsPayload(sku.formId, 2))).mustBeOk()
+      _cartApi.lineItems.add(Seq(UpdateLineItemsPayload(productVariant.formId, 2))).mustBeOk()
 
       _cartApi.shippingAddress.updateFromAddress(address.id).mustBeOk()
 
@@ -179,20 +180,20 @@ class CheckoutIntegrationTest
       with CartWithGiftCardPayment_Raw
 
   trait Fixture extends StoreAdmin_Seed with CustomerAddress_Baked {
-    val (shipMethod, product, sku, reason) = (for {
+    val (shipMethod, product, productVariant, reason) = (for {
       _ ← * <~ Factories.shippingMethods.map(ShippingMethods.create)
       shipMethodName = ShippingMethod.expressShippingNameForAdmin
       shipMethod ← * <~ ShippingMethods
                     .filter(_.adminDisplayName === shipMethodName)
                     .mustFindOneOr(ShippingMethodNotFoundByName(shipMethodName))
       product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head)
-      sku     ← * <~ ProductVariants.mustFindById404(product.variantId)
+      variant ← * <~ ProductVariants.mustFindById404(product.variantId)
       reason  ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))
-    } yield (shipMethod, product, sku, reason)).gimme
+    } yield (shipMethod, product, variant, reason)).gimme
   }
 
   trait BlacklistedFixture extends StoreAdmin_Seed {
-    val (customer, address, shipMethod, product, sku, reason) = (for {
+    val (customer, address, shipMethod, product, productVariant, reason) = (for {
       account ← * <~ Accounts.create(Account())
       customer ← * <~ Users.create(
                     Factories.customer.copy(accountId = account.id,
@@ -209,8 +210,8 @@ class CheckoutIntegrationTest
                     .mustFindOneOr(
                         ShippingMethodNotFoundByName(ShippingMethod.expressShippingNameForAdmin))
       product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head)
-      sku     ← * <~ ProductVariants.mustFindById404(product.variantId)
+      variant ← * <~ ProductVariants.mustFindById404(product.variantId)
       reason  ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))
-    } yield (customer, address, shipMethod, product, sku, reason)).gimme
+    } yield (customer, address, shipMethod, product, variant, reason)).gimme
   }
 }

@@ -16,41 +16,34 @@ class CartTotalerTest extends IntegrationTestBase with TestObjectContext with Ba
   "OrderTotalerTest" - {
     "subTotal" - {
       "is zero when there are no line items" in new Fixture {
-        val subTotal = CartTotaler.subTotal(cart).run().futureValue
-
-        subTotal === 0
+        CartTotaler.subTotal(cart).gimme must === (0)
       }
 
       "includes both SKU line items and purchased gift cards" in new SkuLineItemsFixture {
-        val subTotal = CartTotaler.subTotal(cart).run().futureValue
-
-        subTotal must === (skuPrice)
+        CartTotaler.subTotal(cart).gimme must === (variantPrice)
       }
 
       "uses SKU line items only if order purchases no gift cards" in new SkuLineItemsFixture {
-        val subTotal = CartTotaler.subTotal(cart).run().futureValue
-
-        subTotal must === (skuPrice)
+        CartTotaler.subTotal(cart).gimme must === (variantPrice)
       }
     }
 
     "shipping" - {
       "sums the shipping total from both shipping methods" in new ShippingMethodFixture {
-        val subTotal = CartTotaler.shippingTotal(cart).gimme
-        subTotal must === (295)
+        CartTotaler.shippingTotal(cart).gimme must === (295)
       }
     }
 
     "taxes" - {
       "are hardcoded to 5%" in new SkuLineItemsFixture {
         val totals = CartTotaler.totals(cart).gimme
-        val taxes  = (skuPrice * 0.05).toInt
+        val taxes  = (variantPrice * 0.05).toInt
 
-        totals.subTotal === skuPrice
-        totals.shipping === 0
-        totals.taxes === taxes
-        totals.adjustments === 0
-        totals.total === (totals.subTotal + taxes)
+        totals.subTotal must === (variantPrice)
+        totals.shipping must === (0)
+        totals.taxes must === (taxes)
+        totals.adjustments must === (0)
+        totals.total must === (totals.subTotal + taxes)
       }
     }
 
@@ -70,15 +63,20 @@ class CartTotalerTest extends IntegrationTestBase with TestObjectContext with Ba
   trait Fixture extends EmptyCustomerCart_Baked with CustomerAddress_Raw
 
   trait SkuLineItemsFixture extends Fixture {
-    val (productContext, product, productShadow, sku, skuShadow, skuPrice) = (for {
+    val (productContext, product, productShadow, variant, variantShadow, variantPrice) = (for {
       productContext ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       simpleProduct  ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head)
       tup            ← * <~ Mvp.getProductTuple(simpleProduct)
       _ ← * <~ CartLineItems.create(
              CartLineItem(cordRef = cart.refNum, productVariantId = tup.variant.id))
-      skuPrice ← * <~ Mvp.priceAsInt(tup.variantForm, tup.variantShadow)
+      variantPrice ← * <~ Mvp.priceAsInt(tup.variantForm, tup.variantShadow)
     } yield
-      (productContext, tup.product, tup.productShadow, tup.variant, tup.variantShadow, skuPrice)).gimme
+      (productContext,
+       tup.product,
+       tup.productShadow,
+       tup.variant,
+       tup.variantShadow,
+       variantPrice)).gimme
   }
 
   trait ShippingMethodFixture extends Fixture {
