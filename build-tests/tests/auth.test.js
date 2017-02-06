@@ -1,26 +1,21 @@
-import faker from 'faker';
 import test from '../helpers/test';
 import Api from '../helpers/Api';
 import $ from '../payloads';
 
 test('Can sign up', async () => {
   const api = Api.withoutCookies();
-  const email = faker.internet.email();
-  const name = faker.name.firstName();
-  const password = faker.internet.password();
+  const { email, name, password } = $.randomUserCredentials();
   await api.auth.signup(email, name, password);
 });
 
 test('Can sign in as customer', async (t) => {
   const api = Api.withoutCookies();
-  const email = faker.internet.email();
-  const name = faker.name.firstName();
-  const password = faker.internet.password();
+  const { email, name, password } = $.randomUserCredentials();
   await api.auth.signup(email, name, password);
   const loginResponse = await api.auth.login(email, password, $.customerOrg);
   t.truthy(loginResponse.jwt, 'Login response should have a "jwt" field.');
   t.is(loginResponse.user.name, name, 'Username in login response doesn\'t match real username.');
-  t.is(loginResponse.user.email, email.toLowerCase(), 'Email in login response doesn\'t match real user email.');
+  t.is(loginResponse.user.email, email, 'Email in login response doesn\'t match real user email.');
 });
 
 test('Can sign in as admin', async (t) => {

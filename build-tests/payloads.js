@@ -5,6 +5,11 @@ export default {
   adminPassword: 'password',
   adminOrg: 'tenant',
   customerOrg: 'merchant',
+  randomUserCredentials: () => ({
+    email: faker.internet.email().toLowerCase(),
+    name: faker.name.findName(),
+    password: faker.internet.password(),
+  }),
   randomCreateAddressPayload: () => ({
     name: faker.name.findName(),
     regionId: 4123,
