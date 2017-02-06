@@ -10,7 +10,8 @@ const fetchStatsForStatKey = (statType, statKey, from, to, productId, size, stat
   return dispatch => {
     dispatch(startFetching());
 
-    const keys = `track.${channel}.${statType}.${productId}.${statKey}`;
+    const objHash = SHA1(`products/${productId}`).toString();
+    const keys = `track.${channel}.${statType}.${objHash}.${statKey}`;
     const stepSize = `step=${size}&size=${size}`;
     const statsQuery = _.join(statNames, '&');
 
@@ -73,32 +74,36 @@ export function fetchProductConversion(productId) {
     dispatch(startFetching());
 
     const baseUrl = 'stats/productFunnel/';
-    const productUrl = `${baseUrl}${productId}`;
+    const objHash = SHA1(`products/${productId}`).toString();
+    const productUrl = `${baseUrl}${objHash}`;
 
-    return Api.get(baseUrl).then( // GET avg conversion values
-      avgChartValues => {
-        Api.get(productUrl).then( // GET product conversion values
-          chartValues => {
-            const chartValuesWithAvgs = Object.assign({}, chartValues, { Average:  avgChartValues });
-            dispatch(productConversionReceivedValues(chartValuesWithAvgs));
-          },
-          err => dispatch(fetchFailed(err))
-        );
-      },
-      err => dispatch(fetchFailed(err))
-    );
+    const fetchAvgProductConversionValues = () => {
+      return Api.get(baseUrl).then(
+        avgChartValues => { return avgChartValues; },
+        err => dispatch(fetchFailed(err))
+      );
+    };
 
-    return Api.get(productUrl).then(
-      chartValues => dispatch(productConversionReceivedValues(chartValues)),
-      err => dispatch(fetchFailed(err))
-    );
+    const fetchProductConversionValues = (avgConversionValues) => {
+      return Api.get(productUrl).then(
+        chartValues => {
+          const chartValuesWithAvgs = Object.assign({}, chartValues, { Average: avgConversionValues });
+          dispatch(productConversionReceivedValues(chartValuesWithAvgs));
+        },
+        err => dispatch(fetchFailed(err))
+      );
+    };
+
+    return fetchAvgProductConversionValues()
+      .then(fetchProductConversionValues);
   };
 }
 export function fetchProductStats(productId, channel = 1) {
   return dispatch => {
     dispatch(startFetchingStats());
 
-    const url = `stats/productStats/${channel}/${productId}`;
+    const objHash = SHA1(`products/${productId}`).toString();
+    const url = `stats/productStats/${channel}/${objHash}`;
 
     return Api.get(url).then(
       stats => dispatch(productStatsReceivedValues(stats)),
