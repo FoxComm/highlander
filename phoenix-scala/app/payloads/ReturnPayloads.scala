@@ -3,6 +3,7 @@ package payloads
 import cats.data._
 import cats.implicits._
 import failures.Failure
+import models.payment.PaymentMethod
 import models.returns.Return
 import models.returns.ReturnLineItem.InventoryDisposition
 import utils.Validation
@@ -42,16 +43,10 @@ object ReturnPayloads {
 
   /* Payment payloads */
 
-  case class ReturnPaymentPayload(amount: Int) extends Validation[ReturnPaymentPayload] {
+  case class ReturnPaymentPayload(amount: Int, method: PaymentMethod.Type)
+      extends Validation[ReturnPaymentPayload] {
 
     def validate: ValidatedNel[Failure, ReturnPaymentPayload] = {
-      greaterThan(amount, 0, "Amount").map { case _ ⇒ this }
-    }
-  }
-
-  case class ReturnCcPaymentPayload(amount: Int) extends Validation[ReturnCcPaymentPayload] {
-
-    def validate: ValidatedNel[Failure, ReturnCcPaymentPayload] = {
       greaterThan(amount, 0, "Amount").map { case _ ⇒ this }
     }
   }

@@ -1,189 +1,94 @@
-import akka.http.scaladsl.model.StatusCodes
-
 import failures.NotFoundFailure404
 import models.cord.OrderPayments
+import models.payment.PaymentMethod
 import models.payment.creditcard.CreditCards
 import models.returns._
+import org.scalatest.prop.PropertyChecks
 import payloads.ReturnPayloads._
-import responses.ReturnResponse.Root
+import responses.ReturnResponse
 import testutils._
+import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
 
 class ReturnPaymentsIntegrationTest
     extends IntegrationTestBase
+    with PhoenixAdminApi
     with HttpSupport
     with AutomaticAuth
-    with BakedFixtures {
+    with BakedFixtures
+    with PropertyChecks {
 
-  "gift cards" - {
-    pending
+  "payment methods" - {
+    "POST /v1/returns/:ref/payment-methods" - {
+      "succeeds for any supported payment" in new Fixture {
+        forAll(paymentMethodTable) { paymentType ⇒
+          val payload = ReturnPaymentPayload(amount = 42, paymentType)
+          val response = returnsApi(freshRma.referenceNumber).paymentMethods
+            .add(payload)
+            .as[ReturnResponse.Root]
 
-    "POST /v1/returns/:ref/payment-methods/gift-cards" - {
-      "successfully creates gift card as payment method" in new Fixture {
-        val payload = ReturnPaymentPayload(amount = 10)
-        val response =
-          POST(s"v1/returns/${rma.referenceNumber}/payment-methods/gift-cards", payload)
-        response.status must === (StatusCodes.OK)
-
-        val root = response.as[Root]
-        root.payments must have size 1
-        root.payments.head.amount must === (payload.amount)
+          response.payments must have size 1
+          response.payments.head.amount must === (payload.amount)
+        }
       }
 
       "fails if the amount is less than zero" in new Fixture {
-        val payload = ReturnPaymentPayload(amount = -10)
-        val response =
-          POST(s"v1/returns/${rma.referenceNumber}/payment-methods/gift-cards", payload)
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === ("Amount got -10, expected more than 0")
+        forAll(paymentMethodTable) { paymentType ⇒
+          val payload = ReturnPaymentPayload(amount = -42, paymentType)
+
+          val response = returnsApi(freshRma.referenceNumber).paymentMethods.add(payload)
+          response.mustFailWithMessage("Amount got -42, expected more than 0")
+        }
       }
 
       "fails if the RMA is not found" in new Fixture {
-        val payload  = ReturnPaymentPayload(amount = 10)
-        val response = POST(s"v1/returns/99/payment-methods/gift-cards", payload)
-        response.status must === (StatusCodes.NotFound)
-        response.error must === (NotFoundFailure404(Return, 99).description)
-      }
-    }
+        forAll(paymentMethodTable) { paymentType ⇒
+          val payload  = ReturnPaymentPayload(amount = 42, paymentType)
+          val response = returnsApi("TRY_HARDER").paymentMethods.add(payload)
 
-    "DELETE /v1/returns/:ref/payment-methods/gift-cards" - {
-      "successfully deletes a giftCard" in new Fixture {
-        val payload = ReturnPaymentPayload(amount = 10)
-        val create  = POST(s"v1/returns/${rma.referenceNumber}/payment-methods/gift-cards", payload)
-        create.status must === (StatusCodes.OK)
-
-        val response = DELETE(s"v1/returns/${rma.referenceNumber}/payment-methods/gift-cards")
-        response.status must === (StatusCodes.OK)
-
-        val root = response.as[Root]
-        root.payments mustBe 'empty
-      }
-
-      "fails if the RMA is not found" in new Fixture {
-        val response = DELETE(s"v1/returns/99/payment-methods/gift-cards")
-
-        response.status must === (StatusCodes.NotFound)
-        response.error must === (NotFoundFailure404(Return, 99).description)
-      }
-    }
-  }
-
-  "store credit" - {
-    pending
-
-    "POST /v1/returns/:ref/payment-methods/store-credit" - {
-      "successfully creates store credit as payment method" in new Fixture {
-        val payload  = ReturnPaymentPayload(amount = 75)
-        val response = POST(s"v1/returns/${rma.refNum}/payment-methods/store-credit", payload)
-        response.status must === (StatusCodes.OK)
-
-        val root = response.as[Root]
-        root.payments must have size 1
-        root.payments.head.amount must === (payload.amount)
-      }
-
-      "fails if the amount is less than zero" in new Fixture {
-        val payload = ReturnPaymentPayload(amount = -10)
-        val response =
-          POST(s"v1/returns/${rma.referenceNumber}/payment-methods/store-credit", payload)
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === ("Amount got -10, expected more than 0")
-      }
-
-      "fails if the RMA is not found" in new Fixture {
-        val notFound = rma.copy(referenceNumber = "ABC123")
-        val payload  = ReturnPaymentPayload(amount = 50)
-
-        val response = POST(s"v1/returns/${notFound.refNum}/payment-methods/store-credit", payload)
-        response.status must === (StatusCodes.NotFound)
-        response.error must === (NotFoundFailure404(Return, notFound.refNum).description)
-      }
-    }
-
-    "DELETE /v1/returns/:ref/payment-methods/store-credit" - {
-      "successfully deletes store credit payment" in new Fixture {
-        val payload = ReturnPaymentPayload(amount = 75)
-        val create  = POST(s"v1/returns/${rma.refNum}/payment-methods/store-credit", payload)
-        create.status must === (StatusCodes.OK)
-
-        val response = DELETE(s"v1/returns/${rma.referenceNumber}/payment-methods/store-credit")
-        response.status must === (StatusCodes.OK)
-
-        val root = response.as[Root]
-        root.payments mustBe 'empty
-      }
-
-      "fails if the RMA is not found" in new Fixture {
-        val response = DELETE(s"v1/returns/99/payment-methods/store-credit")
-        response.status must === (StatusCodes.NotFound)
-        response.error must === (NotFoundFailure404(Return, 99).description)
-      }
-    }
-  }
-
-  "credit cards" - {
-    pending
-
-    "POST /v1/returns/:ref/payment-methods/credit-cards" - {
-      "succeeds" in new Fixture {
-        val payload = ReturnPaymentPayload(amount = 50)
-        val response =
-          POST(s"v1/returns/${rma.referenceNumber}/payment-methods/credit-cards", payload)
-        response.status must === (StatusCodes.OK)
-
-        val root = response.as[Root]
-        root.payments must have size 1
-        root.payments.head.amount must === (payload.amount)
-      }
-
-      "fails if the amount is less than zero" in new Fixture {
-        val payload = ReturnCcPaymentPayload(amount = -10)
-        val response =
-          POST(s"v1/returns/${rma.referenceNumber}/payment-methods/credit-cards", payload)
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === ("Amount got -10, expected more than 0")
-      }
-
-      "fails if the RMA is not found" in new Fixture {
-        val payload  = ReturnCcPaymentPayload(amount = 50)
-        val response = POST(s"v1/returns/99/payment-methods/credit-cards", payload)
-        response.status must === (StatusCodes.NotFound)
-        response.error must === (NotFoundFailure404(Return, 99).description)
+          response.mustFailWith404(NotFoundFailure404(Return, "TRY_HARDER"))
+        }
       }
     }
 
     "DELETE /v1/returns/:ref/payment-methods/credit-cards" - {
-      "successfully deletes an existing card" in new Fixture {
-        val payload = ReturnPaymentPayload(amount = 50)
-        val create =
-          POST(s"v1/returns/${rma.referenceNumber}/payment-methods/credit-cards", payload)
-        create.status must === (StatusCodes.OK)
+      "successfully delete any supported payment method" in new Fixture {
+        forAll(paymentMethodTable) { paymentType ⇒
+          val response = returnsApi(freshRma.referenceNumber).paymentMethods
+            .remove(paymentType)
+            .as[ReturnResponse.Root]
 
-        val response = DELETE(s"v1/returns/${rma.referenceNumber}/payment-methods/credit-cards")
-        response.status must === (StatusCodes.OK)
-
-        val root = response.as[Root]
-        root.payments mustBe 'empty
+          response.payments mustBe 'empty
+        }
       }
 
       "fails if the RMA is not found" in new Fixture {
-        val response = DELETE(s"v1/returns/99/payment-methods/credit-cards")
+        forAll(paymentMethodTable) { paymentType ⇒
+          val response = returnsApi("TRY_HARDER").paymentMethods.remove(paymentType)
 
-        response.status must === (StatusCodes.NotFound)
-        response.error must === (NotFoundFailure404(Return, 99).description)
+          response.mustFailWith404(NotFoundFailure404(Return, "TRY_HARDER"))
+        }
       }
     }
   }
 
   trait Fixture extends Order_Baked {
-    val rma = (for {
-      cc ← * <~ CreditCards.create(Factories.creditCard.copy(accountId = customer.accountId))
-      orderPayment ← * <~ OrderPayments.create(
-                        Factories.orderPayment
-                          .copy(cordRef = order.refNum, paymentMethodId = cc.id, amount = None))
-      rma ← * <~ Returns.create(Factories.rma.copy(referenceNumber = "ABCD1234-11.1"))
-    } yield rma).gimme
+    val paymentMethodTable = Table("paymentMethod",
+                                   PaymentMethod.CreditCard,
+                                   PaymentMethod.GiftCard,
+                                   PaymentMethod.StoreCredit)
+    val cc = CreditCards.create(Factories.creditCard.copy(accountId = customer.accountId)).gimme
+
+    def freshRma =
+      (for {
+        orderPayment ← * <~ OrderPayments.create(
+                          Factories.orderPayment
+                            .copy(cordRef = order.refNum, paymentMethodId = cc.id, amount = None))
+        rma ← * <~ Returns.create(Factories.rma.copy(orderRef = order.refNum))
+      } yield rma).gimme
+
+    lazy val rma = freshRma
   }
 }

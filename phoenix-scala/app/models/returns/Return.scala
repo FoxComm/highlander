@@ -1,13 +1,12 @@
 package models.returns
 
 import java.time.Instant
-
 import cats.data.Validated._
 import cats.data.{State ⇒ _, _}
 import com.pellucid.sealerate
 import failures.Failure
 import models.account._
-import models.cord.Order
+import models.cord.{Order, Orders}
 import models.returns.Return._
 import models.traits.Lockable
 import shapeless._
@@ -110,10 +109,11 @@ class Returns(tag: Tag) extends FoxTable[Return](tag, "returns") {
   def accountId        = column[Int]("account_id")
   def storeAdminId     = column[Option[Int]]("store_admin_id")
   def messageToAccount = column[Option[String]]("message_to_account")
-  def canceledReason   = column[Option[Int]]("canceled_reason")
-  def createdAt        = column[Instant]("created_at")
-  def updatedAt        = column[Instant]("updated_at")
-  def deletedAt        = column[Option[Instant]]("deleted_at")
+  // TODO references reasons table which is neither view table nor represented in Slick
+  def canceledReason = column[Option[Int]]("canceled_reason")
+  def createdAt      = column[Instant]("created_at")
+  def updatedAt      = column[Instant]("updated_at")
+  def deletedAt      = column[Option[Instant]]("deleted_at")
 
   def * =
     (id,
@@ -130,6 +130,16 @@ class Returns(tag: Tag) extends FoxTable[Return](tag, "returns") {
      createdAt,
      updatedAt,
      deletedAt) <> ((Return.apply _).tupled, Return.unapply)
+
+  // TODO why have both reference to order id and order ref ?
+  def orderIdFKey =
+    foreignKey("returns_order_id_fkey", orderId, Orders)(_.id,
+                                                         onUpdate = ForeignKeyAction.Restrict,
+                                                         onDelete = ForeignKeyAction.Restrict)
+  def orderRefFKey =
+    foreignKey("returns_order_ref_fkey", orderRef, Orders)(_.referenceNumber,
+                                                           onUpdate = ForeignKeyAction.Restrict,
+                                                           onDelete = ForeignKeyAction.Restrict)
 }
 
 object Returns

@@ -1,9 +1,10 @@
 package routes.admin
 
 import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.server.Route
+import akka.http.scaladsl.server.{PathMatcher, Route}
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.account.User
+import models.payment.PaymentMethod
 import models.returns.Return
 import payloads.ReturnPayloads._
 import services.returns._
@@ -13,6 +14,7 @@ import utils.http.CustomDirectives._
 import utils.http.Http._
 
 object ReturnRoutes {
+  val PaymentMethodMatcher = PathMatcher(PaymentMethod.Type.typeMap)
 
   def routes(implicit ec: EC, db: DB, auth: AuthData[User]): Route = {
 
@@ -86,39 +88,14 @@ object ReturnRoutes {
               }
             }
           } ~
-          pathPrefix("payment-methods" / "credit-cards") {
+          pathPrefix("payment-methods") {
             (post & pathEnd & entity(as[ReturnPaymentPayload])) { payload ⇒
               mutateOrFailures {
-                ReturnPaymentUpdater.addCreditCard(refNum, payload)
+                ReturnPaymentUpdater.addPayment(refNum, payload)
               }
-            } ~
-            (delete & pathEnd) {
+            } ~ (delete & path(PaymentMethodMatcher) & pathEnd) { paymentMethod ⇒
               mutateOrFailures {
-                ReturnPaymentUpdater.deleteCreditCard(refNum)
-              }
-            }
-          } ~
-          pathPrefix("payment-methods" / "gift-cards") {
-            (post & pathEnd & entity(as[ReturnPaymentPayload])) { payload ⇒
-              mutateOrFailures {
-                ReturnPaymentUpdater.addGiftCard(refNum, payload)
-              }
-            } ~
-            (delete & pathEnd) {
-              mutateOrFailures {
-                ReturnPaymentUpdater.deleteGiftCard(refNum)
-              }
-            }
-          } ~
-          pathPrefix("payment-methods" / "store-credit") {
-            (post & pathEnd & entity(as[ReturnPaymentPayload])) { payload ⇒
-              mutateOrFailures {
-                ReturnPaymentUpdater.addStoreCredit(refNum, payload)
-              }
-            } ~
-            (delete & pathEnd) {
-              mutateOrFailures {
-                ReturnPaymentUpdater.deleteStoreCredit(refNum)
+                ReturnPaymentUpdater.deletePayment(refNum, paymentMethod)
               }
             }
           }
