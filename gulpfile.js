@@ -7,7 +7,7 @@ const gulp = require('gulp');
 const runSequence = require('run-sequence');
 const $ = require('gulp-load-plugins')();
 const opts = require('./config/gulp');
-const revAll = require('gulp-rev-all');
+const rev = require('gulp-rev');
 const revdel = require('gulp-rev-delete-original');
 const del = require('del');
 
@@ -43,14 +43,11 @@ gulp.task('build:clean', function() {
 
 gulp.task('rev', function () {
   gulp
-    .src('public/**/*')
-    .pipe(revAll.revision({
-      dontRenameFile: [/^\/favicon.png$/g],
-      includeFilesInManifest: ['.css', '.js', '.jpg', '.png'],
-    }))
+    .src(['public/app.js', 'public/app.css'])
+    .pipe(rev())
     .pipe(revdel())
     .pipe(gulp.dest('public'))
-    .pipe(revAll.manifestFile())
+    .pipe(rev.manifest())
     .pipe(gulp.dest('build'));
 });
 

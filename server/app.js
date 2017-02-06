@@ -1,5 +1,4 @@
 import KoaApp from 'koa';
-import serve from 'koa-better-static';
 import favicon from 'koa-favicon';
 import renderReact from '../src/server';
 import { makeApiProxy } from './routes/api';
@@ -14,9 +13,36 @@ import bodyParser from 'koa-bodyparser';
 import contactFeedbackRoute from './routes/contact-feedback-route';
 import log4js from 'koa-log4';
 import path from 'path';
+import serve from 'koa-static';
+
+const isProduction = process.env.NODE_ENV === 'production';
 
 function timestamp() {
   return moment().format('D MMM H:mm:ss');
+}
+
+/**
+ * Set conditional headers to response
+ * @param {http.ServerResponse} serverResponse native node server response
+ * @param {String} filePath     path to requested file
+ * @param {Object} stats        file stats
+ */
+function setHeaders(serverResponse, filePath, stats) {
+  if (isProduction) {
+    if (filePath.match(/public\/app.*\.(js|css)/)) {
+      this.ctx.response.set('Cache-Control', 'max-age=31536000');
+    } else {
+      const ims = this.ctx.request.get('If-Modified-Since');
+      const ms = Date.parse(ims);
+
+      // console.log(ims, ms, Math.floor(ms / 1000), Math.floor(stats.mtime.getTime() / 1000));
+
+      // https://github.com/ohomer/koa-better-static/blob/master/send.js
+      if (ms && Math.floor(ms / 1000) === Math.floor(stats.mtime.getTime() / 1000)) {
+        this.ctx.response.status = 304; // not modified
+      }
+    }
+  }
 }
 
 export default class App extends KoaApp {
@@ -25,8 +51,9 @@ export default class App extends KoaApp {
     super(...args);
     onerror(this);
 
-    if (process.env.MAILCHIMP_API_KEY === undefined ||
-      process.env.CONTACT_EMAIL === undefined) {
+    if (isProduction &&
+      (process.env.MAILCHIMP_API_KEY === undefined ||
+      process.env.CONTACT_EMAIL === undefined)) {
       throw new Error(
         'MAILCHIMP_API_KEY and CONTACT_EMAIL variables should be defined in environment.'
       );
@@ -34,7 +61,14 @@ export default class App extends KoaApp {
 
     log4js.configure(path.join(`${__dirname}`, '../log4js.json'));
 
-    this.use(serve('public', { maxage: 31536000 }))
+    const context = {};
+
+    this
+      .use(function * (next) {
+        context.ctx = this;
+        yield next;
+      })
+      .use(serve('public', { setHeaders: setHeaders.bind(context) }))
       .use(favicon('public/favicon.png'))
       .use(log4js.koaLogger(log4js.getLogger('http'), { level: 'auto' }))
       .use(makeApiProxy())
