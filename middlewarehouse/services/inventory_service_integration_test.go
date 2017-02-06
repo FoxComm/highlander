@@ -1,6 +1,7 @@
 package services
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
@@ -9,10 +10,8 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/fixtures"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
 	"github.com/FoxComm/highlander/middlewarehouse/repositories"
-
-	"fmt"
-
 	"github.com/jinzhu/gorm"
+
 	"github.com/stretchr/testify/suite"
 )
 
@@ -34,6 +33,7 @@ func (suite *InventoryServiceIntegrationTestSuite) SetupSuite() {
 
 	tasks.TruncateTables(suite.db, []string{
 		"stock_locations",
+		"skus",
 	})
 
 	stockItemRepository := repositories.NewStockItemRepository(suite.db)
@@ -45,11 +45,12 @@ func (suite *InventoryServiceIntegrationTestSuite) SetupSuite() {
 	suite.service = &inventoryService{stockItemRepository, unitRepository, suite.summaryService, suite.db, nil}
 
 	suite.sl, _ = stockLocationService.CreateLocation(fixtures.GetStockLocation())
-	suite.sku = "SKU-INTEGRATION"
+	suite.sku = "TEST-SKU"
 }
 
 func (suite *InventoryServiceIntegrationTestSuite) SetupTest() {
 	tasks.TruncateTables(suite.db, []string{
+		"skus",
 		"stock_items",
 		"stock_item_units",
 		"stock_item_summaries",
@@ -86,6 +87,7 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_IncrementStockItemUnits_
 }
 
 func (suite *InventoryServiceIntegrationTestSuite) Test_IncrementStockItemUnits_SummaryUpdate_WithTransaction() {
+	suite.createSKU(suite.sku)
 	stockItem, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, suite.sku))
 	suite.Nil(err)
 	txn := suite.db.Begin()
@@ -100,6 +102,7 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_IncrementStockItemUnits_
 }
 
 func (suite *InventoryServiceIntegrationTestSuite) Test_DecrementStockItemUnits_SummaryUpdate() {
+	suite.createSKU(suite.sku)
 	stockItem, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, suite.sku))
 	suite.Nil(err)
 
@@ -186,6 +189,7 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_ReleaseItems_SubsequentS
 }
 
 func (suite *InventoryServiceIntegrationTestSuite) Test_ReleaseItems_Summary() {
+	suite.createSKU(suite.sku)
 	payload := &payloads.Reservation{
 		RefNum: "BR10001",
 		Items: []payloads.ItemReservation{
@@ -207,6 +211,7 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_ReleaseItems_Summary() {
 }
 
 func (suite *InventoryServiceIntegrationTestSuite) Test_ShipItems_Summary() {
+	suite.createSKU(suite.sku)
 	payload := &payloads.Reservation{
 		RefNum: "BR10001",
 		Items: []payloads.ItemReservation{
@@ -231,6 +236,7 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_ShipItems_Summary() {
 }
 
 func (suite *InventoryServiceIntegrationTestSuite) Test_GetAFSByID() {
+	suite.createSKU(suite.sku)
 	stockItem, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, suite.sku))
 	suite.Nil(err)
 
@@ -245,6 +251,7 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_GetAFSByID() {
 }
 
 func (suite *InventoryServiceIntegrationTestSuite) Test_GetAFSByID_NotFound() {
+	suite.createSKU(suite.sku)
 	stockItem, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, suite.sku))
 	suite.Nil(err)
 
@@ -257,6 +264,7 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_GetAFSByID_NotFound() {
 }
 
 func (suite *InventoryServiceIntegrationTestSuite) Test_GetAFSBySKU() {
+	suite.createSKU(suite.sku)
 	stockItem, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, suite.sku))
 	suite.Nil(err)
 
@@ -268,6 +276,7 @@ func (suite *InventoryServiceIntegrationTestSuite) Test_GetAFSBySKU() {
 }
 
 func (suite *InventoryServiceIntegrationTestSuite) Test_GetAFSBySKU_NotFound() {
+	suite.createSKU(suite.sku)
 	stockItem, err := suite.service.CreateStockItem(fixtures.GetStockItem(suite.sl.ID, suite.sku))
 	suite.Nil(err)
 
