@@ -8,7 +8,7 @@ import styles from './variant-list.css';
 
 // components
 import EditableSkuRow from './editable-variant-row';
-import MultiSelectTable from 'components/table/multi-select-table';
+import TableView from 'components/table/tableview';
 import ConfirmationDialog from 'components/modal/confirmation-dialog';
 
 import { mapVariantsToOptions } from 'paragons/variants';
@@ -47,7 +47,7 @@ export default class VariantList extends Component {
     }
   }
 
-  tableColumns(): Array<Object> {
+  get tableColumns(): Array<Object> {
     const { options } = this.props;
     const optionColumns = _.map(options, (option, idx) => {
       return {
@@ -57,6 +57,7 @@ export default class VariantList extends Component {
     });
 
     return [
+      { field: 'image', text: 'Image', type: 'image' },
       ...optionColumns,
       { field: 'sku', text: 'SKU' },
       { field: 'retailPrice', text: 'Retail Price' },
@@ -124,16 +125,16 @@ export default class VariantList extends Component {
   }
 
   skuContent(skus: Array<ProductVariant>): Element {
-    const renderRow = (row, index, columns, params) => {
+    const renderRow = (row, index) => {
       const key = row.feCode || row.code || row.id;
 
       return (
         <EditableSkuRow
           skuContext={this.productContext}
-          columns={columns}
+          columns={this.tableColumns}
           productVariant={row}
           index={index}
-          params={params}
+          params={{}}
           options={this.props.options}
           skuOptionsMap={this.state.skuOptionsMap}
           updateField={this.props.updateField}
@@ -146,15 +147,14 @@ export default class VariantList extends Component {
 
     return (
       <div className="fc-sku-list">
-        <MultiSelectTable
+        <TableView
           tbodyId="sku-list"
           styleName="sku-list"
-          columns={this.tableColumns()}
+          columns={this.tableColumns}
           dataTable={false}
           data={{ rows: skus }}
           renderRow={renderRow}
           emptyMessage="This product does not have any SKUs."
-          hasActionsColumn={false}
         />
         { this.deleteDialog }
       </div>

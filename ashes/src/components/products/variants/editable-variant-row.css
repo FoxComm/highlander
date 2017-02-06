@@ -58,9 +58,7 @@
 }
 
 .variant-value {
-  background-color: #d9d9d9;
-  border: 1px solid #ced2d5;
-  padding: 10px;
+  padding: 0 10px;
   white-space: nowrap;
 }
 
@@ -73,8 +71,13 @@
 }
 .sku-link {
   color: #484848;
+  padding: 0 10px;
 
   &:hover {
     color: #4fc2c9;
   }
+}
+
+.delete-row {
+  cursor: pointer;
 }

@@ -288,7 +288,11 @@ class EditableVariantRow extends Component {
 
     if (!_.isEmpty(this.props.options) || skuValue) {
       return (
-        <DeleteButton onClick={() => this.props.onDeleteClick(variantCode)}/>
+        <i
+          className="icon-trash"
+          styleName="delete-row"
+          onClick={() => this.props.onDeleteClick(variantCode)}
+        />
       );
     }
   }
@@ -296,6 +300,9 @@ class EditableVariantRow extends Component {
   @autobind
   setCellContents(productVariant: ProductVariant, field: string): any {
     switch(field) {
+      case 'image':
+        return _.get(productVariant, ['albums', 0, 'images', 0, 'src'],
+          'https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/no_image.jpg');
       case 'sku':
         return this.skuCell(productVariant);
       case 'retailPrice':

@@ -11,4 +11,10 @@
   & td:last-child {
     text-align: center;
   }
+
+  & :global(.fc-table-td) > img {
+    max-height: 50px;
+    max-width: 50px;
+    margin-left: 10px;
+  }
 }
