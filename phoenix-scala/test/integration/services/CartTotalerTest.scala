@@ -34,19 +34,6 @@ class CartTotalerTest extends IntegrationTestBase with TestObjectContext with Ba
       }
     }
 
-    "taxes" - {
-      "are hardcoded to 5%" in new SkuLineItemsFixture {
-        val totals = CartTotaler.totals(cart).gimme
-        val taxes  = (variantPrice * 0.05).toInt
-
-        totals.subTotal must === (variantPrice)
-        totals.shipping must === (0)
-        totals.taxes must === (taxes)
-        totals.adjustments must === (0)
-        totals.total must === (totals.subTotal + taxes)
-      }
-    }
-
     "totals" - {
       "all are zero when there are no line items and no adjustments" in new Fixture {
         val totals = CartTotaler.totals(cart).gimme
