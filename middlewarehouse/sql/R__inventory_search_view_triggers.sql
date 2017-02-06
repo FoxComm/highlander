@@ -38,26 +38,26 @@ BEGIN
     WHERE new.stock_item_id = si.id;
 
     INSERT INTO inventory_search_view SELECT DISTINCT ON (new.id)
-                                          -- summary
-                                          new.id                                                   AS id,
-                                          skuCode                                                  AS sku,
-                                          -- stock_item object
-                                          stockItem,
-                                          -- stock_locatoin object
-                                          stockLocation,
-                                          new.type                                                 AS type,
+        -- summary
+        new.id                                                   AS id,
+        skuCode                                                  AS sku,
+        -- stock_item object
+        stockItem,
+        -- stock_locatoin object
+        stockLocation,
+        new.type                                                 AS type,
 
-                                          new.on_hand                                              AS on_hand,
-                                          new.on_hold                                              AS on_hold,
-                                          new.reserved                                             AS reserved,
-                                          new.shipped                                              AS shipped,
-                                          new.afs                                                  AS afs,
-                                          new.afs_cost                                             AS afs_cost,
-                                          to_char(new.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS created_at,
-                                          to_char(new.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS updated_at,
-                                          to_char(new.deleted_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS deleted_at,
-                                          stockLocationScope                                       AS scope,
-                                          skuId                                                    AS sku_id;
+        new.on_hand                                              AS on_hand,
+        new.on_hold                                              AS on_hold,
+        new.reserved                                             AS reserved,
+        new.shipped                                              AS shipped,
+        new.afs                                                  AS afs,
+        new.afs_cost                                             AS afs_cost,
+        to_char(new.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS created_at,
+        to_char(new.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS updated_at,
+        to_char(new.deleted_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') AS deleted_at,
+        stockLocationScope                                       AS scope,
+        skuId                                                    AS sku_id;
     RETURN NULL;
 END;
 $BODY$
