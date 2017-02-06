@@ -4,7 +4,7 @@
     <title>The Perfect Gourmet</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" href="/favicon.png" />
-    <link rel="stylesheet" href="/app.css" />
+    <link rel="stylesheet" href="/{{= it.appCss }}" />
     <script>
       if (!window.Intl) {
         var head = document.getElementsByTagName('head')[0];
@@ -132,7 +132,7 @@
       window.STRIPE_PUBLISHABLE_KEY = {{= it.stripeApiKey }};
       function makeXhr(a,b){return b=new XMLHttpRequest,b.open("GET",a),a=[],b.onreadystatechange=b.then=function(c,d,e,f){if(c&&c.call&&(a=[,c,d]),4==b.readyState&&(e=a[0|b.status/200])){try{f=JSON.parse(b.responseText)}catch(g){f=null}e(f,b)}},b.send(),b}
     </script>
-    <script type="text/javascript" src="/app.js"></script>
+    <script type="text/javascript" src="/{{= it.appJs }}"></script>
     <script type="text/javascript">
       App.renderApp();
     </script>
