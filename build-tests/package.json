@@ -5,6 +5,7 @@
   "scripts": {
     "test": "ava",
     "test-auth": "ava tests/auth.test.js",
+    "test-customer": "ava tests/customer.test.js",
     "test-cart": "ava tests/cart.test.js"
   },
   "dependencies": {
