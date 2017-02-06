@@ -34,11 +34,18 @@ class ProductVariantSearchViewTest
     with ApiFixtures
     with MockedApis {
 
-  val query: SqlStreamingAction[Vector[String], String, Effect] =
-    sql"select array_to_json(array_agg(sv)) from product_variants_search_view as sv".as[String]
+  val searchViewName: String = "product_variants_search_view"
 
-  def searchViewResult: Seq[ProductVariantSearchViewResult] =
-    parseJson(query.gimme.onlyElement).extract[Seq[ProductVariantSearchViewResult]]
+  def findOneInSearchView(id: Int): ProductVariantSearchViewResult = {
+    val query =
+      sql"select array_to_json(array_agg(sv)) from #$searchViewName as sv where sv.variant_id=#$id"
+        .as[String]
+    val jsonString = query.gimme.onlyElement
+    withClue("Query result was empty. Slick returns Vector(null) instead of empty Vector.\n") {
+      jsonString must not be null
+    }
+    parseJson(jsonString).extract[Seq[ProductVariantSearchViewResult]].onlyElement
+  }
 
   def priceAsString(attrs: Json, field: String): String =
     (attrs \ field \ "v" \ "value").extract[String]
@@ -46,21 +53,25 @@ class ProductVariantSearchViewTest
   "Product variant search view" - {
 
     "must return result after insert" in new ProductVariant_ApiFixture {
-      val variantSv = searchViewResult.onlyElement
+      val variantSv = findOneInSearchView(productVariant.id)
 
-      variantSv.variant_id must === (productVariant.id)
-      variantSv.middlewarehouse_sku_id must === (productVariant.skuId)
-      variantSv.archived_at must not be defined
-      variantSv.retail_price must === (priceAsString(productVariant.attributes, "retailPrice"))
-      variantSv.sale_price must === (priceAsString(productVariant.attributes, "salePrice"))
-      variantSv.retail_price_currency must === ("USD")
-      variantSv.sale_price_currency must === ("USD")
-      variantSv.image must not be defined
-      variantSv.sku_code must === (productVariantCode)
-      variantSv.external_id must not be defined
-      variantSv.title must === (productVariant.attributes.getString("title"))
-      // scope?
-      // context is not built for variant as part of product response; can call get
+      {
+        import variantSv._
+
+        variant_id must === (productVariant.id)
+        middlewarehouse_sku_id must === (productVariant.skuId)
+        archived_at must not be defined
+        retail_price must === (priceAsString(productVariant.attributes, "retailPrice"))
+        sale_price must === (priceAsString(productVariant.attributes, "salePrice"))
+        retail_price_currency must === ("USD")
+        sale_price_currency must === ("USD")
+        image must not be defined
+        sku_code must === (productVariantCode)
+        external_id must not be defined
+        title must === (productVariant.attributes.getString("title"))
+        // scope?
+        // context is not built for variant as part of product response; can call get
+      }
     }
   }
 }
