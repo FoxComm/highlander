@@ -11,12 +11,14 @@ import { FormField } from 'components/forms';
 import CurrencyInput from 'components/forms/currency-input';
 import MultiSelectRow from 'components/table/multi-select-row';
 import LoadingInputWrapper from 'components/forms/loading-input-wrapper';
-import { DeleteButton } from 'components/common/buttons';
 import { Link } from 'components/link';
+import StateDropdown from 'components/object-page/state-dropdown';
 
 import reducer, { suggestSkus } from 'modules/skus/suggest';
 import type { ProductVariant } from 'modules/product-variants/details';
 import { productVariantCode } from 'paragons/product';
+
+import type { StateChangeEvent } from 'components/object-page/state-dropdown';
 
 type Column = {
   field: string,
@@ -250,7 +252,7 @@ class EditableVariantRow extends Component {
   imageCell(productVariant: ProductVariant): Element {
     const imageObject = _.get(productVariant, ['albums', 0, 'images', 0]);
 
-    if (!_.isEmpty(imageObject)) {
+    if (imageObject) {
       return (
         <div styleName="image-cell">
           <img {...imageObject} styleName="cell-thumbnail" />
@@ -282,7 +284,15 @@ class EditableVariantRow extends Component {
     );
   }
 
-  actionsCell(productVariant: ProductVariant): ?Element {
+  @autobind
+  handleStateChange(event: StateChangeEvent) {
+    this.updateVariant({
+      activeFrom: event.activeFrom,
+      activeTo: event.activeTo,
+    });
+  }
+
+  deleteIcon(productVariant: ProductVariant): ?Element {
     const variantCode = productVariantCode(productVariant);
     const skuValue = this.skuCodeValue;
 
@@ -290,19 +300,28 @@ class EditableVariantRow extends Component {
       return (
         <i
           className="icon-trash"
-          styleName="delete-row"
+          styleName="delete-icon"
           onClick={() => this.props.onDeleteClick(variantCode)}
         />
       );
     }
   }
 
+  stateCell(productVariant: ProductVariant): Element {
+    return (
+      <div styleName="state-cell">
+        <StateDropdown
+          attributes={productVariant.attributes}
+          onChange={this.handleStateChange}
+        />
+        {this.deleteIcon(productVariant)}
+      </div>
+    );
+  }
+
   @autobind
   setCellContents(productVariant: ProductVariant, field: string): any {
     switch(field) {
-      case 'image':
-        return _.get(productVariant, ['albums', 0, 'images', 0, 'src'],
-          'https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/no_image.jpg');
       case 'sku':
         return this.skuCell(productVariant);
       case 'retailPrice':
@@ -312,8 +331,8 @@ class EditableVariantRow extends Component {
         return this.upcCell(productVariant);
       case 'image':
         return this.imageCell(productVariant);
-      case 'actions':
-        return this.actionsCell(productVariant);
+      case 'state':
+        return this.stateCell(productVariant);
       default:
         return this.optionCell(field, productVariant);
     }

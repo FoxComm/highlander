@@ -21,6 +21,20 @@ export function isActive(activeFrom: ?string, activeTo: ?string): boolean {
   return true;
 }
 
+export function setFromTo(attributes: Attributes, activeFrom: ?string, activeTo: ?string): Attributes {
+  return {
+    ...attributes,
+    activeFrom: {
+      v: activeFrom,
+      t: 'datetime'
+    },
+    activeTo: {
+      v: activeTo,
+      t: 'datetime'
+    },
+  };
+}
+
 export function isArchived(object: Object): boolean {
   const now = moment();
   let archivedAt = _.get(object, 'archivedAt');

@@ -47,6 +47,7 @@
 .no-image-text {
   font-weight: 600;
   color: #9BA3A7;
+  padding: 0 10px;
 }
 
 .image-cell {
@@ -78,6 +79,12 @@
   }
 }
 
-.delete-row {
+.delete-icon {
   cursor: pointer;
+  margin: 0 5px 0 14px;
+}
+
+.state-cell {
+  display: flex;
+  align-items: center;
 }

@@ -57,12 +57,12 @@ export default class VariantList extends Component {
     });
 
     return [
-      { field: 'image', text: 'Image', type: 'image' },
+      { field: 'image', text: 'Image' },
       ...optionColumns,
       { field: 'sku', text: 'SKU' },
       { field: 'retailPrice', text: 'Retail Price' },
       { field: 'salePrice', text: 'Sale Price' },
-      { field: 'actions', text: '' },
+      { field: 'state', text: '' },
     ];
   }
 
