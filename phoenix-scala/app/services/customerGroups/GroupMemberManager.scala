@@ -5,11 +5,12 @@ import java.time.temporal.ChronoUnit.DAYS
 
 import models.account.{User, Users}
 import models.customer._
-import payloads.CustomerGroupPayloads.CustomerGroupMemberSyncPayload
+import payloads.CustomerGroupPayloads._
 import utils.aliases._
 import utils.db._
 import utils.db.ExPostgresDriver.api._
 import cats.implicits._
+import failures.CustomerGroupFailures.CustomerGroupMemberPayloadContainsSameIdsInBothSections
 import failures.{NotFoundFailure400, NotFoundFailure404}
 import models.cord.Orders
 import models.customer.CustomerGroup._
@@ -18,11 +19,12 @@ import responses.GroupResponses.CustomerGroupResponse
 import services.StoreCreditService
 import models.customer.CustomersData.scope._
 import services.customers.CustomerManager
+import utils.db
 
 object GroupMemberManager {
 
-  def sync(groupId: Int, payload: CustomerGroupMemberSyncPayload)(implicit ec: EC,
-                                                                  db: DB): DbResultT[Unit] =
+  def sync(groupId: Int, payload: CustomerGroupMemberServiceSyncPayload)(implicit ec: EC,
+                                                                         db: DB): DbResultT[Unit] =
     for {
       group          ← * <~ CustomerGroups.mustFindById404(groupId)
       _              ← * <~ group.mustNotBeOfType(Manual)
@@ -33,6 +35,26 @@ object GroupMemberManager {
       newIds      = payload.customers.toSet
       forCreation = newIds.diff(memberIds)
       forDeletion = memberIds.diff(newIds)
+      _ ← * <~ forCreation.map { userId ⇒
+           createGroupMember(userId, groupId)
+         }
+      _ ← * <~ forDeletion.map { userId ⇒
+           deleteGroupMember(userId, groupId)
+         }
+    } yield DbResultT.unit
+
+  def sync(groupId: Int, payload: CustomerGroupMemberSyncPayload)(implicit ec: EC,
+                                                                  db: DB,
+                                                                  ac: AC): DbResultT[Unit] =
+    for {
+      group ← * <~ CustomerGroups.mustFindById404(groupId)
+      _     ← * <~ group.mustBeOfType(Manual)
+      forCreation = payload.toAdd.toSet
+      forDeletion = payload.toDelete.toSet
+      _ ← * <~ failIf(!forCreation.intersect(forDeletion).isEmpty,
+                      CustomerGroupMemberPayloadContainsSameIdsInBothSections(groupId,
+                                                                              forCreation,
+                                                                              forDeletion))
       _ ← * <~ forCreation.map { userId ⇒
            createGroupMember(userId, groupId)
          }

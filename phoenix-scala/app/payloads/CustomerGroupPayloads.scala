@@ -13,7 +13,9 @@ object CustomerGroupPayloads {
                                   templateId: Option[Int] = None,
                                   groupType: GroupType = Dynamic)
 
-  case class CustomerGroupMemberSyncPayload(customers: Seq[Int])
+  case class CustomerGroupMemberServiceSyncPayload(customers: Seq[Int])
+
+  case class CustomerGroupMemberSyncPayload(toAdd: Seq[Int], toDelete: Seq[Int])
 
   case class AddCustomerToGroups(groups: Seq[Int])
 }

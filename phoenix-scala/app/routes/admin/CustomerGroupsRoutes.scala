@@ -3,9 +3,9 @@ package routes.admin
 import akka.http.scaladsl.server.Directives._
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.account.User
-import payloads.CustomerGroupPayloads.CustomerGroupPayload
+import payloads.CustomerGroupPayloads._
 import services.Authenticator.AuthData
-import services.customerGroups.{GroupManager, GroupTemplateManager}
+import services.customerGroups._
 import utils.aliases._
 import utils.http.CustomDirectives._
 import utils.http.Http._
@@ -42,6 +42,13 @@ object CustomerGroupsRoutes {
         (delete & pathEnd) {
           deleteOrFailures {
             GroupManager.delete(groupId, auth.model)
+          }
+        } ~
+        path("customers") {
+          (post & pathEnd & entity(as[CustomerGroupMemberSyncPayload])) { payload ⇒
+            doOrFailures(
+                GroupMemberManager.sync(groupId, payload)
+            )
           }
         }
       }
