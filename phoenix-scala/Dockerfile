@@ -10,4 +10,4 @@ COPY sql/ /phoenix/sql
 WORKDIR /phoenix
 
 EXPOSE 9090
-CMD java $JAVA_OPTS -cp phoenix.jar server.Main 2>&1 | tee /logs/phoenix.log
+CMD java $JAVA_OPTS -server -cp phoenix.jar server.Main 2>&1 | tee /logs/phoenix.log

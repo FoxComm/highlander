@@ -35,6 +35,7 @@ app_template_paths:
     gift-card-consumer: dev/consumers/templates/gift-card-consumer.json
     shipments-consumer: dev/consumers/templates/shipments-consumer.json
     shipstation: dev/shipstation/templates/shipstation.json
+    marketplace-ui: ext/tgt/marketplace-ui/templates/marketplace-ui.json
 
 # Mapping canonical app name to Marathon app name
 app_marathon_names:
@@ -74,13 +75,13 @@ docker_tags:
     messaging: "{{tag_name}}"
     isaac: "{{tag_name}}"
     solomon: "{{tag_name}}"
-    capture-consumer: "{{tag_name}}"
-    gift-card-consumer: "{{tag_name}}"
-    shipments-consumer: "{{tag_name}}"
-    shipstation-consumer: "{{tag_name}}"
-    storefront-td: "{{tag_name}}"
-    storefront-tpg: "{{tag_name}}"
+    capture_consumer: "{{tag_name}}"
+    gift_card_consumer: "{{tag_name}}"
+    shipments_consumer: "{{tag_name}}"
+    shipstation_consumer: "{{tag_name}}"
+    storefront_td: "{{tag_name}}"
+    storefront_tpg: "{{tag_name}}"
     marketplace: "{{tag_name}}"
-    marketplace-ui: "{{tag_name}}"
-    product-search: "{{tag_name}}"
-    demo-search: "{{tag_name}}"
+    marketplace_ui: "{{tag_name}}"
+    product_search: "{{tag_name}}"
+    demo_search: "{{tag_name}}"

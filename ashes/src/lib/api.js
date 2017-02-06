@@ -73,7 +73,7 @@ export function request(method, uri, data, options = {}) {
   let error = null;
 
   const unauthorizedHandler = options.unauthorizedHandler ? options.unauthorizedHandler : () => {
-    window.location.href = '/login';
+    window.location.href = '/admin/login';
   };
 
   const abort = _.bind(result.abort, result);
@@ -82,7 +82,7 @@ export function request(method, uri, data, options = {}) {
     .then(
       response => response.body,
       err => {
-        if (err.statusCode == 401) {
+        if (err.status == 401) {
           unauthorizedHandler(err.response);
         }
 
@@ -90,8 +90,17 @@ export function request(method, uri, data, options = {}) {
         error.response = err.response;
 
         throw error;
-      });
+      })
+    .then(response => {
+      if (response && response.error) {
+        error = new Error(_.get(response.error, 'reason', 'Generic request error'));
+        error.response = {status: response.status};
 
+        throw error;
+      }
+
+      return response;
+    });
   // pass through abort method
   promise.abort = abort;
   return promise;

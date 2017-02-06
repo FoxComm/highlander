@@ -21,12 +21,6 @@ export function isActive(activeFrom: ?string, activeTo: ?string): boolean {
   return true;
 }
 
-export function activeStatus(object: Object): string {
-  const activeFrom = _.get(object, 'activeFrom');
-  const activeTo = _.get(object, 'activeTo');
-  return isActive(activeFrom, activeTo) ? 'Active' : 'Inactive';
-}
-
 export function isArchived(object: Object): boolean {
   const now = moment();
   let archivedAt = _.get(object, 'archivedAt');

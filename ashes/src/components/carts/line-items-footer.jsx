@@ -14,7 +14,7 @@ import { updateLineItemCount } from 'modules/carts/details';
 
 import type { SuggestOptions } from 'modules/product-variants/suggest';
 
-import type { Sku } from 'modules/product-variants/list';
+import type { ProductVariant } from 'modules/product-variants/list';
 
 const mapStateToProps = state => {
   return {
@@ -30,7 +30,7 @@ type Props = {
   cart: {
     referenceNumber: string,
   },
-  suggestedSkus: Array<Sku>,
+  suggestedSkus: Array<ProductVariant>,
   isFetchingSkus: boolean,
   suggestSkus: (code: string, options?: SuggestOptions) => Promise,
   updateLineItemCount: Function,
@@ -41,7 +41,7 @@ export class CartLineItemsFooter extends Component {
   props: Props;
 
   @autobind
-  skuSelected(item: Sku) {
+  skuSelected(item: ProductVariant) {
     const { cart: { referenceNumber }, updateLineItemCount } = this.props;
 
     const skus = _.get(this.props, 'cart.lineItems.skus', []);

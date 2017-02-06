@@ -1,7 +1,7 @@
 {
     "service" : {
-        "name": "{{search_service_name}}",
-        "tags": ["{{search_service_name}}"], 
+        "name": "elasticsearch",
+        "tags": ["elasticsearch"],
         "port": 9200,
         "checks": [
             {

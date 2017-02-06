@@ -9,14 +9,27 @@ import utils.aliases._
 
 object ProductOptionResponses {
 
-  type ProductValueVariantLinks = Map[Int, Seq[String]]
+  type ProductValueVariantLinks = Map[Int, Seq[Int]]
 
+  sealed trait ProductOptionResponse extends ResponseItem {
+    def id: Int
+    def context: Option[ObjectContextResponse.Root]
+    def attributes: Json
+  }
   object ProductOptionResponse {
     case class Root(id: Int,
                     context: Option[ObjectContextResponse.Root],
                     attributes: Json,
                     values: Seq[ProductValueResponse.Root])
-        extends ResponseItem
+        extends ProductOptionResponse
+
+    case class Partial(id: Int,
+                       context: Option[ObjectContextResponse.Root],
+                       attributes: Json,
+                       value: ProductValueResponse.Root)
+        extends ProductOptionResponse {
+      def values: Seq[ProductValueResponse.Root] = List(value)
+    }
 
     def build(productOption: IlluminatedProductOption,
               productValues: Seq[FullObject[ProductOptionValue]],
@@ -33,6 +46,13 @@ object ProductOptionResponses {
            attributes = productOption.attributes,
            context = None,
            values = illuminateValues(productValues, productValueVariants))
+
+    def buildPartial(productOption: IlluminatedProductOption,
+                     productValue: FullObject[ProductOptionValue]): Partial =
+      Partial(id = productOption.id,
+              attributes = productOption.attributes,
+              context = ObjectContextResponse.build(productOption.context).some,
+              value = ProductValueResponse.buildPartial(productValue))
 
     def illuminateValues(
         productValues: Seq[FullObject[ProductOptionValue]],

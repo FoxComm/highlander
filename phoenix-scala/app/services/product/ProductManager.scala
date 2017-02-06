@@ -1,16 +1,11 @@
 package services.product
 
 import java.time.Instant
-
-import com.github.tminglei.slickpg.LTree
 import cats.data._
 import cats.implicits._
-import cats.data.ValidatedNel
-import cats.instances.map
 import failures._
 import failures.ArchiveFailures._
 import failures.ProductFailures._
-import models.image.{AlbumImageLinks, Albums}
 import models.inventory._
 import models.objects._
 import models.product._
@@ -237,19 +232,17 @@ object ProductManager {
       implicit ec: EC,
       db: DB,
       oc: OC): DbResultT[(Seq[ProductVariantResponse.Root], Seq[ProductOptionResponse.Root])] = {
-    val productValueIds = productOptions.flatMap { case (_, variantValue) ⇒ variantValue }
-      .map(_.model.id)
+    val optionIds = productOptions.flatMap { case (_, optionValue) ⇒ optionValue }.map(_.model.id)
     for {
-      productValueSkuCodes ← * <~ ProductOptionManager.getProductValueSkuCodes(productValueIds)
-      productValueSkuCodesSet = productValueSkuCodes.values.toSeq.flatten.distinct
-      productVariants ← * <~ productValueSkuCodesSet.map(skuCode ⇒
-                             ProductVariantManager.getBySkuCode(skuCode))
+      optionValueToVariantIdMap ← * <~ ProductOptionManager.mapOptionValuesToVariantIds(optionIds)
+      variantIds = optionValueToVariantIdMap.values.toSet.flatten
+      productVariants ← * <~ variantIds.map(ProductVariantManager.getByFormId)
       illuminated = productOptions.map {
         case (fullOption, values) ⇒
           val variant = IlluminatedProductOption.illuminate(oc, fullOption)
-          ProductOptionResponse.buildLite(variant, values, productValueSkuCodes)
+          ProductOptionResponse.buildLite(variant, values, optionValueToVariantIdMap)
       }
-    } yield (productVariants, illuminated)
+    } yield (productVariants.toSeq, illuminated)
   }
 
   private def validateCreate(
@@ -374,8 +367,10 @@ object ProductManager {
             }
         albums   ← * <~ ImageManager.getAlbumsForVariantInner(up.form.id)
         mwhSkuId ← * <~ ProductVariantMwhSkuIds.mustFindMwhSkuId(up.form.id)
+        options  ← * <~ ProductVariantManager.optionValuesForVariant(up.model)
       } yield
-        ProductVariantResponse.buildLite(IlluminatedVariant.illuminate(oc, up), albums, mwhSkuId)
+        ProductVariantResponse
+          .buildLite(IlluminatedVariant.illuminate(oc, up), albums, mwhSkuId, options)
     }
 
   private def findOrCreateOptionsForProduct(product: Product, payload: Seq[ProductOptionPayload])(
@@ -384,7 +379,7 @@ object ProductManager {
       oc: OC,
       au: AU): DbResultT[Seq[FullProductOption]] =
     for {
-      productOptions ← * <~ payload.map(ProductOptionManager.updateOrCreate(oc, _))
+      productOptions ← * <~ payload.map(ProductOptionManager.updateOrCreate)
       _ ← * <~ ProductOptionLinks.syncLinks(product, productOptions.map {
            case (option, _) ⇒ option.model
          })

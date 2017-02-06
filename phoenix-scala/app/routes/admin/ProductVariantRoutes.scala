@@ -30,7 +30,7 @@ object ProductVariantRoutes {
             pathPrefix(IntNumber) { variantId ⇒
               (get & pathEnd) {
                 getOrFailures {
-                  ProductVariantManager.get(variantId)
+                  ProductVariantManager.getByFormId(variantId)
                 }
               } ~
               (patch & pathEnd & entity(as[ProductVariantPayload])) { payload ⇒

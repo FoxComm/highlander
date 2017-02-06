@@ -1,0 +1,4 @@
+consul_version: 0.7.3
+consul_base_url: https://releases.hashicorp.com/consul
+consul_download_url: "{{consul_base_url}}/{{consul_version}}/consul_{{consul_version}}_linux_amd64.zip"
+consul_web_ui_url: "{{consul_base_url}}/{{consul_version}}/consul_{{consul_version}}_web_ui.zip"

@@ -3,7 +3,7 @@ upstream search {
   {{ '{{' }} else {{ '}}' }} server {{search_server_http}} fail_timeout=30s max_fails=10; {{ '{{' }} end {{ '}}' }}
 }
 
-#we use port 9090 for phoenix
+# We use port 9090 for phoenix
 upstream phoenix {
   {{ '{{' }} range service "phoenix" {{ '}}'}} server {{ '{{'}} .Address {{ '}}' }}:9090 max_fails=10 fail_timeout=30s weight=1;
   {{ '{{' }} else {{ '}}' }} server {{phoenix_server}} fail_timeout=30s max_fails=10; {{ '{{' }} end {{ '}}' }}
@@ -14,13 +14,13 @@ upstream isaac {
   {{ '{{' }} else {{ '}}' }} server {{isaac_server}} fail_timeout=30s max_fails=10; {{ '{{' }} end {{ '}}' }}
 }
 
-#we use port 9292 for middlewarehouse
+# We use port 9292 for middlewarehouse
 upstream middlewarehouse {
   {{ '{{' }} range service "middlewarehouse" {{ '}}'}} server {{ '{{'}} .Address {{ '}}' }}:9292 max_fails=10 fail_timeout=30s weight=1;
   {{ '{{' }} else {{ '}}' }} server {{middlewarehouse_server}} fail_timeout=30s max_fails=10; {{ '{{' }} end {{ '}}' }}
 }
 
-#we use port 4002 for solomon
+# We use port 4002 for solomon
 upstream sol {
   {{ '{{' }} range service "solomon" {{ '}}'}} server {{ '{{'}} .Address {{ '}}' }}:4002 max_fails=10 fail_timeout=30s weight=1;
   {{ '{{' }} else {{ '}}' }} server {{solomon_server}} fail_timeout=30s max_fails=10; {{ '{{' }} end {{ '}}' }}
@@ -31,7 +31,16 @@ upstream ashes {
   {{ '{{' }} else {{ '}}' }} server {{ashes_server}} fail_timeout=30s max_fails=10; {{ '{{' }} end {{ '}}' }}
 }
 
-upstream marathon {
-  {{ '{{' }} range service "marathon" {{ '}}'}} server {{ '{{'}} .Address {{ '}}' }}:{{ '{{' }} .Port {{ '}}' }} max_fails=10 fail_timeout=30s weight=1;
-  {{ '{{' }} else {{ '}}' }} server {{marathon_server}} fail_timeout=30s max_fails=10; {{ '{{' }} end {{ '}}' }}
+{% if is_appliance %}
+upstream dashboard {
+   server {{dashboard_server}} max_fails=10 fail_timeout=30s weight=1;
 }
+
+upstream marathon {
+   server {{marathon_server}} max_fails=10 fail_timeout=30s weight=1;
+}
+
+upstream pgweb {
+   server {{pgweb_server}} max_fails=10 fail_timeout=30s weight=1;
+}
+{% endif %}

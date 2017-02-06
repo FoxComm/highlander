@@ -86,6 +86,7 @@ const SkuLineItems = (props: Props): Element => {
   if (items.length > 0) {
     return (
       <TableView
+        tbodyId="cart-line-items"
         className={className}
         columns={columns}
         emptyMessage="No items yet."

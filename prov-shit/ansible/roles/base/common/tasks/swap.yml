@@ -1,0 +1,15 @@
+---
+
+- name: Create Swap File
+  shell: "dd if=/dev/zero of={{swap_file}} bs=1048576 count={{swap_size_mb}}"
+  args:
+      creates: "{{swap_file}}"
+
+- name: Change Swap File Permissions
+  file: path="{{swap_file}}" owner=root group=root mode=0600
+
+- name: Make Swap File
+  shell: "mkswap {{swap_file}} || true"
+
+- name: Add Swap to Fstab
+  lineinfile: dest=/etc/fstab line="/swap none swap sw 0 0"

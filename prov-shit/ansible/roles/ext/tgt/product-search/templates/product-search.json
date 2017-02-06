@@ -5,6 +5,10 @@
   "mem": 128,
   "disk": 0,
   "instances": 1,
+  "labels": {
+    "LAYER": "backend",
+    "LANG": "go"
+  },
   "env": {
     "PHOENIX_URL": "https://{{storefront_server_name}}",
     "ELASTIC_URL": "https://{{storefront_server_name}}"
