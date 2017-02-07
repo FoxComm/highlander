@@ -27,7 +27,7 @@ import type { ProductVariant } from 'modules/product-variants/details';
 type Props = {
   fullProduct: Product,
   updateField: (id: string, field: string, value: any) => void,
-  onDeleteSku: (skuCode: string) => void,
+  onDeleteVariant: (skuCode: string) => void,
   onAddNewOptions: (options: Array<Array<OptionValue>>) => void,
   updateFields: (id: string, toUpdate: Array<Array<any>>) => void,
   options: Array<any>,

@@ -127,7 +127,8 @@ class EditableVariantRow extends Component {
 
   @autobind
   priceCell(productVariant: ProductVariant, field: string): Element {
-    const value = _.get(this.state.variant, [field, 'value']) || _.get(productVariant, ['attributes', field, 'v', 'value']);
+    const value = _.get(this.state.variant, [field, 'value'])
+      || _.get(productVariant, ['attributes', field, 'v', 'value']);
     const currency = _.get(productVariant, ['attributes', field, 'v', 'currency'], 'USD');
     const onChange = (value) => this.handleUpdatePrice(field, value, currency);
     return (
@@ -194,7 +195,7 @@ class EditableVariantRow extends Component {
           id={`search-view-${sku.sku}`}
           styleName="variant-row"
           onMouseDown={() => { this.handleSelectSku(sku); }}
-          key={`row-${sku.id}`}>
+          key={`row-${sku.sku}`}>
           <strong>{sku.sku}</strong>
         </li>
       );
