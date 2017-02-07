@@ -4,7 +4,7 @@
 import _ from 'lodash';
 import { createReducer } from 'redux-act';
 import { createAsyncActions } from '@foxcomm/wings';
-import { searchCustomerss } from 'elastic/customers';
+import { searchCustomers } from 'elastic/customers';
 
 const _suggestCustomers = createAsyncActions('suggestCustomers', searchCustomers);
 

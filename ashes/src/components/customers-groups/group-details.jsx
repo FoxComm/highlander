@@ -43,6 +43,9 @@ type Props = {
     setExtraFilters: Function,
     fetch: Function,
   },
+  suggested: Array<any>,
+  suggestState: string,
+  suggestCustomers: Function,
 };
 
 const prefixed = prefix('fc-customer-group');
@@ -159,6 +162,10 @@ class GroupDetails extends Component {
       <SearchCustomersModal
         isVisible={this.state.addCustomersModalShown}
         onCancel={this.onAddCustomersCancel}
+        handleSave={_.noop}
+        suggestGroups={this.props.suggestCustomers}
+        suggested={this.props.suggested}
+        suggestState={this.props.suggestState}
       />
     );
   }
@@ -256,7 +263,7 @@ const mapState = state => ({
   suggestState: _.get(state.asyncActions, 'suggestCustomers', {}),
 });
 
-const mapDispatch = dispatch => {
+const mapDispatch = (dispatch, props) => {
   const customers = _.map(props.customerGroup.customers, customer => customer.id);
 
   return {
