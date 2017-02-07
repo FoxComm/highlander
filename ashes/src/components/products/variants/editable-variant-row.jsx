@@ -223,9 +223,9 @@ class EditableVariantRow extends Component {
 
   skuCell(productVariant: ProductVariant): Element {
     const code = _.get(productVariant, 'attributes.code.v');
-    if (productVariant.middlewarehouseSkuId && productVariant.id) {
+    if (productVariant.skuId && productVariant.id) {
       return (
-        <Link to="sku-details" styleName="sku-link" params={{skuId: productVariant.middlewarehouseSkuId}}>
+        <Link to="sku-details" styleName="sku-link" params={{skuId: productVariant.skuId}}>
           {code}
         </Link>
       );

@@ -18,7 +18,7 @@ export type ProductVariant = {
     attributes?: Object,
     name: string,
   },
-  middlewarehouseSkuId: number,
+  skuId: number,
 };
 
 export type NewProductVariant = {
