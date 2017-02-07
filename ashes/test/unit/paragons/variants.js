@@ -4,13 +4,13 @@ import _ from 'lodash';
 const Variants = requireSource('paragons/variants.js');
 const Products = requireSource('paragons/product.js');
 
-function makeSkus(count) {
+function makeVariants(count) {
   const result = [];
   let i = 0;
   while (count--) {
-    const sku = Products.createEmptySku();
-    sku.feCode = `sku${i++}`;
-    result.push(sku);
+    const productVariant = Products.createEmptyProductVariant();
+    productVariant.feCode = `sku${i++}`;
+    result.push(productVariant);
   }
   return result;
 }
@@ -18,7 +18,7 @@ function makeSkus(count) {
 describe('Variants', function () {
   context('#autoAssignOptions', () => {
     it('grow1', () => {
-      const variants = makeSkus(2);
+      const variants = makeVariants(2);
 
       const options = [
         {
@@ -69,7 +69,7 @@ describe('Variants', function () {
     });
 
     it('grow2', () => {
-      const variants = makeSkus(2);
+      const variants = makeVariants(2);
 
       const options = [
         {
@@ -113,7 +113,7 @@ describe('Variants', function () {
     });
 
     it('decrease1', () => {
-      const variants = makeSkus(5);
+      const variants = makeVariants(5);
       const options = [
         {
           values: [
@@ -145,7 +145,7 @@ describe('Variants', function () {
     });
 
     it('keep one sku if there is no variants', () => {
-      const variants = makeSkus(2);
+      const variants = makeVariants(2);
       const product = {variants};
 
       const newProduct = Variants.autoAssignOptions(product, []);
