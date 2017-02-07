@@ -226,11 +226,11 @@ es_heap_size: 512m
 
 # Elasticsearch 5.x
 es5_version: elasticsearch-5.1.2
-es5_zip: "{{es_version}}.zip"
+es5_zip: "{{es5_version}}.zip"
 es5_base_url: https://artifacts.elastic.co/downloads/elasticsearch
-es5_download_url: "{{es_base_url}}/{{es_zip}}"
+es5_download_url: "{{es5_base_url}}/{{es5_zip}}"
 es5_home: /usr/local
-es5_path: "{{es_home}}/{{es_version}}"
+es5_path: "{{es5_home}}/{{es5_version}}"
 es5_jmx_port: 29111
 es5_max_file_descriptors: 65536
 es5_heap_size: 512m
