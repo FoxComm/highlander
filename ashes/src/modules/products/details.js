@@ -107,6 +107,21 @@ function cleanProductPayload(product) {
   );
 }
 
+function cleanProductResponse(product: Product): Product {
+  const variantIdToCodeMap = _.reduce(product.variants, (acc, variant) => {
+    acc[variant.id] = _.get(variant, 'attributes.code.v');
+    return acc;
+  }, {});
+
+  _.each(product.options, option => {
+    _.each(option.values, value => {
+      value.skus = _.map(value.variantIds, id => variantIdToCodeMap[id]);
+    });
+  });
+
+  return product;
+}
+
 const _updateProduct = createAsyncActions(
   'updateProduct',
   (product: Product, context: string = defaultContext) => {
@@ -118,7 +133,7 @@ export const createProduct = _createProduct.perform;
 export const updateProduct = _updateProduct.perform;
 
 function updateProductInState(state: ProductDetailsState, response) {
-  const product = configureProduct(response);
+  const product = cleanProductResponse(configureProduct(response));
   return { ...state, product };
 }
 

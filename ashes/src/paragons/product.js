@@ -20,6 +20,7 @@ export type OptionValue = {
   swatch: ?string,
   image: ?string,
   skus: Array<string>,
+  variantIds?: Array<number>,
 };
 
 export type Option = {
