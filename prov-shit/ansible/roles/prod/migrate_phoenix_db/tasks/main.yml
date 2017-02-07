@@ -6,7 +6,7 @@
   when: download_flyway
 
 - name: Synchronize Phoenix SQL
-  copy: src="{{phoenix_src}}/sql" dest="{{phoenix_dir}}"
+  synchronize: src="{{phoenix_src}}/sql" dest="{{phoenix_dir}}" delete=yes recursive=yes
 
 - name: Copy Flyway Config
   template: src=flyway.conf.j2 dest="{{phoenix_dir}}/sql/flyway.conf"
