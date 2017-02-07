@@ -1,9 +1,12 @@
 import models.objects.ObjectContexts
 import org.json4s.jackson.parseJson
+import payloads.ProductVariantPayloads.ProductVariantPayload
+import responses.ProductVariantResponses.ProductVariantResponse
 import slick.profile.SqlStreamingAction
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.api._
+import testutils.fixtures.api.products._
 import utils.MockedApis
 import utils.aliases.Json
 import utils.db.ExPostgresDriver.api._
@@ -52,7 +55,7 @@ class ProductVariantSearchViewTest
 
   "Product variant search view" - {
 
-    "must return result after insert" in new ProductVariant_ApiFixture {
+    "must return variant view after variant is created" in new ProductVariant_ApiFixture {
       val variantSv = findOneInSearchView(productVariant.id)
 
       {
@@ -72,6 +75,17 @@ class ProductVariantSearchViewTest
         // scope?
         // context is not built for variant as part of product response; can call get
       }
+    }
+
+    "must update variant view when variant is updated" in new ProductVariant_ApiFixture {
+      val newPrice = 123
+      productVariantsApi(productVariant.id)
+        .update(buildVariantPayload(code = productVariantCode, price = newPrice))
+        .as[ProductVariantResponse.Root]
+
+      val updated = findOneInSearchView(productVariant.id)
+      updated.salePrice must === (newPrice.toString)
+      updated.retailPrice must === (newPrice.toString)
     }
   }
 }
