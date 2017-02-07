@@ -24,14 +24,16 @@ type productVariant struct {
 	Scope      string
 }
 
-type productVariantMwhSkuID struct {
+type productVariantSku struct {
 	ID            int
 	VariantFormID int
-	MwhSkuID      int
+	SkuID         int
+	SkuCode       string
 	CreatedAt     time.Time
 }
 
 func main() {
+	// 1. Gather all the parameters needed to connect to the Phoenix and MWH DBs.
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Print("DB Host: ")
 	dbHost, err := reader.ReadString('\n')
@@ -63,6 +65,7 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// 2. Connect to each DB.
 	phoenixConfig := config.NewPGConfig()
 	phoenixConfig.Host = dbHost
 	phoenixConfig.DatabaseName = phoenixDB
@@ -71,6 +74,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer phoenixConnection.Close()
 
 	mwhConfig := config.NewPGConfig()
 	mwhConfig.Host = dbHost
@@ -80,32 +84,83 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer mwhConnection.Close()
 
+	// 3. Initialize database transactions, so that we can rollback if disaster strikes.
+	phxTxn := phoenixConnection.Begin()
+	mwhTxn := mwhConnection.Begin()
+
+	// 4. Get the list of all product variants in the system.
 	var variants []*productVariant
 	if err := phoenixConnection.Find(&variants).Error; err != nil {
 		log.Fatal(err)
 	}
 
+	// 5. Iterate through all variants and ensure that the SKU is migrated to MWH.
 	for _, variant := range variants {
 		fmt.Printf("Migrating variant with code: %s, form ID: %d, and scope: %s\n", variant.Code, variant.FormID, variant.Scope)
-		sku := models.SKU{
-			Scope:            variant.Scope,
-			Code:             variant.Code,
-			RequiresShipping: true,
-			ShippingClass:    "default",
-		}
 
-		err := mwhConnection.Create(&sku).Error
-		if err != nil {
+		// 6. Check to see if a mapping already exists. If it does, skip.
+		mappings := []*productVariantSku{}
+		if err := phxTxn.Where("variant_form_id = ?", variant.FormID).Find(&mappings).Error; err != nil {
+			phxTxn.Rollback()
+			mwhTxn.Rollback()
 			log.Fatal(err)
 		}
 
-		mapping := productVariantMwhSkuID{
-			VariantFormID: variant.FormID,
-			MwhSkuID:      int(sku.ID),
+		if len(mappings) > 0 {
+			continue
 		}
 
-		if err := phoenixConnection.Create(&mapping).Error; err != nil {
+		// 7. The basic template for the mapping.
+		mapping := productVariantSku{SkuCode: variant.Code, VariantFormID: variant.FormID}
+
+		// 8. Check to see if a SKU with the desired code exists.
+		skus := []*models.SKU{}
+		if err := mwhTxn.Where("code = ?", variant.Code).Find(&skus).Error; err != nil {
+			phxTxn.Rollback()
+			mwhTxn.Rollback()
+			log.Fatal(err)
+		}
+
+		if len(skus) > 1 {
+			phxTxn.Rollback()
+			mwhTxn.Rollback()
+			log.Fatal(fmt.Errorf("Found %d entries for SKU code %s", len(skus), variant.Code))
+		} else if len(skus) == 1 {
+			mapping.SkuID = int(skus[0].ID)
+		} else {
+			// 8a. Create a SKU
+			sku := models.SKU{
+				Scope:            variant.Scope,
+				Code:             variant.Code,
+				RequiresShipping: true,
+				ShippingClass:    "default",
+			}
+
+			if err := mwhTxn.Create(&sku).Error; err != nil {
+				phxTxn.Rollback()
+				mwhTxn.Rollback()
+				log.Fatal(err)
+			}
+
+			mapping.SkuID = int(sku.ID)
+		}
+
+		// 9. Create the mapping.
+		if err := phxTxn.Create(&mapping).Error; err != nil {
+			phxTxn.Rollback()
+			mwhTxn.Rollback()
+			log.Fatal(err)
+		}
+
+		// 10. Commit the DB transaction
+		if err := mwhTxn.Commit().Error; err != nil {
+			phxTxn.Rollback()
+			log.Fatal(err)
+		}
+
+		if err := phxTxn.Commit().Error; err != nil {
 			log.Fatal(err)
 		}
 	}
