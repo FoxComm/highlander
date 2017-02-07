@@ -13,6 +13,7 @@ import operators from 'paragons/customer-groups/operators';
 import requestAdapter from 'modules/customer-groups/utils/request-adapter';
 import { fetchGroupStats, GROUP_TYPE_DYNAMIC } from 'modules/customer-groups/details/group';
 import { actions as customersListActions } from 'modules/customer-groups/details/customers-list';
+import { suggestCustomers } from 'modules/customers/suggest';
 
 import { transitionTo } from 'browserHistory';
 import { prefix } from 'lib/text-utils';
@@ -242,6 +243,7 @@ class GroupDetails extends Component {
           </article>
         </div>
         {this.table}
+        {this.addCustomersModal}
       </div>
     );
   }
@@ -250,11 +252,20 @@ class GroupDetails extends Component {
 const mapState = state => ({
   customersList: _.get(state, 'customerGroups.details.customers'),
   statsLoading: _.get(state, 'asyncActions.fetchStatsCustomerGroup.inProgress', false),
+  suggested: state.customers.suggest.suctomers,
+  suggestState: _.get(state.asyncActions, 'suggestCustomers', {}),
 });
 
-const mapDispatch = dispatch => ({
-  groupActions: bindActionCreators({ fetchGroupStats }, dispatch),
-  customersListActions: bindActionCreators(customersListActions, dispatch),
-});
+const mapDispatch = dispatch => {
+  const customers = _.map(props.customerGroup.customers, customer => customer.id);
+
+  return {
+    groupActions: bindActionCreators({ fetchGroupStats }, dispatch),
+    customersListActions: bindActionCreators(customersListActions, dispatch),
+    ...(bindActionCreators({
+      suggestGroups: suggestCustomers(customers),
+    }, dispatch)),
+  };
+};
 
 export default connect(mapState, mapDispatch)(GroupDetails);

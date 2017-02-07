@@ -1,0 +1,18 @@
+.name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #484848;
+  transition: color .2s;
+
+  & i {
+    vertical-align: initial;
+  }
+}
+
+.type {
+  color: #999;
+}
+
+.label {
+  margin-bottom: 15px;
+}
