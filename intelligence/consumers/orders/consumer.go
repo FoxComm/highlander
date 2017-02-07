@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 
@@ -8,35 +9,63 @@ import (
 	"github.com/FoxComm/metamorphosis"
 )
 
-type skus []struct {
-	productFormId int64 `json:"productFormId"`
+type Sku struct {
+	ProductId int `json:"productFormId"`
 }
 
-type lineItems struct {
-	skus skus `json:"skus"`
+type LineItems struct {
+	Skus []Sku `json:"skus"`
 }
 
-type customer struct {
-	id int64 `json:"id"`
+type Customer struct {
+	Id int `json:"id"`
 }
 
-type order struct {
-	customer  customer  `json:"customer"`
-	lineItems lineItems `json:"lineItems"`
+type Order struct {
+	Customer  Customer  `json:"customer"`
+	LineItems LineItems `json:"lineItems"`
 }
 
-type activity struct {
-	order order `json:"cart"`
+type Activity struct {
+	Order Order `json:"cart"`
+}
+
+func parseData(data string) error {
+	act := Activity{}
+	jsonErr := json.Unmarshal([]byte(data), &act)
+	if jsonErr != nil {
+		return jsonErr
+	}
+
+	skus := act.Order.LineItems.Skus
+	for i := 0; i < len(skus); i++ {
+		err := track(act.Order.Customer.Id, skus[i].ProductId)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func track(custId, prodId int) error {
+	fmt.Printf("customer %d, product %d\n", custId, prodId)
+	return nil
 }
 
 func Handler(message metamorphosis.AvroMessage) error {
 	activity, err := activities.NewActivityFromAvro(message)
 	if err != nil {
 		log.Fatalf("Unable to read activity with error %s", err.Error())
+		return err
 	}
 
 	if activity.Type() == orderCheckoutCompleted {
-		fmt.Println(activity.Data())
+		err := parseData(activity.Data())
+		if err != nil {
+			log.Fatalf("Unable to parse json with error %s", err.Error())
+		}
+		return err
 	}
 	return nil
 }
