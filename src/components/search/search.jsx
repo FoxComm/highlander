@@ -98,6 +98,7 @@ class Search extends Component {
 
     return (
       <div styleName={searchStyle} className={cls}>
+        <form action="." >
         <input value={this.state.term}
           onChange={this.onChange}
           onKeyDown={this.onKeyDown}
@@ -105,8 +106,9 @@ class Search extends Component {
           autoComplete="off"
           placeholder={t('Search')}
           ref="input"
-          type="text"
+          type="search"
         />
+      </form>
 
         <Icon styleName="head-icon" name="fc-magnifying-glass" onClick={this.onSearch}/>
         <Icon styleName="close-icon" name="fc-close" onClick={this.props.toggleActive}/>
