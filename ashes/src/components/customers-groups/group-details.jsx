@@ -18,14 +18,16 @@ import { transitionTo } from 'browserHistory';
 import { prefix } from 'lib/text-utils';
 
 import { SelectableSearchList, makeTotalCounter } from 'components/list-page';
-import { PrimaryButton } from 'components/common/buttons';
+import { PrimaryButton, Button } from 'components/common/buttons';
 import MultiSelectRow from 'components/table/multi-select-row';
 import ContentBox from 'components/content-box/content-box';
 import Criterion from './editor/criterion-view';
 import CustomerGroupStats from './stats';
+import SearchCustomersModal from './customers/search-modal';
 
 type State = {
   criteriaOpen: boolean,
+  addCustomersModalShown: boolean,
 };
 
 type Props = {
@@ -62,6 +64,7 @@ class GroupDetails extends Component {
 
   state: State = {
     criteriaOpen: true,
+    addCustomersModalShown: false,
   };
 
   componentDidMount() {
@@ -93,6 +96,16 @@ class GroupDetails extends Component {
     transitionTo('edit-customer-group', { groupId: this.props.group.id });
   }
 
+  @autobind
+  showAddCustomersModal() {
+    this.setState({ addCustomersModalShown: true });
+  }
+
+  @autobind
+  onAddCustomersCancel() {
+    this.setState({ addCustomersModalShown: false });
+  }
+
   get header() {
     const { group } = this.props;
 
@@ -105,6 +118,7 @@ class GroupDetails extends Component {
               <TotalCounter />
             </span>
           </h1>
+          {group.groupType == 'manual' && <Button onClick={this.showAddCustomersModal}>Add Customers</Button>}
           {group.groupType != 'template' && <PrimaryButton onClick={this.goToEdit}>Edit Group</PrimaryButton>}
         </div>
         <div className={prefixed('about')}>
@@ -129,6 +143,21 @@ class GroupDetails extends Component {
         field={field}
         operator={operator}
         value={value}
+      />
+    );
+  }
+
+  get addCustomersModal(): ?Element {
+    const { group } = this.props;
+
+    if (group.groupType != 'manual') {
+      return null;
+    }
+
+    return (
+      <SearchCustomersModal
+        isVisible={this.state.addCustomersModalShown}
+        onCancel={this.onAddCustomersCancel}
       />
     );
   }
