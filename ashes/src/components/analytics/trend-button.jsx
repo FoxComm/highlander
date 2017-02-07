@@ -15,7 +15,7 @@ type Trend = {
 
 type Props = {
   trendType: Trend,
-  message: string,
+  message?: string,
   value: number,
 }
 
