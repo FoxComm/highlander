@@ -31,8 +31,6 @@ has a lot to do!
 
 ### Install Prerequisites
 
-- [VirtualBox](https://www.virtualbox.org)
-- [Vagrant](https://www.vagrantup.com)
 - [Ansible](https://ansible.com) 2.2.x
 
 ### Google Compute VM

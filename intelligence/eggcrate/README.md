@@ -27,3 +27,7 @@ Current choices for `<step>` are
 To restrict the date range use query params `to` and `from` with dates in unix time format.
 
 ```GET /api/v1/stats/productFunnel/1?from=1484315402&to=1484315462```
+
+| Directory                              | Description                                                                                                  |
+|:---------------------------------------|:-------------------------------------------------------------------------------------------------------------|
+| [src](src)                             | All source for eggcrate | 

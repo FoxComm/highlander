@@ -1,25 +1,32 @@
 # Common variables
-home: /home/{{ user }}
+home: /home/{{user}}
 self_host: 127.0.0.1
 dest_services: /etc/systemd/system
 usr_local: /usr/local/
 public_keys_dest_dir: /etc/keys
 private_keys_dest_dir: /etc/keys
 scala_version: scala-2.11
-vagrant: false
 foxcomm_domain: foxcommerce.com
 logrotate_dir: /etc/logrotate.d
+appliance_prefix: appliance
 
-# Marathon Defaults
+# Marathon defaults
 marathon_retries: 60
 marathon_delay: 10
 
-# Docker Defaults
+# Docker defaults
 docker_tag: master
 docker_registry: docker-stage.foxcommerce.com
 docker_registry_provider: gce
 docker_logs_dir: /logs
 docker_logs_host_dir: /var/log/docker
+
+# Google Cloud defaults
+gce_disk_size: 40
+gce_image: appliance-base-170207-004420
+gce_machine_type: n1-standard-4
+gce_project_id: "foxcomm-staging"
+gce_zone: "us-central1-a"
 
 # Default docker tags for containers
 docker_tags:
@@ -121,12 +128,6 @@ product_search_host: "product_search.{{consul_suffix}}"
 product_search_port: 5492
 product_search_server: "{{product_search_host}}:{{product_search_port}}"
 
-henhouse_host: "henhouse.{{consul_suffix}}"
-henhouse_server: "{{henhouse_host}}"
-
-eggcrate_host: "eggcrate.{{consul_suffix}}"
-eggcrate_server: "{{eggcrate_host}}"
-
 messaging_host: "messaging.{{consul_suffix}}"
 
 dashboard_host: "dashboard.{{consul_suffix}}"
@@ -148,13 +149,6 @@ db_connection_string: "postgresql://{{db_host}}/phoenix_development?user={{db_us
 bottledwater_slot_phoenix: bottledwater_phoenix
 bottledwater_slot_middlewarehouse: bottledwater_middlewarehouse
 bottledwater_slot_marketplace: bottledwater_marketplace
-
-# Green River
-greenriver_version: 1.0
-greenriver_env: localhost
-greenriver_jar_src: ../../green-river/target/{{scala_version}}/green-river-assembly-{{greenriver_version}}.jar
-greenriver_jar: /usr/local/bin/green-river.jar
-greenriver_restart: "false"
 
 # Phoenix
 phoenix_version: 1.0
@@ -178,6 +172,10 @@ phoenix_api_password: "api$pass7!"
 phoenix_tax_rule_region: 4129
 phoenix_tax_rule_rate: 7.5
 
+# Green River
+greenriver_env: localhost
+greenriver_restart: "false"
+
 # Do not use this in production
 # This is a ttl of 1 year
 phoenix_token_ttl: 525600
@@ -192,6 +190,10 @@ middlewarehouse_db_name: middlewarehouse_development
 middlewarehouse_db_user: middlewarehouse
 middlewarehouse_db_connection_string: "postgresql://{{middlewarehouse_db_user}}@{{db_host}}/{{middlewarehouse_db_name}}"
 middlewarehouse_test_db_name: middlewarehouse_test
+
+#Eggcreate
+eggcrate_host: "eggcrate.{{consul_suffix}}"
+eggcrate_server: "{{eggcrate_host}}"
 
 #Bernardo
 bernardo_dir: /bernardo
@@ -210,8 +212,7 @@ river_rock_server: "{{river_rock_host}}:{{river_rock_port}}"
 
 #Henhouse
 henhouse_host: "henhouse.{{consul_suffix}}"
-henhouse_port: "9999"
-henhouse_server: "{{henhouse_host}}:{{henhouse_port}}"
+henhouse_server: "{{henhouse_host}}"
 
 # Elasticsearch 2.x
 es_version: elasticsearch-2.1.2
@@ -222,11 +223,11 @@ es_heap_size: 512m
 
 # Elasticsearch 5.x
 es5_version: elasticsearch-5.1.2
-es5_zip: "{{es_version}}.zip"
+es5_zip: "{{es5_version}}.zip"
 es5_base_url: https://artifacts.elastic.co/downloads/elasticsearch
-es5_download_url: "{{es_base_url}}/{{es_zip}}"
+es5_download_url: "{{es5_base_url}}/{{es5_zip}}"
 es5_home: /usr/local
-es5_path: "{{es_home}}/{{es_version}}"
+es5_path: "{{es5_home}}/{{es5_version}}"
 es5_jmx_port: 29111
 es5_max_file_descriptors: 65536
 es5_heap_size: 512m
@@ -274,12 +275,6 @@ swap_size_mb: 2000
 # Zipkin
 zipkin_collector: localhost
 
-# Are we running packer?
-packing: false
-
-# Deploy Marathon apps flags
-with_marketplace: false
-with_shipstation: false
 
 # Test Stripe api key
 stripe_api_key: sk_test_13rnEgvA4DGHgv4f2GMCDtes
@@ -289,25 +284,25 @@ stripe_publishable_key: pk_test_1H2C9nTZpy8szPmboOEDwdwN
 cert_path: test/fox
 
 # Mesos
-mesos_quorum: 2
-mesos_ip: 0.0.0.0
-
-# On Amigo server?
-is_amigo: false
-is_appliance: false
-
-# Seeder flags
-with_base_seeds: true
-with_gatling_seeder: true
-with_mwh_seeder: true
+mesos_quorum: 1
+mesos_ip: "$(hostname -i)"
 
 # Marketplace
 marketplace_db_name: marketplace_development
 marketplace_db_user: marketplace
 marketplace_db_connection_string: "postgresql://{{marketplace_db_user}}@{{db_host}}/{{marketplace_db_name}}"
 
-# Set this to true for first run deployments
-first_run: false
-
 # Messaging
 retailer_name: "FoxCommerce"
+
+# Various flags
+first_run: false
+is_ci: false
+is_amigo: false
+is_appliance: false
+packing: false
+with_marketplace: false
+with_shipstation: false
+with_base_seeds: true
+with_gatling_seeder: false
+with_mwh_seeder: true

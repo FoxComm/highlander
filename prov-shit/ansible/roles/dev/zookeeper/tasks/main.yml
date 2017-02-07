@@ -35,7 +35,7 @@
   file: path=/var/lib/kafka state=directory
 
 - name: Start Services
-  service: name={{item}} state=started enabled=true
+  service: name={{item}} state=restarted enabled=true sleep=2
   with_items:
     - docker
     - zookeeper
