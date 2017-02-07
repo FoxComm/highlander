@@ -156,13 +156,6 @@ bottledwater_slot_phoenix: bottledwater_phoenix
 bottledwater_slot_middlewarehouse: bottledwater_middlewarehouse
 bottledwater_slot_marketplace: bottledwater_marketplace
 
-# Green River
-greenriver_version: 1.0
-greenriver_env: localhost
-greenriver_jar_src: ../../green-river/target/{{scala_version}}/green-river-assembly-{{greenriver_version}}.jar
-greenriver_jar: /usr/local/bin/green-river.jar
-greenriver_restart: "false"
-
 # Phoenix
 phoenix_version: 1.0
 phoenix_env: staging
@@ -184,6 +177,10 @@ phoenix_api_password: "api$pass7!"
 
 phoenix_tax_rule_region: 4129
 phoenix_tax_rule_rate: 7.5
+
+# Green River
+greenriver_env: localhost
+greenriver_restart: "false"
 
 # Do not use this in production
 # This is a ttl of 1 year
@@ -281,12 +278,6 @@ swap_size_mb: 2000
 # Zipkin
 zipkin_collector: localhost
 
-# Are we running packer?
-packing: false
-
-# Deploy Marathon apps flags
-with_marketplace: false
-with_shipstation: false
 
 # Test Stripe api key
 stripe_api_key: sk_test_13rnEgvA4DGHgv4f2GMCDtes
@@ -299,22 +290,22 @@ cert_path: test/fox
 mesos_quorum: 1
 mesos_ip: "$(hostname -i)"
 
-# On Amigo server?
-is_amigo: false
-is_appliance: false
-
-# Seeder flags
-with_base_seeds: true
-with_gatling_seeder: false
-with_mwh_seeder: true
-
 # Marketplace
 marketplace_db_name: marketplace_development
 marketplace_db_user: marketplace
 marketplace_db_connection_string: "postgresql://{{marketplace_db_user}}@{{db_host}}/{{marketplace_db_name}}"
 
-# Set this to true for first run deployments
-first_run: false
-
 # Messaging
 retailer_name: "FoxCommerce"
+
+# Various flags
+first_run: false
+is_ci: false
+is_amigo: false
+is_appliance: false
+packing: false
+with_marketplace: false
+with_shipstation: false
+with_base_seeds: true
+with_gatling_seeder: false
+with_mwh_seeder: true
