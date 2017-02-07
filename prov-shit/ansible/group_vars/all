@@ -23,7 +23,7 @@ docker_logs_host_dir: /var/log/docker
 
 # Google Cloud defaults
 gce_disk_size: 40
-gce_image: appliance-base-170131-101633
+gce_image: appliance-base-170207-004420
 gce_machine_type: n1-standard-4
 gce_project_id: "foxcomm-staging"
 gce_zone: "us-central1-a"
@@ -128,12 +128,6 @@ product_search_host: "product_search.{{consul_suffix}}"
 product_search_port: 5492
 product_search_server: "{{product_search_host}}:{{product_search_port}}"
 
-henhouse_host: "henhouse.{{consul_suffix}}"
-henhouse_server: "{{henhouse_host}}"
-
-eggcrate_host: "eggcrate.{{consul_suffix}}"
-eggcrate_server: "{{eggcrate_host}}"
-
 messaging_host: "messaging.{{consul_suffix}}"
 
 dashboard_host: "dashboard.{{consul_suffix}}"
@@ -197,6 +191,10 @@ middlewarehouse_db_user: middlewarehouse
 middlewarehouse_db_connection_string: "postgresql://{{middlewarehouse_db_user}}@{{db_host}}/{{middlewarehouse_db_name}}"
 middlewarehouse_test_db_name: middlewarehouse_test
 
+#Eggcreate
+eggcrate_host: "eggcrate.{{consul_suffix}}"
+eggcrate_server: "{{eggcrate_host}}"
+
 #Bernardo
 bernardo_dir: /bernardo
 bernardo_src: ../../intelligence/bernardo/
@@ -214,8 +212,7 @@ river_rock_server: "{{river_rock_host}}:{{river_rock_port}}"
 
 #Henhouse
 henhouse_host: "henhouse.{{consul_suffix}}"
-henhouse_port: "9999"
-henhouse_server: "{{henhouse_host}}:{{henhouse_port}}"
+henhouse_server: "{{henhouse_host}}"
 
 # Elasticsearch 2.x
 es_version: elasticsearch-2.1.2

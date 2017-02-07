@@ -87,3 +87,8 @@ docker_tags:
     marketplace_ui: "{{tag_name}}"
     product_search: "{{tag_name}}"
     demo_search: "{{tag_name}}"
+    bernardo: "{{tag_name}}"
+    henhouse: "{{tag_name}}"
+    eggcrate: "{{tag_name}}"
+    river_rock: "{{tag_name}}"
+    digger_sphex: "{{tag_name}}"

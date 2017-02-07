@@ -31,7 +31,7 @@
         shipments_consumer: "{{ lookup('env', 'DOCKER_TAG_SHIPMENTS_CONSUMER') | default('master') }}"
         shipstation_consumer: "{{ lookup('env', 'DOCKER_TAG_SHIPSTATION_CONSUMER') | default('master') }}"
         stock_items_consumer: "{{ lookup('env', 'DOCKER_TAG_STOCK_ITEMS_CONSUMER') | default('master') }}"
-        bernardo: "{{ lookup('env', 'DOCKER_TAG_BERNARO') | default('master') }}"
+        bernardo: "{{ lookup('env', 'DOCKER_TAG_BERNARDO') | default('master') }}"
         henhouse: "{{ lookup('env', 'DOCKER_TAG_HENHOUSE') | default('master') }}"
         eggcrate: "{{ lookup('env', 'DOCKER_TAG_EGGCRATE') | default('master') }}"
         river_rock: "{{ lookup('env', 'DOCKER_TAG_RIVER_ROCK') | default('master') }}"
