@@ -4,6 +4,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.{PathMatcher, Route}
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.account.User
+import models.cord.Cord
 import models.payment.PaymentMethod
 import models.returns.Return
 import payloads.ReturnPayloads._
@@ -39,7 +40,7 @@ object ReturnRoutes {
             }
           }
         } ~
-        pathPrefix("returns" / "order" / Return.returnRefNumRegex) { refNum ⇒
+        pathPrefix("returns" / "order" / Cord.cordRefNumRegex) { refNum ⇒
           (get & pathEnd) {
             getOrFailures {
               ReturnService.getByOrder(refNum)
