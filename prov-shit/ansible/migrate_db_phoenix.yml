@@ -1,0 +1,12 @@
+---
+
+- name: Migrate DB
+  hosts: all
+  become: true
+  vars:
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+    download_flyway: false
+    phoenix_db_name: phoenix_development
+
+  roles:
+    - { role: prod/migrate_phoenix_db }
