@@ -13,7 +13,7 @@
         "mode": "RW",
         "persistent" : {
             "type":"root",
-            "size": 100,
+            "size": 1000,
             "constraints": []
         }
       }
@@ -28,7 +28,7 @@
   },
   "residency": { "taskLostBehavior": "WAIT_FOREVER" },
   "env": {
-    "DATA": "hendata"
+    "DATA": "/var/lib/sandbox/hendata"
   },
   "healthChecks": [
     {
