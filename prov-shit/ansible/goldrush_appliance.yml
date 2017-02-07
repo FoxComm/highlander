@@ -59,8 +59,8 @@
     - { role: dev/appliance }
     - { role: dev/dashboard }
     # Services
-    - { role: dev/zookeeper }
     - { role: dev/consul_agent }
+    - { role: dev/zookeeper }
     - { role: dev/elasticsearch }
     - { role: hotfix/kibana }
     - { role: dev/db }
