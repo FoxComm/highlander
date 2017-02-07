@@ -35,6 +35,10 @@ class HalArgs
 
 sub MAIN ($kafka-host, $kafka-topic, $henhouse-host) 
 {
+    say "KAFKA: $kafka-host";
+    say "TOPIC: $kafka-topic";
+    say "HENHOUSE: $henhouse-host";
+
     my $config = PKafka::Config.new("group.id"=> "hal-test-1");
     my $log = PKafka::Consumer.new( topic=>$kafka-topic, brokers=>$kafka-host, config=>$config);
 
@@ -61,6 +65,8 @@ sub MAIN ($kafka-host, $kafka-topic, $henhouse-host)
             }
         }
     });
+
+    say "Reading from kakfa...";
 
     my $log-promise = $log.consume-from-last(partition=>0);
 
