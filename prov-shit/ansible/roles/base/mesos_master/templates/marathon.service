@@ -1,5 +1,5 @@
 [Service]
-ExecStart=/usr/local/marathon-1.3.5/bin/start --master {{zookeepers}}/mesos --zk {{zookeepers}}/marathon
+ExecStart=/usr/bin/marathon --master {{zookeepers}}/mesos --zk {{zookeepers}}/marathon --mesos_authentication --mesos_authentication_principal=marathon --mesos_authentication_secret={{mesos_pass}} --mesos_role=marathon
 Restart=always
 RestartSec=5
 StandardOutput=syslog

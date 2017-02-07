@@ -158,12 +158,6 @@ product_search_host: "product_search.{{consul_suffix}}"
 product_search_port: 5492
 product_search_server: "{{product_search_host}}:{{product_search_port}}"
 
-henhouse_host: "henhouse.{{consul_suffix}}"
-henhouse_server: "{{henhouse_host}}"
-
-eggcrate_host: "eggcrate.{{consul_suffix}}"
-eggcrate_server: "{{eggcrate_host}}"
-
 messaging_host: "messaging.{{consul_suffix}}"
 
 dashboard_host: "dashboard.{{consul_suffix}}"
@@ -299,8 +293,25 @@ river_rock_server: "{{river_rock_host}}:{{river_rock_port}}"
 
 #Henhouse
 henhouse_host: "henhouse.{{consul_suffix}}"
-henhouse_port: "9999"
-henhouse_server: "{{henhouse_host}}:{{henhouse_port}}"
+henhouse_server: "{{henhouse_host}}"
+
+# Elasticsearch 2.x
+es_version: elasticsearch-2.1.2
+es_zip: "{{es_version}}.zip"
+es_home: /usr/local
+es_path: "{{es_home}}/{{es_version}}"
+es_heap_size: 512m
+
+# Elasticsearch 5.x
+es5_version: elasticsearch-5.1.2
+es5_zip: "{{es5_version}}.zip"
+es5_base_url: https://artifacts.elastic.co/downloads/elasticsearch
+es5_download_url: "{{es5_base_url}}/{{es5_zip}}"
+es5_home: /usr/local
+es5_path: "{{es5_home}}/{{es5_version}}"
+es5_jmx_port: 29111
+es5_max_file_descriptors: 65536
+es5_heap_size: 512m
 
 # Shipstation consumer
 shipstation_api_key: ""
