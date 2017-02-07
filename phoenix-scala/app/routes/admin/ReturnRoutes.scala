@@ -4,6 +4,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.{PathMatcher, Route}
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.account.User
+import models.cord.Cord
 import models.payment.PaymentMethod
 import models.returns.Return
 import payloads.ReturnPayloads._
@@ -25,17 +26,31 @@ object ReturnRoutes {
             mutateOrFailures {
               ReturnService.createByAdmin(auth.model, payload)
             }
+          } ~
+          (get & pathEnd) {
+            getOrFailures {
+              ReturnService.list
+            }
+          }
+        } ~
+        pathPrefix("returns" / "customer") {
+          (get & path(IntNumber) & pathEnd) { refNum ⇒
+            getOrFailures {
+              ReturnService.getByCustomer(refNum)
+            }
+          }
+        } ~
+        pathPrefix("returns" / "order" / Cord.cordRefNumRegex) { refNum ⇒
+          (get & pathEnd) {
+            getOrFailures {
+              ReturnService.getByOrder(refNum)
+            }
           }
         } ~
         pathPrefix("returns" / Return.returnRefNumRegex) { refNum ⇒
           (get & pathEnd) {
             getOrFailures {
               ReturnService.getByRefNum(refNum)
-            }
-          } ~
-          (get & path("expanded") & pathEnd) {
-            getOrFailures {
-              ReturnService.getExpandedByRefNum(refNum)
             }
           } ~
           (patch & pathEnd & entity(as[ReturnUpdateStatePayload])) { payload ⇒

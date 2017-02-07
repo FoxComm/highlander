@@ -1,22 +1,23 @@
 package services.returns
 
 import failures.InvalidCancellationReasonFailure
+import models.account._
+import models.admin.AdminsData
 import models.cord.Orders
+import models.customer.CustomersData
 import models.returns.Return.Canceled
 import models.returns._
 import models.{Reason, Reasons}
-import models.account._
-import models.customer.CustomersData
-import models.admin.AdminsData
-
 import payloads.ReturnPayloads._
 import responses.ReturnResponse._
 import responses.{CustomerResponse, ReturnResponse, StoreAdminResponse}
 import services.returns.Helpers._
+import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
 
 object ReturnService {
+
   def updateMessageToCustomer(refNum: String, payload: ReturnMessageToCustomerPayload)(
       implicit ec: EC,
       db: DB): DbResultT[Root] =
@@ -35,6 +36,7 @@ object ReturnService {
     for {
       _        ← * <~ payload.validate
       rma      ← * <~ Returns.mustFindByRefNum(refNum)
+      _        ← * <~ rma.transitionState(payload.state)
       reason   ← * <~ payload.reasonId.map(Reasons.findOneById).getOrElse(lift(None))
       _        ← * <~ cancelOrUpdate(rma, reason, payload)
       updated  ← * <~ Returns.refresh(rma)
@@ -54,6 +56,7 @@ object ReturnService {
     }
   }
 
+  // todo should be available for non-admin as well
   def createByAdmin(admin: User, payload: ReturnCreatePayload)(implicit ec: EC,
                                                                db: DB): DbResultT[Root] =
     for {
@@ -66,15 +69,30 @@ object ReturnService {
       customerResponse = CustomerResponse.build(customer, custData)
     } yield build(rma, Some(customerResponse), adminResponse)
 
+  def list(implicit ec: EC, db: DB): DbResultT[Seq[Root]] =
+    for {
+      rma      ← * <~ Returns.result
+      response ← * <~ rma.map(r ⇒ fromRma(r))
+    } yield response
+
+  def getByCustomer(customerId: Int)(implicit ec: EC, db: DB): DbResultT[Seq[Root]] =
+    for {
+      _        ← * <~ Accounts.mustFindById404(customerId)
+      rma      ← * <~ Returns.findByAccountId(customerId).result
+      response ← * <~ rma.map(r ⇒ fromRma(r))
+    } yield response
+
+  def getByOrder(refNum: String)(implicit ec: EC, db: DB): DbResultT[Seq[Root]] =
+    for {
+      _        ← * <~ Orders.mustFindByRefNum(refNum)
+      rma      ← * <~ Returns.findByOrderRefNum(refNum).result
+      response ← * <~ rma.map(r ⇒ fromRma(r))
+    } yield response
+
   def getByRefNum(refNum: String)(implicit ec: EC, db: DB): DbResultT[Root] =
     for {
       rma      ← * <~ Returns.mustFindByRefNum(refNum)
       response ← * <~ fromRma(rma)
     } yield response
 
-  def getExpandedByRefNum(refNum: String)(implicit ec: EC, db: DB): DbResultT[RootExpanded] =
-    for {
-      rma      ← * <~ Returns.mustFindByRefNum(refNum)
-      response ← * <~ fromRmaExpanded(rma)
-    } yield response
 }

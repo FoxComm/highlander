@@ -69,22 +69,6 @@ object ReturnResponse {
                   totals: Option[ReturnTotals])
       extends ResponseItem
 
-  case class RootExpanded(id: Int,
-                          referenceNumber: String,
-                          order: Option[OrderResponse],
-                          rmaType: Return.ReturnType,
-                          state: Return.State,
-                          lineItems: LineItems,
-                          payments: Seq[DisplayPayment],
-                          customer: Option[Customer] = None,
-                          storeAdmin: Option[User] = None,
-                          messageToCustomer: Option[String] = None,
-                          canceledReason: Option[Int] = None,
-                          createdAt: Instant,
-                          updatedAt: Instant,
-                          totals: Option[ReturnTotals])
-      extends ResponseItem
-
   def buildPayment(pmt: ReturnPayment): DisplayPayment =
     DisplayPayment(
         id = pmt.id,
@@ -156,36 +140,6 @@ object ReturnResponse {
     }
   }
 
-  def fromRmaExpanded(rma: Return)(implicit ec: EC, db: DB): DbResultT[RootExpanded] = {
-    fetchRmaDetails(rma = rma, withOrder = true).map {
-      case (order,
-            customer,
-            customerData,
-            storeAdmin,
-            adminData,
-            payments,
-            lineItemData,
-            giftCards,
-            shipments,
-            subtotal) ⇒
-        buildExpanded(
-            rma = rma,
-            order = order,
-            customer = for {
-              c  ← customer
-              cu ← customerData
-            } yield CustomerResponse.build(c, cu),
-            storeAdmin = for {
-              a  ← storeAdmin
-              au ← adminData
-            } yield StoreAdminResponse.build(a, au),
-            payments = payments.map(buildPayment),
-            lineItems = buildLineItems(lineItemData, giftCards, shipments),
-            totals = Some(buildTotals(subtotal, None, shipments))
-        )
-    }
-  }
-
   def build(rma: Return,
             customer: Option[Customer] = None,
             storeAdmin: Option[User] = None,
@@ -206,30 +160,6 @@ object ReturnResponse {
          createdAt = rma.createdAt,
          updatedAt = rma.updatedAt,
          totals = totals)
-
-  def buildExpanded(rma: Return,
-                    order: Option[OrderResponse] = None,
-                    customer: Option[Customer] = None,
-                    lineItems: LineItems = LineItems(),
-                    storeAdmin: Option[User] = None,
-                    payments: Seq[DisplayPayment] = Seq.empty,
-                    totals: Option[ReturnTotals] = None): RootExpanded =
-    RootExpanded(
-        id = rma.id,
-        referenceNumber = rma.refNum,
-        order = order,
-        rmaType = rma.returnType,
-        state = rma.state,
-        customer = customer,
-        storeAdmin = storeAdmin,
-        payments = payments,
-        lineItems = lineItems,
-        messageToCustomer = rma.messageToAccount,
-        canceledReason = rma.canceledReason,
-        createdAt = rma.createdAt,
-        updatedAt = rma.updatedAt,
-        totals = totals
-    )
 
   private def fetchRmaDetails(rma: Return, withOrder: Boolean = false)(implicit db: DB, ec: EC) = {
     val orderQ: DbResultT[Option[OrderResponse]] = for {

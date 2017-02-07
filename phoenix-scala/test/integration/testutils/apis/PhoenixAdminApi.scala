@@ -190,6 +190,15 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
     def create(payload: ReturnCreatePayload): HttpResponse =
       POST(returnsPrefix, payload)
+
+    def get(): HttpResponse =
+      GET(returnsPrefix)
+
+    def getByCustomer(id: Int): HttpResponse =
+      GET(s"$returnsPrefix/customer/$id")
+
+    def getByOrder(ref: String): HttpResponse =
+      GET(s"$returnsPrefix/order/$ref")
   }
 
   case class returnsApi(refNum: String) { returns ⇒
@@ -200,10 +209,6 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
     def get(): HttpResponse =
       GET(requestPath)
-
-    // TODO is this endpoint necessary ?
-    def getExpanded(): HttpResponse =
-      GET(s"$requestPath/expanded")
 
     def getLock(): HttpResponse =
       GET(s"$requestPath/lock")

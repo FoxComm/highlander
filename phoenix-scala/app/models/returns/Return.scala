@@ -76,7 +76,7 @@ object Return {
     ReturnType.slickColumn
   implicit val StateTypeColumnType: JdbcType[State] with BaseTypedType[State] = State.slickColumn
 
-  val returnRefNumRegex         = """([a-zA-Z0-9-_.]*)""".r
+  val returnRefNumRegex         = """([a-zA-Z0-9-_.]*)""".r // normally it's "[Order.refNumber].#"
   val messageToAccountMaxLength = 1000
 
   def build(order: Order, admin: User, rmaType: ReturnType = Return.Standard): Return = {
