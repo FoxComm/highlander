@@ -14,7 +14,7 @@ import responses.{CustomerResponse, ReturnResponse, StoreAdminResponse}
 import services.returns.Helpers._
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
-import utils.db.{DbResultT, _}
+import utils.db._
 
 object ReturnService {
 
@@ -95,9 +95,4 @@ object ReturnService {
       response ← * <~ fromRma(rma)
     } yield response
 
-  def getExpandedByRefNum(refNum: String)(implicit ec: EC, db: DB): DbResultT[RootExpanded] =
-    for {
-      rma      ← * <~ Returns.mustFindByRefNum(refNum)
-      response ← * <~ fromRmaExpanded(rma)
-    } yield response
 }

@@ -210,10 +210,6 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
     def get(): HttpResponse =
       GET(requestPath)
 
-    // TODO is this endpoint necessary ?
-    def getExpanded(): HttpResponse =
-      GET(s"$requestPath/expanded")
-
     def getLock(): HttpResponse =
       GET(s"$requestPath/lock")
 

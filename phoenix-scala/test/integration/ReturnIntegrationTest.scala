@@ -169,8 +169,6 @@ class ReturnIntegrationTest
     }
   }
 
-  "wip" - {}
-
   "Returns" - {
     pending
 

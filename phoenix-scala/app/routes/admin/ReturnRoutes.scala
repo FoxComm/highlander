@@ -52,11 +52,6 @@ object ReturnRoutes {
               ReturnService.getByRefNum(refNum)
             }
           } ~
-          (get & path("expanded") & pathEnd) {
-            getOrFailures {
-              ReturnService.getExpandedByRefNum(refNum)
-            }
-          } ~
           (patch & pathEnd & entity(as[ReturnUpdateStatePayload])) { payload ⇒
             mutateOrFailures {
               ReturnService.updateStateByCsr(refNum, payload)
