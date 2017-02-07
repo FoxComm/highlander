@@ -147,10 +147,24 @@ class ReturnIntegrationTest
       }
 
       "should return failure for non-existing customer" in new Fixture {
-        pending // todo fix me
-        val response = returnsApi.getByCustomer(255)
+        private val accId = 255
+        val response      = returnsApi.getByCustomer(accId)
         response.status must === (StatusCodes.NotFound)
-        response.error must === (NotFoundFailure404(User, 255).description)
+        response.error must === (NotFoundFailure404(Account, accId).description)
+      }
+    }
+
+    "GET /v1/returns/order/:refNum" - {
+      "should return list of Returns of existing order" in new Fixture {
+        val root = returnsApi.getByOrder(order.referenceNumber).as[Seq[AllReturns.Root]]
+        root.size must === (1)
+        root.head.referenceNumber must === (rma.refNum)
+      }
+
+      "should return failure for non-existing order" in new Fixture {
+        val root = returnsApi.getByOrder(orderRefNotExist)
+        root.status must === (StatusCodes.NotFound)
+        root.error must === (NotFoundFailure404(Order, orderRefNotExist).description)
       }
     }
   }
@@ -159,23 +173,6 @@ class ReturnIntegrationTest
 
   "Returns" - {
     pending
-
-    "GET /v1/returns/order/:refNum" - {
-      "should return list of Returns of existing order" in new Fixture {
-        val response = GET(s"v1/returns/order/${order.refNum}")
-        response.status must === (StatusCodes.OK)
-
-        val root = response.as[Seq[AllReturns.Root]]
-        root.size must === (1)
-        root.head.referenceNumber must === (rma.refNum)
-      }
-
-      "should return failure for non-existing order" in new Fixture {
-        val response = GET(s"v1/returns/order/ABC-666")
-        response.status must === (StatusCodes.NotFound)
-        response.error must === (NotFoundFailure404(Order, "ABC-666").description)
-      }
-    }
 
     "POST /v1/returns/:refNum/message" - {
       "successfully manipulates with message to the customer" in new Fixture {
@@ -287,22 +284,6 @@ class ReturnIntegrationTest
       }
     }
 
-    "GET /v1/returns/:refNum/expanded" - {
-      "should return expanded Return by referenceNumber" in new Fixture {
-        val response = GET(s"v1/returns/${rma.refNum}/expanded")
-        response.status must === (StatusCodes.OK)
-
-        val root = response.as[ReturnResponse.RootExpanded]
-        root.referenceNumber must === (rma.refNum)
-        root.order.head.referenceNumber must === (order.refNum)
-      }
-
-      "should return 404 if invalid rma is returned" in new Fixture {
-        val response = GET(s"v1/returns/ABC-666/expanded")
-        response.status must === (StatusCodes.NotFound)
-        response.error must === (NotFoundFailure404(Return, "ABC-666").description)
-      }
-    }
   }
 
   "Return Line Items" - {

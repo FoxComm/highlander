@@ -1,22 +1,23 @@
 package services.returns
 
 import failures.InvalidCancellationReasonFailure
+import models.account._
+import models.admin.AdminsData
 import models.cord.Orders
-import models.returns.Return.{Canceled, Pending}
+import models.customer.CustomersData
+import models.returns.Return.Canceled
 import models.returns._
 import models.{Reason, Reasons}
-import models.account._
-import models.customer.CustomersData
-import models.admin.AdminsData
 import payloads.ReturnPayloads._
 import responses.ReturnResponse._
 import responses.{CustomerResponse, ReturnResponse, StoreAdminResponse}
 import services.returns.Helpers._
-import utils.aliases._
-import utils.db._
 import slick.driver.PostgresDriver.api._
+import utils.aliases._
+import utils.db.{DbResultT, _}
 
 object ReturnService {
+
   def updateMessageToCustomer(refNum: String, payload: ReturnMessageToCustomerPayload)(
       implicit ec: EC,
       db: DB): DbResultT[Root] =
@@ -55,6 +56,7 @@ object ReturnService {
     }
   }
 
+  // todo should be available for non-admin as well
   def createByAdmin(admin: User, payload: ReturnCreatePayload)(implicit ec: EC,
                                                                db: DB): DbResultT[Root] =
     for {
@@ -75,7 +77,15 @@ object ReturnService {
 
   def getByCustomer(customerId: Int)(implicit ec: EC, db: DB): DbResultT[Seq[Root]] =
     for {
-      rma      ← * <~ Returns.filter(_.accountId === customerId).result
+      _        ← * <~ Accounts.mustFindById404(customerId)
+      rma      ← * <~ Returns.findByAccountId(customerId).result
+      response ← * <~ rma.map(r ⇒ fromRma(r))
+    } yield response
+
+  def getByOrder(refNum: String)(implicit ec: EC, db: DB): DbResultT[Seq[Root]] =
+    for {
+      _        ← * <~ Orders.mustFindByRefNum(refNum)
+      rma      ← * <~ Returns.findByOrderRefNum(refNum).result
       response ← * <~ rma.map(r ⇒ fromRma(r))
     } yield response
 

@@ -69,6 +69,7 @@ object ReturnResponse {
                   totals: Option[ReturnTotals])
       extends ResponseItem
 
+  // do we need RootExpanded?  RootExpanded is equal to Root at the moment
   case class RootExpanded(id: Int,
                           referenceNumber: String,
                           order: Option[OrderResponse],

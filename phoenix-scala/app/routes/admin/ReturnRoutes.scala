@@ -39,6 +39,13 @@ object ReturnRoutes {
             }
           }
         } ~
+        pathPrefix("returns" / "order" / Return.returnRefNumRegex) { refNum ⇒
+          (get & pathEnd) {
+            getOrFailures {
+              ReturnService.getByOrder(refNum)
+            }
+          }
+        } ~
         pathPrefix("returns" / Return.returnRefNumRegex) { refNum ⇒
           (get & pathEnd) {
             getOrFailures {
