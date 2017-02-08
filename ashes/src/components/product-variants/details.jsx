@@ -15,10 +15,15 @@ export default class ProductVariantDetails extends ObjectDetails {
   layout = layout;
 
   get title(): string {
-    // @TODO: add option values to the title
     const productTitle = _.get(this.props.object, 'attributes.title.v');
-    const optionsString = 'TODO, implement';
-    return `${productTitle} — ${optionsString}`;
+
+    if (!_.isEmpty(this.props.object.options)) {
+      const optionsString = _.map(this.props.object.options, option => option.value.name).join(', ');
+
+      return `${productTitle} — ${optionsString}`;
+    }
+
+    return productTitle;
   }
 
   get titleField(): Element {
@@ -36,10 +41,20 @@ export default class ProductVariantDetails extends ObjectDetails {
     return renderFormField('SKU', field, {label: 'SKU'});
   }
 
+  get options(): Array<Element> {
+    return _.map(this.props.object.options, option => {
+      const name = _.get(option.attributes, 'name.v');
+      const value = option.value.name;
+
+      return renderFormField(name, <div>{value}</div>, {label: name});
+    });
+  }
+
   renderGeneralSection() {
     return (
       <div>
         {this.titleField}
+        {this.options}
         {this.skuField}
       </div>
     );
