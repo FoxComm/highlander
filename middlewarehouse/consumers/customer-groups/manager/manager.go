@@ -17,39 +17,26 @@ import (
 	"reflect"
 )
 
-type Customer struct {
-	ID    int    `json:"id"`
-	Email string `json:"email"`
-}
-
 func ProcessChangedGroup(esClient *elastic.Client, phoenixClient phoenix.PhoenixClient, chimpClient *mailchimp.ChimpClient, group *responses.CustomerGroupResponse, topic string, size int, listID string) error {
-	if group.GroupType == "manual" {
-		log.Printf("Group %s with id %d is manual, skipping.\n", group.Name, group.ID)
-	} else {
-		go func(group *responses.CustomerGroupResponse) {
-			customers, err := getCustomersEmails(esClient, group, topic, size)
-			if err != nil {
-				log.Panicf("An error occured getting customers: %s", err)
+	go func(group *responses.CustomerGroupResponse) {
+		// get customers associated with the group - map of [id]:email
+		customers, err := getCustomers(esClient, group, topic, size)
+		if err != nil {
+			log.Panicf("An error occured getting customers: %s", err.Error())
+		}
+
+		// update group-customers mapping for dynamic groups
+		if group.GroupType != "manual" {
+			if err := updateGroupCustomersMapping(phoenixClient, group, customers); err != nil {
+				log.Panicf("An error occured updating group-customers mapping: %s", err)
 			}
+		}
 
-			ids := getKeys(customers)
-
-			if err := phoenixClient.SetGroupToCustomers(group.ID, ids); err != nil {
-				log.Panicf("An error occured setting group to customers: %s", err)
-			}
-
-			if group.CustomersCount != len(ids) {
-				if err := updateGroup(phoenixClient, group, len(ids)); err != nil {
-					log.Panicf("An error occured update group info: %s", err)
-				}
-			}
-
-			if err := processMailchimp(chimpClient, listID, group, customers); err != nil {
-				log.Printf("An error occured updating mailchimp: %s", err.Error())
-			}
-
-		}(group)
-	}
+		// update segments(fc "groups" analogue) in mailchimp
+		if err := processMailchimp(chimpClient, listID, group, customers); err != nil {
+			log.Printf("An error occured updating mailchimp: %s", err.Error())
+		}
+	}(group)
 
 	return nil
 }
@@ -64,8 +51,27 @@ func ProcessDeletedGroup(chimpClient *mailchimp.ChimpClient, group *responses.Cu
 	if err != nil {
 		return err
 	}
+
 	if groupSegment != nil {
 		return chimpClient.DeleteStaticSegment(listID, groupSegment.ID)
+	}
+
+	return nil
+}
+
+func updateGroupCustomersMapping(phoenixClient phoenix.PhoenixClient, group *responses.CustomerGroupResponse, customers map[int]string) error {
+	ids := getKeys(customers)
+
+	if err := phoenixClient.SetCustomersToGroup(group.ID, ids); err != nil {
+		log.Panicf("An error occured setting group to customers: %s", err)
+	}
+
+	if group.CustomersCount != len(ids) {
+		updateGroup := &payloads.CustomerGroupPayload{group.Name, group.GroupType, len(ids), group.ClientState, group.ElasticRequest}
+
+		if err := phoenixClient.UpdateCustomerGroup(group.ID, updateGroup); err != nil {
+			log.Panicf("An error occured update group info: %s", err)
+		}
 	}
 
 	return nil
@@ -82,8 +88,6 @@ func processMailchimp(chimpClient *mailchimp.ChimpClient, listID string, group *
 		return fmt.Errorf("An error occured trying to get segments from mailchimp: %s", err)
 	}
 
-	log.Printf("Segments count: %d", segments.Total)
-
 	groupSegment, err := findSegmentByGroup(group, segments)
 	if err != nil {
 		return err
@@ -94,8 +98,6 @@ func processMailchimp(chimpClient *mailchimp.ChimpClient, listID string, group *
 		StaticSegment: newEmails,
 	}
 	if groupSegment != nil {
-		log.Printf("Found segment to update: %s. Checking if update is required...", groupSegment.Name)
-
 		members, err := chimpClient.GetSegmentMembers(listID, groupSegment.ID)
 		if err != nil {
 			return err
@@ -106,15 +108,10 @@ func processMailchimp(chimpClient *mailchimp.ChimpClient, listID string, group *
 			oldEmails[i] = m.Email
 		}
 
-		log.Printf("New name=%s; old name=%s", segmentPayload.Name, groupSegment.Name)
-		log.Printf("New emails len=%d; old emails len=%d; diff len=%d", len(newEmails), len(oldEmails), len(utils.DiffSlices(newEmails, oldEmails)))
-
 		if groupSegment.Name != segmentPayload.Name || len(newEmails) != len(oldEmails) || len(utils.DiffSlices(newEmails, oldEmails)) > 0 {
 			_, err = chimpClient.UpdateStaticSegment(listID, groupSegment.ID, segmentPayload)
 		}
 	} else {
-		log.Printf("Not found segment to update for group %d#%s", group.ID, group.Name)
-
 		_, err = chimpClient.CreateSegment(listID, segmentPayload)
 	}
 
@@ -125,9 +122,14 @@ func processMailchimp(chimpClient *mailchimp.ChimpClient, listID string, group *
 	return nil
 }
 
-func getCustomersEmails(esClient *elastic.Client, group *responses.CustomerGroupResponse, topic string, size int) (map[int]string, error) {
-	query := string(group.ElasticRequest)
-	raw := elastic.RawStringQuery(query)
+func getCustomers(esClient *elastic.Client, group *responses.CustomerGroupResponse, topic string, size int) (map[int]string, error) {
+	var query elastic.Query
+
+	if group.GroupType == "manual" {
+		query = elastic.NewTermQuery("groups", group.ID)
+	} else {
+		query = elastic.RawStringQuery(group.ElasticRequest)
+	}
 
 	from := 0
 	done := false
@@ -136,7 +138,8 @@ func getCustomersEmails(esClient *elastic.Client, group *responses.CustomerGroup
 
 	for !done {
 		log.Printf("Quering ES. From: %d, Size: %d, Query: %s", from, size, query)
-		res, err := esClient.Search().Type(topic).Query(raw).Fields("id", "email").From(from).Size(size).Do()
+
+		res, err := esClient.Search().Type(topic).Query(query).Fields("id", "email").From(from).Size(size).Do()
 
 		if err != nil {
 			return nil, err
@@ -156,7 +159,6 @@ func getCustomersEmails(esClient *elastic.Client, group *responses.CustomerGroup
 		}
 
 		from += size
-
 		done = res.Hits.TotalHits <= int64(from)
 	}
 
@@ -221,16 +223,4 @@ func getValues(mmap map[int]string) []string {
 		i++
 	}
 	return values
-}
-
-func updateGroup(phoenixClient phoenix.PhoenixClient, group *responses.CustomerGroupResponse, customersCount int) error {
-	updateGroup := &payloads.CustomerGroupPayload{
-		Name:           group.Name,
-		GroupType:      group.GroupType,
-		CustomersCount: customersCount,
-		ClientState:    group.ClientState,
-		ElasticRequest: group.ElasticRequest,
-	}
-
-	return phoenixClient.UpdateCustomerGroup(group.ID, updateGroup)
 }

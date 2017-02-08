@@ -91,27 +91,17 @@ func (c CustomerGroupsConsumer) Handler(message metamorphosis.AvroMessage) error
 	var group *responses.CustomerGroupResponse
 
 	switch activity.Type() {
-	case activityCustomerGroupCreated, activityCustomerGroupUpdated:
+	case activityCustomerGroupCreated, activityCustomerGroupUpdated, activityCustomerGroupDeleted:
 		group, err = shared.NewCustomerGroupFromActivity(activity)
 		if err != nil {
 			return fmt.Errorf("Unable to decode customer group from activity: %s", err.Error())
 		}
+	}
 
-		log.Printf("Customer group request: %s", group.ElasticRequest)
-
-		if group.GroupType == "manual" {
-			log.Printf("Group %s with id %d is manual, skipping.\n", group.Name, group.ID)
-
-			return nil
-		}
-
+	switch activity.Type() {
+	case activityCustomerGroupCreated, activityCustomerGroupUpdated:
 		return manager.ProcessChangedGroup(c.esClient, c.phoenixClient, c.chimpClient, group, c.esTopic, c.esSize, c.chimpListID)
 	case activityCustomerGroupDeleted:
-		group, err = shared.NewCustomerGroupFromActivity(activity)
-		if err != nil {
-			return fmt.Errorf("Unable to decode customer group from activity: %s", err.Error())
-		}
-
 		return manager.ProcessDeletedGroup(c.chimpClient, group, c.chimpListID)
 	default:
 		return nil

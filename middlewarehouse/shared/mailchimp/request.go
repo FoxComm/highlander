@@ -60,7 +60,12 @@ func request(method, url string, headers map[string]string, payload interface{},
 	}
 
 	if debug {
-		log.Printf("HTTP --> %s %s %s", method, url, payloadBytes)
+		pb := string(payloadBytes)
+		if len(payloadBytes) > 150 {
+			pb = fmt.Sprintf("%s...", payloadBytes[:150])
+		}
+
+		log.Printf("HTTP --> %s %s %s", method, url, pb)
 	}
 
 	if err != nil {

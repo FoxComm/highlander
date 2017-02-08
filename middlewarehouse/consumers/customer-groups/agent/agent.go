@@ -100,8 +100,6 @@ func (agent *Agent) processGroups() error {
 		return err
 	}
 
-	log.Printf("Groups count: %d", len(groups))
-
 	for _, group := range groups {
 		manager.ProcessChangedGroup(agent.esClient, agent.phoenixClient, agent.chimpClient, group, agent.esTopic, agent.esSize, agent.chimpListID)
 	}
