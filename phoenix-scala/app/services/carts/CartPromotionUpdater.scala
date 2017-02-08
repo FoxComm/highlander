@@ -93,14 +93,23 @@ object CartPromotionUpdater {
                    .mustFindOneOr(PromotionNotFoundForContext(coupon.promotionId, ctx.name))
       // Create connected promotion and line item adjustments
       _ ← * <~ OrderPromotions.create(OrderPromotion.buildCoupon(cart, promotion, couponCode))
-      _ ← * <~ readjust(cart).recover { case _ ⇒ TheResponse(cart) /* FIXME ;( */ }
+      readjustedCartWithWarnings ← * <~ readjust(cart).recover {
+                                    case _ ⇒ TheResponse(cart) /* FIXME ;( */
+                                  }
       // Write event to application logs
-      _ ← * <~ LogActivity.orderCouponAttached(cart, couponCode)
+      _ ← * <~ LogActivity.orderCouponAttached(readjustedCartWithWarnings.result, couponCode)
       // Response
-      cart      ← * <~ CartTotaler.saveTotals(cart)
+      cart      ← * <~ CartTotaler.saveTotals(readjustedCartWithWarnings.result)
       validated ← * <~ CartValidator(cart).validate()
       response  ← * <~ CartResponse.buildRefreshed(cart)
-    } yield TheResponse.validated(response, validated)
+    } yield {
+      val blah = TheResponse.validated(response, validated)
+      // FIXME: we need a better way to compose TheResult. :s
+      blah.copy(warnings = {
+        val xs = readjustedCartWithWarnings.warnings.toList.flatten ::: blah.warnings.toList.flatten
+        if (xs.isEmpty) None else Some(xs)
+      })
+    }
 
   def detachCoupon(originator: User, refNum: Option[String] = None)(
       implicit ec: EC,
