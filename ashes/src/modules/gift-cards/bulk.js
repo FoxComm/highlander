@@ -49,7 +49,7 @@ const parseChangeStateResponse = (results) => {
 const cancelGiftCards = (actions, codes, reasonId) =>
   dispatch => {
     dispatch(actions.bulkRequest());
-    Api.patch('/gift-cards', {
+    Api.patch('/gift-cards/bulk', {
         codes,
         reasonId,
         state: 'canceled',
@@ -69,7 +69,7 @@ const cancelGiftCards = (actions, codes, reasonId) =>
 const changeGiftCardsState = (actions, codes, state) =>
   dispatch => {
     dispatch(actions.bulkRequest());
-    Api.patch('/gift-cards', {
+    Api.patch('/gift-cards/bulk', {
         codes,
         state,
       })
