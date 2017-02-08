@@ -41,6 +41,10 @@ type OrderConsumer struct {
 	henhouseConn net.Conn
 }
 
+const (
+	orderCheckoutCompleted = "order_checkout_completed"
+)
+
 func NewOrderConsumer(henhouseHost string) (*OrderConsumer, error) {
 	if henhouseHost == "" {
 		return nil, errors.New("henhouse host is required")
@@ -77,14 +81,14 @@ func (o OrderConsumer) track(custId, prodId, quantity int) error {
 	datetime := time.Now().Unix()
 	channel := 1
 
-	fmt.Fprintf(o.henhouseConn, "track.%d.product.%x.purchase.%d %d %s\n", channel, hash, custId, quantity, datetime)
-	fmt.Fprintf(o.henhouseConn, "track.%d.product.%x.purchase %d %s\n", channel, hash, quantity, datetime)
-	fmt.Fprintf(o.henhouseConn, "track.%d.product.purchase %d %s\n", channel, quantity, datetime)
-	fmt.Fprintf(o.henhouseConn, "track.product.%x.purchase.%d %d %s\n", hash, custId, quantity, datetime)
-	fmt.Fprintf(o.henhouseConn, "track.product.%x.purchase %d %s\n", hash, quantity, datetime)
-	fmt.Fprintf(o.henhouseConn, "track.product.purchase %d %s\n", quantity, datetime)
-	fmt.Fprintf(o.henhouseConn, "track.purchase.%d %d %s\n", custId, quantity, datetime)
-	fmt.Fprintf(o.henhouseConn, "track.purchase %d %s\n", quantity, datetime)
+	fmt.Fprintf(o.henhouseConn, "track.%d.product.%x.purchase.%d %d %d\n", channel, hash, custId, quantity, datetime)
+	fmt.Fprintf(o.henhouseConn, "track.%d.product.%x.purchase %d %d\n", channel, hash, quantity, datetime)
+	fmt.Fprintf(o.henhouseConn, "track.%d.product.purchase %d %d\n", channel, quantity, datetime)
+	fmt.Fprintf(o.henhouseConn, "track.product.%x.purchase.%d %d %d\n", hash, custId, quantity, datetime)
+	fmt.Fprintf(o.henhouseConn, "track.product.%x.purchase %d %d\n", hash, quantity, datetime)
+	fmt.Fprintf(o.henhouseConn, "track.product.purchase %d %d\n", quantity, datetime)
+	fmt.Fprintf(o.henhouseConn, "track.purchase.%d %d %d\n", custId, quantity, datetime)
+	fmt.Fprintf(o.henhouseConn, "track.purchase %d %d\n", quantity, datetime)
 
 	return nil
 }

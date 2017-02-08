@@ -7,5 +7,4 @@ RUN mkdir -p /orders-consumer
 WORKDIR /orders-consumer
 COPY orders-consumer /orders-consumer
 
-EXPOSE 10021
 CMD ["/orders-consumer/orders-consumer"] 

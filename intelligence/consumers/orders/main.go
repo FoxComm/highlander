@@ -9,11 +9,11 @@ import (
 )
 
 const (
-	orderCheckoutCompleted = "order_checkout_completed"
-	groupId                = "orders-1"
-	clientId               = "hal-orders-consumers"
-	henhouseHost           = os.Getenv("HENHOUSE")
+	groupId  = "orders-1"
+	clientId = "hal-orders-consumers"
 )
+
+var henhouseHost = os.Getenv("HENHOUSE")
 
 func main() {
 	config, err := consumers.MakeConsumerConfig()
