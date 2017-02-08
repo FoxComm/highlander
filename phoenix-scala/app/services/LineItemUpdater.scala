@@ -142,10 +142,7 @@ object LineItemUpdater {
       au: AU): DbResultT[TheResponse[CartResponse]] =
     for {
       readjustedCartWithWarnings ← * <~ CartPromotionUpdater.readjust(cart).recover {
-                                    case err ⇒
-                                      println(
-                                          s"CartPromotionUpdater.getAdjustments error (should we swallow it?): $err")
-                                      TheResponse(cart)
+                                    case _ ⇒ TheResponse(cart) /* FIXME ;( */
                                   }
       cart  ← * <~ CartTotaler.saveTotals(readjustedCartWithWarnings.result)
       valid ← * <~ CartValidator(cart).validate()
@@ -154,7 +151,7 @@ object LineItemUpdater {
       _     ← * <~ logAct(res, li)
     } yield {
       val blah = TheResponse.validated(res, valid)
-      // TheResponse doesn’t compose well?
+      // FIXME: we need a better way to compose TheResult. :s
       blah.copy(warnings = {
         val xs = readjustedCartWithWarnings.warnings.toList.flatten ::: blah.warnings.toList.flatten
         if (xs.isEmpty) None else Some(xs)

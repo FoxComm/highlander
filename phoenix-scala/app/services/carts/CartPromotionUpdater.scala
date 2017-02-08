@@ -1,6 +1,7 @@
 package services.carts
 
 import cats.data.Xor
+import cats.implicits._
 import failures.CouponFailures._
 import failures.DiscountCompilerFailures._
 import failures.Failures
@@ -22,7 +23,7 @@ import models.shipping
 import responses.TheResponse
 import responses.cord.CartResponse
 import services.discount.compilers._
-import services.{CartValidator, LineItemManager, LogActivity}
+import services.{CartValidator, LineItemManager, LogActivity, ResultT}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
@@ -53,14 +54,13 @@ object CartPromotionUpdater {
       (form, shadow) = discount.tupled
       qualifier   ← * <~ QualifierAstCompiler(qualifier(form, shadow)).compile()
       offer       ← * <~ OfferAstCompiler(offer(form, shadow)).compile()
-      // TODO: this gentleman returns a Left
       adjustments ← * <~ getAdjustments(promoShadow, cart, qualifier, offer)
       // Delete previous adjustments and create new
       _ ← * <~ OrderLineItemAdjustments
            .filterByOrderRefAndShadow(cart.refNum, orderPromo.promotionShadowId)
            .delete
-      _ ← * <~ OrderLineItemAdjustments.createAll(adjustments)
-    } yield TheResponse(cart)
+      _ ← * <~ OrderLineItemAdjustments.createAll(adjustments.result)
+    } yield adjustments.copy(result = cart) // FIXME: we need a better way to compose TheResult. :s
 
   def attachCoupon(originator: User, refNum: Option[String] = None, code: String)(
       implicit ec: EC,
@@ -93,7 +93,7 @@ object CartPromotionUpdater {
                    .mustFindOneOr(PromotionNotFoundForContext(coupon.promotionId, ctx.name))
       // Create connected promotion and line item adjustments
       _ ← * <~ OrderPromotions.create(OrderPromotion.buildCoupon(cart, promotion, couponCode))
-      _ ← * <~ readjust(cart)
+      _ ← * <~ readjust(cart).recover { case _ ⇒ TheResponse(cart) /* FIXME ;( */ }
       // Write event to application logs
       _ ← * <~ LogActivity.orderCouponAttached(cart, couponCode)
       // Response
@@ -138,7 +138,7 @@ object CartPromotionUpdater {
       implicit ec: EC,
       es: ES,
       db: DB,
-      au: AU): DbResultT[Seq[OrderLineItemAdjustment]] =
+      au: AU): DbResultT[TheResponse[Seq[OrderLineItemAdjustment]]] =
     for {
       lineItems      ← * <~ LineItemManager.getCartLineItems(cart.refNum)
       shippingMethod ← * <~ shipping.ShippingMethods.forCordRef(cart.refNum).one
@@ -146,7 +146,13 @@ object CartPromotionUpdater {
       shipTotal      ← * <~ CartTotaler.shippingTotal(cart)
       cartWithTotalsUpdated = cart.copy(subTotal = subTotal, shippingTotal = shipTotal)
       input                 = DiscountInput(promo, cartWithTotalsUpdated, lineItems, shippingMethod)
-      _           ← * <~ qualifier.check(input)
-      adjustments ← * <~ offer.adjust(input)
+      adjustments ← * <~ ResultT(qualifier.check(input))
+                     .flatMap(_ ⇒ ResultT(offer.adjust(input)))
+                     .map(TheResponse(_))
+                     .recover {
+                       case qualifierErrors ⇒
+                         TheResponse.build(Seq.empty, warnings = Some(qualifierErrors))
+                     }
+                     .value
     } yield adjustments
 }
