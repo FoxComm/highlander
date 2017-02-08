@@ -42,7 +42,7 @@ object ReturnLineItemUpdater {
 
   def addGiftCardItem(rma: Return, reason: ReturnReason, payload: ReturnGiftCardLineItemPayload)(
       implicit ec: EC,
-      db: DB): DbResultT[ReturnLineItem] = ???
+      db: DB): DbResultT[ReturnLineItem] = ??? // TODO add gift card handling
 
   def addShippingCostItem(rma: Return,
                           reason: ReturnReason,
@@ -50,11 +50,9 @@ object ReturnLineItemUpdater {
       implicit ec: EC,
       db: DB): DbResultT[ReturnLineItem] =
     for {
-      // Checks
       shipment ← * <~ Shipments
                   .filter(_.cordRef === rma.orderRef)
                   .mustFindOneOr(ShippingMethodNotFoundInOrder(rma.orderRef))
-      // Inserts
       origin ← * <~ ReturnLineItemShippingCosts.create(
                   ReturnLineItemShippingCost(returnId = rma.id, shipmentId = shipment.id))
       li ← * <~ ReturnLineItems.create(ReturnLineItem.buildShippinCost(rma, reason, origin))

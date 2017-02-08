@@ -311,6 +311,8 @@ class ReturnIntegrationTest
   "line-items" - {
     "POST /v1/returns/:refNum/line-items" - {
       "successfully adds gift card line item" in new LineItemFixture {
+        pending
+
         val response =
           returnsApi(rma.referenceNumber).lineItems.add(giftCardPayload).as[ReturnResponse.Root]
         response.lineItems.giftCards.headOption.value.giftCard.code must === (giftCard.code)
@@ -350,7 +352,10 @@ class ReturnIntegrationTest
     }
 
     "DELETE /v1/returns/:refNum/line-items/:id" - {
+
       "successfully deletes gift card line item" in new LineItemFixture {
+        pending
+
         val lineItemId = returnsApi(rma.referenceNumber).lineItems
           .add(giftCardPayload)
           .as[ReturnResponse.Root]
