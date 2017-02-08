@@ -16,6 +16,7 @@ import (
 
 type Sku struct {
 	ProductId int `json:"productFormId"`
+	Quantity  int `json:"quantity"`
 }
 
 type LineItems struct {
@@ -62,7 +63,7 @@ func (o OrderConsumer) parseData(data string) error {
 
 	skus := act.Order.LineItems.Skus
 	for i := 0; i < len(skus); i++ {
-		err := o.track(act.Order.Customer.Id, skus[i].ProductId)
+		err := o.track(act.Order.Customer.Id, skus[i].ProductId, skus[i].Quantity)
 		if err != nil {
 			return err
 		}
@@ -71,20 +72,19 @@ func (o OrderConsumer) parseData(data string) error {
 	return nil
 }
 
-func (o OrderConsumer) track(custId, prodId int) error {
+func (o OrderConsumer) track(custId, prodId, quantity int) error {
 	hash := sha1.Sum([]byte("products/" + strconv.Itoa(prodId)))
 	datetime := time.Now().Unix()
 	channel := 1
-	count := 1
 
-	fmt.Fprintf(o.henhouseConn, "track.%d.product.%x.purchase.%d %d %s\n", channel, hash, custId, count, datetime)
-	fmt.Fprintf(o.henhouseConn, "track.%d.product.%x.purchase %d %s\n", channel, hash, count, datetime)
-	fmt.Fprintf(o.henhouseConn, "track.%d.product.purchase %d %s\n", channel, count, datetime)
-	fmt.Fprintf(o.henhouseConn, "track.product.%x.purchase.%d %d %s\n", hash, custId, count, datetime)
-	fmt.Fprintf(o.henhouseConn, "track.product.%x.purchase %d %s\n", hash, count, datetime)
-	fmt.Fprintf(o.henhouseConn, "track.product.purchase %d %s\n", count, datetime)
-	fmt.Fprintf(o.henhouseConn, "track.purchase.%d %d %s\n", custId, count, datetime)
-	fmt.Fprintf(o.henhouseConn, "track.purchase %d %s\n", count, datetime)
+	fmt.Fprintf(o.henhouseConn, "track.%d.product.%x.purchase.%d %d %s\n", channel, hash, custId, quantity, datetime)
+	fmt.Fprintf(o.henhouseConn, "track.%d.product.%x.purchase %d %s\n", channel, hash, quantity, datetime)
+	fmt.Fprintf(o.henhouseConn, "track.%d.product.purchase %d %s\n", channel, quantity, datetime)
+	fmt.Fprintf(o.henhouseConn, "track.product.%x.purchase.%d %d %s\n", hash, custId, quantity, datetime)
+	fmt.Fprintf(o.henhouseConn, "track.product.%x.purchase %d %s\n", hash, quantity, datetime)
+	fmt.Fprintf(o.henhouseConn, "track.product.purchase %d %s\n", quantity, datetime)
+	fmt.Fprintf(o.henhouseConn, "track.purchase.%d %d %s\n", custId, quantity, datetime)
+	fmt.Fprintf(o.henhouseConn, "track.purchase %d %s\n", quantity, datetime)
 
 	return nil
 }
