@@ -11,6 +11,7 @@ import failures.ProductFailures._
 import models.image._
 import models.inventory._
 import models.objects._
+import ProductSkuLinks.scope._
 import models.account._
 import org.json4s.JsonAST.{JNothing, JString}
 import org.json4s.JsonDSL._
@@ -239,6 +240,7 @@ object Mvp {
       //find sku form for the product and update it with new sku
       link ← * <~ ProductSkuLinks
               .filterLeft(product)
+              .filterNotArchived
               .mustFindOneOr(ObjectLeftLinkCannotBeFound(product.shadowId))
 
       sku ← * <~ Skus.filter(_.id === link.rightId).mustFindOneOr(SkuNotFound(link.rightId))

@@ -58,9 +58,11 @@ case class Product(id: Int = 0,
   def withNewShadowAndCommit(shadowId: Int, commitId: Int): Product =
     this.copy(shadowId = shadowId, commitId = commitId)
 
+  import ProductSkuLinks.scope._
+
   def mustNotBePresentInCarts(implicit ec: EC, db: DB): DbResultT[Unit] =
     for {
-      skus        ← * <~ ProductSkuLinks.filter(_.leftId === id).result
+      skus        ← * <~ ProductSkuLinks.filter(_.leftId === id).filterNotArchived.result
       inCartCount ← * <~ CartLineItems.filter(_.skuId.inSetBind(skus.map(_.rightId))).size.result
       _           ← * <~ failIf(inCartCount > 0, ProductIsPresentInCarts(formId))
     } yield {}

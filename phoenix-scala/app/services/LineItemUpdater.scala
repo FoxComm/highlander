@@ -10,6 +10,7 @@ import models.cord.lineitems.CartLineItems.scope._
 import models.cord.lineitems._
 import models.inventory.{Sku, Skus}
 import models.objects._
+import ProductSkuLinks.scope._
 import models.product.VariantValueSkuLinks
 import payloads.LineItemPayloads._
 import responses.TheResponse
@@ -209,7 +210,7 @@ object LineItemUpdater {
 
   private def mustFindProductIdForSku(sku: Sku, refNum: String)(implicit ec: EC, oc: OC) = {
     for {
-      link ← * <~ ProductSkuLinks.filter(_.rightId === sku.id).one.dbresult.flatMap {
+      link ← * <~ ProductSkuLinks.filterRight(sku).filterNotArchived.one.dbresult.flatMap {
               case Some(productLink) ⇒
                 DbResultT.good(productLink.leftId)
               case None ⇒
