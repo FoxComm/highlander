@@ -44,26 +44,38 @@ sub MAIN ($kafka-host, $kafka-topic, $henhouse-host)
 
     my $henhouse = IO::Socket::INET.new(:host($henhouse-host), :port<2003>);
 
-    $log.messages.tap(-> $msg 
-    {
-        given $msg 
+    my $track-supplier = Supplier.new;
+    my $track-supply = $track-supplier.Supply;
+
+        $log.messages.tap(-> $msg
         {
-            when PKafka::Message
+            given $msg
             {
-                my $r = Nginx.parse($msg.payload-str);
-                send-to-henhouse($r, $henhouse) if $r<cmd>;
-                $log.save-offset($msg);
+                when PKafka::Message
+                {
+                    my $r = Nginx.parse($msg.payload-str);
+                    send-to-henhouse($r, $track-supplier) if $r<cmd>;
+                    $log.save-offset($msg);
+                }
+                when PKafka::EOF
+                {
+                    say "Messages Consumed { $msg.total-consumed}";
+                }
+                when PKafka::Error
+                {
+                    say "Error {$msg.what}";
+                    $log.stop;
+                }
             }
-            when PKafka::EOF
-            {
-                say "Messages Consumed { $msg.total-consumed}";
-            }
-            when PKafka::Error
-            {
-                say "Error {$msg.what}";
-                $log.stop;
-            }
-        }
+        });
+
+    $track-supply.tap(-> $msg
+    {
+        my $stat = "{$msg.key} {$msg.count} {DateTime.now.posix}";
+        say "TRK: $stat";
+
+        #send to henhouse
+        $henhouse.print("$stat\n");
     });
 
     say "Reading from kakfa...";
@@ -71,18 +83,21 @@ sub MAIN ($kafka-host, $kafka-topic, $henhouse-host)
     my $log-promise = $log.consume-from-last(partition=>0);
 
     await $log-promise;
+    $track-supplier.done();
 }
 
-sub count($henhouse, Int $count, Str $key)
+class TrackMsg
 {
-    my $stat = "$key $count {DateTime.now.posix}";
-    say "HEN: $stat";
-
-    #send to henhouse
-    $henhouse.print("$stat\n");
+    has Int $.count;
+    has Str $.key;
 }
 
-sub track($henhouse, $path)
+sub count($supplier, Int $count, Str $key)
+{
+    $supplier.emit(TrackMsg.new(count=> $count, key=> $key))
+}
+
+sub track($supplier, $path)
 {
     my %args = Hal.parse($path, actions=>HalArgs).made;
     return if not %args<ch>:exists;
@@ -102,30 +117,31 @@ sub track($henhouse, $path)
 
     my $cluster = 1; #TODO, get these from tracking url
 
-    count($henhouse, $count, "track.$channel.$cluster.$object.$object-id.$verb.$subject");
-    count($henhouse, $count, "track.$channel.$cluster.$object.$object-id.$verb");
-    count($henhouse, $count, "track.$channel.$cluster.$object.$verb");
-    count($henhouse, $count, "track.$channel.$object.$object-id.$verb.$subject");
-    count($henhouse, $count, "track.$channel.$object.$object-id.$verb");
-    count($henhouse, $count, "track.$channel.$object.$verb");
-    count($henhouse, $count, "track.$object.$object-id.$verb.$subject");
-    count($henhouse, $count, "track.$object.$object-id.$verb");
-    count($henhouse, $count, "track.$object.$verb");
-    count($henhouse, $count, "track.$verb.$subject");
-    count($henhouse, $count, "track.$verb");
+    count($supplier, $count, "track.$channel.$cluster.$object.$object-id.$verb.$subject");
+    count($supplier, $count, "track.$channel.$cluster.$object.$object-id.$verb");
+    count($supplier, $count, "track.$channel.$cluster.$object.$verb");
+    count($supplier, $count, "track.$channel.$object.$object-id.$verb.$subject");
+    count($supplier, $count, "track.$channel.$object.$object-id.$verb");
+    count($supplier, $count, "track.$channel.$object.$verb");
+    count($supplier, $count, "track.$object.$object-id.$verb.$subject");
+    count($supplier, $count, "track.$object.$object-id.$verb");
+    count($supplier, $count, "track.$object.$verb");
+    count($supplier, $count, "track.$verb.$subject");
+    count($supplier, $count, "track.$verb");
 }
 
-sub send-to-henhouse($r, $henhouse)
+sub send-to-henhouse($r, $supplier)
 {
     #only count things river-rock proxies
     return if not $r<host> ~~ m/river\-rock/;
 
-    if $r<path> ~~ m/api\/v1\/hal/ {
-        track($henhouse, $r<path>) 
+    if $r<path> ~~ m/api\/v1\/hal/
+    {
+        track($supplier, $r<path>)
     } 
     else 
     {
-        count($henhouse, 1, "$r<path>.$r<cmd>.$r<response>");
+        count($supplier, 1, "$r<path>.$r<cmd>.$r<response>");
     }
 }
 
