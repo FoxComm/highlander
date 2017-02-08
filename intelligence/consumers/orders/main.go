@@ -8,11 +8,10 @@ import (
 )
 
 const (
-	// IMPORTANT: dont merge without uncommenting this line and deleting the next
-	//orderCheckoutCompleted = 'order_checkout_completed'
-	orderCheckoutCompleted = "cart_line_items_updated_quantities"
+	orderCheckoutCompleted = "order_checkout_completed"
 	groupId                = "orders-1"
 	clientId               = "hal-orders-consumers"
+	henhouseHost           = "henhouse.service.consul"
 )
 
 func main() {
@@ -29,5 +28,7 @@ func main() {
 	consumer.SetGroupID(groupId)
 	consumer.SetClientID(clientId)
 
-	consumer.RunTopic(config.Topic, Handler)
+	oc, err := NewOrderConsumer(henhouseHost)
+
+	consumer.RunTopic(config.Topic, oc.Handler)
 }
