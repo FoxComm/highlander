@@ -6,12 +6,13 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/consumers"
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/customer-groups/agent"
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/customer-groups/consumer"
+	"github.com/FoxComm/highlander/middlewarehouse/consumers/customer-groups/manager"
 	"github.com/FoxComm/highlander/middlewarehouse/shared"
 	"github.com/FoxComm/highlander/middlewarehouse/shared/mailchimp"
 	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix"
 	"github.com/FoxComm/metamorphosis"
+
 	"gopkg.in/olivere/elastic.v3"
-	//"os"
 )
 
 func main() {
@@ -31,46 +32,32 @@ func main() {
 	}
 
 	// new ES client
-	esClient, err := elastic.NewClient(
-		elastic.SetURL(agentConfig.ElasticURL),
-		//elastic.SetTraceLog(log.New(os.Stdout, "", 0)),
-	)
+	esClient, err := elastic.NewClient(elastic.SetURL(agentConfig.ElasticURL))
 	if err != nil {
 		log.Panicf("Unable to create ES client with error %s", err.Error())
 	}
 
 	// new Phoenix client
 	phoenixClient := phoenix.NewPhoenixClient(phoenixConfig.URL, phoenixConfig.User, phoenixConfig.Password)
-	//
-	log.Println(agentConfig.MailchimpAPIKey)
+
+	// new Mailchimp client
 	chimpClient := mailchimp.NewClient(agentConfig.MailchimpAPIKey, mailchimp.SetDebug(true))
 
-	//Initialize and start polling agent
-	groupsAgent, err := agent.NewAgent(
+	// Customer Groups manager
+	groupsManager := manager.NewGroupsManager(
 		esClient,
 		phoenixClient,
 		chimpClient,
-		agent.SetMailchimpListID(agentConfig.MailchimpListId),
-		agent.SetTimeout(agentConfig.PollingInterval),
+		manager.SetMailchimpListID(agentConfig.MailchimpListId),
 	)
 
-	if err != nil {
-		log.Panicf("Unable to initialize CGs agent with error %s", err.Error())
-	}
+	//Initialize and start polling agent
+	groupsAgent := agent.NewAgent(phoenixClient, groupsManager, agent.SetTimeout(agentConfig.PollingInterval))
 
 	groupsAgent.Run()
 
 	// Initialize and start consumer
-	cgc, err := consumer.NewCustomerGroupsConsumer(
-		esClient,
-		phoenixClient,
-		chimpClient,
-		consumer.SetMailchimpListID(agentConfig.MailchimpListId),
-	)
-
-	if err != nil {
-		log.Panicf("Unable ti initialize CGs consumer with error %s", err.Error())
-	}
+	cgc := consumer.NewCustomerGroupsConsumer(groupsManager)
 
 	c, err := metamorphosis.NewConsumer(consumerConfig.ZookeeperURL, consumerConfig.SchemaRepositoryURL, consumerConfig.OffsetResetStrategy)
 	if err != nil {

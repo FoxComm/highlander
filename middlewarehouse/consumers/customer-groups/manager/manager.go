@@ -1,10 +1,13 @@
 package manager
 
 import (
+	"errors"
 	"fmt"
 	"log"
+	"reflect"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/FoxComm/highlander/middlewarehouse/common/utils"
 	"github.com/FoxComm/highlander/middlewarehouse/shared/mailchimp"
@@ -12,28 +15,89 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix/responses"
 
-	"errors"
 	"gopkg.in/olivere/elastic.v3"
-	"reflect"
 )
 
-func ProcessChangedGroup(esClient *elastic.Client, phoenixClient phoenix.PhoenixClient, chimpClient *mailchimp.ChimpClient, group *responses.CustomerGroupResponse, topic string, size int, listID string) error {
+const (
+	DefaultElasticIndex    = "admin"
+	DefaultElasticTopic    = "customers_search_view"
+	DefaultElasticSize     = 100
+	DefaultMailchimpListID = ""
+	DefaultTimeout         = 30 * time.Minute
+)
+
+type GroupsManager struct {
+	esClient      *elastic.Client
+	phoenixClient phoenix.PhoenixClient
+	chimpClient   *mailchimp.ChimpClient
+	esTopic       string
+	esSize        int
+	chimpListID   string
+	timeout       time.Duration
+}
+
+type ManagerOptionFunc func(*GroupsManager)
+
+func SetTimeout(t time.Duration) ManagerOptionFunc {
+	return func(m *GroupsManager) {
+		m.timeout = t
+	}
+}
+
+func SetElasticTopic(topic string) ManagerOptionFunc {
+	return func(m *GroupsManager) {
+		m.esTopic = topic
+	}
+}
+
+func SetElasticQierySize(size int) ManagerOptionFunc {
+	return func(m *GroupsManager) {
+		m.esSize = size
+	}
+}
+
+func SetMailchimpListID(id string) ManagerOptionFunc {
+	return func(m *GroupsManager) {
+		m.chimpListID = id
+	}
+}
+
+func NewGroupsManager(esClient *elastic.Client, phoenixClient phoenix.PhoenixClient, chimpClient *mailchimp.ChimpClient, options ...ManagerOptionFunc) *GroupsManager {
+	manager := &GroupsManager{
+		esClient,
+		phoenixClient,
+		chimpClient,
+		DefaultElasticTopic,
+		DefaultElasticSize,
+		DefaultMailchimpListID,
+		DefaultTimeout,
+	}
+
+	// set options to manager
+	for _, opt := range options {
+		opt(manager)
+	}
+
+	return manager
+}
+
+func (m *GroupsManager) ProcessChangedGroup(group *responses.CustomerGroupResponse) error {
 	go func(group *responses.CustomerGroupResponse) {
 		// get customers associated with the group - map of [id]:email
-		customers, err := getCustomers(esClient, group, topic, size)
+		customers, err := m.getCustomers(group)
 		if err != nil {
 			log.Panicf("An error occured getting customers: %s", err.Error())
 		}
 
 		// update group-customers mapping for dynamic groups
 		if group.GroupType != "manual" {
-			if err := updateGroupCustomersMapping(phoenixClient, group, customers); err != nil {
+			if err := m.updateGroupCustomersMapping(group, customers); err != nil {
 				log.Panicf("An error occured updating group-customers mapping: %s", err)
 			}
 		}
 
 		// update segments(fc "groups" analogue) in mailchimp
-		if err := processMailchimp(chimpClient, listID, group, customers); err != nil {
+		if err := m.processMailchimp(group, customers); err != nil {
 			log.Printf("An error occured updating mailchimp: %s", err.Error())
 		}
 	}(group)
@@ -41,8 +105,10 @@ func ProcessChangedGroup(esClient *elastic.Client, phoenixClient phoenix.Phoenix
 	return nil
 }
 
-func ProcessDeletedGroup(chimpClient *mailchimp.ChimpClient, group *responses.CustomerGroupResponse, listID string) error {
-	segments, err := chimpClient.GetSegments(listID)
+func (m *GroupsManager) ProcessDeletedGroup(group *responses.CustomerGroupResponse) error {
+	listID := m.chimpListID
+
+	segments, err := m.chimpClient.GetSegments(listID)
 	if err != nil {
 		return fmt.Errorf("An error occured trying to get segments from mailchimp: %s", err)
 	}
@@ -53,23 +119,23 @@ func ProcessDeletedGroup(chimpClient *mailchimp.ChimpClient, group *responses.Cu
 	}
 
 	if groupSegment != nil {
-		return chimpClient.DeleteStaticSegment(listID, groupSegment.ID)
+		return m.chimpClient.DeleteStaticSegment(listID, groupSegment.ID)
 	}
 
 	return nil
 }
 
-func updateGroupCustomersMapping(phoenixClient phoenix.PhoenixClient, group *responses.CustomerGroupResponse, customers map[int]string) error {
+func (m *GroupsManager) updateGroupCustomersMapping(group *responses.CustomerGroupResponse, customers map[int]string) error {
 	ids := getKeys(customers)
 
-	if err := phoenixClient.SetCustomersToGroup(group.ID, ids); err != nil {
+	if err := m.phoenixClient.SetCustomersToGroup(group.ID, ids); err != nil {
 		log.Panicf("An error occured setting group to customers: %s", err)
 	}
 
 	if group.CustomersCount != len(ids) {
 		updateGroup := &payloads.CustomerGroupPayload{group.Name, group.GroupType, len(ids), group.ClientState, group.ElasticRequest}
 
-		if err := phoenixClient.UpdateCustomerGroup(group.ID, updateGroup); err != nil {
+		if err := m.phoenixClient.UpdateCustomerGroup(group.ID, updateGroup); err != nil {
 			log.Panicf("An error occured update group info: %s", err)
 		}
 	}
@@ -77,17 +143,21 @@ func updateGroupCustomersMapping(phoenixClient phoenix.PhoenixClient, group *res
 	return nil
 }
 
-func processMailchimp(chimpClient *mailchimp.ChimpClient, listID string, group *responses.CustomerGroupResponse, customers map[int]string) error {
+func (m *GroupsManager) processMailchimp(group *responses.CustomerGroupResponse, customers map[int]string) error {
+	listID := m.chimpListID
 	if listID == "" {
 		return errors.New("Please provide not empty mailchimp ListId value")
 	}
 
 	newEmails := getValues(customers)
-	segments, err := chimpClient.GetSegments(listID)
+
+	// get available segments from mailchimp
+	segments, err := m.chimpClient.GetSegments(listID)
 	if err != nil {
 		return fmt.Errorf("An error occured trying to get segments from mailchimp: %s", err)
 	}
 
+	// find segment that was create for this group by `{groupID}#{groupName}` naming pattern
 	groupSegment, err := findSegmentByGroup(group, segments)
 	if err != nil {
 		return err
@@ -98,7 +168,8 @@ func processMailchimp(chimpClient *mailchimp.ChimpClient, listID string, group *
 		StaticSegment: newEmails,
 	}
 	if groupSegment != nil {
-		members, err := chimpClient.GetSegmentMembers(listID, groupSegment.ID)
+		// get list of segment members
+		members, err := m.chimpClient.GetSegmentMembers(listID, groupSegment.ID)
 		if err != nil {
 			return err
 		}
@@ -108,11 +179,13 @@ func processMailchimp(chimpClient *mailchimp.ChimpClient, listID string, group *
 			oldEmails[i] = m.Email
 		}
 
+		// update segment members if the name of group changed or list of customers of group differs from segment members
 		if groupSegment.Name != segmentPayload.Name || len(newEmails) != len(oldEmails) || len(utils.DiffSlices(newEmails, oldEmails)) > 0 {
-			_, err = chimpClient.UpdateStaticSegment(listID, groupSegment.ID, segmentPayload)
+			_, err = m.chimpClient.UpdateStaticSegment(listID, groupSegment.ID, segmentPayload)
 		}
 	} else {
-		_, err = chimpClient.CreateSegment(listID, segmentPayload)
+		// create new segment if no segment was found for this group
+		_, err = m.chimpClient.CreateSegment(listID, segmentPayload)
 	}
 
 	if err != nil {
@@ -122,7 +195,7 @@ func processMailchimp(chimpClient *mailchimp.ChimpClient, listID string, group *
 	return nil
 }
 
-func getCustomers(esClient *elastic.Client, group *responses.CustomerGroupResponse, topic string, size int) (map[int]string, error) {
+func (m *GroupsManager) getCustomers(group *responses.CustomerGroupResponse) (map[int]string, error) {
 	var query elastic.Query
 
 	if group.GroupType == "manual" {
@@ -131,6 +204,8 @@ func getCustomers(esClient *elastic.Client, group *responses.CustomerGroupRespon
 		query = elastic.RawStringQuery(group.ElasticRequest)
 	}
 
+	topic := m.esTopic
+	size := m.esSize
 	from := 0
 	done := false
 
@@ -139,7 +214,14 @@ func getCustomers(esClient *elastic.Client, group *responses.CustomerGroupRespon
 	for !done {
 		log.Printf("Quering ES. From: %d, Size: %d, Query: %s", from, size, query)
 
-		res, err := esClient.Search().Type(topic).Query(query).Fields("id", "email").From(from).Size(size).Do()
+		res, err := m.esClient.
+			Search().
+			Type(topic).
+			Query(query).
+			Fields("id", "email").
+			From(from).
+			Size(size).
+			Do()
 
 		if err != nil {
 			return nil, err

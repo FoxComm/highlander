@@ -6,26 +6,15 @@ import (
 
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/customer-groups/manager"
 	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix"
-
-	"github.com/FoxComm/highlander/middlewarehouse/shared/mailchimp"
-	"gopkg.in/olivere/elastic.v3"
 )
 
 const (
-	DefaultElasticIndex    = "admin"
-	DefaultElasticTopic    = "customers_search_view"
-	DefaultElasticSize     = 100
-	DefaultMailchimpListID = ""
-	DefaultTimeout         = 30 * time.Minute
+	DefaultTimeout = 30 * time.Minute
 )
 
 type Agent struct {
-	esClient      *elastic.Client
 	phoenixClient phoenix.PhoenixClient
-	chimpClient   *mailchimp.ChimpClient
-	esTopic       string
-	esSize        int
-	chimpListID   string
+	manager       *manager.GroupsManager
 	timeout       time.Duration
 }
 
@@ -37,35 +26,10 @@ func SetTimeout(t time.Duration) AgentOptionFunc {
 	}
 }
 
-func SetElasticTopic(topic string) AgentOptionFunc {
-	return func(a *Agent) {
-		a.esTopic = topic
-	}
-}
-
-func SetElasticQierySize(size int) AgentOptionFunc {
-	return func(a *Agent) {
-		a.esSize = size
-	}
-}
-
-func SetMailchimpListID(id string) AgentOptionFunc {
-	return func(a *Agent) {
-		a.chimpListID = id
-	}
-}
-
-func NewAgent(esClient *elastic.Client,
-	phoenixClient phoenix.PhoenixClient,
-	chimpClient *mailchimp.ChimpClient,
-	options ...AgentOptionFunc) (*Agent, error) {
+func NewAgent(phoenixClient phoenix.PhoenixClient, groupsManager *manager.GroupsManager, options ...AgentOptionFunc) *Agent {
 	agent := &Agent{
-		esClient,
 		phoenixClient,
-		chimpClient,
-		DefaultElasticTopic,
-		DefaultElasticSize,
-		DefaultMailchimpListID,
+		groupsManager,
 		DefaultTimeout,
 	}
 
@@ -74,7 +38,7 @@ func NewAgent(esClient *elastic.Client,
 		opt(agent)
 	}
 
-	return agent, nil
+	return agent
 }
 
 func (agent *Agent) Run() {
@@ -101,7 +65,7 @@ func (agent *Agent) processGroups() error {
 	}
 
 	for _, group := range groups {
-		manager.ProcessChangedGroup(agent.esClient, agent.phoenixClient, agent.chimpClient, group, agent.esTopic, agent.esSize, agent.chimpListID)
+		agent.manager.ProcessChangedGroup(group)
 	}
 
 	return nil
