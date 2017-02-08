@@ -126,6 +126,7 @@
                       :shipping_method (get-in order ["shippingMethod" "name"])
                       :shipping_address (get order "shippingAddress")
                       :billing_address (get order "billingAddress")
+                      :billing_info (get order "billingCreditCardInfo")
                       :tracking_number tracking-number
                       :tracking_url (str tracking-template tracking-number)
                       :estimated_arrival (get data "estimatedArrival")
