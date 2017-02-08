@@ -11,6 +11,7 @@ import models.product.Mvp
 import models.returns.Return.{Canceled, Processing}
 import models.returns._
 import models.shipping.{Shipments, ShippingMethods}
+import org.scalatest.prop.PropertyChecks
 import payloads.ReturnPayloads._
 import responses.{AllReturns, ReturnLockResponse, ReturnResponse}
 import services.returns.{ReturnLineItemUpdater, ReturnLockUpdater, ReturnService}
@@ -26,7 +27,8 @@ class ReturnIntegrationTest
     with PhoenixAdminApi
     with HttpSupport
     with AutomaticAuth
-    with BakedFixtures {
+    with BakedFixtures
+    with PropertyChecks {
 
   // I'm gonna move tests here once they're good
   "Revive Retuns" - {
@@ -306,186 +308,112 @@ class ReturnIntegrationTest
     }
   }
 
-  "Return Line Items" - {
-    pending
+  "line-items" - {
+    "POST /v1/returns/:refNum/line-items" - {
+      "successfully adds gift card line item" in new LineItemFixture {
+        val response =
+          returnsApi(rma.referenceNumber).lineItems.add(giftCardPayload).as[ReturnResponse.Root]
+        response.lineItems.giftCards.headOption.value.giftCard.code must === (giftCard.code)
+      }
 
-    // SKU Line Items
-    "POST /v1/returns/:refNum/line-items/skus" - {
+      "successfully adds shipping cost line item" in new LineItemFixture {
+        val response = returnsApi(rma.referenceNumber).lineItems
+          .add(shippingCostPayload)
+          .as[ReturnResponse.Root]
+        response.lineItems.shippingCosts.headOption.value.shippingCost.id must === (shipment.id)
+      }
+
       "successfully adds SKU line item" in new LineItemFixture {
-        val payload = ReturnSkuLineItemsPayload(sku = sku.code,
-                                                quantity = 1,
-                                                reasonId = returnReason.id,
-                                                isReturnItem = true,
-                                                inventoryDisposition = ReturnLineItem.Putaway)
-        val response = POST(s"v1/returns/${rma.referenceNumber}/line-items/skus", payload)
-        response.status must === (StatusCodes.OK)
-
-        val root = response.as[ReturnResponse.Root]
-        root.lineItems.skus.headOption.value.sku.sku must === (sku.code)
+        val response =
+          returnsApi(rma.referenceNumber).lineItems.add(skuPayload).as[ReturnResponse.Root]
+        response.lineItems.skus.headOption.value.sku.sku must === (sku.code)
       }
 
       "fails if refNum is not found" in new LineItemFixture {
-        val payload = ReturnSkuLineItemsPayload(sku = "ABC-666",
-                                                quantity = 1,
-                                                reasonId = returnReason.id,
-                                                isReturnItem = true,
-                                                inventoryDisposition = ReturnLineItem.Putaway)
-        val response = POST(s"v1/returns/ABC-666/line-items/skus", payload)
-
-        response.status must === (StatusCodes.NotFound)
-        response.error must === (NotFoundFailure404(Return, "ABC-666").description)
+        val response = returnsApi("ABC-666").lineItems.add(giftCardPayload)
+        response.mustFailWith404(NotFoundFailure404(Return, "ABC-666"))
       }
 
       "fails if reason is not found" in new LineItemFixture {
-        val payload = ReturnSkuLineItemsPayload(sku = "ABC-666",
-                                                quantity = 1,
-                                                reasonId = 100,
-                                                isReturnItem = true,
-                                                inventoryDisposition = ReturnLineItem.Putaway)
-        val response = POST(s"v1/returns/${rma.referenceNumber}/line-items/skus", payload)
+        val payload = shippingCostPayload.copy(reasonId = 42)
 
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (NotFoundFailure400(ReturnReason, 100).description)
+        val response = returnsApi(rma.referenceNumber).lineItems.add(payload)
+        response.mustFailWith404(NotFoundFailure404(ReturnReason, 42))
       }
 
       "fails if quantity is invalid" in new LineItemFixture {
-        val payload = ReturnSkuLineItemsPayload(sku = "ABC-666",
-                                                quantity = 0,
-                                                reasonId = returnReason.id,
-                                                isReturnItem = true,
-                                                inventoryDisposition = ReturnLineItem.Putaway)
-        val response = POST(s"v1/returns/${rma.referenceNumber}/line-items/skus", payload)
+        val payload = skuPayload.copy(quantity = -42)
 
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === ("Quantity got 0, expected more than 0")
+        val response = returnsApi(rma.referenceNumber).lineItems.add(payload)
+        response.mustFailWithMessage("Quantity got -42, expected more than 0")
       }
     }
 
-    "DELETE /v1/returns/:refNum/line-items/skus/:id" - {
-      "successfully deletes SKU line item" in new LineItemFixture {
-        // Create
-        val payload = ReturnSkuLineItemsPayload(sku = sku.code,
-                                                quantity = 1,
-                                                reasonId = returnReason.id,
-                                                isReturnItem = true,
-                                                inventoryDisposition = ReturnLineItem.Putaway)
-        val updatedRma =
-          ReturnLineItemUpdater.addSkuLineItem(rma.referenceNumber, payload, ctx).gimme
-        val lineItemId = updatedRma.lineItems.skus.headOption.value.lineItemId
+    "DELETE /v1/returns/:refNum/line-items/:id" - {
+      "successfully deletes gift card line item" in new LineItemFixture {
+        val lineItemId = returnsApi(rma.referenceNumber).lineItems
+          .add(giftCardPayload)
+          .as[ReturnResponse.Root]
+          .lineItems
+          .giftCards
+          .headOption
+          .value
+          .lineItemId
 
-        // Delete
-        val response = DELETE(s"v1/returns/${rma.referenceNumber}/line-items/skus/$lineItemId")
-        response.status must === (StatusCodes.OK)
-        val root = response.as[ReturnResponse.Root]
-        root.lineItems.skus mustBe 'empty
-      }
-
-      "fails if refNum is not found" in new LineItemFixture {
-        val response = DELETE(s"v1/returns/ABC-666/line-items/skus/1")
-        response.status must === (StatusCodes.NotFound)
-        response.error must === (NotFoundFailure404(Return, "ABC-666").description)
-      }
-
-      "fails if line item ID is not found" in new LineItemFixture {
-        val response = DELETE(s"v1/returns/${rma.referenceNumber}/line-items/skus/666")
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (NotFoundFailure400(ReturnLineItem, 666).description)
-      }
-    }
-
-    // Gift Card Line Items
-    "POST /v1/returns/:refNum/line-items/gift-cards" - {
-      "successfully adds gift card line item" in new LineItemFixture {
-        val payload =
-          ReturnGiftCardLineItemsPayload(code = giftCard.code, reasonId = returnReason.id)
-        val response = POST(s"v1/returns/${rma.referenceNumber}/line-items/gift-cards", payload)
-        response.status must === (StatusCodes.OK)
-
-        val root = response.as[ReturnResponse.Root]
-        root.lineItems.giftCards.headOption.value.giftCard.code must === (giftCard.code)
-      }
-
-      "fails if refNum is not found" in new LineItemFixture {
-        val payload  = ReturnGiftCardLineItemsPayload(code = "ABC-666", reasonId = returnReason.id)
-        val response = POST(s"v1/returns/ABC-666/line-items/gift-cards", payload)
-
-        response.status must === (StatusCodes.NotFound)
-        response.error must === (NotFoundFailure404(Return, "ABC-666").description)
-      }
-
-      "fails if reason is not found" in new LineItemFixture {
-        val payload  = ReturnGiftCardLineItemsPayload(code = "ABC-666", reasonId = 100)
-        val response = POST(s"v1/returns/${rma.referenceNumber}/line-items/gift-cards", payload)
-
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (NotFoundFailure400(ReturnReason, 100).description)
-      }
-    }
-
-    // Shipping Costs Line Items
-    "POST /v1/returns/:refNum/line-items/shipping-costs" - {
-      "successfully adds shipping cost line item" in new LineItemFixture {
-        val payload = ReturnShippingCostLineItemsPayload(reasonId = reason.id)
         val response =
-          POST(s"v1/returns/${rma.referenceNumber}/line-items/shipping-costs", payload)
-        response.status must === (StatusCodes.OK)
-
-        val root = response.as[ReturnResponse.Root]
-        root.lineItems.shippingCosts.headOption.value.shippingCost.id must === (shipment.id)
+          returnsApi(rma.referenceNumber).lineItems.remove(lineItemId).as[ReturnResponse.Root]
+        response.lineItems.giftCards mustBe 'empty
       }
 
-      "fails if refNum is not found" in new LineItemFixture {
-        val payload  = ReturnShippingCostLineItemsPayload(reasonId = returnReason.id)
-        val response = POST(s"v1/returns/ABC-666/line-items/shipping-costs", payload)
-
-        response.status must === (StatusCodes.NotFound)
-        response.error must === (NotFoundFailure404(Return, "ABC-666").description)
-      }
-
-      "fails if reason is not found" in new LineItemFixture {
-        val payload = ReturnShippingCostLineItemsPayload(reasonId = 100)
-        val response =
-          POST(s"v1/returns/${rma.referenceNumber}/line-items/shipping-costs", payload)
-
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (NotFoundFailure400(ReturnReason, 100).description)
-      }
-    }
-
-    "DELETE /v1/returns/:refNum/line-items/shipping-costs/:id" - {
       "successfully deletes shipping cost line item" in new LineItemFixture {
-        // Create
-        val payload = ReturnShippingCostLineItemsPayload(reasonId = returnReason.id)
-        val updatedRma =
-          ReturnLineItemUpdater.addShippingCostItem(rma.referenceNumber, payload).gimme
-        val lineItemId = updatedRma.lineItems.shippingCosts.headOption.value.lineItemId
+        val lineItemId = returnsApi(rma.referenceNumber).lineItems
+          .add(giftCardPayload)
+          .as[ReturnResponse.Root]
+          .lineItems
+          .shippingCosts
+          .headOption
+          .value
+          .lineItemId
 
-        // Delete
         val response =
-          DELETE(s"v1/returns/${rma.referenceNumber}/line-items/shipping-costs/$lineItemId")
-        response.status must === (StatusCodes.OK)
-        val root = response.as[ReturnResponse.Root]
-        root.lineItems.shippingCosts mustBe 'empty
+          returnsApi(rma.referenceNumber).lineItems.remove(lineItemId).as[ReturnResponse.Root]
+        response.lineItems.shippingCosts mustBe 'empty
+      }
+
+      "successfully deletes SKU line item" in new LineItemFixture {
+        val lineItemId = returnsApi(rma.referenceNumber).lineItems
+          .add(giftCardPayload)
+          .as[ReturnResponse.Root]
+          .lineItems
+          .skus
+          .headOption
+          .value
+          .lineItemId
+
+        val response =
+          returnsApi(rma.referenceNumber).lineItems.remove(lineItemId).as[ReturnResponse.Root]
+        response.lineItems.skus mustBe 'empty
       }
 
       "fails if refNum is not found" in new LineItemFixture {
-        val response = DELETE(s"v1/returns/ABC-666/line-items/shipping-costs/1")
-        response.status must === (StatusCodes.NotFound)
-        response.error must === (NotFoundFailure404(Return, "ABC-666").description)
+        val response = returnsApi("ABC-666").lineItems.remove(42)
+        response.mustFailWith404(NotFoundFailure404(Return, "ABC-666"))
       }
 
       "fails if line item ID is not found" in new LineItemFixture {
-        val response = DELETE(s"v1/returns/${rma.referenceNumber}/line-items/shipping-costs/666")
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (NotFoundFailure400(ReturnLineItem, 666).description)
+        val response = returnsApi(rma.referenceNumber).lineItems.remove(666)
+        response.mustFailWith404(NotFoundFailure404(ReturnLineItem, 666))
       }
     }
   }
 
   trait Fixture extends Order_Baked with Reason_Baked {
-    val rma = Returns
-      .create(Factories.rma.copy(orderRef = order.refNum, accountId = customer.accountId))
-      .gimme
+    def freshRma =
+      Returns
+        .create(Factories.rma.copy(orderRef = order.refNum, accountId = customer.accountId))
+        .gimme
+
+    val rma = freshRma
   }
 
   trait LineItemFixture extends Fixture {
@@ -493,30 +421,28 @@ class ReturnIntegrationTest
       returnReason ← * <~ ReturnReasons.create(Factories.returnReasons.head)
       product      ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head)
       sku          ← * <~ Skus.mustFindById404(product.skuId)
-      _            ← * <~ addSkusToOrder(Seq(sku.id), order.refNum, OrderLineItem.Cart)
-
-      gcReason ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))
+      gcReason     ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))
       gcOrigin ← * <~ GiftCardManuals.create(
                     GiftCardManual(adminId = storeAdmin.accountId, reasonId = gcReason.id))
       giftCard ← * <~ GiftCards.create(
                     Factories.giftCard.copy(originId = gcOrigin.id,
                                             originType = GiftCard.RmaProcess))
-
-      shippingAddress ← * <~ OrderShippingAddresses.create(
-                           Factories.shippingAddress.copy(cordRef = order.refNum, regionId = 1))
-      shippingMethod ← * <~ ShippingMethods.create(Factories.shippingMethods.head)
-      orderShippingMethod ← * <~ OrderShippingMethods.create(
-                               OrderShippingMethod.build(cordRef = order.refNum,
-                                                         method = shippingMethod))
       shipment ← * <~ Shipments.create(Factories.shipment)
     } yield (returnReason, sku, giftCard, shipment)).gimme
-  }
 
-  def addSkusToOrder(skuIds: Seq[Int],
-                     cordRef: String,
-                     state: OrderLineItem.State): DbResultT[Unit] = {
-    val itemsToInsert = skuIds.map(skuId ⇒ CartLineItem(cordRef = cordRef, skuId = skuId))
-    CartLineItems.createAll(itemsToInsert).map(_ ⇒ Unit)
+    val giftCardPayload =
+      ReturnGiftCardLineItemPayload(code = giftCard.code, reasonId = returnReason.id)
+
+    val shippingCostPayload = ReturnShippingCostLineItemPayload(reasonId = reason.id)
+
+    val skuPayload = ReturnSkuLineItemPayload(sku = sku.code,
+                                              quantity = 1,
+                                              reasonId = returnReason.id,
+                                              isReturnItem = true,
+                                              inventoryDisposition = ReturnLineItem.Putaway)
+
+    val returnLineItemPayloadTable =
+      Table("returnLineItemPayload", giftCardPayload, shippingCostPayload, skuPayload)
   }
 
 }

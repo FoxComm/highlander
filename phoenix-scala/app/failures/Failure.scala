@@ -94,7 +94,3 @@ case class AlreadySavedForLater(accountId: Int, skuId: Int) extends Failure {
   override def description =
     s"Customer with id=$accountId already has SKU with id=$skuId saved for later"
 }
-
-case class ShipmentNotFoundFailure(cordRefNum: String) extends Failure {
-  override def description = s"No shipments found for cart/order with refNum=$cordRefNum"
-}
