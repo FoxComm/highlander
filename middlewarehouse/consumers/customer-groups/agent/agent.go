@@ -7,21 +7,25 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/customer-groups/manager"
 	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix"
 
+	"github.com/FoxComm/highlander/middlewarehouse/shared/mailchimp"
 	"gopkg.in/olivere/elastic.v3"
 )
 
 const (
-	DefaultElasticIndex = "admin"
-	DefaultElasticTopic = "customers_search_view"
-	DefaultElasticSize  = 100
-	DefaultTimeout      = 30 * time.Minute
+	DefaultElasticIndex    = "admin"
+	DefaultElasticTopic    = "customers_search_view"
+	DefaultElasticSize     = 100
+	DefaultMailchimpListID = ""
+	DefaultTimeout         = 30 * time.Minute
 )
 
 type Agent struct {
 	esClient      *elastic.Client
 	phoenixClient phoenix.PhoenixClient
+	chimpClient   *mailchimp.ChimpClient
 	esTopic       string
 	esSize        int
+	chimpListID   string
 	timeout       time.Duration
 }
 
@@ -45,12 +49,23 @@ func SetElasticQierySize(size int) AgentOptionFunc {
 	}
 }
 
-func NewAgent(esClient *elastic.Client, phoenixClient phoenix.PhoenixClient, options ...AgentOptionFunc) (*Agent, error) {
+func SetMailchimpListID(id string) AgentOptionFunc {
+	return func(a *Agent) {
+		a.chimpListID = id
+	}
+}
+
+func NewAgent(esClient *elastic.Client,
+	phoenixClient phoenix.PhoenixClient,
+	chimpClient *mailchimp.ChimpClient,
+	options ...AgentOptionFunc) (*Agent, error) {
 	agent := &Agent{
 		esClient,
 		phoenixClient,
+		chimpClient,
 		DefaultElasticTopic,
 		DefaultElasticSize,
+		DefaultMailchimpListID,
 		DefaultTimeout,
 	}
 
@@ -71,8 +86,7 @@ func (agent *Agent) Run() {
 		for {
 			select {
 			case <-ticker.C:
-				err := agent.processGroups()
-				if err != nil {
+				if err := agent.processGroups(); err != nil {
 					log.Panicf("An error occured processing groups: %s", err)
 				}
 			}
@@ -86,8 +100,10 @@ func (agent *Agent) processGroups() error {
 		return err
 	}
 
+	log.Printf("Groups count: %d", len(groups))
+
 	for _, group := range groups {
-		manager.ProcessGroup(agent.esClient, agent.phoenixClient, group, agent.esTopic, agent.esSize)
+		manager.ProcessGroup(agent.esClient, agent.phoenixClient, agent.chimpClient, group, agent.esTopic, agent.esSize, agent.chimpListID)
 	}
 
 	return nil

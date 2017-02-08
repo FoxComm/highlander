@@ -27,19 +27,20 @@ func request(method string, url string, headers map[string]string, payload inter
 
 	var req *http.Request
 	var err error
+	payloadBytes := []byte{}
+
 	if method == "GET" {
 		req, err = http.NewRequest(method, url, nil)
 	} else {
-		payloadBytes := []byte{}
 		payloadBytes, err = json.Marshal(&payload)
 		if err != nil {
 			return nil, fmt.Errorf("Unable to marshal payload: %s", err.Error())
 		}
 
-		log.Printf("HTTP --> %s %s %s", method, url, payloadBytes)
-
 		req, err = http.NewRequest(method, url, bytes.NewBuffer(payloadBytes))
 	}
+
+	log.Printf("HTTP --> %s %s %s", method, url, payloadBytes)
 
 	if err != nil {
 		return nil, fmt.Errorf("Unable to create %s request: %s", method, err.Error())
