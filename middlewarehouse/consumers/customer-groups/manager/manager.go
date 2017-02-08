@@ -12,6 +12,7 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix/responses"
 
+	"errors"
 	"gopkg.in/olivere/elastic.v3"
 	"reflect"
 )
@@ -21,7 +22,7 @@ type Customer struct {
 	Email string `json:"email"`
 }
 
-func ProcessGroup(esClient *elastic.Client, phoenixClient phoenix.PhoenixClient, chimpClient *mailchimp.ChimpClient, group *responses.CustomerGroupResponse, topic string, size int, listID string) error {
+func ProcessChangedGroup(esClient *elastic.Client, phoenixClient phoenix.PhoenixClient, chimpClient *mailchimp.ChimpClient, group *responses.CustomerGroupResponse, topic string, size int, listID string) error {
 	if group.GroupType == "manual" {
 		log.Printf("Group %s with id %d is manual, skipping.\n", group.Name, group.ID)
 	} else {
@@ -53,7 +54,28 @@ func ProcessGroup(esClient *elastic.Client, phoenixClient phoenix.PhoenixClient,
 	return nil
 }
 
+func ProcessDeletedGroup(chimpClient *mailchimp.ChimpClient, group *responses.CustomerGroupResponse, listID string) error {
+	segments, err := chimpClient.GetSegments(listID)
+	if err != nil {
+		return fmt.Errorf("An error occured trying to get segments from mailchimp: %s", err)
+	}
+
+	groupSegment, err := findSegmentByGroup(group, segments)
+	if err != nil {
+		return err
+	}
+	if groupSegment != nil {
+		return chimpClient.DeleteStaticSegment(listID, groupSegment.ID)
+	}
+
+	return nil
+}
+
 func processMailchimp(chimpClient *mailchimp.ChimpClient, listID string, group *responses.CustomerGroupResponse, customers map[int]string) error {
+	if listID == "" {
+		return errors.New("Please provide not empty mailchimp ListId value")
+	}
+
 	newEmails := getValues(customers)
 	segments, err := chimpClient.GetSegments(listID)
 	if err != nil {
@@ -62,35 +84,19 @@ func processMailchimp(chimpClient *mailchimp.ChimpClient, listID string, group *
 
 	log.Printf("Segments count: %d", segments.Total)
 
-	var segmentToUpdate *mailchimp.SegmentResponse
-
-	for i := 0; i < len(segments.Segments) && segmentToUpdate == nil; i++ {
-		segment := segments.Segments[i]
-
-		spl := strings.Split(segments.Segments[i].Name, "#")
-		if len(spl) < 2 {
-			return fmt.Errorf("Splitted segment name length should be gte 2. Ex: 12#CG Name. Actual name: %s", segment.Name)
-		}
-
-		id, err := strconv.Atoi(spl[0])
-		if err != nil {
-			return fmt.Errorf("Can't extract CG id from segments name %s", segment.Name)
-		}
-
-		if id == group.ID {
-			segmentToUpdate = &segments.Segments[i]
-		}
+	groupSegment, err := findSegmentByGroup(group, segments)
+	if err != nil {
+		return err
 	}
 
 	segmentPayload := &mailchimp.SegmentPayload{
 		Name:          fmt.Sprintf("%d#%s", group.ID, group.Name),
 		StaticSegment: newEmails,
 	}
+	if groupSegment != nil {
+		log.Printf("Found segment to update: %s. Checking if update is required...", groupSegment.Name)
 
-	if segmentToUpdate != nil {
-		log.Printf("Found segment to update: %s. Checking if update is required...", segmentToUpdate.Name)
-
-		members, err := chimpClient.GetSegmentMembers(listID, segmentToUpdate.ID)
+		members, err := chimpClient.GetSegmentMembers(listID, groupSegment.ID)
 		if err != nil {
 			return err
 		}
@@ -100,11 +106,11 @@ func processMailchimp(chimpClient *mailchimp.ChimpClient, listID string, group *
 			oldEmails[i] = m.Email
 		}
 
-		log.Printf("New name=%s; old name=%s", segmentPayload.Name, segmentToUpdate.Name)
+		log.Printf("New name=%s; old name=%s", segmentPayload.Name, groupSegment.Name)
 		log.Printf("New emails len=%d; old emails len=%d; diff len=%d", len(newEmails), len(oldEmails), len(utils.DiffSlices(newEmails, oldEmails)))
 
-		if segmentToUpdate.Name != segmentPayload.Name || len(newEmails) != len(oldEmails) || len(utils.DiffSlices(newEmails, oldEmails)) > 0 {
-			_, err = chimpClient.UpdateStaticSegment(listID, segmentToUpdate.ID, segmentPayload)
+		if groupSegment.Name != segmentPayload.Name || len(newEmails) != len(oldEmails) || len(utils.DiffSlices(newEmails, oldEmails)) > 0 {
+			_, err = chimpClient.UpdateStaticSegment(listID, groupSegment.ID, segmentPayload)
 		}
 	} else {
 		log.Printf("Not found segment to update for group %d#%s", group.ID, group.Name)
@@ -155,6 +161,28 @@ func getCustomersEmails(esClient *elastic.Client, group *responses.CustomerGroup
 	}
 
 	return result, nil
+}
+
+func findSegmentByGroup(group *responses.CustomerGroupResponse, segments *mailchimp.SegmentsResponse) (*mailchimp.SegmentResponse, error) {
+	for i := 0; i < len(segments.Segments); i++ {
+		segment := segments.Segments[i]
+
+		spl := strings.Split(segments.Segments[i].Name, "#")
+		if len(spl) < 2 {
+			return nil, fmt.Errorf("Splitted segment name length should be gte 2. Ex: 12#CG Name. Actual name: %s", segment.Name)
+		}
+
+		id, err := strconv.Atoi(spl[0])
+		if err != nil {
+			return nil, fmt.Errorf("Can't extract CG id from segments name %s", segment.Name)
+		}
+
+		if id == group.ID {
+			return &segments.Segments[i], nil
+		}
+	}
+
+	return nil, nil
 }
 
 func getEsField(esFields map[string]interface{}, fieldName string) (interface{}, error) {

@@ -3,23 +3,22 @@ package main
 import (
 	"log"
 
-	//"github.com/FoxComm/highlander/middlewarehouse/consumers"
+	"github.com/FoxComm/highlander/middlewarehouse/consumers"
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/customer-groups/agent"
-	//"github.com/FoxComm/highlander/middlewarehouse/consumers/customer-groups/consumer"
+	"github.com/FoxComm/highlander/middlewarehouse/consumers/customer-groups/consumer"
 	"github.com/FoxComm/highlander/middlewarehouse/shared"
 	"github.com/FoxComm/highlander/middlewarehouse/shared/mailchimp"
 	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix"
-	//"github.com/FoxComm/metamorphosis"
+	"github.com/FoxComm/metamorphosis"
 	"gopkg.in/olivere/elastic.v3"
 	//"os"
 )
 
 func main() {
-
-	//consumerConfig, err := consumers.MakeConsumerConfig()
-	//if err != nil {
-	//	log.Panicf("Unable to parse consumer config with error %s", err.Error())
-	//}
+	consumerConfig, err := consumers.MakeConsumerConfig()
+	if err != nil {
+		log.Panicf("Unable to parse consumer config with error %s", err.Error())
+	}
 
 	agentConfig, err := makeAgentConfig()
 	if err != nil {
@@ -140,18 +139,23 @@ func main() {
 	}
 
 	groupsAgent.Run()
-	//
-	//// Initialize and start consumer
-	//cgc, err := consumer.NewCustomerGroupsConsumer(esClient, phoenixClient)
-	//
-	//if err != nil {
-	//	log.Panicf("Unable ti initialize CGs consumer with error %s", err.Error())
-	//}
-	//
-	//c, err := metamorphosis.NewConsumer(consumerConfig.ZookeeperURL, consumerConfig.SchemaRepositoryURL, consumerConfig.OffsetResetStrategy)
-	//if err != nil {
-	//	log.Fatalf("Unable to connect to Kafka with error %s", err.Error())
-	//}
-	//
-	//c.RunTopic(consumerConfig.Topic, cgc.Handler)
+
+	// Initialize and start consumer
+	cgc, err := consumer.NewCustomerGroupsConsumer(
+		esClient,
+		phoenixClient,
+		chimpClient,
+		consumer.SetMailchimpListID(agentConfig.MailchimpListId),
+	)
+
+	if err != nil {
+		log.Panicf("Unable ti initialize CGs consumer with error %s", err.Error())
+	}
+
+	c, err := metamorphosis.NewConsumer(consumerConfig.ZookeeperURL, consumerConfig.SchemaRepositoryURL, consumerConfig.OffsetResetStrategy)
+	if err != nil {
+		log.Fatalf("Unable to connect to Kafka with error %s", err.Error())
+	}
+
+	c.RunTopic(consumerConfig.Topic, cgc.Handler)
 }

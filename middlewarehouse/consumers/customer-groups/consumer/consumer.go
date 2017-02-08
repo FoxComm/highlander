@@ -11,25 +11,30 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix/responses"
 	"github.com/FoxComm/metamorphosis"
 
+	"github.com/FoxComm/highlander/middlewarehouse/shared/mailchimp"
 	"gopkg.in/olivere/elastic.v3"
 )
 
 const (
 	activityCustomerGroupCreated = "customer_group_created"
 	activityCustomerGroupUpdated = "customer_group_updated"
+	activityCustomerGroupDeleted = "customer_group_archived"
 )
 
 const (
-	DefaultTopic        = "activities"
-	DefaultElasticTopic = "customers_search_view"
-	DefaultElasticSize  = 100
+	DefaultTopic           = "activities"
+	DefaultElasticTopic    = "customers_search_view"
+	DefaultElasticSize     = 100
+	DefaultMailchimpListID = ""
 )
 
 type CustomerGroupsConsumer struct {
 	esClient      *elastic.Client
 	phoenixClient phoenix.PhoenixClient
+	chimpClient   *mailchimp.ChimpClient
 	esTopic       string
 	esSize        int
+	chimpListID   string
 }
 
 type ConsumerOptionFunc func(consumer *CustomerGroupsConsumer)
@@ -46,12 +51,24 @@ func SetElasticQierySize(size int) ConsumerOptionFunc {
 	}
 }
 
-func NewCustomerGroupsConsumer(esClient *elastic.Client, phoenixClient phoenix.PhoenixClient, options ...ConsumerOptionFunc) (*CustomerGroupsConsumer, error) {
+func SetMailchimpListID(id string) ConsumerOptionFunc {
+	return func(c *CustomerGroupsConsumer) {
+		c.chimpListID = id
+	}
+}
+
+func NewCustomerGroupsConsumer(esClient *elastic.Client,
+	phoenixClient phoenix.PhoenixClient,
+	chimpClient *mailchimp.ChimpClient,
+	options ...ConsumerOptionFunc) (*CustomerGroupsConsumer, error) {
+
 	consumer := &CustomerGroupsConsumer{
 		esClient,
 		phoenixClient,
+		chimpClient,
 		DefaultElasticTopic,
 		DefaultElasticSize,
+		DefaultMailchimpListID,
 	}
 
 	// set options to consumer
@@ -81,15 +98,22 @@ func (c CustomerGroupsConsumer) Handler(message metamorphosis.AvroMessage) error
 		}
 
 		log.Printf("Customer group request: %s", group.ElasticRequest)
+
+		if group.GroupType == "manual" {
+			log.Printf("Group %s with id %d is manual, skipping.\n", group.Name, group.ID)
+
+			return nil
+		}
+
+		return manager.ProcessChangedGroup(c.esClient, c.phoenixClient, c.chimpClient, group, c.esTopic, c.esSize, c.chimpListID)
+	case activityCustomerGroupDeleted:
+		group, err = shared.NewCustomerGroupFromActivity(activity)
+		if err != nil {
+			return fmt.Errorf("Unable to decode customer group from activity: %s", err.Error())
+		}
+
+		return manager.ProcessDeletedGroup(c.chimpClient, group, c.chimpListID)
 	default:
 		return nil
 	}
-
-	if group.GroupType == "manual" {
-		log.Printf("Group %s with id %d is manual, skipping.\n", group.Name, group.ID)
-
-		return nil
-	}
-
-	return manager.ProcessGroup(c.esClient, c.phoenixClient, group, c.esTopic, c.esSize)
 }

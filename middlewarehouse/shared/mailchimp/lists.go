@@ -11,21 +11,21 @@ const (
 	EndpointListsStaticSegmentMembers string = "/lists/%s/segments/%d/members"
 )
 
-func (c *ChimpClient) GetSegments(listID string) (SegmentsResponse, error) {
-	var response SegmentsResponse
-	err := c.get(fmt.Sprintf(EndpointListsStaticSegments+"?count=60", listID), &response)
+func (c *ChimpClient) GetSegments(listID string) (*SegmentsResponse, error) {
+	response := new(SegmentsResponse)
+	err := c.get(fmt.Sprintf(EndpointListsStaticSegments+"?count=60", listID), response)
 	return response, err
 }
 
-func (c *ChimpClient) CreateSegment(listID string, payload *SegmentPayload) (SegmentResponse, error) {
-	var response SegmentResponse
-	err := c.post(fmt.Sprintf(EndpointListsStaticSegments, listID), payload, &response)
+func (c *ChimpClient) CreateSegment(listID string, payload *SegmentPayload) (*SegmentResponse, error) {
+	response := new(SegmentResponse)
+	err := c.post(fmt.Sprintf(EndpointListsStaticSegments, listID), payload, response)
 	return response, err
 }
 
-func (c *ChimpClient) UpdateStaticSegment(listID string, segmentId int, payload *SegmentPayload) (SegmentResponse, error) {
-	var response SegmentResponse
-	err := c.patch(fmt.Sprintf(EndpointListsStaticSegment, listID, segmentId), payload, &response)
+func (c *ChimpClient) UpdateStaticSegment(listID string, segmentId int, payload *SegmentPayload) (*SegmentResponse, error) {
+	response := new(SegmentResponse)
+	err := c.patch(fmt.Sprintf(EndpointListsStaticSegment, listID, segmentId), payload, response)
 	return response, err
 }
 
@@ -33,9 +33,9 @@ func (c *ChimpClient) DeleteStaticSegment(listID string, segmentId int) error {
 	return c.delete(fmt.Sprintf(EndpointListsStaticSegment, listID, segmentId))
 }
 
-func (c *ChimpClient) GetSegmentMembers(listID string, segmentId int) (SegmentMembersResponse, error) {
-	var response SegmentMembersResponse
-	err := c.get(fmt.Sprintf(EndpointListsStaticSegmentMembers+"?count=60", listID, segmentId), &response)
+func (c *ChimpClient) GetSegmentMembers(listID string, segmentId int) (*SegmentMembersResponse, error) {
+	response := new(SegmentMembersResponse)
+	err := c.get(fmt.Sprintf(EndpointListsStaticSegmentMembers+"?count=60", listID, segmentId), response)
 	return response, err
 }
 
