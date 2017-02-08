@@ -5,6 +5,10 @@
   "mem": 500,
   "disk": 0,
   "instances": 1,
+  "labels": {
+    "LAYER": "backend",
+    "LANG": "cpp"
+  },
   "container": {
     "type": "DOCKER",
     "volumes": [

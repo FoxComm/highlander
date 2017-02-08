@@ -13,6 +13,10 @@
       "labels": {}
     }
   ],
+  "labels": {
+    "LAYER": "backend",
+    "LANG": "go"
+  },
   "container": {
     "type": "DOCKER",
     "docker": {
@@ -22,6 +26,9 @@
       "parameters": [],
       "forcePullImage": true
     }
+  },
+  "env": {
+      "API_URL": "http://{{storefront_server_name}}"
   },
   "healthChecks": [
     {
