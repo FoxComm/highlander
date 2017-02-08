@@ -23,7 +23,7 @@ object ReturnLineItemUpdater {
       rma ← * <~ mustFindPendingReturnByRefNum(refNum)
       reason ← * <~ ReturnReasons
                 .filter(_.id === payload.reasonId)
-                .mustFindOneOr(NotFoundFailure400(ReturnReason, payload.reasonId))
+                .mustFindOneOr(NotFoundFailure404(ReturnReason, payload.reasonId))
       _        ← * <~ processAddLineItem(rma, reason, payload)
       updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(updated)
@@ -65,11 +65,9 @@ object ReturnLineItemUpdater {
       db: DB,
       oc: OC): DbResultT[ReturnLineItem] =
     for {
-      // Checks
       payload   ← * <~ payload.validate
       sku       ← * <~ SkuManager.mustFindSkuByContextAndCode(oc.id, payload.sku)
       skuShadow ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
-      // Inserts
       origin ← * <~ ReturnLineItemSkus.create(
                   ReturnLineItemSku(returnId = rma.id, skuId = sku.id, skuShadowId = skuShadow.id))
       li ← * <~ ReturnLineItems.create(ReturnLineItem.buildSku(rma, reason, origin, payload))

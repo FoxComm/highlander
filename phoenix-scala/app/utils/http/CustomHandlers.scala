@@ -8,8 +8,8 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 import akka.stream.scaladsl.Flow
 import akka.util.ByteString
-
 import org.json4s.jackson.Serialization.{write ⇒ json}
+import scala.concurrent.ExecutionException
 import utils._
 import utils.db.FoxFailureException
 import utils.http.Http._
@@ -49,32 +49,41 @@ object CustomHandlers {
       }
       .result()
 
-  def jsonExceptionHandler: ExceptionHandler = ExceptionHandler {
-    case IllegalRequestException(info, status) ⇒
-      ctx ⇒
-        {
-          ctx.log.warning("Illegal request {}\n\t{}\n\tCompleting with '{}' response",
-                          ctx.request,
-                          info.formatPretty,
-                          status)
-          ctx.complete(HttpResponse(status, entity = errorsJsonEntity(info.format(isProduction))))
-        }
-      case e: IllegalArgumentException ⇒
-      ctx ⇒
-        {
-          ctx.log.warning("Bad request: {}", ctx.request)
-          ctx.complete(HttpResponse(BadRequest, entity = errorsJsonEntity(e.getMessage)))
-        }
-      // This is not a part of our control flow, but I'll leave it here just in case of unanticipated DBIO.failed
-      case FoxFailureException(failures) ⇒
-      ctx ⇒
-        ctx.complete(Http.renderFailure(failures))
-      case NonFatal(e) ⇒
-      ctx ⇒
-        {
-          val errMsg = if (isProduction) "There was an internal server error." else e.getMessage
-          ctx.log.warning("Error {} during processing of request {}", e, ctx.request)
-          ctx.complete(HttpResponse(InternalServerError, entity = errorsJsonEntity(errMsg)))
-        }
+  def jsonExceptionHandler: ExceptionHandler = {
+
+    val baseHandler = ExceptionHandler {
+      case IllegalRequestException(info, status) ⇒
+        ctx ⇒
+          {
+            ctx.log.warning("Illegal request {}\n\t{}\n\tCompleting with '{}' response",
+                            ctx.request,
+                            info.formatPretty,
+                            status)
+            ctx.complete(
+                HttpResponse(status, entity = errorsJsonEntity(info.format(isProduction))))
+          }
+        case e: IllegalArgumentException ⇒
+        ctx ⇒
+          {
+            ctx.log.warning("Bad request: {}", ctx.request)
+            ctx.complete(HttpResponse(BadRequest, entity = errorsJsonEntity(e.getMessage)))
+          }
+        // This is not a part of our control flow, but I'll leave it here just in case of unanticipated DBIO.failed
+        case FoxFailureException(failures) ⇒
+        ctx ⇒
+          ctx.complete(Http.renderFailure(failures))
+        case NonFatal(e) ⇒
+        ctx ⇒
+          {
+            val errMsg = if (isProduction) "There was an internal server error." else e.getMessage
+            ctx.log.warning("Error {} during processing of request {}", e, ctx.request)
+            ctx.complete(HttpResponse(InternalServerError, entity = errorsJsonEntity(errMsg)))
+          }
+    }
+
+    ExceptionHandler {
+      case e: ExecutionException ⇒
+        baseHandler(e.getCause)
+    } orElse baseHandler
   }
 }

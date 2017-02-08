@@ -367,7 +367,7 @@ class ReturnIntegrationTest
 
       "successfully deletes shipping cost line item" in new LineItemFixture {
         val lineItemId = returnsApi(rma.referenceNumber).lineItems
-          .add(giftCardPayload)
+          .add(shippingCostPayload)
           .as[ReturnResponse.Root]
           .lineItems
           .shippingCosts
@@ -382,7 +382,7 @@ class ReturnIntegrationTest
 
       "successfully deletes SKU line item" in new LineItemFixture {
         val lineItemId = returnsApi(rma.referenceNumber).lineItems
-          .add(giftCardPayload)
+          .add(skuPayload)
           .as[ReturnResponse.Root]
           .lineItems
           .skus
@@ -427,7 +427,11 @@ class ReturnIntegrationTest
       giftCard ← * <~ GiftCards.create(
                     Factories.giftCard.copy(originId = gcOrigin.id,
                                             originType = GiftCard.RmaProcess))
-      shipment ← * <~ Shipments.create(Factories.shipment)
+      shippingMethod ← * <~ ShippingMethods.create(Factories.shippingMethods.head)
+      orderShippingMethod ← * <~ OrderShippingMethods.create(
+                               OrderShippingMethod.build(cordRef = order.refNum,
+                                                         method = shippingMethod))
+      shipment ← * <~ Shipments.create(Factories.shipment.copy(cordRef = order.refNum))
     } yield (returnReason, sku, giftCard, shipment)).gimme
 
     val giftCardPayload =
