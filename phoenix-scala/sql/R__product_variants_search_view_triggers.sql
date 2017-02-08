@@ -26,6 +26,7 @@ begin
 end;
 $$ language plpgsql;
 
+drop trigger if exists insert_product_variants_view_from_product_variants on product_variants;
 create trigger insert_product_variants_view_from_product_variants
   after insert on product_variants
   for each row
