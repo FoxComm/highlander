@@ -120,7 +120,7 @@ async function purchase(c) {
       obj: 'cart',
       objId: cartHash(cart.referenceNumber),
   });
-  _.map(cart.skus, async sku => {
+  _.forEach(cart.lineItems.skus, async sku => {
       const productId = _.get(sku, 'productFormId', null);
       await c.api.analytics.trackEvent({
           channel: 1,
@@ -185,7 +185,7 @@ async function purchase(c) {
       obj: 'order',
       objId: orderHash(cart.referenceNumber),
   });
-  _.map(cart.skus, async sku => {
+  _.forEach(cart.lineItems.skus, async sku => {
       const productId = _.get(sku, 'productFormId', null);
       await c.api.analytics.trackEvent({
           channel: 1,
@@ -194,7 +194,7 @@ async function purchase(c) {
           obj: 'product',
           objId: productHash(productId),
       });
-      foxApi.analytics.trackEvent({
+      await c.api.analytics.trackEvent({
           channel: 1,
           subject: 1,
           verb: 'purchase-quantity',
@@ -202,7 +202,7 @@ async function purchase(c) {
           count: sku.quantity,
           objId: productHash(productId),
       });
-      foxApi.analytics.trackEvent({
+      await c.api.analytics.trackEvent({
           channel: 1,
           subject: 1,
           verb: 'revenue',

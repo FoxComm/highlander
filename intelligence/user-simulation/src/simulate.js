@@ -82,8 +82,9 @@ async function simulate(context, stateFunctions) {
 }
 
 
-let simName = process.argv[2];
-let personaName = process.argv[3];
+let host = process.argv[2]; 
+let simName = process.argv[3];
+let personaName = process.argv[4];
 
 /*************************************
  * get simulator functions
@@ -112,13 +113,14 @@ if(_.isNil(persona)) {
   process.exit(1);
 }
 
-let home = "https://hal.foxcommerce.com";
 
 
 /*************************************
  * setup simulation context
  *************************************/
+let home = 'https://' + host;
 let stripeKey = process.env.STRIPE_PUBLISHABLE_KEY; 
+
 let context = {
   home: home,
   persona: persona,
