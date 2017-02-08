@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/FoxComm/highlander/middlewarehouse/consumers"
 	"github.com/FoxComm/metamorphosis"
@@ -11,7 +12,7 @@ const (
 	orderCheckoutCompleted = "order_checkout_completed"
 	groupId                = "orders-1"
 	clientId               = "hal-orders-consumers"
-	henhouseHost           = "henhouse.service.consul"
+	henhouseHost           = os.Getenv("HENHOUSE")
 )
 
 func main() {
