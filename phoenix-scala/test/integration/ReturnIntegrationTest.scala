@@ -21,6 +21,7 @@ import testutils.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.ReturnSeeds
 import utils.seeds.Seeds.Factories
+import cats.implicits._
 
 class ReturnIntegrationTest
     extends IntegrationTestBase
@@ -69,7 +70,7 @@ class ReturnIntegrationTest
       }
 
       "successfully cancels Return with valid reason" in new Fixture {
-        val payload  = ReturnUpdateStatePayload(state = Canceled, reasonId = Some(reason.id))
+        val payload  = ReturnUpdateStatePayload(state = Canceled, reasonId = reason.id.some)
         val response = returnsApi(rma.referenceNumber).update(payload)
         val root     = response.as[ReturnResponse.Root]
         root.state must === (Canceled)
@@ -77,23 +78,22 @@ class ReturnIntegrationTest
 
       "Cancel state should be final " in new Fixture {
         val response = returnsApi(rma.referenceNumber)
-          .update(ReturnUpdateStatePayload(state = Return.Canceled, reasonId = Some(reason.id)))
+          .update(ReturnUpdateStatePayload(state = Return.Canceled, reasonId = reason.id.some))
           .as[ReturnResponse.Root]
         response.state must === (Canceled)
 
         returnsApi(rma.referenceNumber)
-          .update(ReturnUpdateStatePayload(state = Return.Pending, reasonId = Some(reason.id)))
-          .mustFailWith400(StateTransitionNotAllowed(
-                  "Transition from Canceled to Pending is not allowed for return with referenceNumber=" + rma.referenceNumber))
+          .update(ReturnUpdateStatePayload(state = Return.Pending, reasonId = reason.id.some))
+          .mustFailWith400(
+              StateTransitionNotAllowed(Return, "Canceled", "Pending", rma.referenceNumber))
       }
 
       "Returns should be fine with state transition " in new Fixture {
-        // start as pending
         returnsApi(rma.referenceNumber).get().as[ReturnResponse.Root].state must === (
             Return.Pending)
 
         private def state(s: Return.State) = {
-          ReturnUpdateStatePayload(state = s, reasonId = Some(reason.id))
+          ReturnUpdateStatePayload(state = s, reasonId = reason.id.some)
         }
 
         returnsApi(rma.referenceNumber)
@@ -113,29 +113,28 @@ class ReturnIntegrationTest
 
         returnsApi(rma.referenceNumber)
           .update(state(Return.Pending))
-          .mustFailWith400(StateTransitionNotAllowed(
-                  "Transition from Complete to Pending is not allowed for return with referenceNumber=" + rma.referenceNumber))
+          .mustFailWith400(
+              StateTransitionNotAllowed(Return, "Complete", "Pending", rma.referenceNumber))
       }
 
       "fails to cancel Return if invalid reason provided" in new Fixture {
-        private val payload = ReturnUpdateStatePayload(state = Canceled, reasonId = Some(999))
-        val response        = returnsApi(rma.referenceNumber).update(payload)
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (InvalidCancellationReasonFailure.description)
+        private val payload = ReturnUpdateStatePayload(state = Canceled, reasonId = 999.some)
+        returnsApi(rma.referenceNumber)
+          .update(payload)
+          .mustFailWith400(InvalidCancellationReasonFailure)
       }
 
       "fails if Return is not found" in new Fixture {
         private val payload = ReturnUpdateStatePayload(state = Processing)
-        val response        = returnsApi(orderRefNotExist).update(payload)
-        response.status must === (StatusCodes.NotFound)
-        response.error must === (NotFoundFailure404(Return, orderRefNotExist).description)
+        returnsApi(orderRefNotExist)
+          .update(payload)
+          .mustFailWith404(NotFoundFailure404(Return, orderRefNotExist))
       }
     }
 
     "GET /v1/returns" - {
       "should return list of Returns" in new Fixture {
-        private val roots = returnsApi.get().as[Seq[Root]]
-        roots.size must === (1)
+        returnsApi.get().as[Seq[Root]].size must === (1)
       }
     }
 
@@ -147,10 +146,8 @@ class ReturnIntegrationTest
       }
 
       "should return failure for non-existing customer" in new Fixture {
-        private val accId = 255
-        val response      = returnsApi.getByCustomer(accId)
-        response.status must === (StatusCodes.NotFound)
-        response.error must === (NotFoundFailure404(Account, accId).description)
+        private val accountId = 255
+        returnsApi.getByCustomer(accountId).mustFailWith404(NotFoundFailure404(Account, accountId))
       }
     }
 
@@ -162,9 +159,9 @@ class ReturnIntegrationTest
       }
 
       "should return failure for non-existing order" in new Fixture {
-        val root = returnsApi.getByOrder(orderRefNotExist)
-        root.status must === (StatusCodes.NotFound)
-        root.error must === (NotFoundFailure404(Order, orderRefNotExist).description)
+        returnsApi
+          .getByOrder(orderRefNotExist)
+          .mustFailWith404(NotFoundFailure404(Order, orderRefNotExist))
       }
     }
   }
