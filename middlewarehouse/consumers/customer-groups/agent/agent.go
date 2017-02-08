@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	DefaultTimeout = 30 * time.Minute
+	DefaultTimeout = 1 * time.Minute
 )
 
 type Agent struct {

@@ -52,7 +52,11 @@ func main() {
 	)
 
 	//Initialize and start polling agent
-	groupsAgent := agent.NewAgent(phoenixClient, groupsManager, agent.SetTimeout(agentConfig.PollingInterval))
+	groupsAgent := agent.NewAgent(
+		phoenixClient,
+		groupsManager,
+		agent.SetTimeout(agentConfig.PollingInterval),
+	)
 
 	groupsAgent.Run()
 

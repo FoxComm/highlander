@@ -7,7 +7,6 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/FoxComm/highlander/middlewarehouse/common/utils"
 	"github.com/FoxComm/highlander/middlewarehouse/shared/mailchimp"
@@ -19,11 +18,9 @@ import (
 )
 
 const (
-	DefaultElasticIndex    = "admin"
 	DefaultElasticTopic    = "customers_search_view"
 	DefaultElasticSize     = 100
 	DefaultMailchimpListID = ""
-	DefaultTimeout         = 30 * time.Minute
 )
 
 type GroupsManager struct {
@@ -33,16 +30,9 @@ type GroupsManager struct {
 	esTopic       string
 	esSize        int
 	chimpListID   string
-	timeout       time.Duration
 }
 
 type ManagerOptionFunc func(*GroupsManager)
-
-func SetTimeout(t time.Duration) ManagerOptionFunc {
-	return func(m *GroupsManager) {
-		m.timeout = t
-	}
-}
 
 func SetElasticTopic(topic string) ManagerOptionFunc {
 	return func(m *GroupsManager) {
@@ -70,7 +60,6 @@ func NewGroupsManager(esClient *elastic.Client, phoenixClient phoenix.PhoenixCli
 		DefaultElasticTopic,
 		DefaultElasticSize,
 		DefaultMailchimpListID,
-		DefaultTimeout,
 	}
 
 	// set options to manager
