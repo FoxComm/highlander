@@ -8,12 +8,12 @@ import models.cord.lineitems._
 import models.inventory.Skus
 import models.payment.giftcard._
 import models.product.Mvp
-import models.returns.Return.{Canceled, Processing}
+import models.returns.Return._
 import models.returns._
 import models.shipping.{Shipments, ShippingMethods}
 import payloads.ReturnPayloads._
 import responses.ReturnResponse.Root
-import responses.{AllReturns, ReturnLockResponse, ReturnResponse}
+import responses.{ReturnLockResponse, ReturnResponse}
 import services.returns.{ReturnLineItemUpdater, ReturnLockUpdater, ReturnService}
 import testutils._
 import testutils.apis.PhoenixAdminApi
@@ -21,6 +21,7 @@ import testutils.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.ReturnSeeds
 import utils.seeds.Seeds.Factories
+import cats.implicits._
 
 class ReturnIntegrationTest
     extends IntegrationTestBase
@@ -29,8 +30,7 @@ class ReturnIntegrationTest
     with AutomaticAuth
     with BakedFixtures {
 
-  // I'm gonna move tests here once they're good
-  "Revive Retuns" - {
+  "Returns header" - {
     val orderRefNotExist = "ABC-666"
 
     "should get rma from fixture" in new Fixture {
@@ -41,12 +41,11 @@ class ReturnIntegrationTest
 
     "successfully creates new Return" in new Fixture {
       val rmaCreated = returnsApi
-        .create(ReturnCreatePayload(cordRefNum = order.refNum, returnType = Return.Standard))
+        .create(ReturnCreatePayload(cordRefNum = order.refNum, returnType = Standard))
         .as[ReturnResponse.Root]
       rmaCreated.referenceNumber must === (s"${order.refNum}.2")
       rmaCreated.customer.head.id must === (order.accountId)
       rmaCreated.storeAdmin.head.id must === (storeAdmin.accountId)
-      println("in test rmaCreated.referenceNumber " + rmaCreated.referenceNumber)
 
       val getRmaRoot = returnsApi(rmaCreated.referenceNumber).get().as[ReturnResponse.Root]
       getRmaRoot.referenceNumber must === (rmaCreated.referenceNumber)
@@ -55,159 +54,145 @@ class ReturnIntegrationTest
     }
 
     "fails to create Return with invalid order refNum provided" in new Fixture {
-      val response = returnsApi.create(
-          ReturnCreatePayload(cordRefNum = orderRefNotExist, returnType = Return.Standard))
-      response.mustFailWith404(NotFoundFailure404(Order, orderRefNotExist))
+      private val payload =
+        ReturnCreatePayload(cordRefNum = orderRefNotExist, returnType = Standard)
+      returnsApi.create(payload).mustFailWith404(NotFoundFailure404(Order, orderRefNotExist))
     }
 
     "PATCH /v1/returns/:refNum" - {
       "successfully changes status of Return" in new Fixture {
         private val payload = ReturnUpdateStatePayload(state = Processing)
-        val response        = returnsApi(rma.referenceNumber).update(payload)
-        val root            = response.as[ReturnResponse.Root]
-        root.state must === (Processing)
+        returnsApi(rma.referenceNumber).update(payload).as[ReturnResponse.Root].state must === (
+            Processing)
       }
 
       "successfully cancels Return with valid reason" in new Fixture {
-        val payload  = ReturnUpdateStatePayload(state = Canceled, reasonId = Some(reason.id))
-        val response = returnsApi(rma.referenceNumber).update(payload)
-        val root     = response.as[ReturnResponse.Root]
-        root.state must === (Canceled)
+        val payload = ReturnUpdateStatePayload(state = Canceled, reasonId = reason.id.some)
+        returnsApi(rma.referenceNumber).update(payload).as[ReturnResponse.Root].state must === (
+            Canceled)
       }
 
       "Cancel state should be final " in new Fixture {
-        val response = returnsApi(rma.referenceNumber)
-          .update(ReturnUpdateStatePayload(state = Return.Canceled, reasonId = Some(reason.id)))
+        returnsApi(rma.referenceNumber)
+          .update(ReturnUpdateStatePayload(state = Canceled, reasonId = reason.id.some))
           .as[ReturnResponse.Root]
-        response.state must === (Canceled)
+          .state must === (Canceled)
 
         returnsApi(rma.referenceNumber)
-          .update(ReturnUpdateStatePayload(state = Return.Pending, reasonId = Some(reason.id)))
-          .mustFailWith400(StateTransitionNotAllowed(
-                  "Transition from Canceled to Pending is not allowed for return with referenceNumber=" + rma.referenceNumber))
+          .update(ReturnUpdateStatePayload(state = Pending, reasonId = reason.id.some))
+          .mustFailWith400(
+              StateTransitionNotAllowed(Return, "Canceled", "Pending", rma.referenceNumber))
       }
 
       "Returns should be fine with state transition " in new Fixture {
-        // start as pending
-        returnsApi(rma.referenceNumber).get().as[ReturnResponse.Root].state must === (
-            Return.Pending)
+        returnsApi(rma.referenceNumber).get().as[ReturnResponse.Root].state must === (Pending)
 
-        private def state(s: Return.State) = {
-          ReturnUpdateStatePayload(state = s, reasonId = Some(reason.id))
+        private def state(s: State) = {
+          ReturnUpdateStatePayload(state = s, reasonId = reason.id.some)
         }
 
         returnsApi(rma.referenceNumber)
-          .update(state(Return.Processing))
+          .update(state(Processing))
           .as[ReturnResponse.Root]
-          .state must === (Return.Processing)
+          .state must === (Processing)
 
         returnsApi(rma.referenceNumber)
-          .update(state(Return.Review))
+          .update(state(Review))
           .as[ReturnResponse.Root]
-          .state must === (Return.Review)
+          .state must === (Review)
 
         returnsApi(rma.referenceNumber)
-          .update(state(Return.Complete))
+          .update(state(Complete))
           .as[ReturnResponse.Root]
-          .state must === (Return.Complete)
+          .state must === (Complete)
 
         returnsApi(rma.referenceNumber)
-          .update(state(Return.Pending))
-          .mustFailWith400(StateTransitionNotAllowed(
-                  "Transition from Complete to Pending is not allowed for return with referenceNumber=" + rma.referenceNumber))
+          .update(state(Pending))
+          .mustFailWith400(
+              StateTransitionNotAllowed(Return, "Complete", "Pending", rma.referenceNumber))
       }
 
       "fails to cancel Return if invalid reason provided" in new Fixture {
-        private val payload = ReturnUpdateStatePayload(state = Canceled, reasonId = Some(999))
-        val response        = returnsApi(rma.referenceNumber).update(payload)
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (InvalidCancellationReasonFailure.description)
+        private val payload = ReturnUpdateStatePayload(state = Canceled, reasonId = 999.some)
+        returnsApi(rma.referenceNumber)
+          .update(payload)
+          .mustFailWith400(InvalidCancellationReasonFailure)
       }
 
       "fails if Return is not found" in new Fixture {
         private val payload = ReturnUpdateStatePayload(state = Processing)
-        val response        = returnsApi(orderRefNotExist).update(payload)
-        response.status must === (StatusCodes.NotFound)
-        response.error must === (NotFoundFailure404(Return, orderRefNotExist).description)
+        returnsApi(orderRefNotExist)
+          .update(payload)
+          .mustFailWith404(NotFoundFailure404(Return, orderRefNotExist))
       }
     }
 
     "GET /v1/returns" - {
       "should return list of Returns" in new Fixture {
-        private val roots = returnsApi.get().as[Seq[Root]]
-        roots.size must === (1)
+        returnsApi.get().as[Seq[Root]].size must === (1)
       }
     }
 
     "GET /v1/returns/customer/:id" - {
       "should return list of Returns of existing customer" in new Fixture {
-        val root = returnsApi.getByCustomer(customer.accountId).as[Seq[AllReturns.Root]]
+        val root = returnsApi.getByCustomer(customer.accountId).as[Seq[ReturnResponse.Root]]
         root.size must === (1)
         root.head.referenceNumber must === (rma.refNum)
       }
 
       "should return failure for non-existing customer" in new Fixture {
-        private val accId = 255
-        val response      = returnsApi.getByCustomer(accId)
-        response.status must === (StatusCodes.NotFound)
-        response.error must === (NotFoundFailure404(Account, accId).description)
+        private val accountId = 255
+        returnsApi.getByCustomer(accountId).mustFailWith404(NotFoundFailure404(Account, accountId))
       }
     }
 
     "GET /v1/returns/order/:refNum" - {
       "should return list of Returns of existing order" in new Fixture {
-        val root = returnsApi.getByOrder(order.referenceNumber).as[Seq[AllReturns.Root]]
+        val root = returnsApi.getByOrder(order.referenceNumber).as[Seq[ReturnResponse.Root]]
         root.size must === (1)
         root.head.referenceNumber must === (rma.refNum)
       }
 
       "should return failure for non-existing order" in new Fixture {
-        val root = returnsApi.getByOrder(orderRefNotExist)
-        root.status must === (StatusCodes.NotFound)
-        root.error must === (NotFoundFailure404(Order, orderRefNotExist).description)
+        returnsApi
+          .getByOrder(orderRefNotExist)
+          .mustFailWith404(NotFoundFailure404(Order, orderRefNotExist))
       }
     }
-  }
-
-  "Returns" - {
-    pending
 
     "POST /v1/returns/:refNum/message" - {
-      "successfully manipulates with message to the customer" in new Fixture {
-        // Creates message
-        val payload  = ReturnMessageToCustomerPayload(message = "Hello!")
-        val response = POST(s"v1/returns/${rma.referenceNumber}/message", payload)
-        response.status must === (StatusCodes.OK)
+      "successfully sends message to the customer" in new Fixture {
+        val payload = ReturnMessageToCustomerPayload(message = "Hello!")
+        returnsApi(rma.refNum)
+          .message(payload)
+          .as[ReturnResponse.Root]
+          .messageToCustomer
+          .head must === (payload.message)
 
-        val root = response.as[ReturnResponse.Root]
-        root.messageToCustomer.head must === (payload.message)
-
-        // Edits (cleans) message
-        val responseClean = POST(s"v1/returns/${rma.referenceNumber}/message",
-                                 ReturnMessageToCustomerPayload(message = ""))
-        responseClean.status must === (StatusCodes.OK)
-
-        val rootClean = responseClean.as[ReturnResponse.Root]
-        rootClean.messageToCustomer must === (None)
+        returnsApi(rma.refNum)
+          .message(ReturnMessageToCustomerPayload(message = ""))
+          .as[ReturnResponse.Root]
+          .messageToCustomer must === (None)
       }
 
       "fails if Return not found" in new Fixture {
-        val payload  = ReturnMessageToCustomerPayload(message = "Hello!")
-        val response = POST(s"v1/returns/99/message", payload)
-
-        response.status must === (StatusCodes.NotFound)
-        response.error must === (NotFoundFailure404(Return, "99").description)
+        private val rmaId = "99"
+        val payload       = ReturnMessageToCustomerPayload(message = "Hello!")
+        returnsApi(rmaId).message(payload).mustFailWith404(NotFoundFailure404(Return, rmaId))
       }
 
       "fails if message is too long" in new Fixture {
         val payload = ReturnMessageToCustomerPayload(
-            message = List.fill(Return.messageToAccountMaxLength)("Yax").mkString)
-        val response = POST(s"v1/returns/99/message", payload)
-
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === ("Message length got 3000, expected 1000 or less")
+            message = List.fill(messageToAccountMaxLength)("Yax").mkString)
+        returnsApi(rma.refNum)
+          .message(payload)
+          .mustFailWith400(GeneralFailure("Message length got 3000, expected 1000 or less"))
       }
     }
+  }
+
+  "Return locks" - { // todo implement later, not critical for mvp
+    pending
 
     "GET /v1/returns/:refNum/lock" - {
       "returns lock info on locked Return" in new Fixture {

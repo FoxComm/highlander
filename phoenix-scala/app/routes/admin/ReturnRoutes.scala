@@ -34,9 +34,9 @@ object ReturnRoutes {
           }
         } ~
         pathPrefix("returns" / "customer") {
-          (get & path(IntNumber) & pathEnd) { refNum ⇒
+          (get & path(IntNumber) & pathEnd) { customerId ⇒
             getOrFailures {
-              ReturnService.getByCustomer(refNum)
+              ReturnService.getByCustomer(customerId)
             }
           }
         } ~

@@ -72,21 +72,21 @@ object ReturnService {
   def list(implicit ec: EC, db: DB): DbResultT[Seq[Root]] =
     for {
       rma      ← * <~ Returns.result
-      response ← * <~ rma.map(r ⇒ fromRma(r))
+      response ← * <~ rma.map(fromRma)
     } yield response
 
   def getByCustomer(customerId: Int)(implicit ec: EC, db: DB): DbResultT[Seq[Root]] =
     for {
       _        ← * <~ Accounts.mustFindById404(customerId)
       rma      ← * <~ Returns.findByAccountId(customerId).result
-      response ← * <~ rma.map(r ⇒ fromRma(r))
+      response ← * <~ rma.map(fromRma)
     } yield response
 
   def getByOrder(refNum: String)(implicit ec: EC, db: DB): DbResultT[Seq[Root]] =
     for {
       _        ← * <~ Orders.mustFindByRefNum(refNum)
       rma      ← * <~ Returns.findByOrderRefNum(refNum).result
-      response ← * <~ rma.map(r ⇒ fromRma(r))
+      response ← * <~ rma.map(fromRma)
     } yield response
 
   def getByRefNum(refNum: String)(implicit ec: EC, db: DB): DbResultT[Root] =
