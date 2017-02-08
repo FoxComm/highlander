@@ -11,6 +11,10 @@
       "UNIQUE"
     ]
   ],
+  "labels": {
+    "LAYER": "consumer",
+    "LANG": "perl6"
+  },
   "container": {
     "type": "DOCKER",
     "volumes": [],
@@ -25,7 +29,7 @@
   "env": {
     "KAFKA": "kafka.service.consul",
     "HENHOUSE": "henhouse.service.consul",
-    "TOPIC": "nginx"
+    "TOPIC": "nginx-access"
   },
   "healthChecks": [
     {
