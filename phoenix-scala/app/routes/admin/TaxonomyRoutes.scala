@@ -16,7 +16,7 @@ object TaxonomyRoutes {
   def routes(implicit ec: EC, db: DB, auth: AuthData[User]): Route = {
 
     activityContext(auth.model) { implicit ac ⇒
-      pathPrefix("taxonomy") {
+      pathPrefix("taxonomies") {
         pathPrefix(Segment) { contextName ⇒
           adminObjectContext(contextName) { implicit context ⇒
             (post & pathEnd & entity(as[CreateTaxonomyPayload])) { payload ⇒
@@ -48,7 +48,7 @@ object TaxonomyRoutes {
           }
         }
       } ~
-      pathPrefix("taxon") {
+      pathPrefix("taxons") {
 
         pathPrefix(Segment) { contextName ⇒
           adminObjectContext(contextName) { implicit context ⇒

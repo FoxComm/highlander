@@ -32,9 +32,9 @@ class TaxonomyIntegrationTest
       )
 
   def queryGetTaxonomy(formId: Int): FullTaxonomyResponse =
-    taxonomyApi(formId).get.as[FullTaxonomyResponse]
+    taxonomiesApi(formId).get.as[FullTaxonomyResponse]
 
-  "GET v1/taxonomy/:contextName/:taxonomyFormId" - {
+  "GET v1/taxonomies/:contextName/:taxonomyFormId" - {
     "gets taxonomy" in new TaxonomyFixture {
       val response = queryGetTaxonomy(taxonomy.formId)
       response.id must === (taxonomy.formId)
@@ -53,37 +53,37 @@ class TaxonomyIntegrationTest
     }
   }
 
-  "POST v1/taxonomy/:contextName" - {
+  "POST v1/taxonomies/:contextName" - {
     "creates taxonomy" in {
       val payload = CreateTaxonomyPayload(Map("name" → (("t" → "string") ~ ("v" → "name"))),
                                           hierarchical = false,
                                           scope = None)
-      val taxonResp = taxonomyApi.create(payload).as[FullTaxonomyResponse]
+      val taxonResp = taxonomiesApi.create(payload).as[FullTaxonomyResponse]
       queryGetTaxonomy(taxonResp.id) must === (taxonResp)
       taxonResp.attributes must === (JObject(payload.attributes.toList: _*))
       taxonResp.taxons mustBe empty
     }
   }
 
-  "PATCH v1/taxonomy/:contextName/:taxonomyFormId" - {
+  "PATCH v1/taxonomies/:contextName/:taxonomyFormId" - {
     "updates taxonomy" in new TaxonomyFixture {
       val newAttributes = taxonomyAttributes + ("testValue" → (("t" → "string") ~ ("v" → "test")))
       val payload       = UpdateTaxonomyPayload(newAttributes)
-      val taxonomyResp  = taxonomyApi(taxonomy.formId).update(payload).as[FullTaxonomyResponse]
+      val taxonomyResp  = taxonomiesApi(taxonomy.formId).update(payload).as[FullTaxonomyResponse]
       taxonomyResp.attributes must === (JObject(payload.attributes.toList: _*))
     }
   }
 
-  "DELETE v1/taxonomy/:contextName/:taxonomyFormId" - {
+  "DELETE v1/taxonomies/:contextName/:taxonomyFormId" - {
     "deletes taxonomy" in new TaxonomyFixture {
-      val resp = taxonomyApi(taxonomy.formId).delete
+      val resp = taxonomiesApi(taxonomy.formId).delete
       resp.status must === (StatusCodes.NoContent)
       val updatedTaxonomy = Taxonomies.mustFindByFormId404(taxonomy.formId).gimme
       updatedTaxonomy.archivedAt mustBe defined
     }
 
     "deletes taxonomy with all related taxons" in new HierarchyTaxonsFixture {
-      val resp = taxonomyApi(taxonomy.formId).delete
+      val resp = taxonomiesApi(taxonomy.formId).delete
       resp.status must === (StatusCodes.NoContent)
 
       val allLinks: Seq[TaxonomyTaxonLink] =
@@ -94,12 +94,12 @@ class TaxonomyIntegrationTest
     }
   }
 
-  "GET v1/taxon/:contextName/:taxonFormId" - {
+  "GET v1/taxons/:contextName/:taxonFormId" - {
     "gets taxon" in new FlatTaxonsFixture {
       private val taxonToQuery: ModelTaxon = taxons.head
       val taxonToQueryName                 = taxonNames.head
 
-      val response      = taxonApi(taxonToQuery.formId).get.as[SingleTaxonResponse]
+      val response      = taxonsApi(taxonToQuery.formId).get.as[SingleTaxonResponse]
       val responseTaxon = response.taxon
 
       responseTaxon.id must === (taxonToQuery.formId)
@@ -107,10 +107,10 @@ class TaxonomyIntegrationTest
     }
   }
 
-  "POST v1/taxonomy/:contextName/:taxonomyFormId" - {
+  "POST v1/taxonomies/:contextName/:taxonomyFormId" - {
     "creates taxon" in new TaxonomyFixture {
       private val taxonName: String = "name"
-      val response = taxonomyApi(taxonomy.formId)
+      val response = taxonomiesApi(taxonomy.formId)
         .createTaxon(CreateTaxonPayload(taxonName, None))
         .as[SingleTaxonResponse]
       val createdTaxon = response.taxon
@@ -123,7 +123,7 @@ class TaxonomyIntegrationTest
     }
 
     "creates taxon at position" in new FlatTaxonsFixture {
-      val response = taxonomyApi(taxonomy.formId)
+      val response = taxonomiesApi(taxonomy.formId)
         .createTaxon(
             CreateTaxonPayload("name",
                                location = TaxonLocation(parent = None, position = 1.some).some))
@@ -137,7 +137,7 @@ class TaxonomyIntegrationTest
     }
 
     "creates taxon at last position" in new FlatTaxonsFixture {
-      val response = taxonomyApi(taxonomy.formId)
+      val response = taxonomiesApi(taxonomy.formId)
         .createTaxon(
             CreateTaxonPayload("name",
                                location = TaxonLocation(parent = None, position = None).some))
@@ -158,7 +158,7 @@ class TaxonomyIntegrationTest
       val siblingFormId = Taxons.mustFindById404(sibling.taxonId).gimme.formId
       val parentFormId  = Taxons.mustFindById404(parent.taxonId).gimme.formId
 
-      val response = taxonomyApi(taxonomy.formId)
+      val response = taxonomiesApi(taxonomy.formId)
         .createTaxon(CreateTaxonPayload("name", TaxonLocation(parentFormId.some, Some(0)).some))
         .as[SingleTaxonResponse]
       val createdTaxon = response.taxon
@@ -175,7 +175,7 @@ class TaxonomyIntegrationTest
 
       val parentFormId = Taxons.mustFindById404(parent.taxonId).gimme.formId
 
-      val resp = taxonomyApi(taxonomy.formId).createTaxon(
+      val resp = taxonomiesApi(taxonomy.formId).createTaxon(
           CreateTaxonPayload("name",
                              Some(TaxonLocation(Some(parentFormId), Some(Integer.MAX_VALUE)))))
 
@@ -184,7 +184,7 @@ class TaxonomyIntegrationTest
     }
   }
 
-  "PATCH v1/taxonomy/:contextName/taxon/:termFormId" - {
+  "PATCH v1/taxonomies/:contextName/taxon/:termFormId" - {
     "moves taxons between subtrees" in new HierarchyTaxonsFixture {
       val taxonsBefore = queryGetTaxonomy(taxonomy.formId).taxons
 
@@ -192,7 +192,7 @@ class TaxonomyIntegrationTest
       val taxonToMoveId     = left.children.head.taxon.id
       val newParentId       = right.taxon.id
 
-      val resp = taxonApi(taxonToMoveId).update(
+      val resp = taxonsApi(taxonToMoveId).update(
           UpdateTaxonPayload(None, TaxonLocation(newParentId.some, Some(0)).some))
       resp.status must === (StatusCodes.OK)
 
@@ -212,16 +212,16 @@ class TaxonomyIntegrationTest
       val newParentId   = left.children.head.taxon.id
       val taxonToMoveId = left.taxon.id
 
-      val resp = taxonApi(taxonToMoveId).update(
+      val resp = taxonsApi(taxonToMoveId).update(
           UpdateTaxonPayload(None, TaxonLocation(newParentId.some, Some(0)).some))
       resp.status must === (StatusCodes.BadRequest)
       resp.error must === (CannotMoveParentTaxonUnderChild.description)
     }
   }
 
-  "DELETE v1/taxonomy/:contextName/taxon/:taxonFormId" - {
+  "DELETE v1/taxonomies/:contextName/taxon/:taxonFormId" - {
     "deletes taxon" in new FlatTaxonsFixture {
-      val resp = taxonApi(taxons.head.formId).delete
+      val resp = taxonsApi(taxons.head.formId).delete
       resp.status must === (StatusCodes.NoContent)
 
       val taxon = Taxons.mustFindByFormId404(taxons.head.formId).gimme
@@ -232,7 +232,7 @@ class TaxonomyIntegrationTest
       val parent         = links.filter(_.parentIndex.isDefined).head
       val taxonToArchive = Taxons.mustFindById404(parent.taxonId).gimme
 
-      val resp = taxonApi(taxonToArchive.formId).delete
+      val resp = taxonsApi(taxonToArchive.formId).delete
       resp.status must === (StatusCodes.BadRequest)
       resp.error must === (CannotArchiveParentTaxon(taxonToArchive.formId).description)
     }
@@ -297,7 +297,7 @@ class TaxonomyIntegrationTest
       val newName       = "new name"
       val newAttributes = taxonomyAttributes + ("name" → (("t" → "string") ~ ("v" → newName)))
 
-      val resp = taxonomyApi(taxonomy.formId).update(UpdateTaxonomyPayload(newAttributes))
+      val resp = taxonomiesApi(taxonomy.formId).update(UpdateTaxonomyPayload(newAttributes))
       resp.status must === (StatusCodes.OK)
 
       val taxonomies = selectByTaxonId(taxonomy.id)
@@ -310,7 +310,7 @@ class TaxonomyIntegrationTest
 
   "Taxon is assigned to a product" in new ProductAndSkus_Baked with FlatTaxonsFixture {
     private val taxonToBeAssigned: ObjectForm#Id = taxons.head.formId
-    taxonApi(taxonToBeAssigned).assignProduct(simpleProduct.formId).mustBeOk
+    taxonsApi(taxonToBeAssigned).assignProduct(simpleProduct.formId).mustBeOk
 
     val productTaxons =
       productsApi(simpleProduct.formId).taxons.get.as[Seq[AssignedTaxonsResponse]]
@@ -319,8 +319,8 @@ class TaxonomyIntegrationTest
 
   "Taxon is unassigned to a product" in new ProductAndSkus_Baked with FlatTaxonsFixture {
     private val taxonToBeAssigned: ObjectForm#Id = taxons.head.formId
-    taxonApi(taxonToBeAssigned).assignProduct(simpleProduct.formId).mustBeOk()
-    taxonApi(taxonToBeAssigned).unassignProduct(simpleProduct.formId).mustBeOk()
+    taxonsApi(taxonToBeAssigned).assignProduct(simpleProduct.formId).mustBeOk()
+    taxonsApi(taxonToBeAssigned).unassignProduct(simpleProduct.formId).mustBeOk()
 
     val productTaxons =
       productsApi(simpleProduct.formId).taxons.get.as[Seq[AssignedTaxonsResponse]]
