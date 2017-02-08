@@ -3,14 +3,14 @@ package models.search
 import java.time.Instant
 
 import com.pellucid.sealerate
-import models.search.SearchField.Analyzer
 import shapeless.{Lens, lens}
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import utils.ADT
 import utils.db._
 import utils.db.ExPostgresDriver.api._
-import failures.NotFoundFailure404
+
+import payloads.SearchPayloads.FieldDefinition
 
 object SearchField {
 
@@ -27,11 +27,30 @@ object SearchField {
 
   implicit val analyzerColumnType: JdbcType[Analyzer] with BaseTypedType[Analyzer] =
     Analyzer.slickColumn
+
+  sealed trait FieldType
+  case object ProductField extends FieldType
+  case object OptionField  extends FieldType
+
+  object FieldType extends ADT[FieldType] {
+    def types = sealerate.values[FieldType]
+  }
+
+  implicit val fieldColumnType: JdbcType[FieldType] with BaseTypedType[FieldType] =
+    FieldType.slickColumn
+
+  def fromPayload(payload: FieldDefinition, indexId: Int): SearchField = {
+    SearchField(name = payload.name,
+                analyzer = payload.analyzer,
+                indexId = indexId,
+                `type` = payload.`type`)
+  }
 }
 
 case class SearchField(id: Int = 0,
                        name: String,
-                       analyzer: Analyzer,
+                       `type`: SearchField.FieldType,
+                       analyzer: SearchField.Analyzer,
                        indexId: SearchIndex#Id,
                        createdAt: Instant = Instant.now,
                        updatedAt: Instant = Instant.now,
@@ -41,7 +60,8 @@ case class SearchField(id: Int = 0,
 class SearchFields(tag: Tag) extends FoxTable[SearchField](tag, "search_fields") {
   def id       = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def name     = column[String]("name")
-  def analyzer = column[Analyzer]("analyzer")
+  def `type`   = column[SearchField.FieldType]("type")
+  def analyzer = column[SearchField.Analyzer]("analyzer")
   def indexId  = column[SearchIndex#Id]("index_id")
 
   def createdAt = column[Instant]("created_at")
@@ -51,7 +71,7 @@ class SearchFields(tag: Tag) extends FoxTable[SearchField](tag, "search_fields")
   def index = foreignKey(SearchIndexes.tableName, indexId, SearchIndexes)(_.id)
 
   def * =
-    (id, name, analyzer, indexId, createdAt, updatedAt, deletedAt) <> ((SearchField.apply _).tupled, SearchField.unapply)
+    (id, name, `type`, analyzer, indexId, createdAt, updatedAt, deletedAt) <> ((SearchField.apply _).tupled, SearchField.unapply)
 }
 
 object SearchFields

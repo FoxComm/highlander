@@ -43,5 +43,5 @@ object JsonFormatters {
       QueryStatement.Comparison.jsonFormat + Condition.Operator.jsonFormat +
       PaymentMethod.Type.jsonFormat + SkuType.jsonFormat + SharedSearch.Scope.jsonFormat +
       IdentityKind.jsonFormat + AdminData.State.jsonFormat + PluginSettings.SettingType.jsonFormat +
-      AuthPayload.JwtClaimsSerializer + SearchField.Analyzer.jsonFormat
+      AuthPayload.JwtClaimsSerializer + SearchField.Analyzer.jsonFormat + SearchField.FieldType.jsonFormat
 }
