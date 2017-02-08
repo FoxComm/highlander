@@ -9,7 +9,7 @@ using headless webkit and another hitting the API directly for more performance 
 
 #Running
 
-`./run.sh 100% api McShopFace`
+`./run.sh 100% hal.foxcommerce.com api McShopFace`
 
 | Directory                              | Description                                                                                                  |
 |:---------------------------------------|:-------------------------------------------------------------------------------------------------------------|

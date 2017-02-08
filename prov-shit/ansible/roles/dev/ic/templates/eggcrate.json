@@ -5,6 +5,10 @@
   "mem": 64,
   "disk": 0,
   "instances": 1,
+  "labels": {
+    "LAYER": "backend",
+    "LANG": "go"
+  },
   "container": {
     "type": "DOCKER",
     "docker": {
@@ -16,7 +20,7 @@
     }
   },
   "env": {
-      "API_URL": "https://{{storefront_server_name}}"
+      "API_URL": "http://{{storefront_server_name}}"
   },
   "healthChecks": [
     {
