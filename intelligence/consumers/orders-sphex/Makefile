@@ -1,12 +1,12 @@
 include ../../../makelib
-header = $(call baseheader, $(1), orders-consumer)
+header = $(call baseheader, $(1), orders-sphex)
 
 DOCKER_REPO ?= $(DOCKER_STAGE_REPO)
-DOCKER_IMAGE ?= orders-consumer
+DOCKER_IMAGE ?= orders-sphex
 DOCKER_TAG ?= master
 
 build:
-	GOOS=linux CGO_ENABLED=0 go build -o orders-consumer ./*.go
+	GOOS=linux CGO_ENABLED=0 go build -o orders-sphex ./*.go
 
 docker:
 	$(call header, Dockerizing)
@@ -18,4 +18,4 @@ docker-push:
 	docker push $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
 
 clean:
-	rm -rf ./pkg orders-consumer
+	rm -rf ./pkg orders-sphex
