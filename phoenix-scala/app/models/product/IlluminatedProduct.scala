@@ -50,6 +50,10 @@ object IlluminatedProduct {
       product     ← * <~ illuminateWithDependents(coreProduct)
     } yield product
 
+  def create(product: IlluminatedProduct)(implicit ec: EC, oc: OC): DbResultT[IlluminatedProduct] = {
+    DbResultT.pure(product)
+  }
+
   private def illuminateWithDependents(product: FullObject[Product])(implicit ec: EC, oc: OC) =
     (for {
       skus     ← * <~ IlluminatedSku.findAllByProductId(product.model.id)
