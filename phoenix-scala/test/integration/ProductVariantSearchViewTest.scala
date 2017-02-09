@@ -2,20 +2,13 @@ import java.time.Instant
 
 import cats.implicits._
 import models.objects.ObjectContexts
-import org.json4s.jackson.parseJson
 import payloads.ImagePayloads.{AlbumPayload, ImagePayload}
 import responses.ProductVariantResponses.ProductVariantResponse
 import testutils._
-import testutils.apis.PhoenixAdminApi
-import testutils.fixtures.api._
 import testutils.fixtures.api.products._
-import utils.MockedApis
 import utils.Money.Currency
 import utils.aliases.Json
 import utils.db.ExPostgresDriver.api._
-
-// TODO @anna move to separate test root
-// TODO @anna extract query to shared package
 
 case class ProductVariantSearchViewResult(id: Int,
                                           variantId: Int,
@@ -34,25 +27,11 @@ case class ProductVariantSearchViewResult(id: Int,
                                           scope: String,
                                           middlewarehouseSkuId: Int)
 
-class ProductVariantSearchViewTest
-    extends IntegrationTestBase
-    with PhoenixAdminApi
-    with AutomaticAuth
-    with ApiFixtures
-    with MockedApis {
+class ProductVariantSearchViewTest extends SearchViewTestBase {
 
+  type SearchViewResult = ProductVariantSearchViewResult
   val searchViewName: String = "product_variants_search_view"
-
-  def findOneInSearchView(id: Int): ProductVariantSearchViewResult = {
-    val query =
-      sql"select array_to_json(array_agg(sv)) from #$searchViewName as sv where sv.variant_id=#$id"
-        .as[String]
-    val jsonString = query.gimme.onlyElement
-    withClue("Query result was empty. Slick returns Vector(null) instead of empty Vector.\n") {
-      jsonString must not be null
-    }
-    parseJson(jsonString).camelizeKeys.extract[Seq[ProductVariantSearchViewResult]].onlyElement
-  }
+  val searchKeyName: String  = "variant_id"
 
   def priceAsString(attrs: Json, field: String): String =
     (attrs \ field \ "v" \ "value").extract[String]
