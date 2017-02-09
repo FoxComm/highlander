@@ -62,6 +62,8 @@ begin
     return null;
 end;
 $$ language plpgsql;
+
+drop trigger if exists update_product_variants_view_from_object_head_and_shadows on product_variants;
 create trigger update_product_variants_view_from_object_head_and_shadows
   after update on product_variants
   for each row
@@ -90,6 +92,8 @@ begin
     return null;
 end;
 $$ language plpgsql;
+
+drop trigger if exists update_product_variants_view_from_object_forms on object_contexts;
 create trigger update_product_variants_view_from_object_forms
   after update or insert on object_contexts
   for each row
@@ -126,10 +130,14 @@ begin
     return null;
 end;
 $$ language plpgsql;
+
+drop trigger if exists update_product_variants_view_image on product_album_links_view;
 create trigger update_product_variants_view_image
   after insert or update on product_album_links_view
   for each row
   execute procedure update_product_variants_view_image_fn();
+
+drop trigger if exists update_product_variants_view_image on product_to_variant_links;
 create trigger update_product_variants_view_image
   after insert or update on product_to_variant_links
   for each row
