@@ -37,7 +37,6 @@ type Activity struct {
 }
 
 type OrderConsumer struct {
-	henhouseHost string
 	henhouseConn net.Conn
 }
 
@@ -50,12 +49,12 @@ func NewOrderConsumer(henhouseHost string) (*OrderConsumer, error) {
 		return nil, errors.New("henhouse host is required")
 	}
 
-	conn, err := net.Dial("tcp", henhouseHost+":2003")
+	henhouseConn, err := net.Dial("tcp", henhouseHost+":2003")
 	if err != nil {
 		return nil, fmt.Errorf("Unable to connect to henhouse with error %s", err.Error())
 	}
 
-	return &OrderConsumer{henhouseHost, conn}, nil
+	return &OrderConsumer{henhouseConn}, nil
 }
 
 func (o OrderConsumer) parseData(data string) error {
