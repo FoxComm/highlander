@@ -6,6 +6,9 @@ import failures.CustomerGroupFailures.CustomerGroupMemberCannotBeDeleted
 import failures.NotFoundFailure404
 import models.account.{Scope, User}
 import models.customer._
+import org.json4s._
+import org.json4s.jackson.JsonMethods._
+import org.json4s.JsonDSL._
 import payloads.CustomerGroupPayloads.CustomerGroupPayload
 import responses.GroupResponses.GroupResponse.{Root, build}
 import services.LogActivity
@@ -71,8 +74,13 @@ object GroupManager {
       scope ← * <~ Scope.resolveOverride(payload.scope)
       group ← * <~ CustomerGroups.create(
                  CustomerGroup.fromPayloadAndAdmin(payload, admin.accountId, scope))
-      _ ← * <~ LogActivity.customerGroupCreated(group, admin)
-    } yield build(group)
+      updated ← * <~ {
+                 if (group.elasticRequest == JObject() || group.elasticRequest == JNull)
+                   updateWithGroupIdQuery(group)
+                 else DbResultT.good(group)
+               }
+      _ ← * <~ LogActivity.customerGroupCreated(updated, admin)
+    } yield build(updated)
 
   private def createTemplateGroup(templateId: Int, payload: CustomerGroupPayload, admin: User)(
       implicit ec: EC,
@@ -90,4 +98,11 @@ object GroupManager {
                                    scope = scope))
       _ ← * <~ LogActivity.customerGroupCreated(group, admin)
     } yield build(group)
+
+  private def updateWithGroupIdQuery(
+      group: CustomerGroup)(implicit ec: EC, db: DB, au: AU, ac: AC): DbResultT[CustomerGroup] = {
+    val groupQuery = ("query" → ("bool" → ("filter" → ("term" → ("groups" → group.id)))))
+    CustomerGroups.update(group, group.copy(elasticRequest = groupQuery))
+  }
+
 }
