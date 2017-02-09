@@ -9,6 +9,10 @@ build:
 	$(call header, Building)
 	GOOS=linux CGO_ENABLED=0 go build -o orders-sphex ./*.go
 
+test:
+	$(call header, Testing)
+	true
+
 docker:
 	$(call header, Dockerizing)
 	docker build -t $(DOCKER_IMAGE) .
