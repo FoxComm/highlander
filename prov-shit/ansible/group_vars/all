@@ -54,7 +54,7 @@ docker_tags:
     eggcrate: master
     river_rock: master
     digger_sphex: master
-    orders-sphex: master
+    orders_sphex: master
 
 # Consul Service Discovery
 consul_data_dir: /var/consul

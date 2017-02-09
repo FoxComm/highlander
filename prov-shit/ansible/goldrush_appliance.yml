@@ -36,6 +36,7 @@
         eggcrate: "{{ lookup('env', 'DOCKER_TAG_EGGCRATE') | default('master') }}"
         river_rock: "{{ lookup('env', 'DOCKER_TAG_RIVER_ROCK') | default('master') }}"
         digger_sphex: "{{ lookup('env', 'DOCKER_TAG_DIGGER_SPHEX') | default('master') }}"
+        orders_sphex: "{{ lookup('env', 'DOCKER_TAG_ORDERS_SPHEX') | default('master') }}"
 
     install_public_keys: true
     install_private_keys: true

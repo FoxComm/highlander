@@ -8,7 +8,7 @@
   "container": {
     "type": "DOCKER",
     "docker": {
-      "image": "{{docker_registry}}:5000/orders-sphex:{{docker_tags.orders-sphex}}",
+      "image": "{{docker_registry}}:5000/orders-sphex:{{docker_tags.orders_sphex}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],
