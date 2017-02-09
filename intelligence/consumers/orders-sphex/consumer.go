@@ -17,6 +17,7 @@ import (
 type Sku struct {
 	ProductId int `json:"productFormId"`
 	Quantity  int `json:"quantity"`
+	Price     int `json:"price"`
 }
 
 type LineItems struct {
@@ -30,6 +31,7 @@ type Customer struct {
 type Order struct {
 	Customer  Customer  `json:"customer"`
 	LineItems LineItems `json:"lineItems"`
+	RefNum    string    `json:"referenceNumber"`
 }
 
 type Activity struct {
@@ -57,6 +59,14 @@ func NewOrderConsumer(henhouseHost string) (*OrderConsumer, error) {
 	return &OrderConsumer{henhouseConn}, nil
 }
 
+func (o OrderConsumer) productHash(prodId int) [20]byte {
+	return sha1.Sum([]byte("products/" + strconv.Itoa(prodId)))
+}
+
+func (o OrderConsumer) orderHash(refnum string) [20]byte {
+	return sha1.Sum([]byte("orders/" + refnum))
+}
+
 func (o OrderConsumer) parseData(data string) error {
 	act := Activity{}
 	jsonErr := json.Unmarshal([]byte(data), &act)
@@ -64,30 +74,38 @@ func (o OrderConsumer) parseData(data string) error {
 		return jsonErr
 	}
 
+	err := o.track(o.orderHash(act.Order.RefNum), "order", "puchase", act.Order.Customer.Id, 1)
+	if err != nil {
+		return err
+	}
+
 	skus := act.Order.LineItems.Skus
 	for i := 0; i < len(skus); i++ {
-		err := o.track(act.Order.Customer.Id, skus[i].ProductId, skus[i].Quantity)
-		if err != nil {
-			return err
+		err1 := o.track(o.productHash(skus[i].ProductId), "product", "purchase", act.Order.Customer.Id, skus[i].Quantity)
+		if err1 != nil {
+			return err1
+		}
+		err2 := o.track(o.productHash(skus[i].ProductId), "product", "revenue", act.Order.Customer.Id, skus[i].Price)
+		if err2 != nil {
+			return err2
 		}
 	}
 
 	return nil
 }
 
-func (o OrderConsumer) track(custId, prodId, quantity int) error {
-	hash := sha1.Sum([]byte("products/" + strconv.Itoa(prodId)))
+func (o OrderConsumer) track(hash [20]byte, object, verb string, custId, quantity int) error {
 	datetime := time.Now().Unix()
 	channel := 1
 
-	fmt.Fprintf(o.henhouseConn, "track.%d.product.%x.purchase.%d %d %d\n", channel, hash, custId, quantity, datetime)
-	fmt.Fprintf(o.henhouseConn, "track.%d.product.%x.purchase %d %d\n", channel, hash, quantity, datetime)
-	fmt.Fprintf(o.henhouseConn, "track.%d.product.purchase %d %d\n", channel, quantity, datetime)
-	fmt.Fprintf(o.henhouseConn, "track.product.%x.purchase.%d %d %d\n", hash, custId, quantity, datetime)
-	fmt.Fprintf(o.henhouseConn, "track.product.%x.purchase %d %d\n", hash, quantity, datetime)
-	fmt.Fprintf(o.henhouseConn, "track.product.purchase %d %d\n", quantity, datetime)
-	fmt.Fprintf(o.henhouseConn, "track.purchase.%d %d %d\n", custId, quantity, datetime)
-	fmt.Fprintf(o.henhouseConn, "track.purchase %d %d\n", quantity, datetime)
+	fmt.Fprintf(o.henhouseConn, "track.%d.%s.%x.%s.%d %d %d\n", channel, object, hash, verb, custId, quantity, datetime)
+	fmt.Fprintf(o.henhouseConn, "track.%d.%s.%x.%s %d %d\n", channel, object, hash, verb, quantity, datetime)
+	fmt.Fprintf(o.henhouseConn, "track.%d.%s.%s %d %d\n", channel, object, verb, quantity, datetime)
+	fmt.Fprintf(o.henhouseConn, "track.%s.%x.%s.%d %d %d\n", object, hash, verb, custId, quantity, datetime)
+	fmt.Fprintf(o.henhouseConn, "track.%s.%x.%s %d %d\n", object, hash, verb, quantity, datetime)
+	fmt.Fprintf(o.henhouseConn, "track.%s.%s %d %d\n", object, verb, quantity, datetime)
+	fmt.Fprintf(o.henhouseConn, "track.%s.%d %d %d\n", verb, custId, quantity, datetime)
+	fmt.Fprintf(o.henhouseConn, "track.%s %d %d\n", verb, quantity, datetime)
 
 	return nil
 }
