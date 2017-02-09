@@ -80,8 +80,8 @@ class ProductInvariantIT
 
         val reusedVariant = productsApi.create(createPayload2).as[Root].variants.onlyElement
         reusedVariant.attributes.code must === (variantCode)
-        (reusedVariant.attributes \ "salePrice" \ "v" \ "value").extract[Int] must === (newPrice)
-        (reusedVariant.attributes \ "retailPrice" \ "v" \ "value").extract[Int] must === (newPrice)
+        reusedVariant.attributes.salePrice must === (newPrice)
+        reusedVariant.attributes.retailPrice must === (newPrice)
         reusedVariant.albums must have size 1
       }
 

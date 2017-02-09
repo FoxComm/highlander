@@ -152,6 +152,8 @@ object ProductVariantManager {
       scope ← * <~ Scope.resolveOverride(payload.scope)
       code  ← * <~ mustGetSkuCode(payload)
       ins   ← * <~ ObjectUtils.insert(form, shadow, payload.schema)
+      // TODO: tax class?
+      _ ← * <~ apis.middlewarehouse.createSku(ins.form.id, CreateSku(code))
       variant ← * <~ ProductVariants.create(
                    ProductVariant(scope = scope,
                                   contextId = context.id,
@@ -159,8 +161,6 @@ object ProductVariantManager {
                                   formId = ins.form.id,
                                   shadowId = ins.shadow.id,
                                   commitId = ins.commit.id))
-      // TODO: tax class?
-      _ ← * <~ apis.middlewarehouse.createSku(ins.form.id, CreateSku(code))
     } yield FullObject(variant, ins.form, ins.shadow)
   }
 
