@@ -158,8 +158,7 @@ class CouponsIntegrationTest
 
           private val message = "qualifier orderAnyQualifier rejected order with refNum=BR10001, " +
               "reason: Items in cart are not eligible for discount"
-          cartsApi(cartRef).coupon.add(couponCode).asThe[CartResponse].warnings.value must contain(
-              message)
+          cartsApi(cartRef).coupon.add(couponCode).mustFailWithMessage(message)
         }
 
         "for `cart total` qualifier" in new Coupon_TotalQualifier_PercentOff
@@ -168,8 +167,7 @@ class CouponsIntegrationTest
 
           private val message = "qualifier orderTotalAmountQualifier rejected order with refNum=BR10001, " +
               "reason: Order subtotal is less than 4000"
-          cartsApi(cartRef).coupon.add(couponCode).asThe[CartResponse].warnings.value must contain(
-              message)
+          cartsApi(cartRef).coupon.add(couponCode).mustFailWithMessage(message)
         }
 
         "for `items number` qualifier" in new Coupon_NumItemsQualifier_PercentOff
@@ -178,8 +176,7 @@ class CouponsIntegrationTest
 
           private val message = "qualifier orderNumUnitsQualifier rejected order with refNum=BR10001, " +
               "reason: Order unit count is less than 2"
-          cartsApi(cartRef).coupon.add(couponCode).asThe[CartResponse].warnings.value must contain(
-              message)
+          cartsApi(cartRef).coupon.add(couponCode).mustFailWithMessage(message)
         }
       }
     }

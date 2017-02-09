@@ -44,9 +44,11 @@ object CartShippingMethodUpdater {
            .map(_.orderShippingMethodId)
            .update(orderShipMethod.id.some)
       // update changed totals
-      readjustedCartWithWarnings ← * <~ CartPromotionUpdater.readjust(cart).recover {
-                                    case _ ⇒ TheResponse(cart) /* FIXME ;( */
-                                  }
+      readjustedCartWithWarnings ← * <~ CartPromotionUpdater
+                                    .readjust(cart, failFatally = false)
+                                    .recover {
+                                      case _ ⇒ TheResponse(cart) /* FIXME ;( */
+                                    }
       order     ← * <~ CartTotaler.saveTotals(cart)
       validated ← * <~ CartValidator(order).validate()
       response  ← * <~ CartResponse.buildRefreshed(order)
@@ -74,9 +76,11 @@ object CartShippingMethodUpdater {
                     .mustFindOneOr(NoShipMethod(cart.refNum))
       _ ← * <~ OrderShippingMethods.findByOrderRef(cart.refNum).delete
       // update changed totals
-      readjustedCartWithWarnings ← * <~ CartPromotionUpdater.readjust(cart).recover {
-                                    case _ ⇒ TheResponse(cart) /* FIXME ;( */
-                                  }
+      readjustedCartWithWarnings ← * <~ CartPromotionUpdater
+                                    .readjust(cart, failFatally = false)
+                                    .recover {
+                                      case _ ⇒ TheResponse(cart) /* FIXME ;( */
+                                    }
       cart  ← * <~ CartTotaler.saveTotals(readjustedCartWithWarnings.result)
       valid ← * <~ CartValidator(cart).validate()
       resp  ← * <~ CartResponse.buildRefreshed(cart)

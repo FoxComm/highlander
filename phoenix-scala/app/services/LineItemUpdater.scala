@@ -141,9 +141,11 @@ object LineItemUpdater {
       ctx: OC,
       au: AU): DbResultT[TheResponse[CartResponse]] =
     for {
-      readjustedCartWithWarnings ← * <~ CartPromotionUpdater.readjust(cart).recover {
-                                    case _ ⇒ TheResponse(cart) /* FIXME ;( */
-                                  }
+      readjustedCartWithWarnings ← * <~ CartPromotionUpdater
+                                    .readjust(cart, failFatally = false)
+                                    .recover {
+                                      case _ ⇒ TheResponse(cart) /* FIXME ;( */
+                                    }
       cart  ← * <~ CartTotaler.saveTotals(readjustedCartWithWarnings.result)
       valid ← * <~ CartValidator(cart).validate()
       res   ← * <~ CartResponse.buildRefreshed(cart)

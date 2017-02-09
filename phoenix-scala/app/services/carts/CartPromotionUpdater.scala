@@ -1,6 +1,6 @@
 package services.carts
 
-import cats.data.Xor
+import cats.data.{Xor, XorT}
 import cats.implicits._
 import failures.CouponFailures._
 import failures.DiscountCompilerFailures._
@@ -30,8 +30,12 @@ import utils.db._
 
 object CartPromotionUpdater {
 
-  def readjust(
-      cart: Cart)(implicit ec: EC, es: ES, db: DB, ctx: OC, au: AU): DbResultT[TheResponse[Cart]] =
+  def readjust(cart: Cart, failFatally: Boolean /* FIXME with the new foxy monad */ )(
+      implicit ec: EC,
+      es: ES,
+      db: DB,
+      ctx: OC,
+      au: AU): DbResultT[TheResponse[Cart]] =
     for {
       // Fetch base stuff
       orderPromo ← * <~ OrderPromotions
@@ -54,7 +58,7 @@ object CartPromotionUpdater {
       (form, shadow) = discount.tupled
       qualifier   ← * <~ QualifierAstCompiler(qualifier(form, shadow)).compile()
       offer       ← * <~ OfferAstCompiler(offer(form, shadow)).compile()
-      adjustments ← * <~ getAdjustments(promoShadow, cart, qualifier, offer)
+      adjustments ← * <~ getAdjustments(promoShadow, cart, qualifier, offer, failFatally)
       // Delete previous adjustments and create new
       _ ← * <~ OrderLineItemAdjustments
            .filterByOrderRefAndShadow(cart.refNum, orderPromo.promotionShadowId)
@@ -92,10 +96,8 @@ object CartPromotionUpdater {
                    .requiresCoupon
                    .mustFindOneOr(PromotionNotFoundForContext(coupon.promotionId, ctx.name))
       // Create connected promotion and line item adjustments
-      _ ← * <~ OrderPromotions.create(OrderPromotion.buildCoupon(cart, promotion, couponCode))
-      readjustedCartWithWarnings ← * <~ readjust(cart).recover {
-                                    case _ ⇒ TheResponse(cart) /* FIXME ;( */
-                                  }
+      _                          ← * <~ OrderPromotions.create(OrderPromotion.buildCoupon(cart, promotion, couponCode))
+      readjustedCartWithWarnings ← * <~ readjust(cart, failFatally = true)
       // Write event to application logs
       _ ← * <~ LogActivity.orderCouponAttached(readjustedCartWithWarnings.result, couponCode)
       // Response
@@ -143,7 +145,11 @@ object CartPromotionUpdater {
     case _              ⇒ Xor.Left(EmptyDiscountFailure.single)
   }
 
-  private def getAdjustments(promo: ObjectShadow, cart: Cart, qualifier: Qualifier, offer: Offer)(
+  private def getAdjustments(promo: ObjectShadow,
+                             cart: Cart,
+                             qualifier: Qualifier,
+                             offer: Offer,
+                             failFatally: Boolean /* FIXME with the new foxy monad */ )(
       implicit ec: EC,
       es: ES,
       db: DB,
@@ -158,9 +164,12 @@ object CartPromotionUpdater {
       adjustments ← * <~ ResultT(qualifier.check(input))
                      .flatMap(_ ⇒ ResultT(offer.adjust(input)))
                      .map(TheResponse(_))
-                     .recover {
+                     .recoverWith {
+                       // FIXME: convert errors to warnings better with the new monad
+                       case qualifierErrors if failFatally ⇒ ResultT.leftAsync(qualifierErrors)
                        case qualifierErrors ⇒
-                         TheResponse.build(Seq.empty, warnings = Some(qualifierErrors))
+                         ResultT.rightAsync(
+                             TheResponse.build(Seq.empty, warnings = Some(qualifierErrors)))
                      }
                      .value
     } yield adjustments
