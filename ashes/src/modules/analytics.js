@@ -115,7 +115,7 @@ export function fetchProductTotalRevenue(from, to, productId, size, channel = 1,
   return fetchStatsForStatKey(statType, 'revenue', from, to, productId, size, ['agg', 'xy'], channel);
 }
 export function fetchProductTotalOrders(from, to, productId, size, channel = 1, statType = 'product') {
-  return fetchStatsForStatKey(statType, 'purchase-quantity', from, to, productId, size, ['agg', 'xy'], channel);
+  return fetchStatsForStatKey(statType, 'purchase', from, to, productId, size, ['agg', 'xy'], channel);
 }
 export function fetchProductTotalInCarts(from, to, productId, size, channel = 1, statType = 'product') {
   return fetchStatsForStatKey(statType, 'cart', from, to, productId, size, ['agg', 'xy'], channel);
