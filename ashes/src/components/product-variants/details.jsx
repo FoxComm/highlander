@@ -8,6 +8,7 @@ import React, { Element } from 'react';
 import { Link } from '../link';
 import ObjectDetails from '../object-page/object-details';
 import { renderFormField } from '../object-form/object-form-inner';
+import AssociatedList from './associated-list';
 
 const layout = require('./layout.json');
 
@@ -48,6 +49,27 @@ export default class ProductVariantDetails extends ObjectDetails {
 
       return renderFormField(name, <div>{value}</div>, {label: name});
     });
+  }
+
+  renderAssociatedVariants() {
+    const list = [
+      {
+        image: 'https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Quay_Side.jpg',
+        title: 'Nike Free 5.0 Women’s - Black, 6',
+        subtitle: 'SKU-FRE2'
+      },
+      {
+        image: 'https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Quay_Side.jpg',
+        title: 'Nike Free 5.0 Women’s - Black, 7',
+        subtitle: 'SKU-FRE3'
+      },
+    ];
+    return (
+      <AssociatedList
+        title="Associated Variants"
+        list={list}
+      />
+    );
   }
 
   renderGeneralSection() {
