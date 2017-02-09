@@ -16,8 +16,8 @@ type Props = {
   hideOnBlur: boolean,
   maxUsers: number,
   suggestState: string,
-  suggested: Array<TCustomerGroupShort>,
-  suggestGroups: Function,
+  suggested: Array<any>,
+  suggestCustomers: Function,
   onSelect: Function,
 };
 
@@ -111,7 +111,7 @@ export default class GroupsTypeahead extends Component {
         <Typeahead
           className="_no-search-icon"
           isFetching={_.get(props.suggestState, 'inProgress', false)}
-          fetchItems={props.suggestGroups}
+          fetchItems={props.suggestCustomers}
           minQueryLength={2}
           component={CustomerRow}
           items={props.suggested}

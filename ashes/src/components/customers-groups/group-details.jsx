@@ -163,7 +163,7 @@ class GroupDetails extends Component {
         isVisible={this.state.addCustomersModalShown}
         onCancel={this.onAddCustomersCancel}
         handleSave={_.noop}
-        suggestGroups={this.props.suggestCustomers}
+        suggestCustomers={this.props.suggestCustomers}
         suggested={this.props.suggested}
         suggestState={this.props.suggestState}
       />
@@ -259,7 +259,7 @@ class GroupDetails extends Component {
 const mapState = state => ({
   customersList: _.get(state, 'customerGroups.details.customers'),
   statsLoading: _.get(state, 'asyncActions.fetchStatsCustomerGroup.inProgress', false),
-  suggested: state.customers.suggest.suctomers,
+  suggested: state.customers.suggest.customers,
   suggestState: _.get(state.asyncActions, 'suggestCustomers', {}),
 });
 
@@ -271,7 +271,7 @@ const mapDispatch = (dispatch, props) => {
     groupActions: bindActionCreators({ fetchGroupStats }, dispatch),
     customersListActions: bindActionCreators(customersListActions, dispatch),
     ...(bindActionCreators({
-      suggestGroups: suggestCustomers(customers),
+      suggestCustomers: suggestCustomers(customers),
     }, dispatch)),
   };
 };

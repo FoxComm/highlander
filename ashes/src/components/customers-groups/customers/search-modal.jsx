@@ -17,7 +17,7 @@ type Props = {
   suggested: Array<any>,
   onCancel: Function,
   handleSave: Function,
-  suggestGroups: Function,
+  suggestCustomers: Function,
 };
 
 type State = {
@@ -61,11 +61,13 @@ export default class SearchCustomersModal extends Component {
 
   @autobind
   handleSelect(customers: Array<any>) {
+    console.log('select');
     this.setState({ customers });
   }
 
   render() {
     const props = this.props;
+
     return (
       <ModalContainer isVisible={props.isVisible}>
         <ContentBox
@@ -76,7 +78,7 @@ export default class SearchCustomersModal extends Component {
         >
           <div className="fc-modal-body fc-add-watcher-modal__content">
             <CustomersTypeahead
-              suggestGroups={props.suggestGroups}
+              suggestCustomers={props.suggestCustomers}
               suggested={props.suggested}
               suggestState={props.suggestState}
               onSelect={this.handleSelect}
