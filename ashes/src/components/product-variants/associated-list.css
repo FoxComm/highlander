@@ -1,3 +1,4 @@
+@import "colors.css";
 
 .root {
   background-color: #fff;
@@ -36,10 +37,15 @@
   margin-left: 10px;
 }
 
-.item-title {
+.item-title,
+.item-title a {
   font-size: 13px;
   font-weight: 600;
   color: #484848;
+}
+
+.item-title a:hover {
+  color: var(--hover-link-color);
 }
 
 .item-subtitle {

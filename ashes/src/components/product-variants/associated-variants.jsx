@@ -6,6 +6,7 @@ import { makeLocalStore, addAsyncReducer } from '@foxcomm/wings';
 
 // components
 import AssociatedList from './associated-list';
+import { IndexLink } from '../link';
 
 // data
 import variantsReducer, { fetchProductVariants } from 'modules/product-variants/list';
@@ -37,9 +38,15 @@ class AssociatedVariants extends Component {
     const { props } = this;
 
     const list = _.map(props.list, (variant: ProductVariant) => {
+      // @TODO: backend should include option string in variant.title
+      const title = (
+        <IndexLink to="product-variant" params={{productVariantId: variant.variantId}}>
+          {variant.title}
+        </IndexLink>
+      );
       return {
         image: variant.image,
-        title: variant.title, // @TODO: backend should include option string here
+        title,
         subtitle: variant.skuCode
       };
     });
