@@ -73,7 +73,7 @@ class CustomerGroupIntegrationTest
 
       val root = customerGroupsApi.create(payload).as[Root]
       root.elasticRequest must !==(JObject())
-      ((root.elasticRequest \ "query" \ "bool" \ "filter" \ "term" \ "groups")) must === (
+      ((((root.elasticRequest \ "query" \ "bool" \ "filter")(0) \ "bool" \ "must")(0) \ "term" \ "groups")) must === (
           JInt(root.id))
     }
 
