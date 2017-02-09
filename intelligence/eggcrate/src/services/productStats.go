@@ -27,13 +27,12 @@ func productStatKeys(id string, channel string) []string {
 	single := all + id + "."
 	return []string{
 		single + "revenue",
-		single + "purchase-quantity",
+		single + "purchase",
 		single + "cart",
 		single + "list",
 		single + "pdp",
 		all + "revenue",
 		all + "purchase",
-		all + "purchase-quantity",
 		all + "cart",
 		all + "list",
 		all + "pdp",
@@ -61,7 +60,7 @@ func henhouseProductStats(id, channel, a, b string) (string, error) {
 func buildStatResponse(pf responses.HenhouseResponse, activeProducts int) string {
 	//get stats for the particular product
 	revenue := responses.GetSum("revenue", pf)
-	ordered := responses.GetSum("purchase-quantity", pf)
+	ordered := responses.GetSum("purchase", pf)
 	addedToCart := responses.GetSum("cart", pf)
 	listed := responses.GetSum("list", pf)
 	pdpViews := responses.GetSum("pdp", pf)
@@ -74,7 +73,7 @@ func buildStatResponse(pf responses.HenhouseResponse, activeProducts int) string
 
 	//get stats across all products
 	allRevenue := responses.GetSum("product.revenue", pf)
-	allOrdered := responses.GetSum("product.purchase-quantity", pf)
+	allOrdered := responses.GetSum("product.purchase", pf)
 	allAddedToCart := responses.GetSum("product.cart", pf)
 	allListed := responses.GetSum("product.list", pf)
 	allPdpViews := responses.GetSum("product.pdp", pf)
