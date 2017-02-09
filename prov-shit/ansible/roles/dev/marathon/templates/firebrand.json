@@ -7,7 +7,8 @@
   "instances": 1,
   "labels": {
     "LAYER": "frontend",
-    "LANG": "js"
+    "LANG": "js",
+    "TAG": "{{docker_tags.firebrand}}"
   },
   "env": {
     "API_URL": "https://{{storefront_server_name}}",
