@@ -21,6 +21,35 @@ import TotalRevenueChart, { ChartSegmentType } from './charts/total-revenue-char
 import SegmentControlList from './segment-control-list';
 import type { Props as SegmentControlType } from './segment-control';
 
+const ActionBlock = (props) => {
+  const { onActionClick, style } = props;
+
+  const xIconSvg = (
+    <svg width="14px" height="14px" viewBox="0 0 14 14" style={style}>
+      <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g transform="translate(-485.000000, -557.000000)" fill="#000000">
+          <g transform="translate(485.000000, 557.000000)">
+            <g>
+              <g>
+                <path d="M8.66317371,6.99940845 L13.6542723,2.00830986 C14.1137089,1.54887324 14.1137089,0.803981221 13.6542723,0.344610329 C13.1948357,-0.114826291 12.4500094,-0.114826291 11.9905728,0.344610329 L6.99940845,5.33577465 L2.00824413,0.344544601 C1.54880751,-0.114892019 0.803981221,-0.114892019 0.344544601,0.344544601 C-0.114826291,0.803981221 -0.114826291,1.54887324 0.344544601,2.00824413 L5.33570892,6.99934272 L0.344544601,11.990507 C-0.114826291,12.4499437 -0.114826291,13.1948357 0.344544601,13.6542066 C0.803981221,14.1136432 1.54880751,14.1136432 2.00824413,13.6542066 L6.99940845,8.66304225 L11.9905728,13.6542066 C12.4499437,14.1136432 13.1948357,14.1136432 13.6542723,13.6542066 C14.1137089,13.19477 14.1137089,12.4499437 13.6542723,11.990507 L8.66317371,6.99940845 Z" id="Shape"></path>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  );
+
+  return (
+    <a
+      className='fc-modal-close'
+      onClick={onActionClick}
+    >
+      {xIconSvg}
+    </a>
+  );
+};
+
 // styles
 import styles from './analytics.css';
 
@@ -35,6 +64,12 @@ type State = {
   question: QuestionBoxType,
   segment: SegmentControlType,
   dataFetchTimeSize: number,
+  comparisonPeriod: {
+    dateDisplay: string,
+    dateRangeBegin: string,
+    dateRangeEnd: string,
+    dataFetchTimeSize: number,
+  },
 }
 
 type Props = {
@@ -107,6 +142,14 @@ const datePickerOptions = [
   { id: datePickerType.Last90, displayText: 'Last 90 Days'},
 ];
 const datePickerFormat = 'MM/DD/YYYY';
+
+const comparisonPeriodOptions = [
+  { id: datePickerType.Today, displayText: 'Today'},
+  { id: datePickerType.Yesterday, displayText: 'Yesterday'},
+  { id: datePickerType.LastWeek, displayText: 'Last Week'},
+  { id: datePickerType.Last30, displayText: 'Last 30 Days'},
+  { id: datePickerType.Last90, displayText: 'Last 90 Days'},
+];
 
 // helpers
 export function
@@ -184,6 +227,12 @@ export default class Analytics extends React.Component {
     question: _.noop,
     segment: _.noop,
     dataFetchTimeSize: 0,
+    comparisonPeriod: {
+      dateDisplay: 'Comparison Period',
+      dateRangeBegin: moment().startOf('day').unix(),
+      dateRangeEnd: moment().unix(),
+      dataFetchTimeSize: 0,
+    },
   };
 
   constructor(props: Props) {
@@ -199,6 +248,19 @@ export default class Analytics extends React.Component {
 
   componentWillUnmount() {
     this.props.resetAnalyticsValues();
+  }
+
+  @autobind
+  removeComparison() {
+    console.log('Remove Comparison clicked!');
+    this.setState({
+      comparisonPeriod: {
+        dateDisplay: 'Comparison Period',
+        dateRangeBegin: moment().startOf('day').unix(),
+        dateRangeEnd: moment().unix(),
+        dataFetchTimeSize: 0,
+      },
+    });
   }
 
   @autobind
@@ -234,8 +296,8 @@ export default class Analytics extends React.Component {
   }
 
   @autobind
-  onDatePickerChange(selectionIndex: number) {
-    const { question, segment, dataFetchTimeSize } = this.state;
+  onDateDropdownChange(selectionIndex: number) {
+    const { segment, dataFetchTimeSize } = this.state;
 
     let displayText = '';
     let endDisplayText = '';
@@ -301,6 +363,20 @@ export default class Analytics extends React.Component {
       }
     }
 
+    return {
+      displayText: displayText,
+      newDateRangeBegin: newDateRangeBegin,
+      newDateRangeEnd: newDateRangeEnd,
+      newDataFetchTimeSize: newDataFetchTimeSize
+    };
+  }
+
+  @autobind
+  onDatePickerChange(selectionIndex: number) {
+    const { question } = this.state;
+    const { displayText, newDateRangeBegin,
+      newDateRangeEnd, newDataFetchTimeSize } = this.onDateDropdownChange(selectionIndex);
+
     this.setState({
         dateDisplay: displayText,
         dateRangeBegin: newDateRangeBegin,
@@ -308,6 +384,22 @@ export default class Analytics extends React.Component {
         dataFetchTimeSize: newDataFetchTimeSize,
       },
       this.fetchData(question, newDateRangeBegin, newDateRangeEnd, newDataFetchTimeSize)
+    );
+  }
+
+  @autobind
+  onComparisonPeriodChange(selectionIndex: number) {
+    const { displayText, newDateRangeBegin,
+      newDateRangeEnd, newDataFetchTimeSize } = this.onDateDropdownChange(selectionIndex);
+
+    this.setState({
+        comparisonPeriod: {
+          dateDisplay: displayText,
+          dateRangeBegin: newDateRangeBegin,
+          dateRangeEnd: newDateRangeEnd,
+          dataFetchTimeSize: newDataFetchTimeSize,
+        },
+      }
     );
   }
 
@@ -411,7 +503,7 @@ export default class Analytics extends React.Component {
   }
 
   get chartFromQuestion() {
-    const { question, dataFetchTimeSize, segment } = this.state;
+    const { question, dataFetchTimeSize, segment, comparisonPeriod } = this.state;
 
     if (_.isNil(question)) {
       return false;
@@ -422,10 +514,11 @@ export default class Analytics extends React.Component {
     if (!_.isNil(analytics.isFetching) && !analytics.isFetching) {
       const segmentCtrlList = (
         <SegmentControlList
-        items={segments}
-        onSelect={this.onSegmentControlSelect}
-        activeSegment={segment}
-      />);
+          items={segments}
+          onSelect={this.onSegmentControlSelect}
+          activeSegment={segment}
+        />
+      );
 
       switch (question.title) {
         case questionTitles.TotalRevenue:
@@ -454,7 +547,33 @@ export default class Analytics extends React.Component {
             </div>
           );
         case questionTitles.ProductConversionRate:
-          return <ProductConversionChart jsonData={analytics.chartValues} />;
+          const comparisonCancelButtonVisibility = comparisonPeriod.dataFetchTimeSize > 0
+            ? 'visible'
+            : 'hidden';
+
+          return (
+            <div>
+              <Dropdown
+                styleName="comparison-period-filter-date-picker"
+                name="dateControl"
+                items={_.map(comparisonPeriodOptions, ({id, displayText}) => [id, displayText])}
+                placeholder="Comparison Period"
+                changeable={true}
+                onChange={this.onComparisonPeriodChange}
+                value={comparisonPeriod.dateDisplay}
+                renderNullTitle={(value, placeholder) => {
+                  return _.isNil(value) ? placeholder : value;
+                }}
+              />
+              <ActionBlock
+                onActionClick={this.removeComparison}
+                style={{marginLeft: '10px', visibility: comparisonCancelButtonVisibility}}
+              />
+              <ProductConversionChart
+                jsonData={analytics.chartValues}
+              />
+            </div>
+          );
         default:
           return false;
       }
