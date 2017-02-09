@@ -70,6 +70,8 @@ class ProductVariantSearchViewTest extends SearchViewTestBase {
     }
 
     "when variant is updated" in new ProductVariant_ApiFixture {
+      pending // cc @jmataya
+
       private val newPrice = 123
       private val imageSrc = "by the way we need image src validation..."
       private val albums   = Seq(AlbumPayload(images = Seq(ImagePayload(src = imageSrc)).some)).some
