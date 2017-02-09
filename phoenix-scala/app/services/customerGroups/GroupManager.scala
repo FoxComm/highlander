@@ -100,7 +100,30 @@ object GroupManager {
     } yield build(group)
 
   private def withGroupQuery(group: CustomerGroup): CustomerGroup = {
-    val groupQuery = ("query" → ("bool" → ("filter" → ("term" → ("groups" → group.id)))))
+    val groupQuery = parse(s"""{"query":
+         |  {"bool":
+         |    {"filter":
+         |      [
+         |        {"bool":
+         |          {"must":
+         |            [
+         |              {"term":
+         |                {"groups": ${group.id}}
+         |              }
+         |            ]
+         |          }
+         |        }
+         |      ]
+         |    }
+         |  },
+         |  "sort":
+         |    [
+         |      {"joinedAt":
+         |        {"order": "desc"}
+         |      }
+         |    ]
+         |  }
+         |}""".stripMargin)
     group.copy(elasticRequest = groupQuery)
   }
 
