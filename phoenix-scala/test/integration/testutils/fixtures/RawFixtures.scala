@@ -7,14 +7,11 @@ import models.account._
 import models.cord._
 import models.inventory.Sku
 import models.location._
-import models.objects.ProductSkuLinks
 import models.payment.giftcard.GiftCard
 import models.product._
 import payloads.CartPayloads.CreateCart
 import payloads.PaymentPayloads.GiftCardPayment
-import payloads.SkuPayloads.SkuPayload
 import services.carts._
-import services.inventory.SkuManager
 import testutils._
 import testutils.fixtures.raw._
 import utils.Money.Currency
@@ -123,13 +120,6 @@ trait RawFixtures extends RawPaymentFixtures with TestSeeds {
                                                        price = 5999,
                                                        active = true))
         pd ← * <~ Products.mustFindById404(spd.productId)
-        sku ← * <~ SkuManager.createSku(
-                 storeAdmin,
-                 SkuPayload(attributes = Map("code" → PayloadHelpers.tv("TEST-SKU"))))
-        sku ← * <~ models.inventory.Skus.mustFindByCode("TEST-SKU")
-        _ ← * <~ models.inventory.Skus
-             .update(sku, sku.copy(archivedAt = Some(java.time.Instant.now)))
-        link ← * <~ ProductSkuLinks.ensureLinked(pd, Seq(sku))
       } yield pd
     }.gimme
   }
