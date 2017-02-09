@@ -4,23 +4,30 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 )
 
-func Get(url string, headers map[string]string) (*http.Response, error) {
-	return request("GET", url, headers, nil)
+func Get(url string, headers map[string]string, retval interface{}) error {
+	_, err := Request("GET", url, headers, nil, retval)
+
+	return err
 }
 
-func Post(url string, headers map[string]string, payload interface{}) (*http.Response, error) {
-	return request("POST", url, headers, payload)
+func Post(url string, headers map[string]string, payload interface{}, retval interface{}) error {
+	_, err := Request("POST", url, headers, payload, retval)
+
+	return err
 }
 
-func Patch(url string, headers map[string]string, payload interface{}) (*http.Response, error) {
-	return request("PATCH", url, headers, payload)
+func Patch(url string, headers map[string]string, payload interface{}, retval interface{}) error {
+	_, err := Request("PATCH", url, headers, payload, retval)
+
+	return err
 }
 
-func request(method string, url string, headers map[string]string, payload interface{}) (*http.Response, error) {
+func Request(method string, url string, headers map[string]string, payload interface{}, retval interface{}) (*http.Response, error) {
 	if method != "POST" && method != "PATCH" && method != "GET" {
 		return nil, fmt.Errorf("Invalid method %s. Only GET, POST and PATCH are currently supported", method)
 	}
@@ -59,20 +66,21 @@ func request(method string, url string, headers map[string]string, payload inter
 
 	log.Printf("HTTP <-- %s %s %s", method, url, resp.Status)
 
-	if resp.StatusCode < 200 || resp.StatusCode > 299 {
-		respBody := new(map[string]interface{})
-		defer resp.Body.Close()
-		if err := json.NewDecoder(resp.Body).Decode(respBody); err != nil {
-			return nil, fmt.Errorf("Error in %s response: %s", method, resp.Status)
-		}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
 
+	if resp.StatusCode < 200 || resp.StatusCode > 299 {
 		return nil, fmt.Errorf(
-			"Error in %s response - status: %s, body %v",
+			"Error in %s response - status: %s, body %s",
 			method,
 			resp.Status,
-			respBody,
+			string(body),
 		)
 	}
 
-	return resp, nil
+	if retval != nil {
+		err = json.Unmarshal(body, retval)
+	}
+
+	return resp, err
 }
