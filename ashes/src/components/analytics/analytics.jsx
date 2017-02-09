@@ -21,6 +21,17 @@ import TotalRevenueChart, { ChartSegmentType } from './charts/total-revenue-char
 import SegmentControlList from './segment-control-list';
 import type { Props as SegmentControlType } from './segment-control';
 
+const ActionBlock = (props) => {
+  return (
+    <a
+      className='fc-modal-close'
+      onClick={props.onActionClick}
+    >
+      <i className='icon-close' />
+    </a>
+  );
+};
+
 // styles
 import styles from './analytics.css';
 
@@ -219,6 +230,11 @@ export default class Analytics extends React.Component {
 
   componentWillUnmount() {
     this.props.resetAnalyticsValues();
+  }
+
+  @autobind
+  removeComparison() {
+    console.log('Remove Comparison clicked!');
   }
 
   @autobind
@@ -518,6 +534,7 @@ export default class Analytics extends React.Component {
                   return _.isNil(value) ? placeholder : value;
                 }}
               />
+              <ActionBlock onActionClick={this.removeComparison} />
               <ProductConversionChart
                 jsonData={analytics.chartValues}
               />
