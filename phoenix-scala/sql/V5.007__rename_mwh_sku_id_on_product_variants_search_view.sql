@@ -1,0 +1,1 @@
+alter table product_variants_search_view rename column middlewarehouse_sku_id to sku_id;

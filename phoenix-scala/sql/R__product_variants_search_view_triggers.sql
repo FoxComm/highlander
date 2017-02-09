@@ -2,7 +2,7 @@ create or replace function insert_product_variants_view_from_product_variants_fn
 begin
   insert into product_variants_search_view select
     new.id as id,
-    new.code as sku_code,
+    mwh_sku.sku_code as sku_code,
     context.name as context,
     context.id as context_id,
     illuminate_text(form, shadow, 'title') as title,
@@ -15,7 +15,7 @@ begin
     illuminate_obj(form, shadow, 'externalId') as external_id,
     new.scope as scope,
     new.form_id as variant_id,
-    mwh_sku.sku_id as middlewarehouse_sku_id
+    mwh_sku.sku_id as sku_id
     from object_contexts as context
       inner join object_shadows as shadow  on (shadow.id = new.shadow_id)
       inner join object_forms as form on (form.id = new.form_id)
