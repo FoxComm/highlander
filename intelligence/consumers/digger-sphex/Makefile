@@ -22,5 +22,8 @@ docker-push:
 	docker tag $(DOCKER_TAG) $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
 	docker push $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
 
+clean:
+	$(call header, Cleaning)
+	true
 
 .PHONY: build test docker docker-push

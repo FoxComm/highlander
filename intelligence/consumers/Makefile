@@ -1,4 +1,4 @@
-SUBDIRS = digger-sphex
+SUBDIRS = digger-sphex orders-sphex
 BUILDDIRS = $(SUBDIRS:%=build-%)
 CLEANDIRS = $(SUBDIRS:%=clean-%)
 TESTDIRS = $(SUBDIRS:%=test-%)
