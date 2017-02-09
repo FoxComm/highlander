@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/FoxComm/highlander/middlewarehouse/consumers"
@@ -14,6 +15,10 @@ import (
 
 	"gopkg.in/olivere/elastic.v3"
 )
+
+const MESSAGING_PLAGIN_NAME = "messaging"
+const MESSAGING_SETTINGS_KEY_MAILCHIMP_API_KEY = "mailchimp_key"
+const MESSAGING_SETTINGS_KEY_MAILCHIMP_LIST_ID = "mailchimp_customers_list_id"
 
 func main() {
 	consumerConfig, err := consumers.MakeConsumerConfig()
@@ -40,15 +45,30 @@ func main() {
 	// new Phoenix client
 	phoenixClient := phoenix.NewPhoenixClient(phoenixConfig.URL, phoenixConfig.User, phoenixConfig.Password)
 
+	mailchimpApiKey, mailchimpListID, err := getMailchimpSettings(phoenixClient)
+	if err != nil {
+		log.Panicf("Unable to get %s settings with error %s", MESSAGING_PLAGIN_NAME, err.Error())
+	}
+
+	mailchimpDisabled := mailchimpApiKey == "" || mailchimpListID == ""
+	if mailchimpDisabled {
+		log.Printf("Mailchimp config is not complete. For mailchimp integration set up %s and %s values in %s plugin settgins",
+			MESSAGING_SETTINGS_KEY_MAILCHIMP_API_KEY,
+			MESSAGING_SETTINGS_KEY_MAILCHIMP_LIST_ID,
+			MESSAGING_PLAGIN_NAME,
+		)
+	}
+
 	// new Mailchimp client
-	chimpClient := mailchimp.NewClient(agentConfig.MailchimpAPIKey, mailchimp.SetDebug(true))
+	chimpClient := mailchimp.NewClient(mailchimpApiKey, mailchimp.SetDebug(true))
 
 	// Customer Groups manager
 	groupsManager := manager.NewGroupsManager(
 		esClient,
 		phoenixClient,
 		chimpClient,
-		manager.SetMailchimpListID(agentConfig.MailchimpListId),
+		manager.SetMailchimpListID(mailchimpListID),
+		manager.SetMailchimpDisabled(mailchimpDisabled),
 	)
 
 	//Initialize and start polling agent
@@ -69,4 +89,33 @@ func main() {
 	}
 
 	c.RunTopic(consumerConfig.Topic, cgc.Handler)
+}
+
+func getMailchimpSettings(phoenixClient phoenix.PhoenixClient) (string, string, error) {
+	plugins, err := phoenixClient.GetPlugins()
+	if err != nil {
+		log.Panicf("Couldn't get plugins list with error %s", err.Error())
+	}
+
+	for _, plugin := range plugins {
+		if plugin.Name == MESSAGING_PLAGIN_NAME {
+			s, err := phoenixClient.GetPluginSettings(plugin.Name)
+			if err != nil {
+				log.Panicf("Couldn't get %s plugin settings with error %s", MESSAGING_PLAGIN_NAME, err.Error())
+			}
+
+			mailchimpApiKey, ok := s[MESSAGING_SETTINGS_KEY_MAILCHIMP_API_KEY].(string)
+			if !ok {
+				return "", "", fmt.Errorf("%s is not a string. value: %v", MESSAGING_SETTINGS_KEY_MAILCHIMP_API_KEY, mailchimpApiKey)
+			}
+			mailchimpListID, ok := s[MESSAGING_SETTINGS_KEY_MAILCHIMP_LIST_ID].(string)
+			if !ok {
+				return "", "", fmt.Errorf("%s is not a string. value: %v", MESSAGING_SETTINGS_KEY_MAILCHIMP_LIST_ID, mailchimpListID)
+			}
+
+			return mailchimpApiKey, mailchimpListID, nil
+		}
+	}
+
+	return "", "", nil
 }

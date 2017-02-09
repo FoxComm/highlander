@@ -30,6 +30,7 @@ type GroupsManager struct {
 	esTopic       string
 	esSize        int
 	chimpListID   string
+	chimpDisabled bool
 }
 
 type ManagerOptionFunc func(*GroupsManager)
@@ -52,6 +53,12 @@ func SetMailchimpListID(id string) ManagerOptionFunc {
 	}
 }
 
+func SetMailchimpDisabled(disabled bool) ManagerOptionFunc {
+	return func(m *GroupsManager) {
+		m.chimpDisabled = disabled
+	}
+}
+
 func NewGroupsManager(esClient *elastic.Client, phoenixClient phoenix.PhoenixClient, chimpClient *mailchimp.ChimpClient, options ...ManagerOptionFunc) *GroupsManager {
 	manager := &GroupsManager{
 		esClient,
@@ -60,6 +67,7 @@ func NewGroupsManager(esClient *elastic.Client, phoenixClient phoenix.PhoenixCli
 		DefaultElasticTopic,
 		DefaultElasticSize,
 		DefaultMailchimpListID,
+		false,
 	}
 
 	// set options to manager
@@ -87,7 +95,7 @@ func (m *GroupsManager) ProcessChangedGroup(group *responses.CustomerGroupRespon
 
 		// update segments(fc "groups" analogue) in mailchimp
 		if err := m.processMailchimp(group, customers); err != nil {
-			log.Printf("An error occured updating mailchimp: %s", err.Error())
+			log.Printf("An error occured updating segments in mailchimp: %s", err.Error())
 		}
 	}(group)
 
@@ -95,6 +103,10 @@ func (m *GroupsManager) ProcessChangedGroup(group *responses.CustomerGroupRespon
 }
 
 func (m *GroupsManager) ProcessDeletedGroup(group *responses.CustomerGroupResponse) error {
+	if m.chimpDisabled {
+		return errors.New("Mailchimp integration is disabled")
+	}
+
 	listID := m.chimpListID
 
 	segments, err := m.chimpClient.GetSegments(listID)
@@ -133,10 +145,11 @@ func (m *GroupsManager) updateGroupCustomersMapping(group *responses.CustomerGro
 }
 
 func (m *GroupsManager) processMailchimp(group *responses.CustomerGroupResponse, customers map[int]string) error {
-	listID := m.chimpListID
-	if listID == "" {
-		return errors.New("Please provide not empty mailchimp ListId value")
+	if m.chimpDisabled {
+		return errors.New("Mailchimp integration is disabled")
 	}
+
+	listID := m.chimpListID
 
 	newEmails := getValues(customers)
 
