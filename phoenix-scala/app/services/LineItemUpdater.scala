@@ -1,5 +1,6 @@
 package services
 
+import cats.implicits._
 import failures.CartFailures._
 import failures.OrderFailures.OrderLineItemNotFound
 import failures.ProductFailures.SkuNotFoundForContext
@@ -151,14 +152,7 @@ object LineItemUpdater {
       res   ← * <~ CartResponse.buildRefreshed(cart)
       li    ← * <~ CartLineItems.byCordRef(cart.refNum).countSkus
       _     ← * <~ logAct(res, li)
-    } yield {
-      val blah = TheResponse.validated(res, valid)
-      // FIXME: we need a better way to compose TheResult. :s
-      blah.copy(warnings = {
-        val xs = readjustedCartWithWarnings.warnings.toList.flatten ::: blah.warnings.toList.flatten
-        if (xs.isEmpty) None else Some(xs)
-      })
-    }
+    } yield readjustedCartWithWarnings.flatMap(_ ⇒ TheResponse.validated(res, valid))
 
   def foldQuantityPayload(payload: Seq[UpdateLineItemsPayload]): Map[String, Int] =
     payload.foldLeft(Map[String, Int]()) { (acc, item) ⇒

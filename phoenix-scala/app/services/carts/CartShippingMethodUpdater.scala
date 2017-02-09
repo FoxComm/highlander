@@ -53,14 +53,7 @@ object CartShippingMethodUpdater {
       validated ← * <~ CartValidator(order).validate()
       response  ← * <~ CartResponse.buildRefreshed(order)
       _         ← * <~ LogActivity.orderShippingMethodUpdated(originator, response, oldShipMethod)
-    } yield {
-      val blah = TheResponse.validated(response, validated)
-      // FIXME: we need a better way to compose TheResult. :s
-      blah.copy(warnings = {
-        val xs = readjustedCartWithWarnings.warnings.toList.flatten ::: blah.warnings.toList.flatten
-        if (xs.isEmpty) None else Some(xs)
-      })
-    }
+    } yield readjustedCartWithWarnings.flatMap(_ ⇒ TheResponse.validated(response, validated))
 
   def deleteShippingMethod(originator: User, refNum: Option[String] = None)(
       implicit ec: EC,
@@ -85,12 +78,5 @@ object CartShippingMethodUpdater {
       valid ← * <~ CartValidator(cart).validate()
       resp  ← * <~ CartResponse.buildRefreshed(cart)
       _     ← * <~ LogActivity.orderShippingMethodDeleted(originator, resp, shipMethod)
-    } yield {
-      val blah = TheResponse.validated(resp, valid)
-      // FIXME: we need a better way to compose TheResult. :s
-      blah.copy(warnings = {
-        val xs = readjustedCartWithWarnings.warnings.toList.flatten ::: blah.warnings.toList.flatten
-        if (xs.isEmpty) None else Some(xs)
-      })
-    }
+    } yield readjustedCartWithWarnings.flatMap(_ ⇒ TheResponse.validated(resp, valid))
 }

@@ -64,7 +64,7 @@ object CartPromotionUpdater {
            .filterByOrderRefAndShadow(cart.refNum, orderPromo.promotionShadowId)
            .delete
       _ ← * <~ OrderLineItemAdjustments.createAll(adjustments.result)
-    } yield adjustments.copy(result = cart) // FIXME: we need a better way to compose TheResult. :s
+    } yield adjustments.map(_ ⇒ cart)
 
   def attachCoupon(originator: User, refNum: Option[String] = None, code: String)(
       implicit ec: EC,
@@ -104,14 +104,7 @@ object CartPromotionUpdater {
       cart      ← * <~ CartTotaler.saveTotals(readjustedCartWithWarnings.result)
       validated ← * <~ CartValidator(cart).validate()
       response  ← * <~ CartResponse.buildRefreshed(cart)
-    } yield {
-      val blah = TheResponse.validated(response, validated)
-      // FIXME: we need a better way to compose TheResult. :s
-      blah.copy(warnings = {
-        val xs = readjustedCartWithWarnings.warnings.toList.flatten ::: blah.warnings.toList.flatten
-        if (xs.isEmpty) None else Some(xs)
-      })
-    }
+    } yield readjustedCartWithWarnings.flatMap(_ ⇒ TheResponse.validated(response, validated))
 
   def detachCoupon(originator: User, refNum: Option[String] = None)(
       implicit ec: EC,

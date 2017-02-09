@@ -1,5 +1,6 @@
 package responses
 
+import cats.{Functor, Monad}
 import failures._
 import responses.BatchMetadata._
 import services.CartValidatorResponse
@@ -28,6 +29,37 @@ object TheResponse {
     TheResponse(result = value,
                 alerts = validatorResponse.alerts.map(_.flatten),
                 warnings = validatorResponse.warnings.map(_.flatten))
+
+  implicit val theResponseFunctor = new Functor[TheResponse] with Monad[TheResponse] {
+    override def pure[A](x: A): TheResponse[A] = TheResponse(x)
+
+    // FIXME: this monstrosity below suggests that stuff could probably be encoded better (as in «more composable»)
+    override def flatMap[A, B](fa: TheResponse[A])(f: (A) ⇒ TheResponse[B]): TheResponse[B] = {
+      val fb = f(fa.result)
+      def combineOL[C](xs: Option[List[C]], ys: Option[List[C]]): Option[List[C]] =
+        (xs.toList.flatten ::: ys.toList.flatten) match {
+          case Nil ⇒ None
+          case xs  ⇒ Some(xs)
+        }
+      def combineBatch(a: BatchMetadata, b: BatchMetadata): BatchMetadata =
+        BatchMetadata(success = a.success ++ b.success, failures = a.failures ++ b.failures)
+      TheResponse(
+          result = fb.result,
+          alerts = combineOL(fa.alerts, fb.alerts),
+          errors = combineOL(fa.errors, fb.errors),
+          warnings = combineOL(fa.warnings, fb.warnings),
+          batch = (fa.batch, fb.batch) match {
+            case (Some(a), Some(b)) ⇒ Some(combineBatch(a, b))
+            case (oa, None)         ⇒ oa
+            case (None, ob)         ⇒ ob
+            case _                  ⇒ None
+          }
+      )
+    }
+
+    override def tailRecM[A, B](a: A)(f: (A) ⇒ TheResponse[Either[A, B]]): TheResponse[B] =
+      defaultTailRecM(a)(f)
+  }
 }
 
 case class BatchMetadata(success: BatchSuccess, failures: BatchFailures) {
