@@ -1,0 +1,33 @@
+---
+
+- name: Migrate Frontend
+  hosts: '{{hostname}}'
+  vars:
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+  vars_prompt:
+    - name: "hostname"
+      prompt: "Enter a hostname for the backend"
+      default: "backend"
+      private: no
+  vars_prompt:
+    - name: "storefront_server_name"
+      prompt: "Enter server name"
+      default: "stage.foxcommerce.com"
+      private: no
+
+  roles:
+    - { role: base/rsyslog}
+    - { role: demo/balancer}
+
+- name: Migrate Amigo
+  hosts: '{{hostname}}'
+  vars:
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+  vars_prompt:
+    - name: "hostname"
+      prompt: "Enter a hostname for the amigo"
+      default: "amigo"
+      private: no
+
+  roles:
+    - { role: base/mesos_master}
