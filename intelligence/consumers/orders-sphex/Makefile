@@ -6,12 +6,7 @@ DOCKER_IMAGE ?= orders-sphex
 DOCKER_TAG ?= master
 
 build:
-	$(call header, Building)
 	GOOS=linux CGO_ENABLED=0 go build -o orders-sphex ./*.go
-
-test:
-	$(call header, Testing)
-	true
 
 docker:
 	$(call header, Dockerizing)
@@ -23,7 +18,4 @@ docker-push:
 	docker push $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
 
 clean:
-	$(call header, Cleaning)
 	rm -rf ./pkg orders-sphex
-
-.PHONY: build test docker docker-push
