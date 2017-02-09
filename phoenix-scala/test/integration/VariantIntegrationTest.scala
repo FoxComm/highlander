@@ -79,15 +79,13 @@ class VariantIntegrationTest
     "Get a created variant successfully" in new Fixture {
       val variantResponse =
         productVariantsApi(variantForm.id).get().as[ProductVariantResponse.Root]
-      variantResponse.attributes.code must === (variant.code)
 
-      val salePrice = variantResponse.attributes \ "salePrice" \ "v" \ "value"
-      salePrice.extract[Int] must === (9999)
+      variantResponse.attributes.code must === (variant.code)
+      variantResponse.attributes.salePrice must === (9999)
     }
 
     "Throws a 404 if given an invalid code" in new Fixture {
-      val response = productVariantsApi(99).get()
-      response.status must === (StatusCodes.NotFound)
+      productVariantsApi(99).get().mustFailWith404(ProductVariantNotFoundForContext("99", ctx.id))
     }
   }
 
@@ -102,7 +100,7 @@ class VariantIntegrationTest
 
       variantResponse.attributes.code must === (variant.code)
       variantResponse.attributes.getString("name") must === ("Test")
-      (variantResponse.attributes \ "salePrice" \ "v" \ "value").extract[Int] must === (9999)
+      variantResponse.attributes.salePrice must === (9999)
     }
 
     "Updates variant's code" in new Fixture {
@@ -114,7 +112,7 @@ class VariantIntegrationTest
       val variantResponse =
         productVariantsApi(variantForm.id).get().as[ProductVariantResponse.Root]
       variantResponse.attributes.code must === ("UPCODE")
-      (variantResponse.attributes \ "salePrice" \ "v" \ "value").extract[Int] must === (9999)
+      variantResponse.attributes.salePrice must === (9999)
     }
   }
 

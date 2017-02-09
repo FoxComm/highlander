@@ -33,9 +33,6 @@ class ProductVariantSearchViewTest extends SearchViewTestBase {
   val searchViewName: String = "product_variants_search_view"
   val searchKeyName: String  = "variant_id"
 
-  def priceAsString(attrs: Json, field: String): String =
-    (attrs \ field \ "v" \ "value").extract[String]
-
   "Product variant search view must be updated" - {
 
     "when variant is created" in new ProductVariant_ApiFixture {
@@ -57,8 +54,8 @@ class ProductVariantSearchViewTest extends SearchViewTestBase {
         variantId must === (productVariant.id)
         middlewarehouseSkuId must === (productVariant.skuId)
         archivedAt must not be defined
-        retailPrice must === (priceAsString(productVariant.attributes, "retailPrice"))
-        salePrice must === (priceAsString(productVariant.attributes, "salePrice"))
+        retailPrice must === (productVariant.attributes.retailPrice.toString)
+        salePrice must === (productVariant.attributes.salePrice.toString)
         retailPriceCurrency must === (Currency.USD.getCode)
         salePriceCurrency must === (Currency.USD.getCode)
         image must not be defined
@@ -86,7 +83,7 @@ class ProductVariantSearchViewTest extends SearchViewTestBase {
                                 title = newTitle))
         .as[ProductVariantResponse.Root]
 
-      val updated = findOneInSearchView(productVariant.id)
+      private val updated = findOneInSearchView(productVariant.id)
       updated.salePrice must === (newPrice.toString)
       updated.retailPrice must === (newPrice.toString)
       updated.image.value must === (imageSrc)
@@ -96,8 +93,8 @@ class ProductVariantSearchViewTest extends SearchViewTestBase {
     "when variant is archived" in new ProductVariant_ApiFixture {
       productVariantsApi(productVariant.id).archive().mustBeOk()
 
-      val archivedAtAsString = findOneInSearchView(productVariant.id).archivedAt.value
-      private val archivedAt = Instant.parse(archivedAtAsString)
+      private val archivedAt =
+        Instant.parse(findOneInSearchView(productVariant.id).archivedAt.value)
       archivedAt.isBefore(Instant.now) mustBe true
       archivedAt.isAfter(Instant.now.minusSeconds(1L)) mustBe true
     }

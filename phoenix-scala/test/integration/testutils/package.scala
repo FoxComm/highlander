@@ -25,9 +25,15 @@ package object testutils extends MustMatchers with OptionValues with AppendedClu
     def getOpt[A](field: String)(implicit mf: Manifest[A]): Option[A] =
       (attributes \ field \ "v").extractOpt[A]
 
+    def getValue[A](field: String)(implicit mf: Manifest[A]): A =
+      (attributes \ field \ "v" \ "value").extract[A]
+
     def getString(field: String): String = get[String](field)
 
-    def code: String = getString("code")
+    // Concrete attribute extractors
+    def code: String     = getString("code")
+    def salePrice: Int   = getValue[Int]("salePrice")
+    def retailPrice: Int = getValue[Int]("retailPrice")
   }
 
   implicit class RichTraversable[A](val sequence: Traversable[A]) extends AnyVal {
