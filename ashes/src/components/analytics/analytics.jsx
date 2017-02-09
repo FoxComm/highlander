@@ -22,12 +22,30 @@ import SegmentControlList from './segment-control-list';
 import type { Props as SegmentControlType } from './segment-control';
 
 const ActionBlock = (props) => {
+  const { onActionClick, style } = props;
+
+  const xIconSvg = (
+    <svg width="14px" height="14px" viewBox="0 0 14 14" style={style}>
+      <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g transform="translate(-485.000000, -557.000000)" fill="#000000">
+          <g transform="translate(485.000000, 557.000000)">
+            <g>
+              <g>
+                <path d="M8.66317371,6.99940845 L13.6542723,2.00830986 C14.1137089,1.54887324 14.1137089,0.803981221 13.6542723,0.344610329 C13.1948357,-0.114826291 12.4500094,-0.114826291 11.9905728,0.344610329 L6.99940845,5.33577465 L2.00824413,0.344544601 C1.54880751,-0.114892019 0.803981221,-0.114892019 0.344544601,0.344544601 C-0.114826291,0.803981221 -0.114826291,1.54887324 0.344544601,2.00824413 L5.33570892,6.99934272 L0.344544601,11.990507 C-0.114826291,12.4499437 -0.114826291,13.1948357 0.344544601,13.6542066 C0.803981221,14.1136432 1.54880751,14.1136432 2.00824413,13.6542066 L6.99940845,8.66304225 L11.9905728,13.6542066 C12.4499437,14.1136432 13.1948357,14.1136432 13.6542723,13.6542066 C14.1137089,13.19477 14.1137089,12.4499437 13.6542723,11.990507 L8.66317371,6.99940845 Z" id="Shape"></path>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </svg>
+  );
+
   return (
     <a
       className='fc-modal-close'
-      onClick={props.onActionClick}
+      onClick={onActionClick}
     >
-      <i className='icon-close' />
+      {xIconSvg}
     </a>
   );
 };
@@ -235,6 +253,14 @@ export default class Analytics extends React.Component {
   @autobind
   removeComparison() {
     console.log('Remove Comparison clicked!');
+    this.setState({
+      comparisonPeriod: {
+        dateDisplay: 'Comparison Period',
+        dateRangeBegin: moment().startOf('day').unix(),
+        dateRangeEnd: moment().unix(),
+        dataFetchTimeSize: 0,
+      },
+    });
   }
 
   @autobind
@@ -488,10 +514,11 @@ export default class Analytics extends React.Component {
     if (!_.isNil(analytics.isFetching) && !analytics.isFetching) {
       const segmentCtrlList = (
         <SegmentControlList
-        items={segments}
-        onSelect={this.onSegmentControlSelect}
-        activeSegment={segment}
-      />);
+          items={segments}
+          onSelect={this.onSegmentControlSelect}
+          activeSegment={segment}
+        />
+      );
 
       switch (question.title) {
         case questionTitles.TotalRevenue:
@@ -520,6 +547,10 @@ export default class Analytics extends React.Component {
             </div>
           );
         case questionTitles.ProductConversionRate:
+          const comparisonCancelButtonVisibility = comparisonPeriod.dataFetchTimeSize > 0
+            ? 'visible'
+            : 'hidden';
+
           return (
             <div>
               <Dropdown
@@ -534,7 +565,10 @@ export default class Analytics extends React.Component {
                   return _.isNil(value) ? placeholder : value;
                 }}
               />
-              <ActionBlock onActionClick={this.removeComparison} />
+              <ActionBlock
+                onActionClick={this.removeComparison}
+                style={{marginLeft: '10px', visibility: comparisonCancelButtonVisibility}}
+              />
               <ProductConversionChart
                 jsonData={analytics.chartValues}
               />
