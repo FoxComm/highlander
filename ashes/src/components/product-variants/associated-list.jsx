@@ -3,6 +3,8 @@ import _ from 'lodash';
 import React, { Element } from 'react';
 import styles from './associated-list.css';
 
+import WaitAnimation from '../common/wait-animation';
+
 type ListItem = {
   image: string,
   title: string|Element,
@@ -12,6 +14,7 @@ type ListItem = {
 type Props = {
   title: string|Element,
   list: Array<ListItem>,
+  fetchState: AsyncState,
 }
 
 const AssociatedList = (props: Props) => {
@@ -27,12 +30,22 @@ const AssociatedList = (props: Props) => {
     );
   };
 
-  return (
-    <div styleName="root">
-      <div styleName="title">{props.title}</div>
+  let content;
+
+  if (_.get(props.fetchState, 'inProgress', null) !== false) {
+    content = <WaitAnimation/>;
+  } else {
+    content = (
       <ul styleName="list">
         {_.map(props.list, renderItem)}
       </ul>
+    );
+  }
+
+  return (
+    <div styleName="root">
+      <div styleName="title">{props.title}</div>
+      {content}
     </div>
   );
 };
