@@ -92,3 +92,4 @@ docker_tags:
     eggcrate: "{{tag_name}}"
     river_rock: "{{tag_name}}"
     digger_sphex: "{{tag_name}}"
+    orders_sphex: "{{tag_name}}"

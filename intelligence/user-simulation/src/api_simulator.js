@@ -177,40 +177,6 @@ async function purchase(c) {
   await c.api.cart.addCreditCard(card.id);
 
   await c.api.cart.checkout();
-
-  await c.api.analytics.trackEvent({
-      channel: 1,
-      subject: 1,
-      verb: 'purchase',
-      obj: 'order',
-      objId: orderHash(cart.referenceNumber),
-  });
-  _.forEach(cart.lineItems.skus, async sku => {
-      const productId = _.get(sku, 'productFormId', null);
-      await c.api.analytics.trackEvent({
-          channel: 1,
-          subject: 1,
-          verb: 'purchase',
-          obj: 'product',
-          objId: productHash(productId),
-      });
-      await c.api.analytics.trackEvent({
-          channel: 1,
-          subject: 1,
-          verb: 'purchase-quantity',
-          obj: 'product',
-          count: sku.quantity,
-          objId: productHash(productId),
-      });
-      await c.api.analytics.trackEvent({
-          channel: 1,
-          subject: 1,
-          verb: 'revenue',
-          obj: 'product',
-          count: sku.price,
-          objId: productHash(productId),
-      });
-  });
 }
 
 async function clear_cart(c) {
