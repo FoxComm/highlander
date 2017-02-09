@@ -35,6 +35,12 @@ type State = {
   question: QuestionBoxType,
   segment: SegmentControlType,
   dataFetchTimeSize: number,
+  comparisonPeriod: {
+    dateDisplay: string,
+    dateRangeBegin: string,
+    dateRangeEnd: string,
+    dataFetchTimeSize: number,
+  },
 }
 
 type Props = {
@@ -107,6 +113,14 @@ const datePickerOptions = [
   { id: datePickerType.Last90, displayText: 'Last 90 Days'},
 ];
 const datePickerFormat = 'MM/DD/YYYY';
+
+const comparisonPeriodOptions = [
+  { id: datePickerType.Today, displayText: 'Today'},
+  { id: datePickerType.Yesterday, displayText: 'Yesterday'},
+  { id: datePickerType.LastWeek, displayText: 'Last Week'},
+  { id: datePickerType.Last30, displayText: 'Last 30 Days'},
+  { id: datePickerType.Last90, displayText: 'Last 90 Days'},
+];
 
 // helpers
 export function
@@ -184,6 +198,12 @@ export default class Analytics extends React.Component {
     question: _.noop,
     segment: _.noop,
     dataFetchTimeSize: 0,
+    comparisonPeriod: {
+      dateDisplay: 'Comparison Period',
+      dateRangeBegin: moment().startOf('day').unix(),
+      dateRangeEnd: moment().unix(),
+      dataFetchTimeSize: 0,
+    },
   };
 
   constructor(props: Props) {
@@ -234,8 +254,8 @@ export default class Analytics extends React.Component {
   }
 
   @autobind
-  onDatePickerChange(selectionIndex: number) {
-    const { question, segment, dataFetchTimeSize } = this.state;
+  onDateDropdownChange(selectionIndex: number) {
+    const { segment, dataFetchTimeSize } = this.state;
 
     let displayText = '';
     let endDisplayText = '';
@@ -301,6 +321,20 @@ export default class Analytics extends React.Component {
       }
     }
 
+    return {
+      displayText: displayText,
+      newDateRangeBegin: newDateRangeBegin,
+      newDateRangeEnd: newDateRangeEnd,
+      newDataFetchTimeSize: newDataFetchTimeSize
+    };
+  }
+
+  @autobind
+  onDatePickerChange(selectionIndex: number) {
+    const { question } = this.state;
+    const { displayText, newDateRangeBegin,
+      newDateRangeEnd, newDataFetchTimeSize } = this.onDateDropdownChange(selectionIndex);
+
     this.setState({
         dateDisplay: displayText,
         dateRangeBegin: newDateRangeBegin,
@@ -308,6 +342,22 @@ export default class Analytics extends React.Component {
         dataFetchTimeSize: newDataFetchTimeSize,
       },
       this.fetchData(question, newDateRangeBegin, newDateRangeEnd, newDataFetchTimeSize)
+    );
+  }
+
+  @autobind
+  onComparisonPeriodChange(selectionIndex: number) {
+    const { displayText, newDateRangeBegin,
+      newDateRangeEnd, newDataFetchTimeSize } = this.onDateDropdownChange(selectionIndex);
+
+    this.setState({
+        comparisonPeriod: {
+          dateDisplay: displayText,
+          dateRangeBegin: newDateRangeBegin,
+          dateRangeEnd: newDateRangeEnd,
+          dataFetchTimeSize: newDataFetchTimeSize,
+        },
+      }
     );
   }
 
@@ -411,7 +461,7 @@ export default class Analytics extends React.Component {
   }
 
   get chartFromQuestion() {
-    const { question, dataFetchTimeSize, segment } = this.state;
+    const { question, dataFetchTimeSize, segment, comparisonPeriod } = this.state;
 
     if (_.isNil(question)) {
       return false;
@@ -454,7 +504,25 @@ export default class Analytics extends React.Component {
             </div>
           );
         case questionTitles.ProductConversionRate:
-          return <ProductConversionChart jsonData={analytics.chartValues} />;
+          return (
+            <div>
+              <Dropdown
+                styleName="comparison-period-filter-date-picker"
+                name="dateControl"
+                items={_.map(comparisonPeriodOptions, ({id, displayText}) => [id, displayText])}
+                placeholder="Comparison Period"
+                changeable={true}
+                onChange={this.onComparisonPeriodChange}
+                value={comparisonPeriod.dateDisplay}
+                renderNullTitle={(value, placeholder) => {
+                  return _.isNil(value) ? placeholder : value;
+                }}
+              />
+              <ProductConversionChart
+                jsonData={analytics.chartValues}
+              />
+            </div>
+          );
         default:
           return false;
       }
