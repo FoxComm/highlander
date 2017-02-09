@@ -76,7 +76,7 @@ object GroupManager {
                  CustomerGroup.fromPayloadAndAdmin(payload, admin.accountId, scope))
       updated ← * <~ {
                  if (group.elasticRequest == JObject() || group.elasticRequest == JNull)
-                   updateWithGroupIdQuery(group)
+                   CustomerGroups.update(group, withGroupQuery(group))
                  else DbResultT.good(group)
                }
       _ ← * <~ LogActivity.customerGroupCreated(updated, admin)
@@ -99,10 +99,9 @@ object GroupManager {
       _ ← * <~ LogActivity.customerGroupCreated(group, admin)
     } yield build(group)
 
-  private def updateWithGroupIdQuery(
-      group: CustomerGroup)(implicit ec: EC, db: DB, au: AU, ac: AC): DbResultT[CustomerGroup] = {
+  private def withGroupQuery(group: CustomerGroup): CustomerGroup = {
     val groupQuery = ("query" → ("bool" → ("filter" → ("term" → ("groups" → group.id)))))
-    CustomerGroups.update(group, group.copy(elasticRequest = groupQuery))
+    group.copy(elasticRequest = groupQuery)
   }
 
 }
