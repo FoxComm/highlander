@@ -23,8 +23,29 @@ import payloads.AuthPayload
 import payloads.ReturnPayloads.ReturnLineItemPayload
 import responses.PublicResponses.CountryWithRegions
 
+/**
+  * [[TypeHints]] implementation for json4s that supports
+  * discriminating of trait/class hierarchies based on [[ADT]] typeclass.
+  *
+  * Example:
+  * {{{
+  * ADTTypeHints(
+  *   Map(
+  *     ReturnLineItem.GiftCardItem → classOf[ReturnGiftCardLineItemPayload],
+  *     ReturnLineItem.ShippingCost → classOf[ReturnShippingCostLineItemPayload],
+  *     ReturnLineItem.SkuItem      → classOf[ReturnSkuLineItemPayload]
+  * ))
+  * }}}
+  * It will allow to deserialize [[ReturnLineItemPayload]] based on [[ReturnLineItem.OriginType]] ADT.
+  * Every json payload with [[ReturnLineItemPayload]] should then contain additional field [[JsonFormatters.TypeHintFieldName]]
+  * with type hint that is string representation of specific [[ReturnLineItem.OriginType]].
+  *
+  * Note that you are fully responsible for providing exclusive 1:1 mapping from ADT element to class.
+  * If more than one class is assigned to ADT element, then only single one will be serializable to JSON
+  * and which one be will depend on underlying [[Map]] implementation.
+  */
 case class ADTTypeHints[T: ADT](adtHints: Map[T, Class[_]]) extends TypeHints {
-  @inline def adt = implicitly[ADT[T]]
+  @inline private def adt = implicitly[ADT[T]]
 
   private[this] lazy val reversed = adtHints.map(_.swap)
 

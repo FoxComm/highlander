@@ -82,7 +82,7 @@ object CustomHandlers {
     }
 
     ExceptionHandler {
-      case e: ExecutionException ⇒
+      case e: ExecutionException if e.getCause ne null ⇒
         baseHandler(e.getCause)
     } orElse baseHandler
   }

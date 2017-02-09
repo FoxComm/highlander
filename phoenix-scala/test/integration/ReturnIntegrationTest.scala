@@ -1,10 +1,10 @@
 import akka.http.scaladsl.model.StatusCodes
 import failures.LockFailures._
+import failures.ReturnFailures._
 import failures._
 import models.Reasons
 import models.account._
 import models.cord._
-import models.cord.lineitems._
 import models.inventory.Skus
 import models.payment.giftcard._
 import models.product.Mvp
@@ -19,7 +19,6 @@ import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import utils.db._
-import utils.seeds.ReturnSeeds
 import utils.seeds.Seeds.Factories
 
 class ReturnIntegrationTest
@@ -332,22 +331,25 @@ class ReturnIntegrationTest
       }
 
       "fails if refNum is not found" in new LineItemFixture {
-        val response = returnsApi("ABC-666").lineItems.add(giftCardPayload)
-        response.mustFailWith404(NotFoundFailure404(Return, "ABC-666"))
+        returnsApi("ABC-666").lineItems
+          .add(giftCardPayload)
+          .mustFailWith404(NotFoundFailure404(Return, "ABC-666"))
       }
 
       "fails if reason is not found" in new LineItemFixture {
-        val payload = shippingCostPayload.copy(reasonId = 42)
+        val payload = shippingCostPayload.copy(reasonId = 666)
 
-        val response = returnsApi(rma.referenceNumber).lineItems.add(payload)
-        response.mustFailWith404(NotFoundFailure404(ReturnReason, 42))
+        returnsApi(rma.referenceNumber).lineItems
+          .add(payload)
+          .mustFailWith400(ReturnReasonNotFoundFailure(666))
       }
 
       "fails if quantity is invalid" in new LineItemFixture {
         val payload = skuPayload.copy(quantity = -42)
 
-        val response = returnsApi(rma.referenceNumber).lineItems.add(payload)
-        response.mustFailWithMessage("Quantity got -42, expected more than 0")
+        returnsApi(rma.referenceNumber).lineItems
+          .add(payload)
+          .mustFailWithMessage("Quantity got -42, expected more than 0")
       }
     }
 
@@ -401,13 +403,15 @@ class ReturnIntegrationTest
       }
 
       "fails if refNum is not found" in new LineItemFixture {
-        val response = returnsApi("ABC-666").lineItems.remove(42)
-        response.mustFailWith404(NotFoundFailure404(Return, "ABC-666"))
+        returnsApi("ABC-666").lineItems
+          .remove(1)
+          .mustFailWith404(NotFoundFailure404(Return, "ABC-666"))
       }
 
       "fails if line item ID is not found" in new LineItemFixture {
-        val response = returnsApi(rma.referenceNumber).lineItems.remove(666)
-        response.mustFailWith404(NotFoundFailure404(ReturnLineItem, 666))
+        returnsApi(rma.referenceNumber).lineItems
+          .remove(666)
+          .mustFailWith404(NotFoundFailure404(ReturnLineItem, 666))
       }
     }
   }

@@ -222,7 +222,7 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
       val requestPath = s"${returns.requestPath}/line-items"
 
       def add(payload: ReturnLineItemPayload): HttpResponse =
-        POST(s"$requestPath", payload)
+        POST(requestPath, payload)
 
       def remove(lineItemId: Int): HttpResponse =
         DELETE(s"$requestPath/$lineItemId")

@@ -1,5 +1,6 @@
 package failures
 
+import models.returns.ReturnReason
 import utils.friendlyClassName
 
 object ReturnFailures {
@@ -11,5 +12,10 @@ object ReturnFailures {
   object ReturnPaymentNotFoundFailure {
     def apply[M](m: M): NotFoundFailure400 =
       NotFoundFailure400(s"${friendlyClassName(m)} payment not found")
+  }
+
+  object ReturnReasonNotFoundFailure {
+    def apply(id: ReturnReason#Id): NotFoundFailure400 =
+      NotFoundFailure400(s"Return reason $id not found")
   }
 }
