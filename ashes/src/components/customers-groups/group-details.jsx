@@ -264,7 +264,8 @@ const mapState = state => ({
 });
 
 const mapDispatch = (dispatch, props) => {
-  const customers = _.map(props.customerGroup.customers, customer => customer.id);
+  const customerEntries = _.get(props, 'customerGroups.details.customer', []);
+  const customers = _.map(customerEntries, customer => customer.id);
 
   return {
     groupActions: bindActionCreators({ fetchGroupStats }, dispatch),
