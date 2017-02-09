@@ -16,6 +16,9 @@ import ProductTypeSelector from 'ui/product-type-selector';
 // styles
 import styles from './products.css';
 
+// constants
+import { productTypes } from 'modules/categories';
+
 // types
 type Params = {
   categoryName: ?string,
@@ -47,15 +50,6 @@ const mapStateToProps = state => {
     categories: state.categories.list,
   };
 };
-
-// consts
-const productTypes = [
-  'All',
-  'Poultry',
-  'Seafood',
-  'Meat',
-  'Vegetarian',
-];
 
 const defaultProductType = productTypes[0];
 
