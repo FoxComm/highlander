@@ -11,6 +11,7 @@ import localized from 'lib/i18n';
 import classNames from 'classnames';
 
 import * as actions from 'modules/categories';
+import { convertCategoryNameToUrlPart } from 'modules/categories';
 
 import styles from './navigation.css';
 
@@ -45,7 +46,7 @@ class Navigation extends Component {
     if (category == undefined) {
       url = '/';
     } else {
-      const dashedName = category.name.replace(/\s/g, '-');
+      const dashedName = convertCategoryNameToUrlPart(category.name);
       url = `/${dashedName}`;
     }
 

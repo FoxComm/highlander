@@ -30,6 +30,7 @@ gulp.task('build', function(cb) {
       'build:clean',
       ...buildTasks,
       'rev',
+      'sitemap',
     ];
   }
 

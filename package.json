@@ -69,6 +69,7 @@
     "postcss-devtools": "^1.0.0",
     "postcss-import": "^8.0.2",
     "react-proxy": "^1.1.2",
+    "react-router-sitemap": "github:nitinan59/react-router-sitemap#2680a01b6fef016bd55b082d63bbd8fcf232d8c9",
     "redux-thunk": "^1.0.3",
     "run-sequence": "^1.1.5",
     "strip-ansi": "^3.0.0",
