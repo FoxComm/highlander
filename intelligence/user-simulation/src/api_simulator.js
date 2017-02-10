@@ -76,28 +76,35 @@ async function category(c) {
         subject: 1,
         verb: 'list',
         obj: 'product',
-        objId: productHash(product.id),
+        objId: productHash(product.productId),
     });
   });
 
   c.product = _.sample(products.result);
-  console.log("PROD: " + c.product.id);
+  console.log("PROD: " + c.product.productId);
 }
 
 async function product(c) {
   console.log("api product");
-  return c.api.analytics.trackEvent({
+  await c.api.analytics.trackEvent({
       channel: 1,
       subject: 1,
       verb: 'pdp',
       obj: 'product',
-      objId: productHash(product.id),
+      objId: productHash(c.product.productId),
   });
 }
 
 async function cart(c) {
   console.log("api cart");
-  return c.api.cart.addSku(c.product.skus[0], 1);
+  await c.api.cart.addSku(c.product.skus[0], 1);
+  await c.api.analytics.trackEvent({
+      channel: 1,
+      subject: 1,
+      verb: 'cart',
+      obj: 'product',
+      objId: productHash(c.product.productId),
+  });
 }
 
 function getRegion(state) {
@@ -127,7 +134,7 @@ async function purchase(c) {
           subject: 1,
           verb: 'checkout',
           obj: 'product',
-          objId: productHash(product.id),
+          objId: productHash(productId),
       });
   });
 
