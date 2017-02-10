@@ -47,18 +47,22 @@ object GroupMemberManager {
                                                                   db: DB,
                                                                   ac: AC): DbResultT[Unit] =
     for {
-      group ← * <~ CustomerGroups.mustFindById404(groupId)
-      _     ← * <~ group.mustBeOfType(Manual)
+      group          ← * <~ CustomerGroups.mustFindById404(groupId)
+      _              ← * <~ group.mustBeOfType(Manual)
+      currentMembers ← * <~ CustomerGroupMembers.findByGroupId(group.id).result
+      dataIds = currentMembers.map(_.customerDataId).toSet
+      currentMemberData ← * <~ CustomersData.findAllByIds(dataIds).result
+      memberIds   = currentMemberData.map(_.userId).toSet
       forCreation = payload.toAdd.toSet
       forDeletion = payload.toDelete.toSet
       _ ← * <~ failIf(!forCreation.intersect(forDeletion).isEmpty,
                       CustomerGroupMemberPayloadContainsSameIdsInBothSections(groupId,
                                                                               forCreation,
                                                                               forDeletion))
-      _ ← * <~ forCreation.map { userId ⇒
+      _ ← * <~ forCreation.diff(memberIds).map { userId ⇒
            createGroupMember(userId, groupId)
          }
-      _ ← * <~ forDeletion.map { userId ⇒
+      _ ← * <~ forDeletion.intersect(memberIds).map { userId ⇒
            deleteGroupMember(userId, groupId)
          }
     } yield DbResultT.unit
