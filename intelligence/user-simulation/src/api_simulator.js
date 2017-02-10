@@ -128,12 +128,13 @@ async function purchase(c) {
       objId: cartHash(cart.referenceNumber),
   });
   _.forEach(cart.lineItems.skus, async sku => {
-      const productId = _.get(sku, 'productFormId', null);
+      const productId = sku.productFormId;
       await c.api.analytics.trackEvent({
           channel: 1,
           subject: 1,
           verb: 'checkout',
           obj: 'product',
+          count: sku.quantity,
           objId: productHash(productId),
       });
   });
