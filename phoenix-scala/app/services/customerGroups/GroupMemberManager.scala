@@ -92,8 +92,8 @@ object GroupMemberManager {
       membership = CustomerGroupMember(customerDataId = customerData.id, groupId = groupId)
       result ← * <~ CustomerGroupMembers.create(membership)
       _ ← * <~ doOrMeh(
-              group.groupType == Manual,
-              CustomerGroups.update(group, group.copy(customersCount = group.customersCount + 1)))
+             group.groupType == Manual,
+             CustomerGroups.update(group, group.copy(customersCount = group.customersCount + 1)))
     } yield result
 
   private def deleteGroupMember(userId: Int, groupId: Int)(implicit ec: EC,
@@ -107,8 +107,8 @@ object GroupMemberManager {
       _ ← * <~ CustomerGroupMembers
            .deleteById(membership.id, DbResultT.unit, userId ⇒ NotFoundFailure400(User, userId))
       _ ← * <~ doOrMeh(
-              group.groupType == Manual,
-              CustomerGroups.update(group, group.copy(customersCount = group.customersCount - 1)))
+             group.groupType == Manual,
+             CustomerGroups.update(group, group.copy(customersCount = group.customersCount - 1)))
     } yield DbResultT.unit
 
 }

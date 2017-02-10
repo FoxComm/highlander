@@ -6,6 +6,9 @@ import failures.CustomerGroupFailures.CustomerGroupMemberCannotBeDeleted
 import failures.NotFoundFailure404
 import models.account.{Scope, User}
 import models.customer._
+import org.json4s._
+import org.json4s.jackson.JsonMethods._
+import org.json4s.JsonDSL._
 import payloads.CustomerGroupPayloads.CustomerGroupPayload
 import responses.GroupResponses.GroupResponse.{Root, build}
 import services.LogActivity
@@ -71,8 +74,11 @@ object GroupManager {
       scope ← * <~ Scope.resolveOverride(payload.scope)
       group ← * <~ CustomerGroups.create(
                  CustomerGroup.fromPayloadAndAdmin(payload, admin.accountId, scope))
-      _ ← * <~ LogActivity.customerGroupCreated(group, admin)
-    } yield build(group)
+      updated ← * <~ doOrGood(group.elasticRequest == JObject() || group.elasticRequest == JNull,
+                              CustomerGroups.update(group, withGroupQuery(group)),
+                              group)
+      _ ← * <~ LogActivity.customerGroupCreated(updated, admin)
+    } yield build(updated)
 
   private def createTemplateGroup(templateId: Int, payload: CustomerGroupPayload, admin: User)(
       implicit ec: EC,
@@ -90,4 +96,33 @@ object GroupManager {
                                    scope = scope))
       _ ← * <~ LogActivity.customerGroupCreated(group, admin)
     } yield build(group)
+
+  private def withGroupQuery(group: CustomerGroup): CustomerGroup = {
+    val groupQuery = parse(s"""{"query":
+         |  {"bool":
+         |    {"filter":
+         |      [
+         |        {"bool":
+         |          {"must":
+         |            [
+         |              {"term":
+         |                {"groups": ${group.id}}
+         |              }
+         |            ]
+         |          }
+         |        }
+         |      ]
+         |    }
+         |  },
+         |  "sort":
+         |    [
+         |      {"joinedAt":
+         |        {"order": "desc"}
+         |      }
+         |    ]
+         |  }
+         |}""".stripMargin)
+    group.copy(elasticRequest = groupQuery)
+  }
+
 }

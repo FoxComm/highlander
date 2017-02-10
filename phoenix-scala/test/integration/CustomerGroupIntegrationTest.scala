@@ -2,7 +2,9 @@ import com.github.tminglei.slickpg.LTree
 import failures.NotFoundFailure404
 import models.customer.CustomerGroup._
 import models.customer._
-import org.json4s.JObject
+import org.json4s._
+import org.json4s.jackson.JsonMethods._
+import org.json4s.JsonDSL._
 import org.scalatest.mockito.MockitoSugar
 import payloads.CustomerGroupPayloads.CustomerGroupPayload
 import responses.GroupResponses.GroupResponse.{Root, build}
@@ -58,6 +60,21 @@ class CustomerGroupIntegrationTest
         .mustFindOneOr(NotFoundFailure404(GroupTemplateInstances, "fakeId"))
         .gimme
       templateLink.scope must === (LTree(scopeN))
+    }
+
+    "inserts group query if elasticquery is empty" in new Fixture {
+      val scopeN = "1"
+      val payload = CustomerGroupPayload(name = "Group number one",
+                                         clientState = JObject(),
+                                         elasticRequest = JNull,
+                                         customersCount = 1,
+                                         scope = scopeN.some,
+                                         groupType = Manual)
+
+      val root = customerGroupsApi.create(payload).as[Root]
+      root.elasticRequest must !==(JObject())
+      ((((root.elasticRequest \ "query" \ "bool" \ "filter")(0) \ "bool" \ "must")(0) \ "term" \ "groups")) must === (
+          JInt(root.id))
     }
 
     "fail to create customer group with nonexistnet tempalte id" in new Fixture {
