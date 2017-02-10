@@ -20,7 +20,7 @@ object ReturnRoutes {
   def routes(implicit ec: EC, db: DB, auth: AuthData[User]): Route = {
 
     activityContext(auth.model) { implicit ac ⇒
-      determineObjectContext(db, ec) { productContext ⇒
+      determineObjectContext(db, ec) { implicit productContext ⇒
         pathPrefix("returns") {
           (post & pathEnd & entity(as[ReturnCreatePayload])) { payload ⇒
             mutateOrFailures {
@@ -79,27 +79,15 @@ object ReturnRoutes {
               ReturnLockUpdater.unlock(refNum)
             }
           } ~
-          pathPrefix("line-items" / "skus") {
-            (post & pathEnd & entity(as[ReturnSkuLineItemsPayload])) { payload ⇒
+          pathPrefix("line-items") {
+            (post & pathEnd & entity(as[ReturnLineItemPayload])) { payload ⇒
               mutateOrFailures {
-                ReturnLineItemUpdater.addSkuLineItem(refNum, payload, productContext)
+                ReturnLineItemUpdater.addLineItem(refNum, payload)
               }
             } ~
             (delete & path(IntNumber) & pathEnd) { lineItemId ⇒
               mutateOrFailures {
-                ReturnLineItemUpdater.deleteSkuLineItem(refNum, lineItemId)
-              }
-            }
-          } ~
-          pathPrefix("line-items" / "shipping-costs") {
-            (post & pathEnd & entity(as[ReturnShippingCostLineItemsPayload])) { payload ⇒
-              mutateOrFailures {
-                ReturnLineItemUpdater.addShippingCostItem(refNum, payload)
-              }
-            } ~
-            (delete & path(IntNumber) & pathEnd) { lineItemId ⇒
-              mutateOrFailures {
-                ReturnLineItemUpdater.deleteShippingCostLineItem(refNum, lineItemId)
+                ReturnLineItemUpdater.deleteLineItem(refNum, lineItemId)
               }
             }
           } ~
@@ -108,7 +96,8 @@ object ReturnRoutes {
               mutateOrFailures {
                 ReturnPaymentUpdater.addPayment(refNum, payload)
               }
-            } ~ (delete & path(PaymentMethodMatcher) & pathEnd) { paymentMethod ⇒
+            } ~
+            (delete & path(PaymentMethodMatcher) & pathEnd) { paymentMethod ⇒
               mutateOrFailures {
                 ReturnPaymentUpdater.deletePayment(refNum, paymentMethod)
               }
