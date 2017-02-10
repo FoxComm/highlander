@@ -35,28 +35,21 @@ const categories = [
   {
     id: 4,
     name: 'FAVORITES',
-    description: '',
-    imageUrl: '',
+    description: 'Tried and True Favorites',
+    imageUrl: '/images/categories/Cat_TriedTrue_2x.jpg',
     hiddenInNavigation: true,
-    showNameCatPage: true,
+    showNameCatPage: false,
   },
   {
     id: 5,
-    name: 'HOLIDAY',
-    description: '',
-    imageUrl: '',
-    hiddenInNavigation: true,
-    showNameCatPage: true,
-  },
-  {
-    id: 6,
     name: 'GIFT CARDS',
     description: 'Gift cards will be here',
     imageUrl: '',
     showNameCatPage: true,
   },
   {
-    id: 7,
+    // TODO: REMOVE THIS CODE AFTER Feb 15
+    id: 6,
     name: 'VALENTINE',
     description: 'Valentine\'s Day Picks',
     imageUrl: '/images/categories/Cat_Valentine_2x.jpg',
@@ -64,7 +57,7 @@ const categories = [
     showNameCatPage: false,
   },
   {
-    id: 8,
+    id: 7,
     name: 'WEEKNIGHT',
     description: 'Weeknight Favorites',
     imageUrl: '/images/categories/Cat_Weeknights_2x.jpg',
@@ -72,7 +65,7 @@ const categories = [
     showNameCatPage: false,
   },
   {
-    id: 9,
+    id: 8,
     name: 'SPIN',
     description: 'Classics Revisited',
     imageUrl: '/images/categories/Cat_Spin_2x.jpg',
