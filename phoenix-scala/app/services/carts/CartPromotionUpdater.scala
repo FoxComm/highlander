@@ -30,7 +30,7 @@ import utils.db._
 
 object CartPromotionUpdater {
 
-  def readjust(cart: Cart, failFatally: Boolean /* FIXME with the new foxy monad */ )(
+  def readjust(cart: Cart, failFatally: Boolean /* FIXME with the new foxy monad @michalrus */ )(
       implicit ec: EC,
       es: ES,
       db: DB,
@@ -142,7 +142,7 @@ object CartPromotionUpdater {
                              cart: Cart,
                              qualifier: Qualifier,
                              offer: Offer,
-                             failFatally: Boolean /* FIXME with the new foxy monad */ )(
+                             failFatally: Boolean /* FIXME with the new foxy monad @michalrus */ )(
       implicit ec: EC,
       es: ES,
       db: DB,
@@ -158,7 +158,7 @@ object CartPromotionUpdater {
                      .flatMap(_ ⇒ ResultT(offer.adjust(input)))
                      .map(TheResponse(_))
                      .recoverWith {
-                       // FIXME: convert errors to warnings better with the new monad
+                       // FIXME: convert errors to warnings better with the new monad @michalrus
                        case qualifierErrors if failFatally ⇒ ResultT.leftAsync(qualifierErrors)
                        case qualifierErrors ⇒
                          ResultT.rightAsync(

@@ -33,7 +33,7 @@ object TheResponse {
   implicit val theResponseFunctor = new Functor[TheResponse] with Monad[TheResponse] {
     override def pure[A](x: A): TheResponse[A] = TheResponse(x)
 
-    // FIXME: this monstrosity below suggests that stuff could probably be encoded better (as in «more composable»)
+    // FIXME: this monstrosity below suggests that stuff could probably be encoded better (as in «more composable») @michalrus
     override def flatMap[A, B](fa: TheResponse[A])(f: (A) ⇒ TheResponse[B]): TheResponse[B] = {
       val fb = f(fa.result)
       def combineOL[C](xs: Option[List[C]], ys: Option[List[C]]): Option[List[C]] =

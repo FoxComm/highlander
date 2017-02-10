@@ -47,7 +47,7 @@ object CartShippingMethodUpdater {
       readjustedCartWithWarnings ← * <~ CartPromotionUpdater
                                     .readjust(cart, failFatally = false)
                                     .recover {
-                                      case _ ⇒ TheResponse(cart) /* FIXME ;( */
+                                      case _ ⇒ TheResponse(cart) /* FIXME: don’t swallow errors @michalrus */
                                     }
       order     ← * <~ CartTotaler.saveTotals(cart)
       validated ← * <~ CartValidator(order).validate()
@@ -72,7 +72,7 @@ object CartShippingMethodUpdater {
       readjustedCartWithWarnings ← * <~ CartPromotionUpdater
                                     .readjust(cart, failFatally = false)
                                     .recover {
-                                      case _ ⇒ TheResponse(cart) /* FIXME ;( */
+                                      case _ ⇒ TheResponse(cart) /* FIXME: don’t swallow errors @michalrus */
                                     }
       cart  ← * <~ CartTotaler.saveTotals(readjustedCartWithWarnings.result)
       valid ← * <~ CartValidator(cart).validate()

@@ -4,9 +4,6 @@ import cats.laws.MonadLaws
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
 import testutils.TestBase
 
-/**
-  * Created by mw on 2/9/17.
-  */
 class TheResponseTest extends TestBase with GeneratorDrivenPropertyChecks {
 
   "TheResponse" - {
@@ -25,8 +22,9 @@ class TheResponseTest extends TestBase with GeneratorDrivenPropertyChecks {
         isEq.lhs must === (isEq.rhs)
       }
 
-      // TODO: finish the laws … maybe. But we’re abandoning TheResponse anyways.
-     }
+      // TODO: finish the laws … maybe. But we’re abandoning TheResponse shortly anyways,
+      // for a new, Writer-based monad. I hope the change won’t touch many lines initially.
+    }
   }
 
 }
