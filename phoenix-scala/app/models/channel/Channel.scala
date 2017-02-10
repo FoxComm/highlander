@@ -4,11 +4,13 @@ import java.time.Instant
 
 import com.github.tminglei.slickpg.LTree
 import com.pellucid.sealerate
+import failures._
 import payloads.ChannelPayloads.CreateChannelPayload
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import utils._
+import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 import utils.Validation
@@ -35,11 +37,14 @@ object Channel {
     def types = sealerate.values[Location]
   }
 
-  def build(payload: CreateChannelPayload, contextId: Int, scope: LTree): Channel =
+  def build(payload: CreateChannelPayload,
+            defaultContextId: Int,
+            draftContextId: Int,
+            scope: LTree): Channel =
     Channel(id = 0,
             scope = scope,
-            defaultContextId = contextId,
-            draftContextId = contextId,
+            defaultContextId = defaultContextId,
+            draftContextId = draftContextId,
             location = payload.location,
             name = payload.name,
             createdAt = Instant.now,
@@ -69,4 +74,10 @@ object Channels
     extends FoxTableQuery[Channel, Channels](new Channels(_))
     with ReturningId[Channel, Channels] {
   val returningLens: Lens[Channel, Int] = lens[Channel].id
+
+  def filterActive(id: Int): QuerySeq =
+    filter(_.id === id).filter(_.archivedAt.isEmpty === true)
+
+  def mustFindActive404(id: Int)(implicit ec: EC): DbResultT[Channel] =
+    filterActive(id).one.mustFindOr(NotFoundFailure404(s"channel with id=$id not found"))
 }

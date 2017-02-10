@@ -7,5 +7,6 @@ object ChannelPayloads {
                                   contextId: Option[Int] = None,
                                   location: Location,
                                   name: String)
-  case class UpdateChannelPayload(contextId: Option[Int] = None, name: Option[String] = None)
+
+  case class UpdateChannelPayload(name: String)
 }
