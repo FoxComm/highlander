@@ -31,19 +31,26 @@ object ReturnRoutes {
             getOrFailures {
               ReturnService.list
             }
-          }
-        } ~
-        pathPrefix("returns" / "customer") {
-          (get & path(IntNumber) & pathEnd) { customerId ⇒
-            getOrFailures {
-              ReturnService.getByCustomer(customerId)
+          } ~
+          pathPrefix("customer") {
+            (get & path(IntNumber) & pathEnd) { customerId ⇒
+              getOrFailures {
+                ReturnService.getByCustomer(customerId)
+              }
             }
-          }
-        } ~
-        pathPrefix("returns" / "order" / Cord.cordRefNumRegex) { refNum ⇒
-          (get & pathEnd) {
-            getOrFailures {
-              ReturnService.getByOrder(refNum)
+          } ~
+          pathPrefix("order" / Cord.cordRefNumRegex) { refNum ⇒
+            (get & pathEnd) {
+              getOrFailures {
+                ReturnService.getByOrder(refNum)
+              }
+            }
+          } ~
+          pathPrefix("reasons") {
+            (get & pathEnd) {
+              getOrFailures {
+                ReturnReasonsManager.reasonsList
+              }
             }
           }
         } ~

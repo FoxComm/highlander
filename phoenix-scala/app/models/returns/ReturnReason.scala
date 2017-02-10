@@ -50,4 +50,6 @@ object ReturnReasons
     with ReturningId[ReturnReason, ReturnReasons] {
 
   val returningLens: Lens[ReturnReason, Int] = lens[ReturnReason].id
+
+  def findOneByReasonType(reasonType: ReasonType = BaseReason) = {}
 }

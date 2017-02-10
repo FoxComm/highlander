@@ -276,7 +276,7 @@ object Seeds {
     for {
       r ← * <~ getMerchant
       (organization, merchant, account, claims) = r
-      _ ← * <~ ({
+      _ ← * <~ {
            implicit val au = AuthData[User](token =
                                               UserToken.fromUserAccount(merchant, account, claims),
                                             model = merchant,
@@ -295,13 +295,14 @@ object Seeds {
              _          ← * <~ Factories.createGiftCards
              _          ← * <~ Factories.createStoreCredits(adminId, customers._1, customers._3)
              _          ← * <~ Factories.createShipmentRules
+             _          ← * <~ Factories.createReturns
              // Promotions
              search     ← * <~ Factories.createSharedSearches(adminId)
              discounts  ← * <~ Factories.createDiscounts(search)
              promotions ← * <~ Factories.createCouponPromotions(discounts)
              coupons    ← * <~ Factories.createCoupons(promotions)
            } yield {}
-         })
+         }
     } yield {}
 
   object Factories

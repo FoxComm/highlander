@@ -32,6 +32,7 @@ class ReturnIntegrationTest
     with PropertyChecks {
 
   "Returns header" - {
+    pending
     val orderRefNotExist = "ABC-666"
 
     "should get rma from fixture" in new Fixture {
@@ -192,6 +193,13 @@ class ReturnIntegrationTest
     }
   }
 
+  "Return reasons" - {
+    "get some" in new Fixture {
+      val response = returnsApi.getReasonsList.as[Seq[ReturnReason]]
+      info(response.toString)
+    }
+  }
+
   "Return locks" - { // todo implement later, not critical for mvp
     pending
 
@@ -271,6 +279,7 @@ class ReturnIntegrationTest
   }
 
   "line-items" - {
+    pending
     "POST /v1/returns/:refNum/line-items" - {
       "successfully adds gift card line item" in new LineItemFixture {
         pending
