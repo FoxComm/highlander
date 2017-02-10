@@ -74,11 +74,9 @@ object GroupManager {
       scope ← * <~ Scope.resolveOverride(payload.scope)
       group ← * <~ CustomerGroups.create(
                  CustomerGroup.fromPayloadAndAdmin(payload, admin.accountId, scope))
-      updated ← * <~ {
-                 if (group.elasticRequest == JObject() || group.elasticRequest == JNull)
-                   CustomerGroups.update(group, withGroupQuery(group))
-                 else DbResultT.good(group)
-               }
+      updated ← * <~ doOrGood(group.elasticRequest == JObject() || group.elasticRequest == JNull,
+                              CustomerGroups.update(group, withGroupQuery(group)),
+                              group)
       _ ← * <~ LogActivity.customerGroupCreated(updated, admin)
     } yield build(updated)
 
