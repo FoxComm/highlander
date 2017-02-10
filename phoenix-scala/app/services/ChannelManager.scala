@@ -14,8 +14,7 @@ import utils.aliases._
 import utils.db._
 
 object ChannelManager {
-  def findById(
-      channelId: Int)(implicit ec: EC, db: DB, oc: OC, au: AU): DbResultT[ChannelResponse.Root] =
+  def findById(channelId: Int)(implicit ec: EC, db: DB, au: AU): DbResultT[ChannelResponse.Root] =
     for {
       channel        ← * <~ Channels.mustFindActive404(channelId)
       defaultContext ← * <~ ObjectContexts.mustFindById404(channel.defaultContextId)
@@ -24,7 +23,6 @@ object ChannelManager {
 
   def createChannel(payload: CreateChannelPayload)(implicit ec: EC,
                                                    db: DB,
-                                                   oc: OC,
                                                    au: AU): DbResultT[ChannelResponse.Root] =
     for {
       scope          ← * <~ Scope.resolveOverride(payload.scope)
@@ -37,7 +35,6 @@ object ChannelManager {
 
   def updateChannel(channelId: Int, payload: UpdateChannelPayload)(
       implicit ec: EC,
-      oc: OC,
       db: DB,
       au: AU): DbResultT[ChannelResponse.Root] =
     for {
@@ -47,14 +44,14 @@ object ChannelManager {
       draftContext   ← * <~ ObjectContexts.mustFindById404(channel.draftContextId)
     } yield ChannelResponse.build(up, defaultContext, draftContext)
 
-  def archiveChannel(channelId: Int)(implicit ec: EC, oc: OC, db: DB, au: AU): DbResultT[Unit] =
+  def archiveChannel(channelId: Int)(implicit ec: EC, db: DB, au: AU): DbResultT[Unit] =
     for {
       channel ← * <~ Channels.mustFindActive404(channelId)
       _ ← * <~ Channels
            .update(channel, channel.copy(updatedAt = Instant.now, archivedAt = Instant.now.some))
     } yield {}
 
-  private def findOrCreateContext(payload: CreateChannelPayload)(implicit ec: EC, db: DB, oc: OC) =
+  private def findOrCreateContext(payload: CreateChannelPayload)(implicit ec: EC, db: DB) =
     payload.contextId match {
       case Some(contextId) ⇒
         for {

@@ -119,6 +119,7 @@ class Service(systemOverride: Option[ActorSystem] = None,
         routes.admin.ObjectRoutes.routes ~
         routes.admin.PluginRoutes.routes ~
         routes.admin.TaxonomyRoutes.routes ~
+        routes.admin.ChannelRoutes.routes ~
         routes.service.PaymentRoutes.routes ~ //Migrate this to auth with service tokens once we have them
         routes.service.MigrationRoutes.routes(customerCreateContext)
       }
