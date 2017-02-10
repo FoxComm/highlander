@@ -1,7 +1,6 @@
 package testutils
 
 import java.net.ServerSocket
-
 import scala.collection.immutable
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -30,7 +29,7 @@ import server.Service
 import services.Authenticator.UserAuthenticator
 import utils.apis.Apis
 import utils.seeds.Seeds.Factories
-import utils.{FoxConfig, JsonFormatters}
+import utils.{Environment, FoxConfig, JsonFormatters}
 import utils.FoxConfig.config
 
 // TODO: Move away from root package when `Service' moverd
@@ -104,7 +103,7 @@ trait HttpSupport
   def overrideUserAuth: UserAuthenticator =
     AuthAs(adminUser, customerData)
 
-  implicit val env = FoxConfig.Test
+  implicit val env = Environment.Test
 
   def apisOverride: Apis
 

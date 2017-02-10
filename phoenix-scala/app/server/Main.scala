@@ -12,7 +12,6 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.RouteResult._
 import akka.http.scaladsl.server._
 import akka.stream.ActorMaterializer
-
 import com.stripe.Stripe
 import com.typesafe.scalalogging.LazyLogging
 import models.account.{AccountAccessMethod, User}
@@ -24,16 +23,12 @@ import services.Authenticator.UserAuthenticator
 import services.Authenticator.requireAdminAuth
 import services.actors._
 import slick.driver.PostgresDriver.api._
-import utils.FoxConfig.{Development, Staging}
-import utils.aliases._
 import utils.apis._
 import utils.http.CustomHandlers
 import utils.http.HttpLogger.logFailedRequests
-import utils.{ElasticsearchApi, FoxConfig}
+import utils.{ElasticsearchApi, Environment, FoxConfig}
 
 object Main extends App with LazyLogging {
-  implicit val env = FoxConfig.environment
-
   logger.info("Starting phoenix server")
 
   val service = new Service()
@@ -52,12 +47,12 @@ object Main extends App with LazyLogging {
   }
 }
 
-class Service(systemOverride: Option[ActorSystem] = None,
-              dbOverride: Option[Database] = None,
-              apisOverride: Option[Apis] = None,
-              esOverride: Option[ElasticsearchApi] = None,
-              addRoutes: immutable.Seq[Route] = immutable.Seq.empty)(
-    implicit val env: FoxConfig.Environment) {
+class Service(
+    systemOverride: Option[ActorSystem] = None,
+    dbOverride: Option[Database] = None,
+    apisOverride: Option[Apis] = None,
+    esOverride: Option[ElasticsearchApi] = None,
+    addRoutes: immutable.Seq[Route] = immutable.Seq.empty)(implicit val env: Environment) {
 
   import FoxConfig.config
   import utils.JsonFormatters._
@@ -133,13 +128,11 @@ class Service(systemOverride: Option[ActorSystem] = None,
   }
 
   val allRoutes = {
-    val routes = FoxConfig.environment match {
-      case Development | Staging ⇒
-        logger.info("Activating dev routes")
-        addRoutes.foldLeft(defaultRoutes ~ devRoutes)(_ ~ _)
-      case _ ⇒
-        addRoutes.foldLeft(defaultRoutes)(_ ~ _)
-    }
+    val routes = if (env.isDev) {
+      logger.info("Activating dev routes")
+      addRoutes.foldLeft(defaultRoutes ~ devRoutes)(_ ~ _)
+    } else
+      addRoutes.foldLeft(defaultRoutes)(_ ~ _)
     logFailedRequests(routes, logger)
   }
 

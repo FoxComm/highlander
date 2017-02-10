@@ -3,16 +3,45 @@ package utils
 import cats.Show
 import cats.implicits._
 import com.pellucid.sealerate
-import com.typesafe.config.{Config, ConfigFactory, ConfigValue}
+import com.typesafe.config.{Config, ConfigFactory}
 import pureconfig._
 import scala.reflect._
 import scala.util.{Failure, Success}
 import shapeless._
 import utils.FoxConfig._
 
-case class FoxConfig(app: App,
+sealed trait Environment {
+  def isDev: Boolean  = false
+  def isProd: Boolean = false
+}
+object Environment {
+  case object Test extends Environment
+  case object Development extends Environment {
+    override def isDev: Boolean = true
+  }
+  case object Staging extends Environment {
+    override def isDev: Boolean = true
+  }
+  case object Production extends Environment {
+    override def isProd: Boolean = true
+  }
+
+  implicit val environmentShow: Show[Environment] = new Show[Environment] {
+    def show(e: Environment) = friendlyClassName(e).toLowerCase
+  }
+
+  implicit lazy val default: Environment =
+    sys.props.get("phoenix.env").orElse(sys.env.get("PHOENIX_ENV")) match {
+      case Some("test")       ⇒ Test
+      case Some("staging")    ⇒ Staging
+      case Some("production") ⇒ Production
+      case _                  ⇒ Development
+    }
+}
+
+case class FoxConfig(apis: Apis,
+                     app: App,
                      auth: Auth,
-                     apis: Apis,
                      db: DB,
                      http: Http,
                      taxRules: TaxRules,
@@ -94,26 +123,7 @@ object FoxConfig {
       hostedDomain: Option[String]
   )
 
-  sealed trait Environment
-  case object Test        extends Environment
-  case object Development extends Environment
-  case object Staging     extends Environment
-  case object Production  extends Environment
-
-  implicit val environmentShow: Show[Environment] = new Show[Environment] {
-    def show(e: Environment) = friendlyClassName(e).toLowerCase
-  }
-
-  def environment: Environment =
-    sys.props.get("phoenix.env").orElse(sys.env.get("PHOENIX_ENV")) match {
-      case Some("test")       ⇒ Test
-      case Some("staging")    ⇒ Staging
-      case Some("production") ⇒ Production
-      case _                  ⇒ Development
-    }
-
-  private def loadWithEnv(cfg: Config = ConfigFactory.load)(
-      implicit env: Environment = environment): Config = {
+  def loadWithEnv(cfg: Config = ConfigFactory.load)(implicit env: Environment): Config = {
     val envConfig = cfg.getConfig("env." ++ env.show)
     ConfigFactory.systemProperties.withFallback(envConfig.withFallback(cfg))
   }

@@ -1,16 +1,14 @@
 package testutils
 
 import java.util.concurrent.TimeUnit
-
 import akka.util.Timeout
-
 import cats.data.Xor
 import failures.Failures
 import org.scalactic.TypeCheckedTripleEquals
 import org.scalatest.concurrent.{AbstractPatienceConfiguration, ScalaFutures}
 import org.scalatest.time.{Milliseconds, Seconds, Span}
 import org.scalatest.{FreeSpecLike, MustMatchers, OptionValues, Tag}
-import utils.FoxConfig
+import utils.{Environment, FoxConfig}
 
 trait TestBase
     extends FreeSpecLike
@@ -45,6 +43,6 @@ trait TestBase
 }
 
 object TestBase {
-  implicit val env = FoxConfig.Test
-  def config = FoxConfig.unsafe
+  implicit val env = Environment.Test
+  def config = FoxConfig.loadWithEnv()
 }
