@@ -57,7 +57,7 @@ export default class SearchCustomersModal extends Component {
 
   @autobind
   handleSave() {
-    const ids = _.map(this.state.customers, customer => customer.id)
+    const ids = _.map(this.state.customers, customer => customer.id);
     this.props.handleSave(ids);
   }
 
