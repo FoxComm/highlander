@@ -6,7 +6,7 @@ import faker.Lorem
 import models.Reasons
 import models.account.Scope
 import models.cord._
-import models.inventory.Skus
+import models.inventory.ProductVariants
 import models.objects.ObjectContexts
 import models.payment.InStorePaymentStates
 import models.payment.giftcard._
@@ -16,7 +16,7 @@ import models.shipping.ShippingMethods
 import org.mockito.Mockito._
 import org.scalacheck.Prop.BooleanOperators
 import org.scalacheck.{Gen, Prop, Test ⇒ QTest}
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import slick.driver.PostgresDriver.api._
 import testutils._
@@ -204,14 +204,14 @@ class CheckoutTest
     } yield (reason, shipMethod)).gimme
 
     def lineItemPayload(cost: Int) = {
-      val sku = (for {
+      val productVariant = (for {
         productCtx ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
         product ← * <~ Mvp.insertProduct(
                      productCtx.id,
                      Factories.products.head.copy(price = cost, code = Lorem.letterify("?????")))
-        sku ← * <~ Skus.mustFindById404(product.skuId)
-      } yield sku).gimme
-      Seq(UpdateLineItemsPayload(sku.code, 1))
+        productVariant ← * <~ ProductVariants.mustFindById404(product.variantId)
+      } yield productVariant).gimme
+      Seq(UpdateLineItemsPayload(productVariant.formId, 1))
     }
 
     def generateGiftCards(amount: Seq[Int]) =

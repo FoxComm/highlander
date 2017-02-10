@@ -33,8 +33,8 @@ const CustomerItemsRow = props => {
   return (
     <MultiSelectRow
       columns={columns}
-      linkTo="sku-inventory-details"
-      linkParams={{skuCode: item.skuCode}}
+      linkTo="product-variant-inventory-details"
+      linkParams={{productVariantId: item.id}}
       row={item}
       setCellContents={setCellContents}
       params={params}/>

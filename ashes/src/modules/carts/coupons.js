@@ -30,7 +30,7 @@ export const orderCouponCodeChange = _createAction('CODE_CHANGE');
 export const orderCouponApplyError = _createAction('APPLY_ERROR');
 
 function basePath(refNum) {
-  return `/orders/${refNum}/coupon`;
+  return `/carts/${refNum}/coupon`;
 }
 
 export function addCoupon(orderRefNum: string) {

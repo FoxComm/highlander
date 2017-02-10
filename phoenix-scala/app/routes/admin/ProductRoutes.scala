@@ -15,13 +15,18 @@ import services.product.ProductManager
 import services.Authenticator.AuthData
 import services.taxonomy.TaxonomyManager
 import utils.aliases._
+import utils.apis.Apis
 import utils.http.CustomDirectives._
 import utils.http.Http._
 
 object ProductRoutes {
 
-  def productRoutes(
-      productRef: ProductReference)(implicit ec: EC, db: DB, oc: OC, ac: AC, auth: AU): Route = {
+  def productRoutes(productRef: ProductReference)(implicit ec: EC,
+                                                  db: DB,
+                                                  oc: OC,
+                                                  ac: AC,
+                                                  auth: AU,
+                                                  apis: Apis): Route = {
     (get & pathEnd) {
       getOrFailures {
         ProductManager.getProduct(productRef)
@@ -63,7 +68,7 @@ object ProductRoutes {
     }
   }
 
-  def routes(implicit ec: EC, db: DB, auth: AuthData[User]) = {
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis) = {
 
     activityContext(auth.model) { implicit ac ⇒
       pathPrefix("products") {

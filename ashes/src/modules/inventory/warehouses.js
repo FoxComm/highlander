@@ -8,7 +8,7 @@ import { createAsyncActions } from '@foxcomm/wings';
 
 export const updateSkuItemsCount = createAction(
   'SKU_UPDATE_ITEMS_COUNT',
-  (sku, stockItem, qty) => [sku, stockItem, qty]
+  (skuId, stockItem, qty) => [skuId, stockItem, qty]
 );
 
 const clearSkuItemsChanges = createAction('SKU_CLEAR_ITEMS_CHANGES');
@@ -37,6 +37,7 @@ export type StockItemSummary = StockCounts & {
   stockLocation: StockLocation,
   stockItem: StockItem,
   type: string,
+  sku: string,
 }
 
 export type StockItemFlat = StockCounts & StockItem & {
@@ -54,8 +55,9 @@ export type WarehouseInventoryMap = {
 
 const _fetchSummary = createAsyncActions(
   'inventory-summary',
-  (skuCode) => Api.get(`/inventory/summary/${skuCode}`),
-  (...args) => [...args]
+  (skuId: number, skuCode: string) => {
+    return Api.get(`/inventory/summary/${skuCode}`).then(response => [response, skuId]);
+  },
 );
 export const fetchSummary = _fetchSummary.perform;
 
@@ -76,16 +78,16 @@ const _changeItemUnits = createAsyncActions(
 
 export const changeItemUnits = _changeItemUnits.perform;
 
-export function pushStockItemChanges(sku) {
+export function pushStockItemChanges(skuId) {
   return (dispatch, getState) => {
-    const stockItemChanges = _.get(getState(), ['inventory', 'warehouses', 'stockItemChanges', sku]);
+    const stockItemChanges = _.get(getState(), ['inventory', 'warehouses', 'stockItemChanges', skuId]);
 
     if (stockItemChanges) {
       const promises = _.map(stockItemChanges, (payload: Object, key: string) => {
         return dispatch(changeItemUnits(payload.id, payload.diff, payload.type));
       });
 
-      dispatch(clearSkuItemsChanges(sku));
+      dispatch(clearSkuItemsChanges(skuId));
 
       return Promise.all(promises);
     }
@@ -95,7 +97,7 @@ export function pushStockItemChanges(sku) {
 const initialState = {};
 
 const reducer = createReducer({
-  [_fetchSummary.succeeded]: (state, [payload, sku]) => {
+  [_fetchSummary.succeeded]: (state, [payload, skuId]) => {
     const stockItems: Array<StockItemSummary> = payload.summary;
 
     const inventoryDetailsByLocations = _.reduce(stockItems, (acc, itemSummary: StockItemSummary) => {
@@ -103,6 +105,7 @@ const reducer = createReducer({
         acc[itemSummary.stockLocation.id] = acc[itemSummary.stockLocation.id] || {
         stockItems: [],
         stockLocation: itemSummary.stockLocation,
+        sku: itemSummary.sku, // since we have only one sku in response we can do it
         onHand: 0,
         onHold: 0,
         reserved: 0,
@@ -129,17 +132,17 @@ const reducer = createReducer({
     }, {});
 
     return assoc(state,
-      ['details', sku], inventoryDetailsByLocations
+      ['details', skuId], inventoryDetailsByLocations
     );
   },
-  [updateSkuItemsCount]: (state, [sku, stockItem, diff]) => {
+  [updateSkuItemsCount]: (state, [skuId, stockItem, diff]) => {
     return assoc(state,
-      ['stockItemChanges', sku, `${stockItem.type}-${stockItem.id}`], {diff, type: stockItem.type, id: stockItem.id}
+      ['stockItemChanges', skuId, `${stockItem.type}-${stockItem.id}`], {diff, type: stockItem.type, id: stockItem.id}
     );
   },
-  [clearSkuItemsChanges]: (state, sku) => {
+  [clearSkuItemsChanges]: (state, skuId) => {
     return assoc(state,
-      ['stockItemChanges', sku], {}
+      ['stockItemChanges', skuId], {}
     );
   }
 }, initialState);

@@ -1,16 +1,16 @@
 package payloads
 
 import payloads.ImagePayloads.AlbumPayload
-import payloads.SkuPayloads._
-import payloads.VariantPayloads.VariantPayload
+import payloads.ProductVariantPayloads._
+import payloads.ProductOptionPayloads.ProductOptionPayload
 import utils.aliases._
 
 object ProductPayloads {
   case class CreateProductPayload(scope: Option[String] = None,
                                   attributes: Map[String, Json],
                                   slug: String = "",
-                                  skus: Seq[SkuPayload],
-                                  variants: Option[Seq[VariantPayload]],
+                                  variants: Seq[ProductVariantPayload],
+                                  options: Option[Seq[ProductOptionPayload]],
                                   albums: Option[Seq[AlbumPayload]] = None,
                                   override val schema: Option[String] = None)
       extends ObjectSchemaValidation.SchemaValidation[CreateProductPayload] {
@@ -20,8 +20,8 @@ object ProductPayloads {
 
   case class UpdateProductPayload(attributes: Map[String, Json],
                                   slug: Option[String] = None,
-                                  skus: Option[Seq[SkuPayload]],
-                                  variants: Option[Seq[VariantPayload]],
+                                  variants: Option[Seq[ProductVariantPayload]],
+                                  options: Option[Seq[ProductOptionPayload]],
                                   albums: Option[Seq[AlbumPayload]] = None)
       extends ObjectSchemaValidation.SchemaValidation[UpdateProductPayload] {
     override def defaultSchemaName: String = "product"

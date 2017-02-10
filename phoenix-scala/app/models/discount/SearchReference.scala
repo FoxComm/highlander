@@ -3,23 +3,23 @@ package models.discount
 import scala.concurrent.Future
 
 import cats.data.Xor
+import com.github.tminglei.slickpg.LTree
 import models.discount.SearchReference._
 import models.sharedsearch.SharedSearches
 import org.json4s.JsonAST.JObject
 import services.Result
-import utils.ElasticsearchApi.{Buckets, SearchViewReference}
+import utils.ElasticsearchApi._
 import utils.aliases._
 
 /**
   * Linking mechanism for qualifiers (also used in offers)
   */
 sealed trait SearchReference[T] {
-  val searchView: SearchViewReference
   val fieldName: String
   val pureResult: Result[T]
   val searchId: Int
 
-  def query(input: DiscountInput)(implicit db: DB, ec: EC, es: ES, au: AU): Result[T] = {
+  def query(input: DiscountInput)(implicit db: DB, ec: EC, es: ES): Result[T] = {
     val refs = references(input)
     if (refs.isEmpty) return pureResult
 
@@ -27,66 +27,77 @@ sealed trait SearchReference[T] {
       case Some(search) ⇒
         search.rawQuery \ "query" match {
           case query: JObject ⇒
-            esSearch(query, refs).map(result ⇒ Xor.Right(result))
+            val searchView = searchViewByScope(search.accessScope)
+            esSearch(searchView, query, refs).map(result ⇒ Xor.Right(result))
           case _ ⇒ pureResult
         }
       case _ ⇒ pureResult
     }
   }
 
+  protected val searchViewByScope: (LTree ⇒ SearchView)
   protected def references(input: DiscountInput): Seq[String]
-  protected def esSearch(query: Json, refs: Seq[String])(implicit es: ES, au: AU): Future[T]
+  protected def esSearch(searchView: SearchView, query: Json, refs: Seq[String])(
+      implicit es: ES): Future[T]
 }
 
 trait SearchBuckets extends SearchReference[Buckets] {
   val pureResult: Result[Buckets] = pureBuckets
 
-  def esSearch(query: Json, refs: Seq[String])(implicit es: ES, au: AU): Future[Buckets] =
+  def esSearch(searchView: SearchView, query: Json, refs: Seq[String])(
+      implicit es: ES): Future[Buckets] =
     es.checkBuckets(searchView, query, fieldName, refs)
 }
 
 trait SearchMetrics extends SearchReference[Long] {
   val pureResult: Result[Long] = pureMetrics
 
-  def esSearch(query: Json, refs: Seq[String])(implicit es: ES, au: AU): Future[Long] =
+  def esSearch(searchView: SearchView, query: Json, refs: Seq[String])(
+      implicit es: ES): Future[Long] =
     es.checkMetrics(searchView, query, fieldName, refs)
 }
 
 case class CustomerSearch(customerSearchId: Int) extends SearchMetrics {
-  val searchId: Int                   = customerSearchId
-  val searchView: SearchViewReference = customersSearchView
-  val fieldName: String               = customersSearchField
+  val searchId: Int     = customerSearchId
+  val searchViewByScope = searchView(customersSearchView)
+  val fieldName: String = customersSearchField
 
   def references(input: DiscountInput): Seq[String] = Seq(input.cart.accountId).map(_.toString)
 }
 
 case class ProductSearch(productSearchId: Int) extends SearchBuckets {
-  val searchId: Int                   = productSearchId
-  val searchView: SearchViewReference = productsSearchView
-  val fieldName: String               = productsSearchField
+  val searchId: Int     = productSearchId
+  val searchViewByScope = scopedSearchView(productsSearchView)
+  val fieldName: String = productsSearchField
 
   def references(input: DiscountInput): Seq[String] =
     input.lineItems.map(_.productForm.id.toString)
 }
 
-case class SkuSearch(skuSearchId: Int) extends SearchBuckets {
-  val searchId: Int                   = skuSearchId
-  val searchView: SearchViewReference = skuSearchView
-  val fieldName: String               = skuSearchField
+case class ProductVariantSearch(productVariantsSearchId: Int) extends SearchBuckets {
+  val searchId: Int     = productVariantsSearchId
+  val searchViewByScope = scopedSearchView(productVariantsSearchView)
+  val fieldName: String = productVariantsSearchField
 
-  def references(input: DiscountInput): Seq[String] = input.lineItems.map(_.sku.code)
+  def references(input: DiscountInput): Seq[String] = input.lineItems.map(_.productVariant.code)
 }
 
 object SearchReference {
-  def customersSearchView: SearchViewReference =
-    SearchViewReference("customers_search_view", scoped = false)
-  def productsSearchView: SearchViewReference =
-    SearchViewReference("products_search_view", scoped = true)
-  def skuSearchView: SearchViewReference = SearchViewReference("sku_search_view", scoped = true)
+  def customersSearchView       = "customers_search_view"
+  def productsSearchView        = "products_search_view"
+  def productVariantsSearchView = "product_variants_search_view"
 
-  def customersSearchField: String = "id"
-  def productsSearchField: String  = "productId"
-  def skuSearchField: String       = "code"
+  def scopedSearchView(view: String): (LTree ⇒ SearchView) = { scope: LTree ⇒
+    ScopedSearchView(view, scope.toString)
+  }
+
+  def searchView(view: String): (LTree ⇒ SearchView) = { _ ⇒
+    SearchView(view)
+  }
+
+  def customersSearchField: String       = "id"
+  def productsSearchField: String        = "productId"
+  def productVariantsSearchField: String = "code"
 
   def pureMetrics: Result[Long]    = Future.successful(Xor.Right(0))
   def pureBuckets: Result[Buckets] = Future.successful(Xor.Right(List.empty))

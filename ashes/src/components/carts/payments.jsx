@@ -15,6 +15,7 @@ import type { Cart, PaymentMethod } from 'paragons/order';
 
 type Props = {
   cart: Cart,
+  id: string,
   status: string,
   creditCardSelected: boolean,
   giftCardAdded: boolean,
@@ -71,13 +72,13 @@ export class Payments extends Component {
         trackEvent('Orders', 'add_new_payment_method');
         this.setState({ isAdding: true });
       };
-      return <AddButton onClick={handleClick} />;
+      return <AddButton id="payment-methods-add-method-btn" onClick={handleClick} />;
     }
   }
 
 
   render(): Element {
-    const { cart, status } = this.props;
+    const { cart, id, status } = this.props;
     const { paymentMethods } = cart;
 
     const title = (
@@ -94,16 +95,20 @@ export class Payments extends Component {
         cancelAdding={this.cancelAdding}
         order={cart}
         paymentMethods={paymentMethods}
+        doneButtonId="payment-method-done-btn"
       />
     );
 
     return (
       <EditableContentBox
         className="fc-order-payment"
+        id={id}
         title={title}
         indentContent={false}
         isEditing={this.state.isEditing}
         editAction={this.startEdit}
+        editButtonId="payment-method-edit-btn"
+        doneButtonId="payment-method-done-btn"
         editingActions={this.editingActions}
         doneAction={this.completeEdit}
         editContent={content}

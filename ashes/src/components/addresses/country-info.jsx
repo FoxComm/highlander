@@ -9,7 +9,8 @@ export default class CountryInfo extends React.Component {
   static propTypes = {
     display: PropTypes.func.isRequired,
     countryId: PropTypes.number.isRequired,
-    countries: PropTypes.object
+    countries: PropTypes.object,
+    className: PropTypes.string
   };
 
   get country() {
@@ -18,7 +19,7 @@ export default class CountryInfo extends React.Component {
 
   render() {
     if (this.country) {
-      return <div>{ this.props.display(this.country) } </div>;
+      return <div className="country">{ this.props.display(this.country) } </div>;
     }
     return <div></div>;
   }

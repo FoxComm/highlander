@@ -8,10 +8,10 @@ import _ from 'lodash';
 import styles from './form.css';
 
 // helpers
-import { activeStatus, isArchived } from 'paragons/common';
+import { isArchived } from 'paragons/common';
 
 // components
-import RoundedPill from '../rounded-pill/rounded-pill';
+import StatePill from '../object-page/state-pill';
 import MultiSelectRow from '../table/multi-select-row';
 
 type CouponRowProps = {
@@ -35,7 +35,7 @@ const setCellContents = (coupon: Object, field: string) => {
       }
       return codes[0];
     case 'state':
-      return <RoundedPill text={activeStatus(coupon)} />;
+      return <StatePill object={coupon} />;
     default:
       return _.get(coupon, field);
   }

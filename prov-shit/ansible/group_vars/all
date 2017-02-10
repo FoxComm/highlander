@@ -7,7 +7,40 @@ public_keys_dest_dir: /etc/keys
 private_keys_dest_dir: /etc/keys
 scala_version: scala-2.11
 vagrant: false
-local_vagrant: false
+foxcomm_domain: foxcommerce.com
+logrotate_dir: /etc/logrotate.d
+
+# Marathon Defaults
+marathon_retries: 60
+marathon_delay: 10
+
+# Docker Defaults
+docker_tag: master
+docker_registry: docker-stage.foxcommerce.com
+docker_registry_provider: gce
+docker_logs_dir: /logs
+docker_logs_host_dir: /var/log/docker
+
+# Default docker tags for containers
+docker_tags:
+    ashes: master
+    firebrand: master
+    phoenix: master
+    greenriver: master
+    middlewarehouse: master
+    messaging: master
+    isaac: master
+    solomon: master
+    capture_consumer: master
+    gift_card_consumer: master
+    shipments_consumer: master
+    shipstation_consumer: master
+    storefront_td: master
+    storefront_tpg: master
+    marketplace: master
+    marketplace_ui: master
+    product_search: master
+    demo_search: master
 
 # Consul Service Discovery
 consul_data_dir: /var/consul
@@ -63,6 +96,8 @@ solomon_port: 4002
 solomon_server: "{{solomon_host}}:{{solomon_port}}"
 
 mesos_master: "mesos-master.{{consul_suffix}}"
+mesos_port: 5050
+mesos_server: "{{mesos_master}}:{{mesos_port}}"
 
 marathon_host: "marathon.{{consul_suffix}}"
 marathon_port: 8080
@@ -81,6 +116,18 @@ product_search_port: 5492
 product_search_server: "{{product_search_host}}:{{product_search_port}}"
 
 messaging_host: "messaging.{{consul_suffix}}"
+
+dashboard_host: "dashboard.{{consul_suffix}}"
+dashboard_port: 4198
+dashboard_server: "{{dashboard_host}}:{{dashboard_port}}"
+
+kibana_host: "kibana.{{consul_suffix}}"
+kibana_port: 5601
+kibana_server: "{{kibana_host}}:{{kibana_port}}"
+
+pgweb_host: "pgweb.{{consul_suffix}}"
+pgweb_port: 8082
+pgweb_server: "{{pgweb_host}}:{{pgweb_port}}"
 
 # Database & bottledwater
 db_user: phoenix
@@ -116,8 +163,8 @@ phoenix_api_user_org: tenant
 phoenix_api_user: "api@foxcommerce.com"
 phoenix_api_password: "api$pass7!"
 
-phoenix_tax_rule_region: ""
-phoenix_tax_rule_rate: ""
+phoenix_tax_rule_region: 4129
+phoenix_tax_rule_rate: 7.5
 
 # Do not use this in production
 # This is a ttl of 1 year
@@ -126,6 +173,7 @@ solomon_token_ttl: 365
 
 # Middlewarehouse
 middlewarehouse_env: staging
+middlewarehouse_src: ../../middlewarehouse/
 middlewarehouse_dir: /middlewarehouse
 middlewarehouse_bin: "{{middlewarehouse_dir}}/middlewarehouse"
 middlewarehouse_db_name: middlewarehouse_development
@@ -134,7 +182,6 @@ middlewarehouse_db_connection_string: "postgresql://{{middlewarehouse_db_user}}@
 middlewarehouse_test_db_name: middlewarehouse_test
 
 middlewarehouse_consumers_dir: "{{middlewarehouse_dir}}/consumers"
-stock_items_consumer_bin: "{{middlewarehouse_consumers_dir}}/stock-items-consumer"
 shipments_consumer_bin: "{{middlewarehouse_consumers_dir}}/shipments-consumer"
 capture_consumer_bin: "{{middlewarehouse_consumers_dir}}/capture-consumer"
 
@@ -142,12 +189,28 @@ middlewarehouse_src: ../../middlewarehouse/
 middlewarehouse_bin_src: "{{middlewarehouse_src}}/middlewarehouse"
 middlewarehouse_seeder_bin_src: "{{middlewarehouse_src}}/seeder"
 
-stock_items_consumer_src: "{{middlewarehouse_src}}/consumers/stock-items"
-stock_items_consumer_bin_src: "{{stock_items_consumer_src}}/stock-items-consumer"
 shipments_consumer_src: "{{middlewarehouse_src}}/consumers/shipments"
 shipments_consumer_bin_src: "{{shipments_consumer_src}}/shipments-consumer"
 capture_consumer_src: "{{middlewarehouse_src}}/consumers/capture"
 capture_consumer_bin_src: "{{capture_consumer_src}}/capture-consumer"
+
+# Elasticsearch 2.x
+es_version: elasticsearch-2.1.2
+es_zip: "{{es_version}}.zip"
+es_home: /usr/local
+es_path: "{{es_home}}/{{es_version}}"
+es_heap_size: 512m
+
+# Elasticsearch 5.x
+es5_version: elasticsearch-5.1.2
+es5_zip: "{{es_version}}.zip"
+es5_base_url: https://artifacts.elastic.co/downloads/elasticsearch
+es5_download_url: "{{es_base_url}}/{{es_zip}}"
+es5_home: /usr/local
+es5_path: "{{es_home}}/{{es_version}}"
+es5_jmx_port: 29111
+es5_max_file_descriptors: 65536
+es5_heap_size: 512m
 
 # Shipstation consumer
 shipstation_api_key: ""
@@ -155,21 +218,13 @@ shipstation_api_secret: ""
 shipstation_topic: "activities"
 shipstation_interval: "10s"
 
-# Ashes
-ashes_env: production
-
 # Firebrand variables
 firebrand_env: production
 firebrand_default_language: en
-firebrand_fixed_language: false
 
 # Storefront variables
 storefront_default_language: en
 storefront_fixed_language: false
-
-# Loyalty
-loyalty_jar_src: ../../fox-loyalty/target/loyalty.jar
-loyalty_jar: /usr/local/bin/loyalty.jar
 
 # JMX ports
 es_jmx_port: 29010
@@ -197,24 +252,15 @@ google_oauth_frontend_redirect_uri: ""
 swap_file: /swap
 swap_size_mb: 2000
 
-# Fix Ansible 2 rsync
-rsync_opts: ssh -l {{user}}
-
-# Used to prefix service names in consul
-namespace: setme
-
 # Zipkin
 zipkin_collector: localhost
 
 # Are we running packer?
 packing: false
 
-# Should we upload Phoenix / Green River JAR?
-# Should be seed DB, seed via Gatling?
-upload_phoenix_jar: true
-
-# Deploy marketplace?
+# Deploy Marathon apps flags
 with_marketplace: false
+with_shipstation: false
 
 # Test Stripe api key
 stripe_api_key: sk_test_13rnEgvA4DGHgv4f2GMCDtes
@@ -227,17 +273,14 @@ cert_path: test/fox
 mesos_quorum: 2
 mesos_ip: 0.0.0.0
 
-# Use seeder service or not?
-with_seeder: false
-with_gatling_seeder: true
+# On Amigo server?
+is_amigo: false
+is_appliance: false
 
-# Docker Defaults
-docker_branch: master
-docker_frontend_branch: master
-docker_registry: docker-stage.foxcommerce.com
-docker_registry_provider: gce
-docker_logs_dir: /logs
-docker_logs_host_dir: /var/log/docker
+# Seeder flags
+with_base_seeds: true
+with_gatling_seeder: true
+with_mwh_seeder: true
 
 # Marketplace
 marketplace_db_name: marketplace_development
@@ -247,5 +290,5 @@ marketplace_db_connection_string: "postgresql://{{marketplace_db_user}}@{{db_hos
 # Set this to true for first run deployments
 first_run: false
 
-# BuildKite Settings
-buildkite_env: gce
+# Messaging
+retailer_name: "FoxCommerce"

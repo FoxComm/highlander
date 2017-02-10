@@ -12,7 +12,7 @@ import models.objects.ObjectContext
 import org.json4s.JsonAST._
 import payloads.CouponPayloads._
 import payloads.LineItemPayloads.UpdateLineItemsPayload
-import payloads.OrderPayloads.CreateCart
+import payloads.CartPayloads.CreateCart
 import responses.CouponResponses.CouponResponse
 import responses.cord.CartResponse
 import testutils.PayloadHelpers._
@@ -70,7 +70,7 @@ class CouponsIntegrationTest
     }
   }
 
-  "POST /v1/orders/:refNum/coupon/:code" - {
+  "POST /v1/carts/:refNum/coupon/:code" - {
     "attaches coupon successfully" - {
       "when activeFrom is before now" in new CartCouponFixture {
         val response = cartsApi(cartRef).coupon.add(couponCode).asTheResult[CartResponse]
@@ -150,13 +150,13 @@ class CouponsIntegrationTest
       "because purchased gift card is excluded from qualifier judgement" - {
 
         "for `carts any` qualifier (cart only has gift card line items)" in new Coupon_AnyQualifier_PercentOff {
-          private val skuCode = new ProductSku_ApiFixture {}.skuCode
-          private val cartRef = api_newGuestCart().referenceNumber
+          val variantId = new ProductVariant_ApiFixture {}.productVariant.id
+          val cartRef   = api_newGuestCart().referenceNumber
 
           cartsApi(cartRef).lineItems
-            .add(Seq(UpdateLineItemsPayload(skuCode, 2, giftCardLineItemAttributes)))
+            .add(Seq(UpdateLineItemsPayload(variantId, 2, giftCardLineItemAttributes)))
 
-          private val message = "qualifier orderAnyQualifier rejected order with refNum=BR10001, " +
+          val message = "qualifier orderAnyQualifier rejected order with refNum=BR10001, " +
               "reason: Items in cart are not eligible for discount"
           cartsApi(cartRef).coupon.add(couponCode).mustFailWithMessage(message)
         }
@@ -165,7 +165,7 @@ class CouponsIntegrationTest
         with RegularAndGiftCardLineItemFixture {
           override def qualifiedSubtotal: Int = 4000
 
-          private val message = "qualifier orderTotalAmountQualifier rejected order with refNum=BR10001, " +
+          val message = "qualifier orderTotalAmountQualifier rejected order with refNum=BR10001, " +
               "reason: Order subtotal is less than 4000"
           cartsApi(cartRef).coupon.add(couponCode).mustFailWithMessage(message)
         }
@@ -174,7 +174,7 @@ class CouponsIntegrationTest
         with RegularAndGiftCardLineItemFixture {
           override def qualifiedNumItems: Int = 2
 
-          private val message = "qualifier orderNumUnitsQualifier rejected order with refNum=BR10001, " +
+          val message = "qualifier orderNumUnitsQualifier rejected order with refNum=BR10001, " +
               "reason: Order unit count is less than 2"
           cartsApi(cartRef).coupon.add(couponCode).mustFailWithMessage(message)
         }
@@ -185,10 +185,10 @@ class CouponsIntegrationTest
   trait CartCouponFixture
       extends StoreAdmin_Seed
       with Coupon_TotalQualifier_PercentOff
-      with ProductSku_ApiFixture {
+      with ProductVariant_ApiFixture {
 
-    override def skuPrice: Int          = 3100
-    override def qualifiedSubtotal: Int = 3000
+    override def productVariantPrice: Int = 3100
+    override def qualifiedSubtotal: Int   = 3000
 
     val cartRef: String = {
       val cartRef = cartsApi
@@ -197,7 +197,8 @@ class CouponsIntegrationTest
         .referenceNumber
 
       cartsApi(cartRef).lineItems
-        .add(Seq(UpdateLineItemsPayload(sku = skuCode, quantity = 1)))
+        .add(
+            Seq(UpdateLineItemsPayload(productVariantId = product.variants.head.id, quantity = 1)))
         .mustBeOk()
 
       cartRef
@@ -207,12 +208,16 @@ class CouponsIntegrationTest
   trait RegularAndGiftCardLineItemFixture extends StoreAdmin_Seed {
     val cartRef = api_newGuestCart().referenceNumber
 
-    private val skuCode   = new ProductSku_ApiFixture { override def skuPrice = 3000 }.skuCode
-    private val gcSkuCode = new ProductSku_ApiFixture { override def skuPrice = 2000 }.skuCode
+    private val skuVariantId = new ProductVariant_ApiFixture {
+      override def productVariantPrice = 3000
+    }.product.variants.head.id
+    private val gcSkuVariantId = new ProductVariant_ApiFixture {
+      override def productVariantPrice = 2000
+    }.product.variants.head.id
 
     cartsApi(cartRef).lineItems
-      .add(Seq(UpdateLineItemsPayload(skuCode, 1),
-               UpdateLineItemsPayload(gcSkuCode, 1, giftCardLineItemAttributes)))
+      .add(Seq(UpdateLineItemsPayload(skuVariantId, 1),
+               UpdateLineItemsPayload(gcSkuVariantId, 1, giftCardLineItemAttributes)))
       .mustBeOk()
   }
 }

@@ -18,10 +18,10 @@ const (
 )
 
 type reservationController struct {
-	service services.IInventoryService
+	service services.InventoryService
 }
 
-func NewReservationController(service services.IInventoryService) IController {
+func NewReservationController(service services.InventoryService) IController {
 	return &reservationController{service}
 }
 
@@ -48,12 +48,7 @@ func (controller *reservationController) Hold() gin.HandlerFunc {
 			return
 		}
 
-		skuMap := map[string]int{}
-		for _, sku := range payload.Items {
-			skuMap[sku.SKU] = int(sku.Qty)
-		}
-
-		if err := controller.service.HoldItems(payload.RefNum, skuMap); err != nil {
+		if err := controller.service.HoldItems(payload); err != nil {
 			// This is ugly - let's spike into error messages in MWH in the future.
 			if strings.HasPrefix(err.Error(), outOfStockPrefix) {
 				handleServiceError(context, errors.New(outOfStockError))

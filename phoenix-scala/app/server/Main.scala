@@ -100,14 +100,14 @@ class Service(systemOverride: Option[ActorSystem] = None,
         routes.admin.NotificationRoutes.routes ~
         routes.admin.AssignmentsRoutes.routes ~
         routes.admin.OrderRoutes.routes ~
+        routes.admin.CartRoutes.routes ~
         routes.admin.CustomerRoutes.routes ~
         routes.admin.CustomerGroupsRoutes.routes ~
         routes.admin.GiftCardRoutes.routes ~
         routes.admin.ReturnRoutes.routes ~
         routes.admin.Activity.routes ~
         routes.admin.ProductRoutes.routes ~
-        routes.admin.SkuRoutes.routes ~
-        routes.admin.VariantRoutes.routes ~
+        routes.admin.ProductVariantRoutes.routes ~
         routes.admin.DiscountRoutes.routes ~
         routes.admin.PromotionRoutes.routes ~
         routes.admin.ImageRoutes.routes ~

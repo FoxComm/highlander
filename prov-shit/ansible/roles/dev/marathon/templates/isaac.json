@@ -1,0 +1,59 @@
+{
+  "id": "/isaac",
+  "cmd": null,
+  "cpus": 0.25,
+  "mem": 64,
+  "disk": 0,
+  "instances": 1,
+  "labels": {
+    "LAYER": "backend",
+    "LANG": "cpp"
+  },
+  "container": {
+    "type": "DOCKER",
+    "volumes": [
+      {
+        "containerPath": "/certs",
+        "hostPath": "{{public_keys_dest_dir}}",
+        "mode": "RO"
+      },
+      {
+        "containerPath": "{{docker_logs_dir}}",
+        "hostPath": "{{docker_logs_host_dir}}",
+        "mode": "RW"
+      }
+    ],
+    "docker": {
+      "image": "docker-stage.foxcommerce.com:5000/isaac:{{docker_tags.isaac}}",
+      "network": "HOST",
+      "privileged": false,
+      "parameters": [],
+      "forcePullImage": true
+    }
+  },
+  "env": {
+    "PUBLIC_KEY": "/certs/public_key.pem",
+    "DB_HOST": "{{docker_db_host}}",
+    "DB_NAME": "{{phoenix_db_name}}",
+    "DB_USER": "{{db_user}}"
+  },
+  "healthChecks": [
+    {
+      "path": "/ping",
+      "protocol": "HTTP",
+      "portIndex": 0,
+      "gracePeriodSeconds": 300,
+      "intervalSeconds": 30,
+      "timeoutSeconds": 20,
+      "maxConsecutiveFailures": 3,
+      "ignoreHttp1xx": false
+    }
+  ],
+  "portDefinitions": [
+    {
+      "port": 10000,
+      "protocol": "tcp",
+      "labels": {}
+    }
+  ]
+}

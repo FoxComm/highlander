@@ -14,8 +14,8 @@ const MultiSelectRow = (props, context) => {
   let { onClick, href } = rest;
 
   // linkTo is shortcut for creating onClick and href properties which leads to defined behaviour:
-  // single click leads to transition
-  // over click leads to page load
+  // left click leads to transition
+  // other clicks leads to page load
   if (linkTo) {
     onClick = (event) => {
       if (event.button == 0 && !event.ctrlKey) {
@@ -42,16 +42,24 @@ const MultiSelectRow = (props, context) => {
         break;
       case 'selectColumn':
         cellClickAction = event => event.stopPropagation();
-        cellContents = <Checkbox id={`multi-select-${row.id}`} inline={true} checked={checked} onChange={onChange} />;
+        const checkbox = (
+          <Checkbox id={`multi-select-${row.id}`} inline checked={checked} onChange={onChange} key="cb" />
+        );
+        cellContents = setCellContents(row, col.field, {
+          checkbox,
+        });
+        if (!cellContents) {
+          cellContents = checkbox;
+        }
         break;
       default:
         cellContents = setCellContents(row, col.field);
         break;
     }
 
-    const cls = classNames({
+    const cls = classNames(`fct-row__${col.field}`, {
       'row-head-left': col.field == 'selectColumn',
-      'row-head-right': col.field == 'toggleColumns',
+      'row-head-right': col.field == 'toggleColumns'
     });
 
     visibleCells.push(

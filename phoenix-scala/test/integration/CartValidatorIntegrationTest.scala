@@ -5,7 +5,7 @@ import failures.CartFailures._
 import failures.Failure
 import models.account.Scope
 import models.cord._
-import models.inventory.Skus
+import models.inventory.ProductVariants
 import models.location.Addresses
 import models.objects.ObjectContexts
 import models.payment.creditcard.CreditCards
@@ -36,25 +36,25 @@ class CartValidatorIntegrationTest
 
   "Cart validator must be applied to" - {
 
-    "/v1/orders/:refNum/payment-methods/gift-cards" in new GiftCardFixture {
+    "/v1/carts/:refNum/payment-methods/gift-cards" in new GiftCardFixture {
       val api = cartsApi(refNum).payments.giftCard
       checkResponse(api.add(GiftCardPayment(giftCard.code)), expectedWarnings)
       checkResponse(api.delete(giftCard.code), expectedWarnings)
     }
 
-    "/v1/orders/:refNum/payment-methods/store-credit" in new StoreCreditFixture {
+    "/v1/carts/:refNum/payment-methods/store-credit" in new StoreCreditFixture {
       val api = cartsApi(refNum).payments.storeCredit
       checkResponse(api.add(StoreCreditPayment(500)), expectedWarnings)
       checkResponse(api.delete(), expectedWarnings)
     }
 
-    "/v1/orders/:refNum/payment-methods/credit-cards" in new CreditCardFixture {
+    "/v1/carts/:refNum/payment-methods/credit-cards" in new CreditCardFixture {
       val api = cartsApi(refNum).payments.creditCard
       checkResponse(api.add(CreditCardPayment(creditCard.id)), expectedWarnings)
       checkResponse(api.delete(), expectedWarnings)
     }
 
-    "/v1/orders/:refNum/shipping-address" in new ShippingAddressFixture {
+    "/v1/carts/:refNum/shipping-address" in new ShippingAddressFixture {
       val api = cartsApi(refNum).shippingAddress
 
       checkResponse(api.create(CreateAddressPayload("a", 1, "b", None, "c", "11111")),
@@ -68,22 +68,23 @@ class CartValidatorIntegrationTest
       checkResponse(api.updateFromAddress(address.id), expectedWarnings)
     }
 
-    "/v1/orders/:refNum/shipping-method" in new ShippingMethodFixture {
+    "/v1/carts/:refNum/shipping-method" in new ShippingMethodFixture {
       val api = cartsApi(refNum).shippingMethod
       checkResponse(api.update(UpdateShippingMethod(shipMethod.id)),
                     Seq(EmptyCart(refNum), InsufficientFunds(refNum)))
       checkResponse(api.delete(), Seq(EmptyCart(refNum), NoShipMethod(refNum)))
     }
 
-    "/v1/orders/:refNum/line-items" in new LineItemFixture {
+    "/v1/carts/:refNum/line-items" in new LineItemFixture {
 
-      checkResponse(cartsApi(refNum).lineItems.add(Seq(UpdateLineItemsPayload(sku.code, 1))),
-                    Seq(InsufficientFunds(refNum), NoShipAddress(refNum), NoShipMethod(refNum)))
+      checkResponse(
+          cartsApi(refNum).lineItems.add(Seq(UpdateLineItemsPayload(productVariant.formId, 1))),
+          Seq(InsufficientFunds(refNum), NoShipAddress(refNum), NoShipMethod(refNum)))
     }
 
-    "/v1/orders/:refNum/coupon" in new CouponFixture with LineItemFixture {
+    "/v1/carts/:refNum/coupon" in new CouponFixture with LineItemFixture {
       override def refNum = super[CouponFixture].refNum
-      cartsApi(refNum).lineItems.add(Seq(UpdateLineItemsPayload(sku.code, 1)))
+      cartsApi(refNum).lineItems.add(Seq(UpdateLineItemsPayload(productVariant.formId, 1)))
       override def expectedWarnings =
         Seq(NoShipAddress(refNum), NoShipMethod(refNum), InsufficientFunds(refNum))
       checkResponse(cartsApi(refNum).coupon.add(couponCode), expectedWarnings)
@@ -93,21 +94,25 @@ class CartValidatorIntegrationTest
     "must validate funds with line items:" - {
       "must return warning when credit card is removed" in new LineItemAndFundsFixture {
         val api = cartsApi(refNum)
-        api.lineItems.add(Seq(UpdateLineItemsPayload(sku.code, 1))).mustBeOk()
+        api.lineItems.add(Seq(UpdateLineItemsPayload(productVariant.formId, 1))).mustBeOk()
         api.payments.creditCard.add(CreditCardPayment(creditCard.id)).mustBeOk()
         checkResponse(api.payments.creditCard.delete(),
                       Seq(NoShipAddress(refNum), NoShipMethod(refNum), InsufficientFunds(refNum)))
       }
 
       "must return warning when store credits are removed" in new LineItemAndFundsFixture {
-        cartsApi(refNum).lineItems.add(Seq(UpdateLineItemsPayload(sku.code, 1))).mustBeOk()
+        cartsApi(refNum).lineItems
+          .add(Seq(UpdateLineItemsPayload(productVariant.formId, 1)))
+          .mustBeOk()
         cartsApi(refNum).payments.storeCredit.add(StoreCreditPayment(500)).mustBeOk()
         checkResponse(cartsApi(refNum).payments.storeCredit.delete(),
                       Seq(NoShipAddress(refNum), NoShipMethod(refNum), InsufficientFunds(refNum)))
       }
 
       "must return warning when gift card is removed" in new LineItemAndFundsFixture {
-        cartsApi(refNum).lineItems.add(Seq(UpdateLineItemsPayload(sku.code, 1))).mustBeOk()
+        cartsApi(refNum).lineItems
+          .add(Seq(UpdateLineItemsPayload(productVariant.formId, 1)))
+          .mustBeOk()
         cartsApi(refNum).payments.giftCard.add(GiftCardPayment(giftCard.code)).mustBeOk()
         checkResponse(cartsApi(refNum).payments.giftCard.delete(giftCard.code),
                       Seq(NoShipAddress(refNum), NoShipMethod(refNum), InsufficientFunds(refNum)))
@@ -140,10 +145,10 @@ class CartValidatorIntegrationTest
   }
 
   trait LineItemFixture extends EmptyCustomerCart_Baked {
-    val (sku) = (for {
+    val (productVariant) = (for {
       product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head)
-      sku     ← * <~ Skus.mustFindById404(product.skuId)
-    } yield sku).gimme
+      variant ← * <~ ProductVariants.mustFindById404(product.variantId)
+    } yield variant).gimme
     def refNum = cart.refNum
   }
 
@@ -200,13 +205,13 @@ class CartValidatorIntegrationTest
   }
 
   trait LineItemAndFundsFixture extends Reason_Baked with Customer_Seed {
-    val (refNum, sku, creditCard, giftCard) = (for {
+    val (refNum, productVariant, creditCard, giftCard) = (for {
       _          ← * <~ Addresses.create(Factories.address.copy(accountId = customer.accountId))
       cc         ← * <~ CreditCards.create(Factories.creditCard.copy(accountId = customer.accountId))
       productCtx ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
       cart       ← * <~ Carts.create(Factories.cart(Scope.current).copy(accountId = customer.accountId))
       product    ← * <~ Mvp.insertProduct(productCtx.id, Factories.products.head)
-      sku        ← * <~ Skus.mustFindById404(product.skuId)
+      variant    ← * <~ ProductVariants.mustFindById404(product.variantId)
       manual ← * <~ StoreCreditManuals.create(
                   StoreCreditManual(adminId = storeAdmin.accountId, reasonId = reason.id))
       _ ← * <~ StoreCredits.create(
@@ -217,7 +222,7 @@ class CartValidatorIntegrationTest
                   GiftCardManual(adminId = storeAdmin.accountId, reasonId = reason.id))
       giftCard ← * <~ GiftCards.create(
                     Factories.giftCard.copy(originId = origin.id, state = GiftCard.Active))
-    } yield (cart.refNum, sku, cc, giftCard)).gimme
+    } yield (cart.refNum, variant, cc, giftCard)).gimme
   }
 
   trait ExpectedWarningsForPayment {

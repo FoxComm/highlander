@@ -1,4 +1,4 @@
-import failures.ProductFailures.SkuNotFoundForContext
+import failures.ProductFailures.ProductVariantNotFoundForContext
 import failures.{AlreadySavedForLater, NotFoundFailure404}
 import models.account._
 import models.objects._
@@ -23,7 +23,7 @@ class SaveForLaterIntegrationTest
       saveForLaterApi(customer.accountId).get().as[SavedForLater].result mustBe empty
 
       SaveForLaters
-        .create(SaveForLater(accountId = customer.accountId, skuId = product.skuId))
+        .create(SaveForLater(accountId = customer.accountId, productVariantId = product.variantId))
         .gimme
       saveForLaterApi(customer.accountId).get().as[SavedForLater].result must === (roots)
     }
@@ -48,7 +48,7 @@ class SaveForLaterIntegrationTest
 
       saveForLaterApi(customer.accountId)
         .create(product.code)
-        .mustFailWith400(AlreadySavedForLater(customer.accountId, product.skuId))
+        .mustFailWith400(AlreadySavedForLater(customer.accountId, product.variantId))
 
       SaveForLaters.gimme must have size 1
     }
@@ -60,7 +60,7 @@ class SaveForLaterIntegrationTest
     "404 if sku is not found" in new Fixture {
       saveForLaterApi(customer.accountId)
         .create("NOPE")
-        .mustFailWith404(SkuNotFoundForContext("NOPE", SimpleContext.id))
+        .mustFailWith404(ProductVariantNotFoundForContext("NOPE", SimpleContext.id))
     }
   }
 
@@ -83,6 +83,6 @@ class SaveForLaterIntegrationTest
       product        ← * <~ Mvp.insertProduct(productContext.id, Factories.products.head)
     } yield (product, productContext)).gimme
 
-    def roots = Seq(SaveForLaterResponse.forSkuId(product.skuId, productContext.id).gimme)
+    def roots = Seq(SaveForLaterResponse.forSkuId(product.variantId, productContext.id).gimme)
   }
 }

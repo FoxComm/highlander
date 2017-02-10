@@ -14,7 +14,7 @@ import utils.seeds.Seeds.Factories
 
 class CartStoreCreditPaymentsIntegrationTest extends CartPaymentsIntegrationTestBase {
 
-  "POST /v1/orders/:ref/payment-methods/store-credit" - {
+  "POST /v1/carts/:ref/payment-methods/store-credit" - {
     "when successful" - {
       "uses store credit records in FIFO cart according to createdAt" in new StoreCreditFixture {
         // ensure 3 & 4 are oldest so 5th should not be used
@@ -101,7 +101,7 @@ class CartStoreCreditPaymentsIntegrationTest extends CartPaymentsIntegrationTest
     }
   }
 
-  "DELETE /v1/orders/:ref/payment-methods/store-credit" - {
+  "DELETE /v1/carts/:ref/payment-methods/store-credit" - {
     "successfully deletes all store credit payments" in new StoreCreditFixture {
       cartsApi(cart.refNum).payments.storeCredit.add(StoreCreditPayment(amount = 75)).mustBeOk()
       cartsApi(cart.refNum).payments.storeCredit.delete().mustBeOk()

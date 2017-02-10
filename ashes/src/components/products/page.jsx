@@ -6,7 +6,7 @@
 import React, { Component, Element, PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
-import { setSkuAttribute, skuId } from 'paragons/product';
+import { setSkuAttribute, productVariantId } from 'paragons/product';
 import { assoc } from 'sprout-data';
 
 // actions
@@ -75,23 +75,23 @@ class ProductPage extends ObjectPage {
   removeEmptySkus(object) {
     let existsCodes = {};
 
-    let skus = _.reduce(object.skus, (acc, sku) => {
-      const code = _.get(sku.attributes, 'code.v');
+    let variants = _.reduce(object.variants, (acc, variant) => {
+      const code = _.get(variant.attributes, 'code.v');
       if (code) {
-        existsCodes[skuId(sku)] = 1;
-        return [...acc, sku];
+        existsCodes[productVariantId(variant)] = 1;
+        return [...acc, variant];
       }
       return acc;
     }, []);
 
-    if (!skus.length && object.skus.length) {
-      const firstSku = object.skus[0];
-      skus = [firstSku];
-      existsCodes[skuId(firstSku)] = 1;
+    if (!variants.length && object.variants.length) {
+      const firstVariant = object.variants[0];
+      variants = [firstVariant];
+      existsCodes[productVariantId(firstVariant)] = 1;
     }
 
-    const variants = _.map(object.variants, variant => {
-      const values = _.map(variant.values, value => {
+    const options = _.map(object.options, option => {
+      const values = _.map(option.values, value => {
         const skuCodes = _.reduce(value.skuCodes, (acc, code) => {
           if (code in existsCodes) {
             return [...acc, code];
@@ -100,12 +100,12 @@ class ProductPage extends ObjectPage {
         }, []);
         return assoc(value, 'skuCodes', skuCodes);
       });
-      return assoc(variant, 'values', values);
+      return assoc(option, 'values', values);
     });
 
     return assoc(object,
-      'skus', skus,
-      'variants', variants
+      'variants', variants,
+      'options', options
     );
   }
 

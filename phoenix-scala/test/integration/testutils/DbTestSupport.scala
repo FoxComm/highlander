@@ -1,14 +1,12 @@
 package testutils
 
-import java.sql.{Connection, PreparedStatement}
+import java.sql.PreparedStatement
 import java.util.Locale
 import javax.sql.DataSource
-
 import scala.annotation.tailrec
-
 import models.objects.{ObjectContext, ObjectContexts}
 import models.product.SimpleContext
-import org.scalatest.{BeforeAndAfterAll, Outcome, Suite, SuiteMixin}
+import org.scalatest._
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.hikaricp.HikariCPJdbcDataSource
 import utils.aliases.EC
@@ -16,7 +14,7 @@ import utils.db.flyway.newFlyway
 import utils.seeds.Seeds
 
 trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport {
-  this: Suite ⇒
+  this: TestSuite ⇒
 
   import DbTestSupport._
 
@@ -80,8 +78,7 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
 
   override abstract protected def withFixture(test: NoArgTest): Outcome = {
     truncateTablesStmt.executeQuery()
-
-    super.withFixture(test)
+    test()
   }
 }
 

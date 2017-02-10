@@ -8,7 +8,6 @@ import utils.aliases.Json
 
 object TaxonomyResponses {
 
-  type TaxonList   = Seq[TaxonTreeResponse]
   type LinkedTaxon = (FullObject[ModelTaxon], TaxonomyTaxonLink)
 
   implicit class LTreeExtension(ltree: LTree) {
@@ -22,11 +21,14 @@ object TaxonomyResponses {
     }
   }
 
-  case class TaxonomyResponse(id: Int, hierarchical: Boolean, attributes: Json, taxons: TaxonList)
+  case class FullTaxonomyResponse(id: Int,
+                                  hierarchical: Boolean,
+                                  attributes: Json,
+                                  taxons: Seq[TaxonTreeResponse])
 
-  object TaxonomyResponse {
-    def build(taxon: FullObject[Taxonomy], taxons: Seq[LinkedTaxon]): TaxonomyResponse = {
-      TaxonomyResponse(
+  object FullTaxonomyResponse {
+    def build(taxon: FullObject[Taxonomy], taxons: Seq[LinkedTaxon]): FullTaxonomyResponse = {
+      FullTaxonomyResponse(
           taxon.model.formId,
           taxon.model.hierarchical,
           IlluminateAlgorithm.projectAttributes(taxon.form.attributes, taxon.shadow.attributes),
@@ -34,13 +36,31 @@ object TaxonomyResponses {
     }
   }
 
+  case class AssignedTaxonsResponse(taxonomyId: Int,
+                                    hierarchical: Boolean,
+                                    attributes: Json,
+                                    taxons: Seq[Taxon])
+  object AssignedTaxonsResponse {
+    def build(taxonomy: FullObject[Taxonomy],
+              taxons: Seq[FullObject[ModelTaxon]]): AssignedTaxonsResponse = {
+      val taxonAttributes =
+        IlluminateAlgorithm.projectAttributes(taxonomy.form.attributes, taxonomy.shadow.attributes)
+
+      AssignedTaxonsResponse(taxonomy.model.formId,
+                             taxonomy.model.hierarchical,
+                             taxonAttributes,
+                             taxons.map(Taxon.build))
+    }
+  }
+
   case class SingleTaxonResponse(taxonomyId: Int, taxon: Taxon, parentId: Option[Integer])
+
   object SingleTaxonResponse {
     def build(taxonomyId: Integer, taxon: FullObject[ModelTaxon], parentTaxonId: Option[Integer]) =
       SingleTaxonResponse(taxonomyId, Taxon.build(taxon), parentTaxonId)
   }
 
-  case class TaxonTreeResponse(taxon: Taxon, children: TaxonList)
+  case class TaxonTreeResponse(taxon: Taxon, children: Seq[TaxonTreeResponse])
 
   case class Taxon(id: Int, name: String)
 
@@ -60,16 +80,16 @@ object TaxonomyResponses {
       TaxonTreeResponse(Taxon.build(taxon), Seq())
     }
 
-    def buildTree(nodes: Seq[LinkedTaxon]): TaxonList =
+    def buildTree(nodes: Seq[LinkedTaxon]): Seq[TaxonTreeResponse] =
       buildTree(0, nodes.sortBy { case (_, link) ⇒ link.path.level })
 
-    private def buildTree(level: Int, nodesSorted: Seq[LinkedTaxon]): TaxonList = {
+    private def buildTree(level: Int, nodesSorted: Seq[LinkedTaxon]): Seq[TaxonTreeResponse] = {
       val (heads, tail)   = nodesSorted.span { case (_, link) ⇒ link.path.level == level }
       val headsByPosition = heads.sortBy { case (_, link)     ⇒ link.position }
       headsByPosition.map {
         case (taxon, link) ⇒
           TaxonTreeResponse(Taxon.build(taxon), buildTree(level + 1, tail.filter {
-            case (_, lnk) ⇒ lnk.parentIndex.contains(link.index)
+            case (_, lnk) ⇒ lnk.path.value.startsWith(link.childPath.value)
           }))
       }
     }

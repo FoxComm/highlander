@@ -5,15 +5,14 @@ import java.time.Instant
 import cats.data.NonEmptyList
 import cats.implicits._
 import failures.Failure
-import org.json4s.JsonAST.{JField, JNothing, JObject, JString}
+import org.json4s.JsonAST.{JNothing, JObject, JString}
 import org.json4s.JsonDSL._
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
-import utils.IlluminateAlgorithm
 import services.objects.ObjectSchemasManager
+import utils.IlluminateAlgorithm
 import utils.aliases._
 import utils.db._
-import scala.annotation.tailrec
 
 object ObjectUtils {
 
@@ -31,8 +30,8 @@ object ObjectUtils {
 
   /**
     * We compute a SHA-1 hash of the json content and return the first
-    * 10 characters in hex representation of the hash. 
-    * We don't care about the whole hash because it would take up too much space. 
+    * 10 characters in hex representation of the hash.
+    * We don't care about the whole hash because it would take up too much space.
     * Collisions are handled below in the findKey function.
     */
   private def hash(content: Json): String =
@@ -46,8 +45,8 @@ object ObjectUtils {
   /**
     * The key algorithm will compute a hash of the content and then search
     * for a valid key. The search function looks for hash collisions.
-    * If a hash collision is found, an index is appended to the hash and the 
-    * new hash+index key is searched until we find a key with same content or 
+    * If a hash collision is found, an index is appended to the hash and the
+    * new hash+index key is searched until we find a key with same content or
     * we reach the end of the list.
     */
   private[objects] def key(content: Json, alreadyExistingFields: Json): String = {
@@ -70,8 +69,9 @@ object ObjectUtils {
     humanReadableForm match {
       case JObject(o) ⇒
         val zeroAccumObj = existingForm.merge(humanReadableForm)
+        // TODO: simplify this, what is happening here‽
         val (_, keyMap, newForm) =
-          o.obj.foldLeft((zeroAccumObj, Map.empty: KeyMap, Nil: List[(String, JValue)])) {
+          o.obj.foldLeft((zeroAccumObj, Map.empty: KeyMap, List.empty[(String, JValue)])) {
             case ((accumObj, keyMap, newForm), (attr, value)) ⇒
               val k            = key(value, accumObj)
               val field        = (k, value)
@@ -263,12 +263,4 @@ object ObjectUtils {
     case head :: tail ⇒ DbResultT.failures(NonEmptyList(head, tail))
     case Nil          ⇒ DbResultT.pure(Unit)
   }
-
-  def getFullObject[T <: ObjectHead[T]](
-      readHead: ⇒ DbResultT[T])(implicit ec: EC, db: DB): DbResultT[FullObject[T]] =
-    for {
-      head   ← * <~ readHead
-      form   ← * <~ ObjectForms.mustFindById404(head.formId)
-      shadow ← * <~ ObjectShadows.mustFindById404(head.shadowId)
-    } yield FullObject(head, form, shadow)
 }

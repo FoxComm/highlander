@@ -1,7 +1,7 @@
 package routes.admin
 
 import akka.http.scaladsl.server.Directives._
-
+import akka.http.scaladsl.server.Route
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.account.User
 import services.Authenticator.AuthData
@@ -11,7 +11,7 @@ import utils.http.CustomDirectives._
 import utils.http.Http._
 
 object ObjectRoutes {
-  def routes(implicit ec: EC, db: DB, auth: AuthData[User]) = {
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User]): Route = {
     activityContext(auth.model) { implicit ac ⇒
       pathPrefix("object" / "schemas") {
         (get & pathEnd) {

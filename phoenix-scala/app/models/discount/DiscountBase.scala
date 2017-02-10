@@ -1,6 +1,7 @@
 package models.discount
 
 import models.cord.lineitems.LineItemProductData
+import models.objects.ObjectForm
 import models.product.Mvp
 
 /**
@@ -8,25 +9,19 @@ import models.product.Mvp
   */
 trait DiscountBase {
 
-  def price[A](data: LineItemProductData[A]): Int = Mvp.priceAsInt(data.skuForm, data.skuShadow)
+  def price(data: LineItemProductData[_]): Int =
+    Mvp.priceAsInt(data.productVariantForm, data.productVariantShadow)
 
-  def unitsByProducts(lineItems: Seq[LineItemProductData[_]], formIds: Seq[String]): Int =
-    lineItems.foldLeft(0) { (sum, data) ⇒
-      if (formIds.contains(data.productForm.id.toString)) sum + 1 else sum
-    }
+  def unitsByProducts(lineItems: Seq[LineItemProductData[_]], formIds: Set[ObjectForm#Id]): Int =
+    lineItems.count(formIds contains _.productForm.id)
 
-  def totalByProducts(lineItems: Seq[LineItemProductData[_]], formIds: Seq[String]): Int =
-    lineItems.foldLeft(0) { (sum, data) ⇒
-      if (formIds.contains(data.productForm.id.toString)) sum + price(data) else sum
-    }
+  def totalByProducts(lineItems: Seq[LineItemProductData[_]], formIds: Set[ObjectForm#Id]): Int =
+    lineItems.filter(formIds contains _.productForm.id).map(price).sum
 
-  def unitsBySku(lineItems: Seq[LineItemProductData[_]], codes: Seq[String]): Int =
-    lineItems.foldLeft(0) { (sum, data) ⇒
-      if (codes.contains(data.sku.code)) sum + 1 else sum
-    }
+  def unitsBySku(lineItems: Seq[LineItemProductData[_]], codes: Set[String]): Int =
+    lineItems.count(codes contains _.productVariant.code)
 
   def totalBySku(lineItems: Seq[LineItemProductData[_]], codes: Seq[String]): Int =
-    lineItems.foldLeft(0) { (sum, data) ⇒
-      if (codes.contains(data.sku.code)) sum + price(data) else sum
-    }
+    lineItems.filter(codes contains _.productVariant.code).map(price).sum
+
 }

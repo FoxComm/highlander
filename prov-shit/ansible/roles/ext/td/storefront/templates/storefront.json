@@ -5,6 +5,10 @@
   "mem": 4096,
   "disk": 0,
   "instances": 1,
+  "labels": {
+    "LAYER": "frontend",
+    "LANG": "js"
+  },
   "env": {
     "API_URL": "https://{{storefront_server_name}}",
     "NODE_ENV": "production",
@@ -40,7 +44,7 @@
       }
     ],
     "docker": {
-      "image": "{{docker_registry}}:5000/td-storefront:{{docker_frontend_branch}}",
+      "image": "{{docker_registry}}:5000/td-storefront:{{docker_tags.storefront_td}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],

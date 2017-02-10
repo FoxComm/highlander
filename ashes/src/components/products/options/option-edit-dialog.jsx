@@ -85,6 +85,7 @@ class OptionEditDialog extends Component {
           required
         >
           <input
+            id="option-name-fld"
             type="text"
             ref="nameInput"
             value={name}
@@ -97,6 +98,7 @@ class OptionEditDialog extends Component {
           key={`object-form-attribute-type`}
         >
           <input
+            id="option-display-type-fld"
             type="text"
             value={type}
             onChange={({target}) => this.handleChange(target.value, 'type')}

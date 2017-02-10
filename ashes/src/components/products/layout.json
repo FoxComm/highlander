@@ -21,10 +21,10 @@
       }
     },
     {
-      "type": "option-list"
+      "type": "optionList"
     },
     {
-      "type": "sku-list"
+      "type": "skuList"
     },
     {
       "type": "group",

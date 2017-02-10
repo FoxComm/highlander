@@ -109,16 +109,17 @@ export class CartLineItem extends Component {
   render() {
     const { item, className } = this.props;
     const { isDeleting, quantity } = this.state;
+    const skuQtyInput = _.kebabCase(item.sku);
 
     return (
       <tr className={classNames('line-item', className)}>
         <td><img src={item.imagePath} /></td>
-        <td>{item.name}</td>
+        <td className="line-item-name">{item.name}</td>
         <td><Link to="sku-details" params={{ skuCode: item.sku }}>{item.sku}</Link></td>
-        <td><Currency value={item.price} /></td>
-        <td>
+        <td><Currency className="item-price" value={item.price} /></td>
+        <td class="line-item-quantity">
           <Counter
-            id={`line-item-quantity-${item.sku}`}
+            id={`item-quantity-input-${skuQtyInput}`}
             value={quantity}
             min={1}
             max={1000000}
@@ -128,7 +129,7 @@ export class CartLineItem extends Component {
             increaseAction={() => this.handleButtonClick(1)}
           />
         </td>
-        <td><Currency value={item.totalPrice} /></td>
+        <td><Currency className="item-total-price" value={item.totalPrice} /></td>
         <td>
           <DeleteButton onClick={this.startDelete} />
           <ConfirmationDialog

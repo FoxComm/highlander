@@ -17,18 +17,13 @@ case class ObjectForm(id: Int = 0,
     extends FoxModel[ObjectForm]
 
 object ObjectForm {
-  val product   = "product"
-  val sku       = "sku"
-  val promotion = "promotion"
-  val coupon    = "coupon"
+  val product        = "product"
+  val productVariant = "product-variant"
+  val promotion      = "promotion"
+  val coupon         = "coupon"
 
   def fromPayload(kind: String, attributes: Map[String, Json]): ObjectForm = {
-    val attributesJson = attributes.foldLeft(JNothing: JValue) {
-      case (acc, (key, value)) ⇒
-        val attributeJson: JValue = key → (value \ "v")
-        acc.merge(attributeJson)
-    }
-
+    val attributesJson = JObject(attributes.mapValues(_ \ "v").toList)
     ObjectForm(kind = kind, attributes = attributesJson)
   }
 }

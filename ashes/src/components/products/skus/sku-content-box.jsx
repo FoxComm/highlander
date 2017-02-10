@@ -15,14 +15,14 @@ import ConfirmationDialog from 'components/modal/confirmation-dialog';
 import { Checkbox } from 'components/checkbox/checkbox';
 
 // helpers
-import { availableVariantsValues, variantsWithMultipleOptions } from 'paragons/variants';
+import { availableOptionsValues, optionsWithMultipleValues } from 'paragons/variants';
 
 // styles
 import styles from './sku-content-box.css';
 
 // types
 import type { Product, OptionValue } from 'paragons/product';
-import type { Sku } from 'modules/skus/details';
+import type { ProductVariant } from 'modules/product-variants/details';
 
 type UpdateFn = (code: string, field: string, value: any) => void;
 
@@ -32,7 +32,7 @@ type Props = {
   onDeleteSku: (skuCode: string) => void,
   onAddNewVariants: (options: Array<Array<OptionValue>>) => void,
   updateFields: (code: string, toUpdate: Array<Array<any>>) => void,
-  variants: Array<any>,
+  options: Array<any>,
 };
 
 type State = {
@@ -48,35 +48,36 @@ class SkuContentBox extends Component {
   };
 
   get actions(): ?Element {
-    if (_.isEmpty(this.props.variants)) {
+    if (_.isEmpty(this.props.options)) {
       return null;
     }
-    const availableVariants = availableVariantsValues(this.props.fullProduct);
-    if (_.isEmpty(availableVariants)) {
+    const availableOptions = availableOptionsValues(this.props.fullProduct);
+    if (_.isEmpty(availableOptions)) {
       return null;
     }
 
     return (
-      <a styleName="add-icon" onClick={this.addAction}>
+      <a id="sku-block-add-sku-btn" styleName="add-icon" onClick={this.addAction}>
         <i className="icon-add" />
       </a>
     );
   }
 
-  get skus(): Array<Sku> {
+  get variants(): Array<ProductVariant> {
     if (this.props.fullProduct) {
-      return this.props.fullProduct.skus;
+      return this.props.fullProduct.variants;
     }
 
     return [];
   }
 
   get addSkuDialog(): Element {
-    const availableVariants = availableVariantsValues(this.props.fullProduct);
+    const availableVariants = availableOptionsValues(this.props.fullProduct);
     const { selectedOptions } = this.state;
 
     const list = _.map(availableVariants, (values: Array<OptionValue>, i) => {
       const key = this.getValuesKey(values);
+      const name = values.map(value => value.name).join('-').toLowerCase();
       const checked = !!selectedOptions[key];
       const content = values.map(value => value.name).join(', ');
 
@@ -84,6 +85,7 @@ class SkuContentBox extends Component {
         <li key={`sku-${key}`}>
           <Checkbox
             id={`sku-option-${i}`}
+            name={`${name}-option-chbox`}
             onChange={() => this.toggleAddedOption(values)}
             checked={checked}
           >
@@ -117,11 +119,11 @@ class SkuContentBox extends Component {
 
   @autobind
   addNewSkus() {
-    const newVariants = _.values(this.state.selectedOptions);
+    const newOptions = _.values(this.state.selectedOptions);
     this.setState({
       selectedOptions: {}
     }, () => {
-      this.props.onAddNewVariants(newVariants);
+      this.props.onAddNewVariants(newOptions);
       this.closeAction();
     });
   }
@@ -163,8 +165,8 @@ class SkuContentBox extends Component {
           updateField={props.updateField}
           updateFields={props.updateFields}
           onDeleteSku={props.onDeleteSku}
-          skus={this.skus}
-          variants={variantsWithMultipleOptions(props.variants)}
+          variants={this.variants}
+          options={optionsWithMultipleValues(props.options)}
         />
         { this.addSkuDialog }
       </ContentBox>

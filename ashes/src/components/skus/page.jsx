@@ -1,6 +1,4 @@
-/**
- * @flow
- */
+// @flow
 
 // libs
 import _ from 'lodash';
@@ -10,59 +8,53 @@ import { autobind } from 'core-decorators';
 // components
 import { Link, IndexLink } from '../link';
 import LocalNav from '../local-nav/local-nav';
-import { connectPage, ObjectPage } from '../object-page/object-page';
+import { connectPage, ObjectPage } from 'components/object-page/object-page';
 
 // actions
 import * as SkuActions from 'modules/skus/details';
 
 // types
 import type { Sku } from 'modules/skus/details';
+import type { ProductVariant } from 'modules/product-variants/details';
 
 type Props = {
+  skuId: number,
+  children: Element,
+  params: Object,
+  // connected
   actions: {
     skuNew: () => void,
-    fetchSku: (code: string, context?: string) => Promise,
-    createSku: (sku: Sku, context?: string) => Promise,
-    updateSku: (sku: Sku, context?: string) => Promise,
-    archiveSku: (code: string, context?: string) => Promise,
+    fetchSku: (skuId: number) => Promise,
+    updateSku: (sku: Sku) => Promise,
   },
-  params: { skuCode: string },
   originalObject: Sku,
-  children: Element,
+  object: ProductVariant,
 };
 
 class SkuPage extends ObjectPage {
   props: Props;
-
-  get code(): string {
-    return _.get(this.props.originalObject, 'attributes.code.v', '');
-  }
 
   get pageTitle(): string {
     if (this.isNew) {
       return `New SKU`;
     }
 
-    return this.code.toUpperCase();
+    return _.get(this.props.originalObject, 'title', '');
   }
 
   get entityIdName(): string {
-    return 'skuCode';
+    return 'skuId';
   }
 
-  get detailsLinks() {
-    if (this.isNew) {
-      return;
-    }
-
+  subNav() {
     const { params } = this.props;
 
-    return [
-      <Link to="sku-images" params={params} key="images">Images</Link>,
-      <Link to="sku-inventory-details" params={params} key="inventory">Inventory</Link>,
-      <Link to="sku-notes" params={params} key="notes">Notes</Link>,
-      <Link to="sku-activity-trail" params={params} key="activity-trail">Activity Trail</Link>,
-    ];
+    return (
+      <LocalNav>
+        <IndexLink to="sku-details" params={params}>Details</IndexLink>
+        <Link to="sku-inventory" params={params}>Inventory</Link>
+      </LocalNav>
+    );
   }
 
   @autobind
@@ -73,17 +65,6 @@ class SkuPage extends ObjectPage {
     }
 
     return error;
-  }
-
-  subNav() {
-    const { params } = this.props;
-
-    return (
-      <LocalNav>
-        <IndexLink to="sku-details" params={params}>Details</IndexLink>
-        {this.detailsLinks}
-      </LocalNav>
-    );
   }
 }
 

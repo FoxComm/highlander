@@ -3,8 +3,6 @@
 - name: Packing Tinyprod Amigo
   hosts: all
   become: true
-  tags:
-    - packer
   vars:
     user: ubuntu
     packing: true

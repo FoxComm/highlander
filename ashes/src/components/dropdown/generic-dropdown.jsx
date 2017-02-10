@@ -16,6 +16,8 @@ export type ValueType = ?string|number;
 export type DropdownItemType = [ValueType, string|Element, bool];
 
 export type Props = {
+  id?: string,
+  dropdownValueId?: string,
   name?: string,
   value: ValueType,
   className?: string,
@@ -34,7 +36,7 @@ export type Props = {
   renderNullTitle?: Function,
   renderPrepend?: Function,
   renderAppend?: Function,
-  onChange?: Function,
+  onChange?: (value: any, title: string) => void,
   dropdownProps?: Object,
   detached?: boolean,
 };
@@ -288,10 +290,10 @@ export default class GenericDropdown extends Component {
   };
 
   render() {
-    const { editable } = this.props;
+    const { editable, id } = this.props;
 
     return (
-      <div className={this.dropdownClassName} ref={c => this._container = c} tabIndex="0">
+      <div id={id} className={this.dropdownClassName} ref={c => this._container = c} tabIndex="0">
         <Overlay shown={this.state.open} onClick={this.handleToggleClick} />
         <div className="fc-dropdown__controls" onClick={editable ? this.handleToggleClick : null}>
           {this.controls}

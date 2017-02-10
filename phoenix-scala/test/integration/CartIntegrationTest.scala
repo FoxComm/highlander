@@ -1,10 +1,10 @@
 import akka.http.scaladsl.model.StatusCodes
+
 import cats.implicits._
 import failures.CartFailures._
 import failures.LockFailures._
 import failures.ShippingMethodFailures._
 import failures.{NotFoundFailure400, NotFoundFailure404}
-import faker.Lorem
 import models.cord._
 import models.cord.lineitems._
 import models.location._
@@ -13,23 +13,20 @@ import models.product.Mvp
 import models.rules.QueryStatement
 import models.shipping._
 import org.json4s.jackson.JsonMethods._
-import payloads.AddressPayloads.{CreateAddressPayload, UpdateAddressPayload}
+import payloads.AddressPayloads.UpdateAddressPayload
 import payloads.CustomerPayloads.CreateCustomerPayload
-import payloads.LineItemPayloads._
-import payloads.OrderPayloads.CreateCart
-import payloads.UpdateShippingMethod
-import responses.cord.CartResponse
-import responses.cord.base.CordResponseLineItem
-import responses._
-import models.cord.CordPaymentState
 import payloads.GiftCardPayloads.GiftCardCreateByCsr
+import payloads.LineItemPayloads._
 import payloads.PaymentPayloads._
+import payloads.UpdateShippingMethod
+import responses._
+import responses.cord.CartResponse
 import services.carts.CartTotaler
 import slick.driver.PostgresDriver.api._
 import testutils._
 import testutils.apis.PhoenixAdminApi
-import testutils.fixtures.BakedFixtures
-import testutils.fixtures.api.ApiFixtures
+import testutils.fixtures._
+import testutils.fixtures.api._
 import utils.db._
 import utils.seeds.Seeds.Factories
 import utils.seeds.ShipmentSeeds
@@ -39,21 +36,22 @@ class CartIntegrationTest
     with PhoenixAdminApi
     with AutomaticAuth
     with ApiFixtures
+    with ApiFixtureHelpers
     with BakedFixtures {
 
   "GET /v1/carts/:refNum" - {
     "payment state" - {
 
       "displays 'cart' payment state" in new Fixture {
-        val fullCart = cartsApi(cart.refNum).get().asTheResult[CartResponse]
+        val fullCart = cartsApi(cartRef).get().asTheResult[CartResponse]
         fullCart.paymentState must === (CordPaymentState.Cart)
       }
 
       "displays 'auth' payment state" in new PaymentStateFixture {
         CreditCardCharges.findById(ccc.id).extract.map(_.state).update(CreditCardCharge.Auth).gimme
 
-        val fullCart = cartsApi(cart.refNum).get().asTheResult[CartResponse]
-        fullCart.paymentState must === (CordPaymentState.Auth)
+        cartsApi(cartRef).get().asTheResult[CartResponse].paymentState must === (
+            CordPaymentState.Auth)
       }
     }
 
@@ -72,10 +70,11 @@ class CartIntegrationTest
       val imgUrl = "testImgUrl"
       (for {
         product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head.copy(image = imgUrl))
-        _       ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))
+        _ ← * <~ CartLineItems.create(
+               CartLineItem(cordRef = cartRef, productVariantId = product.variantId))
       } yield {}).gimme
 
-      val fullCart = cartsApi(cart.refNum).get().asTheResult[CartResponse]
+      val fullCart = cartsApi(cartRef).get().asTheResult[CartResponse]
       fullCart.lineItems.skus.size must === (1)
       fullCart.lineItems.skus.head.imagePath must === (imgUrl)
     }
@@ -84,16 +83,12 @@ class CartIntegrationTest
       val guestCustomer = customersApi
         .create(CreateCustomerPayload(email = "foo@bar.com", isGuest = Some(true)))
         .as[CustomerResponse.Root]
-      val fullCart = customersApi(guestCustomer.id).cart().as[CartResponse]
-      fullCart.paymentMethods.size must === (0)
+      customersApi(guestCustomer.id).cart().as[CartResponse].paymentMethods.size must === (0)
     }
 
-    "calculates customer’s expenses considering in-store payments" in new StoreAdmin_Seed
-    with Customer_Seed with ProductSku_ApiFixture with Reason_Baked {
-      val refNum =
-        cartsApi.create(CreateCart(customerId = customer.id.some)).as[CartResponse].referenceNumber
-
-      cartsApi(refNum).lineItems.add(Seq(UpdateLineItemsPayload(skuCode, 1))).mustBeOk()
+    "calculates customer’s expenses considering in-store payments" in new Fixture
+    with Reason_Baked {
+      cartsApi(cartRef).lineItems.add(liPayload(1)).mustBeOk()
 
       val giftCardAmount    = 2500 // ¢
       val storeCreditAmount = 500  // ¢
@@ -102,7 +97,7 @@ class CartIntegrationTest
         .create(GiftCardCreateByCsr(giftCardAmount, reasonId = reason.id))
         .as[GiftCardResponse.Root]
 
-      cartsApi(refNum).payments.giftCard
+      cartsApi(cartRef).payments.giftCard
         .add(GiftCardPayment(giftCard.code, giftCardAmount.some))
         .asTheResult[CartResponse]
 
@@ -110,9 +105,9 @@ class CartIntegrationTest
         .create(CreateManualStoreCredit(amount = storeCreditAmount, reasonId = reason.id))
         .as[StoreCreditResponse.Root]
 
-      cartsApi(refNum).payments.storeCredit.add(StoreCreditPayment(storeCreditAmount))
+      cartsApi(cartRef).payments.storeCredit.add(StoreCreditPayment(storeCreditAmount))
 
-      val fullCart = cartsApi(refNum).get().asTheResult[CartResponse]
+      val fullCart = cartsApi(cartRef).get().asTheResult[CartResponse]
 
       fullCart.totals.customersExpenses must === (
           fullCart.totals.total - giftCardAmount - storeCreditAmount)
@@ -120,219 +115,189 @@ class CartIntegrationTest
   }
 
   "POST /v1/orders/:refNum/line-items" - {
-    val payload = Seq(UpdateLineItemsPayload("SKU-YAX", 2))
 
-    "should successfully update line items" in new OrderShippingMethodFixture
-    with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
-      val root = cartsApi(cart.refNum).lineItems.add(payload).asTheResult[CartResponse]
-      val skus = root.lineItems.skus
-      skus must have size 1
-      skus.map(_.sku).toSet must === (Set("SKU-YAX"))
-      skus.map(_.quantity).toSet must === (Set(2))
+    "should successfully update line items" in new Fixture {
+      val sku = cartsApi(cartRef).lineItems
+        .add(liPayload())
+        .asTheResult[CartResponse]
+        .lineItems
+        .skus
+        .onlyElement
+      sku.sku must === (productVariantCode)
+      sku.variantId must === (productVariant.id)
+      sku.quantity must === (2)
+      // TODO: check if *variant* IDs match?
     }
 
-    "adding a SKU with no product should return an error" in new OrderShippingMethodFixture
-    with Sku_Raw with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
-      val payload = Seq(UpdateLineItemsPayload(simpleSku.code, 1))
-      cartsApi(cart.refNum).lineItems
-        .add(Seq(UpdateLineItemsPayload(simpleSku.code, 1)))
-        .mustFailWith400(SkuWithNoProductAdded(cart.refNum, simpleSku.code))
+    "adding a SKU with no product should return an error" in new Variant_Raw {
+      val cartRef = api_newGuestCart().referenceNumber
+
+      cartsApi(cartRef).lineItems
+        .add(Seq(UpdateLineItemsPayload(simpleVariant.formId, 1)))
+        .mustFailWith400(SkuWithNoProductAdded(cartRef, simpleVariant.code))
     }
 
-    "adding a SKU that's associated through a variant should succeed" in new ProductAndVariants_Baked
-    with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
-      val (_, _, skus) = productWithVariants
-      val code         = skus.head.code
-
-      val testPayload = Seq(UpdateLineItemsPayload(code, 1))
-      val root        = cartsApi(cart.refNum).lineItems.add(testPayload).asTheResult[CartResponse]
-      val liSkus      = root.lineItems.skus
-      liSkus must have size 1
+    "adding a SKU that's associated through a productOption should succeed" in new Fixture {
+      cartsApi(cartRef).lineItems
+        .add(Seq(UpdateLineItemsPayload(productVariant.id, 1)))
+        .asTheResult[CartResponse]
+        .lineItems
+        .skus must have size 1
     }
 
-    "should respond with 404 if cart is not found" in {
-      cartsApi("NOPE").lineItems.add(payload).mustFailWith404(NotFoundFailure404(Cart, "NOPE"))
+    "should respond with 404 if cart is not found" in new ShippingMethodFixture {
+      cartsApi("NOPE").lineItems.add(liPayload()).mustFailWith404(NotFoundFailure404(Cart, "NOPE"))
     }
   }
 
   "PATCH /v1/orders/:refNum/line-items" - {
-    val addPayload = Seq(UpdateLineItemsPayload("SKU-YAX", 2))
 
-    val attributes = LineItemAttributes(
-        GiftCardLineItemAttributes(senderName = "senderName",
-                                   recipientName = "recipientName",
-                                   recipientEmail = "example@example.com",
-                                   message = "message").some).some
+    val giftCardAttrs1, giftCardAttrs2 = giftCardLineItemAttributes
 
-    val attributes2 = LineItemAttributes(
-        GiftCardLineItemAttributes(senderName = "senderName2",
-                                   recipientName = "recipientName2",
-                                   recipientEmail = "example2@example.com",
-                                   message = "message2").some).some
+    def addGiftCardPayload(productVariantId: Int) =
+      Seq(UpdateLineItemsPayload(productVariantId, 2, giftCardAttrs1),
+          UpdateLineItemsPayload(productVariantId, 1, giftCardAttrs2))
 
-    def addGiftCardPayload(sku: String) =
-      Seq(UpdateLineItemsPayload(sku, 2, attributes), UpdateLineItemsPayload(sku, 1, attributes2))
+    def removeGiftCardPayload(productVariantId: Int) =
+      Seq(UpdateLineItemsPayload(productVariantId, -2, giftCardAttrs1))
 
-    def removeGiftCardPayload(sku: String) = Seq(UpdateLineItemsPayload(sku, -2, attributes))
+    "should successfully add line items" in new Fixture {
+      val sku = cartsApi(cartRef).lineItems
+        .update(liPayload(4))
+        .asTheResult[CartResponse]
+        .lineItems
+        .skus
+        .onlyElement
+      // TODO: check if *variant* IDs match?
+      sku.sku must === (productVariantCode)
+      sku.quantity must === (4)
 
-    "should successfully add line items" in new OrderShippingMethodFixture
-    with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
-      val root = cartsApi(cart.refNum).lineItems.update(addPayload).asTheResult[CartResponse]
-      val skus = root.lineItems.skus
-      skus must have size 1
-      skus.map(_.sku).headOption.value must === ("SKU-YAX")
-      skus.map(_.quantity).headOption.value must === (4)
-
-      val root2 = cartsApi(cart.refNum).lineItems.update(addPayload).asTheResult[CartResponse]
-      val skus2 = root2.lineItems.skus
-      skus2 must have size 1
-      skus2.map(_.sku).headOption.value must === ("SKU-YAX")
-      skus2.map(_.quantity).headOption.value must === (6)
+      val sku2 = cartsApi(cartRef).lineItems
+        .update(liPayload(2))
+        .asTheResult[CartResponse]
+        .lineItems
+        .skus
+        .onlyElement
+      sku2.sku must === (productVariantCode)
+      sku2.quantity must === (6)
     }
 
-    "should successfully add a gift card line item" in new Customer_Seed
-    with ProductSku_ApiFixture {
-      val refNum =
-        cartsApi.create(CreateCart(email = customer.email)).as[CartResponse].referenceNumber
-
-      cartsApi(refNum).lineItems
-        .update(addGiftCardPayload(skuCode))
+    "should successfully add a gift card line item" in new Fixture {
+      cartsApi(cartRef).lineItems
+        .update(addGiftCardPayload(productVariant.id))
         .asTheResult[CartResponse]
         .lineItems
         .skus
         .map(sku ⇒ (sku.sku, sku.quantity, sku.attributes)) must contain theSameElementsAs Seq(
-          (skuCode, 1, attributes2),
-          (skuCode, 2, attributes))
+          (productVariantCode, 1, giftCardAttrs2),
+          (productVariantCode, 2, giftCardAttrs1))
     }
 
-    "adding a SKU with no product should return an error" in new OrderShippingMethodFixture
-    with Sku_Raw with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
-      cartsApi(cart.refNum).lineItems
-        .update(Seq(UpdateLineItemsPayload(simpleSku.code, 1)))
-        .mustFailWith400(SkuWithNoProductAdded(cart.refNum, simpleSku.code))
+    "adding a SKU with no product should return an error" in new Variant_Raw {
+      val cartRef = api_newGuestCart().referenceNumber
+
+      cartsApi(cartRef).lineItems
+        .update(Seq(UpdateLineItemsPayload(simpleVariant.formId, 1)))
+        .mustFailWith400(SkuWithNoProductAdded(cartRef, simpleVariant.code))
     }
 
-    "should successfully remove line items" in new OrderShippingMethodFixture
-    with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
-      val subtractPayload = Seq(UpdateLineItemsPayload("SKU-YAX", -1))
-      val root            = cartsApi(cart.refNum).lineItems.update(subtractPayload).asTheResult[CartResponse]
-      val skus            = root.lineItems.skus
-      skus must have size 1
-      skus.map(_.sku).headOption.value must === ("SKU-YAX")
-      skus.map(_.quantity).headOption.value must === (1)
+    "should successfully remove line items" in new Fixture {
+      cartsApi(cartRef).lineItems.add(liPayload()).mustBeOk()
+
+      val sku = cartsApi(cartRef).lineItems
+        .update(liPayload(-1))
+        .asTheResult[CartResponse]
+        .lineItems
+        .skus
+        .onlyElement
+      sku.sku must === (productVariantCode)
+      sku.quantity must === (1)
     }
 
-    "should successfully remove gift card line item" in new Customer_Seed
-    with ProductSku_ApiFixture {
-      val refNum =
-        cartsApi.create(CreateCart(email = customer.email)).as[CartResponse].referenceNumber
+    "should successfully remove gift card line item" in new Fixture {
+      cartsApi(cartRef).lineItems.update(addGiftCardPayload(productVariant.id)).mustBeOk()
 
-      val regSkus = cartsApi(refNum).lineItems.update(addGiftCardPayload(skuCode)).mustBeOk()
+      val sku = cartsApi(cartRef).lineItems
+        .update(removeGiftCardPayload(productVariant.id))
+        .asTheResult[CartResponse]
+        .lineItems
+        .skus
+        .onlyElement
 
-      val skus = cartsApi(refNum).lineItems
-          .update(removeGiftCardPayload(skuCode))
-          .asTheResult[CartResponse]
-          .lineItems
-          .skus
-          .map(sku ⇒ (sku.sku, sku.quantity, sku.attributes)) must === (
-            Seq((skuCode, 1, attributes2)))
+      sku.sku must === (productVariantCode)
+      sku.quantity must === (1)
+      sku.attributes must === (giftCardAttrs2)
     }
 
-    "removing too many of an item should remove all of that item" in new OrderShippingMethodFixture
-    with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
-      val subtractPayload = Seq(UpdateLineItemsPayload("SKU-YAX", -3))
-      cartsApi(cart.refNum).lineItems
-        .update(subtractPayload)
+    "removing too many of an item should remove all of that item" in new Fixture {
+      cartsApi(cartRef).lineItems.update(liPayload(1)).mustBeOk()
+
+      cartsApi(cartRef).lineItems
+        .update(liPayload(-3))
         .asTheResult[CartResponse]
         .lineItems
         .skus mustBe empty
     }
 
-    "should respond with 404 if cart is not found" in {
-      cartsApi("NOPE").lineItems.add(addPayload).mustFailWith404(NotFoundFailure404(Cart, "NOPE"))
-    }
-
-    "should add line items if productId and skuId are different" in new OrderShippingMethodFixture
-    with ProductAndSkus_Baked {
-      val addPayload = Seq(UpdateLineItemsPayload("TEST", 1))
-      val skus: Seq[CordResponseLineItem] = cartsApi(cart.refNum).lineItems
-        .update(Seq(UpdateLineItemsPayload("TEST", 1)))
-        .asTheResult[CartResponse]
-        .lineItems
-        .skus
-      skus must have size 2
-      skus.map(_.sku) must contain theSameElementsAs Seq("SKU-YAX", "TEST")
-      skus.map(_.quantity) must contain theSameElementsAs Seq(1, 2)
+    "should respond with 404 if cart is not found" in new Fixture {
+      cartsApi("NOPE").lineItems.add(liPayload()).mustFailWith404(NotFoundFailure404(Cart, "NOPE"))
     }
   }
 
-  "POST /v1/orders/:refNum/lock" - {
+  "POST /v1/carts/:refNum/lock" - {
     "successfully locks a cart" in new Fixture {
-      cartsApi(cart.refNum).lock().mustBeOk()
-
-      Carts.findByRefNum(cart.refNum).gimme.head.isLocked must === (true)
-
-      val locks: Seq[CartLockEvent] = CartLockEvents.findByCartRef(cart.refNum).gimme
-      locks must have size 1
-      locks.head.lockedBy must === (1)
+      cartsApi(cartRef).lock().mustBeOk()
+      Carts.findByRefNum(cartRef).gimme.head.isLocked must === (true)
+      CartLockEvents.findByCartRef(cartRef).gimme.onlyElement.lockedBy must === (1)
     }
 
     "refuses to lock an already locked cart" in new Fixture {
-      Carts.update(cart, cart.copy(isLocked = true)).gimme
-
-      cartsApi(cart.refNum).lock().mustFailWith400(LockedFailure(Cart, cart.refNum))
+      cartsApi(cartRef).lock().mustBeOk()
+      cartsApi(cartRef).lock().mustFailWith400(LockedFailure(Cart, cartRef))
     }
 
     "avoids race condition" in new Fixture {
       pending // FIXME when DbResultT gets `select for update` https://github.com/FoxComm/phoenix-scala/issues/587
 
       Seq(0, 1).par
-        .map(_ ⇒ cartsApi(cart.refNum).lock())
+        .map(_ ⇒ cartsApi(cartRef).lock())
         .map(_.status) must contain allOf (StatusCodes.OK, StatusCodes.BadRequest)
 
       CartLockEvents.size.gimme must === (1)
     }
   }
 
-  "POST /v1/orders/:refNum/unlock" - {
+  "POST /v1/carts/:refNum/unlock" - {
     "unlocks cart" in new Fixture {
-      cartsApi(cart.refNum).lock().mustBeOk()
-      cartsApi(cart.refNum).unlock().mustBeOk()
+      cartsApi(cartRef).lock().mustBeOk()
+      cartsApi(cartRef).unlock().mustBeOk()
 
-      Carts.findByRefNum(cart.refNum).gimme.head.isLocked must === (false)
+      Carts.findByRefNum(cartRef).gimme.head.isLocked must === (false)
     }
 
     "refuses to unlock an already unlocked cart" in new Fixture {
-      cartsApi(cart.refNum).unlock().mustFailWith400(NotLockedFailure(Cart, cart.refNum))
+      cartsApi(cartRef).unlock().mustFailWith400(NotLockedFailure(Cart, cartRef))
     }
   }
 
-  "PATCH /v1/orders/:refNum/shipping-address/:id" - {
+  "PATCH /v1/carts/:refNum/shipping-address/:id" - {
 
     "copying a shipping address from a customer's book" - {
 
-      "succeeds if the address exists in their book" in new EmptyCustomerCart_Baked
-      with CustomerAddress_Raw {
-        cartsApi(cart.refNum).shippingAddress.updateFromAddress(address.id).mustBeOk()
-
-        val shippingAddressUpd = OrderShippingAddresses.findByOrderRef(cart.refNum).one.gimme.value
-        shippingAddressUpd.cordRef must === (cart.refNum)
-      }
-
-      "removes an existing shipping address before copying new address" in new EmptyCartWithShipAddress_Baked {
+      "removes an existing shipping address before copying new address" in new CartWithShipAddressFixture {
         val newAddress =
           Addresses.create(address.copy(name = "Little Mary", isDefaultShipping = false)).gimme
 
         List(address.id, newAddress.id).foreach { id ⇒
-          cartsApi(cart.refNum).shippingAddress.updateFromAddress(id).mustBeOk()
+          cartsApi(cartRef).shippingAddress.updateFromAddress(id).mustBeOk()
         }
 
-        val shippingAddressUpd = OrderShippingAddresses.findByOrderRef(cart.refNum).one.gimme.value
+        val shippingAddressUpd = OrderShippingAddresses.findByOrderRef(cartRef).one.gimme.value
         shippingAddressUpd.name must === ("Little Mary")
       }
 
-      "errors if the address does not exist" in new EmptyCartWithShipAddress_Baked {
-        cartsApi(cart.refNum).shippingAddress
+      "errors if the address does not exist" in new CartWithShipAddressFixture {
+        cartsApi(cartRef).shippingAddress
           .updateFromAddress(99)
           .mustFailWith404(NotFoundFailure404(Address, 99))
       }
@@ -340,49 +305,39 @@ class CartIntegrationTest
 
     "editing a shipping address by copying from a customer's address book" - {
 
-      "succeeds when the address exists" in new EmptyCartWithShipAddress_Baked {
-        val newAddress = Addresses
-          .create(
-              Factories.address.copy(accountId = customer.accountId,
-                                     isDefaultShipping = false,
-                                     name = "Paul P",
-                                     address1 = "29918 Kenloch Dr",
-                                     city = "Farmington Hills",
-                                     regionId = 4177))
-          .gimme
+      "succeeds when the address exists" in new CartWithShipAddressFixture {
+        val newAddress =
+          Addresses.create(Address.fromPayload(randomAddress(region.id), customer.id)).gimme
 
-        cartsApi(cart.refNum).shippingAddress.updateFromAddress(newAddress.id).mustBeOk()
+        cartsApi(cartRef).shippingAddress.updateFromAddress(newAddress.id).mustBeOk()
 
-        val shippingAddressUpd = OrderShippingAddresses.findByOrderRef(cart.refNum).one.gimme.value
-        shippingAddressUpd.cordRef must === (cart.refNum)
+        OrderShippingAddresses.findByOrderRef(cartRef).one.gimme.value.cordRef must === (cartRef)
       }
 
-      "errors if the address does not exist" in new EmptyCartWithShipAddress_Baked {
-        cartsApi(cart.refNum).shippingAddress
+      "errors if the address does not exist" in new CartWithShipAddressFixture {
+        cartsApi(cartRef).shippingAddress
           .updateFromAddress(99)
           .mustFailWith404(NotFoundFailure404(Address, 99))
       }
 
-      "does not change the current shipping address if the edit fails" in new EmptyCartWithShipAddress_Baked {
-        cartsApi(cart.refNum).shippingAddress
+      "does not change the current shipping address if the edit fails" in new CartWithShipAddressFixture {
+        cartsApi(cartRef).shippingAddress
           .updateFromAddress(101)
           .mustFailWith404(NotFoundFailure404(Address, 101))
 
-        OrderShippingAddresses.findByOrderRef(cart.refNum).one.gimme.value.cordRef must === (
-            cart.refNum)
+        OrderShippingAddresses.findByOrderRef(cartRef).one.gimme.value.cordRef must === (cartRef)
       }
     }
   }
 
-  "PATCH /v1/orders/:refNum/shipping-address" - {
+  "PATCH /v1/carts/:refNum/shipping-address" - {
 
-    "succeeds when a subset of the fields in the address change" in new EmptyCartWithShipAddress_Baked {
-      cartsApi(cart.refNum).shippingAddress
+    "succeeds when a subset of the fields in the address change" in new CartWithShipAddressFixture {
+      cartsApi(cartRef).shippingAddress
         .update(UpdateAddressPayload(name = "New name".some, city = "Queen Anne".some))
         .mustBeOk()
 
-      val updatedAddress: OrderShippingAddress =
-        OrderShippingAddresses.findByOrderRef(cart.refNum).one.gimme.value
+      val updatedAddress = OrderShippingAddresses.findByOrderRef(cartRef).one.gimme.value
       updatedAddress.name must === ("New name")
       updatedAddress.city must === ("Queen Anne")
       updatedAddress.address1 must === (address.address1)
@@ -391,8 +346,8 @@ class CartIntegrationTest
       updatedAddress.zip must === (address.zip)
     }
 
-    "does not update the address book" in new EmptyCartWithShipAddress_Baked {
-      cartsApi(cart.refNum).shippingAddress
+    "does not update the address book" in new CartWithShipAddressFixture {
+      cartsApi(cartRef).shippingAddress
         .update(UpdateAddressPayload(name = "Another name".some, city = "Fremont".some))
         .mustBeOk()
 
@@ -401,13 +356,13 @@ class CartIntegrationTest
       addressBook.city must === (address.city)
     }
 
-    "full cart returns updated shipping address" in new EmptyCartWithShipAddress_Baked {
-      val updateResponse: CartResponse = cartsApi(cart.refNum).shippingAddress
+    "full cart returns updated shipping address" in new CartWithShipAddressFixture {
+      val updateResponse: CartResponse = cartsApi(cartRef).shippingAddress
         .update(UpdateAddressPayload(name = "Even newer name".some, city = "Queen Max".some))
         .asTheResult[CartResponse]
       checkCart(updateResponse)
 
-      val getResponse: CartResponse = cartsApi(cart.refNum).get().asTheResult[CartResponse]
+      val getResponse: CartResponse = cartsApi(cartRef).get().asTheResult[CartResponse]
       checkCart(getResponse)
 
       private def checkCart(fullCart: CartResponse): Unit = {
@@ -424,21 +379,17 @@ class CartIntegrationTest
   }
 
   "DELETE /v1/orders/:refNum/shipping-address" - {
-    "succeeds if an address exists" in new EmptyCartWithShipAddress_Baked {
-      cartsApi(cart.refNum).get().asThe[CartResponse].result.shippingAddress mustBe defined
+    "succeeds if an address exists" in new CartWithShipAddressFixture {
+      cartsApi(cartRef).get().asThe[CartResponse].result.shippingAddress mustBe defined
 
-      //delete the shipping address
-      val noAddressCart: TheResponse[CartResponse] =
-        cartsApi(cart.refNum).shippingAddress.delete().asThe[CartResponse]
-      //shipping address must not be defined
+      val noAddressCart = cartsApi(cartRef).shippingAddress.delete().asThe[CartResponse]
       noAddressCart.result.shippingAddress must not be defined
-      noAddressCart.warnings.value must contain(NoShipAddress(cart.refNum).description)
+      noAddressCart.warnings.value must contain(NoShipAddress(cartRef).description)
 
-      //fails if the cart does not have shipping address
-      cartsApi(cart.refNum).shippingAddress.delete().mustFailWith400(NoShipAddress(cart.refNum))
+      cartsApi(cartRef).shippingAddress.delete().mustFailWith400(NoShipAddress(cartRef))
     }
 
-    "fails if the cart is not found" in new EmptyCartWithShipAddress_Baked {
+    "fails if the cart is not found" in new CartWithShipAddressFixture {
       cartsApi("NOPE").shippingAddress.delete().mustFailWith404(NotFoundFailure404(Cart, "NOPE"))
 
       OrderShippingAddresses.length.result.gimme must === (1)
@@ -447,49 +398,62 @@ class CartIntegrationTest
     "fails if the order has already been placed" in new Order_Baked {
       cartsApi(order.refNum).shippingAddress
         .delete()
-        .mustFailWith400(OrderAlreadyPlaced(cart.refNum))
+        .mustFailWith400(OrderAlreadyPlaced(order.refNum))
 
       OrderShippingAddresses.length.result.gimme must === (1)
     }
   }
 
-  "PATCH /v1/orders/:refNum/shipping-method" - {
+  "PATCH /v1/carts/:refNum/shipping-method" - {
     "succeeds if the cart meets the shipping restrictions" in new ShippingMethodFixture {
-      cartsApi(cart.refNum).shippingMethod
+      cartsApi(cartRef).shippingMethod
         .update(UpdateShippingMethod(lowShippingMethod.id))
         .asTheResult[CartResponse]
         .shippingMethod
         .value
         .name must === (lowShippingMethod.adminDisplayName)
 
-      val shipMethod: OrderShippingMethod =
-        OrderShippingMethods.findByOrderRef(cart.refNum).gimme.head
-      shipMethod.cordRef must === (cart.refNum)
+      val shipMethod = OrderShippingMethods.findByOrderRef(cartRef).gimme.head
+      shipMethod.cordRef must === (cartRef)
       shipMethod.shippingMethodId must === (lowShippingMethod.id)
     }
 
     "fails if the cart does not meet the shipping restrictions" in new ShippingMethodFixture {
-      cartsApi(cart.refNum).shippingMethod
+      cartsApi(cartRef).shippingMethod
         .update(UpdateShippingMethod(highShippingMethod.id))
-        .mustFailWith400(ShippingMethodNotApplicableToCart(highShippingMethod.id, cart.refNum))
+        .mustFailWith400(ShippingMethodNotApplicableToCart(highShippingMethod.id, cartRef))
     }
 
     "fails if the shipping method isn't found" in new ShippingMethodFixture {
-      cartsApi(cart.refNum).shippingMethod
+      cartsApi(cartRef).shippingMethod
         .update(UpdateShippingMethod(999))
         .mustFailWith400(NotFoundFailure400(ShippingMethod, 999))
     }
 
     "fails if the shipping method isn't active" in new ShippingMethodFixture {
-      cartsApi(cart.refNum).shippingMethod
+      cartsApi(cartRef).shippingMethod
         .update(UpdateShippingMethod(inactiveShippingMethod.id))
         .mustFailWith400(ShippingMethodIsNotActive(inactiveShippingMethod.id))
     }
   }
 
-  trait Fixture extends EmptyCustomerCart_Baked with StoreAdmin_Seed
+  trait Fixture extends StoreAdmin_Seed with ProductVariant_ApiFixture {
+    val customer = api_newCustomer()
+    val cartRef  = api_newCustomerCart(customer.id).referenceNumber
 
-  trait ShippingMethodFixture extends EmptyCartWithShipAddress_Baked {
+    def liPayload(quantity: Int = 2): Seq[UpdateLineItemsPayload] =
+      Seq(UpdateLineItemsPayload(productVariant.id, quantity))
+  }
+
+  trait CartWithShipAddressFixture extends Fixture {
+    val region = Regions.result.headOption.gimme.value
+    val address =
+      Addresses.create(Address.fromPayload(randomAddress(region.id), customer.id)).gimme
+    cartsApi(cartRef).shippingAddress.updateFromAddress(address.id).mustBeOk()
+  }
+
+  trait ShippingMethodFixture extends Fixture {
+
     val lowConditions: QueryStatement = parse(
         """
               | {
@@ -518,15 +482,18 @@ class CartIntegrationTest
     val (lowShippingMethod, inactiveShippingMethod, highShippingMethod) = {
       for {
         product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head.copy(price = 100))
-        _       ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))
-        _       ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = product.skuId))
+        _ ← * <~ CartLineItems.create(
+               CartLineItem(cordRef = cartRef, productVariantId = product.variantId))
+        _ ← * <~ CartLineItems.create(
+               CartLineItem(cordRef = cartRef, productVariantId = product.variantId))
 
         lowShippingMethod ← * <~ ShippingMethods.create(lowSm)
         inactiveShippingMethod ← * <~ ShippingMethods.create(
                                     lowShippingMethod.copy(isActive = false, code = "INACTIVE"))
         highShippingMethod ← * <~ ShippingMethods.create(highSm)
 
-        _ ← * <~ CartTotaler.saveTotals(cart)
+        cart ← * <~ Carts.mustFindByRefNum(cartRef)
+        _    ← * <~ CartTotaler.saveTotals(cart)
       } yield (lowShippingMethod, inactiveShippingMethod, highShippingMethod)
     }.gimme
   }
@@ -534,42 +501,30 @@ class CartIntegrationTest
   trait OrderShippingMethodFixture extends ShippingMethodFixture {
     val shipment = (for {
       orderShipMethod ← * <~ OrderShippingMethods.create(
-                           OrderShippingMethod.build(cordRef = cart.refNum,
+                           OrderShippingMethod.build(cordRef = cartRef,
                                                      method = highShippingMethod))
       shipment ← * <~ Shipments.create(
-                    Shipment(cordRef = cart.refNum,
-                             orderShippingMethodId = Some(orderShipMethod.id)))
+                    Shipment(cordRef = cartRef, orderShippingMethodId = Some(orderShipMethod.id)))
     } yield shipment).gimme
   }
 
   trait PaymentStateFixture extends Fixture {
-
     val (cc, op, ccc) = (for {
-      cc ← * <~ CreditCards.create(Factories.creditCard.copy(accountId = customer.accountId))
+      cc ← * <~ CreditCards.create(Factories.creditCard.copy(accountId = customer.id))
       op ← * <~ OrderPayments.create(
-              Factories.orderPayment.copy(cordRef = cart.refNum, paymentMethodId = cc.id))
+              Factories.orderPayment.copy(cordRef = cartRef, paymentMethodId = cc.id))
       ccc ← * <~ CreditCardCharges.create(
                Factories.creditCardCharge.copy(creditCardId = cc.id, orderPaymentId = op.id))
     } yield (cc, op, ccc)).gimme
   }
 
-  class TaxesFixture(regionId: Int) extends ShipmentSeeds with ProductSku_ApiFixture {
+  class TaxesFixture(regionId: Int) extends ShipmentSeeds with Fixture {
     // Shipping method
     val shipMethodId = ShippingMethods.create(shippingMethods(2)).gimme.id
 
-    // Cart
-    val cartRef =
-      cartsApi.create(CreateCart(email = "foo@bar.com".some)).as[CartResponse].referenceNumber
+    cartsApi(cartRef).lineItems.add(liPayload(1)).mustBeOk()
 
-    cartsApi(cartRef).lineItems.add(Seq(UpdateLineItemsPayload(skuCode, 1))).mustBeOk()
-
-    private val randomAddress = CreateAddressPayload(regionId = regionId,
-                                                     name = Lorem.letterify("???"),
-                                                     address1 = Lorem.letterify("???"),
-                                                     city = Lorem.letterify("???"),
-                                                     zip = Lorem.numerify("#####"))
-
-    cartsApi(cartRef).shippingAddress.create(randomAddress).mustBeOk()
+    cartsApi(cartRef).shippingAddress.create(randomAddress(regionId)).mustBeOk()
 
     val totals = cartsApi(cartRef).shippingMethod
       .update(UpdateShippingMethod(shipMethodId))

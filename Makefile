@@ -3,23 +3,38 @@ include makelib
 header = $(call baseheader, $(1), root)
 
 prepare:
+	pip install dnsimple
 	vagrant plugin install vagrant-google
 	vagrant box add --force gce https://github.com/mitchellh/vagrant-google/raw/master/google.box
+
+dotenv:
+	cd prov-shit && ansible-playbook --inventory-file=bin/envs/dev ansible/goldrush_env_local.yml
 
 up:
 	$(call header, Creating GCE Machine)
 	export eval `cat ./.env.local`; vagrant up --provider=google appliance
+	@cat goldrush.log
+
+update-app:
+	cd prov-shit && ansible-playbook -v -i bin/envs/dev ansible/goldrush_update_app.yml
+
+status:
+	export eval `cat ./.env.local`; vagrant status appliance
 
 provision:
 	$(call header, Provisioning GCE Machine)
-	export eval `cat ./.env.local`; VAGRANT_DEFAULT_PROVIDER=google vagrant provision appliance
+	export eval `cat ./.env.local`; vagrant provision appliance
 
-destroy:
+destroy: clean
 	$(call header, Destroying GCE Machine)
-	export eval `cat ./.env.local`; VAGRANT_DEFAULT_PROVIDER=google vagrant destroy appliance --force
+	export eval `cat ./.env.local`; vagrant destroy appliance --force
+
+clean:
+	@rm -rf goldrush.log
+	@rm -rf goldrush.state
 
 ssh:
 	$(call header, Connecting to GCE Machine)
-	export eval `cat ./.env.local`; VAGRANT_DEFAULT_PROVIDER=google vagrant ssh appliance
+	export eval `cat ./.env.local`; vagrant ssh appliance
 
-.PHONY: up provision destroy ssh
+.PHONY: clean status prepare dotenv up provision destroy ssh update-app

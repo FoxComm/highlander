@@ -1,48 +1,58 @@
 package failures
 
+import models.objects.ObjectForm
 import models.product.Product
+import utils.aliases.OC
 
 object ProductFailures {
 
-  object SkuNotFound {
-    def apply(code: String) = NotFoundFailure404(s"Sku $code not found")
-    def apply(id: Int)      = NotFoundFailure404(s"Sku with id $id not found")
+  object ProductVariantNotFound {
+    def apply(code: String) = NotFoundFailure404(s"Product variant $code not found")
+    def apply(id: Int)      = NotFoundFailure404(s"Product variant with id $id not found")
   }
 
-  object SkuWithFormNotFound {
-    def apply(formId: Int) = NotFoundFailure404(s"Sku with form id $formId not found")
+  object ProductVariantWithFormNotFound {
+    def apply(formId: Int) = NotFoundFailure404(s"Product variant with form id $formId not found")
   }
 
-  object SkuWithShadowNotFound {
-    def apply(shadowId: Int) = NotFoundFailure404(s"Sku with shadow id $shadowId not found")
+  object ProductVariantWithShadowNotFound {
+    def apply(shadowId: Int) =
+      NotFoundFailure404(s"Product variant with shadow id $shadowId not found")
   }
 
   case class ProductNotFoundAtCommit(id: Int, commit: Int) extends Failure {
     override def description = s"Product $id not with at commit $commit"
   }
 
-  object SkuShadowNotFoundInPayload {
+  object ProductVariantShadowNotFoundInPayload {
     def apply(code: String) =
-      NotFoundFailure404(s"Sku shadow with code $code not found in payload")
+      NotFoundFailure404(s"Product variant shadow with code $code not found in payload")
   }
 
-  object SkuNotFoundForContext {
+  object ProductVariantNotFoundForContext {
     def apply(code: String, productContextId: Int) =
-      NotFoundFailure404(s"Sku $code with product context $productContextId cannot be found")
+      NotFoundFailure404(
+          s"ProductVariant $code with product context $productContextId cannot be found")
   }
 
-  object VariantNotFound {
-    def apply(id: Int) = NotFoundFailure404(s"Variant with id $id not found")
+  object ProductVariantNotFoundForContextAndId {
+    def apply(formId: ObjectForm#Id, productContextId: Int) =
+      NotFoundFailure404(
+          s"ProductVariant $formId with product context $productContextId cannot be found")
   }
 
-  object VariantNotFoundForContext {
+  object ProductOptionNotFound {
+    def apply(id: Int) = NotFoundFailure404(s"Product option with id $id not found")
+  }
+
+  object ProductOptionNotFoundForContext {
+    def apply(id: Int)(implicit ctx: OC) =
+      NotFoundFailure404(s"Product option $id not found in context ${ctx.name}")
+  }
+
+  object ProductValueNotFoundForContext {
     def apply(id: Int, contextId: Int) =
-      NotFoundFailure404(s"Variant $id with context $contextId cannot be found")
-  }
-
-  object VariantValueNotFoundForContext {
-    def apply(id: Int, contextId: Int) =
-      NotFoundFailure404(s"Variant value $id with context $contextId cannot be found")
+      NotFoundFailure404(s"Option value $id with context $contextId cannot be found")
   }
 
   object ProductNotFoundForContext {
@@ -86,12 +96,8 @@ object ProductFailures {
     def apply(id: Int) = NotFoundFailure404(s"Product Form with id $id cannot be found")
   }
 
-  case class NoVariantForContext(context: String) extends Failure {
-    override def description = s"No variant context $context"
-  }
-
-  case class NoProductFoundForSku(id: Int) extends Failure {
-    override def description = s"No product for SKU $id found"
+  case class NoProductFoundForVariant(id: Int) extends Failure {
+    override def description = s"No product for variant $id found"
   }
 
   case class SlugShouldHaveLetters(slugValue: String) extends Failure {
@@ -101,5 +107,9 @@ object ProductFailures {
   case class SlugDuplicates(slugValue: String) extends Failure {
     override def description: String =
       s"Product slug '$slugValue' is already defined for other product"
+  }
+
+  case class DuplicatedOptionValueForVariant(skuCode: String) extends Failure {
+    def description: String = s"Variant $skuCode cannot have more than one option value"
   }
 }

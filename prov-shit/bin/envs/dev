@@ -1,5 +1,11 @@
+[localhost]
+127.0.0.1
+
 [api-docs]
 130.211.143.49
 
 [sinopia]
 10.240.0.37
+
+[kangaroos]
+10.240.0.8

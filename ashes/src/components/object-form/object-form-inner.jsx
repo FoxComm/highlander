@@ -1,23 +1,26 @@
-/**
- * @flow
- */
+// @flow
 
+// libs
 import React, { Component, Element } from 'react';
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';
+import { assoc } from 'sprout-data';
 import { stripTags } from 'lib/text-utils';
 import { isDefined } from 'lib/utils';
 
+// components
 import { FormField, FormFieldError } from '../forms';
 import { SliderCheckbox } from '../checkbox/checkbox';
 import CurrencyInput from '../forms/currency-input';
+import UnitInput from '../forms/unit-input';
 import CustomProperty from '../products/custom-property';
 import DatePicker from '../datepicker/datepicker';
 import RichTextEditor from '../rich-text-editor/rich-text-editor';
 import { Dropdown } from '../dropdown';
+import { BooleanOptions } from '../boolean-options/boolean-options';
 
-type Props = {
+export type Props = {
   canAddProperty?: boolean,
   fieldsToRender?: Array<string>,
   fieldsOptions?: Object,
@@ -34,14 +37,16 @@ type State = {
 type AttrSchema = {
   type: string,
   title?: string,
+  description?: string,
   widget?: string,
   properties?: Object,
 }
 
 type AttrOptions = {
-  required: boolean,
+  required?: boolean,
   label: string,
-  isDefined: (value: any) => boolean,
+  description?: string,
+  isDefined?: (value: any) => boolean,
 }
 
 const inputClass = 'fc-object-form__field-value';
@@ -53,28 +58,32 @@ function formatLabel(label: string): string {
 }
 
 export function renderFormField(name: string, content: Element, options: AttrOptions): Element {
+  const { description, ...formFieldOptions } = options;
+  let descriptionField = null;
+  let body = content;
+
+  if (description) {
+    descriptionField = (
+      <div key="desc" className="fc-object-form__field-description">{description}</div>
+    );
+    body = (
+      <div>
+        {content}
+        {descriptionField}
+      </div>
+    );
+  }
+
   return (
     <FormField
-      {...options}
+      {...formFieldOptions}
       className="fc-object-form__field"
       labelClassName="fc-object-form__field-label"
       key={`object-form-attribute-${name}`}
     >
-      {content}
+      {body}
     </FormField>
   );
-}
-
-function guessType(value: any): string {
-  const typeOf = typeof value;
-  switch (typeOf) {
-    case 'string':
-    case 'number':
-    case 'boolean':
-      return typeOf;
-    default:
-      return 'string';
-  }
 }
 
 export default class ObjectFormInner extends Component {
@@ -86,7 +95,7 @@ export default class ObjectFormInner extends Component {
       return (
         <div className="fc-object-form__add-custom-property">
           Custom Property
-          <a className="fc-object-form__add-custom-property-icon"
+          <a id="add-custom-property-btn" className="fc-object-form__add-custom-property-icon"
              onClick={this.handleAddProperty}>
             <i className="icon-add" />
           </a>
@@ -167,6 +176,19 @@ export default class ObjectFormInner extends Component {
     return this.renderBoolean(...args);
   }
 
+  renderBooleanOptions(name: string, value: boolean, options: AttrOptions): Element {
+    const onChange = v => this.handleChange(name, 'booleanOptions', v);
+
+    const dropdown = (
+      <BooleanOptions
+        value={value}
+        onChange={onChange}
+      />
+    );
+
+    return renderFormField(name, dropdown, options);
+  }
+
   renderElement(name: string, value: any, options: AttrOptions): Element {
     return renderFormField(name, value, options);
   }
@@ -203,9 +225,11 @@ export default class ObjectFormInner extends Component {
     const classForContainer = classNames('fc-object-form__field', {
       '_has-error': error != null,
     });
+    const nameVal = _.kebabCase(name);
     return (
       <div className={classForContainer}>
         <RichTextEditor
+          className={`fc-rich-text__name-${nameVal}`}
           label={options.label}
           value={value}
           onChange={onChange}
@@ -249,15 +273,50 @@ export default class ObjectFormInner extends Component {
     return renderFormField(name, stringInput, options);
   }
 
+  renderUnitInput(name: string, value: any, options: AttrOptions): Element {
+    const inputValue: string = _.get(value, 'value', '');
+    const unit: string = _.get(value, 'units', '');
+
+    let units = this.props.units && this.props.units[name];
+    if (units == null) {
+      const items = _.get(this.props.schema, ['properties', name, 'units'], []);
+      units = _.map(items, item => {
+        return [item, item, false];
+      });
+    }
+
+    const onInputChange = v => this.handleChange(name, 'unitInput', assoc(value, 'value', v));
+    const onUnitChange = v => this.handleChange(name, 'unitInput', assoc(value, 'units', v));
+
+    const field = (
+      <UnitInput
+        inputValue={inputValue}
+        unit={unit}
+        units={units}
+        onInputChange={onInputChange}
+        onUnitChange={onUnitChange}
+      />
+    );
+
+    return renderFormField(name, field, options);
+  }
+
   renderOptions(name: string, value: any, options: AttrOptions): Element {
-    const fieldOptions = this.props.fieldsOptions && this.props.fieldsOptions[name];
+    let fieldOptions = this.props.fieldsOptions && this.props.fieldsOptions[name];
+    if (fieldOptions == null) {
+      const items = _.get(this.props.schema, ['properties', name, 'fieldsOptions'], []);
+      fieldOptions = _.map(items, ([value, label]) => {
+        return [value, label, false];
+      });
+    }
+
     if (!fieldOptions) throw new Error('You must define fieldOptions for options fields');
 
     const onChange = v => this.handleChange(name, 'options', v);
     const error = _.get(this.state, ['errors', name]);
 
     return (
-      <div className="fc-object-form_field">
+      <div className="fc-object-form__field">
         <div className="fc-object-form__field-label">{options.label}</div>
         <Dropdown
           value={value}
@@ -311,7 +370,7 @@ export default class ObjectFormInner extends Component {
     }
 
     let renderName = `render${_.upperFirst(name)}`;
-    if (!(renderName in this)) {
+    if (!(renderName in this) || !name) {
       renderName = 'renderString';
     }
     return renderName;
@@ -323,6 +382,7 @@ export default class ObjectFormInner extends Component {
     const options = {
       required: this.isRequired(name),
       label: schema && schema.title || formatLabel(name),
+      description: schema && schema.description,
       isDefined: isDefined,
     };
     if (schema && schema.widget == 'richText') {
@@ -343,8 +403,10 @@ export default class ObjectFormInner extends Component {
 
       const renderName = this.guessRenderName(attrSchema, attribute);
       const attrOptions = this.getAttrOptions(name, attrSchema);
+      const attributeValue = _.get(attribute, 'v', attribute);
+
       // $FlowFixMe: guessRenderName is enough
-      return React.cloneElement(this[renderName](name, attribute && attribute.v, attrOptions), { key: name });
+      return React.cloneElement(this[renderName](name, attributeValue, attrOptions), { key: name });
     });
 
     return (

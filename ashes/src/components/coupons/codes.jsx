@@ -114,6 +114,7 @@ export default class CouponCodes extends Component {
           entity={entity}
           actions={this.bulkActions()} >
           <SelectableSearchList
+            tbodyId="coupon-codes-list"
             entity="coupons.couponCodes"
             title="Coupon Codes"
             emptyMessage="No coupon codes found."

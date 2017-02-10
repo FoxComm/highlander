@@ -39,7 +39,7 @@ object QueryStatement {
     )
   }
 
-  def evaluate[A](stmt: Option[QueryStatement], data: A, f: (Condition, A) ⇒ Boolean): Boolean = {
+  def evaluate[A](stmt: Option[QueryStatement], data: A, f: (Condition, A) ⇒ Boolean): Boolean =
     stmt.fold(false) { statement ⇒
       val initial = statement.comparison == QueryStatement.And
 
@@ -51,5 +51,4 @@ object QueryStatement {
         statement.comparison.apply(result, evaluate(Some(nextStmt), data, f))
       }
     }
-  }
 }

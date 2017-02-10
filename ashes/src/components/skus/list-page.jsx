@@ -1,36 +1,26 @@
-/**
- * @flow
- */
 
 // libs
-import React, { Component, Element, PropTypes } from 'react';
-import { transitionTo } from 'browserHistory';
+import React, { PropTypes } from 'react';
 
 // components
 import { ListPageContainer, makeTotalCounter } from '../list-page';
 
-// actions
-import { actions } from '../../modules/skus/list';
+// redux
+import { actions as inventoryActions } from 'modules/inventory/list';
 
-type Props = {
-  children: any,
-};
+const SkusListPage = (props) => {
+  const TotalCounter = makeTotalCounter(state => state.inventory.list, inventoryActions);
 
-const SkusListPage = (props: Props) => {
-  const TotalCounter = makeTotalCounter(state => state.skus.list, actions);
-  const addAction = () => transitionTo('sku-details', { skuCode: 'new' });
   const navLinks = [
     { title: 'Lists', to: 'skus' },
-    { title: 'Activity Trail', to: 'skus-activity-trail' },
+    { title: 'Activity Trail', to: 'skus-activity-trail' }
   ];
 
   return (
     <ListPageContainer
       title="SKUs"
       subtitle={<TotalCounter />}
-      addTitle="SKU"
-      handleAddAction={addAction}
-      navLinks={navLinks}>
+      navLinks={navLinks} >
       {props.children}
     </ListPageContainer>
   );
