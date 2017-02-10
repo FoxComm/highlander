@@ -20,7 +20,7 @@ object ReturnPayloads {
       extends Validation[ReturnUpdateStatePayload] {
 
     def validate: ValidatedNel[Failure, ReturnUpdateStatePayload] = {
-      Return.validateStateReason(state, reasonId).map { case _ ⇒ this }
+      Return.validateStateReason(state, reasonId).map(_ ⇒ this)
     }
   }
 

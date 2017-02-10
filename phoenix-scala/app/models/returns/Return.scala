@@ -90,11 +90,7 @@ object Return {
   }
 
   def validateStateReason(state: State, reason: Option[Int]): ValidatedNel[Failure, Unit] = {
-    if (state == Canceled) {
-      validExpr(reason.isDefined, "Please provide valid cancellation reason")
-    } else {
-      valid({})
-    }
+    valid({}) // valid anyway, cancellation reason is not necessary
   }
 }
 
