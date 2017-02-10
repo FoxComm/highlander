@@ -22,7 +22,8 @@
                 "clear_cart" : {"p": 0.1}
             },
             "purchase": {
-                "category": {"p": 1.0, "select": ["sunglasses", "eyeglasses"]}
+                "category": {"p": 0.2, "select": ["sunglasses", "eyeglasses"]},
+                "done" : {"p": 0.8}
             },
             "clear_cart" : {
                 "category" : {"p": 1.0, "select": ["sunglasses", "eyeglasses"]}
@@ -48,7 +49,8 @@
                 "purchase" : {"p": 1.0}
             },
             "purchase": {
-                "category": {"p": 1.0, "select": ["sunglasses", "eyeglasses"]}
+                "category": {"p": 0.2, "select": ["sunglasses", "eyeglasses"]},
+                "done" : {"p": 0.8}
             },
             "clear_cart" : {
                 "category" : {"p": 1.0, "select": ["sunglasses", "eyeglasses"]}
