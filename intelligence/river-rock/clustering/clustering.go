@@ -71,29 +71,29 @@ func MapRequestToCluster(req *http.Request, bernardoUrl string) (int, error) {
 
 	data, err := json.Marshal(payload)
 	if err != nil {
-		return 0, fmt.Errorf("Error creating bernardo payload: %s", err)
+		return -1, fmt.Errorf("Error creating bernardo payload: %s", err)
 	}
 
 	breq, err := http.NewRequest("GET", bernardoUrl, bytes.NewBuffer(data))
 	if err != nil {
-		return 0, fmt.Errorf("Error creating bernardo req: %s", err)
+		return -1, fmt.Errorf("Error creating bernardo req: %s", err)
 	}
 
 	client := &http.Client{}
 	res, err := client.Do(breq)
 	if err != nil {
-		return 0, fmt.Errorf("Error querying bernardo : %s", err)
+		return -1, fmt.Errorf("Error querying bernardo : %s", err)
 	}
 
 	defer res.Body.Close()
 	clusterStr, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		return 0, fmt.Errorf("Error reading bernardo response: %s", err)
+		return -1, fmt.Errorf("Error reading bernardo response: %s", err)
 	}
 
 	cluster, err := strconv.Atoi(string(clusterStr))
 	if err != nil {
-		return 0, fmt.Errorf("Error converting bernardo response to a cluster id: %s, %s", res, err)
+		return -1, fmt.Errorf("Error converting bernardo response to a cluster id: %s, %s", res, err)
 	}
 
 	return cluster, nil
