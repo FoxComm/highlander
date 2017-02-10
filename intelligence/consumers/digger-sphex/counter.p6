@@ -8,8 +8,7 @@ grammar Nginx
 {
     rule TOP {^ .* '"' <host> <cmd> <path> <protocol> '"' <response> .* $}
     token host { \S+ }
-    regex path { '/' <path-elem>? <path>?}
-    token path-elem { \S+ }
+    regex path { \S+ }
     regex protocol { 'HTTP/1.1'}  
     token response { \d+ }
 
@@ -21,7 +20,7 @@ grammar Nginx
 grammar Hal
 {
     rule TOP {<path> '?' <arg>+}
-    rule path { '/' \w+ <path>?}
+    regex path { \S+ }
     token identifier {(\w || '-')+}
     rule arg { <key=identifier> '=' <value=identifier>? '&'?} 
 };
