@@ -46,3 +46,6 @@ trait ADT[F] extends Read[F] with Show[F] { self ⇒
       case f ⇒ read(f).getOrError(s"No such element: $f")
     })
 }
+object ADT {
+  @inline def apply[T](implicit adt: ADT[T]): ADT[T] = adt
+}

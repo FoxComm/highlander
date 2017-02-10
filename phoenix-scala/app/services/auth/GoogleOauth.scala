@@ -8,10 +8,11 @@ import responses.CustomerResponse._
 import services.StoreAdminManager
 import cats.implicits._
 import libs.oauth.{GoogleOauthOptions, GoogleProvider, Oauth, UserInfo}
-import models.auth.{UserToken, Token}
+import models.auth.{Token, UserToken}
 import models.account._
 import failures.UserFailures._
-import utils.FoxConfig._
+import utils.FoxConfig
+import utils.FoxConfig.config
 import utils.aliases._
 import utils.db._
 
@@ -83,16 +84,15 @@ class GoogleOauthUser(options: GoogleOauthOptions)(implicit ec: EC, db: DB, ac: 
 
 object GoogleOauth {
 
-  def oauthServiceFromConfig(configPrefix: String)(implicit ec: EC, db: DB, ac: AC) = {
+  def oauthServiceFromConfig(configUser: FoxConfig.User)(implicit ec: EC, db: DB, ac: AC) = {
 
-    val opts = GoogleOauthOptions(
-        roleName = config.getString(s"user.$configPrefix.role"),
-        orgName = config.getString(s"user.$configPrefix.org"),
-        scopeId = config.getInt(s"user.$configPrefix.scope_id"),
-        clientId = config.getString(s"oauth.$configPrefix.google.client_id"),
-        clientSecret = config.getString(s"oauth.$configPrefix.google.client_secret"),
-        redirectUri = config.getString(s"oauth.$configPrefix.google.redirect_uri"),
-        hostedDomain = config.getOptString(s"oauth.$configPrefix.google.hosted_domain"))
+    val opts = GoogleOauthOptions(roleName = configUser.role,
+                                  orgName = configUser.org,
+                                  scopeId = configUser.scopeId,
+                                  clientId = configUser.oauth.google.clientSecret,
+                                  clientSecret = configUser.oauth.google.clientSecret,
+                                  redirectUri = configUser.oauth.google.redirectUri,
+                                  hostedDomain = configUser.oauth.google.hostedDomain)
 
     new GoogleOauthUser(opts)
   }

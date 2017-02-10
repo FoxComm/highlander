@@ -46,5 +46,5 @@ trait TestBase
 
 object TestBase {
   implicit val env = FoxConfig.Test
-  def config = FoxConfig.loadWithEnv()
+  def config = FoxConfig.unsafe
 }

@@ -11,7 +11,7 @@ import com.amazonaws.services.s3.model.{AmazonS3Exception, CannedAccessControlLi
 import failures.AmazonFailures._
 import failures._
 import services.Result
-import utils.FoxConfig.{RichConfig, config}
+import utils.FoxConfig.config
 import utils.aliases._
 
 trait AmazonApi {
@@ -22,10 +22,10 @@ trait AmazonApi {
 class AmazonS3 extends AmazonApi {
   def uploadFile(fileName: String, file: File)(implicit ec: EC): Result[String] =
     Future {
-      val accessKey = config.getOptString("aws.accessKey")
-      val secretKey = config.getOptString("aws.secretKey")
-      val s3Bucket  = config.getOptString("aws.s3Bucket")
-      val s3Region  = config.getOptString("aws.s3Region")
+      val accessKey = config.apis.aws.accessKey
+      val secretKey = config.apis.aws.secretKey
+      val s3Bucket  = config.apis.aws.s3Bucket
+      val s3Region  = config.apis.aws.s3Region
 
       (accessKey, secretKey, s3Bucket, s3Region) match {
         case (Some(access), Some(secret), Some(bucket), Some(region)) ⇒

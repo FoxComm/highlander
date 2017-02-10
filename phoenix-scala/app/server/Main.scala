@@ -14,7 +14,6 @@ import akka.http.scaladsl.server._
 import akka.stream.ActorMaterializer
 
 import com.stripe.Stripe
-import com.typesafe.config.Config
 import com.typesafe.scalalogging.LazyLogging
 import models.account.{AccountAccessMethod, User}
 import org.json4s._
@@ -60,15 +59,14 @@ class Service(systemOverride: Option[ActorSystem] = None,
               addRoutes: immutable.Seq[Route] = immutable.Seq.empty)(
     implicit val env: FoxConfig.Environment) {
 
+  import FoxConfig.config
   import utils.JsonFormatters._
 
   implicit val serialization: Serialization.type = jackson.Serialization
   implicit val formats: Formats                  = phoenixFormats
 
-  val config: Config = FoxConfig.loadWithEnv()
-
   implicit val system: ActorSystem = systemOverride.getOrElse {
-    ActorSystem.create("Orders", config)
+    ActorSystem.create("Orders", FoxConfig.unsafe)
   }
 
   val threadPool                = java.util.concurrent.Executors.newCachedThreadPool()
@@ -78,14 +76,15 @@ class Service(systemOverride: Option[ActorSystem] = None,
 
   val logger = Logging(system, getClass)
 
-  implicit val db: Database         = dbOverride.getOrElse(Database.forConfig("db", config))
-  lazy val defaultApis: Apis        = Apis(setupStripe(), new AmazonS3, setupMiddlewarehouse())
-  implicit val apis: Apis           = apisOverride.getOrElse(defaultApis: Apis)
-  implicit val es: ElasticsearchApi = esOverride.getOrElse(ElasticsearchApi.fromConfig(config))
+  implicit val db: Database  = dbOverride.getOrElse(Database.forConfig("db", FoxConfig.unsafe))
+  lazy val defaultApis: Apis = Apis(setupStripe(), new AmazonS3, setupMiddlewarehouse())
+  implicit val apis: Apis    = apisOverride.getOrElse(defaultApis: Apis)
+  implicit val es: ElasticsearchApi =
+    esOverride.getOrElse(ElasticsearchApi.fromConfig(FoxConfig.unsafe))
 
-  val roleName = config.getString(s"user.customer.role")
-  val orgName  = config.getString(s"user.customer.org")
-  val scopeId  = config.getInt(s"user.customer.scope_id")
+  val roleName = config.users.customer.role
+  val orgName  = config.users.customer.org
+  val scopeId  = config.users.customer.scopeId
 
   val customerCreateContext                = AccountCreateContext(List(roleName), orgName, scopeId)
   implicit val userAuth: UserAuthenticator = Authenticator.forUser(customerCreateContext)
@@ -150,9 +149,9 @@ class Service(systemOverride: Option[ActorSystem] = None,
 
   private final val serverBinding = Agent[Option[ServerBinding]](None)
 
-  def bind(config: Config = config): Future[ServerBinding] = {
-    val host = config.getString("http.interface")
-    val port = config.getInt("http.port")
+  def bind(config: FoxConfig = config): Future[ServerBinding] = {
+    val host = config.http.interface
+    val port = config.http.port
     val bind = Http().bindAndHandle(allRoutes, host, port).flatMap { binding ⇒
       serverBinding.alter(Some(binding)).map(_ ⇒ binding)
     }
@@ -176,7 +175,7 @@ class Service(systemOverride: Option[ActorSystem] = None,
 
   def performSelfCheck(): Unit = {
     logger.info("Performing self check")
-    if (config.getString("auth.method") == "jwt") {
+    if (config.auth.method == FoxConfig.AuthMethod.JWT) {
       import models.auth.Keys
       assert(Keys.loadPrivateKey.isSuccess, "Can't load private key")
       assert(Keys.loadPublicKey.isSuccess, "Can't load public key")
@@ -187,13 +186,11 @@ class Service(systemOverride: Option[ActorSystem] = None,
 
   def setupStripe(): FoxStripe = {
     logger.info("Loading Stripe API key")
-    Stripe.apiKey = config.getString("stripe.key")
+    Stripe.apiKey = config.apis.stripe.key
     logger.info("Successfully set Stripe key")
     new FoxStripe(new StripeWrapper())
   }
 
-  def setupMiddlewarehouse(): Middlewarehouse = {
-    val url = config.getString("middlewarehouse.url")
-    new Middlewarehouse(url)
-  }
+  def setupMiddlewarehouse(): Middlewarehouse =
+    new Middlewarehouse(config.apis.middlewarehouse.url)
 }

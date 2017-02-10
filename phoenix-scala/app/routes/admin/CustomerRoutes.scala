@@ -18,7 +18,7 @@ import utils.aliases._
 import utils.apis.Apis
 import utils.http.CustomDirectives._
 import utils.http.Http._
-import utils.FoxConfig._
+import utils.FoxConfig.config
 
 object CustomerRoutes {
 
@@ -28,9 +28,9 @@ object CustomerRoutes {
       pathPrefix("customers") {
         (post & pathEnd & entity(as[CreateCustomerPayload])) { payload ⇒
           mutateOrFailures {
-            val roleName = config.getString(s"user.customer.role")
-            val orgName  = config.getString(s"user.customer.org")
-            val scopeId  = config.getInt(s"user.customer.scope_id")
+            val roleName = config.users.customer.role
+            val orgName  = config.users.customer.org
+            val scopeId  = config.users.customer.scopeId
 
             val context = AccountCreateContext(List(roleName), orgName, scopeId)
             CustomerManager.createFromAdmin(payload, Some(auth.model), context)

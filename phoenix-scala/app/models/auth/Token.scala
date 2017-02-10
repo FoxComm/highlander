@@ -3,10 +3,8 @@ package models.auth
 import java.io.{FileInputStream, InputStream}
 import java.security.spec.{PKCS8EncodedKeySpec, X509EncodedKeySpec}
 import java.security.{KeyFactory, PrivateKey, PublicKey}
-
 import scala.collection.JavaConverters._
 import scala.util.{Failure, Success, Try}
-
 import cats.data.Xor
 import failures.AuthFailures._
 import failures.{Failures, GeneralFailure}
@@ -17,7 +15,8 @@ import org.jose4j.jwt.JwtClaims
 import org.jose4j.jwt.consumer.JwtConsumerBuilder
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
-import utils.FoxConfig.{RichConfig, config}
+import utils.FoxConfig
+import utils.FoxConfig.config
 import utils.db._
 
 object Keys {
@@ -25,8 +24,8 @@ object Keys {
   case class KeyLoadException(cause: Throwable) extends Exception
 
   private def loadKeyAsStream(fileName: String): InputStream = {
-    config.getOptString("auth.keysLocation") match {
-      case Some("jar") ⇒
+    config.auth.keysLocation match {
+      case Some(FoxConfig.KeysLocation.Jar) ⇒
         getClass.getResourceAsStream(fileName)
       case _ ⇒
         new FileInputStream(fileName)
@@ -34,7 +33,7 @@ object Keys {
   }
 
   def loadPrivateKey: Try[PrivateKey] = Try {
-    val fileName = config.getOptString("auth.privateKey").getOrElse("")
+    val fileName = config.auth.privateKey.getOrElse("")
     val is       = loadKeyAsStream(fileName)
     val keyBytes = Array.ofDim[Byte](is.available)
     is.read(keyBytes)
@@ -46,7 +45,7 @@ object Keys {
 
   def loadPublicKey: Try[PublicKey] =
     Try {
-      val fileName = config.getOptString("auth.publicKey").getOrElse("")
+      val fileName = config.auth.publicKey.getOrElse("")
       val is       = loadKeyAsStream(fileName)
       val keyBytes = Array.ofDim[Byte](is.available)
       is.read(keyBytes)
@@ -92,11 +91,11 @@ object Token {
   implicit val formats = DefaultFormats
   val algorithmConstraints = new AlgorithmConstraints(
       AlgorithmConstraints.ConstraintType.WHITELIST,
-      config.getString("auth.keyAlgorithm"))
+      config.auth.keyAlgorithm)
 
   import collection.JavaConversions.seqAsJavaList
 
-  val tokenTTL = config.getOptInt("auth.tokenTTL").getOrElse(5)
+  val tokenTTL = config.auth.tokenTTL.getOrElse(5)
 
   def getJWTClaims(token: Token): JwtClaims = {
     val claims = new JwtClaims
@@ -138,7 +137,7 @@ object Token {
       val jws = new JsonWebSignature
       jws.setPayload(claims.toJson)
       jws.setKey(privateKey)
-      jws.setAlgorithmHeaderValue(config.getString("auth.keyAlgorithm"))
+      jws.setAlgorithmHeaderValue(config.auth.keyAlgorithm)
       jws.getCompactSerialization
     }
   }
