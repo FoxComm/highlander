@@ -11,7 +11,7 @@ export default (props: Props) => {
   const { name, email, id } = props.model;
 
   return (
-    <div styleName="group-row">
+    <div styleName="customer-row">
       <span styleName="name">
         {name}
         &nbsp;

@@ -11,7 +11,7 @@ import classNames from 'classnames';
 import criterions from 'paragons/customer-groups/criterions';
 import operators from 'paragons/customer-groups/operators';
 import requestAdapter from 'modules/customer-groups/utils/request-adapter';
-import { fetchGroupStats, GROUP_TYPE_DYNAMIC } from 'modules/customer-groups/details/group';
+import { fetchGroupStats, GROUP_TYPE_DYNAMIC, addCustomersToGroup } from 'modules/customer-groups/details/group';
 import { actions as customersListActions } from 'modules/customer-groups/details/customers-list';
 import { suggestCustomers } from 'modules/customers/suggest';
 
@@ -46,6 +46,7 @@ type Props = {
   suggested: Array<any>,
   suggestState: string,
   suggestCustomers: Function,
+  addCustomersToGroup: Function,
 };
 
 const prefixed = prefix('fc-customer-group');
@@ -151,6 +152,14 @@ class GroupDetails extends Component {
     );
   }
 
+  @autobind
+  handleCustomersSave(ids: Array<number>) {
+    const { group, addCustomersToGroup } = this.props;
+    this.setState({ addCustomerModalShown: false }, () => {
+       addCustomersToGroup(group.id, ids);
+    });
+  }
+
   get addCustomersModal(): ?Element {
     const { group } = this.props;
 
@@ -162,7 +171,7 @@ class GroupDetails extends Component {
       <SearchCustomersModal
         isVisible={this.state.addCustomersModalShown}
         onCancel={this.onAddCustomersCancel}
-        handleSave={_.noop}
+        handleSave={this.handleCustomersSave}
         suggestCustomers={this.props.suggestCustomers}
         suggested={this.props.suggested}
         suggestState={this.props.suggestState}
@@ -272,6 +281,7 @@ const mapDispatch = (dispatch, props) => {
     customersListActions: bindActionCreators(customersListActions, dispatch),
     ...(bindActionCreators({
       suggestCustomers: suggestCustomers(customers),
+      addCustomersToGroup,
     }, dispatch)),
   };
 };

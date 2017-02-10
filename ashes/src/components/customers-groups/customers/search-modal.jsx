@@ -1,6 +1,7 @@
 /* @flow */
 
 // libs
+import _ from 'lodash';
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { isEmpty } from 'lodash';
@@ -56,12 +57,12 @@ export default class SearchCustomersModal extends Component {
 
   @autobind
   handleSave() {
-    this.props.handleSave(this.state.customers);
+    const ids = _.map(this.state.customers, customer => customer.id)
+    this.props.handleSave(ids);
   }
 
   @autobind
   handleSelect(customers: Array<any>) {
-    console.log('select');
     this.setState({ customers });
   }
 
