@@ -10,9 +10,7 @@ object ChannelResponse {
                   defaultContext: ObjectContextResponse.Root,
                   draftContext: ObjectContextResponse.Root)
 
-  def build(channel: Channel,
-            defaultContext: IlluminatedContext,
-            draftContext: IlluminatedContext): Root =
+  def build(channel: Channel, defaultContext: ObjectContext, draftContext: ObjectContext): Root =
     Root(id = channel.id,
          name = channel.name,
          defaultContext = ObjectContextResponse.build(defaultContext),

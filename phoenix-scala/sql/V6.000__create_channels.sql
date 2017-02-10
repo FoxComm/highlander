@@ -1,7 +1,9 @@
 create table channels (
   id serial primary key,
+  scope exts.ltree,
   default_context_id integer not null references object_contexts(id),
   draft_context_id integer not null references object_contexts(id),
+  location generic_string not null,
   name generic_string not null,
   created_at generic_timestamp,
   updated_at generic_timestamp,
