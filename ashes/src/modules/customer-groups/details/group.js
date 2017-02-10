@@ -92,12 +92,12 @@ const _fetchStats = createAsyncActions('fetchStatsCustomerGroup', request => {
   ]);
 });
 
-const _addCustomersToGroup = createAsyncActions('addCustomersToGroup', (groupId: number, customers: Array<number>) => {
+const _addCustomersToGroup = createAsyncActions('addCustomersToGroup',
+  (groupId: number, customers: Array<number>, fetchGroupStats: Function) => {
   return Api.post(`/customer-groups/${groupId}/customers`, { toAdd: customers, toDelete: [] })
     .then(
       () => {
-        dispatch(_fetchGroup.perform(groupId));
-        dispatch(_fetchStats.perform(request));
+        fetchGroupStats();
       }
     );
 });

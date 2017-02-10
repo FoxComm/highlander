@@ -16,14 +16,14 @@ type Props = {
   hideOnBlur: boolean,
   maxUsers: number,
   suggestState: string,
-  suggested: Array<any>,
+  suggested: Array<Customer>,
   suggestCustomers: Function,
   onSelect: Function,
 };
 
 type State = {
   term: string,
-  selected: Array<any>,
+  selected: Array<Customer>,
 };
 
 export default class GroupsTypeahead extends Component {
@@ -74,8 +74,8 @@ export default class GroupsTypeahead extends Component {
     }
   }
 
-  groupPill(group: Object) {
-    return `${group.name} : ${group.id}`;
+  groupPill(customer: Object) {
+    return `${customer.name} : ${customer.id}`;
   }
 
   get pilledInput() {

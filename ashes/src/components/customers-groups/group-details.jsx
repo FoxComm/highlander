@@ -43,7 +43,7 @@ type Props = {
     setExtraFilters: Function,
     fetch: Function,
   },
-  suggested: Array<any>,
+  suggested: Array<Customer>,
   suggestState: string,
   suggestCustomers: Function,
   addCustomersToGroup: Function,
@@ -154,9 +154,9 @@ class GroupDetails extends Component {
 
   @autobind
   handleCustomersSave(ids: Array<number>) {
-    const { group, addCustomersToGroup } = this.props;
-    this.setState({ addCustomerModalShown: false }, () => {
-       addCustomersToGroup(group.id, ids);
+    const { group, addCustomersToGroup, groupActions } = this.props;
+    this.setState({ addCustomersModalShown: false }, () => {
+       addCustomersToGroup(group.id, ids, groupActions.fetchGroupStats);
     });
   }
 

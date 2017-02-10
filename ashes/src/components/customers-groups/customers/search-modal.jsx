@@ -15,14 +15,14 @@ import CustomersTypeahead from './typeahead';
 type Props = {
   isVisible: boolean,
   suggestState: string,
-  suggested: Array<any>,
+  suggested: Array<Customer>,
   onCancel: Function,
   handleSave: Function,
   suggestCustomers: Function,
 };
 
 type State = {
-  customers: Array<any>,
+  customers: Array<Customer>,
 };
 
 export default class SearchCustomersModal extends Component {
@@ -62,7 +62,7 @@ export default class SearchCustomersModal extends Component {
   }
 
   @autobind
-  handleSelect(customers: Array<any>) {
+  handleSelect(customers: Array<Customer>) {
     this.setState({ customers });
   }
 
