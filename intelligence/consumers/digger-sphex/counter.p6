@@ -71,7 +71,6 @@ sub MAIN ($kafka-host, $kafka-topic, $henhouse-host)
     $track-supply.tap(-> $msg
     {
         my $stat = "{$msg.key} {$msg.count} {DateTime.now.posix}";
-        say "TRK: $stat";
 
         #send to henhouse
         $henhouse.print("$stat\n");
