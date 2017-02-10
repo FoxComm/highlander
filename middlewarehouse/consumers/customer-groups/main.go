@@ -16,7 +16,7 @@ import (
 	"gopkg.in/olivere/elastic.v3"
 )
 
-const MESSAGING_PLAGIN_NAME = "messaging"
+const MESSAGING_PLUGIN_NAME = "messaging"
 const MESSAGING_SETTINGS_KEY_MAILCHIMP_API_KEY = "mailchimp_key"
 const MESSAGING_SETTINGS_KEY_MAILCHIMP_LIST_ID = "mailchimp_customers_list_id"
 
@@ -47,15 +47,13 @@ func main() {
 
 	mailchimpApiKey, mailchimpListID, err := getMailchimpSettings(phoenixClient)
 	if err != nil {
-		log.Panicf("Unable to get %s settings with error %s", MESSAGING_PLAGIN_NAME, err.Error())
+		log.Panicf("Unable to get %s settings with error %s", MESSAGING_PLUGIN_NAME, err.Error())
 	}
 
 	mailchimpDisabled := mailchimpApiKey == "" || mailchimpListID == ""
 	if mailchimpDisabled {
-		log.Printf("Mailchimp config is not complete. For mailchimp integration set up %s and %s values in %s plugin settgins",
-			MESSAGING_SETTINGS_KEY_MAILCHIMP_API_KEY,
-			MESSAGING_SETTINGS_KEY_MAILCHIMP_LIST_ID,
-			MESSAGING_PLAGIN_NAME,
+		log.Printf("Mailchimp config is not complete. For mailchimp integration set up API key and Customers ist ID values in %s plugin settgins",
+			MESSAGING_PLUGIN_NAME,
 		)
 	}
 
@@ -98,10 +96,10 @@ func getMailchimpSettings(phoenixClient phoenix.PhoenixClient) (string, string, 
 	}
 
 	for _, plugin := range plugins {
-		if plugin.Name == MESSAGING_PLAGIN_NAME {
+		if plugin.Name == MESSAGING_PLUGIN_NAME {
 			s, err := phoenixClient.GetPluginSettings(plugin.Name)
 			if err != nil {
-				log.Panicf("Couldn't get %s plugin settings with error %s", MESSAGING_PLAGIN_NAME, err.Error())
+				log.Panicf("Couldn't get %s plugin settings with error %s", MESSAGING_PLUGIN_NAME, err.Error())
 			}
 
 			mailchimpApiKey, ok := s[MESSAGING_SETTINGS_KEY_MAILCHIMP_API_KEY].(string)

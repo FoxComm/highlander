@@ -1,12 +1,7 @@
 package mailchimp
 
 import (
-	//"bytes"
-	//"encoding/json"
 	"fmt"
-	//"io/ioutil"
-	//"log"
-	//"net/http"
 	"net/url"
 	"regexp"
 	"time"
