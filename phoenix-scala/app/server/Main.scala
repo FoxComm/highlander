@@ -80,7 +80,7 @@ class Service(systemOverride: Option[ActorSystem] = None,
   lazy val defaultApis: Apis = Apis(setupStripe(), new AmazonS3, setupMiddlewarehouse())
   implicit val apis: Apis    = apisOverride.getOrElse(defaultApis: Apis)
   implicit val es: ElasticsearchApi =
-    esOverride.getOrElse(ElasticsearchApi.fromConfig(FoxConfig.unsafe))
+    esOverride.getOrElse(ElasticsearchApi.fromConfig(FoxConfig.config))
 
   val roleName = config.users.customer.role
   val orgName  = config.users.customer.org
