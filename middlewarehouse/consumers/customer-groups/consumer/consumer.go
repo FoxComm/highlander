@@ -7,63 +7,25 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/customer-groups/manager"
 	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
 	"github.com/FoxComm/highlander/middlewarehouse/shared"
-	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix"
 	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix/responses"
 	"github.com/FoxComm/metamorphosis"
-
-	"gopkg.in/olivere/elastic.v3"
 )
 
 const (
 	activityCustomerGroupCreated = "customer_group_created"
 	activityCustomerGroupUpdated = "customer_group_updated"
-)
-
-const (
-	DefaultTopic        = "activities"
-	DefaultElasticTopic = "customers_search_view"
-	DefaultElasticSize  = 100
+	activityCustomerGroupDeleted = "customer_group_archived"
 )
 
 type CustomerGroupsConsumer struct {
-	esClient      *elastic.Client
-	phoenixClient phoenix.PhoenixClient
-	esTopic       string
-	esSize        int
+	manager *manager.GroupsManager
 }
 
-type ConsumerOptionFunc func(consumer *CustomerGroupsConsumer)
-
-func SetTopic(topic string) ConsumerOptionFunc {
-	return func(c *CustomerGroupsConsumer) {
-		c.esTopic = topic
-	}
-}
-
-func SetElasticQierySize(size int) ConsumerOptionFunc {
-	return func(c *CustomerGroupsConsumer) {
-		c.esSize = size
-	}
-}
-
-func NewCustomerGroupsConsumer(esClient *elastic.Client, phoenixClient phoenix.PhoenixClient, options ...ConsumerOptionFunc) (*CustomerGroupsConsumer, error) {
-	consumer := &CustomerGroupsConsumer{
-		esClient,
-		phoenixClient,
-		DefaultElasticTopic,
-		DefaultElasticSize,
-	}
-
-	// set options to consumer
-	for _, opt := range options {
-		opt(consumer)
-	}
-
-	return consumer, nil
+func NewCustomerGroupsConsumer(groupsManager *manager.GroupsManager) *CustomerGroupsConsumer {
+	return &CustomerGroupsConsumer{groupsManager}
 }
 
 func (c CustomerGroupsConsumer) Handler(message metamorphosis.AvroMessage) error {
-	log.Printf("Running %s consumer", c.esTopic)
 	activity, err := activities.NewActivityFromAvro(message)
 	if err != nil {
 		return fmt.Errorf("Unable to decode Avro message with error %s", err.Error())
@@ -74,22 +36,19 @@ func (c CustomerGroupsConsumer) Handler(message metamorphosis.AvroMessage) error
 	var group *responses.CustomerGroupResponse
 
 	switch activity.Type() {
-	case activityCustomerGroupCreated, activityCustomerGroupUpdated:
+	case activityCustomerGroupCreated, activityCustomerGroupUpdated, activityCustomerGroupDeleted:
 		group, err = shared.NewCustomerGroupFromActivity(activity)
 		if err != nil {
 			return fmt.Errorf("Unable to decode customer group from activity: %s", err.Error())
 		}
+	}
 
-		log.Printf("Customer group request: %s", group.ElasticRequest)
+	switch activity.Type() {
+	case activityCustomerGroupCreated, activityCustomerGroupUpdated:
+		return c.manager.ProcessChangedGroup(group)
+	case activityCustomerGroupDeleted:
+		return c.manager.ProcessDeletedGroup(group)
 	default:
 		return nil
 	}
-
-	if group.GroupType == "manual" {
-		log.Printf("Group %s with id %d is manual, skipping.\n", group.Name, group.ID)
-
-		return nil
-	}
-
-	return manager.ProcessGroup(c.esClient, c.phoenixClient, group, c.esTopic, c.esSize)
 }

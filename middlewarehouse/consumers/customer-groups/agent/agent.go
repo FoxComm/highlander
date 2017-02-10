@@ -6,22 +6,15 @@ import (
 
 	"github.com/FoxComm/highlander/middlewarehouse/consumers/customer-groups/manager"
 	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix"
-
-	"gopkg.in/olivere/elastic.v3"
 )
 
 const (
-	DefaultElasticIndex = "admin"
-	DefaultElasticTopic = "customers_search_view"
-	DefaultElasticSize  = 100
-	DefaultTimeout      = 30 * time.Minute
+	DefaultTimeout = 1 * time.Minute
 )
 
 type Agent struct {
-	esClient      *elastic.Client
 	phoenixClient phoenix.PhoenixClient
-	esTopic       string
-	esSize        int
+	manager       *manager.GroupsManager
 	timeout       time.Duration
 }
 
@@ -33,24 +26,10 @@ func SetTimeout(t time.Duration) AgentOptionFunc {
 	}
 }
 
-func SetElasticTopic(topic string) AgentOptionFunc {
-	return func(a *Agent) {
-		a.esTopic = topic
-	}
-}
-
-func SetElasticQierySize(size int) AgentOptionFunc {
-	return func(a *Agent) {
-		a.esSize = size
-	}
-}
-
-func NewAgent(esClient *elastic.Client, phoenixClient phoenix.PhoenixClient, options ...AgentOptionFunc) (*Agent, error) {
+func NewAgent(phoenixClient phoenix.PhoenixClient, groupsManager *manager.GroupsManager, options ...AgentOptionFunc) *Agent {
 	agent := &Agent{
-		esClient,
 		phoenixClient,
-		DefaultElasticTopic,
-		DefaultElasticSize,
+		groupsManager,
 		DefaultTimeout,
 	}
 
@@ -59,7 +38,7 @@ func NewAgent(esClient *elastic.Client, phoenixClient phoenix.PhoenixClient, opt
 		opt(agent)
 	}
 
-	return agent, nil
+	return agent
 }
 
 func (agent *Agent) Run() {
@@ -71,8 +50,7 @@ func (agent *Agent) Run() {
 		for {
 			select {
 			case <-ticker.C:
-				err := agent.processGroups()
-				if err != nil {
+				if err := agent.processGroups(); err != nil {
 					log.Panicf("An error occured processing groups: %s", err)
 				}
 			}
@@ -87,7 +65,7 @@ func (agent *Agent) processGroups() error {
 	}
 
 	for _, group := range groups {
-		manager.ProcessGroup(agent.esClient, agent.phoenixClient, group, agent.esTopic, agent.esSize)
+		agent.manager.ProcessChangedGroup(group)
 	}
 
 	return nil
