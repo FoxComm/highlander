@@ -91,19 +91,21 @@ object ProductVariantManager {
       oc: OC,
       db: DB): DbResultT[ProductResponse.Partial] = {
     val query = for {
-      (head, _) ← Products.join(ProductVariantLinks).on(_.id === _.leftId).filter {
-                   case (_, link) ⇒ link.rightId === variant.model.id
-                 }
+      head ← Products
+              .join(ProductVariantLinks)
+              .on(_.id === _.leftId)
+              .filter {
+                case (_, link) ⇒ link.rightId === variant.model.id
+              }
+              .map { case (head, _) ⇒ head }
       form   ← ObjectForms if head.formId === form.id
       shadow ← ObjectShadows if head.shadowId === shadow.id
     } yield (head, form, shadow)
 
     for {
-      product ← * <~ query.one.mustFindOr(
-                   NotFoundFailure400(s"product not found for variant ${variant.form.id}"))
-    } yield
-      ProductResponse.buildPartial(
-          IlluminatedProduct.illuminate(oc, product._1, product._2, product._3))
+      product ← * <~ query.one.mustFindOr(ProductNotFoundForVariant(variant.form.id))
+      (head, form, shadow) = product
+    } yield ProductResponse.buildPartial(IlluminatedProduct.illuminate(oc, head, form, shadow))
   }
 
   def getBySkuCode(

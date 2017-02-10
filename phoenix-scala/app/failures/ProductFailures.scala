@@ -65,6 +65,11 @@ object ProductFailures {
           s"Product with slug=$slug with product context $productContextId cannot be found")
   }
 
+  object ProductNotFoundForVariant {
+    def apply(variantFormId: Int) =
+      NotFoundFailure404(s"Product not found for variant $variantFormId")
+  }
+
   object ProductFormNotFoundForContext {
     def apply(formId: Int, productContextId: Int) =
       NotFoundFailure404(

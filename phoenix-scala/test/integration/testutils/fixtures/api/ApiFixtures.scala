@@ -9,7 +9,7 @@ import org.scalatest.SuiteMixin
 import payloads.CouponPayloads.CreateCoupon
 import responses.CouponResponses.CouponResponse
 import responses.ProductResponses.ProductResponse.{Root ⇒ ProductRoot}
-import responses.ProductVariantResponses.ProductVariantResponse.{Root ⇒ VariantRoot}
+import responses.ProductVariantResponses.ProductVariantResponse.{Partial ⇒ VariantPartial}
 import responses.PromotionResponses.PromotionResponse
 import testutils.PayloadHelpers._
 import testutils._
@@ -28,8 +28,8 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi { sel
 
     val product: ProductRoot = productsApi.create(payloadBuilder.createPayload).as[ProductRoot]
 
-    val productVariant: VariantRoot = product.variants.onlyElement
-    val productVariantCode: String  = productVariant.attributes.code
+    val productVariant: VariantPartial = product.variants.onlyElement
+    val productVariantCode: String     = productVariant.attributes.code
   }
 
   // Generates all possible variant codes and attaches them to all appropriate options
