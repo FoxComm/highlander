@@ -81,7 +81,11 @@ class CartValidatorIntegrationTest
                     Seq(InsufficientFunds(refNum), NoShipAddress(refNum), NoShipMethod(refNum)))
     }
 
-    "/v1/carts/:refNum/coupon" in new CouponFixture {
+    "/v1/carts/:refNum/coupon" in new CouponFixture with LineItemFixture {
+      override def refNum = super[CouponFixture].refNum
+      cartsApi(refNum).lineItems.add(Seq(UpdateLineItemsPayload(productVariant.formId, 1)))
+      override def expectedWarnings =
+        Seq(NoShipAddress(refNum), NoShipMethod(refNum), InsufficientFunds(refNum))
       checkResponse(cartsApi(refNum).coupon.add(couponCode), expectedWarnings)
       checkResponse(cartsApi(refNum).coupon.delete(), expectedWarnings)
     }
@@ -125,13 +129,14 @@ class CartValidatorIntegrationTest
       with EmptyCustomerCart_Baked
       with StoreAdmin_Seed {
 
-    val (refNum, couponCode) = (for {
+    def refNum = cart.refNum
+    val (couponCode) = (for {
       search     ← * <~ Factories.createSharedSearches(storeAdmin.accountId)
       discounts  ← * <~ Factories.createDiscounts(search)
       promotions ← * <~ Factories.createCouponPromotions(discounts)
       coupons    ← * <~ Factories.createCoupons(promotions)
       couponCode = coupons.head._2.head.code
-    } yield (cart.refNum, couponCode)).gimme
+    } yield couponCode).gimme
   }
 
   trait LineItemFixture extends EmptyCustomerCart_Baked {

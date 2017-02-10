@@ -209,10 +209,12 @@ class PromotionsIntegrationTest
 
       private val emptyCartWithCoupon =
         POST(s"v1/my/cart/line-items", Seq(UpdateLineItemsPayload(skuCode, 0)))
-          .asTheResult[CartResponse]
+          .asThe[CartResponse]
 
-      emptyCartWithCoupon.totals.adjustments must === (0)
-      emptyCartWithCoupon.totals.total must === (0)
+      emptyCartWithCoupon.warnings mustBe 'nonEmpty withClue "containing information about removed coupons that no longer apply"
+
+      emptyCartWithCoupon.result.totals.total must === (0)
+      emptyCartWithCoupon.result.totals.adjustments must === (0)
     }
   }
 

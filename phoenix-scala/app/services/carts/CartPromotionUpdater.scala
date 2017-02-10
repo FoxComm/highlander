@@ -1,6 +1,7 @@
 package services.carts
 
-import cats.data.Xor
+import cats.data.{Xor, XorT}
+import cats.implicits._
 import failures.CouponFailures._
 import failures.DiscountCompilerFailures._
 import failures.Failures
@@ -22,14 +23,19 @@ import models.shipping
 import responses.TheResponse
 import responses.cord.CartResponse
 import services.discount.compilers._
-import services.{CartValidator, LineItemManager, LogActivity}
+import services.{CartValidator, LineItemManager, LogActivity, ResultT}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
 
 object CartPromotionUpdater {
 
-  def readjust(cart: Cart)(implicit ec: EC, es: ES, db: DB, ctx: OC, au: AU): DbResultT[Unit] =
+  def readjust(cart: Cart, failFatally: Boolean /* FIXME with the new foxy monad @michalrus */ )(
+      implicit ec: EC,
+      es: ES,
+      db: DB,
+      ctx: OC,
+      au: AU): DbResultT[TheResponse[Cart]] =
     for {
       // Fetch base stuff
       orderPromo ← * <~ OrderPromotions
@@ -52,13 +58,13 @@ object CartPromotionUpdater {
       (form, shadow) = discount.tupled
       qualifier   ← * <~ QualifierAstCompiler(qualifier(form, shadow)).compile()
       offer       ← * <~ OfferAstCompiler(offer(form, shadow)).compile()
-      adjustments ← * <~ getAdjustments(promoShadow, cart, qualifier, offer)
+      adjustments ← * <~ getAdjustments(promoShadow, cart, qualifier, offer, failFatally)
       // Delete previous adjustments and create new
       _ ← * <~ OrderLineItemAdjustments
            .filterByOrderRefAndShadow(cart.refNum, orderPromo.promotionShadowId)
            .delete
-      _ ← * <~ OrderLineItemAdjustments.createAll(adjustments)
-    } yield {}
+      _ ← * <~ OrderLineItemAdjustments.createAll(adjustments.result)
+    } yield adjustments.map(_ ⇒ cart)
 
   def attachCoupon(originator: User, refNum: Option[String] = None, code: String)(
       implicit ec: EC,
@@ -90,15 +96,15 @@ object CartPromotionUpdater {
                    .requiresCoupon
                    .mustFindOneOr(PromotionNotFoundForContext(coupon.promotionId, ctx.name))
       // Create connected promotion and line item adjustments
-      _ ← * <~ OrderPromotions.create(OrderPromotion.buildCoupon(cart, promotion, couponCode))
-      _ ← * <~ readjust(cart)
+      _                          ← * <~ OrderPromotions.create(OrderPromotion.buildCoupon(cart, promotion, couponCode))
+      readjustedCartWithWarnings ← * <~ readjust(cart, failFatally = true)
       // Write event to application logs
-      _ ← * <~ LogActivity.orderCouponAttached(cart, couponCode)
+      _ ← * <~ LogActivity.orderCouponAttached(readjustedCartWithWarnings.result, couponCode)
       // Response
-      cart      ← * <~ CartTotaler.saveTotals(cart)
+      cart      ← * <~ CartTotaler.saveTotals(readjustedCartWithWarnings.result)
       validated ← * <~ CartValidator(cart).validate()
       response  ← * <~ CartResponse.buildRefreshed(cart)
-    } yield TheResponse.validated(response, validated)
+    } yield readjustedCartWithWarnings.flatMap(_ ⇒ TheResponse.validated(response, validated))
 
   def detachCoupon(originator: User, refNum: Option[String] = None)(
       implicit ec: EC,
@@ -132,11 +138,15 @@ object CartPromotionUpdater {
     case _              ⇒ Xor.Left(EmptyDiscountFailure.single)
   }
 
-  private def getAdjustments(promo: ObjectShadow, cart: Cart, qualifier: Qualifier, offer: Offer)(
+  private def getAdjustments(promo: ObjectShadow,
+                             cart: Cart,
+                             qualifier: Qualifier,
+                             offer: Offer,
+                             failFatally: Boolean /* FIXME with the new foxy monad @michalrus */ )(
       implicit ec: EC,
       es: ES,
       db: DB,
-      au: AU) =
+      au: AU): DbResultT[TheResponse[Seq[OrderLineItemAdjustment]]] =
     for {
       lineItems      ← * <~ LineItemManager.getCartLineItems(cart.refNum)
       shippingMethod ← * <~ shipping.ShippingMethods.forCordRef(cart.refNum).one
@@ -144,7 +154,16 @@ object CartPromotionUpdater {
       shipTotal      ← * <~ CartTotaler.shippingTotal(cart)
       cartWithTotalsUpdated = cart.copy(subTotal = subTotal, shippingTotal = shipTotal)
       input                 = DiscountInput(promo, cartWithTotalsUpdated, lineItems, shippingMethod)
-      _           ← * <~ qualifier.check(input)
-      adjustments ← * <~ offer.adjust(input)
+      adjustments ← * <~ ResultT(qualifier.check(input))
+                     .flatMap(_ ⇒ ResultT(offer.adjust(input)))
+                     .map(TheResponse(_))
+                     .recoverWith {
+                       // FIXME: convert errors to warnings better with the new monad @michalrus
+                       case qualifierErrors if failFatally ⇒ ResultT.leftAsync(qualifierErrors)
+                       case qualifierErrors ⇒
+                         ResultT.rightAsync(
+                             TheResponse.build(Seq.empty, warnings = Some(qualifierErrors)))
+                     }
+                     .value
     } yield adjustments
 }
