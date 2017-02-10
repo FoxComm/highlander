@@ -10,7 +10,7 @@ import { Link } from '../link';
 import ObjectDetails from '../object-page/object-details';
 import { renderFormField } from '../object-form/object-form-inner';
 import AssociatedVariants from './associated-items/associated-variants';
-import AssociatedList from './associated-items/associated-list';
+import AssociatedProduct from './associated-items/associated-product';
 
 const layout = require('./layout.json');
 
@@ -66,15 +66,14 @@ class ProductVariantDetails extends ObjectDetails {
   }
 
   renderAssociatedProduct() {
+    const { object, productVariants, productVariantsState } = this.props;
+
     return (
-      <AssociatedList
-        title="Associated Product"
-        list={[]}
-        fetchState={{
-          inProgress: true,
-          finished: false,
-          err: null,
-        }}
+      <AssociatedProduct
+        productVariants={productVariants}
+        productVariantsState={productVariantsState}
+        context={_.get(object, 'context.name', 'default')}
+        product={object.product}
       />
     );
   }
