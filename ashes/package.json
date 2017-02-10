@@ -58,6 +58,7 @@
     "event-source-polyfill": "0.0.6",
     "fleck": "^0.5.1",
     "history": "^2.0.2",
+    "hoist-non-react-statics": "^1.2.0",
     "htmlescape": "^1.1.0",
     "imagemin-pngquant": "^4.2.0",
     "invariant": "^2.2.1",

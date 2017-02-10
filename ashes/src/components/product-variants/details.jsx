@@ -3,17 +3,30 @@
 // libs
 import _ from 'lodash';
 import React, { Element } from 'react';
+import connectVariants from './connect-variants';
 
 // components
 import { Link } from '../link';
 import ObjectDetails from '../object-page/object-details';
 import { renderFormField } from '../object-form/object-form-inner';
-import AssociatedVariants from './associated-variants';
-import AssociatedList from './associated-list';
+import AssociatedVariants from './associated-items/associated-variants';
+import AssociatedList from './associated-items/associated-list';
 
 const layout = require('./layout.json');
 
-export default class ProductVariantDetails extends ObjectDetails {
+import type { DetailsProps } from '../object-page/object-details';
+import type { ProductVariant } from 'modules/product-variants/details';
+import type { ProductVariant as ESProdactVaraint } from 'modules/product-variants/list';
+
+type Props = DetailsProps & {
+  object: ProductVariant,
+  // connected via connectVariants
+  productVariants: Array<ESProdactVaraint>,
+  productVariantsState: AsyncState,
+}
+
+class ProductVariantDetails extends ObjectDetails {
+  props: Props;
   layout = layout;
 
   get title(): string {
@@ -67,7 +80,13 @@ export default class ProductVariantDetails extends ObjectDetails {
   }
 
   renderAssociatedVariants() {
-    return <AssociatedVariants productId={this.props.object.productId} />;
+    const { productVariants, productVariantsState } = this.props;
+    return (
+      <AssociatedVariants
+        productVariants={productVariants}
+        productVariantsState={productVariantsState}
+      />
+    );
   }
 
   renderGeneralSection() {
@@ -80,3 +99,7 @@ export default class ProductVariantDetails extends ObjectDetails {
     );
   }
 }
+
+export default connectVariants(
+  props => props.object.product.id
+)(ProductVariantDetails);
