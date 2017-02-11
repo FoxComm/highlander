@@ -44,7 +44,7 @@ class ProductInvariantIT
     with FlatTaxons_Baked {
       val taxonId = taxons.head.formId
 
-      taxonApis(taxonId).assignProduct(product.id).mustBeOk()
+      taxonsApi(taxonId).assignProduct(product.id).mustBeOk()
     }
   }
 
