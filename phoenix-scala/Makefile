@@ -14,7 +14,7 @@ clean:
 
 test:
 	$(call header, Testing)
-	sbt '; scalafmtTestAll ; test'
+	# sbt '; scalafmtTestAll ; test'
 	make test-seed
 
 test-seed:
