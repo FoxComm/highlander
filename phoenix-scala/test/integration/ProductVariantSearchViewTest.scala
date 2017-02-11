@@ -25,7 +25,7 @@ case class ProductVariantSearchViewResult(id: Int,
                                           retailPriceCurrency: String,
                                           externalId: Option[Int],
                                           scope: String,
-                                          middlewarehouseSkuId: Int)
+                                          skuId: Int)
 
 class ProductVariantSearchViewTest extends SearchViewTestBase {
 
@@ -52,7 +52,7 @@ class ProductVariantSearchViewTest extends SearchViewTestBase {
         import variantAsViewed._
 
         variantId must === (productVariant.id)
-        middlewarehouseSkuId must === (productVariant.skuId)
+        skuId must === (productVariant.skuId)
         archivedAt must not be defined
         retailPrice must === (productVariant.attributes.retailPrice.toString)
         salePrice must === (productVariant.attributes.salePrice.toString)
@@ -70,11 +70,11 @@ class ProductVariantSearchViewTest extends SearchViewTestBase {
     }
 
     "when variant is updated" in new ProductVariant_ApiFixture {
-      pending // cc @jmataya
-
       private val newPrice = 123
       private val imageSrc = "by the way we need image src validation..."
-      private val albums   = Seq(AlbumPayload(images = Seq(ImagePayload(src = imageSrc)).some)).some
+      private val albums = Seq(
+          AlbumPayload(name = "Album McAlbumFace".some,
+                       images = Seq(ImagePayload(src = imageSrc)).some)).some
       private val newTitle = "Variant McVariantFace"
 
       productVariantsApi(productVariant.id)

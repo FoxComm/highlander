@@ -142,3 +142,23 @@ create trigger update_product_variants_view_image
   after insert or update on product_to_variant_links
   for each row
   execute procedure update_product_variants_view_image_fn();
+
+create or replace function update_variants_album_view_image_fn() returns trigger as $$
+begin
+  update product_variants_search_view
+    set image = subquery.image
+  from (select album_view.product_variant_id as id,
+               (album_view.albums #>> '{0, images, 0, src}') as image
+        from variant_album_links_view as album_view
+        where album_view.product_variant_id = new.product_variant_id) as subquery
+  where subquery.id = product_variants_search_view.id;
+
+  return null;
+end;
+$$ language plpgsql;
+
+drop trigger if exists update_variants_album_view_image on variant_album_links_view;
+create trigger update_variants_album_view_image
+  after insert or update on variant_album_links_view
+  for each row
+  execute procedure update_variants_album_view_image_fn();

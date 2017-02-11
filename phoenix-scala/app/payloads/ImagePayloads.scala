@@ -49,6 +49,9 @@ object ImagePayloads {
 
     override def validate: ValidatedNel[Failure, AlbumPayload] =
       validateIdsUnique(images).map(_ ⇒ this)
+
+    def validateCreate: ValidatedNel[Failure, AlbumPayload] =
+      notEmpty(name, "name").map { case _ ⇒ this }
   }
 
   def validateIdsUnique(images: Images): ValidatedNel[Failure, Images] = images match {
