@@ -20,6 +20,8 @@ location = /internal-auth {
     internal;
     proxy_pass http://isaac/check_role?role=admin;
     proxy_pass_request_body off;
+    proxy_http_version 1.1;
+    proxy_set_header Connection "";
     proxy_set_header Content-Length "";
 }
 
@@ -27,6 +29,8 @@ location = /internal-auth {
 location /internal-search/ {
     internal;
     proxy_pass http://search/;
+    proxy_http_version 1.1;
+    proxy_set_header Content-Length "";
 }
 
 # Proxy the internal search location and sanitizes output from ES for external use
@@ -165,6 +169,7 @@ location /api/v1/inventory/ {
     default_type 'application/json';
     proxy_pass http://middlewarehouse/v1/public/;
     proxy_http_version 1.1;
+    proxy_set_header Connection "";
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -176,6 +181,7 @@ location /api/v1/time/ {
     default_type 'application/json';
     proxy_pass http://henhouse/;
     proxy_http_version 1.1;
+    proxy_set_header Connection "";
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -189,6 +195,7 @@ location /api/v1/stats/ {
     default_type 'application/json';
     proxy_pass http://eggcrate/;
     proxy_http_version 1.1;
+    proxy_set_header Connection "";
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -201,6 +208,7 @@ location /api/v1/public/ {
     proxy_pass http://phoenix/v1/public/;
     proxy_hide_header Authorization;
     proxy_http_version 1.1;
+    proxy_set_header Connection "";
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -223,6 +231,7 @@ location /sol/ {
     proxy_pass http://sol/;
     proxy_pass_header Authorization;
     proxy_http_version 1.1;
+    proxy_set_header Connection "";
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -231,16 +240,21 @@ location /sol/ {
 
 location /admin/ {
     proxy_pass http://ashes;
+    proxy_http_version 1.1;
+    proxy_set_header Connection "";
 }
 
 location @ashes {
     proxy_pass http://ashes;
+    proxy_http_version 1.1;
+    proxy_set_header Connection "";
 }
 
 location /api/v1/my/ {
     proxy_pass http://phoenix/v1/my/;
     proxy_pass_header Authorization;
     proxy_http_version 1.1;
+    proxy_set_header Connection "";
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -255,6 +269,7 @@ location /api/ {
     proxy_pass http://phoenix/;
     proxy_pass_header Authorization;
     proxy_http_version 1.1;
+    proxy_set_header Connection "";
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -266,8 +281,8 @@ location /sse/ {
     proxy_pass http://phoenix/;
 
     proxy_pass_header Authorization;
-    proxy_set_header Connection '';
     proxy_http_version 1.1;
+    proxy_set_header Connection "";
     chunked_transfer_encoding off;
     proxy_buffering off;
     proxy_cache off;
@@ -277,14 +292,20 @@ location /sse/ {
 {% if is_appliance %}
 location /private/dashboard/ {
     proxy_pass http://dashboard/;
+    proxy_http_version 1.1;
+    proxy_set_header Connection "";
 }
 
 location /private/marathon/ {
     proxy_pass http://marathon/;
+    proxy_http_version 1.1;
+    proxy_set_header Connection "";
 }
 
 location /private/pgweb/ {
     proxy_pass http://pgweb/;
+    proxy_http_version 1.1;
+    proxy_set_header Connection "";
 }
 {% endif %}
 
