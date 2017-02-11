@@ -13,6 +13,7 @@ import payloads.ProductVariantPayloads._
 import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
 import responses.AlbumResponses._
 import responses.ObjectResponses.ObjectContextResponse
+import responses.ProductResponses.ProductResponse
 import responses.ProductOptionResponses.ProductOptionResponse
 import responses.ProductVariantResponses._
 import services.LogActivity
@@ -41,12 +42,14 @@ object ProductVariantManager {
       variant    ← * <~ createInner(oc, payload)
       albums     ← * <~ findOrCreateAlbumsForVariant(variant.model, albumPayloads)
       skuMapping ← * <~ ProductVariantSkus.mustFindByVariantFormId(variant.form.id)
+      product    ← * <~ mustFindProductByVariant(variant)
       albumResponse = albums.map { case (album, images) ⇒ AlbumResponse.build(album, images) }
       response = ProductVariantResponse.build(
-          IlluminatedVariant.illuminate(oc, variant),
-          albumResponse,
-          skuMapping.skuId,
-          skuMapping.skuCode,
+          variant = IlluminatedVariant.illuminate(oc, variant),
+          product = product,
+          albums = albumResponse,
+          skuId = skuMapping.skuId,
+          skuCode = skuMapping.skuCode,
           options = Seq.empty) // should be empty as options will be attached only on product creation
       _ ← * <~ LogActivity
            .fullVariantCreated(Some(admin), response, ObjectContextResponse.build(oc))
@@ -60,12 +63,50 @@ object ProductVariantManager {
       albums     ← * <~ ImageManager.getAlbumsByVariant(variant.model)
       skuMapping ← * <~ ProductVariantSkus.mustFindByVariantFormId(variant.form.id)
       options    ← * <~ optionValuesForVariant(variant.model)
+      product    ← * <~ mustFindProductByVariant(variant)
     } yield
-      ProductVariantResponse.build(IlluminatedVariant.illuminate(oc, variant),
-                                   albums,
-                                   skuMapping.skuId,
-                                   skuMapping.skuCode,
-                                   options)
+      ProductVariantResponse.build(variant = IlluminatedVariant.illuminate(oc, variant),
+                                   product = product,
+                                   albums = albums,
+                                   skuId = skuMapping.skuId,
+                                   skuCode = skuMapping.skuCode,
+                                   options = options)
+
+  def getPartialByFormId(
+      variantId: Int)(implicit ec: EC, db: DB, oc: OC): DbResultT[ProductVariantResponse.Partial] =
+    for {
+      variant    ← * <~ ProductVariantManager.mustFindFullByContextAndFormId(oc.id, variantId)
+      albums     ← * <~ ImageManager.getAlbumsByVariant(variant.model)
+      skuMapping ← * <~ ProductVariantSkus.mustFindByVariantFormId(variant.form.id)
+      options    ← * <~ optionValuesForVariant(variant.model)
+    } yield
+      ProductVariantResponse.buildPartial(variant = IlluminatedVariant.illuminate(oc, variant),
+                                          albums = albums,
+                                          skuId = skuMapping.skuId,
+                                          skuCode = skuMapping.skuCode,
+                                          options = options)
+
+  private def mustFindProductByVariant(variant: FullObject[ProductVariant])(
+      implicit ec: EC,
+      oc: OC,
+      db: DB): DbResultT[ProductResponse.Partial] = {
+    val query = for {
+      head ← Products
+              .join(ProductVariantLinks)
+              .on(_.id === _.leftId)
+              .filter {
+                case (_, link) ⇒ link.rightId === variant.model.id
+              }
+              .map { case (head, _) ⇒ head }
+      form   ← ObjectForms if head.formId === form.id
+      shadow ← ObjectShadows if head.shadowId === shadow.id
+    } yield (head, form, shadow)
+
+    for {
+      product ← * <~ query.one.mustFindOr(ProductNotFoundForVariant(variant.form.id))
+      (head, form, shadow) = product
+    } yield ProductResponse.buildPartial(IlluminatedProduct.illuminate(oc, head, form, shadow))
+  }
 
   def getBySkuCode(
       code: String)(implicit ec: EC, db: DB, oc: OC): DbResultT[ProductVariantResponse.Root] =
@@ -76,13 +117,15 @@ object ProductVariantManager {
       albums     ← * <~ ImageManager.getAlbumsForVariantInner(form.id)
       skuMapping ← * <~ ProductVariantSkus.mustFindByVariantFormId(form.id)
       options    ← * <~ optionValuesForVariant(variant)
+      fullVariant = FullObject(variant, form, shadow)
+      product ← * <~ mustFindProductByVariant(fullVariant)
     } yield
-      ProductVariantResponse.build(
-          IlluminatedVariant.illuminate(oc, FullObject(variant, form, shadow)),
-          albums,
-          skuMapping.skuId,
-          skuMapping.skuCode,
-          options)
+      ProductVariantResponse.build(variant = IlluminatedVariant.illuminate(oc, fullVariant),
+                                   product = product,
+                                   albums = albums,
+                                   skuId = skuMapping.skuId,
+                                   skuCode = skuMapping.skuCode,
+                                   options = options)
 
   def update(admin: User, variantId: Int, payload: ProductVariantPayload)(
       implicit ec: EC,
@@ -96,11 +139,14 @@ object ProductVariantManager {
       albums         ← * <~ updateAssociatedAlbums(updatedVariant.model, payload.albums)
       skuMapping     ← * <~ ProductVariantSkus.mustFindByVariantFormId(variant.formId)
       options        ← * <~ optionValuesForVariant(updatedVariant.model)
-      response = ProductVariantResponse.build(IlluminatedVariant.illuminate(oc, updatedVariant),
-                                              albums,
-                                              skuMapping.skuId,
-                                              skuMapping.skuCode,
-                                              options)
+      product        ← * <~ mustFindProductByVariant(updatedVariant)
+      response = ProductVariantResponse.build(variant =
+                                                IlluminatedVariant.illuminate(oc, updatedVariant),
+                                              product = product,
+                                              albums = albums,
+                                              skuId = skuMapping.skuId,
+                                              skuCode = skuMapping.skuCode,
+                                              options = options)
       _ ← * <~ LogActivity
            .fullVariantUpdated(Some(admin), response, ObjectContextResponse.build(oc))
     } yield response
@@ -120,6 +166,7 @@ object ProductVariantManager {
                                         id ⇒ NotFoundFailure400(VariantAlbumLinks, id))
          }
       albums       ← * <~ ImageManager.getAlbumsForVariantInner(archivedVariant.formId)
+      product      ← * <~ mustFindProductByVariant(fullVariant)
       productLinks ← * <~ ProductVariantLinks.filter(_.rightId === archivedVariant.id).result
       _ ← * <~ productLinks.map { link ⇒
            ProductVariantLinks.deleteById(link.id,
@@ -130,14 +177,15 @@ object ProductVariantManager {
       options    ← * <~ optionValuesForVariant(archivedVariant)
     } yield
       ProductVariantResponse.build(
-          IlluminatedVariant.illuminate(oc,
-                                        FullObject(model = archivedVariant,
-                                                   form = fullVariant.form,
-                                                   shadow = fullVariant.shadow)),
-          albums,
-          skuMapping.skuId,
-          skuMapping.skuCode,
-          options)
+          variant = IlluminatedVariant.illuminate(oc,
+                                                  FullObject(model = archivedVariant,
+                                                             form = fullVariant.form,
+                                                             shadow = fullVariant.shadow)),
+          product = product,
+          albums = albums,
+          skuId = skuMapping.skuId,
+          skuCode = skuMapping.skuCode,
+          options = options)
 
   def createInner(context: ObjectContext, payload: ProductVariantPayload)(
       implicit ec: EC,
@@ -285,17 +333,17 @@ object ProductVariantManager {
   def illuminateVariant(fullVariant: FullObject[ProductVariant])(
       implicit ec: EC,
       db: DB,
-      oc: OC): DbResultT[ProductVariantResponse.Root] =
+      oc: OC): DbResultT[ProductVariantResponse.Partial] =
     for {
       albums     ← * <~ ImageManager.getAlbumsByVariant(fullVariant.model)
       skuMapping ← * <~ ProductVariantSkus.mustFindByVariantFormId(fullVariant.form.id)
       options    ← * <~ optionValuesForVariant(fullVariant.model)
     } yield
-      ProductVariantResponse.buildLite(IlluminatedVariant.illuminate(oc, fullVariant),
-                                       albums,
-                                       skuMapping.skuId,
-                                       skuMapping.skuCode,
-                                       options)
+      ProductVariantResponse.buildPartial(variant = IlluminatedVariant.illuminate(oc, fullVariant),
+                                          albums = albums,
+                                          skuId = skuMapping.skuId,
+                                          skuCode = skuMapping.skuCode,
+                                          options = options)
 
   private def findProductOption(id: Int)(
       implicit ec: EC,

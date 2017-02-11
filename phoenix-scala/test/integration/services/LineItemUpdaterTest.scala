@@ -17,7 +17,7 @@ class LineItemUpdaterTest
     with ApiFixtureHelpers
     with BakedFixtures {
 
-  def createProducts(num: Int): Seq[ProductVariantResponse.Root] = {
+  def createProducts(num: Int): Seq[ProductVariantResponse.Partial] = {
     (1 to num).map { _ ⇒
       new ProductVariant_ApiFixture {}.productVariant
     }

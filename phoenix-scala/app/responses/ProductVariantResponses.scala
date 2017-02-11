@@ -6,6 +6,7 @@ import models.inventory._
 import models.objects._
 import responses.AlbumResponses.AlbumResponse
 import responses.ObjectResponses.ObjectContextResponse
+import responses.ProductResponses.ProductResponse
 import responses.ProductOptionResponses.ProductOptionResponse
 import utils.aliases._
 
@@ -96,8 +97,9 @@ object ProductVariantResponses {
   object ProductVariantResponse {
 
     case class Root(id: Int,
-                    context: Option[ObjectContextResponse.Root],
+                    context: ObjectContextResponse.Root,
                     attributes: Json,
+                    product: ProductResponse.Partial,
                     albums: Seq[AlbumResponse.Root],
                     options: Seq[ProductOptionResponse.Partial],
                     skuId: Int,
@@ -105,7 +107,17 @@ object ProductVariantResponses {
                     archivedAt: Option[Instant])
         extends ResponseItem
 
+    case class Partial(id: Int,
+                       attributes: Json,
+                       albums: Seq[AlbumResponse.Root],
+                       options: Seq[ProductOptionResponse.Partial],
+                       skuId: Int,
+                       skuCode: String,
+                       archivedAt: Option[Instant])
+        extends ResponseItem
+
     def build(variant: IlluminatedVariant,
+              product: ProductResponse.Partial,
               albums: Seq[AlbumResponse.Root],
               skuId: Int,
               skuCode: String,
@@ -113,24 +125,24 @@ object ProductVariantResponses {
       Root(id = variant.id,
            archivedAt = variant.archivedAt,
            attributes = variant.attributes,
-           context = ObjectContextResponse.build(variant.context).some,
+           context = ObjectContextResponse.build(variant.context),
            skuId = skuId,
            skuCode = skuCode,
+           product = product,
            albums = albums,
            options = options)
 
-    def buildLite(variant: IlluminatedVariant,
-                  albums: Seq[AlbumResponse.Root],
-                  skuId: Int,
-                  skuCode: String,
-                  options: Seq[ProductOptionResponse.Partial]): Root =
-      Root(id = variant.id,
-           archivedAt = variant.archivedAt,
-           attributes = variant.attributes,
-           context = None,
-           skuId = skuId,
-           skuCode = skuCode,
-           albums = albums,
-           options = options)
+    def buildPartial(variant: IlluminatedVariant,
+                     albums: Seq[AlbumResponse.Root],
+                     skuId: Int,
+                     skuCode: String,
+                     options: Seq[ProductOptionResponse.Partial]): Partial =
+      Partial(id = variant.id,
+              archivedAt = variant.archivedAt,
+              attributes = variant.attributes,
+              skuId = skuId,
+              skuCode = skuCode,
+              albums = albums,
+              options = options)
   }
 }

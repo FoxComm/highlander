@@ -228,15 +228,14 @@ object ProductManager {
       )
   }
 
-  private def getProductOptionsWithRelatedVariants(productOptions: Seq[FullProductOption])(
-      implicit ec: EC,
-      db: DB,
-      oc: OC): DbResultT[(Seq[ProductVariantResponse.Root], Seq[ProductOptionResponse.Root])] = {
+  private def getProductOptionsWithRelatedVariants(
+      productOptions: Seq[FullProductOption])(implicit ec: EC, db: DB, oc: OC)
+    : DbResultT[(Seq[ProductVariantResponse.Partial], Seq[ProductOptionResponse.Root])] = {
     val optionIds = productOptions.flatMap { case (_, optionValue) ⇒ optionValue }.map(_.model.id)
     for {
       optionValueToVariantIdMap ← * <~ ProductOptionManager.mapOptionValuesToVariantIds(optionIds)
       variantIds = optionValueToVariantIdMap.values.toSet.flatten
-      productVariants ← * <~ variantIds.map(ProductVariantManager.getByFormId)
+      productVariants ← * <~ variantIds.map(ProductVariantManager.getPartialByFormId)
       illuminated = productOptions.map {
         case (fullOption, values) ⇒
           val variant = IlluminatedProductOption.illuminate(oc, fullOption)
@@ -273,7 +272,7 @@ object ProductManager {
   }
 
   private def validateVariantsMatchesProductOptions(
-      variants: Seq[ProductVariantResponse.Root],
+      variants: Seq[ProductVariantResponse.Partial],
       options: Seq[(FullObject[ProductOption], Seq[FullObject[ProductOptionValue]])])
     : ValidatedNel[Failure, Unit] = {
     val maxOptions = options.map { case (_, values) ⇒ values.length.max(1) }.product
@@ -369,11 +368,11 @@ object ProductManager {
         skuMapping ← * <~ ProductVariantSkus.mustFindByVariantFormId(up.form.id)
         options    ← * <~ ProductVariantManager.optionValuesForVariant(up.model)
       } yield
-        ProductVariantResponse.buildLite(IlluminatedVariant.illuminate(oc, up),
-                                         albums,
-                                         skuMapping.skuId,
-                                         skuMapping.skuCode,
-                                         options)
+        ProductVariantResponse.buildPartial(IlluminatedVariant.illuminate(oc, up),
+                                            albums,
+                                            skuMapping.skuId,
+                                            skuMapping.skuCode,
+                                            options)
     }
 
   private def findOrCreateOptionsForProduct(product: Product, payload: Seq[ProductOptionPayload])(

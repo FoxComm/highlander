@@ -28,7 +28,7 @@ object ProductResponses {
                     context: ObjectContextResponse.Root,
                     attributes: Json,
                     albums: Seq[AlbumResponse.Root],
-                    variants: Seq[ProductVariantResponse.Root],
+                    variants: Seq[ProductVariantResponse.Partial],
                     options: Seq[ProductOptionResponse.Root],
                     archivedAt: Option[Instant],
                     taxons: Seq[AssignedTaxonsResponse])
@@ -36,7 +36,7 @@ object ProductResponses {
 
     def build(product: IlluminatedProduct,
               albums: Seq[AlbumResponse.Root],
-              variants: Seq[ProductVariantResponse.Root],
+              variants: Seq[ProductVariantResponse.Partial],
               options: Seq[ProductOptionResponse.Root],
               taxons: Seq[AssignedTaxonsResponse]): Root =
       Root(id = product.id,
@@ -48,5 +48,10 @@ object ProductResponses {
            options = options,
            archivedAt = product.archivedAt,
            taxons = taxons)
+
+    case class Partial(id: Int, attributes: Json) extends ResponseItem
+
+    def buildPartial(product: IlluminatedProduct): Partial =
+      Partial(id = product.id, attributes = product.attributes)
   }
 }
