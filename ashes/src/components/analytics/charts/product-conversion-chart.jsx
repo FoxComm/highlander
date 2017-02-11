@@ -51,10 +51,23 @@ const comparisonBarStyles = {
     parent: { border: '1px solid #ccc' },
   },
 };
-const barStyle = {
-  data: { fill: '#4FC2C9', width: 15 },
+
+const singleBarStyle = {
+  data: { fill: '#4FC2C9', width: 28 },
   labels: { fontSize: 12 },
   parent: { border: '1px solid #ccc' },
+};
+const comparisonBarStyles = {
+  dataBarStyle:  {
+    data: { fill: '#4FC2C9', width: 28 },
+    labels: { fontSize: 12 },
+    parent: { border: '1px solid #ccc' },
+  },
+  comparisonDataBarStyle: {
+    data: { fill: '#CED2D5', width: 28 },
+    labels: { fontSize: 12 },
+    parent: { border: '1px solid #ccc' },
+  },
 };
 
 const dataTickValues = [
@@ -221,14 +234,14 @@ class ProductConversionChart extends React.Component {
         <VictoryAxis
           standalone={false}
           style={xAxisStyle}
-          orientation='bottom'
+          orientation="bottom"
           tickValues={dataTickValues} />
         <VictoryAxis
           dependentAxis
           standalone={false}
           style={yAxisStyle}
           tickCount={3}
-          orientation='left' />
+          orientation="left" />
         <VictoryBar
           labelComponent={
             <ProductConversionToolTip
@@ -388,3 +401,4 @@ class ProductConversionChart extends React.Component {
 }
 
 export default ProductConversionChart;
+

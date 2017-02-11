@@ -63,37 +63,29 @@ const ConversionLabelComponent = (props) => {
 
 const DeltaFlyout = ({x, y}) => {
 
-  const badgeStyle = (x, y) => {
-    const trnslate = `translate(${x - 54}, ${y + 4}) scale(0.425)`;
+  const badgeStyle = (x, y, offsetX, offsetY, strokeColor, fillColor) => {
+    const trnslate = `translate(${x + offsetX}, ${y + offsetY}) scale(0.425)`;
     return (
       <g stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
         <g transform={trnslate}>
-          <polygon
-            stroke="#363636"
-            fill="#3A4350"
-            points="0 1.17774105e-16 2.75821033e-15 45.2614326 66.25 45.2607422 80.8210449 22.6307163 66.2856445 0">
-          </polygon>
-          <path
-            d="M2.07990973e-15,34.5 L2.75821033e-15,45.6307163 L66.25,45.6300259 L80.5832702,23.3692837 L0,23.3692837 L0,34.5 Z"
-            stroke="#3A4350"
-            fill="#F7F7F7">
-          </path>
+          <polygon stroke={strokeColor} fill={fillColor} points="0 1.17774105e-16 2.75821033e-15 45.2614326 66.25 45.2607422 80.8210449 22.6307163 66.2856445 0"></polygon>
+          <path d="M2.07990973e-15,34.5 L2.75821033e-15,45.6307163 L66.25,45.6300259 L80.5832702,23.3692837 L0,23.3692837 L0,34.5 Z" stroke={strokeColor} fill="#F7F7F7"></path>
         </g>
       </g>
     );
   };
 
-  return badgeStyle(x, y);
+  return badgeStyle(x, y, offsetX, offsetY, strokeColor, fillColor);
 };
 
 const ConversionLabelComponent = (props) => {
   const { x, y, datum, textStyle } = props;
-  const textPosition = { x: x - 7, y: y + 2};
+  const textPosition = { x: x - 7, y: y + 2 };
 
-  const arrowDirection = (parseFloat(datum.conversion) > 0) ? "rotate(90.0)" : "rotate(-90.0)";
+  const arrowDirection = (parseFloat(datum.conversion) > 0) ? 'rotate(90.0)' : 'rotate(-90.0)';
   // public/admin/images/arrow-black.svg
   const arrowCopy = (
-    <svg width="11px" height="10px" viewBox="0 0 11 10" x={textPosition.x - 6} y={textPosition.y - 4}>
+    <svg width="11px" height="10px" viewBox="0 0 11 10" x={textPosition.x - 6} y={textPosition.y - 4.5}>
       <g stroke="none" strokeWidth="1" fill="none" fillRule="evenodd" transform="scale(0.45)">
         <g transform="translate(-271.000000, -457.000000)" fill="#000000">
           <g transform="translate(261.000000, 450.000000)">
@@ -160,7 +152,7 @@ export default class ProductConversionToolTip extends React.Component {
       y: deltaToolTipCoordinates.y,
     };
 
-    const deltaToolTip = !_.isNil(deltaValue) ?
+    const deltaToolTip = (deltaValue > 0) ?
       (
         <g>
           <VictoryTooltip
@@ -227,3 +219,4 @@ export default class ProductConversionToolTip extends React.Component {
     return this.tooltips;
   }
 }
+
