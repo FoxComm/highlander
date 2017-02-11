@@ -7,7 +7,7 @@ DOCKER_TAG ?= master
 
 build:
 	$(call header, Building)
-	# sbt assembly
+	sbt assembly
 
 clean:
 	sbt clean
