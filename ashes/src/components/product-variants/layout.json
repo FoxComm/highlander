@@ -29,6 +29,12 @@
     },
     {
       "type": "state"
+    },
+    {
+      "type": "associatedProduct"
+    },
+    {
+      "type": "associatedVariants"
     }
   ]
 }

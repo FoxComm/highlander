@@ -1,0 +1,56 @@
+@import "colors.css";
+
+.root {
+  background-color: #fff;
+  border: 1px solid #d9d9d9;
+  padding: 20px;
+
+  & :global(.fc-wait-animation) {
+    margin: 0 auto;
+  }
+}
+
+.title {
+  font-family: Lato, 'Open Sans', sans-serif;;
+  font-weight: 500;
+  font-size: 16px;
+  color: #484848;
+  padding-bottom: 20px;
+}
+
+.list-item {
+  display: flex;
+  margin: 0 -20px;
+  padding: 14px 20px;
+
+  &:hover {
+    background: #F7F7F7;
+  }
+}
+
+.item-image {
+  max-width: 40px;
+  max-height: 40px;
+}
+
+.item-body {
+  margin-left: 10px;
+}
+
+.item-title,
+.item-title a {
+  font-size: 13px;
+  font-weight: 600;
+  color: #484848;
+}
+
+.item-title a:hover {
+  color: var(--hover-link-color);
+}
+
+.item-subtitle {
+  font-size: 13px;
+  font-weight: 400;
+  color: #484848;
+}
+

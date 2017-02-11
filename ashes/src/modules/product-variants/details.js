@@ -10,6 +10,21 @@ import _ from 'lodash';
 
 import { createEmptyProductVariant, configureProductVariant } from 'paragons/product-variant';
 
+type ProductOptionValue = {
+  id: number,
+  context?: {
+    name: string,
+    attributes: Attributes,
+  },
+  attributes: Attributes,
+  value: {
+    id: number,
+    name: string,
+    swatch?: string,
+    variantIds?: Array<number>,
+  },
+}
+
 export type ProductVariant = {
   id: number,
   feCode?: string,
@@ -19,6 +34,11 @@ export type ProductVariant = {
     name: string,
   },
   skuId: number,
+  product: {
+    id: number,
+    attributes: Attributes,
+  },
+  options: Array<ProductOptionValue>,
 };
 
 export type NewProductVariant = {

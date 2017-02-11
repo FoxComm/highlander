@@ -7,6 +7,8 @@ import { createReducer } from 'redux-act';
 
 export type ProductVariant = {
   id: number;
+  variantId: number,
+  skuId: number,
   image: string|null,
   context: string,
   skuCode: string,
@@ -15,12 +17,13 @@ export type ProductVariant = {
   salePriceCurrency: string,
   retailPrice: string,
   retailPriceCurrency: string,
+  archivedAt: string,
 };
 
 
 const _fetchProductVariants = createAsyncActions(
   'fetchProductVariants',
-  function(productId) {
+  function(productId: number) {
     const query = dsl.query({
       bool: {
         filter: [
