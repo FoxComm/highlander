@@ -85,11 +85,12 @@ trait MockedApis extends MockitoSugar {
     when(mocked.createSku(anyInt, any[CreateSku])(any[EC], any[AU])).thenAnswer {
       new Answer[DbResultT[ProductVariantSku]] {
         override def answer(invocation: InvocationOnMock) = {
-          val variantFormId: Int = invocation.getArgument(0)
+          val variantFormId: Int   = invocation.getArgument(0)
+          val createSku: CreateSku = invocation.getArgument(1)
           ProductVariantSkus.create(
               ProductVariantSku(variantFormId = variantFormId,
                                 skuId = variantFormId,
-                                skuCode = variantFormId.toString))
+                                skuCode = createSku.code))
         }
       }
     }

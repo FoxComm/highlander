@@ -142,3 +142,5 @@ create trigger update_product_variants_view_image
   after insert or update on product_to_variant_links
   for each row
   execute procedure update_product_variants_view_image_fn();
+
+

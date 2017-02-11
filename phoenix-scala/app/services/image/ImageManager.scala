@@ -94,6 +94,7 @@ object ImageManager {
       context: ObjectContext)(implicit ec: EC, db: DB, au: AU): DbResultT[FullAlbumWithImages] =
     for {
       payload ← * <~ createPayload.validate
+      _       ← * <~ payload.validateCreate
 
       album ← * <~ ObjectUtils.insertFullObject(
                  payload.formAndShadow,
