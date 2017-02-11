@@ -34,47 +34,6 @@ class VariantIntegrationTest
     with AutomaticAuth
     with BakedFixtures {
 
-  "POST v1/variants/:context" - {
-    "Creates a variant successfully" in new Fixture {
-      val priceValue = ("currency" → "USD") ~ ("value" → 9999)
-      val priceJson  = ("t"        → "price") ~ ("v" → priceValue)
-      val attrMap    = Map("price" → priceJson)
-
-      productVariantsApi.create(makeVariantPayload("SKU-NEW-TEST", attrMap, None)).mustBeOk()
-    }
-
-    "Tries to create a variant with no code" in new Fixture {
-      val priceValue = ("currency" → "USD") ~ ("value" → 9999)
-      val priceJson  = ("t"        → "price") ~ ("v" → priceValue)
-      val attrMap    = Map("price" → priceJson)
-
-      productVariantsApi
-        .create(ProductVariantPayload(attributes = attrMap, albums = None))
-        .mustFailWithMessage("SKU code not found in payload")
-    }
-
-    "Creates a variant with an album" in new Fixture {
-      val code       = "SKU-NEW-TEST"
-      val priceValue = ("currency" → "USD") ~ ("value" → 9999)
-      val priceJson  = ("t" → "price") ~ ("v" → priceValue)
-      val attrMap    = Map("price" → priceJson)
-
-      val src          = "http://lorempixel/test.png"
-      val imagePayload = ImagePayload(src = src)
-      val albumPayload = AlbumPayload(name = "Default".some, images = Seq(imagePayload).some)
-
-      val resp =
-        productVariantsApi.create(makeVariantPayload(code, attrMap, Seq(albumPayload).some))
-      resp.mustBeOk()
-      val createResponse = resp.as[ProductVariantResponse.Root]
-
-      val getResponse = productVariantsApi(createResponse.id).get().as[ProductVariantResponse.Root]
-      getResponse.albums.length must === (1)
-      getResponse.albums.head.images.length must === (1)
-      getResponse.albums.head.images.head.src must === (src)
-    }
-  }
-
   "GET v1/variants/:context/:code" - {
     "Get a created variant successfully" in new Fixture {
       val variantResponse =
@@ -125,7 +84,7 @@ class VariantIntegrationTest
       }
     }
 
-    "Successfully archives variant which is linked to a product" in new FixtureWithProduct {
+    "Successfully archives variant which is linked to a product" in new Fixture {
       private val updateProductPayload: UpdateProductPayload =
         UpdateProductPayload(attributes = Map(),
                              variants = Some(List(makeVariantPayload(variant.code, Map()))),
@@ -160,7 +119,7 @@ class VariantIntegrationTest
         .mustFailWith404(ObjectContextNotFound("donkeyContext"))
     }
 
-    "Returns error if variant is present in carts" in new FixtureWithProduct {
+    "Returns error if variant is present in carts" in new Fixture {
       val cart = cartsApi.create(CreateCart(email = "yax@yax.com".some)).as[CartResponse]
 
       cartsApi(cart.referenceNumber).lineItems
@@ -182,7 +141,13 @@ class VariantIntegrationTest
       ProductVariantPayload(attributes = attributes, albums = albums)
     }
 
-    val (variant, variantForm, variantShadow) = (for {
+    private val simpleProd = SimpleProductData(title = "Test Product",
+                                               code = "TEST",
+                                               description = "Test product description",
+                                               image = "image.png",
+                                               price = 5999)
+
+    val (product, variant, variantForm, variantShadow) = (for {
       simpleVariant       ← * <~ SimpleVariant("SKU-TEST", "Test SKU", 9999, Currency.USD)
       variantForm         ← * <~ ObjectForms.create(simpleVariant.create)
       simpleVariantShadow ← * <~ SimpleVariantShadow(simpleVariant)
@@ -201,18 +166,11 @@ class VariantIntegrationTest
              ProductVariantSku(variantFormId = variantForm.id,
                                skuId = variantForm.id,
                                skuCode = simpleVariant.code))
-    } yield (variant, variantForm, variantShadow)).gimme
-  }
 
-  trait FixtureWithProduct extends Fixture {
-    private val simpleProd = SimpleProductData(title = "Test Product",
-                                               code = "TEST",
-                                               description = "Test product description",
-                                               image = "image.png",
-                                               price = 5999)
-
-    val product = Mvp
-      .insertProductWithExistingVariants(LTree(au.token.scope), ctx.id, simpleProd, Seq(variant))
-      .gimme
+      product ← * <~ Mvp.insertProductWithExistingVariants(LTree(au.token.scope),
+                                                           ctx.id,
+                                                           simpleProd,
+                                                           Seq(variant))
+    } yield (product, variant, variantForm, variantShadow)).gimme
   }
 }
