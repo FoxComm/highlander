@@ -1,4 +1,4 @@
-## Taxonomies [/v1/taxonomy/{context}/{id}]
+## Taxonomies [/v1/taxonomies/{context}/{id}]
 
 + Parameters
     + context: `default` (required, string) - The context in which a taxonomy is viewable.
@@ -9,7 +9,7 @@
 + Response 200 (application/json)
   + Attributes (TaxonomyResponse)
 
-### Create [POST /v1/taxonomy/{context}]
+### Create [POST /v1/taxonomies/{context}]
 
 + Parameters
     + context: `default` (required, string) - The context in which a taxonomy is viewable.
@@ -18,7 +18,7 @@
 + Response 200 (application/json)
   + Attributes (TaxonomyResponse)
 
-### Update [PATCH /v1/taxonomy/{context}/{id}]
+### Update [PATCH /v1/taxonomies/{context}/{id}]
 
 + Parameters
     + context: `default` (required, string) - The context in which a taxonomy is viewable.
@@ -28,18 +28,17 @@
 + Response 200 (application/json)
   + Attributes (TaxonomyResponse)
 
-### Delete [DELETE /v1/taxonomy/{context}/{id}]
+### Delete [DELETE /v1/taxonomies/{context}/{id}]
 
 + Parameters
     + context: `default` (required, string) - The context in which a taxonomy is viewable.
     + id: `1` (required, number) - Unique identifier for a Taxonomy.
 + Response 200 (application/json)
 
-## Taxons [/v1/taxonomy/{context}/{taxonomy_id}/taxon/{id}]
+## Taxons [/v1/taxons/{context}/{id}]
 
 + Parameters
     + context: `default` (required, string) - The context in which a taxon is viewable.
-    + taxonomy_id: `1` (required, number) - Unique identifier for a Taxonomy.
     + id: `1` (required, number) - Unique identifier for a Taxon.
 
 ### View [GET]
@@ -57,21 +56,19 @@
 + Response 200 (application/json)
   + Attributes (TaxonResponse)
 
-### Update [PATCH /v1/taxonomy/{context}/{taxonomy_id}/taxon/{id}]
+### Update [PATCH /v1/taxons/{context}/{id}]
 
 + Parameters
     + context: `default` (required, string) - The context in which a taxon is viewable.
-    + taxonomy_id: `1` (required, number) - Unique identifier for a Taxonomy.
     + id: `1` (required, number) - Unique identifier for a Taxon.
 + Request (application/json)
     + Attributes (UpdateTaxonPayload)
 + Response 200 (application/json)
   + Attributes (TaxonResponse)
 
-### Delete [DELETE /v1/taxonomy/{context}/{taxonomy_id}/taxon/{id}]
+### Delete [DELETE /v1/taxons/{context}/{id}]
 
 + Parameters
     + context: `default` (required, string) - The context in which a taxonomy is viewable.
-    + taxonomy_id: `1` (required, number) - Unique identifier for a Taxonomy.
     + id: `1` (required, number) - Unique identifier for a Taxon.
 + Response 200 (application/json)

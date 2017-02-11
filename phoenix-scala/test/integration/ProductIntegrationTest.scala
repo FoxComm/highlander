@@ -22,7 +22,7 @@ class ProductIntegrationTest
 
   "GET v1/products/:context" - {
     "returns assigned taxonomies" in new ProductAndSkus_Baked with FlatTaxons_Baked {
-      taxonApi(taxons.head.formId).assignProduct(simpleProduct.formId).mustBeOk()
+      taxonsApi(taxons.head.formId).assignProduct(simpleProduct.formId).mustBeOk()
       val product = productsApi(simpleProduct.formId).get().as[Root]
       product.taxons.flatMap(_.taxons.map(_.id)) must contain(taxons.head.formId)
     }
