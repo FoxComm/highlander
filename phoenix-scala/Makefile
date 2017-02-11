@@ -15,6 +15,12 @@ clean:
 test:
 	$(call header, Testing)
 	sbt '; scalafmtTestAll ; test'
+	make test-seed
+
+test-seed:
+	dropdb --if-exists --username=phoenix phoenix_development
+	createdb --owner=phoenix phoenix_development
+	sbt seed
 
 docker:
 	$(call header, Dockerizing)
