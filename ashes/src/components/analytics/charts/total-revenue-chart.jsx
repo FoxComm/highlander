@@ -22,6 +22,7 @@ const colors = {
   teal: '#008080',
   white: '#FFFFFF',
   darkBlue: '#3A434F',
+  lightGray: '#ABB2B6'
 };
 
 const areaStyle = {
@@ -34,7 +35,7 @@ const scatterStyle = {
 
 const gridStyle = {
   axis: { stroke: colors.gray },
-  grid: { stroke: colors.gray, strokeWidth: 0.25, strokeDasharray: 2.5, opacity: 0.6 },
+  grid: { stroke: colors.lightGray, strokeWidth: 0.25, strokeDasharray: 2.5, opacity: 1 },
   tickLabels: { fontSize: 8, fill: colors.gray },
 };
 
@@ -160,6 +161,8 @@ class TotalRevenueChart extends React.Component {
     return (
       <div>
         <VictoryChart
+          width={700}
+          height={350}
           domainPadding={20}>
           <VictoryAxis
             standalone={false}

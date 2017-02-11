@@ -26,7 +26,7 @@ const ActionBlock = (props) => {
 
   const xIconSvg = (
     <svg width="14px" height="14px" viewBox="0 0 14 14" style={style}>
-      <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+      <g stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
         <g transform="translate(-485.000000, -557.000000)" fill="#000000">
           <g transform="translate(485.000000, 557.000000)">
             <g>
@@ -429,7 +429,9 @@ export default class Analytics extends React.Component {
 
     switch(segment.title) {
       case segmentTitles.day:
-        newDataFetchTimeSize = unixTimes.day;
+        newDataFetchTimeSize = (dateRangeBegin === moment().startOf('day').unix())
+          ? unixTimes.twoHour
+          : unixTimes.day;
       break;
       case segmentTitles.week:
         newDataFetchTimeSize = unixTimes.week;
@@ -669,3 +671,4 @@ export default class Analytics extends React.Component {
     );
   }
 }
+

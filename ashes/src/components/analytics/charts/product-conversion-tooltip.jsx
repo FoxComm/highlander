@@ -14,39 +14,31 @@ type Props = {
   datum?: any,
 };
 
-const DeltaFlyout = ({x, y}) => {
+const DeltaFlyout = ({x, y, offsetX, offsetY, strokeColor, fillColor}) => {
 
-  const badgeStyle = (x, y) => {
-    const trnslate = `translate(${x - 54}, ${y + 4}) scale(0.425)`;
+  const badgeStyle = (x, y, offsetX, offsetY, strokeColor, fillColor) => {
+    const trnslate = `translate(${x + offsetX}, ${y + offsetY}) scale(0.425)`;
     return (
       <g stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
         <g transform={trnslate}>
-          <polygon
-            stroke="#363636"
-            fill="#3A4350"
-            points="0 1.17774105e-16 2.75821033e-15 45.2614326 66.25 45.2607422 80.8210449 22.6307163 66.2856445 0">
-          </polygon>
-          <path
-            d="M2.07990973e-15,34.5 L2.75821033e-15,45.6307163 L66.25,45.6300259 L80.5832702,23.3692837 L0,23.3692837 L0,34.5 Z"
-            stroke="#3A4350"
-            fill="#F7F7F7">
-          </path>
+          <polygon stroke={strokeColor} fill={fillColor} points="0 1.17774105e-16 2.75821033e-15 45.2614326 66.25 45.2607422 80.8210449 22.6307163 66.2856445 0"></polygon>
+          <path d="M2.07990973e-15,34.5 L2.75821033e-15,45.6307163 L66.25,45.6300259 L80.5832702,23.3692837 L0,23.3692837 L0,34.5 Z" stroke={strokeColor} fill="#F7F7F7"></path>
         </g>
       </g>
     );
   };
 
-  return badgeStyle(x, y);
+  return badgeStyle(x, y, offsetX, offsetY, strokeColor, fillColor);
 };
 
 const ConversionLabelComponent = (props) => {
   const { x, y, datum, textStyle } = props;
-  const textPosition = { x: x - 7, y: y + 2};
+  const textPosition = { x: x - 7, y: y + 2 };
 
-  const arrowDirection = (parseFloat(datum.conversion) > 0) ? "rotate(90.0)" : "rotate(-90.0)";
+  const arrowDirection = (parseFloat(datum.conversion) > 0) ? 'rotate(90.0)' : 'rotate(-90.0)';
   // public/admin/images/arrow-black.svg
   const arrowCopy = (
-    <svg width="11px" height="10px" viewBox="0 0 11 10" x={textPosition.x - 6} y={textPosition.y - 4}>
+    <svg width="11px" height="10px" viewBox="0 0 11 10" x={textPosition.x - 6} y={textPosition.y - 4.5}>
       <g stroke="none" strokeWidth="1" fill="none" fillRule="evenodd" transform="scale(0.45)">
         <g transform="translate(-271.000000, -457.000000)" fill="#000000">
           <g transform="translate(261.000000, 450.000000)">
@@ -73,69 +65,81 @@ export default class ProductConversionToolTip extends React.Component {
 
   static defaultEvents = VictoryTooltip.defaultEvents;
 
-  props: Props;
+  static defaultProps = {
+    dy: -10,
+  };
 
   get tooltips() {
-    const { barWidth, getDelta, datum, getConversion } = this.props;
+    const {
+      dy,
+      datum,
+      toolTipColor,
+      getDelta, getConversion,
+      deltaToolTipCoordinates, deltaToolTipStyles,
+      conversionToolTipOffsetCoordinates, conversionToolTipStyles
+    } = this.props;
 
     const toolTipFlyoutStyle = {
       opacity: 0,
     };
     const toolTipStyle = {
-      fontSize: 6,
+      fontSize: 8,
+      fill: toolTipColor,
     };
 
-    const deltaToolTipFlyoutStyle = {
-      stroke: '#363636',
-      fill: '#3A4350',
-    };
     const deltaToolTipStyle = {
-      fill: '#FFFFFF',
-      fontSize: 6,
+      fill: deltaToolTipStyles.textColor,
+      fontSize: deltaToolTipStyles.fontSize,
     };
+
     const conversionToolTipStyle = {
-      fill: '#3A4350',
-      fontSize: 6,
+      fill: conversionToolTipStyles.textColor,
+      fontSize: conversionToolTipStyles.fontSize,
     };
 
     const deltaValue = getDelta(datum);
     const conversionValue = getConversion(datum);
 
     const deltaToolTipPosition = {
-      dx: barWidth * 1.3,
-      y: 180,
+      dx: deltaToolTipCoordinates.x,
+      y: deltaToolTipCoordinates.y,
     };
 
-    const deltaToolTip = !_.isNil(deltaValue) ?
+    const deltaToolTip = (deltaValue > 0) ?
       (
         <g>
           <VictoryTooltip
             {...this.props}
             cornerRadius={0}
-            flyoutStyle={deltaToolTipFlyoutStyle}
-            flyoutComponent={<DeltaFlyout />}
+            flyoutComponent={
+              <DeltaFlyout
+                offsetX={deltaToolTipCoordinates.offsetX}
+                offsetY={deltaToolTipCoordinates.offsetY}
+                fillColor={deltaToolTipStyles.fill}
+                strokeColor={deltaToolTipStyles.borderColor} />
+            }
             style={deltaToolTipStyle}
             pointerLength={7}
             pointerWidth={19}
             dx={deltaToolTipPosition.dx}
             y={deltaToolTipPosition.y}
-            text={`${deltaValue}%`}
+            text={`${deltaValue} %`}
             orientation="left"
             labelComponent={
               <VictoryLabel 
-                dy={1.4} 
-                dx={2} 
-              />
+                dx={deltaToolTipCoordinates.deltaTextDx}
+                dy={deltaToolTipCoordinates.deltaTextDy} />
             }
             active={true}
             renderInPortal={false}
-            />
+          />
           <VictoryTooltip
             {...this.props}
             flyoutStyle={toolTipFlyoutStyle}
             style={conversionToolTipStyle}
-            dx={deltaToolTipPosition.dx - 56}
-            y={deltaToolTipPosition.y + 36}
+            dx={deltaToolTipPosition.dx + conversionToolTipOffsetCoordinates.dx}
+            y={deltaToolTipPosition.y + conversionToolTipOffsetCoordinates.y}
+            text={`${conversionValue}%`}
             labelComponent={
               <ConversionLabelComponent
                 textStyle={conversionToolTipStyle}
@@ -143,7 +147,7 @@ export default class ProductConversionToolTip extends React.Component {
             }
             active={true}
             renderInPortal={false}
-            />
+          />
         </g>
       )
       : false;
@@ -155,7 +159,7 @@ export default class ProductConversionToolTip extends React.Component {
           flyoutStyle={toolTipFlyoutStyle}
           style={toolTipStyle}
           pointerLength={0}
-          dy={-10}
+          dy={dy}
           active={true}
           renderInPortal={false}
         />
@@ -168,3 +172,4 @@ export default class ProductConversionToolTip extends React.Component {
     return this.tooltips;
   }
 }
+
