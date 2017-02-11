@@ -1,5 +1,5 @@
 
-.sku-cell {
+.variant-cell {
   position: relative;
 
   & :global(.fc-text-input) {
@@ -7,7 +7,7 @@
   }
 }
 
-.skus-menu {
+.variants-menu {
   max-height: 350px;
   overflow-y: auto;
   overflow-x: hidden;
@@ -27,7 +27,7 @@
   }
 }
 
-.sku-item {
+.variant-row {
   padding: 12px;
   cursor: pointer;
   &:hover {
@@ -47,6 +47,7 @@
 .no-image-text {
   font-weight: 600;
   color: #9BA3A7;
+  padding: 0 10px;
 }
 
 .image-cell {
@@ -58,8 +59,32 @@
 }
 
 .variant-value {
-  background-color: #d9d9d9;
-  border: 1px solid #ced2d5;
-  padding: 10px;
+  padding: 0 10px;
   white-space: nowrap;
+}
+
+.price {
+  max-width: 120px;
+
+  & :global(.fc-prepend-input__input-field) {
+    width: 100%;
+  }
+}
+.sku-link {
+  color: #484848;
+  padding: 0 10px;
+
+  &:hover {
+    color: #4fc2c9;
+  }
+}
+
+.delete-icon {
+  cursor: pointer;
+  margin: 0 5px 0 14px;
+}
+
+.state-cell {
+  display: flex;
+  align-items: center;
 }

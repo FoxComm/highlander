@@ -27,7 +27,7 @@ export default class ProductVariantDetails extends ObjectDetails {
 
   get skuField(): Element {
     const skuCode = _.get(this.props.object, 'attributes.code.v');
-    const skuId = this.props.object.middlewarehouseSkuId;
+    const skuId = this.props.object.skuId;
 
     const field = (
       <Link to="sku-details" params={{skuId: skuId}}>{skuCode}</Link>

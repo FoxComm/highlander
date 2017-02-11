@@ -1,5 +1,5 @@
 
-import type { TSearchViewAlbum } from './album-es';
+import type { TSearchViewAlbum } from './album';
 
 type MaybeString = ?string;
 

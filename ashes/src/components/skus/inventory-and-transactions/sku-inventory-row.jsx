@@ -7,7 +7,7 @@ import React, { PropTypes } from 'react';
 import { Link } from 'components/link';
 import ExpandableRow from 'components/table/expandable-row';
 
-import type { WarehouseInventorySummary } from 'modules/inventory/warehouses';
+import type { WarehouseInventorySummary } from 'modules/skus/warehouses';
 
 const setCellContents = (skuId, warehouse, field, params) => {
   switch (field) {

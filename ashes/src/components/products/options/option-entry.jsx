@@ -107,7 +107,7 @@ class OptionEntry extends Component {
   }
 
   @autobind
-  editValue(id: string|number, value?: OptionValue = {name: '', swatch: '', image: '', skuCodes: []}): void {
+  editValue(id: string|number, value?: OptionValue = {name: '', swatch: '', image: '', skus: []}): void {
     const editValue = { id, value };
 
     this.setState({editValue});

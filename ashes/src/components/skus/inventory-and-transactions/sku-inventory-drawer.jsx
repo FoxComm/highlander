@@ -12,9 +12,9 @@ import TableRow from 'components/table/row';
 import AdjustQuantity from 'components/forms/adjust-quantity';
 import Currency from 'components/common/currency';
 
-import * as WarehousesActions from 'modules/inventory/warehouses';
+import * as WarehousesActions from 'modules/skus/warehouses';
 
-import type { StockItemFlat } from 'modules/inventory/warehouses';
+import type { StockItemFlat } from 'modules/skus/warehouses';
 
 type State = {
   popupOpenedFor: string|null,

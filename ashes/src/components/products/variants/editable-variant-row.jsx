@@ -5,19 +5,20 @@ import { autobind } from 'core-decorators';
 import _ from 'lodash';
 import { connect } from 'react-redux';
 import { makeLocalStore, addAsyncReducer } from '@foxcomm/wings';
-import styles from './editable-sku-row.css';
+import styles from './editable-variant-row.css';
 
 import { FormField } from 'components/forms';
 import CurrencyInput from 'components/forms/currency-input';
 import MultiSelectRow from 'components/table/multi-select-row';
 import LoadingInputWrapper from 'components/forms/loading-input-wrapper';
-import { DeleteButton } from 'components/common/buttons';
+import { Link } from 'components/link';
+import StateDropdown from 'components/object-page/state-dropdown';
 
-import reducer, { suggestSkus } from 'modules/product-variants/suggest';
-import type { SuggestOptions } from 'modules/product-variants/suggest';
+import reducer, { suggestSkus } from 'modules/skus/suggest';
 import type { ProductVariant } from 'modules/product-variants/details';
-import type { ProductVariant as SearchViewProductVariant } from 'modules/product-variants/list';
-import { productVariantId } from 'paragons/product';
+import { productVariantCode } from 'paragons/product';
+
+import type { StateChangeEvent } from 'components/object-page/state-dropdown';
 
 type Column = {
   field: string,
@@ -26,29 +27,28 @@ type Column = {
 
 type Props = {
   columns: Array<Column>,
-  sku: ProductVariant,
+  productVariant: ProductVariant,
   index: number,
   params: Object,
-  skuContext: string,
-  updateField: (code: string, field: string, value: any) => void,
-  updateFields: (code: string, toUpdate: Array<Array<any>>) => void,
+  updateField: (id: string, field: string, value: any) => void,
+  updateFields: (id: string, toUpdate: Array<Array<any>>) => void,
   onDeleteClick: (id: string) => void,
   isFetchingSkus: boolean,
-  variantsSkusIndex: Object,
-  suggestSkus: (code: string, context?: SuggestOptions) => Promise,
-  suggestedSkus: Array<SearchViewProductVariant>,
+  skuOptionsMap: Object,
+  suggestSkus: (code: string) => Promise,
+  suggestedSkus: Array<TSearchViewSku>,
   options: Array<any>,
 };
 
 type State = {
-  sku: { [key:string]: string },
+  variant: { [key:string]: string },
   isMenuVisible: boolean,
   codeError?: Object,
 };
 
 function mapLocalStateToProps(state) {
   return {
-    isFetchingSkus: _.get(state.asyncActions, 'skus-suggest.inProgress', false),
+    isFetchingSkus: _.get(state.asyncActions, 'suggestSkus.inProgress', false),
     suggestedSkus: _.get(state, 'skus', []),
   };
 }
@@ -57,25 +57,17 @@ function stop(event: SyntheticEvent) {
   event.stopPropagation();
 }
 
-function pickSkuAttrs(searchViewProductVariant: SearchViewProductVariant) {
-  const sku = _.pick(searchViewProductVariant, ['title', 'context']);
-  sku.salePrice = {
-    value: Number(searchViewProductVariant.salePrice),
-    currency: searchViewProductVariant.salePriceCurrency,
+function pickProductVariantAttrs(sku: TSearchViewSku) {
+  return {
+    code: sku.sku,
   };
-  sku.retailPrice = {
-    value: Number(searchViewProductVariant.retailPrice),
-    currency: searchViewProductVariant.retailPriceCurrency,
-  };
-  sku.code = searchViewProductVariant.skuCode;
-  return sku;
 }
 
-class EditableSkuRow extends Component {
+class EditableVariantRow extends Component {
   props: Props;
 
   state: State = {
-    sku: {},
+    variant: {},
     isMenuVisible: false,
   };
 
@@ -103,7 +95,7 @@ class EditableSkuRow extends Component {
   @autobind
   handleValidationErrors(event) {
     const codeError = _.find(event.errors, error => {
-      return error.path == `skus.${this.props.index}.attributes.code`;
+      return error.path == `variants.${this.props.index}.attributes.code`;
     });
     if (codeError) {
       event.preventSave();
@@ -128,26 +120,27 @@ class EditableSkuRow extends Component {
     if (!_.isEmpty(props.suggestedSkus)) {
       const matchedSku = _.find(props.suggestedSkus, {code: this.skuCodeValue.toUpperCase()});
       if (matchedSku) {
-        this.updateAttrsBySVProductVariant(matchedSku);
+        this.updateAttrsBySku(matchedSku);
       }
     }
   }
 
   @autobind
-  priceCell(sku: ProductVariant, field: string): Element {
-    const value = _.get(this.state.sku, [field, 'value']) || _.get(sku, ['attributes', field, 'v', 'value']);
-    const currency = _.get(sku, ['attributes', field, 'v', 'currency'], 'USD');
+  priceCell(productVariant: ProductVariant, field: string): Element {
+    const value = _.get(this.state.variant, [field, 'value'])
+      || _.get(productVariant, ['attributes', field, 'v', 'value']);
+    const currency = _.get(productVariant, ['attributes', field, 'v', 'currency'], 'USD');
     const onChange = (value) => this.handleUpdatePrice(field, value, currency);
     return (
-      <div className="fc-editable-sku-row__price">
+      <div styleName="price">
         <CurrencyInput value={value} currency={currency} onChange={onChange} />
       </div>
     );
   }
 
   @autobind
-  upcCell(sku: ProductVariant): Element {
-    const value = this.state.sku.upc || _.get(sku, 'attributes.upc.v');
+  upcCell(productVariant: ProductVariant): Element {
+    const value = this.state.variant.upc || _.get(productVariant, 'attributes.upc.v');
     return (
       <FormField>
         <input type="text" value={value} onChange={this.handleUpdateUpc} />
@@ -155,28 +148,26 @@ class EditableSkuRow extends Component {
     );
   }
 
-  get code(): string {
-    return productVariantId(this.props.sku);
+  get variantId(): string {
+    return productVariantCode(this.props.productVariant);
   }
 
   suggestSkus(text: string): Promise|void {
-    return this.props.suggestSkus(text, {
-      context: this.props.skuContext
-    });
+    return this.props.suggestSkus(text);
   }
 
-  updateAttrsBySVProductVariant(searchViewProductVariant: SearchViewProductVariant) {
-    this.updateSku(pickSkuAttrs(searchViewProductVariant));
+  updateAttrsBySku(sku: TSearchViewSku) {
+    this.updateVariant(pickProductVariantAttrs(sku));
   }
 
   @autobind
-  handleSelectSku(searchViewProductVariant: SearchViewProductVariant) {
-    this.closeSkusMenu(
-      () => this.updateAttrsBySVProductVariant(searchViewProductVariant)
+  handleSelectSku(sku: TSearchViewSku) {
+    this.closeVariantsMenu(
+      () => this.updateAttrsBySku(sku)
     );
   }
 
-  closeSkusMenu(callback: Function = _.noop) {
+  closeVariantsMenu(callback: Function = _.noop) {
     this.setState({
       isMenuVisible: false
     }, callback);
@@ -186,11 +177,11 @@ class EditableSkuRow extends Component {
     return (
       <li
         id="create-new-sku-item"
-        styleName="sku-item"
+        styleName="variant-row"
         className="_new"
-        onMouseDown={() => this.closeSkusMenu() }>
+        onMouseDown={() => this.closeVariantsMenu() }>
         <div>New SKU</div>
-        <strong>{this.state.sku.code}</strong>
+        <strong>{this.state.variant.code}</strong>
       </li>
     );
   }
@@ -198,14 +189,14 @@ class EditableSkuRow extends Component {
   get menuItemsContent(): Array<Element> {
     const items = this.props.suggestedSkus;
 
-    return items.map((pv: SearchViewProductVariant) => {
+    return items.map((sku: TSearchViewSku) => {
       return (
         <li
-          id={`search-view-${pv.skuCode}`}
-          styleName="sku-item"
-          onMouseDown={() => { this.handleSelectSku(pv); }}
-          key={`item-${pv.id}`}>
-          <strong>{pv.skuCode}</strong>
+          id={`search-view-${sku.sku}`}
+          styleName="variant-row"
+          onMouseDown={() => { this.handleSelectSku(sku); }}
+          key={`row-${sku.sku}`}>
+          <strong>{sku.sku}</strong>
         </li>
       );
     });
@@ -219,23 +210,30 @@ class EditableSkuRow extends Component {
     const className = openMenu ? '_visible' : void 0;
 
     return (
-      <ul styleName="skus-menu" className={className} onMouseEnter={stop}>
+      <ul styleName="variants-menu" className={className} onMouseEnter={stop}>
         {content}
       </ul>
     );
   }
 
   get skuCodeValue(): string {
-    const code = _.get(this.props, 'sku.attributes.code.v');
-    return this.state.sku.code || code || '';
+    const code = _.get(this.props, 'productVariant.attributes.code.v');
+    return this.state.variant.code || code || '';
   }
 
-  skuCell(sku: ProductVariant): Element {
-    const code = _.get(this.props, 'sku.attributes.code.v');
+  skuCell(productVariant: ProductVariant): Element {
+    const code = _.get(productVariant, 'attributes.code.v');
+    if (productVariant.skuId && productVariant.id) {
+      return (
+        <Link to="sku-details" styleName="sku-link" params={{skuId: productVariant.skuId}}>
+          {code}
+        </Link>
+      );
+    }
     const { codeError } = this.state;
     const error = codeError ? `SKU Code violates constraint: ${codeError.keyword}` : void 0;
     return (
-      <div styleName="sku-cell">
+      <div styleName="variant-cell">
         <FormField error={error} scrollToErrors>
           <LoadingInputWrapper inProgress={this.props.isFetchingSkus}>
             <input
@@ -252,10 +250,10 @@ class EditableSkuRow extends Component {
     );
   }
 
-  imageCell(sku: ProductVariant): Element {
-    const imageObject = _.get(sku, ['albums', 0, 'images', 0]);
+  imageCell(productVariant: ProductVariant): Element {
+    const imageObject = _.get(productVariant, ['albums', 0, 'images', 0]);
 
-    if (!_.isEmpty(imageObject)) {
+    if (imageObject) {
       return (
         <div styleName="image-cell">
           <img {...imageObject} styleName="cell-thumbnail" />
@@ -268,60 +266,83 @@ class EditableSkuRow extends Component {
     );
   }
 
-  optionCell(field: any, sku: ProductVariant): ?Element {
+  optionCell(field: any, productVariant: ProductVariant): ?Element {
     if (field.indexOf('variant') < 0) {
       return null;
     }
 
     const idx = parseInt(field);
-    const mapping = this.props.variantsSkusIndex;
+    const mapping = this.props.skuOptionsMap;
 
     const option = _.get(this.props.options, idx, {});
     const optionName = _.get(option, 'attributes.name.v');
-    const skuAttributeCode = _.get(sku, 'attributes.code.v');
-    const skuCode = sku.feCode || skuAttributeCode;
+    const variantCode = productVariantCode(productVariant);
 
-    const optionValue = _.get(mapping, [skuCode, optionName]);
+    const optionValue = _.get(mapping, [variantCode, optionName]);
 
     return (
       <div styleName="variant-value">{optionValue}</div>
     );
   }
 
-  actionsCell(sku: ProductVariant): ?Element {
-    const skuCode = sku.feCode || _.get(sku.attributes, 'code.v');
+  @autobind
+  handleStateChange(event: StateChangeEvent) {
+    this.updateVariant({
+      activeFrom: event.activeFrom,
+      activeTo: event.activeTo,
+    });
+  }
+
+  deleteIcon(productVariant: ProductVariant): ?Element {
+    const variantCode = productVariantCode(productVariant);
     const skuValue = this.skuCodeValue;
 
     if (!_.isEmpty(this.props.options) || skuValue) {
       return (
-        <DeleteButton onClick={() => this.props.onDeleteClick(skuCode)}/>
+        <i
+          className="icon-trash"
+          styleName="delete-icon"
+          onClick={() => this.props.onDeleteClick(variantCode)}
+        />
       );
     }
   }
 
+  stateCell(productVariant: ProductVariant): Element {
+    return (
+      <div styleName="state-cell">
+        <StateDropdown
+          attributes={productVariant.attributes}
+          onChange={this.handleStateChange}
+        />
+        {this.deleteIcon(productVariant)}
+      </div>
+    );
+  }
+
   @autobind
-  setCellContents(sku: ProductVariant, field: string): any {
+  setCellContents(productVariant: ProductVariant, field: string): any {
     switch(field) {
       case 'sku':
-        return this.skuCell(sku);
+        return this.skuCell(productVariant);
       case 'retailPrice':
       case 'salePrice':
-        return this.priceCell(sku, field);
+        return this.priceCell(productVariant, field);
       case 'upc':
-        return this.upcCell(sku);
+        return this.upcCell(productVariant);
       case 'image':
-        return this.imageCell(sku);
-      case 'actions':
-        return this.actionsCell(sku);
+        return this.imageCell(productVariant);
+      case 'state':
+        return this.stateCell(productVariant);
       default:
-        return this.optionCell(field, sku);
+        return this.optionCell(field, productVariant);
     }
   }
 
   @autobind
   handleUpdateCode({ target }: Object) {
     const { value } = target;
-    this.updateSku({
+    this.updateVariant({
       code: value,
     });
     const promise = this.suggestSkus(value);
@@ -332,20 +353,20 @@ class EditableSkuRow extends Component {
     }
   }
 
-  updateSku(values: {[key: string]: any}) {
+  updateVariant(values: {[key: string]: any}) {
     this.setState({
-      sku: Object.assign({}, this.state.sku, values),
+      variant: Object.assign({}, this.state.variant, values),
     }, () => {
       const toUpdate = _.map(values, (value: any, field: string) => {
         return [field, value];
       });
-      this.props.updateFields(this.code, toUpdate);
+      this.props.updateFields(this.variantId, toUpdate);
     });
   }
 
   @autobind
   handleUpdatePrice(field: string, value: string, currency: string) {
-    this.updateSku({
+    this.updateVariant({
       [field]: {
         currency,
         value: Number(value),
@@ -357,20 +378,21 @@ class EditableSkuRow extends Component {
   handleUpdateUpc({target}: Object) {
     const value = target.value;
 
-    this.updateSku({
+    this.updateVariant({
       upc: value,
     });
   }
 
   render(): Element {
-    const { columns, sku, params } = this.props;
+    const { columns, productVariant, params } = this.props;
 
     return (
       <MultiSelectRow
         columns={columns}
-        row={sku}
+        row={productVariant}
         params={params}
-        setCellContents={this.setCellContents} />
+        setCellContents={this.setCellContents}
+      />
     );
   }
 }
@@ -378,4 +400,4 @@ class EditableSkuRow extends Component {
 export default _.flowRight(
   makeLocalStore(addAsyncReducer(reducer)),
   connect(mapLocalStateToProps, { suggestSkus })
-)(EditableSkuRow);
+)(EditableVariantRow);

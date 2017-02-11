@@ -30,6 +30,7 @@
 [libs]
 src/interfaces/
 src/interfaces/paragons/
+src/interfaces/paragons/es
 
 [options]
 strip_root=true

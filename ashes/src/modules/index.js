@@ -17,7 +17,6 @@ import activityNotifications from './activity-notifications';
 import storeCreditTypes from './store-credit-types';
 import activityTrail from './activity-trail';
 import siteMenu from './site-menu';
-import inventory from './inventory';
 import products from './products';
 import productVariants from './product-variants';
 import skus from './skus';
@@ -52,7 +51,6 @@ const rootReducer = combineReducers({
   activityNotifications,
   activityTrail,
   siteMenu,
-  inventory,
   products,
   productVariants,
   skus,

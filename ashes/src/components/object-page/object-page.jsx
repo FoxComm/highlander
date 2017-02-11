@@ -492,7 +492,7 @@ export class ObjectPage extends Component {
     const props = this.props;
     const { object } = this.state;
 
-    if (props.isFetching !== false || props.isSchemaFetching !== false) {
+    if ((!this.isNew && props.isFetching !== false) || props.isSchemaFetching !== false) {
       return <div><WaitAnimation /></div>;
     }
 

@@ -4,7 +4,7 @@ import Api from 'lib/api';
 import { createReducer, createAction } from 'redux-act';
 import { createAsyncActions } from '@foxcomm/wings';
 
-import { pushStockItemChanges } from 'modules/inventory/warehouses';
+import { pushStockItemChanges } from './warehouses';
 
 export const reset = createAction();
 export const clearSubmitErrors = createAction();

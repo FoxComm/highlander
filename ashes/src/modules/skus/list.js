@@ -53,7 +53,7 @@ const searchTerms = [
 ];
 
 const { reducer, actions } = makeLiveSearch(
-  'inventory.list',
+  'skus.list',
   searchTerms,
   'inventory_search_view/_search',
   'inventoryScope',

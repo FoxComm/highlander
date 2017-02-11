@@ -12,7 +12,7 @@ import { createAsyncActions } from '@foxcomm/wings';
 // Cart Manipulation Actions
 
 type UpdateLineItemPayload = {
-  sku: string;
+  productVariantId: number;
   quantity: number;
   attributes: ?Object;
 }
@@ -51,9 +51,10 @@ const _updateLineItemCount = createAsyncActions(
 );
 
 export function updateLineItemCount(
-  refNum: string, skuCode: string, quantityDiff: number, attributes: ?Object
+  refNum: string, productVariantId: number, quantityDiff: number, attributes: ?Object
 ): Promise {
-  return _updateLineItemCount.perform(refNum, [{ sku: skuCode, quantity: quantityDiff, attributes }]);
+  const payload = [{ productVariantId, quantity: quantityDiff, attributes }];
+  return _updateLineItemCount.perform(refNum, payload);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
