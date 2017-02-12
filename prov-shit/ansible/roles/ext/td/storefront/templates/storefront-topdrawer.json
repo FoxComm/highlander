@@ -1,5 +1,5 @@
 {
-  "id": "/storefront-topdrawer",
+  "id": "/{{app_name}}",
   "cmd": null,
   "cpus": 1,
   "mem": 1024,
