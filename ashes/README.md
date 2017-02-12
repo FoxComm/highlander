@@ -98,24 +98,3 @@ make hooks
 
 Now, installed hook runs tests and prevents push if they haven't passed.
 If you prefer skip test run on each file change you can define env variable `ASHES_NO_WATCH_FOR_TEST`.
-
-### Vagrant setup
-
-#### Local
-
-1. Make sure your ashes directory is lowercase 'ashes' and not 'Ashes'
-
-2. Make sure you have [phoenix-scala](https://github.com/FoxComm/phoenix-scala) and [green-river](https://github.com/FoxComm/green-river) checked out
-
-3. Checkout the [Provisioning Repository](https://github.com/FoxComm/prov-shit) at the same
-   directory level as ashes.
-
-
-  _Ashes can be run through either a VirtualBox or VMWare Fusion provider._
-
-  ```
-  cd prov-shit
-  vagrant up
-  ```
-
-4. Access Ashes at http://192.168.10.111.
