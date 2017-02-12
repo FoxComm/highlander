@@ -273,7 +273,7 @@ const mapState = state => ({
 });
 
 const mapDispatch = (dispatch, props) => {
-  const customerEntries = _.get(props, 'customerGroups.details.customer', []);
+  const customerEntries = _.get(props, 'customerGroups.details.customers', []);
   const customers = _.map(customerEntries, customer => customer.id);
 
   return {

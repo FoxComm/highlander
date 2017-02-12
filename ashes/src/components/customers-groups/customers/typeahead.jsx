@@ -6,7 +6,7 @@ import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
 
 // components
-import Typeahead from 'components/typeahead/typeahead';
+import Typeahead from 'components/typeahead/customers-typeahead-row';
 import PilledInput from 'components/pilled-search/pilled-input';
 import CustomerRow from './customer-row';
 
@@ -26,7 +26,7 @@ type State = {
   selected: Array<Customer>,
 };
 
-export default class GroupsTypeahead extends Component {
+export default class CustomersTypeahead extends Component {
   static defaultProps = {
     hideOnBlur: false,
     maxUsers: Infinity,
