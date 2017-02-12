@@ -82,6 +82,14 @@ storefront_host: "storefront.{{consul_suffix}}"
 storefront_port: 4041
 storefront_server: "{{storefront_host}}:{{storefront_port}}"
 
+storefront_topdrawer_host: "storefront-topdrawer.{{consul_suffix}}"
+storefront_topdrawer_port: 4045
+storefront_topdrawer_server: "{{storefront_topdrawer_host}}:{{storefront_port}}"
+
+storefront_perfectgourmet_host: "storefront-perfectgourmet.{{consul_suffix}}"
+storefront_perfectgourmet_port: 4041
+storefront_perfectgourmet_server: "{{storefront_perfectgourmet_host}}:{{storefront_port}}"
+
 kafka_host: "kafka.{{consul_suffix}}"
 kafka_port: 9092
 kafka_server: "{{kafka_host}}:{{kafka_port}}"

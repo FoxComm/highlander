@@ -31,6 +31,8 @@
         shipments_consumer: "{{ lookup('env', 'DOCKER_TAG_SHIPMENTS_CONSUMER') | default('master') }}"
         shipstation_consumer: "{{ lookup('env', 'DOCKER_TAG_SHIPSTATION_CONSUMER') | default('master') }}"
         stock_items_consumer: "{{ lookup('env', 'DOCKER_TAG_STOCK_ITEMS_CONSUMER') | default('master') }}"
+        storefront_td: "{{ lookup('env', 'DOCKER_TAG_STOREFRONT_TD') | default('master') }}"
+        storefront_tpg: "{{ lookup('env', 'DOCKER_TAG_STOREFRONT_TPG') | default('master') }}"
     install_public_keys: true
     install_private_keys: true
     is_appliance: true
@@ -62,6 +64,8 @@
     - { role: dev/marathon }
     - { role: dev/seeder }
     - { role: dev/marathon, only_consumers: true }
+    - { role: ext/td/storefront }
+    - { role: ext/tpg/storefront }
     # Nginx
     - { role: dev/balancer }
     - { role: hotfix/mesos_consul }

@@ -1,8 +1,8 @@
 {
-  "id": "/storefront",
+  "id": "/storefront-topdrawer",
   "cmd": null,
   "cpus": 1,
-  "mem": 4096,
+  "mem": 1024,
   "disk": 0,
   "instances": 1,
   "labels": {
