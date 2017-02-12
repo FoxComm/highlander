@@ -1,5 +1,8 @@
 ---
 
+- name: Creates Marathon JSON directory
+  file: path=/marathon/applications state=directory
+
 - name: Start Green River
   include: app_greenriver.yml
 

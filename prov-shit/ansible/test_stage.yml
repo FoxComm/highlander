@@ -32,7 +32,7 @@
     - { role: dev/stage_mesos, when: first_run }
     - { role: base/ssh_keys, when: first_run }
     - { role: dev/marathon }
-    - { role: dev/marathon, only_consumers: true }
+    - { role: dev/marathon_consumers }
     - { role: dev/balancer }
     - { role: demo/balancer }
     - { role: dev/seeder, when: first_run }
