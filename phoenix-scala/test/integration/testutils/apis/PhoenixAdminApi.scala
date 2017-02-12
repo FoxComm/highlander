@@ -3,6 +3,7 @@ package testutils.apis
 import akka.http.scaladsl.model.HttpResponse
 import models.objects.ObjectForm
 import models.payment.PaymentMethod
+import models.returns.ReturnLineItem
 import payloads.ActivityTrailPayloads._
 import payloads.AddressPayloads._
 import payloads.AssignmentPayloads._
@@ -225,26 +226,11 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
     object lineItems {
       val requestPath = s"${returns.requestPath}/line-items"
 
-      // TODO consider adding line item type to the payload and specify different payload versions for each
-      object skus {
-        val requestPath = s"${lineItems.requestPath}/skus"
+      def add(payload: ReturnLineItemPayload): HttpResponse =
+        POST(requestPath, payload)
 
-        def add(payload: ReturnSkuLineItemsPayload): HttpResponse =
-          POST(requestPath, payload)
-
-        def delete(lineItemId: Int): HttpResponse =
-          DELETE(s"$requestPath/$lineItemId")
-      }
-
-      object shippingCosts {
-        val requestPath = s"${lineItems.requestPath}/shipping-costs"
-
-        def add(payload: ReturnShippingCostLineItemsPayload): HttpResponse =
-          POST(requestPath, payload)
-
-        def delete(lineItemId: Int): HttpResponse =
-          DELETE(s"$requestPath/$lineItemId")
-      }
+      def remove(lineItemId: Int): HttpResponse =
+        DELETE(s"$requestPath/$lineItemId")
     }
 
     object paymentMethods {

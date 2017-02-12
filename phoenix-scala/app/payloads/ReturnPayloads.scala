@@ -4,9 +4,10 @@ import cats.data._
 import cats.implicits._
 import failures.Failure
 import models.payment.PaymentMethod
-import models.returns.Return
+import models.returns.{Return, ReturnLineItem}
 import models.returns.ReturnLineItem.InventoryDisposition
-import utils.Validation
+import org.json4s.CustomSerializer
+import utils.{ADTTypeHints, Validation}
 import utils.Validation._
 
 object ReturnPayloads {
@@ -25,21 +26,36 @@ object ReturnPayloads {
 
   /* Line item updater payloads */
 
-  case class ReturnSkuLineItemsPayload(sku: String,
-                                       quantity: Int,
-                                       reasonId: Int,
-                                       isReturnItem: Boolean,
-                                       inventoryDisposition: InventoryDisposition)
-      extends Validation[ReturnSkuLineItemsPayload] {
+  sealed trait ReturnLineItemPayload {
+    def reasonId: Int
+  }
+  object ReturnLineItemPayload {
+    def typeHints =
+      ADTTypeHints(
+          Map(
+              ReturnLineItem.GiftCardItem → classOf[ReturnGiftCardLineItemPayload],
+              ReturnLineItem.ShippingCost → classOf[ReturnShippingCostLineItemPayload],
+              ReturnLineItem.SkuItem      → classOf[ReturnSkuLineItemPayload]
+          ))
+  }
 
-    def validate: ValidatedNel[Failure, ReturnSkuLineItemsPayload] = {
+  case class ReturnSkuLineItemPayload(sku: String,
+                                      quantity: Int,
+                                      reasonId: Int,
+                                      isReturnItem: Boolean,
+                                      inventoryDisposition: InventoryDisposition)
+      extends ReturnLineItemPayload
+      with Validation[ReturnSkuLineItemPayload] {
+
+    def validate: ValidatedNel[Failure, ReturnSkuLineItemPayload] = {
       greaterThan(quantity, 0, "Quantity").map { case _ ⇒ this }
     }
   }
 
-  case class ReturnGiftCardLineItemsPayload(code: String, reasonId: Int)
+  case class ReturnGiftCardLineItemPayload(code: String, reasonId: Int)
+      extends ReturnLineItemPayload
 
-  case class ReturnShippingCostLineItemsPayload(reasonId: Int)
+  case class ReturnShippingCostLineItemPayload(reasonId: Int) extends ReturnLineItemPayload
 
   /* Payment payloads */
 

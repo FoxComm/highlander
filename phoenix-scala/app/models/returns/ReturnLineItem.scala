@@ -5,7 +5,7 @@ import java.time.Instant
 import com.pellucid.sealerate
 import models.returns.ReturnLineItem._
 import shapeless._
-import payloads.ReturnPayloads.ReturnSkuLineItemsPayload
+import payloads.ReturnPayloads.ReturnSkuLineItemPayload
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
@@ -25,7 +25,7 @@ case class ReturnLineItem(id: Int = 0,
     extends FoxModel[ReturnLineItem] {}
 
 object ReturnLineItem {
-  sealed trait OriginType
+  sealed trait OriginType extends Product with Serializable
   case object SkuItem      extends OriginType
   case object GiftCardItem extends OriginType
   case object ShippingCost extends OriginType
@@ -36,7 +36,7 @@ object ReturnLineItem {
   case object Recovery     extends InventoryDisposition
   case object Discontinued extends InventoryDisposition
 
-  object OriginType extends ADT[OriginType] {
+  implicit object OriginType extends ADT[OriginType] {
     def types = sealerate.values[OriginType]
   }
 
@@ -47,7 +47,7 @@ object ReturnLineItem {
   def buildSku(rma: Return,
                reason: ReturnReason,
                origin: ReturnLineItemSku,
-               payload: ReturnSkuLineItemsPayload): ReturnLineItem = {
+               payload: ReturnSkuLineItemPayload): ReturnLineItem = {
     ReturnLineItem(
         returnId = rma.id,
         reasonId = reason.id,
