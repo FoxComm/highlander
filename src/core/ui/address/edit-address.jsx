@@ -5,6 +5,7 @@ import React, { Component } from 'react';
 import { autobind, debounce } from 'core-decorators';
 import { connect } from 'react-redux';
 import { createNumberMask } from 'lib/i18n/field-masks';
+import { env } from 'lib/env';
 
 // localization
 import localized, { phoneMask } from 'lib/i18n';
@@ -217,7 +218,7 @@ export default class EditAddress extends Component {
         this.lookupXhr = null;
       }
 
-      this.lookupXhr = makeXhr(`/lookup-zip/usa/${zip}`).then(
+      this.lookupXhr = makeXhr(`${env.URL_PREFIX}/node/lookup-zip/usa/${zip}`).then(
         result => {
           this.setAddressData('city', result.city);
           const currentState = _.find(selectedCountry.regions, region => {

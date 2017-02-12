@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import styles from '../profile.css';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
-import { browserHistory } from 'react-router';
+import { browserHistory } from 'lib/history';
 
 import { Link } from 'react-router';
 import Block from '../common/block';

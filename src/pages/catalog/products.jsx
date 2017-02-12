@@ -4,10 +4,11 @@
 import _ from 'lodash';
 import React, { Component } from 'react';
 import type { HTMLElement } from 'types';
-import { browserHistory } from 'react-router';
+import { browserHistory } from 'lib/history';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import * as actions from 'modules/products';
+import { assetsUrl } from 'lib/env';
 
 // components
 import ProductsList from '../../components/products-list/products-list';
@@ -106,7 +107,7 @@ class Products extends Component {
       : '';
 
     const bgImageStyle = category.imageUrl ?
-    { backgroundImage: `url(${category.imageUrl})` } : {};
+    { backgroundImage: `url(${assetsUrl(category.imageUrl)})` } : {};
 
     const className = `header-${categoryName}`;
 

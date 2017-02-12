@@ -3,7 +3,7 @@
 // libs
 import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
-import { createApi } from 'lib/api';
+import { nodeApi } from 'lib/api';
 
 // components
 import PageTitle from '../../components/cms/page-title';
@@ -26,8 +26,6 @@ type State = {
   sent?: boolean,
   error?: any,
 };
-
-const api = createApi({ api_url: '/local' });
 
 class ContactUsPage extends Component {
   state: State = {
@@ -53,7 +51,7 @@ class ContactUsPage extends Component {
     const { name, email, phone, subject, text } = this.state;
 
     this.setState({ sending: true, sent: false, error: null });
-    api
+    nodeApi
       .post('/contact-feedback', {
         name, email, phone, subject, text,
       })

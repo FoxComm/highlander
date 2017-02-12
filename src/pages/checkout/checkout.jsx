@@ -5,7 +5,7 @@ import _ from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
-import { browserHistory } from 'react-router';
+import { browserHistory } from 'lib/history';
 import * as tracking from 'lib/analytics';
 import { emailIsSet, isGuest } from 'paragons/auth';
 

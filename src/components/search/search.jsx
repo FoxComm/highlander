@@ -3,7 +3,7 @@
 import React, { Component } from 'react';
 import classNames from 'classnames';
 import type { HTMLElement } from 'types';
-import { browserHistory } from 'react-router';
+import { browserHistory } from 'lib/history';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import { Product } from 'modules/products';

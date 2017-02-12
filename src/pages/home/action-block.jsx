@@ -3,6 +3,7 @@
 // libs
 import React from 'react';
 import { Link } from 'react-router';
+import { assetsUrl } from 'lib/env';
 
 // styles
 import styles from './action-block.css';
@@ -19,7 +20,7 @@ type Props = {
 
 
 const ActionBlock = (props: Props) => {
-  const bgImageStyle = { backgroundImage: `url(${props.imageUrl})` };
+  const bgImageStyle = { backgroundImage: `url(${assetsUrl(props.imageUrl)})` };
   const { description, title, action } = props;
 
   return (

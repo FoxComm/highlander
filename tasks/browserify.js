@@ -65,6 +65,7 @@ module.exports = function(gulp, $, opts) {
       FIREBIRD_LANGUAGE: process.env.FIREBIRD_LANGUAGE,
       FIREBIRD_CONTEXT: process.env.FIREBIRD_CONTEXT,
       API_URL: process.env.API_URL,
+      URL_PREFIX: process.env.URL_PREFIX,
     }));
 
     bundler.plugin(require('css-modulesify'), Object.assign({

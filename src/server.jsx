@@ -2,7 +2,7 @@ import React from 'react';
 import { renderToString } from 'react-dom/server';
 import { match, RouterContext } from 'react-router';
 import createHistory from 'history/lib/createMemoryHistory';
-import { useQueries } from 'history';
+import { useQueries, useBasename } from 'history';
 import { Provider } from 'react-redux';
 
 import makeStore from './store';
@@ -10,21 +10,17 @@ import makeRoutes from './routes';
 import I18nProvider from 'lib/i18n/provider';
 import renderPage from '../build/main.html';
 
-const createServerHistory = useQueries(createHistory);
+const createServerHistory = useQueries(useBasename(createHistory));
 
 function getAssetsNames() {
   let appJs = 'app.js';
   let appCss = 'app.css';
 
   if (process.env.NODE_ENV === 'production') {
-    try {
-      const revManifest = require('../build/rev-manifest.json');
+    const revManifest = require('../build/rev-manifest.json');
 
-      appJs = revManifest['app.js'];
-      appCss = revManifest['app.css'];
-    } catch (e) {
-      console.error('rev-manifest.json not found');
-    }
+    appJs = revManifest['app.js'];
+    appCss = revManifest['app.css'];
   }
 
   return { appJs, appCss };
@@ -33,7 +29,10 @@ function getAssetsNames() {
 const assetsNames = getAssetsNames();
 
 export default function *renderReact() {
-  const history = createServerHistory(this.url);
+  const history = createServerHistory({
+    entries: [this.url],
+    basename: process.env.URL_PREFIX || null,
+  });
 
   const authHeader = this.get('Authorization');
 
@@ -66,9 +65,13 @@ export default function *renderReact() {
       html: appHtml,
       state: JSON.stringify(store.getState()),
       i18n: JSON.stringify(i18n),
-      stripeApiKey: JSON.stringify(process.env.STRIPE_PUBLISHABLE_KEY || null),
       appJs,
       appCss,
+      urlPrefix: process.env.URL_PREFIX,
+      env: JSON.stringify({
+        URL_PREFIX: process.env.URL_PREFIX,
+        STRIPE_PUBLISHABLE_KEY: process.env.STRIPE_PUBLISHABLE_KEY || null,
+      }),
     });
   }
 }

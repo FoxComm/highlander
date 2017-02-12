@@ -1,6 +1,7 @@
 /* @flow */
 
 import React from 'react';
+import { assetsUrl } from 'lib/env';
 
 import styles from './cooking-block.css';
 
@@ -31,7 +32,7 @@ const cookingData = [
 
 const cookingSections = cookingData.map(({ imgUrl, title, description }, i) => (
   <div styleName="section" key={i}>
-    <img styleName="section-img" src={imgUrl} />
+    <img styleName="section-img" src={assetsUrl(imgUrl)} />
     <div styleName="section-title">{title}</div>
     <div styleName="section-description">{description}</div>
   </div>
