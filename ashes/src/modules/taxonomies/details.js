@@ -20,28 +20,28 @@ const clearTaxonomy = createAction('TAXONOMY_CLEAR');
 const _fetchTaxonomy = createAsyncActions(
   'fetchTaxonomy',
   (id: number, context: string = defaultContext) => {
-    return Api.get(`/taxonomy/${defaultContext}/${id}`);
+    return Api.get(`/taxonomies/${defaultContext}/${id}`);
   }
 );
 
 const _createTaxonomy = createAsyncActions(
   'createTaxonomy',
   (taxonomy: Taxonomy, context: string = defaultContext) => {
-    return Api.post(`/taxonomy/${context}`, taxonomy);
+    return Api.post(`/taxonomies/${context}`, taxonomy);
   }
 );
 
 const _updateTaxonomy = createAsyncActions(
   'updateTaxonomy',
   (taxonomy: Taxonomy, context: string = defaultContext) => {
-    return Api.patch(`/taxonomy/${context}/${taxonomy.id}`, taxonomy);
+    return Api.patch(`/taxonomies/${context}/${taxonomy.id}`, taxonomy);
   }
 );
 
 const _archiveTaxonomy = createAsyncActions(
   'archiveTaxonomy',
   (id: number, context: string = defaultContext) => {
-    return Api.delete(`/taxonomy/${context}/${id}`);
+    return Api.delete(`/taxonomies/${context}/${id}`);
   }
 );
 

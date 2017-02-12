@@ -17,6 +17,7 @@ export const frn = {
   },
   merch: {
     taxonomy: 'frn:merch:taxonomy',
+    taxon: 'frn:merch:taxon',
   },
   mkt: {
     coupon: 'frn:mkt:coupon',

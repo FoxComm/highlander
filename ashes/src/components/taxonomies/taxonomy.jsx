@@ -109,6 +109,11 @@ class TaxonomyPage extends Component {
       to: 'taxonomy-details',
       params: this.props.params,
       key: 'taxonomy-details-link',
+    }, {
+      title: 'Values',
+      to: 'taxons',
+      params: this.props.params,
+      key: 'taxons-list-link',
     }];
   }
 
