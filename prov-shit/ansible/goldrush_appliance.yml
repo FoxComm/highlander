@@ -51,7 +51,7 @@
         ashes_server_name: "{{dns_record}}.{{foxcomm_domain}}"
         storefront_server_name: "{{dns_record}}.{{foxcomm_domain}}"
   roles:
-    Core
+    # Core
     - { role: dev/appliance }
     - { role: dev/dashboard }
     # Services
