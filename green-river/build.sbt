@@ -1,6 +1,6 @@
 lazy val commonSettings = Seq(
   version       := "1.0",
-  scalaVersion  := "2.11.8",
+  scalaVersion  := "2.12.1",
   updateOptions := updateOptions.value.withCachedResolution(true),
   scalacOptions ++= List(
     "-encoding", "UTF-8",
@@ -29,9 +29,10 @@ lazy val greenRiver = (project in file(".")).
       "confluent" at "http://packages.confluent.io/maven"
     ),
     libraryDependencies ++= {
-      val akkaV      = "2.4.4"
+      val akkaV      = "2.4.16"
+      val akkaHttpV  = "10.0.0"
       val scalaTestV = "3.0.1"
-      val json4sV    = "3.3.0"
+      val json4sV    = "3.5.0"
 
       Seq(
         // Config
@@ -45,16 +46,16 @@ lazy val greenRiver = (project in file(".")).
         // Search
         "org.apache.kafka"          % "kafka_2.11"                % "0.9.0.1",
         "io.confluent"              % "kafka-avro-serializer"     % "1.0",
-        "com.sksamuel.elastic4s"    %% "elastic4s-core"           % "2.3.0",
+        "com.sksamuel.elastic4s"    %% "elastic4s-core"           % "5.1.5",
         // Akka
         "com.typesafe.akka"         %% "akka-slf4j"               % akkaV,
         "com.typesafe.akka"         %% "akka-actor"               % akkaV,
         "com.typesafe.akka"         %% "akka-agent"               % akkaV,
         "com.typesafe.akka"         %% "akka-stream"              % akkaV,
-        "com.typesafe.akka"         %% "akka-http-core"           % akkaV,
-        "de.heikoseeberger"         %% "akka-http-json4s"         % "1.6.0",
+        "com.typesafe.akka"         %% "akka-http-core"           % akkaHttpV,
+        "de.heikoseeberger"         %% "akka-http-json4s"         % "1.11.0",
         // Cats
-        "org.typelevel"             %% "cats"                     % "0.5.0",
+        "org.typelevel"             %% "cats"                     % "0.9.0",
         // Testing
         "org.scalatest"             %% "scalatest"                % scalaTestV % "test"
       )

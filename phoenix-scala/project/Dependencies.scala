@@ -1,15 +1,16 @@
 import sbt._
 
 object Versions {
-  val scala = "2.11.8"
+  val scala = "2.12.1"
   // This is a patched version found here:
   // https://github.com/kwark/slick/blob/3.1-deadlock/README.md
   // Fixes a critical deadlock in slick.
   // Change once lands in mainline.
-  val slick     = "3.1.1.2"
-  val json4s    = "3.4.0"
-  val akka      = "2.4.7"
-  val slickPg   = "0.14.2"
+  val slick     = "3.2.0-M2"
+  val json4s    = "3.5.0"
+  val akka      = "2.4.16"
+  val akkaHttp =  "10.0.1"
+  val slickPg   = "0.15.0-M3"
   val gatling   = "2.2.1"
   val dispatch  = "0.11.3"
   val fasterxml = "2.8.2"
@@ -24,8 +25,8 @@ object Dependencies {
     "com.typesafe.akka" %% "akka-actor"     % Versions.akka,
     "com.typesafe.akka" %% "akka-agent"     % Versions.akka,
     "com.typesafe.akka" %% "akka-stream"    % Versions.akka,
-    "com.typesafe.akka" %% "akka-http-core" % Versions.akka,
-    "de.heikoseeberger" %% "akka-sse"       % "1.8.1"
+    "com.typesafe.akka" %% "akka-http-core" % Versions.akkaHttp,
+    "de.heikoseeberger" %% "akka-sse"       % "2.0.0"
   )
 
   val slick = Seq(
@@ -41,7 +42,7 @@ object Dependencies {
     "org.json4s"        %% "json4s-core"      % Versions.json4s,
     "org.json4s"        %% "json4s-jackson"   % Versions.json4s,
     "org.json4s"        %% "json4s-ext"       % Versions.json4s,
-    "de.heikoseeberger" %% "akka-http-json4s" % "1.7.0"
+    "de.heikoseeberger" %% "akka-http-json4s" % "1.11.0"
   )
 
   val gatling = Seq(
@@ -55,19 +56,19 @@ object Dependencies {
     "com.zaxxer"          % "HikariCP"          % "2.4.7" % "provided",
     "org.postgresql"      % "postgresql"        % "9.4.1208",
     "org.flywaydb"        % "flyway-core"       % "4.0.3",
-    "com.github.mauricio" %% "postgresql-async" % "0.2.20"
+    "com.github.mauricio" %% "postgresql-async" % "0.2.21"
   )
 
   val apis = Seq(
-    "com.sksamuel.elastic4s" %% "elastic4s-core" % "2.3.0",
+    "com.sksamuel.elastic4s" %% "elastic4s-core" % "5.1.5",
     "com.amazonaws"          % "aws-java-sdk"    % "1.11.15",
     "com.stripe"             % "stripe-java"     % "2.7.0"
   )
 
   val logging = Seq(
     "ch.qos.logback"             % "logback-classic" % "1.1.7",
-    "com.typesafe.scala-logging" %% "scala-logging"  % "3.4.0",
-    "com.lihaoyi"                %% "sourcecode"     % "0.1.1",
+    "com.typesafe.scala-logging" %% "scala-logging"  % "3.5.0",
+    "com.lihaoyi"                %% "sourcecode"     % "0.1.3",
     "org.slf4j"                  % "slf4j-api"       % "1.7.21"
   )
 
@@ -92,17 +93,17 @@ object Dependencies {
   )
 
   val misc = Seq(
-    "com.wix"               %% "accord-core"            % "0.5", // Validation
+    "com.wix"               %% "accord-core"            % "0.6.1", // Validation
     "com.networknt"         % "json-schema-validator"   % "0.1.1",
     "com.github.scopt"      %% "scopt"                  % "3.5.0", // CLI args
     ("org.joda"             % "joda-money"              % "0.11").exclude("org.joda", "joda-time"),
-    "com.chuusai"           %% "shapeless"              % "2.3.1",
-    "com.pellucid"          %% "sealerate"              % "0.0.3",
+    "com.chuusai"           %% "shapeless"              % "2.3.2",
+    "ca.mrvisser"          %% "sealerate"              % "0.0.5",
     "it.justwrote"          %% "scala-faker"            % "0.3",
     "org.conbere"           % "markov_2.10"             % "0.2.0",
     "io.backchat.inflector" %% "scala-inflector"        % "1.3.5",
-    "com.github.tototoshi"  %% "scala-csv"              % "1.3.3",
-    "org.typelevel"         %% "cats"                   % "0.7.2"
+    "com.github.tototoshi"  %% "scala-csv"              % "1.3.4",
+    "org.typelevel"         %% "cats"                   % "0.9.0"
   )
 
   private lazy val noScalaCheck = ExclusionRule(organization = "org.scalacheck")
