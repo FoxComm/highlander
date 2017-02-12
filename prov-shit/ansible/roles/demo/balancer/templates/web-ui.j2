@@ -38,7 +38,7 @@ server {
   }
 
   location /perfect-gourmet {
-       proxy_pass http://storefront-perfectgourmet
+       proxy_pass http://storefront-perfectgourmet;
   }
 
   include /etc/nginx/service_locations.conf;
