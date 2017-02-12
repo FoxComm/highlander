@@ -3,16 +3,16 @@
 - name: Creates Marathon JSON directory
   file: path=/marathon/applications state=directory
 
-- name: Copy TopDrawer Storefront Marathon JSON
+- name: Copy Perfect Gourmet Storefront Marathon JSON
   template: src="{{app_name}}.json" dest=/marathon/applications mode="u+rw,g+rw,o+r"
 
-- name: Update TopDrawer Storefront in Marathon
+- name: Update Perfect Gourmet Storefront in Marathon
   shell: 'curl -X PUT -d@/marathon/applications/{{app_name}}.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/{{app_name}}'
 
-- name: Restart TopDrawer Storefront in Marathon
+- name: Restart Perfect Gourmet Storefront in Marathon
   shell: 'curl -X POST http://{{marathon_server}}/v2/apps/{{app_name}}/restart'
 
-- name: Get TopDrawer Storefront Marathon tasks in `healthy` state
+- name: Get Perfect Gourmet Storefront Marathon tasks in `healthy` state
   shell: curl -sS -XGET http://{{marathon_server}}/v2/apps/{{app_name}} | jq '.app.tasksHealthy > 0'
   register: healthy_tasks_available
   until: healthy_tasks_available.stdout == 'true'
