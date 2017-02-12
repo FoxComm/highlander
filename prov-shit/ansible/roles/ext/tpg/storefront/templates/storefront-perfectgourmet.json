@@ -13,7 +13,8 @@
   },
   "labels": {
     "LAYER": "frontend",
-    "LANG": "js"
+    "LANG": "js",
+    "TAG": "{{docker_tags.storefront_tpg}}"
   },
   "healthChecks": [
     {
