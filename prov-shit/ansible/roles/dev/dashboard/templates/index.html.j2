@@ -44,9 +44,19 @@
       <div class="container">
         <h1 class="jumbotron-heading">Your instance is ready!</h1>
         <p class="lead text-muted">You can start your development by exploring our web UI applications.<br>If you encounter any problems, a variety of handy DevOps tools are available at your service.</p>
-        <p>
-          <a href="https://{{dns_record}}.{{foxcomm_domain}}" class="btn btn-primary" target="_blank">Open Storefront</a>
-          <a href="https://{{dns_record}}.{{foxcomm_domain}}/admin" class="btn btn-secondary" target="_blank">Open Admin UI</a>
+          <div class="btn-group" role="group">
+            <a href="https://{{dns_record}}.{{foxcomm_domain}}/admin" class="btn btn-success" target="_blank">Open Admin UI</a>
+            <div class="btn-group" role="group">
+              <button id="storefrontButtons" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Open Storefront
+              </button>
+              <div class="dropdown-menu" aria-labelledby="storefrontButtons">
+                <a class="dropdown-item" href="https://{{dns_record}}.{{foxcomm_domain}}" target="_blank">Firebrand</a>
+                <a class="dropdown-item" href="https://{{dns_record}}.{{foxcomm_domain}}{{url_prefix_perfect_gourmet}}" target="_blank">Perfect Gourmet</a>
+                <a class="dropdown-item" href="https://{{dns_record}}.{{foxcomm_domain}}{{url_prefix_topdrawer}}" target="_blank">TopDrawer</a>
+              </div>
+            </div>
+          </div>
         </p>
       </div>
     </section>
