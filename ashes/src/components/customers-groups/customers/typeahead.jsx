@@ -6,9 +6,9 @@ import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
 
 // components
-import Typeahead from 'components/typeahead/customers-typeahead-row';
+import Typeahead from 'components/typeahead/typeahead';
 import PilledInput from 'components/pilled-search/pilled-input';
-import CustomerRow from './customer-row';
+import CustomerRow from './customers-typeahead-row';
 
 import styles from './customers.css';
 

@@ -93,13 +93,8 @@ const _fetchStats = createAsyncActions('fetchStatsCustomerGroup', request => {
 });
 
 const _addCustomersToGroup = createAsyncActions('addCustomersToGroup',
-  (groupId: number, customers: Array<number>, fetchGroupStats: Function) => {
-  return Api.post(`/customer-groups/${groupId}/customers`, { toAdd: customers, toDelete: [] })
-    .then(
-      () => {
-        fetchGroupStats();
-      }
-    );
+  (groupId: number, customers: Array<number>) => {
+    return Api.post(`/customer-groups/${groupId}/customers`, { toAdd: customers, toDelete: [] });
 });
 
 

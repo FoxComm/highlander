@@ -11,7 +11,7 @@ import classNames from 'classnames';
 import criterions from 'paragons/customer-groups/criterions';
 import operators from 'paragons/customer-groups/operators';
 import requestAdapter from 'modules/customer-groups/utils/request-adapter';
-import { fetchGroupStats, GROUP_TYPE_DYNAMIC, addCustomersToGroup } from 'modules/customer-groups/details/group';
+import { fetchGroupStats, GROUP_TYPE_MANUAL, GROUP_TYPE_DYNAMIC, addCustomersToGroup } from 'modules/customer-groups/details/group';
 import { actions as customersListActions } from 'modules/customer-groups/details/customers-list';
 import { suggestCustomers } from 'modules/customers/suggest';
 
@@ -156,14 +156,12 @@ class GroupDetails extends Component {
   handleCustomersSave(ids: Array<number>) {
     const { group, addCustomersToGroup, groupActions } = this.props;
     this.setState({ addCustomersModalShown: false }, () => {
-       addCustomersToGroup(group.id, ids, groupActions.fetchGroupStats);
+      addCustomersToGroup(group.id, ids).then(this.refreshGroupData);
     });
   }
 
   get addCustomersModal(): ?Element {
-    const { group } = this.props;
-
-    if (group.groupType != 'manual') {
+    if (this.props.group.groupType != GROUP_TYPE_MANUAL) {
       return null;
     }
 

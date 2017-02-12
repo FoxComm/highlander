@@ -1,10 +1,9 @@
 /* @flow */
 
 // libs
-import _ from 'lodash';
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
-import { isEmpty } from 'lodash';
+import { isEmpty, map } from 'lodash';
 
 // components
 import { ModalContainer } from 'components/modal/base';
@@ -57,7 +56,7 @@ export default class SearchCustomersModal extends Component {
 
   @autobind
   handleSave() {
-    const ids = _.map(this.state.customers, customer => customer.id);
+    const ids = map(this.state.customers, customer => customer.id);
     this.props.handleSave(ids);
   }
 
