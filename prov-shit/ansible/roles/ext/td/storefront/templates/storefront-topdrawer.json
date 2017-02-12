@@ -14,11 +14,14 @@
     "API_URL": "https://{{storefront_server_name}}",
     "NODE_ENV": "production",
     "PHOENIX_PUBLIC_KEY": "/keys/public_key.pem",
-    "STRIPE_PUBLISHABLE_KEY": "{{stripe_publishable_key}}"
+    "STRIPE_PUBLISHABLE_KEY": "{{stripe_publishable_key}}",
+    "CONTACT_EMAIL": "{{contact_email}}",
+    "MAILCHIMP_API_KEY": "{{mailchimp_api_key}}",
+    "URL_PREFIX": "{{url_prefix_topdrawer}}"
   },
   "healthChecks": [
     {
-      "path": "/",
+      "path": "{{url_prefix_topdrawer}}",
       "protocol": "HTTP",
       "gracePeriodSeconds": 300,
       "intervalSeconds": 30,

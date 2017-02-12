@@ -226,6 +226,10 @@ firebrand_default_language: en
 storefront_default_language: en
 storefront_fixed_language: false
 
+# Url prefixes
+url_prefix_topdrawer: "/"
+url_prefix_perfectgourmet: "/"
+
 # JMX ports
 es_jmx_port: 29010
 phoenix_jmx_port: 39014
@@ -255,7 +259,6 @@ swap_size_mb: 2000
 # Zipkin
 zipkin_collector: localhost
 
-
 # Test Stripe api key
 stripe_api_key: sk_test_13rnEgvA4DGHgv4f2GMCDtes
 stripe_publishable_key: pk_test_1H2C9nTZpy8szPmboOEDwdwN
@@ -274,6 +277,8 @@ marketplace_db_connection_string: "postgresql://{{marketplace_db_user}}@{{db_hos
 
 # Messaging
 retailer_name: "FoxCommerce"
+contact_email: "pavel@foxcommerce.com"
+mailchimp_api_key: ""
 
 # Various flags
 first_run: false

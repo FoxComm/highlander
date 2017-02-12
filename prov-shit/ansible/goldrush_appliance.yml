@@ -39,6 +39,8 @@
     is_amigo: true
     mesos_quorum: 1
     with_base_seeds: true
+    url_prefix_perfect_gourmet: "/perfect-gourmet"
+    url_prefix_topdrawer: "/topdrawer"
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
   pre_tasks:
     - name: Set IP/DNS Facts
