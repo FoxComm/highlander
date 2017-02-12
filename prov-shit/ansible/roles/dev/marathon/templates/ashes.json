@@ -14,7 +14,8 @@
   },
   "labels": {
     "LAYER": "frontend",
-    "LANG": "javascript"
+    "LANG": "javascript",
+    "TAG": "{{docker_tags.ashes}}"
   },
   "healthChecks": [
     {
