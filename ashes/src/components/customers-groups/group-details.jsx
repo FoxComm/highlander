@@ -45,8 +45,8 @@ type Props = {
   },
   suggested: Array<Customer>,
   suggestState: string,
-  suggestCustomers: Function,
-  addCustomersToGroup: Function,
+  suggestCustomers: (token: string) => Array<Customer>,
+  addCustomersToGroup: (groupId: number, ids: Array<number>) => Promise,
 };
 
 const prefixed = prefix('fc-customer-group');

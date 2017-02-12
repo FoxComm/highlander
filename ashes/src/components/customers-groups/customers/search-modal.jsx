@@ -15,9 +15,9 @@ type Props = {
   isVisible: boolean,
   suggestState: string,
   suggested: Array<Customer>,
-  onCancel: Function,
-  handleSave: Function,
-  suggestCustomers: Function,
+  onCancel: () => void,
+  handleSave: (ids: Array<number>) => void,
+  suggestCustomers: (token: string) => Array<Customer>,
 };
 
 type State = {

@@ -17,8 +17,8 @@ type Props = {
   maxUsers: number,
   suggestState: string,
   suggested: Array<Customer>,
-  suggestCustomers: Function,
-  onSelect: Function,
+  suggestCustomers: (token: string) => Array<Customer>,
+  onSelect: (customers: Array<Customer>) => void,
 };
 
 type State = {
