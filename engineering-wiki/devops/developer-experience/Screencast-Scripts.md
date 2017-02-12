@@ -47,7 +47,7 @@ In sake of the length of this video, we will perform a dry-run instead of actual
 
 Your instance is ready! Let's try to connect there:
 
-    $ make ssh
+    $ ssh <username>@<ip_address>
     $ ifconfig ens4
     $ exit
 
