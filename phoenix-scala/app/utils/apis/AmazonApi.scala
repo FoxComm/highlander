@@ -8,7 +8,6 @@ import cats.data.Xor.{left, right}
 import com.amazonaws.auth.BasicAWSCredentials
 import com.amazonaws.services.s3.AmazonS3Client
 import com.amazonaws.services.s3.model.{AmazonS3Exception, CannedAccessControlList, PutObjectRequest}
-import failures.AmazonFailures._
 import failures._
 import services.Result
 import utils.FoxConfig.config
@@ -27,23 +26,12 @@ class AmazonS3 extends AmazonApi {
       val s3Bucket  = config.apis.aws.s3Bucket
       val s3Region  = config.apis.aws.s3Region
 
-      (accessKey, secretKey, s3Bucket, s3Region) match {
-        case (Some(access), Some(secret), Some(bucket), Some(region)) ⇒
-          val credentials = new BasicAWSCredentials(access, secret)
-          val client      = new AmazonS3Client(credentials)
-          val putRequest = new PutObjectRequest(bucket, fileName, file)
-            .withCannedAcl(CannedAccessControlList.PublicRead)
-          client.putObject(putRequest)
-          right(s"https://s3-$region.amazonaws.com/$bucket/$fileName")
-        case (None, _, _, _) ⇒
-          left(UnableToReadAwsAccessKey.single)
-        case (_, None, _, _) ⇒
-          left(UnableToReadAwsSecretKey.single)
-        case (_, _, None, _) ⇒
-          left(UnableToReadAwsS3BucketName.single)
-        case (_, _, _, None) ⇒
-          left(UnableToReadAwsS3Region.single)
-      }
+      val credentials = new BasicAWSCredentials(accessKey, secretKey)
+      val client      = new AmazonS3Client(credentials)
+      val putRequest = new PutObjectRequest(s3Bucket, fileName, file)
+        .withCannedAcl(CannedAccessControlList.PublicRead)
+      client.putObject(putRequest)
+      right(s"https://s3-$s3Region.amazonaws.com/$s3Bucket/$fileName")
     }.recoverWith {
       case e: AmazonS3Exception ⇒
         Result.failure(GeneralFailure(e.getLocalizedMessage))

@@ -37,11 +37,7 @@ case class AccountAccessMethod(id: Int = 0,
 }
 
 object AccountAccessMethod extends LazyLogging {
-
-  private val overridenPasswordsHashAlgorithm: Option[HashAlgorithm] =
-    config.app.overrideHashPasswordAlgorithm
-
-  val passwordsHashAlgorithm: HashAlgorithm = overridenPasswordsHashAlgorithm match {
+  val passwordsHashAlgorithm: HashAlgorithm = config.app.overrideHashPasswordAlgorithm match {
     case Some(algo) ⇒
       logger.info(s"Switch to overridden password hash algorithm: $algo")
       algo

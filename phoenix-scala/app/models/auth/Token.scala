@@ -25,15 +25,15 @@ object Keys {
 
   private def loadKeyAsStream(fileName: String): InputStream = {
     config.auth.keysLocation match {
-      case Some(FoxConfig.KeysLocation.Jar) ⇒
+      case FoxConfig.KeysLocation.Jar ⇒
         getClass.getResourceAsStream(fileName)
-      case _ ⇒
+      case FoxConfig.KeysLocation.File ⇒
         new FileInputStream(fileName)
     }
   }
 
   def loadPrivateKey: Try[PrivateKey] = Try {
-    val fileName = config.auth.privateKey.getOrElse("")
+    val fileName = config.auth.privateKey
     val is       = loadKeyAsStream(fileName)
     val keyBytes = Array.ofDim[Byte](is.available)
     is.read(keyBytes)
@@ -45,7 +45,7 @@ object Keys {
 
   def loadPublicKey: Try[PublicKey] =
     Try {
-      val fileName = config.auth.publicKey.getOrElse("")
+      val fileName = config.auth.publicKey
       val is       = loadKeyAsStream(fileName)
       val keyBytes = Array.ofDim[Byte](is.available)
       is.read(keyBytes)
@@ -95,7 +95,7 @@ object Token {
 
   import collection.JavaConversions.seqAsJavaList
 
-  val tokenTTL = config.auth.tokenTTL.getOrElse(5)
+  val tokenTTL = config.auth.tokenTTL
 
   def getJWTClaims(token: Token): JwtClaims = {
     val claims = new JwtClaims

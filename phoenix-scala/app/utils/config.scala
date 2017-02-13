@@ -57,7 +57,7 @@ object FoxConfig {
   implicit def configConvertADT[T: ADT: ClassTag]: ConfigConvert[T] =
     ConfigConvert.nonEmptyStringConvert(
         s ⇒
-          ADT[T].typeMap.get(s).map(Success(_)).getOrElse {
+          ADT[T].read(s).map(Success(_)).getOrElse {
             val err =
               s"Could not interpret '$s' as a member of ${classTag[T].runtimeClass.getSimpleName}."
             Failure(new IllegalArgumentException(err))
@@ -68,25 +68,26 @@ object FoxConfig {
                  overrideHashPasswordAlgorithm: Option[HashPasswords.HashAlgorithm])
 
   // auth
-  case class Auth(publicKey: Option[String],
-                  privateKey: Option[String],
+  case class Auth(cookie: Cookie,
+                  publicKey: String,
+                  privateKey: String,
                   method: AuthMethod,
-                  keysLocation: Option[KeysLocation],
                   keyAlgorithm: String,
-                  tokenTTL: Option[Int],
-                  cookie: Cookie)
+                  keysLocation: KeysLocation = KeysLocation.File,
+                  tokenTTL: Int = 5)
 
   sealed trait AuthMethod
   implicit object AuthMethod extends ADT[AuthMethod] {
     case object Basic extends AuthMethod
-    case object JWT   extends AuthMethod
+    case object Jwt   extends AuthMethod
 
     def types = sealerate.values[AuthMethod]
   }
 
   sealed trait KeysLocation
   implicit object KeysLocation extends ADT[KeysLocation] {
-    case object Jar extends KeysLocation
+    case object Jar  extends KeysLocation
+    case object File extends KeysLocation
 
     def types = sealerate.values[KeysLocation]
   }
@@ -95,10 +96,7 @@ object FoxConfig {
 
   // apis
   case class Apis(aws: AWS, elasticsearch: ESConfig, middlewarehouse: MWH, stripe: Stripe)
-  case class AWS(accessKey: Option[String],
-                 secretKey: Option[String],
-                 s3Bucket: Option[String],
-                 s3Region: Option[String])
+  case class AWS(accessKey: String, secretKey: String, s3Bucket: String, s3Region: String)
   case class ESConfig(host: String, cluster: String, index: String)
   case class MWH(url: String)
   case class Stripe(key: String)
@@ -116,12 +114,10 @@ object FoxConfig {
   case class Users(admin: User, customer: User)
   case class User(role: String, org: String, scopeId: Int, oauth: Oauth)
   case class Oauth(google: GoogleOauth)
-  case class GoogleOauth(
-      clientId: String,
-      clientSecret: String,
-      redirectUri: String,
-      hostedDomain: Option[String]
-  )
+  case class GoogleOauth(clientId: String,
+                         clientSecret: String,
+                         redirectUri: String,
+                         hostedDomain: Option[String])
 
   def loadWithEnv(cfg: Config = ConfigFactory.load)(implicit env: Environment): Config = {
     val envConfig = cfg.getConfig("env." ++ env.show)

@@ -14,7 +14,7 @@ import akka.http.scaladsl.server._
 import akka.stream.ActorMaterializer
 import com.stripe.Stripe
 import com.typesafe.scalalogging.LazyLogging
-import models.account.{AccountAccessMethod, User}
+import models.account.AccountAccessMethod
 import org.json4s._
 import org.json4s.jackson._
 import services.account.AccountCreateContext
@@ -168,7 +168,7 @@ class Service(
 
   def performSelfCheck(): Unit = {
     logger.info("Performing self check")
-    if (config.auth.method == FoxConfig.AuthMethod.JWT) {
+    if (config.auth.method == FoxConfig.AuthMethod.Jwt) {
       import models.auth.Keys
       assert(Keys.loadPrivateKey.isSuccess, "Can't load private key")
       assert(Keys.loadPublicKey.isSuccess, "Can't load public key")
