@@ -9,19 +9,19 @@ import { isEmpty, map } from 'lodash';
 import { ModalContainer } from 'components/modal/base';
 import ContentBox from 'components/content-box/content-box';
 import SaveCancel from 'components/common/save-cancel';
-import CustomersTypeahead from './typeahead';
+import CustomersTypeahead from 'components/users-typeahead/customers-typeahead';
 
 type Props = {
   isVisible: boolean,
-  suggestState: string,
-  suggested: Array<Customer>,
+  suggestState: AsyncState,
+  suggested: Array<TUser>,
   onCancel: () => void,
   handleSave: (ids: Array<number>) => void,
-  suggestCustomers: (token: string) => Array<Customer>,
+  suggestCustomers: (token: string) => Promise,
 };
 
 type State = {
-  customers: Array<Customer>,
+  customers: Array<TUser>,
 };
 
 export default class SearchCustomersModal extends Component {
@@ -61,7 +61,7 @@ export default class SearchCustomersModal extends Component {
   }
 
   @autobind
-  handleSelect(customers: Array<Customer>) {
+  handleSelect(customers: Array<TUser>) {
     this.setState({ customers });
   }
 
