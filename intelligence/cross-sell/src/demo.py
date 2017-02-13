@@ -4,9 +4,9 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.sparse import csr_matrix
-from Recommend import Recommend
+from PPRecommend import PPRecommend
 
-rec = Recommend()
+rec = PPRecommend()
 
 for line in sys.stdin:
     pair = line.split(' ')
