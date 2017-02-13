@@ -7,6 +7,8 @@ import sbtassembly.AssemblyKeys
 
 scalaVersion in ThisBuild := Versions.scala
 
+scalaOrganization in ThisBuild := "org.typelevel"
+
 lazy val phoenixScala = (project in file("."))
   .settings(commonSettings)
   .configs(IT, ET)
@@ -28,6 +30,7 @@ lazy val phoenixScala = (project in file("."))
       import Dependencies._
       akka ++ http ++ auth ++ db ++ slick ++ json4s ++ fasterxml ++ apis ++ logging ++ test ++ misc
     },
+    addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.3"),
     scalaSource in Compile <<= baseDirectory(_ / "app"),
     scalaSource in Test    <<= baseDirectory(_ / "test" / "unit"),
     scalaSource in IT      <<= baseDirectory(_ / "test" / "integration"),
