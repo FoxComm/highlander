@@ -28,7 +28,7 @@
     ashes_server_name: stage.foxcommerce.com
     storefront_server_name: stage.foxcommerce.com
     with_base_seeds: true
-    url_prefix_perfect_gourmet: "/perfect-gourmet"
+    url_prefix_perfectgourmet: "/perfect-gourmet"
     url_prefix_topdrawer: "/top-drawer"
   roles:
     - { role: dev/stage_mesos, when: first_run }
