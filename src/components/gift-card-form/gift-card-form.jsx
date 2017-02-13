@@ -40,7 +40,7 @@ const GiftCardForm = (props: Props) => {
 
   const recipientName = _.get(props.attributes, 'giftCard.recipientName', '');
   const recipientEmail = _.get(props.attributes, 'giftCard.recipientEmail', '');
-  const message = _.get(props.attributes, 'giftCard.message', '');
+  const message = _.get(props.attributes, 'giftCard.message', '').split('<br>').join('\n');
   const senderName = _.get(props.attributes, 'giftCard.senderName', '');
 
   return (

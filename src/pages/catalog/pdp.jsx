@@ -188,7 +188,8 @@ class Pdp extends Component {
   @autobind
   setAttributeFromField({ target: { name, value } }) {
     const namePath = ['attributes', ...name.split('.')];
-    this.setState(assoc(this.state, namePath, value));
+    const stateValue = name == 'giftCard.message' ? value.split('\n').join('<br>') : value;
+    this.setState(assoc(this.state, namePath, stateValue));
   }
 
   get product(): Product {
