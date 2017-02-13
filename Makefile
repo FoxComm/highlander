@@ -1,6 +1,6 @@
 # Development environment Makefile
 include makelib
-include .env.local
+-include .env.local
 header = $(call baseheader, $(1), root)
 
 prepare:

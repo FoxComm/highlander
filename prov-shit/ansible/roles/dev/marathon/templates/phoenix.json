@@ -7,7 +7,8 @@
   "instances": 1,
   "labels": {
     "LAYER": "backend",
-    "LANG": "scala"
+    "LANG": "scala",
+    "TAG": "{{docker_tags.phoenix}}"
   },
   "env": {
     "PORT":"{{phoenix_port}}",
