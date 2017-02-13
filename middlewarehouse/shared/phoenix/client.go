@@ -251,7 +251,7 @@ func (c *phoenixClient) SetCustomersToGroup(groupID int, customerIDs []int) erro
 		Customers: customerIDs,
 	}
 
-	url := fmt.Sprintf("%s/v1/service/customer-groups/%d/users", c.baseURL, groupID)
+	url := fmt.Sprintf("%s/v1/service/customer-groups/%d/customers", c.baseURL, groupID)
 
 	err := consumers.Post(url, c.defaultHeaders(), payload, nil)
 

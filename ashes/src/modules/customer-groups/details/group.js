@@ -92,6 +92,11 @@ const _fetchStats = createAsyncActions('fetchStatsCustomerGroup', request => {
   ]);
 });
 
+const _addCustomersToGroup = createAsyncActions('addCustomersToGroup',
+  (groupId: number, customers: Array<number>) => {
+    return Api.post(`/customer-groups/${groupId}/customers`, { toAdd: customers, toDelete: [] });
+});
+
 
 /**
  * External actions
@@ -177,6 +182,9 @@ export const fetchGroupStats = () => (dispatch: Function, getState: Function) =>
 
   dispatch(_fetchStats.perform(request));
 };
+
+export const addCustomersToGroup = (id: number, customers: Array<number>) => (dispatch: Function) =>
+  dispatch(_addCustomersToGroup.perform(id, customers));
 
 const validateConditions = (type, conditions) => {
   if (type === GROUP_TYPE_MANUAL) return true;

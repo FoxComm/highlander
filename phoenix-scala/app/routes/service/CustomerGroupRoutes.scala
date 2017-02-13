@@ -3,7 +3,7 @@ package routes.service
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
-import payloads.CustomerGroupPayloads.CustomerGroupMemberSyncPayload
+import payloads.CustomerGroupPayloads.CustomerGroupMemberServiceSyncPayload
 import services.customerGroups.{GroupManager, GroupMemberManager}
 import utils.aliases._
 import utils.http.CustomDirectives._
@@ -21,8 +21,8 @@ object CustomerGroupRoutes {
         }
       } ~
       pathPrefix("customer-groups" / IntNumber) { groupId ⇒
-        pathPrefix("users") {
-          (post & pathEnd & entity(as[CustomerGroupMemberSyncPayload])) { payload ⇒
+        pathPrefix("customers") {
+          (post & pathEnd & entity(as[CustomerGroupMemberServiceSyncPayload])) { payload ⇒
             doOrFailures(
                 GroupMemberManager.sync(groupId, payload)
             )

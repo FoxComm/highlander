@@ -11,21 +11,24 @@ import classNames from 'classnames';
 import criterions from 'paragons/customer-groups/criterions';
 import operators from 'paragons/customer-groups/operators';
 import requestAdapter from 'modules/customer-groups/utils/request-adapter';
-import { fetchGroupStats, GROUP_TYPE_DYNAMIC } from 'modules/customer-groups/details/group';
+import { fetchGroupStats, GROUP_TYPE_MANUAL, GROUP_TYPE_DYNAMIC, addCustomersToGroup } from 'modules/customer-groups/details/group';
 import { actions as customersListActions } from 'modules/customer-groups/details/customers-list';
+import { suggestCustomers } from 'modules/customers/suggest';
 
 import { transitionTo } from 'browserHistory';
 import { prefix } from 'lib/text-utils';
 
 import { SelectableSearchList, makeTotalCounter } from 'components/list-page';
-import { PrimaryButton } from 'components/common/buttons';
+import { PrimaryButton, Button } from 'components/common/buttons';
 import MultiSelectRow from 'components/table/multi-select-row';
 import ContentBox from 'components/content-box/content-box';
 import Criterion from './editor/criterion-view';
 import CustomerGroupStats from './stats';
+import SearchCustomersModal from './customers/search-modal';
 
 type State = {
   criteriaOpen: boolean,
+  addCustomersModalShown: boolean,
 };
 
 type Props = {
@@ -40,6 +43,10 @@ type Props = {
     setExtraFilters: Function,
     fetch: Function,
   },
+  suggested: Array<Customer>,
+  suggestState: string,
+  suggestCustomers: (token: string) => Array<Customer>,
+  addCustomersToGroup: (groupId: number, ids: Array<number>) => Promise,
 };
 
 const prefixed = prefix('fc-customer-group');
@@ -62,6 +69,7 @@ class GroupDetails extends Component {
 
   state: State = {
     criteriaOpen: true,
+    addCustomersModalShown: false,
   };
 
   componentDidMount() {
@@ -93,6 +101,16 @@ class GroupDetails extends Component {
     transitionTo('edit-customer-group', { groupId: this.props.group.id });
   }
 
+  @autobind
+  showAddCustomersModal() {
+    this.setState({ addCustomersModalShown: true });
+  }
+
+  @autobind
+  onAddCustomersCancel() {
+    this.setState({ addCustomersModalShown: false });
+  }
+
   get header() {
     const { group } = this.props;
 
@@ -105,6 +123,7 @@ class GroupDetails extends Component {
               <TotalCounter />
             </span>
           </h1>
+          {group.groupType == 'manual' && <Button onClick={this.showAddCustomersModal}>Add Customers</Button>}
           {group.groupType != 'template' && <PrimaryButton onClick={this.goToEdit}>Edit Group</PrimaryButton>}
         </div>
         <div className={prefixed('about')}>
@@ -129,6 +148,31 @@ class GroupDetails extends Component {
         field={field}
         operator={operator}
         value={value}
+      />
+    );
+  }
+
+  @autobind
+  handleCustomersSave(ids: Array<number>) {
+    const { group, addCustomersToGroup, groupActions } = this.props;
+    this.setState({ addCustomersModalShown: false }, () => {
+      addCustomersToGroup(group.id, ids).then(this.refreshGroupData);
+    });
+  }
+
+  get addCustomersModal(): ?Element {
+    if (this.props.group.groupType != GROUP_TYPE_MANUAL) {
+      return null;
+    }
+
+    return (
+      <SearchCustomersModal
+        isVisible={this.state.addCustomersModalShown}
+        onCancel={this.onAddCustomersCancel}
+        handleSave={this.handleCustomersSave}
+        suggestCustomers={this.props.suggestCustomers}
+        suggested={this.props.suggested}
+        suggestState={this.props.suggestState}
       />
     );
   }
@@ -213,6 +257,7 @@ class GroupDetails extends Component {
           </article>
         </div>
         {this.table}
+        {this.addCustomersModal}
       </div>
     );
   }
@@ -221,11 +266,22 @@ class GroupDetails extends Component {
 const mapState = state => ({
   customersList: _.get(state, 'customerGroups.details.customers'),
   statsLoading: _.get(state, 'asyncActions.fetchStatsCustomerGroup.inProgress', false),
+  suggested: state.customers.suggest.customers,
+  suggestState: _.get(state.asyncActions, 'suggestCustomers', {}),
 });
 
-const mapDispatch = dispatch => ({
-  groupActions: bindActionCreators({ fetchGroupStats }, dispatch),
-  customersListActions: bindActionCreators(customersListActions, dispatch),
-});
+const mapDispatch = (dispatch, props) => {
+  const customerEntries = _.get(props, 'customerGroups.details.customers', []);
+  const customers = _.map(customerEntries, customer => customer.id);
+
+  return {
+    groupActions: bindActionCreators({ fetchGroupStats }, dispatch),
+    customersListActions: bindActionCreators(customersListActions, dispatch),
+    ...(bindActionCreators({
+      suggestCustomers: suggestCustomers(customers),
+      addCustomersToGroup,
+    }, dispatch)),
+  };
+};
 
 export default connect(mapState, mapDispatch)(GroupDetails);

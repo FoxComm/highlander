@@ -1,0 +1,25 @@
+.name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #484848;
+  transition: color .2s;
+
+  & i {
+    vertical-align: initial;
+  }
+}
+
+.type {
+  color: #999;
+}
+
+.label {
+  margin-bottom: 15px;
+}
+
+.customer-row {
+  height: 50px;
+  line-height: 50px;
+  padding: 0 20px;
+  font-size: 16px;
+}
