@@ -5,7 +5,7 @@ import _ from 'lodash';
 import React, { Component } from 'react';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
-import { browserHistory } from 'react-router';
+import { browserHistory } from 'lib/history';
 import { autobind } from 'core-decorators';
 import * as tracking from 'lib/analytics';
 

@@ -1,5 +1,4 @@
 import KoaApp from 'koa';
-import favicon from 'koa-favicon';
 import renderReact from '../src/server';
 import { makeApiProxy } from './routes/api';
 import { makeElasticProxy } from './routes/elastic';
@@ -14,6 +13,8 @@ import contactFeedbackRoute from './routes/contact-feedback-route';
 import log4js from 'koa-log4';
 import path from 'path';
 import serve from 'koa-better-static';
+import koaMount from 'koa-mount';
+import test from './conditional-use';
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -21,18 +22,15 @@ function timestamp() {
   return moment().format('D MMM H:mm:ss');
 }
 
-function test(middleware, fn) {
-  return function *(next) {
-    if (fn(this)) {
-      yield middleware.call(this, next);
-    } else {
-      yield next;
-    }
-  };
+function mount(middleware) {
+  if (process.env.URL_PREFIX) {
+    return koaMount(process.env.URL_PREFIX, middleware);
+  }
+  return middleware;
 }
 
-function isAppStatic(ctx) {
-  return ctx.path.match(/\/app.*\.(js|css)/);
+function shouldCacheForLongTime(ctx) {
+  return isProduction && ctx.path.match(/\/app.*\.(js|css)/);
 }
 
 export default class App extends KoaApp {
@@ -41,32 +39,23 @@ export default class App extends KoaApp {
     super(...args);
     onerror(this);
 
-    if (isProduction &&
-      (process.env.MAILCHIMP_API_KEY === undefined ||
-      process.env.CONTACT_EMAIL === undefined)) {
-      throw new Error(
-        'MAILCHIMP_API_KEY and CONTACT_EMAIL variables should be defined in environment.'
-      );
-    }
-
     log4js.configure(path.join(`${__dirname}`, '../log4js.json'));
 
     this
       // serve all static in dev mode through one middleware,
       // enable the second one to add cache headers to app*.js and app*.css
-      .use(test(serve('public'), ctx => !isProduction || !isAppStatic(ctx)))
-      .use(test(serve('public', { maxage: 31536000 }), ctx => isProduction && isAppStatic(ctx)))
-      .use(favicon('public/favicon.png'))
+      .use(test(mount(serve('public')), ctx => !shouldCacheForLongTime(ctx)))
+      .use(test(mount(serve('public'), { maxage: 31536000 }), shouldCacheForLongTime))
       .use(log4js.koaLogger(log4js.getLogger('http'), { level: 'auto' }))
       .use(makeApiProxy())
       .use(makeElasticProxy())
       .use(bodyParser())
-      .use(zipcodes.routes())
-      .use(zipcodes.allowedMethods())
-      .use(contactFeedbackRoute(process.env.MAILCHIMP_API_KEY))
+      .use(mount(zipcodes.routes()))
+      .use(mount(zipcodes.allowedMethods()))
+      .use(mount(contactFeedbackRoute(process.env.MAILCHIMP_API_KEY)))
       .use(verifyJwt)
       .use(loadI18n)
-      .use(renderReact);
+      .use(mount(renderReact));
   }
 
   start() {

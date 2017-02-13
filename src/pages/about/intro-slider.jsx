@@ -1,6 +1,7 @@
 // libs
 import React from 'react';
 import Slider from 'react-slick';
+import { assetsUrl } from 'lib/env';
 
 // styles
 import styles from './intro-slider.css';
@@ -30,7 +31,7 @@ const imageNames = [
 const introSliderImages = imageNames.map(img =>
   <div key={img}>
     <div styleName="img-wrap">
-      <img styleName="img" src={`/images/about-page/${img}.svg`} />
+      <img styleName="img" src={assetsUrl(`/images/about-page/${img}.svg`)} />
     </div>
   </div>
 );

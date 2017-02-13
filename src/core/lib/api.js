@@ -3,6 +3,7 @@
 import Api from '@foxcomm/api-js';
 import { browserHistory } from 'react-router';
 import { authBlockTypes } from 'paragons/auth';
+import { env } from 'lib/env';
 
 const isServer: boolean = typeof self === 'undefined';
 
@@ -45,16 +46,15 @@ class FoxApi extends Api {
 
 function createApi(options) {
   return new FoxApi({
-    stripe_key: (isServer ? process.env : window).STRIPE_PUBLISHABLE_KEY,
+    stripe_key: env.STRIPE_PUBLISHABLE_KEY,
     ...options,
   });
 }
 
-const api = createApi({
+export const api = createApi({
   api_url: isServer ? `${process.env.API_URL}/api` : '/api',
 });
 
-export {
-  api,
-  createApi,
-};
+export const nodeApi = createApi({
+  api_url: `${env.URL_PREFIX}/node`,
+});

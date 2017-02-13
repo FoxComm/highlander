@@ -82,10 +82,6 @@ const productTypes = [
   'Vegetarian',
 ];
 
-function apiCall(): Promise {
-  return Promise.resolve(categories);
-}
-
 function convertCategoryNameToUrlPart(categoryName: string) {
   return encodeURIComponent(categoryName.replace(/\s/g, '-'));
 }
@@ -93,7 +89,10 @@ function convertCategoryNameToUrlPart(categoryName: string) {
 const initialState = {
   list: [],
 };
-const {fetch, ...actions} = createAsyncActions('categories', apiCall);
+const {fetch, ...actions} = createAsyncActions(
+  'categories',
+  () => Promise.resolve(categories)
+);
 
 const reducer = createReducer({
   [actions.succeeded]: (state, payload) => {

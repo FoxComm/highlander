@@ -5,7 +5,7 @@ import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
 import localized from 'lib/i18n';
 import { connect } from 'react-redux';
-import { browserHistory } from 'react-router';
+import { browserHistory } from 'lib/history';
 
 // components
 import EditableBlock from 'ui/editable-block';

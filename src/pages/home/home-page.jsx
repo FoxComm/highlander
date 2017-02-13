@@ -4,6 +4,7 @@
 import React from 'react';
 import _ from 'lodash';
 import moment from 'moment';
+import { assetsUrl } from 'lib/env';
 
 // components
 import ActionBlock from './action-block';
@@ -78,10 +79,11 @@ const HomePage = () => {
   );
 
   const instagramImages = _.range(1, 6).map(i => {
+    const imageUrl = assetsUrl(`/images/home-page/Instagram_${i}_2x.jpg`);
     return (
       <div
         styleName="instagram-image"
-        style={{ backgroundImage: `url(/images/home-page/Instagram_${i}_2x.jpg)`}}
+        style={{ backgroundImage: `url(${imageUrl})`}}
         key={i}
       >
         <a href={instagramLinks[i - 1]} target="_blank">

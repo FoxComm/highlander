@@ -2,7 +2,7 @@ import makeRouter from 'koa-router';
 import zipcodes from 'zipcodes';
 
 const router = makeRouter()
-  .get('/lookup-zip/usa/:zipcode', function*() {
+  .get('/node/lookup-zip/usa/:zipcode', function*() {
     const info = zipcodes.lookup(this.params.zipcode);
     if (!info) {
       this.status = 404;

@@ -5,7 +5,7 @@ import React, { Component, PropTypes } from 'react';
 import styles from './auth.css';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
-import { browserHistory } from 'react-router';
+import { browserHistory } from 'lib/history';
 import { authBlockTypes } from 'paragons/auth';
 
 import localized from 'lib/i18n';

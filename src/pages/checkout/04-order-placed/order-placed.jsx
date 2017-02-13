@@ -2,7 +2,7 @@
 
 // libs
 import React, { Component } from 'react';
-import { browserHistory } from 'react-router';
+import { browserHistory } from 'lib/history';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 

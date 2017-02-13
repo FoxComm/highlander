@@ -5,7 +5,7 @@ import { autobind } from 'core-decorators';
 import styles from '../profile.css';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { browserHistory } from 'react-router';
+import { browserHistory } from 'lib/history';
 
 import Block from '../common/block';
 import { Link } from 'react-router';
