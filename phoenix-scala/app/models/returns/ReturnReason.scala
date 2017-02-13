@@ -5,6 +5,7 @@ import java.time.Instant
 import com.pellucid.sealerate
 import models.returns.Return._
 import models.returns.ReturnReason._
+import payloads.ReturnPayloads.ReturnReasonPayload
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
@@ -21,6 +22,8 @@ case class ReturnReason(id: Int = 0,
     extends FoxModel[ReturnReason] {}
 
 object ReturnReason {
+  val reasonNameMaxLength = 255
+
   sealed trait ReasonType
   case object BaseReason        extends ReasonType
   case object ProductReturnCode extends ReasonType

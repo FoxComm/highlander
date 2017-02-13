@@ -49,7 +49,12 @@ object ReturnRoutes {
           pathPrefix("reasons") {
             (get & pathEnd) {
               getOrFailures {
-                ReturnReasonsManager.reasonsList
+                ReturnReasonsManager.reasonsList // list length expected to be under 20 something items
+              }
+            } ~
+            (post & pathEnd & entity(as[ReturnReasonPayload])) { payload ⇒
+              mutateOrFailures {
+                ReturnReasonsManager.addReason(payload)
               }
             }
           }

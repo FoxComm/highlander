@@ -14,7 +14,7 @@ import models.shipping.{Shipments, ShippingMethods}
 import org.scalatest.prop.PropertyChecks
 import payloads.ReturnPayloads._
 import responses.ReturnResponse.Root
-import responses.{ReturnLockResponse, ReturnResponse}
+import responses.{ReturnLockResponse, ReturnReasonsResponse, ReturnResponse}
 import services.returns.{ReturnLineItemUpdater, ReturnLockUpdater, ReturnService}
 import testutils._
 import testutils.apis.PhoenixAdminApi
@@ -195,8 +195,16 @@ class ReturnIntegrationTest
 
   "Return reasons" - {
     "get some" in new Fixture {
-      val response = returnsApi.getReasonsList.as[Seq[ReturnReason]]
+      val rr       = ReturnReasons.create(ReturnReason(name = "Simple reason")).gimme
+      val response = returnsApi.getReasonsList.as[Seq[ReturnReasonsResponse.Root]]
+      response.nonEmpty must === (true)
       info(response.toString)
+    }
+
+    "add new reason" in new Fixture {
+      val rr       = ReturnReasonPayload(name = "Simple reason")
+      val response = returnsApi.addReturnReason(rr).as[ReturnReasonsResponse.Root]
+      response.name must === (rr.name)
     }
   }
 

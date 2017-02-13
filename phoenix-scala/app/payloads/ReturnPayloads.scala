@@ -4,7 +4,7 @@ import cats.data._
 import cats.implicits._
 import failures.Failure
 import models.payment.PaymentMethod
-import models.returns.{Return, ReturnLineItem}
+import models.returns.{Return, ReturnLineItem, ReturnReason}
 import models.returns.ReturnLineItem.InventoryDisposition
 import org.json4s.CustomSerializer
 import utils.{ADTTypeHints, Validation}
@@ -77,6 +77,18 @@ object ReturnPayloads {
               message.length,
               Return.messageToAccountMaxLength,
               "Message length")).map {
+        case _ ⇒ this
+      }
+    }
+  }
+
+  case class ReturnReasonPayload(name: String) extends Validation[ReturnReasonPayload] {
+
+    def validate: ValidatedNel[Failure, ReturnReasonPayload] = {
+      val clue = "Reason name length"
+      (greaterThan(name.length, 0, clue) |@| lesserThanOrEqual(name.length,
+                                                               ReturnReason.reasonNameMaxLength,
+                                                               clue)).map {
         case _ ⇒ this
       }
     }
