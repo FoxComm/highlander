@@ -11,8 +11,10 @@ import styles from '../object-page/object-details.css';
 import ObjectDetails from '../object-page/object-details';
 import { Dropdown } from '../dropdown';
 import { FormField } from '../forms';
+import RadioButton from '../forms/radio-button';
 import SelectCustomerGroups from '../customers-groups/select-groups';
 import DiscountAttrs from './discount-attrs';
+import AddDiscount from './add-discount';
 import offers from './offers';
 import qualifiers from './qualifiers';
 
@@ -24,11 +26,6 @@ type State = {
   qualifiedCustomerGroupIds: Array<any>,
 };
 
-const SELECT_COUPON_TYPE = [
-  ['auto', 'Auto'],
-  ['coupon', 'Coupon'],
-];
-
 export default class PromotionForm extends ObjectDetails {
   // $FlowFixMe: flow!
   state: State = {
@@ -36,25 +33,61 @@ export default class PromotionForm extends ObjectDetails {
   };
   layout = layout;
 
-  renderApplyType() {
+  renderApplyType() { 
     const promotion = this.props.object;
+    if(typeof promotion.applyType === "undefined"){ // TO BE REMOVED WHEN applyType WILL BE SET TO "auto" BY DEFAULT
+      const newPromotion = assoc(this.props.object, 'applyType', "auto");
+      this.props.onUpdateObject(newPromotion);
+    }
 
     return (
       <FormField
         ref="applyTypeField"
         className="fc-object-form__field"
-        label="Apply Type"
-        getTargetValue={() => promotion.applyType}
-        required
       >
         <div>
-          <Dropdown
-            id="apply-type-dd"
-            placeholder="- Select -"
-            value={promotion.applyType}
+          <RadioButton id="autoApplyRadio"
             onChange={this.handleApplyTypeChange}
-            items={SELECT_COUPON_TYPE}
-          />
+            name="auto"
+            checked={promotion.applyType === "auto"}>
+            <label htmlFor="autoApplyRadio" styleName="field-label">Promotion is automatically applied</label>
+          </RadioButton>    
+          <RadioButton id="couponCodeRadio"
+            onChange={this.handleApplyTypeChange}
+            name="coupon"
+            checked={promotion.applyType === "coupon"}>
+            <label htmlFor="couponCodeRadio" styleName="field-label">Promotion requires a coupon code</label>
+          </RadioButton>  
+        </div>
+      </FormField>
+    );
+  }
+
+  renderUsageRules() { 
+    const promotion = this.props.object;
+    if(typeof promotion.isExclusive === "undefined"){ // TO BE REMOVED WHEN isExclusive WILL BE SET TO true BY DEFAULT
+      const newPromotion = assoc(this.props.object, 'isExclusive', true);
+      this.props.onUpdateObject(newPromotion);
+    }
+
+    return (
+      <FormField
+        ref="usageRuleseField"
+        className="fc-object-form__field"
+      >
+        <div>
+          <RadioButton id="isExlusiveRadio"
+            onChange={this.handleUsageRulesChange}
+            name="true"
+            checked={promotion.isExclusive === true}>
+            <label htmlFor="isExlusiveRadio" styleName="field-label">Promotion is exclusive</label>
+          </RadioButton>    
+          <RadioButton id="notExclusiveRadio"
+            onChange={this.handleUsageRulesChange}
+            name="false"
+            checked={promotion.isExclusive === false}>
+            <label htmlFor="notExclusiveRadio" styleName="field-label">Promotion can be used with other promotions</label>
+          </RadioButton>  
         </div>
       </FormField>
     );
@@ -78,69 +111,80 @@ export default class PromotionForm extends ObjectDetails {
     this.props.onUpdateObject(newPromotion);
   }
 
-  @autobind
-  handleApplyTypeChange(value: any) {
+  @autobind  
+  handleApplyTypeChange({target}: Object) {
+    const value = target.getAttribute('name');
     const newPromotion = assoc(this.props.object, 'applyType', value);
 
     this.props.onUpdateObject(newPromotion);
-    this.refs.applyTypeField.validate();
+  }
+
+  @autobind  
+  handleUsageRulesChange({target}: Object) {
+    const value = (target.getAttribute('name') === "true");
+    const newPromotion = assoc(this.props.object, 'isExclusive', value);
+
+    this.props.onUpdateObject(newPromotion);
   }
 
   renderState(): ?Element {
-    const applyType = this.props.object.applyType;
-    if (applyType == 'coupon') {
-      return null;
-    }
 
+    console.log(this.props);
+    const applyType = this.props.object.applyType;
     return super.renderState();
   }
 
-  renderQualifier() {
-    const discount = _.get(this.props.object, 'discounts.0', {});
-
-    return [
-      <div styleName="sub-title" key="title">Qualifier Type</div>,
-      <DiscountAttrs
-        blockId="promo-qualifier-block"
-        dropdownId="promo-qualifier-dd"
-        key="attrs"
-        discount={discount}
-        attr="qualifier"
-        descriptions={qualifiers}
-        onChange={this.handleQualifierChange}
-      />
-    ];
+  renderDiscounts() {
+    let discountChilds = [];
+    const discounts = _.get(this.props.object, 'discounts', []);
+    discounts.map(disc => {
+        discountChilds.push(<div styleName="sub-title">Qualifier</div>),
+        discountChilds.push(<DiscountAttrs 
+          blockId="promo-qualifier-block"
+          dropdownId="promo-qualifier-dd"
+          discount={disc}
+          attr="qualifier"
+          descriptions={qualifiers}
+          onChange={this.handleQualifierChange}
+        />);
+        discountChilds.push(<div styleName="sub-title">Offer</div>),
+        discountChilds.push(<DiscountAttrs 
+          blockId="promo-offer-block"
+          dropdownId="promo-offer-dd"
+          discount={disc}
+          attr="offer"
+          descriptions={offers}
+          onChange={this.handleOfferChange}
+        />);
+      });
+    return (
+      <div>  
+        {discountChilds}
+      </div>  
+    );
   }
 
-  renderOffer() {
-    const discount = _.get(this.props.object, 'discounts.0', {});
-
-    return [
-      <div styleName="sub-title" key="title">Offer Type</div>,
-      <DiscountAttrs
-        blockId="promo-offer-block"
-        dropdownId="promo-offer-dd"
-        key="attrs"
-        discount={discount}
-        attr="offer"
-        descriptions={offers}
-        onChange={this.handleOfferChange}
-      />
-    ];
+  renderAddDiscount() {
+    return (
+      <AddDiscount/>
+    );
   }
 
   renderCustomers() {
     return (
-      <SelectCustomerGroups
-        parent="Promotions"
-        selectedGroupIds={this.state.qualifiedCustomerGroupIds}
-        onSelect={(ids) => {
-          // $FlowFixMe: WTF!
-                this.setState({
-                  qualifiedCustomerGroupIds: ids,
-                });
-              }}
-      />
+      <div>  
+        <div styleName="sub-title" >Customers</div>
+        <SelectCustomerGroups
+          parent="Promotions"
+          selectedGroupIds={this.state.qualifiedCustomerGroupIds}
+          onSelect={(ids) => {
+            // $FlowFixMe: WTF!
+                  this.setState({
+                    qualifiedCustomerGroupIds: ids,
+                  });
+                }}
+        />
+      </div>
     );
   }
 }

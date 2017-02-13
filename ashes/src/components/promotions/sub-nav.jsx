@@ -24,6 +24,7 @@ const SubNav = (props: SubNavProps) => {
     <LocalNav>
       <IndexLink to="promotion-details" params={params}>Details</IndexLink>
       {!isNew && <Link to="promotion-notes" params={params}>Notes</Link>}
+      {!isNew && <Link to="promotion-coupons" params={params}>Coupons</Link>}
       {!isNew && <Link to="promotion-activity-trail" params={params}>Activity Trail</Link>}
     </LocalNav>
   );
