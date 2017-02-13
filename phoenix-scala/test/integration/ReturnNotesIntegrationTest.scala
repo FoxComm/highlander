@@ -1,7 +1,6 @@
 import java.time.Instant
 
 import akka.http.scaladsl.model.StatusCodes
-
 import failures.NotFoundFailure404
 import models._
 import models.returns._
@@ -9,6 +8,7 @@ import payloads.NotePayloads._
 import responses.AdminNotes
 import services.notes.ReturnNoteManager
 import testutils._
+import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
@@ -17,34 +17,36 @@ import utils.time.RichInstant
 class ReturnNotesIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
+    with PhoenixAdminApi
     with AutomaticAuth
     with TestActivityContext.AdminAC
     with BakedFixtures {
 
+  def api(ref: String) = notesApi.returnApi(ref)
+
+  "wip" - {
+    "can be created by an admin for a gift card" in new Fixture {
+      val note =
+        api(rma.refNum).create(CreateNote(body = "Hello, FoxCommerce!")).as[AdminNotes.Root]
+
+      note.body must === ("Hello, FoxCommerce!")
+      note.author must === (AdminNotes.buildAuthor(storeAdmin))
+    }
+  }
+
   "Return Notes" - {
     pending
-
     "POST /v1/notes/return/:code" - {
-      "can be created by an admin for a gift card" in new Fixture {
-        val response =
-          POST(s"v1/notes/rma/${rma.refNum}", CreateNote(body = "Hello, FoxCommerce!"))
-
-        response.status must === (StatusCodes.OK)
-
-        val note = response.as[AdminNotes.Root]
-        note.body must === ("Hello, FoxCommerce!")
-        note.author must === (AdminNotes.buildAuthor(storeAdmin))
-      }
 
       "returns a validation error if failed to create" in new Fixture {
-        val response = POST(s"v1/notes/rma/${rma.refNum}", CreateNote(body = ""))
+        val response = api(rma.refNum).create(CreateNote(body = ""))
 
         response.status must === (StatusCodes.BadRequest)
         response.error must === ("body must not be empty")
       }
 
       "returns a 404 if the gift card is not found" in new Fixture {
-        val response = POST(s"v1/notes/rma/RMA-666", CreateNote(body = ""))
+        val response = api("RMA-666").create(CreateNote(body = ""))
 
         response.status must === (StatusCodes.NotFound)
         response.error must === (NotFoundFailure404(Return, "RMA-666").description)
@@ -55,11 +57,10 @@ class ReturnNotesIntegrationTest
 
       "can be listed" in new Fixture {
         val createNotes = List("abc", "123", "xyz").map { body ⇒
-          ReturnNoteManager.create(rma.refNum, storeAdmin, CreateNote(body = body))
+          api(rma.refNum).create(CreateNote(body = body))
         }
-        DbResultT.sequence(createNotes).gimme
 
-        val response = GET(s"v1/notes/rma/${rma.refNum}")
+        val response = api(rma.refNum).get()
         response.status must === (StatusCodes.OK)
 
         val notes = response.as[Seq[AdminNotes.Root]]
@@ -71,15 +72,11 @@ class ReturnNotesIntegrationTest
     "PATCH /v1/notes/return/:code/:noteId" - {
 
       "can update the body text" in new Fixture {
-        val rootNote = ReturnNoteManager
-          .create(rma.refNum, storeAdmin, CreateNote(body = "Hello, FoxCommerce!"))
-          .gimme
+        val rootNote =
+          api(rma.refNum).create(CreateNote(body = "Hello, FoxCommerce!")).as[AdminNotes.Root]
 
-        val response =
-          PATCH(s"v1/notes/rma/${rma.refNum}/${rootNote.id}", UpdateNote(body = "donkey"))
-        response.status must === (StatusCodes.OK)
-
-        val note = response.as[AdminNotes.Root]
+        val note =
+          api(rma.refNum).note(rootNote.id).update(UpdateNote(body = "donkey")).as[AdminNotes.Root]
         note.body must === ("donkey")
       }
     }
@@ -87,13 +84,12 @@ class ReturnNotesIntegrationTest
     "DELETE /v1/notes/return/:code/:noteId" - {
 
       "can soft delete note" in new Fixture {
-        val createResp =
-          POST(s"v1/notes/rma/${rma.refNum}", CreateNote(body = "Hello, FoxCommerce!"))
-        val note = createResp.as[AdminNotes.Root]
+        val note =
+          api(rma.refNum).create(CreateNote(body = "Hello, FoxCommerce!")).as[AdminNotes.Root]
 
-        val response = DELETE(s"v1/notes/rma/${rma.refNum}/${note.id}")
-        response.status must === (StatusCodes.NoContent)
-        response.bodyText mustBe empty
+        val deleteResponse = api(rma.refNum).note(note.id).delete()
+        deleteResponse.status must === (StatusCodes.NoContent)
+        deleteResponse.bodyText mustBe empty
 
         val updatedNote = Notes.findOneById(note.id).run().futureValue.value
         updatedNote.deletedBy.value must === (1)
@@ -103,20 +99,21 @@ class ReturnNotesIntegrationTest
         }
 
         // Deleted note should not be returned
-        val allNotesResponse = GET(s"v1/notes/rma/${rma.refNum}")
-        allNotesResponse.status must === (StatusCodes.OK)
-        val allNotes = allNotesResponse.as[Seq[AdminNotes.Root]]
+        val allNotes = api(rma.refNum).get().as[Seq[AdminNotes.Root]]
         allNotes.map(_.id) must not contain note.id
 
-        val getDeletedNoteResponse = GET(s"v1/notes/rma/${rma.refNum}/${note.id}")
-        getDeletedNoteResponse.status must === (StatusCodes.NotFound)
+        // todo implement
+//        api(rma.refNum).note(note.id).get()
+//        val getDeletedNoteResponse = GET(s"v1/notes/return/${rma.refNum}/${note.id}")
+//        getDeletedNoteResponse.status must === (StatusCodes.NotFound)
       }
     }
   }
 
   trait Fixture extends StoreAdmin_Seed with Order_Baked {
     val rma = Returns
-      .create(Factories.rma.copy(orderRef = order.refNum, accountId = customer.accountId))
+      .create(Factories.rma.copy(orderRef = order.refNum, accountId = storeAdmin.accountId))
       .gimme
   }
+
 }
