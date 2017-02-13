@@ -1,23 +1,27 @@
 {
-  "id": "/storefront",
+  "id": "/{{app_name}}",
   "cmd": null,
   "cpus": 1,
-  "mem": 4096,
+  "mem": 1024,
   "disk": 0,
   "instances": 1,
   "labels": {
     "LAYER": "frontend",
-    "LANG": "js"
+    "LANG": "js",
+    "TAG": "{{docker_tags.storefront_td}}"
   },
   "env": {
     "API_URL": "https://{{storefront_server_name}}",
     "NODE_ENV": "production",
     "PHOENIX_PUBLIC_KEY": "/keys/public_key.pem",
-    "STRIPE_PUBLISHABLE_KEY": "{{stripe_publishable_key}}"
+    "STRIPE_PUBLISHABLE_KEY": "{{stripe_publishable_key}}",
+    "CONTACT_EMAIL": "{{contact_email}}",
+    "MAILCHIMP_API_KEY": "{{mailchimp_api_key}}",
+    "URL_PREFIX": "{{url_prefix_topdrawer}}"
   },
   "healthChecks": [
     {
-      "path": "/",
+      "path": "{{url_prefix_topdrawer}}",
       "protocol": "HTTP",
       "gracePeriodSeconds": 300,
       "intervalSeconds": 30,

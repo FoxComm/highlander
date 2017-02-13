@@ -17,12 +17,7 @@ Go ahead and clone our main mono-repo called "Highlander":
 
     $ git clone git@github.com:FoxComm/highlander.git
 
-Before starting the configuration process, you'll need to install VirtualBox, Vagrant...
-
-    $ vboxmanage --version
-    $ vagrant --version
-
-... and Ansible.
+Before starting the configuration process, you'll need to install Ansible:
 
     $ ansible --version
 
@@ -38,13 +33,13 @@ You'll be prompted for various information like key location. After that, you're
 
     $ make up
 
-If everything is set correctly, Vagrant will prepare an instance which will be provisioned by Ansible.
+If everything is set correctly, Ansible will launch & provision an instance:
 
-    <vagrant logs appear>
+    <ansible logs appear>
 
 Please note that provisioning process can take 20-30 minutes, depending on your internet connection.
 
-    <ansible logs appear>
+    <ansible logs fast-forward>
 
 In sake of the length of this video, we will perform a dry-run instead of actual provisioning.
 
@@ -52,7 +47,7 @@ In sake of the length of this video, we will perform a dry-run instead of actual
 
 Your instance is ready! Let's try to connect there:
 
-    $ make ssh
+    $ ssh <username>@<ip_address>
     $ ifconfig ens4
     $ exit
 
@@ -61,18 +56,8 @@ In the next video, we will learn how to actually change things there.
 
 ## Deploying and Testing Custom Branch of Application
 
-Plan: show how-to use [Deploying-Custom-Branches.md](engineering-wiki/devops/Deploying-Custom-Branches.md) `make update-app` CLI tool.
+TBD: show how-to use [Deploying-Custom-Branches.md](engineering-wiki/devops/Deploying-Custom-Branches.md) `make update-app` CLI tool.
 
 ## Using Bundled Software to Solve Problems
 
-TBD.
-
-Showcase of 3rd-party services we have inside appliances:
-
-    * Systemd
-    * Consul
-    * Elasticsearch
-    * Mesos
-    * Kibana
-    * Pgweb
-    * Batteries inside like `scala`, `pgcli`, `go`, `jq`, etc.
+TBD: show how-to use [Development-Kit.md](engineering-wiki/devops/Development-Kit.md) to solve problems.

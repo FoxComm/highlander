@@ -1,5 +1,6 @@
 package responses
 
+import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import models.objects.FullObject
 import models.taxonomy.{Taxon ⇒ ModelTaxon, _}
@@ -56,11 +57,15 @@ object TaxonomyResponses {
   case class SingleTaxonResponse(taxonomyId: Int, taxon: Taxon, parentId: Option[Integer])
 
   object SingleTaxonResponse {
-    def build(taxonomyId: Integer, taxon: FullObject[ModelTaxon], parentTaxonId: Option[Integer]) =
+    def build(taxonomyId: Integer,
+              taxon: FullObject[ModelTaxon],
+              parentTaxonId: Option[Integer]): SingleTaxonResponse =
       SingleTaxonResponse(taxonomyId, Taxon.build(taxon), parentTaxonId)
   }
 
-  case class TaxonTreeResponse(taxon: Taxon, children: Seq[TaxonTreeResponse])
+  case class TaxonTreeResponse(taxon: Taxon, children: Option[Seq[TaxonTreeResponse]]) {
+    def childrenAsList: Seq[TaxonTreeResponse] = children.getOrElse(Seq.empty)
+  }
 
   case class Taxon(id: Int, name: String)
 
@@ -76,8 +81,8 @@ object TaxonomyResponses {
   }
 
   object TaxonTreeResponse {
-    def build(taxon: FullObject[ModelTaxon]): TaxonTreeResponse = {
-      TaxonTreeResponse(Taxon.build(taxon), Seq())
+    def build(taxon: Taxon, children: Seq[TaxonTreeResponse]): TaxonTreeResponse = {
+      TaxonTreeResponse(taxon, children.some.filterNot(_.isEmpty))
     }
 
     def buildTree(nodes: Seq[LinkedTaxon]): Seq[TaxonTreeResponse] =
@@ -88,7 +93,7 @@ object TaxonomyResponses {
       val headsByPosition = heads.sortBy { case (_, link)     ⇒ link.position }
       headsByPosition.map {
         case (taxon, link) ⇒
-          TaxonTreeResponse(Taxon.build(taxon), buildTree(level + 1, tail.filter {
+          TaxonTreeResponse.build(Taxon.build(taxon), buildTree(level + 1, tail.filter {
             case (_, lnk) ⇒ lnk.path.value.startsWith(link.childPath.value)
           }))
       }

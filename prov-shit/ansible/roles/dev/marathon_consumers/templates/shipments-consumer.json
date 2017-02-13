@@ -1,5 +1,5 @@
 {
-  "id": "/capture-consumer",
+  "id": "/shipments-consumer",
   "cmd": null,
   "cpus": 0.25,
   "mem": 64,
@@ -7,7 +7,8 @@
   "instances": 1,
   "labels": {
     "LAYER": "consumer",
-    "LANG": "go"
+    "LANG": "go",
+    "TAG": "{{docker_tags.shipments_consumer}}"
   },
   "container": {
     "type": "DOCKER",
@@ -19,7 +20,7 @@
       }
     ],
     "docker": {
-      "image": "{{docker_registry}}:5000/capture-consumer:{{docker_tags.capture_consumer}}",
+      "image": "{{docker_registry}}:5000/shipments-consumer:{{docker_tags.shipments_consumer}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],
@@ -39,13 +40,12 @@
     {
       "protocol": "COMMAND",
       "command": {
-        "value": "ps -ef | grep -v grep | grep capture-consumer"
+        "value": "ps -ef | grep -v grep | grep shipments-consumer"
       },
       "gracePeriodSeconds": 300,
       "intervalSeconds": 30,
       "timeoutSeconds": 20,
-      "maxConsecutiveFailures": 3,
-      "ignoreHttp1xx": false
+      "maxConsecutiveFailures": 3
     }
   ]
 }

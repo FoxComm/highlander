@@ -1,19 +1,26 @@
 {
-  "id": "/shipstation",
+  "id": "/capture-consumer",
   "cmd": null,
   "cpus": 0.25,
   "mem": 64,
   "disk": 0,
-  "instances": 0,
+  "instances": 1,
   "labels": {
     "LAYER": "consumer",
-    "LANG": "go"
+    "LANG": "go",
+    "TAG": "{{docker_tags.capture_consumer}}"
   },
   "container": {
     "type": "DOCKER",
-    "volumes": [],
+    "volumes": [
+      {
+        "containerPath": "{{docker_logs_dir}}",
+        "hostPath": "{{docker_logs_host_dir}}",
+        "mode": "RW"
+      }
+    ],
     "docker": {
-      "image": "{{docker_registry}}:5000/shipstation-consumer:{{docker_tags.shipstation_consumer}}",
+      "image": "{{docker_registry}}:5000/capture-consumer:{{docker_tags.capture_consumer}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],
@@ -21,13 +28,10 @@
     }
   },
   "env": {
+    "TOPIC": "activities",
     "SCHEMA_REPOSITORY_URL": "http://{{schema_server}}",
     "ZOOKEEPER_URL": "{{zookeeper_server}}",
     "MWH_URL": "http://{{middlewarehouse_server}}",
-    "API_KEY": "{{shipstation_api_key}}",
-    "API_SECRET": "{{shipstation_api_secret}}",
-    "TOPIC": "{{shipstation_topic}}",
-    "POLLING_INTERVAL": "{{shipstation_interval}}",
     "PHOENIX_URL": "http://{{phoenix_server}}",
     "PHOENIX_USER": "{{phoenix_api_user}}",
     "PHOENIX_PASSWORD": "{{phoenix_api_password}}"
@@ -36,12 +40,13 @@
     {
       "protocol": "COMMAND",
       "command": {
-        "value": "ps -ef | grep -v grep | grep shipstation-consumer"
+        "value": "ps -ef | grep -v grep | grep capture-consumer"
       },
       "gracePeriodSeconds": 300,
       "intervalSeconds": 30,
       "timeoutSeconds": 20,
-      "maxConsecutiveFailures": 3
+      "maxConsecutiveFailures": 3,
+      "ignoreHttp1xx": false
     }
   ]
 }
