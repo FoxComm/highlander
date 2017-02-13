@@ -5,10 +5,10 @@ import React from 'react';
 import UsersTypeahead from './users-typeahead';
 
 type Props = {
-  suggestState: string,
-  suggested: Array<Customer>,
-  suggestCustomers: (token: string) => Array<Customer>,
-  onSelect: (customers: Array<Customer>) => void,
+  suggestState: AsyncState,
+  suggested: Array<TUser>,
+  suggestCustomers: (token: string) => Promise,
+  onSelect: (customers: Array<TUser>) => void,
 };
 
 export default (props: Props) => (

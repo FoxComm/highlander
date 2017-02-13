@@ -43,9 +43,9 @@ type Props = {
     setExtraFilters: Function,
     fetch: Function,
   },
-  suggested: Array<Customer>,
-  suggestState: string,
-  suggestCustomers: (token: string) => Array<Customer>,
+  suggested: Array<TUser>,
+  suggestState: AsyncState,
+  suggestCustomers: (token: string) => Promise,
   addCustomersToGroup: (groupId: number, ids: Array<number>) => Promise,
 };
 
