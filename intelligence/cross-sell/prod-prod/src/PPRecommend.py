@@ -7,8 +7,8 @@ class PPRecommend(object):
         self.events = set()
         self.upToDate = False
 
-    def addPoint(self, custID, prodID):
-        """addPoint
+    def add_point(self, custID, prodID):
+        """add_point
         takes and event 'custID purchased prodID' and adds it to
         the recommender data.
         The sparse matrix needs to be recomputed before making more
@@ -17,7 +17,7 @@ class PPRecommend(object):
         self.events.add((custID, prodID))
         self.upToDate = False
 
-    def makeMatrix(self):
+    def make_matrix(self):
         """compute the similarity score matrix
 
         this only needs to be done once for each product purchased
@@ -53,7 +53,7 @@ class PPRecommend(object):
             worst = 0 <= similarityScore <= 1 = best
         """
         if ~(self.upToDate):
-            self.makeMatrix()
+            self.make_matrix()
 
         v = self.mat[:, prodID].toarray()
         inds = np.argsort(v.T[0])[::-1]

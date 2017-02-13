@@ -10,7 +10,7 @@ rec = PPRecommend()
 
 for line in sys.stdin:
     pair = line.split(' ')
-    rec.addPoint(
+    rec.add_point(
         int(pair[0]),
         int(pair[1])
     )
