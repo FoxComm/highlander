@@ -22,6 +22,6 @@ clean:
 	rm -rf ./node_modules
 
 test: 
-  yarn test
+	yarn test
 
 .PHONY: dev d setup build docker docker-push clean test
