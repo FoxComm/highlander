@@ -33,6 +33,14 @@ server {
       proxy_pass http://marketplace-ui;
   }
 
+  location /top-drawer {
+       proxy_pass http://storefront-top-drawer;
+  }
+
+  location /perfect-gourmet {
+       proxy_pass http://storefront-perfect-gourmet;
+  }
+
   include /etc/nginx/service_locations.conf;
   include /etc/nginx/tgt_service_locations.conf;
 }
