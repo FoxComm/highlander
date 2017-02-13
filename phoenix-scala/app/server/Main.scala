@@ -31,9 +31,8 @@ import utils.{ElasticsearchApi, Environment, FoxConfig}
 object Main extends App with LazyLogging {
   logger.info("Starting phoenix server")
 
-  val service = new Service()
-
   try {
+    val service = new Service()
     service.performSelfCheck()
     service.bind()
     service.setupRemorseTimers()

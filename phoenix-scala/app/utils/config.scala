@@ -145,8 +145,8 @@ object FoxConfig {
   val admin: Lens[Users, User]             = lens[Users].admin
   val googleOauth: Lens[User, GoogleOauth] = lens[User].oauth.google
 
-  // impure, but throwing exception is exactly what we want here
-  lazy val (config, unsafe) = {
+  // impure, but throwing an exception is exactly what we want here
+  val (config, unsafe) = {
     val underlying = loadWithEnv()
     (loadConfig[FoxConfig](underlying).get, underlying)
   }

@@ -21,10 +21,7 @@ trait AmazonApi {
 class AmazonS3 extends AmazonApi {
   def uploadFile(fileName: String, file: File)(implicit ec: EC): Result[String] =
     Future {
-      val accessKey = config.apis.aws.accessKey
-      val secretKey = config.apis.aws.secretKey
-      val s3Bucket  = config.apis.aws.s3Bucket
-      val s3Region  = config.apis.aws.s3Region
+      import config.apis.aws._
 
       val credentials = new BasicAWSCredentials(accessKey, secretKey)
       val client      = new AmazonS3Client(credentials)

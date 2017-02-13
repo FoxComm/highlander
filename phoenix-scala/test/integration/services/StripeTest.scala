@@ -13,7 +13,7 @@ import utils.seeds.Seeds.Factories
 
 trait RealStripeApis extends IntegrationTestBase {
   // Mutate Stripe state, set real key
-  Stripe.apiKey = config.getString("stripe.key")
+  Stripe.apiKey = sys.env.getOrElse("STRIPE_API_KEY", config.getString("apis.stripe.key"))
 }
 
 // Test that actually calls Stripe
