@@ -21,14 +21,14 @@ type Props = {
 const ProductRow = (props: Props) => {
   const { product, columns, params } = props;
 
-  const setCellContents = (product, field, options) => {
+  const setCellContents = (product: TSearchViewProduct, field: string, options: Object) => {
     switch (field) {
       case 'image':
         return _.get(product, ['albums', 0, 'images', 0, 'src']);
       case 'state':
         return <StatePill object={product} />;
       case 'variants':
-        return product.variants.length;
+        return product.skus.length;
       case 'skuCode':
         return '—';
       case 'selectColumn':
