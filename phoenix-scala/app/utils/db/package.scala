@@ -1,10 +1,11 @@
 package utils
 
 import scala.concurrent.Future
-
+import cats._
 import cats.data._
-import cats.{Applicative, Functor, Monad}
+import cats.implicits._
 import failures._
+import responses.BatchMetadata
 import services.Result
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.SQLActionBuilder
@@ -15,7 +16,56 @@ import utils.time.JavaTimeSlickMapper
 
 package object db {
 
+  // ————————————————————————————— Foxy —————————————————————————————
+
+  //final case class Failure(ζ: String) extends AnyVal
+
+  sealed trait UIInfo
+  object UIInfo {
+    final case class Warning(ζ: Failure)         extends UIInfo
+    final case class BatchInfo(ζ: BatchMetadata) extends UIInfo
+  }
+
+  /* We can’t use WriterT for warnings, because of the `failWithMatchedWarning`. */
+  type FoxyT[F[_], A] = StateT[XorT[F, Failure, ?], List[UIInfo], A]
+
+  type Foxy[A] = FoxyT[Id, A]
+  object Foxy extends FoxyTOps[Id]
+
+  type FoxyTDBIO[A] = FoxyT[DBIO, A]
+  object FoxyTDBIO extends FoxyTOps[DBIO]
+
+  trait FoxyTOps[F[_]] {
+    def apply[A](a: A)(implicit M: Monad[F]): FoxyT[F, A] =
+      pure(a)
+
+    def pure[A](a: A)(implicit M: Monad[F]): FoxyT[F, A] =
+      Monad[FoxyT[F, ?]].pure(a)
+
+    def warning(f: Failure)(implicit M: Monad[F]): FoxyT[F, Unit] =
+      StateT.modify(UIInfo.Warning(f) :: _)
+
+    def failure(f: Failure)(implicit M: Monad[F]): FoxyT[F, Unit] =
+      StateT(_ ⇒ XorT.left(M.pure(f)))
+
+    def fromId[A](fa: Foxy[A])(implicit M: Monad[F]): FoxyT[F, A] =
+      StateT(s ⇒ XorT(M.pure(fa.run(s).value)))
+
+    def failWithMatchedWarning(pf: PartialFunction[Failure, Boolean])(
+        implicit M: Monad[F]): FoxyT[F, Unit] =
+      StateT(s ⇒
+            s.collect {
+          case UIInfo.Warning(f) ⇒ f
+        }.find(pf.lift(_) == Some(true)) match {
+          case Some(f) ⇒ XorT.left(M.pure(f))
+          case _       ⇒ XorT.right(M.pure((s, ())))
+      })
+  }
+
+  // ————————————————————————————— /Foxy —————————————————————————————
+
   type DbResultT[A] = XorT[DBIO, Failures, A]
+
   // DBIO monad
   implicit def dbioApplicative(implicit ec: EC): Applicative[DBIO] = new Applicative[DBIO] {
     def ap[A, B](f: DBIO[A ⇒ B])(fa: DBIO[A]): DBIO[B] =
