@@ -10,6 +10,7 @@ import { connect } from 'react-redux';
 import { actions } from 'modules/taxons/list';
 
 // components
+import MultiSelectTable from 'components/table/multi-select-table';
 import SelectableSearchList from 'components/list-page/selectable-search-list';
 import TaxonRow from './taxon-row';
 
@@ -19,6 +20,9 @@ import { filterArchived } from 'elastic/archive';
 // types
 import type { TaxonResult } from 'paragons/taxon';
 import type { SearchFilter } from 'elastic/common';
+
+// styling
+import styles from './taxons.css';
 
 type Column = {
   field: string,
@@ -47,6 +51,10 @@ const tableColumns = [
 export class TaxonsListPage extends Component {
   props: Props;
 
+  componentDidMount() {
+    this.props.actions.fetch();
+  }
+
   renderRow(row: TaxonResult, index: number, columns: Array<Column>, params: Object) {
     const key = `taxons-${row.id}`;
     return <TaxonRow key={key} taxon={row} columns={columns} params={params} />;
@@ -55,16 +63,21 @@ export class TaxonsListPage extends Component {
   render(): Element {
     const { list, actions } = this.props;
 
+    const results = list.currentSearch().results;
+
     return (
-      <div>
-        <SelectableSearchList
-          entity="taxons.list"
-          emptyMessage="No taxons found."
-          list={list}
+      <div styleName="container">
+        <MultiSelectTable
+          columns={tableColumns}
+          data={results}
           renderRow={this.renderRow}
-          tableColumns={tableColumns}
-          searchActions={actions}
-          predicate={({id}) => id} />
+          setState={actions.updateStateAndFetch}
+          predicate={({id}) => id}
+          hasActionsColumn={false}
+          isLoading={results.isFetching}
+          failed={results.failed}
+          emptyMessage={"No taxons found."}
+          key={list.currentSearch().title} />
       </div>
     );
   }
