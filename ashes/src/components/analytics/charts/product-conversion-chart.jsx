@@ -124,7 +124,7 @@ const barEvents = [
 type Props = {
   jsonData: Object,
   debugMode?: ?boolean,
-  comparisonJsonData?: ?Object,
+  comparisonJsonData?: Object,
 }
 
 type ProductConversionChartBar = {
@@ -143,12 +143,10 @@ class ProductConversionChart extends React.Component {
     comparisonJsonData: {},
   };
 
-  constructor(props: Props) {
-    super(props);
-  }
+  props: Props;
 
   @autobind
-  jsonDataToChartData(jsonDisplay): Array<ProductConversionChartBar> {
+  jsonDataToChartData(jsonDisplay: Object): Array<ProductConversionChartBar> {
 
     const deltaDisplay = (deltaStr: number): number => {
       return _.round(parseFloat(deltaStr) * 100, 2);
@@ -202,7 +200,7 @@ class ProductConversionChart extends React.Component {
   }
 
   @autobind
-  renderDataChart(jsonData) {
+  renderDataChart(jsonData: Object) {
     return (
       <VictoryChart
         width={700}
@@ -259,7 +257,7 @@ class ProductConversionChart extends React.Component {
   }
 
   @autobind
-  renderDataVsComparisonChart(jsonData, comparisonJsonData) {
+  renderDataVsComparisonChart(jsonData: Object, comparisonJsonData: Object = {}) {
     const { dataBarStyle, comparisonDataBarStyle } = comparisonBarStyles;
 
     return (
@@ -365,7 +363,7 @@ class ProductConversionChart extends React.Component {
       //return this.renderDataChart(jsonData);
     }
 
-    if (_.isEmpty(comparisonJsonData)) {
+    if (_.isNil(comparisonJsonData) || _.isEmpty(comparisonJsonData)) {
       return this.renderDataChart(jsonData);
     }
 
