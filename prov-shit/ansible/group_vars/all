@@ -78,17 +78,15 @@ ashes_host: "ashes.{{consul_suffix}}"
 ashes_port: 4000
 ashes_server: "{{ashes_host}}:{{ashes_port}}"
 
-storefront_host: "storefront.{{consul_suffix}}"
 storefront_port: 4041
+storefront_host: "storefront.{{consul_suffix}}"
 storefront_server: "{{storefront_host}}:{{storefront_port}}"
 
-storefront_topdrawer_host: "storefront-topdrawer.{{consul_suffix}}"
-storefront_topdrawer_port: 4045
-storefront_topdrawer_server: "{{storefront_topdrawer_host}}:{{storefront_port}}"
+storefront_top_drawer_host: "storefront-top-drawer.{{consul_suffix}}"
+storefront_top_drawer_server: "{{storefront_top_drawer_host}}:{{storefront_port}}"
 
-storefront_perfectgourmet_host: "storefront-perfectgourmet.{{consul_suffix}}"
-storefront_perfectgourmet_port: 4041
-storefront_perfectgourmet_server: "{{storefront_perfectgourmet_host}}:{{storefront_port}}"
+storefront_perfect_gourmet_host: "storefront-perfect-gourmet.{{consul_suffix}}"
+storefront_perfect_gourmet_server: "{{storefront_perfect_gourmet_host}}:{{storefront_port}}"
 
 kafka_host: "kafka.{{consul_suffix}}"
 kafka_port: 9092
