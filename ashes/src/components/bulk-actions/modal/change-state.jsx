@@ -1,14 +1,11 @@
 /* @flow */
-import _ from 'lodash';
-import React, { PropTypes } from 'react';
 
-// helpers
-import { numberize } from '../../../lib/text-utils';
+import capitalize from 'lodash/capitalize';
+import React from 'react';
 
-// components
-import modal from '../../modal/wrapper';
-import ContentBox from '../../content-box/content-box';
-import SaveCancel from '../../common/save-cancel';
+import { numberize } from 'lib/text-utils';
+
+import Modal from './modal';
 
 type Props = {
   entity: string;
@@ -20,8 +17,7 @@ type Props = {
 };
 
 const ChangeStateModal = (props: Props) => {
-  const {entity, stateTitle, count, label: rawLabel, onCancel, onConfirm} = props;
-  const actionBlock = <i onClick={onCancel} className="fc-btn-close icon-close" title="Close" />;
+  const { entity, stateTitle, count, label: rawLabel, onCancel, onConfirm } = props;
   const entityForm = numberize(entity, count);
 
   const label = rawLabel
@@ -29,21 +25,13 @@ const ChangeStateModal = (props: Props) => {
     : <span>Are you sure you want to change the state to <b>{stateTitle}</b> for <b>{count} {entityForm}</b>?</span>;
 
   return (
-    <ContentBox title={`Change ${_.capitalize(entityForm)} state to ${stateTitle}?`}
-                className="fc-bulk-action-modal"
-                actionBlock={actionBlock}>
-      <div className="fc-modal-body">
-        {label}
-      </div>
-      <SaveCancel className="fc-modal-footer"
-                  cancelTabIndex="2"
-                  cancelText="No"
-                  onCancel={onCancel}
-                  saveTabIndex="1"
-                  onSave={onConfirm}
-                  saveText="Yes, Change State" />
-    </ContentBox>
+    <Modal title={`Change ${capitalize(entityForm)} state to ${stateTitle}?`}
+           label={label}
+           onCancel={onCancel}
+           onConfirm={onConfirm}
+           className="fc-bulk-action-modal"
+    />
   );
 };
 
-export default modal(ChangeStateModal);
+export default ChangeStateModal;

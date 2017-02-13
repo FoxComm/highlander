@@ -19,10 +19,14 @@ import {
 } from 'modules/customer-groups/details/group';
 import { actions as customersListActions } from 'modules/customer-groups/details/customers-list';
 import { suggestCustomers } from 'modules/customers/suggest';
+import { actions as bulkActions } from 'modules/customer-groups/details/bulk';
 
 import { transitionTo } from 'browserHistory';
 import { prefix } from 'lib/text-utils';
 
+import BulkActions from 'components/bulk-actions/bulk-actions';
+import BulkMessages from 'components/bulk-actions/bulk-messages';
+import BulkModal from 'components/bulk-actions/modal';
 import { SelectableSearchList, makeTotalCounter } from 'components/list-page';
 import { PrimaryButton, Button } from 'components/common/buttons';
 import MultiSelectRow from 'components/table/multi-select-row';
@@ -47,6 +51,9 @@ type Props = {
     resetSearch: Function,
     setExtraFilters: Function,
     fetch: Function,
+  },
+  bulkActions: {
+    deleteCustomersFromGroup: (groupId: number, customersIds: Array<number>) => Promise,
   },
   suggested: Array<TUser>,
   suggestState: AsyncState,
@@ -160,7 +167,7 @@ class GroupDetails extends Component {
 
   @autobind
   handleCustomersSave(ids: Array<number>) {
-    const { group, addCustomersToGroup, groupActions } = this.props;
+    const { group, addCustomersToGroup } = this.props;
     this.setState({ addCustomersModalShown: false }, () => {
       addCustomersToGroup(group.id, ids).then(this.refreshGroupData);
     });
@@ -238,15 +245,29 @@ class GroupDetails extends Component {
     const { customersList, customersListActions } = this.props;
 
     return (
-      <SelectableSearchList
-        entity="customerGroups.details.customers"
-        emptyMessage="No customers found."
-        list={customersList}
-        renderRow={this.renderRow}
-        tableColumns={tableColumns}
-        searchActions={customersListActions}
-        searchOptions={{singleSearch: true}}
-      />
+      <div>
+        <BulkMessages
+          storePath="customerGroups.bulk"
+          module="customerGroups"
+          entity="group"
+          renderDetail={this.renderDetail}
+        />
+        <BulkActions
+          module="customerGroups"
+          entity="group"
+          actions={this.bulkActions}
+        >
+          <SelectableSearchList
+            entity="customerGroups.details.customers"
+            emptyMessage="No customers found."
+            list={customersList}
+            renderRow={this.renderRow}
+            tableColumns={tableColumns}
+            searchActions={customersListActions}
+            searchOptions={{singleSearch: true}}
+          />
+        </BulkActions>
+      </div>
     );
   }
 
@@ -287,6 +308,7 @@ const mapDispatch = (dispatch, props) => {
       suggestCustomers: suggestCustomers(customers),
       addCustomersToGroup,
     }, dispatch)),
+    bulkActions: bindActionCreators(bulkActions, dispatch),
   };
 };
 
