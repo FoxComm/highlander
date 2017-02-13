@@ -21,7 +21,7 @@ server {
   }
   {% if storefront_fixed_language %}set $accept_language {{storefront_default_language}};{% endif %}
 
-
+  # Proxy to storefronts
   location / {
       proxy_pass http://storefront/;
       proxy_http_version 1.1;
@@ -30,6 +30,18 @@ server {
 
   location @storefront {
       proxy_pass http://storefront;
+      proxy_http_version 1.1;
+      proxy_set_header Connection "";
+  }
+
+  location /top-drawer {
+      proxy_pass http://storefront-top-drawer;
+      proxy_http_version 1.1;
+      proxy_set_header Connection "";
+  }
+
+  location /perfect-gourmet {
+      proxy_pass http://storefront-perfect-gourmet;
       proxy_http_version 1.1;
       proxy_set_header Connection "";
   }
