@@ -24,13 +24,21 @@ server {
   }
   {% if storefront_fixed_language %}set $accept_language {{storefront_default_language}};{% endif %}
 
-  # Proxy to storefront
+  # Proxy to storefronts
   location / {
       proxy_pass http://storefront;
   }
 
   location @storefront {
       proxy_pass http://storefront;
+  }
+
+  location /top-drawer {
+       proxy_pass http://storefront-top-drawer;
+  }
+
+  location /perfect-gourmet {
+       proxy_pass http://storefront-perfect-gourmet;
   }
 
   include /etc/nginx/service_locations.conf;

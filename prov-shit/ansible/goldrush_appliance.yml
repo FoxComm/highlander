@@ -31,12 +31,16 @@
         shipments_consumer: "{{ lookup('env', 'DOCKER_TAG_SHIPMENTS_CONSUMER') | default('master') }}"
         shipstation_consumer: "{{ lookup('env', 'DOCKER_TAG_SHIPSTATION_CONSUMER') | default('master') }}"
         stock_items_consumer: "{{ lookup('env', 'DOCKER_TAG_STOCK_ITEMS_CONSUMER') | default('master') }}"
+        storefront_td: "{{ lookup('env', 'DOCKER_TAG_STOREFRONT_TOPDRAWER') | default('master') }}"
+        storefront_tpg: "{{ lookup('env', 'DOCKER_TAG_STOREFRONT_TPG') | default('master') }}"
     install_public_keys: true
     install_private_keys: true
     is_appliance: true
     is_amigo: true
     mesos_quorum: 1
     with_base_seeds: true
+    url_prefix_perfect_gourmet: "/perfect-gourmet"
+    url_prefix_topdrawer: "/top-drawer"
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
   pre_tasks:
     - name: Set IP/DNS Facts
@@ -61,7 +65,9 @@
     # Marathon
     - { role: dev/marathon }
     - { role: dev/seeder }
-    - { role: dev/marathon, only_consumers: true }
+    - { role: dev/marathon_consumers }
+    - { role: ext/td/storefront }
+    - { role: ext/tpg/storefront }
     # Nginx
     - { role: dev/balancer }
     - { role: hotfix/mesos_consul }

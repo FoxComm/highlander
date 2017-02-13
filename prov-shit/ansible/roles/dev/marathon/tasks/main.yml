@@ -5,12 +5,6 @@
 
 - name: Start Backend Apps
   include: backend.yml
-  when: not only_consumers
 
 - name: Start Frontend Apps
   include: frontend.yml
-  when: not only_consumers
-
-- name: Start Consumer Apps
-  include: consumers.yml
-  when: only_consumers
