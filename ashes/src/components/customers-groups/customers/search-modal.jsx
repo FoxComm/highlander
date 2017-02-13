@@ -9,8 +9,7 @@ import { isEmpty, map } from 'lodash';
 import { ModalContainer } from 'components/modal/base';
 import ContentBox from 'components/content-box/content-box';
 import SaveCancel from 'components/common/save-cancel';
-import CustomersTypeahead from './typeahead';
-import UsersTypeahead from 'components/users-typeahead/users-typeahead';
+import CustomersTypeahead from 'components/users-typeahead/customers-typeahead';
 
 type Props = {
   isVisible: boolean,
@@ -78,9 +77,8 @@ export default class SearchCustomersModal extends Component {
           className="fc-add-watcher-modal"
         >
           <div className="fc-modal-body fc-add-watcher-modal__content">
-            <UsersTypeahead
-              label="Customers"
-              suggestUsers={props.suggestCustomers}
+            <CustomersTypeahead
+              suggestCustomers={props.suggestCustomers}
               suggested={props.suggested}
               suggestState={props.suggestState}
               onSelect={this.handleSelect}

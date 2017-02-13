@@ -82,6 +82,7 @@ class GroupDetails extends Component {
     }
   }
 
+  @autobind
   refreshGroupData() {
     const { customersListActions, groupActions, group } = this.props;
 
