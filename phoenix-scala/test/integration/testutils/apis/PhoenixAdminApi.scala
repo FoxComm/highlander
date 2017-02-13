@@ -634,31 +634,31 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
   }
 
-  case object taxonomyApi {
+  case object taxonomiesApi {
     def create(payload: CreateTaxonomyPayload)(implicit ctx: OC) =
-      POST(s"v1/taxonomy/${ctx.name}", payload)
+      POST(s"v1/taxonomies/${ctx.name}", payload)
   }
 
-  case class taxonomyApi(taxonomyId: Int)(implicit ctx: OC) {
+  case class taxonomiesApi(taxonomyId: Int)(implicit ctx: OC) {
     def update(payload: UpdateTaxonomyPayload) =
-      PATCH(s"v1/taxonomy/${ctx.name}/$taxonomyId", payload)
-    def delete = DELETE(s"v1/taxonomy/${ctx.name}/$taxonomyId")
-    def get    = GET(s"v1/taxonomy/${ctx.name}/$taxonomyId")
+      PATCH(s"v1/taxonomies/${ctx.name}/$taxonomyId", payload)
+    def delete = DELETE(s"v1/taxonomies/${ctx.name}/$taxonomyId")
+    def get    = GET(s"v1/taxonomies/${ctx.name}/$taxonomyId")
     def createTaxon(payload: CreateTaxonPayload) =
-      POST(s"v1/taxonomy/${ctx.name}/$taxonomyId", payload)
+      POST(s"v1/taxonomies/${ctx.name}/$taxonomyId", payload)
   }
 
-  case class taxonApi(taxonId: Int)(implicit ctx: OC) {
-    def get = GET(s"v1/taxon/${ctx.name}/$taxonId")
+  case class taxonsApi(taxonId: Int)(implicit ctx: OC) {
+    def get = GET(s"v1/taxons/${ctx.name}/$taxonId")
     def update(payload: UpdateTaxonPayload) =
-      PATCH(s"v1/taxon/${ctx.name}/$taxonId", payload)
-    def delete = DELETE(s"v1/taxon/${ctx.name}/$taxonId")
+      PATCH(s"v1/taxons/${ctx.name}/$taxonId", payload)
+    def delete = DELETE(s"v1/taxons/${ctx.name}/$taxonId")
 
     def assignProduct(productFormId: ObjectForm#Id)(implicit ctx: OC): HttpResponse =
-      PATCH(s"v1/taxon/${ctx.name}/$taxonId/product/$productFormId")
+      PATCH(s"v1/taxons/${ctx.name}/$taxonId/product/$productFormId")
 
     def unassignProduct(productFormId: ObjectForm#Id)(implicit ctx: OC): HttpResponse =
-      DELETE(s"v1/taxon/${ctx.name}/$taxonId/product/$productFormId")
+      DELETE(s"v1/taxons/${ctx.name}/$taxonId/product/$productFormId")
   }
 
   object notesApi {

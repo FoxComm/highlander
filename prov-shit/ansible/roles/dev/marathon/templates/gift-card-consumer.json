@@ -7,7 +7,8 @@
   "instances": 1,
   "labels": {
     "LAYER": "consumer",
-    "LANG": "go"
+    "LANG": "go",
+    "TAG": "{{docker_tags.gift_card_consumer}}"
   },
   "container": {
     "type": "DOCKER",
