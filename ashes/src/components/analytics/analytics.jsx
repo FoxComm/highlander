@@ -590,7 +590,7 @@ export default class Analytics extends React.Component {
             ? 'visible'
             : 'hidden';
 
-          let conversionComparison = null;
+          let conversionComparison = {};
           if (_.has(analytics, 'chartValues.Comparison')) {
             conversionComparison = analytics.chartValues.Comparison;
             conversionComparison.Average = analytics.chartValues.Average;
