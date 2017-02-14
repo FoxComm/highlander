@@ -1,22 +1,58 @@
 package testutils
 
-import scala.concurrent.Future
 import akka.http.scaladsl.model.headers.HttpChallenge
 import akka.http.scaladsl.server.Directive1
 import akka.http.scaladsl.server.directives.AuthenticationResult
 import akka.http.scaladsl.server.directives.BasicDirectives.provide
-import akka.http.scaladsl.server.directives.SecurityDirectives._
-
+import akka.http.scaladsl.server.directives.SecurityDirectives.AuthenticationResult
 import models.account._
 import models.auth.UserToken
 import org.scalatest.SuiteMixin
-import org.scalatest.concurrent.ScalaFutures
+import services.Authenticator
 import services.Authenticator.{AuthData, UserAuthenticator}
+import services.account.AccountCreateContext
+import testutils.fixtures.AccountContext
+import utils.aliases.{DB, EC}
+import utils.db.{*, _}
 import utils.seeds.Seeds.Factories
+
+import scala.concurrent.Future
 
 abstract class FakeAuth extends UserAuthenticator {
   type C = String
   def readCredentials(): Directive1[Option[String]] = provide(Some("ok"))
+}
+
+case class VariableAuth(var admin: Option[User], var customer: Option[User])(implicit ex: EC,
+                                                                             db: DB)
+    extends UserAuthenticator
+    with AccountContext {
+
+  private val guestAuthenticator = Authenticator.forUser(customerContext)
+
+  def readCredentials(): Directive1[Option[String]] = {
+    provide(customer.map(_ ⇒ "ok"))
+  }
+
+  def checkAuthUser(creds: Option[String]): Future[AuthenticationResult[AuthData[User]]] = {
+    admin match {
+      case Some(a) ⇒
+        AuthAs(a, a).checkAuthUser(creds)
+      case None ⇒
+        guestAuthenticator.checkAuthUser(creds)
+    }
+
+  }
+
+  def checkAuthCustomer(creds: Option[String]): Future[AuthenticationResult[AuthData[User]]] = {
+    customer match {
+      case Some(c) ⇒
+        AuthAs(c, c).checkAuthCustomer(creds)
+      case None ⇒
+        guestAuthenticator.checkAuthCustomer(creds)
+    }
+
+  }
 }
 
 case class AuthAs(admin: User, customer: User) extends FakeAuth {
