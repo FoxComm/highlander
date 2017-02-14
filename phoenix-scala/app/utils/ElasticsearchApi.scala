@@ -110,10 +110,6 @@ object ElasticsearchApi {
   val clusterKey = "elasticsearch.cluster"
   val indexKey   = "elasticsearch.index"
 
-  val defaultHost    = "elasticsearch://localhost:9300"
-  val defaultCluster = "elasticsearch"
-  val defaultIndex   = "admin"
-
   sealed trait SearchView {
     val typeName: String
   }
@@ -128,11 +124,6 @@ object ElasticsearchApi {
 
   def fromConfig(config: FoxConfig)(implicit ec: EC): ElasticsearchApi =
     ElasticsearchApi(config.apis.elasticsearch)
-
-  def default()(implicit ec: EC): ElasticsearchApi = {
-    val config = ESConfig(host = defaultHost, cluster = defaultCluster, index = defaultIndex)
-    ElasticsearchApi(config)
-  }
 
   protected def injectFilterReferences(query: Json,
                                        fieldName: String,

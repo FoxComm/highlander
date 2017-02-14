@@ -127,7 +127,7 @@ class Service(
   }
 
   val allRoutes = {
-    val routes = if (env.isDev) {
+    val routes = if (!env.isProd) {
       logger.info("Activating dev routes")
       addRoutes.foldLeft(defaultRoutes ~ devRoutes)(_ ~ _)
     } else

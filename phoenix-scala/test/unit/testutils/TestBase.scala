@@ -26,8 +26,6 @@ trait TestBase
 
   implicit val timeout: Timeout = Timeout(10, TimeUnit.SECONDS)
 
-  val config = TestBase.config
-
   object Tags {
     object Slow     extends Tag("tags.Slow")
     object External extends Tag("tags.External")
@@ -43,6 +41,6 @@ trait TestBase
 }
 
 object TestBase {
-  implicit val env = Environment.Test
-  def config = FoxConfig.loadWithEnv()
+  implicit val env         = Environment.Test
+  val (config, bareConfig) = FoxConfig.loadWithEnv().get
 }

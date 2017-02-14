@@ -6,22 +6,17 @@ import com.pellucid.sealerate
 import com.typesafe.config.{Config, ConfigFactory}
 import pureconfig._
 import scala.reflect._
-import scala.util.{Failure, Success}
+import scala.util.{Failure, Success, Try}
 import shapeless._
 import utils.FoxConfig._
 
 sealed trait Environment {
-  def isDev: Boolean  = false
   def isProd: Boolean = false
 }
 object Environment {
-  case object Test extends Environment
-  case object Development extends Environment {
-    override def isDev: Boolean = true
-  }
-  case object Staging extends Environment {
-    override def isDev: Boolean = true
-  }
+  case object Test        extends Environment
+  case object Development extends Environment
+  case object Staging     extends Environment
   case object Production extends Environment {
     override def isProd: Boolean = true
   }
@@ -119,7 +114,7 @@ object FoxConfig {
                          redirectUri: String,
                          hostedDomain: Option[String])
 
-  def loadWithEnv(cfg: Config = ConfigFactory.load)(implicit env: Environment): Config = {
+  private def loadWithEnv(cfg: Config)(implicit env: Environment): Config = {
     val envConfig = cfg.getConfig("env." ++ env.show)
     ConfigFactory.systemProperties.withFallback(envConfig.withFallback(cfg))
   }
@@ -145,9 +140,12 @@ object FoxConfig {
   val admin: Lens[Users, User]             = lens[Users].admin
   val googleOauth: Lens[User, GoogleOauth] = lens[User].oauth.google
 
+  def loadWithEnv()(implicit env: Environment): Try[(FoxConfig, Config)] =
+    for {
+      underlying ← Try(loadWithEnv(ConfigFactory.load))
+      config     ← loadConfig[FoxConfig](underlying)
+    } yield (config, underlying)
+
   // impure, but throwing an exception is exactly what we want here
-  val (config, unsafe) = {
-    val underlying = loadWithEnv()
-    (loadConfig[FoxConfig](underlying).get, underlying)
-  }
+  val (config, unsafe) = loadWithEnv().get
 }

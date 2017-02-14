@@ -19,12 +19,13 @@ trait AmazonApi {
 }
 
 class AmazonS3 extends AmazonApi {
+  import config.apis.aws._
+
+  private[this] val credentials = new BasicAWSCredentials(accessKey, secretKey)
+  private[this] val client      = new AmazonS3Client(credentials)
+
   def uploadFile(fileName: String, file: File)(implicit ec: EC): Result[String] =
     Future {
-      import config.apis.aws._
-
-      val credentials = new BasicAWSCredentials(accessKey, secretKey)
-      val client      = new AmazonS3Client(credentials)
       val putRequest = new PutObjectRequest(s3Bucket, fileName, file)
         .withCannedAcl(CannedAccessControlList.PublicRead)
       client.putObject(putRequest)

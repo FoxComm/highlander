@@ -89,7 +89,7 @@ object GoogleOauth {
     val opts = GoogleOauthOptions(roleName = configUser.role,
                                   orgName = configUser.org,
                                   scopeId = configUser.scopeId,
-                                  clientId = configUser.oauth.google.clientSecret,
+                                  clientId = configUser.oauth.google.clientId,
                                   clientSecret = configUser.oauth.google.clientSecret,
                                   redirectUri = configUser.oauth.google.redirectUri,
                                   hostedDomain = configUser.oauth.google.hostedDomain)
