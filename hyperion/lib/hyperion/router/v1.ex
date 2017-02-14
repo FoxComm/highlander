@@ -11,6 +11,16 @@ defmodule Hyperion.Router.V1 do
   alias Hyperion.Amazon.TemplateBuilder, warn: true
 
   version "v1" do
+    namespace :health do
+      desc "Check hyperion health"
+      get do
+        conn
+        |> put_status(204)
+        |> text(nil)
+        |> halt
+      end
+    end
+
     namespace :credentials do
       route_param :client_id do
         desc "Get MWS credentials for exact client"
