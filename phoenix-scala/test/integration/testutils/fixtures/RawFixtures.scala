@@ -1,9 +1,12 @@
 package testutils.fixtures
 
+import java.time.Instant
+
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import models._
 import models.account._
+import models.channel._
 import models.cord._
 import models.inventory.Sku
 import models.location._
@@ -149,6 +152,23 @@ trait RawFixtures extends RawPaymentFixtures with TestSeeds {
         product ← * <~ Products.mustFindById404(simpleProduct.id)
         variant ← * <~ Mvp.insertVariantWithValues(scope, ctx.id, product, simpleSizeVariant)
       } yield (product, variant, skus)
+    }.gimme
+  }
+
+  trait Channel_Raw extends StoreAdmin_Seed {
+    val channel: Channel = {
+      for {
+        channel ← * <~ Channels.create(
+                     Channel(id = 0,
+                             scope = Scope.current,
+                             defaultContextId = ctx.id,
+                             draftContextId = ctx.id,
+                             location = Channel.Local,
+                             name = "Default",
+                             createdAt = Instant.now,
+                             updatedAt = Instant.now,
+                             archivedAt = None))
+      } yield channel
     }.gimme
   }
 }

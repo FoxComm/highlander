@@ -8,6 +8,7 @@ import payloads.AddressPayloads._
 import payloads.AssignmentPayloads._
 import payloads.CartPayloads._
 import payloads.CategoryPayloads._
+import payloads.ChannelPayloads._
 import payloads.CouponPayloads._
 import payloads.CustomerGroupPayloads._
 import payloads.CustomerPayloads._
@@ -659,6 +660,22 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
     def unassignProduct(productFormId: ObjectForm#Id)(implicit ctx: OC): HttpResponse =
       DELETE(s"v1/taxons/${ctx.name}/$taxonId/product/$productFormId")
+  }
+
+  case object channelsApi {
+    def create(payload: CreateChannelPayload) =
+      POST("v1/channels", payload)
+  }
+
+  case class channelsApi(channelId: Int) {
+    def get =
+      GET(s"v1/channels/$channelId")
+
+    def update(payload: UpdateChannelPayload) =
+      PATCH(s"v1/channels/$channelId", payload)
+
+    def delete =
+      DELETE(s"v1/channels/$channelId")
   }
 
   object notesApi {
