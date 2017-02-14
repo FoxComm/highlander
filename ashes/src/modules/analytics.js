@@ -77,7 +77,7 @@ export function fetchAnalytics(keys, from, to, sizeSec, stepSec) {
   };
 }
 /* stats */
-export function fetchProductConversion(productId) {
+export function fetchProductConversion(productId, from = null, to = null) {
   return dispatch => {
     dispatch(startFetching());
 
@@ -92,18 +92,46 @@ export function fetchProductConversion(productId) {
       );
     };
 
-    const fetchProductConversionValues = (avgConversionValues) => {
-      return dispatch(_productGetData.perform(productUrl)).then(
-        chartValues => {
-          const chartValuesWithAvgs = Object.assign({}, chartValues, { Average: avgConversionValues });
-          dispatch(productConversionReceivedValues(chartValuesWithAvgs));
-        },
-        err => dispatch(fetchFailed(err))
-      );
-    };
+    if(!_.isNil(from) && !_.isNil(to)) {
+      const fetchProductConversionValuesForComparison = (avgConversionValues) => {
+        return dispatch(_productGetData.perform(productUrl)).then(
+          chartValues => {
+            const chartValuesWithAvgs = Object.assign({}, chartValues, { Average: avgConversionValues });
+            return chartValuesWithAvgs;
+          },
+          err => dispatch(fetchFailed(err))
+        );
+      };
 
-    return fetchAvgProductConversionValues()
-      .then(fetchProductConversionValues);
+      const timeComparisonUrl = `${productUrl}?from=${from}&to=${to}`;
+
+      const fetchProductTimeComparisonConversionValues = (conversionValuesWithAvg) => {
+        return dispatch(_productGetData.perform(timeComparisonUrl)).then(
+          comparisonValues => {
+            const chartComparisonValuesWithAvgs = Object.assign({}, conversionValuesWithAvg, { Comparison: comparisonValues });
+            dispatch(productConversionReceivedValues(chartComparisonValuesWithAvgs));
+          },
+          err => dispatch(fetchFailed(err))
+        );
+      };
+
+      return fetchAvgProductConversionValues()
+        .then(fetchProductConversionValuesForComparison)
+        .then(fetchProductTimeComparisonConversionValues);
+    } else {
+      const fetchProductConversionValues = (avgConversionValues) => {
+        return dispatch(_productGetData.perform(productUrl)).then(
+          chartValues => {
+            const chartValuesWithAvgs = Object.assign({}, chartValues, { Average: avgConversionValues });
+            dispatch(productConversionReceivedValues(chartValuesWithAvgs));
+          },
+          err => dispatch(fetchFailed(err))
+        );
+      };
+
+      return fetchAvgProductConversionValues()
+        .then(fetchProductConversionValues);
+    }
   };
 }
 export function fetchProductStats(productId, channel = 1) {

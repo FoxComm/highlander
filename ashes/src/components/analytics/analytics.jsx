@@ -251,19 +251,6 @@ export default class Analytics extends React.Component {
   }
 
   @autobind
-  removeComparison() {
-    console.log('Remove Comparison clicked!');
-    this.setState({
-      comparisonPeriod: {
-        dateDisplay: 'Comparison Period',
-        dateRangeBegin: moment().startOf('day').unix(),
-        dateRangeEnd: moment().unix(),
-        dataFetchTimeSize: 0,
-      },
-    });
-  }
-
-  @autobind
   fetchData(
     question: QuestionBoxType,
     dateRangeBegin: string,
@@ -290,7 +277,11 @@ export default class Analytics extends React.Component {
         this.props.fetchProductTotalInCarts(dateRangeBegin, dateRangeEnd, entity.entityId, dataFetchTimeSize);
         break;
       case questionTitles.ProductConversionRate:
-        this.props.fetchProductConversion(entity.entityId);
+        if(dataFetchTimeSize > 0) {
+          this.props.fetchProductConversion(entity.entityId, dateRangeBegin, dateRangeEnd);
+        } else {
+          this.props.fetchProductConversion(entity.entityId);
+        }
         break;
     }
   }
@@ -382,39 +373,77 @@ export default class Analytics extends React.Component {
         dateRangeBegin: newDateRangeBegin,
         dateRangeEnd: newDateRangeEnd,
         dataFetchTimeSize: newDataFetchTimeSize,
-      },
+      }
+    );
+
+    if (question.title !== questionTitles.ProductConversionRate) {
+      this.fetchData(question, newDateRangeBegin, newDateRangeEnd, newDataFetchTimeSize);
+    }
+  }
+
+  @autobind
+  onComparisonPeriodChange(selectionIndex: number) {
+    const { question } = this.state;
+    const { displayText, newDateRangeBegin,
+      newDateRangeEnd, newDataFetchTimeSize } = this.onDateDropdownChange(selectionIndex);
+
+    this.setState({
+      comparisonPeriod: {
+        dateDisplay: displayText,
+        dateRangeBegin: newDateRangeBegin,
+        dateRangeEnd: newDateRangeEnd,
+        dataFetchTimeSize: newDataFetchTimeSize,
+      }
+    },
       this.fetchData(question, newDateRangeBegin, newDateRangeEnd, newDataFetchTimeSize)
     );
   }
 
   @autobind
-  onComparisonPeriodChange(selectionIndex: number) {
-    const { displayText, newDateRangeBegin,
-      newDateRangeEnd, newDataFetchTimeSize } = this.onDateDropdownChange(selectionIndex);
+  onRemoveComparison() {
+    const { question } = this.state;
+
+    const newDateRangeBegin = moment().startOf('day').unix();
+    const newDateRangeEnd = moment().unix();
+    const newDataFetchTimeSize = 0;
 
     this.setState({
-        comparisonPeriod: {
-          dateDisplay: displayText,
-          dateRangeBegin: newDateRangeBegin,
-          dateRangeEnd: newDateRangeEnd,
-          dataFetchTimeSize: newDataFetchTimeSize,
-        },
+      comparisonPeriod: {
+        dateDisplay: 'Comparison Period',
+        dateRangeBegin: newDateRangeBegin,
+        dateRangeEnd: newDateRangeEnd,
+        dataFetchTimeSize: newDataFetchTimeSize,
       }
+    },
+      this.fetchData(question, newDateRangeBegin, newDateRangeEnd, newDataFetchTimeSize)
     );
   }
 
   @autobind
   onQuestionBoxSelect(question: QuestionBoxType) {
-    const { dateRangeBegin, dateRangeEnd, dataFetchTimeSize } = this.state;
-
     switch(question.title) {
       case questionTitles.TotalRevenue:
       case questionTitles.TotalOrders:
       case questionTitles.TotalPdPViews:
       case questionTitles.TotalInCarts:
-      case questionTitles.ProductConversionRate:
+        const { dateRangeBegin, dateRangeEnd, dataFetchTimeSize } = this.state;
+
         this.setState({ question: question },
           this.fetchData(question, dateRangeBegin, dateRangeEnd, dataFetchTimeSize)
+        );
+        break;
+      case questionTitles.ProductConversionRate:
+        const { comparisonPeriod } = this.state;
+
+        this.setState({
+          question: question
+        },
+          this.fetchData(
+            question,
+            comparisonPeriod.dateRangeBegin,
+            comparisonPeriod.dateRangeEnd,
+            comparisonPeriod.dataFetchTimeSize
+          )
         );
         break;
     }
@@ -561,6 +590,12 @@ export default class Analytics extends React.Component {
             ? 'visible'
             : 'hidden';
 
+          let conversionComparison = null;
+          if (_.has(analytics, 'chartValues.Comparison')) {
+            conversionComparison = analytics.chartValues.Comparison;
+            conversionComparison.Average = analytics.chartValues.Average;
+          }
+
           return (
             <div>
               <Dropdown
@@ -576,11 +611,12 @@ export default class Analytics extends React.Component {
                 }}
               />
               <ActionBlock
-                onActionClick={this.removeComparison}
+                onActionClick={this.onRemoveComparison}
                 style={{marginLeft: '10px', visibility: comparisonCancelButtonVisibility}}
               />
               <ProductConversionChart
                 jsonData={analytics.chartValues}
+                comparisonJsonData={conversionComparison}
               />
             </div>
           );
