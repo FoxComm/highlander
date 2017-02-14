@@ -3,9 +3,12 @@ package utils.http
 import akka.http.scaladsl.unmarshalling._
 import cats.data.Validated.{Invalid, Valid}
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
+import failures._
 import org.json4s.{Formats, Serialization}
 import scala.concurrent.Future
-import utils.{FoxValidationException, Validation}
+import utils.Validation
+
+case class FoxValidationException(failures: Failures) extends Exception
 
 object JsonSupport extends Json4sSupport {
   private def validateData[A <: Validation[A]](data: A): Future[A] = data.validate match {
