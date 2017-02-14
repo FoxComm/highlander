@@ -32,7 +32,6 @@ class ReturnIntegrationTest
     with PropertyChecks {
 
   "Returns header" - {
-    pending
     val orderRefNotExist = "ABC-666"
 
     "should get rma from fixture" in new Fixture {
@@ -194,17 +193,26 @@ class ReturnIntegrationTest
   }
 
   "Return reasons" - {
-    "get some" in new Fixture {
-      val rr       = ReturnReasons.create(ReturnReason(name = "Simple reason")).gimme
+    "get list of return reasons" in new LineItemFixture {
       val response = returnsApi.getReasonsList.as[Seq[ReturnReasonsResponse.Root]]
       response.nonEmpty must === (true)
-      info(response.toString)
+      response.head.name must === (returnReason.name)
     }
 
-    "add new reason" in new Fixture {
+    "add new return reason" in new LineItemFixture {
       val rr       = ReturnReasonPayload(name = "Simple reason")
       val response = returnsApi.addReturnReason(rr).as[ReturnReasonsResponse.Root]
       response.name must === (rr.name)
+    }
+
+    "remove return reason by id" in new LineItemFixture {
+      returnsApi.removeReturnReason(returnReason.id)
+      returnsApi.getReasonsList.as[Seq[ReturnReasonsResponse.Root]] mustBe 'empty
+
+      info("must fail if returnReason was already deleted")
+      returnsApi
+        .removeReturnReason(returnReason.id)
+        .mustFailWith404(NotFoundFailure404(ReturnReasons, returnReason.id))
     }
   }
 
@@ -287,7 +295,6 @@ class ReturnIntegrationTest
   }
 
   "line-items" - {
-    pending
     "POST /v1/returns/:refNum/line-items" - {
       "successfully adds gift card line item" in new LineItemFixture {
         pending

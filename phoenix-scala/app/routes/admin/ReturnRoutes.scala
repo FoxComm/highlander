@@ -1,6 +1,6 @@
 package routes.admin
 
-import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.Directives.{path, _}
 import akka.http.scaladsl.server.{PathMatcher, Route}
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.account.User
@@ -55,6 +55,11 @@ object ReturnRoutes {
             (post & pathEnd & entity(as[ReturnReasonPayload])) { payload ⇒
               mutateOrFailures {
                 ReturnReasonsManager.addReason(payload)
+              }
+            } ~
+            (delete & path(IntNumber) & pathEnd) { id ⇒
+              deleteOrFailures {
+                ReturnReasonsManager.deleteReason(id)
               }
             }
           }

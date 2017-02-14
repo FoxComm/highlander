@@ -1,5 +1,6 @@
 package services.returns
 
+import failures.NotFoundFailure404
 import models.returns._
 import payloads.ReturnPayloads.ReturnReasonPayload
 import responses.ReturnReasonsResponse.{buildResponse, _}
@@ -25,4 +26,11 @@ object ReturnReasonsManager {
   private def addProcessing(reasonPayload: ReturnReasonPayload)(implicit ec: EC,
                                                                 db: DB): DbResultT[ReturnReason] =
     ReturnReasons.create(ReturnReason(name = reasonPayload.name))
+
+  def deleteReason(id: Int)(implicit ec: EC, db: DB): DbResultT[Unit] =
+    for {
+      result ← * <~ ReturnReasons
+                .deleteById(id, DbResultT.unit, i ⇒ NotFoundFailure404(ReturnReasons, i))
+    } yield result
+
 }

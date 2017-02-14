@@ -206,6 +206,9 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
     def addReturnReason(rr: ReturnReasonPayload) =
       POST(s"$returnsPrefix/reasons", rr)
+
+    def removeReturnReason(id: Int) =
+      DELETE(s"$returnsPrefix/reasons/$id")
   }
 
   case class returnsApi(refNum: String) { returns ⇒
