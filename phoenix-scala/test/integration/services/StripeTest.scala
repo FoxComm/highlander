@@ -13,7 +13,7 @@ import utils.seeds.Seeds.Factories
 
 trait RealStripeApis extends IntegrationTestBase {
   // Mutate Stripe state, set real key
-  Stripe.apiKey = config.getString("stripe.key")
+  Stripe.apiKey = sys.env.getOrElse("STRIPE_API_KEY", TestBase.config.apis.stripe.key)
 }
 
 // Test that actually calls Stripe
@@ -46,17 +46,20 @@ class StripeTest extends RealStripeApis {
     .gimme
 
   val realStripeCustomerId = cust.getId
+  val realStripeCardId     = card.getId
 
   "Stripe" - {
     "authorizeAmount" - {
       "fails if the customerId doesn't exist" taggedAs External in {
-        val result = stripe.authorizeAmount("BAD-CUSTOMER", 100, currency = USD).futureValue
+        val result =
+          stripe.authorizeAmount("BAD-CUSTOMER", "BAD-CARD", 100, currency = USD).futureValue
 
         result.leftVal.getMessage must include("No such customer")
       }
 
       "successfully creates an authorization charge" taggedAs External in {
-        val auth = stripe.authorizeAmount(realStripeCustomerId, 100, currency = USD).gimme
+        val auth =
+          stripe.authorizeAmount(realStripeCustomerId, realStripeCardId, 100, currency = USD).gimme
 
         auth.getAmount.toInt must === (100)
         auth.getCurrency.toUpperCase must === (USD.getCode)
@@ -147,7 +150,8 @@ class StripeTest extends RealStripeApis {
       }
 
       "successfully captures a charge" taggedAs External in {
-        val auth    = stripe.authorizeAmount(realStripeCustomerId, 100, currency = USD).gimme
+        val auth =
+          stripe.authorizeAmount(realStripeCustomerId, realStripeCardId, 100, currency = USD).gimme
         val capture = stripe.captureCharge(auth.getId, 75).gimme
 
         capture.getCaptured mustBe true

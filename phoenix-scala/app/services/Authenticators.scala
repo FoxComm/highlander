@@ -15,16 +15,14 @@ import failures._
 import models.account._
 import models.admin._
 import models.auth._
-import models.customer.{CustomerData, CustomersData}
 import payloads.{AuthPayload, LoginPayload}
+import scala.concurrent.Future
 import services.account._
 import services.customers.CustomerManager
 import slick.driver.PostgresDriver.api._
-import utils.FoxConfig.{RichConfig, config}
+import utils.FoxConfig.config
 import utils.aliases._
 import utils.db._
-
-import scala.concurrent.Future
 
 // TODO: Implement real session-based authentication with JWT
 // TODO: Probably abstract this out so that we use one for both AdminUsers and Customers
@@ -55,13 +53,13 @@ object JwtCookie {
   def apply(authPayload: AuthPayload): HttpCookie = HttpCookie(
       name = "JWT",
       value = authPayload.jwt,
-      secure = config.getOptBool("auth.cookieSecure").getOrElse(true),
+      secure = config.auth.cookie.secure,
       httpOnly = true,
-      expires = config.getOptLong("auth.cookieTTL").map { ttl ⇒
+      expires = config.auth.cookie.ttl.map { ttl ⇒
         DateTime.now + ttl * 1000
       },
       path = Some("/"),
-      domain = config.getOptString("auth.cookieDomain")
+      domain = config.auth.cookie.domain
   )
 }
 
@@ -233,7 +231,7 @@ object Authenticator {
 
     val tokenResult = (for {
       organization ← * <~ Organizations.findByName(payload.org).mustFindOr(LoginFailed)
-      user         ← * <~ Users.findNonGuestByEmail(payload.email.toLowerCase).mustFindOneOr(LoginFailed)
+      user         ← * <~ Users.findByEmail(payload.email.toLowerCase).mustFindOneOr(LoginFailed)
       _            ← * <~ user.mustNotBeMigrated
       accessMethod ← * <~ AccountAccessMethods
                       .findOneByAccountIdAndName(user.accountId, "login")

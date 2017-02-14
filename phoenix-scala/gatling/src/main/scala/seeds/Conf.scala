@@ -11,10 +11,8 @@ import utils.Money.Currency._
 
 object Conf {
 
-  implicit val env = FoxConfig.environment
-
   val (appConfig, dbUrl, dbUser, dbPassword) = {
-    val appConfig: Config = FoxConfig.loadWithEnv()
+    val appConfig: Config = FoxConfig.unsafe
     (appConfig, appConfig.getString("db.baseUrl"), appConfig.getString("db.user"), "")
   }
 

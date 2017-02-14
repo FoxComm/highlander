@@ -58,15 +58,9 @@ shortcuts:
   - name: Bootstrap Annabelle
     alias: annabelle.yml
     target: ansible/bootstrap_annabelle.yml
-  - name: Bootstrap Pgweb
-    alias: pgweb.yml
-    target: ansible/bootstrap_pgweb.yml
   - name: Bootstrap Sinopia
     alias: sinopia.yml
     target: ansible/bootstrap_sinopia.yml
-  - name: Bootstrap Kangaroo
-    alias: kangaroos.yml
-    target: ansible/bootstrap_kangaroos.yml
 
   # Goldrush
   - name: Generate .env.local

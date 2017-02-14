@@ -44,9 +44,28 @@
       <div class="container">
         <h1 class="jumbotron-heading">Your instance is ready!</h1>
         <p class="lead text-muted">You can start your development by exploring our web UI applications.<br>If you encounter any problems, a variety of handy DevOps tools are available at your service.</p>
-        <p>
-          <a href="https://{{dns_record}}.{{foxcomm_domain}}" class="btn btn-primary" target="_blank">Open Storefront</a>
-          <a href="https://{{dns_record}}.{{foxcomm_domain}}/admin" class="btn btn-secondary" target="_blank">Open Admin UI</a>
+          <div class="btn-group" role="group">
+            <a href="https://{{dns_record}}.{{foxcomm_domain}}/admin" class="btn btn-success" target="_blank">Open Admin UI</a>
+            <div class="btn-group" role="group">
+              <button id="storefrontButtons" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Open Storefront
+              </button>
+              <div class="dropdown-menu" aria-labelledby="storefrontButtons">
+                <a class="dropdown-item" href="https://{{dns_record}}.{{foxcomm_domain}}" target="_blank">
+                    <img src="assets/icons/foxcommerce.png" width="16px" height="16px" class="pull-left"/>
+                    Firebrand
+                </a>
+                <a class="dropdown-item" href="https://{{dns_record}}.{{foxcomm_domain}}{{url_prefix_perfect_gourmet}}" target="_blank">
+                    <img src="assets/icons/perfect-gourmet.png" width="16px" height="16px" class="pull-left"/>
+                    Perfect Gourmet
+                </a>
+                <a class="dropdown-item" href="https://{{dns_record}}.{{foxcomm_domain}}{{url_prefix_topdrawer}}" target="_blank">
+                    <img src="assets/icons/topdrawer.png" width="16px" height="16px" class="pull-left"/>
+                    TopDrawer
+                </a>
+              </div>
+            </div>
+          </div>
         </p>
       </div>
     </section>
@@ -77,7 +96,7 @@
             <p class="card-text">A simple web-based PostgreSQL UI called <b>Pgweb</b> can help when you don't have any client by hand.</p>
           </div>
           <div class="card">
-            <a href="javascript:void(0)"><img data-src="holder.js/356x220?text=Coming Soon" alt="Placeholder"></a>
+            <a href="javascript:void(0)"><img data-src="holder.js/356x242?text=Coming Soon" alt="Placeholder"></a>
             <p class="card-text">We're working hard to make your developer experience soar to greater heights!</p>
           </div>
         </div>
@@ -96,7 +115,7 @@
 
     <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js"></script>
-    <script src="assets/holder.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/holder/2.9.4/holder.min.js"></script>
 
   </body>
 </html>

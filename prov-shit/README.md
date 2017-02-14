@@ -13,8 +13,6 @@ All of our DevOps tools for deploying the application to both development and pr
 - [Google Cloud SDK](https://cloud.google.com/sdk/gcloud)
 - [Packer](https://packer.io)
 - [Terraform](https://terraform.io)
-- [Vagrant](https://www.vagrantup.com) 1.8.5 or above
-- [VirtualBox](https://www.virtualbox.org) 5.1 or above
 
 #### Optional
 

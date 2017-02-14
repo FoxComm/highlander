@@ -97,10 +97,6 @@ seedDemo := (runMain in Compile in phoenixScala).partialInput(s"$seedCommand --s
 seedOneshot    := (runMain in Compile in gatling).partialInput(" seeds.OneshotSeeds").evaluated
 seedContinuous := (runMain in Compile in gatling).partialInput(" seeds.ContinuousSeeds").evaluated
 
-// Gatling tests (turned off - https://github.com/FoxComm/highlander/pull/732#issuecomment-276620719)
-testSimulations := (runMain in Compile in gatling).partialInput(" playground.GatlingSimulations")
-  .toTask(" GatlingSimulations").value
-
 // Scalafmt
 scalafmtAll <<= Def.task().dependsOn(scalafmt in Compile in phoenixScala,
                                      scalafmt in Test    in phoenixScala,

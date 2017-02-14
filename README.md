@@ -30,8 +30,6 @@ has a lot to do!
 
 ### Install Prerequisites
 
-- [VirtualBox](https://www.virtualbox.org)
-- [Vagrant](https://www.vagrantup.com)
 - [Ansible](https://ansible.com) 2.2.x
 
 ### Google Compute VM
@@ -48,7 +46,7 @@ has a lot to do!
     $ make dotenv
     ```
 
-5. Pre-configure Vagrant by running:
+5. Pre-configure Ansible by running:
 
     ```
     $ make prepare

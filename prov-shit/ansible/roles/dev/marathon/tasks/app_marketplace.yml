@@ -15,4 +15,3 @@
   until: healthy_tasks_available.stdout == 'true'
   retries: "{{marathon_retries}}"
   delay: "{{marathon_delay}}"
-  when: vagrant
