@@ -6,7 +6,6 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import classNames from 'classnames/dedupe';
-import formatCurrency from 'lib/format-currency';
 
 // localization
 import localized from 'lib/i18n';
@@ -105,15 +104,44 @@ class OrderSummary extends Component {
       return null;
     }
 
-    const value = formatCurrency(grandTotal);
+    const value = (grandTotal / 100).toFixed(2);
+    const params = {
+      conversionId: 868108231,
+      label: 'AkdhCPzhm20Qx4_5nQM',
+      value,
+    };
+
     const url =
-      `//www.googleadservices.com/pagead/conversion/868108231/` +
-      `?label=AkdhCPzhm20Qx4_5nQM&` +
+      `//www.googleadservices.com/pagead/conversion/${params.conversionId}/` +
+      `?label=${params.label}&` +
       `currency_code=USD&` +
-      `value=${value}&` +
+      `value=${params.value}&` +
       `guid=ON&script=0`;
 
-    return (
+    const variables = (
+      <script type="text/javascript" dangerouslySetInnerHTML={{
+        __html: `
+                /* <![CDATA[ */
+        var google_conversion_id = ${params.conversionId};
+        var google_conversion_language = "en";
+        var google_conversion_format = "3";
+        var google_conversion_color = "ffffff";
+        var google_conversion_label = "${params.label}";
+        var google_remarketing_only = false;
+        var google_conversion_currency = "USD";
+        var google_conversion_value = ${params.value};
+        /* ]]> */
+        `,
+      }}
+      />
+    );
+
+    const conversionScript = (
+      <script type="text/javascript" src="//www.googleadservices.com/pagead/conversion.js" />
+    );
+
+    const image = (
+      <noscript>
         <img
           width="1"
           height="1"
@@ -121,7 +149,12 @@ class OrderSummary extends Component {
           alt=""
           src={url}
         />
+      </noscript>
     );
+
+    return [
+      variables, conversionScript, image,
+    ];
   }
 
   render() {
