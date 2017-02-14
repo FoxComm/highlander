@@ -1,0 +1,61 @@
+{
+  "id": "/hyperion",
+  "cmd": null,
+  "cpus": 0.5,
+  "mem": 256,
+  "disk": 0,
+  "instances": 1,
+  "labels": {
+    "LAYER": "backend",
+    "LANG": "elixir",
+    "TAG": "{{docker_tags.hyperion}}"
+  },
+  "env": {
+    "PORT": "{{hyperion_port}}",
+    "HYPERION_DB_USER": "{{hyperion_db_user}}",
+    "HYPERION_DB_HOST": "{{docker_db_host}}",
+    "HYPERION_DB_NAME": "{{hyperion_db_name}}",
+    "HYPERION_DB_PASSWORD": "",
+    "AWS_ACCESS_KEY_ID": "{{aws_access_key_id}}",
+    "AWS_SECRET_ACCESS_KEY": "{{aws_secret_access_key}}",
+    "MWS_ACCESS_KEY_ID": "{{mws_access_key_id}}",
+    "MWS_SECRET_ACCESS_KEY" : "{{mws_secret_access_key}}",
+    "PHOENIX_URL": "{{phoenix_url}}"
+  },
+  "ports": [{{hyperion_port}}],
+  "constraints": [["hostname", "UNIQUE"]],
+  "container": {
+    "type": "DOCKER",
+    "volumes": [
+      {
+        "containerPath": "{{public_keys_dest_dir}}",
+        "hostPath": "{{public_keys_dest_dir}}",
+        "mode": "RO"
+      },
+      {
+        "containerPath": "{{docker_logs_dir}}",
+        "hostPath": "{{docker_logs_host_dir}}",
+        "mode": "RW"
+      }
+    ],
+    "docker": {
+      "image": "{{docker_registry}}:5000/hyperion:{{docker_tags.hyperion}}",
+      "network": "HOST",
+      "privileged": false,
+      "parameters": [],
+      "forcePullImage": true
+    }
+  },
+  "healthChecks": [
+    {
+      "path": "/v1/health",
+      "protocol": "HTTP",
+      "gracePeriodSeconds": 300,
+      "intervalSeconds": 30,
+      "timeoutSeconds": 20,
+      "maxConsecutiveFailures": 3,
+      "ignoreHttp1xx": false,
+      "port": {{hyperion_port}}
+    }
+  ]
+}
