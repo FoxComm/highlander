@@ -24,6 +24,7 @@ import { actions as bulkActions } from 'modules/customer-groups/details/bulk';
 import { transitionTo } from 'browserHistory';
 import { prefix } from 'lib/text-utils';
 
+import { Link } from 'components/link';
 import BulkActions from 'components/bulk-actions/bulk-actions';
 import BulkMessages from 'components/bulk-actions/bulk-messages';
 import BulkModal from 'components/bulk-actions/modal';
@@ -247,14 +248,14 @@ class GroupDetails extends Component {
     return (
       <div>
         <BulkMessages
-          storePath="customerGroups.bulk"
-          module="customerGroups"
-          entity="group"
-          renderDetail={this.renderDetail}
+          storePath="customerGroups.details.bulk"
+          module="customerGroups.details"
+          entity="customer"
+          renderDetail={this.renderBulkDetails}
         />
         <BulkActions
-          module="customerGroups"
-          entity="group"
+          module="customerGroups.details"
+          entity="customer"
           actions={this.bulkActions}
         >
           <SelectableSearchList

@@ -13,16 +13,14 @@ const getSuccesses = partial(_getSuccesses, 'customerGroup');
 
 const deleteCustomersFromGroup = (actions, groupId, customersIds) => dispatch => {
   dispatch(actions.bulkRequest());
-  Api.post(`/customer-groups/${groupId}/customers`, { toAdd: [], toDelete: customersIds, })
-    .then(({ batch }) => {
-      const errors = get(batch, 'failures.order');
-      dispatch(actions.bulkDone(getSuccesses(referenceNumbers, batch), errors));
-    })
+
+  return Api.post(`/customer-groups/${groupId}/customers`, { toAdd: [], toDelete: customersIds, })
+    .then(() => dispatch(actions.bulkDone(customersIds, null)))
     .catch(error => dispatch(actions.bulkError(error)));
 };
 
 const { actions, reducer } = createStore({
-  path: 'customerGroups.bulk',
+  path: 'customerGroups.details.bulk',
   actions: {
     deleteCustomersFromGroup,
     ...bulkActions,
