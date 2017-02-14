@@ -22,4 +22,4 @@ docker-push:
 	docker tag $(DOCKER_IMAGE) $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
 	docker push $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
 
-.PHONY: build test
+.PHONY: build test docker docker-push
