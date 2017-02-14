@@ -6,6 +6,22 @@
     <link rel="shortcut icon" href="{{= it.urlPrefix }}/favicon.png" type="image/png" />
     <link rel="stylesheet" href="{{= it.urlPrefix }}/{{= it.appCss }}" />
     <script>
+      function initGA(gaId, enableLocal) {
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+        var gaOpts = enableLocal ? { cookieDomain: 'none' } : 'auto';
+
+        ga('create', gaId, gaOpts);
+        ga('send', 'pageview');
+      }
+
+      function initGAStub() {
+        window.ga = function() {};
+      }
+
       if (!window.Intl) {
         var head = document.getElementsByTagName('head')[0];
         var s = document.createElement('script');
@@ -14,23 +30,13 @@
         head.appendChild(s);
       }
 
-      {{##def.gaSnippet:
-        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+      var env = {{= it.env }};
 
-        const gaOpts = {{#def.gaEnableLocal ? "{'cookieDomain': 'none'}" : "'auto'" }};
-
-        ga('create', '{{#def.gaTrackingId}}', gaOpts);
-        ga('send', 'pageview');
-      #}}
-
-      {{##def.stubGa:
-        ga = function() {};
-      #}}
-
-      {{#def.gaTrackingId && def.gaSnippet || def.stubGa }}
+      if (env.GA_TRACKING_ID) {
+        initGA(env.GA_TRACKING_ID, env.GA_LOCAL)
+      } else {
+        initGAStub()
+      }
 
       function logError(message, fatal) {
         ga('send', 'exception', {
@@ -129,7 +135,6 @@
     <script charset="UTF-8">
       window.__data={{= it.state }};
       window.__i18n={{= it.i18n }};
-      window.env = {{= it.env }};
       function makeXhr(a,b){return b=new XMLHttpRequest,b.open("GET",a),a=[],b.onreadystatechange=b.then=function(c,d,e,f){if(c&&c.call&&(a=[,c,d]),4==b.readyState&&(e=a[0|b.status/200])){try{f=JSON.parse(b.responseText)}catch(g){f=null}e(f,b)}},b.send(),b}
     </script>
     <script type="text/javascript" src="{{= it.urlPrefix }}/{{= it.appJs }}"></script>
