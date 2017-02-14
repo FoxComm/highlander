@@ -1,6 +1,19 @@
 import faker from 'faker';
+import CreditCardGenerator from 'creditcard-generator';
 
-export default {
+const SUPPORTED_CREDIT_CARD_SCHEMES = ['MasterCard', 'Amex', 'Discover', 'Diners', 'JCB', 'VISA'];
+
+const randomDigit = () => faker.random.number(9).toString();
+const randomMonth = () => faker.random.number({ min: 1, max: 12 });
+const randomYear = () => faker.random.number({ min: 2017, max: 2020 });
+
+const randomCardNumber = () => CreditCardGenerator.GenCC(
+  faker.random.arrayElement(SUPPORTED_CREDIT_CARD_SCHEMES),
+)[0];
+
+const randomCvv = () => '###'.replace(/#/g, randomDigit);
+
+const $ = {
   adminEmail: 'admin@admin.com',
   adminPassword: 'password',
   adminOrg: 'tenant',
@@ -20,31 +33,23 @@ export default {
     isDefault: false,
     phoneNumber: faker.phone.phoneNumber('##########'),
   }),
-  predefinedCreateCreditCardFromTokenPayload: {
-    token: 'tok_18t2CWAVdiXyWQ8c4PnlJZAJ',
-    holderName: 'John Coe',
-    lastFour: '4242',
-    expMonth: 5,
-    expYear: 2021,
-    brand: 'Visa',
-    addressIsNew: false,
-    billingAddress: {
-      id: 10,
-      region: {
-        id: 4173,
-        countryId: 234,
-        name: 'Utah',
-      },
-      name: 'Dewayne Dach',
-      address1: '883 Cold Feather Pass',
-      address2: 'Suite 236',
-      city: 'Utah',
-      zip: '04289',
-      isDefault: true,
-      phoneNumber: '6792233629',
-      regionId: 4173,
-      state: 'Utah',
-      country: 'United States',
-    },
-  },
+  randomCreditCardDetailsPayload: customerId => ({
+    customerId,
+    cardNumber: randomCardNumber(),
+    expMonth: randomMonth(),
+    expYear: randomYear(),
+    cvv: 100 + faker.random.number(899),
+    address: $.randomCreateAddressPayload(),
+  }),
+  randomCreditCardCreatePayload: () => ({
+    holderName: faker.name.findName(),
+    number: randomCardNumber(),
+    cvv: randomCvv(),
+    expMonth: randomMonth(),
+    expYear: randomYear(),
+    address: $.randomCreateAddressPayload(),
+    isDefault: false,
+  }),
 };
+
+export default $;

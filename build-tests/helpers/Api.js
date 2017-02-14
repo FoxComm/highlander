@@ -10,6 +10,8 @@ const endpoints = {
   customerAddresses: customerId => `/v1/customers/${customerId}/addresses`,
   customerAddress: (customerId, addressId) => `/v1/customers/${customerId}/addresses/${addressId}`,
   customerCreditCards: customerId => `/v1/customers/${customerId}/payment-methods/credit-cards`,
+  // dev
+  creditCardToken: '/v1/credit-card-token',
 };
 
 class Customers {
@@ -63,12 +65,22 @@ class CustomerCreditCards {
   }
 }
 
+class Dev {
+  constructor(api) {
+    this.api = api;
+  }
+  creditCardToken(creditCardDetails) {
+    return this.api.post(endpoints.creditCardToken, creditCardDetails);
+  }
+}
+
 export default class Api extends FoxCommApi {
   constructor(...args) {
     super(...args);
     this.customers = new Customers(this);
     this.customerAddresses = new CustomerAddresses(this);
     this.customerCreditCards = new CustomerCreditCards(this);
+    this.dev = new Dev(this);
   }
   static withoutCookies() {
     return new Api({
