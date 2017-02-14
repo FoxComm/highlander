@@ -1,25 +1,20 @@
 import faker from 'faker';
-import CreditCardGenerator from 'creditcard-generator';
-
-const SUPPORTED_CREDIT_CARD_SCHEMES = ['MasterCard', 'Amex', 'Discover', 'Diners', 'JCB', 'VISA'];
 
 const randomDigit = () => faker.random.number(9).toString();
 const randomMonth = () => faker.random.number({ min: 1, max: 12 });
 const randomYear = () => faker.random.number({ min: 2017, max: 2020 });
 
-const randomCardNumber = () => CreditCardGenerator.GenCC(
-  faker.random.arrayElement(SUPPORTED_CREDIT_CARD_SCHEMES),
-)[0];
-
 const randomCvv = () => '###'.replace(/#/g, randomDigit);
 
 const $ = {
+  adminName: 'Frankly Admin',
   adminEmail: 'admin@admin.com',
   adminPassword: 'password',
   adminOrg: 'tenant',
   customerOrg: 'merchant',
+  testCardNumber: '4242424242424242',
   randomUserCredentials: () => ({
-    email: faker.internet.email().toLowerCase(),
+    email: `${Date.now()}@bvt.com`,
     name: faker.name.findName(),
     password: faker.internet.password(),
   }),
@@ -35,7 +30,7 @@ const $ = {
   }),
   randomCreditCardDetailsPayload: customerId => ({
     customerId,
-    cardNumber: randomCardNumber(),
+    cardNumber: $.testCardNumber,
     expMonth: randomMonth(),
     expYear: randomYear(),
     cvv: 100 + faker.random.number(899),
@@ -43,12 +38,23 @@ const $ = {
   }),
   randomCreditCardCreatePayload: () => ({
     holderName: faker.name.findName(),
-    number: randomCardNumber(),
+    number: $.testCardNumber,
     cvv: randomCvv(),
     expMonth: randomMonth(),
     expYear: randomYear(),
     address: $.randomCreateAddressPayload(),
     isDefault: false,
+  }),
+  randomCreateManualStoreCreditPayload: () => ({
+    amount: faker.random.number({ min: 1000, max: 10000 }),
+    reasonId: 1,
+    subReasonId: 1,
+  }),
+  randomCreateNotePayload: () => ({
+    body: faker.lorem.sentence(),
+  }),
+  randomUpdateNotePayload: () => ({
+    body: faker.lorem.sentence(),
   }),
 };
 

@@ -10,6 +10,11 @@ const endpoints = {
   customerAddresses: customerId => `/v1/customers/${customerId}/addresses`,
   customerAddress: (customerId, addressId) => `/v1/customers/${customerId}/addresses/${addressId}`,
   customerCreditCards: customerId => `/v1/customers/${customerId}/payment-methods/credit-cards`,
+  customerStoreCredit: customerId => `/v1/customers/${customerId}/payment-methods/store-credit`,
+  customerNotes: customerId => `/v1/notes/customer/${customerId}`,
+  customerNote: (customerId, noteId) => `/v1/notes/customer/${customerId}/${noteId}`,
+  customerGroups: '/v1/groups',
+  customerGroup: groupId => `/v1/groups/${groupId}`,
   // dev
   creditCardToken: '/v1/credit-card-token',
 };
@@ -60,8 +65,50 @@ class CustomerCreditCards {
   list(customerId) {
     return this.api.get(endpoints.customerCreditCards(customerId));
   }
-  add(customerId, creditCard) {
-    return this.api.post(endpoints.customerCreditCards(customerId), creditCard);
+  add(customerId, createCreditCardFromTokenPayload) {
+    return this.api.post(endpoints.customerCreditCards(customerId), createCreditCardFromTokenPayload);
+  }
+}
+
+class CustomerStoreCredit {
+  constructor(api) {
+    this.api = api;
+  }
+  create(customerId, createManualStoreCreditPayload) {
+    return this.api.post(endpoints.customerStoreCredit(customerId), createManualStoreCreditPayload);
+  }
+}
+
+class CustomerNotes {
+  constructor(api) {
+    this.api = api;
+  }
+  list(customerId) {
+    return this.api.get(endpoints.customerNotes(customerId));
+  }
+  create(customerId, createNotePayload) {
+    return this.api.post(endpoints.customerNotes(customerId), createNotePayload);
+  }
+  update(customerId, noteId, updateNotePayload) {
+    return this.api.patch(endpoints.customerNote(customerId, noteId), updateNotePayload);
+  }
+}
+
+class CustomerGroups {
+  constructor(api) {
+    this.api = api;
+  }
+  list() {
+    return this.api.get(endpoints.customerGroups);
+  }
+  create(customerDynamicGroupPayload) {
+    return this.api.post(endpoints.customerGroups, customerDynamicGroupPayload);
+  }
+  one(groupId) {
+    return this.api.get(endpoints.customerGroup(groupId));
+  }
+  update(groupId, customerDynamicGroupPayload) {
+    return this.api.patch(endpoints.customerGroup(groupId), customerDynamicGroupPayload);
   }
 }
 
@@ -80,6 +127,9 @@ export default class Api extends FoxCommApi {
     this.customers = new Customers(this);
     this.customerAddresses = new CustomerAddresses(this);
     this.customerCreditCards = new CustomerCreditCards(this);
+    this.customerStoreCredit = new CustomerStoreCredit(this);
+    this.customerNotes = new CustomerNotes(this);
+    this.customerGroups = new CustomerGroups(this);
     this.dev = new Dev(this);
   }
   static withoutCookies() {

@@ -1,7 +1,7 @@
 import test from '../helpers/test';
 import Api from '../helpers/Api';
 import $ from '../payloads';
-import stripObjects from '../helpers/stripObjects';
+import isValidDate from '../helpers/isValidDate';
 
 test('Can create a new customer', async (t) => {
   const api = Api.withCookies();
@@ -50,9 +50,12 @@ test('Can add a new shipping address', async (t) => {
   const address = $.randomCreateAddressPayload();
   const addedAddress = await api.customerAddresses.add(newCustomer.id, address);
   t.is(addedAddress.region.id, address.regionId);
-  const [strippedAddress, strippedAddedAddress] =
-    stripObjects(['id', 'region', 'regionId'], address, addedAddress);
-  t.deepEqual(strippedAddress, strippedAddedAddress);
+  t.is(addedAddress.name, address.name);
+  t.is(addedAddress.address1, address.address1);
+  t.is(addedAddress.address2, address.address2);
+  t.is(addedAddress.city, address.city);
+  t.is(addedAddress.zip, address.zip);
+  t.is(addedAddress.phoneNumber, address.phoneNumber);
 });
 
 test('Can update shipping address details', async (t) => {
@@ -64,11 +67,21 @@ test('Can update shipping address details', async (t) => {
   const addedAddress = await api.customerAddresses.add(newCustomer.id, address);
   const otherAddress = $.randomCreateAddressPayload();
   const updatedAddress = await api.customerAddresses.update(newCustomer.id, addedAddress.id, otherAddress);
+  t.is(updatedAddress.region.id, otherAddress.regionId);
+  t.is(updatedAddress.name, otherAddress.name);
+  t.is(updatedAddress.address1, otherAddress.address1);
+  t.is(updatedAddress.address2, otherAddress.address2);
+  t.is(updatedAddress.city, otherAddress.city);
+  t.is(updatedAddress.zip, otherAddress.zip);
+  t.is(updatedAddress.phoneNumber, otherAddress.phoneNumber);
   const foundAddress = await api.customerAddresses.one(newCustomer.id, addedAddress.id);
-  const [strippedOtherAddress, strippedUpdatedAddress, strippedFoundAddress] =
-    stripObjects(['id', 'region', 'regionId'], otherAddress, updatedAddress, foundAddress);
-  t.deepEqual(strippedUpdatedAddress, strippedOtherAddress);
-  t.deepEqual(strippedFoundAddress, strippedOtherAddress);
+  t.is(foundAddress.region.id, otherAddress.regionId);
+  t.is(foundAddress.name, otherAddress.name);
+  t.is(foundAddress.address1, otherAddress.address1);
+  t.is(foundAddress.address2, otherAddress.address2);
+  t.is(foundAddress.city, otherAddress.city);
+  t.is(foundAddress.zip, otherAddress.zip);
+  t.is(foundAddress.phoneNumber, otherAddress.phoneNumber);
 });
 
 test('Can delete a shipping address', async (t) => {
@@ -92,10 +105,102 @@ test('Can list customer\'s credit cards', async (t) => {
   t.is(creditCards.constructor.name, 'Array');
 });
 
-test('Can add customer\'s credit card', async () => {
+test('Can add customer\'s credit card', async (t) => {
   const api = Api.withCookies();
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const credentials = $.randomUserCredentials();
   const newCustomer = await api.customers.create(credentials);
-  await api.customerCreditCards.add(newCustomer.id, $.predefinedCreateCreditCardFromTokenPayload);
+  const creditCardDetails = $.randomCreditCardDetailsPayload(newCustomer.id);
+  const newTokenResponse = await api.dev.creditCardToken(creditCardDetails);
+  const payload = {
+    token: newTokenResponse.token,
+    lastFour: newTokenResponse.lastFour,
+    expYear: creditCardDetails.expYear,
+    expMonth: creditCardDetails.expMonth,
+    brand: newTokenResponse.brand,
+    holderName: creditCardDetails.address.name,
+    billingAddress: creditCardDetails.address,
+    addressIsNew: true,
+  };
+  const addedCard = await api.customerCreditCards.add(newCustomer.id, payload);
+  t.truthy(addedCard.id);
+  t.is(addedCard.customerId, newCustomer.id);
+  t.is(addedCard.holderName, payload.holderName);
+  t.is(addedCard.lastFour, payload.lastFour);
+  t.is(addedCard.expMonth, payload.expMonth);
+  t.is(addedCard.expYear, payload.expYear);
+  t.is(addedCard.brand, payload.brand);
+  t.is(addedCard.isDefault, false);
+  t.is(addedCard.inWallet, true);
+  t.is(addedCard.address.region.id, payload.billingAddress.regionId);
+  t.is(addedCard.address.name, payload.billingAddress.name);
+  t.is(addedCard.address.address1, payload.billingAddress.address1);
+  t.is(addedCard.address.address2, payload.billingAddress.address2);
+  t.is(addedCard.address.city, payload.billingAddress.city);
+  t.is(addedCard.address.zip, payload.billingAddress.zip);
+  t.is(addedCard.address.phoneNumber, payload.billingAddress.phoneNumber);
+});
+
+test('Can issue store credit', async (t) => {
+  const api = Api.withCookies();
+  await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
+  const credentials = $.randomUserCredentials();
+  const newCustomer = await api.customers.create(credentials);
+  const payload = $.randomCreateManualStoreCreditPayload();
+  const newStoreCredit = await api.customerStoreCredit.create(newCustomer.id, payload);
+  t.truthy(newStoreCredit.id);
+  t.truthy(newStoreCredit.originId);
+  t.is(newStoreCredit.originType, 'csrAppeasement');
+  t.is(newStoreCredit.currency, 'USD');
+  t.is(newStoreCredit.customerId, newCustomer.id);
+  t.is(newStoreCredit.originalBalance, payload.amount);
+  t.is(newStoreCredit.currentBalance, payload.amount);
+  t.is(newStoreCredit.availableBalance, payload.amount);
+  t.is(newStoreCredit.state, 'active');
+  t.truthy(isValidDate(newStoreCredit.createdAt));
+});
+
+test('Can list customer\'s notes', async (t) => {
+  const api = Api.withCookies();
+  await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
+  const credentials = $.randomUserCredentials();
+  const newCustomer = await api.customers.create(credentials);
+  const creditCards = await api.customerNotes.list(newCustomer.id);
+  t.is(creditCards.constructor.name, 'Array');
+});
+
+test('Can create a new note', async (t) => {
+  const api = Api.withCookies();
+  await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
+  const credentials = $.randomUserCredentials();
+  const newCustomer = await api.customers.create(credentials);
+  const payload = $.randomCreateNotePayload();
+  const newNote = await api.customerNotes.create(newCustomer.id, payload);
+  t.truthy(newNote.id);
+  t.is(newNote.body, payload.body);
+  t.is(newNote.author.name, $.adminName);
+  t.is(newNote.author.email, $.adminEmail);
+  t.truthy(isValidDate(newNote.createdAt));
+});
+
+test('Can update note details', async (t) => {
+  const api = Api.withCookies();
+  await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
+  const credentials = $.randomUserCredentials();
+  const newCustomer = await api.customers.create(credentials);
+  const newNote = await api.customerNotes.create(newCustomer.id, $.randomCreateNotePayload());
+  const payload = $.randomUpdateNotePayload();
+  const updatedNote = await api.customerNotes.update(newCustomer.id, newNote.id, payload);
+  t.truthy(updatedNote.id);
+  t.is(updatedNote.body, payload.body);
+  t.is(updatedNote.author.name, $.adminName);
+  t.is(updatedNote.author.email, $.adminEmail);
+  t.truthy(isValidDate(updatedNote.createdAt));
+});
+
+test('Can list customer groups', async (t) => {
+  const api = Api.withCookies();
+  await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
+  const customerGroups = await api.customerGroups.list();
+  t.is(customerGroups.constructor.name, 'Array');
 });
