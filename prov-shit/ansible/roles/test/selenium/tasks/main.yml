@@ -33,7 +33,7 @@
   file: src={{home}}/allure/bin/allure dest=/usr/local/bin/allure state=link
 
 - name: Get Web Driver
-  get_url: url=http://chromedriver.storage.googleapis.com/2.23/chromedriver_linux64.zip dest={{home}}
+  get_url: url=http://chromedriver.storage.googleapis.com/2.27/chromedriver_linux64.zip dest={{home}}
 
 - name: Unzip Web Driver
   unarchive: src={{home}}/chromedriver_linux64.zip dest={{home}}/chromedriver copy=no
