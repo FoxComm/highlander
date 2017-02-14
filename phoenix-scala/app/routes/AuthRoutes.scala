@@ -11,6 +11,7 @@ import services.account.AccountManager
 import services.auth.GoogleOauth.oauthServiceFromConfig
 import services.auth.GoogleOauthUser
 import services.auth.OauthDirectives._
+import utils.FoxConfig.config
 import utils.aliases._
 import utils.http.CustomDirectives._
 import utils.http.Http._
@@ -45,8 +46,8 @@ object AuthRoutes {
         }
       } ~
       activityContext() { implicit ac ⇒
-        lazy val customerGoogleOauth = oauthServiceFromConfig("customer")
-        lazy val adminGoogleOauth    = oauthServiceFromConfig("admin")
+        lazy val customerGoogleOauth = oauthServiceFromConfig(config.users.customer)
+        lazy val adminGoogleOauth    = oauthServiceFromConfig(config.users.admin)
 
         (path("oauth2callback" / "google" / "admin") & get & oauthResponse) {
           adminGoogleOauth.adminCallback

@@ -1,7 +1,6 @@
 package testutils
 
 import java.net.ServerSocket
-
 import scala.collection.immutable
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -19,7 +18,6 @@ import akka.stream.scaladsl.{Flow, Sink, Source}
 import akka.stream.testkit.TestSubscriber.Probe
 import akka.stream.testkit.scaladsl.TestSink
 import akka.util.ByteString
-
 import com.typesafe.config.ConfigFactory
 import de.heikoseeberger.akkasse.EventStreamUnmarshalling._
 import de.heikoseeberger.akkasse.ServerSentEvent
@@ -31,7 +29,8 @@ import server.Service
 import services.Authenticator.UserAuthenticator
 import utils.apis.Apis
 import utils.seeds.Seeds.Factories
-import utils.{FoxConfig, JsonFormatters}
+import utils.{Environment, FoxConfig, JsonFormatters}
+import utils.FoxConfig.config
 
 // TODO: Move away from root package when `Service' moverd
 object HttpSupport {
@@ -74,10 +73,13 @@ trait HttpSupport
 
     service = makeService
 
-    serverBinding = service.bind(ConfigFactory.parseString(s"""
-           |http.interface = 127.0.0.1
-           |http.port      = $getFreePort
-        """.stripMargin)).futureValue
+    serverBinding = service
+      .bind(
+          FoxConfig.http.modify(config)(_.copy(
+                  interface = "127.0.0.1",
+                  port = getFreePort
+              )))
+      .futureValue
   }
 
   override protected def afterAll: Unit = {
@@ -101,7 +103,7 @@ trait HttpSupport
   def overrideUserAuth: UserAuthenticator =
     AuthAs(adminUser, customerData)
 
-  implicit val env = FoxConfig.Test
+  implicit val env = Environment.Test
 
   def apisOverride: Apis
 
