@@ -21,9 +21,7 @@ object Environment {
     override def isProd: Boolean = true
   }
 
-  implicit val environmentShow: Show[Environment] = new Show[Environment] {
-    def show(e: Environment) = friendlyClassName(e).toLowerCase
-  }
+  implicit val environmentShow: Show[Environment] = Show.show(friendlyClassName(_).toLowerCase)
 
   implicit lazy val default: Environment =
     sys.props.get("phoenix.env").orElse(sys.env.get("PHOENIX_ENV")) match {
