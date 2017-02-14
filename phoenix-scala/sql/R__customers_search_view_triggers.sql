@@ -372,7 +372,7 @@ begin
                  end as groups
                from customer_data as c
                left join customer_group_members as cgm on (c.id = cgm.customer_data_id)
-               where cgm.customer_data_id = new.customer_data_id
+               where c.id = new.customer_data_id
                group by c.account_id) as subquery
     where customers_search_view.id = subquery.id;
 
@@ -400,7 +400,7 @@ begin
                  end as groups
                from customer_data as c
                left join customer_group_members as cgm on (c.id = cgm.customer_data_id)
-               where cgm.customer_data_id = old.customer_data_id
+               where c.id = old.customer_data_id
                group by c.account_id) as subquery
     where customers_search_view.id = subquery.id;
 
