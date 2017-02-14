@@ -16,6 +16,7 @@ import storeCreditStates from './store-credit-states';
 import items from './items';
 import reduceReducers from 'reduce-reducers';
 import suggest from './suggest';
+import bulk from './bulk';
 
 const details = reduceReducers(_details, contacts);
 
@@ -34,6 +35,7 @@ const customerReducer = combineReducers({
   newStoreCredit,
   items,
   suggest,
+  bulk,
 });
 
 export default customerReducer;

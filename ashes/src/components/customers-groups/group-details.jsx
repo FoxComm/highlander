@@ -242,7 +242,15 @@ class GroupDetails extends Component {
     );
   }
 
-  get table() {
+  renderBulkDetails(customerId) {
+    return (
+      <span key={customerId}>
+        Customer <Link to="customer-details" params={{ customerId }}>{customerId}</Link>
+      </span>
+    );
+  }
+
+  get table(): Element {
     const { customersList, customersListActions } = this.props;
 
     return (
