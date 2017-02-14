@@ -4,6 +4,14 @@ import {createAction, createReducer} from 'redux-act';
 import { assoc } from 'sprout-data';
 import Api from '../lib/api';
 import SHA1 from 'crypto-js/sha1';
+import { createAsyncActions } from '@foxcomm/wings';
+
+const _productGetData = createAsyncActions(
+  'analytics_fetch_data',
+  (url: string) => {
+    return Api.get(url);
+  }
+);
 
 // helpers
 const fetchStatsForStatKey = (statType, statKey, from, to, productId, size, statNames, channel) => {
@@ -17,7 +25,7 @@ const fetchStatsForStatKey = (statType, statKey, from, to, productId, size, stat
 
     const url = `time/values?keys=${keys}&a=${from}&b=${to}&${stepSize}&${statsQuery}`;
 
-    return Api.get(url).then(
+    return dispatch(_productGetData.perform(url)).then(
       chartValues => dispatch(productStatsForStatKeyReceivedValues(chartValues, keys, size, from, to)),
       err => dispatch(fetchFailed(err))
     );
@@ -62,7 +70,7 @@ export function fetchAnalytics(keys, from, to, sizeSec, stepSec) {
     }, '');
 
     const url = `time/values?keys=${keyStr}&a=${from}&b=${to}&size=${sizeSec}&step=${stepSec}&xy&sum`;
-    return Api.get(url).then(
+    return dispatch(_productGetData.perform(url)).then(
       chartValues => dispatch(receivedValues(keys, values, from, to, sizeSec, stepSec)),
       err => dispatch(fetchFailed(err))
     );
@@ -78,14 +86,14 @@ export function fetchProductConversion(productId) {
     const productUrl = `${baseUrl}${objHash}`;
 
     const fetchAvgProductConversionValues = () => {
-      return Api.get(baseUrl).then(
+      return dispatch(_productGetData.perform(baseUrl)).then(
         avgChartValues => { return avgChartValues; },
         err => dispatch(fetchFailed(err))
       );
     };
 
     const fetchProductConversionValues = (avgConversionValues) => {
-      return Api.get(productUrl).then(
+      return dispatch(_productGetData.perform(productUrl)).then(
         chartValues => {
           const chartValuesWithAvgs = Object.assign({}, chartValues, { Average: avgConversionValues });
           dispatch(productConversionReceivedValues(chartValuesWithAvgs));
@@ -105,7 +113,7 @@ export function fetchProductStats(productId, channel = 1) {
     const objHash = SHA1(`products/${productId}`).toString();
     const url = `stats/productStats/${channel}/${objHash}`;
 
-    return Api.get(url).then(
+    return dispatch(_productGetData.perform(url)).then(
       stats => dispatch(productStatsReceivedValues(stats)),
       err => dispatch(fetchStatsFailed(err))
     );

@@ -460,7 +460,11 @@ export default class Analytics extends React.Component {
         let trend = TrendType.steady;
 
         trendValue = percentDifferenceFromAvg(productValue, avgValue);
-        trend = (trendValue > 0) ? TrendType.gain : TrendType.loss;
+        if (trendValue > 0) {
+          trend = TrendType.gain;
+        } else if (trendValue < 0) {
+          trend = TrendType.loss;
+        }
 
         qb.footer = (
           <TrendButton
