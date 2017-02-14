@@ -34,6 +34,7 @@ PROJECTS=(
     'phoenix-scala'
     'prov-shit'
     'solomon'
+    'hyperion'
 )
 
 # fetch origin
