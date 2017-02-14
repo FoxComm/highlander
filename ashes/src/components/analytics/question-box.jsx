@@ -16,6 +16,7 @@ export type Props = {
   footer: any,
   isActive?: boolean,
   onClick: Function,
+  isClickable?: boolean,
 }
 
 class QuestionBox extends React.Component {
@@ -25,13 +26,14 @@ class QuestionBox extends React.Component {
   static defaultProps = {
     isActive: false,
     onClick: _.noop,
+    isClickable: true,
   };
 
   @autobind
   onClickHandler() {
-    const { onClick, isActive } = this.props;
+    const { onClick, isActive, isClickable } = this.props;
 
-    if (!_.isNil(onClick) && !isActive) {
+    if (!_.isNil(onClick) && !isActive && isClickable) {
       return onClick(this.props);
     }
 

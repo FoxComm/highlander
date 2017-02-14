@@ -39,6 +39,7 @@ class QuestionBoxList extends Component {
         footer={item.footer}
         isActive={(activeQuestionId === item.id)}
         onClick={onSelect}
+        isClickable={item.isClickable}
         key={`question-list-${index}`}
       />
     ));

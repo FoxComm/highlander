@@ -487,6 +487,10 @@ export default class Analytics extends React.Component {
             qb.content = `${_.round(productValue, 2)}%`;
             break;
         }
+
+        // Prevent Reconciliation errors from excessive chart rendering
+        // @see https://facebook.github.io/react/docs/reconciliation.html
+        qb.isClickable = !this.props.analytics.isFetching;
       });
     }
   }
