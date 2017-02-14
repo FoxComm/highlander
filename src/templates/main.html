@@ -135,7 +135,6 @@
     <script charset="UTF-8">
       window.__data={{= it.state }};
       window.__i18n={{= it.i18n }};
-      window.env = {{= it.env }};
       function makeXhr(a,b){return b=new XMLHttpRequest,b.open("GET",a),a=[],b.onreadystatechange=b.then=function(c,d,e,f){if(c&&c.call&&(a=[,c,d]),4==b.readyState&&(e=a[0|b.status/200])){try{f=JSON.parse(b.responseText)}catch(g){f=null}e(f,b)}},b.send(),b}
     </script>
     <script type="text/javascript" src="{{= it.urlPrefix }}/{{= it.appJs }}"></script>
