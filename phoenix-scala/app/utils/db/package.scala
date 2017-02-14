@@ -14,6 +14,8 @@ import slick.profile.SqlAction
 import utils.aliases._
 import utils.time.JavaTimeSlickMapper
 
+import scala.collection.generic.CanBuildFrom
+
 package object db {
 
   // ————————————————————————————— Foxy —————————————————————————————
@@ -27,29 +29,68 @@ package object db {
   }
 
   /* We can’t use WriterT for warnings, because of the `failWithMatchedWarning`. */
-  type FoxyT[F[_], A] = StateT[XorT[F, Failure, ?], List[UIInfo], A]
+  type FoxyT[F[_], A] = StateT[XorT[F, Failures, ?], List[UIInfo], A]
 
   type Foxy[A] = FoxyT[Id, A]
-  object Foxy extends FoxyTOps[Id]
+  object Foxy extends FoxyTOps[Id]()
 
-  type FoxyTDBIO[A] = FoxyT[DBIO, A]
-  object FoxyTDBIO extends FoxyTOps[DBIO]
+  type FoxyTFuture[A] = FoxyT[Future, A] /* replaces the old ResultT */
+  object FoxyTFuture extends FoxyTOps[Future]
+
+  type FoxyTDBIO[A] = FoxyT[DBIO, A] /* replaces the old DbResultT */
+  object FoxyTDBIO extends FoxyTOps[DBIO] {
+    // FIXME: make it use cats.Foldable instead and move to FoxyTOps @michalrus
+    def sequence[A, M[X] <: TraversableOnce[X]](values: M[DbResultT[A]])(
+        implicit buildFrom: CanBuildFrom[M[DbResultT[A]], A, M[A]],
+        ec: EC): DbResultT[M[A]] =
+      values
+        .foldLeft(good(buildFrom(values))) { (liftedBuilder, liftedValue) ⇒
+          for (builder ← liftedBuilder; value ← liftedValue) yield builder += value
+        }
+        .map(_.result)
+  }
+
+  implicit class EnrichedFoxyT[F[_], A](fa: FoxyT[F, A]) {
+    def flatMapXor[A](f: Xor[Failures, A] ⇒ FoxyT[F, A]): FoxyT[F, A] =
+      ??? // FIXME: implement // TODO: remove me? @michalrus
+  }
 
   trait FoxyTOps[F[_]] {
-    def apply[A](a: A)(implicit M: Monad[F]): FoxyT[F, A] =
+    def apply[A](a: A)(implicit M: Monad[F]): FoxyT[F, A] = // TODO: remove me? @michalrus
       pure(a)
 
     def pure[A](a: A)(implicit M: Monad[F]): FoxyT[F, A] =
       Monad[FoxyT[F, ?]].pure(a)
 
+    def good[A](a: A)(implicit M: Monad[F]): FoxyT[F, A] = // TODO: remove me @michalrus
+      pure(a)
+
+    def unit(implicit M: Monad[F]): FoxyT[F, Unit] = pure(()) // TODO: remove me? @michalrus
+
+    def none[A](implicit M: Monad[F]): FoxyT[F, Option[A]] =
+      pure(None) // TODO: remove me? @michalrus
+
     def warning(f: Failure)(implicit M: Monad[F]): FoxyT[F, Unit] =
       StateT.modify(UIInfo.Warning(f) :: _)
 
-    def failure(f: Failure)(implicit M: Monad[F]): FoxyT[F, Unit] =
+    def failures[A](f: Failures)(implicit M: Monad[F]): FoxyT[F, A] = // TODO: shouldn’t A =:= Unit? @michalrus
       StateT(_ ⇒ XorT.left(M.pure(f)))
 
+    def failure[A](f: Failure)(implicit M: Monad[F]): FoxyT[F, A] = // TODO: remove me? @michalrus
+      failures(f.single)
+
+    def fromF[A](fa: F[A])(implicit M: Monad[F]): FoxyT[F, A] = // TODO: better name? @michalrus
+      StateT(s ⇒ XorT.right(M.map(fa)((s, _))))
+
+    def fromXor[A](v: Failures Xor A)(implicit M: Monad[F]): FoxyT[F, A] =
+      StateT(s ⇒ XorT(M.pure(v)))
+
+    def fromG[G[_], A, B](f: G[B] ⇒ F[B], ga: FoxyT[G, A]): FoxyT[F, A] = // TODO: better name? @michalrus
+      ga.transformF(gga ⇒ XorT(f(gga.value)))
+
     def fromId[A](fa: Foxy[A])(implicit M: Monad[F]): FoxyT[F, A] =
-      StateT(s ⇒ XorT(M.pure(fa.run(s).value)))
+      //fa.transformF(ga ⇒ XorT(M.pure(ga.value)))
+      fromG(M.pure, fa)
 
     def failWithMatchedWarning(pf: PartialFunction[Failure, Boolean])(
         implicit M: Monad[F]): FoxyT[F, Unit] =
@@ -57,50 +98,55 @@ package object db {
             s.collect {
           case UIInfo.Warning(f) ⇒ f
         }.find(pf.lift(_) == Some(true)) match {
-          case Some(f) ⇒ XorT.left(M.pure(f))
+          case Some(f) ⇒ XorT.left(M.pure(NonEmptyList(f, Nil)))
           case _       ⇒ XorT.right(M.pure((s, ())))
       })
+
   }
 
   // ————————————————————————————— /Foxy —————————————————————————————
 
-  type DbResultT[A] = XorT[DBIO, Failures, A]
+  type DbResultT[A] = FoxyTDBIO[A]
+  val DbResultT = FoxyTDBIO
 
   // DBIO monad
-  implicit def dbioApplicative(implicit ec: EC): Applicative[DBIO] = new Applicative[DBIO] {
-    def ap[A, B](f: DBIO[A ⇒ B])(fa: DBIO[A]): DBIO[B] =
-      fa.flatMap(a ⇒ f.map(ff ⇒ ff(a)))
+  implicit def dbioMonad(implicit ec: EC): Functor[DBIO] with Monad[DBIO] with Applicative[DBIO] =
+    new Functor[DBIO] with Monad[DBIO] with Applicative[DBIO] {
+      override def ap[A, B](f: DBIO[A ⇒ B])(fa: DBIO[A]): DBIO[B] =
+        fa.flatMap(a ⇒ f.map(ff ⇒ ff(a)))
 
-    def pure[A](a: A): DBIO[A] = DBIO.successful(a)
-  }
+      override def map[A, B](fa: DBIO[A])(f: A ⇒ B): DBIO[B] = fa.map(f)
 
-  implicit def dbioMonad(implicit ec: EC) = new Functor[DBIO] with Monad[DBIO] {
-    override def map[A, B](fa: DBIO[A])(f: A ⇒ B): DBIO[B] = fa.map(f)
+      override def pure[A](a: A): DBIO[A] = DBIO.successful(a)
 
-    override def pure[A](a: A): DBIO[A] = DBIO.successful(a)
+      override def flatMap[A, B](fa: DBIO[A])(f: A ⇒ DBIO[B]): DBIO[B] = fa.flatMap(f)
 
-    override def flatMap[A, B](fa: DBIO[A])(f: A ⇒ DBIO[B]): DBIO[B] = fa.flatMap(f)
-
-    override def tailRecM[A, B](a: A)(f: A ⇒ DBIO[Either[A, B]]): DBIO[B] =
-      defaultTailRecM(a)(f)
-  }
+      override def tailRecM[A, B](a: A)(f: A ⇒ DBIO[Either[A, B]]): DBIO[B] =
+        defaultTailRecM(a)(f)
+    }
 
   // implicits
   implicit class EnrichedDbResultT[A](dbResultT: DbResultT[A]) {
     def runTxn()(implicit ec: EC, db: DB): Result[A] =
-      dbResultT
-      // turn `left` into `DBIO.failed` to force transaction rollback
-        .fold(failures ⇒ DBIO.failed(FoxFailureException(failures)), good ⇒ DBIO.successful(good))
-        .flatMap(a ⇒ a) // flatten...
-        .transactionally
-        .dbresult // just a DBIO ⇒ DbResultT wrapper
-        .run()    // throws a FoxFailureException :/
-        .recover { // don't actually want an exception thrown, so wrap it back
-          case e: FoxFailureException ⇒ Xor.left(e.failures)
-        }
+      dbResultT.transformF(
+          fsa ⇒
+            XorT(
+                fsa
+                  .fold(failures ⇒ DBIO.failed(FoxFailureException(failures)),
+                        good ⇒ DBIO.successful(good))
+                  .flatMap(a ⇒ a) // flatten...
+                  .transactionally
+                  .run
+                  .map(Xor.right)
+                  .recover {
+            case e: FoxFailureException ⇒ Xor.left(e.failures)
+          }))
 
-    def run()(implicit db: DB): Result[A] =
-      dbResultT.value.run()
+    def runDBIO()(implicit ec: EC, db: DB): Result[A] = {
+      //val F19 = FlatMap[DBIO](dbioMonad)
+      //dbResultT.value.run()
+      dbResultT.transformF(fa ⇒ XorT(fa.value.run))
+    }
 
     def meh(implicit ec: EC): DbResultT[Unit] = for (_ ← * <~ dbResultT) yield {}
 
@@ -108,9 +154,9 @@ package object db {
         implicit ec: EC): DbResultT[A] = {
       def mapFailure(failure: Failure) = resolver.applyOrElse(failure, identity[Failure])
 
-      dbResultT.leftMap {
+      dbResultT.transformF(_.leftMap {
         case NonEmptyList(h, t) ⇒ NonEmptyList(mapFailure(h), t.map(mapFailure))
-      }
+      })
     }
   }
 
@@ -146,10 +192,10 @@ package object db {
 
   def doOrFail[A](condition: Boolean, action: DbResultT[A], failure: Failure)(
       implicit ec: EC): DbResultT[A] =
-    if (condition) action else DbResultT.failure[A](failure)
+    if (condition) action else DbResultT.failure(failure)
 
   def failIf(condition: Boolean, failure: Failure)(implicit ec: EC): DbResultT[Unit] =
-    if (condition) DbResultT.failure[Unit](failure) else DbResultT.unit
+    if (condition) DbResultT.failure(failure) else DbResultT.unit
 
   def failIfNot(condition: Boolean, failure: Failure)(implicit ec: EC): DbResultT[Unit] =
     failIf(!condition, failure)
@@ -157,7 +203,7 @@ package object db {
   def failIfFailures(failures: Seq[Failure])(implicit ec: EC): DbResultT[Unit] =
     failures match {
       case head :: tail ⇒
-        DbResultT.failures[Unit](NonEmptyList.of(head, tail: _*))
+        DbResultT.failures(NonEmptyList.of(head, tail: _*))
       case _ ⇒
         DbResultT.unit
     }
@@ -182,7 +228,7 @@ package object db {
       db.run(dbio)
 
     def dbresult(implicit ec: EC): DbResultT[R] =
-      DbResultT.fromDbio(dbio)
+      DbResultT.fromF(dbio)
   }
 
   sealed trait FoundOrCreated

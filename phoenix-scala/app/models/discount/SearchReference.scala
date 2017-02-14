@@ -1,9 +1,9 @@
 package models.discount
 
 import scala.concurrent.Future
-
 import cats.data.Xor
 import com.github.tminglei.slickpg.LTree
+import failures.Failures
 import models.discount.SearchReference._
 import models.sharedsearch.SharedSearches
 import org.json4s.JsonAST.JObject
@@ -21,17 +21,23 @@ sealed trait SearchReference[T] {
 
   def query(input: DiscountInput)(implicit db: DB, ec: EC, es: ES): Result[T] = {
     val refs = references(input)
-    if (refs.isEmpty) return pureResult
 
-    SharedSearches.findOneById(searchId).run().flatMap {
-      case Some(search) ⇒
-        search.rawQuery \ "query" match {
-          case query: JObject ⇒
-            val searchView = searchViewByScope(search.accessScope)
-            esSearch(searchView, query, refs).map(result ⇒ Xor.Right(result))
-          case _ ⇒ pureResult
-        }
-      case _ ⇒ pureResult
+    // →→→→→→→→→→→→→→→→→→→ continue here ←←←←←←←←←←←←←←←←←←←
+
+    if (refs.isEmpty) pureResult
+    else {
+      val x: Future[Failures Xor T] = SharedSearches.findOneById(searchId).run().flatMap {
+        case Some(search) ⇒
+          search.rawQuery \ "query" match {
+            case query: JObject ⇒
+              val searchView = searchViewByScope(search.accessScope)
+              esSearch(searchView, query, refs).map(result ⇒ Xor.Right(result))
+            case _ ⇒ pureResult
+          }
+        case _ ⇒ pureResult
+      }
+
+      x
     }
   }
 

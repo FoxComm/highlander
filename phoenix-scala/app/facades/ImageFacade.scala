@@ -37,7 +37,7 @@ object ImageFacade {
       album   ← * <~ mustFindAlbumByFormIdAndContext404(albumId, context)
       _       ← * <~ album.mustNotBeArchived
       result  ← * <~ uploadImages(album, request, context)
-    } yield result).run()
+    } yield result).runDBIO()
   }
 
   def uploadImages(
@@ -48,22 +48,20 @@ object ImageFacade {
     val error: Result[Unit] = Result.failures(failures)
     implicit val oc         = context
 
-    Unmarshal(request.entity).to[Multipart.FormData].flatMap { formData ⇒
-      formData.parts
-        .filter(_.name == "upload-file")
-        .runFold(error) { (previousUpload, part) ⇒
-          previousUpload.flatMap {
-            case Xor.Left(err) if err != failures ⇒ Result.left(err)
-            case _                                ⇒ uploadImage(part, album).runTxn()
-          }
-        }
-        .flatMap { r ⇒
-          (for {
-            _     ← * <~ r
-            album ← * <~ getAlbumInner(album.formId, oc)
-          } yield album).run()
-        }
-    }
+    for {
+      formData ← Result.fromF(Unmarshal(request.entity).to[Multipart.FormData])
+      r ← Result.fromF(formData.parts.filter(_.name == "upload-file").runFold(error) {
+             (previousUpload, part) ⇒
+               previousUpload.flatMapXor { // FIXME: what’s going on here? @michalrus
+                 case Xor.Left(err) if err != failures ⇒ Result.failures(err)
+                 case _                                ⇒ uploadImage(part, album).runTxn()
+               }
+           })
+      realR ← (for {
+                _     ← * <~ r
+                album ← * <~ getAlbumInner(album.formId, oc)
+              } yield album).runDBIO()
+    } yield realR
   }
 
   def uploadImage(part: Multipart.FormData.BodyPart, album: Album)(implicit ec: EC,
