@@ -3,6 +3,7 @@ package models.objects
 import java.time.Instant
 
 import org.json4s.JsonAST.JObject
+import payloads.ObjectSchemaPayloads._
 import shapeless._
 import utils.aliases._
 import utils.db.ExPostgresDriver.api._
@@ -21,6 +22,19 @@ case class ObjectSchema(id: Int = 0,
                         createdAt: Instant = Instant.now)
     extends FoxModel[ObjectSchema]
     with Validation[ObjectSchema]
+
+object ObjectSchema {
+  def fromCreatePayload(payload: CreateSchemaPayload): ObjectSchema =
+    ObjectSchema(contextId = payload.contextId,
+                 kind = payload.kind,
+                 name = payload.name,
+                 dependencies = payload.dependencies,
+                 schema = payload.schema)
+
+  def fromUpdatePayload(original: ObjectSchema, payload: UpdateSchemaPayload): ObjectSchema =
+    original.copy(schema = payload.schema.getOrElse(original.schema),
+                  dependencies = payload.dependencies.getOrElse(original.dependencies))
+}
 
 class ObjectSchemas(tag: Tag) extends FoxTable[ObjectSchema](tag, "object_schemas") {
   def id           = column[Int]("id", O.PrimaryKey, O.AutoInc)
@@ -42,6 +56,9 @@ object ObjectSchemas
   val returningLens: Lens[ObjectSchema, Int] = lens[ObjectSchema].id
 
   implicit val formats = JsonFormatters.phoenixFormats
+
+  def mustFindByName404(name: String)(implicit ec: EC): DbResultT[ObjectSchema] =
+    filter(_.name === name).mustFindOneOr(failures.NotFoundFailure404(ObjectSchemas, "name", name))
 }
 
 /**
