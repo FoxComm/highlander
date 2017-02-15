@@ -113,13 +113,6 @@ class ReturnIntegrationTest
               StateTransitionNotAllowed(Return, "Complete", "Pending", rma.referenceNumber))
       }
 
-      "fails to cancel Return if invalid reason provided" in new Fixture {
-        private val payload = ReturnUpdateStatePayload(state = Canceled, reasonId = 999.some)
-        returnsApi(rma.referenceNumber)
-          .update(payload)
-          .mustFailWith400(InvalidCancellationReasonFailure)
-      }
-
       "fails if Return is not found" in new Fixture {
         private val payload = ReturnUpdateStatePayload(state = Processing)
         returnsApi(orderRefNotExist)
