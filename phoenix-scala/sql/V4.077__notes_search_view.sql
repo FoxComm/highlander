@@ -2,8 +2,6 @@ alter table notes add column scope exts.ltree;
 update notes set scope = exts.text2ltree(get_scope_path((select scope_id from organizations where name = 'merchant'))::text);
 alter table notes alter column scope set not null;
 
-alter table notes_search_view alter column scope set not null;
-
 alter table notes_search_view add column scope exts.ltree;
 update notes_search_view set scope = exts.text2ltree(get_scope_path((select scope_id from organizations where name = 'merchant'))::text);
 
@@ -20,7 +18,7 @@ begin
     to_json_timestamp(n.created_at) as created_at,
     to_json_timestamp(n.deleted_at) as deleted_at,
     to_json((users.email, users.name)::export_store_admins) as author,
-    n.scope as scope
+    new.scope as scope
   from notes as n
     inner join users on (n.store_admin_id = users.account_id)
   where n.id = new.id;
