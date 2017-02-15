@@ -4,7 +4,7 @@ import { createReducer } from 'redux-act';
 import { createAsyncActions } from '@foxcomm/wings';
 
 function apiCall(): Promise {
-    const result = [
+  const result = [
       {
         id: 0,
         name: 'APPETIZERS',
@@ -49,7 +49,7 @@ function apiCall(): Promise {
         showNameCatPage: true,
       },
       {
-        //TODO: REMOVE THIS CODE AFTER Feb 15
+        // TODO: REMOVE THIS CODE AFTER Feb 15
         id: 6,
         name: 'VALENTINE',
         description: 'Valentine\'s Day Picks',
