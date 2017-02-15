@@ -8,7 +8,7 @@ import { searchGroups } from 'elastic/customer-groups';
 
 const _suggestGroups = createAsyncActions('suggestGroups', searchGroups);
 
-export const suggestGroups = (excludeGroups: Array<number>) => _suggestGroups.perform.bind(null, excludeGroups);
+export const suggestGroups = (excludeGroups: Array<number> = []) => _suggestGroups.perform.bind(null, excludeGroups);
 
 const initialState = {
   groups: [],

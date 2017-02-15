@@ -7,7 +7,7 @@ import { singularize } from 'fleck';
 import createStore from 'lib/store-creator';
 
 // data
-import { reducers, bulkActions } from '../../bulk';
+import { reducers } from '../../bulk';
 
 
 const deleteCustomersFromGroup = (actions, groupId, customersIds) => dispatch => {
@@ -22,7 +22,6 @@ const { actions, reducer } = createStore({
   path: 'customerGroups.details.bulk',
   actions: {
     deleteCustomersFromGroup,
-    ...bulkActions,
   },
   reducers,
 });

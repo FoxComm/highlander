@@ -7,7 +7,7 @@ import { singularize } from 'fleck';
 import createStore from 'lib/store-creator';
 
 // data
-import { reducers, bulkActions } from '../bulk';
+import { reducers } from '../bulk';
 
 const addCustomersToGroup = (actions, groupId, customersIds) => dispatch => {
   dispatch(actions.bulkRequest());
@@ -21,7 +21,6 @@ const { actions, reducer } = createStore({
   path: 'customers.bulk',
   actions: {
     addCustomersToGroup,
-    ...bulkActions,
   },
   reducers,
 });

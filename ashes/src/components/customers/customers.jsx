@@ -2,6 +2,7 @@
  * @flow
  */
 
+import { get, first, map } from 'lodash';
 import { autobind } from 'core-decorators';
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
@@ -22,14 +23,16 @@ type Props = {
   list: Object,
   actions: Object,
   tableColumns?: Array<Object>,
+  suggestedGroups: Array<TCustomerGroupShort>,
+  suggestState: Object,
   bulkActions: {
     addCustomersToGroup: (groupId: number, customersIds: Array<number>) => Promise,
   },
-  suggestGroups: Function,
 };
 
 type State = {
-  addGroupModalShown: boolean,
+  addToGroupModalShown: boolean,
+  customerIds: Array<number>,
 };
 
 function renderRow(row, index, columns, params) {
@@ -42,7 +45,8 @@ class Customers extends Component {
   props: Props;
 
   state: State = {
-    addGroupModalShown: false,
+    addToGroupModalShown: false,
+    customerIds: [],
   };
 
   static defaultProps = {
@@ -69,23 +73,31 @@ class Customers extends Component {
   }
 
   @autobind
-  handleAddToGroup(): void {
-    this.setState({ modalShown: false });
-  }
-
-  @autobind
-  handleAddToGroup(_, toggledIds) {
-    const { addCustomersToGroup } = this.props.bulkActions;
+  handleAddToGroup(_, customersIds) {
+    const { suggestedGroups, suggestState, actions, bulkActions: { addCustomersToGroup } } = this.props;
 
     return (
       <SearchGroupModal
-        isVisible={this.state.modalShown}
-        onCancel={this.onEditGroupsCancel}
-        handleSave={() => addCustomersToGroup(this.props.group.id, toggledIds)}
-        suggestGroups={this.props.suggestGroups}
-        suggested={this.props.suggested}
-        suggestState={this.props.suggestState}
+        isVisible={this.state.addToGroupModalShown}
+        onCancel={() => this.setState({ addToGroupModalShown: false })}
+        handleSave={(groups) => addCustomersToGroup(first(groups).id, customersIds)}
+        suggestGroups={actions.suggestGroups}
+        suggested={suggestedGroups}
+        suggestState={suggestState}
       />
+    );
+  }
+
+  @autobind
+  handleSelectGroup(groups: Array<TCustomerGroup>) {
+    const customers = this.state.customerIds;
+
+    this.setState({
+        addToGroupModalShown: false,
+        customerIds: [],
+      }, () =>
+        groups.forEach(({ id }: TCustomerGroup) =>
+          this.props.bulkActions.addCustomersToGroup(id, customers))
     );
   }
 
@@ -98,7 +110,7 @@ class Customers extends Component {
   }
 
   render() {
-    const { list, tableColumns, actions } = this.props;
+    const { list, tableColumns, suggestedGroups, suggestState, actions } = this.props;
 
     return (
       <div>
@@ -130,12 +142,16 @@ class Customers extends Component {
 
 const mapState = state => ({
   list: state.customers.list,
+  suggestedGroups: state.customerGroups.suggest.groups,
+  suggestState: get(state.asyncActions, 'suggestGroups', {}),
 });
 
-const mapActions = dispatch => ({
-  actions: bindActionCreators(actions, dispatch),
+const mapActions = (dispatch, props: Props) => ({
+  actions: bindActionCreators({
+    ...actions,
+    suggestGroups: suggestGroups(),
+  }, dispatch),
   bulkActions: bindActionCreators(bulkActions, dispatch),
-  suggestGroups: suggestGroups(customerGroups),
 });
 
 export default connect(mapState, mapActions)(Customers);
