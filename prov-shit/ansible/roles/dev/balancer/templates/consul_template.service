@@ -1,6 +1,6 @@
 [Service]
 WorkingDirectory=/usr/local/bin
-ExecStart=/usr/local/bin/consul-template -consul 127.0.0.1:8500 -template "/etc/nginx/services.template:/etc/nginx/sites-enabled/services:systemctl reload nginx"
+ExecStart=/usr/local/bin/consul-template -config {{consul_data_dir}}/consul_template.conf
 Restart=always
 StandardOutput=syslog
 StandardError=syslog
