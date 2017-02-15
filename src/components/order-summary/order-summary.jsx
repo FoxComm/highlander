@@ -38,6 +38,7 @@ type Props = {
   embedded?: boolean,
   totalTitle?: string,
   orderPlaced?: boolean,
+  referenceNumber: string,
 };
 
 type State = {
@@ -109,6 +110,7 @@ class OrderSummary extends Component {
       id: 868108231,
       value: grandTotal / 100,
       label: 'AkdhCPzhm20Qx4_5nQM',
+      orderId: this.props.referenceNumber,
     };
 
     return <GoogleConversion params={params} />;
