@@ -61,6 +61,7 @@
     - { role: dev/consul_agent }
     - { role: dev/elasticsearch }
     - { role: hotfix/elasticsearch }
+    - { role: hotfix/rsyslog }
     - { role: hotfix/kibana }
     - { role: dev/db }
     # Marathon
