@@ -8,11 +8,31 @@ defmodule Hyperion.Amazon do
   def product_feed(product_id, jwt) do
     # FIXME: get products by may ids
     # remove hd(product_id) and update PhoenixScala.Client
-    Client.get_product(hd(product_id), jwt)
+    r = Client.get_product(hd(product_id), jwt)
     |> process_products
   end
 
-  def process_products(response) do
+  def price_feed(product_id, jwt) do
+    product_feed(product_id, jwt)
+    |> Enum.map(fn(x) -> Enum.filter(x, fn({k, v}) -> k == :code || k == :retailprice  end) end)
+  end
+
+  def images_feed(product_id, jwt) do
+    Client.get_product(hd(product_id), jwt)
+    |> process_images
+  end
+
+  def process_images(response) do
+    r = response.body
+    a = Enum.map(r["skus"], fn(s)->
+      Enum.map(s["albums"], fn(a) ->
+        {String.to_atom(a["name"]), a["images"]}
+      end)
+    end) |> hd
+    Enum.map(r["skus"], fn(x)-> [albums: a, code: x["attributes"]["code"]["v"]] end)
+  end
+
+  defp process_products(response) do
     products = response.body["attributes"] |> format_map
 
     skus = response.body["skus"]
@@ -21,11 +41,6 @@ defmodule Hyperion.Amazon do
 
     Enum.map(skus, fn(s) -> Enum.into(s, products) end)
     |> Enum.map(fn list -> Keyword.delete(list, :description, "<p><br></p>") end)
-  end
-
-  def price_feed(product_id, jwt) do
-    product_feed(product_id, jwt)
-    |> Enum.map(fn(x) -> Enum.filter(x, fn({k, v}) -> k == :code || k == :retailprice  end) end)
   end
 
   defp format_map(map) do

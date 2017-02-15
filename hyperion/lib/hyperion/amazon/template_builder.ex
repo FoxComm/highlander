@@ -23,6 +23,11 @@ defmodule Hyperion.Amazon.TemplateBuilder do
     EEx.eval_string(Hyperion.Amazon.Templates.SubmitInventoryFeed.template_string, data)
   end
 
+  def submit_images_feed(list, opts) do
+    data = [seller_id: opts.seller_id, images: list]
+    EEx.eval_string(Hyperion.Amazon.Templates.SubmitImages.template_string, data)
+  end
+
   def books_category(list) do
     EEx.eval_string(Hyperion.Amazon.Templates.Categories.Books.template_string, list)
   end

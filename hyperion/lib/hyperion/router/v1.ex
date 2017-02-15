@@ -224,6 +224,24 @@ defmodule Hyperion.Router.V1 do
       end
     end # inventory
 
+    namespace :images do
+      desc "submit images feed"
+
+      params do
+        requires :ids, type: CharList
+      end
+
+      post do
+        cfg = API.customer_id(conn) |> MWSAuthAgent.get
+        images = Amazon.images_feed(params[:ids], API.jwt(conn))
+                 |> TemplateBuilder.submit_images_feed(cfg)
+        case MWSClient.submit_images_feed(images, MWSAuthAgent.get(API.customer_id(conn))) do
+          {:error, error} -> respond_with(conn, %{message: inspect(error)}, 422)
+          {_, resp} -> respond_with(conn, resp)
+        end
+      end
+    end
+
     namespace :submission_result do
       route_param :feed_id do
       desc "Check result of submitted feed"
