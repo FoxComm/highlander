@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "eslint --ext .js --ext .jsx .",
     "flow": "flow check",
-    "dev": "gulp dev",
+    "dev": "gulp dev --optimize_for_size --stack_size=4096",
     "test": "node_modules/mocha/bin/mocha"
   },
   "author": "FoxCommerce",
