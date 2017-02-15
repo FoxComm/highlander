@@ -2,7 +2,7 @@ package routes.service
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
+import utils.http.JsonSupport._
 import payloads.CustomerPayloads._
 import services.account.AccountCreateContext
 import services.migration.CustomerImportService

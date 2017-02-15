@@ -5,14 +5,14 @@ import cats.implicits._
 import failures.Failure
 import models.payment.giftcard.GiftCard.giftCardCodeRegex
 import payloads.AddressPayloads.CreateAddressPayload
-import utils.ValidatedPayload
+import utils.Validation
 import utils.Validation._
 
 package object lineitems {
 
   case class LineItemAttributes(giftCard: Option[GiftCardLineItemAttributes] = None,
                                 subscription: Option[CreateAddressPayload] = None)
-      extends ValidatedPayload[LineItemAttributes] {
+      extends Validation[LineItemAttributes] {
 
     override def validate: ValidatedNel[Failure, LineItemAttributes] = {
       val giftCardOk     = giftCard.fold(ok)(_.validate.map(_ ⇒ Unit))
@@ -34,7 +34,7 @@ package object lineitems {
                                         recipientEmail: String,
                                         message: String,
                                         code: Option[String] = None)
-      extends ValidatedPayload[GiftCardLineItemAttributes] {
+      extends Validation[GiftCardLineItemAttributes] {
 
     override def validate: Validated[NonEmptyList[Failure], GiftCardLineItemAttributes] = {
       val senderNameOk     = notEmpty(senderName, "sender name")

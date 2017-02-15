@@ -15,7 +15,7 @@
     "start": "node --harmony boot.js",
     "stop": "kill -USR2 $(ps aux | grep '[m]-ashes' | awk '{print $2}')",
     "build": "gulp",
-    "dev": "gulp dev",
+    "dev": "gulp dev --optimize_for_size --stack_size=4096",
     "flow": "flow check",
     "lint": "gulp lint",
     "precompile": "babel src -d lib",
