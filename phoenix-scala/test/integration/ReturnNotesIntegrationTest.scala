@@ -22,21 +22,17 @@ class ReturnNotesIntegrationTest
     with TestActivityContext.AdminAC
     with BakedFixtures {
 
-  def api(ref: String) = notesApi.returnApi(ref)
-
-  "wip" - {
-    "can be created by an admin for a gift card" in new Fixture {
-      val note =
-        api(rma.refNum).create(CreateNote(body = "Hello, FoxCommerce!")).as[AdminNotes.Root]
-
-      note.body must === ("Hello, FoxCommerce!")
-      note.author must === (AdminNotes.buildAuthor(storeAdmin))
-    }
-  }
+  def api(ref: String) = notesApi.returns(ref)
 
   "Return Notes" - {
-    pending
     "POST /v1/notes/return/:code" - {
+      "can be created for return" in new Fixture {
+        val note =
+          api(rma.refNum).create(CreateNote(body = "Hello, FoxCommerce!")).as[AdminNotes.Root]
+
+        note.body must === ("Hello, FoxCommerce!")
+        note.author must === (AdminNotes.buildAuthor(storeAdmin))
+      }
 
       "returns a validation error if failed to create" in new Fixture {
         val response = api(rma.refNum).create(CreateNote(body = ""))
@@ -45,11 +41,12 @@ class ReturnNotesIntegrationTest
         response.error must === ("body must not be empty")
       }
 
-      "returns a 404 if the gift card is not found" in new Fixture {
-        val response = api("RMA-666").create(CreateNote(body = ""))
+      "returns a 404 if the return is not found" in new Fixture {
+        private val none = "RMA-666"
+        val response     = api(none).create(CreateNote(body = ""))
 
         response.status must === (StatusCodes.NotFound)
-        response.error must === (NotFoundFailure404(Return, "RMA-666").description)
+        response.error must === (NotFoundFailure404(Return, none).description)
       }
     }
 
@@ -101,11 +98,6 @@ class ReturnNotesIntegrationTest
         // Deleted note should not be returned
         val allNotes = api(rma.refNum).get().as[Seq[AdminNotes.Root]]
         allNotes.map(_.id) must not contain note.id
-
-        // todo implement
-//        api(rma.refNum).note(note.id).get()
-//        val getDeletedNoteResponse = GET(s"v1/notes/return/${rma.refNum}/${note.id}")
-//        getDeletedNoteResponse.status must === (StatusCodes.NotFound)
       }
     }
   }
