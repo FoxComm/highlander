@@ -7,6 +7,7 @@ import payloads.ProductOptionPayloads.{ProductOptionPayload, ProductOptionValueP
 import payloads.ProductVariantPayloads.ProductVariantPayload
 import testutils.PayloadHelpers._
 import utils.aliases.Json
+import utils.time._
 
 package object products {
 
@@ -19,7 +20,10 @@ package object products {
   def productAttrs(name: String = randomProductName,
                    title: String = Lorem.sentence(1),
                    description: String = Lorem.sentence(3)): Map[String, Json] =
-    Map("name" → tv(name), "title" → tv(title), "description" → tv(description))
+    Map("name"        → tv(name),
+        "title"       → tv(title),
+        "description" → tv(description),
+        "activeFrom"  → tv(yesterday.toInstant, "datetime"))
 
   def variantAttrs(code: String,
                    price: Int,
