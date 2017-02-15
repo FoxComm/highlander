@@ -1,17 +1,14 @@
 package utils.seeds
 
 import java.time.{Instant, ZoneId}
-
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
-
 import cats.data.Xor
 import com.pellucid.sealerate
-import com.typesafe.config.Config
+import com.typesafe.config.{Config, ConfigFactory}
 import failures.{Failures, FailuresOps, NotFoundFailure404}
 import failures.UserFailures._
-
 import models.auth.UserToken
 import models.Reason._
 import models.activity.ActivityContext
@@ -122,6 +119,7 @@ object Seeds {
   }
 
   def runMain(cfg: CliConfig, usage: String): Unit = {
+    sys.props += ("phoenix.env" → "test")
     val config: Config           = FoxConfig.unsafe
     implicit val db: DatabaseDef = Database.forConfig("db", config)
     implicit val ac: AC          = ActivityContext(userId = 1, userType = "user", transactionId = "seeds")
