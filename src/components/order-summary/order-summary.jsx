@@ -6,7 +6,6 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import classNames from 'classnames/dedupe';
-import formatCurrency from 'lib/format-currency';
 
 // localization
 import localized from 'lib/i18n';
@@ -15,6 +14,7 @@ import localized from 'lib/i18n';
 import TermValueLine from 'ui/term-value-line';
 import Currency from 'ui/currency';
 import ProductTable from './product-table';
+import GoogleConversion from 'ui/google/conversion';
 
 // styles
 import styles from './order-summary.css';
@@ -38,6 +38,7 @@ type Props = {
   embedded?: boolean,
   totalTitle?: string,
   orderPlaced?: boolean,
+  referenceNumber: string,
 };
 
 type State = {
@@ -105,23 +106,14 @@ class OrderSummary extends Component {
       return null;
     }
 
-    const value = formatCurrency(grandTotal);
-    const url =
-      `//www.googleadservices.com/pagead/conversion/868108231/` +
-      `?label=AkdhCPzhm20Qx4_5nQM&` +
-      `currency_code=USD&` +
-      `value=${value}&` +
-      `guid=ON&script=0`;
+    const params = {
+      id: 868108231,
+      value: grandTotal / 100,
+      label: 'AkdhCPzhm20Qx4_5nQM',
+      orderId: this.props.referenceNumber,
+    };
 
-    return (
-        <img
-          width="1"
-          height="1"
-          style={{ borderStyle: 'none' }}
-          alt=""
-          src={url}
-        />
-    );
+    return <GoogleConversion params={params} />;
   }
 
   render() {
