@@ -14,6 +14,7 @@ import localized from 'lib/i18n';
 import TermValueLine from 'ui/term-value-line';
 import Currency from 'ui/currency';
 import ProductTable from './product-table';
+import GoogleConversion from 'ui/google/conversion';
 
 // styles
 import styles from './order-summary.css';
@@ -104,57 +105,13 @@ class OrderSummary extends Component {
       return null;
     }
 
-    const value = (grandTotal / 100).toFixed(2);
     const params = {
-      conversionId: 868108231,
+      id: 868108231,
+      value: grandTotal / 100,
       label: 'AkdhCPzhm20Qx4_5nQM',
-      value,
     };
 
-    const url =
-      `//www.googleadservices.com/pagead/conversion/${params.conversionId}/` +
-      `?label=${params.label}&` +
-      `currency_code=USD&` +
-      `value=${params.value}&` +
-      `guid=ON&script=0`;
-
-    const variables = (
-      <script type="text/javascript" dangerouslySetInnerHTML={{
-        __html: `
-                /* <![CDATA[ */
-        var google_conversion_id = ${params.conversionId};
-        var google_conversion_language = "en";
-        var google_conversion_format = "3";
-        var google_conversion_color = "ffffff";
-        var google_conversion_label = "${params.label}";
-        var google_remarketing_only = false;
-        var google_conversion_currency = "USD";
-        var google_conversion_value = ${params.value};
-        /* ]]> */
-        `,
-      }}
-      />
-    );
-
-    const conversionScript = (
-      <script type="text/javascript" src="//www.googleadservices.com/pagead/conversion.js" />
-    );
-
-    const image = (
-      <noscript>
-        <img
-          width="1"
-          height="1"
-          style={{ borderStyle: 'none' }}
-          alt=""
-          src={url}
-        />
-      </noscript>
-    );
-
-    return [
-      variables, conversionScript, image,
-    ];
+    return <GoogleConversion params={params} />;
   }
 
   render() {
