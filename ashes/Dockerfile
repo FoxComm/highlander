@@ -10,4 +10,4 @@ WORKDIR /ashes
 COPY . /ashes
 
 EXPOSE 4000
-CMD gulp server 2>&1 | tee /logs/ashes.log
+CMD NODE_ENV=production gulp server --optimize_for_size --max_old_space_size=1536 --stack_size=4096 2>&1 | tee /logs/ashes.log
