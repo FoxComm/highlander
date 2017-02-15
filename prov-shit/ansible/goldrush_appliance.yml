@@ -60,6 +60,7 @@
     - { role: dev/zookeeper }
     - { role: dev/consul_agent }
     - { role: dev/elasticsearch }
+    - { role: hotfix/elasticsearch }
     - { role: hotfix/kibana }
     - { role: dev/db }
     # Marathon
