@@ -1,11 +1,4 @@
-alter table notes add column scope exts.ltree;
-update notes set scope = exts.text2ltree(get_scope_path((select scope_id from organizations where name = 'merchant'))::text);
-alter table notes alter column scope set not null;
-
 alter table notes_search_view alter column scope set not null;
-
-alter table notes_search_view add column scope exts.ltree;
-update notes_search_view set scope = exts.text2ltree(get_scope_path((select scope_id from organizations where name = 'merchant'))::text);
 
 create or replace function update_notes_search_view_insert_fn() returns trigger as $$
 declare new_note notes_search_view%rowtype;
@@ -19,8 +12,7 @@ begin
     new.priority as priority,
     to_json_timestamp(n.created_at) as created_at,
     to_json_timestamp(n.deleted_at) as deleted_at,
-    to_json((users.email, users.name)::export_store_admins) as author,
-    n.scope as scope
+    to_json((users.email, users.name)::export_store_admins) as author
   from notes as n
     inner join users on (n.store_admin_id = users.account_id)
   where n.id = new.id;
@@ -131,6 +123,8 @@ begin
     from users
     where users.account_id = new.reference_id;
   end case;
+
+  select new.scope into strict new_note.scope;
 
   insert into notes_search_view select new_note.*;
 
