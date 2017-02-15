@@ -7,7 +7,8 @@
   "instances": 1,
   "labels": {
     "LAYER": "backend",
-    "LANG": "go"
+    "LANG": "go",
+    "TAG": "{{docker_tags.river_rock}}"
   },
   "container": {
     "type": "DOCKER",
