@@ -1,7 +1,8 @@
 package routes.admin
 
 import akka.http.scaladsl.server.Directives._
-import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
+import akka.http.scaladsl.server.Route
+import utils.http.JsonSupport._
 import models.account.User
 import payloads.CustomerGroupPayloads._
 import services.Authenticator.AuthData
@@ -11,7 +12,7 @@ import utils.http.CustomDirectives._
 import utils.http.Http._
 
 object CustomerGroupsRoutes {
-  def routes(implicit ec: EC, db: DB, auth: AuthData[User]) = {
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User]): Route = {
 
     activityContext(auth.model) { implicit ac ⇒
       pathPrefix("customer-groups") {

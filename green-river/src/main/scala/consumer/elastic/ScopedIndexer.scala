@@ -61,8 +61,10 @@ class ScopedIndexer(uri: String,
             val scopes = distinctScopePaths(scope)
             indexScopes(scopes, jid, document, topic)
 
-          //if no scope found, just save the good old way
-          case _ ⇒ indexDocument(indexName, jid, document, topic)
+          // if no scope found, just save the good old way
+          case _ ⇒
+            Console.out.println(s"No scope found for document ID $jid from $topic, performing unscoped indexing...")
+            indexDocument(indexName, jid, document, topic)
         }
       case _ ⇒
         Console.out.println(s"Skipping unidentified document from topic $topic...\r\n$document")

@@ -145,7 +145,7 @@ func (c *phoenixClient) CreateGiftCards(giftCards []mwhPayloads.CreateGiftCardPa
 	if err := c.EnsureAuthentication(); err != nil {
 		return nil, err
 	}
-	url := fmt.Sprintf("%s/v1/customer-gift-cards", c.baseURL)
+	url := fmt.Sprintf("%s/v1/customer-gift-cards/bulk", c.baseURL)
 
 	resp := []*mwhPayloads.GiftCardResponse{}
 
