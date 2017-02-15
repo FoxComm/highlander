@@ -6,7 +6,9 @@ import React, { Component } from 'react';
 import styles from './auth.css';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
-import { browserHistory, Link } from 'react-router';
+import { Link } from 'react-router';
+
+import { browserHistory } from 'lib/history';
 
 import localized from 'lib/i18n';
 import type { Localized } from 'lib/i18n';

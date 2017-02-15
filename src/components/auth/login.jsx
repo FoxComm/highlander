@@ -3,8 +3,10 @@
 import _ from 'lodash';
 import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
-import { browserHistory, Link } from 'react-router';
+import { Link } from 'react-router';
 import { connect } from 'react-redux';
+
+import { browserHistory } from 'lib/history';
 
 import styles from './auth.css';
 
