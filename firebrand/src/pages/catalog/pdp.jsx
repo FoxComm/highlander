@@ -16,6 +16,7 @@ import type { Localized } from 'lib/i18n';
 import { fetch as fetchProducts } from 'modules/products';
 import { fetch, getNextId, getPreviousId, resetProduct } from 'modules/product-details';
 import { addLineItem, toggleCart } from 'modules/cart';
+import { trackRequest } from 'modules/tracking';
 
 // types
 import type { HTMLElement } from 'types';
@@ -28,7 +29,6 @@ import Currency from 'ui/currency';
 import Gallery from 'ui/gallery/gallery';
 import Loader from 'ui/loader';
 import ErrorAlerts from 'wings/lib/ui/alerts/error-alerts';
-import TrackingPixel from '../../components/tracking-pixel/tracking-pixel';
 
 // styles
 import styles from './pdp.css';
@@ -112,6 +112,17 @@ class Pdp extends Component {
     }
   }
 
+  componentDidMount() {
+    trackRequest({
+      url: "/api/v1/hal",
+      channel: 1,
+      subject: 1,
+      verb: 'pdp',
+      obj: 'product',
+      objId: this.productId
+    });
+  }
+
   componentWillUnmount() {
     this.props.actions.resetProduct();
   }
@@ -175,6 +186,14 @@ class Pdp extends Component {
       .then(() => {
         actions.toggleCart();
         this.setState({quantity: 1});
+        trackRequest({
+          url: "/api/v1/hal",
+          channel: 1,
+          subject: 1,
+          verb: 'pdp',
+          obj: 'product',
+          objId: this.productId
+        })
       })
       .catch(ex => {
         this.setState({
@@ -198,14 +217,6 @@ class Pdp extends Component {
 
     return (
       <div styleName="container">
-        <TrackingPixel
-          url="/api/v1/hal"
-          channel={1}
-          subject={1} 
-          verb='pdp'
-          obj='product'
-          objId={this.productId}
-        />
         <div styleName="gallery">
           <Gallery images={images} />
         </div>
