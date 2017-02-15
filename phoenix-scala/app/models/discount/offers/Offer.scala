@@ -2,7 +2,9 @@ package models.discount.offers
 
 import scala.concurrent.Future
 
-import cats.data.Xor
+import cats._
+import cats.data._
+import cats.implicits._
 import failures.DiscountFailures.SearchFailure
 import failures._
 import models.cord.lineitems.OrderLineItemAdjustment._
@@ -36,13 +38,12 @@ trait Offer extends DiscountBase {
                lineItemRefNum: Option[String] = None): Xor[Failures, Seq[Adjustment]] =
     Xor.Right(Seq(build(input, subtract, lineItemRefNum)))
 
-  def buildResult(input: DiscountInput,
-                  subtract: Int,
-                  lineItemRefNum: Option[String] = None): OfferResult =
+  def buildResult(input: DiscountInput, subtract: Int, lineItemRefNum: Option[String] = None)(
+      implicit ec: EC): OfferResult =
     Result.good(Seq(build(input, subtract, lineItemRefNum)))
 
-  def pureResult(): Result[Seq[Adjustment]]     = Result.good(Seq.empty)
-  def pureXor(): Xor[Failures, Seq[Adjustment]] = Xor.Left(SearchFailure.single)
+  def pureResult()(implicit ec: EC): Result[Seq[Adjustment]] = Result.good(Seq.empty)
+  def pureXor(): Xor[Failures, Seq[Adjustment]]              = Xor.Left(SearchFailure.single)
 }
 
 object Offer {
@@ -85,18 +86,11 @@ trait SetOffer {
 
 trait ItemsOffer {
 
-  def matchXor(input: DiscountInput)(xor: Failures Xor Buckets): Failures Xor Seq[Adjustment]
+  def matchXor(input: DiscountInput)(xor: Failures Xor Buckets): Failures Xor Seq[Adjustment] // FIXME: why use matchXor instead of .map, if *never* do anything with Left? @michalrus
 
   def adjustInner(input: DiscountInput)(
       search: Seq[ProductSearch])(implicit db: DB, ec: EC, es: ES, au: AU): OfferResult = {
-    val inAnyOf = search.map(_.query(input).map(matchXor(input)))
-
-    Future
-      .sequence(inAnyOf)
-      .flatMap(xorSequence ⇒
-            xorSequence.find(_.isRight) match {
-          case Some(Xor.Right(adj)) ⇒ Result.good(adj)
-          case _                    ⇒ Result.good(Seq.empty)
-      })
+    val inAnyOf = search.map(_.query(input).mapXor(matchXor(input)))
+    Result.onlySuccessful(inAnyOf).map(_.headOption.getOrElse(Seq.empty))
   }
 }

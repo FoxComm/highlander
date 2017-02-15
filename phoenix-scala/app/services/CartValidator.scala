@@ -25,13 +25,13 @@ case class CartValidator(cart: Cart)(implicit ec: EC, db: DB) extends CartValida
   def validate(isCheckout: Boolean = false,
                fatalWarnings: Boolean = false): DbResultT[CartValidatorResponse] = {
     val validationResult = for {
-      state ← hasItems(CartValidatorResponse())
-      state ← hasShipAddress(state)
-      state ← validShipMethod(state)
-      state ← sufficientPayments(state, isCheckout)
+      state ← * <~ hasItems(CartValidatorResponse())
+      state ← * <~ hasShipAddress(state)
+      state ← * <~ validShipMethod(state)
+      state ← * <~ sufficientPayments(state, isCheckout)
     } yield state
     if (fatalWarnings) {
-      validationResult.dbresult.flatMap { validatorResponse ⇒
+      validationResult.flatMap { validatorResponse ⇒
         validatorResponse.warnings match {
           case Some(warnings) ⇒
             DbResultT.failures(warnings)
@@ -40,7 +40,7 @@ case class CartValidator(cart: Cart)(implicit ec: EC, db: DB) extends CartValida
         }
       }
     } else {
-      DbResultT.fromDbio(validationResult)
+      validationResult
     }
   }
 
@@ -60,22 +60,21 @@ case class CartValidator(cart: Cart)(implicit ec: EC, db: DB) extends CartValida
   }
 
   private def validShipMethod(response: CartValidatorResponse)(
-      implicit db: DB): DBIO[CartValidatorResponse] =
-    (for {
-      osm ← OrderShippingMethods.findByOrderRef(cart.refNum)
-      sm  ← osm.shippingMethod
-    } yield (osm, sm)).one.flatMap {
-      case Some((osm, sm)) ⇒
-        ShippingManager
-          .evaluateShippingMethodForCart(sm, cart)
-          .fold(
-              _ ⇒ warning(response, InvalidShippingMethod(cart.refNum)), // FIXME validator warning and actual failure differ
-              _ ⇒ response
-          )
-
-      case None ⇒
-        lift(warning(response, NoShipMethod(cart.refNum)))
-    }
+      implicit db: DB): DbResultT[CartValidatorResponse] =
+    for {
+      xyz ← * <~ (for {
+             osm ← OrderShippingMethods.findByOrderRef(cart.refNum)
+             sm  ← osm.shippingMethod
+           } yield (osm, sm)).one
+      abc ← xyz match {
+             case Some((osm, sm)) ⇒
+               ShippingManager.evaluateShippingMethodForCart(sm, cart).map(_ ⇒ response).recover {
+                 case _ ⇒ warning(response, InvalidShippingMethod(cart.refNum))
+               } // FIXME validator warning and actual failure differ
+             case None ⇒
+               DbResultT(warning(response, NoShipMethod(cart.refNum)))
+           }
+    } yield abc
 
   private def sufficientPayments(response: CartValidatorResponse,
                                  isCheckout: Boolean): DBIO[CartValidatorResponse] = {

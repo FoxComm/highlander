@@ -20,8 +20,6 @@ package object db {
 
   // ————————————————————————————— Foxy —————————————————————————————
 
-  //final case class Failure(ζ: String) extends AnyVal
-
   sealed trait UIInfo
   object UIInfo {
     final case class Warning(ζ: Failure)         extends UIInfo
@@ -39,20 +37,24 @@ package object db {
 
   type FoxyTDBIO[A] = FoxyT[DBIO, A] /* replaces the old DbResultT */
   object FoxyTDBIO extends FoxyTOps[DBIO] {
-    // FIXME: make it use cats.Foldable instead and move to FoxyTOps @michalrus
-    def sequence[A, M[X] <: TraversableOnce[X]](values: M[DbResultT[A]])(
-        implicit buildFrom: CanBuildFrom[M[DbResultT[A]], A, M[A]],
-        ec: EC): DbResultT[M[A]] =
-      values
-        .foldLeft(good(buildFrom(values))) { (liftedBuilder, liftedValue) ⇒
-          for (builder ← liftedBuilder; value ← liftedValue) yield builder += value
-        }
-        .map(_.result)
+    def fromDbio[A](fa: DBIO[A])(implicit M: Monad[DBIO]): FoxyTDBIO[A] = // TODO: remove me @michalrus
+      fromF(fa)
   }
 
   implicit class EnrichedFoxyT[F[_], A](fa: FoxyT[F, A]) {
-    def flatMapXor[A](f: Xor[Failures, A] ⇒ FoxyT[F, A]): FoxyT[F, A] =
+    def flatMapXor[B](f: Xor[Failures, A] ⇒ FoxyT[F, B]): FoxyT[F, B] =
       ??? // FIXME: implement // TODO: remove me? @michalrus
+    def mapXor[B](f: Xor[Failures, A] ⇒ Xor[Failures, B]): FoxyT[F, B] =
+      ??? // FIXME: implement // TODO: remove me? @michalrus
+    def fold[B](fa: Failures ⇒ B, fb: A ⇒ B): FoxyT[F, B] =
+      ??? // FIXME: implement
+    def recoverWith(pf: PartialFunction[Failure, FoxyT[F, A]]): FoxyT[F, A] =
+      ??? // FIXME: implement // (this one is actually useful)
+    def recover(pf: PartialFunction[Failure, A]): FoxyT[F, A] =
+      ??? // FIXME: implement // (this one is actually useful)
+    def meh(implicit M: Monad[F]): FoxyT[F, Unit] = for (_ ← fa) yield {}
+    def failuresToWarnings(pf: PartialFunction[Failure, Boolean]): FoxyT[F, A] =
+      ??? // FIXME: implement
   }
 
   trait FoxyTOps[F[_]] {
@@ -102,6 +104,23 @@ package object db {
           case _       ⇒ XorT.right(M.pure((s, ())))
       })
 
+    // FIXME: make it use cats.Foldable instead and move to FoxyTOps @michalrus
+    def sequence[A, M[X] <: TraversableOnce[X]](values: M[FoxyT[F, A]])(
+        implicit buildFrom: CanBuildFrom[M[FoxyT[F, A]], A, M[A]],
+        ec: EC): FoxyT[F, M[A]] =
+      ??? // TODO: IMPORTANT: append all Failures from Lefts in the final result, if there’s at least one Left. OfferList#adjust depends on that. And we’re not swallowing errors, then. @michalrus
+    //      values
+    //        .foldLeft(good(buildFrom(values))) { (liftedBuilder, liftedValue) ⇒
+    //          for (builder ← liftedBuilder; value ← liftedValue) yield builder += value
+    //        }
+    //        .map(_.result)
+
+    // TODO: is this useful enough to have in FoxyT? @michalrus
+    def onlySuccessful[A](xs: Seq[FoxyT[F, A]]): FoxyT[F, Seq[A]] = // FIXME: get rid of explicit Seq @michalrus
+      for {
+        xs ← sequence(xs.map(_.map(_.some).recover { case _ ⇒ None }))
+      } yield xs.collect { case Some(xss) ⇒ xss }
+
   }
 
   // ————————————————————————————— /Foxy —————————————————————————————
@@ -127,7 +146,7 @@ package object db {
 
   // implicits
   implicit class EnrichedDbResultT[A](dbResultT: DbResultT[A]) {
-    def runTxn()(implicit ec: EC, db: DB): Result[A] =
+    def runTxn()(implicit ec: EC, db: DB): Result[A] = // FIXME: this should be doable without all this ceremony, supplying .transactionally.run to some standard function @michalrus
       dbResultT.transformF(
           fsa ⇒
             XorT(
@@ -148,10 +167,9 @@ package object db {
       dbResultT.transformF(fa ⇒ XorT(fa.value.run))
     }
 
-    def meh(implicit ec: EC): DbResultT[Unit] = for (_ ← * <~ dbResultT) yield {}
-
-    def resolveFailures(resolver: PartialFunction[Failure, Failure])(
-        implicit ec: EC): DbResultT[A] = {
+    def resolveFailures(
+        resolver: PartialFunction[Failure, Failure])( // TODO: what’s that? Move to FoxyT. @michalrus
+                                                     implicit ec: EC): DbResultT[A] = {
       def mapFailure(failure: Failure) = resolver.applyOrElse(failure, identity[Failure])
 
       dbResultT.transformF(_.leftMap {

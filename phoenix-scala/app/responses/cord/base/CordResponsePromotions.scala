@@ -20,36 +20,28 @@ case class CordResponseCouponPair(coupon: CouponResponse.Root, code: String) ext
 
 object CordResponsePromotions {
 
-  def fetch(cordRef: String)(implicit db: DB, ec: EC, ctx: OC): DBIO[CordResponsePromoDetails] =
+  def fetch(
+      cordRef: String)(implicit db: DB, ec: EC, ctx: OC): DbResultT[CordResponsePromoDetails] =
     for {
-      orderPromo ← OrderPromotions.filterByCordRef(cordRef).one
+      orderPromo ← * <~ OrderPromotions.filterByCordRef(cordRef).one
       promo      ← fetchPromoDetails(orderPromo)
     } yield promo
 
-  private def fetchPromoDetails(orderPromo: Option[OrderPromotion])(
-      implicit db: DB,
-      ec: EC,
-      ctx: OC): DBIO[CordResponsePromoDetails] =
-    orderPromo match {
-      case Some(op) ⇒
-        fetchCouponDetails(op.couponCodeId) // TBD: Handle auto-apply promos here later
-      case _ ⇒
-        DBIO.successful(None)
-    }
+  private def fetchPromoDetails(
+      orderPromo: Option[OrderPromotion])(implicit db: DB, ec: EC, ctx: OC): DbResultT[
+      CordResponsePromoDetails] = // FIXME: why have these functions take Options? @michalrus
+    orderPromo.fold(DbResultT(None: CordResponsePromoDetails))(x ⇒
+          fetchCouponDetails(x.couponCodeId)) // TBD: Handle auto-apply promos here later
 
   private def fetchCouponDetails(couponCodeId: Option[Int])(
       implicit db: DB,
       ec: EC,
-      ctx: OC): DBIO[CordResponsePromoDetails] =
-    couponCodeId match {
-      case Some(codeId) ⇒
-        fetchCoupon(codeId).fold(_ ⇒ None, good ⇒ good)
-      case _ ⇒
-        DBIO.successful(None)
-    }
+      ctx: OC): DbResultT[CordResponsePromoDetails] =
+    couponCodeId.fold(DbResultT(None: CordResponsePromoDetails))(fetchCoupon)
 
   // TBD: Get discounts from cached field in `OrderPromotion` model
-  private def fetchCoupon(couponCodeId: Int)(implicit db: DB, ec: EC, ctx: OC) =
+  private def fetchCoupon(
+      couponCodeId: Int)(implicit db: DB, ec: EC, ctx: OC): DbResultT[CordResponsePromoDetails] =
     for {
       // Coupon
       couponCode ← * <~ CouponCodes

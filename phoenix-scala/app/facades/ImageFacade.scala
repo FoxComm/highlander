@@ -51,16 +51,16 @@ object ImageFacade {
     for {
       formData ← Result.fromF(Unmarshal(request.entity).to[Multipart.FormData])
       r ← Result.fromF(formData.parts.filter(_.name == "upload-file").runFold(error) {
-             (previousUpload, part) ⇒
-               previousUpload.flatMapXor { // FIXME: what’s going on here? @michalrus
-                 case Xor.Left(err) if err != failures ⇒ Result.failures(err)
-                 case _                                ⇒ uploadImage(part, album).runTxn()
-               }
-           })
+           (previousUpload, part) ⇒
+             previousUpload.flatMapXor { // FIXME: what’s going on here? @michalrus
+               case Xor.Left(err) if err != failures ⇒ Result.failures(err)
+               case _                                ⇒ uploadImage(part, album).runTxn()
+             }
+         })
       realR ← (for {
-                _     ← * <~ r
-                album ← * <~ getAlbumInner(album.formId, oc)
-              } yield album).runDBIO()
+               _     ← * <~ r
+               album ← * <~ getAlbumInner(album.formId, oc)
+             } yield album).runDBIO()
     } yield realR
   }
 

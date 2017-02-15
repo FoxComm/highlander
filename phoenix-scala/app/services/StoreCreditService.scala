@@ -130,6 +130,7 @@ object StoreCreditService {
       _ ← * <~ payload.validate.toXor
       response ← * <~ payload.ids.map { id ⇒
                   val itemPayload = StoreCreditUpdateStateByCsr(payload.state, payload.reasonId)
+        // →→→→→→→→→→→→→→→→→→→ continue here ←←←←←←←←←←←←←←←←←←←
                   updateStateByCsr(id, itemPayload, admin).value
                     .map(buildItemResult(id, _))
                     .dbresult

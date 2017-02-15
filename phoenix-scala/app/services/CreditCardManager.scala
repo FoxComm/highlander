@@ -98,9 +98,8 @@ object CreditCardManager {
       customer           ← * <~ Users.mustFindByAccountId(accountId)
       stripeIdAndAddress ← * <~ getExistingStripeIdAndAddress
       (stripeId, address) = stripeIdAndAddress
-      stripeStuff ← * <~ DBIO.from(
-                       apis.stripe
-                         .createCardFromSource(customer.email, payload, stripeId, address))
+      stripeStuff ← * <~ apis.stripe
+        .createCardFromSource(customer.email, payload, stripeId, address)
       (stripeCustomer, stripeCard) = stripeStuff
       newCard ← * <~ createCard(customer, stripeCustomer, stripeCard, address)
     } yield newCard
@@ -143,7 +142,7 @@ object CreditCardManager {
           expMonth = payload.expMonth.getOrElse(cc.expMonth)
       )
       for {
-        _  ← * <~ DBIO.from(apis.stripe.editCard(updated))
+        _  ← * <~ apis.stripe.editCard(updated)
         _  ← * <~ failIf(!cc.inWallet, CannotUseInactiveCreditCard(cc))
         _  ← * <~ CreditCards.update(cc, cc.copy(inWallet = false))
         cc ← * <~ CreditCards.create(updated)

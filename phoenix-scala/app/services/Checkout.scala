@@ -120,7 +120,7 @@ case class Checkout(
       _         ← * <~ LogActivity.orderCheckoutCompleted(fullOrder)
     } yield fullOrder
 
-    actions.runTxn().map {
+    actions.runTxn().mapXor {
       case failures @ Xor.Left(_) ⇒
         if (externalCalls.middleWarehouseSuccess) cancelHoldInMiddleWarehouse
         failures
@@ -139,10 +139,9 @@ case class Checkout(
       skusToHold ← * <~ inventoryTrackedSkus.map { s ⇒
                     SkuInventoryHold(s.code, s.qty)
                   }.toSeq
-      _ ← * <~ doOrMeh(skusToHold.size > 0,
-                       DbResultT(
-                           DBIO.from(apis.middlwarehouse.hold(
-                                   OrderInventoryHold(cart.referenceNumber, skusToHold)))))
+      _ ← * <~ doOrMeh(
+             skusToHold.size > 0,
+             * <~ apis.middlwarehouse.hold(OrderInventoryHold(cart.referenceNumber, skusToHold)))
       mutating = externalCalls.middleWarehouseSuccess = skusToHold.size > 0
     } yield {}
 
