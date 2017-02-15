@@ -105,4 +105,9 @@ object Dependencies {
     "org.typelevel"         %% "cats"                   % "0.7.2",
     "com.github.melrief"    %% "pureconfig"             % "0.5.1"
   )
+
+  val kafka = Seq(
+    "org.apache.kafka"  % "kafka_2.11"            % "0.9.0.1",
+    "io.confluent"      % "kafka-avro-serializer" % "1.0"
+  )
 }
