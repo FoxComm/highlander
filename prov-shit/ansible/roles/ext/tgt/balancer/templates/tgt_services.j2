@@ -1,14 +1,14 @@
 upstream marketplace {
-  {{ '{{' }} range service "marketplace" {{ '}}'}} server {{ '{{'}} .Address {{ '}}' }}:{{ '{{' }} .Port {{ '}}' }} max_fails=10 fail_timeout=30s weight=1;
-  {{ '{{' }} else {{ '}}' }} server {{marketplace_server}} fail_timeout=30s max_fails=10; {{ '{{' }} end {{ '}}' }}
+  << range service "marketplace" >> server << .Address >>:<< .Port >> max_fails=10 fail_timeout=30s weight=1;
+  << else >> server {{marketplace_server}} fail_timeout=30s max_fails=10; << end >>
 }
 
 upstream marketplace-ui {
-  {{ '{{' }} range service "marketplace-ui" {{ '}}'}} server {{ '{{'}} .Address {{ '}}' }}:{{ '{{' }} .Port {{ '}}' }} max_fails=10 fail_timeout=30s weight=1;
-  {{ '{{' }} else {{ '}}' }} server {{marketplace_ui_server}} fail_timeout=30s max_fails=10; {{ '{{' }} end {{ '}}' }}
+  << range service "marketplace-ui" >> server << .Address >>:<< .Port >> max_fails=10 fail_timeout=30s weight=1;
+  << else >> server {{marketplace_ui_server}} fail_timeout=30s max_fails=10; << end >>
 }
 
 upstream product-search {
-  {{ '{{' }} range service "product-search" {{ '}}'}} server {{ '{{'}} .Address {{ '}}' }}:{{ '{{' }} .Port {{ '}}' }} max_fails=10 fail_timeout=30s weight=1;
-  {{ '{{' }} else {{ '}}' }} server {{product_search_server}} fail_timeout=30s max_fails=10; {{ '{{' }} end {{ '}}' }}
+  << range service "product-search" >> server << .Address >>:<< .Port >> max_fails=10 fail_timeout=30s weight=1;
+  << else >> server {{product_search_server}} fail_timeout=30s max_fails=10; << end >>
 }
