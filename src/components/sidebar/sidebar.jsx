@@ -69,7 +69,11 @@ const Sidebar = (props: SidebarProps): HTMLElement => {
   );
 
   const myProfileLink = userAuthorized ? (
-    <Link to="/profile" styleName="session-link">
+    <Link
+      to="/profile"
+      styleName="session-link"
+      activeClassName={styles['active-link']}
+    >
       PROFILE
     </Link>
   ) : null;
