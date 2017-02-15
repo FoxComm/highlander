@@ -25,7 +25,7 @@ trait TestSeeds extends TestFixtureBase {
   val TENANT = "tenant"
 
   trait Schemas_Seed extends ObjectSchemaSeeds {
-    private val _productSchema = createObjectSchemas().gimme
+    private val _productSchema = createObjectSchemas(ctx.id).gimme
 
   }
 

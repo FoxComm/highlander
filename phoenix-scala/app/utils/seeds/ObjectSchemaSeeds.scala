@@ -12,17 +12,17 @@ import org.json4s.jackson.JsonMethods._
 
 trait ObjectSchemaSeeds {
 
-  def createObjectSchemas(): DbResultT[ObjectSchema] =
+  def createObjectSchemas(contextId: Int): DbResultT[ObjectSchema] =
     for {
-      empty     ← * <~ ObjectSchemas.create(getSchema("empty"))
-      _         ← * <~ ObjectSchemas.create(getSchema("album"))
-      _         ← * <~ ObjectSchemas.create(getSchema("image"))
-      price     ← * <~ ObjectSchemas.create(getSchema("price"))
-      _         ← * <~ ObjectSchemas.create(getSchema("product-variant"))
-      coupon    ← * <~ ObjectSchemas.create(getSchema("coupon"))
-      discount  ← * <~ ObjectSchemas.create(getSchema("discount"))
-      promotion ← * <~ ObjectSchemas.create(getSchema("promotion"))
-      product   ← * <~ ObjectSchemas.create(getSchema("product"))
+      empty     ← * <~ ObjectSchemas.create(getSchema("empty", contextId))
+      _         ← * <~ ObjectSchemas.create(getSchema("album", contextId))
+      _         ← * <~ ObjectSchemas.create(getSchema("image", contextId))
+      price     ← * <~ ObjectSchemas.create(getSchema("price", contextId))
+      _         ← * <~ ObjectSchemas.create(getSchema("product-variant", contextId))
+      coupon    ← * <~ ObjectSchemas.create(getSchema("coupon", contextId))
+      discount  ← * <~ ObjectSchemas.create(getSchema("discount", contextId))
+      promotion ← * <~ ObjectSchemas.create(getSchema("promotion", contextId))
+      product   ← * <~ ObjectSchemas.create(getSchema("product", contextId))
     } yield product
 
   private def loadJson(fileName: String): JValue = {
@@ -34,10 +34,14 @@ trait ObjectSchemaSeeds {
     }
   }
 
-  def getSchema(name: String): ObjectSchema = {
+  def getSchema(name: String, contextId: Int): ObjectSchema = {
     val schema       = loadJson(s"/object_schemas/$name.json")
     val dependencies = getDependencies(schema).toList
-    ObjectSchema(kind = name, name = name, dependencies = dependencies, schema = schema)
+    ObjectSchema(contextId = contextId,
+                 kind = name,
+                 name = name,
+                 dependencies = dependencies,
+                 schema = schema)
   }
 
   private def getDependencies(schema: JValue): Set[String] = {
