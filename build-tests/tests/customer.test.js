@@ -1,7 +1,8 @@
 import test from '../helpers/test';
+import testNotes from './testNotes';
 import Api from '../helpers/Api';
 import $ from '../payloads';
-import isValidDate from '../helpers/isValidDate';
+import isDate from '../helpers/isDate';
 
 test('Can create a new customer', async (t) => {
   const api = Api.withCookies();
@@ -157,45 +158,7 @@ test('Can issue store credit', async (t) => {
   t.is(newStoreCredit.currentBalance, payload.amount);
   t.is(newStoreCredit.availableBalance, payload.amount);
   t.is(newStoreCredit.state, 'active');
-  t.truthy(isValidDate(newStoreCredit.createdAt));
-});
-
-test('Can list customer\'s notes', async (t) => {
-  const api = Api.withCookies();
-  await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
-  const credentials = $.randomUserCredentials();
-  const newCustomer = await api.customers.create(credentials);
-  const creditCards = await api.customerNotes.list(newCustomer.id);
-  t.is(creditCards.constructor.name, 'Array');
-});
-
-test('Can create a new note', async (t) => {
-  const api = Api.withCookies();
-  await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
-  const credentials = $.randomUserCredentials();
-  const newCustomer = await api.customers.create(credentials);
-  const payload = $.randomCreateNotePayload();
-  const newNote = await api.customerNotes.create(newCustomer.id, payload);
-  t.truthy(newNote.id);
-  t.is(newNote.body, payload.body);
-  t.is(newNote.author.name, $.adminName);
-  t.is(newNote.author.email, $.adminEmail);
-  t.truthy(isValidDate(newNote.createdAt));
-});
-
-test('Can update note details', async (t) => {
-  const api = Api.withCookies();
-  await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
-  const credentials = $.randomUserCredentials();
-  const newCustomer = await api.customers.create(credentials);
-  const newNote = await api.customerNotes.create(newCustomer.id, $.randomCreateNotePayload());
-  const payload = $.randomUpdateNotePayload();
-  const updatedNote = await api.customerNotes.update(newCustomer.id, newNote.id, payload);
-  t.truthy(updatedNote.id);
-  t.is(updatedNote.body, payload.body);
-  t.is(updatedNote.author.name, $.adminName);
-  t.is(updatedNote.author.email, $.adminEmail);
-  t.truthy(isValidDate(updatedNote.createdAt));
+  t.truthy(isDate(newStoreCredit.createdAt));
 });
 
 test('Can list customer groups', async (t) => {
@@ -203,4 +166,9 @@ test('Can list customer groups', async (t) => {
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const customerGroups = await api.customerGroups.list();
   t.is(customerGroups.constructor.name, 'Array');
+});
+
+testNotes({
+  objectType: 'customer',
+  createObject: api => api.customers.create($.randomUserCredentials()),
 });

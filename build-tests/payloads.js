@@ -56,6 +56,59 @@ const $ = {
   randomUpdateNotePayload: () => ({
     body: faker.lorem.sentence(),
   }),
+  randomSkuPayload: () => {
+    const now = Date.now();
+    return {
+      attributes: {
+        code: {
+          t: 'string',
+          v: `SKU-BVT-${now}`,
+        },
+        upc: {
+          t: 'string',
+          v: `SKU-BVT-${now} UPC`,
+        },
+        title: {
+          t: 'string',
+          v: `SKU-BVT-${now} T`,
+        },
+        description: {
+          t: 'richText',
+          v: `<p>${faker.lorem.sentence()}</p>`,
+        },
+        activeFrom: {
+          t: 'datetime',
+          v: '2016-10-31T15:13:15.799Z',
+        },
+        activeTo: {
+          t: 'datetime',
+          v: null,
+        },
+        unitCost: {
+          t: 'price',
+          v: {
+            currency: 'USD',
+            value: 0,
+          },
+        },
+        salePrice: {
+          t: 'price',
+          v: {
+            currency: 'USD',
+            value: 4800,
+          },
+        },
+        retailPrice: {
+          t: 'price',
+          v: {
+            currency: 'USD',
+            value: 5200,
+          },
+        },
+      },
+      albums: [],
+    };
+  },
 };
 
 export default $;

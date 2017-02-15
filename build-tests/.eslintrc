@@ -7,7 +7,9 @@
         "ignoreUrls": true,
         "ignorePattern": "^\\s*var\\s.+=\\s*require\\s*\\("
       }
-    ]
+    ],
+    "no-restricted-syntax": [0],
+    "no-await-in-loop": [0]
   },
   "parser": "babel-eslint",
   "parserOptions": {

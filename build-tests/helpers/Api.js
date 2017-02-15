@@ -11,10 +11,13 @@ const endpoints = {
   customerAddress: (customerId, addressId) => `/v1/customers/${customerId}/addresses/${addressId}`,
   customerCreditCards: customerId => `/v1/customers/${customerId}/payment-methods/credit-cards`,
   customerStoreCredit: customerId => `/v1/customers/${customerId}/payment-methods/store-credit`,
-  customerNotes: customerId => `/v1/notes/customer/${customerId}`,
-  customerNote: (customerId, noteId) => `/v1/notes/customer/${customerId}/${noteId}`,
   customerGroups: '/v1/groups',
   customerGroup: groupId => `/v1/groups/${groupId}`,
+  skus: context => `/v1/skus/${context}`,
+  sku: (context, skuCode) => `/v1/skus/${context}/${skuCode}`,
+  skuInventory: skuCode => `/v1/inventory/summary/${skuCode}`,
+  notes: (objectType, objectId) => `/v1/notes/${objectType}/${objectId}`,
+  note: (objectType, objectId, noteId) => `/v1/notes/${objectType}/${objectId}/${noteId}`,
   // dev
   creditCardToken: '/v1/credit-card-token',
 };
@@ -79,21 +82,6 @@ class CustomerStoreCredit {
   }
 }
 
-class CustomerNotes {
-  constructor(api) {
-    this.api = api;
-  }
-  list(customerId) {
-    return this.api.get(endpoints.customerNotes(customerId));
-  }
-  create(customerId, createNotePayload) {
-    return this.api.post(endpoints.customerNotes(customerId), createNotePayload);
-  }
-  update(customerId, noteId, updateNotePayload) {
-    return this.api.patch(endpoints.customerNote(customerId, noteId), updateNotePayload);
-  }
-}
-
 class CustomerGroups {
   constructor(api) {
     this.api = api;
@@ -109,6 +97,42 @@ class CustomerGroups {
   }
   update(groupId, customerDynamicGroupPayload) {
     return this.api.patch(endpoints.customerGroup(groupId), customerDynamicGroupPayload);
+  }
+}
+
+class Skus {
+  constructor(api) {
+    this.api = api;
+  }
+  create(context, skuPayload) {
+    return this.api.post(endpoints.skus(context), skuPayload);
+  }
+  one(context, skuCode) {
+    return this.api.get(endpoints.sku(context, skuCode));
+  }
+  update(context, skuCode, skuPayload) {
+    return this.api.patch(endpoints.sku(context, skuCode), skuPayload);
+  }
+  archive(context, skuCode) {
+    return this.api.delete(endpoints.sku(context, skuCode));
+  }
+  inventory(skuCode) {
+    return this.api.get(endpoints.skuInventory(skuCode));
+  }
+}
+
+class Notes {
+  constructor(api) {
+    this.api = api;
+  }
+  list(objectType, objectId) {
+    return this.api.get(endpoints.notes(objectType, objectId));
+  }
+  create(objectType, objectId, createNotePayload) {
+    return this.api.post(endpoints.notes(objectType, objectId), createNotePayload);
+  }
+  update(objectType, objectId, noteId, updateNotePayload) {
+    return this.api.patch(endpoints.note(objectType, objectId, noteId), updateNotePayload);
   }
 }
 
@@ -128,8 +152,9 @@ export default class Api extends FoxCommApi {
     this.customerAddresses = new CustomerAddresses(this);
     this.customerCreditCards = new CustomerCreditCards(this);
     this.customerStoreCredit = new CustomerStoreCredit(this);
-    this.customerNotes = new CustomerNotes(this);
     this.customerGroups = new CustomerGroups(this);
+    this.skus = new Skus(this);
+    this.notes = new Notes(this);
     this.dev = new Dev(this);
   }
   static withoutCookies() {
