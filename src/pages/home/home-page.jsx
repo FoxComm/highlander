@@ -19,6 +19,7 @@ let mainBlocks = [];
 
 if (timeTarget > timeNow) {
   // before timeTarget
+  // TODO: Remove this block after 2/15
   mainBlocks = [
     {
       imageUrl: '/images/home-page/Home_Page_Valentines.jpg',
