@@ -60,17 +60,6 @@ class CustomerIntegrationTest
         .create(CreateCustomerPayload(email = customer.email.value, name = "test".some))
         .mustFailWith400(CustomerEmailNotUnique)
     }
-
-    "guests may have email that was already registered" in {
-      val customer = CreateCustomerPayload(email = "test@example.com", name = "customer".some)
-      val guest    = customer.copy(name = "guest".some, isGuest = true.some)
-
-      val customerCreated = customersApi.create(customer).as[Root]
-      val guestCreated    = customersApi.create(guest).as[Root]
-
-      guestCreated.name must === (guest.name)
-      customerCreated.name must === (customer.name)
-    }
   }
 
   "GET /v1/customers/:accountId" - {

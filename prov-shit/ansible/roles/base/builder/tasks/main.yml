@@ -15,9 +15,6 @@
 - name: Install Terraform
   include: terraform.yml
 
-- name: Install Vagrant
-  include: vagrant.yml
-
 - name: Restart Buildkite Agent
   command: systemctl restart buildkite-agent
 

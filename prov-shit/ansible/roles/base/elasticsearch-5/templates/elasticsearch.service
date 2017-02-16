@@ -1,7 +1,7 @@
 [Service]
-WorkingDirectory={{es_home}}
-LimitNOFILE={{ es_max_file_descriptors }}
-ExecStart=/bin/bash {{es_home}}/run_elasticsearch_5.sh {{es_path}}
+WorkingDirectory={{es5_home}}
+LimitNOFILE={{es5_max_file_descriptors }}
+ExecStart=/bin/bash {{es5_home}}/run_elasticsearch_5.sh {{es5_path}}
 Restart=always
 StandardOutput=syslog
 StandardError=syslog
@@ -9,7 +9,7 @@ SyslogIdentifier=elasticsearch_5
 TimeoutStartSec=5m
 RestartSec=10
 User=elasticsearch
-LimitNOFILE={{es_max_file_descriptors}}
+LimitNOFILE={{es5_max_file_descriptors}}
 
 [Install]
 WantedBy=multi-user.target

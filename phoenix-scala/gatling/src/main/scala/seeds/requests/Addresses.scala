@@ -7,8 +7,9 @@ import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import payloads.AddressPayloads.CreateAddressPayload
-import helpers._
+import seeds._
 import seeds.requests.Auth._
+import seeds.simulations._
 
 object Addresses {
 

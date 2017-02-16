@@ -122,7 +122,7 @@ object Seeds {
   }
 
   def runMain(cfg: CliConfig, usage: String): Unit = {
-    val config: Config           = FoxConfig.loadWithEnv()
+    val config: Config           = FoxConfig.unsafe
     implicit val db: DatabaseDef = Database.forConfig("db", config)
     implicit val ac: AC          = ActivityContext(userId = 1, userType = "user", transactionId = "seeds")
 

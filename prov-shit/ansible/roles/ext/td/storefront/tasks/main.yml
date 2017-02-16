@@ -3,19 +3,18 @@
 - name: Creates Marathon JSON directory
   file: path=/marathon/applications state=directory
 
-- name: Copy Storefront Marathon JSON
-  template: src=storefront.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
+- name: Copy TopDrawer Storefront Marathon JSON
+  template: src="{{app_name}}.json" dest=/marathon/applications mode="u+rw,g+rw,o+r"
 
-- name: Update Storefront in Marathon
-  shell: 'curl -X PUT -d@/marathon/applications/storefront.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/storefront'
+- name: Update TopDrawer Storefront in Marathon
+  shell: 'curl -X PUT -d@/marathon/applications/{{app_name}}.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/{{app_name}}'
 
-- name: Restart Storefront in Marathon
-  shell: 'curl -X POST http://{{marathon_server}}/v2/apps/storefront/restart'
+- name: Restart TopDrawer Storefront in Marathon
+  shell: 'curl -X POST http://{{marathon_server}}/v2/apps/{{app_name}}/restart'
 
-- name: Get Storefront Marathon tasks in `healthy` state
-  shell: curl -sS -XGET http://{{marathon_server}}/v2/apps/storefront | jq '.app.tasksHealthy > 0'
+- name: Get TopDrawer Storefront Marathon tasks in `healthy` state
+  shell: curl -sS -XGET http://{{marathon_server}}/v2/apps/{{app_name}} | jq '.app.tasksHealthy > 0'
   register: healthy_tasks_available
   until: healthy_tasks_available.stdout == 'true'
   retries: "{{marathon_retries}}"
   delay: "{{marathon_delay}}"
-  when: vagrant

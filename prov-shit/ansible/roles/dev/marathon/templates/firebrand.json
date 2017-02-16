@@ -2,12 +2,13 @@
   "id": "/storefront",
   "cmd": null,
   "cpus": 1,
-  "mem": 4096,
+  "mem": 1024,
   "disk": 0,
   "instances": 1,
   "labels": {
     "LAYER": "frontend",
-    "LANG": "js"
+    "LANG": "js",
+    "TAG": "{{docker_tags.firebrand}}"
   },
   "env": {
     "API_URL": "https://{{storefront_server_name}}",

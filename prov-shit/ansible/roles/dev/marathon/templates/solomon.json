@@ -7,7 +7,8 @@
   "instances": 1,
   "labels": {
     "LAYER": "backend",
-    "LANG": "elixir"
+    "LANG": "elixir",
+    "TAG": "{{docker_tags.solomon}}"
   },
   "env": {
     "PORT": "{{solomon_port}}",

@@ -1481,7 +1481,7 @@
 				{
 					"name": "Create",
 					"request": {
-						"url": "http://localhost:9090/v1/gift-cards",
+						"url": "http://localhost:9090/v1/gift-cards/bulk",
 						"method": "POST",
 						"header": [
 							{
@@ -1531,7 +1531,7 @@
 				{
 					"name": "Bulk Update State",
 					"request": {
-						"url": "http://localhost:9090/v1/gift-cards",
+						"url": "http://localhost:9090/v1/gift-cards/bulk",
 						"method": "PATCH",
 						"header": [
 							{
