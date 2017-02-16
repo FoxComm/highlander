@@ -52,7 +52,7 @@ function formatLabel(label: string): string {
   });
 }
 
-export function renderFormField(name: string, content: Element, options: AttrOptions): Element {
+export function renderFormField(name: string, content: Element<*>, options: AttrOptions) {
   return (
     <FormField
       {...options}
@@ -95,7 +95,7 @@ export default class ObjectFormInner extends Component {
     }
   }
 
-  get customPropertyForm(): ?Element {
+  get customPropertyForm(): ?Element<*> {
     if (this.state.isAddingProperty) {
       return (
         <CustomProperty
@@ -150,7 +150,7 @@ export default class ObjectFormInner extends Component {
     this.props.onChange(newAttributes);
   }
 
-  renderBoolean(name: string, value: boolean, options: AttrOptions): Element {
+  renderBoolean(name: string, value: boolean, options: AttrOptions) {
     const onChange = () => this.handleChange(name, 'bool', !value);
     const sliderCheckbox = (
       <SliderCheckbox
@@ -163,22 +163,22 @@ export default class ObjectFormInner extends Component {
     return renderFormField(name, sliderCheckbox, options);
   }
 
-  renderBool(...args: Array<any>): Element {
+  renderBool(...args: Array<any>): Element<*> {
     return this.renderBoolean(...args);
   }
 
-  renderElement(name: string, value: any, options: AttrOptions): Element {
+  renderElement(name: string, value: any, options: AttrOptions) {
     return renderFormField(name, value, options);
   }
 
-  renderDate(name: string, value: string, options: AttrOptions): Element {
+  renderDate(name: string, value: string, options: AttrOptions) {
     const dateValue = new Date(value);
     const onChange = (v: Date) => this.handleChange(name, 'date', v.toISOString());
     const dateInput = <DatePicker date={dateValue} onChange={onChange} />;
     return renderFormField(name, dateInput, options);
   }
 
-  renderPrice(name: string, value: any, options: AttrOptions): Element {
+  renderPrice(name: string, value: any, options: AttrOptions) {
     const priceValue: string = _.get(value, 'value', '');
     const priceCurrency: string = _.get(value, 'currency', 'USD');
     const onChange = value => this.handleChange(name, 'price', {
@@ -197,13 +197,14 @@ export default class ObjectFormInner extends Component {
     return renderFormField(name, currencyInput, options);
   }
 
-  renderRichText(name: string, value: any, options: AttrOptions): Element {
+  renderRichText(name: string, value: any, options: AttrOptions) {
     const onChange = v => this.handleChange(name, 'richText', v);
     const error = _.get(this.state, ['errors', name]);
     const classForContainer = classNames('fc-object-form__field', {
       '_has-error': error != null,
     });
     const nameVal = _.kebabCase(name);
+
     return (
       <div className={classForContainer}>
         <RichTextEditor
@@ -217,7 +218,7 @@ export default class ObjectFormInner extends Component {
     );
   }
 
-  renderString(name: string, value: string = '', options: AttrOptions): Element {
+  renderString(name: string, value: string = '', options: AttrOptions) {
     const onChange = ({target}) => {
       return this.handleChange(name, 'string', target.value);
     };
@@ -234,7 +235,7 @@ export default class ObjectFormInner extends Component {
     return renderFormField(name, stringInput, options);
   }
 
-  renderNumber(name: string, value: ?number = null, options: AttrOptions): Element {
+  renderNumber(name: string, value: ?number = null, options: AttrOptions) {
     const onChange = ({target}) => {
       return this.handleChange(name, 'number', target.value == '' ? null : Number(target.value));
     };
@@ -251,7 +252,7 @@ export default class ObjectFormInner extends Component {
     return renderFormField(name, stringInput, options);
   }
 
-  renderOptions(name: string, value: any, options: AttrOptions): Element {
+  renderOptions(name: string, value: any, options: AttrOptions) {
     const fieldOptions = this.props.fieldsOptions && this.props.fieldsOptions[name];
     if (!fieldOptions) throw new Error('You must define fieldOptions for options fields');
 
@@ -271,7 +272,7 @@ export default class ObjectFormInner extends Component {
     );
   }
 
-  renderText(name: string, value: string = '', options: AttrOptions): Element {
+  renderText(name: string, value: string = '', options: AttrOptions) {
     const onChange = ({target}) => {
       return this.handleChange(name, 'text', target.value);
     };
@@ -334,12 +335,12 @@ export default class ObjectFormInner extends Component {
     return options;
   }
 
-  render(): Element<any> {
+  render() {
     const { props } = this;
     const { attributes, schema } = props;
     const fieldsToRender = _.isEmpty(props.fieldsToRender) ? Object.keys(attributes) : props.fieldsToRender;
 
-    const renderedAttributes: Array<Element> = _.map(fieldsToRender, name => {
+    const renderedAttributes: Array<Element<*>> = _.map(fieldsToRender, name => {
       const attribute: Attribute = attributes[name];
       const attrSchema: ?AttrSchema = schema ? schema.properties[name] : null;
 

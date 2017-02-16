@@ -1,13 +1,13 @@
 // @flow
 // Wrapper for input which add small loading animation to the end of input.
 
-import React, { Element } from 'react';
+import React, { Element} from 'react';
 import styles from './css/loading-input-wrapper.css';
 
 import WaitAnimation from '../common/wait-animation';
 
 type Props = {
-  children?: Element,
+  children?: Element<*>,
   inProgress: boolean,
 }
 

@@ -15,7 +15,7 @@ type Props = {
   },
 };
 
-const OrderLineItems = (props: Props): Element => {
+const OrderLineItems = (props: Props): Element<*>=> {
   const { skus } = props.order.lineItems;
 
   return (

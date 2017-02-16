@@ -105,7 +105,7 @@ export default class ObjectDetails extends Component {
     return result;
   }
 
-  renderFields(fields: Fields, section: Array<NodeDesc>): Element {
+  renderFields(fields: Fields, section: Array<NodeDesc>): Element<*> {
     const fieldsToRender = this.calcFieldsToRender(fields, section);
     const attrsSchema = this.schema.properties.attributes;
     return (
@@ -119,7 +119,7 @@ export default class ObjectDetails extends Component {
     );
   }
 
-  renderTags(): Element {
+  renderTags() {
     return (
       <Tags
         attributes={this.attributes}
@@ -128,7 +128,7 @@ export default class ObjectDetails extends Component {
     );
   }
 
-  renderState(): ?Element {
+  renderState() {
     return (
       <ObjectScheduler
         attributes={this.attributes}
@@ -138,7 +138,7 @@ export default class ObjectDetails extends Component {
     );
   }
 
-  renderWatchers(): ?Element {
+  renderWatchers(): ?Element<*> {
     const { object, plural } = this.props;
 
     if (object.id) {
@@ -146,7 +146,7 @@ export default class ObjectDetails extends Component {
     }
   }
 
-  renderGroup(group: NodeDesc, section: Array<NodeDesc>): Element {
+  renderGroup(group: NodeDesc, section: Array<NodeDesc>) {
     const { title, fields, renderer, content } = group;
 
     let children;
@@ -168,15 +168,16 @@ export default class ObjectDetails extends Component {
     );
   }
 
-  renderNode(description: NodeDesc, section: Array<NodeDesc>): Element {
+  renderNode(description: NodeDesc, section: Array<NodeDesc>) {
     const renderName = `render${_.upperFirst(_.camelCase(description.type))}`;
     // $FlowFixMe: we don't need indexable signature here
     invariant(this[renderName], `There is no method for render ${description.type}.`);
     return this[renderName](description, section);
   }
 
-  renderSection(name: string): Element {
+  renderSection(name: string) {
     const section = this.layout[name];
+
     return addKeys(name, section.map(desc => this.renderNode(desc, section)));
   }
 

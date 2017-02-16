@@ -13,7 +13,7 @@ type Props = {
   type: string,
   archive: Function,
   archiveState: AsyncState,
-  clearArchiveErrors: () => Promise,
+  clearArchiveErrors: () => Promise<*>,
 };
 
 type State = {
@@ -52,7 +52,7 @@ class ArchiveActions extends Component {
     this.props.archive();
   }
 
-  render():Element {
+  render(): Element<*> {
     return (
       <div className="fc-archive-actions">
         <Button

@@ -47,7 +47,7 @@ export default class PaymentsPanel extends Component {
   props: Props;
   state: State = { showDetails: {} };
 
-  get newPayment(): Element {
+  get newPayment(): Element<*> {
     const { order } = this.props;
     const customerId = order.customer.id;
 
@@ -75,7 +75,7 @@ export default class PaymentsPanel extends Component {
   }
 
   @autobind
-  renderRow(row: PaymentMethod): Element {
+  renderRow(row: PaymentMethod): Element<*> {
     const { order } = this.props;
 
     const customerId = order.customer.id;
@@ -101,7 +101,7 @@ export default class PaymentsPanel extends Component {
     });
   }
 
-  get viewContent(): Element {
+  get viewContent(): Element<*> {
     const { isEditing, paymentMethods } = this.props;
     const editColumns = isEditing ? [{ field: 'edit' }] : [];
 
@@ -127,7 +127,7 @@ export default class PaymentsPanel extends Component {
     }
   }
 
-  render(): Element {
+  render() {
     return this.viewContent;
   }
 }

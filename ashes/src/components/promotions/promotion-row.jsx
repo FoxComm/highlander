@@ -3,7 +3,7 @@
  */
 
 //libs
-import React, { Element } from 'react';
+import React, { Element} from 'react';
 import _ from 'lodash';
 import { activeStatus } from '../../paragons/common';
 

@@ -39,7 +39,7 @@ export default class InlineField extends Component<void, Props, State> {
   }
 
   render() {
-    let valueElement: ?Element = null;
+    let valueElement: ?Element<*> = null;
     if (this.state.isEditing) {
       valueElement = (
         <InlineForm

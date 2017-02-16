@@ -60,7 +60,7 @@ export default class ObjectScheduler extends Component {
     return this.getAttribute(this.props.attributes, 'activeTo');
   }
 
-  get activeFromPicker(): ?Element {
+  get activeFromPicker(): ?Element<*> {
     if (this.state.showActiveFromPicker) {
       const activePhrase = `${this.props.title} will be active on:`;
       return (
@@ -79,7 +79,7 @@ export default class ObjectScheduler extends Component {
     }
   }
 
-  get activeToPicker(): ?Element {
+  get activeToPicker(): ?Element<*> {
     if (this.state.showActiveFromPicker) {
       const picker = this.state.showActiveToPicker
         ? (
@@ -199,7 +199,7 @@ export default class ObjectScheduler extends Component {
   }
 
 
-  get activeDropdown(): Element {
+  get activeDropdown() {
     const activeState = this.isActive ? 'active' : 'inactive';
     const isDisabled = !this.isActive && this.state.showActiveFromPicker;
 
@@ -243,7 +243,7 @@ export default class ObjectScheduler extends Component {
     return prevActiveFrom !== nextActiveFrom || prevActiveTo !== nextActiveTo || !_.eq(this.state, nextState);
   }
 
-  render(): Element {
+  render() {
     return (
       <div className="fc-product-state">
         <div className="fc-product-state__header">

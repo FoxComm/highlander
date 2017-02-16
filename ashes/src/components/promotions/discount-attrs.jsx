@@ -1,6 +1,6 @@
 /* @flow */
 import _ from 'lodash';
-import React, { Element } from 'react';
+import React, { Element} from 'react';
 
 import styles from './attrs-edit.css';
 
@@ -10,7 +10,7 @@ import { Dropdown } from '../dropdown';
 import type { ItemDesc, DiscountRow, DescriptionType, Context } from './types';
 
 const renderers = {
-  type(item: ItemDesc, context: Context, dropdownId: Props): Element {
+  type(item: ItemDesc, context: Context, dropdownId: Props): Element<*> {
     const typeItems = _.map(context.root, entry => [entry.type, entry.title]);
 
     return (
@@ -23,10 +23,10 @@ const renderers = {
       />
     );
   },
-  widget(item:ItemDesc, context: Context): Element {
+  widget(item:ItemDesc, context: Context): Element<*> {
     const widgetComponent = widgets[item.widget];
     const props = {...item, context};
-    const element = React.createElement(widgetComponent, props);
+    const Element = React.createElement(widgetComponent, props);
 
     if (item.template) {
       return item.template({children: element});
@@ -34,7 +34,7 @@ const renderers = {
 
     return element;
   },
-  title(item: ItemDesc): Element {
+  title(item: ItemDesc): Element<*> {
     return <strong>{item.title}</strong>;
   }
 };
@@ -48,7 +48,7 @@ type Props = {
   blockId: string;
 };
 
-const DiscountAttrs = (props: Props): Element => {
+const DiscountAttrs = (props: Props): Element<*>=> {
   const discount = props.discount;
 
   const attrs = _.get(discount, `attributes.${props.attr}.v`, {});

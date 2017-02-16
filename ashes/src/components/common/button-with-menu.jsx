@@ -12,17 +12,17 @@ import styles from './button-with-menu.css';
 import { PrimaryButton } from './buttons';
 import { DropdownItem } from '../dropdown';
 
-type DropdownItemType = [any, string|Element];
+type DropdownItemType = [any, string|Element<*>];
 
 type Props = {
   onPrimaryClick?: Function;
-  onSelect?: (value: any, title: string|Element) => any;
-  children?: Element;
+  onSelect?: (value: any, title: string|Element<*>) => any;
+  children?: Element<*>;
   buttonDisabled?: boolean;
   menuDisabled?: boolean;
   icon?: string;
   items: Array<DropdownItemType>;
-  title: string|Element;
+  title: string|Element<*>;
   className?: string;
   menuPosition?: "left" | "center" | "right";
   animate?: boolean;
@@ -55,7 +55,7 @@ export default class ButtonWithMenu extends Component {
   }
 
   @autobind
-  handleItemClick(value: any, title: string|Element) {
+  handleItemClick(value: any, title: string|Element<*>) {
     const newState = { open: false };
 
     this.setState(newState, () => {
@@ -106,7 +106,7 @@ export default class ButtonWithMenu extends Component {
     );
   }
 
-  render(): Element {
+  render() {
     const { props } = this;
     const { icon, title, animate, menuPosition, buttonDisabled, menuDisabled } = props;
     const { open } = this.state;

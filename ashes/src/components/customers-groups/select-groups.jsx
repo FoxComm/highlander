@@ -92,8 +92,9 @@ class SelectCustomerGroups extends Component {
     );
   }
 
-  get togglePopupControl(): Element {
+  get togglePopupControl() {
     const iconClass = this.state.popupOpened ? 'icon-close' : 'icon-add';
+
     return (
       <i className={iconClass} styleName="toggle-control" onClick={this.togglePopup}>
         <SelectableList
@@ -113,7 +114,7 @@ class SelectCustomerGroups extends Component {
     return _.filter(this.props.groups, group => this.props.selectedGroupIds.indexOf(group.id) != -1);
   }
 
-  get customersGroups(): ?Element {
+  get customersGroups(): ?Element<*> {
     if (this.state.qualifyAll !== false) return null;
 
     return (
@@ -154,7 +155,7 @@ class SelectCustomerGroups extends Component {
     );
   }
 
-  render(): Element {
+  render() {
     return (
       <div>
         <RadioButton

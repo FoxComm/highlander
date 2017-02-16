@@ -92,7 +92,7 @@ class ProductsQualifier extends Component {
     this.updateReferences(ids.map(id => ({productSearchId: id})));
   }
 
-  get productReferences(): Element {
+  get productReferences(): Element<*> {
     const { references } = this;
 
     if (this.state.selectMode == 'some') {

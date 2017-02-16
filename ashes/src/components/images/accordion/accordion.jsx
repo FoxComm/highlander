@@ -22,11 +22,11 @@ type Props = {
   editMode: boolean;
   onEditComplete: Function;
   onEditCancel: Function;
-  titleWrapper?: (title: string) => Element;
+  titleWrapper?: (title: string) => Element<*>;
   resetOverflowTimeout: number;
   className?: string;
   contentClassName?: string;
-  children?: Array<Element>|Element;
+  children?: Array<Element<*>>|Element<*>;
 }
 
 type State = {
@@ -157,13 +157,13 @@ export default class Accordion extends Component {
     }
   }
 
-  get title(): ?Element {
+  get title(): ?Element<*> {
     const { title, editMode, placeholder, titleWrapper } = this.props;
     if (!title && !editMode) {
       return null;
     }
 
-    let titleElement: Element;
+    let titleElement: Element<*>;
 
     if (editMode) {
       titleElement = (
@@ -194,7 +194,7 @@ export default class Accordion extends Component {
     );
   }
 
-  get controls(): Element {
+  get controls() {
     return (
       <div className={styles.controls}>
         <div className={styles.left}>
@@ -216,7 +216,7 @@ export default class Accordion extends Component {
     );
   }
 
-  render(): Element {
+  render() {
     const { className, contentClassName } = this.props;
 
     const cls = classNames(styles.accordion, {

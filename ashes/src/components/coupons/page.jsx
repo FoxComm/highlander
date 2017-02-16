@@ -2,7 +2,7 @@
 
 // libs
 import _ from 'lodash';
-import React, { Element } from 'react';
+import React, { Element} from 'react';
 import { autobind } from 'core-decorators';
 
 // components
@@ -23,7 +23,7 @@ type Params = {
 
 type Actions = {
   couponsNew: Function,
-  fetchCoupon: () => Promise,
+  fetchCoupon: () => Promise<*>,
   createCoupon: Function,
   updateCoupon: Function,
   generateCode: Function,
@@ -42,7 +42,7 @@ type Props = {
   actions: Actions,
   dispatch: Function,
   details: Object,
-  children: Element,
+  children: Element<*>,
   isFetching: boolean,
   isSaving: boolean,
   fetchError: any,
@@ -66,7 +66,7 @@ class CouponPage extends ObjectPage {
     return _.get(this.props, 'details.selectedPromotions', []);
   }
 
-  save(): ?Promise {
+  save(): ?Promise<*> {
     let willBeCoupon = super.save();
 
     if (willBeCoupon) {
@@ -124,7 +124,7 @@ class CouponPage extends ObjectPage {
   }
 
   @autobind
-  createCoupon(): ?Promise {
+  createCoupon(): ?Promise<*> {
     if (!this.validateForm()) {
       return null;
     }

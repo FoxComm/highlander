@@ -1,6 +1,6 @@
 /* @flow */
 
-import React, { Element } from 'react';
+import React, { Element} from 'react';
 
 import ContentBox from 'components/content-box/content-box';
 import PanelHeader from 'components/panel-header/panel-header';
@@ -17,7 +17,7 @@ type Props = {
 export default class Payments extends React.Component {
   props: Props;
 
-  render(): Element {
+  render() {
     const { order } = this.props.details;
     const { paymentMethods } = order;
 

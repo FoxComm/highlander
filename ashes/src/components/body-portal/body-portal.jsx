@@ -19,7 +19,7 @@ export default class BodyPortal extends Component {
     className: '',
   };
 
-  _target: HTMLElement; // HTMLElement, a div that is appended to the body
+  _target: HTMLElement; // HTMLElement<*>, a div that is appended to the body
 
   updateStyle(): void {
     const { left, top } = this.props;
@@ -79,7 +79,7 @@ export default class BodyPortal extends Component {
     );
   }
 
-  render(): Element {
+  render() {
     return this.props.active ? null : this.props.children;
   }
 }

@@ -20,7 +20,7 @@ type Props = {
 }
 
 
-const Transaction = (props: Props): Element => (
+const Transaction = (props: Props): Element<*>=> (
   <div styleName="row">
     <div styleName="source">
       <PaymentMethod paymentMethod={props.source} />

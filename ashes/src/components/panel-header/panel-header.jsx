@@ -1,7 +1,7 @@
 
 /* @flow */
 
-import React, { Element } from 'react';
+import React, { Element} from 'react';
 import styles from './panel-header.css';
 
 type Props = {
@@ -11,7 +11,7 @@ type Props = {
   status?: string,
 };
 
-const PanelHeader = ({isOptional = false, showStatus = false, status, text}: Props): Element => {
+const PanelHeader = ({isOptional = false, showStatus = false, status, text}: Props): Element<*>=> {
   const optional = isOptional
     ? <span styleName="optional">(optional)</span>
     : null;

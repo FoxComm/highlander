@@ -1,6 +1,6 @@
 /* @flow */
 
-import React, { Element } from 'react';
+import React, { Element} from 'react';
 import _ from 'lodash';
 
 import CouponRow from './coupon-row';
@@ -11,10 +11,10 @@ import styles from './coupons-panel.css';
 type Props = {
   coupons: Array<Object>;
   columns: Array<Object>;
-  onDelete?: () => Promise;
+  onDelete?: () => Promise<*>;
 };
 
-const CouponsPanel = (props: Props): Element => {
+const CouponsPanel = (props: Props): Element<*>=> {
   const renderFn = (row: Object) => {
     return (
       <CouponRow

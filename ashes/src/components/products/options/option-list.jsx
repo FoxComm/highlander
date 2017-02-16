@@ -55,7 +55,7 @@ class OptionList extends Component {
     isDeleteDialogVisible: false,
   };
 
-  get actions(): Element {
+  get actions(): Element<*> {
     return (
       <a id="add-new-option-btn" styleName="action-icon" onClick={() => this.startEditOption('new')}>
         <i className="icon-add" />
@@ -63,7 +63,7 @@ class OptionList extends Component {
     );
   }
 
-  get emptyContent(): Element {
+  get emptyContent(): Element<*> {
     return (
       <div className="fc-content-box__empty-text">
         This product does not have options.
@@ -176,7 +176,7 @@ class OptionList extends Component {
     });
   }
 
-  renderOptions(variants: Array<Option>): Array<Element> {
+  renderOptions(variants: Array<Option>): Array<Element<*>> {
     return _.map(variants, (option, index) => {
       const key = _.get(option.attributes, 'name.v', index);
       return (
@@ -214,7 +214,7 @@ class OptionList extends Component {
     this.closeDeleteDialog();
   }
 
-  get deletionDialog(): ?Element {
+  get deletionDialog(): ?Element<*> {
     if (!this.state.deletingContext) return;
 
     const { id, affectedSkus, deletingValueContext } = this.state.deletingContext;
@@ -259,7 +259,7 @@ class OptionList extends Component {
     );
   }
 
-  render(): Element {
+  render() {
     const variants = this.renderOptions(this.props.variants);
     const content = _.isEmpty(variants) ? this.emptyContent : variants;
 

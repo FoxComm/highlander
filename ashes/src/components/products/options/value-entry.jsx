@@ -27,7 +27,7 @@ type Props = {
 class ValueEntry extends Component {
   props: Props;
 
-  get imageBlock(): Element {
+  get imageBlock(): Element<*> {
     if (this.props.value.image) {
       return <div>{this.props.value.image}</div>;
     } else {
@@ -35,7 +35,7 @@ class ValueEntry extends Component {
     }
   }
 
-  get swatchBlock(): Element {
+  get swatchBlock(): Element<*> {
     if (this.props.value.swatch) {
       return <SwatchDisplay hexCode={this.props.value.swatch} />;
     } else {
@@ -43,7 +43,7 @@ class ValueEntry extends Component {
     }
   }
 
-  render(): Element {
+  render() {
     const { id, value } = this.props;
     const valueName = value.name.toLowerCase();
 

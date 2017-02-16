@@ -17,7 +17,7 @@ type Props = {
   archiveState: AsyncState,
 };
 
-const ArchiveConfirmation = (props: Props): Element => {
+const ArchiveConfirmation = (props: Props): Element<*>=> {
   const confirmation = (
     <div>
       <Alert type="warning">

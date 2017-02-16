@@ -1,14 +1,14 @@
 /* @flow */
 
 // libs
-import React, { Element } from 'react';
+import React, { Element} from 'react';
 import { transitionTo } from 'browserHistory';
 
 // components
 import { ListPageContainer } from '../list-page';
 
 type Props = {
-  children: Element,
+  children: Element<*>,
 };
 
 const UserListPage = (props: Props) => {

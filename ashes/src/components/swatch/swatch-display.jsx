@@ -11,7 +11,7 @@ type Props = {
 export default class SwatchDisplay extends Component<void, Props, void> {
   props: Props;
 
-  render(): Element {
+  render() {
     const hexCode = this.props.hexCode.toUpperCase();
     const colorStyle = {
       background: `#${hexCode}`,

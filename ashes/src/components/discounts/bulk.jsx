@@ -1,7 +1,7 @@
 /* @flow */
 
 import _ from 'lodash';
-import React, { Element } from 'react';
+import React, { Element} from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { getStore } from '../../lib/store-creator';
@@ -20,7 +20,7 @@ type Props = {
     changeState: (ids: Array<RefId>, isActivation: boolean) => void;
     updateAttributes: (ids: Array<RefId>, attributes: Attributes) => void;
   };
-  children: Element;
+  children: Element<*>;
 };
 
 const mapDispatchToProps = (dispatch: Function, { entity }) => {

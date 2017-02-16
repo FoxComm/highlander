@@ -24,7 +24,7 @@ const applicationClaims = readAction(frn.settings.application);
 export default class SettingsEntry extends Component {
   props: Props;
 
-  render(): Element {
+  render() {
     const { claims, collapsed, routes, status, toggleMenuItem } = this.props;
     const allClaims = { ...userClaims, ...pluginClaims };
 

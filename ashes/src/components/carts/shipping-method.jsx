@@ -58,7 +58,7 @@ export class CartShippingMethod extends Component {
     this.props.updateShippingMethod(cart.referenceNumber, method.id);
   }
 
-  render(): Element {
+  render() {
     const { cart, id, status } = this.props;
     const { shippingMethod } = cart;
     const { list } = this.props.shippingMethods;

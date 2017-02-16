@@ -1,6 +1,6 @@
 /* @flow */
 
-import React, { Element } from 'react';
+import React, { Element} from 'react';
 import styles from '../attrs-edit.css';
 
 import CurrencyInput from '../../forms/currency-input';

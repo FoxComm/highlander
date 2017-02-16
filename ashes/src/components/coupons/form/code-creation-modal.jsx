@@ -14,7 +14,7 @@ type Props = {
   cancelAction: Function,
 };
 
-const CodeCreationModal = (props: Props): Element => {
+const CodeCreationModal = (props: Props): Element<*>=> {
   const { isVisible, probability, confirmAction, cancelAction } = props;
 
   const body = (

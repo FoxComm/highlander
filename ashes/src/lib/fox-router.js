@@ -1,5 +1,5 @@
 /* @flow */
-import React, { Element } from 'react';
+import React, { Element} from 'react';
 import { Route, IndexRoute } from 'react-router';
 
 import type { Claims } from 'lib/claims';
@@ -7,7 +7,7 @@ import type { Claims } from 'lib/claims';
 type FoxRoute = Route|IndexRoute;
 type JWT = { claims: Claims };
 type RouteParams = {
-  component?: ReactClass,
+  component?: ReactClass<*>,
   dimension?: string,
   isIndex?: bool,
   path?: string,

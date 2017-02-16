@@ -33,7 +33,7 @@ function mapStateToProps(state) {
   };
 }
 
-const Navigation = (props: Props): Element => {
+const Navigation = (props: Props): Element<*>=> {
   const claims = getClaims(props.token);
 
   return (

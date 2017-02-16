@@ -1,7 +1,7 @@
 /* @flow weak */
 
 // libs
-import React, { Element } from 'react';
+import React, { Element} from 'react';
 
 // components
 import SubNav from './sub-nav';
@@ -12,7 +12,7 @@ import * as PromotionActions from 'modules/promotions/details';
 
 
 class PromotionPage extends ObjectPage {
-  subNav(): Element {
+  subNav(): Element<*> {
     return <SubNav promotionId={this.entityId} />;
   }
 }

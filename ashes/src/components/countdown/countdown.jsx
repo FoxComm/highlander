@@ -67,7 +67,7 @@ export default class Countdown extends Component {
     this.stopInterval();
   }
 
-  render(): Element {
+  render() {
     const classnames = classNames({
       'fc-countdown': true,
       'fc-countdown_ending': this.state.ending,

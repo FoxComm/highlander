@@ -1,6 +1,6 @@
 /* @flow */
 
-import React, { Element } from 'react';
+import React, { Element} from 'react';
 
 import { Checkbox } from '../checkbox/checkbox';
 
@@ -10,15 +10,15 @@ type Props = {
   id: number,
   onToggle?: (id: number) => void,
   checked?: boolean,
-  title?: string|Element,
-  children?: string|Element,
+  title?: string|Element<*>,
+  children?: string|Element<*>,
 };
 
 const SelectableItem = ({
-  id, 
+  id,
   onToggle = (id) => {},
   checked = false,
-  title, 
+  title,
   children,
 }: Props) => {
   const handleItemClick = (event: SyntheticEvent) => {

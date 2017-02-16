@@ -53,7 +53,7 @@ export class Products extends Component {
     return <ProductRow key={key} product={row} columns={columns} params={params} />;
   }
 
-  render(): Element {
+  render() {
     const { list, actions } = this.props;
 
     const searchActions = {

@@ -58,13 +58,13 @@ class CustomerItems extends Component {
     this.props.actions.fetch();
   }
 
-  renderRow(row: Object, index: number, columns: Array<any>, params: Object): Element {
+  renderRow(row: Object, index: number, columns: Array<any>, params: Object): Element<*> {
     const keyRow = `customer-items-${row.id}`;
 
     return <CustomerItemsRow item={row} columns={columns} params={params} key={keyRow}/>;
   }
 
-  render(): Element {
+  render() {
     const { props } = this;
 
     return (

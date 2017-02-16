@@ -1,5 +1,5 @@
 // @flow
-import React, { Element } from 'react';
+import React, { Element} from 'react';
 
 // components
 import { ListPageContainer, makeTotalCounter } from '../list-page';
@@ -8,7 +8,7 @@ import { ListPageContainer, makeTotalCounter } from '../list-page';
 import { actions } from 'modules/carts/list';
 
 type Props = {
-  children: Element,
+  children: Element<*>,
 }
 
 const CartListPage = (props: Props) => {

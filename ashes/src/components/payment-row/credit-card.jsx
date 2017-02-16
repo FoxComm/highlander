@@ -31,7 +31,7 @@ export class CreditCardDetails extends Component {
       .then(this.props.handleCancel);
   }
 
-  render(): Element {
+  render() {
     const card = this.props.paymentMethod;
     const { customerId, isEditing, handleCancel } = this.props;
 

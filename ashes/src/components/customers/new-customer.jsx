@@ -18,7 +18,7 @@ import type { NewCustomerPayload } from 'modules/customers/new';
 
 type Props = {
   submitStatus: AsyncState,
-  createCustomer: (payload: NewCustomerPayload) => Promise,
+  createCustomer: (payload: NewCustomerPayload) => Promise<*>,
   clearErrors: () => void,
 }
 

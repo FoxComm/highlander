@@ -28,7 +28,7 @@ export default class RemorseTimer extends Component {
     });
   }
 
-  extendButton(): Element {
+  extendButton(): Element<*> {
     return (
       <AddButton id="remorse-timer-extend-btn" className="fc-remorse-timer-extend" onClick={ this.props.onIncreaseClick }>
         15 min
@@ -36,7 +36,7 @@ export default class RemorseTimer extends Component {
     );
   }
 
-  controls(): Element|string {
+  controls(): Element<*>|string {
     if (this.state.frozen) {
       return 'Frozen while editing.';
     } else {
@@ -44,7 +44,7 @@ export default class RemorseTimer extends Component {
     }
   }
 
-  render(): Element {
+  render() {
     return (
       <div className="fc-remorse-timer">
         <Countdown

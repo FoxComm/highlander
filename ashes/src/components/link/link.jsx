@@ -7,7 +7,7 @@ import type { Claims } from 'lib/claims';
 
 export type LinkProps = {
   actualClaims: Claims,
-  children?: Element|Array<Element>,
+  children?: Element<*>|Array<Element<*>>,
   expectedClaims: Claims,
   params: Object,
   to: string,
@@ -26,7 +26,7 @@ export default class Link extends React.Component {
     expectedClaims: {},
   };
 
-  render(): Element {
+  render() {
     let {to, params, children, actualClaims, expectedClaims, ...otherProps} = this.props;
     let location = {
       name: to,

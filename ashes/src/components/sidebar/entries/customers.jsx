@@ -23,7 +23,7 @@ const customerGroupClaims = readAction(frn.user.customerGroup);
 export default class CustomersEntry extends Component {
   props: Props;
 
-  render(): Element {
+  render() {
     const { claims } = this.props;
     if (!isPermitted(customerClaims, this.props.claims)) {
       return <div></div>;
