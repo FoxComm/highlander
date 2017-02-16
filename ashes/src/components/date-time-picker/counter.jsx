@@ -10,7 +10,7 @@ type Props = {
   onClickDown: () => void,
 };
 
-const DateTimeCounter = (props: Props): Element<*>=> {
+const DateTimeCounter = (props: Props) => {
   const { children, onClickUp, onClickDown } = props;
   return (
     <div className="fc-date-time-picker__counter">

@@ -1,7 +1,7 @@
 /* @flow weak */
 
 // libs
-import React, { Element} from 'react';
+import React, { Element } from 'react';
 
 // components
 import SubNav from './sub-nav';

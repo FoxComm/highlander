@@ -2,7 +2,7 @@
 /* @flow */
 
 import { get, noop } from 'lodash';
-import React, { Element} from 'react';
+import React, { Element } from 'react';
 
 import { DeleteButton } from 'components/common/buttons';
 import MultiSelectRow from 'components/table/multi-select-row';
@@ -28,7 +28,7 @@ type Props = {
   onDelete?: Function,
 };
 
-const CouponRow = ({item, columns, params, onDelete = () => {}}: Props): Element<*>=> {
+const CouponRow = ({item, columns, params, onDelete = () => {}}: Props) => {
   const checkedParams = params || {checked: false, setChecked: noop };
 
   const setCellContents = setCellContentsFunctionFactory(onDelete);

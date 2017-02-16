@@ -1,7 +1,7 @@
 // @flow
 
 // libs
-import React, { Element} from 'react';
+import React, { Element } from 'react';
 
 // helpers
 import { activeStatus, isArchived } from 'paragons/common';
@@ -28,7 +28,7 @@ const setCellContents = (taxonomy: Taxonomy, field: string) => {
   }
 };
 
-const TaxonomyRow = (props: Props): Element<*>=> {
+const TaxonomyRow = (props: Props) => {
   const { taxonomy, columns, params } = props;
   const commonParams = {
     columns,

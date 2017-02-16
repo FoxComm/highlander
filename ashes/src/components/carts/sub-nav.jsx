@@ -1,5 +1,5 @@
 /* @flow */
-import React, { Element} from 'react';
+import React, { Element } from 'react';
 import { Link, IndexLink } from 'components/link';
 import LocalNav from 'components/local-nav/local-nav';
 
@@ -9,7 +9,7 @@ type Props = {
   cart: Cart,
 };
 
-const SubNav = (props: Props): Element<*>=> {
+const SubNav = (props: Props) => {
   const cart = props.cart;
   const params = {cart: cart.referenceNumber};
 

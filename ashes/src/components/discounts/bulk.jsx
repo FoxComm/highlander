@@ -1,7 +1,7 @@
 /* @flow */
 
 import _ from 'lodash';
-import React, { Element} from 'react';
+import React, { Element } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { getStore } from '../../lib/store-creator';

@@ -1,5 +1,5 @@
 /* @flow */
-import React, { Element} from 'react';
+import React, { Element } from 'react';
 import { Route, IndexRoute } from 'react-router';
 
 import type { Claims } from 'lib/claims';

@@ -1,7 +1,7 @@
 
 /* @flow */
 
-import React, { Element} from 'react';
+import React, { Element } from 'react';
 
 import styles from './widget-container.css';
 

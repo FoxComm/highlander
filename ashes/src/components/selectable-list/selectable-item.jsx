@@ -1,6 +1,6 @@
 /* @flow */
 
-import React, { Element} from 'react';
+import React, { Element } from 'react';
 
 import { Checkbox } from '../checkbox/checkbox';
 

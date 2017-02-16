@@ -1,7 +1,7 @@
 /* @flow */
 
 // libs
-import React, { Element} from 'react';
+import React, { Element } from 'react';
 import { transitionTo } from 'browserHistory';
 
 // components

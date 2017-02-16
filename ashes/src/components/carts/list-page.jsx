@@ -1,5 +1,5 @@
 // @flow
-import React, { Element} from 'react';
+import React, { Element } from 'react';
 
 // components
 import { ListPageContainer, makeTotalCounter } from '../list-page';

@@ -1,4 +1,4 @@
-import React, { Element} from 'react';
+import React, { Element } from 'react';
 
 import ShippingMethod from 'components/shipping/shipping-method';
 
@@ -8,7 +8,7 @@ type Props = {
   },
 };
 
-const OrderShippingMethod = (props: Props): Element<*>=> {
+const OrderShippingMethod = (props: Props) => {
   const { order } = props;
   const { shippingMethod } = order;
 

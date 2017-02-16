@@ -1,6 +1,6 @@
 /* @flow */
 
-import React, { Element} from 'react';
+import React, { Element } from 'react';
 import _ from 'lodash';
 
 import CouponRow from './coupon-row';
@@ -14,7 +14,7 @@ type Props = {
   onDelete?: () => Promise<*>;
 };
 
-const CouponsPanel = (props: Props): Element<*>=> {
+const CouponsPanel = (props: Props) => {
   const renderFn = (row: Object) => {
     return (
       <CouponRow

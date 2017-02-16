@@ -2,7 +2,7 @@
 
 // libs
 import _ from 'lodash';
-import React, { Element} from 'react';
+import React, { Element } from 'react';
 import { transitionTo } from 'browserHistory';
 
 // components

@@ -1,7 +1,7 @@
 /* @flow */
 
 // libs
-import React, {Component, Element} from 'react';
+import React, {Component, Element } from 'react';
 import {autobind} from 'core-decorators';
 
 // components

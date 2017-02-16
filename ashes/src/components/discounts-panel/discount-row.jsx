@@ -2,7 +2,7 @@
 /* @flow */
 
 import { get, noop } from 'lodash';
-import React, { Element} from 'react';
+import React, { Element } from 'react';
 
 import MultiSelectRow from 'components/table/multi-select-row';
 
@@ -16,7 +16,7 @@ type Props = {
   params?: any,
 };
 
-const DiscountRow = (props: Props): Element<*>=> {
+const DiscountRow = (props: Props) => {
   const { item, columns, params } = props;
   const checkedParams = params || {checked: false, setChecked: noop };
 

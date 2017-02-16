@@ -1,7 +1,7 @@
 /* @flow */
 
 // libs
-import React, {Component, Element} from 'react';
+import React, {Component } from 'react';
 import {autobind} from 'core-decorators';
 
 // components
@@ -17,7 +17,7 @@ type Props = {
   archiveState: AsyncState,
 };
 
-const ArchiveConfirmation = (props: Props): Element<*>=> {
+const ArchiveConfirmation = (props: Props) => {
   const confirmation = (
     <div>
       <Alert type="warning">

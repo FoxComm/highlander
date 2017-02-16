@@ -2,7 +2,7 @@
 
 import _ from 'lodash';
 import classNames from 'classnames';
-import React, { Element} from 'react';
+import React, { Element } from 'react';
 
 import TableView from 'components/table/tableview';
 import Link from 'components/link/link';
@@ -68,7 +68,7 @@ const lineItemAttributes = (item: SkuItem, columns: Array<Column>): Array<?Eleme
   return [];
 };
 
-const SkuLineItems = (props: Props): Element<*>=> {
+const SkuLineItems = (props: Props) => {
   const { items, renderRow, withAttributes, className } = props;
   const columns = props.columns ? props.columns : defaultColumns;
 

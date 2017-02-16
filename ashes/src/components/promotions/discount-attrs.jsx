@@ -1,6 +1,6 @@
 /* @flow */
 import _ from 'lodash';
-import React, { Element} from 'react';
+import React, { Element } from 'react';
 
 import styles from './attrs-edit.css';
 
@@ -48,7 +48,7 @@ type Props = {
   blockId: string;
 };
 
-const DiscountAttrs = (props: Props): Element<*>=> {
+const DiscountAttrs = (props: Props) => {
   const discount = props.discount;
 
   const attrs = _.get(discount, `attributes.${props.attr}.v`, {});

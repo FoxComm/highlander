@@ -14,7 +14,7 @@ import Currency from 'components/common/currency';
 //types
 import type { TShipmentLineItem } from 'paragons/shipment';
 
-const ShippedItem = (props: TShipmentLineItem): Element<*>=> (
+const ShippedItem = (props: TShipmentLineItem): Element<*> => (
   <div styleName="row">
     <div styleName="name">
       <img src={props.imagePath} />
