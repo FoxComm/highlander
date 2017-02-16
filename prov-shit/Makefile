@@ -35,6 +35,9 @@ deploy-stage:
 deploy-demo:
 	ansible-playbook -v -i bin/envs/staging ansible/test_stage.yml
 
+deploy-returns:
+	ansible-playbook -v -i bin/envs/dev ansible/feature_branch_returns.yml
+
 docker:
 	$(call header, Dockerizing)
 	true
