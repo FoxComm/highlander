@@ -1,7 +1,7 @@
 import java.time.Instant
 
 import akka.http.scaladsl.model.StatusCodes
-import failures.NotFoundFailure404
+import failures.{GeneralFailure, NotFoundFailure404}
 import models._
 import models.returns._
 import payloads.NotePayloads._
@@ -35,18 +35,14 @@ class ReturnNotesIntegrationTest
       }
 
       "returns a validation error if failed to create" in new Fixture {
-        val response = api(rma.refNum).create(CreateNote(body = ""))
-
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === ("body must not be empty")
+        api(rma.refNum)
+          .create(CreateNote(body = ""))
+          .mustFailWith400(GeneralFailure("body must not be empty"))
       }
 
       "returns a 404 if the return is not found" in new Fixture {
         private val none = "RMA-666"
-        val response     = api(none).create(CreateNote(body = ""))
-
-        response.status must === (StatusCodes.NotFound)
-        response.error must === (NotFoundFailure404(Return, none).description)
+        api(none).create(CreateNote(body = "")).mustFailWith404(NotFoundFailure404(Return, none))
       }
     }
 
@@ -57,10 +53,7 @@ class ReturnNotesIntegrationTest
           api(rma.refNum).create(CreateNote(body = body))
         }
 
-        val response = api(rma.refNum).get()
-        response.status must === (StatusCodes.OK)
-
-        val notes = response.as[Seq[AdminNotes.Root]]
+        val notes = api(rma.refNum).get().as[Seq[AdminNotes.Root]]
         notes must have size 3
         notes.map(_.body).toSet must === (Set("abc", "123", "xyz"))
       }
@@ -72,9 +65,9 @@ class ReturnNotesIntegrationTest
         val rootNote =
           api(rma.refNum).create(CreateNote(body = "Hello, FoxCommerce!")).as[AdminNotes.Root]
 
-        val note =
-          api(rma.refNum).note(rootNote.id).update(UpdateNote(body = "donkey")).as[AdminNotes.Root]
-        note.body must === ("donkey")
+        private val updateNote = UpdateNote(body = "donkey")
+        val note               = api(rma.refNum).note(rootNote.id).update(updateNote).as[AdminNotes.Root]
+        note.body must === (updateNote.body)
       }
     }
 
