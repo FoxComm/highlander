@@ -104,7 +104,7 @@ class Returns(tag: Tag) extends FoxTable[Return](tag, "returns") {
   def accountId        = column[Int]("account_id")
   def storeAdminId     = column[Option[Int]]("store_admin_id")
   def messageToAccount = column[Option[String]]("message_to_account")
-  def canceledReasonId = column[Option[Int]]("canceled_reason") // see models.Reasons
+  def canceledReasonId = column[Option[Int]]("canceled_reason_id") // see models.Reasons
   def createdAt        = column[Instant]("created_at")
   def updatedAt        = column[Instant]("updated_at")
   def deletedAt        = column[Option[Instant]]("deleted_at")
