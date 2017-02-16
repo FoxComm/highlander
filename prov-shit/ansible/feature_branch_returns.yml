@@ -1,0 +1,37 @@
+---
+
+- name: Provision Returns Feature Branch Instance
+  hosts: feature-branch-returns
+  become: true
+  vars:
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+    api_server: appliance-10-240-0-12.foxcommerce.com
+    self_host: appliance-10-240-0-12.foxcommerce.com
+    ashes_server_name: appliance-10-240-0-12.foxcommerce.com
+    storefront_server_name: appliance-10-240-0-12.foxcommerce.com
+    with_base_seeds: true
+    url_prefix_perfectgourmet: "/perfect-gourmet"
+    url_prefix_topdrawer: "/top-drawer"
+  roles:
+    - { role: dev/stage_mesos, when: first_run }
+    - { role: dev/zookeeper, when: first_run }
+    - { role: dev/elasticsearch, when: first_run }
+    - { role: dev/db, when: first_run }
+    - { role: hotfix/db }
+    - { role: hotfix/elasticsearch }
+    - { role: hotfix/rsyslog }
+    - { role: prod/migrate_phoenix_db }
+    - { role: prod/migrate_middlewarehouse_db }
+    - { role: dev/stage_mesos, when: first_run }
+    - { role: base/ssh_keys, when: first_run }
+    - { role: hotfix/rsyslog }
+    - { role: dev/marathon }
+    - { role: dev/marathon_consumers }
+    - { role: ext/td/storefront }
+    - { role: ext/tpg/storefront }
+    - { role: dev/balancer }
+    - { role: demo/balancer }
+    - { role: dev/seeder, when: first_run }
+
+  handlers:
+    - include: roles/base/consul_agent/handlers/main.yml
