@@ -59,7 +59,7 @@ defmodule Hyperion.Amazon.Templates.SubmitImages do
   end
 
   @doc """
-  Renders swatches images starting with `offset' index'
+  Renders swatches images indexed by `intial' count + 1
   """
   def render_swatches(list, sku, initial) do
     offset = Enum.count(initial) + 1

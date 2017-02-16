@@ -13,10 +13,10 @@ defmodule Hyperion.Amazon.Templates.SubmitProductFeed do
     </Header>
     <MessageType>Product</MessageType>
     <PurgeAndReplace><%= purge_and_replace %></PurgeAndReplace>
+    <%= for {p, idx} <- products do %>
     <Message>
-      <MessageID>1</MessageID>
+      <MessageID><%= idx %></MessageID>
       <OperationType>Update</OperationType>
-      <%= for p <- products do %>
         <Product>
           <SKU><%= p[:code]%></SKU>
           <StandardProductID>
@@ -65,8 +65,8 @@ defmodule Hyperion.Amazon.Templates.SubmitProductFeed do
             <% end %>
           </ProductData>
         </Product>
-      <% end %>
     </Message>
+    <% end %>
     </AmazonEnvelope>
     """
   end

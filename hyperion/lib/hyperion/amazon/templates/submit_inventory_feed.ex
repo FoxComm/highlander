@@ -8,16 +8,16 @@ defmodule Hyperion.Amazon.Templates.SubmitInventoryFeed do
         <MerchantIdentifier><%= seller_id %></MerchantIdentifier>
       </Header>
       <MessageType>Inventory</MessageType>
+      <%= for {i, idx} <- inventory do %>
       <Message>
-        <MessageID>1</MessageID>
+        <MessageID><%= idx %></MessageID>
         <OperationType>Update</OperationType>
-        <%= for i <- inventory do %>
           <Inventory>
             <SKU><%= i[:sku] %></SKU>
             <Quantity><%= i[:quantity] %></Quantity>
           </Inventory>
-        <% end %>
       </Message>
+      <% end %>
     </AmazonEnvelope>
     """
   end

@@ -8,15 +8,15 @@ defmodule Hyperion.Amazon.Templates.SubmitPriceFeed do
         <MerchantIdentifier><%= seller_id %></MerchantIdentifier>
       </Header>
       <MessageType>Price</MessageType>
+      <%= for {p, idx} <- prices do %>
       <Message>
-        <MessageID>1</MessageID>
-        <%= for p <- prices do %>
+        <MessageID><%= idx %></MessageID>
           <Price>
             <SKU><%= p[:code] %></SKU>
             <StandardPrice currency="<%= p[:retailprice]["currency"] %>"><%= p[:retailprice]["value"] / 100 %></StandardPrice>
           </Price>
-        <% end %>
       </Message>
+      <% end %>
     </AmazonEnvelope>
     """
   end

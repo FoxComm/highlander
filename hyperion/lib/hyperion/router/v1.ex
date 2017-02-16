@@ -215,7 +215,8 @@ defmodule Hyperion.Router.V1 do
 
       post do
         cfg = API.customer_id(conn) |> MWSAuthAgent.get
-        inventories = TemplateBuilder.submit_inventory_feed(params[:inventory], %{seller_id: cfg.seller_id})
+        inv_list = params[:inventory] |> Enum.with_index(1)
+        inventories = TemplateBuilder.submit_inventory_feed(inv_list, %{seller_id: cfg.seller_id})
 
         case MWSClient.submit_inventory_feed(inventories, cfg) do
           {:error, error} -> respond_with(conn, %{message: inspect(error)}, 422)
