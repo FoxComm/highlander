@@ -20,11 +20,11 @@ import styles from './option-list.css';
 import type { Option, OptionValue } from 'paragons/product';
 
 type Props = {
-  id: string,
+  id: number,
   option: ?Option,
   editOption: Function,
   deleteOption: Function,
-  confirmAction: (id: string|number, option: Option, deletingValue: ?OptionValue) => void,
+  confirmAction: (id: number, option: Option, deletingValue: ?OptionValue) => void,
 };
 
 type Value = {

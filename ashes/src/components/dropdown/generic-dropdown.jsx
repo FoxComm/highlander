@@ -18,7 +18,7 @@ export type DropdownItemType = [ValueType, string|Element<*>, bool];
 export type Props = {
   id?: string,
   dropdownValueId?: string,
-  name?: string,
+  name: string,
   value: ValueType,
   className?: string,
   listClassName?: string,
@@ -32,7 +32,7 @@ export type Props = {
   changeable?: bool,
   disabled?: bool,
   inputFirst?: bool,
-  renderDropdownInput?: Function,
+  renderDropdownInput?: () => Element<*>,
   renderNullTitle?: Function,
   renderPrepend?: Function,
   renderAppend?: Function,
@@ -63,6 +63,7 @@ export default class GenericDropdown extends Component {
     editable: false,
     inputFirst: true,
     dropdownProps: {},
+    name: '',
     value: '',
     detached: false,
   };
@@ -176,7 +177,7 @@ export default class GenericDropdown extends Component {
     );
   }
 
-  get dropdownInput() {
+  get dropdownInput(): Element<*> {
     const { name, placeholder, value, renderDropdownInput } = this.props;
     const actualValue = this.state.selectedValue;
     const title = this.findTitleByValue(actualValue, this.props) || this.renderNullTitle(value, placeholder);
@@ -241,7 +242,7 @@ export default class GenericDropdown extends Component {
   }
 
   @autobind
-  renderItems(): Element<*> {
+  renderItems() {
     const { children, emptyMessage } = this.props;
 
     if (_.isEmpty(children) && emptyMessage) {
@@ -263,7 +264,7 @@ export default class GenericDropdown extends Component {
     });
   }
 
-  get controls(): Element[] {
+  get controls(): Element<*>[] {
     const { inputFirst } = this.props;
 
     return createFragment({

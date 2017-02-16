@@ -17,6 +17,7 @@ import { actions } from '../../../modules/customers/items';
 
 type Customer = {
   id: number,
+  name: string,
 };
 
 type Actions = {
@@ -40,7 +41,6 @@ const tableColumns = [
   { field: 'cordReferenceNumber', text: 'Order' },
   { field: 'orderPlacedAt', text: 'Date/Time Order Placed', type: 'datetime' },
 ];
-
 
 /**
  * CustomerItems Component

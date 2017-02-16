@@ -172,6 +172,8 @@ export default class ObjectDetails extends Component {
     const renderName = `render${_.upperFirst(_.camelCase(description.type))}`;
     // $FlowFixMe: we don't need indexable signature here
     invariant(this[renderName], `There is no method for render ${description.type}.`);
+
+    // $FlowFixMe: call of computed property. Computed property/element cannot be called on
     return this[renderName](description, section);
   }
 

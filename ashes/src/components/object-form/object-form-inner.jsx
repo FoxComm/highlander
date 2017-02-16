@@ -341,7 +341,7 @@ export default class ObjectFormInner extends Component {
     const { attributes, schema } = props;
     const fieldsToRender = _.isEmpty(props.fieldsToRender) ? Object.keys(attributes) : props.fieldsToRender;
 
-    const renderedAttributes: Array = _.map(fieldsToRender, name => {
+    const renderedAttributes: Array<Element<*>> = _.map(fieldsToRender, name => {
       const attribute: Attribute = attributes[name];
       const attrSchema: ?AttrSchema = schema ? schema.properties[name] : null;
 

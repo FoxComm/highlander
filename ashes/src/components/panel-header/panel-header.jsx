@@ -1,7 +1,6 @@
-
 /* @flow */
 
-import React, { Element } from 'react';
+import React from 'react';
 import styles from './panel-header.css';
 
 type Props = {
@@ -11,10 +10,8 @@ type Props = {
   status?: string,
 };
 
-const PanelHeader = ({isOptional = false, showStatus = false, status, text}: Props) => {
-  const optional = isOptional
-    ? <span styleName="optional">(optional)</span>
-    : null;
+const PanelHeader = ({ isOptional = false, showStatus = false, status = '', text }: Props) => {
+  const optional = isOptional ? <span styleName="optional">(optional)</span> : null;
 
   let icon = null;
   if (showStatus) {

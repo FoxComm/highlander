@@ -163,21 +163,22 @@ export default class Accordion extends Component {
       return null;
     }
 
-    let titleElement: Element<*>;
+    let titleElement: Element<any>;
 
     if (editMode) {
       titleElement = (
         <div className="fc-form-field">
-          <input className={classNames(styles.input, {[styles.loading]: this.props.loading})}
-                 autoFocus
-                 type="text"
-                 onClick={this.onClick}
-                 onFocus={this.onFocus}
-                 // onBlur={this.endEdit}
-                 onChange={this.onChange}
-                 onKeyDown={this.keyDown}
-                 placeholder={placeholder}
-                 value={this.state.title}
+          <input
+            className={classNames(styles.input, {[styles.loading]: this.props.loading})}
+            autoFocus
+            type="text"
+            onClick={this.onClick}
+            onFocus={this.onFocus}
+            // onBlur={this.endEdit}
+            onChange={this.onChange}
+            onKeyDown={this.keyDown}
+            placeholder={placeholder}
+            value={this.state.title}
           />
         </div>
       );

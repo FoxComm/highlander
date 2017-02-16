@@ -25,7 +25,7 @@ type Props = {
   groups: Array<GroupType>;
   selectedGroupIds: Array<number>;
   dispatch: (action: any) => any;
-  parent?: String;
+  parent: string;
 };
 
 type State = {
@@ -35,6 +35,10 @@ type State = {
 
 class SelectCustomerGroups extends Component {
   props: Props;
+
+  static defaultProps = {
+    parent: '',
+  };
 
   state: State = {
     qualifyAll: true,
@@ -63,7 +67,7 @@ class SelectCustomerGroups extends Component {
   @autobind
   togglePopup() {
     const eventName = this.state.popupOpened ? 'click_popup_close' : 'click_popup_open';
-    trackEvent(`Customer groups(${this.props.parent || ''})`, eventName);
+    trackEvent(`Customer groups(${this.props.parent})`, eventName);
     this.setState({
       popupOpened: !this.state.popupOpened,
     });

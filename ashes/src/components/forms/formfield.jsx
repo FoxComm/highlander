@@ -38,7 +38,7 @@ type FormFieldProps = {
   labelClassName?: string;
   labelAtRight?: Element<*>|string;
   labelAfterInput?: boolean;
-  label?: Element<*>|string;
+  label?: string;
   validationLabel?: string;
   requiredMessage?: string;
   isDefined: (value: any) => boolean;

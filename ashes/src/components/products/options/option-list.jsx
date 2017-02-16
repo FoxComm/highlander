@@ -108,7 +108,7 @@ class OptionList extends Component {
   }
 
   @autobind
-  handleUpdateOption(id: string|number, option: Option, deletingValue: ?OptionValue): void {
+  handleUpdateOption(id: number, option: Option, deletingValue: ?OptionValue): void {
     let needConfirmation = false;
     let affectedSkus = [];
 
@@ -122,7 +122,6 @@ class OptionList extends Component {
       this.setState({
         deletingContext: {
           affectedSkus,
-          // $FlowFixMe: id is number here
           id,
           deletingValueContext: {
             option,
@@ -156,7 +155,7 @@ class OptionList extends Component {
   updateOption(id: string|number, option: Option): void {
     const { variants } = this.props;
 
-    const newVariants = id == 'new' ? [...variants, option] : assoc(variants, id, option);
+    const newVariants = id.toString() == 'new' ? [...variants, option] : assoc(variants, id, option);
 
     this.setState({
       editOption: null,

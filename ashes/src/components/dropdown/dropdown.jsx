@@ -25,6 +25,10 @@ const mapValues = (items: Array<DropdownItemType>): Array<ValueType> => items.ma
 export default class Dropdown extends Component {
   props: Props;
 
+  static defaultProps = {
+    name: '',
+  };
+
   @autobind
   buildInput(value: string|number, title: string, props: Props, handleToggleClick: Function) {
     if (value === null) value = '';
