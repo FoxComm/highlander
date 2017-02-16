@@ -17,12 +17,6 @@ object ReturnPayloads {
   case class ReturnCreatePayload(cordRefNum: String, returnType: Return.ReturnType)
 
   case class ReturnUpdateStatePayload(state: Return.State, reasonId: Option[Int] = None)
-      extends Validation[ReturnUpdateStatePayload] {
-
-    def validate: ValidatedNel[Failure, ReturnUpdateStatePayload] = {
-      Return.validateStateReason(state, reasonId).map(_ ⇒ this)
-    }
-  }
 
   /* Line item updater payloads */
 

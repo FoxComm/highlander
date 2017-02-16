@@ -2,6 +2,7 @@ package responses
 
 import java.time.Instant
 
+import models.Reason
 import models.account.Users
 import models.cord.Orders
 import models.customer.CustomersData
@@ -63,7 +64,7 @@ object ReturnResponse {
                   customer: Option[Customer] = None,
                   storeAdmin: Option[User] = None,
                   messageToCustomer: Option[String] = None,
-                  canceledReason: Option[Int] = None,
+                  canceledReasonId: Option[Int] = None,
                   createdAt: Instant,
                   updatedAt: Instant,
                   totals: Option[ReturnTotals])
@@ -156,7 +157,7 @@ object ReturnResponse {
          payments = payments,
          lineItems = lineItems,
          messageToCustomer = rma.messageToAccount,
-         canceledReason = rma.canceledReason,
+         canceledReasonId = rma.canceledReasonId,
          createdAt = rma.createdAt,
          updatedAt = rma.updatedAt,
          totals = totals)

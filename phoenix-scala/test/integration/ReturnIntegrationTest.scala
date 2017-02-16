@@ -22,6 +22,7 @@ import testutils.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
 import cats.implicits._
+import models.Reason.Cancellation
 
 class ReturnIntegrationTest
     extends IntegrationTestBase
@@ -68,19 +69,31 @@ class ReturnIntegrationTest
       }
 
       "successfully cancels Return with valid reason" in new Fixture {
-        val payload = ReturnUpdateStatePayload(state = Canceled, reasonId = reason.id.some)
+        val payload =
+          ReturnUpdateStatePayload(state = Canceled, reasonId = cancellationReason.id.some)
         returnsApi(rma.referenceNumber).update(payload).as[ReturnResponse.Root].state must === (
             Canceled)
       }
 
-      "Cancel state should be final " in new Fixture {
+      "fail if return reason has wrong type" in new Fixture {
+        assert(reason.reasonType != Cancellation)
+        val payload = ReturnUpdateStatePayload(state = Canceled, reasonId = reason.id.some)
         returnsApi(rma.referenceNumber)
-          .update(ReturnUpdateStatePayload(state = Canceled, reasonId = reason.id.some))
-          .as[ReturnResponse.Root]
-          .state must === (Canceled)
+          .update(payload)
+          .mustFailWith400(InvalidCancellationReasonFailure)
+      }
+
+      "Cancel state should be final " in new Fixture {
+        private val canceled = returnsApi(rma.referenceNumber)
+          .update(
+              ReturnUpdateStatePayload(state = Canceled, reasonId = cancellationReason.id.some))
+          .as[Root]
+
+        canceled.state must === (Canceled)
+        canceled.canceledReasonId must === (cancellationReason.id.some)
 
         returnsApi(rma.referenceNumber)
-          .update(ReturnUpdateStatePayload(state = Pending, reasonId = reason.id.some))
+          .update(ReturnUpdateStatePayload(state = Pending, reasonId = cancellationReason.id.some))
           .mustFailWith400(
               StateTransitionNotAllowed(Return, "Canceled", "Pending", rma.referenceNumber))
       }
@@ -89,7 +102,7 @@ class ReturnIntegrationTest
         returnsApi(rma.referenceNumber).get().as[ReturnResponse.Root].state must === (Pending)
 
         private def state(s: State) = {
-          ReturnUpdateStatePayload(state = s, reasonId = reason.id.some)
+          ReturnUpdateStatePayload(state = s, reasonId = cancellationReason.id.some)
         }
 
         returnsApi(rma.referenceNumber)
