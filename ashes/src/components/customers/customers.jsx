@@ -2,7 +2,7 @@
  * @flow
  */
 
-import { get, first, map } from 'lodash';
+import { get, map } from 'lodash';
 import { autobind } from 'core-decorators';
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
@@ -66,31 +66,28 @@ class Customers extends Component {
       [
         'Add To Group',
         this.handleAddToGroup,
-        'successfully added to group',
-        'could not be added to group'
+        'successfully added to group(s)',
+        'could not be added to group(s)'
       ],
     ];
   }
 
   @autobind
-  handleAddToGroup(_, customersIds) {
-    const { suggestedGroups, suggestState, actions, bulkActions: { addCustomersToGroup } } = this.props;
-
-    return (
-      <SearchGroupModal
-        isVisible={this.state.addToGroupModalShown}
-        onCancel={() => this.setState({ addToGroupModalShown: false })}
-        handleSave={(groups) => addCustomersToGroup(first(groups).id, customersIds)}
-        suggestGroups={actions.suggestGroups}
-        suggested={suggestedGroups}
-        suggestState={suggestState}
-      />
-    );
+  handleAddToGroup(_, customerIds) {
+    this.setState({
+      addToGroupModalShown: true,
+      customerIds,
+    });
   }
 
   @autobind
   handleSelectGroup(groups: Array<TCustomerGroup>) {
     const customers = this.state.customerIds;
+
+    const [[_, __, success, error]] = this.bulkActions;
+
+    this.props.bulkActions.reset();
+    this.props.bulkActions.setMessages({ success, error });
 
     this.setState({
         addToGroupModalShown: false,
@@ -101,10 +98,10 @@ class Customers extends Component {
     );
   }
 
-  renderBulkDetails(customerId) {
+  renderBulkDetails(customerName, customerId) {
     return (
       <span key={customerId}>
-        Customer <Link to="customer-details" params={{ customerId }}>{customerId}</Link>
+        Customer <Link to="customer-details" params={{ customerId }}>{customerName}</Link>
       </span>
     );
   }
@@ -135,6 +132,15 @@ class Customers extends Component {
             searchOptions={{singleSearch: true}}
           />
         </BulkActions>
+
+        <SearchGroupModal
+          isVisible={this.state.addToGroupModalShown}
+          onCancel={() => this.setState({ addToGroupModalShown: false })}
+          handleSave={this.handleSelectGroup}
+          suggestGroups={actions.suggestGroups}
+          suggested={suggestedGroups}
+          suggestState={suggestState}
+        />
       </div>
     );
   }

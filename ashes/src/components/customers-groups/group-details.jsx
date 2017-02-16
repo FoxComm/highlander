@@ -125,50 +125,21 @@ class GroupDetails extends Component {
     this.setState({ addCustomersModalShown: false });
   }
 
-  get header() {
-    const { group } = this.props;
-
-    return (
-      <header className={prefixed('header')}>
-        <div className={prefixed('title')}>
-          <h1 className="fc-title">
-            {group.name}&nbsp;
-            <span className={prefixed('count')}>
-              <TotalCounter />
-            </span>
-          </h1>
-          {group.groupType == 'manual' && <Button onClick={this.showAddCustomersModal}>Add Customers</Button>}
-          {group.groupType != 'template' && <PrimaryButton onClick={this.goToEdit}>Edit Group</PrimaryButton>}
-        </div>
-        <div className={prefixed('about')}>
-          <div>
-            <span className={prefixed('about__key')}>Type:&nbsp;</span>
-            <span className={prefixed('about__value')}>{_.capitalize(group.groupType)}</span>
-          </div>
-          <div>
-            <span className={prefixed('about__key')}>Created:&nbsp;</span>
-            <span className={prefixed('about__value')}>{moment(group.createdAt).format('DD/MM/YYYY HH:mm')}</span>
-          </div>
-        </div>
-      </header>
-    );
-  }
-
-  @autobind
-  renderCriterion([field, operator, value]: Array<Object>, index?: number) {
-    return (
-      <Criterion
-        key={index}
-        field={field}
-        operator={operator}
-        value={value}
-      />
-    );
+  get bulkActions() {
+    return [
+      [
+        'Delete From Group',
+        this.handleDeleteCustomers,
+        'successfully deleted from group',
+        'could not be deleted from group'
+      ],
+    ];
   }
 
   @autobind
   handleCustomersSave(ids: Array<number>) {
     const { group, addCustomersToGroup } = this.props;
+
     this.setState({ addCustomersModalShown: false }, () => {
       addCustomersToGroup(group.id, ids).then(this.refreshGroupData);
     });
@@ -191,7 +162,22 @@ class GroupDetails extends Component {
     );
   }
 
-  get criteria() {
+  @autobind
+  handleDeleteCustomers(allChecked, toggledIds) {
+    const { deleteCustomersFromGroup } = this.props.bulkActions;
+
+    return (
+      <BulkModal
+        title="Are you sure?"
+        label="SURE???"
+        onConfirm={() => {
+          deleteCustomersFromGroup(this.props.group.id, toggledIds).then(this.refreshGroupData);
+        }}
+      />
+    );
+  }
+
+  get criteria(): ?Element {
     const { mainCondition, conditions, groupType } = this.props.group;
 
     if (groupType != GROUP_TYPE_DYNAMIC) return null;
@@ -228,6 +214,18 @@ class GroupDetails extends Component {
     this.props.customersListActions.fetch();
   }
 
+  @autobind
+  renderCriterion([field, operator, value]: Array<Object>, index?: number): Element {
+    return (
+      <Criterion
+        key={index}
+        field={field}
+        operator={operator}
+        value={value}
+      />
+    );
+  }
+
   get renderRow(): Function {
     return (row, index, columns, params) => (
       <MultiSelectRow
@@ -247,6 +245,35 @@ class GroupDetails extends Component {
       <span key={customerId}>
         Customer <Link to="customer-details" params={{ customerId }}>{customerId}</Link>
       </span>
+    );
+  }
+
+  get header() {
+    const { group } = this.props;
+
+    return (
+      <header className={prefixed('header')}>
+        <div className={prefixed('title')}>
+          <h1 className="fc-title">
+            {group.name}&nbsp;
+            <span className={prefixed('count')}>
+              <TotalCounter />
+            </span>
+          </h1>
+          {group.groupType == 'manual' && <Button onClick={this.showAddCustomersModal}>Add Customers</Button>}
+          {group.groupType != 'template' && <PrimaryButton onClick={this.goToEdit}>Edit Group</PrimaryButton>}
+        </div>
+        <div className={prefixed('about')}>
+          <div>
+            <span className={prefixed('about__key')}>Type:&nbsp;</span>
+            <span className={prefixed('about__value')}>{_.capitalize(group.groupType)}</span>
+          </div>
+          <div>
+            <span className={prefixed('about__key')}>Created:&nbsp;</span>
+            <span className={prefixed('about__value')}>{moment(group.createdAt).format('DD/MM/YYYY HH:mm')}</span>
+          </div>
+        </div>
+      </header>
     );
   }
 
