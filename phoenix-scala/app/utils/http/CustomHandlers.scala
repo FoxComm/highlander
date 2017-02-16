@@ -18,8 +18,6 @@ object CustomHandlers {
 
   private val defaultRejectionHandler = RejectionHandler.default
 
-  private val isProduction = FoxConfig.environment == FoxConfig.Production
-
   private def errorsJson(msg: String): String = json("errors" → Seq(msg))
 
   private def errorsJsonEntity(msg: String): ResponseEntity =
@@ -49,7 +47,7 @@ object CustomHandlers {
       }
       .result()
 
-  def jsonExceptionHandler: ExceptionHandler = ExceptionHandler {
+  def jsonExceptionHandler(implicit env: Environment): ExceptionHandler = ExceptionHandler {
     case IllegalRequestException(info, status) ⇒
       ctx ⇒
         {
@@ -57,7 +55,7 @@ object CustomHandlers {
                           ctx.request,
                           info.formatPretty,
                           status)
-          ctx.complete(HttpResponse(status, entity = errorsJsonEntity(info.format(isProduction))))
+          ctx.complete(HttpResponse(status, entity = errorsJsonEntity(info.format(env.isProd))))
         }
       case e: IllegalArgumentException ⇒
       ctx ⇒
@@ -72,7 +70,7 @@ object CustomHandlers {
       case NonFatal(e) ⇒
       ctx ⇒
         {
-          val errMsg = if (isProduction) "There was an internal server error." else e.getMessage
+          val errMsg = if (env.isProd) "There was an internal server error." else e.getMessage
           ctx.log.warning("Error {} during processing of request {}", e, ctx.request)
           ctx.complete(HttpResponse(InternalServerError, entity = errorsJsonEntity(errMsg)))
         }
