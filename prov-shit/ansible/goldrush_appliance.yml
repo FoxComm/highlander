@@ -33,6 +33,7 @@
         stock_items_consumer: "{{ lookup('env', 'DOCKER_TAG_STOCK_ITEMS_CONSUMER') | default('master', true) }}"
         storefront_td: "{{ lookup('env', 'DOCKER_TAG_STOREFRONT_TOPDRAWER') | default('master', true) }}"
         storefront_tpg: "{{ lookup('env', 'DOCKER_TAG_STOREFRONT_TPG') | default('master', true) }}"
+        hyperion: "{{ lookup('env', 'DOCKER_TAG_HYPERION') | default('master', true) }}"
         bernardo: "{{ lookup('env', 'DOCKER_TAG_BERNARDO') | default('master', true) }}"
         henhouse: "{{ lookup('env', 'DOCKER_TAG_HENHOUSE') | default('master', true) }}"
         eggcrate: "{{ lookup('env', 'DOCKER_TAG_EGGCRATE') | default('master', true) }}"
@@ -46,7 +47,7 @@
     is_amigo: true
     mesos_quorum: 1
     with_base_seeds: true
-    url_prefix_perfect_gourmet: "/perfect-gourmet"
+    url_prefix_perfectgourmet: "/perfect-gourmet"
     url_prefix_topdrawer: "/top-drawer"
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
   pre_tasks:

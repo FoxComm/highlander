@@ -19,6 +19,7 @@
   with_items:
     - "{{phoenix_db_name}}"
     - "{{middlewarehouse_db_name}}"
+    - "{{hyperion_db_name}}"
     - "{{marketplace_db_name}}"
   when: item != "{{marketplace_db_name}}" or with_marketplace
 
@@ -40,36 +41,30 @@
     - "'{{user}}'"
     - phoenix
     - middlewarehouse
+    - hyperion
     - marketplace
     - ic
   when: item != "marketplace" or with_marketplace
 
-- name: Create Phoenix Directory
-  file: path={{phoenix_dir}} state=directory owner="{{user}}"
+- name: Create Directories
+  file: path={{item}} state=directory owner="{{user}}"
+  with_items:
+    - "{{phoenix_dir}}"
+    - "{{middlewarehouse_dir}}"
+    - "{{hyperion_dir}}"
 
-- name: Create Middlewarehouse Directory
-  file: path={{middlewarehouse_dir}} state=directory owner="{{user}}"
-
-- name: Synchronize Phoenix SQL
-  synchronize: src="{{phoenix_src}}/sql" dest="{{phoenix_dir}}" delete=yes recursive=yes
-
-- name: Synchronize Middlewarehouse SQL
-  synchronize: src="{{middlewarehouse_src}}/sql" dest="{{middlewarehouse_dir}}" delete=yes recursive=yes
+- name: Synchronize SQL
+  synchronize: src={{item.source}} dest={{item.destination}} delete=yes recursive=yes
+  with_items:
+    - { source: "{{phoenix_src}}/sql", destination: "{{phoenix_dir}}" }
+    - { source: "{{middlewarehouse_src}}/sql", destination: "{{middlewarehouse_dir}}" }
+    - { source: "{{hyperion_src}}/sql", destination: "{{hyperion_dir}}" }
 
 - name: Delete Phoenix Log Directory
   file: path="{{phoenix_dir}}/log" state=absent
 
 - name: Create Phoenix Log Directory
-  file: path="{{phoenix_dir}}/log" state=directory owner="{{user}}"  mode="0777"
-
-- name: Setup Update Materialized Views SQL
-  copy: src=update_materialized_views.sql dest={{update_materialized_views_sql}}
-
-- name: Setup Materialized Views Command
-  template: src=update_materialized_views_forever.sh dest="{{usr_local}}/bin/update_materialized_views_forever.sh" mode="u+x,g+x,o+x"
-
-- name: Setup Materialized Views Service
-  copy: src=materialized_views.service dest="{{dest_services}}/materialized_views.service"
+  file: path="{{phoenix_dir}}/log" state=directory owner="{{user}}" mode="0777"
 
 - name: Setup Flyway Config
   template: src=flyway.conf dest="{{phoenix_dir}}/sql/flyway.conf" mode="u+x,g+x,o+x"
@@ -93,6 +88,25 @@
   shell: FLYWAY_HOME={{flyway_dir}} {{flyway}} migrate
   args:
     chdir: "{{middlewarehouse_dir}}"
+
+- name: Clean Hyperion Database
+  shell: FLYWAY_HOME={{flyway_dir}} {{flyway}} clean
+  args:
+    chdir: "{{hyperion_dir}}"
+
+- name: Migrate Hyperion Database
+  shell: FLYWAY_HOME={{flyway_dir}} {{flyway}} migrate
+  args:
+    chdir: "{{hyperion_dir}}"
+
+- name: Setup Update Materialized Views SQL
+  copy: src=update_materialized_views.sql dest={{update_materialized_views_sql}}
+
+- name: Setup Materialized Views Command
+  template: src=update_materialized_views_forever.sh dest="{{usr_local}}/bin/update_materialized_views_forever.sh" mode="u+x,g+x,o+x"
+
+- name: Setup Materialized Views Service
+  copy: src=materialized_views.service dest="{{dest_services}}/materialized_views.service"
 
 - name: Setup Cron to Refresh Customers Ranking View
   cron: name="refresh customer ranking" minute="*/5" job="{{usr_local}}/bin/refresh_customer_ranks.sh > /dev/null"
