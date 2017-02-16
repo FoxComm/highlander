@@ -1259,7 +1259,7 @@ braces@^1.8.2:
   dependencies:
     expand-range "^1.8.1"
     preserve "^0.2.0"
-    repeat-Element<*>"^1.1.2"
+    repeat-element "^1.1.2"
 
 brorand@^1.0.1:
   version "1.0.7"
@@ -2539,13 +2539,13 @@ draft-js-import-html@^0.1.10:
   version "0.1.10"
   resolved "https://registry.yarnpkg.com/draft-js-import-html/-/draft-js-import-html-0.1.10.tgz#9264b99dafa489f8fd737bcd7538b0f03b82664c"
   dependencies:
-    draft-js-import-Element<*>"^0.2.0"
+    draft-js-import-element "^0.2.0"
 
 draft-js-import-markdown@^0.1.6:
   version "0.1.7"
   resolved "https://registry.yarnpkg.com/draft-js-import-markdown/-/draft-js-import-markdown-0.1.7.tgz#7c961fd13e515940a9df7cf7a3c3762bf114923d"
   dependencies:
-    draft-js-import-Element<*>"^0.2.0"
+    draft-js-import-element "^0.2.0"
     synthetic-dom "^0.1.4"
 
 draft-js-utils@^0.1.5:
@@ -3139,7 +3139,7 @@ fill-range@^2.1.0:
     is-number "^2.1.0"
     isobject "^2.0.0"
     randomatic "^1.1.3"
-    repeat-Element<*>"^1.1.2"
+    repeat-element "^1.1.2"
     repeat-string "^1.5.2"
 
 find-index@^0.1.1:
@@ -8407,8 +8407,8 @@ whatwg-fetch@>=0.10.0:
   resolved "https://registry.yarnpkg.com/whatwg-fetch/-/whatwg-fetch-2.0.2.tgz#fe294d1d89e36c5be8b3195057f2e4bc74fc980e"
 
 whatwg-url@^4.3.0:
-  version "4.3.0"
-  resolved "https://registry.yarnpkg.com/whatwg-url/-/whatwg-url-4.3.0.tgz#92aaee21f4f2a642074357d70ef8500a7cbb171a"
+  version "4.4.0"
+  resolved "https://registry.yarnpkg.com/whatwg-url/-/whatwg-url-4.4.0.tgz#594f95781545c13934a62db40897c818cafa2e04"
   dependencies:
     tr46 "~0.0.3"
     webidl-conversions "^3.0.0"
