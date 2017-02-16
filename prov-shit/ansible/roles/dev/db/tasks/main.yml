@@ -51,6 +51,7 @@
 
 - name: Synchronize SQL
   synchronize: src={{item.source}} dest={{item.destination}} delete=yes recursive=yes
+  with_items:
     - { source: "{{phoenix_src}}/sql", destination: "{{phoenix_dir}}" }
     - { source: "{{middlewarehouse_src}}/sql", destination: "{{middlewarehouse_dir}}" }
     - { source: "{{hyperion_src}}/sql", destination: "{{hyperion_dir}}" }
