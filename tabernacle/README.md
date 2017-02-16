@@ -1,4 +1,4 @@
-# prov-shit
+# Tabernacle
 
 All of our DevOps tools for deploying the application to both development and production.
 

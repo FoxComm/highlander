@@ -40,7 +40,7 @@ npm install
 
 ### Get certificate to communicate with Phoenix
 
-You can clone `prov-shit` repository and use `${PROV_SHIT_HOME}/ansible/roles/secret_keys/files/public_key.pem`. It is encrypted by ansible and you'll have to decrypt it. Add it to `.env` file: `export PHOENIX_PUBLIC_KEY=${PATH_TO_KEY}`.
+You can clone `tabernacle` repository and use `tabernacle/ansible/roles/secret_keys/files/public_key.pem`. It is encrypted by ansible and you'll have to decrypt it. Add it to `.env` file: `export PHOENIX_PUBLIC_KEY=${PATH_TO_KEY}`.
 
 or just add `export DEV_SKIP_JWT_VERIFY=1` to `.env` file for non-production usage.
 
