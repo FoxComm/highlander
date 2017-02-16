@@ -5,7 +5,6 @@ import type { HTMLElement } from 'types';
 import styles from './list-item.css';
 import { browserHistory } from 'react-router';
 import _ from 'lodash';
-import TrackingPixel from '../tracking-pixel/tracking-pixel';
 
 import Currency from 'ui/currency';
 
@@ -46,14 +45,6 @@ class ListItem extends React.Component {
 
     return (
       <div styleName="list-item" onClick={click}>
-        <TrackingPixel
-          url="/api/v1/hal"
-          channel={1}
-          subject={1} 
-          verb='list'
-          obj='product'
-          objId={productId}
-        />
         <div styleName="preview">
           {image}
         </div>
