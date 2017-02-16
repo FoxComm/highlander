@@ -1,4 +1,6 @@
+import path from 'path';
 import faker from 'faker';
+import testImageBase64 from './assets/image.base64';
 
 const randomDigit = () => faker.random.number(9).toString();
 const randomMonth = () => faker.random.number({ min: 1, max: 12 });
@@ -13,6 +15,7 @@ const $ = {
   adminOrg: 'tenant',
   customerOrg: 'merchant',
   testCardNumber: '4242424242424242',
+  testImagePath: path.resolve('./assets/image.jpg'),
   randomUserCredentials: () => ({
     email: `${Date.now()}@bvt.com`,
     name: faker.name.findName(),
@@ -106,7 +109,68 @@ const $ = {
           },
         },
       },
-      albums: [],
+    };
+  },
+  randomProductPayload: () => {
+    const now = Date.now();
+    return {
+      attributes: {
+        metaDescription: {
+          t: 'string',
+          v: null,
+        },
+        metaTitle: {
+          t: 'string',
+          v: null,
+        },
+        url: {
+          t: 'string',
+          v: null,
+        },
+        description: {
+          t: 'richText',
+          v: `<p>${faker.lorem.sentence()}</p>`,
+        },
+        title: {
+          t: 'string',
+          v: `P-BVT-${now}`,
+        },
+        tags: {
+          t: 'tags',
+          v: ['bvt'],
+        },
+        activeFrom: {
+          v: '2016-07-27T23:47:27.518Z',
+          t: 'datetime',
+        },
+        activeTo: {
+          v: null,
+          t: 'datetime',
+        },
+      },
+      skus: [$.randomSkuPayload()],
+    };
+  },
+  randomImagePayload: () => ({
+    src: faker.random.arrayElement([
+      'https://s3-us-west-1.amazonaws.com/foxcomm-images/albums/1/540/image.jpg',
+      testImageBase64,
+    ]),
+    alt: faker.lorem.word(),
+    title: faker.lorem.word(),
+  }),
+  randomAlbumPayload: ({ minImages, maxImages } = {}) => {
+    const images = [];
+    const imageCount = faker.random.number({
+      min: minImages || 0,
+      max: maxImages || 3,
+    });
+    for (let i = 0; i < imageCount; i += 1) {
+      images.push($.randomImagePayload());
+    }
+    return {
+      name: `A-${Date.now()}`,
+      images,
     };
   },
 };

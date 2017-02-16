@@ -16,7 +16,7 @@ test('Can create a new SKU', async (t) => {
   t.truthy(newSku.context);
   t.is(newSku.context.name, 'default');
   t.deepEqual(newSku.attributes, payload.attributes);
-  t.deepEqual(newSku.albums, payload.albums);
+  t.deepEqual(newSku.albums, payload.albums || []);
 });
 
 test('Can view SKU details', async (t) => {
@@ -37,7 +37,7 @@ test('Can update SKU details', async (t) => {
   t.truthy(updatedSku.context);
   t.is(updatedSku.context.name, 'default');
   t.deepEqual(updatedSku.attributes, payload.attributes);
-  t.deepEqual(updatedSku.albums, payload.albums);
+  t.deepEqual(updatedSku.albums, payload.albums || []);
 });
 
 test('Can archive a SKU', async (t) => {

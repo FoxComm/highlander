@@ -16,6 +16,13 @@ const endpoints = {
   skus: context => `/v1/skus/${context}`,
   sku: (context, skuCode) => `/v1/skus/${context}/${skuCode}`,
   skuInventory: skuCode => `/v1/inventory/summary/${skuCode}`,
+  products: context => `/v1/products/${context}`,
+  product: (context, productId) => `/v1/products/${context}/${productId}`,
+  productAlbums: (context, productId) => `/v1/products/${context}/${productId}/albums`,
+  productAlbumPosition: (context, productId) => `/v1/products/${context}/${productId}/albums/position`,
+  albums: context => `/v1/albums/${context}`,
+  album: (context, albumId) => `/v1/albums/${context}/${albumId}`,
+  albumImages: (context, albumId) => `/v1/albums/${context}/${albumId}/images`,
   notes: (objectType, objectId) => `/v1/notes/${objectType}/${objectId}`,
   note: (objectType, objectId, noteId) => `/v1/notes/${objectType}/${objectId}/${noteId}`,
   // dev
@@ -121,6 +128,63 @@ class Skus {
   }
 }
 
+class Products {
+  constructor(api) {
+    this.api = api;
+  }
+  create(context, productPayload) {
+    return this.api.post(endpoints.products(context), productPayload);
+  }
+  one(context, productId) {
+    return this.api.get(endpoints.product(context, productId));
+  }
+  update(context, productId, productPayload) {
+    return this.api.patch(endpoints.product(context, productId), productPayload);
+  }
+  archive(context, productId) {
+    return this.api.delete(endpoints.product(context, productId));
+  }
+}
+
+class ProductAlbums {
+  constructor(api) {
+    this.api = api;
+  }
+  list(context, productId) {
+    return this.api.get(endpoints.productAlbums(context, productId));
+  }
+  create(context, productId, albumPayload) {
+    return this.api.post(endpoints.productAlbums(context, productId), albumPayload);
+  }
+  updatePosition(context, productId, updateAlbumPositionPayload) {
+    return this.api.post(endpoints.productAlbumPosition(context, productId), updateAlbumPositionPayload);
+  }
+}
+
+class Albums {
+  constructor(api) {
+    this.api = api;
+  }
+  create(context, albumPayload) {
+    return this.api.post(endpoints.albums(context), albumPayload);
+  }
+  one(context, albumId) {
+    return this.api.get(endpoints.album(context, albumId));
+  }
+  update(context, albumId, albumPayload) {
+    return this.api.patch(endpoints.album(context, albumId), albumPayload);
+  }
+  archive(context, albumId) {
+    return this.api.delete(endpoints.album(context, albumId));
+  }
+  uploadImages(context, albumId, images) {
+    return images.reduce((req, file) => req.attach('upload-file', file),
+        this.api.agent.post(`${API_BASE_URL}/api/${endpoints.albumImages(context, albumId)}`))
+      .withCredentials()
+      .then(res => res.body);
+  }
+}
+
 class Notes {
   constructor(api) {
     this.api = api;
@@ -154,6 +218,9 @@ export default class Api extends FoxCommApi {
     this.customerStoreCredit = new CustomerStoreCredit(this);
     this.customerGroups = new CustomerGroups(this);
     this.skus = new Skus(this);
+    this.products = new Products(this);
+    this.productAlbums = new ProductAlbums(this);
+    this.albums = new Albums(this);
     this.notes = new Notes(this);
     this.dev = new Dev(this);
   }

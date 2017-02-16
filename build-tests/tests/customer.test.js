@@ -3,6 +3,7 @@ import testNotes from './testNotes';
 import Api from '../helpers/Api';
 import $ from '../payloads';
 import isDate from '../helpers/isDate';
+import isArray from '../helpers/isArray';
 
 test('Can create a new customer', async (t) => {
   const api = Api.withCookies();
@@ -40,7 +41,7 @@ test('Can list shipping addresses', async (t) => {
   const credentials = $.randomUserCredentials();
   const newCustomer = await api.customers.create(credentials);
   const addresses = await api.customerAddresses.list(newCustomer.id);
-  t.is(addresses.constructor.name, 'Array');
+  t.truthy(isArray(addresses));
 });
 
 test('Can add a new shipping address', async (t) => {
@@ -103,7 +104,7 @@ test('Can list customer\'s credit cards', async (t) => {
   const credentials = $.randomUserCredentials();
   const newCustomer = await api.customers.create(credentials);
   const creditCards = await api.customerCreditCards.list(newCustomer.id);
-  t.is(creditCards.constructor.name, 'Array');
+  t.truthy(isArray(creditCards));
 });
 
 test('Can add customer\'s credit card', async (t) => {
@@ -165,7 +166,7 @@ test('Can list customer groups', async (t) => {
   const api = Api.withCookies();
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const customerGroups = await api.customerGroups.list();
-  t.is(customerGroups.constructor.name, 'Array');
+  t.truthy(isArray(customerGroups));
 });
 
 testNotes({
