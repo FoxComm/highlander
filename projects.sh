@@ -20,10 +20,7 @@ set -ue
 
 # define buildable projects array
 PROJECTS=(
-    'api-docs'
-    'api-js'
     'ashes'
-    'engineering-wiki'
     'firebrand'
     'green-river'
     'isaac'
