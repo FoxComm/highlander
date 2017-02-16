@@ -15,36 +15,36 @@ upstream eggcrate {
 }
 
 upstream search {
-  {{ '{{' }} range service "elasticsearch" {{ '}}'}} server {{ '{{'}} .Address {{ '}}' }}:{{ '{{' }} .Port {{ '}}' }} max_fails=10 fail_timeout=30s weight=1;
-  {{ '{{' }} else {{ '}}' }} server {{search_server_http}} fail_timeout=30s max_fails=10; {{ '{{' }} end {{ '}}' }}
+  << range service "elasticsearch" >> server << .Address >>:<< .Port >> max_fails=10 fail_timeout=30s weight=1;
+  << else >> server {{search_server_http}} fail_timeout=30s max_fails=10; << end >>
 }
 
 # We use port 9090 for phoenix
 upstream phoenix {
-  {{ '{{' }} range service "phoenix" {{ '}}'}} server {{ '{{'}} .Address {{ '}}' }}:9090 max_fails=10 fail_timeout=30s weight=1;
-  {{ '{{' }} else {{ '}}' }} server {{phoenix_server}} fail_timeout=30s max_fails=10; {{ '{{' }} end {{ '}}' }}
+  << range service "phoenix" >> server << .Address >>:9090 max_fails=10 fail_timeout=30s weight=1;
+  << else >> server {{phoenix_server}} fail_timeout=30s max_fails=10; << end >>
 }
 
 upstream isaac {
-  {{ '{{' }} range service "isaac" {{ '}}'}} server {{ '{{'}} .Address {{ '}}' }}:{{ '{{' }} .Port {{ '}}' }} max_fails=10 fail_timeout=30s weight=1;
-  {{ '{{' }} else {{ '}}' }} server {{isaac_server}} fail_timeout=30s max_fails=10; {{ '{{' }} end {{ '}}' }}
+  << range service "isaac" >> server << .Address >>:<< .Port >> max_fails=10 fail_timeout=30s weight=1;
+  << else >> server {{isaac_server}} fail_timeout=30s max_fails=10; << end >>
 }
 
 # We use port 9292 for middlewarehouse
 upstream middlewarehouse {
-  {{ '{{' }} range service "middlewarehouse" {{ '}}'}} server {{ '{{'}} .Address {{ '}}' }}:9292 max_fails=10 fail_timeout=30s weight=1;
-  {{ '{{' }} else {{ '}}' }} server {{middlewarehouse_server}} fail_timeout=30s max_fails=10; {{ '{{' }} end {{ '}}' }}
+  << range service "middlewarehouse" >> server << .Address >>:9292 max_fails=10 fail_timeout=30s weight=1;
+  << else >> server {{middlewarehouse_server}} fail_timeout=30s max_fails=10; << end >>
 }
 
 # We use port 4002 for solomon
 upstream sol {
-  {{ '{{' }} range service "solomon" {{ '}}'}} server {{ '{{'}} .Address {{ '}}' }}:4002 max_fails=10 fail_timeout=30s weight=1;
-  {{ '{{' }} else {{ '}}' }} server {{solomon_server}} fail_timeout=30s max_fails=10; {{ '{{' }} end {{ '}}' }}
+  << range service "solomon" >> server << .Address >>:4002 max_fails=10 fail_timeout=30s weight=1;
+  << else >> server {{solomon_server}} fail_timeout=30s max_fails=10; << end >>
 }
 
 upstream ashes {
-  {{ '{{' }} range service "ashes" {{ '}}'}} server {{ '{{'}} .Address {{ '}}' }}:{{ '{{' }} .Port {{ '}}' }} max_fails=10 fail_timeout=30s weight=1;
-  {{ '{{' }} else {{ '}}' }} server {{ashes_server}} fail_timeout=30s max_fails=10; {{ '{{' }} end {{ '}}' }}
+  << range service "ashes" >> server << .Address >>:<< .Port >> max_fails=10 fail_timeout=30s weight=1;
+  << else >> server {{ashes_server}} fail_timeout=30s max_fails=10; << end >>
 }
 
 {% if is_appliance %}

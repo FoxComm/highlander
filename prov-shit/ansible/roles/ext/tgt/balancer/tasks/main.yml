@@ -3,6 +3,9 @@
 - name: Install Consul Template Service
   template: src=tgt_consul_template.service dest="{{dest_services}}/tgt_consul_template.service"
 
+- name: Copy Consul Template Config File
+  template: src=consul_template.conf dest="{{consul_data_dir}}/tgt_consul_template.conf"
+
 - name: Install Service Locations Upstreams
   template: src=tgt_service_locations.j2 dest=/etc/nginx/tgt_service_locations.conf
 
