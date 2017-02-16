@@ -11,7 +11,9 @@ import akka.http.scaladsl.server.directives.RespondWithDirectives.respondWithHea
 import akka.http.scaladsl.server.directives.SecurityDirectives.AuthenticationResult
 import akka.http.scaladsl.server.directives.{AuthenticationDirective, AuthenticationResult}
 
-import cats.data.Xor
+import cats._
+import cats.data._
+import cats.implicits._
 import failures.AuthFailures._
 import failures._
 import models.account._
@@ -108,7 +110,8 @@ object Authenticator {
                    .findByIdAndRatchet(token.id, token.ratchet)
                    .mustFindOr(AuthFailed("account not found"))
         user ← * <~ Users.mustFindByAccountId(token.id)
-      } yield AuthData[User](token, user, account)).run().map {
+      } yield
+        AuthData[User](token, user, account)).runDBIO.runEmptyA.value.map { // TODO: rethink discarding warnings here @michalrus
         case Xor.Right(data) ⇒ AuthenticationResult.success(data)
         case Xor.Left(f)     ⇒ AuthenticationResult.failWithChallenge(FailureChallenge(realm, f))
       }
@@ -121,10 +124,11 @@ object Authenticator {
         account ← * <~ Accounts.mustFindById404(user.accountId)
         claims  ← * <~ AccountManager.getClaims(user.accountId, guestCreateContext.scopeId)
       } yield
-        AuthData[User](UserToken.fromUserAccount(user, account, claims),
-                       user,
-                       account,
-                       isGuest = true)).run().map {
+        AuthData[User](
+            UserToken.fromUserAccount(user, account, claims),
+            user,
+            account,
+            isGuest = true)).runDBIO.runEmptyA.value.map { // TODO: rethink discarding warnings here @michalrus
         case Xor.Right(data) ⇒ AuthenticationResult.success(data)
         case Xor.Left(f)     ⇒ AuthenticationResult.failWithChallenge(FailureChallenge(realm, f))
       }
@@ -230,8 +234,7 @@ object Authenticator {
   }
 
   def authenticate(payload: LoginPayload)(implicit ec: EC, db: DB): Result[Route] = {
-
-    val tokenResult = (for {
+    val tokenResult = for {
       organization ← * <~ Organizations.findByName(payload.org).mustFindOr(LoginFailed)
       user         ← * <~ Users.findByEmail(payload.email.toLowerCase).mustFindOneOr(LoginFailed)
       _            ← * <~ user.mustNotBeMigrated
@@ -251,11 +254,12 @@ object Authenticator {
       claimSet     ← * <~ AccountManager.getClaims(account.id, organization.scopeId)
       _            ← * <~ validateClaimSet(claimSet)
       checkedToken ← * <~ UserToken.fromUserAccount(user, account, claimSet)
-    } yield checkedToken).run()
+    } yield checkedToken
 
-    tokenResult.map(_.flatMap { token ⇒
-      authTokenLoginResponse(token)
-    })
+    for {
+      token ← tokenResult.runDBIO
+      route ← ResultT.fromXor(authTokenLoginResponse(token))
+    } yield route
   }
 
   //A user must have at least some role in an organization to login under that

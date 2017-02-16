@@ -12,11 +12,11 @@ import slick.profile.SqlAction
 import utils.aliases.EC
 
 object * {
-  def <~[A](v: DBIO[Failures Xor A]): DbResultT[A] =
-    StateT(s ⇒ XorT(Monad[DBIO].map(v)((s, _))))
+  def <~[A](v: DBIO[Failures Xor A])(implicit M: Monad[DBIO]): DbResultT[A] =
+    StateT(s ⇒ XorT(M.map(v)((s, _)))) // FIXME: why can’t we use v.map here? @michalrus
 
   def <~[A](v: SqlAction[A, NoStream, Effect.All])(implicit ec: EC): DbResultT[A] =
-    DbResultT(v.map(Xor.right))
+    <~(v.map(Xor.right))
 
   def <~[A](v: DBIO[A])(implicit ec: EC): DbResultT[A] =
     DbResultT.fromF(v)
@@ -24,8 +24,8 @@ object * {
   def <~[A](v: Failures Xor A)(implicit ec: EC): DbResultT[A] =
     DbResultT.fromXor(v)
 
-  def <~[A](v: Future[Failures Xor A]): DbResultT[A] =
-    StateT(s ⇒ XorT(Monad[DBIO].map(DBIO.from(v))((s, _))))
+  def <~[A](v: Future[Failures Xor A])(implicit M: Monad[DBIO]): DbResultT[A] =
+    StateT(s ⇒ XorT(M.map(DBIO.from(v))((s, _)))) // FIXME: why can’t we use v.map here? @michalrus
 
   def <~[A](v: Future[A])(implicit ec: EC): DbResultT[A] =
     DbResultT.fromF(DBIO.from(v))

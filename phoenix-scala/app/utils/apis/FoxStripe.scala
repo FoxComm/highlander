@@ -59,8 +59,8 @@ class FoxStripe(stripe: StripeWrapper)(implicit ec: EC) extends FoxStripeApi {
       address: Address): Result[(StripeCustomer, StripeCard)] = {
     def existingCustomer(id: String): ResultT[(StripeCustomer, StripeCard)] = {
       for {
-        cust ← ResultT(stripe.findCustomer(id))
-        card ← ResultT(stripe.createCard(cust, source))
+        cust ← stripe.findCustomer(id)
+        card ← stripe.createCard(cust, source)
       } yield (cust, card)
     }
 
@@ -71,12 +71,12 @@ class FoxStripe(stripe: StripeWrapper)(implicit ec: EC) extends FoxStripeApi {
         ) ++ source
 
       for {
-        cust ← ResultT(stripe.createCustomer(params))
-        card ← ResultT(stripe.getCustomersOnlyCard(cust))
+        cust ← stripe.createCustomer(params)
+        card ← stripe.getCustomersOnlyCard(cust)
       } yield (cust, card)
     }
 
-    stripeCustomerId.fold(newCustomer)(existingCustomer).value
+    stripeCustomerId.fold(newCustomer)(existingCustomer)
   }
 
   def authorizeAmount(customerId: String,
@@ -115,20 +115,20 @@ class FoxStripe(stripe: StripeWrapper)(implicit ec: EC) extends FoxStripeApi {
       stripe.updateCard(stripeCard, params)
     }
 
-    (for {
-      stripeCard ← ResultT(getCard(cc.gatewayCustomerId, cc.gatewayCardId))
-      updated    ← ResultT(update(stripeCard))
-    } yield updated).value
+    for {
+      stripeCard ← getCard(cc.gatewayCustomerId, cc.gatewayCardId)
+      updated    ← update(stripeCard)
+    } yield updated
   }
 
   private def getCard(gatewayCustomerId: String, gatewayCardId: String): Result[StripeCard] =
     stripe.findCardByCustomerId(gatewayCustomerId, gatewayCardId)
 
   def deleteCard(cc: CreditCard): Result[DeletedCard] = {
-    (for {
-      stripeCard ← ResultT(getCard(cc.gatewayCustomerId, cc.gatewayCardId))
-      updated    ← ResultT(stripe.deleteCard(stripeCard))
-    } yield updated).value
+    for {
+      stripeCard ← getCard(cc.gatewayCustomerId, cc.gatewayCardId)
+      updated    ← stripe.deleteCard(stripeCard)
+    } yield updated
   }
 
 }

@@ -33,15 +33,17 @@ class StripeWrapper extends StripeApiWrapper with LazyLogging {
   def findCardByCustomerId(gatewayCustomerId: String, gatewayCardId: String): Result[StripeCard] = {
     logger.info(
         s"Find card for customer, customer id: $gatewayCustomerId, card id: $gatewayCardId")
+    implicit val ec: ExecutionContext = blockingIOPool
     inBlockingPool(StripeCustomer.retrieve(gatewayCustomerId).getSources.retrieve(gatewayCardId))
-      .flatMap(accountToCard)(blockingIOPool)
+      .flatMapXor(accountToCard)
   }
 
   def findCardForCustomer(stripeCustomer: StripeCustomer,
                           gatewayCardId: String): Result[StripeCard] = {
     logger.info(s"Find card for customer, customer: $stripeCustomer, card id: $gatewayCardId")
+    implicit val ec: ExecutionContext = blockingIOPool
     inBlockingPool(stripeCustomer.getSources.retrieve(gatewayCardId))
-      .flatMap(accountToCard)(blockingIOPool)
+      .flatMapXor(accountToCard)
   }
 
   def getCustomersOnlyCard(stripeCustomer: StripeCustomer): Result[StripeCard] = {
@@ -110,14 +112,18 @@ class StripeWrapper extends StripeApiWrapper with LazyLogging {
     */
   // param: ⇒ A makes method param "lazy". Do not remove!
   @inline protected[utils] final def inBlockingPool[A <: AnyRef](
-      action: ⇒ A): Future[Failures Xor A] = {
+      action: ⇒ A): Result[A] = {
     implicit val ec: ExecutionContext = blockingIOPool
 
-    Future(Xor.right(blocking(action))).recoverWith {
+    // TODO: don’t we need to catch Future (and DBIO) failures like that in general? @michalrus
+    val f = Future(Xor.right(blocking(action))).recover {
       case t: CardException if cardExceptionMap.contains(t.getCode) ⇒
-        Result.failure(cardExceptionMap(t.getCode))
+        Xor.left(cardExceptionMap(t.getCode).single)
       case t: StripeException ⇒
-        Result.failure(StripeFailure(t))
+        Xor.left(StripeFailure(t).single)
+      // TODO: what about case _? @michalrus
     }
+
+    Result.fromFutureXor(f)
   }
 }

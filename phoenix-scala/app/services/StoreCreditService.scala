@@ -128,13 +128,11 @@ object StoreCreditService {
       admin: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[Seq[ItemResult]] =
     for {
       _ ← * <~ payload.validate.toXor
-      response ← * <~ payload.ids.map { id ⇒
+      response ← * <~ DbResultT.sequence(payload.ids.map { id ⇒
                   val itemPayload = StoreCreditUpdateStateByCsr(payload.state, payload.reasonId)
-        // →→→→→→→→→→→→→→→→→→→ continue here ←←←←←←←←←←←←←←←←←←←
-                  updateStateByCsr(id, itemPayload, admin).value
-                    .map(buildItemResult(id, _))
-                    .dbresult
-                }
+                  updateStateByCsr(id, itemPayload, admin)
+                    .mapXorRight(buildItemResult(id, _)) // FIXME: for God’s sake, use the standard error/warning reporting @michalrus
+                })
     } yield response
 
   def updateStateByCsr(id: Int,

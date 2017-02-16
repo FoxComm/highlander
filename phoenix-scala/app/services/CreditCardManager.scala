@@ -99,7 +99,7 @@ object CreditCardManager {
       stripeIdAndAddress ← * <~ getExistingStripeIdAndAddress
       (stripeId, address) = stripeIdAndAddress
       stripeStuff ← * <~ apis.stripe
-        .createCardFromSource(customer.email, payload, stripeId, address)
+                     .createCardFromSource(customer.email, payload, stripeId, address)
       (stripeCustomer, stripeCard) = stripeStuff
       newCard ← * <~ createCard(customer, stripeCustomer, stripeCard, address)
     } yield newCard

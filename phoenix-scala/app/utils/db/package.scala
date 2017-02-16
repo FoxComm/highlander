@@ -33,7 +33,10 @@ package object db {
   object Foxy extends FoxyTOps[Id]()
 
   type FoxyTFuture[A] = FoxyT[Future, A] /* replaces the old ResultT */
-  object FoxyTFuture extends FoxyTOps[Future]
+  object FoxyTFuture extends FoxyTOps[Future] {
+    def fromFutureXor[A](v: Future[Failures Xor A])(implicit M: Monad[Future]): FoxyT[Future, A] = // TODO: remove me @michalrus
+      StateT(s ⇒ XorT(v.map(_.map(s, _))))
+  }
 
   type FoxyTDBIO[A] = FoxyT[DBIO, A] /* replaces the old DbResultT */
   object FoxyTDBIO extends FoxyTOps[DBIO] {
@@ -46,6 +49,8 @@ package object db {
       ??? // FIXME: implement // TODO: remove me? @michalrus
     def mapXor[B](f: Xor[Failures, A] ⇒ Xor[Failures, B]): FoxyT[F, B] =
       ??? // FIXME: implement // TODO: remove me? @michalrus
+    def mapXorRight[B](f: Xor[Failures, A] ⇒ B): FoxyT[F, B] =
+      mapXor(xa ⇒ Xor.Right(f(xa))) // TODO: remove me? @michalrus
     def fold[B](fa: Failures ⇒ B, fb: A ⇒ B): FoxyT[F, B] =
       ??? // FIXME: implement
     def recoverWith(pf: PartialFunction[Failure, FoxyT[F, A]]): FoxyT[F, A] =
@@ -85,10 +90,10 @@ package object db {
       StateT(s ⇒ XorT.right(M.map(fa)((s, _))))
 
     def fromXor[A](v: Failures Xor A)(implicit M: Monad[F]): FoxyT[F, A] =
-      StateT(s ⇒ XorT(M.pure(v)))
+      StateT(s ⇒ XorT(M.pure(v.map((s, _)))))
 
-    def fromG[G[_], A, B](f: G[B] ⇒ F[B], ga: FoxyT[G, A]): FoxyT[F, A] = // TODO: better name? @michalrus
-      ga.transformF(gga ⇒ XorT(f(gga.value)))
+    def fromG[G[_], A](f: G[_] ⇒ F[_], ga: FoxyT[G, A]): FoxyT[F, A] = // TODO: better name? @michalrus
+      ??? // ga.transformF(gga ⇒ XorT(f(gga.value))) // TODO: implement
 
     def fromId[A](fa: Foxy[A])(implicit M: Monad[F]): FoxyT[F, A] =
       //fa.transformF(ga ⇒ XorT(M.pure(ga.value)))
@@ -106,8 +111,7 @@ package object db {
 
     // FIXME: make it use cats.Foldable instead and move to FoxyTOps @michalrus
     def sequence[A, M[X] <: TraversableOnce[X]](values: M[FoxyT[F, A]])(
-        implicit buildFrom: CanBuildFrom[M[FoxyT[F, A]], A, M[A]],
-        ec: EC): FoxyT[F, M[A]] =
+        implicit buildFrom: CanBuildFrom[M[FoxyT[F, A]], A, M[A]]): FoxyT[F, M[A]] =
       ??? // TODO: IMPORTANT: append all Failures from Lefts in the final result, if there’s at least one Left. OfferList#adjust depends on that. And we’re not swallowing errors, then. @michalrus
     //      values
     //        .foldLeft(good(buildFrom(values))) { (liftedBuilder, liftedValue) ⇒
@@ -116,11 +120,10 @@ package object db {
     //        .map(_.result)
 
     // TODO: is this useful enough to have in FoxyT? @michalrus
-    def onlySuccessful[A](xs: Seq[FoxyT[F, A]]): FoxyT[F, Seq[A]] = // FIXME: get rid of explicit Seq @michalrus
+    def onlySuccessful[A](xs: Seq[FoxyT[F, A]])(implicit M: Monad[F]): FoxyT[F, Seq[A]] = // FIXME: get rid of explicit Seq @michalrus
       for {
         xs ← sequence(xs.map(_.map(_.some).recover { case _ ⇒ None }))
       } yield xs.collect { case Some(xss) ⇒ xss }
-
   }
 
   // ————————————————————————————— /Foxy —————————————————————————————

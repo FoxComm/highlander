@@ -20,17 +20,17 @@ trait AmazonApi {
 }
 
 class AmazonS3 extends AmazonApi {
-  def uploadFile(fileName: String, file: File)(implicit ec: EC): Result[String] =
-    Future {
+  def uploadFile(fileName: String, file: File)(implicit ec: EC): Result[String] = {
+    val f = Future {
       val accessKey = config.getOptString("aws.accessKey")
       val secretKey = config.getOptString("aws.secretKey")
-      val s3Bucket  = config.getOptString("aws.s3Bucket")
-      val s3Region  = config.getOptString("aws.s3Region")
+      val s3Bucket = config.getOptString("aws.s3Bucket")
+      val s3Region = config.getOptString("aws.s3Region")
 
       (accessKey, secretKey, s3Bucket, s3Region) match {
         case (Some(access), Some(secret), Some(bucket), Some(region)) ⇒
           val credentials = new BasicAWSCredentials(access, secret)
-          val client      = new AmazonS3Client(credentials)
+          val client = new AmazonS3Client(credentials)
           val putRequest = new PutObjectRequest(bucket, fileName, file)
             .withCannedAcl(CannedAccessControlList.PublicRead)
           client.putObject(putRequest)
@@ -44,10 +44,12 @@ class AmazonS3 extends AmazonApi {
         case (_, _, _, None) ⇒
           left(UnableToReadAwsS3Region.single)
       }
-    }.recoverWith {
+    }.recover {
       case e: AmazonS3Exception ⇒
-        Result.failure(GeneralFailure(e.getLocalizedMessage))
+        left(GeneralFailure(e.getLocalizedMessage).single)
       case _ ⇒
-        Result.failure(GeneralFailure("An unexpected error occurred uploading to S3"))
+        left(GeneralFailure("An unexpected error occurred uploading to S3").single)
     }
+    Result.fromFutureXor(f)
+  }
 }

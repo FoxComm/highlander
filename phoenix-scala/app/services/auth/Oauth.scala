@@ -50,9 +50,8 @@ trait OauthService[M] {
   def fetchUserInfoFromCode(oauthResponse: OauthCallbackResponse)(
       implicit ec: EC): DbResultT[UserInfo] = {
     for {
-      code ← XorT
-              .fromXor[DBIO](oauthResponse.getCode)
-              .leftMap(t ⇒ GeneralFailure(t.toString).single)
+      code ← DbResultT.fromXor(
+                oauthResponse.getCode.leftMap(t ⇒ GeneralFailure(t.toString).single))
       accessTokenResp ← * <~ this
                          .accessToken(code)
                          .leftMap(t ⇒ GeneralFailure(t.toString).single)
@@ -92,22 +91,26 @@ trait OauthService[M] {
 
   def customerCallback(
       oauthResponse: OauthCallbackResponse)(implicit ec: EC, db: DB, ac: AC): Route = {
-    onSuccess(oauthCallback(oauthResponse, createCustomerByUserInfo).run()) { tokenOrFailure ⇒
-      tokenOrFailure
-        .flatMap(Authenticator.oauthTokenLoginResponse(Uri./))
-        .fold({ f ⇒
-          complete(renderFailure(f))
-        }, identity)
+    // TODO: rethink discarding warnings here @michalrus
+    onSuccess(oauthCallback(oauthResponse, createCustomerByUserInfo).runDBIO.runEmptyA.value) {
+      tokenOrFailure ⇒
+        tokenOrFailure
+          .flatMap(Authenticator.oauthTokenLoginResponse(Uri./))
+          .fold({ f ⇒
+            complete(renderFailure(f))
+          }, identity)
     }
   }
 
   def adminCallback(oauthResponse: OauthCallbackResponse)(implicit ec: EC, db: DB, ac: AC): Route = {
-    onSuccess(oauthCallback(oauthResponse, createAdminByUserInfo).run()) { tokenOrFailure ⇒
-      tokenOrFailure
-        .flatMap(Authenticator.oauthTokenLoginResponse(Uri("/admin")))
-        .fold({ f ⇒
-          complete(renderFailure(f))
-        }, identity)
+    // TODO: rethink discarding warnings here @michalrus
+    onSuccess(oauthCallback(oauthResponse, createAdminByUserInfo).runDBIO.runEmptyA.value) {
+      tokenOrFailure ⇒
+        tokenOrFailure
+          .flatMap(Authenticator.oauthTokenLoginResponse(Uri("/admin")))
+          .fold({ f ⇒
+            complete(renderFailure(f))
+          }, identity)
     }
   }
 }
