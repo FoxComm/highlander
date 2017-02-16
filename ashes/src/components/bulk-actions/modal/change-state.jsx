@@ -9,12 +9,12 @@ import modal from 'components/modal/wrapper';
 import ModalBase from './modal-base';
 
 type Props = {
-  entity: string;
-  stateTitle: string;
-  label?: string;
-  count: number;
-  onCancel: Function;
-  onConfirm: Function;
+  entity: string,
+  stateTitle: string,
+  label?: React$Element|string,
+  count: number,
+  onCancel: Function,
+  onConfirm: Function,
 };
 
 const ChangeStateModal = (props: Props) => {

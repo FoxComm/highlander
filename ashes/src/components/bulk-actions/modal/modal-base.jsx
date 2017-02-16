@@ -1,18 +1,18 @@
 /* @flow */
 
-import React from 'react';
+import React  from 'react';
 
 import ContentBox from 'components/content-box/content-box';
 import SaveCancel from 'components/common/save-cancel';
 
 type Props = {
-  title: Element|string,
-  label: Element|string,
-  cancelText: string,
-  saveText: string,
+  title: React$Element|string,
+  label: React$Element|string,
   onCancel: Function,
   onConfirm: Function,
-  saveDisabled: boolean,
+  cancelText?: string,
+  saveText?: string,
+  saveDisabled?: boolean,
 };
 
 const ModalBase = (props: Props) => {
