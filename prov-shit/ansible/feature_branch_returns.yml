@@ -5,6 +5,7 @@
   become: true
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+    download_flyway: false
     api_server: appliance-10-240-0-12.foxcommerce.com
     self_host: appliance-10-240-0-12.foxcommerce.com
     ashes_server_name: appliance-10-240-0-12.foxcommerce.com
