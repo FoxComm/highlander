@@ -33,6 +33,7 @@
         stock_items_consumer: "{{ lookup('env', 'DOCKER_TAG_STOCK_ITEMS_CONSUMER') | default('master') }}"
         storefront_td: "{{ lookup('env', 'DOCKER_TAG_STOREFRONT_TOPDRAWER') | default('master') }}"
         storefront_tpg: "{{ lookup('env', 'DOCKER_TAG_STOREFRONT_TPG') | default('master') }}"
+        hyperion: "{{ lookup('env', 'DOCKER_TAG_HYPERION') | default('master') }}"
     install_public_keys: true
     install_private_keys: true
     is_appliance: true

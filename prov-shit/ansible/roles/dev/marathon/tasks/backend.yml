@@ -12,6 +12,9 @@
 - name: Start Middlewarehouse
   include: app_middlewarehouse.yml
 
+- name: Start Hyperion
+  include: app_hyperion.yml
+
 - name: Start Marketplace
   include: app_marketplace.yml
   when: with_marketplace

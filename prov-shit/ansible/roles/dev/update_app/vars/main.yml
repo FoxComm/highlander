@@ -20,6 +20,7 @@ supported_apps:
     - stock-items-consumer
     - shipstation
     - marketplace
+    - hyperion
 
 # Mapping canonical app name to application path
 app_highlander_paths:
@@ -87,3 +88,4 @@ docker_tags:
     marketplace_ui: "{{tag_name}}"
     product_search: "{{tag_name}}"
     demo_search: "{{tag_name}}"
+    hyperion: "{{tag_name}}"
