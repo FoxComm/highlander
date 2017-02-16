@@ -59,7 +59,7 @@ object CreditCardManager {
                                         payload = payload,
                                         address = address,
                                         cardToken = stripeCard.getId))
-      _        ← * <~ LogActivity.ccCreated(customer, cc, admin)
+      _        ← * <~ LogActivity().ccCreated(customer, cc, admin)
       response ← * <~ CreditCardsResponse.buildFromCreditCard(cc)
     } yield response
   }
@@ -79,7 +79,7 @@ object CreditCardManager {
         cc = CreditCard.buildFromSource(accountId, sCustomer, sCard, payload, address)
         newCard ← * <~ CreditCards.create(cc)
         region  ← * <~ Regions.findOneById(newCard.address.regionId).safeGet
-        _       ← * <~ LogActivity.ccCreated(customer, cc, admin)
+        _       ← * <~ LogActivity().ccCreated(customer, cc, admin)
       } yield buildResponse(newCard, region)
 
     def getExistingStripeIdAndAddress =
@@ -126,7 +126,7 @@ object CreditCardManager {
       cc       ← * <~ CreditCards.mustFindByIdAndAccountId(ccId, accountId)
       _        ← * <~ CreditCards.update(cc, cc.copy(inWallet = false, deletedAt = Some(Instant.now())))
       _        ← * <~ apis.stripe.deleteCard(cc)
-      _        ← * <~ LogActivity.ccDeleted(customer, cc, admin)
+      _        ← * <~ LogActivity().ccDeleted(customer, cc, admin)
     } yield ()
 
   def editCreditCard(accountId: Int, id: Int, payload: EditCreditCard, admin: Option[User] = None)(
@@ -147,7 +147,7 @@ object CreditCardManager {
         _  ← * <~ failIf(!cc.inWallet, CannotUseInactiveCreditCard(cc))
         _  ← * <~ CreditCards.update(cc, cc.copy(inWallet = false))
         cc ← * <~ CreditCards.create(updated)
-        _  ← * <~ LogActivity.ccUpdated(customer, updated, cc, admin)
+        _  ← * <~ LogActivity().ccUpdated(customer, updated, cc, admin)
       } yield cc
     }
 

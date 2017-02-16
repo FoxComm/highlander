@@ -40,7 +40,7 @@ object CartShippingAddressUpdater {
       region      ← * <~ Regions.mustFindById404(shipAddress.regionId)
       validated   ← * <~ CartValidator(cart).validate()
       response    ← * <~ CartResponse.buildRefreshed(cart)
-      _ ← * <~ LogActivity
+      _ ← * <~ LogActivity()
            .orderShippingAddressAdded(originator, response, buildOneShipping(shipAddress, region))
     } yield TheResponse.validated(response, validated)
 
@@ -59,7 +59,7 @@ object CartShippingAddressUpdater {
       region      ← * <~ Regions.mustFindById404(shipAddress.regionId)
       validated   ← * <~ CartValidator(cart).validate()
       response    ← * <~ CartResponse.buildRefreshed(cart)
-      _ ← * <~ LogActivity
+      _ ← * <~ LogActivity()
            .orderShippingAddressAdded(originator, response, buildOneShipping(shipAddress, region))
     } yield TheResponse.validated(response, validated)
 
@@ -78,9 +78,9 @@ object CartShippingAddressUpdater {
       _         ← * <~ OrderShippingAddresses.update(shipAddress, patch)
       validated ← * <~ CartValidator(cart).validate()
       response  ← * <~ CartResponse.buildRefreshed(cart)
-      _ ← * <~ LogActivity.orderShippingAddressUpdated(originator,
-                                                       response,
-                                                       buildOneShipping(shipAddress, region))
+      _ ← * <~ LogActivity().orderShippingAddressUpdated(originator,
+                                                         response,
+                                                         buildOneShipping(shipAddress, region))
     } yield TheResponse.validated(response, validated)
 
   def removeShippingAddress(originator: User, refNum: Option[String] = None)(
@@ -95,8 +95,8 @@ object CartShippingAddressUpdater {
       _           ← * <~ OrderShippingAddresses.findById(shipAddress.id).delete
       validated   ← * <~ CartValidator(cart).validate()
       fullOrder   ← * <~ CartResponse.buildRefreshed(cart)
-      _ ← * <~ LogActivity.orderShippingAddressDeleted(originator,
-                                                       fullOrder,
-                                                       buildOneShipping(shipAddress, region))
+      _ ← * <~ LogActivity().orderShippingAddressDeleted(originator,
+                                                         fullOrder,
+                                                         buildOneShipping(shipAddress, region))
     } yield TheResponse.validated(fullOrder, validated)
 }

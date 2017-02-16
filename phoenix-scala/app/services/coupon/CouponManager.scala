@@ -44,7 +44,7 @@ object CouponManager {
                          commitId = ins.commit.id,
                          promotionId = payload.promotion))
       response = CouponResponse.build(context, coupon, ins.form, ins.shadow)
-      _ ← * <~ LogActivity.couponCreated(response, admin)
+      _ ← * <~ LogActivity().couponCreated(response, admin)
     } yield response
   }
 
@@ -72,7 +72,7 @@ object CouponManager {
       commit ← * <~ ObjectUtils.commit(updated)
       coupon ← * <~ updateHead(coupon, payload.promotion, updated.shadow, commit)
       response = CouponResponse.build(context, coupon, updated.form, updated.shadow)
-      _ ← * <~ LogActivity.couponUpdated(response, Some(admin))
+      _ ← * <~ LogActivity().couponUpdated(response, Some(admin))
     } yield response
   }
 
@@ -130,7 +130,7 @@ object CouponManager {
     for {
       coupon     ← * <~ Coupons.filter(_.formId === id).mustFindOneOr(CouponNotFound(id))
       couponCode ← * <~ CouponCodes.create(CouponCode(couponFormId = id, code = code))
-      _          ← * <~ LogActivity.singleCouponCodeCreated(coupon, Some(admin))
+      _          ← * <~ LogActivity().singleCouponCodeCreated(coupon, Some(admin))
     } yield couponCode.code
 
   def generateCodes(id: Int,
@@ -144,7 +144,7 @@ object CouponManager {
         CouponCode(couponFormId = id, code = c)
       }
       _ ← * <~ CouponCodes.createAll(unsaved)
-      _ ← * <~ LogActivity.multipleCouponCodeCreated(coupon, Some(admin))
+      _ ← * <~ LogActivity().multipleCouponCodeCreated(coupon, Some(admin))
     } yield generated
 
   def getCodes(id: Int)(implicit ec: EC, db: DB): DbResultT[Seq[CouponCodesResponse.Root]] =

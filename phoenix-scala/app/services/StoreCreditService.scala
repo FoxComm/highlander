@@ -82,7 +82,7 @@ object StoreCreditService {
                                    subTypeId = payload.subTypeId,
                                    currency = payload.currency,
                                    originalBalance = payload.amount))
-      _ ← * <~ LogActivity.scCreated(admin, customer, storeCredit)
+      _ ← * <~ LogActivity().scCreated(admin, customer, storeCredit)
     } yield build(storeCredit)
   }
 
@@ -107,7 +107,7 @@ object StoreCreditService {
                                    subTypeId = payload.subTypeId,
                                    originalBalance = payload.amount,
                                    scope = scope))
-      _ ← * <~ LogActivity.scCreated(admin, customer, storeCredit)
+      _ ← * <~ LogActivity().scCreated(admin, customer, storeCredit)
     } yield build(storeCredit)
 
   def getById(id: Int)(implicit ec: EC, db: DB): DbResultT[Root] =
@@ -143,7 +143,7 @@ object StoreCreditService {
       _           ← * <~ payload.validate
       storeCredit ← * <~ StoreCredits.mustFindById404(id)
       updated     ← * <~ cancelOrUpdate(storeCredit, payload.state, payload.reasonId, admin)
-      _           ← * <~ LogActivity.scUpdated(admin, storeCredit, payload)
+      _           ← * <~ LogActivity().scUpdated(admin, storeCredit, payload)
     } yield StoreCreditResponse.build(updated)
 
   private def cancelOrUpdate(storeCredit: StoreCredit,

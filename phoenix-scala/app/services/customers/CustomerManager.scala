@@ -86,7 +86,7 @@ object CustomerManager {
       customer ← * <~ createCustomer(payload, admin, context)
       (user, custData) = customer
       result           = build(user, custData)
-      _        ← * <~ LogActivity.customerCreated(result, admin)
+      _        ← * <~ LogActivity().customerCreated(result, admin)
       account  ← * <~ Accounts.mustFindById400(user.accountId)
       claimSet ← * <~ AccountManager.getClaims(account.id, context.scopeId)
       token    ← * <~ UserToken.fromUserAccount(user, account, claimSet)
@@ -100,7 +100,7 @@ object CustomerManager {
     for {
       result ← * <~ createCustomer(payload, admin, context)
       resp = build(result._1, result._2)
-      _ ← * <~ LogActivity.customerCreated(resp, admin)
+      _ ← * <~ LogActivity().customerCreated(resp, admin)
     } yield resp
 
   private def createCustomer(payload: CreateCustomerPayload,
@@ -180,7 +180,7 @@ object CustomerManager {
                 else Users.updateEmailMustBeUnique(payload.email.map(_.toLowerCase), accountId))
       updated ← * <~ Users.update(customer, updatedUser(customer, payload))
       _       ← * <~ CustomersData.update(custData, updatedCustUser(custData, payload))
-      _       ← * <~ LogActivity.customerUpdated(customer, updated, admin)
+      _       ← * <~ LogActivity().customerUpdated(customer, updated, admin)
     } yield (updated, custData)
 
   def changePassword(
@@ -198,7 +198,7 @@ object CustomerManager {
 
       updatedAccess ← * <~ AccountAccessMethods
                        .update(accessMethod, accessMethod.updatePassword(payload.newPassword))
-      _ ← * <~ LogActivity.userPasswordReset(user)
+      _ ← * <~ LogActivity().userPasswordReset(user)
     } yield {}
 
   def updatedUser(customer: User, payload: UpdateCustomerPayload): User = {
@@ -229,7 +229,7 @@ object CustomerManager {
       custData ← * <~ CustomersData.mustFindByAccountId(accountId)
       _        ← * <~ CustomersData.update(custData, custData.copy(isGuest = false))
       response = build(updated, custData)
-      _ ← * <~ LogActivity.customerActivated(response, admin)
+      _ ← * <~ LogActivity().customerActivated(response, admin)
     } yield response
 
   def toggleDisabled(accountId: Int, disabled: Boolean, actor: User)(implicit ec: EC,

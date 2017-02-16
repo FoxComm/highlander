@@ -70,10 +70,12 @@ object Activities
 
   implicit val formats = JsonFormatters.phoenixFormats
 
-  def log(a: OpaqueActivity)(implicit context: AC, ec: EC): DbResultT[Activity] = {
-    val activity = Activity(activityType = a.activityType, data = a.data, context = context)
+  def log(a: OpaqueActivity)(implicit activityContext: AC, ec: EC): DbResultT[Activity] = {
+    val activity =
+      Activity(activityType = a.activityType, data = a.data, context = activityContext)
 
-    logger.info(s"Activity ${a.activityType} by ${context.userType} ${context.userId}")
+    logger.info(
+        s"Activity ${a.activityType} by ${activityContext.userType} ${activityContext.userId}")
     logger.debug(writePretty(activity))
 
     create(activity)

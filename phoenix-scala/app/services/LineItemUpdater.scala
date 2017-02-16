@@ -33,7 +33,7 @@ object LineItemUpdater {
       au: AU): DbResultT[TheResponse[CartResponse]] = {
 
     val logActivity = (cart: CartResponse, oldQtys: Map[String, Int]) ⇒
-      LogActivity.orderLineItemsUpdated(cart, oldQtys, payload, Some(admin))
+      LogActivity().orderLineItemsUpdated(cart, oldQtys, payload, Some(admin))
 
     for {
       cart     ← * <~ Carts.mustFindByRefNum(refNum)
@@ -78,7 +78,7 @@ object LineItemUpdater {
       au: AU): DbResultT[TheResponse[CartResponse]] = {
 
     val logActivity = (cart: CartResponse, oldQtys: Map[String, Int]) ⇒
-      LogActivity.orderLineItemsUpdated(cart, oldQtys, payload)
+      LogActivity().orderLineItemsUpdated(cart, oldQtys, payload)
 
     val finder = Carts
       .findByAccountId(customer.accountId)
@@ -101,7 +101,7 @@ object LineItemUpdater {
       au: AU): DbResultT[TheResponse[CartResponse]] = {
 
     val logActivity = (cart: CartResponse, oldQtys: Map[String, Int]) ⇒
-      LogActivity.orderLineItemsUpdated(cart, oldQtys, payload, Some(admin))
+      LogActivity().orderLineItemsUpdated(cart, oldQtys, payload, Some(admin))
 
     for {
       cart     ← * <~ Carts.mustFindByRefNum(refNum)
@@ -119,7 +119,7 @@ object LineItemUpdater {
       au: AU): DbResultT[TheResponse[CartResponse]] = {
 
     val logActivity = (cart: CartResponse, oldQtys: Map[String, Int]) ⇒
-      LogActivity.orderLineItemsUpdated(cart, oldQtys, payload)
+      LogActivity().orderLineItemsUpdated(cart, oldQtys, payload)
 
     val finder = Carts
       .findByAccountId(customer.accountId)

@@ -36,7 +36,7 @@ class RemorseTimer(implicit db: DB, ec: EC) extends Actor {
       cordRefs ← * <~ orders.result
       count    ← * <~ orders.map(_.state).update(newState)
       refNums = cordRefs.map(_.referenceNumber)
-      _ ← * <~ doOrMeh(count > 0, LogActivity.orderBulkStateChanged(newState, refNums))
+      _ ← * <~ doOrMeh(count > 0, LogActivity().orderBulkStateChanged(newState, refNums))
     } yield count
 
     RemorseTimerResponse(query.runTxn)

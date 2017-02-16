@@ -51,7 +51,7 @@ object PromotionManager {
       discount ← * <~ createDiscounts(context, payload, ins.shadow)
       response = PromotionResponse
         .build(context, promotion, ins.form, ins.shadow, discount.forms.zip(discount.shadows))
-      _ ← * <~ LogActivity.promotionCreated(response, admin)
+      _ ← * <~ LogActivity().promotionCreated(response, admin)
     } yield response
   }
 
@@ -116,7 +116,7 @@ object PromotionManager {
                                          updated.form,
                                          updated.shadow,
                                          discount.forms.zip(discount.shadows))
-      _ ← * <~ LogActivity.promotionUpdated(response, admin)
+      _ ← * <~ LogActivity().promotionUpdated(response, admin)
     } yield response
   }
 

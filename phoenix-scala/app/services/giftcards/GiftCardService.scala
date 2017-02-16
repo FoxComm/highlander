@@ -70,7 +70,7 @@ object GiftCardService {
                   GiftCardManual(adminId = admin.accountId, reasonId = payload.reasonId))
       giftCard ← * <~ GiftCards.create(GiftCard.buildAppeasement(payload, origin.id, scope))
       adminResp = Some(UserResponse.build(admin))
-      _ ← * <~ LogActivity.gcCreated(admin, giftCard)
+      _ ← * <~ LogActivity().gcCreated(admin, giftCard)
     } yield build(gc = giftCard, admin = adminResp)
 
   def createByCustomer(admin: User, payload: GiftCardCreatedByCustomer)(implicit ec: EC,
@@ -83,7 +83,7 @@ object GiftCardService {
       origin ← * <~ GiftCardOrders.create(GiftCardOrder(cordRef = payload.cordRef))
       adminResp = UserResponse.build(admin).some
       giftCard ← * <~ GiftCards.create(GiftCard.buildByCustomerPurchase(payload, origin.id, scope))
-      _        ← * <~ LogActivity.gcCreated(admin, giftCard)
+      _        ← * <~ LogActivity().gcCreated(admin, giftCard)
     } yield build(gc = giftCard, admin = adminResp)
 
   def createBulkByAdmin(admin: User, payload: GiftCardBulkCreateByCsr)(
@@ -125,7 +125,7 @@ object GiftCardService {
       _        ← * <~ payload.reasonId.map(id ⇒ Reasons.mustFindById400(id)).getOrElse(DbResultT.unit)
       giftCard ← * <~ GiftCards.mustFindByCode(code)
       updated  ← * <~ cancelOrUpdate(giftCard, payload.state, payload.reasonId, admin)
-      _        ← * <~ LogActivity.gcUpdated(admin, giftCard, payload)
+      _        ← * <~ LogActivity().gcUpdated(admin, giftCard, payload)
     } yield GiftCardResponse.build(updated)
 
   private def cancelOrUpdate(giftCard: GiftCard,

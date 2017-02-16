@@ -30,7 +30,7 @@ object CustomerImportService {
                                  scope = scope.ltree,
                                  isGuest = payload.isGuest.getOrElse(false)))
       result = build(user, custData)
-      _ ← * <~ LogActivity.customerCreated(result, admin)
+      _ ← * <~ LogActivity().customerCreated(result, admin)
     } yield result
 
 }
