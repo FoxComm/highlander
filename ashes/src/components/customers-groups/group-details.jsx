@@ -22,12 +22,12 @@ import { suggestCustomers } from 'modules/customers/suggest';
 import { actions as bulkActions } from 'modules/customer-groups/details/bulk';
 
 import { transitionTo } from 'browserHistory';
-import { prefix } from 'lib/text-utils';
+import { prefix, numberize } from 'lib/text-utils';
 
 import { Link } from 'components/link';
 import BulkActions from 'components/bulk-actions/bulk-actions';
 import BulkMessages from 'components/bulk-actions/bulk-messages';
-import BulkModal from 'components/bulk-actions/modal';
+import { GenericModal as BulkModal } from 'components/bulk-actions/modal';
 import { SelectableSearchList, makeTotalCounter } from 'components/list-page';
 import { PrimaryButton, Button } from 'components/common/buttons';
 import MultiSelectRow from 'components/table/multi-select-row';
@@ -163,15 +163,23 @@ class GroupDetails extends Component {
   }
 
   @autobind
-  handleDeleteCustomers(allChecked, toggledIds) {
+  handleDeleteCustomers(allChecked, customersIds = []) {
     const { deleteCustomersFromGroup } = this.props.bulkActions;
+
+    const count = customersIds.length;
+    const label = (
+      <span>
+        Are you sure you want to delete&nbsp;
+        <b>{count} {numberize('customer', count)}</b> from group <b>"{this.props.group.name}"</b>?
+      </span>
+    );
 
     return (
       <BulkModal
-        title="Are you sure?"
-        label="SURE???"
+        title="Delete from group?"
+        label={label}
         onConfirm={() => {
-          deleteCustomersFromGroup(this.props.group.id, toggledIds).then(this.refreshGroupData);
+          deleteCustomersFromGroup(this.props.group.id, customersIds).then(this.refreshGroupData);
         }}
       />
     );
@@ -240,10 +248,10 @@ class GroupDetails extends Component {
     );
   }
 
-  renderBulkDetails(customerId) {
+  renderBulkDetails(customerName, customerId) {
     return (
       <span key={customerId}>
-        Customer <Link to="customer-details" params={{ customerId }}>{customerId}</Link>
+        Customer <Link to="customer-details" params={{ customerId }}>{customerName}</Link>
       </span>
     );
   }

@@ -5,7 +5,8 @@ import React from 'react';
 
 import { numberize } from 'lib/text-utils';
 
-import Modal from './modal';
+import modal from 'components/modal/wrapper';
+import ModalBase from './modal-base';
 
 type Props = {
   entity: string;
@@ -25,13 +26,15 @@ const ChangeStateModal = (props: Props) => {
     : <span>Are you sure you want to change the state to <b>{stateTitle}</b> for <b>{count} {entityForm}</b>?</span>;
 
   return (
-    <Modal title={`Change ${capitalize(entityForm)} state to ${stateTitle}?`}
-           label={label}
-           onCancel={onCancel}
-           onConfirm={onConfirm}
-           className="fc-bulk-action-modal"
+    <ModalBase
+      title={`Change ${capitalize(entityForm)} state to ${stateTitle}?`}
+      label={label}
+      onCancel={onCancel}
+      onConfirm={onConfirm}
+      saveText="Yes, Change State"
+      className="fc-bulk-action-modal"
     />
   );
 };
 
-export default ChangeStateModal;
+export default modal(ChangeStateModal);
