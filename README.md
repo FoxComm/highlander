@@ -47,7 +47,7 @@ has a lot to do!
     $ make dotenv
     ```
 
-5. Pre-configure Vagrant by running:
+5. Pre-configure Ansible by running:
 
     ```
     $ make prepare

@@ -13,11 +13,11 @@
   template: src=flyway.conf dest="{{bernardo_dir}}/sql/flyway.conf" mode="u+x,g+x,o+x"
 
 - name: Clean Bernardo Database
-  shell: sudo -u root FLYWAY_HOME={{flyway_dir}} {{flyway}} clean
+  shell: FLYWAY_HOME={{flyway_dir}} {{flyway}} clean
   args:
     chdir: "{{bernardo_dir}}"
 
 - name: Migrate Bernardo Database
-  shell: sudo -u root FLYWAY_HOME={{flyway_dir}} {{flyway}} migrate
+  shell: FLYWAY_HOME={{flyway_dir}} {{flyway}} migrate
   args:
     chdir: "{{bernardo_dir}}"

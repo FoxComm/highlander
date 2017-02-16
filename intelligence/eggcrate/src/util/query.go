@@ -11,7 +11,7 @@ import (
 var url = os.Getenv("API_URL")
 var port = os.Getenv("HENHOUSE_PORT")
 
-func HenhouseQuery(action string, keys []string, a, b string, params string) (responses.HenhouseResponse, error) {
+func HenhouseQuery(action string, keys []string, from, to string, params string) (responses.HenhouseResponse, error) {
 	key := ""
 
 	if action != "diff" && action != "summary" {
@@ -22,11 +22,12 @@ func HenhouseQuery(action string, keys []string, a, b string, params string) (re
 		key += k + ","
 	}
 
-	if a != "" {
-		key += "&a=" + a
+	if from != "" {
+		key += "&a=" + from
 	}
-	if b != "" {
-		key += "&b=" + b
+
+	if to != "" {
+		key += "&b=" + to
 	}
 
 	if params != "" {

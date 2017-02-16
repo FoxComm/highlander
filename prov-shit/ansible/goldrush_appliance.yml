@@ -18,27 +18,27 @@
     cert_path: test/fox
     docker_db_host: 172.17.0.1
     docker_tags:
-        ashes: "{{ lookup('env', 'DOCKER_TAG_ASHES') | default('master') }}"
-        firebrand: "{{ lookup('env', 'DOCKER_TAG_FIREBRAND') | default('master') }}"
-        phoenix: "{{ lookup('env', 'DOCKER_TAG_PHOENIX') | default('master') }}"
-        greenriver: "{{ lookup('env', 'DOCKER_TAG_GREENRIVER') | default('master') }}"
-        middlewarehouse: "{{ lookup('env', 'DOCKER_TAG_MIDDLEWAREHOUSE') | default('master') }}"
-        messaging: "{{ lookup('env', 'DOCKER_TAG_MESSAGING') | default('master') }}"
-        isaac: "{{ lookup('env', 'DOCKER_TAG_ISAAC') | default('master') }}"
-        solomon: "{{ lookup('env', 'DOCKER_TAG_SOLOMON') | default('master') }}"
-        capture_consumer: "{{ lookup('env', 'DOCKER_TAG_CAPTURE_CONSUMER') | default('master') }}"
-        gift_card_consumer: "{{ lookup('env', 'DOCKER_TAG_GIFT_CARD_CONSUMER') | default('master') }}"
-        shipments_consumer: "{{ lookup('env', 'DOCKER_TAG_SHIPMENTS_CONSUMER') | default('master') }}"
-        shipstation_consumer: "{{ lookup('env', 'DOCKER_TAG_SHIPSTATION_CONSUMER') | default('master') }}"
-        stock_items_consumer: "{{ lookup('env', 'DOCKER_TAG_STOCK_ITEMS_CONSUMER') | default('master') }}"
-        storefront_td: "{{ lookup('env', 'DOCKER_TAG_STOREFRONT_TOPDRAWER') | default('master') }}"
-        storefront_tpg: "{{ lookup('env', 'DOCKER_TAG_STOREFRONT_TPG') | default('master') }}"
-        bernardo: "{{ lookup('env', 'DOCKER_TAG_BERNARDO') | default('master') }}"
-        henhouse: "{{ lookup('env', 'DOCKER_TAG_HENHOUSE') | default('master') }}"
-        eggcrate: "{{ lookup('env', 'DOCKER_TAG_EGGCRATE') | default('master') }}"
-        river_rock: "{{ lookup('env', 'DOCKER_TAG_RIVER_ROCK') | default('master') }}"
-        digger_sphex: "{{ lookup('env', 'DOCKER_TAG_DIGGER_SPHEX') | default('master') }}"
-        orders_sphex: "{{ lookup('env', 'DOCKER_TAG_ORDERS_SPHEX') | default('master') }}"
+        ashes: "{{ lookup('env', 'DOCKER_TAG_ASHES') | default('master', true) }}"
+        firebrand: "{{ lookup('env', 'DOCKER_TAG_FIREBRAND') | default('master', true) }}"
+        phoenix: "{{ lookup('env', 'DOCKER_TAG_PHOENIX') | default('master', true) }}"
+        greenriver: "{{ lookup('env', 'DOCKER_TAG_GREENRIVER') | default('master', true) }}"
+        middlewarehouse: "{{ lookup('env', 'DOCKER_TAG_MIDDLEWAREHOUSE') | default('master', true) }}"
+        messaging: "{{ lookup('env', 'DOCKER_TAG_MESSAGING') | default('master', true) }}"
+        isaac: "{{ lookup('env', 'DOCKER_TAG_ISAAC') | default('master', true) }}"
+        solomon: "{{ lookup('env', 'DOCKER_TAG_SOLOMON') | default('master', true) }}"
+        capture_consumer: "{{ lookup('env', 'DOCKER_TAG_CAPTURE_CONSUMER') | default('master', true) }}"
+        gift_card_consumer: "{{ lookup('env', 'DOCKER_TAG_GIFT_CARD_CONSUMER') | default('master', true) }}"
+        shipments_consumer: "{{ lookup('env', 'DOCKER_TAG_SHIPMENTS_CONSUMER') | default('master', true) }}"
+        shipstation_consumer: "{{ lookup('env', 'DOCKER_TAG_SHIPSTATION_CONSUMER') | default('master', true) }}"
+        stock_items_consumer: "{{ lookup('env', 'DOCKER_TAG_STOCK_ITEMS_CONSUMER') | default('master', true) }}"
+        storefront_td: "{{ lookup('env', 'DOCKER_TAG_STOREFRONT_TOPDRAWER') | default('master', true) }}"
+        storefront_tpg: "{{ lookup('env', 'DOCKER_TAG_STOREFRONT_TPG') | default('master', true) }}"
+        bernardo: "{{ lookup('env', 'DOCKER_TAG_BERNARDO') | default('master', true) }}"
+        henhouse: "{{ lookup('env', 'DOCKER_TAG_HENHOUSE') | default('master', true) }}"
+        eggcrate: "{{ lookup('env', 'DOCKER_TAG_EGGCRATE') | default('master', true) }}"
+        river_rock: "{{ lookup('env', 'DOCKER_TAG_RIVER_ROCK') | default('master', true) }}"
+        digger_sphex: "{{ lookup('env', 'DOCKER_TAG_DIGGER_SPHEX') | default('master', true) }}"
+        orders_sphex: "{{ lookup('env', 'DOCKER_TAG_ORDERS_SPHEX') | default('master', true) }}"
 
     install_public_keys: true
     install_private_keys: true
@@ -67,6 +67,8 @@
     - { role: dev/consul_agent }
     - { role: dev/zookeeper }
     - { role: dev/elasticsearch }
+    - { role: hotfix/elasticsearch }
+    - { role: hotfix/rsyslog }
     - { role: hotfix/kibana }
     - { role: dev/db }
     - { role: dev/db_ic }

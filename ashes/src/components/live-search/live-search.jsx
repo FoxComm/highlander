@@ -430,7 +430,9 @@ export default class LiveSearch extends React.Component {
             ? this.state.searchOptions.length - 1
             : this.state.searchOptions.length;
 
-          const newIdx = Math.min(this.state.selectionIndex + 1, maxLength);
+          const newIdx = (this.state.selectionIndex + 1) > maxLength
+            ? 0
+            : this.state.selectionIndex + 1;
 
           let newSearchDisplay;
           if (newIdx < this.state.searchOptions.length) {

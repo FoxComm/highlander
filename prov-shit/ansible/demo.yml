@@ -12,6 +12,8 @@
     - { role: dev/elasticsearch, when: first_run }
     - { role: dev/db, when: first_run }
     - { role: hotfix/db }
+    - { role: hotfix/elasticsearch }
+    - { role: hotfix/rsyslog }
     - { role: prod/migrate_phoenix_db }
     - { role: prod/migrate_middlewarehouse_db }
 
@@ -28,11 +30,12 @@
     ashes_server_name: foxdemo.foxcommerce.com
     storefront_server_name: foxdemo.foxcommerce.com
     with_base_seeds: true
-    url_prefix_perfect_gourmet: "/perfect-gourmet"
+    url_prefix_perfectgourmet: "/perfect-gourmet"
     url_prefix_topdrawer: "/top-drawer"
   roles:
     - { role: dev/stage_mesos, when: first_run }
     - { role: base/ssh_keys, when: first_run }
+    - { role: hotfix/rsyslog }
     - { role: dev/marathon }
     - { role: dev/marathon_consumers }
     - { role: ext/td/storefront }

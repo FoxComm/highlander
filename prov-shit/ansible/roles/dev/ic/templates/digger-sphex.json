@@ -13,7 +13,8 @@
   ],
   "labels": {
     "LAYER": "consumer",
-    "LANG": "perl6"
+    "LANG": "perl6",
+    "TAG": "{{docker_tags.digger_sphex}}"
   },
   "container": {
     "type": "DOCKER",
