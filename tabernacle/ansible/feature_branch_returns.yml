@@ -7,22 +7,19 @@
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
     download_flyway: false
     docker_tags:
-        ashes: "{{ lookup('env', 'DOCKER_TAG_ASHES') | default('master', true) }}"
-        firebrand: "{{ lookup('env', 'DOCKER_TAG_FIREBRAND') | default('master', true) }}"
-        phoenix: "{{ lookup('env', 'DOCKER_TAG_PHOENIX') | default('master', true) }}"
-        greenriver: "{{ lookup('env', 'DOCKER_TAG_GREENRIVER') | default('master', true) }}"
-        middlewarehouse: "{{ lookup('env', 'DOCKER_TAG_MIDDLEWAREHOUSE') | default('master', true) }}"
-        messaging: "{{ lookup('env', 'DOCKER_TAG_MESSAGING') | default('master', true) }}"
-        isaac: "{{ lookup('env', 'DOCKER_TAG_ISAAC') | default('master', true) }}"
-        solomon: "{{ lookup('env', 'DOCKER_TAG_SOLOMON') | default('master', true) }}"
-        capture_consumer: "{{ lookup('env', 'DOCKER_TAG_CAPTURE_CONSUMER') | default('master', true) }}"
-        gift_card_consumer: "{{ lookup('env', 'DOCKER_TAG_GIFT_CARD_CONSUMER') | default('master', true) }}"
-        shipments_consumer: "{{ lookup('env', 'DOCKER_TAG_SHIPMENTS_CONSUMER') | default('master', true) }}"
-        shipstation_consumer: "{{ lookup('env', 'DOCKER_TAG_SHIPSTATION_CONSUMER') | default('master', true) }}"
-        stock_items_consumer: "{{ lookup('env', 'DOCKER_TAG_STOCK_ITEMS_CONSUMER') | default('master', true) }}"
-        storefront_td: "{{ lookup('env', 'DOCKER_TAG_STOREFRONT_TOPDRAWER') | default('master', true) }}"
-        storefront_tpg: "{{ lookup('env', 'DOCKER_TAG_STOREFRONT_TPG') | default('master', true) }}"
-        hyperion: "{{ lookup('env', 'DOCKER_TAG_HYPERION') | default('master', true) }}"
+        phoenix: "returns"
+    marathon_restart:
+        phoenix: true
+        ashes: false
+        firebrand: false
+        greenriver: false
+        middlewarehouse: false
+        messaging: false
+        isaac: false
+        solomon: false
+        shipstation_consumer: false
+        marketplace: false
+        hyperion: false
     api_server: appliance-10-240-0-12.foxcommerce.com
     self_host: appliance-10-240-0-12.foxcommerce.com
     ashes_server_name: appliance-10-240-0-12.foxcommerce.com

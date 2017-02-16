@@ -57,6 +57,26 @@ docker_tags:
     digger_sphex: master
     orders_sphex: master
 
+# Configurable Marathon re-deploys
+marathon_restart:
+    ashes: true
+    firebrand: true
+    phoenix: true
+    greenriver: true
+    middlewarehouse: true
+    messaging: true
+    isaac: true
+    solomon: true
+    shipstation_consumer: true
+    marketplace: true
+    hyperion: true
+    bernardo: true
+    henhouse: true
+    eggcrate: true
+    river_rock: true
+    digger_sphex: true
+    orders_sphex: true
+
 # Consul Service Discovery
 consul_data_dir: /var/consul
 consul_suffix: service.consul
