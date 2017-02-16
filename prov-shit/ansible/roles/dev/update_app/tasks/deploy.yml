@@ -22,5 +22,5 @@
   retries: "{{marathon_retries}}"
   delay: "{{marathon_delay}}"
 
-# - name: Cleanup
-#   file: path=/tmp/{{app_name}}.json state=absent
+- name: Cleanup
+  file: path=/tmp/{{app_name}}.json state=absent
