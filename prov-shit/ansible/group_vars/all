@@ -145,9 +145,8 @@ pgweb_port: 8082
 pgweb_server: "{{pgweb_host}}:{{pgweb_port}}"
 
 hyperion_host: "hyperion.{{consul_suffix}}"
-hyperion_port: 8882
+hyperion_port: 8880
 hyperion_server: "{{hyperion_host}}:{{hyperion_port}}"
-
 
 # Database & bottledwater
 db_user: phoenix
@@ -200,6 +199,8 @@ middlewarehouse_test_db_name: middlewarehouse_test
 
 # Hyperion
 hyperion_env: prod
+hyperion_src: ../../hyperion/
+hyperion_dir: /hyperion
 hyperion_db_name: hyperion_development
 hyperion_db_user: hyperion
 hyperion_db_password: hyperion

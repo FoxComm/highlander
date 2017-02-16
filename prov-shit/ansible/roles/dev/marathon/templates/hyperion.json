@@ -16,11 +16,11 @@
     "HYPERION_DB_HOST": "{{docker_db_host}}",
     "HYPERION_DB_NAME": "{{hyperion_db_name}}",
     "HYPERION_DB_PASSWORD": "",
-    "AWS_ACCESS_KEY_ID": "{{aws_access_key_id}}",
-    "AWS_SECRET_ACCESS_KEY": "{{aws_secret_access_key}}",
-    "MWS_ACCESS_KEY_ID": "{{mws_access_key_id}}",
-    "MWS_SECRET_ACCESS_KEY" : "{{mws_secret_access_key}}",
-    "PHOENIX_URL": "{{phoenix_url}}"
+    "AWS_ACCESS_KEY_ID": "{{hyperion_aws_access_key_id}}",
+    "AWS_SECRET_ACCESS_KEY": "{{hyperion_aws_secret_access_key}}",
+    "MWS_ACCESS_KEY_ID": "{{hyperion_mws_access_key_id}}",
+    "MWS_SECRET_ACCESS_KEY" : "{{hyperion_mws_secret_access_key}}",
+    "PHOENIX_URL": "https://{{storefront_server_name}}"
   },
   "ports": [{{hyperion_port}}],
   "constraints": [["hostname", "UNIQUE"]],
