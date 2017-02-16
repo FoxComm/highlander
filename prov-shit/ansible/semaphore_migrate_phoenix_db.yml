@@ -1,0 +1,14 @@
+---
+
+- name: Migrate DB
+  hosts: all
+  become: true
+  vars:
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+    download_flyway: false
+    phoenix_db_name: phoenix_development
+  pre_tasks:
+    - name: View Semaphore Environment
+      debug: msg={{semaphore_env}}
+  roles:
+    - { role: prod/migrate_phoenix_db }

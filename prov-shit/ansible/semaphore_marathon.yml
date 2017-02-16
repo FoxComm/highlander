@@ -1,0 +1,20 @@
+---
+
+- name: Provision Stage Frontend
+  hosts: all
+  become: true
+  vars:
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+    api_server: appliance-10-240-0-3.foxcommerce.com.foxcommerce.com
+    self_host: appliance-10-240-0-3.foxcommerce.com.foxcommerce.com
+    ashes_server_name: appliance-10-240-0-3.foxcommerce.com.foxcommerce.com
+    storefront_server_name: appliance-10-240-0-3.foxcommerce.com.foxcommerce.com
+    with_base_seeds: true
+  roles:
+    - { role: dev/marathon }
+    - { role: dev/marathon, only_consumers: true }
+    - { role: dev/balancer }
+    - { role: demo/balancer }
+
+  handlers:
+    - include: roles/base/consul_agent/handlers/main.yml

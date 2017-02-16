@@ -9,6 +9,7 @@ scala_version: scala-2.11
 foxcomm_domain: foxcommerce.com
 logrotate_dir: /etc/logrotate.d
 appliance_prefix: appliance
+semaphore_env: undefined
 
 # Marathon defaults
 marathon_retries: 60
