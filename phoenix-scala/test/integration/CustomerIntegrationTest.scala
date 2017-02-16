@@ -203,7 +203,6 @@ class CustomerIntegrationTest
 
         // check that states used in sql still actual
         sqlu"UPDATE orders SET state = 'shipped' WHERE reference_number = ${order.refNum}".gimme
-        sql"SELECT public.update_customers_ranking()".as[Boolean].gimme
 
         customersApi(customer.accountId).get().as[Root].rank must === (2.some)
         val rank  = CustomersRanks.findById(customer.accountId).extract.result.head.gimme
