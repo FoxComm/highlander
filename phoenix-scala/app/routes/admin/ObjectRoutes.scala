@@ -25,7 +25,7 @@ object ObjectRoutes {
             pathPrefix(Segment) { kind ⇒
               (get & pathEnd) {
                 getOrFailures {
-                  ObjectSchemasManager.getSchemasForKind(kind)
+                  ObjectSchemasManager.getSchema(kind)
                 }
               } ~
               (patch & pathEnd & entity(as[UpdateSchemaPayload])) { payload ⇒

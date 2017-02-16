@@ -13,22 +13,20 @@ class ObjectSchemaIntegrationTest
     with BakedFixtures
     with ApiFixtures {
 
-  "GET v1/object/schemas/byName/:name" - {
+  "GET v1/objects/schemas/:context/:kind" - {
     "Returns a product schema" in new ProductAndSkus_Baked {
       val result = schemasApi("default").get("product")
       result.mustBeOk()
 
-      val response = result.as[Seq[Root]]
-      response.length must === (1)
-      response.head.name === ("product")
+      val response = result.as[Root]
+      response.name === ("product")
     }
 
     "Responds with NOT FOUND when invalid kind is requested" in new ProductSku_ApiFixture {
-      val result = schemasApi("default").get("not-real")
-      result.mustBeOk()
-
-      val response = result.as[Seq[Root]]
-      response.length === (0)
+      val kind = "not-real"
+      schemasApi("default")
+        .get(kind)
+        .mustFailWith404(NotFoundFailure404(ObjectFullSchema, "kind", kind))
     }
   }
 }

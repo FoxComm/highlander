@@ -11,35 +11,27 @@ import slick.driver.PostgresDriver.api._
 
 object ObjectSchemasManager {
 
-  def getSchema(name: String)(implicit ec: EC, db: DB): DbResultT[Root] =
+  def getSchema(kind: String)(implicit ec: EC, db: DB, oc: OC): DbResultT[Root] =
     for {
       schema ← * <~ ObjectFullSchemas
-                .findOneByName(name)
-                .mustFindOr(NotFoundFailure404(ObjectFullSchema, name))
+                .filterByKind(kind)
+                .filter(_.contextId === oc.id)
+                .mustFindOneOr(NotFoundFailure404(ObjectFullSchema, "kind", kind))
     } yield build(schema)
 
-  def getSchemasForKind(kind: String)(implicit ec: EC, db: DB): DbResultT[Seq[Root]] =
-    for {
-      schemas ← * <~ ObjectFullSchemas.filterByKind(kind).result
-    } yield schemas.map(build)
-
-  def getAllSchemas()(implicit ec: EC, db: DB): DbResultT[Seq[Root]] =
-    for {
-      schemas ← * <~ ObjectFullSchemas.result
-    } yield schemas.map(build)
-
-  def createSchema(payload: CreateSchemaPayload)(implicit ec: EC, db: DB): DbResultT[Root] =
+  def createSchema(
+      payload: CreateSchemaPayload)(implicit ec: EC, db: DB, oc: OC): DbResultT[Root] =
     for {
       _          ← * <~ ObjectSchemas.create(ObjectSchema.fromCreatePayload(payload))
-      fullSchema ← * <~ getSchema(payload.name)
+      fullSchema ← * <~ getSchema(payload.kind)
     } yield fullSchema
 
-  def updateSchema(name: String, payload: UpdateSchemaPayload)(implicit ec: EC, db: DB) =
+  def updateSchema(name: String, payload: UpdateSchemaPayload)(implicit ec: EC, db: DB, oc: OC) =
     for {
       schema     ← * <~ ObjectSchemas.mustFindByName404(name)
       toUpdate   ← * <~ ObjectSchema.fromUpdatePayload(schema, payload)
       _          ← * <~ ObjectSchemas.update(schema, toUpdate)
-      fullSchema ← * <~ getSchema(toUpdate.name)
+      fullSchema ← * <~ getSchema(toUpdate.kind)
     } yield fullSchema
 
   private def mustGetEmptySchema()(implicit ec: EC): DbResultT[ObjectFullSchema] =
