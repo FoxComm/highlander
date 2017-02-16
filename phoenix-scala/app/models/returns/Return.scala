@@ -1,10 +1,12 @@
 package models.returns
 
 import java.time.Instant
+
 import cats.data.Validated._
 import cats.data.{State ⇒ _, _}
 import com.pellucid.sealerate
 import failures.Failure
+import models.Reason
 import models.account._
 import models.cord.{Order, Orders}
 import models.returns.Return._
@@ -27,7 +29,7 @@ case class Return(id: Int = 0,
                   accountId: Int,
                   storeAdminId: Option[Int] = None,
                   messageToAccount: Option[String] = None,
-                  canceledReason: Option[Int] = None,
+                  canceledReasonId: Option[Int] = None,
                   createdAt: Instant = Instant.now,
                   updatedAt: Instant = Instant.now,
                   deletedAt: Option[Instant] = None)
@@ -89,13 +91,6 @@ object Return {
     )
   }
 
-  def validateStateReason(state: State, reason: Option[Int]): ValidatedNel[Failure, Unit] = {
-    if (state == Canceled) {
-      validExpr(reason.isDefined, "Please provide valid cancellation reason")
-    } else {
-      valid({})
-    }
-  }
 }
 
 class Returns(tag: Tag) extends FoxTable[Return](tag, "returns") {
@@ -109,11 +104,10 @@ class Returns(tag: Tag) extends FoxTable[Return](tag, "returns") {
   def accountId        = column[Int]("account_id")
   def storeAdminId     = column[Option[Int]]("store_admin_id")
   def messageToAccount = column[Option[String]]("message_to_account")
-  // TODO references reasons table which is neither view table nor represented in Slick
-  def canceledReason = column[Option[Int]]("canceled_reason")
-  def createdAt      = column[Instant]("created_at")
-  def updatedAt      = column[Instant]("updated_at")
-  def deletedAt      = column[Option[Instant]]("deleted_at")
+  def canceledReasonId = column[Option[Int]]("canceled_reason_id") // see models.Reasons
+  def createdAt        = column[Instant]("created_at")
+  def updatedAt        = column[Instant]("updated_at")
+  def deletedAt        = column[Option[Instant]]("deleted_at")
 
   def * =
     (id,
@@ -126,7 +120,7 @@ class Returns(tag: Tag) extends FoxTable[Return](tag, "returns") {
      accountId,
      storeAdminId,
      messageToAccount,
-     canceledReason,
+     canceledReasonId,
      createdAt,
      updatedAt,
      deletedAt) <> ((Return.apply _).tupled, Return.unapply)

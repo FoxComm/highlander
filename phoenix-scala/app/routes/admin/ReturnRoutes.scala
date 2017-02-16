@@ -1,6 +1,6 @@
 package routes.admin
 
-import akka.http.scaladsl.server.Directives._
+import akka.http.scaladsl.server.Directives.{path, _}
 import akka.http.scaladsl.server.{PathMatcher, Route}
 import utils.http.JsonSupport._
 import models.account.User
@@ -31,19 +31,36 @@ object ReturnRoutes {
             getOrFailures {
               ReturnService.list
             }
-          }
-        } ~
-        pathPrefix("returns" / "customer") {
-          (get & path(IntNumber) & pathEnd) { customerId ⇒
-            getOrFailures {
-              ReturnService.getByCustomer(customerId)
+          } ~
+          pathPrefix("customer") {
+            (get & path(IntNumber) & pathEnd) { customerId ⇒
+              getOrFailures {
+                ReturnService.getByCustomer(customerId)
+              }
             }
-          }
-        } ~
-        pathPrefix("returns" / "order" / Cord.cordRefNumRegex) { refNum ⇒
-          (get & pathEnd) {
-            getOrFailures {
-              ReturnService.getByOrder(refNum)
+          } ~
+          pathPrefix("order" / Cord.cordRefNumRegex) { refNum ⇒
+            (get & pathEnd) {
+              getOrFailures {
+                ReturnService.getByOrder(refNum)
+              }
+            }
+          } ~
+          pathPrefix("reasons") {
+            (get & pathEnd) {
+              getOrFailures {
+                ReturnReasonsManager.reasonsList
+              }
+            } ~
+            (post & pathEnd & entity(as[ReturnReasonPayload])) { payload ⇒
+              mutateOrFailures {
+                ReturnReasonsManager.addReason(payload)
+              }
+            } ~
+            (delete & path(IntNumber) & pathEnd) { id ⇒
+              deleteOrFailures {
+                ReturnReasonsManager.deleteReason(id)
+              }
             }
           }
         } ~

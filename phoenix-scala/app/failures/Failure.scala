@@ -79,7 +79,7 @@ case object EmptyCancellationReasonFailure extends Failure {
 }
 
 case object InvalidCancellationReasonFailure extends Failure {
-  override def description = "Cancellation reason doesn't exist"
+  override def description = "Invalid cancellation reason provided"
 }
 
 case class InvalidReasonTypeFailure(name: String) extends Failure {

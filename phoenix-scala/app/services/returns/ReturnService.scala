@@ -1,6 +1,7 @@
 package services.returns
 
 import failures.InvalidCancellationReasonFailure
+import models.Reason.Cancellation
 import models.account._
 import models.admin.AdminsData
 import models.cord.Orders
@@ -34,26 +35,19 @@ object ReturnService {
       implicit ec: EC,
       db: DB): DbResultT[Root] =
     for {
-      _        ← * <~ payload.validate
-      rma      ← * <~ Returns.mustFindByRefNum(refNum)
-      _        ← * <~ rma.transitionState(payload.state)
-      reason   ← * <~ payload.reasonId.map(Reasons.findOneById).getOrElse(lift(None))
-      _        ← * <~ cancelOrUpdate(rma, reason, payload)
+      rma    ← * <~ Returns.mustFindByRefNum(refNum)
+      _      ← * <~ rma.transitionState(payload.state)
+      reason ← * <~ payload.reasonId.map(Reasons.findOneById).getOrElse(lift(None))
+      _ ← * <~ reason.map(r ⇒
+               failIfNot(r.reasonType == Cancellation, InvalidCancellationReasonFailure))
+      _        ← * <~ update(rma, reason, payload)
       updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(updated)
     } yield response
 
-  private def cancelOrUpdate(rma: Return,
-                             reason: Option[Reason],
-                             payload: ReturnUpdateStatePayload)(implicit ec: EC) = {
-    (payload.state, reason) match {
-      case (Canceled, Some(r)) ⇒
-        Returns.update(rma, rma.copy(state = payload.state, canceledReason = Some(r.id)))
-      case (Canceled, None) ⇒
-        DbResultT.failure(InvalidCancellationReasonFailure)
-      case (_, _) ⇒
-        Returns.update(rma, rma.copy(state = payload.state))
-    }
+  private def update(rma: Return, reason: Option[Reason], payload: ReturnUpdateStatePayload)(
+      implicit ec: EC) = {
+    Returns.update(rma, rma.copy(state = payload.state, canceledReasonId = reason.map(_.id)))
   }
 
   // todo should be available for non-admin as well

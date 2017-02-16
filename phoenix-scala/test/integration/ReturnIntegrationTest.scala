@@ -14,7 +14,7 @@ import models.shipping.{Shipments, ShippingMethods}
 import org.scalatest.prop.PropertyChecks
 import payloads.ReturnPayloads._
 import responses.ReturnResponse.Root
-import responses.{ReturnLockResponse, ReturnResponse}
+import responses.{ReturnLockResponse, ReturnReasonsResponse, ReturnResponse}
 import services.returns.{ReturnLineItemUpdater, ReturnLockUpdater, ReturnService}
 import testutils._
 import testutils.apis.PhoenixAdminApi
@@ -22,6 +22,7 @@ import testutils.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Seeds.Factories
 import cats.implicits._
+import models.Reason.Cancellation
 
 class ReturnIntegrationTest
     extends IntegrationTestBase
@@ -68,19 +69,31 @@ class ReturnIntegrationTest
       }
 
       "successfully cancels Return with valid reason" in new Fixture {
-        val payload = ReturnUpdateStatePayload(state = Canceled, reasonId = reason.id.some)
+        val payload =
+          ReturnUpdateStatePayload(state = Canceled, reasonId = cancellationReason.id.some)
         returnsApi(rma.referenceNumber).update(payload).as[ReturnResponse.Root].state must === (
             Canceled)
       }
 
-      "Cancel state should be final " in new Fixture {
+      "fail if return reason has wrong type" in new Fixture {
+        assert(reason.reasonType != Cancellation)
+        val payload = ReturnUpdateStatePayload(state = Canceled, reasonId = reason.id.some)
         returnsApi(rma.referenceNumber)
-          .update(ReturnUpdateStatePayload(state = Canceled, reasonId = reason.id.some))
-          .as[ReturnResponse.Root]
-          .state must === (Canceled)
+          .update(payload)
+          .mustFailWith400(InvalidCancellationReasonFailure)
+      }
+
+      "Cancel state should be final " in new Fixture {
+        private val canceled = returnsApi(rma.referenceNumber)
+          .update(
+              ReturnUpdateStatePayload(state = Canceled, reasonId = cancellationReason.id.some))
+          .as[Root]
+
+        canceled.state must === (Canceled)
+        canceled.canceledReasonId must === (cancellationReason.id.some)
 
         returnsApi(rma.referenceNumber)
-          .update(ReturnUpdateStatePayload(state = Pending, reasonId = reason.id.some))
+          .update(ReturnUpdateStatePayload(state = Pending, reasonId = cancellationReason.id.some))
           .mustFailWith400(
               StateTransitionNotAllowed(Return, "Canceled", "Pending", rma.referenceNumber))
       }
@@ -89,7 +102,7 @@ class ReturnIntegrationTest
         returnsApi(rma.referenceNumber).get().as[ReturnResponse.Root].state must === (Pending)
 
         private def state(s: State) = {
-          ReturnUpdateStatePayload(state = s, reasonId = reason.id.some)
+          ReturnUpdateStatePayload(state = s, reasonId = cancellationReason.id.some)
         }
 
         returnsApi(rma.referenceNumber)
@@ -111,13 +124,6 @@ class ReturnIntegrationTest
           .update(state(Pending))
           .mustFailWith400(
               StateTransitionNotAllowed(Return, "Complete", "Pending", rma.referenceNumber))
-      }
-
-      "fails to cancel Return if invalid reason provided" in new Fixture {
-        private val payload = ReturnUpdateStatePayload(state = Canceled, reasonId = 999.some)
-        returnsApi(rma.referenceNumber)
-          .update(payload)
-          .mustFailWith400(InvalidCancellationReasonFailure)
       }
 
       "fails if Return is not found" in new Fixture {
@@ -189,6 +195,30 @@ class ReturnIntegrationTest
           .message(payload)
           .mustFailWith400(GeneralFailure("Message length got 3000, expected 1000 or less"))
       }
+    }
+  }
+
+  "Return reasons" - {
+    "get list of return reasons" in new LineItemFixture {
+      val response = returnsApi.getReasonsList.as[Seq[ReturnReasonsResponse.Root]]
+      response.nonEmpty must === (true)
+      response.head.name must === (returnReason.name)
+    }
+
+    "add new return reason" in new LineItemFixture {
+      val rr       = ReturnReasonPayload(name = "Simple reason")
+      val response = returnsApi.addReturnReason(rr).as[ReturnReasonsResponse.Root]
+      response.name must === (rr.name)
+    }
+
+    "remove return reason by id" in new LineItemFixture {
+      returnsApi.removeReturnReason(returnReason.id)
+      returnsApi.getReasonsList.as[Seq[ReturnReasonsResponse.Root]] mustBe 'empty
+
+      info("must fail if returnReason was already deleted")
+      returnsApi
+        .removeReturnReason(returnReason.id)
+        .mustFailWith404(NotFoundFailure404(ReturnReasons, returnReason.id))
     }
   }
 
