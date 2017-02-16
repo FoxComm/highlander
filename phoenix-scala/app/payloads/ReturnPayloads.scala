@@ -77,11 +77,12 @@ object ReturnPayloads {
   }
 
   case class ReturnReasonPayload(name: String) extends Validation[ReturnReasonPayload] {
+    val reasonNameMaxLength = 255
 
     def validate: ValidatedNel[Failure, ReturnReasonPayload] = {
       val clue = "Reason name length"
       (greaterThan(name.length, 0, clue) |@| lesserThanOrEqual(name.length,
-                                                               ReturnReason.reasonNameMaxLength,
+                                                               reasonNameMaxLength,
                                                                clue)).map {
         case _ ⇒ this
       }

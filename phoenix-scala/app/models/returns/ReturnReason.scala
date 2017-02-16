@@ -22,8 +22,6 @@ case class ReturnReason(id: Int = 0,
     extends FoxModel[ReturnReason] {}
 
 object ReturnReason {
-  val reasonNameMaxLength = 255
-
   sealed trait ReasonType
   case object BaseReason        extends ReasonType
   case object ProductReturnCode extends ReasonType
