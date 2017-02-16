@@ -24,6 +24,7 @@
     self_host: appliance-10-240-0-12.foxcommerce.com
     ashes_server_name: appliance-10-240-0-12.foxcommerce.com
     storefront_server_name: appliance-10-240-0-12.foxcommerce.com
+    is_appliance: true
     with_base_seeds: true
     url_prefix_perfectgourmet: "/perfect-gourmet"
     url_prefix_topdrawer: "/top-drawer"
