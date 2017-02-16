@@ -3,8 +3,7 @@
  */
 
 // libs
-import React, { Component, Element } from 'react';
-import _ from 'lodash';
+import React, { Component } from 'react';
 
 // components
 import TableCell from 'components/table/cell';
@@ -27,7 +26,7 @@ type Props = {
 class ValueEntry extends Component {
   props: Props;
 
-  get imageBlock(): Element<*> {
+  get imageBlock() {
     if (this.props.value.image) {
       return <div>{this.props.value.image}</div>;
     } else {
@@ -35,7 +34,7 @@ class ValueEntry extends Component {
     }
   }
 
-  get swatchBlock(): Element<*> {
+  get swatchBlock() {
     if (this.props.value.swatch) {
       return <SwatchDisplay hexCode={this.props.value.swatch} />;
     } else {

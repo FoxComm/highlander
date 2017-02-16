@@ -2,7 +2,7 @@
  * @flow
  */
 
-import React, { Component, Element } from 'react';
+import React, { Component } from 'react';
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';
@@ -52,7 +52,8 @@ function formatLabel(label: string): string {
   });
 }
 
-export function renderFormField(name: string, content: Element<*>, options: AttrOptions) {
+// TODO: fix content type
+export function renderFormField(name: string, content: any, options: AttrOptions) {
   return (
     <FormField
       {...options}
@@ -81,7 +82,7 @@ export default class ObjectFormInner extends Component {
   props: Props;
   state: State = { isAddingProperty: false, errors: {} };
 
-  get addCustomProperty(): ?Element<any> {
+  get addCustomProperty() {
     if (this.props.canAddProperty) {
       return (
         <div className="fc-object-form__add-custom-property">
@@ -95,7 +96,7 @@ export default class ObjectFormInner extends Component {
     }
   }
 
-  get customPropertyForm(): ?Element<*> {
+  get customPropertyForm() {
     if (this.state.isAddingProperty) {
       return (
         <CustomProperty
@@ -163,7 +164,7 @@ export default class ObjectFormInner extends Component {
     return renderFormField(name, sliderCheckbox, options);
   }
 
-  renderBool(...args: Array<any>): Element<*> {
+  renderBool(...args: Array<any>) {
     return this.renderBoolean(...args);
   }
 
@@ -340,7 +341,7 @@ export default class ObjectFormInner extends Component {
     const { attributes, schema } = props;
     const fieldsToRender = _.isEmpty(props.fieldsToRender) ? Object.keys(attributes) : props.fieldsToRender;
 
-    const renderedAttributes: Array<Element<*>> = _.map(fieldsToRender, name => {
+    const renderedAttributes: Array = _.map(fieldsToRender, name => {
       const attribute: Attribute = attributes[name];
       const attrSchema: ?AttrSchema = schema ? schema.properties[name] : null;
 

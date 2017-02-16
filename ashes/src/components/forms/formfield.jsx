@@ -286,7 +286,7 @@ export default class FormField extends Component {
     }
   }
 
-  get label(): ?Element<*> {
+  get label() {
     if (this.props.label) {
       const optionalMark = 'optional' in this.props ? <span className="fc-form-field-optional">(optional)</span> : null;
       const className = classNames('fc-form-field-label', this.props.labelClassName);

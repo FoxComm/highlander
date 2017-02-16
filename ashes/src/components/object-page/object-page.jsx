@@ -2,7 +2,7 @@
 
 import _ from 'lodash';
 import { connect } from 'react-redux';
-import { EventEmitter } from 'events';
+import EventEmitter from 'events';
 import { bindActionCreators } from 'redux';
 import React, { Component, Element, PropTypes } from 'react';
 import invariant from 'invariant';

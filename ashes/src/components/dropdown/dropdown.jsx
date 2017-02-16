@@ -1,7 +1,7 @@
 /* @flow */
 
 import _ from 'lodash';
-import React, { Component, Element } from 'react';
+import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
 
 import GenericDropdown from './generic-dropdown';
@@ -26,7 +26,7 @@ export default class Dropdown extends Component {
   props: Props;
 
   @autobind
-  buildInput(value: string|number, title: string, props: Props, handleToggleClick: Function): Element<*> {
+  buildInput(value: string|number, title: string, props: Props, handleToggleClick: Function) {
     if (value === null) value = '';
     if (props.editable) {
       return (
@@ -51,7 +51,7 @@ export default class Dropdown extends Component {
   }
 
 
-  renderItems(): ?Element<*> {
+  renderItems() {
     const { name, items } = this.props;
 
       return _.map(items, ([value, title, isHidden]) => (

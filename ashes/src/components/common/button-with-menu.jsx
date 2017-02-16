@@ -24,7 +24,7 @@ type Props = {
   items: Array<DropdownItemType>;
   title: string|Element<*>;
   className?: string;
-  menuPosition?: "left" | "center" | "right";
+  menuPosition: "left" | "center" | "right";
   animate?: boolean;
   isLoading?: boolean;
 }

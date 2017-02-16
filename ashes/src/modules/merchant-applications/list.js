@@ -1,5 +1,6 @@
 /* @flow */
 
+import get from 'lodash/get';
 import { createReducer } from 'redux-act';
 import Api from 'lib/api';
 import { createAsyncActions } from '@foxcomm/wings';
@@ -23,7 +24,7 @@ export const fetchApplications = _getApplications.perform;
 
 const reducer = createReducer({
   [_getApplications.succeeded]: (state: State, payload: Object): State => {
-	  const applications = payload.merchant_applications || payload;
+	  const applications = get(payload, 'merchant_applications', payload);
 	  return { ...state, applications };
 	},
 }, initialState);
