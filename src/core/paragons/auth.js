@@ -1,4 +1,3 @@
-
 /* @flow */
 
 import _ from 'lodash';
@@ -22,4 +21,8 @@ export function isGuest(user: ?Object): boolean {
 export function emailIsSet(user: ?Object): boolean {
   const email = _.get(user, 'email', '');
   return !_.isEmpty(email) && email !== emptyEmail;
+}
+
+export function isAuthorizedUser(user: ?Object) {
+  return !_.isEmpty(user) && !isGuest(user);
 }

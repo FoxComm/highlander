@@ -27,14 +27,16 @@ import AboutPage from './pages/about/about-page';
 import Checkout from './pages/checkout/checkout';
 import OrderPlaced from './pages/checkout/04-order-placed/order-placed';
 
-import { isGuest } from 'paragons/auth';
+import { isAuthorizedUser } from 'paragons/auth';
 
 export default function makeRoutes(store) {
   function handleProfileEnter(nextState, replace, callback) {
-    const auth = store.getState().auth;
-    if (!auth || !auth.user || isGuest(auth.user)) {
+    const { auth } = store.getState();
+
+    if (!auth || !isAuthorizedUser(auth.user)) {
       replace('/?auth=LOGIN');
     }
+
     callback();
   }
 
