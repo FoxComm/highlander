@@ -67,6 +67,11 @@ marathon_restart:
     messaging: true
     isaac: true
     solomon: true
+    capture_consumer: true
+    gift_card_consumer: true
+    shipments_consumer: true
+    shipstation_consumer: true
+    stock_items_consumer: true
     shipstation_consumer: true
     marketplace: true
     hyperion: true

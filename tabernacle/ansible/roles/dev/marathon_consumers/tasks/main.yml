@@ -12,9 +12,4 @@
   when: marathon_restart.messaging
 
 - name: Start Middlewarehouse Consumers
-  include: app_consumers.yml
-  when: marathon_restart.middlewarehouse
-
-- name: Start Shipstation Consumer
-  include: app_shipstation.yml
-  when: with_shipstation and marathon_restart.shipstation_consumer
+  include: consumers.yml
