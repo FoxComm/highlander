@@ -11,6 +11,9 @@
 - name: Install Consul Template Service
   template: src=consul_template.service dest="{{dest_services}}/consul_template.service"
 
+- name: Copy Consul Template Config File
+  template: src=consul_template.conf dest="{{consul_data_dir}}/consul_template.conf"
+
 - name: Copy Consul Template Service File
   template: src=consul_template.json dest=/etc/consul.d/consul_template.json
   notify: reload consul

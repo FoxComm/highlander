@@ -23,6 +23,16 @@
       prompt: "Override your appliance IP (optional)"
       default: "10.240.0.x"
       private: no
+  pre_tasks:
+    - name: Set IP/DNS Facts
+      set_fact:
+        private_ip: "{{ansible_default_ipv4.address}}"
+        dns_record: "appliance-{{ansible_default_ipv4.address | replace(\".\", \"-\") }}"
+    - name: Override hostnames
+      set_fact:
+        appliance_hostname: "{{dns_record}}.{{foxcomm_domain}}"
+        ashes_server_name: "{{dns_record}}.{{foxcomm_domain}}"
+        storefront_server_name: "{{dns_record}}.{{foxcomm_domain}}"
 
   roles:
     - { role: dev/update_app }

@@ -41,6 +41,7 @@ trait TestBase
 }
 
 object TestBase {
-  implicit val env         = Environment.Test
-  val (config, bareConfig) = FoxConfig.loadWithEnv().get
+  sys.props += ("phoenix.env" → "test")
+  val bareConfig = FoxConfig.unsafe
+  val config     = FoxConfig.config
 }

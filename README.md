@@ -20,6 +20,7 @@ Highlander is the brand-spanking-new FoxCommerce mono-repo.
 | [prov-shit](prov-shit)               | All of our DevOps tools for deploying the application to both development and production.                    |
 | [api-docs](api-docs)                 | Our API documentation in API Blueprint format and Postman query collections.                                 |
 | [engineering-wiki](engineering-wiki) | Internal design documents, guidelines and other tips in Markdown format.                                     |
+| [hyperion](hyperion)                 | A microservice that handles requests to Amazon MWS API, written in Elixir.                                   |
 
 ## Development Environment
 

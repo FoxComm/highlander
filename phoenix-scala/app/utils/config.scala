@@ -112,7 +112,8 @@ object FoxConfig {
                          redirectUri: String,
                          hostedDomain: Option[String])
 
-  private def loadWithEnv(cfg: Config)(implicit env: Environment): Config = {
+  private def loadBareConfigWithEnv(cfg: Config = ConfigFactory.load)(
+      implicit env: Environment): Config = {
     val envConfig = cfg.getConfig("env." ++ env.show)
     ConfigFactory.systemProperties.withFallback(envConfig.withFallback(cfg))
   }
@@ -138,12 +139,9 @@ object FoxConfig {
   val admin: Lens[Users, User]             = lens[Users].admin
   val googleOauth: Lens[User, GoogleOauth] = lens[User].oauth.google
 
-  def loadWithEnv()(implicit env: Environment): Try[(FoxConfig, Config)] =
-    for {
-      underlying ← Try(loadWithEnv(ConfigFactory.load))
-      config     ← loadConfig[FoxConfig](underlying)
-    } yield (config, underlying)
-
   // impure, but throwing an exception is exactly what we want here
-  val (config, unsafe) = loadWithEnv().get
+  val (config, unsafe) = (for {
+    underlying ← Try(loadBareConfigWithEnv())
+    config     ← loadConfig[FoxConfig](underlying)
+  } yield (config, underlying)).get
 }

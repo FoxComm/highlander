@@ -1,0 +1,72 @@
+module(load="imfile" PollingInterval="10")
+
+# application logs in docker containers
+input(type="imfile"
+      File="/var/log/docker/phoenix.log"
+      Tag="phoenix"
+      Facility="local6")
+
+input(type="imfile"
+      File="/var/log/docker/middlewarehouse.log"
+      Tag="middlewarehouse"
+      Facility="local6")
+
+input(type="imfile"
+      File="/var/log/docker/ashes.log"
+      Tag="ashes"
+      Facility="local6")
+
+input(type="imfile"
+      File="/var/log/docker/td-storefront.log"
+      Tag="storefront"
+      Facility="local6")
+
+input(type="imfile"
+      File="/var/log/docker/tpg-storefront.log"
+      Tag="storefront"
+      Facility="local6")
+
+input(type="imfile"
+      File="/var/log/docker/firebrand.log"
+      Tag="storefront"
+      Facility="local6")
+
+input(type="imfile"
+      File="/var/log/docker/isaac.log"
+      Tag="isaac"
+      Facility="local6")
+
+input(type="imfile"
+      File="/var/log/docker/solomon.log"
+      Tag="solomon"
+      Facility="local6")
+
+input(type="imfile"
+      File="/var/log/docker/green-river.log"
+      Tag="green-river"
+      Facility="local6")
+
+input(type="imfile"
+      File="/var/log/docker/messaging.log"
+      Tag="messaging"
+      Facility="local6")
+
+input(type="imfile"
+      File="/var/log/docker/capture-consumer.log"
+      Tag="capture-consumer"
+      Facility="local6")
+
+input(type="imfile"
+      File="/var/log/docker/gift-card-consumer.log"
+      Tag="gift-card-consumer"
+      Facility="local6")
+
+input(type="imfile"
+      File="/var/log/docker/shipment-consumer.log"
+      Tag="shipment-consumer"
+      Facility="local6")
+
+input(type="imfile"
+      File="/var/log/docker/stock-items-consumer.log"
+      Tag="stock-items-consumer"
+      Facility="local6")
