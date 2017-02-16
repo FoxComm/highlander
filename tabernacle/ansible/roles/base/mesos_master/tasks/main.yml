@@ -1,0 +1,37 @@
+---
+
+- name: Install Marathon
+  apt: name=marathon state=latest force=yes
+
+- name: Copy Mesos Master Scripts
+  template: src={{item}} dest=/usr/local/bin mode="u+x,g+x,o+x"
+  with_items:
+    - run_mesos_master.sh
+    - mesos_master_check.sh
+
+- name: Install Service Entries
+  template: src={{item}} dest={{dest_services}}
+  with_items:
+      - mesos_master.service
+      - marathon.service
+
+- name: Install Mesos ACL and Credentials
+  template: src={{item}} dest=/var/lib/mesos/{{item}}
+  with_items:
+      - acls.json
+      - credentials.json
+
+- name: Reload Systemd for Mesos Master
+  command: systemctl daemon-reload
+
+- name: Restart Services
+  service: name={{item}} state=restarted enabled=true
+  with_items:
+    - mesos_master
+    - marathon
+
+- name: Copy Consul Service Files
+  template: src={{item}} dest=/etc/consul.d
+  with_items:
+    - mesos_master.json
+    - marathon.json

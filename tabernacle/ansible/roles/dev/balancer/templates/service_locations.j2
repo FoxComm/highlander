@@ -1,0 +1,352 @@
+
+# Create unique UUID to track each request
+set_by_lua $uuid '
+    if ngx.var.http_x_request_id == nil then
+        return uuid4.getUUID()
+    else
+        return ngx.var.http_x_request_id
+    end
+';
+
+error_page 500 @500;
+error_page 502 @502;
+error_page 503 @503;
+error_page 504 @504;
+
+# Use Isaac to auth by passing headers but not body to isaac.
+# Isaac will look for the JWT header and return 200 if it is valid, otherwise
+# 4xx errors.
+location = /internal-auth {
+    internal;
+    proxy_pass http://isaac/check_role?role=admin;
+    proxy_pass_request_body off;
+    proxy_http_version 1.1;
+    proxy_set_header Connection "";
+    proxy_set_header Content-Length "";
+}
+
+# Proxy to ElasticSearch phoenix index for internal use by /api/search
+location /internal-search/ {
+    internal;
+    proxy_pass http://search/;
+    proxy_http_version 1.1;
+    proxy_set_header Content-Length "";
+}
+
+# Proxy the internal search location and sanitizes output from ES for external use
+location ~ /api/search/admin/.*/_search {
+    auth_request /internal-auth;
+    default_type 'application/json';
+    content_by_lua '
+
+        --forward to internal es
+        local json = request_internal_search("admin")
+
+        -- we need only _source filed from the hits
+        json.hits.result = map(json.hits.hits, function(hit)
+            return hit._source
+        end)
+        json.hits.pagination = {total = json.hits.total}
+        json.hits.hits = nil
+        json.hits.total = nil
+
+        -- add aggregations to response
+        json.hits.aggregations = json.aggregations
+
+        --only show hits
+        --TODO handle error better if hits is undefined.
+        ngx.say(j.encode(json.hits))
+    ';
+    break;
+}
+
+# Proxy the internal search location and sanitizes output from ES for external use
+location ~ /api/search/admin/.*/_count {
+    auth_request /internal-auth;
+    default_type 'application/json';
+    content_by_lua '
+
+        --forward to internal es
+        local json = request_internal_search("admin")
+
+        --remove shards
+        json._shards = nil
+
+        --only show count
+        ngx.say(j.encode(json))
+    ';
+    break;
+}
+
+# Proxy the internal search location and sanitizes output from ES for external use
+location ~ /api/search/admin/.*/\d+$ {
+    auth_request /internal-auth;
+    default_type 'application/json';
+    content_by_lua '
+
+        --forward to internal es
+        local json = request_internal_search("admin")
+
+        if json.found == true then
+            --only show _source
+            json = json._source
+
+            ngx.say(j.encode(json))
+        else
+            ngx.status = ngx.HTTP_NOT_FOUND
+            ngx.header["Content-type"] = "application/json"
+            json = { found = false}
+            ngx.say(j.encode(json))
+        end
+    ';
+    break;
+}
+
+location ~ /api/search/public/.*/_search {
+    default_type 'application/json';
+    content_by_lua '
+
+        --forward to internal es
+        local json = request_internal_search("public")
+
+        -- we need only _source filed from the hits
+        json.hits.result = map(json.hits.hits, function(hit)
+            return hit._source
+        end)
+        json.hits.pagination = {total = json.hits.total}
+        json.hits.hits = nil
+
+        --only show hits
+        --TODO handle error better if hits is undefined.
+        ngx.say(j.encode(json.hits))
+    ';
+    break;
+}
+
+# Proxy the internal search location and sanitizes output from ES for external use
+location ~ /api/search/public/.*/_count {
+    default_type 'application/json';
+    content_by_lua '
+
+        --forward to internal es
+        local json = request_internal_search("public")
+
+        --remove shards
+        json._shards = nil
+
+        --only show count
+        ngx.say(j.encode(json))
+    ';
+    break;
+}
+
+# Proxy the internal search location and sanitizes output from ES for external use
+location ~ /api/search/public/.*/\d+$ {
+    default_type 'application/json';
+    content_by_lua '
+
+        --forward to internal es
+        local json = request_internal_search("public")
+
+        if json.found == true then
+            --only show _source
+            json = json._source
+
+            ngx.say(j.encode(json))
+        else
+            ngx.status = ngx.HTTP_NOT_FOUND
+            ngx.header["Content-type"] = "application/json"
+            json = { found = false}
+            ngx.say(j.encode(json))
+        end
+    ';
+    break;
+}
+
+# Proxy to middlewarehouse
+location /api/v1/inventory/ {
+    auth_request /internal-auth;
+    default_type 'application/json';
+    proxy_pass http://middlewarehouse/v1/public/;
+    proxy_http_version 1.1;
+    proxy_set_header Connection "";
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    break;
+}
+
+location /api/v1/time/ {
+    auth_request /internal-auth;
+    default_type 'application/json';
+    proxy_pass http://henhouse/;
+    proxy_http_version 1.1;
+    proxy_buffering off;
+    proxy_set_header Connection "";
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    #need to add this since henhouse does not add content type in response yet. 
+    add_header Content-Type 'application/json';
+    break;
+}
+
+location /api/v1/stats/ {
+    auth_request /internal-auth;
+    default_type 'application/json';
+    proxy_pass http://eggcrate/;
+    proxy_buffering off;
+    proxy_http_version 1.1;
+    proxy_set_header Connection "";
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    add_header Content-Type 'application/json';
+    break;
+}
+
+# Proxy to phoenix and use basic auth.
+location /api/v1/public/ {
+    proxy_pass http://phoenix/v1/public/;
+    proxy_hide_header Authorization;
+    proxy_http_version 1.1;
+    proxy_set_header Connection "";
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    break;
+}
+
+# Tracking URL. Returns a 1x1 transparent gif image.
+# Any query params are sent to kafka for processing. 
+location ~ /api/v1/hal.* {
+  add_header Pragma "no-cache" always;
+  add_header Pragma-Directive "no-cache" always;
+  add_header Cache-Directive "no-cache" always;
+  add_header Cache-Control "no-cache, no-store, must-revalidate" always;
+  add_header Expires "0" always;
+  add_header Pragma "no-cache";
+  empty_gif;
+}
+
+location /sol/ {
+    proxy_pass http://sol/;
+    proxy_pass_header Authorization;
+    proxy_http_version 1.1;
+    proxy_set_header Connection "";
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    break;
+}
+
+location /hyperion/ {
+    proxy_pass http://hyperion/;
+    proxy_pass_header Authorization;
+    proxy_pass_header customer_id;
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    break;
+}
+
+location /admin/ {
+    proxy_pass http://ashes;
+    proxy_http_version 1.1;
+    proxy_set_header Connection "";
+}
+
+location @ashes {
+    proxy_pass http://ashes;
+    proxy_http_version 1.1;
+    proxy_set_header Connection "";
+}
+
+location /api/v1/my/ {
+    proxy_pass http://phoenix/v1/my/;
+    proxy_pass_header Authorization;
+    proxy_http_version 1.1;
+    proxy_set_header Connection "";
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    break;
+}
+
+location /api/v1/service/ {
+    return 404;
+}
+
+location /api/ {
+    proxy_pass http://phoenix/;
+    proxy_pass_header Authorization;
+    proxy_http_version 1.1;
+    proxy_set_header Connection "";
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    break;
+}
+
+# Proxy SSE stream to phoenix.
+location /sse/ {
+    proxy_pass http://phoenix/;
+
+    proxy_pass_header Authorization;
+    proxy_http_version 1.1;
+    proxy_set_header Connection "";
+    chunked_transfer_encoding off;
+    proxy_buffering off;
+    proxy_cache off;
+}
+
+# Proxy to dashboard and other web UIs
+{% if is_appliance %}
+location /private/dashboard/ {
+    proxy_pass http://dashboard/;
+    proxy_http_version 1.1;
+    proxy_set_header Connection "";
+}
+
+location /private/marathon/ {
+    proxy_pass http://marathon/;
+    proxy_http_version 1.1;
+    proxy_set_header Connection "";
+}
+
+location /private/pgweb/ {
+    proxy_pass http://pgweb/;
+    proxy_http_version 1.1;
+    proxy_set_header Connection "";
+}
+{% endif %}
+
+# Error pages
+location @500 {
+    if ($http_content_type ~ .*json.*) {
+        more_set_headers 'Content-Type: application/json charset=UTF-8';
+        return 500 '{"code": 500, "reason": "Internal Server Error"}';
+    }
+}
+
+location @502 {
+    if ($http_content_type ~ .*json.*) {
+        more_set_headers 'Content-Type: application/json charset=UTF-8';
+        return 502 '{"code": 502, "reason": "Bad gateway"}';
+    }
+}
+
+location @503 {
+    if ($http_content_type ~ .*json.*) {
+        more_set_headers 'Content-Type: application/json charset=UTF-8';
+        return 503 '{"code": 503, "reason": "Service Unavailable"}';
+    }
+}
+
+location @504 {
+    if ($http_content_type ~ .*json.*) {
+        more_set_headers 'Content-Type: application/json charset=UTF-8';
+        return 504 '{"code": 504, "reason": "Gateway timeout"}';
+    }
+}
