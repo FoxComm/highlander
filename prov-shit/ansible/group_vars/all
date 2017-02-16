@@ -204,7 +204,7 @@ hyperion_dir: /hyperion
 hyperion_db_name: hyperion_development
 hyperion_db_user: hyperion
 hyperion_db_password: hyperion
-hyperion_db_host: {{db_host}}
+hyperion_db_host: "{{db_host}}"
 hyperion_db_connection_string: "postgresql://{{hyperion_db_user}}@{{hyperion_db_host}}/{{hyperion_db_name}}"
 
 # Elasticsearch 2.x
