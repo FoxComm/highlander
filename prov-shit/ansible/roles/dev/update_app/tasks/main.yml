@@ -1,6 +1,12 @@
 ---
 
-- include_vars: secret.yml
+- name: Load secrets for Marathon apps
+  include_vars: file={{item}}
+  with_items:
+    - "{{role_path}}/../marathon/vars/main.yml"
+    - "{{role_path}}/../marathon/vars/stripe.yml"
+    - "{{role_path}}/../marathon/vars/hyperion.yml"
+    - "{{role_path}}/../marathon/vars/solomon.yml"
 
 - include: validate.yml
 
