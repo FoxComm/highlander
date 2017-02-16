@@ -15,6 +15,7 @@
 - name: Install Core Packages
   apt: name={{item}} state=latest force=yes
   with_items:
+    - debconf-utils
     - curl
     - htop
     - make

@@ -9,8 +9,17 @@
     - run_mesos_master.sh
     - mesos_master_check.sh
 
-- name: Install Mesos Master Service Entry
-  template: src=mesos_master.service dest={{dest_services}}
+- name: Install Service Entries
+  template: src={{item}} dest={{dest_services}}
+  with_items:
+      - mesos_master.service
+      - marathon.service
+
+- name: Install Mesos ACL and Credentials
+  template: src={{item}} dest=/var/lib/mesos/{{item}}
+  with_items:
+      - acls.json
+      - credentials.json
 
 - name: Reload Systemd for Mesos Master
   command: systemctl daemon-reload

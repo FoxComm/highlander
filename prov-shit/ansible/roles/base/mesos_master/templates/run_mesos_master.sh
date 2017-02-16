@@ -14,4 +14,8 @@ mesos-master --hostname=$IP \
     --zk={{zookeepers}}/mesos \
     --cluster=$CLUSTER_NAME \
     --work_dir=$WORK_DIR \
-    --log_dir=$LOG_DIR
+    --log_dir=$LOG_DIR \
+    --authenticate_frameworks=true \
+    --acls=file:///var/lib/mesos/acls.json \
+    --credentials=file:///var/lib/mesos/credentials.json
+

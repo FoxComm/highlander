@@ -7,6 +7,49 @@ server {
 }
 
 server {
+  listen 8888;
+
+  index index.html;
+
+  server_name balancer.service.consul
+
+  # variables
+  # language
+  set $accept_language {{storefront_default_language}};
+  if ($http_accept_language) {
+      set $accept_language $http_accept_language;
+  }
+  {% if storefront_fixed_language %}set $accept_language {{storefront_default_language}};{% endif %}
+
+  # Proxy to storefronts
+  location / {
+      proxy_pass http://storefront/;
+      proxy_http_version 1.1;
+      proxy_set_header Connection "";
+  }
+
+  location @storefront {
+      proxy_pass http://storefront;
+      proxy_http_version 1.1;
+      proxy_set_header Connection "";
+  }
+
+  location /top-drawer {
+      proxy_pass http://storefront-top-drawer;
+      proxy_http_version 1.1;
+      proxy_set_header Connection "";
+  }
+
+  location /perfect-gourmet {
+      proxy_pass http://storefront-perfect-gourmet;
+      proxy_http_version 1.1;
+      proxy_set_header Connection "";
+  }
+
+  include /etc/nginx/service_locations.conf;
+}
+
+server {
   listen 443 ssl;
   ssl_certificate     /certs/domain.crt;
   ssl_certificate_key /certs/domain.key;
@@ -24,22 +67,25 @@ server {
   }
   {% if storefront_fixed_language %}set $accept_language {{storefront_default_language}};{% endif %}
 
-  # Proxy to storefronts
+  # Proxy SSE stream to phoenix.
+  location /sse/ {
+      proxy_pass http://phoenix/;
+
+      proxy_pass_header Authorization;
+      proxy_set_header Connection '';
+      proxy_http_version 1.1;
+      chunked_transfer_encoding off;
+      proxy_buffering off;
+      proxy_cache off;
+  }
+
   location / {
-      proxy_pass http://storefront;
+      add_header X-Host $host;
+      proxy_pass http://river-rock/proxy/;
+      proxy_buffering off;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_http_version 1.1;
+      proxy_set_header Connection "";
+      break;
   }
-
-  location @storefront {
-      proxy_pass http://storefront;
-  }
-
-  location /top-drawer {
-       proxy_pass http://storefront-top-drawer;
-  }
-
-  location /perfect-gourmet {
-       proxy_pass http://storefront-perfect-gourmet;
-  }
-
-  include /etc/nginx/service_locations.conf;
 }

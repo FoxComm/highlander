@@ -1,6 +1,5 @@
 [Service]
 WorkingDirectory={{es5_home}}
-LimitNOFILE={{es5_max_file_descriptors }}
 ExecStart=/bin/bash {{es5_home}}/run_elasticsearch_5.sh {{es5_path}}
 Restart=always
 StandardOutput=syslog

@@ -18,8 +18,8 @@
 - name: Stop Amigo Services
   service: name={{item}} state=stopped enabled=true
   with_items:
-    - mesos_master
-    - marathon
+      - mesos_master
+      - marathon
   when: is_amigo
 
 - name: Purge Zookeeper Data
@@ -35,7 +35,7 @@
   file: path=/var/lib/kafka state=directory
 
 - name: Start Services
-  service: name={{item}} state=started enabled=true
+  service: name={{item}} state=restarted enabled=true sleep=2
   with_items:
     - docker
     - zookeeper
@@ -52,6 +52,6 @@
 - name: Start Amigo Services
   service: name={{item}} state=started enabled=true
   with_items:
-    - mesos_master
-    - marathon
+      - mesos_master
+      - marathon
   when: is_amigo

@@ -1,0 +1,24 @@
+---
+
+- name: Creates Marathon JSON directory
+  file: path=/marathon/applications state=directory
+
+- name: Start Henhouse
+  include: app_henhouse.yml
+
+- name: Start Bernardo
+  include: app_bernardo.yml
+
+- name: Start Digger Sphex
+  include: app_digger_sphex.yml
+
+- name: Start Orders Sphex
+  include: app_orders_sphex.yml
+
+- name: Start Eggcrate
+  include: app_eggcrate.yml
+
+- name: Start River Rock
+  include: app_river_rock.yml
+
+
