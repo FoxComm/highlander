@@ -1,5 +1,7 @@
 package utils.apis
 
+import cats.implicits._
+import cats.data.Xor
 import com.ning.http.client
 import com.typesafe.scalalogging.LazyLogging
 import dispatch._
@@ -41,11 +43,12 @@ class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
     val req    = reqUrl.setContentType("application/json", "UTF-8") <:< Map("JWT" → jwt) << body
     logger.info(s"middlewarehouse hold: $body")
 
-    Http(req.POST > AsMwhResponse).either.flatMap {
-      case Right(MwhResponse(status, _)) if status / 100 == 2 ⇒ Result.unit
-      case Right(MwhResponse(_, message))                     ⇒ Result.failures(parseMwhErrors(message))
-      case Left(error)                                        ⇒ Result.failure(MiddlewarehouseFailures.UnableToHoldLineItems)
+    val f = Http(req.POST > AsMwhResponse).either.map {
+      case Right(MwhResponse(status, _)) if status / 100 == 2 ⇒ Xor.right(())
+      case Right(MwhResponse(_, message))                     ⇒ Xor.left(parseMwhErrors(message))
+      case Left(error)                                        ⇒ Xor.left(MiddlewarehouseFailures.UnableToHoldLineItems.single)
     }
+    Result.fromFutureXor(f)
   }
 
   //Note cart ref becomes order ref num after cart turns into order
@@ -55,10 +58,11 @@ class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
     val jwt    = AuthPayload.jwt(au.token)
     val req    = reqUrl.setContentType("application/json", "UTF-8") <:< Map("JWT" → jwt)
     logger.info(s"middlewarehouse cancel hold: ${orderRefNum}")
-    Http(req.DELETE OK as.String).either.flatMap {
-      case Right(_)    ⇒ Result.unit
-      case Left(error) ⇒ Result.failure(MiddlewarehouseFailures.UnableToCancelHoldLineItems)
+    val f = Http(req.DELETE OK as.String).either.map {
+      case Right(_)    ⇒ Xor.right(())
+      case Left(error) ⇒ Xor.left(MiddlewarehouseFailures.UnableToCancelHoldLineItems.single)
     }
+    Result.fromFutureXor(f)
   }
 }
 

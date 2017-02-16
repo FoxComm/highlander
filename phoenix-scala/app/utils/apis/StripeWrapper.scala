@@ -14,6 +14,7 @@ import failures.StripeFailures.{CardNotFoundForNewCustomer, StripeFailure}
 import failures.{Failures, GeneralFailure}
 import services.{Result, ResultT}
 import utils.apis.StripeMappings.cardExceptionMap
+import utils.aliases._
 
 /**
   * Low-level Stripe API wrapper implementation.
@@ -42,11 +43,10 @@ class StripeWrapper extends StripeApiWrapper with LazyLogging {
                           gatewayCardId: String): Result[StripeCard] = {
     logger.info(s"Find card for customer, customer: $stripeCustomer, card id: $gatewayCardId")
     implicit val ec: ExecutionContext = blockingIOPool
-    inBlockingPool(stripeCustomer.getSources.retrieve(gatewayCardId))
-      .flatMapXor(accountToCard)
+    inBlockingPool(stripeCustomer.getSources.retrieve(gatewayCardId)).flatMapXor(accountToCard)
   }
 
-  def getCustomersOnlyCard(stripeCustomer: StripeCustomer): Result[StripeCard] = {
+  def getCustomersOnlyCard(stripeCustomer: StripeCustomer)(implicit ec: EC): Result[StripeCard] = {
     // No external request ⇒ no logging
     val maybeCard  = stripeCustomer.getSources.getData.headOption
     val cardXorNot = maybeCard.toRightXor(CardNotFoundForNewCustomer(stripeCustomer.getId).single)
@@ -73,10 +73,10 @@ class StripeWrapper extends StripeApiWrapper with LazyLogging {
     // for ResultT
     implicit val ec: ExecutionContext = blockingIOPool
 
-    (for {
-      charge  ← ResultT(getCharge(chargeId))
-      capture ← ResultT(inBlockingPool(charge.capture(mapAsJavaMap(options))))
-    } yield capture).value
+    for {
+      charge  ← getCharge(chargeId)
+      capture ← inBlockingPool(charge.capture(mapAsJavaMap(options)))
+    } yield capture
   }
 
   def createCard(customer: StripeCustomer, options: Map[String, AnyRef]): Result[StripeCard] = {
@@ -96,7 +96,8 @@ class StripeWrapper extends StripeApiWrapper with LazyLogging {
 
   // TODO: This needs a life-cycle hook so we can shut it down.
 
-  private def accountToCard(account: Failures Xor ExternalAccount): Result[StripeCard] =
+  private def accountToCard(account: Failures Xor ExternalAccount)(
+      implicit ec: EC): Result[StripeCard] =
     account match {
       case Xor.Left(xs) ⇒
         Result.failures(xs)
@@ -111,11 +112,10 @@ class StripeWrapper extends StripeApiWrapper with LazyLogging {
     * Stripe exceptions are caught and turned into a [[StripeFailure]].
     */
   // param: ⇒ A makes method param "lazy". Do not remove!
-  @inline protected[utils] final def inBlockingPool[A <: AnyRef](
-      action: ⇒ A): Result[A] = {
+  @inline protected[utils] final def inBlockingPool[A <: AnyRef](action: ⇒ A): Result[A] = {
     implicit val ec: ExecutionContext = blockingIOPool
 
-    // TODO: don’t we need to catch Future (and DBIO) failures like that in general? @michalrus
+    // TODO: don’t we need to catch Future (and DBIO) failures like that in general? Also handling ExecutionException. See dispatch.EnrichedFuture#either @michalrus
     val f = Future(Xor.right(blocking(action))).recover {
       case t: CardException if cardExceptionMap.contains(t.getCode) ⇒
         Xor.left(cardExceptionMap(t.getCode).single)

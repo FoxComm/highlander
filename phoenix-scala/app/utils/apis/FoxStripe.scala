@@ -22,7 +22,8 @@ class FoxStripe(stripe: StripeWrapper)(implicit ec: EC) extends FoxStripeApi {
   def createCardFromToken(email: Option[String],
                           token: String,
                           stripeCustomerId: Option[String],
-                          address: Address): Result[(StripeCustomer, StripeCard)] = email match {
+                          address: Address)(
+                           implicit ec: EC): Result[(StripeCustomer, StripeCard)] = email match {
     case Some(e) ⇒
       createCardAndMaybeCustomer(e, Map("source" → token), stripeCustomerId, address)
     case _ ⇒
@@ -33,7 +34,8 @@ class FoxStripe(stripe: StripeWrapper)(implicit ec: EC) extends FoxStripeApi {
   def createCardFromSource(email: Option[String],
                            card: CreateCreditCardFromSourcePayload,
                            stripeCustomerId: Option[String],
-                           address: Address): Result[(StripeCustomer, StripeCard)] = {
+                           address: Address)(
+                            implicit ec: EC): Result[(StripeCustomer, StripeCard)] = {
     lazy val details = Map[String, Object]("object" → "card",
                                            "number"        → card.cardNumber,
                                            "exp_month"     → card.expMonth.toString,
@@ -56,7 +58,7 @@ class FoxStripe(stripe: StripeWrapper)(implicit ec: EC) extends FoxStripeApi {
       email: String,
       source: Map[String, Object],
       stripeCustomerId: Option[String],
-      address: Address): Result[(StripeCustomer, StripeCard)] = {
+      address: Address)(implicit ec: EC): Result[(StripeCustomer, StripeCard)] = {
     def existingCustomer(id: String): ResultT[(StripeCustomer, StripeCard)] = {
       for {
         cust ← stripe.findCustomer(id)

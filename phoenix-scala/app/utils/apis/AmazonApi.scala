@@ -4,6 +4,7 @@ import java.io.File
 
 import scala.concurrent.Future
 
+import cats.implicits._
 import cats.data.Xor.{left, right}
 import com.amazonaws.auth.BasicAWSCredentials
 import com.amazonaws.services.s3.AmazonS3Client
@@ -24,13 +25,13 @@ class AmazonS3 extends AmazonApi {
     val f = Future {
       val accessKey = config.getOptString("aws.accessKey")
       val secretKey = config.getOptString("aws.secretKey")
-      val s3Bucket = config.getOptString("aws.s3Bucket")
-      val s3Region = config.getOptString("aws.s3Region")
+      val s3Bucket  = config.getOptString("aws.s3Bucket")
+      val s3Region  = config.getOptString("aws.s3Region")
 
       (accessKey, secretKey, s3Bucket, s3Region) match {
         case (Some(access), Some(secret), Some(bucket), Some(region)) ⇒
           val credentials = new BasicAWSCredentials(access, secret)
-          val client = new AmazonS3Client(credentials)
+          val client      = new AmazonS3Client(credentials)
           val putRequest = new PutObjectRequest(bucket, fileName, file)
             .withCannedAcl(CannedAccessControlList.PublicRead)
           client.putObject(putRequest)
