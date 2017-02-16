@@ -15,7 +15,7 @@ import styles from './groups.css';
 type Props = {
   hideOnBlur: boolean,
   maxUsers: number,
-  suggestState: string,
+  suggestState: Object,
   suggested: Array<TCustomerGroupShort>,
   suggestGroups: Function,
   onSelect: Function,

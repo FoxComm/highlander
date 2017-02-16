@@ -21,7 +21,7 @@ type Props = {
   customer: Object,
   groups: Array<TCustomerGroupShort>,
   suggested: Array<TCustomerGroupShort>,
-  suggestState: string,
+  suggestState: Object,
   customerId: number,
   saveGroups: Function,
   suggestGroups: Function,
