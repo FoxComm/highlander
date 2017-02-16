@@ -1,8 +1,7 @@
 /* @flow */
 
 // libs
-import React, {Component } from 'react';
-import {autobind} from 'core-decorators';
+import React, { Component } from 'react';
 
 // components
 import ConfirmationDialog from '../modal/confirmation-dialog';
