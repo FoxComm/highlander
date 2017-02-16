@@ -68,6 +68,7 @@
   debug:
     msg:
         - "Instance IP: {{instance_ip}}"
+        - "Tag name: {{tag_name}}"
         - "Canonical app name: {{app_name}}"
         - "Marathon app name: {{app_name_marathon}}"
         - "Application path: {{app_path}}"
