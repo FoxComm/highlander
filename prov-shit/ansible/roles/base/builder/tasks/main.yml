@@ -12,6 +12,9 @@
 - name: Install Isaac Dependencies
   include: isaac.yml
 
+- name: Install Bernardo Dependencies
+  include: bernardo.yml
+
 - name: Install Terraform
   include: terraform.yml
 
