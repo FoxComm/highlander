@@ -1,0 +1,89 @@
+---
+
+- name: Install Rsyslog Dependencies
+  apt: name={{item}} state=installed
+  with_items:
+      - debconf-utils
+      - librdkafka-dev
+      - libcurl4-gnutls-dev
+      - libestr-dev
+      - autoconf
+      - automake
+      - libtool
+      - uuid-dev
+      - libgcrypt-dev
+      - liblogging-stdlog-dev
+
+- name: Get libfastjson
+  git: repo=https://github.com/rsyslog/libfastjson.git dest={{home}}/libfastjson
+
+- name: Build Libfastjson
+  shell: ./autogen.sh && ./configure && make && make install
+  args:
+      chdir: "{{home}}/libfastjson"
+
+  sudo: true
+
+- name: Get Rsyslog
+  get_url: url=http://www.rsyslog.com/files/download/rsyslog/rsyslog-8.23.0.tar.gz dest={{home}}/
+
+- name: Untar Rsyslog
+  shell: tar -zxf rsyslog-8.23.0.tar.gz
+  args:
+      chdir: "{{home}}"
+
+- name: Configure Rsyslog
+  shell: ./configure --enable-omkafka --enable-elasticsearch --enable-mmjsonparse --enable-imfile
+  args:
+      chdir: "{{home}}/rsyslog-8.23.0"
+
+- name: Make Rsyslog
+  make: 
+      chdir: "{{home}}/rsyslog-8.23.0"
+
+- name: Install Rsyslog
+  sudo: true
+  make: 
+      target: install
+      chdir: "{{home}}/rsyslog-8.23.0"
+
+- name: Remove Old Omelsticsearch Configuration
+  file: path=/etc/rsyslog.d/51-elastic.conf state=absent
+
+- name: Install Base Rsyslog Config
+  template: >
+    src=rsyslog.conf.j2
+    dest=/etc/rsyslog.conf
+    owner=root
+    group=root
+    mode=0644
+
+- name: Install File Data Forwarding Config
+  template: >
+    src=mesos.conf.j2
+    dest=/etc/rsyslog.d/51-mesos.conf
+    owner=root
+    group=root
+    mode=0644
+
+- name: Install Omelasticsearch Rsyslog Config
+  template: >
+    src=elastic.conf.j2
+    dest=/etc/rsyslog.d/52-elastic.conf
+    owner=root
+    group=root
+    mode=0644
+
+- name: Install rsyslog kafka config
+  template: >
+    src=kafka.conf.j2
+    dest=/etc/rsyslog.d/52-kafka.conf
+    owner=root
+    group=root
+    mode=0644
+
+- name: Reload Systemd for Rsyslog
+  command: systemctl daemon-reload
+
+- name: Restart Rsyslog
+  service: name=rsyslog state=restarted enabled=yes

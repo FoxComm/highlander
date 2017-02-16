@@ -1,0 +1,97 @@
+# Mapping input aliases to canonical app names
+input_aliases:
+    phoenix-scala: phoenix
+    green-river: greenriver
+    shiptation-consumer: shipstation
+
+# Supported canonical apps (otherwise, playbook fails fast)
+supported_apps:
+    - ashes
+    - firebrand
+    - phoenix
+    - greenriver
+    - middlewarehouse
+    - isaac
+    - solomon
+    - messaging
+    - capture-consumer
+    - gift-card-consumer
+    - shipments-consumer
+    - stock-items-consumer
+    - shipstation
+    - marketplace
+    - hyperion
+
+# Mapping canonical app name to application path
+app_highlander_paths:
+    greenriver: green-river
+    phoenix: phoenix-scala
+    capture-consumer: middlewarehouse
+    gift-card-consumer: middlewarehouse
+    shipments-consumer: middlewarehouse
+    shipstation-consumer: middlewarehouse
+    stock-items-consumer: middlewarehouse
+
+# Mapping canonical app name to Mararthon template path
+app_template_paths:
+    marketplace-ui: ext/tgt/marketplace-ui/templates/marketplace-ui.json
+
+# Mapping canonical app name to Marathon app name
+app_marathon_names:
+    firebrand: storefront
+
+# Custom `make build` targets
+app_build_targets:
+    middlewarehouse: make prepare && make build-middlewarehouse
+    capture-consumer: make prepare && make build-capture-consumer
+    gift-card-consumer: make prepare && make build-gift-card-consumer
+    shipments-consumer: make prepare && make build-shipments-consumer
+    shipstation: make prepare && make build-shipstation-consumer
+    stock-items-consumer: make prepare && make build-stock-items-consumer
+
+# Custom `make docker` targets
+app_docker_targets:
+    middlewarehouse: make docker-middlewarehouse
+    capture-consumer: make docker-capture-consumer
+    gift-card-consumer: make docker-gift-card-consumer
+    shipments-consumer: make docker-shipments-consumer
+    shipstation: make docker-shipstation-consumer
+    stock-items-consumer: make docker-stock-items-consumer
+
+# Custom `make docker-push` targets
+app_push_targets:
+    middlewarehouse: make push-middlewarehouse
+    capture-consumer: make push-capture-consumer
+    gift-card-consumer: make push-gift-card-consumer
+    shipments-consumer: make push-shipments-consumer
+    shipstation: make push-shipstation-consumer
+    stock-items-consumer: make push-stock-items-consumer
+
+# Override default Docker tags
+docker_tags:
+    ashes: "{{tag_name}}"
+    firebrand: "{{tag_name}}"
+    phoenix: "{{tag_name}}"
+    greenriver: "{{tag_name}}"
+    middlewarehouse: "{{tag_name}}"
+    messaging: "{{tag_name}}"
+    isaac: "{{tag_name}}"
+    solomon: "{{tag_name}}"
+    capture_consumer: "{{tag_name}}"
+    gift_card_consumer: "{{tag_name}}"
+    shipments_consumer: "{{tag_name}}"
+    shipstation_consumer: "{{tag_name}}"
+    stock_items_consumer: "{{tag_name}}"
+    storefront_td: "{{tag_name}}"
+    storefront_tpg: "{{tag_name}}"
+    marketplace: "{{tag_name}}"
+    marketplace_ui: "{{tag_name}}"
+    product_search: "{{tag_name}}"
+    demo_search: "{{tag_name}}"
+    hyperion: "{{tag_name}}"
+    bernardo: "{{tag_name}}"
+    henhouse: "{{tag_name}}"
+    eggcrate: "{{tag_name}}"
+    river_rock: "{{tag_name}}"
+    digger_sphex: "{{tag_name}}"
+    orders_sphex: "{{tag_name}}"
