@@ -15,7 +15,7 @@ class ObjectSchemaIntegrationTest
 
   "GET v1/object/schemas/byName/:name" - {
     "Returns a product schema" in new ProductAndSkus_Baked {
-      val result = schemasApi.getByKind("product")
+      val result = schemasApi("default").get("product")
       result.mustBeOk()
 
       val response = result.as[Seq[Root]]
@@ -24,7 +24,7 @@ class ObjectSchemaIntegrationTest
     }
 
     "Responds with NOT FOUND when invalid kind is requested" in new ProductSku_ApiFixture {
-      val result = schemasApi.getByKind("not-real")
+      val result = schemasApi("default").get("not-real")
       result.mustBeOk()
 
       val response = result.as[Seq[Root]]

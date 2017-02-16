@@ -718,24 +718,19 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
       POST(s"$notificationsPrefix/last-seen/$activityId")
   }
 
-  object schemasApi {
-    val schemasPrefix = s"$rootPrefix/object/schemas"
+  case class schemasApi(contextName: String) {
+    val schemasPrefix = s"$rootPrefix/objects/schemas/$contextName"
 
     def create(payload: CreateSchemaPayload): HttpResponse =
       POST(schemasPrefix, payload)
 
-    def update(name: String, payload: UpdateSchemaPayload): HttpResponse = {
-      val path = s"$schemasPrefix/byName/$name"
+    def update(kind: String, payload: UpdateSchemaPayload): HttpResponse = {
+      val path = s"$schemasPrefix/$kind"
       PATCH(path, payload)
     }
 
-    def getByName(name: String): HttpResponse = {
-      val path = s"$schemasPrefix/byName/$name"
-      GET(path)
-    }
-
-    def getByKind(kind: String): HttpResponse = {
-      val path = s"$schemasPrefix/byKind/$kind"
+    def get(kind: String): HttpResponse = {
+      val path = s"$schemasPrefix/$kind"
       GET(path)
     }
   }

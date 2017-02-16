@@ -14,33 +14,25 @@ import utils.http.Http._
 object ObjectRoutes {
   def routes(implicit ec: EC, db: DB, auth: AuthData[User]): Route = {
     activityContext(auth.model) { implicit ac ⇒
-      pathPrefix("object" / "schemas") {
-        (get & pathEnd) {
-          getOrFailures {
-            ObjectSchemasManager.getAllSchemas()
-          }
-        } ~
-        (post & pathEnd & entity(as[CreateSchemaPayload])) { payload ⇒
-          mutateOrFailures {
-            ObjectSchemasManager.createSchema(payload)
-          }
-        } ~
-        pathPrefix("byKind") {
-          (get & path(Segment)) { kind ⇒
-            getOrFailures {
-              ObjectSchemasManager.getSchemasForKind(kind)
-            }
-          }
-        } ~
-        pathPrefix("byName" / Segment) { schemaName ⇒
-          (get & pathEnd) {
-            getOrFailures {
-              ObjectSchemasManager.getSchema(schemaName)
-            }
-          } ~
-          (patch & pathEnd & entity(as[UpdateSchemaPayload])) { payload ⇒
-            mutateOrFailures {
-              ObjectSchemasManager.updateSchema(schemaName, payload)
+      pathPrefix("objects" / "schemas") {
+        pathPrefix(Segment) { contextName ⇒
+          adminObjectContext(contextName) { implicit context ⇒
+            (post & pathEnd & entity(as[CreateSchemaPayload])) { payload ⇒
+              mutateOrFailures {
+                ObjectSchemasManager.createSchema(payload)
+              }
+            } ~
+            pathPrefix(Segment) { kind ⇒
+              (get & pathEnd) {
+                getOrFailures {
+                  ObjectSchemasManager.getSchemasForKind(kind)
+                }
+              } ~
+              (patch & pathEnd & entity(as[UpdateSchemaPayload])) { payload ⇒
+                mutateOrFailures {
+                  ObjectSchemasManager.updateSchema(kind, payload)
+                }
+              }
             }
           }
         }
