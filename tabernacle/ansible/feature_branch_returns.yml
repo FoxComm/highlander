@@ -17,9 +17,19 @@
         messaging: false
         isaac: false
         solomon: false
+        capture_consumer: false
+        gift_card_consumer: false
+        shipments_consumer: false
         shipstation_consumer: false
+        stock_items_consumer: false
         marketplace: false
         hyperion: false
+        bernardo: false
+        henhouse: false
+        eggcrate: false
+        river_rock: false
+        digger_sphex: false
+        orders_sphex: false
     api_server: appliance-10-240-0-12.foxcommerce.com
     self_host: appliance-10-240-0-12.foxcommerce.com
     ashes_server_name: appliance-10-240-0-12.foxcommerce.com
@@ -36,9 +46,11 @@
     - { role: prod/migrate_middlewarehouse_db }
     - { role: dev/marathon }
     - { role: dev/marathon_consumers }
+    - { role: dev/ic }
     - { role: ext/td/storefront }
     - { role: ext/tpg/storefront }
     - { role: dev/balancer }
+    - { role: hotfix/mesos_consul }
     - { role: demo/balancer }
 
   handlers:
