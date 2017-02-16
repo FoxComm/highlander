@@ -1,5 +1,5 @@
 include ../makelib
-header = $(call baseheader, $(1), prov-shit)
+header = $(call baseheader, $(1), tabernacle)
 
 GO ?= go
 GOPATH := $(CURDIR)/_vendor:$(GOPATH)

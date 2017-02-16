@@ -29,7 +29,7 @@ PROJECTS=(
     'messaging'
     'middlewarehouse'
     'phoenix-scala'
-    'prov-shit'
+    'tabernacle'
     'solomon'
     'hyperion'
 )

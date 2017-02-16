@@ -18,11 +18,11 @@
   vars_prompt:
     - name: "account_json_src"
       prompt: "Enter a local path to gcloud account.json"
-      default: "~/FoxComm/highlander/prov-shit/account.json"
+      default: "~/FoxComm/highlander/tabernacle/account.json"
       private: no
     - name: "vault_pass_src"
       prompt: "Enter a local path to .vault_pass"
-      default: "~/FoxComm/highlander/prov-shit/.vault_pass"
+      default: "~/FoxComm/highlander/tabernacle/.vault_pass"
       private: no
 
   roles:

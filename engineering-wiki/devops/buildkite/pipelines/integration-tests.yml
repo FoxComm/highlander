@@ -8,7 +8,7 @@ steps:
 
   - command: |-
       echo "Just Checkout Code to Stage Master"
-      echo "prov-shit will take care of building and deploying to the stage machine"
+      echo "tabernacle will take care of building and deploying to the stage machine"
     label: Dump to stage master
     agents:
       - queue=stage_master
