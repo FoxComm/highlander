@@ -75,6 +75,10 @@ lazy val gatling = (project in file("gatling"))
     assemblyMergeStrategy in assembly := {
       case PathList("org", "joda", "time", xs @ _ *) ⇒
         MergeStrategy.first
+      case PathList("org", "slf4j", xs @ _ *) ⇒
+        MergeStrategy.first
+      case PathList("ch", "qos", "logback", xs @ _ *) ⇒
+        MergeStrategy.first
       case PathList("io", "netty", xs @ _ *) ⇒
         MergeStrategy.first
       case PathList("META-INF", "io.netty.versions.properties") ⇒
