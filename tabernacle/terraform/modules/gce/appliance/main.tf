@@ -42,7 +42,7 @@ resource "google_compute_instance" "appliance" {
 
   provisioner "remote-exec" {
     inline = [
-      "/usr/local/bin/bootstrap.sh"
+      "/usr/local/bin/bootstrap.sh",
     ]
   }
 }
