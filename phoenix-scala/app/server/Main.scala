@@ -106,7 +106,6 @@ class Service(
         routes.admin.PromotionRoutes.routes ~
         routes.admin.ImageRoutes.routes ~
         routes.admin.CouponRoutes.routes ~
-        routes.admin.CategoryRoutes.routes ~
         routes.admin.GenericTreeRoutes.routes ~
         routes.admin.StoreAdminRoutes.routes ~
         routes.admin.ObjectRoutes.routes ~

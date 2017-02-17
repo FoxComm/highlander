@@ -19,7 +19,6 @@ import models.account.User
 import payloads.GiftCardPayloads.GiftCardUpdateStateByCsr
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.StoreCreditPayloads.StoreCreditUpdateStateByCsr
-import responses.CategoryResponses.FullCategoryResponse
 import responses.CouponResponses.CouponResponse
 import responses.CreditCardsResponse.{buildSimple ⇒ buildCc}
 import responses.ObjectResponses.ObjectContextResponse
@@ -34,7 +33,6 @@ import responses.{AddressResponse, CreditCardsResponse, GiftCardResponse, StoreC
 import services.LineItemUpdater.foldQuantityPayload
 import services.activity.AssignmentsTailored._
 import services.activity.CartTailored._
-import services.activity.CategoryTailored._
 import services.activity.CouponsTailored._
 import services.activity.UserTailored._
 import services.activity.CustomerTailored._
@@ -465,19 +463,6 @@ object LogActivity {
 
   def orderCouponDetached(cart: Cart)(implicit ec: EC, ac: AC): DbResultT[Activity] =
     Activities.log(CartCouponDetached(cart))
-
-  /* Categories */
-  def fullCategoryCreated(
-      admin: Option[User],
-      category: FullCategoryResponse.Root,
-      context: ObjectContextResponse.Root)(implicit ec: EC, ac: AC): DbResultT[Activity] =
-    Activities.log(FullCategoryCreated(admin.map(buildUser), category, context))
-
-  def fullCategoryUpdated(
-      admin: Option[User],
-      category: FullCategoryResponse.Root,
-      context: ObjectContextResponse.Root)(implicit ec: EC, ac: AC): DbResultT[Activity] =
-    Activities.log(FullCategoryUpdated(admin.map(buildUser), category, context))
 
   /* Products */
   def fullProductCreated(

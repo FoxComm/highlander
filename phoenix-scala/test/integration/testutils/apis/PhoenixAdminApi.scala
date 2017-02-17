@@ -7,7 +7,6 @@ import payloads.ActivityTrailPayloads._
 import payloads.AddressPayloads._
 import payloads.AssignmentPayloads._
 import payloads.CartPayloads._
-import payloads.CategoryPayloads._
 import payloads.CouponPayloads._
 import payloads.CustomerGroupPayloads._
 import payloads.CustomerPayloads._
@@ -606,33 +605,6 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
     def update(payload: UpdatePromotion): HttpResponse =
       PATCH(promotionPath, payload)
-  }
-
-  object categoriesApi {
-    def categoriesPrefix()(implicit ctx: OC) = s"$rootPrefix/categories/${ctx.name}"
-
-    def create(payload: CreateFullCategory)(implicit ctx: OC): HttpResponse =
-      POST(categoriesPrefix, payload)
-  }
-
-  case class categoriesApi(formId: Int)(implicit ctx: OC) {
-    val categoryPath = s"${categoriesApi.categoriesPrefix}/$formId"
-
-    def get(): HttpResponse =
-      GET(categoryPath)
-
-    def update(payload: UpdateFullCategory): HttpResponse =
-      PATCH(categoryPath, payload)
-
-    def form(): HttpResponse =
-      GET(s"$rootPrefix/categories/$formId/form")
-
-    def shadow(): HttpResponse =
-      GET(s"$categoryPath/shadow")
-
-    def baked(): HttpResponse =
-      GET(s"$categoryPath/baked")
-
   }
 
   case object taxonomiesApi {
