@@ -24,8 +24,6 @@ PROJECTS=(
     'firebrand'
     'green-river'
     'isaac'
-    'marketplace'
-    'marketplace-ui'
     'messaging'
     'middlewarehouse'
     'phoenix-scala'
