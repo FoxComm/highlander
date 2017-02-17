@@ -35,21 +35,27 @@ shortcuts:
   - name: Bootstrap Build Agents Keys
     alias: build_agent_keys.yml
     target: ansible/bootstrap_build_agent_keys.yml
+
   - name: Bootstrap Consul Alerts
     alias: consul_alerts.yml
     target: ansible/bootstrap_consul_alerts.yml
+
   - name: Bootstrap Marathon Alerts
     alias: marathon_alerts.yml
     target: ansible/bootstrap_marathon_alerts.yml
+
   - name: Bootstrap DB Backup Script
     alias: backup_db.yml
     target: ansible/bootstrap_backup_db.yml
+
   - name: Bootstrap ZK Backup Script
     alias: backup_zk.yml
     target: ansible/bootstrap_backup_zk.yml
+
   - name: Bootstrap OpenVPN Key
     alias: openvpn_key.yml
     target: ansible/bootstrap_openvpn_key.yml
+
   - name: Bootstrap Store Admin User
     alias: store_admin.yml
     target: ansible/bootstrap_store_admin.yml
@@ -58,6 +64,7 @@ shortcuts:
   - name: Bootstrap Annabelle
     alias: annabelle.yml
     target: ansible/bootstrap_annabelle.yml
+
   - name: Bootstrap Sinopia
     alias: sinopia.yml
     target: ansible/bootstrap_sinopia.yml
@@ -66,6 +73,7 @@ shortcuts:
   - name: Generate .env.local
     alias: env_local.yml
     target: ansible/goldrush_env_local.yml
+
   - name: Update Application Docker Tag
     alias: update_app.yml
     target: ansible/goldrush_update_app.yml
@@ -74,20 +82,20 @@ shortcuts:
   - name: Provision FoxComm Test
     alias: test_stage.yml
     target: ansible/test_stage.yml
-  - name: Provision Top Drawer Test
-    alias: test_topdrawer.yml
-    target: ansible/test_topdrawer.yml
-  - name: Provision Perfect Gourmet Test
-    alias: test_perfectgourmet.yml
-    target: ansible/test_perfectgourmet.yml
-  - name: Provision Target Test
-    alias: test_target.yml
-    target: ansible/test_target.yml
+
+  - name: Provision FoxComm Demo
+    alias: demo.yml
+    target: ansible/demo.yml
+
+  - name: Provision Appliance
+    alias: provision_appliance.yml
+    target: ansible/provision_appliance.yml
 
   # Migration
   - name: Migrate Phoenix DB
     alias: migrate_phoenix_db.yml
     target: ansible/migrate_phoenix_db.yml
+
   - name: Migrate MWH DB
     alias: migrate_middlewarehouse_db.yml
     target: ansible/migrate_middlewarehouse_db.yml
@@ -143,23 +151,26 @@ shortcuts:
   - name: State Files
     flag: "-state"
     aliases:
+      branches: terraform/envs/gce_branches/terraform.tfstate
       dev: terraform/envs/gce_dev/terraform.tfstate
       staging: terraform/envs/gce_staging/terraform.tfstate
-      stable: terraform/envs/gce_staging_stable/terraform.tfstate
       target: terraform/envs/aws_target/terraform.tfstate
       topdrawer: terraform/envs/gce_topdrawer/terraform.tfstate
       tpg: terraform/envs/gce_tpg/terraform.tfstate
   - name: Variable Files
     flag: "-var-file"
     aliases:
+      branches: terraform/envs/gce_branches/branches.tfvars
       dev: terraform/envs/gce_dev/dev.tfvars
       staging: terraform/envs/gce_staging/staging.tfvars
-      stable: terraform/envs/gce_staging_stable/staging.tfvars
       target: terraform/envs/aws_target/target.tfvars
       topdrawer: terraform/envs/gce_topdrawer/topdrawer.tfvars
       tpg: terraform/envs/gce_tpg/tpg.tfvars
 
   targets:
+  - name: Feature Branch Instances
+    alias: branches
+    target: terraform/base/gce_branches
   - name: FoxCommerce Core
     alias: dev
     target: terraform/base/gce_dev
