@@ -63,7 +63,7 @@ export default class Coupons extends Component {
     return this.props.actions.addSearchFilters(filterArchived(filters), initial);
   }
 
-  renderRow(row: Object, index: number, columns: Array<any>, params: Object): Element {
+  renderRow(row: Object, index: number, columns: Array<any>, params: Object): Element<*> {
     const key = `coupon-${row.id}`;
 
     return (
@@ -76,7 +76,7 @@ export default class Coupons extends Component {
     );
   }
 
-  render(): Element {
+  render() {
     const {list, actions} = this.props;
 
     const searchActions = {

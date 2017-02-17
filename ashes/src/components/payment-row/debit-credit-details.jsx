@@ -10,7 +10,7 @@ type Props = {
     amount: number,
     availableBalance: number;
   };
-  saveAction: (orderRefNum: string, amount: number) => Promise;
+  saveAction: (orderRefNum: string, amount: number) => Promise<*>;
   handleCancel: () => void;
   isEditing: boolean;
 }

@@ -10,7 +10,7 @@ import { ListPageContainer, makeTotalCounter } from '../list-page';
 import { actions } from '../../modules/promotions/list';
 
 type PromotionsListProps = {
-  children: Element,
+  children: Element<*>,
 };
 
 const PromotionsList = (props: PromotionsListProps) => {

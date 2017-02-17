@@ -22,7 +22,7 @@ type Props = {
 export class Checkout extends Component {
   props: Props;
 
-  render(): Element {
+  render() {
     const { errors, warnings } = this.props.validations;
     const totalCount = errors.length + warnings.length;
     const refNum = this.props.cart.referenceNumber;

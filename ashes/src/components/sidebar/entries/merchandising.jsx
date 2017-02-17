@@ -22,7 +22,7 @@ const taxonomyClaims = readAction(frn.merch.taxonomy);
 export default class MerchandisingEntry extends Component {
   props: Props;
 
-  render(): Element {
+  render() {
     const { claims, collapsed, routes, status, toggleMenuItem } = this.props;
     const allClaims = taxonomyClaims;
 

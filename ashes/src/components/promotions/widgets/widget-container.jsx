@@ -6,7 +6,7 @@ import React, { Element } from 'react';
 import styles from './widget-container.css';
 
 type Props = {
-  children: Element;
+  children: Element<*>;
 }
 
 const WidgetContainer = (props: Props) => {

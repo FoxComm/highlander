@@ -10,8 +10,8 @@ import wrapModal from '../modal/wrapper';
 import ErrorAlerts from '../alerts/error-alerts';
 
 type Props = {
-  body: string|Element,
-  header: string|Element,
+  body: string|Element<*>,
+  header: string|Element<*>,
   cancel: string,
   confirm: string,
   icon?: string,
@@ -20,7 +20,7 @@ type Props = {
   asyncState?: AsyncState,
 };
 
-const ConfirmationDialog = (props: Props): Element => {
+const ConfirmationDialog = (props: Props) => {
   let modalIcon = null;
   if (props.icon) {
     modalIcon = <i className={ `icon-${props.icon}` } />;

@@ -29,7 +29,7 @@ export default class SubNav extends Component<void, Props, void> {
     return this.props.productId === 'new';
   }
 
-  get detailsLinks(): ?Element[] {
+  get detailsLinks(): ?Element<*>[] {
     if (this.isNew) {
       return;
     }

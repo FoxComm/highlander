@@ -1,7 +1,7 @@
 /* @flow */
 
 import _ from 'lodash';
-import React, { Component, Element } from 'react';
+import React, { Component } from 'react';
 import { trackEvent } from 'lib/analytics';
 import { skuIdentity } from '@foxcomm/wings/lib/paragons/sku';
 
@@ -36,7 +36,7 @@ export default class CartLineItems extends Component {
   props: Props;
   state: State = { isEditing: false };
 
-  get editContent(): Element {
+  get editContent() {
     const { cart } = this.props;
 
     const renderRow = (item: SkuItem) => {
