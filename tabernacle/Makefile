@@ -36,7 +36,7 @@ deploy-demo:
 	ansible-playbook -v -i bin/envs/staging ansible/test_stage.yml
 
 deploy-feature-branch:
-	ansible-playbook -v -i bin/envs/dev ansible/provision_feature_branch.yml
+	ansible-playbook -v -i bin/envs/staging ansible/provision_feature_branch.yml
 
 docker:
 	$(call header, Dockerizing)

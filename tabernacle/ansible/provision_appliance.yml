@@ -25,7 +25,6 @@
       prompt: "Enter appliance hostname to provision"
       default: "feature-branch"
       private: no
-
   roles:
     # Core
     - { role: dev/appliance }
