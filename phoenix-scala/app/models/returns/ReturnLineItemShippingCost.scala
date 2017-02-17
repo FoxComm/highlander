@@ -1,15 +1,16 @@
 package models.returns
 
 import java.time.Instant
-
 import models.shipping.{Shipment, Shipments}
 import shapeless._
 import slick.driver.PostgresDriver.api._
+import utils.aliases._
 import utils.db._
 
 case class ReturnLineItemShippingCost(id: Int = 0,
                                       returnId: Int,
                                       shipmentId: Int,
+                                      amount: Int,
                                       createdAt: Instant = Instant.now)
     extends FoxModel[ReturnLineItemShippingCost]
 
@@ -20,10 +21,11 @@ class ReturnLineItemShippingCosts(tag: Tag)
   def id         = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def returnId   = column[Int]("return_id")
   def shipmentId = column[Int]("shipment_id")
+  def amount     = column[Int]("amount")
   def createdAt  = column[Instant]("created_at")
 
   def * =
-    (id, returnId, shipmentId, createdAt) <> ((ReturnLineItemShippingCost.apply _).tupled, ReturnLineItemShippingCost.unapply)
+    (id, returnId, shipmentId, amount, createdAt) <> ((ReturnLineItemShippingCost.apply _).tupled, ReturnLineItemShippingCost.unapply)
 
   def shipment = foreignKey(Shipments.tableName, shipmentId, Shipments)(_.id)
 }

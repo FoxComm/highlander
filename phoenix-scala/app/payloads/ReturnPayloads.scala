@@ -6,7 +6,6 @@ import failures.Failure
 import models.payment.PaymentMethod
 import models.returns.{Return, ReturnLineItem, ReturnReason}
 import models.returns.ReturnLineItem.InventoryDisposition
-import org.json4s.CustomSerializer
 import utils.{ADTTypeHints, Validation}
 import utils.Validation._
 
@@ -20,8 +19,10 @@ object ReturnPayloads {
 
   /* Line item updater payloads */
 
-  sealed trait ReturnLineItemPayload {
+  sealed trait ReturnLineItemPayload extends Validation[ReturnLineItemPayload] {
     def reasonId: Int
+
+    def validate: ValidatedNel[Failure, ReturnLineItemPayload] = this.valid
   }
   object ReturnLineItemPayload {
     def typeHints =
@@ -38,18 +39,20 @@ object ReturnPayloads {
                                       reasonId: Int,
                                       isReturnItem: Boolean,
                                       inventoryDisposition: InventoryDisposition)
-      extends ReturnLineItemPayload
-      with Validation[ReturnSkuLineItemPayload] {
+      extends ReturnLineItemPayload {
 
-    def validate: ValidatedNel[Failure, ReturnSkuLineItemPayload] = {
-      greaterThan(quantity, 0, "Quantity").map { case _ ⇒ this }
-    }
+    override def validate: ValidatedNel[Failure, ReturnLineItemPayload] =
+      greaterThan(quantity, 0, "Quantity").map(_ ⇒ this)
   }
 
   case class ReturnGiftCardLineItemPayload(code: String, reasonId: Int)
       extends ReturnLineItemPayload
 
-  case class ReturnShippingCostLineItemPayload(reasonId: Int) extends ReturnLineItemPayload
+  case class ReturnShippingCostLineItemPayload(amount: Int, reasonId: Int)
+      extends ReturnLineItemPayload {
+    override def validate: ValidatedNel[Failure, ReturnLineItemPayload] =
+      greaterThan(amount, 0, "Amount").map(_ ⇒ this)
+  }
 
   /* Payment payloads */
 

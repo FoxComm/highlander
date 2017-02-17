@@ -1,7 +1,9 @@
 package services.returns
 
+import failures.OrderFailures.OrderPaymentNotFoundFailure
 import models.account.Scope
-import models.cord.OrderPayment
+import models.cord.{Cart, OrderPayment, OrderPayments}
+import models.cord.OrderPayments.scope._
 import models.payment.PaymentMethod
 import models.payment.creditcard.CreditCards
 import models.payment.giftcard._
@@ -10,7 +12,6 @@ import models.returns.ReturnPayments.scope._
 import models.returns._
 import payloads.ReturnPayloads.ReturnPaymentPayload
 import responses.ReturnResponse
-import services.returns.Helpers._
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
@@ -21,13 +22,19 @@ object ReturnPaymentUpdater {
       db: DB,
       au: AU): DbResultT[ReturnResponse.Root] =
     for {
-      _        ← * <~ payload.validate
-      rma      ← * <~ mustFindPendingReturnByRefNum(refNum)
+      rma      ← * <~ Returns.mustFindPendingByRefNum404(refNum)
       payment  ← * <~ mustFindCcPaymentsByOrderRef(rma.orderRef)
       _        ← * <~ processAddPayment(rma, payment, payload)
       updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(rma)
     } yield response
+
+  private def mustFindCcPaymentsByOrderRef(cordRef: String)(
+      implicit ec: EC): DbResultT[OrderPayment] =
+    OrderPayments
+      .findAllByCordRef(cordRef)
+      .creditCards
+      .mustFindOneOr(OrderPaymentNotFoundFailure(Cart))
 
   private def processAddPayment(rma: Return, payment: OrderPayment, payload: ReturnPaymentPayload)(
       implicit ec: EC,
@@ -80,7 +87,7 @@ object ReturnPaymentUpdater {
       implicit ec: EC,
       db: DB): DbResultT[ReturnResponse.Root] =
     for {
-      rma      ← * <~ mustFindPendingReturnByRefNum(refNum)
+      rma      ← * <~ Returns.mustFindPendingByRefNum404(refNum)
       _        ← * <~ processDeletePayment(rma.id, paymentMethod)
       updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(rma)

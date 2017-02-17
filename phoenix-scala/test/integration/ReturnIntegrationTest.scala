@@ -300,7 +300,7 @@ class ReturnIntegrationTest
 
   }
 
-  "line-items" - {
+  "Return line items" - {
     "POST /v1/returns/:refNum/line-items" - {
       "successfully adds gift card line item" in new LineItemFixture {
         pending
@@ -337,12 +337,30 @@ class ReturnIntegrationTest
           .mustFailWith400(ReturnReasonNotFoundFailure(666))
       }
 
-      "fails if quantity is invalid" in new LineItemFixture {
+      "fails if quantity for sku is invalid" in new LineItemFixture {
         val payload = skuPayload.copy(quantity = -42)
 
         returnsApi(rma.referenceNumber).lineItems
           .add(payload)
           .mustFailWithMessage("Quantity got -42, expected more than 0")
+      }
+
+      "fails if amount for shipping cost is less then 0" in new LineItemFixture {
+        val payload = shippingCostPayload.copy(amount = -666)
+
+        returnsApi(rma.referenceNumber).lineItems
+          .add(payload)
+          .mustFailWithMessage("Amount got -666, expected more than 0")
+      }
+
+      "fails if amount for shipping cost is more then maximum allowed amount" in new LineItemFixture {
+        val payload = shippingCostPayload.copy(amount = shippingCostPayload.amount + 666)
+
+        returnsApi(rma.referenceNumber).lineItems
+          .add(payload)
+          .mustFailWith400(ReturnShippingCostExceeded(rma.referenceNumber,
+                                                      amount = shippingCostPayload.amount + 666,
+                                                      maxAmount = orderShippingMethod.price))
       }
     }
 
@@ -419,7 +437,7 @@ class ReturnIntegrationTest
   }
 
   trait LineItemFixture extends Fixture {
-    val (returnReason, sku, giftCard, shipment) = (for {
+    val (returnReason, sku, giftCard, shipment, orderShippingMethod) = (for {
       returnReason ← * <~ ReturnReasons.create(Factories.returnReasons.head)
       product      ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head)
       sku          ← * <~ Skus.mustFindById404(product.skuId)
@@ -434,12 +452,13 @@ class ReturnIntegrationTest
                                OrderShippingMethod.build(cordRef = order.refNum,
                                                          method = shippingMethod))
       shipment ← * <~ Shipments.create(Factories.shipment.copy(cordRef = order.refNum))
-    } yield (returnReason, sku, giftCard, shipment)).gimme
+    } yield (returnReason, sku, giftCard, shipment, orderShippingMethod)).gimme
 
     val giftCardPayload =
       ReturnGiftCardLineItemPayload(code = giftCard.code, reasonId = returnReason.id)
 
-    val shippingCostPayload = ReturnShippingCostLineItemPayload(reasonId = reason.id)
+    val shippingCostPayload =
+      ReturnShippingCostLineItemPayload(amount = orderShippingMethod.price, reasonId = reason.id)
 
     val skuPayload = ReturnSkuLineItemPayload(sku = sku.code,
                                               quantity = 1,

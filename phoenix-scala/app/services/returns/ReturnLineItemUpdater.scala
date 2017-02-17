@@ -1,14 +1,14 @@
 package services.returns
 
-import failures.ReturnFailures.ReturnReasonNotFoundFailure
+import failures.ReturnFailures.{ReturnReasonNotFoundFailure, ReturnShippingCostExceeded}
 import failures._
+import models.cord.OrderShippingMethods
 import models.objects._
-import models.returns._
+import models.returns.{ReturnLineItemShippingCosts, _}
 import models.shipping.Shipments
 import payloads.ReturnPayloads._
 import responses.ReturnResponse
 import services.inventory.SkuManager
-import services.returns.Helpers._
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
@@ -20,7 +20,7 @@ object ReturnLineItemUpdater {
       db: DB,
       oc: OC): DbResultT[ReturnResponse.Root] =
     for {
-      rma ← * <~ mustFindPendingReturnByRefNum(refNum)
+      rma ← * <~ Returns.mustFindPendingByRefNum404(refNum)
       reason ← * <~ ReturnReasons
                 .filter(_.id === payload.reasonId)
                 .mustFindOneOr(ReturnReasonNotFoundFailure(payload.reasonId))
@@ -46,18 +46,48 @@ object ReturnLineItemUpdater {
       payload: ReturnGiftCardLineItemPayload)(implicit ec: EC, db: DB): DbResultT[ReturnLineItem] =
     ??? // TODO add gift card handling
 
+  private def validateMaxShippingCost(rma: Return, amount: Int)(implicit ec: EC,
+                                                                db: DB): DbResultT[Unit] = {
+    val maxAmount = for {
+      orderShippings ← * <~ OrderShippingMethods.findByOrderRef(rma.orderRef).result
+      orderShippingTotal = orderShippings.map(_.price).sum
+      previouslyReturned ← * <~ Returns
+                            .filter(_.id =!= rma.id)
+                            .join(ReturnLineItemShippingCosts)
+                            .on(_.id === _.returnId)
+                            .result
+      previouslyReturnedCost = previouslyReturned.map {
+        case (_, shippingCost) ⇒ shippingCost.amount
+      }.sum
+    } yield orderShippingTotal - previouslyReturnedCost
+
+    maxAmount.flatMap {
+      case max if amount > max ⇒
+        DbResultT.failure[Unit](
+            ReturnShippingCostExceeded(refNum = rma.referenceNumber,
+                                       amount = amount,
+                                       maxAmount = max))
+      case _ ⇒ DbResultT.pure(())
+    }
+  }
+
   private def addShippingCostItem(rma: Return,
                                   reason: ReturnReason,
                                   payload: ReturnShippingCostLineItemPayload)(
       implicit ec: EC,
       db: DB): DbResultT[ReturnLineItem] =
     for {
+      _ ← * <~ validateMaxShippingCost(rma, payload.amount)
       shipment ← * <~ Shipments
                   .filter(_.cordRef === rma.orderRef)
                   .mustFindOneOr(ShipmentNotFoundFailure(rma.orderRef))
+      _ ← * <~ ReturnLineItemShippingCosts.findByRmaId(rma.id).deleteAll
       origin ← * <~ ReturnLineItemShippingCosts.create(
-                  ReturnLineItemShippingCost(returnId = rma.id, shipmentId = shipment.id))
-      li ← * <~ ReturnLineItems.create(ReturnLineItem.buildShippinCost(rma, reason, origin))
+                  ReturnLineItemShippingCost(returnId = rma.id,
+                                             amount = payload.amount,
+                                             shipmentId = shipment.id))
+      _  ← * <~ ReturnLineItems.filter(_.originId === origin.id).deleteAll
+      li ← * <~ ReturnLineItems.create(ReturnLineItem.buildShippingCost(rma, reason, origin))
     } yield li
 
   private def addSkuLineItem(rma: Return, reason: ReturnReason, payload: ReturnSkuLineItemPayload)(
@@ -65,7 +95,6 @@ object ReturnLineItemUpdater {
       db: DB,
       oc: OC): DbResultT[ReturnLineItem] =
     for {
-      payload   ← * <~ payload.validate
       sku       ← * <~ SkuManager.mustFindSkuByContextAndCode(oc.id, payload.sku)
       skuShadow ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
       origin ← * <~ ReturnLineItemSkus.create(
@@ -76,7 +105,7 @@ object ReturnLineItemUpdater {
   def deleteLineItem(refNum: String, lineItemId: Int)(implicit ec: EC,
                                                       db: DB): DbResultT[ReturnResponse.Root] =
     for {
-      rma      ← * <~ mustFindPendingReturnByRefNum(refNum)
+      rma      ← * <~ Returns.mustFindPendingByRefNum404(refNum)
       li       ← * <~ ReturnLineItems.mustFindById404(lineItemId)
       _        ← * <~ processDeleteLineItem(li, li.originType)
       _        ← * <~ ReturnLineItems.filter(_.id === lineItemId).deleteAll
