@@ -19,11 +19,11 @@ import utils.aliases.stripe._
   */
 class FoxStripe(stripe: StripeWrapper)(implicit ec: EC) extends FoxStripeApi {
 
-  def createCardFromToken(email: Option[String],
-                          token: String,
-                          stripeCustomerId: Option[String],
-                          address: Address)(
-                           implicit ec: EC): Result[(StripeCustomer, StripeCard)] = email match {
+  def createCardFromToken(
+      email: Option[String],
+      token: String,
+      stripeCustomerId: Option[String],
+      address: Address)(implicit ec: EC): Result[(StripeCustomer, StripeCard)] = email match {
     case Some(e) ⇒
       createCardAndMaybeCustomer(e, Map("source" → token), stripeCustomerId, address)
     case _ ⇒
@@ -31,11 +31,11 @@ class FoxStripe(stripe: StripeWrapper)(implicit ec: EC) extends FoxStripeApi {
   }
 
   @deprecated(message = "Use `createCardFromToken` instead", "Until we are PCI compliant")
-  def createCardFromSource(email: Option[String],
-                           card: CreateCreditCardFromSourcePayload,
-                           stripeCustomerId: Option[String],
-                           address: Address)(
-                            implicit ec: EC): Result[(StripeCustomer, StripeCard)] = {
+  def createCardFromSource(
+      email: Option[String],
+      card: CreateCreditCardFromSourcePayload,
+      stripeCustomerId: Option[String],
+      address: Address)(implicit ec: EC): Result[(StripeCustomer, StripeCard)] = {
     lazy val details = Map[String, Object]("object" → "card",
                                            "number"        → card.cardNumber,
                                            "exp_month"     → card.expMonth.toString,

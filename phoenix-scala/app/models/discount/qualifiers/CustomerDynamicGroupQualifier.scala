@@ -1,6 +1,8 @@
 package models.discount.qualifiers
 
-import cats.data.Xor
+import cats._
+import cats.implicits._
+import cats.data._
 import failures.DiscountFailures._
 import models.discount.{CustomerSearch, DiscountInput}
 import services.Result

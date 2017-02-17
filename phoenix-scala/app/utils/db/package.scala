@@ -27,7 +27,7 @@ package object db {
   }
 
   /* We can’t use WriterT for warnings, because of the `failWithMatchedWarning`. */
-  type FoxyT[F[_], A] = StateT[XorT[F, Failures, ?], List[UIInfo], A]
+  type FoxyT[F[_], A] = StateT[XorT[F, Failures, ?], List[UIInfo], A] // TODO: But maybe the order should be different? I.e. what should happen with warnings when we get a short-circuiting failure? @michalrus
 
   type Foxy[A] = FoxyT[Id, A]
   object Foxy extends FoxyTOps[Id]()
@@ -35,20 +35,28 @@ package object db {
   type FoxyTFuture[A] = FoxyT[Future, A] /* replaces the old ResultT */
   object FoxyTFuture extends FoxyTOps[Future] {
     def fromFutureXor[A](v: Future[Failures Xor A])(implicit M: Monad[Future]): FoxyT[Future, A] = // TODO: remove me @michalrus
-      StateT(s ⇒ XorT(v.map(_.map(s, _))))
+      StateT(s ⇒ XorT(M.map(v)(_.map((s, _)))))
   }
 
   type FoxyTDBIO[A] = FoxyT[DBIO, A] /* replaces the old DbResultT */
   object FoxyTDBIO extends FoxyTOps[DBIO] {
     def fromDbio[A](fa: DBIO[A])(implicit M: Monad[DBIO]): FoxyTDBIO[A] = // TODO: remove me @michalrus
       fromF(fa)
+    def fromResultT[A](ga: FoxyT[Future, A]): FoxyT[DBIO, A] = // TODO: better name? @michalrus
+      ga.transformF(gga ⇒ XorT(DBIO.from(gga.value))) // TODO: use FunctionK for functor changes? Future[_] → DBIO[_] here
   }
 
   implicit class EnrichedFoxyT[F[_], A](fa: FoxyT[F, A]) {
     def flatMapXor[B](f: Xor[Failures, A] ⇒ FoxyT[F, B]): FoxyT[F, B] =
       ??? // FIXME: implement // TODO: remove me? @michalrus
-    def mapXor[B](f: Xor[Failures, A] ⇒ Xor[Failures, B]): FoxyT[F, B] =
-      ??? // FIXME: implement // TODO: remove me? @michalrus
+    def mapXor[B](f: Xor[Failures, A] ⇒ Xor[Failures, B])(implicit F: Monad[F]): FoxyT[F, B] = // TODO: remove me? @michalrus
+      fa.transformF { fsa ⇒ // FIXME: this (or usage in CustomerDynamicGroupQualifier) seems to be crashing compiler with scala.reflect.internal.Types$NoCommonType: lub/glb of incompatible types: [_] and  <: slick.dbio.NoStream
+        XorT(F.map(fsa.value)(xsa ⇒
+                  for {
+            b ← f(xsa.map(_._2))
+            s ← xsa.map(_._1)
+          } yield (s, b)))
+      }
     def mapXorRight[B](f: Xor[Failures, A] ⇒ B): FoxyT[F, B] =
       mapXor(xa ⇒ Xor.Right(f(xa))) // TODO: remove me? @michalrus
     def fold[B](fa: Failures ⇒ B, fb: A ⇒ B): FoxyT[F, B] =
@@ -92,12 +100,8 @@ package object db {
     def fromXor[A](v: Failures Xor A)(implicit M: Monad[F]): FoxyT[F, A] =
       StateT(s ⇒ XorT(M.pure(v.map((s, _)))))
 
-    def fromG[G[_], A](f: G[_] ⇒ F[_], ga: FoxyT[G, A]): FoxyT[F, A] = // TODO: better name? @michalrus
-      ??? // ga.transformF(gga ⇒ XorT(f(gga.value))) // TODO: implement
-
     def fromId[A](fa: Foxy[A])(implicit M: Monad[F]): FoxyT[F, A] =
-      //fa.transformF(ga ⇒ XorT(M.pure(ga.value)))
-      fromG(M.pure, fa)
+      fa.transformF(ga ⇒ XorT(M.pure(ga.value)))
 
     def failWithMatchedWarning(pf: PartialFunction[Failure, Boolean])(
         implicit M: Monad[F]): FoxyT[F, Unit] =

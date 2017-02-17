@@ -13,7 +13,7 @@ import utils.aliases.EC
 
 object * {
   def <~[A](v: DBIO[Failures Xor A])(implicit M: Monad[DBIO]): DbResultT[A] =
-    StateT(s ⇒ XorT(M.map(v)((s, _)))) // FIXME: why can’t we use v.map here? @michalrus // TODO: move to FoxyT
+    StateT(s ⇒ XorT(M.map(v)(_.map((s, _))))) // FIXME: why can’t we use v.map here? @michalrus // TODO: move to FoxyT
 
   def <~[A](v: SqlAction[A, NoStream, Effect.All])(implicit ec: EC): DbResultT[A] =
     <~(v.map(Xor.right))
@@ -25,13 +25,13 @@ object * {
     DbResultT.fromXor(v)
 
   def <~[A](v: Future[Failures Xor A])(implicit M: Monad[DBIO]): DbResultT[A] =
-    StateT(s ⇒ XorT(M.map(DBIO.from(v))((s, _)))) // FIXME: why can’t we use v.map here? @michalrus
+    StateT(s ⇒ XorT(M.map(DBIO.from(v))(_.map((s, _))))) // FIXME: why can’t we use v.map here? @michalrus
 
   def <~[A](v: Future[A])(implicit ec: EC): DbResultT[A] =
     DbResultT.fromF(DBIO.from(v))
 
   def <~[A](fa: ResultT[A])(implicit ec: EC): DbResultT[A] =
-    DbResultT.fromG(DBIO.from, fa)
+    DbResultT.fromResultT(fa)
 
   def <~[A](v: A)(implicit ec: EC): DbResultT[A] =
     DbResultT.pure(v)
