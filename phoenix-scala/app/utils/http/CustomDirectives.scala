@@ -40,7 +40,10 @@ object CustomDirectives {
     }
   }
 
-  def activityContext(user: User): Directive1[ActivityContext] = {
+  def activityContext(au: AU): Directive1[ActivityContext] =
+    activityContext(au.model).map(_.withCurrentScope(au))
+
+  private def activityContext(user: User): Directive1[ActivityContext] = {
     optionalHeaderValueByName("x-request-id").map {
       case (Some(uuid)) ⇒
         ActivityContext(userId = user.accountId, userType = "user", transactionId = uuid)

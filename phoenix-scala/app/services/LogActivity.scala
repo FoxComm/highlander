@@ -2,6 +2,7 @@ package services
 
 import java.time.Instant
 
+import com.github.tminglei.slickpg.LTree
 import models.Assignment._
 import models.Note
 import models.account.User
@@ -51,6 +52,8 @@ import utils.aliases._
 import utils.db._
 
 case class LogActivity(implicit ac: AC) {
+
+  def withScope(scope: LTree): LogActivity = copy()(ac = ac.copy(scope = scope))
 
   /* Assignments */
   def assigned[T](admin: User,

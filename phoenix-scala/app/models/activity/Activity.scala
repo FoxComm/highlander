@@ -2,8 +2,10 @@ package models.activity
 
 import java.time.Instant
 
+import com.github.tminglei.slickpg.LTree
 import com.typesafe.scalalogging.LazyLogging
 import faker.Lorem.letterify
+import models.account.Scope
 import org.json4s.Extraction
 import org.json4s.jackson.Serialization.writePretty
 import shapeless._
@@ -15,7 +17,13 @@ import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 
-case class ActivityContext(userId: Int, userType: String, transactionId: String)
+case class ActivityContext(userId: Int,
+                           userType: String,
+                           transactionId: String,
+                           scope: LTree = LTree("")) {
+  def withCurrentScope(implicit au: AU) = withScope(Scope.current)
+  def withScope(scope: LTree)           = ActivityContext(userId, userType, transactionId, scope)
+}
 
 object ActivityContext {
 
@@ -28,8 +36,14 @@ object ActivityContext {
     )
   }
 
-  def build(userId: Int, userType: String): ActivityContext =
-    ActivityContext(userId = userId, userType = userType, transactionId = letterify("?" * 5))
+  def build(userId: Int,
+            userType: String,
+            transactionId: String = letterify("?" * 5),
+            scope: LTree = LTree("")): ActivityContext =
+    ActivityContext(userId = userId,
+                    userType = userType,
+                    transactionId = transactionId,
+                    scope = scope)
 }
 
 /**

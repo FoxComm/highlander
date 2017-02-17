@@ -262,8 +262,9 @@ class NotificationIntegrationTest
     }
   }
 
-  val newActivity =
-    Activity(activityType = "foo", data = JString("data"), context = ActivityContext(1, "x", "y"))
+  val newActivity = Activity(activityType = "foo",
+                             data = JString("data"),
+                             context = ActivityContext.build(1, "x", "y"))
 
   val createActivity = Activities.create(newActivity)
 

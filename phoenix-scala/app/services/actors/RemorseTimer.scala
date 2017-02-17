@@ -7,10 +7,8 @@ import akka.actor.{Actor, ActorLogging}
 import models.activity.ActivityContext
 import models.cord.Order._
 import models.cord.{Order, Orders}
-import services.LogActivity
-import services.Result
+import services.{LogActivity, Result}
 import utils.aliases._
-import utils.db.javaTimeSlickMapper
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 
@@ -19,7 +17,7 @@ case object Tick
 case class RemorseTimerResponse(updatedQuantity: Result[Int])
 
 class RemorseTimer(implicit db: DB, ec: EC) extends Actor {
-  implicit val ac = ActivityContext.build(userId = 1, userType = "admin")
+  implicit val ac = ActivityContext.build(userId = 1, userType = "admin") //TODO: what scope should be here
 
   override def receive = {
     case Tick ⇒ sender() ! tick

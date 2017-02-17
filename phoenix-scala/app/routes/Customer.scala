@@ -32,7 +32,7 @@ object Customer {
 
     pathPrefix("my") {
       requireCustomerAuth(auth) { implicit auth ⇒
-        activityContext(auth.model) { implicit ac ⇒
+        activityContext(auth) { implicit ac ⇒
           determineObjectContext(db, ec) { implicit ctx ⇒
             pathPrefix("products" / ProductRef / "baked") { productId ⇒
               (get & pathEnd) {

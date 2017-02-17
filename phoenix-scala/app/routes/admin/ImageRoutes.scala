@@ -15,7 +15,7 @@ import utils.http.Http._
 
 object ImageRoutes {
   def routes(implicit ec: EC, db: DB, am: Mat, auth: AuthData[User], apis: Apis): Route = {
-    activityContext(auth.model) { implicit ac ⇒
+    activityContext(auth) { implicit ac ⇒
       pathPrefix("albums") {
         pathPrefix(Segment) { context ⇒
           (post & pathEnd & entity(as[AlbumPayload])) { payload ⇒
