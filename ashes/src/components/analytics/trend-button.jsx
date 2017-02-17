@@ -37,7 +37,14 @@ export const TrendType = {
 const TrendButton = (props: Props) => {
 
   const { trendType, message, value } = props;
-  const contentBody = `${value}${message}`;
+
+  let contentBody;
+
+  if(typeof message === 'undefined') {
+    contentBody = `${value}${TrendButton.defaultProps.message}`;
+  } else {
+    contentBody = `${value}${message}`;
+  }
 
   let arrow = {};
   arrow.direction = _.find([TrendType.gain, TrendType.steady], trendType)
