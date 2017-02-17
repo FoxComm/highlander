@@ -6,7 +6,7 @@
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
     hostname: "{{ lookup('env', 'APPLIANCE_HOSTNAME')) }}"
-    dns_record: "{{ lookup('env', 'APPLIANCE_DNS_RECORD')) }}"
+    dns_record: "{{hostname}}"
     api_server: "{{dns_record}}.foxcommerce.com"
     self_host: "{{dns_record}}.foxcommerce.com"
     ashes_server_name: "{{dns_record}}.foxcommerce.com"
