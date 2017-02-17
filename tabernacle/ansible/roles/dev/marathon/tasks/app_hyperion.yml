@@ -5,6 +5,12 @@
 - name: Copy Hyperion Marathon JSON
   template: src=hyperion.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
 
+- name: Kill Hyperion Tasks in Marathon
+  shell: 'curl -sS -XDELETE http://{{marathon_server}}/v2/apps/hyperion/tasks'
+
+- name: Pause for a bit...
+  pause: seconds=30
+
 - name: Update Hyperion in Marathon
   shell: 'curl -sS -XPUT -d@/marathon/applications/hyperion.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/hyperion'
 
