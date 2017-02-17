@@ -101,9 +101,7 @@ class GroupDetails extends Component {
 
     customersListActions.resetSearch();
 
-    customersListActions.setExtraFilters([
-      requestAdapter(group.id, criterions, group.mainCondition, group.conditions).toRequest().query,
-    ]);
+    customersListActions.setExtraFilters([ group.elasticRequest ]);
 
     customersListActions.fetch();
 

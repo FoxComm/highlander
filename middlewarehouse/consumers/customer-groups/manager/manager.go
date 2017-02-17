@@ -198,14 +198,7 @@ func (m *GroupsManager) processMailchimp(group *responses.CustomerGroupResponse,
 }
 
 func (m *GroupsManager) getCustomers(group *responses.CustomerGroupResponse) (map[int]string, error) {
-	var query elastic.Query
-
-	if group.GroupType == "manual" {
-		query = elastic.NewTermQuery("groups", group.ID)
-	} else {
-		query = elastic.RawStringQuery(group.ElasticRequest)
-	}
-
+	query := elastic.RawStringQuery(group.ElasticRequest)
 	topic := m.esTopic
 	size := m.esSize
 	from := 0

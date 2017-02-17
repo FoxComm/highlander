@@ -95,7 +95,7 @@ const _fetchStats = createAsyncActions('fetchStatsCustomerGroup', request => {
 const _addCustomersToGroup = createAsyncActions('addCustomersToGroup',
   (groupId: number, customers: Array<number>) => {
     return Api.post(`/customer-groups/${groupId}/customers`, { toAdd: customers, toDelete: [] });
-});
+  });
 
 
 /**
@@ -144,7 +144,12 @@ export const saveGroup = () => (dispatch: Function, getState: Function) => {
   const name = getValue('name');
   const mainCondition = getValue('mainCondition');
   const conditions = getValue('conditions');
-  const elasticRequest = requestAdapter(groupId, criterions, mainCondition, conditions).toRequest();
+  let elasticRequest = getValue('elasticRequest');
+
+  // in case it's not a manual group we want to overwrite query with new one from builder
+  if (groupType !== GROUP_TYPE_MANUAL) {
+    elasticRequest = requestAdapter(groupId, criterions, mainCondition, conditions).toRequest();
+  }
 
   const data = {
     name,
@@ -153,7 +158,7 @@ export const saveGroup = () => (dispatch: Function, getState: Function) => {
       mainCondition,
       conditions,
     },
-    elasticRequest : groupType !== GROUP_TYPE_MANUAL ? elasticRequest : null,
+    elasticRequest
   };
 
   return dispatch(_saveGroup.perform(groupId, data));
@@ -271,7 +276,11 @@ const reducer = createReducer({
   [setName]: (state, name) => ({ ...state, name }),
   [setType]: (state, groupType) => ({ ...state, groupType, isValid: validateConditions(groupType, state.conditions) }),
   [setMainCondition]: (state, mainCondition) => ({ ...state, mainCondition }),
-  [setConditions]: (state, conditions) => ({ ...state, conditions, isValid: validateConditions(state.groupType, conditions) }),
+  [setConditions]: (state, conditions) => ({
+    ...state,
+    conditions,
+    isValid: validateConditions(state.groupType, conditions)
+  }),
   [setGroupStats]: (state, stats) => ({ ...state, stats }),
 }, initialState);
 

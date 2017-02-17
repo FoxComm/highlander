@@ -8,13 +8,6 @@ import _ from 'lodash';
 const requestAdapter = (groupId, criterions, mainCondition, conditions) => {
   const request = new Request(criterions);
 
-  // if have no conditions from clientState request (UI builder) just use groupId to fetch customers
-  if (isEmpty(conditions)) {
-    request.query = (new query.Field('groups')).add(operators.equal, groupId);
-
-    return request;
-  }
-
   request.query = mainCondition === operators.and ? new query.ConditionAnd() : new query.ConditionOr();
 
   _.each(conditions, ([name, operator, value]) => {

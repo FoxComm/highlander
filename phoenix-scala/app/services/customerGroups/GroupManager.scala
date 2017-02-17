@@ -113,13 +113,6 @@ object GroupManager {
          |        }
          |      ]
          |    }
-         |  },
-         |  "sort":
-         |    [
-         |      {"joinedAt":
-         |        {"order": "desc"}
-         |      }
-         |    ]
          |  }
          |}""".stripMargin)
     group.copy(elasticRequest = groupQuery)
