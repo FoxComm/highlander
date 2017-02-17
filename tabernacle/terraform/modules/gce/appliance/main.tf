@@ -42,9 +42,7 @@ resource "google_compute_instance" "appliance" {
 
   provisioner "remote-exec" {
     inline = [
-      "/usr/local/bin/bootstrap.sh",
-      "/usr/local/bin/bootstrap_consul.sh ${var.datacenter} ${var.consul_leader}",
-      "sudo rm -rf /var/consul/* && sudo systemctl restart consul_server.service",
+      "/usr/local/bin/bootstrap.sh"
     ]
   }
 }

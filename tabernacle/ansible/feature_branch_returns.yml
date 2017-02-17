@@ -1,11 +1,16 @@
 ---
 
 - name: Provision Returns Feature Branch Instance
-  hosts: feature-branch-returns
+  hosts: "{{hostname}}"
   become: true
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
-    download_flyway: false
+    hostname: "{{ lookup('env', 'APPLIANCE_HOSTNAME')) }}"
+    dns_record: "{{ lookup('env', 'APPLIANCE_DNS_RECORD')) }}"
+    api_server: "{{dns_record}}.foxcommerce.com"
+    self_host: "{{dns_record}}.foxcommerce.com"
+    ashes_server_name: "{{dns_record}}.foxcommerce.com"
+    storefront_server_name: "{{dns_record}}.foxcommerce.com"
     docker_tags:
         phoenix: "returns"
     marathon_restart:
@@ -30,10 +35,7 @@
         river_rock: false
         digger_sphex: false
         orders_sphex: false
-    api_server: appliance-10-240-0-12.foxcommerce.com
-    self_host: appliance-10-240-0-12.foxcommerce.com
-    ashes_server_name: appliance-10-240-0-12.foxcommerce.com
-    storefront_server_name: appliance-10-240-0-12.foxcommerce.com
+    download_flyway: false
     is_appliance: true
     with_base_seeds: true
     url_prefix_perfectgourmet: "/perfect-gourmet"
