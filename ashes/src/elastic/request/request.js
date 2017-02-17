@@ -61,11 +61,21 @@ export default class Request extends Element {
     this._criterions = criterions;
   }
 
+  raw(query: Object) {
+    this._raw = query;
+
+    return this;
+  }
+
   toRequest(): RequestType {
     const request = {};
 
     if (this.select.length) {
       request._source = this.select.toRequest();
+    }
+
+    if (!!this._raw) {
+      request.query = this._raw;
     }
 
     if (this.query && this.query.length) {

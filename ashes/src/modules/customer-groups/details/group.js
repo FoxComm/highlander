@@ -12,7 +12,7 @@ import criterions, { getCriterion, getWidget } from 'paragons/customer-groups/cr
 import { Request, aggregations } from 'elastic/request';
 import { createAsyncActions } from '@foxcomm/wings';
 
-import requestAdapter from '../utils/request-adapter';
+import requestAdapter, { fromRawQuery } from '../utils/request-adapter';
 
 const mapping = 'customers_search_view';
 const statsUrl = `${mapping}/_search?size=0`;
@@ -183,9 +183,7 @@ export const fetchGroupStats = () => (dispatch: Function, getState: Function) =>
   const state = getState();
   const group = get(state, ['customerGroups', 'details', 'group']);
 
-  const request = requestAdapter(group.id, criterions, group.mainCondition, group.conditions);
-
-  dispatch(_fetchStats.perform(request));
+  dispatch(_fetchStats.perform(fromRawQuery(group.elasticRequest)));
 };
 
 export const addCustomersToGroup = (id: number, customers: Array<number>) => (dispatch: Function) =>

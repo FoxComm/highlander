@@ -1,6 +1,6 @@
 /* @flow weak */
 
-import isEmpty from 'lodash/isEmpty';
+import get from 'lodash/get';
 import { Request, query } from 'elastic/request';
 import operators from 'paragons/customer-groups/operators';
 import _ from 'lodash';
@@ -18,5 +18,9 @@ const requestAdapter = (groupId, criterions, mainCondition, conditions) => {
 
   return request;
 };
+
+export function fromRawQuery(query) {
+  return (new Request()).raw(get(query, 'query'));
+}
 
 export default requestAdapter;
