@@ -257,6 +257,10 @@ location /admin/ {
     proxy_set_header Connection "";
 }
 
+location /admin {
+    rewrite ^/.* https://{{storefront_server_name}}/admin/ permanent;
+}
+
 location @ashes {
     proxy_pass http://ashes;
     proxy_http_version 1.1;
