@@ -30,7 +30,6 @@ location /internal-search/ {
     internal;
     proxy_pass http://search/;
     proxy_http_version 1.1;
-    proxy_set_header Content-Length "";
 }
 
 # Proxy the internal search location and sanitizes output from ES for external use
