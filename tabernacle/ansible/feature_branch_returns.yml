@@ -22,6 +22,7 @@
         shipments_consumer: false
         shipstation_consumer: false
         stock_items_consumer: false
+        customer_groups_consumer: false
         marketplace: false
         hyperion: false
         bernardo: false

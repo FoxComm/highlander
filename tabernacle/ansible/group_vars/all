@@ -41,9 +41,9 @@ docker_tags:
     capture_consumer: master
     gift_card_consumer: master
     shipments_consumer: master
-    shipstation_consumer: master
     stock_items_consumer: master
     customer_groups_consumer: master
+    shipstation_consumer: master
     storefront_td: master
     storefront_tpg: master
     marketplace: master
@@ -71,8 +71,8 @@ marathon_restart:
     capture_consumer: true
     gift_card_consumer: true
     shipments_consumer: true
-    shipstation_consumer: true
     stock_items_consumer: true
+    customer_groups_consumer: true
     shipstation_consumer: true
     marketplace: true
     hyperion: true
