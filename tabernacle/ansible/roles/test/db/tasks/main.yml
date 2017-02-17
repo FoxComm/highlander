@@ -43,4 +43,5 @@
       - phoenix
       - middlewarehouse
 
-- include: flyway_install.yml
+- include: ../../../base/db/tasks/flyway.yml
+  when: download_flyway

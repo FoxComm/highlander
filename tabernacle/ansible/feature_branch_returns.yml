@@ -39,6 +39,7 @@
     url_prefix_perfectgourmet: "/perfect-gourmet"
     url_prefix_topdrawer: "/top-drawer"
   roles:
+    - { role: hotfix/agent_key }
     - { role: hotfix/db }
     - { role: hotfix/elasticsearch }
     - { role: hotfix/rsyslog }
