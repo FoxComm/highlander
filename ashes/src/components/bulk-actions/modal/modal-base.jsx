@@ -1,13 +1,13 @@
 /* @flow */
 
-import React  from 'react';
+import React, { Element } from 'react';
 
 import ContentBox from 'components/content-box/content-box';
 import SaveCancel from 'components/common/save-cancel';
 
 type Props = {
-  title: React$Element|string,
-  label: React$Element|string,
+  title: Element<*>|string,
+  label: Element<*>|string,
   onCancel: Function,
   onConfirm: Function,
   cancelText?: string,

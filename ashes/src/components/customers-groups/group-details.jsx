@@ -1,7 +1,7 @@
 /* @flow */
 
 import _ from 'lodash';
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { autobind, debounce } from 'core-decorators';
@@ -54,7 +54,7 @@ type Props = {
     fetch: Function,
   },
   bulkActions: {
-    deleteCustomersFromGroup: (groupId: number, customersIds: Array<number>) => Promise,
+    deleteCustomersFromGroup: (groupId: number, customersIds: Array<number>) => Promise<*>,
   },
   suggested: Array<TUser>,
   suggestState: AsyncState,
@@ -185,7 +185,7 @@ class GroupDetails extends Component {
     );
   }
 
-  get criteria(): ?Element {
+  get criteria() {
     const { mainCondition, conditions, groupType } = this.props.group;
 
     if (groupType != GROUP_TYPE_DYNAMIC) return null;
@@ -223,7 +223,7 @@ class GroupDetails extends Component {
   }
 
   @autobind
-  renderCriterion([field, operator, value]: Array<Object>, index?: number): Element {
+  renderCriterion([field, operator, value]: Array<Object>, index?: number) {
     return (
       <Criterion
         key={index}
@@ -285,7 +285,7 @@ class GroupDetails extends Component {
     );
   }
 
-  get table(): Element {
+  get table() {
     const { customersList, customersListActions } = this.props;
 
     return (

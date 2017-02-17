@@ -26,7 +26,7 @@ type Props = {
   suggestedGroups: Array<TCustomerGroupShort>,
   suggestState: Object,
   bulkActions: {
-    addCustomersToGroup: (groupId: number, customersIds: Array<number>) => Promise,
+    addCustomersToGroup: (groupId: number, customersIds: Array<number>) => Promise<*>,
     reset: () => void,
     setMessages: (messages: Object) => void,
   },

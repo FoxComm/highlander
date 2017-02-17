@@ -1,7 +1,7 @@
 /* @flow */
 
 import capitalize from 'lodash/capitalize';
-import React from 'react';
+import React, { Element } from 'react';
 
 import { numberize } from 'lib/text-utils';
 
@@ -11,7 +11,7 @@ import ModalBase from './modal-base';
 type Props = {
   entity: string,
   stateTitle: string,
-  label?: React$Element|string,
+  label?: Element<*>|string,
   count: number,
   onCancel: Function,
   onConfirm: Function,
