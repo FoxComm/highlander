@@ -144,6 +144,7 @@ export const saveGroup = () => (dispatch: Function, getState: Function) => {
   const name = getValue('name');
   const mainCondition = getValue('mainCondition');
   const conditions = getValue('conditions');
+  const customersCount = getValue('customersCount');
   let elasticRequest = getValue('elasticRequest');
 
   // in case it's not a manual group we want to overwrite query with new one from builder
@@ -158,6 +159,7 @@ export const saveGroup = () => (dispatch: Function, getState: Function) => {
       mainCondition,
       conditions,
     },
+    customersCount,
     elasticRequest
   };
 
