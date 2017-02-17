@@ -13,23 +13,23 @@ import React, { Component, Element } from 'react';
 import Image from '../image/image';
 
 export type Action = {
-  name: string;
-  handler: (e: MouseEvent) => void;
-}
+  name: string,
+  handler: (e: MouseEvent) => void,
+};
 
 type Props = {
-  id: number;
-  src: string;
-  actions: Array<Action>;
-  title: string;
-  loading: boolean;
-  secondaryTitle?: string;
-  className?: string;
+  id: number,
+  src: string,
+  actions: Array<Action>,
+  title: string,
+  loading: boolean,
+  secondaryTitle?: string,
+  className?: string,
 };
 
 type State = {
-  actionsVisible: boolean;
-}
+  actionsVisible: boolean,
+};
 
 export default class ImageCard extends Component {
 
@@ -63,7 +63,7 @@ export default class ImageCard extends Component {
     }, 100);
   }
 
-  get actions(): ?Element {
+  get actions(): ?Element<*> {
     const { actions } = this.props;
 
     if (_.isEmpty(actions)) {
@@ -81,7 +81,7 @@ export default class ImageCard extends Component {
     );
   }
 
-  get description(): ?Element {
+  get description(): ?Element<*> {
     let { title, secondaryTitle, src, loading } = this.props;
 
     if (!title) {
@@ -96,7 +96,7 @@ export default class ImageCard extends Component {
     );
   }
 
-  render(): Element {
+  render() {
     const { id, src, className } = this.props;
 
     return (

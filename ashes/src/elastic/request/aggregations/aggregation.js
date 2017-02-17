@@ -17,6 +17,8 @@ export default class Aggregation extends Element {
     this.field = field;
   }
 
-  toRequest: () => Object;
+  toRequest(): Object {
+    return {};
+  };
 
 }

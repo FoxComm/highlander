@@ -47,7 +47,7 @@ class SkuContentBox extends Component {
     selectedOptions: {},
   };
 
-  get actions(): ?Element {
+  get actions(): ?Element<*> {
     if (_.isEmpty(this.props.variants)) {
       return null;
     }
@@ -71,7 +71,7 @@ class SkuContentBox extends Component {
     return [];
   }
 
-  get addSkuDialog(): Element {
+  get addSkuDialog(): Element<*> {
     const availableVariants = availableVariantsValues(this.props.fullProduct);
     const { selectedOptions } = this.state;
 

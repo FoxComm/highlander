@@ -32,7 +32,7 @@ type TState = {
 
 type LoginProps = {
   current: TUser,
-  authenticate: (payload: LoginPayload) => Promise,
+  authenticate: (payload: LoginPayload) => Promise<*>,
   user: {
     message: String,
   },

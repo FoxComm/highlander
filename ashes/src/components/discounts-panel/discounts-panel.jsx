@@ -1,7 +1,7 @@
 
 /* @flow */
 
-import React, { Component, Element } from 'react';
+import React, { Component } from 'react';
 import _ from 'lodash';
 import classNames from 'classnames';
 
@@ -24,7 +24,7 @@ const viewColumns = [
 export default class DiscountsPanel extends Component {
   props: Props;
 
-  get title(): Element {
+  get title() {
     return (
       <PanelHeader isOptional={true} isCart={true} status="success" text="Discounts" />
     );
@@ -35,7 +35,7 @@ export default class DiscountsPanel extends Component {
     return promotion ? [promotion] : [];
   }
 
-  get viewContent(): Element {
+  get viewContent() {
     const discounts = this.discounts;
     if (_.isEmpty(discounts)) {
       return <div styleName="empty-message">No discounts applied.</div>;
@@ -50,7 +50,7 @@ export default class DiscountsPanel extends Component {
     }
   }
 
-  renderRow(row: Object, index: number, isNew: bool): Element {
+  renderRow(row: Object, index: number, isNew: bool) {
     return (
       <DiscountRow
         key={`discount-row-${row.id}`}
@@ -60,8 +60,8 @@ export default class DiscountsPanel extends Component {
     );
   }
 
-  render(): Element {
-    
+  render() {
+
     return (
       <ContentBox
         title={this.title}

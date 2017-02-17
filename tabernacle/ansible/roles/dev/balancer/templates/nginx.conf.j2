@@ -1,0 +1,176 @@
+user www-data;
+worker_processes auto;
+pid /run/nginx.pid;
+
+events {
+  worker_connections 768;
+  # multi_accept on;
+}
+
+
+http {
+
+  sendfile on;
+  tcp_nopush on;
+  tcp_nodelay on;
+  keepalive_timeout 65;
+  types_hash_max_size 2048;
+  client_max_body_size 8M;
+
+  include /etc/nginx/mime.types;
+  default_type application/octet-stream;
+
+  # don't send the nginx version number ever because security
+  server_tokens off;
+
+  # cache credentials to speed up TLS
+  ssl_session_cache shared:SSL:20m;
+  ssl_session_timeout 180m;
+
+  # enables server-side protection from BEAST attacks
+  # http://blog.ivanristic.com/2013/09/is-beast-still-a-threat.html
+  ssl_prefer_server_ciphers on;
+  ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+  ssl_ciphers ECDH+AESGCM:ECDH+AES256:ECDH+AES128:DH+3DES:!ADH:!AECDH:!MD5;
+
+  #TODO TLS
+  # config to enable HSTS(HTTP Strict Transport Security) https://developer.mozilla.org/en-US/docs/Security/HTTP_Strict_Transport_Security
+  # to avoid ssl stripping https://en.wikipedia.org/wiki/SSL_stripping#SSL_stripping
+  add_header Strict-Transport-Security "max-age=31536000; includeSubdomains;";
+
+  error_log /var/log/nginx/error.log;
+
+  gzip on;
+  gzip_types application/json application/javascript text/css;
+  gzip_disable "msie6";
+
+  include /etc/nginx/conf.d/*.conf;
+  include /etc/nginx/sites-enabled/*;
+
+  map $host $request_time_ms { default ''; }
+  map $host $uuid { default ''; }
+
+  ###############################
+  # Setup unique id per request #
+  ###############################
+
+  lua_package_path '/etc/nginx/?.lua;;';
+  init_by_lua '
+      string = require "string"
+      table = require "table"
+      cjson = require "cjson"
+      uuid4 = require "uuid4"
+      math = require "math"
+      basexx = require "basexx"
+      j = cjson.new()
+
+      -- TODO: Remove table once all search views are scoped
+      scoped_views = {
+        store_admins_search_view = 1,
+        customers_search_view = 1,
+        customer_items_view = 1,
+        customer_groups_search_view = 1,
+        products_search_view = 1,
+        promotions_search_view = 1,
+        coupons_search_view = 1,
+        coupon_codes_search_view = 1,
+        gift_cards_search_view = 1,
+        gift_card_transactions_view = 1,
+        store_credits_search_view = 1,
+        store_credit_transactions_search_view = 1,
+        sku_search_view = 1,
+        carts_search_view = 1,
+        orders_search_view = 1,
+        notes_search_view = 1,
+        inventory_search_view = 1,
+        inventory_transactions_search_view = 1,
+        taxonomies_search_view = 1,
+        taxons_search_view = 1
+      }
+
+      function map(array, func)
+        local new_array = {}
+        for i,v in ipairs(array) do
+            new_array[i] = func(v)
+        end
+        return new_array
+      end
+
+      function split_on_dot(str)
+        local seperator = string.format("([^%s]+)", "%.")
+        local parts = {}
+        for match in str:gmatch(seperator) do
+            parts[#parts+1] = match
+        end
+        return parts
+      end
+
+      function parse_jwt_payload(jwt)
+        local encoded_parts = split_on_dot(jwt)
+        local encoded_payload = encoded_parts[2]
+        if encoded_payload ~= nil then
+            local decoded_payload = basexx.from_base64(encoded_payload)
+            return j.decode(decoded_payload)
+        end
+        return nil
+      end
+
+      function get_doc_type(prefix, uri)
+        return uri:match(prefix .. "/([_%a]*)/")
+      end
+
+      function request_internal_search(idx)
+        local req
+        local jwt = ngx.req.get_headers()["JWT"]
+        local request_prefix = "api/search/" .. idx
+
+        req = ngx.re.sub(ngx.var.request_uri, request_prefix, "internal-search/" .. idx)
+
+        if jwt ~= nil then
+            local payload = parse_jwt_payload(jwt)
+            if payload ~= nil then
+                local scope = payload.scope
+                local view = get_doc_type(request_prefix, ngx.var.request_uri)
+
+                if scoped_views[view] then
+                    req = ngx.re.sub(ngx.var.request_uri, request_prefix, "internal-search/" .. idx .. "_" .. scope)
+                end
+            end
+        end
+
+        -- map is needed because ngx.var.request_method returns a string
+        local methodsMap = {
+            GET = ngx.HTTP_GET,
+            POST = ngx.HTTP_POST,
+            PUT = ngx.HTTP_PUT,
+            DELETE = ngx.HTTP_DELETE
+        }
+
+        local body = ngx.req.read_body()
+        local method = methodsMap[ngx.var.request_method]
+
+        --get json result from elastic search
+        local res = ngx.location.capture(req, { method = method,  body = body })
+
+        --parse
+        local json = j.decode(res.body)
+
+        if json.error ~= nil or json.errors ~= nil then
+            ngx.say(res.body)
+            ngx.exit(0)
+        end
+
+        return json
+      end
+      ';
+
+  log_by_lua '
+      ngx.var.request_time_ms = math.floor(tonumber(ngx.var.request_time) * 1000)
+      ';
+
+  log_format phoenixformat '[$time_local] "$host $request" $status $request_length $bytes_sent $request_time_ms $uuid';
+  access_log /var/log/nginx/access.log phoenixformat;
+
+  error_log syslog:server=unix:/dev/log;
+  access_log syslog:server=unix:/dev/log phoenixformat;
+}

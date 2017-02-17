@@ -15,7 +15,7 @@ type LabelProps = {
   className: string
 };
 
-export const Label = (props: LabelProps): Element => {
+export const Label = (props: LabelProps) => {
   const { value, className } = props;
   const prefixed = prefix(className);
 

@@ -15,27 +15,31 @@ import { SelectableList, SelectableItem } from 'components/selectable-list';
 import { actions } from 'modules/customer-groups/list';
 
 type GroupType = {
-  name: string;
-  type: string;
-  id: number;
-}
+  name: string,
+  type: string,
+  id: number,
+};
 
 type Props = {
-  onSelect: (groups: Array<number>) => any;
-  groups: Array<GroupType>;
-  selectedGroupIds: Array<number>;
-  fetch: () => Promise;
-  parent?: String;
+  onSelect: (groups: Array<number>) => any,
+  groups: Array<GroupType>,
+  selectedGroupIds: Array<number>,
+  fetch: () => Promise,
+  parent: string,
 };
 
 type State = {
-  qualifyAll: boolean;
-  popupOpened: boolean;
+  qualifyAll: boolean,
+  popupOpened: boolean,
 };
 
 
 class SelectCustomerGroups extends Component {
   props: Props;
+
+  static defaultProps = {
+    parent: '',
+  };
 
   state: State = {
     qualifyAll: true,
@@ -64,7 +68,7 @@ class SelectCustomerGroups extends Component {
   @autobind
   togglePopup() {
     const eventName = this.state.popupOpened ? 'click_popup_close' : 'click_popup_open';
-    trackEvent(`Customer groups(${this.props.parent || ''})`, eventName);
+    trackEvent(`Customer groups(${this.props.parent})`, eventName);
     this.setState({
       popupOpened: !this.state.popupOpened,
     });
@@ -93,8 +97,9 @@ class SelectCustomerGroups extends Component {
     );
   }
 
-  get togglePopupControl(): Element {
+  get togglePopupControl() {
     const iconClass = this.state.popupOpened ? 'icon-close' : 'icon-add';
+
     return (
       <i className={iconClass} styleName="toggle-control" onClick={this.togglePopup}>
         <SelectableList
@@ -114,7 +119,7 @@ class SelectCustomerGroups extends Component {
     return _.filter(this.props.groups, group => this.props.selectedGroupIds.indexOf(group.id) != -1);
   }
 
-  get customersGroups(): ?Element {
+  get customersGroups(): ?Element<*> {
     if (this.state.qualifyAll !== false) return null;
 
     return (
@@ -155,7 +160,7 @@ class SelectCustomerGroups extends Component {
     );
   }
 
-  render(): Element {
+  render() {
     return (
       <div>
         <RadioButton
