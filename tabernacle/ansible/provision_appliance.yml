@@ -11,6 +11,7 @@
     is_appliance: true
     is_amigo: true
     mesos_quorum: 1
+    private_ip: "{{ansible_default_ipv4.address}}"
     with_base_seeds: true
     url_prefix_perfectgourmet: "/perfect-gourmet"
     url_prefix_topdrawer: "/top-drawer"
@@ -18,11 +19,11 @@
   vars_prompt:
     - name: "hostname"
       prompt: "Enter appliance hostname to provision"
-      default: "feature-branch-returns"
+      default: "feature-branch"
       private: no
     - name: "dns_record"
       prompt: "Enter a DNS record set up via Terraform"
-      default: "feature-branch-returns"
+      default: "feature-branch"
       private: no
   pre_tasks:
     - name: Override hostnames

@@ -72,6 +72,8 @@ marathon_restart:
     shipments_consumer: true
     stock_items_consumer: true
     shipstation_consumer: true
+    storefront_td: true
+    storefront_tpg: true
     marketplace: true
     hyperion: true
     bernardo: true
