@@ -5,7 +5,7 @@ import React, { Element } from 'react';
 
 type PanelListProps = {
   className?: string;
-  children?: Element;
+  children?: Element<*>;
 }
 
 export const PanelList = ({ className, children }: PanelListProps) => (
@@ -15,8 +15,8 @@ export const PanelList = ({ className, children }: PanelListProps) => (
 );
 
 type PanelListItemProps = {
-  title: Element|string;
-  children?: Element;
+  title: Element<*>|string;
+  children?: Element<*>;
 }
 
 export const PanelListItem = ({ title, children }: PanelListItemProps) => (

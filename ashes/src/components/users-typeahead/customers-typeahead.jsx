@@ -7,7 +7,7 @@ import UsersTypeahead from './users-typeahead';
 type Props = {
   suggestState: AsyncState,
   suggested: Array<TUser>,
-  suggestCustomers: (token: string) => Promise,
+  suggestCustomers: (token: string) => Promise<*>,
   onSelect: (customers: Array<TUser>) => void,
 };
 

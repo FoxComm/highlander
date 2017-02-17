@@ -156,7 +156,7 @@ export default class Table extends Component {
     return props.processRows(rows, props.columns);
   }
 
-  message(isEmpty: boolean): ?Element<*> {
+  message(isEmpty: boolean) {
     const { props } = this;
 
     const showLoading = props.showLoadingOnMount && props.isLoading === null || props.isLoading;
@@ -170,7 +170,7 @@ export default class Table extends Component {
     }
   }
 
-  get body(): ?Element {
+  get body() {
     if (this.props.failed) {
       return;
     }
@@ -185,7 +185,7 @@ export default class Table extends Component {
     }
   }
 
-  wrapBody(body: Element<*>): Element<*> {
+  wrapBody(body: Element<*>) {
     const {tbodyId} = this.props;
     const firstRow = React.Children.toArray(body)[0];
     if (firstRow && (firstRow.type === 'tbody' || !this.props.wrapToTbody)) {
@@ -202,7 +202,7 @@ export default class Table extends Component {
     }
   }
 
-  tableHead(isEmpty: boolean): ?Element<*> {
+  tableHead(isEmpty: boolean) {
     if (this.props.renderHeadIfEmpty || !isEmpty) {
       const { data, setState, className, ...rest } = this.props;
       return (

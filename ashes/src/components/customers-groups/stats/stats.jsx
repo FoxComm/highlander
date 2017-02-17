@@ -2,7 +2,7 @@
 
 import { capitalize, get, isNumber, isNaN, identity } from 'lodash';
 import classNames from 'classnames';
-import React, { Component } from 'react';
+import React, { Component, Element } from 'react';
 
 import { PanelList, PanelListItem } from 'components/panel/panel-list';
 import Currency from 'components/common/currency';
@@ -65,7 +65,7 @@ class CustomerGroupStats extends Component {
     period: 'month',
   };
 
-  get timeframes(): Array<Element> {
+  get timeframes(): Array<Element<*>> {
     return Object.keys(this.props.stats).map((period: string) => (
       <RadioButton
         id={period}

@@ -18,7 +18,7 @@ type Props = {
   cancelParams: Object,
   saveInProgress: boolean,
   saveError: boolean,
-  onSave: () => Promise,
+  onSave: () => Promise<*>,
   params: {
     type: string,
   },

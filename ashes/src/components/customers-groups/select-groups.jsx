@@ -24,7 +24,7 @@ type Props = {
   onSelect: (groups: Array<number>) => any,
   groups: Array<GroupType>,
   selectedGroupIds: Array<number>,
-  fetch: () => Promise,
+  fetch: () => Promise<*>,
   parent: string,
 };
 

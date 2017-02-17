@@ -1,7 +1,7 @@
 /* @flow */
 
 import _ from 'lodash';
-import React, { PropTypes, Component, Element } from 'react';
+import React, { PropTypes, Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { autobind, debounce } from 'core-decorators';
@@ -11,7 +11,12 @@ import classNames from 'classnames';
 import criterions from 'paragons/customer-groups/criterions';
 import operators from 'paragons/customer-groups/operators';
 import requestAdapter from 'modules/customer-groups/utils/request-adapter';
-import { fetchGroupStats, GROUP_TYPE_MANUAL, GROUP_TYPE_DYNAMIC, addCustomersToGroup } from 'modules/customer-groups/details/group';
+import {
+  fetchGroupStats,
+  GROUP_TYPE_MANUAL,
+  GROUP_TYPE_DYNAMIC,
+  addCustomersToGroup
+} from 'modules/customer-groups/details/group';
 import { actions as customersListActions } from 'modules/customer-groups/details/customers-list';
 import { suggestCustomers } from 'modules/customers/suggest';
 
@@ -45,8 +50,8 @@ type Props = {
   },
   suggested: Array<TUser>,
   suggestState: AsyncState,
-  suggestCustomers: (token: string) => Promise,
-  addCustomersToGroup: (groupId: number, ids: Array<number>) => Promise,
+  suggestCustomers: (token: string) => Promise<*>,
+  addCustomersToGroup: (groupId: number, ids: Array<number>) => Promise<*>,
 };
 
 const prefixed = prefix('fc-customer-group');
@@ -142,7 +147,7 @@ class GroupDetails extends Component {
   }
 
   @autobind
-  renderCriterion([field, operator, value]: Array<Object>, index?: number): Element {
+  renderCriterion([field, operator, value]: Array<Object>, index?: number) {
     return (
       <Criterion
         key={index}
@@ -161,7 +166,7 @@ class GroupDetails extends Component {
     });
   }
 
-  get addCustomersModal(): ?Element {
+  get addCustomersModal() {
     if (this.props.group.groupType != GROUP_TYPE_MANUAL) {
       return null;
     }
@@ -178,7 +183,7 @@ class GroupDetails extends Component {
     );
   }
 
-  get criteria(): ?Element {
+  get criteria() {
     const { mainCondition, conditions, groupType } = this.props.group;
 
     if (groupType != GROUP_TYPE_DYNAMIC) return null;
@@ -201,7 +206,7 @@ class GroupDetails extends Component {
     );
   }
 
-  get criteriaToggle(): Element {
+  get criteriaToggle() {
     const { criteriaOpen } = this.state;
     const icon = criteriaOpen ? 'icon-chevron-up' : 'icon-chevron-down';
 
@@ -229,7 +234,7 @@ class GroupDetails extends Component {
     );
   }
 
-  get table(): Element {
+  get table() {
     const { customersList, customersListActions } = this.props;
 
     return (

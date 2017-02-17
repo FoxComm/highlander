@@ -22,15 +22,15 @@ import Template from '../group-template';
 import styles from './styles.css';
 
 type Props = {
-  templates: TTemplates;
-  fetchFinished: boolean;
-  fetchError: Object;
-  saveInProgress: boolean;
-  saveError: Object;
-  fetchTemplates: () => Promise;
-  saveGroup: () => Promise;
-  clearSaveErrors: () => void;
-  push: (location: Object) => void;
+  templates: TTemplates,
+  fetchFinished: boolean,
+  fetchError: Object,
+  saveInProgress: boolean,
+  saveError: Object,
+  fetchTemplates: () => Promise<*>,
+  saveGroup: () => Promise<*>,
+  clearSaveErrors: () => void,
+  push: (location: Object) => void,
 };
 
 class NewGroupWizardPage extends Component {

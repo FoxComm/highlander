@@ -17,7 +17,7 @@ type Props = {
   suggested: Array<TUser>,
   onCancel: () => void,
   handleSave: (ids: Array<number>) => void,
-  suggestCustomers: (token: string) => Promise,
+  suggestCustomers: (token: string) => Promise<*>,
 };
 
 type State = {

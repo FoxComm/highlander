@@ -4,10 +4,10 @@ import classNames from 'classnames';
 import React, { PropTypes } from 'react';
 
 type Props = {
-  title?: Element|string;
+  title?: Element<*>|string;
   featured?: boolean;
   className?: string;
-  children?: Element;
+  children?: Element<*>;
 };
 
 const Panel = ({ title, featured, className, children }: Props) => (

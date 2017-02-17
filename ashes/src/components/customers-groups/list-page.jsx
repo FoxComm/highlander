@@ -12,7 +12,7 @@ import { ListPageContainer, makeTotalCounter } from '../list-page';
 import { actions as customersActions } from '../../modules/customer-groups/list';
 
 type Props = {
-  children?: Array<Element>|Element;
+  children?: Array<Element<*>>|Element<*>;
 };
 
 const navLinks = [

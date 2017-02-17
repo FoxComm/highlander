@@ -9,7 +9,7 @@ import EditGroupBase from './edit-group-base';
 
 type Props = {
   group: TCustomerGroup,
-  onSave: () => Promise,
+  onSave: () => Promise<*>,
   saveInProgress: boolean,
   saveError: boolean,
   params: {

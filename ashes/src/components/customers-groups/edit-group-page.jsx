@@ -14,22 +14,22 @@ import WaitAnimation from 'components/common/wait-animation';
 import Error from 'components/errors/error';
 
 type Props = {
-  group: TCustomerGroup;
-  fetchInProgress: boolean;
-  saveInProgress: boolean;
-  fetchError: Object;
-  saveError: Object;
-  reset: () => void;
-  fetchGroup: (id: number) => Promise;
-  saveGroup: () => Promise;
-  clearFetchErrors: () => void;
-  clearSaveErrors: () => void;
-  fetchRegions: () => Promise;
-  push: (location: Object) => void;
+  group: TCustomerGroup,
+  fetchInProgress: boolean,
+  saveInProgress: boolean,
+  fetchError: Object,
+  saveError: Object,
+  reset: () => void,
+  fetchGroup: (id: number) => Promise<*>,
+  saveGroup: () => Promise<*>,
+  clearFetchErrors: () => void,
+  clearSaveErrors: () => void,
+  fetchRegions: () => Promise<*>,
+  push: (location: Object) => void,
   params: {
-    groupId: number;
-  };
-  children: Element;
+    groupId: number,
+  },
+  children: Element<*>,
 };
 
 class NewGroupBase extends Component {

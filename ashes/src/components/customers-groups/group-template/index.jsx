@@ -6,14 +6,15 @@ import React from 'react';
 import styles from './styles.css';
 
 type Props = {
-  id?: number;
-  name: string;
-  onClick: (id?: number) => any;
+  id?: number,
+  name: string,
+  icon?: string,
+  onClick: (id?: number) => any,
 };
 
-export default (props: Props) => (
-  <button className={styles.template} onClick={() => props.onClick(props.id)}>
-    {props.icon && <i className={classNames(styles.icon, `icon-${props.icon}`)} />}
-    {props.name}
+export default ({ id, name, onClick, icon = '' }: Props) => (
+  <button className={styles.template} onClick={() => onClick(id)}>
+    {icon && <i className={classNames(styles.icon, `icon-${icon}`)} />}
+    {name}
   </button>
 );

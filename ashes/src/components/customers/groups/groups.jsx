@@ -1,7 +1,7 @@
 /* @flow */
 
 import _ from 'lodash';
-import React, { Component, Element } from 'react';
+import React, { Component } from 'react';
 import { Link } from 'components/link';
 import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
@@ -32,7 +32,7 @@ type State = {
 };
 
 class CustomerGroupsBlock extends Component {
-  props: Props
+  props: Props;
 
   state: State = {
     modalShown: false,
@@ -43,7 +43,7 @@ class CustomerGroupsBlock extends Component {
     this.setState({ modalShown: !this.state.modalShown });
   }
 
-  get actionBlock(): Element {
+  get actionBlock() {
     return (
       <AddButton onClick={this.toggleModal} />
     );
@@ -70,7 +70,7 @@ class CustomerGroupsBlock extends Component {
     this.props.saveGroups(customerId, payload);
   }
 
-  get groups(): Element|Array<Element> {
+  get groups() {
     const { groups } = this.props;
 
     if (_.isEmpty(groups)) {
