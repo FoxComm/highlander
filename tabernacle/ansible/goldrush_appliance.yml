@@ -40,7 +40,6 @@
         river_rock: "{{ lookup('env', 'DOCKER_TAG_RIVER_ROCK') | default('master', true) }}"
         digger_sphex: "{{ lookup('env', 'DOCKER_TAG_DIGGER_SPHEX') | default('master', true) }}"
         orders_sphex: "{{ lookup('env', 'DOCKER_TAG_ORDERS_SPHEX') | default('master', true) }}"
-
     install_public_keys: true
     install_private_keys: true
     is_appliance: true
@@ -77,7 +76,7 @@
     - { role: dev/marathon }
     - { role: dev/seeder }
     - { role: dev/marathon_consumers }
-    - { role: dev/ic } 
+    - { role: dev/ic }
     - { role: ext/td/storefront }
     - { role: ext/tpg/storefront }
     # Nginx
