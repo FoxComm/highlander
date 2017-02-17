@@ -10,7 +10,8 @@ import TableCell from '../table/cell';
 import TableRow from '../table/row';
 
 const MultiSelectRow = (props, context) => {
-  const { columns, row, setCellContents, params: {checked, setChecked}, linkTo, linkParams, ...rest } = props;
+  // params here is optional `context` for checkbox work which contains {checked, setChecked} props
+  const { columns, row, setCellContents, params = {}, linkTo, linkParams, ...rest } = props;
   let { onClick, href } = rest;
 
   // linkTo is shortcut for creating onClick and href properties which leads to defined behaviour:
@@ -33,7 +34,7 @@ const MultiSelectRow = (props, context) => {
     let cellClickAction = null;
 
     const onChange = ({target: { checked }}) => {
-      setChecked(checked);
+      params.setChecked(checked);
     };
 
     switch (col.field) {
@@ -43,7 +44,7 @@ const MultiSelectRow = (props, context) => {
       case 'selectColumn':
         cellClickAction = event => event.stopPropagation();
         const checkbox = (
-          <Checkbox id={`multi-select-${row.id}`} inline checked={checked} onChange={onChange} key="cb" />
+          <Checkbox id={`multi-select-${row.id}`} inline checked={params.checked} onChange={onChange} key="cb" />
         );
         cellContents = setCellContents(row, col.field, {
           checkbox,
@@ -87,8 +88,8 @@ MultiSelectRow.propTypes = {
   row: PropTypes.object.isRequired,
   setCellContents: PropTypes.func.isRequired,
   params: PropTypes.shape({
-    checked: PropTypes.bool.isRequired,
-    setChecked: PropTypes.func.isRequired,
+    checked: PropTypes.bool,
+    setChecked: PropTypes.func,
   }),
 };
 

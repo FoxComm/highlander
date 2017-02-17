@@ -124,6 +124,7 @@ class ProductWithVariantsRow extends Component {
       return _.map(this.props.productVariants, pv => {
         return (
           <ProductVariantRow
+            key={pv.id}
             productVariant={pv}
             columns={this.props.columns}
             params={this.props.params}
