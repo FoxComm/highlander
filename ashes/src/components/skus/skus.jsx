@@ -53,7 +53,7 @@ export class Skus extends Component {
     return <SkuRow key={key} sku={row} columns={columns} params={params} />;
   }
 
-  render(): Element {
+  render() {
     const { list, actions } = this.props;
 
     const searchActions = {

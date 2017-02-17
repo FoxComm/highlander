@@ -10,7 +10,7 @@ type Props = ItemDesc & {
   context: Context,
 };
 
-const Percent = (props: Props): Element => {
+const Percent = (props: Props) => {
   const value = props.context.params[props.name] || 0;
   const onChange = (event: Object) => {
     let percent = Number(event.target.value);

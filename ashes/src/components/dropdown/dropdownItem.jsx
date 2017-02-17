@@ -6,16 +6,16 @@ import classNames from 'classnames';
 type ItemProps = {
   onSelect?: Function,
   value: number|string|bool,
-  children?: Element,
+  children?: Element<*>,
   className?: string,
   isHidden?: bool,
 };
 
 const DropdownItem = ({
-  children, 
-  className, 
-  isHidden = false, 
-  value, 
+  children,
+  className,
+  isHidden = false,
+  value,
   onSelect = () => {},
 }: ItemProps) => {
   const handleClick = event => {

@@ -28,7 +28,7 @@ const setCellContents = (taxonomy: Taxonomy, field: string) => {
   }
 };
 
-const TaxonomyRow = (props: Props): Element => {
+const TaxonomyRow = (props: Props) => {
   const { taxonomy, columns, params } = props;
   const commonParams = {
     columns,

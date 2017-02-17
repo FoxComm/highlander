@@ -77,7 +77,7 @@ export class Payments extends Component {
   }
 
 
-  render(): Element {
+  render() {
     const { cart, id, status } = this.props;
     const { paymentMethods } = cart;
 

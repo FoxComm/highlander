@@ -51,7 +51,7 @@ export class SearchableList extends Component {
     return <TaxonomyRow key={key} taxonomy={row} columns={columns} params={params} />;
   }
 
-  render(): Element {
+  render() {
     const { list, actions } = this.props;
 
     const searchActions = {

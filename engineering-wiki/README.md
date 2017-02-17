@@ -84,6 +84,6 @@ See [Developing backend services](development/setup.md#developing-backend-applic
 
 ### Libraries & Utilities
 
-* [Provisioning all the Shit](https://github.com/FoxComm/prov-shit) — Core provisioning tool
+* [Tabernacle](https://github.com/FoxComm/tabernacle) — Core provisioning tool
 * [Money](https://github.com/FoxComm/money) — A money abstraction in GoLang
 * [Wings](https://github.com/FoxComm/wings) — Shared UI components & tools

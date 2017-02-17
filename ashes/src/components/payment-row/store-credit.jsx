@@ -18,7 +18,7 @@ type Props = {
 export class StoreCreditDetails extends Component {
   props: Props;
 
-  render(): Element {
+  render() {
     const { isEditing, orderReferenceNumber, paymentMethod } = this.props;
     return (
       <DebitCreditDetails

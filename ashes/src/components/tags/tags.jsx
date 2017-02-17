@@ -27,7 +27,7 @@ export default class Tags extends Component {
   state: State = { isAdding: false, addingValue: '' };
   props: Props;
 
-  get addInput(): ?Element {
+  get addInput(): ?Element<*> {
     if (this.state.isAdding) {
       return (
         <TextInput
@@ -98,7 +98,7 @@ export default class Tags extends Component {
     this.props.onChange({ ...attributes, tags: newAttr });
   }
 
-  render(): Element {
+  render() {
     const tags = this.tags;
     const mainContent = _.isEmpty(tags)
       ? <div styleName="empty-text">Add a tag</div>

@@ -12,7 +12,7 @@ import * as PromotionActions from 'modules/promotions/details';
 
 
 class PromotionPage extends ObjectPage {
-  subNav(): Element {
+  subNav(): Element<*> {
     return <SubNav promotionId={this.entityId} />;
   }
 }

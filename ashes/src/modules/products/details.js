@@ -110,6 +110,10 @@ function cleanProductPayload(product) {
 const _updateProduct = createAsyncActions(
   'updateProduct',
   (product: Product, context: string = defaultContext) => {
+    if (!product.id) {
+      throw new Error('product has no id');
+    }
+
     return Api.patch(`/products/${context}/${product.id}`, cleanProductPayload(product));
   }
 );

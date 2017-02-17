@@ -1,6 +1,6 @@
 /* @flow */
 
-import React, { Component, Element } from 'react';
+import React, { Component } from 'react';
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
@@ -62,7 +62,7 @@ class CartCoupons extends Component {
     return this.props.cart.referenceNumber;
   }
 
-  get title(): Element {
+  get title() {
     return (
       <PanelHeader isOptional={true} text="Coupons" />
     );
@@ -76,7 +76,7 @@ class CartCoupons extends Component {
     return [coupon];
   }
 
-  get editFooter(): Element {
+  get editFooter() {
     const plate = (
       <Button id="apply-coupon-btn" styleName="add-coupon-button" onClick={this.onAddClick}>Apply</Button>
     );
@@ -150,7 +150,7 @@ class CartCoupons extends Component {
     );
   }
 
-  render(): Element {
+  render() {
     const { id } = this.props;
 
     return (
