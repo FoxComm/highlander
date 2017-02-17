@@ -10,7 +10,6 @@ import models.payment.giftcard._
 import models.product.Mvp
 import models.returns.Return._
 import models.returns._
-import models.shipping.{Shipments, ShippingMethods}
 import org.scalatest.prop.PropertyChecks
 import payloads.ReturnPayloads._
 import responses.ReturnResponse.Root
@@ -23,6 +22,7 @@ import utils.db._
 import utils.seeds.Seeds.Factories
 import cats.implicits._
 import models.Reason.Cancellation
+import models.shipping.ShippingMethods
 
 class ReturnIntegrationTest
     extends IntegrationTestBase
@@ -314,13 +314,30 @@ class ReturnIntegrationTest
         val response = returnsApi(rma.referenceNumber).lineItems
           .add(shippingCostPayload)
           .as[ReturnResponse.Root]
-        response.lineItems.shippingCosts.headOption.value.shippingCost.id must === (shipment.id)
+
+        response.lineItems.shippingCosts.value.amount must === (orderShippingMethod.price)
       }
 
       "successfully adds SKU line item" in new LineItemFixture {
         val response =
           returnsApi(rma.referenceNumber).lineItems.add(skuPayload).as[ReturnResponse.Root]
         response.lineItems.skus.headOption.value.sku.sku must === (sku.code)
+      }
+
+      "overwrite existing shipping cost" in new LineItemFixture {
+        returnsApi(rma.referenceNumber).lineItems
+          .add(shippingCostPayload.copy(amount = 42))
+          .as[ReturnResponse.Root]
+          .lineItems
+          .shippingCosts
+          .value
+          .amount must === (42)
+
+        val response = returnsApi(rma.referenceNumber).lineItems
+          .add(shippingCostPayload.copy(amount = 25))
+          .as[ReturnResponse.Root]
+
+        response.lineItems.shippingCosts.value.amount must === (25)
       }
 
       "fails if refNum is not found" in new LineItemFixture {
@@ -437,7 +454,7 @@ class ReturnIntegrationTest
   }
 
   trait LineItemFixture extends Fixture {
-    val (returnReason, sku, giftCard, shipment, orderShippingMethod) = (for {
+    val (returnReason, sku, giftCard, orderShippingMethod) = (for {
       returnReason ← * <~ ReturnReasons.create(Factories.returnReasons.head)
       product      ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head)
       sku          ← * <~ Skus.mustFindById404(product.skuId)
@@ -451,8 +468,7 @@ class ReturnIntegrationTest
       orderShippingMethod ← * <~ OrderShippingMethods.create(
                                OrderShippingMethod.build(cordRef = order.refNum,
                                                          method = shippingMethod))
-      shipment ← * <~ Shipments.create(Factories.shipment.copy(cordRef = order.refNum))
-    } yield (returnReason, sku, giftCard, shipment, orderShippingMethod)).gimme
+    } yield (returnReason, sku, giftCard, orderShippingMethod)).gimme
 
     val giftCardPayload =
       ReturnGiftCardLineItemPayload(code = giftCard.code, reasonId = returnReason.id)

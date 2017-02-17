@@ -5,7 +5,6 @@ import failures._
 import models.cord.OrderShippingMethods
 import models.objects._
 import models.returns.{ReturnLineItemShippingCosts, _}
-import models.shipping.Shipments
 import payloads.ReturnPayloads._
 import responses.ReturnResponse
 import services.inventory.SkuManager
@@ -78,14 +77,9 @@ object ReturnLineItemUpdater {
       db: DB): DbResultT[ReturnLineItem] =
     for {
       _ ← * <~ validateMaxShippingCost(rma, payload.amount)
-      shipment ← * <~ Shipments
-                  .filter(_.cordRef === rma.orderRef)
-                  .mustFindOneOr(ShipmentNotFoundFailure(rma.orderRef))
       _ ← * <~ ReturnLineItemShippingCosts.findByRmaId(rma.id).deleteAll
       origin ← * <~ ReturnLineItemShippingCosts.create(
-                  ReturnLineItemShippingCost(returnId = rma.id,
-                                             amount = payload.amount,
-                                             shipmentId = shipment.id))
+                  ReturnLineItemShippingCost(returnId = rma.id, amount = payload.amount))
       _  ← * <~ ReturnLineItems.filter(_.originId === origin.id).deleteAll
       li ← * <~ ReturnLineItems.create(ReturnLineItem.buildShippingCost(rma, reason, origin))
     } yield li

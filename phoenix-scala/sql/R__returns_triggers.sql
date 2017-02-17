@@ -15,10 +15,10 @@ create trigger set_return_line_item_sku_id
     for each row
     execute procedure set_return_line_item_origin_id();
 
-drop trigger if exists set_return_line_item_shipment_id on return_line_item_shipments;
+drop trigger if exists set_return_line_item_shipment_id on return_line_item_shipping_costs;
 create trigger set_return_line_item_shipment_id
     before insert
-    on return_line_item_shipments
+    on return_line_item_shipping_costs
     for each row
     execute procedure set_return_line_item_origin_id();
 
