@@ -64,7 +64,7 @@ has a lot to do!
 
 Please refer to related [wiki page](engineering-wiki/devops/Deploying-Custom-Branches.md) for more information.
 
-#### FoxCommerce Software Relationships
+## FoxCommerce Software Relationships
 
 Logical relationships between services and software. 
 
