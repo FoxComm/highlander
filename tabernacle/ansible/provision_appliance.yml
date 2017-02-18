@@ -49,7 +49,6 @@
     - { role: dev/balancer }
     - { role: hotfix/mesos_consul }
     - { role: demo/balancer }
-    - { role: hotfix/mesos_consul }
     # Finale
     - { role: dev/healthcheck }
 
