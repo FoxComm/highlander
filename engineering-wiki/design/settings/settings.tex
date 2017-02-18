@@ -1,0 +1,130 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{hyperref}
+\usepackage{listings}
+%for dotex
+\usepackage[pdftex]{graphicx}
+\usepackage[pdf]{graphviz}
+\usepackage[boxed]{algorithm2e} %end for dote
+\usepackage{color}
+
+% For use case env, original source found here.
+% http://tex.stackexchange.com/questions/10293/latex-template-for-use-cases#10325
+\newcommand\tabularhead[1]{
+\begin{table}[h]
+    \caption{Use Case "#1"}
+  \begin{tabular}{|p{0.5\linewidth}|p{0.66\linewidth}|}
+    \hline
+    \textbf{Action} & \textbf{#1} \\
+    \hline}
+
+  \newcommand\addrow[2]{#1 &#2\\ \hline}
+
+  \newcommand\addmulrow[2]{ \begin{minipage}[t][][t]{2.5cm}#1\end{minipage}% 
+     &\begin{minipage}[t][][t]{8cm}
+      \begin{enumerate} #2   \end{enumerate}
+      \end{minipage}\\ }
+
+  \newenvironment{usecase}{\tabularhead}
+{\hline\end{tabular}\end{table}}
+
+\title{Multi-Tenant Settings}
+\author{Maxim Noah Khailo}
+\begin{document}
+\maketitle
+\section{Problem}
+
+Currently many settings specific to a merchant such as their Stripe , Mailchimp, and
+shipstation keys are stored as environment variables to processes running in
+marathon. As we go multi-tenant this is clearly not acceptable. 
+
+\section{Outline}
+
+This document provides use cases for implementing mult-tenant settings. Each
+use case is briefly written describing the Actor, pre-conditions, post-conditions,
+the main path and alternate paths.
+
+This document does not describe how the system should look but describes what it
+should be capable of doing.
+
+\section{Use Cases}
+
+\subsection{Onboarding}
+
+New Tenants will go through an onboarding flow allowing then to configure the 
+baseline system and 3rd party integrations
+
+\begin{usecase}{Selecting 3rd Party Integrations}
+    \addrow{Actor}{Tenant Admin}
+    \addrow{Precondition}{Tenant has create an organization and has a master tenant admin account. Tenant Admin is logged in.}
+    \addrow{Postcondition}{System will know which 3RD party integrations they want configured}
+    \addrow{Main Path}{Admin selects from a list of available 3rd party integrations}
+    \addrow{Alternate Path}{No integrations are selected. User goes strait to Admin interface.}
+\end{usecase}
+
+\begin{usecase}{Configuring Settings For an Integration}
+    \addrow{Actor}{Tenant Admin}
+    \addrow{Precondition}{Admin has selected the integrations they want to configure.}
+    \addrow{Postcondition}{The current integration in process is configured}
+    \addmulrow{Main Path}{
+        \item The available settings for the particular integration are displayed.
+        \item The appropriate GUI widget is shown for the setting type.
+        \item The user fills out all required fields.
+        \item The user presses the ``Test" button.
+        \item Only with a good test can they continue to next integration.
+    }
+    \addrow{Alternate Path}{User selects ``Skip". Integration is marked as inactive 
+    but available to edit in the future}
+\end{usecase}
+
+\subsection{Setting Modification}
+
+Tenants should be able to go back through all integrations in ashes and modify 
+existing settings. We also need general Fox commerce related settings available.
+
+\begin{usecase}{Editing Existing Settings}
+    \addrow{Actor}{Tenant Admin}
+    \addrow{Precondition}{Tenant is logged into Ashes and has permissions to edit settings}
+    \addrow{Postcondition}{Settings are modified and available immediately}
+    \addmulrow{Main Path}{
+        \item Admin can go to settings tab and see settings arranged in some grouping.
+        \item The groups they see are only those they are allowed to edit.
+        \item They click on a group and can see each individual settings.
+        \item Individual settings are displayed same way as during onboarding.
+        \item If the settings are an integration, they press the ``Test" button.
+        \item Only if ``Test"" succeeds can they save the changes.
+        \item If the settings are an integration, they can disable it.
+        \item If the setting group is not an integration, Then saving button is
+              enabled.
+     }
+    \addrow{Alternate Path}{They don't want to change any settings, they can leave the screen}
+\end{usecase}
+
+\begin{usecase}{Adding an Integration}
+    \addrow{Actor}{Tenant Admin}
+    \addrow{Precondition}{Tenant is logged into Ashes and has permissions to add integrations}
+    \addrow{Postcondition}{Integration is added if successfully goes through flow}
+    \addmulrow{Main Path}{
+        \item Admin can go to settings tab and see settings arranged in some grouping.
+        \item They click on button to add an integration.
+        \item They are presented with a list of integrations not already added.
+        \item They can then go through the ``Configuring Settings For an Integration" use case.
+     }
+    \addrow{Alternate Path}{They don't want to add an integration, they can leave the screen}
+\end{usecase}
+
+\begin{usecase}{Adding a Settings Group}
+    \addrow{Actor}{Tenant Admin}
+    \addrow{Precondition}{Tenant has login credentials and has permissions to add a settings group}
+    \addrow{Postcondition}{Settings group is added and is available for other admins to edit.}
+    \addmulrow{Main Path}{
+        \item Admin can go to settings tab and see settings arranged in some grouping.
+        \item They click on button to add an integration.
+        \item They are presented with a list of integrations not already added.
+        \item They can then go through the ``Configuring Settings For an Integration" use case.
+     }
+    \addrow{Alternate Path}{They don't want to change any settings, they can leave the screen}
+\end{usecase}
+
+\end{document}
