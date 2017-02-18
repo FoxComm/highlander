@@ -27,7 +27,8 @@ provider "google" {
 ##############################################
 module "returns" {
   source          = "../../modules/gce/appliance"
-  instance_name   = "feature-branch-returns"
+  instance_name   = "feature-branch-returns-consul-server"
+  dns_record      = "feature-branch-returns"
   appliance_image = "${var.appliance_image}"
   consul_leader   = "${var.consul_leader}"
   ssh_user        = "${var.ssh_user}"
