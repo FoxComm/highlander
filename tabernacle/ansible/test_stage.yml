@@ -40,8 +40,8 @@
     - { role: dev/marathon }
     - { role: dev/marathon_consumers }
     - { role: dev/ic }
-    - { role: ext/td/storefront }
-    - { role: ext/tpg/storefront }
+    - { role: ext/td/storefront, when: marathon_restart.storefront_td }
+    - { role: ext/tpg/storefront, when: marathon_restart.storefront_td }
     - { role: dev/balancer }
     - { role: demo/balancer }
     - { role: dev/seeder, when: first_run }
