@@ -254,7 +254,7 @@ river_rock_port: "9390"
 river_rock_host: river-rock.service.consul
 river_rock_server: "{{river_rock_host}}:{{river_rock_port}}"
 
-#Henhouse
+# Henhouse
 henhouse_host: "henhouse.{{consul_suffix}}"
 henhouse_server: "{{henhouse_host}}"
 
