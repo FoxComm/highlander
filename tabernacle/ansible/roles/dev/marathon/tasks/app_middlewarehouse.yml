@@ -5,9 +5,11 @@
 
 - name: Kill Middlewarehouse Tasks in Marathon
   shell: 'curl -sS -XDELETE http://{{marathon_server}}/v2/apps/middlewarehouse/tasks'
+  when: is_redeploy
 
 - name: Pause for a bit...
   pause: seconds=30
+  when: is_redeploy
 
 - name: Update Middlewarehouse in Marathon
   shell: 'curl -sS -XPUT -d@/marathon/applications/middlewarehouse.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/middlewarehouse'
