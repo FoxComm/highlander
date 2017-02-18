@@ -10,12 +10,14 @@ variable "appliance_image" {}
 
 variable "instance_name" {}
 
+variable "dns_record" {}
+
 variable "consul_leader" {}
 
 resource "google_compute_instance" "appliance" {
   name         = "${var.instance_name}"
   machine_type = "n1-standard-4"
-  tags         = ["no-ip", "${var.instance_name}"]
+  tags         = ["no-ip", "${var.instance_name}", "${var.dns_record}"]
   zone         = "us-central1-a"
 
   service_account {
@@ -49,13 +51,13 @@ resource "google_compute_instance" "appliance" {
 # Setup DNS
 ##############################################
 provider "dnsimple" {
-  token = "${var.dnsimple_token}"
-  email = "${var.dnsimple_email}"
+  token  = "${var.dnsimple_token}"
+  email  = "${var.dnsimple_email}"
 }
 
 resource "dnsimple_record" "frontend-dns-record" {
   domain = "foxcommerce.com"
-  name   = "${var.instance_name}"
+  name   = "${var.dns_record}"
   value  = "${google_compute_instance.appliance.0.network_interface.0.address}"
   type   = "A"
   ttl    = 3600
