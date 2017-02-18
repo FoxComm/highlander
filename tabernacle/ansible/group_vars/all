@@ -349,6 +349,7 @@ first_run: false
 is_ci: false
 is_amigo: false
 is_appliance: false
+is_redeploy: false
 packing: false
 with_marketplace: false
 with_shipstation: false

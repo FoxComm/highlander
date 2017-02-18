@@ -13,6 +13,7 @@
     storefront_server_name: "{{dns_record}}.foxcommerce.com"
     download_flyway: false
     is_appliance: true
+    is_redeploy: true
     with_base_seeds: true
     url_prefix_perfectgourmet: "/perfect-gourmet"
     url_prefix_topdrawer: "/top-drawer"

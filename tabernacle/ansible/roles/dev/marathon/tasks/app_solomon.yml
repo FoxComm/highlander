@@ -5,6 +5,14 @@
 - name: Copy Solomon Marathon JSON
   template: src=solomon.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
 
+- name: Kill Solomon Tasks in Marathon
+  shell: 'curl -sS -XDELETE http://{{marathon_server}}/v2/apps/solomon/tasks'
+  when: is_redeploy
+
+- name: Pause for a bit...
+  pause: seconds=30
+  when: is_redeploy
+
 - name: Update Solomon in Marathon
   shell: 'curl -sS -XPUT -d@/marathon/applications/solomon.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/solomon'
 

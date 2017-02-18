@@ -6,6 +6,14 @@
 - name: Copy Phoenix Marathon JSON
   template: src=phoenix.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
 
+- name: Kill Phoenix Tasks in Marathon
+  shell: 'curl -sS -XDELETE http://{{marathon_server}}/v2/apps/phoenix/tasks'
+  when: is_redeploy
+
+- name: Pause for a bit...
+  pause: seconds=30
+  when: is_redeploy
+
 - name: Update Phoenix in Marathon
   shell: 'curl -sS -XPUT -d@/marathon/applications/phoenix.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/phoenix'
 
