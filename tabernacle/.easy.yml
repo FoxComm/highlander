@@ -12,7 +12,7 @@ shortcuts:
     aliases:
       dev: inventory/static/dev
       stage_vpn: inventory/static/stage_vpn
-      staging: inventory/gce
+      staging: inventory/gce/
       target_dev: inventory/static/target_dev
       topdrawer: inventory/static/topdrawer
       tpg: inventory/static/tpg

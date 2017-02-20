@@ -7,7 +7,7 @@ prepare:
 	sudo pip install -r tabernacle/requirements.txt
 
 dotenv:
-	cd tabernacle && ansible-playbook --inventory-file=bin/envs/dev ansible/goldrush_env_local.yml
+	cd tabernacle && ansible-playbook --inventory-file=inventory/static/dev ansible/goldrush_env_local.yml
 
 up:
 	$(call header, Creating GCE Machine)
