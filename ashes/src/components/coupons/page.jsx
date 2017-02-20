@@ -144,7 +144,7 @@ class CouponPage extends ObjectPage {
   }
 
   subNav() {
-    return <SubNav params={this.props.params} />;
+    return "";
   }
 }
 

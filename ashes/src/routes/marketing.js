@@ -18,6 +18,8 @@ import Promotions from 'components/promotions/promotions';
 import PromotionPage from 'components/promotions/promotion-page';
 import PromotionForm from 'components/promotions/promotion-form';
 import PromoCouponsPage from 'components/promotions/promotion-coupons';
+import PromoCouponModal from 'components/promotions/promotion-coupon-modal';
+import PromoCouponNewModal from 'components/promotions/promotion-coupon-modal-new';
 
 import CouponsListPage from 'components/coupons/list';
 import Coupons from 'components/coupons/coupons';
@@ -79,10 +81,10 @@ const getRoutes = (jwt: Object) => {
           component: Notes,
           frn: frn.note.promotion,
         }),
-        router.read('promotion-coupons', {
-          path: 'coupons',
-          component: PromoCouponsPage
-        }),
+        router.read('promotion-coupons', { path: 'coupons', component: PromoCouponsPage }, [
+          router.read('promotion-coupon-new', { path: 'new', component: PromoCouponNewModal })             
+        ]),
+
         router.read('promotion-activity-trail', {
           path: 'activity-trail',
           component: ActivityTrailPage,

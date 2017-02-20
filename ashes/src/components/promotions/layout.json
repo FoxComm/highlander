@@ -6,12 +6,15 @@
       "content": [
         {
           "canAddProperty": true,
-          "includeRest": false,
+          "includeRest": true,
           "type": "fields",
           "value": [
-            "name"
+            "name",
+            "storefrontName"
           ],
           "omit": [
+            "description",
+            "details",
             "activeFrom",
             "activeTo"
           ]

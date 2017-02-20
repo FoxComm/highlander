@@ -42,7 +42,7 @@ const setCellContents = (coupon: Object, field: string) => {
 };
 
 const CouponRow = (props: CouponRowProps) => {
-  const { coupon, columns, params } = props;
+  const { coupon, columns, params, promoId } = props;
   const key = `coupon-${coupon.id}`;
   const commonParams = {
     columns,
@@ -58,8 +58,7 @@ const CouponRow = (props: CouponRowProps) => {
   return (
     <MultiSelectRow
       {...commonParams}
-      linkTo="coupon-details"
-      linkParams={{couponId: coupon.id}}
+      linkParams={{couponId: coupon.id, 'promotionId': promoId}}
     />
   );
 };
