@@ -227,6 +227,58 @@ const $ = {
       Object.assign({}, $.randomCreateDiscountPayload(), { id })),
     applyType: 'coupon',
   }),
+  randomCouponPayload: (promotionId) => {
+    const now = Date.now();
+    return {
+      promotion: promotionId,
+      attributes: {
+        usageRules: {
+          t: 'usageRules',
+          v: {
+            isExclusive: false,
+            isUnlimitedPerCode: true,
+            usesPerCode: 1,
+            isUnlimitedPerCustomer: true,
+            usesPerCustomer: 1,
+          },
+        },
+        name: {
+          t: 'string',
+          v: `BVT-COUPON-${now}`,
+        },
+        storefrontName: {
+          t: 'richText',
+          v: `BVT-COUPON-${now}`,
+        },
+        description: {
+          t: 'text',
+          v: faker.lorem.sentence(),
+        },
+        details: {
+          t: 'richText',
+          v: `<p>${faker.lorem.sentence()}</p>`,
+        },
+        activeFrom: {
+          t: 'datetime',
+          v: '2017-01-24T22:03:58.698Z',
+        },
+        activeTo: {
+          t: 'datetime',
+          v: null,
+        },
+      },
+    };
+  },
+  randomGenerateCouponCodesPayload: () => {
+    const prefix = `bvt-${Date.now()}-`;
+    const quantity = faker.random.number({ min: 1, max: 40 });
+    const digits = Math.floor(Math.log10(quantity)) + 1;
+    return {
+      prefix,
+      quantity,
+      length: prefix.length + faker.random.number({ min: digits, max: digits + 10 }),
+    };
+  },
 };
 
 export default $;

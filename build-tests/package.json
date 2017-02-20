@@ -10,6 +10,7 @@
     "test-product": "ava tests/product.test.js",
     "test-gift-card": "ava tests/gift-card.test.js",
     "test-promotion": "ava tests/promotion.test.js",
+    "test-coupon": "ava tests/coupon.test.js",
     "test-cart": "ava tests/cart.test.js",
     "test-dev": "ava tests/dev.test.js"
   },

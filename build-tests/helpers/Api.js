@@ -24,6 +24,10 @@ const endpoints = {
   giftCard: giftCardCode => `/v1/gift-cards/${giftCardCode}`,
   promotions: context => `/v1/promotions/${context}`,
   promotion: (context, promotionId) => `/v1/promotions/${context}/${promotionId}`,
+  coupons: context => `/v1/coupons/${context}`,
+  coupon: (context, couponIdOrCode) => `/v1/coupons/${context}/${couponIdOrCode}`,
+  couponCodes: couponId => `/v1/coupons/codes/${couponId}`,
+  couponCodesGenerate: couponId => `/v1/coupons/codes/generate/${couponId}`,
   albums: context => `/v1/albums/${context}`,
   album: (context, albumId) => `/v1/albums/${context}/${albumId}`,
   albumImages: (context, albumId) => `/v1/albums/${context}/${albumId}/images`,
@@ -198,6 +202,33 @@ class Promotions {
   }
 }
 
+class Coupons {
+  constructor(api) {
+    this.api = api;
+  }
+  create(context, couponPayload) {
+    return this.api.post(endpoints.coupons(context), couponPayload);
+  }
+  one(context, couponIdOrCode) {
+    return this.api.get(endpoints.coupon(context, couponIdOrCode));
+  }
+  update(context, couponId, couponPayload) {
+    return this.api.patch(endpoints.coupon(context, couponId), couponPayload);
+  }
+}
+
+class CouponCodes {
+  constructor(api) {
+    this.api = api;
+  }
+  list(couponId) {
+    return this.api.get(endpoints.couponCodes(couponId));
+  }
+  generate(couponId, generateCouponCodesPayload) {
+    return this.api.post(endpoints.couponCodesGenerate(couponId), generateCouponCodesPayload);
+  }
+}
+
 class Albums {
   constructor(api) {
     this.api = api;
@@ -216,7 +247,7 @@ class Albums {
   }
   uploadImages(context, albumId, images) {
     return images.reduce((req, file) => req.attach('upload-file', file),
-        this.api.agent.post(`${API_BASE_URL}/api/${endpoints.albumImages(context, albumId)}`))
+      this.api.agent.post(`${API_BASE_URL}/api/${endpoints.albumImages(context, albumId)}`))
       .withCredentials()
       .then(res => res.body);
   }
@@ -259,6 +290,8 @@ export default class Api extends FoxCommApi {
     this.productAlbums = new ProductAlbums(this);
     this.giftCards = new GiftCards(this);
     this.promotions = new Promotions(this);
+    this.coupons = new Coupons(this);
+    this.couponCodes = new CouponCodes(this);
     this.albums = new Albums(this);
     this.notes = new Notes(this);
     this.dev = new Dev(this);
