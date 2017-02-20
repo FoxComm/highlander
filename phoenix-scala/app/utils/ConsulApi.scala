@@ -9,7 +9,7 @@ class ConsulApi(consulUrl: String) {
 }
 
 object ConsulApi {
-  val client = new ConsulApi(config.getString("consul.url"))
+  val client = new ConsulApi(config.apis.consul.url)
 
   def get(key: String): Option[String] = {
     val value = client.kvClient.getValueAsString(key)
