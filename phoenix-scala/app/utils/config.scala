@@ -114,7 +114,7 @@ object FoxConfig {
 
   private def loadBareConfigWithEnv(cfg: Config = ConfigFactory.load)(
       implicit env: Environment): Config = {
-    val envConfig = cfg.getConfig("env." ++ env.show)
+    val envConfig = ConfigFactory.load(env.show)
     ConfigFactory.systemProperties.withFallback(envConfig.withFallback(cfg))
   }
 
