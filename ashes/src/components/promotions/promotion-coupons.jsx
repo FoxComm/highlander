@@ -1,30 +1,32 @@
 /* @flow */
 import _ from 'lodash';
-import React, { Element } from 'react';
-import { connect } from 'react-redux';
+import React from 'react';
 import { autobind } from 'core-decorators';
+import { transitionTo } from 'browserHistory';
+import styles from './promotion-coupons.css';
 
 // components
 import Coupons from '../coupons/coupons'
-import ErrorAlerts from '../alerts/error-alerts';
-import WaitAnimation from '../common/wait-animation';
 import { SectionTitle } from '../section-title';
 import { PrimaryButton } from '../../components/common/buttons';
 
 export default class PromoCouponsPage extends React.Component {
 
 	@autobind
-	logProps() {
-		console.log(this.props)
-	}
-
+  addAction(){
+  	transitionTo('promotion-coupon-new', {promotionId: this.props.object.id});
+  };
+  	
   render() {
+  	const promoId = this.props.object.id;
+  	const children = this.props.children;
     return (
       <div className="fc-promotion-coupons-page">
         <SectionTitle title="Coupons">
-        	<PrimaryButton onClick={this.logProps} icon="add"/>
+        	<PrimaryButton onClick={this.addAction} icon="add">Coupon</PrimaryButton>
         </SectionTitle>
-        <Coupons/>
+        <Coupons promoId={promoId} />
+        {children}
       </div>
     );
   }  

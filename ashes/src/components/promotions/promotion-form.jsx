@@ -35,11 +35,6 @@ export default class PromotionForm extends ObjectDetails {
 
   renderApplyType() { 
     const promotion = this.props.object;
-    if(typeof promotion.applyType === "undefined"){ // TO BE REMOVED WHEN applyType WILL BE SET TO "auto" BY DEFAULT
-      const newPromotion = assoc(this.props.object, 'applyType', "auto");
-      this.props.onUpdateObject(newPromotion);
-    }
-
     return (
       <FormField
         ref="applyTypeField"
@@ -65,11 +60,6 @@ export default class PromotionForm extends ObjectDetails {
 
   renderUsageRules() { 
     const promotion = this.props.object;
-    if(typeof promotion.isExclusive === "undefined"){ // TO BE REMOVED WHEN isExclusive WILL BE SET TO true BY DEFAULT
-      const newPromotion = assoc(this.props.object, 'isExclusive', true);
-      this.props.onUpdateObject(newPromotion);
-    }
-
     return (
       <FormField
         ref="usageRuleseField"
@@ -128,8 +118,6 @@ export default class PromotionForm extends ObjectDetails {
   }
 
   renderState(): ?Element {
-
-    console.log(this.props);
     const applyType = this.props.object.applyType;
     return super.renderState();
   }

@@ -28,6 +28,7 @@ import type { SearchFilter } from 'elastic/common';
 type CouponsProps = {
   actions: Object,
   list: Object,
+  promoId: Number|undefined
 };
 
 const mapStateToProps = (state: Object) => {
@@ -43,12 +44,12 @@ const mapDispatchToProps = (dispatch: Function) => {
 };
 
 const tableColumns: Array<Object> = [
-  {field: 'name', text: 'Name'},
-  {field: 'storefrontName', text: 'Storefront Name'},
   {field: 'codes', text: 'Codes'},
-  {field: 'totalUsed', text: 'Total Uses'},
-  {field: 'currentCarts', text: 'Current Carts'},
   {field: 'createdAt', text: 'Date/Time Created', type: 'datetime'},
+  {field: 'totalUsed', text: 'Total Uses'},
+  {field: 'maxUses', text: 'Max Uses'},
+  {field: 'maxUsesPerCustomer', text: 'Max Uses per Customer'},
+  {field: 'currentCarts', text: 'Current Carts'},
   {field: 'state', text: 'State'},
 ];
 
@@ -59,25 +60,46 @@ export default class Coupons extends Component {
   props: CouponsProps;
 
   @autobind
-  addSearchFilters(filters: Array<SearchFilter>, initial: boolean = false) {
-    return this.props.actions.addSearchFilters(filterArchived(filters), initial);
+  applyPromotionFilter(filters: Array<SearchFilter>) {
+    return [
+      {
+        term: 'promotionId',
+        hidden: true,
+        operator: 'eq',
+        value: {
+          type: 'identifier',
+          value: String(this.props.promoId)
+        }
+      },
+      ...filters
+    ];
   }
 
-  renderRow(row: Object, index: number, columns: Array<any>, params: Object): Element {
-    const key = `coupon-${row.id}`;
+  @autobind
+  addSearchFilters(filters: Array<SearchFilter>, initial: boolean = false) {
+    if(typeof this.props.promoId === 'undefined'){
+      return this.props.actions.addSearchFilters(filterArchived(filters), initial);
+    }
+    return this.props.actions.addSearchFilters(this.applyPromotionFilter(filterArchived(filters)), initial);
+  }
 
+  @autobind
+  renderRow(row: Object, index: number, columns: Array<any>, params: Object, promoId: Number = this.props.promoId): Element {
+    const key = `coupon-${row.id}`;
     return (
       <CouponRow
         coupon={row}
         columns={columns}
         key={key}
         params={params}
+        promoId={promoId}
       />
     );
   }
 
   render(): Element {
-    const {list, actions} = this.props;
+    console.log(this.props);
+    const {list, actions, promoId} = this.props;
 
     const searchActions = {
       ...actions,

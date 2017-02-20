@@ -1,0 +1,34 @@
+
+:global .fc-underlined-title{
+	font-size: 14px;
+	font-weight: 600;
+	border-bottom: solid 2px #ced2d5;
+	padding-bottom: 10px;
+	margin-bottom: 10px;
+}
+:global .fc-st-label{
+	font-size: 14px;
+	font-weight: 600;
+}
+:global .fc-mb30{
+	margin-bottom: 30px;
+}
+:global .fc-mb20{
+	margin-bottom: 20px;
+}
+:global .fc-mb50{
+	margin-bottom: 50px;
+}
+:global .fc-promotion-coupon .fc-content-box{
+	width: 800px;
+	max-width: 100%;
+}
+:global .fc-promotion-coupon .fc-save-cancel{
+	float:right;
+}
+:global .fc-clearfix:after{
+	display: block;
+	clear: both;
+	content: "";
+	height: 0;	
+}

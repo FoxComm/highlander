@@ -22,6 +22,7 @@ import { Button } from '../common/buttons';
 import Error from '../errors/error';
 import ArchiveActionsSection from '../archive-actions/archive-actions';
 import Prompt from '../common/prompt';
+import SaveCancel from '../common/save-cancel';
 
 // helpers
 import { isArchived } from 'paragons/common';
@@ -413,6 +414,36 @@ export class ObjectPage extends Component {
   subNav(): ?Element {
     return null;
   }
+  
+  @autobind
+  titleBar() {
+    if(typeof this.props.params.hideTitle === 'undefined'){
+      return (<PageTitle title={this.pageTitle}>
+          {this.renderHead()}
+          <ButtonWithMenu
+            title="Save"
+            menuPosition="right"
+            onPrimaryClick={this.handleSubmit}
+            onSelect={this.handleSelectSaving}
+            isLoading={this.props.isSaving}
+            items={SAVE_COMBO_ITEMS}
+          />
+        </PageTitle>)    
+    } else {
+      return "";
+    }   
+  }
+
+  @autobind
+  alterSave() {
+    if(typeof this.props.params.hideTitle === 'undefined'){
+      return "";  
+    } else {
+      return (<SaveCancel
+              onSave={this.handleSubmit}
+              saveText="Generate Coupon Code()" />);  
+    }   
+  }
 
   childrenProps() {
     const props = this.props;
@@ -467,23 +498,14 @@ export class ObjectPage extends Component {
           message="You have unsaved changes. Are you sure you want to leave this page?"
           when={this.unsaved}
         />
-        <PageTitle title={this.pageTitle}>
-          {this.renderHead()}
-          <ButtonWithMenu
-            title="Save"
-            menuPosition="right"
-            onPrimaryClick={this.handleSubmit}
-            onSelect={this.handleSelectSaving}
-            isLoading={props.isSaving}
-            items={SAVE_COMBO_ITEMS}
-          />
-        </PageTitle>
+        {this.titleBar()}
         {this.subNav()}
         <div styleName="object-details">
           {this.errors}
           {this.children}
         </div>
         {!this.isNew && this.renderArchiveActions()}
+        {this.alterSave()}
       </div>
     );
   }
