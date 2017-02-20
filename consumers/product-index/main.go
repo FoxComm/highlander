@@ -17,7 +17,7 @@ func main() {
 		log.Fatalf("Unable to initialize consumer with error %s", err.Error())
 	}
 
-	log.Printf("visualVariants: %v\n", idxConfig.visualVariants)
+	log.Printf("visualVariants: %v\n", idxConfig.VisualVariants)
 
 	consumer, err := NewConsumer(&config, &idxConfig)
 	if err != nil {

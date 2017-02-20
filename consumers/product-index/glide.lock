@@ -1,5 +1,5 @@
-hash: ca1a935201c5144c61eea2c2a349e03f876c8d952fbd64c74728b728b35a32b1
-updated: 2016-11-09T22:14:55.980589301-08:00
+hash: 4927feefab57f9da281bc9fe7a04c3c28f709c1b1e7ad5617dafcfb39cde65cd
+updated: 2017-02-09T03:10:58.203885691+07:00
 imports:
 - name: github.com/cihub/seelog
   version: d2c6e5aa9fbfdd1c624e140287063c7730654115
@@ -23,19 +23,16 @@ imports:
   version: fea3d8822e875ffef3895e68f5c2f172e0dd4300
 - name: github.com/elodina/siesta-producer
   version: a374fc36c515243efb438aed41c536af55d8b19b
-- name: github.com/FoxComm/highlander
-  version: ""
-  subpackages:
-  - middlewarehouse/consumers
-  - middlewarehouse/models/activities
-  - shared/golang/api
-  - shared/golang/elastic
 - name: github.com/FoxComm/metamorphosis
   version: f357818171523aa95aafb58ca8cf419cb4f0e291
   repo: git@github.com:FoxComm/metamorphosis.git
   vcs: git
 - name: github.com/golang/snappy
   version: 723cc1e459b8eea2dea4583200fd60757d40097a
+- name: github.com/hashicorp/consul
+  version: 1c442cb5704841704c1ba88daf1156245d0b311e
+  subpackages:
+  - api
 - name: github.com/rcrowley/go-metrics
   version: 51425a2415d21afadfd55cd93432c0bc69e9598d
 - name: github.com/samuel/go-zookeeper
@@ -50,4 +47,4 @@ imports:
   version: 3b647091f880406fdb14edcb309ce750a38d3e85
 - name: gopkg.in/cihub/seelog.v2
   version: d2c6e5aa9fbfdd1c624e140287063c7730654115
-devImports: []
+testImports: []

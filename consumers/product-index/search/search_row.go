@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 
+	"encoding/json"
 	"github.com/FoxComm/highlander/shared/golang/api"
 )
 
@@ -125,4 +126,29 @@ func NewSearchRow(p *api.Product, pp PartialProduct) (*SearchRow, error) {
 	log.Printf("Tags: %q", row.Tags)
 
 	return row, nil
+}
+
+func EnrichRowWithAttributes(p *api.Product, row *SearchRow, searchCfg *Config) (map[string]interface{}, error) {
+	var productMap map[string]interface{}
+	productMap = make(map[string]interface{})
+
+	body, err := json.Marshal(row)
+	if err != nil {
+		return nil, err
+	}
+
+	err = json.Unmarshal(body, &productMap)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, attr := range searchCfg.Attributes {
+		attrVal, err := p.Attributes.LookupValue(attr.Name)
+		if err != nil {
+			return nil, err
+		}
+		productMap[attr.Name] = attrVal
+	}
+
+	return productMap, nil
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/FoxComm/highlander/middlewarehouse/consumers"
 	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
@@ -32,6 +33,9 @@ func NewConsumer(consumerCfg *consumers.ConsumerConfig, indexerCfg *IndexerConfi
 	if err != nil {
 		return nil, err
 	}
+
+	searchCfg, _ := idxer.FetchSearchConfig()
+	log.Printf("searchConfig: %v\n", searchCfg)
 
 	return &Consumer{c: consumer, i: idxer}, nil
 }
