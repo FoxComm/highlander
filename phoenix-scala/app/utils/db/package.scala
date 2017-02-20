@@ -43,7 +43,7 @@ package object db {
     def fromDbio[A](fa: DBIO[A])(implicit M: Monad[DBIO]): FoxyTDBIO[A] = // TODO: remove me @michalrus
       fromF(fa)
     def fromResultT[A](ga: FoxyT[Future, A]): FoxyT[DBIO, A] = // TODO: better name? @michalrus
-      ga.transformF(gga ⇒ XorT(DBIO.from(gga.value))) // TODO: use FunctionK for functor changes? Future[_] → DBIO[_] here
+      ga.transformF(gga ⇒ XorT(DBIO.from(gga.value): DBIO[A])) // TODO: use FunctionK for functor changes? Future[_] → DBIO[_] here
   }
 
   implicit class EnrichedFoxyT[F[_], A](fa: FoxyT[F, A]) {
