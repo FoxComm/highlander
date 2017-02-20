@@ -178,6 +178,55 @@ const $ = {
       images,
     };
   },
+  randomCreateDiscountPayload: () => ({
+    attributes: {
+      qualifier: {
+        t: 'qualifier',
+        v: {
+          orderAny: {},
+        },
+      },
+      offer: {
+        t: 'offer',
+        v: {
+          orderPercentOff: {
+            discount: faker.random.number({ min: 1, max: 99 }),
+          },
+        },
+      },
+    },
+  }),
+  randomCreatePromotionPayload: () => {
+    const now = Date.now();
+    return {
+      attributes: {
+        name: {
+          t: 'string',
+          v: `PROMO-${now}`,
+        },
+        storefrontName: {
+          t: 'richText',
+          v: `<p>PROMO-${now}</p>`,
+        },
+        description: {
+          t: 'text',
+          v: faker.lorem.sentence(),
+        },
+        details: {
+          t: 'richText',
+          v: `<p>${faker.lorem.sentence()}</p>`,
+        },
+      },
+      discounts: [$.randomCreateDiscountPayload()],
+      applyType: 'coupon',
+    };
+  },
+  randomUpdatePromotionPayload: discountIds => ({
+    attributes: $.randomCreatePromotionPayload().attributes,
+    discounts: discountIds.map(id =>
+      Object.assign({}, $.randomCreateDiscountPayload(), { id })),
+    applyType: 'coupon',
+  }),
 };
 
 export default $;

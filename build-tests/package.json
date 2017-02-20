@@ -9,6 +9,7 @@
     "test-sku": "ava tests/sku.test.js",
     "test-product": "ava tests/product.test.js",
     "test-gift-card": "ava tests/gift-card.test.js",
+    "test-promotion": "ava tests/promotion.test.js",
     "test-cart": "ava tests/cart.test.js",
     "test-dev": "ava tests/dev.test.js"
   },
