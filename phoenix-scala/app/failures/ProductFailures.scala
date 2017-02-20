@@ -1,5 +1,7 @@
 package failures
 
+import java.time.Instant
+
 import models.product.Product
 
 object ProductFailures {
@@ -59,6 +61,11 @@ object ProductFailures {
     def apply(formId: Int, productContextId: Int) =
       NotFoundFailure404(
           s"Product form with id=$formId with product context $productContextId cannot be found")
+  }
+
+  object ProductIsNotActive {
+    def apply(id: Int) =
+      NotFoundFailure404(s"Product with id=$id is archived or inactive")
   }
 
   object NoAlbumsFoundForProduct {

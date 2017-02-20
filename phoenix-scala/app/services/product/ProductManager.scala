@@ -90,6 +90,7 @@ object ProductManager {
                                               oc: OC): DbResultT[ProductResponse.Root] =
     for {
       oldProduct ← * <~ Products.mustFindFullByReference(productId)
+      _          ← * <~ oldProduct.model.mustBeActive
       albums     ← * <~ ImageManager.getAlbumsForProduct(oldProduct.model.reference)
 
       fullSkus    ← * <~ ProductSkuLinks.queryRightByLeft(oldProduct.model)

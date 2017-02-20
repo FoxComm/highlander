@@ -80,6 +80,25 @@ class ProductIntegrationTest
       productsApi(slug).get().as[ProductResponse.Root].id must === (updated.formId)
     }
 
+    "404 for archived products" in new ProductSku_ApiFixture {
+      val slug          = "simple-product"
+      val simpleProduct = Products.mustFindById404(product.id).gimme
+
+      val updated = simpleProduct.copy(slug = slug)
+
+      productsApi(product.id)
+        .update(
+            UpdateProductPayload(productPayload.attributes,
+                                 slug = Some(slug),
+                                 skus = None,
+                                 variants = None))
+        .mustBeOk()
+
+      productsApi(product.id).archive().mustBeOk()
+
+      productsApi(slug).get().mustFailWith404(ProductIsNotActive(product.id))
+    }
+
     "queries product by slug ignoring case" in new ProductSku_ApiFixture {
       val slug          = "Simple-Product"
       val simpleProduct = Products.mustFindById404(product.id).gimme
