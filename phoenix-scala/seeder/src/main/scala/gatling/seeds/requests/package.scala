@@ -1,4 +1,4 @@
-package seeds
+package gatling.seeds
 
 import utils.JsonFormatters
 

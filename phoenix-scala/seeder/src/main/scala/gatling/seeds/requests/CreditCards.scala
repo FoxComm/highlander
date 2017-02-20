@@ -1,4 +1,4 @@
-package seeds.requests
+package gatling.seeds.requests
 
 import java.time.{Instant, LocalDateTime, ZoneId}
 

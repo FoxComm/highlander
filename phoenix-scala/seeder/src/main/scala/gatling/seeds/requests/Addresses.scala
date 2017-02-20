@@ -1,4 +1,4 @@
-package seeds.requests
+package gatling.seeds.requests
 
 import scala.util.Random
 
@@ -7,9 +7,9 @@ import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import payloads.AddressPayloads.CreateAddressPayload
-import seeds._
-import seeds.requests.Auth._
-import seeds.simulations._
+import gatling.seeds._
+import gatling.seeds.requests.Auth._
+import gatling.seeds.simulations._
 
 object Addresses {
 

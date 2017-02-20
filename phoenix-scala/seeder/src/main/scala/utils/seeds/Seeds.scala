@@ -1,34 +1,30 @@
 package utils.seeds
 
+import cats.data.Xor
+import com.pellucid.sealerate
+import com.typesafe.config.Config
+import failures.UserFailures._
+import failures.{Failures, FailuresOps, NotFoundFailure404}
 import java.time.{Instant, ZoneId}
+import models.Reasons
+import models.account._
+import models.activity.ActivityContext
+import models.auth.UserToken
+import models.objects.ObjectContexts
+import models.product.SimpleContext
+import org.postgresql.ds.PGSimpleDataSource
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
-import cats.data.Xor
-import com.pellucid.sealerate
-import com.typesafe.config.{Config, ConfigFactory}
-import failures.{Failures, FailuresOps, NotFoundFailure404}
-import failures.UserFailures._
-import models.auth.UserToken
-import models.Reason._
-import models.activity.ActivityContext
-import models.cord.{OrderPayment, OrderShippingAddress}
-import models.objects.ObjectContexts
-import models.payment.creditcard.CreditCardCharge
-import models.product.SimpleContext
-import models.{Reason, Reasons}
-import models.account._
-import models.auth.Token
 import services.Authenticator.AuthData
 import services.account.AccountManager
-import org.postgresql.ds.PGSimpleDataSource
 import slick.driver.PostgresDriver.api._
 import slick.driver.PostgresDriver.backend.DatabaseDef
 import utils.aliases._
 import utils.db._
 import utils.db.flyway.newFlyway
 import utils.seeds.generators.SeedsGenerator
-import utils.{ADT, FoxConfig, JsonFormatters}
+import utils.{ADT, FoxConfig}
 
 object Seeds {
 
@@ -119,7 +115,6 @@ object Seeds {
   }
 
   def runMain(cfg: CliConfig, usage: String): Unit = {
-    sys.props += ("phoenix.env" → "test")
     val config: Config           = FoxConfig.unsafe
     implicit val db: DatabaseDef = Database.forConfig("db", config)
     implicit val ac: AC          = ActivityContext(userId = 1, userType = "user", transactionId = "seeds")
@@ -179,8 +174,8 @@ object Seeds {
 
   def createStageAdminsSeeds(implicit db: DB, ec: EC, ac: AC): Int = {
     val r = for {
-      _      ← * <~ createSingleMerchantSystem
-      _      ← * <~ createSecondStageMerchant
+      _      ← * <~ Factories.createSingleMerchantSystem
+      _      ← * <~ Factories.createSecondStageMerchant
       admins ← * <~ Factories.createStoreAdmins
     } yield admins
 
@@ -301,92 +296,6 @@ object Seeds {
            } yield {}
          })
     } yield {}
-
-  object Factories
-      extends CustomerSeeds
-      with GiftCardSeeds
-      with StoreCreditSeeds
-      with ReturnSeeds
-      with ProductSeeds
-      with ShipmentSeeds
-      with OrderSeeds
-      with StoreAdminSeeds
-      with AddressSeeds
-      with CreditCardSeeds
-      with CustomersGroupSeeds
-      with DiscountSeeds
-      with PromotionSeeds
-      with ObjectSchemaSeeds
-      with CouponSeeds
-      with SharedSearchSeeds {
-
-    implicit val formats = JsonFormatters.phoenixFormats
-
-    def orderPayment = OrderPayment.build(creditCard)
-
-    def giftCardPayment = OrderPayment.build(giftCard)
-
-    def storeCreditPayment(implicit au: AU) = OrderPayment.build(storeCredit)
-
-    def shippingAddress =
-      OrderShippingAddress(regionId = 4174,
-                           name = "Old Yax",
-                           address1 = "9313 Olde Mill Pond Dr",
-                           address2 = None,
-                           city = "Glen Allen",
-                           zip = "23060",
-                           phoneNumber = None)
-
-    def creditCardCharge =
-      CreditCardCharge(creditCardId = creditCard.id,
-                       orderPaymentId = orderPayment.id,
-                       chargeId = "foo",
-                       amount = 25)
-
-    def reason(storeAdminId: Int) =
-      Reason(storeAdminId = storeAdminId, body = "I'm a reason", parentId = None)
-
-    def reasons: Seq[Reason] =
-      Seq(
-          // Gift card creation reasons
-          Reason(body = "Gift to loyal customer",
-                 reasonType = GiftCardCreation,
-                 parentId = None,
-                 storeAdminId = 0),
-          Reason(body = "New year GC giveaway",
-                 reasonType = GiftCardCreation,
-                 parentId = None,
-                 storeAdminId = 0),
-          // Store credit creation reasons
-          Reason(body = "Gift to loyal customer",
-                 reasonType = StoreCreditCreation,
-                 parentId = None,
-                 storeAdminId = 0),
-          Reason(body = "New year SC giveaway",
-                 reasonType = StoreCreditCreation,
-                 parentId = None,
-                 storeAdminId = 0),
-          // Cancellation reasons
-          Reason(body = "Cancelled by customer request",
-                 reasonType = Cancellation,
-                 parentId = None,
-                 storeAdminId = 0),
-          Reason(body = "Cancelled because duplication",
-                 reasonType = Cancellation,
-                 parentId = None,
-                 storeAdminId = 0),
-          Reason(body = "Other cancellation reason",
-                 reasonType = Cancellation,
-                 parentId = None,
-                 storeAdminId = 0)
-      )
-  }
-
-  def createSingleMerchantSystem(implicit ec: EC) =
-    sql""" select bootstrap_single_merchant_system() """.as[Int]
-
-  def createSecondStageMerchant(implicit ec: EC) =
-    sql""" select bootstrap_demo_organization('merchant2', 'merchant2.com', 1, 1) """.as[Int]
 
   private def flyWayMigrate(config: Config): Unit = {
     val flyway = newFlyway(jdbcDataSourceFromConfig("db", config))

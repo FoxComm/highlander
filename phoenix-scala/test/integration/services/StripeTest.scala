@@ -9,7 +9,7 @@ import testutils._
 import utils.Money.Currency.USD
 import utils.TestStripeSupport._
 import utils.apis._
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 
 trait RealStripeApis extends IntegrationTestBase {
   // Mutate Stripe state, set real key

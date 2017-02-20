@@ -1,4 +1,4 @@
-package seeds
+package gatling.seeds
 
 import io.gatling.core.structure.{ChainBuilder, StructureBuilder}
 import io.gatling.http.request.builder.HttpRequestBuilder

@@ -55,19 +55,19 @@ lazy val phoenixScala = (project in file("."))
     logBuffered in ET   := false,
     test in assembly := {},
     addCommandAlias("assembly", "fullAssembly"),
-    addCommandAlias("all", "; clean; gatling/clean; it:compile; gatling/compile; test; gatling/assembly"),
+    addCommandAlias("all", "; clean; seeder/clean; it:compile; seeder/compile; test; seeder/assembly"),
     scalafmtConfig := Some(file(".scalafmt")),
     reformatOnCompileWithItSettings // scalafmt
   )
 
-lazy val gatling = (project in file("gatling"))
+lazy val seeder = (project in file("seeder"))
   .dependsOn(phoenixScala)
   .settings(
     commonSettings,
     libraryDependencies ++= Dependencies.gatling,
-    classDirectory in Compile := baseDirectory.value / "../gatling-classes",
-    cleanFiles <+= baseDirectory(_ / "../gatling-classes"),
-    cleanFiles <+= baseDirectory(_ / "../gatling-results"),
+    classDirectory in Compile := baseDirectory.value / "../seeder-classes",
+    cleanFiles <+= baseDirectory(_ / "../seeder-classes"),
+    cleanFiles <+= baseDirectory(_ / "../seeder-results"),
     assemblyJarName := (AssemblyKeys.assemblyJarName in assembly in phoenixScala).value,
     scalafmtConfig := Some(file(".scalafmt")),
     reformatOnCompileSettings, // scalafmt,
@@ -86,29 +86,29 @@ lazy val gatling = (project in file("gatling"))
     }
   )
 
-fullAssembly <<= Def.task().dependsOn(writeVersion in phoenixScala, assembly in gatling)
+fullAssembly <<= Def.task().dependsOn(writeVersion in phoenixScala, assembly in seeder)
 
 // Injected seeds
 val seedCommand = " utils.seeds.Seeds seed --seedAdmins"
-seed     := (runMain in Compile in phoenixScala).partialInput(seedCommand).evaluated
-seedDemo := (runMain in Compile in phoenixScala).partialInput(s"$seedCommand --seedDemo 1").evaluated
+seed     := (runMain in Compile in seeder).partialInput(seedCommand).evaluated
+seedDemo := (runMain in Compile in seeder).partialInput(s"$seedCommand --seedDemo 1").evaluated
 
 // Gatling seeds
-seedOneshot    := (runMain in Compile in gatling).partialInput(" seeds.OneshotSeeds").evaluated
-seedContinuous := (runMain in Compile in gatling).partialInput(" seeds.ContinuousSeeds").evaluated
+seedOneshot    := (runMain in Compile in seeder).partialInput(" gatling.seeds.OneshotSeeds").evaluated
+seedContinuous := (runMain in Compile in seeder).partialInput(" gatling.seeds.ContinuousSeeds").evaluated
 
 // Scalafmt
 scalafmtAll <<= Def.task().dependsOn(scalafmt in Compile in phoenixScala,
                                      scalafmt in Test    in phoenixScala,
                                      scalafmt in IT      in phoenixScala,
                                      scalafmt in ET      in phoenixScala,
-                                     scalafmt in Compile in gatling)
+                                     scalafmt in Compile in seeder)
 
 scalafmtTestAll <<= Def.task().dependsOn(scalafmtTest in Compile in phoenixScala,
                                          scalafmtTest in Test    in phoenixScala,
                                          scalafmtTest in IT      in phoenixScala,
                                          scalafmtTest in ET      in phoenixScala,
-                                         scalafmtTest in Compile in gatling)
+                                         scalafmtTest in Compile in seeder)
 
 // Test
 test <<= Def.sequential(compile in Test, compile in IT, compile in ET,

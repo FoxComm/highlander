@@ -1,9 +1,9 @@
-package seeds.simulations
+package gatling.seeds.simulations
 
 import io.gatling.core.Predef._
 import io.gatling.core.scenario.Simulation
-import seeds.Conf._
-import seeds.requests.Ping._
+import gatling.seeds.Conf._
+import gatling.seeds.requests.Ping._
 
 class PhoenixPingSimulation extends Simulation {
   setUp(scenario("Ping phoenix").exec(waitForPhoenix).inject(atOnceUsers(1)))

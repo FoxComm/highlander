@@ -42,9 +42,9 @@ phoenix-scala.iml
 .DS_Store
 .gce
 
-# Gatling
-gatling-results/
-gatling-classes/
+# Seeder
+seeder-results/
+seeder-classes/
 
 version
 

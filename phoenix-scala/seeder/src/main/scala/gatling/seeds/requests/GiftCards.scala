@@ -1,4 +1,4 @@
-package seeds.requests
+package gatling.seeds.requests
 
 import scala.util.Random
 
@@ -8,7 +8,7 @@ import models.Reason
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import payloads.GiftCardPayloads._
 import payloads.PaymentPayloads.GiftCardPayment
-import seeds.dbFeeder
+import gatling.seeds.dbFeeder
 import utils.Money.Currency
 import utils.Strings._
 

@@ -23,7 +23,7 @@ import testutils._
 import testutils.fixtures.BakedFixtures
 import utils.MockedApis
 import utils.db._
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 
 class CheckoutTest
     extends IntegrationTestBase

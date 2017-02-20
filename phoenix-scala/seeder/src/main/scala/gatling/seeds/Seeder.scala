@@ -1,10 +1,10 @@
-package seeds
+package gatling.seeds
 
 import scala.reflect.{ClassTag, classTag}
 
 import io.gatling.app.Gatling
 import io.gatling.core.scenario.Simulation
-import seeds.simulations._
+import gatling.seeds.simulations._
 
 trait Seeder {
 

@@ -1,12 +1,12 @@
-package seeds.simulations
+package gatling.seeds.simulations
 
 import io.gatling.core.Predef._
 import io.gatling.core.scenario.Simulation
-import seeds._
-import seeds.requests.Addresses._
-import seeds.requests.Auth._
-import seeds.requests.Cart._
-import seeds.requests.Customers._
+import gatling.seeds._
+import gatling.seeds.requests.Addresses._
+import gatling.seeds.requests.Auth._
+import gatling.seeds.requests.Cart._
+import gatling.seeds.requests.Customers._
 
 class CustomerActivitySimulation extends Simulation {
 

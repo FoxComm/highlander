@@ -1,9 +1,11 @@
+package gatling
+
 import scala.concurrent.duration._
 
 import io.gatling.core.Predef._
 import io.gatling.core.structure.StructureBuilder
 import io.gatling.jdbc.Predef._
-import seeds.Conf._
+import gatling.seeds.Conf._
 
 package object seeds {
 

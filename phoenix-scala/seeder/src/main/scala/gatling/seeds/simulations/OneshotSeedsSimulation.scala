@@ -1,10 +1,10 @@
-package seeds.simulations
+package gatling.seeds.simulations
 
 import io.gatling.core.Predef._
 import io.gatling.core.scenario.Simulation
-import seeds.Conf._
-import seeds._
-import seeds.requests.Auth._
+import gatling.seeds.Conf._
+import gatling.seeds._
+import gatling.seeds.requests.Auth._
 
 class OneshotSeedsSimulation extends Simulation {
   setUp(

@@ -40,7 +40,7 @@ trait StoreAdminSeeds {
   }
 
   def createStoreAdmins(implicit ec: EC, db: DB, ac: AC): DbResultT[Int] = {
-    val reader = CSVReader.open(new File("gatling-classes/data/store_admins.csv"))
+    val reader = CSVReader.open(new File("seeder-classes/data/store_admins.csv"))
     val admins = reader.all.drop(1).collect {
       case name :: email :: password :: org :: role :: Nil ⇒ {
         val user = User(accountId = 0, name = name.some, email = email.some)

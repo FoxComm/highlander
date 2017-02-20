@@ -1,8 +1,8 @@
-package seeds.requests
+package gatling.seeds.requests
 
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
-import seeds.Conf
+import gatling.seeds.Conf
 
 object Ping {
 

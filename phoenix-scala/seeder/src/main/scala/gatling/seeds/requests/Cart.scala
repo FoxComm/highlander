@@ -1,4 +1,4 @@
-package seeds.requests
+package gatling.seeds.requests
 
 import java.time.Instant
 
@@ -11,9 +11,9 @@ import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.CartPayloads.CreateCart
 import payloads.OrderPayloads.OrderTimeMachine
 import payloads.UpdateShippingMethod
-import seeds.dbFeeder
-import seeds.requests.Auth._
-import seeds.requests.Payments._
+import gatling.seeds.dbFeeder
+import gatling.seeds.requests.Auth._
+import gatling.seeds.requests.Payments._
 
 object Cart {
 
