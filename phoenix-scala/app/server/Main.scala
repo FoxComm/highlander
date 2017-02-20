@@ -85,7 +85,7 @@ class Service(
 
   val defaultRoutes = {
     pathPrefix("v1") {
-      routes.AuthRoutes.routes ~
+      routes.AuthRoutes.routes(scopeId) ~
       routes.Public.routes(customerCreateContext) ~
       routes.Customer.routes ~
       requireAdminAuth(userAuth) { implicit auth ⇒
