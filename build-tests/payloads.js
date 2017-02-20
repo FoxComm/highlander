@@ -151,6 +151,11 @@ const $ = {
       skus: [$.randomSkuPayload()],
     };
   },
+  randomGiftCardPayload: () => ({
+    balance: faker.random.number({ min: 1, max: 2000 }),
+    quantity: 1,
+    reasonId: 1,
+  }),
   randomImagePayload: () => ({
     src: faker.random.arrayElement([
       'https://s3-us-west-1.amazonaws.com/foxcomm-images/albums/1/540/image.jpg',

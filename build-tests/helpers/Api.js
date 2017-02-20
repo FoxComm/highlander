@@ -20,6 +20,8 @@ const endpoints = {
   product: (context, productId) => `/v1/products/${context}/${productId}`,
   productAlbums: (context, productId) => `/v1/products/${context}/${productId}/albums`,
   productAlbumPosition: (context, productId) => `/v1/products/${context}/${productId}/albums/position`,
+  giftCards: '/v1/gift-cards',
+  giftCard: giftCardCode => `/v1/gift-cards/${giftCardCode}`,
   albums: context => `/v1/albums/${context}`,
   album: (context, albumId) => `/v1/albums/${context}/${albumId}`,
   albumImages: (context, albumId) => `/v1/albums/${context}/${albumId}/images`,
@@ -161,6 +163,24 @@ class ProductAlbums {
   }
 }
 
+class GiftCards {
+  constructor(api) {
+    this.api = api;
+  }
+  list() {
+    return this.api.get(endpoints.giftCards);
+  }
+  create(giftCardPayload) {
+    return this.api.post(endpoints.giftCards, giftCardPayload);
+  }
+  one(giftCardCode) {
+    return this.api.get(endpoints.giftCard(giftCardCode));
+  }
+  update(giftCardCode, giftCardPayload) {
+    return this.api.patch(endpoints.giftCard(giftCardCode), giftCardPayload);
+  }
+}
+
 class Albums {
   constructor(api) {
     this.api = api;
@@ -220,6 +240,7 @@ export default class Api extends FoxCommApi {
     this.skus = new Skus(this);
     this.products = new Products(this);
     this.productAlbums = new ProductAlbums(this);
+    this.giftCards = new GiftCards(this);
     this.albums = new Albums(this);
     this.notes = new Notes(this);
     this.dev = new Dev(this);
