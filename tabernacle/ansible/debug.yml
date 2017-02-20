@@ -1,0 +1,10 @@
+---
+
+- name: Debug Playbook
+  hosts: api-docs
+  become: true
+  vars:
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+  tasks:
+    - name: Print Instance IP Address
+      debug: msg="{{ansible_default_ipv4.address}}"

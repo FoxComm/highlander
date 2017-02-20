@@ -9,34 +9,26 @@ all: build
 
 build:
 	$(call header, Building)
-	$(GO) build -o bin/inventory inventory/inventory.go
-
-clean:
 	true
 
 lint:
 	ansible-lint -x ANSIBLE0007,ANSIBLE0004 ansible/*.yml
 
-test-go:
-	go get github.com/stretchr/testify
-	$(GO) test ./inventory/
-
-test-tf:
-	./terraform/testfmt.sh
-
 test:
 	$(call header, Testing)
-	make test-go
-	make test-tf
+	./terraform/testfmt.sh
+
+debug:
+	ansible-playbook -v -i inventory/gce ansible/debug.yml
 
 deploy-stage:
-	ansible-playbook -v -i bin/envs/staging ansible/test_stage.yml
+	ansible-playbook -v -i inventory/gce/ ansible/test_stage.yml
 
 deploy-demo:
-	ansible-playbook -v -i bin/envs/staging ansible/test_stage.yml
+	ansible-playbook -v -i inventory/gce/ ansible/test_stage.yml
 
 deploy-feature-branch:
-	ansible-playbook -v -i bin/envs/staging ansible/provision_feature_branch.yml
+	ansible-playbook -v -i inventory/gce/ ansible/provision_feature_branch.yml
 
 docker:
 	$(call header, Dockerizing)
