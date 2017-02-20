@@ -21,7 +21,7 @@ destroy:
 	@rm -rf goldrush.state
 
 update-app:
-	cd tabernacle && ansible-playbook -v -i bin/envs/dev ansible/goldrush_update_app.yml
+	cd tabernacle && ansible-playbook -v -i inventory/static/dev ansible/goldrush_update_app.yml
 
 provision: up
 
