@@ -137,6 +137,10 @@ const getRoutes = (jwt: Object) => {
         ]),
       ]);
 
+  if (process.env.PRINT_ROUTES) {
+    return {productRoutes, skuRoutes, inventoryRoutes};
+  }
+
   return (
     <div>
       {productRoutes}

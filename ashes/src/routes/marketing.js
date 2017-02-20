@@ -113,6 +113,10 @@ const getRoutes = (jwt: Object) => {
       ]),
     ]);
 
+  if (process.env.PRINT_ROUTES) {
+    return {giftCardRoutes, promotionsRoutes, couponRoutes}
+  }
+
   return (
     <div>
       {giftCardRoutes}

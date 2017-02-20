@@ -38,6 +38,8 @@ export function getClaims(token: ?JWT = getJWT()): Claims {
     return {};
   }
 
+  return merchant();
+
   return token.scope == '1'
     ? superAdmin()
     : merchant();

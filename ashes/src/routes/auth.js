@@ -1,9 +1,8 @@
 /* @flow */
 
-import React, { Component, Element } from 'react';
-import { Route, IndexRoute } from 'react-router';
+import React from 'react';
+import { Route, IndexRoute } from 'lib/fox-routes';
 
-import FoxRouter from 'lib/fox-router';
 import { frn } from 'lib/frn';
 
 import AuthPages from 'components/site/auth-pages';
@@ -13,14 +12,12 @@ import SetPassword from 'components/auth/set-password';
 import type { JWT } from 'lib/claims';
 
 const getRoutes = (jwt: JWT) => {
-  const router = new FoxRouter(jwt);
-  const authRoutes =
-    router.read('auth', { component: AuthPages }, [
-      router.create('login', { path: 'login', component: Login }),
-      router.create('set-password', { path: 'signup', component: SetPassword }),
-    ]);
-
-  return authRoutes;
+  return (
+    <Route name="auth" component={AuthPages}>
+      <Route actions="c" name="login" path="login" component={Login} />
+      <Route actions="c" name="set-password" path="signup" component={SetPassword} />
+    </Route>
+  );
 };
 
 export default getRoutes;

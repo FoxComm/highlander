@@ -69,6 +69,10 @@ const getRoutes = (jwt: Object) => {
       ]),
     ]);
 
+  if (process.env.PRINT_ROUTES) {
+    return {cartRoutes, orderRoutes};
+  }
+
   return (
     <div>
       {cartRoutes}

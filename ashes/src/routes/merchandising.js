@@ -19,6 +19,10 @@ const getRoutes = (jwt: Object) => {
       ]),
     ]);
 
+  if (process.env.PRINT_ROUTES) {
+    return {taxonomyRoutes, }
+  }
+
   return (
     <div>
       {taxonomyRoutes}

@@ -65,6 +65,10 @@ const getRoutes = (jwt: JWT) => {
       router.read('integrations', { component: IntegrationDetails, isIndex: true }),
     ]);
 
+  if (process.env.PRINT_ROUTES) {
+    return {userRoutes, pluginRoutes, applicationsRoutes, integrationRoutes};
+  }
+
   return (
     <div>
       {userRoutes}
