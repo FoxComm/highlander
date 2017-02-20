@@ -34,10 +34,18 @@ func request(method string, url string, headers map[string]string, payload inter
 	if method == "GET" || method == "DELETE" {
 		req, err = http.NewRequest(method, url, nil)
 	} else {
-		payloadBytes := []byte{}
-		payloadBytes, err = json.Marshal(&payload)
-		if err != nil {
-			return nil, fmt.Errorf("Unable to marshal payload: %s", err.Error())
+		var payloadBytes []byte
+		// determine payload
+		switch v := payload.(type) {
+		case string:
+			payloadBytes = []byte(v)
+		case []byte:
+			payloadBytes = v
+		case interface{}:
+			payloadBytes, err = json.Marshal(&v)
+			if err != nil {
+				return nil, fmt.Errorf("Unable to marshal payload: %s", err.Error())
+			}
 		}
 
 		log.Printf("HTTP --> %s %s %s", method, url, payloadBytes)
