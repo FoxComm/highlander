@@ -134,6 +134,8 @@ begin
               where returns.id = new.reference_id;
     end case;
 
+    select new.scope into strict new_note.scope;
+
     insert into notes_search_view select new_note.*;
 
     return null;
