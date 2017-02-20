@@ -1,0 +1,33 @@
+---
+
+- name: Download Consul
+  unarchive: src={{consul_download_url}} dest=/usr/local/bin mode="u+x,g+x,o+x" remote_src=yes
+
+- name: Create Config Directory
+  file: path=/etc/consul.d state=directory
+
+- name: Touch or be Touched
+  file: path="/etc/consul.d/env" state=touch
+
+- name: Specify Server
+  lineinfile: dest="/etc/consul.d/env" line="CONSUL_SERVER={{consul_server}}"
+  when: consul_server is defined
+
+- name: Specify Datacenter
+  lineinfile: dest="/etc/consul.d/env" line="CONSUL_DC={{consul_dc}}"
+  when: consul_dc is defined
+
+- name: Specify Bind
+  lineinfile: dest="/etc/consul.d/env" line="CONSUL_BIND={{consul_bind}}"
+  when: consul_bind is defined
+
+- name: Create Data Directory
+  file: path=/var/consul state=directory
+
+- name: Create Web Ui Directory
+  file: path=/usr/local/share/consul state=directory
+
+- name: Copy Consul Web UI
+  unarchive: src={{consul_web_ui_url}} dest=/usr/local/share/consul remote_src=yes
+  args:
+    creates: "/usr/local/share/consul/static"

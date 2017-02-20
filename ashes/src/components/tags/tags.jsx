@@ -27,7 +27,7 @@ export default class Tags extends Component {
   state: State = { isAdding: false, addingValue: '' };
   props: Props;
 
-  get addInput(): ?Element {
+  get addInput(): ?Element<*> {
     if (this.state.isAdding) {
       return (
         <TextInput
@@ -98,14 +98,15 @@ export default class Tags extends Component {
     this.props.onChange({ ...attributes, tags: newAttr });
   }
 
-  render(): Element {
+  render() {
     const tags = this.tags;
     const mainContent = _.isEmpty(tags)
       ? <div styleName="empty-text">Add a tag</div>
       : tags.map(tag => {
+        const tagVal = _.kebabCase(tag);
         return (
           <RoundedPill
-            closeBtnId={`${tag}-tag-close-btn`}
+            pillId={`fct-tag__${tagVal}`}
             styleName="tag"
             text={tag}
             value={tag}
@@ -121,7 +122,7 @@ export default class Tags extends Component {
           <div styleName="text">
             Tags
           </div>
-          <button id="tag-toggle-btn" styleName="icon" onClick={this.handleTagToggle}>
+          <button id="fct-tag-toggle-btn" styleName="icon" onClick={this.handleTagToggle}>
             <i className="icon-add" />
           </button>
         </div>

@@ -32,7 +32,7 @@ class SwatchInput extends Component {
     this.props.onChange(target.value);
   };
 
-  render(): Element {
+  render() {
     const hexCode = this.props.value;
     const colorStyle = {
       background: `#${hexCode}`,

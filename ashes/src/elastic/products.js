@@ -8,7 +8,7 @@ import * as dsl from './dsl';
 const MAX_RESULTS = 1000;
 const productsSearchUrl = `products_search_view/_search?size=${MAX_RESULTS}`;
 
-export function searchProducts(token: string): Promise {
+export function searchProducts(token: string): Promise<*> {
   const filters = [];
   if (token) {
     filters.push(

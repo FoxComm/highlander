@@ -20,21 +20,17 @@ set -ue
 
 # define buildable projects array
 PROJECTS=(
-    'api-docs'
-    'api-js'
     'ashes'
     'consumers'
-    'engineering-wiki'
     'firebrand'
     'green-river'
     'isaac'
-    'marketplace'
-    'marketplace-ui'
     'messaging'
     'middlewarehouse'
     'phoenix-scala'
-    'prov-shit'
+    'tabernacle'
     'solomon'
+    'hyperion'
 )
 
 # fetch origin

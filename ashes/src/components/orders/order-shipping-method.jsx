@@ -8,7 +8,7 @@ type Props = {
   },
 };
 
-const OrderShippingMethod = (props: Props): Element => {
+const OrderShippingMethod = (props: Props) => {
   const { order } = props;
   const { shippingMethod } = order;
 

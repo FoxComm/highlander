@@ -1,0 +1,8 @@
+{
+    "zookeepers" : "zk://zookeeper.service.consul:2181",
+    "cert_path": "test/fox",
+    "docker_registry_bucket": "stage-docker",
+    "docker_registry":"https://docker-stage.foxcommerce.com",
+    "db_host": "db.service.consul",
+    "consul_expect": 1
+}

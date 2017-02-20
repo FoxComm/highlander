@@ -24,7 +24,7 @@ const inventoryClaims = readAction(frn.mdl.summary);
 export default class CatalogEntry extends Component {
   props: Props;
 
-  render(): Element {
+  render() {
     const { claims, collapsed, routes, status, toggleMenuItem } = this.props;
     const allClaims = { ...productClaims, ...skuClaims, ...inventoryClaims };
 

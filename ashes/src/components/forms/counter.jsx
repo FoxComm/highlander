@@ -8,7 +8,7 @@ import classNames from 'classnames';
 import { IncrementButton, DecrementButton } from '../common/buttons';
 
 type Props = {
-  value?: number|string,
+  value?: number,
   min?: number,
   max?: number,
   step?: number,
@@ -42,10 +42,9 @@ const Counter = ({
         />
       </div>
       <input
-        id="adjust-quantity-input"
         type="number"
         value={value}
-        className={classNames('fc-counter__input', className, {disabled})}
+        className={classNames('fc-counter__input', className, 'adjust-quantity-input', {disabled})}
         disabled={disabled}
         {...rest} />
       <div className="fc-input-append">

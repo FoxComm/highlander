@@ -1,0 +1,21 @@
+---
+
+- name: Packing Tinyprod Amigo
+  hosts: all
+  become: true
+  vars:
+    user: ubuntu
+    packing: true
+    join_type: join
+    consul_expect: 1
+
+  roles:
+    - { role: base/consul_server }
+    - { role: base/zookeeper }
+    - { role: base/docker_registry }
+    - { role: base/mesos_master }
+    - { role: base/mesos_consul }
+    - { role: base/kibana }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml

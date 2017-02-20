@@ -1,0 +1,31 @@
+.segment-control-container-active {
+  width: 66px;
+  max-width: 66px;
+  height: 40px;
+  max-height: 40px;
+  background-color: #CED3D6;
+  border: 1px solid #CED2D5;
+  text-align: center;
+  cursor: pointer;
+  margin-top: 40px;
+}
+
+.segment-control-container-inactive {
+  width: 66px;
+  max-width: 66px;
+  height: 40px;
+  max-height: 40px;
+  background-color: #FFFFFF;
+  border: 1px solid #CED2D5;
+  text-align: center;
+  cursor: pointer;
+  margin-top: 40px;
+}
+
+.segment-control-title {
+  margin-top: 11px;
+  margin-right: auto;
+  margin-left: auto;
+  font-size: 14px;
+  font-weight: 600;
+}

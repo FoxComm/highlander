@@ -1,0 +1,45 @@
+{
+  "id": "/eggcrate",
+  "cmd": null,
+  "cpus": 0.25,
+  "mem": 64,
+  "disk": 0,
+  "instances": 1,
+  "labels": {
+    "LAYER": "backend",
+    "LANG": "go",
+    "TAG": "{{docker_tags.eggcrate}}"
+  },
+  "container": {
+    "type": "DOCKER",
+    "docker": {
+      "image": "{{docker_registry}}:5000/eggcrate:{{docker_tags.eggcrate}}",
+      "network": "HOST",
+      "privileged": false,
+      "parameters": [],
+      "forcePullImage": true
+    }
+  },
+  "env": {
+      "API_URL": "http://{{storefront_server_name}}"
+  },
+  "healthChecks": [
+    {
+      "path": "/ping",
+      "protocol": "HTTP",
+      "portIndex": 0,
+      "gracePeriodSeconds": 300,
+      "intervalSeconds": 60,
+      "timeoutSeconds": 20,
+      "maxConsecutiveFailures": 3,
+      "ignoreHttp1xx": false
+    }
+  ],
+  "portDefinitions": [
+    {
+      "port": 10020,
+      "protocol": "tcp",
+      "labels": {}
+    }
+  ]
+}

@@ -50,7 +50,7 @@ export default class TextInput extends Component {
     value: this.props.value
   };
 
-  render(): Element {
+  render() {
     const { className, placeholder, onChange, ...rest } = this.props;
     const inputClass = classNames('fc-text-input', className);
 

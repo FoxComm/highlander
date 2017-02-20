@@ -51,11 +51,11 @@ class CustomProperty extends Component<void, Props, State> {
     }
   }
 
-  get closeAction(): Element {
+  get closeAction(): Element<*> {
     return <a onClick={this.props.onCancel}>&times;</a>;
   }
 
-  get propertyTypes(): Array<Element> {
+  get propertyTypes(): Array<Element<*>> {
     return _.map(propertyTypes, (type, key) => [key, type]);
   }
 
@@ -87,7 +87,7 @@ class CustomProperty extends Component<void, Props, State> {
     }
   };
 
-  render(): Element {
+  render() {
     return (
       <div className="fc-product-details__custom-property">
         <div className="fc-modal-container" onKeyDown={this.handleKeyPress}>

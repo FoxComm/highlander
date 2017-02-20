@@ -29,7 +29,7 @@ function setCellContents(application, field) {
 export default class MerchantApplicationRow extends Component {
   props: Props;
 
-  render(): Element {
+  render() {
     const { application, columns, params } = this.props;
     const commonParams = {
       columns,

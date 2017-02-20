@@ -1,0 +1,45 @@
+---
+
+- name: Packer Appliance Base Image
+  hosts: all
+  become: true
+  vars:
+    user: ubuntu
+    packing: true
+    cert_path: test/fox
+    install_public_keys: true
+    install_private_keys: true
+    join_type: join
+    consul_expect: 1
+    mesos_quorum: 1
+    mesos_ip: "$(hostname -i)"
+  roles:
+    # Common Packages
+    - { role: base/common }
+    - { role: base/languages }
+    - { role: base/devkit }
+    # Private Keys
+    - { role: base/ssh_keys }
+    - { role: base/secret_keys }
+    # Logging
+    - { role: base/rsyslog }
+    # Consul
+    - { role: base/consul }
+    - { role: base/consul_agent }
+    # Confluent Platform
+    - { role: base/confluent_platform }
+    # Mesosphere
+    - { role: base/mesos }
+    - { role: base/mesos_master }
+    - { role: base/mesos_worker }
+    - { role: base/mesos_consul }
+    # PostgreSQL
+    - { role: base/db }
+    - { role: base/bottledwater }
+    - { role: base/pgweb }
+    # Elasticsearch
+    - { role: base/elasticsearch }
+    - { role: base/elasticsearch-5 }
+    - { role: base/kibana }
+    # Nginx
+    - { role: base/balancer }

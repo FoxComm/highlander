@@ -24,7 +24,7 @@ const orderClaims = readAction(frn.oms.order);
 export default class OrdersEntry extends Component {
   props: Props;
 
-  render(): Element {
+  render() {
     const { claims, collapsed, routes, status, toggleMenuItem } = this.props;
     const allClaims = { ...cartClaims, ...orderClaims };
 

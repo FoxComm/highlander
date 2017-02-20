@@ -27,7 +27,7 @@ type Details = {
 type Props = {
   params: Params,
   details: Details,
-  children: Element,
+  children: Element<*>,
   fetchError: any,
   isFetching: bool,
   fetchUser: Function,
@@ -88,7 +88,7 @@ class User extends Component {
     this.props.updateUser(this.state.user);
   }
 
-  renderChildren(): Element {
+  renderChildren() {
     return React.cloneElement(this.props.children, {
       user: this.state.user,
       onChange: this.handleFormChange,

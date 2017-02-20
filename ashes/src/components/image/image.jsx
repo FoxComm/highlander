@@ -15,7 +15,7 @@ import WaitAnimation from '../common/wait-animation';
 type Props = {
   id: number,
   src: string,
-  loader?: string|Element;
+  loader?: string|Element<*>;
 }
 
 type State = {
@@ -89,15 +89,15 @@ export default class ImageLoader extends Component {
     }, this.destroyImage);
   }
 
-  get loader(): ?Element {
+  get loader(): ?Element<*> {
     return !this.state.ready ? <WaitAnimation key="loader" size="m" /> : null;
   }
 
-  get image(): ?Element {
+  get image(): ?Element<*> {
     return this.state.ready ? <img src={this.state.src} key={this.props.id} /> : null;
   }
 
-  wrapToTransition(img: ?Element) {
+  wrapToTransition(img: ?Element<*>) {
     if (this.showTransition) {
       return (
         <Transition
@@ -118,7 +118,7 @@ export default class ImageLoader extends Component {
     );
   }
 
-  render(): Element {
+  render() {
     const className = classNames(styles.image, {
       [styles.error]: this.state.error,
     });

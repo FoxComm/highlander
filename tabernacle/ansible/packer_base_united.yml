@@ -1,0 +1,29 @@
+---
+
+- name: Packing Base Image
+  hosts: all
+  become: true
+  vars:
+    user: ubuntu
+    packing: true
+    install_public_keys: true
+    install_private_keys: true
+  gather_facts: no
+  pre_tasks:
+    - name: Update Apt Cache
+      raw: sudo apt-get update
+    - name: Install Python 2 and Boto
+      raw: sudo apt-get -y install python2.7 python-boto
+    - name: Gather Facts
+      setup:
+  post_tasks:
+    - name: Take a nap for a while
+      pause: seconds=5
+
+  roles:
+    - { role: base/common }
+    - { role: base/devkit }
+    - { role: base/secret_keys }
+    - { role: base/consul }
+    - { role: base/mesos }
+    - { role: base/consul_agent }

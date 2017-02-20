@@ -8,7 +8,7 @@ import * as dsl from './dsl';
 const MAX_RESULTS = 1000;
 const promotionsSearchUrl: string = `promotions_search_view/_search?size=${MAX_RESULTS}`;
 
-export function searchCouponPromotions(token: string): Promise {
+export function searchCouponPromotions(token: string): Promise<*> {
   const filters = [];
   if (token) {
     const caseInsensitiveToken = token.toLowerCase();

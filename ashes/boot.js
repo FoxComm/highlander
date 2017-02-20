@@ -1,5 +1,6 @@
 'use strict';
 
+const fs = require('fs');
 const cluster = require('cluster');
 const cpus = require('os').cpus().length;
 const description = require('./package').description;
@@ -9,9 +10,18 @@ const moment = require('moment');
 const exec = require('child_process').exec;
 const path = require('path');
 
+let rev;
+
+try {
+  rev = fs.readFileSync(path.resolve(__dirname, '.git-rev'), 'utf8').trim();
+} catch (e) {
+  rev = 'unknown';
+}
+
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 process.env.API_URL = process.env.API_URL || 'http://localhost';
 process.env.NODE_PATH = `${process.env.NODE_PATH}:${path.resolve('./lib')}`;
+process.env.GIT_REVISION = rev;
 
 let forks = process.env.NODE_ENV === 'production' ? cpus : 1;
 

@@ -13,25 +13,26 @@ import BodyPortal from '../body-portal/body-portal';
 
 export type ValueType = ?string|number;
 
-export type DropdownItemType = [ValueType, string|Element, bool];
+export type DropdownItemType = [ValueType, string|Element<*>, bool];
 
 export type Props = {
   id?: string,
-  name?: string,
+  dropdownValueId?: string,
+  name: string,
   value: ValueType,
   className?: string,
   listClassName?: string,
   placeholder?: string,
-  emptyMessage?: string|Element,
+  emptyMessage?: string|Element<*>,
   open?: bool,
-  children?: Element,
+  children?: Element<*>,
   items?: Array<DropdownItemType>,
   primary?: bool,
   editable?: bool,
   changeable?: bool,
   disabled?: bool,
   inputFirst?: bool,
-  renderDropdownInput?: Function,
+  renderDropdownInput?: () => Element<*>,
   renderNullTitle?: Function,
   renderPrepend?: Function,
   renderAppend?: Function,
@@ -62,6 +63,7 @@ export default class GenericDropdown extends Component {
     editable: false,
     inputFirst: true,
     dropdownProps: {},
+    name: '',
     value: '',
     detached: false,
   };
@@ -123,7 +125,7 @@ export default class GenericDropdown extends Component {
     });
   }
 
-  renderNullTitle(value: ?number|string, placeholder: ?string): ?string|Element {
+  renderNullTitle(value: ?number|string, placeholder: ?string): ?string|Element<*> {
     if (this.props.renderNullTitle) {
       return this.props.renderNullTitle(value, placeholder);
     }
@@ -160,8 +162,9 @@ export default class GenericDropdown extends Component {
     });
   }
 
-  get dropdownButton(): Element {
+  get dropdownButton() {
     const icon = this.state.open ? 'chevron-up' : 'chevron-down';
+
     return (
       <Button
         icon={icon}
@@ -174,7 +177,7 @@ export default class GenericDropdown extends Component {
     );
   }
 
-  get dropdownInput(): Element {
+  get dropdownInput(): Element<*> {
     const { name, placeholder, value, renderDropdownInput } = this.props;
     const actualValue = this.state.selectedValue;
     const title = this.findTitleByValue(actualValue, this.props) || this.renderNullTitle(value, placeholder);
@@ -190,14 +193,14 @@ export default class GenericDropdown extends Component {
     );
   }
 
-  get prependList(): ?Element {
+  get prependList(): ?Element<*> {
     if (!this.props.renderPrepend) {
       return null;
     }
     return this.props.renderPrepend();
   }
 
-  get appendList(): ?Element {
+  get appendList(): ?Element<*> {
     if (!this.props.renderAppend) {
       return null;
     }
@@ -239,7 +242,7 @@ export default class GenericDropdown extends Component {
   }
 
   @autobind
-  renderItems(): Element {
+  renderItems() {
     const { children, emptyMessage } = this.props;
 
     if (_.isEmpty(children) && emptyMessage) {
@@ -261,7 +264,7 @@ export default class GenericDropdown extends Component {
     });
   }
 
-  get controls(): Element[] {
+  get controls(): Element<*>[] {
     const { inputFirst } = this.props;
 
     return createFragment({
@@ -270,7 +273,7 @@ export default class GenericDropdown extends Component {
     });
   }
 
-  get menu(): ?Element {
+  get menu(): ?Element<*> {
     if (!this.state.open) {
       return;
     }

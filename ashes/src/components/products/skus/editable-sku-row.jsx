@@ -37,7 +37,7 @@ type Props = {
   onDeleteClick: (id: string) => void,
   isFetchingSkus: boolean,
   variantsSkusIndex: Object,
-  suggestSkus: (code: string, context?: SuggestOptions) => Promise,
+  suggestSkus: (code: string, context?: SuggestOptions) => Promise<*>,
   suggestedSkus: Array<SearchViewSku>,
   variants: Array<any>,
 };
@@ -136,7 +136,7 @@ class EditableSkuRow extends Component {
   }
 
   @autobind
-  priceCell(sku: Sku, field: string): Element {
+  priceCell(sku: Sku, field: string): Element<*> {
     const value = _.get(this.state.sku, [field, 'value']) || _.get(sku, ['attributes', field, 'v', 'value']);
     const currency = _.get(sku, ['attributes', field, 'v', 'currency'], 'USD');
     const onChange = (value) => this.handleUpdatePrice(field, value, currency);
@@ -148,7 +148,7 @@ class EditableSkuRow extends Component {
   }
 
   @autobind
-  upcCell(sku: Sku): Element {
+  upcCell(sku: Sku): Element<*> {
     const value = this.state.sku.upc || _.get(sku, 'attributes.upc.v');
     return (
       <FormField>
@@ -161,7 +161,7 @@ class EditableSkuRow extends Component {
     return skuId(this.props.sku);
   }
 
-  suggestSkus(text: string): Promise|void {
+  suggestSkus(text: string): Promise<*>|void {
     return this.props.suggestSkus(text, {
       context: this.props.skuContext
     });
@@ -184,7 +184,7 @@ class EditableSkuRow extends Component {
     }, callback);
   }
 
-  get menuEmptyContent(): Element {
+  get menuEmptyContent(): Element<*> {
     return (
       <li
         id="create-new-sku-item"
@@ -197,7 +197,7 @@ class EditableSkuRow extends Component {
     );
   }
 
-  get menuItemsContent(): Array<Element> {
+  get menuItemsContent(): Array<Element<*>> {
     const items = this.props.suggestedSkus;
 
     return items.map((sku: SearchViewSku) => {
@@ -213,7 +213,7 @@ class EditableSkuRow extends Component {
     });
   }
 
-  get skusMenu(): Element {
+  get skusMenu(): Element<*> {
     const content = _.isEmpty(this.props.suggestedSkus) ? this.menuEmptyContent : this.menuItemsContent;
     const openMenu =
       this.state.isMenuVisible && this.skuCodeValue.length > 0 && !this.props.isFetchingSkus;
@@ -232,7 +232,7 @@ class EditableSkuRow extends Component {
     return this.state.sku.code || code || '';
   }
 
-  skuCell(sku: Sku): Element {
+  skuCell(sku: Sku): Element<*> {
     const code = _.get(this.props, 'sku.attributes.code.v');
     const { codeError } = this.state;
     const error = codeError ? `SKU Code violates constraint: ${codeError.keyword}` : void 0;
@@ -254,7 +254,7 @@ class EditableSkuRow extends Component {
     );
   }
 
-  imageCell(sku: Sku): Element {
+  imageCell(sku: Sku): Element<*> {
     const imageObject = _.get(sku, ['albums', 0, 'images', 0]);
 
     if (!_.isEmpty(imageObject)) {
@@ -270,7 +270,7 @@ class EditableSkuRow extends Component {
     );
   }
 
-  variantCell(field: any, sku: Sku): ?Element {
+  variantCell(field: any, sku: Sku): ?Element<*> {
     if (field.indexOf('variant') < 0) {
       return null;
     }
@@ -290,7 +290,7 @@ class EditableSkuRow extends Component {
     );
   }
 
-  actionsCell(sku: Sku): ?Element {
+  actionsCell(sku: Sku): ?Element<*> {
     const skuCode = sku.feCode || _.get(sku.attributes, 'code.v');
     const skuValue = this.skuCodeValue;
 
@@ -364,7 +364,7 @@ class EditableSkuRow extends Component {
     });
   }
 
-  render(): Element {
+  render() {
     const { columns, sku, params } = this.props;
 
     return (

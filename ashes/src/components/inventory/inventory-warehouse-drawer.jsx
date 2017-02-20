@@ -24,6 +24,7 @@ type Props = {
   data: {
     rows: Array<StockItemFlat>
   },
+  counterId: string,
 }
 
 class WarehouseDrawer extends Component {
@@ -40,7 +41,7 @@ class WarehouseDrawer extends Component {
   }
 
   @autobind
-  renderRow(row: StockItemFlat): Element {
+  renderRow(row: StockItemFlat): Element<*> {
     const { state } = this;
 
     const handleChangeQuantity = (diff: number) => {
@@ -49,12 +50,14 @@ class WarehouseDrawer extends Component {
 
     const uniqId = `${row.type}-${row.id}`;
     const rowId = row.type.toLowerCase();
+    const counterId = `${rowId}-counter`;
 
     return (
       <TableRow id={rowId} key={uniqId}>
         <td>{row.type}</td>
         <td>
           <AdjustQuantity
+            counterId={counterId}
             value={row.onHand}
             onChange={handleChangeQuantity}
             isPopupShown={state.popupOpenedFor === uniqId}

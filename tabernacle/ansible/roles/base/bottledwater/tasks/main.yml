@@ -1,0 +1,86 @@
+---
+
+- name: Install Bottledwater Packages
+  apt: name={{item}} state=latest force=yes
+  with_items:
+    - make
+    - jq
+    - debconf-utils
+    - cmake
+    - build-essential
+    - libpq-dev
+    - libcurl4-openssl-dev
+    - libjansson-dev
+    - pkg-config
+    - librdkafka-dev
+    - libsnappy-dev
+
+- name: Get Avro
+  get_url: url={{avro_url}} dest="{{home}}/{{avro_name}}.tar.gz"
+
+- name: Unzip Avro
+  unarchive: src="{{home}}/{{avro_name}}.tar.gz" dest="{{home}}/" copy=no
+  args:
+    creates: "{{avro_dir}}"
+
+- name: Make Avro Build Dir
+  file: path="{{avro_dir}}/build" state=directory
+
+- name: Run CMake for Avro
+  shell: cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_BUILD_TYPE=RelWithDebInfo
+  args:
+    chdir: "{{avro_dir}}/build"
+
+- name: Compile and Install Avro
+  shell: make && make test && make install && ldconfig
+  args:
+    chdir: "{{avro_dir}}/build"
+
+- name: Setup Libsnappy
+  copy: src=libsnappy.pc dest=/usr/local/lib/pkgconfig/libsnappy.pc
+
+- name: Get Bottledwater
+  git: repo={{bottledwater_repo}} dest={{bottledwater_dir}} version={{bottledwater_version}}
+
+- name: Make and Install BottledWater
+  shell: make && make install
+  args:
+    chdir: "{{bottledwater_dir}}"
+
+- name: Symlink Bottledwater Executable
+  file: src="{{bottledwater_dir}}/kafka/bottledwater" dest="/usr/local/bin/bottledwater" state=link
+
+- name: Copy Bottledwater Run Files
+  template: src=run_bottledwater.sh dest="/usr/local/bin/run_bottledwater_{{item.name}}.sh" mode="u+x,g+x,o+x"
+  with_items:
+    - { name: phoenix, db_connection_string: "{{phoenix_db_connection_string}}", slot: "{{bottledwater_slot_phoenix}}" }
+    - { name: middlewarehouse, db_connection_string: "{{middlewarehouse_db_connection_string}}", slot: "{{bottledwater_slot_middlewarehouse}}" }
+    - { name: marketplace, db_connection_string: "{{marketplace_db_connection_string}}", slot: "{{bottledwater_slot_marketplace}}" }
+  when: item.name != 'marketplace' or with_marketplace
+
+- name: Copy Bottledwater Services
+  template: src=bottledwater.service dest="{{dest_services}}/bottledwater_{{item}}.service"
+  with_items:
+    - phoenix
+    - middlewarehouse
+    - marketplace
+  when: item != 'marketplace' or with_marketplace
+
+- name: Reload Systemd for Bottledwater
+  command: systemctl daemon-reload
+
+- name: Start Bottledwater
+  service: name=bottledwater_{{item}} state=started enabled=yes
+  with_items:
+    - phoenix
+    - middlewarehouse
+    - marketplace
+  when: item != 'marketplace' or with_marketplace
+
+- name: Copy Bottledwater Consul Service
+  template: src=bottledwater.json dest="/etc/consul.d/bottledwater_{{item}}.json"
+  with_items:
+    - phoenix
+    - middlewarehouse
+    - marketplace
+  when: item != 'marketplace' or with_marketplace

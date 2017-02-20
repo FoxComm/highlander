@@ -61,7 +61,7 @@ export default class Promotions extends Component {
     return this.props.actions.addSearchFilters(filterArchived(filters), initial);
   }
 
-  renderRow(row: Object, index: number, columns: Array<any>, params: any): Element {
+  renderRow(row: Object, index: number, columns: Array<any>, params: any): Element<*> {
     const key = `promotion-${row.id}`;
     return (
       <PromotionRow
@@ -73,7 +73,7 @@ export default class Promotions extends Component {
     );
   }
 
-  render(): Element {
+  render() {
     const {list, actions} = this.props;
 
     const searchActions = {

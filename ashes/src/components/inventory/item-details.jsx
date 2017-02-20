@@ -24,7 +24,7 @@ const mapStateToProps = (state, props) => ({
 type Props = {
   inventoryDetails: WarehouseInventoryMap,
   params: Object,
-  fetchSummary: (skuCode: string) => Promise,
+  fetchSummary: (skuCode: string) => Promise<*>,
   fetchState: {
     inProgress?: boolean,
     err?: any,

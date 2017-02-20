@@ -103,9 +103,7 @@ object Dependencies {
     "io.backchat.inflector" %% "scala-inflector"        % "1.3.5",
     "com.github.tototoshi"  %% "scala-csv"              % "1.3.3",
     "org.typelevel"         %% "cats"                   % "0.7.2",
-    "com.orbitz.consul"   % "consul-client" % "0.13.10"
+    "com.orbitz.consul"   % "consul-client" % "0.13.10",
+    "com.github.melrief"    %% "pureconfig"             % "0.5.1"
   )
-
-  private lazy val noScalaCheck = ExclusionRule(organization = "org.scalacheck")
-
 }

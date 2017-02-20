@@ -77,7 +77,7 @@ export class Payments extends Component {
   }
 
 
-  render(): Element {
+  render() {
     const { cart, id, status } = this.props;
     const { paymentMethods } = cart;
 
@@ -107,7 +107,8 @@ export class Payments extends Component {
         indentContent={false}
         isEditing={this.state.isEditing}
         editAction={this.startEdit}
-        editButtonId="payment-methods-edit-btn"
+        editButtonId="payment-method-edit-btn"
+        doneButtonId="payment-method-done-btn"
         editingActions={this.editingActions}
         doneAction={this.completeEdit}
         editContent={content}

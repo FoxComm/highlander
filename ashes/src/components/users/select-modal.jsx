@@ -14,8 +14,8 @@ type Props = {
   isVisible: boolean,
   onCancel: (event: SyntheticEvent) => void,
   onConfirm: (users: Array<TUser>) => void,
-  title: string|Element,
-  bodyLabel: string|Element,
+  title: string|Element<*>,
+  bodyLabel: string|Element<*>,
   saveLabel: string,
   maxUsers?: number,
 }

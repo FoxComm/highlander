@@ -1,0 +1,16 @@
+---
+
+- name: Remove DPKG Lock
+  file: path=/var/lib/dpkg/lock state=absent
+
+- name: Remove Unattended Upgrades
+  apt: name=unattended-upgrades state=absent
+
+- name: Remove Daily Apt
+  file: path=/etc/cron.daily/apt-compat state=absent
+
+- name: Override Mesos Worker Script
+  template: src=run_mesos_worker.sh dest=/usr/local/bin mode="u+x,g+x,o+x" force=yes
+
+- name: Copy Mesos Resources Config
+  template: src=resources.json dest=/var/lib/mesos/resources.json mode="u+r,g+r,o+r"

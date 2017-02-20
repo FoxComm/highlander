@@ -1,0 +1,16 @@
+---
+
+- name: Download Zipkin
+  get_url: url={{zipkin_url}} dest=/usr/local/lib/zipkin.jar
+
+- name: Copy Zipkin Service File
+  template: src=zipkin.service dest={{dest_services}}
+
+- name: Reload Systemd for Kafka Related Services
+  command: systemctl daemon-reload
+
+- name: Start Zipkin Services
+  service: name=zipkin state=started enabled=yes
+
+- name: Copy Consul Service Files
+  template: src=zipkin.json dest=/etc/consul.d
