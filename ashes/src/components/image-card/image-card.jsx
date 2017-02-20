@@ -63,7 +63,7 @@ export default class ImageCard extends Component {
     }, 100);
   }
 
-  get actions(): ?Element {
+  get actions(): ?Element<*> {
     const { actions } = this.props;
 
     if (_.isEmpty(actions)) {
@@ -81,7 +81,7 @@ export default class ImageCard extends Component {
     );
   }
 
-  get description(): ?Element {
+  get description(): ?Element<*> {
     let { title, secondaryTitle, src } = this.props;
 
     if (!title) {
@@ -96,7 +96,7 @@ export default class ImageCard extends Component {
     );
   }
 
-  render(): Element {
+  render() {
     const { id, src, loading, className } = this.props;
 
     const cls = classNames(styles.card, {

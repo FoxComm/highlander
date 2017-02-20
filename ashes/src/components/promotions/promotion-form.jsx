@@ -86,7 +86,7 @@ export default class PromotionForm extends ObjectDetails {
     this.refs.applyTypeField.validate();
   }
 
-  renderState(): ?Element {
+  renderState(): ?Element<*> {
     const applyType = this.props.object.applyType;
     if (applyType == 'coupon') {
       return null;

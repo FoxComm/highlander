@@ -2,7 +2,7 @@
 
 - include_vars: ../../../base/db/vars/main.yml
 
-- include: ../../../base/db/tasks/flyway_install.yml
+- include: ../../../base/db/tasks/flyway.yml
   when: download_flyway
 
 - name: Synchronize Middlewarehouse SQL

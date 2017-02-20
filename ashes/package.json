@@ -132,7 +132,7 @@
     "eslint": "^3.4.0",
     "eslint-plugin-lodash-fp": "^2.0.1",
     "eslint-plugin-react": "^6.2.0",
-    "flow-bin": "0.26.0",
+    "flow-bin": "0.39.0",
     "gulp": "^3.9.0",
     "gulp-concat": "^2.6.0",
     "gulp-cssnano": "^2.1.2",

@@ -3,7 +3,7 @@
 // libs
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
-import React, { Component, Element } from 'react';
+import React, { Component } from 'react';
 
 // components
 import { ModalContainer } from '../modal/base';
@@ -30,7 +30,7 @@ class EditImage extends Component {
     alt: this.props.image.alt,
   };
 
-  get closeAction(): Element {
+  get closeAction() {
     return <a onClick={this.props.onCancel}>&times;</a>;
   }
 
@@ -45,7 +45,7 @@ class EditImage extends Component {
     this.props.onSave(this.state);
   }
 
-  render(): Element {
+  render() {
     const saveDisabled = _.isEmpty(this.state.title);
 
     return (

@@ -21,14 +21,14 @@ import type { Sku } from 'modules/skus/details';
 type Props = {
   actions: {
     skuNew: () => void,
-    fetchSku: (code: string, context?: string) => Promise,
-    createSku: (sku: Sku, context?: string) => Promise,
-    updateSku: (sku: Sku, context?: string) => Promise,
-    archiveSku: (code: string, context?: string) => Promise,
+    fetchSku: (code: string, context?: string) => Promise<*>,
+    createSku: (sku: Sku, context?: string) => Promise<*>,
+    updateSku: (sku: Sku, context?: string) => Promise<*>,
+    archiveSku: (code: string, context?: string) => Promise<*>,
   },
   params: { skuCode: string },
   originalObject: Sku,
-  children: Element,
+  children: Element<*>,
 };
 
 class SkuPage extends ObjectPage {

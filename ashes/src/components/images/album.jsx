@@ -24,13 +24,13 @@ export type Props = {
   loading: boolean;
   position: number;
   albumsCount: number;
-  upload: (files: Array<ImageFile>) => Promise;
-  editImage: (idx: number, info: ImageInfo) => Promise;
-  deleteImage: (idx: number) => Promise;
-  editAlbum: (album: TAlbum) => Promise;
-  moveAlbum: (position: number) => Promise;
-  archiveAlbum: (id: number) => Promise;
-  fetchAlbums: () => Promise;
+  upload: (files: Array<ImageFile>) => Promise<*>;
+  editImage: (idx: number, info: ImageInfo) => Promise<*>;
+  deleteImage: (idx: number) => Promise<*>;
+  editAlbum: (album: TAlbum) => Promise<*>;
+  moveAlbum: (position: number) => Promise<*>;
+  archiveAlbum: (id: number) => Promise<*>;
+  fetchAlbums: () => Promise<*>;
 };
 
 type State = {
@@ -133,7 +133,7 @@ export default class Album extends Component {
     this.props.moveAlbum(position);
   }
 
-  get editAlbumDialog(): ?Element {
+  get editAlbumDialog(): ?Element<*> {
     const { album, loading } = this.props;
 
     return (
@@ -147,7 +147,7 @@ export default class Album extends Component {
     );
   }
 
-  get archiveAlbumDialog(): ?Element {
+  get archiveAlbumDialog(): ?Element<*> {
     const album = this.props.album;
 
     const body = (
@@ -184,7 +184,7 @@ export default class Album extends Component {
     ];
   }
 
-  render(): Element {
+  render() {
     const { album, position, albumsCount, loading } = this.props;
 
     const albumContent = (
@@ -237,7 +237,7 @@ export default class Album extends Component {
   }
 
   @autobind
-  renderTitle(title: string, count: number): Element {
+  renderTitle(title: string, count: number): Element<*> {
     return (
       <span>
         <span className={styles.albumTitleText}>{title}</span>

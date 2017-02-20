@@ -4,7 +4,7 @@
   template: src={{app_template_path}} dest=/tmp
 
 - name: Kill Application Tasks in Marathon
-  shell: 'curl -sS -XDELETE http://{{marathon_server}}/v2/apps/{{app_name_marathon}}/tasks'
+  shell: 'curl -sS -XDELETE http://{{marathon_server}}/v2/apps/{{app_name_marathon}}/tasks?scale=true'
 
 - name: Pause for a bit...
   pause: seconds=15

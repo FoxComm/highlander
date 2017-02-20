@@ -6,9 +6,3 @@
 
 [sinopia]
 10.240.0.37
-
-[kangaroos]
-10.240.0.21
-
-[feature-branch-returns]
-10.240.0.12

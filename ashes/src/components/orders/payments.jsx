@@ -17,7 +17,7 @@ type Props = {
 export default class Payments extends React.Component {
   props: Props;
 
-  render(): Element {
+  render() {
     const { order } = this.props.details;
     const { paymentMethods } = order;
 
