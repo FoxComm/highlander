@@ -51,8 +51,8 @@ begin
 end;
 $$ language plpgsql;
 
-drop trigger if exists update_ccustomers_ranking_from_orders_trigger on orders;
-create trigger update_ccustomers_ranking_from_orders_trigger
+drop trigger if exists update_customers_ranking_from_orders_trigger on orders;
+create trigger update_customers_ranking_from_orders_trigger
     after insert or update on orders
     for each row
     execute procedure update_customers_ranking();
