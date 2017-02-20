@@ -23,10 +23,6 @@ destroy:
 update-app:
 	cd tabernacle && ansible-playbook -v -i bin/envs/dev ansible/goldrush_update_app.yml
 
-# Legacy commands
-migrate: prepare
-	@awk '{ printf "\nexport GOOGLE_INSTANCE_NAME=%s", $$1 }' .vagrant/machines/appliance/google/id >> .env.local
-
 provision: up
 
 .PHONY: up migrate provision destroy update-app dotenv prepare clean

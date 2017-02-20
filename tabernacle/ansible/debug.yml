@@ -1,7 +1,7 @@
 ---
 
 - name: Debug Playbook
-  hosts: api-docs
+  hosts: feature-branch-returns-consul-server
   become: true
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
