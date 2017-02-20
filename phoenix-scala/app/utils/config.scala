@@ -16,7 +16,6 @@ sealed trait Environment {
   def isProd: Boolean = false
 }
 object Environment {
-  case object Test        extends Environment
   case object Development extends Environment
   case object Staging     extends Environment
   case object Production extends Environment {
@@ -27,7 +26,6 @@ object Environment {
 
   implicit lazy val default: Environment =
     sys.props.get("phoenix.env").orElse(sys.env.get("PHOENIX_ENV")) match {
-      case Some("test")       ⇒ Test
       case Some("staging")    ⇒ Staging
       case Some("production") ⇒ Production
       case _                  ⇒ Development
@@ -142,9 +140,12 @@ object FoxConfig extends StrictLogging {
   val admin: Lens[Users, User]             = lens[Users].admin
   val googleOauth: Lens[User, GoogleOauth] = lens[User].oauth.google
 
+  def loadConfigWithEnv()(implicit env: Environment): Try[(FoxConfig, Config)] =
+    for {
+      underlying ← Try(loadBareConfigWithEnv())
+      config     ← loadConfig[FoxConfig](underlying)
+    } yield (config, underlying)
+
   // impure, but throwing an exception is exactly what we want here
-  val (config, unsafe) = (for {
-    underlying ← Try(loadBareConfigWithEnv())
-    config     ← loadConfig[FoxConfig](underlying)
-  } yield (config, underlying)).get
+  val (config, unsafe) = loadConfigWithEnv().get
 }
