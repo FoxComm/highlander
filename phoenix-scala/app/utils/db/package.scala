@@ -43,12 +43,23 @@ package object db {
     def fromDbio[A](fa: DBIO[A])(implicit M: Monad[DBIO]): FoxyTDBIO[A] = // TODO: remove me @michalrus
       fromF(fa)
     def fromResultT[A](ga: FoxyT[Future, A]): FoxyT[DBIO, A] = // TODO: better name? @michalrus
+      // Don’t remove type annotation below, or the compiler will crash. 🙄
       ga.transformF(gga ⇒ XorT(DBIO.from(gga.value): DBIO[A])) // TODO: use FunctionK for functor changes? Future[_] → DBIO[_] here
   }
 
   implicit class EnrichedFoxyT[F[_], A](fa: FoxyT[F, A]) {
-    def flatMapXor[B](f: Xor[Failures, A] ⇒ FoxyT[F, B]): FoxyT[F, B] =
-      ??? // FIXME: implement // TODO: remove me? @michalrus
+    def flatMapXor[B](f: Xor[Failures, A] ⇒ FoxyT[F, B])(implicit F: Monad[F]): FoxyT[F, B] = // TODO: remove me @michalrus
+      fa.transformF { fsa ⇒
+        XorT(F.flatMap(fsa.value) { xs ⇒
+          val res = f(xs.map(_._2))
+          xs.map(_._1) match {
+            case Xor.Left(failures) ⇒
+              res.runEmpty.value // Really? Forgetting warnings in case of previous failure. @michalrus
+            case Xor.Right(s) ⇒ res.run(s).value
+          }
+        })
+      }
+
     def mapXor[B](f: Xor[Failures, A] ⇒ Xor[Failures, B])(implicit F: Monad[F]): FoxyT[F, B] = // TODO: remove me? @michalrus
       fa.transformF { fsa ⇒ // FIXME: this (or usage in CustomerDynamicGroupQualifier) seems to be crashing compiler with scala.reflect.internal.Types$NoCommonType: lub/glb of incompatible types: [_] and  <: slick.dbio.NoStream
         XorT(F.map(fsa.value)(xsa ⇒
@@ -57,17 +68,48 @@ package object db {
             s ← xsa.map(_._1)
           } yield (s, b)))
       }
-    def mapXorRight[B](f: Xor[Failures, A] ⇒ B): FoxyT[F, B] =
+
+    def mapXorRight[B](f: Xor[Failures, A] ⇒ B)(implicit M: Monad[F]): FoxyT[F, B] =
       mapXor(xa ⇒ Xor.Right(f(xa))) // TODO: remove me? @michalrus
-    def fold[B](fa: Failures ⇒ B, fb: A ⇒ B): FoxyT[F, B] =
-      ??? // FIXME: implement
-    def recoverWith(pf: PartialFunction[Failure, FoxyT[F, A]]): FoxyT[F, A] =
-      ??? // FIXME: implement // (this one is actually useful)
-    def recover(pf: PartialFunction[Failure, A]): FoxyT[F, A] =
-      ??? // FIXME: implement // (this one is actually useful)
+
+    def fold[B](ra: Failures ⇒ B, rb: A ⇒ B)(implicit M: Monad[F]): FoxyT[F, B] = // TODO: this is not fold… Find a better name? @michalrus
+      fa.mapXor {
+        case Xor.Left(a)  ⇒ Xor.Right(ra(a))
+        case Xor.Right(b) ⇒ Xor.Right(rb(b))
+      }
+
+    def recoverWith(pf: PartialFunction[Failures, FoxyT[F, A]])(
+        implicit F: Monad[F]): FoxyT[F, A] =
+      fa.flatMapXor {
+        case Xor.Left(a) if pf.isDefinedAt(a) ⇒ pf(a)
+        case x                                ⇒ new FoxyTOps[F] {}.fromXor(x)
+      }
+
+    def recover(pf: PartialFunction[Failures, A])(implicit F: Monad[F]): FoxyT[F, A] =
+      fa.mapXor {
+        case Xor.Left(a) if pf.isDefinedAt(a) ⇒ Xor.Right(pf(a))
+        case x                                ⇒ x
+      }
+
     def meh(implicit M: Monad[F]): FoxyT[F, Unit] = for (_ ← fa) yield {}
-    def failuresToWarnings(pf: PartialFunction[Failure, Boolean]): FoxyT[F, A] =
-      ??? // FIXME: implement
+
+    def failuresToWarnings(pf: PartialFunction[Failure, Boolean])(
+        implicit F: Monad[F]): FoxyT[F, Unit] = {
+      val FoxyTF = new FoxyTOps[F] {}
+      fa.flatMapXor {
+        case Xor.Left(fs) ⇒
+          val lpf                  = pf.lift
+          val (warnings, failures) = fs.toList.partition(lpf(_) == Some(true))
+          failures match {
+            case h :: t ⇒
+              // We don’t care about warnings when there’re failures.
+              FoxyTF.failures[Unit](NonEmptyList(h, t))
+            case Nil ⇒
+              warnings.traverse(FoxyTF.warning).map(_ ⇒ ())
+          }
+        case _ ⇒ FoxyTF.pure(())
+      }
+    }
   }
 
   trait FoxyTOps[F[_]] {
