@@ -119,10 +119,26 @@ existing settings. We also need general Fox commerce related settings available.
     \addrow{Precondition}{Tenant has login credentials and has permissions to add a settings group}
     \addrow{Postcondition}{Settings group is added and is available for other admins to edit.}
     \addmulrow{Main Path}{
+        \item Admin can add a settings group at the tenant level using an API
+        \item They can define setting keys and their types. Types influence how
+              the settings are represented in the UI.
+        \item They can do CRUD operations on the group via the API.
+     }
+    \addrow{Alternate Path}{The setting group already exists, they can instead use CRUD API to modify.}
+\end{usecase}
+
+\subsection{User Settings}
+
+\begin{usecase}{User Edits Their Settings}
+    \addrow{Actor}{Admin}
+    \addrow{Precondition}{Admin is logged in and has permission to see their own settings}
+    \addrow{Postcondition}{Settings are modified}
+    \addmulrow{Main Path}{
         \item Admin can go to settings tab and see settings arranged in some grouping.
-        \item They click on button to add an integration.
-        \item They are presented with a list of integrations not already added.
-        \item They can then go through the ``Configuring Settings For an Integration" use case.
+        \item The first settings groups are settings specific to them.
+        \item They can modify any settings in their own groups.
+        \item In addition to their settings, if they have permission they can modify 
+            tenant and integration settings.
      }
     \addrow{Alternate Path}{They don't want to change any settings, they can leave the screen}
 \end{usecase}
