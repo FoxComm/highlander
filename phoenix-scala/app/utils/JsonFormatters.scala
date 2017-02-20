@@ -49,7 +49,7 @@ object JsonFormatters {
   object LTreeFormat
       extends CustomSerializer[LTree](format ⇒
             ({
-          case JString(s)  ⇒ LTree(s)
-          case JNull       ⇒ LTree("")
+          case JString(s)      ⇒ LTree(s)
+          case JNull           ⇒ LTree("")
         }, { case value: LTree ⇒ JString(value.toString) }))
 }

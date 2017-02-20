@@ -2,12 +2,11 @@ package services.promotion
 
 import java.time.Instant
 
-import com.github.tminglei.slickpg.LTree
 import failures.NotFoundFailure404
 import failures.ObjectFailures._
 import failures.PromotionFailures._
-import models.coupon.Coupons
 import models.account._
+import models.coupon.Coupons
 import models.discount._
 import models.objects.ObjectUtils._
 import models.objects._
@@ -51,7 +50,7 @@ object PromotionManager {
       discount ← * <~ createDiscounts(context, payload, ins.shadow)
       response = PromotionResponse
         .build(context, promotion, ins.form, ins.shadow, discount.forms.zip(discount.shadows))
-      _ ← * <~ LogActivity().promotionCreated(response, admin)
+      _ ← * <~ LogActivity().withScope(scope).promotionCreated(response, admin)
     } yield response
   }
 

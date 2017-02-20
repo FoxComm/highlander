@@ -80,6 +80,7 @@ object ProductManager {
           variantResponses,
           taxons)
       _ ← * <~ LogActivity()
+           .withScope(scope)
            .fullProductCreated(Some(admin), response, ObjectContextResponse.build(oc))
     } yield response
 

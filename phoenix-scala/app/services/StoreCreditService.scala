@@ -82,7 +82,7 @@ object StoreCreditService {
                                    subTypeId = payload.subTypeId,
                                    currency = payload.currency,
                                    originalBalance = payload.amount))
-      _ ← * <~ LogActivity().scCreated(admin, customer, storeCredit)
+      _ ← * <~ LogActivity().withScope(storeCredit.scope).scCreated(admin, customer, storeCredit)
     } yield build(storeCredit)
   }
 
@@ -107,7 +107,7 @@ object StoreCreditService {
                                    subTypeId = payload.subTypeId,
                                    originalBalance = payload.amount,
                                    scope = scope))
-      _ ← * <~ LogActivity().scCreated(admin, customer, storeCredit)
+      _ ← * <~ LogActivity().withScope(scope).scCreated(admin, customer, storeCredit)
     } yield build(storeCredit)
 
   def getById(id: Int)(implicit ec: EC, db: DB): DbResultT[Root] =

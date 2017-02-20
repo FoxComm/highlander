@@ -10,7 +10,6 @@ import responses.CategoryResponses._
 import responses.ObjectResponses.ObjectContextResponse
 import services.LogActivity
 import slick.driver.PostgresDriver.api._
-import com.github.tminglei.slickpg.LTree
 import utils.aliases._
 import utils.db._
 
@@ -52,6 +51,7 @@ object CategoryManager {
       category ← * <~ Categories.create(Category.build(scope, context.id, insert))
       response = FullCategoryResponse.build(category, insert.form, insert.shadow)
       _ ← * <~ LogActivity()
+           .withScope(scope)
            .fullCategoryCreated(Some(admin), response, ObjectContextResponse.build(context))
     } yield response
 

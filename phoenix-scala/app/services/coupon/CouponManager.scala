@@ -44,7 +44,7 @@ object CouponManager {
                          commitId = ins.commit.id,
                          promotionId = payload.promotion))
       response = CouponResponse.build(context, coupon, ins.form, ins.shadow)
-      _ ← * <~ LogActivity().couponCreated(response, admin)
+      _ ← * <~ LogActivity().withScope(scope).couponCreated(response, admin)
     } yield response
   }
 
