@@ -1,12 +1,10 @@
 import java.time.Instant
 
-import akka.http.scaladsl.model.StatusCodes
 import failures.{GeneralFailure, NotFoundFailure404}
 import models._
 import models.returns._
 import payloads.NotePayloads._
 import responses.AdminNotes
-import services.notes.ReturnNoteManager
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
@@ -22,16 +20,16 @@ class ReturnNotesIntegrationTest
     with TestActivityContext.AdminAC
     with BakedFixtures {
 
-  def api(ref: String) = notesApi.returns(ref)
+  private[this] def api(ref: String) = notesApi.returns(ref)
 
   "Return Notes" - {
     "POST /v1/notes/return/:code" - {
       "can be created for return" in new Fixture {
-        val note =
+        val noteCreated =
           api(rma.refNum).create(CreateNote(body = "Hello, FoxCommerce!")).as[AdminNotes.Root]
 
-        note.body must === ("Hello, FoxCommerce!")
-        note.author must === (AdminNotes.buildAuthor(storeAdmin))
+        noteCreated.body must === ("Hello, FoxCommerce!")
+        noteCreated.author must === (AdminNotes.buildAuthor(storeAdmin))
       }
 
       "returns a validation error if failed to create" in new Fixture {
@@ -49,8 +47,8 @@ class ReturnNotesIntegrationTest
     "GET /v1/notes/return/:code" - {
 
       "can be listed" in new Fixture {
-        val createNotes = List("abc", "123", "xyz").map { body ⇒
-          api(rma.refNum).create(CreateNote(body = body))
+        List("abc", "123", "xyz").foreach { body ⇒
+          api(rma.refNum).create(CreateNote(body = body)).mustBeOk()
         }
 
         val notes = api(rma.refNum).get().as[Seq[AdminNotes.Root]]
@@ -62,12 +60,12 @@ class ReturnNotesIntegrationTest
     "PATCH /v1/notes/return/:code/:noteId" - {
 
       "can update the body text" in new Fixture {
-        val rootNote =
+        val noteCreated =
           api(rma.refNum).create(CreateNote(body = "Hello, FoxCommerce!")).as[AdminNotes.Root]
 
-        private val updateNote = UpdateNote(body = "donkey")
-        val note               = api(rma.refNum).note(rootNote.id).update(updateNote).as[AdminNotes.Root]
-        note.body must === (updateNote.body)
+        val updateNote = UpdateNote(body = "donkey")
+        api(rma.refNum).note(noteCreated.id).update(updateNote).as[AdminNotes.Root].body must === (
+            updateNote.body)
       }
     }
 
@@ -77,9 +75,7 @@ class ReturnNotesIntegrationTest
         val note =
           api(rma.refNum).create(CreateNote(body = "Hello, FoxCommerce!")).as[AdminNotes.Root]
 
-        val deleteResponse = api(rma.refNum).note(note.id).delete()
-        deleteResponse.status must === (StatusCodes.NoContent)
-        deleteResponse.bodyText mustBe empty
+        api(rma.refNum).note(note.id).delete().mustBeEmpty()
 
         val updatedNote = Notes.findOneById(note.id).run().futureValue.value
         updatedNote.deletedBy.value must === (1)
