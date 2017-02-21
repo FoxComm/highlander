@@ -23,6 +23,7 @@ import utils.seeds.Seeds.Factories
 import cats.implicits._
 import models.Reason.Cancellation
 import models.shipping.ShippingMethods
+import scala.util.Random
 
 class ReturnIntegrationTest
     extends IntegrationTestBase
@@ -333,11 +334,13 @@ class ReturnIntegrationTest
           .value
           .amount must === (42)
 
-        val response = returnsApi(rma.referenceNumber).lineItems
+        returnsApi(rma.referenceNumber).lineItems
           .add(shippingCostPayload.copy(amount = 25))
           .as[ReturnResponse.Root]
-
-        response.lineItems.shippingCosts.value.amount must === (25)
+          .lineItems
+          .shippingCosts
+          .value
+          .amount must === (25)
       }
 
       "fails if refNum is not found" in new LineItemFixture {
@@ -376,7 +379,7 @@ class ReturnIntegrationTest
         returnsApi(rma.referenceNumber).lineItems
           .add(payload)
           .mustFailWith400(ReturnShippingCostExceeded(rma.referenceNumber,
-                                                      amount = shippingCostPayload.amount + 666,
+                                                      amount = payload.amount,
                                                       maxAmount = orderShippingMethod.price))
       }
     }
@@ -395,9 +398,11 @@ class ReturnIntegrationTest
           .value
           .lineItemId
 
-        val response =
-          returnsApi(rma.referenceNumber).lineItems.remove(lineItemId).as[ReturnResponse.Root]
-        response.lineItems.giftCards mustBe 'empty
+        returnsApi(rma.referenceNumber).lineItems
+          .remove(lineItemId)
+          .as[ReturnResponse.Root]
+          .lineItems
+          .giftCards mustBe 'empty
       }
 
       "successfully deletes shipping cost line item" in new LineItemFixture {
@@ -410,9 +415,11 @@ class ReturnIntegrationTest
           .value
           .lineItemId
 
-        val response =
-          returnsApi(rma.referenceNumber).lineItems.remove(lineItemId).as[ReturnResponse.Root]
-        response.lineItems.shippingCosts mustBe 'empty
+        returnsApi(rma.referenceNumber).lineItems
+          .remove(lineItemId)
+          .as[ReturnResponse.Root]
+          .lineItems
+          .shippingCosts mustBe 'empty
       }
 
       "successfully deletes SKU line item" in new LineItemFixture {
@@ -425,9 +432,11 @@ class ReturnIntegrationTest
           .value
           .lineItemId
 
-        val response =
-          returnsApi(rma.referenceNumber).lineItems.remove(lineItemId).as[ReturnResponse.Root]
-        response.lineItems.skus mustBe 'empty
+        returnsApi(rma.referenceNumber).lineItems
+          .remove(lineItemId)
+          .as[ReturnResponse.Root]
+          .lineItems
+          .skus mustBe 'empty
       }
 
       "fails if refNum is not found" in new LineItemFixture {

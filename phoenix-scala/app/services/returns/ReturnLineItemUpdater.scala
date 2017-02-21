@@ -46,11 +46,12 @@ object ReturnLineItemUpdater {
     ??? // TODO add gift card handling
 
   private def validateMaxShippingCost(rma: Return, amount: Int)(implicit ec: EC,
-                                                                db: DB): DbResultT[Unit] = {
-    val maxAmount = for {
+                                                                db: DB): DbResultT[Unit] =
+    for {
       orderShippings ← * <~ OrderShippingMethods.findByOrderRef(rma.orderRef).result
       orderShippingTotal = orderShippings.map(_.price).sum
       previouslyReturned ← * <~ Returns
+                            .findByOrderRefNum(rma.orderRef)
                             .filter(_.id =!= rma.id)
                             .join(ReturnLineItemShippingCosts)
                             .on(_.id === _.returnId)
@@ -58,17 +59,12 @@ object ReturnLineItemUpdater {
       previouslyReturnedCost = previouslyReturned.map {
         case (_, shippingCost) ⇒ shippingCost.amount
       }.sum
-    } yield orderShippingTotal - previouslyReturnedCost
-
-    maxAmount.flatMap {
-      case max if amount > max ⇒
-        DbResultT.failure[Unit](
-            ReturnShippingCostExceeded(refNum = rma.referenceNumber,
-                                       amount = amount,
-                                       maxAmount = max))
-      case _ ⇒ DbResultT.pure(())
-    }
-  }
+      maxAmount = orderShippingTotal - previouslyReturnedCost
+      _ ← * <~ failIf(amount > maxAmount,
+                       ReturnShippingCostExceeded(refNum = rma.referenceNumber,
+                                                  amount = amount,
+                                                  maxAmount = maxAmount))
+    } yield ()
 
   private def addShippingCostItem(rma: Return,
                                   reason: ReturnReason,
