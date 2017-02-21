@@ -91,6 +91,6 @@ trait ItemsOffer {
   def adjustInner(input: DiscountInput)(
       search: Seq[ProductSearch])(implicit db: DB, ec: EC, es: ES, au: AU): OfferResult = {
     val inAnyOf = search.map(_.query(input).mapXor(matchXor(input)))
-    Result.onlySuccessful(inAnyOf).map(_.headOption.getOrElse(Seq.empty))
+    Result.onlySuccessful(inAnyOf.toList).map(_.headOption.getOrElse(Seq.empty))
   }
 }

@@ -63,11 +63,13 @@ package object db {
       }
 
     def mapXor[B](f: Xor[Failures, A] ⇒ Xor[Failures, B])(implicit F: Monad[F]): FoxyT[F, B] = // TODO: remove me? @michalrus
-      fa.transformF { fsa ⇒ // FIXME: this (or usage in CustomerDynamicGroupQualifier) seems to be crashing compiler with scala.reflect.internal.Types$NoCommonType: lub/glb of incompatible types: [_] and  <: slick.dbio.NoStream
+      fa.transformF { fsa ⇒
         XorT(F.map(fsa.value)(xsa ⇒
                   for {
             b ← f(xsa.map(_._2))
-            s ← xsa.map(_._1)
+            s = xsa
+              .map(_._1)
+              .getOrElse(List.empty) // TODO: again, losing past warnings. Monad order? @michalrus
           } yield (s, b)))
       }
 
@@ -93,7 +95,7 @@ package object db {
         case x                                ⇒ x
       }
 
-    def meh(implicit M: Monad[F]): FoxyT[F, Unit] = for (_ ← fa) yield {}
+    def meh(implicit M: Monad[F]): FoxyT[F, Unit] = fa.void
 
     def failuresToWarnings(newValue: A)(pf: PartialFunction[Failure, Boolean])(
         implicit F: Monad[F]): FoxyT[F, A] = {
@@ -157,20 +159,25 @@ package object db {
           case _       ⇒ XorT.right(M.pure((s, ())))
       })
 
-    // FIXME: make it use cats.Foldable instead and move to FoxyTOps @michalrus
-    def sequence[A, M[X] <: TraversableOnce[X]](values: M[FoxyT[F, A]])(
-        implicit buildFrom: CanBuildFrom[M[FoxyT[F, A]], A, M[A]]): FoxyT[F, M[A]] =
-      ??? // TODO: IMPORTANT: append all Failures from Lefts in the final result, if there’s at least one Left. OfferList#adjust depends on that. And we’re not swallowing errors, then. @michalrus
-    //      values
-    //        .foldLeft(good(buildFrom(values))) { (liftedBuilder, liftedValue) ⇒
-    //          for (builder ← liftedBuilder; value ← liftedValue) yield builder += value
-    //        }
-    //        .map(_.result)
+    /** Just like ``sequence`` but—in case of a failure—unlawful, as it will join failures from all Foxies. */
+    def sequenceJoiningFailures[L[_], A](lfa: L[FoxyT[F, A]])(implicit L: TraverseFilter[L],
+                                                              F: Monad[F]): FoxyT[F, L[A]] = {
+      val FoxyTF = new FoxyTOps[F] {} // FIXME
+      L.map(lfa)(_.fold(Xor.Left(_), Xor.Right(_))).sequence.flatMap { xa ⇒
+        val failures = L.collect(xa) { case Xor.Left(f)  ⇒ f.toList }.toList.flatten
+        val values   = L.collect(xa) { case Xor.Right(a) ⇒ a }
+        NonEmptyList.fromList(failures).fold(FoxyTF.pure(values))(FoxyTF.failures(_))
+      }
+    }
 
+    /** A bit like ``sequence`` but will ignore failed Foxies. */
     // TODO: is this useful enough to have in FoxyT? @michalrus
-    def onlySuccessful[A](xs: Seq[FoxyT[F, A]])(implicit M: Monad[F]): FoxyT[F, Seq[A]] = // FIXME: get rid of explicit Seq @michalrus
+    def onlySuccessful[L[_], A](
+         xs: L[FoxyT[F, A]])(
+                            implicit L: TraverseFilter[L],
+                            M: Monad[F]): FoxyT[F, L[A]] =
       for {
-        xs ← sequence(xs.map(_.map(_.some).recover { case _ ⇒ None }))
+        xs ← xs.map(_.map(_.some).recover { case _ ⇒ None }).sequence
       } yield xs.collect { case Some(xss) ⇒ xss }
   }
 
