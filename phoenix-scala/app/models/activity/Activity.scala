@@ -98,7 +98,7 @@ object Activities
   }
 
   def logKafka(a: OpaqueActivity)(implicit context: AC, ec: EC) = {
-    val topic = "scoped_activities_topic"
+    val topic = "scoped_activities"
 
     val activityAvroSchema = """
         |{
@@ -124,6 +124,10 @@ object Activities
         |    {
         |      "name":"created_at",
         |      "type":["null","string"]
+        |    },
+        |    {
+        |      "name":"scope",
+        |      "type":["null","string"]
         |    }
         |  ]
         |}
@@ -139,11 +143,11 @@ object Activities
     avroActivityRecord.put("data", activity.data)
     avroActivityRecord.put("context", activity.context)
     avroActivityRecord.put("created_at", activity.createdAt)
+    //avroActivityRecord.put("scope", activity.scope.toString)
 
     val record = new ProducerRecord[String, GenericData.Record](topic, avroActivityRecord)
 
     kafkaProducer.send(record)
-    kafkaProducer.close()
   }
 
   def filterByType(activityType: ActivityType): QuerySeq = filter(_.activityType === activityType)
