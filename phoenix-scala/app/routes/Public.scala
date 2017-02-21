@@ -2,8 +2,6 @@ package routes
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import akka.http.scaladsl.server.directives.CookieDirectives.{setCookie ⇒ _}
-import akka.http.scaladsl.server.directives.RespondWithDirectives.{respondWithHeader ⇒ _}
 import com.github.tminglei.slickpg.LTree
 import models.Reason.reasonTypeRegex
 import payloads.CustomerPayloads.CreateCustomerPayload
