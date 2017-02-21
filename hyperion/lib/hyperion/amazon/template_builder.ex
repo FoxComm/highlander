@@ -16,7 +16,7 @@ defmodule Hyperion.Amazon.TemplateBuilder do
   end
 
   def submit_price_feed(list, opts) do
-    data = [seller_id: opts.seller_id, prices: list, parentage: opts.parentage]
+    data = [seller_id: opts.seller_id, prices: list]
     EEx.eval_string(Hyperion.Amazon.Templates.SubmitPriceFeed.template_string, data)
   end
 
@@ -35,7 +35,7 @@ defmodule Hyperion.Amazon.TemplateBuilder do
   end
 
   def clothing_category(list) do
-    EEx.eval_string(Hyperion.Amazon.Templates.Categories.Clothing.template_string, assigns: list)
+    EEx.eval_string(Hyperion.Amazon.Templates.Categories.ClothingAccessories.template_string, assigns: list)
   end
 
   def common_category(_list) do

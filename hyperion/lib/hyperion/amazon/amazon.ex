@@ -9,6 +9,7 @@ defmodule Hyperion.Amazon do
     # remove hd(product_id) and update PhoenixScala.Client
     Client.get_product(hd(product_id), jwt)
     |> process_products
+    |> set_parentage
     |> Enum.with_index(1)
   end
 
@@ -64,7 +65,7 @@ defmodule Hyperion.Amazon do
 
     for product <- products do
       Enum.into(product, Keyword.get(variants, String.to_atom(product[:code])))
-    end |> set_parentage
+    end
   end
 
   # atomizes the keys
@@ -111,11 +112,13 @@ defmodule Hyperion.Amazon do
 
   # duplicates first list element
   # removes unneeded fields
-  # add duplicated element as parent to all children
+  # adds parent SKU
+  # adds duplicated element as parent to all children
   defp set_parentage(list) do
     parent = hd(list)
              |> Enum.into(parentage: "parent")
-             |> Enum.reject(fn{k, _v} -> k in [:upc, :code, :taxcode]  end)
+             |> Enum.reject(fn{k, _v} -> k in [:upc, :taxcode] end)
+             |> Keyword.update(:code, nil, &("PARENT#{&1}"))
     children = Enum.map(list, fn(c) -> Enum.into(c, parentage: "child") end)
     [parent|children]
   end

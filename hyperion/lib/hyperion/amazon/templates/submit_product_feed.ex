@@ -16,8 +16,8 @@ defmodule Hyperion.Amazon.Templates.SubmitProductFeed do
       <MessageID><%= idx %></MessageID>
       <OperationType>Update</OperationType>
         <Product>
+          <SKU><%= p[:code] %></SKU>
           <%= if p[:parentage] == "child" do %>
-            <SKU><%= p[:code] %></SKU>
               <%= cond do %>
                 <% Keyword.has_key?(p, :asin) -> %>
                   <StandardProductID>
@@ -49,13 +49,13 @@ defmodule Hyperion.Amazon.Templates.SubmitProductFeed do
             <Title><%= p[:title] %></Title>
             <Brand><%= p[:brand] %></Brand>
             <Description><%= HtmlSanitizeEx.strip_tags(p[:description]) %></Description>
+            <%= Hyperion.Amazon.Templates.SubmitProductFeed.render_bullet_points(p) %>
+            <!-- <Manufacturer><%#= p[:manufacturer] %></Manufacturer>-->
             <%= for t <- p[:tags] do %>
               <SearchTerms><%= t %></SearchTerms>
             <% end %>
-            <%= Hyperion.Amazon.Templates.SubmitProductFeed.render_bullet_points(p) %>
-            <!-- <ItemType></ItemType>
-            <Manufacturer><%#= p[:manufacturer] %></Manufacturer>
-            <IsGiftWrapAvailable>false</IsGiftWrapAvailable>
+            <!-- <ItemType></ItemType> -->
+            <!-- <IsGiftWrapAvailable>false</IsGiftWrapAvailable>
             <IsGiftMessageAvailable>false</IsGiftMessageAvailable> -->
           </DescriptionData>
           <ProductData>
@@ -77,11 +77,10 @@ defmodule Hyperion.Amazon.Templates.SubmitProductFeed do
 
   def render_bullet_points(product) do
     points = Enum.filter(product, fn{k, v} -> String.match?(to_string(k), ~r/bulletpoint/) end)
-             |> Enum.with_index(1)
-    for {{_k, v}, i} <- points do
+    for {_k, v} <- points do
       unless v == nil do
         """
-        <BulletPoint#{i}>#{v}</BulletPoint#{i}>
+        <BulletPoint>#{v}</BulletPoint>
         """
       end
     end

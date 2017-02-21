@@ -1,7 +1,4 @@
-defmodule Hyperion.Amazon.Templates.Categories.Clothing do
-
-  # TODO: Add variation data processing
-
+defmodule Hyperion.Amazon.Templates.Categories.ClothingAccessories do
   def template_string do
     """
     <ClothingAccessories>
@@ -15,7 +12,6 @@ defmodule Hyperion.Amazon.Templates.Categories.Clothing do
         </VariationData>
       <ClassificationData>
         <Department><%= @department %></Department>
-        <ClothingType><%= @clothingtype %></ClothingType>
       </ClassificationData>
     </ClothingAccessories>
     """
