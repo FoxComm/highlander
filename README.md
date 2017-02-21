@@ -75,4 +75,3 @@ Physical model.
 ![alt text](engineering-wiki/diagrams/system/system.neato.png "Physical Model")
 
 
-

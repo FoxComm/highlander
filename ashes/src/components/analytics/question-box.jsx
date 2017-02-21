@@ -29,20 +29,6 @@ class QuestionBox extends React.Component {
     isClickable: true,
   };
 
-  componentWillMount() {
-    const { isActive } = this.props;
-
-    if (isActive) {
-      this.toggleActiveState();
-    }
-  }
-
-  @autobind
-  toggleActiveState() {
-    const { isActive } = this.state;
-    this.setState({isActive: !isActive});
-  }
-
   @autobind
   onClickHandler() {
     const { onClick, isActive, isClickable } = this.props;

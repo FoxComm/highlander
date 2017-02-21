@@ -8,9 +8,6 @@ import { autobind } from 'core-decorators';
 // funcs
 import { percentDifferenceFromAvg } from '../analytics';
 
-// funcs
-import { percentDifferenceFromAvg } from '../analytics';
-
 // components
 import {
   VictoryBar,
@@ -32,24 +29,6 @@ const yAxisStyle = {
 const xAxisStyle = {
   axis: { stroke: axisTickColor },
   tickLabels: { fontSize: 8, fill: axisTickColor, padding: 5 },
-};
-
-const singleBarStyle = {
-  data: { fill: '#4FC2C9', width: 28 },
-  labels: { fontSize: 12 },
-  parent: { border: '1px solid #ccc' },
-};
-const comparisonBarStyles = {
-  dataBarStyle:  {
-    data: { fill: '#4FC2C9', width: 28 },
-    labels: { fontSize: 12 },
-    parent: { border: '1px solid #ccc' },
-  },
-  comparisonDataBarStyle: {
-    data: { fill: '#CED2D5', width: 28 },
-    labels: { fontSize: 12 },
-    parent: { border: '1px solid #ccc' },
-  },
 };
 
 const singleBarStyle = {
@@ -168,10 +147,6 @@ class ProductConversionChart extends React.Component {
 
   @autobind
   jsonDataToChartData(jsonDisplay: Object): Array<ProductConversionChartBar> {
-
-    const deltaDisplay = (deltaStr: number): number => {
-      return _.round(parseFloat(deltaStr) * 100, 2);
-    };
 
     const deltaDisplay = (deltaStr: number): number => {
       return _.round(parseFloat(deltaStr) * 100, 2);

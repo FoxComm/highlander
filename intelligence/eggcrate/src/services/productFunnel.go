@@ -7,8 +7,6 @@ import (
 	"github.com/FoxComm/highlander/intelligence/eggcrate/src/responses"
 	"github.com/FoxComm/highlander/intelligence/eggcrate/src/util"
 
-	"fmt"
-
 	"github.com/labstack/echo"
 )
 
@@ -58,9 +56,6 @@ func buildResponse(pf responses.HenhouseResponse) string {
 	}
 	if cartToCheckout = 0.0; cartClicks > 0.0 {
 		cartToCheckout = float64(checkoutClicks) / float64(cartClicks)
-	}
-	if checkoutPurchased = 0.0; checkoutClicks > 0.0 {
-		checkoutPurchased = float64(purchases) / float64(checkoutClicks)
 	}
 	if checkoutPurchased = 0.0; checkoutClicks > 0.0 {
 		checkoutPurchased = float64(purchases) / float64(checkoutClicks)

@@ -32,13 +32,8 @@ location /internal-search/ {
     proxy_http_version 1.1;
 }
 
-location /api/search/ {
-    proxy_pass http://river-rock/proxy/api/search/;
-    break;
-}
-
 # Proxy the internal search location and sanitizes output from ES for external use
-location ~ /raw/api/search/admin/.*/_search {
+location ~ /api/search/admin/.*/_search {
     auth_request /internal-auth;
     default_type 'application/json';
     content_by_lua '
@@ -65,7 +60,7 @@ location ~ /raw/api/search/admin/.*/_search {
 }
 
 # Proxy the internal search location and sanitizes output from ES for external use
-location ~ /raw/api/search/admin/.*/_count {
+location ~ /api/search/admin/.*/_count {
     auth_request /internal-auth;
     default_type 'application/json';
     content_by_lua '
@@ -83,7 +78,7 @@ location ~ /raw/api/search/admin/.*/_count {
 }
 
 # Proxy the internal search location and sanitizes output from ES for external use
-location ~ /raw/api/search/admin/.*/\d+$ {
+location ~ /api/search/admin/.*/\d+$ {
     auth_request /internal-auth;
     default_type 'application/json';
     content_by_lua '
@@ -106,7 +101,7 @@ location ~ /raw/api/search/admin/.*/\d+$ {
     break;
 }
 
-location ~ /raw/api/search/public/.*/_search {
+location ~ /api/search/public/.*/_search {
     default_type 'application/json';
     content_by_lua '
 
@@ -128,7 +123,7 @@ location ~ /raw/api/search/public/.*/_search {
 }
 
 # Proxy the internal search location and sanitizes output from ES for external use
-location ~ /raw/api/search/public/.*/_count {
+location ~ /api/search/public/.*/_count {
     default_type 'application/json';
     content_by_lua '
 
@@ -145,7 +140,7 @@ location ~ /raw/api/search/public/.*/_count {
 }
 
 # Proxy the internal search location and sanitizes output from ES for external use
-location ~ /raw/api/search/public/.*/\d+$ {
+location ~ /api/search/public/.*/\d+$ {
     default_type 'application/json';
     content_by_lua '
 
@@ -168,7 +163,7 @@ location ~ /raw/api/search/public/.*/\d+$ {
 }
 
 # Proxy to middlewarehouse
-location /raw/api/v1/inventory/ {
+location /api/v1/inventory/ {
     auth_request /internal-auth;
     default_type 'application/json';
     proxy_pass http://middlewarehouse/v1/public/;
@@ -180,7 +175,7 @@ location /raw/api/v1/inventory/ {
     break;
 }
 
-location /raw/api/v1/time/ {
+location /api/v1/time/ {
     auth_request /internal-auth;
     default_type 'application/json';
     proxy_pass http://henhouse/;
@@ -209,35 +204,8 @@ location /api/v1/stats/ {
     break;
 }
 
-location /api/v1/time/ {
-    auth_request /internal-auth;
-    default_type 'application/json';
-    proxy_pass http://henhouse/;
-    proxy_http_version 1.1;
-    proxy_set_header Host $host;
-    proxy_set_header X-Real-IP $remote_addr;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    #need to add this since henhouse does not add content type in response yet. 
-    add_header Content-Type 'application/json';
-    break;
-}
-
-location /api/v1/stats/ {
-    auth_request /internal-auth;
-    default_type 'application/json';
-    proxy_pass http://eggcrate/;
-    proxy_buffering off;
-    proxy_http_version 1.1;
-    proxy_set_header Connection "";
-    proxy_set_header Host $host;
-    proxy_set_header X-Real-IP $remote_addr;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    add_header Content-Type 'application/json';
-    break;
-}
-
 # Proxy to phoenix and use basic auth.
-location /raw/api/v1/public/ {
+location /api/v1/public/ {
     proxy_pass http://phoenix/v1/public/;
     proxy_hide_header Authorization;
     proxy_http_version 1.1;
@@ -260,7 +228,7 @@ location ~ /api/v1/hal.* {
   empty_gif;
 }
 
-location /raw/sol/ {
+location /sol/ {
     proxy_pass http://sol/;
     proxy_pass_header Authorization;
     proxy_http_version 1.1;
@@ -282,7 +250,7 @@ location /hyperion/ {
     break;
 }
 
-location /raw/admin/ {
+location /admin/ {
     proxy_pass http://ashes;
     proxy_http_version 1.1;
     proxy_set_header Connection "";
@@ -298,7 +266,7 @@ location @ashes {
     proxy_set_header Connection "";
 }
 
-location /raw/api/v1/my/ {
+location /api/v1/my/ {
     proxy_pass http://phoenix/v1/my/;
     proxy_pass_header Authorization;
     proxy_http_version 1.1;
@@ -309,11 +277,11 @@ location /raw/api/v1/my/ {
     break;
 }
 
-location /raw/api/v1/service/ {
+location /api/v1/service/ {
     return 404;
 }
 
-location /raw/api/ {
+location /api/ {
     proxy_pass http://phoenix/;
     proxy_pass_header Authorization;
     proxy_http_version 1.1;

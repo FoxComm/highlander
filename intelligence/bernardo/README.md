@@ -58,8 +58,8 @@ mapping functions later, including using neural nets.
 
 Given the above mapping and arrangement we get a feature vector.
 
-Eventually we may want to run this on a GPU machine given FLANN's support for CUDA and the eventual
-situation where we have many clusters to match against.
+The "distance_function" describes a function to use to compare feature vectors, in
+this case we can have "euclidean" and "hamming" for example.
 
 #Performance
 
@@ -75,5 +75,4 @@ situation where we have many clusters to match against.
 |:---------------------------------------|:-------------------------------------------------------------------------------------------------------------|
 | [sql](sql)                             | flyway migration scripts|
 | [src](src)                             | Source Code |
-
 

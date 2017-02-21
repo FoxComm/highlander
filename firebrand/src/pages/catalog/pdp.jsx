@@ -28,7 +28,6 @@ import Currency from 'ui/currency';
 import Gallery from 'ui/gallery/gallery';
 import Loader from 'ui/loader';
 import ErrorAlerts from 'wings/lib/ui/alerts/error-alerts';
-import TrackingPixel from '../../components/tracking-pixel/tracking-pixel';
 
 // styles
 import styles from './pdp.css';
@@ -198,14 +197,6 @@ class Pdp extends Component {
 
     return (
       <div styleName="container">
-        <TrackingPixel
-          url="/api/v1/hal"
-          channel={1}
-          subject={1} 
-          verb='pdp'
-          obj='product'
-          objId={this.productId}
-        />
         <div styleName="gallery">
           <Gallery images={images} />
         </div>

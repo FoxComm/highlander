@@ -4,47 +4,13 @@
         "type": "SCALAR",
         "scalar": {
             "value": 24
-        },
-        "role": "*"
+        }
     },
     {
         "name": "mem",
         "type": "SCALAR",
         "scalar": {
             "value": 24576
-        },
-        "role": "*"
-    },
-    {
-        "name": "disk",
-        "type": "SCALAR",
-        "scalar": {
-            "value": 10000
-        },
-        "role": "*"
-    },
-    {
-        "name": "cpus",
-        "type": "SCALAR",
-        "scalar": {
-            "value": 24
-        },
-        "role": "marathon"
-    },
-    {
-        "name": "mem",
-        "type": "SCALAR",
-        "scalar": {
-            "value": 24576
-        },
-        "role": "marathon"
-    },
-    {
-        "name": "disk",
-        "type": "SCALAR",
-        "scalar": {
-            "value": 10000
-        },
-        "role": "marathon"
+        }
     }
 ]

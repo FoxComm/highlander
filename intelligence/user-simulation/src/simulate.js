@@ -118,6 +118,19 @@ if(_.isNil(persona)) {
 /*************************************
  * setup simulation context
  *************************************/
+let home = 'https://' + host;
+let stripeKey = process.env.STRIPE_PUBLISHABLE_KEY; 
+
+let context = {
+  home: home,
+  persona: persona,
+  state: persona.start,
+  args: {},
+  stripeKey: stripeKey
+};
+
+simulator.setup(context);
+
 /*************************************
  *do it, pick up your boots and do it!
  *************************************/
