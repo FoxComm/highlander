@@ -21,7 +21,7 @@ class CouponNew extends Component {
   props: Props;
 
   constructor(props: Props) {
- 	super(props);
+ 		super(props);
   }
 
 
@@ -31,7 +31,7 @@ class CouponNew extends Component {
         <div className="fc-modal-container">
 	      <ContentBox title="Add Coupon Code">
 	      	<div className="fc-clearfix">
-	          <CouponPage params={{couponId: 'new',hideTitle: true}}>
+	          <CouponPage params={{couponId: 'new', couponModal: true, hideTitle: true}}>
 	          	<CouponForm></CouponForm>
 	          </CouponPage>	
 	        </div>  

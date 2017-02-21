@@ -225,6 +225,24 @@ export class ObjectPage extends Component {
     }
   }
 
+  receiveNewObject(nextObject) {
+    const nextObjectId = getObjectId(nextObject);
+    const isNew = this.isNew;
+
+    this.setState({
+      object: nextObject
+    }, () => {
+      if (isNew && nextObjectId) {
+        if(typeof this.props.params.couponModal === 'undefined'){
+          this.transitionTo(nextObjectId);
+        }
+      }
+      if (!isNew && !nextObjectId) {
+        this.transitionTo('new');
+      }
+    });
+  }
+
   componentWillUnmount() {
     this.props.actions.reset();
   }
@@ -388,7 +406,7 @@ export class ObjectPage extends Component {
   subNav(): ?Element<*> {
     return null;
   }
-  
+
   @autobind
   titleBar() {
     if(typeof this.props.params.hideTitle === 'undefined'){
@@ -402,21 +420,21 @@ export class ObjectPage extends Component {
             isLoading={this.props.isSaving}
             items={SAVE_COMBO_ITEMS}
           />
-        </PageTitle>)    
+        </PageTitle>);
     } else {
-      return "";
-    }   
+      return '';
+    }
   }
 
   @autobind
   alterSave() {
     if(typeof this.props.params.hideTitle === 'undefined'){
-      return "";  
+      return '';
     } else {
       return (<SaveCancel
               onSave={this.handleSubmit}
-              saveText="Generate Coupon Code()" />);  
-    }   
+              saveText="Generate Coupon Code(s)" />);
+    }
   }
 
   childrenProps() {

@@ -16,6 +16,7 @@ export default class PromoCouponNewModal extends Component {
     return (
       <div className="fc-promotion-coupon-new">
         <CouponNew
+          promotionId={this.props.params.promotionId}
           isVisible={true}
         />
       </div>

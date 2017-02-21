@@ -3,3 +3,46 @@
   margin-left: -1.85%;
   margin-right: -1.85%;
 }
+
+:global .fc-promotion-coupon-new .fc-content-box-indent .fc-content-box .fc-content-box-header{
+  height: auto;
+  margin: 0 0 10px 0;
+  background: transparent;
+}
+
+:global .fc-promotion-coupon-new .fc-content-box-indent .fc-content-box .fc-content-box-indent{
+  margin: 0;	
+}
+
+:global .fc-promotion-coupon-new .fc-content-box-indent .fc-content-box .fc-content-box-header .fc-title{
+  padding-left: 0;
+}
+
+:global .fc-promotion-coupon-new .fc-content-box-indent ._lib_components_object_page_object_page__object-details{
+  margin: 0;
+}
+
+:global .fc-promotion-coupon-new .fc-content-box-indent .fc-content-box{
+  border: 0;
+  margin-bottom: 30px;
+}
+
+:global .fc-promotion-coupon-new .fc-content-box-indent ._lib_components_coupons_form_styles__form-subset{
+  margin: 0;
+}
+
+:global .fc-promotion-coupon-new .fc-content-box-indent .fc-coupon-inline-row{
+	display: inline-block;
+	margin-right: 20px;
+	vertical-align: top;
+	margin-bottom: 0;
+}
+
+:global .fc-promotion-coupon-new .fc-mb20{
+	margin-bottom: 20px;
+}
+
+:global .fc-promotion-coupon-new .fc-content-box-indent .fc-coupon-inline-row label{
+	display: block;
+	line-height: 30px;
+}
