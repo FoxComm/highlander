@@ -218,7 +218,7 @@ export default class GiftCard extends React.Component {
         <div className="fc-grid fc-grid-gutter">
           <div className="fc-col-md-1-3">
             <Panel title="Available Balance" featured={true}>
-              <Currency id="gift-card-available-banace" value={card.availableBalance} />
+              <Currency id="gift-card-available-balance" value={card.availableBalance} />
             </Panel>
           </div>
         </div>

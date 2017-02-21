@@ -2,6 +2,7 @@ package models.objects
 
 import java.time.Instant
 
+import services.objects.ObjectManager
 import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
@@ -66,10 +67,10 @@ object ObjectHeadLinks {
       } yield linkedObjects.zip(links)
 
     def queryLinkedObject(link: M)(implicit ec: EC, db: DB): DbResultT[FullObject[R]] =
-      ObjectUtils.getFullObject(rightQuery.mustFindById404(link.rightId))
+      ObjectManager.getFullObject(rightQuery.mustFindById404(link.rightId))
 
     def queryLeftLinkedObject(link: M)(implicit ec: EC, db: DB): DbResultT[FullObject[L]] =
-      ObjectUtils.getFullObject(leftQuery.mustFindById404(link.leftId))
+      ObjectManager.getFullObject(leftQuery.mustFindById404(link.leftId))
 
     def syncLinks(left: L, rights: Seq[R])(implicit ec: EC, db: DB): DbResultT[Unit] =
       for {

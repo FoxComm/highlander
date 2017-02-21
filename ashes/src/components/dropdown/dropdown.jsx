@@ -43,7 +43,7 @@ export default class Dropdown extends Component {
     }
 
     return (
-      <div className="fc-dropdown__value" onClick={handleToggleClick}>
+      <div id={props.dropdownValueId} className="fc-dropdown__value" onClick={handleToggleClick}>
         {title}
         <input name={props.name} type="hidden" value={value} readOnly />
       </div>

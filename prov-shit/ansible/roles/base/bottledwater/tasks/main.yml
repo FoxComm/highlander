@@ -1,8 +1,5 @@
 ---
 
-- name: Update System Package Cache
-  apt: update_cache=yes
-
 - name: Install Bottledwater Packages
   apt: name={{item}} state=latest force=yes
   with_items:

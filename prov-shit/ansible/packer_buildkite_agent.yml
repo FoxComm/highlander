@@ -3,19 +3,15 @@
 - name: Pack Buildkite Agent image
   hosts: all
   become: true
-  tags:
-    - packer
   vars:
+    packing: true
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
 
   roles:
     - { role: base/common }
+    - { role: base/languages }
+    - { role: base/devkit }
     - { role: base/ssh_keys }
-    - { role: base/docker }
-    - { role: base/docker_clean }
-    - { role: base/scala }
-    - { role: base/clojure }
-    - { role: base/node }
     - { role: base/builder }
     - { role: test/db }
     - { role: test/selenium }

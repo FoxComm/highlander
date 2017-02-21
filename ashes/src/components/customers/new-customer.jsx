@@ -51,7 +51,7 @@ class NewCustomer extends Component {
       name: this.state.name,
       email: this.state.email,
     };
-    this.props.createCustomer(payload).then(({ payload: { id } }) => {
+    this.props.createCustomer(payload).then(({ id }) => {
       transitionTo('customer', { customerId: id });
     });
   }

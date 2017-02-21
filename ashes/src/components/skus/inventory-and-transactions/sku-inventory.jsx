@@ -12,11 +12,11 @@ import InventoryWarehouseRow from './sku-inventory-row';
 import WarehouseDrawer from './sku-inventory-drawer';
 
 // redux
-import * as WarehousesActions from 'modules/inventory/warehouses';
-import type { WarehouseInventorySummary, WarehouseInventoryMap } from 'modules/inventory/warehouses';
+import * as WarehousesActions from 'modules/skus/warehouses';
+import type { WarehouseInventorySummary, WarehouseInventoryMap } from 'modules/skus/warehouses';
 
 const mapStateToProps = (state, props) => ({
-  inventoryDetails: _.get(state, ['inventory', 'warehouses', 'details', props.skuId], {}),
+  inventoryDetails: _.get(state, ['skus', 'warehouses', 'details', props.skuId], {}),
   fetchState: _.get(state, 'asyncActions.inventory-summary', {}),
   inventoryUpdated: _.get(state, 'asyncActions.inventory-increment.finished', false),
 });

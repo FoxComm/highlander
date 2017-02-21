@@ -1,6 +1,0 @@
----
-
-- name: Build All The Things
-  shell: make build
-  args:
-    chdir: /vagrant/

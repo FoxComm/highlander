@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
 	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix"
@@ -38,9 +39,17 @@ func (h CaptureConsumer) Handler(message metamorphosis.AvroMessage) error {
 		return err
 	}
 	if err := h.phoenixClient.CapturePayment(capture); err != nil {
+		// If the order is already captured, we don't want to fail because it's
+		// possible that this was already captured by the customer.
+		if strings.Contains(err.Error(), "is not in Auth state") || strings.Contains(err.Error(), "has already been captured") {
+			log.Printf("Attempted to capture order %s that has already be captured", capture.ReferenceNumber)
+			return nil
+		}
+
 		log.Printf("Unable to capture payment with error: %s", err.Error())
 		return err
 	}
 
+	log.Printf("Successfully captured order %s", capture.ReferenceNumber)
 	return nil
 }

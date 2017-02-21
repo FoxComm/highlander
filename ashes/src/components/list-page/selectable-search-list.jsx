@@ -4,13 +4,14 @@ import LiveSearchAdapter from '../live-search/live-search-adapter';
 import MultiSelectTable from '../table/multi-select-table';
 
 export default class SelectableSearchList extends React.Component {
-
   static propTypes = {
     entity: PropTypes.string.isRequired,
     emptyMessage: PropTypes.string,
     errorMessage: PropTypes.string,
+    tableClass: PropTypes.string,
     list: PropTypes.object,
     renderRow: PropTypes.func.isRequired,
+    wrapToTbody: PropTypes.bool,
     tableColumns: PropTypes.array.isRequired,
     searchActions: PropTypes.shape({
       addSearchFilters: PropTypes.func.isRequired,
@@ -37,6 +38,7 @@ export default class SelectableSearchList extends React.Component {
     predicate: PropTypes.func,
     hasActionsColumn: PropTypes.bool,
     autoRefresh: PropTypes.bool,
+    tbodyId: PropTypes.string,
   };
 
   static defaultProps = {
@@ -62,8 +64,8 @@ export default class SelectableSearchList extends React.Component {
 
   render() {
     const props = this.props;
-
-    const results = props.list.currentSearch().results;
+    const currentSearch = props.list.currentSearch();
+    const { results, title } = currentSearch;
 
     return (
       <LiveSearchAdapter
@@ -74,7 +76,8 @@ export default class SelectableSearchList extends React.Component {
         noGutter={props.noGutter}
       >
         <MultiSelectTable
-          tbodyId="coupon-codes-list"
+          tbodyId={props.tbodyId}
+          className={props.tableClass}
           columns={props.tableColumns}
           data={results}
           renderRow={props.renderRow}
@@ -87,7 +90,9 @@ export default class SelectableSearchList extends React.Component {
           failed={results.failed}
           emptyMessage={props.emptyMessage}
           errorMessage={props.errorMessage}
-          key={props.list.currentSearch().title} />
+          wrapToTbody={props.wrapToTbody}
+          key={title}
+        />
       </LiveSearchAdapter>
     );
   };

@@ -19,7 +19,7 @@ Highlander is the brand-spanking-new FoxCommerce mono-repo.
 | [firebrand](firebrand)               | A demo storefront used to show off the capabilities of FoxCommerce APIs.                                     |
 | [prov-shit](prov-shit)               | All of our DevOps tools for deploying the application to both development and production.                    |
 | [api-docs](api-docs)                 | Our API documentation in API Blueprint format and Postman query collections.                                 |
-| [enginnering-wiki](enginnering-wiki) | Internal design documents, guidelines and other tips in Markdown format.                                     |
+| [engineering-wiki](engineering-wiki) | Internal design documents, guidelines and other tips in Markdown format.                                     |
 
 ## Development Environment
 
@@ -30,42 +30,34 @@ has a lot to do!
 
 ### Install Prerequisites
 
-- Install [Vagrant](https://www.vagrantup.com)
-- Install [Ansible 2.2.x](http://docs.ansible.com/ansible/intro_installation.html#installation)
+- [Ansible](https://ansible.com) 2.2.x
 
 ### Google Compute VM
 
-1. [Generate your SSH key for GCE](https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/) and put the public key to [project metadata](https://console.cloud.google.com/compute/metadata/sshKeys?project=foxcomm-staging).
+1. Ask one of DevOps guys for Ansible Vault password and OpenVPN keys + client configuration.
 
-2. [Generate Google service account key](https://cloud.google.com/storage/docs/authentication#generating-a-private-key) and download it in JSON format to your machine.
+2. [Generate your SSH key](https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/) for GCE and put the public key to [project metadata](https://console.cloud.google.com/compute/metadata/sshKeys?project=foxcomm-staging).
 
-3. Run `.env.local` generator, required for Vagrant. You'll be prompted for you corporate e-mail and SSH/JSON key locations.
+3. [Generate Google service account key](https://cloud.google.com/storage/docs/authentication#generating-a-private-key) and download it in JSON format to your machine.
+
+4. Run `.env.local` generator, required for Vagrant. You'll be prompted for you corporate e-mail and SSH/JSON key locations.
 
     ```
     $ make dotenv
     ```
 
-4. Pre-configure Vagrant by running:
+5. Pre-configure Vagrant by running:
 
     ```
     $ make prepare
     ```
 
-5. You're ready to spin up the machine! Do it by running:
+6. You're ready to spin up the machine! Do it by running:
 
     ```
     $ make up
     ```
 
-Test machines are created without a public facing IP address, so you'll need to use the VPN to access it.
+#### Deploying Custom Branches
 
-Get the private IP address
-
-    $ vagrant ssh
-    $ ifconfig eth0
-
-Edit your hosts file so that `local.foxcommerce.com` points to the new box using the private IP address you just retrieved.
-
-### Local VM
-
-There is another option to run development environment in a local VM. Please refer to related [wiki page](engineering-wiki/development/Local-VM-DevEnv.md) for more information.
+Please refer to related [wiki page](engineering-wiki/devops/Deploying-Custom-Branches.md) for more information.

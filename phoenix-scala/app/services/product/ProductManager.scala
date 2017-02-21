@@ -1,16 +1,11 @@
 package services.product
 
 import java.time.Instant
-
-import com.github.tminglei.slickpg.LTree
 import cats.data._
 import cats.implicits._
-import cats.data.ValidatedNel
-import cats.instances.map
 import failures._
 import failures.ArchiveFailures._
 import failures.ProductFailures._
-import models.image.{AlbumImageLinks, Albums}
 import models.inventory._
 import models.objects._
 import models.product._
@@ -233,23 +228,20 @@ object ProductManager {
       )
   }
 
-  private def getProductOptionsWithRelatedVariants(productOptions: Seq[FullProductOption])(
-      implicit ec: EC,
-      db: DB,
-      oc: OC): DbResultT[(Seq[ProductVariantResponse.Root], Seq[ProductOptionResponse.Root])] = {
-    val productValueIds = productOptions.flatMap { case (_, variantValue) ⇒ variantValue }
-      .map(_.model.id)
+  private def getProductOptionsWithRelatedVariants(
+      productOptions: Seq[FullProductOption])(implicit ec: EC, db: DB, oc: OC)
+    : DbResultT[(Seq[ProductVariantResponse.Partial], Seq[ProductOptionResponse.Root])] = {
+    val optionIds = productOptions.flatMap { case (_, optionValue) ⇒ optionValue }.map(_.model.id)
     for {
-      productValueSkuCodes ← * <~ ProductOptionManager.getProductValueSkuCodes(productValueIds)
-      productValueSkuCodesSet = productValueSkuCodes.values.toSeq.flatten.distinct
-      productVariants ← * <~ productValueSkuCodesSet.map(skuCode ⇒
-                             ProductVariantManager.getBySkuCode(skuCode))
+      optionValueToVariantIdMap ← * <~ ProductOptionManager.mapOptionValuesToVariantIds(optionIds)
+      variantIds = optionValueToVariantIdMap.values.toSet.flatten
+      productVariants ← * <~ variantIds.map(ProductVariantManager.getPartialByFormId)
       illuminated = productOptions.map {
         case (fullOption, values) ⇒
           val variant = IlluminatedProductOption.illuminate(oc, fullOption)
-          ProductOptionResponse.buildLite(variant, values, productValueSkuCodes)
+          ProductOptionResponse.buildLite(variant, values, optionValueToVariantIdMap)
       }
-    } yield (productVariants, illuminated)
+    } yield (productVariants.toSeq, illuminated)
   }
 
   private def validateCreate(
@@ -280,7 +272,7 @@ object ProductManager {
   }
 
   private def validateVariantsMatchesProductOptions(
-      variants: Seq[ProductVariantResponse.Root],
+      variants: Seq[ProductVariantResponse.Partial],
       options: Seq[(FullObject[ProductOption], Seq[FullObject[ProductOptionValue]])])
     : ValidatedNel[Failure, Unit] = {
     val maxOptions = options.map { case (_, values) ⇒ values.length.max(1) }.product
@@ -372,10 +364,15 @@ object ProductManager {
                                                        else Seq.empty)
               } yield newVariant
             }
-        albums   ← * <~ ImageManager.getAlbumsForVariantInner(up.form.id)
-        mwhSkuId ← * <~ ProductVariantMwhSkuIds.mustFindMwhSkuId(up.form.id)
+        albums     ← * <~ ImageManager.getAlbumsForVariantInner(up.form.id)
+        skuMapping ← * <~ ProductVariantSkus.mustFindByVariantFormId(up.form.id)
+        options    ← * <~ ProductVariantManager.optionValuesForVariant(up.model)
       } yield
-        ProductVariantResponse.buildLite(IlluminatedVariant.illuminate(oc, up), albums, mwhSkuId)
+        ProductVariantResponse.buildPartial(IlluminatedVariant.illuminate(oc, up),
+                                            albums,
+                                            skuMapping.skuId,
+                                            skuMapping.skuCode,
+                                            options)
     }
 
   private def findOrCreateOptionsForProduct(product: Product, payload: Seq[ProductOptionPayload])(
@@ -384,7 +381,7 @@ object ProductManager {
       oc: OC,
       au: AU): DbResultT[Seq[FullProductOption]] =
     for {
-      productOptions ← * <~ payload.map(ProductOptionManager.updateOrCreate(oc, _))
+      productOptions ← * <~ payload.map(ProductOptionManager.updateOrCreate)
       _ ← * <~ ProductOptionLinks.syncLinks(product, productOptions.map {
            case (option, _) ⇒ option.model
          })
@@ -427,6 +424,7 @@ object ProductManager {
     ObjectManager.getFullObject(Products.mustFindById404(productId))
 
   // This is an inefficient intensely quering method that does the trick
+  // TODO @anna migrate to variant form id
   private def productVariantsToBeUnassociatedMustNotBePresentInCarts(
       productId: Int,
       payloadVariants: Seq[ProductVariantPayload])(implicit ec: EC, db: DB): DbResultT[Unit] =
@@ -439,27 +437,28 @@ object ProductManager {
                                          lift(links.map(_.rightId))
                                        case _ ⇒
                                          for {
-                                           variantLinks ← ProductOptionLinks
-                                                           .filter(_.leftId === productId)
-                                                           .result
-                                           variantIds = variantLinks.map(_.rightId)
-                                           valueLinks ← ProductOptionValueLinks
-                                                         .filter(_.leftId.inSet(variantIds))
-                                                         .result
-                                           valueIds = valueLinks.map(_.rightId)
-                                           skuLinks ← ProductValueVariantLinks
-                                                       .filter(_.leftId.inSet(valueIds))
-                                                       .result
-                                         } yield skuLinks.map(_.rightId)
+                                           optionLinks ← ProductOptionLinks
+                                                          .filter(_.leftId === productId)
+                                                          .result
+                                           variantIds = optionLinks.map(_.rightId)
+                                           optionValueLinks ← ProductOptionValueLinks
+                                                               .filter(_.leftId.inSet(variantIds))
+                                                               .result
+                                           optionValueIds = optionValueLinks.map(_.rightId)
+                                           optionValueToVariantLinks ← ProductValueVariantLinks
+                                                                        .filter(_.leftId.inSet(
+                                                                                optionValueIds))
+                                                                        .result
+                                         } yield optionValueToVariantLinks.map(_.rightId)
                                      }
-      skuCodesForProduct ← * <~ ProductVariants
-                            .filter(_.id.inSet(productVariantIdsForProduct))
-                            .map(_.code)
-                            .result
-      skuCodesFromPayload = payloadVariants
+      productSkus ← * <~ ProductVariants
+                     .filter(_.id.inSet(productVariantIdsForProduct))
+                     .map(_.code)
+                     .result
+      payloadSkus = payloadVariants
         .map(ps ⇒ ProductVariantManager.getSkuCode(ps.attributes))
         .flatten
-      skuCodesToBeGone = skuCodesForProduct.diff(skuCodesFromPayload)
+      skuCodesToBeGone = productSkus.diff(payloadSkus)
       _ ← * <~ (skuCodesToBeGone.map { codeToUnassociate ⇒
                for {
                  skuToUnassociate ← * <~ ProductVariants.mustFindByCode(codeToUnassociate)

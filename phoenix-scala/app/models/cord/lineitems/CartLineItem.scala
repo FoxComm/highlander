@@ -74,16 +74,12 @@ object CartLineItems
 
   object scope {
     implicit class ExtractLineItems(q: QuerySeq) {
-      // Map [SKU code → quantity in cart/order]
-      def countProductVariants(implicit ec: EC): DBIO[Map[String, Int]] =
+      // Map [product variant ID → quantity in cart/order]
+      def countProductVariants(implicit ec: EC): DBIO[Map[ObjectForm#Id, Int]] =
         (for {
           cartLineItems  ← q
           productVariant ← cartLineItems.productVariant
-        } yield productVariant.code).result.map(_.foldLeft(Map[String, Int]()) {
-          case (acc, skuCode) ⇒
-            val quantity = acc.getOrElse(skuCode, 0)
-            acc.updated(skuCode, quantity + 1)
-        })
+        } yield productVariant.formId).result.map(_.groupBy(identity).mapValues(_.size))
     }
   }
 }

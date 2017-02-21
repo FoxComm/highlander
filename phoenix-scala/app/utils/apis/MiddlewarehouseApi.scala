@@ -5,7 +5,7 @@ import com.typesafe.scalalogging.LazyLogging
 import dispatch._
 import failures.MiddlewarehouseFailures._
 import failures.{Failures, MiddlewarehouseFailures}
-import models.inventory.{ProductVariantMwhSkuId, ProductVariantMwhSkuIds}
+import models.inventory.{ProductVariantSku, ProductVariantSkus}
 import org.json4s.Extraction
 import org.json4s.jackson.JsonMethods._
 import org.json4s.jackson.{compactJson, parseJsonOpt}
@@ -26,7 +26,7 @@ trait MiddlewarehouseApi {
   def hold(reservation: OrderInventoryHold)(implicit ec: EC, au: AU): Result[Unit]
   def cancelHold(orderRefNum: String)(implicit ec: EC, au: AU): Result[Unit]
   def createSku(variantFormId: Int, sku: CreateSku)(implicit ec: EC,
-                                                    au: AU): DbResultT[ProductVariantMwhSkuId]
+                                                    au: AU): DbResultT[ProductVariantSku]
 }
 
 class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
@@ -67,9 +67,8 @@ class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
   }
 
   // Returns newly created SKU id
-  override def createSku(variantFormId: Int, sku: CreateSku)(
-      implicit ec: EC,
-      au: AU): DbResultT[ProductVariantMwhSkuId] = {
+  override def createSku(variantFormId: Int,
+                         sku: CreateSku)(implicit ec: EC, au: AU): DbResultT[ProductVariantSku] = {
     val reqUrl = dispatch.url(s"$url/v1/public/skus")
     val body   = compact(Extraction.decompose(sku))
     val jwt    = AuthPayload.jwt(au.token)
@@ -78,7 +77,7 @@ class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
 
     DbResultT.fromFuture(Http(req.POST > AsMwhResponse).either).flatMap {
       case Right(MwhResponse(status, body)) if status / 100 == 2 ⇒
-        extractAndSaveSkuId(variantFormId, body)
+        extractAndSaveSkuId(variantFormId, sku.code, body)
 
       case Right(MwhResponse(status, message)) ⇒
         logger.error(
@@ -91,23 +90,23 @@ class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
     }
   }
 
-  private def extractAndSaveSkuId(variantFormId: Int, responseBody: String)(
-      implicit ec: EC): DbResultT[ProductVariantMwhSkuId] =
+  private def extractAndSaveSkuId(variantFormId: Int, skuCode: String, responseBody: String)(
+      implicit ec: EC): DbResultT[ProductVariantSku] =
     parseJsonOpt(responseBody) match {
       case Some(json) ⇒
         (json \ "id").extractOpt[Int] match {
           case Some(skuId) ⇒
             logger.debug(s"Successfully created new SKU in MWH, ID=$skuId")
-            ProductVariantMwhSkuIds.create(
-                ProductVariantMwhSkuId(variantFormId = variantFormId, mwhSkuId = skuId))
+            ProductVariantSkus.create(
+                ProductVariantSku(variantFormId = variantFormId, skuId = skuId, skuCode = skuCode))
           case _ ⇒
             logger.error(
                 s"Unable to find ID in MWH SKU creation response. JSON body was:\n${compactJson(json)}")
-            DbResultT.failure[ProductVariantMwhSkuId](NoSkuIdInResponse)
+            DbResultT.failure[ProductVariantSku](NoSkuIdInResponse)
         }
       case _ ⇒
         logger.error(s"Unable to parse MWH response as JSON. Response body was:\n$responseBody")
-        DbResultT.failure[ProductVariantMwhSkuId](UnableToParseResponse)
+        DbResultT.failure[ProductVariantSku](UnableToParseResponse)
     }
 }
 

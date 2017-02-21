@@ -1,22 +1,22 @@
 ---
 
-- name: .env.local generator for vagrant-google
+- name: .env.local generator
   hosts: localhost
   connection: local
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
   vars_prompt:
-    - name: "google_client_email"
-      prompt: "Enter your FoxCommerce corporate e-mail"
-      default: "newcomer@foxcommerce.com"
+    - name: "google_service_account_email"
+      prompt: "Enter your service account key e-mail"
+      default: "username@foxcomm-staging.iam.gserviceaccount.com"
+      private: no
+    - name: "google_json_key_location"
+      prompt: "Enter your service account key location"
+      default: "/home/username/foxcomm-staging.json"
       private: no
     - name: "google_ssh_key"
       prompt: "Enter path to your private SSH key for GCE"
-      default: "~/.ssh/id_rsa"
-      private: no
-    - name: "google_ssh_key"
-      prompt: "Enter path to your Google service account key"
-      default: "~/foxcomm-staging.json"
+      default: "/home/username/.ssh/id_rsa"
       private: no
     - name: "google_instance_name"
       prompt: "Enter preferred development instance name (optional)"

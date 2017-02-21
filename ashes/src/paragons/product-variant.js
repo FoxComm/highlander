@@ -6,6 +6,7 @@ import * as t from 'paragons/object-types';
 
 import type { JWT } from 'lib/claims';
 import type { ProductVariant, NewProductVariant } from 'modules/product-variants/details';
+
 export function generateSkuCode(): string {
   return Math.random().toString(36).substring(7).toUpperCase();
 }

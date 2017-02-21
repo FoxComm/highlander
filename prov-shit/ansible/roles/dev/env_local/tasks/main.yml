@@ -4,7 +4,10 @@
   shell: "dirname $(dirname $(pwd))"
   register: highlander_path_out
 
-- debug: var=highlander_path_out.stdout
+- name: Set Default Appliance Name
+  set_fact:
+    google_instance_name: "{{appliance_prefix}}-{{user}}-{{999999|random}}"
+  when: google_instance_name == ""
 
 - name: Overwrite Highlander .env.local
   template: src=env.local.j2 dest="{{highlander_path_out.stdout}}/.env.local"

@@ -13,40 +13,45 @@ import utils.db._
   * Upon SKU creation in MWH, a unique SKU id returned my MWH must be associated with a product variant SKU was
   * created for.
   */
-case class ProductVariantMwhSkuId(id: Int = 0,
-                                  variantFormId: Int,
-                                  mwhSkuId: Int,
-                                  createdAt: Instant = Instant.now)
-    extends FoxModel[ProductVariantMwhSkuId]
+case class ProductVariantSku(id: Int = 0,
+                             variantFormId: Int,
+                             skuId: Int,
+                             skuCode: String,
+                             createdAt: Instant = Instant.now)
+    extends FoxModel[ProductVariantSku]
 
-class ProductVariantMwhSkuIds(tag: Tag)
-    extends FoxTable[ProductVariantMwhSkuId](tag, "product_variant_mwh_sku_ids") {
+class ProductVariantSkus(tag: Tag)
+    extends FoxTable[ProductVariantSku](tag, "product_variant_skus") {
 
   def id            = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def variantFormId = column[Int]("variant_form_id")
-  def mwhSkuId      = column[Int]("mwh_sku_id")
+  def skuId         = column[Int]("sku_id")
+  def skuCode       = column[String]("sku_code")
   def createdAt     = column[Instant]("created_at")
 
   def * =
-    (id, variantFormId, mwhSkuId, createdAt) <> ((ProductVariantMwhSkuId.apply _).tupled, ProductVariantMwhSkuId.unapply)
+    (id, variantFormId, skuId, skuCode, createdAt) <> ((ProductVariantSku.apply _).tupled, ProductVariantSku.unapply)
 
   def productVariant =
     foreignKey(ProductVariants.tableName, variantFormId, ProductVariants)(_.formId)
 }
 
-object ProductVariantMwhSkuIds
-    extends FoxTableQuery[ProductVariantMwhSkuId, ProductVariantMwhSkuIds](
-        new ProductVariantMwhSkuIds(_))
-    with ReturningId[ProductVariantMwhSkuId, ProductVariantMwhSkuIds] {
+object ProductVariantSkus
+    extends FoxTableQuery[ProductVariantSku, ProductVariantSkus](new ProductVariantSkus(_))
+    with ReturningId[ProductVariantSku, ProductVariantSkus] {
 
-  val returningLens: Lens[ProductVariantMwhSkuId, Int] = lens[ProductVariantMwhSkuId].id
+  val returningLens: Lens[ProductVariantSku, Int] = lens[ProductVariantSku].id
 
   def byVariantFormId(variantFormId: Int): QuerySeq =
     filter(_.variantFormId === variantFormId)
 
-  def mustFindMwhSkuId(variantFormId: Int)(implicit ec: EC): DbResultT[Int] =
+  def mustFindByVariantFormId(variantFormId: Int)(implicit ec: EC): DbResultT[ProductVariantSku] =
+    byVariantFormId(variantFormId).mustFindOneOr(
+        NotFoundFailure400(s"SKU not found for variant with id=$variantFormId"))
+
+  def mustFindSkuId(variantFormId: Int)(implicit ec: EC): DbResultT[Int] =
     byVariantFormId(variantFormId)
-      .map(_.mwhSkuId)
+      .map(_.skuId)
       .mustFindOneOr(NotFoundFailure400(
-              s"Middlwarehouse SKU id not found for variant with id=$variantFormId"))
+              s"Middlewarehouse SKU id not found for variant with id=$variantFormId"))
 }

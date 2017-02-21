@@ -12,7 +12,7 @@ import models.objects.ObjectContext
 import org.json4s.JsonAST._
 import payloads.CouponPayloads._
 import payloads.LineItemPayloads.UpdateLineItemsPayload
-import payloads.OrderPayloads.CreateCart
+import payloads.CartPayloads.CreateCart
 import responses.CouponResponses.CouponResponse
 import responses.cord.CartResponse
 import testutils.PayloadHelpers._
@@ -70,7 +70,7 @@ class CouponsIntegrationTest
     }
   }
 
-  "POST /v1/orders/:refNum/coupon/:code" - {
+  "POST /v1/carts/:refNum/coupon/:code" - {
     "attaches coupon successfully" - {
       "when activeFrom is before now" in new CartCouponFixture {
         val response = cartsApi(cartRef).coupon.add(couponCode).asTheResult[CartResponse]
@@ -132,16 +132,6 @@ class CouponsIntegrationTest
 
         cartsApi(cartRef).coupon.add(couponCode).mustFailWith400(CouponIsNotActive)
       }
-
-      // TODO @anna: This can be removed once /orders vs /carts routes are split
-      "when attaching to order" in new CartCouponFixture {
-        (for {
-          cart  ← * <~ Carts.mustFindByRefNum(cartRef)
-          order ← * <~ Orders.createFromCart(cart, subScope = None)
-        } yield order).gimme
-
-        POST(s"v1/orders/$cartRef/coupon/$couponCode").mustFailWith400(OrderAlreadyPlaced(cartRef))
-      }
     }
   }
 
@@ -160,7 +150,8 @@ class CouponsIntegrationTest
         .referenceNumber
 
       cartsApi(cartRef).lineItems
-        .add(Seq(UpdateLineItemsPayload(sku = productVariantCode, quantity = 1)))
+        .add(
+            Seq(UpdateLineItemsPayload(productVariantId = product.variants.head.id, quantity = 1)))
         .mustBeOk()
 
       cartRef
@@ -170,14 +161,16 @@ class CouponsIntegrationTest
   trait GiftCardLineItemFixture extends StoreAdmin_Seed {
     val cartRef = api_newGuestCart().referenceNumber
 
-    private val skuCode = new ProductVariant_ApiFixture { override def productVariantPrice = 3000 }.productVariantCode
-    private val gcSkuCode = new ProductVariant_ApiFixture {
+    private val skuVariantId = new ProductVariant_ApiFixture {
+      override def productVariantPrice = 3000
+    }.product.variants.head.id
+    private val gcSkuVariantId = new ProductVariant_ApiFixture {
       override def productVariantPrice = 2000
-    }.productVariantCode
+    }.product.variants.head.id
 
     cartsApi(cartRef).lineItems
-      .add(Seq(UpdateLineItemsPayload(skuCode, 1),
-               UpdateLineItemsPayload(gcSkuCode, 1, giftCardLineItemAttributes)))
+      .add(Seq(UpdateLineItemsPayload(skuVariantId, 1),
+               UpdateLineItemsPayload(gcSkuVariantId, 1, giftCardLineItemAttributes)))
       .mustBeOk()
   }
 }

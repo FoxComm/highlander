@@ -8,7 +8,7 @@ import models.payment.creditcard.{BillingAddress, CreditCard, CreditCards}
 import org.mockito.Mockito._
 import org.mockito.{ArgumentMatchers ⇒ m, _}
 import org.scalatest.BeforeAndAfterEach
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import payloads.AddressPayloads.CreateAddressPayload
 import payloads.PaymentPayloads.CreateCreditCardFromTokenPayload
 import responses.CreditCardsResponse

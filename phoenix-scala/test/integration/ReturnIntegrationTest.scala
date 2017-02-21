@@ -457,7 +457,7 @@ class ReturnIntegrationTest
     val (returnReason, sku, giftCard, shipment) = (for {
       returnReason ← * <~ ReturnReasons.create(Factories.returnReasons.head)
       product      ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head)
-      sku          ← * <~ ProductVariants.mustFindById404(product.skuId)
+      sku          ← * <~ ProductVariants.mustFindById404(product.variantId)
       _            ← * <~ addSkusToOrder(Seq(sku.id), order.refNum, OrderLineItem.Cart)
 
       gcReason ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))

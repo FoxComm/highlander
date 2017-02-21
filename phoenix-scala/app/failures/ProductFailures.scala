@@ -1,6 +1,8 @@
 package failures
 
+import models.objects.ObjectForm
 import models.product.Product
+import utils.aliases.OC
 
 object ProductFailures {
 
@@ -34,7 +36,7 @@ object ProductFailures {
   }
 
   object ProductVariantNotFoundForContextAndId {
-    def apply(formId: Int, productContextId: Int) =
+    def apply(formId: ObjectForm#Id, productContextId: Int) =
       NotFoundFailure404(
           s"ProductVariant $formId with product context $productContextId cannot be found")
   }
@@ -44,13 +46,13 @@ object ProductFailures {
   }
 
   object ProductOptionNotFoundForContext {
-    def apply(id: Int, contextId: Int) =
-      NotFoundFailure404(s"Product option $id with context $contextId cannot be found")
+    def apply(id: Int)(implicit ctx: OC) =
+      NotFoundFailure404(s"Product option $id not found in context ${ctx.name}")
   }
 
   object ProductValueNotFoundForContext {
     def apply(id: Int, contextId: Int) =
-      NotFoundFailure404(s"Product value value $id with context $contextId cannot be found")
+      NotFoundFailure404(s"Option value $id with context $contextId cannot be found")
   }
 
   object ProductNotFoundForContext {
@@ -61,6 +63,11 @@ object ProductFailures {
     def apply(slug: String, productContextId: Int) =
       NotFoundFailure404(
           s"Product with slug=$slug with product context $productContextId cannot be found")
+  }
+
+  object ProductNotFoundForVariant {
+    def apply(variantFormId: Int) =
+      NotFoundFailure404(s"Product not found for variant $variantFormId")
   }
 
   object ProductFormNotFoundForContext {
@@ -105,5 +112,9 @@ object ProductFailures {
   case class SlugDuplicates(slugValue: String) extends Failure {
     override def description: String =
       s"Product slug '$slugValue' is already defined for other product"
+  }
+
+  case class DuplicatedOptionValueForVariant(skuCode: String) extends Failure {
+    def description: String = s"Variant $skuCode cannot have more than one option value"
   }
 }

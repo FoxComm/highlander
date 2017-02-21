@@ -9,14 +9,13 @@
 
   roles:
     - { role: base/mesos_worker }
-    - { role: base/confluence }
-    - { role: base/kafka }
-    - { role: base/schema-registry }
-    - { role: base/elasticsearch }
     - { role: base/rsyslog }
+    - { role: base/confluent_platform }
+    - { role: base/elasticsearch }
+    - { role: base/elasticsearch-5 }
     - { role: base/db }
     - { role: base/bottledwater }
-    - { role: dev/pgweb }
+    - { role: base/pgweb }
 
   handlers:
      - include: roles/base/consul_agent/handlers/main.yml

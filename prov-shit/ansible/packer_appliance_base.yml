@@ -1,40 +1,45 @@
 ---
 
-- name: Provision All The Things
+- name: Packer Appliance Base Image
   hosts: all
   become: true
-  tags:
-    - packer
   vars:
     user: ubuntu
     packing: true
     cert_path: test/fox
-    ashes_server_name: local.foxcommerce.com
-    storefront_server_name: local.foxcommerce.com
+    install_public_keys: true
+    install_private_keys: true
     join_type: join
     consul_expect: 1
     mesos_quorum: 1
+    mesos_ip: "$(hostname -i)"
   roles:
+    # Common Packages
     - { role: base/common }
-    - { role: base/consul }
+    - { role: base/languages }
+    - { role: base/devkit }
+    # Private Keys
     - { role: base/ssh_keys }
-    - { role: base/scala }
-    - { role: base/docker }
+    - { role: base/secret_keys }
+    # Logging
+    - { role: base/rsyslog }
+    # Consul
+    - { role: base/consul }
+    - { role: base/consul_agent }
+    # Confluent Platform
+    - { role: base/confluent_platform }
+    # Mesosphere
     - { role: base/mesos }
     - { role: base/mesos_master }
     - { role: base/mesos_worker }
     - { role: base/mesos_consul }
-    - { role: base/confluence }
-    - { role: base/zookeeper }
-    - { role: base/kafka }
-    - { role: base/schema-registry }
-    - { role: base/elasticsearch }
+    # PostgreSQL
     - { role: base/db }
     - { role: base/bottledwater }
-    - { role: base/rsyslog }
+    - { role: base/pgweb }
+    # Elasticsearch
+    - { role: base/elasticsearch }
+    - { role: base/elasticsearch-5 }
     - { role: base/kibana }
-    - { role: base/node }
+    # Nginx
     - { role: base/balancer }
-
-  handlers:
-    - include: roles/base/consul_agent/handlers/main.yml

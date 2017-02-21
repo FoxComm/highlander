@@ -41,10 +41,6 @@ type State = {
   quantity: number;
 };
 
-type DefaultProps = {
-  updateLineItemCount: Function,
-};
-
 export class CartLineItem extends Component {
   props: Props;
 
@@ -62,14 +58,14 @@ export class CartLineItem extends Component {
   @autobind
   @debounce(300)
   performUpdate() {
-    const { cart: { referenceNumber }, item: { sku, attributes } } = this.props;
+    const { cart: { referenceNumber }, item: { productVariantId, attributes } } = this.props;
     const { quantity, lastSyncedQuantity } = this.state;
 
     const quantityDiff = quantity - lastSyncedQuantity;
 
     this.setState({
       lastSyncedQuantity: quantity,
-    }, () => this.props.updateLineItemCount(referenceNumber, sku, quantityDiff, attributes));
+    }, () => this.props.updateLineItemCount(referenceNumber, productVariantId, quantityDiff, attributes));
 
   }
 
@@ -109,16 +105,17 @@ export class CartLineItem extends Component {
   render() {
     const { item, className } = this.props;
     const { isDeleting, quantity } = this.state;
+    const skuQtyInput = _.kebabCase(item.sku);
 
     return (
       <tr className={classNames('line-item', className)}>
         <td><img src={item.imagePath} /></td>
-        <td>{item.name}</td>
+        <td className="line-item-name">{item.name}</td>
         <td><Link to="sku-details" params={{ skuCode: item.sku }}>{item.sku}</Link></td>
         <td><Currency className="item-price" value={item.price} /></td>
-        <td>
+        <td class="line-item-quantity">
           <Counter
-            id={`line-item-quantity-${item.sku}`}
+            id={`item-quantity-input-${skuQtyInput}`}
             value={quantity}
             min={1}
             max={1000000}

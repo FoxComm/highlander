@@ -22,15 +22,10 @@ object ProductVariantRoutes {
       pathPrefix("product-variants") {
         pathPrefix(Segment) { contextName ⇒
           adminObjectContext(contextName) { implicit context ⇒
-            (post & pathEnd & entity(as[ProductVariantPayload])) { payload ⇒
-              mutateOrFailures {
-                ProductVariantManager.create(auth.model, payload)
-              }
-            } ~
             pathPrefix(IntNumber) { variantId ⇒
               (get & pathEnd) {
                 getOrFailures {
-                  ProductVariantManager.get(variantId)
+                  ProductVariantManager.getByFormId(variantId)
                 }
               } ~
               (patch & pathEnd & entity(as[ProductVariantPayload])) { payload ⇒

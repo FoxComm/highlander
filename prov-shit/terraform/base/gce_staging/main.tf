@@ -46,20 +46,6 @@ module "foxcomm-staging" {
 }
 
 ##############################################
-# Target Setup Staging
-##############################################
-module "target-staging" {
-  source              = "../../modules/gce/tinystack"
-  datacenter          = "tgt-test"
-  backend_image       = "${var.tiny_backend_image}"
-  frontend_image      = "${var.tiny_frontend_image}"
-  ssh_user            = "${var.ssh_user}"
-  ssh_private_key     = "${var.ssh_private_key}"
-  consul_leader       = "${var.consul_leader}"
-  consul_server_image = "${var.consul_server_image}"
-}
-
-##############################################
 # Setup DNS
 ##############################################
 provider "dnsimple" {
@@ -71,14 +57,6 @@ resource "dnsimple_record" "frontend-dns-record" {
   domain = "foxcommerce.com"
   name   = "stage"
   value  = "${module.foxcomm-staging.frontend_address}"
-  type   = "A"
-  ttl    = 3600
-}
-
-resource "dnsimple_record" "frontend-dns-record-target" {
-  domain = "foxcommerce.com"
-  name   = "test-target"
-  value  = "${module.target-staging.frontend_address}"
   type   = "A"
   ttl    = 3600
 }

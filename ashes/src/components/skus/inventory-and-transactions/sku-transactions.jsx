@@ -13,7 +13,7 @@ import SearchList from 'components/list-page/search-list';
 import InventoryItemTransactionsRow from './sku-transactions-row';
 
 /** Redux */
-import { actions } from 'modules/inventory/transactions';
+import { actions } from 'modules/skus/transactions';
 
 type Actions = {
   setExtraFilters: Function,
@@ -50,6 +50,7 @@ class InventoryItemTransactions extends Component {
 
   componentDidMount() {
     this.props.actions.setExtraFilters([
+      // @TODO: jeff promised to add `skuId` to inventory_transactions_search_view
       dsl.termFilter('skuId', this.props.skuId)
     ]);
 
@@ -74,7 +75,7 @@ class InventoryItemTransactions extends Component {
 
 function mapState(state) {
   return {
-    list: state.inventory.transactions
+    list: state.skus.transactions
   };
 }
 

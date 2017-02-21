@@ -1,15 +1,15 @@
 ---
 
-- name: Add nginx apt key
+- name: Add Nginx APT key
   apt_key: url=http://nginx.org/packages/keys/nginx_signing.key
 
-- name: Add nginx apt repository
+- name: Add Nginx APT repository
   apt_repository: repo='{{item}}' state=present update_cache=yes
   with_items:
     - deb http://nginx.org/packages/mainline/ubuntu/ vivid nginx
     - deb-src http://nginx.org/packages/mainline/ubuntu/ vivid nginx
 
-- name: Install nginx dependencies
+- name: Install Nginx dependencies
   apt: name={{item}} force=yes state=latest
   with_items:
     - luajit

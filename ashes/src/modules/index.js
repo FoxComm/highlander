@@ -17,7 +17,6 @@ import activityNotifications from './activity-notifications';
 import storeCreditTypes from './store-credit-types';
 import activityTrail from './activity-trail';
 import siteMenu from './site-menu';
-import inventory from './inventory';
 import products from './products';
 import productVariants from './product-variants';
 import skus from './skus';
@@ -30,6 +29,7 @@ import plugins from './plugins';
 import objectSchemas from './object-schema';
 import applications from './merchant-applications';
 import originIntegrations from './origin-integrations';
+import taxonomies from './taxonomies';
 
 const rootReducer = combineReducers({
   routing: routerReducer,
@@ -51,7 +51,6 @@ const rootReducer = combineReducers({
   activityNotifications,
   activityTrail,
   siteMenu,
-  inventory,
   products,
   productVariants,
   skus,
@@ -62,6 +61,7 @@ const rootReducer = combineReducers({
   objectSchemas,
   applications,
   originIntegrations,
+  taxonomies,
 });
 
 export default rootReducer;

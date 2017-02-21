@@ -12,12 +12,15 @@ import Error from 'components/errors/error';
 // redux
 import * as cartActions from 'modules/carts/details';
 
+// types
+import type { TCart } from 'paragons/order';
+
 type RouteParams = {
   cart: string,
 }
 
 type CartDetails = {
-  cart?: Object,
+  cart?: TCart,
 }
 
 type Props = {
@@ -62,7 +65,7 @@ class Cart extends Component {
     return refNum(this.props);
   }
 
-  get cart(): ?Object {
+  get cart(): ?TCart {
     return this.props.details.cart;
   }
 
@@ -78,7 +81,9 @@ class Cart extends Component {
   }
 
   get subNav() {
-    return <SubNav cart={this.cart} />;
+    if (this.cart) {
+      return <SubNav cart={this.cart} />;
+    }
   }
 
   render() {

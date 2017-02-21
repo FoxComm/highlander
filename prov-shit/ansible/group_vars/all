@@ -1,13 +1,53 @@
 # Common variables
-home: /home/{{ user }}
+home: /home/{{user}}
 self_host: 127.0.0.1
 dest_services: /etc/systemd/system
 usr_local: /usr/local/
 public_keys_dest_dir: /etc/keys
 private_keys_dest_dir: /etc/keys
 scala_version: scala-2.11
-vagrant: false
-local_vagrant: false
+foxcomm_domain: foxcommerce.com
+logrotate_dir: /etc/logrotate.d
+appliance_prefix: appliance
+
+# Marathon defaults
+marathon_retries: 60
+marathon_delay: 10
+
+# Docker defaults
+docker_tag: master
+docker_registry: docker-stage.foxcommerce.com
+docker_registry_provider: gce
+docker_logs_dir: /logs
+docker_logs_host_dir: /var/log/docker
+
+# Google Cloud defaults
+gce_disk_size: 40
+gce_image: appliance-base-170131-101633
+gce_machine_type: n1-standard-4
+gce_project_id: "foxcomm-staging"
+gce_zone: "us-central1-a"
+
+# Default docker tags for containers
+docker_tags:
+    ashes: master
+    firebrand: master
+    phoenix: master
+    greenriver: master
+    middlewarehouse: master
+    messaging: master
+    isaac: master
+    solomon: master
+    capture_consumer: master
+    gift_card_consumer: master
+    shipments_consumer: master
+    shipstation_consumer: master
+    storefront_td: master
+    storefront_tpg: master
+    marketplace: master
+    marketplace_ui: master
+    product_search: master
+    demo_search: master
 
 # Consul Service Discovery
 consul_data_dir: /var/consul
@@ -63,6 +103,8 @@ solomon_port: 4002
 solomon_server: "{{solomon_host}}:{{solomon_port}}"
 
 mesos_master: "mesos-master.{{consul_suffix}}"
+mesos_port: 5050
+mesos_server: "{{mesos_master}}:{{mesos_port}}"
 
 marathon_host: "marathon.{{consul_suffix}}"
 marathon_port: 8080
@@ -82,6 +124,18 @@ product_search_server: "{{product_search_host}}:{{product_search_port}}"
 
 messaging_host: "messaging.{{consul_suffix}}"
 
+dashboard_host: "dashboard.{{consul_suffix}}"
+dashboard_port: 4198
+dashboard_server: "{{dashboard_host}}:{{dashboard_port}}"
+
+kibana_host: "kibana.{{consul_suffix}}"
+kibana_port: 5601
+kibana_server: "{{kibana_host}}:{{kibana_port}}"
+
+pgweb_host: "pgweb.{{consul_suffix}}"
+pgweb_port: 8082
+pgweb_server: "{{pgweb_host}}:{{pgweb_port}}"
+
 # Database & bottledwater
 db_user: phoenix
 db_name: phoenix_development
@@ -89,13 +143,6 @@ db_connection_string: "postgresql://{{db_host}}/phoenix_development?user={{db_us
 bottledwater_slot_phoenix: bottledwater_phoenix
 bottledwater_slot_middlewarehouse: bottledwater_middlewarehouse
 bottledwater_slot_marketplace: bottledwater_marketplace
-
-# Green River
-greenriver_version: 1.0
-greenriver_env: localhost
-greenriver_jar_src: ../../green-river/target/{{scala_version}}/green-river-assembly-{{greenriver_version}}.jar
-greenriver_jar: /usr/local/bin/green-river.jar
-greenriver_restart: "false"
 
 # Phoenix
 phoenix_version: 1.0
@@ -116,8 +163,12 @@ phoenix_api_user_org: tenant
 phoenix_api_user: "api@foxcommerce.com"
 phoenix_api_password: "api$pass7!"
 
-phoenix_tax_rule_region: ""
-phoenix_tax_rule_rate: ""
+phoenix_tax_rule_region: 4129
+phoenix_tax_rule_rate: 7.5
+
+# Green River
+greenriver_env: localhost
+greenriver_restart: "false"
 
 # Do not use this in production
 # This is a ttl of 1 year
@@ -126,6 +177,7 @@ solomon_token_ttl: 365
 
 # Middlewarehouse
 middlewarehouse_env: staging
+middlewarehouse_src: ../../middlewarehouse/
 middlewarehouse_dir: /middlewarehouse
 middlewarehouse_bin: "{{middlewarehouse_dir}}/middlewarehouse"
 middlewarehouse_db_name: middlewarehouse_development
@@ -134,7 +186,6 @@ middlewarehouse_db_connection_string: "postgresql://{{middlewarehouse_db_user}}@
 middlewarehouse_test_db_name: middlewarehouse_test
 
 middlewarehouse_consumers_dir: "{{middlewarehouse_dir}}/consumers"
-stock_items_consumer_bin: "{{middlewarehouse_consumers_dir}}/stock-items-consumer"
 shipments_consumer_bin: "{{middlewarehouse_consumers_dir}}/shipments-consumer"
 capture_consumer_bin: "{{middlewarehouse_consumers_dir}}/capture-consumer"
 
@@ -142,12 +193,28 @@ middlewarehouse_src: ../../middlewarehouse/
 middlewarehouse_bin_src: "{{middlewarehouse_src}}/middlewarehouse"
 middlewarehouse_seeder_bin_src: "{{middlewarehouse_src}}/seeder"
 
-stock_items_consumer_src: "{{middlewarehouse_src}}/consumers/stock-items"
-stock_items_consumer_bin_src: "{{stock_items_consumer_src}}/stock-items-consumer"
 shipments_consumer_src: "{{middlewarehouse_src}}/consumers/shipments"
 shipments_consumer_bin_src: "{{shipments_consumer_src}}/shipments-consumer"
 capture_consumer_src: "{{middlewarehouse_src}}/consumers/capture"
 capture_consumer_bin_src: "{{capture_consumer_src}}/capture-consumer"
+
+# Elasticsearch 2.x
+es_version: elasticsearch-2.1.2
+es_zip: "{{es_version}}.zip"
+es_home: /usr/local
+es_path: "{{es_home}}/{{es_version}}"
+es_heap_size: 512m
+
+# Elasticsearch 5.x
+es5_version: elasticsearch-5.1.2
+es5_zip: "{{es_version}}.zip"
+es5_base_url: https://artifacts.elastic.co/downloads/elasticsearch
+es5_download_url: "{{es_base_url}}/{{es_zip}}"
+es5_home: /usr/local
+es5_path: "{{es_home}}/{{es_version}}"
+es5_jmx_port: 29111
+es5_max_file_descriptors: 65536
+es5_heap_size: 512m
 
 # Shipstation consumer
 shipstation_api_key: ""
@@ -155,21 +222,13 @@ shipstation_api_secret: ""
 shipstation_topic: "activities"
 shipstation_interval: "10s"
 
-# Ashes
-ashes_env: production
-
 # Firebrand variables
 firebrand_env: production
 firebrand_default_language: en
-firebrand_fixed_language: false
 
 # Storefront variables
 storefront_default_language: en
 storefront_fixed_language: false
-
-# Loyalty
-loyalty_jar_src: ../../fox-loyalty/target/loyalty.jar
-loyalty_jar: /usr/local/bin/loyalty.jar
 
 # JMX ports
 es_jmx_port: 29010
@@ -197,24 +256,9 @@ google_oauth_frontend_redirect_uri: ""
 swap_file: /swap
 swap_size_mb: 2000
 
-# Fix Ansible 2 rsync
-rsync_opts: ssh -l {{user}}
-
-# Used to prefix service names in consul
-namespace: setme
-
 # Zipkin
 zipkin_collector: localhost
 
-# Are we running packer?
-packing: false
-
-# Should we upload Phoenix / Green River JAR?
-# Should be seed DB, seed via Gatling?
-upload_phoenix_jar: true
-
-# Deploy marketplace?
-with_marketplace: false
 
 # Test Stripe api key
 stripe_api_key: sk_test_13rnEgvA4DGHgv4f2GMCDtes
@@ -224,28 +268,25 @@ stripe_publishable_key: pk_test_1H2C9nTZpy8szPmboOEDwdwN
 cert_path: test/fox
 
 # Mesos
-mesos_quorum: 2
-mesos_ip: 0.0.0.0
-
-# Use seeder service or not?
-with_seeder: false
-with_gatling_seeder: true
-
-# Docker Defaults
-docker_branch: master
-docker_frontend_branch: master
-docker_registry: docker-stage.foxcommerce.com
-docker_registry_provider: gce
-docker_logs_dir: /logs
-docker_logs_host_dir: /var/log/docker
+mesos_quorum: 1
+mesos_ip: "$(hostname -i)"
 
 # Marketplace
 marketplace_db_name: marketplace_development
 marketplace_db_user: marketplace
 marketplace_db_connection_string: "postgresql://{{marketplace_db_user}}@{{db_host}}/{{marketplace_db_name}}"
 
-# Set this to true for first run deployments
-first_run: false
+# Messaging
+retailer_name: "FoxCommerce"
 
-# BuildKite Settings
-buildkite_env: gce
+# Various flags
+first_run: false
+is_ci: false
+is_amigo: false
+is_appliance: false
+packing: false
+with_marketplace: false
+with_shipstation: false
+with_base_seeds: true
+with_gatling_seeder: false
+with_mwh_seeder: true

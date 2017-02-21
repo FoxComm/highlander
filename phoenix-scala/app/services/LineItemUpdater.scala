@@ -2,7 +2,7 @@ package services
 
 import failures.CartFailures._
 import failures.OrderFailures.OrderLineItemNotFound
-import failures.ProductFailures.ProductVariantNotFoundForContext
+import failures.ProductFailures._
 import models.account._
 import models.activity.Activity
 import models.cord._
@@ -32,7 +32,7 @@ object LineItemUpdater {
       ctx: OC,
       au: AU): DbResultT[TheResponse[CartResponse]] = {
 
-    val logActivity = (cart: CartResponse, oldQtys: Map[String, Int]) ⇒
+    val logActivity = (cart: CartResponse, oldQtys: Map[ObjectForm#Id, Int]) ⇒
       LogActivity.orderLineItemsUpdated(cart, oldQtys, payload, Some(admin))
 
     for {
@@ -77,7 +77,7 @@ object LineItemUpdater {
       ctx: OC,
       au: AU): DbResultT[TheResponse[CartResponse]] = {
 
-    val logActivity = (cart: CartResponse, oldQtys: Map[String, Int]) ⇒
+    val logActivity = (cart: CartResponse, oldQtys: Map[ObjectForm#Id, Int]) ⇒
       LogActivity.orderLineItemsUpdated(cart, oldQtys, payload)
 
     val finder = Carts
@@ -100,7 +100,7 @@ object LineItemUpdater {
       ctx: OC,
       au: AU): DbResultT[TheResponse[CartResponse]] = {
 
-    val logActivity = (cart: CartResponse, oldQtys: Map[String, Int]) ⇒
+    val logActivity = (cart: CartResponse, oldQtys: Map[ObjectForm#Id, Int]) ⇒
       LogActivity.orderLineItemsUpdated(cart, oldQtys, payload, Some(admin))
 
     for {
@@ -118,7 +118,7 @@ object LineItemUpdater {
       ctx: OC,
       au: AU): DbResultT[TheResponse[CartResponse]] = {
 
-    val logActivity = (cart: CartResponse, oldQtys: Map[String, Int]) ⇒
+    val logActivity = (cart: CartResponse, oldQtys: Map[ObjectForm#Id, Int]) ⇒
       LogActivity.orderLineItemsUpdated(cart, oldQtys, payload)
 
     val finder = Carts
@@ -134,7 +134,7 @@ object LineItemUpdater {
   }
 
   private def runUpdates(cart: Cart,
-                         logAct: (CartResponse, Map[String, Int]) ⇒ DbResultT[Activity])(
+                         logAct: (CartResponse, Map[ObjectForm#Id, Int]) ⇒ DbResultT[Activity])(
       implicit ec: EC,
       es: ES,
       db: DB,
@@ -149,11 +149,8 @@ object LineItemUpdater {
       _     ← * <~ logAct(res, li)
     } yield TheResponse.validated(res, valid)
 
-  def foldQuantityPayload(payload: Seq[UpdateLineItemsPayload]): Map[String, Int] =
-    payload.foldLeft(Map[String, Int]()) { (acc, item) ⇒
-      val quantity = acc.getOrElse(item.sku, 0)
-      acc.updated(item.sku, quantity + item.quantity)
-    }
+  def foldQuantityPayload(payload: Seq[UpdateLineItemsPayload]): Map[ObjectForm#Id, Int] =
+    payload.groupBy(_.productVariantId).mapValues(_.map(_.quantity).sum)
 
   private def updateQuantities(cart: Cart, payload: Seq[UpdateLineItemsPayload])(
       implicit ec: EC,
@@ -168,10 +165,13 @@ object LineItemUpdater {
   private def updateLineItems(cart: Cart, lineItem: UpdateLineItemsPayload)(implicit ec: EC,
                                                                             ctx: OC) =
     for {
+      // TODO: deduplicate with `addQuantities` below?
       productVariant ← * <~ ProductVariants
                         .filterByContext(ctx.id)
-                        .filter(_.code === lineItem.sku)
-                        .mustFindOneOr(ProductVariantNotFoundForContext(lineItem.sku, ctx.id))
+                        .filter(_.formId === lineItem.variantFormId)
+                        .mustFindOneOr(
+                            ProductVariantNotFoundForContextAndId(lineItem.productVariantId,
+                                                                  ctx.id))
       _ ← * <~ mustFindProductIdForVariant(productVariant, cart.refNum)
       updateResult ← * <~ createLineItems(productVariant.id,
                                           lineItem.quantity,
@@ -196,8 +196,10 @@ object LineItemUpdater {
       for {
         productVariant ← * <~ ProductVariants
                           .filterByContext(ctx.id)
-                          .filter(_.code === lineItem.sku)
-                          .mustFindOneOr(ProductVariantNotFoundForContext(lineItem.sku, ctx.id))
+                          .filter(_.formId === lineItem.productVariantId)
+                          .mustFindOneOr(
+                              ProductVariantNotFoundForContextAndId(lineItem.productVariantId,
+                                                                    ctx.id))
         _ ← * <~ mustFindProductIdForVariant(productVariant, cart.refNum)
         _ ← * <~ (if (lineItem.quantity > 0)
                     createLineItems(productVariant.id,

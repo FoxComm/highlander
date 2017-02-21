@@ -24,6 +24,7 @@ final case class ProductVariantsSearchView()(implicit ec: EC) extends AvroTransf
       field("archivedAt", DateType).format(dateFormat),
       field("createdAt", DateType).format(dateFormat),
       field("externalId", StringType).index("not_analyzed"),
-      field("middlewarehouseSkuId", IntegerType).index("not_analyzed")
+      field("variantId", IntegerType).index("not_analyzed"),
+      field("skuId", IntegerType).index("not_analyzed")
   )
 }

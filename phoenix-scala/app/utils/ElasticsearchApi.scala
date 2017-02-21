@@ -23,18 +23,20 @@ case class ElasticsearchApi(host: String, cluster: String, index: String)(implic
   val settings        = Settings.settingsBuilder().put("cluster.name", cluster).build()
   val client          = ElasticClient.transport(settings, ElasticsearchClientUri(host))
 
-  private def getIndexAndType(searchView: SearchViewReference)(implicit au: AU): IndexAndType = {
-    val resultIndex = if (searchView.scoped) s"${index}_${au.token.scope}" else index
-    IndexAndType(resultIndex, searchView.typeName)
+  private def getIndexAndType(searchView: SearchView): IndexAndType = searchView match {
+    case ScopedSearchView(typeName, scope) ⇒
+      IndexAndType(s"${index}_$scope", typeName)
+    case SimpleSearchView(typeName) ⇒
+      IndexAndType(index, typeName)
   }
 
   /**
     * Injects metrics aggregation by specified field name into prepared query
     */
-  def checkMetrics(searchView: SearchViewReference,
+  def checkMetrics(searchView: SearchView,
                    query: Json,
                    fieldName: String,
-                   references: Seq[String])(implicit au: AU): Future[Long] = {
+                   references: Seq[String]): Future[Long] = {
 
     if (references.isEmpty) return Future.successful(0)
 
@@ -60,10 +62,10 @@ case class ElasticsearchApi(host: String, cluster: String, index: String)(implic
   /**
     * Injects bucket aggregation by specified field name into prepared query
     */
-  def checkBuckets(searchView: SearchViewReference,
+  def checkBuckets(searchView: SearchView,
                    esQuery: Json,
                    fieldName: String,
-                   references: Seq[String])(implicit au: AU): Future[Buckets] = {
+                   references: Seq[String]): Future[Buckets] = {
 
     if (references.isEmpty) return Future.successful(Seq.empty[TheBucket])
 
@@ -113,6 +115,16 @@ object ElasticsearchApi {
   val defaultHost    = "elasticsearch://localhost:9300"
   val defaultCluster = "elasticsearch"
   val defaultIndex   = "admin"
+
+  sealed trait SearchView {
+    val typeName: String
+  }
+  case class SimpleSearchView(typeName: String) extends SearchView
+
+  object SearchView {
+    def apply(typeName: String): SearchView = SimpleSearchView(typeName)
+  }
+  case class ScopedSearchView(typeName: String, scope: String) extends SearchView
 
   case class SearchViewReference(typeName: String, scoped: Boolean)
 

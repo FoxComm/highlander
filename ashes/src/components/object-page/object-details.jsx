@@ -50,8 +50,8 @@ export type DetailsProps = {
   // for product form
   // somehow flow don't understand props declarations in extended classes
   // in case of existing props declarations in base class
-  onSetSkuProperty: (code: string, field: string, value: any) => void,
-  onSetSkuProperties: (code: string, toUpdate: Array<Array<any>>) => void,
+  onSetVariantProperty: (id: string, field: string, value: any) => void,
+  onSetVariantProperties: (id: string, toUpdate: Array<Array<any>>) => void,
 }
 
 export default class ObjectDetails extends Component {

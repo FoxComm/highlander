@@ -1,0 +1,32 @@
+---
+
+- name: Register DNS Record for Appliance
+  dnsimple:
+    account_email: "{{dnsimple_email}}"
+    account_api_token: "{{dnsimple_token}}"
+    domain: "{{foxcomm_domain}}"
+    record: "{{dns_record}}"
+    value: "{{private_ip}}"
+    type: A
+    ttl: 3600
+    state: present
+  delegate_to: localhost
+  become: false
+
+- name: Copy Goldrush Data
+  template: src="{{item}}.j2" dest="{{home}}/{{item}}"
+  with_items:
+    - goldrush.log
+    - goldrush.state
+
+- name: Find out Highlander path
+  shell: "dirname $(dirname $(pwd))"
+  connection: local
+  become: false
+  register: highlander_path_out
+
+- name: Download Goldrush Data
+  fetch: src="{{home}}/{{item}}" dest="{{highlander_path_out.stdout}}/{{item}}" flat=yes
+  with_items:
+    - goldrush.log
+    - goldrush.state

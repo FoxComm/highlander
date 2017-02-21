@@ -5,10 +5,9 @@
 //libs
 import React, { Element } from 'react';
 import _ from 'lodash';
-import { activeStatus } from '../../paragons/common';
 
 // components
-import RoundedPill from '../rounded-pill/rounded-pill';
+import StatePill from '../object-page/state-pill';
 import MultiSelectRow from '../table/multi-select-row';
 
 // helpers
@@ -23,7 +22,7 @@ type Props = {
 const setCellContents = (promotion: Object, field: string) => {
   switch (field) {
     case 'state':
-      return <RoundedPill text={activeStatus(promotion)} />;
+      return <StatePill object={promotion} />;
     case 'storefrontName':
       return <div dangerouslySetInnerHTML={{__html: _.get(promotion, field)}} />;
     default:

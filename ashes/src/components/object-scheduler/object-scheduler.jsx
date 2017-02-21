@@ -6,11 +6,12 @@ import React, { Component, Element, PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import moment from 'moment';
 import _ from 'lodash';
-import { isActive } from 'paragons/common';
+import { isActive, setFromTo } from 'paragons/common';
 import { trackEvent } from 'lib/analytics';
 
-import { Dropdown } from '../dropdown';
 import DateTimePicker from '../date-time-picker/date-time-picker';
+import StateDropdown from '../object-page/state-dropdown';
+import type { StateChangeEvent } from '../object-page/state-dropdown';
 
 
 type Props = {
@@ -24,11 +25,6 @@ type State = {
   showActiveFromPicker: boolean,
   showActiveToPicker: boolean,
 };
-
-const SELECT_STATE = [
-  ['active', 'Active'],
-  ['inactive', 'Inactive'],
-];
 
 export default class ObjectScheduler extends Component {
   props: Props;
@@ -144,26 +140,12 @@ export default class ObjectScheduler extends Component {
   setFromTo(activeFrom: ?string, activeTo: ?string): Attributes {
     const { attributes } = this.props;
 
-    return {
-      ...attributes,
-      activeFrom: {
-        v: activeFrom,
-        t: 'datetime'
-      },
-      activeTo: {
-        v: activeTo,
-        t: 'datetime'
-      },
-    };
+    return setFromTo(attributes, activeFrom, activeTo);
   }
 
   @autobind
-  handleActiveChange(value: string) {
-    const now = moment().utc().format('YYYY-MM-DDTHH:mm:ss.SSS[Z]');
-    const activeFrom = value == 'active' ? now : null;
-
-    const attributes = this.setFromTo(activeFrom, null);
-    this.props.onChange(attributes);
+  handleActiveChange(event: StateChangeEvent) {
+    this.props.onChange(event.attributes);
   }
 
   trackEvent(...args: any[]) {
@@ -200,18 +182,15 @@ export default class ObjectScheduler extends Component {
 
 
   get activeDropdown(): Element {
-    const activeState = this.isActive ? 'active' : 'inactive';
     const isDisabled = !this.isActive && this.state.showActiveFromPicker;
-
     return (
-      <Dropdown
+      <StateDropdown
         id="state-dd"
         dropdownValueId="state-dd--value"
         className="fc-product-state__active-state"
         disabled={isDisabled}
-        value={activeState}
+        attributes={this.props.attributes}
         onChange={this.handleActiveChange}
-        items={SELECT_STATE}
       />
     );
   }

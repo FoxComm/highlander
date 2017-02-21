@@ -1,28 +1,32 @@
 # Development environment Makefile
 include makelib
+include .env.local
 header = $(call baseheader, $(1), root)
 
 prepare:
-	vagrant plugin install vagrant-google
-	vagrant box add --force gce https://github.com/mitchellh/vagrant-google/raw/master/google.box
+	sudo pip install -r prov-shit/requirements.txt
 
 dotenv:
 	cd prov-shit && ansible-playbook --inventory-file=bin/envs/dev ansible/goldrush_env_local.yml
 
 up:
 	$(call header, Creating GCE Machine)
-	export eval `cat ./.env.local`; vagrant up --provider=google appliance
-
-provision:
-	$(call header, Provisioning GCE Machine)
-	export eval `cat ./.env.local`; VAGRANT_DEFAULT_PROVIDER=google vagrant provision appliance
+	ansible-playbook --user=$(GOOGLE_SSH_USERNAME) --private-key=$(GOOGLE_SSH_KEY) prov-shit/ansible/goldrush_appliance.yml
+	@cat goldrush.log
 
 destroy:
 	$(call header, Destroying GCE Machine)
-	export eval `cat ./.env.local`; VAGRANT_DEFAULT_PROVIDER=google vagrant destroy appliance --force
+	ansible-playbook prov-shit/ansible/goldrush_appliance_destroy.yml
+	@rm -rf goldrush.log
+	@rm -rf goldrush.state
 
-ssh:
-	$(call header, Connecting to GCE Machine)
-	export eval `cat ./.env.local`; VAGRANT_DEFAULT_PROVIDER=google vagrant ssh appliance
+update-app:
+	cd prov-shit && ansible-playbook -v -i bin/envs/dev ansible/goldrush_update_app.yml
 
-.PHONY: up provision destroy ssh
+# Legacy commands
+migrate: prepare
+	@awk '{ printf "\nexport GOOGLE_INSTANCE_NAME=%s", $$1 }' .vagrant/machines/appliance/google/id >> .env.local
+
+provision: up
+
+.PHONY: up migrate provision destroy update-app dotenv prepare clean
