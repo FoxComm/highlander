@@ -6,7 +6,7 @@ import { transitionTo } from 'browserHistory';
 import styles from './promotion-coupons.css';
 
 // components
-import Coupons from '../coupons/coupons'
+import Coupons from '../coupons/coupons';
 import { SectionTitle } from '../section-title';
 import { PrimaryButton } from '../../components/common/buttons';
 
@@ -18,14 +18,14 @@ export default class PromoCouponsPage extends React.Component {
   };
   	
   render() {
-  	const promoId = this.props.object.id;
+  	const promotionId = this.props.object.id;
   	const children = this.props.children;
     return (
       <div className="fc-promotion-coupons-page">
         <SectionTitle title="Coupons">
         	<PrimaryButton onClick={this.addAction} icon="add">Coupon</PrimaryButton>
         </SectionTitle>
-        <Coupons promoId={promoId} />
+        <Coupons promotionId={promotionId} />
         {children}
       </div>
     );

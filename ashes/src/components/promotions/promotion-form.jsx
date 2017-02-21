@@ -44,13 +44,13 @@ export default class PromotionForm extends ObjectDetails {
           <RadioButton id="autoApplyRadio"
             onChange={this.handleApplyTypeChange}
             name="auto"
-            checked={promotion.applyType === "auto"}>
+            checked={promotion.applyType === 'auto'}>
             <label htmlFor="autoApplyRadio" styleName="field-label">Promotion is automatically applied</label>
           </RadioButton>    
           <RadioButton id="couponCodeRadio"
             onChange={this.handleApplyTypeChange}
             name="coupon"
-            checked={promotion.applyType === "coupon"}>
+            checked={promotion.applyType === 'coupon'}>
             <label htmlFor="couponCodeRadio" styleName="field-label">Promotion requires a coupon code</label>
           </RadioButton>  
         </div>
@@ -111,7 +111,7 @@ export default class PromotionForm extends ObjectDetails {
 
   @autobind  
   handleUsageRulesChange({target}: Object) {
-    const value = (target.getAttribute('name') === "true");
+    const value = (target.getAttribute('name') === 'true');
     const newPromotion = assoc(this.props.object, 'isExclusive', value);
 
     this.props.onUpdateObject(newPromotion);

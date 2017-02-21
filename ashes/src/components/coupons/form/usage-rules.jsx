@@ -7,6 +7,7 @@ import { autobind } from 'core-decorators';
 
 // components
 import ContentBox from '../../content-box/content-box';
+import RadioButton from '../../forms/radio-button';
 import { Checkbox } from '../../checkbox/checkbox';
 import Counter from '../../forms/counter';
 
@@ -14,7 +15,6 @@ import Counter from '../../forms/counter';
 import styles from './styles.css';
 
 type UsageRuleProps = {
-  isExclusive: boolean,
   isUnlimitedPerCode: boolean,
   isUnlimitedPerCustomer: boolean,
   usesPerCode: number,
@@ -27,7 +27,6 @@ export default class UsageRules extends Component {
   props: UsageRuleProps;
 
   static defaultProps = {
-    isExclusive: false,
     isUnlimitedPerCode: false,
     isUnlimitedPerCustomer: false,
     usesPerCode: 1,
@@ -35,18 +34,23 @@ export default class UsageRules extends Component {
   };
 
   @autobind
-  toggleExclusiveness(): void {
-    this.props.onChange('isExclusive', !this.props.isExclusive);
+  setUnlimitedUsageTrue(): void {
+    this.props.onChange('isUnlimitedPerCode', true);
   }
 
   @autobind
-  toggleUnlimitedUsage(): void {
-    this.props.onChange('isUnlimitedPerCode', !this.props.isUnlimitedPerCode);
+  setUnlimitedUsageFalse(): void {
+    this.props.onChange('isUnlimitedPerCode', false);
   }
 
   @autobind
-  toggleUnlimitedCustomerUsage(): void {
-    this.props.onChange('isUnlimitedPerCustomer', !this.props.isUnlimitedPerCustomer);
+  setUnlimitedCustomerUsageTrue(): void {
+    this.props.onChange('isUnlimitedPerCustomer', true);
+  }
+
+  @autobind
+  setUnlimitedCustomerUsageFalse(): void {
+    this.props.onChange('isUnlimitedPerCustomer', false);
   }
 
   @autobind
@@ -68,27 +72,24 @@ export default class UsageRules extends Component {
   render(): Element {
     return (
       <ContentBox title="Usage Rules">
-        <div styleName="form-group">
-          <Checkbox
-            id="couponIsExclusive"
-            onClick={this.toggleExclusiveness}
-            checked={this.props.isExclusive}>
-            Coupon is exclusive
-          </Checkbox>
-        </div>
-        <div styleName="form-group">
-          <div className="fc-form-field" styleName="form-group">
+        <div className="fc-mb20" styleName="form-group">
+          <div className="fc-form-field">
             <div styleName="form-group-title">
               <label>Max uses per coupon</label>
             </div>
             <div styleName="form-group">
-              <Checkbox id="couponUnlimitedUsage"
-                onClick={this.toggleUnlimitedUsage}
+              <RadioButton id="couponUnlimitedUsageTrue"
+                onChange={this.setUnlimitedUsageTrue}
                 checked={this.props.isUnlimitedPerCode}>
-                Unlimited
-              </Checkbox>
+                <label htmlFor="couponUnlimitedUsageTrue" styleName="field-label">Unlimited</label>
+              </RadioButton>    
+              <RadioButton id="couponUnlimitedUsageFalse"
+                onChange={this.setUnlimitedUsageFalse}
+                checked={!this.props.isUnlimitedPerCode}>
+                <label htmlFor="couponUnlimitedUsageFalse" styleName="field-label">Limited number</label>
+              </RadioButton>  
             </div>
-            <div>
+            <div style={{display: this.props.isUnlimitedPerCode ? 'none' : 'block'}}>
               <Counter
                 counterId="uses-per-coupon-counter"
                 id="couponUsesForCode"
@@ -101,23 +102,28 @@ export default class UsageRules extends Component {
               />
             </div>
           </div>
-          <div styleName="field-comment">
+          {/*<div styleName="field-comment">
             Maximum times the coupon can be used.
-          </div>
+          </div>*/}
         </div>
-        <div styleName="form-group">
-          <div className="fc-form-field" styleName="form-group">
+        <div className="fc-mb20" styleName="form-group">
+          <div className="fc-form-field">
             <div styleName="form-group-title">
               <label>Max uses per customer</label>
             </div>
             <div styleName="form-group">
-              <Checkbox id="couponCustomerUsage"
-                onClick={this.toggleUnlimitedCustomerUsage}
+              <RadioButton id="couponUnlimitedCustomerUsageTrue"
+                onChange={this.setUnlimitedCustomerUsageTrue}
                 checked={this.props.isUnlimitedPerCustomer}>
-                Unlimited
-              </Checkbox>
+                <label htmlFor="couponUnlimitedCustomerUsageTrue" styleName="field-label">Unlimited</label>
+              </RadioButton>    
+              <RadioButton id="couponUnlimitedCustomerUsageFalse"
+                onChange={this.setUnlimitedCustomerUsageFalse}
+                checked={!this.props.isUnlimitedPerCustomer}>
+                <label htmlFor="couponUnlimitedCustomerUsageFalse" styleName="field-label">Limited number</label>
+              </RadioButton>  
             </div>
-            <div>
+            <div style={{display: this.props.isUnlimitedPerCustomer ? 'none' : 'block'}}>
               <Counter
                 counterId="uses-per-customer-counter"
                 id="couponUsesNumberForCustomer"
@@ -130,9 +136,9 @@ export default class UsageRules extends Component {
               />
             </div>
           </div>
-          <div styleName="field-comment">
+          {/*<div styleName="field-comment">
             Maximum times the coupon can be used per customer account.
-          </div>
+          </div>*/}
         </div>
       </ContentBox>
     );

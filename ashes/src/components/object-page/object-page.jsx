@@ -243,7 +243,9 @@ export class ObjectPage extends Component {
       object: nextObject
     }, () => {
       if (isNew && nextObjectId) {
-        this.transitionTo(nextObjectId);
+        if(typeof this.props.params.couponModal === 'undefined'){
+          this.transitionTo(nextObjectId);
+        }
       }
       if (!isNew && !nextObjectId) {
         this.transitionTo('new');
@@ -428,20 +430,20 @@ export class ObjectPage extends Component {
             isLoading={this.props.isSaving}
             items={SAVE_COMBO_ITEMS}
           />
-        </PageTitle>)    
+        </PageTitle>);    
     } else {
-      return "";
+      return '';
     }   
   }
 
   @autobind
   alterSave() {
     if(typeof this.props.params.hideTitle === 'undefined'){
-      return "";  
+      return '';  
     } else {
       return (<SaveCancel
               onSave={this.handleSubmit}
-              saveText="Generate Coupon Code()" />);  
+              saveText="Generate Coupon Code(s)" />);  
     }   
   }
 

@@ -28,7 +28,7 @@ import type { SearchFilter } from 'elastic/common';
 type CouponsProps = {
   actions: Object,
   list: Object,
-  promoId: Number|undefined
+  promotionId: Number|undefined
 };
 
 const mapStateToProps = (state: Object) => {
@@ -68,7 +68,7 @@ export default class Coupons extends Component {
         operator: 'eq',
         value: {
           type: 'identifier',
-          value: String(this.props.promoId)
+          value: String(this.props.promotionId)
         }
       },
       ...filters
@@ -77,14 +77,14 @@ export default class Coupons extends Component {
 
   @autobind
   addSearchFilters(filters: Array<SearchFilter>, initial: boolean = false) {
-    if(typeof this.props.promoId === 'undefined'){
+    if(typeof this.props.promotionId === 'undefined'){
       return this.props.actions.addSearchFilters(filterArchived(filters), initial);
     }
     return this.props.actions.addSearchFilters(this.applyPromotionFilter(filterArchived(filters)), initial);
   }
 
   @autobind
-  renderRow(row: Object, index: number, columns: Array<any>, params: Object, promoId: Number = this.props.promoId): Element {
+  renderRow(row: Object, index: number, columns: Array<any>, params: Object, promotionId: Number = this.props.promotionId): Element {
     const key = `coupon-${row.id}`;
     return (
       <CouponRow
@@ -92,14 +92,13 @@ export default class Coupons extends Component {
         columns={columns}
         key={key}
         params={params}
-        promoId={promoId}
+        promotionId={promotionId}
       />
     );
   }
 
   render(): Element {
-    console.log(this.props);
-    const {list, actions, promoId} = this.props;
+    const {list, actions, promotionId} = this.props;
 
     const searchActions = {
       ...actions,

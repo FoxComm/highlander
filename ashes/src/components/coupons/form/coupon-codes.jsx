@@ -139,7 +139,7 @@ class CouponCodes extends Component {
 
     return (
       <div styleName="form-subset">
-        <div styleName="form-group">
+        <div styleName="form-group" className="fc-coupon-inline-row">
           <FormField label="Quantity">
             <div>
               <Counter
@@ -155,7 +155,7 @@ class CouponCodes extends Component {
             </div>
           </FormField>
         </div>
-        <div styleName="form-group">
+        <div styleName="form-group" className="fc-coupon-inline-row">
           <FormField label="Code Prefix">
             <div>
               <input
@@ -168,7 +168,7 @@ class CouponCodes extends Component {
             </div>
           </FormField>
         </div>
-        <div styleName="form-group">
+        <div styleName="form-group" className="fc-coupon-inline-row">
           <FormField label="Code Character Length" >
             <div>
               <Counter
@@ -188,12 +188,12 @@ class CouponCodes extends Component {
             Excludes prefix
           </div>
         </div>
-        <PrimaryButton
+        {/* <PrimaryButton
           type="button"
           disabled={this.generateCodesDisabled}
           onClick={this.handleGenerateBulkClick} >
           Generate Codes
-        </PrimaryButton>
+        </PrimaryButton> */}
       </div>
     );
   }

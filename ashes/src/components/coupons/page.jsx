@@ -144,7 +144,7 @@ class CouponPage extends ObjectPage {
   }
 
   subNav() {
-    return "";
+    return '';
   }
 }
 

@@ -1,38 +1,10 @@
 {
   "main": [
     {
-      "type": "group",
-      "title": "General",
-      "content": [
-        {
-          "type": "fields",
-          "value": [
-            "name",
-            "storefrontName",
-            "description",
-            "details"
-          ]
-        }, {
-          "type": "promotionsSelector"
-        }
-      ]
-    },
-    {
       "type": "couponCodes"
     },
     {
       "type": "usageRules"
-    }
-  ],
-  "aside": [
-    {
-      "type": "tags"
-    },
-    {
-      "type": "state"
-    },
-    {
-      "type": "watchers"
     }
   ]
 }
