@@ -76,11 +76,6 @@ case class Product(id: Int = 0,
 
   override def sanitize: Product = super.sanitize.copy(slug = slug.toLowerCase)
 
-  def mustBeActive: Failures Xor Product =
-    archivedAt
-      .map(_ ⇒ Xor.Left(ProductIsNotActive(ProductReference(id)).single))
-      .getOrElse(Xor.Right(this))
-
 }
 
 class Products(tag: Tag) extends ObjectHeads[Product](tag, "products") {

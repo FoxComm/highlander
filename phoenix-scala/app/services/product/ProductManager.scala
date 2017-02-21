@@ -118,7 +118,6 @@ object ProductManager {
       oc: OC): DbResultT[ProductResponse.Root] =
     for {
       oldProduct ← * <~ Products.mustFindFullByReference(productId)
-      _          ← * <~ oldProduct.model.mustBeActive
       illuminated = IlluminatedProduct
         .illuminate(oc, oldProduct.model, oldProduct.form, oldProduct.shadow)
       _      ← * <~ illuminated.mustBeActive

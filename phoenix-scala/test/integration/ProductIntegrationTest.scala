@@ -105,8 +105,7 @@ class ProductIntegrationTest
 
       productsApi(product.id).archive().mustBeOk()
 
-      productsApi(slug).forCustomer.get
-        .mustFailWith404(ProductIsNotActive(ProductReference(product.id)))
+      productsApi(slug).forCustomer.get.mustFailWith404(ProductIsNotActive(ProductReference(slug)))
     }
 
     "404 for inactive products" in new Customer_Seed with Fixture {
