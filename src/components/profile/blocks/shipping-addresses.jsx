@@ -8,6 +8,7 @@ import { connect } from 'react-redux';
 import { browserHistory } from 'lib/history';
 
 // components
+import { Link } from 'react-router';
 import EditableBlock from 'ui/editable-block';
 import RadioButton from 'ui/radiobutton/radiobutton';
 import { AddressDetails } from 'ui/address';
@@ -19,11 +20,12 @@ import profileStyles from '../profile.css';
 
 const styles = {...addressStyles, ...profileStyles};
 
-import { updateAddress, fetchAddresses } from 'modules/checkout';
+import { updateAddress, fetchAddresses, deleteAddress } from 'modules/checkout';
 
 type Props = {
   addresses: Array<any>,
   updateAddress: Function,
+  deleteAddress: (id: number) => Promise,
   t: any,
 };
 
@@ -65,13 +67,14 @@ class MyShippingAddresses extends Component {
   }
 
   @autobind
-  editAddress(address) {
-    browserHistory.push(`/profile/addresses/${address.id}`);
-  }
-
-  @autobind
   addAddress() {
     browserHistory.push('/profile/addresses/new');
+  }
+
+  deleteAddress(addressId) {
+    if (confirm('Remove address ?')) {
+      this.props.deleteAddress(addressId);
+    }
   }
 
   @autobind
@@ -82,10 +85,19 @@ class MyShippingAddresses extends Component {
   }
 
   renderAddresses() {
-    const items = _.map(this.props.addresses, (address) => {
+    const { props } = this;
+    const items = _.map(props.addresses, (address) => {
       const content = <AddressDetails address={address} hideName />;
       const checked = address.id === this.state.activeAddressId;
       const key = address.id;
+
+      const actionsContent = (
+        <div styleName="actions-block">
+          <Link styleName="link" to={`/profile/addresses/${address.id}`}>{props.t('EDIT')}</Link>
+          &nbsp;|&nbsp;
+          <div styleName="link" onClick={() => this.deleteAddress(address.id)}>{props.t('REMOVE')}</div>
+        </div>
+      );
 
       return (
         <li styleName="item" key={`address-radio-${key}`}>
@@ -96,11 +108,10 @@ class MyShippingAddresses extends Component {
             onChange={() => this.selectAddressById(address.id)}
           >
             <EditableBlock
-              isEditing={false}
               styleName="item-content"
               title={address.name}
               content={content}
-              editAction={() => this.editAddress(address)}
+              actionsContent={actionsContent}
             />
           </RadioButton>
         </li>
@@ -129,6 +140,6 @@ class MyShippingAddresses extends Component {
 }
 
 export default _.flowRight(
-  connect(mapStateToProps, {updateAddress, fetchAddresses}),
+  connect(mapStateToProps, {updateAddress, fetchAddresses, deleteAddress}),
   localized
 )(MyShippingAddresses);

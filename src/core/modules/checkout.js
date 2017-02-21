@@ -192,6 +192,19 @@ function createOrUpdateAddress(payload, id) {
   return foxApi.addresses.add(payload);
 }
 
+const _deleteAddress = createAsyncActions(
+  'deleteAddress',
+  function(addressId: number) {
+    const { dispatch } = this;
+
+    return foxApi.addresses.delete(addressId).then(() => {
+      dispatch(fetchAddresses());
+    });
+  }
+);
+
+export const deleteAddress = _deleteAddress.perform;
+
 function setDefaultAddress(id: number): Function {
   return (dispatch) => {
     return foxApi.addresses.setAsDefault(id)

@@ -17,6 +17,7 @@ type EditableProps = Localized & {
   content?: ?HTMLElement,
   children?: HTMLElement,
   editAction?: () => any,
+  actionsContent?: HTMLElement|Array<HTMLElement>,
   title: string,
   t: any,
 };
@@ -26,13 +27,14 @@ const EditableBlock = (props: EditableProps) => {
     ? <div onClick={props.editAction} styleName="action">{props.t('EDIT')}</div>
     : null;
 
+  const actions = props.actionsContent || editLink;
   const content = !props.collapsed ? (props.content || props.children) : null;
 
   return (
     <article styleName="editable-block" className={props.className}>
       <header styleName="header">
         <h3 styleName="title">{props.title}</h3>
-        {editLink}
+        {actions}
       </header>
       {content}
     </article>
