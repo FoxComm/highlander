@@ -42,9 +42,11 @@ package object db {
   object FoxyTDBIO extends FoxyTOps[DBIO] {
     def fromDbio[A](fa: DBIO[A])(implicit M: Monad[DBIO]): FoxyTDBIO[A] = // TODO: remove me @michalrus
       fromF(fa)
-    def fromResultT[A](ga: FoxyT[Future, A]): FoxyT[DBIO, A] = // TODO: better name? @michalrus
+    def fromResultT[A](ga: FoxyT[Future, A])(
+        implicit F: Monad[Future],
+        G: Monad[DBIO]): FoxyT[DBIO, A] = // TODO: better name? @michalrus
       // Don’t remove type annotation below, or the compiler will crash. 🙄
-      ga.transformF(gga ⇒ XorT(DBIO.from(gga.value): DBIO[A])) // TODO: use FunctionK for functor changes? Future[_] → DBIO[_] here
+      ga.transformF(gga ⇒ XorT(DBIO.from(gga.value): DBIO[Xor[Failures, (List[UIInfo], A)]])) // TODO: use FunctionK for functor changes? Future[_] → DBIO[_] here
   }
 
   implicit class EnrichedFoxyT[F[_], A](fa: FoxyT[F, A]) {
@@ -93,8 +95,8 @@ package object db {
 
     def meh(implicit M: Monad[F]): FoxyT[F, Unit] = for (_ ← fa) yield {}
 
-    def failuresToWarnings(pf: PartialFunction[Failure, Boolean])(
-        implicit F: Monad[F]): FoxyT[F, Unit] = {
+    def failuresToWarnings(newValue: A)(pf: PartialFunction[Failure, Boolean])(
+        implicit F: Monad[F]): FoxyT[F, A] = {
       val FoxyTF = new FoxyTOps[F] {}
       fa.flatMapXor {
         case Xor.Left(fs) ⇒
@@ -102,12 +104,12 @@ package object db {
           val (warnings, failures) = fs.toList.partition(lpf(_) == Some(true))
           failures match {
             case h :: t ⇒
-              // We don’t care about warnings when there’re failures.
-              FoxyTF.failures[Unit](NonEmptyList(h, t))
+              // We don’t care about warnings when there’re failures left.
+              FoxyTF.failures[A](NonEmptyList(h, t))
             case Nil ⇒
-              warnings.traverse(FoxyTF.warning).map(_ ⇒ ())
+              warnings.traverse(FoxyTF.warning).map(_ ⇒ newValue)
           }
-        case _ ⇒ FoxyTF.pure(())
+        case _ ⇒ FoxyTF.pure(newValue)
       }
     }
   }
@@ -210,11 +212,8 @@ package object db {
             case e: FoxFailureException ⇒ Xor.left(e.failures)
           }))
 
-    def runDBIO()(implicit ec: EC, db: DB): Result[A] = {
-      //val F19 = FlatMap[DBIO](dbioMonad)
-      //dbResultT.value.run()
+    def runDBIO()(implicit ec: EC, db: DB): Result[A] =
       dbResultT.transformF(fa ⇒ XorT(fa.value.run))
-    }
 
     def resolveFailures(
         resolver: PartialFunction[Failure, Failure])( // TODO: what’s that? Move to FoxyT. @michalrus

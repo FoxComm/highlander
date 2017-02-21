@@ -6,7 +6,9 @@ import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 
-import cats.data.Xor
+import cats._
+import cats.data._
+import cats.implicits._
 import com.pellucid.sealerate
 import com.typesafe.config.Config
 import failures.{Failures, FailuresOps, NotFoundFailure404}
@@ -161,13 +163,15 @@ object Seeds {
 
   def createBaseSeeds(implicit db: DB): Int = {
     Console.err.println("Inserting Base Seeds")
-    val result: Failures Xor Int = Await.result(createBase.runTxn(), 4.minutes)
+    // TODO: Should we really be discarding all warnings here (and git-grep 'runEmptyA')? Rethink! @michalrus
+    val result: Failures Xor Int = Await.result(createBase.runTxn().runEmptyA.value, 4.minutes)
     validateResults("base", result)
   }
 
   def createShippingRulesSeeds(implicit db: DB): Int = {
     Console.err.println("Inserting Shipping Seeds")
-    val result: Failures Xor Int = Await.result(createShipmentRules.runTxn(), 4.minutes)
+    val result: Failures Xor Int =
+      Await.result(createShipmentRules.runTxn().runEmptyA.value, 4.minutes)
     validateResults("shipping", result)
   }
 
@@ -175,7 +179,7 @@ object Seeds {
     Users.take(1).mustFindOneOr(NotFoundFailure404(User, "first"))
 
   def mustGetFirstAdmin(implicit db: DB): User = {
-    val result = Await.result(getFirstAdmin.run(), 1.minute)
+    val result = Await.result(getFirstAdmin.runDBIO().runEmptyA.value, 1.minute)
     validateResults("get first admin", result)
   }
 
@@ -186,7 +190,7 @@ object Seeds {
       admins ← * <~ Factories.createStoreAdmins
     } yield admins
 
-    val result: Failures Xor Int = Await.result(r.run(), 4.minutes)
+    val result: Failures Xor Int = Await.result(r.runDBIO().runEmptyA.value, 4.minutes)
     validateResults("admins", result)
   }
 
@@ -195,14 +199,16 @@ object Seeds {
       ec: EC,
       ac: AC): User = {
     Console.err.println("Create Store Admin seeds")
-    val result: Failures Xor User =
-      Await.result(Factories.createStoreAdminManual(name, email, org, roles).runTxn(), 1.minute)
+    val result: Failures Xor User = Await.result(
+        Factories.createStoreAdminManual(name, email, org, roles).runTxn().runEmptyA.value,
+        1.minute)
     validateResults("admin", result)
   }
 
   def createStageSeeds(adminId: Int)(implicit db: DB, ac: AC) {
     Console.err.println("Inserting Stage seeds")
-    val result: Failures Xor Unit = Await.result(createStage(adminId).runTxn(), 4.minutes)
+    val result: Failures Xor Unit =
+      Await.result(createStage(adminId).runTxn().runEmptyA.value, 4.minutes)
     validateResults("stage", result)
   }
 
@@ -239,7 +245,7 @@ object Seeds {
       val r = for {
         r ← * <~ getMerchant
         (organization, merchant, account, claims) = r
-        _ ← * <~ ({
+        _ ← * <~ {
              implicit val au =
                AuthData[User](token = UserToken.fromUserAccount(merchant, account, claims),
                               model = merchant,
@@ -248,10 +254,10 @@ object Seeds {
              for {
                _ ← * <~ SeedsGenerator.insertRandomizedSeeds(batchSize, appeasementsPerBatch)
              } yield {}
-           })
+           }
       } yield {}
 
-      val result = Await.result(r.runTxn(), (120 * scale).second)
+      val result = Await.result(r.runTxn().runEmptyA.value, (120 * scale).second)
       validateResults(s"random batch $b", result)
     }
   }
@@ -276,7 +282,7 @@ object Seeds {
     for {
       r ← * <~ getMerchant
       (organization, merchant, account, claims) = r
-      _ ← * <~ ({
+      _ ← * <~ {
            implicit val au = AuthData[User](token =
                                               UserToken.fromUserAccount(merchant, account, claims),
                                             model = merchant,
@@ -301,7 +307,7 @@ object Seeds {
              promotions ← * <~ Factories.createCouponPromotions(discounts)
              coupons    ← * <~ Factories.createCoupons(promotions)
            } yield {}
-         })
+         }
     } yield {}
 
   object Factories
