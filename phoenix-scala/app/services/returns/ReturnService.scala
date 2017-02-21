@@ -12,7 +12,6 @@ import models.{Reason, Reasons}
 import payloads.ReturnPayloads._
 import responses.ReturnResponse._
 import responses.{CustomerResponse, ReturnResponse, StoreAdminResponse}
-import services.returns.Helpers._
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
@@ -23,8 +22,7 @@ object ReturnService {
       implicit ec: EC,
       db: DB): DbResultT[Root] =
     for {
-      _   ← * <~ payload.validate
-      rma ← * <~ mustFindPendingReturnByRefNum(refNum)
+      rma ← * <~ Returns.mustFindPendingByRefNum404(refNum)
       newMessage = if (payload.message.length > 0) Some(payload.message) else None
       update   ← * <~ Returns.update(rma, rma.copy(messageToAccount = newMessage))
       updated  ← * <~ Returns.refresh(rma)

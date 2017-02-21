@@ -18,7 +18,6 @@ object ReturnReasonsManager {
 
   def addReason(reasonPayload: ReturnReasonPayload)(implicit ec: EC, db: DB): DbResultT[Root] =
     for {
-      _        ← * <~ reasonPayload.validate
       reason   ← * <~ addProcessing(reasonPayload)
       response ← * <~ buildResponse(reason)
     } yield response

@@ -31,12 +31,11 @@ object ReturnResponse {
   case class LineItemSku(lineItemId: Int, sku: DisplaySku) extends ResponseItem
   case class LineItemGiftCard(lineItemId: Int, giftCard: GiftCardResponse.Root)
       extends ResponseItem
-  case class LineItemShippingCost(lineItemId: Int, shippingCost: ShipmentResponse.Root)
-      extends ResponseItem
+  case class LineItemShippingCost(lineItemId: Int, amount: Int) extends ResponseItem
 
   case class LineItems(skus: Seq[LineItemSku] = Seq.empty,
                        giftCards: Seq[LineItemGiftCard] = Seq.empty,
-                       shippingCosts: Seq[LineItemShippingCost] = Seq.empty)
+                       shippingCosts: Option[LineItemShippingCost] = Option.empty)
       extends ResponseItem
 
   case class DisplayPayment(id: Int,
@@ -79,9 +78,10 @@ object ReturnResponse {
         paymentMethodType = pmt.paymentMethodType
     )
 
-  def buildLineItems(skus: Seq[(Sku, ObjectForm, ObjectShadow, ReturnLineItem)],
-                     giftCards: Seq[(GiftCard, ReturnLineItem)],
-                     shipments: Seq[(Shipment, ReturnLineItem)]): LineItems = {
+  def buildLineItems(
+      skus: Seq[(Sku, ObjectForm, ObjectShadow, ReturnLineItem)],
+      giftCards: Seq[(GiftCard, ReturnLineItem)],
+      shippingCosts: Option[(ReturnLineItemShippingCost, ReturnLineItem)]): LineItems = {
     LineItems(
         skus = skus.map {
           case (sku, form, shadow, li) ⇒
@@ -92,23 +92,21 @@ object ReturnResponse {
           case (gc, li) ⇒
             LineItemGiftCard(lineItemId = li.id, giftCard = GiftCardResponse.build(gc))
         },
-        shippingCosts = shipments.map {
-          case (shipment, li) ⇒
-            LineItemShippingCost(lineItemId = li.id,
-                                 shippingCost = ShipmentResponse.build(shipment))
+        shippingCosts = shippingCosts.map {
+          case (costs, li) ⇒
+            LineItemShippingCost(lineItemId = li.id, amount = costs.amount)
         }
     )
   }
 
-  def buildTotals(subtotal: Option[Int],
-                  taxes: Option[Int],
-                  shipments: Seq[(Shipment, ReturnLineItem)]): ReturnTotals = {
+  def buildTotals(
+      subtotal: Option[Int],
+      taxes: Option[Int],
+      shippingCosts: Option[(ReturnLineItemShippingCost, ReturnLineItem)]): ReturnTotals = {
     val finalSubtotal = subtotal.getOrElse(0)
     val finalTaxes    = taxes.getOrElse(0)
-    val finalShipping = shipments.foldLeft(0) {
-      case (acc, (shipment, li)) ⇒ acc + shipment.shippingPrice.getOrElse(0)
-    }
-    val grandTotal = finalSubtotal + finalShipping + finalTaxes
+    val finalShipping = shippingCosts.map { case (costs, _) ⇒ costs.amount }.getOrElse(0)
+    val grandTotal    = finalSubtotal + finalShipping + finalTaxes
     ReturnTotals(finalSubtotal, finalTaxes, finalShipping, grandTotal)
   }
 
@@ -122,7 +120,7 @@ object ReturnResponse {
             payments,
             lineItemData,
             giftCards,
-            shipments,
+            shippingCosts,
             subtotal) ⇒
         build(
             rma = rma,
@@ -135,8 +133,8 @@ object ReturnResponse {
               au ← adminData
             } yield StoreAdminResponse.build(a, au),
             payments = payments.map(buildPayment),
-            lineItems = buildLineItems(lineItemData, giftCards, shipments),
-            totals = Some(buildTotals(subtotal, None, shipments))
+            lineItems = buildLineItems(lineItemData, giftCards, shippingCosts),
+            totals = Some(buildTotals(subtotal, None, shippingCosts))
         )
     }
   }
@@ -187,9 +185,9 @@ object ReturnResponse {
       // Payment methods
       payments ← * <~ ReturnPayments.filter(_.returnId === rma.id).result
       // Line items of each subtype
-      lineItems ← * <~ ReturnLineItemSkus.findLineItemsByRma(rma).result
-      giftCards ← * <~ ReturnLineItemGiftCards.findLineItemsByRma(rma).result
-      shipments ← * <~ ReturnLineItemShippingCosts.findLineItemsByRma(rma).result
+      lineItems     ← * <~ ReturnLineItemSkus.findLineItemsByRma(rma).result
+      giftCards     ← * <~ ReturnLineItemGiftCards.findLineItemsByRma(rma).result
+      shippingCosts ← * <~ ReturnLineItemShippingCosts.findLineItemByRma(rma)
       // Subtotal
       subtotal ← * <~ ReturnTotaler.subTotal(rma)
     } yield
@@ -201,7 +199,7 @@ object ReturnResponse {
        payments,
        lineItems,
        giftCards,
-       shipments,
+       shippingCosts,
        subtotal)
   }
 }

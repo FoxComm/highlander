@@ -10,7 +10,6 @@ import models.payment.giftcard._
 import models.product.Mvp
 import models.returns.Return._
 import models.returns._
-import models.shipping.{Shipments, ShippingMethods}
 import org.scalatest.prop.PropertyChecks
 import payloads.ReturnPayloads._
 import responses.ReturnResponse.Root
@@ -23,6 +22,8 @@ import utils.db._
 import utils.seeds.Seeds.Factories
 import cats.implicits._
 import models.Reason.Cancellation
+import models.shipping.ShippingMethods
+import scala.util.Random
 
 class ReturnIntegrationTest
     extends IntegrationTestBase
@@ -300,7 +301,7 @@ class ReturnIntegrationTest
 
   }
 
-  "line-items" - {
+  "Return line items" - {
     "POST /v1/returns/:refNum/line-items" - {
       "successfully adds gift card line item" in new LineItemFixture {
         pending
@@ -314,13 +315,32 @@ class ReturnIntegrationTest
         val response = returnsApi(rma.referenceNumber).lineItems
           .add(shippingCostPayload)
           .as[ReturnResponse.Root]
-        response.lineItems.shippingCosts.headOption.value.shippingCost.id must === (shipment.id)
+
+        response.lineItems.shippingCosts.value.amount must === (orderShippingMethod.price)
       }
 
       "successfully adds SKU line item" in new LineItemFixture {
         val response =
           returnsApi(rma.referenceNumber).lineItems.add(skuPayload).as[ReturnResponse.Root]
         response.lineItems.skus.headOption.value.sku.sku must === (sku.code)
+      }
+
+      "overwrite existing shipping cost" in new LineItemFixture {
+        returnsApi(rma.referenceNumber).lineItems
+          .add(shippingCostPayload.copy(amount = 42))
+          .as[ReturnResponse.Root]
+          .lineItems
+          .shippingCosts
+          .value
+          .amount must === (42)
+
+        returnsApi(rma.referenceNumber).lineItems
+          .add(shippingCostPayload.copy(amount = 25))
+          .as[ReturnResponse.Root]
+          .lineItems
+          .shippingCosts
+          .value
+          .amount must === (25)
       }
 
       "fails if refNum is not found" in new LineItemFixture {
@@ -337,12 +357,30 @@ class ReturnIntegrationTest
           .mustFailWith400(ReturnReasonNotFoundFailure(666))
       }
 
-      "fails if quantity is invalid" in new LineItemFixture {
+      "fails if quantity for sku is invalid" in new LineItemFixture {
         val payload = skuPayload.copy(quantity = -42)
 
         returnsApi(rma.referenceNumber).lineItems
           .add(payload)
           .mustFailWithMessage("Quantity got -42, expected more than 0")
+      }
+
+      "fails if amount for shipping cost is less then 0" in new LineItemFixture {
+        val payload = shippingCostPayload.copy(amount = -666)
+
+        returnsApi(rma.referenceNumber).lineItems
+          .add(payload)
+          .mustFailWithMessage("Amount got -666, expected more than 0")
+      }
+
+      "fails if amount for shipping cost is more then maximum allowed amount" in new LineItemFixture {
+        val payload = shippingCostPayload.copy(amount = shippingCostPayload.amount + 666)
+
+        returnsApi(rma.referenceNumber).lineItems
+          .add(payload)
+          .mustFailWith400(ReturnShippingCostExceeded(rma.referenceNumber,
+                                                      amount = payload.amount,
+                                                      maxAmount = orderShippingMethod.price))
       }
     }
 
@@ -360,9 +398,11 @@ class ReturnIntegrationTest
           .value
           .lineItemId
 
-        val response =
-          returnsApi(rma.referenceNumber).lineItems.remove(lineItemId).as[ReturnResponse.Root]
-        response.lineItems.giftCards mustBe 'empty
+        returnsApi(rma.referenceNumber).lineItems
+          .remove(lineItemId)
+          .as[ReturnResponse.Root]
+          .lineItems
+          .giftCards mustBe 'empty
       }
 
       "successfully deletes shipping cost line item" in new LineItemFixture {
@@ -375,9 +415,11 @@ class ReturnIntegrationTest
           .value
           .lineItemId
 
-        val response =
-          returnsApi(rma.referenceNumber).lineItems.remove(lineItemId).as[ReturnResponse.Root]
-        response.lineItems.shippingCosts mustBe 'empty
+        returnsApi(rma.referenceNumber).lineItems
+          .remove(lineItemId)
+          .as[ReturnResponse.Root]
+          .lineItems
+          .shippingCosts mustBe 'empty
       }
 
       "successfully deletes SKU line item" in new LineItemFixture {
@@ -390,9 +432,11 @@ class ReturnIntegrationTest
           .value
           .lineItemId
 
-        val response =
-          returnsApi(rma.referenceNumber).lineItems.remove(lineItemId).as[ReturnResponse.Root]
-        response.lineItems.skus mustBe 'empty
+        returnsApi(rma.referenceNumber).lineItems
+          .remove(lineItemId)
+          .as[ReturnResponse.Root]
+          .lineItems
+          .skus mustBe 'empty
       }
 
       "fails if refNum is not found" in new LineItemFixture {
@@ -419,7 +463,7 @@ class ReturnIntegrationTest
   }
 
   trait LineItemFixture extends Fixture {
-    val (returnReason, sku, giftCard, shipment) = (for {
+    val (returnReason, sku, giftCard, orderShippingMethod) = (for {
       returnReason ← * <~ ReturnReasons.create(Factories.returnReasons.head)
       product      ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head)
       sku          ← * <~ Skus.mustFindById404(product.skuId)
@@ -433,13 +477,13 @@ class ReturnIntegrationTest
       orderShippingMethod ← * <~ OrderShippingMethods.create(
                                OrderShippingMethod.build(cordRef = order.refNum,
                                                          method = shippingMethod))
-      shipment ← * <~ Shipments.create(Factories.shipment.copy(cordRef = order.refNum))
-    } yield (returnReason, sku, giftCard, shipment)).gimme
+    } yield (returnReason, sku, giftCard, orderShippingMethod)).gimme
 
     val giftCardPayload =
       ReturnGiftCardLineItemPayload(code = giftCard.code, reasonId = returnReason.id)
 
-    val shippingCostPayload = ReturnShippingCostLineItemPayload(reasonId = reason.id)
+    val shippingCostPayload =
+      ReturnShippingCostLineItemPayload(amount = orderShippingMethod.price, reasonId = reason.id)
 
     val skuPayload = ReturnSkuLineItemPayload(sku = sku.code,
                                               quantity = 1,

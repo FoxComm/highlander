@@ -1,6 +1,6 @@
 package failures
 
-import models.returns.ReturnReason
+import models.returns.{Return, ReturnReason}
 import utils.friendlyClassName
 
 object ReturnFailures {
@@ -21,5 +21,11 @@ object ReturnFailures {
   object ReturnReasonNotFoundFailure {
     def apply(id: ReturnReason#Id): NotFoundFailure400 =
       NotFoundFailure400(s"Return reason $id not found")
+  }
+
+  case class ReturnShippingCostExceeded(refNum: String, amount: Int, maxAmount: Int)
+      extends Failure {
+    def description: String =
+      s"Returned shipping cost amount $amount cannot be greater than $maxAmount for return $refNum"
   }
 }
