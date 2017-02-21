@@ -155,7 +155,8 @@ object CreditCardManager {
       payload.address.fold(DbResultT.good(cc)) { _ ⇒
         for {
           address ← * <~ Addresses.create(Address.fromCreditCard(cc).copy(accountId = accountId))
-        } yield cc
+          card    ← * <~ CreditCards.mustFindById400(cc.id)
+        } yield card
       }
 
     def cascadeChangesToCarts(updated: CreditCard) = {
