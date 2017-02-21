@@ -151,14 +151,6 @@ object CreditCardManager {
       } yield cc
     }
 
-    def createNewAddressIfProvided(cc: CreditCard) =
-      payload.address.fold(DbResultT.good(cc)) { _ ⇒
-        for {
-          address ← * <~ Addresses.create(Address.fromCreditCard(cc).copy(accountId = accountId))
-          card    ← * <~ CreditCards.mustFindById400(cc.id)
-        } yield card
-      }
-
     def cascadeChangesToCarts(updated: CreditCard) = {
       val paymentIds = for {
         carts ← Carts.findByAccountId(accountId)
@@ -191,12 +183,11 @@ object CreditCardManager {
     } yield address.fold(creditCard)(creditCard.copyFromAddress)
 
     for {
-      _           ← * <~ payload.validate
-      customer    ← * <~ Users.mustFindByAccountId(accountId)
-      creditCard  ← * <~ getCardAndAddressChange
-      updated     ← * <~ update(customer, creditCard)
-      withAddress ← * <~ createNewAddressIfProvided(updated)
-      payment     ← * <~ cascadeChangesToCarts(withAddress)
+      _          ← * <~ payload.validate
+      customer   ← * <~ Users.mustFindByAccountId(accountId)
+      creditCard ← * <~ getCardAndAddressChange
+      updated    ← * <~ update(customer, creditCard)
+      payment    ← * <~ cascadeChangesToCarts(updated)
     } yield payment
   }
 
