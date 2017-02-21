@@ -17,7 +17,7 @@ begin
     where n.id = new.id;
 
     case new.reference_type
-       when 'order' then
+       when 'order' then  -- TODO 'cord' will be more appropriate here since this case serves for both order and cart
         select
           case cords.is_cart
             when false then
@@ -37,8 +37,8 @@ begin
                 json_agg((
                         carts.customer->>'id',
                         carts.reference_number,
-                        null,
-                        null,
+                        null,    -- 'state' column, not defined for a cart
+                        null,    -- 'placed_at' column, not defined for a cart
                         carts.sub_total,
                         carts.shipping_total,
                         carts.adjustments_total,
