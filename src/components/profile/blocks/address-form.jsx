@@ -33,8 +33,7 @@ class AddressForm extends Component {
   static title = 'Add Address';
 
   state = {
-    newAddress: {},
-    initialAddress: {},
+    newAddress: null,
   };
 
   addressId(props) {
@@ -44,11 +43,7 @@ class AddressForm extends Component {
   fetchAddress(props) {
     const addressId = this.addressId(props);
     if (addressId != 'new') {
-      this.props.fetchAddress(addressId).then(() => {
-        this.setState({
-          initialAddress: this.props.address,
-        });
-      });
+      this.props.fetchAddress(addressId);
     }
   }
 
@@ -65,8 +60,9 @@ class AddressForm extends Component {
   @autobind
   handleSave() {
     const addressId = this.addressId(this.props);
+    const newAddress = this.state.newAddress || this.props.address;
     this.props.checkoutActions.updateAddress(
-      this.state.newAddress,
+      newAddress,
       addressId != 'new' ? addressId : void 0
     ).then(() => {
       browserHistory.push('/profile');
@@ -84,7 +80,7 @@ class AddressForm extends Component {
     return (
       <Block title={AddressForm.title}>
         <EditAddress
-          address={this.state.initialAddress}
+          address={this.props.address}
           onUpdate={this.handleUpdateAddress}
           colorTheme="white-bg"
         />
