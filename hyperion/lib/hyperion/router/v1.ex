@@ -1,7 +1,7 @@
 defmodule Hyperion.Router.V1 do
   use Maru.Router
 
-  import Ecto.Query
+  # import Ecto.Query
   require Logger
 
   alias Hyperion.Repo, warn: true
@@ -57,7 +57,6 @@ defmodule Hyperion.Router.V1 do
       route_param :client_id do
         put do
           try do
-            IO.puts inspect(params)
             creds = Repo.get_by!(Credentials, client_id: params[:client_id])
             changeset = Credentials.changeset(creds, params)
             case Repo.update(changeset) do

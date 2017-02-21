@@ -1,6 +1,4 @@
 defmodule Hyperion.Amazon.Templates.SubmitProductFeed do
-  alias Hyperion.Amazon.Templates.Categories.Books
-  alias Hyperion.Amazon.Templates.Categories.ClothingAccessories
   use Timex
 
   def template_string do
@@ -18,47 +16,53 @@ defmodule Hyperion.Amazon.Templates.SubmitProductFeed do
       <MessageID><%= idx %></MessageID>
       <OperationType>Update</OperationType>
         <Product>
-          <SKU><%= p[:code]%></SKU>
-          <StandardProductID>
-            <%= cond do %>
-              <% Keyword.has_key?(p, :asin) -> %>
-                <Type>ASIN</Type>
-                <Value><%= p[:asin]%></Value>
-              <% Keyword.has_key?(p, :upc) -> %>
-                <Type>UPC</Type>
-                <Value><%= p[:upc]%></Value>
-              <% Keyword.has_key?(p, :ean) -> %>
-                <Type>EAN</Type>
-                <Value><%= p[:ean]%></Value>
-              <% Keyword.has_key?(p, :isbn) -> %>
-                <Type>ISBN</Type>
-                <Value><%= p[:isbn]%></Value>
-              <% true -> %>
-                <% nil %>
-            <% end %>
-          </StandardProductID>
-          <ProductTaxCode><%= p[:tax_code] %></ProductTaxCode>
-          <LaunchDate><%= Hyperion.Amazon.Templates.SubmitProductFeed.format_date_time(p[:activefrom]) %></LaunchDate>
+          <%= if p[:parentage] == "child" do %>
+            <SKU><%= p[:code] %></SKU>
+              <%= cond do %>
+                <% Keyword.has_key?(p, :asin) -> %>
+                  <StandardProductID>
+                  <Type>ASIN</Type>
+                  <Value><%= p[:asin]%></Value>
+                  </StandardProductID>
+                <% Keyword.has_key?(p, :upc) -> %>
+                  <StandardProductID>
+                  <Type>UPC</Type>
+                  <Value><%= p[:upc]%></Value>
+                  </StandardProductID>
+                <% Keyword.has_key?(p, :ean) -> %>
+                  <StandardProductID>
+                  <Type>EAN</Type>
+                  <Value><%= p[:ean]%></Value>
+                  </StandardProductID>
+                <% Keyword.has_key?(p, :isbn) -> %>
+                  <StandardProductID>
+                  <Type>ISBN</Type>
+                  <Value><%= p[:isbn]%></Value>
+                  </StandardProductID>
+                <% true -> %>
+                  <% nil %>
+              <% end %>
+            <ProductTaxCode><%= p[:taxcode] %></ProductTaxCode>
+            <LaunchDate><%= Hyperion.Amazon.Templates.SubmitProductFeed.format_date_time(p[:activefrom]) %></LaunchDate>
+          <% end %>
           <DescriptionData>
             <Title><%= p[:title] %></Title>
+            <Brand><%= p[:brand] %></Brand>
             <Description><%= HtmlSanitizeEx.strip_tags(p[:description]) %></Description>
             <%= for t <- p[:tags] do %>
               <SearchTerms><%= t %></SearchTerms>
             <% end %>
-      <!--  <BulletPoint>made in Italy</BulletPoint>
-            <BulletPoint>500 thread count</BulletPoint>
-            <BulletPoint>plain weave (percale)</BulletPoint>
-            <BulletPoint>100% Egyptian cotton</BulletPoint>
-            <Manufacturer>Peacock Alley</Manufacturer>
-            <ItemType></ItemType>
+            <%= Hyperion.Amazon.Templates.SubmitProductFeed.render_bullet_points(p) %>
+            <!-- <ItemType></ItemType>
+            <Manufacturer><%#= p[:manufacturer] %></Manufacturer>
             <IsGiftWrapAvailable>false</IsGiftWrapAvailable>
             <IsGiftMessageAvailable>false</IsGiftMessageAvailable> -->
           </DescriptionData>
           <ProductData>
             <%= cond do %>
-              <% p[:category] == "Books" -> %>
+              <% p[:category] == "books" -> %>
                 <%= Hyperion.Amazon.TemplateBuilder.books_category(p) %>
-              <% p[:category] == "Clothing" -> %>
+              <% p[:category] == "clothing" -> %>
                 <%= Hyperion.Amazon.TemplateBuilder.clothing_category(p) %>
               <% true -> %>
                 <% nil %>
@@ -69,6 +73,18 @@ defmodule Hyperion.Amazon.Templates.SubmitProductFeed do
     <% end %>
     </AmazonEnvelope>
     """
+  end
+
+  def render_bullet_points(product) do
+    points = Enum.filter(product, fn{k, v} -> String.match?(to_string(k), ~r/bulletpoint/) end)
+             |> Enum.with_index(1)
+    for {{_k, v}, i} <- points do
+      unless v == nil do
+        """
+        <BulletPoint#{i}>#{v}</BulletPoint#{i}>
+        """
+      end
+    end
   end
 
   def format_date_time(dt_str) do
