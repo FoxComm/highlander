@@ -34,7 +34,7 @@ trait ItemsQualifier extends Qualifier {
   def checkInner(input: DiscountInput)(
       search: Seq[ProductSearch])(implicit db: DB, ec: EC, es: ES, au: AU): Result[Unit] = {
     val inAnyOf = search.map(_.query(input).mapXor(matchXor(input)))
-    Result.onlySuccessful(inAnyOf).flatMap {
+    Result.onlySuccessful(inAnyOf.toList).flatMap {
       case xs if xs.nonEmpty ⇒ Result.unit
       case _                 ⇒ Result.failure(SearchFailure)
     }

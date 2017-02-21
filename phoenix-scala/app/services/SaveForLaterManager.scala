@@ -42,7 +42,8 @@ object SaveForLaterManager {
     for {
       sfls ← * <~ SaveForLaters.filter(_.accountId === customer.accountId).result
       r ← * <~ DbResultT
-           .sequence(sfls.map(sfl ⇒ SaveForLaterResponse.forSkuId(sfl.skuId, contextId)))
+           .sequenceJoiningFailures(
+               sfls.map(sfl ⇒ SaveForLaterResponse.forSkuId(sfl.skuId, contextId)))
            .failuresToWarnings(Seq.empty) { case _ ⇒ true }
     } yield r
 }

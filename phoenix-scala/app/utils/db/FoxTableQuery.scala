@@ -72,10 +72,10 @@ abstract class FoxTableQuery[M <: FoxModel[M], T <: FoxTable[M]](construct: Tag 
   protected def beforeSave(model: M): Failures Xor M =
     model.sanitize.validate.toXor
 
-  private def beforeSaveBatch(unsaved: Iterable[M])(implicit ec: EC): DbResultT[Seq[M]] =
-    DbResultT.sequence {
-      unsaved.map(m ⇒ DbResultT.fromXor(beforeSave(m)))
-    }.map(_.toSeq)
+  private def beforeSaveBatch(unsaved: Iterable[M])(implicit ec: EC): DbResultT[List[M]] =
+    DbResultT.sequenceJoiningFailures {
+      unsaved.toList.map(m ⇒ DbResultT.fromXor(beforeSave(m)))
+    }
 
   def deleteById[A](id: M#Id, onSuccess: ⇒ DbResultT[A], onFailure: M#Id ⇒ Failure)(
       implicit ec: EC): DbResultT[A] = {

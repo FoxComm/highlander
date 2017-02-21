@@ -399,7 +399,9 @@ trait OrderGenerator extends ShipmentSeeds {
 
   private def authGiftCard(
       results: Seq[(OrderPayment, GiftCard)]): DbResultT[Seq[GiftCardAdjustment]] =
-    DbResultT.sequence(results.map { case (pmt, m) ⇒ GiftCards.authOrderPayment(m, pmt) })
+    DbResultT.sequenceJoiningFailures(results.map {
+      case (pmt, m) ⇒ GiftCards.authOrderPayment(m, pmt)
+    })
 
   private def deductAmount(availableBalance: Int, totalCost: Int): Int =
     Math.max(1,

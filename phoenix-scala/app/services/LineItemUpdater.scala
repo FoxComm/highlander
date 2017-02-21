@@ -59,7 +59,7 @@ object LineItemUpdater {
                                                                                  db: DB,
                                                                                  ac: AC,
                                                                                  ctx: OC) =
-    DbResultT.sequence(payload.map(updatePayload ⇒
+    DbResultT.sequenceJoiningFailures(payload.map(updatePayload ⇒
               for {
         orderLineItem ← * <~ OrderLineItems
                          .filter(_.referenceNumber === updatePayload.referenceNumber)
@@ -204,7 +204,7 @@ object LineItemUpdater {
                     removeLineItems(sku.id, -lineItem.quantity, cart.refNum, lineItem.attributes))
       } yield {}
     }
-    DbResultT.sequence(lineItemUpdActions).meh
+    DbResultT.sequenceJoiningFailures(lineItemUpdActions).meh
   }
 
   private def mustFindProductIdForSku(sku: Sku, refNum: String)(implicit ec: EC, oc: OC) = {

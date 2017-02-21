@@ -39,10 +39,8 @@ object * {
   def <~[A](v: Validated[Failures, A])(implicit ec: EC): DbResultT[A] =
     DbResultT.fromXor(v.toXor)
 
-  def <~[A, M[X] <: TraversableOnce[X]](v: M[DbResultT[A]])(
-      implicit buildFrom: CanBuildFrom[M[DbResultT[A]], A, M[A]],
-      ec: EC): DbResultT[M[A]] =
-    DbResultT.sequence(v)
+  def <~[M[_]: TraverseFilter, A](v: M[DbResultT[A]])(implicit ec: EC): DbResultT[M[A]] =
+    DbResultT.sequenceJoiningFailures(v)
 
   def <~[A](v: DbResultT[A]): DbResultT[A] =
     v

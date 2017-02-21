@@ -27,7 +27,8 @@ object GiftCardRoutes {
         } ~
         (post & pathEnd & entity(as[Seq[GiftCardCreatedByCustomer]])) { payload ⇒
           mutateOrFailures {
-            DbResultT.sequence(payload.map(GiftCardService.createByCustomer(auth.model, _)))
+            DbResultT.sequenceJoiningFailures(
+                payload.map(GiftCardService.createByCustomer(auth.model, _)))
           }
         }
       } ~

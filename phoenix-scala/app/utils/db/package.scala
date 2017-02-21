@@ -172,10 +172,8 @@ package object db {
 
     /** A bit like ``sequence`` but will ignore failed Foxies. */
     // TODO: is this useful enough to have in FoxyT? @michalrus
-    def onlySuccessful[L[_], A](
-         xs: L[FoxyT[F, A]])(
-                            implicit L: TraverseFilter[L],
-                            M: Monad[F]): FoxyT[F, L[A]] =
+    def onlySuccessful[L[_], A](xs: L[FoxyT[F, A]])(implicit L: TraverseFilter[L],
+                                                    M: Monad[F]): FoxyT[F, L[A]] =
       for {
         xs ← xs.map(_.map(_.some).recover { case _ ⇒ None }).sequence
       } yield xs.collect { case Some(xss) ⇒ xss }
