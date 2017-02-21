@@ -7,10 +7,8 @@ import akka.actor.{Actor, ActorLogging}
 import models.activity.ActivityContext
 import models.cord.Order._
 import models.cord.{Order, Orders}
-import services.LogActivity
-import services.Result
+import services.{LogActivity, Result}
 import utils.aliases._
-import utils.db.javaTimeSlickMapper
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 
@@ -19,7 +17,6 @@ case object Tick
 case class RemorseTimerResponse(updatedQuantity: Result[Int])
 
 class RemorseTimer(implicit db: DB, ec: EC) extends Actor {
-  implicit val ac = ActivityContext.build(userId = 1, userType = "admin")
 
   override def receive = {
     case Tick ⇒ sender() ! tick
@@ -35,12 +32,24 @@ class RemorseTimer(implicit db: DB, ec: EC) extends Actor {
     val query = for {
       cordRefs ← * <~ orders.result
       count    ← * <~ orders.map(_.state).update(newState)
-      refNums = cordRefs.map(_.referenceNumber)
-      _ ← * <~ doOrMeh(count > 0, LogActivity.orderBulkStateChanged(newState, refNums))
+      _        ← * <~ doOrMeh(count > 0, logAcitvity(newState, cordRefs))
     } yield count
 
     RemorseTimerResponse(query.runTxn)
   }
+
+  private def logAcitvity(newState: Order.State, orders: Seq[Order])(
+      implicit ec: EC): DbResultT[Unit] =
+    DbResultT
+      .sequence(orders.groupBy(_.scope).map {
+        case (scope, scopeOrders) ⇒
+          val refNums = scopeOrders.map(_.referenceNumber)
+
+          implicit val ac = ActivityContext.build(userId = 1, userType = "admin", scope = scope)
+
+          LogActivity().withScope(scope).orderBulkStateChanged(newState, refNums)
+      })
+      .meh
 }
 
 /*

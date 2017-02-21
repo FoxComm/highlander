@@ -3,17 +3,16 @@ package services.account
 import java.time.Instant
 
 import cats.implicits._
+import failures.AuthFailures._
 import failures.NotFoundFailure404
 import failures.UserFailures._
 import models.account._
 import models.customer.CustomersData
-import payloads.UserPayloads._
 import responses.UserResponse._
 import services._
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
-import failures.AuthFailures._
 
 case class AccountCreateContext(roles: List[String], org: String, scopeId: Int)
 
@@ -26,7 +25,7 @@ object AccountManager {
       user ← * <~ Users.mustFindByAccountId(accountId)
       updated ← * <~ Users.update(user,
                                   user.copy(isDisabled = disabled, disabledBy = Some(actor.id)))
-      _ ← * <~ LogActivity.userDisabled(disabled, user, actor)
+      _ ← * <~ LogActivity().userDisabled(disabled, user, actor)
     } yield build(updated)
 
   // TODO: add blacklistedReason later
@@ -38,7 +37,7 @@ object AccountManager {
       updated ← * <~ Users.update(
                    user,
                    user.copy(isBlacklisted = blacklisted, blacklistedBy = Some(actor.id)))
-      _ ← * <~ LogActivity.userBlacklisted(blacklisted, user, actor)
+      _ ← * <~ LogActivity().userBlacklisted(blacklisted, user, actor)
     } yield build(updated)
 
   def resetPasswordSend(
@@ -65,7 +64,7 @@ object AccountManager {
                               UserPasswordResets.update(resetPw, resetPw.updateCode())
                             case Created ⇒ DbResultT.good(resetPw)
                           })
-      _ ← * <~ LogActivity.userRemindPassword(user, updatedResetPw.code)
+      _ ← * <~ LogActivity().userRemindPassword(user, updatedResetPw.code)
     } yield ResetPasswordSendAnswer(status = "ok")
 
   def resetPassword(
@@ -87,7 +86,7 @@ object AccountManager {
                                                      activatedAt = Instant.now.some))
       updatedAccess ← * <~ AccountAccessMethods.update(accessMethod,
                                                        accessMethod.updatePassword(newPassword))
-      _ ← * <~ LogActivity.userPasswordReset(user)
+      _ ← * <~ LogActivity().userPasswordReset(user)
     } yield ResetPasswordDoneAnswer(status = "ok")
   }
 

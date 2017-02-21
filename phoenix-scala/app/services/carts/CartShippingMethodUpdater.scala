@@ -48,7 +48,7 @@ object CartShippingMethodUpdater {
       order     ← * <~ CartTotaler.saveTotals(cart)
       validated ← * <~ CartValidator(order).validate()
       response  ← * <~ CartResponse.buildRefreshed(order)
-      _         ← * <~ LogActivity.orderShippingMethodUpdated(originator, response, oldShipMethod)
+      _         ← * <~ LogActivity().orderShippingMethodUpdated(originator, response, oldShipMethod)
     } yield TheResponse.validated(response, validated)
 
   def deleteShippingMethod(originator: User, refNum: Option[String] = None)(
@@ -69,6 +69,6 @@ object CartShippingMethodUpdater {
       cart  ← * <~ CartTotaler.saveTotals(cart)
       valid ← * <~ CartValidator(cart).validate()
       resp  ← * <~ CartResponse.buildRefreshed(cart)
-      _     ← * <~ LogActivity.orderShippingMethodDeleted(originator, resp, shipMethod)
+      _     ← * <~ LogActivity().orderShippingMethodDeleted(originator, resp, shipMethod)
     } yield TheResponse.validated(resp, valid)
 }

@@ -10,7 +10,6 @@ import responses.CategoryResponses._
 import responses.ObjectResponses.ObjectContextResponse
 import services.LogActivity
 import slick.driver.PostgresDriver.api._
-import com.github.tminglei.slickpg.LTree
 import utils.aliases._
 import utils.db._
 
@@ -51,7 +50,8 @@ object CategoryManager {
       insert   ← * <~ ObjectUtils.insert(form, shadow, payload.schema)
       category ← * <~ Categories.create(Category.build(scope, context.id, insert))
       response = FullCategoryResponse.build(category, insert.form, insert.shadow)
-      _ ← * <~ LogActivity
+      _ ← * <~ LogActivity()
+           .withScope(scope)
            .fullCategoryCreated(Some(admin), response, ObjectContextResponse.build(context))
     } yield response
 
@@ -71,7 +71,7 @@ object CategoryManager {
       category ← * <~ updateCategoryHead(category, updated.shadow, commit)
       categoryResponse = FullCategoryResponse.build(category, updated.form, updated.shadow)
       contextResp      = ObjectContextResponse.build(context)
-      _ ← * <~ LogActivity.fullCategoryUpdated(Some(admin), categoryResponse, contextResp)
+      _ ← * <~ LogActivity().fullCategoryUpdated(Some(admin), categoryResponse, contextResp)
     } yield categoryResponse
 
   def getIlluminatedCategory(categoryId: Int, contextName: String)(

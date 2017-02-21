@@ -24,7 +24,7 @@ object CustomerRoutes {
 
   def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis): Route = {
 
-    activityContext(auth.model) { implicit ac ⇒
+    activityContext(auth) { implicit ac ⇒
       pathPrefix("customers") {
         (post & pathEnd & entity(as[CreateCustomerPayload])) { payload ⇒
           mutateOrFailures {
@@ -103,7 +103,7 @@ object CustomerRoutes {
           } ~
           (patch & path(IntNumber) & pathEnd & entity(as[CreateAddressPayload])) {
             (addressId, payload) ⇒
-              activityContext(auth.model) { implicit ac ⇒
+              activityContext(auth) { implicit ac ⇒
                 mutateOrFailures {
                   AddressManager.edit(auth.model, addressId, accountId, payload)
                 }

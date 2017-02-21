@@ -2,8 +2,10 @@ package models.activity
 
 import java.time.Instant
 
+import com.github.tminglei.slickpg.LTree
 import com.typesafe.scalalogging.LazyLogging
 import faker.Lorem.letterify
+import models.account.Scope
 import org.json4s.Extraction
 import org.json4s.jackson.Serialization.writePretty
 import shapeless._
@@ -15,7 +17,10 @@ import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 
-case class ActivityContext(userId: Int, userType: String, transactionId: String)
+case class ActivityContext(userId: Int, userType: String, transactionId: String, scope: LTree) {
+  def withCurrentScope(implicit au: AU) = withScope(Scope.current)
+  def withScope(scope: LTree)           = ActivityContext(userId, userType, transactionId, scope)
+}
 
 object ActivityContext {
 
@@ -28,8 +33,14 @@ object ActivityContext {
     )
   }
 
-  def build(userId: Int, userType: String): ActivityContext =
-    ActivityContext(userId = userId, userType = userType, transactionId = letterify("?" * 5))
+  def build(userId: Int,
+            userType: String,
+            scope: LTree,
+            transactionId: String = letterify("?" * 5)): ActivityContext =
+    ActivityContext(userId = userId,
+                    userType = userType,
+                    transactionId = transactionId,
+                    scope = scope)
 }
 
 /**
@@ -70,10 +81,12 @@ object Activities
 
   implicit val formats = JsonFormatters.phoenixFormats
 
-  def log(a: OpaqueActivity)(implicit context: AC, ec: EC): DbResultT[Activity] = {
-    val activity = Activity(activityType = a.activityType, data = a.data, context = context)
+  def log(a: OpaqueActivity)(implicit activityContext: AC, ec: EC): DbResultT[Activity] = {
+    val activity =
+      Activity(activityType = a.activityType, data = a.data, context = activityContext)
 
-    logger.info(s"Activity ${a.activityType} by ${context.userType} ${context.userId}")
+    logger.info(
+        s"Activity ${a.activityType} by ${activityContext.userType} ${activityContext.userId}")
     logger.debug(writePretty(activity))
 
     create(activity)

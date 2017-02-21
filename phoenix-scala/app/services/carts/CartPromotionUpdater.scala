@@ -93,7 +93,7 @@ object CartPromotionUpdater {
       _ ← * <~ OrderPromotions.create(OrderPromotion.buildCoupon(cart, promotion, couponCode))
       _ ← * <~ readjust(cart)
       // Write event to application logs
-      _ ← * <~ LogActivity.orderCouponAttached(cart, couponCode)
+      _ ← * <~ LogActivity().orderCouponAttached(cart, couponCode)
       // Response
       cart      ← * <~ CartTotaler.saveTotals(cart)
       validated ← * <~ CartValidator(cart).validate()
@@ -119,7 +119,7 @@ object CartPromotionUpdater {
            .filterByOrderRefAndShadows(cart.refNum, deleteShadowIds)
            .delete
       _         ← * <~ CartTotaler.saveTotals(cart)
-      _         ← * <~ LogActivity.orderCouponDetached(cart)
+      _         ← * <~ LogActivity().orderCouponDetached(cart)
       validated ← * <~ CartValidator(cart).validate()
       response  ← * <~ CartResponse.buildRefreshed(cart)
     } yield TheResponse.validated(response, validated)

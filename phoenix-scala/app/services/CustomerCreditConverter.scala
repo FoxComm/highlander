@@ -46,7 +46,7 @@ object CustomerCreditConverter {
                                    currentBalance = giftCard.currentBalance))
 
       // Activity
-      _ ← * <~ LogActivity.gcConvertedToSc(admin, giftCard, storeCredit)
+      _ ← * <~ LogActivity().gcConvertedToSc(admin, giftCard, storeCredit)
     } yield StoreCreditResponse.build(storeCredit)
 
   def toGiftCard(
@@ -79,6 +79,6 @@ object CustomerCreditConverter {
                              currentBalance = credit.currentBalance))
 
       // Activity
-      _ ← * <~ LogActivity.scConvertedToGc(admin, giftCard, credit)
+      _ ← * <~ LogActivity().scConvertedToGc(admin, giftCard, credit)
     } yield GiftCardResponse.build(giftCard, None, Some(UserResponse.build(admin)))
 }

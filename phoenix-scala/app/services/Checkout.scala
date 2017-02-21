@@ -117,7 +117,7 @@ case class Checkout(
       _         ← * <~ fraudScore(order)
       _         ← * <~ updateCouponCountersForPromotion(customer)
       fullOrder ← * <~ OrderResponse.fromOrder(order, grouped = true)
-      _         ← * <~ LogActivity.orderCheckoutCompleted(fullOrder)
+      _         ← * <~ LogActivity().orderCheckoutCompleted(fullOrder)
     } yield fullOrder
 
     actions.runTxn().map {
@@ -231,9 +231,10 @@ case class Checkout(
       scIds   = scPayments.map { case (_, sc) ⇒ sc.id }.distinct
       gcCodes = gcPayments.map { case (_, gc) ⇒ gc.code }.distinct
 
-      _ ← * <~ doOrMeh(scTotal > 0, LogActivity.scFundsAuthorized(customer, cart, scIds, scTotal))
+      _ ← * <~ doOrMeh(scTotal > 0,
+                       LogActivity().scFundsAuthorized(customer, cart, scIds, scTotal))
       _ ← * <~ doOrMeh(gcTotal > 0,
-                       LogActivity.gcFundsAuthorized(customer, cart, gcCodes, gcTotal))
+                       LogActivity().gcFundsAuthorized(customer, cart, gcCodes, gcTotal))
 
       // Authorize funds on credit card
       ccs ← * <~ authCreditCard(cart.grandTotal, gcTotal + scTotal)
@@ -257,7 +258,7 @@ case class Checkout(
                                                             authAmount,
                                                             cart.currency)
             ourCharge = CreditCardCharge.authFromStripe(card, pmt, stripeCharge, cart.currency)
-            _       ← * <~ LogActivity.creditCardAuth(cart, ourCharge)
+            _       ← * <~ LogActivity().creditCardAuth(cart, ourCharge)
             created ← * <~ CreditCardCharges.create(ourCharge)
           } yield created.some
 

@@ -74,7 +74,7 @@ object SharedSearchService {
       _ ← * <~ SharedSearchAssociations.createAll(newAssociations)
       notFoundAdmins = diffToFailures(requestedAssigneeIds, adminIds, User)
       assignedAdmins = associates.filter(a ⇒ newAssociations.map(_.storeAdminId).contains(a.id))
-      _ ← * <~ LogActivity.associatedWithSearch(admin, search, assignedAdmins)
+      _ ← * <~ LogActivity().associatedWithSearch(admin, search, assignedAdmins)
     } yield TheResponse.build(search, errors = notFoundAdmins)
 
   def unassociate(admin: User, code: String, assigneeId: Int)(implicit ec: EC,
@@ -87,7 +87,7 @@ object SharedSearchService {
                     .byStoreAdmin(associate)
                     .mustFindOneOr(SharedSearchAssociationNotFound(code, assigneeId))
       _ ← * <~ SharedSearchAssociations.byStoreAdmin(associate).delete
-      _ ← * <~ LogActivity.unassociatedFromSearch(admin, search, associate)
+      _ ← * <~ LogActivity().unassociatedFromSearch(admin, search, associate)
     } yield search
 
   private def mustFindActiveByCode(code: String)(implicit ec: EC): DbResultT[SharedSearch] =

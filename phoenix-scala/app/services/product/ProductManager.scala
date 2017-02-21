@@ -79,7 +79,8 @@ object ProductManager {
           if (hasVariants) variantSkus else productSkus,
           variantResponses,
           taxons)
-      _ ← * <~ LogActivity
+      _ ← * <~ LogActivity()
+           .withScope(scope)
            .fullProductCreated(Some(admin), response, ObjectContextResponse.build(oc))
     } yield response
 
@@ -158,7 +159,7 @@ object ProductManager {
           if (hasVariants) variantSkus else updatedSkus,
           variantResponses,
           taxons)
-      _ ← * <~ LogActivity
+      _ ← * <~ LogActivity()
            .fullProductUpdated(Some(au.model), response, ObjectContextResponse.build(oc))
     } yield response
 
