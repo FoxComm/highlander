@@ -123,6 +123,43 @@ class ProductIntegrationTest
 
       productsApi(slug).forCustomer.get.mustFailWith404(ProductIsNotActive(ProductReference(slug)))
     }
+
+    "404 if all SKUs are archived" in new Customer_Seed with Fixture {
+      val slug = "simple-product"
+
+      productsApi(product.formId)
+        .update(
+            UpdateProductPayload(attributes = activeAttrMap,
+                                 slug = slug.some,
+                                 skus =
+                                   allSkus.map(sku ⇒ makeSkuPayload(sku, skuAttrMap, None)).some,
+                                 albums = None,
+                                 variants = None))
+        .mustBeOk()
+
+      allSkus.map(sku ⇒ skusApi(sku).archive().mustBeOk())
+
+      productsApi(slug).forCustomer.get
+        .mustFailWith404(ProductHasNoActiveSKUs(ProductReference(slug)))
+    }
+
+    "404 if all SKUs are inactive" in new Customer_Seed with Fixture {
+      val slug = "simple-product"
+
+      productsApi(product.formId)
+        .update(
+            UpdateProductPayload(
+                attributes = activeAttrMap,
+                slug = slug.some,
+                skus =
+                  allSkus.map(sku ⇒ makeSkuPayload(sku, skuAttrMap ++ inactiveAttrMap, None)).some,
+                albums = None,
+                variants = None))
+        .mustBeOk()
+
+      productsApi(slug).forCustomer.get
+        .mustFailWith404(ProductHasNoActiveSKUs(ProductReference(slug)))
+    }
   }
 
   "POST v1/products/:context" - {
@@ -791,11 +828,12 @@ class ProductIntegrationTest
     val skuAttrMap = Map("price" → priceJson)
     val skuPayload = makeSkuPayload("SKU-NEW-TEST", skuAttrMap, None)
 
-    val nameJson        = ("t"                        → "string") ~ ("v"           → "Product name")
-    val attrMap         = Map("name"                  → nameJson, "title"          → nameJson)
-    val activeFromJson  = ("t"                        → "date") ~ ("v"             → (Instant.now.minus(2, ChronoUnit.DAYS)).toString)
-    val activeToJson    = ("t"                        → "date") ~ ("v"             → (Instant.now.minus(1, ChronoUnit.DAYS)).toString)
+    val nameJson        = ("t"                        → "string") ~ ("v" → "Product name")
+    val attrMap         = Map("name"                  → nameJson, "title" → nameJson)
+    val activeFromJson  = ("t"                        → "date") ~ ("v" → (Instant.now.minus(2, ChronoUnit.DAYS)).toString)
+    val activeToJson    = ("t"                        → "date") ~ ("v" → (Instant.now.minus(1, ChronoUnit.DAYS)).toString)
     val inactiveAttrMap = attrMap ++ Map("activeFrom" → activeFromJson, "activeTo" → activeToJson)
+    val activeAttrMap   = attrMap ++ Map("activeFrom" → activeFromJson)
     val productPayload = CreateProductPayload(attributes = attrMap,
                                               skus = Seq(skuPayload),
                                               variants = None,

@@ -19,7 +19,7 @@ case class IlluminatedProduct(id: Int,
                               archivedAt: Option[Instant])
     extends IlluminatedModel[IlluminatedProduct] {
 
-  protected def inactiveError = ProductIsNotActive(ProductReference(slug))
+  override protected def inactiveError = ProductIsNotActive(ProductReference(slug))
 
 }
 

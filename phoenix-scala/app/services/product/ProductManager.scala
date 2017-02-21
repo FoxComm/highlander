@@ -123,7 +123,11 @@ object ProductManager {
       _      ← * <~ illuminated.mustBeActive
       albums ← * <~ ImageManager.getAlbumsForProduct(oldProduct.model.reference)
 
-      fullSkus    ← * <~ ProductSkuLinks.queryRightByLeft(oldProduct.model)
+      fullSkus ← * <~ ProductSkuLinks.queryRightByLeft(oldProduct.model)
+      _ ← * <~ failIf(fullSkus
+                        .filter(sku ⇒ IlluminatedSku.illuminate(oc, sku).mustBeActive.isRight)
+                        .isEmpty,
+                      ProductHasNoActiveSKUs(ProductReference(oldProduct.model.slug)))
       productSkus ← * <~ fullSkus.map(SkuManager.illuminateSku)
 
       variants     ← * <~ ProductVariantLinks.queryRightByLeft(oldProduct.model)

@@ -68,6 +68,16 @@ object ProductFailures {
       NotFoundFailure404(s"Product with id=${id.value} is archived or inactive")
   }
 
+  object ProductHasNoActiveSKUs {
+    def apply(id: ProductReference) =
+      NotFoundFailure404(s"Product with id=${id.value} does not have active SKUs")
+  }
+
+  object SKUIsNotActive {
+    def apply(code: String) =
+      NotFoundFailure404(s"Product variant with code=${code} is archived or inactive")
+  }
+
   object NoAlbumsFoundForProduct {
     def apply(productId: Product#Id) =
       NotFoundFailure404(s"Product with id=$productId has no albums")
