@@ -11,6 +11,15 @@ import utils.aliases._
 
 package object testutils {
 
+  object OnlyElement {
+    implicit class GimmeOnlyElement[R](val s: Seq[R]) {
+      def onlyElement: R = {
+        assert(s.size == 1)
+        s.head
+      }
+    }
+  }
+
   def originalSourceClue(implicit line: SL, file: SF) =
     s"""\n(Original source: ${file.value.split("/").last}:${line.value})"""
 
