@@ -41,10 +41,8 @@ object AccountManager {
     } yield build(updated)
 
   def resetPasswordSend(
-      defaultScope: Int,
       email: String)(implicit ec: EC, db: DB, ac: AC): DbResultT[ResetPasswordSendAnswer] =
     for {
-      scope ← * <~ Scopes.mustFindById400(defaultScope)
       user ← * <~ Users
               .activeUserByEmail(Option(email))
               .mustFindOneOr(NotFoundFailure404(User, email))
@@ -66,15 +64,13 @@ object AccountManager {
                               UserPasswordResets.update(resetPw, resetPw.updateCode())
                             case Created ⇒ DbResultT.good(resetPw)
                           })
-      _ ← * <~ LogActivity().withScope(scope.ltree).userRemindPassword(user, updatedResetPw.code)
+      _ ← * <~ LogActivity().userRemindPassword(user, updatedResetPw.code)
     } yield ResetPasswordSendAnswer(status = "ok")
 
-  def resetPassword(defaultScope: Int, code: String, newPassword: String)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC): DbResultT[ResetPasswordDoneAnswer] = {
+  def resetPassword(
+      code: String,
+      newPassword: String)(implicit ec: EC, db: DB, ac: AC): DbResultT[ResetPasswordDoneAnswer] = {
     for {
-      scope ← * <~ Scopes.mustFindById400(defaultScope)
       remind ← * <~ UserPasswordResets
                 .findActiveByCode(code)
                 .mustFindOr(ResetPasswordCodeInvalid(code))

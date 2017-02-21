@@ -5,6 +5,7 @@ import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import cats.data.Xor
+import com.github.tminglei.slickpg.LTree
 import com.pellucid.sealerate
 import com.typesafe.config.Config
 import failures.UserFailures._
@@ -121,8 +122,8 @@ object Seeds {
     sys.props += ("phoenix.env" → "test")
     val config: Config           = FoxConfig.unsafe
     implicit val db: DatabaseDef = Database.forConfig("db", config)
-    implicit val ac: AC =
-      ActivityContext.build(userId = 1, userType = "user", transactionId = "seeds")
+    implicit val ac: AC = ActivityContext
+      .build(userId = 1, userType = "user", scope = LTree(""), transactionId = "seeds")
 
     cfg.mode match {
       case Seed ⇒

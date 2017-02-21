@@ -17,7 +17,6 @@ case object Tick
 case class RemorseTimerResponse(updatedQuantity: Result[Int])
 
 class RemorseTimer(implicit db: DB, ec: EC) extends Actor {
-  implicit val ac = ActivityContext.build(userId = 1, userType = "admin")
 
   override def receive = {
     case Tick ⇒ sender() ! tick
@@ -39,12 +38,15 @@ class RemorseTimer(implicit db: DB, ec: EC) extends Actor {
     RemorseTimerResponse(query.runTxn)
   }
 
-  private def logAcitvity(newState: Order.State, orders: Seq[Order])(implicit ec: EC,
-                                                                     ac: AC): DbResultT[Unit] =
+  private def logAcitvity(newState: Order.State, orders: Seq[Order])(
+      implicit ec: EC): DbResultT[Unit] =
     DbResultT
       .sequence(orders.groupBy(_.scope).map {
         case (scope, scopeOrders) ⇒
           val refNums = scopeOrders.map(_.referenceNumber)
+
+          implicit val ac = ActivityContext.build(userId = 1, userType = "admin", scope = scope)
+
           LogActivity().withScope(scope).orderBulkStateChanged(newState, refNums)
       })
       .meh

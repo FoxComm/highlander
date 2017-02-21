@@ -4,6 +4,7 @@ import akka.http.scaladsl.model.{StatusCodes, Uri}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 
+import com.github.tminglei.slickpg.LTree
 import payloads.LoginPayload
 import payloads.UserPayloads._
 import services.Authenticator
@@ -18,7 +19,7 @@ import utils.http.JsonSupport._
 
 object AuthRoutes {
 
-  def routes(defaultScope: Int)(implicit ec: EC, db: DB): Route = {
+  def routes(defaultScope: LTree)(implicit ec: EC, db: DB): Route = {
 
     pathPrefix("public") {
       (post & path("login") & entity(as[LoginPayload])) { payload ⇒
@@ -28,17 +29,15 @@ object AuthRoutes {
           }, identity)
         }
       } ~
-      activityContext() { implicit ac ⇒
+      activityContext(defaultScope) { implicit ac ⇒
         (post & path("send-password-reset") & pathEnd & entity(as[ResetPasswordSend])) { payload ⇒
           mutateOrFailures {
-            AccountManager.resetPasswordSend(defaultScope, payload.email)
+            AccountManager.resetPasswordSend(payload.email)
           }
         } ~
         (post & path("reset-password") & pathEnd & entity(as[ResetPassword])) { payload ⇒
           mutateOrFailures {
-            AccountManager.resetPassword(defaultScope = defaultScope,
-                                         code = payload.code,
-                                         newPassword = payload.newPassword)
+            AccountManager.resetPassword(code = payload.code, newPassword = payload.newPassword)
           }
         }
       } ~
@@ -47,7 +46,7 @@ object AuthRoutes {
           redirect(Uri("/"), StatusCodes.Found)
         }
       } ~
-      activityContext() { implicit ac ⇒
+      activityContext(defaultScope) { implicit ac ⇒
         lazy val customerGoogleOauth = oauthServiceFromConfig(config.users.customer)
         lazy val adminGoogleOauth    = oauthServiceFromConfig(config.users.admin)
 

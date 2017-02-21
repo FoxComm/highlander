@@ -1,6 +1,7 @@
 import akka.stream.scaladsl.Source
 
 import cats.implicits._
+import com.github.tminglei.slickpg.LTree
 import failures._
 import models.NotificationSubscription._
 import models.account._
@@ -264,7 +265,7 @@ class NotificationIntegrationTest
 
   val newActivity = Activity(activityType = "foo",
                              data = JString("data"),
-                             context = ActivityContext.build(1, "x", "y"))
+                             context = ActivityContext.build(1, "x", scope = LTree(""), "y"))
 
   val createActivity = Activities.create(newActivity)
 

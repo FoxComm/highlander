@@ -2,9 +2,9 @@ package routes
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import akka.http.scaladsl.server.directives.CookieDirectives.{setCookie ⇒ _, _}
-import akka.http.scaladsl.server.directives.RespondWithDirectives.{respondWithHeader ⇒ _, _}
-import utils.http.JsonSupport._
+import akka.http.scaladsl.server.directives.CookieDirectives.{setCookie ⇒ _}
+import akka.http.scaladsl.server.directives.RespondWithDirectives.{respondWithHeader ⇒ _}
+import com.github.tminglei.slickpg.LTree
 import models.Reason.reasonTypeRegex
 import payloads.CustomerPayloads.CreateCustomerPayload
 import services.PublicService._
@@ -16,11 +16,13 @@ import services.{ReasonService, StoreCreditService}
 import utils.aliases._
 import utils.http.CustomDirectives._
 import utils.http.Http._
+import utils.http.JsonSupport._
 
 object Public {
-  def routes(customerCreateContext: AccountCreateContext)(implicit ec: EC, db: DB, es: ES): Route = {
+  def routes(customerCreateContext: AccountCreateContext,
+             defaultScope: LTree)(implicit ec: EC, db: DB, es: ES): Route = {
 
-    activityContext() { implicit ac ⇒
+    activityContext(defaultScope) { implicit ac ⇒
       pathPrefix("public") {
         pathPrefix("registrations") {
           (post & path("new") & pathEnd & entity(as[CreateCustomerPayload])) { payload ⇒

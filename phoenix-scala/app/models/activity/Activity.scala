@@ -17,10 +17,7 @@ import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 
-case class ActivityContext(userId: Int,
-                           userType: String,
-                           transactionId: String,
-                           scope: LTree = LTree("")) {
+case class ActivityContext(userId: Int, userType: String, transactionId: String, scope: LTree) {
   def withCurrentScope(implicit au: AU) = withScope(Scope.current)
   def withScope(scope: LTree)           = ActivityContext(userId, userType, transactionId, scope)
 }
@@ -38,8 +35,8 @@ object ActivityContext {
 
   def build(userId: Int,
             userType: String,
-            transactionId: String = letterify("?" * 5),
-            scope: LTree = LTree("")): ActivityContext =
+            scope: LTree,
+            transactionId: String = letterify("?" * 5)): ActivityContext =
     ActivityContext(userId = userId,
                     userType = userType,
                     transactionId = transactionId,
