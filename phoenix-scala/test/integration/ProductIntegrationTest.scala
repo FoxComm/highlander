@@ -1,7 +1,7 @@
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
-
 import cats.implicits._
 import failures.ArchiveFailures._
 import failures.ObjectFailures.ObjectContextNotFound
@@ -80,25 +80,6 @@ class ProductIntegrationTest
       productsApi(slug).get().as[ProductResponse.Root].id must === (updated.formId)
     }
 
-    "404 for archived products" in new ProductSku_ApiFixture {
-      val slug          = "simple-product"
-      val simpleProduct = Products.mustFindById404(product.id).gimme
-
-      val updated = simpleProduct.copy(slug = slug)
-
-      productsApi(product.id)
-        .update(
-            UpdateProductPayload(productPayload.attributes,
-                                 slug = Some(slug),
-                                 skus = None,
-                                 variants = None))
-        .mustBeOk()
-
-      productsApi(product.id).archive().mustBeOk()
-
-      productsApi(slug).get().mustFailWith404(ProductIsNotActive(product.id))
-    }
-
     "queries product by slug ignoring case" in new ProductSku_ApiFixture {
       val slug          = "Simple-Product"
       val simpleProduct = Products.mustFindById404(product.id).gimme
@@ -107,6 +88,41 @@ class ProductIntegrationTest
       Products.update(simpleProduct, updated).gimme
 
       productsApi(slug).get().as[ProductResponse.Root].id must === (updated.formId)
+    }
+  }
+
+  "GET v1/my/products/:ref/baked" - {
+    "404 for archived products" in new ProductSku_ApiFixture {
+      val slug = "simple-product"
+
+      productsApi(product.id)
+        .update(
+            UpdateProductPayload(productPayload.attributes,
+                                 slug = slug.some,
+                                 skus = None,
+                                 variants = None))
+        .mustBeOk()
+
+      productsApi(product.id).archive().mustBeOk()
+
+      productsApi(slug).forCustomer.get
+        .mustFailWith404(ProductIsNotActive(ProductReference(product.id)))
+    }
+
+    "404 for inactive products" in new Customer_Seed with Fixture {
+      val slug = "simple-product"
+
+      productsApi(product.formId)
+        .update(
+            UpdateProductPayload(attributes = inactiveAttrMap,
+                                 slug = slug.some,
+                                 skus =
+                                   allSkus.map(sku ⇒ makeSkuPayload(sku, skuAttrMap, None)).some,
+                                 albums = None,
+                                 variants = None))
+        .mustBeOk()
+
+      productsApi(slug).forCustomer.get.mustFailWith404(ProductIsNotActive(ProductReference(slug)))
     }
   }
 
@@ -776,8 +792,11 @@ class ProductIntegrationTest
     val skuAttrMap = Map("price" → priceJson)
     val skuPayload = makeSkuPayload("SKU-NEW-TEST", skuAttrMap, None)
 
-    val nameJson = ("t"       → "string") ~ ("v"  → "Product name")
-    val attrMap  = Map("name" → nameJson, "title" → nameJson)
+    val nameJson        = ("t"                        → "string") ~ ("v"           → "Product name")
+    val attrMap         = Map("name"                  → nameJson, "title"          → nameJson)
+    val activeFromJson  = ("t"                        → "date") ~ ("v"             → (Instant.now.minus(2, ChronoUnit.DAYS)).toString)
+    val activeToJson    = ("t"                        → "date") ~ ("v"             → (Instant.now.minus(1, ChronoUnit.DAYS)).toString)
+    val inactiveAttrMap = attrMap ++ Map("activeFrom" → activeFromJson, "activeTo" → activeToJson)
     val productPayload = CreateProductPayload(attributes = attrMap,
                                               skus = Seq(skuPayload),
                                               variants = None,

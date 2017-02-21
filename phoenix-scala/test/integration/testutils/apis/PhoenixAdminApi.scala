@@ -467,6 +467,12 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
       def get: HttpResponse =
         GET(s"$productPath/taxons")
     }
+
+    object forCustomer {
+      val productPath = s"$rootPrefix/my/products/$reference/baked"
+
+      def get: HttpResponse = GET(productPath)
+    }
   }
 
   object storeAdminsApi {

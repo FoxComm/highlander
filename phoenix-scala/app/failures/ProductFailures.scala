@@ -2,7 +2,7 @@ package failures
 
 import java.time.Instant
 
-import models.product.Product
+import models.product.{Product, ProductReference}
 
 object ProductFailures {
 
@@ -64,8 +64,8 @@ object ProductFailures {
   }
 
   object ProductIsNotActive {
-    def apply(id: Int) =
-      NotFoundFailure404(s"Product with id=$id is archived or inactive")
+    def apply(id: ProductReference) =
+      NotFoundFailure404(s"Product with id=${id.value} is archived or inactive")
   }
 
   object NoAlbumsFoundForProduct {

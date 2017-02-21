@@ -30,10 +30,16 @@ object ProductReference {
   def apply(slug: String): ProductReference = ProductSlug(slug)
 }
 
-trait ProductReference
+trait ProductReference {
+  def value: String
+}
 
-case class ProductId(formId: ObjectForm#Id) extends ProductReference
-case class ProductSlug(slug: String)        extends ProductReference
+case class ProductId(formId: ObjectForm#Id) extends ProductReference {
+  def value = formId.toString
+}
+case class ProductSlug(slug: String) extends ProductReference {
+  def value = slug
+}
 
 /**
   * A Product represents something sellable in our system and has a set of
@@ -72,7 +78,7 @@ case class Product(id: Int = 0,
 
   def mustBeActive: Failures Xor Product =
     archivedAt
-      .map(archivedDate ⇒ Xor.Left(ProductIsNotActive(id).single))
+      .map(_ ⇒ Xor.Left(ProductIsNotActive(ProductReference(id)).single))
       .getOrElse(Xor.Right(this))
 
 }

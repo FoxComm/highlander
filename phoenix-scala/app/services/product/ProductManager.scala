@@ -90,7 +90,6 @@ object ProductManager {
                                               oc: OC): DbResultT[ProductResponse.Root] =
     for {
       oldProduct ← * <~ Products.mustFindFullByReference(productId)
-      _          ← * <~ oldProduct.model.mustBeActive
       albums     ← * <~ ImageManager.getAlbumsForProduct(oldProduct.model.reference)
 
       fullSkus    ← * <~ ProductSkuLinks.queryRightByLeft(oldProduct.model)
@@ -112,6 +111,37 @@ object ProductManager {
           if (hasVariants) variantSkus else productSkus,
           variantResponses,
           taxons)
+
+  def getProductForStorefront(productId: ProductReference)(
+      implicit ec: EC,
+      db: DB,
+      oc: OC): DbResultT[ProductResponse.Root] =
+    for {
+      oldProduct ← * <~ Products.mustFindFullByReference(productId)
+      _          ← * <~ oldProduct.model.mustBeActive
+      illuminated = IlluminatedProduct
+        .illuminate(oc, oldProduct.model, oldProduct.form, oldProduct.shadow)
+      _      ← * <~ illuminated.mustBeActive
+      albums ← * <~ ImageManager.getAlbumsForProduct(oldProduct.model.reference)
+
+      fullSkus    ← * <~ ProductSkuLinks.queryRightByLeft(oldProduct.model)
+      productSkus ← * <~ fullSkus.map(SkuManager.illuminateSku)
+
+      variants     ← * <~ ProductVariantLinks.queryRightByLeft(oldProduct.model)
+      fullVariants ← * <~ variants.map(VariantManager.zipVariantWithValues)
+
+      hasVariants = variants.nonEmpty
+
+      variantAndSkus ← * <~ getVariantsWithRelatedSkus(fullVariants)
+      (variantSkus, variantResponses) = variantAndSkus
+
+      taxons ← * <~ TaxonomyManager.getAssignedTaxons(oldProduct.model)
+    } yield
+      ProductResponse.build(illuminated,
+                            albums,
+                            if (hasVariants) variantSkus else productSkus,
+                            variantResponses,
+                            taxons)
 
   def updateProduct(productId: ProductReference, payload: UpdateProductPayload)(
       implicit ec: EC,
