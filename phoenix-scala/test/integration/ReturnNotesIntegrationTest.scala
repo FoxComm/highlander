@@ -84,9 +84,7 @@ class ReturnNotesIntegrationTest
           updatedNote.deletedAt.value.isBeforeNow mustBe true
         }
 
-        // Deleted note should not be returned
-        val allNotes = api(rma.refNum).get().as[Seq[AdminNotes.Root]]
-        allNotes.map(_.id) must not contain note.id
+        api(rma.refNum).get().as[Seq[AdminNotes.Root]].map(_.id) must not contain note.id
       }
     }
   }
