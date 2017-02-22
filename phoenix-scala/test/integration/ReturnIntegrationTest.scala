@@ -1,36 +1,33 @@
 import akka.http.scaladsl.model.StatusCodes
+import cats.implicits._
 import failures.LockFailures._
 import failures.ReturnFailures._
 import failures._
-import models.Reasons
+import models.Reason.Cancellation
 import models.account._
 import models.cord._
-import models.inventory.Skus
-import models.payment.giftcard._
+import models.payment.PaymentMethod
+import models.payment.creditcard.{CreditCard, CreditCards}
 import models.product.{Mvp, SimpleProductData}
 import models.returns.Return._
 import models.returns._
+import models.shipping.{ShippingMethod, ShippingMethods}
 import org.scalatest.prop.PropertyChecks
+import payloads.LineItemPayloads.UpdateLineItemsPayload
+import payloads.PaymentPayloads.{CreditCardPayment, GiftCardPayment, StoreCreditPayment}
 import payloads.ReturnPayloads._
+import payloads.UpdateShippingMethod
 import responses.ReturnResponse.Root
 import responses._
-import services.returns.{ReturnLineItemUpdater, ReturnLockUpdater, ReturnService}
+import responses.cord.OrderResponse
+import services.returns.ReturnLockUpdater
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
-import utils.db._
-import utils.db.ExPostgresDriver.api._
-import utils.seeds.Seeds.Factories
-import cats.implicits._
-import models.Reason.Cancellation
-import models.payment.PaymentMethod
-import models.payment.creditcard.{CreditCard, CreditCards}
-import models.shipping.{ShippingMethod, ShippingMethods}
-import payloads.LineItemPayloads.UpdateLineItemsPayload
-import payloads.PaymentPayloads.{CreditCardPayment, GiftCardPayment, StoreCreditPayment}
-import payloads.UpdateShippingMethod
-import responses.cord.OrderResponse
 import testutils.fixtures.api.ApiFixtureHelpers
+import utils.db.ExPostgresDriver.api._
+import utils.db._
+import utils.seeds.Seeds.Factories
 
 class ReturnIntegrationTest
     extends IntegrationTestBase
@@ -329,7 +326,6 @@ class ReturnIntegrationTest
         val response = returnsApi(rma.referenceNumber).lineItems
           .add(shippingCostPayload)
           .as[ReturnResponse.Root]
-
         response.lineItems.shippingCosts.value.amount must === (order.shippingTotal)
       }
 
@@ -340,21 +336,13 @@ class ReturnIntegrationTest
       }
 
       "overwrites existing shipping cost" in new LineItemFixture {
-        returnsApi(rma.referenceNumber).lineItems
-          .add(shippingCostPayload.copy(amount = 42))
-          .as[ReturnResponse.Root]
-          .lineItems
-          .shippingCosts
-          .value
-          .amount must === (42)
+        val first =
+          createReturnLineItem(shippingCostPayload.copy(amount = 42), rma.referenceNumber)
+        first.lineItems.shippingCosts.value.amount must === (42)
 
-        returnsApi(rma.referenceNumber).lineItems
-          .add(shippingCostPayload.copy(amount = 25))
-          .as[ReturnResponse.Root]
-          .lineItems
-          .shippingCosts
-          .value
-          .amount must === (25)
+        val second =
+          createReturnLineItem(shippingCostPayload.copy(amount = 25), rma.referenceNumber)
+        second.lineItems.shippingCosts.value.amount must === (25)
       }
 
       "fails if refNum is not found" in new LineItemFixture {
