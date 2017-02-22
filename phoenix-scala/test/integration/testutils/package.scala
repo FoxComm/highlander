@@ -13,10 +13,7 @@ package object testutils {
 
   object OnlyElement {
     implicit class GimmeOnlyElement[R](val s: Seq[R]) {
-      def onlyElement: R = {
-        assert(s.size == 1)
-        s.head
-      }
+      def onlyElement: R = s.head
     }
   }
 

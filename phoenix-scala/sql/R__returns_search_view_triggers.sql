@@ -1,16 +1,16 @@
-create or replace function update_returns_view_from_returns_insert_fn() returns trigger as $$
+create or replace function update_returns_search_view_from_returns_insert_fn() returns trigger as $$
    begin
-           insert into orders_search_view (
+           insert into returns_search_view (
                id,
                reference_number,
                state,
-               placed_at,
+               order_id,
                customer)
            select distinct on (new.id)
                new.id as id,
                new.reference_number as reference_number,
                new.state as state,
-               to_char(new.placed_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as placed_at,
+               new.order_id as order_id,
                -- customer
                json_build_object(
                    'id', c.id,
@@ -62,3 +62,10 @@ begin
     return null;
 end;
 $$ language plpgsql;
+
+drop trigger if exists update_returns_search_view_from_returns_insert on returns;
+
+create trigger update_returns_search_view_from_returns_insert
+after insert on returns
+for each row
+execute procedure update_returns_search_view_from_returns_insert_fn();

@@ -1,4 +1,5 @@
 import models.returns.Returns
+import org.json4s.JObject
 import testutils._
 import utils.seeds.Seeds.Factories
 import utils.db._
@@ -8,20 +9,29 @@ import testutils.fixtures.BakedFixtures
 case class ReturnsSearchViewResult(
     id: Int,
     referenceNumber: String,
+    orderId: Int,
     state: String,
-    placedAt: String,
-    customer: String
+    customer: JObject
 )
 
 class ReturnsSearchViewTest extends SearchViewTestBase with TestSeeds with BakedFixtures {
 
   type SearchViewResult = ReturnsSearchViewResult
   val searchViewName: String = "returns_search_view"
-  val searchKeyName: String  = "reference_number"
+  val searchKeyName: String  = "id"
 
-  "smoke test search view" - new Fixture {
-    "should compile" in {
-      val view = findOneInSearchView(rma.refNum)
+  "smoke test search view" - {
+    "should work against fixture return" in new Fixture {
+      val rmaSearchView = findOneInSearchView(rma.id)
+
+      {
+        import rmaSearchView._
+
+        id must === (rma.id)
+        referenceNumber must === (rma.refNum)
+        orderId must === (rma.orderId)
+        state must === (rma.state.toString.toLowerCase())
+      }
     }
   }
 
