@@ -272,10 +272,10 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
       case None ⇒ line
     }
 
-  private def getPrices(items: Seq[OrderLineItemProductData]): DbResultT[Seq[LineItemPrice]] =
+  private def getPrices(items: Seq[OrderLineItemProductData]): DbResultT[List[LineItemPrice]] =
     DbResultT.sequenceJoiningFailures(items.map { i ⇒
       getPrice(i)
-    })
+    }.toList)
 
   private def getPrice(item: OrderLineItemProductData): DbResultT[LineItemPrice] =
     Mvp.price(item.skuForm, item.skuShadow) match {
@@ -314,10 +314,10 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
 
   private def mustHaveCodes(items: Seq[CapturePayloads.CaptureLineItem],
                             codes: Seq[String],
-                            orderRef: String): DbResultT[Seq[Unit]] =
+                            orderRef: String): DbResultT[List[Unit]] =
     DbResultT.sequenceJoiningFailures(items.map { i ⇒
       mustHaveCode(i, codes, orderRef)
-    })
+    }.toList)
 
   private def mustHaveCode(item: CapturePayloads.CaptureLineItem,
                            codes: Seq[String],

@@ -1,6 +1,6 @@
 package services
 
-import cats.data.Xor
+import cats.implicits._
 import failures.{AlreadySavedForLater, Failures, NotFoundFailure404}
 import models.account.{User, Users}
 import models.objects.ObjectContext
@@ -43,7 +43,7 @@ object SaveForLaterManager {
       sfls ← * <~ SaveForLaters.filter(_.accountId === customer.accountId).result
       r ← * <~ DbResultT
            .sequenceJoiningFailures(
-               sfls.map(sfl ⇒ SaveForLaterResponse.forSkuId(sfl.skuId, contextId)))
-           .failuresToWarnings(Seq.empty) { case _ ⇒ true }
+               sfls.map(sfl ⇒ SaveForLaterResponse.forSkuId(sfl.skuId, contextId)).toList)
+           .failuresToWarnings(Nil) { case _ ⇒ true }
     } yield r
 }

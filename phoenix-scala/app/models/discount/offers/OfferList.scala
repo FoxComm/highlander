@@ -5,7 +5,6 @@ import scala.concurrent.Future
 import cats._
 import cats.data._
 import cats.implicits._
-import cats.instances.list._
 import failures._
 import models.cord.lineitems.OrderLineItemAdjustment
 import models.cord.lineitems.OrderLineItemAdjustment._
@@ -20,6 +19,6 @@ case class OfferList(offers: Seq[Offer]) extends Offer {
   val adjustmentType: AdjustmentType = Combinator
 
   def adjust(input: DiscountInput)(implicit db: DB, ec: EC, es: ES, au: AU): OfferResult =
-    Result.sequenceJoiningFailures(offers.map(_.adjust(input))).map(_.flatten)
+    Result.sequenceJoiningFailures(offers.map(_.adjust(input)).toList).map(_.flatten)
 
 }

@@ -90,7 +90,7 @@ object GiftCardService {
       implicit ec: EC,
       db: DB,
       ac: AC,
-      au: AU): DbResultT[Seq[ItemResult]] =
+      au: AU): DbResultT[List[ItemResult]] =
     for {
       _     ← * <~ payload.validate
       scope ← * <~ Scope.resolveOverride(payload.scope)
@@ -100,19 +100,19 @@ object GiftCardService {
                                             scope = scope.toString.some)
       response ← * <~ DbResultT.sequenceJoiningFailures((1 to payload.quantity).map { num ⇒
                   createByAdmin(admin, gcCreatePayload).mapXorRight(buildItemResult(_))
-                })
+                }.toList)
     } yield response
 
   def bulkUpdateStateByCsr(
       payload: GiftCardBulkUpdateStateByCsr,
-      admin: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[Seq[ItemResult]] =
+      admin: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[List[ItemResult]] =
     for {
       _ ← * <~ payload.validate.toXor
       response ← * <~ DbResultT.sequenceJoiningFailures(payload.codes.map { code ⇒
                   val itemPayload = GiftCardUpdateStateByCsr(payload.state, payload.reasonId)
                   updateStateByCsr(code, itemPayload, admin).mapXorRight(
                       buildItemResult(_, Some(code)))
-                })
+                }.toList)
     } yield response
 
   def updateStateByCsr(code: String, payload: GiftCardUpdateStateByCsr, admin: User)(

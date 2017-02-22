@@ -1,5 +1,6 @@
 package routes.admin
 
+import cats.implicits._
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
@@ -10,7 +11,7 @@ import services.CustomerCreditConverter
 import services.giftcards._
 import services.Authenticator.AuthData
 import utils.aliases._
-import utils.db.DbResultT
+import utils.db._
 import utils.http.CustomDirectives._
 import utils.http.Http._
 
@@ -28,7 +29,7 @@ object GiftCardRoutes {
         (post & pathEnd & entity(as[Seq[GiftCardCreatedByCustomer]])) { payload ⇒
           mutateOrFailures {
             DbResultT.sequenceJoiningFailures(
-                payload.map(GiftCardService.createByCustomer(auth.model, _)))
+                payload.map(GiftCardService.createByCustomer(auth.model, _)).toList)
           }
         }
       } ~

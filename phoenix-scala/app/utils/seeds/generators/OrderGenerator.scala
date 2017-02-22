@@ -398,10 +398,10 @@ trait OrderGenerator extends ShipmentSeeds {
       .mustFindOneOr(NotFoundFailure400(ShippingMethod, shipMethodId))
 
   private def authGiftCard(
-      results: Seq[(OrderPayment, GiftCard)]): DbResultT[Seq[GiftCardAdjustment]] =
+      results: Seq[(OrderPayment, GiftCard)]): DbResultT[List[GiftCardAdjustment]] =
     DbResultT.sequenceJoiningFailures(results.map {
       case (pmt, m) ⇒ GiftCards.authOrderPayment(m, pmt)
-    })
+    }.toList)
 
   private def deductAmount(availableBalance: Int, totalCost: Int): Int =
     Math.max(1,

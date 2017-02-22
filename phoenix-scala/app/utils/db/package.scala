@@ -50,6 +50,8 @@ package object db {
   }
 
   implicit class EnrichedFoxyT[F[_], A](fa: FoxyT[F, A]) {
+    // TODO: First, before removing explicit Xor handling, implement recoverWith from scratch and then re-implement the *xor* functions in terms of recoverWith and flatMap. And then, remove them iteratively and completely. @michalrus
+
     def flatMapXor[B](f: Xor[Failures, A] ⇒ FoxyT[F, B])(implicit F: Monad[F]): FoxyT[F, B] = // TODO: remove me @michalrus
       fa.transformF { fsa ⇒
         XorT(F.flatMap(fsa.value) { xs ⇒
@@ -95,7 +97,8 @@ package object db {
         case x                                ⇒ x
       }
 
-    def meh(implicit M: Monad[F]): FoxyT[F, Unit] = fa.void
+    def meh(implicit M: Monad[F]): FoxyT[F, Unit] =
+      fa.void // TODO: remove me? But it’s cute… @michalrus
 
     def failuresToWarnings(newValue: A)(pf: PartialFunction[Failure, Boolean])(
         implicit F: Monad[F]): FoxyT[F, A] = {

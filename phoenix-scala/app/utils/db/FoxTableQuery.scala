@@ -1,6 +1,8 @@
 package utils.db
 
-import cats.data.Xor
+import cats._
+import cats.data._
+import cats.implicits._
 import failures.{Failure, Failures}
 import slick.dbio.DBIO
 import slick.driver.PostgresDriver.api._

@@ -149,7 +149,7 @@ case class Checkout(
     for {
       skuInventoryData ← * <~ skus.map {
                           case (skuCode, qty) ⇒ isInventoryTracked(skuCode, qty)
-                        }
+                        }.toList
       // TODO: Add this back, but for gift cards we will track inventory (in the super short term).
       // inventoryTrackedSkus ← * <~ skuInventoryData.filter(_.isInventoryTracked)
     } yield skuInventoryData
