@@ -85,7 +85,7 @@ class OptionEditDialog extends Component {
           required
         >
           <input
-            id="option-name-fld"
+            id="fct-option-name-fld"
             type="text"
             ref="nameInput"
             value={name}

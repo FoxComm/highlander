@@ -97,7 +97,7 @@ class CustomProperty extends Component<void, Props, State> {
               label="Field Label"
               labelClassName="fc-product-details__field-label">
               <input
-                id="field-label-fld"
+                id="fct-field-label-fld"
                 type="text"
                 ref="field"
                 className="fc-product-details__field-value"
@@ -110,7 +110,7 @@ class CustomProperty extends Component<void, Props, State> {
               label="Field Type"
               labelClassName="fc-product-details__field-label">
               <Dropdown
-                id="field-type-dd"
+                id="fct-field-type-dd"
                 name="type"
                 value={this.state.propertyType}
                 onChange={this.handleUpdateType}

@@ -74,7 +74,7 @@ export class CartShippingMethod extends Component {
         availableShippingMethods={list}
         isEditing={this.state.isEditing}
         editAction={this.startEditing}
-        editButtonId="shipping-method-edit-btn"
+        editButtonId="fct-edit-btn__shipping-method"
         doneAction={this.completeEditing}
         updateAction={this.updateShippingMethod}
         shippingMethods={[shippingMethod]} />

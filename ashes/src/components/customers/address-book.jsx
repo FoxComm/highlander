@@ -99,7 +99,7 @@ export default class CustomerAddressBook extends React.Component {
       <ContentBox title="Address Book"
                   className="fc-customer-address-book"
                   actionBlock={
-                    <AddButton id="customer-add-new-address-btn"
+                    <AddButton id="fct-add-btn__new-address"
                                onClick={() => props.startAddingAddress(props.customerId)}
                     />
                   }
