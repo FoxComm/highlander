@@ -18,7 +18,7 @@ type EditableProps = Localized & {
   children?: HTMLElement,
   editAction?: () => any,
   actionsContent?: HTMLElement|Array<HTMLElement>,
-  title: string,
+  title: string|HTMLElement,
   t: any,
 };
 

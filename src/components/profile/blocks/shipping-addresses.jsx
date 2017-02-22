@@ -1,3 +1,4 @@
+// @flow weak
 
 // libs
 import _ from 'lodash';
@@ -18,19 +19,22 @@ import Block from '../common/block';
 import addressStyles from './../../../pages/checkout/01-shipping/address-list.css';
 import profileStyles from '../profile.css';
 
+import type { Address } from 'types/address';
+
 const styles = {...addressStyles, ...profileStyles};
 
-import { updateAddress, fetchAddresses, deleteAddress } from 'modules/checkout';
+import { updateAddress, fetchAddresses, deleteAddress, restoreAddress } from 'modules/checkout';
 
 type Props = {
-  addresses: Array<any>,
+  fetchAddresses: () => Promise,
+  addresses: Array<Address>,
   updateAddress: Function,
   deleteAddress: (id: number) => Promise,
+  restoreAddress: (id: number) => Promise,
   t: any,
 };
 
 type State = {
-  addressToEdit: Object,
   activeAddressId?: number|string,
 };
 
@@ -44,7 +48,6 @@ class MyShippingAddresses extends Component {
   props: Props;
 
   state: State = {
-    addressToEdit: {},
     activeAddressId: void 0,
   };
 
@@ -71,10 +74,12 @@ class MyShippingAddresses extends Component {
     browserHistory.push('/profile/addresses/new');
   }
 
-  deleteAddress(addressId) {
-    if (confirm('Remove address ?')) {
-      this.props.deleteAddress(addressId);
-    }
+  deleteAddress(addressId: number) {
+    this.props.deleteAddress(addressId);
+  }
+
+  restoreAddress(addressId: number) {
+    this.props.restoreAddress(addressId);
   }
 
   @autobind
@@ -86,18 +91,32 @@ class MyShippingAddresses extends Component {
 
   renderAddresses() {
     const { props } = this;
-    const items = _.map(props.addresses, (address) => {
-      const content = <AddressDetails address={address} hideName />;
+    const items = _.map(props.addresses, (address: Address) => {
+      const contentAttrs = address.isDeleted ? {className: styles['deleted-content']} : {};
+      const content = <AddressDetails address={address} hideName {...contentAttrs} />;
       const checked = address.id === this.state.activeAddressId;
       const key = address.id;
 
-      const actionsContent = (
-        <div styleName="actions-block">
-          <Link styleName="link" to={`/profile/addresses/${address.id}`}>{props.t('EDIT')}</Link>
-          &nbsp;|&nbsp;
-          <div styleName="link" onClick={() => this.deleteAddress(address.id)}>{props.t('REMOVE')}</div>
-        </div>
-      );
+      let actionsContent;
+      let title;
+
+      if (address.isDeleted) {
+        actionsContent = (
+          <div styleName="actions-block">
+            <div styleName="link" onClick={() => this.restoreAddress(address.id)}>{props.t('RESTORE')}</div>
+          </div>
+        );
+        title = <span styleName="deleted-content">{address.name}</span>;
+      } else {
+        actionsContent = (
+          <div styleName="actions-block">
+            <Link styleName="link" to={`/profile/addresses/${address.id}`}>{props.t('EDIT')}</Link>
+            &nbsp;|&nbsp;
+            <div styleName="link" onClick={() => this.deleteAddress(address.id)}>{props.t('REMOVE')}</div>
+          </div>
+        );
+        title = address.name;
+      }
 
       return (
         <li styleName="item" key={`address-radio-${key}`}>
@@ -105,11 +124,12 @@ class MyShippingAddresses extends Component {
             id={`address-radio-${key}`}
             name={`address-radio-${key}`}
             checked={checked}
+            disabled={address.isDeleted}
             onChange={() => this.selectAddressById(address.id)}
           >
             <EditableBlock
               styleName="item-content"
-              title={address.name}
+              title={title}
               content={content}
               actionsContent={actionsContent}
             />
@@ -140,6 +160,6 @@ class MyShippingAddresses extends Component {
 }
 
 export default _.flowRight(
-  connect(mapStateToProps, {updateAddress, fetchAddresses, deleteAddress}),
+  connect(mapStateToProps, {updateAddress, fetchAddresses, deleteAddress, restoreAddress}),
   localized
 )(MyShippingAddresses);

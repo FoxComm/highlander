@@ -26,4 +26,5 @@ export type Address = {
   zip: string|number,
   isDefault?: boolean,
   phoneNumber?: string,
+  isDeleted?: boolean,
 };
