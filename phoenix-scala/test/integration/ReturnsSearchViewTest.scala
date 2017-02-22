@@ -1,16 +1,21 @@
-import models.returns.Returns
+import models.returns.{Return, Returns}
 import org.json4s.JObject
 import testutils._
 import utils.seeds.Seeds.Factories
 import utils.db._
 import testutils.TestSeeds
 import testutils.fixtures.BakedFixtures
+import cats.implicits._
+import models.returns.Return.ReturnType
 
 case class ReturnsSearchViewResult(
     id: Int,
     referenceNumber: String,
     orderId: Int,
-    state: String,
+    orderRef: String,
+    state: Return.State,
+    messageToAccount: Option[String],
+    returnType: ReturnType,
     customer: JObject
 )
 
@@ -30,7 +35,10 @@ class ReturnsSearchViewTest extends SearchViewTestBase with TestSeeds with Baked
         id must === (rma.id)
         referenceNumber must === (rma.refNum)
         orderId must === (rma.orderId)
-        state must === (rma.state.toString.toLowerCase())
+        orderRef must === (rma.orderRef)
+        state must === (rma.state)
+        messageToAccount must === (rma.messageToAccount)
+        returnType must === (rma.returnType)
       }
     }
   }

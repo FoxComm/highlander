@@ -3,14 +3,21 @@ create or replace function update_returns_search_view_from_returns_insert_fn() r
            insert into returns_search_view (
                id,
                reference_number,
-               state,
                order_id,
-               customer)
+               order_ref,
+               state,
+               message_to_account,
+               return_type,
+               customer
+               )
            select distinct on (new.id)
                new.id as id,
                new.reference_number as reference_number,
-               new.state as state,
                new.order_id as order_id,
+               new.order_ref as order_ref,
+               new.state as state,
+               new.message_to_account as message_to_account,
+               new.return_type as return_type,
                -- customer
                json_build_object(
                    'id', c.id,
