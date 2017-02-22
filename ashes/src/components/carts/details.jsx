@@ -36,7 +36,7 @@ type Props = {
 export default class CartDetails extends Component {
   props: Props;
 
-  render(): Element {
+  render() {
     const { details } = this.props;
     const { cart } = details;
 

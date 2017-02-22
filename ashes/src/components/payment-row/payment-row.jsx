@@ -25,9 +25,9 @@ type Props = {
   editMode: boolean,
   orderReferenceNumber: string,
   paymentMethod: PaymentMethod,
-  deleteCreditCardPayment: (refNum: string) => Promise,
-  deleteGiftCardPayment: (refNum: string, code: string) => Promise,
-  deleteStoreCreditPayment: (refNum: string) => Promise,
+  deleteCreditCardPayment: (refNum: string) => Promise<*>,
+  deleteGiftCardPayment: (refNum: string, code: string) => Promise<*>,
+  deleteStoreCreditPayment: (refNum: string) => Promise<*>,
 };
 
 type State = {
@@ -43,7 +43,7 @@ class PaymentRow extends Component {
   };
 
   @autobind
-  deletePayment(): ?Promise {
+  deletePayment(): ?Promise<*> {
     const { orderReferenceNumber, paymentMethod } = this.props;
 
     switch (paymentMethod.type) {
@@ -56,12 +56,12 @@ class PaymentRow extends Component {
     }
   }
 
-  get amount(): ?Element {
+  get amount(): ?Element<*> {
     const amount = _.get(this.props, 'paymentMethod.amount');
     return _.isNumber(amount) ? <Currency value={amount} /> : null;
   }
 
-  get details(): ?Element {
+  get details(): ?Element<*> {
     if (this.state.showDetails) {
       const { customerId, orderReferenceNumber, paymentMethod } = this.props;
       const detailsProps = {
@@ -99,7 +99,7 @@ class PaymentRow extends Component {
     }
   }
 
-  get editActions(): ?Element {
+  get editActions(): ?Element<*> {
     if (this.props.editMode) {
       const editButton = !this.state.isEditing
         ? <EditButton onClick={this.startEdit} />
@@ -114,7 +114,7 @@ class PaymentRow extends Component {
     }
   }
 
-  get summary(): Element {
+  get summary(): Element<*> {
     const { paymentMethod } = this.props;
     const dir = this.state.showDetails ? 'up' : 'down';
     const iconClass = `icon-chevron-${dir}`;
@@ -160,7 +160,7 @@ class PaymentRow extends Component {
     });
   }
 
-  render(): Element {
+  render() {
     return (
       <tbody>
         {this.summary}

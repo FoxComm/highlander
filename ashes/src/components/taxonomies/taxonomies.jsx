@@ -18,7 +18,7 @@ type Props = {
 
 // TaxonomiesPage is a presentation component that is responsible for the page
 // structure under /admin/taxonomies.
-const TaxonomiesPage = (props: Props): Element => {
+const TaxonomiesPage = (props: Props) => {
   const TotalCounter = makeTotalCounter(state => state.taxonomies.list, actions);
   const addAction = () => console.log('Not implemented');
   const navLinks = [{ title: 'Lists', to: 'taxonomies' }];

@@ -12,7 +12,7 @@ import models.payment.storecredit.StoreCreditAdjustments
 import models.payment.storecredit.StoreCreditAdjustments.scope._
 import responses.cord.{AllOrders, OrderResponse}
 import responses.{BatchMetadata, BatchMetadataSource, BatchResponse}
-import services.LogActivity.{orderBulkStateChanged, orderStateChanged}
+import services.LogActivity
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
@@ -29,7 +29,8 @@ object OrderStateUpdater {
       _        ← * <~ updateQueries(admin, Seq(refNum), newState)
       updated  ← * <~ Orders.mustFindByRefNum(refNum)
       response ← * <~ OrderResponse.fromOrder(updated, grouped = true)
-      _        ← * <~ doOrMeh(order.state != newState, orderStateChanged(admin, response, order.state))
+      _ ← * <~ doOrMeh(order.state != newState,
+                       LogActivity().orderStateChanged(admin, response, order.state))
     } yield response
 
   def updateStates(admin: User,
@@ -84,7 +85,7 @@ object OrderStateUpdater {
       updateQueries(admin, cordRefs, newState)
     else
       for {
-        _ ← * <~ orderBulkStateChanged(newState, cordRefs, admin.some).value
+        _ ← * <~ LogActivity().orderBulkStateChanged(newState, cordRefs, admin.some).value
         _ ← * <~ updateQueries(admin, cordRefs, newState)
       } yield ()
   }

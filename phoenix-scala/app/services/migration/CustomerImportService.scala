@@ -3,7 +3,6 @@ package services.migration
 import cats.implicits._
 import models.account._
 import models.customer._
-import payloads.AuthPayload
 import payloads.CustomerPayloads.CreateCustomerPayload
 import responses.CustomerResponse._
 import services.LogActivity
@@ -30,7 +29,7 @@ object CustomerImportService {
                                  scope = scope.ltree,
                                  isGuest = payload.isGuest.getOrElse(false)))
       result = build(user, custData)
-      _ ← * <~ LogActivity.customerCreated(result, admin)
+      _ ← * <~ LogActivity().withScope(scope.ltree).customerCreated(result, admin)
     } yield result
 
 }

@@ -2,7 +2,7 @@ package server
 
 import scala.collection.immutable
 import scala.concurrent.duration._
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Await, ExecutionContext, Future}
 import akka.actor.{ActorSystem, Props}
 import akka.agent.Agent
 import akka.event.Logging
@@ -14,7 +14,7 @@ import akka.http.scaladsl.server._
 import akka.stream.ActorMaterializer
 import com.stripe.Stripe
 import com.typesafe.scalalogging.LazyLogging
-import models.account.AccountAccessMethod
+import models.account.{AccountAccessMethod, Scopes}
 import org.json4s._
 import org.json4s.jackson._
 import services.account.AccountCreateContext
@@ -80,13 +80,17 @@ class Service(
   val orgName  = config.users.customer.org
   val scopeId  = config.users.customer.scopeId
 
+  val scope = Await
+    .result(Scopes.mustFindById404(scopeId).run(), Duration.Inf)
+    .valueOr(fail ⇒ throw new RuntimeException(fail.toList.map(_.description).toString()))
+
   val customerCreateContext                = AccountCreateContext(List(roleName), orgName, scopeId)
   implicit val userAuth: UserAuthenticator = Authenticator.forUser(customerCreateContext)
 
   val defaultRoutes = {
     pathPrefix("v1") {
-      routes.AuthRoutes.routes ~
-      routes.Public.routes(customerCreateContext) ~
+      routes.AuthRoutes.routes(scope.ltree) ~
+      routes.Public.routes(customerCreateContext, scope.ltree) ~
       routes.Customer.routes ~
       requireAdminAuth(userAuth) { implicit auth ⇒
         routes.admin.AdminRoutes.routes ~
@@ -113,7 +117,7 @@ class Service(
         routes.admin.PluginRoutes.routes ~
         routes.admin.TaxonomyRoutes.routes ~
         routes.service.PaymentRoutes.routes ~ //Migrate this to auth with service tokens once we have them
-        routes.service.MigrationRoutes.routes(customerCreateContext)
+        routes.service.MigrationRoutes.routes(customerCreateContext, scope.ltree)
       }
     }
   }

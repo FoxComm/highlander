@@ -85,7 +85,7 @@ const formatTickValue = (datum: any, totalDataSize: number, groupSize: number = 
 
 // Dummy data for UI debugging
 const debugQueryKey: string = 'track.1.product.2.debug';
-const debugJsonData: { debugQueryKey: [ {x: number, y: number } ] } = {
+const debugJsonData = {
   debugQueryKey: [
     // y: Revenue in cents, x: UnixTimestamp
     { y: 750000, x: 1477983600 },

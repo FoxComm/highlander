@@ -41,7 +41,7 @@ export default class UnshippedItems extends Component {
   props: Props;
 
   @autobind
-  renderRow(row: Object, index: number): Element {
+  renderRow(row: Object, index: number): Element<*> {
     return (
       <TableRow key={index}>
         <TableCell>
@@ -59,7 +59,7 @@ export default class UnshippedItems extends Component {
     );
   }
 
-  get content(): Element {
+  get content(): Element<*> {
     const { items } = this.props;
 
     return (
@@ -73,7 +73,7 @@ export default class UnshippedItems extends Component {
     );
   }
 
-  render(): Element {
+  render() {
     return (
       <ContentBox
         styleName="box"

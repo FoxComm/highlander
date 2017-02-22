@@ -1,6 +1,6 @@
 /* @flow */
 
-import React, { Component, Element } from 'react';
+import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
 
@@ -47,7 +47,7 @@ export default class PaymentsPanel extends Component {
   props: Props;
   state: State = { showDetails: {} };
 
-  get newPayment(): Element {
+  get newPayment() {
     const { order } = this.props;
     const customerId = order.customer.id;
 
@@ -75,7 +75,7 @@ export default class PaymentsPanel extends Component {
   }
 
   @autobind
-  renderRow(row: PaymentMethod): Element {
+  renderRow(row: PaymentMethod) {
     const { order } = this.props;
 
     const customerId = order.customer.id;
@@ -101,7 +101,7 @@ export default class PaymentsPanel extends Component {
     });
   }
 
-  get viewContent(): Element {
+  get viewContent(){
     const { isEditing, paymentMethods } = this.props;
     const editColumns = isEditing ? [{ field: 'edit' }] : [];
 
@@ -127,7 +127,7 @@ export default class PaymentsPanel extends Component {
     }
   }
 
-  render(): Element {
+  render() {
     return this.viewContent;
   }
 }

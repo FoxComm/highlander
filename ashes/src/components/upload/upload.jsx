@@ -13,7 +13,7 @@ import { findDOMNode } from 'react-dom';
 import type { FileInfo } from '../../modules/images';
 
 type Props = {
-  children?: Element;
+  children?: Element<*>;
   onDrop: Function;
   className: ?string;
   empty: boolean;
@@ -174,7 +174,7 @@ export default class Upload extends Component {
     );
   }
 
-  render(): Element {
+  render() {
     const { onDrop, empty } = this.props;
     const className = classNames(this.props.className, {
       '_disabled': !onDrop,

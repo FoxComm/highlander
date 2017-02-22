@@ -87,7 +87,7 @@ class Shipments extends Component {
     );
   }
 
-  render(): Element {
+  render() {
     return (
       <div>
         <SectionTitle title="Shipments" />

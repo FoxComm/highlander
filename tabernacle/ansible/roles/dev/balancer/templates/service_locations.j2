@@ -30,7 +30,6 @@ location /internal-search/ {
     internal;
     proxy_pass http://search/;
     proxy_http_version 1.1;
-    proxy_set_header Content-Length "";
 }
 
 # Proxy the internal search location and sanitizes output from ES for external use
@@ -186,7 +185,7 @@ location /api/v1/time/ {
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    #need to add this since henhouse does not add content type in response yet. 
+    #need to add this since henhouse does not add content type in response yet.
     add_header Content-Type 'application/json';
     break;
 }
@@ -218,7 +217,7 @@ location /api/v1/public/ {
 }
 
 # Tracking URL. Returns a 1x1 transparent gif image.
-# Any query params are sent to kafka for processing. 
+# Any query params are sent to kafka for processing.
 location ~ /api/v1/hal.* {
   add_header Pragma "no-cache" always;
   add_header Pragma-Directive "no-cache" always;
@@ -255,6 +254,10 @@ location /admin/ {
     proxy_pass http://ashes;
     proxy_http_version 1.1;
     proxy_set_header Connection "";
+}
+
+location /admin {
+    rewrite ^/.* https://{{storefront_server_name}}/admin/ permanent;
 }
 
 location @ashes {
@@ -319,6 +322,19 @@ location /private/pgweb/ {
     proxy_pass http://pgweb/;
     proxy_http_version 1.1;
     proxy_set_header Connection "";
+}
+
+# River Rock passthrough
+location /private/dashboard {
+    rewrite ^/.* https://{{storefront_server_name}}/private/dashboard/ permanent;
+}
+
+location /private/marathon {
+    rewrite ^/.* https://{{storefront_server_name}}/private/marathon/ permanent;
+}
+
+location /private/pgweb {
+    rewrite ^/.* https://{{storefront_server_name}}/private/pgweb/ permanent;
 }
 {% endif %}
 

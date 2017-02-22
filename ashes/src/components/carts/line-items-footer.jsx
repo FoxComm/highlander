@@ -32,7 +32,7 @@ type Props = {
   },
   suggestedSkus: Array<Sku>,
   isFetchingSkus: boolean,
-  suggestSkus: (code: string, options?: SuggestOptions) => Promise,
+  suggestSkus: (code: string, options?: SuggestOptions) => Promise<*>,
   updateLineItemCount: Function,
   updateLineItemErrors: Array<string>
 };
@@ -55,7 +55,7 @@ export class CartLineItemsFooter extends Component {
   }
 
   @autobind
-  suggestSkus(value: string): Promise {
+  suggestSkus(value: string): Promise<*> {
     return this.props.suggestSkus(value, {
       useTitle: true,
     });

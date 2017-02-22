@@ -22,12 +22,12 @@ export class GiftCardDetails extends Component {
   props: Props;
 
   @autobind
-  saveAction(orderReferenceNumber: string, amount: number): Promise {
+  saveAction(orderReferenceNumber: string, amount: number): Promise<*> {
     const { code } = this.props.paymentMethod;
     return this.props.editGiftCardPayment(orderReferenceNumber, code, amount);
   }
 
-  render(): Element {
+  render() {
     const { isEditing, handleCancel, orderReferenceNumber, paymentMethod } = this.props;
     return (
       <DebitCreditDetails

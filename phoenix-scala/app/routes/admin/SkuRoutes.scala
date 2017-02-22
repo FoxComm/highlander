@@ -17,7 +17,7 @@ object SkuRoutes {
 
   def routes(implicit ec: EC, db: DB, auth: AuthData[User]): Route = {
 
-    activityContext(auth.model) { implicit ac ⇒
+    activityContext(auth) { implicit ac ⇒
       pathPrefix("skus") {
         pathPrefix(Segment) { contextName ⇒
           adminObjectContext(contextName) { implicit context ⇒

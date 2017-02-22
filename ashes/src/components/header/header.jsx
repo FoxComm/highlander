@@ -47,14 +47,14 @@ export default class Header extends React.Component {
     this.props.toggleUserMenu();
   }
 
-  get initials(): ?Element {
+  get initials(): ?Element<*> {
     const { user } = this.props;
     if (user) {
       return <DetailedInitials {...user} />;
     }
   }
 
-  render(): Element {
+  render() {
     const props = this.props;
     const user: ?TUser = props.user;
 
