@@ -24,6 +24,8 @@ export default class Request extends Element {
 
   _criterions: Array<any>;
 
+  _raw: Object;
+
   get criterions(): Array<any> {
     return this._criterions;
   }
