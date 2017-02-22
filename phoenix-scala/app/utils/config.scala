@@ -88,11 +88,16 @@ object FoxConfig {
   case class Cookie(domain: Option[String], ttl: Option[Long], secure: Boolean = true)
 
   // apis
-  case class Apis(aws: AWS, elasticsearch: ESConfig, middlewarehouse: MWH, stripe: Stripe)
+  case class Apis(aws: AWS,
+                  elasticsearch: ESConfig,
+                  middlewarehouse: MWH,
+                  stripe: Stripe,
+                  kafka: Kafka)
   case class AWS(accessKey: String, secretKey: String, s3Bucket: String, s3Region: String)
   case class ESConfig(host: String, cluster: String, index: String)
   case class MWH(url: String)
   case class Stripe(key: String)
+  case class Kafka(schemaRegistryURL: String, bootStrapServersConfig: String)
 
   // db
   case class DB(url: String)

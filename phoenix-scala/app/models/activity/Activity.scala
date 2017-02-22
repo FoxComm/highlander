@@ -20,6 +20,7 @@ import utils.JsonFormatters
 import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db.{DbResultT, _}
+import utils.FoxConfig.config
 
 case class ActivityContext(userId: Int, userType: String, transactionId: String, scope: LTree) {
   def withCurrentScope(implicit au: AU) = withScope(Scope.current)
@@ -89,12 +90,12 @@ object Activities
   def kafkaProducerProps(): Properties = {
     val props = new Properties()
 
-    props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092")
+    props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, config.apis.kafka.bootStrapServersConfig)
     props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
               "org.apache.kafka.common.serialization.StringSerializer")
     props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
               "org.apache.kafka.common.serialization.StringSerializer")
-    props.put("schema.registry.url", "localhost:8081")
+    props.put("schema.registry.url", config.apis.kafka.schemaRegistryURL)
 
     props
   }
