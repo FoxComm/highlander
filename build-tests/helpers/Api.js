@@ -1,5 +1,6 @@
 import FoxCommApi from '@foxcomm/api-js';
 import superagent from 'superagent';
+import cookie from 'cookie';
 
 const API_BASE_URL = process.env.API_URL;
 const STRIPE_KEY = 'pk_test_JvTXpI3DrkV6QwdcmZarmlfk';
@@ -33,6 +34,9 @@ const endpoints = {
   albumImages: (context, albumId) => `/v1/albums/${context}/${albumId}/images`,
   notes: (objectType, objectId) => `/v1/notes/${objectType}/${objectId}`,
   note: (objectType, objectId, noteId) => `/v1/notes/${objectType}/${objectId}/${noteId}`,
+  storeAdmins: '/v1/store-admins',
+  storeAdmin: storeAdminId => `/v1/store-admins/${storeAdminId}`,
+  esStoreAdmins: 'search/admin/store_admins_search_view/_search',
   // dev
   creditCardToken: '/v1/credit-card-token',
 };
@@ -277,6 +281,31 @@ class Dev {
   }
 }
 
+class StoreAdmins {
+  constructor(api) {
+    this.api = api;
+  }
+  list(maxCount = 50) {
+    const url = `${API_BASE_URL}/api/${endpoints.esStoreAdmins}`;
+    const request = this.api.agent.post(url).withCredentials();
+    const cookies = cookie.parse(request.cookies);
+    return request
+      .query({ size: maxCount })
+      .set('JWT', cookies.JWT)
+      .send({ query: { bool: {} }, sort: [{ createdAt: { order: 'desc' } }] })
+      .then(res => res.body.result);
+  }
+  create(storeAdminPayload) {
+    return this.api.post(endpoints.storeAdmins, storeAdminPayload);
+  }
+  one(storeAdminId) {
+    return this.api.get(endpoints.storeAdmin(storeAdminId));
+  }
+  update(storeAdminId, storeAdminPayload) {
+    return this.api.patch(endpoints.storeAdmin(storeAdminId), storeAdminPayload);
+  }
+}
+
 export default class Api extends FoxCommApi {
   constructor(...args) {
     super(...args);
@@ -295,6 +324,7 @@ export default class Api extends FoxCommApi {
     this.albums = new Albums(this);
     this.notes = new Notes(this);
     this.dev = new Dev(this);
+    this.storeAdmins = new StoreAdmins(this);
   }
   static withoutCookies() {
     return new Api({

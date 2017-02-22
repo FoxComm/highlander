@@ -279,6 +279,11 @@ const $ = {
       length: prefix.length + faker.random.number({ min: digits, max: digits + 10 }),
     };
   },
+  randomStoreAdminPayload: () => ({
+    name: faker.name.findName(),
+    email: `${Date.now()}@bvt.com`,
+    org: 'tenant',
+  }),
 };
 
 export default $;
