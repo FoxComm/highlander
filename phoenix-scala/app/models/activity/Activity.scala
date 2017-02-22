@@ -110,7 +110,7 @@ object Activities
     create(activity)
   }
 
-  def logKafka(a: OpaqueActivity)(implicit context: AC, ec: EC) = {
+  def logKafka(a: OpaqueActivity)(implicit activityContext: AC, ec: EC) = {
     val topic = "scoped_activities"
 
     val activityAvroSchema = """
@@ -148,7 +148,8 @@ object Activities
     val schemaParser       = new Schema.Parser()
     val schema             = schemaParser.parse(activityAvroSchema)
 
-    val activity           = Activity(activityType = a.activityType, data = a.data, context = context)
+    val activity =
+      Activity(activityType = a.activityType, data = a.data, context = activityContext)
     val avroActivityRecord = new GenericData.Record(schema)
 
     avroActivityRecord.put("id", activity.id)
@@ -156,7 +157,7 @@ object Activities
     avroActivityRecord.put("data", activity.data)
     avroActivityRecord.put("context", activity.context)
     avroActivityRecord.put("created_at", activity.createdAt)
-    //avroActivityRecord.put("scope", activity.scope.toString)
+    avroActivityRecord.put("scope", activity.context.scope.toString())
 
     val record = new ProducerRecord[String, GenericData.Record](topic, avroActivityRecord)
 
