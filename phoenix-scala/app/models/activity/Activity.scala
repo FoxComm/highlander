@@ -19,7 +19,7 @@ import slick.lifted.Tag
 import utils.JsonFormatters
 import utils.aliases._
 import utils.db.ExPostgresDriver.api._
-import utils.db._
+import utils.db.{DbResultT, _}
 
 case class ActivityContext(userId: Int, userType: String, transactionId: String, scope: LTree) {
   def withCurrentScope(implicit au: AU) = withScope(Scope.current)
@@ -107,10 +107,6 @@ object Activities
         s"Activity ${a.activityType} by ${activityContext.userType} ${activityContext.userId}")
     logger.debug(writePretty(activity))
 
-    create(activity)
-  }
-
-  def logKafka(a: OpaqueActivity)(implicit activityContext: AC, ec: EC) = {
     val topic = "scoped_activities"
 
     val activityAvroSchema = """
@@ -148,8 +144,6 @@ object Activities
     val schemaParser       = new Schema.Parser()
     val schema             = schemaParser.parse(activityAvroSchema)
 
-    val activity =
-      Activity(activityType = a.activityType, data = a.data, context = activityContext)
     val avroActivityRecord = new GenericData.Record(schema)
 
     avroActivityRecord.put("id", activity.id)
@@ -162,6 +156,8 @@ object Activities
     val record = new ProducerRecord[String, GenericData.Record](topic, avroActivityRecord)
 
     kafkaProducer.send(record)
+
+    DbResultT.pure(activity)
   }
 
   def filterByType(activityType: ActivityType): QuerySeq = filter(_.activityType === activityType)
