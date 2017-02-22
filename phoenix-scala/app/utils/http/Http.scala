@@ -2,12 +2,12 @@ package utils.http
 
 import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.model.{ContentTypes, HttpEntity, HttpResponse, ResponseEntity, StatusCode, StatusCodes}
-
-import cats.implicits._
 import failures.{Failures, NotFoundFailure404}
 import org.json4s.jackson.Serialization
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import org.json4s.{Formats, jackson}
+import responses.{BatchMetadata, TheResponse}
+import utils.db.UIInfo
 
 object Http {
   import utils.JsonFormatters._
@@ -22,8 +22,34 @@ object Http {
   private def renderNotFoundFailure(f: NotFoundFailure404): HttpResponse =
     notFoundResponse.copy(entity = jsonEntity("errors" → Seq(f.message)))
 
-  def render[A <: AnyRef](resource: A, statusCode: StatusCode = OK) =
-    HttpResponse(statusCode, entity = jsonEntity(resource))
+  final case class SuccessfulPayload(result: Any,
+                                     warnings: Option[List[String]],
+                                     batch: Option[BatchMetadata])
+
+  object SuccessfulPayload {
+    def from(result: Any, uiInfo: List[UIInfo]): SuccessfulPayload = {
+      val uiInfoWarnings = uiInfo.collect { case UIInfo.Warning(f)        ⇒ f.description }
+      val uiInfoBatches  = uiInfo.collectFirst { case UIInfo.BatchInfo(b) ⇒ b }
+      // FIXME: have a way of merging multiple `BatchMetadata`s, as types allow for that. @michalrus
+      def insane[A](xs: List[A]): Option[List[A]] = if (xs.nonEmpty) Some(xs) else None
+      result match {
+        // FIXME: get rid of `TheResponse`. @michalrus
+        case TheResponse(res, alerts, errors, warnings, batch) ⇒
+          SuccessfulPayload(
+              res,
+              insane(uiInfoWarnings ::: alerts.toList.flatten ::: warnings.toList.flatten),
+              uiInfoBatches orElse batch)
+        case raw ⇒
+          SuccessfulPayload(raw, insane(uiInfoWarnings), uiInfoBatches)
+      }
+    }
+  }
+
+  def renderRaw(resource: AnyRef) = // TODO: is this needed anymore? @michalrus
+    HttpResponse(OK, entity = jsonEntity(resource))
+
+  def render(result: Any, uiInfo: List[UIInfo], statusCode: StatusCode = OK) =
+    HttpResponse(statusCode, entity = jsonEntity(SuccessfulPayload.from(result, uiInfo)))
 
   def renderPlain(text: String): HttpResponse =
     HttpResponse(StatusCodes.OK, entity = HttpEntity(ContentTypes.`text/plain(UTF-8)`, text))
@@ -38,6 +64,6 @@ object Http {
     }
   }
 
-  def jsonEntity[A <: AnyRef](resource: A): ResponseEntity =
+  private def jsonEntity[A <: AnyRef](resource: A): ResponseEntity =
     HttpEntity(ContentTypes.`application/json`, json(resource))
 }
