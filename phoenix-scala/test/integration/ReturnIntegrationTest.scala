@@ -466,6 +466,60 @@ class ReturnIntegrationTest
     }
   }
 
+  "Return payment methods" - {
+    "POST /v1/returns/:ref/payment-methods" - {
+      "succeeds for any supported payment" in new PaymentMethodFixture {
+        forAll(paymentMethodTable) { paymentType ⇒
+          val payload = ReturnPaymentPayload(amount = 42, paymentType)
+          val response = returnsApi(createReturn().referenceNumber).paymentMethods
+            .add(payload)
+            .as[ReturnResponse.Root]
+
+          response.payments must have size 1
+          response.payments.head.amount must === (payload.amount)
+        }
+      }
+
+      "fails if the amount is less than zero" in new PaymentMethodFixture {
+        forAll(paymentMethodTable) { paymentType ⇒
+          val payload = ReturnPaymentPayload(amount = -42, paymentType)
+
+          val response = returnsApi(createReturn().referenceNumber).paymentMethods.add(payload)
+          response.mustFailWithMessage("Amount got -42, expected more than 0")
+        }
+      }
+
+      "fails if the RMA is not found" in new PaymentMethodFixture {
+        forAll(paymentMethodTable) { paymentType ⇒
+          val payload  = ReturnPaymentPayload(amount = 42, paymentType)
+          val response = returnsApi("TRY_HARDER").paymentMethods.add(payload)
+
+          response.mustFailWith404(NotFoundFailure404(Return, "TRY_HARDER"))
+        }
+      }
+    }
+
+    "DELETE /v1/returns/:ref/payment-methods/credit-cards" - {
+      "successfully delete any supported payment method" in new PaymentMethodFixture {
+        forAll(paymentMethodTable) { paymentType ⇒
+          val response = returnsApi(createReturn().referenceNumber).paymentMethods
+            .remove(paymentType)
+            .as[ReturnResponse.Root]
+
+          response.payments mustBe 'empty
+        }
+      }
+
+      "fails if the RMA is not found" in new PaymentMethodFixture {
+        forAll(paymentMethodTable) { paymentType ⇒
+          val response = returnsApi("TRY_HARDER").paymentMethods.remove(paymentType)
+
+          response.mustFailWith404(NotFoundFailure404(Return, "TRY_HARDER"))
+        }
+      }
+    }
+  }
+
   trait Fixture extends EmptyCartWithShipAddress_Baked with Reason_Baked {
     lazy val shippingMethod: ShippingMethod = (for {
       id     ← * <~ ShippingMethods.insertOrUpdate(Factories.shippingMethods.head)
@@ -549,4 +603,10 @@ class ReturnIntegrationTest
       Table("returnLineItemPayload", giftCardPayload, shippingCostPayload, skuPayload)
   }
 
+  trait PaymentMethodFixture extends Fixture {
+    val paymentMethodTable = Table("paymentMethod",
+                                   PaymentMethod.CreditCard,
+                                   PaymentMethod.GiftCard,
+                                   PaymentMethod.StoreCredit)
+  }
 }
