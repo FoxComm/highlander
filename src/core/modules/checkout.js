@@ -35,6 +35,11 @@ export const setBillingData = createAction('CHECKOUT_SET_BILLING_DATA', (key, va
 export const resetBillingData = createAction('CHECKOUT_RESET_BILLING_DATA');
 export const loadBillingData = createAction('CHECKOUT_LOAD_BILLING_DATA');
 export const setBillingAddress = createAction('CHECKOUT_SET_BILLING_ADDRESS');
+const markAddressAsDeleted = createAction('CHECKOUT_MARK_ADDRESS_AS_DELETED');
+const markAddressAsRestored = createAction(
+  'CHECKOUT_MARK_ADDRESS_AS_RESTORED',
+  (oldId: number, newAddress: Address) => [oldId, newAddress]
+);
 
 export const resetCheckout = createAction('CHECKOUT_RESET');
 const orderPlaced = createAction('CHECKOUT_ORDER_PLACED');
@@ -45,10 +50,6 @@ function _fetchShippingMethods() {
   return foxApi.cart.getShippingMethods();
 }
 
-function _fetchAddresses() {
-  return foxApi.addresses.list();
-}
-
 function _fetchCreditCards() {
   return foxApi.creditCards.list();
 }
@@ -57,13 +58,13 @@ function _fetchCreditCards() {
 
 const shippingMethodsActions = createAsyncActions('shippingMethods', _fetchShippingMethods);
 const creditCardsActions = createAsyncActions('creditCards', _fetchCreditCards);
-const addressesActions = createAsyncActions('addresses', _fetchAddresses);
+const _fetchAddresses = createAsyncActions('addresses', () => foxApi.addresses.list());
 
 export const fetchShippingMethods = shippingMethodsActions.fetch;
 export const fetchCreditCards = creditCardsActions.fetch;
-export const fetchAddresses = addressesActions.fetch;
+export const fetchAddresses = _fetchAddresses.fetch;
 
-function stripPhoneNumber(phoneNumber) {
+function stripPhoneNumber(phoneNumber: string): string {
   return phoneNumber.replace(/[^\d]/g, '');
 }
 
@@ -192,6 +193,19 @@ function createOrUpdateAddress(payload, id) {
   return foxApi.addresses.add(payload);
 }
 
+const _deleteAddress = createAsyncActions(
+  'deleteAddress',
+  function(addressId: number) {
+    const { dispatch } = this;
+
+    return foxApi.addresses.delete(addressId).then(() => {
+      dispatch(markAddressAsDeleted(addressId));
+    });
+  }
+);
+
+export const deleteAddress = _deleteAddress.perform;
+
 function setDefaultAddress(id: number): Function {
   return (dispatch) => {
     return foxApi.addresses.setAsDefault(id)
@@ -218,6 +232,30 @@ const _updateAddress = createAsyncActions(
       });
   }
 );
+
+const _restoreAddress = createAsyncActions(
+  'restoreAddress',
+  function(addressId) {
+    const { dispatch, getState } = this;
+    const address = _.find(getState().checkout.addresses, {id: addressId});
+    if (address) {
+      const payload = addressToPayload(address);
+      const promise = foxApi.addresses.add(payload).then(response => {
+        dispatch(markAddressAsRestored(addressId, response));
+        return response;
+      });
+      if (payload.isDefault) {
+        return promise.then(response => {
+          return foxApi.addresses.setAsDefault(response.id);
+        });
+      }
+      return promise;
+    }
+    return Promise.reject(new Error(`There is no address with id ${addressId}`));
+  }
+);
+
+export const restoreAddress = _restoreAddress.perform;
 
 export const updateAddress = _updateAddress.perform;
 
@@ -371,11 +409,25 @@ const reducer = createReducer({
       creditCards: list,
     };
   },
-  [addressesActions.succeeded]: (state, list) => {
+  [_fetchAddresses.succeeded]: (state, list) => {
     return {
       ...state,
       addresses: list,
     };
+  },
+  [markAddressAsDeleted]: (state, addressId) => {
+    const index = _.findIndex(state.addresses, {id: addressId});
+    if (index != -1) {
+      return assoc(state, ['addresses', index, 'isDeleted'], true);
+    }
+    return state;
+  },
+  [markAddressAsRestored]: (state, [addressId, addressData]) => {
+    const index = _.findIndex(state.addresses, {id: addressId});
+    if (index != -1) {
+      return assoc(state, ['addresses', index], addressData);
+    }
+    return state;
   },
   [resetCheckout]: () => {
     return initialState;

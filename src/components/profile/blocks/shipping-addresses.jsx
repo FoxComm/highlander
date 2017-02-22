@@ -1,3 +1,4 @@
+// @flow weak
 
 // libs
 import _ from 'lodash';
@@ -8,6 +9,7 @@ import { connect } from 'react-redux';
 import { browserHistory } from 'lib/history';
 
 // components
+import { Link } from 'react-router';
 import EditableBlock from 'ui/editable-block';
 import RadioButton from 'ui/radiobutton/radiobutton';
 import { AddressDetails } from 'ui/address';
@@ -17,18 +19,22 @@ import Block from '../common/block';
 import addressStyles from './../../../pages/checkout/01-shipping/address-list.css';
 import profileStyles from '../profile.css';
 
+import type { Address } from 'types/address';
+
 const styles = {...addressStyles, ...profileStyles};
 
-import { updateAddress, fetchAddresses } from 'modules/checkout';
+import { updateAddress, fetchAddresses, deleteAddress, restoreAddress } from 'modules/checkout';
 
 type Props = {
-  addresses: Array<any>,
+  fetchAddresses: () => Promise,
+  addresses: Array<Address>,
   updateAddress: Function,
+  deleteAddress: (id: number) => Promise,
+  restoreAddress: (id: number) => Promise,
   t: any,
 };
 
 type State = {
-  addressToEdit: Object,
   activeAddressId?: number|string,
 };
 
@@ -42,7 +48,6 @@ class MyShippingAddresses extends Component {
   props: Props;
 
   state: State = {
-    addressToEdit: {},
     activeAddressId: void 0,
   };
 
@@ -65,11 +70,6 @@ class MyShippingAddresses extends Component {
   }
 
   @autobind
-  editAddress(address) {
-    browserHistory.push(`/profile/addresses/${address.id}`);
-  }
-
-  @autobind
   addAddress() {
     browserHistory.push('/profile/addresses/new');
   }
@@ -82,10 +82,33 @@ class MyShippingAddresses extends Component {
   }
 
   renderAddresses() {
-    const items = _.map(this.props.addresses, (address) => {
-      const content = <AddressDetails address={address} hideName />;
+    const { props } = this;
+    const items = _.map(props.addresses, (address: Address) => {
+      const contentAttrs = address.isDeleted ? {className: styles['deleted-content']} : {};
+      const content = <AddressDetails address={address} hideName {...contentAttrs} />;
       const checked = address.id === this.state.activeAddressId;
       const key = address.id;
+
+      let actionsContent;
+      let title;
+
+      if (address.isDeleted) {
+        actionsContent = (
+          <div styleName="actions-block">
+            <div styleName="link" onClick={() => this.props.restoreAddress(address.id)}>{props.t('RESTORE')}</div>
+          </div>
+        );
+        title = <span styleName="deleted-content">{address.name}</span>;
+      } else {
+        actionsContent = (
+          <div styleName="actions-block">
+            <Link styleName="link" to={`/profile/addresses/${address.id}`}>{props.t('EDIT')}</Link>
+            &nbsp;|&nbsp;
+            <div styleName="link" onClick={() => this.props.deleteAddress(address.id)}>{props.t('REMOVE')}</div>
+          </div>
+        );
+        title = address.name;
+      }
 
       return (
         <li styleName="item" key={`address-radio-${key}`}>
@@ -93,14 +116,14 @@ class MyShippingAddresses extends Component {
             id={`address-radio-${key}`}
             name={`address-radio-${key}`}
             checked={checked}
+            disabled={address.isDeleted}
             onChange={() => this.selectAddressById(address.id)}
           >
             <EditableBlock
-              isEditing={false}
               styleName="item-content"
-              title={address.name}
+              title={title}
               content={content}
-              editAction={() => this.editAddress(address)}
+              actionsContent={actionsContent}
             />
           </RadioButton>
         </li>
@@ -129,6 +152,6 @@ class MyShippingAddresses extends Component {
 }
 
 export default _.flowRight(
-  connect(mapStateToProps, {updateAddress, fetchAddresses}),
+  connect(mapStateToProps, {updateAddress, fetchAddresses, deleteAddress, restoreAddress}),
   localized
 )(MyShippingAddresses);
