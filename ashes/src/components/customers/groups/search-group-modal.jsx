@@ -13,7 +13,7 @@ import GroupsTypeahead from './groups-typeahead';
 
 type Props = {
   isVisible: boolean,
-  suggestState: string,
+  suggestState: Object,
   suggested: Array<TCustomerGroupShort>,
   onCancel: Function,
   handleSave: Function,

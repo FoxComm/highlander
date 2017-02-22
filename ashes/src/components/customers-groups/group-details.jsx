@@ -1,7 +1,7 @@
 /* @flow */
 
 import _ from 'lodash';
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { autobind, debounce } from 'core-decorators';
@@ -19,10 +19,15 @@ import {
 } from 'modules/customer-groups/details/group';
 import { actions as customersListActions } from 'modules/customer-groups/details/customers-list';
 import { suggestCustomers } from 'modules/customers/suggest';
+import { actions as bulkActions } from 'modules/customer-groups/details/bulk';
 
 import { transitionTo } from 'browserHistory';
-import { prefix } from 'lib/text-utils';
+import { prefix, numberize } from 'lib/text-utils';
 
+import { Link } from 'components/link';
+import BulkActions from 'components/bulk-actions/bulk-actions';
+import BulkMessages from 'components/bulk-actions/bulk-messages';
+import { GenericModal as BulkModal } from 'components/bulk-actions/modal';
 import { SelectableSearchList, makeTotalCounter } from 'components/list-page';
 import { PrimaryButton, Button } from 'components/common/buttons';
 import MultiSelectRow from 'components/table/multi-select-row';
@@ -47,6 +52,9 @@ type Props = {
     resetSearch: Function,
     setExtraFilters: Function,
     fetch: Function,
+  },
+  bulkActions: {
+    deleteCustomersFromGroup: (groupId: number, customersIds: Array<number>) => Promise<*>,
   },
   suggested: Array<TUser>,
   suggestState: AsyncState,
@@ -93,9 +101,7 @@ class GroupDetails extends Component {
 
     customersListActions.resetSearch();
 
-    customersListActions.setExtraFilters([
-      requestAdapter(group.id, criterions, group.mainCondition, group.conditions).toRequest().query,
-    ]);
+    customersListActions.setExtraFilters([ group.elasticRequest ]);
 
     customersListActions.fetch();
 
@@ -117,50 +123,21 @@ class GroupDetails extends Component {
     this.setState({ addCustomersModalShown: false });
   }
 
-  get header() {
-    const { group } = this.props;
-
-    return (
-      <header className={prefixed('header')}>
-        <div className={prefixed('title')}>
-          <h1 className="fc-title">
-            {group.name}&nbsp;
-            <span className={prefixed('count')}>
-              <TotalCounter />
-            </span>
-          </h1>
-          {group.groupType == 'manual' && <Button onClick={this.showAddCustomersModal}>Add Customers</Button>}
-          {group.groupType != 'template' && <PrimaryButton onClick={this.goToEdit}>Edit Group</PrimaryButton>}
-        </div>
-        <div className={prefixed('about')}>
-          <div>
-            <span className={prefixed('about__key')}>Type:&nbsp;</span>
-            <span className={prefixed('about__value')}>{_.capitalize(group.groupType)}</span>
-          </div>
-          <div>
-            <span className={prefixed('about__key')}>Created:&nbsp;</span>
-            <span className={prefixed('about__value')}>{moment(group.createdAt).format('DD/MM/YYYY HH:mm')}</span>
-          </div>
-        </div>
-      </header>
-    );
-  }
-
-  @autobind
-  renderCriterion([field, operator, value]: Array<Object>, index?: number) {
-    return (
-      <Criterion
-        key={index}
-        field={field}
-        operator={operator}
-        value={value}
-      />
-    );
+  get bulkActions() {
+    return [
+      [
+        'Delete From Group',
+        this.handleDeleteCustomers,
+        'successfully deleted from group',
+        'could not be deleted from group'
+      ],
+    ];
   }
 
   @autobind
   handleCustomersSave(ids: Array<number>) {
-    const { group, addCustomersToGroup, groupActions } = this.props;
+    const { group, addCustomersToGroup } = this.props;
+
     this.setState({ addCustomersModalShown: false }, () => {
       addCustomersToGroup(group.id, ids).then(this.refreshGroupData);
     });
@@ -179,6 +156,29 @@ class GroupDetails extends Component {
         suggestCustomers={this.props.suggestCustomers}
         suggested={this.props.suggested}
         suggestState={this.props.suggestState}
+      />
+    );
+  }
+
+  @autobind
+  handleDeleteCustomers(allChecked, customersIds = []) {
+    const { deleteCustomersFromGroup } = this.props.bulkActions;
+
+    const count = customersIds.length;
+    const label = (
+      <span>
+        Are you sure you want to delete&nbsp;
+        <b>{count} {numberize('customer', count)}</b> from group <b>"{this.props.group.name}"</b>?
+      </span>
+    );
+
+    return (
+      <BulkModal
+        title="Delete from group?"
+        label={label}
+        onConfirm={() => {
+          deleteCustomersFromGroup(this.props.group.id, customersIds).then(this.refreshGroupData);
+        }}
       />
     );
   }
@@ -220,6 +220,18 @@ class GroupDetails extends Component {
     this.props.customersListActions.fetch();
   }
 
+  @autobind
+  renderCriterion([field, operator, value]: Array<Object>, index?: number) {
+    return (
+      <Criterion
+        key={index}
+        field={field}
+        operator={operator}
+        value={value}
+      />
+    );
+  }
+
   get renderRow(): Function {
     return (row, index, columns, params) => (
       <MultiSelectRow
@@ -234,19 +246,70 @@ class GroupDetails extends Component {
     );
   }
 
+  renderBulkDetails(customerName, customerId) {
+    return (
+      <span key={customerId}>
+        Customer <Link to="customer-details" params={{ customerId }}>{customerName}</Link>
+      </span>
+    );
+  }
+
+  get header() {
+    const { group } = this.props;
+
+    return (
+      <header className={prefixed('header')}>
+        <div className={prefixed('title')}>
+          <h1 className="fc-title">
+            {group.name}&nbsp;
+            <span className={prefixed('count')}>
+              <TotalCounter />
+            </span>
+          </h1>
+          {group.groupType == 'manual' && <Button onClick={this.showAddCustomersModal}>Add Customers</Button>}
+          {group.groupType != 'template' && <PrimaryButton onClick={this.goToEdit}>Edit Group</PrimaryButton>}
+        </div>
+        <div className={prefixed('about')}>
+          <div>
+            <span className={prefixed('about__key')}>Type:&nbsp;</span>
+            <span className={prefixed('about__value')}>{_.capitalize(group.groupType)}</span>
+          </div>
+          <div>
+            <span className={prefixed('about__key')}>Created:&nbsp;</span>
+            <span className={prefixed('about__value')}>{moment(group.createdAt).format('DD/MM/YYYY HH:mm')}</span>
+          </div>
+        </div>
+      </header>
+    );
+  }
+
   get table() {
     const { customersList, customersListActions } = this.props;
 
     return (
-      <SelectableSearchList
-        entity="customerGroups.details.customers"
-        emptyMessage="No customers found."
-        list={customersList}
-        renderRow={this.renderRow}
-        tableColumns={tableColumns}
-        searchActions={customersListActions}
-        searchOptions={{singleSearch: true}}
-      />
+      <div>
+        <BulkMessages
+          storePath="customerGroups.details.bulk"
+          module="customerGroups.details"
+          entity="customer"
+          renderDetail={this.renderBulkDetails}
+        />
+        <BulkActions
+          module="customerGroups.details"
+          entity="customer"
+          actions={this.bulkActions}
+        >
+          <SelectableSearchList
+            entity="customerGroups.details.customers"
+            emptyMessage="No customers found."
+            list={customersList}
+            renderRow={this.renderRow}
+            tableColumns={tableColumns}
+            searchActions={customersListActions}
+            searchOptions={{singleSearch: true}}
+          />
+        </BulkActions>
+      </div>
     );
   }
 
@@ -287,6 +350,7 @@ const mapDispatch = (dispatch, props) => {
       suggestCustomers: suggestCustomers(customers),
       addCustomersToGroup,
     }, dispatch)),
+    bulkActions: bindActionCreators(bulkActions, dispatch),
   };
 };
 

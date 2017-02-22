@@ -1,19 +1,12 @@
 /* @flow weak */
 
-import isEmpty from 'lodash/isEmpty';
+import get from 'lodash/get';
 import { Request, query } from 'elastic/request';
 import operators from 'paragons/customer-groups/operators';
 import _ from 'lodash';
 
 const requestAdapter = (groupId, criterions, mainCondition, conditions) => {
   const request = new Request(criterions);
-
-  // if have no conditions from clientState request (UI builder) just use groupId to fetch customers
-  if (isEmpty(conditions)) {
-    request.query = (new query.Field('groups')).add(operators.equal, groupId);
-
-    return request;
-  }
 
   request.query = mainCondition === operators.and ? new query.ConditionAnd() : new query.ConditionOr();
 
@@ -25,5 +18,9 @@ const requestAdapter = (groupId, criterions, mainCondition, conditions) => {
 
   return request;
 };
+
+export function fromRawQuery(query) {
+  return (new Request()).raw(get(query, 'query'));
+}
 
 export default requestAdapter;

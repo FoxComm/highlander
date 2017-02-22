@@ -12,7 +12,7 @@ import criterions, { getCriterion, getWidget } from 'paragons/customer-groups/cr
 import { Request, aggregations } from 'elastic/request';
 import { createAsyncActions } from '@foxcomm/wings';
 
-import requestAdapter from '../utils/request-adapter';
+import requestAdapter, { fromRawQuery } from '../utils/request-adapter';
 
 const mapping = 'customers_search_view';
 const statsUrl = `${mapping}/_search?size=0`;
@@ -95,7 +95,7 @@ const _fetchStats = createAsyncActions('fetchStatsCustomerGroup', request => {
 const _addCustomersToGroup = createAsyncActions('addCustomersToGroup',
   (groupId: number, customers: Array<number>) => {
     return Api.post(`/customer-groups/${groupId}/customers`, { toAdd: customers, toDelete: [] });
-});
+  });
 
 
 /**
@@ -144,7 +144,13 @@ export const saveGroup = () => (dispatch: Function, getState: Function) => {
   const name = getValue('name');
   const mainCondition = getValue('mainCondition');
   const conditions = getValue('conditions');
-  const elasticRequest = requestAdapter(groupId, criterions, mainCondition, conditions).toRequest();
+  const customersCount = getValue('customersCount');
+  let elasticRequest = getValue('elasticRequest');
+
+  // in case it's not a manual group we want to overwrite query with new one from builder
+  if (groupType !== GROUP_TYPE_MANUAL) {
+    elasticRequest = requestAdapter(groupId, criterions, mainCondition, conditions).toRequest();
+  }
 
   const data = {
     name,
@@ -153,7 +159,8 @@ export const saveGroup = () => (dispatch: Function, getState: Function) => {
       mainCondition,
       conditions,
     },
-    elasticRequest : groupType !== GROUP_TYPE_MANUAL ? elasticRequest : null,
+    customersCount,
+    elasticRequest
   };
 
   return dispatch(_saveGroup.perform(groupId, data));
@@ -178,9 +185,7 @@ export const fetchGroupStats = () => (dispatch: Function, getState: Function) =>
   const state = getState();
   const group = get(state, ['customerGroups', 'details', 'group']);
 
-  const request = requestAdapter(group.id, criterions, group.mainCondition, group.conditions);
-
-  dispatch(_fetchStats.perform(request));
+  dispatch(_fetchStats.perform(fromRawQuery(group.elasticRequest)));
 };
 
 export const addCustomersToGroup = (id: number, customers: Array<number>) => (dispatch: Function) =>
@@ -271,7 +276,11 @@ const reducer = createReducer({
   [setName]: (state, name) => ({ ...state, name }),
   [setType]: (state, groupType) => ({ ...state, groupType, isValid: validateConditions(groupType, state.conditions) }),
   [setMainCondition]: (state, mainCondition) => ({ ...state, mainCondition }),
-  [setConditions]: (state, conditions) => ({ ...state, conditions, isValid: validateConditions(state.groupType, conditions) }),
+  [setConditions]: (state, conditions) => ({
+    ...state,
+    conditions,
+    isValid: validateConditions(state.groupType, conditions)
+  }),
   [setGroupStats]: (state, stats) => ({ ...state, stats }),
 }, initialState);
 
