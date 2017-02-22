@@ -8,6 +8,7 @@
   height: auto;
   margin: 0 0 10px 0;
   background: transparent;
+  padding-bottom: 5px;
 }
 
 :global .fc-promotion-coupon-new .fc-content-box-indent .fc-content-box .fc-content-box-indent{

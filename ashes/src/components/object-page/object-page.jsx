@@ -409,7 +409,7 @@ export class ObjectPage extends Component {
 
   @autobind
   titleBar() {
-    if(typeof this.props.params.hideTitle === 'undefined'){
+    if (typeof this.props.params.couponModal === 'undefined') {
       return (<PageTitle title={this.pageTitle}>
           {this.renderHead()}
           <ButtonWithMenu
@@ -428,11 +428,12 @@ export class ObjectPage extends Component {
 
   @autobind
   alterSave() {
-    if(typeof this.props.params.hideTitle === 'undefined'){
+    if (typeof this.props.params.couponModal === 'undefined') {
       return '';
     } else {
       return (<SaveCancel
               onSave={this.handleSubmit}
+              onCancel={this.props.params.modalCancelAction}
               saveText="Generate Coupon Code(s)" />);
     }
   }

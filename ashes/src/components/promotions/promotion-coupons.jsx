@@ -12,9 +12,9 @@ import { PrimaryButton } from '../../components/common/buttons';
 
 export default class PromoCouponsPage extends React.Component {
 
-	@autobind
+  @autobind
   addAction(){
-  	transitionTo('promotion-coupon-new', {promotionId: this.props.object.id});
+    transitionTo('promotion-coupon-new', {promotionId: this.props.object.id});
   };
   	
   render() {
