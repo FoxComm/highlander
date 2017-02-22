@@ -9,14 +9,15 @@
           "includeRest": true,
           "type": "fields",
           "value": [
-            "name",
-            "storefrontName"
+            "name"
           ],
           "omit": [
             "description",
+            "storefrontName",
             "details",
             "activeFrom",
-            "activeTo"
+            "activeTo",
+            "tags"
           ]
         }
       ]

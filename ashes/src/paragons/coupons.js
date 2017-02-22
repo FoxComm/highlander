@@ -1,7 +1,6 @@
 
 export function createEmptyCoupon() {
   const usageRules = {
-    isExclusive: false,
     isUnlimitedPerCode: false,
     usesPerCode: 1,
     isUnlimitedPerCustomer: false,
