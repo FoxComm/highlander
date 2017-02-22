@@ -108,7 +108,6 @@ object Dependencies {
 
   val kafka = Seq(
     "org.apache.kafka"  % "kafka_2.11"            % "0.9.0.1",
-    "org.apache.avro"   % "avro"                  % "1.8.1",
-    "io.confluent"      % "kafka-avro-serializer" % "3.1.2"
+    "org.apache.avro"   % "avro"                  % "1.8.1"
   )
 }
