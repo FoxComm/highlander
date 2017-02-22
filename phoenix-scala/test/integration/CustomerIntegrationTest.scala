@@ -206,8 +206,8 @@ class CustomerIntegrationTest
         sql"SELECT public.update_customers_ranking()".as[Boolean].gimme
 
         customersApi(customer.accountId).get().as[Root].rank must === (2.some)
-        val rank  = CustomersRanks.findById(customer.accountId).extract.result.head.gimme
-        val rank2 = CustomersRanks.findById(customer2.accountId).extract.result.head.gimme
+        val rank  = CustomersRanks.findById(customer.accountId).result.head.gimme
+        val rank2 = CustomersRanks.findById(customer2.accountId).result.head.gimme
 
         rank.revenue must === (charge1.amount)
         rank2.revenue must === (charge2.amount)

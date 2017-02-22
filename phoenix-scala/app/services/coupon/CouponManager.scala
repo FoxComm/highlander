@@ -2,10 +2,9 @@ package services.coupon
 
 import java.time.Instant
 
+import failures.CouponFailures._
 import failures.NotFoundFailure404
 import failures.ObjectFailures._
-import failures.PromotionFailures._
-import failures.CouponFailures._
 import models.account._
 import models.coupon._
 import models.objects._
@@ -32,9 +31,8 @@ object CouponManager {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
                  .mustFindOneOr(ObjectContextNotFound(contextName))
-      _ ← * <~ Promotions
-           .filterByContextAndFormId(context.id, payload.promotion)
-           .mustFindOneOr(PromotionNotFoundForContext(payload.promotion, context.name))
+      _ ← * <~ Promotions.filterByContextAndFormId(context.id, payload.promotion) ~> Promotions
+           .notFound404(("context", context.name), ("id", payload.promotion))
       ins ← * <~ ObjectUtils.insert(formAndShadow.form, formAndShadow.shadow, payload.schema)
       coupon ← * <~ Coupons.create(
                   Coupon(scope = scope,
@@ -59,9 +57,8 @@ object CouponManager {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
                  .mustFindOneOr(ObjectContextNotFound(contextName))
-      _ ← * <~ Promotions
-           .filterByContextAndFormId(context.id, payload.promotion)
-           .mustFindOneOr(PromotionNotFoundForContext(payload.promotion, context.name))
+      _ ← * <~ Promotions.filterByContextAndFormId(context.id, payload.promotion) ~> Promotions
+           .notFound404(("context", context.name), ("id", payload.promotion))
       coupon ← * <~ Coupons
                 .filterByContextAndFormId(context.id, id)
                 .mustFindOneOr(CouponNotFoundForContext(id, contextName))
@@ -92,9 +89,8 @@ object CouponManager {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
                  .mustFindOneOr(ObjectContextNotFound(contextName))
-      couponCode ← * <~ CouponCodes
-                    .filter(_.code.toLowerCase === code.toLowerCase)
-                    .mustFindOneOr(CouponWithCodeCannotBeFound(code))
+      couponCode ← * <~ CouponCodes.filter(_.code.toLowerCase === code.toLowerCase) ~> Coupons
+                    .notFound404(("code", code))
       result ← * <~ getIlluminatedIntern(couponCode.couponFormId, context)
     } yield result
 

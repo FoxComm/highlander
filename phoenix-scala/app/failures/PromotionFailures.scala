@@ -2,10 +2,6 @@ package failures
 
 object PromotionFailures {
 
-  object PromotionNotFound {
-    def apply(id: Int) = NotFoundFailure404(s"Promotion $id not found")
-  }
-
   case class PromotionNotFoundAtCommit(id: Int, commit: Int) extends Failure {
     override def description = s"Promotion $id not with at commit $commit"
   }
@@ -13,12 +9,6 @@ object PromotionFailures {
   object PromotionShadowNotFoundInPayload {
     def apply(code: String) =
       NotFoundFailure404(s"Promotion shadow with code $code not found in payload")
-  }
-
-  object PromotionNotFoundForContext {
-    def apply(promotionId: Int, contextName: String) =
-      NotFoundFailure404(
-          s"Promotion with id=$promotionId with promotion context $contextName cannot be found")
   }
 
   case object PromotionIsNotActive extends Failure {
@@ -39,11 +29,6 @@ object PromotionFailures {
 
   case object PromotionShadowAttributesAreEmpty extends Failure {
     override def description = "Promotion shadow attributes are empty"
-  }
-
-  case class PromotionShadowNotFoundForContext(shadowId: Int, contextId: Int) extends Failure {
-    override def description =
-      s"Promotion shadow with id=$shadowId not found for contextId=$contextId"
   }
 
   case object OrderHasNoPromotions extends Failure {

@@ -1,6 +1,5 @@
 package services.notes
 
-import failures.PromotionFailures.PromotionNotFoundForContext
 import models.Note
 import models.objects.{IlluminatedObject, ObjectForms, ObjectShadows}
 import models.promotion.Promotions
@@ -13,10 +12,9 @@ object PromotionNoteManager extends NoteManager[Int, IlluminatedObject] {
 
   def fetchEntity(id: Int)(implicit ec: EC, db: DB, ac: AC): DbResultT[IlluminatedObject] =
     for {
-      promotion ← * <~ Promotions
-                   .filterByContextAndFormId(defaultContextId, id)
-                   .mustFindOneOr(PromotionNotFoundForContext(id, "<default context>"))
-      form   ← * <~ ObjectForms.mustFindById404(promotion.formId)
-      shadow ← * <~ ObjectShadows.mustFindById404(promotion.shadowId)
+      promotion ← * <~ Promotions.filterByContextAndFormId(defaultContextId, id) ~> Promotions
+                   .notFound404(("context", "<default context>"), ("id", id))
+      form   ← * <~ ObjectForms.findById(promotion.formId)
+      shadow ← * <~ ObjectShadows.findById(promotion.shadowId)
     } yield IlluminatedObject.illuminate(form = form, shadow = shadow)
 }

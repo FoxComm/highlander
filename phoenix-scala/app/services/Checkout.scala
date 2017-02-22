@@ -1,18 +1,16 @@
 package services
 
 import scala.util.Random
+
 import cats.data.Xor
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
-import failures.CouponFailures.CouponWithCodeCannotBeFound
 import failures.GeneralFailure
-import failures.PromotionFailures.PromotionNotFoundForContext
 import models.account._
 import models.cord._
 import models.cord.lineitems.CartLineItems
 import models.cord.lineitems.CartLineItems.scope._
 import models.coupon._
-import models.account._
 import models.objects._
 import models.payment.creditcard._
 import models.payment.giftcard._
@@ -180,24 +178,20 @@ case class Checkout(
   private def promotionMustBeActive(orderPromotion: OrderPromotion)(
       implicit ctx: OC): DbResultT[Unit] =
     for {
-      promotion ← * <~ Promotions
-                   .filterByContextAndShadowId(ctx.id, orderPromotion.promotionShadowId)
-                   .mustFindOneOr(
-                       PromotionNotFoundForContext(orderPromotion.promotionShadowId, ctx.name))
-      promoForm   ← * <~ ObjectForms.mustFindById404(promotion.formId)
-      promoShadow ← * <~ ObjectShadows.mustFindById404(promotion.shadowId)
+      promotion ← * <~ Promotions.filterByContextAndShadowId(ctx.id,
+                                                             orderPromotion.promotionShadowId)
+      promoForm   ← * <~ ObjectForms.findById(promotion.formId)
+      promoShadow ← * <~ ObjectShadows.findById(promotion.shadowId)
       promoObject = IlluminatedPromotion.illuminate(ctx, promotion, promoForm, promoShadow)
       _ ← * <~ promoObject.mustBeActive
     } yield {}
 
   private def couponMustBeApplicable(codeId: Int)(implicit ctx: OC): DbResultT[Unit] =
     for {
-      couponCode ← * <~ CouponCodes.findById(codeId).extract.one.safeGet
-      coupon ← * <~ Coupons
-                .filterByContextAndFormId(ctx.id, couponCode.couponFormId)
-                .mustFindOneOr(CouponWithCodeCannotBeFound(couponCode.code))
-      couponForm   ← * <~ ObjectForms.mustFindById404(coupon.formId)
-      couponShadow ← * <~ ObjectShadows.mustFindById404(coupon.shadowId)
+      couponCode   ← * <~ CouponCodes.findById(codeId)
+      coupon       ← * <~ Coupons.filterByContextAndFormId(ctx.id, couponCode.couponFormId)
+      couponForm   ← * <~ ObjectForms.findById(coupon.formId)
+      couponShadow ← * <~ ObjectShadows.findById(coupon.shadowId)
       couponObject = IlluminatedCoupon.illuminate(ctx, coupon, couponForm, couponShadow)
       _ ← * <~ couponObject.mustBeActive
       _ ← * <~ couponObject.mustBeApplicable(couponCode, cart.accountId)

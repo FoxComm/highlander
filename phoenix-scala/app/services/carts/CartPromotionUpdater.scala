@@ -1,7 +1,6 @@
 package services.carts
 
 import cats.data.Xor
-import failures.CouponFailures._
 import failures.DiscountCompilerFailures._
 import failures.Failures
 import failures.OrderFailures._
@@ -40,10 +39,8 @@ object CartPromotionUpdater {
       promotion ← * <~ Promotions
                    .filterByContextAndShadowId(ctx.id, orderPromo.promotionShadowId)
                    .requiresCoupon
-                   .mustFindOneOr(
-                       PromotionShadowNotFoundForContext(orderPromo.promotionShadowId, ctx.id))
-      promoForm   ← * <~ ObjectForms.mustFindById404(promotion.formId)
-      promoShadow ← * <~ ObjectShadows.mustFindById404(promotion.shadowId)
+      promoForm   ← * <~ ObjectForms.findById(promotion.formId)
+      promoShadow ← * <~ ObjectShadows.findById(promotion.shadowId)
       promoObject = IlluminatedPromotion.illuminate(ctx, promotion, promoForm, promoShadow)
       _         ← * <~ promoObject.mustBeActive
       discounts ← * <~ PromotionDiscountLinks.queryRightByLeft(promotion)
@@ -75,12 +72,10 @@ object CartPromotionUpdater {
            .requiresCoupon
            .mustNotFindOneOr(OrderAlreadyHasCoupon)
       // Fetch coupon + validate
-      couponCode ← * <~ CouponCodes.mustFindByCode(code)
-      coupon ← * <~ Coupons
-                .filterByContextAndFormId(ctx.id, couponCode.couponFormId)
-                .mustFindOneOr(CouponWithCodeCannotBeFound(code))
-      couponForm   ← * <~ ObjectForms.mustFindById404(coupon.formId)
-      couponShadow ← * <~ ObjectShadows.mustFindById404(coupon.shadowId)
+      couponCode   ← * <~ CouponCodes.mustFindByCode(code)
+      coupon       ← * <~ Coupons.filterByContextAndFormId(ctx.id, couponCode.couponFormId)
+      couponForm   ← * <~ ObjectForms.findById(coupon.formId)
+      couponShadow ← * <~ ObjectShadows.findById(coupon.shadowId)
       couponObject = IlluminatedCoupon.illuminate(ctx, coupon, couponForm, couponShadow)
       _ ← * <~ couponObject.mustBeActive
       _ ← * <~ couponObject.mustBeApplicable(couponCode, cart.accountId)
@@ -88,7 +83,6 @@ object CartPromotionUpdater {
       promotion ← * <~ Promotions
                    .filterByContextAndFormId(ctx.id, coupon.promotionId)
                    .requiresCoupon
-                   .mustFindOneOr(PromotionNotFoundForContext(coupon.promotionId, ctx.name))
       // Create connected promotion and line item adjustments
       _ ← * <~ OrderPromotions.create(OrderPromotion.buildCoupon(cart, promotion, couponCode))
       _ ← * <~ readjust(cart)

@@ -19,7 +19,7 @@ abstract class FoxTableQuery[M <: FoxModel[M], T <: FoxTable[M]](construct: Tag 
 
   private val compiledById = this.findBy(_.id)
 
-  def findById(i: M#Id) = compiledById(i)
+  def findById(i: M#Id) = compiledById(i).extract
 
   def findOneById(i: M#Id): DBIO[Option[M]] =
     findById(i).result.headOption
@@ -72,7 +72,7 @@ abstract class FoxTableQuery[M <: FoxModel[M], T <: FoxTable[M]](construct: Tag 
       _        ← * <~ oldModel.mustBeCreated
       prepared ← * <~ beforeSave(newModel)
       _        ← * <~ oldModel.updateTo(prepared)
-      returned ← * <~ findById(oldModel.id).extract.updateReturningHead(returningQuery, prepared)
+      returned ← * <~ findById(oldModel.id).updateReturningHead(returningQuery, prepared)
     } yield returningLens.set(prepared)(returned)
 
   protected def beforeSave(model: M): Failures Xor M =

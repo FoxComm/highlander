@@ -178,7 +178,6 @@ object CreditCardManager {
     val getCardAndAddressChange = for {
       creditCard ← * <~ CreditCards
                     .findById(id)
-                    .extract
                     .filter(_.accountId === accountId)
                     .mustFindOneOr(NotFoundFailure404(CreditCard, id))
       shippingAddress ← * <~ getOptionalShippingAddress(payload.addressId, payload.isShipping)
@@ -232,7 +231,7 @@ object CreditCardManager {
         DBIO.successful(Address.fromOrderShippingAddress(osa).some)
 
       case (None, Some(addressId), _) ⇒
-        Addresses.findById(addressId).extract.one
+        Addresses.findById(addressId).one
 
       case (None, _, Some(createAddress)) ⇒
         DBIO.successful(Address.fromPayload(createAddress, accountId).some)
@@ -245,7 +244,7 @@ object CreditCardManager {
   private def getOptionalShippingAddress(id: Option[Int],
                                          isShipping: Boolean): DBIO[Option[OrderShippingAddress]] =
     id match {
-      case Some(addressId) if isShipping ⇒ OrderShippingAddresses.findById(addressId).extract.one
+      case Some(addressId) if isShipping ⇒ OrderShippingAddresses.findById(addressId).one
       case _                             ⇒ DBIO.successful(None)
     }
 }

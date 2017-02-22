@@ -62,6 +62,9 @@ package object db {
         case NonEmptyList(h, t) ⇒ NonEmptyList(mapFailure(h), t.map(mapFailure))
       }
     }
+
+    def asOption(implicit ec: EC): DbResultT[Option[A]] =
+      XorT(dbResultT.fold(_ ⇒ Xor.right(None), value ⇒ Xor.right(Some(value))))
   }
 
   final implicit class EnrichedOption[A](val option: Option[A]) extends AnyVal {

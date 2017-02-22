@@ -67,7 +67,7 @@ object StoreCreditService {
     val reason400 = NotFoundFailure400(Reason, payload.reasonId)
     for {
       customer ← * <~ Users.mustFindByAccountId(accountId)
-      _        ← * <~ Reasons.findById(payload.reasonId).extract.mustFindOneOr(reason400)
+      _        ← * <~ Reasons.findById(payload.reasonId).mustFindOneOr(reason400)
       _        ← * <~ checkSubTypeExists(payload.subTypeId, StoreCredit.CsrAppeasement)
       scope    ← * <~ Scope.resolveOverride(payload.scope)
       manual = StoreCreditManual(adminId = admin.accountId,

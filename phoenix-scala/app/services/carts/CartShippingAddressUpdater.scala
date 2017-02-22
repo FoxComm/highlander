@@ -18,7 +18,7 @@ import utils.db._
 object CartShippingAddressUpdater {
 
   def mustFindAddressWithRegion(id: Int)(implicit ec: EC): DbResultT[(Address, Region)] =
-    Addresses.findById(id).extract.withRegions.mustFindOneOr(NotFoundFailure404(Address, id))
+    Addresses.findById(id).withRegions.mustFindOneOr(NotFoundFailure404(Address, id))
 
   def mustFindShipAddressForCart(cart: Cart)(implicit ec: EC): DbResultT[OrderShippingAddress] =
     OrderShippingAddresses.findByOrderRef(cart.refNum).mustFindOneOr(NoShipAddress(cart.refNum))
