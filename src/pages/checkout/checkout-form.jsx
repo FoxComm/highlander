@@ -2,6 +2,7 @@
 
 // libs
 import React, { Component } from 'react';
+import sanitizeAll from 'sanitizers';
 
 // components
 import { Form } from 'ui/forms';
@@ -19,6 +20,7 @@ type Props = {
   children?: any,
   buttonLabel?: ?string,
   inProgress?: boolean,
+  sanitizeError?: (error: string) => string,
 };
 
 class CheckoutForm extends Component {
@@ -51,23 +53,16 @@ class CheckoutForm extends Component {
     }
   }
 
-  sanitizeError(error : string) {
-    if (/The credit card was declined/.test(error)) {
-      return `Your Credit Card has been declined.
-              Please try another card or contact your provider for more information`;
-    }
-
-    return error;
-  }
-
   render() {
     const { props } = this;
+    const { sanitizeError = sanitizeAll } = props;
+
     return (
       <Form onSubmit={props.submit} styleName="root">
         {this.header}
         {props.children}
         <ErrorAlerts
-          sanitizeError={this.sanitizeError}
+          sanitizeError={sanitizeError}
           error={props.error}
         />
         <div styleName="button-wrap">
