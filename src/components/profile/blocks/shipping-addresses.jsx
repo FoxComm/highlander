@@ -74,14 +74,6 @@ class MyShippingAddresses extends Component {
     browserHistory.push('/profile/addresses/new');
   }
 
-  deleteAddress(addressId: number) {
-    this.props.deleteAddress(addressId);
-  }
-
-  restoreAddress(addressId: number) {
-    this.props.restoreAddress(addressId);
-  }
-
   @autobind
   selectAddressById(id) {
     this.setState({
@@ -103,7 +95,7 @@ class MyShippingAddresses extends Component {
       if (address.isDeleted) {
         actionsContent = (
           <div styleName="actions-block">
-            <div styleName="link" onClick={() => this.restoreAddress(address.id)}>{props.t('RESTORE')}</div>
+            <div styleName="link" onClick={() => this.props.restoreAddress(address.id)}>{props.t('RESTORE')}</div>
           </div>
         );
         title = <span styleName="deleted-content">{address.name}</span>;
@@ -112,7 +104,7 @@ class MyShippingAddresses extends Component {
           <div styleName="actions-block">
             <Link styleName="link" to={`/profile/addresses/${address.id}`}>{props.t('EDIT')}</Link>
             &nbsp;|&nbsp;
-            <div styleName="link" onClick={() => this.deleteAddress(address.id)}>{props.t('REMOVE')}</div>
+            <div styleName="link" onClick={() => this.props.deleteAddress(address.id)}>{props.t('REMOVE')}</div>
           </div>
         );
         title = address.name;
