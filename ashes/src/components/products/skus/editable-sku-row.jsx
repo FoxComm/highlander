@@ -203,7 +203,7 @@ class EditableSkuRow extends Component {
     return items.map((sku: SearchViewSku) => {
       return (
         <li
-          id={`search-view-${sku.skuCode}`}
+          id={`fct-search-view-line__${sku.skuCode}`}
           styleName="sku-item"
           onMouseDown={() => { this.handleSelectSku(sku); }}
           key={`item-${sku.id}`}>
