@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/FoxComm/highlander/middlewarehouse/common/utils"
 	"log"
 	"net/http"
 )
@@ -36,7 +37,7 @@ func request(method string, url string, headers map[string]string, payload inter
 			return nil, fmt.Errorf("Unable to marshal payload: %s", err.Error())
 		}
 
-		log.Printf("HTTP --> %s %s %s", method, url, payloadBytes)
+		log.Printf("HTTP --> %s %s %s", method, url, utils.SanitizePassword(payloadBytes))
 
 		req, err = http.NewRequest(method, url, bytes.NewBuffer(payloadBytes))
 	}
