@@ -1,8 +1,8 @@
 package utils.db
 
 import cats.data.Xor
-import failures.{Failure, Failures}
-import slick.dbio.DBIO
+import failures.NFF._
+import failures._
 import slick.driver.PostgresDriver.api._
 import slick.lifted.{TableQuery, Tag}
 import utils.aliases._
@@ -15,7 +15,7 @@ abstract class FoxTableQuery[M <: FoxModel[M], T <: FoxTable[M]](construct: Tag 
 
   import ExceptionWrapper._
 
-  def tableName: String = baseTableRow.tableName
+  val tableName: String = baseTableRow.tableName
 
   private val compiledById = this.findBy(_.id)
 
@@ -26,6 +26,12 @@ abstract class FoxTableQuery[M <: FoxModel[M], T <: FoxTable[M]](construct: Tag 
 
   def findAllByIds(ids: Set[M#Id]): QuerySeq =
     filter(_.id.inSet(ids))
+
+  def notFound404(params: FailureParam*): NotFoundFailure404 =
+    NFF.notFound404(tableName)(params: _*)
+
+  def f400(params: FailureParam*): NotFoundFailure400 =
+    NFF.notFound400(tableName)(params: _*)
 
   private def returningTable: Returning[M, Ret] = this.returning(returningQuery)
 

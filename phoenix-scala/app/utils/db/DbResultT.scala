@@ -4,9 +4,10 @@ import scala.collection.generic.CanBuildFrom
 import scala.concurrent.Future
 
 import cats.data.{Xor, XorT}
-import failures.{Failure, Failures}
+import failures.{Failure, Failures, SomethingWentWrong}
 import slick.dbio.DBIO
-import utils.aliases.EC
+import slick.lifted.Query
+import utils.aliases._
 
 object DbResultT {
 
@@ -48,4 +49,12 @@ object DbResultT {
 
   def none[A](implicit ec: EC): DbResultT[Option[A]] =
     pure(Option.empty[A])
+
+  def nonEmptyQuery[A, C[_]](query: Query[_, A, C],
+                             failure: Failure)(implicit ec: EC, sl: SL, sf: SF): DbResultT[A] =
+    query.mustFindOneOr(failure)
+
+  def nonEmptyQuery[A, C[_]](
+      query: Query[_, A, C])(implicit ec: EC, sl: SL, sf: SF): DbResultT[A] =
+    nonEmptyQuery(query, SomethingWentWrong(query))
 }

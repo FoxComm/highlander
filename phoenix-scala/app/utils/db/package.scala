@@ -125,6 +125,9 @@ package object db {
 
     def mustNotFindOneOr(notFoundFailure: Failure)(implicit ec: EC): DbResultT[Unit] =
       query.one.mustNotFindOr(notFoundFailure)
+
+    def ~>(failure: Failure)(implicit ec: EC): DbResultT[U] =
+      DbResultT.nonEmptyQuery(query, failure)
   }
 
   implicit class RunOnDbIO[R](val dbio: DBIO[R]) extends AnyVal {

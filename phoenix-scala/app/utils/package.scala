@@ -1,5 +1,7 @@
 import scala.language.implicitConversions
+
 import utils.Strings._
+import utils.aliases.{SF, SL}
 
 package object utils {
   def generateUuid: String = java.util.UUID.randomUUID.toString
@@ -14,6 +16,9 @@ package object utils {
     "[A-Z\\d]".r.replaceAllIn(name, { m ⇒
       "_" + m.group(0).toLowerCase
     })
+
+  def codeSource(implicit line: SL, file: SF): String =
+    s"""${file.value.split("/").last}:${line.value}"""
 
   implicit class OptionError[A](val o: Option[A]) extends AnyVal {
     def getOrError(text: String): A = o.getOrElse {

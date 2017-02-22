@@ -4,10 +4,11 @@ import scala.collection.generic.CanBuildFrom
 import scala.concurrent.Future
 
 import cats.data.{Validated, Xor}
-import failures.Failures
+import failures.{Failure, Failures}
 import slick.dbio._
+import slick.lifted.Query
 import slick.profile.SqlAction
-import utils.aliases.EC
+import utils.aliases._
 
 object * {
   def <~[A](v: DBIO[Failures Xor A]): DbResultT[A] =
@@ -46,4 +47,11 @@ object * {
     v.fold(DbResultT.none[A]) { dbresult ⇒
       dbresult.map(Some(_))
     }
+
+  def <~[A, C[_]](query: Query[_, A, C])(implicit ec: EC, sl: SL, sf: SF): DbResultT[A] =
+    DbResultT.nonEmptyQuery(query)
+
+  def <~[A, C[_]](query: Query[_, A, C],
+                  failure: Failure)(implicit ec: EC, sl: SL, sf: SF): DbResultT[A] =
+    DbResultT.nonEmptyQuery(query, failure)
 }
