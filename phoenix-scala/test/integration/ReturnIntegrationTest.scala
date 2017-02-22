@@ -7,27 +7,35 @@ import models.account._
 import models.cord._
 import models.inventory.Skus
 import models.payment.giftcard._
-import models.product.Mvp
+import models.product.{Mvp, SimpleProductData}
 import models.returns.Return._
 import models.returns._
 import org.scalatest.prop.PropertyChecks
 import payloads.ReturnPayloads._
 import responses.ReturnResponse.Root
-import responses.{ReturnLockResponse, ReturnReasonsResponse, ReturnResponse}
+import responses._
 import services.returns.{ReturnLineItemUpdater, ReturnLockUpdater, ReturnService}
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import utils.db._
+import utils.db.ExPostgresDriver.api._
 import utils.seeds.Seeds.Factories
 import cats.implicits._
 import models.Reason.Cancellation
-import models.shipping.ShippingMethods
-import scala.util.Random
+import models.payment.PaymentMethod
+import models.payment.creditcard.{CreditCard, CreditCards}
+import models.shipping.{ShippingMethod, ShippingMethods}
+import payloads.LineItemPayloads.UpdateLineItemsPayload
+import payloads.PaymentPayloads.{CreditCardPayment, GiftCardPayment, StoreCreditPayment}
+import payloads.UpdateShippingMethod
+import responses.cord.OrderResponse
+import testutils.fixtures.api.ApiFixtureHelpers
 
 class ReturnIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
+    with ApiFixtureHelpers
     with HttpSupport
     with AutomaticAuth
     with BakedFixtures
@@ -36,24 +44,25 @@ class ReturnIntegrationTest
   "Returns header" - {
     val orderRefNotExist = "ABC-666"
 
-    "should get rma from fixture" in new Fixture {
-      val response = returnsApi(rma.referenceNumber).get().as[ReturnResponse.Root]
-      response.referenceNumber must === (rma.referenceNumber)
-      response.id must === (rma.id)
-    }
-
     "successfully creates new Return" in new Fixture {
       val rmaCreated = returnsApi
         .create(ReturnCreatePayload(cordRefNum = order.refNum, returnType = Standard))
         .as[ReturnResponse.Root]
-      rmaCreated.referenceNumber must === (s"${order.refNum}.2")
+      rmaCreated.referenceNumber must === (s"${order.refNum}.1")
       rmaCreated.customer.head.id must === (order.accountId)
       rmaCreated.storeAdmin.head.id must === (storeAdmin.accountId)
 
       val getRmaRoot = returnsApi(rmaCreated.referenceNumber).get().as[ReturnResponse.Root]
       getRmaRoot.referenceNumber must === (rmaCreated.referenceNumber)
       getRmaRoot.id must === (rmaCreated.id)
+    }
 
+    "should get rma" in new Fixture {
+      val expected = createReturn()
+      returnsApi(expected.referenceNumber)
+        .get()
+        .as[ReturnResponse.Root]
+        .copy(totals = None) must === (expected)
     }
 
     "fails to create Return with invalid order refNum provided" in new Fixture {
@@ -137,15 +146,19 @@ class ReturnIntegrationTest
 
     "GET /v1/returns" - {
       "should return list of Returns" in new Fixture {
-        returnsApi.get().as[Seq[Root]].size must === (1)
+        createReturn()
+        createReturn()
+
+        returnsApi.get().as[Seq[Root]].size must === (2)
       }
     }
 
     "GET /v1/returns/customer/:id" - {
       "should return list of Returns of existing customer" in new Fixture {
-        val root = returnsApi.getByCustomer(customer.accountId).as[Seq[ReturnResponse.Root]]
+        val expected = createReturn()
+        val root     = returnsApi.getByCustomer(customer.accountId).as[Seq[ReturnResponse.Root]]
         root.size must === (1)
-        root.head.referenceNumber must === (rma.refNum)
+        root.head.referenceNumber must === (expected.referenceNumber)
       }
 
       "should return failure for non-existing customer" in new Fixture {
@@ -156,9 +169,10 @@ class ReturnIntegrationTest
 
     "GET /v1/returns/order/:refNum" - {
       "should return list of Returns of existing order" in new Fixture {
-        val root = returnsApi.getByOrder(order.referenceNumber).as[Seq[ReturnResponse.Root]]
+        val expected = createReturn()
+        val root     = returnsApi.getByOrder(order.referenceNumber).as[Seq[ReturnResponse.Root]]
         root.size must === (1)
-        root.head.referenceNumber must === (rma.refNum)
+        root.head.referenceNumber must === (expected.referenceNumber)
       }
 
       "should return failure for non-existing order" in new Fixture {
@@ -200,25 +214,25 @@ class ReturnIntegrationTest
   }
 
   "Return reasons" - {
-    "get list of return reasons" in new LineItemFixture {
-      val response = returnsApi.getReasonsList.as[Seq[ReturnReasonsResponse.Root]]
-      response.nonEmpty must === (true)
-      response.head.name must === (returnReason.name)
+    "add new return reason" in new ReasonFixture {
+      val payload = ReturnReasonPayload(name = "Simple reason")
+      returnsApi.reasons.add(payload).as[ReturnReasonsResponse.Root].name must === (payload.name)
     }
 
-    "add new return reason" in new LineItemFixture {
-      val rr       = ReturnReasonPayload(name = "Simple reason")
-      val response = returnsApi.addReturnReason(rr).as[ReturnReasonsResponse.Root]
-      response.name must === (rr.name)
+    "get list of return reasons" in new ReasonFixture {
+      val expected = createReturnReason("whatever")
+      returnsApi.reasons
+        .list()
+        .as[Seq[ReturnReasonsResponse.Root]] must contain theSameElementsAs List(expected)
     }
 
-    "remove return reason by id" in new LineItemFixture {
-      returnsApi.removeReturnReason(returnReason.id)
-      returnsApi.getReasonsList.as[Seq[ReturnReasonsResponse.Root]] mustBe 'empty
+    "remove return reason by id" in new ReasonFixture {
+      returnsApi.reasons.remove(returnReason.id)
+      returnsApi.reasons.list().as[Seq[ReturnReasonsResponse.Root]] mustBe 'empty
 
       info("must fail if returnReason was already deleted")
-      returnsApi
-        .removeReturnReason(returnReason.id)
+      returnsApi.reasons
+        .remove(returnReason.id)
         .mustFailWith404(NotFoundFailure404(ReturnReasons, returnReason.id))
     }
   }
@@ -316,16 +330,16 @@ class ReturnIntegrationTest
           .add(shippingCostPayload)
           .as[ReturnResponse.Root]
 
-        response.lineItems.shippingCosts.value.amount must === (orderShippingMethod.price)
+        response.lineItems.shippingCosts.value.amount must === (order.shippingTotal)
       }
 
       "successfully adds SKU line item" in new LineItemFixture {
         val response =
           returnsApi(rma.referenceNumber).lineItems.add(skuPayload).as[ReturnResponse.Root]
-        response.lineItems.skus.headOption.value.sku.sku must === (sku.code)
+        response.lineItems.skus.headOption.value.sku.sku must === (product.code)
       }
 
-      "overwrite existing shipping cost" in new LineItemFixture {
+      "overwrites existing shipping cost" in new LineItemFixture {
         returnsApi(rma.referenceNumber).lineItems
           .add(shippingCostPayload.copy(amount = 42))
           .as[ReturnResponse.Root]
@@ -380,7 +394,24 @@ class ReturnIntegrationTest
           .add(payload)
           .mustFailWith400(ReturnShippingCostExceeded(rma.referenceNumber,
                                                       amount = payload.amount,
-                                                      maxAmount = orderShippingMethod.price))
+                                                      maxAmount = order.shippingTotal))
+      }
+
+      "sets max shipping cost based on order total shipping cost minus any previous shipping cost returns for that order" in new LineItemFixture {
+        // create some other return
+        createReturnLineItem(payload = shippingCostPayload.copy(amount = 100),
+                             refNum = createReturn(
+                                 orderRef = createDefaultOrder().referenceNumber
+                             ).referenceNumber)
+
+        val otherRma = createReturn()
+        createReturnLineItem(shippingCostPayload.copy(amount = 25), otherRma.referenceNumber)
+
+        returnsApi(rma.referenceNumber).lineItems
+          .add(shippingCostPayload)
+          .mustFailWith400(ReturnShippingCostExceeded(rma.referenceNumber,
+                                                      amount = shippingCostPayload.amount,
+                                                      maxAmount = order.shippingTotal - 25))
       }
     }
 
@@ -389,14 +420,8 @@ class ReturnIntegrationTest
       "successfully deletes gift card line item" in new LineItemFixture {
         pending
 
-        val lineItemId = returnsApi(rma.referenceNumber).lineItems
-          .add(giftCardPayload)
-          .as[ReturnResponse.Root]
-          .lineItems
-          .giftCards
-          .headOption
-          .value
-          .lineItemId
+        val lineItemId =
+          createReturnLineItem(giftCardPayload).lineItems.giftCards.headOption.value.lineItemId
 
         returnsApi(rma.referenceNumber).lineItems
           .remove(lineItemId)
@@ -406,14 +431,8 @@ class ReturnIntegrationTest
       }
 
       "successfully deletes shipping cost line item" in new LineItemFixture {
-        val lineItemId = returnsApi(rma.referenceNumber).lineItems
-          .add(shippingCostPayload)
-          .as[ReturnResponse.Root]
-          .lineItems
-          .shippingCosts
-          .headOption
-          .value
-          .lineItemId
+        val lineItemId =
+          createReturnLineItem(shippingCostPayload).lineItems.shippingCosts.headOption.value.lineItemId
 
         returnsApi(rma.referenceNumber).lineItems
           .remove(lineItemId)
@@ -423,14 +442,8 @@ class ReturnIntegrationTest
       }
 
       "successfully deletes SKU line item" in new LineItemFixture {
-        val lineItemId = returnsApi(rma.referenceNumber).lineItems
-          .add(skuPayload)
-          .as[ReturnResponse.Root]
-          .lineItems
-          .skus
-          .headOption
-          .value
-          .lineItemId
+        val lineItemId =
+          createReturnLineItem(skuPayload).lineItems.skus.headOption.value.lineItemId
 
         returnsApi(rma.referenceNumber).lineItems
           .remove(lineItemId)
@@ -453,39 +466,80 @@ class ReturnIntegrationTest
     }
   }
 
-  trait Fixture extends Order_Baked with Reason_Baked {
-    def freshRma =
-      Returns
-        .create(Factories.rma.copy(orderRef = order.refNum, accountId = customer.accountId))
-        .gimme
+  trait Fixture extends EmptyCartWithShipAddress_Baked with Reason_Baked {
+    lazy val shippingMethod: ShippingMethod = (for {
+      id     ← * <~ ShippingMethods.insertOrUpdate(Factories.shippingMethods.head)
+      method ← * <~ ShippingMethods.mustFindById404(id)
+    } yield method).gimme
 
-    val rma = freshRma
+    lazy val creditCard: CreditCard = (for {
+      id ← * <~ CreditCards.insertOrUpdate(
+              Factories.creditCard.copy(accountId = customer.accountId))
+      cc ← * <~ CreditCards.mustFindById404(id)
+    } yield cc).gimme
+
+    lazy val giftCard = api_newGiftCard(amount = 1000, reasonId = reason.id)
+
+    lazy val storeCredit =
+      api_newStoreCredit(amount = 1000, reasonId = reason.id, customerId = customer.id)
+
+    lazy val product: SimpleProductData = Mvp.insertProduct(ctx.id, Factories.products.head).gimme
+
+    def createOrder(lineItems: Seq[UpdateLineItemsPayload],
+                    paymentMethods: Seq[PaymentMethod.Type]): OrderResponse = {
+      val api = cartsApi(api_newCustomerCart(customer.id).referenceNumber)
+
+      api.lineItems.add(lineItems).mustBeOk()
+      api.shippingAddress.updateFromAddress(address.id).mustBeOk()
+      api.shippingMethod.update(UpdateShippingMethod(shippingMethod.id))
+      paymentMethods.foreach {
+        case PaymentMethod.CreditCard ⇒
+          api.payments.creditCard.add(CreditCardPayment(creditCard.id)).mustBeOk()
+        case PaymentMethod.GiftCard ⇒
+          api.payments.giftCard.add(GiftCardPayment(giftCard.code)).mustBeOk()
+        case PaymentMethod.StoreCredit ⇒
+          api.payments.storeCredit.add(StoreCreditPayment(storeCredit.availableBalance)).mustBeOk()
+      }
+
+      api.checkout().as[OrderResponse]
+    }
+
+    def createDefaultOrder(): OrderResponse = createOrder(
+        lineItems = List(UpdateLineItemsPayload(sku = product.code, quantity = 1)),
+        paymentMethods = List(PaymentMethod.CreditCard)
+    )
+
+    lazy val order: Order = Orders.mustFindByRefNum(createDefaultOrder().referenceNumber).gimme
+
+    def createReturn(returnType: Return.ReturnType = Return.Standard,
+                     orderRef: String = order.referenceNumber): ReturnResponse.Root =
+      returnsApi.create(ReturnCreatePayload(orderRef, returnType)).as[ReturnResponse.Root]
+
+    lazy val rma: Return = Returns.mustFindByRefNum(createReturn().referenceNumber).gimme
   }
 
-  trait LineItemFixture extends Fixture {
-    val (returnReason, sku, giftCard, orderShippingMethod) = (for {
-      returnReason ← * <~ ReturnReasons.create(Factories.returnReasons.head)
-      product      ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head)
-      sku          ← * <~ Skus.mustFindById404(product.skuId)
-      gcReason     ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))
-      gcOrigin ← * <~ GiftCardManuals.create(
-                    GiftCardManual(adminId = storeAdmin.accountId, reasonId = gcReason.id))
-      giftCard ← * <~ GiftCards.create(
-                    Factories.giftCard.copy(originId = gcOrigin.id,
-                                            originType = GiftCard.RmaProcess))
-      shippingMethod ← * <~ ShippingMethods.create(Factories.shippingMethods.head)
-      orderShippingMethod ← * <~ OrderShippingMethods.create(
-                               OrderShippingMethod.build(cordRef = order.refNum,
-                                                         method = shippingMethod))
-    } yield (returnReason, sku, giftCard, orderShippingMethod)).gimme
+  trait ReasonFixture extends Fixture {
+    def createReturnReason(name: String): ReturnReasonsResponse.Root =
+      returnsApi.reasons.add(ReturnReasonPayload(name)).as[ReturnReasonsResponse.Root]
+
+    lazy val returnReason: ReturnReason =
+      ReturnReasons.mustFindById404(createReturnReason("whatever").id).gimme
+  }
+
+  trait LineItemFixture extends ReasonFixture {
+    rma // force return creation
+
+    def createReturnLineItem(payload: ReturnLineItemPayload,
+                             refNum: String = rma.referenceNumber): ReturnResponse.Root =
+      returnsApi(refNum).lineItems.add(payload).as[ReturnResponse.Root]
 
     val giftCardPayload =
       ReturnGiftCardLineItemPayload(code = giftCard.code, reasonId = returnReason.id)
 
     val shippingCostPayload =
-      ReturnShippingCostLineItemPayload(amount = orderShippingMethod.price, reasonId = reason.id)
+      ReturnShippingCostLineItemPayload(amount = order.shippingTotal, reasonId = reason.id)
 
-    val skuPayload = ReturnSkuLineItemPayload(sku = sku.code,
+    val skuPayload = ReturnSkuLineItemPayload(sku = product.code,
                                               quantity = 1,
                                               reasonId = returnReason.id,
                                               isReturnItem = true,
