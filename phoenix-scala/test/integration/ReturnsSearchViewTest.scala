@@ -19,6 +19,15 @@ case class ReturnsSearchViewResult(
     customer: JObject
 )
 
+case class CustomerSearchViewResult(
+    id: Int,
+    name: String,
+    email: String,
+    isBlacklisted: Boolean,
+    joinedAt: String,
+    revenue: Int
+)
+
 class ReturnsSearchViewTest extends SearchViewTestBase with TestSeeds with BakedFixtures {
 
   type SearchViewResult = ReturnsSearchViewResult
@@ -28,6 +37,9 @@ class ReturnsSearchViewTest extends SearchViewTestBase with TestSeeds with Baked
   "smoke test search view" - {
     "should work against fixture return" in new Fixture {
       val rmaSearchView = findOneInSearchView(rma.id)
+
+      private val customerSearchViewResult =
+        rmaSearchView.customer.extract[CustomerSearchViewResult]
 
       {
         import rmaSearchView._
@@ -39,6 +51,8 @@ class ReturnsSearchViewTest extends SearchViewTestBase with TestSeeds with Baked
         state must === (rma.state)
         messageToAccount must === (rma.messageToAccount)
         returnType must === (rma.returnType)
+
+        customerSearchViewResult.id must === (rma.accountId)
       }
     }
   }
