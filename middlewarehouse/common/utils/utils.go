@@ -38,28 +38,21 @@ func SanitizePassword(input []byte) string {
 	return ReplaceAllMatchingGroup(string(input), "***", r, 1)
 }
 
-func ReplaceAllMatchingGroup(input, repl string, r *regexp.Regexp, group int) string {
-	matches := r.FindAllStringSubmatchIndex(input, -1)
+func ReplaceAllMatchingGroup(in, repl string, r *regexp.Regexp, group int) string {
+	matches := r.FindAllStringSubmatchIndex(in, -1)
 
 	if len(matches) > 0 {
-		for _, m := range matches {
-			bt := []byte(input)
-			index := group * 2
-			from := m[index]
-			to := m[index+1]
+		shift := 0
+		for _, match := range matches {
+			from := match[2] + shift
+			to := match[3] + shift
 
-			toReplace := string(bt[from:to])
-
-			if repl != toReplace {
-				return ReplaceAllMatchingGroup(ReplaceByIndices(input, repl, from, to), repl, r, group)
-			}
-
+			in = strings.Join([]string{in[:from], repl, in[to:]}, "")
+			// recalculate shift of match indices after replacing next occurrence
+			shift = shift + len(repl) - (to - from)
 		}
+
 	}
 
-	return input
-}
-
-func ReplaceByIndices(input, repl string, from, to int) string {
-	return strings.Join([]string{input[:from], repl, input[to:]}, "")
+	return in
 }

@@ -4,9 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/FoxComm/highlander/middlewarehouse/common/utils"
 	"log"
 	"net/http"
+
+	"github.com/FoxComm/highlander/middlewarehouse/common/utils"
 )
 
 func Get(url string, headers map[string]string) (*http.Response, error) {
