@@ -5,9 +5,7 @@ import cats.implicits._
 import com.pellucid.sealerate
 import com.typesafe.config.{Config, ConfigFactory}
 import com.typesafe.scalalogging.StrictLogging
-import java.io.File
 import pureconfig._
-import scala.io.Source
 import scala.reflect._
 import scala.util.{Failure, Success, Try}
 import shapeless._
@@ -114,9 +112,8 @@ object FoxConfig extends StrictLogging {
 
   private def loadBareConfigWithEnv()(implicit env: Environment): Config = {
     logger.info(s"Loading configuration using ${env.show} environment")
-    val cl        = getClass.getClassLoader
-    val envConfig = ConfigFactory.load(cl, env.show)
-    ConfigFactory.systemProperties.withFallback(envConfig.withFallback(ConfigFactory.load(cl)))
+    val envConfig = ConfigFactory.load(env.show)
+    ConfigFactory.systemProperties.withFallback(envConfig.withFallback(ConfigFactory.load()))
   }
 
   val app: Lens[FoxConfig, App] = lens[FoxConfig].app

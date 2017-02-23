@@ -1,9 +1,7 @@
 package utils.seeds
 
 import java.io.File
-
 import scala.concurrent.ExecutionContext.Implicits.global
-
 import cats.implicits._
 import com.github.tototoshi.csv._
 import models.account._
@@ -12,8 +10,8 @@ import services.StoreAdminManager
 import failures.UserFailures._
 import utils.db._
 import utils.aliases._
-
 import payloads.StoreAdminPayloads.CreateStoreAdminPayload
+import scala.io.Source
 
 trait StoreAdminSeeds {
 
@@ -40,7 +38,8 @@ trait StoreAdminSeeds {
   }
 
   def createStoreAdmins(implicit ec: EC, db: DB, ac: AC): DbResultT[Int] = {
-    val reader = CSVReader.open(new File("seeder-classes/data/store_admins.csv"))
+    val reader = CSVReader.open(
+        Source.fromInputStream(getClass.getResourceAsStream("/data/store_admins.csv")))
     val admins = reader.all.drop(1).collect {
       case name :: email :: password :: org :: role :: Nil ⇒ {
         val user = User(accountId = 0, name = name.some, email = email.some)

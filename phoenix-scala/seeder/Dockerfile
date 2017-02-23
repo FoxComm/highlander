@@ -6,7 +6,6 @@ COPY target/scala-2.11/phoenix-scala-assembly-1.0.jar /phoenix/phoenix.jar
 
 COPY sql/ /phoenix/sql
 
-WORKDIR /phoenix
+COPY seeder/target/scala-2.11/seeder-assembly-1.0.jar /phoenix/phoenix-seeder.jar
 
-EXPOSE 9090
-CMD java $JAVA_OPTS -server -cp phoenix.jar server.Main 2>&1 | tee /logs/phoenix.log
+WORKDIR /phoenix

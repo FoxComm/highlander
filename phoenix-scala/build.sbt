@@ -3,7 +3,6 @@ import scala.io.Source.fromFile
 import Configurations._
 import Settings._
 import Tasks._
-import sbtassembly.AssemblyKeys
 
 scalaVersion in ThisBuild := Versions.scala
 
@@ -54,10 +53,16 @@ lazy val phoenixScala = (project in file("."))
     logBuffered in IT   := false,
     logBuffered in ET   := false,
     test in assembly := {},
-    addCommandAlias("assembly", "fullAssembly"),
     addCommandAlias("all", "; clean; seeder/clean; it:compile; seeder/compile; test; seeder/assembly"),
     scalafmtConfig := Some(file(".scalafmt")),
-    reformatOnCompileWithItSettings // scalafmt
+    reformatOnCompileWithItSettings, // scalafmt
+    Revolver.settings,
+    assemblyMergeStrategy in assembly := {
+      case PathList("org", "joda", "time", xs @ _ *) ⇒
+        MergeStrategy.first
+      case x ⇒
+        (assemblyMergeStrategy in assembly).value.apply(x)
+    }
   )
 
 lazy val seeder = (project in file("seeder"))
@@ -65,28 +70,24 @@ lazy val seeder = (project in file("seeder"))
   .settings(
     commonSettings,
     libraryDependencies ++= Dependencies.gatling,
-    classDirectory in Compile := baseDirectory.value / "../seeder-classes",
-    cleanFiles <+= baseDirectory(_ / "../seeder-classes"),
-    cleanFiles <+= baseDirectory(_ / "../seeder-results"),
-    assemblyJarName := (AssemblyKeys.assemblyJarName in assembly in phoenixScala).value,
+    cleanFiles <+= baseDirectory(_ / "results"),
     scalafmtConfig := Some(file(".scalafmt")),
     reformatOnCompileSettings, // scalafmt,
     Revolver.settings,
     assemblyMergeStrategy in assembly := {
-      case PathList("org", "joda", "time", xs @ _ *) ⇒
-        MergeStrategy.first
-      case PathList("io", "netty", xs @ _ *) ⇒
-        MergeStrategy.first
       case PathList("META-INF", "io.netty.versions.properties") ⇒
-        MergeStrategy.first
-      case PathList("META-INF", "native", "libnetty-transport-native-epoll.so") ⇒
         MergeStrategy.first
       case x ⇒
         (assemblyMergeStrategy in assembly).value.apply(x)
-    }
+    },
+    fullClasspath in assembly := { // thanks sbt for that hacky way of excluding inter-project dependencies
+      val phoenixClasses = (crossTarget in compile in phoenixScala).value.getAbsolutePath
+      (fullClasspath in assembly).value.filterNot(_.data.getAbsolutePath.startsWith(phoenixClasses))
+    },
+    assemblyExcludedJars in assembly := (fullClasspath in assembly in phoenixScala).value
   )
 
-fullAssembly <<= Def.task().dependsOn(writeVersion in phoenixScala, assembly in seeder)
+fullAssembly <<= Def.task().dependsOn(writeVersion in phoenixScala, assembly in phoenixScala, assembly in seeder)
 
 // Injected seeds
 val seedCommand = " utils.seeds.Seeds seed --seedAdmins"

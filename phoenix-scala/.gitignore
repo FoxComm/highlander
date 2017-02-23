@@ -42,10 +42,6 @@ phoenix-scala.iml
 .DS_Store
 .gce
 
-# Seeder
-seeder-results/
-seeder-classes/
-
 version
 
 #style files
