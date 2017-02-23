@@ -23,7 +23,7 @@ class DbResultTTest extends TestBase with DbTestSupport with CatsHelpers with Gi
           c ← DbResultT.good(Factories.address)
         } yield c
 
-        val result = db.run(transformer.value).futureValue
+        val result = db.run(transformer.runEmptyA.value).futureValue
         result mustBe 'right
         result.rightVal.zip must === (Factories.address.zip)
       }
@@ -37,7 +37,7 @@ class DbResultTTest extends TestBase with DbTestSupport with CatsHelpers with Gi
           c ← DbResultT.good(Factories.address)
         } yield c
 
-        db.run(transformer.value).futureValue.leftVal.head must === (failure)
+        db.run(transformer.runEmptyA.value).futureValue.leftVal.head must === (failure)
       }
     }
   }
