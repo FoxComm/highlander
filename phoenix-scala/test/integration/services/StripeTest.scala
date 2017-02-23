@@ -163,9 +163,17 @@ class StripeTest extends RealStripeApis {
 
     "deleteCustomer" - {
       "successfully deletes a customer" taggedAs External in {
-        val result = deleteCustomer(cust)
+        // TODO: what should be happening here? @kjanosz @michalrus
 
-        getCustomer(realStripeCustomerId).value must === (None)
+        // The code was:
+        // ```
+        // val result = deleteCustomer(cust)
+        // getCustomer(realStripeCustomerId).value must === (None)
+        // ```
+        // Which made very little sense, as it was just checking whether the Future was *not yet completed*.
+
+        deleteCustomer(cust).void.gimme
+        getCustomer(realStripeCustomerId).gimme must === (42) // ⸮
       }
     }
   }
