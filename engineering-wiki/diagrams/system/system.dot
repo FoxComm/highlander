@@ -30,6 +30,7 @@ digraph {
         "digger sphex" [color=gray];
         "messaging" [color=gray];
         "shipstation consumer" [color=gray];
+        "stock items consumer" [color=gray];
     }
 
     subgraph {
