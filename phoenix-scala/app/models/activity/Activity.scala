@@ -20,6 +20,7 @@ import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db.{DbResultT, _}
 import utils.FoxConfig.config
+import utils.Environment
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
@@ -153,18 +154,21 @@ object Activities
 
     val record = new ProducerRecord[String, GenericData.Record](topic, avroActivityRecord)
 
-//    val kafkaSendFuture = Future {
-//      kafkaProducer.send(record)
-//    }
-//
-//    kafkaSendFuture onComplete {
-//      case Success(result) ⇒
-//        logger.info(
-//            s"Kafka Activity ${a.activityType} by ${activityContext.userType} ${activityContext.userId} SUCCESS")
-//      case Failure(result) ⇒
-//        logger.info(
-//            s"Kafka Activity ${a.activityType} by ${activityContext.userType} ${activityContext.userId} FAILURE")
-//    }
+    // Workaround until we decide how to test Phoenix => Kafka service integration
+    if (Environment.default != Environment.Test) {
+      val kafkaSendFuture = Future {
+        kafkaProducer.send(record)
+      }
+
+      kafkaSendFuture onComplete {
+        case Success(_) ⇒
+          logger.info(
+              s"Kafka Activity ${a.activityType} by ${activityContext.userType} ${activityContext.userId} SUCCESS")
+        case Failure(_) ⇒
+          logger.info(
+              s"Kafka Activity ${a.activityType} by ${activityContext.userType} ${activityContext.userId} FAILURE")
+      }
+    }
 
     DbResultT.pure(activity)
   }
