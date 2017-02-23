@@ -25,6 +25,7 @@ import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api.ApiFixtureHelpers
+import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 import utils.seeds.Seeds.Factories
@@ -387,13 +388,13 @@ class ReturnIntegrationTest
 
       "sets max shipping cost based on order total shipping cost minus any previous shipping cost returns for that order" in new LineItemFixture {
         // create some other return
+        val otherOrderRef = createDefaultOrder().referenceNumber
+        val otherRmaRef   = createReturn(orderRef = otherOrderRef).referenceNumber
         createReturnLineItem(payload = shippingCostPayload.copy(amount = 100),
-                             refNum = createReturn(
-                                 orderRef = createDefaultOrder().referenceNumber
-                             ).referenceNumber)
+                             refNum = otherRmaRef)
 
-        val otherRma = createReturn()
-        createReturnLineItem(shippingCostPayload.copy(amount = 25), otherRma.referenceNumber)
+        val previousRmaRef = createReturn().referenceNumber
+        createReturnLineItem(shippingCostPayload.copy(amount = 25), previousRmaRef)
 
         returnsApi(rma.referenceNumber).lineItems
           .add(shippingCostPayload)
@@ -527,8 +528,9 @@ class ReturnIntegrationTest
 
     lazy val product: SimpleProductData = Mvp.insertProduct(ctx.id, Factories.products.head).gimme
 
-    def createOrder(lineItems: Seq[UpdateLineItemsPayload],
-                    paymentMethods: Seq[PaymentMethod.Type]): OrderResponse = {
+    def createOrder(
+        lineItems: Seq[UpdateLineItemsPayload],
+        paymentMethods: Seq[PaymentMethod.Type])(implicit sl: SL, sf: SF): OrderResponse = {
       val api = cartsApi(api_newCustomerCart(customer.id).referenceNumber)
 
       api.lineItems.add(lineItems).mustBeOk()
@@ -553,15 +555,16 @@ class ReturnIntegrationTest
 
     lazy val order: Order = Orders.mustFindByRefNum(createDefaultOrder().referenceNumber).gimme
 
-    def createReturn(returnType: Return.ReturnType = Return.Standard,
-                     orderRef: String = order.referenceNumber): ReturnResponse.Root =
+    def createReturn(
+        returnType: Return.ReturnType = Return.Standard,
+        orderRef: String = order.referenceNumber)(implicit sl: SL, sf: SF): ReturnResponse.Root =
       returnsApi.create(ReturnCreatePayload(orderRef, returnType)).as[ReturnResponse.Root]
 
     lazy val rma: Return = Returns.mustFindByRefNum(createReturn().referenceNumber).gimme
   }
 
   trait ReasonFixture extends Fixture {
-    def createReturnReason(name: String): ReturnReasonsResponse.Root =
+    def createReturnReason(name: String)(implicit sl: SL, sf: SF): ReturnReasonsResponse.Root =
       returnsApi.reasons.add(ReturnReasonPayload(name)).as[ReturnReasonsResponse.Root]
 
     lazy val returnReason: ReturnReason =
@@ -571,8 +574,9 @@ class ReturnIntegrationTest
   trait LineItemFixture extends ReasonFixture {
     rma // force return creation
 
-    def createReturnLineItem(payload: ReturnLineItemPayload,
-                             refNum: String = rma.referenceNumber): ReturnResponse.Root =
+    def createReturnLineItem(payload: ReturnLineItemPayload, refNum: String = rma.referenceNumber)(
+        implicit sl: SL,
+        sf: SF): ReturnResponse.Root =
       returnsApi(refNum).lineItems.add(payload).as[ReturnResponse.Root]
 
     val giftCardPayload =
