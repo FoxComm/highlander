@@ -6,6 +6,7 @@ import models.payment.creditcard.CreditCard
 import payloads.PaymentPayloads.CreateCreditCardFromSourcePayload
 import services._
 import utils.Money._
+import utils.aliases._
 import utils.aliases.stripe._
 
 /**
@@ -16,13 +17,13 @@ trait FoxStripeApi {
   def createCardFromToken(email: Option[String],
                           token: String,
                           stripeCustomerId: Option[String],
-                          address: Address): Result[(StripeCustomer, StripeCard)]
+                          address: Address)(implicit ec: EC): Result[(StripeCustomer, StripeCard)]
 
   @deprecated(message = "Use `createCardFromToken` instead", "Until we are PCI compliant")
   def createCardFromSource(email: Option[String],
                            card: CreateCreditCardFromSourcePayload,
                            stripeCustomerId: Option[String],
-                           address: Address): Result[(StripeCustomer, StripeCard)]
+                           address: Address)(implicit ec: EC): Result[(StripeCustomer, StripeCard)]
 
   def authorizeAmount(customerId: String,
                       creditCardId: String,

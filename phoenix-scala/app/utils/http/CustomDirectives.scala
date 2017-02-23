@@ -112,9 +112,9 @@ object CustomDirectives {
   def good[A <: AnyRef](a: A): StandardRoute = // TODO: is this needed anymore? @michalrus
     complete(renderRaw(a))
 
-  // TODO: do we still need the `AnyRef` bound here and below? Not really—at least according to the compiler. @michalrus
   def goodOrFailures[A <: AnyRef](a: Result[A])(implicit ec: EC): StandardRoute =
-    complete(a.runEmpty.value.map(_.fold(renderFailure(_), { case (uiInfo, a) ⇒ render(a, uiInfo) })))
+    complete(
+        a.runEmpty.value.map(_.fold(renderFailure(_), { case (uiInfo, a) ⇒ render(a, uiInfo) })))
 
   def getOrFailures[A <: AnyRef](a: DbResultT[A])(implicit ec: EC, db: DB): StandardRoute =
     goodOrFailures(a.runDBIO())

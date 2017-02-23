@@ -22,18 +22,18 @@ object Http {
   private def renderNotFoundFailure(f: NotFoundFailure404): HttpResponse =
     notFoundResponse.copy(entity = jsonEntity("errors" → Seq(f.message)))
 
-  final case class SuccessfulPayload(result: Any,
+  final case class SuccessfulPayload(result: AnyRef,
                                      warnings: Option[List[String]],
                                      batch: Option[BatchMetadata])
 
   object SuccessfulPayload {
-    def from(result: Any, uiInfo: List[UIInfo]): SuccessfulPayload = {
+    def from(result: AnyRef, uiInfo: List[UIInfo]): SuccessfulPayload = {
       val uiInfoWarnings = uiInfo.collect { case UIInfo.Warning(f)        ⇒ f.description }
       val uiInfoBatches  = uiInfo.collectFirst { case UIInfo.BatchInfo(b) ⇒ b }
       // FIXME: have a way of merging multiple `BatchMetadata`s, as types allow for that. @michalrus
       def insane[A](xs: List[A]): Option[List[A]] = if (xs.nonEmpty) Some(xs) else None
       result match {
-        // FIXME: get rid of `TheResponse`. @michalrus
+        // FIXME: get rid of `TheResponse` and s/AnyRef/Any/ around here. @michalrus
         case TheResponse(res, alerts, errors, warnings, batch) ⇒
           SuccessfulPayload(
               res,
@@ -48,8 +48,13 @@ object Http {
   def renderRaw(resource: AnyRef) = // TODO: is this needed anymore? @michalrus
     HttpResponse(OK, entity = jsonEntity(resource))
 
-  def render(result: Any, uiInfo: List[UIInfo], statusCode: StatusCode = OK) =
-    HttpResponse(statusCode, entity = jsonEntity(SuccessfulPayload.from(result, uiInfo)))
+  def render(result: AnyRef, uiInfo: List[UIInfo], statusCode: StatusCode = OK) = {
+    val payload = SuccessfulPayload.from(result, uiInfo)
+    val temporaryHack: AnyRef =
+      if (payload.batch.isEmpty && payload.warnings.isEmpty) payload.result
+      else payload
+    HttpResponse(statusCode, entity = jsonEntity(temporaryHack))
+  }
 
   def renderPlain(text: String): HttpResponse =
     HttpResponse(StatusCodes.OK, entity = HttpEntity(ContentTypes.`text/plain(UTF-8)`, text))

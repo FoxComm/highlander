@@ -17,7 +17,7 @@ import utils.aliases._
   */
 sealed trait SearchReference[T] {
   val fieldName: String
-  val pureResult: Result[T]
+  def pureResult(implicit ec: EC): Result[T]
   val searchId: Int
 
   def query(input: DiscountInput)(implicit db: DB, ec: EC, es: ES): Result[T] = {
