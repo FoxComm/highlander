@@ -24,5 +24,6 @@ func newShipmentActivity(aType string, shipment *models.Shipment, createdAt time
 		ActivityType: aType,
 		ActivityData: string(shipBytes),
 		createdAt:    createdAt,
+		ActivityScope: resp.Scope,
 	}, nil
 }

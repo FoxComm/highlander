@@ -14,6 +14,7 @@ type ISiteActivity interface {
 	Type() string
 	Data() string
 	CreatedAt() string
+	Scope() string
 }
 
 func NewActivityFromAvro(message metamorphosis.AvroMessage) (ISiteActivity, error) {
@@ -27,6 +28,7 @@ type defaultSiteActivity struct {
 	ActivityData string `json:"data"`
 	ActivityType string `json:"activity_type" binding:"required"`
 	createdAt    time.Time
+	ActivityScope string `json:"scope"`
 }
 
 func (a defaultSiteActivity) Id() int {
@@ -43,4 +45,8 @@ func (a defaultSiteActivity) Type() string {
 
 func (a defaultSiteActivity) CreatedAt() string {
 	return a.createdAt.String()
+}
+
+func (a defaultSiteActivity) Scope() string {
+	return a.ActivityScope
 }
