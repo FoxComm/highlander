@@ -61,9 +61,9 @@ object ReturnLineItemUpdater {
       }.sum
       maxAmount = orderShippingTotal - previouslyReturnedCost
       _ ← * <~ failIf(amount > maxAmount,
-                       ReturnShippingCostExceeded(refNum = rma.referenceNumber,
-                                                  amount = amount,
-                                                  maxAmount = maxAmount))
+                      ReturnShippingCostExceeded(refNum = rma.referenceNumber,
+                                                 amount = amount,
+                                                 maxAmount = maxAmount))
     } yield ()
 
   private def addShippingCostItem(rma: Return,

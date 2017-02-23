@@ -533,7 +533,7 @@ class ReturnIntegrationTest
 
       api.lineItems.add(lineItems).mustBeOk()
       api.shippingAddress.updateFromAddress(address.id).mustBeOk()
-      api.shippingMethod.update(UpdateShippingMethod(shippingMethod.id))
+      api.shippingMethod.update(UpdateShippingMethod(shippingMethod.id)).mustBeOk()
       paymentMethods.foreach {
         case PaymentMethod.CreditCard ⇒
           api.payments.creditCard.add(CreditCardPayment(creditCard.id)).mustBeOk()
