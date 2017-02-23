@@ -10,13 +10,13 @@ begin
     illuminate_obj(form, shadow, 'salePrice')->>'value' as sale_price,
     illuminate_obj(form, shadow, 'salePrice')->>'currency' as sale_price_currency,
     to_json_timestamp(new.archived_at) as archived_at,
-    to_json_timestamp(new.created_at) as created_at,
     illuminate_obj(form, shadow, 'retailPrice')->>'value' as retail_price,
     illuminate_obj(form, shadow, 'retailPrice')->>'currency' as retail_price_currency,
     illuminate_obj(form, shadow, 'externalId') as external_id,
     new.scope as scope,
     new.form_id as variant_id,
-    mwh_sku.sku_id as sku_id
+    mwh_sku.sku_id as sku_id,
+    to_json_timestamp(new.created_at) as created_at
     from object_contexts as context
       inner join object_shadows as shadow  on (shadow.id = new.shadow_id)
       inner join object_forms as form on (form.id = new.form_id)

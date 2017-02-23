@@ -31,6 +31,14 @@ begin
     f.attributes->>(s.attributes->'activeTo'->>'ref') as active_to,
     f.attributes->>(s.attributes->'tags'->>'ref') as tags,
 
+    link.skus as skus,
+    albumLink.albums as albums,
+    to_json_timestamp(new.archived_at) as archived_at,
+    f.attributes->>(s.attributes->'externalId'->>'ref') as external_id,
+    p.scope as scope,
+    p.slug as slug,
+    '[]'::jsonb as taxonomies,
+    to_json_timestamp(new.created_at) as created_at,
     (select
        pv_form.attributes->(pv_shadow.attributes->'retailPrice'->>'ref')->>'value'
        from product_variants as pv
@@ -40,14 +48,8 @@ begin
        where pv_link.left_id = p.id
        order by 1 -- which variant is first?
        limit 1
-    ) as retail_price,
+    ) as retail_price
 
-    link.skus as skus,
-    albumLink.albums as albums,
-    to_json_timestamp(new.archived_at) as archived_at,
-    to_json_timestamp(new.created_at) as created_at,
-    f.attributes->>(s.attributes->'externalId'->>'ref') as external_id,
-    p.scope as scope
     from products as p
     inner join object_contexts as context on (p.context_id = context.id)
     inner join object_forms as f on (f.id = p.form_id)
