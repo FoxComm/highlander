@@ -38,10 +38,11 @@ create or replace function update_returns_view_from_returns_fn() returns trigger
 begin
   update returns_search_view set
     state = new.state,
-    message_to_account = new.message_to_account,
-    customer = new.customer
+    return_type = new.return_type,
+    message_to_account = new.message_to_account
     -- TODO update more fields?
   where id = new.id;
+  return null;
 end;
 $$ language plpgsql;
 

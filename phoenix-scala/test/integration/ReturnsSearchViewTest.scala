@@ -1,12 +1,12 @@
+import models.returns.Return.{Pending, Processing, ReturnType}
 import models.returns.{Return, Returns}
 import org.json4s.JObject
-import testutils._
-import utils.seeds.Seeds.Factories
-import utils.db._
-import testutils.TestSeeds
+import payloads.ReturnPayloads.{ReturnMessageToCustomerPayload, ReturnUpdateStatePayload}
+import responses.ReturnResponse
+import testutils.{TestSeeds, _}
 import testutils.fixtures.BakedFixtures
+import utils.seeds.Seeds.Factories
 import cats.implicits._
-import models.returns.Return.ReturnType
 
 case class ReturnsSearchViewResult(
     id: Int,
@@ -57,9 +57,36 @@ class ReturnsSearchViewTest extends SearchViewTestBase with TestSeeds with Baked
     }
   }
 
+  "update search view" - {
+    "should update state" in new Fixture {
+      assert(rma.state == Pending)
+      findOneInSearchView(rma.id).state must === (rma.state)
+
+      private val payload = ReturnUpdateStatePayload(state = Processing)
+      returnsApi(rma.referenceNumber).update(payload).as[ReturnResponse.Root].state must === (
+          Processing)
+
+      findOneInSearchView(rma.id).state must === (Processing)
+    }
+
+    "should update message to customer" in new Fixture {
+      findOneInSearchView(rma.id).messageToAccount must === (None)
+
+      val payload = ReturnMessageToCustomerPayload(message = "Hello!")
+      returnsApi(rma.refNum)
+        .message(payload)
+        .as[ReturnResponse.Root]
+        .messageToCustomer
+        .head must === (payload.message)
+
+      findOneInSearchView(rma.id).messageToAccount must === ("Hello!".some)
+    }
+  }
+
   trait Fixture extends StoreAdmin_Seed with Order_Baked {
     val rma = Returns
       .create(Factories.rma.copy(orderRef = order.refNum, accountId = customer.accountId))
       .gimme
   }
+
 }

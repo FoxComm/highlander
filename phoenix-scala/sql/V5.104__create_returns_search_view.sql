@@ -8,6 +8,7 @@ create table returns_search_view
     message_to_account text,
     return_type return_type,
     customer jsonb
+    -- TODO add more fields as needed
 );
 
 create index returns_search_view_customer_idx on returns_search_view((customer->>'id'));
