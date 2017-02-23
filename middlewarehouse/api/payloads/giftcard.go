@@ -10,6 +10,7 @@ type GiftCard struct {
 }
 
 type CreateGiftCardPayload struct {
+	Scope	       *string `json:"scope"`
 	Balance        uint   `json:"balance"`
 	SenderName     string `json:"senderName" binding:"required"`
 	RecipientName  string `json:"recipientName" binding:"required"`
@@ -22,8 +23,9 @@ type GiftCardResponse struct {
 	Code string `json:"code" binding:"required"`
 }
 
-func NewCreateGiftCardPayload(lineItem OrderLineItem, refNum string) *CreateGiftCardPayload {
+func NewCreateGiftCardPayload(lineItem OrderLineItem, refNum string, scope string) *CreateGiftCardPayload {
 	return &CreateGiftCardPayload{
+		Scope: 		&scope,
 		Balance:        lineItem.Price,
 		SenderName:     lineItem.Attributes.GiftCard.SenderName,
 		RecipientName:  lineItem.Attributes.GiftCard.RecipientName,
