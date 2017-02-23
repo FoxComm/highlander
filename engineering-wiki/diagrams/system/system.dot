@@ -61,13 +61,12 @@ digraph {
     api -> isaac;
     api -> middlewarehouse;
     api -> phoenix;
+    api -> elasticsearch;
     ashes -> S3;
     ashes -> api;
     bernardo -> db;
     db -> kafka;
     eggcrate -> henhouse;
-    elasticsearch -> api;
-    elasticsearch -> phoenix;
     greenriver -> elasticsearch;
     greenriver -> phoenix;
     hyperion -> AMAZON;
@@ -90,6 +89,7 @@ digraph {
     phoenix -> db;
     phoenix -> kafka;
     phoenix -> middlewarehouse [dir=both];
+    phoenix -> elasticsearch;
     riverrock -> api;
     riverrock -> ashes
     riverrock -> bernardo;
