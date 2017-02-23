@@ -153,18 +153,18 @@ object Activities
 
     val record = new ProducerRecord[String, GenericData.Record](topic, avroActivityRecord)
 
-    val kafkaSendFuture = Future {
-      kafkaProducer.send(record)
-    }
-
-    kafkaSendFuture onComplete {
-      case Success(result) ⇒
-        logger.info(
-            s"Kafka Activity ${a.activityType} by ${activityContext.userType} ${activityContext.userId} SUCCESS")
-      case Failure(result) ⇒
-        logger.info(
-            s"Kafka Activity ${a.activityType} by ${activityContext.userType} ${activityContext.userId} FAILURE")
-    }
+//    val kafkaSendFuture = Future {
+//      kafkaProducer.send(record)
+//    }
+//
+//    kafkaSendFuture onComplete {
+//      case Success(result) ⇒
+//        logger.info(
+//            s"Kafka Activity ${a.activityType} by ${activityContext.userType} ${activityContext.userId} SUCCESS")
+//      case Failure(result) ⇒
+//        logger.info(
+//            s"Kafka Activity ${a.activityType} by ${activityContext.userType} ${activityContext.userId} FAILURE")
+//    }
 
     DbResultT.pure(activity)
   }
