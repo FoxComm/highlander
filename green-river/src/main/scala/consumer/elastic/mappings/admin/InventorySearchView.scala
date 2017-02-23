@@ -7,7 +7,8 @@ import consumer.elastic.AvroTransformer
 import consumer.elastic.mappings._
 
 final case class InventorySearchView()(implicit ec: EC) extends AvroTransformer {
-  def mapping() = esMapping("inventory_search_view").fields(
+  def topic() = "inventory_search_view"
+  def mapping() = esMapping(topic()).fields(
       field("id", IntegerType),
       field("sku", StringType).analyzer("upper_cased"),
       field("stockItem").nested(

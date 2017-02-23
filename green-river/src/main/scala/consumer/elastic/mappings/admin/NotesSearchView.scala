@@ -7,7 +7,8 @@ import consumer.elastic.AvroTransformer
 import consumer.elastic.mappings.dateFormat
 
 final case class NotesSearchView()(implicit ec: EC) extends AvroTransformer {
-  def mapping() = esMapping("notes_search_view").fields(
+  def topic() = "notes_search_view"
+  def mapping() = esMapping(topic()).fields(
       // Note
       field("id", IntegerType),
       field("scope", StringType).index("not_analyzed"),

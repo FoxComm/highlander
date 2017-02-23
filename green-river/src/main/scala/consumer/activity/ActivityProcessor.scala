@@ -22,7 +22,8 @@ final case class Activity(id: Int = 0,
                           activityType: String,
                           data: JValue,
                           context: ActivityContext,
-                          createdAt: Instant = Instant.now)
+                          createdAt: Instant = Instant.now,
+                          scope: String)
 
 final case class Connection(dimension: String, objectId: String, data: JValue, activityId: Int)
 
@@ -46,6 +47,7 @@ final case class FailedToConnectNotification(
         s"Failed to create notification for connection of activity $activityId to dimension " +
         s"'$dimension' and object $objectId response: $response")
 
+//TODO: Convert to a JsonTransformer so we can use in scoped indexer
 /**
   * This is a JsonProcessor which listens to the activity stream and processes the activity
   * using a sequence of activity connectors
@@ -74,7 +76,7 @@ class ActivityProcessor(conn: PhoenixConnectionInfo, connectors: Seq[ActivityCon
       val result = connectors.map { connector ⇒
         for {
           connections ← connector.process(offset, activity)
-          responses   ← process(connections)
+          responses   ← process(activity, connections)
         } yield responses
       }
 
@@ -89,34 +91,12 @@ class ActivityProcessor(conn: PhoenixConnectionInfo, connectors: Seq[ActivityCon
     }
   }
 
-  private def process(cs: Seq[Connection]): Future[Seq[HttpResponse]] = {
-    Future.sequence(cs.map(connectUsingPhoenix))
+  private def process(activity: Activity, cs: Seq[Connection]): Future[Seq[Unit]] = {
+    Future.sequence(cs.map(c ⇒ indexInElasticSearch(activity, c)))
   }
 
-  private def connectUsingPhoenix(c: Connection): Future[HttpResponse] = {
-    val uri = s"trails/${c.dimension}/${c.objectId}"
-    Console.err.println(s"Requesting Phoenix $uri")
-
-    //create append payload
-    val append = AppendActivity(c.activityId, c.data)
-    val body   = render(append)
-
-    //make request
-    phoenix
-      .post(uri, body)
-      .fold({ failures ⇒
-        throw FailedToConnectActivity(c.activityId, c.dimension, c.objectId, failures)
-      }, { resp ⇒
-        if (resp.status == StatusCodes.OK) {
-          // TODO: check errors?
-          createPhoenixNotification(c, phoenix)
-        } else {
-          throw FailedToConnectActivity(
-              c.activityId, c.dimension, c.objectId, GeneralFailure(s"response: $resp").single)
-        }
-        resp
-      })
-  }
+  private def indexInElasticSearch(activity: Activity, connection: Connection) =
+    Future { () }
 
   private def createPhoenixNotification(conn: Connection, phoenix: Phoenix): HttpResult = {
     val body = AppendNotification(sourceDimension = conn.dimension,

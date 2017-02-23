@@ -7,7 +7,8 @@ import consumer.elastic.AvroTransformer
 import consumer.elastic.mappings.dateFormat
 
 final case class FailedAuthorizationsSearchView()(implicit ec: EC) extends AvroTransformer {
-  def mapping() = esMapping("failed_authorizations_search_view").fields(
+  def topic() = "failed_authorizations_search_view"
+  def mapping() = esMapping(topic()).fields(
       // Credit Card Charge
       field("id", IntegerType),
       field("chargeId", StringType).analyzer("autocomplete"),

@@ -8,7 +8,8 @@ import consumer.elastic.mappings._
 import consumer.elastic.mappings.dateFormat
 
 final case class CustomersSearchView()(implicit ec: EC) extends AvroTransformer {
-  def mapping() = esMapping("customers_search_view").fields(
+  def topic() = "customers_search_view"
+  def mapping() = esMapping(topic()).fields(
       // Customer
       field("id", IntegerType),
       field("scope", StringType).index("not_analyzed"),

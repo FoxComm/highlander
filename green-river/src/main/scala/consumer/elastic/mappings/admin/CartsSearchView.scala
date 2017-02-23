@@ -7,7 +7,8 @@ import consumer.elastic.AvroTransformer
 import consumer.elastic.mappings._
 
 final case class CartsSearchView()(implicit ec: EC) extends AvroTransformer {
-  def mapping() = esMapping("carts_search_view").fields(
+  def topic() = "carts_search_view"
+  def mapping() = esMapping(topic()).fields(
       // Cart
       field("id", IntegerType),
       field("scope", StringType).index("not_analyzed"),

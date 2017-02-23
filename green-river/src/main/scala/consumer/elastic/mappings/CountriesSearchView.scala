@@ -8,7 +8,8 @@ import consumer.aliases._
 import consumer.elastic.AvroTransformer
 
 final case class CountriesSearchView()(implicit ec: EC) extends AvroTransformer {
-  def mapping() = esMapping("countries_search_view").fields(
+  def topic() = "countries_search_view"
+  def mapping() = esMapping(topic()).fields(
       field("id", IntegerType),
       field("name", StringType).analyzer("autocomplete"),
       field("alpha2", StringType).index("not_analyzed"),

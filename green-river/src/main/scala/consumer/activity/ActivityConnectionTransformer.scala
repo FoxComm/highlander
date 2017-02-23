@@ -11,6 +11,7 @@ import org.json4s.jackson.JsonMethods.parse
 import org.json4s.DefaultFormats
 import consumer.aliases._
 import consumer.elastic.JsonTransformer
+import consumer.elastic.Transformation
 import consumer.utils.PhoenixConnectionInfo
 import consumer.utils.Phoenix
 import consumer.utils.HttpResponseExtensions._
@@ -43,17 +44,20 @@ final case class ActivityConnectionTransformer(
           ),
           field("data", ObjectType)
       ),
-      field("data", ObjectType),
+      field("scope", StringType),
       field("connectedBy", ObjectType),
       field("createdAt", DateType).format(dateFormat)
   )
 
-  def transform(json: String): Future[String] = {
+  def transform(json: String): Future[Seq[Transformation]] = {
     Console.out.println(json)
 
     parse(json) \ "id" \ "long" match {
-      case JInt(id) ⇒ queryPhoenixForConnection(id)
-      case _        ⇒ throw new IllegalArgumentException("Activity connection is missing id")
+      case JInt(id) ⇒
+        queryPhoenixForConnection(id).map { respJson =>
+          Seq(Transformation("activity_connections_view", respJson))
+        }
+      case _ ⇒ throw new IllegalArgumentException("Activity connection is missing id")
     }
   }
 

@@ -6,7 +6,8 @@ import consumer.aliases._
 import consumer.elastic.AvroTransformer
 
 final case class ProductsCatalogView()(implicit ec: EC) extends AvroTransformer {
-  def mapping() = esMapping("products_catalog_view").fields(
+  def topic() = "products_catalog_view"
+  def mapping() = esMapping(topic()).fields(
       field("id", IntegerType),
       field("slug", StringType).index("not_analyzed"),
       field("context", StringType).index("not_analyzed"),

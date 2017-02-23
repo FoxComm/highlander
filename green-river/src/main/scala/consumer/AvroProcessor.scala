@@ -11,6 +11,8 @@ import io.confluent.kafka.serializers.AbstractKafkaAvroDeserializer
 import org.apache.avro.generic.GenericDatumWriter
 import org.apache.avro.io.EncoderFactory
 import org.apache.kafka.common.errors.SerializationException
+import org.apache.avro.Schema
+import org.apache.avro.Schema.Parser
 
 import org.json4s.JsonAST.{JValue, JObject, JField, JString}
 import org.json4s.jackson.JsonMethods.{render, compact, parse}
@@ -33,6 +35,44 @@ class AvroProcessor(schemaRegistryUrl: String, processor: JsonProcessor)(implici
   this.schemaRegistry = new CachedSchemaRegistryClient(
       schemaRegistryUrl, DEFAULT_MAX_SCHEMAS_PER_SUBJECT)
   val encoderFactory = EncoderFactory.get()
+
+  //Make sure the scoped_activities avro schema is registered
+  val activityAvroSchema = """
+      |{
+      |  "type":"record",
+      |  "name":"scoped_activities",
+      |  "fields":[
+      |    {
+      |      "name":"id",
+      |      "type":["null","int"]
+      |    },
+      |    {
+      |      "name":"activity_type",
+      |      "type":["null","string"]
+      |    },
+      |    {
+      |      "name":"data",
+      |      "type":["null","string"]
+      |    },
+      |    {
+      |      "name":"context",
+      |      "type":["null","string"]
+      |    },
+      |    {
+      |      "name":"created_at",
+      |      "type":["null","string"]
+      |    },
+      |    {
+      |      "name":"scope",
+      |      "type":["null","string"]
+      |    }
+      |  ]
+      |}
+    """.stripMargin.replaceAll("\n", " ")
+
+  val activitySchema = (new Schema.Parser()).parse(activityAvroSchema)
+
+  register("scoped_activities", activitySchema)
 
   def process(offset: Long, topic: String, key: Array[Byte], message: Array[Byte]): Future[Unit] = {
     try {
