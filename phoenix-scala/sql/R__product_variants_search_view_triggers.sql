@@ -33,6 +33,28 @@ create trigger insert_product_variants_view_from_product_variants
   for each row
   execute procedure insert_product_variants_view_from_product_variants_fn();
 
+create or replace function update_product_variants_view_from_product_variant_links_fn() returns trigger as $$
+begin
+  update product_variants_search_view set
+    product_id = subquery.product_id
+    from (select
+            product.form_id as product_id,
+            variant.form_id as variant_id
+          from product_variants as variant
+            inner join products as product on (product.id = new.left_id)
+          where variant.id = new.right_id) as subquery
+    where subquery.variant_id = product_variants_search_view.variant_id;
+
+  return null;
+end;
+$$ language plpgsql; 
+
+drop trigger if exists update_product_variants_view_from_product_variant_links on product_to_variant_links;
+create trigger update_product_variants_view_from_product_variant_links
+  after insert or update on product_to_variant_links
+  for each row
+  execute procedure update_product_variants_view_from_product_variant_links_fn();
+
 create or replace function update_product_variants_view_from_object_attrs_fn() returns trigger as $$
 begin
   update product_variants_search_view set
