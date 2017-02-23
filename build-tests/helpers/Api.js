@@ -250,8 +250,9 @@ class Albums {
     return this.api.delete(endpoints.album(context, albumId));
   }
   uploadImages(context, albumId, images) {
-    return images.reduce((req, file) => req.attach('upload-file', file),
-      this.api.agent.post(`${API_BASE_URL}/api/${endpoints.albumImages(context, albumId)}`))
+    return images
+      .reduce((req, file) => req.attach('upload-file', file), this.api.agent
+        .post(`${API_BASE_URL}/api/${endpoints.albumImages(context, albumId)}`))
       .withCredentials()
       .then(res => res.body);
   }

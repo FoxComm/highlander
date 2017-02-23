@@ -2,13 +2,11 @@ import path from 'path';
 import faker from 'faker';
 import testImageBase64 from './assets/image.base64';
 
-const randomDigit = () => faker.random.number(9).toString();
-const randomMonth = () => faker.random.number({ min: 1, max: 12 });
-const randomYear = () => faker.random.number({ min: 2017, max: 2020 });
-
-const randomCvv = () => '###'.replace(/#/g, randomDigit);
-
 const $ = {
+  randomNumber: (min, max) => faker.random.number({ min, max }),
+  randomMonth: () => $.randomNumber(1, 12),
+  randomYear: () => $.randomNumber(2017, 2020),
+  randomArrayElement: array => faker.random.arrayElement(array),
   adminName: 'Frankly Admin',
   adminEmail: 'admin@admin.com',
   adminPassword: 'password',
@@ -34,22 +32,22 @@ const $ = {
   randomCreditCardDetailsPayload: customerId => ({
     customerId,
     cardNumber: $.testCardNumber,
-    expMonth: randomMonth(),
-    expYear: randomYear(),
-    cvv: 100 + faker.random.number(899),
+    expMonth: $.randomMonth(),
+    expYear: $.randomYear(),
+    cvv: 100 + $.randomNumber(0, 899),
     address: $.randomCreateAddressPayload(),
   }),
   randomCreditCardCreatePayload: () => ({
     holderName: faker.name.findName(),
     number: $.testCardNumber,
-    cvv: randomCvv(),
-    expMonth: randomMonth(),
-    expYear: randomYear(),
+    cvv: '###'.replace(/#/g, $.randomNumber(0, 9).toString()),
+    expMonth: $.randomMonth(),
+    expYear: $.randomYear(),
     address: $.randomCreateAddressPayload(),
     isDefault: false,
   }),
   randomCreateManualStoreCreditPayload: () => ({
-    amount: faker.random.number({ min: 1000, max: 10000 }),
+    amount: $.randomNumber(1000, 10000),
     reasonId: 1,
     subReasonId: 1,
   }),
@@ -111,7 +109,7 @@ const $ = {
       },
     };
   },
-  randomProductPayload: () => {
+  randomProductPayload: ({ minSkus, maxSkus } = {}) => {
     const now = Date.now();
     return {
       attributes: {
@@ -148,11 +146,13 @@ const $ = {
           t: 'datetime',
         },
       },
-      skus: [$.randomSkuPayload()],
+      skus: Array
+        .from({ length: $.randomNumber(minSkus || 1, maxSkus || 1) })
+        .map(() => $.randomSkuPayload()),
     };
   },
   randomGiftCardPayload: () => ({
-    balance: faker.random.number({ min: 1, max: 2000 }),
+    balance: $.randomNumber(1, 2000),
     quantity: 1,
     reasonId: 1,
   }),
@@ -166,10 +166,7 @@ const $ = {
   }),
   randomAlbumPayload: ({ minImages, maxImages } = {}) => {
     const images = [];
-    const imageCount = faker.random.number({
-      min: minImages || 0,
-      max: maxImages || 3,
-    });
+    const imageCount = $.randomNumber(minImages || 0, maxImages || 3);
     for (let i = 0; i < imageCount; i += 1) {
       images.push($.randomImagePayload());
     }
@@ -190,7 +187,7 @@ const $ = {
         t: 'offer',
         v: {
           orderPercentOff: {
-            discount: faker.random.number({ min: 1, max: 99 }),
+            discount: $.randomNumber(1, 99),
           },
         },
       },
@@ -271,12 +268,12 @@ const $ = {
   },
   randomGenerateCouponCodesPayload: () => {
     const prefix = `bvt-${Date.now()}-`;
-    const quantity = faker.random.number({ min: 1, max: 40 });
+    const quantity = $.randomNumber(1, 40);
     const digits = Math.floor(Math.log10(quantity)) + 1;
     return {
       prefix,
       quantity,
-      length: prefix.length + faker.random.number({ min: digits, max: digits + 10 }),
+      length: prefix.length + $.randomNumber(digits, digits + 10),
     };
   },
   randomStoreAdminPayload: () => ({
@@ -284,6 +281,15 @@ const $ = {
     email: `${Date.now()}@bvt.com`,
     org: 'tenant',
   }),
+  randomItemsUpdatePayload: (skuCodes, { minQuantity, maxQuantity } = {}) =>
+    skuCodes.reduce((payload, skuCode) =>
+      Object.assign({}, payload, {
+        [skuCode]: {
+          quantity: $.randomNumber(minQuantity || 1, maxQuantity || 10),
+        },
+      }),
+      {},
+    ),
 };
 
 export default $;
