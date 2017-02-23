@@ -2,7 +2,8 @@ package utils
 
 import scala.concurrent.ExecutionContext
 
-import cats.data.Xor
+import cats.data._
+import cats.implicits._
 import failures.GeneralFailure
 import testutils._
 import utils.aliases._

@@ -8,6 +8,7 @@ import failures.CreditCardFailures.CardDeclined
 import testutils._
 import utils.Money.Currency.USD
 import utils.TestStripeSupport._
+import utils.aliases.stripe.StripeCustomer
 import utils.apis._
 import utils.seeds.Seeds.Factories
 
@@ -173,7 +174,7 @@ class StripeTest extends RealStripeApis {
         // Which made very little sense, as it was just checking whether the Future was *not yet completed*.
 
         deleteCustomer(cust).void.gimme
-        getCustomer(realStripeCustomerId).gimme must === (42) // ⸮
+        getCustomer(realStripeCustomerId).gimme must === (42.asInstanceOf[StripeCustomer]) // ⸮
       }
     }
   }
