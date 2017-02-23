@@ -101,9 +101,7 @@ class EditBilling extends Component {
     }
 
     if (this.props.data.address) {
-      this.setState({
-        billingAddressIsSame: false,
-      });
+      this.state.billingAddressIsSame = false;
     }
   }
 
@@ -226,7 +224,7 @@ class EditBilling extends Component {
 
   @autobind
   updateCreditCard() {
-    const id = _.get(this.props, 'billingData.id');
+    const id = _.get(this.props, 'data.id');
     const { billingAddressIsSame } = this.state;
 
     const operation = id
@@ -323,7 +321,7 @@ class EditBilling extends Component {
               label={<CvcHelp />}
               type="number"
               pattern="\d*"
-              inputmode="numeric"
+              inputMode="numeric"
               maxLength="4"
               placeholder={cvcPlaceholder}
               onChange={this.changeCVC}
@@ -475,8 +473,8 @@ class EditBilling extends Component {
           <CreditCards
             creditCards={creditCards}
             selectCreditCard={this.selectCreditCard}
-            editCard={this.editCard}
-            deleteCard={this.deleteCreditCard}
+            onEditCard={this.editCard}
+            onDeleteCard={this.deleteCreditCard}
             cardAdded={this.state.cardAdded}
           />
           <button onClick={this.addNew} type="button" styleName="add-card-button">Add Card</button>

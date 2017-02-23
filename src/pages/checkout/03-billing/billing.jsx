@@ -21,7 +21,6 @@ import type { CheckoutBlockProps, BillingData } from '../types';
 type Props = CheckoutBlockProps & {
   paymentMethods: Array<any>,
   creditCard: BillingData,
-  billingData: BillingData,
 };
 
 class Billing extends Component {
@@ -95,7 +94,6 @@ class Billing extends Component {
 }
 
 export default connect(state => ({
-  billingData: state.checkout.billingData,
-  creditCard: state.cart.creditCard,
+  creditCard: state.checkout.creditCard,
   ...state.cart,
 }))(localized(Billing));

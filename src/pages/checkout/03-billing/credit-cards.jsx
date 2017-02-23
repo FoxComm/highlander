@@ -19,10 +19,10 @@ import type { CreditCardType } from '../types';
 type Props = {
   fetchCreditCards: Function,
   creditCards: Array<CreditCardType>,
-  selectedCreditCard: Object,
+  selectedCreditCard: CreditCardType|null,
   selectCreditCard: Function,
-  editCard: Function,
-  deleteCard: Function,
+  onEditCard: (cc: CreditCardType) => void,
+  onDeleteCard: (id: number) => void,
   cardAdded: boolean,
   cart: Object,
 };
@@ -48,7 +48,7 @@ class CreditCards extends Component {
   }
 
   get creditCards() {
-    const { creditCards, selectedCreditCard, selectCreditCard, editCard, deleteCard } = this.props;
+    const { creditCards, selectedCreditCard, selectCreditCard, onEditCard, onDeleteCard } = this.props;
 
     return creditCards.map(creditCard => {
       const selected = !!selectedCreditCard && selectedCreditCard.id === creditCard.id;
@@ -59,8 +59,8 @@ class CreditCards extends Component {
           selected={selected}
           onSelect={selectCreditCard}
           key={creditCard.id}
-          editCard={editCard}
-          deleteCard={deleteCard}
+          onEditCard={onEditCard}
+          onDeleteCard={onDeleteCard}
         />
       );
     });
@@ -83,7 +83,7 @@ class CreditCards extends Component {
 
 function mapStateToProps(state) {
   return {
-    selectedCreditCard: _.get(state.cart, 'creditCard', {}),
+    selectedCreditCard: _.get(state.checkout, 'creditCard', {}),
     cart: state.cart,
   };
 }

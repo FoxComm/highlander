@@ -19,7 +19,7 @@ type Props = {
   action?: ?Object,
   children?: any,
   buttonLabel?: ?string,
-  inProgress?: boolean,
+  inProgress?: ?boolean,
   sanitizeError?: (error: string) => string,
 };
 
