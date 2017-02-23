@@ -1,8 +1,8 @@
 package utils
 
 import (
+	"bytes"
 	"regexp"
-	"strings"
 )
 
 // IsInSlice - returns true if needle is found in haystack
@@ -35,24 +35,30 @@ func DiffSlices(needles []string, haystack []string) []string {
 func SanitizePassword(input []byte) string {
 	r, _ := regexp.Compile("pass(?:word|wd)?\":\"(.+?)\"")
 
-	return ReplaceAllMatchingGroup(string(input), "***", r, 1)
+	return ReplaceAllMatchingGroup(string(input), "***", r)
 }
 
-func ReplaceAllMatchingGroup(in, repl string, r *regexp.Regexp, group int) string {
+func ReplaceAllMatchingGroup(in, repl string, r *regexp.Regexp) string {
 	matches := r.FindAllStringSubmatchIndex(in, -1)
 
-	if len(matches) > 0 {
-		shift := 0
-		for _, match := range matches {
-			from := match[2] + shift
-			to := match[3] + shift
+	var buffer bytes.Buffer
 
-			in = strings.Join([]string{in[:from], repl, in[to:]}, "")
-			// recalculate shift of match indices after replacing next occurrence
-			shift = shift + len(repl) - (to - from)
+	if len(matches) > 0 {
+		firstMatchFrom := matches[0][2]
+		buffer.WriteString(in[:firstMatchFrom])
+		buffer.WriteString(repl)
+
+		for i := 1; i < len(matches); i++ {
+			from := matches[i-1][3]
+			to := matches[i][2]
+
+			buffer.WriteString(in[from:to])
+			buffer.WriteString(repl)
 		}
 
+		lastMatchTo := matches[len(matches)-1][3]
+		buffer.WriteString(in[lastMatchTo:])
 	}
 
-	return in
+	return buffer.String()
 }
