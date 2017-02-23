@@ -30,58 +30,56 @@ gce_zone: "us-central1-a"
 
 # Default docker tags for containers
 docker_tags:
-    ashes: master
-    firebrand: master
-    phoenix: master
-    greenriver: master
-    middlewarehouse: master
-    messaging: master
-    isaac: master
-    solomon: master
-    capture_consumer: master
-    gift_card_consumer: master
-    shipments_consumer: master
-    stock_items_consumer: master
-    customer_groups_consumer: master
-    shipstation_consumer: master
-    storefront_td: master
-    storefront_tpg: master
-    marketplace: master
-    marketplace_ui: master
-    product_search: master
-    demo_search: master
-    hyperion: master
-    bernardo: master
-    henhouse: master
-    eggcrate: master
-    river_rock: master
-    digger_sphex: master
-    orders_sphex: master
+    ashes: "{{ lookup('env', 'DOCKER_TAG_ASHES') | default('master', true) }}"
+    firebrand: "{{ lookup('env', 'DOCKER_TAG_FIREBRAND') | default('master', true) }}"
+    phoenix: "{{ lookup('env', 'DOCKER_TAG_PHOENIX') | default('master', true) }}"
+    greenriver: "{{ lookup('env', 'DOCKER_TAG_GREENRIVER') | default('master', true) }}"
+    middlewarehouse: "{{ lookup('env', 'DOCKER_TAG_MIDDLEWAREHOUSE') | default('master', true) }}"
+    messaging: "{{ lookup('env', 'DOCKER_TAG_MESSAGING') | default('master', true) }}"
+    isaac: "{{ lookup('env', 'DOCKER_TAG_ISAAC') | default('master', true) }}"
+    solomon: "{{ lookup('env', 'DOCKER_TAG_SOLOMON') | default('master', true) }}"
+    capture_consumer: "{{ lookup('env', 'DOCKER_TAG_CAPTURE_CONSUMER') | default('master', true) }}"
+    gift_card_consumer: "{{ lookup('env', 'DOCKER_TAG_GIFT_CARD_CONSUMER') | default('master', true) }}"
+    shipments_consumer: "{{ lookup('env', 'DOCKER_TAG_SHIPMENTS_CONSUMER') | default('master', true) }}"
+    shipstation_consumer: "{{ lookup('env', 'DOCKER_TAG_SHIPSTATION_CONSUMER') | default('master', true) }}"
+    stock_items_consumer: "{{ lookup('env', 'DOCKER_TAG_STOCK_ITEMS_CONSUMER') | default('master', true) }}"
+    customer_groups_consumer: "{{ lookup('env', 'DOCKER_TAG_CUSTOMER_GROUPS_CONSUMER') | default('master', true) }}"
+    storefront_td: "{{ lookup('env', 'DOCKER_TAG_STOREFRONT_TOPDRAWER') | default('master', true) }}"
+    storefront_tpg: "{{ lookup('env', 'DOCKER_TAG_STOREFRONT_TPG') | default('master', true) }}"
+    hyperion: "{{ lookup('env', 'DOCKER_TAG_HYPERION') | default('master', true) }}"
+    bernardo: "{{ lookup('env', 'DOCKER_TAG_BERNARDO') | default('master', true) }}"
+    henhouse: "{{ lookup('env', 'DOCKER_TAG_HENHOUSE') | default('master', true) }}"
+    eggcrate: "{{ lookup('env', 'DOCKER_TAG_EGGCRATE') | default('master', true) }}"
+    river_rock: "{{ lookup('env', 'DOCKER_TAG_RIVER_ROCK') | default('master', true) }}"
+    digger_sphex: "{{ lookup('env', 'DOCKER_TAG_DIGGER_SPHEX') | default('master', true) }}"
+    orders_sphex: "{{ lookup('env', 'DOCKER_TAG_ORDERS_SPHEX') | default('master', true) }}"
 
 # Configurable Marathon re-deploys
 marathon_restart:
-    ashes: true
-    firebrand: true
-    phoenix: true
-    greenriver: true
-    middlewarehouse: true
-    messaging: true
-    isaac: true
-    solomon: true
-    capture_consumer: true
-    gift_card_consumer: true
-    shipments_consumer: true
-    stock_items_consumer: true
-    customer_groups_consumer: true
-    shipstation_consumer: true
-    marketplace: true
-    hyperion: true
-    bernardo: true
-    henhouse: true
-    eggcrate: true
-    river_rock: true
-    digger_sphex: true
-    orders_sphex: true
+    ashes: "{{ lookup('env', 'MARATHON_ASHES') | default(true, true) | bool }}"
+    firebrand: "{{ lookup('env', 'MARATHON_FIREBRAND') | default(true, true) | bool }}"
+    phoenix: "{{ lookup('env', 'MARATHON_PHOENIX') | default(true, true) | bool }}"
+    greenriver: "{{ lookup('env', 'MARATHON_GREENRIVER') | default(true, true) | bool }}"
+    middlewarehouse: "{{ lookup('env', 'MARATHON_MIDDLEWAREHOUSE') | default(true, true) | bool }}"
+    messaging: "{{ lookup('env', 'MARATHON_MESSAGING') | default(true, true) | bool }}"
+    isaac: "{{ lookup('env', 'MARATHON_ISAAC') | default(true, true) | bool }}"
+    solomon: "{{ lookup('env', 'MARATHON_SOLOMON') | default(true, true) | bool }}"
+    capture_consumer: "{{ lookup('env', 'MARATHON_CAPTURE_CONSUMER') | default(true, true) | bool }}"
+    gift_card_consumer: "{{ lookup('env', 'MARATHON_GIFT_CARD_CONSUMER') | default(true, true) | bool }}"
+    shipments_consumer: "{{ lookup('env', 'MARATHON_SHIPMENTS_CONSUMER') | default(true, true) | bool }}"
+    shipstation_consumer: "{{ lookup('env', 'MARATHON_SHIPSTATION_CONSUMER') | default(true, true) | bool }}"
+    stock_items_consumer: "{{ lookup('env', 'MARATHON_STOCK_ITEMS_CONSUMER') | default(true, true) | bool }}"
+    customer_groups_consumer: "{{ lookup('env', 'MARATHON_CUSTOMER_GROUPS_CONSUMER') | default(true, true) | bool }}"
+    marketplace: "{{ lookup('env', 'MARATHON_MARKETPLACE') | default(true, true) | bool }}"
+    storefront_td: "{{ lookup('env', 'MARATHON_STOREFRONT_TD') | default(true, true) | bool }}"
+    storefront_tpg: "{{ lookup('env', 'MARATHON_STOREFRONT_TPG') | default(true, true) | bool }}"
+    hyperion: "{{ lookup('env', 'MARATHON_HYPERION') | default(true, true) | bool }}"
+    bernardo: "{{ lookup('env', 'MARATHON_BERNARDO') | default(true, true) | bool }}"
+    henhouse: "{{ lookup('env', 'MARATHON_HENHOUSE') | default(true, true) | bool }}"
+    eggcrate: "{{ lookup('env', 'MARATHON_EGGCRATE') | default(true, true) | bool }}"
+    river_rock: "{{ lookup('env', 'MARATHON_RIVER_ROCK') | default(true, true) | bool }}"
+    digger_sphex: "{{ lookup('env', 'MARATHON_DIGGER_SPHEX') | default(true, true) | bool }}"
+    orders_sphex: "{{ lookup('env', 'MARATHON_ORDERS_SPHEX') | default(true, true) | bool }}"
 
 # Consul Service Discovery
 consul_data_dir: /var/consul
@@ -258,7 +256,7 @@ river_rock_port: "9390"
 river_rock_host: river-rock.service.consul
 river_rock_server: "{{river_rock_host}}:{{river_rock_port}}"
 
-#Henhouse
+# Henhouse
 henhouse_host: "henhouse.{{consul_suffix}}"
 henhouse_server: "{{henhouse_host}}"
 
@@ -353,6 +351,7 @@ first_run: false
 is_ci: false
 is_amigo: false
 is_appliance: false
+is_redeploy: false
 packing: false
 with_marketplace: false
 with_shipstation: false

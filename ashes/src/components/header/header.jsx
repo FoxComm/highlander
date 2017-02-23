@@ -69,7 +69,7 @@ export default class Header extends React.Component {
           <div styleName="user" onClick={this.handleUserClick}>
             <div styleName="initials">{this.initials}</div>
             <div styleName="name">{name}</div>
-            <div id="user-menu-btn" styleName="arrow">
+            <div id="fct-user-menu-btn" styleName="arrow">
               {props.isMenuVisible ? <i className="icon-chevron-up"/> : <i className="icon-chevron-down"/>}
             </div>
             {props.isMenuVisible && <UserMenu user={props.user}/>}

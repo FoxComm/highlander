@@ -3,6 +3,14 @@
 - name: Copy Middlewarehouse Marathon JSON
   template: src=middlewarehouse.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
 
+- name: Kill Middlewarehouse Tasks in Marathon
+  shell: 'curl -sS -XDELETE http://{{marathon_server}}/v2/apps/middlewarehouse/tasks?scale=true'
+  when: is_redeploy
+
+- name: Pause for a bit...
+  pause: seconds=15
+  when: is_redeploy
+
 - name: Update Middlewarehouse in Marathon
   shell: 'curl -sS -XPUT -d@/marathon/applications/middlewarehouse.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/middlewarehouse'
 

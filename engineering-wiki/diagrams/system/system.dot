@@ -1,0 +1,100 @@
+digraph {
+    overlap=false;
+    rankdir=LR;
+
+    subgraph {
+        rank=min;
+        nginx [shape=box3d,color=blue];
+        riverrock [shape=rectangle,color=gray];
+        storefront [shape=rectangle,color=gray];
+        ashes [shape=rectangle,color=gray];
+        api [shape=rectangle,color=gray];
+    }
+
+    subgraph {
+        rank=same;
+        phoenix [shape=rectangle,color=gray];
+        middlewarehouse [shape=rectangle,color=gray];
+        eggcrate [shape=rectangle,color=gray];
+        hyperion [shape=rectangle,color=gray];
+        isaac [shape=rectangle,color=gray];
+        bernardo [shape=rectangle,color=gray];
+    }         
+
+    subgraph { 
+        rank=same;
+        greenriver [color=gray];
+        "capture consumer" [color=gray];
+        "gift card consumer" [color=gray];
+        "order sphex" [color=gray];
+        "digger sphex" [color=gray];
+        "messaging" [color=gray];
+        "shipstation consumer" [color=gray];
+    }
+
+    subgraph {
+        rank=same;
+        henhouse [shape=note,color=blue]; 
+        db [shape=note,color=blue]; 
+        kafka [shape=note,color=blue];
+        elasticsearch [shape=note,color=blue];
+    }
+
+    subgraph { 
+        rank=max;
+        SHIPSTATION [shape=box3d,color=red];
+        STRIPE [shape=box3d,color=red];
+        MAILCHIMP [shape=box3d,color=red];
+        S3 [shape=box3d,color=red];
+        AMAZON [shape=box3d,color=red];
+    }
+
+    "capture consumer" -> phoenix;
+    "digger sphex" -> henhouse;
+    "order sphex" -> henhouse;
+    "shipstation consumer" -> SHIPSTATION [dir=both];
+    "shipstation consumer" -> middlewarehouse;
+    "stock items consumer" -> middlewarehouse;
+    "gift card consumer" -> phoenix;
+    api -> eggcrate;
+    api -> henhouse;
+    api -> isaac;
+    api -> middlewarehouse;
+    api -> phoenix;
+    ashes -> S3;
+    ashes -> api;
+    bernardo -> db;
+    db -> kafka;
+    eggcrate -> henhouse;
+    elasticsearch -> api;
+    elasticsearch -> phoenix;
+    greenriver -> elasticsearch;
+    greenriver -> phoenix;
+    hyperion -> AMAZON;
+    hyperion -> phoenix;
+    isaac -> db;
+    kafka -> "capture consumer";
+    kafka -> "digger sphex";
+    kafka -> "gift card consumer";
+    kafka -> "order sphex";
+    kafka -> "shipstation consumer";
+    kafka -> "stock items consumer";
+    kafka -> greenriver;
+    kafka -> messaging;
+    messaging -> MAILCHIMP;
+    middlewarehouse -> db;
+    middlewarehouse -> kafka;
+    nginx -> riverrock;
+    phoenix -> S3;
+    phoenix -> STRIPE;
+    phoenix -> db;
+    phoenix -> kafka;
+    phoenix -> middlewarehouse [dir=both];
+    riverrock -> api;
+    riverrock -> ashes
+    riverrock -> bernardo;
+    riverrock -> db;
+    riverrock -> storefront;
+    storefront -> S3;
+    storefront -> api;
+}

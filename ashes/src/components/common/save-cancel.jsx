@@ -60,7 +60,7 @@ export default class SaveCancel extends Component {
 
     const cancelControl = (
       <Button
-        id="modal-cancel-btn"
+        id="fct-modal-cancel-btn"
         type="button"
         onClick={onCancel ? onCancel : () => transitionTo(cancelTo, cancelParams )}
         className="fc-save-cancel__cancel"
@@ -72,8 +72,8 @@ export default class SaveCancel extends Component {
 
     const saveControl = (
       <PrimaryButton
+        id="fct-modal-confirm-btn"
         type={onSave ? 'button' : 'submit'}
-        id="modal-confirm-btn"
         onClick={onSave ? onSave : noop}
         className="fc-save-cancel__save"
         tabIndex={saveTabIndex}
