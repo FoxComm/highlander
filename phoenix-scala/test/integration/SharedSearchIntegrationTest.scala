@@ -4,7 +4,7 @@ import failures.NotFoundFailure404
 import failures.SharedSearchFailures._
 import models.account._
 import models.admin._
-import models.sharedsearch.SharedSearch.{Scope, _}
+import models.sharedsearch.SharedSearch._
 import models.sharedsearch.SharedSearchAssociation.{build ⇒ buildAssociation}
 import models.sharedsearch._
 import org.json4s.jackson.JsonMethods._
@@ -273,7 +273,7 @@ class SharedSearchIntegrationTest
   }
 
   trait SharedSearchFixture extends Fixture {
-    private def getSharedSearch(scpe: Scope) =
+    private def getSharedSearch(scpe: SharedSearch.Scope) =
       SharedSearch(title = s"Some ${scpe.toString}",
                    query = dummyJVal,
                    rawQuery = dummyJVal,
