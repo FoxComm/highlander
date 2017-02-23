@@ -4,7 +4,7 @@ import failures.NotFoundFailure404
 import failures.SharedSearchFailures._
 import models.account._
 import models.admin._
-import models.sharedsearch.SharedSearch._
+import models.sharedsearch.SharedSearch.{Scope, _}
 import models.sharedsearch.SharedSearchAssociation.{build ⇒ buildAssociation}
 import models.sharedsearch._
 import org.json4s.jackson.JsonMethods._
@@ -65,6 +65,10 @@ class SharedSearchIntegrationTest
 
     "returns only coupon searches with the coupons scope" in new SharedSearchFixture {
       getByScope("couponsScope") must === (Seq(couponsSearch))
+    }
+
+    "returns only searches with the returns scope" in new SharedSearchFixture {
+      getByScope("returnsScope") must === (Seq(returnsSearch))
     }
 
     "returns associated scopes created by different admins" in new SharedSearchAssociationFixture {
@@ -269,54 +273,23 @@ class SharedSearchIntegrationTest
   }
 
   trait SharedSearchFixture extends Fixture {
-    val customerScope = SharedSearch(title = "Active Customers",
-                                     query = dummyJVal,
-                                     rawQuery = dummyJVal,
-                                     scope = CustomersScope,
-                                     storeAdminId = storeAdmin.accountId,
-                                     accessScope = scope)
-    val orderScope = SharedSearch(title = "Manual Hold",
-                                  query = dummyJVal,
-                                  rawQuery = dummyJVal,
-                                  scope = OrdersScope,
-                                  storeAdminId = storeAdmin.accountId,
-                                  accessScope = scope)
-    val storeAdminScope = SharedSearch(title = "Some Store Admin",
-                                       query = dummyJVal,
-                                       rawQuery = dummyJVal,
-                                       scope = StoreAdminsScope,
-                                       storeAdminId = storeAdmin.accountId,
-                                       accessScope = scope)
-    val giftCardScope = SharedSearch(title = "Some Gift Card",
-                                     query = dummyJVal,
-                                     rawQuery = dummyJVal,
-                                     scope = GiftCardsScope,
-                                     storeAdminId = storeAdmin.accountId,
-                                     accessScope = scope)
-    val productScope = SharedSearch(title = "Some Product",
-                                    query = dummyJVal,
-                                    rawQuery = dummyJVal,
-                                    scope = ProductsScope,
-                                    storeAdminId = storeAdmin.accountId,
-                                    accessScope = scope)
-    val inventoryScope = SharedSearch(title = "Some Inventory",
-                                      query = dummyJVal,
-                                      rawQuery = dummyJVal,
-                                      scope = InventoryScope,
-                                      storeAdminId = storeAdmin.accountId,
-                                      accessScope = scope)
-    val promotionsScope = SharedSearch(title = "Some Promotions",
-                                       query = dummyJVal,
-                                       rawQuery = dummyJVal,
-                                       scope = PromotionsScope,
-                                       storeAdminId = storeAdmin.accountId,
-                                       accessScope = scope)
-    val couponsScope = SharedSearch(title = "Some Coupons",
-                                    query = dummyJVal,
-                                    rawQuery = dummyJVal,
-                                    scope = CouponsScope,
-                                    storeAdminId = storeAdmin.accountId,
-                                    accessScope = scope)
+    private def getSharedSearch(scpe: Scope) =
+      SharedSearch(title = s"Some ${scpe.toString}",
+                   query = dummyJVal,
+                   rawQuery = dummyJVal,
+                   scope = scpe,
+                   storeAdminId = storeAdmin.accountId,
+                   accessScope = scope)
+
+    val customerScope   = getSharedSearch(CustomersScope)
+    val orderScope      = getSharedSearch(OrdersScope)
+    val storeAdminScope = getSharedSearch(StoreAdminsScope)
+    val giftCardScope   = getSharedSearch(GiftCardsScope)
+    val productScope    = getSharedSearch(ProductsScope)
+    val inventoryScope  = getSharedSearch(InventoryScope)
+    val promotionsScope = getSharedSearch(PromotionsScope)
+    val couponsScope    = getSharedSearch(CouponsScope)
+    val returnsScope    = getSharedSearch(ReturnsScope)
 
     val (customersSearch,
          ordersSearch,
@@ -325,7 +298,8 @@ class SharedSearchIntegrationTest
          productsSearch,
          inventorySearch,
          promotionsSearch,
-         couponsSearch) = (for {
+         couponsSearch,
+         returnsSearch) = (for {
       customersSearch   ← * <~ SharedSearches.create(customerScope)
       _                 ← * <~ SharedSearchAssociations.create(buildAssociation(customersSearch, storeAdmin))
       ordersSearch      ← * <~ SharedSearches.create(orderScope)
@@ -342,6 +316,8 @@ class SharedSearchIntegrationTest
       _                 ← * <~ SharedSearchAssociations.create(buildAssociation(promotionsSearch, storeAdmin))
       couponsSearch     ← * <~ SharedSearches.create(couponsScope)
       _                 ← * <~ SharedSearchAssociations.create(buildAssociation(couponsSearch, storeAdmin))
+      returnsSearch     ← * <~ SharedSearches.create(returnsScope)
+      _                 ← * <~ SharedSearchAssociations.create(buildAssociation(returnsSearch, storeAdmin))
     } yield
       (customersSearch,
        ordersSearch,
@@ -350,7 +326,8 @@ class SharedSearchIntegrationTest
        productsSearch,
        inventorySearch,
        promotionsSearch,
-       couponsSearch)).gimme
+       couponsSearch,
+       returnsSearch)).gimme
   }
 
   trait SecondAdminFixture {

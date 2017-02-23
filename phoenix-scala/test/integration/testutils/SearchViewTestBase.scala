@@ -30,7 +30,6 @@ trait SearchViewTestBase
   def findOneInSearchView(identifier: AnyVal)(
       implicit mf: Manifest[SearchViewResult]): SearchViewResult = {
 
-    import OnlyElement._
     // Select all search view rows as JSON array. Just because it's easier to implement it this way rather than
     // wreste with complex Slick's type definitions
     val query =
@@ -38,13 +37,13 @@ trait SearchViewTestBase
         .as[String]
 
     // The only element is the JSON array
-    val jsonString = query.gimme.onlyElement
+    val jsonString = query.gimme.head
     withClue("Query result was empty. Slick returns Vector(null) instead of empty Vector.\n") {
       jsonString must not be null
     }
 
     // .camelizeKeys allows to convert snake_cased search view to camelCased Scala case class. Sweet!
-    parseJson(jsonString).camelizeKeys.extract[Seq[SearchViewResult]].onlyElement
+    parseJson(jsonString).camelizeKeys.extract[Seq[SearchViewResult]].head
   }
 
 }
