@@ -2,14 +2,18 @@ create or replace function update_products_search_view_from_links_fn() returns t
 begin
 
     update products_search_view set
-        skus = subquery.skus
-        -- what about archived_at on UPDATE?
-        -- what about retail_price on UPDATE?
+        skus = subquery.skus,
+        retail_price = subquery.retail_price
         from (select
                 p.id,
-                link.skus
+                link.skus,
+                pv_form.attributes->(pv_shadow.attributes->'retailPrice'->>'ref')->>'value' as retail_price
             from products as p
             inner join product_to_variant_links_view as link on (link.product_id = p.id)
+            inner join product_to_variant_links as pv_link on (pv_link.left_id = p.id)
+            inner join product_variants as pv on (pv.id = pv_link.right_id)
+            inner join object_forms as pv_form on (pv_form.id = pv.form_id)
+            inner join object_shadows as pv_shadow on (pv_shadow.id = pv.shadow_id)
             where link.product_id = new.product_id) as subquery
         where subquery.id = products_search_view.id;
 

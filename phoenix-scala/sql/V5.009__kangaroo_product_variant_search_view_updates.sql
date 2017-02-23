@@ -41,11 +41,9 @@ update products_search_view set
   where id = q.form_id;
 
 alter table product_variants_search_view
-      alter column created_at set not null
-      -- , alter column product_id set not null
-      ;
+      alter column created_at set not null,
+      alter column product_id set not null;
 
 alter table products_search_view
-      alter column created_at set not null
-      -- , alter column retail_price set not null
-      ;
+      alter column created_at set not null,
+      alter column retail_price set not null;
