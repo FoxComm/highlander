@@ -1,5 +1,6 @@
 package utils
 
+import cats.implicits._
 import java.io.File
 
 import scala.concurrent.ExecutionContext.Implicits.global

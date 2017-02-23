@@ -17,8 +17,9 @@ trait CartValidation {
 
 // warnings would be turned into `errors` during checkout but if we're still in cart mode
 // then we'll display to end-user as warnings/alerts since they are not "done" with their cart
-case class CartValidatorResponse(alerts: Option[Failures] = None,
-                                 warnings: Option[Failures] = None) {}
+case class CartValidatorResponse(
+    alerts: Option[Failures] = None,
+    warnings: Option[Failures] = None) {} // TODO: use real warnings from StateT. What’s with not used alerts? @michalrus
 
 case class CartValidator(cart: Cart)(implicit ec: EC, db: DB) extends CartValidation {
 

@@ -1,3 +1,4 @@
+import cats.implicits._
 import failures.NotFoundFailure404
 import models._
 import models.cord._
@@ -45,7 +46,7 @@ class OrderNotesIntegrationTest
       val createNotes = List("abc", "123", "xyz").map { body ⇒
         CordNoteManager.create(order.refNum, storeAdmin, CreateNote(body))
       }
-      DbResultT.sequence(createNotes).gimme
+      DbResultT.sequenceJoiningFailures(createNotes).gimme
 
       val notes = notesApi.order(order.refNum).get().as[Seq[Root]]
       notes must have size 3

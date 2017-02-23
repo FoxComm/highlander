@@ -1,5 +1,6 @@
 package services
 
+import cats.implicits._
 import models.returns._
 import payloads.ReturnPayloads.ReturnCreatePayload
 import services.returns.ReturnService
@@ -14,10 +15,10 @@ class ReturnServiceTest extends IntegrationTestBase with TestObjectContext with 
   "ReturnService" - {
     "doesn't create duplicate IDs during parallel requests for single order" in new Fixture {
       val payload = ReturnCreatePayload(order.refNum, Return.Standard)
-      val futures = (1 to numberOfInserts).map { _ ⇒
+      val futures = (1 to numberOfInserts).toList.map { _ ⇒
         ReturnService.createByAdmin(storeAdmin, payload)
       }
-      DbResultT.sequence(futures).gimme
+      DbResultT.sequenceJoiningFailures(futures).gimme
 
       val refs = Returns.gimme.map(_.refNum)
       refs.length must === (numberOfInserts)
