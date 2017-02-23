@@ -23,7 +23,7 @@ class ObjectSchemaIntegrationTest
       response.head.name === ("product")
     }
 
-    "Responds with NOT FOUND when invalid kind is requested" in new ProductSku_ApiFixture {
+    "Responds with NOT FOUND when invalid kind is requested" in new ProductVariant_ApiFixture {
       val result = schemasApi.getByKind("not-real")
       result.mustBeOk()
 
