@@ -19,6 +19,14 @@ func (s *ReplaceAllMatchingGroupSuite) SetupSuite() {
 	s.r, _ = regexp.Compile("pass(?:word|wd)?\":\"(.+?)\"")
 }
 
+func (s *ReplaceAllMatchingGroupSuite) TestReplaceAllMatchingGroup_ReturnSameStringWithNoMatches() {
+	str := "emptystring"
+
+	res := ReplaceAllMatchingGroup(str, "***", s.r)
+
+	s.Equal(str, res)
+}
+
 func (s *ReplaceAllMatchingGroupSuite) TestReplaceAllMatchingGroup_Single() {
 	str := "{\"passwd\":\"api$pass7!\"}"
 
@@ -33,6 +41,14 @@ func (s *ReplaceAllMatchingGroupSuite) TestReplaceAllMatchingGroup_Multiple() {
 	res := ReplaceAllMatchingGroup(str, "***", s.r)
 
 	s.Equal("{\"passwd\":\"***\",\"org\":\"tenant\",\"password\":\"***\" ,\"pass\":\"***\"}", res)
+}
+
+func (s *ReplaceAllMatchingGroupSuite) TestSanitizePassword_ReturnSameStringWithNoMatches() {
+	str := "emptystring"
+
+	res := SanitizePassword([]byte(str))
+
+	s.Equal(str, res)
 }
 
 func (s *ReplaceAllMatchingGroupSuite) TestSanitizePassword_Single() {

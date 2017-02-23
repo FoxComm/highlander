@@ -41,24 +41,26 @@ func SanitizePassword(input []byte) string {
 func ReplaceAllMatchingGroup(in, repl string, r *regexp.Regexp) string {
 	matches := r.FindAllStringSubmatchIndex(in, -1)
 
+	if len(matches) == 0 || len(matches[0]) < 4 {
+		return in
+	}
+
 	var buffer bytes.Buffer
 
-	if len(matches) > 0 {
-		firstMatchFrom := matches[0][2]
-		buffer.WriteString(in[:firstMatchFrom])
+	firstMatchFrom := matches[0][2]
+	buffer.WriteString(in[:firstMatchFrom])
+	buffer.WriteString(repl)
+
+	for i := 1; i < len(matches); i++ {
+		from := matches[i-1][3]
+		to := matches[i][2]
+
+		buffer.WriteString(in[from:to])
 		buffer.WriteString(repl)
-
-		for i := 1; i < len(matches); i++ {
-			from := matches[i-1][3]
-			to := matches[i][2]
-
-			buffer.WriteString(in[from:to])
-			buffer.WriteString(repl)
-		}
-
-		lastMatchTo := matches[len(matches)-1][3]
-		buffer.WriteString(in[lastMatchTo:])
 	}
+
+	lastMatchTo := matches[len(matches)-1][3]
+	buffer.WriteString(in[lastMatchTo:])
 
 	return buffer.String()
 }
