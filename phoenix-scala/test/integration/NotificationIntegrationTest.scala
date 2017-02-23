@@ -241,28 +241,28 @@ class NotificationIntegrationTest
 //      connections must contain allOf ((customerDimension, 3), (customerDimension, 4),
 //          (Dimension.notification, 4), (customerDimension, 5), (Dimension.notification, 5))
 //    }
-
-    def connections =
-      (for {
-        dim ← Dimensions
-        con ← Connections.filter(_.dimensionId === dim.id)
-      } yield (dim.name, con.activityId)).gimme
-
-    def createActivityAndConnections(newName: String) = {
-      // Trigger activity creation
-      customersApi(1).update(UpdateCustomerPayload(name = newName.some)).mustBeOk()
-      // Emulate Green river calls
-      val aId = Activities.sortBy(_.id.desc).gimme.headOption.value.id
-      activityTrailsApi
-        .appendActivity(customerDimension, 1, AppendActivity(activityId = aId, data = None))
-        .mustBeOk()
-      val payload = CreateNotification(sourceDimension = customerDimension,
-                                       sourceObjectId = "1",
-                                       activityId = aId,
-                                       data = None)
-      notificationsApi.create(payload).mustBeOk()
-    }
-  }
+//
+//    def connections =
+//      (for {
+//        dim ← Dimensions
+//        con ← Connections.filter(_.dimensionId === dim.id)
+//      } yield (dim.name, con.activityId)).gimme
+//
+//    def createActivityAndConnections(newName: String) = {
+//      // Trigger activity creation
+//      customersApi(1).update(UpdateCustomerPayload(name = newName.some)).mustBeOk()
+//      // Emulate Green river calls
+//      val aId = Activities.sortBy(_.id.desc).gimme.headOption.value.id
+//      activityTrailsApi
+//        .appendActivity(customerDimension, 1, AppendActivity(activityId = aId, data = None))
+//        .mustBeOk()
+//      val payload = CreateNotification(sourceDimension = customerDimension,
+//                                       sourceObjectId = "1",
+//                                       activityId = aId,
+//                                       data = None)
+//      notificationsApi.create(payload).mustBeOk()
+//    }
+//  }
 
   val newActivity = Activity(activityType = "foo",
                              data = JString("data"),
