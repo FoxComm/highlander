@@ -279,7 +279,7 @@ es5_heap_size: 2048m
 # Shipstation consumer
 shipstation_api_key: ""
 shipstation_api_secret: ""
-shipstation_topic: "activities"
+shipstation_topic: "scoped_activities"
 shipstation_interval: "10s"
 
 # Firebrand variables
