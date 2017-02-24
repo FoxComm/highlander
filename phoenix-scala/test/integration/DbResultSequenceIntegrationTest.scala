@@ -1,5 +1,6 @@
 import cats.implicits._
-import failures.DatabaseFailure
+import cats.data._
+import failures._
 import models.account._
 import testutils._
 import utils.db._
@@ -33,7 +34,8 @@ class DbResultSequenceIntegrationTest extends IntegrationTestBase {
 
     "must collect all errors" in {
       Accounts.create(Account()).gimme
-      val sux: List[DbResultT[User]] = (1 to 3).toList.map { i ⇒
+      val numTries = 5
+      val sux: List[DbResultT[User]] = (1 to numTries).toList.map { i ⇒
         Users.create(User(accountId = 1))
       }
       val cool: DbResultT[List[User]] = DbResultT.sequenceJoiningFailures(sux)
@@ -42,7 +44,8 @@ class DbResultSequenceIntegrationTest extends IntegrationTestBase {
       val expectedFailure = DatabaseFailure(
           "ERROR: duplicate key value violates unique constraint \"users_account_idx\"\n" +
             "  Detail: Key (account_id)=(1) already exists.")
-      failures must === (expectedFailure.single) // FIXME: all as hell. o_O’ @michalrus
+      failures must === (
+          NonEmptyList.fromList(List.fill[Failure](numTries - 1)(expectedFailure)).value)
 
       val allAccounts = Users.gimme
       allAccounts must have size 1
