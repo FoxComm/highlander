@@ -92,10 +92,10 @@ class ActivityProcessor(conn: PhoenixConnectionInfo, connectors: Seq[ActivityCon
   }
 
   private def process(activity: Activity, cs: Seq[Connection]): Future[Seq[Unit]] = {
-    Future.sequence(cs.map(c ⇒ indexInElasticSearch(activity, c)))
+    Future.sequence(cs.map(c ⇒ pushActivityConnectionToKafka(activity, c)))
   }
 
-  private def indexInElasticSearch(activity: Activity, connection: Connection) =
+  private def pushActivityConnectionToKafka(activity: Activity, connection: Connection) =
     Future { () }
 
   private def createPhoenixNotification(conn: Connection, phoenix: Phoenix): HttpResult = {

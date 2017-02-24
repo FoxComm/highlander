@@ -13,7 +13,7 @@ abstract class AvroTransformer(implicit ec: ExecutionContext) extends JsonTransf
 
   def topic(): String
 
-  def transform(json: String): Future[Seq[Transformation]] = Future {
-    Seq(Transformation(topic(), AvroJsonHelper.transformJson(json, nestedFields())))
+  def transform(json: String): Future[String] = Future {
+    AvroJsonHelper.transformJson(json, nestedFields())
   }
 }

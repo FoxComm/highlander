@@ -54,14 +54,8 @@ class ElasticSearchProcessor(
           // Find json transformer
           jsonTransformers get topic match {
             case Some(t) ⇒
-              t.transform(inputJson).flatMap { transformations ⇒
-                Future
-                  .sequence(transformations.map { t =>
-                    save(t.json, t.topic, id)
-                  })
-                  .flatMap { r ⇒
-                    futureUnit
-                  }
+              t.transform(inputJson).flatMap { json ⇒
+                save(json, topic, id)
               }
             case None ⇒
               Console.out.println(s"Skipping information from topic $topic with key ${key}")

@@ -19,22 +19,7 @@ import org.json4s.jackson.JsonMethods.{render, compact, parse}
 
 import scala.util.control.NonFatal
 
-/**
-  * Reads kafka processor that reads expects messages in kafka to be from bottledwater-pg
-  * which are serialized using Avro.
-  *
-  * https://github.com/confluentinc/schema-registry
-  *
-  * It then converts the avro to json and gives whatever json processor you give it that
-  * json to work with.
-  */
-class AvroProcessor(schemaRegistryUrl: String, processor: JsonProcessor)(implicit ec: EC)
-    extends AbstractKafkaAvroDeserializer
-    with MessageProcessor {
-
-  this.schemaRegistry = new CachedSchemaRegistryClient(
-      schemaRegistryUrl, DEFAULT_MAX_SCHEMAS_PER_SUBJECT)
-  val encoderFactory = EncoderFactory.get()
+object AvroProcessor {
 
   //Make sure the scoped_activities avro schema is registered
   val activityAvroSchema = """
@@ -70,9 +55,60 @@ class AvroProcessor(schemaRegistryUrl: String, processor: JsonProcessor)(implici
       |}
     """.stripMargin.replaceAll("\n", " ")
 
-  val activitySchema = (new Schema.Parser()).parse(activityAvroSchema)
+  val activityConnectionsAvroSchema = """
+      |{
+      |  "type": "record",
+      |  "name": "scoped_activity_connections",
+      |  "fields": [
+      |    {
+      |      "name": "id",
+      |      "type": [ "null", "int" ]
+      |    },
+      |    {
+      |      "name": "dimension",
+      |      "type": [ "null", "string" ]
+      |    },
+      |    {
+      |      "name": "object_id",
+      |      "type": [ "null", "int" ]
+      |    },
+      |    {
+      |      "name": "activity",
+      |      "type": [ "null", "string" ]
+      |    },
+      |    {
+      |      "name": "scope",
+      |      "type": [ "null", "string" ]
+      |    },
+      |    {
+      |      "name": "created_at",
+      |      "type": [ "null", "string" ]
+      |    }
+      |  ]
+      }
+    """.stripMargin.replaceAll("\n", " ")
 
-  register("scoped_activities", activitySchema)
+  val activitySchema = (new Schema.Parser()).parse(activityAvroSchema)
+}
+
+/**
+  * Reads kafka processor that reads expects messages in kafka to be from bottledwater-pg
+  * which are serialized using Avro.
+  *
+  * https://github.com/confluentinc/schema-registry
+  *
+  * It then converts the avro to json and gives whatever json processor you give it that
+  * json to work with.
+  */
+class AvroProcessor(schemaRegistryUrl: String, processor: JsonProcessor)(implicit ec: EC)
+    extends AbstractKafkaAvroDeserializer
+    with MessageProcessor {
+
+  this.schemaRegistry = new CachedSchemaRegistryClient(
+      schemaRegistryUrl, DEFAULT_MAX_SCHEMAS_PER_SUBJECT)
+  val encoderFactory = EncoderFactory.get()
+
+  register("scoped_activities", AvroProcessor.activitySchema)
 
   def process(offset: Long, topic: String, key: Array[Byte], message: Array[Byte]): Future[Unit] = {
     try {
