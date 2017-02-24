@@ -167,10 +167,10 @@ object GiftCard {
         originalBalance = payload.balance,
         availableBalance = payload.balance,
         currentBalance = payload.balance,
-        senderName = Some(payload.senderName),
-        recipientName = Some(payload.recipientName),
-        recipientEmail = Some(payload.recipientEmail),
-        message = Some(payload.message)
+        senderName = payload.senderName.some,
+        recipientName = payload.recipientName.some,
+        recipientEmail = payload.recipientEmail.some,
+        message = payload.message.some
     )
   }
 
