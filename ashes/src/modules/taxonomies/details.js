@@ -49,7 +49,8 @@ const _archiveTaxonomy = createAsyncActions(
 // Public actions.
 ////////////////////////////////////////////////////////////////////////////////
 
-export const reset = createAction('TAXONOMY_RESET');
+export const taxonomyFlatNew = createAction('TAXONOMY_FLAT_NEW');
+export const taxonomyHierarchicalNew = createAction('TAXONOMY_HIERARCHICAL_NEW');
 export const clearArchiveErrors = _archiveTaxonomy.clearErrors;
 
 export const create = _createTaxonomy.perform;
@@ -58,8 +59,10 @@ export const archive = _archiveTaxonomy.perform;
 
 export const fetch = (id: string, context: string = defaultContext): ActionDispatch => {
   return dispatch => {
-    if (id.toLowerCase() === 'new') {
-      return dispatch(reset());
+    if (id.toLowerCase() === 'new-flat') {
+      return dispatch(taxonomyFlatNew());
+    } else if (id.toLowerCase() === 'new-hierarchical') {
+      return dispatch(taxonomyHierarchicalNew());
     } else {
       return dispatch(_fetchTaxonomy.perform(id, context));
     }
@@ -73,7 +76,12 @@ export const fetch = (id: string, context: string = defaultContext): ActionDispa
 const initialState = { taxonomy: null };
 
 const reducer = createReducer({
-  [reset]: () => ({ taxonomy: createEmptyTaxonomy(defaultContext, true) }),
+  [taxonomyFlatNew]: () => ({
+    taxonomy: createEmptyTaxonomy(defaultContext, false)
+  }),
+  [taxonomyHierarchicalNew]: () => ({
+    taxonomy: createEmptyTaxonomy(defaultContext, true)
+  }),
   [_fetchTaxonomy.succeeded]: (state, taxonomy) => ({ ...state, taxonomy }),
   [_createTaxonomy.succeeded]: (state, taxonomy) => ({ ...state, taxonomy }),
   [_updateTaxonomy.succeeded]: (state, taxonomy) => ({ ...state, taxonomy }),
