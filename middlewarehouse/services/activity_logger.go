@@ -1,6 +1,7 @@
 package services
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
@@ -44,7 +45,11 @@ const (
 					{
 							"name": "created_at",
 							"type": ["null", "string"]
-					}
+					},
+					{
+                                                        "name": "scope",
+                                                         "type": ["null","string"]
+                                        }
 			]
 	}`
 )
@@ -83,16 +88,21 @@ type record struct {
 	Data          string
 	Created_at    string
 	Context       string
+	Scope         string
 }
 
 func newRecord(activity activities.ISiteActivity) (*record, error) {
+	const contextTemplate = "{\"userId\":0,\"userType\":\"service\", \"transactionId\":\"mwh\", \"scope\":\"%v\"}"
+	var context = fmt.Sprintf(contextTemplate, activity.Scope())
+
 	return &record{
 		schema:        avroSchema,
 		Id:            1,
 		Activity_type: activity.Type(),
 		Data:          activity.Data(),
 		Created_at:    activity.CreatedAt(),
-		Context:       "{\"userId\":0,\"userType\":\"service\", \"transactionId\":\"mwh\"}",
+		Context:       context,
+		Scope:         activity.Scope(),
 	}, nil
 }
 
