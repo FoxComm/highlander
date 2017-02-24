@@ -32,6 +32,9 @@ const tableColumns = [
   { field: 'name', text: 'Name' },
   { field: 'type', text: 'Type' },
   { field: 'valuesCount', text: 'Values' },
+  { field: 'createdAt', type: 'datetime', text: 'Date/Time Created' },
+  { field: 'updatedAt', type: 'datetime', text: 'Date/Time Updated' },
+  { field: 'state', text: 'State', type: null },
 ];
 
 export class SearchableList extends Component {
