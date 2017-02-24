@@ -23,6 +23,7 @@ package object db {
   sealed trait UIInfo
   object UIInfo {
     final case class Warning(ζ: Failure)         extends UIInfo
+    final case class Error(ζ: Failure)           extends UIInfo
     final case class BatchInfo(ζ: BatchMetadata) extends UIInfo
   }
 
@@ -112,7 +113,7 @@ package object db {
               // We don’t care about warnings when there’re failures left.
               FoxyTF.failures[A](NonEmptyList(h, t))
             case Nil ⇒
-              warnings.traverse(FoxyTF.warning).map(_ ⇒ newValue)
+              warnings.traverse(FoxyTF.uiWarning).map(_ ⇒ newValue)
           }
         case _ ⇒ FoxyTF.pure(newValue)
       }
@@ -134,8 +135,11 @@ package object db {
     def none[A](implicit M: Monad[F]): FoxyT[F, Option[A]] =
       pure(None) // TODO: remove me? @michalrus
 
-    def warning(f: Failure)(implicit M: Monad[F]): FoxyT[F, Unit] =
+    def uiWarning(f: Failure)(implicit M: Monad[F]): FoxyT[F, Unit] =
       StateT.modify(UIInfo.Warning(f) :: _)
+
+    def uiError(f: Failure)(implicit M: Monad[F]): FoxyT[F, Unit] =
+      StateT.modify(UIInfo.Error(f) :: _)
 
     def failures[A](f: Failures)(implicit M: Monad[F]): FoxyT[F, A] = // TODO: shouldn’t A =:= Unit? @michalrus
       StateT(_ ⇒ XorT.left(M.pure(f)))

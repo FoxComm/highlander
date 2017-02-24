@@ -20,15 +20,15 @@ class FoxyTest extends TestBase {
              import Foxy._
              for {
                a ← pure(6)
-               _ ← warning(GeneralFailure("hiyaaaaa from FoxyT[Id]!"))
+               _ ← uiWarning(GeneralFailure("hiyaaaaa from FoxyT[Id]!"))
                b ← pure(2)
                //_ ← failure(Failure("noes, FoxyT[Id] was fatal"))
              } yield (a / b)
            }
 
-        _ ← warning(GeneralFailure("hello from FoxyT[Option]"))
+        _ ← uiWarning(GeneralFailure("hello from FoxyT[Option]"))
         y ← pure(3)
-        _ ← warning(GeneralFailure("s’more from FoxyT[Option]"))
+        _ ← uiWarning(GeneralFailure("s’more from FoxyT[Option]"))
         //_ ← failure(Failure("FoxyT[Option] was fatal, sorry"))
         _ ← failWithMatchedWarning {
              case GeneralFailure(ζ) if ζ contains "heeello" ⇒ true

@@ -24,11 +24,13 @@ object Http {
 
   final case class SuccessfulPayload(result: AnyRef,
                                      warnings: Option[List[String]],
+                                     errors: Option[List[String]],
                                      batch: Option[BatchMetadata])
 
   object SuccessfulPayload {
     def from(result: AnyRef, uiInfo: List[UIInfo]): SuccessfulPayload = {
       val uiInfoWarnings = uiInfo.collect { case UIInfo.Warning(f)        ⇒ f.description }
+      val uiInfoErrors   = uiInfo.collect { case UIInfo.Error(f)          ⇒ f.description }
       val uiInfoBatches  = uiInfo.collectFirst { case UIInfo.BatchInfo(b) ⇒ b }
       // FIXME: have a way of merging multiple `BatchMetadata`s, as types allow for that. @michalrus
       def insane[A](xs: List[A]): Option[List[A]] = if (xs.nonEmpty) Some(xs) else None
@@ -36,11 +38,16 @@ object Http {
         // FIXME: get rid of `TheResponse` and s/AnyRef/Any/ around here. @michalrus
         case TheResponse(res, alerts, errors, warnings, batch) ⇒
           SuccessfulPayload(
-              res,
-              insane(uiInfoWarnings ::: alerts.toList.flatten ::: warnings.toList.flatten),
-              uiInfoBatches orElse batch)
+              result = res,
+              warnings =
+                insane(uiInfoWarnings ::: alerts.toList.flatten ::: warnings.toList.flatten),
+              errors = insane(uiInfoErrors ::: errors.toList.flatten),
+              batch = uiInfoBatches orElse batch)
         case raw ⇒
-          SuccessfulPayload(raw, insane(uiInfoWarnings), uiInfoBatches)
+          SuccessfulPayload(result = raw,
+                            warnings = insane(uiInfoWarnings),
+                            errors = insane(uiInfoErrors),
+                            batch = uiInfoBatches)
       }
     }
   }
