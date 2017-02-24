@@ -21,7 +21,7 @@
     }
   },
   "env": {
-      "API_URL": "https://{{storefront_server_name}}"
+      "API_URL": "http://{{henhouse_host}}"
   },
   "healthChecks": [
     {
