@@ -4,6 +4,7 @@ import _ from 'lodash';
 import React, { Component, Element } from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
+import { transitionToLazy } from 'browserHistory';
 import styles from './plugin.css';
 
 import { PageTitle } from 'components/section-title';
@@ -134,7 +135,7 @@ class Plugin extends Component {
             onChange={this.handleChange}
           />
           <SaveCancel
-            cancelTo="plugins"
+            onCancel={transitionToLazy('plugins')}
             onSave={this.handleSave}
           />
         </div>

@@ -2,19 +2,6 @@
 
 import _ from 'lodash';
 
-export type Context = {
-  name: string,
-  attributes?: {
-    lang: string,
-    modality: string,
-  },
-}
-
-export type ObjectView = {
-  attributes: Attributes,
-  context: Context;
-}
-
 export function guessType(value: any): string {
   const typeOf = typeof value;
   switch (typeOf) {

@@ -1,0 +1,28 @@
+{
+  "main": [
+    {
+      "type": "group",
+      "title": "General",
+      "fields": {
+        "canAddProperty": true,
+        "value": [
+          "name",
+          "description"
+        ],
+        "includeRest": true,
+        "omit": [
+          "activeFrom",
+          "activeTo"
+        ]
+      }
+    }
+  ],
+  "aside": [
+    {
+      "type": "state"
+    },
+    {
+      "type": "watchers"
+    }
+  ]
+}

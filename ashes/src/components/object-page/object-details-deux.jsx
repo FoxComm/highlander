@@ -1,9 +1,8 @@
-// @flow weak
+// @flow
 
+// libs
 import _ from 'lodash';
 import React, { Component, Element } from 'react';
-import styles from './object-details.css';
-import invariant from 'invariant';
 import { autobind } from 'core-decorators';
 import { assoc } from 'sprout-data';
 import { flow, filter } from 'lodash/fp';
@@ -11,17 +10,19 @@ import { expandRefs } from 'lib/object-schema';
 import { addKeys } from 'lib/react-utils';
 
 // components
-import ContentBox from '../content-box/content-box';
-import ObjectFormInner from '../object-form/object-form-inner';
-import ObjectScheduler from '../object-scheduler/object-scheduler';
-import { Form } from '../forms';
-import Tags from '../tags/tags';
-import ParticipantsPanel from '../participants';
+import { Form } from 'components/forms';
+import ContentBox from 'components/content-box/content-box';
+import ObjectFormInner from 'components/object-form/object-form-inner';
+import ObjectScheduler from 'components/object-scheduler/object-scheduler';
+import Tags from 'components/tags/tags';
+import ParticipantsPanel from 'components/participants';
+
+import styles from './object-details.css';
 
 type Layout = {
   content: Array<Object>,
   aside: Array<Object>,
-}
+};
 
 type Fields = {
   canAddProperty: boolean,
@@ -38,24 +39,19 @@ type NodeDesc = {
   content?: Array<NodeDesc>,
 }
 
-export type DetailsProps = {
-  title: string, // object title
+type Props = {
+  layout: Layout,
+  title: string,
   plural: string,
   object: ObjectView,
-  schema: Object,
-  isNew: boolean,
+  schema: ObjectSchema,
   onUpdateObject: (object: ObjectView) => void,
-  // for product form
-  // somehow flow don't understand props declarations in extended classes
-  // in case of existing props declarations in base class
-  onSetSkuProperty: (code: string, field: string, value: any) => void,
-  onSetSkuProperties: (code: string, toUpdate: Array<Array<any>>) => void,
-}
+};
 
-export default class ObjectDetails extends Component {
-  layout: Layout;
+export default class ObjectDetailsDeux extends Component {
+  props: Props;
 
-  get schema() {
+  get schema(): Object {
     return expandRefs(this.props.schema);
   }
 
@@ -103,9 +99,10 @@ export default class ObjectDetails extends Component {
     return result;
   }
 
-  renderFields(fields: Fields, section: Array<NodeDesc>): Element<*> {
+  renderFields(fields: Fields, section: Array<NodeDesc>) {
     const fieldsToRender = this.calcFieldsToRender(fields, section);
     const attrsSchema = this.schema.properties.attributes;
+
     return (
       <ObjectFormInner
         canAddProperty={fields.canAddProperty}
@@ -136,7 +133,7 @@ export default class ObjectDetails extends Component {
     );
   }
 
-  renderWatchers(): ?Element<*> {
+  renderWatchers() {
     const { object, plural } = this.props;
 
     if (object.id) {
@@ -167,16 +164,23 @@ export default class ObjectDetails extends Component {
   }
 
   renderNode(description: NodeDesc, section: Array<NodeDesc>) {
-    const renderName = `render${_.upperFirst(_.camelCase(description.type))}`;
-    // $FlowFixMe: we don't need indexable signature here
-    invariant(this[renderName], `There is no method for render ${description.type}.`);
+    switch (description.type) {
+      case 'group':
+        return this.renderGroup(description, section);
+      case 'state':
+        return this.renderState();
+      case 'tags':
+        return this.renderTags();
+      case 'watchers':
+        return this.renderWatchers();
+    }
 
-    // $FlowFixMe: call of computed property. Computed property/element cannot be called on
-    return this[renderName](description, section);
+    return null;
   }
 
   renderSection(name: string) {
-    const section = this.layout[name];
+    const { layout } = this.props;
+    const section = layout[name];
 
     return addKeys(name, section.map(desc => this.renderNode(desc, section)));
   }
@@ -194,4 +198,3 @@ export default class ObjectDetails extends Component {
     );
   }
 }
-

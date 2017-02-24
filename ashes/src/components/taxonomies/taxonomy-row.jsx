@@ -10,16 +10,13 @@ import { activeStatus, isArchived } from 'paragons/common';
 import MultiSelectRow from 'components/table/multi-select-row';
 import RoundedPill from 'components/rounded-pill/rounded-pill';
 
-// types
-import type { Taxonomy } from 'paragons/taxonomy';
-
 type Props = {
-  taxonomy: Taxonomy,
+  taxonomy: TaxonomyResult,
   columns?: Array<Object>,
   params: Object,
 };
 
-const setCellContents = (taxonomy: Taxonomy, field: string) => {
+const setCellContents = (taxonomy: TaxonomyResult, field: string) => {
   switch(field) {
     case 'state':
       return <RoundedPill text={activeStatus(taxonomy)} />;
@@ -37,9 +34,15 @@ const TaxonomyRow = (props: Props) => {
     params,
   };
 
+  if (isArchived(taxonomy)) {
+    return <MultiSelectRow {...commonParams} />;
+  }
+
   return (
     <MultiSelectRow
       {...commonParams}
+      linkTo="taxonomy-details"
+      linkParams={{taxonomyId: taxonomy.taxonomyId, context: taxonomy.context}}
     />
   );
 };

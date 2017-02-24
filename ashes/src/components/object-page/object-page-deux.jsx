@@ -1,0 +1,106 @@
+// @flow
+
+import React, { Component, Element } from 'react';
+import { IndexLink, Link } from 'components/link';
+import { PageTitle } from 'components/section-title';
+import Error from 'components/errors/error';
+import LocalNav from 'components/local-nav/local-nav';
+import SaveCancel from 'components/common/save-cancel';
+import WaitAnimation from 'components/common/wait-animation';
+
+// helpers
+import { SAVE_COMBO, SAVE_COMBO_ITEMS } from 'paragons/common';
+
+class ObjectPageDeux extends Component {
+  // TODO: replace *
+  props: ObjectProps<*, *>;
+
+  componentDidMount() {
+    const { context, identifier } = this.props;
+    this.props.actions.fetch(identifier, context);
+  }
+
+  get isNew(): boolean {
+    const { identifier, object } = this.props;
+    const valuesOfNew = [
+      'new',
+      'new-flat',
+      'new-hierarchical',
+      !object
+    ];
+    return valuesOfNew.some(elem => elem === identifier.toLowerCase());
+  }
+
+  get localNav() {
+    if (this.isNew) {
+      return null;
+    }
+
+    const links = this.props.navLinks.map((settings, idx) => {
+      const LinkComponent = idx === 0 ? IndexLink : Link;
+      return (
+        <LinkComponent
+          to={settings.to}
+          params={settings.params}
+          key={settings.key}
+        >
+          {settings.title}
+        </LinkComponent>
+      );
+    });
+
+    return <LocalNav>{links}</LocalNav>;
+  }
+
+
+  get pageTitle(): string {
+    if (this.isNew) {
+      const { objectType } = this.props;
+      return `New ${objectType}`;
+    }
+
+    const { originalObject } = this.props;
+    const { getTitle } = this.props.actions;
+    return getTitle(originalObject);
+  }
+
+  renderButtonCluster() {
+    const { isFetching, context, object } = this.props;
+    const save = () => this.isNew
+      ? this.props.actions.create(object, context)
+      : this.props.actions.update(object, context);
+
+    return (
+      <SaveCancel
+        isLoading={isFetching}
+        onCancel={this.props.actions.cancel}
+        saveItems={SAVE_COMBO_ITEMS}
+        onSave={save}
+        onSaveSelect={() => {}}
+      />
+    );
+  }
+
+  render() {
+    const { children, identifier, isFetching, fetchError, object, objectType } = this.props;
+    if (isFetching) {
+      return <div><WaitAnimation /></div>;
+    }
+
+    if (!object) {
+      return <Error err={fetchError} notFound={`There is no ${objectType} with id ${identifier}.`} />;
+    }
+
+    return (
+      <div>
+        <PageTitle title={this.pageTitle}>
+          {this.renderButtonCluster()}
+        </PageTitle>
+        {this.localNav}
+        {children}
+      </div>
+    );
+  }
+}
+
+export default ObjectPageDeux;

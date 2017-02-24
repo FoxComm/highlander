@@ -13,7 +13,6 @@ import * as t from 'paragons/object-types';
 
 // types
 import type { Sku } from 'modules/skus/details';
-import type { ObjectView } from './object';
 import type { JWT } from 'lib/claims';
 
 export type OptionValue = {

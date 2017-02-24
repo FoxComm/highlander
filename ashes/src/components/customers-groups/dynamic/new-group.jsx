@@ -17,9 +17,7 @@ import { prefix } from '../../../lib/text-utils';
 import NewGroupBase from './../new-group';
 import DynamicGroupEditor from './group-editor';
 import Form from '../../forms/form';
-import { PrimaryButton, Button } from '../../common/buttons';
-import { Link } from '../../link';
-import { transitionTo } from 'browserHistory';
+import { transitionTo, transitionToLazy } from 'browserHistory';
 import SaveCancel from 'components/common/save-cancel';
 
 
@@ -74,7 +72,7 @@ export default class NewDynamicGroup extends React.Component {
           <DynamicGroupEditor />
           <div className={prefixed('form-submits')}>
             <SaveCancel
-              cancelTo="customer-groups"
+              onCancel={transitionToLazy('customer-groups')}
               saveText="Save Dynamic Group"
               saveDisabled={!group.isValid}
             />
