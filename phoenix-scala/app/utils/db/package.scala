@@ -115,7 +115,8 @@ package object db {
             case Nil ⇒
               warnings.traverse(FoxyTF.uiWarning).map(_ ⇒ newValue)
           }
-        case _ ⇒ FoxyTF.pure(newValue)
+        case Xor.Right(a) ⇒
+          FoxyTF.pure(a) // TODO: really? Not pure(newValue)? Seems misleading. @michalrus
       }
     }
   }
