@@ -37,7 +37,6 @@ module "returns" {
   dnsimple_token  = "${var.dnsimple_token}"
 }
 
-
 ##############################################
 # Setup Coupons Feature Branch
 ##############################################
