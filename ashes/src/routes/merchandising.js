@@ -21,10 +21,15 @@ const getRoutes = (jwt: Object) => {
       router.read('taxonomies-list-pages', { component: TaxonomiesListPage }, [
         router.read('taxonomies', { component: TaxonomiesSearchableList, isIndex: true }),
       ]),
-      router.read('taxonomy', { path: ':context/:taxonomyId', titleParam: ':taxonomyId', component: TaxonomyPage }, [
-        router.read('taxonomy-details', { component: TaxonomyDetails, isIndex: true }),
-        router.read('taxons', { path: 'taxons', component: TaxonsListPage, frn: frn.merch.taxon }),
-      ]),
+      router.read('taxonomy', {
+        path: ':context/:taxonomyId',
+        titleParam: ':taxonomyId',
+        component: TaxonomyPage
+      }, [
+          router.read('taxonomy-details', { component: TaxonomyDetails, isIndex: true }),
+          router.read('taxons', { path: 'taxons', component: TaxonsListPage, frn: frn.merch.taxon }),
+        ]),
+
     ]);
 
   return (
