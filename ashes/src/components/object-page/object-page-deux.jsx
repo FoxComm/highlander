@@ -45,7 +45,13 @@ class ObjectPageDeux extends Component {
 
   get isNew(): boolean {
     const { identifier, object } = this.props;
-    return identifier.toLowerCase() === 'new' || !object;
+    const valuesOfNew = [
+      'new',
+      'new-flat',
+      'new-hierarchical',
+      !object
+    ];
+    return valuesOfNew.some(elem => elem === identifier.toLowerCase());
   }
 
   get localNav(): ?Element {
