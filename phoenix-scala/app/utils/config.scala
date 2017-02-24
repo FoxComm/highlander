@@ -14,6 +14,7 @@ sealed trait Environment {
   def isProd: Boolean = false
 }
 object Environment {
+  case object Test        extends Environment
   case object Development extends Environment
   case object Staging     extends Environment
   case object Production extends Environment {
@@ -24,6 +25,7 @@ object Environment {
 
   implicit lazy val default: Environment =
     sys.props.get("phoenix.env").orElse(sys.env.get("PHOENIX_ENV")) match {
+      case Some("test")       ⇒ Test
       case Some("staging")    ⇒ Staging
       case Some("production") ⇒ Production
       case _                  ⇒ Development
