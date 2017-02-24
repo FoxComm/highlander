@@ -4,7 +4,6 @@ import akka.http.scaladsl.model.StatusCodes
 
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
-import failures.ArchiveFailures.SkuIsPresentInCarts
 import failures.ObjectFailures.ObjectContextNotFound
 import failures.ProductFailures.SkuNotFoundForContext
 import models.account.Scope
@@ -14,12 +13,9 @@ import models.product._
 import org.json4s.JsonAST.JNothing
 import org.json4s.JsonDSL._
 import payloads.ImagePayloads._
-import payloads.LineItemPayloads.UpdateLineItemsPayload
-import payloads.CartPayloads.CreateCart
 import payloads.ProductPayloads.UpdateProductPayload
 import payloads.SkuPayloads.SkuPayload
 import responses.SkuResponses.SkuResponse
-import responses.cord.CartResponse
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
@@ -148,16 +144,6 @@ class SkuIntegrationTest
       skusApi(sku.code)(donkeyContext)
         .archive()
         .mustFailWith404(ObjectContextNotFound("donkeyContext"))
-    }
-
-    "Returns error if SKU is present in carts" in new FixtureWithProduct {
-      val cart = cartsApi.create(CreateCart(email = "yax@yax.com".some)).as[CartResponse]
-
-      cartsApi(cart.referenceNumber).lineItems
-        .add(Seq(UpdateLineItemsPayload(sku.code, 1)))
-        .mustBeOk()
-
-      skusApi(sku.code).archive().mustFailWith400(SkuIsPresentInCarts(sku.code))
     }
   }
 

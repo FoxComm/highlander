@@ -36,7 +36,7 @@ import utils.aliases._
 import utils.db._
 import org.json4s._
 import org.json4s.JsonDSL._
-import services.LogActivity
+import services.{LineItemUpdater, LogActivity}
 import services.taxonomy.TaxonomyManager
 import services.image.ImageManager.FullAlbumWithImages
 
@@ -126,8 +126,7 @@ object ProductManager {
     for {
       _          ← * <~ validateUpdate(payload)
       oldProduct ← * <~ Products.mustFindFullByReference(productId)
-
-      _ ← * <~ skusToBeUnassociatedMustNotBePresentInCarts(oldProduct.model.id, payloadSkus)
+      _          ← * <~ skusToBeUnassociatedMustNotBePresentInCarts(oldProduct.model.id, payloadSkus)
 
       mergedAttrs = oldProduct.shadow.attributes.merge(formAndShadow.shadow.attributes)
       updated ← * <~ ObjectUtils.update(oldProduct.form.id,
@@ -176,7 +175,6 @@ object ProductManager {
 
     for {
       productObject ← * <~ Products.mustFindFullByReference(productId)
-      _             ← * <~ productObject.model.mustNotBePresentInCarts
       mergedAttrs = productObject.shadow.attributes.merge(newShadowAttrs)
       inactive ← * <~ ObjectUtils.update(productObject.form.id,
                                          productObject.shadow.id,
@@ -197,18 +195,15 @@ object ProductManager {
          }
       albums   ← * <~ ImageManager.getAlbumsForProduct(ProductReference(inactive.form.id))
       skuLinks ← * <~ ProductSkuLinks.filter(_.leftId === archiveResult.id).result
-      _ ← * <~ skuLinks.map { link ⇒
-           ProductSkuLinks.deleteById(link.id,
-                                      DbResultT.unit,
-                                      id ⇒ NotFoundFailure400(ProductSkuLink, id))
-         }
+      _ ← * <~ skuLinks.map(link ⇒
+               ProductSkuLinks.update(link, link.copy(archivedAt = Some(Instant.now))))
       updatedSkus  ← * <~ ProductSkuLinks.queryRightByLeft(archiveResult)
       skus         ← * <~ updatedSkus.map(SkuManager.illuminateSku)
       variantLinks ← * <~ ProductVariantLinks.filter(_.leftId === archiveResult.id).result
       _ ← * <~ variantLinks.map { link ⇒
            ProductVariantLinks.deleteById(link.id,
                                           DbResultT.unit,
-                                          id ⇒ NotFoundFailure400(ProductSkuLink, link.id))
+                                          id ⇒ NotFoundFailure400(ProductVariantLink, link.id))
          }
       updatedVariants ← * <~ ProductVariantLinks.queryRightByLeft(archiveResult)
       variants        ← * <~ updatedVariants.map(VariantManager.zipVariantWithValues)
@@ -419,7 +414,7 @@ object ProductManager {
       productId: Int,
       payloadSkus: Seq[SkuPayload])(implicit ec: EC, db: DB): DbResultT[Unit] =
     for {
-      skuIdsForProduct ← * <~ ProductSkuLinks.filter(_.leftId === productId).result.flatMap {
+      skuIdsForProduct ← * <~ ProductSkuLinks.filterLeftId(productId).result.flatMap {
                           case links @ Seq(_) ⇒
                             lift(links.map(_.rightId))
                           case _ ⇒

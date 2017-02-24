@@ -15,14 +15,17 @@ case class ProductSkuLink(id: Int = 0,
                           leftId: Int,
                           rightId: Int,
                           createdAt: Instant = Instant.now,
-                          updatedAt: Instant = Instant.now)
+                          updatedAt: Instant = Instant.now,
+                          archivedAt: Option[Instant] = None)
     extends FoxModel[ProductSkuLink]
     with ObjectHeadLink[ProductSkuLink]
 
 class ProductSkuLinks(tag: Tag) extends ObjectHeadLinks[ProductSkuLink](tag, "product_sku_links") {
 
+  def archivedAt: Rep[Option[Instant]] = column[Option[Instant]]("archived_at")
+
   def * =
-    (id, leftId, rightId, createdAt, updatedAt) <> ((ProductSkuLink.apply _).tupled, ProductSkuLink.unapply)
+    (id, leftId, rightId, createdAt, updatedAt, archivedAt) <> ((ProductSkuLink.apply _).tupled, ProductSkuLink.unapply)
 
   def left  = foreignKey(Products.tableName, leftId, Products)(_.id)
   def right = foreignKey(Skus.tableName, rightId, Skus)(_.id)
@@ -37,5 +40,19 @@ object ProductSkuLinks
 
   val returningLens: Lens[ProductSkuLink, Int] = lens[ProductSkuLink].id
 
+  override def filterLeftId(leftId: Int): QuerySeq =
+    super.filterLeftId(leftId).filter(_.archivedAt.isEmpty)
+  override def filterRightId(rightId: Int): QuerySeq =
+    super.filterRightId(rightId).filter(_.archivedAt.isEmpty)
+
   def build(left: Product, right: Sku) = ProductSkuLink(leftId = left.id, rightId = right.id)
+
+  def joinLeftAndRight: Query[(Products, Skus), (Product, Sku), Seq] =
+    join(Products)
+      .join(Skus)
+      .on {
+        case ((link, product), sku) ⇒
+          link.leftId === product.id && link.rightId === sku.id
+      }
+      .map { case ((_, product), sku) ⇒ (product, sku) }
 }

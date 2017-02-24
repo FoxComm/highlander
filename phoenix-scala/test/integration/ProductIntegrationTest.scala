@@ -697,18 +697,6 @@ class ProductIntegrationTest
       activeFrom must === (None)
     }
 
-    "Returns error if product is present in carts" in new Fixture {
-      val cart = cartsApi.create(CreateCart(email = "yax@yax.com".some)).as[CartResponse]
-
-      cartsApi(cart.referenceNumber).lineItems
-        .add(Seq(UpdateLineItemsPayload(skuRedSmallCode, 1)))
-        .mustBeOk()
-
-      productsApi(product.formId)
-        .archive()
-        .mustFailWith400(ProductIsPresentInCarts(product.formId))
-    }
-
     "SKUs must be unlinked" in new VariantFixture {
       productsApi(product.formId).archive().as[Root].skus mustBe empty
     }
@@ -764,11 +752,12 @@ class ProductIntegrationTest
                                               variants = None,
                                               albums = None)
 
-    val simpleProd = SimpleProductData(title = "Test Product",
-                                       code = "TEST",
-                                       description = "Test product description",
-                                       image = "image.png",
-                                       price = 5999)
+    def simpleProd =
+      SimpleProductData(title = "Test Product",
+                        code = "TEST",
+                        description = "Test product description",
+                        image = "image.png",
+                        price = 5999)
 
     val skuRedSmallCode: String   = "SKU-RED-SMALL"
     val skuRedLargeCode: String   = "SKU-RED-LARGE"
@@ -796,7 +785,7 @@ class ProductIntegrationTest
                                                              (skuGreenSmallCode, "green", "small"),
                                                              (skuGreenLargeCode, "green", "large"))
 
-    val (product, skus, variants) = ({
+    val (product, skus, variants) = {
       val scope = Scope.current
 
       for {
@@ -834,7 +823,7 @@ class ProductIntegrationTest
                     } yield (colorLink, sizeLink)
                 }
       } yield (product, skus, variantsAndValues)
-    }).gimme
+    }.gimme
   }
 
   trait VariantFixture extends Fixture {

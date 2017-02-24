@@ -2,7 +2,6 @@ package services.inventory
 
 import java.time.Instant
 
-import com.github.tminglei.slickpg.LTree
 import cats.data._
 import failures.ProductFailures._
 import failures.{Failures, GeneralFailure, NotFoundFailure400}
@@ -69,7 +68,6 @@ object SkuManager {
     for {
       fullSku ← * <~ ObjectManager.getFullObject(
                    SkuManager.mustFindSkuByContextAndCode(oc.id, code))
-      _ ← * <~ fullSku.model.mustNotBePresentInCarts
       archivedSku ← * <~ Skus.update(fullSku.model,
                                      fullSku.model.copy(archivedAt = Some(Instant.now)))
       albumLinks ← * <~ SkuAlbumLinks.filter(_.leftId === archivedSku.id).result
@@ -80,11 +78,8 @@ object SkuManager {
          }
       albums       ← * <~ ImageManager.getAlbumsForSkuInner(archivedSku.code, oc)
       productLinks ← * <~ ProductSkuLinks.filter(_.rightId === archivedSku.id).result
-      _ ← * <~ productLinks.map { link ⇒
-           ProductSkuLinks.deleteById(link.id,
-                                      DbResultT.unit,
-                                      id ⇒ NotFoundFailure400(ProductSkuLinks, id))
-         }
+      _ ← * <~ productLinks.map(link ⇒
+               ProductSkuLinks.update(link, link.copy(archivedAt = Some(Instant.now))))
     } yield
       SkuResponse.build(
           IlluminatedSku.illuminate(

@@ -45,6 +45,9 @@ case class IlluminatedPromotion(id: Int,
 
 object IlluminatedPromotion {
 
+  def illuminate(context: ObjectContext, promotion: FullObject[Promotion]): IlluminatedPromotion =
+    illuminate(context, promotion.model, promotion.form, promotion.shadow)
+
   def illuminate(context: ObjectContext,
                  promotion: Promotion,
                  form: ObjectForm,
