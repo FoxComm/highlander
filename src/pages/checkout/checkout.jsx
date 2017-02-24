@@ -46,6 +46,7 @@ type Props = CheckoutState & CheckoutActions & {
   location: Object,
   fetchCartState: AsyncStatus,
   checkoutState: AsyncStatus,
+  clearCheckoutErrors: () => void,
 };
 
 type State = {
@@ -85,6 +86,7 @@ class Checkout extends Component {
 
   componentWillUnmount() {
     window.removeEventListener('scroll', this.checkScroll);
+    this.props.clearCheckoutErrors();
   }
 
   componentWillReceiveProps(nextProps) {
