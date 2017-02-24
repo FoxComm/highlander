@@ -1,10 +1,7 @@
 package testutils
 
 import java.net.ServerSocket
-import scala.collection.immutable
-import scala.concurrent.Await
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration._
+
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
@@ -27,10 +24,15 @@ import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
 import server.Service
 import services.Authenticator.UserAuthenticator
+import utils.FoxConfig.config
 import utils.apis.Apis
 import utils.seeds.Factories
-import utils.{Environment, FoxConfig, JsonFormatters}
-import utils.FoxConfig.config
+import utils.{FoxConfig, JsonFormatters}
+
+import scala.collection.immutable
+import scala.concurrent.Await
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
 
 // TODO: Move away from root package when `Service' moverd
 object HttpSupport {
@@ -92,10 +94,10 @@ trait HttpSupport
 
   private def actorSystemConfig =
     ConfigFactory.parseString("""
-      |akka {
-      |  log-dead-letters = off
-      |}
-    """.stripMargin).withFallback(ConfigFactory.load())
+        |akka {
+        |  log-dead-letters = off
+        |}
+      """.stripMargin).withFallback(ConfigFactory.load())
 
   val adminUser    = Factories.storeAdmin.copy(id = 1, accountId = 1)
   val customerData = Factories.customer.copy(id = 2, accountId = 2)
@@ -113,17 +115,6 @@ trait HttpSupport
 
       override val userAuth: UserAuthenticator = overrideUserAuth
     }
-
-  def POST(path: String, rawBody: String): HttpResponse = {
-    val request = HttpRequest(method = HttpMethods.POST,
-                              uri = pathToAbsoluteUrl(path),
-                              entity = HttpEntity.Strict(
-                                  ContentTypes.`application/json`,
-                                  ByteString(rawBody)
-                              ))
-
-    dispatchRequest(request)
-  }
 
   def POST(path: String): HttpResponse = {
     val request = HttpRequest(method = HttpMethods.POST, uri = pathToAbsoluteUrl(path))
@@ -154,11 +145,28 @@ trait HttpSupport
     dispatchRequest(request)
   }
 
-  def POST[T <: AnyRef](path: String, payload: T): HttpResponse =
-    POST(path, writeJson(payload))
+  def POST[T <: AnyRef](path: String, payload: T): HttpResponse = {
 
-  def PATCH[T <: AnyRef](path: String, payload: T): HttpResponse =
-    PATCH(path, writeJson(payload))
+    val request = HttpRequest(method = HttpMethods.POST,
+                              uri = pathToAbsoluteUrl(path),
+                              entity = HttpEntity.Strict(
+                                  ContentTypes.`application/json`,
+                                  ByteString(writeJson(payload))
+                              ))
+
+    dispatchRequest(request)
+  }
+
+  def PATCH[T <: AnyRef](path: String, payload: T): HttpResponse = {
+    val request = HttpRequest(method = HttpMethods.PATCH,
+                              uri = pathToAbsoluteUrl(path),
+                              entity = HttpEntity.Strict(
+                                  ContentTypes.`application/json`,
+                                  ByteString(writeJson(payload))
+                              ))
+
+    dispatchRequest(request)
+  }
 
   def DELETE(path: String): HttpResponse = {
     val request = HttpRequest(method = HttpMethods.DELETE, uri = pathToAbsoluteUrl(path))
@@ -171,6 +179,19 @@ trait HttpSupport
     val port = serverBinding.localAddress.getPort
 
     Uri(s"http://$host:$port/$path")
+  }
+
+  def buildRequest[T <: AnyRef](method: HttpMethod, path: String, payload: Option[T] = None) = {
+    val entity = payload
+      .map(
+          p ⇒
+            HttpEntity.Strict(
+                ContentTypes.`application/json`,
+                ByteString(writeJson(p))
+          ))
+      .getOrElse(HttpEntity.Empty)
+
+    HttpRequest(method = method, uri = pathToAbsoluteUrl(path), entity = entity)
   }
 
   /**
@@ -195,6 +216,20 @@ trait HttpSupport
     val response = Http().singleRequest(req, settings = connectionPoolSettings).futureValue
     validResponseContentTypes must contain(response.entity.contentType)
     response
+  }
+
+  def runRequests(requests: Seq[HttpRequest]): Unit = {
+    requests
+      .foldLeft[Option[HttpResponse]](None)(
+          (cachedResponse: Option[HttpResponse], request: HttpRequest) ⇒ {
+        val cachedHttpHeaders = cachedResponse.fold(request.headers)(_.headers ++ request.headers)
+        println("request.headers " + cachedHttpHeaders)
+        val httpResponse = dispatchRequest(request.withHeaders(cachedHttpHeaders))
+        httpResponse.mustBeOk()
+        println("httpResponse.headers " + httpResponse.headers)
+        Some(httpResponse.withHeaders(httpResponse.headers ++ cachedHttpHeaders))
+      })
+      .foreach(_.mustBeOk())
   }
 
   lazy final val connectionPoolSettings: ConnectionPoolSettings = ConnectionPoolSettings
@@ -228,4 +263,5 @@ trait HttpSupport
     def probe(source: Source[String, Any]): Probe[String] =
       source.runWith(TestSink.probe[String])
   }
+
 }

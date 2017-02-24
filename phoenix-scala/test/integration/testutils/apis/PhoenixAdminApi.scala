@@ -1,7 +1,6 @@
 package testutils.apis
 
-import akka.http.scaladsl.model.HttpResponse
-
+import akka.http.scaladsl.model.{HttpHeader, HttpResponse}
 import models.objects.ObjectForm
 import payloads.ActivityTrailPayloads._
 import payloads.AddressPayloads._
@@ -31,6 +30,8 @@ import payloads._
 import testutils._
 import utils.aliases.OC
 
+import scala.collection.immutable
+
 /*
  * prefix → string literal prefix, e.g. "/customers"
  * path   → "compiled" path, e.g. "/customers/1"
@@ -49,7 +50,7 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
   case class customersApi(id: Int) {
     val customerPath = s"${customersApi.customersPrefix}/$id"
 
-    def get(): HttpResponse =
+    def get(headers: immutable.Seq[HttpHeader] = Nil): HttpResponse =
       GET(customerPath)
 
     def update(payload: UpdateCustomerPayload): HttpResponse =
