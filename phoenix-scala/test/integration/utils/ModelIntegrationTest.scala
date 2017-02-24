@@ -9,7 +9,7 @@ import models.location.Addresses
 import testutils._
 import testutils.fixtures.BakedFixtures
 import utils.db._
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 
 class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext with BakedFixtures {
 

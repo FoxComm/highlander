@@ -1,5 +1,7 @@
 ###############################
+
 # NAT Security Group
+
 ###############################
 
 resource "aws_security_group" "nat" {
@@ -89,7 +91,9 @@ output "web_access_from_nat_sg_id" {
 }
 
 ###############################
+
 # NAT Instance
+
 ###############################
 
 resource "aws_instance" "nat" {

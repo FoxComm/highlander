@@ -1,5 +1,7 @@
 ###############################
+
 # Bastion Security Group
+
 ###############################
 
 resource "aws_security_group" "bastion_ssh_sg" {
@@ -58,7 +60,9 @@ output "ssh_from_bastion_sg_id" {
 }
 
 ###############################
+
 # Bastion Instance
+
 ###############################
 
 resource "aws_instance" "bastion" {

@@ -5,7 +5,7 @@ import models.account._
 import services.Authenticator.UserAuthenticator
 import testutils._
 import utils.MockedApis
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 
 class RoutesAdminOnlyIntegrationTest extends IntegrationTestBase with HttpSupport with MockedApis {
 
