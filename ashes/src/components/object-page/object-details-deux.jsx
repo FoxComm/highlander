@@ -3,7 +3,6 @@
 // libs
 import _ from 'lodash';
 import React, { Component, Element } from 'react';
-import styles from './object-details.css';
 import { autobind } from 'core-decorators';
 import { assoc } from 'sprout-data';
 import { flow, filter } from 'lodash/fp';
@@ -18,8 +17,7 @@ import ObjectScheduler from 'components/object-scheduler/object-scheduler';
 import Tags from 'components/tags/tags';
 import ParticipantsPanel from 'components/participants';
 
-// types
-import type { ObjectView } from 'paragons/object';
+import styles from './object-details.css';
 
 type Layout = {
   content: Array<Object>,
@@ -46,7 +44,7 @@ type Props = {
   title: string,
   plural: string,
   object: ObjectView,
-  schema: Object,
+  schema: ObjectSchema,
   onUpdateObject: (object: ObjectView) => void,
 };
 
@@ -101,9 +99,10 @@ export default class ObjectDetailsDeux extends Component {
     return result;
   }
 
-  renderFields(fields: Fields, section: Array<NodeDesc>): Element {
+  renderFields(fields: Fields, section: Array<NodeDesc>) {
     const fieldsToRender = this.calcFieldsToRender(fields, section);
     const attrsSchema = this.schema.properties.attributes;
+
     return (
       <ObjectFormInner
         canAddProperty={fields.canAddProperty}
@@ -115,7 +114,7 @@ export default class ObjectDetailsDeux extends Component {
     );
   }
 
-  renderTags(): Element {
+  renderTags() {
     return (
       <Tags
         attributes={this.attributes}
@@ -124,7 +123,7 @@ export default class ObjectDetailsDeux extends Component {
     );
   }
 
-  renderState(): ?Element {
+  renderState() {
     return (
       <ObjectScheduler
         attributes={this.attributes}
@@ -134,7 +133,7 @@ export default class ObjectDetailsDeux extends Component {
     );
   }
 
-  renderWatchers(): ?Element {
+  renderWatchers() {
     const { object, plural } = this.props;
 
     if (object.id) {
@@ -142,7 +141,7 @@ export default class ObjectDetailsDeux extends Component {
     }
   }
 
-  renderGroup(group: NodeDesc, section: Array<NodeDesc>): Element {
+  renderGroup(group: NodeDesc, section: Array<NodeDesc>) {
     const { title, fields, renderer, content } = group;
 
     let children;
@@ -164,7 +163,7 @@ export default class ObjectDetailsDeux extends Component {
     );
   }
 
-  renderNode(description: NodeDesc, section: Array<NodeDesc>): ?Element {
+  renderNode(description: NodeDesc, section: Array<NodeDesc>) {
     switch (description.type) {
       case 'group':
         return this.renderGroup(description, section);
@@ -179,13 +178,14 @@ export default class ObjectDetailsDeux extends Component {
     return null;
   }
 
-  renderSection(name: string): Element {
+  renderSection(name: string) {
     const { layout } = this.props;
     const section = layout[name];
+
     return addKeys(name, section.map(desc => this.renderNode(desc, section)));
   }
 
-  render(): Element {
+  render() {
     return (
       <Form ref="form" styleName="object-details">
         <div styleName="main">

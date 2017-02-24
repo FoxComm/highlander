@@ -71,8 +71,8 @@ export function superAdmin(): Claims {
     const leaves = _.reduce(systemClaims, (systemList, resourceClaim) => {
       // Dirty hack for feature switches. Just remove the permission to the module.
       switch (resourceClaim) {
-        case frn.merch.taxonomy:
-          return systemList;
+        // case frn.merch.taxonomy:
+        //   return systemList;
         default:
           return { ...systemList, [resourceClaim]: ['c', 'r', 'u', 'd'] };
       }

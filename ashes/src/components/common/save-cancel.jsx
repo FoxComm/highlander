@@ -1,32 +1,32 @@
 /* @flow */
 
 // libs
-import noop from 'lodash/noop';
+import isEmpty from 'lodash/isEmpty';
 import React, { Component, PropTypes } from 'react';
 import classNames from 'classnames';
-import { push } from 'react-router';
 
 // components
 import { Button, PrimaryButton } from './buttons';
+import ButtonWithMenu from './button-with-menu';
 
 type Props = {
   className?: string;
   cancelTabIndex: string;
-  cancelTo?: string;
-  cancelParams: Object;
-  onCancel?: Function;
   saveTabIndex: string;
   cancelText: string;
   cancelDisabled?: boolean;
-  onSave?: Function;
   saveText: string;
   saveDisabled?: boolean;
+  saveItems?: SaveComboItems,
+  saveMenuPosition?: 'left'|'right',
+  onSave?: (value: any) => void;
+  onSaveSelect?: (value: any) => void;
+  onCancel?: (event: SyntheticEvent) => void;
   isLoading?: boolean;
 };
 
 /**
  * SaveCancel component implements simple wrapper over 2 components: Save and Cancel
- * It produces either a or Link, depending on cancelTo property
  * It produces custom-handled button or save button depending on whether onSave prop given
  *
  * @class SaveCancel
@@ -42,57 +42,74 @@ export default class SaveCancel extends Component {
     saveText: 'Save',
   };
 
-  static contextTypes = {
-    router: PropTypes.object.isRequired,
-  };
-
-  render() {
+  get cancel() {
     const {
-      className,
       cancelTabIndex,
-      cancelTo,
-      cancelParams,
       onCancel,
-      saveTabIndex,
       cancelText,
       cancelDisabled,
-      onSave,
-      saveText,
-      saveDisabled,
-      isLoading,
     } = this.props;
 
-    const { push } = this.context.router;
-
-    const cancelControl = (
+    return (
       <Button
         id="fct-modal-cancel-btn"
         type="button"
-        onClick={onCancel ? onCancel : () => push({name: cancelTo, params: cancelParams})}
+        onClick={onCancel}
         className="fc-save-cancel__cancel"
         tabIndex={cancelTabIndex}
-        disabled={cancelDisabled}>
-        {cancelText}
-      </Button>
+        disabled={cancelDisabled}
+        children={cancelText}
+      />
     );
+  }
 
-    const saveControl = (
+  get primary() {
+    const {
+      saveTabIndex,
+      saveText,
+      saveItems,
+      saveMenuPosition,
+      saveDisabled,
+      onSave,
+      onSaveSelect,
+      isLoading,
+    } = this.props;
+
+
+    if (!isEmpty(saveItems)) {
+      return (
+        <ButtonWithMenu
+          isLoading={isLoading}
+          title={saveText}
+          menuPosition={saveMenuPosition}
+          items={saveItems}
+          onPrimaryClick={onSave}
+          onSelect={onSaveSelect}
+          buttonDisabled={saveDisabled}
+          menuDisabled={saveDisabled}
+        />
+      );
+    }
+
+    return (
       <PrimaryButton
         id="fct-modal-confirm-btn"
-        type={onSave ? "button" : "submit"}
-        onClick={onSave ? onSave : noop}
+        type={onSave ? 'button' : 'submit'}
+        onClick={onSave}
         className="fc-save-cancel__save"
         tabIndex={saveTabIndex}
         isLoading={isLoading}
-        disabled={saveDisabled}>
-        {saveText}
-      </PrimaryButton>
+        disabled={saveDisabled}
+        children={saveText}
+      />
     );
+  }
 
+  render() {
     return (
-      <div className={classNames('fc-save-cancel', className)}>
-        {cancelControl}
-        {saveControl}
+      <div className={classNames('fc-save-cancel', this.props.className)}>
+        {this.cancel}
+        {this.primary}
       </div>
     );
   }

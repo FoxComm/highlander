@@ -10,9 +10,6 @@ import { activeStatus, isArchived } from 'paragons/common';
 import MultiSelectRow from 'components/table/multi-select-row';
 import RoundedPill from 'components/rounded-pill/rounded-pill';
 
-// types
-import type { TaxonomyResult } from 'paragons/taxonomy';
-
 type Props = {
   taxonomy: TaxonomyResult,
   columns?: Array<Object>,

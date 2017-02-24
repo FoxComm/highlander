@@ -6,20 +6,17 @@ import React, { Element } from 'react';
 // components
 import ObjectDetailsDeux from 'components/object-page/object-details-deux';
 
-// types
-import type { ObjectSchema, ObjectView } from 'paragons/object';
-import type { Taxonomy } from 'paragons/taxonomy';
-
 const layout = require('./layout.json');
 
 type Props = {
-  schema: ?schema,
+  schema: ObjectSchema,
   taxonomy: ?Taxonomy,
   onUpdateObject: (object: ObjectView) => void,
 };
 
-const TaxonomyDetails = (props: Props): Element => {
+const TaxonomyDetails = (props: Props) => {
   const { schema, taxonomy, onUpdateObject } = props;
+
   if (!taxonomy) {
     return <div></div>;
   }

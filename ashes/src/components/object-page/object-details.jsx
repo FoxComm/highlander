@@ -18,8 +18,6 @@ import { Form } from '../forms';
 import Tags from '../tags/tags';
 import ParticipantsPanel from '../participants';
 
-import type { ObjectView } from 'paragons/object';
-
 type Layout = {
   content: Array<Object>,
   aside: Array<Object>,

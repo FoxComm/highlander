@@ -5,7 +5,7 @@ import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { transitionTo } from 'browserHistory';
+import { transitionToLazy } from 'browserHistory';
 import _ from 'lodash';
 
 // components
@@ -14,10 +14,6 @@ import ObjectPageDeux from 'components/object-page/object-page-deux';
 // actions
 import * as TaxonomyActions from 'modules/taxonomies/details';
 
-// types
-import type { ObjectActions } from 'components/object-page/object-page-deux';
-import type { Taxonomy } from 'paragons/taxonomy';
-
 type TaxonomyParams = {
   taxonomyId: string,
   context: string,
@@ -25,7 +21,7 @@ type TaxonomyParams = {
 
 type Props = {
   actions: ObjectActions<Taxonomy>,
-  children?: Element|Array<Element>,
+  children: Element<*>,
   details: {
     taxonomy: ?Taxonomy,
   },
@@ -35,40 +31,40 @@ type Props = {
 };
 
 const schema = {
-  "type": "object",
-  "title": "Taxonomy",
-  "$schema": "http://json-schema.org/draft-04/schema#",
-  "properties": {
-    "attributes": {
-      "type": "object",
-      "required": [
-        "name"
+  'type': 'object',
+  'title': 'Taxonomy',
+  '$schema': 'http://json-schema.org/draft-04/schema#',
+  'properties': {
+    'attributes': {
+      'type': 'object',
+      'required': [
+        'name'
       ],
-      "properties": {
-        "name": {
-          "type": "string",
-          "minLength": 1
+      'properties': {
+        'name': {
+          'type': 'string',
+          'minLength': 1
         },
-        "activeTo": {
-          "type": [
-            "string",
-            "null"
+        'activeTo': {
+          'type': [
+            'string',
+            'null'
           ],
-          "format": "date-time"
+          'format': 'date-time'
         },
-        "activeFrom": {
-          "type": [
-            "string",
-            "null"
+        'activeFrom': {
+          'type': [
+            'string',
+            'null'
           ],
-          "format": "date-time"
+          'format': 'date-time'
         },
-        "description": {
-          "type": "string",
-          "widget": "richText"
+        'description': {
+          'type': 'string',
+          'widget': 'richText'
         },
       },
-      "description": "Taxonomy attributes itself"
+      'description': 'Taxonomy attributes itself'
     }
   }
 };
@@ -91,7 +87,7 @@ class TaxonomyPage extends Component {
       create,
       update,
       archive,
-      cancel: () => transitionTo('taxonomies'),
+      cancel: transitionToLazy('taxonomies'),
       getTitle: (t: Taxonomy) => _.get(t.attributes, 'name.v', ''),
     };
   }
@@ -130,13 +126,14 @@ class TaxonomyPage extends Component {
     }
   }
 
-  render(): Element {
+  render() {
     const { taxonomyId, context } = this.props.params;
     const childProps = {
-      schema: schema,
+      schema,
       taxonomy: this.state.taxonomy,
       onUpdateObject: this.handleObjectUpdate,
     };
+
     const children = React.cloneElement(this.props.children, childProps);
 
     return (

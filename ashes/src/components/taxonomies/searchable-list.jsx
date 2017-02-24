@@ -16,10 +16,6 @@ import TaxonomyRow from './taxonomy-row';
 // helpers
 import { filterArchived } from 'elastic/archive';
 
-// types
-import type { TaxonomyResult } from 'paragons/taxonomy';
-import type { SearchFilter } from 'elastic/common';
-
 type Column = {
   field: string,
   text: string,

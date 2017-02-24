@@ -6,9 +6,6 @@ import Api from 'lib/api';
 import { createAsyncActions } from '@foxcomm/wings';
 import { createEmptyTaxonomy } from 'paragons/taxonomy';
 
-// types
-import type { Taxonomy } from 'paragons/taxonomy';
-
 const defaultContext = 'default';
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -26,7 +23,7 @@ const _fetchTaxonomy = createAsyncActions(
 
 const _createTaxonomy = createAsyncActions(
   'createTaxonomy',
-  (taxonomy: Taxonomy, context: string = defaultContext) => {
+  (taxonomy: TaxonomyDraft, context: string = defaultContext) => {
     return Api.post(`/taxonomies/${context}`, taxonomy);
   }
 );
@@ -66,7 +63,7 @@ export const fetch = (id: string, context: string = defaultContext): ActionDispa
     } else {
       return dispatch(_fetchTaxonomy.perform(id, context));
     }
-  }
+  };
 };
 
 ////////////////////////////////////////////////////////////////////////////////

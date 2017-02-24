@@ -5,38 +5,15 @@ import { IndexLink, Link } from 'components/link';
 import { PageTitle } from 'components/section-title';
 import Error from 'components/errors/error';
 import LocalNav from 'components/local-nav/local-nav';
-import SaveCancelWithMenu from 'components/common/save-cancel-with-menu';
+import SaveCancel from 'components/common/save-cancel';
 import WaitAnimation from 'components/common/wait-animation';
 
 // helpers
 import { SAVE_COMBO, SAVE_COMBO_ITEMS } from 'paragons/common';
 
-export type ObjectActions<T> = {
-  reset: () => void,
-  fetch: (id: string, context?: string) => void,
-  create: (object: T, context?: string) => void,
-  update: (object: T, context?: string) => void,
-  archive: (object: T, context?: string) => void,
-  cancel: () => void,
-
-  getTitle: (object: T) => string,
-};
-
-export type ObjectProps<T, U> = {
-  actions: ObjectActions<T>,
-  children?: Element|Array<Element>,
-  context?: string,
-  identifier: string,
-  isFetching: boolean,
-  fetchError: ?Object,
-  navLinks: NavLinks<U>,
-  object: ?T,
-  objectType: string,
-  originalObject: ?T,
-};
-
 class ObjectPageDeux extends Component {
-  props: ObjectProps;
+  // TODO: replace *
+  props: ObjectProps<*, *>;
 
   componentDidMount() {
     const { context, identifier } = this.props;
@@ -54,7 +31,7 @@ class ObjectPageDeux extends Component {
     return valuesOfNew.some(elem => elem === identifier.toLowerCase());
   }
 
-  get localNav(): ?Element {
+  get localNav() {
     if (this.isNew) {
       return null;
     }
@@ -87,24 +64,24 @@ class ObjectPageDeux extends Component {
     return getTitle(originalObject);
   }
 
-  renderButtonCluster(): Element {
+  renderButtonCluster() {
     const { isFetching, context, object } = this.props;
     const save = () => this.isNew
       ? this.props.actions.create(object, context)
       : this.props.actions.update(object, context);
 
     return (
-      <SaveCancelWithMenu
+      <SaveCancel
         isLoading={isFetching}
         onCancel={this.props.actions.cancel}
-        primaryItems={SAVE_COMBO_ITEMS}
-        onPrimaryClick={save}
-        onPrimarySelect={() => {}}
+        saveItems={SAVE_COMBO_ITEMS}
+        onSave={save}
+        onSaveSelect={() => {}}
       />
     );
   }
 
-  render(): Element {
+  render() {
     const { children, identifier, isFetching, fetchError, object, objectType } = this.props;
     if (isFetching) {
       return <div><WaitAnimation /></div>;

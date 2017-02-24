@@ -1,12 +1,9 @@
-// @flow
 
 import React, { Element } from 'react';
 import { Button } from './buttons';
 import ButtonWithMenu from './button-with-menu';
 
 import styles from './save-cancel-with-menu.css';
-
-import type { SaveComboItems } from 'paragons/common';
 
 type Props = {
   isLoading?: boolean,

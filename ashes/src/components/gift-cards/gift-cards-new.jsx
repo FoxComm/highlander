@@ -7,7 +7,7 @@ import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 
 // helpers
-import { transitionTo } from 'browserHistory';
+import { transitionTo, transitionToLazy } from 'browserHistory';
 
 // components
 import Counter from '../forms/counter';
@@ -225,9 +225,11 @@ export default class NewGiftCard extends React.Component {
           </fieldset>
           {this.quantitySection}
 
-          <SaveCancel cancelTo="gift-cards"
-                      saveDisabled={saveDisabled}
-                      saveText="Issue Gift Card" />
+          <SaveCancel
+            onCancel={transitionToLazy('gift-cards')}
+            saveDisabled={saveDisabled}
+            saveText="Issue Gift Card"
+          />
         </Form>
       </div>
     );
