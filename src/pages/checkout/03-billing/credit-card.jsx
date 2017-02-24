@@ -20,6 +20,7 @@ type Props = {
   onSelect: (cc: CreditCardType) => void,
   onEditCard: (creditCard: CreditCardType) => void,
   onDeleteCard: (id: number) => void,
+  allowEdit?: boolean,
 };
 
 const CreditCard = (props: Props) => {
@@ -37,7 +38,7 @@ const CreditCard = (props: Props) => {
         <ViewBilling billingData={creditCard} />
       </Radiobutton>
       <div styleName="actions">
-        <span styleName="action" onClick={() => onEditCard(creditCard)}>Edit</span>
+        {props.allowEdit && <span styleName="action" onClick={() => onEditCard(creditCard)}>Edit</span>}
         <span styleName="action" onClick={() => onDeleteCard(id)}>Delete</span>
       </div>
     </div>
