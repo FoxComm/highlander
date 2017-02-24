@@ -51,7 +51,9 @@ object Http {
   def render(result: AnyRef, uiInfo: List[UIInfo], statusCode: StatusCode = OK) = {
     val payload = SuccessfulPayload.from(result, uiInfo)
     val temporaryHack: AnyRef =
-      if (payload.batch.isEmpty && payload.warnings.isEmpty) payload.result
+      if (!result
+            .isInstanceOf[TheResponse[_]] && payload.batch.isEmpty && payload.warnings.isEmpty)
+        payload.result
       else payload
     HttpResponse(statusCode, entity = jsonEntity(temporaryHack))
   }
