@@ -16,6 +16,7 @@ import utils.{JsonFormatters, Validation}
   * the appropriate object information.
   */
 case class ObjectContext(id: Int = 0,
+                         parentId: Option[Int] = None,
                          name: String,
                          attributes: Json,
                          createdAt: Instant = Instant.now)
@@ -24,12 +25,13 @@ case class ObjectContext(id: Int = 0,
 
 class ObjectContexts(tag: Tag) extends FoxTable[ObjectContext](tag, "object_contexts") {
   def id         = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def parentId   = column[Option[Int]]("parent_id")
   def name       = column[String]("name")
   def attributes = column[Json]("attributes")
   def createdAt  = column[Instant]("created_at")
 
   def * =
-    (id, name, attributes, createdAt) <> ((ObjectContext.apply _).tupled, ObjectContext.unapply)
+    (id, parentId, name, attributes, createdAt) <> ((ObjectContext.apply _).tupled, ObjectContext.unapply)
 }
 
 object ObjectContexts
