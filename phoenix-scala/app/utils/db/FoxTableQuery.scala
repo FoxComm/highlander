@@ -30,7 +30,7 @@ abstract class FoxTableQuery[M <: FoxModel[M], T <: FoxTable[M]](construct: Tag 
   def notFound404(params: FailureParam*): NotFoundFailure404 =
     NFF.notFound404(tableName)(params: _*)
 
-  def f400(params: FailureParam*): NotFoundFailure400 =
+  def notFound400(params: FailureParam*): NotFoundFailure400 =
     NFF.notFound400(tableName)(params: _*)
 
   private def returningTable: Returning[M, Ret] = this.returning(returningQuery)

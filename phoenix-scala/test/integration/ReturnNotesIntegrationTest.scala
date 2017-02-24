@@ -91,9 +91,7 @@ class ReturnNotesIntegrationTest
           POST(s"v1/notes/rma/${rma.refNum}", CreateNote(body = "Hello, FoxCommerce!"))
         val note = createResp.as[AdminNotes.Root]
 
-        val response = DELETE(s"v1/notes/rma/${rma.refNum}/${note.id}")
-        response.status must === (StatusCodes.NoContent)
-        response.bodyText mustBe empty
+        DELETE(s"v1/notes/rma/${rma.refNum}/${note.id}").mustBeEmpty()
 
         val updatedNote = Notes.findOneById(note.id).run().futureValue.value
         updatedNote.deletedBy.value must === (1)

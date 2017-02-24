@@ -6,6 +6,8 @@ import utils.friendlyClassName
 
 trait Failure {
   def description: String
+  // Debugging info: code source. Only for development environments!
+  def debug: Option[String] = None
 }
 
 case class GeneralFailure(a: String) extends Failure {
