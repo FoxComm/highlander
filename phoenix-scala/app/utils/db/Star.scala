@@ -43,7 +43,8 @@ object * {
     DbResultT.sequenceJoiningFailures(v)
 
   // FIXME: Remove this function after switching all Seqs to List/Vector. Cats don’t have instances for Seq and Seq is unsound. PM me or @kjanosz for details. @michalrus
-  def <~[A](v: Seq[DbResultT[A]])(implicit ec: EC): DbResultT[List[A]] = <~(v.toList)
+  def <~[A](v: Seq[DbResultT[A]])(implicit ec: EC): DbResultT[List[A]] =
+    DbResultT.sequenceJoiningFailures(v.toList)
 
   def <~[A](v: DbResultT[A]): DbResultT[A] =
     v
