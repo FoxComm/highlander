@@ -160,7 +160,7 @@ class TaxonomyPage extends Component {
 const mapStateToProps = state => {
   return {
     details: state.taxonomies.details,
-    isFetching: _.get(state.asyncActions, 'fetchTaxonomy.inProgress', true),
+    isFetching: _.get(state.asyncActions, 'fetchTaxonomy.inProgress', null),
     fetchError: _.get(state.asyncActions, 'fetchTaxonomy.err', null),
   };
 };
