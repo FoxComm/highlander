@@ -55,14 +55,14 @@ object AvroProcessor {
       |}
     """.stripMargin.replaceAll("\n", " ")
 
-  val activityConnectionsAvroSchema = """
+  val activityTrailsAvroSchema = """
       |{
       |  "type": "record",
-      |  "name": "scoped_activity_connections",
+      |  "name": "scoped_activity_trails",
       |  "fields": [
       |    {
       |      "name": "id",
-      |      "type": [ "null", "int" ]
+      |      "type": [ "null", "string" ]
       |    },
       |    {
       |      "name": "dimension",
@@ -70,7 +70,7 @@ object AvroProcessor {
       |    },
       |    {
       |      "name": "object_id",
-      |      "type": [ "null", "int" ]
+      |      "type": [ "null", "string" ]
       |    },
       |    {
       |      "name": "activity",
@@ -88,7 +88,8 @@ object AvroProcessor {
       }
     """.stripMargin.replaceAll("\n", " ")
 
-  val activitySchema = (new Schema.Parser()).parse(activityAvroSchema)
+  val activitySchema      = (new Schema.Parser()).parse(activityAvroSchema)
+  val activityTrailSchema = (new Schema.Parser()).parse(activityTrailsAvroSchema)
 }
 
 /**
@@ -109,6 +110,7 @@ class AvroProcessor(schemaRegistryUrl: String, processor: JsonProcessor)(implici
   val encoderFactory = EncoderFactory.get()
 
   register("scoped_activities", AvroProcessor.activitySchema)
+  register("scoped_activity_trails", AvroProcessor.activitySchema)
 
   def process(offset: Long, topic: String, key: Array[Byte], message: Array[Byte]): Future[Unit] = {
     try {

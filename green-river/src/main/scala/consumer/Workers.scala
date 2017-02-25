@@ -24,7 +24,9 @@ object Workers {
                                  PromotionConnector,
                                  CouponConnector)
 
-    val activityProcessor = new ActivityProcessor(connectionInfo, activityConnectors)
+    val kafkaInfo = KafkaConnectionInfo(
+        broker = conf.kafkaBroker, schemaRegistryURL = conf.avroSchemaRegistryUrl)
+    val activityProcessor = new ActivityProcessor(kafkaInfo, connectionInfo, activityConnectors)
 
     val avroProcessor = new AvroProcessor(
         schemaRegistryUrl = conf.avroSchemaRegistryUrl, processor = activityProcessor)

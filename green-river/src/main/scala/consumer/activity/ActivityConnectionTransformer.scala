@@ -28,10 +28,10 @@ final case class ActivityConnectionTransformer(
 
   val phoenix = Phoenix(conn)
 
-  val topic = "scoped_activity_connetions"
+  val topic = "scoped_activity_trails"
 
   def mapping() = esMapping(topic).fields(
-      field("id", IntegerType),
+      field("id", StringType),
       field("dimension", StringType),
       field("objectId", StringType).index("not_analyzed"),
       field("activity").nested(

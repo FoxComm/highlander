@@ -1,11 +1,16 @@
 package consumer.activity
 
 import java.time.Instant
+import java.util.Properties
 
 import scala.concurrent.Future
 import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 
-import consumer.{AvroJsonHelper, JsonProcessor}
+import org.apache.avro.Schema
+import org.apache.avro.generic.GenericData
+import org.apache.kafka.clients.producer.{KafkaProducer, ProducerConfig, ProducerRecord}
+
+import consumer.{AvroJsonHelper, JsonProcessor, AvroProcessor}
 import consumer.aliases._
 import consumer.failures.{Failures, GeneralFailure}
 import consumer.utils.HttpSupport.HttpResult
@@ -47,12 +52,15 @@ final case class FailedToConnectNotification(
         s"Failed to create notification for connection of activity $activityId to dimension " +
         s"'$dimension' and object $objectId response: $response")
 
+final case class KafkaConnectionInfo(broker: String, schemaRegistryURL: String)
+
 //TODO: Convert to a JsonTransformer so we can use in scoped indexer
 /**
   * This is a JsonProcessor which listens to the activity stream and processes the activity
   * using a sequence of activity connectors
   */
-class ActivityProcessor(conn: PhoenixConnectionInfo, connectors: Seq[ActivityConnector])(
+class ActivityProcessor(
+    kafka: KafkaConnectionInfo, conn: PhoenixConnectionInfo, connectors: Seq[ActivityConnector])(
     implicit ec: EC, ac: AS, mat: AM, cp: CP, sc: SC)
     extends JsonProcessor {
 
@@ -60,6 +68,21 @@ class ActivityProcessor(conn: PhoenixConnectionInfo, connectors: Seq[ActivityCon
 
   val activityJsonFields = List("id", "activityType", "data", "context", "createdAt")
   val phoenix            = Phoenix(conn)
+  val kafkaProps = {
+    val props = new Properties()
+
+    props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.broker)
+    props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
+              "org.apache.kafka.common.serialization.StringSerializer")
+    props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
+              "org.apache.kafka.common.serialization.StringSerializer")
+    props.put("schema.registry.url", kafka.schemaRegistryURL)
+
+    props
+  }
+
+  val kafkaProducer = new KafkaProducer[String, GenericData.Record](kafkaProps)
+  val trailTopic    = "scoped_activity_trails"
 
   def process(offset: Long, topic: String, key: String, inputJson: String): Future[Unit] = {
 
@@ -95,8 +118,19 @@ class ActivityProcessor(conn: PhoenixConnectionInfo, connectors: Seq[ActivityCon
     Future.sequence(cs.map(c ⇒ pushActivityConnectionToKafka(activity, c)))
   }
 
-  private def pushActivityConnectionToKafka(activity: Activity, connection: Connection) =
-    Future { () }
+  private def pushActivityConnectionToKafka(activity: Activity, connection: Connection) = Future {
+    val record = new GenericData.Record(AvroProcessor.activityTrailSchema)
+
+    record.put("id", activity.id)
+    record.put("dimension", connection.dimension)
+    record.put("object_id", connection.objectId)
+    record.put("activity", render(activity))
+    record.put("created_at", activity.createdAt)
+    record.put("scope", activity.scope)
+
+    kafkaProducer.send(new ProducerRecord[String, GenericData.Record](trailTopic, record))
+    ()
+  }
 
   private def createPhoenixNotification(conn: Connection, phoenix: Phoenix): HttpResult = {
     val body = AppendNotification(sourceDimension = conn.dimension,
