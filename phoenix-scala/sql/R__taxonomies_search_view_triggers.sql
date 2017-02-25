@@ -13,7 +13,9 @@ begin
       illuminate_text(f, s, 'activeFrom')                                 as active_from,
       illuminate_text(f, s, 'activeTo')                                   as active_to,
       to_char(t.archived_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')             as archived_at,
-      t.scope                                                             as scope
+      t.scope                                                             as scope,
+      to_char(t.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')              as created_at,
+      to_char(t.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')              as updated_at
     from taxonomies as t
       inner join object_contexts as context on (t.context_id = context.id)
       inner join object_forms as f on (f.id = t.form_id)
@@ -57,6 +59,7 @@ begin
     where link.taxonomy_id = t.id and link.archived_at is null),
     active_from  = illuminate_text(f, s, 'activeFrom'),
     active_to    = illuminate_text(f, s, 'activeTo'),
+    updated_at   = to_char(t.updated_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"'),
     archived_at  = to_char(t.archived_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
   from taxonomies as t
     inner join object_contexts as context on (t.context_id = context.id)
