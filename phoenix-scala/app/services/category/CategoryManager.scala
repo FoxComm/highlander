@@ -19,7 +19,7 @@ object CategoryManager {
   def getForm(id: Int)(implicit ec: EC, db: DB): DbResultT[CategoryFormResponse.Root] =
     for {
       category ← * <~ Categories.filterByFormId(id).mustFindOneOr(CategoryFormNotFound(id))
-      form     ← * <~ ObjectForms.mustFindById404(id)
+      form     ← * <~ ObjectForms.findById(id)
     } yield CategoryFormResponse.build(category, form)
 
   def getShadow(formId: Int, contextName: String)(implicit ec: EC,
@@ -29,7 +29,7 @@ object CategoryManager {
       category ← * <~ Categories
                   .withContextAndForm(context.id, formId)
                   .mustFindOneOr(CategoryNotFoundForContext(formId, context.id))
-      shadow ← * <~ ObjectShadows.mustFindById404(category.shadowId)
+      shadow ← * <~ ObjectShadows.findById(category.shadowId)
     } yield CategoryShadowResponse.build(shadow)
 
   def getCategory(categoryId: Int, contextName: String)(
@@ -91,8 +91,8 @@ object CategoryManager {
       commit ← * <~ ObjectCommits
                 .filter(commit ⇒ commit.id === commitId && commit.formId === categoryId)
                 .mustFindOneOr(CategoryNotFoundAtCommit(categoryId, commitId))
-      categoryForm   ← * <~ ObjectForms.mustFindById404(commit.formId)
-      categoryShadow ← * <~ ObjectShadows.mustFindById404(commit.shadowId)
+      categoryForm   ← * <~ ObjectForms.findById(commit.formId)
+      categoryShadow ← * <~ ObjectShadows.findById(commit.shadowId)
     } yield
       IlluminatedCategoryResponse.build(
           IlluminatedCategory.illuminate(context, category, categoryForm, categoryShadow))
@@ -131,7 +131,7 @@ object CategoryManager {
       db: DB): DbResultT[CategoryFull] =
     for {
       category ← * <~ categoryById(categoryId, context)
-      form     ← * <~ ObjectForms.mustFindById404(category.formId)
-      shadow   ← * <~ ObjectShadows.mustFindById404(category.shadowId)
+      form     ← * <~ ObjectForms.findById(category.formId)
+      shadow   ← * <~ ObjectShadows.findById(category.shadowId)
     } yield CategoryFull(context, category, form, shadow)
 }

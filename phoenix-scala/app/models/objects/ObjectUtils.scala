@@ -208,8 +208,8 @@ object ObjectUtils {
              shadowAttributes: Json,
              force: Boolean = false)(implicit db: DB, ec: EC): DbResultT[UpdateResult] =
     for {
-      oldForm   ← * <~ ObjectForms.mustFindById404(formId)
-      oldShadow ← * <~ ObjectShadows.mustFindById404(shadowId)
+      oldForm   ← * <~ ObjectForms.findById(formId)
+      oldShadow ← * <~ ObjectShadows.findById(shadowId)
       result ← * <~ updateFormAndShadow((oldForm, oldShadow),
                                         formAttributes,
                                         shadowAttributes,

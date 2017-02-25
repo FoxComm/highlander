@@ -102,8 +102,8 @@ object CouponManager {
                 .filter(_.contextId === context.id)
                 .filter(_.formId === id)
                 .mustFindOneOr(CouponNotFound(id))
-      form   ← * <~ ObjectForms.mustFindById404(coupon.formId)
-      shadow ← * <~ ObjectShadows.mustFindById404(coupon.shadowId)
+      form   ← * <~ ObjectForms.findById(coupon.formId)
+      shadow ← * <~ ObjectShadows.findById(coupon.shadowId)
     } yield CouponResponse.build(context, coupon, form, shadow)
 
   def archiveByContextAndId(contextName: String,
@@ -116,8 +116,8 @@ object CouponManager {
                .findOneByContextAndFormId(context.id, formId)
                .mustFindOneOr(NotFoundFailure404(Coupon, formId))
       archiveResult ← * <~ Coupons.update(model, model.copy(archivedAt = Some(Instant.now)))
-      form          ← * <~ ObjectForms.mustFindById404(archiveResult.formId)
-      shadow        ← * <~ ObjectShadows.mustFindById404(archiveResult.shadowId)
+      form          ← * <~ ObjectForms.findById(archiveResult.formId)
+      shadow        ← * <~ ObjectShadows.findById(archiveResult.shadowId)
     } yield CouponResponse.build(context, archiveResult, form, shadow)
 
   def generateCode(id: Int, code: String, admin: User)(implicit ec: EC,

@@ -16,8 +16,8 @@ object CouponNoteManager extends NoteManager[Int, IlluminatedObject] {
       coupon ← * <~ Coupons
                 .filterByContextAndFormId(defaultContextId, id)
                 .mustFindOneOr(CouponNotFoundForDefaultContext(id))
-      form   ← * <~ ObjectForms.mustFindById404(coupon.formId)
-      shadow ← * <~ ObjectShadows.mustFindById404(coupon.shadowId)
+      form   ← * <~ ObjectForms.findById(coupon.formId)
+      shadow ← * <~ ObjectShadows.findById(coupon.shadowId)
     } yield IlluminatedObject.illuminate(form = form, shadow = shadow)
 
 }

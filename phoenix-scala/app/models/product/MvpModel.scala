@@ -233,7 +233,7 @@ object Mvp {
                  .filter(_.contextId === oldContextId)
                  .filter(_.id === p.productId)
                  .mustFindOneOr(ProductNotFoundForContext(p.productId, oldContextId))
-      oldForm     ← * <~ ObjectForms.mustFindById404(product.formId)
+      oldForm     ← * <~ ObjectForms.findById(product.formId)
       productForm ← * <~ ObjectForms.update(oldForm, simpleProduct.update(oldForm))
 
       //find sku form for the product and update it with new sku
@@ -244,7 +244,7 @@ object Mvp {
       sku ← * <~ Skus.filter(_.id === link.rightId).mustFindOneOr(SkuNotFound(link.rightId))
 
       simpleSku  ← * <~ SimpleSku(p.code, p.title, p.price, p.currency, p.active, p.tags)
-      oldSkuForm ← * <~ ObjectForms.mustFindById404(sku.formId)
+      oldSkuForm ← * <~ ObjectForms.findById(sku.formId)
       skuForm    ← * <~ ObjectForms.update(oldSkuForm, simpleSku.update(oldSkuForm))
 
       //find album form for the product and update it
@@ -256,7 +256,7 @@ object Mvp {
                .mustFindOneOr(AlbumNotFoundForContext(albumLink.rightId, oldContextId))
 
       simpleAlbum  ← * <~ new SimpleAlbum(p.title, p.image)
-      oldAlbumForm ← * <~ ObjectForms.mustFindById404(album.formId)
+      oldAlbumForm ← * <~ ObjectForms.findById(album.formId)
       albumForm    ← * <~ ObjectForms.update(oldAlbumForm, simpleAlbum.update(oldAlbumForm))
 
       r ← * <~ insertProductIntoContext(contextId,
@@ -502,19 +502,19 @@ object Mvp {
   def getPrice(skuId: Int)(implicit db: DB): DbResultT[Int] =
     for {
       sku    ← * <~ Skus.mustFindById404(skuId)
-      form   ← * <~ ObjectForms.mustFindById404(sku.formId)
-      shadow ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
+      form   ← * <~ ObjectForms.findById(sku.formId)
+      shadow ← * <~ ObjectShadows.findById(sku.shadowId)
       p      ← * <~ priceAsInt(form, shadow)
     } yield p
 
   def getProductTuple(d: SimpleProductData)(implicit db: DB): DbResultT[SimpleProductTuple] =
     for {
       product       ← * <~ Products.mustFindById404(d.productId)
-      productForm   ← * <~ ObjectForms.mustFindById404(product.formId)
-      productShadow ← * <~ ObjectShadows.mustFindById404(product.shadowId)
+      productForm   ← * <~ ObjectForms.findById(product.formId)
+      productShadow ← * <~ ObjectShadows.findById(product.shadowId)
       sku           ← * <~ Skus.mustFindById404(d.skuId)
-      skuForm       ← * <~ ObjectForms.mustFindById404(sku.formId)
-      skuShadow     ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
+      skuForm       ← * <~ ObjectForms.findById(sku.formId)
+      skuShadow     ← * <~ ObjectShadows.findById(sku.shadowId)
     } yield SimpleProductTuple(product, sku, productForm, skuForm, productShadow, skuShadow)
 
   def insertProducts(ps: Seq[SimpleProductData],

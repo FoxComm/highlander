@@ -193,8 +193,8 @@ object VariantManager {
 
     for {
       value     ← * <~ mustFindVariantValueByContextAndForm(contextId, valueId)
-      oldForm   ← * <~ ObjectForms.mustFindById404(value.formId)
-      oldShadow ← * <~ ObjectShadows.mustFindById404(value.shadowId)
+      oldForm   ← * <~ ObjectForms.findById(value.formId)
+      oldShadow ← * <~ ObjectShadows.findById(value.shadowId)
 
       mergedAttrs = oldShadow.attributes.merge(shadow.attributes)
       updated ← * <~ ObjectUtils

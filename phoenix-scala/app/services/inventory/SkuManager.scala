@@ -46,8 +46,8 @@ object SkuManager {
   def getSku(code: String)(implicit ec: EC, db: DB, oc: OC): DbResultT[SkuResponse.Root] =
     for {
       sku    ← * <~ SkuManager.mustFindSkuByContextAndCode(oc.id, code)
-      form   ← * <~ ObjectForms.mustFindById404(sku.formId)
-      shadow ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
+      form   ← * <~ ObjectForms.findById(sku.formId)
+      shadow ← * <~ ObjectShadows.findById(sku.shadowId)
       albums ← * <~ ImageManager.getAlbumsForSkuInner(sku.code, oc)
     } yield SkuResponse.build(IlluminatedSku.illuminate(oc, FullObject(sku, form, shadow)), albums)
 
@@ -121,8 +121,8 @@ object SkuManager {
     val code           = getSkuCode(payload.attributes).getOrElse(sku.code)
 
     for {
-      oldForm   ← * <~ ObjectForms.mustFindById404(sku.formId)
-      oldShadow ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
+      oldForm   ← * <~ ObjectForms.findById(sku.formId)
+      oldShadow ← * <~ ObjectShadows.findById(sku.shadowId)
 
       mergedAttrs = oldShadow.attributes.merge(newShadowAttrs)
       updated ← * <~ ObjectUtils
@@ -197,8 +197,8 @@ object SkuManager {
       implicit ec: EC,
       db: DB): DbResultT[FullObject[Sku]] =
     for {
-      shadow ← * <~ ObjectShadows.mustFindById404(shadowId)
-      form   ← * <~ ObjectForms.mustFindById404(shadow.formId)
+      shadow ← * <~ ObjectShadows.findById(shadowId)
+      form   ← * <~ ObjectForms.findById(shadow.formId)
       sku    ← * <~ Skus.mustFindById404(skuId)
     } yield FullObject(sku, form, shadow)
 

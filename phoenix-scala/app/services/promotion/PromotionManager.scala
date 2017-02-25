@@ -185,8 +185,8 @@ object PromotionManager {
                    .filter(_.contextId === context.id)
                    .filter(_.formId === id) ~> Promotions.notFound404(("context", context.name),
                                                                       ("id", id))
-      form      ← * <~ ObjectForms.mustFindById404(promotion.formId)
-      shadow    ← * <~ ObjectShadows.mustFindById404(promotion.shadowId)
+      form      ← * <~ ObjectForms.findById(promotion.formId)
+      shadow    ← * <~ ObjectShadows.findById(promotion.shadowId)
       discounts ← * <~ PromotionDiscountLinks.queryRightByLeft(promotion)
     } yield
       PromotionResponse.build(

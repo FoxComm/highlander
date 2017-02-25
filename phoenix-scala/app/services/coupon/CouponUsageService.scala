@@ -66,7 +66,7 @@ object CouponUsageService {
                     .filterByContextAndFormId(context.id, code.couponFormId)
                     .one
                     .mustFindOr(CouponNotFoundForContext(code.couponFormId, context.name))
-          form ← * <~ ObjectForms.mustFindById400(coupon.formId)
+          form ← * <~ ObjectForms.findById(coupon.formId)
           couponUsage ← * <~ CouponUsages
                          .filterByCoupon(coupon.formId)
                          .one
