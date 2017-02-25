@@ -97,7 +97,11 @@ object FoxConfig {
   case class ESConfig(host: String, cluster: String, index: String)
   case class MWH(url: String)
   case class Stripe(key: String)
-  case class Kafka(schemaRegistryURL: String, bootStrapServersConfig: String)
+  case class Kafka(schemaRegistryURL: String,
+                   bootStrapServersConfig: String,
+                   producerTimeout: String,
+                   keySerializer: String,
+                   valueSerializer: String)
 
   // db
   case class DB(url: String)

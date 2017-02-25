@@ -17,7 +17,7 @@
    [environ.core :refer [env]]))
 
 
-(def topics ["activities"])
+(def topics ["scoped_activities"])
 
 (def kafka-broker (delay (:kafka-broker env)))
 (def schema-registry-url (delay (:schema-registry-url env)))

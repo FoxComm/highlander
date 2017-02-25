@@ -11,7 +11,6 @@ import org.apache.avro.generic.GenericData
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerConfig, ProducerRecord}
 import models.account.Scope
 import org.json4s.Extraction
-import org.json4s.jackson.Serialization.writePretty
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
@@ -21,6 +20,10 @@ import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db.{DbResultT, _}
 import utils.FoxConfig.config
+import utils.Environment
+
+import scala.concurrent.Future
+import scala.util.{Failure, Success}
 
 case class ActivityContext(userId: Int, userType: String, transactionId: String, scope: LTree) {
   def withCurrentScope(implicit au: AU) = withScope(Scope.current)
@@ -91,11 +94,10 @@ object Activities
     val props = new Properties()
 
     props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, config.apis.kafka.bootStrapServersConfig)
-    props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
-              "org.apache.kafka.common.serialization.StringSerializer")
-    props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
-              "org.apache.kafka.common.serialization.StringSerializer")
+    props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, config.apis.kafka.keySerializer)
+    props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, config.apis.kafka.valueSerializer)
     props.put("schema.registry.url", config.apis.kafka.schemaRegistryURL)
+    props.put(ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG, config.apis.kafka.producerTimeout)
 
     props
   }
@@ -103,10 +105,6 @@ object Activities
   def log(a: OpaqueActivity)(implicit activityContext: AC, ec: EC): DbResultT[Activity] = {
     val activity =
       Activity(activityType = a.activityType, data = a.data, context = activityContext)
-
-    logger.info(
-        s"Activity ${a.activityType} by ${activityContext.userType} ${activityContext.userId}")
-    logger.debug(writePretty(activity))
 
     val topic = "scoped_activities"
 
@@ -156,7 +154,21 @@ object Activities
 
     val record = new ProducerRecord[String, GenericData.Record](topic, avroActivityRecord)
 
-    kafkaProducer.send(record)
+    // Workaround until we decide how to test Phoenix => Kafka service integration
+    if (Environment.default != Environment.Test) {
+      val kafkaSendFuture = Future {
+        kafkaProducer.send(record)
+      }
+
+      kafkaSendFuture onComplete {
+        case Success(_) ⇒
+          logger.info(
+              s"Kafka Activity ${a.activityType} by ${activityContext.userType} ${activityContext.userId} SUCCESS")
+        case Failure(_) ⇒
+          logger.info(
+              s"Kafka Activity ${a.activityType} by ${activityContext.userType} ${activityContext.userId} FAILURE")
+      }
+    }
 
     DbResultT.pure(activity)
   }
