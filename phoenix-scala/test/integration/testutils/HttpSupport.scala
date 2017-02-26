@@ -28,7 +28,7 @@ import org.scalatest.concurrent.ScalaFutures
 import server.Service
 import services.Authenticator.UserAuthenticator
 import utils.apis.Apis
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 import utils.{Environment, FoxConfig, JsonFormatters}
 import utils.FoxConfig.config
 
@@ -102,8 +102,6 @@ trait HttpSupport
 
   def overrideUserAuth: UserAuthenticator =
     AuthAs(adminUser, customerData)
-
-  implicit val env = Environment.Test
 
   def apisOverride: Apis
 

@@ -5,7 +5,7 @@ import models.location._
 import slick.driver.PostgresDriver.api._
 import testutils._
 import utils.db._
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 
 class TransactionRollbackTest extends IntegrationTestBase {
 

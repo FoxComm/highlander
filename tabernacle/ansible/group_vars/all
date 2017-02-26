@@ -190,10 +190,10 @@ bottledwater_slot_marketplace: bottledwater_marketplace
 phoenix_version: 1.0
 phoenix_env: staging
 phoenix_src: ../../phoenix-scala/
-phoenix_jar_src: "{{phoenix_src}}/gatling/target/{{scala_version}}/phoenix-scala-assembly-{{phoenix_version}}.jar"
 
 phoenix_dir: /phoenix
 phoenix_jar: "{{phoenix_dir}}/phoenix.jar"
+phoenix_seeder_jar: "{{phoenix_dir}}/phoenix-seeder.jar"
 phoenix_db_name: phoenix_development
 phoenix_db_user: phoenix
 phoenix_test_db_name: phoenix_test
@@ -305,8 +305,8 @@ loyalty_jmx_port: 39013
 
 # Seeds
 seeds_cmd: utils.seeds.Seeds seed --seedAdmins --seedDemo 1
-gatling_oneshot_seeds_cmd: seeds.OneshotSeeds
-gatling_continuous_seeds_cmd: seeds.ContinuousSeeds
+gatling_oneshot_seeds_cmd: gatling.seeds.OneshotSeeds
+gatling_continuous_seeds_cmd: gatling.seeds.ContinuousSeeds
 
 # Google OAuth
 google_oauth_admin_client_id: ""

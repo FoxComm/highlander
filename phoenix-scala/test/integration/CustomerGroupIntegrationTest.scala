@@ -11,12 +11,14 @@ import responses.GroupResponses.GroupResponse.{Root, build}
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
-import utils.seeds.Seeds.Factories
+
 import shapeless._
 import utils.db._
 import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import cats.implicits._
+import utils.seeds.Factories
+
 
 class CustomerGroupIntegrationTest
     extends IntegrationTestBase
