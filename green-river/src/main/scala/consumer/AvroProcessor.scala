@@ -148,7 +148,9 @@ class AvroProcessor(schemaRegistryUrl: String, processor: JsonProcessor)(implici
     val writer  = new GenericDatumWriter[Object](schema)
     writer.write(obj, encoder)
     encoder.flush()
-    new String(stream.toByteArray, "UTF-8")
+    val result = new String(stream.toByteArray, "UTF-8")
+    stream.close()
+    result
   }
 }
 

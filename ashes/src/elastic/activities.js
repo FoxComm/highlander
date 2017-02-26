@@ -36,7 +36,7 @@ export function fetch(queryParams, forCount = false) {
     q.size = 0;
   }
 
-  return post(`activity_connections_view/_search`, q);
+  return post(`scoped_activity_trails/_search`, q);
 }
 
 export default function searchActivities(fromActivity = null, trailParams, days = 2, query = null) {
@@ -55,7 +55,7 @@ export default function searchActivities(fromActivity = null, trailParams, days 
   if (fromActivity == null) {
     const now = moment.utc();
 
-    promise = post('activity_connections_view/_search', queryFirstActivity())
+    promise = post('scoped_activity_trails/_search', queryFirstActivity())
       .then(response => {
         const result = response.result;
         if (result.length) {

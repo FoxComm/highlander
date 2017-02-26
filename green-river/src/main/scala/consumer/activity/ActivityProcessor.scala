@@ -1,6 +1,8 @@
 package consumer.activity
 
+import java.io.ByteArrayOutputStream
 import java.time.Instant
+import java.time.format.DateTimeFormatter
 import java.util.Properties
 
 import scala.concurrent.Future
@@ -8,6 +10,9 @@ import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 
 import org.apache.avro.Schema
 import org.apache.avro.generic.GenericData
+import org.apache.avro.generic.GenericRecord
+import org.apache.avro.io._
+import org.apache.avro.specific.SpecificDatumWriter
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerConfig, ProducerRecord}
 
 import consumer.{AvroJsonHelper, JsonProcessor, AvroProcessor}
@@ -73,15 +78,15 @@ class ActivityProcessor(
 
     props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.broker)
     props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
-              "org.apache.kafka.common.serialization.StringSerializer")
+              "org.apache.kafka.common.serialization.ByteArraySerializer")
     props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
-              "org.apache.kafka.common.serialization.StringSerializer")
+              "org.apache.kafka.common.serialization.ByteArraySerializer")
     props.put("schema.registry.url", kafka.schemaRegistryURL)
 
     props
   }
 
-  val kafkaProducer = new KafkaProducer[String, GenericData.Record](kafkaProps)
+  val kafkaProducer = new KafkaProducer[Array[Byte], Array[Byte]](kafkaProps)
   val trailTopic    = "scoped_activity_trails"
 
   def process(offset: Long, topic: String, key: String, inputJson: String): Future[Unit] = {
@@ -125,10 +130,17 @@ class ActivityProcessor(
     record.put("dimension", connection.dimension)
     record.put("object_id", connection.objectId)
     record.put("activity", render(activity))
-    record.put("created_at", activity.createdAt)
+    record.put("created_at", DateTimeFormatter.ISO_INSTANT.format(activity.createdAt))
     record.put("scope", activity.scope)
 
-    kafkaProducer.send(new ProducerRecord[String, GenericData.Record](trailTopic, record))
+    val writer                 = new SpecificDatumWriter[GenericRecord](AvroProcessor.activityTrailSchema)
+    val out                    = new ByteArrayOutputStream()
+    val encoder: BinaryEncoder = EncoderFactory.get().binaryEncoder(out, null)
+    writer.write(record, encoder)
+    encoder.flush()
+    out.close()
+    val bytes: Array[Byte] = out.toByteArray()
+    kafkaProducer.send(new ProducerRecord[Array[Byte], Array[Byte]](trailTopic, bytes))
     ()
   }
 

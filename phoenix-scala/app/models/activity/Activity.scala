@@ -1,6 +1,8 @@
 package models.activity
 
+import java.io.ByteArrayOutputStream
 import java.time.Instant
+import java.time.format.DateTimeFormatter
 import java.util.Properties
 
 import com.github.tminglei.slickpg.LTree
@@ -8,9 +10,14 @@ import com.typesafe.scalalogging.LazyLogging
 import faker.Lorem.letterify
 import org.apache.avro.Schema
 import org.apache.avro.generic.GenericData
+import org.apache.avro.generic.GenericRecord
+import org.apache.avro.specific.SpecificDatumWriter
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerConfig, ProducerRecord}
+import org.apache.avro.io._
+
 import models.account.Scope
 import org.json4s.Extraction
+import org.json4s.jackson.Serialization.{write ⇒ render}
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
@@ -86,7 +93,42 @@ object Activities
     with ReturningId[Activity, Activities] {
 
   val returningLens: Lens[Activity, Int] = lens[Activity].id
-  val kafkaProducer                      = new KafkaProducer[String, GenericData.Record](kafkaProducerProps())
+  val kafkaProducer                      = new KafkaProducer[Array[Byte], Array[Byte]](kafkaProducerProps())
+
+  val activityAvroSchema = """
+      |{
+      |  "type":"record",
+      |  "name":"scoped_activities",
+      |  "fields":[
+      |    {
+      |      "name":"id",
+      |      "type":["null","int"]
+      |    },
+      |    {
+      |      "name":"activity_type",
+      |      "type":["null","string"]
+      |    },
+      |    {
+      |      "name":"data",
+      |      "type":["null","string"]
+      |    },
+      |    {
+      |      "name":"context",
+      |      "type":["null","string"]
+      |    },
+      |    {
+      |      "name":"created_at",
+      |      "type":["null","string"]
+      |    },
+      |    {
+      |      "name":"scope",
+      |      "type":["null","string"]
+      |    }
+      |  ]
+      |}
+    """.stripMargin.replaceAll("\n", " ")
+  val schemaParser       = new Schema.Parser()
+  val schema             = schemaParser.parse(activityAvroSchema)
 
   implicit val formats = JsonFormatters.phoenixFormats
 
@@ -104,60 +146,32 @@ object Activities
 
   def log(a: OpaqueActivity)(implicit activityContext: AC, ec: EC): DbResultT[Activity] = {
     val activity =
-      Activity(activityType = a.activityType, data = a.data, context = activityContext)
+      Activity(id = 0, activityType = a.activityType, data = a.data, context = activityContext)
 
     val topic = "scoped_activities"
 
-    val activityAvroSchema = """
-        |{
-        |  "type":"record",
-        |  "name":"scoped_activities",
-        |  "fields":[
-        |    {
-        |      "name":"id",
-        |      "type":["null","int"]
-        |    },
-        |    {
-        |      "name":"activity_type",
-        |      "type":["null","string"]
-        |    },
-        |    {
-        |      "name":"data",
-        |      "type":["null","string"]
-        |    },
-        |    {
-        |      "name":"context",
-        |      "type":["null","string"]
-        |    },
-        |    {
-        |      "name":"created_at",
-        |      "type":["null","string"]
-        |    },
-        |    {
-        |      "name":"scope",
-        |      "type":["null","string"]
-        |    }
-        |  ]
-        |}
-      """.stripMargin.replaceAll("\n", " ")
-    val schemaParser       = new Schema.Parser()
-    val schema             = schemaParser.parse(activityAvroSchema)
+    val record = new GenericData.Record(schema)
 
-    val avroActivityRecord = new GenericData.Record(schema)
+    record.put("id", activity.id)
+    record.put("activity_type", activity.activityType)
+    record.put("data", render(activity.data))
+    record.put("context", render(activity.context))
+    record.put("created_at", DateTimeFormatter.ISO_INSTANT.format(activity.createdAt))
+    record.put("scope", activity.context.scope.toString())
 
-    avroActivityRecord.put("id", activity.id)
-    avroActivityRecord.put("activity_type", activity.activityType)
-    avroActivityRecord.put("data", activity.data)
-    avroActivityRecord.put("context", activity.context)
-    avroActivityRecord.put("created_at", activity.createdAt)
-    avroActivityRecord.put("scope", activity.context.scope.toString())
-
-    val record = new ProducerRecord[String, GenericData.Record](topic, avroActivityRecord)
+    val writer                 = new SpecificDatumWriter[GenericRecord](schema)
+    val out                    = new ByteArrayOutputStream()
+    val encoder: BinaryEncoder = EncoderFactory.get().binaryEncoder(out, null)
+    writer.write(record, encoder)
+    encoder.flush()
+    out.close()
+    val bytes: Array[Byte] = out.toByteArray()
+    val msg                = new ProducerRecord[Array[Byte], Array[Byte]](topic, bytes)
 
     // Workaround until we decide how to test Phoenix => Kafka service integration
     if (Environment.default != Environment.Test) {
       val kafkaSendFuture = Future {
-        kafkaProducer.send(record)
+        kafkaProducer.send(msg)
       }
 
       kafkaSendFuture onComplete {
