@@ -5,11 +5,14 @@ import styles from '../profile.css';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import { browserHistory } from 'lib/history';
+import { clearErrorsFor } from '@foxcomm/wings';
 
 import { Link } from 'react-router';
 import Block from '../common/block';
 import Button from 'ui/buttons';
 import { TextInput } from 'ui/inputs';
+import { FormField, Form } from 'ui/forms';
+import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
 
 import * as actions from 'modules/profile';
 
@@ -36,6 +39,7 @@ type EditEmailProps = {
   fetchAccount: () => PromiseType,
   updateAccount: (payload: Object) => PromiseType,
   updateState: AsyncStatus,
+  clearErrorsFor: (...args: Array<string>) => void,
 }
 
 type State = {
@@ -52,6 +56,10 @@ class EditEmail extends Component {
 
   componentWillMount() {
     this.props.fetchAccount();
+  }
+
+  componentWillUnmount() {
+    this.props.clearErrorsFor('updateAccount');
   }
 
   @autobind
@@ -73,25 +81,32 @@ class EditEmail extends Component {
   render() {
     return (
       <Block title={EditEmail.title}>
-        <div styleName="section">Use this form to update your email address.</div>
-        <TextInput
-          styleName="text-input"
-          value={this.state.email}
-          onChange={this.handleEmailChange}
-        />
-        <div styleName="buttons-footer">
-          <Button
-            styleName="save-button"
-            onClick={this.handleSave}
-            isLoading={this.props.updateState.inProgress}
-          >
-            Save
-          </Button>
-          <Link styleName="link" to="/profile">Cancel</Link>
-        </div>
+        <Form onSubmit={this.handleSave}>
+          <div styleName="section">Use this form to update your email address.</div>
+          <FormField error={!!this.props.updateState.err}>
+            <TextInput
+              required
+              styleName="text-input"
+              value={this.state.email}
+              onChange={this.handleEmailChange}
+            />
+          </FormField>
+          <ErrorAlerts
+            error={this.props.updateState.err}
+          />
+          <div styleName="buttons-footer">
+            <Button
+              type="submit"
+              styleName="save-button"
+              isLoading={this.props.updateState.inProgress}
+              children="Save"
+            />
+            <Link styleName="link" to="/profile">Cancel</Link>
+          </div>
+        </Form>
       </Block>
     );
   }
 }
 
-export default connect(mapStateToProps, actions)(EditEmail);
+export default connect(mapStateToProps, {...actions, clearErrorsFor})(EditEmail);
