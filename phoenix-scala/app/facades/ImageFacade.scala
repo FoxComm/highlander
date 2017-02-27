@@ -71,7 +71,7 @@ object ImageFacade {
         }
     }
 
-    (* <~ xs).runDBIO()
+    Result.fromFXor(xs)
   }
 
   def uploadImage(part: Multipart.FormData.BodyPart, album: Album)(implicit ec: EC,

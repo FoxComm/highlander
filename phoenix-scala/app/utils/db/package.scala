@@ -34,15 +34,10 @@ package object db {
   object Foxy extends FoxyTOps[Id]()
 
   type FoxyTFuture[A] = FoxyT[Future, A] /* replaces the old ResultT */
-  object FoxyTFuture extends FoxyTOps[Future] {
-    def fromFutureXor[A](v: Future[Failures Xor A])(implicit M: Monad[Future]): FoxyT[Future, A] = // TODO: remove me @michalrus
-      StateT(s ⇒ XorT(M.map(v)(_.map((s, _)))))
-  }
+  object FoxyTFuture extends FoxyTOps[Future]
 
   type FoxyTDBIO[A] = FoxyT[DBIO, A] /* replaces the old DbResultT */
   object FoxyTDBIO extends FoxyTOps[DBIO] {
-    def fromDbio[A](fa: DBIO[A])(implicit M: Monad[DBIO]): FoxyTDBIO[A] = // TODO: remove me @michalrus
-      fromF(fa)
     def fromResultT[A](ga: FoxyT[Future, A])(
         implicit F: Monad[Future],
         G: Monad[DBIO]): FoxyT[DBIO, A] = // TODO: better name? @michalrus
@@ -76,10 +71,10 @@ package object db {
           } yield (s, b)))
       }
 
-    def mapXorRight[B](f: Xor[Failures, A] ⇒ B)(implicit M: Monad[F]): FoxyT[F, B] =
+    def mapXorRight[B](f: Xor[Failures, A] ⇒ B)(implicit F: Monad[F]): FoxyT[F, B] =
       mapXor(xa ⇒ Xor.Right(f(xa))) // TODO: remove me? @michalrus
 
-    def fold[B](ra: Failures ⇒ B, rb: A ⇒ B)(implicit M: Monad[F]): FoxyT[F, B] = // TODO: this is not fold… Find a better name? @michalrus
+    def fold[B](ra: Failures ⇒ B, rb: A ⇒ B)(implicit F: Monad[F]): FoxyT[F, B] = // TODO: this is not fold… Find a better name? @michalrus
       fa.mapXor {
         case Xor.Left(a)  ⇒ Xor.Right(ra(a))
         case Xor.Right(b) ⇒ Xor.Right(rb(b))
@@ -122,49 +117,52 @@ package object db {
   }
 
   trait FoxyTOps[F[_]] {
-    def apply[A](a: A)(implicit M: Monad[F]): FoxyT[F, A] = // TODO: remove me? @michalrus
+    def apply[A](a: A)(implicit F: Monad[F]): FoxyT[F, A] = // TODO: remove me? @michalrus
       pure(a)
 
-    def pure[A](a: A)(implicit M: Monad[F]): FoxyT[F, A] =
+    def pure[A](a: A)(implicit F: Monad[F]): FoxyT[F, A] =
       Monad[FoxyT[F, ?]].pure(a)
 
-    def good[A](a: A)(implicit M: Monad[F]): FoxyT[F, A] = // TODO: remove me @michalrus
+    def good[A](a: A)(implicit F: Monad[F]): FoxyT[F, A] = // TODO: remove me @michalrus
       pure(a)
 
-    def unit(implicit M: Monad[F]): FoxyT[F, Unit] = pure(()) // TODO: remove me? @michalrus
+    def unit(implicit F: Monad[F]): FoxyT[F, Unit] = pure(()) // TODO: remove me? @michalrus
 
-    def none[A](implicit M: Monad[F]): FoxyT[F, Option[A]] =
+    def none[A](implicit F: Monad[F]): FoxyT[F, Option[A]] =
       pure(None) // TODO: remove me? @michalrus
 
-    def uiWarning(f: Failure)(implicit M: Monad[F]): FoxyT[F, Unit] =
+    def uiWarning(f: Failure)(implicit F: Monad[F]): FoxyT[F, Unit] =
       StateT.modify(UIInfo.Warning(f) :: _)
 
-    def uiError(f: Failure)(implicit M: Monad[F]): FoxyT[F, Unit] =
+    def uiError(f: Failure)(implicit F: Monad[F]): FoxyT[F, Unit] =
       StateT.modify(UIInfo.Error(f) :: _)
 
-    def failures[A](f: Failures)(implicit M: Monad[F]): FoxyT[F, A] = // TODO: shouldn’t A =:= Unit? @michalrus
-      StateT(_ ⇒ XorT.left(M.pure(f)))
+    def failures[A](f: Failures)(implicit F: Monad[F]): FoxyT[F, A] = // TODO: shouldn’t A =:= Unit? @michalrus
+      StateT(_ ⇒ XorT.left(F.pure(f)))
 
-    def failure[A](f: Failure)(implicit M: Monad[F]): FoxyT[F, A] = // TODO: remove me? @michalrus
+    def failure[A](f: Failure)(implicit F: Monad[F]): FoxyT[F, A] = // TODO: remove me? @michalrus
       failures(f.single)
 
-    def fromF[A](fa: F[A])(implicit M: Monad[F]): FoxyT[F, A] = // TODO: better name? @michalrus
-      StateT(s ⇒ XorT.right(M.map(fa)((s, _))))
+    def fromF[A](fa: F[A])(implicit F: Monad[F]): FoxyT[F, A] = // TODO: better name? @michalrus
+      StateT(s ⇒ XorT.right(F.map(fa)((s, _))))
 
-    def fromXor[A](v: Failures Xor A)(implicit M: Monad[F]): FoxyT[F, A] =
-      StateT(s ⇒ XorT(M.pure(v.map((s, _)))))
+    def fromXor[A](v: Failures Xor A)(implicit F: Monad[F]): FoxyT[F, A] = // TODO: remove me @michalrus
+      StateT(s ⇒ XorT(F.pure(v.map((s, _)))))
 
-    def fromId[A](fa: Foxy[A])(implicit M: Monad[F]): FoxyT[F, A] =
-      fa.transformF(ga ⇒ XorT(M.pure(ga.value)))
+    def fromFXor[A](v: F[Failures Xor A])(implicit F: Monad[F]): FoxyT[F, A] = // TODO: remove me @michalrus
+      StateT(s ⇒ XorT(F.map(v)(_.map((s, _)))))
+
+    def fromId[A](fa: Foxy[A])(implicit F: Monad[F]): FoxyT[F, A] =
+      fa.transformF(ga ⇒ XorT(F.pure(ga.value)))
 
     def failWithMatchedWarning(pf: PartialFunction[Failure, Boolean])(
-        implicit M: Monad[F]): FoxyT[F, Unit] =
+        implicit F: Monad[F]): FoxyT[F, Unit] =
       StateT(s ⇒
             s.collect {
           case UIInfo.Warning(f) ⇒ f
         }.find(pf.lift(_) == Some(true)) match {
-          case Some(f) ⇒ XorT.left(M.pure(NonEmptyList(f, Nil)))
-          case _       ⇒ XorT.right(M.pure((s, ())))
+          case Some(f) ⇒ XorT.left(F.pure(NonEmptyList(f, Nil)))
+          case _       ⇒ XorT.right(F.pure((s, ())))
       })
 
     /** Just like ``sequence`` but—in case of a failure—unlawful, as it will join failures from all Foxies. */

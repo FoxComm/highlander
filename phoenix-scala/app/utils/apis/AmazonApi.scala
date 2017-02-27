@@ -51,6 +51,6 @@ class AmazonS3 extends AmazonApi {
       case _ ⇒
         left(GeneralFailure("An unexpected error occurred uploading to S3").single)
     }
-    Result.fromFutureXor(f)
+    Result.fromFXor(f)
   }
 }

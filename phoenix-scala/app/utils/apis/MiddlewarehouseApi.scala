@@ -48,7 +48,7 @@ class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
       case Right(MwhResponse(_, message))                     ⇒ Xor.left(parseMwhErrors(message))
       case Left(error)                                        ⇒ Xor.left(MiddlewarehouseFailures.UnableToHoldLineItems.single)
     }
-    Result.fromFutureXor(f)
+    Result.fromFXor(f)
   }
 
   //Note cart ref becomes order ref num after cart turns into order
@@ -62,7 +62,7 @@ class Middlewarehouse(url: String) extends MiddlewarehouseApi with LazyLogging {
       case Right(_)    ⇒ Xor.right(())
       case Left(error) ⇒ Xor.left(MiddlewarehouseFailures.UnableToCancelHoldLineItems.single)
     }
-    Result.fromFutureXor(f)
+    Result.fromFXor(f)
   }
 }
 

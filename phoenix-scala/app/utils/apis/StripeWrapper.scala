@@ -115,6 +115,6 @@ class StripeWrapper extends StripeApiWrapper with LazyLogging {
       // TODO: what about case _? @michalrus
     }
 
-    Result.fromFutureXor(f)
+    Result.fromFXor(f)
   }
 }
