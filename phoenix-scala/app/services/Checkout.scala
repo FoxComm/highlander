@@ -141,7 +141,8 @@ case class Checkout(
                   }.toSeq
       _ ← * <~ doOrMeh(
              skusToHold.size > 0,
-             * <~ apis.middlwarehouse.hold(OrderInventoryHold(cart.referenceNumber, skusToHold)))
+             DbResultT.fromResultT(
+                 apis.middlwarehouse.hold(OrderInventoryHold(cart.referenceNumber, skusToHold))))
       mutating = externalCalls.middleWarehouseSuccess = skusToHold.size > 0
     } yield {}
 

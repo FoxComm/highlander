@@ -63,19 +63,22 @@ case class CartValidator(cart: Cart)(implicit ec: EC, db: DB) extends CartValida
   private def validShipMethod(response: CartValidatorResponse)(
       implicit db: DB): DbResultT[CartValidatorResponse] =
     for {
-      xyz ← * <~ (for {
-             osm ← OrderShippingMethods.findByOrderRef(cart.refNum)
-             sm  ← osm.shippingMethod
-           } yield (osm, sm)).one
-      abc ← xyz match {
-             case Some((osm, sm)) ⇒
-               ShippingManager.evaluateShippingMethodForCart(sm, cart).map(_ ⇒ response).recover {
-                 case _ ⇒ warning(response, InvalidShippingMethod(cart.refNum))
-               } // FIXME validator warning and actual failure differ
-             case None ⇒
-               DbResultT(warning(response, NoShipMethod(cart.refNum)))
-           }
-    } yield abc
+      shipping ← * <~ (for {
+                  osm ← OrderShippingMethods.findByOrderRef(cart.refNum)
+                  sm  ← osm.shippingMethod
+                } yield (osm, sm)).one
+      validatedResponse ← * <~ (shipping match {
+                               case Some((osm, sm)) ⇒
+                                 ShippingManager
+                                   .evaluateShippingMethodForCart(sm, cart)
+                                   .map(_ ⇒ response)
+                                   .recover {
+                                     case _ ⇒ warning(response, InvalidShippingMethod(cart.refNum))
+                                   } // FIXME validator warning and actual failure differ
+                               case None ⇒
+                                 DbResultT(warning(response, NoShipMethod(cart.refNum)))
+                             })
+    } yield validatedResponse
 
   private def sufficientPayments(response: CartValidatorResponse,
                                  isCheckout: Boolean): DBIO[CartValidatorResponse] = {

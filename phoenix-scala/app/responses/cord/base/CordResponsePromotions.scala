@@ -24,7 +24,7 @@ object CordResponsePromotions {
       cordRef: String)(implicit db: DB, ec: EC, ctx: OC): DbResultT[CordResponsePromoDetails] =
     for {
       orderPromo ← * <~ OrderPromotions.filterByCordRef(cordRef).one
-      promo      ← fetchPromoDetails(orderPromo)
+      promo      ← * <~ fetchPromoDetails(orderPromo)
     } yield promo
 
   private def fetchPromoDetails(
