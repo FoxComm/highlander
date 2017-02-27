@@ -1,0 +1,19 @@
+# send to Kafka
+module(load="omkafka")
+module(load="imfile")
+
+template(name="kafkamsg" type="string" string="%msg%") 
+
+ruleset(name="nkafka") {
+        action(type="omkafka" 
+          topic="nginx-access"
+          broker=["kafka.service.consul:9092"]
+          template="kafkamsg")
+        stop
+}
+
+input(type="imfile"
+      ruleset="nkafka"
+      File="/var/log/nginx/access.log"
+      Tag="nginx-access"
+) 

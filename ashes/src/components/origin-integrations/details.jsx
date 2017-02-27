@@ -89,7 +89,7 @@ class IntegrationDetails extends Component {
       this.state.shopify_domain !== domain;
   }
 
-  get renderPageTitle(): Element {
+  get renderPageTitle(): Element<*> {
     const { isCreating, isUpdating } = this.props;
     const isLoading = isCreating || isUpdating;
     const disabled = isLoading || !this.isDirty;
@@ -127,7 +127,7 @@ class IntegrationDetails extends Component {
     }
   }
 
-  render(): Element {
+  render() {
     const { originIntegration } = this.props.details;
     const { isFetching, fetchError } = this.props;
 
@@ -162,7 +162,7 @@ class IntegrationDetails extends Component {
                   <li styleName="entry">
                     <FormField label="Shopify Key" validator="ascii" maxLength={255}>
                       <div>
-                        <input 
+                        <input
                           type="text"
                           value={this.state.shopify_key}
                           onChange={handleShopifyKey} />

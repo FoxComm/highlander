@@ -13,7 +13,7 @@ import * as PluginsActions from 'modules/plugins';
 
 type Props = {
   plugins: Array<Object>,
-  fetchPlugins: () => Promise,
+  fetchPlugins: () => Promise<*>,
   isLoading: boolean,
 }
 

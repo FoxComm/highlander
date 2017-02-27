@@ -47,7 +47,7 @@ class SkuContentBox extends Component {
     selectedOptions: {},
   };
 
-  get actions(): ?Element {
+  get actions(): ?Element<*> {
     if (_.isEmpty(this.props.variants)) {
       return null;
     }
@@ -57,7 +57,7 @@ class SkuContentBox extends Component {
     }
 
     return (
-      <a id="sku-block-add-sku-btn" styleName="add-icon" onClick={this.addAction}>
+      <a id="fct-add-sku-btn__skus-block" styleName="add-icon" onClick={this.addAction}>
         <i className="icon-add" />
       </a>
     );
@@ -71,7 +71,7 @@ class SkuContentBox extends Component {
     return [];
   }
 
-  get addSkuDialog(): Element {
+  get addSkuDialog(): Element<*> {
     const availableVariants = availableVariantsValues(this.props.fullProduct);
     const { selectedOptions } = this.state;
 

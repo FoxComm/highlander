@@ -20,8 +20,8 @@ import type { Action } from '../image-card/image-card';
 
 export type Props = {
   image: ImageFile;
-  editImage: (info: ImageInfo) => Promise;
-  deleteImage: () => Promise;
+  editImage: (info: ImageInfo) => Promise<*>;
+  deleteImage: () => Promise<*>;
   imagePid: string|number;
 };
 
@@ -72,7 +72,7 @@ export default class Image extends Component<void, Props, State> {
     this.setState({ deleteMode: false });
   }
 
-  get deleteImageDialog(): ?Element {
+  get deleteImageDialog(): ?Element<*> {
     if (!this.state.deleteMode) {
       return;
     }
@@ -92,7 +92,7 @@ export default class Image extends Component<void, Props, State> {
     );
   }
 
-  get editImageDialog(): ?Element {
+  get editImageDialog(): ?Element<*> {
     return (
       <BodyPortal className={styles.modal}>
         <EditImage
@@ -121,7 +121,7 @@ export default class Image extends Component<void, Props, State> {
     ];
   }
 
-  render(): Element {
+  render() {
     const { image, imagePid } = this.props;
 
     return (

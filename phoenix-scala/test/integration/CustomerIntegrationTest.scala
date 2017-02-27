@@ -33,7 +33,7 @@ import testutils.fixtures.BakedFixtures
 import utils.MockedApis
 import utils.aliases.stripe.StripeCard
 import utils.db._
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 
 class CustomerIntegrationTest
     extends IntegrationTestBase

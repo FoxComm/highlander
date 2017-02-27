@@ -9,7 +9,7 @@ import models.location.Address
 import utils.aliases.stripe.StripeCustomer
 import utils.apis.StripeWrapper
 import utils.db._
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 
 object TestStripeSupport {
 

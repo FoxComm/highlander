@@ -16,7 +16,7 @@ import testutils._
 import testutils.fixtures.raw._
 import utils.Money.Currency
 import utils.db._
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 
 /**
   * Raw fixtures are cake-pattern definitions.

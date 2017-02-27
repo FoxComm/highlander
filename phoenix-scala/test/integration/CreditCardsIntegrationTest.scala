@@ -19,7 +19,7 @@ import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import utils.TestStripeSupport
 import utils.aliases.stripe.StripeCustomer
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 import utils.db._
 
 class CreditCardsIntegrationTest

@@ -1,7 +1,7 @@
 
 /* @flow */
 
-import React, { PropTypes, Component, Element } from 'react';
+import React, { PropTypes, Component } from 'react';
 import _ from 'lodash';
 import { connect } from 'react-redux';
 import { transitionTo } from 'browserHistory';
@@ -83,19 +83,19 @@ export default class CustomerCart extends Component {
     );
   }
 
-  get waitAnimation(): Element {
+  get waitAnimation() {
     return <WaitAnimation/>;
   }
 
-  get errorMessage(): Element {
+  get errorMessage() {
     return <div className="fc-customer__empty-messages">An error occurred. Try again later.</div>;
   }
 
-  get emptyMessage(): Element {
+  get emptyMessage() {
     return <div className="fc-customer__empty-messages">No current cart found for customer.</div>;
   }
 
-  get content(): Element {
+  get content() {
     const details = {
       order: this.cart,
     };

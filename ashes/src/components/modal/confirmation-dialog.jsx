@@ -10,8 +10,8 @@ import wrapModal from '../modal/wrapper';
 import ErrorAlerts from '../alerts/error-alerts';
 
 type Props = {
-  body: string|Element,
-  header: string|Element,
+  body: string|Element<*>,
+  header: string|Element<*>,
   cancel: string,
   confirm: string,
   icon?: string,
@@ -20,7 +20,7 @@ type Props = {
   asyncState?: AsyncState,
 };
 
-const ConfirmationDialog = (props: Props): Element => {
+const ConfirmationDialog = (props: Props) => {
   let modalIcon = null;
   if (props.icon) {
     modalIcon = <i className={ `icon-${props.icon}` } />;
@@ -56,10 +56,10 @@ const ConfirmationDialog = (props: Props): Element => {
           {props.body}
         </div>
         <div className='fc-modal-footer'>
-          <a id="modal-cancel-btn" tabIndex="2" className='fc-modal-close' onClick={() => props.onCancel()}>
+          <a id="fct-modal-cancel-btn" tabIndex="2" className='fc-modal-close' onClick={() => props.onCancel()}>
             {props.cancel}
           </a>
-          <PrimaryButton id="modal-confirm-btn"
+          <PrimaryButton id="fct-modal-confirm-btn"
                          tabIndex="1" autoFocus={true}
                          isLoading={_.get(props.asyncState, 'inProgress', false)}
                          onClick={() => props.confirmAction()}>

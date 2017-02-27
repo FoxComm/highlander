@@ -36,7 +36,7 @@ type Props = {
 export default class CartDetails extends Component {
   props: Props;
 
-  render(): Element {
+  render() {
     const { details } = this.props;
     const { cart } = details;
 
@@ -57,12 +57,12 @@ export default class CartDetails extends Component {
       <div className="fc-order-details">
         <div className="fc-order-details-body">
           <div className="fc-order-details-main">
-            <CartLineItems id="cart-items-block" status={itemsStatus} cart={cart} />
-            <DiscountsPanel id="cart-discounts-block" promotion={cart.promotion} />
-            <CartShippingAddress id="cart-shipping-address-block" status={shippingAddressStatus} cart={cart} />
-            <CartShippingMethod id="cart-shipping-method-block" status={shippingMethodStatus} cart={cart} />
-            <CartCoupons id="cart-coupons-block" cart={cart} />
-            <CartPayments id="cart-payment-method-block" cart={cart} status={paymentMethodStatus} />
+            <CartLineItems id="fct-cart-items-block" status={itemsStatus} cart={cart} />
+            <DiscountsPanel id="fct-cart-discounts-block" promotion={cart.promotion} />
+            <CartShippingAddress id="fct-cart-shipping-address-block" status={shippingAddressStatus} cart={cart} />
+            <CartShippingMethod id="fct-cart-shipping-method-block" status={shippingMethodStatus} cart={cart} />
+            <CartCoupons id="fct-cart-coupons-block" cart={cart} />
+              <CartPayments id="fct-cart-payment-method-block" cart={cart} status={paymentMethodStatus} />
             <Checkout cart={cart} validations={details.validations} />
           </div>
           <div className="fc-order-details-aside">

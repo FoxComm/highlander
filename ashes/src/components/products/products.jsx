@@ -3,6 +3,7 @@
  */
 
 // libs
+import get from 'lodash/get';
 import React, { Component, Element } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -49,11 +50,11 @@ export class Products extends Component {
   }
 
   renderRow(row: Product, index: number, columns: Array<Column>, params: Object) {
-    const key = `products-${row.id}`;
+    const key = `products-${get(row, 'id', index)}`;
     return <ProductRow key={key} product={row} columns={columns} params={params} />;
   }
 
-  render(): Element {
+  render() {
     const { list, actions } = this.props;
 
     const searchActions = {

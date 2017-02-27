@@ -1,0 +1,57 @@
+{
+  "id": "/henhouse",
+  "cmd": null,
+  "cpus": 1,
+  "mem": 500,
+  "disk": 0,
+  "instances": 1,
+  "labels": {
+    "LAYER": "backend",
+    "LANG": "cpp",
+    "TAG": "{{docker_tags.henhouse}}"
+  },
+  "container": {
+    "type": "DOCKER",
+    "volumes": [
+      {
+        "containerPath": "hendata",
+        "mode": "RW",
+        "persistent" : {
+            "type":"root",
+            "size": 1000,
+            "constraints": []
+        }
+      }
+    ],
+    "docker": {
+      "image": "{{docker_registry}}:5000/henhouse:{{docker_tags.henhouse}}",
+      "network": "HOST",
+      "privileged": false,
+      "parameters": [],
+      "forcePullImage": true
+    }
+  },
+  "residency": { "taskLostBehavior": "WAIT_FOREVER" },
+  "env": {
+    "DATA": "/var/lib/sandbox/hendata"
+  },
+  "healthChecks": [
+    {
+      "path": "/summary?keys=ping",
+      "protocol": "HTTP",
+      "portIndex": 0,
+      "gracePeriodSeconds": 300,
+      "intervalSeconds": 60,
+      "timeoutSeconds": 20,
+      "maxConsecutiveFailures": 3,
+      "ignoreHttp1xx": false
+    }
+  ],
+  "portDefinitions": [
+    {
+      "port": 9999,
+      "protocol": "tcp",
+      "labels": {}
+    }
+  ]
+}

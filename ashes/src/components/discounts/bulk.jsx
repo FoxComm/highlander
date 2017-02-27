@@ -20,7 +20,7 @@ type Props = {
     changeState: (ids: Array<RefId>, isActivation: boolean) => void;
     updateAttributes: (ids: Array<RefId>, attributes: Attributes) => void;
   };
-  children: Element;
+  children: Element<*>;
 };
 
 const mapDispatchToProps = (dispatch: Function, { entity }) => {

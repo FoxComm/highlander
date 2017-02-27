@@ -7,7 +7,7 @@ import models.cord._
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
-import utils.FoxConfig._
+import utils.FoxConfig.config
 
 // TODO: Use utils.Money
 object CartTotaler {
@@ -61,11 +61,9 @@ object CartTotaler {
     for {
       maybeAddress ← * <~ OrderShippingAddresses.findByOrderRef(cart.refNum).one
       optionalCustomRate = for {
-        address        ← maybeAddress
-        cfgTaxRegionId ← config.getOptString("tax_rules.region_id")
-        cfgTaxRate     ← config.getOptString("tax_rules.rate")
-        taxRegionId    ← Try(cfgTaxRegionId.toInt).toOption
-        taxRate        ← Try(cfgTaxRate.toDouble).toOption
+        address     ← maybeAddress
+        taxRegionId ← config.taxRules.regionId
+        taxRate     ← config.taxRules.rate
       } yield if (address.regionId == taxRegionId) taxRate / 100 else defaultTaxRate
       taxRate = optionalCustomRate.getOrElse(defaultTaxRate)
     } yield ((subTotal - adjustments + shipping) * taxRate).toInt

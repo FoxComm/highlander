@@ -3,7 +3,7 @@ package routes.admin
 import cats.implicits._
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
+import utils.http.JsonSupport._
 import models.account.User
 import models.payment.giftcard.GiftCard.giftCardCodeRegex
 import payloads.GiftCardPayloads._
@@ -20,28 +20,32 @@ object GiftCardRoutes {
   def routes(implicit ec: EC, db: DB, auth: AuthData[User]): Route = {
 
     activityContext(auth.model) { implicit ac ⇒
-      path("customer-gift-cards") {
+      pathPrefix("customer-gift-cards") {
+        path("bulk") {
+          (post & pathEnd & entity(as[Seq[GiftCardCreatedByCustomer]])) { payload ⇒
+            mutateOrFailures {
+              DbResultT.seqCollectFailures(
+                  payload.map(GiftCardService.createByCustomer(auth.model, _)).toList)
+            }
+          }
+        } ~
         (post & pathEnd & entity(as[GiftCardCreatedByCustomer])) { payload ⇒
           mutateOrFailures {
             GiftCardService.createByCustomer(auth.model, payload)
           }
-        } ~
-        (post & pathEnd & entity(as[Seq[GiftCardCreatedByCustomer]])) { payload ⇒
-          mutateOrFailures {
-            DbResultT.seqCollectFailures(
-                payload.map(GiftCardService.createByCustomer(auth.model, _)).toList)
-          }
         }
       } ~
       pathPrefix("gift-cards") {
-        (patch & pathEnd & entity(as[GiftCardBulkUpdateStateByCsr])) { payload ⇒
-          mutateOrFailures {
-            GiftCardService.bulkUpdateStateByCsr(payload, auth.model)
-          }
-        } ~
-        (post & pathEnd & entity(as[GiftCardBulkCreateByCsr])) { payload ⇒
-          mutateOrFailures {
-            GiftCardService.createBulkByAdmin(auth.model, payload)
+        path("bulk") {
+          (post & pathEnd & entity(as[GiftCardBulkCreateByCsr])) { payload ⇒
+            mutateOrFailures {
+              GiftCardService.createBulkByAdmin(auth.model, payload)
+            }
+          } ~
+          (patch & pathEnd & entity(as[GiftCardBulkUpdateStateByCsr])) { payload ⇒
+            mutateOrFailures {
+              GiftCardService.bulkUpdateStateByCsr(payload, auth.model)
+            }
           }
         } ~
         (post & pathEnd & entity(as[GiftCardCreateByCsr])) { payload ⇒

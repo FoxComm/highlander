@@ -13,14 +13,14 @@ import services._
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
-import utils.FoxConfig._
+import utils.FoxConfig.config
 
 trait NoteManager[K, T <: Identity[T]] {
 
   // TODO: FIXME
   // Notes are context indepedent, but for Activities for now we can store only one entity
   // We have decided to store entity with default context for now
-  val defaultContextId: Int = config.getInt(s"app.defaultContextId")
+  val defaultContextId: Int = config.app.defaultContextId
 
   // Define this methods in inherit object
   def noteType(): Note.ReferenceType

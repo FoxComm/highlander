@@ -68,7 +68,7 @@ export default class SkuList extends Component {
     ];
   }
 
-  get emptyContent(): Element {
+  get emptyContent(): Element<*> {
     return (
       <div className="fc-content-box__empty-text">
         No SKUs.
@@ -108,7 +108,7 @@ export default class SkuList extends Component {
     this.closeDeleteConfirmation();
   }
 
-  get deleteDialog(): Element {
+  get deleteDialog(): Element<*> {
     const confirmation = (
       <span>
         Are you sure you want to remove this SKU from the product?
@@ -128,7 +128,7 @@ export default class SkuList extends Component {
     );
   }
 
-  skuContent(skus: Array<Sku>): Element {
+  skuContent(skus: Array<Sku>): Element<*> {
     const renderRow = (row, index, columns, params) => {
       const key = row.feCode || row.code || row.id;
 
@@ -152,7 +152,7 @@ export default class SkuList extends Component {
     return (
       <div className="fc-sku-list">
         <MultiSelectTable
-          tbodyId="sku-list"
+          tbodyId="fct-sku-list"
           styleName="sku-list"
           columns={this.tableColumns()}
           dataTable={false}
@@ -166,7 +166,7 @@ export default class SkuList extends Component {
     );
   }
 
-  render(): Element {
+  render() {
     return _.isEmpty(this.props.skus)
       ? this.emptyContent
       : this.skuContent(this.props.skus);

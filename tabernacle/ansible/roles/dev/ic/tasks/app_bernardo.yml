@@ -1,0 +1,17 @@
+---
+
+- name: Copy Bernardo Marathon JSON
+  template: src=bernardo.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
+
+- name: Update Bernardo in Marathon
+  shell: 'curl -X PUT -d@/marathon/applications/bernardo.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/bernardo'
+
+- name: Restart Bernardo in Marathon
+  shell: 'curl -X POST http://{{marathon_server}}/v2/apps/bernardo/restart'
+
+- name: Get Bernardo Marathon tasks in `healthy` state
+  shell: curl -sS -XGET http://{{marathon_server}}/v2/apps/bernardo | jq '.app.tasksHealthy > 0'
+  register: healthy_tasks_available
+  until: healthy_tasks_available.stdout == 'true'
+  retries: "{{marathon_retries}}"
+  delay: "{{marathon_delay}}"

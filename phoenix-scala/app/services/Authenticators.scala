@@ -1,8 +1,7 @@
 package services
 
-import scala.concurrent.Future
 import akka.http.scaladsl.model.headers.{HttpChallenge, HttpCookie, RawHeader}
-import akka.http.scaladsl.model.{ContentTypes, DateTime, HttpEntity, HttpResponse, StatusCodes, Uri}
+import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.AuthenticationFailedRejection.{CredentialsMissing, CredentialsRejected}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
@@ -19,12 +18,12 @@ import failures._
 import models.account._
 import models.admin._
 import models.auth._
-import org.jose4j.jwt.JwtClaims
 import payloads.{AuthPayload, LoginPayload}
+import scala.concurrent.Future
 import services.account._
 import services.customers.CustomerManager
 import slick.driver.PostgresDriver.api._
-import utils.FoxConfig.{RichConfig, config}
+import utils.FoxConfig.config
 import utils.aliases._
 import utils.db._
 
@@ -57,13 +56,13 @@ object JwtCookie {
   def apply(authPayload: AuthPayload): HttpCookie = HttpCookie(
       name = "JWT",
       value = authPayload.jwt,
-      secure = config.getOptBool("auth.cookieSecure").getOrElse(true),
+      secure = config.auth.cookie.secure,
       httpOnly = true,
-      expires = config.getOptLong("auth.cookieTTL").map { ttl ⇒
+      expires = config.auth.cookie.ttl.map { ttl ⇒
         DateTime.now + ttl * 1000
       },
       path = Some("/"),
-      domain = config.getOptString("auth.cookieDomain")
+      domain = config.auth.cookie.domain
   )
 }
 

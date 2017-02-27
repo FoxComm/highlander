@@ -8,7 +8,7 @@ env:
 
 steps:
   - command: |-
-      cd prov-shit
+      cd tabernacle
       make build
       cp /var/lib/buildkite-agent/account.json ./
       cp /var/lib/buildkite-agent/.vault_pass ./

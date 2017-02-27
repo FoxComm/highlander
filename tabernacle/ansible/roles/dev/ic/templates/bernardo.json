@@ -1,0 +1,51 @@
+{
+  "id": "/bernardo",
+  "cmd": null,
+  "cpus": 0.25,
+  "mem": 64,
+  "disk": 0,
+  "instances": 1,
+  "labels": {
+    "LAYER": "backend",
+    "LANG": "cpp",
+    "TAG": "{{docker_tags.bernardo}}"
+  },
+  "container": {
+    "type": "DOCKER",
+    "volumes": [],
+    "docker": {
+      "image": "{{docker_registry}}:5000/bernardo:{{docker_tags.bernardo}}",
+      "network": "HOST",
+      "privileged": false,
+      "parameters": [],
+      "forcePullImage": true
+    }
+  },
+  "env": {
+    "DB_HOST": "{{docker_db_host}}",
+    "DB_NAME": "{{bernardo_db_name}}",
+    "DB_USER": "{{bernardo_db_user}}",
+    "PORT1" : "19090"
+  },
+  "constraints": [["hostname", "UNIQUE"]],
+  "healthChecks": [
+    {
+      "path": "/ping",
+      "protocol": "HTTP",
+      "portIndex": 0,
+      "gracePeriodSeconds": 300,
+      "intervalSeconds": 30,
+      "timeoutSeconds": 20,
+      "maxConsecutiveFailures": 3,
+      "ignoreHttp1xx": false
+    }
+  ],
+  "portDefinitions": [
+      {
+          "port": 10000,
+          "protocol": "tcp",
+          "name": "http",
+          "labels": {}
+      }
+  ]
+}
