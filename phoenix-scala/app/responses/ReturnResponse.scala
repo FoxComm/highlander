@@ -1,23 +1,18 @@
 package responses
 
 import java.time.Instant
-
-import models.Reason
 import models.account.Users
-import models.cord.Orders
 import models.customer.CustomersData
 import models.admin.AdminsData
-import models.account._
 import models.inventory.Sku
 import models.objects._
 import models.payment.PaymentMethod
 import models.payment.giftcard.GiftCard
 import models.product.Mvp
 import models.returns._
-import models.shipping.Shipment
 import responses.CustomerResponse.{Root ⇒ Customer}
 import responses.StoreAdminResponse.{Root ⇒ User}
-import responses.cord.OrderResponse
+import services.carts.CartTotaler
 import services.returns.ReturnTotaler
 import slick.driver.PostgresDriver.api._
 import utils.Money._
@@ -25,7 +20,7 @@ import utils.aliases._
 import utils.db._
 
 object ReturnResponse {
-  case class ReturnTotals(subTotal: Int, shipping: Int, taxes: Int, total: Int)
+  case class ReturnTotals(subTotal: Int, taxes: Int, shipping: Int, adjustments: Int, total: Int)
       extends ResponseItem
 
   case class LineItemSku(lineItemId: Int, sku: DisplaySku) extends ResponseItem
@@ -99,44 +94,50 @@ object ReturnResponse {
     )
   }
 
-  def buildTotals(
-      subtotal: Option[Int],
-      taxes: Option[Int],
-      shippingCosts: Option[(ReturnLineItemShippingCost, ReturnLineItem)]): ReturnTotals = {
-    val finalSubtotal = subtotal.getOrElse(0)
-    val finalTaxes    = taxes.getOrElse(0)
-    val finalShipping = shippingCosts.map { case (costs, _) ⇒ costs.amount }.getOrElse(0)
-    val grandTotal    = finalSubtotal + finalShipping + finalTaxes
-    ReturnTotals(finalSubtotal, finalTaxes, finalShipping, grandTotal)
+  def buildTotals(subTotal: Int, shipping: Int, adjustments: Int, taxes: Int): ReturnTotals = {
+    ReturnTotals(subTotal = subTotal, shipping = shipping, adjustments = adjustments, taxes = taxes, total = subTotal + shipping + taxes - adjustments)
   }
 
   def fromRma(rma: Return)(implicit ec: EC, db: DB): DbResultT[Root] = {
-    fetchRmaDetails(rma).map {
-      case (_,
-            customer,
-            customerData,
-            storeAdmin,
-            adminData,
-            payments,
-            lineItemData,
-            giftCards,
-            shippingCosts,
-            subtotal) ⇒
-        build(
-            rma = rma,
-            customer = for {
-              c  ← customer
-              cu ← customerData
-            } yield CustomerResponse.build(c, cu),
-            storeAdmin = for {
-              a  ← storeAdmin
-              au ← adminData
-            } yield StoreAdminResponse.build(a, au),
-            payments = payments.map(buildPayment),
-            lineItems = buildLineItems(lineItemData, giftCards, shippingCosts),
-            totals = Some(buildTotals(subtotal, None, shippingCosts))
-        )
-    }
+    for {
+      // Either customer or storeAdmin as creator
+      customer     ← * <~ Users.findOneByAccountId(rma.accountId)
+      customerData ← * <~ CustomersData.findOneByAccountId(rma.accountId)
+      storeAdmin ← * <~ rma.storeAdminId
+                    .map(id ⇒ Users.findOneByAccountId(id))
+                    .getOrElse(lift(None))
+      adminData ← * <~ rma.storeAdminId
+                   .map(id ⇒ AdminsData.findOneByAccountId(id))
+                   .getOrElse(lift(None))
+      // Payment methods
+      payments ← * <~ ReturnPayments.filter(_.returnId === rma.id).result
+      // Line items of each subtype
+      lineItems     ← * <~ ReturnLineItemSkus.findLineItemsByRma(rma).result
+      giftCards     ← * <~ ReturnLineItemGiftCards.findLineItemsByRma(rma).result
+      shippingCosts ← * <~ ReturnLineItemShippingCosts.findLineItemByRma(rma)
+      // Totals
+      adjustments <- * <~ ReturnTotaler.adjustmentsTotal(rma)
+      subTotal ← * <~ ReturnTotaler.subTotal(rma)
+      shipping = shippingCosts.map { case (rli, _) ⇒ rli.amount }.getOrElse(0)
+      taxes ← * <~ CartTotaler.taxesTotal(rma.orderRef,
+                                          subTotal = subTotal,
+                                          shipping = shipping,
+                                          adjustments = adjustments)
+    } yield
+      build(
+          rma = rma,
+          customer = for {
+            c  ← customer
+            cu ← customerData
+          } yield CustomerResponse.build(c, cu),
+          storeAdmin = for {
+            a  ← storeAdmin
+            au ← adminData
+          } yield StoreAdminResponse.build(a, au),
+          payments = payments.map(buildPayment),
+          lineItems = buildLineItems(lineItems, giftCards, shippingCosts),
+          totals = Some(buildTotals(subTotal = subTotal, shipping = shipping, adjustments = adjustments, taxes = taxes))
+      )
   }
 
   def build(rma: Return,
@@ -159,47 +160,4 @@ object ReturnResponse {
          createdAt = rma.createdAt,
          updatedAt = rma.updatedAt,
          totals = totals)
-
-  private def fetchRmaDetails(rma: Return, withOrder: Boolean = false)(implicit db: DB, ec: EC) = {
-    val orderQ: DbResultT[Option[OrderResponse]] = for {
-      maybeOrder ← * <~ Orders.findByRefNum(rma.orderRef).one
-      fullOrder ← * <~ ((maybeOrder, withOrder) match {
-                       case (Some(order), true) ⇒
-                         OrderResponse.fromOrder(order, grouped = true).map(Some(_))
-                       case _ ⇒ DbResultT.none[OrderResponse]
-                     })
-    } yield fullOrder
-
-    for {
-      // Order, if necessary
-      fullOrder ← * <~ orderQ
-      // Either customer or storeAdmin as creator
-      customer     ← * <~ Users.findOneByAccountId(rma.accountId)
-      customerData ← * <~ CustomersData.findOneByAccountId(rma.accountId)
-      storeAdmin ← * <~ rma.storeAdminId
-                    .map(id ⇒ Users.findOneByAccountId(id))
-                    .getOrElse(lift(None))
-      adminData ← * <~ rma.storeAdminId
-                   .map(id ⇒ AdminsData.findOneByAccountId(id))
-                   .getOrElse(lift(None))
-      // Payment methods
-      payments ← * <~ ReturnPayments.filter(_.returnId === rma.id).result
-      // Line items of each subtype
-      lineItems     ← * <~ ReturnLineItemSkus.findLineItemsByRma(rma).result
-      giftCards     ← * <~ ReturnLineItemGiftCards.findLineItemsByRma(rma).result
-      shippingCosts ← * <~ ReturnLineItemShippingCosts.findLineItemByRma(rma)
-      // Subtotal
-      subtotal ← * <~ ReturnTotaler.subTotal(rma)
-    } yield
-      (fullOrder,
-       customer,
-       customerData,
-       storeAdmin,
-       adminData,
-       payments,
-       lineItems,
-       giftCards,
-       shippingCosts,
-       subtotal)
-  }
 }
