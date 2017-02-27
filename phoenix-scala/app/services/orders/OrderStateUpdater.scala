@@ -96,6 +96,7 @@ object OrderStateUpdater {
       case Canceled ⇒
         cancelOrders(cordRefs)
       case _ ⇒
+        // FIXME: calling .dbresultt (which basically maps right) can be dangerous here. @anna
         Orders.filter(_.referenceNumber.inSet(cordRefs)).map(_.state).update(newState).dbresult.meh
     }
 
