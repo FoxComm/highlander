@@ -1,6 +1,7 @@
 package models.activity
 
 import java.io.ByteArrayOutputStream
+import java.nio.ByteBuffer;
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 import java.util.Properties
@@ -93,7 +94,8 @@ object Activities
     with ReturningId[Activity, Activities] {
 
   val returningLens: Lens[Activity, Int] = lens[Activity].id
-  val kafkaProducer                      = new KafkaProducer[Array[Byte], Array[Byte]](kafkaProducerProps())
+  val kafkaProducer =
+    new KafkaProducer[GenericData.Record, GenericData.Record](kafkaProducerProps())
 
   val activityAvroSchema = """
       |{
@@ -144,6 +146,19 @@ object Activities
     props
   }
 
+  def encode(record: GenericData.Record): Array[Byte] = {
+    val writer                 = new SpecificDatumWriter[GenericRecord](schema)
+    val out                    = new ByteArrayOutputStream()
+    val encoder: BinaryEncoder = EncoderFactory.get().binaryEncoder(out, null)
+
+    writer.write(record, encoder)
+    encoder.flush()
+
+    val bytes: Array[Byte] = out.toByteArray()
+    out.close()
+    bytes
+  }
+
   def log(a: OpaqueActivity)(implicit activityContext: AC, ec: EC): DbResultT[Activity] = {
     val activity =
       Activity(id = 0, activityType = a.activityType, data = a.data, context = activityContext)
@@ -159,14 +174,10 @@ object Activities
     record.put("created_at", DateTimeFormatter.ISO_INSTANT.format(activity.createdAt))
     record.put("scope", activity.context.scope.toString())
 
-    val writer                 = new SpecificDatumWriter[GenericRecord](schema)
-    val out                    = new ByteArrayOutputStream()
-    val encoder: BinaryEncoder = EncoderFactory.get().binaryEncoder(out, null)
-    writer.write(record, encoder)
-    encoder.flush()
-    out.close()
-    val bytes: Array[Byte] = out.toByteArray()
-    val msg                = new ProducerRecord[Array[Byte], Array[Byte]](topic, bytes)
+    val key = new GenericData.Record(schema)
+    key.put("id", activity.id)
+
+    val msg = new ProducerRecord[GenericData.Record, GenericData.Record](topic, record)
 
     // Workaround until we decide how to test Phoenix => Kafka service integration
     if (Environment.default != Environment.Test) {
