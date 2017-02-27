@@ -85,34 +85,7 @@ object ProductManager {
 
   }
 
-  def getProduct(productId: ProductReference)(implicit ec: EC,
-                                              db: DB,
-                                              oc: OC): DbResultT[ProductResponse.Root] =
-    for {
-      oldProduct ← * <~ Products.mustFindFullByReference(productId)
-      albums     ← * <~ ImageManager.getAlbumsForProduct(oldProduct.model.reference)
-
-      fullSkus    ← * <~ ProductSkuLinks.queryRightByLeft(oldProduct.model)
-      productSkus ← * <~ fullSkus.map(SkuManager.illuminateSku)
-
-      variants     ← * <~ ProductVariantLinks.queryRightByLeft(oldProduct.model)
-      fullVariants ← * <~ variants.map(VariantManager.zipVariantWithValues)
-
-      hasVariants = variants.nonEmpty
-
-      variantAndSkus ← * <~ getVariantsWithRelatedSkus(fullVariants)
-      (variantSkus, variantResponses) = variantAndSkus
-
-      taxons ← * <~ TaxonomyManager.getAssignedTaxons(oldProduct.model)
-    } yield
-      ProductResponse.build(
-          IlluminatedProduct.illuminate(oc, oldProduct.model, oldProduct.form, oldProduct.shadow),
-          albums,
-          if (hasVariants) variantSkus else productSkus,
-          variantResponses,
-          taxons)
-
-  def getProductForStorefront(productId: ProductReference)(
+  def getProduct(productId: ProductReference, checkActive: Boolean = false)(
       implicit ec: EC,
       db: DB,
       oc: OC): DbResultT[ProductResponse.Root] =
@@ -120,11 +93,11 @@ object ProductManager {
       oldProduct ← * <~ Products.mustFindFullByReference(productId)
       illuminated = IlluminatedProduct
         .illuminate(oc, oldProduct.model, oldProduct.form, oldProduct.shadow)
-      _      ← * <~ illuminated.mustBeActive
+      _      ← * <~ doOrMeh(checkActive, DbResultT.fromXor(illuminated.mustBeActive))
       albums ← * <~ ImageManager.getAlbumsForProduct(oldProduct.model.reference)
 
       fullSkus ← * <~ ProductSkuLinks.queryRightByLeft(oldProduct.model)
-      _ ← * <~ failIf(fullSkus
+      _ ← * <~ failIf(checkActive && fullSkus
                         .filter(sku ⇒ IlluminatedSku.illuminate(oc, sku).mustBeActive.isRight)
                         .isEmpty,
                       ProductHasNoActiveSKUs(ProductReference(oldProduct.model.slug)))
