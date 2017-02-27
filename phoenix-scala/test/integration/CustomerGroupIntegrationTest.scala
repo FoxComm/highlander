@@ -19,7 +19,6 @@ import utils.db.ExPostgresDriver.api._
 import cats.implicits._
 import utils.seeds.Factories
 
-
 class CustomerGroupIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi

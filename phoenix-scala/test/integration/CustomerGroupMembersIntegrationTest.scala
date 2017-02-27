@@ -9,7 +9,7 @@ import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import utils.db._
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 import cats.implicits._
 import failures.CustomerGroupFailures._
 import models.customer.CustomerGroup._

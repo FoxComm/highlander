@@ -7,7 +7,7 @@ import responses.GroupResponses.GroupResponse.Root
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 import cats.implicits._
 
 class CustomerGroupTemplateIntegrationTest

@@ -20,6 +20,7 @@ object Factories
     with AddressSeeds
     with CreditCardSeeds
     with CustomersGroupSeeds
+    with GroupTemplatesSeeds
     with DiscountSeeds
     with PromotionSeeds
     with ObjectSchemaSeeds
