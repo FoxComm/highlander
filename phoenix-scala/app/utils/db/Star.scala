@@ -25,13 +25,13 @@ object * {
     DbResultT.fromXor(v)
 
   def <~[A](v: Future[Failures Xor A])(implicit M1: Monad[DBIO], M2: Monad[Future]): DbResultT[A] =
-    DbResultT.fromResultT(ResultT.fromFXor(v))
+    DbResultT.fromResult(Result.fromFXor(v))
 
   def <~[A](v: Future[A])(implicit ec: EC): DbResultT[A] =
     DbResultT.fromF(DBIO.from(v))
 
-  def <~[A](fa: ResultT[A])(implicit ec: EC): DbResultT[A] =
-    DbResultT.fromResultT(fa)
+  def <~[A](fa: Result[A])(implicit ec: EC): DbResultT[A] =
+    DbResultT.fromResult(fa)
 
   def <~[A](v: A)(implicit ec: EC): DbResultT[A] =
     DbResultT.pure(v)

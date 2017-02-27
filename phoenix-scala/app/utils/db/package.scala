@@ -184,7 +184,7 @@ package object db {
 
   type FoxyTDBIO[A] = FoxyT[DBIO, A] /* replaces the old DbResultT */
   object FoxyTDBIO extends FoxyTOps[DBIO] {
-    def fromResultT[A](ga: FoxyT[Future, A])(
+    def fromResult[A](ga: FoxyT[Future, A])(
         implicit F: Monad[Future],
         G: Monad[DBIO]): FoxyT[DBIO, A] = // TODO: better name? @michalrus
       // Don’t remove type annotation below, or the compiler will crash. 🙄
@@ -194,11 +194,8 @@ package object db {
   type DbResultT[A] = FoxyTDBIO[A]
   val DbResultT = FoxyTDBIO
 
-  type Result[A]  = FoxyTFuture[A]
-  type ResultT[A] = FoxyTFuture[A]
-
-  val Result  = FoxyTFuture
-  val ResultT = FoxyTFuture
+  type Result[A] = FoxyTFuture[A]
+  val Result = FoxyTFuture
 
   // ————————————————————————————— /Foxy —————————————————————————————
 

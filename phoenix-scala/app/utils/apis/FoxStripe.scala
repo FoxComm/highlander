@@ -59,14 +59,14 @@ class FoxStripe(stripe: StripeWrapper)(implicit ec: EC) extends FoxStripeApi {
       source: Map[String, Object],
       stripeCustomerId: Option[String],
       address: Address)(implicit ec: EC): Result[(StripeCustomer, StripeCard)] = {
-    def existingCustomer(id: String): ResultT[(StripeCustomer, StripeCard)] = {
+    def existingCustomer(id: String): Result[(StripeCustomer, StripeCard)] = {
       for {
         cust ← stripe.findCustomer(id)
         card ← stripe.createCard(cust, source)
       } yield (cust, card)
     }
 
-    def newCustomer: ResultT[(StripeCustomer, StripeCard)] = {
+    def newCustomer: Result[(StripeCustomer, StripeCard)] = {
       val params = Map[String, Object](
             "description" → "FoxCommerce",
             "email"       → email

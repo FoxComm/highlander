@@ -258,7 +258,7 @@ object Authenticator {
 
     for {
       token ← tokenResult.runDBIO
-      route ← ResultT.fromXor(authTokenLoginResponse(token))
+      route ← Result.fromXor(authTokenLoginResponse(token))
     } yield route
   }
 
