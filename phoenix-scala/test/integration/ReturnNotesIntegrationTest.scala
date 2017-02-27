@@ -7,7 +7,7 @@ import payloads.NotePayloads._
 import responses.AdminNotes
 import testutils._
 import testutils.apis.PhoenixAdminApi
-import testutils.fixtures.BakedFixtures
+import testutils.fixtures.{BakedFixtures, ReturnsFixtures}
 import utils.db._
 import utils.seeds.Seeds.Factories
 import utils.time.RichInstant
@@ -18,6 +18,7 @@ class ReturnNotesIntegrationTest
     with PhoenixAdminApi
     with AutomaticAuth
     with TestActivityContext.AdminAC
+    with ReturnsFixtures
     with BakedFixtures {
 
   private[this] def api(ref: String) = notesApi.returns(ref)
@@ -87,12 +88,6 @@ class ReturnNotesIntegrationTest
         api(rma.refNum).get().as[Seq[AdminNotes.Root]].map(_.id) must not contain note.id
       }
     }
-  }
-
-  trait Fixture extends StoreAdmin_Seed with Order_Baked {
-    val rma = Returns
-      .create(Factories.rma.copy(orderRef = order.refNum, accountId = storeAdmin.accountId))
-      .gimme
   }
 
 }

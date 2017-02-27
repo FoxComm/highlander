@@ -1,12 +1,11 @@
+import cats.implicits._
+import models.returns.Return
 import models.returns.Return.{Pending, Processing, ReturnType}
-import models.returns.{Return, Returns}
 import org.json4s.JObject
 import payloads.ReturnPayloads.{ReturnMessageToCustomerPayload, ReturnUpdateStatePayload}
 import responses.ReturnResponse
-import testutils.{TestSeeds, _}
-import testutils.fixtures.BakedFixtures
-import utils.seeds.Seeds.Factories
-import cats.implicits._
+import testutils.fixtures.{BakedFixtures, ReturnsFixtures}
+import testutils._
 
 case class ReturnsSearchViewResult(
     id: Int,
@@ -28,7 +27,11 @@ case class CustomerSearchViewResult(
     revenue: Int
 )
 
-class ReturnsSearchViewTest extends SearchViewTestBase with TestSeeds with BakedFixtures {
+class ReturnsSearchViewTest
+    extends SearchViewTestBase
+    with TestSeeds
+    with BakedFixtures
+    with ReturnsFixtures {
 
   type SearchViewResult = ReturnsSearchViewResult
   val searchViewName: String = "returns_search_view"
@@ -81,12 +84,6 @@ class ReturnsSearchViewTest extends SearchViewTestBase with TestSeeds with Baked
 
       findOneInSearchView(rma.id).messageToAccount must === ("Hello!".some)
     }
-  }
-
-  trait Fixture extends StoreAdmin_Seed with Order_Baked {
-    val rma = Returns
-      .create(Factories.rma.copy(orderRef = order.refNum, accountId = customer.accountId))
-      .gimme
   }
 
 }
