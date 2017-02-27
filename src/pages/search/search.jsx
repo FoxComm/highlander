@@ -14,11 +14,12 @@ import styles from './search.css';
 
 // types
 import type { HTMLElement } from 'types';
+import type { AsyncStatus } from 'types/async-actions';
 import type { Product } from 'modules/products';
 import type { Localized } from 'lib/i18n';
 
 // actions
-import { setTerm, fetch, resetSearchResults } from 'modules/search';
+import { setTerm, searchProducts } from 'modules/search';
 
 type SearchParams = {
   term: string,
@@ -35,10 +36,17 @@ type Props = Localized & {
   term: string,
   results: SearchResult,
   params: SearchParams,
-  setTerm: Function,
-  fetch: Function,
-  isLoading?: boolean,
+  setTerm: (term: string) => void,
+  searchProducts: (term: string) => Promise,
+  searchState: AsyncStatus,
 };
+
+function mapStateToProps(state): Object {
+  return {
+    ...state.search,
+    searchState: _.get(state.asyncActions, 'search', {}),
+  };
+}
 
 class Search extends Component {
   props: Props;
@@ -47,14 +55,13 @@ class Search extends Component {
     if (this.props.term != this.props.params.term) {
       this.props.setTerm(this.props.params.term);
     } else {
-      this.props.fetch(this.props.term);
+      this.props.searchProducts(this.props.term);
     }
   }
 
   componentWillReceiveProps(nextProps) {
     if (this.props.term !== nextProps.term) {
-      this.props.resetSearchResults();
-      this.props.fetch(nextProps.term);
+      this.props.searchProducts(nextProps.term);
     }
   }
 
@@ -70,24 +77,14 @@ class Search extends Component {
         </h1>
         <ProductsList
           list={result}
-          isLoading={this.props.isLoading}
+          isLoading={this.props.searchState.inProgress !== false}
         />
       </div>
     );
   }
 }
 
-function mapState(state): Object {
-  const async = state.asyncActions.search;
-
-  return {
-    ...state.search,
-    isLoading: !!async ? async.inProgress : true,
-  };
-}
-
-export default connect(mapState, {
-  setTerm,
-  fetch,
-  resetSearchResults,
-})(localized(Search));
+export default _.flowRight(
+  connect(mapStateToProps, {setTerm, searchProducts}),
+  localized
+)(Search);

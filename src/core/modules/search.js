@@ -11,7 +11,7 @@ export type Search = {
   results: Array<Product>;
 }
 
-const INITIAL_STATE:Search = {
+const INITIAL_STATE: Search = {
   term: '',
   isActive: false,
   results: [],
@@ -20,16 +20,14 @@ const INITIAL_STATE:Search = {
 const MAX_RESULTS = 1000;
 const context = process.env.FIREBIRD_CONTEXT || 'default';
 
-/**
- * Generate search api call actions and reducer
- * Mocked for now
- */
-function searchApiCall(searchString: string): global.Promise {
-  const payload = addMatchQuery(defaultSearch(context), searchString);
-  return this.api.post(`/search/public/products_catalog_view/_search?size=${MAX_RESULTS}`, payload);
-}
+const _searchProducts = createAsyncActions('search',
+  function searchApiCall(term: string) {
+    const payload = addMatchQuery(defaultSearch(context), term);
+    return this.api.post(`/search/public/products_catalog_view/_search?size=${MAX_RESULTS}`, payload);
+  }
+);
 
-const { fetch, ...searchActions } = createAsyncActions('search', searchApiCall);
+export const searchProducts = _searchProducts.perform;
 
 /**
  * External actions
@@ -37,11 +35,15 @@ const { fetch, ...searchActions } = createAsyncActions('search', searchApiCall);
 export const setTerm = createAction('SET_TERM');
 export const resetTerm = createAction('RESET_TERM');
 export const toggleActive = createAction('TOGGLE_ACTIVE');
-export const resetSearchResults = createAction('RESET_SEARCH_RESULTS');
-export { fetch };
 
 const reducer = createReducer({
-  [searchActions.succeeded]: (state, payload) => {
+  [_searchProducts.started]: (state) => {
+    return {
+      ...state,
+      results: [],
+    };
+  },
+  [_searchProducts.succeeded]: (state, payload) => {
     return {
       ...state,
       results: payload,
@@ -57,12 +59,6 @@ const reducer = createReducer({
     return {
       ...state,
       term: '',
-    };
-  },
-  [resetSearchResults]: (state) => {
-    return {
-      ...state,
-      results: [],
     };
   },
   [toggleActive]: (state) => {

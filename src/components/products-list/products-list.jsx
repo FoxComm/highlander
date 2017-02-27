@@ -12,11 +12,18 @@ import styles from './products-list.css';
 
 // components
 import ListItem from '../products-item/list-item';
+import Loader from 'ui/loader';
 
 // types
 import type { HTMLElement } from 'types';
 
+export const LoadingBehaviors = {
+  ShowLoader: 0,
+  ShowWrapper: 1,
+};
+
 type Props = {
+  loadingBehavior?: 0|1,
   list: ?Array<Object>,
   isLoading: ?boolean,
 };
@@ -111,16 +118,31 @@ class ProductsList extends Component {
     }, 250);
   }
 
+  get loadingWrapper(): ?HTMLElement {
+    if (this.props.isLoading) {
+      return (
+        <div styleName="loading-wrapper">
+          <div styleName="loader">
+            <Loader/>
+          </div>
+        </div>
+      );
+    }
+  }
+
   render() : HTMLElement {
-    const props = this.props;
-    const { isLoading } = props;
+    const { props } = this;
+    const { loadingBehavior = LoadingBehaviors.ShowLoader } = props;
+    if (loadingBehavior == LoadingBehaviors.ShowLoader && props.isLoading) {
+      return <Loader/>;
+    }
     const items = props.list && props.list.length > 0
       ? this.renderProducts()
       : <div styleName="not-found">No products found.</div>;
 
     return (
       <div styleName="list-wrapper">
-        {isLoading && <div styleName="loader-fader" />}
+        {this.loadingWrapper}
         <div styleName="list" ref={this.handleListRendered}>
           {items}
         </div>
