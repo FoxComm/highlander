@@ -222,13 +222,14 @@ package object db {
           fsa ⇒
             XorT(
                 fsa
+                // turn `left` into `DBIO.failed` to force transaction rollback
                   .fold(failures ⇒ DBIO.failed(FoxFailureException(failures)),
                         good ⇒ DBIO.successful(good))
                   .flatMap(a ⇒ a) // flatten...
                   .transactionally
-                  .run
+                  .run() // throws a FoxFailureException :/
                   .map(Xor.right)
-                  .recover {
+                  .recover { // don't actually want an exception thrown, so wrap it back
             case e: FoxFailureException ⇒ Xor.left(e.failures)
           }))
 
