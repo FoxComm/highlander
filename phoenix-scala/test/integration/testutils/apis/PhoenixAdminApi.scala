@@ -201,14 +201,15 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
     def getByOrder(ref: String): HttpResponse =
       GET(s"$returnsPrefix/order/$ref")
 
-    def getReasonsList: HttpResponse =
-      GET(s"$returnsPrefix/reasons")
+    object reasons {
+      val requestPath = s"$returnsPrefix/reasons"
 
-    def addReturnReason(rr: ReturnReasonPayload) =
-      POST(s"$returnsPrefix/reasons", rr)
+      def list(): HttpResponse = GET(requestPath)
 
-    def removeReturnReason(id: Int) =
-      DELETE(s"$returnsPrefix/reasons/$id")
+      def add(payload: ReturnReasonPayload): HttpResponse = POST(requestPath, payload)
+
+      def remove(id: Int) = DELETE(s"$requestPath/$id")
+    }
   }
 
   case class returnsApi(refNum: String) { returns ⇒
@@ -737,6 +738,7 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
     case class storeAdmin(id: Int)  extends notesApiBase[Int]    { val prefix = "store-admins" }
     case class order(id: String)    extends notesApiBase[String] { val prefix = "order"        }
     case class giftCard(id: String) extends notesApiBase[String] { val prefix = "gift-card"    }
+    case class returns(id: String)  extends notesApiBase[String] { val prefix = "return"       }
 
     trait notesApiBase[A] {
       def id: A

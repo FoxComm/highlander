@@ -70,9 +70,9 @@ object ReturnLineItem {
     )
   }
 
-  def buildShippinCost(rma: Return,
-                       reason: ReturnReason,
-                       origin: ReturnLineItemShippingCost): ReturnLineItem = {
+  def buildShippingCost(rma: Return,
+                        reason: ReturnReason,
+                        origin: ReturnLineItemShippingCost): ReturnLineItem = {
     ReturnLineItem(
         returnId = rma.id,
         reasonId = reason.id,
@@ -112,6 +112,8 @@ class ReturnLineItems(tag: Tag) extends FoxTable[ReturnLineItem](tag, "return_li
      createdAt) <> ((ReturnLineItem.apply _).tupled, ReturnLineItem.unapply)
 
   def skuLineItems = foreignKey(ReturnLineItemSkus.tableName, originId, ReturnLineItemSkus)(_.id)
+  def shippingCostLineItems =
+    foreignKey(ReturnLineItemShippingCosts.tableName, originId, ReturnLineItemShippingCosts)(_.id)
 }
 
 object ReturnLineItems

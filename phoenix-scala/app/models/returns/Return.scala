@@ -1,11 +1,10 @@
 package models.returns
 
 import java.time.Instant
-
 import cats.data.Validated._
 import cats.data.{State ⇒ _, _}
 import com.pellucid.sealerate
-import failures.Failure
+import failures.{Failure, NotFoundFailure404}
 import models.Reason
 import models.account._
 import models.cord.{Order, Orders}
@@ -16,6 +15,7 @@ import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
 import utils.Validation._
+import utils.aliases._
 import utils.db._
 import utils.{ADT, FSM}
 
@@ -148,13 +148,17 @@ object Returns
   def findByOrderRefNum(refNum: String): QuerySeq = filter(_.orderRef === refNum)
 
   def findOneByRefNum(refNum: String): DBIO[Option[Return]] =
-    filter(_.referenceNumber === refNum).one
+    findByRefNum(refNum).one
 
-  def findOnePendingByRefNum(refNum: String): DBIO[Option[Return]] =
-    filter(_.referenceNumber === refNum).filter(_.state === (Return.Pending: Return.State)).one
+  def mustFindPendingByRefNum404(refNum: String)(implicit ec: EC): DbResultT[Return] =
+    findByRefNum(refNum)
+      .filter(_.state === (Return.Pending: Return.State))
+      .mustFindOneOr(NotFoundFailure404(Return, refNum))
 
-  private val rootLens                           = lens[Return]
+  private[this] val rootLens = lens[Return]
+
   val returningLens: Lens[Return, (Int, String)] = rootLens.id ~ rootLens.referenceNumber
+
   override val returningQuery = map { rma ⇒
     (rma.id, rma.referenceNumber)
   }
