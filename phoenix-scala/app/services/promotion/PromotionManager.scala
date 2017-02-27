@@ -97,7 +97,7 @@ object PromotionManager {
                  .filterByName(contextName)
                  .mustFindOneOr(ObjectContextNotFound(contextName))
       promotion ← * <~ Promotions.filterByContextAndFormId(context.id, id) ~> Promotions
-                   .notFound404(("context", context.name), ("id", id))
+                   .notFound404(Map("context" → context.name, "id" → id))
       validated = IlluminatedPromotion
         .validatePromotion(payload.applyType, (formAndShadow.form, formAndShadow.shadow))
 
@@ -183,8 +183,8 @@ object PromotionManager {
                  .mustFindOneOr(ObjectContextNotFound(contextName))
       promotion ← * <~ Promotions
                    .filter(_.contextId === context.id)
-                   .filter(_.formId === id) ~> Promotions.notFound404(("context", context.name),
-                                                                      ("id", id))
+                   .filter(_.formId === id) ~> Promotions.notFound404(
+                     Map("context" → context.name, "id" → id))
       form      ← * <~ ObjectForms.findById(promotion.formId)
       shadow    ← * <~ ObjectShadows.findById(promotion.shadowId)
       discounts ← * <~ PromotionDiscountLinks.queryRightByLeft(promotion)

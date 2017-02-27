@@ -13,7 +13,7 @@ object PromotionNoteManager extends NoteManager[Int, IlluminatedObject] {
   def fetchEntity(id: Int)(implicit ec: EC, db: DB, ac: AC): DbResultT[IlluminatedObject] =
     for {
       promotion ← * <~ Promotions.filterByContextAndFormId(defaultContextId, id) ~> Promotions
-                   .notFound404(("context", "<default context>"), ("id", id))
+                   .notFound404(Map("context" → "<default context>", "id" → id))
       form   ← * <~ ObjectForms.findById(promotion.formId)
       shadow ← * <~ ObjectShadows.findById(promotion.shadowId)
     } yield IlluminatedObject.illuminate(form = form, shadow = shadow)

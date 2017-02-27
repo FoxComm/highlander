@@ -27,11 +27,11 @@ abstract class FoxTableQuery[M <: FoxModel[M], T <: FoxTable[M]](construct: Tag 
   def findAllByIds(ids: Set[M#Id]): QuerySeq =
     filter(_.id.inSet(ids))
 
-  def notFound404(params: FailureParam*): NotFoundFailure404 =
-    NFF.notFound404(tableName)(params: _*)
+  def notFound404(params: FailureParams): NotFoundFailure404 =
+    NFF.notFound404(tableName)(params)
 
-  def notFound400(params: FailureParam*): NotFoundFailure400 =
-    NFF.notFound400(tableName)(params: _*)
+  def notFound400(params: FailureParams): NotFoundFailure400 =
+    NFF.notFound400(tableName)(params)
 
   private def returningTable: Returning[M, Ret] = this.returning(returningQuery)
 

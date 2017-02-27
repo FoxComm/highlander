@@ -32,7 +32,7 @@ object CouponManager {
                  .filterByName(contextName)
                  .mustFindOneOr(ObjectContextNotFound(contextName))
       _ ← * <~ Promotions.filterByContextAndFormId(context.id, payload.promotion) ~> Promotions
-           .notFound404(("context", context.name), ("id", payload.promotion))
+           .notFound404(Map("context" → context.name, "id" → payload.promotion))
       ins ← * <~ ObjectUtils.insert(formAndShadow.form, formAndShadow.shadow, payload.schema)
       coupon ← * <~ Coupons.create(
                   Coupon(scope = scope,
@@ -58,7 +58,7 @@ object CouponManager {
                  .filterByName(contextName)
                  .mustFindOneOr(ObjectContextNotFound(contextName))
       _ ← * <~ Promotions.filterByContextAndFormId(context.id, payload.promotion) ~> Promotions
-           .notFound404(("context", context.name), ("id", payload.promotion))
+           .notFound404(Map("context" → context.name, "id" → payload.promotion))
       coupon ← * <~ Coupons
                 .filterByContextAndFormId(context.id, id)
                 .mustFindOneOr(CouponNotFoundForContext(id, contextName))
@@ -90,7 +90,7 @@ object CouponManager {
                  .filterByName(contextName)
                  .mustFindOneOr(ObjectContextNotFound(contextName))
       couponCode ← * <~ CouponCodes.filter(_.code.toLowerCase === code.toLowerCase) ~> Coupons
-                    .notFound404(("code", code))
+                    .notFound404(Map("code" → code))
       result ← * <~ getIlluminatedIntern(couponCode.couponFormId, context)
     } yield result
 
