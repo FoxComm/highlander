@@ -8,10 +8,10 @@ import failures.CustomerFailures.CustomerMustHaveCredentials
 import models.location.Address
 import models.payment.creditcard.CreditCard
 import payloads.PaymentPayloads.CreateCreditCardFromSourcePayload
-import services.{Result, ResultT}
 import utils.Money._
 import utils.aliases._
 import utils.aliases.stripe._
+import utils.db._
 
 /**
   * Fox Stripe API implementation

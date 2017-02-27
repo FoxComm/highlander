@@ -2,7 +2,7 @@ package models.discount.qualifiers
 
 import cats.implicits._
 import models.discount.DiscountInput
-import services.Result
+import utils.db._
 import utils.aliases._
 
 case object OrderAnyQualifier extends Qualifier {

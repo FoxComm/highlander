@@ -6,7 +6,7 @@ import cats._
 import cats.data._
 import cats.implicits._
 import failures.Failures
-import services.ResultT
+import utils.db._
 import slick.dbio._
 import slick.profile.SqlAction
 import utils.aliases.EC

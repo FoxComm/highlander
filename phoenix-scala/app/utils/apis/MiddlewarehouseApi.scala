@@ -9,10 +9,10 @@ import failures.MiddlewarehouseFailures.MiddlewarehouseError
 import failures.{Failures, MiddlewarehouseFailures}
 import org.json4s.Extraction
 import org.json4s.jackson.JsonMethods._
-import services.Result
 import utils.JsonFormatters
 import payloads.AuthPayload
 import utils.aliases._
+import utils.db._
 
 case class SkuInventoryHold(sku: String, qty: Int)
 case class OrderInventoryHold(refNum: String, items: Seq[SkuInventoryHold])

@@ -9,7 +9,6 @@ import models.activity.ActivityContext
 import models.cord.Order._
 import models.cord.{Order, Orders}
 import services.LogActivity
-import services.Result
 import utils.aliases._
 import utils.db.javaTimeSlickMapper
 import utils.db.ExPostgresDriver.api._

@@ -5,7 +5,7 @@ import cats.implicits._
 import cats.data._
 import failures.DiscountFailures._
 import models.discount.{CustomerSearch, DiscountInput}
-import services.Result
+import utils.db._
 import utils.aliases._
 
 case class CustomerDynamicGroupQualifier(search: CustomerSearch) extends Qualifier {

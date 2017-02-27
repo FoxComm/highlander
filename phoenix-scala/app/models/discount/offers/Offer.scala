@@ -11,9 +11,9 @@ import models.cord.lineitems.OrderLineItemAdjustment._
 import models.cord.lineitems.{OrderLineItemAdjustment ⇒ Adjustment}
 import models.discount._
 import models.discount.offers.Offer.OfferResult
-import services.Result
 import utils.ElasticsearchApi.Buckets
 import utils.aliases._
+import utils.db._
 
 trait Offer extends DiscountBase {
 

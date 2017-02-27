@@ -8,6 +8,7 @@ import services._
 import utils.Money._
 import utils.aliases._
 import utils.aliases.stripe._
+import utils.db._
 
 /**
   * Fox Stripe API wrapper

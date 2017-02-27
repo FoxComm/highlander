@@ -25,7 +25,6 @@ import responses.CreditCardsResponse.{Root ⇒ CardResponse}
 import responses.CustomerResponse.Root
 import responses.cord.CartResponse
 import responses.{CreditCardsResponse, CustomerResponse}
-import services.Result
 import services.carts.CartPaymentUpdater
 import slick.driver.PostgresDriver.api._
 import testutils._

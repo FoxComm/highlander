@@ -8,9 +8,9 @@ import com.github.tminglei.slickpg.LTree
 import models.discount.SearchReference._
 import models.sharedsearch.SharedSearches
 import org.json4s.JsonAST.JObject
-import services.Result
 import utils.ElasticsearchApi.{Buckets, ScopedSearchView, SearchView, TheBucket}
 import utils.aliases._
+import utils.db._
 
 /**
   * Linking mechanism for qualifiers (also used in offers)

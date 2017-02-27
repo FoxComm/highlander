@@ -7,7 +7,6 @@ import cats.implicits._
 import failures.Failures
 import org.scalatest.AppendedClues
 import org.scalatest.concurrent.ScalaFutures
-import services.Result
 import slick.driver.PostgresDriver.api._
 import slick.lifted.Query
 import utils.aliases._

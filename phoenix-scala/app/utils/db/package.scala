@@ -6,15 +6,12 @@ import cats.data._
 import cats.implicits._
 import failures._
 import responses.BatchMetadata
-import services.Result
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.SQLActionBuilder
 import slick.lifted.Query
 import slick.profile.SqlAction
 import utils.aliases._
 import utils.time.JavaTimeSlickMapper
-
-import scala.collection.generic.CanBuildFrom
 
 package object db {
 
@@ -30,29 +27,14 @@ package object db {
   /* We can’t use WriterT for warnings, because of the `failWithMatchedWarning`. */
   type FoxyT[F[_], A] = StateT[XorT[F, Failures, ?], List[UIInfo], A] // TODO: But maybe the order should be different? I.e. what should happen with warnings when we get a short-circuiting failure? @michalrus
 
-  type Foxy[A] = FoxyT[Id, A]
-  object Foxy extends FoxyTOps[Id]()
-
-  type FoxyTFuture[A] = FoxyT[Future, A] /* replaces the old ResultT */
-  object FoxyTFuture extends FoxyTOps[Future]
-
-  type FoxyTDBIO[A] = FoxyT[DBIO, A] /* replaces the old DbResultT */
-  object FoxyTDBIO extends FoxyTOps[DBIO] {
-    def fromResultT[A](ga: FoxyT[Future, A])(
-        implicit F: Monad[Future],
-        G: Monad[DBIO]): FoxyT[DBIO, A] = // TODO: better name? @michalrus
-      // Don’t remove type annotation below, or the compiler will crash. 🙄
-      ga.transformF(gga ⇒ XorT(DBIO.from(gga.value): DBIO[Xor[Failures, (List[UIInfo], A)]])) // TODO: use FunctionK for functor changes? Future[_] → DBIO[_] here
-  }
-
   implicit class EnrichedFoxyT[F[_], A](fa: FoxyT[F, A]) {
     // TODO: First, before removing explicit Xor handling, implement recoverWith from scratch and then re-implement the *xor* functions in terms of recoverWith and flatMap. And then, remove them iteratively and completely. @michalrus
 
     def flatMapXor[B](f: Xor[Failures, A] ⇒ FoxyT[F, B])(implicit F: Monad[F]): FoxyT[F, B] = // TODO: remove me @michalrus
       fa.transformF { fsa ⇒
         XorT(F.flatMap(fsa.value) { xs ⇒
-          val res = f(xs.map(_._2))
-          xs.map(_._1) match {
+          val res = f(xs.map { case (_, a) ⇒ a })
+          xs.map { case (s, _) ⇒ s } match {
             case Xor.Left(failures) ⇒
               res.runEmpty.value // Really? Forgetting warnings in case of previous failure. @michalrus
             case Xor.Right(s) ⇒ res.run(s).value
@@ -60,13 +42,12 @@ package object db {
         })
       }
 
-    def mapXor[B](f: Xor[Failures, A] ⇒ Xor[Failures, B])(implicit F: Monad[F]): FoxyT[F, B] = // TODO: remove me? @michalrus
+    def mapXor[B](f: Xor[Failures, A] ⇒ Xor[Failures, B])(implicit F: Monad[F]): FoxyT[F, B] = // TODO: remove me @michalrus
       fa.transformF { fsa ⇒
         XorT(F.map(fsa.value)(xsa ⇒
                   for {
-            b ← f(xsa.map(_._2))
-            s = xsa
-              .map(_._1)
+            b ← f(xsa.map { case (_, a) ⇒ a })
+            s = xsa.map { case (s, _) ⇒ s }
               .getOrElse(List.empty) // TODO: again, losing past warnings. Monad order? @michalrus
           } yield (s, b)))
       }
@@ -193,10 +174,33 @@ package object db {
         .map(_.flattenOption)
   }
 
-  // ————————————————————————————— /Foxy —————————————————————————————
+  // ————————————————————————————— Foxy: aliases —————————————————————————————
+
+  type Foxy[A] = FoxyT[Id, A]
+  object Foxy extends FoxyTOps[Id]()
+
+  type FoxyTFuture[A] = FoxyT[Future, A] /* replaces the old ResultT */
+  object FoxyTFuture extends FoxyTOps[Future]
+
+  type FoxyTDBIO[A] = FoxyT[DBIO, A] /* replaces the old DbResultT */
+  object FoxyTDBIO extends FoxyTOps[DBIO] {
+    def fromResultT[A](ga: FoxyT[Future, A])(
+        implicit F: Monad[Future],
+        G: Monad[DBIO]): FoxyT[DBIO, A] = // TODO: better name? @michalrus
+      // Don’t remove type annotation below, or the compiler will crash. 🙄
+      ga.transformF(gga ⇒ XorT(DBIO.from(gga.value): DBIO[Xor[Failures, (List[UIInfo], A)]])) // TODO: use FunctionK for functor changes? Future[_] → DBIO[_] here
+  }
 
   type DbResultT[A] = FoxyTDBIO[A]
   val DbResultT = FoxyTDBIO
+
+  type Result[A]  = FoxyTFuture[A]
+  type ResultT[A] = FoxyTFuture[A]
+
+  val Result  = FoxyTFuture
+  val ResultT = FoxyTFuture
+
+  // ————————————————————————————— /Foxy —————————————————————————————
 
   // DBIO monad
   implicit def dbioMonad(implicit ec: EC): Functor[DBIO] with Monad[DBIO] with Applicative[DBIO] =

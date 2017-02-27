@@ -14,7 +14,6 @@ import models.image._
 import models.objects.FullObject
 import payloads.ImagePayloads._
 import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
-import services.Result
 import services.image.ImageManager._
 import services.objects.ObjectManager
 import utils.aliases._

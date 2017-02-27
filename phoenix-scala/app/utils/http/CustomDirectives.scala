@@ -20,7 +20,7 @@ import models.objects.{ObjectContext, ObjectContexts}
 import models.product.{ProductReference, SimpleContext}
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import payloads.AuthPayload
-import services.{JwtCookie, Result}
+import services.JwtCookie
 import slick.driver.PostgresDriver.api._
 import utils._
 import utils.aliases._

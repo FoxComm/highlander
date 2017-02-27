@@ -12,8 +12,8 @@ import com.stripe.model.{DeletedCard, ExternalAccount, Card ⇒ StripeCard, Char
 import com.typesafe.scalalogging.LazyLogging
 import failures.StripeFailures.{CardNotFoundForNewCustomer, StripeFailure}
 import failures.{Failures, GeneralFailure}
-import services.Result
 import utils.apis.StripeMappings.cardExceptionMap
+import utils.db._
 
 /**
   * Low-level Stripe API wrapper implementation.

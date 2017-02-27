@@ -11,7 +11,7 @@ import models.cord.lineitems.OrderLineItemAdjustment._
 import models.discount.DiscountInput
 import models.discount.offers.Offer.OfferResult
 import utils.aliases._
-import services.Result
+import utils.db._
 
 case class OfferList(offers: Seq[Offer]) extends Offer {
 

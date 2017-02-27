@@ -8,9 +8,9 @@ import failures.DiscountCompilerFailures.QualifierRejectionFailure
 import failures.DiscountFailures.SearchFailure
 import failures._
 import models.discount.{DiscountBase, DiscountInput, ProductSearch}
-import services.Result
 import utils.ElasticsearchApi.Buckets
 import utils.aliases._
+import utils.db._
 
 trait Qualifier extends DiscountBase {
 
