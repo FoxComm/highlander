@@ -41,15 +41,9 @@ object SaveForLaterManager {
                                                           db: DB): DbResultT[SavedForLater] =
     for {
       sfls ← * <~ SaveForLaters.filter(_.accountId === customer.accountId).result
-      r ← * <~ DbResultT
-           .seqCollectFailures(
-               sfls
-                 .map(sfl ⇒
-                       SaveForLaterResponse
-                         .forSkuId(sfl.skuId, contextId)
-                         .map(_.some)
-                         .failuresToWarnings(None) { case _ ⇒ true })
-                 .toList)
-           .map(_.collect { case Some(v) ⇒ v })
+      r ← * <~ DbResultT.seqFailuresToWarnings(
+             sfls.toList.map(sfl ⇒ SaveForLaterResponse.forSkuId(sfl.skuId, contextId)), {
+               case _ ⇒ true
+             })
     } yield r
 }

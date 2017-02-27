@@ -96,7 +96,7 @@ package object db {
     def meh(implicit M: Monad[F]): FoxyT[F, Unit] =
       fa.void // TODO: remove me? But it’s cute… @michalrus
 
-    def failuresToWarnings(newValue: A)(pf: PartialFunction[Failure, Boolean])(
+    def failuresToWarnings(valueIfWasFailed: A)(pf: PartialFunction[Failure, Boolean])(
         implicit F: Monad[F]): FoxyT[F, A] = {
       val FoxyTF = new FoxyTOps[F] {}
       fa.flatMapXor {
@@ -108,10 +108,10 @@ package object db {
               // We don’t care about warnings when there’re failures left.
               FoxyTF.failures[A](NonEmptyList(h, t))
             case Nil ⇒
-              warnings.traverse(FoxyTF.uiWarning).map(_ ⇒ newValue)
+              warnings.traverse(FoxyTF.uiWarning).map(_ ⇒ valueIfWasFailed)
           }
         case Xor.Right(a) ⇒
-          FoxyTF.pure(a) // TODO: really? Not pure(newValue)? Seems misleading. @michalrus
+          FoxyTF.pure(a)
       }
     }
   }
@@ -183,6 +183,14 @@ package object db {
       for {
         xs ← xs.map(_.map(_.some).recover { case _ ⇒ None }).sequence
       } yield xs.collect { case Some(xss) ⇒ xss }
+
+    /** Like `seqCollectFailures` but you get a chance to recover some Failures, changing them to Warnings. */
+    def seqFailuresToWarnings[L[_], A](xs: L[FoxyT[F, A]],
+                                       failuresToWarningsPF: PartialFunction[Failure, Boolean])(
+        implicit L: TraverseFilter[L],
+        F: Monad[F]): FoxyT[F, L[A]] =
+      seqCollectFailures(xs.map(_.map(_.some).failuresToWarnings(None)(failuresToWarningsPF)))
+        .map(_.flattenOption)
   }
 
   // ————————————————————————————— /Foxy —————————————————————————————
