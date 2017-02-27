@@ -42,7 +42,7 @@ object SaveForLaterManager {
     for {
       sfls ← * <~ SaveForLaters.filter(_.accountId === customer.accountId).result
       r ← * <~ DbResultT
-           .sequenceJoiningFailures(
+           .seqCollectFailures(
                sfls
                  .map(sfl ⇒
                        SaveForLaterResponse

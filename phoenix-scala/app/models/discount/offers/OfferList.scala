@@ -19,6 +19,6 @@ case class OfferList(offers: Seq[Offer]) extends Offer {
   val adjustmentType: AdjustmentType = Combinator
 
   def adjust(input: DiscountInput)(implicit db: DB, ec: EC, es: ES, au: AU): OfferResult =
-    Result.sequenceJoiningFailures(offers.map(_.adjust(input)).toList).map(_.flatten)
+    Result.seqCollectFailures(offers.map(_.adjust(input)).toList).map(_.flatten)
 
 }

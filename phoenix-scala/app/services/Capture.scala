@@ -273,7 +273,7 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
     }
 
   private def getPrices(items: Seq[OrderLineItemProductData]): DbResultT[List[LineItemPrice]] =
-    DbResultT.sequenceJoiningFailures(items.map { i ⇒
+    DbResultT.seqCollectFailures(items.map { i ⇒
       getPrice(i)
     }.toList)
 
@@ -315,7 +315,7 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
   private def mustHaveCodes(items: Seq[CapturePayloads.CaptureLineItem],
                             codes: Seq[String],
                             orderRef: String): DbResultT[List[Unit]] =
-    DbResultT.sequenceJoiningFailures(items.map { i ⇒
+    DbResultT.seqCollectFailures(items.map { i ⇒
       mustHaveCode(i, codes, orderRef)
     }.toList)
 

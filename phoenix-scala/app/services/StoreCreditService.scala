@@ -128,7 +128,7 @@ object StoreCreditService {
       admin: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[List[ItemResult]] =
     for {
       _ ← * <~ payload.validate.toXor
-      response ← * <~ DbResultT.sequenceJoiningFailures(payload.ids.map { id ⇒
+      response ← * <~ DbResultT.seqCollectFailures(payload.ids.map { id ⇒
                   val itemPayload = StoreCreditUpdateStateByCsr(payload.state, payload.reasonId)
                   updateStateByCsr(id, itemPayload, admin)
                     .mapXorRight(buildItemResult(id, _)) // FIXME: for God’s sake, use the standard error/warning reporting @michalrus

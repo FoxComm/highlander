@@ -98,7 +98,7 @@ object GiftCardService {
                                             reasonId = payload.reasonId,
                                             currency = payload.currency,
                                             scope = scope.toString.some)
-      response ← * <~ DbResultT.sequenceJoiningFailures((1 to payload.quantity).map { num ⇒
+      response ← * <~ DbResultT.seqCollectFailures((1 to payload.quantity).map { num ⇒
                   createByAdmin(admin, gcCreatePayload).mapXorRight(buildItemResult(_))
                 }.toList)
     } yield response
@@ -108,7 +108,7 @@ object GiftCardService {
       admin: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[List[ItemResult]] =
     for {
       _ ← * <~ payload.validate.toXor
-      response ← * <~ DbResultT.sequenceJoiningFailures(payload.codes.map { code ⇒
+      response ← * <~ DbResultT.seqCollectFailures(payload.codes.map { code ⇒
                   val itemPayload = GiftCardUpdateStateByCsr(payload.state, payload.reasonId)
                   updateStateByCsr(code, itemPayload, admin).mapXorRight(
                       buildItemResult(_, Some(code)))

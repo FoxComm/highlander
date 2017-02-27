@@ -166,8 +166,8 @@ package object db {
       })
 
     /** Just like ``sequence`` but—in case of a failure—unlawful, as it will join failures from all Foxies. */
-    def sequenceJoiningFailures[L[_], A](lfa: L[FoxyT[F, A]])(implicit L: TraverseFilter[L],
-                                                              F: Monad[F]): FoxyT[F, L[A]] = {
+    def seqCollectFailures[L[_], A](lfa: L[FoxyT[F, A]])(implicit L: TraverseFilter[L],
+                                                         F: Monad[F]): FoxyT[F, L[A]] = {
       val FoxyTF = new FoxyTOps[F] {} // FIXME
       L.map(lfa)(_.fold(Xor.Left(_), Xor.Right(_))).sequence.flatMap { xa ⇒
         val failures = L.collect(xa) { case Xor.Left(f)  ⇒ f.toList }.toList.flatten

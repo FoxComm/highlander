@@ -49,7 +49,7 @@ class CustomerNotesIntegrationTest
       val createNotes = List("abc", "123", "xyz").map { body ⇒
         CustomerNoteManager.create(customer.accountId, storeAdmin, CreateNote(body))
       }
-      DbResultT.sequenceJoiningFailures(createNotes).void.gimme
+      DbResultT.seqCollectFailures(createNotes).void.gimme
 
       val notes = notesApi.customer(customer.accountId).get().as[Seq[AdminNotes.Root]]
       notes must have size 3

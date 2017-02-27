@@ -12,7 +12,7 @@ class DbResultSequenceIntegrationTest extends IntegrationTestBase {
       val sux: List[DbResultT[Account]] = List(1, 2, 3).map { i ⇒
         Accounts.create(Account(ratchet = i))
       }
-      val cool: DbResultT[List[Account]] = DbResultT.sequenceJoiningFailures(sux)
+      val cool: DbResultT[List[Account]] = DbResultT.seqCollectFailures(sux)
       cool.gimme
 
       val allAccounts = Accounts.gimme
@@ -24,7 +24,7 @@ class DbResultSequenceIntegrationTest extends IntegrationTestBase {
       val sux: Vector[DbResultT[User]] = (1 to 3).toVector.map { i ⇒
         Users.create(User(accountId = 100))
       }
-      val cool: DbResultT[Vector[User]] = DbResultT.sequenceJoiningFailures(sux)
+      val cool: DbResultT[Vector[User]] = DbResultT.seqCollectFailures(sux)
 
       cool.runTxn().runEmptyA.value.futureValue mustBe 'left
 
@@ -38,7 +38,7 @@ class DbResultSequenceIntegrationTest extends IntegrationTestBase {
       val sux: List[DbResultT[User]] = (1 to numTries).toList.map { i ⇒
         Users.create(User(accountId = 1))
       }
-      val cool: DbResultT[List[User]] = DbResultT.sequenceJoiningFailures(sux)
+      val cool: DbResultT[List[User]] = DbResultT.seqCollectFailures(sux)
 
       val failures = cool.gimmeFailures
       val expectedFailure = DatabaseFailure(

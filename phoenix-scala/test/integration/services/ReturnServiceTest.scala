@@ -18,7 +18,7 @@ class ReturnServiceTest extends IntegrationTestBase with TestObjectContext with 
       val futures = (1 to numberOfInserts).toList.map { _ ⇒
         ReturnService.createByAdmin(storeAdmin, payload)
       }
-      DbResultT.sequenceJoiningFailures(futures).gimme
+      DbResultT.seqCollectFailures(futures).gimme
 
       val refs = Returns.gimme.map(_.refNum)
       refs.length must === (numberOfInserts)

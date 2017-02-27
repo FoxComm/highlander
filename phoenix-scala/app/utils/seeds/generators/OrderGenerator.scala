@@ -399,7 +399,7 @@ trait OrderGenerator extends ShipmentSeeds {
 
   private def authGiftCard(
       results: Seq[(OrderPayment, GiftCard)]): DbResultT[List[GiftCardAdjustment]] =
-    DbResultT.sequenceJoiningFailures(results.map {
+    DbResultT.seqCollectFailures(results.map {
       case (pmt, m) ⇒ GiftCards.authOrderPayment(m, pmt)
     }.toList)
 

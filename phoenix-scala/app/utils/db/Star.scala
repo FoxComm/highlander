@@ -40,11 +40,11 @@ object * {
     DbResultT.fromXor(v.toXor)
 
   def <~[M[_]: TraverseFilter, A](v: M[DbResultT[A]])(implicit ec: EC): DbResultT[M[A]] =
-    DbResultT.sequenceJoiningFailures(v)
+    DbResultT.seqCollectFailures(v)
 
   // FIXME: Remove this function after switching all Seqs to List/Vector. Cats don’t have instances for Seq and Seq is unsound. PM me or @kjanosz for details. @michalrus
   def <~[A](v: Seq[DbResultT[A]])(implicit ec: EC): DbResultT[List[A]] =
-    DbResultT.sequenceJoiningFailures(v.toList)
+    DbResultT.seqCollectFailures(v.toList)
 
   def <~[A](v: DbResultT[A]): DbResultT[A] =
     v

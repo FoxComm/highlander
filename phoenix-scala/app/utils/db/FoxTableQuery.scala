@@ -75,7 +75,7 @@ abstract class FoxTableQuery[M <: FoxModel[M], T <: FoxTable[M]](construct: Tag 
     model.sanitize.validate.toXor
 
   private def beforeSaveBatch(unsaved: Iterable[M])(implicit ec: EC): DbResultT[List[M]] =
-    DbResultT.sequenceJoiningFailures {
+    DbResultT.seqCollectFailures {
       unsaved.toList.map(m ⇒ DbResultT.fromXor(beforeSave(m)))
     }
 

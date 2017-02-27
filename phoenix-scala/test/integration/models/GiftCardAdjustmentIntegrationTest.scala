@@ -88,7 +88,7 @@ class GiftCardAdjustmentIntegrationTest
       val debits = List(50, 25, 15, 10)
       def auth(amount: Int) =
         GiftCards.auth(giftCard = giftCard, orderPaymentId = orderPayments.head.id, debit = amount)
-      val adjustments = DbResultT.sequenceJoiningFailures((1 to 4).toList.map(auth)).gimme
+      val adjustments = DbResultT.seqCollectFailures((1 to 4).toList.map(auth)).gimme
 
       adjustments.map { adj ⇒
         GiftCardAdjustments.cancel(adj.id).gimme

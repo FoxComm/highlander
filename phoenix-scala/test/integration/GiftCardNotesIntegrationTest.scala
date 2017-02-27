@@ -50,7 +50,7 @@ class GiftCardNotesIntegrationTest
       val createNotes = List("abc", "123", "xyz").map { body ⇒
         GiftCardNoteManager.create(giftCard.code, storeAdmin, CreateNote(body = body))
       }
-      DbResultT.sequenceJoiningFailures(createNotes).gimme
+      DbResultT.seqCollectFailures(createNotes).gimme
 
       val notes = notesApi.giftCard(giftCard.code).get().as[Seq[Root]]
       notes must have size 3

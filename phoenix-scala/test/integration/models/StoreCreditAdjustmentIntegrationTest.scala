@@ -98,7 +98,7 @@ class StoreCreditAdjustmentIntegrationTest
 
       val debits = List(50, 25, 15, 10)
       val auths = DbResultT
-        .sequenceJoiningFailures(debits.map { amount ⇒
+        .seqCollectFailures(debits.map { amount ⇒
           StoreCredits.auth(storeCredit = sc, orderPaymentId = payment.id, amount = amount)
         })
         .gimme

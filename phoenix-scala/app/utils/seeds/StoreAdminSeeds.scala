@@ -49,7 +49,7 @@ trait StoreAdminSeeds {
     }
     reader.close()
     for {
-      admins ← * <~ DbResultT.sequenceJoiningFailures(admins)
+      admins ← * <~ DbResultT.seqCollectFailures(admins)
     } yield admins.head.accountId
   }
 
