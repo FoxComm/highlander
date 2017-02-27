@@ -459,9 +459,9 @@ class ReturnIntegrationTest
     "POST /v1/returns/:ref/payment-methods" - {
       "succeeds for any supported payment" in new PaymentMethodFixture {
         forAll(paymentMethodTable) { paymentType ⇒
-          val payload = ReturnPaymentPayload(amount = 42, paymentType)
-          val response = returnsApi(createReturn().referenceNumber).paymentMethods
-            .add(payload)
+          val payload = ReturnPaymentPayload(amount = 42)
+          val response = returnsApi(rma.referenceNumber).paymentMethods
+            .add(paymentType, payload)
             .as[ReturnResponse.Root]
 
           response.payments must have size 1
@@ -471,17 +471,18 @@ class ReturnIntegrationTest
 
       "fails if the amount is less than zero" in new PaymentMethodFixture {
         forAll(paymentMethodTable) { paymentType ⇒
-          val payload = ReturnPaymentPayload(amount = -42, paymentType)
+          val payload = ReturnPaymentPayload(amount = -42)
 
-          val response = returnsApi(createReturn().referenceNumber).paymentMethods.add(payload)
+          val response =
+            returnsApi(createReturn().referenceNumber).paymentMethods.add(paymentType, payload)
           response.mustFailWithMessage("Amount got -42, expected more than 0")
         }
       }
 
       "fails if the RMA is not found" in new PaymentMethodFixture {
         forAll(paymentMethodTable) { paymentType ⇒
-          val payload  = ReturnPaymentPayload(amount = 42, paymentType)
-          val response = returnsApi("TRY_HARDER").paymentMethods.add(payload)
+          val payload  = ReturnPaymentPayload(amount = 42)
+          val response = returnsApi("TRY_HARDER").paymentMethods.add(paymentType, payload)
 
           response.mustFailWith404(NotFoundFailure404(Return, "TRY_HARDER"))
         }
@@ -595,7 +596,10 @@ class ReturnIntegrationTest
       Table("returnLineItemPayload", giftCardPayload, shippingCostPayload, skuPayload)
   }
 
-  trait PaymentMethodFixture extends Fixture {
+  trait PaymentMethodFixture extends LineItemFixture {
+    createReturnLineItem(shippingCostPayload)
+    createReturnLineItem(skuPayload)
+
     val paymentMethodTable = Table("paymentMethod",
                                    PaymentMethod.CreditCard,
                                    PaymentMethod.GiftCard,

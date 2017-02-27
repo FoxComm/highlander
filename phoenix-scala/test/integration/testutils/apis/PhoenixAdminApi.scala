@@ -246,8 +246,11 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
     object paymentMethods {
       val requestPath = s"${returns.requestPath}/payment-methods"
 
-      def add(payload: ReturnPaymentPayload): HttpResponse =
+      def add(payload: ReturnPaymentsPayload): HttpResponse =
         POST(requestPath, payload)
+
+      def add(paymentMethod: PaymentMethod.Type, payload: ReturnPaymentPayload): HttpResponse =
+        POST(s"$requestPath/${PaymentMethod.Type.show(paymentMethod)}", payload)
 
       def remove(paymentMethod: PaymentMethod.Type): HttpResponse =
         DELETE(s"$requestPath/${PaymentMethod.Type.show(paymentMethod)}")

@@ -26,6 +26,16 @@ object ReturnFailures {
   case class ReturnShippingCostExceeded(refNum: String, amount: Int, maxAmount: Int)
       extends Failure {
     def description: String =
-      s"Returned shipping cost amount $amount cannot be greater than $maxAmount for return $refNum"
+      s"Returned shipping cost ($amount) cannot be greater than $maxAmount for return $refNum"
+  }
+
+  case class ReturnPaymentExceeded(refNum: String, amount: Int, maxAmount: Int) extends Failure {
+    def description: String =
+      s"Returned payment ($amount) cannot be greater than $maxAmount for return $refNum"
+  }
+
+  case class ReturnCCPaymentExceeded(refNum: String, amount: Int, maxAmount: Int) extends Failure {
+    def description: String =
+      s"Returned credit card payment ($amount) cannot be greater than $maxAmount for return $refNum"
   }
 }
