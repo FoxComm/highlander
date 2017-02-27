@@ -11,8 +11,6 @@ import * as checkoutActions from 'modules/checkout';
 export const toggleCart = createAction('TOGGLE_CART');
 export const hideCart = createAction('HIDE_CART');
 export const updateCart = createAction('UPDATE_CART');
-export const selectCreditCard = createAction('CART_SET_CREDIT_CARD');
-export const resetCreditCard = createAction('CART_RESET_CREDIT_CARD');
 export const resetCart = createAction('RESET_CART');
 
 export type ProductInCart = {
@@ -248,8 +246,6 @@ function updateCartState(state, cart) {
     skus: data,
     quantity,
     shippingAddress,
-    coupon: cart.coupon,
-    promotion: cart.promotion,
     ...cart,
   };
 }
@@ -281,18 +277,6 @@ const reducer = createReducer({
   },
   [actions.succeeded]: updateCartState,
   [updateCart]: updateCartState,
-  [selectCreditCard]: (state, creditCard) => {
-    return {
-      ...state,
-      creditCard,
-    };
-  },
-  [resetCreditCard]: (state) => {
-    return {
-      ...state,
-      creditCard: null,
-    };
-  },
   [resetCart]: () => {
     return initialState;
   },

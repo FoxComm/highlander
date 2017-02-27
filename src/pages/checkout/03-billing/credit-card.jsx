@@ -18,12 +18,13 @@ type Props = {
   creditCard: CreditCardType,
   selected: boolean,
   onSelect: (cc: CreditCardType) => void,
-  editCard: Function,
-  deleteCard: Function,
+  onEditCard: (creditCard: CreditCardType) => void,
+  onDeleteCard: (id: number) => void,
+  allowEdit?: boolean,
 };
 
 const CreditCard = (props: Props) => {
-  const { creditCard, selected, onSelect, editCard, deleteCard } = props;
+  const { creditCard, selected, onSelect, onEditCard, onDeleteCard } = props;
   const { id } = creditCard;
 
   return (
@@ -37,8 +38,8 @@ const CreditCard = (props: Props) => {
         <ViewBilling billingData={creditCard} />
       </Radiobutton>
       <div styleName="actions">
-        <span styleName="action" onClick={() => editCard(creditCard)}>Edit</span>
-        <span styleName="action" onClick={() => deleteCard(id)}>Delete</span>
+        {props.allowEdit && <span styleName="action" onClick={() => onEditCard(creditCard)}>Edit</span>}
+        <span styleName="action" onClick={() => onDeleteCard(id)}>Delete</span>
       </div>
     </div>
   );

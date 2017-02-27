@@ -37,7 +37,7 @@ type Props = {
   className?: string,
   embedded?: boolean,
   totalTitle?: string,
-  orderPlaced?: boolean,
+  orderPlaced?: ?boolean,
   referenceNumber: string,
 };
 

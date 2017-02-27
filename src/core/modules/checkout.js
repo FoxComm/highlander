@@ -4,11 +4,12 @@ import _ from 'lodash';
 import { createAction, createReducer } from 'redux-act';
 import { assoc } from 'sprout-data';
 import { createAsyncActions } from '@foxcomm/wings';
-import { updateCart, resetCreditCard, resetCart } from 'modules/cart';
+import { updateCart, resetCart } from 'modules/cart';
 import { api as foxApi } from '../lib/api';
 import * as tracking from 'lib/analytics';
 
 import type { Address } from 'types/address';
+import type { CreditCardType } from '../../pages/checkout/types';
 
 export const EditStages = {
   SHIPPING: 0,
@@ -25,11 +26,14 @@ export type ShippingAddress = {
 };
 
 export type CheckoutState = {
+  creditCard: CreditCardType|null,
   editStage: EditStage,
   shippingAddress: ShippingAddress,
   billingAddress: ShippingAddress,
 };
 
+export const selectCreditCard = createAction('CHECKOUT_SET_CREDIT_CARD');
+export const resetCreditCard = createAction('CHECKOUT_RESET_CREDIT_CARD');
 export const setEditStage = createAction('CHECKOUT_SET_EDIT_STAGE');
 export const setBillingData = createAction('CHECKOUT_SET_BILLING_DATA', (key, value) => [key, value]);
 export const resetBillingData = createAction('CHECKOUT_RESET_BILLING_DATA');
@@ -289,7 +293,7 @@ export const clearAddCreditCardErrors = _addCreditCard.clearErrors;
 
 export function chooseCreditCard(): Function {
   return (dispatch, getState) => {
-    const creditCard = getState().cart.creditCard;
+    const creditCard = getState().checkout.creditCard;
 
     return foxApi.cart.addCreditCard(creditCard.id)
       .then(res => {
@@ -317,9 +321,11 @@ export const clearUpdateCreditCardErrors = _updateCreditCard.clearErrors;
 
 export function deleteCreditCard(id): Function {
   return (dispatch, getState) => {
-    const cartState = getState().cart;
-    if (_.get(cartState, 'creditCard.id') == id) {
+    if (_.get(getState().checkout, 'creditCard.id') == id) {
       dispatch(resetCreditCard());
+    }
+    if (_.get(getState().checkout, 'billingData.id') == id) {
+      dispatch(resetBillingData());
     }
     return foxApi.creditCards.delete(id)
       .then(() => dispatch(fetchCreditCards()));
@@ -366,6 +372,7 @@ const initialState: CheckoutState = {
   creditCards: [],
   addresses: [],
   isAddressLoaded: false,
+  creditCard: null,
 };
 
 const reducer = createReducer({
@@ -436,6 +443,18 @@ const reducer = createReducer({
     return {
       ...state,
       orderPlaced: cart.referenceNumber,
+    };
+  },
+  [selectCreditCard]: (state, creditCard) => {
+    return {
+      ...state,
+      creditCard,
+    };
+  },
+  [resetCreditCard]: (state) => {
+    return {
+      ...state,
+      creditCard: null,
     };
   },
 }, initialState);
