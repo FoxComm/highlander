@@ -112,7 +112,6 @@ class StripeWrapper extends StripeApiWrapper with LazyLogging {
         Xor.left(cardExceptionMap(t.getCode).single)
       case t: StripeException ⇒
         Xor.left(StripeFailure(t).single)
-      // TODO: what about case _? @michalrus
     }
 
     Result.fromFXor(f)
