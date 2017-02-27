@@ -172,13 +172,13 @@ class ReturnIntegrationTest
     "POST /v1/returns/:refNum/message" - {
       "successfully sends message to the customer" in new Fixture {
         val payload = ReturnMessageToCustomerPayload(message = "Hello!")
-        returnsApi(rma.refNum)
+        returnsApi(rma.referenceNumber)
           .message(payload)
           .as[ReturnResponse.Root]
           .messageToCustomer
           .head must === (payload.message)
 
-        returnsApi(rma.refNum)
+        returnsApi(rma.referenceNumber)
           .message(ReturnMessageToCustomerPayload(message = ""))
           .as[ReturnResponse.Root]
           .messageToCustomer must === (None)
@@ -193,7 +193,7 @@ class ReturnIntegrationTest
       "fails if message is too long" in new Fixture {
         val payload = ReturnMessageToCustomerPayload(
             message = List.fill(messageToAccountMaxLength)("Yax").mkString)
-        returnsApi(rma.refNum)
+        returnsApi(rma.referenceNumber)
           .message(payload)
           .mustFailWith400(GeneralFailure("Message length got 3000, expected 1000 or less"))
       }
@@ -296,7 +296,7 @@ class ReturnIntegrationTest
         val response = POST(s"v1/returns/${rma.referenceNumber}/unlock")
 
         response.status must === (StatusCodes.BadRequest)
-        response.error must === (NotLockedFailure(Return, rma.refNum).description)
+        response.error must === (NotLockedFailure(Return, rma.referenceNumber).description)
       }
     }
 

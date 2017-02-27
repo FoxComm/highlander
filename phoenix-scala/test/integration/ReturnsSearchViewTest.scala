@@ -48,14 +48,18 @@ class ReturnsSearchViewTest
         import rmaSearchView._
 
         id must === (rma.id)
-        referenceNumber must === (rma.refNum)
-        orderId must === (rma.orderId)
-        orderRef must === (rma.orderRef)
+        referenceNumber must === (rma.referenceNumber)
+        orderRef must === (rma.cordRefNum)
         state must === (rma.state)
-        messageToAccount must === (rma.messageToAccount)
-        returnType must === (rma.returnType)
+        messageToAccount must === (rma.messageToCustomer)
+        returnType must === (rma.rmaType)
 
-        customerSearchViewResult.id must === (rma.accountId)
+        rma.customer.map(c ⇒ {
+          customerSearchViewResult.id must === (c.id)
+          customerSearchViewResult.name.some must === (c.name)
+          customerSearchViewResult.email.some must === (c.email)
+        })
+
       }
     }
   }
@@ -76,7 +80,7 @@ class ReturnsSearchViewTest
       findOneInSearchView(rma.id).messageToAccount must === (None)
 
       val payload = ReturnMessageToCustomerPayload(message = "Hello!")
-      returnsApi(rma.refNum)
+      returnsApi(rma.referenceNumber)
         .message(payload)
         .as[ReturnResponse.Root]
         .messageToCustomer

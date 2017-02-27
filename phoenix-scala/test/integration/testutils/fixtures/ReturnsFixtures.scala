@@ -74,7 +74,7 @@ trait ReturnsFixtures extends TestFixtureBase with BakedFixtures with ApiFixture
         orderRef: String = order.referenceNumber)(implicit sl: SL, sf: SF): ReturnResponse.Root =
       returnsApi.create(ReturnCreatePayload(orderRef, returnType)).as[ReturnResponse.Root]
 
-    lazy val rma: Return = Returns.mustFindByRefNum(createReturn().referenceNumber).gimme
+    lazy val rma: ReturnResponse.Root = createReturn()
   }
 
   trait ReasonFixture extends Fixture {
@@ -104,9 +104,6 @@ trait ReturnsFixtures extends TestFixtureBase with BakedFixtures with ApiFixture
                                               reasonId = returnReason.id,
                                               isReturnItem = true,
                                               inventoryDisposition = ReturnLineItem.Putaway)
-
-    val returnLineItemPayloadTable =
-      Table("returnLineItemPayload", giftCardPayload, shippingCostPayload, skuPayload)
   }
 
   trait PaymentMethodFixture extends Fixture with Tables {

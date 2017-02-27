@@ -26,15 +26,16 @@ class ReturnNotesIntegrationTest
   "Return Notes" - {
     "POST /v1/notes/return/:code" - {
       "can be created for return" in new Fixture {
-        val noteCreated =
-          api(rma.refNum).create(CreateNote(body = "Hello, FoxCommerce!")).as[AdminNotes.Root]
+        val noteCreated = api(rma.referenceNumber)
+          .create(CreateNote(body = "Hello, FoxCommerce!"))
+          .as[AdminNotes.Root]
 
         noteCreated.body must === ("Hello, FoxCommerce!")
         noteCreated.author must === (AdminNotes.buildAuthor(storeAdmin))
       }
 
       "returns a validation error if failed to create" in new Fixture {
-        api(rma.refNum)
+        api(rma.referenceNumber)
           .create(CreateNote(body = ""))
           .mustFailWith400(GeneralFailure("body must not be empty"))
       }
@@ -49,10 +50,10 @@ class ReturnNotesIntegrationTest
 
       "can be listed" in new Fixture {
         List("abc", "123", "xyz").foreach { body ⇒
-          api(rma.refNum).create(CreateNote(body = body)).mustBeOk()
+          api(rma.referenceNumber).create(CreateNote(body = body)).mustBeOk()
         }
 
-        val notes = api(rma.refNum).get().as[Seq[AdminNotes.Root]]
+        val notes = api(rma.referenceNumber).get().as[Seq[AdminNotes.Root]]
         notes must have size 3
         notes.map(_.body).toSet must === (Set("abc", "123", "xyz"))
       }
@@ -61,22 +62,27 @@ class ReturnNotesIntegrationTest
     "PATCH /v1/notes/return/:code/:noteId" - {
 
       "can update the body text" in new Fixture {
-        val noteCreated =
-          api(rma.refNum).create(CreateNote(body = "Hello, FoxCommerce!")).as[AdminNotes.Root]
+        val noteCreated = api(rma.referenceNumber)
+          .create(CreateNote(body = "Hello, FoxCommerce!"))
+          .as[AdminNotes.Root]
 
         val updateNote = UpdateNote(body = "donkey")
-        api(rma.refNum).note(noteCreated.id).update(updateNote).as[AdminNotes.Root].body must === (
-            updateNote.body)
+        api(rma.referenceNumber)
+          .note(noteCreated.id)
+          .update(updateNote)
+          .as[AdminNotes.Root]
+          .body must === (updateNote.body)
       }
     }
 
     "DELETE /v1/notes/return/:code/:noteId" - {
 
       "can soft delete note" in new Fixture {
-        val note =
-          api(rma.refNum).create(CreateNote(body = "Hello, FoxCommerce!")).as[AdminNotes.Root]
+        val note = api(rma.referenceNumber)
+          .create(CreateNote(body = "Hello, FoxCommerce!"))
+          .as[AdminNotes.Root]
 
-        api(rma.refNum).note(note.id).delete().mustBeEmpty()
+        api(rma.referenceNumber).note(note.id).delete().mustBeEmpty()
 
         val updatedNote = Notes.findOneById(note.id).run().futureValue.value
         updatedNote.deletedBy.value must === (1)
@@ -85,7 +91,7 @@ class ReturnNotesIntegrationTest
           updatedNote.deletedAt.value.isBeforeNow mustBe true
         }
 
-        api(rma.refNum).get().as[Seq[AdminNotes.Root]].map(_.id) must not contain note.id
+        api(rma.referenceNumber).get().as[Seq[AdminNotes.Root]].map(_.id) must not contain note.id
       }
     }
   }
