@@ -14,10 +14,10 @@
 
 :global(.icon--fc-payment-visa),
 :global(.icon--fc-payment-master-card),
-:global(.icon--fc-payment-dinners-club),
+:global(.icon--fc-payment-diners-club),
 :global(.icon--fc-payment-american-express),
 :global(.icon--fc-payment-discover),
-:global(.icon--fc-payment-jsb) {
+:global(.icon--fc-payment-jcb) {
   width: 44px;
   height: 30px;
   stroke: none;
