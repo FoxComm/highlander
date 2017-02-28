@@ -1,7 +1,6 @@
 defmodule Hyperion.Router.V1 do
   use Maru.Router
 
-  # import Ecto.Query
   require Logger
 
   alias Hyperion.Repo, warn: true

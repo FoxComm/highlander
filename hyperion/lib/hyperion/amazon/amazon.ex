@@ -19,7 +19,7 @@ defmodule Hyperion.Amazon do
   def price_feed(product_id, jwt) do
      Client.get_product(hd(product_id), jwt)
     |> process_products
-    |> Enum.map(fn(x) -> Enum.filter(x, fn({k, _v}) -> k == :code || k == :retailprice  end) end)
+    |> Enum.map(fn(x) -> Enum.filter(x, fn({k, _v}) -> k == :code || k == :retailprice end) end)
     |> Enum.with_index(1)
   end
 
@@ -55,7 +55,6 @@ defmodule Hyperion.Amazon do
 
     skus = response.body["skus"]
            |> Enum.map(fn(map) -> format_map(map["attributes"]) end)
-           # |> Enum.filter( fn (m) -> m[:channel] == "amazon"  end)
 
     variants = process_variants(response.body["variants"])
 
