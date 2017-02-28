@@ -1,20 +1,17 @@
 package services
 
-import cats.data._
 import cats.implicits._
 import failures.ProductFailures.NoProductFoundForSku
 import models.cord.lineitems._
-import models.image.{AlbumImageLinks, Albums, Images}
+import models.image.Albums
 import models.inventory.Sku
 import models.objects._
 import models.product._
-import org.json4s.JsonAST.JString
+import models.objects.ProductSkuLinks.scope._
 import services.image.ImageManager
 import services.inventory.SkuManager
-import services.objects.ObjectManager
 import services.product.ProductManager
 import slick.driver.PostgresDriver.api._
-import utils._
 import utils.aliases._
 import utils.db._
 
@@ -66,7 +63,7 @@ object LineItemManager {
 
   private def getProductForSku(sku: Sku)(implicit ec: EC, db: DB) =
     for {
-      productId ← * <~ ProductSkuLinks.filter(_.rightId === sku.id).one.dbresult.flatMap {
+      productId ← * <~ ProductSkuLinks.filterRight(sku).filterNotArchived.one.dbresult.flatMap {
                    case Some(productLink) ⇒
                      DbResultT.good(productLink.leftId)
                    case None ⇒

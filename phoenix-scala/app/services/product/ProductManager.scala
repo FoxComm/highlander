@@ -13,6 +13,7 @@ import failures.ProductFailures._
 import models.image.{AlbumImageLinks, Albums}
 import models.inventory._
 import models.objects._
+import ProductSkuLinks.scope._
 import models.product._
 import models.account._
 import payloads.ImagePayloads.AlbumPayload
@@ -92,7 +93,7 @@ object ProductManager {
       oldProduct ← * <~ Products.mustFindFullByReference(productId)
       albums     ← * <~ ImageManager.getAlbumsForProduct(oldProduct.model.reference)
 
-      fullSkus    ← * <~ ProductSkuLinks.queryRightByLeft(oldProduct.model)
+      fullSkus    ← * <~ ProductSkuLinks.queryRightByLeft(oldProduct.model, _.filterNotArchived)
       productSkus ← * <~ fullSkus.map(SkuManager.illuminateSku)
 
       variants     ← * <~ ProductVariantLinks.queryRightByLeft(oldProduct.model)
@@ -196,13 +197,10 @@ object ProductManager {
                                         id ⇒ NotFoundFailure400(ProductAlbumLinks, id))
          }
       albums   ← * <~ ImageManager.getAlbumsForProduct(ProductReference(inactive.form.id))
-      skuLinks ← * <~ ProductSkuLinks.filter(_.leftId === archiveResult.id).result
-      _ ← * <~ skuLinks.map { link ⇒
-           ProductSkuLinks.deleteById(link.id,
-                                      DbResultT.unit,
-                                      id ⇒ NotFoundFailure400(ProductSkuLink, id))
-         }
-      updatedSkus  ← * <~ ProductSkuLinks.queryRightByLeft(archiveResult)
+      skuLinks ← * <~ ProductSkuLinks.filterLeft(archiveResult).filterNotArchived.result
+      _ ← * <~ skuLinks.map(link ⇒
+               ProductSkuLinks.update(link, link.copy(archivedAt = Some(Instant.now))))
+      updatedSkus  ← * <~ ProductSkuLinks.queryRightByLeft(archiveResult, _.filterNotArchived)
       skus         ← * <~ updatedSkus.map(SkuManager.illuminateSku)
       variantLinks ← * <~ ProductVariantLinks.filter(_.leftId === archiveResult.id).result
       _ ← * <~ variantLinks.map { link ⇒
@@ -419,24 +417,26 @@ object ProductManager {
       productId: Int,
       payloadSkus: Seq[SkuPayload])(implicit ec: EC, db: DB): DbResultT[Unit] =
     for {
-      skuIdsForProduct ← * <~ ProductSkuLinks.filter(_.leftId === productId).result.flatMap {
-                          case links @ Seq(_) ⇒
-                            lift(links.map(_.rightId))
-                          case _ ⇒
-                            for {
-                              variantLinks ← ProductVariantLinks
-                                              .filter(_.leftId === productId)
+      skuIdsForProduct ← * <~ ProductSkuLinks
+                          .filter(_.leftId === productId)
+                          .filterNotArchived
+                          .result
+                          .flatMap {
+                            case links @ Seq(_) ⇒
+                              lift(links.map(_.rightId))
+                            case _ ⇒
+                              for {
+                                variantLinks ← ProductVariantLinks.filter(_.leftId === productId).result
+                                variantIds = variantLinks.map(_.rightId)
+                                valueLinks ← VariantValueLinks
+                                              .filter(_.leftId.inSet(variantIds))
                                               .result
-                              variantIds = variantLinks.map(_.rightId)
-                              valueLinks ← VariantValueLinks
-                                            .filter(_.leftId.inSet(variantIds))
+                                valueIds = valueLinks.map(_.rightId)
+                                skuLinks ← VariantValueSkuLinks
+                                            .filter(_.leftId.inSet(valueIds))
                                             .result
-                              valueIds = valueLinks.map(_.rightId)
-                              skuLinks ← VariantValueSkuLinks
-                                          .filter(_.leftId.inSet(valueIds))
-                                          .result
-                            } yield skuLinks.map(_.rightId)
-                        }
+                              } yield skuLinks.map(_.rightId)
+                          }
       skuCodesForProduct ← * <~ Skus.filter(_.id.inSet(skuIdsForProduct)).map(_.code).result
       skuCodesFromPayload = payloadSkus.map(ps ⇒ SkuManager.getSkuCode(ps.attributes)).flatten
       skuCodesToBeGone    = skuCodesForProduct.diff(skuCodesFromPayload)
