@@ -10,7 +10,7 @@ test('Can create a gift card', async (t) => {
   const api = await Api.withCookies();
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const payload = $.randomGiftCardPayload();
-  const newGiftCard = await api.giftCards.create(payload).then(r => r[0].giftCard);
+  const newGiftCard = await api.giftCards.create(payload);
   t.truthy(isNumber(newGiftCard.id));
   t.truthy(isDate(newGiftCard.createdAt));
   t.truthy(isString(newGiftCard.code));
@@ -30,7 +30,7 @@ test('Can view gift card details', async (t) => {
   const api = await Api.withCookies();
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const payload = $.randomGiftCardPayload();
-  const newGiftCard = await api.giftCards.create(payload).then(r => r[0].giftCard);
+  const newGiftCard = await api.giftCards.create(payload);
   const foundGiftCard = await api.giftCards.one(newGiftCard.code);
   t.deepEqual(foundGiftCard, newGiftCard);
 });
@@ -38,7 +38,7 @@ test('Can view gift card details', async (t) => {
 test('Can put a gift card "On Hold"', async (t) => {
   const api = await Api.withCookies();
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
-  const newGiftCard = await api.giftCards.create($.randomGiftCardPayload()).then(r => r[0].giftCard);
+  const newGiftCard = await api.giftCards.create($.randomGiftCardPayload());
   const updatedGiftCard = await api.giftCards.update(newGiftCard.code, { state: 'onHold' });
   t.is(updatedGiftCard.state, 'onHold');
   t.is(updatedGiftCard.id, newGiftCard.id);
@@ -55,7 +55,7 @@ test('Can put a gift card "On Hold"', async (t) => {
 test('Can "Cancel" a gift card', async (t) => {
   const api = await Api.withCookies();
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
-  const newGiftCard = await api.giftCards.create($.randomGiftCardPayload()).then(r => r[0].giftCard);
+  const newGiftCard = await api.giftCards.create($.randomGiftCardPayload());
   const payload = { state: 'canceled', reasonId: 1 };
   const updatedGiftCard = await api.giftCards.update(newGiftCard.code, payload);
   t.is(updatedGiftCard.state, payload.state);
@@ -75,7 +75,7 @@ test('Can "Cancel" a gift card', async (t) => {
 test('Can make gift card "Active"', async (t) => {
   const api = await Api.withCookies();
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
-  const newGiftCard = await api.giftCards.create($.randomGiftCardPayload()).then(r => r[0].giftCard);
+  const newGiftCard = await api.giftCards.create($.randomGiftCardPayload());
   const updatedGiftCardOnHold = await api.giftCards.update(newGiftCard.code, { state: 'onHold' });
   t.is(updatedGiftCardOnHold.state, 'onHold');
   const updatedActiveGiftCard = await api.giftCards.update(newGiftCard.code, { state: 'active' });
@@ -84,6 +84,6 @@ test('Can make gift card "Active"', async (t) => {
 
 testNotes({
   objectType: 'gift-card',
-  createObject: api => api.giftCards.create($.randomGiftCardPayload()).then(r => r[0].giftCard),
+  createObject: api => api.giftCards.create($.randomGiftCardPayload()),
   selectId: giftCard => giftCard.code,
 });

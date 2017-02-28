@@ -13,6 +13,7 @@
     "test-promotion": "ava --verbose tests/promotion.test.js || true",
     "test-coupon": "ava --verbose tests/coupon.test.js || true",
     "test-cart": "ava --verbose tests/cart.test.js || true",
+    "test-carts": "ava --verbose tests/carts.test.js || true",
     "test-dev": "ava --verbose tests/dev.test.js || true"
   },
   "dependencies": {

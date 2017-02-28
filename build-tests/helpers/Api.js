@@ -37,6 +37,15 @@ const endpoints = {
   storeAdmins: '/v1/store-admins',
   storeAdmin: storeAdminId => `/v1/store-admins/${storeAdminId}`,
   esStoreAdmins: 'search/admin/store_admins_search_view/_search',
+  customerCartPaymentStoreCredit: '/v1/my/cart/payment-methods/store-credit',
+  cart: referenceNumber => `/v1/carts/${referenceNumber}`,
+  cartLineItems: referenceNumber => `/v1/carts/${referenceNumber}/line-items`,
+  cartWatchers: referenceNumber => `/v1/carts/${referenceNumber}/watchers`,
+  cartWatcher: (referenceNumber, watcherId) => `/v1/carts/${referenceNumber}/watchers/${watcherId}`,
+  shippingMethods: referenceNumber => `/v1/shipping-methods/${referenceNumber}`,
+  inventory: skuCode => `/v1/inventory/summary/${skuCode}`,
+  inventoryIncrement: stockItemId => `/v1/inventory/stock-items/${stockItemId}/increment`,
+  inventoryDecrement: stockItemId => `/v1/inventory/stock-items/${stockItemId}/decrement`,
   // dev
   creditCardToken: '/v1/credit-card-token',
 };
@@ -307,6 +316,48 @@ class StoreAdmins {
   }
 }
 
+class Carts {
+  constructor(api) {
+    this.api = api;
+  }
+  get(referenceNumber) {
+    return this.api.get(endpoints.cart(referenceNumber));
+  }
+  getShippingMethods(referenceNumber) {
+    return this.api.get(endpoints.shippingMethods(referenceNumber));
+  }
+  setLineItems(referenceNumber, lineItemsPayload) {
+    return this.api.post(endpoints.cartLineItems(referenceNumber), lineItemsPayload);
+  }
+  updateLineItems(referenceNumber, lineItemsPayload) {
+    return this.api.patch(endpoints.cartLineItems(referenceNumber), lineItemsPayload);
+  }
+  getWatchers(referenceNumber) {
+    return this.api.get(endpoints.cartWatchers(referenceNumber));
+  }
+  addWatchers(referenceNumber, watchersPayload) {
+    return this.api.post(endpoints.cartWatchers(referenceNumber), watchersPayload);
+  }
+  removeWatcher(referenceNumber, watcherId) {
+    return this.api.delete(endpoints.cartWatcher(referenceNumber, watcherId));
+  }
+}
+
+class Inventories {
+  constructor(api) {
+    this.api = api;
+  }
+  get(skuCode) {
+    return this.api.get(endpoints.inventory(skuCode));
+  }
+  increment(stockItemId, incrementPayload) {
+    return this.api.patch(endpoints.inventoryIncrement(stockItemId), incrementPayload);
+  }
+  decrement(stockItemId, decrementPayload) {
+    return this.api.patch(endpoints.inventoryDecrement(stockItemId), decrementPayload);
+  }
+}
+
 export default class Api extends FoxCommApi {
   constructor(...args) {
     super(...args);
@@ -326,6 +377,15 @@ export default class Api extends FoxCommApi {
     this.notes = new Notes(this);
     this.dev = new Dev(this);
     this.storeAdmins = new StoreAdmins(this);
+    this.carts = new Carts(this);
+    this.inventories = new Inventories(this);
+    this.monkeypatch();
+  }
+  monkeypatch() {
+    this.cart.addStoreCredit = amount =>
+      this.post(endpoints.customerCartPaymentStoreCredit, { amount });
+    this.cart.removeStoreCredit = () =>
+      this.delete(endpoints.customerCartPaymentStoreCredit);
   }
   static withoutCookies() {
     return new Api({

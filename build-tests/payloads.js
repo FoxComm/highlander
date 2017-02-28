@@ -5,7 +5,7 @@ import testImageBase64 from './assets/image.base64';
 const $ = {
   randomNumber: (min, max) => faker.random.number({ min, max }),
   randomMonth: () => $.randomNumber(1, 12),
-  randomYear: () => $.randomNumber(2017, 2020),
+  randomYear: () => $.randomNumber(2020, 2025),
   randomArrayElement: array => faker.random.arrayElement(array),
   adminName: 'Frankly Admin',
   adminEmail: 'admin@admin.com',
@@ -46,7 +46,7 @@ const $ = {
     address: $.randomCreateAddressPayload(),
     isDefault: false,
   }),
-  randomCreateManualStoreCreditPayload: () => ({
+  randomStoreCreditPayload: () => ({
     amount: $.randomNumber(1000, 10000),
     reasonId: 1,
     subReasonId: 1,
@@ -290,6 +290,11 @@ const $ = {
       }),
       {},
     ),
+  randomLineItemsPayload: (skuCodes, { minQuantity, maxQuantity } = {}) =>
+    skuCodes.map(skuCode => ({
+      sku: skuCode,
+      quantity: $.randomNumber(minQuantity || 1, maxQuantity || 10),
+    })),
 };
 
 export default $;

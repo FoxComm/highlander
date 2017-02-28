@@ -148,7 +148,7 @@ test('Can issue store credit', async (t) => {
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const credentials = $.randomUserCredentials();
   const newCustomer = await api.customers.create(credentials);
-  const payload = $.randomCreateManualStoreCreditPayload();
+  const payload = $.randomStoreCreditPayload();
   const newStoreCredit = await api.customerStoreCredit.create(newCustomer.id, payload);
   t.truthy(newStoreCredit.id);
   t.truthy(newStoreCredit.originId);
