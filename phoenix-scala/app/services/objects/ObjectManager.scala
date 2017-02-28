@@ -11,16 +11,6 @@ import utils.db._
 
 object ObjectManager {
 
-  def getForm(id: Int)(implicit ec: EC, db: DB): DbResultT[ObjectFormResponse.Root] =
-    for {
-      form ← * <~ ObjectForms.mustFindById404(id)
-    } yield ObjectFormResponse.build(form)
-
-  def getShadow(shadowId: Int)(implicit ec: EC, db: DB): DbResultT[ObjectShadowResponse.Root] =
-    for {
-      shadow ← * <~ ObjectShadows.mustFindById404(shadowId)
-    } yield ObjectShadowResponse.build(shadow)
-
   def getContextByName(name: String)(implicit ec: EC,
                                      db: DB): DbResultT[ObjectContextResponse.Root] =
     for {
@@ -57,8 +47,8 @@ object ObjectManager {
       readHead: ⇒ DbResultT[T])(implicit ec: EC, db: DB): DbResultT[FullObject[T]] =
     for {
       modelHead ← * <~ readHead
-      form      ← * <~ ObjectForms.mustFindById404(modelHead.formId)
-      shadow    ← * <~ ObjectShadows.mustFindById404(modelHead.shadowId)
+      form      ← * <~ ObjectForms.findById(modelHead.formId)
+      shadow    ← * <~ ObjectShadows.findById(modelHead.shadowId)
     } yield FullObject(modelHead, form, shadow)
 
   def getFullObjects[T <: ObjectHead[T]](models: Seq[T])(implicit ec: EC,

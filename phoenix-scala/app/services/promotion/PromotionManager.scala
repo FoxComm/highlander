@@ -2,12 +2,10 @@ package services.promotion
 
 import java.time.Instant
 
-import com.github.tminglei.slickpg.LTree
 import failures.NotFoundFailure404
 import failures.ObjectFailures._
-import failures.PromotionFailures._
-import models.coupon.Coupons
 import models.account._
+import models.coupon.Coupons
 import models.discount._
 import models.objects.ObjectUtils._
 import models.objects._
@@ -98,9 +96,8 @@ object PromotionManager {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
                  .mustFindOneOr(ObjectContextNotFound(contextName))
-      promotion ← * <~ Promotions
-                   .filterByContextAndFormId(context.id, id)
-                   .mustFindOneOr(PromotionNotFoundForContext(id, contextName))
+      promotion ← * <~ Promotions.filterByContextAndFormId(context.id, id) ~> Promotions
+                   .notFound404(Map("context" → context.name, "id" → id))
       validated = IlluminatedPromotion
         .validatePromotion(payload.applyType, (formAndShadow.form, formAndShadow.shadow))
 
@@ -186,10 +183,10 @@ object PromotionManager {
                  .mustFindOneOr(ObjectContextNotFound(contextName))
       promotion ← * <~ Promotions
                    .filter(_.contextId === context.id)
-                   .filter(_.formId === id)
-                   .mustFindOneOr(PromotionNotFound(id))
-      form      ← * <~ ObjectForms.mustFindById404(promotion.formId)
-      shadow    ← * <~ ObjectShadows.mustFindById404(promotion.shadowId)
+                   .filter(_.formId === id) ~> Promotions.notFound404(
+                     Map("context" → context.name, "id" → id))
+      form      ← * <~ ObjectForms.findById(promotion.formId)
+      shadow    ← * <~ ObjectShadows.findById(promotion.shadowId)
       discounts ← * <~ PromotionDiscountLinks.queryRightByLeft(promotion)
     } yield
       PromotionResponse.build(

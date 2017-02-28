@@ -1,8 +1,8 @@
 package utils.db
 
 import cats.data.Xor
-import failures.{Failure, Failures}
-import slick.dbio.DBIO
+import failures.NFF._
+import failures._
 import slick.driver.PostgresDriver.api._
 import slick.lifted.{TableQuery, Tag}
 import utils.aliases._
@@ -15,17 +15,23 @@ abstract class FoxTableQuery[M <: FoxModel[M], T <: FoxTable[M]](construct: Tag 
 
   import ExceptionWrapper._
 
-  def tableName: String = baseTableRow.tableName
+  val tableName: String = baseTableRow.tableName
 
   private val compiledById = this.findBy(_.id)
 
-  def findById(i: M#Id) = compiledById(i)
+  def findById(i: M#Id) = compiledById(i).extract
 
   def findOneById(i: M#Id): DBIO[Option[M]] =
     findById(i).result.headOption
 
   def findAllByIds(ids: Set[M#Id]): QuerySeq =
     filter(_.id.inSet(ids))
+
+  def notFound404(params: FailureParams): NotFoundFailure404 =
+    NFF.notFound404(tableName)(params)
+
+  def notFound400(params: FailureParams): NotFoundFailure400 =
+    NFF.notFound400(tableName)(params)
 
   private def returningTable: Returning[M, Ret] = this.returning(returningQuery)
 
@@ -66,7 +72,7 @@ abstract class FoxTableQuery[M <: FoxModel[M], T <: FoxTable[M]](construct: Tag 
       _        ← * <~ oldModel.mustBeCreated
       prepared ← * <~ beforeSave(newModel)
       _        ← * <~ oldModel.updateTo(prepared)
-      returned ← * <~ findById(oldModel.id).extract.updateReturningHead(returningQuery, prepared)
+      returned ← * <~ findById(oldModel.id).updateReturningHead(returningQuery, prepared)
     } yield returningLens.set(prepared)(returned)
 
   protected def beforeSave(model: M): Failures Xor M =

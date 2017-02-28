@@ -147,11 +147,11 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext with 
     val (product, productForm, productShadow, sku, skuForm, skuShadow, items) = (for {
       productData   ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head)
       product       ← * <~ Products.mustFindById404(productData.productId)
-      productForm   ← * <~ ObjectForms.mustFindById404(product.formId)
-      productShadow ← * <~ ObjectShadows.mustFindById404(product.shadowId)
+      productForm   ← * <~ ObjectForms.findById(product.formId)
+      productShadow ← * <~ ObjectShadows.findById(product.shadowId)
       sku           ← * <~ Skus.mustFindById404(productData.skuId)
-      skuForm       ← * <~ ObjectForms.mustFindById404(sku.formId)
-      skuShadow     ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
+      skuForm       ← * <~ ObjectForms.findById(sku.formId)
+      skuShadow     ← * <~ ObjectShadows.findById(sku.shadowId)
       items         ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = sku.id))
       _             ← * <~ CartTotaler.saveTotals(cart)
     } yield (product, productForm, productShadow, sku, skuForm, skuShadow, items)).gimme
@@ -163,11 +163,11 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext with 
     val (product, productForm, productShadow, sku, skuForm, skuShadow, items) = (for {
       productData   ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head.copy(price = 0))
       product       ← * <~ Products.mustFindById404(productData.productId)
-      productForm   ← * <~ ObjectForms.mustFindById404(product.formId)
-      productShadow ← * <~ ObjectShadows.mustFindById404(product.shadowId)
+      productForm   ← * <~ ObjectForms.findById(product.formId)
+      productShadow ← * <~ ObjectShadows.findById(product.shadowId)
       sku           ← * <~ Skus.mustFindById404(productData.skuId)
-      skuForm       ← * <~ ObjectForms.mustFindById404(sku.formId)
-      skuShadow     ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
+      skuForm       ← * <~ ObjectForms.findById(sku.formId)
+      skuShadow     ← * <~ ObjectShadows.findById(sku.shadowId)
       items         ← * <~ CartLineItems.create(CartLineItem(cordRef = cart.refNum, skuId = sku.id))
       _             ← * <~ CartTotaler.saveTotals(cart)
     } yield (product, productForm, productShadow, sku, skuForm, skuShadow, items)).gimme

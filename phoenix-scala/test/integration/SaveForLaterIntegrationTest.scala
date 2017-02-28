@@ -29,7 +29,7 @@ class SaveForLaterIntegrationTest
     }
 
     "404 if customer is not found" in {
-      saveForLaterApi(666).get().mustFailWith404(NotFoundFailure404(User, 666))
+      saveForLaterApi(666).get().mustFailWith404(Users.notFound404(Map("id" → 666)))
     }
   }
 

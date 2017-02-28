@@ -1,12 +1,13 @@
 import akka.http.scaladsl.model.StatusCodes
+
 import cats.implicits._
 import failures.CartFailures._
 import failures.LockFailures._
 import failures.ShippingMethodFailures._
 import failures.{NotFoundFailure400, NotFoundFailure404}
 import faker.Lorem
-import models.cord._
 import models.cord.lineitems._
+import models.cord._
 import models.location._
 import models.payment.creditcard._
 import models.product.Mvp
@@ -14,16 +15,15 @@ import models.rules.QueryStatement
 import models.shipping._
 import org.json4s.jackson.JsonMethods._
 import payloads.AddressPayloads.{CreateAddressPayload, UpdateAddressPayload}
-import payloads.CustomerPayloads.CreateCustomerPayload
-import payloads.LineItemPayloads._
 import payloads.CartPayloads.CreateCart
+import payloads.CustomerPayloads.CreateCustomerPayload
+import payloads.GiftCardPayloads.GiftCardCreateByCsr
+import payloads.LineItemPayloads._
+import payloads.PaymentPayloads._
 import payloads.UpdateShippingMethod
+import responses._
 import responses.cord.CartResponse
 import responses.cord.base.CordResponseLineItem
-import responses._
-import models.cord.CordPaymentState
-import payloads.GiftCardPayloads.GiftCardCreateByCsr
-import payloads.PaymentPayloads._
 import services.carts.CartTotaler
 import slick.driver.PostgresDriver.api._
 import testutils._
@@ -50,7 +50,7 @@ class CartIntegrationTest
       }
 
       "displays 'auth' payment state" in new PaymentStateFixture {
-        CreditCardCharges.findById(ccc.id).extract.map(_.state).update(CreditCardCharge.Auth).gimme
+        CreditCardCharges.findById(ccc.id).map(_.state).update(CreditCardCharge.Auth).gimme
 
         val fullCart = cartsApi(cart.refNum).get().asTheResult[CartResponse]
         fullCart.paymentState must === (CordPaymentState.Auth)

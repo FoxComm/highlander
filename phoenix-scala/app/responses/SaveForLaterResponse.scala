@@ -31,8 +31,8 @@ object SaveForLaterResponse {
              .mustFindOneOr(
                  NotFoundFailure404(s"Save for later entry for sku with id=$skuId not found"))
       sku    ← * <~ Skus.mustFindById404(skuId)
-      form   ← * <~ ObjectForms.mustFindById404(sku.formId)
-      shadow ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
+      form   ← * <~ ObjectForms.findById(sku.formId)
+      shadow ← * <~ ObjectShadows.findById(sku.shadowId)
     } yield build(sfl, sku, form, shadow)
 
   def build(sfl: SaveForLater, sku: Sku, form: ObjectForm, shadow: ObjectShadow): Root = {

@@ -1,8 +1,8 @@
 package services.coupon
 
 import failures.CouponFailures._
-import models.coupon._
 import models.account.User
+import models.coupon._
 import models.objects.{ObjectContexts, ObjectForms}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
@@ -59,14 +59,14 @@ object CouponUsageService {
     couponCodeId match {
       case Some(codeId) ⇒
         for {
-          couponCode ← * <~ CouponCodes.findById(codeId).extract.one.safeGet
+          couponCode ← * <~ CouponCodes.findById(codeId)
           context    ← * <~ ObjectContexts.mustFindById400(ctx.id)
           code       ← * <~ CouponCodes.mustFindById400(codeId)
           coupon ← * <~ Coupons
                     .filterByContextAndFormId(context.id, code.couponFormId)
                     .one
                     .mustFindOr(CouponNotFoundForContext(code.couponFormId, context.name))
-          form ← * <~ ObjectForms.mustFindById400(coupon.formId)
+          form ← * <~ ObjectForms.findById(coupon.formId)
           couponUsage ← * <~ CouponUsages
                          .filterByCoupon(coupon.formId)
                          .one

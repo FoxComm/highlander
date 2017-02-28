@@ -29,7 +29,7 @@ object ReturnLineItemUpdater {
                 .filter(_.id === payload.reasonId)
                 .mustFindOneOr(NotFoundFailure400(ReturnReason, payload.reasonId))
       sku       ← * <~ SkuManager.mustFindSkuByContextAndCode(context.id, payload.sku)
-      skuShadow ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
+      skuShadow ← * <~ ObjectShadows.findById(sku.shadowId)
       // Inserts
       origin ← * <~ ReturnLineItemSkus.create(
                   ReturnLineItemSku(returnId = rma.id, skuId = sku.id, skuShadowId = skuShadow.id))

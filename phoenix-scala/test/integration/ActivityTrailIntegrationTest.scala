@@ -168,7 +168,7 @@ class ActivityTrailIntegrationTest
   }
 
   def getConnection(id: Int): Connection =
-    Connections.findById(id).extract.result.head.gimme
+    Connections.findById(id).result.head.gimme
 
   def appendActivity(dimension: String, objectId: Int, activityId: Int): Root =
     activityTrailsApi

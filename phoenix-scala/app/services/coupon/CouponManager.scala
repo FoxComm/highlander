@@ -2,10 +2,9 @@ package services.coupon
 
 import java.time.Instant
 
+import failures.CouponFailures._
 import failures.NotFoundFailure404
 import failures.ObjectFailures._
-import failures.PromotionFailures._
-import failures.CouponFailures._
 import models.account._
 import models.coupon._
 import models.objects._
@@ -32,9 +31,8 @@ object CouponManager {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
                  .mustFindOneOr(ObjectContextNotFound(contextName))
-      _ ← * <~ Promotions
-           .filterByContextAndFormId(context.id, payload.promotion)
-           .mustFindOneOr(PromotionNotFoundForContext(payload.promotion, context.name))
+      _ ← * <~ Promotions.filterByContextAndFormId(context.id, payload.promotion) ~> Promotions
+           .notFound404(Map("context" → context.name, "id" → payload.promotion))
       ins ← * <~ ObjectUtils.insert(formAndShadow.form, formAndShadow.shadow, payload.schema)
       coupon ← * <~ Coupons.create(
                   Coupon(scope = scope,
@@ -59,9 +57,8 @@ object CouponManager {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
                  .mustFindOneOr(ObjectContextNotFound(contextName))
-      _ ← * <~ Promotions
-           .filterByContextAndFormId(context.id, payload.promotion)
-           .mustFindOneOr(PromotionNotFoundForContext(payload.promotion, context.name))
+      _ ← * <~ Promotions.filterByContextAndFormId(context.id, payload.promotion) ~> Promotions
+           .notFound404(Map("context" → context.name, "id" → payload.promotion))
       coupon ← * <~ Coupons
                 .filterByContextAndFormId(context.id, id)
                 .mustFindOneOr(CouponNotFoundForContext(id, contextName))
@@ -87,27 +84,24 @@ object CouponManager {
 
   def getIlluminatedByCode(code: String, contextName: String)(
       implicit ec: EC,
-      db: DB): DbResultT[CouponResponse.Root] =
+      db: DB): DbResultT[CouponResponse.Root] = {
+    lazy val notFound = Coupons.notFound404(Map("code" → code, "context" → contextName))
     for {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
                  .mustFindOneOr(ObjectContextNotFound(contextName))
-      couponCode ← * <~ CouponCodes
-                    .filter(_.code.toLowerCase === code.toLowerCase)
-                    .mustFindOneOr(CouponWithCodeCannotBeFound(code))
-      result ← * <~ getIlluminatedIntern(couponCode.couponFormId, context)
+      couponCode ← * <~ CouponCodes.filter(_.code.toLowerCase === code.toLowerCase) ~> notFound
+      result     ← * <~ getIlluminatedIntern(couponCode.couponFormId, context) ~> notFound
     } yield result
+  }
 
-  def getIlluminatedIntern(id: Int, context: ObjectContext)(
+  private def getIlluminatedIntern(id: Int, context: ObjectContext)(
       implicit ec: EC,
       db: DB): DbResultT[CouponResponse.Root] =
     for {
-      coupon ← * <~ Coupons
-                .filter(_.contextId === context.id)
-                .filter(_.formId === id)
-                .mustFindOneOr(CouponNotFound(id))
-      form   ← * <~ ObjectForms.mustFindById404(coupon.formId)
-      shadow ← * <~ ObjectShadows.mustFindById404(coupon.shadowId)
+      coupon ← * <~ Coupons.filter(_.contextId === context.id).filter(_.formId === id)
+      form   ← * <~ ObjectForms.findById(coupon.formId)
+      shadow ← * <~ ObjectShadows.findById(coupon.shadowId)
     } yield CouponResponse.build(context, coupon, form, shadow)
 
   def archiveByContextAndId(contextName: String,
@@ -120,15 +114,15 @@ object CouponManager {
                .findOneByContextAndFormId(context.id, formId)
                .mustFindOneOr(NotFoundFailure404(Coupon, formId))
       archiveResult ← * <~ Coupons.update(model, model.copy(archivedAt = Some(Instant.now)))
-      form          ← * <~ ObjectForms.mustFindById404(archiveResult.formId)
-      shadow        ← * <~ ObjectShadows.mustFindById404(archiveResult.shadowId)
+      form          ← * <~ ObjectForms.findById(archiveResult.formId)
+      shadow        ← * <~ ObjectShadows.findById(archiveResult.shadowId)
     } yield CouponResponse.build(context, archiveResult, form, shadow)
 
   def generateCode(id: Int, code: String, admin: User)(implicit ec: EC,
                                                        db: DB,
                                                        ac: AC): DbResultT[String] =
     for {
-      coupon     ← * <~ Coupons.filter(_.formId === id).mustFindOneOr(CouponNotFound(id))
+      coupon     ← * <~ Coupons.filter(_.formId === id) ~> Coupons.notFound404(Map("id" → id))
       couponCode ← * <~ CouponCodes.create(CouponCode(couponFormId = id, code = code))
       _          ← * <~ LogActivity.singleCouponCodeCreated(coupon, Some(admin))
     } yield couponCode.code
@@ -138,7 +132,7 @@ object CouponManager {
                     admin: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[Seq[String]] =
     for {
       _         ← * <~ validateCouponCodePayload(payload)
-      coupon    ← * <~ Coupons.filter(_.formId === id).mustFindOneOr(CouponNotFound(id))
+      coupon    ← * <~ Coupons.filter(_.formId === id) ~> Coupons.notFound404(Map("id" → id))
       generated ← * <~ CouponCodes.generateCodes(payload.prefix, payload.length, payload.quantity)
       unsaved = generated.map { c ⇒
         CouponCode(couponFormId = id, code = c)
@@ -149,7 +143,7 @@ object CouponManager {
 
   def getCodes(id: Int)(implicit ec: EC, db: DB): DbResultT[Seq[CouponCodesResponse.Root]] =
     for {
-      _     ← * <~ Coupons.filter(_.formId === id).mustFindOneOr(CouponNotFound(id))
+      _     ← * <~ Coupons.filter(_.formId === id) ~> Coupons.notFound404(Map("id" → id))
       codes ← * <~ CouponCodes.filter(_.couponFormId === id).result
     } yield CouponCodesResponse.build(codes)
 

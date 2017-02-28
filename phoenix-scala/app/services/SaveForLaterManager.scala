@@ -17,7 +17,7 @@ object SaveForLaterManager {
 
   def findAll(accountId: Int, contextId: Int)(implicit db: DB, ec: EC): DbResultT[SavedForLater] =
     for {
-      customer ← * <~ Users.mustFindByAccountId(accountId)
+      customer ← * <~ Users.findByAccountId(accountId) ~> Users.notFound404(Map("id" → accountId))
       response ← * <~ findAllDbio(customer, contextId)
     } yield response
 

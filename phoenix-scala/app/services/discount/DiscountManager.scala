@@ -21,7 +21,7 @@ object DiscountManager {
     for {
       // guard to make sure the form is a discount
       _    ← * <~ Discounts.filter(_.formId === id).mustFindOneOr(NotFoundFailure404(Discount, id))
-      form ← * <~ ObjectForms.mustFindById404(id)
+      form ← * <~ ObjectForms.findById(id)
     } yield DiscountFormResponse.build(form)
 
   def getShadow(id: Int, contextName: String)(implicit ec: EC,
@@ -34,7 +34,7 @@ object DiscountManager {
                   .filter(_.contextId === context.id)
                   .filter(_.formId === id)
                   .mustFindOneOr(NotFoundFailure404(Discount, id))
-      shadow ← * <~ ObjectShadows.mustFindById404(discount.shadowId)
+      shadow ← * <~ ObjectShadows.findById(discount.shadowId)
     } yield DiscountShadowResponse.build(shadow)
 
   def get(discountId: Int, contextName: String)(implicit ec: EC,
@@ -47,8 +47,8 @@ object DiscountManager {
                   .filter(_.contextId === context.id)
                   .filter(_.formId === discountId)
                   .mustFindOneOr(DiscountNotFoundForContext(discountId, context.id))
-      form   ← * <~ ObjectForms.mustFindById404(discount.formId)
-      shadow ← * <~ ObjectShadows.mustFindById404(discount.shadowId)
+      form   ← * <~ ObjectForms.findById(discount.formId)
+      shadow ← * <~ ObjectShadows.findById(discount.shadowId)
     } yield DiscountResponse.build(form, shadow)
 
   def create(
@@ -136,8 +136,8 @@ object DiscountManager {
                   .filter(_.contextId === context.id)
                   .filter(_.formId === id)
                   .mustFindOneOr(NotFoundFailure404(Discount, id))
-      form   ← * <~ ObjectForms.mustFindById404(discount.formId)
-      shadow ← * <~ ObjectShadows.mustFindById404(discount.shadowId)
+      form   ← * <~ ObjectForms.findById(discount.formId)
+      shadow ← * <~ ObjectShadows.findById(discount.shadowId)
     } yield
       IlluminatedDiscountResponse.build(
           IlluminatedDiscount.illuminate(context = context.some, form, shadow))

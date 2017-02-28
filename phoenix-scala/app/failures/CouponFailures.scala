@@ -4,18 +4,6 @@ import models.coupon.CouponCodes
 
 object CouponFailures {
 
-  object CouponNotFound {
-    def apply(id: Int) = NotFoundFailure404(s"Coupon $id not found")
-  }
-
-  object CouponCodeNotFound {
-    def apply(id: Int) = NotFoundFailure404(s"Coupon code with id=$id not found")
-  }
-
-  object CouponWithCodeCannotBeFound {
-    def apply(code: String) = NotFoundFailure404(s"Coupon with code $code not found")
-  }
-
   case class CouponNotFoundAtCommit(id: Int, commit: Int) extends Failure {
     override def description = s"Coupon $id not with at commit $commit"
   }

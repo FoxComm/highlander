@@ -62,6 +62,12 @@ package object db {
         case NonEmptyList(h, t) ⇒ NonEmptyList(mapFailure(h), t.map(mapFailure))
       }
     }
+
+    def asOption(implicit ec: EC): DbResultT[Option[A]] =
+      XorT(dbResultT.fold(_ ⇒ Xor.right(None), value ⇒ Xor.right(Some(value))))
+
+    def ~>(newFailure: Failure)(implicit ec: EC): DbResultT[A] =
+      dbResultT.leftMap(_ ⇒ newFailure.single)
   }
 
   final implicit class EnrichedOption[A](val option: Option[A]) extends AnyVal {
@@ -125,6 +131,9 @@ package object db {
 
     def mustNotFindOneOr(notFoundFailure: Failure)(implicit ec: EC): DbResultT[Unit] =
       query.one.mustNotFindOr(notFoundFailure)
+
+    def ~>(failure: Failure)(implicit ec: EC): DbResultT[U] =
+      DbResultT.nonEmptyQuery(query, failure)
   }
 
   implicit class RunOnDbIO[R](val dbio: DBIO[R]) extends AnyVal {

@@ -128,7 +128,7 @@ object Addresses
     filter(_.accountId === accountId).filter(_.isDefaultShipping === true)
 
   def findByIdAndAccount(addressId: Int, accountId: Int): QuerySeq =
-    findById(addressId).extract.filter(_.accountId === accountId)
+    findById(addressId).filter(_.accountId === accountId)
 
   def findActiveByIdAndAccount(addressId: Int, accountId: Int): QuerySeq =
     findByIdAndAccount(addressId, accountId).filter(_.deletedAt.isEmpty)
