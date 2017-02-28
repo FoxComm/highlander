@@ -95,11 +95,10 @@ object ProductManager extends LazyLogging {
       illuminated = IlluminatedProduct
         .illuminate(oc, oldProduct.model, oldProduct.form, oldProduct.shadow)
       _ ← * <~ doOrMeh(checkActive, {
-//        DbResultT.fromXor(illuminated.mustBeActive)
            illuminated.mustBeActive match {
              case Xor.Left(err) ⇒ {
                logger.warn(err.toString)
-               DbResultT.failure(NotFoundFailure404(Product, productId.value))
+               DbResultT.failure(NotFoundFailure404(Product, oldProduct.model.slug))
              }
              case Xor.Right(_) ⇒ DbResultT.unit
            }
@@ -112,8 +111,8 @@ object ProductManager extends LazyLogging {
                .filter(sku ⇒ IlluminatedSku.illuminate(oc, sku).mustBeActive.isRight)
                .isEmpty, {
                logger.warn(
-                   s"Product variants for product with id=${productId.value} is archived or inactive")
-               NotFoundFailure404(Product, productId.value)
+                   s"Product variants for product with id=${oldProduct.model.slug} is archived or inactive")
+               NotFoundFailure404(Product, oldProduct.model.slug)
              })
       productSkus ← * <~ fullSkus.map(SkuManager.illuminateSku)
 
