@@ -68,7 +68,7 @@ export const logout = createAsyncActions('auth-logout', function logout(): Promi
       const { routing } = getState();
       api.removeAuth();
       this.dispatch(logoutAction());
-      if (routing && routing.location.pathname == '/profile') {
+      if (routing && routing.location.pathname.startsWith('/profile')) {
         dispatch(replace('/'));
       }
     });
