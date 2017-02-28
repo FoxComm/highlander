@@ -20,7 +20,7 @@ object ExceptionWrapper {
   def wrapDbResultT[A](dbresult: DbResultT[A])(implicit ec: EC): DbResultT[A] = { // TODO: can we get rid of that? @michalrus
     import scala.util.{Failure, Success}
     dbresult.transformF { fsa ⇒
-      val v: DBIO[Failures Xor (List[UIInfo], A)] =
+      val v: DBIO[Failures Xor (List[MetaResponse], A)] =
         fsa.value.asTry.map { // Try has no fold? Also why do we have to hint the type here?
           case Success(x) ⇒ x
           case Failure(e) ⇒ Xor.left(DatabaseFailure(e.getMessage).single)

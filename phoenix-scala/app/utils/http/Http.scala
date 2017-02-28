@@ -7,7 +7,7 @@ import org.json4s.jackson.Serialization
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import org.json4s.{Formats, jackson}
 import responses.{BatchMetadata, TheResponse}
-import utils.db.UIInfo
+import utils.db.MetaResponse
 
 object Http {
   import utils.JsonFormatters._
@@ -28,10 +28,10 @@ object Http {
                                               batch: Option[BatchMetadata])
 
   private object SuccessfulResponse {
-    def from(result: AnyRef, uiInfo: List[UIInfo]): SuccessfulResponse = {
-      val uiInfoWarnings = uiInfo.collect { case UIInfo.Warning(f)        ⇒ f.description }
-      val uiInfoErrors   = uiInfo.collect { case UIInfo.Error(f)          ⇒ f.description }
-      val uiInfoBatches  = uiInfo.collectFirst { case UIInfo.BatchInfo(b) ⇒ b }
+    def from(result: AnyRef, uiInfo: List[MetaResponse]): SuccessfulResponse = {
+      val uiInfoWarnings = uiInfo.collect { case MetaResponse.Warning(f)        ⇒ f.description }
+      val uiInfoErrors   = uiInfo.collect { case MetaResponse.Error(f)          ⇒ f.description }
+      val uiInfoBatches  = uiInfo.collectFirst { case MetaResponse.BatchInfo(b) ⇒ b }
       // FIXME: have a way of merging multiple `BatchMetadata`s, as types allow for that. @michalrus
       def emptyToNoneNonemptyToSome[A](xs: List[A]): Option[List[A]] =
         if (xs.nonEmpty) Some(xs) else None
@@ -56,7 +56,7 @@ object Http {
   def renderRaw(resource: AnyRef) = // TODO: is this needed anymore? @michalrus
     HttpResponse(OK, entity = jsonEntity(resource))
 
-  def render(result: AnyRef, uiInfo: List[UIInfo], statusCode: StatusCode = OK) = {
+  def render(result: AnyRef, uiInfo: List[MetaResponse], statusCode: StatusCode = OK) = {
     val response = SuccessfulResponse.from(result, uiInfo)
     val temporaryHack: AnyRef = result match {
       case _: TheResponse[_]                                        ⇒ response

@@ -17,15 +17,24 @@ package object db {
 
   // ————————————————————————————— Foxy —————————————————————————————
 
-  sealed trait UIInfo
-  object UIInfo {
-    final case class Warning(ζ: Failure)         extends UIInfo
-    final case class Error(ζ: Failure)           extends UIInfo
-    final case class BatchInfo(ζ: BatchMetadata) extends UIInfo
+  sealed trait MetaResponse
+  object MetaResponse {
+
+    /** Warnings that will get shown to the user and can be appended
+      * anywhere in the processing flow. */
+    final case class Warning(ζ: Failure) extends MetaResponse
+
+    /** Non-fatal errors that will get shown to the user. As opposed to
+      * Failures, which short-circuit everything and result in an HTTP
+      * error, this can be used to signal that *some* requested jobs
+      * have failed, but others did fine, and here’s what we were able
+      * to achieve anyway, and here are the errors encountered. */
+    final case class Error(ζ: Failure)           extends MetaResponse
+    final case class BatchInfo(ζ: BatchMetadata) extends MetaResponse
   }
 
   /* We can’t use WriterT for warnings, because of the `failWithMatchedWarning`. */
-  type FoxyT[F[_], A] = StateT[XorT[F, Failures, ?], List[UIInfo], A] // TODO: But maybe the order should be different? I.e. what should happen with warnings when we get a short-circuiting failure? @michalrus
+  type FoxyT[F[_], A] = StateT[XorT[F, Failures, ?], List[MetaResponse], A] // TODO: But maybe the order should be different? I.e. what should happen with warnings when we get a short-circuiting failure? @michalrus
 
   implicit class EnrichedFoxyT[F[_], A](fa: FoxyT[F, A]) {
     // TODO: First, before removing explicit Xor handling, implement recoverWith from scratch and then re-implement the *xor* functions in terms of recoverWith and flatMap. And then, remove them iteratively and completely. @michalrus
@@ -113,10 +122,10 @@ package object db {
       pure(None) // TODO: remove me? @michalrus
 
     def uiWarning(f: Failure)(implicit F: Monad[F]): FoxyT[F, Unit] =
-      StateT.modify(UIInfo.Warning(f) :: _)
+      StateT.modify(MetaResponse.Warning(f) :: _)
 
     def uiError(f: Failure)(implicit F: Monad[F]): FoxyT[F, Unit] =
-      StateT.modify(UIInfo.Error(f) :: _)
+      StateT.modify(MetaResponse.Error(f) :: _)
 
     def failures[A](f: Failures)(implicit F: Monad[F]): FoxyT[F, A] = // TODO: shouldn’t A =:= Unit? @michalrus
       StateT(_ ⇒ XorT.left(F.pure(f)))
@@ -140,7 +149,7 @@ package object db {
         implicit F: Monad[F]): FoxyT[F, Unit] =
       StateT(s ⇒
             s.collect {
-          case UIInfo.Warning(f) ⇒ f
+          case MetaResponse.Warning(f) ⇒ f
         }.find(pf.lift(_) == Some(true)) match {
           case Some(f) ⇒ XorT.left(F.pure(NonEmptyList(f, Nil)))
           case _       ⇒ XorT.right(F.pure((s, ())))
@@ -188,7 +197,7 @@ package object db {
         implicit F: Monad[Future],
         G: Monad[DBIO]): FoxyT[DBIO, A] = // TODO: better name? @michalrus
       // Don’t remove type annotation below, or the compiler will crash. 🙄
-      ga.transformF(gga ⇒ XorT(DBIO.from(gga.value): DBIO[Xor[Failures, (List[UIInfo], A)]])) // TODO: use FunctionK for functor changes? Future[_] → DBIO[_] here
+      ga.transformF(gga ⇒ XorT(DBIO.from(gga.value): DBIO[Xor[Failures, (List[MetaResponse], A)]])) // TODO: use FunctionK for functor changes? Future[_] → DBIO[_] here
   }
 
   type DbResultT[A] = FoxyTDBIO[A]
