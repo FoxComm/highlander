@@ -25,4 +25,7 @@ object SomethingWentWrong extends LazyLogging {
       .replaceAll("where", "\nwhere")
     apply(s"unexpected empty result set from query!\n$sql;")
   }
+
+  def apply(failures: Failures)(implicit sl: SL, sf: SF): SomethingWentWrong =
+    SomethingWentWrong(failures.flatten.mkString("\n"))
 }

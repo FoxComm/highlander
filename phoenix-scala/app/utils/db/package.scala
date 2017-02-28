@@ -11,6 +11,7 @@ import slick.jdbc.SQLActionBuilder
 import slick.lifted.Query
 import slick.profile.SqlAction
 import utils.aliases._
+import utils.db.*
 import utils.time.JavaTimeSlickMapper
 
 package object db {
