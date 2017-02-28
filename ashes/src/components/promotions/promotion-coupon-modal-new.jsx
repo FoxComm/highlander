@@ -14,12 +14,10 @@ export default class PromoCouponNewModal extends Component {
 
   render() {
     return (
-      <div className="fc-promotion-coupon-new">
-        <CouponNew
-          promotionId={this.props.params.promotionId}
-          isVisible={true}
-        />
-      </div>
+      <CouponNew
+        promotionId={this.props.params.promotionId}
+        isVisible={true}
+      />
     );
   }  
 }
