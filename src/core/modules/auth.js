@@ -5,6 +5,7 @@ import { createAsyncActions } from '@foxcomm/wings';
 import { dissoc, merge, update } from 'sprout-data';
 import { api } from 'lib/api';
 import { setUserId } from 'lib/analytics';
+import { replace } from 'react-router-redux';
 
 import type { asyncAction } from 'types';
 
@@ -61,10 +62,15 @@ export function googleSignin(): asyncAction<void> {
 }
 
 export const logout = createAsyncActions('auth-logout', function logout(): Promise {
+  const { getState, dispatch } = this;
   return api.auth.logout()
     .then(() => {
+      const { routing } = getState();
       api.removeAuth();
       this.dispatch(logoutAction());
+      if (routing && routing.location.pathname.startsWith('/profile')) {
+        dispatch(replace('/'));
+      }
     });
 }).perform;
 
