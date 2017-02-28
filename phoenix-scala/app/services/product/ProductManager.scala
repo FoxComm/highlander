@@ -7,6 +7,7 @@ import cats.data._
 import cats.implicits._
 import cats.data.ValidatedNel
 import cats.instances.map
+import com.typesafe.scalalogging.LazyLogging
 import failures._
 import failures.ArchiveFailures._
 import failures.ProductFailures._
@@ -40,7 +41,7 @@ import services.LogActivity
 import services.taxonomy.TaxonomyManager
 import services.image.ImageManager.FullAlbumWithImages
 
-object ProductManager {
+object ProductManager extends LazyLogging {
 
   def createProduct(admin: User, payload: CreateProductPayload)(
       implicit ec: EC,
@@ -93,14 +94,27 @@ object ProductManager {
       oldProduct ← * <~ Products.mustFindFullByReference(productId)
       illuminated = IlluminatedProduct
         .illuminate(oc, oldProduct.model, oldProduct.form, oldProduct.shadow)
-      _      ← * <~ doOrMeh(checkActive, DbResultT.fromXor(illuminated.mustBeActive))
+      _ ← * <~ doOrMeh(checkActive, {
+//        DbResultT.fromXor(illuminated.mustBeActive)
+           illuminated.mustBeActive match {
+             case Xor.Left(err) ⇒ {
+               logger.warn(err.toString)
+               DbResultT.failure(NotFoundFailure404(Product, productId.value))
+             }
+             case Xor.Right(_) ⇒ DbResultT.unit
+           }
+         })
       albums ← * <~ ImageManager.getAlbumsForProduct(oldProduct.model.reference)
 
       fullSkus ← * <~ ProductSkuLinks.queryRightByLeft(oldProduct.model)
-      _ ← * <~ failIf(checkActive && fullSkus
-                        .filter(sku ⇒ IlluminatedSku.illuminate(oc, sku).mustBeActive.isRight)
-                        .isEmpty,
-                      ProductHasNoActiveSKUs(ProductReference(oldProduct.model.slug)))
+      _ ← * <~ failIf(
+             checkActive && fullSkus
+               .filter(sku ⇒ IlluminatedSku.illuminate(oc, sku).mustBeActive.isRight)
+               .isEmpty, {
+               logger.warn(
+                   s"Product variants for product with id=${productId.value} is archived or inactive")
+               NotFoundFailure404(Product, productId.value)
+             })
       productSkus ← * <~ fullSkus.map(SkuManager.illuminateSku)
 
       variants     ← * <~ ProductVariantLinks.queryRightByLeft(oldProduct.model)

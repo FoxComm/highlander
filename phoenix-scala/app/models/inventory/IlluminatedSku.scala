@@ -3,7 +3,6 @@ package models.inventory
 import java.time.Instant
 
 import failures.{Failure, NotFoundFailure404}
-import failures.ProductFailures.SKUIsNotActive
 import models.objects._
 import models.traits.IlluminatedModel
 import utils.IlluminateAlgorithm

@@ -3,7 +3,7 @@ package models.product
 import java.time.Instant
 
 import failures.Failure
-import failures.ProductFailures.ProductIsNotActive
+import failures.NotFoundFailure404
 import models.objects._
 import models.traits.IlluminatedModel
 import utils.IlluminateAlgorithm
@@ -20,7 +20,7 @@ case class IlluminatedProduct(id: Int,
                               archivedAt: Option[Instant])
     extends IlluminatedModel[IlluminatedProduct] {
 
-  override protected def inactiveError: Failure = ProductIsNotActive(ProductReference(slug))
+  override protected def inactiveError: Failure = NotFoundFailure404(Product, slug)
 
 }
 

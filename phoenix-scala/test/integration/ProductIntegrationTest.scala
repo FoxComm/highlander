@@ -5,7 +5,7 @@ import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 import cats.implicits._
 import failures.ArchiveFailures._
 import failures.ObjectFailures.ObjectContextNotFound
-import failures.ProductFailures
+import failures.{NotFoundFailure404, ProductFailures}
 import failures.ProductFailures._
 import models.account.Scope
 import models.inventory.Skus
@@ -106,7 +106,7 @@ class ProductIntegrationTest
 
       productsApi(product.id).archive().mustBeOk()
 
-      storefrontProductsApi(slug).get.mustFailWith404(ProductIsNotActive(ProductReference(slug)))
+      storefrontProductsApi(slug).get.mustFailWith404(NotFoundFailure404(Product, slug))
     }
 
     "404 for inactive products" in new Customer_Seed with Fixture {
@@ -122,7 +122,7 @@ class ProductIntegrationTest
                                  variants = None))
         .mustBeOk()
 
-      storefrontProductsApi(slug).get.mustFailWith404(ProductIsNotActive(ProductReference(slug)))
+      storefrontProductsApi(slug).get.mustFailWith404(NotFoundFailure404(Product, slug))
     }
 
     "404 if all SKUs are archived" in new Customer_Seed with Fixture {
@@ -140,8 +140,7 @@ class ProductIntegrationTest
 
       allSkus.map(sku ⇒ skusApi(sku).archive().mustBeOk())
 
-      storefrontProductsApi(slug).get
-        .mustFailWith404(ProductHasNoActiveSKUs(ProductReference(slug)))
+      storefrontProductsApi(slug).get.mustFailWith404(NotFoundFailure404(Product, slug))
     }
 
     "404 if all SKUs are inactive" in new Customer_Seed with Fixture {
@@ -158,8 +157,7 @@ class ProductIntegrationTest
                 variants = None))
         .mustBeOk()
 
-      storefrontProductsApi(slug).get
-        .mustFailWith404(ProductHasNoActiveSKUs(ProductReference(slug)))
+      storefrontProductsApi(slug).get.mustFailWith404(NotFoundFailure404(Product, slug))
     }
   }
 
