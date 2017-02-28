@@ -84,24 +84,22 @@ object CouponManager {
 
   def getIlluminatedByCode(code: String, contextName: String)(
       implicit ec: EC,
-      db: DB): DbResultT[CouponResponse.Root] =
+      db: DB): DbResultT[CouponResponse.Root] = {
+    lazy val notFound = Coupons.notFound404(Map("code" → code, "context" → contextName))
     for {
       context ← * <~ ObjectContexts
                  .filterByName(contextName)
                  .mustFindOneOr(ObjectContextNotFound(contextName))
-      couponCode ← * <~ CouponCodes.filter(_.code.toLowerCase === code.toLowerCase) ~> Coupons
-                    .notFound404(Map("code" → code))
-      result ← * <~ getIlluminatedIntern(couponCode.couponFormId, context)
+      couponCode ← * <~ CouponCodes.filter(_.code.toLowerCase === code.toLowerCase) ~> notFound
+      result     ← * <~ getIlluminatedIntern(couponCode.couponFormId, context) ~> notFound
     } yield result
+  }
 
-  def getIlluminatedIntern(id: Int, context: ObjectContext)(
+  private def getIlluminatedIntern(id: Int, context: ObjectContext)(
       implicit ec: EC,
       db: DB): DbResultT[CouponResponse.Root] =
     for {
-      coupon ← * <~ Coupons
-                .filter(_.contextId === context.id)
-                .filter(_.formId === id)
-                .mustFindOneOr(CouponNotFound(id))
+      coupon ← * <~ Coupons.filter(_.contextId === context.id).filter(_.formId === id)
       form   ← * <~ ObjectForms.findById(coupon.formId)
       shadow ← * <~ ObjectShadows.findById(coupon.shadowId)
     } yield CouponResponse.build(context, coupon, form, shadow)
@@ -124,7 +122,7 @@ object CouponManager {
                                                        db: DB,
                                                        ac: AC): DbResultT[String] =
     for {
-      coupon     ← * <~ Coupons.filter(_.formId === id).mustFindOneOr(CouponNotFound(id))
+      coupon     ← * <~ Coupons.filter(_.formId === id) ~> Coupons.notFound404(Map("id" → id))
       couponCode ← * <~ CouponCodes.create(CouponCode(couponFormId = id, code = code))
       _          ← * <~ LogActivity.singleCouponCodeCreated(coupon, Some(admin))
     } yield couponCode.code
@@ -134,7 +132,7 @@ object CouponManager {
                     admin: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[Seq[String]] =
     for {
       _         ← * <~ validateCouponCodePayload(payload)
-      coupon    ← * <~ Coupons.filter(_.formId === id).mustFindOneOr(CouponNotFound(id))
+      coupon    ← * <~ Coupons.filter(_.formId === id) ~> Coupons.notFound404(Map("id" → id))
       generated ← * <~ CouponCodes.generateCodes(payload.prefix, payload.length, payload.quantity)
       unsaved = generated.map { c ⇒
         CouponCode(couponFormId = id, code = c)
@@ -145,7 +143,7 @@ object CouponManager {
 
   def getCodes(id: Int)(implicit ec: EC, db: DB): DbResultT[Seq[CouponCodesResponse.Root]] =
     for {
-      _     ← * <~ Coupons.filter(_.formId === id).mustFindOneOr(CouponNotFound(id))
+      _     ← * <~ Coupons.filter(_.formId === id) ~> Coupons.notFound404(Map("id" → id))
       codes ← * <~ CouponCodes.filter(_.couponFormId === id).result
     } yield CouponCodesResponse.build(codes)
 

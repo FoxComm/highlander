@@ -65,6 +65,9 @@ package object db {
 
     def asOption(implicit ec: EC): DbResultT[Option[A]] =
       XorT(dbResultT.fold(_ ⇒ Xor.right(None), value ⇒ Xor.right(Some(value))))
+
+    def ~>(newFailure: Failure)(implicit ec: EC): DbResultT[A] =
+      dbResultT.leftMap(_ ⇒ newFailure.single)
   }
 
   final implicit class EnrichedOption[A](val option: Option[A]) extends AnyVal {
