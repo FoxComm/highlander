@@ -35,10 +35,10 @@ trait ProductReference {
 }
 
 case class ProductId(formId: ObjectForm#Id) extends ProductReference {
-  def value = formId.toString
+  def value: String = formId.toString
 }
 case class ProductSlug(slug: String) extends ProductReference {
-  def value = slug
+  def value: String = slug
 }
 
 /**

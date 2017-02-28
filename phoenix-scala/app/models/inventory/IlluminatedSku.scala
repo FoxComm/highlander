@@ -2,6 +2,7 @@ package models.inventory
 
 import java.time.Instant
 
+import failures.{Failure, NotFoundFailure404}
 import failures.ProductFailures.SKUIsNotActive
 import models.objects._
 import models.traits.IlluminatedModel
@@ -19,7 +20,7 @@ case class IlluminatedSku(id: Int,
                           attributes: Json)
     extends IlluminatedModel[IlluminatedSku] {
 
-  override protected def inactiveError = SKUIsNotActive(code)
+  override protected def inactiveError: Failure = NotFoundFailure404(Sku, code)
 }
 
 object IlluminatedSku {
