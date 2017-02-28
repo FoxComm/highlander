@@ -8,6 +8,7 @@ import failures.CreditCardFailures.CardDeclined
 import testutils._
 import utils.Money.Currency.USD
 import utils.TestStripeSupport._
+import utils.aliases.stripe.StripeCustomer
 import utils.apis._
 import utils.seeds.Factories
 
@@ -52,9 +53,9 @@ class StripeTest extends RealStripeApis {
     "authorizeAmount" - {
       "fails if the customerId doesn't exist" taggedAs External in {
         val result =
-          stripe.authorizeAmount("BAD-CUSTOMER", "BAD-CARD", 100, currency = USD).futureValue
+          stripe.authorizeAmount("BAD-CUSTOMER", "BAD-CARD", 100, currency = USD).gimmeFailures
 
-        result.leftVal.getMessage must include("No such customer")
+        result.getMessage must include("No such customer")
       }
 
       "successfully creates an authorization charge" taggedAs External in {
@@ -81,9 +82,9 @@ class StripeTest extends RealStripeApis {
                                token = token.getId,
                                address = theAddress,
                                stripeCustomerId = realStripeCustomerId.some)
-          .futureValue
+          .gimmeFailures
 
-        result.leftVal.head must === (CardDeclined)
+        result.head must === (CardDeclined)
       }
 
       "fails if token does not exist" taggedAs External in {
@@ -92,9 +93,9 @@ class StripeTest extends RealStripeApis {
                                token = "BAD-TOKEN",
                                stripeCustomerId = none,
                                address = theAddress)
-          .futureValue
+          .gimmeFailures
 
-        result.leftVal.head.description must === ("No such token: BAD-TOKEN")
+        result.head.description must === ("No such token: BAD-TOKEN")
       }
 
       "successfully creates a card and new customer when given no customerId" taggedAs External in {
@@ -144,9 +145,9 @@ class StripeTest extends RealStripeApis {
 
     "captureCharge" - {
       "fails if the charge was not found" taggedAs External in {
-        val result = stripe.captureCharge("BAD-CHARGE-ID", 100).futureValue
+        val result = stripe.captureCharge("BAD-CHARGE-ID", 100).gimmeFailures
 
-        result.leftVal.getMessage must include("No such charge")
+        result.getMessage must include("No such charge")
       }
 
       "successfully captures a charge" taggedAs External in {
@@ -163,9 +164,17 @@ class StripeTest extends RealStripeApis {
 
     "deleteCustomer" - {
       "successfully deletes a customer" taggedAs External in {
-        val result = deleteCustomer(cust)
+        // TODO: what should be happening here? @kjanosz @michalrus
 
-        getCustomer(realStripeCustomerId).value must === (None)
+        // The code was:
+        // ```
+        // val result = deleteCustomer(cust)
+        // getCustomer(realStripeCustomerId).value must === (None)
+        // ```
+        // Which made very little sense, as it was just checking whether the Future was *not yet completed*.
+
+        deleteCustomer(cust).void.gimme
+        getCustomer(realStripeCustomerId).gimme // must === 42 // ⸮
       }
     }
   }
