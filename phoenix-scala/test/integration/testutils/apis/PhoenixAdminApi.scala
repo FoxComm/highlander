@@ -37,7 +37,7 @@ import utils.aliases.OC
  */
 trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
-  val rootPrefix = "v1"
+  private val rootPrefix = "v1"
 
   object customersApi {
     val customersPrefix = s"$rootPrefix/customers"
@@ -466,12 +466,6 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
     object taxons {
       def get: HttpResponse =
         GET(s"$productPath/taxons")
-    }
-
-    object forCustomer {
-      val productPath = s"$rootPrefix/my/products/$reference/baked"
-
-      def get: HttpResponse = GET(productPath)
     }
   }
 

@@ -23,7 +23,7 @@ import responses.ProductResponses.ProductResponse
 import responses.ProductResponses.ProductResponse.Root
 import responses.cord.CartResponse
 import testutils._
-import testutils.apis.PhoenixAdminApi
+import testutils.apis.{PhoenixAdminApi, PhoenixStorefrontApi}
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api.ApiFixtures
 import utils.JsonFormatters
@@ -50,6 +50,7 @@ object ProductTestExtensions {
 class ProductIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
+    with PhoenixStorefrontApi
     with AutomaticAuth
     with BakedFixtures
     with ApiFixtures
@@ -105,7 +106,7 @@ class ProductIntegrationTest
 
       productsApi(product.id).archive().mustBeOk()
 
-      productsApi(slug).forCustomer.get.mustFailWith404(ProductIsNotActive(ProductReference(slug)))
+      storefrontProductsApi(slug).get.mustFailWith404(ProductIsNotActive(ProductReference(slug)))
     }
 
     "404 for inactive products" in new Customer_Seed with Fixture {
@@ -121,7 +122,7 @@ class ProductIntegrationTest
                                  variants = None))
         .mustBeOk()
 
-      productsApi(slug).forCustomer.get.mustFailWith404(ProductIsNotActive(ProductReference(slug)))
+      storefrontProductsApi(slug).get.mustFailWith404(ProductIsNotActive(ProductReference(slug)))
     }
 
     "404 if all SKUs are archived" in new Customer_Seed with Fixture {
@@ -139,7 +140,7 @@ class ProductIntegrationTest
 
       allSkus.map(sku ⇒ skusApi(sku).archive().mustBeOk())
 
-      productsApi(slug).forCustomer.get
+      storefrontProductsApi(slug).get
         .mustFailWith404(ProductHasNoActiveSKUs(ProductReference(slug)))
     }
 
@@ -157,7 +158,7 @@ class ProductIntegrationTest
                 variants = None))
         .mustBeOk()
 
-      productsApi(slug).forCustomer.get
+      storefrontProductsApi(slug).get
         .mustFailWith404(ProductHasNoActiveSKUs(ProductReference(slug)))
     }
   }
