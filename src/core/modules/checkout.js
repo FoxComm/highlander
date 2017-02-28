@@ -352,6 +352,7 @@ const _checkout = createAsyncActions(
 );
 
 export const checkout = _checkout.perform;
+export const clearCheckoutErrors = _checkout.clearErrors;
 
 function setEmptyCard() {
   return {
