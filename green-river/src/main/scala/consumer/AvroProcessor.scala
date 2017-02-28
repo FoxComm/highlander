@@ -29,7 +29,7 @@ object AvroProcessor {
       |  "fields":[
       |    {
       |      "name":"id",
-      |      "type":["null","int"]
+      |      "type":["null","string"]
       |    },
       |    {
       |      "name":"activity_type",
@@ -55,7 +55,7 @@ object AvroProcessor {
       |}
     """.stripMargin.replaceAll("\n", " ")
 
-  val activityTrailsAvroSchema = """
+  val activityTrailAvroSchema = """
       |{
       |  "type": "record",
       |  "name": "scoped_activity_trails",
@@ -88,8 +88,22 @@ object AvroProcessor {
       }
     """.stripMargin.replaceAll("\n", " ")
 
+  val keyAvroSchema = """
+      |{
+      |  "type":"record",
+      |  "name":"key",
+      |  "fields":[
+      |    {
+      |      "name":"id",
+      |      "type":["null","string"]
+      |    }
+      |  ]
+      |}
+    """.stripMargin.replaceAll("\n", " ")
+
   val activitySchema      = (new Schema.Parser()).parse(activityAvroSchema)
-  val activityTrailSchema = (new Schema.Parser()).parse(activityTrailsAvroSchema)
+  val activityTrailSchema = (new Schema.Parser()).parse(activityTrailAvroSchema)
+  val keySchema           = (new Schema.Parser()).parse(keyAvroSchema)
 }
 
 /**
@@ -109,14 +123,17 @@ class AvroProcessor(schemaRegistryUrl: String, processor: JsonProcessor)(implici
       schemaRegistryUrl, DEFAULT_MAX_SCHEMAS_PER_SUBJECT)
   val encoderFactory = EncoderFactory.get()
 
-  register("scoped_activities", AvroProcessor.activitySchema)
-  register("scoped_activity_trails", AvroProcessor.activitySchema)
+  register("scoped_activities-value", AvroProcessor.activitySchema)
+  register("scoped_activity_trails-value", AvroProcessor.activityTrailSchema)
+
+  register("scoped_activities-key", AvroProcessor.keySchema)
+  register("scoped_activity_trails-key", AvroProcessor.keySchema)
 
   def process(offset: Long, topic: String, key: Array[Byte], message: Array[Byte]): Future[Unit] = {
     try {
 
       val keyJson =
-        if (key.isEmpty) {
+        if (key == null || key.isEmpty) {
           Console.err.println(
               s"Warning, message has no key for topic ${topic}: ${new String(message, "UTF-8")}")
           ""

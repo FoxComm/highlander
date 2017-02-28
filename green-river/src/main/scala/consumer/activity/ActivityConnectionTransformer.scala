@@ -6,7 +6,7 @@ import com.sksamuel.elastic4s.mappings.FieldType._
 import scala.concurrent.Future
 import scala.language.postfixOps
 
-import org.json4s.JsonAST.JInt
+import org.json4s.JsonAST.JString
 import org.json4s.jackson.JsonMethods.parse
 import org.json4s.DefaultFormats
 import consumer.aliases._
@@ -35,7 +35,7 @@ final case class ActivityConnectionTransformer(
       field("dimension", StringType),
       field("objectId", StringType).index("not_analyzed"),
       field("activity").nested(
-          field("id", IntegerType),
+          field("id", StringType),
           field("createdAt", DateType).format(dateFormat),
           field("kind", StringType).index("not_analyzed"),
           field("context").nested(
@@ -54,9 +54,9 @@ final case class ActivityConnectionTransformer(
   def transform(json: String): Future[String] = {
     Console.out.println(json)
 
-    parse(json) \ "id" \ "long" match {
-      case JInt(id) ⇒ Future { AvroJsonHelper.transformJson(json, jsonFields) }
-      case _        ⇒ throw new IllegalArgumentException("Activity connection is missing id")
+    parse(json) \ "id" \ "string" match {
+      case JString(id) ⇒ Future { AvroJsonHelper.transformJson(json, jsonFields) }
+      case _           ⇒ throw new IllegalArgumentException("Activity connection is missing id")
     }
   }
 }

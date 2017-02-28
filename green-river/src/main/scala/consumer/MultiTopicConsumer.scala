@@ -132,6 +132,7 @@ class MultiTopicConsumer(topics: Seq[String],
             case Failure(e) ⇒
               Console.err.println(s"Not processed: ${r.topic} offset: ${r.offset}")
               Console.err.println(s"Failure during processing ${r.topic} offset ${r.offset}: $e")
+              e.printStackTrace
               offsets.errorTopicAndOffset match {
                 case None ⇒
                   offsets.copy(errorTopicAndOffset = Some((tp, r.offset)), firstError = Some(e))

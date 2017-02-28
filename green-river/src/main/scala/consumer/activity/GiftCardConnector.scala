@@ -19,7 +19,7 @@ object GiftCardConnector extends ActivityConnector {
       giftCardIds.distinct.map(createConnection(_, activity.id))
     }
 
-  def createConnection(code: String, activityId: Int): Connection = {
+  def createConnection(code: String, activityId: String): Connection = {
     Connection(dimension = dimension,
                objectId = code,
                data = JNothing,

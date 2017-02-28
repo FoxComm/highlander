@@ -20,7 +20,7 @@ object OrderConnector extends ActivityConnector {
       orderIds.distinct.map(createConnection(_, activity.id))
     }
 
-  def createConnection(refNum: String, activityId: Int): Connection = {
+  def createConnection(refNum: String, activityId: String): Connection = {
     Connection(dimension = dimension,
                objectId = refNum,
                data = JNothing,

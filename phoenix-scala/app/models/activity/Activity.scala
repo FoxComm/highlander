@@ -104,7 +104,7 @@ object Activities
       |  "fields":[
       |    {
       |      "name":"id",
-      |      "type":["null","int"]
+      |      "type":["null","string"]
       |    },
       |    {
       |      "name":"activity_type",
@@ -129,8 +129,23 @@ object Activities
       |  ]
       |}
     """.stripMargin.replaceAll("\n", " ")
-  val schemaParser       = new Schema.Parser()
-  val schema             = schemaParser.parse(activityAvroSchema)
+
+  val keyAvroSchema = """
+      |{
+      |  "type":"record",
+      |  "name":"scoped_activities_key",
+      |  "fields":[
+      |    {
+      |      "name":"id",
+      |      "type":["null","string"]
+      |    }
+      |  ]
+      |}
+    """.stripMargin.replaceAll("\n", " ")
+
+  val schemaParser = new Schema.Parser()
+  val schema       = schemaParser.parse(activityAvroSchema)
+  val keySchema    = schemaParser.parse(keyAvroSchema)
 
   implicit val formats = JsonFormatters.phoenixFormats
 
@@ -160,22 +175,25 @@ object Activities
   }
 
   def log(a: OpaqueActivity)(implicit activityContext: AC, ec: EC): DbResultT[Activity] = {
-    val activity =
-      Activity(id = 0, activityType = a.activityType, data = a.data, context = activityContext)
+    val activity = Activity(id = 0,
+                            activityType = a.activityType,
+                            data = a.data,
+                            context = activityContext,
+                            createdAt = Instant.now)
 
     val topic = "scoped_activities"
 
     val record = new GenericData.Record(schema)
 
-    record.put("id", activity.id)
+    record.put("id", activity.id.toString)
     record.put("activity_type", activity.activityType)
     record.put("data", render(activity.data))
     record.put("context", render(activity.context))
     record.put("created_at", DateTimeFormatter.ISO_INSTANT.format(activity.createdAt))
     record.put("scope", activity.context.scope.toString())
 
-    val key = new GenericData.Record(schema)
-    key.put("id", activity.id)
+    val key = new GenericData.Record(keySchema)
+    key.put("id", activity.id.toString)
 
     val msg = new ProducerRecord[GenericData.Record, GenericData.Record](topic, record)
 

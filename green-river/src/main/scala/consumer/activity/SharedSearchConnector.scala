@@ -19,7 +19,7 @@ object SharedSearchConnector extends ActivityConnector {
       }
     }
 
-  def createConnection(adminId: String, activityId: Int): Connection = {
+  def createConnection(adminId: String, activityId: String): Connection = {
     Connection(dimension = "notification",
                objectId = adminId,
                data = JNothing,

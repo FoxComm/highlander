@@ -32,7 +32,7 @@ object AccountConnector extends ActivityConnector {
       accountIds.distinct.map(createConnection(_, activity.id))
     }
 
-  def createConnection(accountId: String, activityId: Int): Connection = {
+  def createConnection(accountId: String, activityId: String): Connection = {
     Connection(dimension = dimension,
                objectId = accountId,
                data = JNothing,

@@ -28,31 +28,31 @@ import cats.implicits._
 
 final case class ActivityContext(userId: Int, userType: String, transactionId: String)
 
-final case class Activity(id: Int = 0,
+final case class Activity(id: String,
                           activityType: String,
                           data: JValue,
                           context: ActivityContext,
                           createdAt: Instant = Instant.now,
                           scope: String)
 
-final case class Connection(dimension: String, objectId: String, data: JValue, activityId: Int)
+final case class Connection(dimension: String, objectId: String, data: JValue, activityId: String)
 
-final case class AppendActivity(activityId: Int, data: JValue)
+final case class AppendActivity(activityId: String, data: JValue)
 final case class AppendNotification(
-    sourceDimension: String, sourceObjectId: String, activityId: Int, data: JValue)
+    sourceDimension: String, sourceObjectId: String, activityId: String, data: JValue)
 
 trait ActivityConnector {
   def process(offset: Long, activity: Activity)(implicit ec: EC): Future[Seq[Connection]]
 }
 
 final case class FailedToConnectActivity(
-    activityId: Int, dimension: String, objectId: String, failures: Failures)
+    activityId: String, dimension: String, objectId: String, failures: Failures)
     extends RuntimeException(
         s"Failed to connect activity $activityId to dimension '$dimension' and object $objectId " +
         s"failures: $failures")
 
 final case class FailedToConnectNotification(
-    activityId: Int, dimension: String, objectId: String, response: HttpResponse)
+    activityId: String, dimension: String, objectId: String, response: HttpResponse)
     extends RuntimeException(
         s"Failed to create notification for connection of activity $activityId to dimension " +
         s"'$dimension' and object $objectId response: $response")
@@ -78,15 +78,15 @@ class ActivityProcessor(
 
     props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.broker)
     props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
-              "org.apache.kafka.common.serialization.ByteArraySerializer")
+              "io.confluent.kafka.serializers.KafkaAvroSerializer")
     props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
-              "org.apache.kafka.common.serialization.ByteArraySerializer")
+              "io.confluent.kafka.serializers.KafkaAvroSerializer")
     props.put("schema.registry.url", kafka.schemaRegistryURL)
 
     props
   }
 
-  val kafkaProducer = new KafkaProducer[Array[Byte], Array[Byte]](kafkaProps)
+  val kafkaProducer = new KafkaProducer[GenericData.Record, GenericData.Record](kafkaProps)
   val trailTopic    = "scoped_activity_trails"
 
   def process(offset: Long, topic: String, key: String, inputJson: String): Future[Unit] = {
@@ -94,7 +94,6 @@ class ActivityProcessor(
     val activityJson = AvroJsonHelper.transformJson(inputJson, activityJsonFields)
     val activity     = parse(activityJson).extract[Activity]
 
-    Console.err.println()
     Console.err.println(s"Got Activity ${activity.activityType} with ID ${activity.id}")
     if (activity.context == null) {
       Console.err.println(
@@ -133,14 +132,11 @@ class ActivityProcessor(
     record.put("created_at", DateTimeFormatter.ISO_INSTANT.format(activity.createdAt))
     record.put("scope", activity.scope)
 
-    val writer                 = new SpecificDatumWriter[GenericRecord](AvroProcessor.activityTrailSchema)
-    val out                    = new ByteArrayOutputStream()
-    val encoder: BinaryEncoder = EncoderFactory.get().binaryEncoder(out, null)
-    writer.write(record, encoder)
-    encoder.flush()
-    out.close()
-    val bytes: Array[Byte] = out.toByteArray()
-    kafkaProducer.send(new ProducerRecord[Array[Byte], Array[Byte]](trailTopic, bytes))
+    val key = new GenericData.Record(AvroProcessor.keySchema)
+    key.put("id", activity.id)
+
+    kafkaProducer.send(
+        new ProducerRecord[GenericData.Record, GenericData.Record](trailTopic, key, record))
     ()
   }
 

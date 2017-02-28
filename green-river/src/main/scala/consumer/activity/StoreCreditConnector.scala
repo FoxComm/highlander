@@ -16,7 +16,7 @@ object StoreCreditConnector extends ActivityConnector {
       storeCreditIds.distinct.map(createConnection(_, activity.id))
     }
 
-  def createConnection(storeCreditId: String, activityId: Int): Connection = {
+  def createConnection(storeCreditId: String, activityId: String): Connection = {
     Connection(dimension = dimension,
                objectId = storeCreditId,
                data = JNothing,
