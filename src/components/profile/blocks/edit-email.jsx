@@ -83,7 +83,7 @@ class EditEmail extends Component {
       <Block title={EditEmail.title}>
         <Form onSubmit={this.handleSave}>
           <div styleName="section">Use this form to update your email address.</div>
-          <FormField error={!!this.props.updateState.err}>
+          <FormField error={!!this.props.updateState.err} validator="email">
             <TextInput
               required
               styleName="text-input"
