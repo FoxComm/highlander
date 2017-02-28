@@ -9,11 +9,11 @@ import testutils._
 import utils.Money.Currency.USD
 import utils.TestStripeSupport._
 import utils.apis._
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 
 trait RealStripeApis extends IntegrationTestBase {
   // Mutate Stripe state, set real key
-  Stripe.apiKey = config.getString("stripe.key")
+  Stripe.apiKey = TestBase.config.apis.stripe.key
 }
 
 // Test that actually calls Stripe

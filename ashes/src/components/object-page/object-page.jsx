@@ -2,7 +2,7 @@
 
 import _ from 'lodash';
 import { connect } from 'react-redux';
-import { EventEmitter } from 'events';
+import EventEmitter from 'events';
 import { bindActionCreators } from 'redux';
 import React, { Component, Element, PropTypes } from 'react';
 import invariant from 'invariant';
@@ -182,7 +182,7 @@ export class ObjectPage extends Component {
     }
   }
 
-  fetchEntity(): Promise {
+  fetchEntity(): Promise<*> {
     return this.props.actions.fetchEntity(this.entityId);
   }
 
@@ -397,7 +397,7 @@ export class ObjectPage extends Component {
     this.transitionToList();
   }
 
-  get cancelButton(): ?Element {
+  get cancelButton(): ?Element<*> {
     if (this.isNew) {
       return (
         <Button
@@ -410,7 +410,7 @@ export class ObjectPage extends Component {
     }
   }
 
-  subNav(): ?Element {
+  subNav(): ?Element<*> {
     return null;
   }
 
@@ -488,7 +488,7 @@ export class ObjectPage extends Component {
     );
   }
 
-  render(): Element {
+  render() {
     const props = this.props;
     const { object } = this.state;
 

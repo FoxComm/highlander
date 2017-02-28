@@ -12,7 +12,7 @@ import TableRow from './row';
 import TableCell from './cell';
 import WaitAnimation from '../common/wait-animation';
 
-export function tableMessage(message: Element|string, inline: boolean = false): Element {
+export function tableMessage(message: Element<*>|string, inline: boolean = false): Element<*> {
   const cls = classNames('fc-table-message', { '_inline': inline });
 
   return (
@@ -39,10 +39,10 @@ export type Props = {
     size?: number,
     total?: number,
   };
-  renderRow?: (row: RowType, index: number, isNew: ?boolean) => ?Element;
+  renderRow?: (row: RowType, index: number, isNew: ?boolean) => ?Element<*>;
   setState?: Function;
   predicate: (row: RowType) => string|number;
-  processRows: (rows: Array<Element>) => Element;
+  processRows: (rows: Array<Element<*>>) => Element<*>;
   detectNewRows?: boolean;
   isLoading?: boolean;
   failed?: boolean;
@@ -95,7 +95,7 @@ export default class Table extends Component {
   }
 
   @autobind
-  defaultRenderRow(row: RowType, index: number, isNew: ?boolean): Element {
+  defaultRenderRow(row: RowType, index: number, isNew: ?boolean): Element<*> {
     const rowKey = this.props.predicate && this.props.predicate(row) || index;
     return (
       <TableRow key={`row-${rowKey}`} isNew={isNew}>
@@ -140,7 +140,7 @@ export default class Table extends Component {
     return this.rows.length >= ROWS_COUNT_TO_SHOW_LOADING_OVERLAY;
   }
 
-  get tableRows(): Element {
+  get tableRows(): Element<*> {
     const { props } = this;
 
     const renderRow = props.renderRow || this.defaultRenderRow;
@@ -156,7 +156,7 @@ export default class Table extends Component {
     return props.processRows(rows, props.columns);
   }
 
-  message(isEmpty: boolean): ?Element {
+  message(isEmpty: boolean): ?Element<*> {
     const { props } = this;
 
     const showLoading = props.showLoadingOnMount && props.isLoading === null || props.isLoading;
@@ -170,7 +170,7 @@ export default class Table extends Component {
     }
   }
 
-  get body(): ?Element {
+  get body(): ?Element<*> {
     const { tableRows } = this;
     // $FlowFixMe: respect lodash typechecks!
     const dataExists = _.isArray(tableRows) ? tableRows.length > 0 : !!tableRows;
@@ -181,7 +181,7 @@ export default class Table extends Component {
     }
   }
 
-  wrapBody(body: Element): Element {
+  wrapBody(body: Element): Element<*> {
     const { tbodyId } = this.props;
     const firstRow = React.Children.toArray(body)[0];
     if (firstRow && (firstRow.type === 'tbody' || !this.props.wrapToTbody)) {
@@ -198,7 +198,7 @@ export default class Table extends Component {
     }
   }
 
-  tableHead(isEmpty: boolean): ?Element {
+  tableHead(isEmpty: boolean): ?Element<*> {
     if (this.props.renderHeadIfEmpty || !isEmpty) {
       const { data, setState, className, ...rest } = this.props;
       return (

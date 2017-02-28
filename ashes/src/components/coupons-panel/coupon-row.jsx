@@ -28,7 +28,7 @@ type Props = {
   onDelete?: Function,
 };
 
-const CouponRow = ({item, columns, params, onDelete = () => {}}: Props): Element => {
+const CouponRow = ({item, columns, params, onDelete = () => {}}: Props) => {
   const checkedParams = params || {checked: false, setChecked: noop };
 
   const setCellContents = setCellContentsFunctionFactory(onDelete);

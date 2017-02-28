@@ -41,11 +41,11 @@ class ProductVariantDetails extends ObjectDetails {
     return productTitle;
   }
 
-  get titleField(): Element {
+  get titleField(): Element<*> {
     return renderFormField('title', <span>{this.title}</span>, {label: 'title'});
   }
 
-  get skuField(): Element {
+  get skuField(): Element<*> {
     const skuCode = _.get(this.props.object, 'attributes.code.v');
     const skuId = this.props.object.skuId;
 

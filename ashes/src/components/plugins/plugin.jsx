@@ -15,8 +15,8 @@ import * as PluginsActions from 'modules/plugins';
 import type { UpdateSettingsPayload, SettingDef } from 'modules/plugins';
 
 type Props = {
-  fetchSettings: (name: string) => Promise,
-  updateSettings: (name: string, payload: UpdateSettingsPayload) => Promise,
+  fetchSettings: (name: string) => Promise<*>,
+  updateSettings: (name: string, payload: UpdateSettingsPayload) => Promise<*>,
   params: {
     name: string,
   },
@@ -115,7 +115,7 @@ class Plugin extends Component {
     });
   }
 
-  get content(): Element {
+  get content(): Element<*> {
     if (this.props.isFetching !== false) {
       return <WaitAnimation/>;
     } else {

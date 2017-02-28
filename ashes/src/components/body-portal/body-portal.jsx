@@ -79,7 +79,7 @@ export default class BodyPortal extends Component {
     );
   }
 
-  render(): Element {
+  render() {
     return this.props.active ? null : this.props.children;
   }
 }

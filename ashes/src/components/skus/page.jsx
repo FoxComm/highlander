@@ -24,11 +24,14 @@ type Props = {
   // connected
   actions: {
     skuNew: () => void,
-    fetchSku: (skuId: number) => Promise,
-    updateSku: (sku: Sku) => Promise,
+    fetchSku: (skuId: number, context?: string) => Promise<*>,
+    createSku: (sku: Sku, context?: string) => Promise<*>,
+    updateSku: (sku: Sku, context?: string) => Promise<*>,
+    archiveSku: (skuId: number, context?: string) => Promise<*>,
   },
   originalObject: Sku,
   object: ProductVariant,
+  children: Element<*>,
 };
 
 class SkuPage extends ObjectPage {

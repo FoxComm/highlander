@@ -52,7 +52,7 @@ const _updateLineItemCount = createAsyncActions(
 
 export function updateLineItemCount(
   refNum: string, productVariantId: number, quantityDiff: number, attributes: ?Object
-): Promise {
+): Promise<*> {
   const payload = [{ productVariantId, quantity: quantityDiff, attributes }];
   return _updateLineItemCount.perform(refNum, payload);
 }

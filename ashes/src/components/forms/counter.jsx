@@ -8,7 +8,7 @@ import classNames from 'classnames';
 import { IncrementButton, DecrementButton } from '../common/buttons';
 
 type Props = {
-  value?: number|string,
+  value?: number,
   min?: number,
   max?: number,
   step?: number,

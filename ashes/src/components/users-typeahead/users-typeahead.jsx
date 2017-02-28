@@ -56,11 +56,6 @@ export default class UsersTypeahead extends Component {
     }
   }
 
-  @autobind
-  getUsername(user: TUser) {
-    return user.name ? user.name : `${user.firstName} ${user.lastName}`;
-  }
-
   deselectItem(index: number) {
     const selected = [].slice.call(this.state.selected);
     selected.splice(index, 1);
@@ -86,7 +81,7 @@ export default class UsersTypeahead extends Component {
 
   get pilledInput() {
     const { state, props } = this;
-    const pills = state.selected.map(this.getUsername);
+    const pills = state.selected.map((u: TUser) => u.name);
 
     return (
       <PilledInput

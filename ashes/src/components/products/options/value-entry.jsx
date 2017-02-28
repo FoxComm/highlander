@@ -3,8 +3,7 @@
  */
 
 // libs
-import React, { Component, Element } from 'react';
-import _ from 'lodash';
+import React, { Component } from 'react';
 
 // components
 import TableCell from 'components/table/cell';
@@ -27,7 +26,7 @@ type Props = {
 class ValueEntry extends Component {
   props: Props;
 
-  get imageBlock(): Element {
+  get imageBlock() {
     if (this.props.value.image) {
       return <div>{this.props.value.image}</div>;
     } else {
@@ -35,7 +34,7 @@ class ValueEntry extends Component {
     }
   }
 
-  get swatchBlock(): Element {
+  get swatchBlock() {
     if (this.props.value.swatch) {
       return <SwatchDisplay hexCode={this.props.value.swatch} />;
     } else {
@@ -43,24 +42,24 @@ class ValueEntry extends Component {
     }
   }
 
-  render(): Element {
+  render() {
     const { id, value } = this.props;
     const valueName = value.name.toLowerCase();
 
     return (
-      <TableRow id={`${valueName}-value-row`}>
-        <TableCell id={`${valueName}-value-name`}>{value.name}</TableCell>
+      <TableRow id={`fct-option-value-row__${valueName}`}>
+        <TableCell id={`fct-option-value-name__${valueName}`}>{value.name}</TableCell>
         <TableCell>{this.swatchBlock}</TableCell>
         <TableCell>{this.imageBlock}</TableCell>
         <TableCell>
           <a
-            id={`${valueName}-value-edit-btn`}
+            id={`fct-value-edit-btn__${valueName}`}
             onClick={() => this.props.editValue(id, value)}
             styleName="action-icon">
             <i className="icon-edit"/>
           </a>
           <a
-            id={`${valueName}-value-delete-btn`}
+            id={`fct-value-delete-btn__${valueName}`}
             onClick={() => this.props.deleteValue(id)}
             styleName="action-icon">
             <i className="icon-trash"/>

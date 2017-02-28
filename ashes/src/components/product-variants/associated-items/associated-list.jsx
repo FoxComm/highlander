@@ -8,12 +8,12 @@ import WaitAnimation from '../../common/wait-animation';
 type ListItem = {
   key: string,
   image: string,
-  title: string|Element,
-  subtitle: string|Element,
+  title: string|Element<*>,
+  subtitle: string|Element<*>,
 }
 
 type Props = {
-  title: string|Element,
+  title: string|Element<*>,
   list: Array<ListItem>,
   fetchState: AsyncState,
 }

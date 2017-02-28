@@ -25,7 +25,7 @@ import testutils.fixtures.BakedFixtures
 import utils.aliases._
 import utils.db._
 import utils.seeds.CouponSeeds
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 
 class CartValidatorIntegrationTest
     extends IntegrationTestBase

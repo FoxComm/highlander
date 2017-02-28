@@ -35,7 +35,7 @@ type Props = {
   },
   suggestedVariants: Array<ProductVariant>,
   isFetchingVariants: boolean,
-  suggestVariants: (code: string, options?: SuggestOptions) => Promise,
+  suggestVariants: (code: string, options?: SuggestOptions) => Promise<*>,
   updateLineItemCount: Function,
   updateLineItemErrors: Array<string>,
 };
@@ -58,7 +58,7 @@ export class CartLineItemsFooter extends Component {
   }
 
   @autobind
-  suggestVariants(value: string): Promise {
+  suggestVariants(value: string): Promise<*> {
     return this.props.suggestVariants(value, {
       useTitle: true,
     });

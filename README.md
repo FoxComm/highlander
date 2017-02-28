@@ -6,20 +6,22 @@ Highlander is the brand-spanking-new FoxCommerce mono-repo.
 
 ## The Projects
 
-| Project                              | Description                                                                                                  |
-|:-------------------------------------|:-------------------------------------------------------------------------------------------------------------|
-| [phoenix-scala](phoenix-scala)       | Our main API that handles the business logic for the customer, merchandising, and order management systems.  |
-| [green-river](green-river)           | An event-sourcing system based on Kafka and [bottledwater](https://github.com/confluentinc/bottledwater-pg). |
-| [middlewarehouse](middlewarehouse)   | A lightweight and fast shipping and inventory management service written in Go.                              |
-| [isaac](isaac)                       | Our C++ authentication service.                                                                              |
-| [solomon](solomon)                   | A microservice that handles scopes, claims, roles and permissions, written in Elixir.                        |
-| [messaging](messaging)               | Kafka consumer that handles e-mail notifications through Mailchimp, written in Clojure.                      |
-| [ashes](ashes)                       | The Admin UI, written in React.js.                                                                           |
-| [api-js](api-js)                     | A JavaScript library for interacting with the FoxCommerce API.                                               |
-| [firebrand](firebrand)               | A demo storefront used to show off the capabilities of FoxCommerce APIs.                                     |
-| [prov-shit](prov-shit)               | All of our DevOps tools for deploying the application to both development and production.                    |
-| [api-docs](api-docs)                 | Our API documentation in API Blueprint format and Postman query collections.                                 |
-| [engineering-wiki](engineering-wiki) | Internal design documents, guidelines and other tips in Markdown format.                                     |
+| Project                                     | Description                                                                                                  |
+|:--------------------------------------------|:-------------------------------------------------------------------------------------------------------------|
+| [engineering-wiki](engineering-wiki)        | Internal design documents, guidelines and other tips in Markdown format.                                     |
+| [tabernacle](tabernacle)                    | All of our DevOps tools for deploying the application to both development and production.                    |
+| [phoenix-scala](phoenix-scala)              | Our main API that handles the business logic for the customer, merchandising, and order management systems.  |
+| [green-river](green-river)                  | Kafka consumer to handle indexing search views and activities into Elastic Search                            |
+| [middlewarehouse](middlewarehouse)          | A lightweight and fast shipping and inventory management service written in Go.                              |
+| [isaac](isaac)                              | A C++ JWT verification service.                                                                              |
+| [solomon](solomon)                          | A microservice that handles scopes, claims, roles and permissions, written in Elixir.                        |
+| [messaging](messaging)                      | Kafka consumer that handles e-mail notifications through Mailchimp, written in Clojure.                      |
+| [ashes](ashes)                              | The Admin UI, written in React.js.                                                                           |
+| [api-js](https://github.com/FoxComm/api-js) | A JavaScript library for interacting with the FoxCommerce API.                                               |
+| [firebrand](firebrand)                      | A demo storefront used to show off the capabilities of FoxCommerce APIs.                                     |
+| [api-docs](api-docs)                        | Our API documentation in API Blueprint format and Postman query collections.                                 |
+| [hyperion](hyperion)                        | A microservice that handles requests to Amazon MWS API, written in Elixir.                                   |
+| [intelligence](intelligence)                | Intelligent Commerce Projects. Data Collection Pipeline, analytics, and ML.                                  |
 
 ## Development Environment
 
@@ -46,7 +48,7 @@ has a lot to do!
     $ make dotenv
     ```
 
-5. Pre-configure Vagrant by running:
+5. Pre-configure Ansible by running:
 
     ```
     $ make prepare
@@ -61,3 +63,15 @@ has a lot to do!
 #### Deploying Custom Branches
 
 Please refer to related [wiki page](engineering-wiki/devops/Deploying-Custom-Branches.md) for more information.
+
+## FoxCommerce Software Relationships
+
+Logical relationships between services and software. 
+
+![alt text](engineering-wiki/diagrams/system/system.dot.png "Logical Model")
+
+Physical model.
+
+![alt text](engineering-wiki/diagrams/system/system.neato.png "Physical Model")
+
+

@@ -58,7 +58,7 @@ export class CartShippingMethod extends Component {
     this.props.updateShippingMethod(cart.referenceNumber, method.id);
   }
 
-  render(): Element {
+  render() {
     const { cart, id, status } = this.props;
     const { shippingMethod } = cart;
     const { list } = this.props.shippingMethods;
@@ -74,7 +74,7 @@ export class CartShippingMethod extends Component {
         availableShippingMethods={list}
         isEditing={this.state.isEditing}
         editAction={this.startEditing}
-        editButtonId="shipping-method-edit-btn"
+        editButtonId="fct-edit-btn__shipping-method"
         doneAction={this.completeEditing}
         updateAction={this.updateShippingMethod}
         shippingMethods={[shippingMethod]} />

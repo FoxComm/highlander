@@ -6,7 +6,7 @@ import Transition from 'react-addons-css-transition-group';
 type Props = {
   isVisible: boolean,
   onCancel?: () => void,
-  children?: Element|Array<Element> // This is an ugly bug in Flow :(
+  children?: Element<*>|Array<Element<*>> // This is an ugly bug in Flow :(
 };
 
 const ModalContainer = ({children, isVisible, onCancel = () => {}}: Props) => {

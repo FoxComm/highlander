@@ -19,7 +19,7 @@ export default class IndexLink extends Component {
     expectedClaims: {},
   };
 
-  render(): Element {
+  render() {
     const { children, actualClaims, expectedClaims } = this.props;
     if (isPermitted(expectedClaims, actualClaims)) {
       return <Link {...this.props} onlyActiveOnIndex={true}>{children}</Link>;

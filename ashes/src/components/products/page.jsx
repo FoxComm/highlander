@@ -20,11 +20,11 @@ import type { Product } from 'paragons/product';
 type Props = {
   actions: {
     createProduct: (product: Product) => void,
-    fetchProduct: (productId: string, context: string) => Promise,
+    fetchProduct: (productId: string, context: string) => Promise<*>,
     productNew: () => void,
     productDuplicate: () => void,
     updateProduct: (product: Product, context: string) => void,
-    archiveProduct: (id: string|number, context: ?string) => Promise,
+    archiveProduct: (id: string|number, context: ?string) => Promise<*>,
   },
   children: any,
   params: { productId: string, context: string },
@@ -64,7 +64,7 @@ class ProductPage extends ObjectPage {
     return _.get(this.props.originalObject, 'attributes.title.v', '');
   }
 
-  fetchEntity(): Promise {
+  fetchEntity(): Promise<*> {
     return this.props.actions.fetchProduct(this.entityId, this.entityContext);
   }
 

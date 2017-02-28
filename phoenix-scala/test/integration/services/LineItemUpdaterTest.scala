@@ -7,6 +7,9 @@ import testutils._
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api._
 import utils.MockedApis
+import utils.aliases._
+import utils.db._
+import utils.seeds.Factories
 
 class LineItemUpdaterTest
     extends IntegrationTestBase

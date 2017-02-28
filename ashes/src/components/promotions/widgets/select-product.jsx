@@ -41,7 +41,7 @@ export default class SelectProduct extends Component {
     return _.get(this.search, '0.productSearchId');
   }
 
-  handleProductSearch(token: string): Promise {
+  handleProductSearch(token: string): Promise<*> {
     return searchProducts(token).then((result) => {
       return result.result;
     });
