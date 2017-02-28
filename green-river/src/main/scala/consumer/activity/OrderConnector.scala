@@ -59,7 +59,7 @@ object OrderConnector extends ActivityConnector {
   }
 
   private def byAssignmentSingleData(activity: Activity): Seq[String] = {
-    (activity.activityType, activity.data \ "entity" \ "referenceNumber") match {
+    (activity.kind, activity.data \ "entity" \ "referenceNumber") match {
       case ("assigned", JString(refNum))   ⇒ Seq(refNum)
       case ("unassigned", JString(refNum)) ⇒ Seq(refNum)
       case _                               ⇒ Seq.empty
@@ -70,7 +70,7 @@ object OrderConnector extends ActivityConnector {
     extractStringSeq(activity.data, "orderRefNums")
 
   private def byAssignmentBulkData(activity: Activity): Seq[String] = {
-    (activity.activityType, activity.data \ "referenceType") match {
+    (activity.kind, activity.data \ "referenceType") match {
       case ("bulk_assigned", JString("order"))   ⇒ extractStringSeq(activity.data, "entityIds")
       case ("bulk_unassigned", JString("order")) ⇒ extractStringSeq(activity.data, "entityIds")
       case _                                     ⇒ Seq.empty

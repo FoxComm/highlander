@@ -107,7 +107,7 @@ object Activities
       |      "type":["null","string"]
       |    },
       |    {
-      |      "name":"activity_type",
+      |      "name":"kind",
       |      "type":["null","string"]
       |    },
       |    {
@@ -186,7 +186,7 @@ object Activities
     val record = new GenericData.Record(schema)
 
     record.put("id", activity.id.toString)
-    record.put("activity_type", activity.activityType)
+    record.put("kind", activity.activityType)
     record.put("data", render(activity.data))
     record.put("context", render(activity.context))
     record.put("created_at", DateTimeFormatter.ISO_INSTANT.format(activity.createdAt))

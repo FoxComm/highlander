@@ -41,7 +41,7 @@ object GiftCardConnector extends ActivityConnector {
   }
 
   private def byAssignmentSingleData(activity: Activity): Seq[String] = {
-    (activity.activityType, activity.data \ "entity" \ "code") match {
+    (activity.kind, activity.data \ "entity" \ "code") match {
       case ("assigned", JString(code))   ⇒ Seq(code)
       case ("unassigned", JString(code)) ⇒ Seq(code)
       case _                             ⇒ Seq.empty
@@ -49,7 +49,7 @@ object GiftCardConnector extends ActivityConnector {
   }
 
   private def byAssignmentBulkData(activity: Activity): Seq[String] = {
-    (activity.activityType, activity.data \ "referenceType") match {
+    (activity.kind, activity.data \ "referenceType") match {
       case ("bulk_assigned", JString("giftCard"))   ⇒ extractStringSeq(activity.data, "entityIds")
       case ("bulk_unassigned", JString("giftCard")) ⇒ extractStringSeq(activity.data, "entityIds")
       case _                                        ⇒ Seq.empty

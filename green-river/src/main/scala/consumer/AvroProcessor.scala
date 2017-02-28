@@ -32,7 +32,7 @@ object AvroProcessor {
       |      "type":["null","string"]
       |    },
       |    {
-      |      "name":"activity_type",
+      |      "name":"kind",
       |      "type":["null","string"]
       |    },
       |    {
@@ -62,7 +62,7 @@ object AvroProcessor {
       |  "fields": [
       |    {
       |      "name": "id",
-      |      "type": [ "null", "string" ]
+      |      "type": [ "null", "long" ]
       |    },
       |    {
       |      "name": "dimension",

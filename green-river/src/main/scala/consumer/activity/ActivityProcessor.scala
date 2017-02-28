@@ -29,7 +29,7 @@ import cats.implicits._
 final case class ActivityContext(userId: Int, userType: String, transactionId: String)
 
 final case class Activity(id: String,
-                          activityType: String,
+                          kind: String,
                           data: JValue,
                           context: ActivityContext,
                           createdAt: Instant = Instant.now,
@@ -94,10 +94,10 @@ class ActivityProcessor(
     val activityJson = AvroJsonHelper.transformJson(inputJson, activityJsonFields)
     val activity     = parse(activityJson).extract[Activity]
 
-    Console.err.println(s"Got Activity ${activity.activityType} with ID ${activity.id}")
+    Console.err.println(s"Got Activity ${activity.kind} with ID ${activity.id}")
     if (activity.context == null) {
       Console.err.println(
-          s"Warning, got Activity ${activity.activityType} with ID ${activity.id} without a context, skipping...")
+          s"Warning, got Activity ${activity.kind} with ID ${activity.id} without a context, skipping...")
       Future { () }
     } else {
       val result = connectors.map { connector ⇒
@@ -112,7 +112,7 @@ class ActivityProcessor(
       //TODO check errors
       responses.map { r ⇒
         if (r.length == 0)
-          System.err.println(s"Warning, MISSING CONNECTOR: ${activity.activityType}")
+          System.err.println(s"Warning, MISSING CONNECTOR: ${activity.kind}")
         ()
       }
     }
@@ -125,7 +125,10 @@ class ActivityProcessor(
   private def pushActivityConnectionToKafka(activity: Activity, connection: Connection) = Future {
     val record = new GenericData.Record(AvroProcessor.activityTrailSchema)
 
-    record.put("id", activity.id)
+    //TODO: Integer here is a problem. We need to modify mappings to do long for id for all indices.
+    val id = java.util.UUID.randomUUID().getMostSignificantBits() & Integer.MAX_VALUE
+
+    record.put("id", id)
     record.put("dimension", connection.dimension)
     record.put("object_id", connection.objectId)
     record.put("activity", render(activity))

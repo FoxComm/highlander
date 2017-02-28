@@ -11,7 +11,7 @@ object SharedSearchConnector extends ActivityConnector {
 
   def process(offset: Long, activity: Activity)(implicit ec: EC): Future[Seq[Connection]] =
     Future {
-      if (whitelist.contains(activity.activityType)) {
+      if (whitelist.contains(activity.kind)) {
         val adminIds = byAssociatesData(activity) ++: byAssociateData(activity)
         adminIds.distinct.map(createConnection(_, activity.id))
       } else {
