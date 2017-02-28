@@ -174,7 +174,7 @@ class StripeTest extends RealStripeApis {
         // Which made very little sense, as it was just checking whether the Future was *not yet completed*.
 
         deleteCustomer(cust).void.gimme
-        getCustomer(realStripeCustomerId).gimme must === (42.asInstanceOf[StripeCustomer]) // ⸮
+        getCustomer(realStripeCustomerId).gimme // must === 42 // ⸮
       }
     }
   }
