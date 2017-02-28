@@ -72,7 +72,7 @@ export default class UsageRules extends Component {
   render(): Element {
     return (
       <ContentBox title="Usage Rules">
-        <div className="fc-mb20" styleName="form-group">
+        <div styleName="form-group">
           <div className="fc-form-field">
             <div styleName="form-group-title">
               <label>Max uses per coupon</label>
@@ -106,7 +106,7 @@ export default class UsageRules extends Component {
             Maximum times the coupon can be used.
           </div>*/}
         </div>
-        <div className="fc-mb20" styleName="form-group">
+        <div styleName="form-group">
           <div className="fc-form-field">
             <div styleName="form-group-title">
               <label>Max uses per customer</label>

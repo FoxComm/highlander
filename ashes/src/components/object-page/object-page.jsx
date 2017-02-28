@@ -1,3 +1,4 @@
+
 // @flow weak
 
 import _ from 'lodash';
@@ -22,7 +23,6 @@ import { Button } from '../common/buttons';
 import Error from '../errors/error';
 import ArchiveActionsSection from '../archive-actions/archive-actions';
 import Prompt from '../common/prompt';
-import SaveCancel from '../common/save-cancel';
 
 // helpers
 import { isArchived } from 'paragons/common';
@@ -243,9 +243,7 @@ export class ObjectPage extends Component {
       object: nextObject
     }, () => {
       if (isNew && nextObjectId) {
-        if(typeof this.props.params.couponModal === 'undefined'){
-          this.transitionTo(nextObjectId);
-        }
+        this.transitionTo(nextObjectId);
       }
       if (!isNew && !nextObjectId) {
         this.transitionTo('new');
@@ -416,36 +414,25 @@ export class ObjectPage extends Component {
   subNav(): ?Element {
     return null;
   }
-  
+
   @autobind
-  titleBar() {
-    if (typeof this.props.params.couponModal === 'undefined') {
-      return (<PageTitle title={this.pageTitle}>
-          {this.renderHead()}
-          <ButtonWithMenu
-            title="Save"
-            menuPosition="right"
-            onPrimaryClick={this.handleSubmit}
-            onSelect={this.handleSelectSaving}
-            isLoading={this.props.isSaving}
-            items={SAVE_COMBO_ITEMS}
-          />
-        </PageTitle>);    
-    } else {
-      return '';
-    }   
+  alterSave(){
+    return null;
   }
 
   @autobind
-  alterSave() {
-    if (typeof this.props.params.couponModal === 'undefined') {
-      return '';  
-    } else {
-      return (<SaveCancel
-              onSave={this.handleSubmit}
-              onCancel={this.props.params.modalCancelAction}
-              saveText="Generate Coupon Code(s)" />);  
-    }   
+  titleBar() {
+    return (<PageTitle title={this.pageTitle}>
+        {this.renderHead()}
+        <ButtonWithMenu
+          title="Save"
+          menuPosition="right"
+          onPrimaryClick={this.handleSubmit}
+          onSelect={this.handleSelectSaving}
+          isLoading={this.props.isSaving}
+          items={SAVE_COMBO_ITEMS}
+        />
+      </PageTitle>);    
   }
 
   childrenProps() {

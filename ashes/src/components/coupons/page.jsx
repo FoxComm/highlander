@@ -4,10 +4,12 @@
 import _ from 'lodash';
 import React, { Element } from 'react';
 import { autobind } from 'core-decorators';
+import { transitionTo } from 'browserHistory';
 
 // components
 import { connectPage, ObjectPage } from '../object-page/object-page';
 import SubNav from './sub-nav';
+import SaveCancel from '../common/save-cancel';
 
 // actions
 import * as CouponActions from 'modules/coupons/details';
@@ -89,6 +91,34 @@ class CouponPage extends ObjectPage {
     }
 
     return willBeCoupon;
+  }
+
+  @autobind
+  receiveNewObject(nextObject) {
+    nextObject.promotion = Number(this.props.params.promotionId);
+    console.log(nextObject);
+    
+    nextObject.attributes.name = { // TO BE REMOVED WHEN COUPON NAME WILL BE REMOVED FROM COUPONS SCHEMA
+      t: "string",
+      v: "Dummy coupon"
+    };
+
+    this.setState({
+      object: nextObject
+    });
+  }  
+
+  @autobind
+  titleBar() {
+    return;
+  }
+
+  @autobind
+  alterSave() {
+    return (<SaveCancel
+            onSave={this.handleSubmit}
+            onCancel={this.props.params.modalCancelAction}
+            saveText="Generate Coupon Code(s)" />);  
   }
 
   @autobind

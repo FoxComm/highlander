@@ -21,7 +21,7 @@ export default class PromoCouponsPage extends React.Component {
   	const promotionId = this.props.object.id;
   	const children = this.props.children;
     return (
-      <div className="fc-promotion-coupons-page">
+      <div styleName="promotion-coupons-page">
         <SectionTitle title="Coupons">
         	<PrimaryButton onClick={this.addAction} icon="add">Coupon</PrimaryButton>
         </SectionTitle>
