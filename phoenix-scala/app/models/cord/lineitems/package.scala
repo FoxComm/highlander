@@ -32,20 +32,19 @@ package object lineitems {
   case class GiftCardLineItemAttributes(senderName: String,
                                         recipientName: String,
                                         recipientEmail: String,
-                                        message: String,
+                                        message: Option[String],
                                         code: Option[String] = None)
       extends Validation[GiftCardLineItemAttributes] {
 
     override def validate: Validated[NonEmptyList[Failure], GiftCardLineItemAttributes] = {
       val senderNameOk     = notEmpty(senderName, "sender name")
       val recipientNameOk  = notEmpty(recipientName, "recipient name")
-      val messageOk        = notEmpty(message, "message")
       val recipientEmailOk = emailish(recipientEmail, "recipient email")
       val codeOk = code.fold(ok) { gcCode ⇒
         validExpr(gcCode.matches(giftCardCodeRegex.regex), "code must be a gift card code")
       }
 
-      (senderNameOk |@| recipientNameOk |@| messageOk |@| recipientEmailOk |@| codeOk).map {
+      (senderNameOk |@| recipientNameOk |@| recipientEmailOk |@| codeOk).map {
         case _ ⇒ this
       }
     }
