@@ -1,4 +1,4 @@
-import akka.http.scaladsl.model.{HttpResponse, StatusCode, StatusCodes}
+import akka.http.scaladsl.model.{HttpRequest, HttpResponse, StatusCode, StatusCodes}
 import failures.Failure
 import org.json4s.Formats
 import org.json4s.jackson.JsonMethods._
@@ -95,6 +95,11 @@ package object testutils extends MustMatchers with OptionValues with AppendedClu
 
     def mustFailWith400(expected: Failure*)(implicit line: SL, file: SF): Unit = {
       mustFailWith(StatusCodes.BadRequest, expected.map(_.description): _*)
+    }
+
+    def mustFailWith401(implicit line: SL, file: SF): Unit = {
+      mustFailWith(StatusCodes.Unauthorized,
+                   "The resource requires authentication, which was not supplied with the request")
     }
 
     def mustFailWithMessage(expected: String*)(implicit line: SL, file: SF): Unit = {

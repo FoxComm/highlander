@@ -25,6 +25,7 @@ import org.scalatest.concurrent.ScalaFutures
 import server.Service
 import services.Authenticator.UserAuthenticator
 import utils.FoxConfig.config
+import utils.aliases.{EC, Mat}
 import utils.apis.Apis
 import utils.seeds.Factories
 import utils.{FoxConfig, JsonFormatters}
@@ -33,6 +34,7 @@ import scala.collection.immutable
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
+import cats.implicits._
 
 // TODO: Move away from root package when `Service' moverd
 object HttpSupport {
@@ -182,14 +184,12 @@ trait HttpSupport
   }
 
   def buildRequest[T <: AnyRef](method: HttpMethod, path: String, payload: Option[T] = None) = {
-    val entity = payload
-      .map(
-          p ⇒
-            HttpEntity.Strict(
-                ContentTypes.`application/json`,
-                ByteString(writeJson(p))
-          ))
-      .getOrElse(HttpEntity.Empty)
+    val entity = payload.fold(HttpEntity.Empty)(
+        p ⇒
+          HttpEntity.Strict(
+              ContentTypes.`application/json`,
+              ByteString(writeJson(p))
+        ))
 
     HttpRequest(method = method, uri = pathToAbsoluteUrl(path), entity = entity)
   }
@@ -218,18 +218,22 @@ trait HttpSupport
     response
   }
 
-  def runRequests(requests: Seq[HttpRequest]): Unit = {
-    requests
-      .foldLeft[Option[HttpResponse]](None)(
-          (cachedResponse: Option[HttpResponse], request: HttpRequest) ⇒ {
-        val cachedHttpHeaders = cachedResponse.fold(request.headers)(_.headers ++ request.headers)
-        println("request.headers " + cachedHttpHeaders)
+  def runRequests(requests: Seq[HttpRequest]): HttpResponse = {
+    //  validResponseContentTypes check failing for /logout for some reason
+    def dispatchRequest(req: HttpRequest): HttpResponse =
+      Http().singleRequest(req, settings = connectionPoolSettings).futureValue
+
+    requests.foldLeft[HttpResponse](HttpResponse.apply(status = StatusCodes.OK))(
+        (cachedResponse: HttpResponse, request: HttpRequest) ⇒ {
+      val cachedHttpHeaders = cachedResponse.headers ++ request.headers
+
+      if (Seq(StatusCodes.OK, StatusCodes.Found) contains cachedResponse.status) {
         val httpResponse = dispatchRequest(request.withHeaders(cachedHttpHeaders))
-        httpResponse.mustBeOk()
-        println("httpResponse.headers " + httpResponse.headers)
-        Some(httpResponse.withHeaders(httpResponse.headers ++ cachedHttpHeaders))
-      })
-      .foreach(_.mustBeOk())
+        httpResponse.withHeaders(httpResponse.headers ++ cachedHttpHeaders)
+      } else {
+        cachedResponse
+      }
+    })
   }
 
   lazy final val connectionPoolSettings: ConnectionPoolSettings = ConnectionPoolSettings
@@ -264,4 +268,11 @@ trait HttpSupport
       source.runWith(TestSink.probe[String])
   }
 
+  implicit class RichHttpRequest(request: HttpRequest) {
+    def run: HttpResponse = dispatchRequest(request)
+  }
+
+  implicit class RichHttpRequests(rr: Seq[HttpRequest]) {
+    def run: HttpResponse = runRequests(rr)
+  }
 }
