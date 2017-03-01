@@ -24,11 +24,6 @@ trait TestSeeds extends TestFixtureBase {
 
   val TENANT = "tenant"
 
-  trait Schemas_Seed extends ObjectSchemaSeeds {
-    private val _productSchema = createObjectSchemas().gimme
-
-  }
-
   trait StoreAdmin_Seed {
     def storeAdminAccount: Account         = _storeAdminAccount
     def storeAdmin: User                   = _storeAdmin

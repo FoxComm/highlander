@@ -3,13 +3,16 @@ package testutils
 import java.sql.PreparedStatement
 import java.util.Locale
 import javax.sql.DataSource
+
 import scala.annotation.tailrec
-import models.objects.{ObjectContext, ObjectContexts}
+
+import models.objects.{ObjectContexts, ObjectFullSchemas, ObjectSchemas}
 import models.product.SimpleContext
 import org.scalatest._
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.hikaricp.HikariCPJdbcDataSource
 import utils.aliases.EC
+import utils.db._
 import utils.db.flyway.newFlyway
 import utils.seeds.Factories
 
@@ -29,11 +32,9 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
                           "countries",
                           "regions",
                           "schema_version",
-                          "object_contexts",
                           "systems",
                           "resources",
                           "scopes",
-                          "organizations",
                           "scope_domains",
                           "roles",
                           "permissions",
@@ -47,37 +48,35 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
       flyway.clean()
       flyway.migrate()
 
-      setupObjectContext()
-      Factories.createSingleMerchantSystem.gimme
+      truncateTablesStmt = {
+        val allTables =
+          persistConn.getMetaData.getTables(persistConn.getCatalog, "public", "%", Array("TABLE"))
 
-      val allTables =
-        persistConn.getMetaData.getTables(persistConn.getCatalog, "public", "%", Array("TABLE"))
+        @tailrec
+        def iterate(in: Seq[String]): Seq[String] =
+          if (allTables.next()) iterate(in :+ allTables.getString(3)) else in
 
-      @tailrec
-      def iterate(in: Seq[String]): Seq[String] = {
-        if (allTables.next()) {
-          iterate(in :+ allTables.getString(3))
-        } else {
-          in
+        tables = iterate(Seq()).filterNot { t ⇒
+          t.startsWith("pg_") || t.startsWith("sql_") || doNotTruncate.contains(t)
         }
-      }
-
-      tables = iterate(Seq()).filterNot { t ⇒
-        t.startsWith("pg_") || t.startsWith("sql_") || doNotTruncate.contains(t)
-      }
-      val sqlTables = tables.mkString("{", ",", "}")
-      truncateTablesStmt =
+        val sqlTables = tables.mkString("{", ",", "}")
         persistConn.prepareStatement(s"select truncate_nonempty_tables('$sqlTables'::text[])")
+      }
 
       migrated = true
     }
   }
 
-  private def setupObjectContext(): ObjectContext =
-    ObjectContexts.create(SimpleContext.create()).gimme
-
   override abstract protected def withFixture(test: NoArgTest): Outcome = {
     truncateTablesStmt.executeQuery()
+
+    // Base test data
+    (for {
+      _ ← * <~ ObjectContexts.create(SimpleContext.create())
+      _ ← * <~ Factories.createObjectSchemas
+      _ ← * <~ Factories.createSingleMerchantSystem
+    } yield {}).gimme
+
     test()
   }
 }

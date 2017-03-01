@@ -1,7 +1,7 @@
 import cats.implicits._
 import failures.NotFoundFailure404
 import failures.ProductFailures.DuplicatedOptionValueForVariant
-import models.objects.{ProductOptionLinks, ProductVariantLinks}
+import models.objects.{ObjectFullSchemas, ObjectSchemas, ProductOptionLinks, ProductVariantLinks}
 import models.product.{Product, Products}
 import payloads.ProductPayloads._
 import responses.ProductOptionResponses.ProductOptionResponse
@@ -131,6 +131,10 @@ class ProductIntegrationTest
           OneOptionProductPayloadBuilder(optionCfg = singleOptionCfg,
                                          variantCfg = AllVariantsCfg,
                                          optionVariantCfg = NoneVariantsCfg).createProductPayload
+
+        import slick.driver.PostgresDriver.api._
+        println(ObjectSchemas.map(_.name).result.gimme)
+        println(ObjectFullSchemas.map(_.name).result.gimme)
 
         val product = productsApi.create(createPayload).as[Root]
         // FIXME: Some(empty sequence) is just a terrible API design
