@@ -8,7 +8,7 @@
   when: first_run
 
 - name: Create ES Mappings
-  command: /usr/local/bin/create_es_mappings.sh
+  shell: /usr/local/bin/create_es_mappings.sh
   when: first_run
 
 - name: Copy Green River Marathon JSON

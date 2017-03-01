@@ -26,7 +26,7 @@ object PluginsManager extends LazyLogging {
     payload.schemaSettings.fold {
       implicit val formats = JsonFormatters.phoenixFormats
       val req              = host(plugin.apiHost, plugin.apiPort) / "_settings" / "schema"
-      DbResultT.fromDbio(DBIO.from(Http(req OK as.json4s.Json).map(_.extract[SettingsSchema])))
+      DbResultT.fromF(DBIO.from(Http(req OK as.json4s.Json).map(_.extract[SettingsSchema])))
     }(DbResultT.good(_))
 
   def uploadNewSettingsToPlugin(plugin: Plugin)(implicit ec: EC): Future[String] = {

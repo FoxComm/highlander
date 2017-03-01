@@ -1,5 +1,7 @@
 ###############################
+
 # Setup VPC
+
 ###############################
 
 resource "aws_vpc" "default" {
@@ -24,7 +26,9 @@ output "vpc_id" {
 }
 
 ###############################
+
 # Public Subnet
+
 ###############################
 
 resource "aws_subnet" "public" {
@@ -60,7 +64,9 @@ resource "aws_route_table_association" "public" {
 }
 
 ###############################
+
 # Private Subnet
+
 ###############################
 
 resource "aws_subnet" "private" {
