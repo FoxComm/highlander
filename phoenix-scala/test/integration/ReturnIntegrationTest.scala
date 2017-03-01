@@ -30,12 +30,12 @@ class ReturnIntegrationTest
   "Returns header" - {
     val orderRefNotExist = "ABC-666"
 
-    "successfully creates new Return" in new Fixture {
+    "successfully creates new Return" in new ReturnFixture with OrderDefaults {
       val rmaCreated = returnsApi
-        .create(ReturnCreatePayload(cordRefNum = order.refNum, returnType = Standard))
+        .create(ReturnCreatePayload(cordRefNum = order.referenceNumber, returnType = Standard))
         .as[ReturnResponse.Root]
-      rmaCreated.referenceNumber must === (s"${order.refNum}.1")
-      rmaCreated.customer.head.id must === (order.accountId)
+      rmaCreated.referenceNumber must === (s"${order.referenceNumber}.1")
+      rmaCreated.customer.head.id must === (customer.accountId)
       rmaCreated.storeAdmin.head.id must === (storeAdmin.accountId)
 
       val getRmaRoot = returnsApi(rmaCreated.referenceNumber).get().as[ReturnResponse.Root]
@@ -43,8 +43,8 @@ class ReturnIntegrationTest
       getRmaRoot.id must === (rmaCreated.id)
     }
 
-    "should get rma" in new Fixture {
-      val expected = createReturn()
+    "should get rma" in new ReturnFixture with OrderDefaults {
+      val expected = createReturn(order.referenceNumber)
       returnsApi(expected.referenceNumber)
         .get()
         .as[ReturnResponse.Root]
@@ -129,37 +129,38 @@ class ReturnIntegrationTest
     }
 
     "GET /v1/returns" - {
-      "should return list of Returns" in new Fixture {
-        createReturn()
-        createReturn()
+      "should return list of Returns" in new ReturnFixture with OrderDefaults {
+        createReturn(order.referenceNumber)
+        createReturn(order.referenceNumber)
 
         returnsApi.get().as[Seq[Root]].size must === (2)
       }
     }
 
     "GET /v1/returns/customer/:id" - {
-      "should return list of Returns of existing customer" in new Fixture {
-        val expected = createReturn()
+      "should return list of Returns of existing customer" in new ReturnFixture
+      with OrderDefaults {
+        val expected = createReturn(order.referenceNumber)
         val root     = returnsApi.getByCustomer(customer.accountId).as[Seq[ReturnResponse.Root]]
         root.size must === (1)
         root.head.referenceNumber must === (expected.referenceNumber)
       }
 
-      "should return failure for non-existing customer" in new Fixture {
+      "should return failure for non-existing customer" in new ReturnFixture {
         val accountId = 255
         returnsApi.getByCustomer(accountId).mustFailWith404(NotFoundFailure404(Account, accountId))
       }
     }
 
     "GET /v1/returns/order/:refNum" - {
-      "should return list of Returns of existing order" in new Fixture {
-        val expected = createReturn()
+      "should return list of Returns of existing order" in new ReturnFixture with OrderDefaults {
+        val expected = createReturn(order.referenceNumber)
         val root     = returnsApi.getByOrder(order.referenceNumber).as[Seq[ReturnResponse.Root]]
         root.size must === (1)
         root.head.referenceNumber must === (expected.referenceNumber)
       }
 
-      "should return failure for non-existing order" in new Fixture {
+      "should return failure for non-existing order" in new ReturnFixture {
         returnsApi
           .getByOrder(orderRefNotExist)
           .mustFailWith404(NotFoundFailure404(Order, orderRefNotExist))
@@ -198,12 +199,12 @@ class ReturnIntegrationTest
   }
 
   "Return reasons" - {
-    "add new return reason" in new ReasonFixture {
+    "add new return reason" in new ReturnReasonFixture {
       val payload = ReturnReasonPayload(name = "Simple reason")
       returnsApi.reasons.add(payload).as[ReturnReasonsResponse.Root].name must === (payload.name)
     }
 
-    "get list of return reasons" in new ReasonFixture {
+    "get list of return reasons" in new ReturnReasonFixture {
       val expected = createReturnReason("whatever")
       returnsApi.reasons
         .list()
@@ -311,10 +312,10 @@ class ReturnIntegrationTest
 
       "successfully adds shipping cost line item" in new ReturnReasonDefaults {
         val payload =
-          ReturnShippingCostLineItemPayload(amount = order.shippingTotal, reasonId = reason.id)
+          ReturnShippingCostLineItemPayload(amount = order.totals.shipping, reasonId = reason.id)
         val response =
           returnsApi(rma.referenceNumber).lineItems.add(payload).as[ReturnResponse.Root]
-        response.lineItems.shippingCosts.value.amount must === (order.shippingTotal)
+        response.lineItems.shippingCosts.value.amount must === (order.totals.shipping)
       }
 
       "successfully adds SKU line item" in new ReturnReasonDefaults {
@@ -328,11 +329,11 @@ class ReturnIntegrationTest
         response.lineItems.skus.headOption.value.sku.sku must === (product.code)
       }
 
-      "overwrites existing shipping cost" in new LineItemFixture with ReturnReasonDefaults {
+      "overwrites existing shipping cost" in new ReturnLineItemFixture with ReturnReasonDefaults {
         val payload =
-          ReturnShippingCostLineItemPayload(amount = order.shippingTotal, reasonId = reason.id)
+          ReturnShippingCostLineItemPayload(amount = order.totals.shipping, reasonId = reason.id)
         val first = createReturnLineItem(payload, rma.referenceNumber)
-        first.lineItems.shippingCosts.value.amount must === (order.shippingTotal)
+        first.lineItems.shippingCosts.value.amount must === (order.totals.shipping)
 
         val second = createReturnLineItem(payload.copy(amount = 42), rma.referenceNumber)
         second.lineItems.shippingCosts.value.amount must === (42)
@@ -347,7 +348,7 @@ class ReturnIntegrationTest
 
       "fails if reason is not found" in new ReturnDefaults {
         val payload =
-          ReturnShippingCostLineItemPayload(amount = order.shippingTotal, reasonId = 666)
+          ReturnShippingCostLineItemPayload(amount = order.totals.shipping, reasonId = 666)
 
         returnsApi(rma.referenceNumber).lineItems
           .add(payload)
@@ -375,34 +376,34 @@ class ReturnIntegrationTest
       }
 
       "fails if amount for shipping cost is more then maximum allowed amount" in new ReturnReasonDefaults {
-        val payload = ReturnShippingCostLineItemPayload(amount = order.shippingTotal + 666,
+        val payload = ReturnShippingCostLineItemPayload(amount = order.totals.shipping + 666,
                                                         reasonId = reason.id)
 
         returnsApi(rma.referenceNumber).lineItems
           .add(payload)
           .mustFailWith400(ReturnShippingCostExceeded(rma.referenceNumber,
                                                       amount = payload.amount,
-                                                      maxAmount = order.shippingTotal))
+                                                      maxAmount = order.totals.shipping))
       }
 
-      "sets max shipping cost based on order total shipping cost minus any previous shipping cost returns for that order" in new LineItemFixture
+      "sets max shipping cost based on order total shipping cost minus any previous shipping cost returns for that order" in new ReturnLineItemFixture
       with ReturnReasonDefaults {
         val payload =
-          ReturnShippingCostLineItemPayload(amount = order.shippingTotal, reasonId = reason.id)
+          ReturnShippingCostLineItemPayload(amount = order.totals.shipping, reasonId = reason.id)
 
         // create some other return
         val otherOrderRef = createDefaultOrder().referenceNumber
-        val otherRmaRef   = createReturn(orderRef = otherOrderRef).referenceNumber
+        val otherRmaRef   = createReturn(otherOrderRef).referenceNumber
         createReturnLineItem(payload = payload.copy(amount = 100), refNum = otherRmaRef)
 
-        val previousRmaRef = createReturn().referenceNumber
+        val previousRmaRef = createReturn(order.referenceNumber).referenceNumber
         createReturnLineItem(payload.copy(amount = 25), previousRmaRef)
 
         returnsApi(rma.referenceNumber).lineItems
           .add(payload)
           .mustFailWith400(ReturnShippingCostExceeded(rma.referenceNumber,
                                                       amount = payload.amount,
-                                                      maxAmount = order.shippingTotal - 25))
+                                                      maxAmount = order.totals.shipping - 25))
       }
     }
 
@@ -464,7 +465,7 @@ class ReturnIntegrationTest
           contain theSameElementsAs payload.payments
       }
 
-      "succeeds for any supported payment" in new PaymentMethodFixture with ReturnReasonDefaults {
+      "succeeds for any supported payment" in new ReturnPaymentFixture with ReturnReasonDefaults {
         forAll(paymentMethodTable) { paymentType ⇒
           val order = createDefaultOrder()
           val rma   = createReturn(orderRef = order.referenceNumber)
@@ -483,17 +484,18 @@ class ReturnIntegrationTest
         }
       }
 
-      "fails if the amount is less than zero" in new PaymentMethodFixture {
+      "fails if the amount is less than zero" in new ReturnPaymentFixture with OrderDefaults {
         forAll(paymentMethodTable) { paymentType ⇒
           val payload = ReturnPaymentPayload(amount = -42)
 
           val response =
-            returnsApi(createReturn().referenceNumber).paymentMethods.add(paymentType, payload)
+            returnsApi(createReturn(order.referenceNumber).referenceNumber).paymentMethods
+              .add(paymentType, payload)
           response.mustFailWithMessage("Amount got -42, expected more than 0")
         }
       }
 
-      "fails if the RMA is not found" in new PaymentMethodFixture {
+      "fails if the RMA is not found" in new ReturnPaymentFixture {
         forAll(paymentMethodTable) { paymentType ⇒
           val payload  = ReturnPaymentPayload(amount = 42)
           val response = returnsApi("TRY_HARDER").paymentMethods.add(paymentType, payload)
@@ -514,7 +516,7 @@ class ReturnIntegrationTest
         }
       }
 
-      "fails if the RMA is not found" in new PaymentMethodFixture {
+      "fails if the RMA is not found" in new ReturnPaymentFixture {
         forAll(paymentMethodTable) { paymentType ⇒
           val response = returnsApi("TRY_HARDER").paymentMethods.remove(paymentType)
 
