@@ -98,7 +98,7 @@ class ObjectPageDeux extends Component {
           actions.cancel();
           break;
       }
-    })
+    });
   }
 
   @autobind

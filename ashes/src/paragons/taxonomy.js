@@ -1,7 +1,7 @@
 // @flow
 
 //libs
-import { dissoc } from 'sprout-data'
+import { dissoc } from 'sprout-data';
 
 export const createEmptyTaxonomy = (context: string, isHierarchical: boolean): TaxonomyDraft => {
   return {
@@ -19,5 +19,5 @@ export const createEmptyTaxonomy = (context: string, isHierarchical: boolean): T
 
 export const duplicateTaxonomy = (taxonomy: Taxonomy): Taxonomy => {
   const cleared = dissoc(taxonomy, 'id');
-  return cleared
+  return cleared;
 };
