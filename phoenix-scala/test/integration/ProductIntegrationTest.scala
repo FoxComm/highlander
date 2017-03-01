@@ -1,4 +1,5 @@
 import cats.implicits._
+import failures.ProductFailures.DuplicatedOptionValueForVariant
 import models.objects.{ProductOptionLinks, ProductVariantLinks}
 import models.product.Products
 import payloads.ProductPayloads._
@@ -9,7 +10,6 @@ import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api._
 import testutils.fixtures.api.products._
-import utils.db.DbResultT
 
 class ProductIntegrationTest
     extends IntegrationTestBase
@@ -25,13 +25,6 @@ class ProductIntegrationTest
       taxonsApi(taxons.head.formId).assignProduct(simpleProduct.formId).mustBeOk()
       val product = productsApi(simpleProduct.formId).get().as[Root]
       product.taxons.flatMap(_.taxons.map(_.id)) must contain(taxons.head.formId)
-    }
-
-    "queries product by slug" in new Product_ColorSizeOptions_ApiFixture {
-      val slug          = "simple-product"
-      val simpleProduct = Products.mustFindById404(product.id).gimme
-
-      val updated = simpleProduct.copy(slug = slug)
     }
   }
 
@@ -109,6 +102,19 @@ class ProductIntegrationTest
           OneOptionProductPayloadBuilder(singleOptionCfg, NoneVariantsCfg).createProductPayload
         productsApi.create(createPayload).mustFailWithMessage("Product variants must not be empty")
       }
+
+      "variant values in payload are duplicated" in {
+        val payloadBuilder = OneOptionProductPayloadBuilder(
+            ProductOptionCfg("foo", Seq("bar", "baz", "quux", "baz", "bar")))
+
+        val expectedFailures = payloadBuilder.variantCodes
+          .filterNot(_.contains("quux"))
+          .map(DuplicatedOptionValueForVariant(_))
+
+        productsApi
+          .create(payloadBuilder.createProductPayload)
+          .mustFailWith400(expectedFailures: _*)
+      }
     }
   }
 
@@ -157,8 +163,8 @@ class ProductIntegrationTest
     "Replaces variants on a product if options are Some(Seq.empty)" in new Product_ColorSizeOptions_ApiFixture {
       import slick.driver.PostgresDriver.api._
       val productModel = Products.filter(_.formId === product.id).result.head.gimme
-      ProductOptionLinks.filterLeft(productModel).deleteAll(DbResultT.none, DbResultT.none).gimme
-      ProductVariantLinks.filterLeft(productModel).deleteAll(DbResultT.none, DbResultT.none).gimme
+      ProductOptionLinks.filterLeft(productModel).delete.gimme
+      ProductVariantLinks.filterLeft(productModel).delete.gimme
 
       val newVariant = buildVariantPayload(code = "XXX")
       val updatePayload = UpdateProductPayload(attributes = Map.empty,
