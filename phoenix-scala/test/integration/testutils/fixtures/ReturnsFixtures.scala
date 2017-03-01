@@ -1,7 +1,6 @@
 package testutils.fixtures
 
 import models.payment.PaymentMethod
-import models.payment.creditcard.{CreditCard, CreditCards}
 import models.product.{Mvp, SimpleProductData}
 import models.returns._
 import models.shipping.{ShippingMethod, ShippingMethods}
@@ -18,7 +17,7 @@ import responses.cord.OrderResponse
 import testutils._
 import testutils.fixtures.api.ApiFixtureHelpers
 import utils.aliases._
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 
 trait ReturnsFixtures extends TestFixtureBase with BakedFixtures with ApiFixtureHelpers {
   self: FoxSuite ⇒

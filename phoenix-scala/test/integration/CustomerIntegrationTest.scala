@@ -25,7 +25,6 @@ import responses.CreditCardsResponse.{Root ⇒ CardResponse}
 import responses.CustomerResponse.Root
 import responses.cord.CartResponse
 import responses.{CreditCardsResponse, CustomerResponse}
-import services.Result
 import services.carts.CartPaymentUpdater
 import slick.driver.PostgresDriver.api._
 import testutils._
@@ -34,7 +33,7 @@ import testutils.fixtures.BakedFixtures
 import utils.MockedApis
 import utils.aliases.stripe.StripeCard
 import utils.db._
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 
 class CustomerIntegrationTest
     extends IntegrationTestBase

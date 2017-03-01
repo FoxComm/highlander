@@ -30,6 +30,11 @@ defmodule Hyperion.PhoenixScala.Client do
     |> parse_response(token)
   end
 
+  def get_sku(sku_code, token, ctx \\ "default") do
+    get("/api/v1/skus/#{ctx}/#{sku_code}", request_headers(token))
+    |> parse_response(token)
+  end
+
   # private functions
   defp parse_response({_status, r = %HTTPoison.Response{}}, token) do
     jwt = if token do

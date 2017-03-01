@@ -1,3 +1,4 @@
+import cats.implicits._
 import java.time.Instant
 
 import failures.{GeneralFailure, NotFoundFailure404}
@@ -9,7 +10,6 @@ import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.{BakedFixtures, ReturnsFixtures}
 import utils.db._
-import utils.seeds.Seeds.Factories
 import utils.time.RichInstant
 
 class ReturnNotesIntegrationTest

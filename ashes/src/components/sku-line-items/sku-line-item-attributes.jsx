@@ -15,7 +15,7 @@ export default (props: Props) => (
   <tr className="line-item__attributes">
     <td colSpan={props.spanNumber}>
       <Table
-        tbodyId="cart-line-items"
+        tbodyId="fct-cart-line-items"
         columns={props.columns}
         data={props.data}
       />

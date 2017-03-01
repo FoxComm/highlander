@@ -78,7 +78,7 @@ class CartCoupons extends Component {
 
   get editFooter() {
     const plate = (
-      <Button id="apply-coupon-btn" styleName="add-coupon-button" onClick={this.onAddClick}>Apply</Button>
+      <Button id="fct-apply-coupon-btn" styleName="add-coupon-button" onClick={this.onAddClick}>Apply</Button>
     );
     const errorMessage = this.props.coupons.error && (
         <div className="fc-form-field-error">{this.fancyErrorMessage}</div>
@@ -162,9 +162,9 @@ class CartCoupons extends Component {
         editContent={this.content}
         editFooter={this.editFooter}
         isEditing={this.isEditing}
-        editButtonId="coupons-edit-btn"
+        editButtonId="fct-edit-btn__coupons"
         editAction={this.handleEditAction}
-        doneButtonId="coupons-done-btn"
+        doneButtonId="fct-done-btn__coupons"
         doneAction={this.handleDoneAction}
       />
     );

@@ -1,5 +1,6 @@
 package utils.apis
 
+import cats.implicits._
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration.Inf
 import scala.util.control.NoStackTrace
@@ -10,11 +11,14 @@ import testutils.TestBase
 
 class StripeApiErrorHandlingTest extends TestBase {
 
+  import scala.concurrent.ExecutionContext.Implicits.global // for Monad[Future]
+
   "Stripe API" - {
     "catches StripeException and returns a Result.failure" in {
       def boom = throw someStripeException
 
-      val result = Await.result(new StripeWrapper().inBlockingPool(boom), Inf)
+      // FIXME: how to get rid of the explicit StateT#runEmptyA operation below? Why `Await.result` and not `.futureValue` (`.gimmeFailures`) with tuned timeouts? @michalrus
+      val result = Await.result(new StripeWrapper().inBlockingPool(boom).runEmptyA.value, Inf)
       leftValue(result).head must === (StripeFailure(someStripeException))
     }
 
@@ -25,7 +29,7 @@ class StripeApiErrorHandlingTest extends TestBase {
 
       /** Scalatest’s futureValue wraps the exception, so we can’t use it here. */
       an[ArithmeticException] must be thrownBy {
-        Await.result(new StripeWrapper().inBlockingPool(oops), Inf)
+        Await.result(new StripeWrapper().inBlockingPool(oops).runEmptyA.value, Inf)
       }
     }
   }

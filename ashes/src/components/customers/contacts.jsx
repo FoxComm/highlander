@@ -137,7 +137,7 @@ export default class CustomerContacts extends React.Component {
   get actionBlock() {
     if (!this.props.isContactsEditing) {
       return (
-        <EditButton id="customer-contacts-edit-btn" onClick={ this.onEditClick }/>
+        <EditButton id="fct-edit-btn__customer-contacts" onClick={ this.onEditClick }/>
       );
     }
   }

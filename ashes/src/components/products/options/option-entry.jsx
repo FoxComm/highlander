@@ -91,7 +91,7 @@ class OptionEntry extends Component {
           <i className="icon-add"/>
         </a>
         <a
-          className="option-edit-btn"
+          className="fct-edit-btn__option"
           onClick={() => this.props.editOption(this.props.id)}
           styleName="action-icon">
           <i className="icon-edit"/>
@@ -160,7 +160,7 @@ class OptionEntry extends Component {
 
     return (
       <ContentBox
-        id={`product-option-${optionId}-box`}
+        id={`fct-option-box__${optionId}`}
         title={name}
         actionBlock={this.titleBarActions}
         indentContent={false}

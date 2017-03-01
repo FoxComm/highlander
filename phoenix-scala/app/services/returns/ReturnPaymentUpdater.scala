@@ -33,7 +33,7 @@ object ReturnPaymentUpdater {
       payments = payload.payments.filter { case (_, amount) ⇒ amount > 0 }
       _        ← * <~ validateMaxAllowedPayments(rma, payments)
       payment  ← * <~ mustFindCcPaymentsByOrderRef(rma.orderRef)
-      _        ← * <~ payments.map(addPayment(rma, payment, _))
+      _        ← * <~ payments.map(addPayment(rma, payment, _)).toList
       updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(rma)
     } yield response
