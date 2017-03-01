@@ -9,7 +9,7 @@ setup: clean
 	yarn --pure-lockfile
 
 build:
-	test -f .env && export eval `cat .env` || true && NODE_ENV=production ./node_modules/.bin/gulp build
+	test -f .env && source .env || true && NODE_ENV=production ./node_modules/.bin/gulp build
 
 docker:
 	docker build -t $(DOCKER_IMAGE) .
