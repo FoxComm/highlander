@@ -38,6 +38,7 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
                           "scope_domains",
                           "roles",
                           "permissions",
+                          "organizations",
                           "role_permissions")
 
   override protected def beforeAll(): Unit = {
@@ -73,7 +74,9 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
     // Base test data
     (for {
       _ ← * <~ ObjectContexts.create(SimpleContext.create())
-      _ ← * <~ Factories.createObjectSchemas
+      _ ← * <~ Factories.createObjectSchemasForTest
+      // Can't enable all right now because test are fucky
+      // _ ← * <~ Factories.createObjectSchemas
       _ ← * <~ Factories.createSingleMerchantSystem
     } yield {}).gimme
 
