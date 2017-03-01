@@ -10,6 +10,6 @@ package object api {
         GiftCardLineItemAttributes(recipientName = faker.Name.name,
                                    recipientEmail = faker.Internet.email,
                                    senderName = faker.Name.name,
-                                   message = faker.Lorem.sentence()).some).some
+                                   message = faker.Lorem.sentence().some).some).some
 
 }
