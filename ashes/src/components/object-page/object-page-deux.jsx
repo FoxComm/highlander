@@ -7,9 +7,11 @@ import Error from 'components/errors/error';
 import LocalNav from 'components/local-nav/local-nav';
 import SaveCancel from 'components/common/save-cancel';
 import WaitAnimation from 'components/common/wait-animation';
+import { autobind } from 'core-decorators';
 
 // helpers
 import { SAVE_COMBO, SAVE_COMBO_ITEMS } from 'paragons/common';
+import { transitionTo } from 'browserHistory';
 
 class ObjectPageDeux extends Component {
   // TODO: replace *
@@ -22,13 +24,7 @@ class ObjectPageDeux extends Component {
 
   get isNew(): boolean {
     const { identifier, object } = this.props;
-    const valuesOfNew = [
-      'new',
-      'new-flat',
-      'new-hierarchical',
-      !object
-    ];
-    return valuesOfNew.some(elem => elem === identifier.toLowerCase());
+    return identifier.toLowerCase() === 'new' || !object;
   }
 
   get localNav() {
@@ -64,19 +60,60 @@ class ObjectPageDeux extends Component {
     return getTitle(originalObject);
   }
 
-  renderButtonCluster() {
-    const { isFetching, context, object } = this.props;
-    const save = () => this.isNew
+  @autobind
+  createNewEntity(actions, context, objectType) {
+    const params = { [`${objectType}Id`]: 'new', context: context };
+    const createEntity = actions[`${objectType}New`];
+    createEntity !== undefined
+      ? createEntity() && transitionTo(`${objectType}-details`, params)
+      : () => {};
+  }
+
+  @autobind
+  duplicateEntity(actions, context, objectType) {
+    const params = { [`${objectType}Id`]: 'new', context: context };
+    const duplicate = actions[`${objectType}Duplicate`];
+    duplicate !== undefined
+      ? duplicate() && transitionTo(`${objectType}-details`, params)
+      : () => {};
+  }
+
+  @autobind
+  handleSelectSaving(value) {
+    const { actions, context, objectType} = this.props;
+    this.save().then(() => {
+      switch (value) {
+        case SAVE_COMBO.NEW:
+          this.createNewEntity(actions, context, objectType);
+          break;
+        case SAVE_COMBO.DUPLICATE:
+          this.duplicateEntity(actions, context, objectType);
+          break;
+        case SAVE_COMBO.CLOSE:
+          actions.cancel();
+          break;
+      }
+    })
+  }
+
+  @autobind
+  save() {
+    const { context, object } = this.props;
+    return this.isNew
       ? this.props.actions.create(object, context)
       : this.props.actions.update(object, context);
+  }
+
+  renderButtonCluster() {
+    const { isFetching } = this.props;
 
     return (
       <SaveCancel
         isLoading={isFetching}
         onCancel={this.props.actions.cancel}
         saveItems={SAVE_COMBO_ITEMS}
-        onSave={save}
-        onSaveSelect={() => {}}
+        onSave={this.save}
+        onSaveSelect={this.handleSelectSaving}
       />
     );
   }
