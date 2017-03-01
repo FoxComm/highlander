@@ -21,11 +21,13 @@ for (let task of fs.readdirSync(opts.taskDir)) {
 gulp.task('clean', () => del(['build/**/*', 'lib/**/*']));
 
 gulp.task('build', function(cb) {
-  let tasks = ['imagemin', 'less', 'precompile', 'browserify', 'css'];
+
+  let tasks = ['imagemin', 'less', 'sprites', 'precompile', 'browserify', 'css'];
   if (process.env.NODE_ENV === 'production') {
     tasks = ['clean', ...tasks];
   }
   runSequence(...tasks, cb);
+
 });
 
 gulp.task('dev', function(cb) {
