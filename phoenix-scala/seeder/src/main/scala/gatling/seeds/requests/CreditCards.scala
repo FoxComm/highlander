@@ -10,7 +10,7 @@ import io.gatling.http.Predef._
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import payloads.PaymentPayloads._
 import routes.admin.CreditCardDetailsPayload
-import seeds._
+import gatling.seeds._
 
 object CreditCards {
 
