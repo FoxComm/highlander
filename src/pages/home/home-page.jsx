@@ -3,7 +3,6 @@
 // libs
 import React from 'react';
 import _ from 'lodash';
-import moment from 'moment';
 import { assetsUrl } from 'lib/env';
 
 // components
@@ -13,57 +12,26 @@ import Icon from 'ui/icon';
 // styles
 import styles from './home-page.css';
 
-const timeTarget = moment('2017-02-15');
-const timeNow = moment();
-
-let mainBlocks = [];
-
-if (timeTarget > timeNow) {
-  // before timeTarget
-  // TODO: Remove this block after 2/15
-  mainBlocks = [
-    {
-      imageUrl: '/images/home-page/Home_Page_Valentines.jpg',
-      description: '',
-      title: 'Dinners In That Feel Like Nights Out',
-      action: { title: 'Shop Now', link: '/VALENTINE' },
-    },
-    {
-      imageUrl: '/images/home-page/Home_Page_Kid_2x.jpg',
-      description: 'Under $5 Per Entrée',
-      title: 'Weeknight Favorites',
-      action: { title: 'Shop Now', link: '/WEEKNIGHT' },
-    },
-    {
-      imageUrl: '/images/home-page/Home_Page_EggRolls.jpg',
-      description: 'Dishes you know and love, revisited with unique and delicious twists',
-      title: 'A New Spin On The Classics',
-      action: { title: 'Shop Now', link: '/SPIN' },
-    },
-  ];
-} else {
-  // on and after timeTarget
-  mainBlocks = [
-    {
-      imageUrl: '/images/home-page/Home_Page_Kid_2x.jpg',
-      description: 'Under $5 Per Entrée',
-      title: 'Weeknight Favorites',
-      action: { title: 'Shop Now', link: '/WEEKNIGHT' },
-    },
-    {
-      imageUrl: '/images/home-page/Home_Page_EggRolls.jpg',
-      description: 'Dishes you know and love, revisited with unique and delicious twists',
-      title: 'A New Spin On The Classics',
-      action: { title: 'Shop Now', link: '/SPIN' },
-    },
-    {
-      imageUrl: '/images/home-page/Home_Page_TriedTrue-2x.jpg',
-      description: '',
-      title: 'Tried and True Favorites',
-      action: { title: 'Shop Now', link: '/FAVORITES' },
-    },
-  ];
-}
+const mainBlocks = [
+  {
+    imageUrl: '/images/home-page/About_Us_Hero_1_03.jpg',
+    description: '',
+    title: 'WHAT MAKES US DIFFERENT?',
+    action: { title: 'Learn more', link: '/about' },
+  },
+  {
+    imageUrl: '/images/home-page/Home_Section_2_1_03.jpg',
+    description: '',
+    title: 'SIMPLE STARTERS',
+    action: { title: 'Shop Now', link: '/APPETIZERS' },
+  },
+  {
+    imageUrl: '/images/home-page/Home_Section_3_1_03.jpg',
+    description: 'No planning, shopping, prepping, or cleaning required',
+    title: 'DINNER IS SERVED',
+    action: { title: 'Shop Now', link: '/ENTRÉES' },
+  },
+];
 
 const instagramLinks = [
   'https://www.instagram.com/p/BPvzneyhjGD',
