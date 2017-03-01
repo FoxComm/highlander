@@ -10,6 +10,7 @@ import models.product._
 import payloads.VariantPayloads._
 import responses.VariantResponses.IlluminatedVariantResponse
 import responses.VariantValueResponses.IlluminatedVariantValueResponse
+import services.context.ContextManager
 import services.inventory.SkuManager
 import services.objects.ObjectManager
 import slick.driver.PostgresDriver.api._
@@ -24,7 +25,7 @@ object VariantManager {
       db: DB,
       au: AU): DbResultT[IlluminatedVariantResponse.Root] =
     for {
-      context     ← * <~ ObjectManager.mustFindByName404(contextName)
+      context     ← * <~ ContextManager.mustFindByName404(contextName)
       fullVariant ← * <~ createVariantInner(context, payload)
       (variant, values) = fullVariant
       variantToSkuMapping = payload.values
@@ -46,7 +47,7 @@ object VariantManager {
       implicit ec: EC,
       db: DB): DbResultT[IlluminatedVariantResponse.Root] =
     for {
-      context ← * <~ ObjectManager.mustFindByName404(contextName)
+      context ← * <~ ContextManager.mustFindByName404(contextName)
       fullVariant ← * <~ ObjectManager.getFullObject(
                        mustFindVariantByContextAndForm(context.id, variantId))
 
@@ -64,7 +65,7 @@ object VariantManager {
       db: DB,
       au: AU): DbResultT[IlluminatedVariantResponse.Root] =
     for {
-      context     ← * <~ ObjectManager.mustFindByName404(contextName)
+      context     ← * <~ ContextManager.mustFindByName404(contextName)
       fullVariant ← * <~ updateVariantInner(context, variantId, payload)
       (variant, values) = fullVariant
       variantValueSkuCodes ← * <~ VariantManager.getVariantValueSkuCodes(values.map(_.model.id))
@@ -149,7 +150,7 @@ object VariantManager {
       db: DB,
       au: AU): DbResultT[IlluminatedVariantValueResponse.Root] =
     for {
-      context ← * <~ ObjectManager.mustFindByName404(contextName)
+      context ← * <~ ContextManager.mustFindByName404(contextName)
       variant ← * <~ Variants
                  .filterByContextAndFormId(context.id, variantId)
                  .mustFindOneOr(VariantNotFoundForContext(variantId, context.id))

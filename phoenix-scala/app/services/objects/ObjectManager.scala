@@ -21,32 +21,6 @@ object ObjectManager {
       shadow ← * <~ ObjectShadows.mustFindById404(shadowId)
     } yield ObjectShadowResponse.build(shadow)
 
-  def getContextByName(name: String)(implicit ec: EC,
-                                     db: DB): DbResultT[ObjectContextResponse.Root] =
-    for {
-      context ← * <~ mustFindByName404(name)
-    } yield ObjectContextResponse.build(context)
-
-  def createContext(payload: CreateObjectContext)(implicit ec: EC,
-                                                  db: DB): DbResultT[ObjectContextResponse.Root] =
-    for {
-      context ← * <~ ObjectContexts.create(
-                   ObjectContext(name = payload.name, attributes = payload.attributes))
-    } yield ObjectContextResponse.build(context)
-
-  def updateContextByName(name: String, payload: UpdateObjectContext)(
-      implicit ec: EC,
-      db: DB): DbResultT[ObjectContextResponse.Root] =
-    for {
-      context ← * <~ mustFindByName404(name)
-      update ← * <~ ObjectContexts.update(
-                  context,
-                  context.copy(name = payload.name, attributes = payload.attributes))
-    } yield ObjectContextResponse.build(update)
-
-  def mustFindByName404(name: String)(implicit ec: EC): DbResultT[ObjectContext] =
-    ObjectContexts.filterByName(name).mustFindOneOr(ObjectContextNotFound(name))
-
   def mustFindFormById404(id: Int)(implicit ec: EC): DbResultT[ObjectForm] =
     ObjectForms.findOneById(id).mustFindOr(NotFoundFailure404(ObjectForm, id))
 

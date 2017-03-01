@@ -5,7 +5,6 @@ import akka.http.scaladsl.server.Route
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.account.User
 import models.product.ProductReference
-import payloads.ContextPayloads._
 import payloads.ImagePayloads.{AlbumPayload, UpdateAlbumPositionPayload}
 import payloads.ProductPayloads._
 import services.image.ImageManager
@@ -75,25 +74,6 @@ object ProductRoutes {
             } ~
             pathPrefix(ProductRef) { productId ⇒
               productRoutes(productId)
-            }
-          }
-        } ~
-        pathPrefix("contexts" / Segment) { name ⇒
-          (get & pathEnd) {
-            getOrFailures {
-              ObjectManager.getContextByName(name)
-            }
-          } ~
-          (patch & pathEnd & entity(as[UpdateObjectContext])) { payload ⇒
-            mutateOrFailures {
-              ObjectManager.updateContextByName(name, payload)
-            }
-          }
-        } ~
-        pathPrefix("contexts") {
-          (post & pathEnd & entity(as[CreateObjectContext])) { payload ⇒
-            mutateOrFailures {
-              ObjectManager.createContext(payload)
             }
           }
         } ~

@@ -16,6 +16,7 @@ import org.json4s.JsonAST.JString
 import payloads.ImagePayloads._
 import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
 import responses.AlbumResponses._
+import services.context.ContextManager
 import services.inventory.SkuManager
 import services.objects.ObjectManager
 import slick.driver.PostgresDriver.api._
@@ -29,7 +30,7 @@ object ImageManager {
   def getAlbum(formId: ObjectForm#Id, contextName: String)(implicit ec: EC,
                                                            db: DB): DbResultT[AlbumRoot] =
     for {
-      context ← * <~ ObjectManager.mustFindByName404(contextName)
+      context ← * <~ ContextManager.mustFindByName404(contextName)
       album   ← * <~ getAlbumInner(formId, context)
     } yield album
 
@@ -83,7 +84,7 @@ object ImageManager {
   def createAlbum(album: AlbumPayload,
                   contextName: String)(implicit ec: EC, db: DB, au: AU): DbResultT[AlbumRoot] =
     for {
-      context        ← * <~ ObjectManager.mustFindByName404(contextName)
+      context        ← * <~ ContextManager.mustFindByName404(contextName)
       createdObjects ← * <~ createAlbumInner(album, context)
       (album, images) = createdObjects
     } yield AlbumResponse.build(album, images)
@@ -209,7 +210,7 @@ object ImageManager {
                   payload: AlbumPayload,
                   contextName: String)(implicit ec: EC, db: DB, au: AU): DbResultT[AlbumRoot] =
     for {
-      context  ← * <~ ObjectManager.mustFindByName404(contextName)
+      context  ← * <~ ContextManager.mustFindByName404(contextName)
       response ← * <~ updateAlbumInner(id, payload, context)
     } yield AlbumResponse.build(response)
 
@@ -257,7 +258,7 @@ object ImageManager {
 
   def archiveByContextAndId(id: Int, contextName: String)(implicit ec: EC, db: DB) =
     for {
-      context     ← * <~ ObjectManager.mustFindByName404(contextName)
+      context     ← * <~ ContextManager.mustFindByName404(contextName)
       albumObject ← * <~ mustFindFullAlbumByFormIdAndContext404(id, context)
       archiveResult ← * <~ Albums.update(albumObject.model,
                                          albumObject.model.copy(archivedAt = Some(Instant.now)))

@@ -9,7 +9,7 @@ import models.tree._
 import payloads.GenericTreePayloads._
 import responses.GenericTreeResponses.FullTreeResponse._
 import responses.GenericTreeResponses._
-import services.objects.ObjectManager
+import services.context.ContextManager
 import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
@@ -19,7 +19,7 @@ object TreeManager {
   def getFullTree(treeName: String, contextName: String)(implicit ec: EC,
                                                          db: DB): DbResultT[Root] =
     for {
-      context  ← * <~ ObjectManager.mustFindByName404(contextName)
+      context  ← * <~ ContextManager.mustFindByName404(contextName)
       response ← * <~ getFullTree(treeName, context)
     } yield response
 
@@ -28,7 +28,7 @@ object TreeManager {
                  newTree: NodePayload,
                  path: Option[String] = None)(implicit ec: EC, db: DB): DbResultT[Root] =
     for {
-      context ← * <~ ObjectManager.mustFindByName404(contextName)
+      context ← * <~ ContextManager.mustFindByName404(contextName)
       tree    ← * <~ getOrCreateDbTree(treeName, context, path.isEmpty)
       ltreePath = path.map(LTree.apply)
       deleted ← * <~ GenericTreeNodes.findNodes(tree.id, ltreePath).delete
@@ -48,7 +48,7 @@ object TreeManager {
       implicit ec: EC,
       db: DB): DbResultT[Root] =
     for {
-      context ← * <~ ObjectManager.mustFindByName404(contextName)
+      context ← * <~ ContextManager.mustFindByName404(contextName)
       tree    ← * <~ getOrCreateDbTree(treeName, context)
       newChildNode ← * <~ GenericTreeNodes
                       .findNodesByIndex(tree.id, moveSpec.child)
@@ -69,7 +69,7 @@ object TreeManager {
       implicit ec: EC,
       db: DB): DbResultT[Root] =
     for {
-      context ← * <~ ObjectManager.mustFindByName404(contextName)
+      context ← * <~ ContextManager.mustFindByName404(contextName)
       tree    ← * <~ getByNameAndContext(treeName, context)
       node ← * <~ GenericTreeNodes
               .findNodesByPath(tree.id, LTree(path))

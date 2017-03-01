@@ -123,7 +123,7 @@ object Products
 
   def mustFindFullByReference(
       ref: ProductReference)(implicit oc: OC, ec: EC, db: DB): DbResultT[FullObject[Product]] =
-    ObjectManager.getFullObject(mustFindByReference(ref: ProductReference))
+    mustFindProductFallback(ref, oc)
 
   private def filterByReference(ref: ProductReference, contextId: Int): QuerySeq =
     ref match {
