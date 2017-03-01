@@ -128,7 +128,7 @@ func NewSearchRow(p *api.Product, pp PartialProduct) (*SearchRow, error) {
 	return row, nil
 }
 
-func EnrichRowWithAttributes(p *api.Product, row *SearchRow, searchCfg *Config) (map[string]interface{}, error) {
+func EnrichRowWithAttributes(p *api.Product, row *SearchRow, searchCfg *Config, pp PartialProduct) (map[string]interface{}, error) {
 	var productMap map[string]interface{}
 	productMap = make(map[string]interface{})
 
@@ -143,11 +143,25 @@ func EnrichRowWithAttributes(p *api.Product, row *SearchRow, searchCfg *Config) 
 	}
 
 	for _, attr := range searchCfg.Attributes {
-		attrVal, err := p.Attributes.LookupValue(attr.Name)
-		if err != nil {
-			return nil, err
+		switch attr.Type {
+		case ProductField:
+			attrVal, err := p.Attributes.LookupValue(attr.Name)
+			if err != nil {
+				return nil, err
+			}
+			productMap[attr.Name] = attrVal
+		case OptionField:
+			variant, err := p.Variants.FindByName(attr.Name)
+			if err != nil {
+				continue
+			}
+			var variantNames []string
+			for _, vv := range variant.Values {
+				variantNames = append(variantNames, vv.Name)
+			}
+			productMap[attr.Name] = variantNames
 		}
-		productMap[attr.Name] = attrVal
+
 	}
 
 	return productMap, nil

@@ -17,15 +17,20 @@ object SearchRoutes {
   def routes(implicit ec: EC, db: DB, am: Mat, auth: AuthData[User], apis: Apis): Route = {
     activityContext(auth.model) { implicit ac ⇒
       pathPrefix("search") {
-        (post & pathEnd & entity(as[CreateSearchIndexPayload])) { payload ⇒
+        (post & pathEnd & entity(as[SearchIndexPayload])) { payload ⇒
           mutateOrFailures {
             SearchIndexManager.create(payload)
           }
         } ~
-        pathPrefix(Segment) { name ⇒
+        pathPrefix(IntNumber) { id ⇒
           (get & pathEnd) {
             getOrFailures {
-              SearchIndexManager.get(name)
+              SearchIndexManager.get(id)
+            }
+          } ~
+          (post & pathEnd & entity(as[SearchIndexPayload])) { payload ⇒
+            mutateOrFailures {
+              SearchIndexManager.update(id, payload)
             }
           }
         }

@@ -1,14 +1,14 @@
 package api
 
 import (
-    "time"
+	"time"
 )
 
 type Product struct {
 	ID         int              `json:"id"`
 	Context    Context          `json:"context"`
 	Attributes ObjectAttributes `json:"attributes"`
-	Variants   []Variant        `json:"variants"`
+	Variants   Variants         `json:"variants"`
 	SKUs       []SKU            `json:"skus"`
 	Albums     []Album          `json:"albums"`
 }
@@ -36,18 +36,18 @@ func (p Product) FirstImage() string {
 }
 
 func (p Product) IsActive() bool {
-    activeFrom, err := p.Attributes.LookupDateTime("activeFrom")
-    if err != nil {
-        return false
-    }
-    activeTo, err := p.Attributes.LookupDateTime("activeTo")
-    if err != nil {
-        return false
-    }
-    if activeFrom == nil {
-        return false
-    }
-    return activeFrom.Before(time.Now()) && (activeTo == nil || activeTo.After(time.Now()))
+	activeFrom, err := p.Attributes.LookupDateTime("activeFrom")
+	if err != nil {
+		return false
+	}
+	activeTo, err := p.Attributes.LookupDateTime("activeTo")
+	if err != nil {
+		return false
+	}
+	if activeFrom == nil {
+		return false
+	}
+	return activeFrom.Before(time.Now()) && (activeTo == nil || activeTo.After(time.Now()))
 }
 
 func (p Product) Tags() interface{} {

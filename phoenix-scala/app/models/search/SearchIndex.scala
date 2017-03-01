@@ -35,15 +35,4 @@ object SearchIndexes
 
   val returningLens: Lens[SearchIndex, Int] = lens[SearchIndex].id
 
-  def findOneByName(name: String): QuerySeq =
-    filter(_.name === name)
-
-  def mustFindByNameWithFields(name: String)(
-      implicit ec: EC): DbResultT[(SearchIndex, Seq[SearchField])] = {
-    for {
-      index  ← * <~ findOneByName(name).mustFindOneOr(NotFoundFailure404(SearchIndex, "name", name))
-      fields ← * <~ SearchFields.filter(_.indexId === index.id).result
-    } yield (index, fields)
-  }
-
 }

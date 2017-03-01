@@ -5,6 +5,9 @@ type Index struct {
 	Name string `json:"name"`
 }
 
+const ProductField = "productField"
+const OptionField = "optionField"
+
 type Field struct {
 	Id       int    `json:"id"`
 	Name     string `json:"name"`

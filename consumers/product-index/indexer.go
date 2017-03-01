@@ -10,6 +10,7 @@ import (
 	"github.com/FoxComm/highlander/shared/golang/elastic"
 
 	consul "github.com/hashicorp/consul/api"
+	"errors"
 )
 
 const productCreatedActivity = "full_product_created"
@@ -27,6 +28,9 @@ func (i Indexer) FetchSearchConfig() (*search.Config, error) {
 	pair, _, err := consulKv.Get("search/config/products_search", nil)
 	if err != nil {
 		return nil, err
+	}
+	if pair == nil {
+		return nil, errors.New("Search settings is empty")
 	}
 
 	searchConfig := search.Config{}
@@ -121,7 +125,7 @@ func (i Indexer) Run(activity activities.ISiteActivity) error {
 
 	for _, p := range partialProducts {
 		row, err := search.NewSearchRow(prod.Product, p)
-		productMap, err := search.EnrichRowWithAttributes(prod.Product, row, searchConfig)
+		productMap, err := search.EnrichRowWithAttributes(prod.Product, row, searchConfig, p)
 		if err != nil {
 			log.Printf("Unable to create search row with error: %s", err.Error())
 			return err

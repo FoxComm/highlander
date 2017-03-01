@@ -8,6 +8,6 @@ object SearchPayloads {
                              analyzer: SearchField.Analyzer,
                              `type`: SearchField.FieldType)
 
-  case class CreateSearchIndexPayload(name: String, fields: Seq[FieldDefinition])
+  case class SearchIndexPayload(name: String, fields: Seq[FieldDefinition])
 
 }
