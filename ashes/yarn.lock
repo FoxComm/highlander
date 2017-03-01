@@ -1564,9 +1564,9 @@ caniuse-db@^1.0.30000346, caniuse-db@^1.0.30000623:
   version "1.0.30000623"
   resolved "https://registry.yarnpkg.com/caniuse-db/-/caniuse-db-1.0.30000623.tgz#6e9dc4385d00a8f587efbb23fcbed7916f186e5d"
 
-canvas@^1.4.0:
-  version "1.6.3"
-  resolved "https://registry.yarnpkg.com/canvas/-/canvas-1.6.3.tgz#3125054bf08935e6abea12f68d05d27906fc437d"
+canvas@^1.6.4:
+  version "1.6.4"
+  resolved "https://registry.yarnpkg.com/canvas/-/canvas-1.6.4.tgz#b9f53f7abb12b4f4b21c5c2d56d8cdfd479c0055"
   dependencies:
     nan "^2.4.0"
 
