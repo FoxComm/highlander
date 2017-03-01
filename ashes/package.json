@@ -99,7 +99,7 @@
     "request": "^2.58.0",
     "reselect": "^2.0.0",
     "sprout-data": "^0.2.3",
-    "superagent": "^2.1.0",
+    "superagent": "^3.5.0",
     "thunkify-wrap": "^1.0.4",
     "use-named-routes": "^0.3.0",
     "victory": "^0.15.0",

@@ -71,6 +71,8 @@ export function connectPage(namespace, actions) {
     };
   }
 
+  // Duplicates action names for general usage from different components
+  // For example: updateProduct -> updateEntity, as well as updatePromotion -> updateEntity
   function generalizeActions(actions) {
     const result = {
       ...actions,
@@ -80,6 +82,8 @@ export function connectPage(namespace, actions) {
     _.each(actionNames, (name, key) => {
       result[`${key}Entity`] = actions[name];
     });
+
+    console.log('result', result);
 
     return result;
   }
@@ -114,9 +118,17 @@ export class ObjectPage extends Component {
   };
 
   getChildContext() {
-    return this._context || (this._context = {
-      validationDispatcher: new EventEmitter()
-    });
+    if (!this._context) {
+      const emitter = new EventEmitter();
+
+      emitter.setMaxListeners(20);
+
+      this._context = {
+        validationDispatcher: emitter
+      };
+    }
+
+    return this._context;
   }
 
   get entityIdName(): string {
@@ -413,6 +425,10 @@ export class ObjectPage extends Component {
     return error;
   }
 
+  get menuItems() {
+    return SAVE_COMBO_ITEMS;
+  }
+
   renderHead() {
     return this.cancelButton;
   }
@@ -446,7 +462,7 @@ export class ObjectPage extends Component {
             onPrimaryClick={this.handleSubmit}
             onSelect={this.handleSelectSaving}
             isLoading={props.isSaving}
-            items={SAVE_COMBO_ITEMS}
+            items={this.menuItems}
           />
         </PageTitle>
         {this.subNav()}

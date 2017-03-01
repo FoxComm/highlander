@@ -16,11 +16,18 @@ export default class Form extends Component {
     formDispatcher: PropTypes.object
   };
 
-
   getChildContext() {
-    return this._context || (this._context = {
-      formDispatcher: new EventEmitter()
-    });
+    if (!this._context) {
+      const emitter = new EventEmitter();
+
+      emitter.setMaxListeners(20);
+
+      this._context = {
+        formDispatcher: emitter
+      };
+    }
+
+    return this._context;
   }
 
   _emit(type, ...args) {
