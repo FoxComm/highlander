@@ -61,7 +61,8 @@ class ObjectPageDeux extends Component {
   }
 
   @autobind
-  createNewEntity(actions, context, objectType) {
+  createNewEntity() {
+    const { actions, context, objectType} = this.props;
     const params = { [`${objectType}Id`]: 'new', context: context };
     const createEntity = actions[`${objectType}New`];
     createEntity !== undefined
@@ -70,7 +71,8 @@ class ObjectPageDeux extends Component {
   }
 
   @autobind
-  duplicateEntity(actions, context, objectType) {
+  duplicateEntity() {
+    const { actions, context, objectType} = this.props;
     const params = { [`${objectType}Id`]: 'new', context: context };
     const duplicate = actions[`${objectType}Duplicate`];
     duplicate !== undefined
@@ -79,9 +81,12 @@ class ObjectPageDeux extends Component {
   }
 
   @autobind
-  handleSelectSaving(value) {
+  handleSelectSaving(value: string) {
     const { actions, context, objectType} = this.props;
-    this.save().then(() => {
+    const mayBeSaved = this.save();
+    if (!mayBeSaved) return;
+
+    mayBeSaved.then(() => {
       switch (value) {
         case SAVE_COMBO.NEW:
           this.createNewEntity(actions, context, objectType);
@@ -99,9 +104,11 @@ class ObjectPageDeux extends Component {
   @autobind
   save() {
     const { context, object } = this.props;
-    return this.isNew
-      ? this.props.actions.create(object, context)
-      : this.props.actions.update(object, context);
+    let mayBeSaved = false;
+    this.isNew
+      ? mayBeSaved = this.props.actions.create(object, context)
+      : mayBeSaved = this.props.actions.update(object, context);
+    return mayBeSaved;
   }
 
   renderButtonCluster() {

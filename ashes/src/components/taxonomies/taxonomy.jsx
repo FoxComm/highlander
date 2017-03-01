@@ -20,7 +20,10 @@ type TaxonomyParams = {
 };
 
 type Props = {
-  actions: ObjectActions<Taxonomy>,
+  actions: ObjectActions<Taxonomy> & {
+    taxonomyNew: () => void,
+    taxonomyDuplicate: () => void,
+  },
   children: Element<*>,
   details: {
     taxonomy: ?Taxonomy,
@@ -82,6 +85,7 @@ class TaxonomyPage extends Component {
     const {
       taxonomyNew,
       taxonomyDuplicate,
+      reset,
       fetch,
       create,
       update,
@@ -91,6 +95,7 @@ class TaxonomyPage extends Component {
     return {
       taxonomyNew,
       taxonomyDuplicate,
+      reset,
       fetch,
       create,
       update,
