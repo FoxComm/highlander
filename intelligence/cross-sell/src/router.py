@@ -1,9 +1,12 @@
 from flask import Flask, request, jsonify
-from PPRecommend import PPRecommend
+from prod_prod.PPRecommend import PPRecommend
 
 app = Flask(__name__)
 
 pprec = PPRecommend()
+
+if __name__ == "__main__":
+    app.run()
 
 @app.route('/ping')
 def ping():
