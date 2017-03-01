@@ -1,4 +1,4 @@
-SUBDIRS = src
+SUBDIRS = prod-prod
 BUILDDIRS = $(SUBDIRS:%=build-%)
 CLEANDIRS = $(SUBDIRS:%=clean-%)
 TESTDIRS = $(SUBDIRS:%=test-%)
