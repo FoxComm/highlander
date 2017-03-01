@@ -23,7 +23,7 @@ for (let task of fs.readdirSync(opts.taskDir)) {
 gulp.task('clean', () => del(['build/**/*', 'lib/**/*']));
 
 gulp.task('build', function(cb) {
-  runSequence('clean', 'imagemin', 'less', 'precompile', 'browserify', 'css', cb);
+  runSequence('clean', 'imagemin', 'less','sprites','precompile', 'browserify', 'css', cb);
 });
 
 gulp.task('dev', function(cb) {
