@@ -12,7 +12,7 @@ import models.auth.UserToken
 import org.scalatest.SuiteMixin
 import org.scalatest.concurrent.ScalaFutures
 import services.Authenticator.{AuthData, UserAuthenticator}
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 
 abstract class FakeAuth extends UserAuthenticator {
   type C = String

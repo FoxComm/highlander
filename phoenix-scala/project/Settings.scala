@@ -19,6 +19,7 @@ object Settings {
       "-Xfatal-warnings",
       "-language:higherKinds",
       "-language:existentials",
+      "-Ypartial-unification",
       "-Ywarn-numeric-widen",
       "-Ywarn-nullary-override",
       "-Ywarn-nullary-unit",

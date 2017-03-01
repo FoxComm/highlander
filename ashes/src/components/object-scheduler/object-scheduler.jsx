@@ -70,7 +70,7 @@ export default class ObjectScheduler extends Component {
             Start
           </div>
           <DateTimePicker
-            pickerCloseBtnId="remove-start-date-btn"
+            pickerCloseBtnId="fct-remove-start-date-btn"
             dateTime={this.activeFrom}
             onChange={this.updateActiveFrom}
             onCancel={this.handleCancelFrom} />
@@ -84,7 +84,7 @@ export default class ObjectScheduler extends Component {
       const picker = this.state.showActiveToPicker
         ? (
           <DateTimePicker
-            pickerCloseBtnId="remove-end-date-btn"
+            pickerCloseBtnId="fct-remove-end-date-btn"
             dateTime={this.activeTo}
             onChange={this.updateActiveTo}
             onCancel={this.handleCancelTo} />
@@ -206,7 +206,7 @@ export default class ObjectScheduler extends Component {
     return (
       <Dropdown
         id="state-dd"
-        dropdownValueId="state-dd--value"
+        dropdownValueId="state-dd-value"
         className="fc-product-state__active-state"
         disabled={isDisabled}
         value={activeState}

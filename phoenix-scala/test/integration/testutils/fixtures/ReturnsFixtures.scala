@@ -18,9 +18,14 @@ import testutils.fixtures.api.ApiFixtureHelpers
 import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
+import cats.implicits._
 
-trait ReturnsFixtures extends TestFixtureBase with BakedFixtures with ApiFixtureHelpers {
+trait ReturnsFixtures
+    extends TestFixtureBase
+    with BakedFixtures
+    with GimmeSupport
+    with ApiFixtureHelpers {
   self: FoxSuite ⇒
 
   trait Fixture extends EmptyCartWithShipAddress_Baked with Reason_Baked {

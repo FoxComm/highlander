@@ -51,7 +51,9 @@ provider "google" {
 }
 
 ##############################################
+
 # Network
+
 ##############################################
 
 resource "google_compute_network" "topdrawer" {

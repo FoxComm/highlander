@@ -101,7 +101,7 @@ trait NoteManager[K, T <: Identity[T]] {
   private def forModel[M <: FoxModel[M]](
       finder: Notes.QuerySeq)(implicit ec: EC, db: DB, ac: AC): DbResultT[Seq[Root]] = {
     val query = for (notes ← finder; authors ← notes.author) yield (notes, authors)
-    DbResultT.fromDbio(query.result.map(_.map {
+    DbResultT.fromF(query.result.map(_.map {
       case (note, author) ⇒ AdminNotes.build(note, author)
     }))
   }

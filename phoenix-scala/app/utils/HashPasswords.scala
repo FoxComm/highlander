@@ -33,7 +33,7 @@ object HashPasswords {
   }
 
   implicit object HashAlgorithm extends ADT[HashAlgorithm] {
-    def types = sealerate.values[HashAlgorithm]
+    def types = sealerate.collect[HashAlgorithm]
   }
 
   case class SCryptImpl(cpuCost: Int, memCost: Int, parallelization: Int) extends HashPasswords {

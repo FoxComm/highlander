@@ -39,7 +39,7 @@ import utils.aliases.OC
  */
 trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
-  val rootPrefix = "v1"
+  private val rootPrefix = "v1"
 
   object customersApi {
     val customersPrefix = s"$rootPrefix/customers"
