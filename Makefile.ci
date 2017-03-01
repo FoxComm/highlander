@@ -2,7 +2,7 @@
 include makelib
 header = $(call baseheader, $(1), root)
 
-SUBDIRS = $(shell ./projects.sh)
+SUBDIRS := $(shell ./projects.sh)
 $(info $(SUBDIRS))
 UPDATEDIRS = $(SUBDIRS:%=update-%)
 BUILDDIRS = $(SUBDIRS:%=build-%)
@@ -12,7 +12,7 @@ CLEANDIRS = $(SUBDIRS:%=clean-%)
 DOCKERDIRS = $(SUBDIRS:%=docker-%)
 DOCKERPUSHDIRS = $(SUBDIRS:%=docker-push-%)
 
-SUBDIRS_ALL = $(shell ./projects.sh -all)
+SUBDIRS_ALL := $(shell ./projects.sh -all)
 $(info $(SUBDIRS_ALL))
 BUILDDIRS_ALL = $(SUBDIRS_ALL:%=build-all-%)
 TESTDIRS_ALL = $(SUBDIRS_ALL:%=test-all-%)
