@@ -130,7 +130,7 @@ class ProductInvariantIT
           PayloadBuilder().createPayload.copy(variants = Seq(buildVariantPayload(code = "")))
 
         val errorMessage =
-          """Object product-variant with id=3 doesn't pass validation: $.code: must be at least 1 characters long"""
+          """Object product-variant with id=2 doesn't pass validation: $.code: must be at least 1 characters long"""
         productsApi.create(createPayload).mustFailWithMessage(errorMessage)
       }
 
