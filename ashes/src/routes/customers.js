@@ -35,7 +35,7 @@ const getRoutes = (jwt: Object) => {
           dimension: 'account',
           component: ActivityTrailPage,
           frn: frn.activity.customer,
-         }),
+        }),
       ]),
       router.read('groups-base', { path: 'groups', frn: frn.user.customerGroup }, [
         router.read('customer-groups', { component: CustomersListPage }, [

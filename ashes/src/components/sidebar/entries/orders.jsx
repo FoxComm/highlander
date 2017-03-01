@@ -29,7 +29,7 @@ export default class OrdersEntry extends Component {
     const allClaims = { ...cartClaims, ...orderClaims };
 
     if (!anyPermitted(allClaims, claims)) {
-      return <div></div>;
+      return <div />;
     }
 
     return (

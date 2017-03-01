@@ -26,7 +26,7 @@ export default class CustomersEntry extends Component {
   render() {
     const { claims } = this.props;
     if (!isPermitted(customerClaims, this.props.claims)) {
-      return <div></div>;
+      return <div />;
     }
 
     return (
