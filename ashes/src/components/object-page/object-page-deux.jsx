@@ -82,17 +82,17 @@ class ObjectPageDeux extends Component {
 
   @autobind
   handleSelectSaving(value: string) {
-    const { actions, context, objectType} = this.props;
+    const { actions } = this.props;
     const mayBeSaved = this.save();
     if (!mayBeSaved) return;
 
     mayBeSaved.then(() => {
       switch (value) {
         case SAVE_COMBO.NEW:
-          this.createNewEntity(actions, context, objectType);
+          this.createNewEntity();
           break;
         case SAVE_COMBO.DUPLICATE:
-          this.duplicateEntity(actions, context, objectType);
+          this.duplicateEntity();
           break;
         case SAVE_COMBO.CLOSE:
           actions.cancel();
