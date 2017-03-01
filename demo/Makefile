@@ -1,4 +1,4 @@
-SUBDIRS = product-search
+SUBDIRS = peacock
 BUILDDIRS = $(SUBDIRS:%=build-%)
 CLEANDIRS = $(SUBDIRS:%=clean-%)
 TESTDIRS = $(SUBDIRS:%=test-%)

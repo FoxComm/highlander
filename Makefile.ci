@@ -8,6 +8,7 @@ UPDATEDIRS = $(SUBDIRS:%=update-%)
 BUILDDIRS = $(SUBDIRS:%=build-%)
 TESTDIRS = $(SUBDIRS:%=test-%)
 CLEANDIRS = $(SUBDIRS:%=clean-%)
+
 DOCKERDIRS = $(SUBDIRS:%=docker-%)
 DOCKERPUSHDIRS = $(SUBDIRS:%=docker-push-%)
 
