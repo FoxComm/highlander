@@ -6,7 +6,7 @@ import javax.sql.DataSource
 
 import scala.annotation.tailrec
 
-import models.objects.{ObjectContexts, ObjectFullSchemas, ObjectSchemas}
+import models.objects.ObjectContexts
 import models.product.SimpleContext
 import org.scalatest._
 import slick.driver.PostgresDriver.api._

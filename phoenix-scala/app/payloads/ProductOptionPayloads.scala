@@ -1,9 +1,8 @@
 package payloads
 
 import cats.data._
-import cats.implicits._
+import failures.Failure
 import failures.ProductFailures.DuplicatedOptionValueForVariant
-import failures.{Failure, Failures}
 import models.objects.ObjectUtils._
 import models.objects.{FormAndShadow, ObjectForm, ObjectShadow}
 import models.product.ProductOptionValue
@@ -23,17 +22,13 @@ object ProductOptionPayloads {
         sku   ← value.skus
       } yield sku → value
 
-      val valid = Validated.valid[Failures, ProductOptionPayload](this)
+      val failures = variantPerOptionValue.groupBy { case (sku, _) ⇒ sku }.collect {
+        case (sku, dupes) if dupes.size > 1 ⇒ DuplicatedOptionValueForVariant(sku)
+      }
 
-      def invalid(sku: String) =
-        Validated.invalidNel[Failure, ProductOptionPayload](DuplicatedOptionValueForVariant(sku))
-
-      variantPerOptionValue.groupBy { case (code, _) ⇒ code }.foldLeft(valid) {
-        case (acc, (sku, optionValues)) if optionValues.size > 1 ⇒
-          (acc |@| invalid(sku)).map {
-            case (payload, _) ⇒ payload
-          }
-        case (acc, _) ⇒ acc
+      failures match {
+        case Nil     ⇒ Validated.valid(this)
+        case x :: xs ⇒ Validated.invalid(NonEmptyList.of(x, xs: _*))
       }
     }
   }
