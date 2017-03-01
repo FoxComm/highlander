@@ -1,0 +1,29 @@
+# Logs
+logs
+*.log
+
+# IDEs
+.idea
+.iml
+
+/node_modules
+migration-tool/node_modules
+
+# Users Environment Variables & settings
+.lock-wscript
+/.gulprc
+
+.DS_Store
+.#*
+
+# Vim
+*.swp
+*.iml
+
+# package
+the-perfect-gourmet.tar.bz2
+
+# certificates
+public_key.pem
+
+build
