@@ -1,40 +1,41 @@
 package services.product
 
 import java.time.Instant
+
 import cats.data._
 import cats.implicits._
-import failures._
 import failures.ArchiveFailures._
 import failures.ProductFailures._
+import failures._
+import models.account._
 import models.inventory._
 import models.objects._
 import models.product._
-import models.account._
+import org.json4s.JsonDSL._
+import org.json4s._
 import payloads.ImagePayloads.AlbumPayload
+import payloads.ProductOptionPayloads._
 import payloads.ProductPayloads._
 import payloads.ProductVariantPayloads._
-import payloads.ProductOptionPayloads._
 import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
 import responses.AlbumResponses._
 import responses.ObjectResponses.ObjectContextResponse
+import responses.ProductOptionResponses.ProductOptionResponse
 import responses.ProductResponses._
 import responses.ProductVariantResponses._
-import responses.ProductOptionResponses.ProductOptionResponse
+import services.LogActivity
 import services.image.ImageManager
+import services.image.ImageManager.FullAlbumWithImages
 import services.inventory.ProductVariantManager
 import services.objects.ObjectManager
+import services.taxonomy.TaxonomyManager
 import services.variant.ProductOptionManager
 import services.variant.ProductOptionManager._
 import slick.driver.PostgresDriver.api._
 import utils.Validation._
 import utils.aliases._
+import utils.apis.Apis
 import utils.db._
-import org.json4s._
-import org.json4s.JsonDSL._
-import services.LogActivity
-import services.taxonomy.TaxonomyManager
-import services.image.ImageManager.FullAlbumWithImages
-import utils.apis.{Apis, CreateSku}
 
 object ProductManager {
 
@@ -48,11 +49,12 @@ object ProductManager {
 
     val form                  = ObjectForm.fromPayload(Product.kind, payload.attributes)
     val shadow                = ObjectShadow.fromPayload(payload.attributes)
-    val productOptionPayloads = payload.options.getOrElse(Seq.empty)
+    val productOptionPayloads = payload.options.getOrElse(Seq.empty).distinct
     val hasOptions            = productOptionPayloads.nonEmpty
     val albumPayloads         = payload.albums.getOrElse(Seq.empty)
 
     for {
+      _     ← * <~ payload.validate
       scope ← * <~ Scope.resolveOverride(payload.scope)
       _     ← * <~ validateCreate(payload)
       ins   ← * <~ ObjectUtils.insert(form, shadow, payload.schema)
