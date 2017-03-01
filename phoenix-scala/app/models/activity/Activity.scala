@@ -92,7 +92,7 @@ object Activities
       |  "fields":[
       |    {
       |      "name":"id",
-      |      "type":["null","int"]
+      |      "type":["null","string"]
       |    },
       |    {
       |      "name":"activity_type",
@@ -146,7 +146,7 @@ object Activities
 
     for {
       id ← * <~ nextActivityId()
-      _ = avroActivityRecord.put("id", id)
+      _ = avroActivityRecord.put("id", s"phoenix-$id")
       _ = sendActivity(activity, avroActivityRecord)
     } yield activity
   }
