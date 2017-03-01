@@ -190,7 +190,7 @@ export default class Order extends React.Component {
 
     if (order.orderState === 'canceled' ||
         order.orderState === 'shipped') {
-      return <State stateId="order-state-value" value={order.shippingState} model="order" />;
+      return <State stateId="fct-order-state__value" value={order.shippingState} model="order" />;
     }
 
     let holdStates = ['manualHold'];
@@ -210,8 +210,8 @@ export default class Order extends React.Component {
 
     return (
       <Dropdown
-        id="order-state-dd"
-        dropdownValueId="order-state-value"
+        id="fct-order-state-dd"
+        dropdownValueId="fct-order-state__value"
         name="orderState"
         items={_.map(visibleAndSortedOrderStates, state => [state, states.order[state]])}
         placeholder={'Order state'}

@@ -10,18 +10,20 @@ shortcuts:
   - name: Inventory Files
     flag: "--inventory-file"
     aliases:
-      dev: bin/envs/dev
-      stage_vpn: bin/envs/stage_vpn
-      staging: bin/envs/staging
-      target_dev: bin/envs/target_dev
-      topdrawer: bin/envs/topdrawer
-      tpg: bin/envs/tpg
+      dev: inventory/static/dev
+      stage_vpn: inventory/static/stage_vpn
+      staging: inventory/gce/
+      target_dev: inventory/static/target_dev
+      topdrawer: inventory/static/topdrawer
+      tpg: inventory/static/tpg
+
   - name: Private Key Files
     flag: "--private-key"
     aliases:
       id_rsa: "~/.ssh/id_rsa"
       gce_rsa: "~/.ssh/gce_rsa"
       tgt.pem: "~/.ssh/tgt.pem"
+
   - name: SSH Users
     flag: "--user"
     aliases:
@@ -124,6 +126,7 @@ shortcuts:
   - name: Base United Image
     alias: base_united.json
     target: packer/base/base_united.json
+
   - name: Base Appliance Image
     alias: appliance.json
     target: packer/appliance/appliance.json
@@ -132,9 +135,11 @@ shortcuts:
   - name: Tinystack Amigo
     alias: tiny_amigo.json
     target: packer/tinystack/amigo.json
+
   - name: Tinystack Backend
     alias: tiny_backend.json
     target: packer/tinystack/backend.json
+
   - name: Tinystack Frontend
     alias: tiny_frontend.json
     target: packer/tinystack/frontend.json
@@ -157,6 +162,7 @@ shortcuts:
       target: terraform/envs/aws_target/terraform.tfstate
       topdrawer: terraform/envs/gce_topdrawer/terraform.tfstate
       tpg: terraform/envs/gce_tpg/terraform.tfstate
+
   - name: Variable Files
     flag: "-var-file"
     aliases:
@@ -171,18 +177,23 @@ shortcuts:
   - name: Feature Branch Instances
     alias: branches
     target: terraform/base/gce_branches
+
   - name: FoxCommerce Core
     alias: dev
     target: terraform/base/gce_dev
+
   - name: FoxCommerce Test
     alias: staging
     target: terraform/base/gce_staging
+
   - name: Target AWS Networking
     alias: target
     target: terraform/base/aws_target
+
   - name: TopDrawer Production
     alias: topdrawer
     target: terraform/base/gce_topdrawer
+
   - name: TPG Production
     alias: tpg
     target: terraform/base/gce_tpg

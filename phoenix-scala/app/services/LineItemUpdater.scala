@@ -1,5 +1,6 @@
 package services
 
+import cats.implicits._
 import failures.CartFailures._
 import failures.OrderFailures.OrderLineItemNotFound
 import failures.ProductFailures.SkuNotFoundForContext
@@ -59,15 +60,18 @@ object LineItemUpdater {
                                                                                  db: DB,
                                                                                  ac: AC,
                                                                                  ctx: OC) =
-    DbResultT.sequence(payload.map(updatePayload ⇒
-              for {
-        orderLineItem ← * <~ OrderLineItems
-                         .filter(_.referenceNumber === updatePayload.referenceNumber)
-                         .mustFindOneOr(OrderLineItemNotFound(updatePayload.referenceNumber))
-        patch = orderLineItem.copy(state = updatePayload.state,
-                                   attributes = updatePayload.attributes)
-        updatedItem ← * <~ OrderLineItems.update(orderLineItem, patch)
-      } yield updatedItem))
+    DbResultT.seqCollectFailures(
+        payload
+          .map(updatePayload ⇒
+                for {
+          orderLineItem ← * <~ OrderLineItems
+                           .filter(_.referenceNumber === updatePayload.referenceNumber)
+                           .mustFindOneOr(OrderLineItemNotFound(updatePayload.referenceNumber))
+          patch = orderLineItem.copy(state = updatePayload.state,
+                                     attributes = updatePayload.attributes)
+          updatedItem ← * <~ OrderLineItems.update(orderLineItem, patch)
+        } yield updatedItem)
+          .toList)
 
   def updateQuantitiesOnCustomersCart(customer: User, payload: Seq[UpdateLineItemsPayload])(
       implicit ec: EC,
@@ -204,7 +208,7 @@ object LineItemUpdater {
                     removeLineItems(sku.id, -lineItem.quantity, cart.refNum, lineItem.attributes))
       } yield {}
     }
-    DbResultT.sequence(lineItemUpdActions).meh
+    DbResultT.seqCollectFailures(lineItemUpdActions.toList).meh
   }
 
   private def mustFindProductIdForSku(sku: Sku, refNum: String)(implicit ec: EC, oc: OC) = {

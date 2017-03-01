@@ -1,5 +1,6 @@
 package routes.admin
 
+import cats.implicits._
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import utils.http.JsonSupport._
@@ -10,7 +11,7 @@ import services.CustomerCreditConverter
 import services.giftcards._
 import services.Authenticator.AuthData
 import utils.aliases._
-import utils.db.DbResultT
+import utils.db._
 import utils.http.CustomDirectives._
 import utils.http.Http._
 
@@ -23,7 +24,8 @@ object GiftCardRoutes {
         path("bulk") {
           (post & pathEnd & entity(as[Seq[GiftCardCreatedByCustomer]])) { payload ⇒
             mutateOrFailures {
-              DbResultT.sequence(payload.map(GiftCardService.createByCustomer(auth.model, _)))
+              DbResultT.seqCollectFailures(
+                  payload.map(GiftCardService.createByCustomer(auth.model, _)).toList)
             }
           }
         } ~

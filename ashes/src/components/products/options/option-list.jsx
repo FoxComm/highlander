@@ -57,7 +57,7 @@ class OptionList extends Component {
 
   get actions(): Element<*> {
     return (
-      <a id="add-new-option-btn" styleName="action-icon" onClick={() => this.startEditOption('new')}>
+      <a id="fct-add-btn__new-option" styleName="action-icon" onClick={() => this.startEditOption('new')}>
         <i className="icon-add" />
       </a>
     );

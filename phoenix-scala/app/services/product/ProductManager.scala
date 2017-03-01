@@ -7,6 +7,7 @@ import cats.data._
 import cats.implicits._
 import cats.data.ValidatedNel
 import cats.instances.map
+import com.typesafe.scalalogging.LazyLogging
 import failures._
 import failures.ArchiveFailures._
 import failures.ProductFailures._
@@ -40,7 +41,7 @@ import services.LogActivity
 import services.taxonomy.TaxonomyManager
 import services.image.ImageManager.FullAlbumWithImages
 
-object ProductManager {
+object ProductManager extends LazyLogging {
 
   def createProduct(admin: User, payload: CreateProductPayload)(
       implicit ec: EC,
@@ -86,14 +87,34 @@ object ProductManager {
 
   }
 
-  def getProduct(productId: ProductReference)(implicit ec: EC,
-                                              db: DB,
-                                              oc: OC): DbResultT[ProductResponse.Root] =
+  def getProduct(productId: ProductReference, checkActive: Boolean = false)(
+      implicit ec: EC,
+      db: DB,
+      oc: OC): DbResultT[ProductResponse.Root] =
     for {
       oldProduct ← * <~ Products.mustFindFullByReference(productId)
-      albums     ← * <~ ImageManager.getAlbumsForProduct(oldProduct.model.reference)
+      illuminated = IlluminatedProduct
+        .illuminate(oc, oldProduct.model, oldProduct.form, oldProduct.shadow)
+      _ ← * <~ doOrMeh(checkActive, {
+           illuminated.mustBeActive match {
+             case Xor.Left(err) ⇒ {
+               logger.warn(err.toString)
+               DbResultT.failure(NotFoundFailure404(Product, oldProduct.model.slug))
+             }
+             case Xor.Right(_) ⇒ DbResultT.unit
+           }
+         })
+      albums ← * <~ ImageManager.getAlbumsForProduct(oldProduct.model.reference)
 
-      fullSkus    ← * <~ ProductSkuLinks.queryRightByLeft(oldProduct.model)
+      fullSkus ← * <~ ProductSkuLinks.queryRightByLeft(oldProduct.model)
+      _ ← * <~ failIf(
+             checkActive && fullSkus
+               .filter(sku ⇒ IlluminatedSku.illuminate(oc, sku).mustBeActive.isRight)
+               .isEmpty, {
+               logger.warn(
+                   s"Product variants for product with id=${oldProduct.model.slug} is archived or inactive")
+               NotFoundFailure404(Product, oldProduct.model.slug)
+             })
       productSkus ← * <~ fullSkus.map(SkuManager.illuminateSku)
 
       variants     ← * <~ ProductVariantLinks.queryRightByLeft(oldProduct.model)
@@ -106,12 +127,11 @@ object ProductManager {
 
       taxons ← * <~ TaxonomyManager.getAssignedTaxons(oldProduct.model)
     } yield
-      ProductResponse.build(
-          IlluminatedProduct.illuminate(oc, oldProduct.model, oldProduct.form, oldProduct.shadow),
-          albums,
-          if (hasVariants) variantSkus else productSkus,
-          variantResponses,
-          taxons)
+      ProductResponse.build(illuminated,
+                            albums,
+                            if (hasVariants) variantSkus else productSkus,
+                            variantResponses,
+                            taxons)
 
   def updateProduct(productId: ProductReference, payload: UpdateProductPayload)(
       implicit ec: EC,

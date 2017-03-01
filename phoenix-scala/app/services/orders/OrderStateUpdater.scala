@@ -79,27 +79,29 @@ object OrderStateUpdater {
       admin: User,
       cordRefs: Seq[String],
       newState: State,
-      skipActivity: Boolean = false)(implicit ec: EC, ac: AC, db: DB) = {
+      skipActivity: Boolean = false)(implicit ec: EC, ac: AC, db: DB): DbResultT[Unit] = {
 
     if (skipActivity)
       updateQueries(admin, cordRefs, newState)
     else
       for {
-        _ ← * <~ LogActivity().orderBulkStateChanged(newState, cordRefs, admin.some).value
+        _ ← * <~ LogActivity().orderBulkStateChanged(newState, cordRefs, admin.some)
         _ ← * <~ updateQueries(admin, cordRefs, newState)
       } yield ()
   }
 
-  private def updateQueries(admin: User, cordRefs: Seq[String], newState: State)(implicit ec: EC,
-                                                                                 db: DB) =
+  private def updateQueries(admin: User, cordRefs: Seq[String], newState: State)(
+      implicit ec: EC,
+      db: DB): DbResultT[Unit] =
     newState match {
       case Canceled ⇒
         cancelOrders(cordRefs)
       case _ ⇒
-        Orders.filter(_.referenceNumber.inSet(cordRefs)).map(_.state).update(newState).dbresult
+        // FIXME: calling .dbresultt (which basically maps right) can be dangerous here. @anna
+        Orders.filter(_.referenceNumber.inSet(cordRefs)).map(_.state).update(newState).dbresult.meh
     }
 
-  private def cancelOrders(cordRefs: Seq[String])(implicit ec: EC, db: DB) =
+  private def cancelOrders(cordRefs: Seq[String])(implicit ec: EC, db: DB): DbResultT[Unit] =
     for {
       updateLineItems ← * <~ OrderLineItems
                          .filter(_.cordRef.inSetBind(cordRefs))
@@ -112,12 +114,14 @@ object OrderStateUpdater {
       _             ← * <~ Orders.filter(_.referenceNumber.inSetBind(cordRefs)).map(_.state).update(Canceled)
     } yield ()
 
-  private def cancelGiftCards(orderPayments: Seq[OrderPayment])(implicit ec: EC, db: DB) = {
+  private def cancelGiftCards(orderPayments: Seq[OrderPayment])(implicit ec: EC,
+                                                                db: DB): DBIO[Int] = {
     val paymentIds = orderPayments.map(_.id)
     GiftCardAdjustments.filter(_.orderPaymentId.inSetBind(paymentIds)).cancel()
   }
 
-  private def cancelStoreCredits(orderPayments: Seq[OrderPayment])(implicit ec: EC, db: DB) = {
+  private def cancelStoreCredits(orderPayments: Seq[OrderPayment])(implicit ec: EC,
+                                                                   db: DB): DBIO[Int] = {
     val paymentIds = orderPayments.map(_.id)
     StoreCreditAdjustments.filter(_.orderPaymentId.inSetBind(paymentIds)).cancel()
   }

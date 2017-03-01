@@ -6,7 +6,7 @@ import slick.driver.PostgresDriver.api._
 import testutils._
 import utils.db.UpdateReturning._
 import utils.db._
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 
 class SlickTest extends IntegrationTestBase {
 

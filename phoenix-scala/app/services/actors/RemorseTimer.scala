@@ -1,5 +1,6 @@
 package services.actors
 
+import cats.implicits._
 import java.time.Instant
 
 import scala.util.Success
@@ -7,13 +8,14 @@ import akka.actor.{Actor, ActorLogging}
 import models.activity.ActivityContext
 import models.cord.Order._
 import models.cord.{Order, Orders}
-import services.{LogActivity, Result}
+import services.LogActivity
 import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 
 case object Tick
 
+// FIXME: what is this, Result has Future inside! @michalrus
 case class RemorseTimerResponse(updatedQuantity: Result[Int])
 
 class RemorseTimer(implicit db: DB, ec: EC) extends Actor {
@@ -41,14 +43,18 @@ class RemorseTimer(implicit db: DB, ec: EC) extends Actor {
   private def logAcitvity(newState: Order.State, orders: Seq[Order])(
       implicit ec: EC): DbResultT[Unit] =
     DbResultT
-      .sequence(orders.groupBy(_.scope).map {
-        case (scope, scopeOrders) ⇒
-          val refNums = scopeOrders.map(_.referenceNumber)
+      .seqCollectFailures(
+          orders
+            .groupBy(_.scope)
+            .map {
+          case (scope, scopeOrders) ⇒
+            val refNums = scopeOrders.map(_.referenceNumber)
 
-          implicit val ac = ActivityContext.build(userId = 1, userType = "admin", scope = scope)
+            implicit val ac = ActivityContext.build(userId = 1, userType = "admin", scope = scope)
 
-          LogActivity().withScope(scope).orderBulkStateChanged(newState, refNums)
-      })
+            LogActivity().withScope(scope).orderBulkStateChanged(newState, refNums)
+        }
+            .toList)
       .meh
 }
 
@@ -61,7 +67,8 @@ class RemorseTimerMate(implicit ec: EC) extends Actor with ActorLogging {
 
   override def receive = {
     case response: RemorseTimerResponse ⇒
-      response.updatedQuantity.onComplete {
+      response.updatedQuantity.runEmptyA.value.onComplete {
+        // TODO: do we now quantity is `Failures Xor Int` here? @michalrus
         case Success(quantity) ⇒ log.debug(s"Remorse timer updated $quantity orders")
         case _                 ⇒ log.error("Remorse timer failed")
       }

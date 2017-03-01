@@ -4,7 +4,9 @@ defmodule Hyperion.Amazon.TemplateBuilder do
   def submit_product_feed(list, opts) do
     data = [seller_id: opts.seller_id, purge_and_replace: opts.purge_and_replace,
             products: list]
-    EEx.eval_string(Hyperion.Amazon.Templates.SubmitProductFeed.template_string, data)
+    f = EEx.eval_string(Hyperion.Amazon.Templates.SubmitProductFeed.template_string, data)
+    IO.puts inspect(f)
+    f
   end
 
   def submit_product_by_asin(list, opts) do
@@ -29,11 +31,11 @@ defmodule Hyperion.Amazon.TemplateBuilder do
   end
 
   def books_category(list) do
-    EEx.eval_string(Hyperion.Amazon.Templates.Categories.Books.template_string, list)
+    EEx.eval_string(Hyperion.Amazon.Templates.Categories.Books.template_string, assigns: list)
   end
 
   def clothing_category(list) do
-    EEx.eval_string(Hyperion.Amazon.Templates.Categories.ClothingAccessories.template_string, list)
+    EEx.eval_string(Hyperion.Amazon.Templates.Categories.ClothingAccessories.template_string, assigns: list)
   end
 
   def common_category(_list) do

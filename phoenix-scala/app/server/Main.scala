@@ -27,6 +27,7 @@ import utils.apis._
 import utils.http.CustomHandlers
 import utils.http.HttpLogger.logFailedRequests
 import utils.{ElasticsearchApi, Environment, FoxConfig}
+import utils.db._
 
 object Main extends App with LazyLogging {
   logger.info("Starting phoenix server")
@@ -80,9 +81,10 @@ class Service(
   val orgName  = config.users.customer.org
   val scopeId  = config.users.customer.scopeId
 
-  val scope = Await
-    .result(Scopes.mustFindById404(scopeId).run(), Duration.Inf)
-    .valueOr(fail ⇒ throw new RuntimeException(fail.toList.map(_.description).toString()))
+  val scope = Await.result(Scopes.findOneById(scopeId).run(), Duration.Inf) match {
+    case Some(s) ⇒ s
+    case _       ⇒ throw new RuntimeException(s"Unable to find a scope with id $scopeId")
+  }
 
   val customerCreateContext                = AccountCreateContext(List(roleName), orgName, scopeId)
   implicit val userAuth: UserAuthenticator = Authenticator.forUser(customerCreateContext)

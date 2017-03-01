@@ -4,7 +4,7 @@ import models.account.User
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import testutils.CustomMatchers._
 import testutils.TestBase
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 
 class CustomerTest extends TestBase {
   "Customer" - {
