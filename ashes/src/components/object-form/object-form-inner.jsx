@@ -1,7 +1,7 @@
 // @flow
 
 // libs
-import React, { Component, Element<*> } from 'react';
+import React, { Component, Element } from 'react';
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';
@@ -27,6 +27,9 @@ export type Props = {
   attributes: Attributes,
   onChange: (attributes: Attributes) => void,
   schema?: Object,
+  units?: {
+    name?: Array<[any, string]>,
+  },
 };
 
 type State = {
@@ -57,7 +60,7 @@ function formatLabel(label: string): string {
   });
 }
 
-export function renderFormField(name: string, content: Element<*>, options: AttrOptions): Element<*> {
+export function renderFormField(name: string, content: Element<any>, options: AttrOptions): Element<*> {
   const { description, ...formFieldOptions } = options;
   let descriptionField = null;
   let body = content;
@@ -166,6 +169,7 @@ export default class ObjectFormInner extends Component {
         id={name}
         checked={value}
         onChange={onChange}
+        name={name}
       />
     );
 
@@ -189,7 +193,7 @@ export default class ObjectFormInner extends Component {
     return renderFormField(name, dropdown, options);
   }
 
-  renderElement(name: string, value: any, options: AttrOptions): Element<*> {
+  renderElement(name: string, value: Element<*>, options: AttrOptions): Element<*> {
     return renderFormField(name, value, options);
   }
 
@@ -378,7 +382,6 @@ export default class ObjectFormInner extends Component {
   }
 
   getAttrOptions(name: string,
-                 // $FlowFixMe: there is no global context
                  schema: ?AttrSchema = this.props.schema && this.props.schema.properties[name]): Object {
     const options = {
       required: this.isRequired(name),

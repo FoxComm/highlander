@@ -15,6 +15,7 @@ import { Link } from 'components/link';
 import StateDropdown from 'components/object-page/state-dropdown';
 
 import reducer, { suggestSkus } from 'modules/skus/suggest';
+import type { SuggestOptions } from 'modules/product-variants/suggest';
 import type { ProductVariant } from 'modules/product-variants/details';
 import { productVariantCode } from 'paragons/product';
 
@@ -221,7 +222,7 @@ class EditableVariantRow extends Component {
     return this.state.variant.code || code || '';
   }
 
-  skuCell(productVariant: ProductVariant): Element<*> {
+  skuCell(productVariant: ProductVariant): Element<any> {
     const code = _.get(productVariant, 'attributes.code.v');
     if (productVariant.skuId && productVariant.id) {
       return (
@@ -309,7 +310,7 @@ class EditableVariantRow extends Component {
     }
   }
 
-  stateCell(productVariant: ProductVariant): Element {
+  stateCell(productVariant: ProductVariant): Element<*> {
     return (
       <div styleName="state-cell">
         <StateDropdown

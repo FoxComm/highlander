@@ -181,7 +181,7 @@ export default class Table extends Component {
     }
   }
 
-  wrapBody(body: Element): Element<*> {
+  wrapBody(body: Element<any>): Element<*> {
     const { tbodyId } = this.props;
     const firstRow = React.Children.toArray(body)[0];
     if (firstRow && (firstRow.type === 'tbody' || !this.props.wrapToTbody)) {

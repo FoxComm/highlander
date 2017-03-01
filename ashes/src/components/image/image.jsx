@@ -61,7 +61,6 @@ export default class ImageLoader extends Component {
     }
   }
 
-  // $FlowFixMe: there is no global context, stupid flow
   createImage(src: string = this.props.src): void {
     this.img = new Image();
     this.img.onload = this.handleLoad;
