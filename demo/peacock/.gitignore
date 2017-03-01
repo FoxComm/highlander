@@ -11,6 +11,7 @@ migration-tool/node_modules
 
 # Users Environment Variables & settings
 .lock-wscript
+.env.local
 /.gulprc
 
 .DS_Store
