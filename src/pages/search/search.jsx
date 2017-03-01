@@ -19,7 +19,7 @@ import type { Product } from 'modules/products';
 import type { Localized } from 'lib/i18n';
 
 // actions
-import { setTerm, searchProducts } from 'modules/search';
+import { searchProducts } from 'modules/search';
 
 type SearchParams = {
   term: string,
@@ -36,7 +36,7 @@ type Props = Localized & {
   term: string,
   results: SearchResult,
   params: SearchParams,
-  setTerm: (term: string) => void,
+  force: boolean,
   searchProducts: (term: string) => Promise,
   searchState: AsyncStatus,
 };
@@ -52,21 +52,23 @@ class Search extends Component {
   props: Props;
 
   componentWillMount() {
-    if (this.props.term != this.props.params.term) {
-      this.props.setTerm(this.props.params.term);
-    } else {
-      this.props.searchProducts(this.props.term);
+    this.search(this.props);
+  }
+
+  componentWillReceiveProps(nextProps: Props) {
+    if (this.props.params.term != nextProps.params.term || nextProps.force) {
+      this.search(nextProps);
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (this.props.term !== nextProps.term) {
-      this.props.searchProducts(nextProps.term);
-    }
+  search(props: Props) {
+    props.searchProducts(props.params.term);
   }
 
   render(): HTMLElement {
-    const { term, results, t } = this.props;
+    const { params, results, t } = this.props;
+    const { term } = params;
+
     const result = _.isEmpty(results.result) ? [] : results.result;
 
     return (
@@ -85,6 +87,6 @@ class Search extends Component {
 }
 
 export default _.flowRight(
-  connect(mapStateToProps, {setTerm, searchProducts}),
+  connect(mapStateToProps, {searchProducts}),
   localized
 )(Search);

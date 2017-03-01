@@ -11,9 +11,9 @@
     postinstall-build "^0.2.1"
     superagent "^3.2.1"
 
-"@foxcomm/wings@1.9.3":
-  version "1.9.3"
-  resolved "https://npm.foxcommerce.com:4873/@foxcomm%2fwings/-/wings-1.9.3.tgz#b1dd40c3671d587e6bf81e489b5179cd96196e51"
+"@foxcomm/wings@^1.9.4":
+  version "1.9.4"
+  resolved "https://npm.foxcommerce.com:4873/@foxcomm%2fwings/-/wings-1.9.4.tgz#047b0c2df6beface4ceeff15444b31c6790fe554"
   dependencies:
     classnames "^2.2.5"
     flow-bin "^0.36.0"

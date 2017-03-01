@@ -19,12 +19,10 @@ import Categories from '../navigation/navigation';
 import Search from '../search/search';
 
 import * as actions from 'modules/sidebar';
-import { resetTerm } from 'modules/search';
 
 type SidebarProps = Localized & {
   isVisible: boolean,
   toggleSidebar: Function,
-  resetTerm: Function,
   path: string,
 };
 
@@ -33,10 +31,6 @@ const Sidebar = (props: SidebarProps): HTMLElement => {
     'sidebar-hidden': !props.isVisible,
     'sidebar-shown': props.isVisible,
   });
-
-  const changeCategoryCallback = () => {
-    props.resetTerm();
-  };
 
   const { t } = props;
 
@@ -94,7 +88,6 @@ const Sidebar = (props: SidebarProps): HTMLElement => {
           <div styleName="links-group" onClick={onLinkClick}>
             <div styleName="controls-categories">
               <Categories
-                onClick={changeCategoryCallback}
                 path={props.path}
               />
             </div>
@@ -118,7 +111,6 @@ const mapStates = state => ({
 
 export default connect(mapStates, {
   ...actions,
-  resetTerm,
   logout,
   fetchCart,
 })(localized(Sidebar));
