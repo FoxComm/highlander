@@ -19,7 +19,7 @@ import type { ProductVariant } from 'modules/product-variants/details';
 
 type Props = {
   skuId: number,
-  children: Element,
+  children: Element<*>,
   params: Object,
   // connected
   actions: {

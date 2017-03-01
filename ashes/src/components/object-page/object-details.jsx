@@ -20,7 +20,7 @@ import ParticipantsPanel from '../participants';
 
 import type { ObjectView } from 'paragons/object';
 
-type Layout = {
+export type Layout = {
   content: Array<Object>,
   aside: Array<Object>,
 }
@@ -54,8 +54,15 @@ export type DetailsProps = {
   onSetVariantProperties: (id: string, toUpdate: Array<Array<any>>) => void,
 }
 
+const emptyLayout: Layout = {
+  content: [],
+  aside: [],
+};
+
 export default class ObjectDetails extends Component {
-  layout: Layout;
+  get layout(): Layout {
+    return emptyLayout;
+  }
 
   get schema() {
     return expandRefs(this.props.schema);

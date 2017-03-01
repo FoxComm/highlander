@@ -14,7 +14,7 @@ type Props = {
   children: Element<*>,
   // connected
   productVariants: Array<ProductVariant>,
-  fetchProductVariants: (productId: number) => Promise,
+  fetchProductVariants: (productId: number) => Promise<*>,
   productVariantsState: AsyncState,
 }
 

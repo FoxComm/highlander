@@ -56,7 +56,7 @@ class ProductVariantDetails extends ObjectDetails {
     return renderFormField('SKU', field, {label: 'SKU'});
   }
 
-  get options(): Array<Element> {
+  get options(): Array<Element<*>> {
     return _.map(this.props.object.options, option => {
       const name = _.get(option.attributes, 'name.v');
       const value = option.value.name;

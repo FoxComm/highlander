@@ -250,7 +250,6 @@ export default class FormField extends Component {
   }
 
   @autobind
-  // $FlowFixMe: there is no global context
   fullValidate(target = this.findTargetNode()) {
     this.validate();
 
