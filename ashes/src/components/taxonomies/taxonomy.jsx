@@ -5,7 +5,7 @@ import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { transitionToLazy } from 'browserHistory';
+import { transitionTo } from 'browserHistory';
 import _ from 'lodash';
 
 // components
@@ -79,15 +79,23 @@ class TaxonomyPage extends Component {
   }
 
   get actions(): ObjectActions<Taxonomy> {
-    const { reset, fetch, create, update, archive } = this.props.actions;
+    const {
+      taxonomyNew,
+      taxonomyDuplicate,
+      fetch,
+      create,
+      update,
+      archive
+    } = this.props.actions;
 
     return {
-      reset,
+      taxonomyNew,
+      taxonomyDuplicate,
       fetch,
       create,
       update,
       archive,
-      cancel: transitionToLazy('taxonomies'),
+      cancel: () => transitionTo('taxonomies'),
       getTitle: (t: Taxonomy) => _.get(t.attributes, 'name.v', ''),
     };
   }

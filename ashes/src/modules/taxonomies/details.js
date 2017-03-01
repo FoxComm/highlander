@@ -4,7 +4,8 @@
 import { createAction, createReducer } from 'redux-act';
 import Api from 'lib/api';
 import { createAsyncActions } from '@foxcomm/wings';
-import { createEmptyTaxonomy } from 'paragons/taxonomy';
+import { createEmptyTaxonomy, duplicateTaxonomy } from 'paragons/taxonomy';
+import _ from 'lodash'
 
 const defaultContext = 'default';
 
@@ -46,8 +47,8 @@ const _archiveTaxonomy = createAsyncActions(
 // Public actions.
 ////////////////////////////////////////////////////////////////////////////////
 
-export const taxonomyFlatNew = createAction('TAXONOMY_FLAT_NEW');
-export const taxonomyHierarchicalNew = createAction('TAXONOMY_HIERARCHICAL_NEW');
+export const taxonomyNew = createAction('TAXONOMY_NEW');
+export const taxonomyDuplicate = createAction('TAXONOMY_DUPLICATE');
 export const clearArchiveErrors = _archiveTaxonomy.clearErrors;
 
 export const create = _createTaxonomy.perform;
@@ -56,10 +57,8 @@ export const archive = _archiveTaxonomy.perform;
 
 export const fetch = (id: string, context: string = defaultContext): ActionDispatch => {
   return dispatch => {
-    if (id.toLowerCase() === 'new-flat') {
-      return dispatch(taxonomyFlatNew());
-    } else if (id.toLowerCase() === 'new-hierarchical') {
-      return dispatch(taxonomyHierarchicalNew());
+    if (id.toLowerCase() === 'new') {
+      return dispatch(taxonomyNew());
     } else {
       return dispatch(_fetchTaxonomy.perform(id, context));
     }
@@ -73,11 +72,13 @@ export const fetch = (id: string, context: string = defaultContext): ActionDispa
 const initialState = { taxonomy: null };
 
 const reducer = createReducer({
-  [taxonomyFlatNew]: () => ({
+  [taxonomyNew]: () => ({
+    ...initialState,
     taxonomy: createEmptyTaxonomy(defaultContext, false)
   }),
-  [taxonomyHierarchicalNew]: () => ({
-    taxonomy: createEmptyTaxonomy(defaultContext, true)
+  [taxonomyDuplicate]: (state) => ({
+    ...initialState,
+    taxonomy: duplicateTaxonomy(_.get(state, 'taxonomy', {} ))
   }),
   [_fetchTaxonomy.succeeded]: (state, taxonomy) => ({ ...state, taxonomy }),
   [_createTaxonomy.succeeded]: (state, taxonomy) => ({ ...state, taxonomy }),
