@@ -1,11 +1,11 @@
 package services
 
-import cats.data.Xor
-import failures.{AlreadySavedForLater, Failures, NotFoundFailure404}
+import cats.implicits._
+import failures.{AlreadySavedForLater, NotFoundFailure404}
 import models.account.{User, Users}
 import models.objects.ObjectContext
 import models.{SaveForLater, SaveForLaters}
-import responses.{SaveForLaterResponse, TheResponse}
+import responses.SaveForLaterResponse
 import services.inventory.ProductVariantManager
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
@@ -13,7 +13,7 @@ import utils.db._
 
 object SaveForLaterManager {
 
-  type SavedForLater = TheResponse[Seq[SaveForLaterResponse.Root]]
+  type SavedForLater = Seq[SaveForLaterResponse.Root]
 
   def findAll(accountId: Int, contextId: Int)(implicit db: DB, ec: EC): DbResultT[SavedForLater] =
     for {
@@ -40,13 +40,13 @@ object SaveForLaterManager {
     SaveForLaters.deleteById(id, DbResultT.unit, i ⇒ NotFoundFailure404(SaveForLater, i))
 
   private def findAllDbio(customer: User, contextId: Int)(implicit ec: EC,
-                                                          db: DB): DBIO[SavedForLater] =
+                                                          db: DB): DbResultT[SavedForLater] =
     for {
-      sfls ← SaveForLaters.filter(_.accountId === customer.accountId).result
-      xors ← DBIO.sequence(sfls.map(sfl ⇒
-                      SaveForLaterResponse.forSkuId(sfl.productVariantId, contextId).value))
-
-      fails = xors.collect { case Xor.Left(f)  ⇒ f }.flatMap(_.toList)
-      roots = xors.collect { case Xor.Right(r) ⇒ r }
-    } yield TheResponse.build(roots, warnings = Failures(fails: _*))
+      sfls ← * <~ SaveForLaters.filter(_.accountId === customer.accountId).result
+      r ← * <~ DbResultT.seqFailuresToWarnings(
+             sfls.toList.map(sfl ⇒
+                   SaveForLaterResponse.forVariantId(sfl.productVariantId, contextId)), {
+               case _ ⇒ true
+             })
+    } yield r
 }

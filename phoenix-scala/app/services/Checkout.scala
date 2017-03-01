@@ -4,7 +4,6 @@ import scala.util.Random
 
 import cats.data.Xor
 import cats.implicits._
-import com.github.tminglei.slickpg.LTree
 import failures.CouponFailures.CouponWithCodeCannotBeFound
 import failures.GeneralFailure
 import failures.PromotionFailures.PromotionNotFoundForContext
@@ -117,7 +116,7 @@ case class Checkout(
       _         ← * <~ LogActivity.orderCheckoutCompleted(fullOrder)
     } yield fullOrder
 
-    actions.runTxn().map {
+    actions.runTxn().mapXor {
       case failures @ Xor.Left(_) ⇒
         if (externalCalls.middleWarehouseSuccess) cancelHoldInMiddleWarehouse
         failures
@@ -135,7 +134,7 @@ case class Checkout(
         case (sku, occurrences) ⇒ SkuInventoryHold(sku, occurrences.size)
       }
       _ ← * <~ doOrMeh(skuHold.nonEmpty,
-                       DbResultT.fromFuture(apis.middlewarehouse.hold(
+                       DbResultT.fromResult(apis.middlewarehouse.hold(
                                OrderInventoryHold(cart.referenceNumber, skuHold.toSeq))))
       mutating = externalCalls.middleWarehouseSuccess = skuHold.nonEmpty
     } yield {}

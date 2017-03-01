@@ -6,6 +6,8 @@ import Tasks._
 
 scalaVersion in ThisBuild := Versions.scala
 
+scalaOrganization in ThisBuild := "org.typelevel"
+
 lazy val phoenixScala = (project in file("."))
   .settings(commonSettings)
   .configs(IT, ET)
@@ -27,6 +29,7 @@ lazy val phoenixScala = (project in file("."))
       import Dependencies._
       akka ++ http ++ auth ++ db ++ slick ++ json4s ++ fasterxml ++ apis ++ logging ++ test ++ misc
     },
+    addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.3"),
     scalaSource in Compile <<= baseDirectory(_ / "app"),
     scalaSource in Test    <<= baseDirectory(_ / "test" / "unit"),
     scalaSource in IT      <<= baseDirectory(_ / "test" / "integration"),
@@ -59,6 +62,10 @@ lazy val phoenixScala = (project in file("."))
     Revolver.settings,
     assemblyMergeStrategy in assembly := {
       case PathList("org", "joda", "time", xs @ _ *) ⇒
+        MergeStrategy.first
+      case PathList("scala", xs @ _ *) ⇒ // FIXME: investigate what’s still pulling in Lightbend Scala?
+        MergeStrategy.first
+      case PathList("library.properties", xs @ _ *) ⇒ // FIXME: investigate what’s still pulling in Lightbend Scala?
         MergeStrategy.first
       case x ⇒
         (assemblyMergeStrategy in assembly).value.apply(x)

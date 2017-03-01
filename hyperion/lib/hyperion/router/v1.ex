@@ -1,7 +1,6 @@
 defmodule Hyperion.Router.V1 do
   use Maru.Router
 
-  import Ecto.Query
   require Logger
 
   alias Hyperion.Repo, warn: true
@@ -42,9 +41,13 @@ defmodule Hyperion.Router.V1 do
 
       post do
         changeset = Credentials.changeset(%Credentials{}, params)
-        case Repo.insert(changeset) do
-          {:ok, creds} -> respond_with(conn, creds)
-          {:error, changeset} -> respond_with(conn, changeset.errors, 422)
+        try do
+          case Repo.insert(changeset) do
+            {:ok, creds} -> respond_with(conn, creds)
+            {:error, changeset} -> respond_with(conn, changeset.errors, 422)
+          end
+        rescue e in Ecto.ConstraintError ->
+          respond_with(conn, %{error: "Credentials for this client (client_id: #{params[:client_id]}) is already here"}, 422)
         end
       end # create new credentials
 
@@ -57,7 +60,6 @@ defmodule Hyperion.Router.V1 do
       route_param :client_id do
         put do
           try do
-            IO.puts inspect(params)
             creds = Repo.get_by!(Credentials, client_id: params[:client_id])
             changeset = Credentials.changeset(creds, params)
             case Repo.update(changeset) do

@@ -13,7 +13,6 @@ import payloads.AddressPayloads.CreateAddressPayload
 import payloads.PaymentPayloads.CreateCreditCardFromTokenPayload
 import responses.CreditCardsResponse
 import responses.CreditCardsResponse.Root
-import services.Result
 import slick.driver.PostgresDriver.api._
 import testutils._
 import testutils.apis.PhoenixAdminApi
@@ -21,6 +20,7 @@ import testutils.fixtures.BakedFixtures
 import utils.TestStripeSupport
 import utils.aliases.stripe.StripeCustomer
 import utils.seeds.Factories
+import utils.db._
 
 class CreditCardsIntegrationTest
     extends IntegrationTestBase

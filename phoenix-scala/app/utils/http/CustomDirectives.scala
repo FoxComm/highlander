@@ -10,7 +10,9 @@ import akka.http.scaladsl.server.PathMatcher.Matched
 import akka.http.scaladsl.server._
 import akka.http.scaladsl.unmarshalling.{FromRequestUnmarshaller, Unmarshaller}
 
-import cats.data.Xor
+import cats._
+import cats.data._
+import cats.implicits._
 import failures._
 import models.account._
 import models.activity.ActivityContext
@@ -18,7 +20,7 @@ import models.objects.{ObjectContext, ObjectContexts}
 import models.product.{ProductReference, SimpleContext}
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import payloads.AuthPayload
-import services.{JwtCookie, Result}
+import services.JwtCookie
 import slick.driver.PostgresDriver.api._
 import utils._
 import utils.aliases._
@@ -104,48 +106,39 @@ object CustomDirectives {
       case None ⇒ getContextByName(DefaultContextName)
     }
 
-  def good[A <: AnyRef](a: Future[A])(implicit ec: EC): StandardRoute =
-    complete(a.map(render(_)))
+  def good[A <: AnyRef](a: Future[A])(implicit ec: EC): StandardRoute = // TODO: is this needed anymore? @michalrus
+    complete(a.map(renderRaw(_)))
 
-  def good[A <: AnyRef](a: A): StandardRoute =
-    complete(render(a))
-
-  private def renderGoodOrFailures[G <: AnyRef](or: Failures Xor G): HttpResponse =
-    or.fold(renderFailure(_), render(_))
+  def good[A <: AnyRef](a: A): StandardRoute = // TODO: is this needed anymore? @michalrus
+    complete(renderRaw(a))
 
   def goodOrFailures[A <: AnyRef](a: Result[A])(implicit ec: EC): StandardRoute =
-    complete(a.map(renderGoodOrFailures))
+    complete(
+        a.runEmpty.value.map(_.fold(renderFailure(_), { case (uiInfo, a) ⇒ render(a, uiInfo) })))
 
   def getOrFailures[A <: AnyRef](a: DbResultT[A])(implicit ec: EC, db: DB): StandardRoute =
-    complete(a.run().map(renderGoodOrFailures))
+    goodOrFailures(a.runDBIO())
 
   def mutateOrFailures[A <: AnyRef](a: DbResultT[A])(implicit ec: EC, db: DB): StandardRoute =
-    complete(a.runTxn().map(renderGoodOrFailures))
+    goodOrFailures(a.runTxn())
 
   def mutateWithNewTokenOrFailures[A <: AnyRef](a: DbResultT[(A, AuthPayload)])(implicit ec: EC,
                                                                                 db: DB): Route = {
-    onSuccess(a.runTxn()) { result ⇒
-      result.fold({ f ⇒
-        complete(renderFailure(f))
-      }, { resp ⇒
-        {
-          val (body, auth) = resp
-          respondWithHeader(RawHeader("JWT", auth.jwt)).&(setCookie(JwtCookie(auth))) {
-            complete(
-                HttpResponse(
-                    entity = HttpEntity(ContentTypes.`application/json`, json(body))
-                ))
-          }
+    onSuccess(a.runTxn().runEmpty.value) { result ⇒
+      result.fold(f ⇒ complete(renderFailure(f)), { resp ⇒
+        val (uiInfo, (body, auth)) = resp
+        respondWithHeader(RawHeader("JWT", auth.jwt)).&(setCookie(JwtCookie(auth))) {
+          complete(render(body, uiInfo))
         }
       })
     }
   }
 
   def deleteOrFailures(a: DbResultT[_])(implicit ec: EC, db: DB): StandardRoute =
-    complete(a.runTxn().map(_.fold(renderFailure(_), _ ⇒ noContentResponse)))
+    doOrFailures(a)
 
-  def doOrFailures(a: DbResultT[_])(implicit ec: EC, db: DB): StandardRoute =
-    complete(a.runTxn().map(_.fold(renderFailure(_), _ ⇒ noContentResponse)))
+  def doOrFailures(a: DbResultT[_])(implicit ec: EC, db: DB): StandardRoute = // TODO: rethink discarding warnings here @michalrus
+    complete(a.runTxn().runEmptyA.value.map(_.fold(renderFailure(_), _ ⇒ noContentResponse)))
 
   def entityOr[T](um: FromRequestUnmarshaller[T], failure: failures.Failure): Directive1[T] =
     extractRequestContext.flatMap[Tuple1[T]] { ctx ⇒

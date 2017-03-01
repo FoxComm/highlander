@@ -10,6 +10,12 @@ foxcomm_domain: foxcommerce.com
 logrotate_dir: /etc/logrotate.d
 appliance_prefix: appliance
 
+# Prompt answers
+prompt_yes:
+    - y
+    - yes
+    - yep
+
 # Marathon defaults
 marathon_retries: 60
 marathon_delay: 10

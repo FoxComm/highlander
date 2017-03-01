@@ -31,7 +31,8 @@ package object products {
     Map("code"        → tv(code),
         "title"       → tv(title),
         "salePrice"   → usdPrice(price),
-        "retailPrice" → usdPrice(price))
+        "retailPrice" → usdPrice(price),
+        "activeFrom"  → tv(yesterday.toInstant, "datetime"))
 
   def optionAttrs(name: String): Map[String, Json] =
     Map("name" → tv(name))

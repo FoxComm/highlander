@@ -1,12 +1,13 @@
 import cats.implicits._
+import failures.NotFoundFailure404
 import failures.ProductFailures.DuplicatedOptionValueForVariant
 import models.objects.{ProductOptionLinks, ProductVariantLinks}
-import models.product.Products
+import models.product.{Product, Products}
 import payloads.ProductPayloads._
 import responses.ProductOptionResponses.ProductOptionResponse
 import responses.ProductResponses.ProductResponse.Root
 import testutils._
-import testutils.apis.PhoenixAdminApi
+import testutils.apis.{PhoenixAdminApi, PhoenixStorefrontApi}
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api._
 import testutils.fixtures.api.products._
@@ -14,6 +15,7 @@ import testutils.fixtures.api.products._
 class ProductIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
+    with PhoenixStorefrontApi
     with AutomaticAuth
     with BakedFixtures
     with ApiFixtures
@@ -32,6 +34,48 @@ class ProductIntegrationTest
 
   "GET v1/products/:context" - {
     // TODO: returns variants and options?
+  }
+
+  "GET v1/my/products/:ref/baked" - {
+    "404 for archived products" in new ProductVariant_ApiFixture {
+      productsApi(product.id).archive().mustBeOk()
+
+      storefrontProductsApi(product.slug)
+        .get()
+        .mustFailWith404(NotFoundFailure404(Product, product.slug))
+    }
+
+    "404 for inactive products" in {
+      val inactive: CreateProductPayload = {
+        val active = InvariantProductPayloadBuilder().createPayload
+        active.copy(attributes = active.attributes - "activeFrom")
+      }
+      val slug = productsApi.create(inactive).as[Root].slug
+
+      storefrontProductsApi(slug).get().mustFailWith404(NotFoundFailure404(Product, slug))
+    }
+
+    "404 if all variants are archived" in new ProductVariant_ApiFixture {
+      productVariantsApi(productVariant.id).archive().mustBeOk()
+
+      storefrontProductsApi(product.slug)
+        .get()
+        .mustFailWith404(NotFoundFailure404(Product, product.slug))
+    }
+
+    "404 if all variants are inactive" in {
+      val newProduct: CreateProductPayload = {
+        val payloadBuilder = InvariantProductPayloadBuilder()
+        val activeVariant  = payloadBuilder.variantPayload
+        val inactiveVariant =
+          activeVariant.copy(attributes = activeVariant.attributes - "activeFrom")
+        payloadBuilder.createPayload.copy(variants = Seq(inactiveVariant))
+      }
+
+      val slug = productsApi.create(newProduct).as[Root].slug
+
+      storefrontProductsApi(slug).get().mustFailWith404(NotFoundFailure404(Product, slug))
+    }
   }
 
   "POST v1/products/:context" - {
