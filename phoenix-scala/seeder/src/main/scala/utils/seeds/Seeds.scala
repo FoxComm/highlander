@@ -1,5 +1,7 @@
 package utils.seeds
 
+import com.github.tminglei.slickpg.LTree
+
 import cats._
 import cats.data._
 import cats.implicits._
