@@ -295,6 +295,10 @@ const $ = {
       sku: skuCode,
       quantity: $.randomNumber(minQuantity || 1, maxQuantity || 10),
     })),
+  orderStateTransitions: {
+    remorseHold: ['manualHold', 'fraudHold', 'fulfillmentStarted', 'canceled'],
+    fulfillmentStarted: ['shipped', 'canceled'],
+  },
 };
 
 export default $;

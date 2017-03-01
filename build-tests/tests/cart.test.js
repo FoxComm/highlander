@@ -1,7 +1,7 @@
 import test from '../helpers/test';
 import startRandomUserSession from '../helpers/startRandomUserSession';
 import createCreditCard from '../helpers/createCreditCard';
-import waitFor from '../helpers/waitFor';
+import placeRandomOrder from '../helpers/placeRandomOrder';
 import Api from '../helpers/Api';
 import isArray from '../helpers/isArray';
 import isString from '../helpers/isString';
@@ -282,27 +282,7 @@ test('Can remove coupon', async (t) => {
 });
 
 test('Can checkout a cart', async (t) => {
-  const adminApi = Api.withCookies();
-  await adminApi.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
-  const credentials = $.randomUserCredentials();
-  const newCustomer = await adminApi.customers.create(credentials);
-  const newCard = await createCreditCard(adminApi, newCustomer.id);
-  const productPayload = $.randomProductPayload({ minSkus: 1, maxSkus: 1 });
-  const newProduct = await adminApi.products.create('default', productPayload);
-  const skuCode = newProduct.skus[0].attributes.code.v;
-  const inventory = await waitFor(500, 10000, () => adminApi.inventories.get(skuCode));
-  const stockItemId = inventory.summary.find(item => item.type === 'Sellable').stockItem.id;
-  await adminApi.inventories.increment(stockItemId, { qty: 1, status: 'onHand', type: 'Sellable' });
-  const customerApi = Api.withCookies();
-  await customerApi.auth.login(credentials.email, credentials.password, $.customerOrg);
-  await customerApi.cart.get();
-  await customerApi.cart.addSku(skuCode, 1);
-  await customerApi.cart.setShippingAddress($.randomCreateAddressPayload());
-  const shippingMethod = $.randomArrayElement(await customerApi.cart.getShippingMethods());
-  await customerApi.cart.chooseShippingMethod(shippingMethod.id);
-  await customerApi.cart.addCreditCard(newCard.id);
-  const cartBeforeCheckout = await customerApi.cart.get();
-  const fullOrder = await customerApi.cart.checkout();
+  const { fullOrder, newCard, newCustomer } = await placeRandomOrder();
   t.is(fullOrder.paymentState, 'auth');
   t.is(fullOrder.orderState, 'remorseHold');
   t.is(fullOrder.shippingState, 'remorseHold');

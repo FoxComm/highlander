@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Build Verification Tests for Highlander",
   "scripts": {
-    "test": "ava --verbose || true",
+    "test": "ava --concurrency=4 --verbose || true",
     "test-auth": "ava --verbose tests/auth.test.js || true",
     "test-store-admin": "ava --verbose tests/store-admin.test.js || true",
     "test-customer": "ava --verbose tests/customer.test.js || true",
@@ -14,6 +14,7 @@
     "test-coupon": "ava --verbose tests/coupon.test.js || true",
     "test-cart": "ava --verbose tests/cart.test.js || true",
     "test-carts": "ava --verbose tests/carts.test.js || true",
+    "test-order": "ava --verbose tests/order.test.js || true",
     "test-dev": "ava --verbose tests/dev.test.js || true"
   },
   "dependencies": {

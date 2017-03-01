@@ -1,10 +1,11 @@
 import test from '../helpers/test';
 import testNotes from './testNotes';
+import testWatchers from './testWatchers';
 import startRandomUserSession from '../helpers/startRandomUserSession';
 import createCreditCard from '../helpers/createCreditCard';
+import placeRandomOrder from '../helpers/placeRandomOrder';
 import Api from '../helpers/Api';
 import isArray from '../helpers/isArray';
-import isDate from '../helpers/isDate';
 import isString from '../helpers/isString';
 import isNumber from '../helpers/isNumber';
 import $ from '../payloads';
@@ -103,37 +104,32 @@ test('Updating one line item doesn\'t affect others', async (t) => {
   t.deepEqual(cart, updatedCart);
 });
 
-test('Can add watcher', async (t) => {
-  const customerApi = Api.withCookies();
-  await startRandomUserSession(customerApi);
-  const { referenceNumber } = await customerApi.cart.get();
-  const adminApi = Api.withCookies();
-  await adminApi.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
-  const storeAdmins = await adminApi.storeAdmins.list();
-  const watcher = $.randomArrayElement(storeAdmins);
-  const watchers = await adminApi.carts.addWatchers(referenceNumber, { assignees: [watcher.id] }).then(r => r.result);
-  t.truthy(isArray(watchers));
-  t.truthy(isDate(watchers[0].createdAt));
-  t.is(watchers[0].assignmentType, 'watcher');
-  t.deepEqual(watchers[0].assignee, watcher);
+test('Can\'t access the cart once order for it has been placed', async (t) => {
+  const { fullOrder } = await placeRandomOrder();
+  try {
+    const adminApi = Api.withCookies();
+    await adminApi.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
+    await adminApi.carts.get(fullOrder.referenceNumber);
+    t.fail('Accessing cart after placing order should have failed, but it succeeded.');
+  } catch (error) {
+    if (error && error.response) {
+      t.is(error.response.status, 400);
+      t.truthy(error.response.clientError);
+      t.falsy(error.response.serverError);
+    } else {
+      throw error;
+    }
+  }
 });
 
-test('Can remove watcher', async (t) => {
-  const customerApi = Api.withCookies();
-  await startRandomUserSession(customerApi);
-  const { referenceNumber } = await customerApi.cart.get();
-  const adminApi = Api.withCookies();
-  await adminApi.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
-  const storeAdmins = await adminApi.storeAdmins.list();
-  const watcherId = $.randomArrayElement(storeAdmins).id;
-  const watchersPayload = { assignees: [watcherId] };
-  const watchersAfterAdd = await adminApi.carts.addWatchers(referenceNumber, watchersPayload).then(r => r.result);
-  t.truthy(isArray(watchersAfterAdd));
-  t.is(watchersAfterAdd.length, 1);
-  await adminApi.carts.removeWatcher(referenceNumber, watcherId);
-  const watchersAfterRemove = await adminApi.carts.getWatchers(referenceNumber);
-  t.truthy(isArray(watchersAfterRemove));
-  t.is(watchersAfterRemove.length, 0);
+testWatchers({
+  objectApi: api => api.carts,
+  createObject: async () => {
+    const customerApi = Api.withCookies();
+    await startRandomUserSession(customerApi);
+    return customerApi.cart.get();
+  },
+  selectId: cart => cart.referenceNumber,
 });
 
 testNotes({

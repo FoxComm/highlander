@@ -46,6 +46,11 @@ const endpoints = {
   inventory: skuCode => `/v1/inventory/summary/${skuCode}`,
   inventoryIncrement: stockItemId => `/v1/inventory/stock-items/${stockItemId}/increment`,
   inventoryDecrement: stockItemId => `/v1/inventory/stock-items/${stockItemId}/decrement`,
+  inventoryShipments: referenceNumber => `/v1/inventory/shipments/${referenceNumber}`,
+  order: referenceNumber => `/v1/orders/${referenceNumber}`,
+  orderIncreaseRemorsePeriod: referenceNumber => `/v1/orders/${referenceNumber}/increase-remorse-period`,
+  orderWatchers: referenceNumber => `/v1/orders/${referenceNumber}/watchers`,
+  orderWatcher: (referenceNumber, watcherId) => `/v1/orders/${referenceNumber}/watchers/${watcherId}`,
   // dev
   creditCardToken: '/v1/credit-card-token',
 };
@@ -350,11 +355,38 @@ class Inventories {
   get(skuCode) {
     return this.api.get(endpoints.inventory(skuCode));
   }
+  getShipments(referenceNumber) {
+    return this.api.get(endpoints.inventoryShipments(referenceNumber));
+  }
   increment(stockItemId, incrementPayload) {
     return this.api.patch(endpoints.inventoryIncrement(stockItemId), incrementPayload);
   }
   decrement(stockItemId, decrementPayload) {
     return this.api.patch(endpoints.inventoryDecrement(stockItemId), decrementPayload);
+  }
+}
+
+class Orders {
+  constructor(api) {
+    this.api = api;
+  }
+  one(referenceNumber) {
+    return this.api.get(endpoints.order(referenceNumber));
+  }
+  update(referenceNumber, orderUpdatePayload) {
+    return this.api.patch(endpoints.order(referenceNumber), orderUpdatePayload);
+  }
+  increaseRemorsePeriod(referenceNumber) {
+    return this.api.post(endpoints.orderIncreaseRemorsePeriod(referenceNumber));
+  }
+  getWatchers(referenceNumber) {
+    return this.api.get(endpoints.orderWatchers(referenceNumber));
+  }
+  addWatchers(referenceNumber, watchersPayload) {
+    return this.api.post(endpoints.orderWatchers(referenceNumber), watchersPayload);
+  }
+  removeWatcher(referenceNumber, watcherId) {
+    return this.api.delete(endpoints.orderWatcher(referenceNumber, watcherId));
   }
 }
 
@@ -379,6 +411,7 @@ export default class Api extends FoxCommApi {
     this.storeAdmins = new StoreAdmins(this);
     this.carts = new Carts(this);
     this.inventories = new Inventories(this);
+    this.orders = new Orders(this);
     this.monkeypatch();
   }
   monkeypatch() {
