@@ -1,6 +1,7 @@
 package services.inventory
 
 import java.time.Instant
+
 import cats.data._
 import failures.ProductFailures._
 import failures.{Failures, GeneralFailure, NotFoundFailure400}
@@ -13,8 +14,8 @@ import payloads.ProductVariantPayloads._
 import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
 import responses.AlbumResponses._
 import responses.ObjectResponses.ObjectContextResponse
-import responses.ProductResponses.ProductResponse
 import responses.ProductOptionResponses.ProductOptionResponse
+import responses.ProductResponses.ProductResponse
 import responses.ProductVariantResponses._
 import services.LogActivity
 import services.image.ImageManager

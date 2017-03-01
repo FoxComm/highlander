@@ -1,0 +1,34 @@
+---
+
+- name: Install Consul Template Service
+  template: src=tgt_consul_template.service dest="{{dest_services}}/tgt_consul_template.service"
+
+- name: Copy Consul Template Config File
+  template: src=consul_template.conf dest="{{consul_data_dir}}/tgt_consul_template.conf"
+
+- name: Install Service Locations Upstreams
+  template: src=tgt_service_locations.j2 dest=/etc/nginx/tgt_service_locations.conf
+
+- name: Install Service Upstreams
+  template: src=tgt_services.j2 dest=/etc/nginx/tgt_services.template
+
+- name: Enable Service Upstreams
+  file: src=/etc/nginx/sites-available/tgt_services dest=/etc/nginx/sites-enabled/tgt_services owner=root group=root state=link force=true
+
+- name: Install Web UI Hosts
+  template: src=web-ui.j2 dest=/etc/nginx/sites-available/web-ui
+
+- name: Enable Web UI Hosts
+  file: src=/etc/nginx/sites-available/web-ui dest=/etc/nginx/sites-enabled/web-ui owner=root group=root state=link
+
+- name: Restart Consul Template
+  service: name=tgt_consul_template state=restarted
+  when: not packing
+
+- name: Restart Nginx every 30 secons, Try for 30 minutes
+  shell: 'systemctl restart nginx'
+  register: nginx
+  until: nginx.rc == 0
+  retries: "{{marathon_retries}}"
+  delay: 30
+  when: not packing

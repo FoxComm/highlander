@@ -10,7 +10,7 @@ import payloads.PaymentPayloads.CreditCardPayment
 import services.CreditCardManager
 import testutils._
 import utils.db._
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 
 class CartCreditCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestBase {
 

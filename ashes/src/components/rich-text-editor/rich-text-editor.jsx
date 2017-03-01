@@ -118,7 +118,7 @@ export default class RichTextEditor extends Component {
     }
   }
 
-  get headerButtons(): ?Element {
+  get headerButtons(): ?Element<*> {
     const { editorState } = this.state;
     const selection = editorState.getSelection();
     const blockType = editorState
@@ -139,7 +139,7 @@ export default class RichTextEditor extends Component {
     );
   }
 
-  get listButtons(): ?Element {
+  get listButtons(): ?Element<*> {
     const { editorState } = this.state;
     const selection = editorState.getSelection();
     const blockType = editorState
@@ -154,7 +154,7 @@ export default class RichTextEditor extends Component {
     });
   }
 
-  get styleButtons(): ?Element {
+  get styleButtons(): ?Element<*> {
     const currentStyle = this.state.editorState.getCurrentInlineStyle();
     const isActive = value => currentStyle.has(value);
     return this.renderToggleButtons(inlineStyles, isActive, this.handleStyleClick, {
@@ -172,7 +172,7 @@ export default class RichTextEditor extends Component {
     }
   }
 
-  get controlButtons(): Element {
+  get controlButtons(): Element<*> {
     const isActive = value => value == this.state.contentType && !this.state.richMode;
 
     return this.renderToggleButtons(controlButtons, isActive, contentType => {
@@ -251,7 +251,7 @@ export default class RichTextEditor extends Component {
   renderToggleButtons(buttonsData: Array<ButtonData>,
                       isActive: (v: string) => boolean,
                       onClick: (v: any) => void,
-                      props: ?Object): Element {
+                      props: ?Object): Element<*> {
     const buttons = buttonsData.map(type => {
       return (
         <ToggleButton
@@ -277,7 +277,7 @@ export default class RichTextEditor extends Component {
     );
   }
 
-  render(): Element {
+  render() {
     const { editorState, contentType, richMode } = this.state;
 
     const className = classNames(

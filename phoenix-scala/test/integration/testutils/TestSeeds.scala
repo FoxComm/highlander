@@ -14,7 +14,7 @@ import slick.driver.PostgresDriver.api._
 import testutils.fixtures.TestFixtureBase
 import utils.aliases._
 import utils.db._
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 import utils.seeds.ObjectSchemaSeeds
 
 /**

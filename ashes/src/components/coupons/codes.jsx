@@ -73,7 +73,7 @@ export default class CouponCodes extends Component {
   }
 
   @autobind
-  renderRow(row: Object, index: number, columns: Array<any>, params: Object): Element {
+  renderRow(row: Object, index: number, columns: Array<any>, params: Object): Element<*> {
     const key = `coupon-code-${row.code}`;
     return (
       <CouponCodeRow
@@ -93,7 +93,7 @@ export default class CouponCodes extends Component {
     return null;
   }
 
-  render(): Element {
+  render() {
     const {list, actions} = this.props;
 
     const entity = 'couponCode';

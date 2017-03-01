@@ -102,7 +102,7 @@ class MerchantApplicationDetails extends Component {
     return state == 'new';
   }
 
-  get renderPageTitle(): ?Element {
+  get renderPageTitle(): ?Element<*> {
     if (this.props.details.application) {
       const title = this.props.details.application.business_name;
       return (
@@ -118,7 +118,7 @@ class MerchantApplicationDetails extends Component {
     }
   }
 
-  get renderState(): Element {
+  get renderState() {
     return (
       <div className="fc-col-md-1-3">
         <ContentBox title="State">
@@ -152,7 +152,7 @@ class MerchantApplicationDetails extends Component {
     }
   }
 
-  render(): Element {
+  render() {
     const { application, businessProfile, socialProfile } = this.props.details;
     const { isFetching, fetchError } = this.props;
 

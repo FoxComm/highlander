@@ -15,6 +15,7 @@ import { Link } from 'components/link';
 import StateDropdown from 'components/object-page/state-dropdown';
 
 import reducer, { suggestSkus } from 'modules/skus/suggest';
+import type { SuggestOptions } from 'modules/product-variants/suggest';
 import type { ProductVariant } from 'modules/product-variants/details';
 import { productVariantCode } from 'paragons/product';
 
@@ -35,7 +36,7 @@ type Props = {
   onDeleteClick: (id: string) => void,
   isFetchingSkus: boolean,
   skuOptionsMap: Object,
-  suggestSkus: (code: string) => Promise,
+  suggestSkus: (code: string, context?: SuggestOptions) => Promise<*>,
   suggestedSkus: Array<TSearchViewSku>,
   options: Array<any>,
 };
@@ -126,7 +127,7 @@ class EditableVariantRow extends Component {
   }
 
   @autobind
-  priceCell(productVariant: ProductVariant, field: string): Element {
+  priceCell(productVariant: ProductVariant, field: string): Element<*> {
     const value = _.get(this.state.variant, [field, 'value'])
       || _.get(productVariant, ['attributes', field, 'v', 'value']);
     const currency = _.get(productVariant, ['attributes', field, 'v', 'currency'], 'USD');
@@ -139,7 +140,7 @@ class EditableVariantRow extends Component {
   }
 
   @autobind
-  upcCell(productVariant: ProductVariant): Element {
+  upcCell(productVariant: ProductVariant): Element<*> {
     const value = this.state.variant.upc || _.get(productVariant, 'attributes.upc.v');
     return (
       <FormField>
@@ -152,7 +153,7 @@ class EditableVariantRow extends Component {
     return productVariantCode(this.props.productVariant);
   }
 
-  suggestSkus(text: string): Promise|void {
+  suggestSkus(text: string): Promise<*>|void {
     return this.props.suggestSkus(text);
   }
 
@@ -173,7 +174,7 @@ class EditableVariantRow extends Component {
     }, callback);
   }
 
-  get menuEmptyContent(): Element {
+  get menuEmptyContent(): Element<*> {
     return (
       <li
         id="create-new-sku-item"
@@ -186,13 +187,13 @@ class EditableVariantRow extends Component {
     );
   }
 
-  get menuItemsContent(): Array<Element> {
+  get menuItemsContent(): Array<Element<*>> {
     const items = this.props.suggestedSkus;
 
     return items.map((sku: TSearchViewSku) => {
       return (
         <li
-          id={`search-view-${sku.sku}`}
+          id={`fct-search-view-line__${sku.sku}`}
           styleName="variant-row"
           onMouseDown={() => { this.handleSelectSku(sku); }}
           key={`row-${sku.sku}`}>
@@ -202,7 +203,7 @@ class EditableVariantRow extends Component {
     });
   }
 
-  get skusMenu(): Element {
+  get skusMenu(): Element<*> {
     const content = _.isEmpty(this.props.suggestedSkus) ? this.menuEmptyContent : this.menuItemsContent;
     const openMenu =
       this.state.isMenuVisible && this.skuCodeValue.length > 0 && !this.props.isFetchingSkus;
@@ -221,7 +222,7 @@ class EditableVariantRow extends Component {
     return this.state.variant.code || code || '';
   }
 
-  skuCell(productVariant: ProductVariant): Element {
+  skuCell(productVariant: ProductVariant): Element<any> {
     const code = _.get(productVariant, 'attributes.code.v');
     if (productVariant.skuId && productVariant.id) {
       return (
@@ -230,6 +231,7 @@ class EditableVariantRow extends Component {
         </Link>
       );
     }
+    
     const { codeError } = this.state;
     const error = codeError ? `SKU Code violates constraint: ${codeError.keyword}` : void 0;
     return (
@@ -250,7 +252,7 @@ class EditableVariantRow extends Component {
     );
   }
 
-  imageCell(productVariant: ProductVariant): Element {
+  imageCell(productVariant: ProductVariant): Element<*> {
     const imageObject = _.get(productVariant, ['albums', 0, 'images', 0]);
 
     if (imageObject) {
@@ -266,7 +268,7 @@ class EditableVariantRow extends Component {
     );
   }
 
-  optionCell(field: any, productVariant: ProductVariant): ?Element {
+  optionCell(field: any, productVariant: ProductVariant): ?Element<*> {
     if (field.indexOf('variant') < 0) {
       return null;
     }
@@ -293,7 +295,7 @@ class EditableVariantRow extends Component {
     });
   }
 
-  deleteIcon(productVariant: ProductVariant): ?Element {
+  deleteIcon(productVariant: ProductVariant): ?Element<*> {
     const variantCode = productVariantCode(productVariant);
     const skuValue = this.skuCodeValue;
 
@@ -308,7 +310,7 @@ class EditableVariantRow extends Component {
     }
   }
 
-  stateCell(productVariant: ProductVariant): Element {
+  stateCell(productVariant: ProductVariant): Element<*> {
     return (
       <div styleName="state-cell">
         <StateDropdown
@@ -383,7 +385,7 @@ class EditableVariantRow extends Component {
     });
   }
 
-  render(): Element {
+  render() {
     const { columns, productVariant, params } = this.props;
 
     return (

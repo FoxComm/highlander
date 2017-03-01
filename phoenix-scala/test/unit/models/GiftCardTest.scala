@@ -7,7 +7,7 @@ import services.Authenticator.AuthData
 import testutils.CustomMatchers._
 import testutils.TestBase
 import utils.aliases.AU
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 
 class GiftCardTest extends TestBase {
 

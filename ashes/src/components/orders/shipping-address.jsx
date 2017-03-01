@@ -7,7 +7,7 @@ type Props = {
   order: Object,
 };
 
-const OrderShippingAddress = (props: Props): Element => {
+const OrderShippingAddress = (props: Props) => {
   const address = props.order.shippingAddress;
   const content = address
     ? <AddressDetails address={address} />

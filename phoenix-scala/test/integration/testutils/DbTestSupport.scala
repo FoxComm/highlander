@@ -11,7 +11,7 @@ import slick.driver.PostgresDriver.api._
 import slick.jdbc.hikaricp.HikariCPJdbcDataSource
 import utils.aliases.EC
 import utils.db.flyway.newFlyway
-import utils.seeds.Seeds
+import utils.seeds.Factories
 
 trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport {
   this: TestSuite ⇒
@@ -48,7 +48,7 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
       flyway.migrate()
 
       setupObjectContext()
-      Seeds.createSingleMerchantSystem.gimme
+      Factories.createSingleMerchantSystem.gimme
 
       val allTables =
         persistConn.getMetaData.getTables(persistConn.getCatalog, "public", "%", Array("TABLE"))
@@ -88,7 +88,7 @@ object DbTestSupport {
   @volatile var tables: Seq[String]                   = Seq()
   @volatile var truncateTablesStmt: PreparedStatement = _
 
-  lazy val database    = Database.forConfig("db", TestBase.config)
+  lazy val database    = Database.forConfig("db", TestBase.bareConfig)
   lazy val dataSource  = jdbcDataSourceFromSlickDB(database)
   lazy val persistConn = dataSource.getConnection
   val api              = slick.driver.PostgresDriver.api

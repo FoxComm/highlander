@@ -55,15 +55,15 @@ class OptionList extends Component {
     isDeleteDialogVisible: false,
   };
 
-  get actions(): Element {
+  get actions(): Element<*> {
     return (
-      <a id="add-new-option-btn" styleName="action-icon" onClick={() => this.startEditOption('new')}>
+      <a id="fct-add-btn__new-option" styleName="action-icon" onClick={() => this.startEditOption('new')}>
         <i className="icon-add" />
       </a>
     );
   }
 
-  get emptyContent(): Element {
+  get emptyContent(): Element<*> {
     return (
       <div className="fc-content-box__empty-text">
         This product does not have options.
@@ -108,7 +108,7 @@ class OptionList extends Component {
   }
 
   @autobind
-  handleUpdateOption(id: string|number, option: Option, deletingValue: ?OptionValue): void {
+  handleUpdateOption(id: number, option: Option, deletingValue: ?OptionValue): void {
     let needConfirmation = false;
     let affectedSkus = [];
 
@@ -122,7 +122,6 @@ class OptionList extends Component {
       this.setState({
         deletingContext: {
           affectedSkus,
-          // $FlowFixMe: id is number here
           id,
           deletingValueContext: {
             option,
@@ -156,7 +155,7 @@ class OptionList extends Component {
   updateOption(id: string|number, option: Option): void {
     const { options } = this.props;
 
-    const newOptions = id == 'new' ? [...options, option] : assoc(options, id, option);
+    const newOptions = id.toString() == 'new' ? [...options, option] : assoc(options, id, option);
 
     this.setState({
       editOption: null,
@@ -176,7 +175,7 @@ class OptionList extends Component {
     });
   }
 
-  renderOptions(options: Array<Option>): Array<Element> {
+  renderOptions(options: Array<Option>): Array<Element<*>> {
     return _.map(options, (option, index) => {
       const key = _.get(option.attributes, 'name.v', index);
       return (
@@ -214,7 +213,7 @@ class OptionList extends Component {
     this.closeDeleteDialog();
   }
 
-  get deletionDialog(): ?Element {
+  get deletionDialog(): ?Element<*> {
     if (!this.state.deletingContext) return;
 
     const { id, affectedSkus, deletingValueContext } = this.state.deletingContext;
@@ -259,7 +258,7 @@ class OptionList extends Component {
     );
   }
 
-  render(): Element {
+  render() {
     const options = this.renderOptions(this.props.options);
     const content = _.isEmpty(options) ? this.emptyContent : options;
 

@@ -56,7 +56,7 @@ export default class ObjectScheduler extends Component {
     return this.getAttribute(this.props.attributes, 'activeTo');
   }
 
-  get activeFromPicker(): ?Element {
+  get activeFromPicker(): ?Element<*> {
     if (this.state.showActiveFromPicker) {
       const activePhrase = `${this.props.title} will be active on:`;
       return (
@@ -66,7 +66,7 @@ export default class ObjectScheduler extends Component {
             Start
           </div>
           <DateTimePicker
-            pickerCloseBtnId="remove-start-date-btn"
+            pickerCloseBtnId="fct-remove-start-date-btn"
             dateTime={this.activeFrom}
             onChange={this.updateActiveFrom}
             onCancel={this.handleCancelFrom} />
@@ -75,12 +75,12 @@ export default class ObjectScheduler extends Component {
     }
   }
 
-  get activeToPicker(): ?Element {
+  get activeToPicker(): ?Element<*> {
     if (this.state.showActiveFromPicker) {
       const picker = this.state.showActiveToPicker
         ? (
           <DateTimePicker
-            pickerCloseBtnId="remove-end-date-btn"
+            pickerCloseBtnId="fct-remove-end-date-btn"
             dateTime={this.activeTo}
             onChange={this.updateActiveTo}
             onCancel={this.handleCancelTo} />
@@ -181,12 +181,12 @@ export default class ObjectScheduler extends Component {
   }
 
 
-  get activeDropdown(): Element {
+  get activeDropdown() {
     const isDisabled = !this.isActive && this.state.showActiveFromPicker;
     return (
       <StateDropdown
         id="state-dd"
-        dropdownValueId="state-dd--value"
+        dropdownValueId="state-dd-value"
         className="fc-product-state__active-state"
         disabled={isDisabled}
         attributes={this.props.attributes}
@@ -222,7 +222,7 @@ export default class ObjectScheduler extends Component {
     return prevActiveFrom !== nextActiveFrom || prevActiveTo !== nextActiveTo || !_.eq(this.state, nextState);
   }
 
-  render(): Element {
+  render() {
     return (
       <div className="fc-product-state">
         <div className="fc-product-state__header">

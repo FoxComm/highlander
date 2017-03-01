@@ -28,7 +28,7 @@ type Props = {
   onSort: (order: Array<number>) => void;
   loading: boolean;
   itemStyles?: Object;
-  children: Array<Element>;
+  children: Array<Element<*>>;
 }
 
 type State = {

@@ -15,7 +15,7 @@ import utils.db._
 import com.typesafe.scalalogging.LazyLogging
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
-import utils.FoxConfig._
+import utils.FoxConfig.config
 
 case class AccountAccessMethod(id: Int = 0,
                                accountId: Int,
@@ -28,7 +28,7 @@ case class AccountAccessMethod(id: Int = 0,
     extends FoxModel[AccountAccessMethod] {
 
   def updatePassword(newPassword: String): AccountAccessMethod = {
-    this.copy(hashedPassword = algorithm.hasher.generateHash(newPassword))
+    this.copy(hashedPassword = algorithm.hasher.generateHash(newPassword), updatedAt = Instant.now)
   }
 
   def checkPassword(password: String): Boolean = {
@@ -37,18 +37,7 @@ case class AccountAccessMethod(id: Int = 0,
 }
 
 object AccountAccessMethod extends LazyLogging {
-
-  private val overridenPasswordsHashAlgorithm: Option[HashAlgorithm] =
-    config.getOptString("app.overrideHashPasswordAlgorithm").flatMap {
-      case "scrypt"    ⇒ Some(HashPasswords.SCrypt)
-      case "plainText" ⇒ Some(HashPasswords.PlainText)
-      case unknown ⇒
-        logger.error(
-            s"Unsupported hash password algorithm $unknown. Check app.overrideHashPasswordAlgorithm option")
-        None
-    }
-
-  val passwordsHashAlgorithm: HashAlgorithm = overridenPasswordsHashAlgorithm match {
+  val passwordsHashAlgorithm: HashAlgorithm = config.app.overrideHashPasswordAlgorithm match {
     case Some(algo) ⇒
       logger.info(s"Switch to overridden password hash algorithm: $algo")
       algo

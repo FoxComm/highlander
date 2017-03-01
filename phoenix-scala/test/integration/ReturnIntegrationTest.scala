@@ -18,7 +18,7 @@ import services.returns.{ReturnLineItemUpdater, ReturnLockUpdater}
 import testutils._
 import testutils.fixtures.BakedFixtures
 import utils.db._
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 
 class ReturnIntegrationTest
     extends IntegrationTestBase

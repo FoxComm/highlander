@@ -1,6 +1,6 @@
 /* @flow */
 
-import React, { Component, Element } from 'react';
+import React, { Component } from 'react';
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
@@ -62,7 +62,7 @@ class CartCoupons extends Component {
     return this.props.cart.referenceNumber;
   }
 
-  get title(): Element {
+  get title() {
     return (
       <PanelHeader isOptional={true} text="Coupons" />
     );
@@ -76,9 +76,9 @@ class CartCoupons extends Component {
     return [coupon];
   }
 
-  get editFooter(): Element {
+  get editFooter() {
     const plate = (
-      <Button id="apply-coupon-btn" styleName="add-coupon-button" onClick={this.onAddClick}>Apply</Button>
+      <Button id="fct-apply-coupon-btn" styleName="add-coupon-button" onClick={this.onAddClick}>Apply</Button>
     );
     const errorMessage = this.props.coupons.error && (
         <div className="fc-form-field-error">{this.fancyErrorMessage}</div>
@@ -150,7 +150,7 @@ class CartCoupons extends Component {
     );
   }
 
-  render(): Element {
+  render() {
     const { id } = this.props;
 
     return (
@@ -162,9 +162,9 @@ class CartCoupons extends Component {
         editContent={this.content}
         editFooter={this.editFooter}
         isEditing={this.isEditing}
-        editButtonId="coupons-edit-btn"
+        editButtonId="fct-edit-btn__coupons"
         editAction={this.handleEditAction}
-        doneButtonId="coupons-done-btn"
+        doneButtonId="fct-done-btn__coupons"
         doneAction={this.handleDoneAction}
       />
     );

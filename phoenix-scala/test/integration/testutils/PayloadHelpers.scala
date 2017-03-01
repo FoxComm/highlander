@@ -47,7 +47,7 @@ object PayloadHelpers {
       }
   }
 
-  val imageSrc: ActivityType = "http://lorempixel/test.png"
+  val imageSrc: String = "http://lorempixel/test.png"
   val someAlbums: Option[Seq[AlbumPayload]] = Seq(
       AlbumPayload(name = "Default".some, images = Seq(ImagePayload(src = imageSrc)).some)).some
 }

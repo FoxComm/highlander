@@ -15,7 +15,7 @@ type Props = {
   product: TSearchViewProduct,
   columns?: Array<Object>,
   params: Object,
-  toggleIcon: Element,
+  toggleIcon: Element<*>,
 };
 
 const ProductRow = (props: Props) => {

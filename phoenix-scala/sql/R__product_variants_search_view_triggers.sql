@@ -9,13 +9,14 @@ begin
     illuminate_obj(form, shadow, 'images')->>0 as image,
     illuminate_obj(form, shadow, 'salePrice')->>'value' as sale_price,
     illuminate_obj(form, shadow, 'salePrice')->>'currency' as sale_price_currency,
-    to_char(new.archived_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as archived_at,
+    to_json_timestamp(new.archived_at) as archived_at,
     illuminate_obj(form, shadow, 'retailPrice')->>'value' as retail_price,
     illuminate_obj(form, shadow, 'retailPrice')->>'currency' as retail_price_currency,
     illuminate_obj(form, shadow, 'externalId') as external_id,
     new.scope as scope,
     new.form_id as variant_id,
-    mwh_sku.sku_id as sku_id
+    mwh_sku.sku_id as sku_id,
+    to_json_timestamp(new.created_at) as created_at
     from object_contexts as context
       inner join object_shadows as shadow  on (shadow.id = new.shadow_id)
       inner join object_forms as form on (form.id = new.form_id)
@@ -31,6 +32,28 @@ create trigger insert_product_variants_view_from_product_variants
   after insert on product_variants
   for each row
   execute procedure insert_product_variants_view_from_product_variants_fn();
+
+create or replace function update_product_variants_view_from_product_variant_links_fn() returns trigger as $$
+begin
+  update product_variants_search_view set
+    product_id = subquery.product_id
+    from (select
+            product.form_id as product_id,
+            variant.form_id as variant_id
+          from product_variants as variant
+            inner join products as product on (product.id = new.left_id)
+          where variant.id = new.right_id) as subquery
+    where subquery.variant_id = product_variants_search_view.variant_id;
+
+  return null;
+end;
+$$ language plpgsql; 
+
+drop trigger if exists update_product_variants_view_from_product_variant_links on product_to_variant_links;
+create trigger update_product_variants_view_from_product_variant_links
+  after insert or update on product_to_variant_links
+  for each row
+  execute procedure update_product_variants_view_from_product_variant_links_fn();
 
 create or replace function update_product_variants_view_from_object_attrs_fn() returns trigger as $$
 begin
@@ -50,6 +73,7 @@ begin
         illuminate_obj(form, shadow, 'salePrice')->>'value' as sale_price,
         illuminate_obj(form, shadow, 'salePrice')->>'currency' as sale_price_currency,
         to_json_timestamp(variant.archived_at) as archived_at,
+        to_json_timestamp(variant.created_at) as created_at,
         illuminate_obj(form, shadow, 'retailPrice')->>'value' as retail_price,
         illuminate_obj(form, shadow, 'retailPrice')->>'currency' as retail_price_currency,
         form.attributes->(shadow.attributes->'externalId'->>'ref') as external_id
@@ -78,12 +102,14 @@ begin
   update product_variants_search_view set
     context = subquery.name,
     context_id = subquery.id,
-    archived_at = subquery.archived_at
+    archived_at = subquery.archived_at,
+    created_at = subquery.created_at
     from (select
         o.id,
         o.name,
         variants.form_id as product_variant_id,
-        to_json_timestamp(variants.archived_at) as archived_at
+        to_json_timestamp(variants.archived_at) as archived_at,
+        to_json_timestamp(variants.created_at) as created_at
       from object_contexts as o
       inner join product_variants as variants on (variants.context_id = o.id)
       where variants.id = new.id) as subquery

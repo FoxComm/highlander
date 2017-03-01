@@ -7,7 +7,7 @@ import failures.GeneralFailure
 import testutils._
 import utils.aliases._
 import utils.db._
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 
 class DbResultTTest extends TestBase with DbTestSupport with CatsHelpers with GimmeSupport {
 

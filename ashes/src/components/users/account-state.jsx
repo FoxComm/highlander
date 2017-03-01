@@ -58,7 +58,7 @@ class AccountState extends Component {
     });
   }
 
-  render(): Element {
+  render() {
     const text = `Are you sure you want to change account state to ${this.state.newState} ?`;
     const strongText = 'You won\'t be able to change it back!';
     let confirmation;

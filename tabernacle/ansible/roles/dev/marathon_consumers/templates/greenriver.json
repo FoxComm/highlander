@@ -1,0 +1,52 @@
+{
+  "id": "/green-river",
+  "cmd": null,
+  "cpus": 1,
+  "mem": 2048,
+  "disk": 0,
+  "instances": 1,
+  "labels": {
+    "LAYER": "consumer",
+    "LANG": "scala",
+    "TAG": "{{docker_tags.greenriver}}"
+  },
+  "env": {
+    "JAVA_OPTS": "-Denv={{greenriver_env}} -D{{greenriver_env}}.kafka.broker={{kafka_server}} -D{{greenriver_env}}.elastic.host=elasticsearch://{{search_server}} -D{{greenriver_env}}.activity.phoenix.url=http://{{phoenix_server}}/v1 -D{{greenriver_env}}.avro.schemaRegistryUrl=http://{{schema_server}} -D{{greenriver_env}}.consume.restart={{greenriver_restart}} -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port={{greenriver_jmx_port}} -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
+  },
+  "container": {
+    "type": "DOCKER",
+    "docker": {
+      "image": "{{docker_registry}}:5000/greenriver:{{docker_tags.greenriver}}",
+      "network": "HOST",
+      "privileged": false,
+      "parameters": [],
+      "forcePullImage": true
+    },
+    "volumes": [
+      {
+        "containerPath": "{{docker_logs_dir}}",
+        "hostPath": "{{docker_logs_host_dir}}",
+        "mode": "RW"
+      }
+    ]
+  },
+  "portDefinitions": [
+    {
+      "port": 10003,
+      "protocol": "tcp",
+      "labels": {}
+    }
+  ],
+  "healthChecks": [
+    {
+      "protocol": "COMMAND",
+      "command": {
+        "value": "ps -ef | grep -v grep | grep green-river-assembly-1.0.jar"
+      },
+      "gracePeriodSeconds": 300,
+      "intervalSeconds": 20,
+      "timeoutSeconds": 20,
+      "maxConsecutiveFailures": 3
+    }
+  ]
+}

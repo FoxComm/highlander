@@ -28,7 +28,7 @@ type Props = {
     err?: any,
     inProgress?: boolean,
   },
-  signUp: (payload: SignupPayload) => Promise,
+  signUp: (payload: SignupPayload) => Promise<*>,
   isMounted: boolean,
   location: Location,
 }

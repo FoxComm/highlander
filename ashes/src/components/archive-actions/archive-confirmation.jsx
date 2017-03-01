@@ -1,8 +1,7 @@
 /* @flow */
 
 // libs
-import React, {Component, Element} from 'react';
-import {autobind} from 'core-decorators';
+import React, { Component } from 'react';
 
 // components
 import ConfirmationDialog from '../modal/confirmation-dialog';
@@ -17,7 +16,7 @@ type Props = {
   archiveState: AsyncState,
 };
 
-const ArchiveConfirmation = (props: Props): Element => {
+const ArchiveConfirmation = (props: Props) => {
   const confirmation = (
     <div>
       <Alert type="warning">

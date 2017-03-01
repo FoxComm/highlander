@@ -25,7 +25,7 @@ type Props = {
   groups: Array<GroupType>;
   selectedGroupIds: Array<number>;
   dispatch: (action: any) => any;
-  parent?: String;
+  parent: string;
 };
 
 type State = {
@@ -35,6 +35,10 @@ type State = {
 
 class SelectCustomerGroups extends Component {
   props: Props;
+
+  static defaultProps = {
+    parent: '',
+  };
 
   state: State = {
     qualifyAll: true,
@@ -63,7 +67,7 @@ class SelectCustomerGroups extends Component {
   @autobind
   togglePopup() {
     const eventName = this.state.popupOpened ? 'click_popup_close' : 'click_popup_open';
-    trackEvent(`Customer groups(${this.props.parent || ''})`, eventName);
+    trackEvent(`Customer groups(${this.props.parent})`, eventName);
     this.setState({
       popupOpened: !this.state.popupOpened,
     });
@@ -92,8 +96,9 @@ class SelectCustomerGroups extends Component {
     );
   }
 
-  get togglePopupControl(): Element {
+  get togglePopupControl() {
     const iconClass = this.state.popupOpened ? 'icon-close' : 'icon-add';
+
     return (
       <i className={iconClass} styleName="toggle-control" onClick={this.togglePopup}>
         <SelectableList
@@ -113,7 +118,7 @@ class SelectCustomerGroups extends Component {
     return _.filter(this.props.groups, group => this.props.selectedGroupIds.indexOf(group.id) != -1);
   }
 
-  get customersGroups(): ?Element {
+  get customersGroups(): ?Element<*> {
     if (this.state.qualifyAll !== false) return null;
 
     return (
@@ -154,7 +159,7 @@ class SelectCustomerGroups extends Component {
     );
   }
 
-  render(): Element {
+  render() {
     return (
       <div>
         <RadioButton
