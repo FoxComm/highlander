@@ -1,7 +1,7 @@
 // @flow
 
 // libs
-import React, { Component, Element<*> } from 'react';
+import React, { Component, Element } from 'react';
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';
