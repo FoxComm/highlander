@@ -69,7 +69,6 @@ object ReturnPayloads {
   }
 
   case class ReturnPaymentPayload(amount: Int) extends Validation[ReturnPaymentPayload] {
-
     def validate: ValidatedNel[Failure, ReturnPaymentPayload] = {
       greaterThan(amount, 0, s"Amount").map(_ ⇒ this)
     }

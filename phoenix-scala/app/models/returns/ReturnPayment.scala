@@ -76,14 +76,13 @@ object ReturnPayments
   def findAllByReturnId(returnId: Int): QuerySeq =
     filter(_.returnId === returnId)
 
-  def findAllPaymentIdsByReturnId(returnId: Int): Query[Rep[Int], Int, Set] =
-    findAllByReturnId(returnId).map(_.paymentMethodId).to[Set]
-
   object scope {
     implicit class RmaPaymentsQuerySeqConversions(q: QuerySeq) {
       def giftCards: QuerySeq    = q.byType(PaymentMethod.GiftCard)
       def creditCards: QuerySeq  = q.byType(PaymentMethod.CreditCard)
       def storeCredits: QuerySeq = q.byType(PaymentMethod.StoreCredit)
+
+      def paymentMethodIds: Query[Rep[Int], Int, Set] = q.map(_.paymentMethodId).to[Set]
 
       def byType(pmt: PaymentMethod.Type): QuerySeq =
         q.filter(_.paymentMethodType === (pmt: PaymentMethod.Type))

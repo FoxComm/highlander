@@ -6,7 +6,8 @@ import models.payment.creditcard.{CreditCard, CreditCards}
 import models.product.{Mvp, SimpleProductData}
 import models.returns._
 import models.shipping.{ShippingMethod, ShippingMethods}
-import org.scalatest.prop.Tables
+import org.scalatest.prop.Tables._
+import org.scalatest.OptionValues._
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.PaymentPayloads.{CreditCardPayment, GiftCardPayment, StoreCreditPayment}
 import payloads.ReturnPayloads._
@@ -73,26 +74,32 @@ trait ReturnsFixtures extends TestFixtureBase with BakedFixtures with ApiFixture
         returnType: Return.ReturnType = Return.Standard,
         orderRef: String = order.referenceNumber)(implicit sl: SL, sf: SF): ReturnResponse.Root =
       returnsApi.create(ReturnCreatePayload(orderRef, returnType)).as[ReturnResponse.Root]
+  }
 
-    lazy val rma: ReturnResponse.Root = createReturn()
+  trait ReturnDefaults extends Fixture {
+    val rma: ReturnResponse.Root = createReturn()
   }
 
   trait ReasonFixture extends Fixture {
     def createReturnReason(name: String)(implicit sl: SL, sf: SF): ReturnReasonsResponse.Root =
       returnsApi.reasons.add(ReturnReasonPayload(name)).as[ReturnReasonsResponse.Root]
+  }
 
-    lazy val returnReason: ReturnReason =
+  trait ReturnReasonDefaults extends ReasonFixture with ReturnDefaults {
+    val returnReason: ReturnReason =
       ReturnReasons.mustFindById404(createReturnReason("whatever").id).gimme
   }
 
-  trait LineItemFixture extends ReasonFixture with Tables {
-    rma // force return creation
-
-    def createReturnLineItem(payload: ReturnLineItemPayload, refNum: String = rma.referenceNumber)(
-        implicit sl: SL,
-        sf: SF): ReturnResponse.Root =
+  trait LineItemFixture extends ReasonFixture {
+    def createReturnLineItem(payload: ReturnLineItemPayload,
+                             refNum: String)(implicit sl: SL, sf: SF): ReturnResponse.Root =
       returnsApi(refNum).lineItems.add(payload).as[ReturnResponse.Root]
+  }
 
+  trait ReturnLineItemDefaults
+      extends LineItemFixture
+      with ReturnReasonDefaults
+      with ReturnDefaults {
     val giftCardPayload =
       ReturnGiftCardLineItemPayload(code = giftCard.code, reasonId = returnReason.id)
 
@@ -104,16 +111,29 @@ trait ReturnsFixtures extends TestFixtureBase with BakedFixtures with ApiFixture
                                               reasonId = returnReason.id,
                                               isReturnItem = true,
                                               inventoryDisposition = ReturnLineItem.Putaway)
+
+    val shippingCostItemId =
+      createReturnLineItem(shippingCostPayload, rma.referenceNumber).lineItems.shippingCosts.value.lineItemId
+    val skuItemId =
+      createReturnLineItem(skuPayload, rma.referenceNumber).lineItems.skus.head.lineItemId
   }
 
-  trait PaymentMethodFixture extends LineItemFixture with Tables {
-    createReturnLineItem(shippingCostPayload)
-    createReturnLineItem(skuPayload)
+  trait PaymentMethodFixture extends LineItemFixture {
+    def createReturnPayment(payments: Map[PaymentMethod.Type, Int],
+                            refNum: String)(implicit sl: SL, sf: SF): ReturnResponse.Root =
+      returnsApi(refNum).paymentMethods
+        .add(ReturnPaymentsPayload(payments))
+        .as[ReturnResponse.Root]
 
     val paymentMethodTable = Table("paymentMethod",
                                    PaymentMethod.CreditCard,
                                    PaymentMethod.GiftCard,
                                    PaymentMethod.StoreCredit)
   }
+
+  trait ReturnPaymentDefaults
+      extends PaymentMethodFixture
+      with ReturnLineItemDefaults
+      with ReturnDefaults
 
 }

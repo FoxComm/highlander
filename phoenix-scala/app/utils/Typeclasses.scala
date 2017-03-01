@@ -3,7 +3,7 @@ package utils
 import cats.Show
 import org.json4s.JsonAST.JString
 import org.json4s.jackson.Serialization.{write ⇒ jsonWrite}
-import org.json4s.{Formats, CustomSerializer, DefaultFormats, jackson}
+import org.json4s.{CustomKeySerializer, CustomSerializer, DefaultFormats, Formats, jackson}
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
@@ -37,6 +37,19 @@ trait ADT[F] extends Read[F] with Show[F] { self ⇒
             .getOrError(s"No such element: $str") // if we cannot deserialize then we throw. Yes, I know it's not *pure*.
       }, {
         case f: F ⇒ JString(show(f))
+      }))
+
+  // let's play find the difference game
+  // but you know, `KeySerializer` does not extend `Serializer`, so it's completely different thing
+  // thanks json4s!
+  def jsonKeyFormat(implicit m: Manifest[F]): CustomKeySerializer[F] =
+    new CustomKeySerializer[F](format ⇒
+          ({
+        case str ⇒
+          read(str)
+            .getOrError(s"No such element: $str") // if we cannot deserialize then we throw. Yes, I know it's not *pure*.
+      }, {
+        case f: F ⇒ show(f)
       }))
 
   def slickColumn(implicit m: Manifest[F]): JdbcType[F] with BaseTypedType[F] =

@@ -104,10 +104,10 @@ object ReturnResponse {
       customer     ← * <~ Users.findOneByAccountId(rma.accountId)
       customerData ← * <~ CustomersData.findOneByAccountId(rma.accountId)
       storeAdmin ← * <~ rma.storeAdminId
-                    .map(id ⇒ Users.findOneByAccountId(id))
+                    .map(Users.findOneByAccountId)
                     .getOrElse(lift(None))
       adminData ← * <~ rma.storeAdminId
-                   .map(id ⇒ AdminsData.findOneByAccountId(id))
+                   .map(AdminsData.findOneByAccountId)
                    .getOrElse(lift(None))
       // Payment methods
       payments ← * <~ ReturnPayments.filter(_.returnId === rma.id).result

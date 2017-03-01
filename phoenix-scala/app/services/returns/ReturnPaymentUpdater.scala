@@ -3,8 +3,8 @@ package services.returns
 import failures.OrderFailures.OrderPaymentNotFoundFailure
 import failures.ReturnFailures.{ReturnCCPaymentExceeded, ReturnPaymentExceeded}
 import models.account.Scope
-import models.cord._
 import models.cord.OrderPayments.scope._
+import models.cord._
 import models.payment.PaymentMethod
 import models.payment.creditcard.{CreditCardCharges, CreditCards}
 import models.payment.giftcard._
@@ -181,29 +181,33 @@ object ReturnPaymentUpdater {
   private def deleteCc(returnId: Int)(implicit ec: EC): DbResultT[Unit] =
     ReturnPayments.findAllByReturnId(returnId).creditCards.deleteAll.meh
 
-  private def deleteGc(returnId: Int)(implicit ec: EC): DbResultT[Unit] =
+  private def deleteGc(returnId: Int)(implicit ec: EC): DbResultT[Unit] = {
+    val gcQuery = ReturnPayments.findAllByReturnId(returnId).giftCards
     for {
-      paymentMethodIds ← * <~ ReturnPayments.findAllPaymentIdsByReturnId(returnId).result
+      paymentMethodIds ← * <~ gcQuery.paymentMethodIds.result
       giftCardOriginIds ← * <~ GiftCards
                            .findAllByIds(paymentMethodIds)
                            .map(_.originId)
                            .to[Set]
                            .result
-      _ ← * <~ ReturnPayments.findAllByReturnId(returnId).deleteAll
+      _ ← * <~ gcQuery.deleteAll
       _ ← * <~ GiftCards.findAllByIds(paymentMethodIds).deleteAll
       _ ← * <~ GiftCardRefunds.findAllByIds(giftCardOriginIds).deleteAll
     } yield ()
+  }
 
-  private def deleteSc(returnId: Int)(implicit ec: EC): DbResultT[Unit] =
+  private def deleteSc(returnId: Int)(implicit ec: EC): DbResultT[Unit] = {
+    val scQuery = ReturnPayments.findAllByReturnId(returnId).storeCredits
     for {
-      paymentMethodIds ← * <~ ReturnPayments.findAllPaymentIdsByReturnId(returnId).result
+      paymentMethodIds ← * <~ scQuery.paymentMethodIds.result
       storeCreditOriginIds ← * <~ StoreCredits
                               .findAllByIds(paymentMethodIds)
                               .map(_.originId)
                               .to[Set]
                               .result
-      _ ← * <~ ReturnPayments.findAllByReturnId(returnId).deleteAll
+      _ ← * <~ scQuery.deleteAll
       _ ← * <~ StoreCredits.findAllByIds(paymentMethodIds).deleteAll
       _ ← * <~ StoreCreditRefunds.findAllByIds(storeCreditOriginIds).deleteAll
     } yield ()
+  }
 }
