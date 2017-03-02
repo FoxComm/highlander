@@ -52,9 +52,11 @@ v1   POST   /v1/products/by_asin  Add products by asin
 v1   GET    /v1/products/search  Search products by code or query
 v1   GET    /v1/products/find_by_asin/:asin  Searches product by ASIN code
 v1   GET    /v1/products/categories/:asin  Returns categories for given asin
+v1   GET    /v1/categories  Search for Amazon `department` and `item-type' by `node_path'
 v1   GET    /v1/orders  Get all orders
 v1   POST   /v1/prices  Submit prices for already submitted products
 v1   POST   /v1/inventory  Submit inventory for already submitted products
+v1   POST   /v1/images  submit images feed
 v1   GET    /v1/submission_result/:feed_id  Check result of submitted feed
 v1   POST   /v1/subscribe  Subscribe to notifications queue
 v1   DELETE /v1/subscribe  Unubscribe from notifications queue

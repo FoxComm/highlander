@@ -15,7 +15,7 @@ defmodule Hyperion.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     # Specify extra applications you'll use from Erlang/Elixir
-    [ extra_applications: (Mix.env == :dev && [:exsync] || []) ++ [:ex_aws, :logger, :maru, :postgrex, :ecto, :httpoison],
+    [ extra_applications: (Mix.env == :dev && [:exsync] || []) ++ [:ex_aws, :logger, :maru, :postgrex, :ecto, :httpoison, :elastix],
      mod: {Hyperion, []}]
   end
 
@@ -36,6 +36,7 @@ defmodule Hyperion.Mixfile do
      {:ex_aws, "~> 1.0"},
      {:csv, "~> 1.4.2"},
      {:mws_client, github: "FoxComm/elixir-amazon-mws-client"},
+     {:elastix, "~> 0.3"},
      {:exsync, "~> 0.1", only: :dev}]
   end
 end

@@ -154,8 +154,26 @@ defmodule Hyperion.Router.V1 do
             end
           end
         end
+
       end # categories
     end # products
+
+    namespace :categories do
+      desc "Search for Amazon `department` and `item-type' by `node_path'"
+      params do
+        requires :node_path, type: String
+        optional :from, type: Integer
+        optional :size, type: Integer
+      end
+
+      get do
+        from = if Map.has_key?(params, :from), do: params[:from] , else: 0
+        size = if Map.has_key?(params, :size), do: params[:size] , else: 10
+        query = %{from: from, size: size, query: %{term: %{node_path: params[:node_path]}}}
+        res = Elastix.Search.search(Category.elastic_url, Category.index_name, Category.doc_type, query)
+        respond_with(conn, res.body)
+      end
+    end # categories
 
     namespace :orders do
       desc "Get all orders"
@@ -176,7 +194,7 @@ defmodule Hyperion.Router.V1 do
                     _ -> params[:last_updated_after]
                    end
 
-        # Remove :last_updated_after and convert Map to KeyworkList
+        # Remove :last_updated_after and convert Map to KeywordList
         list = Map.drop(params, [:last_updated_after])
                |>Enum.map(fn {k, v} -> {k, String.split(v, ",")}  end)
 

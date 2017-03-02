@@ -30,6 +30,9 @@ config :hyperion,
 config :hyperion,
   phoenix_url: System.get_env("PHOENIX_URL")
 
+config :hyperion,
+  elastic_uri: System.get_env("ELASTIC")
+
 # This configuration is loaded before any dependency and is restricted
 # to this project. If another project depends on this project, this
 # file won't be loaded nor affect the parent project. For this reason,

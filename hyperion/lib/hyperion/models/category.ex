@@ -1,4 +1,5 @@
 defmodule Category do
+
   use Ecto.Schema
   import Ecto.Changeset
   import Ecto.Query
@@ -16,4 +17,34 @@ defmodule Category do
     timestamps
   end
 
+  # Categories elasticsearch mappings:
+  # %{node_path: category.node_path,
+  #   department: category.department,
+  #   item_type: category.item_type,
+  #   inserted_at: category.inserted_at,
+  #   updated_at: category.updated_at}
+
+  def elastic_url do
+    Application.fetch_env!(:hyperion, :elastic_uri)
+  end
+
+  def index_name do
+    "amazon_categories"
+  end
+
+  def doc_type do
+    ["category"]
+  end
+
+  def mapping do
+    %{
+      properties: %{
+        node_path: %{type: "text"},
+        department: %{type: "text"},
+        item_type: %{type: "text"},
+        inserted_at: %{type: "date"},
+        updated_at: %{type: "date"}
+      }
+    }
+  end
 end
