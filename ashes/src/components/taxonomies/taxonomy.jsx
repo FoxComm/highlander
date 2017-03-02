@@ -20,10 +20,7 @@ type TaxonomyParams = {
 };
 
 type Props = {
-  actions: ObjectActions<Taxonomy> & {
-    taxonomyNew: () => void,
-    taxonomyDuplicate: () => void,
-  },
+  actions: ObjectActions<Taxonomy>,
   children: Element<*>,
   details: {
     taxonomy: ?Taxonomy,
@@ -83,8 +80,8 @@ class TaxonomyPage extends Component {
 
   get actions(): ObjectActions<Taxonomy> {
     const {
-      taxonomyNew,
-      taxonomyDuplicate,
+      newObject,
+      duplicate,
       reset,
       fetch,
       create,
@@ -93,8 +90,8 @@ class TaxonomyPage extends Component {
     } = this.props.actions;
 
     return {
-      taxonomyNew,
-      taxonomyDuplicate,
+      newObject,
+      duplicate,
       reset,
       fetch,
       create,
@@ -102,6 +99,10 @@ class TaxonomyPage extends Component {
       archive,
       cancel: () => transitionTo('taxonomies'),
       getTitle: (t: Taxonomy) => _.get(t.attributes, 'name.v', ''),
+      transition: () => transitionTo('taxonomy-details', {
+        taxonomyId: 'new',
+        context: 'default'
+      })
     };
   }
 

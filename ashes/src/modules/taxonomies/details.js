@@ -47,8 +47,8 @@ const _archiveTaxonomy = createAsyncActions(
 // Public actions.
 ////////////////////////////////////////////////////////////////////////////////
 
-export const taxonomyNew = createAction('TAXONOMY_NEW');
-export const taxonomyDuplicate = createAction('TAXONOMY_DUPLICATE');
+export const newObject = createAction('TAXONOMY_NEW');
+export const duplicate = createAction('TAXONOMY_DUPLICATE');
 export const clearArchiveErrors = _archiveTaxonomy.clearErrors;
 
 export const create = _createTaxonomy.perform;
@@ -58,7 +58,7 @@ export const archive = _archiveTaxonomy.perform;
 export const fetch = (id: string, context: string = defaultContext): ActionDispatch => {
   return dispatch => {
     if (id.toLowerCase() === 'new') {
-      return dispatch(taxonomyNew());
+      return dispatch(newObject());
     } else {
       return dispatch(_fetchTaxonomy.perform(id, context));
     }
@@ -72,11 +72,11 @@ export const fetch = (id: string, context: string = defaultContext): ActionDispa
 const initialState = { taxonomy: null };
 
 const reducer = createReducer({
-  [taxonomyNew]: () => ({
+  [newObject]: () => ({
     ...initialState,
     taxonomy: createEmptyTaxonomy(defaultContext, false)
   }),
-  [taxonomyDuplicate]: (state) => ({
+  [duplicate]: (state) => ({
     ...initialState,
     taxonomy: duplicateTaxonomy(_.get(state, 'taxonomy', {} ))
   }),

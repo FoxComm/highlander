@@ -62,21 +62,17 @@ class ObjectPageDeux extends Component {
 
   @autobind
   createNewEntity() {
-    const { actions, context, objectType} = this.props;
-    const params = { [`${objectType}Id`]: 'new', context: context };
-    const createEntity = actions[`${objectType}New`];
-    createEntity !== undefined
-      ? createEntity() && transitionTo(`${objectType}-details`, params)
+    const { actions } = this.props;
+    actions.newObject && actions.transition  !== undefined
+      ? actions.newObject() && actions.transition()
       : () => {};
   }
 
   @autobind
   duplicateEntity() {
-    const { actions, context, objectType} = this.props;
-    const params = { [`${objectType}Id`]: 'new', context: context };
-    const duplicate = actions[`${objectType}Duplicate`];
-    duplicate !== undefined
-      ? duplicate() && transitionTo(`${objectType}-details`, params)
+    const { actions } = this.props;
+    actions.duplicate && actions.transition !== undefined
+      ? actions.duplicate() && actions.transition()
       : () => {};
   }
 
