@@ -13,6 +13,7 @@ import models.returns.ReturnPayments.scope._
 import models.returns._
 import payloads.ReturnPayloads.{ReturnPaymentPayload, ReturnPaymentsPayload}
 import responses.ReturnResponse
+import services.carts.CartTotaler
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
@@ -57,15 +58,20 @@ object ReturnPaymentUpdater {
       db: DB): DbResultT[Unit] = {
     def validateTotalPayment() =
       for {
-        currentAdjustments ← * <~ ReturnTotaler.adjustmentsTotal(rma)
-        currentSubTotal    ← * <~ ReturnTotaler.subTotal(rma)
-        currentShippingCost ← * <~ ReturnLineItemShippingCosts
-                               .findByRmaId(rma.id)
-                               .map(_.amount)
-                               .sum
-                               .result
+        adjustments ← * <~ ReturnTotaler.adjustmentsTotal(rma)
+        subTotal    ← * <~ ReturnTotaler.subTotal(rma)
+        shipping ← * <~ ReturnLineItemShippingCosts
+                    .findByRmaId(rma.id)
+                    .map(_.amount)
+                    .sum
+                    .getOrElse(0)
+                    .result
+        taxes ← * <~ CartTotaler.taxesTotal(cordRef = rma.orderRef,
+                                             subTotal = subTotal,
+                                             shipping = shipping,
+                                             adjustments = adjustments)
+        maxAmount = (adjustments - (subTotal + taxes + shipping)).abs
         amount    = payments.valuesIterator.sum
-        maxAmount = currentSubTotal + currentShippingCost.getOrElse(0) - currentAdjustments
 
         _ ← * <~ failIf(amount > maxAmount,
                         ReturnPaymentExceeded(refNum = rma.referenceNumber,
