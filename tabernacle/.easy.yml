@@ -34,10 +34,6 @@ shortcuts:
 
   targets:
   # Bootstrappers
-  - name: Bootstrap Build Agents Keys
-    alias: build_agent_keys.yml
-    target: ansible/bootstrap_build_agent_keys.yml
-
   - name: Bootstrap Consul Alerts
     alias: consul_alerts.yml
     target: ansible/bootstrap_consul_alerts.yml
@@ -61,6 +57,10 @@ shortcuts:
   - name: Bootstrap Store Admin User
     alias: store_admin.yml
     target: ansible/bootstrap_store_admin.yml
+
+  - name: Update UI Testing Software
+    alias: selenium.yml
+    target: ansible/bootstrap_selenium.yml
 
   # Custom
   - name: Bootstrap Annabelle

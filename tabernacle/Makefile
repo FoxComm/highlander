@@ -18,9 +18,6 @@ test:
 	$(call header, Testing)
 	./terraform/testfmt.sh
 
-debug:
-	ansible-playbook -v -i inventory/gce ansible/debug.yml
-
 deploy-stage:
 	ansible-playbook -v -i inventory/gce/ ansible/test_stage.yml
 
