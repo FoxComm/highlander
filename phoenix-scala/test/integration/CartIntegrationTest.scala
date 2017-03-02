@@ -1,7 +1,6 @@
 import akka.http.scaladsl.model.StatusCodes
 import cats.implicits._
 import failures.CartFailures._
-import failures.LockFailures._
 import failures.ShippingMethodFailures._
 import failures.{NotFoundFailure400, NotFoundFailure404}
 import faker.Lorem
@@ -263,47 +262,6 @@ class CartIntegrationTest
       skus must have size 2
       skus.map(_.sku) must contain theSameElementsAs Seq("SKU-YAX", "TEST")
       skus.map(_.quantity) must contain theSameElementsAs Seq(1, 2)
-    }
-  }
-
-  "POST /v1/carts/:refNum/lock" - {
-    "successfully locks a cart" in new Fixture {
-      cartsApi(cart.refNum).lock().mustBeOk()
-
-      Carts.findByRefNum(cart.refNum).gimme.head.isLocked must === (true)
-
-      val locks: Seq[CartLockEvent] = CartLockEvents.findByCartRef(cart.refNum).gimme
-      locks must have size 1
-      locks.head.lockedBy must === (1)
-    }
-
-    "refuses to lock an already locked cart" in new Fixture {
-      Carts.update(cart, cart.copy(isLocked = true)).gimme
-
-      cartsApi(cart.refNum).lock().mustFailWith400(LockedFailure(Cart, cart.refNum))
-    }
-
-    "avoids race condition" in new Fixture {
-      pending // FIXME when DbResultT gets `select for update` https://github.com/FoxComm/phoenix-scala/issues/587
-
-      Seq(0, 1).par
-        .map(_ ⇒ cartsApi(cart.refNum).lock())
-        .map(_.status) must contain allOf (StatusCodes.OK, StatusCodes.BadRequest)
-
-      CartLockEvents.size.gimme must === (1)
-    }
-  }
-
-  "POST /v1/carts/:refNum/unlock" - {
-    "unlocks cart" in new Fixture {
-      cartsApi(cart.refNum).lock().mustBeOk()
-      cartsApi(cart.refNum).unlock().mustBeOk()
-
-      Carts.findByRefNum(cart.refNum).gimme.head.isLocked must === (false)
-    }
-
-    "refuses to unlock an already unlocked cart" in new Fixture {
-      cartsApi(cart.refNum).unlock().mustFailWith400(NotLockedFailure(Cart, cart.refNum))
     }
   }
 
