@@ -15,23 +15,23 @@ import com.github.tminglei.slickpg._
 object ActivityHandler {
   def build(scope: LTree, contextId: Int, insertResult: InsertResult): ActivityHandler =
     ActivityHandler(scope = scope,
-             contextId = contextId,
-             formId = insertResult.form.id,
-             shadowId = insertResult.shadow.id,
-             commitId = insertResult.commit.id)
+                    contextId = contextId,
+                    formId = insertResult.form.id,
+                    shadowId = insertResult.shadow.id,
+                    commitId = insertResult.commit.id)
 
   val kind = "activityHandler"
 }
 
 case class ActivityHandler(id: Int = 0,
-                    scope: LTree,
-                    contextId: Int,
-                    shadowId: Int,
-                    formId: Int,
-                    commitId: Int,
-                    updatedAt: Instant = Instant.now,
-                    createdAt: Instant = Instant.now,
-                    archivedAt: Option[Instant] = None)
+                           scope: LTree,
+                           contextId: Int,
+                           shadowId: Int,
+                           formId: Int,
+                           commitId: Int,
+                           updatedAt: Instant = Instant.now,
+                           createdAt: Instant = Instant.now,
+                           archivedAt: Option[Instant] = None)
     extends FoxModel[ActivityHandler]
     with Validation[ActivityHandler]
     with ObjectHead[ActivityHandler] {
