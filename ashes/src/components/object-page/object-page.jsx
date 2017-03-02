@@ -32,6 +32,7 @@ import { supressTV } from 'paragons/object';
 // modules
 import * as SchemaActions from 'modules/object-schema';
 import schemaReducer from 'modules/object-schema';
+import { setRouteData } from 'modules/breadcrumbs';
 
 export function connectPage(namespace, actions, options = {}) {
   const capitalized = _.upperFirst(namespace);
@@ -87,7 +88,10 @@ export function connectPage(namespace, actions, options = {}) {
 
   function mapDispatchToProps(dispatch) {
     return {
-      actions: bindActionCreators(generalizeActions(actions), dispatch),
+      actions: {
+        ...bindActionCreators(generalizeActions(actions), dispatch),
+        setRouteData: bindActionCreators(setRouteData, dispatch),
+      },
       dispatch,
     };
   }
@@ -108,11 +112,15 @@ export function connectPage(namespace, actions, options = {}) {
     };
   }
 
+  const connectOptions = {
+    areStatePropsEqual: _.isEqual,
+  };
+
   return Page => {
     return _.flowRight(
-      connect(mapStateToProps, mapDispatchToProps),
+      connect(mapStateToProps, mapDispatchToProps, void 0, connectOptions),
       makeLocalStore(addAsyncReducer(schemaReducer)),
-      connect(mapSchemaProps, mapSchemaActions)
+      connect(mapSchemaProps, mapSchemaActions, void 0, connectOptions)
     )(Page);
   };
 }
@@ -247,6 +255,14 @@ export class ObjectPage extends Component {
       if (!isNew && !nextObjectId) {
         this.transitionTo('new');
       }
+    });
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    // @TODO: would be nice to do it receiveNewObject
+    // but in order to do it we do need calculate entityId and pageTitle from passed props
+    this.props.actions.setRouteData(this.props.route.name, {
+      [this.entityId]: this.pageTitle
     });
   }
 

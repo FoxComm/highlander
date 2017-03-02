@@ -74,7 +74,12 @@ const getRoutes = (jwt: Object) => {
     ]);
 
   const productVariantRoutes =
-    router.read('product-variants-base', { title: 'Product Variants', path: 'variants', frn: frn.pim.sku }, [
+    router.read('product-variants-base', {
+      title: 'Product Variants',
+      path: 'variants',
+      frn: frn.pim.sku,
+      hidden: true
+    }, [
       router.read('product-variant', { path: ':productVariantId', component: ProductVariantPage }, [
         router.read('product-variant-details', { component: ProductVariantDetails, isIndex: true }),
         router.read('product-variant-images', {

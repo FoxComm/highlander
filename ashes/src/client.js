@@ -42,6 +42,10 @@ export function start() {
   history = syncHistoryWithStore(history, store);
   setHistory(history);
 
+  if (process.env.NODE_ENV != 'production') {
+    window.store = store;
+  }
+
   initTracker();
   history.listen(location => {
     // reset title in order to have default title if page will not set own one
