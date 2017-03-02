@@ -31,7 +31,7 @@ module.exports = function (gulp, opts) {
     gulp.watch(statics).on('change', file => {
       const from = path.relative(process.cwd(), file.path);
       const to = from.replace('src/', 'lib/');
-      console.log(`${from} -> ${to}`);
+      console.info(`${from} -> ${to}`);
       gulp
         .src(file.path, { base: 'src' })
         .pipe(gulp.dest('./lib'));
