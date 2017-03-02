@@ -34,7 +34,7 @@ defmodule Hyperion.Mixfile do
      {:postgrex, "~> 0.13.0"},
      {:cors_plug, "~> 1.1"},
      {:ex_aws, "~> 1.0"},
-     # {:mws_client, path: "../../elixir-amazon-mws-client"},
+     {:csv, "~> 1.4.2"},
      {:mws_client, github: "FoxComm/elixir-amazon-mws-client"},
      {:exsync, "~> 0.1", only: :dev}]
   end

@@ -1,4 +1,4 @@
-CREATE SEQUENCE public.amazon_credentials_id_seq
+CREATE SEQUENCE IF NOT EXISTS public.amazon_credentials_id_seq
 INCREMENT BY 1
 MINVALUE 1
 MAXVALUE 9223372036854775807
