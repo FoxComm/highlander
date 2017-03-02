@@ -10,13 +10,6 @@ CLEANDIRS := $(SUBDIRS:%=clean-%)
 DOCKERDIRS := $(SUBDIRS:%=docker-%)
 DOCKERPUSHDIRS := $(SUBDIRS:%=docker-push-%)
 
-SUBDIRS_ALL := $(shell ./projects.sh -all)
-$(info $(SUBDIRS_ALL))
-BUILDDIRS_ALL := $(SUBDIRS_ALL:%=build-all-%)
-TESTDIRS_ALL := $(SUBDIRS_ALL:%=test-all-%)
-DOCKERDIRS_ALL := $(SUBDIRS_ALL:%=docker-all-%)
-DOCKERPUSHDIRS_ALL := $(SUBDIRS_ALL:%=docker-push-all-%)
-
 # Targets for changed projects
 clean: $(CLEANDIRS)
 $(CLEANDIRS):
@@ -37,22 +30,5 @@ $(DOCKERDIRS):
 docker-push: $(DOCKERPUSHDIRS)
 $(DOCKERPUSHDIRS):
 	$(MAKE) -C $(@:docker-push-%=%) docker-push
-
-# Forced targets for all projects
-build-all: $(BUILDDIRS_ALL)
-$(BUILDDIRS_ALL):
-	$(MAKE) -C $(@:build-all-%=%) build
-
-test-all: $(TESTDIRS_ALL)
-$(TESTDIRS_ALL):
-	$(MAKE) -C $(@:test-all-%=%) test
-
-docker-all: $(DOCKERDIRS_ALL)
-$(DOCKERDIRS_ALL):
-	$(MAKE) -C $(@:docker-all-%=%) docker
-
-docker-push-all: $(DOCKERPUSHDIRS_ALL)
-$(DOCKERPUSHDIRS_ALL):
-	$(MAKE) -C $(@:docker-push-all-%=%) docker-push
 
 .PHONY: build test clean docker docker-push $(SUBDIRS) $(BUILDDIRS)
