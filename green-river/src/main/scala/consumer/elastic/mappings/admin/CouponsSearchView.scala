@@ -9,7 +9,7 @@ import consumer.elastic.mappings.dateFormat
 final case class CouponsSearchView()(implicit ec: EC) extends AvroTransformer {
   def topic() = "coupons_search_view"
   def mapping() = esMapping(topic()).fields(
-      field("id", IntegerType),
+      field("id", LongType),
       field("promotionId", IntegerType),
       field("context", StringType).index("not_analyzed"),
       field("name", StringType).analyzer("autocomplete"),

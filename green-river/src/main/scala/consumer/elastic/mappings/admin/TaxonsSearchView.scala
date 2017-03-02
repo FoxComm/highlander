@@ -9,7 +9,7 @@ import consumer.elastic.mappings.dateFormat
 final case class TaxonsSearchView()(implicit ec: EC) extends AvroTransformer {
   def topic() = "taxons_search_view"
   def mapping() = esMapping(topic()).fields(
-      field("id", IntegerType),
+      field("id", LongType),
       field("taxonomyId", IntegerType),
       field("taxonId", IntegerType),
       field("parentId", IntegerType),

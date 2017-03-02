@@ -10,7 +10,7 @@ final case class FailedAuthorizationsSearchView()(implicit ec: EC) extends AvroT
   def topic() = "failed_authorizations_search_view"
   def mapping() = esMapping(topic()).fields(
       // Credit Card Charge
-      field("id", IntegerType),
+      field("id", LongType),
       field("chargeId", StringType).analyzer("autocomplete"),
       field("amount", IntegerType),
       field("currency", StringType).index("not_analyzed"),

@@ -9,7 +9,7 @@ import consumer.elastic.mappings.dateFormat
 final case class CustomerItemsView()(implicit ec: EC) extends AvroTransformer {
   def topic() = "customer_items_view"
   def mapping() = esMapping(topic()).fields(
-      field("id", IntegerType),
+      field("id", LongType),
       field("scope", StringType).index("not_analyzed"),
       // Customer
       field("customerId", IntegerType),

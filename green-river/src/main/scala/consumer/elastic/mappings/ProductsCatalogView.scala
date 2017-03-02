@@ -8,7 +8,7 @@ import consumer.elastic.AvroTransformer
 final case class ProductsCatalogView()(implicit ec: EC) extends AvroTransformer {
   def topic() = "products_catalog_view"
   def mapping() = esMapping(topic()).fields(
-      field("id", IntegerType),
+      field("id", LongType),
       field("slug", StringType).index("not_analyzed"),
       field("context", StringType).index("not_analyzed"),
       field("title", StringType).analyzer("autocomplete"),

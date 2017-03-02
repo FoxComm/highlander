@@ -10,7 +10,7 @@ final case class GiftCardTransactionsSearchView()(implicit ec: EC) extends AvroT
   def topic() = "gift_card_transactions_view"
   def mapping() = esMapping(topic()).fields(
       // Adjustment
-      field("id", IntegerType),
+      field("id", LongType),
       field("debit", IntegerType),
       field("credit", IntegerType),
       field("availableBalance", IntegerType),

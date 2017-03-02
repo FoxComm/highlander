@@ -10,7 +10,7 @@ final case class StoreCreditTransactionsSearchView()(implicit ec: EC) extends Av
   def topic() = "store_credit_transactions_view"
   def mapping() = esMapping(topic()).fields(
       // Adjustment
-      field("id", IntegerType),
+      field("id", LongType),
       field("debit", IntegerType),
       field("availableBalance", IntegerType),
       field("state", StringType).index("not_analyzed"),

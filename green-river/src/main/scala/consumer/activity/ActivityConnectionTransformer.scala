@@ -31,7 +31,7 @@ final case class ActivityConnectionTransformer(
   val topic = "scoped_activity_trails"
 
   def mapping() = esMapping(topic).fields(
-      field("id", IntegerType),
+      field("id", LongType),
       field("dimension", StringType),
       field("objectId", StringType) index "not_analyzed",
       field("activity").nested(

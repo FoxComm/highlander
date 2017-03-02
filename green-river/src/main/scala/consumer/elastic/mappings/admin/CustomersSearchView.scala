@@ -11,7 +11,7 @@ final case class CustomersSearchView()(implicit ec: EC) extends AvroTransformer 
   def topic() = "customers_search_view"
   def mapping() = esMapping(topic()).fields(
       // Customer
-      field("id", IntegerType),
+      field("id", LongType),
       field("scope", StringType).index("not_analyzed"),
       field("name", StringType)
         .analyzer("autocomplete")

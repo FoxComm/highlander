@@ -9,7 +9,7 @@ import consumer.elastic.mappings.dateFormat
 final case class GiftCardsSearchView()(implicit ec: EC) extends AvroTransformer {
   def topic() = "gift_cards_search_view"
   def mapping() = esMapping(topic()).fields(
-      field("id", IntegerType),
+      field("id", LongType),
       field("code", StringType).analyzer("upper_cased"),
       field("originType", StringType).index("not_analyzed"),
       field("state", StringType).index("not_analyzed"),
