@@ -7,27 +7,22 @@ DOCKERPUSHDIRS := $(SUBDIRS:%=docker-push-%)
 
 clean: $(CLEANDIRS)
 $(CLEANDIRS):
-	REPO = $(@:clean-%=%)
-	$(MAKE) -C $(REPO) clean
+	$(MAKE) -C $(@:clean-%=%) clean
 
 build: $(BUILDDIRS)
 $(BUILDDIRS):
-	REPO = $(@:build-%=%)
-	$(MAKE) -C $(REPO) build
+	$(MAKE) -C $(@:build-%=%) build
 
 test: $(TESTDIRS)
 $(TESTDIRS):
-	REPO = $(@:test-%=%)
-	$(MAKE) -C $(REPO) test
+	$(MAKE) -C $(@:test-%=%) test
 
 docker: $(DOCKERDIRS)
 $(DOCKERDIRS):
-	REPO = $(@:docker-%=%)
-	$(MAKE) -C $(REPO) docker
+	$(MAKE) -C $(@:docker-%=%) docker
 
 docker-push: $(DOCKERPUSHDIRS)
 $(DOCKERPUSHDIRS):
-	REPO = $(@:docker-push-%=%)
-	$(MAKE) -C $(REPO) docker-push
+	$(MAKE) -C $(@:docker-push-%=%) docker-push
 
 .PHONY: clean build test docker docker-push

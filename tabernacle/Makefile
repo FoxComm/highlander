@@ -38,4 +38,7 @@ docker-push:
 	$(call header, Registering)
 	true
 
-.PHONY: all build lint test docker docker-push
+clean:
+	true
+
+.PHONY: all build clean lint test docker docker-push
