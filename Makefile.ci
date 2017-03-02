@@ -20,48 +20,48 @@ DOCKERPUSHDIRS_ALL := $(SUBDIRS_ALL:%=docker-push-all-%)
 # Targets for changed projects
 clean: $(CLEANDIRS)
 $(CLEANDIRS):
-    REPO = $(@:clean-%=%)
-    $(MAKE) -C $(REPO) clean
+	REPO = $(@:clean-%=%)
+	$(MAKE) -C $(REPO) clean
 
 build: $(BUILDDIRS)
 $(BUILDDIRS):
-    REPO = $(@:build-%=%)
-    $(MAKE) -C $(REPO) build
+	REPO = $(@:build-%=%)
+	$(MAKE) -C $(REPO) build
 
 test: $(TESTDIRS)
 $(TESTDIRS):
-    REPO = $(@:test-%=%)
-    $(MAKE) -C $(REPO) test
+	REPO = $(@:test-%=%)
+	$(MAKE) -C $(REPO) test
 
 docker: $(DOCKERDIRS)
 $(DOCKERDIRS):
-    REPO = $(@:docker-%=%)
-    $(MAKE) -C $(REPO) docker
+	REPO = $(@:docker-%=%)
+	$(MAKE) -C $(REPO) docker
 
 docker-push: $(DOCKERPUSHDIRS)
 $(DOCKERPUSHDIRS):
-    REPO = $(@:docker-push-%=%)
-    $(MAKE) -C $(REPO) docker-push
+	REPO = $(@:docker-push-%=%)
+	$(MAKE) -C $(REPO) docker-push
 
 # Forced targets for all projects
 build-all: $(BUILDDIRS_ALL)
 $(BUILDDIRS_ALL):
-    REPO = $(@:build-all-%=%)
-    $(MAKE) -C $(REPO) build
+	REPO = $(@:build-all-%=%)
+	$(MAKE) -C $(REPO) build
 
 test-all: $(TESTDIRS_ALL)
 $(TESTDIRS_ALL):
-    REPO = $(@:test-all-%=%)
-    $(MAKE) -C $(REPO) test
+	REPO = $(@:test-all-%=%)
+	$(MAKE) -C $(REPO) test
 
 docker-all: $(DOCKERDIRS_ALL)
 $(DOCKERDIRS_ALL):
-    REPO = $(@:docker-all-%=%)
-    $(MAKE) -C $(REPO) docker
+	REPO = $(@:docker-all-%=%)
+	$(MAKE) -C $(REPO) docker
 
 docker-push-all: $(DOCKERPUSHDIRS_ALL)
 $(DOCKERPUSHDIRS_ALL):
-    REPO = $(@:docker-push-all-%=%)
-    $(MAKE) -C $(REPO) docker-push
+	REPO = $(@:docker-push-all-%=%)
+	$(MAKE) -C $(REPO) docker-push
 
 .PHONY: build test clean docker docker-push $(SUBDIRS) $(BUILDDIRS)
