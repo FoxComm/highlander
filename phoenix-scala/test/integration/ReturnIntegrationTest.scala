@@ -17,7 +17,6 @@ import responses.ReturnResponse.Root
 import responses._
 import services.returns.ReturnLockUpdater
 import testutils._
-import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.api.ApiFixtureHelpers
 import testutils.fixtures.{BakedFixtures, ReturnsFixtures}
 
@@ -396,11 +395,12 @@ class ReturnIntegrationTest
         val payload =
           ReturnShippingCostLineItemPayload(amount = order.totals.shipping, reasonId = reason.id)
 
-        // create some other return
+        // create some other return for different order
         val otherOrderRef = createDefaultOrder().referenceNumber
         val otherRmaRef   = createReturn(otherOrderRef).referenceNumber
         createReturnLineItem(payload = payload.copy(amount = 100), refNum = otherRmaRef)
 
+        // create some other return for the same order
         val previousRmaRef = createReturn(order.referenceNumber).referenceNumber
         createReturnLineItem(payload.copy(amount = 25), previousRmaRef)
 
@@ -510,7 +510,7 @@ class ReturnIntegrationTest
         }
       }
 
-      "fails if total payment exceeds order payment" in new ReturnPaymentDefaults {
+      "fails if total payment exceeds returns items subtotal" in new ReturnPaymentDefaults {
         val payload = ReturnPaymentsPayload(
             Map(PaymentMethod.CreditCard → 200, PaymentMethod.StoreCredit → 120))
 
@@ -520,8 +520,8 @@ class ReturnIntegrationTest
               ReturnPaymentExceeded(rma.referenceNumber, amount = 320, maxAmount = 300))
       }
 
-      "fails if cc payment exceeds order cc payment" in new ReturnPaymentFixture with OrderDefaults
-      with ReturnReasonDefaults {
+      "fails if cc payment exceeds order cc payment minus any previous returned cc payments" in new ReturnPaymentFixture
+      with OrderDefaults with ReturnReasonDefaults {
         val maxCCAmount = (0.5 * shippingMethod.price).toInt
         val scAmount    = product.price + shippingMethod.price - maxCCAmount
         override val storeCredit =
@@ -529,16 +529,28 @@ class ReturnIntegrationTest
                              CreateManualStoreCredit(amount = scAmount, reasonId = reason.id))
         override val order = createDefaultOrder(
             Map(PaymentMethod.CreditCard → None, PaymentMethod.StoreCredit → Some(scAmount)))
+
+        val payload = ReturnShippingCostLineItemPayload(amount = maxCCAmount, reasonId = reason.id)
+
+        // create some other return from different order
+        val otherOrderRef = createDefaultOrder().referenceNumber
+        val otherRmaRef   = createReturn(otherOrderRef).referenceNumber
+        createReturnLineItem(payload.copy(amount = shippingMethod.price), refNum = otherRmaRef)
+        createReturnPayment(Map(PaymentMethod.CreditCard → maxCCAmount), refNum = otherRmaRef)
+
+        // create some other return for the same order
+        val previousRmaRef = createReturn(order.referenceNumber).referenceNumber
+        createReturnLineItem(payload.copy(amount = 25), refNum = previousRmaRef)
+        createReturnPayment(Map(PaymentMethod.CreditCard → 25), refNum = previousRmaRef)
+
         val rma = createReturn(order.referenceNumber)
-        createReturnLineItem(ReturnShippingCostLineItemPayload(amount = shippingMethod.price,
-                                                               reasonId = reason.id),
-                             rma.referenceNumber)
+        createReturnLineItem(payload, rma.referenceNumber)
 
         returnsApi(rma.referenceNumber).paymentMethods
-          .add(PaymentMethod.CreditCard, ReturnPaymentPayload(shippingMethod.price))
+          .add(PaymentMethod.CreditCard, ReturnPaymentPayload(maxCCAmount))
           .mustFailWith400(ReturnCCPaymentExceeded(rma.referenceNumber,
-                                                   amount = shippingMethod.price,
-                                                   maxAmount = maxCCAmount))
+                                                   amount = payload.amount,
+                                                   maxAmount = maxCCAmount - 25))
       }
     }
 

@@ -74,7 +74,7 @@ object ReturnPaymentUpdater {
       } yield ()
 
     def validateCCPayment() = {
-      val ccPayment = OrderPayments
+      val orderCCPaymentQuery = OrderPayments
         .findAllByCordRef(rma.orderRef)
         .creditCards
         .join(CreditCardCharges)
@@ -87,15 +87,31 @@ object ReturnPaymentUpdater {
         .getOrElse(0)
         .result
         .dbresult
+      val previousCCPaymentsQuery = Returns
+        .findByOrderRefNum(rma.orderRef)
+        .filter(_.id =!= rma.id)
+        .join(ReturnPayments.creditCards)
+        .on(_.id === _.returnId)
+        .map {
+          case (_, payment) ⇒
+            payment.amount
+        }
+        .sum
+        .getOrElse(0)
+        .result
       val ccAmount = payments.getOrElse(PaymentMethod.CreditCard, 0)
 
-      for {
-        maxCCAmount ← * <~ doOrGood(ccAmount > 0, ccPayment, 0)
-        _ ← * <~ failIf(ccAmount > maxCCAmount,
-                        ReturnCCPaymentExceeded(refNum = rma.referenceNumber,
-                                                amount = ccAmount,
-                                                maxAmount = maxCCAmount))
-      } yield ()
+      if (ccAmount > 0)
+        for {
+          previousCCPayments ← * <~ previousCCPaymentsQuery
+          orderCCPayment     ← * <~ orderCCPaymentQuery
+          maxCCAmount = orderCCPayment - previousCCPayments
+          _ ← * <~ failIf(ccAmount > maxCCAmount,
+                          ReturnCCPaymentExceeded(refNum = rma.referenceNumber,
+                                                  amount = ccAmount,
+                                                  maxAmount = maxCCAmount))
+        } yield ()
+      else DbResultT.pure(())
     }
 
     for {
