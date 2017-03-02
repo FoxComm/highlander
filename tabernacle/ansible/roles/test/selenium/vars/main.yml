@@ -1,5 +1,5 @@
 allure_base_url: https://github.com/allure-framework/allure-core
-allure_version: 1.4.23.HOTFIX1
+allure_version: "1.4.23.HOTFIX1"
 allure_download_url: "{{allure_base_url}}/releases/download/allure-core-{{allure_version}}/allure-commandline.tar.gz"
 
 chrome_deb: http://dl.google.com/linux/chrome/deb/

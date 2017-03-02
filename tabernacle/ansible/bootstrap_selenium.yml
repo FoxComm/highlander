@@ -1,6 +1,7 @@
 ---
 
 - name: Update UI Testing Software
+  become: true
   hosts:
     - buildkite-agent-0
     - buildkite-agent-1
