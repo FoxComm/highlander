@@ -38,6 +38,7 @@ gce_zone: "us-central1-a"
 docker_tags:
     ashes: "{{ lookup('env', 'DOCKER_TAG_ASHES') | default('master', true) }}"
     firebrand: "{{ lookup('env', 'DOCKER_TAG_FIREBRAND') | default('master', true) }}"
+    peacock: "{{ lookup('env', 'DOCKER_TAG_PEACOCK') | default('master', true) }}"
     phoenix: "{{ lookup('env', 'DOCKER_TAG_PHOENIX') | default('master', true) }}"
     greenriver: "{{ lookup('env', 'DOCKER_TAG_GREENRIVER') | default('master', true) }}"
     middlewarehouse: "{{ lookup('env', 'DOCKER_TAG_MIDDLEWAREHOUSE') | default('master', true) }}"
@@ -63,6 +64,7 @@ docker_tags:
 marathon_restart:
     ashes: "{{ lookup('env', 'MARATHON_ASHES') | default(true, true) | bool }}"
     firebrand: "{{ lookup('env', 'MARATHON_FIREBRAND') | default(true, true) | bool }}"
+    peacock: "{{ lookup('env', 'MARATHON_PEACOCK') | default(true, true) | bool }}"
     phoenix: "{{ lookup('env', 'MARATHON_PHOENIX') | default(true, true) | bool }}"
     greenriver: "{{ lookup('env', 'MARATHON_GREENRIVER') | default(true, true) | bool }}"
     middlewarehouse: "{{ lookup('env', 'MARATHON_MIDDLEWAREHOUSE') | default(true, true) | bool }}"
