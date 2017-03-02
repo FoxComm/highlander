@@ -272,7 +272,7 @@ export default class ChooseShippingAddress extends Component {
       <div>
         {this.renderSelectedAddress}
         <TileSelector
-          addButtonId="shipping-address-add-new-address-btn"
+          addButtonId="fct-add-btn__new-shipping-address"
           onAddClick={this.handleAddNewAddress}
           emptyMessage="Customer's address book is empty."
           isFetching={this.isFetching}

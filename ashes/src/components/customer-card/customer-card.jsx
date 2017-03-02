@@ -1,6 +1,6 @@
 /* @flow */
 
-import React, { Component, Element } from 'react';
+import React, { Component } from 'react';
 
 import { Link } from 'components/link';
 import TextFit from 'components/text-fit/text-fit';
@@ -24,16 +24,17 @@ type Props = {
 export default class CustomerInfo extends Component {
   props: Props;
 
-  ensureNotEmpty(val: number|string|Element): Element {
+  ensureNotEmpty(val: number|string) {
     return val ? <span>{val}</span> : <span>&nbsp;</span>;
   }
 
-  customerLink(text: string): Element {
+  customerLink(text: string) {
     const params = { customerId: this.props.customer.id };
+
     return <Link to="customer-details" params={params} title={text}>{text}</Link>;
   }
 
-  get customerGroups(): Element {
+  get customerGroups() {
     const { customer } = this.props;
 
     if (customer.isGuest) {
@@ -51,7 +52,7 @@ export default class CustomerInfo extends Component {
     }
   }
 
-  render(): Element {
+  render() {
     const { customer } = this.props;
     const customerRank = customer.isGuest ? 'Guest' : customer.rank;
 
@@ -101,7 +102,7 @@ export default class CustomerInfo extends Component {
             </li>
             <li styleName="groups">
               <i className="icon-customers"></i>
-              {this.ensureNotEmpty(this.customerGroups)}
+              {this.customerGroups}
             </li>
           </ul>
         </article>

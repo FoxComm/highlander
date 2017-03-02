@@ -4,7 +4,7 @@ import cats.data.Xor
 import failures.DiscountFailures._
 import failures._
 import models.discount._
-import services.Result
+import utils.db._
 import utils.ElasticsearchApi._
 import utils.aliases._
 

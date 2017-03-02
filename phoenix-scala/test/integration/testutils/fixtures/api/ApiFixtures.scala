@@ -18,7 +18,8 @@ import testutils.fixtures.api.PromotionPayloadBuilder._
 import testutils.fixtures.api.products._
 import utils.aliases.Json
 
-trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi { self: FoxSuite ⇒
+trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with TestSeeds {
+  self: FoxSuite ⇒
 
   trait ProductVariant_ApiFixture {
     def productVariantPrice: Int = 20000

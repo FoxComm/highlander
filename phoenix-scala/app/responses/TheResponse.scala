@@ -5,26 +5,26 @@ import responses.BatchMetadata._
 import services.CartValidatorResponse
 import utils.friendlyClassName
 
-case class TheResponse[A](result: A,
-                          alerts: Option[List[String]] = None,
-                          errors: Option[List[String]] = None,
-                          warnings: Option[List[String]] = None,
-                          batch: Option[BatchMetadata] = None)
+case class TheResponse[A <: AnyRef](result: A,
+                                    alerts: Option[List[String]] = None,
+                                    errors: Option[List[String]] = None,
+                                    warnings: Option[List[String]] = None,
+                                    batch: Option[BatchMetadata] = None)
 
 object TheResponse {
 
-  def build[A](value: A,
-               alerts: Option[Failures] = None,
-               errors: Option[Failures] = None,
-               warnings: Option[Failures] = None,
-               batch: Option[BatchMetadata] = None): TheResponse[A] =
+  def build[A <: AnyRef](value: A,
+                         alerts: Option[Failures] = None,
+                         errors: Option[Failures] = None,
+                         warnings: Option[Failures] = None,
+                         batch: Option[BatchMetadata] = None): TheResponse[A] =
     TheResponse(result = value,
                 alerts = alerts.map(_.flatten),
                 errors = errors.map(_.flatten),
                 warnings = warnings.map(_.flatten),
                 batch = batch)
 
-  def validated[A](value: A, validatorResponse: CartValidatorResponse): TheResponse[A] =
+  def validated[A <: AnyRef](value: A, validatorResponse: CartValidatorResponse): TheResponse[A] =
     TheResponse(result = value,
                 alerts = validatorResponse.alerts.map(_.flatten),
                 warnings = validatorResponse.warnings.map(_.flatten))

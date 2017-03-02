@@ -1,0 +1,27 @@
+---
+
+- include_vars: hyperion.yml
+
+- name: Copy Hyperion Marathon JSON
+  template: src=hyperion.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
+
+- name: Kill Hyperion Tasks in Marathon
+  shell: 'curl -sS -XDELETE http://{{marathon_server}}/v2/apps/hyperion/tasks?scale=true'
+  when: is_redeploy
+
+- name: Pause for a bit...
+  pause: seconds=15
+  when: is_redeploy
+
+- name: Update Hyperion in Marathon
+  shell: 'curl -sS -XPUT -d@/marathon/applications/hyperion.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/hyperion'
+
+- name: Restart Hyperion in Marathon
+  shell: 'curl -sS -XPOST http://{{marathon_server}}/v2/apps/hyperion/restart'
+
+- name: Get Hyperion Marathon tasks in `healthy` state
+  shell: curl -sS -XGET http://{{marathon_server}}/v2/apps/hyperion | jq '.app.tasksHealthy > 0'
+  register: healthy_tasks_available
+  until: healthy_tasks_available.stdout == 'true'
+  retries: "{{marathon_retries}}"
+  delay: "{{marathon_delay}}"

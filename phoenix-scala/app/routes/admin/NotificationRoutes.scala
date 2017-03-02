@@ -2,7 +2,7 @@ package routes.admin
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
+import utils.http.JsonSupport._
 import de.heikoseeberger.akkasse.EventStreamMarshalling._
 import facades.NotificationFacade
 import models.account.User

@@ -1,0 +1,57 @@
+---
+
+- name: Stop Services
+  service: name={{item}} state=stopped enabled=true
+  with_items:
+    - docker
+    - zookeeper
+    - kafka
+    - schema-registry
+    - bottledwater_phoenix
+    - bottledwater_middlewarehouse
+    - bottledwater_marketplace
+    - mesos_master
+    - mesos_worker
+    - marathon
+  when: item != "bottledwater_marketplace" or with_marketplace
+
+- name: Stop Amigo Services
+  service: name={{item}} state=stopped enabled=true
+  with_items:
+      - mesos_master
+      - marathon
+  when: is_amigo
+
+- name: Purge Zookeeper Data
+  file: path=/var/lib/zookeeper state=absent
+
+- name: Create Zookeeper Directory
+  file: path=/var/lib/zookeeper state=directory
+
+- name: Purge Kafka Queue
+  file: path=/var/lib/kafka state=absent
+
+- name: Create Kafka Directory
+  file: path=/var/lib/kafka state=directory
+
+- name: Start Services
+  service: name={{item}} state=restarted enabled=true sleep=2
+  with_items:
+    - docker
+    - zookeeper
+    - kafka
+    - schema-registry
+    - bottledwater_phoenix
+    - bottledwater_middlewarehouse
+    - bottledwater_marketplace
+    - mesos_master
+    - mesos_worker
+    - marathon
+  when: item != "bottledwater_marketplace" or with_marketplace
+
+- name: Start Amigo Services
+  service: name={{item}} state=started enabled=true
+  with_items:
+      - mesos_master
+      - marathon
+  when: is_amigo

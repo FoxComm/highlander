@@ -1,13 +1,14 @@
 package models.discount.qualifiers
 
+import scala.util.Try
+
 import cats.data.Xor
 import failures.DiscountFailures._
 import failures._
 import models.discount._
-import services.Result
 import utils.ElasticsearchApi._
 import utils.aliases._
-import scala.util.Try
+import utils.db._
 
 case class ItemsNumUnitsQualifier(numUnits: Int, search: Seq[ProductSearch])
     extends Qualifier

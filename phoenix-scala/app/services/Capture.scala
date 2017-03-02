@@ -39,7 +39,7 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
 
   def capture: DbResultT[CaptureResponse] =
     for {
-      //get data for capture. We use the findLineItemsByCordRef function in 
+      //get data for capture. We use the findLineItemsByCordRef function in
       //OrderLineItems to get all the relevant data for the order line item.
       //The function returns a tuple so we will convert it to a case class for
       //convenience.
@@ -71,7 +71,7 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
         .map(_.subtract)
         .sum
 
-      //find the shipping method used for the order, take the minimum between 
+      //find the shipping method used for the order, take the minimum between
       //shipping method and what shipping cost was passed in payload because
       //we don't want to charge more than estimated. Finally adjust shipping cost
       //based on any adjustments.
@@ -86,8 +86,8 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
                                                      payload.shipping)
 
       //we compute the total by adding the three price components together. The
-      //actual total should be less than or equal to the original grandTotal. 
-      //It may be different because of various time differences between when 
+      //actual total should be less than or equal to the original grandTotal.
+      //It may be different because of various time differences between when
       //taxes and shipping were computed. The computed grand total should never be bigger
       //than the estimated grand total.
       total = computeTotal(totalLineItemPrice,
@@ -269,10 +269,10 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
       case None ⇒ line
     }
 
-  private def getPrices(items: Seq[OrderLineItemProductData]): DbResultT[Seq[LineItemPrice]] =
-    DbResultT.sequence(items.map { i ⇒
+  private def getPrices(items: Seq[OrderLineItemProductData]): DbResultT[List[LineItemPrice]] =
+    DbResultT.seqCollectFailures(items.map { i ⇒
       getPrice(i)
-    })
+    }.toList)
 
   private def getPrice(item: OrderLineItemProductData): DbResultT[LineItemPrice] =
     Mvp.price(item.productVariantForm, item.productVariantShadow) match {
@@ -314,10 +314,10 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
 
   private def mustHaveCodes(items: Seq[CapturePayloads.CaptureLineItem],
                             codes: Seq[String],
-                            orderRef: String): DbResultT[Seq[Unit]] =
-    DbResultT.sequence(items.map { i ⇒
+                            orderRef: String): DbResultT[List[Unit]] =
+    DbResultT.seqCollectFailures(items.map { i ⇒
       mustHaveCode(i, codes, orderRef)
-    })
+    }.toList)
 
   private def mustHaveCode(item: CapturePayloads.CaptureLineItem,
                            codes: Seq[String],

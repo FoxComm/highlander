@@ -1,8 +1,9 @@
 package routes.admin
 
+import cats.implicits._
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
+import utils.http.JsonSupport._
 import models.account.User
 import models.location.Address
 import payloads.AddressPayloads.CreateAddressPayload
@@ -51,11 +52,11 @@ object DevRoutes {
                            expYear = payload.expYear,
                            cvv = payload.cvv,
                            address = Address.fromPayload(payload.address, payload.customerId))
-              .map(_.map { token ⇒
+              .map { token ⇒
                 CreditCardTokenResponse(token = token.getId,
                                         brand = token.getCard.getBrand,
                                         lastFour = token.getCard.getLast4)
-              })
+              }
           }
         }
       } ~

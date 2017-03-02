@@ -27,7 +27,8 @@ type Props = {
   skuCode: string,
   // connected
   inventoryDetails: WarehouseInventoryMap,
-  fetchSummary: (id: number, code: string) => Promise,
+  params: Object,
+  fetchSummary: (id: number, code: string) => Promise<*>,
   fetchState: {
     inProgress?: boolean,
     err?: any,

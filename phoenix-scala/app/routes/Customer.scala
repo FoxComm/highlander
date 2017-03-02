@@ -4,7 +4,7 @@ import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server._
 
-import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
+import utils.http.JsonSupport._
 import models.account.User
 import models.cord.Cord.cordRefNumRegex
 import models.inventory.ProductVariant.skuCodeRegex
@@ -37,7 +37,7 @@ object Customer {
             pathPrefix("products" / ProductRef / "baked") { productId ⇒
               (get & pathEnd) {
                 getOrFailures {
-                  ProductManager.getProduct(productId)
+                  ProductManager.getProduct(productId, checkActive = true)
                 }
               }
             } ~

@@ -26,7 +26,7 @@ type Props = {
   // connected
   fetchState: AsyncState,
   productVariants: Array<ProductVariant>,
-  fetchProductVariants: (productId: number) => Promise,
+  fetchProductVariants: (productId: number) => Promise<*>,
 }
 
 type State = {
@@ -82,7 +82,7 @@ class ProductWithVariantsRow extends Component {
     clearTimeout(this._waitTimer);
   }
 
-  get toggleIcon(): Element {
+  get toggleIcon(): Element<*> {
     const direction = this.state.expanded ? 'up' : 'down';
     const title = this.state.expanded ? 'Hide Product Variants' : 'Show Product Variants';
     return (
@@ -95,7 +95,7 @@ class ProductWithVariantsRow extends Component {
     );
   }
 
-  renderStatusRow(content: Element): Element {
+  renderStatusRow(content: Element<any>): Element<*> {
     return (
       <tr className="fc-table-tr">
         <td className="row-head-left" styleName="status-td-left" />
@@ -106,7 +106,7 @@ class ProductWithVariantsRow extends Component {
     );
   }
 
-  get productVariants(): Array<Element>|Element|void {
+  get productVariants(): Array<Element<*>>|Element<*>|void {
     if (!this.state.expanded) return void 0;
     const { fetchState } = this.props;
 
@@ -124,6 +124,7 @@ class ProductWithVariantsRow extends Component {
       return _.map(this.props.productVariants, pv => {
         return (
           <ProductVariantRow
+            key={pv.id}
             productVariant={pv}
             columns={this.props.columns}
             params={this.props.params}

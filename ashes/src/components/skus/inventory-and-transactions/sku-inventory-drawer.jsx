@@ -44,7 +44,7 @@ class WarehouseDrawer extends Component {
   }
 
   @autobind
-  renderRow(row: StockItemFlat): Element {
+  renderRow(row: StockItemFlat): Element<*> {
     const { state } = this;
     const handleChangeQuantity = (diff: number) => {
       this.props.updateSkuItemsCount(this.props.skuId, row, diff);

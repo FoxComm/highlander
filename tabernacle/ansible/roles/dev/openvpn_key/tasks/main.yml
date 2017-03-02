@@ -1,0 +1,22 @@
+---
+
+- name: Create Viscosity Bundle Directory
+  file: path="{{visc_base_dir}}/{{visc_bundle_dir}}" state=directory owner="{{user}}"
+
+- name: Generate Viscosity Config
+  template: src=config.conf.j2 dest="{{visc_base_dir}}/{{visc_bundle_dir}}/config.conf"
+
+- name: Install Key Generator Script
+  template: src=keygen.sh.j2 dest="{{home}}/keygen.sh" mode="u=rwx,g=rwx,o=r"
+
+- name: Run Key Generator
+  shell: "{{home}}/keygen.sh"
+
+- name: Download Archive
+  fetch: src="{{visc_base_dir}}/{{visc_filename}}" dest="{{download_dir}}/{{visc_filename}}" flat=yes
+
+- name: Cleanup
+  file: path={{item}} state=absent
+  with_items:
+    - "{{visc_base_dir}}/{{visc_filename}}"
+    - "{{visc_base_dir}}/{{visc_bundle_dir}}"

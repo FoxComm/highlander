@@ -6,21 +6,22 @@ import akka.http.scaladsl.model.{HttpRequest, Multipart}
 import akka.http.scaladsl.unmarshalling.Unmarshal
 import akka.stream.scaladsl.{FileIO, Source}
 import akka.util.ByteString
-
 import cats.data._
 import cats.implicits._
+import failures.Failures
 import failures.ImageFailures._
 import models.image._
 import models.objects.FullObject
 import payloads.ImagePayloads._
 import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
-import services.Result
 import services.image.ImageManager._
 import services.objects.ObjectManager
 import utils.aliases._
 import utils.apis.Apis
 import utils.db._
 import utils.{IlluminateAlgorithm, JsonFormatters}
+
+import scala.concurrent.Future
 
 object ImageFacade {
 
@@ -37,33 +38,39 @@ object ImageFacade {
       album   ← * <~ mustFindAlbumByFormIdAndContext404(albumId, context)
       _       ← * <~ album.mustNotBeArchived
       result  ← * <~ uploadImages(album, request, context)
-    } yield result).run()
+    } yield result).runDBIO()
   }
 
   def uploadImages(
       album: Album,
       request: HttpRequest,
       context: OC)(implicit ec: EC, db: DB, au: AU, am: Mat, apis: Apis): Result[AlbumRoot] = {
-    val failures            = ImageNotFoundInPayload.single
-    val error: Result[Unit] = Result.failures(failures)
-    implicit val oc         = context
+    val failures                         = ImageNotFoundInPayload.single
+    val error: Future[Failures Xor Unit] = Future.successful(Xor.left(failures))
+    implicit val oc                      = context
 
-    Unmarshal(request.entity).to[Multipart.FormData].flatMap { formData ⇒
+    // FIXME: this needs a rewrite badly. No .runTxn, runDBIO or .runEmptyA, or .value should be here. @michalrus
+    // FIXME: Naive approach at composition fails with Akka’s SubscriptionTimeoutException.
+    // FIXME: Investigate Akka’s `runFold` maybe?
+
+    val xs = Unmarshal(request.entity).to[Multipart.FormData].flatMap { formData ⇒
       formData.parts
         .filter(_.name == "upload-file")
         .runFold(error) { (previousUpload, part) ⇒
           previousUpload.flatMap {
-            case Xor.Left(err) if err != failures ⇒ Result.left(err)
-            case _                                ⇒ uploadImage(part, album).runTxn()
+            case Xor.Left(err) if err != failures ⇒ Future.successful(Xor.left(err))
+            case _                                ⇒ uploadImage(part, album).runTxn().runEmptyA.value
           }
         }
         .flatMap { r ⇒
           (for {
             _     ← * <~ r
             album ← * <~ getAlbumInner(album.formId, oc)
-          } yield album).run()
+          } yield album).runDBIO().runEmptyA.value
         }
     }
+
+    Result.fromFXor(xs)
   }
 
   def uploadImage(part: Multipart.FormData.BodyPart, album: Album)(implicit ec: EC,

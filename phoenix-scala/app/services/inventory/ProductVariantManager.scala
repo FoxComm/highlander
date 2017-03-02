@@ -1,6 +1,7 @@
 package services.inventory
 
 import java.time.Instant
+
 import cats.data._
 import failures.ProductFailures._
 import failures.{Failures, GeneralFailure, NotFoundFailure400}
@@ -13,8 +14,8 @@ import payloads.ProductVariantPayloads._
 import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
 import responses.AlbumResponses._
 import responses.ObjectResponses.ObjectContextResponse
-import responses.ProductResponses.ProductResponse
 import responses.ProductOptionResponses.ProductOptionResponse
+import responses.ProductResponses.ProductResponse
 import responses.ProductVariantResponses._
 import services.LogActivity
 import services.image.ImageManager
@@ -25,6 +26,7 @@ import utils.JsonFormatters
 import utils.aliases._
 import utils.apis._
 import utils.db._
+import cats.implicits._
 
 object ProductVariantManager {
   implicit val formats = JsonFormatters.DefaultFormats
@@ -356,8 +358,8 @@ object ProductVariantManager {
 
   private def findProductOptionsWithValues(optionValueIds: Seq[Int])(
       implicit ec: EC,
-      db: DB): DbResultT[Seq[(FullObject[ProductOption], FullObject[ProductOptionValue])]] =
-    DbResultT.sequence(optionValueIds.map(findProductOption))
+      db: DB): DbResultT[List[(FullObject[ProductOption], FullObject[ProductOptionValue])]] =
+    DbResultT.seqCollectFailures(optionValueIds.toList.map(findProductOption))
 
   def optionValuesForVariant(variant: ProductVariant)(
       implicit ec: EC,

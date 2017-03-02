@@ -28,7 +28,7 @@ import testutils.apis.PhoenixAdminApi
 import testutils.fixtures._
 import testutils.fixtures.api._
 import utils.db._
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 import utils.seeds.ShipmentSeeds
 
 class CartIntegrationTest
@@ -61,7 +61,7 @@ class CartIntegrationTest
       }
 
       "configured" in new TaxesFixture(regionId = Region.californiaId) {
-        // test section in application.conf is configured for California and 7.5% rate
+        // test section in configuration is configured for California and 7.5% rate
         totals.taxes must === (((totals.subTotal + totals.shipping) * 0.075).toInt)
       }
     }

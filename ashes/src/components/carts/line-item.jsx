@@ -115,7 +115,7 @@ export class CartLineItem extends Component {
         <td><Currency className="item-price" value={item.price} /></td>
         <td class="line-item-quantity">
           <Counter
-            id={`item-quantity-input-${skuQtyInput}`}
+            id={`fct-counter-input__${skuQtyInput}`}
             value={quantity}
             min={1}
             max={1000000}

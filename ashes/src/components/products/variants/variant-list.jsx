@@ -66,7 +66,7 @@ export default class VariantList extends Component {
     ];
   }
 
-  get emptyContent(): Element {
+  get emptyContent(): Element<*> {
     return (
       <div className="fc-content-box__empty-text">
         No SKUs.
@@ -104,7 +104,7 @@ export default class VariantList extends Component {
     this.closeDeleteConfirmation();
   }
 
-  get deleteDialog(): Element {
+  get deleteDialog(): Element<*> {
     const confirmation = (
       <span>
         Are you sure you want to remove this SKU from the product?
@@ -124,8 +124,8 @@ export default class VariantList extends Component {
     );
   }
 
-  skuContent(skus: Array<ProductVariant>): Element {
-    const renderRow = (row, index) => {
+  skuContent(skus: Array<ProductVariant>): Element<*> {
+    const renderRow = (row, index, columns, params) => {
       const key = row.feCode || row.code || row.id;
 
       return (
@@ -148,7 +148,7 @@ export default class VariantList extends Component {
     return (
       <div className="fc-sku-list">
         <TableView
-          tbodyId="sku-list"
+          tbodyId="fct-sku-list"
           styleName="sku-list"
           columns={this.tableColumns}
           dataTable={false}
@@ -161,7 +161,7 @@ export default class VariantList extends Component {
     );
   }
 
-  render(): Element {
+  render() {
     return _.isEmpty(this.props.variants)
       ? this.emptyContent
       : this.skuContent(this.props.variants);

@@ -37,7 +37,7 @@ import utils.aliases.OC
  */
 trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
-  val rootPrefix = "v1"
+  private val rootPrefix = "v1"
 
   object customersApi {
     val customersPrefix = s"$rootPrefix/customers"
@@ -159,13 +159,13 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
       POST(customerGiftCards, payload)
 
     def createMultipleFromCustomer(payload: Seq[GiftCardCreatedByCustomer]): HttpResponse =
-      POST(customerGiftCards, payload)
+      POST(s"$customerGiftCards/bulk", payload)
 
     def createBulk(payload: GiftCardBulkCreateByCsr): HttpResponse =
-      POST(giftCardsPrefix, payload)
+      POST(s"$giftCardsPrefix/bulk", payload)
 
     def updateBulk(payload: GiftCardBulkUpdateStateByCsr): HttpResponse =
-      PATCH(giftCardsPrefix, payload)
+      PATCH(s"$giftCardsPrefix/bulk", payload)
   }
 
   case class giftCardsApi(code: String) {

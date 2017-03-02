@@ -16,7 +16,7 @@ type Props = {
   onChange: Function;
   className?: string;
   placeholder?: string;
-  emptyMessage?: string|Element;
+  emptyMessage?: string|Element<*>;
   onChange: (values: Array<any>) => any;
 }
 
@@ -133,7 +133,7 @@ export default class SelectVertical extends Component {
     );
   }
 
-  render(): Element {
+  render() {
     const props = this.props;
 
     const className = classNames('fc-vmultiselect', props.className);

@@ -85,7 +85,7 @@ export default class UserForm extends Component {
     );
   }
 
-  render(): Element {
+  render() {
     return (
       <div styleName="user-form">
         <section styleName="main">

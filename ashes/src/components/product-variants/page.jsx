@@ -19,14 +19,14 @@ import type { ProductVariant } from 'modules/product-variants/details';
 type Props = {
   actions: {
     productVariantNew: () => void,
-    fetchProductVariant: (code: string, context?: string) => Promise,
-    createProductVariant: (variant: ProductVariant, context?: string) => Promise,
-    updateProductVariant: (variant: ProductVariant, context?: string) => Promise,
-    archiveProductVariant: (code: string, context?: string) => Promise,
+    fetchProductVariant: (code: string, context?: string) => Promise<*>,
+    createProductVariant: (variant: ProductVariant, context?: string) => Promise<*>,
+    updateProductVariant: (variant: ProductVariant, context?: string) => Promise<*>,
+    archiveProductVariant: (code: string, context?: string) => Promise<*>,
   },
   params: { productVariantId: string },
   originalObject: ProductVariant,
-  children: Element,
+  children: Element<*>,
 };
 
 class ProductVariantPage extends ObjectPage {

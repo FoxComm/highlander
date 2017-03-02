@@ -359,7 +359,10 @@ object Mvp {
   def insertProductVariants(scope: LTree,
                             contextId: Int,
                             variants: Seq[SimpleVariant]): DbResultT[Seq[ProductVariant]] =
-    DbResultT.sequence(variants.map(variant ⇒ insertProductVariant(scope, contextId, variant)))
+    DbResultT
+      .seqCollectFailures(
+          variants.toList.map(variant ⇒ insertProductVariant(scope, contextId, variant)))
+      .map(_.toSeq)
 
   def insertProductOption(scope: LTree,
                           contextId: Int,

@@ -24,11 +24,11 @@ type CartDetails = {
 }
 
 type Props = {
-  fetchCart: (refNum: string) => Promise,
+  fetchCart: (refNum: string) => Promise<*>,
   clearFetchCartErrors: () => void,
   params: RouteParams,
   details: CartDetails,
-  children: Element,
+  children: Element<*>,
   isFetching: boolean|null,
   fetchError: ?Object,
 }

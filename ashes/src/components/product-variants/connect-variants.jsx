@@ -11,10 +11,10 @@ import variantsReducer, { fetchProductVariants } from 'modules/product-variants/
 import type { ProductVariant } from 'modules/product-variants/list';
 
 type Props = {
-  children: Element,
+  children: Element<*>,
   // connected
   productVariants: Array<ProductVariant>,
-  fetchProductVariants: (productId: number) => Promise,
+  fetchProductVariants: (productId: number) => Promise<*>,
   productVariantsState: AsyncState,
 }
 
@@ -26,7 +26,7 @@ function mapLocalState(state) {
 }
 
 function connectVariants(getProductId: (props: Object) => number) {
-  return (WrappedComponent: ReactClass) => {
+  return (WrappedComponent: ReactClass<*>) => {
     const AssociatedVariants = class extends Component {
       props: Props;
       componentDidMount() {

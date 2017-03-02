@@ -41,7 +41,7 @@ function orderSucceeded(state: State, payload: Object): State {
 }
 
 export function increaseRemorsePeriod(refNum: string) {
-  return (dispatch: Function): Promise =>
+  return (dispatch: Function): Promise<*> =>
     Api.post(`/orders/${refNum}/increase-remorse-period`)
       .then(order => dispatch(_updateOrder.succeeded(order)));
 }
