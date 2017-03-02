@@ -6,11 +6,6 @@ app = Flask(__name__)
 
 pprec = PPRecommend()
 
-port = os.getenv('PORT', 5000)
-
-if __name__ == "__main__":
-    app.run(port=port)
-
 @app.route('/ping')
 def ping():
     return 'pong'
@@ -25,3 +20,9 @@ def train():
     for point in json_dict['points']:
         pprec.add_point(point['custID'], point['prodID'], point['chanID'])
     return ""
+
+port = os.getenv('PORT', 5000)
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=port)
+

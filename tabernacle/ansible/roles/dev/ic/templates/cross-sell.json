@@ -21,9 +21,6 @@
       "forcePullImage": true
     }
   },
-  "env": {
-    "PORT": "10005"
-  },
   "constraints": [["hostname", "UNIQUE"]],
   "healthChecks": [
     {

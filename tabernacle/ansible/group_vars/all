@@ -266,6 +266,10 @@ river_rock_server: "{{river_rock_host}}:{{river_rock_port}}"
 henhouse_host: "henhouse.{{consul_suffix}}"
 henhouse_server: "{{henhouse_host}}"
 
+# Cross-sell
+cross_sell_host: "cross-sell.{{consul_suffix}}"
+cross_sell_server: "{{cross_sell_host}}"
+
 # Elasticsearch 2.x
 es_version: elasticsearch-2.1.2
 es_zip: "{{es_version}}.zip"
