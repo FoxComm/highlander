@@ -79,6 +79,7 @@ class TaxonomyPage extends Component {
   }
 
   get actions(): ObjectActions<Taxonomy> {
+    const { context } = this.props.params;
     const {
       newObject,
       duplicate,
@@ -101,7 +102,7 @@ class TaxonomyPage extends Component {
       getTitle: (t: Taxonomy) => _.get(t.attributes, 'name.v', ''),
       transition: () => transitionTo('taxonomy-details', {
         taxonomyId: 'new',
-        context: 'default'
+        context: context
       })
     };
   }
