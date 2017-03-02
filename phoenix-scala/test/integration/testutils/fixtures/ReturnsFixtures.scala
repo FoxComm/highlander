@@ -57,30 +57,34 @@ trait ReturnsFixtures extends TestFixtureBase with BakedFixtures with ApiFixture
 
     val product: SimpleProductData = Mvp.insertProduct(ctx.id, Factories.products.head).gimme
 
-    def createOrder(
-        lineItems: Seq[UpdateLineItemsPayload],
-        paymentMethods: Seq[PaymentMethod.Type])(implicit sl: SL, sf: SF): OrderResponse = {
+    def createOrder(lineItems: Seq[UpdateLineItemsPayload],
+                    paymentMethods: Map[PaymentMethod.Type, Option[Int]])(
+        implicit sl: SL,
+        sf: SF): OrderResponse = {
       val api = cartsApi(api_newCustomerCart(customer.id).referenceNumber)
 
       api.lineItems.add(lineItems).mustBeOk()
       api.shippingAddress.updateFromAddress(address.id).mustBeOk()
       api.shippingMethod.update(UpdateShippingMethod(shippingMethod.id)).mustBeOk()
       paymentMethods.foreach {
-        case PaymentMethod.CreditCard ⇒
+        case (PaymentMethod.CreditCard, None) ⇒
           api.payments.creditCard.add(CreditCardPayment(creditCard.id)).mustBeOk()
-        case PaymentMethod.GiftCard ⇒
-          api.payments.giftCard.add(GiftCardPayment(giftCard.code)).mustBeOk()
-        case PaymentMethod.StoreCredit ⇒
-          api.payments.storeCredit.add(StoreCreditPayment(storeCredit.availableBalance)).mustBeOk()
+        case (PaymentMethod.GiftCard, amount) if amount.exists(_ <= giftCard.availableBalance) ⇒
+          api.payments.giftCard.add(GiftCardPayment(giftCard.code, amount)).mustBeOk()
+        case (PaymentMethod.StoreCredit, Some(amount)) if amount <= storeCredit.availableBalance ⇒
+          api.payments.storeCredit.add(StoreCreditPayment(amount)).mustBeOk()
+        case other ⇒ sys.error(s"Unsupported configuration for order payment method: $other")
       }
 
       api.checkout().as[OrderResponse]
     }
 
-    def createDefaultOrder(): OrderResponse = createOrder(
-        lineItems = List(UpdateLineItemsPayload(sku = product.code, quantity = 1)),
-        paymentMethods = List(PaymentMethod.CreditCard)
-    )
+    def createDefaultOrder(paymentMethods: Map[PaymentMethod.Type, Option[Int]] = Map(
+            PaymentMethod.CreditCard → None)): OrderResponse =
+      createOrder(
+          lineItems = List(UpdateLineItemsPayload(sku = product.code, quantity = 1)),
+          paymentMethods = paymentMethods
+      )
 
     val order: OrderResponse = createDefaultOrder()
   }
@@ -101,7 +105,7 @@ trait ReturnsFixtures extends TestFixtureBase with BakedFixtures with ApiFixture
       returnsApi.reasons.add(ReturnReasonPayload(name)).as[ReturnReasonsResponse.Root]
   }
 
-  trait ReturnReasonDefaults extends ReturnReasonFixture with ReturnDefaults {
+  trait ReturnReasonDefaults extends ReturnReasonFixture {
     val returnReason: ReturnReasonsResponse.Root = createReturnReason("whatever")
   }
 

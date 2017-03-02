@@ -7,9 +7,11 @@ import models.Reason.Cancellation
 import models.account._
 import models.cord._
 import models.payment.PaymentMethod
+import models.payment.creditcard.CreditCardCharges
 import models.returns.Return._
 import models.returns._
 import org.scalatest.prop.PropertyChecks
+import payloads.PaymentPayloads.CreateManualStoreCredit
 import payloads.ReturnPayloads._
 import responses.ReturnResponse.Root
 import responses._
@@ -300,7 +302,7 @@ class ReturnIntegrationTest
 
   "Return line items" - {
     "POST /v1/returns/:refNum/line-items" - {
-      "successfully adds gift card line item" in new ReturnReasonDefaults {
+      "successfully adds gift card line item" in new ReturnDefaults with ReturnReasonDefaults {
         pending
 
         val payload =
@@ -310,7 +312,7 @@ class ReturnIntegrationTest
         response.lineItems.giftCards.headOption.value.giftCard.code must === (giftCard.code)
       }
 
-      "successfully adds shipping cost line item" in new ReturnReasonDefaults {
+      "successfully adds shipping cost line item" in new ReturnDefaults with ReturnReasonDefaults {
         val payload =
           ReturnShippingCostLineItemPayload(amount = order.totals.shipping, reasonId = reason.id)
         val response =
@@ -318,7 +320,7 @@ class ReturnIntegrationTest
         response.lineItems.shippingCosts.value.amount must === (order.totals.shipping)
       }
 
-      "successfully adds SKU line item" in new ReturnReasonDefaults {
+      "successfully adds SKU line item" in new ReturnDefaults with ReturnReasonDefaults {
         val payload = ReturnSkuLineItemPayload(sku = product.code,
                                                quantity = 1,
                                                reasonId = returnReason.id,
@@ -329,7 +331,8 @@ class ReturnIntegrationTest
         response.lineItems.skus.headOption.value.sku.sku must === (product.code)
       }
 
-      "overwrites existing shipping cost" in new ReturnLineItemFixture with ReturnReasonDefaults {
+      "overwrites existing shipping cost" in new ReturnLineItemFixture with ReturnDefaults
+      with ReturnReasonDefaults {
         val payload =
           ReturnShippingCostLineItemPayload(amount = order.totals.shipping, reasonId = reason.id)
         val first = createReturnLineItem(payload, rma.referenceNumber)
@@ -355,7 +358,7 @@ class ReturnIntegrationTest
           .mustFailWith400(ReturnReasonNotFoundFailure(666))
       }
 
-      "fails if quantity for sku is invalid" in new ReturnReasonDefaults {
+      "fails if quantity for sku is invalid" in new ReturnDefaults with ReturnReasonDefaults {
         val payload = ReturnSkuLineItemPayload(sku = product.code,
                                                quantity = -42,
                                                reasonId = returnReason.id,
@@ -367,7 +370,8 @@ class ReturnIntegrationTest
           .mustFailWithMessage("Quantity got -42, expected more than 0")
       }
 
-      "fails if amount for shipping cost is less then 0" in new ReturnReasonDefaults {
+      "fails if amount for shipping cost is less then 0" in new ReturnDefaults
+      with ReturnReasonDefaults {
         val payload = ReturnShippingCostLineItemPayload(amount = -666, reasonId = reason.id)
 
         returnsApi(rma.referenceNumber).lineItems
@@ -375,7 +379,8 @@ class ReturnIntegrationTest
           .mustFailWithMessage("Amount got -666, expected more than 0")
       }
 
-      "fails if amount for shipping cost is more then maximum allowed amount" in new ReturnReasonDefaults {
+      "fails if amount for shipping cost is more then maximum allowed amount" in new ReturnDefaults
+      with ReturnReasonDefaults {
         val payload = ReturnShippingCostLineItemPayload(amount = order.totals.shipping + 666,
                                                         reasonId = reason.id)
 
@@ -387,7 +392,7 @@ class ReturnIntegrationTest
       }
 
       "sets max shipping cost based on order total shipping cost minus any previous shipping cost returns for that order" in new ReturnLineItemFixture
-      with ReturnReasonDefaults {
+      with ReturnDefaults with ReturnReasonDefaults {
         val payload =
           ReturnShippingCostLineItemPayload(amount = order.totals.shipping, reasonId = reason.id)
 
@@ -465,7 +470,8 @@ class ReturnIntegrationTest
           contain theSameElementsAs payload.payments
       }
 
-      "succeeds for any supported payment" in new ReturnPaymentFixture with ReturnReasonDefaults {
+      "succeeds for any supported payment" in new ReturnPaymentFixture with ReturnDefaults
+      with ReturnReasonDefaults {
         forAll(paymentMethodTable) { paymentType ⇒
           val order = createDefaultOrder()
           val rma   = createReturn(orderRef = order.referenceNumber)
@@ -502,6 +508,37 @@ class ReturnIntegrationTest
 
           response.mustFailWith404(NotFoundFailure404(Return, "TRY_HARDER"))
         }
+      }
+
+      "fails if total payment exceeds order payment" in new ReturnPaymentDefaults {
+        val payload = ReturnPaymentsPayload(
+            Map(PaymentMethod.CreditCard → 200, PaymentMethod.StoreCredit → 120))
+
+        returnsApi(rma.referenceNumber).paymentMethods
+          .add(payload)
+          .mustFailWith400(
+              ReturnPaymentExceeded(rma.referenceNumber, amount = 320, maxAmount = 300))
+      }
+
+      "fails if cc payment exceeds order cc payment" in new ReturnPaymentFixture with OrderDefaults
+      with ReturnReasonDefaults {
+        val maxCCAmount = (0.5 * shippingMethod.price).toInt
+        val scAmount    = product.price + shippingMethod.price - maxCCAmount
+        override val storeCredit =
+          api_newStoreCredit(customer.id,
+                             CreateManualStoreCredit(amount = scAmount, reasonId = reason.id))
+        override val order = createDefaultOrder(
+            Map(PaymentMethod.CreditCard → None, PaymentMethod.StoreCredit → Some(scAmount)))
+        val rma = createReturn(order.referenceNumber)
+        createReturnLineItem(ReturnShippingCostLineItemPayload(amount = shippingMethod.price,
+                                                               reasonId = reason.id),
+                             rma.referenceNumber)
+
+        returnsApi(rma.referenceNumber).paymentMethods
+          .add(PaymentMethod.CreditCard, ReturnPaymentPayload(shippingMethod.price))
+          .mustFailWith400(ReturnCCPaymentExceeded(rma.referenceNumber,
+                                                   amount = shippingMethod.price,
+                                                   maxAmount = maxCCAmount))
       }
     }
 
