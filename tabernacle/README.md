@@ -12,6 +12,7 @@ All of our DevOps tools for deploying the application to both development and pr
 - [Go](https://golang.org) 1.6 or above
 - [Google Cloud SDK](https://cloud.google.com/sdk/gcloud)
 - [Packer](https://packer.io)
+- [Python](https://www.python.org) 2.7.x
 - [Terraform](https://terraform.io)
 
 #### Optional
