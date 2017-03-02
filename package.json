@@ -45,6 +45,8 @@
     "evil-icons": "^1.8.0",
     "flow-bin": "^0.23.0",
     "gulp": "^3.9.1",
+    "gulp-babel": "^6.1.2",
+    "gulp-changed": "^2.0.0",
     "gulp-concat": "^2.6.0",
     "gulp-cssnano": "^2.1.2",
     "gulp-eslint": "^1.1.1",
