@@ -11,7 +11,8 @@ def ping():
 
 @app.route('/recommend/prod-prod/<int:prod_id>', methods=['GET'])
 def rec_prod_prod(prod_id):
-    return jsonify(pprec.recommend(prod_id))
+    channel_id = int(request.args.get('channel', -1))
+    return jsonify(pprec.recommend(prod_id, channel_id))
 
 @app.route('/recommend/prod-prod/train', methods=['POST'])
 def train():
