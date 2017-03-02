@@ -132,6 +132,9 @@ begin
               into strict new_note.return
               from returns
               where returns.id = new.reference_id;
+      else
+        RAISE EXCEPTION 'Nonexistent reference_type ---> %', new.reference_type
+        USING HINT = 'Please check if you have appropriate case mentioned above';
     end case;
 
     select new.scope into strict new_note.scope;
