@@ -117,6 +117,8 @@ class CouponPage extends ObjectPage {
   alterSave() {
     return (<SaveCancel
             onSave={this.handleSubmit}
+            cancelDisabled={this.props.isSaving}
+            saveDisabled={this.props.isSaving}
             onCancel={this.props.params.modalCancelAction}
             saveText="Generate Coupon Code(s)" />);  
   }

@@ -17,6 +17,7 @@ import DiscountAttrs from './discount-attrs';
 import AddDiscount from './add-discount';
 import offers from './offers';
 import qualifiers from './qualifiers';
+import Discounts from './discounts'; 
 
 
 import { setDiscountAttr } from 'paragons/promotion';
@@ -62,7 +63,6 @@ export default class PromotionForm extends ObjectDetails {
     const promotion = this.props.object;
     return (
       <FormField
-        ref="usageRuleseField"
         className="fc-object-form__field"
       >
         <div>
@@ -70,13 +70,13 @@ export default class PromotionForm extends ObjectDetails {
             onChange={this.handleUsageRulesChange}
             name="true"
             checked={promotion.isExclusive === true}>
-            <label htmlFor="isExlusiveRadio" styleName="field-label">Promotion is exclusive</label>
+            <label htmlFor="isExlusiveRadio">Promotion is exclusive</label>
           </RadioButton>    
           <RadioButton id="notExclusiveRadio"
             onChange={this.handleUsageRulesChange}
             name="false"
             checked={promotion.isExclusive === false}>
-            <label htmlFor="notExclusiveRadio" styleName="field-label">Promotion can be used with other promotions</label>
+            <label htmlFor="notExclusiveRadio">Promotion can be used with other promotions</label>
           </RadioButton>  
         </div>
       </FormField>
@@ -149,6 +149,12 @@ export default class PromotionForm extends ObjectDetails {
       <div>  
         {discountChilds}
       </div>  
+    );
+  }
+
+  renderDiscountsSection() {
+    return (
+      <Discounts/>
     );
   }
 
