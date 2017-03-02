@@ -22,7 +22,7 @@ for (const task of fs.readdirSync('./tasks')) {
 }
 
 gulp.task('build', function(cb) {
-  const buildTasks = ['templates', 'browserify', 'css', 'images'];
+  const buildTasks = ['templates', 'precompile', 'browserify', 'css', 'images'];
   let tasks = buildTasks;
 
   if (process.env.NODE_ENV === 'production') {

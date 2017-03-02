@@ -1,5 +1,5 @@
-import makeRouter from 'koa-router';
-import zipcodes from 'zipcodes';
+const makeRouter = require('koa-router');
+const zipcodes = require('zipcodes');
 
 const router = makeRouter()
   .get('/node/lookup-zip/usa/:zipcode', function*() {
@@ -7,11 +7,10 @@ const router = makeRouter()
     if (!info) {
       this.status = 404;
     } else {
-      this.body = {
-        ...info,
+      this.body = Object.assign({
         state: zipcodes.states.abbr[info.state],
-      };
+      }, info);
     }
   });
 
-export default router;
+module.exports = router;

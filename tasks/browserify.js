@@ -16,7 +16,7 @@ function setApiURL() {
   process.env.API_URL = process.env.API_URL || '/api';
 }
 
-process.env.NODE_PATH = `${process.env.NODE_PATH}:${path.resolve('./src/core')}`;
+process.env.NODE_PATH = `${process.env.NODE_PATH}:${path.resolve('./lib/core')}`;
 
 function setDemoAuthToken() {
   /*  The demo site is protected by basic auth. All requests from javascript
@@ -51,12 +51,8 @@ module.exports = function(gulp, $, opts) {
     if (bundler) return bundler;
 
     bundler = browserify(Object.assign({
-      entries: ['src/client.jsx'],
-      transform: [
-        'babelify',
-      ],
+      entries: ['lib/client.js'],
       standalone: 'App',
-      extensions: ['.jsx'],
       debug: !production,
     }, watchify.args)).transform(envify({
       _: 'purge',
