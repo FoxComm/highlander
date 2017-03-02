@@ -229,7 +229,6 @@ middlewarehouse_db_user: middlewarehouse
 middlewarehouse_db_connection_string: "postgresql://{{middlewarehouse_db_user}}@{{db_host}}/{{middlewarehouse_db_name}}"
 middlewarehouse_test_db_name: middlewarehouse_test
 
-<<<<<<< HEAD:prov-shit/ansible/group_vars/all
 middlewarehouse_consumers_dir: "{{middlewarehouse_dir}}/consumers"
 shipments_consumer_bin: "{{middlewarehouse_consumers_dir}}/shipments-consumer"
 capture_consumer_bin: "{{middlewarehouse_consumers_dir}}/capture-consumer"
@@ -242,7 +241,7 @@ shipments_consumer_src: "{{middlewarehouse_src}}/consumers/shipments"
 shipments_consumer_bin_src: "{{shipments_consumer_src}}/shipments-consumer"
 capture_consumer_src: "{{middlewarehouse_src}}/consumers/capture"
 capture_consumer_bin_src: "{{capture_consumer_src}}/capture-consumer"
-=======
+
 # Hyperion
 hyperion_env: prod
 hyperion_src: ../../hyperion/
@@ -275,7 +274,6 @@ river_rock_server: "{{river_rock_host}}:{{river_rock_port}}"
 # Henhouse
 henhouse_host: "henhouse.{{consul_suffix}}"
 henhouse_server: "{{henhouse_host}}"
->>>>>>> master:tabernacle/ansible/group_vars/all
 
 # Elasticsearch 2.x
 es_version: elasticsearch-2.1.2
