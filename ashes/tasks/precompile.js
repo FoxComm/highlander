@@ -3,14 +3,22 @@
 const path = require('path');
 const { spawn } = require('child_process');
 
-function runScript(name) {
+function runScript(name, cb = () => {}) {
   return spawn('yarn',
     ['run', name],
     {
       shell: true,
       stdio: 'inherit',
     }
-  );
+  ).on('close', code => {
+    if (code != 0) {
+      cb(new Error(`"yarn run ${name}" process exited with code ${code}`));
+    } else {
+      cb();
+    }
+  }).on('error', err => {
+    cb(err);
+  });
 }
 
 const statics = ['src/**/*.css', 'src/**/*.json'];
@@ -22,7 +30,7 @@ module.exports = function (gulp, opts) {
   });
 
   gulp.task('precompile.source', function (cb) {
-    runScript('precompile').on('close', () => cb());
+    runScript('precompile', cb);
   });
 
   gulp.task('precompile', ['precompile.static', 'precompile.source']);
