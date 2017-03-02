@@ -1,12 +1,15 @@
 from flask import Flask, request, jsonify
 from prod_prod.PPRecommend import PPRecommend
+import os
 
 app = Flask(__name__)
 
 pprec = PPRecommend()
 
+port = os.getenv('PORT', 5000)
+
 if __name__ == "__main__":
-    app.run()
+    app.run(port=port)
 
 @app.route('/ping')
 def ping():

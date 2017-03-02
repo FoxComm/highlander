@@ -1,5 +1,5 @@
 include ../../makelib
-header = $(call baseheader, $(1), prod-prod)
+header = $(call baseheader, $(1), cross-sell)
 
 DOCKER_REPO ?= $(DOCKER_STAGE_REPO)
 DOCKER_TAG ?= cross-sell
