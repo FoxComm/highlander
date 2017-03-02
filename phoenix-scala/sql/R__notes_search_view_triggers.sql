@@ -11,6 +11,14 @@ begin
     to_json_timestamp(n.created_at) as created_at,
     to_json_timestamp(n.deleted_at) as deleted_at,
     to_json((users.email, users.name)::export_store_admins) as author,
+    null, -- order
+    null, -- customer
+    null, -- gift_card
+    null, -- variant_item
+    null, -- product
+    null, -- promotion
+    null, -- coupon
+    null, -- store_admin
     new.scope as scope
   from notes as n
     inner join users on (n.store_admin_id = users.account_id)
