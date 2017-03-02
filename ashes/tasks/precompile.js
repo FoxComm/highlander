@@ -27,7 +27,14 @@ module.exports = function (gulp, opts) {
   gulp.task('precompile', ['precompile.static', 'precompile.source']);
 
   gulp.task('precompile.watch', function () {
-    gulp.watch(statics, ['precompile.static']);
+
+    gulp.watch(statics)
+      .on("change", function (file) {
+        gulp
+          .src(file.path, { base: 'src' })
+          .pipe(gulp.dest('./lib'));
+      });
+
     runScript(`watch-precompile`);
   });
 };
