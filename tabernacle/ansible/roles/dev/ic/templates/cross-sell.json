@@ -1,0 +1,48 @@
+{
+  "id": "/cross-sell",
+  "cmd": null,
+  "cpus": 1,
+  "mem": 512,
+  "disk": 0,
+  "instances": 1,
+  "labels": {
+    "LAYER": "backend",
+    "LANG": "python",
+    "TAG": "{{docker_tags.cross_sell}}"
+  },
+  "container": {
+    "type": "DOCKER",
+    "volumes": [],
+    "docker": {
+      "image": "{{docker_registry}}:5000/cross-sell:{{docker_tags.cross_sell}}",
+      "network": "HOST",
+      "privileged": false,
+      "parameters": [],
+      "forcePullImage": true
+    }
+  },
+  "env": {
+    "PORT": "10005"
+  },
+  "constraints": [["hostname", "UNIQUE"]],
+  "healthChecks": [
+    {
+      "path": "/ping",
+      "protocol": "HTTP",
+      "portIndex": 0,
+      "gracePeriodSeconds": 300,
+      "intervalSeconds": 30,
+      "timeoutSeconds": 20,
+      "maxConsecutiveFailures": 3,
+      "ignoreHttp1xx": false
+    }
+  ],
+  "portDefinitions": [
+      {
+          "port": 10005,
+          "protocol": "tcp",
+          "name": "http",
+          "labels": {}
+      }
+  ]
+}
