@@ -241,6 +241,41 @@ body:
 }
 ```
 
+####Submit images feed
+
+*request*
+
+```
+POST /v1/images
+```
+body:
+
+```json
+{
+  "ids":[304]
+}
+```
+
+*response*
+
+```json
+{
+    "SubmitFeedResponse": {
+        "SubmitFeedResult": {
+            "FeedSubmissionInfo": {
+                "SubmittedDate": "2017-03-02T09:53:03+00:00",
+                "FeedType": "_POST_PRODUCT_IMAGE_DATA_",
+                "FeedSubmissionId": "50070017207",
+                "FeedProcessingStatus": "_SUBMITTED_"
+            }
+        },
+        "ResponseMetadata": {
+            "RequestId": "58b10f54-a747-4ea5-b0b0-d978b89a3227"
+        }
+    }
+}
+```
+
 ####List matching products by query string
 
 *request*
