@@ -5,10 +5,12 @@ import java.nio.ByteBuffer;
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 import java.util.Properties
-
+import scala.concurrent.Future
+import scala.util.{Failure, Success}
 import com.github.tminglei.slickpg.LTree
 import com.typesafe.scalalogging.LazyLogging
 import faker.Lorem.letterify
+import models.account.Scope
 import org.apache.avro.Schema
 import org.apache.avro.generic.GenericData
 import org.apache.avro.generic.GenericRecord
@@ -16,22 +18,17 @@ import org.apache.avro.specific.SpecificDatumWriter
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerConfig, ProducerRecord}
 import org.apache.avro.io._
 
-import models.account.Scope
 import org.json4s.Extraction
 import org.json4s.jackson.Serialization.{write ⇒ render}
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
 import slick.lifted.Tag
-import utils.JsonFormatters
+import utils.FoxConfig.config
+import utils.{Environment, JsonFormatters}
 import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db.{DbResultT, _}
-import utils.FoxConfig.config
-import utils.Environment
-
-import scala.concurrent.Future
-import scala.util.{Failure, Success}
 
 case class ActivityContext(userId: Int, userType: String, transactionId: String, scope: LTree) {
   def withCurrentScope(implicit au: AU) = withScope(Scope.current)
@@ -94,10 +91,10 @@ object Activities
     with ReturningId[Activity, Activities] {
 
   val returningLens: Lens[Activity, Int] = lens[Activity].id
-  val kafkaProducer =
-    new KafkaProducer[GenericData.Record, GenericData.Record](kafkaProducerProps())
+  val producer                           = new KafkaProducer[GenericData.Record, GenericData.Record](kafkaProducerProps())
 
-  val activityAvroSchema = """
+  val topic  = "scoped_activities"
+  val schema = new Schema.Parser().parse("""
       |{
       |  "type":"record",
       |  "name":"scoped_activities",
@@ -128,9 +125,9 @@ object Activities
       |    }
       |  ]
       |}
-    """.stripMargin.replaceAll("\n", " ")
+    """.stripMargin.replaceAll("\n", " "))
 
-  val keyAvroSchema = """
+  val keySchema = new Schema.Parser().parse("""
       |{
       |  "type":"record",
       |  "name":"scoped_activities_key",
@@ -141,11 +138,7 @@ object Activities
       |    }
       |  ]
       |}
-    """.stripMargin.replaceAll("\n", " ")
-
-  val schemaParser = new Schema.Parser()
-  val schema       = schemaParser.parse(activityAvroSchema)
-  val keySchema    = schemaParser.parse(keyAvroSchema)
+    """.stripMargin.replaceAll("\n", " "))
 
   implicit val formats = JsonFormatters.phoenixFormats
 
@@ -181,11 +174,8 @@ object Activities
                             context = activityContext,
                             createdAt = Instant.now)
 
-    val topic = "scoped_activities"
-
     val record = new GenericData.Record(schema)
 
-    record.put("id", activity.id.toString)
     record.put("kind", activity.activityType)
     record.put("data", render(activity.data))
     record.put("context", render(activity.context))
@@ -195,12 +185,23 @@ object Activities
     val key = new GenericData.Record(keySchema)
     key.put("id", activity.id.toString)
 
+    for {
+      id ← * <~ nextActivityId()
+      _ = record.put("id", s"phoenix-$id")
+      _ = sendActivity(activity, record)
+    } yield activity
+  }
+
+  def nextActivityId()(implicit ec: EC): DbResultT[Int] =
+    sql"select nextval('activities_id_seq');".as[Int].dbresult.map(_.head)
+
+  def sendActivity(a: Activity, record: GenericData.Record)(implicit activityContext: AC, ec: EC) {
     val msg = new ProducerRecord[GenericData.Record, GenericData.Record](topic, record)
 
     // Workaround until we decide how to test Phoenix => Kafka service integration
     if (Environment.default != Environment.Test) {
       val kafkaSendFuture = Future {
-        kafkaProducer.send(msg)
+        producer.send(msg)
       }
 
       kafkaSendFuture onComplete {
@@ -212,14 +213,5 @@ object Activities
               s"Kafka Activity ${a.activityType} by ${activityContext.userType} ${activityContext.userId} FAILURE")
       }
     }
-
-    DbResultT.pure(activity)
   }
-
-  def filterByType(activityType: ActivityType): QuerySeq = filter(_.activityType === activityType)
-
-  def filterByData(key: String, value: String): QuerySeq = filter(_.data +>> key === value)
-
-  def filterByData(activityType: ActivityType, key: String, value: String): QuerySeq =
-    filter(_.activityType === activityType).filter(_.data +>> key === value)
 }

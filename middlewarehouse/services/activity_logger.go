@@ -7,6 +7,8 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
 	"github.com/FoxComm/metamorphosis"
 	avro "github.com/elodina/go-avro"
+	"github.com/jinzhu/gorm"
+	"errors"
 )
 
 var avroSchema avro.Schema
@@ -28,7 +30,7 @@ const (
 			"fields": [
 					{
 							"name": "id",
-							"type": ["null", "int"]
+							"type": ["null", "string"]
 					},
 					{
 							"name": "activity_type",
@@ -62,28 +64,48 @@ type IActivityLogger interface {
 
 // NewActivityLogger creates a new instance on an activity logger with the
 // default configuration.
-func NewActivityLogger(producer metamorphosis.Producer) IActivityLogger {
-	return &activityLogger{producer}
+func NewActivityLogger(producer metamorphosis.Producer, db *gorm.DB) IActivityLogger {
+	return &activityLogger{producer, db}
 }
 
 type activityLogger struct {
 	producer metamorphosis.Producer
+	db *gorm.DB
 }
 
 func (a *activityLogger) Log(activity activities.ISiteActivity) error {
 	rec, err := newRecord(activity)
+
 	if err != nil {
 		return err
 	}
 
-	return a.producer.Emit(topic, rec)
+	rows, err := a.db.Raw("select nextval('activities_id_seq');" ).Rows()
+
+	if err != nil {
+		return err
+	}
+
+	defer rows.Close()
+
+	var nextId int32
+
+	if rows.Next() {
+		rows.Scan(&nextId)
+		rec.Id = fmt.Sprintf("%v-%v", "mwh", nextId)
+
+		return a.producer.Emit(topic, rec)
+	} else {
+		return errors.New("Unable get activity id")
+	}
+
 }
 
 type record struct {
 	schema avro.Schema
 
 	// The formatting here is unfortunate, but required by how Avro handles parses.
-	Id            int32
+	Id            string
 	Activity_type string
 	Data          string
 	Created_at    string
@@ -95,9 +117,10 @@ func newRecord(activity activities.ISiteActivity) (*record, error) {
 	const contextTemplate = "{\"userId\":0,\"userType\":\"service\", \"transactionId\":\"mwh\", \"scope\":\"%v\"}"
 	var context = fmt.Sprintf(contextTemplate, activity.Scope())
 
+
 	return &record{
 		schema:        avroSchema,
-		Id:            1,
+		Id:            "",
 		Activity_type: activity.Type(),
 		Data:          activity.Data(),
 		Created_at:    activity.CreatedAt(),
