@@ -48,6 +48,15 @@
     },
     {
       "type": "group",
+      "title": "Discounts",
+      "content": [
+        {
+          "type": "discounts-section"
+        }
+      ]
+    },
+    {
+      "type": "group",
       "showIfNew": true,
       "title": "Apply Type",
       "content": [
