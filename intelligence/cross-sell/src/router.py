@@ -23,5 +23,5 @@ def rec_prod_prod(prod_id):
 def train():
     json_dict = request.get_json()
     for point in json_dict['points']:
-        pprec.add_point(point['custID'], point['prodID'])
+        pprec.add_point(point['custID'], point['prodID'], point['chanID'])
     return ""
