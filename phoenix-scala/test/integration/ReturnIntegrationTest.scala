@@ -29,7 +29,7 @@ class ReturnIntegrationTest
 
   "Returns header" - {
     val orderRefNotExist = "ABC-666"
-    pending
+
     "successfully creates new Return" in new Fixture {
       val rmaCreated = returnsApi
         .create(ReturnCreatePayload(cordRefNum = order.refNum, returnType = Standard))
@@ -253,11 +253,11 @@ class ReturnIntegrationTest
       "avoids race condition" in new Fixture {
         pending
         // FIXME when DbResultT gets `select for update` https://github.com/FoxComm/phoenix-scala/issues/587
+        // CartIntegrationTest has the same pending case
         def lock = returnsApi(rma.referenceNumber).lock()
 
         val responses = Seq(0, 1).par.map(_ ⇒ lock)
         responses.map(_.status) must contain allOf (StatusCodes.OK, StatusCodes.BadRequest)
-        ReturnLockEvents.gimme.length mustBe 1
       }
     }
 
@@ -284,7 +284,6 @@ class ReturnIntegrationTest
   }
 
   "Return line items" - {
-    pending
     "POST /v1/returns/:refNum/line-items" - {
       "successfully adds gift card line item" in new LineItemFixture {
         pending
@@ -427,7 +426,6 @@ class ReturnIntegrationTest
   }
 
   "Return payment methods" - {
-    pending
     "POST /v1/returns/:ref/payment-methods" - {
       "succeeds for any supported payment" in new PaymentMethodFixture {
         forAll(paymentMethodTable) { paymentType ⇒
