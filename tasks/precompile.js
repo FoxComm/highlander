@@ -3,7 +3,7 @@
 const { spawn } = require('child_process');
 
 function runScript(name, cb = () => {}) {
-  const child = spawn('yarn',
+  let child = spawn('yarn',
     ['run', name],
     {
       shell: true,
@@ -11,17 +11,19 @@ function runScript(name, cb = () => {}) {
       stdio: 'inherit',
     }
   ).on('close', code => {
+    child = null;
     if (code != 0) {
       cb(new Error(`"yarn run ${name}" process exited with code ${code}`));
     } else {
       cb();
     }
   }).on('error', err => {
+    child = null;
     cb(err);
   });
 
   process.on('exit', () => {
-    process.kill(-child.pid);
+    if (child) process.kill(-child.pid);
   });
 
   return child;
