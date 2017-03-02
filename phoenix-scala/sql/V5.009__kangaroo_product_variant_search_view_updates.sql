@@ -1,3 +1,5 @@
+drop trigger if exists refresh_products_cat_search_view_from_skus_view on product_variants_search_view;
+
 ----- update views
 alter table product_variants_search_view
       add column created_at json_timestamp,
@@ -13,12 +15,14 @@ update product_variants_search_view set
   from (select
           pv.form_id,
           p.form_id as product_id,
+          pv.context_id as ctx_id,
+          pv.code,
           to_json_timestamp(pv.created_at) as created_at
           from product_variants as pv
             inner join product_to_variant_links as pv_link on (pv.id = pv_link.right_id)
               inner join products as p on (p.id = pv_link.left_id)
        ) as q
-  where id = q.form_id;
+  where sku_code = q.code and context_id = q.ctx_id;
 
 update products_search_view set
   created_at = q.created_at,
@@ -38,7 +42,7 @@ update products_search_view set
           ) as retail_price
           from products as p
        ) as q
-  where id = q.form_id;
+  where product_id = q.form_id;
 
 alter table product_variants_search_view
       alter column created_at set not null;
