@@ -4,42 +4,64 @@ const path = require('path');
 const { spawn } = require('child_process');
 
 function runScript(name, cb = () => {}) {
-  return spawn('yarn',
+  let child = spawn('yarn',
     ['run', name],
     {
       shell: true,
+      detached: true,
       stdio: 'inherit',
     }
   ).on('close', code => {
+    child = null;
     if (code != 0) {
       cb(new Error(`"yarn run ${name}" process exited with code ${code}`));
     } else {
       cb();
     }
   }).on('error', err => {
+    child = null;
     cb(err);
   });
+
+  process.on('exit', () => {
+    if (child) process.kill(-child.pid);
+  });
+
+  return child;
 }
 
 const statics = ['src/**/*.css', 'src/**/*.json'];
 
 module.exports = function (gulp, opts) {
+  const babel = require('gulp-babel');
+  const changed = require('gulp-changed');
+  const through = require('through2');
+
   gulp.task('precompile.static', function () {
     return gulp.src(statics)
       .pipe(gulp.dest('lib'));
   });
 
-  gulp.task('precompile.source', function (cb) {
-    runScript('precompile', cb);
+  const logBabelified = file => {
+    console.info(`src/${file.relative} -> lib/${file.relative}`);
+  };
+
+  gulp.task('precompile.source', function () {
+    return gulp.src('src/**/*.{jsx,js}')
+      .pipe(changed('lib', {extension: '.js'}))
+      .pipe(through.obj((file, enc, cb) => {
+        logBabelified(file);
+        cb(null, file);
+      }))
+      .pipe(babel())
+      .pipe(gulp.dest('lib'));
   });
 
   gulp.task('precompile', ['precompile.static', 'precompile.source']);
 
   gulp.task('precompile.watch', function () {
     gulp.watch(statics).on('change', file => {
-      const from = path.relative(process.cwd(), file.path);
-      const to = from.replace('src/', 'lib/');
-      console.info(`${from} -> ${to}`);
+      logBabelified(file);
       gulp
         .src(file.path, { base: 'src' })
         .pipe(gulp.dest('./lib'));
