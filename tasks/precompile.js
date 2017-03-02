@@ -3,10 +3,11 @@
 const { spawn } = require('child_process');
 
 function runScript(name, cb = () => {}) {
-  return spawn('yarn',
+  const child = spawn('yarn',
     ['run', name],
     {
       shell: true,
+      detached: true,
       stdio: 'inherit',
     }
   ).on('close', code => {
@@ -18,6 +19,12 @@ function runScript(name, cb = () => {}) {
   }).on('error', err => {
     cb(err);
   });
+
+  process.on('exit', () => {
+    process.kill(-child.pid);
+  });
+
+  return child;
 }
 
 const statics = ['src/**/*.css', 'src/**/*.json'];
