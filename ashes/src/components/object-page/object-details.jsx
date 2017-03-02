@@ -60,8 +60,14 @@ const emptyLayout: Layout = {
 };
 
 export default class ObjectDetails extends Component {
+  _layout: Layout = emptyLayout;
+
   get layout(): Layout {
-    return emptyLayout;
+    return this._layout;
+  }
+
+  set layout(newLayout: Layout) {
+    return this._layout = newLayout;
   }
 
   get schema() {
