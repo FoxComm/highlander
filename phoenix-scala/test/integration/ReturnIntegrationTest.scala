@@ -398,7 +398,7 @@ class ReturnIntegrationTest
         // create some other return for different order
         val otherOrderRef = createDefaultOrder().referenceNumber
         val otherRmaRef   = createReturn(otherOrderRef).referenceNumber
-        createReturnLineItem(payload = payload.copy(amount = 100), refNum = otherRmaRef)
+        createReturnLineItem(payload.copy(amount = 100), refNum = otherRmaRef)
 
         // create some other return for the same order
         val previousRmaRef = createReturn(order.referenceNumber).referenceNumber

@@ -50,15 +50,18 @@ object ReturnLineItemUpdater {
     for {
       order ← * <~ Orders.mustFindByRefNum(rma.orderRef)
       orderShippingTotal = order.shippingTotal
-      previouslyReturned ← * <~ Returns
-                            .findByOrderRefNum(rma.orderRef)
-                            .filter(_.id =!= rma.id)
-                            .join(ReturnLineItemShippingCosts)
-                            .on(_.id === _.returnId)
-                            .result
-      previouslyReturnedCost = previouslyReturned.map {
-        case (_, shippingCost) ⇒ shippingCost.amount
-      }.sum
+      previouslyReturnedCost ← * <~ Returns
+                                .findByOrderRefNum(rma.orderRef)
+                                .filter(_.id =!= rma.id)
+                                .join(ReturnLineItemShippingCosts)
+                                .on(_.id === _.returnId)
+                                .map {
+                                  case (_, shippingCost) ⇒
+                                    shippingCost.amount
+                                }
+                                .sum
+                                .getOrElse(0)
+                                .result
       maxAmount = orderShippingTotal - previouslyReturnedCost
       _ ← * <~ failIf(amount > maxAmount,
                       ReturnShippingCostExceeded(refNum = rma.referenceNumber,
