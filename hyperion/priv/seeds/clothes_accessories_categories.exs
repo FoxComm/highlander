@@ -1,3 +1,5 @@
+import Ecto.Query
+
 path = Application.app_dir(:hyperion, "priv") <> "/seeds/clothes_accessories_categories.csv"
 data = File.stream!(path) |> CSV.decode
 
@@ -13,3 +15,5 @@ parse_and_store = fn row ->
 end
 
 Enum.map(data, fn row -> parse_and_store.(row) end)
+
+from(c in Category, where: c.department == "NULL" and not is_nil(c.item_type)) |> Hyperion.Repo.update_all(set: [department: nil])
