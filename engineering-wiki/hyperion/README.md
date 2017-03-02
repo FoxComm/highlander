@@ -565,8 +565,8 @@ GET /v1/products/categories/:asin
 |name|type|description|required?|
 |----|----|-----------|---------|
 |node_path |String|Query string |Yes|
-|from |Integer|Used for paginate results. Defaule value is: `0` |No|
-|size |Integer|Used for paginate results. Defaule value is: `10` |No|
+|from |Integer|Used for paginate results. Default value is: `0` |No|
+|size |Integer|Used for paginate results. Default value is: `10` |No|
 
 *request*
 ```
