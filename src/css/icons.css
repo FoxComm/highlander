@@ -12,6 +12,10 @@
   height: 20px;
 }
 
+:global(.icon--fc-ripple) {
+  stroke: none;
+}
+
 :global(.icon--fc-payment-visa),
 :global(.icon--fc-payment-master-card),
 :global(.icon--fc-payment-diners-club),

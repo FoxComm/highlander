@@ -6,7 +6,6 @@ import { Link } from 'react-router';
 import classNames from 'classnames';
 
 import { toggleSidebar } from 'modules/sidebar';
-import { toggleActive, resetTerm } from 'modules/search';
 
 import styles from './header.css';
 
@@ -18,9 +17,6 @@ import TopBanner from '../top-banner/top-banner';
 
 type Props = {
   toggleSidebar: Function,
-  toggleSearch: Function,
-  isSearchActive: boolean,
-  resetTerm: Function,
   path: string,
   query: ?Object,
   closeBanner: Function,
@@ -45,12 +41,6 @@ class Header extends React.Component {
 
   componentWillUnmount() {
     window.removeEventListener('scroll', this.checkScroll);
-  }
-
-  componentWillUpdate(nextProps) {
-    if (this.props.path !== nextProps.path && this.props.isSearchActive) {
-      this.props.toggleSearch();
-    }
   }
 
   checkScroll = () => {
@@ -78,7 +68,7 @@ class Header extends React.Component {
               <Icon name="fc-hamburger" styleName="head-icon"/>
             </div>
             <div styleName="search">
-              <Search onSearch={this.props.toggleSearch} isScrolled={this.state.isScrolled}/>
+              <Search isScrolled={this.state.isScrolled}/>
             </div>
             <Link to="/" styleName="logo-link">
               <Icon styleName="logo" name="fc-logo"/>
@@ -96,12 +86,7 @@ class Header extends React.Component {
   }
 }
 
-const mapState = state => ({
-  isSearchActive: state.search.isActive,
-});
 
-export default connect(mapState, {
+export default connect(void 0, {
   toggleSidebar,
-  toggleSearch: toggleActive,
-  resetTerm,
 })(Header);

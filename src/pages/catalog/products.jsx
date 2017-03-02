@@ -11,7 +11,7 @@ import * as actions from 'modules/products';
 import { assetsUrl } from 'lib/env';
 
 // components
-import ProductsList from '../../components/products-list/products-list';
+import ProductsList, { LoadingBehaviors } from '../../components/products-list/products-list';
 import ProductTypeSelector from 'ui/product-type-selector';
 
 // styles
@@ -156,6 +156,7 @@ class Products extends Component {
         <ProductsList
           list={this.props.list}
           isLoading={this.props.isLoading}
+          loadingBehavior={LoadingBehaviors.ShowWrapper}
         />
       </section>
     );

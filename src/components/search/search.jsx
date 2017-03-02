@@ -14,16 +14,15 @@ import type { Localized } from 'lib/i18n';
 
 import Icon from 'ui/icon';
 
-import { setTerm, toggleActive } from 'modules/search';
+import { toggleActive, forceSearch } from 'modules/search';
 
 type SearchProps = Localized & {
   isActive: boolean,
-  term: string,
   result: Array<Product>,
   toggleActive: Function,
-  onSearch: Function,
-  setTerm: Function,
-  isScrolled: boolean
+  forceSearch: () => void,
+  onSearch?: Function,
+  isScrolled: boolean,
 };
 
 type SearchState = {
@@ -61,25 +60,24 @@ class Search extends Component {
     const { term } = this.state;
 
     if (term.length) {
-      this.props.onSearch();
-      this.props.setTerm(term);
+      if (this.props.onSearch) this.props.onSearch();
       this.props.toggleActive();
       this.setState({ term: '' });
+      // we do want make new request even if there is same term
+      this.props.forceSearch();
 
       browserHistory.push(`/search/${term}`);
     }
   }
 
   @autobind
-  onSearch(): void {
+  handleClickSearch(): void {
     if (!this.props.isActive) {
       this.props.toggleActive();
       this.refs.input.focus();
-
-      return;
+    } else {
+      this.search();
     }
-
-    this.search();
   }
 
   @autobind
@@ -99,18 +97,17 @@ class Search extends Component {
     return (
       <div styleName={searchStyle} className={cls}>
         <form action="." >
-        <input value={this.state.term}
-          onChange={this.onChange}
-          onKeyDown={this.onKeyDown}
-          styleName="search-input"
-          autoComplete="off"
-          placeholder={t('Search')}
-          ref="input"
-          type="search"
-        />
-      </form>
-
-        <Icon styleName="head-icon" name="fc-magnifying-glass" onClick={this.onSearch}/>
+          <input value={this.state.term}
+            onChange={this.onChange}
+            onKeyDown={this.onKeyDown}
+            styleName="search-input"
+            autoComplete="off"
+            placeholder={t('Search')}
+            ref="input"
+            type="search"
+          />
+        </form>
+        <Icon styleName="head-icon" name="fc-magnifying-glass" onClick={this.handleClickSearch}/>
         <Icon styleName="close-icon" name="fc-close" onClick={this.props.toggleActive}/>
       </div>
     );
@@ -124,4 +121,4 @@ function mapState({ search }: Object, { isActive }: ?Object): Object {
   };
 }
 
-export default connect(mapState, { setTerm, toggleActive })(localized(Search));
+export default connect(mapState, { toggleActive, forceSearch })(localized(Search));

@@ -2,7 +2,7 @@
 
 import { createReducer } from 'redux-act';
 import { createAsyncActions } from '@foxcomm/wings';
-import { addTermFilter, defaultSearch, termFilter } from 'lib/elastic';
+import { addTermFilter, addMustNotFilter, defaultSearch, termFilter } from 'lib/elastic';
 import _ from 'lodash';
 import { api } from 'lib/api';
 
@@ -39,11 +39,10 @@ function apiCall(
 
   if (ignoreGiftCards) {
     const giftCardTerm = termFilter('tags', GIFT_CARD_TAG);
-    payload = addTermFilter(payload, null, { mustNot: giftCardTerm });
+    payload = addMustNotFilter(payload, giftCardTerm);
   }
 
-  return this.api.post(
-    `/search/public/products_catalog_view/_search?size=${MAX_RESULTS}`, payload);
+  return this.api.post(`/search/public/products_catalog_view/_search?size=${MAX_RESULTS}`, payload);
 }
 
 function searchGiftCards() {
@@ -51,6 +50,10 @@ function searchGiftCards() {
 }
 
 const {fetch, ...actions} = createAsyncActions('products', apiCall);
+
+const initialState = {
+  list: [],
+};
 
 const reducer = createReducer({
   [actions.succeeded]: (state, payload) => {
@@ -60,7 +63,7 @@ const reducer = createReducer({
       list: result,
     };
   },
-}, {list: []});
+}, initialState);
 
 export {
   reducer as default,
