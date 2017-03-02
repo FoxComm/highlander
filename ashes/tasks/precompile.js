@@ -1,5 +1,6 @@
 'use strict';
 
+const path = require('path');
 const { spawn } = require('child_process');
 
 function runScript(name) {
@@ -27,13 +28,14 @@ module.exports = function (gulp, opts) {
   gulp.task('precompile', ['precompile.static', 'precompile.source']);
 
   gulp.task('precompile.watch', function () {
-
-    gulp.watch(statics)
-      .on("change", function (file) {
-        gulp
-          .src(file.path, { base: 'src' })
-          .pipe(gulp.dest('./lib'));
-      });
+    gulp.watch(statics).on('change', file => {
+      const from = path.relative(process.cwd(), file.path);
+      const to = from.replace('src/', 'lib/');
+      console.log(`${from} -> ${to}`);
+      gulp
+        .src(file.path, { base: 'src' })
+        .pipe(gulp.dest('./lib'));
+    });
 
     runScript(`watch-precompile`);
   });
