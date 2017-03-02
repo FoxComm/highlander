@@ -221,15 +221,6 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
     def get(): HttpResponse =
       GET(requestPath)
 
-    def getLock(): HttpResponse =
-      GET(s"$requestPath/lock")
-
-    def lock(): HttpResponse =
-      POST(s"$requestPath/lock")
-
-    def unlock(): HttpResponse =
-      POST(s"$requestPath/unlock")
-
     def message(payload: ReturnMessageToCustomerPayload) =
       POST(s"$requestPath/message", payload)
 

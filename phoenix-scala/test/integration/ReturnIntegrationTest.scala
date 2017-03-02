@@ -223,66 +223,6 @@ class ReturnIntegrationTest
     }
   }
 
-  "Return locks" - {
-
-    "GET /v1/returns/:refNum/lock" - {
-      "returns lock info on locked Return" in new Fixture {
-        returnsApi(rma.referenceNumber).lock().mustBeOk()
-
-        val response = returnsApi(rma.referenceNumber).getLock().as[ReturnLockResponse.Root]
-        response.isLocked must === (true)
-        response.lock.head.lockedBy.id must === (storeAdmin.accountId)
-      }
-
-      "returns negative lock status on new Return" in new Fixture {
-        val response = returnsApi(rma.referenceNumber).getLock().as[ReturnLockResponse.Root]
-        response.isLocked must === (false)
-        response.lock.isEmpty must === (true)
-      }
-    }
-
-    "POST /v1/returns/:refNum/lock" - {
-
-      "refuses to lock an already locked Return" in new Fixture {
-        returnsApi(rma.referenceNumber).lock().mustBeOk()
-        val response = returnsApi(rma.referenceNumber).lock()
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (LockedFailure(Return, rma.referenceNumber).description)
-      }
-
-      "avoids race condition" in new Fixture {
-        pending
-        // FIXME when DbResultT gets `select for update` https://github.com/FoxComm/phoenix-scala/issues/587
-        // CartIntegrationTest has the same pending case
-        def lock = returnsApi(rma.referenceNumber).lock()
-
-        val responses = Seq(0, 1).par.map(_ ⇒ lock)
-        responses.map(_.status) must contain allOf (StatusCodes.OK, StatusCodes.BadRequest)
-      }
-    }
-
-    "POST /v1/returns/:refNum/unlock" - {
-      "unlocks an Return" in new Fixture {
-        returnsApi(rma.referenceNumber).lock().mustBeOk()
-        returnsApi(rma.referenceNumber).unlock().mustBeOk()
-
-        val unlockedRma = returnsApi(rma.referenceNumber).getLock().as[ReturnLockResponse.Root]
-        unlockedRma.isLocked must === (false)
-      }
-
-      "refuses to unlock an already unlocked (new) Return" in new Fixture {
-        val unlockedRma = returnsApi(rma.referenceNumber).getLock().as[ReturnLockResponse.Root]
-        unlockedRma.isLocked must === (false)
-
-        val response = returnsApi(rma.referenceNumber).unlock()
-
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (NotLockedFailure(Return, rma.referenceNumber).description)
-      }
-    }
-
-  }
-
   "Return line items" - {
     "POST /v1/returns/:refNum/line-items" - {
       "successfully adds gift card line item" in new LineItemFixture {
