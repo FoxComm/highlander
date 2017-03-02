@@ -1,10 +1,13 @@
 .fc-breadcrumbs {
   flex-grow: 1;
   align-items: baseline;
-
+  > ul{
+    padding-left:20px;
+  }
   &__item, &__delimeter {
     display: inline;
     margin: 0 5px;
+    color:#d4d4d4;
   }
 
   &__item:first-child {
@@ -12,17 +15,17 @@
   }
 
   &__delimeter i {
-    .font-spec(10px, @normal, 20px);
-    margin-top: -1px;
+    .font-spec(14px, @normal, 20px);
+    margin-top: -5px;
   }
 
   &__link {
     .font-spec(15px, @thin, 20px);
-    color: @color-decor5;
+    color: #363636;
     transition: all .2s;
   }
 
   &__link:hover {
-    color: @color-decor3;
+    opacity:0.6;
   }
 }

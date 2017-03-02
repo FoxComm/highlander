@@ -1,6 +1,7 @@
 .fc-activity-notifications {
   width: 85px;
   text-align: center;
+  height:50px;
 
   .icon.icon-bell {
     float: right;
@@ -25,12 +26,14 @@
 
   &__toggle {
     position: relative;
-    .colors(@color-decor5, @color-transparent);
-    height: 7rem;
+    color:#bbbbbb;
+    background-color:transparent;
+    height: 100%;
     width: 100%;
 
     i {
       vertical-align: sub;
+      font-size:20px;
     }
 
     &:hover {
@@ -44,11 +47,12 @@
 
   &__indicator {
     position: absolute;
-    top: 18px;
+    top: 10px;
     left: 8px;
     line-height: 3rem;
     .circle(30px);
-    .colors(@color-white, @color-decor33);
+    color:#fff;
+    background-color:#fc54a6;
 
 
     &-enter {
