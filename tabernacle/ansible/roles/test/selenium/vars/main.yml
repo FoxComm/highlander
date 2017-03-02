@@ -1,0 +1,8 @@
+allure_base_url: https://github.com/allure-framework/allure-core
+allure_version: 1.4.23.HOTFIX1
+allure_download_url: "{{allure_base_url}}/releases/download/allure-core-{{allure_version}}/allure-commandline.tar.gz"
+
+chrome_deb: http://dl.google.com/linux/chrome/deb/
+chromedriver_base_url: http://chromedriver.storage.googleapis.com
+chromedriver_version: "2.27"
+chromedriver_url: "{{chromedriver_base_url}}/{{chromedriver_version}}/chromedriver_linux64.zip"
