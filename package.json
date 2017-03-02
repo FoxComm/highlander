@@ -7,7 +7,9 @@
     "lint": "eslint --ext .js --ext .jsx .",
     "flow": "flow check",
     "dev": "gulp dev --optimize_for_size --stack_size=4096",
-    "test": "node_modules/mocha/bin/mocha"
+    "test": "node_modules/mocha/bin/mocha",
+    "precompile": "babel src -d lib",
+    "watch-precompile": "babel src -d lib -w --skip-initial-build"
   },
   "author": "FoxCommerce",
   "license": "ISC",
@@ -26,7 +28,6 @@
     "babel-preset-es2015": "^6.22.0",
     "babel-preset-react": "^6.23.0",
     "babel-preset-stage-0": "^6.22.0",
-    "babel-register": "^6.23.0",
     "babel-runtime": "^6.23.0",
     "babel-traverse": "^6.23.1",
     "babelify": "^7.3.0",
@@ -44,6 +45,8 @@
     "evil-icons": "^1.8.0",
     "flow-bin": "^0.23.0",
     "gulp": "^3.9.1",
+    "gulp-babel": "^6.1.2",
+    "gulp-changed": "^2.0.0",
     "gulp-concat": "^2.6.0",
     "gulp-cssnano": "^2.1.2",
     "gulp-eslint": "^1.1.1",

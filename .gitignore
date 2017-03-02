@@ -6,6 +6,9 @@ logs
 .idea
 .iml
 
+# precompiled sources
+/lib
+
 /node_modules
 migration-tool/node_modules
 
@@ -27,4 +30,4 @@ the-perfect-gourmet.tar.bz2
 # certificates
 public_key.pem
 
-build
+/build

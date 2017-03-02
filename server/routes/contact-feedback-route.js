@@ -1,5 +1,5 @@
-import makeRouter from 'koa-router';
-import { Mandrill } from 'mandrill-api/mandrill';
+const makeRouter = require('koa-router');
+const { Mandrill } = require('mandrill-api/mandrill');
 
 function formatMessage(data) {
   const {
@@ -34,7 +34,7 @@ function *sendMessage(mandrillClient, params) {
   });
 }
 
-export default function mandrillRouter(apiKey) {
+function mandrillRouter(apiKey) {
   const mandrillClient = new Mandrill(apiKey);
 
   const router = makeRouter()
@@ -67,3 +67,5 @@ export default function mandrillRouter(apiKey) {
 
   return router.routes();
 }
+
+module.exports = mandrillRouter;

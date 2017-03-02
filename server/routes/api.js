@@ -1,8 +1,8 @@
-import proxy from 'koa-proxy';
+const proxy = require('koa-proxy');
 
 const matchUriRegexp = new RegExp(`^/api/v1/`);
 
-export function makeApiProxy() {
+function makeApiProxy() {
   const host = process.env.API_URL;
 
   return proxy({
@@ -10,3 +10,5 @@ export function makeApiProxy() {
     match: matchUriRegexp,
   });
 }
+
+exports.makeApiProxy = makeApiProxy;

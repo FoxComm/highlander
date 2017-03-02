@@ -11,8 +11,6 @@ const rev = require('gulp-rev');
 const revdel = require('gulp-rev-delete-original');
 const del = require('del');
 
-let exitStatus = 0;
-
 for (const task of fs.readdirSync('./tasks')) {
   const file = path.join('./tasks', task);
   const taskModule = require(path.resolve(file));
@@ -22,7 +20,7 @@ for (const task of fs.readdirSync('./tasks')) {
 }
 
 gulp.task('build', function(cb) {
-  const buildTasks = ['templates', 'browserify', 'css', 'images'];
+  const buildTasks = ['templates', 'precompile', 'browserify', 'css', 'images'];
   let tasks = buildTasks;
 
   if (process.env.NODE_ENV === 'production') {
@@ -71,7 +69,7 @@ function handleErrors(err) {
   if (err) {
     console.error(err && err.stack);
   }
-  exitStatus = 1;
+  process.exitCode = 1;
   $.util.beep();
 }
 
@@ -79,7 +77,3 @@ process.on('unhandledRejection', handleErrors);
 process.on('uncaughtException', handleErrors);
 
 gulp.on('err', handleErrors);
-
-process.on('exit', () => {
-  process.exit(exitStatus);
-});

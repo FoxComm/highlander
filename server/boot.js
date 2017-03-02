@@ -1,9 +1,8 @@
 
 const path = require('path');
 
-process.env.NODE_PATH = `${process.env.NODE_PATH}:${path.resolve('./src/core')}`;
+process.env.NODE_PATH = `${process.env.NODE_PATH}:${path.resolve('./lib/core')}`;
 
-require('babel-register')();
 require('../src/postcss').installHook();
 require('./env_defaults');
 
@@ -22,7 +21,7 @@ if (process.env.NODE_ENV == 'production' &&
   );
 }
 
-const App = require('./app').default;
+const App = require('./app');
 
 process.title = 'tpg-ui';
 
