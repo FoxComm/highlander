@@ -66,7 +66,7 @@ package object db {
         M.tailRecM(a)(f)
     }
 
-  implicit class FoxyTOps[F[_], A](fa: FoxyT[F, A]) {
+  implicit class FoxyTOps[F[_], A](private val fa: FoxyT[F, A]) extends AnyVal {
     // TODO: Remove directly relying on Xor in the rest of the codebase iteratively and completely. @michalrus
 
     def flatMapXor[B](f: Xor[Failures, A] ⇒ FoxyT[F, B])(implicit F: Monad[F]): FoxyT[F, B] = // TODO: remove me @michalrus
