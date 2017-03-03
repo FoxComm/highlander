@@ -63,7 +63,7 @@ export default class Header extends React.Component {
     return (
       <header role='banner' styleName="header" name="">
         <div styleName="logo">
-          <Icon name="fc-logo-icon" className={styles["logo-icon"]}/>
+          <Icon name="logo" className={styles["logo-icon"]}/>
         </div>
         <div styleName="top-nav-menu">
           <Breadcrumb routes={props.routes} params={props.params}/>
