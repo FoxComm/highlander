@@ -1,8 +1,8 @@
+/* @flow */
 import React from 'react';
 import classnames from 'classnames';
 
-
-const Icon = ({name, className})=>{
+const Icon = (props: {name:string, className?:string})=>{
   return(
     <svg className={className}>
       <use xlinkHref={'#'+ "fc-"+name+"-icon"} />
