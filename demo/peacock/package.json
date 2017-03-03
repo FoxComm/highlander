@@ -1,7 +1,7 @@
 {
-  "name": "the-perfect-gourmet",
+  "name": "peacock",
   "version": "1.0.0",
-  "description": "The Perfect Gourmet Storefront",
+  "description": "FoxCommerce Demo Storefront",
   "main": "index.js",
   "scripts": {
     "lint": "eslint --ext .js --ext .jsx .",

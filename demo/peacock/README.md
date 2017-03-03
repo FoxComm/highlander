@@ -1,8 +1,8 @@
-# The Perfect Gourmet
+# FoxCommerce Demo Storefront
 
 [![Build status](https://badge.buildkite.com/99167bb0d9f818e7018b5bea587dceb9c7540912eda5e4669b.svg)](https://buildkite.com/foxcommerce/the-perfect-gourmet)
 
-The Perfect Gourmet store. Isomorphic React app powered by FoxComm's backend API.
+FoxCommerce Demo store. Isomorphic React app powered by FoxComm's backend API.
 
 ## Local Development
 
@@ -83,9 +83,9 @@ exports.autoInstallHooks = false;
 
 ## Base infrastructure
 
-For achieve right isomorphism [redux-wait](https://www.npmjs.com/package/redux-wait) is used.
+For achieve right isomorphism [redux-isomorphic-render](https://www.npmjs.com/package/redux-isomorphic-render) is used.
 It utilizes multiple rendering calls for get all async dependencies for project.
-Read about code organization limitations in redux-wait's README.
+Read about code organization limitations in redux-isomorphic-render's README.
 
 For **grids** [lost](https://www.npmjs.com/package/lost) postcss plugin is used. It's really good.
 For different margins which depends on viewport size use `--grid-margin` css variable: `margin: 0 var(--grid-margin)`.
