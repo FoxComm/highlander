@@ -11,6 +11,7 @@ import * as amazonActions from 'modules/products/amazon';
 import * as schemaActions from 'modules/object-schema';
 import s from './product-amazon.css';
 import { Suggester } from 'components/suggester/suggester';
+import WaitAnimation from '../common/wait-animation';
 
 function mapDispatchToProps(dispatch) {
   return {
@@ -23,11 +24,13 @@ function mapDispatchToProps(dispatch) {
 }
 
 function mapStateToProps(state) {
-  const product = state.products.details.product || {};
+  const product = state.products.details.product;
   const suggest = state.products.amazon.suggest;
 
   return {
-    title: product.attributes && product.attributes.title.v,
+    title: product && product.attributes && product.attributes.title.v,
+    product,
+    fetchingProduct: state.asyncActions.fetchProduct && state.asyncActions.fetchProduct.inProgress,
     suggest,
   };
 }
@@ -43,19 +46,26 @@ class ProductAmazon extends Component {
 
   componentDidMount() {
     const { productId } = this.props.params;
+    const { product } = this.props;
     const { clearFetchErrors, fetchSchema, fetchProduct } = this.props.actions;
 
-    clearFetchErrors();
-    fetchSchema('product');
-    fetchProduct(productId);
+    if (!product) {
+      clearFetchErrors();
+      fetchSchema('product');
+      fetchProduct(productId);
+    }
   }
 
   render() {
-    const { title, suggest } = this.props;
+    const { title, suggest, product, fetchingProduct } = this.props;
+
+    if (!product || fetchingProduct) {
+      return <div className={s.root}><WaitAnimation /></div>;
+    }
 
     return (
       <div className={s.root}>
-        Amazon {title}
+        <h1>{title} for Amazon</h1>
         <div className={s.suggesterWrapper}>
           <Suggester
             className={s.suggester}

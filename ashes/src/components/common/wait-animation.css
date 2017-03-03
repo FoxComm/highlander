@@ -1,0 +1,84 @@
+
+.root {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  margin: 40px auto;
+}
+
+.circle1, .circle2, .circle3, .circle4 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translate(0, -50%);
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 8px solid #828e9f;
+  animation: ripple 2s linear infinite;
+}
+
+.circle1 {
+  animation: rippleInitial 1.6s;
+}
+
+.circle2 {
+  animation-delay: 0;
+}
+.circle3 {
+  animation-delay: .6s;
+}
+.circle4 {
+  animation-delay: 1.4s;
+}
+
+._size_m {
+  width: 54px;
+  height: 54px;
+
+  .circle1, .circle2, .circle3, .circle4 {
+    border-width: 6px;
+  }
+}
+
+._size_s {
+  width: 32px;
+  height: 32px;
+
+  .circle1, .circle2, .circle3, .circle4 {
+    border-width: 3px;
+    animation-duration: 2s;
+  }
+}
+
+@keyframes rippleInitial {
+  0% {
+    transform: scale(.4);
+    opacity: .3;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(.01);
+    opacity: 0;
+  }
+  10% {
+    opacity: .5;
+  }
+  70% {
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+}

@@ -1,16 +1,16 @@
 import classNames from 'classnames';
 import React, { PropTypes } from 'react';
+import s from './wait-animation.css';
 
 const WaitAnimation = props => {
-  const size = props.size || 'l';
-  const cls = classNames('fc-wait-animation', `fc-wait-animation_size_${size}`, props.className);
+  const cls = classNames(s.root, `_size_${props.size}`, props.className);
 
   return (
     <div className={cls}>
-      <div className="circle1"></div>
-      <div className="circle2"></div>
-      <div className="circle3"></div>
-      <div className="circle4"></div>
+      <div className={s.circle1} />
+      <div className={s.circle2} />
+      <div className={s.circle3} />
+      <div className={s.circle4} />
     </div>
   );
 };

@@ -20,14 +20,9 @@ const _fetchSuggest = createAsyncActions(
   }
 );
 
-// export function fetchSuggest(product_id: string, text: string) {
-//   return dispatch => {
-//     return dispatch(_fetchSuggest.perform(product_id, text));
-//   };
-// }
-
 export const fetchSuggest = _fetchSuggest.perform;
 
+// @TODO
 const _fetchAmazonCategory = createAsyncActions(
   'fetchAmazonCategory',
   (product_id: string, text: string) => {
