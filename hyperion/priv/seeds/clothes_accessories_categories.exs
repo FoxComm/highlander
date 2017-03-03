@@ -1,7 +1,10 @@
 import Ecto.Query
 
+Hyperion.Repo.delete_all(Category)
+
 path = Application.app_dir(:hyperion, "priv") <> "/seeds/clothes_accessories_categories.csv"
-data = File.stream!(path) |> CSV.decode
+data = File.stream!(path)
+       |> CSV.decode
 
 parse_and_store = fn row ->
   if String.length(Enum.at(row, 2)) > 0 do

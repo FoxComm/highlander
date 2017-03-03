@@ -167,11 +167,24 @@ defmodule Hyperion.Router.V1 do
       end
 
       get do
-        from = if Map.has_key?(params, :from), do: params[:from] , else: 0
-        size = if Map.has_key?(params, :size), do: params[:size] , else: 10
-        query = %{from: from, size: size, query: %{term: %{node_path: params[:node_path]}}}
-        res = Elastix.Search.search(Category.elastic_url, Category.index_name, Category.doc_type, query)
-        respond_with(conn, res.body)
+        res = Category.search(params[:node_path], params[:from], params[:size])
+        respond_with(conn, res)
+      end
+
+      desc "Suggests category for product by title"
+
+      params do
+        requires :q, type: String
+      end
+
+      get :suggest do
+        cfg = MWSAuthAgent.get(API.customer_id(conn))
+        try do
+          res = CategorySuggester.suggest_categories(params[:q], cfg)
+          respond_with(conn, res)
+        rescue e in RuntimeError ->
+          respond_with(conn, %{error: e.message}, 422)
+        end
       end
     end # categories
 

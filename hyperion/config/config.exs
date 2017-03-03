@@ -28,11 +28,10 @@ config :hyperion,
   mws_access_key_id: System.get_env("MWS_ACCESS_KEY_ID")
 
 config :hyperion,
-  phoenix_url: System.get_env("PHOENIX_URL")
+  phoenix_url:
 
-config :hyperion,
-  elastic_uri: System.get_env("ELASTIC")
-
+config :tirexs,
+  elastic_uri: System.get_env("ELASTIC_URL")
 # This configuration is loaded before any dependency and is restricted
 # to this project. If another project depends on this project, this
 # file won't be loaded nor affect the parent project. For this reason,
