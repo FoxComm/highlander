@@ -154,7 +154,6 @@ defmodule Hyperion.Router.V1 do
             end
           end
         end
-
       end # categories
     end # products
 
