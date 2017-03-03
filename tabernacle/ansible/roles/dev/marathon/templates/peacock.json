@@ -16,8 +16,7 @@
     "PHOENIX_PUBLIC_KEY": "/keys/public_key.pem",
     "STRIPE_PUBLISHABLE_KEY": "{{stripe_publishable_key}}",
     "MAILCHIMP_API_KEY": "{{mailchimp_api_key}}",
-    "CONTACT_EMAIL": "{{contact_email}}",
-    "URL_PREFIX": "{{url_prefix_perfectgourmet}}"
+    "CONTACT_EMAIL": "{{contact_email}}"
   },
   "healthChecks": [
     {
