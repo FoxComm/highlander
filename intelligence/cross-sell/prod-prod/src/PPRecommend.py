@@ -17,51 +17,51 @@ class PPRecommend(object):
         self.events.add((cust_id, prod_id, chan_id))
         self.up_to_date = False
 
-    def make_matrix(self, chan_id):
+    def make_matrix(self):
         """compute the similarity score matrix
 
         this only needs to be done once for each product purchased
-        Optionally filters by channel id
         """
-        filtered_events = set([event for event in self.events if event[2] == chan_id])
-
         # Return all events if nothing was filtered
-        if set() == filtered_events:
-            filtered_events = self.events
-
-        A = csr_matrix((self.weights(filtered_events), self.coords(filtered_events)))
+        A = csr_matrix((self.weights(), self.coords()))
         self.mat = A.T.dot(A)
         self.up_to_date = True
 
-    def weights(self, filtered_events):
+    def weights(self):
         """weights
         these are the values to go in the sparse matrix so that the columns are
         l2 normalized.
         """
-        return np.array([1.0/sqrt(self.count(x)) for (_, x, _) in filtered_events])
+        return np.array([1.0/sqrt(self.count(x)) for (_, x, _) in self.events])
 
     def count(self, prod_id):
         """how many customers have purchased product prodID
         """
         return len([prod for (_, prod, _) in self.events if prod == prod_id])
 
-    def coords(self, filtered_events):
+    def is_empty(self):
+        return len(self.events) == 0
+
+    def product_ids(self):
+        return [prod_id for (_, prod_id, _) in self.events]
+
+    def coords(self):
         """coords
         list of tuples (cust_id, prod_id, chan_id) where cust_id has purchased prod_id
         """
         return (
-            [cust_id for (cust_id, _, _) in filtered_events],
-            [prod_id for (_, prod_id, _) in filtered_events]
+            [cust_id for (cust_id, _, _) in self.events],
+            [prod_id for (_, prod_id, _) in self.events]
         )
 
-    def recommend(self, prod_id, chan_id):
+    def recommend(self, prod_id):
         """recommend
         returns a list of (prod_id, similarityScore)
         sorted in descending order.
             worst = 0 <= similarityScore <= 1 = best
         """
         if ~(self.up_to_date):
-            self.make_matrix(chan_id)
+            self.make_matrix()
 
         v = self.mat[:, prod_id].toarray()
         inds = np.argsort(v.T[0])[::-1]
