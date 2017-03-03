@@ -570,156 +570,40 @@ GET /v1/products/categories/:asin
 
 *request*
 ```
-GET /v1/categories?node_path=socks
+GET /v1/categories?node_path=boys
 ```
 
 **response**
 
 ```json
 {
-    "took": 2,
-    "timed_out": false,
-    "hits": {
-        "total": 51,
-        "max_score": 6.2329907,
-        "hits": [
-            {
-                "_type": "category",
-                "_source": {
-                    "updated_at": "2017-03-02T02:26:12.485033",
-                    "node_path": "Clothing, Shoes & Jewelry/Women/Clothing/Socks & Hosiery/Casual Socks",
-                    "item_type": "casual-socks",
-                    "inserted_at": "2017-03-02T02:26:12.485029",
-                    "department": "womens"
-                },
-                "_score": 6.2329907,
-                "_index": "amazon_categories",
-                "_id": "4527"
-            },
-            {
-                "_type": "category",
-                "_source": {
-                    "updated_at": "2017-03-02T02:26:11.382604",
-                    "node_path": "Clothing, Shoes & Jewelry/Men/Clothing/Socks/Dress & Trouser Socks",
-                    "item_type": "dress-socks",
-                    "inserted_at": "2017-03-02T02:26:11.382599",
-                    "department": "mens"
-                },
-                "_score": 6.2329907,
-                "_index": "amazon_categories",
-                "_id": "3463"
-            },
-            {
-                "_type": "category",
-                "_source": {
-                    "updated_at": "2017-03-02T02:26:11.028232",
-                    "node_path": "Clothing, Shoes & Jewelry/Girls/Clothing/Socks & Tights/Athletic Socks",
-                    "item_type": "athletic-socks",
-                    "inserted_at": "2017-03-02T02:26:11.028227",
-                    "department": "girls"
-                },
-                "_score": 5.172359,
-                "_index": "amazon_categories",
-                "_id": "3096"
-            },
-            {
-                "_type": "category",
-                "_source": {
-                    "updated_at": "2017-03-02T02:26:11.029099",
-                    "node_path": "Clothing, Shoes & Jewelry/Girls/Clothing/Socks & Tights/Casual & Dress Socks",
-                    "item_type": "socks",
-                    "inserted_at": "2017-03-02T02:26:11.029094",
-                    "department": "girls"
-                },
-                "_score": 5.172359,
-                "_index": "amazon_categories",
-                "_id": "3097"
-            },
-            {
-                "_type": "category",
-                "_source": {
-                    "updated_at": "2017-03-02T02:26:11.029947",
-                    "node_path": "Clothing, Shoes & Jewelry/Girls/Clothing/Socks & Tights/Slipper Socks",
-                    "item_type": "slipper-socks",
-                    "inserted_at": "2017-03-02T02:26:11.029943",
-                    "department": "girls"
-                },
-                "_score": 5.172359,
-                "_index": "amazon_categories",
-                "_id": "3098"
-            },
-            {
-                "_type": "category",
-                "_source": {
-                    "updated_at": "2017-03-02T02:26:11.381829",
-                    "node_path": "Clothing, Shoes & Jewelry/Men/Clothing/Socks/Casual Socks",
-                    "item_type": "casual-socks",
-                    "inserted_at": "2017-03-02T02:26:11.381825",
-                    "department": "mens"
-                },
-                "_score": 5.172359,
-                "_index": "amazon_categories",
-                "_id": "3462"
-            },
-            {
-                "_type": "category",
-                "_source": {
-                    "updated_at": "2017-03-02T02:26:11.383473",
-                    "node_path": "Clothing, Shoes & Jewelry/Men/Clothing/Socks/Slipper Socks",
-                    "item_type": "slipper-socks",
-                    "inserted_at": "2017-03-02T02:26:11.383468",
-                    "department": "mens"
-                },
-                "_score": 5.172359,
-                "_index": "amazon_categories",
-                "_id": "3464"
-            },
-            {
-                "_type": "category",
-                "_source": {
-                    "updated_at": "2017-03-02T02:26:12.489074",
-                    "node_path": "Clothing, Shoes & Jewelry/Women/Clothing/Socks & Hosiery/Slipper Socks",
-                    "item_type": "slipper-socks",
-                    "inserted_at": "2017-03-02T02:26:12.489069",
-                    "department": "womens"
-                },
-                "_score": 5.081785,
-                "_index": "amazon_categories",
-                "_id": "4532"
-            },
-            {
-                "_type": "category",
-                "_source": {
-                    "updated_at": "2017-03-02T02:26:10.750372",
-                    "node_path": "Clothing, Shoes & Jewelry/Boys/Clothing/Socks/Dress Socks",
-                    "item_type": "dress-socks",
-                    "inserted_at": "2017-03-02T02:26:10.750367",
-                    "department": "boys"
-                },
-                "_score": 5.081785,
-                "_index": "amazon_categories",
-                "_id": "2807"
-            },
-            {
-                "_type": "category",
-                "_source": {
-                    "updated_at": "2017-03-02T02:26:10.751250",
-                    "node_path": "Clothing, Shoes & Jewelry/Boys/Clothing/Socks/Slipper Socks",
-                    "item_type": "slipper-socks",
-                    "inserted_at": "2017-03-02T02:26:10.751245",
-                    "department": "boys"
-                },
-                "_score": 5.081785,
-                "_index": "amazon_categories",
-                "_id": "2808"
-            }
-        ]
+  "total": 4,
+  "items": [
+    {
+      "node_path": "Clothing, Shoes & Jewelry/Novelty & More/Clothing/Novelty/Baby/Baby Boys/Tops/T-Shirts",
+      "node_id": 9057174011,
+      "item_type": "novelty-infant-and-toddler-t-shirts",
+      "department": "baby-boys"
     },
-    "_shards": {
-        "total": 5,
-        "successful": 5,
-        "failed": 0
+    {
+      "node_path": "Clothing, Shoes & Jewelry/Novelty & More/Clothing/Novelty/Boys/Tops & Tees/T-Shirts",
+      "node_id": 9057094011,
+      "item_type": "novelty-t-shirts",
+      "department": "boys"
+    },
+    {
+      "node_path": "Clothing, Shoes & Jewelry/Baby/Baby Boys/Clothing/Swim/Swimwear Sets/T-Shirt Sets",
+      "node_id": 6259178011,
+      "item_type": "infant-and-toddler-swimwear-t-shirt-sets",
+      "department": "baby-boys"
+    },
+    {
+      "node_path": "Clothing, Shoes & Jewelry/Boys/Clothing/Swim/Swimwear Sets/T-Shirt Sets",
+      "node_id": 6259168011,
+      "item_type": "swimwear-t-shirt-sets",
+      "department": "boys"
     }
+  ]
 }
 ```
 
