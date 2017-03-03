@@ -10,6 +10,82 @@ import styles from './discounts.css';
 import {Checkbox} from '../../checkbox/checkbox';
 import { FormField } from '../../forms';
 
+const QUALIFIERS = [
+	{		
+		discountType: 'order',
+		text: 'Order',
+		qualifierTypes: [
+			{
+				type: 'noQualifier',
+				text: 'No qualifier'
+			},
+			{				
+				type: 'numUnits',
+				text: 'Total units in order',
+				value: 0,
+				widget: 'counter',
+				template: (comp) => {
+					return (
+						<div>Order <Counter onChange={comp.setValue} value={comp.qualifier.widgetValue}/> or more</div>
+					);					
+				}
+			},
+			{
+				type: 'subTotal',
+				text: 'Subtotal of order',
+				value: 0,
+				widget: 'currency',
+				template: (comp) => {
+					return (
+						<div>Spend <Currency onChange={comp.setValue} value={comp.qualifier.widgetValue}/> or more</div>
+					);	
+				}
+			}
+		]
+	},
+	{	
+		discountType: 'item',
+		text: 'Item',
+		qualifierTypes: [
+			{
+				type: 'noQualifier',
+				text: 'No qualifier'
+			},
+			{				
+				type: 'numUnits',
+				text: 'Total units in order',
+				value: 0,
+				widget: 'counter',
+				template: (comp) => {
+					return (
+						<div>Order <Counter onChange={comp.setValue} value={comp.qualifier.widgetValue}/> or more of the following items</div>
+					);	
+				}
+			},
+			{
+				type: 'subTotal',
+				text: 'Subtotal of order',
+				value: 0,
+				widget: 'currency',
+				template: (comp) => {
+					return (
+						<div>Spend <Currency onChange={comp.setValue} value={comp.qualifier.widgetValue}/> or more on following items</div>
+					);	
+				}
+			}
+		]
+	}
+];
+
+const DISCOUNT_TYPES = QUALIFIERS.map(item => [item.discountType,item.text]);
+
+const QUALIFIER_TYPES = QUALIFIERS.map( item => {
+	let cell = {
+		scope: item.discountType,
+		list: item.qualifierTypes.map(i => [i.type,i.text])
+	};
+	return cell;
+});
 
 const OFFER_TYPES = [
 	['orderPercentOff','Percent off order'],
@@ -22,195 +98,126 @@ const OFFER_TYPES = [
 	['chooseGiftWithPurchase','Your choice of with purchase'],
 ];
 
-const DISCOUNT_TYPES = [
-	['order','Order'],
-	['item','Item'],
-];
-
-const ITEM_QUALIFIER_TYPES = [
-	['noQualifier','No qualifier'],
-	['subtotalOfOrder','Subtotal of order'],
-	['number','Total units in order'],
-];
-
-const ORDER_QUALIFIER_TYPES = [
-	['noQualifier','No qualifier'],
-	['subtotalOfOrder','Subtotal of order'],
-	['number','Total units in order'],
-];
-
 export default class Discounts extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {		
-	    	discountType: _.get(DISCOUNT_TYPES, '0.0'),
-	    	offerType: _.get(OFFER_TYPES, '0.0'),
-	    	qualifierType: _.get(ORDER_QUALIFIER_TYPES, '0.0'),
-	    	orderAddon2: 0,
-	    	orderAddon3: 1,
-	    	itemAddon2: 0,
-	    	itemAddon3: 1,
-	    	exGiftCardQual: true,
-	    	exGiftCardOffer: true,
-	    	percent: 0,
-			qualifierTypes: ORDER_QUALIFIER_TYPES
+	qualifier = {};
+	offer = {};
+
+	constructor(props) {
+		super(props);
+		let discounts = this.props.discounts;
+		this.qualifier = {		
+			...discounts.qualifier,
+		}; 
+		this.offer = {		
+			...discounts.offer
+		}; 
+	}
+
+	componentWillReceiveProps(props) {
+		let discounts = props.discounts;
+		this.qualifier = {		
+			...discounts.qualifier,
+		}; 
+		this.offer = {		
+			...discounts.offer
+		}; 
+	}
+
+	@autobind
+	offerTypeChange(value) {
+		this.offer = {
+			...this.offer,
+			offerType: value,
 		};
-  }
+		this.props.onChangeOffer(this.offer);
+	}
+
+	@autobind
+	renderDiscount() {
+		return(<Dropdown 
+			className="autowidth_dd"
+			items={DISCOUNT_TYPES}
+			value={this.qualifier.discountType}
+			onChange={this.discountTypeChange}/>);	
+	}
+
+	@autobind
+	renderQualifier() {
+		let discountType = this.qualifier.discountType;
+		let items = _.find(QUALIFIER_TYPES, i => i.scope == discountType).list;
+		return(<Dropdown
+			className="autowidth_dd"
+			items={items}
+			value={this.qualifier.qualifierType} 
+			onChange={this.qualifierTypeChange}/>);		
+	}
 
 	@autobind
 	discountTypeChange(value) {
-		switch (value) {
-			case 'order':
-				this.setState({
-					discountType: value,
-		    		qualifierType: _.get(ORDER_QUALIFIER_TYPES, '0.0'),
-					qualifierTypes: ORDER_QUALIFIER_TYPES
-				})
-			case 'item':
-				this.setState({
-					discountType: value,
-    				qualifierType: _.get(ITEM_QUALIFIER_TYPES, '0.0'),
-					qualifierTypes: ITEM_QUALIFIER_TYPES
-				})
-		}
+		let items = _.find(QUALIFIER_TYPES, i => i.scope == value).list;
+		let qualifierType = _.get(items, '0.0');
+		let qualifierTypes = _.find(QUALIFIERS, i => i.discountType == value).qualifierTypes;
+		let widgetValue = _.find(qualifierTypes, i => i.type == qualifierType).value || null;
+
+		this.qualifier = {
+				...this.qualifier,
+				discountType: value,
+    		qualifierType: qualifierType,
+    		widgetValue: widgetValue
+		};
+		this.props.onChangeQualifier(this.qualifier);
 	}
 
 	@autobind
 	qualifierTypeChange(value) {
-		this.setState({
-			qualifierType: value
-		})
+		let discountType = this.qualifier.discountType;
+		let qualifierType = value;
+		let qualifierTypes = _.find(QUALIFIERS, i => i.discountType == discountType).qualifierTypes;
+		let widgetValue = _.find(qualifierTypes, i => i.type == qualifierType).value || null;
+
+		this.qualifier = {
+			...this.qualifier,
+			qualifierType: value,
+  		widgetValue: widgetValue
+		};
+		this.props.onChangeQualifier(this.qualifier);
 	}
 
 	@autobind
-	offerTypeChange(value) {		
-		this.setState({
-			offerType: value
-		})
-	}
-
-	@autobind
-	renderQualAddInput() {
-		if (this.state.discountType == 'order') {
-			switch (this.state.qualifierType) {
-				case 'noQualifier':
-					return this.renderOrderAddones1();
-					break;
-				case 'subtotalOfOrder':
-					return this.renderOrderAddones2();
-					break;			
-				case 'number':	
-					return this.renderOrderAddones3();
-					break;
-			}
-		}	else if (this.state.discountType == 'item') {
-			switch (this.state.qualifierType) {
-				case 'noQualifier':
-					return this.renderItemAddones1();
-					break;
-				case 'subtotalOfOrder':
-					return this.renderItemAddones2();
-					break;			
-				case 'number':	
-					return this.renderItemAddones3();
-					break;
-			}
-		}
-	}
-
-	@autobind
-	renderOfferAddInput() {
-	}
-
-	@autobind	
-	renderOrderAddones1() {
-		return null;
-	}
-
-	@autobind	
-	renderOrderAddones2() {
-		return (
-			<div>Spend <Currency onChange={this.setOrderAddon2} value={this.state.orderAddon2}/> or more</div>
-		);	
-	}
-
-	@autobind	
-	renderOrderAddones3() {
-		return (
-			<div>Order <Counter onChange={this.setOrderAddon3} value={this.state.orderAddon3}/> or more</div>
-		);	
-	}
-
-	@autobind	
-	renderItemAddones1() {
-		return null;
-	}
-
-	@autobind	
-	renderItemAddones2() {
-		return (
-			<div>Spend <Currency onChange={this.setItemAddon2} value={this.state.itemAddon2}/> or more on following items</div>
-		);	
-	}
-
-	@autobind	
-	renderItemAddones3() {
-		return (
-			<div>Order <Counter onChange={this.setItemAddon3} value={this.state.itemAddon3}/> or more of the following items</div>
-		);	
-	}
-
-	@autobind
-	setOrderAddon2(value) {
-		this.setState({
-			orderAddon2: value
-		})
-	}
-
-	@autobind
-	setOrderAddon3(value) {
-		this.setState({
-			orderAddon3: value 
-		})
-	}
-	@autobind
-	setItemAddon2(value) {
-		this.setState({
-			itemAddon2: value
-		})
-	}
-
-	@autobind
-	setItemAddon3(value) {
-		this.setState({
-			itemAddon3: value 
-		})
-	}
-
-	@autobind
-	renderQueryBuilder() {
-		
+	renderQualWidget() {
+		let comp = this;
+		let discountType = this.qualifier.discountType;
+		let qualifierType = this.qualifier.qualifierType;
+		let qualifierTypes = _.find(QUALIFIERS, i => i.discountType == discountType).qualifierTypes;
+		let renderWidget = _.find(qualifierTypes, i => i.type == qualifierType).template || function(){return null;};		
+		return renderWidget(comp);
 	}
 
 	@autobind
 	toggleExGiftCardQual() {
-		this.setState({
-			exGiftCardQual: !this.state.exGiftCardQual
-		})
+		this.qualifier = {
+			...this.qualifier,
+			exGiftCardQual: !this.qualifier.exGiftCardQual
+		};
+		this.props.onChangeQualifier(this.qualifier);
 	}
 
 	@autobind
 	toggleExGiftCardOffer() {
-		this.setState({
-			exGiftCardOffer: !this.state.exGiftCardOffer
-		})
+		this.offer = {
+			...this.offer,
+			exGiftCardOffer: !this.offer.exGiftCardOffer
+		};
+		this.props.onChangeOffer(this.offer);
 	}
 
 	@autobind
-	setPercent(value) {		
-		this.setState({
-			percent: value
-		})
+	setValue(value) {
+		this.qualifier = {
+			...this.qualifier,
+			widgetValue: value
+		};
+		this.props.onChangeQualifier(this.qualifier);
 	}
 
 	render(){
@@ -221,29 +228,20 @@ export default class Discounts extends Component {
 					className="fc-object-form__field">
 					<Checkbox id="isExGiftCardQual" 
 						inline 
-						checked={this.state.exGiftCardQual} 
+						checked={this.qualifier.exGiftCardQual} 
 						onChange={this.toggleExGiftCardQual}>
             			<label htmlFor="isExGiftCardQual">Exclude gift cards from quaifying criteria</label>
             		</Checkbox>	
 				</FormField>
-				<Dropdown 
-					className="autowidth_dd"
-					items={DISCOUNT_TYPES}
-					value={this.state.discountType}
-					onChange={this.discountTypeChange}/>
-				<Dropdown
-					className="autowidth_dd"
-					items={this.state.qualifierTypes}
-					value={this.state.qualifierType}
-					onChange={this.qualifierTypeChange}/>
-				<div className="inline-container">{this.renderQualAddInput()}</div>
-				<div className="">{this.renderQueryBuilder()}</div>
+				{this.renderDiscount()}
+				{this.renderQualifier()}	
+				<div className="inline-container">{this.renderQualWidget()}</div>
 				<div styleName="sub-title">Offer</div>
 				<FormField
 					className="fc-object-form__field">
 					<Checkbox id="isExGiftCardOffer" 
 						inline 
-						checked={this.state.exGiftCardOffer} 
+						checked={this.offer.exGiftCardOffer} 
 						onChange={this.toggleExGiftCardOffer}>
             			<label htmlFor="isExGiftCardOffer">Exclude gift cards from discounted items</label>
             		</Checkbox>	
@@ -251,10 +249,8 @@ export default class Discounts extends Component {
 				<Dropdown 
 					className="autowidth_dd"
 					items={OFFER_TYPES}
-					value={this.state.offerType}
-					onChange={this.offerTypeChange}/>
-				<div className="inline-container">{this.renderOfferAddInput()}</div>
-
+					value={this.offer.offerType}
+					onChange={this.offerTypeChange}/>			
 			</div>
 		);
 	}

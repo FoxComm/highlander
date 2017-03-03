@@ -11,8 +11,7 @@ const Percent = (props) => {
     percent = isNaN(percent) ? 0 : percent;
     percent = Math.min(100, percent);
     percent = Math.max(0, percent);
-
-    props.onChange(percent)
+    props.onChange(percent);
   };
 
   return (
