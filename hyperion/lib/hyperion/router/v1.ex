@@ -157,6 +157,36 @@ defmodule Hyperion.Router.V1 do
       end # categories
     end # products
 
+    namespace :categories do
+      desc "Search for Amazon `department` and `item-type' by `node_path'"
+      params do
+        requires :node_path, type: String
+        optional :from, type: Integer
+        optional :size, type: Integer
+      end
+
+      get do
+        res = Category.search(params[:node_path], params[:from], params[:size])
+        respond_with(conn, res)
+      end
+
+      desc "Suggests category for product by title"
+
+      params do
+        requires :q, type: String
+      end
+
+      get :suggest do
+        cfg = MWSAuthAgent.get(API.customer_id(conn))
+        try do
+          res = CategorySuggester.suggest_categories(params[:q], cfg)
+          respond_with(conn, res)
+        rescue e in RuntimeError ->
+          respond_with(conn, %{error: e.message}, 422)
+        end
+      end
+    end # categories
+
     namespace :orders do
       desc "Get all orders"
       params do
@@ -176,7 +206,7 @@ defmodule Hyperion.Router.V1 do
                     _ -> params[:last_updated_after]
                    end
 
-        # Remove :last_updated_after and convert Map to KeyworkList
+        # Remove :last_updated_after and convert Map to KeywordList
         list = Map.drop(params, [:last_updated_after])
                |>Enum.map(fn {k, v} -> {k, String.split(v, ",")}  end)
 
