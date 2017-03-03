@@ -50,7 +50,7 @@
     - { role: hotfix/rsyslog }
     - { role: hotfix/kibana }
     - { role: dev/db }
-    - { role: dev/db_ic }
+    - { role: dev/db_ic, when: with_ic }
     # Marathon
     - { role: dev/marathon }
     - { role: dev/seeder }

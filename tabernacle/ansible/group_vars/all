@@ -87,6 +87,9 @@ marathon_restart:
     digger_sphex: "{{ lookup('env', 'MARATHON_DIGGER_SPHEX') | default(true, true) | bool }}"
     orders_sphex: "{{ lookup('env', 'MARATHON_ORDERS_SPHEX') | default(true, true) | bool }}"
 
+# Should we use Intelligent Commerce
+with_ic: "{{ lookup('env', 'WITH_INTELLIGENT_COMMERCE') | default(true, true) | bool }}"
+
 # Consul Service Discovery
 consul_data_dir: /var/consul
 consul_suffix: service.consul
