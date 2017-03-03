@@ -46,7 +46,8 @@
 .arrow {
   height: 68px;
   margin-top: -6px;
-  color:#d4d4d4;
+  /*color:#363636;*/
+  color:#888;
 }
 
 .name,
@@ -59,13 +60,10 @@
   margin-left: 15px;
   padding-right: 20px;
   cursor: pointer;
-
-  &:hover {
-    & .name,
-    & .arrow {
-      color: #9ba3a7;
-    }
+  &:hover .name, &:hover .arrow{
+    opacity:0.6;
   }
+
 }
 
 .initials {
@@ -77,4 +75,5 @@
 .name {
   margin-right: 10px;
   color:#363636;
+  font-weight:300;
 }
