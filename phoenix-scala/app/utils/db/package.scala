@@ -36,77 +36,70 @@ package object db {
   /* We can’t use WriterT for warnings, because of the `failWithMatchedWarning`. */
   type FoxyT[F[_], A] = StateT[XorT[F, Failures, ?], List[MetaResponse], A] // TODO: But maybe the order should be different? I.e. what should happen with warnings when we get a short-circuiting failure? @michalrus
 
-  implicit class EnrichedFoxyT[F[_], A](fa: FoxyT[F, A]) {
-    // TODO: First, before removing explicit Xor handling, implement recoverWith from scratch and then re-implement the *xor* functions in terms of recoverWith and flatMap. And then, remove them iteratively and completely. @michalrus
+  object FoxyT {
+    def apply[F[_]]: FoxyTFunctions[F] = new FoxyTFunctions[F] {}
+  }
+
+  // FIXME: Have this derived automatically, after updating Cats. @michalrus
+  implicit def foxyTMonadError[F[_]](implicit F: Monad[F],
+                                     M: Monad[FoxyT[F, ?]]): MonadError[FoxyT[F, ?], Failures] =
+    new MonadError[FoxyT[F, ?], Failures] {
+      override def raiseError[A](e: Failures): FoxyT[F, A] =
+        FoxyT[F].failures(e)
+
+      override def handleErrorWith[A](fa: FoxyT[F, A])(f: (Failures) ⇒ FoxyT[F, A]): FoxyT[F, A] =
+        fa.transformF { fsa ⇒
+          XorT(F.flatMap(fsa.value) { xsa ⇒
+            xsa match {
+              case Xor.Left(failures) ⇒
+                f(failures).runEmpty.value // TODO: Re-think discarding warnings. @michalrus
+              case r ⇒ F.pure(r)
+            }
+          })
+        }
+
+      // TODO: How to move definitions around to get rid of the three proxies below? https://gitter.im/typelevel/cats?at=58b954c77ceae5376a6688be @michalrus
+      override def pure[A](x: A): FoxyT[F, A] = M.pure(x)
+      override def flatMap[A, B](fa: FoxyT[F, A])(f: (A) ⇒ FoxyT[F, B]): FoxyT[F, B] =
+        M.flatMap(fa)(f)
+      override def tailRecM[A, B](a: A)(f: (A) ⇒ FoxyT[F, Either[A, B]]): FoxyT[F, B] =
+        M.tailRecM(a)(f)
+    }
+
+  implicit class FoxyTOps[F[_], A](fa: FoxyT[F, A]) {
+    // TODO: Remove directly relying on Xor in the rest of the codebase iteratively and completely. @michalrus
 
     def flatMapXor[B](f: Xor[Failures, A] ⇒ FoxyT[F, B])(implicit F: Monad[F]): FoxyT[F, B] = // TODO: remove me @michalrus
-      fa.transformF { fsa ⇒
-        XorT(F.flatMap(fsa.value) { xs ⇒
-          val res = f(xs.map { case (_, a) ⇒ a })
-          xs.map { case (s, _) ⇒ s } match {
-            case Xor.Left(failures) ⇒
-              res.runEmpty.value // Really? Forgetting warnings in case of previous failure. @michalrus
-            case Xor.Right(s) ⇒ res.run(s).value
-          }
-        })
-      }
+      fa.flatMap(a ⇒ f(Xor.Right(a))).handleErrorWith(failures ⇒ f(Xor.Left(failures)))
 
     def mapXor[B](f: Xor[Failures, A] ⇒ Xor[Failures, B])(implicit F: Monad[F]): FoxyT[F, B] = // TODO: remove me @michalrus
-      fa.transformF { fsa ⇒
-        XorT(F.map(fsa.value)(xsa ⇒
-                  for {
-            b ← f(xsa.map { case (_, a) ⇒ a })
-            s = xsa.map { case (s, _) ⇒ s }
-              .getOrElse(List.empty) // TODO: again, losing past warnings. Monad order? @michalrus
-          } yield (s, b)))
-      }
+      flatMapXor(xa ⇒ FoxyT[F].fromXor(f(xa)))
 
     def mapXorRight[B](f: Xor[Failures, A] ⇒ B)(implicit F: Monad[F]): FoxyT[F, B] =
-      mapXor(xa ⇒ Xor.Right(f(xa))) // TODO: remove me? @michalrus
+      mapXor(xa ⇒ Xor.Right(f(xa))) // TODO: remove me @michalrus
 
-    def fold[B](ra: Failures ⇒ B, rb: A ⇒ B)(implicit F: Monad[F]): FoxyT[F, B] = // TODO: this is not fold… Find a better name? @michalrus
-      fa.mapXor {
-        case Xor.Left(a)  ⇒ Xor.Right(ra(a))
-        case Xor.Right(b) ⇒ Xor.Right(rb(b))
-      }
-
-    def recoverWith(pf: PartialFunction[Failures, FoxyT[F, A]])(
-        implicit F: Monad[F]): FoxyT[F, A] =
-      fa.flatMapXor {
-        case Xor.Left(a) if pf.isDefinedAt(a) ⇒ pf(a)
-        case x                                ⇒ new FoxyTOps[F] {}.fromXor(x)
-      }
-
-    def recover(pf: PartialFunction[Failures, A])(implicit F: Monad[F]): FoxyT[F, A] =
-      fa.mapXor {
-        case Xor.Left(a) if pf.isDefinedAt(a) ⇒ Xor.Right(pf(a))
-        case x                                ⇒ x
-      }
+    def fold[B](ra: Failures ⇒ B, rb: A ⇒ B)(implicit F: Monad[F]): FoxyT[F, B] = // TODO: this is not fold… Find a better name or remove it? @michalrus
+      fa.map(rb).handleError(ra)
 
     def meh(implicit M: Monad[F]): FoxyT[F, Unit] =
       fa.void // TODO: remove me? But it’s cute… @michalrus
 
     def failuresToWarnings(valueIfWasFailed: A)(pf: PartialFunction[Failure, Boolean])(
-        implicit F: Monad[F]): FoxyT[F, A] = {
-      val FoxyTF = new FoxyTOps[F] {}
-      fa.flatMapXor {
-        case Xor.Left(fs) ⇒
-          val lpf                  = pf.lift
-          val (warnings, failures) = fs.toList.partition(lpf(_) == Some(true))
-          failures match {
-            case h :: t ⇒
-              // We don’t care about warnings when there’re failures left.
-              FoxyTF.failures[A](NonEmptyList(h, t))
-            case Nil ⇒
-              warnings.traverse(FoxyTF.uiWarning).map(_ ⇒ valueIfWasFailed)
-          }
-        case Xor.Right(a) ⇒
-          FoxyTF.pure(a)
+        implicit F: Monad[F]): FoxyT[F, A] =
+      fa.handleErrorWith { fs ⇒
+        val lpf                  = pf.lift
+        val (warnings, failures) = fs.toList.partition(lpf(_) == Some(true))
+        failures match {
+          case h :: t ⇒
+            // We don’t care about warnings when there’re failures left.
+            FoxyT[F].failures[A](NonEmptyList(h, t))
+          case Nil ⇒
+            warnings.traverse(FoxyT[F].uiWarning).map(_ ⇒ valueIfWasFailed)
+        }
       }
-    }
   }
 
-  trait FoxyTOps[F[_]] {
+  trait FoxyTFunctions[F[_]] {
     def apply[A](a: A)(implicit F: Monad[F]): FoxyT[F, A] = // TODO: remove me? @michalrus
       pure(a)
 
@@ -116,7 +109,8 @@ package object db {
     def good[A](a: A)(implicit F: Monad[F]): FoxyT[F, A] = // TODO: remove me @michalrus
       pure(a)
 
-    def unit(implicit F: Monad[F]): FoxyT[F, Unit] = pure(()) // TODO: remove me? @michalrus
+    def unit(implicit F: Monad[F]): FoxyT[F, Unit] =
+      pure(()) // TODO: remove me? @michalrus
 
     def none[A](implicit F: Monad[F]): FoxyT[F, Option[A]] =
       pure(None) // TODO: remove me? @michalrus
@@ -157,14 +151,12 @@ package object db {
 
     /** Just like ``sequence`` but—in case of a failure—unlawful, as it will join failures from all Foxies. */
     def seqCollectFailures[L[_], A](lfa: L[FoxyT[F, A]])(implicit L: TraverseFilter[L],
-                                                         F: Monad[F]): FoxyT[F, L[A]] = {
-      val FoxyTF = new FoxyTOps[F] {} // FIXME
+                                                         F: Monad[F]): FoxyT[F, L[A]] =
       L.map(lfa)(_.fold(Xor.Left(_), Xor.Right(_))).sequence.flatMap { xa ⇒
         val failures = L.collect(xa) { case Xor.Left(f)  ⇒ f.toList }.toList.flatten
         val values   = L.collect(xa) { case Xor.Right(a) ⇒ a }
-        NonEmptyList.fromList(failures).fold(FoxyTF.pure(values))(FoxyTF.failures(_))
+        NonEmptyList.fromList(failures).fold(FoxyT[F].pure(values))(FoxyT[F].failures(_))
       }
-    }
 
     /** A bit like ``sequence`` but will ignore failed Foxies. */
     // TODO: is this useful enough to have in FoxyT? @michalrus
@@ -186,13 +178,13 @@ package object db {
   // ————————————————————————————— Foxy: aliases —————————————————————————————
 
   type Foxy[A] = FoxyT[Id, A]
-  object Foxy extends FoxyTOps[Id]()
+  val Foxy = FoxyT[Id]
 
   type FoxyTFuture[A] = FoxyT[Future, A] /* replaces the old ResultT */
-  object FoxyTFuture extends FoxyTOps[Future]
+  val FoxyTFuture = FoxyT[Future]
 
   type FoxyTDBIO[A] = FoxyT[DBIO, A] /* replaces the old DbResultT */
-  object FoxyTDBIO extends FoxyTOps[DBIO] {
+  object FoxyTDBIO extends FoxyTFunctions[DBIO] {
     def fromResult[A](ga: FoxyT[Future, A])(
         implicit F: Monad[Future],
         G: Monad[DBIO]): FoxyT[DBIO, A] = // TODO: better name? @michalrus
