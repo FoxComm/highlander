@@ -1,0 +1,27 @@
+[ignore]
+.*/public/.*
+.*/node_modules/babel-.*
+.*/node_modules/fbjs/.*
+.*/node_modules/y18n/.*
+.*/node_modules/json5/.*
+.*/node_modules/systemjs-builder/.*
+.*/node_modules/.tmp/.*
+.*/node_modules/invariant/*
+
+[include]
+src
+
+[libs]
+interfaces/
+
+[options]
+esproposal.decorators=ignore
+esproposal.class_static_fields=enable
+esproposal.class_instance_fields=enable
+module.name_mapper='.+css$' -> 'CSSModule'
+strip_root=true
+module.system=haste
+module.system.node.resolve_dirname=node_modules
+module.system.node.resolve_dirname=src/core
+unsafe.enable_getters_and_setters=true
+suppress_comment=\\(.\\|\n\\)*\\$FlowFixMe
