@@ -4,6 +4,8 @@
 
 FoxCommerce Demo store. Isomorphic React app powered by FoxComm's backend API.
 
+![peacock](https://raw.githubusercontent.com/FoxCommerce/highlander/demo/peacock/peacock.png)
+
 ## Local Development
 
 ### Prerequisites
