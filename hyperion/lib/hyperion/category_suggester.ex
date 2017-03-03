@@ -8,7 +8,6 @@ defmodule CategorySuggester do
     asin = get_product_asin(product_name, cfg)
     case MWSClient.get_product_categories_for_asin(asin, cfg) do
       {:success, resp} ->
-        IO.puts(inspect(resp))
         category = case resp["GetProductCategoriesForASINResponse"]["GetProductCategoriesForASINResult"]["Self"] do
                      x when is_list(x) -> hd x#if (Enum.count(x) > 1), do: tl(x) |> hd , else: hd(x)
                      x -> x
