@@ -1,6 +1,5 @@
-CREATE SEQUENCE amazon_categories_id_seq;
 CREATE TABLE amazon_categories(
-  id INT NOT NULL DEFAULT nextval('amazon_categories_id_seq'),
+  id bigserial PRIMARY KEY,
   node_id int8 NULL,
   node_path varchar(255) NULL,
   size_opts varchar(255) NULL,
