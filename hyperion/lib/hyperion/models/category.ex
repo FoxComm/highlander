@@ -32,7 +32,6 @@ defmodule Category do
   end
 
   def search(query_string, from \\ 0, size \\ 10) do
-    # query = %{from: from, size: size, query: %{term: %{node_path: query_string}}}
     query = %{from: from, size: size,
               query: %{simple_query_string: %{query: "*#{String.downcase(query_string)}*",
                                               analyze_wildcard: true, default_operator: "AND"}}}
