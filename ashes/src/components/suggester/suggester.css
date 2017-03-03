@@ -1,0 +1,73 @@
+.root {
+  position: relative;
+  z-index: 1;
+}
+
+.dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 400px;
+  overflow: auto;
+  border: 1px solid #ccc;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .1);
+  background-color: white;
+  opacity: 0;
+  visibility: hidden;
+  transition: all .5s;
+}
+.input {
+  width: 100%;
+}
+.input:focus ~ .dropdown {
+  opacity: 1;
+  visibility: visible;
+}
+.listHeader {
+  padding: 8px 10px;
+  margin-top: 0px;
+  color: #333;
+  font-size: 12px;
+  line-height: 16px;
+}
+.listHeader._no {
+  font-style: italic;
+}
+
+.item {
+  padding: 6px 10px;
+  border-bottom: 1px solid #eee;
+  transition: all .1s;
+  cursor: pointer;
+}
+.item:hover {
+  background-color: #eee;
+}
+.item._proposed {
+  background: #efe;
+  border-bottom-color: #9f9;
+  border-top: 1px solid #9f9;
+}
+.item._proposed:hover {
+  background: #f9fff9;
+}
+.item:first-of-type {
+  border-top: 1px solid #eee;
+}
+.itemPrefix {
+  display: inline;
+  color: #999;
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.itemValue {
+  color: #333;
+  font-size: 14px;
+  line-height: 20px;
+}
+.item._proposed .itemValue {
+  font-size: 16px;
+  line-height: 22px;
+}

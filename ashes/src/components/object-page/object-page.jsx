@@ -29,7 +29,7 @@ import { SAVE_COMBO, SAVE_COMBO_ITEMS } from 'paragons/common';
 import { supressTV } from 'paragons/object';
 
 // modules
-import * as SchemaActions from 'modules/object-schema';
+import * as schemaActions from 'modules/object-schema';
 
 export function connectPage(namespace, actions) {
   const capitalized = _.upperFirst(namespace);
@@ -76,14 +76,12 @@ export function connectPage(namespace, actions) {
   function generalizeActions(actions) {
     const result = {
       ...actions,
-      ...SchemaActions
+      ...schemaActions
     };
 
     _.each(actionNames, (name, key) => {
       result[`${key}Entity`] = actions[name];
     });
-
-    console.log('result', result);
 
     return result;
   }

@@ -1,0 +1,9 @@
+.root {
+  padding: 30px;
+}
+.suggesterWrapper {
+  display: flex;
+}
+.suggester {
+  flex: 1 1 auto;
+}

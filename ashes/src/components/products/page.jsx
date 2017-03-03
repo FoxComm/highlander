@@ -10,7 +10,7 @@ import { setSkuAttribute, skuId } from 'paragons/product';
 import { assoc } from 'sprout-data';
 
 // actions
-import * as ProductActions from 'modules/products/details';
+import * as productActions from 'modules/products/details';
 import { sanitizeError } from 'modules/products/details';
 import { transitionTo } from 'browserHistory';
 
@@ -26,6 +26,7 @@ import { SAVE_PRODUCT_COMBO, SAVE_PRODUCT_COMBO_ITEMS } from 'paragons/common';
 
 type Props = {
   actions: {
+    newEntity: () => void,
     createProduct: (product: Product) => void,
     fetchProduct: (productId: string, context: string) => Promise<*>,
     productNew: () => void,
@@ -194,7 +195,6 @@ class ProductPage extends ObjectPage {
     const { actions } = this.props;
     const mayBeSaved = this.save();
     if (!mayBeSaved) return;
-    console.log('value', value);
 
     mayBeSaved.then(() => {
       switch (value) {
@@ -248,4 +248,4 @@ class ProductPage extends ObjectPage {
   }
 }
 
-export default connectPage('product', ProductActions)(ProductPage);
+export default connectPage('product', productActions)(ProductPage);
