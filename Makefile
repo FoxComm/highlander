@@ -11,7 +11,7 @@ dotenv:
 
 up:
 	$(call header, Creating GCE Machine)
-	ansible-playbook --user=$(GOOGLE_SSH_USERNAME) --private-key=$(GOOGLE_SSH_KEY) tabernacle/ansible/goldrush_appliance.yml
+	ansible-playbook --user=$(GOOGLE_SSH_USERNAME) --private-key=$(GOOGLE_SSH_KEY) --extra-vars '{"FIRST_RUN": true}' tabernacle/ansible/goldrush_appliance.yml
 	@cat goldrush.log
 
 destroy:
@@ -23,6 +23,9 @@ destroy:
 update-app:
 	cd tabernacle && ansible-playbook -v -i inventory/static/dev ansible/goldrush_update_app.yml
 
-provision: up
+provision:
+	$(call header, Provisioning GCE Machine)
+	ansible-playbook --user$(GOOGLE_SSH_USERNAME) --private-key=$(GOOGLE_SSH_KEY) tabernacle/ansible/goldrush_applianca.yml
+	@cat goldrush.log
 
 .PHONY: up migrate provision destroy update-app dotenv prepare clean

@@ -1,0 +1,17 @@
+---
+
+- name: Copy Peacock Marathon JSON
+  template: src=firebrand.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
+
+- name: Update Peacock in Marathon
+  shell: 'curl -sS -XPUT -d@/marathon/applications/peacock.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/peacock'
+
+- name: Restart Peacock in Marathon
+  shell: 'curl -sS -XPOST http://{{marathon_server}}/v2/apps/peacock/restart'
+
+- name: Get Peacock Marathon tasks in `healthy` state
+  shell: curl -sS -XGET http://{{marathon_server}}/v2/apps/peacock | jq '.app.tasksHealthy > 0'
+  register: healthy_tasks_available
+  until: healthy_tasks_available.stdout == 'true'
+  retries: "{{marathon_retries}}"
+  delay: "{{marathon_delay}}"

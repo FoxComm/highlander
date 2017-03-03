@@ -3,12 +3,12 @@
 - name: Restart Postgres
   service: name=postgresql state=restarted enabled=yes
 
-- name: Get Latest Phoenix Image
-  shell: docker pull {{docker_registry}}:5000/phoenix:{{docker_tags.phoenix}}
+- name: Get Latest Phoenix Seeder Image
+  shell: docker pull {{docker_registry}}:5000/phoenix-seeder:{{docker_tags.phoenix}}
   when: with_base_seeds is defined and with_base_seeds
 
 - name: Seed Phoenix Database
-  shell: docker run --network host -t {{docker_registry}}:5000/phoenix:{{docker_tags.phoenix}} java -Dphoenix.env={{phoenix_env}} -Ddb.host={{db_host}} -Ddb.url=jdbc:postgresql://{{db_host}}/{{db_name}}?user={{db_user}} -Ddb.name={{db_name}} -cp {{phoenix_jar}} {{seeds_cmd}}
+  shell: docker run --network host -t {{docker_registry}}:5000/phoenix-seeder:{{docker_tags.phoenix}} java -Dphoenix.env={{phoenix_env}} -Ddb.host={{db_host}} -Ddb.url=jdbc:postgresql://{{db_host}}/{{db_name}}?user={{db_user}} -Ddb.name={{db_name}} -cp '{{phoenix_seeder_jar}}:{{phoenix_jar}}' {{seeds_cmd}}
   when: with_base_seeds is defined and with_base_seeds
 
 - name: Wait for Phoenix to become available
@@ -16,7 +16,7 @@
   when: with_base_seeds is defined and with_base_seeds
 
 - name: Gatling Seed Db
-  shell: docker run --network host -t {{docker_registry}}:5000/phoenix:{{docker_tags.phoenix}} java -Dphoenix.env={{phoenix_env}} -Dapp.baseUrl=http://{{phoenix_server}} -Dhttp.interface={{phoenix_host}} -Ddb.host={{db_host}} -Ddb.url=jdbc:postgresql://{{db_host}}/{{db_name}}?user={{db_user}} -Ddb.name={{db_name}} -cp {{phoenix_jar}} {{gatling_oneshot_seeds_cmd}}
+  shell: docker run --network host -t {{docker_registry}}:5000/phoenix-seeder:{{docker_tags.phoenix}} java -Dphoenix.env={{phoenix_env}} -Dapp.baseUrl=http://{{phoenix_server}} -Dhttp.interface={{phoenix_host}} -Ddb.host={{db_host}} -Ddb.url=jdbc:postgresql://{{db_host}}/{{db_name}}?user={{db_user}} -Ddb.name={{db_name}} -cp '{{phoenix_seeder_jar}}:{{phoenix_jar}}' {{gatling_oneshot_seeds_cmd}}
   when: with_gatling_seeder is defined and with_gatling_seeder
 
 - name: Create Middlewarehouse Seeder directory

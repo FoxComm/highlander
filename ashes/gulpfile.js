@@ -13,8 +13,6 @@ process.env.NODE_PATH = `${process.env.NODE_PATH}:${path.resolve('./lib')}`;
 
 const opts = new Config().gulp;
 
-let exitStatus = 0;
-
 for (let task of fs.readdirSync(opts.taskDir)) {
   let file = path.join(opts.taskDir, task);
   require(file)(gulp, opts, $);
@@ -23,7 +21,13 @@ for (let task of fs.readdirSync(opts.taskDir)) {
 gulp.task('clean', () => del(['build/**/*', 'lib/**/*']));
 
 gulp.task('build', function(cb) {
-  runSequence('clean', 'imagemin', 'less','sprites','precompile', 'browserify', 'css', cb);
+
+   let tasks = ['imagemin', 'less', 'sprites', 'precompile', 'browserify', 'css'];
+  if (process.env.NODE_ENV === 'production') {
+    tasks = ['clean', ...tasks];
+  }
+  runSequence(...tasks, cb);
+
 });
 
 gulp.task('dev', function(cb) {
@@ -37,7 +41,7 @@ gulp.task('dev', function(cb) {
     process.env.ASHES_NOTIFY_ABOUT_TASKS ? 'notifier' : null
   ]);
 
-  runSequence.apply(this, tasks.concat(cb));
+  runSequence(...tasks, cb);
 });
 
 gulp.task('default', ['build']);
@@ -46,7 +50,7 @@ function handleErrors(err) {
   if (err) {
     console.error(err);
   }
-  exitStatus = 1;
+  process.exitCode = 1;
   $.util.beep();
 }
 
@@ -54,7 +58,3 @@ process.on('unhandledRejection', handleErrors);
 process.on('uncaughtException', handleErrors);
 
 gulp.on('err', handleErrors);
-
-process.on('exit', function() {
-  process.exit(exitStatus);
-});

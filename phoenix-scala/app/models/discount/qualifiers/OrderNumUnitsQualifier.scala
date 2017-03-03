@@ -1,7 +1,7 @@
 package models.discount.qualifiers
 
 import models.discount.DiscountInput
-import services.Result
+import utils.db._
 import utils.aliases._
 
 case class OrderNumUnitsQualifier(numUnits: Int) extends Qualifier {

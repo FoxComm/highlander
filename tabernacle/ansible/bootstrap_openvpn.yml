@@ -12,7 +12,7 @@
   vars_prompt:
     - name: "hostname"
       prompt: "Enter a hostname with a VPN to configure"
-      default: "vanilla-vpn"
+      default: "vpn"
       private: no
 
   roles:

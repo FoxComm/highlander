@@ -28,6 +28,7 @@
     - tree
     - unzip
     - vim
+    - zip
 
 - name: Create /etc/profile.d Directory
   file: path=/etc/profile.d state=directory

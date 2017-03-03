@@ -1,4 +1,5 @@
 defmodule Hyperion.API do
+  require Logger
   use Maru.Router
   plug CORSPlug
   plug Plug.Logger
@@ -25,6 +26,7 @@ defmodule Hyperion.API do
   mount Hyperion.Router.V1
 
   rescue_from :all, as: e do
+    Logger.error "Exception occured: #{inspect(e)}"
     st = case e do
       Maru.Exceptions.NotFound -> 404
       Unauthorized -> 401
@@ -34,6 +36,6 @@ defmodule Hyperion.API do
 
     conn
     |> put_status(st)
-    |> json(%{error: e.message})
+    |> json(%{error: inspect(e)})
   end
 end
