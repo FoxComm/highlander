@@ -93,9 +93,26 @@ export default class PromotionForm extends ObjectDetails {
   }
 
   @autobind
+  handleQualifierChange1(qualifier: Object) {
+    const newPromotion = setDiscountAttr(this.props.object,
+      'qualifier1', qualifier
+    );
+    this.props.onUpdateObject(newPromotion);
+  }
+
+  @autobind
   handleOfferChange(offer: Object) {
     const newPromotion = setDiscountAttr(this.props.object,
       'offer', offer
+    );
+
+    this.props.onUpdateObject(newPromotion);
+  }
+
+  @autobind
+  handleOfferChange1(offer: Object) {
+    const newPromotion = setDiscountAttr(this.props.object,
+      'offer1', offer
     );
 
     this.props.onUpdateObject(newPromotion);
@@ -153,9 +170,27 @@ export default class PromotionForm extends ObjectDetails {
   }
 
   renderDiscountsSection() {
-    return (
-      <Discounts/>
-    );
+    let qualifier = _.get(this.props.object, 'discounts.0.attributes.qualifier1.v', {
+        discountType: 'order',
+        qualifierType: 'noQualifier',
+        widgetValue: 0,
+        exGiftCardQual: true
+    });
+    let offer = _.get(this.props.object, 'discounts.0.attributes.offer1.v', {
+        offerType: 'orderPercentOff',        
+        exGiftCardOffer: true
+    });
+    return (<Discounts 
+        onChangeQualifier={this.handleQualifierChange1} 
+        onChangeOffer={this.handleOfferChange1} 
+        discounts={{
+          qualifier: {
+            ...qualifier
+          },
+          offer: {
+            ...offer
+          }
+      }}/>);
   }
 
   renderAddDiscount() {

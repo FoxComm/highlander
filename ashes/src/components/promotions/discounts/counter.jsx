@@ -14,7 +14,7 @@ function toNumber(value, def = 1) {
 const CounterWidget = (props) => {
   const value = toNumber(props.value);
   const setValue = value => {
-    props.onChange(value)
+    props.onChange(value);
   };
 
   const actions = {

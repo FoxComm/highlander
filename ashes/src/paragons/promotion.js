@@ -7,14 +7,12 @@ function addEmptyDiscount(promotion) {
     createdAt: null,
     attributes: {
       qualifier: {
-        qualGiftCardExcl: true,
         t: 'qualifier',
         v: {
           orderAny: {}
         }
       },
       offer: {
-        offerGiftCardExcl: true,
         t: 'offer',
         v: {
           orderPercentOff: {}
