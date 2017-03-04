@@ -21,6 +21,7 @@ import consumer.failures.{Failures, GeneralFailure}
 import consumer.utils.HttpSupport.HttpResult
 import consumer.utils.{Phoenix, PhoenixConnectionInfo}
 import org.json4s.DefaultFormats
+import org.json4s.Extraction
 import org.json4s.JsonAST.{JNothing, JValue}
 import org.json4s.jackson.JsonMethods.parse
 import org.json4s.jackson.Serialization.{write ⇒ render}
@@ -39,7 +40,7 @@ final case class Connection(dimension: String, objectId: String, data: JValue, a
 
 final case class AppendActivity(activityId: String, data: JValue)
 final case class AppendNotification(
-    sourceDimension: String, sourceObjectId: String, activityId: String, data: JValue)
+    sourceDimension: String, sourceObjectId: String, activity: JValue)
 
 trait ActivityConnector {
   def process(offset: Long, activity: Activity)(implicit ec: EC): Future[Seq[Connection]]
@@ -119,7 +120,8 @@ class ActivityProcessor(
   }
 
   private def process(activity: Activity, cs: Seq[Connection]): Future[Seq[Unit]] = {
-    Future.sequence(cs.map(c ⇒ pushActivityConnectionToKafka(activity, c)))
+    Future.sequence(cs.map(c ⇒ pushActivityConnectionToKafka(activity, c)) ++ cs.map(c ⇒
+              createPhoenixNotification(activity, c, phoenix)))
   }
 
   private def pushActivityConnectionToKafka(activity: Activity, connection: Connection) = Future {
@@ -143,11 +145,11 @@ class ActivityProcessor(
     ()
   }
 
-  private def createPhoenixNotification(conn: Connection, phoenix: Phoenix): HttpResult = {
+  private def createPhoenixNotification(
+      activity: Activity, conn: Connection, phoenix: Phoenix): Future[Unit] = Future {
     val body = AppendNotification(sourceDimension = conn.dimension,
                                   sourceObjectId = conn.objectId,
-                                  activityId = conn.activityId,
-                                  data = JNothing)
+                                  activity = Extraction.decompose(activity))
 
     val notification = render(body)
     Console.err.println(s"POST /notifications, $notification")
@@ -158,6 +160,8 @@ class ActivityProcessor(
             conn.activityId, conn.dimension, conn.objectId, response)
       }
       response
+    } map { r ⇒
+      ()
     }
   }
 }

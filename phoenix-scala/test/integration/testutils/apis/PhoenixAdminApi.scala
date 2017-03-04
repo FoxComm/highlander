@@ -713,7 +713,7 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
     def create(payload: CreateNotification): HttpResponse =
       POST(notificationsPrefix, payload)
 
-    def updateLastSeen(activityId: Int): HttpResponse =
+    def updateLastSeen(activityId: String): HttpResponse =
       POST(s"$notificationsPrefix/last-seen/$activityId")
   }
 }

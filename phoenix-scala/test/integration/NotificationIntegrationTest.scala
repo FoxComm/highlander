@@ -6,9 +6,9 @@ import models.NotificationSubscription._
 import models.account._
 import models.activity._
 import models.{NotificationSubscriptions, NotificationTrailMetadata}
-import org.json4s.JsonAST.JString
+import org.json4s.JsonAST._
 import org.json4s.jackson.Serialization.write
-import payloads.CreateNotification
+import payloads.{CreateNotification, NotificationActivity}
 import responses.ActivityConnectionResponse.Root
 import responses.{ActivityResponse, LastSeenActivityResponse}
 import services.NotificationManager
@@ -61,38 +61,16 @@ class NotificationIntegrationTest
   "POST v1/notifications/last-seen/:activityId" - {
 
     "updates last seen id" in new Fixture2 {
-      def lastSeenId(adminId: Int) =
-        Trails
-          .findNotificationByAdminId(adminId)
-          .result
-          .headOption
-          .gimme
-          .value
-          .data
-          .value
-          .extract[NotificationTrailMetadata]
-          .lastSeenActivityId
 
       subscribeToNotifications()
       notificationsApi.create(newNotification).mustBeOk()
 
-      lastSeenId(adminId) must === (0)
-      val data = notificationsApi.updateLastSeen(1).as[LastSeenActivityResponse]
-      data.trailId must === (1)
-      data.lastSeenActivityId must === (1)
-      lastSeenId(adminId) must === (1)
+      val data = notificationsApi.updateLastSeen("test").as[LastSeenActivityResponse]
+      data.lastSeenActivityId must === ("test")
 
-      notificationsApi.create(newNotification.copy(activityId = 2)).mustBeOk()
+      notificationsApi.create(newNotification.copy(activityId = "test2")).mustBeOk()
 
-      sseProbe(s"v1/notifications").requestNext(activityJson(2))
-    }
-
-    "404 if activity not found" in new StoreAdmin_Seed {
-      notificationsApi.updateLastSeen(666).mustFailWith404(NotFoundFailure404(Activity, 666))
-    }
-
-    "400 if notification trail not found" in new Fixture {
-      notificationsApi.updateLastSeen(activityId).mustFailWith400(NotificationTrailNotFound400(1))
+      sseProbe(s"v1/notifications").requestNext(activityJson("test2"))
     }
   }
 
@@ -193,20 +171,25 @@ class NotificationIntegrationTest
 
   val newActivity = Activity(activityType = "foo",
                              data = JString("data"),
-                             context = ActivityContext.build(1, "x", scope = LTree(""), "y"))
+                             context = ActivityContext.build(1, "x", scope = LTree("1"), "y"))
 
   val createActivity = Activities.create(newActivity)
 
   val createDimension =
     Dimensions.create(Dimension(name = Dimension.order, description = Dimension.order))
 
-  def activityJson(id: Int) =
+  def activityJson(id: String) =
     write(ActivityResponse.build(newActivity.copy(id = id)))
 
-  val newNotification = CreateNotification(sourceDimension = Dimension.order,
-                                           sourceObjectId = "1",
-                                           activityId = 1,
-                                           data = None)
+  val newNotification = CreateNotification(
+      sourceDimension = Dimension.order,
+      sourceObjectId = "1",
+      activity = NotificationActivity(
+          id = "test",
+          kind = "test",
+          data = JNone,
+          context =
+            ActivityContext(userId = 1, userType = "x", transactionId = "y", scope = LTree("1"))))
 
   def subscribeToNotifications(adminIds: Seq[Int] = Seq(1),
                                dimension: String = Dimension.order,

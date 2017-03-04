@@ -63,35 +63,19 @@ object ActivityContext {
   *
   * An activity can be part of many activity trails in multiple dimensions.
   */
-case class Activity(id: Int = 0,
+case class Activity(id: String,
                     activityType: ActivityType,
                     data: Json,
                     context: ActivityContext,
                     createdAt: Instant = Instant.now)
-    extends FoxModel[Activity]
-
-class Activities(tag: Tag) extends FoxTable[Activity](tag, "activities") {
-  def id           = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def activityType = column[ActivityType]("activity_type")
-  def data         = column[Json]("data")
-  def context      = column[ActivityContext]("context")
-  def createdAt    = column[Instant]("created_at")
-
-  def * =
-    (id, activityType, data, context, createdAt) <> ((Activity.apply _).tupled, Activity.unapply)
-}
 
 // Any specific activity can have an implicit converion function to the opaque activity
 // Opaque here means the scala type system cannot see the activity
 case class OpaqueActivity(activityType: ActivityType, data: Json)
 
-object Activities
-    extends FoxTableQuery[Activity, Activities](new Activities(_))
-    with LazyLogging
-    with ReturningId[Activity, Activities] {
+object Activities extends LazyLogging {
 
-  val returningLens: Lens[Activity, Int] = lens[Activity].id
-  val producer                           = new KafkaProducer[GenericData.Record, GenericData.Record](kafkaProducerProps())
+  val producer = new KafkaProducer[GenericData.Record, GenericData.Record](kafkaProducerProps())
 
   val topic  = "scoped_activities"
   val schema = new Schema.Parser().parse("""
@@ -154,21 +138,8 @@ object Activities
     props
   }
 
-  def encode(record: GenericData.Record): Array[Byte] = {
-    val writer                 = new SpecificDatumWriter[GenericRecord](schema)
-    val out                    = new ByteArrayOutputStream()
-    val encoder: BinaryEncoder = EncoderFactory.get().binaryEncoder(out, null)
-
-    writer.write(record, encoder)
-    encoder.flush()
-
-    val bytes: Array[Byte] = out.toByteArray()
-    out.close()
-    bytes
-  }
-
   def log(a: OpaqueActivity)(implicit activityContext: AC, ec: EC): DbResultT[Activity] = {
-    val activity = Activity(id = 0,
+    val activity = Activity(id = "",
                             activityType = a.activityType,
                             data = a.data,
                             context = activityContext,
@@ -187,9 +158,11 @@ object Activities
 
     for {
       id ← * <~ nextActivityId()
-      _ = record.put("id", s"phoenix-$id")
-      _ = sendActivity(activity, record)
-    } yield activity
+      phoenixId      = s"phoenix-$id"
+      _              = record.put("id", phoenixId)
+      _              = sendActivity(activity, record)
+      activityWithId = activity.copy(id = phoenixId)
+    } yield activityWithId
   }
 
   def nextActivityId()(implicit ec: EC): DbResultT[Int] =

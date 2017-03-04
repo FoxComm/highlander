@@ -8,11 +8,7 @@
   when: with_base_seeds is defined and with_base_seeds
 
 - name: Seed Phoenix Database
-  shell: docker run --network host -t {{docker_registry}}:5000/phoenix-seeder:{{docker_tags.phoenix}} java -Dphoenix.env={{phoenix_env}} -Ddb.host={{db_host}} -Ddb.url=jdbc:postgresql://{{db_host}}/{{db_name}}?user={{db_user}} -Ddb.name={{db_name}} -cp '{{phoenix_seeder_jar}}:{{phoenix_jar}}' {{seeds_cmd}}
-  when: with_base_seeds is defined and with_base_seeds
-
-- name: Wait for Phoenix to become available
-  wait_for: host={{phoenix_host}} port={{phoenix_port}} timeout=1200
+  shell: docker run --network host -t {{docker_registry}}:5000/phoenix-seeder:{{docker_tags.phoenix}} java -Dphoenix.env={{phoenix_env}} -Ddb.host={{db_host}} -Ddb.url=jdbc:postgresql://{{db_host}}/{{db_name}}?user={{db_user}} -Ddb.name={{db_name}} -Dapis.kafka.schemaRegistryURL=http://{{schema_server}} -Dapis.kafka.bootStrapServersConfig={{kafka_server}} -cp '{{phoenix_seeder_jar}}:{{phoenix_jar}}' {{seeds_cmd}}
   when: with_base_seeds is defined and with_base_seeds
 
 - name: Gatling Seed Db
