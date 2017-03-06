@@ -1,9 +1,7 @@
 import FoxCommApi from '@foxcomm/api-js';
 import superagent from 'superagent';
 import cookie from 'cookie';
-
-const API_BASE_URL = process.env.API_URL;
-const STRIPE_KEY = 'pk_test_JvTXpI3DrkV6QwdcmZarmlfk';
+import config from '../config';
 
 const endpoints = {
   customers: '/v1/customers',
@@ -266,7 +264,7 @@ class Albums {
   uploadImages(context, albumId, images) {
     return images
       .reduce((req, file) => req.attach('upload-file', file), this.api.agent
-        .post(`${API_BASE_URL}/api/${endpoints.albumImages(context, albumId)}`))
+        .post(`${config.apiUrl}/api/${endpoints.albumImages(context, albumId)}`))
       .withCredentials()
       .then(res => res.body);
   }
@@ -301,7 +299,7 @@ class StoreAdmins {
     this.api = api;
   }
   list(maxCount = 50) {
-    const url = `${API_BASE_URL}/api/${endpoints.esStoreAdmins}`;
+    const url = `${config.apiUrl}/api/${endpoints.esStoreAdmins}`;
     const request = this.api.agent.post(url).withCredentials();
     const cookies = cookie.parse(request.cookies);
     return request
@@ -422,14 +420,14 @@ export default class Api extends FoxCommApi {
   }
   static withoutCookies() {
     return new Api({
-      api_url: `${API_BASE_URL}/api`,
-      stripe_key: STRIPE_KEY,
+      api_url: `${config.apiUrl}/api`,
+      stripe_key: config.stripeKey,
     });
   }
   static withCookies() {
     return new Api({
-      api_url: `${API_BASE_URL}/api`,
-      stripe_key: STRIPE_KEY,
+      api_url: `${config.apiUrl}/api`,
+      stripe_key: config.stripeKey,
       agent: superagent.agent(),
     });
   }

@@ -15,6 +15,7 @@
     "test-cart": "ava --verbose tests/cart.test.js || true",
     "test-carts": "ava --verbose tests/carts.test.js || true",
     "test-order": "ava --verbose tests/order.test.js || true",
+    "test-storefront": "ava --verbose tests/storefront.test.js || true",
     "test-dev": "ava --verbose tests/dev.test.js || true"
   },
   "dependencies": {
@@ -25,8 +26,7 @@
     "babel-preset-stage-2": "^6.22.0",
     "cookie": "^0.3.1",
     "faker": "^3.1.0",
-    "superagent": "^3.4.1",
-    "supertest": "^3.0.0"
+    "superagent": "^3.4.1"
   },
   "devDependencies": {
     "babel-eslint": "^7.1.1",
