@@ -34,3 +34,17 @@
 - name: Run Middlewarehouse Seeder docker container
   command: docker run --env-file "{{middlewarehouse_dir}}/seeder/.env" --network host {{docker_registry}}:5000/middlewarehouse-seeder:{{docker_tags.middlewarehouse}}
   when: with_mwh_seeder is defined and with_mwh_seeder
+
+#####
+
+- name: Copy Hyperion Seeder .env
+  template: src=hyperion.env dest={{hyperion_dir}}/priv/seeds/.env
+  when: with_hyperion_seeder is defined and with_hyperion_seeder
+
+- name: Get Latest Hyperion Seeder Image
+  shell: docker pull {{docker_registry}}:5000/hyperion-seeder:{{docker_tags.hyperion}}
+  when: with_hyperion_seeder is defined and with_hyperion_seeder
+
+- name: Run Hyperion Seeder docker container
+  command: docker run --env-file "{{hyperion_dir}}/seeder/.env" --network host {{docker_registry}}:5000/hyperion-seeder:{{docker_tags.hyperion}}
+  when: with_hyperion_seeder is defined and with_hyperion_seeder
