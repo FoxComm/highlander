@@ -6,6 +6,7 @@ import (
 
 type Product struct {
 	ID         int              `json:"id"`
+	Slug       string           `json:"slug"`
 	Context    Context          `json:"context"`
 	Attributes ObjectAttributes `json:"attributes"`
 	Variants   Variants         `json:"variants"`

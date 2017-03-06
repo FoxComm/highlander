@@ -67,6 +67,14 @@ object SearchIndexManager {
     }
   }
 
+  def pushToConsul(id: Int)(implicit ec: EC, db: DB): DbResultT[Unit] = {
+    for {
+      indexFields ← * <~ getIndexWithFields(id)
+      (index, fields) = indexFields
+      _ ← * <~ failIfNot(pushSettingsToConsul(index, fields), UnableToWriteToConsul)
+    } yield {}
+  }
+
   private def getIndexWithFields(id: Int)(implicit ec: EC,
                                           db: DB): DbResultT[(SearchIndex, Seq[SearchField])] =
     for {

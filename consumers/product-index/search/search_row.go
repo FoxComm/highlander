@@ -12,6 +12,7 @@ import (
 type SearchRow struct {
 	ProductID   int             `json:"productId"`
 	Context     string          `json:"context"`
+	Slug        string          `json:"context"`
 	SKUs        []SearchSKU     `json:"skus"`
 	Variants    []SearchVariant `json:"variants"`
 	Title       string          `json:"title"`
@@ -59,6 +60,7 @@ func NewSearchRow(p *api.Product, pp PartialProduct) (*SearchRow, error) {
 	row.Context = p.Context.Name
 	row.Description = p.Description()
 	row.Tags = p.Tags()
+	row.Slug = p.Slug
 	row.Variants = pp.Variants
 
 	ss := []SearchSKU{}

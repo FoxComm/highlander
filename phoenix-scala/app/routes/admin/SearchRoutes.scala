@@ -32,6 +32,11 @@ object SearchRoutes {
             mutateOrFailures {
               SearchIndexManager.update(id, payload)
             }
+          } ~
+          (post & path("pushToConsul")) {
+            doOrFailures {
+              SearchIndexManager.pushToConsul(id)
+            }
           }
         }
       }
