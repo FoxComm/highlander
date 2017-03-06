@@ -21,7 +21,8 @@ build:
 	make prepare
 
 prepare:
-	$(call header, Building)	
+	$(call header, Building)
+	mix local.hex --force
 	mix deps.get
 	
 test:
