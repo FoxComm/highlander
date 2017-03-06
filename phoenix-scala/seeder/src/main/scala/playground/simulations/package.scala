@@ -1,14 +1,12 @@
+package playground
+
 import io.gatling.core.Predef._
 import io.gatling.core.structure.{ChainBuilder, StructureBuilder}
 import io.gatling.http.request.builder.HttpRequestBuilder
-import io.gatling.jdbc.Predef.jdbcFeeder
-import seeds.Conf.{dbPassword, dbUrl, dbUser}
 
 import scala.concurrent.duration._
 
-package object helpers {
-
-  def dbFeeder(sql: String) = jdbcFeeder(dbUrl, dbUser, dbPassword, sql)
+package object simulations {
 
   implicit class StopOnFailure[B <: StructureBuilder[B]](val builder: B) extends AnyVal {
     def stopOnFailure =

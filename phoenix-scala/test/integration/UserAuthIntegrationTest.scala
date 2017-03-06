@@ -47,7 +47,7 @@ class UserAuthIntegrationTest
 
   }
 
-  "simulation" - {
+  "simulations should be successful" - {
     "evil guest scenario replay" in {
       publicApi.prepare.register(customerPayload).run.mustBeOk()
 

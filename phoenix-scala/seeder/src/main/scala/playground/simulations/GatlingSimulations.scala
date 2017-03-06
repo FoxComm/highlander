@@ -1,6 +1,6 @@
-package playground
+package playground.simulations
 
-import seeds.Seeder
+import gatling.seeds.Seeder
 
 // running gatling sims as an integration tests
 // https://github.com/FoxComm/highlander/pull/732#discussion_r98843060

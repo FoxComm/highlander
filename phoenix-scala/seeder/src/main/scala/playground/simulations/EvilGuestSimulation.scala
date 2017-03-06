@@ -1,13 +1,11 @@
-package playground
+package playground.simulations
 
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import payloads.CustomerPayloads.CreateCustomerPayload
 import payloads.LoginPayload
-import seeds.Seeder
 import utils.JsonFormatters
-import helpers._
 import scala.language.postfixOps
 import scala.util.Random
 

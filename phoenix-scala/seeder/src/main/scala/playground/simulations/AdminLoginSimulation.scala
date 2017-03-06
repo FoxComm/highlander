@@ -1,4 +1,4 @@
-package playground
+package playground.simulations
 
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
