@@ -59,7 +59,7 @@ class App extends KoaApp {
   }
 
   start() {
-    this.listenPort = process.env.PORT ? Number(process.env.PORT) : 4044;
+    this.listenPort = process.env.PORT ? Number(process.env.PORT) : 4041;
 
     this.listen(this.listenPort);
     this.logInfo();
