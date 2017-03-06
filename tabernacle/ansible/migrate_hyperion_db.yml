@@ -1,0 +1,19 @@
+---
+
+- name: Migrate DB
+  hosts: '{{hostname}}'
+  vars:
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+    download_flyway: false
+  vars_prompt:
+    - name: "hostname"
+      prompt: "Enter a hostname with a database to migrate"
+      default: "vanilla-db"
+      private: no
+    - name: "middlewarehouse_db_name"
+      prompt: "Enter name of hyperion db to migrate"
+      default: "hyperion"
+      private: no
+
+  roles:
+      - { role: prod/migrate_hyperion_db }
