@@ -1,5 +1,6 @@
 package services.actors
 
+import cats.implicits._
 import java.time.Instant
 
 import scala.util.Success
@@ -8,7 +9,6 @@ import models.activity.ActivityContext
 import models.cord.Order._
 import models.cord.{Order, Orders}
 import services.LogActivity
-import services.Result
 import utils.aliases._
 import utils.db.javaTimeSlickMapper
 import utils.db.ExPostgresDriver.api._
@@ -16,6 +16,7 @@ import utils.db._
 
 case object Tick
 
+// FIXME: what is this, Result has Future inside! @michalrus
 case class RemorseTimerResponse(updatedQuantity: Result[Int])
 
 class RemorseTimer(implicit db: DB, ec: EC) extends Actor {
@@ -52,7 +53,8 @@ class RemorseTimerMate(implicit ec: EC) extends Actor with ActorLogging {
 
   override def receive = {
     case response: RemorseTimerResponse ⇒
-      response.updatedQuantity.onComplete {
+      response.updatedQuantity.runEmptyA.value.onComplete {
+        // TODO: do we now quantity is `Failures Xor Int` here? @michalrus
         case Success(quantity) ⇒ log.debug(s"Remorse timer updated $quantity orders")
         case _                 ⇒ log.error("Remorse timer failed")
       }

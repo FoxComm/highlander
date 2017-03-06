@@ -29,11 +29,11 @@ defmodule Hyperion.Amazon.TemplateBuilder do
   end
 
   def books_category(list) do
-    EEx.eval_string(Hyperion.Amazon.Templates.Categories.Books.template_string, list)
+    EEx.eval_string(Hyperion.Amazon.Templates.Categories.Books.template_string, assigns: list)
   end
 
   def clothing_category(list) do
-    EEx.eval_string(Hyperion.Amazon.Templates.Categories.ClothingAccessories.template_string, list)
+    EEx.eval_string(Hyperion.Amazon.Templates.Categories.ClothingAccessories.template_string, assigns: list)
   end
 
   def common_category(_list) do

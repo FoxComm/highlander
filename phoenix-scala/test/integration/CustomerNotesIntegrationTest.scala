@@ -1,5 +1,6 @@
 import java.time.Instant
 
+import cats.implicits._
 import failures.NotFoundFailure404
 import models.Notes
 import models.account._
@@ -48,7 +49,7 @@ class CustomerNotesIntegrationTest
       val createNotes = List("abc", "123", "xyz").map { body ⇒
         CustomerNoteManager.create(customer.accountId, storeAdmin, CreateNote(body))
       }
-      DbResultT.sequence(createNotes).gimme
+      DbResultT.seqCollectFailures(createNotes).void.gimme
 
       val notes = notesApi.customer(customer.accountId).get().as[Seq[AdminNotes.Root]]
       notes must have size 3

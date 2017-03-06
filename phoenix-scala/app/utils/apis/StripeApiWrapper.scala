@@ -3,6 +3,7 @@ package utils.apis
 import com.stripe.model.{DeletedCard, Charge ⇒ StripeCharge, Customer ⇒ StripeCustomer}
 import services._
 import utils.aliases.stripe._
+import utils.db._
 
 /**
   * Low-level wrapper for Stripe API

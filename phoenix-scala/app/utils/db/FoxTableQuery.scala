@@ -1,6 +1,8 @@
 package utils.db
 
-import cats.data.Xor
+import cats._
+import cats.data._
+import cats.implicits._
 import failures.{Failure, Failures}
 import slick.dbio.DBIO
 import slick.driver.PostgresDriver.api._
@@ -72,10 +74,10 @@ abstract class FoxTableQuery[M <: FoxModel[M], T <: FoxTable[M]](construct: Tag 
   protected def beforeSave(model: M): Failures Xor M =
     model.sanitize.validate.toXor
 
-  private def beforeSaveBatch(unsaved: Iterable[M])(implicit ec: EC): DbResultT[Seq[M]] =
-    DbResultT.sequence {
-      unsaved.map(m ⇒ DbResultT.fromXor(beforeSave(m)))
-    }.map(_.toSeq)
+  private def beforeSaveBatch(unsaved: Iterable[M])(implicit ec: EC): DbResultT[List[M]] =
+    DbResultT.seqCollectFailures {
+      unsaved.toList.map(m ⇒ DbResultT.fromXor(beforeSave(m)))
+    }
 
   def deleteById[A](id: M#Id, onSuccess: ⇒ DbResultT[A], onFailure: M#Id ⇒ Failure)(
       implicit ec: EC): DbResultT[A] = {

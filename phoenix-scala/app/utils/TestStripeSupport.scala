@@ -6,9 +6,9 @@ import scala.collection.JavaConversions._
 import com.stripe.model.{DeletedCustomer, Token}
 import faker.Lorem
 import models.location.Address
-import services.Result
 import utils.aliases.stripe.StripeCustomer
 import utils.apis.StripeWrapper
+import utils.db._
 import utils.seeds.Factories
 
 object TestStripeSupport {

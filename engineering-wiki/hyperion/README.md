@@ -241,6 +241,41 @@ body:
 }
 ```
 
+####Submit images feed
+
+*request*
+
+```
+POST /v1/images
+```
+body:
+
+```json
+{
+  "ids":[304]
+}
+```
+
+*response*
+
+```json
+{
+    "SubmitFeedResponse": {
+        "SubmitFeedResult": {
+            "FeedSubmissionInfo": {
+                "SubmittedDate": "2017-03-02T09:53:03+00:00",
+                "FeedType": "_POST_PRODUCT_IMAGE_DATA_",
+                "FeedSubmissionId": "50070017207",
+                "FeedProcessingStatus": "_SUBMITTED_"
+            }
+        },
+        "ResponseMetadata": {
+            "RequestId": "58b10f54-a747-4ea5-b0b0-d978b89a3227"
+        }
+    }
+}
+```
+
 ####List matching products by query string
 
 *request*
@@ -522,6 +557,88 @@ GET /v1/products/categories/:asin
             }
         }
     }
+}
+```
+
+####Search for Amazon category ID pair: `department — item-type`
+
+|name|type|description|required?|
+|----|----|-----------|---------|
+|node_path |String|Query string |Yes|
+|from |Integer|Used for paginate results. Default value is: `0` |No|
+|size |Integer|Used for paginate results. Default value is: `10` |No|
+
+*request*
+```
+GET /v1/categories?node_path=t-shirt&size=2
+```
+
+**response**
+
+```json
+{
+    "items": [
+        {
+            "size_opts": null,
+            "node_path": "Clothing, Shoes & Jewelry/Baby/Baby Boys/Clothing/Swim/Swimwear Sets/T-Shirt Sets",
+            "node_id": 6259178011,
+            "item_type": "infant-and-toddler-swimwear-t-shirt-sets",
+            "department": "baby-boys"
+        },
+        {
+            "size_opts": null,
+            "node_path": "Clothing, Shoes & Jewelry/Boys/Clothing/Swim/Swimwear Sets/T-Shirt Sets",
+            "node_id": 6259168011,
+            "item_type": "swimwear-t-shirt-sets",
+            "department": "boys"
+        }
+    ],
+    "count": 2
+}
+```
+
+####Suggest categories by product title
+
+*request*
+
+```
+GET /v1/categories/suggest?q=necktie
+```
+
+*response*
+
+```json
+{
+    "secondary": [
+        {
+            "size_opts": null,
+            "node_path": "Clothing, Shoes & Jewelry/Boys/Accessories/Neckties",
+            "node_id": 5427586011,
+            "item_type": "neckties",
+            "department": "boys"
+        },
+        {
+            "size_opts": null,
+            "node_path": "Clothing, Shoes & Jewelry/Novelty & More/Clothing/Novelty/Boys/Accessories/Neckties",
+            "node_id": 9057120011,
+            "item_type": "novelty-neckties",
+            "department": "boys"
+        },
+        {
+            "size_opts": null,
+            "node_path": "Clothing, Shoes & Jewelry/Novelty & More/Clothing/Novelty/Men/Accessories/Neckties",
+            "node_id": 9057017011,
+            "item_type": "novelty-neckties",
+            "department": "mens"
+        }
+    ],
+    "primary": {
+        "node_path": "Clothing, Shoes & Jewelry/Men/Accessories/Neckties",
+        "node_id": 2474955011,
+        "item_type": "neckties",
+        "department": "mens"
+    },
+    "count": 4
 }
 ```
 

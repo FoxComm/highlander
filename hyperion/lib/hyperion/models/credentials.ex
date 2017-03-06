@@ -37,12 +37,10 @@ defmodule Credentials do
   end
 
   defp mws_secret_access_key do
-    {:ok, secret} = Application.fetch_env(:hyperion, :mws_secret_access_key)
-    secret
+    Application.fetch_env!(:hyperion, :mws_secret_access_key)
   end
 
   defp mws_access_key_id do
-    {:ok, key} = Application.fetch_env(:hyperion, :mws_access_key_id)
-    key
+    Application.fetch_env!(:hyperion, :mws_access_key_id)
   end
 end
