@@ -5,9 +5,10 @@ defmodule Hyperion.Router.V1 do
 
   alias Hyperion.Repo, warn: true
   alias Hyperion.Amazon, warn: true
-  alias Hyperion.PhoenixScala.Client, warn: true
   alias Hyperion.API, warn: true
   alias Hyperion.Amazon.TemplateBuilder, warn: true
+
+  import Ecto.Query
 
   version "v1" do
     namespace :health do
@@ -46,7 +47,7 @@ defmodule Hyperion.Router.V1 do
             {:ok, creds} -> respond_with(conn, creds)
             {:error, changeset} -> respond_with(conn, changeset.errors, 422)
           end
-        rescue e in Ecto.ConstraintError ->
+        rescue _e in Ecto.ConstraintError ->
           respond_with(conn, %{error: "Credentials for this client (client_id: #{params[:client_id]}) is already here"}, 422)
         end
       end # create new credentials
@@ -66,7 +67,7 @@ defmodule Hyperion.Router.V1 do
               {:ok, creds} -> respond_with(conn, creds)
               {:error, changeset} -> respond_with(conn, changeset.errors, 422)
             end
-          rescue e in Ecto.NoResultsError ->
+          rescue _e in Ecto.NoResultsError ->
             respond_with(conn, %{error: "Not found"}, 404)
           end
         end # update credentials
@@ -159,6 +160,7 @@ defmodule Hyperion.Router.V1 do
 
     namespace :categories do
       desc "Search for Amazon `department` and `item-type' by `node_path'"
+
       params do
         requires :node_path, type: String
         optional :from, type: Integer
@@ -166,7 +168,9 @@ defmodule Hyperion.Router.V1 do
       end
 
       get do
-        res = Category.search(params[:node_path], params[:from], params[:size])
+        res = (from c in Category, limit: ^params[:size], offset: ^params[:from],
+                         where: ilike(c.node_path, ^"%#{String.downcase(params[:node_path])}%"))
+              |> Hyperion.Repo.all
         respond_with(conn, res)
       end
 
@@ -325,7 +329,7 @@ defmodule Hyperion.Router.V1 do
 
   defp wrap(collection) do
     if is_list(collection) do
-      %{collection: collection,
+      %{items: collection,
         count: Enum.count(collection) }
     else
       collection

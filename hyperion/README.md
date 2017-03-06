@@ -6,37 +6,102 @@ Microservice to work with Amazon Marketplace Web Service
 
 ## Setup
 
-###DB
+**Create start.sh**
+
+Rename `start.sh-template` to `start.sh` and add all needed ENV variables:
 
 ```bash
+# DB
 export HYPERION_DB_USER=hyperion
 export HYPERION_DB_PASSWORD=''
 export HYPERION_DB_NAME=hyperion_development
 export HYPERION_DB_HOST=localhost
-```
 
-###AWS
-
-AWS used for getting notification with SQS
-
-```bash
+# AWS
 export AWS_ACCESS_KEY_ID=aws_access_key
 export AWS_SECRET_ACCESS_KEY=aws_secret
-```
-###MWS
 
-```bash
+# MWS
 export MWS_ACCESS_KEY_ID=mws_access_key
 export MWS_SECRET_ACCESS_KEY=mws_secret
-```
 
-###Phoenix
-
-```bash
 export PHOENIX_URL=https://appliance-10-240-0-12.foxcommerce.com
+
+export ELASTIC_URL=https://10.240.0.12:9200
+
 ```
 
 _IMPORTANT:_ Please keep in mind that AWS credentials differ from MWS. You can not use AWS data to access MWS and vice versa.
+
+**Migrate DB**
+
+Run flyway migrations
+
+```bash
+flyway -configFile=sql/flyway.conf -locations=filesystem:sql migrate
+```
+
+**Seed DB**
+
+Add alias to host machine 
+
+```
+sudo ifconfig lo0 alias 203.0.113.1
+``` 
+
+You can use any IP but that subnet reserved for tests by IANA.
+
+
+Pull seed container 
+
+```
+docker pull docker-stage.foxcommerce.com:5000/hyperion_seeder:master
+``` 
+
+or build it 
+
+```
+docker build -t hyperion_seeder -f Dockerfile.seed --build-arg db_host=203.0.113.1 .
+```
+
+Add several lines to postgres config files:
+
+*/usr/local/var/postgres/pg_hba.conf*
+
+```
+host    all             all             203.0.113.1/24          trust
+```
+
+*/usr/local/var/postgres/postgresql.conf*
+
+```
+listen_addresses='*'
+```
+
+Restart postgres 
+
+```
+brew services restart postgres
+```
+
+Get container id 
+
+```
+docker image ls
+```
+
+Run container 
+
+```
+docker run -it --rm [container-id]
+```
+
+**Start application**
+
+```bash
+./start.sh
+```
+
 
 ## Usage
 
@@ -53,7 +118,7 @@ v1   GET    /v1/products/search  Search products by code or query
 v1   GET    /v1/products/find_by_asin/:asin  Searches product by ASIN code
 v1   GET    /v1/products/categories/:asin  Returns categories for given asin
 v1   GET    /v1/categories  Search for Amazon `department` and `item-type' by `node_path'
-v1   GET    /v1/categories/suggester  Suggests category for product by title
+v1   GET    /v1/categories/suggest  Suggests category for product by title
 v1   GET    /v1/orders  Get all orders
 v1   POST   /v1/prices  Submit prices for already submitted products
 v1   POST   /v1/inventory  Submit inventory for already submitted products

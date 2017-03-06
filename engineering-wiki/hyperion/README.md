@@ -570,40 +570,30 @@ GET /v1/products/categories/:asin
 
 *request*
 ```
-GET /v1/categories?node_path=boys
+GET /v1/categories?node_path=t-shirt&size=2
 ```
 
 **response**
 
 ```json
 {
-  "total": 4,
-  "items": [
-    {
-      "node_path": "Clothing, Shoes & Jewelry/Novelty & More/Clothing/Novelty/Baby/Baby Boys/Tops/T-Shirts",
-      "node_id": 9057174011,
-      "item_type": "novelty-infant-and-toddler-t-shirts",
-      "department": "baby-boys"
-    },
-    {
-      "node_path": "Clothing, Shoes & Jewelry/Novelty & More/Clothing/Novelty/Boys/Tops & Tees/T-Shirts",
-      "node_id": 9057094011,
-      "item_type": "novelty-t-shirts",
-      "department": "boys"
-    },
-    {
-      "node_path": "Clothing, Shoes & Jewelry/Baby/Baby Boys/Clothing/Swim/Swimwear Sets/T-Shirt Sets",
-      "node_id": 6259178011,
-      "item_type": "infant-and-toddler-swimwear-t-shirt-sets",
-      "department": "baby-boys"
-    },
-    {
-      "node_path": "Clothing, Shoes & Jewelry/Boys/Clothing/Swim/Swimwear Sets/T-Shirt Sets",
-      "node_id": 6259168011,
-      "item_type": "swimwear-t-shirt-sets",
-      "department": "boys"
-    }
-  ]
+    "items": [
+        {
+            "size_opts": null,
+            "node_path": "Clothing, Shoes & Jewelry/Baby/Baby Boys/Clothing/Swim/Swimwear Sets/T-Shirt Sets",
+            "node_id": 6259178011,
+            "item_type": "infant-and-toddler-swimwear-t-shirt-sets",
+            "department": "baby-boys"
+        },
+        {
+            "size_opts": null,
+            "node_path": "Clothing, Shoes & Jewelry/Boys/Clothing/Swim/Swimwear Sets/T-Shirt Sets",
+            "node_id": 6259168011,
+            "item_type": "swimwear-t-shirt-sets",
+            "department": "boys"
+        }
+    ],
+    "count": 2
 }
 ```
 
@@ -612,7 +602,7 @@ GET /v1/categories?node_path=boys
 *request*
 
 ```
-GET /v1/categories/suggest?q=Spiderman T-Shirt
+GET /v1/categories/suggest?q=necktie
 ```
 
 *response*
@@ -621,37 +611,34 @@ GET /v1/categories/suggest?q=Spiderman T-Shirt
 {
     "secondary": [
         {
-            "node_path": "Clothing, Shoes & Jewelry/Novelty & More/Clothing/Novelty/Girls/Tops & Tees/T-Shirts",
-            "node_id": 9057040011,
-            "item_type": "novelty-t-shirts",
-            "department": "girls"
-        },
-        {
-            "node_path": "Clothing, Shoes & Jewelry/Novelty & More/Clothing/Novelty/Women/Tops & Tees/T-Shirts",
-            "node_id": 9056923011,
-            "item_type": "novelty-t-shirts",
-            "department": "womens"
-        },
-        {
-            "node_path": "Clothing, Shoes & Jewelry/Novelty & More/Clothing/Novelty/Boys/Tops & Tees/T-Shirts",
-            "node_id": 9057094011,
-            "item_type": "novelty-t-shirts",
+            "size_opts": null,
+            "node_path": "Clothing, Shoes & Jewelry/Boys/Accessories/Neckties",
+            "node_id": 5427586011,
+            "item_type": "neckties",
             "department": "boys"
         },
         {
-            "node_path": "Clothing, Shoes & Jewelry/Novelty & More/Clothing/Movie & TV Fan/Tops & Tees/T-Shirts",
-            "node_id": 2491811011,
-            "item_type": "movie-and-tv-fan-t-shirts",
-            "department": null
+            "size_opts": null,
+            "node_path": "Clothing, Shoes & Jewelry/Novelty & More/Clothing/Novelty/Boys/Accessories/Neckties",
+            "node_id": 9057120011,
+            "item_type": "novelty-neckties",
+            "department": "boys"
+        },
+        {
+            "size_opts": null,
+            "node_path": "Clothing, Shoes & Jewelry/Novelty & More/Clothing/Novelty/Men/Accessories/Neckties",
+            "node_id": 9057017011,
+            "item_type": "novelty-neckties",
+            "department": "mens"
         }
     ],
     "primary": {
-        "node_path": "Clothing, Shoes & Jewelry/Boys/Clothing/Tops & Tees/Tees",
-        "node_id": 1288961011,
-        "item_type": "fashion-t-shirts",
-        "department": "boys"
+        "node_path": "Clothing, Shoes & Jewelry/Men/Accessories/Neckties",
+        "node_id": 2474955011,
+        "item_type": "neckties",
+        "department": "mens"
     },
-    "count": 5
+    "count": 4
 }
 ```
 
