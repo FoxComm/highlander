@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -62,12 +63,12 @@ func (c *Client) UpdateMapping(mapping string, isScoped, isAdmin bool) error {
 		return nil
 	}
 
-	mapping, err := readMappingFile(latest)
+	mappingContents, err := readMappingFile(latest)
 	if err != nil {
 		return err
 	}
 
-	if err := c.createMapping("admin_1.2", latest, mapping); err != nil {
+	if err := c.createMapping("admin_1.2", esMapping, mappingContents); err != nil {
 		return err
 	}
 
@@ -92,6 +93,24 @@ func (c *Client) getIndices() ([]string, error) {
 }
 
 func (c *Client) createMapping(index string, mapping string, contents []byte) error {
+	url := fmt.Sprintf(esMapping, c.hostname, index, mapping)
+	log.Printf("Pushing mapping to %s", url)
+
+	request, err := http.NewRequest("PUT", url, bytes.NewReader(contents))
+	if err != nil {
+		return err
+	}
+
+	client := http.Client{}
+	resp, err := client.Do(request)
+	if err != nil {
+		return err
+	}
+
+	if resp.StatusCode > 299 {
+		return fmt.Errorf("Unexpected error updating mapping: %d", resp.StatusCode)
+	}
+	
 	return nil
 }
 
