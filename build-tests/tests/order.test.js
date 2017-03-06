@@ -15,6 +15,8 @@ test('Can view order details', async (t) => {
   await adminApi.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const { fullOrder } = await placeRandomOrder();
   const foundOrder = await adminApi.orders.one(fullOrder.referenceNumber).then(r => r.result);
+  delete fullOrder.fraudScore;
+  delete foundOrder.fraudScore;
   t.deepEqual(foundOrder, fullOrder);
 });
 
