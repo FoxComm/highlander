@@ -1,7 +1,6 @@
 import cats.implicits._
 import models.returns.Return
 import models.returns.Return.{Pending, Processing, ReturnType}
-import org.json4s.JObject
 import payloads.ReturnPayloads.{ReturnMessageToCustomerPayload, ReturnUpdateStatePayload}
 import responses.ReturnResponse
 import testutils.fixtures.{BakedFixtures, ReturnsFixtures}
@@ -15,7 +14,7 @@ case class ReturnsSearchViewResult(
     state: Return.State,
     messageToAccount: Option[String],
     returnType: ReturnType,
-    customer: JObject
+    customer: CustomerSearchViewResult
 )
 
 case class CustomerSearchViewResult(
@@ -41,9 +40,6 @@ class ReturnsSearchViewTest
     "should work against fixture return" in new Fixture {
       val rmaSearchView = findOneInSearchView(rma.id)
 
-      private val customerSearchViewResult =
-        rmaSearchView.customer.extract[CustomerSearchViewResult]
-
       {
         import rmaSearchView._
 
@@ -55,9 +51,9 @@ class ReturnsSearchViewTest
         returnType must === (rma.rmaType)
 
         rma.customer.map(c ⇒ {
-          customerSearchViewResult.id must === (c.id)
-          customerSearchViewResult.name.some must === (c.name)
-          customerSearchViewResult.email.some must === (c.email)
+          rmaSearchView.customer.id must === (c.id)
+          rmaSearchView.customer.name.some must === (c.name)
+          rmaSearchView.customer.email.some must === (c.email)
         })
 
       }
