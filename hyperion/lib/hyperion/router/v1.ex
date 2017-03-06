@@ -5,7 +5,6 @@ defmodule Hyperion.Router.V1 do
 
   alias Hyperion.Repo, warn: true
   alias Hyperion.Amazon, warn: true
-  alias Hyperion.PhoenixScala.Client, warn: true
   alias Hyperion.API, warn: true
   alias Hyperion.Amazon.TemplateBuilder, warn: true
 
@@ -46,7 +45,7 @@ defmodule Hyperion.Router.V1 do
             {:ok, creds} -> respond_with(conn, creds)
             {:error, changeset} -> respond_with(conn, changeset.errors, 422)
           end
-        rescue e in Ecto.ConstraintError ->
+        rescue _e in Ecto.ConstraintError ->
           respond_with(conn, %{error: "Credentials for this client (client_id: #{params[:client_id]}) is already here"}, 422)
         end
       end # create new credentials
@@ -66,7 +65,7 @@ defmodule Hyperion.Router.V1 do
               {:ok, creds} -> respond_with(conn, creds)
               {:error, changeset} -> respond_with(conn, changeset.errors, 422)
             end
-          rescue e in Ecto.NoResultsError ->
+          rescue _e in Ecto.NoResultsError ->
             respond_with(conn, %{error: "Not found"}, 404)
           end
         end # update credentials
