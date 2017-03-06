@@ -46,5 +46,5 @@
   when: with_hyperion_seeder is defined and with_hyperion_seeder
 
 - name: Run Hyperion Seeder docker container
-  command: docker run --env-file "{{hyperion_dir}}/seeder/.env" --network host {{docker_registry}}:5000/hyperion-seeder:{{docker_tags.hyperion}}
+  command: docker run --env-file "{{hyperion_dir}}/priv/seeds/.env" --network host -e HYPERION_DB_HOST={{docker_db_host}} {{docker_registry}}:5000/hyperion-seeder:{{docker_tags.hyperion}}
   when: with_hyperion_seeder is defined and with_hyperion_seeder
