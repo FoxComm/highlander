@@ -9,12 +9,23 @@ defmodule CategorySuggester do
     case MWSClient.get_product_categories_for_asin(asin, cfg) do
       {:success, resp} ->
         category = case resp["GetProductCategoriesForASINResponse"]["GetProductCategoriesForASINResult"]["Self"] do
-                     x when is_list(x) -> hd x#if (Enum.count(x) > 1), do: tl(x) |> hd , else: hd(x)
+                     x when is_list(x) -> pick_right_category(x)
                      x -> x
                    end
         get_all_categories([node_id: category["ProductCategoryId"], name: category["ProductCategoryName"]])
       {_, _} ->
         raise "No categories found for given ASIN"
+    end
+  end
+
+  # Amazon response is a list.
+  # Sometimes needed element plased in head, sometimes in tail
+  # We just need to pick correct one
+  def pick_right_category(data) do
+    cond do
+      hd(data)["ProductCategoryName"] == "Shops" ->
+        tl(data) |> hd
+      true -> hd(data)
     end
   end
 
@@ -34,18 +45,14 @@ defmodule CategorySuggester do
                                                    department: c.department, item_type: c.item_type})
                     |> where([c], c.node_id in ^[node_id])
                     |> Hyperion.Repo.all
-    all_categories = Category.search(name)
+
+    all_categories = (from c in Category, where: ilike(c.node_path,^"%#{String.downcase(name)}%") and c.node_id != ^node_id )
+                     |> Hyperion.Repo.all
     case main_category do
-      [] -> %{primary: nil, secondary: all_categories.items, count: Enum.count(all_categories.items)}
-      _ -> merge_categories(all_categories, main_category)
+      [] -> %{primary: nil, secondary: all_categories, count: Enum.count(all_categories)}
+      _ -> %{primary: hd(main_category), secondary: all_categories, count: Enum.count(all_categories) + 1}
     end
   end
-
-  def merge_categories(all, main) do
-    main_category = hd(main)
-    filtered = all.items
-               |> Enum.reject(fn(category) -> category.node_id == main_category.node_id end)
-
-    %{primary: main_category, secondary: filtered, count: Enum.count(filtered) + 1}
-  end
 end
+
+
