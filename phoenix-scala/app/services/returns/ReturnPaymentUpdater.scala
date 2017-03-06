@@ -26,18 +26,21 @@ object ReturnPaymentUpdater {
     @inline
     def addPayment(rma: Return,
                    payment: OrderPayment,
-                   kv: (PaymentMethod.Type, Int)): DbResultT[ReturnPayment] =
-      processAddPayment(rma, payment, kv._1, kv._2)
+                   paymentMethodAmount: (PaymentMethod.Type, Int)): DbResultT[ReturnPayment] =
+      processAddPayment(rma, payment, paymentMethodAmount._1, paymentMethodAmount._2)
 
-    for {
-      rma ← * <~ Returns.mustFindPendingByRefNum404(refNum)
-      payments = payload.payments.filter { case (_, amount) ⇒ amount > 0 }
-      _        ← * <~ validateMaxAllowedPayments(rma, payments)
-      payment  ← * <~ mustFindCcPaymentsByOrderRef(rma.orderRef)
-      _        ← * <~ payments.map(addPayment(rma, payment, _)).toList
-      updated  ← * <~ Returns.refresh(rma)
-      response ← * <~ ReturnResponse.fromRma(rma)
-    } yield response
+    val payments = payload.payments.filter { case (_, amount) ⇒ amount > 0 }
+    if (payments.isEmpty)
+      Returns.mustFindPendingByRefNum404(refNum).flatMap(ReturnResponse.fromRma)
+    else
+      for {
+        rma      ← * <~ Returns.mustFindPendingByRefNum404(refNum)
+        _        ← * <~ validateMaxAllowedPayments(rma, payments)
+        payment  ← * <~ mustFindCcPaymentsByOrderRef(rma.orderRef)
+        _        ← * <~ payments.map(addPayment(rma, payment, _)).toList
+        updated  ← * <~ Returns.refresh(rma)
+        response ← * <~ ReturnResponse.fromRma(updated)
+      } yield response
   }
 
   def addPayment(refNum: String, method: PaymentMethod.Type, payload: ReturnPaymentPayload)(
@@ -50,7 +53,7 @@ object ReturnPaymentUpdater {
       payment  ← * <~ mustFindCcPaymentsByOrderRef(rma.orderRef)
       _        ← * <~ processAddPayment(rma, payment, method, payload.amount)
       updated  ← * <~ Returns.refresh(rma)
-      response ← * <~ ReturnResponse.fromRma(rma)
+      response ← * <~ ReturnResponse.fromRma(updated)
     } yield response
 
   private def validateMaxAllowedPayments(rma: Return, payments: Map[PaymentMethod.Type, Int])(
@@ -67,10 +70,10 @@ object ReturnPaymentUpdater {
                     .getOrElse(0)
                     .result
         taxes ← * <~ CartTotaler.taxesTotal(cordRef = rma.orderRef,
-                                             subTotal = subTotal,
-                                             shipping = shipping,
-                                             adjustments = adjustments)
-        maxAmount = (adjustments - (subTotal + taxes + shipping)).abs
+                                            subTotal = subTotal,
+                                            shipping = shipping,
+                                            adjustments = adjustments)
+        maxAmount = math.max(0, subTotal + taxes + shipping - adjustments)
         amount    = payments.valuesIterator.sum
 
         _ ← * <~ failIf(amount > maxAmount,
@@ -81,14 +84,10 @@ object ReturnPaymentUpdater {
 
     def validateCCPayment() = {
       val orderCCPaymentQuery = OrderPayments
-        .findAllByCordRef(rma.orderRef)
-        .creditCards
+        .findAllCreditCardsForOrder(rma.orderRef)
         .join(CreditCardCharges)
         .on(_.id === _.orderPaymentId)
-        .map {
-          case (_, charge) ⇒
-            charge.amount
-        }
+        .map { case (_, charge) ⇒ charge.amount }
         .sum
         .getOrElse(0)
         .result
@@ -98,10 +97,7 @@ object ReturnPaymentUpdater {
         .filter(_.id =!= rma.id)
         .join(ReturnPayments.creditCards)
         .on(_.id === _.returnId)
-        .map {
-          case (_, payment) ⇒
-            payment.amount
-        }
+        .map { case (_, payment) ⇒ payment.amount }
         .sum
         .getOrElse(0)
         .result

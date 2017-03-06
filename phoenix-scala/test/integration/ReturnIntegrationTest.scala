@@ -29,7 +29,7 @@ class ReturnIntegrationTest
     with PropertyChecks {
 
   "Returns header" - {
-    val orderRefNotExist = "ABC-666"
+    val refNotExist = "ABC-666"
 
     "successfully creates new Return" in new ReturnFixture with OrderDefaults {
       val rmaCreated = returnsApi
@@ -53,8 +53,8 @@ class ReturnIntegrationTest
     }
 
     "fails to create Return with invalid order refNum provided" in {
-      val payload = ReturnCreatePayload(cordRefNum = orderRefNotExist, returnType = Standard)
-      returnsApi.create(payload).mustFailWith404(NotFoundFailure404(Order, orderRefNotExist))
+      val payload = ReturnCreatePayload(cordRefNum = refNotExist, returnType = Standard)
+      returnsApi.create(payload).mustFailWith404(NotFoundFailure404(Order, refNotExist))
     }
 
     "PATCH /v1/returns/:refNum" - {
@@ -122,10 +122,10 @@ class ReturnIntegrationTest
               StateTransitionNotAllowed(Return, "Complete", "Pending", rma.referenceNumber))
       }
 
-      "fails if Return is not found" in new ReturnDefaults {
-        returnsApi(orderRefNotExist)
+      "fails if RMA refNum is not found" in new ReturnDefaults {
+        returnsApi(refNotExist)
           .update(ReturnUpdateStatePayload(state = Processing))
-          .mustFailWith404(NotFoundFailure404(Return, orderRefNotExist))
+          .mustFailWith404(NotFoundFailure404(Return, refNotExist))
       }
     }
 
@@ -162,9 +162,7 @@ class ReturnIntegrationTest
       }
 
       "should return failure for non-existing order" in new ReturnFixture {
-        returnsApi
-          .getByOrder(orderRefNotExist)
-          .mustFailWith404(NotFoundFailure404(Order, orderRefNotExist))
+        returnsApi.getByOrder(refNotExist).mustFailWith404(NotFoundFailure404(Order, refNotExist))
       }
     }
 
@@ -183,10 +181,10 @@ class ReturnIntegrationTest
           .messageToCustomer must === (None)
       }
 
-      "fails if Return not found" in new ReturnDefaults {
-        val rmaId   = "99"
-        val payload = ReturnMessageToCustomerPayload(message = "Hello!")
-        returnsApi(rmaId).message(payload).mustFailWith404(NotFoundFailure404(Return, rmaId))
+      "fails if refNum is not found" in new ReturnDefaults {
+        returnsApi(refNotExist)
+          .message(ReturnMessageToCustomerPayload(message = "Hello!"))
+          .mustFailWith404(NotFoundFailure404(Return, refNotExist))
       }
 
       "fails if message is too long" in new ReturnDefaults {
@@ -530,17 +528,20 @@ class ReturnIntegrationTest
         override val order = createDefaultOrder(
             Map(PaymentMethod.CreditCard → None, PaymentMethod.StoreCredit → Some(scAmount)))
 
-        val payload = ReturnShippingCostLineItemPayload(amount = maxCCAmount, reasonId = reason.id)
+        def createPayload(amount: Int) =
+          ReturnShippingCostLineItemPayload(amount = amount, reasonId = reason.id)
+
+        val payload = createPayload(amount = maxCCAmount)
 
         // create some other return from different order
         val otherOrderRef = createDefaultOrder().referenceNumber
         val otherRmaRef   = createReturn(otherOrderRef).referenceNumber
-        createReturnLineItem(payload.copy(amount = shippingMethod.price), refNum = otherRmaRef)
+        createReturnLineItem(createPayload(amount = shippingMethod.price), refNum = otherRmaRef)
         createReturnPayment(Map(PaymentMethod.CreditCard → maxCCAmount), refNum = otherRmaRef)
 
         // create some other return for the same order
         val previousRmaRef = createReturn(order.referenceNumber).referenceNumber
-        createReturnLineItem(payload.copy(amount = 25), refNum = previousRmaRef)
+        createReturnLineItem(createPayload(amount = 25), refNum = previousRmaRef)
         createReturnPayment(Map(PaymentMethod.CreditCard → 25), refNum = previousRmaRef)
 
         val rma = createReturn(order.referenceNumber)
@@ -565,7 +566,7 @@ class ReturnIntegrationTest
         }
       }
 
-      "fails if the RMA is not found" in new ReturnPaymentFixture {
+      "fails if the refNum is not found" in new ReturnPaymentFixture {
         forAll(paymentMethodTable) { paymentType ⇒
           val response = returnsApi("TRY_HARDER").paymentMethods.remove(paymentType)
 

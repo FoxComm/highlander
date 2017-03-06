@@ -80,14 +80,12 @@ class OrderPayments(tag: Tag) extends FoxTable[OrderPayment](tag, "order_payment
 object OrderPayments
     extends FoxTableQuery[OrderPayment, OrderPayments](new OrderPayments(_))
     with ReturningId[OrderPayment, OrderPayments] {
+  import scope._
 
   val returningLens: Lens[OrderPayment, Int] = lens[OrderPayment].id
 
   def findAllByCordRef(cordRef: String): QuerySeq =
     filter(_.cordRef === cordRef)
-
-  def findAllStoreCredit: QuerySeq =
-    filter(_.paymentMethodType === (PaymentMethod.StoreCredit: PaymentMethod.Type))
 
   def findAllGiftCardsByCordRef(
       cordRef: String): Query[(OrderPayments, GiftCards), (OrderPayment, GiftCard), Seq] =
@@ -104,8 +102,7 @@ object OrderPayments
     } yield (pmts, sc)
 
   def findAllCreditCardsForOrder(cordRef: Rep[String]): QuerySeq =
-    filter(_.cordRef === cordRef)
-      .filter(_.paymentMethodType === (PaymentMethod.CreditCard: PaymentMethod.Type))
+    filter(_.cordRef === cordRef).creditCards
 
   object scope {
     implicit class OrderPaymentsQuerySeqConversions(q: QuerySeq) {

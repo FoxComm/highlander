@@ -59,12 +59,10 @@ object ReturnPayloads {
   case class ReturnPaymentsPayload(payments: Map[PaymentMethod.Type, Int])
       extends Validation[ReturnPaymentsPayload] {
     def validate: ValidatedNel[Failure, ReturnPaymentsPayload] = {
-      payments
-        .foldLeft(Validation.ok) {
-          case (acc, (paymentType, amount)) ⇒
-            acc |+| greaterThanOrEqual(amount, 0, s"$paymentType amount")
-        }
-        .map(_ ⇒ this)
+      payments.collect {
+        case (paymentType, amount) if amount <= 0 ⇒
+          greaterThanOrEqual(amount, 0, s"$paymentType amount")
+      }.fold(Validation.ok)(_ |+| _).map(_ ⇒ this)
     }
   }
 
