@@ -1,11 +1,26 @@
 import test from '../helpers/test';
 import Api from '../helpers/Api';
+import isString from '../helpers/isString';
+import isNumber from '../helpers/isNumber';
+import isDate from '../helpers/isDate';
 import $ from '../payloads';
 
-test('Can sign up', async () => {
+test('Can sign up', async (t) => {
   const api = Api.withoutCookies();
   const { email, name, password } = $.randomUserCredentials();
-  await api.auth.signup(email, name, password);
+  const signupResponse = await api.auth.signup(email, name, password);
+  t.truthy(isString(signupResponse.jwt));
+  t.truthy(signupResponse.jwt.length > 0);
+  t.truthy(isNumber(signupResponse.user.id));
+  t.truthy(isDate(signupResponse.user.createdAt));
+  t.is(signupResponse.user.email, email);
+  t.is(signupResponse.user.name, name);
+  t.is(signupResponse.user.disabled, false);
+  t.is(signupResponse.user.isGuest, false);
+  t.is(signupResponse.user.isBlacklisted, false);
+  t.is(signupResponse.user.totalSales, 0);
+  t.is(signupResponse.user.storeCreditTotals.availableBalance, 0);
+  t.is(signupResponse.user.storeCreditTotals.currentBalance, 0);
 });
 
 test('Can sign in as customer', async (t) => {
@@ -46,4 +61,12 @@ test('Can sign out', async () => {
   const api = Api.withCookies();
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   await api.auth.logout();
+});
+
+test('Can view customer account details', async (t) => {
+  const api = Api.withCookies();
+  const { email, name, password } = $.randomUserCredentials();
+  const signupResponse = await api.auth.signup(email, name, password);
+  const foundAccount = await api.account.get();
+  t.deepEqual(foundAccount, signupResponse.user);
 });
