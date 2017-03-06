@@ -3,23 +3,21 @@ package services.customerGroups
 import java.time.Instant
 import java.time.temporal.ChronoUnit.DAYS
 
-import models.account.{User, Users}
-import models.customer._
-import payloads.CustomerGroupPayloads._
-import utils.aliases._
-import utils.db._
-import utils.db.ExPostgresDriver.api._
-import cats.implicits._
 import failures.CustomerGroupFailures.CustomerGroupMemberPayloadContainsSameIdsInBothSections
 import failures.{NotFoundFailure400, NotFoundFailure404}
+import models.account.{User, Users}
 import models.cord.Orders
 import models.customer.CustomerGroup._
+import models.customer.CustomersData.scope._
+import models.customer._
+import payloads.CustomerGroupPayloads._
 import responses.CustomerResponse.{Root, build}
 import responses.GroupResponses.CustomerGroupResponse
 import services.StoreCreditService
-import models.customer.CustomersData.scope._
 import services.customers.CustomerManager
-import utils.db
+import utils.aliases._
+import utils.db.ExPostgresDriver.api._
+import utils.db._
 
 object GroupMemberManager {
 
@@ -33,15 +31,15 @@ object GroupMemberManager {
       currentMemberData ← * <~ CustomersData.findAllByIds(dataIds).result
       memberIds   = currentMemberData.map(_.userId).toSet
       newIds      = payload.customers.toSet
-      forCreation = newIds.diff(memberIds)
-      forDeletion = memberIds.diff(newIds)
+      forCreation = newIds.diff(memberIds).toSeq
+      forDeletion = memberIds.diff(newIds).toSeq
       _ ← * <~ forCreation.map { userId ⇒
            createGroupMember(userId, groupId)
          }
       _ ← * <~ forDeletion.map { userId ⇒
            deleteGroupMember(userId, groupId)
          }
-    } yield DbResultT.unit
+    } yield {}
 
   def sync(groupId: Int, payload: CustomerGroupMemberSyncPayload)(implicit ec: EC,
                                                                   db: DB,
@@ -59,13 +57,13 @@ object GroupMemberManager {
                       CustomerGroupMemberPayloadContainsSameIdsInBothSections(groupId,
                                                                               forCreation,
                                                                               forDeletion))
-      _ ← * <~ forCreation.diff(memberIds).map { userId ⇒
+      _ ← * <~ forCreation.diff(memberIds).toSeq.map { userId ⇒
            createGroupMember(userId, groupId)
          }
-      _ ← * <~ forDeletion.intersect(memberIds).map { userId ⇒
+      _ ← * <~ forDeletion.intersect(memberIds).toSeq.map { userId ⇒
            deleteGroupMember(userId, groupId)
          }
-    } yield DbResultT.unit
+    } yield {}
 
   def addCustomerToGroups(accountId: Int,
                           groupIds: Seq[Int])(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
@@ -90,8 +88,8 @@ object GroupMemberManager {
       groupIds    = groupMembership.map(_.groupId).toSet
       manualGroupsOfUser ← * <~ CustomerGroups.fildAllByIdsAndType(groupIds, Manual).result
       manualGroupIdsOfUser = manualGroupsOfUser.map(_.id).toSet
-      forCreation          = newGroupIds.diff(manualGroupIdsOfUser)
-      forDeletion          = manualGroupIdsOfUser.diff(newGroupIds)
+      forCreation          = newGroupIds.diff(manualGroupIdsOfUser).toSeq
+      forDeletion          = manualGroupIdsOfUser.diff(newGroupIds).toSeq
       _ ← * <~ forCreation.map { groupId ⇒
            createGroupMember(accountId, groupId)
          }
@@ -135,6 +133,6 @@ object GroupMemberManager {
       _ ← * <~ doOrMeh(
              group.groupType == Manual,
              CustomerGroups.update(group, group.copy(customersCount = group.customersCount - 1)))
-    } yield DbResultT.unit
+    } yield {}
 
 }
