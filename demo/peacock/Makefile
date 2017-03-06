@@ -1,5 +1,5 @@
 DOCKER_REPO ?= docker-stage.foxcommerce.com:5000
-DOCKER_IMAGE ?= tpg-storefront
+DOCKER_IMAGE ?= peacock
 DOCKER_TAG ?= master
 
 dev d:
