@@ -3,7 +3,7 @@ const path = require('path');
 
 const filePath = language => path.join(process.cwd(), `src/i18n/${language}.json`);
 
-function *getTranslation(language: string, defaultLanguage: string): Promise {
+function *getTranslation(language, defaultLanguage) {
   const options = {encoding: 'utf8'};
 
   return new Promise(resolve => {
@@ -16,7 +16,7 @@ function *getTranslation(language: string, defaultLanguage: string): Promise {
   });
 }
 
-export default function *loadI18n(next) {
+function *loadI18n(next) {
   const defaultLanguage = process.env.FIREBIRD_LANGUAGE;
   const preferredLanguage = this.request.header['accept-language'] || defaultLanguage;
 
@@ -24,3 +24,5 @@ export default function *loadI18n(next) {
 
   yield next;
 }
+
+module.exports = loadI18n;

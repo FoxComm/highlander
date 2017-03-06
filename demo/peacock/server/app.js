@@ -1,20 +1,20 @@
-import KoaApp from 'koa';
-import renderReact from '../src/server';
-import { makeApiProxy } from './routes/api';
-import { makeElasticProxy } from './routes/elastic';
-import zipcodes from './routes/zipcodes';
-import loadI18n from './i18n';
-import verifyJwt from './verify-jwt';
-import onerror from 'koa-onerror';
-import moment from 'moment';
-import chalk from 'chalk';
-import bodyParser from 'koa-bodyparser';
-import contactFeedbackRoute from './routes/contact-feedback-route';
-import log4js from 'koa-log4';
-import path from 'path';
-import serve from 'koa-better-static';
-import koaMount from 'koa-mount';
-import test from './conditional-use';
+const KoaApp = require('koa');
+const { makeApiProxy } = require('./routes/api');
+const { makeElasticProxy } = require('./routes/elastic');
+const zipcodes = require('./routes/zipcodes');
+const loadI18n = require('./i18n');
+const verifyJwt = require('./verify-jwt');
+const onerror = require('koa-onerror');
+const moment = require('moment');
+const chalk = require('chalk');
+const bodyParser = require('koa-bodyparser');
+const contactFeedbackRoute = require('./routes/contact-feedback-route');
+const log4js = require('koa-log4');
+const path = require('path');
+const serve = require('koa-better-static');
+const koaMount = require('koa-mount');
+const test = require('./conditional-use');
+const { renderReact } = require('../lib/server');
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -33,7 +33,7 @@ function shouldCacheForLongTime(ctx) {
   return isProduction && ctx.path.match(/\/app.*\.(js|css)/);
 }
 
-export default class App extends KoaApp {
+class App extends KoaApp {
 
   constructor(...args) {
     super(...args);
@@ -67,7 +67,8 @@ export default class App extends KoaApp {
 
   logInfo() {
     const description = require('../package.json').description;
-    console.info(
+    /* eslint-disable no-console-log/no-console-log */
+    console.log(
       `%s: %s ${chalk.blue('%s')} ${chalk.green('api: %s')} ${chalk.red('development url: http://localhost:%d')}`,
       timestamp(),
       description,
@@ -77,3 +78,5 @@ export default class App extends KoaApp {
     );
   }
 }
+
+module.exports = App;

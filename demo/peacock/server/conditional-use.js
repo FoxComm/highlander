@@ -1,5 +1,5 @@
 
-export default function test(middleware, fn) {
+function test(middleware, fn) {
   return function *(next) {
     if (fn(this)) {
       yield middleware.call(this, next);
@@ -8,3 +8,5 @@ export default function test(middleware, fn) {
     }
   };
 }
+
+module.exports = test;

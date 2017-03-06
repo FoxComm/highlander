@@ -28,7 +28,7 @@ function getAssetsNames() {
 
 const assetsNames = getAssetsNames();
 
-export default function *renderReact() {
+export function *renderReact() {
   const history = createServerHistory({
     entries: [this.url],
     basename: process.env.URL_PREFIX || null,

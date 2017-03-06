@@ -1,11 +1,10 @@
 const path = require('path');
 
-process.env.NODE_PATH = `${process.env.NODE_PATH}:${path.resolve('./src/core')}`;
+process.env.NODE_PATH = `${process.env.NODE_PATH}:${path.resolve('./lib/core')}`;
 
-require('babel-register')();
 require('./src/postcss').installHook();
 
-const makeRoutes = require('./src/routes').default;
+const makeRoutes = require('./lib/routes').default;
 const Sitemap = require('react-router-sitemap').default;
 const {
   categories,

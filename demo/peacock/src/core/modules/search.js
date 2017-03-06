@@ -11,7 +11,7 @@ export type Search = {
   results: Array<Product>;
 }
 
-const INITIAL_STATE:Search = {
+const INITIAL_STATE: Search = {
   term: '',
   isActive: false,
   results: [],
@@ -20,49 +20,54 @@ const INITIAL_STATE:Search = {
 const MAX_RESULTS = 1000;
 const context = process.env.FIREBIRD_CONTEXT || 'default';
 
-/**
- * Generate search api call actions and reducer
- * Mocked for now
- */
-function searchApiCall(searchString: string): global.Promise {
-  const payload = addMatchQuery(defaultSearch(context), searchString);
-  return this.api.post(`/search/public/products_catalog_view/_search?size=${MAX_RESULTS}`, payload);
-}
+const _search = createAsyncActions('search',
+  function searchApiCall(term: string) {
+    const payload = addMatchQuery(defaultSearch(context), term);
+    return this.api.post(`/search/public/products_catalog_view/_search?size=${MAX_RESULTS}`, payload);
+  },
+  (payload, term) => [payload, term]
+);
 
-const { fetch, ...searchActions } = createAsyncActions('search', searchApiCall);
+export function searchProducts(searchTerm: string) {
+  return (dispatch: Function, getState: Function) => {
+    const { term, force } = getState().search;
+    const { search = {} } = getState().asyncActions;
+
+    if (force || term != searchTerm) {
+      dispatch(_search.perform(searchTerm));
+    } else if (search.isReady) {
+      // we should reset ready flag anyway because createAsyncActions skips first request
+      // on client side after state has been hydrated on server
+      dispatch(_search.resetReadyFlag());
+    }
+  };
+}
 
 /**
  * External actions
  */
-export const setTerm = createAction('SET_TERM');
-export const resetTerm = createAction('RESET_TERM');
 export const toggleActive = createAction('TOGGLE_ACTIVE');
-export const resetSearchResults = createAction('RESET_SEARCH_RESULTS');
-export { fetch };
+export const forceSearch = createAction('FORCE_SEARCH');
 
 const reducer = createReducer({
-  [searchActions.succeeded]: (state, payload) => {
-    return {
-      ...state,
-      results: payload,
-    };
-  },
-  [setTerm]: (state, payload) => {
-    return {
-      ...state,
-      term: payload,
-    };
-  },
-  [resetTerm]: (state) => {
-    return {
-      ...state,
-      term: '',
-    };
-  },
-  [resetSearchResults]: (state) => {
+  [_search.started]: (state) => {
     return {
       ...state,
       results: [],
+      force: false,
+    };
+  },
+  [forceSearch]: state => {
+    return {
+      ...state,
+      force: true,
+    };
+  },
+  [_search.succeeded]: (state, [payload, term]) => {
+    return {
+      ...state,
+      results: payload,
+      term,
     };
   },
   [toggleActive]: (state) => {

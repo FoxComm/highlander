@@ -1,7 +1,7 @@
 
-import _ from 'lodash';
-import fs from 'fs';
-import jsonwebtoken from 'jsonwebtoken';
+const _ = require('lodash');
+const fs = require('fs');
+const jsonwebtoken = require('jsonwebtoken');
 
 const getPublicKey = _.memoize(() => {
   try {
@@ -11,7 +11,7 @@ const getPublicKey = _.memoize(() => {
   }
 });
 
-export default function *verifyJwt(next) {
+function *verifyJwt(next) {
   const jwt = this.cookies.get('JWT');
 
   let decodedToken;
@@ -42,3 +42,5 @@ export default function *verifyJwt(next) {
 
   yield next;
 }
+
+module.exports = verifyJwt;
