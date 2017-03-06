@@ -1,0 +1,14 @@
+.fc-entries-wrapper{
+  & > h3 {
+    margin-left: 15px;
+    opacity: 0.44;
+    font-family: "Open Sans", sans-serif;
+    font-size: 14.5px;
+    font-weight: 600;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: normal;
+    letter-spacing: normal;
+    color: #fff;
+  }
+}

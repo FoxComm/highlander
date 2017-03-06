@@ -10,6 +10,8 @@ import { IndexLink, Link } from 'components/link';
 
 import type { Claims } from 'lib/claims';
 
+import styles from './entries.css';
+
 type Props = {
   claims: Claims,
   routes: Array<Object>
@@ -30,7 +32,7 @@ class OrdersEntry extends Component {
     }
 
     return (
-      <div>
+      <div styleName="fc-entries-wrapper">
         <h3>ORDERS</h3>
         <li>
           <NavigationItem

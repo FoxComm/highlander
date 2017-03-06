@@ -9,6 +9,8 @@ import { IndexLink, Link } from 'components/link';
 
 import type { Claims } from 'lib/claims';
 
+import styles from './entries.css';
+
 type Props = {
   routes: Array<Object>,
   claims: Claims
@@ -27,7 +29,7 @@ class SettingsEntry extends Component {
 
     if (!anyPermitted(allClaims, claims)) {
       return (
-        <div>
+        <div styleName="fc-entries-wrapper">
           <h3>SETTINGS</h3>
           <li>
             <NavigationItem
@@ -43,7 +45,7 @@ class SettingsEntry extends Component {
     }
 
     return (
-      <div>
+      <div styleName="fc-entries-wrapper">
         <h3>SETTINGS</h3>
         <li>
           <NavigationItem
