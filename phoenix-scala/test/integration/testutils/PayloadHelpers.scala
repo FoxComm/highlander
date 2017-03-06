@@ -1,14 +1,18 @@
 package testutils
 
+import java.time.Instant
+
+import cats.implicits._
+import org.json4s.Extraction.decompose
+import org.json4s.Formats
 import org.json4s.JsonAST._
 import org.json4s.JsonDSL._
-import utils.aliases._
-import java.time.Instant
+import payloads.ImagePayloads.{AlbumPayload, ImagePayload}
 import utils.JsonFormatters
-import org.json4s.Extraction.decompose
+import utils.aliases._
 
 object PayloadHelpers {
-  implicit val formats = JsonFormatters.phoenixFormats
+  implicit val formats: Formats = JsonFormatters.phoenixFormats
 
   case class ShadowValue(v: Any, t: String)
 
@@ -28,6 +32,9 @@ object PayloadHelpers {
       case _         ⇒ ("t" → t) ~ ("v" → decompose(v))
     }
 
+  def usdPrice(price: Int): JObject =
+    tv(("currency" → "USD") ~ ("value" → price), "price")
+
   implicit class AttributesJsonifyValues(val attrs: Map[String, Any]) extends AnyVal {
     def asShadow: Map[String, Json] =
       attrs.mapValues {
@@ -41,4 +48,7 @@ object PayloadHelpers {
       }
   }
 
+  val imageSrc: String = "http://lorempixel/test.png"
+  val someAlbums: Option[Seq[AlbumPayload]] = Seq(
+      AlbumPayload(name = "Default".some, images = Seq(ImagePayload(src = imageSrc)).some)).some
 }
