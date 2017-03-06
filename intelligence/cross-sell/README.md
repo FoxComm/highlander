@@ -6,4 +6,4 @@ commerce.
 
 | Project                                | Description                                                                                                  |
 |:---------------------------------------|:-------------------------------------------------------------------------------------------------------------|
-| [prod-prod](src/prod-prod)           | prod-prod is a KNN recommender, for a given product, it recommends similar products |
+| [prod-prod](src/prod_prod)           | prod-prod is a KNN recommender, for a given product, it recommends similar products |
