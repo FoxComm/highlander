@@ -2,6 +2,24 @@ import path from 'path';
 import faker from 'faker';
 import testImageBase64 from './assets/image.base64';
 
+/**
+ * Returns integer, unique among all calls to teststamp not only in future but also in parallel test runs
+ */
+function teststamp() {
+  const oldPrepareStackTrace = Error.prepareStackTrace;
+  Error.prepareStackTrace = (err, stack) => stack;
+  const stack = new Error().stack;
+  Error.prepareStackTrace = oldPrepareStackTrace;
+  const callerFile = stack[2] && /\/(\w+)(\.\w+)+/g.exec(stack[2].getFileName())[1];
+  let callerFileHash = 0;
+  for (let i = 0, len = callerFile.length; i < len; i += 1) {
+    const chr = callerFile.charCodeAt(i);
+    callerFileHash = ((callerFileHash << 5) - callerFileHash) + chr;
+    callerFileHash |= 0;
+  }
+  return `${callerFileHash}${Date.now()}`;
+}
+
 const $ = {
   randomNumber: (min, max) => faker.random.number({ min, max }),
   randomMonth: () => $.randomNumber(1, 12),
@@ -15,7 +33,7 @@ const $ = {
   testCardNumber: '4242424242424242',
   testImagePath: path.resolve('./assets/image.jpg'),
   randomUserCredentials: () => ({
-    email: `${Date.now()}@bvt.com`,
+    email: `foxbvt+${teststamp()}@gmail.com`,
     name: faker.name.findName(),
     password: faker.internet.password(),
   }),
@@ -278,7 +296,7 @@ const $ = {
   },
   randomStoreAdminPayload: () => ({
     name: faker.name.findName(),
-    email: `${Date.now()}@bvt.com`,
+    email: `foxbvt+${teststamp()}@gmail.com`,
     org: 'tenant',
   }),
   randomItemsUpdatePayload: (skuCodes, { minQuantity, maxQuantity } = {}) =>
