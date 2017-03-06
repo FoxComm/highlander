@@ -1,6 +1,6 @@
 package routes.admin
 
-import akka.http.scaladsl.server.Directives.{path, _}
+import akka.http.scaladsl.server.Directives.{path, pathPrefix, _}
 import akka.http.scaladsl.server.{PathMatcher, Route}
 import utils.http.JsonSupport._
 import models.account.User
@@ -81,8 +81,8 @@ object ReturnRoutes {
                 ReturnService.updateMessageToCustomer(refNum, payload)
               }
           } ~
-          pathPrefix("line-items" / "skus") {
-            (post & pathEnd & entity(as[ReturnSkuLineItemsPayload])) { payload ⇒
+          pathPrefix("line-items") {
+            (post & pathEnd & entity(as[ReturnLineItemPayload])) { payload ⇒
               mutateOrFailures {
                 ReturnLineItemUpdater.addLineItem(refNum, payload)
               }
