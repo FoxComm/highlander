@@ -4,7 +4,7 @@ import models.payment.PaymentMethod
 import models.product.{Mvp, SimpleProductData}
 import models.returns._
 import models.shipping.{ShippingMethod, ShippingMethods}
-import org.scalatest.OptionValues._
+import org.scalatest.OptionValues
 import org.scalatest.prop.Tables._
 import payloads.AddressPayloads.CreateAddressPayload
 import payloads.GiftCardPayloads.GiftCardCreateByCsr
@@ -19,7 +19,11 @@ import testutils.fixtures.api.ApiFixtureHelpers
 import utils.aliases._
 import utils.seeds.Factories
 
-trait ReturnsFixtures extends TestFixtureBase with BakedFixtures with ApiFixtureHelpers {
+trait ReturnsFixtures
+    extends TestFixtureBase
+    with BakedFixtures
+    with ApiFixtureHelpers
+    with OptionValues {
   self: FoxSuite ⇒
 
   trait OrderDefaults extends EmptyCartWithShipAddress_Baked with Reason_Baked {
