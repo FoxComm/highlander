@@ -8,6 +8,8 @@ defmodule Hyperion.Router.V1 do
   alias Hyperion.API, warn: true
   alias Hyperion.Amazon.TemplateBuilder, warn: true
 
+  import Ecto.Query
+
   version "v1" do
     namespace :health do
       desc "Check hyperion health"
@@ -158,6 +160,7 @@ defmodule Hyperion.Router.V1 do
 
     namespace :categories do
       desc "Search for Amazon `department` and `item-type' by `node_path'"
+
       params do
         requires :node_path, type: String
         optional :from, type: Integer
@@ -165,7 +168,9 @@ defmodule Hyperion.Router.V1 do
       end
 
       get do
-        res = Category.search(params[:node_path], params[:from], params[:size])
+        res = (from c in Category, limit: ^params[:size], offset: ^params[:from],
+                         where: ilike(c.node_path, ^"%#{String.downcase(params[:node_path])}%"))
+              |> Hyperion.Repo.all
         respond_with(conn, res)
       end
 
@@ -324,7 +329,7 @@ defmodule Hyperion.Router.V1 do
 
   defp wrap(collection) do
     if is_list(collection) do
-      %{collection: collection,
+      %{items: collection,
         count: Enum.count(collection) }
     else
       collection
