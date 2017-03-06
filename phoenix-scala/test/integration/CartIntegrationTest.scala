@@ -123,11 +123,14 @@ class CartIntegrationTest
 
     "should successfully update line items" in new OrderShippingMethodFixture
     with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
-      val root = cartsApi(cart.refNum).lineItems.add(payload).asTheResult[CartResponse]
-      val skus = root.lineItems.skus
-      skus must have size 1
-      skus.map(_.sku).toSet must === (Set("SKU-YAX"))
-      skus.map(_.quantity).toSet must === (Set(2))
+      val sku = cartsApi(cart.refNum).lineItems
+        .add(payload)
+        .asTheResult[CartResponse]
+        .lineItems
+        .skus
+        .onlyElement
+      sku.sku must === ("SKU-YAX")
+      sku.quantity must === (2)
     }
 
     "adding a SKU with no product should return an error" in new OrderShippingMethodFixture
@@ -143,10 +146,11 @@ class CartIntegrationTest
       val (_, _, skus) = productWithVariants
       val code         = skus.head.code
 
-      val testPayload = Seq(UpdateLineItemsPayload(code, 1))
-      val root        = cartsApi(cart.refNum).lineItems.add(testPayload).asTheResult[CartResponse]
-      val liSkus      = root.lineItems.skus
-      liSkus must have size 1
+      cartsApi(cart.refNum).lineItems
+        .add(Seq(UpdateLineItemsPayload(code, 1)))
+        .asTheResult[CartResponse]
+        .lineItems
+        .skus must have size 1
     }
 
     "should respond with 404 if cart is not found" in {
@@ -176,17 +180,23 @@ class CartIntegrationTest
 
     "should successfully add line items" in new OrderShippingMethodFixture
     with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
-      val root = cartsApi(cart.refNum).lineItems.update(addPayload).asTheResult[CartResponse]
-      val skus = root.lineItems.skus
-      skus must have size 1
-      skus.map(_.sku).headOption.value must === ("SKU-YAX")
-      skus.map(_.quantity).headOption.value must === (4)
+      val sku = cartsApi(cart.refNum).lineItems
+        .update(addPayload)
+        .asTheResult[CartResponse]
+        .lineItems
+        .skus
+        .onlyElement
+      sku.sku must === ("SKU-YAX")
+      sku.quantity must === (4)
 
-      val root2 = cartsApi(cart.refNum).lineItems.update(addPayload).asTheResult[CartResponse]
-      val skus2 = root2.lineItems.skus
-      skus2 must have size 1
-      skus2.map(_.sku).headOption.value must === ("SKU-YAX")
-      skus2.map(_.quantity).headOption.value must === (6)
+      val updatedSku = cartsApi(cart.refNum).lineItems
+        .update(addPayload)
+        .asTheResult[CartResponse]
+        .lineItems
+        .skus
+        .onlyElement
+      updatedSku.sku must === ("SKU-YAX")
+      updatedSku.quantity must === (6)
     }
 
     "should successfully add a gift card line item" in new Customer_Seed
@@ -214,11 +224,14 @@ class CartIntegrationTest
     "should successfully remove line items" in new OrderShippingMethodFixture
     with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
       val subtractPayload = Seq(UpdateLineItemsPayload("SKU-YAX", -1))
-      val root            = cartsApi(cart.refNum).lineItems.update(subtractPayload).asTheResult[CartResponse]
-      val skus            = root.lineItems.skus
-      skus must have size 1
-      skus.map(_.sku).headOption.value must === ("SKU-YAX")
-      skus.map(_.quantity).headOption.value must === (1)
+      val sku = cartsApi(cart.refNum).lineItems
+        .update(subtractPayload)
+        .asTheResult[CartResponse]
+        .lineItems
+        .skus
+        .onlyElement
+      sku.sku must === ("SKU-YAX")
+      sku.quantity must === (1)
     }
 
     "should successfully remove gift card line item" in new Customer_Seed
