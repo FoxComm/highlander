@@ -109,10 +109,16 @@ object ReturnRoutes {
             }
           } ~
           pathPrefix("payment-methods") {
-            (post & pathEnd & entity(as[ReturnPaymentPayload])) { payload ⇒
+            (post & pathEnd & entity(as[ReturnPaymentsPayload])) { payload ⇒
               mutateOrFailures {
-                ReturnPaymentUpdater.addPayment(refNum, payload)
+                ReturnPaymentUpdater.addPayments(refNum, payload)
               }
+            } ~
+            (post & path(PaymentMethodMatcher) & pathEnd & entity(as[ReturnPaymentPayload])) {
+              case (paymentMethod, payload) ⇒
+                mutateOrFailures {
+                  ReturnPaymentUpdater.addPayment(refNum, paymentMethod, payload)
+                }
             } ~
             (delete & path(PaymentMethodMatcher) & pathEnd) { paymentMethod ⇒
               mutateOrFailures {

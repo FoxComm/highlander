@@ -40,4 +40,11 @@ object ReturnLineItemShippingCosts
   def findLineItemByRma(rma: Return)(
       implicit ec: EC): DbResultT[Option[(ReturnLineItemShippingCost, ReturnLineItem)]] =
     findByRmaId(rma.id).join(ReturnLineItems).on(_.id === _.originId).one.dbresult
+
+  def findByOrderRef(orderRef: String)(implicit ec: EC): QuerySeq =
+    Returns
+      .findByOrderRefNum(orderRef)
+      .join(ReturnLineItemShippingCosts)
+      .on(_.id === _.returnId)
+      .map { case (_, shippingCost) ⇒ shippingCost }
 }

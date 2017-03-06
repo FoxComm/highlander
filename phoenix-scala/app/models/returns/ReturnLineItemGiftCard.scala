@@ -1,10 +1,10 @@
 package models.returns
 
 import java.time.Instant
-
 import models.payment.giftcard.{GiftCard, GiftCards}
 import shapeless._
 import slick.driver.PostgresDriver.api._
+import utils.aliases._
 import utils.db._
 
 case class ReturnLineItemGiftCard(id: Int = 0,
@@ -37,11 +37,11 @@ object ReturnLineItemGiftCards
   def findByRmaId(returnId: Rep[Int]): QuerySeq =
     filter(_.returnId === returnId)
 
-  def findLineItemsByRma(
-      rma: Return): Query[(GiftCards, ReturnLineItems), (GiftCard, ReturnLineItem), Seq] =
-    for {
+  def findLineItemsByRma(rma: Return)(
+      implicit ec: EC): DbResultT[Seq[(GiftCard, ReturnLineItem)]] =
+    (for {
       liGc      ← findByRmaId(rma.id)
       li        ← ReturnLineItems if li.originId === liGc.id
       giftCards ← GiftCards if giftCards.id === liGc.giftCardId
-    } yield (giftCards, li)
+    } yield (giftCards, li)).result.dbresult
 }

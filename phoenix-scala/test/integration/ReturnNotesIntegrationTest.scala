@@ -25,7 +25,7 @@ class ReturnNotesIntegrationTest
 
   "Return Notes" - {
     "POST /v1/notes/return/:code" - {
-      "can be created for return" in new Fixture {
+      "can be created for return" in new ReturnDefaults {
         val noteCreated = api(rma.referenceNumber)
           .create(CreateNote(body = "Hello, FoxCommerce!"))
           .as[AdminNotes.Root]
@@ -34,21 +34,21 @@ class ReturnNotesIntegrationTest
         noteCreated.author must === (AdminNotes.buildAuthor(storeAdmin))
       }
 
-      "returns a validation error if failed to create" in new Fixture {
+      "returns a validation error if failed to create" in new ReturnDefaults {
         api(rma.referenceNumber)
           .create(CreateNote(body = ""))
           .mustFailWith400(GeneralFailure("body must not be empty"))
       }
 
-      "returns a 404 if the return is not found" in new Fixture {
-        private val none = "RMA-666"
+      "returns a 404 if the return is not found" in new ReturnDefaults {
+        val none = "RMA-666"
         api(none).create(CreateNote(body = "")).mustFailWith404(NotFoundFailure404(Return, none))
       }
     }
 
     "GET /v1/notes/return/:code" - {
 
-      "can be listed" in new Fixture {
+      "can be listed" in new ReturnDefaults {
         List("abc", "123", "xyz").foreach { body ⇒
           api(rma.referenceNumber).create(CreateNote(body = body)).mustBeOk()
         }
@@ -61,7 +61,7 @@ class ReturnNotesIntegrationTest
 
     "PATCH /v1/notes/return/:code/:noteId" - {
 
-      "can update the body text" in new Fixture {
+      "can update the body text" in new ReturnDefaults {
         val noteCreated = api(rma.referenceNumber)
           .create(CreateNote(body = "Hello, FoxCommerce!"))
           .as[AdminNotes.Root]
@@ -77,7 +77,7 @@ class ReturnNotesIntegrationTest
 
     "DELETE /v1/notes/return/:code/:noteId" - {
 
-      "can soft delete note" in new Fixture {
+      "can soft delete note" in new ReturnDefaults {
         val note = api(rma.referenceNumber)
           .create(CreateNote(body = "Hello, FoxCommerce!"))
           .as[AdminNotes.Root]

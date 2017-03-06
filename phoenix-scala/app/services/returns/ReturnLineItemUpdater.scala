@@ -2,7 +2,7 @@ package services.returns
 
 import failures.ReturnFailures.{ReturnReasonNotFoundFailure, ReturnShippingCostExceeded}
 import failures._
-import models.cord.OrderShippingMethods
+import models.cord.{OrderShippingMethods, Orders}
 import models.objects._
 import models.returns.{ReturnLineItemShippingCosts, _}
 import payloads.ReturnPayloads._
@@ -48,17 +48,15 @@ object ReturnLineItemUpdater {
   private def validateMaxShippingCost(rma: Return, amount: Int)(implicit ec: EC,
                                                                 db: DB): DbResultT[Unit] =
     for {
-      orderShippings ← * <~ OrderShippingMethods.findByOrderRef(rma.orderRef).result
-      orderShippingTotal = orderShippings.map(_.price).sum
-      previouslyReturned ← * <~ Returns
-                            .findByOrderRefNum(rma.orderRef)
-                            .filter(_.id =!= rma.id)
-                            .join(ReturnLineItemShippingCosts)
-                            .on(_.id === _.returnId)
-                            .result
-      previouslyReturnedCost = previouslyReturned.map {
-        case (_, shippingCost) ⇒ shippingCost.amount
-      }.sum
+      order ← * <~ Orders.mustFindByRefNum(rma.orderRef)
+      orderShippingTotal = order.shippingTotal
+      previouslyReturnedCost ← * <~ ReturnLineItemShippingCosts
+                                .findByOrderRef(rma.orderRef)
+                                .filter(_.returnId =!= rma.id)
+                                .map(_.amount)
+                                .sum
+                                .getOrElse(0)
+                                .result
       maxAmount = orderShippingTotal - previouslyReturnedCost
       _ ← * <~ failIf(amount > maxAmount,
                       ReturnShippingCostExceeded(refNum = rma.referenceNumber,

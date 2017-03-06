@@ -38,45 +38,42 @@ class ReturnsSearchViewTest
   val searchKeyName: String  = "id"
 
   "smoke test search view" - {
-    "should work against fixture return" in new Fixture {
+    "should work against fixture return" in new ReturnDefaults {
       val rmaSearchView = findOneInSearchView(rma.id)
 
-      private val customerSearchViewResult =
-        rmaSearchView.customer.extract[CustomerSearchViewResult]
+      val customerSearchViewResult = rmaSearchView.customer.extract[CustomerSearchViewResult]
 
-      {
-        import rmaSearchView._
+      import rmaSearchView._
 
-        id must === (rma.id)
-        referenceNumber must === (rma.referenceNumber)
-        orderRef must === (rma.cordRefNum)
-        state must === (rma.state)
-        messageToAccount must === (rma.messageToCustomer)
-        returnType must === (rma.rmaType)
+      id must === (rma.id)
+      referenceNumber must === (rma.referenceNumber)
+      orderRef must === (rma.cordRefNum)
+      state must === (rma.state)
+      messageToAccount must === (rma.messageToCustomer)
+      returnType must === (rma.rmaType)
 
-        rma.customer.map(c ⇒ {
-          customerSearchViewResult.id must === (c.id)
-          customerSearchViewResult.name.some must === (c.name)
-          customerSearchViewResult.email.some must === (c.email)
-        })
-
+      rma.customer.map { c ⇒
+        customerSearchViewResult.id must === (c.id)
+        customerSearchViewResult.name.some must === (c.name)
+        customerSearchViewResult.email.some must === (c.email)
       }
     }
   }
 
   "update search view" - {
-    "should update state" in new Fixture {
+    "should update state" in new ReturnDefaults {
       assert(rma.state == Pending)
       findOneInSearchView(rma.id).state must === (rma.state)
 
-      private val payload = ReturnUpdateStatePayload(state = Processing)
-      returnsApi(rma.referenceNumber).update(payload).as[ReturnResponse.Root].state must === (
-          Processing)
+      returnsApi(rma.referenceNumber)
+        .update(ReturnUpdateStatePayload(state = Processing))
+        .as[ReturnResponse.Root]
+        .state must === (Processing)
 
       findOneInSearchView(rma.id).state must === (Processing)
     }
 
-    "should update message to customer" in new Fixture {
+    "should update message to customer" in new ReturnDefaults {
       findOneInSearchView(rma.id).messageToAccount must === (None)
 
       val payload = ReturnMessageToCustomerPayload(message = "Hello!")

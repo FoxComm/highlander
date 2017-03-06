@@ -4,7 +4,7 @@ import cats.data._
 import cats.implicits._
 import failures.Failure
 import models.payment.PaymentMethod
-import models.returns.{Return, ReturnLineItem, ReturnReason}
+import models.returns.{Return, ReturnLineItem}
 import models.returns.ReturnLineItem.InventoryDisposition
 import utils.{ADTTypeHints, Validation}
 import utils.Validation._
@@ -56,11 +56,19 @@ object ReturnPayloads {
 
   /* Payment payloads */
 
-  case class ReturnPaymentPayload(amount: Int, method: PaymentMethod.Type)
-      extends Validation[ReturnPaymentPayload] {
+  case class ReturnPaymentsPayload(payments: Map[PaymentMethod.Type, Int])
+      extends Validation[ReturnPaymentsPayload] {
+    def validate: ValidatedNel[Failure, ReturnPaymentsPayload] = {
+      payments.collect {
+        case (paymentType, amount) if amount <= 0 ⇒
+          greaterThanOrEqual(amount, 0, s"$paymentType amount")
+      }.fold(Validation.ok)(_ |+| _).map(_ ⇒ this)
+    }
+  }
 
+  case class ReturnPaymentPayload(amount: Int) extends Validation[ReturnPaymentPayload] {
     def validate: ValidatedNel[Failure, ReturnPaymentPayload] = {
-      greaterThan(amount, 0, "Amount").map { case _ ⇒ this }
+      greaterThan(amount, 0, "Amount").map(_ ⇒ this)
     }
   }
 
