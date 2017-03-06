@@ -22,7 +22,7 @@ class OrdersEntry extends Component {
   props: Props;
 
   render() {
-    const { claims, collapsed, routes, status, toggleMenuItem } = this.props;
+    const { claims, routes} = this.props;
     const allClaims = { ...cartClaims, ...orderClaims };
 
     if (!anyPermitted(allClaims, claims)) {

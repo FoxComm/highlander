@@ -22,7 +22,7 @@ class SettingsEntry extends Component {
   props: Props;
 
   render() {
-    const { claims, collapsed, routes, status, toggleMenuItem } = this.props;
+    const { claims, routes } = this.props;
     const allClaims = { ...userClaims, ...pluginClaims };
 
     if (!anyPermitted(allClaims, claims)) {
