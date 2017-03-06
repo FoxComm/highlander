@@ -27,20 +27,19 @@ import org.json4s.jackson.JsonMethods.parse
 import org.json4s.jackson.Serialization.{write ⇒ render}
 import cats.implicits._
 
-final case class ActivityContext(userId: Int, userType: String, transactionId: String)
+final case class ActivityContext(
+    userId: Int, userType: String, transactionId: String, scope: String)
 
 final case class Activity(id: String,
                           kind: String,
                           data: JValue,
                           context: ActivityContext,
-                          createdAt: Instant = Instant.now,
-                          scope: String)
+                          createdAt: String)
 
 final case class Connection(dimension: String, objectId: String, data: JValue, activityId: String)
 
-final case class AppendActivity(activityId: String, data: JValue)
 final case class AppendNotification(
-    sourceDimension: String, sourceObjectId: String, activity: JValue)
+    sourceDimension: String, sourceObjectId: String, activity: Activity)
 
 trait ActivityConnector {
   def process(offset: Long, activity: Activity)(implicit ec: EC): Future[Seq[Connection]]
@@ -95,7 +94,8 @@ class ActivityProcessor(
     val activityJson = AvroJsonHelper.transformJson(inputJson, activityJsonFields)
     val activity     = parse(activityJson).extract[Activity]
 
-    Console.err.println(s"Got Activity ${activity.kind} with ID ${activity.id}")
+    Console.err.println(
+        s"Got Activity ${activity.kind} with ID ${activity.id} created at ${activity.createdAt}")
     if (activity.context == null) {
       Console.err.println(
           s"Warning, got Activity ${activity.kind} with ID ${activity.id} without a context, skipping...")
@@ -134,8 +134,8 @@ class ActivityProcessor(
     record.put("dimension", connection.dimension)
     record.put("object_id", connection.objectId)
     record.put("activity", render(activity))
-    record.put("created_at", DateTimeFormatter.ISO_INSTANT.format(activity.createdAt))
-    record.put("scope", activity.scope)
+    record.put("created_at", activity.createdAt)
+    record.put("scope", activity.context.scope)
 
     val key = new GenericData.Record(AvroProcessor.keySchema)
     key.put("id", activity.id)
@@ -149,19 +149,26 @@ class ActivityProcessor(
       activity: Activity, conn: Connection, phoenix: Phoenix): Future[Unit] = Future {
     val body = AppendNotification(sourceDimension = conn.dimension,
                                   sourceObjectId = conn.objectId,
-                                  activity = Extraction.decompose(activity))
+                                  activity = activity)
 
     val notification = render(body)
     Console.err.println(s"POST /notifications, $notification")
 
-    phoenix.post("notifications", notification).map { response ⇒
-      if (response.status != StatusCodes.OK) {
-        throw new FailedToConnectNotification(
-            conn.activityId, conn.dimension, conn.objectId, response)
+    phoenix
+      .post("notifications", notification)
+      .fold({ failures ⇒
+        Console.err.println(s"Failed Notification ${conn.dimension} ${conn.activityId}: $failures")
+        throw FailedToConnectActivity(conn.activityId, conn.dimension, conn.objectId, failures)
+      }, { resp ⇒
+        if (resp.status != StatusCodes.OK) {
+          Console.err.println(s"Failed Notification ${conn.dimension} ${conn.activityId}: $resp")
+          throw new FailedToConnectNotification(
+              conn.activityId, conn.dimension, conn.objectId, resp)
+        }
+        resp
+      })
+      .map { r ⇒
+        ()
       }
-      response
-    } map { r ⇒
-      ()
-    }
   }
 }

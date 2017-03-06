@@ -26,9 +26,8 @@ object NotificationManager {
   def createNotification(payload: CreateNotification)(implicit ac: AC,
                                                       au: AU,
                                                       ec: EC,
-                                                      db: DB): DbResultT[ActivityResponse.Root] =
+                                                      db: DB): DbResultT[ActivityResponse.Root] = {
     for {
-      scope     ← * <~ Scope.resolveOverride(payload.scope)
       dimension ← * <~ Dimensions.findOrCreateByName(payload.sourceDimension)
       activity ← * <~ Activity(id = payload.activity.id,
                                activityType = payload.activity.kind,
@@ -44,11 +43,11 @@ object NotificationManager {
 
       notifications ← * <~ adminIds.toList.map { adminId ⇒
                        Notifications.create(
-                           Notification(scope = scope,
+                           Notification(scope = payload.activity.context.scope,
                                         accountId = adminId,
                                         dimensionId = dimension.id,
                                         objectId = payload.sourceObjectId,
-                                        activity = decompose(activity)))
+                                        activity = decompose(payload.activity)))
                      }
 
       _ ← * <~ DBIO.sequence(notifications.map { notification ⇒
@@ -57,6 +56,7 @@ object NotificationManager {
            sqlu"NOTIFY #${notificationChannel(notification.accountId)}, '#$escapedPayload'"
          })
     } yield response
+  }
 
   def updateLastSeen(accountId: Int, notificationId: Int)(
       implicit au: AU,

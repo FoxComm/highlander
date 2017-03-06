@@ -10,12 +10,11 @@ case class LoginPayload(email: String, password: String, org: String)
 case class UpdateShippingMethod(shippingMethodId: Int)
 
 case class NotificationActivity(id: String,
-                                kind: ActivityType,
+                                kind: String,
                                 data: Json,
                                 context: ActivityContext,
                                 createdAt: Instant)
 
-case class CreateNotification(scope: Option[String],
-                              sourceDimension: String,
+case class CreateNotification(sourceDimension: String,
                               sourceObjectId: String,
                               activity: NotificationActivity)
