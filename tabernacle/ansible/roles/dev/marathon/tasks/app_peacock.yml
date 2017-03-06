@@ -1,7 +1,7 @@
 ---
 
 - name: Copy Peacock Marathon JSON
-  template: src=firebrand.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
+  template: src=peacock.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
 
 - name: Update Peacock in Marathon
   shell: 'curl -sS -XPUT -d@/marathon/applications/peacock.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/peacock'
