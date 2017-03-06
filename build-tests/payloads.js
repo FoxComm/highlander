@@ -3,7 +3,7 @@ import faker from 'faker';
 import testImageBase64 from './assets/image.base64';
 
 /**
- * Returns integer, unique among all calls to teststamp not only in future but also in parallel test runs
+ * Returns integer string, unique among all calls to teststamp not only in future but also in parallel test runs
  */
 function teststamp() {
   const oldPrepareStackTrace = Error.prepareStackTrace;
@@ -17,7 +17,10 @@ function teststamp() {
     callerFileHash = ((callerFileHash << 5) - callerFileHash) + chr;
     callerFileHash |= 0;
   }
-  return `${callerFileHash}${Date.now()}`;
+  const signPrefix = callerFileHash < 0 ? 0 : 1;
+  const hashString = Math.abs(callerFileHash).toString();
+  const padding = new Array(11 - hashString.length).join('0');
+  return `${signPrefix}${padding}${hashString}${Date.now()}`;
 }
 
 const $ = {
