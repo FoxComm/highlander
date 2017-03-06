@@ -1,3 +1,5 @@
+/* @flow */
+
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import classNames from 'classnames';
@@ -5,22 +7,35 @@ import { autobind } from 'core-decorators';
 import styles from './navigation-item.css';
 
 import { IndexLink, Link } from '../link';
+import type { Claims } from 'lib/claims';
 
 import Icon from '../icon/icon';
 
-export default class NavigationItem extends React.Component {
-
-  static propTypes = {
-    to: PropTypes.string.isRequired,
-    icon: PropTypes.string.isRequired,
-    title: PropTypes.string.isRequired,
-    routes: PropTypes.array.isRequired
+type Props = {
+    to:             string,
+    icon:           string,
+    title:          string,
+    routes:         Array<Object>,
+    actualClaims:   Claims,
+    expectedClaims: Claims
   };
 
-  get containerClass() {
+export default class NavigationItem extends React.Component {
+  props: Props;
+
+  get containerClass(): string {
     const routeNames = this.props.routes.map(route => route.name);
-    const isActive = _.includes(routeNames, this.props.to) ||
+    let isActive = _.includes(routeNames, this.props.to) ||
       _.includes(routeNames, `${this.props.to}-base`);
+
+    /*
+       If I'm in customer groups, routeNames contains customers-base,
+       thus setting isActive to true for both 'Customers' and 'Customer Groups'
+       menu items
+    */
+    if(this.props.to === 'customers' && (_.includes(routeNames, 'groups') || _.includes(routeNames, 'groups-base') ) )
+      isActive = false;
+  
     return classNames('fc-navigation-item-container', {
       '_active': isActive
     });
