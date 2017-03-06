@@ -14,6 +14,11 @@ upstream eggcrate {
   << else >> server {{eggcrate_server}} fail_timeout=30s max_fails=10; << end >>
 }
 
+upstream cross-sell {
+  << range service "cross-sell" >> server << .Address >>:<< .Port >> max_fails=10 fail_timeout=30s weight=1;
+  << else >> server {{cross_sell_server}} fail_timeout=30s max_fails=10; << end >>
+}
+
 upstream search {
   << range service "elasticsearch" >> server << .Address >>:<< .Port >> max_fails=10 fail_timeout=30s weight=1;
   << else >> server {{search_server_http}} fail_timeout=30s max_fails=10; << end >>

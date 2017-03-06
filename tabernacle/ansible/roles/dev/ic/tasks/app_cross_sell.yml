@@ -1,0 +1,17 @@
+---
+
+- name: Copy Cross-Sell Marathon JSON
+  template: src=cross-sell.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
+
+- name: Update Cross-Sell in Marathon
+  shell: 'curl -X PUT -d@/marathon/applications/cross-sell.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/cross-sell'
+
+- name: Restart Cross-Sell in Marathon
+  shell: 'curl -X POST http://{{marathon_server}}/v2/apps/cross-sell/restart'
+
+- name: Get Cross-Sell Marathon tasks in `healthy` state
+  shell: curl -sS -XGET http://{{marathon_server}}/v2/apps/cross-sell | jq '.app.tasksHealthy > 0'
+  register: healthy_tasks_available
+  until: healthy_tasks_available.stdout == 'true'
+  retries: "{{marathon_retries}}"
+  delay: "{{marathon_delay}}"

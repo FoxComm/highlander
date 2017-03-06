@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
-from PPRecommend import PPRecommend
+from prod_prod.PPRecommend import PPRecommend
 from InvalidUsage import InvalidUsage
+import os
 
 app = Flask(__name__)
 
@@ -40,7 +41,7 @@ def ping():
     """
     return 'pong'
 
-@app.route('/recommend/prod-prod/<int:prod_id>', methods=['GET'])
+@app.route('/prod-prod/<int:prod_id>', methods=['GET'])
 def rec_prod_prod(prod_id):
     """rec_prod_prod
     """
@@ -66,8 +67,8 @@ def rec_prod_prod(prod_id):
 
     return jsonify(recommend_output)
 
-@app.route('/recommend/prod-prod/train', methods=['POST'])
-def train():
+@app.route('/prod-prod/train', methods=['POST'])
+def train_prod_prod():
     """train
     """
     json_dict = request.get_json()
@@ -80,3 +81,9 @@ def train():
         update_pprec(pprecs, channel_id, pprec)
 
     return ""
+
+port = os.getenv('PORT', 5000)
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=port)
+

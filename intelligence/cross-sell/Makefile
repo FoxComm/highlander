@@ -1,33 +1,29 @@
-SUBDIRS = prod-prod
-BUILDDIRS = $(SUBDIRS:%=build-%)
-CLEANDIRS = $(SUBDIRS:%=clean-%)
-TESTDIRS = $(SUBDIRS:%=test-%)
-DOCKERDIRS = $(SUBDIRS:%=docker-%)
-DOCKERPUSHDIRS = $(SUBDIRS:%=docker-push-%)
+include ../../makelib
+header = $(call baseheader, $(1), cross-sell)
 
-clean: $(CLEANDIRS)
-$(CLEANDIRS): REPO = $(@:clean-%=%) 
-$(CLEANDIRS): 
-	$(MAKE) -C $(REPO) clean
+DOCKER_REPO ?= $(DOCKER_STAGE_REPO)
+DOCKER_TAG ?= cross-sell
+DOCKER_BRANCH ?= master
 
-build: $(BUILDDIRS)
-$(BUILDDIRS): REPO = $(@:build-%=%) 
-$(BUILDDIRS): 
-	$(MAKE) -C $(REPO) build
+build:
+	$(call header, Building)
+	true
 
-test: $(TESTDIRS)
-$(TESTDIRS): REPO = $(@:test-%=%) 
-$(TESTDIRS): 
-	$(MAKE) -C $(REPO) test
+test:
+	$(call header, Testing)
+	true
 
-docker: $(DOCKERDIRS)
-$(DOCKERDIRS): REPO = $(@:docker-%=%) 
-$(DOCKERDIRS): 
-	$(MAKE) -C $(REPO) docker
+docker:
+	$(call header, Dockerizing)
+	docker build -t $(DOCKER_TAG) .
 
-docker-push: $(DOCKERPUSHDIRS)
-$(DOCKERPUSHDIRS): REPO = $(@:docker-push-%=%) 
-$(DOCKERPUSHDIRS): 
-	$(MAKE) -C $(REPO) docker-push
+docker-push:
+	$(call header, Registering)
+	docker tag $(DOCKER_TAG) $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
+	docker push $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
 
-.PHONY: clean build test docker docker-push
+clean:
+	$(call header, Cleaning)
+	true
+
+.PHONY: build test docker docker-push
