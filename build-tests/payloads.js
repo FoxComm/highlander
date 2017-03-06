@@ -3,7 +3,7 @@ import faker from 'faker';
 import testImageBase64 from './assets/image.base64';
 
 /**
- * Returns integer string, unique among all calls to teststamp not only in future but also in parallel test runs
+ * Returns numeric string, unique among all calls to teststamp not only in future but also in parallel test runs
  */
 function teststamp() {
   const oldPrepareStackTrace = Error.prepareStackTrace;
