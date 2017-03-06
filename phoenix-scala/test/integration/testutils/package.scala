@@ -9,12 +9,19 @@ import org.scalatest._
 import responses.TheResponse
 import utils.aliases._
 
-package object testutils {
+package object testutils extends MustMatchers with OptionValues with AppendedClues {
 
   def originalSourceClue(implicit line: SL, file: SF) =
     s"""\n(Original source: ${file.value.split("/").last}:${line.value})"""
 
   type FoxSuite = TestSuite with PatienceConfiguration with DbTestSupport
+
+  implicit class RichTraversable[A](val sequence: Traversable[A]) extends AnyVal {
+    def onlyElement(implicit sl: SL, sf: SF): A = {
+      sequence must have size 1
+      sequence.head
+    } withClue originalSourceClue
+  }
 
   implicit class RichHttpResponse(response: HttpResponse)(implicit ec: EC, mat: Mat, fm: Formats)
       extends MustMatchers

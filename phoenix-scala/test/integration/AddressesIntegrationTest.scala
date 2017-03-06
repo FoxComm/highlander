@@ -135,10 +135,7 @@ class AddressesIntegrationTest
 
   "GET /v1/my/addresses" - {
     "retrieves a customer's addresses" in new CustomerAddress_Baked {
-      val addresses = GET(s"v1/my/addresses").as[Seq[AddressResponse]]
-
-      addresses must have size 1
-      addresses.head.name must === (address.name)
+      GET(s"v1/my/addresses").as[Seq[AddressResponse]].onlyElement.name must === (address.name)
     }
   }
 
