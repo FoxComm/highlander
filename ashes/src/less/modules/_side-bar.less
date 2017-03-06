@@ -41,6 +41,12 @@
   &._open {
     flex: 0 0 @sideber-open-width;
     width: @sideber-open-width;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    height: 100%;
+    position: fixed;
+    z-index: 2;
+
 
     ~ header,
     ~ main {
@@ -50,6 +56,7 @@
 
   &__navigation-list {
     border-top: 1px solid @color-decor2;
+    margin-bottom: 70px;
   }
 
   .fc-navigation-item-container {
