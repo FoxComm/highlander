@@ -208,8 +208,7 @@ class PromotionsIntegrationTest
       POST(s"v1/my/cart/coupon/$couponCode").mustBeOk()
 
       private val emptyCartWithCoupon =
-        POST(s"v1/my/cart/line-items", Seq(UpdateLineItemsPayload(skuCode, 0)))
-          .asThe[CartResponse]
+        POST(s"v1/my/cart/line-items", Seq(UpdateLineItemsPayload(skuCode, 0))).asThe[CartResponse]
 
       emptyCartWithCoupon.warnings mustBe 'nonEmpty withClue "containing information about removed coupons that no longer apply"
 

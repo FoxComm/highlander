@@ -20,7 +20,7 @@ case class DiscountInput(promotion: ObjectShadow,
 
   val eligibleForDiscountSubtotal: Int = lineItems.collect {
     case li if li.isEligibleForDiscount ⇒
-      Mvp.priceAsInt(li.productVariantForm, li.productVariantShadow)
+      Mvp.priceAsInt(li.skuForm, li.skuShadow)
   }.sum
 
   val eligibleForDiscountNumItems: Int = lineItems.count(_.isEligibleForDiscount)

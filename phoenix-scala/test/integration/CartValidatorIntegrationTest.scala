@@ -83,7 +83,7 @@ class CartValidatorIntegrationTest
 
     "/v1/carts/:refNum/coupon" in new CouponFixture with LineItemFixture {
       override def refNum = super[CouponFixture].refNum
-      cartsApi(refNum).lineItems.add(Seq(UpdateLineItemsPayload(productVariant.formId, 1)))
+      cartsApi(refNum).lineItems.add(Seq(UpdateLineItemsPayload(sku.code, 1)))
       override def expectedWarnings =
         Seq(NoShipAddress(refNum), NoShipMethod(refNum), InsufficientFunds(refNum))
       checkResponse(cartsApi(refNum).coupon.add(couponCode), expectedWarnings)
@@ -144,7 +144,7 @@ class CartValidatorIntegrationTest
       product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head)
       sku     ← * <~ Skus.mustFindById404(product.skuId)
     } yield sku).gimme
-    val refNum = cart.refNum
+    def refNum = cart.refNum
   }
 
   trait ShippingMethodFixture extends EmptyCustomerCart_Baked {

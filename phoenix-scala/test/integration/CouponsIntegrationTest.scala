@@ -150,11 +150,11 @@ class CouponsIntegrationTest
       "because purchased gift card is excluded from qualifier judgement" - {
 
         "for `carts any` qualifier (cart only has gift card line items)" in new Coupon_AnyQualifier_PercentOff {
-          val variantId = new ProductVariant_ApiFixture {}.productVariant.id
-          val cartRef   = api_newGuestCart().referenceNumber
+          val skuCode = new ProductSku_ApiFixture {}.skuCode
+          val cartRef = api_newGuestCart().referenceNumber
 
           cartsApi(cartRef).lineItems
-            .add(Seq(UpdateLineItemsPayload(variantId, 2, giftCardLineItemAttributes)))
+            .add(Seq(UpdateLineItemsPayload(skuCode, 2, giftCardLineItemAttributes)))
 
           val message = "qualifier orderAnyQualifier rejected order with refNum=BR10001, " +
               "reason: Items in cart are not eligible for discount"

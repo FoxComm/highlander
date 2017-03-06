@@ -47,8 +47,10 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi { sel
   trait Coupon_AnyQualifier_PercentOff extends CouponFixtureBase {
     def percentOff: Int = 10
 
-    private lazy val promoPayload = PromotionPayloadBuilder
-      .build(PromoOfferBuilder.CartPercentOff(percentOff), PromoQualifierBuilder.CartAny)
+    private lazy val promoPayload = PromotionPayloadBuilder.build(
+        Promotion.Coupon,
+        PromoOfferBuilder.CartPercentOff(percentOff),
+        PromoQualifierBuilder.CartAny)
 
     def promotion = promotionsApi.create(promoPayload).as[PromotionResponse.Root]
   }

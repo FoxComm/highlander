@@ -23,7 +23,7 @@ import models.shipping
 import responses.TheResponse
 import responses.cord.CartResponse
 import services.discount.compilers._
-import services.{CartValidator, LineItemManager, LogActivity, ResultT}
+import services.{CartValidator, LineItemManager, LogActivity}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
@@ -154,14 +154,15 @@ object CartPromotionUpdater {
       shipTotal      ← * <~ CartTotaler.shippingTotal(cart)
       cartWithTotalsUpdated = cart.copy(subTotal = subTotal, shippingTotal = shipTotal)
       input                 = DiscountInput(promo, cartWithTotalsUpdated, lineItems, shippingMethod)
-      adjustments ← * <~ ResultT(qualifier.check(input))
-                     .flatMap(_ ⇒ ResultT(offer.adjust(input)))
+      adjustments ← * <~ qualifier
+                     .check(input)
+                     .flatMap(_ ⇒ offer.adjust(input))
                      .map(TheResponse(_))
                      .recoverWith {
                        // FIXME: convert errors to warnings better with the new monad @michalrus
-                       case qualifierErrors if failFatally ⇒ ResultT.leftAsync(qualifierErrors)
+                       case qualifierErrors if failFatally ⇒ Result.failures(qualifierErrors)
                        case qualifierErrors ⇒
-                         ResultT.rightAsync(
+                         Result.pure(
                              TheResponse.build(Seq.empty, warnings = Some(qualifierErrors)))
                      }
                      .value
