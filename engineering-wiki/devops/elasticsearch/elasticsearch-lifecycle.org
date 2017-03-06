@@ -1,0 +1,16 @@
+#+TITLE: ElasticSearch Lifecycle
+
+* Overview
+
+We use ElasticSearch as our main source of caching and as a search engine
+across the FoxCommerce platform. In order to use it correctly, we must create
+and update indicies, manage mappings per scope, and push information to ES. This
+document outlines how we approach those problems.
+
+* Manage Mappings
+
+This section covers how we create an manage mappings across ElasticSearch. There
+are a number of challenges when doing this, including:
+
+- Creating initial mappings
+- Synchronizing the ES table contents with PostgreSQL tables
