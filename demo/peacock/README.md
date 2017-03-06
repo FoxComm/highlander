@@ -14,7 +14,7 @@ FoxCommerce Demo store. Isomorphic React app powered by FoxComm's backend API.
 
   To install this or another versions of node you can use [brew](http://brew.sh), [n](https://github.com/tj/n) or [nvm](https://github.com/creationix/nvm)
 
-* `yarn` > v0.17.8
+* `yarn` > v0.20.*
 
 * [Flow](http://flowtype.org)
 
