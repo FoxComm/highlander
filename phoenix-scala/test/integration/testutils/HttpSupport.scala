@@ -25,7 +25,6 @@ import org.scalatest.concurrent.ScalaFutures
 import server.Service
 import services.Authenticator.UserAuthenticator
 import utils.FoxConfig.config
-import utils.aliases.{EC, Mat}
 import utils.apis.Apis
 import utils.seeds.Factories
 import utils.{FoxConfig, JsonFormatters}
@@ -34,7 +33,6 @@ import scala.collection.immutable
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
-import cats.implicits._
 
 // TODO: Move away from root package when `Service' moverd
 object HttpSupport {
@@ -118,6 +116,17 @@ trait HttpSupport
       override val userAuth: UserAuthenticator = overrideUserAuth
     }
 
+  def POST(path: String, rawBody: String): HttpResponse = {
+    val request = HttpRequest(method = HttpMethods.POST,
+                              uri = pathToAbsoluteUrl(path),
+                              entity = HttpEntity.Strict(
+                                  ContentTypes.`application/json`,
+                                  ByteString(rawBody)
+                              ))
+
+    dispatchRequest(request)
+  }
+
   def POST(path: String): HttpResponse = {
     val request = HttpRequest(method = HttpMethods.POST, uri = pathToAbsoluteUrl(path))
 
@@ -147,28 +156,11 @@ trait HttpSupport
     dispatchRequest(request)
   }
 
-  def POST[T <: AnyRef](path: String, payload: T): HttpResponse = {
+  def POST[T <: AnyRef](path: String, payload: T): HttpResponse =
+    POST(path, writeJson(payload))
 
-    val request = HttpRequest(method = HttpMethods.POST,
-                              uri = pathToAbsoluteUrl(path),
-                              entity = HttpEntity.Strict(
-                                  ContentTypes.`application/json`,
-                                  ByteString(writeJson(payload))
-                              ))
-
-    dispatchRequest(request)
-  }
-
-  def PATCH[T <: AnyRef](path: String, payload: T): HttpResponse = {
-    val request = HttpRequest(method = HttpMethods.PATCH,
-                              uri = pathToAbsoluteUrl(path),
-                              entity = HttpEntity.Strict(
-                                  ContentTypes.`application/json`,
-                                  ByteString(writeJson(payload))
-                              ))
-
-    dispatchRequest(request)
-  }
+  def PATCH[T <: AnyRef](path: String, payload: T): HttpResponse =
+    PATCH(path, writeJson(payload))
 
   def DELETE(path: String): HttpResponse = {
     val request = HttpRequest(method = HttpMethods.DELETE, uri = pathToAbsoluteUrl(path))

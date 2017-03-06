@@ -23,7 +23,7 @@ class UserAuthIntegrationTest
                                               password = Some(loginPayload.password))
   val updateCustomerPayload = UpdateCustomerPayload(email = userEmail.some)
 
-  "smoke test auth" - {
+  "Smoke test auth" - {
     "should login for a new user account created" in {
       publicApi.prepare.login(loginPayload).run.mustFailWith400(LoginFailed)
       publicApi.prepare.register(customerPayload).run.mustBeOk()
@@ -38,17 +38,17 @@ class UserAuthIntegrationTest
       ).run.mustBeOk()
     }
 
-    "logout shout be parsed properly" in {
+    "logout shoud be parsed properly" in {
       Seq(
           publicApi.prepare.register(customerPayload),
           publicApi.prepare.logout()
-      ).run
+      ).run.mustBeOk()
     }
 
   }
 
-  "simulations should be successful" - {
-    "evil guest scenario replay" in {
+  "Simulations should be successful" - {
+    "guest with the same email should not break customer account" in {
       publicApi.prepare.register(customerPayload).run.mustBeOk()
 
       // we run requests in a separate lists to ensure token not being passed along

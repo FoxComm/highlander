@@ -10,10 +10,7 @@ import models.auth.UserToken
 import org.scalatest.SuiteMixin
 import services.Authenticator.{AuthData, JwtAuthenticator, UserAuthenticator}
 import services.account.AccountCreateContext
-import services.account.AccountCreateContext
 import utils.seeds.Factories
-
-import scala.concurrent.Future
 
 import scala.concurrent.Future
 
