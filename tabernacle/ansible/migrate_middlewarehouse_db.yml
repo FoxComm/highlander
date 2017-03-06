@@ -4,7 +4,6 @@
   hosts: '{{hostname}}'
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
-    download_flyway: false
   vars_prompt:
     - name: "hostname"
       prompt: "Enter a hostname with a database to migrate"

@@ -1,11 +1,11 @@
 ---
 
-- name: Pack Buildkite Agent image
+- name: Packer Buildkite Agent Image
   hosts: all
   become: true
   vars:
+    user: ubuntu
     packing: true
-    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
 
   roles:
     - { role: base/common }
@@ -13,6 +13,7 @@
     - { role: base/devkit }
     - { role: base/ssh_keys }
     - { role: base/builder }
+    - { role: base/flyway }
     - { role: test/db }
     - { role: test/selenium }
     - { role: dev/ssh_gce }

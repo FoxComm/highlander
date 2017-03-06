@@ -1,10 +1,4 @@
 ---
 
-- name: Download terraform
-  get_url: url={{terraform_download_url}} dest="{{home}}/{{terraform_filename}}"
-
-- name: Unzip terraform
-  unarchive: src="{{home}}/{{terraform_filename}}" dest="{{home}}" mode="u+x,g+x,o+x"
-
-- name: Copy to Binaries Directory
-  command: mv {{home}}/terraform /usr/local/bin
+- name: Download Terraform
+  unarchive: src={{terraform_download_url}} dest=/usr/local/bin remote_src=true mode="u+x,g+x,o+x"

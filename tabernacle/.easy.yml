@@ -93,6 +93,10 @@ shortcuts:
     alias: provision_appliance.yml
     target: ansible/provision_appliance.yml
 
+  - name: Provision Appliance Lite
+    alias: provision_appliance_lite.yml
+    target: ansible/provision_appliance_lite.yml
+
   # Migration
   - name: Migrate Phoenix DB
     alias: migrate_phoenix_db.yml
@@ -131,6 +135,10 @@ shortcuts:
     alias: appliance.json
     target: packer/appliance/appliance.json
 
+  - name: Base Buildkite Agent Image
+    alias: agent.json
+    target: packer/buildkite/agent.json
+
   # Tinystack
   - name: Tinystack Amigo
     alias: tiny_amigo.json
@@ -157,6 +165,7 @@ shortcuts:
     flag: "-state"
     aliases:
       branches: terraform/envs/gce_branches/terraform.tfstate
+      cloud: terraform/envs/gce_cloud/terraform.tfstate
       dev: terraform/envs/gce_dev/terraform.tfstate
       staging: terraform/envs/gce_staging/terraform.tfstate
       target: terraform/envs/aws_target/terraform.tfstate
@@ -167,6 +176,7 @@ shortcuts:
     flag: "-var-file"
     aliases:
       branches: terraform/envs/gce_branches/branches.tfvars
+      cloud: terraform/envs/gce_cloud/cloud.tfvars
       dev: terraform/envs/gce_dev/dev.tfvars
       staging: terraform/envs/gce_staging/staging.tfvars
       target: terraform/envs/aws_target/target.tfvars
@@ -174,6 +184,10 @@ shortcuts:
       tpg: terraform/envs/gce_tpg/tpg.tfvars
 
   targets:
+  - name: FoxCommerce Cloud
+    alias: cloud
+    target: terraform/base/gce_cloud
+
   - name: Feature Branch Instances
     alias: branches
     target: terraform/base/gce_branches
