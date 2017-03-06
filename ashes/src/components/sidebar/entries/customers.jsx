@@ -1,7 +1,7 @@
 /* @flow */
 import React, { Component, Element } from 'react';
 
-import { isPermitted } from 'lib/claims';
+import { isPermitted, anyPermitted } from 'lib/claims';
 import { frn, readAction } from 'lib/frn';
 
 import NavigationItem from '../navigation-item';
@@ -22,7 +22,10 @@ class CustomersEntry extends Component {
 
   render() {
     const { claims, routes } = this.props;
-    if (!isPermitted(customerClaims, this.props.claims)) {
+    const allClaims = { ...customerClaims, ...customerGroupClaims };
+
+    if (!anyPermitted(allClaims, claims)) {
+      console.log("Not permitted");
       return <div></div>;
     }
 
@@ -34,14 +37,18 @@ class CustomersEntry extends Component {
             to="customers"
             icon="customers"
             title="Customers"
-            routes={routes} />
+            routes={routes}
+            actualClaims={claims}
+            expectedClaims={customerClaims} />
         </li>
         <li>
           <NavigationItem
             to="groups"
             icon="groups"
             title="Customer Groups"
-            routes={routes} />
+            routes={routes}
+            actualClaims={claims}
+            expectedClaims={customerGroupClaims} />
         </li>
       </div>
     );

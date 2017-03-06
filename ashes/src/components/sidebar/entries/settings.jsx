@@ -23,7 +23,7 @@ class SettingsEntry extends Component {
 
   render() {
     const { claims, routes } = this.props;
-    const allClaims = { ...userClaims, ...pluginClaims };
+    const allClaims = { ...userClaims, ...pluginClaims, ...applicationClaims };
 
     if (!anyPermitted(allClaims, claims)) {
       return (
