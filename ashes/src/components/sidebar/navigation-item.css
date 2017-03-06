@@ -1,4 +1,6 @@
-.nav-item{
-  width:20px;
-  height:20px;
+.nav-item {
+  width: 20px;
+  height: 16px;
+  margin-right: 15px;
+  opacity: 0.52;
 }
