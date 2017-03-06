@@ -112,8 +112,8 @@ object ReturnResponse {
       // Payment methods
       payments ← * <~ ReturnPayments.filter(_.returnId === rma.id).result
       // Line items of each subtype
-      lineItems     ← * <~ ReturnLineItemSkus.findLineItemsByRma(rma).result
-      giftCards     ← * <~ ReturnLineItemGiftCards.findLineItemsByRma(rma).result
+      lineItems     ← * <~ ReturnLineItemSkus.findLineItemsByRma(rma)
+      giftCards     ← * <~ ReturnLineItemGiftCards.findLineItemsByRma(rma)
       shippingCosts ← * <~ ReturnLineItemShippingCosts.findLineItemByRma(rma)
       // Totals
       adjustments <- * <~ ReturnTotaler.adjustmentsTotal(rma)
