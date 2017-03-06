@@ -39,17 +39,17 @@ const Navigation = (props: Props) => {
   return (
     <nav>
       <ul className="fc-sidebar__navigation-list">
-        <CustomersEntry
-          claims={claims}
-          routes={props.routes}
-          collapsed={props.collapsed}
-          status={getMenuItemState(props, 'customers')}
-          toggleMenuItem={props.toggleMenuItem} />
         <OrdersEntry
           claims={claims}
           routes={props.routes}
           collapsed={props.collapsed}
           status={getMenuItemState(props, 'orders')}
+          toggleMenuItem={props.toggleMenuItem} />
+        <CustomersEntry
+          claims={claims}
+          routes={props.routes}
+          collapsed={props.collapsed}
+          status={getMenuItemState(props, 'customers')}
           toggleMenuItem={props.toggleMenuItem} />
         <CatalogEntry
           claims={claims}
