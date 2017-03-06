@@ -36,8 +36,8 @@ class ReturnsSearchViewTest
   val searchViewName: String = "returns_search_view"
   val searchKeyName: String  = "id"
 
-  "smoke test search view" - {
-    "should work against fixture return" in new ReturnDefaults {
+  "Returns search view row must be found when" - {
+    "a return was created" in new ReturnDefaults {
       val rmaSearchView = viewOne(rma.id)
 
       {
@@ -60,8 +60,8 @@ class ReturnsSearchViewTest
     }
   }
 
-  "update search view" - {
-    "should update state" in new ReturnDefaults {
+  "Returns search view row must be updated when" - {
+    "a return state was updated" in new ReturnDefaults {
       assert(rma.state == Pending)
       viewOne(rma.id).state must === (rma.state)
 
@@ -73,7 +73,7 @@ class ReturnsSearchViewTest
       viewOne(rma.id).state must === (Processing)
     }
 
-    "should update message to customer" in new ReturnDefaults {
+    "a return message-to-customer was updated" in new ReturnDefaults {
       viewOne(rma.id).messageToAccount must === (None)
 
       val payload = ReturnMessageToCustomerPayload(message = "Hello!")

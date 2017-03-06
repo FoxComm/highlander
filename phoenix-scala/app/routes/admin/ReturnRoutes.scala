@@ -1,6 +1,6 @@
 package routes.admin
 
-import akka.http.scaladsl.server.Directives.{path, _}
+import akka.http.scaladsl.server.Directives.{path, pathPrefix, _}
 import akka.http.scaladsl.server.{PathMatcher, Route}
 import utils.http.JsonSupport._
 import models.account.User
