@@ -31,10 +31,12 @@ class SettingsEntry extends Component {
           <h3>SETTINGS</h3>
           <li>
             <NavigationItem
-              to="integrations"
-              icon="integrations"
-              title="Integrations"
-              routes={routes} />
+              to='integrations'
+              icon='integrations'
+              title='Integrations'
+              routes={routes}
+              actualClaims='none'
+              expectedClaims='none' />
           </li>
           </div>
       );

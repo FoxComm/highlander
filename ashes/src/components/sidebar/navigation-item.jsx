@@ -16,8 +16,8 @@ type Props = {
     icon:           string,
     title:          string,
     routes:         Array<Object>,
-    actualClaims:   Claims,
-    expectedClaims: Claims
+    actualClaims:   Claims|string,
+    expectedClaims: Claims|string
   };
 
 export default class NavigationItem extends React.Component {
@@ -33,9 +33,10 @@ export default class NavigationItem extends React.Component {
        thus setting isActive to true for both 'Customers' and 'Customer Groups'
        menu items
     */
-    if(this.props.to === 'customers' && (_.includes(routeNames, 'groups') || _.includes(routeNames, 'groups-base') ) )
+    if(this.props.to === 'customers' && (_.includes(routeNames, 'groups') || _.includes(routeNames, 'groups-base') ) ){
       isActive = false;
-  
+    }
+
     return classNames('fc-navigation-item-container', {
       '_active': isActive
     });
