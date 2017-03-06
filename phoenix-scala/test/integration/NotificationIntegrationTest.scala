@@ -116,9 +116,7 @@ class NotificationIntegrationTest
 
       subscribeToNotifications()
 
-      val data = notificationsApi.create(newNotification).as[Seq[Root]]
-      data must have size 1
-      val connection = data.head
+      val connection = notificationsApi.create(newNotification).as[Seq[Root]].onlyElement
       connection.activityId must === (1)
       connection.dimension must === (Dimension.notification)
     }
@@ -147,9 +145,8 @@ class NotificationIntegrationTest
         sub.objectId must === ("1")
         sub.reason must === (Watching)
         notificationsApi.create(newNotification).mustBeOk()
-        val connections = Connections.gimme
-        connections must have size 1
-        val connection = connections.headOption.value
+
+        val connection = Connections.gimme.onlyElement
         connection.activityId must === (1)
         connection.dimensionId must === (2)
       }
@@ -193,9 +190,7 @@ class NotificationIntegrationTest
         subscribeToNotifications(reason = Watching)
         subscribeToNotifications(reason = Assigned)
         unsubscribeFromNotifications()
-        val subs = NotificationSubscriptions.gimme
-        subs must have size 1
-        subs.head.reason must === (Assigned)
+        NotificationSubscriptions.gimme.onlyElement.reason must === (Assigned)
       }
 
       "ignores wrong ids" in new Fixture {

@@ -1,6 +1,5 @@
 import akka.http.scaladsl.model.StatusCodes
 import cats.implicits._
-import failures.LockFailures._
 import failures.ReturnFailures._
 import failures._
 import models.Reason.Cancellation
@@ -16,6 +15,8 @@ import payloads.ReturnPayloads._
 import responses.ReturnResponse.Root
 import responses._
 import services.returns.ReturnLockUpdater
+import responses.{AllReturns, ReturnResponse}
+import services.returns.ReturnLineItemUpdater
 import testutils._
 import testutils.fixtures.api.ApiFixtureHelpers
 import testutils.fixtures.{BakedFixtures, ReturnsFixtures}
@@ -221,81 +222,6 @@ class ReturnIntegrationTest
     }
   }
 
-  "Return locks" - { // todo implement later, not critical for mvp
-    pending
-
-    "GET /v1/returns/:refNum/lock" - {
-      "returns lock info on locked Return" in new ReturnDefaults {
-        ReturnLockUpdater.lock("ABC-123.1", storeAdmin).gimme
-
-        val response = GET(s"v1/returns/${rma.referenceNumber}/lock")
-        response.status must === (StatusCodes.OK)
-
-        val root = response.as[ReturnLockResponse.Root]
-        root.isLocked must === (true)
-        root.lock.head.lockedBy.id must === (storeAdmin.accountId)
-      }
-
-      "returns negative lock status on unlocked Return" in new ReturnDefaults {
-        val response = GET(s"v1/returns/${rma.referenceNumber}/lock")
-        response.status must === (StatusCodes.OK)
-
-        val root = response.as[ReturnLockResponse.Root]
-        root.isLocked must === (false)
-        root.lock.isEmpty must === (true)
-      }
-    }
-
-    "POST /v1/returns/:refNum/lock" - {
-      "successfully locks an Return" in new ReturnDefaults {
-        val response = POST(s"v1/returns/${rma.referenceNumber}/lock")
-        response.status must === (StatusCodes.OK)
-
-        val lockedRma = Returns.findByRefNum(rma.referenceNumber).gimme.head
-        lockedRma.isLocked must === (true)
-
-        val locks = ReturnLockEvents.findByRma(rma.id).gimme
-        locks.length must === (1)
-        val lock = locks.head
-        lock.lockedBy must === (1)
-      }
-
-      "refuses to lock an already locked Return" in new ReturnDefaults {
-        val response = POST(s"v1/returns/${rma.referenceNumber}/lock")
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (LockedFailure(Return, rma.referenceNumber).description)
-      }
-
-      "avoids race condition" in new ReturnDefaults {
-        // FIXME when DbResultT gets `select for update` https://github.com/FoxComm/phoenix-scala/issues/587
-        def request = POST(s"v1/returns/${rma.referenceNumber}/lock")
-
-        val responses = Seq(0, 1).par.map(_ ⇒ request)
-        responses.map(_.status) must contain allOf (StatusCodes.OK, StatusCodes.BadRequest)
-        ReturnLockEvents.gimme.length mustBe 1
-      }
-    }
-
-    "POST /v1/returns/:refNum/unlock" - {
-      "unlocks an Return" in new ReturnDefaults {
-        POST(s"v1/returns/${rma.referenceNumber}/lock")
-
-        val response = POST(s"v1/returns/${rma.referenceNumber}/unlock")
-        response.status must === (StatusCodes.OK)
-
-        val unlockedRma = Returns.findByRefNum(rma.referenceNumber).gimme.head
-        unlockedRma.isLocked must === (false)
-      }
-
-      "refuses to unlock an already unlocked Return" in new ReturnDefaults {
-        val response = POST(s"v1/returns/${rma.referenceNumber}/unlock")
-
-        response.status must === (StatusCodes.BadRequest)
-        response.error must === (NotLockedFailure(Return, rma.referenceNumber).description)
-      }
-    }
-
-  }
 
   "Return line items" - {
     "POST /v1/returns/:refNum/line-items" - {

@@ -81,21 +81,6 @@ object ReturnRoutes {
                 ReturnService.updateMessageToCustomer(refNum, payload)
               }
           } ~
-          (get & path("lock") & pathEnd) {
-            getOrFailures {
-              ReturnLockUpdater.getLockState(refNum)
-            }
-          } ~
-          (post & path("lock") & pathEnd) {
-            mutateOrFailures {
-              ReturnLockUpdater.lock(refNum, auth.model)
-            }
-          } ~
-          (post & path("unlock") & pathEnd) {
-            mutateOrFailures {
-              ReturnLockUpdater.unlock(refNum)
-            }
-          } ~
           pathPrefix("line-items") {
             (post & pathEnd & entity(as[ReturnLineItemPayload])) { payload ⇒
               mutateOrFailures {

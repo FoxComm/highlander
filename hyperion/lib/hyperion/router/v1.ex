@@ -5,9 +5,10 @@ defmodule Hyperion.Router.V1 do
 
   alias Hyperion.Repo, warn: true
   alias Hyperion.Amazon, warn: true
-  alias Hyperion.PhoenixScala.Client, warn: true
   alias Hyperion.API, warn: true
   alias Hyperion.Amazon.TemplateBuilder, warn: true
+
+  import Ecto.Query
 
   version "v1" do
     namespace :health do
@@ -46,7 +47,7 @@ defmodule Hyperion.Router.V1 do
             {:ok, creds} -> respond_with(conn, creds)
             {:error, changeset} -> respond_with(conn, changeset.errors, 422)
           end
-        rescue e in Ecto.ConstraintError ->
+        rescue _e in Ecto.ConstraintError ->
           respond_with(conn, %{error: "Credentials for this client (client_id: #{params[:client_id]}) is already here"}, 422)
         end
       end # create new credentials
@@ -66,7 +67,7 @@ defmodule Hyperion.Router.V1 do
               {:ok, creds} -> respond_with(conn, creds)
               {:error, changeset} -> respond_with(conn, changeset.errors, 422)
             end
-          rescue e in Ecto.NoResultsError ->
+          rescue _e in Ecto.NoResultsError ->
             respond_with(conn, %{error: "Not found"}, 404)
           end
         end # update credentials
@@ -157,6 +158,39 @@ defmodule Hyperion.Router.V1 do
       end # categories
     end # products
 
+    namespace :categories do
+      desc "Search for Amazon `department` and `item-type' by `node_path'"
+
+      params do
+        requires :node_path, type: String
+        optional :from, type: Integer
+        optional :size, type: Integer
+      end
+
+      get do
+        res = (from c in Category, limit: ^params[:size], offset: ^params[:from],
+                         where: ilike(c.node_path, ^"%#{String.downcase(params[:node_path])}%"))
+              |> Hyperion.Repo.all
+        respond_with(conn, res)
+      end
+
+      desc "Suggests category for product by title"
+
+      params do
+        requires :q, type: String
+      end
+
+      get :suggest do
+        cfg = MWSAuthAgent.get(API.customer_id(conn))
+        try do
+          res = CategorySuggester.suggest_categories(params[:q], cfg)
+          respond_with(conn, res)
+        rescue e in RuntimeError ->
+          respond_with(conn, %{error: e.message}, 422)
+        end
+      end
+    end # categories
+
     namespace :orders do
       desc "Get all orders"
       params do
@@ -176,7 +210,7 @@ defmodule Hyperion.Router.V1 do
                     _ -> params[:last_updated_after]
                    end
 
-        # Remove :last_updated_after and convert Map to KeyworkList
+        # Remove :last_updated_after and convert Map to KeywordList
         list = Map.drop(params, [:last_updated_after])
                |>Enum.map(fn {k, v} -> {k, String.split(v, ",")}  end)
 
@@ -295,7 +329,7 @@ defmodule Hyperion.Router.V1 do
 
   defp wrap(collection) do
     if is_list(collection) do
-      %{collection: collection,
+      %{items: collection,
         count: Enum.count(collection) }
     else
       collection
