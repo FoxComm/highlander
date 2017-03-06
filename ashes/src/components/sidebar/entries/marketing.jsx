@@ -10,11 +10,8 @@ import { IndexLink, Link } from 'components/link';
 import type { Claims } from 'lib/claims';
 
 type Props = {
-  routes: Array<Object>,
-  collapsed: boolean,
-  status: string,
-  toggleMenuItem: Function,
   claims: Claims,
+  routes: Array<Object>,
   id?: string,
 };
 
@@ -27,7 +24,7 @@ export default class MarketingEntry extends Component {
   props: Props;
 
   render() {
-    const { claims, collapsed, routes, status, toggleMenuItem } = this.props;
+    const { claims, routes } = this.props;
     const allClaims = { ...giftCardClaims, ...promotionClaims, ...couponClaims };
 
     if (!anyPermitted(allClaims, claims)) {
@@ -35,41 +32,37 @@ export default class MarketingEntry extends Component {
     }
 
     return (
-      <li>
-        <NavigationItem
-          to="gift-cards"
-          icon="icon-discounts"
-          title="Marketing"
-          isIndex={true}
-          isExpandable={true}
-          routes={routes}
-          collapsed={collapsed}
-          status={status}
-          toggleMenuItem={toggleMenuItem}>
-          <IndexLink
-            id="side-bar-navigation-gift-cards"
+      <div>
+        <h3>MARKETING</h3>
+        <li>
+          <NavigationItem
             to="gift-cards"
-            className="fc-navigation-item__sublink"
+            icon="gift-cards"
+            title="Gift Cards"
+            routes={routes}
             actualClaims={claims}
-            expectedClaims={giftCardClaims}>
-            Gift Cards
-          </IndexLink>
-          <IndexLink
+            expectedClaims={giftCardClaims} />
+        </li>
+        <li>
+          <NavigationItem
             to="promotions"
-            className="fc-navigation-item__sublink"
+            icon="promotions"
+            title="Promotions"
+            routes={routes}
             actualClaims={claims}
-            expectedClaims={promotionClaims}>
-            Promotions
-          </IndexLink>
-          <IndexLink
+            expectedClaims={promotionClaims} />
+        </li>
+        <li>
+          <NavigationItem
             to="coupons"
-            className="fc-navigation-item__sublink"
+            icon="coupons"
+            title="Coupons"
+            routes={routes}
             actualClaims={claims}
-            expectedClaims={couponClaims}>
-            Coupons
-          </IndexLink>
-        </NavigationItem>
-      </li>
+            expectedClaims={couponClaims} />
+        </li>
+      </div>
+
     );
   }
 }

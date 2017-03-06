@@ -11,17 +11,14 @@ import type { Claims } from 'lib/claims';
 
 type Props = {
   routes: Array<Object>,
-  collapsed: boolean,
-  status: string,
-  toggleMenuItem: Function,
-  claims: Claims,
+  collapsed: boolean
 };
 
 const userClaims = readAction(frn.settings.user);
 const pluginClaims = readAction(frn.settings.plugin);
 const applicationClaims = readAction(frn.settings.application);
 
-export default class SettingsEntry extends Component {
+class SettingsEntry extends Component {
   props: Props;
 
   render() {
@@ -30,62 +27,51 @@ export default class SettingsEntry extends Component {
 
     if (!anyPermitted(allClaims, claims)) {
       return (
-        <li>
-          <NavigationItem
-            to="integrations"
-            icon="icon-settings"
-            title="Settings"
-            isIndex={true}
-            isExpandable={true}
-            routes={routes}
-            collapsed={collapsed}
-            status={status}
-            toggleMenuItem={toggleMenuItem}>
-            <IndexLink
+        <div>
+          <h3>SETTINGS</h3>
+          <li>
+            <NavigationItem
               to="integrations"
-              className="fc-navigation-item__sublink">
-              Integrations
-            </IndexLink>
-          </NavigationItem>
-        </li>
+              icon="integrations"
+              title="Integrations"
+              routes={routes} />
+          </li>
+          </div>
       );
     }
 
     return (
-      <li>
-        <NavigationItem
-          to="users"
-          icon="icon-settings"
-          title="Settings"
-          isIndex={true}
-          isExpandable={true}
-          routes={routes}
-          collapsed={collapsed}
-          status={status}
-          toggleMenuItem={toggleMenuItem}>
-          <IndexLink
+      <div>
+        <h3>SETTINGS</h3>
+        <li>
+          <NavigationItem
             to="users"
-            className="fc-navigation-item__sublink"
+            icon="customers"
+            title="Users"
+            routes={routes}
             actualClaims={claims}
-            expectedClaims={userClaims}>
-            Users
-          </IndexLink>
-          <Link
+            expectedClaims={userClaims} />
+        </li>
+        <li>
+          <NavigationItem
             to="plugins"
-            className="fc-navigation-item__sublink"
+            icon="plugins"
+            title="Plugins"
+            routes={routes}
             actualClaims={claims}
-            expectedClaims={pluginClaims}>
-            Plugins
-          </Link>
-          <Link
+            expectedClaims={pluginClaims} />
+        </li>
+        <li>
+          <NavigationItem
             to="applications"
-            className="fc-navigation-item__sublink"
+            icon="applications"
+            title="Applications"
+            routes={routes}
             actualClaims={claims}
-            expectedClaims={applicationClaims}>
-            Applications
-          </Link>
-        </NavigationItem>
-      </li>
+            expectedClaims={applicationClaims} />
+        </li>
+      </div>
     );
   }
 }
+export default SettingsEntry;

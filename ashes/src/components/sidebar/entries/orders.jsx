@@ -5,23 +5,20 @@ import { anyPermitted, isPermitted } from 'lib/claims';
 import { frn, readAction } from 'lib/frn';
 
 
-import NavigationItem from 'components/sidebar/navigation-item';
+import NavigationItem from '../navigation-item';
 import { IndexLink, Link } from 'components/link';
 
 import type { Claims } from 'lib/claims';
 
 type Props = {
   claims: Claims,
-  routes: Array<Object>,
-  collapsed: boolean,
-  status: string,
-  toggleMenuItem: Function,
+  routes: Array<Object>
 };
 
 const cartClaims = readAction(frn.oms.cart);
 const orderClaims = readAction(frn.oms.order);
 
-export default class OrdersEntry extends Component {
+class OrdersEntry extends Component {
   props: Props;
 
   render() {
@@ -33,33 +30,29 @@ export default class OrdersEntry extends Component {
     }
 
     return (
-      <li>
-        <NavigationItem
-          to="orders"
-          icon="icon-orders"
-          title="Orders"
-          isIndex={true}
-          isExpandable={true}
-          routes={routes}
-          collapsed={collapsed}
-          status={status}
-          toggleMenuItem={toggleMenuItem}>
-          <IndexLink
-            to="carts"
-            className="fc-navigation-item__sublink"
-            actualClaims={claims}
-            expectedClaims={cartClaims}>
-            Carts
-          </IndexLink>
-          <IndexLink
+      <div>
+        <h3>ORDERS</h3>
+        <li>
+          <NavigationItem
             to="orders"
-            className="fc-navigation-item__sublink"
+            icon="orders"
+            title="Orders"
+            routes={routes}
             actualClaims={claims}
-            expectedClaims={orderClaims}>
-            Orders
-          </IndexLink>
-        </NavigationItem>
-      </li>
+            expectedClaims={orderClaims} />
+        </li>
+        <li>
+          <NavigationItem
+            to="carts"
+            icon="carts"
+            title="Carts"
+            routes={routes}
+            actualClaims={claims}
+            expectedClaims={cartClaims} />
+        </li>
+      </div>
     );
   }
 }
+
+export default OrdersEntry;

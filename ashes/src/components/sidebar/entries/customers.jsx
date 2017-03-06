@@ -4,57 +4,47 @@ import React, { Component, Element } from 'react';
 import { isPermitted } from 'lib/claims';
 import { frn, readAction } from 'lib/frn';
 
-import NavigationItem from 'components/sidebar/navigation-item';
+import NavigationItem from '../navigation-item';
 import { IndexLink, Link } from 'components/link';
 
 import type { Claims } from 'lib/claims';
 
 type Props = {
   claims: Claims,
-  routes: Array<Object>,
-  collapsed: boolean,
-  status: string,
-  toggleMenuItem: Function,
+  routes: Array<Object>
 };
 
 const customerClaims = readAction(frn.user.customer);
 const customerGroupClaims = readAction(frn.user.customerGroup);
 
-export default class CustomersEntry extends Component {
+class CustomersEntry extends Component {
   props: Props;
 
   render() {
-    const { claims } = this.props;
+    const { claims, routes } = this.props;
     if (!isPermitted(customerClaims, this.props.claims)) {
       return <div></div>;
     }
 
     return (
-      <li>
-        <NavigationItem
-          to="customers"
-          icon="icon-customers"
-          title="Customers"
-          isIndex={true}
-          isExpandable={true}
-          routes={this.props.routes}
-          collapsed={this.props.collapsed}
-          status={this.props.status}
-          toggleMenuItem={this.props.toggleMenuItem}>
-          <IndexLink
+      <div>
+        <h3>CUSTOMERS</h3>
+        <li>
+          <NavigationItem
             to="customers"
-            className="fc-navigation-item__sublink">
-            Customers
-          </IndexLink>
-          <IndexLink
+            icon="customers"
+            title="Customers"
+            routes={routes} />
+        </li>
+        <li>
+          <NavigationItem
             to="groups"
-            className="fc-navigation-item__sublink"
-            actualClaims={claims}
-            expectedClaims={customerGroupClaims}>
-            Customer Groups
-          </IndexLink>
-        </NavigationItem>
-      </li>
+            icon="groups"
+            title="Customer Groups"
+            routes={routes} />
+        </li>
+      </div>
     );
   }
 }
+export default CustomersEntry;
