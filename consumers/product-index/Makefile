@@ -1,11 +1,15 @@
+include ../../makelib
+header = $(call baseheader, $(1), product-index)
+
 GOPATH = /tmp/go
 BUILD_ROOT_PATH=$(GOPATH)/src/github.com/FoxComm/highlander
 BUILD_PATH=$(BUILD_ROOT_PATH)/consumers/product-index
 HIGHLANDER_PATH=$(CURDIR)/../..
 
-DOCKER_REPO ?= docker-stage.foxcommerce.com:5000
-DOCKER_TAG ?= product-index-consumer
-DOCKER_BRANCH ?= master
+
+DOCKER_REPO ?= $(DOCKER_STAGE_REPO)
+DOCKER_IMAGE ?= product-index-consumer
+DOCKER_TAG ?= master
 
 prep:
 	rm -rf $(GOPATH)
@@ -20,11 +24,13 @@ build: glide
 	cd $(BUILD_PATH) && go build -o product-index-consumer *.go
 
 docker:
-	docker build -t $(DOCKER_TAG) .
+	$(call header, Dockerizing)
+	docker build -t $(DOCKER_IMAGE) .
 
 docker-push:
-	docker tag $(DOCKER_TAG) $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
-	docker push $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
+	$(call header, Registering)
+	docker tag $(DOCKER_IMAGE) $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
+	docker push $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
 
 clean:
 	rm -rf ./vendor
