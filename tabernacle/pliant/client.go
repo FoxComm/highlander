@@ -9,6 +9,13 @@ import (
 	"strings"
 )
 
+const (
+	mappingDir = "./mappings"
+
+	esMapping    = "http://%s/%s/_mapping/%s"
+	esGetIndices = "http://%s/_cat/indices?h=index"
+)
+
 // Client is our interface the FoxCommerce conventions of using ElasticSearch.
 // It handles creating and updating mappings, triggering reindexes, and
 // provides status into the current state of the cluster. It does all of this
@@ -26,7 +33,7 @@ func NewClient(hostname string) *Client {
 // Connect tests making an HTTP connection to ElasticSearch and populates the
 // list of current indices.
 func (c *Client) Connect() (err error) {
-	c.indices, err = getIndices(c.hostname)
+	c.indices, err = c.getIndices()
 	return
 }
 
@@ -45,22 +52,72 @@ func (c *Client) UpdateMapping(mapping string, isScoped, isAdmin bool) error {
 		return err
 	}
 
-	mappingExists, err := testMapping(c.hostname, "admin_1.2", esMapping)
+	mappingExists, err := c.testMapping("admin_1.2", esMapping)
 	if err != nil {
 		return err
 	}
 
 	if mappingExists {
-		log.Print("It exists")
-	} else {
-		log.Print("It does not")
+		log.Printf("Mapping %s is already present in ES", latest)
+		return nil
+	}
+
+	mapping, err := readMappingFile(latest)
+	if err != nil {
+		return err
+	}
+
+	if err := c.createMapping("admin_1.2", latest, mapping); err != nil {
+		return err
 	}
 
 	return nil
 }
 
+func (c *Client) getIndices() ([]string, error) {
+	resp, err := http.Get(fmt.Sprintf(esGetIndices, c.hostname))
+	if err != nil {
+		return nil, err
+	}
+
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	rawBody := strings.Trim(string(body), "\n\t\r ")
+	indices := strings.Split(rawBody, "\n")
+	return indices, nil
+}
+
+func (c *Client) createMapping(index string, mapping string, contents []byte) error {
+	return nil
+}
+
+func (c *Client) testMapping(index, mapping string) (bool, error) {
+	url := fmt.Sprintf(esMapping, c.hostname, index, mapping)
+	resp, err := http.Get(url)
+	if err != nil {
+		return false, err
+	}
+
+	mappingContent := map[string]interface{}{}
+	defer resp.Body.Close()
+
+	if err := json.NewDecoder(resp.Body).Decode(&mappingContent); err != nil {
+		return false, err
+	}
+
+	if len(mappingContent) == 0 {
+		return false, nil
+	}
+
+	return true, nil
+}
+
 func getMappingSources() ([]string, error) {
-	fileHandles, err := ioutil.ReadDir("./mappings")
+	fileHandles, err := ioutil.ReadDir(mappingDir)
 	if err != nil {
 		return nil, err
 	}
@@ -88,25 +145,6 @@ func getLatestMapping(mapping string) (string, error) {
 	return "", fmt.Errorf("No mapping files found for %s", mapping)
 }
 
-func getIndices(hostname string) ([]string, error) {
-	url := fmt.Sprintf("http://%s/_cat/indices?h=index", hostname)
-
-	resp, err := http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	rawBody := strings.Trim(string(body), "\n\t\r ")
-	indices := strings.Split(rawBody, "\n")
-	return indices, nil
-}
-
 func getMappingNameForES(mappingFilename string) (string, error) {
 	if !strings.HasSuffix(mappingFilename, ".json") {
 		return "", fmt.Errorf("Mapping filename %s must be JSON", mappingFilename)
@@ -123,23 +161,7 @@ func getMappingNameForES(mappingFilename string) (string, error) {
 	return strings.ToLower(stripped), nil
 }
 
-func testMapping(hostname, index, mapping string) (bool, error) {
-	url := fmt.Sprintf("http://%s/%s/_mapping/%s", hostname, index, mapping)
-	resp, err := http.Get(url)
-	if err != nil {
-		return false, err
-	}
-
-	mappingContent := map[string]interface{}{}
-	defer resp.Body.Close()
-
-	if err := json.NewDecoder(resp.Body).Decode(&mappingContent); err != nil {
-		return false, err
-	}
-
-	if len(mappingContent) == 0 {
-		return false, nil
-	}
-
-	return true, nil
+func readMappingFile(filename string) ([]byte, error) {
+	fullFile := fmt.Sprintf("%s/%s", mappingDir, filename)
+	return ioutil.ReadFile(fullFile)
 }
