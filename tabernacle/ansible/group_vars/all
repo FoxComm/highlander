@@ -116,7 +116,7 @@ ashes_port: 4000
 ashes_server: "{{ashes_host}}:{{ashes_port}}"
 
 storefront_port: 4041
-storefront_host: "storefront.{{consul_suffix}}"
+storefront_host: "peacock.{{consul_suffix}}"
 storefront_server: "{{storefront_host}}:{{storefront_port}}"
 
 storefront_top_drawer_host: "storefront-top-drawer.{{consul_suffix}}"
