@@ -11,7 +11,7 @@ import type { Claims } from 'lib/claims';
 
 type Props = {
   routes: Array<Object>,
-  collapsed: boolean
+  claims: Claims
 };
 
 const userClaims = readAction(frn.settings.user);
