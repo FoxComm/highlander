@@ -23,4 +23,9 @@ defmodule MWSAuthAgent do
     Credentials.mws_config(client_id) |> store
     get(client_id)
   end
+
+  def refresh!(client_id) do
+    Agent.get_and_update(__MODULE__, &Map.pop(&1, :creds))
+    fetch_and_store(client_id)
+  end
 end

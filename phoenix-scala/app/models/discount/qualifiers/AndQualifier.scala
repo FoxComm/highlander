@@ -1,23 +1,15 @@
 package models.discount.qualifiers
 
-import scala.concurrent.Future
-
-import cats.data.{NonEmptyList, Xor}
-import cats.instances.list._
+import cats.implicits._
 import models.discount.DiscountInput
-import services.Result
 import utils.aliases._
+import utils.db._
 
 case class AndQualifier(qualifiers: Seq[Qualifier]) extends Qualifier {
 
   val qualifierType: QualifierType = And
 
-  def check(input: DiscountInput)(implicit db: DB, ec: EC, es: ES, au: AU): Result[Unit] = {
-    val checks = Future.sequence(qualifiers.map(_.check(input)))
+  def check(input: DiscountInput)(implicit db: DB, ec: EC, es: ES, au: AU): Result[Unit] =
+    Result.seqCollectFailures(qualifiers.map(_.check(input)).toList).map(_ ⇒ ())
 
-    checks.map(seq ⇒ seq.flatMap(_.fold(fs ⇒ fs.toList, q ⇒ Seq.empty))).map {
-      case head :: tail ⇒ Xor.Left(NonEmptyList(head, tail))
-      case Nil          ⇒ Xor.Right(Unit)
-    }
-  }
 }

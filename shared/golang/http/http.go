@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/FoxComm/highlander/middlewarehouse/common/utils"
 )
 
 func Delete(url string, headers map[string]string) (*http.Response, error) {
@@ -48,7 +50,7 @@ func request(method string, url string, headers map[string]string, payload inter
 			}
 		}
 
-		log.Printf("HTTP --> %s %s %s", method, url, payloadBytes)
+		log.Printf("HTTP --> %s %s %s", method, url, utils.SanitizePassword(payloadBytes))
 
 		req, err = http.NewRequest(method, url, bytes.NewBuffer(payloadBytes))
 	}

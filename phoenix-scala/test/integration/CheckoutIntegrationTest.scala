@@ -30,7 +30,7 @@ import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import utils.db._
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 
 class CheckoutIntegrationTest
     extends IntegrationTestBase
@@ -117,7 +117,7 @@ class CheckoutIntegrationTest
       val refNum =
         cartsApi.create(CreateCart(Some(customer.accountId))).as[CartResponse].referenceNumber
 
-      Users.update(customer, customer.copy(email = None)).run().futureValue
+      Users.update(customer, customer.copy(email = None)).runTxn().void.runEmptyA.value.futureValue
 
       val checkout = cartsApi(refNum).checkout()
       checkout.error must === (UserMustHaveCredentials.description)

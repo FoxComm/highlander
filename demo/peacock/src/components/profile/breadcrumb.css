@@ -1,0 +1,45 @@
+
+@import "variables.css";
+
+.navigation {
+  margin-bottom: 10px;
+}
+
+.nav-base {
+  font-family: var(--font-main);
+  font-weight: 400;
+  font-size: 13px;
+  color: #212121;
+  letter-spacing: 1.02px;
+  line-height: 20px;
+  opacity: 0.38;
+  text-decoration: none;
+  text-transform: uppercase;
+  display: inline-block;
+  cursor: default;
+
+  &:not(:first-child) {
+    margin-left: 3px;
+  }
+}
+
+.nav-item {
+  composes: nav-base;
+
+  &:hover {
+    opacity: 1.0;
+  }
+}
+
+.nav-link {
+  composes: nav-item;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.nav-sep {
+  composes: nav-base;
+}

@@ -1,6 +1,8 @@
 package failures
 
-import models.product.Product
+import java.time.Instant
+
+import models.product.{Product, ProductReference}
 
 object ProductFailures {
 

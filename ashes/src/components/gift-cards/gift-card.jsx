@@ -122,7 +122,7 @@ export default class GiftCard extends React.Component {
 
     return (
       <Dropdown
-        id="gift-card-state-dd"
+        id="fct-gift-card-state-dd"
         placeholder={stateTitles[state]}
         value={dropdownValue}
         onChange={this.onChangeState}
@@ -218,16 +218,16 @@ export default class GiftCard extends React.Component {
         <div className="fc-grid fc-grid-gutter">
           <div className="fc-col-md-1-3">
             <Panel title="Available Balance" featured={true}>
-              <Currency id="gift-card-available-balance" value={card.availableBalance} />
+              <Currency id="fct-panel__available-balance" value={card.availableBalance} />
             </Panel>
           </div>
         </div>
         <PanelList className="fc-grid fc-grid-collapse fc-grid-md-1-5">
           <PanelListItem title="Original Balance">
-            <Currency value={card.originalBalance} />
+            <Currency id="fct-panel__original-balance" value={card.originalBalance} />
           </PanelListItem>
           <PanelListItem title="Current Balance">
-            <Currency value={card.currentBalance} />
+            <Currency id="fct-panel__original-balance" value={card.currentBalance} />
           </PanelListItem>
           <PanelListItem title="Date/Time Issued">
             <DateTime value={card.createdAt} />

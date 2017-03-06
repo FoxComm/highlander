@@ -28,7 +28,7 @@ case class AccountAccessMethod(id: Int = 0,
     extends FoxModel[AccountAccessMethod] {
 
   def updatePassword(newPassword: String): AccountAccessMethod = {
-    this.copy(hashedPassword = algorithm.hasher.generateHash(newPassword))
+    this.copy(hashedPassword = algorithm.hasher.generateHash(newPassword), updatedAt = Instant.now)
   }
 
   def checkPassword(password: String): Boolean = {

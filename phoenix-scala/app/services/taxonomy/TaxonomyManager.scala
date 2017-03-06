@@ -325,7 +325,7 @@ object TaxonomyManager {
         .unzip
 
       fullTaxonomies ← * <~ ObjectManager.getFullObjects(taxonomies.toSeq)
-      fullTaxons     ← * <~ taxons.map(ObjectManager.getFullObjects)
+      fullTaxons     ← * <~ taxons.map(ObjectManager.getFullObjects).toList
 
     } yield
       fullTaxonomies.zip(fullTaxons).map {
