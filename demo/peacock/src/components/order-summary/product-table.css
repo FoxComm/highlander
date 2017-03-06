@@ -1,0 +1,34 @@
+@import "media-queries.css";
+@import "colors.css";
+
+.products thead th {
+  font-size: 13px;
+  color: #9E9E9E;
+  line-height: 18px;
+  font-weight: 300;
+}
+
+.products tbody td {
+  padding-top: 15px;
+  padding-bottom: 15px;
+  vertical-align: top;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.price {
+  width: 19%;
+  text-align: right;
+}
+
+@media (--small-only), (--medium-only) {
+  .products thead {
+    display: none;
+  }
+}
+
+@media (--large) {
+  .info {
+    display: flex;
+    justify-content: space-between;
+  }
+}

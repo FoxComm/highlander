@@ -9,7 +9,6 @@ import models.Reason
 import models.account._
 import models.cord.{Order, Orders}
 import models.returns.Return._
-import models.traits.Lockable
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
@@ -25,7 +24,6 @@ case class Return(id: Int = 0,
                   orderRef: String,
                   returnType: ReturnType = Standard,
                   state: State = Pending,
-                  isLocked: Boolean = false,
                   accountId: Int,
                   storeAdminId: Option[Int] = None,
                   messageToAccount: Option[String] = None,
@@ -34,7 +32,6 @@ case class Return(id: Int = 0,
                   updatedAt: Instant = Instant.now,
                   deletedAt: Option[Instant] = None)
     extends FoxModel[Return]
-    with Lockable[Return]
     with FSM[Return.State, Return] {
 
   def refNum: String = referenceNumber
@@ -100,7 +97,6 @@ class Returns(tag: Tag) extends FoxTable[Return](tag, "returns") {
   def orderRef         = column[String]("order_ref")
   def returnType       = column[ReturnType]("return_type")
   def state            = column[State]("state")
-  def isLocked         = column[Boolean]("is_locked")
   def accountId        = column[Int]("account_id")
   def storeAdminId     = column[Option[Int]]("store_admin_id")
   def messageToAccount = column[Option[String]]("message_to_account")
@@ -116,7 +112,6 @@ class Returns(tag: Tag) extends FoxTable[Return](tag, "returns") {
      orderRef,
      returnType,
      state,
-     isLocked,
      accountId,
      storeAdminId,
      messageToAccount,
