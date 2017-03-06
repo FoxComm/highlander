@@ -10,7 +10,7 @@
       prompt: "Enter a hostname with a database to migrate"
       default: "vanilla-db"
       private: no
-    - name: "middlewarehouse_db_name"
+    - name: "hyperion_db_name"
       prompt: "Enter name of hyperion db to migrate"
       default: "hyperion"
       private: no

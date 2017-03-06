@@ -5,7 +5,7 @@
 - include: ../../../base/db/tasks/flyway.yml
   when: download_flyway
 
-- name: Synchronize Middlewarehouse SQL
+- name: Synchronize Hyperion SQL
   synchronize: src="{{hyperion_src}}/sql" dest="{{hyperion_dir}}" delete=yes recursive=yes
 
 - name: Copy Flyway Config
