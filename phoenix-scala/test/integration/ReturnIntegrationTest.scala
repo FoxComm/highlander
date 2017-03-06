@@ -14,9 +14,6 @@ import payloads.PaymentPayloads.CreateManualStoreCredit
 import payloads.ReturnPayloads._
 import responses.ReturnResponse.Root
 import responses._
-import services.returns.ReturnLockUpdater
-import responses.{AllReturns, ReturnResponse}
-import services.returns.ReturnLineItemUpdater
 import testutils._
 import testutils.fixtures.api.ApiFixtureHelpers
 import testutils.fixtures.{BakedFixtures, ReturnsFixtures}
@@ -221,7 +218,6 @@ class ReturnIntegrationTest
         .mustFailWith404(NotFoundFailure404(ReturnReasons, returnReason.id))
     }
   }
-
 
   "Return line items" - {
     "POST /v1/returns/:refNum/line-items" - {

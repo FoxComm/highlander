@@ -39,7 +39,7 @@ class ReturnsSearchViewTest
 
   "smoke test search view" - {
     "should work against fixture return" in new ReturnDefaults {
-      val rmaSearchView = findOneInSearchView(rma.id)
+      val rmaSearchView = viewOne(rma.id)
 
       val customerSearchViewResult = rmaSearchView.customer.extract[CustomerSearchViewResult]
 
@@ -63,18 +63,18 @@ class ReturnsSearchViewTest
   "update search view" - {
     "should update state" in new ReturnDefaults {
       assert(rma.state == Pending)
-      findOneInSearchView(rma.id).state must === (rma.state)
+      viewOne(rma.id).state must === (rma.state)
 
       returnsApi(rma.referenceNumber)
         .update(ReturnUpdateStatePayload(state = Processing))
         .as[ReturnResponse.Root]
         .state must === (Processing)
 
-      findOneInSearchView(rma.id).state must === (Processing)
+      viewOne(rma.id).state must === (Processing)
     }
 
     "should update message to customer" in new ReturnDefaults {
-      findOneInSearchView(rma.id).messageToAccount must === (None)
+      viewOne(rma.id).messageToAccount must === (None)
 
       val payload = ReturnMessageToCustomerPayload(message = "Hello!")
       returnsApi(rma.referenceNumber)
@@ -83,7 +83,7 @@ class ReturnsSearchViewTest
         .messageToCustomer
         .head must === (payload.message)
 
-      findOneInSearchView(rma.id).messageToAccount must === ("Hello!".some)
+      viewOne(rma.id).messageToAccount must === ("Hello!".some)
     }
   }
 
