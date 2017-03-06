@@ -10,7 +10,7 @@ function teststamp() {
   Error.prepareStackTrace = (err, stack) => stack;
   const stack = new Error().stack;
   Error.prepareStackTrace = oldPrepareStackTrace;
-  const callerFile = stack[2] && /\/(\w+)(\.\w+)+/g.exec(stack[2].getFileName())[1];
+  const callerFile = stack[2] && /\/([^/.]+)(\.[^/.]+)+/g.exec(stack[2].getFileName())[1];
   let callerFileHash = 0;
   for (let i = 0, len = callerFile.length; i < len; i += 1) {
     const chr = callerFile.charCodeAt(i);
