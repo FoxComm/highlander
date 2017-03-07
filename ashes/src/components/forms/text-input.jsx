@@ -27,7 +27,6 @@ export default class TextInput extends Component {
     value: this.props.value
   };
 
-
   componentWillUpdate(nextProps: Props) {
     if (this.state.value != nextProps.value) {
       this.setState({ value: nextProps.value });
