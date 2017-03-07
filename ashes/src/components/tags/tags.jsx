@@ -37,7 +37,7 @@ export default class Tags extends Component {
           onKeyDown={this.handleKeyDown}
           onChange={this.handleChange}
           value={this.state.addingValue}
-          isTagParent={true} />
+          autoFocus='autoFocus' />
       );
     }
   }

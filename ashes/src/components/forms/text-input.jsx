@@ -9,7 +9,7 @@ type Props = {
   onChange: (value: string) => void,
   placeholder?: string,
   value: ?string,
-  isTagParent?: boolean
+  autoFocus?: string
 };
 
 type State = {
@@ -20,8 +20,7 @@ export default class TextInput extends Component {
   props: Props;
 
   static defaultProps = {
-    value: '',
-    isTagParent: false
+    value: ''
   };
 
   state: State = {
@@ -45,7 +44,7 @@ export default class TextInput extends Component {
   };
 
   render() {
-    const { className, placeholder, onChange, isTagParent, ...rest } = this.props;
+    const { className, placeholder, onChange, ...rest } = this.props;
     const inputClass = classNames('fc-text-input', className);
 
     return (
@@ -55,7 +54,7 @@ export default class TextInput extends Component {
         onChange={({ target }) => this.handleChange(target.value)}
         placeholder={placeholder}
         {...rest}
-        value={this.state.value} autoFocus={isTagParent}/>
+        value={this.state.value} />
     );
   }
 }
