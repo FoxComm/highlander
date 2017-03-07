@@ -1,6 +1,4 @@
-/**
- * @flow
- */
+/* @flow */
 
 import React, { Component, Element, PropTypes } from 'react';
 import classNames from 'classnames';
@@ -11,6 +9,7 @@ type Props = {
   onChange: (value: string) => void,
   placeholder?: string,
   value: ?string,
+  isTagParent?: boolean
 };
 
 type State = {
@@ -20,16 +19,15 @@ type State = {
 export default class TextInput extends Component {
   props: Props;
 
-  static propTypes = {
-    className: PropTypes.string,
-    onChange: PropTypes.func,
-    placeholder: PropTypes.string,
-    value: PropTypes.string,
+  static defaultProps = {
+    value: '',
+    isTagParent: false
   };
 
-  static defaultProps = {
-    value: ''
+  state: State = {
+    value: this.props.value
   };
+
 
   componentWillUpdate(nextProps: Props) {
     if (this.state.value != nextProps.value) {
@@ -46,12 +44,8 @@ export default class TextInput extends Component {
     }
   };
 
-  state: State = {
-    value: this.props.value
-  };
-
   render() {
-    const { className, placeholder, onChange, ...rest } = this.props;
+    const { className, placeholder, onChange, isTagParent, ...rest } = this.props;
     const inputClass = classNames('fc-text-input', className);
 
     return (
@@ -61,7 +55,7 @@ export default class TextInput extends Component {
         onChange={({ target }) => this.handleChange(target.value)}
         placeholder={placeholder}
         {...rest}
-        value={this.state.value} />
+        value={this.state.value} autoFocus={isTagParent}/>
     );
   }
 }
