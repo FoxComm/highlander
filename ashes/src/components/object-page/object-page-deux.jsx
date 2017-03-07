@@ -7,9 +7,11 @@ import Error from 'components/errors/error';
 import LocalNav from 'components/local-nav/local-nav';
 import SaveCancel from 'components/common/save-cancel';
 import WaitAnimation from 'components/common/wait-animation';
+import { autobind } from 'core-decorators';
 
 // helpers
 import { SAVE_COMBO, SAVE_COMBO_ITEMS } from 'paragons/common';
+import { transitionTo } from 'browserHistory';
 
 class ObjectPageDeux extends Component {
   // TODO: replace *
@@ -22,13 +24,7 @@ class ObjectPageDeux extends Component {
 
   get isNew(): boolean {
     const { identifier, object } = this.props;
-    const valuesOfNew = [
-      'new',
-      'new-flat',
-      'new-hierarchical',
-      !object
-    ];
-    return valuesOfNew.some(elem => elem === identifier.toLowerCase());
+    return identifier.toLowerCase() === 'new' || !object;
   }
 
   get localNav() {
@@ -64,19 +60,79 @@ class ObjectPageDeux extends Component {
     return getTitle(originalObject);
   }
 
+  @autobind
+  createNewEntity() {
+    const { actions } = this.props;
+    actions.newObject && actions.transition  !== undefined
+      ? actions.newObject() && actions.transition('new')
+      : () => {};
+  }
+
+  @autobind
+  duplicateEntity() {
+    const { actions } = this.props;
+    actions.duplicate && actions.transition !== undefined
+      ? actions.duplicate() && actions.transition('new')
+      : () => {};
+  }
+
+  @autobind
+  handleSelectSaving(value: string) {
+    const { actions } = this.props;
+    const mayBeSaved = this.save();
+    if (!mayBeSaved) return;
+
+    mayBeSaved.then(() => {
+      switch (value) {
+        case SAVE_COMBO.NEW:
+          this.createNewEntity();
+          break;
+        case SAVE_COMBO.DUPLICATE:
+          this.duplicateEntity();
+          break;
+        case SAVE_COMBO.CLOSE:
+          actions.cancel();
+          break;
+      }
+    });
+  }
+
+  @autobind
+  handleSaveButton() {
+    const mayBeSaved = this.save();
+    if (!mayBeSaved) return;
+    mayBeSaved.then(() => {
+      this.transitionToObject();
+    });
+  }
+
+  @autobind
+  transitionToObject() {
+    const { actions, object } = this.props;
+    if (!object) return;
+    actions.transition(object.id);
+  }
+
+  @autobind
+  save() {
+    const { context, object, actions } = this.props;
+    let mayBeSaved = false;
+    this.isNew
+      ? mayBeSaved = actions.create(object, context)
+      : mayBeSaved = actions.update(object, context);
+    return mayBeSaved;
+  }
+
   renderButtonCluster() {
-    const { isFetching, context, object } = this.props;
-    const save = () => this.isNew
-      ? this.props.actions.create(object, context)
-      : this.props.actions.update(object, context);
+    const { isFetching } = this.props;
 
     return (
       <SaveCancel
         isLoading={isFetching}
         onCancel={this.props.actions.cancel}
         saveItems={SAVE_COMBO_ITEMS}
-        onSave={save}
-        onSaveSelect={() => {}}
+        onSave={this.handleSaveButton}
+        onSaveSelect={this.handleSelectSaving}
       />
     );
   }

@@ -27,14 +27,16 @@ export type ObjectSchema = {
 };
 
 export type ObjectActions<T> = {
+  newObject: () => void,
+  duplicate: () => void,
   reset: () => void,
   fetch: (id: string, context?: string) => void,
   create: (object: T, context?: string) => void,
   update: (object: T, context?: string) => void,
   archive: (object: T, context?: string) => void,
   cancel: () => void,
-
   getTitle: (object: T) => string,
+  transition: (id: number|string) => void,
 };
 
 export type ObjectProps<T, U> = {
