@@ -57,7 +57,7 @@ export default class MarketingEntry extends Component {
         <li>
           <NavigationItem
             to="coupons"
-            icon="coupons"
+            icon="promotions"
             title="Coupons"
             routes={routes}
             actualClaims={claims}

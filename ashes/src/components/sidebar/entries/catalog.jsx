@@ -55,7 +55,7 @@ class CatalogEntry extends Component {
         <li>
           <NavigationItem
             to="inventory"
-            icon="inventory"
+            icon="skus"
             title="Inventory"
             routes={routes}
             actualClaims={claims}
