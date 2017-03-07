@@ -316,6 +316,31 @@ const $ = {
       sku: skuCode,
       quantity: $.randomNumber(minQuantity || 1, maxQuantity || 10),
     })),
+  randomSharedSearchPayload: () => {
+    const total = $.randomNumber(40, 200);
+    return {
+      title: `BVT [Total > ${total}]`,
+      query: [{
+        display: `Order : Total : > : $${total}`,
+        term: 'grandTotal',
+        operator: 'gt',
+        value: {
+          type: 'currency',
+          value: `${total}00`,
+        },
+      }],
+      scope: 'ordersScope',
+      rawQuery: {
+        query: {
+          bool: {
+            filter: [{
+              range: { grandTotal: { gt: `${total}00` } },
+            }],
+          },
+        },
+      },
+    };
+  },
   orderStateTransitions: {
     remorseHold: ['manualHold', 'fraudHold', 'fulfillmentStarted', 'canceled'],
     fulfillmentStarted: ['shipped', 'canceled'],

@@ -16,6 +16,7 @@
     "test-carts": "ava --verbose tests/carts.test.js || true",
     "test-order": "ava --verbose tests/order.test.js || true",
     "test-storefront": "ava --verbose tests/storefront.test.js || true",
+    "test-shared-search": "ava --verbose tests/shared-search.test.js || true",
     "test-dev": "ava --verbose tests/dev.test.js || true"
   },
   "dependencies": {

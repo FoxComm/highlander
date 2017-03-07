@@ -49,6 +49,11 @@ const endpoints = {
   orderIncreaseRemorsePeriod: referenceNumber => `/v1/orders/${referenceNumber}/increase-remorse-period`,
   orderWatchers: referenceNumber => `/v1/orders/${referenceNumber}/watchers`,
   orderWatcher: (referenceNumber, watcherId) => `/v1/orders/${referenceNumber}/watchers/${watcherId}`,
+  sharedSearches: (scope = null) => `/v1/shared-search${scope ? `?scope=${scope}` : ''}`,
+  sharedSearch: code => `/v1/shared-search/${code}`,
+  sharedSearchAssociates: code => `/v1/shared-search/${code}/associates`,
+  sharedSearchAssociate: (code, associateId = null) =>
+    `/v1/shared-search/${code}/associate${associateId ? `/${associateId}` : ''}`,
   // dev
   creditCardToken: '/v1/credit-card-token',
 };
@@ -388,6 +393,33 @@ class Orders {
   }
 }
 
+class SharedSearches {
+  constructor(api) {
+    this.api = api;
+  }
+  list(scope) {
+    return this.api.get(endpoints.sharedSearches(scope));
+  }
+  create(sharedSearchPayload) {
+    return this.api.post(endpoints.sharedSearches(), sharedSearchPayload);
+  }
+  one(code) {
+    return this.api.get(endpoints.sharedSearch(code));
+  }
+  delete(code) {
+    return this.api.delete(endpoints.sharedSearch(code));
+  }
+  getAssociates(code) {
+    return this.api.get(endpoints.sharedSearchAssociates(code));
+  }
+  addAssociate(code, sharedSearchAssociationPayload) {
+    return this.api.post(endpoints.sharedSearchAssociate(code), sharedSearchAssociationPayload);
+  }
+  removeAssociate(code, associateId) {
+    return this.api.delete(endpoints.sharedSearchAssociate(code, associateId));
+  }
+}
+
 export default class Api extends FoxCommApi {
   constructor(...args) {
     super(...args);
@@ -410,6 +442,7 @@ export default class Api extends FoxCommApi {
     this.carts = new Carts(this);
     this.inventories = new Inventories(this);
     this.orders = new Orders(this);
+    this.sharedSearches = new SharedSearches(this);
     this.monkeypatch();
   }
   monkeypatch() {
