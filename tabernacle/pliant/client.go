@@ -13,6 +13,7 @@ import (
 const (
 	mappingDir = "./mappings"
 
+	esIndex      = "http://%s/%s"
 	esMapping    = "http://%s/%s/_mapping/%s"
 	esGetIndices = "http://%s/_cat/indices?h=index"
 )
@@ -36,6 +37,31 @@ func NewClient(hostname string) *Client {
 func (c *Client) Connect() (err error) {
 	c.indices, err = c.getIndices()
 	return
+}
+
+func (c *Client) GetMappings(index string) (*IndexDetails, error) {
+	url := fmt.Sprintf(esIndex, c.hostname, index)
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode > 299 {
+		return nil, fmt.Errorf("Error getting mappings for %s with error %d", index, resp.StatusCode)
+	}
+
+	defer resp.Body.Close()
+	respBody := map[string]IndexDetails{}
+	if err := json.NewDecoder(resp.Body).Decode(&respBody); err != nil {
+		return nil, err
+	}
+
+	details, found := respBody[index]
+	if !found {
+		return nil, fmt.Errorf("Unable to find details for index %s in response", index)
+	}
+
+	return &details, nil
 }
 
 func (c *Client) UpdateMapping(mapping string, index string, isScoped bool) error {

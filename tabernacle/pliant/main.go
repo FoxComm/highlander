@@ -4,7 +4,7 @@ import "log"
 
 const (
 	index    = "admin"
-	hostname = "10.240.0.8:9200"
+	hostname = "10.240.0.6:9200"
 	mapping  = "products_search_view"
 )
 
@@ -14,7 +14,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if err := client.UpdateMapping(mapping, index, true); err != nil {
+	details, err := client.GetMappings(index)
+	if err != nil {
 		log.Fatal(err)
+	}
+
+	for mappingName, _ := range details.Mappings {
+		log.Printf("Mapping name is %s", mappingName)
 	}
 }
