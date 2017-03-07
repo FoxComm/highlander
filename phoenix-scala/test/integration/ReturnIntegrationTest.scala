@@ -319,10 +319,12 @@ class ReturnIntegrationTest
         val otherOrderRef = createDefaultOrder().referenceNumber
         val otherRmaRef   = createReturn(otherOrderRef).referenceNumber
         createReturnLineItem(payload.copy(amount = 100), refNum = otherRmaRef)
+        completeReturn(refNum = otherRmaRef)
 
         // create some other return for the same order
         val previousRmaRef = createReturn(order.referenceNumber).referenceNumber
         createReturnLineItem(payload.copy(amount = 25), previousRmaRef)
+        completeReturn(refNum = previousRmaRef)
 
         returnsApi(rma.referenceNumber).lineItems
           .add(payload)
@@ -404,9 +406,9 @@ class ReturnIntegrationTest
             .add(paymentType, payload)
             .as[ReturnResponse.Root]
 
-          response.payments must have size 1
-          response.payments.head.paymentMethodType must === (paymentType)
-          response.payments.head.amount must === (payload.amount)
+          val payment = response.payments.onlyElement
+          payment.paymentMethodType must === (paymentType)
+          payment.amount must === (payload.amount)
         }
       }
 
@@ -440,7 +442,7 @@ class ReturnIntegrationTest
               ReturnPaymentExceeded(rma.referenceNumber, amount = 320, maxAmount = 300))
       }
 
-      "fails if cc payment exceeds order cc payment minus any previous returned cc payments" in new ReturnPaymentFixture
+      "fails if cc payment exceeds order cc payment minus any previously returned cc payments" in new ReturnPaymentFixture
       with OrderDefaults with ReturnReasonDefaults {
         val maxCCAmount = (0.5 * shippingMethod.price).toInt
         val scAmount    = product.price + shippingMethod.price - maxCCAmount
@@ -460,11 +462,13 @@ class ReturnIntegrationTest
         val otherRmaRef   = createReturn(otherOrderRef).referenceNumber
         createReturnLineItem(createPayload(amount = shippingMethod.price), refNum = otherRmaRef)
         createReturnPayment(Map(PaymentMethod.CreditCard → maxCCAmount), refNum = otherRmaRef)
+        completeReturn(refNum = otherRmaRef)
 
         // create some other return for the same order
         val previousRmaRef = createReturn(order.referenceNumber).referenceNumber
         createReturnLineItem(createPayload(amount = 25), refNum = previousRmaRef)
         createReturnPayment(Map(PaymentMethod.CreditCard → 25), refNum = previousRmaRef)
+        completeReturn(refNum = previousRmaRef)
 
         val rma = createReturn(order.referenceNumber)
         createReturnLineItem(payload, rma.referenceNumber)
