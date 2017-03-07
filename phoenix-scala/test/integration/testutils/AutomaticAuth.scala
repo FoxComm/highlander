@@ -66,7 +66,6 @@ trait AutomaticAuth extends SuiteMixin with HttpSupport { self: FoxSuite ⇒
 }
 
 trait JWTAuth extends SuiteMixin with HttpSupport with TestSeeds { self: FoxSuite ⇒
-  private val account = new Customer_Seed {}.account // to create necessary stuff
   private val accountCreateContext =
     AccountCreateContext(roles = List(), org = "merchant", scopeId = 2)
   private val jwtAuthenticator = new JwtAuthenticator(accountCreateContext)
