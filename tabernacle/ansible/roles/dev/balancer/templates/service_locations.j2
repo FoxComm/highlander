@@ -204,8 +204,7 @@ location /api/v1/stats/ {
     break;
 }
 
-location /api/v1/recommend/ {
-    auth_request /internal-auth;
+location /api/v1/public/recommend/ {
     default_type 'application/json';
     proxy_pass http://cross-sell/;
     proxy_buffering off;
