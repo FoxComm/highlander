@@ -8,7 +8,7 @@
 @color-sidebar-active: @color-decor15;
 
 .fc-sidebar {
-  .colors(@color-sidebar-fg, @color-sidebar-bg);
+  background-color: #263349;
   overflow-x: hidden;
   overflow-y: auto;
   transition: flex 250ms ease-in-out;
@@ -61,24 +61,6 @@
         span {
           .font-spec(13px, 60px);
         }
-      }
-
-      a,
-      a:visited {
-        color: @color-sidebar-fg;
-
-        &:hover {
-          color: @color-sidebar-hover-fg;
-        }
-      }
-
-      a,
-      a:visited {
-        color: @color-sidebar-fg;
-      }
-
-      &:hover {
-        .colors(@color-sidebar-hover-fg, @color-sidebar-hover-bg);
       }
     }
   }
