@@ -52,12 +52,13 @@ docker-hyperion-seeder:
 ####################################################################
 
 docker-push:
+    $(call header, Registering)
 	make push-hyperion
 	make push-hyperion-seeder
 
 push-hyperion-seeder:
 	docker tag hyperion-seeder $(DOCKER_REPO)/hyperion-seeder:$(DOCKER_TAG)
-	docker push $(DOCKER_REPO)/hyperion_seeder:$(DOCKER_TAG)
+	docker push $(DOCKER_REPO)/hyperion-seeder:$(DOCKER_TAG)
 
 push-hyperion:
 	docker tag $(DOCKER_IMAGE) $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
