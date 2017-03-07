@@ -75,7 +75,10 @@ case class OpaqueActivity(activityType: ActivityType, data: Json)
 
 object Activities extends LazyLogging {
 
-  val producer = new KafkaProducer[GenericData.Record, GenericData.Record](kafkaProducerProps())
+  val producer =
+    if (Environment.default != Environment.Test)
+      new KafkaProducer[GenericData.Record, GenericData.Record](kafkaProducerProps())
+    else null
 
   val topic  = "scoped_activities"
   val schema = new Schema.Parser().parse("""
