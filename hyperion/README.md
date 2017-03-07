@@ -43,22 +43,22 @@ flyway -configFile=sql/flyway.conf -locations=filesystem:sql migrate
 
 **Seed DB**
 
-Add alias to host machine 
+Add alias to host machine
 
 ```
 sudo ifconfig lo0 alias 203.0.113.1
-``` 
+```
 
 You can use any IP but that subnet reserved for tests by IANA.
 
 
-Pull seed container 
+Pull seed container
 
 ```
 docker pull docker-stage.foxcommerce.com:5000/hyperion_seeder:master
-``` 
+```
 
-or build it 
+or build it
 
 ```
 docker build -t hyperion_seeder -f Dockerfile.seed --build-arg db_host=203.0.113.1 .
@@ -78,19 +78,19 @@ host    all             all             203.0.113.1/24          trust
 listen_addresses='*'
 ```
 
-Restart postgres 
+Restart postgres
 
 ```
 brew services restart postgres
 ```
 
-Get container id 
+Get container id
 
 ```
 docker image ls
 ```
 
-Run container 
+Run container
 
 ```
 docker run -it --rm [container-id]
@@ -126,6 +126,9 @@ v1   POST   /v1/images  submit images feed
 v1   GET    /v1/submission_result/:feed_id  Check result of submitted feed
 v1   POST   /v1/subscribe  Subscribe to notifications queue
 v1   DELETE /v1/subscribe  Unubscribe from notifications queue
+v1   GET    /v1/object_schema/:schema_name  Fetch object schema by name
+v1   GET    /v1/object_schema/category/:category_id  Get object schema by amazon category id
+v1   GET    /v1/object_schema  Get all available schemas
 ```
 
 Get Postman collection [here](https://www.getpostman.com/collections/effaaa57089a01898f14)

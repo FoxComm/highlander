@@ -331,15 +331,8 @@ defmodule Hyperion.Router.V1 do
         end
       end # route_param
 
-      desc "Get all available schemas"
-      get do
-        schemas = Repo.all(ObjectSchema)
-                  |> Enum.map(fn(x) -> %{id: x.id, name: x.schema_name} end)
-        respond_with(conn, schemas)
-      end
 
       desc "Get object schema by amazon category id"
-
       namespace :category do
         route_param :category_id do
           get do
@@ -351,6 +344,13 @@ defmodule Hyperion.Router.V1 do
             end
           end
         end
+      end
+
+      desc "Get all available schemas"
+      get do
+        schemas = Repo.all(ObjectSchema)
+                  |> Enum.map(fn(x) -> %{id: x.id, name: x.schema_name} end)
+        respond_with(conn, schemas)
       end
     end # object_schema
   end # v1
