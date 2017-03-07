@@ -124,6 +124,8 @@ class GroupDetails extends Component {
   }
 
   get bulkActions() {
+    if (this.props.group.groupType != GROUP_TYPE_MANUAL) return [];
+
     return [
       [
         'Delete From Group',
