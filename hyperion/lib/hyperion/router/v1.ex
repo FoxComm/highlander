@@ -83,7 +83,7 @@ defmodule Hyperion.Router.V1 do
       end
 
       post do
-        cfg = API.customer_id(conn) |> MWSAuthAgent.get
+        cfg = API.amazon_credentials(conn)
         purge = if (params[:purge]), do: true , else: false
 
         products = Amazon.product_feed(params[:ids], API.jwt(conn))
@@ -104,7 +104,7 @@ defmodule Hyperion.Router.V1 do
       end
 
       post :by_asin do
-        cfg = API.customer_id(conn) |> MWSAuthAgent.get
+        cfg = API.amazon_credentials(conn)
         purge = if (params[:purge]), do: true , else: false
         products = Amazon.product_feed(params[:ids], API.jwt(conn))
                   |> TemplateBuilder.submit_product_by_asin(%{seller_id: cfg.seller_id,
@@ -169,7 +169,7 @@ defmodule Hyperion.Router.V1 do
 
       get do
         res = (from c in Category, limit: ^params[:size], offset: ^params[:from],
-                         where: ilike(c.node_path, ^"%#{String.downcase(params[:node_path])}%"))
+               where: ilike(c.node_path, ^"%#{String.downcase(params[:node_path])}%"))
               |> Hyperion.Repo.all
         respond_with(conn, res)
       end
@@ -181,8 +181,8 @@ defmodule Hyperion.Router.V1 do
       end
 
       get :suggest do
-        cfg = MWSAuthAgent.get(API.customer_id(conn))
         try do
+          cfg = API.amazon_credentials(conn)
           res = CategorySuggester.suggest_categories(params[:q], cfg)
           respond_with(conn, res)
         rescue e in RuntimeError ->
@@ -229,7 +229,7 @@ defmodule Hyperion.Router.V1 do
       end
 
       post do
-        cfg = API.customer_id(conn) |> MWSAuthAgent.get
+        cfg = API.amazon_credentials(conn)
         prices = Amazon.price_feed(params[:ids], API.jwt(conn))
                  |> TemplateBuilder.submit_price_feed(cfg)
         case MWSClient.submit_price_feed(prices, MWSAuthAgent.get(API.customer_id(conn))) do
@@ -250,7 +250,7 @@ defmodule Hyperion.Router.V1 do
       end
 
       post do
-        cfg = API.customer_id(conn) |> MWSAuthAgent.get
+        cfg = API.amazon_credentials(conn)
         inv_list = params[:inventory] |> Enum.with_index(1)
         inventories = TemplateBuilder.submit_inventory_feed(inv_list, %{seller_id: cfg.seller_id})
 
@@ -269,7 +269,7 @@ defmodule Hyperion.Router.V1 do
       end
 
       post do
-        cfg = API.customer_id(conn) |> MWSAuthAgent.get
+        cfg = API.amazon_credentials(conn)
         images = Amazon.images_feed(params[:ids], API.jwt(conn))
                  |> TemplateBuilder.submit_images_feed(cfg)
         case MWSClient.submit_images_feed(images, MWSAuthAgent.get(API.customer_id(conn))) do
@@ -318,6 +318,41 @@ defmodule Hyperion.Router.V1 do
         end
       end
     end # subscribe
+
+    namespace :object_schema do
+      desc "Fetch object schema by name"
+      route_param :schema_name do
+        get do
+          schema = Repo.get_by(ObjectSchema, schema_name: params[:schema_name])
+          case schema do
+            nil -> respond_with(conn, %{error: "Not found"}, 404)
+            s -> respond_with(conn, s)
+          end
+        end
+      end # route_param
+
+      desc "Get all available schemas"
+      get do
+        schemas = Repo.all(ObjectSchema)
+                  |> Enum.map(fn(x) -> %{id: x.id, name: x.schema_name} end)
+        respond_with(conn, schemas)
+      end
+
+      desc "Get object schema by amazon category id"
+
+      namespace :category do
+        route_param :category_id do
+          get do
+            case Repo.get_by(Category, node_id: params[:category_id]) do
+              nil -> respond_with(conn, %{error: "Category not found"}, 404)
+              x ->
+                schema = Repo.get(ObjectSchema, x.object_schema_id)
+                respond_with(conn, schema)
+            end
+          end
+        end
+      end
+    end # object_schema
   end # v1
 
   defp respond_with(conn, body \\ [], status \\ 200) do
