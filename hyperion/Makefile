@@ -45,7 +45,7 @@ docker-hyperion:
 	docker build -t $(DOCKER_IMAGE) .
 
 docker-hyperion-seeder:
-	docker build -t hyperion_seeder -f Dockerfile.seed --build-arg db_host=$(ALIAS_IP) .
+	docker build -t hyperion-seeder -f Dockerfile.seed --build-arg db_host=$(ALIAS_IP) .
 
 ####################################################################
 # Docker build targets                                             #
@@ -56,7 +56,7 @@ docker-push:
 	make push-hyperion-seeder
 
 push-hyperion-seeder:
-	docker tag hyperion_seeder $(DOCKER_REPO)/hyperion_seeder:$(DOCKER_TAG)
+	docker tag hyperion-seeder $(DOCKER_REPO)/hyperion-seeder:$(DOCKER_TAG)
 	docker push $(DOCKER_REPO)/hyperion_seeder:$(DOCKER_TAG)
 
 push-hyperion:
@@ -89,4 +89,3 @@ create-user:
 	createuser -s $(DB_USER)
 
 .PHONY: build test docker docker-push
-
