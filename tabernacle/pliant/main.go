@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+
+	"github.com/FoxComm/highlander/tabernacle/pliant/elastic"
 )
 
 const (
@@ -14,7 +16,7 @@ const (
 )
 
 func main() {
-	client := NewClient(hostname)
+	client := elastic.NewClient(hostname)
 	if err := client.Connect(); err != nil {
 		log.Fatal(err)
 	}

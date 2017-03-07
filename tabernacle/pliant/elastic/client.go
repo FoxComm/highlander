@@ -1,4 +1,4 @@
-package main
+package elastic
 
 import (
 	"bytes"

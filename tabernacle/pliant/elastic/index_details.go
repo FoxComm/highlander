@@ -1,4 +1,4 @@
-package main
+package elastic
 
 // IndexDetails is a structure that matches how ElasticSearch describes the
 // properties of an index.
