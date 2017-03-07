@@ -16,7 +16,7 @@ import { AddressDetails } from 'ui/address';
 import Block from '../common/block';
 
 // styles
-import addressStyles from './../../../pages/checkout/01-shipping/address-list.css';
+import addressStyles from 'pages/checkout/01-shipping/address-list.css';
 import profileStyles from '../profile.css';
 
 import type { Address } from 'types/address';

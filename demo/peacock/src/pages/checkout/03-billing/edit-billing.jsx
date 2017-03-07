@@ -21,9 +21,9 @@ import EditAddress from 'ui/address/edit-address';
 import CreditCards from './credit-cards';
 import Icon from 'ui/icon';
 import CvcHelp from './cvc-help';
-import PromoCode from '../../../components/promo-code/promo-code';
+import PromoCode from 'components/promo-code/promo-code';
 import CheckoutForm from '../checkout-form';
-import Accordion from '../../../components/accordion/accordion';
+import Accordion from 'components/accordion/accordion';
 import Loader from 'ui/loader';
 
 // styles

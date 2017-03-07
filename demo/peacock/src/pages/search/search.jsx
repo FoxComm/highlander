@@ -7,7 +7,7 @@ import _ from 'lodash';
 import localized from 'lib/i18n';
 
 // components
-import ProductsList from '../../components/products-list/products-list';
+import ProductsList from 'components/products-list/products-list';
 
 // styles
 import styles from './search.css';

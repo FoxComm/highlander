@@ -6,10 +6,10 @@ import { assoc, dissoc } from 'sprout-data';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
 
-import Copyright from '../../../components/footer/copyright';
-import Guest from '../../../components/auth/guest';
-import Login from '../../../components/auth/login';
-import Signup from '../../../components/auth/signup';
+import Copyright from 'components/footer/copyright';
+import Guest from 'components/auth/guest';
+import Login from 'components/auth/login';
+import Signup from 'components/auth/signup';
 import Icon from 'ui/icon';
 
 import * as checkoutActions from 'modules/checkout';
