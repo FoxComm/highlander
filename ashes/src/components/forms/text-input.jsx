@@ -9,7 +9,7 @@ type Props = {
   onChange: (value: string) => void,
   placeholder?: string,
   value: ?string,
-  autoFocus?: string
+  autoFocus?: boolean
 };
 
 type State = {
