@@ -4,6 +4,7 @@ import java.time.Instant
 
 import cats.implicits._
 import org.json4s.Extraction.decompose
+import org.json4s.Formats
 import org.json4s.JsonAST._
 import org.json4s.JsonDSL._
 import payloads.ImagePayloads.{AlbumPayload, ImagePayload}
@@ -11,7 +12,7 @@ import utils.JsonFormatters
 import utils.aliases._
 
 object PayloadHelpers {
-  implicit val formats = JsonFormatters.phoenixFormats
+  implicit val formats: Formats = JsonFormatters.phoenixFormats
 
   case class ShadowValue(v: Any, t: String)
 

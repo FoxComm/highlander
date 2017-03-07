@@ -2,7 +2,6 @@ import akka.http.scaladsl.model.StatusCodes
 
 import cats.implicits._
 import failures.CartFailures._
-import failures.LockFailures._
 import failures.ShippingMethodFailures._
 import failures.{NotFoundFailure400, NotFoundFailure404}
 import models.cord._
@@ -172,14 +171,14 @@ class CartIntegrationTest
       sku.sku must === (productVariantCode)
       sku.quantity must === (4)
 
-      val sku2 = cartsApi(cartRef).lineItems
+      val updatedSku = cartsApi(cartRef).lineItems
         .update(liPayload(2))
         .asTheResult[CartResponse]
         .lineItems
         .skus
         .onlyElement
-      sku2.sku must === (productVariantCode)
-      sku2.quantity must === (6)
+      updatedSku.sku must === (productVariantCode)
+      updatedSku.quantity must === (6)
     }
 
     "should successfully add a gift card line item" in new Fixture {
@@ -241,42 +240,6 @@ class CartIntegrationTest
 
     "should respond with 404 if cart is not found" in new Fixture {
       cartsApi("NOPE").lineItems.add(liPayload()).mustFailWith404(NotFoundFailure404(Cart, "NOPE"))
-    }
-  }
-
-  "POST /v1/carts/:refNum/lock" - {
-    "successfully locks a cart" in new Fixture {
-      cartsApi(cartRef).lock().mustBeOk()
-      Carts.findByRefNum(cartRef).gimme.head.isLocked must === (true)
-      CartLockEvents.findByCartRef(cartRef).gimme.onlyElement.lockedBy must === (1)
-    }
-
-    "refuses to lock an already locked cart" in new Fixture {
-      cartsApi(cartRef).lock().mustBeOk()
-      cartsApi(cartRef).lock().mustFailWith400(LockedFailure(Cart, cartRef))
-    }
-
-    "avoids race condition" in new Fixture {
-      pending // FIXME when DbResultT gets `select for update` https://github.com/FoxComm/phoenix-scala/issues/587
-
-      Seq(0, 1).par
-        .map(_ ⇒ cartsApi(cartRef).lock())
-        .map(_.status) must contain allOf (StatusCodes.OK, StatusCodes.BadRequest)
-
-      CartLockEvents.size.gimme must === (1)
-    }
-  }
-
-  "POST /v1/carts/:refNum/unlock" - {
-    "unlocks cart" in new Fixture {
-      cartsApi(cartRef).lock().mustBeOk()
-      cartsApi(cartRef).unlock().mustBeOk()
-
-      Carts.findByRefNum(cartRef).gimme.head.isLocked must === (false)
-    }
-
-    "refuses to unlock an already unlocked cart" in new Fixture {
-      cartsApi(cartRef).unlock().mustFailWith400(NotLockedFailure(Cart, cartRef))
     }
   }
 

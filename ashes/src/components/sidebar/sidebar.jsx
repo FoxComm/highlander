@@ -1,7 +1,6 @@
 
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
-import static_url from '../../lib/s3';
 import classNames from 'classnames';
 import { autobind } from 'core-decorators';
 
@@ -20,7 +19,7 @@ export default class Sidebar extends React.Component {
     menuItems: PropTypes.object,
     routes: PropTypes.array.isRequired,
     toggleMenuItem: PropTypes.func.isRequired,
-    toggleSiteMenu: PropTypes.func.isRequired,
+    toggleSiteMenu: PropTypes.func.isRequired, // has to go
     resetManuallyChanged: PropTypes.func.isRequired
   };
 
@@ -35,6 +34,7 @@ export default class Sidebar extends React.Component {
   }
 
   @autobind
+  // has to go
   toggleSidebar() {
     this.props.toggleSiteMenu();
   }
@@ -52,12 +52,8 @@ export default class Sidebar extends React.Component {
     });
     return (
       <aside role="complimentary" className={sidebarClass}>
-        <div className="logo">
-          <img src={static_url('images/fc-logo-nav.svg')}></img>
-        </div>
-        <div className={controlClass} onClick={this.toggleSidebar}>
-          <i className={indicatorClass}></i>
-        </div>
+      
+        {/* controlClass and indicatorClass have to go */}
         <Navigation routes={this.props.routes}
                     collapsed={!this.props.isMenuExpanded}
                     menuItems={this.props.menuItems}

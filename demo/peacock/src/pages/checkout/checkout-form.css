@@ -1,0 +1,34 @@
+
+.root {
+  padding: 20px 0;
+}
+
+.form-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.legend {
+  font-weight: 300;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.action-link {
+  color: #8D757A;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.button-wrap {
+  padding: 20px 0 30px;
+  text-align: center;
+}
+
+.checkout-submit {
+  display: inline-block;
+  width: 100%;
+  max-width: 400px;
+  text-transform: uppercase;
+}
