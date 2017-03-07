@@ -39,6 +39,21 @@ func (c *Client) Connect() (err error) {
 	return
 }
 
+func (c *Client) GetAllMappings() ([]*IndexDetails, error) {
+	detailList := []*IndexDetails{}
+	for _, index := range c.indices {
+		trimmedIdx := strings.Trim(index, " ")
+		details, err := c.GetMappings(trimmedIdx)
+		if err != nil {
+			return nil, err
+		}
+
+		detailList = append(detailList, details)
+	}
+
+	return detailList, nil
+}
+
 func (c *Client) GetMappings(index string) (*IndexDetails, error) {
 	url := fmt.Sprintf(esIndex, c.hostname, index)
 	resp, err := http.Get(url)

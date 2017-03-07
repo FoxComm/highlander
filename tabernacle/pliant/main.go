@@ -1,6 +1,11 @@
 package main
 
-import "log"
+import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"log"
+)
 
 const (
 	index    = "admin"
@@ -14,12 +19,24 @@ func main() {
 		log.Fatal(err)
 	}
 
-	details, err := client.GetMappings(index)
+	details, err := client.GetAllMappings()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	for mappingName, _ := range details.Mappings {
-		log.Printf("Mapping name is %s", mappingName)
+	for _, indexDetails := range details {
+		for mappingName, mappingContents := range indexDetails.Mappings {
+			filename := fmt.Sprintf("./mappings/%s.json", mappingName)
+			log.Printf("Writing file %s", filename)
+
+			contents, err := json.Marshal(mappingContents)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			if err := ioutil.WriteFile(filename, contents, 0644); err != nil {
+				log.Fatal(err)
+			}
+		}
 	}
 }

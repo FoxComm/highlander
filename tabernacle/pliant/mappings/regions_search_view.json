@@ -1,0 +1,1 @@
+{"properties":{"abbreviation":{"index":"not_analyzed","type":"string"},"countryId":{"type":"integer"},"id":{"type":"integer"},"name":{"analyzer":"autocomplete","type":"string"}}}
