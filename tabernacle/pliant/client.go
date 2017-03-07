@@ -38,7 +38,7 @@ func (c *Client) Connect() (err error) {
 	return
 }
 
-func (c *Client) UpdateMapping(mapping string, isScoped, isAdmin bool) error {
+func (c *Client) UpdateMapping(mapping string, index string, isScoped bool) error {
 	// 1. Get the latest definition for this mapping.
 	// 2. Check to see if that index exists on the cluster.
 	// 3. Create the index if it doesn't
@@ -53,14 +53,21 @@ func (c *Client) UpdateMapping(mapping string, isScoped, isAdmin bool) error {
 		return err
 	}
 
-	mappingExists, err := c.testMapping("admin_1.2", esMapping)
+	indexList, err := c.getIndexList(index, isScoped)
 	if err != nil {
 		return err
 	}
 
-	if mappingExists {
-		log.Printf("Mapping %s is already present in ES", latest)
-		return nil
+	for _, idx := range indexList {
+		mappingExists, err := c.testMapping(idx, esMapping)
+		if err != nil {
+			return err
+		}
+
+		if mappingExists {
+			log.Printf("Mapping %s is already present in index %s", esMapping, idx)
+			return nil
+		}
 	}
 
 	mappingContents, err := readMappingFile(latest)
@@ -68,8 +75,10 @@ func (c *Client) UpdateMapping(mapping string, isScoped, isAdmin bool) error {
 		return err
 	}
 
-	if err := c.createMapping("admin_1.2", esMapping, mappingContents); err != nil {
-		return err
+	for _, idx := range indexList {
+		if err := c.createMapping(idx, esMapping, mappingContents); err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -92,6 +101,25 @@ func (c *Client) getIndices() ([]string, error) {
 	return indices, nil
 }
 
+func (c *Client) getIndexList(indexName string, isScoped bool) ([]string, error) {
+	if !isScoped {
+		return []string{indexName}, nil
+	}
+
+	indexList := []string{}
+	for _, index := range c.indices {
+		if strings.HasPrefix(index, indexName) {
+			indexList = append(indexList, index)
+		}
+	}
+
+	if len(indexList) == 0 {
+		return indexList, fmt.Errorf("No scoped indices found for %s", indexName)
+	}
+
+	return indexList, nil
+}
+
 func (c *Client) createMapping(index string, mapping string, contents []byte) error {
 	url := fmt.Sprintf(esMapping, c.hostname, index, mapping)
 	log.Printf("Pushing mapping to %s", url)
@@ -110,7 +138,7 @@ func (c *Client) createMapping(index string, mapping string, contents []byte) er
 	if resp.StatusCode > 299 {
 		return fmt.Errorf("Unexpected error updating mapping: %d", resp.StatusCode)
 	}
-	
+
 	return nil
 }
 
