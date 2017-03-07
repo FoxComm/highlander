@@ -52,7 +52,7 @@ docker-hyperion-seeder:
 ####################################################################
 
 docker-push:
-    $(call header, Registering)
+	$(call header, Registering)
 	make push-hyperion
 	make push-hyperion-seeder
 
