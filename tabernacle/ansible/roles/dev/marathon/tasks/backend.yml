@@ -1,5 +1,9 @@
 ---
 
+- name: Take a nap for a while
+  pause: seconds=30
+  when: is_ci
+
 - name: Start Isaac
   include: app_isaac.yml
   when: marathon_restart.isaac
