@@ -23,13 +23,14 @@ build:
 prepare:
 	mix local.hex --force
 	mix deps.get
-	
+
 test:
 	$(call header, Testing)
 	true
 
 seed:
 	mix run priv/seeds/clothes_accessories_categories.exs
+	mix run priv/seeds/clothes_schema.exs
 
 ####################################################################
 # Docker build targets                                             #
