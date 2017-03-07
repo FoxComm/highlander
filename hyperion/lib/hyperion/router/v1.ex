@@ -72,6 +72,23 @@ defmodule Hyperion.Router.V1 do
           end
         end # update credentials
       end
+
+      desc "Remove credentials for specific client"
+      route_param :client_id do
+        delete do
+          try do
+            creds = Repo.get_by!(Credentials, client_id: params[:client_id])
+            case Repo.delete(creds) do
+              {:ok, _} -> conn
+                          |> put_status(204)
+                          |> text(nil)
+              {:error, err} -> respond_with(conn, %{error: err}, 422)
+            end
+          rescue e in Ecto.NoResultsError ->
+            respond_with(conn, %{error: "Credentials for client #{params[:client_id]} not found"}, 404)
+          end
+        end
+      end # destroy credentials
     end # credentials
 
     namespace :products do

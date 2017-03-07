@@ -85,6 +85,27 @@ body:
 }
 ```
 
+####Delete client credentials
+
+*request*
+
+```
+DELETE /v1/credentials/:client_id
+```
+
+*response*
+
+If credentials found and successfully deleted `HTTP 204: NO CONTENT` will return.
+
+If no credentials found:
+
+```json
+{
+    "error": "Credentials for client 123 not found"
+}
+```
+
+
 ####Submit product feed to MWS
 
 *request*

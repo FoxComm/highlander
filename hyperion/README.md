@@ -112,6 +112,7 @@ v1   GET    /v1/health  Check hyperion health
 v1   GET    /v1/credentials/:client_id  Get MWS credentials for exact client
 v1   POST   /v1/credentials  Store new credentials
 v1   PUT    /v1/credentials/:client_id  Update credentials
+v1   DELETE /v1/credentials/:client_id  Remove credentials for specific client
 v1   POST   /v1/products  Get products by ids and submit them to the Amazon MWS
 v1   POST   /v1/products/by_asin  Add products by asin
 v1   GET    /v1/products/search  Search products by code or query
