@@ -135,6 +135,7 @@ object Returns
     extends FoxTableQuery[Return, Returns](new Returns(_))
     with ReturningIdAndString[Return, Returns]
     with SearchByRefNum[Return, Returns] {
+  private[this] val activeReturn = Set(Return.Pending, Return.Processing, Return.Review)
 
   def findByRefNum(refNum: String): QuerySeq = filter(_.referenceNumber === refNum)
 
@@ -142,12 +143,16 @@ object Returns
 
   def findByOrderRefNum(refNum: String): QuerySeq = filter(_.orderRef === refNum)
 
+  def findPrevious(rma: Return): QuerySeq =
+    findByOrderRefNum(rma.orderRef).filter(r ⇒
+          r.id =!= rma.id && r.state === (Return.Complete: Return.State))
+
   def findOneByRefNum(refNum: String): DBIO[Option[Return]] =
     findByRefNum(refNum).one
 
-  def mustFindPendingByRefNum404(refNum: String)(implicit ec: EC): DbResultT[Return] =
+  def mustFindActiveByRefNum404(refNum: String)(implicit ec: EC): DbResultT[Return] =
     findByRefNum(refNum)
-      .filter(_.state === (Return.Pending: Return.State))
+      .filter(_.state inSet activeReturn)
       .mustFindOneOr(NotFoundFailure404(Return, refNum))
 
   private[this] val rootLens = lens[Return]

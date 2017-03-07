@@ -7,7 +7,6 @@ import models.payment.storecredit.StoreCredit
 import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils.Money._
-import utils.aliases.stripe._
 import utils.db._
 
 case class ReturnPayment(id: Int = 0,
@@ -16,19 +15,9 @@ case class ReturnPayment(id: Int = 0,
                          currency: Currency = Currency.USD,
                          paymentMethodId: Int,
                          paymentMethodType: PaymentMethod.Type)
-    extends FoxModel[ReturnPayment] {
-
-  def isCreditCard: Boolean  = paymentMethodType == PaymentMethod.CreditCard
-  def isGiftCard: Boolean    = paymentMethodType == PaymentMethod.GiftCard
-  def isStoreCredit: Boolean = paymentMethodType == PaymentMethod.StoreCredit
-}
+    extends FoxModel[ReturnPayment]
 
 object ReturnPayment {
-  def fromStripeCustomer(stripeCustomer: StripeCustomer, rma: Return): ReturnPayment =
-    ReturnPayment(returnId = rma.id,
-                  paymentMethodId = 1,
-                  paymentMethodType = PaymentMethod.CreditCard)
-
   def build(method: PaymentMethod, returnId: Int, amount: Int, currency: Currency): ReturnPayment =
     method match {
       case gc: GiftCard ⇒

@@ -38,4 +38,9 @@ object ReturnFailures {
     def description: String =
       s"Returned credit card payment ($amount) cannot be greater than $maxAmount for return $refNum"
   }
+
+  case class ReturnCCPaymentViolation(refNum: String, issued: Int, allowed: Int) extends Failure {
+    def description: String =
+      s"Issued credit card payment ($issued) is different than $allowed for return $refNum"
+  }
 }

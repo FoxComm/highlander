@@ -1,21 +1,24 @@
 package services.returns
 
+import cats.implicits._
 import failures.OrderFailures.OrderPaymentNotFoundFailure
-import failures.ReturnFailures.{ReturnCCPaymentExceeded, ReturnPaymentExceeded}
+import failures.ReturnFailures._
 import models.account.Scope
 import models.cord.OrderPayments.scope._
 import models.cord._
 import models.payment.PaymentMethod
-import models.payment.creditcard.{CreditCardCharges, CreditCards}
+import models.payment.creditcard.{CreditCardCharge, CreditCardCharges, CreditCards}
 import models.payment.giftcard._
 import models.payment.storecredit._
 import models.returns.ReturnPayments.scope._
 import models.returns._
 import payloads.ReturnPayloads.{ReturnPaymentPayload, ReturnPaymentsPayload}
 import responses.ReturnResponse
+import scala.annotation.tailrec
 import services.carts.CartTotaler
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
+import utils.apis.{Apis, RefundReason}
 import utils.db._
 
 object ReturnPaymentUpdater {
@@ -31,10 +34,10 @@ object ReturnPaymentUpdater {
 
     val payments = payload.payments.filter { case (_, amount) ⇒ amount > 0 }
     if (payments.isEmpty)
-      Returns.mustFindPendingByRefNum404(refNum).flatMap(ReturnResponse.fromRma)
+      Returns.mustFindActiveByRefNum404(refNum).flatMap(ReturnResponse.fromRma)
     else
       for {
-        rma      ← * <~ Returns.mustFindPendingByRefNum404(refNum)
+        rma      ← * <~ Returns.mustFindActiveByRefNum404(refNum)
         _        ← * <~ validateMaxAllowedPayments(rma, payments)
         payment  ← * <~ mustFindCcPaymentsByOrderRef(rma.orderRef)
         _        ← * <~ payments.map(addPayment(rma, payment, _)).toList
@@ -48,7 +51,7 @@ object ReturnPaymentUpdater {
       db: DB,
       au: AU): DbResultT[ReturnResponse.Root] =
     for {
-      rma      ← * <~ Returns.mustFindPendingByRefNum404(refNum)
+      rma      ← * <~ Returns.mustFindActiveByRefNum404(refNum)
       _        ← * <~ validateMaxAllowedPayments(rma, Map(method → payload.amount))
       payment  ← * <~ mustFindCcPaymentsByOrderRef(rma.orderRef)
       _        ← * <~ processAddPayment(rma, payment, method, payload.amount)
@@ -91,10 +94,8 @@ object ReturnPaymentUpdater {
         .sum
         .getOrElse(0)
         .result
-        .dbresult
       val previousCCPaymentsQuery = Returns
-        .findByOrderRefNum(rma.orderRef)
-        .filter(_.id =!= rma.id)
+        .findPrevious(rma)
         .join(ReturnPayments.creditCards)
         .on(_.id === _.returnId)
         .map { case (_, payment) ⇒ payment.amount }
@@ -146,7 +147,7 @@ object ReturnPaymentUpdater {
       db: DB): DbResultT[ReturnPayment] =
     for {
       cc ← * <~ CreditCards.mustFindById404(payment.paymentMethodId)
-      _  ← * <~ deleteCc(returnId)
+      _  ← * <~ deleteCcPayment(returnId)
       ccRefund ← * <~ ReturnPayments.create(
                     ReturnPayment.build(cc, returnId, amount, payment.currency))
     } yield ccRefund
@@ -155,7 +156,7 @@ object ReturnPaymentUpdater {
                           payment: OrderPayment,
                           amount: Int)(implicit ec: EC, db: DB, au: AU): DbResultT[ReturnPayment] =
     for {
-      _      ← * <~ deleteGc(returnId)
+      _      ← * <~ deleteGcPayment(returnId)
       origin ← * <~ GiftCardRefunds.create(GiftCardRefund(returnId = returnId))
       gc     ← * <~ GiftCards.create(GiftCard.buildRmaProcess(origin.id, payment.currency))
       pmt    ← * <~ ReturnPayments.create(ReturnPayment.build(gc, returnId, amount, payment.currency))
@@ -166,7 +167,7 @@ object ReturnPaymentUpdater {
       db: DB,
       au: AU): DbResultT[ReturnPayment] =
     for {
-      _      ← * <~ deleteSc(returnId)
+      _      ← * <~ deleteScPayment(returnId)
       origin ← * <~ StoreCreditRefunds.create(StoreCreditRefund(returnId = returnId))
       sc ← * <~ StoreCredits.create(
               StoreCredit(accountId = accountId,
@@ -182,7 +183,7 @@ object ReturnPaymentUpdater {
       implicit ec: EC,
       db: DB): DbResultT[ReturnResponse.Root] =
     for {
-      rma      ← * <~ Returns.mustFindPendingByRefNum404(refNum)
+      rma      ← * <~ Returns.mustFindActiveByRefNum404(refNum)
       _        ← * <~ processDeletePayment(rma.id, paymentMethod)
       updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(rma)
@@ -191,15 +192,15 @@ object ReturnPaymentUpdater {
   def processDeletePayment(returnId: Int, paymentMethod: PaymentMethod.Type)(
       implicit ec: EC): DbResultT[Unit] =
     paymentMethod match {
-      case PaymentMethod.CreditCard  ⇒ deleteCc(returnId)
-      case PaymentMethod.GiftCard    ⇒ deleteGc(returnId)
-      case PaymentMethod.StoreCredit ⇒ deleteSc(returnId)
+      case PaymentMethod.CreditCard  ⇒ deleteCcPayment(returnId)
+      case PaymentMethod.GiftCard    ⇒ deleteGcPayment(returnId)
+      case PaymentMethod.StoreCredit ⇒ deleteScPayment(returnId)
     }
 
-  private def deleteCc(returnId: Int)(implicit ec: EC): DbResultT[Unit] =
+  private def deleteCcPayment(returnId: Int)(implicit ec: EC): DbResultT[Unit] =
     ReturnPayments.findAllByReturnId(returnId).creditCards.deleteAll.meh
 
-  private def deleteGc(returnId: Int)(implicit ec: EC): DbResultT[Unit] = {
+  private def deleteGcPayment(returnId: Int)(implicit ec: EC): DbResultT[Unit] = {
     val gcQuery = ReturnPayments.findAllByReturnId(returnId).giftCards
     for {
       paymentMethodIds ← * <~ gcQuery.paymentMethodIds.result
@@ -214,7 +215,7 @@ object ReturnPaymentUpdater {
     } yield ()
   }
 
-  private def deleteSc(returnId: Int)(implicit ec: EC): DbResultT[Unit] = {
+  private def deleteScPayment(returnId: Int)(implicit ec: EC): DbResultT[Unit] = {
     val scQuery = ReturnPayments.findAllByReturnId(returnId).storeCredits
     for {
       paymentMethodIds ← * <~ scQuery.paymentMethodIds.result
@@ -227,5 +228,72 @@ object ReturnPaymentUpdater {
       _ ← * <~ StoreCredits.findAllByIds(paymentMethodIds).deleteAll
       _ ← * <~ StoreCreditRefunds.findAllByIds(storeCreditOriginIds).deleteAll
     } yield ()
+  }
+
+  def issuePayments(rma: Return)(implicit ec: EC, apis: Apis): DbResultT[Unit] =
+    for {
+      ccPayment ← * <~ ReturnPayments.findAllByReturnId(rma.id).creditCards.one
+      _         ← * <~ issueCcPayment(rma, ccPayment)
+    } yield ()
+
+  private def issueCcPayment(rma: Return, payment: Option[ReturnPayment])(
+      implicit ec: EC,
+      apis: Apis): DbResultT[Unit] = {
+    @tailrec
+    def splitAmount(amount: Int,
+                    charges: Seq[CreditCardCharge],
+                    acc: Vector[(String, Int)]): Vector[(String, Int)] = charges match {
+      case c +: cs if amount > c.amount ⇒
+        splitAmount(amount - c.amount, cs, acc :+ (c.chargeId → c.amount))
+      case c +: cs if amount <= c.amount ⇒
+        acc :+ (c.chargeId → amount)
+      case _ ⇒ acc
+    }
+
+    def createRefund(payment: ReturnPayment) = {
+      val authorizeRefund = (apis.stripe
+        .authorizeRefund(_: String, _: Int, RefundReason.RequestedByCustomer))
+        .tupled
+        .andThen(apiResult ⇒
+              for {
+            charge ← * <~ apiResult
+            ccPayment = ReturnCcPayment.build(
+                returnPaymentId = payment.id,
+                chargeId = charge.getId,
+                returnId = payment.returnId,
+                amount = charge.getAmountRefunded
+            )
+            created ← * <~ ReturnCcPayments.create(ccPayment)
+          } yield created)
+
+      for {
+        previousCcPayments ← * <~ Returns
+                              .findPrevious(rma)
+                              .join(ReturnCcPayments)
+                              .on(_.id === _.returnId)
+                              .map { case (_, ccPayment) ⇒ ccPayment.chargeId → ccPayment.amount }
+                              .result
+                              .map(_.groupBy(_._1).mapValues(_.map(_._2).sum))
+        ccCharges ← * <~ OrderPayments
+                     .findAllCreditCardsForOrder(rma.orderRef)
+                     .join(CreditCardCharges)
+                     .on(_.id === _.orderPaymentId)
+                     .map { case (_, charge) ⇒ charge }
+                     .filter(_.currency === payment.currency)
+                     .result
+        adjustedCcCharges = ccCharges
+          .map(c ⇒ c.copy(amount = c.amount - previousCcPayments.getOrElse(c.chargeId, 0)))
+          .filter(_.amount > 0)
+        amountToRefund = splitAmount(payment.amount, adjustedCcCharges, Vector.empty)
+        refunds ← * <~ amountToRefund.map(authorizeRefund)
+        totalRefund = refunds.map(_.amount).sum
+        _ ← * <~ failIf(totalRefund != payment.amount,
+                        ReturnCCPaymentViolation(refNum = rma.refNum,
+                                                 issued = totalRefund,
+                                                 allowed = payment.amount))
+      } yield ()
+    }
+
+    payment.map(createRefund).getOrElse(DbResultT.pure(()))
   }
 }
