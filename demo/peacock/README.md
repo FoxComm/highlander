@@ -72,12 +72,11 @@ export GA_TRACKING_ID=UA-74320XXX-X
 npm run dev
 ```
 
-## Push hooks
+## Git hooks
 
-By default, gulpfile installs pre-push hooks for you.
-And, usually, it's ok having pre-push hooks, even if you needed to push broken branch
-you can push with `--no-verify` option.
-Also, you can disable auto installing hooks by creating `.gulprc` in project root with following content:
+Git hooks located in `git_hooks` directory. Also there is .envrc for `direnv` package which should replace hooks dir
+automatically when you enters in `peacock` directory. But right now there is bug in in git v2.12.0,
+see `.envrc` file for details.
 
 ```
 exports.autoInstallHooks = false;
