@@ -2,17 +2,19 @@ package services
 
 import de.heikoseeberger.akkasse.{ServerSentEvent ⇒ SSE}
 import failures._
+import models.{Notification, Notifications}
+import models.{LastSeenNotification, LastSeenNotifications}
 import models.Notification._
 import models.activity._
 import models.account._
-import models.{NotificationTrailMetadata, NotificationSubscription ⇒ Sub, NotificationSubscriptions ⇒ Subs}
+import models.{NotificationSubscription ⇒ Sub, NotificationSubscriptions ⇒ Subs}
 import org.json4s.Extraction.decompose
+import org.json4s.jackson.JsonMethods._
 import org.json4s.jackson.Serialization.write
 import org.postgresql.core.{Utils ⇒ PgjdbcUtils}
 import payloads.ActivityTrailPayloads.AppendActivity
 import payloads.CreateNotification
-import responses.{ActivityConnectionResponse, ActivityResponse, LastSeenActivityResponse, TheResponse}
-import services.activity.TrailManager
+import responses.{ActivityResponse, LastSeenNotificationResponse, NotificationResponse, TheResponse}
 import slick.driver.PostgresDriver.api._
 import utils.JsonFormatters
 import utils.aliases._
@@ -21,44 +23,59 @@ import utils.db._
 object NotificationManager {
   implicit val formats = JsonFormatters.phoenixFormats
 
-  def createNotification(payload: CreateNotification)(
-      implicit ac: AC,
-      ec: EC,
-      db: DB): DbResultT[Seq[ActivityConnectionResponse.Root]] =
+  def createNotification(payload: CreateNotification)(implicit ac: AC,
+                                                      au: AU,
+                                                      ec: EC,
+                                                      db: DB): DbResultT[ActivityResponse.Root] = {
     for {
-      sourceDimensionId ← * <~ dimensionIdByName(payload.sourceDimension)
-      activity          ← * <~ Activities.mustFindById400(payload.activityId)
+      dimension ← * <~ Dimensions.findOrCreateByName(payload.sourceDimension)
+      activity ← * <~ Activity(id = payload.activity.id,
+                               activityType = payload.activity.kind,
+                               data = payload.activity.data,
+                               context = payload.activity.context,
+                               createdAt = payload.activity.createdAt)
+
       adminIds ← * <~ Subs
-                  .findByDimensionAndObject(sourceDimensionId, payload.sourceObjectId)
+                  .findByDimensionAndObject(dimension.id, payload.sourceObjectId)
                   .map(_.adminId)
                   .result
-      response ← * <~ adminIds.map { adminId ⇒
-                  val appendActivity = AppendActivity(payload.activityId, payload.data)
-                  val newTrailData   = Some(decompose(NotificationTrailMetadata(0)))
-                  TrailManager.appendActivityByObjectIdInner(Dimension.notification,
-                                                             adminId.toString,
-                                                             appendActivity,
-                                                             newTrailData)
-                }
-      _ ← * <~ DBIO.sequence(adminIds.map { adminId ⇒
-           val payload        = write(ActivityResponse.build(activity))
-           val escapedPayload = PgjdbcUtils.escapeLiteral(null, payload, false).toString
-           sqlu"NOTIFY #${notificationChannel(adminId)}, '#$escapedPayload'"
+      response ← * <~ ActivityResponse.build(activity)
+
+      notifications ← * <~ adminIds.toList.map { adminId ⇒
+                       Notifications.create(
+                           Notification(scope = payload.activity.context.scope,
+                                        accountId = adminId,
+                                        dimensionId = dimension.id,
+                                        objectId = payload.sourceObjectId,
+                                        activity = decompose(payload.activity)))
+                     }
+
+      _ ← * <~ DBIO.sequence(notifications.map { notification ⇒
+           var payload        = compact(decompose(NotificationResponse.build(notification)))
+           var escapedPayload = PgjdbcUtils.escapeLiteral(null, payload, false).toString
+           sqlu"NOTIFY #${notificationChannel(notification.accountId)}, '#$escapedPayload'"
          })
     } yield response
+  }
 
-  def updateLastSeen(adminId: Int, activityId: Int)(implicit ec: EC,
-                                                    db: DB): DbResultT[LastSeenActivityResponse] =
+  def updateLastSeen(accountId: Int, notificationId: Int)(
+      implicit au: AU,
+      ec: EC,
+      db: DB): DbResultT[LastSeenNotificationResponse] =
     for {
-      _ ← * <~ Accounts.mustFindById404(adminId)
-      _ ← * <~ Activities.mustFindById404(activityId)
-      trail ← * <~ Trails
-               .findNotificationByAdminId(adminId)
-               .mustFindOneOr(NotificationTrailNotFound400(adminId))
-      _ ← * <~ Trails.update(
-             trail,
-             trail.copy(data = Some(decompose(NotificationTrailMetadata(activityId)))))
-    } yield LastSeenActivityResponse(trailId = trail.id, lastSeenActivityId = activityId)
+      scope ← * <~ Scope.current
+      _     ← * <~ Accounts.mustFindById404(accountId)
+      lastSeen ← * <~ LastSeenNotifications
+                  .findByScopeAndAccountId(scope, accountId)
+                  .one
+                  .findOrCreate(
+                      LastSeenNotifications.create(
+                          LastSeenNotification(scope = scope,
+                                               accountId = accountId,
+                                               notificationId = notificationId)))
+      _ ← * <~ LastSeenNotifications.update(lastSeen,
+                                            lastSeen.copy(notificationId = notificationId))
+    } yield LastSeenNotificationResponse(lastSeenNotificationId = notificationId)
 
   def subscribe(adminIds: Seq[Int], objectIds: Seq[String], reason: Sub.Reason, dimension: String)(
       implicit ec: EC): DbResultT[TheResponse[Option[Int]]] =

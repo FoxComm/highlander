@@ -1,3 +1,3 @@
 package responses
 
-case class LastSeenActivityResponse(trailId: Int, lastSeenActivityId: Int)
+case class LastSeenNotificationResponse(lastSeenNotificationId: Int)

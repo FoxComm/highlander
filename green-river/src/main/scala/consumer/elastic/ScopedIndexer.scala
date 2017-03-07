@@ -37,7 +37,9 @@ class ScopedIndexer(uri: String,
     // Find json transformer
     jsonTransformers get topic match {
       case Some(t) ⇒
-        t.transform(inputJson).flatMap(outJson ⇒ indexJson(outJson, topic))
+        t.transform(inputJson).flatMap { json ⇒
+          indexJson(json, topic)
+        }
       case None ⇒
         Console.out.println(s"Skipping information from topic $topic")
         Future { () }
@@ -63,7 +65,8 @@ class ScopedIndexer(uri: String,
 
           // if no scope found, just save the good old way
           case _ ⇒
-            Console.out.println(s"No scope found for document ID $jid from $topic, performing unscoped indexing...")
+            Console.out.println(
+                s"No scope found for document ID $jid from $topic, performing unscoped indexing...")
             indexDocument(indexName, jid, document, topic)
         }
       case _ ⇒

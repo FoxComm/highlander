@@ -11,11 +11,100 @@ import io.confluent.kafka.serializers.AbstractKafkaAvroDeserializer
 import org.apache.avro.generic.GenericDatumWriter
 import org.apache.avro.io.EncoderFactory
 import org.apache.kafka.common.errors.SerializationException
+import org.apache.avro.Schema
+import org.apache.avro.Schema.Parser
 
 import org.json4s.JsonAST.{JValue, JObject, JField, JString}
 import org.json4s.jackson.JsonMethods.{render, compact, parse}
 
 import scala.util.control.NonFatal
+
+object AvroProcessor {
+
+  //Make sure the scoped_activities avro schema is registered
+  val activityAvroSchema = """
+      |{
+      |  "type":"record",
+      |  "name":"scoped_activities",
+      |  "fields":[
+      |    {
+      |      "name":"id",
+      |      "type":["null","string"]
+      |    },
+      |    {
+      |      "name":"kind",
+      |      "type":["null","string"]
+      |    },
+      |    {
+      |      "name":"data",
+      |      "type":["null","string"]
+      |    },
+      |    {
+      |      "name":"context",
+      |      "type":["null","string"]
+      |    },
+      |    {
+      |      "name":"created_at",
+      |      "type":["null","string"]
+      |    },
+      |    {
+      |      "name":"scope",
+      |      "type":["null","string"]
+      |    }
+      |  ]
+      |}
+    """.stripMargin.replaceAll("\n", " ")
+
+  val activityTrailAvroSchema = """
+      |{
+      |  "type": "record",
+      |  "name": "scoped_activity_trails",
+      |  "fields": [
+      |    {
+      |      "name": "id",
+      |      "type": [ "null", "long" ]
+      |    },
+      |    {
+      |      "name": "dimension",
+      |      "type": [ "null", "string" ]
+      |    },
+      |    {
+      |      "name": "object_id",
+      |      "type": [ "null", "string" ]
+      |    },
+      |    {
+      |      "name": "activity",
+      |      "type": [ "null", "string" ]
+      |    },
+      |    {
+      |      "name": "scope",
+      |      "type": [ "null", "string" ]
+      |    },
+      |    {
+      |      "name": "created_at",
+      |      "type": [ "null", "string" ]
+      |    }
+      |  ]
+      }
+    """.stripMargin.replaceAll("\n", " ")
+
+  val keyAvroSchema = """
+      |{
+      |  "type":"record",
+      |  "name":"key",
+      |  "fields":[
+      |    {
+      |      "name":"id",
+      |      "type":["null","string"]
+      |    }
+      |  ]
+      |}
+    """.stripMargin.replaceAll("\n", " ")
+
+  val activitySchema      = (new Schema.Parser()).parse(activityAvroSchema)
+  val activityTrailSchema = (new Schema.Parser()).parse(activityTrailAvroSchema)
+  val keySchema           = (new Schema.Parser()).parse(keyAvroSchema)
+}
 
 /**
   * Reads kafka processor that reads expects messages in kafka to be from bottledwater-pg
@@ -34,11 +123,17 @@ class AvroProcessor(schemaRegistryUrl: String, processor: JsonProcessor)(implici
       schemaRegistryUrl, DEFAULT_MAX_SCHEMAS_PER_SUBJECT)
   val encoderFactory = EncoderFactory.get()
 
+  register("scoped_activities-value", AvroProcessor.activitySchema)
+  register("scoped_activity_trails-value", AvroProcessor.activityTrailSchema)
+
+  register("scoped_activities-key", AvroProcessor.keySchema)
+  register("scoped_activity_trails-key", AvroProcessor.keySchema)
+
   def process(offset: Long, topic: String, key: Array[Byte], message: Array[Byte]): Future[Unit] = {
     try {
 
       val keyJson =
-        if (key.isEmpty) {
+        if (key == null || key.isEmpty) {
           Console.err.println(
               s"Warning, message has no key for topic ${topic}: ${new String(message, "UTF-8")}")
           ""
@@ -70,7 +165,9 @@ class AvroProcessor(schemaRegistryUrl: String, processor: JsonProcessor)(implici
     val writer  = new GenericDatumWriter[Object](schema)
     writer.write(obj, encoder)
     encoder.flush()
-    new String(stream.toByteArray, "UTF-8")
+    val result = new String(stream.toByteArray, "UTF-8")
+    stream.close()
+    result
   }
 }
 

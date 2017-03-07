@@ -28,9 +28,9 @@ object NotificationRoutes {
             NotificationManager.createNotification(payload)
           }
         } ~
-        (post & path("last-seen" / IntNumber) & pathEnd) { activityId ⇒
+        (post & path("last-seen" / IntNumber) & pathEnd) { notificationId ⇒
           mutateOrFailures {
-            NotificationManager.updateLastSeen(auth.account.id, activityId)
+            NotificationManager.updateLastSeen(auth.account.id, notificationId)
           }
         }
       }

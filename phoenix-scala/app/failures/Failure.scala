@@ -70,6 +70,10 @@ case class NotificationTrailNotFound400(adminId: Int) extends Failure {
   override def description = s"Notification trail for adminId=$adminId not found"
 }
 
+case class LastSeenNotFound400(adminId: Int) extends Failure {
+  override def description = s"Notification Last Seen not found for adminId=$adminId"
+}
+
 case object OpenTransactionsFailure extends Failure {
   override def description = "Open transactions should be canceled/completed"
 }

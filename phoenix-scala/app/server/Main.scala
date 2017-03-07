@@ -104,7 +104,6 @@ class Service(
         routes.admin.CustomerGroupsRoutes.routes ~
         routes.admin.GiftCardRoutes.routes ~
         routes.admin.ReturnRoutes.routes ~
-        routes.admin.Activity.routes ~
         routes.admin.ProductRoutes.routes ~
         routes.admin.SkuRoutes.routes ~
         routes.admin.VariantRoutes.routes ~

@@ -32,7 +32,7 @@ object AccountConnector extends ActivityConnector {
       accountIds.distinct.map(createConnection(_, activity.id))
     }
 
-  def createConnection(accountId: String, activityId: Int): Connection = {
+  def createConnection(accountId: String, activityId: String): Connection = {
     Connection(dimension = dimension,
                objectId = accountId,
                data = JNothing,
@@ -70,7 +70,7 @@ object AccountConnector extends ActivityConnector {
     }
 
   private def byUpdatedActivity(activity: Activity): Seq[String] = {
-    (activity.activityType, activity.data \ "oldInfo" \ "id") match {
+    (activity.kind, activity.data \ "oldInfo" \ "id") match {
       case ("user_updated", JInt(accountId))      ⇒ Seq(accountId.toString)
       case ("customer_updated", JInt(customerId)) ⇒ Seq(customerId.toString)
       case _                                      ⇒ Seq.empty
@@ -78,7 +78,7 @@ object AccountConnector extends ActivityConnector {
   }
 
   private def byAssignmentSingleData(activity: Activity): Seq[String] = {
-    (activity.activityType, activity.data \ "entity" \ "id") match {
+    (activity.kind, activity.data \ "entity" \ "id") match {
       case ("assigned", JInt(accountId))   ⇒ Seq(accountId.toString)
       case ("unassigned", JInt(accountId)) ⇒ Seq(accountId.toString)
       case _                               ⇒ Seq.empty
@@ -86,7 +86,7 @@ object AccountConnector extends ActivityConnector {
   }
 
   private def byAssignmentBulkData(activity: Activity): Seq[String] = {
-    (activity.activityType, activity.data \ "referenceType") match {
+    (activity.kind, activity.data \ "referenceType") match {
       case ("bulk_assigned", JString(entity))   ⇒ extractStringSeq(activity.data, "entityIds")
       case ("bulk_unassigned", JString(entity)) ⇒ extractStringSeq(activity.data, "entityIds")
       case _                                    ⇒ Seq.empty

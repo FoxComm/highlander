@@ -64,6 +64,10 @@ lazy val phoenixScala = (project in file("."))
     assemblyMergeStrategy in assembly := {
       case PathList("org", "joda", "time", xs @ _ *) ⇒
         MergeStrategy.first
+      case PathList("org", "slf4j", xs @ _ *) ⇒
+        MergeStrategy.first
+      case PathList("ch", "qos", "logback", xs @ _ *) ⇒
+        MergeStrategy.first
       case PathList("scala", xs @ _ *) ⇒ // FIXME: investigate what’s still pulling in Lightbend Scala?
         MergeStrategy.first
       case PathList("library.properties", xs @ _ *) ⇒ // FIXME: investigate what’s still pulling in Lightbend Scala?

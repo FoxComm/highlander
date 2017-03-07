@@ -7,9 +7,10 @@ import consumer.elastic.AvroTransformer
 import consumer.elastic.mappings._
 
 final case class OrdersSearchView()(implicit ec: EC) extends AvroTransformer {
-  def mapping() = esMapping("orders_search_view").fields(
+  def topic() = "orders_search_view"
+  def mapping() = esMapping(topic()).fields(
       // Order
-      field("id", IntegerType),
+      field("id", LongType),
       field("referenceNumber", StringType).analyzer("upper_cased"),
       field("state", StringType).index("not_analyzed"),
       field("scope", StringType).index("not_analyzed"),
@@ -24,7 +25,7 @@ final case class OrdersSearchView()(implicit ec: EC) extends AvroTransformer {
       field("grandTotal", IntegerType),
       // Customer
       field("customer").nested(
-          field("id", IntegerType),
+          field("id", LongType),
           field("name", StringType)
             .analyzer("autocomplete")
             .fields(field("raw", StringType).index("not_analyzed")),
@@ -66,7 +67,7 @@ final case class OrdersSearchView()(implicit ec: EC) extends AvroTransformer {
           field("storefrontDisplayName", StringType).analyzer("autocomplete")
       ),
       field("shippingMethod").nested(
-          field("id", IntegerType),
+          field("id", LongType),
           field("price", IntegerType),
           field("shippingMethodId", IntegerType),
           field("adminDisplayName", StringType).analyzer("autocomplete"),

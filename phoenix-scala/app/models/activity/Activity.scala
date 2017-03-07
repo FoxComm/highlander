@@ -1,6 +1,9 @@
 package models.activity
 
+import java.io.ByteArrayOutputStream
+import java.nio.ByteBuffer;
 import java.time.Instant
+import java.time.format.DateTimeFormatter
 import java.util.Properties
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
@@ -10,8 +13,13 @@ import faker.Lorem.letterify
 import models.account.Scope
 import org.apache.avro.Schema
 import org.apache.avro.generic.GenericData
+import org.apache.avro.generic.GenericRecord
+import org.apache.avro.specific.SpecificDatumWriter
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerConfig, ProducerRecord}
+import org.apache.avro.io._
+
 import org.json4s.Extraction
+import org.json4s.jackson.Serialization.{write ⇒ render}
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
@@ -55,37 +63,25 @@ object ActivityContext {
   *
   * An activity can be part of many activity trails in multiple dimensions.
   */
-case class Activity(id: Int = 0,
+case class Activity(id: String,
                     activityType: ActivityType,
                     data: Json,
                     context: ActivityContext,
                     createdAt: Instant = Instant.now)
-    extends FoxModel[Activity]
-
-class Activities(tag: Tag) extends FoxTable[Activity](tag, "activities") {
-  def id           = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def activityType = column[ActivityType]("activity_type")
-  def data         = column[Json]("data")
-  def context      = column[ActivityContext]("context")
-  def createdAt    = column[Instant]("created_at")
-
-  def * =
-    (id, activityType, data, context, createdAt) <> ((Activity.apply _).tupled, Activity.unapply)
-}
 
 // Any specific activity can have an implicit converion function to the opaque activity
 // Opaque here means the scala type system cannot see the activity
 case class OpaqueActivity(activityType: ActivityType, data: Json)
 
-object Activities
-    extends FoxTableQuery[Activity, Activities](new Activities(_))
-    with LazyLogging
-    with ReturningId[Activity, Activities] {
+object Activities extends LazyLogging {
 
-  val returningLens: Lens[Activity, Int] = lens[Activity].id
-  val kafkaProducer                      = new KafkaProducer[String, GenericData.Record](kafkaProducerProps())
-  val topic                              = "scoped_activities"
-  val schema                             = new Schema.Parser().parse("""
+  val producer =
+    if (Environment.default != Environment.Test)
+      new KafkaProducer[GenericData.Record, GenericData.Record](kafkaProducerProps())
+    else null
+
+  val topic  = "scoped_activities"
+  val schema = new Schema.Parser().parse("""
       |{
       |  "type":"record",
       |  "name":"scoped_activities",
@@ -95,7 +91,7 @@ object Activities
       |      "type":["null","string"]
       |    },
       |    {
-      |      "name":"activity_type",
+      |      "name":"kind",
       |      "type":["null","string"]
       |    },
       |    {
@@ -118,6 +114,19 @@ object Activities
       |}
     """.stripMargin.replaceAll("\n", " "))
 
+  val keySchema = new Schema.Parser().parse("""
+      |{
+      |  "type":"record",
+      |  "name":"scoped_activities_key",
+      |  "fields":[
+      |    {
+      |      "name":"id",
+      |      "type":["null","string"]
+      |    }
+      |  ]
+      |}
+    """.stripMargin.replaceAll("\n", " "))
+
   implicit val formats = JsonFormatters.phoenixFormats
 
   def kafkaProducerProps(): Properties = {
@@ -133,35 +142,42 @@ object Activities
   }
 
   def log(a: OpaqueActivity)(implicit activityContext: AC, ec: EC): DbResultT[Activity] = {
-    val activity =
-      Activity(activityType = a.activityType, data = a.data, context = activityContext)
+    val activity = Activity(id = "",
+                            activityType = a.activityType,
+                            data = a.data,
+                            context = activityContext,
+                            createdAt = Instant.now)
 
-    val avroActivityRecord = new GenericData.Record(schema)
+    val record = new GenericData.Record(schema)
 
-    avroActivityRecord.put("activity_type", activity.activityType)
-    avroActivityRecord.put("data", activity.data)
-    avroActivityRecord.put("context", activity.context)
-    avroActivityRecord.put("created_at", activity.createdAt)
-    avroActivityRecord.put("scope", activity.context.scope.toString())
+    record.put("kind", activity.activityType)
+    record.put("data", render(activity.data))
+    record.put("context", render(activity.context))
+    record.put("created_at", DateTimeFormatter.ISO_INSTANT.format(activity.createdAt))
+    record.put("scope", activity.context.scope.toString())
+
+    val key = new GenericData.Record(keySchema)
+    key.put("id", activity.id.toString)
 
     for {
       id ← * <~ nextActivityId()
-      _ = avroActivityRecord.put("id", s"phoenix-$id")
-      _ = sendActivity(activity, avroActivityRecord)
-    } yield activity
+      phoenixId      = s"phoenix-$id"
+      _              = record.put("id", phoenixId)
+      _              = sendActivity(activity, record)
+      activityWithId = activity.copy(id = phoenixId)
+    } yield activityWithId
   }
 
   def nextActivityId()(implicit ec: EC): DbResultT[Int] =
     sql"select nextval('activities_id_seq');".as[Int].dbresult.map(_.head)
 
-  def sendActivity(a: Activity,
-                   avroActivityRecord: GenericData.Record)(implicit activityContext: AC, ec: EC) {
-    val record = new ProducerRecord[String, GenericData.Record](topic, avroActivityRecord)
+  def sendActivity(a: Activity, record: GenericData.Record)(implicit activityContext: AC, ec: EC) {
+    val msg = new ProducerRecord[GenericData.Record, GenericData.Record](topic, record)
 
     // Workaround until we decide how to test Phoenix => Kafka service integration
     if (Environment.default != Environment.Test) {
       val kafkaSendFuture = Future {
-        kafkaProducer.send(record)
+        producer.send(msg)
       }
 
       kafkaSendFuture onComplete {

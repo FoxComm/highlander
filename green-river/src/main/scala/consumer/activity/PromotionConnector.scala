@@ -16,7 +16,7 @@ object PromotionConnector extends ActivityConnector {
       promotionIds.distinct.map(createConnection(_, activity.id))
     }
 
-  def createConnection(formId: String, activityId: Int): Connection =
+  def createConnection(formId: String, activityId: String): Connection =
     Connection(dimension = dimension, objectId = formId, data = JNothing, activityId = activityId)
 
   private def byPromotionData(activity: Activity): Seq[String] =

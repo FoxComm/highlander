@@ -11,5 +11,10 @@ import com.sksamuel.elastic4s.mappings.MappingDefinition
   */
 trait JsonTransformer {
   def mapping(): MappingDefinition
+
+  /**
+    * Returns a sequence of transformation jsons. Each transformation
+    * Has a topic which to index into.
+    */
   def transform(json: String): Future[String]
 }

@@ -14,6 +14,7 @@ import consumer.elastic.JsonTransformer
 import consumer.utils.PhoenixConnectionInfo
 import consumer.utils.Phoenix
 import consumer.utils.HttpResponseExtensions._
+import consumer.AvroJsonHelper
 import cats.implicits._
 import cats.data.XorT
 import consumer.failures.Failures
@@ -27,46 +28,35 @@ final case class ActivityConnectionTransformer(
 
   val phoenix = Phoenix(conn)
 
-  def mapping() = esMapping("activity_connections_view").fields(
-      field("id", IntegerType),
-      field("dimensionId", IntegerType),
-      field("objectId", StringType).index("not_analyzed"),
-      field("trailId", IntegerType),
+  val topic = "scoped_activity_trails"
+
+  def mapping() = esMapping(topic).fields(
+      field("id", LongType),
+      field("dimension", StringType),
+      field("objectId", StringType) index "not_analyzed",
       field("activity").nested(
-          field("id", IntegerType),
-          field("createdAt", DateType).format(dateFormat),
-          field("kind", StringType).index("not_analyzed"),
+          field("id", StringType),
+          field("createdAt", DateType) format dateFormat,
+          field("kind", StringType) index "not_analyzed",
           field("context").nested(
-              field("transactionId", StringType).index("not_analyzed"),
+              field("transactionId", StringType) index "not_analyzed",
               field("userId", IntegerType),
-              field("userType", StringType).index("not_analyzed")
+              field("userType", StringType) index "not_analyzed"
           ),
           field("data", ObjectType)
       ),
-      field("data", ObjectType),
-      field("connectedBy", ObjectType),
-      field("createdAt", DateType).format(dateFormat)
+      field("scope", StringType) index "not_analyzed",
+      field("createdAt", DateType) format dateFormat
   )
+
+  val jsonFields = List("id", "activity", "connectedBy")
 
   def transform(json: String): Future[String] = {
     Console.out.println(json)
 
     parse(json) \ "id" \ "long" match {
-      case JInt(id) ⇒ queryPhoenixForConnection(id)
+      case JInt(id) ⇒ Future { AvroJsonHelper.transformJson(json, jsonFields) }
       case _        ⇒ throw new IllegalArgumentException("Activity connection is missing id")
     }
-  }
-
-  private def queryPhoenixForConnection(id: BigInt): Future[String] = {
-    val uri = s"connections/$id"
-    Console.err.println(s"Requesting Phoenix $uri")
-    phoenix
-      .get(uri)
-      .flatMap { resp ⇒
-        XorT.right[Future, Failures, String](resp.bodyText)
-      }
-      .fold({ failures ⇒
-        throw new RuntimeException(s"Error during requesting phoenix $failures")
-      }, identity)
   }
 }

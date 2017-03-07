@@ -9,15 +9,15 @@ const sortBy = [
   dsl.sortByField('activity.createdAt', 'desc'),
 ];
 
-function buildRequest({fromId = null, untilDate = null, query = null, dimension = 'admin', objectId = null} = {}) {
+function buildRequest({fromDate = null, untilDate = null, query = null, dimension = 'admin', objectId = null} = {}) {
   const filter = [
     dsl.termFilter('dimension', dimension)
   ];
   if (objectId != null) {
     filter.push(dsl.termFilter('objectId', objectId));
   }
-  if (fromId != null) {
-    filter.push(dsl.rangeFilter('id', {lt: fromId}));
+  if (fromDate) {
+    filter.push(dsl.rangeFilter('createdAt', {lt: untilDate}));
   }
   if (untilDate) {
     filter.push(dsl.rangeFilter('createdAt', {gt: untilDate}));
@@ -36,7 +36,7 @@ export function fetch(queryParams, forCount = false) {
     q.size = 0;
   }
 
-  return post(`activity_connections_view/_search`, q);
+  return post(`scoped_activity_trails/_search`, q);
 }
 
 export default function searchActivities(fromActivity = null, trailParams, days = 2, query = null) {
@@ -55,7 +55,7 @@ export default function searchActivities(fromActivity = null, trailParams, days 
   if (fromActivity == null) {
     const now = moment.utc();
 
-    promise = post('activity_connections_view/_search', queryFirstActivity())
+    promise = post('scoped_activity_trails/_search', queryFirstActivity())
       .then(response => {
         const result = response.result;
         if (result.length) {
@@ -74,7 +74,7 @@ export default function searchActivities(fromActivity = null, trailParams, days 
       });
   } else {
     const untilDate = moment.utc(fromActivity.createdAt).startOf('day').subtract(days, 'days');
-    promise = fetch({...trailParams, fromId: fromActivity.id, untilDate, query});
+    promise = fetch({...trailParams, fromDate: fromActivity.createdAt, untilDate, query});
   }
 
   let response;
@@ -87,8 +87,8 @@ export default function searchActivities(fromActivity = null, trailParams, days 
       if (result.length == 0) {
         hasMore = false;
       } else {
-        const fromId = _.get(_.last(result), 'id');
-        return fetch({...trailParams, fromId, query}, '_count')
+        const fromDate = _.get(_.last(result), 'createdAt');
+        return fetch({...trailParams, fromDate, query}, '_count')
           .then(response => hasMore = response.count > 0);
       }
     })
