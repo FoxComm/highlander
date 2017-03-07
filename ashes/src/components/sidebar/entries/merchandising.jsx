@@ -1,5 +1,6 @@
 /* @flow */
-import React, { Component, Element } from 'react';
+
+import React, { Element } from 'react';
 
 import { anyPermitted, isPermitted } from 'lib/claims';
 import { frn, readAction } from 'lib/frn';
@@ -11,18 +12,9 @@ import type { Claims } from 'lib/claims';
 
 import styles from './entries.css';
 
-type Props = {
-  claims: Claims,
-  routes: Array<Object>
-};
-
 const taxonomyClaims = readAction(frn.merch.taxonomy);
 
-class MerchandisingEntry extends Component {
-  props: Props;
-
-  render() {
-    const { claims, routes } = this.props;
+const MerchandisingEntry = ({ claims, routes }: { claims: Claims, routes: Array<Object> }) => {
     const allClaims = taxonomyClaims;
 
     if (!anyPermitted(allClaims, claims)) {
@@ -43,7 +35,6 @@ class MerchandisingEntry extends Component {
         </li>
       </div>
     );
-  }
-}
+};
 
 export default MerchandisingEntry;

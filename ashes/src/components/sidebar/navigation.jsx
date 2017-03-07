@@ -1,6 +1,7 @@
 /* @flow */
+
 import _ from 'lodash';
-import React, { PropTypes, Element } from 'react';
+import React, { Element } from 'react';
 import { connect } from 'react-redux';
 
 import { getClaims } from 'lib/claims';
@@ -16,65 +17,36 @@ import SettingsEntry from './entries/settings';
 
 import type { JWT } from 'lib/claims';
 
-function getMenuItemState(props, to) {
-  return _.get(props, ['menuItems', to]);
-}
-
-type Props = {
-  routes: Array<Object>,
-  collapsed: boolean,
-  toggleMenuItem: Function,
-  token: JWT,
-};
-
 function mapStateToProps(state) {
   return {
     token: state.user.current,
   };
 }
 
-const Navigation = (props: Props) => {
-  const claims = getClaims(props.token);
+const Navigation = ({ routes, token }: { routes: Array<Object>, token: JWT}) => {
+  const claims = getClaims(token);
 
   return (
     <nav>
       <ul className="fc-sidebar__navigation-list">
         <OrdersEntry
           claims={claims}
-          routes={props.routes}
-          collapsed={props.collapsed}
-          status={getMenuItemState(props, 'orders')}
-          toggleMenuItem={props.toggleMenuItem} />
+          routes={routes} />
         <CustomersEntry
           claims={claims}
-          routes={props.routes}
-          collapsed={props.collapsed}
-          status={getMenuItemState(props, 'customers')}
-          toggleMenuItem={props.toggleMenuItem} />
+          routes={routes} />
         <CatalogEntry
           claims={claims}
-          routes={props.routes}
-          collapsed={props.collapsed}
-          status={getMenuItemState(props, 'products')}
-          toggleMenuItem={props.toggleMenuItem} />
+          routes={routes} />
         <MerchandisingEntry
           claims={claims}
-          routes={props.routes}
-          collapsed={props.collapsed}
-          status={getMenuItemState(props, 'products')}
-          toggleMenuItem={props.toggleMenuItem} />
+          routes={routes} />
         <MarketingEntry
           claims={claims}
-          routes={props.routes}
-          collapsed={props.collapsed}
-          status={getMenuItemState(props, 'gift-cards')}
-          toggleMenuItem={props.toggleMenuItem} />
+          routes={routes} />
         <SettingsEntry
           claims={claims}
-          routes={props.routes}
-          collapsed={props.collapsed}
-          status={getMenuItemState(props, 'users')}
-          toggleMenuItem={props.toggleMenuItem} />
+          routes={routes} />
       </ul>
     </nav>
   );

@@ -1,30 +1,22 @@
 /* @flow */
-import React, { Component, Element } from 'react';
+
+import React, { Element } from 'react';
 
 import { anyPermitted, isPermitted } from 'lib/claims';
 import { frn, readAction } from 'lib/frn';
 
-import NavigationItem from 'components/sidebar/navigation-item';
+import NavigationItem from '../navigation-item';
 import { IndexLink, Link } from 'components/link';
 
 import type { Claims } from 'lib/claims';
 
 import styles from './entries.css';
 
-type Props = {
-  routes: Array<Object>,
-  claims: Claims
-};
-
 const userClaims = readAction(frn.settings.user);
 const pluginClaims = readAction(frn.settings.plugin);
 const applicationClaims = readAction(frn.settings.application);
 
-class SettingsEntry extends Component {
-  props: Props;
-
-  render() {
-    const { claims, routes } = this.props;
+const SettingsEntry = ({ claims, routes }: { claims: Claims, routes: Array<Object> }) => {
     const allClaims = { ...userClaims, ...pluginClaims, ...applicationClaims };
 
     if (!anyPermitted(allClaims, claims)) {
@@ -76,6 +68,5 @@ class SettingsEntry extends Component {
         </li>
       </div>
     );
-  }
-}
+};
 export default SettingsEntry;

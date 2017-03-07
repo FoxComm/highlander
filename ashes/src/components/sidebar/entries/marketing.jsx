@@ -1,32 +1,22 @@
 /* @flow */
-import React, { Component, Element } from 'react';
+
+import React, { Element } from 'react';
 
 import { anyPermitted, isPermitted } from 'lib/claims';
 import { frn, readAction } from 'lib/frn';
 
-import NavigationItem from 'components/sidebar/navigation-item';
+import NavigationItem from '../navigation-item';
 import { IndexLink, Link } from 'components/link';
 
 import type { Claims } from 'lib/claims';
 
 import styles from './entries.css';
 
-type Props = {
-  claims: Claims,
-  routes: Array<Object>,
-  id?: string,
-};
-
 const giftCardClaims = readAction(frn.mkt.giftCard);
 const promotionClaims = readAction(frn.mkt.promotion);
 const couponClaims = readAction(frn.mkt.coupon);
 
-
-export default class MarketingEntry extends Component {
-  props: Props;
-
-  render() {
-    const { claims, routes } = this.props;
+const MarketingEntry = ({ claims, routes, id }: { claims: Claims, routes: Array<Object>, id?: string }) => {
     const allClaims = { ...giftCardClaims, ...promotionClaims, ...couponClaims };
 
     if (!anyPermitted(allClaims, claims)) {
@@ -66,5 +56,6 @@ export default class MarketingEntry extends Component {
       </div>
 
     );
-  }
-}
+};
+
+export default MarketingEntry;

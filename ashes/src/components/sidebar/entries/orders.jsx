@@ -1,9 +1,9 @@
 /* @flow */
-import React, { Component, Element } from 'react';
+
+import React, { Element } from 'react';
 
 import { anyPermitted, isPermitted } from 'lib/claims';
 import { frn, readAction } from 'lib/frn';
-
 
 import NavigationItem from '../navigation-item';
 import { IndexLink, Link } from 'components/link';
@@ -12,19 +12,10 @@ import type { Claims } from 'lib/claims';
 
 import styles from './entries.css';
 
-type Props = {
-  claims: Claims,
-  routes: Array<Object>
-};
-
 const cartClaims = readAction(frn.oms.cart);
 const orderClaims = readAction(frn.oms.order);
 
-class OrdersEntry extends Component {
-  props: Props;
-
-  render() {
-    const { claims, routes} = this.props;
+const OrdersEntry = ({ claims, routes }: { claims: Claims, routes: Array<Object> }) => {
     const allClaims = { ...cartClaims, ...orderClaims };
 
     if (!anyPermitted(allClaims, claims)) {
@@ -54,7 +45,6 @@ class OrdersEntry extends Component {
         </li>
       </div>
     );
-  }
-}
+};
 
 export default OrdersEntry;
