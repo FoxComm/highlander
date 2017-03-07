@@ -2,7 +2,7 @@ import Ecto.Query
 
 Hyperion.Repo.delete_all(Category)
 
-path = Application.app_dir(:hyperion, "priv") <> "/seeds/clothes_accessories_categories.csv"
+path = Application.app_dir(:hyperion, "priv") <> "/seeds/categories/clothes_accessories_categories.csv"
 data = File.stream!(path)
        |> CSV.decode
 

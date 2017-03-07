@@ -20,5 +20,6 @@ ENV HYPERION_DB_NAME $db_name
 ENV HYPERION_DB_USER $db_user
 ENV HYPERION_DB_PASSWORD $db_password
 ENV HYPERION_DB_HOST $db_host
+
 # seeds
-CMD mix run priv/seeds/clothes_accessories_categories.exs
+CMD ["./priv/seeds/seed_db.sh"]
