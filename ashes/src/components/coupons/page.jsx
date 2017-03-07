@@ -80,6 +80,8 @@ class CouponPage extends ObjectPage {
           return this.props.actions.generateCode(newId, singleCode);
         }).then(() => {
           this.props.actions.couponsGenerationReset();
+        }).then(() => {
+          transitionTo('promotion-coupons',{promotionId: this.props.params.promotionId})
         });
       }
 
@@ -176,7 +178,7 @@ class CouponPage extends ObjectPage {
   }
 
   subNav() {
-    return '';
+    return null;
   }
 }
 

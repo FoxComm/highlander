@@ -115,6 +115,7 @@ export default class Coupons extends Component {
             renderRow={this.renderRow}
             tableColumns={tableColumns}
             searchActions={searchActions}
+            autoRefresh={true}
           />
         </BulkWrapper>
       </div>

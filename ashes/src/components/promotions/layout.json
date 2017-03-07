@@ -9,11 +9,11 @@
           "includeRest": true,
           "type": "fields",
           "value": [
-            "name"
+            "name",
+            "storefrontName"
           ],
           "omit": [
             "description",
-            "storefrontName",
             "details",
             "activeFrom",
             "activeTo",
@@ -43,15 +43,6 @@
       "content": [
         {
           "type": "usage-rules"
-        }
-      ]
-    },
-    {
-      "type": "group",
-      "title": "Discounts",
-      "content": [
-        {
-          "type": "discounts-section"
         }
       ]
     },

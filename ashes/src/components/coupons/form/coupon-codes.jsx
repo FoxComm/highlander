@@ -105,7 +105,9 @@ class CouponCodes extends Component {
     const { codesPrefix, codesLength, codesQuantity } = this.props.codeGeneration;
 
     this.props.generateCodes(codesPrefix, codesLength, codesQuantity).then(() => {
-      this.props.couponsGenerationReset();
+      this.props.couponsGenerationReset()
+    }).then(() => {
+      console.log("generated")
     });
   }
 

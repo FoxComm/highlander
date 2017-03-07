@@ -16,15 +16,17 @@ type SubNavProps = {
 const SubNav = (props: SubNavProps) => {
   const params = {
     promotionId: props.promotionId,
+    applyType: props.applyType
   };
 
   const isNew = props.promotionId === 'new';
+  const isAutoApply = props.applyType === 'auto';
 
   return (
     <LocalNav>
       <IndexLink to="promotion-details" params={params}>Details</IndexLink>
       {!isNew && <Link to="promotion-notes" params={params}>Notes</Link>}
-      {!isNew && <Link to="promotion-coupons" params={params}>Coupons</Link>}
+      {!isNew && !isAutoApply && <Link to="promotion-coupons" params={params}>Coupons</Link>}
       {!isNew && <Link to="promotion-activity-trail" params={params}>Activity Trail</Link>}
     </LocalNav>
   );
