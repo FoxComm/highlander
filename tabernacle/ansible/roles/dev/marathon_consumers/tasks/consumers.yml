@@ -12,10 +12,6 @@
   include: app_shipments_consumer.yml
   when: marathon_restart.shipments_consumer
 
-- name: Start Stock Items Consumer
-  include: app_stock_items_consumer.yml
-  when: marathon_restart.stock_items_consumer
-
 - name: Start Shipstation Consumer
   include: app_shipstation_consumer.yml
   when: with_shipstation and marathon_restart.shipstation_consumer

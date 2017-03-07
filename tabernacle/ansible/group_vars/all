@@ -235,7 +235,6 @@ middlewarehouse_consumers_dir: "{{middlewarehouse_dir}}/consumers"
 shipments_consumer_bin: "{{middlewarehouse_consumers_dir}}/shipments-consumer"
 capture_consumer_bin: "{{middlewarehouse_consumers_dir}}/capture-consumer"
 
-middlewarehouse_src: ../../middlewarehouse/
 middlewarehouse_bin_src: "{{middlewarehouse_src}}/middlewarehouse"
 middlewarehouse_seeder_bin_src: "{{middlewarehouse_src}}/seeder"
 
