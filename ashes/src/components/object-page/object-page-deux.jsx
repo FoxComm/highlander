@@ -64,7 +64,7 @@ class ObjectPageDeux extends Component {
   createNewEntity() {
     const { actions } = this.props;
     actions.newObject && actions.transition  !== undefined
-      ? actions.newObject() && actions.transition()
+      ? actions.newObject() && actions.transition('new')
       : () => {};
   }
 
@@ -72,7 +72,7 @@ class ObjectPageDeux extends Component {
   duplicateEntity() {
     const { actions } = this.props;
     actions.duplicate && actions.transition !== undefined
-      ? actions.duplicate() && actions.transition()
+      ? actions.duplicate() && actions.transition('new')
       : () => {};
   }
 
@@ -98,12 +98,28 @@ class ObjectPageDeux extends Component {
   }
 
   @autobind
+  handleSaveButton() {
+    const mayBeSaved = this.save();
+    if (!mayBeSaved) return;
+    mayBeSaved.then(() => {
+      this.transitionToObject();
+    });
+  }
+
+  @autobind
+  transitionToObject() {
+    const { actions, object } = this.props;
+    if (!object) return;
+    actions.transition(object.id);
+  }
+
+  @autobind
   save() {
-    const { context, object } = this.props;
+    const { context, object, actions } = this.props;
     let mayBeSaved = false;
     this.isNew
-      ? mayBeSaved = this.props.actions.create(object, context)
-      : mayBeSaved = this.props.actions.update(object, context);
+      ? mayBeSaved = actions.create(object, context)
+      : mayBeSaved = actions.update(object, context);
     return mayBeSaved;
   }
 
@@ -115,7 +131,7 @@ class ObjectPageDeux extends Component {
         isLoading={isFetching}
         onCancel={this.props.actions.cancel}
         saveItems={SAVE_COMBO_ITEMS}
-        onSave={this.save}
+        onSave={this.handleSaveButton}
         onSaveSelect={this.handleSelectSaving}
       />
     );

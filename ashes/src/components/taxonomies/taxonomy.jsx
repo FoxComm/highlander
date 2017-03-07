@@ -100,8 +100,8 @@ class TaxonomyPage extends Component {
       archive,
       cancel: () => transitionTo('taxonomies'),
       getTitle: (t: Taxonomy) => _.get(t.attributes, 'name.v', ''),
-      transition: () => transitionTo('taxonomy-details', {
-        taxonomyId: 'new',
+      transition: (id: number|string) => transitionTo('taxonomy-details', {
+        taxonomyId: id,
         context: context
       })
     };

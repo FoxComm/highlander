@@ -36,7 +36,7 @@ export type ObjectActions<T> = {
   archive: (object: T, context?: string) => void,
   cancel: () => void,
   getTitle: (object: T) => string,
-  transition: () => void,
+  transition: (id: number|string) => void,
 };
 
 export type ObjectProps<T, U> = {
