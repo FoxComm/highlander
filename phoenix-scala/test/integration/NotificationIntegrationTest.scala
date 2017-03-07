@@ -141,9 +141,7 @@ class NotificationIntegrationTest
         subscribeToNotifications(reason = Watching)
         subscribeToNotifications(reason = Assigned)
         unsubscribeFromNotifications()
-        val subs = NotificationSubscriptions.gimme
-        subs must have size 1
-        subs.head.reason must === (Assigned)
+        NotificationSubscriptions.gimme.onlyElement.reason must === (Assigned)
       }
 
       "ignores wrong ids" in new Fixture {

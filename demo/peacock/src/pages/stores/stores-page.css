@@ -1,0 +1,124 @@
+@import "variables.css";
+@import "media-queries.css";
+
+.header-wrap {
+  composes: header-wrap from '../catalog/products.css';
+  background: url('/images/stores-page/Stores_Hero_1x.jpg') center no-repeat;
+  background-size: cover;
+}
+
+@media (-webkit-min-device-pixel-ratio: 2),
+  (min-resolution: 192dpi) {
+  .header-wrap {
+    background: url('/images/stores-page/Stores_Hero_2x.jpg') center no-repeat;
+    background-size: cover;
+  }
+}
+
+.text-wrap {
+  composes: text-wrap from '../catalog/products.css';
+}
+
+.description {
+  composes: description from '../catalog/products.css';
+}
+
+.title {
+  composes: title from '../catalog/products.css';
+}
+
+.main-block {
+  background-color: #F4F4F4;
+}
+
+.main-block-wrapper {
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-bottom: 70px
+}
+
+.subtitle {
+  composes: title from '../catalog/products.css';
+  color: black;
+  font-size: 20px;
+  text-align: center;
+  letter-spacing: 3px;
+  padding: 30px 0;
+
+  &:after {
+    width: 63px;
+    height: 2px;
+    margin-top: 15px;
+    background-color: #3E3436;
+  }
+}
+
+.address-info-block {
+  margin-top: 40px;
+  padding: 10px 0;
+  height: 400px;
+  background: white;
+  text-align: center;
+}
+
+.address-info-wrapper {
+  font-family: var(--font-main);
+  font-weight: 300;
+  font-size: 16px;
+  color: #212121;
+  line-height: 33px;
+  padding: 50px 70px 20px;
+  line-height: 40px;
+}
+
+.working-hours {
+  margin-top: 20px;
+}
+
+.get-directions-btn {
+  width: 250px;
+}
+
+.map-block {
+  height: 400px;
+  margin-top: 20px;
+}
+
+@media (--medium-only) {
+  .header-wrap {
+    height: 400px;
+  }
+
+  .subtitle {
+    font-size: 40px;
+    padding: 70px 0;
+  }
+
+  .main-block-wrapper {
+    padding-left: 120px;
+    padding-right: 120px;
+  }
+}
+
+@media (--large) {
+  .subtitle {
+    font-size: 50px;
+  }
+
+  .central-container {
+    display: flex;
+    padding: 80px;
+  }
+
+  .address-info-block {
+    flex: 0 0 30%;
+    margin-top: 0;
+    padding: 5px;
+  }
+
+  .map-block {
+    flex: 0 0 70%;
+    margin-top: 0;
+    padding-left: 40px;
+  }
+}

@@ -1,0 +1,18 @@
+
+.text-field {
+  margin: 10px 0;
+
+  & input:matches([type=text], [type=password], [type=number], [type=tel]) {
+    width: 100%;
+    border-color: var(--whitish);
+
+    &:hover {
+      border-color: #C6BFBF;
+    }
+
+    &:focus {
+      border-color: var(--blackish);
+      background: var(--whitish);
+    }
+  }
+}

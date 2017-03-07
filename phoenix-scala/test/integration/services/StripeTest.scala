@@ -2,6 +2,7 @@ package services
 
 import java.time.{Instant, ZoneId}
 
+import cats._
 import cats.implicits._
 import com.stripe.Stripe
 import failures.CreditCardFailures.CardDeclined
@@ -10,6 +11,7 @@ import utils.Money.Currency.USD
 import utils.TestStripeSupport._
 import utils.aliases.stripe.StripeCustomer
 import utils.apis._
+import utils.db._
 import utils.seeds.Factories
 
 trait RealStripeApis extends IntegrationTestBase {

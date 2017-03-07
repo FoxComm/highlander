@@ -9,13 +9,13 @@
   vars_prompt:
     - name: "hostname"
       prompt: "Enter a hostname of OpenVPN service"
-      default: "vanilla-vpn"
+      default: "vpn"
       private: no
     - name: "username"
       prompt: "Enter a username to generate key for"
       default: "pavel"
       private: no
-    - name: "destination"
+    - name: "download_dir"
       prompt: "Enter a directory to download"
       default: "~/Downloads"
       private: no
