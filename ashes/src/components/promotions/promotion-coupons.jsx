@@ -11,12 +11,15 @@ import { SectionTitle } from '../section-title';
 import { PrimaryButton } from '../../components/common/buttons';
 
 export default class PromoCouponsPage extends React.Component {
+  constructor(props) {
+    super(props)
+  }
 
   @autobind
-  addAction(){
+  addAction() {
     transitionTo('promotion-coupon-new', {promotionId: this.props.object.id});
   };
-  	
+
   render() {
   	const promotionId = this.props.object.id;
   	const children = this.props.children;

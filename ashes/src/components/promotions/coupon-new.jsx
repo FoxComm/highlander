@@ -34,7 +34,7 @@ class CouponNew extends Component {
               promotionId: this.props.promotionId,
           		modalCancelAction: this.cancelAction
           	}}>
-          	<CouponForm></CouponForm>
+          	<CouponForm/>
           </CouponPage>	
         </ContentBox>
       </div>
