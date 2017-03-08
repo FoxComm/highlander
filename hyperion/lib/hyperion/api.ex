@@ -29,7 +29,9 @@ defmodule Hyperion.API do
     end
   end
 
-  mount Hyperion.Router.V1
+  namespace :api do
+    mount Hyperion.Router.V1
+  end
 
   rescue_from :all, as: e do
     Logger.error "Exception occured: #{inspect(e)}"
