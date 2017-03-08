@@ -15,7 +15,7 @@
       "forcePullImage": true
     }
   },
-  "ports": ["21212"],
+  "ports": [21212],
   "constraints": [["hostname", "UNIQUE"]],
   "healthChecks": [
     {
