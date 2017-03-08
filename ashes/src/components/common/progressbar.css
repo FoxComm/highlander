@@ -1,0 +1,23 @@
+.root {
+  display: flex;
+}
+
+.step {
+  flex: 1 1 auto;
+  background-color: #ccc;
+  color: #333;
+  padding: 4px 10px;
+  margin-left: 2px;
+
+  &:first-of-type {
+    margin-left: 0;
+  }
+
+  &._current {
+    background-color: white;
+  }
+
+  &._incompleted {
+    color: #999;
+  }
+}

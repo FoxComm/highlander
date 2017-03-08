@@ -39,10 +39,20 @@ export function fetchAmazonCategory(product_id: string, text: string) {
   };
 }
 
+const _fetchAmazonSchema = createAsyncActions(
+  'fetchAmazonSchema',
+  (category_id: string, text: string) => {
+    return Api.get(`/amazon/categories/schema?category_id=${category_id}`);
+  }
+);
+
+export const fetchAmazonSchema = _fetchAmazonSchema.perform;
+
 const reducer = createReducer({
   [_fetchSuggest.succeeded]: (state, res) => ({ ...state, suggest: res }),
   [_fetchAmazonCategory.started]: (state) => ({ ...state, fields: [] }),
   [_fetchAmazonCategory.succeeded]: (state, res) => ({ ...state, fields: res }),
+  [_fetchAmazonSchema.succeeded]: (state, res) => ({ ...state, schema: res }),
 }, initialState);
 
 export default reducer;

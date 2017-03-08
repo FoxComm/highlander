@@ -18,11 +18,11 @@ import { transitionTo } from 'browserHistory';
 import SubNav from './sub-nav';
 import { connectPage, ObjectPage } from '../object-page/object-page';
 import { Dropdown } from '../dropdown';
+import { Button } from '../common/buttons';
+import s from './page.css';
 
 // types
 import type { Product } from 'paragons/product';
-
-import { SAVE_PRODUCT_COMBO, SAVE_PRODUCT_COMBO_ITEMS } from 'paragons/common';
 
 type Props = {
   actions: {
@@ -190,34 +190,6 @@ class ProductPage extends ObjectPage {
     });
   }
 
-  @autobind
-  handleSelectSaving(value) {
-    const { actions } = this.props;
-    const mayBeSaved = this.save();
-    if (!mayBeSaved) return;
-
-    mayBeSaved.then(() => {
-      switch (value) {
-        case SAVE_PRODUCT_COMBO.NEW:
-          actions.newEntity();
-          break;
-        case SAVE_PRODUCT_COMBO.DUPLICATE:
-          this.handleDuplicate();
-          break;
-        case SAVE_PRODUCT_COMBO.CLOSE:
-          this.transitionToList();
-          break;
-        case SAVE_PRODUCT_COMBO.PUSH2A:
-          console.log('Amazon action!');
-          transitionTo('product-amazon', {
-            // context: this.entityContext,
-            productId: this.entityId
-          });
-          break;
-      }
-    });
-  }
-
   detailsRouteProps(): Object {
     return {
       context: this.entityContext,
@@ -236,12 +208,26 @@ class ProductPage extends ObjectPage {
     return <SubNav productId={this.entityId} product={this.state.object} context={this.entityContext} />;
   }
 
-  get menuItems() {
-    return SAVE_PRODUCT_COMBO_ITEMS;
+  get amazonButton(): ?Element<*> {
+    const amazonTitle = 'Push to Amazon';
+
+    return (
+      <Button key="amazonButton" type="button" onClick={() => this.handleAmazon()} className={s.amazonButton}>
+        {amazonTitle}
+      </Button>
+    );
+  }
+
+  handleAmazon() {
+    transitionTo('product-amazon', {
+      // context: this.entityContext,
+      productId: this.entityId
+    });
   }
 
   renderHead() {
     return [
+      this.amazonButton,
       this.selectContextDropdown,
       this.cancelButton,
     ];

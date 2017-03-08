@@ -38,12 +38,18 @@ export class Suggester extends Component {
     className: PropTypes.string,
   };
 
+  componentDidUpdate() {
+    if (this._input) {
+      this._input.scrollLeft = this._input.scrollWidth;
+    }
+  }
+
   render() {
-    const { primaryTitle, othersTitle, onPick, className, data: { primary, secondary } } = this.props;
+    const { primaryTitle, othersTitle, className, data: { primary, secondary } } = this.props;
     const { value } = this.state;
 
     const primaryHtml = !!primary && primary.map(line => (
-      <div className={classNames(s.item, s._proposed)} key={line.id} onClick={() => onPick(line.id)}>
+      <div className={classNames(s.item, s._proposed)} key={line.id} onClick={() => this._onPick(line)}>
 
         <div className={s.itemPrefix}>{line.prefix}</div>
         <div className={s.itemValue}>{line.text}</div>
@@ -60,6 +66,7 @@ export class Suggester extends Component {
       <div className={classNames(s.root, className)}>
         <input
           onChange={(e) => this._onType(e)}
+          ref={d => this._input = d}
           value={value}
           type="text"
           className={classNames(s.input, 'fc-input')} />
@@ -79,12 +86,16 @@ export class Suggester extends Component {
     );
   }
 
+  _input: any;
+
   _onType(e) {
     this.setState({ value: e.target.value });
     this.props.onChange(e.target.value);
   }
 
   _onPick(item) {
+    const { onPick } = this.props;
+
     this.setState({ value: `${item.prefix} » ${item.text}` });
     this.props.onPick(item.id);
   }

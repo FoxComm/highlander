@@ -16,6 +16,7 @@ import { stateToMarkdown } from 'draft-js-export-markdown';
 import { ContentBlock, ContentState, Editor, EditorState, RichUtils } from 'draft-js';
 import { Dropdown } from '../dropdown';
 import ToggleButton from './toggle-button';
+import s from './rich-text-editor.css';
 
 type Props = {
   label?: string,
@@ -127,7 +128,9 @@ export default class RichTextEditor extends Component {
       .getType();
 
     return (
-      <div className="fc-rich-text-editor__command-set" key="header-buttons">
+      <div
+        className={classNames('fc-rich-text-editor__command-set', s.set)}
+        key="header-buttons">
         <Dropdown
           className="fc-rich-text-editor__command-headers"
           placeholder={<i className="icon-size" />}
@@ -266,7 +269,7 @@ export default class RichTextEditor extends Component {
       );
     });
 
-    return <div className="fc-rich-text-editor__command-set" {...props}>{buttons}</div>;
+    return <div className={classNames('fc-rich-text-editor__command-set', s.set)} {...props}>{buttons}</div>;
   }
 
   shouldComponentUpdate(nextProps: Props, nextState: State): boolean {

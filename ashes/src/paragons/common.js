@@ -40,24 +40,10 @@ export const SAVE_COMBO = {
   CLOSE: 'save_and_close',
 };
 
-export const SAVE_PRODUCT_COMBO = {
-  NEW: 'save_and_new',
-  DUPLICATE: 'save_and_duplicate',
-  CLOSE: 'save_and_close',
-  PUSH2A: 'push2amazon',
-};
-
 type SaveComboItems = Array<Array<string>>;
 
 export const SAVE_COMBO_ITEMS: SaveComboItems = [
   [SAVE_COMBO.NEW, 'Save and Create New'],
   [SAVE_COMBO.DUPLICATE, 'Save and Duplicate'],
   [SAVE_COMBO.CLOSE, 'Save and Close'],
-];
-
-export const SAVE_PRODUCT_COMBO_ITEMS: SaveComboItems = [
-  [SAVE_PRODUCT_COMBO.NEW, 'Save and Create New'],
-  [SAVE_PRODUCT_COMBO.DUPLICATE, 'Save and Duplicate'],
-  [SAVE_PRODUCT_COMBO.CLOSE, 'Save and Close'],
-  [SAVE_PRODUCT_COMBO.PUSH2A, 'Push to Amazon'],
 ];

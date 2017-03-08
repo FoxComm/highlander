@@ -385,6 +385,7 @@ export class ObjectPage extends Component {
     if (this.isNew) {
       return (
         <Button
+          key="cancelButton"
           type="button"
           onClick={this.handleCancel}
           styleName="cancel-button">
