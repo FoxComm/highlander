@@ -2,17 +2,19 @@
 
 // libs
 import { get } from 'lodash';
+import { assoc } from 'sprout-data';
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { transitionTo } from 'browserHistory';
+import { transitionTo, transitionToLazy } from 'browserHistory';
 
 // components
 import ObjectPageDeux from 'components/object-page/object-page-deux';
 
 // actions
-import * as TaxonomyActions from 'modules/taxonomies/details';
+import { fetchSchema } from 'modules/object-schema';
+import * as taxonomiesActions from 'modules/taxonomies/details';
 
 type TaxonomyParams = {
   taxonomyId: string,
@@ -20,62 +22,35 @@ type TaxonomyParams = {
 };
 
 type Props = {
+  schema: ?Object,
   actions: ObjectActions<Taxonomy>,
   children: Element<*>,
   details: {
     taxonomy: ?Taxonomy,
   },
-  isFetching: boolean,
-  fetchError: ?Object,
+  fetchState: AsyncState,
+  schemaFetchState: AsyncState,
   archiveState: AsyncState,
   params: TaxonomyParams,
 };
 
-const schema = {
-  'type': 'object',
-  'title': 'Taxonomy',
-  '$schema': 'http://json-schema.org/draft-04/schema#',
-  'properties': {
-    'attributes': {
-      'type': 'object',
-      'required': [
-        'name'
-      ],
-      'properties': {
-        'name': {
-          'type': 'string',
-          'minLength': 1
-        },
-        'activeTo': {
-          'type': [
-            'string',
-            'null'
-          ],
-          'format': 'date-time'
-        },
-        'activeFrom': {
-          'type': [
-            'string',
-            'null'
-          ],
-          'format': 'date-time'
-        },
-        'description': {
-          'type': 'string',
-          'widget': 'richText'
-        },
-      },
-      'description': 'Taxonomy attributes itself'
-    }
-  }
+type State = {
+  taxonomy: ?Taxonomy
 };
 
 class TaxonomyPage extends Component {
   props: Props;
-  state: { taxonomy: ?Taxonomy } = { taxonomy: null };
+  state: State = { taxonomy: null };
+
+  componentDidMount() {
+    if (!this.props.schema) {
+      this.props.actions.fetchSchema('taxonomy');
+    }
+  }
 
   componentWillReceiveProps(nextProps: Props) {
     const { taxonomy } = nextProps.details;
+
     this.setState({ taxonomy });
   }
 
@@ -84,7 +59,7 @@ class TaxonomyPage extends Component {
 
     return {
       ...this.props.actions,
-      close: () => transitionTo('taxonomies'),
+      close: transitionToLazy('taxonomies'),
       getTitle: (t: Taxonomy) => get(t.attributes, 'name.v', ''),
       transition: (id: number|string) => transitionTo('taxonomy-details', {
         taxonomyId: id,
@@ -94,10 +69,12 @@ class TaxonomyPage extends Component {
   }
 
   get isFetching(): boolean {
-    const { isFetching, fetchError } = this.props;
-    const { taxonomy } = this.props.details;
+    const { details, fetchState, schemaFetchState } = this.props;
 
-    return isFetching || (!taxonomy && !fetchError);
+    const inProgress = fetchState.inProgress || schemaFetchState.inProgress;
+    const noError = !details.taxonomy && !fetchState.err && !schemaFetchState.err;
+
+    return inProgress || noError;
   }
 
   get navLinks(): NavLinks<TaxonomyParams> {
@@ -117,18 +94,19 @@ class TaxonomyPage extends Component {
   @autobind
   handleObjectUpdate(obj: ObjectView) {
     const { taxonomy } = this.state;
+
     if (taxonomy) {
-      const { attributes } = obj;
-      const newTaxonomy = {
-        ...taxonomy,
-        attributes: { ...taxonomy.attributes, ...attributes },
-      };
+      const newTaxonomy = assoc(taxonomy, 'attributes', obj.attributes);
+
       this.setState({ taxonomy: newTaxonomy });
     }
   }
 
   render() {
+    const { details, fetchState, archiveState, schema } = this.props;
     const { taxonomyId, context } = this.props.params;
+
+
     const childProps = {
       schema,
       taxonomy: this.state.taxonomy,
@@ -143,12 +121,12 @@ class TaxonomyPage extends Component {
         context={context}
         identifier={get(this.props.details.taxonomy, 'id', taxonomyId)}
         isFetching={this.isFetching}
-        fetchError={this.props.fetchError}
+        fetchError={fetchState.err}
         navLinks={this.navLinks}
         object={this.state.taxonomy}
         objectType="taxonomy"
-        originalObject={this.props.details.taxonomy}
-        archiveState={this.props.archiveState}
+        originalObject={details.taxonomy}
+        archiveState={archiveState}
       >
         {children}
       </ObjectPageDeux>
@@ -156,19 +134,19 @@ class TaxonomyPage extends Component {
   }
 }
 
-const mapStateToProps = state => {
-  return {
-    details: state.taxonomies.details,
-    isFetching: get(state.asyncActions, 'fetchTaxonomy.inProgress', null),
-    fetchError: get(state.asyncActions, 'fetchTaxonomy.err', null),
-    archiveState: get(state.asyncActions, 'archiveTaxonomy', {}),
-  };
-};
+const mapState = state => ({
+  details: state.taxonomies.details,
+  fetchState: get(state.asyncActions, 'fetchTaxonomy', {}),
+  archiveState: get(state.asyncActions, 'archiveTaxonomy', {}),
+  schemaFetchState: get(state.asyncActions, 'fetchSchema', {}),
+  schema: get(state.objectSchemas, 'taxonomy'),
+});
 
-const mapDispatchToProps = dispatch => {
-  return {
-    actions: bindActionCreators(TaxonomyActions, dispatch),
-  };
-};
+const mapActions = dispatch => ({
+  actions: {
+    ...bindActionCreators(taxonomiesActions, dispatch),
+    fetchSchema: bindActionCreators(fetchSchema, dispatch),
+  }
+});
 
-export default connect(mapStateToProps, mapDispatchToProps)(TaxonomyPage);
+export default connect(mapState, mapActions)(TaxonomyPage);

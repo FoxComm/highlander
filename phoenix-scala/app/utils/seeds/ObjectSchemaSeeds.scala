@@ -21,6 +21,7 @@ trait ObjectSchemaSeeds {
       discount  ← * <~ ObjectSchemas.create(getSchema("discount"))
       promotion ← * <~ ObjectSchemas.create(getSchema("promotion"))
       product   ← * <~ ObjectSchemas.create(getSchema("product"))
+      _         ← * <~ ObjectSchemas.create(getSchema("taxonomy"))
     } yield product
 
   private def loadJson(fileName: String): JValue = {
