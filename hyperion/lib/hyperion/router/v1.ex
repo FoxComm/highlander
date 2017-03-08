@@ -100,7 +100,7 @@ defmodule Hyperion.Router.V1 do
       end
 
       post do
-        cfg = Credentials.mws_config(conn)
+        cfg = Credentials.mws_config(API.customer_id(conn))
         purge = if (params[:purge]), do: true , else: false
 
         products = Amazon.product_feed(params[:ids], API.jwt(conn))
@@ -122,7 +122,7 @@ defmodule Hyperion.Router.V1 do
       end
 
       post :by_asin do
-        cfg = Credentials.mws_config(conn)
+        cfg = Credentials.mws_config(API.customer_id(conn))
         purge = if (params[:purge]), do: true , else: false
         products = Amazon.product_feed(params[:ids], API.jwt(conn))
                   |> TemplateBuilder.submit_product_by_asin(%{seller_id: cfg.seller_id,
@@ -204,7 +204,7 @@ defmodule Hyperion.Router.V1 do
 
       get :suggest do
         try do
-          cfg = Credentials.mws_config(conn)
+          cfg = Credentials.mws_config(API.customer_id(conn))
           res = CategorySuggester.suggest_categories(params[:q], cfg)
           respond_with(conn, res)
         rescue e in RuntimeError ->
@@ -252,7 +252,7 @@ defmodule Hyperion.Router.V1 do
       end
 
       post do
-        cfg = Credentials.mws_config(conn)
+        cfg = Credentials.mws_config(API.customer_id(conn))
         prices = Amazon.price_feed(params[:ids], API.jwt(conn))
                  |> TemplateBuilder.submit_price_feed(cfg)
         case MWSClient.submit_price_feed(prices, Credentials.mws_config(API.customer_id(conn))) do
@@ -274,7 +274,7 @@ defmodule Hyperion.Router.V1 do
       end
 
       post do
-        cfg = Credentials.mws_config(conn)
+        cfg = Credentials.mws_config(API.customer_id(conn))
         inv_list = params[:inventory] |> Enum.with_index(1)
         inventories = TemplateBuilder.submit_inventory_feed(inv_list, %{seller_id: cfg.seller_id})
 
@@ -294,7 +294,7 @@ defmodule Hyperion.Router.V1 do
       end
 
       post do
-        cfg = Credentials.mws_config(conn)
+        cfg = Credentials.mws_config(API.customer_id(conn))
         images = Amazon.images_feed(params[:ids], API.jwt(conn))
                  |> TemplateBuilder.submit_images_feed(cfg)
         case MWSClient.submit_images_feed(images, Credentials.mws_config(API.customer_id(conn))) do
