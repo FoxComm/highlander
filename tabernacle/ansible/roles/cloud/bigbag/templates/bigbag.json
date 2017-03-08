@@ -15,7 +15,6 @@
       "forcePullImage": true
     }
   },
-  "ports": [21212],
   "constraints": [["hostname", "UNIQUE"]],
   "healthChecks": [
     {
@@ -26,7 +25,7 @@
       "timeoutSeconds": 20,
       "maxConsecutiveFailures": 3,
       "ignoreHttp1xx": false,
-      "port": 21212
+      "port": 0
     }
   ]
 }
