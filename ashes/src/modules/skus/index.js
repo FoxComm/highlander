@@ -1,14 +1,14 @@
 import { combineReducers } from 'redux';
 import details from './details';
 import list from './list';
-import images from './images';
-import suggest from './suggest';
+import transactions from './transactions';
+import warehouses from './warehouses';
 
 const skuReducer = combineReducers({
-  details,
   list,
-  images,
-  suggest,
+  details,
+  transactions,
+  warehouses,
 });
 
 export default skuReducer;

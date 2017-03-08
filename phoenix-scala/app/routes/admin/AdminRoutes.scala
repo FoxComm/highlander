@@ -6,7 +6,7 @@ import utils.http.JsonSupport._
 import failures.SharedSearchFailures.SharedSearchInvalidQueryFailure
 import models.account.User
 import models.cord.Cord.cordRefNumRegex
-import models.inventory.Sku
+import models.inventory.ProductVariant
 import models.payment.giftcard.GiftCard
 import models.returns.Return
 import models.sharedsearch.SharedSearch
@@ -127,26 +127,26 @@ object AdminRoutes {
             }
           }
         } ~
-        pathPrefix("sku" / Sku.skuCodeRegex) { code ⇒
+        pathPrefix("sku" / ProductVariant.skuCodeRegex) { code ⇒
           (get & pathEnd) {
             getOrFailures {
-              SkuNoteManager.list(code)
+              ProductVariantNoteManager.list(code)
             }
           } ~
           (post & pathEnd & entity(as[CreateNote])) { payload ⇒
             mutateOrFailures {
-              SkuNoteManager.create(code, auth.model, payload)
+              ProductVariantNoteManager.create(code, auth.model, payload)
             }
           } ~
           path(IntNumber) { noteId ⇒
             (patch & pathEnd & entity(as[UpdateNote])) { payload ⇒
               mutateOrFailures {
-                SkuNoteManager.update(code, noteId, auth.model, payload)
+                ProductVariantNoteManager.update(code, noteId, auth.model, payload)
               }
             } ~
             (delete & pathEnd) {
               deleteOrFailures {
-                SkuNoteManager.delete(code, noteId, auth.model)
+                ProductVariantNoteManager.delete(code, noteId, auth.model)
               }
             }
           }

@@ -1,14 +1,13 @@
 package models.discount
 
-import cats._
-import cats.data._
-import cats.implicits._
 import scala.concurrent.Future
+
+import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import models.discount.SearchReference._
 import models.sharedsearch.SharedSearches
 import org.json4s.JsonAST.JObject
-import utils.ElasticsearchApi.{Buckets, ScopedSearchView, SearchView, TheBucket}
+import utils.ElasticsearchApi._
 import utils.aliases._
 import utils.db._
 
@@ -81,18 +80,18 @@ case class ProductSearch(productSearchId: Int) extends SearchBuckets {
     input.lineItems.map(_.productForm.id.toString)
 }
 
-case class SkuSearch(skuSearchId: Int) extends SearchBuckets {
-  val searchId: Int     = skuSearchId
-  val searchViewByScope = scopedSearchView(skuSearchView)
-  val fieldName: String = skuSearchField
+case class ProductVariantSearch(productVariantsSearchId: Int) extends SearchBuckets {
+  val searchId: Int     = productVariantsSearchId
+  val searchViewByScope = scopedSearchView(productVariantsSearchView)
+  val fieldName: String = productVariantsSearchField
 
-  def references(input: DiscountInput): Seq[String] = input.lineItems.map(_.sku.code)
+  def references(input: DiscountInput): Seq[String] = input.lineItems.map(_.productVariant.code)
 }
 
 object SearchReference {
-  val customersSearchView: String = "customers_search_view"
-  val productsSearchView: String  = "products_search_view"
-  val skuSearchView: String       = "sku_search_view"
+  def customersSearchView       = "customers_search_view"
+  def productsSearchView        = "products_search_view"
+  def productVariantsSearchView = "product_variants_search_view"
 
   def scopedSearchView(view: String): (LTree ⇒ SearchView) = { scope: LTree ⇒
     ScopedSearchView(view, scope.toString)
@@ -102,9 +101,9 @@ object SearchReference {
     SearchView(view)
   }
 
-  def customersSearchField: String = "id"
-  def productsSearchField: String  = "productId"
-  def skuSearchField: String       = "code"
+  def customersSearchField: String       = "id"
+  def productsSearchField: String        = "productId"
+  def productVariantsSearchField: String = "code"
 
   def pureMetrics(implicit ec: EC): Result[Long]    = Result.pure(0L)
   def pureBuckets(implicit ec: EC): Result[Buckets] = Result.pure(Seq.empty)

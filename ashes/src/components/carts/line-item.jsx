@@ -41,10 +41,6 @@ type State = {
   quantity: number;
 };
 
-type DefaultProps = {
-  updateLineItemCount: Function,
-};
-
 export class CartLineItem extends Component {
   props: Props;
 
@@ -62,14 +58,14 @@ export class CartLineItem extends Component {
   @autobind
   @debounce(300)
   performUpdate() {
-    const { cart: { referenceNumber }, item: { sku, attributes } } = this.props;
+    const { cart: { referenceNumber }, item: { productVariantId, attributes } } = this.props;
     const { quantity, lastSyncedQuantity } = this.state;
 
     const quantityDiff = quantity - lastSyncedQuantity;
 
     this.setState({
       lastSyncedQuantity: quantity,
-    }, () => this.props.updateLineItemCount(referenceNumber, sku, quantityDiff, attributes));
+    }, () => this.props.updateLineItemCount(referenceNumber, productVariantId, quantityDiff, attributes));
 
   }
 

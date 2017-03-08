@@ -3,7 +3,7 @@ package responses
 import java.time.Instant
 
 import failures.NotFoundFailure404
-import models.inventory.{Sku, Skus}
+import models.inventory.{ProductVariant, ProductVariants}
 import models.objects._
 import models.product.Mvp
 import models.{SaveForLater, SaveForLaters}
@@ -24,18 +24,21 @@ object SaveForLaterResponse {
       favorite: Boolean = false
   )
 
-  def forSkuId(skuId: Int, contextId: Int)(implicit ec: EC, db: DB): DbResultT[Root] =
+  def forVariantId(variantId: Int, contextId: Int)(implicit ec: EC, db: DB): DbResultT[Root] =
     for {
       sfl ← * <~ SaveForLaters
-             .filter(_.skuId === skuId)
-             .mustFindOneOr(
-                 NotFoundFailure404(s"Save for later entry for sku with id=$skuId not found"))
-      sku    ← * <~ Skus.mustFindById404(skuId)
-      form   ← * <~ ObjectForms.mustFindById404(sku.formId)
-      shadow ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
-    } yield build(sfl, sku, form, shadow)
+             .filter(_.productVariantId === variantId)
+             .mustFindOneOr(NotFoundFailure404(
+                     s"Save for later entry for product variant with id=$variantId not found"))
+      variant ← * <~ ProductVariants.mustFindById404(variantId)
+      form    ← * <~ ObjectForms.mustFindById404(variant.formId)
+      shadow  ← * <~ ObjectShadows.mustFindById404(variant.shadowId)
+    } yield build(sfl, variant, form, shadow)
 
-  def build(sfl: SaveForLater, sku: Sku, form: ObjectForm, shadow: ObjectShadow): Root = {
+  def build(sfl: SaveForLater,
+            productVariant: ProductVariant,
+            form: ObjectForm,
+            shadow: ObjectShadow): Root = {
 
     val price = Mvp.priceAsInt(form, shadow)
     val name  = Mvp.title(form, shadow)
@@ -43,7 +46,7 @@ object SaveForLaterResponse {
     Root(
         id = sfl.id,
         name = name,
-        sku = sku.code,
+        sku = productVariant.code,
         price = price,
         createdAt = sfl.createdAt
     )

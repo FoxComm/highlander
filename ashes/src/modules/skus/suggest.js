@@ -1,5 +1,4 @@
 // @flow
-// if you want suggest skus in your UI use this module
 
 import _ from 'lodash';
 import { createAction, createReducer } from 'redux-act';
@@ -7,34 +6,18 @@ import { post } from 'lib/search';
 import * as dsl from 'elastic/dsl';
 import { createAsyncActions } from '@foxcomm/wings';
 
-const resetSuggestedSkus = createAction('PRODUCTS_RESET_SUGGESTED_SKUS');
-
-export type SuggestOptions = {
-  context?: string,
-  useTitle?: boolean,
-}
+const resetSuggestedSkus = createAction('RESET_SUGGESTED_SKUS');
 
 const _suggestSkus = createAsyncActions(
-  'skus-suggest',
-  (value: string, options: SuggestOptions = {}) => {
-    const contextFilter = options.context ? [dsl.termFilter('context', options.context)] : void 0;
-    let titleMatch = [];
-    if (options.useTitle) {
-      titleMatch = [dsl.matchQuery('title', {
-        query: value,
-        operator: 'and',
-      })];
-    }
-
-    return post('sku_search_view/_search', dsl.query({
+  'suggestSkus',
+  (value: string) => {
+    return post('inventory_search_view/_search', dsl.query({
       bool: {
-        filter: contextFilter,
         should: [
-          dsl.matchQuery('skuCode', {
+          dsl.matchQuery('sku', {
             query: value,
-            operator: 'and',
+            type: 'phrase_prefix',
           }),
-          ...titleMatch
         ],
         minimum_should_match: 1
       },
@@ -42,13 +25,13 @@ const _suggestSkus = createAsyncActions(
   }
 );
 
-export function suggestSkus(value: string, options: SuggestOptions = {}): ActionDispatch {
+export function suggestSkus(value: string): ActionDispatch {
   return (dispatch: Function) => {
     if (!value) {
       return dispatch(resetSuggestedSkus());
     }
 
-    return dispatch(_suggestSkus.perform(value, options));
+    return dispatch(_suggestSkus.perform(value));
   };
 }
 

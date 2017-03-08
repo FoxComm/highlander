@@ -12,27 +12,32 @@ import (
 
 type shipmentService struct {
 	db                 *gorm.DB
-	inventoryService   IInventoryService
+	inventoryService   InventoryService
+	summaryService     SummaryService
 	shipmentRepo       repositories.IShipmentRepository
 	unitRepo           repositories.IStockItemUnitRepository
 	activityLogger     IActivityLogger
 	updateSummaryAsync bool
 }
 
-type IShipmentService interface {
+// ShipmentService is an interface for creating and manipulating shipments.
+// Manipulating the shipments will also manipulate inventory counts.
+type ShipmentService interface {
 	GetShipmentsByOrder(orderRefNum string) ([]*models.Shipment, error)
 	CreateShipment(shipment *models.Shipment) (*models.Shipment, error)
 	UpdateShipment(shipment *models.Shipment) (*models.Shipment, error)
 	UpdateShipmentForOrder(shipment *models.Shipment) (*models.Shipment, error)
 }
 
+// NewShipmentService creates a new shipment service.
 func NewShipmentService(db *gorm.DB,
-	inventoryService IInventoryService,
-	shipmentRepo repositories.IShipmentRepository,
-	unitRepository repositories.IStockItemUnitRepository,
+	inventoryService InventoryService,
+	summaryService SummaryService,
 	activityLogger IActivityLogger,
-) IShipmentService {
-	return &shipmentService{db, inventoryService, shipmentRepo, unitRepository, activityLogger, true}
+) ShipmentService {
+	shipmentRepo := repositories.NewShipmentRepository(db)
+	unitRepo := repositories.NewStockItemUnitRepository(db)
+	return &shipmentService{db, inventoryService, summaryService, shipmentRepo, unitRepo, activityLogger, true}
 }
 
 func (service *shipmentService) GetShipmentsByOrder(referenceNumber string) ([]*models.Shipment, error) {
@@ -42,14 +47,50 @@ func (service *shipmentService) GetShipmentsByOrder(referenceNumber string) ([]*
 func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*models.Shipment, error) {
 	txn := service.db.Begin()
 
+	// Iterate through each shipment line item and attempt to reserve a stock
+	// item unit for each line item. As that's happening, maintain a mapping of
+	// what is being updated so that summaries and transactions can be updated.
+	txnUpdates := models.NewTransactionUpdates()
+	unitRepo := repositories.NewStockItemUnitRepository(txn)
+
+	hasInventory := false
 	for i, lineItem := range shipment.ShipmentLineItems {
-		siu, err := service.unitRepo.WithTransaction(txn).GetUnitForLineItem(shipment.OrderRefNum, lineItem.SKU)
-		if err != nil {
+		var sku models.SKU
+		if err := service.db.Where("code = ?", lineItem.SKU).First(&sku).Error; err != nil {
 			txn.Rollback()
 			return nil, err
 		}
 
-		shipment.ShipmentLineItems[i].StockItemUnitID = siu.ID
+		if sku.RequiresInventoryTracking {
+			siu, err := unitRepo.ReserveUnit(shipment.OrderRefNum, lineItem.SKU)
+			if err != nil {
+				txn.Rollback()
+				return nil, err
+			}
+
+			holdTxn := &models.StockItemTransaction{
+				StockItemId:    siu.StockItemID,
+				Type:           models.Sellable,
+				Status:         models.StatusOnHold,
+				QuantityChange: -1,
+			}
+
+			reservedTxn := &models.StockItemTransaction{
+				StockItemId:    siu.StockItemID,
+				Type:           models.Sellable,
+				Status:         models.StatusReserved,
+				QuantityChange: 1,
+			}
+
+			txnUpdates.AddUpdate(siu.StockItemID, holdTxn)
+			txnUpdates.AddUpdate(siu.StockItemID, reservedTxn)
+			shipment.ShipmentLineItems[i].StockItemUnitID = siu.ID
+			hasInventory = true
+		}
+	}
+
+	if !hasInventory {
+		shipment.State = models.ShipmentStateShipped
 	}
 
 	result, err := service.shipmentRepo.WithTransaction(txn).CreateShipment(shipment)
@@ -58,14 +99,25 @@ func (service *shipmentService) CreateShipment(shipment *models.Shipment) (*mode
 		return nil, err
 	}
 
-	activity, err := activities.NewShipmentCreated(result, result.CreatedAt)
+	var activity activities.ISiteActivity
+	if hasInventory {
+		activity, err = activities.NewShipmentCreated(result, result.CreatedAt)
+	} else {
+		activity, err = activities.NewShipmentShipped(result, result.CreatedAt)
+	}
+
 	if err != nil {
 		txn.Rollback()
 		return nil, err
 	}
 
-	if err := service.inventoryService.WithTransaction(txn).ReserveItems(shipment.OrderRefNum); err != nil {
-		txn.Rollback()
+	// if err := service.inventoryService.WithTransaction(txn).ReserveItems(shipment.OrderRefNum); err != nil {
+	// 	txn.Rollback()
+	// 	return nil, err
+	// }
+	summaryRepo := repositories.NewSummaryRepository(txn)
+	txns := txnUpdates.StockItemTransactions()
+	if err := summaryRepo.UpdateSummariesFromTransactions(txns); err != nil {
 		return nil, err
 	}
 

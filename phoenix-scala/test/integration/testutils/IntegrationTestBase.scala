@@ -1,6 +1,13 @@
 package testutils
 
-trait IntegrationTestBase extends TestBase with DbTestSupport with GimmeSupport {
+import org.scalatest.AppendedClues
+
+trait IntegrationTestBase
+    extends TestBase
+    with DbTestSupport
+    with GimmeSupport
+    with AppendedClues {
 
   implicit val ec = scala.concurrent.ExecutionContext.Implicits.global
+
 }

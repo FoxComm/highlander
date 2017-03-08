@@ -47,7 +47,7 @@ case class CartValidator(cart: Cart)(implicit ec: EC, db: DB) extends CartValida
     }
   }
 
-  //todo: do we need alway have sku or at least sku or gc
+  //todo: do we need alway have variant or at least variant or gc
   private def hasItems(response: CartValidatorResponse): DBIO[CartValidatorResponse] = {
     CartLineItems.byCordRef(cart.refNum).length.result.map { numItems ⇒
       if (numItems == 0) warning(response, EmptyCart(cart.refNum)) else response

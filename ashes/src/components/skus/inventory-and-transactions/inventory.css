@@ -1,0 +1,40 @@
+.warehouses-table {
+  & :global(.fc-table-head) {
+    & :global(.fc-table-tr) {
+      border-top: 1px solid #d9d9d9;
+
+      &:first-child {
+        border-left: 1px solid #d9d9d9;
+      }
+      &:last-child {
+        border-right: 1px solid #d9d9d9;
+      }
+    }
+  }
+
+  & :global(.fc-table-body) > :global(.fc-table-tr:not(.fc-expandable-table__drawer)) {
+    height: 84px;
+  }
+
+  & :global(.fc-table-body) :global(.fc-table-tr.fc-expandable-table__drawer) {
+    background: #fff !important;
+  }
+}
+
+.warehouse-details-table {
+  & :global(.fc-table-head .fc-table-tr),
+  & :global(.fc-table-head .fc-table-tr) th {
+    border-top: none !important;
+    background: #e4e6ea;
+  }
+
+  & :global(.fc-table-body) {
+    & :global(.fc-table-tr):nth-child(odd) {
+      background: #f4f5f6;
+    }
+    & :global(.fc-table-tr):nth-child(even) {
+      background: #e4e6ea;
+    }
+  }
+}
+

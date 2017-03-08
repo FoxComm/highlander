@@ -79,13 +79,14 @@ module.exports = function(app) {
       yield next;
     } catch(err) {
       this.status = err.status || 500;
+      console.error(err);
 
       let body;
 
       if (err.stack && this.env !== 'production') {
-        body = {error: err.stack};
+        body = {errors: [err.stack], env: 'node'};
       } else {
-        body = {error: err.message ? err.message : String(err)};
+        body = {errors: [err.message ? err.message : String(err)], env: 'node'};
       }
       this.body = body;
     }

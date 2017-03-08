@@ -71,25 +71,25 @@ const _createProduct = createAsyncActions(
 function cleanProductPayload(product) {
   // get rid of temp. skus
   const feCodes = {};
-  const skus = _.reduce(product.skus, (acc, sku) => {
-    const code = _.get(sku, 'attributes.code.v');
-    if (sku.feCode) {
-      feCodes[sku.feCode] = code || '';
+  const variants = _.reduce(product.variants, (acc, variant) => {
+    const code = _.get(variant, 'attributes.code.v');
+    if (variant.feCode) {
+      feCodes[variant.feCode] = code || '';
     }
     if (code) {
-      return [...acc, dissoc(sku, 'feCode')];
+      return [...acc, dissoc(variant, 'feCode')];
     }
     return acc;
   }, []);
 
-  const variants = _.cloneDeep(product.variants);
+  const options = _.cloneDeep(product.options);
 
   // Wow, this is super-duper ugly.
-  for (let i = 0; i < variants.length; i++) {
-    const variant = variants[i];
-    for (let j = 0; j < variant.values.length; j++) {
-      const value = variant.values[j];
-      value.skuCodes = _.reduce(value.skuCodes, (acc, code) => {
+  for (let i = 0; i < options.length; i++) {
+    const option = options[i];
+    for (let j = 0; j < option.values.length; j++) {
+      const value = option.values[j];
+      value.skus = _.reduce(value.skus, (acc, code) => {
         if (code) {
           const value = _.get(feCodes, code, code);
           if (value) {
@@ -102,9 +102,24 @@ function cleanProductPayload(product) {
   }
 
   return assoc(product,
-    'skus', skus,
-    'variants', variants
+    'variants', variants,
+    'options', options
   );
+}
+
+function cleanProductResponse(product: Product): Product {
+  const variantIdToCodeMap = _.reduce(product.variants, (acc, variant) => {
+    acc[variant.id] = _.get(variant, 'attributes.code.v');
+    return acc;
+  }, {});
+
+  _.each(product.options, option => {
+    _.each(option.values, value => {
+      value.skus = _.map(value.variantIds, id => variantIdToCodeMap[id]);
+    });
+  });
+
+  return product;
 }
 
 const _updateProduct = createAsyncActions(
@@ -122,7 +137,7 @@ export const createProduct = _createProduct.perform;
 export const updateProduct = _updateProduct.perform;
 
 function updateProductInState(state: ProductDetailsState, response) {
-  const product = configureProduct(response);
+  const product = cleanProductResponse(configureProduct(response));
   return { ...state, product };
 }
 

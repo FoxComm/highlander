@@ -1,12 +1,12 @@
 package services
 
 import cats.implicits._
-import failures.{AlreadySavedForLater, Failures, NotFoundFailure404}
+import failures.{AlreadySavedForLater, NotFoundFailure404}
 import models.account.{User, Users}
 import models.objects.ObjectContext
 import models.{SaveForLater, SaveForLaters}
-import responses.{SaveForLaterResponse, TheResponse}
-import services.inventory.SkuManager
+import responses.SaveForLaterResponse
+import services.inventory.ProductVariantManager
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
@@ -26,11 +26,13 @@ object SaveForLaterManager {
       ec: EC): DbResultT[SavedForLater] =
     for {
       customer ← * <~ Users.mustFindByAccountId(accountId)
-      sku      ← * <~ SkuManager.mustFindSkuByContextAndCode(context.id, skuCode)
+      variant  ← * <~ ProductVariantManager.mustFindByContextAndCode(context.id, skuCode)
       _ ← * <~ SaveForLaters
-           .find(accountId = customer.accountId, skuId = sku.id)
-           .mustNotFindOneOr(AlreadySavedForLater(accountId = customer.accountId, skuId = sku.id))
-      _        ← * <~ SaveForLaters.create(SaveForLater(accountId = customer.accountId, skuId = sku.id))
+           .find(accountId = customer.accountId, productVariantId = variant.id)
+           .mustNotFindOneOr(
+               AlreadySavedForLater(accountId = customer.accountId, variantId = variant.id))
+      _ ← * <~ SaveForLaters.create(
+             SaveForLater(accountId = customer.accountId, productVariantId = variant.id))
       response ← * <~ findAllDbio(customer, context.id)
     } yield response
 
@@ -42,7 +44,8 @@ object SaveForLaterManager {
     for {
       sfls ← * <~ SaveForLaters.filter(_.accountId === customer.accountId).result
       r ← * <~ DbResultT.seqFailuresToWarnings(
-             sfls.toList.map(sfl ⇒ SaveForLaterResponse.forSkuId(sfl.skuId, contextId)), {
+             sfls.toList.map(sfl ⇒
+                   SaveForLaterResponse.forVariantId(sfl.productVariantId, contextId)), {
                case _ ⇒ true
              })
     } yield r

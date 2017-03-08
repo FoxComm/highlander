@@ -11,12 +11,11 @@ import _ from 'lodash';
 // components
 import ObjectDetails from '../object-page/object-details';
 import OptionList from './options/option-list';
-import SkuContentBox from './skus/sku-content-box';
-import InputMask from 'react-input-mask';
+import Variants from './variants/variants';
 
 import { renderFormField } from 'components/object-form/object-form-inner';
 
-import { autoAssignVariants, deleteVariantCombination, addSkusForVariants } from 'paragons/variants';
+import { autoAssignOptions, deleteVariantCombination, addProductVariantsByOptionTuples } from 'paragons/variants';
 
 import styles from './form.css';
 
@@ -37,27 +36,27 @@ export default class ProductForm extends ObjectDetails {
   layout = layout;
   props: Props;
 
-  renderSkuList(): Element<any> {
+  renderVariants(): Element<any> {
     const { props } = this;
     return (
-      <SkuContentBox
+      <Variants
         // $FlowFixMe: WTF?
         fullProduct={props.object}
-        updateField={props.onSetSkuProperty}
-        updateFields={props.onSetSkuProperties}
-        onDeleteSku={this.handleDeleteSku}
-        onAddNewVariants={this.handleAddVariants}
-        variants={props.object.variants}
+        updateField={props.onSetVariantProperty}
+        updateFields={props.onSetVariantProperties}
+        onDeleteVariant={this.handleDeleteVariant}
+        onAddNewOptions={this.handleAddOptionValues}
+        options={props.object.options}
       />
     );
   }
 
   @autobind
-  updateVariants(newVariants: Array<Option>): void {
+  updateOptions(newOptions: Array<Option>): void {
     // here we have new variants, but
     // we don't have empty skus in order user be able to edit them
-    // also we need skuCodes for them in variant.values
-    const newProduct = autoAssignVariants(this.props.object, newVariants);
+    // also we need skus for them in variant.values
+    const newProduct = autoAssignOptions(this.props.object, newOptions);
     this.props.onUpdateObject(newProduct);
   }
 
@@ -67,8 +66,8 @@ export default class ProductForm extends ObjectDetails {
     // * Active To
     // * Active From
     const newObject = super.updateAttributes(attributes);
-    let skus = this.props.object.skus;
-    if (skus.length) {
+    let variants = this.props.object.variants;
+    if (variants.length) {
       const syncFields = ['activeTo', 'activeFrom'];
       const updateArgs =_.flatMap(syncFields, field => {
         const originalValue = _.get(this.props.object, ['attributes', field]);
@@ -77,11 +76,11 @@ export default class ProductForm extends ObjectDetails {
         ];
       });
 
-      skus = _.map(skus, sku => assoc(sku, ...updateArgs));
+      variants = _.map(variants, variant => assoc(variant, ...updateArgs));
     }
 
     return assoc(newObject,
-      ['skus'], skus
+      ['variants'], variants
     );
   }
 
@@ -90,23 +89,23 @@ export default class ProductForm extends ObjectDetails {
       <OptionList
         // $FlowFixMe: WTF?
         product={this.props.object}
-        variants={this.props.object.variants}
-        updateVariants={this.updateVariants}
+        options={this.props.object.options}
+        updateOptions={this.updateOptions}
       />
     );
   }
 
   @autobind
-  handleDeleteSku(skuCode: string) {
+  handleDeleteVariant(variantCode: string) {
     this.props.onUpdateObject(
-      deleteVariantCombination(this.props.object, skuCode)
+      deleteVariantCombination(this.props.object, variantCode)
     );
   }
 
   @autobind
-  handleAddVariants(variantValues: Array<Array<OptionValue>>) {
+  handleAddOptionValues(optionValuesTuples: Array<Array<OptionValue>>) {
     this.props.onUpdateObject(
-      addSkusForVariants(this.props.object, variantValues)
+      addProductVariantsByOptionTuples(this.props.object, optionValuesTuples)
     );
   }
 

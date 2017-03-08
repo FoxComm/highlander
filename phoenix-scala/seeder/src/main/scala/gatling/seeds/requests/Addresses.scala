@@ -22,24 +22,21 @@ object Addresses {
     .post("/v1/customers/${customerId}/addresses")
     .requireAdminAuth
     .body(StringBody { session ⇒
-      for {
-        name     ← session("customerName").validate[String]
-        regionId ← session("customerRegionId").validate[String]
-        address  ← session("customerAddress").validate[String]
-        city     ← session("customerCity").validate[String]
-      } yield
-        json {
-          CreateAddressPayload(name = name,
-                               regionId = regionId.toInt,
-                               address1 = address,
-                               city = city,
-                               zip = nDigits(5),
-                               isDefault = true,
-                               phoneNumber = Some(nDigits(10)),
-                               address2 = session("customerAddress2").asOption[String])
-        }
+      json(
+          getCustomerAddressFromSession(session)
+      )
     })
     .check(jsonPath("$.id").ofType[Int].saveAs("addressId"))
+
+  def getCustomerAddressFromSession(session: Session): CreateAddressPayload =
+    CreateAddressPayload(name = session.get("customerName").as[String],
+                         regionId = session.get("customerRegionId").as[Int],
+                         address1 = session.get("customerAddress").as[String],
+                         city = session.get("customerCity").as[String],
+                         zip = nDigits(5), // FIXME: get from session
+                         isDefault = true,
+                         phoneNumber = Some(nDigits(10)), // FIXME: get from session
+                         address2 = session("customerAddress2").asOption[String])
 
   private def nDigits(n: Int): String = numerify("#" * n)
 

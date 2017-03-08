@@ -4,63 +4,63 @@ import _ from 'lodash';
 const Variants = requireSource('paragons/variants.js');
 const Products = requireSource('paragons/product.js');
 
-function makeSkus(count) {
+function makeVariants(count) {
   const result = [];
   let i = 0;
   while (count--) {
-    const sku = Products.createEmptySku();
-    sku.feCode = `sku${i++}`;
-    result.push(sku);
+    const productVariant = Products.createEmptyProductVariant();
+    productVariant.feCode = `sku${i++}`;
+    result.push(productVariant);
   }
   return result;
 }
 
 describe('Variants', function () {
-  context('#autoAssignVariants', () => {
+  context('#autoAssignOptions', () => {
     it('grow1', () => {
-      const skus = makeSkus(2);
+      const variants = makeVariants(2);
 
-      const variants = [
+      const options = [
         {
           values: [
             {
               name: 'L',
-              skuCodes: [skus[0].feCode]
+              skus: [variants[0].feCode]
             },
             {
               name: 'S',
-              skuCodes: [skus[1].feCode]
+              skus: [variants[1].feCode]
             }
           ]
         }, {
           values: [
             {
               name: 'green',
-              skuCodes: []
+              skus: []
             }
           ]
         }
       ];
 
-      const newVariants = Variants.autoAssignVariants({skus}, variants).variants;
-      expect(newVariants).to.deep.equal(
+      const newOptions = Variants.autoAssignOptions({variants}, options).options;
+      expect(newOptions).to.deep.equal(
         [
           {
             values: [
               {
                 name: 'L',
-                skuCodes: [skus[0].feCode]
+                skus: [variants[0].feCode]
               },
               {
                 name: 'S',
-                skuCodes: [skus[1].feCode]
+                skus: [variants[1].feCode]
               }
             ]
           }, {
             values: [
               {
                 name: 'green',
-                skuCodes: [skus[0].feCode, skus[1].feCode]
+                skus: [variants[0].feCode, variants[1].feCode]
               }
             ]
           }
@@ -69,99 +69,99 @@ describe('Variants', function () {
     });
 
     it('grow2', () => {
-      const skus = makeSkus(2);
+      const variants = makeVariants(2);
 
-      const variants = [
+      const options = [
         {
           values: [
             {
               name: 'S',
-              skuCodes: [skus[1].feCode]
+              skus: [variants[1].feCode]
             },
             {
               name: 'L',
-              skuCodes: [skus[0].feCode]
+              skus: [variants[0].feCode]
             },
           ]
         }, {
           values: [
             {
               name: 'green',
-              skuCodes: [skus[0].feCode, skus[1].feCode]
+              skus: [variants[0].feCode, variants[1].feCode]
             }
           ]
         }, {
           values: [
             {
               name: 'male',
-              skuCodes: []
+              skus: []
             }, {
               name: 'female',
-              skuCodes: []
+              skus: []
             }
           ]
         }
       ];
 
-      const newVariants = Variants.autoAssignVariants({skus}, variants).variants;
-      expect(newVariants).to.have.length(3);
-      expect(newVariants[0].values[0].skuCodes).to.have.length(2);
-      expect(newVariants[0].values[1].skuCodes).to.have.length(2);
-      expect(newVariants[1].values[0].skuCodes).to.have.length(4);
-      expect(newVariants[2].values[0].skuCodes).to.have.length(2);
-      expect(newVariants[2].values[0].skuCodes).to.have.members([skus[0].feCode, skus[1].feCode]);
+      const newOptions = Variants.autoAssignOptions({variants}, options).options;
+      expect(newOptions).to.have.length(3);
+      expect(newOptions[0].values[0].skus).to.have.length(2);
+      expect(newOptions[0].values[1].skus).to.have.length(2);
+      expect(newOptions[1].values[0].skus).to.have.length(4);
+      expect(newOptions[2].values[0].skus).to.have.length(2);
+      expect(newOptions[2].values[0].skus).to.have.members([variants[0].feCode, variants[1].feCode]);
     });
 
     it('decrease1', () => {
-      const skus = makeSkus(5);
-      const variants = [
+      const variants = makeVariants(5);
+      const options = [
         {
           values: [
             {
               name: 'L',
-              skuCodes: [skus[0].feCode, skus[2].feCode, skus[4].feCode]
+              skus: [variants[0].feCode, variants[2].feCode, variants[4].feCode]
             },
             {
               name: 'S',
-              skuCodes: [skus[1].feCode, skus[3].feCode]
+              skus: [variants[1].feCode, variants[3].feCode]
             }
           ]
         }, {
           values: [
             {
               name: 'green',
-              skuCodes: [skus[0].feCode, skus[1].feCode, skus[2].feCode, skus[3].feCode]
+              skus: [variants[0].feCode, variants[1].feCode, variants[2].feCode, variants[3].feCode]
             }
           ]
         }
       ];
 
-      const result = Variants.autoAssignVariants({skus}, variants);
+      const result = Variants.autoAssignOptions({variants}, options);
       //console.log(JSON.stringify(result.variants, null, 2));
-      expect(result.variants).to.have.length(2);
-      expect(result.variants[0].values[0].skuCodes).to.have.members([skus[0].feCode]);
-      expect(result.variants[0].values[1].skuCodes).to.have.members([skus[1].feCode]);
-      expect(result.variants[1].values[0].skuCodes).to.have.members([skus[0].feCode, skus[1].feCode]);
+      expect(result.options).to.have.length(2);
+      expect(result.options[0].values[0].skus).to.have.members([variants[0].feCode]);
+      expect(result.options[0].values[1].skus).to.have.members([variants[1].feCode]);
+      expect(result.options[1].values[0].skus).to.have.members([variants[0].feCode, variants[1].feCode]);
     });
 
     it('keep one sku if there is no variants', () => {
-      const skus = makeSkus(2);
-      const product = {skus};
+      const variants = makeVariants(2);
+      const product = {variants};
 
-      const newProduct = Variants.autoAssignVariants(product, []);
-      expect(newProduct.skus).to.have.length(1);
+      const newProduct = Variants.autoAssignOptions(product, []);
+      expect(newProduct.variants).to.have.length(1);
     });
   });
 
-  const redValue = {'name':'Red','swatch':'FF0000','skuCodes':[]};
-  const greenValue = {'name':'Green','swatch':'00FF00','skuCodes':[]};
-  const smallValue = {'name':'S','skuCodes':[]};
-  const mediumValue = {'name':'M','skuCodes':[]};
-  const largeValue = {'name':'L','skuCodes':[]};
+  const redValue = {'name':'Red','swatch':'FF0000','skus':[]};
+  const greenValue = {'name':'Green','swatch':'00FF00','skus':[]};
+  const smallValue = {'name':'S','skus':[]};
+  const mediumValue = {'name':'M','skus':[]};
+  const largeValue = {'name':'L','skus':[]};
 
-  context('#allVariantsValues', function () {
+  context('#allOptionsValues', function () {
     it('should return array of items when one varinat is defined', function () {
-      const variants = [
+      const options = [
         {
           'values':[
             redValue,
@@ -170,13 +170,13 @@ describe('Variants', function () {
           'attributes':{'name':{'t':'string','v':'Color'}}
         }
       ];
-      expect(Variants.allVariantsValues(variants)).to.be.eql(
+      expect(Variants.allOptionsValues(options)).to.be.eql(
         [[redValue], [greenValue]]
       );
     });
 
     it('should return array of all combinations when multiple varinats are defined', function () {
-      const variants = [
+      const options = [
         {
           'values': [
             redValue,
@@ -191,7 +191,7 @@ describe('Variants', function () {
           'attributes': {'name':{'t':'string','v':'Size'}}
         }
       ];
-      expect(Variants.allVariantsValues(variants)).to.be.eql(
+      expect(Variants.allOptionsValues(options)).to.be.eql(
         [
           [redValue, smallValue],
           [redValue, mediumValue],
@@ -204,7 +204,7 @@ describe('Variants', function () {
     });
 
     it('should return array of all combinations when multiple varinats are defined with one option', function () {
-      const variants = [
+      const options = [
         {
           'values': [
             greenValue,
@@ -218,7 +218,7 @@ describe('Variants', function () {
           'attributes': {'name':{'t':'string','v':'Size'}}
         }
       ];
-      expect(Variants.allVariantsValues(variants)).to.be.eql(
+      expect(Variants.allOptionsValues(options)).to.be.eql(
         [
           [greenValue, smallValue],
           [greenValue, mediumValue],
@@ -228,15 +228,15 @@ describe('Variants', function () {
     });
   });
 
-  context('variantsWithMultipleOptions', function () {
+  context('optionsWithMultipleValues', function () {
     it('should replace variants with empty value list from array', function () {
-      const variants = [
+      const options = [
         {
           'values': [],
           'attributes': {'name':{'t':'string','v':'Color'}}
         }
       ];
-      expect(Variants.variantsWithMultipleOptions(variants)).to.be.eql([]);
+      expect(Variants.optionsWithMultipleValues(options)).to.be.eql([]);
     });
   });
 });

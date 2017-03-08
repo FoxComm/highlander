@@ -15,7 +15,7 @@ case class OrderTotalAmountQualifier(totalAmount: Int) extends Qualifier {
       for {
         attrs ← lineItem.attributes
         _     ← attrs.giftCard
-      } yield Mvp.priceAsInt(lineItem.skuForm, lineItem.skuShadow)
+      } yield Mvp.priceAsInt(lineItem.productVariantForm, lineItem.productVariantShadow)
     }.flatten.sum
 
     if (input.cart.subTotal - purchasedGcTotal >= totalAmount) accept()

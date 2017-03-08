@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Product variant",
+  "type": "object",
+  "properties": {
+    "attributes": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "title": "SKU",
+          "type": "string",
+          "minLength": 1
+        },
+        "title": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "salePrice": {
+          "type": "object",
+          "widget": "price",
+          "description": "Add a price here to put the item on sale",
+          "properties": {
+            "value": {
+              "type": "number",
+              "default": 0,
+              "minimum": 0
+            },
+            "currency": {
+              "type": "string",
+              "maxLength": 3,
+              "minLength": 3
+            }
+          }
+        },
+        "retailPrice": {
+          "type": "object",
+          "properties": {
+            "$ref": "#/definitions/price"
+          }
+        }
+      },
+      "required": [
+        "code"
+      ]
+    }
+  }
+}

@@ -35,7 +35,6 @@ build:
 	make build-gift-card-consumer
 	make build-shipments-consumer
 	make build-shipstation-consumer
-	make build-stock-items-consumer
 
 build-middlewarehouse:
 	cd $(BUILD_PATH) && go build -o middlewarehouse main.go
@@ -55,9 +54,6 @@ build-shipments-consumer:
 build-shipstation-consumer:
 	cd $(BUILD_PATH) && go build -o consumers/shipstation/shipstation-consumer consumers/shipstation/*.go
 
-build-stock-items-consumer:
-	cd $(BUILD_PATH) && go build -o consumers/stock-items/stock-items-consumer consumers/stock-items/*.go
-
 ####################################################################
 # Docker build targets                                             #
 ####################################################################
@@ -69,7 +65,6 @@ docker:
 	make docker-gift-card-consumer
 	make docker-shipments-consumer
 	make docker-shipstation-consumer
-	make docker-stock-items-consumer
 
 docker-middlewarehouse:
 	cd $(BUILD_PATH) && docker build -t $(DOCKER_IMAGE) .
@@ -89,9 +84,6 @@ docker-shipments-consumer:
 docker-shipstation-consumer:
 	cd $(BUILD_PATH) && docker build -t shipstation-consumer -f consumers/shipstation/Dockerfile .
 
-docker-stock-items-consumer:
-	cd $(BUILD_PATH) && docker build -t stock-items-consumer -f consumers/stock-items/Dockerfile .
-
 ####################################################################
 # Docker push targets                                              #
 ####################################################################
@@ -103,7 +95,6 @@ docker-push:
 	make push-gift-card-consumer
 	make push-shipments-consumer
 	make push-shipstation-consumer
-	make push-stock-items-consumer
 
 push-middlewarehouse:
 	docker tag $(DOCKER_IMAGE) $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
@@ -128,10 +119,6 @@ push-shipments-consumer:
 push-shipstation-consumer:
 	docker tag shipstation-consumer $(DOCKER_REPO)/shipstation-consumer:$(DOCKER_TAG)
 	docker push $(DOCKER_REPO)/shipstation-consumer:$(DOCKER_TAG)
-
-push-stock-items-consumer:
-	docker tag stock-items-consumer $(DOCKER_REPO)/stock-items-consumer:$(DOCKER_TAG)
-	docker push $(DOCKER_REPO)/stock-items-consumer:$(DOCKER_TAG)
 
 ####################################################################
 # Miscellaneous targets                                            #

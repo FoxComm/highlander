@@ -11,6 +11,6 @@ trait PhoenixStorefrontApi extends HttpSupport { self: FoxSuite ⇒
   case class storefrontProductsApi(reference: String) {
     val productPath = s"$rootPrefix/my/products/$reference/baked"
 
-    def get: HttpResponse = GET(productPath)
+    def get(): HttpResponse = GET(productPath)
   }
 }

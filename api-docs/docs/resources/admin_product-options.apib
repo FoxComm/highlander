@@ -1,0 +1,29 @@
+## Product options [/v1/product-options/{context}/{id}]
+
++ Parameters
+    + context: `default` (required, string) - The context in which a product option is viewable.
+    + id: `1` (required, number) - Unique indentifier for a Product option.
+
+### View [GET]
+
++ Response 200 (application/json)
+  + Attributes (ProductOptionResponse)
+
+### Create [POST /v1/product-options/{context}]
+
++ Parameters
+    + context: `default` (required, string) - The context in which a product is viewable.
++ Request (application/json)
+    + Attributes (ProductOptionPayload)
++ Response 200 (application/json)
+  + Attributes (ProductOptionResponse)
+
+### Update [PATCH /v1/product-options/{context}/{id}]
+
++ Parameters
+    + context: `default` (required, string) - The context in which a product is viewable.
+    + id: `1` (required, number) - Unique indentifier for a product option.
++ Request (application/json)
+    + Attributes (ProductOptionPayload)
++ Response 200 (application/json)
+  + Attributes (ProductOptionResponse)

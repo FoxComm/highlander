@@ -1,0 +1,90 @@
+
+.variant-cell {
+  position: relative;
+
+  & :global(.fc-text-input) {
+    width: 100%;
+  }
+}
+
+.variants-menu {
+  max-height: 350px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-shadow: 0 2px 4px 0 rgba(0,0,0,0.50);
+  background: #fff;
+  font-size: 14px;
+  line-height: 18px;
+
+  display: none;
+  position: absolute;
+  top: 100%;
+  width: 100%;
+  z-index: 999;
+
+  &:global(._visible) {
+    display: block;
+  }
+}
+
+.variant-row {
+  padding: 12px;
+  cursor: pointer;
+  &:hover {
+    background: #f7f7f7;
+  }
+
+  &:global(._new) {
+    &:first-child {
+      font-size: 12px;
+      font-weight: 400;
+      color: #484848;
+      padding-bottom: 10px;
+    }
+  }
+}
+
+.no-image-text {
+  font-weight: 600;
+  color: #9BA3A7;
+  padding: 0 10px;
+}
+
+.image-cell {
+  height: 60px;
+}
+
+.cell-thumbnail {
+  height: 100%;
+}
+
+.variant-value {
+  padding: 0 10px;
+  white-space: nowrap;
+}
+
+.price {
+  max-width: 120px;
+
+  & :global(.fc-prepend-input__input-field) {
+    width: 100%;
+  }
+}
+.sku-link {
+  color: #484848;
+  padding: 0 10px;
+
+  &:hover {
+    color: #4fc2c9;
+  }
+}
+
+.delete-icon {
+  cursor: pointer;
+  margin: 0 5px 0 14px;
+}
+
+.state-cell {
+  display: flex;
+  align-items: center;
+}

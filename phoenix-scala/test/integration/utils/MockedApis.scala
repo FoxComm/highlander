@@ -4,9 +4,12 @@ import cats.implicits._
 import java.io.File
 import scala.concurrent.ExecutionContext.Implicits.global
 import com.stripe.model.DeletedCard
+import models.inventory.{ProductVariantSku, ProductVariantSkus}
 import org.mockito.ArgumentMatcher
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
+import org.mockito.invocation.InvocationOnMock
+import org.mockito.stubbing.Answer
 import org.scalatest.mockito.MockitoSugar
 import testutils.TestBase
 import utils.TestStripeSupport.randomStripeishId
@@ -79,6 +82,20 @@ trait MockedApis extends MockitoSugar {
     val mocked = mock[MiddlewarehouseApi]
     when(mocked.hold(any[OrderInventoryHold])(any[EC], any[AU])).thenReturn(Result.unit)
     when(mocked.cancelHold(any[String])(any[EC], any[AU])).thenReturn(Result.unit)
+
+    when(mocked.createSku(anyInt, any[CreateSku])(any[EC], any[AU])).thenAnswer {
+      new Answer[DbResultT[ProductVariantSku]] {
+        override def answer(invocation: InvocationOnMock) = {
+          val variantFormId: Int   = invocation.getArgument(0)
+          val createSku: CreateSku = invocation.getArgument(1)
+          ProductVariantSkus.create(
+              ProductVariantSku(variantFormId = variantFormId,
+                                skuId = variantFormId,
+                                skuCode = createSku.code))
+        }
+      }
+    }
+
     mocked
   }
 

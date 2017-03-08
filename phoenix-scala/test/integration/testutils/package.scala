@@ -1,4 +1,7 @@
+import scala.concurrent.Await
+import scala.concurrent.duration._
 import akka.http.scaladsl.model.{HttpResponse, StatusCode, StatusCodes}
+
 import failures.Failure
 import org.json4s.Formats
 import org.json4s.jackson.JsonMethods._
@@ -7,9 +10,6 @@ import org.scalatest.concurrent.PatienceConfiguration
 import responses.TheResponse
 import utils.JsonFormatters
 import utils.aliases._
-
-import scala.concurrent.Await._
-import scala.concurrent.duration._
 
 package object testutils extends MustMatchers with OptionValues with AppendedClues {
 
@@ -45,17 +45,15 @@ package object testutils extends MustMatchers with OptionValues with AppendedClu
     } withClue originalSourceClue
   }
 
-  implicit class RichHttpResponse(response: HttpResponse)(implicit ec: EC, mat: Mat)
-      extends MustMatchers
-      with OptionValues
-      with AppendedClues {
+  implicit class RichHttpResponse(response: HttpResponse)(implicit ec: EC, mat: Mat) {
 
     lazy val bodyText: String =
-      result(response.entity.toStrict(1.second).map(_.data.utf8String), 1.second)
+      Await.result(response.entity.toStrict(1.second).map(_.data.utf8String), 1.second)
 
     def as[A <: AnyRef](implicit mf: Manifest[A], line: SL, file: SF): A = {
       response.mustBeOk()
-      parse(bodyText).extractOpt[A].value.withClue(s"Failed to parse body!")
+      val json = parse(bodyText)
+      json.extractOpt[A].value.withClue(s"Failed to deserialize json: $json")
     } withClue originalSourceClue
 
     def asTheResult[A <: AnyRef](implicit mf: Manifest[A], line: SL, file: SF): A =

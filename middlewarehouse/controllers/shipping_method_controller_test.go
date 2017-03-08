@@ -1,23 +1,29 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"testing"
 
+	"github.com/FoxComm/highlander/middlewarehouse/api/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/api/responses"
-	"github.com/FoxComm/highlander/middlewarehouse/controllers/mocks"
+	"github.com/FoxComm/highlander/middlewarehouse/common/db/config"
+	"github.com/FoxComm/highlander/middlewarehouse/common/db/tasks"
 	"github.com/FoxComm/highlander/middlewarehouse/fixtures"
 	"github.com/FoxComm/highlander/middlewarehouse/models"
+	"github.com/FoxComm/highlander/middlewarehouse/repositories"
+	"github.com/FoxComm/highlander/middlewarehouse/services"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
 
 type shippingMethodControllerTestSuite struct {
 	GeneralControllerTestSuite
-	service *mocks.ShippingMethodServiceMock
+	db      *gorm.DB
+	service services.ShippingMethodService
+	carrier *models.Carrier
 }
 
 func TestShippingMethodControllerSuite(t *testing.T) {
@@ -25,27 +31,32 @@ func TestShippingMethodControllerSuite(t *testing.T) {
 }
 
 func (suite *shippingMethodControllerTestSuite) SetupSuite() {
+	suite.db = config.TestConnection()
 	suite.router = gin.New()
 
-	suite.service = &mocks.ShippingMethodServiceMock{}
+	suite.service = services.NewShippingMethodService(suite.db)
 
 	controller := NewShippingMethodController(suite.service)
 	controller.SetUp(suite.router.Group("/shipping-methods"))
+
+	tasks.TruncateTables(suite.db, []string{
+		"carriers",
+	})
+
+	suite.carrier = &models.Carrier{
+		Name:             "Test",
+		TrackingTemplate: "test.com/?=",
+	}
+	suite.Nil(suite.db.Create(suite.carrier).Error)
 }
 
-func (suite *shippingMethodControllerTestSuite) TearDownTest() {
-	//assert all expectations were met
-	suite.service.AssertExpectations(suite.T())
-
-	// clear service mock calls expectations after each test
-	suite.service.ExpectedCalls = []*mock.Call{}
-	suite.service.Calls = []mock.Call{}
+func (suite *shippingMethodControllerTestSuite) SetupTest() {
+	tasks.TruncateTables(suite.db, []string{
+		"shipping_methods",
+	})
 }
 
 func (suite *shippingMethodControllerTestSuite) Test_GetShippingMethods_EmptyData_ReturnsEmptyArray() {
-	//arrange
-	suite.service.On("GetShippingMethods").Return(&[]*models.ShippingMethod{}, nil).Once()
-
 	//act
 	shippingMethods := []*responses.ShippingMethod{}
 	response := suite.Get("/shipping-methods", &shippingMethods)
@@ -57,9 +68,13 @@ func (suite *shippingMethodControllerTestSuite) Test_GetShippingMethods_EmptyDat
 
 func (suite *shippingMethodControllerTestSuite) Test_GetShippingMethods_NonEmptyData_ReturnsRecordsArray() {
 	//arrange
-	shippingMethod1 := fixtures.GetShippingMethod(uint(1), uint(1), fixtures.GetCarrier(uint(1)))
-	shippingMethod2 := fixtures.GetShippingMethod(uint(2), uint(2), fixtures.GetCarrier(uint(2)))
-	suite.service.On("GetShippingMethods").Return([]*models.ShippingMethod{shippingMethod1, shippingMethod2}, nil).Once()
+	shippingMethod1 := fixtures.GetShippingMethod(uint(0), suite.carrier.ID, suite.carrier)
+	shippingMethod1.Code = "METHOD1"
+	suite.Nil(suite.db.Create(shippingMethod1).Error)
+
+	shippingMethod2 := fixtures.GetShippingMethod(uint(0), suite.carrier.ID, suite.carrier)
+	shippingMethod2.Code = "METHOD2"
+	suite.Nil(suite.db.Create(shippingMethod2).Error)
 
 	//act
 	shippingMethods := []*responses.ShippingMethod{}
@@ -77,9 +92,6 @@ func (suite *shippingMethodControllerTestSuite) Test_GetShippingMethods_NonEmpty
 }
 
 func (suite *shippingMethodControllerTestSuite) Test_GetShippingMethodByID_NotFound_ReturnsNotFoundError() {
-	//arrange
-	suite.service.On("GetShippingMethodByID", uint(1)).Return(nil, gorm.ErrRecordNotFound).Once()
-
 	//act
 	errors := &responses.Error{}
 	response := suite.Get("/shipping-methods/1", errors)
@@ -87,17 +99,19 @@ func (suite *shippingMethodControllerTestSuite) Test_GetShippingMethodByID_NotFo
 	//assert
 	suite.Equal(http.StatusNotFound, response.Code)
 	suite.Equal(1, len(errors.Errors))
-	suite.Equal(gorm.ErrRecordNotFound.Error(), errors.Errors[0])
+	suite.Equal(fmt.Sprintf(repositories.ErrorShippingMethodNotFound, 1), errors.Errors[0])
 }
 
 func (suite *shippingMethodControllerTestSuite) Test_GetShippingMethodByID_Found_ReturnsRecord() {
 	//arrange
-	shippingMethod1 := fixtures.GetShippingMethod(uint(1), uint(1), fixtures.GetCarrier(uint(1)))
-	suite.service.On("GetShippingMethodByID", uint(1)).Return(shippingMethod1, nil).Once()
+	shippingMethod1 := fixtures.GetShippingMethod(uint(0), suite.carrier.ID, suite.carrier)
+	shippingMethod1.Code = "METHOD1"
+	suite.Nil(suite.db.Create(shippingMethod1).Error)
 
 	//act
 	shippingMethod := &responses.ShippingMethod{}
-	response := suite.Get("/shipping-methods/1", shippingMethod)
+	url := fmt.Sprintf("/shipping-methods/%d", shippingMethod1.ID)
+	response := suite.Get(url, shippingMethod)
 
 	//assert
 	suite.Equal(http.StatusOK, response.Code)
@@ -108,12 +122,13 @@ func (suite *shippingMethodControllerTestSuite) Test_GetShippingMethodByID_Found
 
 func (suite *shippingMethodControllerTestSuite) Test_CreateShippingMethod_ReturnsRecord() {
 	//arrange
-	shippingMethod1 := fixtures.GetShippingMethod(uint(1), uint(1), fixtures.GetCarrier(uint(1)))
-	payload := fixtures.ToShippingMethodPayload(shippingMethod1)
-	model, err := models.NewShippingMethodFromPayload(payload)
-	suite.Nil(err)
-
-	suite.service.On("CreateShippingMethod", model).Return(shippingMethod1, nil).Once()
+	payload := &payloads.ShippingMethod{
+		CarrierID:    suite.carrier.ID,
+		Name:         "Pay the man",
+		Code:         "PAYIT",
+		ShippingType: "flat",
+		Cost:         0,
+	}
 
 	//act
 	shippingMethod := &responses.ShippingMethod{}
@@ -121,46 +136,55 @@ func (suite *shippingMethodControllerTestSuite) Test_CreateShippingMethod_Return
 
 	//assert
 	suite.Equal(http.StatusCreated, response.Code)
-	expectedResp, err := responses.NewShippingMethodFromModel(shippingMethod1)
-	suite.Nil(err)
-	suite.Equal(expectedResp, shippingMethod)
+	suite.Equal(payload.Name, shippingMethod.Name)
 }
 
 func (suite *shippingMethodControllerTestSuite) Test_UpdateShippingMethod_NotFound_ReturnsNotFoundError() {
 	//arrange
-	shippingMethod1 := fixtures.GetShippingMethod(uint(1), uint(1), fixtures.GetCarrier(uint(1)))
-	suite.service.On("UpdateShippingMethod", fixtures.GetShippingMethod(uint(1), uint(1), &models.Carrier{})).Return(nil, gorm.ErrRecordNotFound).Once()
+	payload := &payloads.ShippingMethod{
+		CarrierID:    suite.carrier.ID,
+		Name:         "Pay the man",
+		Code:         "PAYIT",
+		ShippingType: "flat",
+		Cost:         0,
+	}
 
 	//act
 	errors := &responses.Error{}
-	response := suite.Put("/shipping-methods/1", fixtures.ToShippingMethodPayload(shippingMethod1), errors)
+	response := suite.Put("/shipping-methods/29", payload, errors)
 
 	//assert
 	suite.Equal(http.StatusNotFound, response.Code)
 	suite.Equal(1, len(errors.Errors))
-	suite.Equal(gorm.ErrRecordNotFound.Error(), errors.Errors[0])
+	suite.Equal(fmt.Sprintf(repositories.ErrorShippingMethodNotFound, 29), errors.Errors[0])
 }
 
 func (suite *shippingMethodControllerTestSuite) Test_UpdateShippingMethod_Found_ReturnsRecord() {
 	//arrange
-	shippingMethod1 := fixtures.GetShippingMethod(uint(1), uint(1), fixtures.GetCarrier(uint(1)))
-	suite.service.On("UpdateShippingMethod", fixtures.GetShippingMethod(uint(1), uint(1), &models.Carrier{})).Return(shippingMethod1, nil).Once()
+	shippingMethod1 := fixtures.GetShippingMethod(uint(0), suite.carrier.ID, suite.carrier)
+	shippingMethod1.Code = "METHOD1"
+	suite.Nil(suite.db.Create(shippingMethod1).Error)
+
+	payload := &payloads.ShippingMethod{
+		CarrierID:    suite.carrier.ID,
+		Name:         "Pay the man",
+		Code:         "PAYIT",
+		ShippingType: "flat",
+		Cost:         0,
+	}
 
 	//act
 	shippingMethod := &responses.ShippingMethod{}
-	response := suite.Put("/shipping-methods/1", fixtures.ToShippingMethodPayload(shippingMethod1), shippingMethod)
+	url := fmt.Sprintf("/shipping-methods/%d", shippingMethod1.ID)
+	response := suite.Put(url, payload, shippingMethod)
 
 	//assert
 	suite.Equal(http.StatusOK, response.Code)
-	expectedResp, err := responses.NewShippingMethodFromModel(shippingMethod1)
-	suite.Nil(err)
-	suite.Equal(expectedResp, shippingMethod)
+	suite.Equal(payload.Name, shippingMethod.Name)
+	suite.Equal(payload.Code, shippingMethod.Code)
 }
 
 func (suite *shippingMethodControllerTestSuite) Test_DeleteShippingMethod_NotFound_ReturnsNotFoundError() {
-	//arrange
-	suite.service.On("DeleteShippingMethod", uint(1)).Return(gorm.ErrRecordNotFound).Once()
-
 	//act
 	errors := responses.Error{}
 	response := suite.Delete("/shipping-methods/1", &errors)
@@ -168,15 +192,18 @@ func (suite *shippingMethodControllerTestSuite) Test_DeleteShippingMethod_NotFou
 	//assert
 	suite.Equal(http.StatusNotFound, response.Code)
 	suite.Equal(1, len(errors.Errors))
-	suite.Equal(gorm.ErrRecordNotFound.Error(), errors.Errors[0])
+	suite.Equal(fmt.Sprintf(repositories.ErrorShippingMethodNotFound, 1), errors.Errors[0])
 }
 
 func (suite *shippingMethodControllerTestSuite) Test_DeleteShippingMethod_Found() {
 	//arrange
-	suite.service.On("DeleteShippingMethod", uint(1)).Return(nil).Once()
+	shippingMethod1 := fixtures.GetShippingMethod(uint(0), suite.carrier.ID, suite.carrier)
+	shippingMethod1.Code = "METHOD1"
+	suite.Nil(suite.db.Create(shippingMethod1).Error)
 
 	//act
-	response := suite.Delete("/shipping-methods/1")
+	url := fmt.Sprintf("/shipping-methods/%d", shippingMethod1.ID)
+	response := suite.Delete(url)
 
 	//assert
 	suite.Equal(http.StatusNoContent, response.Code)

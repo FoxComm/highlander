@@ -20,19 +20,19 @@ import ParticipantsPanel from '../participants';
 
 import type { ObjectView } from 'paragons/object';
 
-type Layout = {
+export type Layout = {
   content: Array<Object>,
   aside: Array<Object>,
 }
 
-type Fields = {
+export type Fields = {
   canAddProperty: boolean,
   value: Array<string>,
   includeRest: boolean,
   omit: Array<string>,
 }
 
-type NodeDesc = {
+export type NodeDesc = {
   type: string,
   title?: string,
   fields?: Fields,
@@ -50,12 +50,17 @@ export type DetailsProps = {
   // for product form
   // somehow flow don't understand props declarations in extended classes
   // in case of existing props declarations in base class
-  onSetSkuProperty: (code: string, field: string, value: any) => void,
-  onSetSkuProperties: (code: string, toUpdate: Array<Array<any>>) => void,
+  onSetVariantProperty: (id: string, field: string, value: any) => void,
+  onSetVariantProperties: (id: string, toUpdate: Array<Array<any>>) => void,
 }
 
+const emptyLayout: Layout = {
+  content: [],
+  aside: [],
+};
+
 export default class ObjectDetails extends Component {
-  layout: Layout;
+  +layout: Layout = emptyLayout;
 
   get schema() {
     return expandRefs(this.props.schema);
@@ -183,15 +188,25 @@ export default class ObjectDetails extends Component {
     return addKeys(name, section.map(desc => this.renderNode(desc, section)));
   }
 
-  render() {
-    return (
-      <Form ref="form" styleName="object-details">
-        <div styleName="main">
-          {this.renderSection('main')}
-        </div>
+  get aside() {
+    if (this.layout.aside != null) {
+      return (
         <div styleName="aside">
           {this.renderSection('aside')}
         </div>
+      );
+    }
+  }
+
+  render() {
+    const mainStyleName = this.layout.aside != null ? 'main' : 'full-page';
+
+    return (
+      <Form ref="form" styleName="object-details">
+        <div styleName={mainStyleName}>
+          {this.renderSection('main')}
+        </div>
+        {this.aside}
       </Form>
     );
   }

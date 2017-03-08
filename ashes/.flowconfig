@@ -23,14 +23,17 @@
 .*/test/fixtures/*
 .*/node_modules/react/.*
 .*/node_modules/wings/.*
+.*/wings/src/ui/.*
 
 [include]
 
 [libs]
 src/interfaces/
 src/interfaces/paragons/
+src/interfaces/paragons/es
 
 [options]
+strip_root=true
 unsafe.enable_getters_and_setters=true
 esproposal.class_static_fields=enable
 esproposal.class_instance_fields=enable

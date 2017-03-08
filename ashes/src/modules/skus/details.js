@@ -1,103 +1,88 @@
-/**
- * @flow
- */
+// @flow
 
 import Api from 'lib/api';
-import { dissoc, assoc, update, merge } from 'sprout-data';
-import { createAction, createReducer } from 'redux-act';
+import { createReducer, createAction } from 'redux-act';
 import { createAsyncActions } from '@foxcomm/wings';
-import _ from 'lodash';
 
-import { createEmptySku } from 'paragons/sku';
+import { pushStockItemChanges } from './warehouses';
 
-import { pushStockItemChanges } from '../inventory/warehouses';
+export const reset = createAction();
+export const clearSubmitErrors = createAction();
+export const clearArchiveErrors = createAction();
+export const createSku = createAction();
+export const archiveSku = createAction();
+export const skuNew = createAction();
 
-export type Sku = {
-  code?: string,
-  feCode?: string,
-  attributes: Attributes,
-  id: any,
-  context: {
-    attributes?: Object,
-    name: string,
-  }
-};
+type Dimension = {
+  value: number,
+  units: string,
+}
 
-const defaultContext = 'default';
+type QuantityLevel = {
+  isEnabled: boolean,
+  level: number,
+}
 
-export const skuNew = createAction('SKU_NEW');
-const skuClear = createAction('SKU_CLEAR');
-export const syncSku = createAction('SKU_SYNC');
+type SkuBase = {
+  code: string,
+  upc: string,
+  title: string,
+  unitCost: Currency,
+  taxClass: string,
+  requiresShipping: boolean,
+  shippingClass: string,
+  isReturnable: boolean,
+  returnWindow: Dimension,
+  width: Dimension,
+  height: Dimension,
+  weight: Dimension,
+  length: Dimension,
+  requiresInventoryTracking: boolean,
+  inventoryWarningLevel: QuantityLevel,
+  maximumQuantityInCart: QuantityLevel,
+  minimumQuantityInCart: QuantityLevel,
+  allowBackorder: boolean,
+  allowPreorder: boolean,
+  requiresLotTracking: boolean,
+  lotExpirationThreshold: Dimension,
+  lotExpirationWarningThreshold: Dimension,
+}
 
-const _archiveSku = createAsyncActions(
-  'archiveSku',
-  (code, context = defaultContext) => {
-    return Api.delete(`/skus/${context}/${code}`);
-  }
-);
 
-export const archiveSku = _archiveSku.perform;
-export const clearArchiveErrors = _archiveSku.clearErrors;
+export type Sku = SkuBase & {
+  id: number,
+}
 
 const _fetchSku = createAsyncActions(
   'fetchSku',
-  (code: string, context: string = defaultContext) => {
-    return Api.get(`/skus/${context}/${code}`);
-  }
-);
-
-const _createSku = createAsyncActions(
-  'createSku',
-  (sku: Sku, context: string = defaultContext) => {
-    return Api.post(`/skus/${context}`, sku);
-  }
-);
-
-const _updateSku = createAsyncActions(
-  'updateSku',
-  function(sku: Sku, context: string = defaultContext) {
-    const { dispatch, getState } = this;
-    const oldSku = _.get(getState(), ['skus', 'details', 'sku', 'attributes', 'code', 'v']);
-    if (oldSku) {
-      const stockItemsPromise = dispatch(pushStockItemChanges(oldSku));
-      const updatePromise = Api.patch(`/skus/${context}/${oldSku}`, sku);
-      return Promise.all([updatePromise, stockItemsPromise]).then(([updateResponse]) => {
-        return updateResponse;
-      });
-    }
+  function(id: number) {
+    return Api.get(`/inventory/skus/${id}`);
   }
 );
 
 export const fetchSku = _fetchSku.perform;
-export const createSku = _createSku.perform;
-export const updateSku = _updateSku.perform;
-
-export function clearSubmitErrors() {
-  return (dispatch: Function) => {
-    dispatch(_createSku.clearErrors());
-    dispatch(_updateSku.clearErrors());
-  };
-}
-
 export const clearFetchErrors = _fetchSku.clearErrors;
 
-export function reset() {
-  return (dispatch: Function) => {
-    dispatch(skuClear());
-    dispatch(clearSubmitErrors());
-    dispatch(clearFetchErrors());
-  };
-}
+const _updateSku = createAsyncActions(
+  'updateSku',
+  function(sku: Sku) {
+    const {id, ...payload} = sku;
+    const willUpdateObject = Api.patch(`/inventory/skus/${id}`, payload);
+    const willUpdateStockCounts = pushStockItemChanges(id);
 
-export type SkuState = {
-  sku: ?Sku,
-}
+    return Promise.all([willUpdateObject, willUpdateStockCounts])
+      .then(responses => responses[0]);
+  }
+);
 
-const initialState: SkuState = {
+export const updateSku = _updateSku.perform;
+
+
+const initialState = {
   sku: null,
 };
 
-function updateSkuInState(state: SkuState, sku: Sku) {
+function updateSkuInState(state, sku: Sku) {
   return {
     ...state,
     sku,
@@ -105,21 +90,10 @@ function updateSkuInState(state: SkuState, sku: Sku) {
 }
 
 const reducer = createReducer({
-  [skuNew]: (state) => {
-    return assoc(state,
-      'sku', createEmptySku(),
-      'err', null
-    );
-  },
-  [skuClear]: state => {
-    return dissoc(state, 'sku');
-  },
-  [syncSku]: (state, data) => {
-    return update(state, 'sku', merge, data);
-  },
-  [_createSku.succeeded]: updateSkuInState,
-  [_updateSku.succeeded]: updateSkuInState,
   [_fetchSku.succeeded]: updateSkuInState,
+  [_updateSku.succeeded]: updateSkuInState,
 }, initialState);
 
 export default reducer;
+
+

@@ -9,17 +9,20 @@ begin
   case tg_table_name
     when 'products' then
       product_ids := array_agg(new.id);
-    when 'product_sku_links_view' then
+    when 'product_to_variant_links_view' then
       product_ids := array_agg(new.product_id);
     when 'product_album_links_view' then
       product_ids := array_agg(new.product_id);
-    when 'sku_search_view' then
+    when 'product_variants_search_view' then
       select array_agg(p.id) into strict product_ids
         from products as p
           inner join object_contexts as context on (p.context_id = context.id)
-          inner join product_sku_links_view as sv on (sv.product_id = p.id) --get list of sku codes for the product
-          inner join sku_search_view as sku on (sku.context_id = context.id and sku.sku_code = sv.skus->>0)
-        where sku.id = new.id;
+          inner join object_forms as f on (p.form_id = f.id)
+          inner join product_to_variant_links_view as pv on (pv.product_id = p.id) -- for SKU codes
+          inner join product_variants_search_view as inv on (inv.context_id = context.id
+                                                         -- pv.skus contains variant code
+                                                         and position(inv.sku_code in pv.skus::text)<>0)
+        where inv.id = new.id;
   end case;
 
   with temp_table(id, alive, catalog_id) as (
@@ -46,9 +49,9 @@ begin
                inner join object_shadows as s on (s.id = p.shadow_id)
                 where p.id = any(product_ids)) as q
 ) select
-    array_agg(id) filter (where alive = true and catalog_id is not null) as upd_ids,
+    array_agg(id) filter (where alive = true  and catalog_id is not null) as upd_ids,
     array_agg(id) filter (where alive = false and catalog_id is not null) as del_ids,
-    array_agg(id) filter (where catalog_id is null and alive = true) as ins_ids
+    array_agg(id) filter (where alive = true  and catalog_id is null) as ins_ids
       into update_ids, delete_ids, insert_ids
   from temp_table;
 
@@ -57,8 +60,8 @@ begin
   end if;
 
   if array_length(insert_ids, 1) > 0 then
-    insert into products_catalog_view(id, product_id, slug, context, title, description, sale_price, currency, tags,
-                                      albums, scope, skus, retail_price)
+    insert into products_catalog_view(id, product_id, slug, context, title, description, sale_price, retail_price,
+                                        currency, tags, albums, scope, skus)
       select
       p.id,
       f.id as product_id,
@@ -66,19 +69,19 @@ begin
       context.name as context,
       f.attributes->>(s.attributes->'title'->>'ref') as title,
       f.attributes->>(s.attributes->'description'->>'ref') as description,
-      sku.sale_price as sale_price,
-      sku.sale_price_currency as currency,
+      inv.sale_price as sale_price,
+      inv.retail_price as retail_price,
+      inv.sale_price_currency as currency,
       f.attributes->>(s.attributes->'tags'->>'ref') as tags,
       albumLink.albums as albums,
       p.scope as scope,
-      sv.skus as skus,
-      sku.retail_price as retail_price
+      pv.skus as skus
       from products as p
         inner join object_contexts as context on (p.context_id = context.id)
         inner join object_forms as f on (f.id = p.form_id)
         inner join object_shadows as s on (s.id = p.shadow_id)
-        inner join product_sku_links_view as sv on (sv.product_id = p.id) --get list of sku codes for the product
-        inner join sku_search_view as sku on (sku.context_id = context.id and sku.sku_code = sv.skus->>0)
+        inner join product_to_variant_links_view as pv on (pv.product_id = p.id) --get list of sku codes for the product
+        inner join product_variants_search_view as inv on (inv.context_id = context.id and inv.id = f.id)
         left join product_album_links_view as albumLink on (albumLink.product_id = p.id)
       where p.id = any(insert_ids);
     end if;
@@ -104,25 +107,20 @@ begin
                 context.name as context,
                 f.attributes->>(s.attributes->'title'->>'ref') as title,
                 f.attributes->>(s.attributes->'description'->>'ref') as description,
-                sku.sale_price as sale_price,
-                sku.retail_price as retail_price,
-                sku.sale_price_currency as currency,
+                inv.sale_price as sale_price,
+                inv.retail_price as retail_price,
+                inv.sale_price_currency as currency,
                 f.attributes->>(s.attributes->'tags'->>'ref') as tags,
                 albumLink.albums as albums,
-                ((p.archived_at is null or (p.archived_at)::timestamp > statement_timestamp()) and
-                    ((f.attributes ->> (s.attributes -> 'activeFrom' ->> 'ref')) = '') is false and
-                    (f.attributes->>(s.attributes->'activeFrom'->>'ref'))::timestamp < statement_timestamp() and
-                    (((f.attributes->>(s.attributes->'activeTo'->>'ref')) = '') is not false or
-                    ((f.attributes->>(s.attributes->'activeTo'->>'ref'))::timestamp >= statement_timestamp())))
-                as alive,
                 p.scope as scope,
-                sv.skus as skus
+                pv.skus as skus
               from products as p
                 inner join object_contexts as context on (p.context_id = context.id)
                 inner join object_forms as f on (f.id = p.form_id)
                 inner join object_shadows as s on (s.id = p.shadow_id)
-                inner join product_sku_links_view as sv on (sv.product_id = p.id) --get list of sku codes for the product
-                inner join sku_search_view as sku on (sku.context_id = context.id and sku.sku_code = sv.skus->>0)
+                inner join product_to_variant_links_view as pv on (pv.product_id = p.id)
+                inner join product_variants_search_view as inv on (inv.context_id = context.id
+                                                               and position(inv.sku_code in pv.skus::text)<>0)
                 left join product_album_links_view as albumLink on (albumLink.product_id = p.id)
               where p.id = any(update_ids)
            ) as subquery

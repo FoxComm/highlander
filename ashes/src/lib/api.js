@@ -90,8 +90,17 @@ export function request(method, uri, data, options = {}) {
         error.response = err.response;
 
         throw error;
-      });
+      })
+    .then(response => {
+      if (response && response.error) {
+        error = new Error(_.get(response.error, 'reason', 'Generic request error'));
+        error.response = {status: response.status};
 
+        throw error;
+      }
+
+      return response;
+    });
   // pass through abort method
   promise.abort = abort;
   return promise;

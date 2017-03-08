@@ -55,4 +55,3 @@ export default class ImagesPage extends Component {
     );
   }
 }
-

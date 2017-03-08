@@ -1,60 +1,65 @@
-/**
- * @flow
- */
-
 import makeLiveSearch from '../live-search';
-
-export type Sku = {
-  id: number;
-  image: string|null,
-  context: string,
-  skuCode: string,
-  title: string,
-  salePrice: string,
-  salePriceCurrency: string,
-  retailPrice: string,
-  retailPriceCurrency: string,
-};
 
 const searchTerms = [
   {
-    title: 'SKU : Code',
+    title: 'SKU',
     type: 'identifier',
-    term: 'skuCode',
-  },
-  {
-    title: 'SKU : Title',
-    type: 'string',
-    term: 'title',
-  },
-  {
-    title: 'SKU : Price',
-    type: 'currency',
-    term: 'price'
-  },
-  {
-    title: 'SKU : Archived At',
-    type: 'date',
-    term: 'archivedAt',
-  },
-  {
-    title: 'SKU : Is Archived',
-    type: 'exists',
-    term: 'archivedAt',
+    term: 'sku',
+  }, {
+    title: 'SKU Type',
+    type: 'enum',
+    term: 'type',
     suggestions: [
-      { display: 'Yes', operator: 'exists' },
-      { display: 'No', operator: 'missing' },
+      { display: 'Sellable', value: 'Sellable' },
+      { display: 'Non-sellable', value: 'Non-sellable' },
+      { display: 'Preorder', value: 'Preorder' },
+      { display: 'Backorder', value: 'Backorder' },
+    ]
+  }, {
+    title: 'Warehouse',
+    type: 'object',
+    options: [
+      {
+        title: 'Name',
+        type: 'string',
+        term: 'stockLocation.name',
+      }, {
+        title: 'Type',
+        type: 'string',
+        term: 'stockLocation.type',
+      }
     ],
-  },
+  }, {
+    title: 'OnHand',
+    type: 'number',
+    term: 'onHand',
+  }, {
+    title: 'OnHold',
+    type: 'number',
+    term: 'onHold'
+  }, {
+    title: 'Reserved',
+    type: 'number',
+    term: 'reserved',
+  }, {
+    title: 'AFS',
+    type: 'number',
+    term: 'afs',
+  }, {
+    title: 'AFS Cost',
+    type: 'number',
+    term: 'afsCost',
+  }
 ];
 
 const { reducer, actions } = makeLiveSearch(
   'skus.list',
   searchTerms,
-  'sku_search_view/_search',
-  'skusScope',
+  'inventory_search_view/_search',
+  'inventoryScope',
   {
-    rawSorts: ['title']
+    initialState: { sortBy: '-createdAt' },
+    rawSorts: ['product']
   }
 );
 

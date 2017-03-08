@@ -5,9 +5,9 @@ import java.time.Instant
 import models.product._
 import responses.AlbumResponses._
 import responses.ObjectResponses._
-import responses.SkuResponses._
-import responses.TaxonomyResponses.AssignedTaxonsResponse
-import responses.VariantResponses._
+import responses.ProductVariantResponses._
+import responses.TaxonomyResponses._
+import responses.ProductOptionResponses._
 import utils.aliases._
 
 object ProductResponses {
@@ -28,25 +28,30 @@ object ProductResponses {
                     context: ObjectContextResponse.Root,
                     attributes: Json,
                     albums: Seq[AlbumResponse.Root],
-                    skus: Seq[SkuResponse.Root],
-                    variants: Seq[IlluminatedVariantResponse.Root],
+                    variants: Seq[ProductVariantResponse.Partial],
+                    options: Seq[ProductOptionResponse.Root],
                     archivedAt: Option[Instant],
                     taxons: Seq[AssignedTaxonsResponse])
         extends ResponseItem
 
     def build(product: IlluminatedProduct,
               albums: Seq[AlbumResponse.Root],
-              skus: Seq[SkuResponse.Root],
-              variants: Seq[IlluminatedVariantResponse.Root],
+              variants: Seq[ProductVariantResponse.Partial],
+              options: Seq[ProductOptionResponse.Root],
               taxons: Seq[AssignedTaxonsResponse]): Root =
       Root(id = product.id,
            slug = product.slug,
            attributes = product.attributes,
            context = ObjectContextResponse.build(product.context),
            albums = albums,
-           skus = skus,
            variants = variants,
+           options = options,
            archivedAt = product.archivedAt,
            taxons = taxons)
+
+    case class Partial(id: Int, attributes: Json) extends ResponseItem
+
+    def buildPartial(product: IlluminatedProduct): Partial =
+      Partial(id = product.id, attributes = product.attributes)
   }
 }

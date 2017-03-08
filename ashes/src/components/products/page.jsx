@@ -1,12 +1,8 @@
-/**
- * @flow
- */
-
-// libs
+// @flow
 import React, { Component, Element, PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
-import { setSkuAttribute, skuId } from 'paragons/product';
+import { setVariantAttribute, productVariantCode } from 'paragons/product';
 import { assoc } from 'sprout-data';
 
 // actions
@@ -72,49 +68,49 @@ class ProductPage extends ObjectPage {
     return this.props.actions.fetchProduct(this.entityId, this.entityContext);
   }
 
-  removeEmptySkus(object) {
+  removeEmptyVariants(object) {
     let existsCodes = {};
 
-    let skus = _.reduce(object.skus, (acc, sku) => {
-      const code = _.get(sku.attributes, 'code.v');
+    let variants = _.reduce(object.variants, (acc, variant) => {
+      const code = _.get(variant.attributes, 'code.v');
       if (code) {
-        existsCodes[skuId(sku)] = 1;
-        return [...acc, sku];
+        existsCodes[productVariantCode(variant)] = 1;
+        return [...acc, variant];
       }
       return acc;
     }, []);
 
-    if (!skus.length && object.skus.length) {
-      const firstSku = object.skus[0];
-      skus = [firstSku];
-      existsCodes[skuId(firstSku)] = 1;
+    if (!variants.length && object.variants.length) {
+      const firstVariant = object.variants[0];
+      variants = [firstVariant];
+      existsCodes[productVariantCode(firstVariant)] = 1;
     }
 
-    const variants = _.map(object.variants, variant => {
-      const values = _.map(variant.values, value => {
-        const skuCodes = _.reduce(value.skuCodes, (acc, code) => {
+    const options = _.map(object.options, option => {
+      const values = _.map(option.values, value => {
+        const skus = _.reduce(value.skus, (acc, code) => {
           if (code in existsCodes) {
             return [...acc, code];
           }
           return acc;
         }, []);
-        return assoc(value, 'skuCodes', skuCodes);
+        return assoc(value, 'skus', skus);
       });
-      return assoc(variant, 'values', values);
+      return assoc(option, 'values', values);
     });
 
     return assoc(object,
-      'skus', skus,
-      'variants', variants
+      'variants', variants,
+      'options', options
     );
   }
 
   prepareObjectForValidation(object) {
-    return this.removeEmptySkus(object);
+    return this.removeEmptyVariants(object);
   }
 
   prepareObjectForSaving(object) {
-    return this.removeEmptySkus(object);
+    return this.removeEmptyVariants(object);
   }
 
   get selectContextDropdown() {
@@ -143,23 +139,23 @@ class ProductPage extends ObjectPage {
   }
 
   @autobind
-  handleSetSkuProperty(code: string, field: string, value: string) {
+  handleSetVariantProperty(id: string, field: string, value: string) {
     const { object } = this.state;
 
     if (object) {
       this.setState({
-        object: setSkuAttribute(object, code, field, value),
+        object: setVariantAttribute(object, id, field, value),
       });
     }
   }
 
   @autobind
-  handleSetSkuProperties(code: string, updateArray: Array<Array<any>>) {
+  handleSetVariantProperties(id: string, updateArray: Array<Array<any>>) {
     const { object } = this.state;
 
     if (object) {
       const newProduct = _.reduce(updateArray, (p, [field, value]) => {
-        return setSkuAttribute(p, code, field, value);
+        return setVariantAttribute(p, id, field, value);
       }, object);
       this.setState({object: newProduct});
     }
@@ -195,8 +191,8 @@ class ProductPage extends ObjectPage {
   childrenProps() {
     return {
       ...super.childrenProps(),
-      onSetSkuProperty: this.handleSetSkuProperty,
-      onSetSkuProperties: this.handleSetSkuProperties,
+      onSetVariantProperty: this.handleSetVariantProperty,
+      onSetVariantProperties: this.handleSetVariantProperties,
     };
   }
 

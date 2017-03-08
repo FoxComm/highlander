@@ -15,7 +15,7 @@ import models.account.Scope
 import models.cord.Order._
 import models.cord._
 import models.cord.lineitems._
-import models.inventory.Skus
+import models.inventory.ProductVariants
 import models.location.Addresses
 import models.objects.ObjectContext
 import models.payment.InStorePaymentStates
@@ -286,20 +286,20 @@ trait OrderGenerator extends ShipmentSeeds {
   def addProductsToOrder(skuIds: Seq[Int], orderRef: String, state: OrderLineItem.State)(
       implicit db: DB): DbResultT[Unit] =
     for {
-      skus ← * <~ Skus.filter(_.id inSet skuIds).result
+      skus ← * <~ ProductVariants.filter(_.id inSet skuIds).result
       _ ← * <~ OrderLineItems.createAll(
              skus.map(
                  sku ⇒
                    OrderLineItem(cordRef = orderRef,
-                                 skuId = sku.id,
-                                 skuShadowId = sku.shadowId,
+                                 productVariantId = sku.id,
+                                 productVariantShadowId = sku.shadowId,
                                  state = state)))
     } yield {}
 
   def addProductsToCart(skuIds: Seq[Int], cartRef: String)(
       implicit db: DB): DbResultT[Seq[CartLineItem]] = {
-    val itemsToInsert =
-      skuIds.map(skuId ⇒ CartLineItem(cordRef = cartRef, skuId = skuId, attributes = None))
+    val itemsToInsert = skuIds.map(skuId ⇒
+          CartLineItem(cordRef = cartRef, productVariantId = skuId, attributes = None))
     CartLineItems.createAllReturningModels(itemsToInsert)
   }
 

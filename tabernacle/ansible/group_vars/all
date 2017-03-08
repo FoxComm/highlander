@@ -49,7 +49,6 @@ docker_tags:
     gift_card_consumer: "{{ lookup('env', 'DOCKER_TAG_GIFT_CARD_CONSUMER') | default('master', true) }}"
     shipments_consumer: "{{ lookup('env', 'DOCKER_TAG_SHIPMENTS_CONSUMER') | default('master', true) }}"
     shipstation_consumer: "{{ lookup('env', 'DOCKER_TAG_SHIPSTATION_CONSUMER') | default('master', true) }}"
-    stock_items_consumer: "{{ lookup('env', 'DOCKER_TAG_STOCK_ITEMS_CONSUMER') | default('master', true) }}"
     storefront_td: "{{ lookup('env', 'DOCKER_TAG_STOREFRONT_TOPDRAWER') | default('master', true) }}"
     storefront_tpg: "{{ lookup('env', 'DOCKER_TAG_STOREFRONT_TPG') | default('master', true) }}"
     hyperion: "{{ lookup('env', 'DOCKER_TAG_HYPERION') | default('master', true) }}"
@@ -75,7 +74,6 @@ marathon_restart:
     gift_card_consumer: "{{ lookup('env', 'MARATHON_GIFT_CARD_CONSUMER') | default(true, true) | bool }}"
     shipments_consumer: "{{ lookup('env', 'MARATHON_SHIPMENTS_CONSUMER') | default(true, true) | bool }}"
     shipstation_consumer: "{{ lookup('env', 'MARATHON_SHIPSTATION_CONSUMER') | default(true, true) | bool }}"
-    stock_items_consumer: "{{ lookup('env', 'MARATHON_STOCK_ITEMS_CONSUMER') | default(true, true) | bool }}"
     marketplace: "{{ lookup('env', 'MARATHON_MARKETPLACE') | default(true, true) | bool }}"
     storefront_td: "{{ lookup('env', 'MARATHON_STOREFRONT_TD') | default(true, true) | bool }}"
     storefront_tpg: "{{ lookup('env', 'MARATHON_STOREFRONT_TPG') | default(true, true) | bool }}"
@@ -232,6 +230,18 @@ middlewarehouse_db_name: middlewarehouse_development
 middlewarehouse_db_user: middlewarehouse
 middlewarehouse_db_connection_string: "postgresql://{{middlewarehouse_db_user}}@{{db_host}}/{{middlewarehouse_db_name}}"
 middlewarehouse_test_db_name: middlewarehouse_test
+
+middlewarehouse_consumers_dir: "{{middlewarehouse_dir}}/consumers"
+shipments_consumer_bin: "{{middlewarehouse_consumers_dir}}/shipments-consumer"
+capture_consumer_bin: "{{middlewarehouse_consumers_dir}}/capture-consumer"
+
+middlewarehouse_bin_src: "{{middlewarehouse_src}}/middlewarehouse"
+middlewarehouse_seeder_bin_src: "{{middlewarehouse_src}}/seeder"
+
+shipments_consumer_src: "{{middlewarehouse_src}}/consumers/shipments"
+shipments_consumer_bin_src: "{{shipments_consumer_src}}/shipments-consumer"
+capture_consumer_src: "{{middlewarehouse_src}}/consumers/capture"
+capture_consumer_bin_src: "{{capture_consumer_src}}/capture-consumer"
 
 # Hyperion
 hyperion_env: prod

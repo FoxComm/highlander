@@ -24,7 +24,7 @@ steps:
     label: make build
     agents:
       - queue=core
-    artifact_paths: middlewarehouse;consumers/shipments/shipments-consumer;consumers/stock-items/stock-items-consumer
+    artifact_paths: middlewarehouse;consumers/shipments/shipments-consumer
 
   - wait
 
@@ -46,7 +46,6 @@ steps:
       mkdir tmp
       buildkite-agent artifact download "middlewarehouse" tmp/
       mv tmp/middlewarehouse ./
-      buildkite-agent artifact download "consumers/stock-items/stock-items-consumer" .
       buildkite-agent artifact download "consumers/shipments/shipments-consumer" .
     agents:
       - queue=stage_master

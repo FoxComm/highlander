@@ -1,0 +1,40 @@
+{
+  "main": [
+    {
+      "type": "group",
+      "title": "General",
+      "content": [
+        {
+          "type": "generalSection"
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "title": "Pricing",
+      "content": [
+        {
+          "type": "fields",
+          "value": [
+            "retailPrice",
+            "salePrice"
+          ]
+        }
+      ]
+    }
+  ],
+  "aside": [
+    {
+      "type": "tags"
+    },
+    {
+      "type": "state"
+    },
+    {
+      "type": "associatedProduct"
+    },
+    {
+      "type": "associatedVariants"
+    }
+  ]
+}

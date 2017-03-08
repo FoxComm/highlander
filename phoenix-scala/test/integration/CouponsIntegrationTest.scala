@@ -138,10 +138,10 @@ class CouponsIntegrationTest
   trait CartCouponFixture
       extends StoreAdmin_Seed
       with Coupon_TotalQualifier_PercentOff
-      with ProductSku_ApiFixture {
+      with ProductVariant_ApiFixture {
 
-    override def skuPrice: Int          = 3100
-    override def qualifiedSubtotal: Int = 3000
+    override def productVariantPrice: Int = 3100
+    override def qualifiedSubtotal: Int   = 3000
 
     val cartRef: String = {
       val cartRef = cartsApi
@@ -150,7 +150,8 @@ class CouponsIntegrationTest
         .referenceNumber
 
       cartsApi(cartRef).lineItems
-        .add(Seq(UpdateLineItemsPayload(sku = skuCode, quantity = 1)))
+        .add(
+            Seq(UpdateLineItemsPayload(productVariantId = product.variants.head.id, quantity = 1)))
         .mustBeOk()
 
       cartRef
@@ -160,12 +161,16 @@ class CouponsIntegrationTest
   trait GiftCardLineItemFixture extends StoreAdmin_Seed {
     val cartRef = api_newGuestCart().referenceNumber
 
-    private val skuCode   = new ProductSku_ApiFixture { override def skuPrice = 3000 }.skuCode
-    private val gcSkuCode = new ProductSku_ApiFixture { override def skuPrice = 2000 }.skuCode
+    private val skuVariantId = new ProductVariant_ApiFixture {
+      override def productVariantPrice = 3000
+    }.product.variants.head.id
+    private val gcSkuVariantId = new ProductVariant_ApiFixture {
+      override def productVariantPrice = 2000
+    }.product.variants.head.id
 
     cartsApi(cartRef).lineItems
-      .add(Seq(UpdateLineItemsPayload(skuCode, 1),
-               UpdateLineItemsPayload(gcSkuCode, 1, giftCardLineItemAttributes)))
+      .add(Seq(UpdateLineItemsPayload(skuVariantId, 1),
+               UpdateLineItemsPayload(gcSkuVariantId, 1, giftCardLineItemAttributes)))
       .mustBeOk()
   }
 }

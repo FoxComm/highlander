@@ -4,10 +4,13 @@ import scala.util.Try
 
 import models.cord.lineitems._
 import models.cord._
-import slick.driver.PostgresDriver.api._
+import models.inventory.ProductVariants
+import models.objects.{ObjectForms, ObjectShadows}
 import utils.aliases._
 import utils.db._
-import utils.FoxConfig.config
+import utils.FoxConfig._
+import utils.db.ExPostgresDriver.api._
+import utils.db.DbObjectUtils._
 
 // TODO: Use utils.Money
 object CartTotaler {
@@ -29,31 +32,28 @@ object CartTotaler {
   val defaultTaxRate = 0.0
 
   def subTotal(cart: Cart)(implicit ec: EC): DBIO[Int] =
-    skuSubTotalForCart(cart)
+    variantSubTotalForCart(cart)
 
-  def skuSubTotalForCart(cart: Cart)(implicit ec: EC): DBIO[Int] =
-    sql"""select count(*), sum(coalesce(cast(sku_form.attributes->(sku_shadow.attributes->'salePrice'->>'ref')->>'value' as integer), 0)) as sum
-       |	from cart_line_items sli
-       |	left outer join skus sku on (sku.id = sli.sku_id)
-       |	left outer join object_forms sku_form on (sku_form.id = sku.form_id)
-       |	left outer join object_shadows sku_shadow on (sku_shadow.id = sku.shadow_id)
-       |
-       |	where sli.cord_ref = ${cart.refNum}
-       | """.stripMargin.as[(Int, Int)].headOption.map {
-      case Some((count, total)) if count > 0 ⇒ total
-      case _                                 ⇒ 0
-    }
+  def variantSubTotalForCart(cart: Cart)(implicit ec: EC): DBIO[Int] =
+    (for {
+      lineItem ← CartLineItems if lineItem.cordRef === cart.refNum
+      variant  ← ProductVariants if variant.id === lineItem.productVariantId
+      form     ← ObjectForms if form.id === variant.formId
+      shadow   ← ObjectShadows if shadow.id === variant.shadowId
+      illuminated = (form, shadow)
+      salePrice   = ((illuminated |→ "salePrice") +>> "value").asColumnOf[Int]
+    } yield salePrice).sum.result.map(_.getOrElse(0))
 
   def shippingTotal(cart: Cart)(implicit ec: EC): DbResultT[Int] =
     for {
       orderShippingMethods ← * <~ OrderShippingMethods.findByOrderRef(cart.refNum).result
-      sum = orderShippingMethods.foldLeft(0)(_ + _.price)
+      sum = orderShippingMethods.map(_.price).sum
     } yield sum
 
   def adjustmentsTotal(cart: Cart)(implicit ec: EC): DbResultT[Int] =
     for {
       lineItemAdjustments ← * <~ OrderLineItemAdjustments.filter(_.cordRef === cart.refNum).result
-      sum = lineItemAdjustments.foldLeft(0)(_ + _.subtract)
+      sum = lineItemAdjustments.map(_.subtract).sum
     } yield sum
 
   def taxesTotal(cart: Cart, subTotal: Int, shipping: Int, adjustments: Int)(
