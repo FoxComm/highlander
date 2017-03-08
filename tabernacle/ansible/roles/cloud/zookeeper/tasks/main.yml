@@ -6,12 +6,16 @@
     - docker
     - zookeeper
     - kafka
+    - elasticsearch
+    - kibana
     - schema-registry
     - bottledwater_phoenix
     - bottledwater_middlewarehouse
     - mesos_master
     - mesos_worker
     - marathon
+    - postgresql
+    - pgweb
 
 - name: Purge Zookeeper Data
   file: path=/var/lib/zookeeper state=absent
