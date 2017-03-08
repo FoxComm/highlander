@@ -6,7 +6,7 @@ import isDate from '../helpers/isDate';
 import isArray from '../helpers/isArray';
 
 test('Can create a new customer', async (t) => {
-  const api = Api.withCookies();
+  const api = Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const credentials = $.randomUserCredentials();
   const newCustomer = await api.customers.create(credentials);
@@ -15,7 +15,7 @@ test('Can create a new customer', async (t) => {
 });
 
 test('Can view customer details', async (t) => {
-  const api = Api.withCookies();
+  const api = Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const credentials = $.randomUserCredentials();
   const newCustomer = await api.customers.create(credentials);
@@ -25,7 +25,7 @@ test('Can view customer details', async (t) => {
 });
 
 test('Can update customer details', async (t) => {
-  const api = Api.withCookies();
+  const api = Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const credentials = $.randomUserCredentials();
   const newCustomer = await api.customers.create(credentials);
@@ -36,7 +36,7 @@ test('Can update customer details', async (t) => {
 });
 
 test('Can list shipping addresses', async (t) => {
-  const api = Api.withCookies();
+  const api = Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const credentials = $.randomUserCredentials();
   const newCustomer = await api.customers.create(credentials);
@@ -45,7 +45,7 @@ test('Can list shipping addresses', async (t) => {
 });
 
 test('Can add a new shipping address', async (t) => {
-  const api = Api.withCookies();
+  const api = Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const credentials = $.randomUserCredentials();
   const newCustomer = await api.customers.create(credentials);
@@ -61,7 +61,7 @@ test('Can add a new shipping address', async (t) => {
 });
 
 test('Can update shipping address details', async (t) => {
-  const api = Api.withCookies();
+  const api = Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const credentials = $.randomUserCredentials();
   const newCustomer = await api.customers.create(credentials);
@@ -87,7 +87,7 @@ test('Can update shipping address details', async (t) => {
 });
 
 test('Can delete a shipping address', async (t) => {
-  const api = Api.withCookies();
+  const api = Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const credentials = $.randomUserCredentials();
   const newCustomer = await api.customers.create(credentials);
@@ -99,7 +99,7 @@ test('Can delete a shipping address', async (t) => {
 });
 
 test('Can list customer\'s credit cards', async (t) => {
-  const api = Api.withCookies();
+  const api = Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const credentials = $.randomUserCredentials();
   const newCustomer = await api.customers.create(credentials);
@@ -108,7 +108,7 @@ test('Can list customer\'s credit cards', async (t) => {
 });
 
 test('Can add customer\'s credit card', async (t) => {
-  const api = Api.withCookies();
+  const api = Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const credentials = $.randomUserCredentials();
   const newCustomer = await api.customers.create(credentials);
@@ -144,7 +144,7 @@ test('Can add customer\'s credit card', async (t) => {
 });
 
 test('Can issue store credit', async (t) => {
-  const api = Api.withCookies();
+  const api = Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const credentials = $.randomUserCredentials();
   const newCustomer = await api.customers.create(credentials);
@@ -163,7 +163,7 @@ test('Can issue store credit', async (t) => {
 });
 
 test('Can list customer groups', async (t) => {
-  const api = Api.withCookies();
+  const api = Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const customerGroups = await api.customerGroups.list();
   t.truthy(isArray(customerGroups));

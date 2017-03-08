@@ -18,7 +18,7 @@ ava.always.after('Remove shared searches created in tests', async () => {
 });
 
 test('Can list shared searches', async (t) => {
-  const api = Api.withCookies();
+  const api = Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const sharedSearches = await api.sharedSearches.list('ordersScope');
   t.truthy(isArray(sharedSearches));
@@ -35,7 +35,7 @@ test('Can list shared searches', async (t) => {
 });
 
 test('Can create shared search', async (t) => {
-  const api = Api.withCookies();
+  const api = Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const payload = $.randomSharedSearchPayload();
   const newSharedSearch = await api.sharedSearches.create(payload);
@@ -51,7 +51,7 @@ test('Can create shared search', async (t) => {
 });
 
 test('Can view shared search details', async (t) => {
-  const api = Api.withCookies();
+  const api = Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const payload = $.randomSharedSearchPayload();
   const newSharedSearch = await api.sharedSearches.create(payload);
@@ -62,7 +62,7 @@ test('Can view shared search details', async (t) => {
 });
 
 test('Can delete shared search', async (t) => {
-  const api = Api.withCookies();
+  const api = Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const payload = $.randomSharedSearchPayload();
   const newSharedSearch = await api.sharedSearches.create(payload);
@@ -82,7 +82,7 @@ test('Can delete shared search', async (t) => {
 });
 
 test('Can list associates', async (t) => {
-  const api = Api.withCookies();
+  const api = Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const newSharedSearch = await api.sharedSearches.create($.randomSharedSearchPayload());
   t.truthy(isString(newSharedSearch.code));
@@ -98,7 +98,7 @@ test('Can list associates', async (t) => {
 });
 
 test('Can add associate', async (t) => {
-  const api = Api.withCookies();
+  const api = Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const newSharedSearch = await api.sharedSearches.create($.randomSharedSearchPayload());
   t.truthy(isString(newSharedSearch.code));
@@ -117,7 +117,7 @@ test('Can add associate', async (t) => {
 });
 
 test('Can remove associate', async (t) => {
-  const api = Api.withCookies();
+  const api = Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const newSharedSearch = await api.sharedSearches.create($.randomSharedSearchPayload());
   t.truthy(isString(newSharedSearch.code));

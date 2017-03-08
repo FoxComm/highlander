@@ -11,7 +11,7 @@ import isNumber from '../helpers/isNumber';
 import $ from '../payloads';
 
 test('Can view cart details', async (t) => {
-  const adminApi = Api.withCookies();
+  const adminApi = Api.withCookies(t);
   await adminApi.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const credentials = $.randomUserCredentials();
   const newCustomer = await adminApi.customers.create(credentials);
@@ -24,7 +24,7 @@ test('Can view cart details', async (t) => {
   const productPayload = $.randomProductPayload({ minSkus: 1, maxSkus: 1 });
   const newProduct = await adminApi.products.create('default', productPayload);
   const skuCode = newProduct.skus[0].attributes.code.v;
-  const customerApi = Api.withCookies();
+  const customerApi = Api.withCookies(t);
   await customerApi.auth.login(credentials.email, credentials.password, $.customerOrg);
   await customerApi.cart.get();
   const quantity = $.randomNumber(1, 10);
@@ -41,12 +41,12 @@ test('Can view cart details', async (t) => {
 });
 
 test('Can list available shipping methods', async (t) => {
-  const customerApi = Api.withCookies();
+  const customerApi = Api.withCookies(t);
   await startRandomUserSession(customerApi);
   const cart = await customerApi.cart.get();
   await customerApi.cart.setShippingAddress($.randomCreateAddressPayload());
   const shippingMethodsFromCustomerApi = await customerApi.cart.getShippingMethods();
-  const adminApi = Api.withCookies();
+  const adminApi = Api.withCookies(t);
   await adminApi.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const shippingMethodsFromAdminApi = await adminApi.carts.getShippingMethods(cart.referenceNumber);
   t.truthy(isArray(shippingMethodsFromAdminApi));
@@ -60,10 +60,10 @@ test('Can list available shipping methods', async (t) => {
 });
 
 test('Can update line items', async (t) => {
-  const customerApi = Api.withCookies();
+  const customerApi = Api.withCookies(t);
   await startRandomUserSession(customerApi);
   const { referenceNumber } = await customerApi.cart.get();
-  const adminApi = Api.withCookies();
+  const adminApi = Api.withCookies(t);
   await adminApi.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const productPayload = $.randomProductPayload({ minSkus: 1, maxSkus: 1 });
   const newProduct = await adminApi.products.create('default', productPayload);
@@ -80,10 +80,10 @@ test('Can update line items', async (t) => {
 });
 
 test('Updating one line item doesn\'t affect others', async (t) => {
-  const customerApi = Api.withCookies();
+  const customerApi = Api.withCookies(t);
   await startRandomUserSession(customerApi);
   const { referenceNumber } = await customerApi.cart.get();
-  const adminApi = Api.withCookies();
+  const adminApi = Api.withCookies(t);
   await adminApi.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const productPayload1 = $.randomProductPayload({ minSkus: 1, maxSkus: 1 });
   const newProduct1 = await adminApi.products.create('default', productPayload1);
@@ -105,9 +105,9 @@ test('Updating one line item doesn\'t affect others', async (t) => {
 });
 
 test('Can\'t access the cart once order for it has been placed', async (t) => {
-  const { fullOrder } = await placeRandomOrder();
+  const { fullOrder } = await placeRandomOrder(t);
   try {
-    const adminApi = Api.withCookies();
+    const adminApi = Api.withCookies(t);
     await adminApi.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
     await adminApi.carts.get(fullOrder.referenceNumber);
     t.fail('Accessing cart after placing order should have failed, but it succeeded.');
@@ -124,8 +124,8 @@ test('Can\'t access the cart once order for it has been placed', async (t) => {
 
 testWatchers({
   objectApi: api => api.carts,
-  createObject: async () => {
-    const customerApi = Api.withCookies();
+  createObject: async (api) => {
+    const customerApi = Api.withCookies(api.testContext);
     await startRandomUserSession(customerApi);
     return customerApi.cart.get();
   },
@@ -134,8 +134,8 @@ testWatchers({
 
 testNotes({
   objectType: 'order',
-  createObject: async () => {
-    const customerApi = Api.withCookies();
+  createObject: async (api) => {
+    const customerApi = Api.withCookies(api.testContext);
     await startRandomUserSession(customerApi);
     return customerApi.cart.get();
   },

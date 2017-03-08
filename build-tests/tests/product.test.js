@@ -8,7 +8,7 @@ import isArray from '../helpers/isArray';
 import $ from '../payloads';
 
 test('Can create a product', async (t) => {
-  const api = await Api.withCookies();
+  const api = await Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const payload = $.randomProductPayload();
   const newProduct = await api.products.create('default', payload);
@@ -31,7 +31,7 @@ test('Can create a product', async (t) => {
 });
 
 test('Can archive a product', async (t) => {
-  const api = await Api.withCookies();
+  const api = await Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const newProduct = await api.products.create('default', $.randomProductPayload());
   const archivedProduct = await api.products.archive('default', newProduct.id);
@@ -39,7 +39,7 @@ test('Can archive a product', async (t) => {
 });
 
 test('Can view product details', async (t) => {
-  const api = await Api.withCookies();
+  const api = await Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const newProduct = await api.products.create('default', $.randomProductPayload());
   const foundProduct = await api.products.one('default', newProduct.id);
@@ -47,7 +47,7 @@ test('Can view product details', async (t) => {
 });
 
 test('Can update product details', async (t) => {
-  const api = Api.withCookies();
+  const api = Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const newProduct = await api.products.create('default', $.randomProductPayload());
   const payload = $.randomProductPayload();
@@ -70,7 +70,7 @@ test('Can update product details', async (t) => {
 });
 
 test('Can create an album', async (t) => {
-  const api = await Api.withCookies();
+  const api = await Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const newProduct = await api.products.create('default', $.randomProductPayload());
   const payload = $.randomAlbumPayload();
@@ -89,7 +89,7 @@ test('Can create an album', async (t) => {
 });
 
 test('Can update album details', async (t) => {
-  const api = await Api.withCookies();
+  const api = await Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const newProduct = await api.products.create('default', $.randomProductPayload());
   const newAlbum = await api.productAlbums.create('default', newProduct.id, $.randomAlbumPayload());
@@ -111,7 +111,7 @@ test('Can update album details', async (t) => {
 });
 
 test('Can archive an album', async (t) => {
-  const api = await Api.withCookies();
+  const api = await Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const newProduct = await api.products.create('default', $.randomProductPayload());
   const newAlbum = await api.productAlbums.create('default', newProduct.id, $.randomAlbumPayload());
@@ -120,7 +120,7 @@ test('Can archive an album', async (t) => {
 });
 
 test('Can upload an image', async (t) => {
-  const api = await Api.withCookies();
+  const api = await Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const newProduct = await api.products.create('default', $.randomProductPayload());
   const newAlbum = await api.productAlbums.create('default', newProduct.id, $.randomAlbumPayload());
@@ -139,7 +139,7 @@ test('Can upload an image', async (t) => {
 });
 
 test('Can update image details', async (t) => {
-  const api = await Api.withCookies();
+  const api = await Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const newProduct = await api.products.create('default', $.randomProductPayload());
   const newAlbum = await api.productAlbums.create('default', newProduct.id, $.randomAlbumPayload({ minImages: 1 }));
@@ -153,7 +153,7 @@ test('Can update image details', async (t) => {
 });
 
 test('Can delete an image', async (t) => {
-  const api = await Api.withCookies();
+  const api = await Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const newProduct = await api.products.create('default', $.randomProductPayload());
   const newAlbum = await api.productAlbums.create('default', newProduct.id, $.randomAlbumPayload({ minImages: 1 }));

@@ -2,6 +2,7 @@ import FoxCommApi from '@foxcomm/api-js';
 import superagent from 'superagent';
 import cookie from 'cookie';
 import config from '../config';
+import wrapWithApiLogging from './wrapWithApiLogging';
 
 const endpoints = {
   customers: '/v1/customers',
@@ -421,8 +422,9 @@ class SharedSearches {
 }
 
 export default class Api extends FoxCommApi {
-  constructor(...args) {
-    super(...args);
+  constructor(options, testContext) {
+    super(options);
+    this.testContext = testContext;
     this.customers = new Customers(this);
     this.customerAddresses = new CustomerAddresses(this);
     this.customerCreditCards = new CustomerCreditCards(this);
@@ -444,6 +446,9 @@ export default class Api extends FoxCommApi {
     this.orders = new Orders(this);
     this.sharedSearches = new SharedSearches(this);
     this.monkeypatch();
+    if (testContext) {
+      wrapWithApiLogging(this);
+    }
   }
   monkeypatch() {
     this.cart.addStoreCredit = amount =>
@@ -451,17 +456,17 @@ export default class Api extends FoxCommApi {
     this.cart.removeStoreCredit = () =>
       this.delete(endpoints.customerCartPaymentStoreCredit);
   }
-  static withoutCookies() {
+  static withoutCookies(testContext) {
     return new Api({
       api_url: `${config.apiUrl}/api`,
       stripe_key: config.stripeKey,
-    });
+    }, testContext);
   }
-  static withCookies() {
+  static withCookies(testContext) {
     return new Api({
       api_url: `${config.apiUrl}/api`,
       stripe_key: config.stripeKey,
       agent: superagent.agent(),
-    });
+    }, testContext);
   }
 }

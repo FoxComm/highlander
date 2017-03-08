@@ -21,11 +21,19 @@ export default (name, cb, ...args) => test(name, async (t, ...cbArgs) => {
       ) {
         retryCount += 1;
         continue;
-      } else if (error.responseJson && error.responseJson.errors) {
-        t.fail(error.responseJson.errors.join('; '));
-        return;
       } else {
-        throw error;
+        let errorMessageLines = [error.message];
+        if (error.responseJson && error.responseJson.errors) {
+          errorMessageLines = errorMessageLines.concat(error.responseJson.errors);
+        }
+        if (t.apiLog) {
+          errorMessageLines = errorMessageLines.concat(
+            t.apiLog.map(entry =>
+              `${entry.apiCategoryName}.${entry.methodName}(${entry.args.map(JSON.stringify)}) -> ` +
+              `${JSON.stringify(entry.result)}`),
+          );
+        }
+        throw new Error(errorMessageLines.join('\n\n;;;\n\n'));
       }
     }
   }

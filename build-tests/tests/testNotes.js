@@ -6,7 +6,7 @@ import isArray from '../helpers/isArray';
 
 export default ({ objectType, createObject, selectId = obj => obj.id }) => {
   test('Can list notes', async (t) => {
-    const api = Api.withCookies();
+    const api = Api.withCookies(t);
     await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
     const newObject = await createObject(api);
     const notes = await api.notes.list(objectType, selectId(newObject));
@@ -14,7 +14,7 @@ export default ({ objectType, createObject, selectId = obj => obj.id }) => {
   });
 
   test('Can create a new note', async (t) => {
-    const api = Api.withCookies();
+    const api = Api.withCookies(t);
     await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
     const newObject = await createObject(api);
     const payload = $.randomCreateNotePayload();
@@ -27,7 +27,7 @@ export default ({ objectType, createObject, selectId = obj => obj.id }) => {
   });
 
   test('Can update note details', async (t) => {
-    const api = Api.withCookies();
+    const api = Api.withCookies(t);
     await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
     const newObject = await createObject(api);
     const newNote = await api.notes.create(objectType, selectId(newObject), $.randomCreateNotePayload());

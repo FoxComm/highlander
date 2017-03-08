@@ -7,7 +7,7 @@ import isDate from '../helpers/isDate';
 import $ from '../payloads';
 
 test('Can create a gift card', async (t) => {
-  const api = await Api.withCookies();
+  const api = await Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const payload = $.randomGiftCardPayload();
   const newGiftCard = await api.giftCards.create(payload);
@@ -27,7 +27,7 @@ test('Can create a gift card', async (t) => {
 });
 
 test('Can view gift card details', async (t) => {
-  const api = await Api.withCookies();
+  const api = await Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const payload = $.randomGiftCardPayload();
   const newGiftCard = await api.giftCards.create(payload);
@@ -36,7 +36,7 @@ test('Can view gift card details', async (t) => {
 });
 
 test('Can put a gift card "On Hold"', async (t) => {
-  const api = await Api.withCookies();
+  const api = await Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const newGiftCard = await api.giftCards.create($.randomGiftCardPayload());
   const updatedGiftCard = await api.giftCards.update(newGiftCard.code, { state: 'onHold' });
@@ -53,7 +53,7 @@ test('Can put a gift card "On Hold"', async (t) => {
 });
 
 test('Can "Cancel" a gift card', async (t) => {
-  const api = await Api.withCookies();
+  const api = await Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const newGiftCard = await api.giftCards.create($.randomGiftCardPayload());
   const payload = { state: 'canceled', reasonId: 1 };
@@ -73,7 +73,7 @@ test('Can "Cancel" a gift card', async (t) => {
 });
 
 test('Can make gift card "Active"', async (t) => {
-  const api = await Api.withCookies();
+  const api = await Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const newGiftCard = await api.giftCards.create($.randomGiftCardPayload());
   const updatedGiftCardOnHold = await api.giftCards.update(newGiftCard.code, { state: 'onHold' });

@@ -39,7 +39,7 @@ for (const storefront of config.storefronts) {
     const unauthorisedResponse = await superagent.get(`${storefront.url}/profile`);
     t.is(unauthorisedResponse.status, 200);
     t.is(unauthorisedResponse.redirects.length, 1);
-    const customerApi = Api.withCookies();
+    const customerApi = Api.withCookies(t);
     await startRandomUserSession(customerApi);
     const authorisedResponse = await customerApi.agent.get(`${storefront.url}/profile`);
     t.is(authorisedResponse.status, 200);
@@ -47,11 +47,11 @@ for (const storefront of config.storefronts) {
   });
 
   test(`Can access ${storefront.name} product details page`, async (t) => {
-    const adminApi = await Api.withCookies();
+    const adminApi = await Api.withCookies(t);
     await adminApi.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
     const payload = $.randomProductPayload();
     const newProduct = await adminApi.products.create('default', payload);
-    const customerApi = Api.withCookies();
+    const customerApi = Api.withCookies(t);
     await startRandomUserSession(customerApi);
     const response = await customerApi.agent.get(`${storefront.url}/products/${newProduct.id}`);
     t.is(response.status, 200);

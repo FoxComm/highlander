@@ -11,9 +11,9 @@ import isDate from '../helpers/isDate';
 import $ from '../payloads';
 
 test('Can view order details', async (t) => {
-  const adminApi = Api.withCookies();
+  const adminApi = Api.withCookies(t);
   await adminApi.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
-  const { fullOrder } = await placeRandomOrder();
+  const { fullOrder } = await placeRandomOrder(t);
   const foundOrder = await adminApi.orders.one(fullOrder.referenceNumber).then(r => r.result);
   delete fullOrder.fraudScore;
   delete foundOrder.fraudScore;
@@ -22,9 +22,9 @@ test('Can view order details', async (t) => {
 
 for (const destinationState of $.orderStateTransitions.remorseHold) {
   test(`Can change order state from "remorseHold" to "${destinationState}"`, async (t) => {
-    const adminApi = Api.withCookies();
+    const adminApi = Api.withCookies(t);
     await adminApi.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
-    const { fullOrder } = await placeRandomOrder();
+    const { fullOrder } = await placeRandomOrder(t);
     t.is(fullOrder.orderState, 'remorseHold');
     const updatedOrder = await adminApi.orders.update(fullOrder.referenceNumber, { state: destinationState });
     t.is(updatedOrder.orderState, destinationState);
@@ -35,9 +35,9 @@ for (const destinationState of $.orderStateTransitions.remorseHold) {
 
 for (const destinationState of $.orderStateTransitions.fulfillmentStarted) {
   test(`Can change order state from "fulfillmentStarted" to "${destinationState}"`, async (t) => {
-    const adminApi = Api.withCookies();
+    const adminApi = Api.withCookies(t);
     await adminApi.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
-    const { fullOrder } = await placeRandomOrder();
+    const { fullOrder } = await placeRandomOrder(t);
     t.is(fullOrder.orderState, 'remorseHold');
     await adminApi.orders.update(fullOrder.referenceNumber, { state: 'fulfillmentStarted' });
     const updatedOrder = await adminApi.orders.update(fullOrder.referenceNumber, { state: destinationState });
@@ -48,9 +48,9 @@ for (const destinationState of $.orderStateTransitions.fulfillmentStarted) {
 }
 
 test('Can increase remorse period', async (t) => {
-  const adminApi = Api.withCookies();
+  const adminApi = Api.withCookies(t);
   await adminApi.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
-  const { fullOrder } = await placeRandomOrder();
+  const { fullOrder } = await placeRandomOrder(t);
   t.truthy(isDate(fullOrder.remorsePeriodEnd));
   const updatedOrder = await adminApi.orders.increaseRemorsePeriod(fullOrder.referenceNumber);
   t.truthy(isDate(updatedOrder.remorsePeriodEnd));
@@ -62,9 +62,9 @@ test('Can increase remorse period', async (t) => {
 });
 
 test('Can view shipments', async (t) => {
-  const adminApi = Api.withCookies();
+  const adminApi = Api.withCookies(t);
   await adminApi.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
-  const { fullOrder } = await placeRandomOrder();
+  const { fullOrder } = await placeRandomOrder(t);
   await adminApi.orders.update(fullOrder.referenceNumber, { state: 'fulfillmentStarted' });
   const response = await waitFor(500, 10000,
     () => adminApi.inventories.getShipments(fullOrder.referenceNumber),
@@ -81,12 +81,12 @@ test('Can view shipments', async (t) => {
 
 testWatchers({
   objectApi: api => api.orders,
-  createObject: () => placeRandomOrder().then(r => r.fullOrder),
+  createObject: api => placeRandomOrder(api.testContext).then(r => r.fullOrder),
   selectId: order => order.referenceNumber,
 });
 
 testNotes({
   objectType: 'order',
-  createObject: () => placeRandomOrder().then(r => r.fullOrder),
+  createObject: api => placeRandomOrder(api.testContext).then(r => r.fullOrder),
   selectId: order => order.referenceNumber,
 });

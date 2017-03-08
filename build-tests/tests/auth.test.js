@@ -6,7 +6,7 @@ import isDate from '../helpers/isDate';
 import $ from '../payloads';
 
 test('Can sign up', async (t) => {
-  const api = Api.withoutCookies();
+  const api = Api.withoutCookies(t);
   const { email, name, password } = $.randomUserCredentials();
   const signupResponse = await api.auth.signup(email, name, password);
   t.truthy(isString(signupResponse.jwt));
@@ -24,7 +24,7 @@ test('Can sign up', async (t) => {
 });
 
 test('Can sign in as customer', async (t) => {
-  const api = Api.withoutCookies();
+  const api = Api.withoutCookies(t);
   const { email, name, password } = $.randomUserCredentials();
   await api.auth.signup(email, name, password);
   const loginResponse = await api.auth.login(email, password, $.customerOrg);
@@ -34,7 +34,7 @@ test('Can sign in as customer', async (t) => {
 });
 
 test('Can sign in as admin', async (t) => {
-  const api = Api.withoutCookies();
+  const api = Api.withoutCookies(t);
   const loginResponse = await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   t.truthy(loginResponse.jwt, 'Login response should have a "jwt" field.');
   t.truthy(loginResponse.user && loginResponse.user.name, 'Login response should have an "user.name" field.');
@@ -42,7 +42,7 @@ test('Can sign in as admin', async (t) => {
 });
 
 test('Can\'t sign in as admin with a customer org', async (t) => {
-  const api = Api.withoutCookies();
+  const api = Api.withoutCookies(t);
   try {
     await api.auth.login($.adminEmail, $.adminPassword, $.customerOrg);
     t.fail('Signing in as admin with a customer org should have failed, but it succeeded.');
@@ -57,14 +57,14 @@ test('Can\'t sign in as admin with a customer org', async (t) => {
   }
 });
 
-test('Can sign out', async () => {
-  const api = Api.withCookies();
+test('Can sign out', async (t) => {
+  const api = Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   await api.auth.logout();
 });
 
 test('Can view customer account details', async (t) => {
-  const api = Api.withCookies();
+  const api = Api.withCookies(t);
   const { email, name, password } = $.randomUserCredentials();
   const signupResponse = await api.auth.signup(email, name, password);
   const foundAccount = await api.account.get();

@@ -8,7 +8,7 @@ import waitFor from '../helpers/waitFor';
 import $ from '../payloads';
 
 test('Can create a new SKU', async (t) => {
-  const api = await Api.withCookies();
+  const api = await Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const payload = $.randomSkuPayload();
   const newSku = await api.skus.create('default', payload);
@@ -20,7 +20,7 @@ test('Can create a new SKU', async (t) => {
 });
 
 test('Can view SKU details', async (t) => {
-  const api = await Api.withCookies();
+  const api = await Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const newSku = await api.skus.create('default', $.randomSkuPayload());
   const foundSku = await api.skus.one('default', newSku.attributes.code.v);
@@ -28,7 +28,7 @@ test('Can view SKU details', async (t) => {
 });
 
 test('Can update SKU details', async (t) => {
-  const api = Api.withCookies();
+  const api = Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const newSku = await api.skus.create('default', $.randomSkuPayload());
   const payload = $.randomSkuPayload();
@@ -41,7 +41,7 @@ test('Can update SKU details', async (t) => {
 });
 
 test('Can archive a SKU', async (t) => {
-  const api = await Api.withCookies();
+  const api = await Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const newSku = await api.skus.create('default', $.randomSkuPayload());
   const archivedSku = await api.skus.archive('default', newSku.attributes.code.v);
@@ -53,7 +53,7 @@ test('Can archive a SKU', async (t) => {
 });
 
 test('Can access the inventory', async (t) => {
-  const api = await Api.withCookies();
+  const api = await Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const newSku = await api.skus.create('default', $.randomSkuPayload());
   const inventory = await waitFor(500, 10000, () => api.skus.inventory(newSku.attributes.code.v));

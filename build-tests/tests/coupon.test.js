@@ -7,7 +7,7 @@ import isDate from '../helpers/isDate';
 import $ from '../payloads';
 
 test('Can create a coupon', async (t) => {
-  const api = await Api.withCookies();
+  const api = await Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const newPromotion = await api.promotions.create('default', $.randomCreatePromotionPayload());
   const payload = $.randomCouponPayload(newPromotion.id);
@@ -19,7 +19,7 @@ test('Can create a coupon', async (t) => {
 });
 
 test('Can view coupon details', async (t) => {
-  const api = await Api.withCookies();
+  const api = await Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const newPromotion = await api.promotions.create('default', $.randomCreatePromotionPayload());
   const newCoupon = await api.coupons.create('default', $.randomCouponPayload(newPromotion.id));
@@ -28,7 +28,7 @@ test('Can view coupon details', async (t) => {
 });
 
 test('Can update coupon details', async (t) => {
-  const api = await Api.withCookies();
+  const api = await Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const newPromotion = await api.promotions.create('default', $.randomCreatePromotionPayload());
   const newCoupon = await api.coupons.create('default', $.randomCouponPayload(newPromotion.id));
@@ -41,7 +41,7 @@ test('Can update coupon details', async (t) => {
 });
 
 test('Can bulk generate the codes', async (t) => {
-  const api = await Api.withCookies();
+  const api = await Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const newPromotion = await api.promotions.create('default', $.randomCreatePromotionPayload());
   const newCoupon = await api.coupons.create('default', $.randomCouponPayload(newPromotion.id));
@@ -56,7 +56,7 @@ test('Can bulk generate the codes', async (t) => {
 });
 
 test('Can view the list of coupon codes', async (t) => {
-  const api = await Api.withCookies();
+  const api = await Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const newPromotion = await api.promotions.create('default', $.randomCreatePromotionPayload());
   const newCoupon = await api.coupons.create('default', $.randomCouponPayload(newPromotion.id));

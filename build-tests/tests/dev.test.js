@@ -3,7 +3,7 @@ import Api from '../helpers/Api';
 import $ from '../payloads';
 
 test('Can issue credit card token', async (t) => {
-  const api = await Api.withCookies();
+  const api = await Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const credentials = $.randomUserCredentials();
   const newCustomer = await api.customers.create(credentials);

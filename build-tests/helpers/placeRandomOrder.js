@@ -3,8 +3,8 @@ import waitFor from './waitFor';
 import Api from '../helpers/Api';
 import $ from '../payloads';
 
-export default async () => {
-  const adminApi = Api.withCookies();
+export default async (t) => {
+  const adminApi = Api.withCookies(t);
   await adminApi.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const credentials = $.randomUserCredentials();
   const newCustomer = await adminApi.customers.create(credentials);
@@ -15,7 +15,7 @@ export default async () => {
   const inventory = await waitFor(500, 10000, () => adminApi.inventories.get(skuCode));
   const stockItemId = inventory.summary.find(item => item.type === 'Sellable').stockItem.id;
   await adminApi.inventories.increment(stockItemId, { qty: 1, status: 'onHand', type: 'Sellable' });
-  const customerApi = Api.withCookies();
+  const customerApi = Api.withCookies(t);
   await customerApi.auth.login(credentials.email, credentials.password, $.customerOrg);
   await customerApi.cart.get();
   await customerApi.cart.addSku(skuCode, 1);

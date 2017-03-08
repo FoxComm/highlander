@@ -6,7 +6,7 @@ import isDate from '../helpers/isDate';
 import $ from '../payloads';
 
 test('Can create a promotion', async (t) => {
-  const api = await Api.withCookies();
+  const api = await Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const payload = $.randomCreatePromotionPayload();
   const newPromotion = await api.promotions.create('default', payload);
@@ -28,7 +28,7 @@ test('Can create a promotion', async (t) => {
 });
 
 test('Can view promotion details', async (t) => {
-  const api = await Api.withCookies();
+  const api = await Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const newPromotion = await api.promotions.create('default', $.randomCreatePromotionPayload());
   const foundPromotion = await api.promotions.one('default', newPromotion.id);
@@ -36,7 +36,7 @@ test('Can view promotion details', async (t) => {
 });
 
 test('Can update promotion details', async (t) => {
-  const api = Api.withCookies();
+  const api = Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const newPromotion = await api.promotions.create('default', $.randomCreatePromotionPayload());
   const payload = $.randomUpdatePromotionPayload(newPromotion.discounts.map(d => d.id));

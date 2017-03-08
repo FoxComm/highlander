@@ -7,7 +7,7 @@ import isDate from '../helpers/isDate';
 import $ from '../payloads';
 
 test('Can list store admins', async (t) => {
-  const api = await Api.withCookies();
+  const api = await Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const storeAdmins = await api.storeAdmins.list();
   t.truthy(isArray(storeAdmins));
@@ -23,7 +23,7 @@ test('Can list store admins', async (t) => {
 });
 
 test('Can view store admin details', async (t) => {
-  const api = await Api.withCookies();
+  const api = await Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const storeAdmins = await api.storeAdmins.list();
   const storeAdmin = await api.storeAdmins.one(storeAdmins[0].id);
@@ -34,7 +34,7 @@ test('Can view store admin details', async (t) => {
 });
 
 test('Can create a new store admin', async (t) => {
-  const api = await Api.withCookies();
+  const api = await Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const payload = $.randomStoreAdminPayload();
   const newStoreAdmin = await api.storeAdmins.create(payload);
@@ -45,7 +45,7 @@ test('Can create a new store admin', async (t) => {
 });
 
 test('Can update store admin details', async (t) => {
-  const api = await Api.withCookies();
+  const api = await Api.withCookies(t);
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const newStoreAdmin = await api.storeAdmins.create($.randomStoreAdminPayload());
   const payload = $.randomStoreAdminPayload();

@@ -10,11 +10,11 @@ import isDate from '../helpers/isDate';
 import $ from '../payloads';
 
 test('Can add line item', async (t) => {
-  const adminApi = Api.withCookies();
+  const adminApi = Api.withCookies(t);
   await adminApi.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const productPayload = $.randomProductPayload({ minSkus: 1, maxSkus: 1 });
   const newProduct = await adminApi.products.create('default', productPayload);
-  const customerApi = Api.withCookies();
+  const customerApi = Api.withCookies(t);
   await startRandomUserSession(customerApi);
   await customerApi.cart.get();
   const skuCode = newProduct.skus[0].attributes.code.v;
@@ -30,11 +30,11 @@ test('Can add line item', async (t) => {
 });
 
 test('Can update line item', async (t) => {
-  const adminApi = Api.withCookies();
+  const adminApi = Api.withCookies(t);
   await adminApi.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const productPayload = $.randomProductPayload({ minSkus: 1, maxSkus: 1 });
   const newProduct = await adminApi.products.create('default', productPayload);
-  const customerApi = Api.withCookies();
+  const customerApi = Api.withCookies(t);
   await startRandomUserSession(customerApi);
   await customerApi.cart.get();
   const skuCode = newProduct.skus[0].attributes.code.v;
@@ -51,11 +51,11 @@ test('Can update line item', async (t) => {
 });
 
 test('Can remove line item', async (t) => {
-  const adminApi = Api.withCookies();
+  const adminApi = Api.withCookies(t);
   await adminApi.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const productPayload = $.randomProductPayload({ minSkus: 1, maxSkus: 1 });
   const newProduct = await adminApi.products.create('default', productPayload);
-  const customerApi = Api.withCookies();
+  const customerApi = Api.withCookies(t);
   await startRandomUserSession(customerApi);
   await customerApi.cart.get();
   const skuCode = newProduct.skus[0].attributes.code.v;
@@ -69,7 +69,7 @@ test('Can remove line item', async (t) => {
 });
 
 test('Can set shipping address', async (t) => {
-  const api = Api.withCookies();
+  const api = Api.withCookies(t);
   await startRandomUserSession(api);
   await api.cart.get();
   const payload = $.randomCreateAddressPayload();
@@ -88,7 +88,7 @@ test('Can set shipping address', async (t) => {
 });
 
 test('Can list available shipping methods', async (t) => {
-  const api = Api.withCookies();
+  const api = Api.withCookies(t);
   await startRandomUserSession(api);
   await api.cart.get();
   await api.cart.setShippingAddress($.randomCreateAddressPayload());
@@ -103,7 +103,7 @@ test('Can list available shipping methods', async (t) => {
 });
 
 test('Can choose shipping method', async (t) => {
-  const api = Api.withCookies();
+  const api = Api.withCookies(t);
   await startRandomUserSession(api);
   await api.cart.get();
   await api.cart.setShippingAddress($.randomCreateAddressPayload());
@@ -116,12 +116,12 @@ test('Can choose shipping method', async (t) => {
 });
 
 test('Can apply credit card', async (t) => {
-  const adminApi = Api.withCookies();
+  const adminApi = Api.withCookies(t);
   await adminApi.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const credentials = $.randomUserCredentials();
   const newCustomer = await adminApi.customers.create(credentials);
   const newCard = await createCreditCard(adminApi, newCustomer.id);
-  const customerApi = Api.withCookies();
+  const customerApi = Api.withCookies(t);
   await customerApi.auth.login(credentials.email, credentials.password, $.customerOrg);
   await customerApi.cart.get();
   const fullOrder = await customerApi.cart.addCreditCard(newCard.id).then(r => r.result);
@@ -142,12 +142,12 @@ test('Can apply credit card', async (t) => {
 });
 
 test('Can remove credit card', async (t) => {
-  const adminApi = Api.withCookies();
+  const adminApi = Api.withCookies(t);
   await adminApi.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const credentials = $.randomUserCredentials();
   const newCustomer = await adminApi.customers.create(credentials);
   const newCard = await createCreditCard(adminApi, newCustomer.id);
-  const customerApi = Api.withCookies();
+  const customerApi = Api.withCookies(t);
   await customerApi.auth.login(credentials.email, credentials.password, $.customerOrg);
   await customerApi.cart.get();
   const fullOrderAfterAddingCC = await customerApi.cart.addCreditCard(newCard.id).then(r => r.result);
@@ -161,11 +161,11 @@ test('Can remove credit card', async (t) => {
 });
 
 test('Can apply gift card', async (t) => {
-  const adminApi = Api.withCookies();
+  const adminApi = Api.withCookies(t);
   await adminApi.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const giftCardPayload = $.randomGiftCardPayload();
   const newGiftCard = await adminApi.giftCards.create(giftCardPayload);
-  const customerApi = Api.withCookies();
+  const customerApi = Api.withCookies(t);
   await startRandomUserSession(customerApi);
   await customerApi.cart.get();
   const payload = { code: newGiftCard.code, amount: newGiftCard.availableBalance };
@@ -184,11 +184,11 @@ test('Can apply gift card', async (t) => {
 });
 
 test('Can remove gift card', async (t) => {
-  const adminApi = Api.withCookies();
+  const adminApi = Api.withCookies(t);
   await adminApi.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const giftCardPayload = $.randomGiftCardPayload();
   const newGiftCard = await adminApi.giftCards.create(giftCardPayload);
-  const customerApi = Api.withCookies();
+  const customerApi = Api.withCookies(t);
   await startRandomUserSession(customerApi);
   await customerApi.cart.get();
   const payload = { code: newGiftCard.code, amount: newGiftCard.availableBalance };
@@ -203,9 +203,9 @@ test('Can remove gift card', async (t) => {
 });
 
 test('Can apply store credit', async (t) => {
-  const customerApi = Api.withCookies();
+  const customerApi = Api.withCookies(t);
   const account = await startRandomUserSession(customerApi);
-  const adminApi = Api.withCookies();
+  const adminApi = Api.withCookies(t);
   await adminApi.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const storeCreditPayload = $.randomStoreCreditPayload();
   const newStoreCredit = await adminApi.customerStoreCredit.create(account.id, storeCreditPayload);
@@ -225,9 +225,9 @@ test('Can apply store credit', async (t) => {
 });
 
 test('Can remove store credit', async (t) => {
-  const customerApi = Api.withCookies();
+  const customerApi = Api.withCookies(t);
   const account = await startRandomUserSession(customerApi);
-  const adminApi = Api.withCookies();
+  const adminApi = Api.withCookies(t);
   await adminApi.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const storeCreditPayload = $.randomStoreCreditPayload();
   const newStoreCredit = await adminApi.customerStoreCredit.create(account.id, storeCreditPayload);
@@ -244,13 +244,13 @@ test('Can remove store credit', async (t) => {
 });
 
 test('Can apply coupon', async (t) => {
-  const adminApi = Api.withCookies();
+  const adminApi = Api.withCookies(t);
   await adminApi.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const context = 'default';
   const newPromotion = await adminApi.promotions.create(context, $.randomCreatePromotionPayload());
   const newCoupon = await adminApi.coupons.create(context, $.randomCouponPayload(newPromotion.id));
   const couponCodes = await adminApi.couponCodes.generate(newCoupon.id, $.randomGenerateCouponCodesPayload());
-  const customerApi = Api.withCookies();
+  const customerApi = Api.withCookies(t);
   await startRandomUserSession(customerApi);
   await customerApi.cart.get();
   const couponCode = $.randomArrayElement(couponCodes);
@@ -263,13 +263,13 @@ test('Can apply coupon', async (t) => {
 });
 
 test('Can remove coupon', async (t) => {
-  const adminApi = Api.withCookies();
+  const adminApi = Api.withCookies(t);
   await adminApi.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const context = 'default';
   const newPromotion = await adminApi.promotions.create(context, $.randomCreatePromotionPayload());
   const newCoupon = await adminApi.coupons.create(context, $.randomCouponPayload(newPromotion.id));
   const couponCodes = await adminApi.couponCodes.generate(newCoupon.id, $.randomGenerateCouponCodesPayload());
-  const customerApi = Api.withCookies();
+  const customerApi = Api.withCookies(t);
   await startRandomUserSession(customerApi);
   await customerApi.cart.get();
   const couponCode = $.randomArrayElement(couponCodes);
@@ -282,7 +282,7 @@ test('Can remove coupon', async (t) => {
 });
 
 test('Can checkout a cart', async (t) => {
-  const { fullOrder, newCard, newCustomer } = await placeRandomOrder();
+  const { fullOrder, newCard, newCustomer } = await placeRandomOrder(t);
   t.is(fullOrder.paymentState, 'auth');
   t.is(fullOrder.orderState, 'remorseHold');
   t.is(fullOrder.shippingState, 'remorseHold');
