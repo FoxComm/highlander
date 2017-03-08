@@ -34,6 +34,10 @@ func Request(method string, url string, headers map[string]string, payload inter
 		return nil, fmt.Errorf("Invalid method %s. Only GET, POST and PATCH are currently supported", method)
 	}
 
+	if headers == nil {
+		headers = map[string]string{}
+	}
+
 	var req *http.Request
 	var err error
 	payloadBytes := []byte{}

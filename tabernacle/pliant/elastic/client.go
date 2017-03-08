@@ -8,6 +8,8 @@ import (
 	"log"
 	"net/http"
 	"strings"
+
+	"github.com/FoxComm/highlander/lib/gohttp"
 )
 
 const (
@@ -39,8 +41,11 @@ func (c *Client) Connect() (err error) {
 	return
 }
 
-func (c *Client) GetMappingsInCluster() (map[string]Mapping, error) {
-	mappings := map[string]Mapping{}
+// GetMappingsInCluster grabs the mapping details from every index in the
+// ElasticSearch cluster. The method assumes that mappings with identical names
+// in two indices are the same.
+func (c *Client) GetMappingsInCluster() (Mappings, error) {
+	mappings := Mappings{}
 
 	for _, index := range c.indices {
 		trimmedIdx := strings.Trim(index, " ")
@@ -57,20 +62,12 @@ func (c *Client) GetMappingsInCluster() (map[string]Mapping, error) {
 	return mappings, nil
 }
 
-func (c *Client) GetMappingsInIndex(index string) (map[string]Mapping, error) {
+// GetMappingsInIndex pulls the list of all mappings from a single index.
+func (c *Client) GetMappingsInIndex(index string) (Mappings, error) {
 	url := fmt.Sprintf(esIndex, c.hostname, index)
-	resp, err := http.Get(url)
-	if err != nil {
-		return nil, err
-	}
+	var respBody map[string]IndexDetails
 
-	if resp.StatusCode > 299 {
-		return nil, fmt.Errorf("Error getting mappings for %s with error %d", index, resp.StatusCode)
-	}
-
-	defer resp.Body.Close()
-	respBody := map[string]IndexDetails{}
-	if err := json.NewDecoder(resp.Body).Decode(&respBody); err != nil {
+	if _, err := gohttp.GetJSON(url, nil, &respBody); err != nil {
 		return nil, err
 	}
 
@@ -82,25 +79,42 @@ func (c *Client) GetMappingsInIndex(index string) (map[string]Mapping, error) {
 	return details.Mappings, nil
 }
 
-func (c *Client) GetMapping(index, mappingName string) (Mapping, error) {
-	var mapping Mapping
+// GetMapping connects to an index and grabs the matching index.
+func (c *Client) GetMapping(index, mappingName string) (*Mapping, error) {
 	url := fmt.Sprintf(esMapping, c.hostname, index, mappingName)
+	var mapping *Mapping
 
-	resp, err := http.Get(url)
-	if err != nil {
+	if _, err := gohttp.GetJSON(url, nil, mapping); err != nil {
 		return nil, err
 	}
 
-	if resp.StatusCode > 299 {
-		return nil, fmt.Errorf("Error getting mapping %s with error %d", mapping, resp.StatusCode)
-	}
-
-	defer resp.Body.Close()
-	if err := json.NewDecoder(resp.Body).Decode(&mapping); err != nil {
-		return mapping, err
-	}
-
 	return mapping, nil
+}
+
+func (c *Client) CreateMapping(index string, mappingName string, isScoped bool) error {
+	latest, err := getLatestMapping(mappingName)
+	if err != nil {
+		return err
+	}
+
+	esMapping, err := getMappingNameForES(latest)
+	if err != nil {
+		return err
+	}
+
+	mappingExists, err := c.testMapping(index, esMapping)
+	if err != nil {
+		return err
+	} else if mappingExists {
+		return fmt.Errorf("Mapping %s exists in index %s", esMapping, index)
+	}
+
+	mappingContents, err := readMappingFile(latest)
+	if err != nil {
+		return err
+	}
+
+	return c.createMapping(index, esMapping, mappingContents)
 }
 
 func (c *Client) UpdateMapping(mapping string, index string, isScoped bool) error {

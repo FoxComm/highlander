@@ -123,13 +123,13 @@ func (r *Runner) PullMapping(mappingName string) error {
 		return err
 	}
 
-	fmt.Printf(infoFoundMappingInIndex, searchDefn.Index)
+	fmt.Printf(infoMappingFoundInIndex, searchDefn.Index)
 	mapping, err := r.client.GetMapping(searchDefn.Index, mappingName)
 	if err != nil {
 		return err
 	}
 
-	mappings := []elastic.Mapping{mapping}
+	mappings := map[string]elastic.Mapping{mappingName: *mapping}
 	return r.writeMappings(mappings)
 }
 
