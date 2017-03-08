@@ -1,5 +1,8 @@
 ---
 
+- name: Remove Core Services
+  file: path=/etc/nginx/sites-available/services state=absent
+
 - name: Install Consul Template Service
   template: src=demo_consul_template.service dest="{{dest_services}}/demo_consul_template.service"
 

@@ -24,6 +24,4 @@ server {
   location @storefront {
       proxy_pass http://storefront;
   }
-
-  include /etc/nginx/service_locations.conf;
 }
