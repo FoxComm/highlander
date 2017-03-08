@@ -3,7 +3,6 @@
 import _ from 'lodash';
 import React from 'react';
 import classNames from 'classnames';
-import { autobind } from 'core-decorators';
 
 import Navigation from './navigation';
 
@@ -14,22 +13,18 @@ type Props = {
   routes: Array<Object>,
 }
 
-@connect((state, props) => ({
-  ...state.siteMenu
-}), SiteMenuActions)
-
-class Sidebar extends React.Component {
-  props: Props;
-
-  render() {
+const Sidebar = ({ routes }: Props) => {
     const sidebarClass = classNames('fc-sidebar', '_open');
 
     return (
       <aside role="complimentary" className={sidebarClass}>
-        <Navigation routes={this.props.routes} />
+        <Navigation routes={routes} />
       </aside>
     );
-  }
-}
+};
 
-export default Sidebar;
+const mapState = state => ({
+   ...state.siteMenu,
+ });
+
+ export default connect(mapState, SiteMenuActions)(Sidebar);
