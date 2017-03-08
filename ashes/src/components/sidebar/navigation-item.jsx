@@ -8,7 +8,7 @@ import { autobind } from 'core-decorators';
 import { IndexLink, Link } from '../link';
 import type { Claims } from 'lib/claims';
 
-import Icon from '../icon/icon';
+import Icon from 'components/icon/icon';
 
 import styles from './navigation-item.css';
 
@@ -18,7 +18,7 @@ type Props = {
     title: string,
     routes: Array<Object>,
     actualClaims: Claims|string,
-    expectedClaims: Claims|string
+    expectedClaims: Claims|string,
   };
 
 const NavigationItem = (props: Props) => {
@@ -50,7 +50,10 @@ const NavigationItem = (props: Props) => {
             className='fc-navigation-item__link'
             actualClaims={props.actualClaims}
             expectedClaims={props.expectedClaims}>
-            <Icon name={props.icon} className={styles["nav-item"]} />
+            <Icon
+              name={props.icon}
+              className={styles["nav-item"]}
+            />
             <span>{props.title}</span>
           </IndexLink>
         </div>

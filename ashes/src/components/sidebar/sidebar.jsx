@@ -11,7 +11,7 @@ import { connect } from 'react-redux';
 import * as SiteMenuActions from '../../modules/site-menu';
 
 type Props = {
-  routes: Array<Object>
+  routes: Array<Object>,
 }
 
 @connect((state, props) => ({
@@ -20,7 +20,7 @@ type Props = {
 
 class Sidebar extends React.Component {
   props: Props;
-  
+
   render() {
     const sidebarClass = classNames('fc-sidebar', '_open');
 

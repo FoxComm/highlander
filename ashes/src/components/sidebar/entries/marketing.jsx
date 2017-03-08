@@ -33,7 +33,8 @@ const MarketingEntry = ({ claims, routes, id }: { claims: Claims, routes: Array<
             title="Gift Cards"
             routes={routes}
             actualClaims={claims}
-            expectedClaims={giftCardClaims} />
+            expectedClaims={giftCardClaims}
+          />
         </li>
         <li>
           <NavigationItem
@@ -42,7 +43,8 @@ const MarketingEntry = ({ claims, routes, id }: { claims: Claims, routes: Array<
             title="Promotions"
             routes={routes}
             actualClaims={claims}
-            expectedClaims={promotionClaims} />
+            expectedClaims={promotionClaims}
+          />
         </li>
         <li>
           <NavigationItem
@@ -51,7 +53,8 @@ const MarketingEntry = ({ claims, routes, id }: { claims: Claims, routes: Array<
             title="Coupons"
             routes={routes}
             actualClaims={claims}
-            expectedClaims={couponClaims} />
+            expectedClaims={couponClaims}
+          />
         </li>
       </div>
 

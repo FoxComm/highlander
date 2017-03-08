@@ -31,22 +31,28 @@ const Navigation = ({ routes, token }: { routes: Array<Object>, token: JWT}) => 
       <ul className="fc-sidebar__navigation-list">
         <OrdersEntry
           claims={claims}
-          routes={routes} />
+          routes={routes}
+        />
         <CustomersEntry
           claims={claims}
-          routes={routes} />
+          routes={routes}
+        />
         <CatalogEntry
           claims={claims}
-          routes={routes} />
+          routes={routes}
+        />
         <MerchandisingEntry
           claims={claims}
-          routes={routes} />
+          routes={routes}
+        />
         <MarketingEntry
           claims={claims}
-          routes={routes} />
+          routes={routes}
+        />
         <SettingsEntry
           claims={claims}
-          routes={routes} />
+          routes={routes}
+        />
       </ul>
     </nav>
   );

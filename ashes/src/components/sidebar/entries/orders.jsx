@@ -32,7 +32,8 @@ const OrdersEntry = ({ claims, routes }: { claims: Claims, routes: Array<Object>
             title="Orders"
             routes={routes}
             actualClaims={claims}
-            expectedClaims={orderClaims} />
+            expectedClaims={orderClaims}
+          />
         </li>
         <li>
           <NavigationItem
@@ -41,7 +42,8 @@ const OrdersEntry = ({ claims, routes }: { claims: Claims, routes: Array<Object>
             title="Carts"
             routes={routes}
             actualClaims={claims}
-            expectedClaims={cartClaims} />
+            expectedClaims={cartClaims}
+          />
         </li>
       </div>
     );

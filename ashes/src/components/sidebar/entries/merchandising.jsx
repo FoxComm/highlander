@@ -31,7 +31,8 @@ const MerchandisingEntry = ({ claims, routes }: { claims: Claims, routes: Array<
             title="Taxonomies"
             routes={routes}
             actualClaims={claims}
-            expectedClaims={taxonomyClaims} />
+            expectedClaims={taxonomyClaims}
+          />
         </li>
       </div>
     );

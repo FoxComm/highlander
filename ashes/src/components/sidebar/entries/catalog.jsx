@@ -33,7 +33,8 @@ const CatalogEntry = ({ claims, routes }: { claims: Claims, routes: Array<Object
             title="Products"
             routes={routes}
             actualClaims={claims}
-            expectedClaims={productClaims} />
+            expectedClaims={productClaims}
+          />
         </li>
         <li>
           <NavigationItem
@@ -42,7 +43,8 @@ const CatalogEntry = ({ claims, routes }: { claims: Claims, routes: Array<Object
             title="SKUs"
             routes={routes}
             actualClaims={claims}
-            expectedClaims={skuClaims} />
+            expectedClaims={skuClaims}
+          />
         </li>
         <li>
           <NavigationItem
@@ -51,7 +53,8 @@ const CatalogEntry = ({ claims, routes }: { claims: Claims, routes: Array<Object
             title="Inventory"
             routes={routes}
             actualClaims={claims}
-            expectedClaims={inventoryClaims} />
+            expectedClaims={inventoryClaims}
+          />
         </li>
       </div>
     );

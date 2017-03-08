@@ -30,7 +30,8 @@ const SettingsEntry = ({ claims, routes }: { claims: Claims, routes: Array<Objec
               title='Integrations'
               routes={routes}
               actualClaims='none'
-              expectedClaims='none' />
+              expectedClaims='none'
+            />
           </li>
           </div>
       );
@@ -46,7 +47,8 @@ const SettingsEntry = ({ claims, routes }: { claims: Claims, routes: Array<Objec
             title="Users"
             routes={routes}
             actualClaims={claims}
-            expectedClaims={userClaims} />
+            expectedClaims={userClaims}
+          />
         </li>
         <li>
           <NavigationItem
@@ -55,7 +57,8 @@ const SettingsEntry = ({ claims, routes }: { claims: Claims, routes: Array<Objec
             title="Plugins"
             routes={routes}
             actualClaims={claims}
-            expectedClaims={pluginClaims} />
+            expectedClaims={pluginClaims}
+          />
         </li>
         <li>
           <NavigationItem
@@ -64,7 +67,8 @@ const SettingsEntry = ({ claims, routes }: { claims: Claims, routes: Array<Objec
             title="Applications"
             routes={routes}
             actualClaims={claims}
-            expectedClaims={applicationClaims} />
+            expectedClaims={applicationClaims}
+          />
         </li>
       </div>
     );
