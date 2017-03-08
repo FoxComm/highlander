@@ -100,7 +100,7 @@ defmodule Hyperion.Router.V1 do
       end
 
       post do
-        cfg = API.amazon_credentials(conn)
+        cfg = Credentials.mws_config(conn)
         purge = if (params[:purge]), do: true , else: false
 
         products = Amazon.product_feed(params[:ids], API.jwt(conn))
@@ -122,7 +122,7 @@ defmodule Hyperion.Router.V1 do
       end
 
       post :by_asin do
-        cfg = API.amazon_credentials(conn)
+        cfg = Credentials.mws_config(conn)
         purge = if (params[:purge]), do: true , else: false
         products = Amazon.product_feed(params[:ids], API.jwt(conn))
                   |> TemplateBuilder.submit_product_by_asin(%{seller_id: cfg.seller_id,
@@ -143,7 +143,7 @@ defmodule Hyperion.Router.V1 do
         end
 
         get do
-          case MWSClient.list_matching_products(params[:q], MWSAuthAgent.get(API.customer_id(conn))) do
+          case MWSClient.list_matching_products(params[:q], Credentials.mws_config(API.customer_id(conn))) do
             {:error, error} -> respond_with(conn, %{message: inspect(error)}, 422)
             {:warn, warn} -> respond_with(conn, %{error: warn["ErrorResponse"]["Error"]["Message"]}, 400)
             {_, resp} -> respond_with(conn, resp)
@@ -156,7 +156,7 @@ defmodule Hyperion.Router.V1 do
           desc "Searches product by ASIN code"
           get do
             asins = String.split(params[:asin], ",")
-            case MWSClient.get_product_by_asin(asins, MWSAuthAgent.get(API.customer_id(conn))) do
+            case MWSClient.get_product_by_asin(asins, Credentials.mws_config(API.customer_id(conn))) do
               {:error, error} -> respond_with(conn, inspect(error), 422)
               {:warn, warn} -> respond_with(conn, %{error: warn["ErrorResponse"]["Error"]["Message"]}, 400)
               {_, resp} -> respond_with(conn, resp)
@@ -170,7 +170,7 @@ defmodule Hyperion.Router.V1 do
           desc "Returns categories for given asin"
           get do
             Hyperion.API.jwt(conn)
-            case MWSClient.get_product_categories_for_asin(params[:asin], MWSAuthAgent.get(API.customer_id(conn))) do
+            case MWSClient.get_product_categories_for_asin(params[:asin], Credentials.mws_config(API.customer_id(conn))) do
               {:error, error} -> respond_with(conn, inspect(error), 422)
               {:warn, warn} -> respond_with(conn, %{error: warn["ErrorResponse"]["Error"]["Message"]}, 400)
               {_, resp} -> respond_with(conn, resp)
@@ -204,7 +204,7 @@ defmodule Hyperion.Router.V1 do
 
       get :suggest do
         try do
-          cfg = API.amazon_credentials(conn)
+          cfg = Credentials.mws_config(conn)
           res = CategorySuggester.suggest_categories(params[:q], cfg)
           respond_with(conn, res)
         rescue e in RuntimeError ->
@@ -236,7 +236,7 @@ defmodule Hyperion.Router.V1 do
         list = Map.drop(params, [:last_updated_after])
                |>Enum.map(fn {k, v} -> {k, String.split(v, ",")}  end)
 
-        case MWSClient.list_orders(list, last_upd, MWSAuthAgent.get(API.customer_id(conn))) do
+        case MWSClient.list_orders(list, last_upd, Credentials.mws_config(API.customer_id(conn))) do
           {:error, error} -> respond_with(conn, inspect(error), 422)
           {:warn, warn} -> respond_with(conn, %{error: warn["ErrorResponse"]["Error"]["Message"]}, 400)
           {_, resp} -> respond_with(conn, resp)
@@ -252,10 +252,10 @@ defmodule Hyperion.Router.V1 do
       end
 
       post do
-        cfg = API.amazon_credentials(conn)
+        cfg = Credentials.mws_config(conn)
         prices = Amazon.price_feed(params[:ids], API.jwt(conn))
                  |> TemplateBuilder.submit_price_feed(cfg)
-        case MWSClient.submit_price_feed(prices, MWSAuthAgent.get(API.customer_id(conn))) do
+        case MWSClient.submit_price_feed(prices, Credentials.mws_config(API.customer_id(conn))) do
           {:error, error} -> respond_with(conn, %{message: inspect(error)}, 422)
           {:warn, warn} -> respond_with(conn, %{error: warn["ErrorResponse"]["Error"]["Message"]}, 400)
           {_, resp} -> respond_with(conn, resp)
@@ -274,7 +274,7 @@ defmodule Hyperion.Router.V1 do
       end
 
       post do
-        cfg = API.amazon_credentials(conn)
+        cfg = Credentials.mws_config(conn)
         inv_list = params[:inventory] |> Enum.with_index(1)
         inventories = TemplateBuilder.submit_inventory_feed(inv_list, %{seller_id: cfg.seller_id})
 
@@ -294,10 +294,10 @@ defmodule Hyperion.Router.V1 do
       end
 
       post do
-        cfg = API.amazon_credentials(conn)
+        cfg = Credentials.mws_config(conn)
         images = Amazon.images_feed(params[:ids], API.jwt(conn))
                  |> TemplateBuilder.submit_images_feed(cfg)
-        case MWSClient.submit_images_feed(images, MWSAuthAgent.get(API.customer_id(conn))) do
+        case MWSClient.submit_images_feed(images, Credentials.mws_config(API.customer_id(conn))) do
           {:error, error} -> respond_with(conn, %{message: inspect(error)}, 422)
           {:warn, warn} -> respond_with(conn, %{error: warn["ErrorResponse"]["Error"]["Message"]}, 400)
           {_, resp} -> respond_with(conn, resp)
@@ -309,7 +309,7 @@ defmodule Hyperion.Router.V1 do
       route_param :feed_id do
       desc "Check result of submitted feed"
         get do
-          case MWSClient.get_feed_submission_result(params[:feed_id], MWSAuthAgent.get(API.customer_id(conn))) do
+          case MWSClient.get_feed_submission_result(params[:feed_id], Credentials.mws_config(API.customer_id(conn))) do
             {:error, error} -> respond_with(conn, %{message: inspect(error)}, 422)
             {:warn, warn} -> respond_with(conn, %{error: warn["ErrorResponse"]["Error"]["Message"]}, 400)
             {_, resp} -> respond_with(conn, resp)
@@ -326,7 +326,7 @@ defmodule Hyperion.Router.V1 do
       end
 
       post do
-        case MWSClient.subscribe_to_sqs(params[:queue_url], MWSAuthAgent.get(API.customer_id(conn))) do
+        case MWSClient.subscribe_to_sqs(params[:queue_url], Credentials.mws_config(API.customer_id(conn))) do
           {:error, error} -> respond_with(conn, %{message: inspect(error)}, 422)
           {:warn, warn} -> respond_with(conn, %{error: warn["ErrorResponse"]["Error"]["Message"]}, 400)
           {_, resp} -> respond_with(conn, resp)
@@ -340,7 +340,7 @@ defmodule Hyperion.Router.V1 do
       end
 
       delete do
-        case MWSClient.unsubscribe_from_sqs(params[:queue_url], MWSAuthAgent.get(API.customer_id(conn))) do
+        case MWSClient.unsubscribe_from_sqs(params[:queue_url], Credentials.mws_config(API.customer_id(conn))) do
           {:error, error} -> respond_with(conn, %{message: inspect(error)}, 422)
           {:warn, warn} -> respond_with(conn, %{error: warn["ErrorResponse"]["Error"]["Message"]}, 400)
           {_, resp} -> respond_with(conn, resp)
