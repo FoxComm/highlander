@@ -93,9 +93,9 @@ shortcuts:
     alias: provision_appliance.yml
     target: ansible/provision_appliance.yml
 
-  - name: Provision Appliance Lite
-    alias: provision_appliance_lite.yml
-    target: ansible/provision_appliance_lite.yml
+  - name: Provision Cloud Demo
+    alias: cloud_demo.yml
+    target: ansible/provision_cloud_demo.yml
 
   # Migration
   - name: Migrate Phoenix DB
