@@ -1,0 +1,20 @@
+---
+
+- name: Creates Marathon JSON directory
+  file: path=/marathon/applications state=directory
+
+- name: Copy BigBag Marathon JSON
+  template: src=bigbag.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
+
+- name: Update BigBag in Marathon
+  shell: 'curl -sS -XPUT -d@/marathon/applications/bigbag.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/bigbag'
+
+- name: Restart BigBag in Marathon
+  shell: 'curl -sS -XPOST http://{{marathon_server}}/v2/apps/bigbag/restart'
+
+- name: Get BigBag Marathon tasks in `healthy` state
+  shell: curl -sS -XGET http://{{marathon_server}}/v2/apps/bigbag | jq '.app.tasksHealthy > 0'
+  register: healthy_tasks_available
+  until: healthy_tasks_available.stdout == 'true'
+  retries: "{{marathon_retries}}"
+  delay: "{{marathon_delay}}"

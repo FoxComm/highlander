@@ -35,11 +35,11 @@
     - { role: hotfix/kibana }
     - { role: dev/db }
     # Marathon
-
+    - { role: cloud/bigbag }
     # Nginx
     - { role: dev/balancer }
     - { role: hotfix/mesos_consul }
-    - { role: demo/balancer }
+    - { role: cloud/balancer }
     # Finale
     - { role: dev/healthcheck }
 
