@@ -1,19 +1,8 @@
 ---
 
 es_connection:
-  host: 10.240.0.8
+  host: 10.240.0.6
   port: 9200
-db_connections:
-  - phoenix:
-      database: phoenix_development
-      host: 10.240.0.8
-      user: phoenix
-      password: ""
-  - middlewarehouse:
-      database: middlewarehouse_development
-      host: 10.240.0.8
-      user: middlewarehouse
-      password: ""
 es_indices:
   - name: public
     searches:

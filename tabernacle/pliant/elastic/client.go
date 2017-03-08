@@ -13,9 +13,9 @@ import (
 const (
 	mappingDir = "./mappings"
 
-	esIndex      = "http://%s/%s"
-	esMapping    = "http://%s/%s/_mapping/%s"
-	esGetIndices = "http://%s/_cat/indices?h=index"
+	esIndex      = "%s/%s"
+	esMapping    = "%s/%s/_mapping/%s"
+	esGetIndices = "%s/_cat/indices?h=index"
 )
 
 // Client is our interface the FoxCommerce conventions of using ElasticSearch.
@@ -39,22 +39,25 @@ func (c *Client) Connect() (err error) {
 	return
 }
 
-func (c *Client) GetAllMappings() ([]*IndexDetails, error) {
-	detailList := []*IndexDetails{}
+func (c *Client) GetMappingsInCluster() (map[string]Mapping, error) {
+	mappings := map[string]Mapping{}
+
 	for _, index := range c.indices {
 		trimmedIdx := strings.Trim(index, " ")
-		details, err := c.GetMappings(trimmedIdx)
+		idxMappings, err := c.GetMappingsInIndex(trimmedIdx)
 		if err != nil {
 			return nil, err
 		}
 
-		detailList = append(detailList, details)
+		for name, mapping := range idxMappings {
+			mappings[name] = mapping
+		}
 	}
 
-	return detailList, nil
+	return mappings, nil
 }
 
-func (c *Client) GetMappings(index string) (*IndexDetails, error) {
+func (c *Client) GetMappingsInIndex(index string) (map[string]Mapping, error) {
 	url := fmt.Sprintf(esIndex, c.hostname, index)
 	resp, err := http.Get(url)
 	if err != nil {
@@ -76,7 +79,28 @@ func (c *Client) GetMappings(index string) (*IndexDetails, error) {
 		return nil, fmt.Errorf("Unable to find details for index %s in response", index)
 	}
 
-	return &details, nil
+	return details.Mappings, nil
+}
+
+func (c *Client) GetMapping(index, mappingName string) (Mapping, error) {
+	var mapping Mapping
+	url := fmt.Sprintf(esMapping, c.hostname, index, mappingName)
+
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode > 299 {
+		return nil, fmt.Errorf("Error getting mapping %s with error %d", mapping, resp.StatusCode)
+	}
+
+	defer resp.Body.Close()
+	if err := json.NewDecoder(resp.Body).Decode(&mapping); err != nil {
+		return mapping, err
+	}
+
+	return mapping, nil
 }
 
 func (c *Client) UpdateMapping(mapping string, index string, isScoped bool) error {
