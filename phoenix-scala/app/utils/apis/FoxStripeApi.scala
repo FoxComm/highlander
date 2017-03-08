@@ -30,9 +30,9 @@ trait FoxStripeApi {
                       amount: Int,
                       currency: Currency): Result[StripeCharge]
 
-  def authorizeRefund(chargeId: String, amount: Int, reason: RefundReason): Result[StripeCharge]
-
   def captureCharge(chargeId: String, amount: Int): Result[StripeCharge]
+
+  def authorizeRefund(chargeId: String, amount: Int, reason: RefundReason): Result[StripeCharge]
 
   def editCard(cc: CreditCard): Result[StripeCard]
 
