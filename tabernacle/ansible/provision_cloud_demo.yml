@@ -1,6 +1,6 @@
 ---
 
-- name: Provision Lightweight Appliance
+- name: Provision Cloud Demo
   hosts: cloud-demo
   become: true
   vars:
@@ -10,14 +10,8 @@
   roles:
     # Core
     - { role: dev/appliance }
-    # Services
     - { role: dev/consul_agent }
-    - { role: dev/zookeeper }
-    - { role: dev/elasticsearch }
-    - { role: hotfix/elasticsearch }
-    - { role: hotfix/rsyslog }
-    - { role: hotfix/kibana }
-    - { role: dev/db }
+    - { role: cloud/zookeeper }
     # Marathon
     - { role: cloud/bigbag }
     # Nginx
