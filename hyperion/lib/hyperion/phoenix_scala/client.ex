@@ -14,8 +14,8 @@ defmodule Hyperion.PhoenixScala.Client do
   DO NOT USE IT! This function made just for testing!
   """
   def login do
-    {:ok, req} = Poison.encode(%{email: "admin@admin.com", password: "password", org: "tenant"})
-    case post("/api/v1/public/login", req, request_headers()) do
+    params = Poison.encode!(%{email: "admin@admin.com", password: "password", org: "tenant"})
+    case post("/api/v1/public/login", params, request_headers()) do
       {:ok, resp} -> Keyword.take(resp.headers, ["JWT"]) |> hd |> elem(1)
       {:error, err} -> inspect(err)
     end
@@ -47,9 +47,10 @@ defmodule Hyperion.PhoenixScala.Client do
     %{body: r.body, jwt: jwt}
   end
 
+
   def request_headers(jwt \\ nil) do
-    case jwt == nil do
-      true -> ["Content-Type": "application/json"]
+    case jwt do
+      nil -> ["Content-Type": "application/json"]
       _ -> ["Content-Type": "application/json", "JWT": jwt]
     end
   end
