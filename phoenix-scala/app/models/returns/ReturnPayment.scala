@@ -18,27 +18,16 @@ case class ReturnPayment(id: Int = 0,
     extends FoxModel[ReturnPayment]
 
 object ReturnPayment {
-  def build(method: PaymentMethod, returnId: Int, amount: Int, currency: Currency): ReturnPayment =
-    method match {
-      case gc: GiftCard ⇒
-        ReturnPayment(returnId = returnId,
-                      amount = amount,
-                      currency = currency,
-                      paymentMethodId = gc.id,
-                      paymentMethodType = PaymentMethod.GiftCard)
-      case cc: CreditCard ⇒
-        ReturnPayment(returnId = returnId,
-                      amount = amount,
-                      currency = currency,
-                      paymentMethodId = cc.id,
-                      paymentMethodType = PaymentMethod.CreditCard)
-      case sc: StoreCredit ⇒
-        ReturnPayment(returnId = returnId,
-                      amount = amount,
-                      currency = currency,
-                      paymentMethodId = sc.id,
-                      paymentMethodType = PaymentMethod.StoreCredit)
-    }
+  def build(method: PaymentMethod.Type,
+            methodId: Int,
+            returnId: Int,
+            amount: Int,
+            currency: Currency): ReturnPayment =
+    ReturnPayment(returnId = returnId,
+                  amount = amount,
+                  currency = currency,
+                  paymentMethodId = methodId,
+                  paymentMethodType = method)
 }
 
 class ReturnPayments(tag: Tag) extends FoxTable[ReturnPayment](tag, "return_payments") {

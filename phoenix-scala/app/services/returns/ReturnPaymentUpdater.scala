@@ -149,7 +149,11 @@ object ReturnPaymentUpdater {
       cc ← * <~ CreditCards.mustFindById404(payment.paymentMethodId)
       _  ← * <~ deleteCcPayment(returnId)
       ccRefund ← * <~ ReturnPayments.create(
-                    ReturnPayment.build(cc, returnId, amount, payment.currency))
+                    ReturnPayment.build(method = PaymentMethod.CreditCard,
+                                        methodId = cc.id,
+                                        returnId = returnId,
+                                        amount = amount,
+                                        currency = payment.currency))
     } yield ccRefund
 
   private def addGiftCard(returnId: Int,
@@ -158,8 +162,23 @@ object ReturnPaymentUpdater {
     for {
       _      ← * <~ deleteGcPayment(returnId)
       origin ← * <~ GiftCardRefunds.create(GiftCardRefund(returnId = returnId))
-      gc     ← * <~ GiftCards.create(GiftCard.buildRmaProcess(origin.id, payment.currency))
-      pmt    ← * <~ ReturnPayments.create(ReturnPayment.build(gc, returnId, amount, payment.currency))
+      gc ← * <~ GiftCards.create(
+              GiftCard(
+                  scope = Scope.current,
+                  originId = origin.id,
+                  originType = GiftCard.RmaProcess,
+                  state = GiftCard.OnHold,
+                  currency = payment.currency,
+                  originalBalance = amount,
+                  availableBalance = amount,
+                  currentBalance = amount
+              ))
+      pmt ← * <~ ReturnPayments.create(
+               ReturnPayment.build(method = PaymentMethod.GiftCard,
+                                   methodId = gc.id,
+                                   returnId = returnId,
+                                   amount = amount,
+                                   currency = payment.currency))
     } yield pmt
 
   private def addStoreCredit(returnId: Int, accountId: Int, payment: OrderPayment, amount: Int)(
@@ -174,9 +193,17 @@ object ReturnPaymentUpdater {
                           scope = Scope.current,
                           originId = origin.id,
                           originType = StoreCredit.RmaProcess,
+                          state = StoreCredit.OnHold,
                           currency = payment.currency,
-                          originalBalance = 0))
-      pmt ← * <~ ReturnPayments.create(ReturnPayment.build(sc, returnId, amount, payment.currency))
+                          originalBalance = amount,
+                          availableBalance = amount,
+                          currentBalance = amount))
+      pmt ← * <~ ReturnPayments.create(
+               ReturnPayment.build(method = PaymentMethod.StoreCredit,
+                                   methodId = sc.id,
+                                   returnId = returnId,
+                                   amount = amount,
+                                   currency = payment.currency))
     } yield pmt
 
   def deletePayment(refNum: String, paymentMethod: PaymentMethod.Type)(
@@ -230,15 +257,28 @@ object ReturnPaymentUpdater {
     } yield ()
   }
 
-  def issuePayments(rma: Return)(implicit ec: EC, apis: Apis): DbResultT[Unit] =
+  def issuePayments(rma: Return)(implicit ec: EC, apis: Apis): DbResultT[Unit] = {
     for {
       ccPayment ← * <~ ReturnPayments.findAllByReturnId(rma.id).creditCards.one
-      _         ← * <~ issueCcPayment(rma, ccPayment)
+      _         ← * <~ ccPayment.map(issueCcPayment(rma, _))
     } yield ()
+  }
 
-  private def issueCcPayment(rma: Return, payment: Option[ReturnPayment])(
-      implicit ec: EC,
-      apis: Apis): DbResultT[Unit] = {
+  private def issueCcPayment(rma: Return, payment: ReturnPayment)(implicit ec: EC,
+                                                                  apis: Apis): DbResultT[Unit] = {
+    val authorizeRefund =
+      ((id: String, amount: Int) ⇒
+         for {
+           _ ← * <~ apis.stripe.authorizeRefund(id, amount, RefundReason.RequestedByCustomer)
+           ccPayment = ReturnCcPayment.build(
+               returnPaymentId = payment.id,
+               chargeId = id,
+               returnId = payment.returnId,
+               amount = amount
+           )
+           created ← * <~ ReturnCcPayments.create(ccPayment)
+         } yield created).tupled
+
     @tailrec
     def splitAmount(amount: Int,
                     charges: Seq[CreditCardCharge],
@@ -250,50 +290,31 @@ object ReturnPaymentUpdater {
       case _ ⇒ acc
     }
 
-    def createRefund(payment: ReturnPayment) = {
-      val authorizeRefund = (apis.stripe
-        .authorizeRefund(_: String, _: Int, RefundReason.RequestedByCustomer))
-        .tupled
-        .andThen(apiResult ⇒
-              for {
-            charge ← * <~ apiResult
-            ccPayment = ReturnCcPayment.build(
-                returnPaymentId = payment.id,
-                chargeId = charge.getId,
-                returnId = payment.returnId,
-                amount = charge.getAmountRefunded
-            )
-            created ← * <~ ReturnCcPayments.create(ccPayment)
-          } yield created)
-
-      for {
-        previousCcPayments ← * <~ Returns
-                              .findPrevious(rma)
-                              .join(ReturnCcPayments)
-                              .on(_.id === _.returnId)
-                              .map { case (_, ccPayment) ⇒ ccPayment.chargeId → ccPayment.amount }
-                              .result
-                              .map(_.groupBy(_._1).mapValues(_.map(_._2).sum))
-        ccCharges ← * <~ OrderPayments
-                     .findAllCreditCardsForOrder(rma.orderRef)
-                     .join(CreditCardCharges)
-                     .on(_.id === _.orderPaymentId)
-                     .map { case (_, charge) ⇒ charge }
-                     .filter(_.currency === payment.currency)
-                     .result
-        adjustedCcCharges = ccCharges
-          .map(c ⇒ c.copy(amount = c.amount - previousCcPayments.getOrElse(c.chargeId, 0)))
-          .filter(_.amount > 0)
-        amountToRefund = splitAmount(payment.amount, adjustedCcCharges, Vector.empty)
-        refunds ← * <~ amountToRefund.map(authorizeRefund)
-        totalRefund = refunds.map(_.amount).sum
-        _ ← * <~ failIf(totalRefund != payment.amount,
-                        ReturnCCPaymentViolation(refNum = rma.refNum,
-                                                 issued = totalRefund,
-                                                 allowed = payment.amount))
-      } yield ()
-    }
-
-    payment.map(createRefund).getOrElse(DbResultT.pure(()))
+    for {
+      previousCcPayments ← * <~ Returns
+                            .findPrevious(rma)
+                            .join(ReturnCcPayments)
+                            .on(_.id === _.returnId)
+                            .map { case (_, ccPayment) ⇒ ccPayment.chargeId → ccPayment.amount }
+                            .result
+                            .map(_.groupBy(_._1).mapValues(_.map(_._2).sum))
+      ccCharges ← * <~ OrderPayments
+                   .findAllCreditCardsForOrder(rma.orderRef)
+                   .join(CreditCardCharges)
+                   .on(_.id === _.orderPaymentId)
+                   .map { case (_, charge) ⇒ charge }
+                   .filter(_.currency === payment.currency)
+                   .result
+      adjustedCcCharges = ccCharges
+        .map(c ⇒ c.copy(amount = c.amount - previousCcPayments.getOrElse(c.chargeId, 0)))
+        .filter(_.amount > 0)
+      amountToRefund = splitAmount(payment.amount, adjustedCcCharges, Vector.empty)
+      refunds ← * <~ amountToRefund.map(authorizeRefund)
+      totalRefund = refunds.map(_.amount).sum
+      _ ← * <~ failIf(totalRefund != payment.amount,
+                      ReturnCCPaymentViolation(refNum = rma.refNum,
+                                               issued = totalRefund,
+                                               allowed = payment.amount))
+    } yield ()
   }
 }
