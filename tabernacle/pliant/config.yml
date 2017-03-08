@@ -1,8 +1,8 @@
 ---
 
 es_connection:
-  - host: 10.240.0.8
-  - port: 9200
+  host: 10.240.0.8
+  port: 9200
 db_connections:
   - phoenix:
       database: phoenix_development
@@ -15,59 +15,79 @@ db_connections:
       user: middlewarehouse
       password: ""
 es_indices:
-  - public:
-      scoped: false
-      searches:
-        - countries:
-            view: countries_view
-        - products_catalog:
-            view: products_catalog_view
-        - regions:
-            view: regions_view
-  - admin:
-      scoped: true
-      searches:
-        - activity_connections:
-            scoped: false
-            view: activity_connections_view
-        - carts:
-            view: carts_search_view
-        - coupon_codes:
-            view: coupon_codes_search_view
-        - coupons:
-            view: coupons_search_view
-        - customer_items:
-            view: customer_items_search_view
-        - customers:
-            view: customers_search_view
-        - failed_authorizations:
-            scoped: false
-            view: failed_authorizations_search_view
-        - gift_card_transactions:
-            view: gift_card_transactions_view
-        - gift_cards:
-            view: gift_cards_search_view
-        - inventory:
-            view: inventory_search_view
-        - inventory_transactions:
-            view: inventory_transactions_search_view
-        - notes:
-            view: notes_search_view
-        - orders:
-            view: orders_search_view
-        - products:
-            view: products_search_view
-        - promotions:
-            view: promotions_search_view
-        - skus:
-            view: sku_search_view
-        - store_admins:
-            view: store_admins_search_view
-        - store_credit_transactions:
-            view: store_credit_transactions_view
-        - store_credits:
-            view: store_credits_search_view
-        - taxonomies:
-            view: taxonomies_search_view
-        - taxons:
-            view: taxons_search_view
+  - name: public
+    searches:
+      - name: countries
+        scoped: false
+        view: countries_view
+      - name: products_catalog
+        scoped: false
+        view: products_catalog_view
+      - name: regions
+        scoped: false
+        view: regions_view
+  - name: admin
+    searches:
+      - name: activity_connections
+        scoped: false
+        view: activity_connections_view
+      - name: carts
+        scoped: true
+        view: carts_search_view
+      - name: coupon_codes
+        scoped: true
+        view: coupon_codes_search_view
+      - name: coupons
+        scoped: true
+        view: coupons_search_view
+      - name: customer_items
+        scoped: true
+        view: customer_items_search_view
+      - name: customers
+        scoped: true
+        view: customers_search_view
+      - name: failed_authorizations
+        scoped: false
+        view: failed_authorizations_search_view
+      - name: gift_card_transactions
+        scoped: true
+        view: gift_card_transactions_view
+      - name: gift_cards
+        scoped: true
+        view: gift_cards_search_view
+      - name: inventory
+        scoped: true
+        view: inventory_search_view
+      - name: inventory_transactions
+        scoped: true
+        view: inventory_transactions_search_view
+      - name: notes
+        scoped: true
+        view: notes_search_view
+      - name: orders
+        scoped: true
+        view: orders_search_view
+      - name: products
+        scoped: true
+        view: products_search_view
+      - name: promotions
+        scoped: true
+        view: promotions_search_view
+      - name: skus
+        scoped: true
+        view: sku_search_view
+      - name: store_admins
+        scoped: true
+        view: store_admins_search_view
+      - name: store_credit_transactions
+        scoped: true
+        view: store_credit_transactions_view
+      - name: store_credits
+        scoped: true
+        view: store_credits_search_view
+      - name: taxonomies
+        scoped: true
+        view: taxonomies_search_view
+      - name: taxons
+        scoped: true
+        view: taxons_search_view
