@@ -15,8 +15,7 @@ defmodule Hyperion.PhoenixScala.Client do
   """
   def login do
     {:ok, req} = Poison.encode(%{email: "admin@admin.com", password: "password", org: "tenant"})
-    post("/api/v1/public/login", req, request_headers)
-    case post("/api/v1/public/login", req, request_headers) do
+    case post("/api/v1/public/login", req, request_headers()) do
       {:ok, resp} -> Keyword.take(resp.headers, ["JWT"]) |> hd |> elem(1)
       {:error, err} -> inspect(err)
     end

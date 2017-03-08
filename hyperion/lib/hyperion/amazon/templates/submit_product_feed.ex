@@ -76,7 +76,7 @@ defmodule Hyperion.Amazon.Templates.SubmitProductFeed do
   end
 
   def render_bullet_points(product) do
-    points = Enum.filter(product, fn{k, v} -> String.match?(to_string(k), ~r/bulletpoint/) end)
+    points = Enum.filter(product, fn{k, _v} -> String.match?(to_string(k), ~r/bulletpoint/) end)
     for {_k, v} <- points do
       unless v == nil do
         """

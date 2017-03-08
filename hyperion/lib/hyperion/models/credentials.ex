@@ -1,7 +1,6 @@
 defmodule Credentials do
   use Ecto.Schema
   import Ecto.Changeset
-  import Ecto.Query
   alias Hyperion.Repo
 
   @derive {Poison.Encoder, only: [:client_id, :mws_auth_token, :seller_id]}
@@ -11,7 +10,7 @@ defmodule Credentials do
     field :mws_auth_token
     field :seller_id
 
-    timestamps
+    timestamps()
   end
 
   def changeset(creds, params \\ %{}) do

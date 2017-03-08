@@ -84,7 +84,7 @@ defmodule Hyperion.Router.V1 do
                           |> text(nil)
               {:error, err} -> respond_with(conn, %{error: err}, 422)
             end
-          rescue e in Ecto.NoResultsError ->
+          rescue _e in Ecto.NoResultsError ->
             respond_with(conn, %{error: "Credentials for client #{params[:client_id]} not found"}, 404)
           end
         end
@@ -384,7 +384,7 @@ defmodule Hyperion.Router.V1 do
     end # object_schema
   end # v1
 
-  defp respond_with(conn, body \\ [], status \\ 200) do
+  defp respond_with(conn, body, status \\ 200) do
     conn
     |> put_status(status)
     |> json(wrap(body))
