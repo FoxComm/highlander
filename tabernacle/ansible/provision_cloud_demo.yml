@@ -8,10 +8,10 @@
     storefront_server_name: example.foxcommerce.com
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
   roles:
-    # Core
-    - { role: dev/appliance }
-    - { role: dev/consul_agent }
-    - { role: cloud/zookeeper }
+    # # Core
+    # - { role: dev/appliance }
+    # - { role: dev/consul_agent }
+    # - { role: cloud/zookeeper }
     # Marathon
     - { role: cloud/bigbag }
     # Nginx
