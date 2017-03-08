@@ -12,9 +12,9 @@
 - include: validate.yml
 
 - include: build.yml
-  when: branch_name != "master" and auto_build in valid_answers
+  when: branch_name != "master" and auto_build in prompt_yes
 
 - include: deploy.yml
 
 - include: build_after.yml
-  when: branch_name != "master" and auto_build in valid_answers
+  when: branch_name != "master" and auto_build in prompt_yes

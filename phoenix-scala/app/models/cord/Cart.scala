@@ -4,7 +4,6 @@ import com.github.tminglei.slickpg.LTree
 import failures.CartFailures.OrderAlreadyPlaced
 import failures.{Failure, NotFoundFailure404}
 import models.account.Account
-import models.traits.Lockable
 import shapeless._
 import utils.db.ExPostgresDriver.api._
 import utils.Money.Currency
@@ -20,11 +19,8 @@ case class Cart(id: Int = 0,
                 shippingTotal: Int = 0,
                 adjustmentsTotal: Int = 0,
                 taxesTotal: Int = 0,
-                grandTotal: Int = 0,
-                // Cart-specific
-                isLocked: Boolean = false)
-    extends CordBase[Cart]
-    with Lockable[Cart] {
+                grandTotal: Int = 0)
+    extends CordBase[Cart] {
 
   override def primarySearchKey: String = referenceNumber
 }
@@ -40,7 +36,6 @@ class Carts(tag: Tag) extends FoxTable[Cart](tag, "carts") {
   def adjustmentsTotal = column[Int]("adjustments_total")
   def taxesTotal       = column[Int]("taxes_total")
   def grandTotal       = column[Int]("grand_total")
-  def isLocked         = column[Boolean]("is_locked")
 
   def * =
     (id,
@@ -52,8 +47,7 @@ class Carts(tag: Tag) extends FoxTable[Cart](tag, "carts") {
      shippingTotal,
      adjustmentsTotal,
      taxesTotal,
-     grandTotal,
-     isLocked) <> ((Cart.apply _).tupled, Cart.unapply)
+     grandTotal) <> ((Cart.apply _).tupled, Cart.unapply)
 }
 
 object Carts

@@ -20,7 +20,6 @@ import { filterArchived } from 'elastic/archive';
 
 // types
 import type { Sku } from 'modules/skus/list';
-import type { SearchFilter } from 'elastic/common';
 
 type Column = {
   field: string,

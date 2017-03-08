@@ -85,6 +85,27 @@ body:
 }
 ```
 
+####Delete client credentials
+
+*request*
+
+```
+DELETE /v1/credentials/:client_id
+```
+
+*response*
+
+If credentials found and successfully deleted `HTTP 204: NO CONTENT` will return.
+
+If no credentials found:
+
+```json
+{
+    "error": "Credentials for client 123 not found"
+}
+```
+
+
 ####Submit product feed to MWS
 
 *request*
@@ -230,6 +251,41 @@ body:
             "FeedSubmissionInfo": {
                 "SubmittedDate": "2017-02-10T09:53:03+00:00",
                 "FeedType": "_POST_INVENTORY_AVAILABILITY_DATA_",
+                "FeedSubmissionId": "50070017207",
+                "FeedProcessingStatus": "_SUBMITTED_"
+            }
+        },
+        "ResponseMetadata": {
+            "RequestId": "58b10f54-a747-4ea5-b0b0-d978b89a3227"
+        }
+    }
+}
+```
+
+####Submit images feed
+
+*request*
+
+```
+POST /v1/images
+```
+body:
+
+```json
+{
+  "ids":[304]
+}
+```
+
+*response*
+
+```json
+{
+    "SubmitFeedResponse": {
+        "SubmitFeedResult": {
+            "FeedSubmissionInfo": {
+                "SubmittedDate": "2017-03-02T09:53:03+00:00",
+                "FeedType": "_POST_PRODUCT_IMAGE_DATA_",
                 "FeedSubmissionId": "50070017207",
                 "FeedProcessingStatus": "_SUBMITTED_"
             }
@@ -525,6 +581,88 @@ GET /v1/products/categories/:asin
 }
 ```
 
+####Search for Amazon category ID pair: `department — item-type`
+
+|name|type|description|required?|
+|----|----|-----------|---------|
+|node_path |String|Query string |Yes|
+|from |Integer|Used for paginate results. Default value is: `0` |No|
+|size |Integer|Used for paginate results. Default value is: `10` |No|
+
+*request*
+```
+GET /v1/categories?node_path=t-shirt&size=2
+```
+
+**response**
+
+```json
+{
+    "items": [
+        {
+            "size_opts": null,
+            "node_path": "Clothing, Shoes & Jewelry/Baby/Baby Boys/Clothing/Swim/Swimwear Sets/T-Shirt Sets",
+            "node_id": 6259178011,
+            "item_type": "infant-and-toddler-swimwear-t-shirt-sets",
+            "department": "baby-boys"
+        },
+        {
+            "size_opts": null,
+            "node_path": "Clothing, Shoes & Jewelry/Boys/Clothing/Swim/Swimwear Sets/T-Shirt Sets",
+            "node_id": 6259168011,
+            "item_type": "swimwear-t-shirt-sets",
+            "department": "boys"
+        }
+    ],
+    "count": 2
+}
+```
+
+####Suggest categories by product title
+
+*request*
+
+```
+GET /v1/categories/suggest?q=necktie
+```
+
+*response*
+
+```json
+{
+    "secondary": [
+        {
+            "size_opts": null,
+            "node_path": "Clothing, Shoes & Jewelry/Boys/Accessories/Neckties",
+            "node_id": 5427586011,
+            "item_type": "neckties",
+            "department": "boys"
+        },
+        {
+            "size_opts": null,
+            "node_path": "Clothing, Shoes & Jewelry/Novelty & More/Clothing/Novelty/Boys/Accessories/Neckties",
+            "node_id": 9057120011,
+            "item_type": "novelty-neckties",
+            "department": "boys"
+        },
+        {
+            "size_opts": null,
+            "node_path": "Clothing, Shoes & Jewelry/Novelty & More/Clothing/Novelty/Men/Accessories/Neckties",
+            "node_id": 9057017011,
+            "item_type": "novelty-neckties",
+            "department": "mens"
+        }
+    ],
+    "primary": {
+        "node_path": "Clothing, Shoes & Jewelry/Men/Accessories/Neckties",
+        "node_id": 2474955011,
+        "item_type": "neckties",
+        "department": "mens"
+    },
+    "count": 4
+}
+```
+
 ####Subscrube to notification queue
 
 *request*
@@ -612,5 +750,319 @@ If already unsubscribed error will return:
             "Code": "InvalidInputFatalException"
         }
     }
+}
+```
+
+####Get all available object_schemas
+
+*request*
+
+```
+GET /v1/object_schema
+```
+
+*response*
+
+```json
+{
+    "items": [
+        {
+            "name": "amazon_clothing",
+            "id": 6
+        }
+    ],
+    "count": 1
+}
+```
+
+####Get object_schema by its name
+
+*request*
+
+```
+GET /v1/object_schema/:schema_name
+```
+
+```json
+{
+    "schema_name": "amazon_clothing",
+    "schema": {
+        "type": "object",
+        "title": "amazon_clothes_product",
+        "properties": {
+            "attributes": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "brand",
+                    "bulletPoint1",
+                    "bulletPoint2",
+                    "bulletPoint3",
+                    "bulletPoint4",
+                    "retailPrice"
+                ],
+                "properties": {
+                    "upc": {
+                        "type": "string",
+                        "title": "UPC"
+                    },
+                    "title": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "taxCode": {
+                        "type": [
+                            "string",
+                            "A_GEN_NOTAX"
+                        ]
+                    },
+                    "retailPrice": {
+                        "widget": "price",
+                        "type": "object",
+                        "properties": {
+                            "value": {
+                                "type": "number",
+                                "minimum": 0,
+                                "default": 0
+                            },
+                            "currency": {
+                                "type": "string",
+                                "minLength": 3,
+                                "maxLength": 3
+                            }
+                        }
+                    },
+                    "manufacturer": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "itemType": {
+                        "type": [
+                            "hidden",
+                            "null"
+                        ]
+                    },
+                    "description": {
+                        "widget": "richText",
+                        "type": "string"
+                    },
+                    "department": {
+                        "type": [
+                            "hidden",
+                            "null"
+                        ]
+                    },
+                    "code": {
+                        "type": "string",
+                        "title": "SKU",
+                        "minLength": 1
+                    },
+                    "category": {
+                        "type": [
+                            "hidden",
+                            "clothes"
+                        ]
+                    },
+                    "bulletPoint4": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "bulletPoint3": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "bulletPoint2": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "bulletPoint1": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "brand": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "activeTo": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "activeFrom": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    }
+                }
+            }
+        },
+        "$schema": "http://json-schema.org/draft-04/schema#"
+    },
+    "id": 6
+}
+```
+
+####Get schema by category id
+
+*request*
+
+```
+GET /v1/object_schema/category/7132434011
+```
+
+*response*
+
+```json
+{
+    "schema_name": "amazon_clothing",
+    "schema": {
+        "type": "object",
+        "title": "amazon_clothes_product",
+        "properties": {
+            "attributes": {
+                "type": "object",
+                "required": [
+                    "code",
+                    "brand",
+                    "bulletPoint1",
+                    "bulletPoint2",
+                    "bulletPoint3",
+                    "bulletPoint4",
+                    "retailPrice"
+                ],
+                "properties": {
+                    "upc": {
+                        "type": "string",
+                        "title": "UPC"
+                    },
+                    "title": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "taxCode": {
+                        "type": [
+                            "string",
+                            "A_GEN_NOTAX"
+                        ]
+                    },
+                    "retailPrice": {
+                        "widget": "price",
+                        "type": "object",
+                        "properties": {
+                            "value": {
+                                "type": "number",
+                                "minimum": 0,
+                                "default": 0
+                            },
+                            "currency": {
+                                "type": "string",
+                                "minLength": 3,
+                                "maxLength": 3
+                            }
+                        }
+                    },
+                    "manufacturer": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "itemType": {
+                        "type": [
+                            "hidden",
+                            "null"
+                        ]
+                    },
+                    "description": {
+                        "widget": "richText",
+                        "type": "string"
+                    },
+                    "department": {
+                        "type": [
+                            "hidden",
+                            "null"
+                        ]
+                    },
+                    "code": {
+                        "type": "string",
+                        "title": "SKU",
+                        "minLength": 1
+                    },
+                    "category": {
+                        "type": [
+                            "hidden",
+                            "clothes"
+                        ]
+                    },
+                    "bulletPoint4": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "bulletPoint3": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "bulletPoint2": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "bulletPoint1": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "brand": {
+                        "type": [
+                            "string",
+                            "null"
+                        ]
+                    },
+                    "activeTo": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    },
+                    "activeFrom": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date-time"
+                    }
+                }
+            }
+        },
+        "$schema": "http://json-schema.org/draft-04/schema#"
+    },
+    "id": 6
 }
 ```

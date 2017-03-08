@@ -12,7 +12,7 @@ import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import utils.aliases._
 import utils.db._
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 
 class AllOrdersIntegrationTest
     extends IntegrationTestBase

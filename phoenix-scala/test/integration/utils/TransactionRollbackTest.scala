@@ -5,7 +5,7 @@ import models.location._
 import slick.driver.PostgresDriver.api._
 import testutils._
 import utils.db._
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 
 class TransactionRollbackTest extends IntegrationTestBase {
 
@@ -15,7 +15,7 @@ class TransactionRollbackTest extends IntegrationTestBase {
       (for {
         _ ← * <~ Addresses.create(Factories.address)
         _ ← * <~ DbResultT.failure[Unit](GeneralFailure("boom"))
-      } yield {}).runTxn().futureValue.leftVal
+      } yield {}).gimmeTxnFailures
 
       Addresses.result.gimme must have size 0
     }
@@ -25,7 +25,7 @@ class TransactionRollbackTest extends IntegrationTestBase {
         _ ← * <~ Addresses.create(Factories.address)
         _ ← * <~ Addresses.create(Factories.address.copy(name = "Jonh Doe"))
         _ ← * <~ DbResultT.failure[Unit](GeneralFailure("boom"))
-      } yield {}).runTxn().futureValue.leftVal
+      } yield {}).gimmeTxnFailures
 
       Addresses.result.gimme must have size 0
     }
@@ -37,7 +37,7 @@ class TransactionRollbackTest extends IntegrationTestBase {
         address1 ← * <~ Addresses.update(address, address.copy(name = "John Doe"))
         _        ← * <~ Addresses.update(address1, address1.copy(name = "Mary Jane"))
         _        ← * <~ DbResultT.failure[Unit](GeneralFailure("boom"))
-      } yield {}).runTxn().futureValue.leftVal
+      } yield {}).gimmeTxnFailures
 
       Addresses.result.headOption.gimme.value must === (address)
     }

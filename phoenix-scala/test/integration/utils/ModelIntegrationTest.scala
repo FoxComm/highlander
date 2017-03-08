@@ -9,14 +9,14 @@ import models.location.Addresses
 import testutils._
 import testutils.fixtures.BakedFixtures
 import utils.db._
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 
 class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext with BakedFixtures {
 
   "New model create" - {
     "validates model" in {
-      val failures = leftValue(
-          Addresses.create(Factories.address.copy(zip = "totallyNotAValidZip")).run().futureValue)
+      val failures =
+        Addresses.create(Factories.address.copy(zip = "totallyNotAValidZip")).gimmeFailures
       failures must === (
           GeneralFailure("zip must fully match regular expression '^\\d{5}(?:\\d{4})?$'").single)
     }
@@ -43,8 +43,8 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
                CustomerData(userId = customer.id, accountId = account.id, scope = scope))
         _       ← * <~ Addresses.create(Factories.address.copy(accountId = customer.accountId))
         copycat ← * <~ Addresses.create(Factories.address.copy(accountId = customer.accountId))
-      } yield copycat).runTxn().futureValue
-      result.leftVal must === (
+      } yield copycat).gimmeTxnFailures
+      result must === (
           DatabaseFailure(
               "ERROR: duplicate key value violates unique constraint \"address_shipping_default_idx\"\n" +
                 "  Detail: Key (account_id, is_default_shipping)=(1, t) already exists.").single)
@@ -53,7 +53,7 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
     "fails if model already exists" in {
       val account = Accounts.create(Account()).gimme
       val orig    = Users.create(Factories.customer.copy(accountId = account.id)).gimme
-      Users.create(orig.copy(name = Some("Derp"))).run().futureValue mustBe 'left
+      Users.create(orig.copy(name = Some("Derp"))).gimmeFailures
       Users.gimme must === (Seq(orig))
     }
   }
@@ -71,8 +71,8 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
     "returns failure for unsuccessful delete" in {
       val success = DbResultT.good("Should not happen")
       val failure = (_: User#Id) ⇒ GeneralFailure("Boom")
-      val delete  = Users.deleteById(13, success, failure).run().futureValue
-      leftValue(delete) must === (failure(13).single)
+      val delete  = Users.deleteById(13, success, failure).gimmeFailures
+      delete must === (failure(13).single)
     }
   }
 
@@ -103,17 +103,14 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
 
     "must run FSM check if applicable" in new Order_Baked {
 
-      val failure = Orders.update(order, order.copy(state = Shipped)).run().futureValue.leftVal
+      val failure = Orders.update(order, order.copy(state = Shipped)).gimmeFailures
       failure must === (StateTransitionNotAllowed(order.state, Shipped, order.refNum).single)
       Orders.findOneByRefNum(order.refNum).gimme.value must === (order)
     }
 
     "won't update unsaved model" in new Customer_Seed {
       implicit val au = customerAuthData
-      Orders
-        .update(Factories.order(Scope.current), Factories.order(Scope.current))
-        .run()
-        .futureValue mustBe 'left
+      Orders.update(Factories.order(Scope.current), Factories.order(Scope.current)).gimmeFailures
     }
   }
 
@@ -129,7 +126,7 @@ class ModelIntegrationTest extends IntegrationTestBase with TestObjectContext wi
       val account = Accounts.create(Account()).gimme
       val orig    = Users.create(Factories.customer.copy(accountId = account.id)).gimme
       val copy    = orig.copy(name = Some("Derp"))
-      Users.update(orig, copy).run().futureValue mustBe 'right
+      Users.update(orig, copy).gimme
       Users.gimme must === (Seq(copy))
     }
   }
