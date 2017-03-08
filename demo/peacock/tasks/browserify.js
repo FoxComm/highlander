@@ -16,7 +16,7 @@ function setApiURL() {
   process.env.API_URL = process.env.API_URL || '/api';
 }
 
-process.env.NODE_PATH = `${process.env.NODE_PATH}:${path.resolve('./lib/core')}`;
+process.env.NODE_PATH = `${process.env.NODE_PATH}:${path.resolve('./lib')}`;
 
 function setDemoAuthToken() {
   /*  The demo site is protected by basic auth. All requests from javascript

@@ -10,7 +10,7 @@ import localized from 'lib/i18n';
 import EditableBlock from 'ui/editable-block';
 import EditBilling from './edit-billing';
 import ViewBilling from './view-billing';
-import PromoCode from '../../../components/promo-code/promo-code';
+import PromoCode from 'components/promo-code/promo-code';
 
 // styles
 import styles from './billing.css';

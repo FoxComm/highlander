@@ -6,7 +6,7 @@ import { autobind } from 'core-decorators';
 import { nodeApi } from 'lib/api';
 
 // components
-import PageTitle from '../../components/cms/page-title';
+import PageTitle from 'components/cms/page-title';
 import { TextInput } from 'ui/inputs';
 import { Form, FormField } from 'ui/forms';
 import Button from 'ui/buttons';

@@ -9,7 +9,7 @@ import { api as foxApi } from '../lib/api';
 import * as tracking from 'lib/analytics';
 
 import type { Address } from 'types/address';
-import type { CreditCardType } from '../../pages/checkout/types';
+import type { CreditCardType } from 'pages/checkout/types';
 
 export const EditStages = {
   SHIPPING: 0,

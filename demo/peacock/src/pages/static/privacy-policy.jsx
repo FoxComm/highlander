@@ -4,8 +4,8 @@
 import React, { Component } from 'react';
 
 // components
-import PageTitle from '../../components/cms/page-title';
-import PageBody from '../../components/cms/page-body';
+import PageTitle from 'components/cms/page-title';
+import PageBody from 'components/cms/page-body';
 
 // data
 import data from './privacy-policy-data.json';

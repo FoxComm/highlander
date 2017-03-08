@@ -27,9 +27,9 @@ import Gallery from 'ui/gallery/gallery';
 import Loader from 'ui/loader';
 import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
 import ProductDetails from './product-details';
-import GiftCardForm from '../../components/gift-card-form';
+import GiftCardForm from 'components/gift-card-form';
 import ProductAttributes from './product-attributes';
-import ImagePlaceholder from '../../components/products-item/image-placeholder';
+import ImagePlaceholder from 'components/products-item/image-placeholder';
 
 // styles
 import styles from './pdp.css';

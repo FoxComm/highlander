@@ -11,7 +11,7 @@ import * as actions from 'modules/products';
 import { assetsUrl } from 'lib/env';
 
 // components
-import ProductsList, { LoadingBehaviors } from '../../components/products-list/products-list';
+import ProductsList, { LoadingBehaviors } from 'components/products-list/products-list';
 import ProductTypeSelector from 'ui/product-type-selector';
 
 // styles

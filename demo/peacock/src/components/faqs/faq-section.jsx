@@ -4,7 +4,7 @@
 import React, { Component } from 'react';
 
 // components
-import FAQ from '../../components/faqs/faq';
+import FAQ from 'components/faqs/faq';
 
 // styles
 import styles from './faq.css';
