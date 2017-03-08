@@ -74,47 +74,78 @@ func (r *Runner) Pull(c *cli.Context) error {
 		return err
 	}
 
-	var err error
-	var mappings map[string]elastic.Mapping
-
 	if r.OptionAll {
-		fmt.Printf("\nPulling all mappings from cluster %s...\n\n", r.cfg.ElasticURL())
-		mappings, err = r.client.GetMappingsInCluster()
+		return r.PullAll()
 	} else if r.OptionIndex != "" {
-		fmt.Printf("\nPulling mappings in index %s from cluster %s...\n\n", r.OptionIndex, r.cfg.ElasticURL())
-		mappings, err = r.client.GetMappingsInIndex(r.OptionIndex)
+		return r.PullForIndex(r.OptionIndex)
 	} else if r.OptionMapping != "" {
-		fmt.Printf("\nPulling mapping %s from cluster %s...\n\n", r.OptionMapping, r.cfg.ElasticURL())
-
-		return errors.New("Not implemented...")
-	} else {
-		return errors.New("Must select one of --all, --index, or --mapping.")
+		return r.PullMapping(r.OptionMapping)
 	}
 
-	if err != nil {
-		return err
-	}
-
-	for name, mapping := range mappings {
-		if err := r.writeMapping(name, mapping); err != nil {
-			return nil
-		}
-	}
-
-	return nil
+	return errors.New("Must select one of --all, --index, or --mapping.")
 }
 
-func (r *Runner) writeMapping(name string, contents elastic.Mapping) error {
-	filename := fmt.Sprintf("./mappings/%s.json", name)
-	fmt.Printf("Writing %s...\n", filename)
+const (
+	infoPullAll     = "\nPull all mappings from cluster %s...\n\n"
+	infoPullIndex   = "\nPull mappings in index %s for cluster %s...\n\n"
+	infoPullMapping = "\nPulling mapping %s from cluster %s...\n\n"
 
-	bytes, err := json.Marshal(contents)
+	infoMappingFoundInIndex = "Found mapping in index %s...\n"
+)
+
+func (r *Runner) PullAll() error {
+	fmt.Printf(infoPullAll, r.cfg.ElasticURL())
+
+	mappings, err := r.client.GetMappingsInCluster()
 	if err != nil {
 		return err
 	}
 
-	if err := ioutil.WriteFile(filename, bytes, 0644); err != nil {
+	return r.writeMappings(mappings)
+}
+
+func (r *Runner) PullForIndex(index string) error {
+	fmt.Printf(infoPullIndex, index, r.cfg.ElasticURL())
+
+	mappings, err := r.client.GetMappingsInIndex(index)
+	if err != nil {
 		return err
+	}
+
+	return r.writeMappings(mappings)
+}
+
+func (r *Runner) PullMapping(mappingName string) error {
+	fmt.Printf(infoPullMapping, mappingName, r.cfg.ElasticURL())
+
+	searchDefn, err := r.cfg.SearchDefinitionByMapping(mappingName)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf(infoFoundMappingInIndex, searchDefn.Index)
+	mapping, err := r.client.GetMapping(searchDefn.Index, mappingName)
+	if err != nil {
+		return err
+	}
+
+	mappings := []elastic.Mapping{mapping}
+	return r.writeMappings(mappings)
+}
+
+func (r *Runner) writeMappings(mappings map[string]elastic.Mapping) error {
+	for name, mapping := range mappings {
+		filename := fmt.Sprintf("./mappings/%s.json", name)
+		fmt.Printf("Writing %s...\n", filename)
+
+		bytes, err := json.Marshal(mapping)
+		if err != nil {
+			return err
+		}
+
+		if err := ioutil.WriteFile(filename, bytes, 0644); err != nil {
+			return err
+		}
 	}
 
 	return nil
