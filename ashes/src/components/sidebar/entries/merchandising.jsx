@@ -14,7 +14,7 @@ import styles from './entries.css';
 
 const taxonomyClaims = readAction(frn.merch.taxonomy);
 
-const MerchandisingEntry = ({ claims, routes }: { claims: Claims, routes: Array<Object> }) => {
+const MerchandisingEntry = ({ claims, routes }: TMenuEntry) => {
     const allClaims = taxonomyClaims;
 
     if (!anyPermitted(allClaims, claims)) {

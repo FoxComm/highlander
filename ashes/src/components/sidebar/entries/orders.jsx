@@ -15,7 +15,7 @@ import styles from './entries.css';
 const cartClaims = readAction(frn.oms.cart);
 const orderClaims = readAction(frn.oms.order);
 
-const OrdersEntry = ({ claims, routes }: { claims: Claims, routes: Array<Object> }) => {
+const OrdersEntry = ({ claims, routes }: TMenuEntry) => {
     const allClaims = { ...cartClaims, ...orderClaims };
 
     if (!anyPermitted(allClaims, claims)) {

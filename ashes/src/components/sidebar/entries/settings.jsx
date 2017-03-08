@@ -16,7 +16,7 @@ const userClaims = readAction(frn.settings.user);
 const pluginClaims = readAction(frn.settings.plugin);
 const applicationClaims = readAction(frn.settings.application);
 
-const SettingsEntry = ({ claims, routes }: { claims: Claims, routes: Array<Object> }) => {
+const SettingsEntry = ({ claims, routes }: TMenuEntry) => {
     const allClaims = { ...userClaims, ...pluginClaims, ...applicationClaims };
 
     if (!anyPermitted(allClaims, claims)) {

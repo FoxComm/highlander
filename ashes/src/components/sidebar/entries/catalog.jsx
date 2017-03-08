@@ -8,15 +8,13 @@ import { frn, readAction } from 'lib/frn';
 import NavigationItem from '../navigation-item';
 import { IndexLink, Link } from 'components/link';
 
-import type { Claims } from 'lib/claims';
-
 import styles from './entries.css';
 
 const productClaims = readAction(frn.pim.product);
 const skuClaims = readAction(frn.pim.sku);
 const inventoryClaims = readAction(frn.mdl.summary);
 
-const CatalogEntry = ({ claims, routes }: { claims: Claims, routes: Array<Object> }) => {
+const CatalogEntry = ({ claims, routes }: TMenuEntry) => {
     const allClaims = { ...productClaims, ...skuClaims, ...inventoryClaims };
 
     if (!anyPermitted(allClaims, claims)) {

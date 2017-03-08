@@ -16,7 +16,7 @@ const giftCardClaims = readAction(frn.mkt.giftCard);
 const promotionClaims = readAction(frn.mkt.promotion);
 const couponClaims = readAction(frn.mkt.coupon);
 
-const MarketingEntry = ({ claims, routes, id }: { claims: Claims, routes: Array<Object>, id?: string }) => {
+const MarketingEntry = ({ claims, routes }: TMenuEntry) => {
     const allClaims = { ...giftCardClaims, ...promotionClaims, ...couponClaims };
 
     if (!anyPermitted(allClaims, claims)) {
