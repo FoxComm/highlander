@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Build Verification Tests for Highlander",
   "scripts": {
-    "test": "ava --concurrency=4 --verbose || true",
+    "test": "ava --verbose || true",
     "test-auth": "ava --verbose tests/auth.test.js || true",
     "test-store-admin": "ava --verbose tests/store-admin.test.js || true",
     "test-customer": "ava --verbose tests/customer.test.js || true",

@@ -14,4 +14,5 @@ export default {
     },
   ],
   stripeKey: 'pk_test_JvTXpI3DrkV6QwdcmZarmlfk',
+  networkErrorRetries: 4,
 };
