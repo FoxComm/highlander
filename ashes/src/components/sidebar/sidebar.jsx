@@ -1,6 +1,5 @@
 /* @flow */
 
-import _ from 'lodash';
 import React from 'react';
 import classNames from 'classnames';
 
@@ -14,17 +13,17 @@ type Props = {
 }
 
 const Sidebar = ({ routes }: Props) => {
-    const sidebarClass = classNames('fc-sidebar', '_open');
+  const sidebarClass = classNames('fc-sidebar', '_open');
 
-    return (
-      <aside role="complimentary" className={sidebarClass}>
-        <Navigation routes={routes} />
-      </aside>
-    );
+  return (
+    <aside role="complimentary" className={sidebarClass}>
+      <Navigation routes={routes} />
+    </aside>
+  );
 };
 
 const mapState = state => ({
-   ...state.siteMenu,
- });
+  ...state.siteMenu,
+});
 
- export default connect(mapState, SiteMenuActions)(Sidebar);
+export default connect(mapState, SiteMenuActions)(Sidebar);
