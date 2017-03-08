@@ -37,4 +37,14 @@ router.get('/api/v1/amazon/categories/schema', function *(next) {
   this.body = fieldsFixture;
 });
 
+router.get('/api/v1/amazon/credentials/:customer_id', function *(next) {
+  const customer_id = this.params.customer_id;
+
+  this.body = {customer_id, seller_id: 'seller_id', mws_auth_token: 'mws_auth_token'};
+});
+
+router.post('/api/v1/amazon/credentials', function *(next) {
+  this.body = {status: 'ok'};
+});
+
 module.exports = router;

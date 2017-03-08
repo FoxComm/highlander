@@ -5,8 +5,10 @@
 import { createAction, createReducer } from 'redux-act';
 import { createAsyncActions } from '@foxcomm/wings';
 import Api from 'lib/api';
+import { getUserId } from 'lib/claims';
 
 const initialState = {
+  credentials: null,
   suggest: {
     primary: null,
     secondary: [],
@@ -35,7 +37,7 @@ const _fetchAmazonCategory = createAsyncActions(
 
 export function fetchAmazonCategory(product_id: string, text: string) {
   return (dispatch: Function) => {
-    return dispatch(_fetchSuggest.perform(product_id, text));
+    return dispatch(_fetchAmazonCategory.perform(product_id, text));
   };
 }
 
@@ -48,11 +50,31 @@ const _fetchAmazonSchema = createAsyncActions(
 
 export const fetchAmazonSchema = _fetchAmazonSchema.perform;
 
+const _fetchAmazonCredentials = createAsyncActions(
+  'fetchAmazonCredentials',
+  // @todo move customer_id (which now emulated through getUserId) to hyperion
+  () => {
+    const userId = getUserId() || '';
+
+    return Api.get(`/amazon/credentials/${userId}`);
+  }
+);
+
+export const fetchAmazonCredentials = _fetchAmazonCredentials.perform;
+
+const _updateAmazonCredentials = createAsyncActions(
+  'updateAmazonCredentials',
+  (params) => Api.post(`/amazon/credentials`, params)
+);
+
+export const updateAmazonCredentials = _updateAmazonCredentials.perform;
+
 const reducer = createReducer({
   [_fetchSuggest.succeeded]: (state, res) => ({ ...state, suggest: res }),
   [_fetchAmazonCategory.started]: (state) => ({ ...state, fields: [] }),
   [_fetchAmazonCategory.succeeded]: (state, res) => ({ ...state, fields: res }),
   [_fetchAmazonSchema.succeeded]: (state, res) => ({ ...state, schema: res }),
+  [_fetchAmazonCredentials.succeeded]: (state, res) => ({ ...state, credentials: res }),
 }, initialState);
 
 export default reducer;

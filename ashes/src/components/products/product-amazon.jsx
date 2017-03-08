@@ -8,7 +8,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import * as productActions from 'modules/products/details';
-import * as amazonActions from 'modules/products/amazon';
+import * as amazonActions from 'modules/channels/amazon';
 import * as schemaActions from 'modules/object-schema';
 import s from './product-amazon.css';
 import { Suggester } from 'components/suggester/suggester';
@@ -27,7 +27,7 @@ function mapDispatchToProps(dispatch) {
 
 function mapStateToProps(state) {
   const product = state.products.details.product;
-  const { suggest, schema } = state.products.amazon;
+  const { suggest, schema } = state.channels.amazon;
 
   return {
     title: product && product.attributes && product.attributes.title.v,
@@ -41,6 +41,7 @@ function mapStateToProps(state) {
 type State = {
   categoryId: string,
   stepNum: number,
+  form: boolean,
 };
 
 const steps = [{
@@ -55,6 +56,7 @@ class ProductAmazon extends Component {
   state: State = {
     categoryId: '',
     stepNum: 0,
+    form: false,
   };
 
   componentDidMount() {
@@ -89,7 +91,7 @@ class ProductAmazon extends Component {
             <div className="fc-form-field-label">{key}</div>
             <input type="text" className="fc-object-form__field-value" />
           </div>
-        )
+        );
       }
     }
 
