@@ -109,6 +109,7 @@ defmodule Hyperion.Router.V1 do
 
         case MWSClient.submit_product_feed(products, cfg) do
           {:error, error} -> respond_with(conn, %{message: error}, 422)
+          {:warn, warn} -> respond_with(conn, %{error: warn["ErrorResponse"]["Error"]["Message"]}, 400)
           {_, resp} -> respond_with(conn, resp)
         end
       end
@@ -129,6 +130,7 @@ defmodule Hyperion.Router.V1 do
 
         case MWSClient.submit_product_by_asin(products, cfg) do
           {:error, error} -> respond_with(conn, %{message: error}, 422)
+          {:warn, warn} -> respond_with(conn, %{error: warn["ErrorResponse"]["Error"]["Message"]}, 400)
           {_, resp} -> respond_with(conn, resp)
         end
       end
@@ -143,6 +145,7 @@ defmodule Hyperion.Router.V1 do
         get do
           case MWSClient.list_matching_products(params[:q], MWSAuthAgent.get(API.customer_id(conn))) do
             {:error, error} -> respond_with(conn, %{message: inspect(error)}, 422)
+            {:warn, warn} -> respond_with(conn, %{error: warn["ErrorResponse"]["Error"]["Message"]}, 400)
             {_, resp} -> respond_with(conn, resp)
           end
         end
@@ -155,6 +158,7 @@ defmodule Hyperion.Router.V1 do
             asins = String.split(params[:asin], ",")
             case MWSClient.get_product_by_asin(asins, MWSAuthAgent.get(API.customer_id(conn))) do
               {:error, error} -> respond_with(conn, inspect(error), 422)
+              {:warn, warn} -> respond_with(conn, %{error: warn["ErrorResponse"]["Error"]["Message"]}, 400)
               {_, resp} -> respond_with(conn, resp)
             end
           end
@@ -168,6 +172,7 @@ defmodule Hyperion.Router.V1 do
             Hyperion.API.jwt(conn)
             case MWSClient.get_product_categories_for_asin(params[:asin], MWSAuthAgent.get(API.customer_id(conn))) do
               {:error, error} -> respond_with(conn, inspect(error), 422)
+              {:warn, warn} -> respond_with(conn, %{error: warn["ErrorResponse"]["Error"]["Message"]}, 400)
               {_, resp} -> respond_with(conn, resp)
             end
           end
@@ -233,6 +238,7 @@ defmodule Hyperion.Router.V1 do
 
         case MWSClient.list_orders(list, last_upd, MWSAuthAgent.get(API.customer_id(conn))) do
           {:error, error} -> respond_with(conn, inspect(error), 422)
+          {:warn, warn} -> respond_with(conn, %{error: warn["ErrorResponse"]["Error"]["Message"]}, 400)
           {_, resp} -> respond_with(conn, resp)
         end
       end
@@ -251,6 +257,7 @@ defmodule Hyperion.Router.V1 do
                  |> TemplateBuilder.submit_price_feed(cfg)
         case MWSClient.submit_price_feed(prices, MWSAuthAgent.get(API.customer_id(conn))) do
           {:error, error} -> respond_with(conn, %{message: inspect(error)}, 422)
+          {:warn, warn} -> respond_with(conn, %{error: warn["ErrorResponse"]["Error"]["Message"]}, 400)
           {_, resp} -> respond_with(conn, resp)
         end
       end
@@ -273,6 +280,7 @@ defmodule Hyperion.Router.V1 do
 
         case MWSClient.submit_inventory_feed(inventories, cfg) do
           {:error, error} -> respond_with(conn, %{message: inspect(error)}, 422)
+          {:warn, warn} -> respond_with(conn, %{error: warn["ErrorResponse"]["Error"]["Message"]}, 400)
           {_, resp} -> respond_with(conn, resp)
         end
       end
@@ -291,6 +299,7 @@ defmodule Hyperion.Router.V1 do
                  |> TemplateBuilder.submit_images_feed(cfg)
         case MWSClient.submit_images_feed(images, MWSAuthAgent.get(API.customer_id(conn))) do
           {:error, error} -> respond_with(conn, %{message: inspect(error)}, 422)
+          {:warn, warn} -> respond_with(conn, %{error: warn["ErrorResponse"]["Error"]["Message"]}, 400)
           {_, resp} -> respond_with(conn, resp)
         end
       end
@@ -302,6 +311,7 @@ defmodule Hyperion.Router.V1 do
         get do
           case MWSClient.get_feed_submission_result(params[:feed_id], MWSAuthAgent.get(API.customer_id(conn))) do
             {:error, error} -> respond_with(conn, %{message: inspect(error)}, 422)
+            {:warn, warn} -> respond_with(conn, %{error: warn["ErrorResponse"]["Error"]["Message"]}, 400)
             {_, resp} -> respond_with(conn, resp)
           end
         end
@@ -318,6 +328,7 @@ defmodule Hyperion.Router.V1 do
       post do
         case MWSClient.subscribe_to_sqs(params[:queue_url], MWSAuthAgent.get(API.customer_id(conn))) do
           {:error, error} -> respond_with(conn, %{message: inspect(error)}, 422)
+          {:warn, warn} -> respond_with(conn, %{error: warn["ErrorResponse"]["Error"]["Message"]}, 400)
           {_, resp} -> respond_with(conn, resp)
         end
       end
@@ -331,6 +342,7 @@ defmodule Hyperion.Router.V1 do
       delete do
         case MWSClient.unsubscribe_from_sqs(params[:queue_url], MWSAuthAgent.get(API.customer_id(conn))) do
           {:error, error} -> respond_with(conn, %{message: inspect(error)}, 422)
+          {:warn, warn} -> respond_with(conn, %{error: warn["ErrorResponse"]["Error"]["Message"]}, 400)
           {_, resp} -> respond_with(conn, resp)
         end
       end
