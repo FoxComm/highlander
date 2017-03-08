@@ -24,8 +24,7 @@
       "intervalSeconds": 30,
       "timeoutSeconds": 20,
       "maxConsecutiveFailures": 3,
-      "ignoreHttp1xx": false,
-      "port": 0
+      "ignoreHttp1xx": false
     }
   ]
 }
