@@ -24,6 +24,7 @@ type TaxonomyParams = {
 type Props = {
   schema: ?Object,
   actions: ObjectActions<Taxonomy>,
+  fetchSchema: (namespace: string) => Promise<*>,
   children: Element<*>,
   details: {
     taxonomy: ?Taxonomy,
@@ -44,7 +45,7 @@ class TaxonomyPage extends Component {
 
   componentDidMount() {
     if (!this.props.schema) {
-      this.props.actions.fetchSchema('taxonomy');
+      this.props.fetchSchema('taxonomy');
     }
   }
 
@@ -55,15 +56,13 @@ class TaxonomyPage extends Component {
   }
 
   get actions(): ObjectActions<Taxonomy> {
-    const { context } = this.props.params;
-
     return {
       ...this.props.actions,
       close: transitionToLazy('taxonomies'),
       getTitle: (t: Taxonomy) => get(t.attributes, 'name.v', ''),
       transition: (id: number|string) => transitionTo('taxonomy-details', {
         taxonomyId: id,
-        context: context
+        context: this.props.params.context
       })
     };
   }
@@ -145,8 +144,8 @@ const mapState = state => ({
 const mapActions = dispatch => ({
   actions: {
     ...bindActionCreators(taxonomiesActions, dispatch),
-    fetchSchema: bindActionCreators(fetchSchema, dispatch),
-  }
+  },
+  fetchSchema,
 });
 
 export default connect(mapState, mapActions)(TaxonomyPage);
