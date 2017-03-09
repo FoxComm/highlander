@@ -11,7 +11,7 @@
 - name: Set IC Fact
   set_fact:
     with_ic_value: true
-  when: with_ic_input in valid_answers
+  when: with_ic_input in prompt_yes
 
 - name: Set Default Appliance Name
   set_fact:
