@@ -76,6 +76,10 @@ shortcuts:
     alias: env_local.yml
     target: ansible/goldrush_env_local.yml
 
+  - name: Create Feature Branch Pipeline
+    alias: feature_branch.yml
+    target: ansible/goldrush_feature_branch.yml
+
   - name: Update Application Docker Tag
     alias: update_app.yml
     target: ansible/goldrush_update_app.yml
