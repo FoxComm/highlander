@@ -11,6 +11,7 @@ import (
 )
 
 const defaultConfig = "config.yml"
+const mappingDir = "./mappings"
 
 type Runner struct {
 	OptionAll     bool
@@ -47,7 +48,7 @@ func (r *Runner) Create(c *cli.Context) error {
 	}
 
 	if r.OptionAll {
-		fmt.Println("Creating all...")
+		return r.CreateAll()
 	} else {
 		fmt.Println("Creating one...")
 	}
@@ -86,12 +87,39 @@ func (r *Runner) Pull(c *cli.Context) error {
 }
 
 const (
+	infoCreateAll   = "\nCreate all mappings in cluster %s...\n\n"
 	infoPullAll     = "\nPull all mappings from cluster %s...\n\n"
 	infoPullIndex   = "\nPull mappings in index %s for cluster %s...\n\n"
 	infoPullMapping = "\nPulling mapping %s from cluster %s...\n\n"
 
 	infoMappingFoundInIndex = "Found mapping in index %s...\n"
 )
+
+func (r *Runner) CreateAll() error {
+	fmt.Printf(infoCreateAll, r.cfg.ElasticURL())
+
+	mappingVersions, err := NewMappingVersions(mappingDir)
+	if err != nil {
+		return err
+	}
+
+	for name, version := range mappingVersions {
+		searchDefn, err := r.cfg.SearchDefinitionByMapping(name)
+		if err != nil {
+			return err
+		}
+
+		index := searchDefn.Index
+		isScoped := searchDefn.Scoped
+		mapping := version.ElasticMapping()
+		contents := version.Contents
+		if err := r.client.CreateMapping(index, isScoped, mapping, contents); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
 
 func (r *Runner) PullAll() error {
 	fmt.Printf(infoPullAll, r.cfg.ElasticURL())

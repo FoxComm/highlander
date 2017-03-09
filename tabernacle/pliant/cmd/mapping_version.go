@@ -6,8 +6,6 @@ import (
 	"strings"
 )
 
-const mappingDir = "./mappings"
-
 type MappingVersion struct {
 	Filename string
 	Contents []byte
@@ -27,7 +25,7 @@ func NewMappingVersion(fileDir, filename string) (*MappingVersion, error) {
 }
 
 func LatestMappingVersion(fileDir, baseName string) (*MappingVersion, error) {
-	latestFilename, err := getLatestMapping(baseName)
+	latestFilename, err := getLatestMapping(fileDir, baseName)
 	if err != nil {
 		return nil, err
 	}
@@ -72,8 +70,8 @@ func (m *MappingVersion) ElasticMapping() string {
 	return strings.ToLower(stripped)
 }
 
-func getLatestMapping(mapping string) (string, error) {
-	fileHandles, err := ioutil.ReadDir(mappingDir)
+func getLatestMapping(fileDir, mapping string) (string, error) {
+	fileHandles, err := ioutil.ReadDir(fileDir)
 	if err != nil {
 		return "", err
 	}
