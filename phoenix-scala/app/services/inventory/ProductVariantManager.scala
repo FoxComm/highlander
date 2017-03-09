@@ -26,6 +26,7 @@ import utils.JsonFormatters
 import utils.aliases._
 import utils.apis._
 import utils.db._
+import cats.implicits._
 
 object ProductVariantManager {
   implicit val formats = JsonFormatters.DefaultFormats
@@ -357,8 +358,8 @@ object ProductVariantManager {
 
   private def findProductOptionsWithValues(optionValueIds: Seq[Int])(
       implicit ec: EC,
-      db: DB): DbResultT[Seq[(FullObject[ProductOption], FullObject[ProductOptionValue])]] =
-    DbResultT.sequence(optionValueIds.map(findProductOption))
+      db: DB): DbResultT[List[(FullObject[ProductOption], FullObject[ProductOptionValue])]] =
+    DbResultT.seqCollectFailures(optionValueIds.toList.map(findProductOption))
 
   def optionValuesForVariant(variant: ProductVariant)(
       implicit ec: EC,

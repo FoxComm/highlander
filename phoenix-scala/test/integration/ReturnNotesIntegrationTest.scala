@@ -1,3 +1,4 @@
+import cats.implicits._
 import java.time.Instant
 
 import akka.http.scaladsl.model.StatusCodes
@@ -57,7 +58,7 @@ class ReturnNotesIntegrationTest
         val createNotes = List("abc", "123", "xyz").map { body ⇒
           ReturnNoteManager.create(rma.refNum, storeAdmin, CreateNote(body = body))
         }
-        DbResultT.sequence(createNotes).gimme
+        DbResultT.seqCollectFailures(createNotes).gimme
 
         val response = GET(s"v1/notes/rma/${rma.refNum}")
         response.status must === (StatusCodes.OK)

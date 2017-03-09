@@ -38,7 +38,7 @@ import utils.aliases.OC
  */
 trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
-  val rootPrefix = "v1"
+  private val rootPrefix = "v1"
 
   object customersApi {
     val customersPrefix = s"$rootPrefix/customers"
@@ -232,12 +232,6 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
     def get(): HttpResponse =
       GET(cartPath)
-
-    def lock(): HttpResponse =
-      POST(s"$cartPath/lock")
-
-    def unlock(): HttpResponse =
-      POST(s"$cartPath/unlock")
 
     def checkout(): HttpResponse =
       POST(s"$cartPath/checkout")

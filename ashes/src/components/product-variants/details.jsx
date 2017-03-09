@@ -20,6 +20,7 @@ import type { ProductVariant as ESProdactVaraint } from 'modules/product-variant
 
 type Props = DetailsProps & {
   object: ProductVariant,
+  productVariantTitle: string,
   // connected via connectVariants
   productVariants: Array<ESProdactVaraint>,
   productVariantsState: AsyncState,
@@ -29,20 +30,8 @@ class ProductVariantDetails extends ObjectDetails {
   props: Props;
   layout = layout;
 
-  get title(): string {
-    const productTitle = _.get(this.props.object, 'attributes.title.v');
-
-    if (!_.isEmpty(this.props.object.options)) {
-      const optionsString = _.map(this.props.object.options, option => option.value.name).join(', ');
-
-      return `${productTitle} — ${optionsString}`;
-    }
-
-    return productTitle;
-  }
-
   get titleField(): Element<*> {
-    return renderFormField('title', <span>{this.title}</span>, {label: 'title'});
+    return renderFormField('title', <span>{this.props.productVariantTitle}</span>, {label: 'title'});
   }
 
   get skuField(): Element<*> {

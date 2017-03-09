@@ -153,15 +153,15 @@ func main() {
 			mwhTxn.Rollback()
 			log.Fatal(err)
 		}
+	}
 
-		// 10. Commit the DB transaction
-		if err := mwhTxn.Commit().Error; err != nil {
-			phxTxn.Rollback()
-			log.Fatal(err)
-		}
+	// 10. Commit the DB transaction
+	if err := mwhTxn.Commit().Error; err != nil {
+		phxTxn.Rollback()
+		log.Fatal(err)
+	}
 
-		if err := phxTxn.Commit().Error; err != nil {
-			log.Fatal(err)
-		}
+	if err := phxTxn.Commit().Error; err != nil {
+		log.Fatal(err)
 	}
 }

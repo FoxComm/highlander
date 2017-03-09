@@ -6,6 +6,7 @@ import akka.actor.ActorSystem
 import akka.pattern.ask
 import akka.testkit.{TestActorRef, TestKit}
 
+import cats.implicits._
 import models.cord._
 import org.scalatest.BeforeAndAfterAll
 import services.actors._
@@ -41,7 +42,8 @@ class RemorseTimerTest(_system: ActorSystem)
     // Response received
     (timer ? Tick).futureValue match {
       case r: RemorseTimerResponse ⇒
-        r.updatedQuantity.futureValue // Response contains future, so wait on that
+        // TODO: get rid of explicit runEmptyA @michalrus
+        r.updatedQuantity.runEmptyA.value.futureValue // Response contains future, so wait on that
       case _ ⇒
         fail("Remorse timer had to reply with Future but something went wrong")
     }

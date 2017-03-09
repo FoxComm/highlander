@@ -4,6 +4,7 @@ import models.discount.DiscountInput
 import models.product.Mvp
 import services._
 import utils.aliases._
+import utils.db._
 
 case class OrderTotalAmountQualifier(totalAmount: Int) extends Qualifier {
 

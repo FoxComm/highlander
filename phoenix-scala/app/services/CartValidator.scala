@@ -1,5 +1,7 @@
 package services
 
+import cats._
+import cats.implicits._
 import failures.CartFailures._
 import failures.{Failure, Failures}
 import models.cord._
@@ -17,21 +19,22 @@ trait CartValidation {
 
 // warnings would be turned into `errors` during checkout but if we're still in cart mode
 // then we'll display to end-user as warnings/alerts since they are not "done" with their cart
-case class CartValidatorResponse(alerts: Option[Failures] = None,
-                                 warnings: Option[Failures] = None) {}
+case class CartValidatorResponse(
+    alerts: Option[Failures] = None,
+    warnings: Option[Failures] = None) {} // TODO: use real warnings from StateT. What’s with not used alerts? @michalrus
 
 case class CartValidator(cart: Cart)(implicit ec: EC, db: DB) extends CartValidation {
 
   def validate(isCheckout: Boolean = false,
                fatalWarnings: Boolean = false): DbResultT[CartValidatorResponse] = {
     val validationResult = for {
-      state ← hasItems(CartValidatorResponse())
-      state ← hasShipAddress(state)
-      state ← validShipMethod(state)
-      state ← sufficientPayments(state, isCheckout)
+      state ← * <~ hasItems(CartValidatorResponse())
+      state ← * <~ hasShipAddress(state)
+      state ← * <~ validShipMethod(state)
+      state ← * <~ sufficientPayments(state, isCheckout)
     } yield state
     if (fatalWarnings) {
-      validationResult.dbresult.flatMap { validatorResponse ⇒
+      validationResult.flatMap { validatorResponse ⇒
         validatorResponse.warnings match {
           case Some(warnings) ⇒
             DbResultT.failures(warnings)
@@ -40,7 +43,7 @@ case class CartValidator(cart: Cart)(implicit ec: EC, db: DB) extends CartValida
         }
       }
     } else {
-      DbResultT.fromDbio(validationResult)
+      validationResult
     }
   }
 
@@ -60,22 +63,24 @@ case class CartValidator(cart: Cart)(implicit ec: EC, db: DB) extends CartValida
   }
 
   private def validShipMethod(response: CartValidatorResponse)(
-      implicit db: DB): DBIO[CartValidatorResponse] =
-    (for {
-      osm ← OrderShippingMethods.findByOrderRef(cart.refNum)
-      sm  ← osm.shippingMethod
-    } yield (osm, sm)).one.flatMap {
-      case Some((osm, sm)) ⇒
-        ShippingManager
-          .evaluateShippingMethodForCart(sm, cart)
-          .fold(
-              _ ⇒ warning(response, InvalidShippingMethod(cart.refNum)), // FIXME validator warning and actual failure differ
-              _ ⇒ response
-          )
-
-      case None ⇒
-        lift(warning(response, NoShipMethod(cart.refNum)))
-    }
+      implicit db: DB): DbResultT[CartValidatorResponse] =
+    for {
+      shipping ← * <~ (for {
+                  osm ← OrderShippingMethods.findByOrderRef(cart.refNum)
+                  sm  ← osm.shippingMethod
+                } yield (osm, sm)).one
+      validatedResponse ← * <~ (shipping match {
+                               case Some((osm, sm)) ⇒
+                                 ShippingManager
+                                   .evaluateShippingMethodForCart(sm, cart)
+                                   .map(_ ⇒ response)
+                                   .recover {
+                                     case _ ⇒ warning(response, InvalidShippingMethod(cart.refNum))
+                                   } // FIXME validator warning and actual failure differ
+                               case None ⇒
+                                 DbResultT(warning(response, NoShipMethod(cart.refNum)))
+                             })
+    } yield validatedResponse
 
   private def sufficientPayments(response: CartValidatorResponse,
                                  isCheckout: Boolean): DBIO[CartValidatorResponse] = {

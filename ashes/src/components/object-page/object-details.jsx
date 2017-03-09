@@ -60,9 +60,7 @@ const emptyLayout: Layout = {
 };
 
 export default class ObjectDetails extends Component {
-  get layout(): Layout {
-    return emptyLayout;
-  }
+  +layout: Layout = emptyLayout;
 
   get schema() {
     return expandRefs(this.props.schema);

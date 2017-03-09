@@ -1,5 +1,6 @@
 package utils
 
+import cats.implicits._
 import java.io.File
 import scala.concurrent.ExecutionContext.Implicits.global
 import com.stripe.model.DeletedCard
@@ -10,7 +11,6 @@ import org.mockito.Mockito._
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 import org.scalatest.mockito.MockitoSugar
-import services.Result
 import testutils.TestBase
 import utils.TestStripeSupport.randomStripeishId
 import utils.aliases._

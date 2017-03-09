@@ -36,10 +36,7 @@ class ImageIntegrationTest
   "Album Tests" - {
     "GET v1/albums/:context/:id" - {
       "Searching for a valid album returns the album" in new Fixture {
-        val albumResponse = albumsApi(album.formId).get().as[AlbumRoot]
-
-        albumResponse.images.length must === (1)
-        albumResponse.images.head.src must not be empty
+        albumsApi(album.formId).get().as[AlbumRoot].images.onlyElement.src must not be empty
       }
 
       "404 if wrong context name" in new Fixture {
@@ -87,7 +84,8 @@ class ImageIntegrationTest
                                  images = Seq(ImagePayload(src = "url")).some))
             .as[AlbumRoot]
             .images
-            .length must === (1)
+            .onlyElement
+            .src must === ("url")
         }
 
         "multiple images" in new Fixture {
@@ -159,8 +157,7 @@ class ImageIntegrationTest
       "Request the album after updating" in new Fixture {
         def checkAlbum(album: AlbumRoot): Unit = {
           album.name must === ("Name 2.0")
-          album.images must have size 1
-          val image = album.images.head
+          val image = album.images.onlyElement
           image.src must === ("http://lorem.png")
           image.alt.value must === ("Lorem Ipsum")
           image.title.value must === ("lorem.png")
@@ -179,8 +176,7 @@ class ImageIntegrationTest
         val albumResponse = productsApi(prodForm.id).albums.create(payload).as[AlbumRoot]
 
         albumResponse.name must === (testAlbumName)
-        albumResponse.images.length must === (1)
-        albumResponse.images.head.src must === ("url")
+        albumResponse.images.onlyElement.src must === ("url")
       }
 
       "Puts new album at the end" in new ProductFixture {
@@ -224,8 +220,7 @@ class ImageIntegrationTest
         val response = productsApi(prodForm.id).albums.get().as[Seq[AlbumRoot]].headOption.value
 
         response.name must === (testAlbumName)
-        response.images.length must === (1)
-        response.images.head.src must === ("http://lorem.png")
+        response.images.onlyElement.src must === ("http://lorem.png")
       }
 
       "Retrieves a correct version of an album after an update" in new ProductFixture {
@@ -245,46 +240,47 @@ class ImageIntegrationTest
 
     "GET v1/products/:context/:id" - {
       "Retrieves all the albums associated with a product" in new ProductFixture {
-        val productResponse = productsApi(prodForm.id).get().as[ProductResponse.Root]
-        productResponse.albums.length must === (1)
+        val onlyAlbum = productsApi(prodForm.id).get().as[ProductResponse.Root].albums.onlyElement
 
-        val headAlbum = productResponse.albums.head
-        headAlbum.images.length must === (1)
-
-        headAlbum.name must === ("Sample Album")
-        headAlbum.images.head.src must === ("http://lorem.png")
+        onlyAlbum.name must === ("Sample Album")
+        onlyAlbum.images.onlyElement.src must === ("http://lorem.png")
       }
 
       "Retrieves the albums associated with product's SKUs" in new ProductFixture {
-        val productResponse = productsApi(prodForm.id).get().as[ProductResponse.Root]
-
-        productResponse.variants.headOption.value.albums.length must === (1)
+        productsApi(prodForm.id)
+          .get()
+          .as[ProductResponse.Root]
+          .variants
+          .headOption
+          .value
+          .albums
+          .length must === (1)
       }
 
       "Archived albums are not present in list" in new ProductFixture {
         albumsApi(album.formId).delete().mustBeOk()
 
         val productResponse = productsApi(prodForm.id).get().as[ProductResponse.Root]
-        productResponse.variants.headOption.value.albums.length must === (0)
+        productResponse.variants.headOption.value.albums mustBe empty
       }
     }
 
     "GET v1/skus/:context/:code" - {
       "Retrieves all the albums associated with a SKU" in new ProductFixture {
-        val skuResponse = productVariantsApi(sku.formId).get().as[ProductVariantResponse.Root]
-        skuResponse.albums.length must === (1)
+        val onlyAlbum = productVariantsApi(variant.formId)
+          .get()
+          .as[ProductVariantResponse.Root]
+          .albums
+          .onlyElement
 
-        val headAlbum = skuResponse.albums.head
-        headAlbum.images.length must === (1)
-
-        headAlbum.name must === ("Sample Album")
-        headAlbum.images.head.src must === ("http://lorem.png")
+        onlyAlbum.name must === ("Sample Album")
+        onlyAlbum.images.onlyElement.src must === ("http://lorem.png")
       }
 
       "Archived albums are not present in list" in new ProductFixture {
         albumsApi(album.formId).delete().mustBeOk()
 
-        val skuResponse = productVariantsApi(sku.formId).get().as[ProductVariantResponse.Root]
+        val skuResponse = productVariantsApi(variant.formId).get().as[ProductVariantResponse.Root]
         skuResponse.albums.length must === (0)
       }
     }
@@ -293,36 +289,40 @@ class ImageIntegrationTest
       "Creates a new album on an existing SKU" in new ProductFixture {
         val payload = AlbumPayload(name = Some("ProductVariant Album"),
                                    images = Seq(ImagePayload(src = "url")).some)
-        val albumResponse = productVariantsApi(sku.formId).albums.create(payload).as[AlbumRoot]
+        val albumResponse = productVariantsApi(variant.formId).albums.create(payload).as[AlbumRoot]
 
         albumResponse.name must === ("ProductVariant Album")
-        albumResponse.images.length must === (1)
-        albumResponse.images.head.src must === ("url")
+        albumResponse.images.onlyElement.src must === ("url")
       }
     }
 
     "GET v1/skus/:context/:id/albums" - {
       "Retrieves all the albums associated with a SKU" in new ProductFixture {
         val albumResponse =
-          productVariantsApi(sku.formId).albums.get().as[Seq[AlbumRoot]].headOption.value
-        albumResponse.images.length must === (1)
+          productVariantsApi(variant.formId).albums.get().as[Seq[AlbumRoot]].onlyElement
 
         albumResponse.name must === ("Sample Album")
-        albumResponse.images.head.src must === ("http://lorem.png")
+        albumResponse.images.onlyElement.src must === ("http://lorem.png")
       }
 
       "Retrieves a correct version of an album after an update" in new ProductFixture {
-        val response = albumsApi(album.formId).update(AlbumPayload(name = "Name 2.0".some))
-        response.as[AlbumRoot].name must === ("Name 2.0")
+        private val newAlbumName = "Name 2.0"
+        albumsApi(album.formId)
+          .update(AlbumPayload(name = newAlbumName.some))
+          .as[AlbumRoot]
+          .name must === (newAlbumName)
 
-        val response2 = productVariantsApi(sku.formId).albums.get()
-        response2.as[Seq[AlbumRoot]].headOption.value.name must === ("Name 2.0")
+        productVariantsApi(variant.formId).albums
+          .get()
+          .as[Seq[AlbumRoot]]
+          .onlyElement
+          .name must === (newAlbumName)
       }
 
       "Archived albums are not present in list" in new ProductFixture {
         albumsApi(album.formId).delete().mustBeOk()
 
-        val albumResponse = productVariantsApi(skuForm.id).albums.get().as[Seq[AlbumRoot]]
+        val albumResponse = productVariantsApi(variantForm.id).albums.get().as[Seq[AlbumRoot]]
         albumResponse.length must === (0)
       }
     }
@@ -433,21 +433,22 @@ class ImageIntegrationTest
   }
 
   trait ProductFixture extends Fixture {
-    val (product, prodForm, prodShadow, sku, skuForm, skuShadow) = (for {
-      simpleSku  ← * <~ SimpleVariant("SKU-TEST", "Test SKU", 9999, Currency.USD)
-      skuForm    ← * <~ ObjectForms.create(simpleSku.create)
-      sSkuShadow ← * <~ SimpleVariantShadow(simpleSku)
-      skuShadow  ← * <~ ObjectShadows.create(sSkuShadow.create.copy(formId = skuForm.id))
-      skuCommit ← * <~ ObjectCommits.create(
-                     ObjectCommit(formId = skuForm.id, shadowId = skuShadow.id))
-      sku ← * <~ ProductVariants.create(
-               ProductVariant(scope = Scope.current,
-                              contextId = ctx.id,
-                              formId = skuForm.id,
-                              shadowId = skuShadow.id,
-                              commitId = skuCommit.id,
-                              code = "SKU-TEST"))
-      _ ← * <~ VariantAlbumLinks.create(VariantAlbumLink(leftId = sku.id, rightId = album.id))
+    val (product, prodForm, prodShadow, variant, variantForm, variantShadow) = (for {
+      simpleVariant  ← * <~ SimpleVariant("SKU-TEST", "Test SKU", 9999, Currency.USD)
+      variantForm    ← * <~ ObjectForms.create(simpleVariant.create)
+      sVariantShadow ← * <~ SimpleVariantShadow(simpleVariant)
+      variantShadow ← * <~ ObjectShadows.create(
+                         sVariantShadow.create.copy(formId = variantForm.id))
+      variantCommit ← * <~ ObjectCommits.create(
+                         ObjectCommit(formId = variantForm.id, shadowId = variantShadow.id))
+      variant ← * <~ ProductVariants.create(
+                   ProductVariant(scope = Scope.current,
+                                  contextId = ctx.id,
+                                  formId = variantForm.id,
+                                  shadowId = variantShadow.id,
+                                  commitId = variantCommit.id,
+                                  code = "SKU-TEST"))
+      _ ← * <~ VariantAlbumLinks.create(VariantAlbumLink(leftId = variant.id, rightId = album.id))
 
       simpleProd ← * <~ SimpleProduct(title = "Test Product",
                                       description = "Test product description")
@@ -465,12 +466,12 @@ class ImageIntegrationTest
 
       _ ← * <~ ProductAlbumLinks.create(ProductAlbumLink(leftId = product.id, rightId = album.id))
       _ ← * <~ ProductVariantLinks.create(
-             ProductVariantLink(leftId = product.id, rightId = sku.id))
+             ProductVariantLink(leftId = product.id, rightId = variant.id))
       _ ← * <~ ProductVariantSkus.create(
-             ProductVariantSku(variantFormId = skuForm.id,
-                               skuId = skuForm.id,
-                               skuCode = simpleSku.code))
-    } yield (product, prodForm, prodShadow, sku, skuForm, skuShadow)).gimme
+             ProductVariantSku(variantFormId = variantForm.id,
+                               skuId = variantForm.id,
+                               skuCode = simpleVariant.code))
+    } yield (product, prodForm, prodShadow, variant, variantForm, variantShadow)).gimme
   }
 
   trait ArchivedAlbumFixture extends Fixture {

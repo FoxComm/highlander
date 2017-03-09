@@ -4,6 +4,7 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit.DAYS
 
 import faker.Lorem
+import models.promotion.Promotion
 import org.json4s.JsonDSL._
 import org.scalatest.SuiteMixin
 import payloads.CouponPayloads.CreateCoupon
@@ -18,7 +19,8 @@ import testutils.fixtures.api.PromotionPayloadBuilder._
 import testutils.fixtures.api.products._
 import utils.aliases.Json
 
-trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi { self: FoxSuite ⇒
+trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with TestSeeds {
+  self: FoxSuite ⇒
 
   trait ProductVariant_ApiFixture {
     def productVariantPrice: Int = 20000
@@ -71,6 +73,7 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi { sel
     def percentOff: Int        = 10
 
     private lazy val promoPayload = PromotionPayloadBuilder.build(
+        Promotion.Coupon,
         PromoOfferBuilder.CartPercentOff(percentOff),
         PromoQualifierBuilder.CartTotalAmount(qualifiedSubtotal))
 
@@ -82,6 +85,7 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi { sel
     def percentOff: Int        = 10
 
     private lazy val promoPayload = PromotionPayloadBuilder.build(
+        Promotion.Coupon,
         PromoOfferBuilder.CartPercentOff(percentOff),
         PromoQualifierBuilder.CartNumUnits(qualifiedNumItems))
 

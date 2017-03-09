@@ -2,8 +2,9 @@ package services.product
 
 import java.time.Instant
 
-import cats.data._
+import cats.data.{ValidatedNel, _}
 import cats.implicits._
+import com.typesafe.scalalogging.LazyLogging
 import failures.ArchiveFailures._
 import failures.ProductFailures._
 import failures._
@@ -37,7 +38,7 @@ import utils.aliases._
 import utils.apis.Apis
 import utils.db._
 
-object ProductManager {
+object ProductManager extends LazyLogging {
 
   def createProduct(admin: User, payload: CreateProductPayload)(
       implicit ec: EC,
@@ -84,14 +85,34 @@ object ProductManager {
 
   }
 
-  def getProduct(productId: ProductReference)(implicit ec: EC,
-                                              db: DB,
-                                              oc: OC): DbResultT[ProductResponse.Root] =
+  def getProduct(productId: ProductReference, checkActive: Boolean = false)(
+      implicit ec: EC,
+      db: DB,
+      oc: OC): DbResultT[ProductResponse.Root] =
     for {
       oldProduct ← * <~ Products.mustFindFullByReference(productId)
-      albums     ← * <~ ImageManager.getAlbumsForProduct(oldProduct.model.reference)
+      illuminated = IlluminatedProduct
+        .illuminate(oc, oldProduct.model, oldProduct.form, oldProduct.shadow)
+      _ ← * <~ doOrMeh(checkActive, {
+           illuminated.mustBeActive match {
+             case Xor.Left(err) ⇒ {
+               logger.warn(err.toString)
+               DbResultT.failure(NotFoundFailure404(Product, oldProduct.model.slug))
+             }
+             case Xor.Right(_) ⇒ DbResultT.unit
+           }
+         })
+      albums ← * <~ ImageManager.getAlbumsForProduct(oldProduct.model.reference)
 
-      fullVariants    ← * <~ ProductVariantLinks.queryRightByLeft(oldProduct.model)
+      fullVariants ← * <~ ProductVariantLinks.queryRightByLeft(oldProduct.model)
+      _ ← * <~ failIf(
+             checkActive && fullVariants
+               .filter(variant ⇒ IlluminatedVariant.illuminate(oc, variant).mustBeActive.isRight)
+               .isEmpty, {
+               logger.warn(
+                   s"Product variants for product with id=${oldProduct.model.slug} is archived or inactive")
+               NotFoundFailure404(Product, oldProduct.model.slug)
+             })
       productVariants ← * <~ fullVariants.map(ProductVariantManager.illuminateVariant)
 
       productOptions ← * <~ ProductOptionLinks.queryRightByLeft(oldProduct.model)
@@ -104,12 +125,11 @@ object ProductManager {
 
       taxons ← * <~ TaxonomyManager.getAssignedTaxons(oldProduct.model)
     } yield
-      ProductResponse.build(
-          IlluminatedProduct.illuminate(oc, oldProduct.model, oldProduct.form, oldProduct.shadow),
-          albums,
-          if (hasOptions) productOptionVariants else productVariants,
-          productOptionResponses,
-          taxons)
+      ProductResponse.build(illuminated,
+                            albums,
+                            if (hasOptions) productOptionVariants else productVariants,
+                            productOptionResponses,
+                            taxons)
 
   def updateProduct(productId: ProductReference, payload: UpdateProductPayload)(
       implicit ec: EC,
@@ -237,7 +257,7 @@ object ProductManager {
     for {
       optionValueToVariantIdMap ← * <~ ProductOptionManager.mapOptionValuesToVariantIds(optionIds)
       variantIds = optionValueToVariantIdMap.values.toSet.flatten
-      productVariants ← * <~ variantIds.map(ProductVariantManager.getPartialByFormId)
+      productVariants ← * <~ variantIds.toList.map(ProductVariantManager.getPartialByFormId)
       illuminated = productOptions.map {
         case (fullOption, values) ⇒
           val variant = IlluminatedProductOption.illuminate(oc, fullOption)
