@@ -56,14 +56,20 @@ defmodule Hyperion.Amazon do
     skus = response.body["skus"]
            |> Enum.map(fn(map) -> format_map(map["attributes"]) end)
 
-    variants = process_variants(response.body["variants"])
 
 
     products = Enum.map(skus, fn(s) -> Enum.into(s, raw_products) end)
                |> Enum.map(fn list -> Keyword.delete(list, :description, "<p><br></p>") end)
 
-    for product <- products do
-      Enum.into(product, Keyword.get(variants, String.to_atom(product[:code])))
+    # If we have variants — process them
+    # if not — return products list
+    case response.body["variants"] do
+      [] -> products
+      _ ->
+        variants = process_variants(response.body["variants"])
+        for product <- products do
+          Enum.into(product, Keyword.get(variants, String.to_atom(product[:code])))
+        end
     end
   end
 
