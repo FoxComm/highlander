@@ -1,7 +1,11 @@
 from flask import Flask, request, jsonify
 from prod_prod.PPRecommend import PPRecommend
 from InvalidUsage import InvalidUsage
+from controllers.PurchaseController import add_purchase_event
 import os
+
+from neomodel import db
+db.set_connection('bolt://neo4j:password@localhost:7687')
 
 app = Flask(__name__)
 
@@ -78,7 +82,9 @@ def train_prod_prod():
         pprec = get_pprec(pprecs, channel_id)
 
         pprec.add_point(point['custID'], point['prodID'], channel_id)
+
         update_pprec(pprecs, channel_id, pprec)
+        add_purchase_event(point['custID'], point['prodID'], channel_id)
 
     return ""
 
