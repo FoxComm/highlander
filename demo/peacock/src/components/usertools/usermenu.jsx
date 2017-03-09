@@ -47,7 +47,7 @@ class UserMenu extends Component {
       <ul styleName="menu">
         <li>
           <Link to="/profile" styleName="menu-link">
-            {t('PROFILE')}
+            {t('Profile')}
           </Link>
         </li>
         <li>
@@ -55,7 +55,7 @@ class UserMenu extends Component {
             styleName="menu-link"
             to="/logout"
             onClick={this.handleLogout}
-          >{t('LOG OUT')}</Link>
+          >{t('Log out')}</Link>
         </li>
 
       </ul>

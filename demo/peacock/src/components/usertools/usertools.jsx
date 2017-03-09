@@ -39,11 +39,11 @@ class UserTools extends Component {
     const query = merge(this.props.query, {auth: authBlockTypes.LOGIN});
     return !isAuthorizedUser(user) ? (
       <Link styleName="login-link" to={{pathname: this.props.path, query}}>
-        {t('LOG IN')}
+        {t('Log in')}
       </Link>
     ) : (
       <div styleName="user-info">
-        <span styleName="username" onClick={this.handleUserClick}>{t('HI')}, {user.name.toUpperCase()}</span>
+        <span styleName="username" onClick={this.handleUserClick}>{t('Hi')}, {user.name}</span>
         {this.props.isMenuVisible && <UserMenu />}
       </div>
     );
@@ -55,10 +55,12 @@ class UserTools extends Component {
         <div styleName="login">
           {this.renderUserInfo()}
         </div>
-        <button styleName="cart" onClick={this.props.toggleCart}>
-          <Icon name="fc-cart" styleName="head-icon"/>
-          <sup styleName="cart-quantity">{this.props.quantity}</sup>
-        </button>
+        <span styleName="cart" onClick={this.props.toggleCart}>
+          My Cart
+          <div styleName="cart-quantity-wrapper">
+            <sup styleName="cart-quantity">{this.props.quantity}</sup>
+          </div>
+        </span>
       </div>
     );
   }
