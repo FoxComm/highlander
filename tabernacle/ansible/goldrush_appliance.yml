@@ -65,7 +65,3 @@
     # Finale
     - { role: dev/healthcheck }
     - { role: dev/appliance_dns }
-
-  handlers:
-     - include: roles/base/consul_agent/handlers/main.yml
-     - include: roles/base/mesos_consul/handlers/main.yml
