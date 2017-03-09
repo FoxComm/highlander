@@ -139,6 +139,14 @@ class Phoenix:
                         'tags': {
                             't': 'tags',
                             'v': tags
+                            },
+                        'activeTo': {
+                            't': 'datetime',
+                            'v': None
+                            },
+                        'activeFrom': {
+                            't': 'datetime',
+                            'v': '2017-03-09T19:59:21.609Z'
                             }
                         },
                     'albums' : [{ 'name': 'default', 'images' : images }]
@@ -223,6 +231,8 @@ class Phoenix:
                         'description' : first_sku['attributes']['description'],
                         'description_list' : first_sku['attributes']['description_list'],
                         'tags' : first_sku['attributes']['tags'],
+                        'activeTo' : first_sku['attributes']['activeTo'],
+                        'activeFrom' : first_sku['attributes']['activeFrom'],
                         },
                     'skus' : sorted_skus,
                     'albums' : [{ 'name': 'default', 'images' : product_images }],
