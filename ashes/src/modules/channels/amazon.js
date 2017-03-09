@@ -25,13 +25,6 @@ export function clearErrors() {
   };
 }
 
-export function clearSubmitErrors() {
-  return (dispatch: Function) => {
-    dispatch(_createSku.clearErrors());
-    dispatch(_updateSku.clearErrors());
-  };
-}
-
 const _fetchSuggest = createAsyncActions(
   'fetchSuggest',
   (product_id: string, text: string) => {
