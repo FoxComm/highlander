@@ -3,7 +3,7 @@
 
 .header-base {
   position: fixed;
-  top: 66px;
+  top: 0;
   z-index: 10;
   width: 100%;
   height: 86px;
@@ -14,8 +14,7 @@
   box-shadow: 0 1px var(--border-color);
 }
 
-.header,
-.header-scrolled {
+.header {
   composes: header-base;
 }
 
@@ -52,52 +51,20 @@
   }
 }
 
-@media (--small-only) {
-  .header {
-    top: 105px;
-
-    &._without-banner {
-      top: 0;
-    }
-  }
-
-  .header-scrolled {
-    top: 105px;
-
-    &._without-banner {
-      top: 0;
-    }
-  }
-}
-
-@media (--medium-only) {
-  .header {
-    top: 70px;
-
-    &._without-banner {
-      top: 0;
-    }
-  }
-
-  .header-scrolled {
-    top: 70px;
-
-    &._without-banner {
-      top: 0;
-    }
-  }
+.nav-search-logo-wrapper {
+  display: flex;
+  align-items: center;
+  height: 86px;
+  width: auto;
 }
 
 @media (--large) {
-  .wrap {
-    lost-column: 10/12;
-    lost-offset: -1/12;
-  }
 
   .navigation {
     height: 86px;
     display: flex;
     justify-content: center;
+    margin-left: 20px;
   }
 
   .hamburger {
@@ -106,53 +73,17 @@
 
   :global(.icon).logo {
     vertical-align: middle;
+    margin-left: 20px;
+    width: 87px;
   }
 
   .search {
-    width: 35%;
     height: 48px;
+    width: 50px;
   }
 
   .tools {
-    width: 35%;
-  }
-
-  .header {
-    height: 136px;
-
-    & .navigation {
-      position: absolute;
-      top: 136px;
-      width: 100%;
-      left: 0;
-      box-shadow: 0 0 0 1px var(--border-color);
-    }
-
-    &._without-banner {
-      top: 0;
-    }
-  }
-
-  .header-scrolled {
-    &._without-banner {
-      top: 0;
-    }
-
-    & :global(.icon--fc-logo) {
-      width: 130px;
-      height: 62px;
-    }
-
-    & .navigation {
-      margin-left: 20px;
-    }
-
-    & .search{
-      width: 50px;
-    }
-
-    & .tools {
-      width: auto;
-    }
+    width: auto;
+    margin-right: 20px;
   }
 }

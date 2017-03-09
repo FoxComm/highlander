@@ -34,47 +34,24 @@ class Header extends React.Component {
     isScrolled: false,
   };
 
-  componentDidMount() {
-    this.checkScroll();
-    window.addEventListener('scroll', this.checkScroll);
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('scroll', this.checkScroll);
-  }
-
-  checkScroll = () => {
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
-    const isScrolled = scrollTop > 136;
-
-    this.setState({isScrolled});
-  };
-
   render() {
-    const headerStyle = this.state.isScrolled ? 'header-scrolled' : 'header';
-    const headerClass = classNames(styles[headerStyle], {
-      [styles['_without-banner']]: !this.props.isBannerVisible,
-    });
-
     return (
       <div>
-        <TopBanner
-          isVisible={this.props.isBannerVisible}
-          onClose={this.props.closeBanner}
-        />
-        <div className={headerClass}>
+        <div styleName="header">
           <div styleName="wrap">
             <div styleName="hamburger" onClick={this.props.toggleSidebar}>
               <Icon name="fc-hamburger" styleName="head-icon"/>
             </div>
-            <div styleName="search">
-              <Search isScrolled={this.state.isScrolled}/>
-            </div>
-            <Link to="/" styleName="logo-link">
-              <Icon styleName="logo" name="fc-logo"/>
-            </Link>
-            <div styleName="navigation">
-              <Navigation path={this.props.path} />
+            <div styleName="nav-search-logo-wrapper">
+              <Link to="/" styleName="logo-link">
+                <Icon styleName="logo" name="fc-logo"/>
+              </Link>
+              <div styleName="navigation">
+                <Navigation path={this.props.path} />
+              </div>
+              <div styleName="search">
+                <Search isScrolled={false}/>
+              </div>
             </div>
             <div styleName="tools">
               <UserTools path={this.props.path} query={this.props.query}/>
