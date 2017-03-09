@@ -50,8 +50,9 @@ object CartPromotionUpdater {
       db: DB,
       ctx: OC): DbResultT[(OrderPromotion, Promotion, Seq[OrderLineItemAdjustment])] =
     findApplicableCouponPromotion(cart).handleErrorWith(
-        _ ⇒ // Any error? @michalrus
-          findApplicableAutoAppliedPromotion(cart))
+        couponErr ⇒
+          findApplicableAutoAppliedPromotion(cart).handleErrorWith(_ ⇒ // Any error? @michalrus
+                DbResultT.failures(couponErr)))
 
   private def findApplicableCouponPromotion(cart: Cart)(
       implicit ec: EC,

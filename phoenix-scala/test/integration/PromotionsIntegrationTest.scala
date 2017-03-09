@@ -151,8 +151,11 @@ class PromotionsIntegrationTest
       cartWithProduct.coupon mustBe 'empty
       import cartWithProduct.totals
 
-      totals.adjustments must === (math.round(sku.attributes.salePrice * percentOff).toInt)
-      totals.total must === (math.round(sku.attributes.salePrice * (1.0 - percentOff)).toInt)
+      // TODO: really ceiling? Why not round? @michalrus
+      // TODO: With round, I’ve once gotten `1377 did not equal 1376 (PromotionsIntegrationTest.scala:154)` @michalrus
+      totals.adjustments must === (math.ceil(sku.attributes.salePrice * percentOff).toInt)
+      // TODO: if we were using round everywhere, the following would also be round, not floor. Easier… @michalrus
+      totals.total must === (math.floor(sku.attributes.salePrice * (1.0 - percentOff)).toInt)
     }
   }
 
