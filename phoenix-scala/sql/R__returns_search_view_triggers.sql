@@ -5,17 +5,22 @@ create or replace function update_returns_search_view_from_returns_insert_fn() r
                reference_number,
                order_id,
                order_ref,
+               created_at,
                state,
+               total_refund,
                message_to_account,
                return_type,
                customer
                )
            select distinct on (new.id)
+               -- return
                new.id as id,
                new.reference_number as reference_number,
                new.order_id as order_id,
                new.order_ref as order_ref,
+               to_json_timestamp(new.created_at) as created_at,
                new.state as state,
+               (select sum(rp.amount) from return_payments as rp where (new.id = rp.return_id and rp.amount > 0)) as total_refund,
                new.message_to_account as message_to_account,
                new.return_type as return_type,
                -- customer

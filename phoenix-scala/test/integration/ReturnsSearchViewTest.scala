@@ -11,7 +11,9 @@ case class ReturnsSearchViewResult(
     referenceNumber: String,
     orderId: Int,
     orderRef: String,
+    createdAt: String,
     state: Return.State,
+    totalRefund: Option[Int],
     messageToAccount: Option[String],
     returnType: ReturnType,
     customer: CustomerSearchViewResult
@@ -43,12 +45,13 @@ class ReturnsSearchViewTest
       {
         import rmaSearchView._
 
-      id must === (rma.id)
-      referenceNumber must === (rma.referenceNumber)
-      orderRef must === (rma.cordRefNum)
-      state must === (rma.state)
-      messageToAccount must === (rma.messageToCustomer)
-      returnType must === (rma.rmaType)
+        id must === (rma.id)
+        referenceNumber must === (rma.referenceNumber)
+        orderRef must === (rma.cordRefNum)
+        state must === (rma.state)
+        messageToAccount must === (rma.messageToCustomer)
+        returnType must === (rma.rmaType)
+        createdAt must === (rma.createdAt.toString)
 
         rma.customer.map(c ⇒ {
           rmaSearchView.customer.id must === (c.id)
