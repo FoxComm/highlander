@@ -7,7 +7,7 @@
   shell: dpkg -i {{home}}/erlang-solutions_1.0_all.deb
 
 - name: Update APT
-  apt_repository: update_cache=yes
+  apt: update_cache=yes
 
 - name: Install Elixir Packages
   apt: name={{item}} state=latest force=yes
