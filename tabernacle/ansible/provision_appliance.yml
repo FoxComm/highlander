@@ -51,7 +51,3 @@
     - { role: demo/balancer }
     # Finale
     - { role: dev/healthcheck }
-
-  handlers:
-     - include: roles/base/consul_agent/handlers/main.yml
-     - include: roles/base/mesos_consul/handlers/main.yml
