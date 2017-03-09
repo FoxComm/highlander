@@ -68,10 +68,10 @@ class TaxonomyPage extends Component {
   }
 
   get isFetching(): boolean {
-    const { details, fetchState, schemaFetchState } = this.props;
+    const { details, schema, fetchState, schemaFetchState } = this.props;
 
     const inProgress = fetchState.inProgress || schemaFetchState.inProgress;
-    const noError = !details.taxonomy && !fetchState.err && !schemaFetchState.err;
+    const noError = (!details.taxonomy && !fetchState.err) || (!schema && !schemaFetchState.err);
 
     return inProgress || noError;
   }
@@ -145,7 +145,7 @@ const mapActions = dispatch => ({
   actions: {
     ...bindActionCreators(taxonomiesActions, dispatch),
   },
-  fetchSchema,
+  fetchSchema: bindActionCreators(fetchSchema, dispatch),
 });
 
 export default connect(mapState, mapActions)(TaxonomyPage);
