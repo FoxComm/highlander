@@ -31,10 +31,15 @@ import utils.db._
 
 object CartPromotionUpdater {
 
-  def readjust(cart: Cart)(implicit ec: EC, es: ES, db: DB, ctx: OC, au: AU): DbResultT[Unit] =
+  def readjust(cart: Cart, failFatally: Boolean /* FIXME with the new foxy monad @michalrus */ )(
+      implicit ec: EC,
+      es: ES,
+      db: DB,
+      ctx: OC,
+      au: AU): DbResultT[Unit] =
     for {
       // Fetch base stuff
-      oppa ← * <~ findApplicablePromotion(cart)
+      oppa ← * <~ findApplicablePromotion(cart, failFatally)
       (orderPromo, promotion, adjustments) = oppa // 🙄
       // Delete previous adjustments and create new
       _ ← * <~ OrderLineItemAdjustments
@@ -43,18 +48,22 @@ object CartPromotionUpdater {
       _ ← * <~ OrderLineItemAdjustments.createAll(adjustments)
     } yield {}
 
-  private def findApplicablePromotion(cart: Cart)(
+  private def findApplicablePromotion(
+      cart: Cart,
+      failFatally: Boolean /* FIXME with the new foxy monad @michalrus */ )(
       implicit ec: EC,
       es: ES,
       au: AU,
       db: DB,
       ctx: OC): DbResultT[(OrderPromotion, Promotion, Seq[OrderLineItemAdjustment])] =
-    findApplicableCouponPromotion(cart).handleErrorWith(
+    findApplicableCouponPromotion(cart, failFatally).handleErrorWith(
         couponErr ⇒
           findApplicableAutoAppliedPromotion(cart).handleErrorWith(_ ⇒ // Any error? @michalrus
                 DbResultT.failures(couponErr)))
 
-  private def findApplicableCouponPromotion(cart: Cart)(
+  private def findApplicableCouponPromotion(
+      cart: Cart,
+      failFatally: Boolean /* FIXME with the new foxy monad @michalrus */ )(
       implicit ec: EC,
       au: AU,
       es: ES,
@@ -70,7 +79,7 @@ object CartPromotionUpdater {
                    .requiresCoupon
                    .mustFindOneOr(
                        PromotionShadowNotFoundForContext(orderPromo.promotionShadowId, ctx.id))
-      adjustments ← * <~ getAdjustmentsForPromotion(cart, promotion)
+      adjustments ← * <~ getAdjustmentsForPromotion(cart, promotion, failFatally)
     } yield (orderPromo, promotion, adjustments)
   }
 
@@ -84,7 +93,8 @@ object CartPromotionUpdater {
       all ← * <~ Promotions.filterByContext(ctx.id).autoApplied.result
       allWithAdjustments ← * <~ DbResultT
                             .onlySuccessful(all.toList.map(promo ⇒
-                                      getAdjustmentsForPromotion(cart, promo).map((promo, _))))
+                                      getAdjustmentsForPromotion(cart, promo, true).map(
+                                          (promo, _))))
                             .ensure(OrderHasNoPromotions.single)(_.nonEmpty)
       best = allWithAdjustments
         .maxBy(_._2.map(_.subtract).sum) // FIXME: This approach doesn’t seem very efficient… @michalrus
@@ -95,7 +105,10 @@ object CartPromotionUpdater {
       orderPromo ← * <~ OrderPromotions.create(OrderPromotion.buildAuto(cart, bestPromo))
     } yield (orderPromo, bestPromo, bestAdjustments)
 
-  private def getAdjustmentsForPromotion(cart: Cart, promotion: Promotion)(
+  private def getAdjustmentsForPromotion(
+      cart: Cart,
+      promotion: Promotion,
+      failFatally: Boolean /* FIXME with the new foxy monad @michalrus */ )(
       implicit ec: EC,
       es: ES,
       au: AU,
@@ -111,9 +124,13 @@ object CartPromotionUpdater {
       // Safe AST compilation
       discount ← * <~ tryDiscount(discounts)
       (form, shadow) = discount.tupled
-      qualifier   ← * <~ QualifierAstCompiler(qualifier(form, shadow)).compile()
-      offer       ← * <~ OfferAstCompiler(offer(form, shadow)).compile()
-      adjustments ← * <~ getAdjustments(promoShadow, cart, qualifier, offer)
+      qualifier ← * <~ QualifierAstCompiler(qualifier(form, shadow)).compile()
+      offer     ← * <~ OfferAstCompiler(offer(form, shadow)).compile()
+      maybeFailedAdjustments = getAdjustments(promoShadow, cart, qualifier, offer)
+      adjustments ← * <~ (if (failFatally) maybeFailedAdjustments
+                          else
+                            (maybeFailedAdjustments
+                              .failuresToWarnings(Seq.empty) { case _ ⇒ true }))
     } yield adjustments
 
   def attachCoupon(originator: User, refNum: Option[String] = None, code: String)(
@@ -147,7 +164,7 @@ object CartPromotionUpdater {
                    .mustFindOneOr(PromotionNotFoundForContext(coupon.promotionId, ctx.name))
       // Create connected promotion and line item adjustments
       _ ← * <~ OrderPromotions.create(OrderPromotion.buildCoupon(cart, promotion, couponCode))
-      _ ← * <~ readjust(cart)
+      _ ← * <~ readjust(cart, failFatally = true)
       // Write event to application logs
       _ ← * <~ LogActivity.orderCouponAttached(cart, couponCode)
       // Response
@@ -192,7 +209,7 @@ object CartPromotionUpdater {
       implicit ec: EC,
       es: ES,
       db: DB,
-      au: AU) =
+      au: AU): DbResultT[Seq[OrderLineItemAdjustment]] =
     for {
       lineItems      ← * <~ LineItemManager.getCartLineItems(cart.refNum)
       shippingMethod ← * <~ shipping.ShippingMethods.forCordRef(cart.refNum).one

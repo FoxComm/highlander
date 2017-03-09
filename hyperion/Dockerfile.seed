@@ -6,20 +6,22 @@ RUN mkdir -p /hyperion
 WORKDIR /hyperion
 COPY . /hyperion
 
-RUN mix local.hex --force
-RUN mix local.rebar --force
-RUN mix deps.get --only prod
-RUN MIX_ENV=prod mix compile
-
 ARG db_host="localhost"
 ARG db_name="hyperion_development"
 ARG db_user="hyperion"
 ARG db_password=""
+ARG hyperion_env=prod
 
 ENV HYPERION_DB_NAME $db_name
 ENV HYPERION_DB_USER $db_user
 ENV HYPERION_DB_PASSWORD $db_password
 ENV HYPERION_DB_HOST $db_host
+ENV MIX_ENV $hyperion_env
+
+RUN mix local.hex --force
+RUN mix local.rebar --force
+RUN mix deps.get --only $hyperion_env
+RUN MIX_ENV=$hyperion_env mix compile
 
 # seeds
 CMD ["./priv/seeds/seed_db.sh"]

@@ -20,7 +20,7 @@ object CartTotaler {
              taxes = taxes,
              shipping = shipping,
              adjustments = adjustments,
-             total = (adjustments - (subTotal + taxes + shipping)).abs)
+             total = math.max(0, subTotal + taxes + shipping - adjustments))
     }
 
     def empty: Totals = Totals(0, 0, 0, 0, 0)
