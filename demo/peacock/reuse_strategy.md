@@ -34,6 +34,7 @@ For sustaining the modularity, the app must have:
 To start off, let's look at the component's lifecycle.
 
 Component:
+
 1. Gets the data from API and processes it
 2. Renders the data
 3. Has the necessary logic for dealing with user and system events  
