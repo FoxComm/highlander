@@ -82,7 +82,9 @@
     width: auto;
     display: flex;
     align-items: center;
-    margin-top: -6px;
+    margin-top: -4px;
+    margin-left: 20px;
+    margin-right: 20px;
   }
 
   .tools {

@@ -2,11 +2,11 @@
 
 .search {
   position: relative;
-  margin-left: 20px;
 }
 
 .search-input {
   border: none;
+  background: none;
   position: relative;
   padding: 0;
   z-index: 1;
@@ -19,5 +19,9 @@
   line-height: normal;
   letter-spacing: normal;
   color: #aaaaaa;
+  transition: width .5s linear;
+}
 
+.search-input:focus{
+  width: 150px;
 }

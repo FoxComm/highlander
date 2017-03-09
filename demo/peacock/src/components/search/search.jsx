@@ -42,6 +42,7 @@ class Search extends Component {
   @autobind
   onKeyDown({ keyCode }: any): void {
     if (keyCode === 13) {
+      console.log("Enter");
       this.search();
       this.refs.input.blur();
     }
@@ -98,7 +99,7 @@ class Search extends Component {
             onKeyDown={this.onKeyDown}
             styleName="search-input"
             autoComplete="off"
-            placeholder={t('Search')}
+            placeholder={t('Search...')}
             ref="input"
             type="search"
           />
