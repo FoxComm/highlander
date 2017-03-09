@@ -41,9 +41,9 @@ defmodule Hyperion.API do
       Maru.Exceptions.MethodNotAllowed -> 405
       _ -> 500
     end
-
+    msg = if Map.has_key?(e, :message), do: e.message , else: inspect(e)
     conn
     |> put_status(st)
-    |> json(%{error: inspect(e)})
+    |> json(%{error: msg})
   end
 end
