@@ -126,14 +126,14 @@ class CustomerGroups {
   list() {
     return this.api.get(endpoints.customerGroups);
   }
-  create(customerDynamicGroupPayload) {
-    return this.api.post(endpoints.customerGroups, customerDynamicGroupPayload);
+  create(customerGroupPayload) {
+    return this.api.post(endpoints.customerGroups, customerGroupPayload);
   }
   one(groupId) {
     return this.api.get(endpoints.customerGroup(groupId));
   }
-  update(groupId, customerDynamicGroupPayload) {
-    return this.api.patch(endpoints.customerGroup(groupId), customerDynamicGroupPayload);
+  update(groupId, customerGroupPayload) {
+    return this.api.patch(endpoints.customerGroup(groupId), customerGroupPayload);
   }
 }
 

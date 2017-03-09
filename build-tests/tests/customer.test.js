@@ -4,6 +4,7 @@ import Api from '../helpers/Api';
 import $ from '../payloads';
 import isDate from '../helpers/isDate';
 import isArray from '../helpers/isArray';
+import isNumber from '../helpers/isNumber';
 
 test('Can create a new customer', async (t) => {
   const api = Api.withCookies(t);
@@ -167,6 +168,41 @@ test('Can list customer groups', async (t) => {
   await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const customerGroups = await api.customerGroups.list();
   t.truthy(isArray(customerGroups));
+});
+
+test('Can create a new customer group', async (t) => {
+  const api = Api.withCookies(t);
+  await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
+  const payload = $.randomCustomerGroupPayload();
+  const newCustomerGroup = await api.customerGroups.create(payload);
+  t.truthy(isNumber(newCustomerGroup.id));
+  t.truthy(isDate(newCustomerGroup.createdAt));
+  t.is(newCustomerGroup.type, 'dynamic');
+  t.is(newCustomerGroup.name, payload.name);
+  t.deepEqual(newCustomerGroup.clientState, payload.clientState);
+  t.deepEqual(newCustomerGroup.elasticRequest, payload.elasticRequest);
+});
+
+test('Can view customer group details', async (t) => {
+  const api = Api.withCookies(t);
+  await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
+  const newCustomerGroup = await api.customerGroups.create($.randomCustomerGroupPayload());
+  const foundCustomerGroup = await api.customerGroups.one(newCustomerGroup.id);
+  t.deepEqual(foundCustomerGroup, newCustomerGroup);
+});
+
+test('Can update customer group details', async (t) => {
+  const api = Api.withCookies(t);
+  await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
+  const newCustomerGroup = await api.customerGroups.create($.randomCustomerGroupPayload());
+  const payload = $.randomCustomerGroupPayload();
+  const updatedCustomerGroup = await api.customerGroups.update(newCustomerGroup.id, payload);
+  t.is(updatedCustomerGroup.id, newCustomerGroup.id);
+  t.is(updatedCustomerGroup.createdAt, newCustomerGroup.createdAt);
+  t.is(updatedCustomerGroup.name, payload.name);
+  t.deepEqual(updatedCustomerGroup.clientState, payload.clientState);
+  t.deepEqual(updatedCustomerGroup.elasticRequest, payload.elasticRequest);
+  t.not(updatedCustomerGroup.updatedAt, newCustomerGroup.updatedAt);
 });
 
 testNotes({

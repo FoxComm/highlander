@@ -341,6 +341,24 @@ const $ = {
       },
     };
   },
+  randomCustomerGroupPayload: () => ({
+    name: `BVT CG ${teststamp()}`,
+    clientState: {
+      mainCondition: '$and',
+      conditions: [
+        ['email', 'contains', 'foxbvt'],
+      ],
+    },
+    elasticRequest: {
+      query: {
+        bool: {
+          must: [
+            { match: { email: 'foxbvt' } },
+          ],
+        },
+      },
+    },
+  }),
   orderStateTransitions: {
     remorseHold: ['manualHold', 'fraudHold', 'fulfillmentStarted', 'canceled'],
     fulfillmentStarted: ['shipped', 'canceled'],
