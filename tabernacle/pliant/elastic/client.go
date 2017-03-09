@@ -92,42 +92,23 @@ func (c *Client) GetMapping(index, mappingName string) (*Mapping, error) {
 }
 
 func (c *Client) CreateMapping(index string, mappingName string, isScoped bool) error {
-	latest, err := getLatestMapping(mappingName)
+	mu, err := LatestMappingUpdate(mappingDir, mappingName)
 	if err != nil {
 		return err
 	}
 
-	esMapping, err := getMappingNameForES(latest)
-	if err != nil {
-		return err
-	}
-
-	mappingExists, err := c.testMapping(index, esMapping)
+	mappingExists, err := c.testMapping(index, mu.ElasticMapping())
 	if err != nil {
 		return err
 	} else if mappingExists {
 		return fmt.Errorf("Mapping %s exists in index %s", esMapping, index)
 	}
 
-	mappingContents, err := readMappingFile(latest)
-	if err != nil {
-		return err
-	}
-
-	return c.createMapping(index, esMapping, mappingContents)
+	return c.createMapping(index, esMapping, mu.Contents)
 }
 
-func (c *Client) UpdateMapping(mapping string, index string, isScoped bool) error {
-	// 1. Get the latest definition for this mapping.
-	// 2. Check to see if that index exists on the cluster.
-	// 3. Create the index if it doesn't
-	// 4. Connect to PG and pull contents if creating the index.
-	latest, err := getLatestMapping(mapping)
-	if err != nil {
-		return err
-	}
-
-	esMapping, err := getMappingNameForES(latest)
+func (c *Client) UpdateMapping(mappingName string, index string, isScoped bool) error {
+	mu, err := LatestMappingUpdate(mappingDir, mappingName)
 	if err != nil {
 		return err
 	}
@@ -138,24 +119,19 @@ func (c *Client) UpdateMapping(mapping string, index string, isScoped bool) erro
 	}
 
 	for _, idx := range indexList {
-		mappingExists, err := c.testMapping(idx, esMapping)
+		mappingExists, err := c.testMapping(idx, mu.ElasticMapping())
 		if err != nil {
 			return err
 		}
 
 		if mappingExists {
-			log.Printf("Mapping %s is already present in index %s", esMapping, idx)
+			log.Printf("Mapping %s is already present in index %s", mu.ElasticMapping(), idx)
 			return nil
 		}
 	}
 
-	mappingContents, err := readMappingFile(latest)
-	if err != nil {
-		return err
-	}
-
 	for _, idx := range indexList {
-		if err := c.createMapping(idx, esMapping, mappingContents); err != nil {
+		if err := c.createMapping(idx, esMapping, mu.Contents); err != nil {
 			return err
 		}
 	}
@@ -177,6 +153,11 @@ func (c *Client) getIndices() ([]string, error) {
 
 	rawBody := strings.Trim(string(body), "\n\t\r ")
 	indices := strings.Split(rawBody, "\n")
+
+	for i, index := range indices {
+		indices[i] = strings.Trim(index, " ")
+	}
+
 	return indices, nil
 }
 
@@ -240,54 +221,4 @@ func (c *Client) testMapping(index, mapping string) (bool, error) {
 	}
 
 	return true, nil
-}
-
-func getMappingSources() ([]string, error) {
-	fileHandles, err := ioutil.ReadDir(mappingDir)
-	if err != nil {
-		return nil, err
-	}
-
-	fileNames := make([]string, len(fileHandles))
-	for idx, handles := range fileHandles {
-		fileNames[idx] = handles.Name()
-	}
-
-	return fileNames, nil
-}
-
-func getLatestMapping(mapping string) (string, error) {
-	indices, err := getMappingSources()
-	if err != nil {
-		return "", err
-	}
-
-	for i := len(indices) - 1; i >= 0; i-- {
-		if strings.HasPrefix(indices[i], mapping) {
-			return indices[i], nil
-		}
-	}
-
-	return "", fmt.Errorf("No mapping files found for %s", mapping)
-}
-
-func getMappingNameForES(mappingFilename string) (string, error) {
-	if !strings.HasSuffix(mappingFilename, ".json") {
-		return "", fmt.Errorf("Mapping filename %s must be JSON", mappingFilename)
-	}
-
-	// Strip any directories
-	pathParts := strings.Split(mappingFilename, "/")
-	filename := pathParts[len(pathParts)-1]
-
-	// Strip the file extension
-	idx := len(filename) - 5
-	stripped := filename[:idx]
-
-	return strings.ToLower(stripped), nil
-}
-
-func readMappingFile(filename string) ([]byte, error) {
-	fullFile := fmt.Sprintf("%s/%s", mappingDir, filename)
-	return ioutil.ReadFile(fullFile)
 }
