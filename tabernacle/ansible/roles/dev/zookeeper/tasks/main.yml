@@ -13,16 +13,11 @@
     - mesos_worker
   when: item != "bottledwater_marketplace" or with_marketplace
 
-- name: Start Mesos Master
-  service: name=mesos_master state=stopped enabled=true
-  when: is_amigo
-
-- name: Take a nap for a while
-  pause: seconds=20
-  when: is_amigo
-
-- name: Start Marathon
-  service: name=marathon state=started enabled=true
+- name: Stop Mesos Master
+  service: name={{item}} state=stopped enabled=true
+  with_items:
+    - mesos_master
+    - marathon
   when: is_amigo
 
 - name: Purge Zookeeper Data
