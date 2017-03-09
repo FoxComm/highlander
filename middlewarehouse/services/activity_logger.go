@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"log"
 
+	"errors"
 	"github.com/FoxComm/highlander/middlewarehouse/models/activities"
 	"github.com/FoxComm/metamorphosis"
 	avro "github.com/elodina/go-avro"
 	"github.com/jinzhu/gorm"
-	"errors"
 )
 
 var avroSchema avro.Schema
@@ -22,18 +22,17 @@ func init() {
 }
 
 const (
-	topic              = "activities"
+	topic              = "scoped_activities"
 	activityAvroSchema = `{
 			"type": "record",
-			"name": "activities",
-			"namespace": "com.martinkl.bottledwater.dbschema.public",
+			"name": "scoped_activities",
 			"fields": [
 					{
 							"name": "id",
 							"type": ["null", "string"]
 					},
 					{
-							"name": "activity_type",
+							"name": "kind",
 							"type": ["null", "string"]
 					},
 					{
@@ -49,9 +48,9 @@ const (
 							"type": ["null", "string"]
 					},
 					{
-                                                        "name": "scope",
-                                                         "type": ["null","string"]
-                                        }
+							"name": "scope",
+							"type": ["null","string"]
+                    }
 			]
 	}`
 )
@@ -70,7 +69,7 @@ func NewActivityLogger(producer metamorphosis.Producer, db *gorm.DB) IActivityLo
 
 type activityLogger struct {
 	producer metamorphosis.Producer
-	db *gorm.DB
+	db       *gorm.DB
 }
 
 func (a *activityLogger) Log(activity activities.ISiteActivity) error {
@@ -80,7 +79,7 @@ func (a *activityLogger) Log(activity activities.ISiteActivity) error {
 		return err
 	}
 
-	rows, err := a.db.Raw("select nextval('activities_id_seq');" ).Rows()
+	rows, err := a.db.Raw("select nextval('activities_id_seq');").Rows()
 
 	if err != nil {
 		return err
@@ -105,27 +104,26 @@ type record struct {
 	schema avro.Schema
 
 	// The formatting here is unfortunate, but required by how Avro handles parses.
-	Id            string
-	Activity_type string
-	Data          string
-	Created_at    string
-	Context       string
-	Scope         string
+	Id         string
+	Kind       string
+	Data       string
+	Created_at string
+	Context    string
+	Scope      string
 }
 
 func newRecord(activity activities.ISiteActivity) (*record, error) {
 	const contextTemplate = "{\"userId\":0,\"userType\":\"service\", \"transactionId\":\"mwh\", \"scope\":\"%v\"}"
 	var context = fmt.Sprintf(contextTemplate, activity.Scope())
 
-
 	return &record{
-		schema:        avroSchema,
-		Id:            "",
-		Activity_type: activity.Type(),
-		Data:          activity.Data(),
-		Created_at:    activity.CreatedAt(),
-		Context:       context,
-		Scope:         activity.Scope(),
+		schema:     avroSchema,
+		Id:         "",
+		Kind:       activity.Type(),
+		Data:       activity.Data(),
+		Created_at: activity.CreatedAt(),
+		Context:    context,
+		Scope:      activity.Scope(),
 	}, nil
 }
 
