@@ -6,7 +6,7 @@ dev d:
 	export eval `cat .env` && yarn dev
 
 setup: clean
-	yarn --pure-lockfile`		
+	yarn --pure-lockfile		
 
 build: setup
 	test -f .env && export eval `cat .env` || true && NODE_ENV=production ./node_modules/.bin/gulp build
