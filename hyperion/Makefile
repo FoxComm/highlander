@@ -21,7 +21,6 @@ build:
 	make prepare
 
 prepare:
-	make clean
 	mix local.hex --force
 	mix deps.get
 
