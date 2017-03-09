@@ -22,9 +22,13 @@ defmodule Credentials do
 
 
   def mws_config(client_id) do
-    case Repo.get_by(Credentials, client_id: client_id) do
-      nil -> %MWSClient.Config{}
-      c -> build_cfg(c)
+    try do
+      case Repo.get_by!(Credentials, client_id: client_id) do
+        nil -> %MWSClient.Config{}
+        c -> build_cfg(c)
+      end
+    rescue _e in Ecto.NoResultsError ->
+      raise "Client with id #{client_id} not found"
     end
   end
 
