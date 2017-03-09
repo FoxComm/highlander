@@ -15,8 +15,8 @@ defmodule Hyperion.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     # Specify extra applications you'll use from Erlang/Elixir
-    [ extra_applications: (Mix.env == :dev && [:exsync] || []) ++ [:ex_aws, :logger, :maru, :postgrex, 
-                                                                   :ecto, :httpoison],
+    [ extra_applications: (Mix.env == :dev && [:exsync] || []) ++ [:logger, :maru, :postgrex, 
+                                                                   :ecto, :httpoison, :ex_aws],
      mod: {Hyperion, []}]
   end
 
