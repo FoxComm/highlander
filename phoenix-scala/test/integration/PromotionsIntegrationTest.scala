@@ -109,6 +109,53 @@ class PromotionsIntegrationTest
     }
   }
 
+  "Auto-applied promotions" - {
+    import org.json4s.jackson.JsonMethods.pretty
+
+    "should ⸮" in new Customer_Seed with ProductSku_ApiFixture {
+      val percentOff = 0.4
+
+      val promo = promotionsApi
+        .create(
+            CreatePromotion(
+                applyType = Promotion.Auto,
+                discounts = List(
+                    CreateDiscount(
+                        attributes = Map(
+                            "qualifier" → tv(Map("orderAny" → Map.empty), t = "qualifier"),
+                            "offer" → tv(Map("orderPercentOff" → Map(
+                                                 "discount" → math.round(percentOff * 100))),
+                                         t = "offer")
+                        )
+                    )
+                ),
+                attributes = Map(
+                    "name"           → tv("testyPromo"),
+                    "storefrontName" → tv("<p>Testy promo</p>", "reechText"),
+                    "activeFrom"     → tv(Instant.now, "datetime"),
+                    "activeTo"       → tv(JNull, "datetime")
+                )
+            ))
+        .as[PromotionResponse.Root]
+
+      val refNum =
+        cartsApi.create(CreateCart(email = customer.email)).as[CartResponse].referenceNumber
+
+      val cartWithProduct = cartsApi(refNum).lineItems
+        .add(Seq(UpdateLineItemsPayload(skuCode, 1)))
+        .asTheResult[CartResponse]
+
+      // FIXME: in CordResponsePromotions.fetchPromoDetails
+      //cartWithProduct.promotion mustBe 'defined
+
+      cartWithProduct.coupon mustBe 'empty
+      import cartWithProduct.totals
+
+      totals.adjustments must === (math.round(sku.attributes.salePrice * percentOff).toInt)
+      totals.total must === (math.round(sku.attributes.salePrice * (1.0 - percentOff)).toInt)
+    }
+  }
+
   "Should apply order percent off promo+coupon to cart" - {
 
     implicit val doubleEquality = TolerantNumerics.tolerantDoubleEquality(1.0)

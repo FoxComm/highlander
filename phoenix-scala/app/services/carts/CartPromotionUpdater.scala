@@ -1,6 +1,8 @@
 package services.carts
 
-import cats.data.Xor
+import cats._
+import cats.data._
+import cats.implicits._
 import failures.CouponFailures._
 import failures.DiscountCompilerFailures._
 import failures.Failures
@@ -32,16 +34,74 @@ object CartPromotionUpdater {
   def readjust(cart: Cart)(implicit ec: EC, es: ES, db: DB, ctx: OC, au: AU): DbResultT[Unit] =
     for {
       // Fetch base stuff
+      oppa ← * <~ findApplicablePromotion(cart)
+      (orderPromo, promotion, adjustments) = oppa // 🙄
+      // Delete previous adjustments and create new
+      _ ← * <~ OrderLineItemAdjustments
+           .filterByOrderRefAndShadow(cart.refNum, orderPromo.promotionShadowId)
+           .delete
+      _ ← * <~ OrderLineItemAdjustments.createAll(adjustments)
+    } yield {}
+
+  private def findApplicablePromotion(cart: Cart)(
+      implicit ec: EC,
+      es: ES,
+      au: AU,
+      db: DB,
+      ctx: OC): DbResultT[(OrderPromotion, Promotion, Seq[OrderLineItemAdjustment])] =
+    findApplicableCouponPromotion(cart).handleErrorWith(
+        _ ⇒ // Any error? @michalrus
+          findApplicableAutoAppliedPromotion(cart))
+
+  private def findApplicableCouponPromotion(cart: Cart)(
+      implicit ec: EC,
+      au: AU,
+      es: ES,
+      db: DB,
+      ctx: OC): DbResultT[(OrderPromotion, Promotion, Seq[OrderLineItemAdjustment])] = {
+    for {
       orderPromo ← * <~ OrderPromotions
                     .filterByCordRef(cart.refNum)
                     .requiresCoupon
                     .mustFindOneOr(OrderHasNoPromotions)
-      // Fetch promotion
       promotion ← * <~ Promotions
                    .filterByContextAndShadowId(ctx.id, orderPromo.promotionShadowId)
                    .requiresCoupon
                    .mustFindOneOr(
                        PromotionShadowNotFoundForContext(orderPromo.promotionShadowId, ctx.id))
+      adjustments ← * <~ getAdjustmentsForPromotion(cart, promotion)
+    } yield (orderPromo, promotion, adjustments)
+  }
+
+  private def findApplicableAutoAppliedPromotion(cart: Cart)(
+      implicit ec: EC,
+      es: ES,
+      au: AU,
+      db: DB,
+      ctx: OC): DbResultT[(OrderPromotion, Promotion, Seq[OrderLineItemAdjustment])] =
+    for {
+      all ← * <~ Promotions.filterByContext(ctx.id).autoApplied.result
+      allWithAdjustments ← * <~ DbResultT
+                            .onlySuccessful(all.toList.map(promo ⇒
+                                      getAdjustmentsForPromotion(cart, promo).map((promo, _))))
+                            .ensure(OrderHasNoPromotions.single)(_.nonEmpty)
+      best = allWithAdjustments
+        .maxBy(_._2.map(_.subtract).sum) // FIXME: This approach doesn’t seem very efficient… @michalrus
+      (bestPromo, bestAdjustments) = best
+      // Replace previous OrderPromotions bindings with the current best one.
+      // TODO: only if they differ?
+      _          ← * <~ OrderPromotions.filterByCordRef(cart.refNum).autoApplied.delete
+      orderPromo ← * <~ OrderPromotions.create(OrderPromotion.buildAuto(cart, bestPromo))
+    } yield (orderPromo, bestPromo, bestAdjustments)
+
+  private def getAdjustmentsForPromotion(cart: Cart, promotion: Promotion)(
+      implicit ec: EC,
+      es: ES,
+      au: AU,
+      db: DB,
+      ctx: OC): DbResultT[Seq[OrderLineItemAdjustment]] =
+    for {
+      // Fetch promotion
       promoForm   ← * <~ ObjectForms.mustFindById404(promotion.formId)
       promoShadow ← * <~ ObjectShadows.mustFindById404(promotion.shadowId)
       promoObject = IlluminatedPromotion.illuminate(ctx, promotion, promoForm, promoShadow)
@@ -53,12 +113,7 @@ object CartPromotionUpdater {
       qualifier   ← * <~ QualifierAstCompiler(qualifier(form, shadow)).compile()
       offer       ← * <~ OfferAstCompiler(offer(form, shadow)).compile()
       adjustments ← * <~ getAdjustments(promoShadow, cart, qualifier, offer)
-      // Delete previous adjustments and create new
-      _ ← * <~ OrderLineItemAdjustments
-           .filterByOrderRefAndShadow(cart.refNum, orderPromo.promotionShadowId)
-           .delete
-      _ ← * <~ OrderLineItemAdjustments.createAll(adjustments)
-    } yield {}
+    } yield adjustments
 
   def attachCoupon(originator: User, refNum: Option[String] = None, code: String)(
       implicit ec: EC,
@@ -72,7 +127,7 @@ object CartPromotionUpdater {
       cart ← * <~ getCartByOriginator(originator, refNum)
       _ ← * <~ OrderPromotions
            .filterByCordRef(cart.refNum)
-           .requiresCoupon
+           .requiresCoupon // TODO: decide what happens here, when we allow multiple promos per cart. @michalrus
            .mustNotFindOneOr(OrderAlreadyHasCoupon)
       // Fetch coupon + validate
       couponCode ← * <~ CouponCodes.mustFindByCode(code)
@@ -127,7 +182,7 @@ object CartPromotionUpdater {
   /**
     * Getting only first discount now
     */
-  def tryDiscount[T](discounts: Seq[T]): Failures Xor T = discounts.headOption match {
+  private def tryDiscount[T](discounts: Seq[T]): Failures Xor T = discounts.headOption match {
     case Some(discount) ⇒ Xor.Right(discount)
     case _              ⇒ Xor.Left(EmptyDiscountFailure.single)
   }
