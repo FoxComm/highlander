@@ -34,6 +34,7 @@ const $ = {
   adminOrg: 'tenant',
   customerOrg: 'merchant',
   testCardNumber: '4242424242424242',
+  testGiftCardSkuCode: 'GFT-050',
   testImagePath: path.resolve('./assets/image.jpg'),
   randomUserCredentials: () => ({
     email: `foxbvt+${teststamp()}@gmail.com`,
@@ -176,6 +177,14 @@ const $ = {
     balance: $.randomNumber(1, 2000),
     quantity: 1,
     reasonId: 1,
+  }),
+  randomGiftCardAttributes: ({ senderName }) => ({
+    giftCard: {
+      senderName,
+      recipientName: faker.name.findName(),
+      recipientEmail: 'foxbvt@gmail.com',
+      message: faker.lorem.sentence(),
+    },
   }),
   randomImagePayload: () => ({
     src: faker.random.arrayElement([

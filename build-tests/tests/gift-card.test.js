@@ -1,10 +1,13 @@
 import test from '../helpers/test';
 import testNotes from './testNotes';
 import Api from '../helpers/Api';
+import createCreditCard from '../helpers/createCreditCard';
+import waitFor from '../helpers/waitFor';
 import isNumber from '../helpers/isNumber';
 import isString from '../helpers/isString';
 import isDate from '../helpers/isDate';
 import $ from '../payloads';
+import config from '../config';
 
 test('Can create a gift card', async (t) => {
   const api = await Api.withCookies(t);
@@ -81,6 +84,40 @@ test('Can make gift card "Active"', async (t) => {
   const updatedActiveGiftCard = await api.giftCards.update(newGiftCard.code, { state: 'active' });
   t.is(updatedActiveGiftCard.state, 'active');
 });
+
+if (config.testGiftCardFlow) {
+  test('Can send gift card to a customer', async (t) => {
+    const adminApi = Api.withCookies(t);
+    await adminApi.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
+    const credentials = $.randomUserCredentials();
+    const newCustomer = await adminApi.customers.create(credentials);
+    const newCard = await createCreditCard(adminApi, newCustomer.id);
+    const inventory = await adminApi.inventories.get($.testGiftCardSkuCode);
+    const stockItemId = inventory.summary.find(item => item.type === 'Sellable').stockItem.id;
+    await adminApi.inventories.increment(stockItemId, { qty: 1, status: 'onHand', type: 'Sellable' });
+    const customerApi = Api.withCookies(t);
+    await customerApi.auth.login(credentials.email, credentials.password, $.customerOrg);
+    await customerApi.cart.get();
+    const giftCardAttributes = $.randomGiftCardAttributes({ senderName: credentials.name });
+    await customerApi.cart.addSku($.testGiftCardSkuCode, 1, giftCardAttributes);
+    await customerApi.cart.setShippingAddress($.randomCreateAddressPayload());
+    const shippingMethod = $.randomArrayElement(await customerApi.cart.getShippingMethods());
+    await customerApi.cart.chooseShippingMethod(shippingMethod.id);
+    await customerApi.cart.addCreditCard(newCard.id);
+    const fullOrder = await customerApi.cart.checkout();
+    await adminApi.orders.update(fullOrder.referenceNumber, { state: 'fulfillmentStarted' });
+    await adminApi.orders.update(fullOrder.referenceNumber, { state: 'shipped' });
+    const newGiftCardCode = await waitFor(500, 10000, () =>
+      adminApi.orders.one(fullOrder.referenceNumber)
+        .then(r => r.result.lineItems.skus[0].attributes.giftCard.code),
+      isString);
+    const foundGiftCard = await adminApi.giftCards.one(newGiftCardCode);
+    t.is(foundGiftCard.message, giftCardAttributes.giftCard.message);
+    t.is(foundGiftCard.recipientName, giftCardAttributes.giftCard.recipientName);
+    t.is(foundGiftCard.recipientEmail, giftCardAttributes.giftCard.recipientEmail);
+    t.is(foundGiftCard.senderName, giftCardAttributes.giftCard.senderName);
+  });
+}
 
 testNotes({
   objectType: 'gift-card',
