@@ -1,0 +1,17 @@
+---
+
+- name: Start Capture Consumer
+  include: app_capture_consumer.yml
+  when: marathon_restart.capture_consumer
+
+- name: Start Gift Card Consumer
+  include: app_gift_card_consumer.yml
+  when: marathon_restart.gift_card_consumer
+
+- name: Start Shipments Consumer
+  include: app_shipments_consumer.yml
+  when: marathon_restart.shipments_consumer
+
+- name: Start Shipstation Consumer
+  include: app_shipstation_consumer.yml
+  when: with_shipstation and marathon_restart.shipstation_consumer

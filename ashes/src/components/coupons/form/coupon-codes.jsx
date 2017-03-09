@@ -2,8 +2,7 @@
 /* @flow */
 
 // libs
-import _ from 'lodash';
-import React, { Component, Element } from 'react';
+import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 
@@ -47,7 +46,7 @@ type Target = {
 class CouponCodes extends Component {
   props: Props;
 
-  get singleCouponFormPart(): ?Element {
+  get singleCouponFormPart() {
     if (this.props.codeGeneration.bulk !== false) {
       return null;
     }
@@ -126,13 +125,13 @@ class CouponCodes extends Component {
     return Math.round((quantity / numberOfVariants) * 100);
   }
 
-  get codeLengthValidationError(): Element {
+  get codeLengthValidationError() {
     const message =
       'Cannot guarantee uniqueness for the required quantity of codes. Please choose a longer character length.';
     return <div className="fc-form-field-error">{message}</div>;
   }
 
-  get bulkCouponFormPart(): ?Element {
+  get bulkCouponFormPart() {
     if (this.props.codeGeneration.bulk !== true) {
       return null;
     }
@@ -145,7 +144,7 @@ class CouponCodes extends Component {
           <FormField label="Quantity">
             <div>
               <Counter
-                counterId="code-quantity-counter"
+                counterId="fct-codes-quantity-counter"
                 id="codesQuantity"
                 name="codesQuantity"
                 value={codesQuantity}
@@ -174,7 +173,7 @@ class CouponCodes extends Component {
           <FormField label="Code Character Length" >
             <div>
               <Counter
-                counterId="code-character-length-counter"
+                counterId="fct-code-length-counter"
                 id="codesLength"
                 name="codesLength"
                 value={this.props.codeGeneration.codesLength}
@@ -210,7 +209,7 @@ class CouponCodes extends Component {
     this.props.couponsGenerationSelectBulk();
   }
 
-  render(): Element {
+  render() {
     return (
       <ContentBox title="Coupon Code">
         <div>

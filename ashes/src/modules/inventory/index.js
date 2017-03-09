@@ -1,7 +1,7 @@
 import { combineReducers } from 'redux';
-import list from './list';
-import warehouses from './warehouses';
-import transactions from './transactions';
+import list from '../skus/list';
+import warehouses from '../skus/warehouses';
+import transactions from '../skus/transactions';
 
 const customerReducer = combineReducers({
   list,

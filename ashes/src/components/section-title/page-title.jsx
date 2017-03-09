@@ -8,8 +8,8 @@ import SectionTitle from './section-title';
  */
 
 type Props = {
-  children: Element,
-  title: string|Element,
+  children: Element<*>,
+  title: string|Element<*>,
   documentTitle?: string|boolean;
 }
 

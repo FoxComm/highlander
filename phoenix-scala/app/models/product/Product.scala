@@ -2,11 +2,12 @@ package models.product
 
 import java.time.Instant
 
-import scala.util.matching.Regex
+import cats.data.Xor
 
+import scala.util.matching.Regex
 import com.github.tminglei.slickpg.LTree
 import failures.ArchiveFailures.ProductIsPresentInCarts
-import failures.ProductFailures.{ProductFormNotFoundForContext, SlugDuplicates}
+import failures.ProductFailures._
 import failures._
 import models.cord.Carts._
 import models.cord.lineitems.CartLineItems
@@ -71,6 +72,7 @@ case class Product(id: Int = 0,
   def reference: ProductReference = ProductId(formId)
 
   override def sanitize: Product = super.sanitize.copy(slug = slug.toLowerCase)
+
 }
 
 class Products(tag: Tag) extends ObjectHeads[Product](tag, "products") {

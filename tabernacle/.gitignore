@@ -1,0 +1,25 @@
+# secrets
+.vault_pass
+
+# account files
+# GCE
+/foxcomm-vanilla.json
+/foxcomm-staging.json
+/account.json
+
+# AWS
+/aws_*
+
+# local settings
+.env.local
+.terraform
+terraform.tfvars
+
+# inventory binary
+bin/inventory
+
+# vendor artifacts and other garbage
+ansible/*.retry
+*.pyc
+*.DS_Store
+*.orig

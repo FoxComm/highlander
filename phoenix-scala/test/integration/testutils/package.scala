@@ -1,17 +1,19 @@
-import scala.concurrent.Await._
+import scala.concurrent.Await
 import scala.concurrent.duration._
 import akka.http.scaladsl.model.{HttpResponse, StatusCode, StatusCodes}
+
 import failures.Failure
+import org.json4s.Formats
 import org.json4s.jackson.JsonMethods._
-import org.scalatest.concurrent.PatienceConfiguration
 import org.scalatest._
+import org.scalatest.concurrent.PatienceConfiguration
 import responses.TheResponse
 import utils.JsonFormatters
 import utils.aliases._
 
 package object testutils extends MustMatchers with OptionValues with AppendedClues {
 
-  implicit val formats = JsonFormatters.phoenixFormats
+  implicit val formats: Formats = JsonFormatters.phoenixFormats
 
   def originalSourceClue(implicit line: SL, file: SF) =
     s"""\n(Original source: ${file.value.split("/").last}:${line.value})"""
@@ -25,9 +27,15 @@ package object testutils extends MustMatchers with OptionValues with AppendedClu
     def getOpt[A](field: String)(implicit mf: Manifest[A]): Option[A] =
       (attributes \ field \ "v").extractOpt[A]
 
+    def getValue[A](field: String)(implicit mf: Manifest[A]): A =
+      (attributes \ field \ "v" \ "value").extract[A]
+
     def getString(field: String): String = get[String](field)
 
-    def code: String = getString("code")
+    // Concrete attribute extractors
+    def code: String     = getString("code")
+    def salePrice: Int   = getValue[Int]("salePrice")
+    def retailPrice: Int = getValue[Int]("retailPrice")
   }
 
   implicit class RichTraversable[A](val sequence: Traversable[A]) extends AnyVal {
@@ -40,7 +48,7 @@ package object testutils extends MustMatchers with OptionValues with AppendedClu
   implicit class RichHttpResponse(response: HttpResponse)(implicit ec: EC, mat: Mat) {
 
     lazy val bodyText: String =
-      result(response.entity.toStrict(1.second).map(_.data.utf8String), 1.second)
+      Await.result(response.entity.toStrict(1.second).map(_.data.utf8String), 1.second)
 
     def as[A <: AnyRef](implicit mf: Manifest[A], line: SL, file: SF): A = {
       response.mustBeOk()

@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+set -ue
+
+# Generate keys
+cd {{easy_rsa_dir}}
+source ./vars
+KEY_CN="" ./build-key --batch {{username}}
+
+# Files for Viscosity Bundle
+cp keys/ca.crt {{visc_base_dir}}/{{visc_bundle_dir}}/ca.crt
+cp keys/{{username}}.crt {{visc_base_dir}}/{{visc_bundle_dir}}/cert.crt
+cp keys/{{username}}.key {{visc_base_dir}}/{{visc_bundle_dir}}/key.key
+
+# Create archive
+cd {{visc_base_dir}} && zip -r {{visc_filename}} {{visc_bundle_dir}}

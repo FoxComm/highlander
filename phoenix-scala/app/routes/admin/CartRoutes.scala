@@ -3,7 +3,7 @@ package routes.admin
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import cats.implicits._
-import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
+import utils.http.JsonSupport._
 import models.account.User
 import models.cord.Cord.cordRefNumRegex
 import models.payment.giftcard.GiftCard
@@ -48,16 +48,6 @@ object CartRoutes {
                 mutateOrFailures {
                   CartPromotionUpdater.detachCoupon(auth.model, refNum.some)
                 }
-              }
-            } ~
-            (post & path("lock") & pathEnd) {
-              mutateOrFailures {
-                CartLockUpdater.lock(refNum, auth.model)
-              }
-            } ~
-            (post & path("unlock") & pathEnd) {
-              mutateOrFailures {
-                CartLockUpdater.unlock(refNum)
               }
             } ~
             (post & path("checkout")) {

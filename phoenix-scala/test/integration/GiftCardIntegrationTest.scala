@@ -24,7 +24,7 @@ import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import utils.Money._
 import utils.db._
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 
 class GiftCardIntegrationTest
     extends IntegrationTestBase
@@ -274,12 +274,10 @@ class GiftCardIntegrationTest
         val adjustments: Seq[GcAdjRoot] =
           giftCardsApi(giftCard1.code).transactions().as[Seq[GcAdjRoot]]
 
-        adjustments must have size 1
-
-        val firstAdjustment: GcAdjRoot = adjustments.head
-        firstAdjustment.amount must === (-adjustment1.debit)
-        firstAdjustment.availableBalance must === (giftCard1.originalBalance - adjustment1.debit)
-        firstAdjustment.cordRef.value must === (cart.referenceNumber)
+        val adjustment: GcAdjRoot = adjustments.onlyElement
+        adjustment.amount must === (-adjustment1.debit)
+        adjustment.availableBalance must === (giftCard1.originalBalance - adjustment1.debit)
+        adjustment.cordRef.value must === (cart.referenceNumber)
       }
     }
 

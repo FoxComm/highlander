@@ -16,7 +16,7 @@ type Props = {
   params?: any,
 };
 
-const DiscountRow = (props: Props): Element => {
+const DiscountRow = (props: Props) => {
   const { item, columns, params } = props;
   const checkedParams = params || {checked: false, setChecked: noop };
 

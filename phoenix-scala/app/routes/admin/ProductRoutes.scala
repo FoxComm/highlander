@@ -3,21 +3,21 @@ package routes.admin
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 
-import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
 import models.account.User
 import models.product.ProductReference
 import payloads.ContextPayloads._
 import payloads.ImagePayloads.{AlbumPayload, UpdateAlbumPositionPayload}
 import payloads.ProductPayloads._
+import services.Authenticator.AuthData
 import services.image.ImageManager
 import services.objects.ObjectManager
 import services.product.ProductManager
-import services.Authenticator.AuthData
 import services.taxonomy.TaxonomyManager
 import utils.aliases._
 import utils.apis.Apis
 import utils.http.CustomDirectives._
 import utils.http.Http._
+import utils.http.JsonSupport._
 
 object ProductRoutes {
 
@@ -68,7 +68,7 @@ object ProductRoutes {
     }
   }
 
-  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis) = {
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis): Route = {
 
     activityContext(auth.model) { implicit ac ⇒
       pathPrefix("products") {

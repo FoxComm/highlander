@@ -30,6 +30,7 @@
 [libs]
 src/interfaces/
 src/interfaces/paragons/
+src/interfaces/paragons/es
 
 [options]
 strip_root=true
@@ -44,4 +45,4 @@ module.system.node.resolve_dirname=src
 suppress_comment=\\(.\\|\n\\)*\\$FlowFixMe
 
 [version]
->=0.22.1
+>=0.39.0

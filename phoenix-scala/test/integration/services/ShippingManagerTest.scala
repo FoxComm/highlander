@@ -18,7 +18,7 @@ import utils._
 import utils.db.ExPostgresDriver.api._
 import utils.db.ExPostgresDriver.jsonMethods._
 import utils.db._
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 import utils.seeds.ShipmentSeeds
 
 class ShippingManagerTest extends IntegrationTestBase with TestObjectContext with BakedFixtures {

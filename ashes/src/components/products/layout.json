@@ -24,7 +24,7 @@
       "type": "optionList"
     },
     {
-      "type": "skuList"
+      "type": "variants"
     },
     {
       "type": "group",

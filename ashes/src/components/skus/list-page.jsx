@@ -6,10 +6,10 @@ import React, { PropTypes } from 'react';
 import { ListPageContainer, makeTotalCounter } from '../list-page';
 
 // redux
-import { actions as inventoryActions } from 'modules/inventory/list';
+import { actions as inventoryActions } from 'modules/skus/list';
 
 const SkusListPage = (props) => {
-  const TotalCounter = makeTotalCounter(state => state.inventory.list, inventoryActions);
+  const TotalCounter = makeTotalCounter(state => state.skus.list, inventoryActions);
 
   const navLinks = [
     { title: 'Lists', to: 'skus' },

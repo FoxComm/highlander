@@ -78,7 +78,7 @@ class ValueEditDialog extends Component {
           required
         >
           <input
-            id="value-name-fld"
+            id="fct-value-name-fld"
             type="text"
             value={name}
             ref="nameInput"
@@ -106,7 +106,7 @@ class ValueEditDialog extends Component {
     }
   }
 
-  render(): Element {
+  render() {
     return (
       <ConfirmationDialog
         isVisible={true}

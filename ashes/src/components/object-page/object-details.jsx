@@ -20,7 +20,7 @@ import ParticipantsPanel from '../participants';
 
 import type { ObjectView } from 'paragons/object';
 
-type Layout = {
+export type Layout = {
   content: Array<Object>,
   aside: Array<Object>,
 }
@@ -50,12 +50,17 @@ export type DetailsProps = {
   // for product form
   // somehow flow don't understand props declarations in extended classes
   // in case of existing props declarations in base class
-  onSetSkuProperty: (code: string, field: string, value: any) => void,
-  onSetSkuProperties: (code: string, toUpdate: Array<Array<any>>) => void,
+  onSetVariantProperty: (id: string, field: string, value: any) => void,
+  onSetVariantProperties: (id: string, toUpdate: Array<Array<any>>) => void,
 }
 
+const emptyLayout: Layout = {
+  content: [],
+  aside: [],
+};
+
 export default class ObjectDetails extends Component {
-  layout: Layout;
+  +layout: Layout = emptyLayout;
 
   get schema() {
     return expandRefs(this.props.schema);
@@ -105,7 +110,7 @@ export default class ObjectDetails extends Component {
     return result;
   }
 
-  renderFields(fields: Fields, section: Array<NodeDesc>): Element {
+  renderFields(fields: Fields, section: Array<NodeDesc>): Element<*> {
     const fieldsToRender = this.calcFieldsToRender(fields, section);
     const attrsSchema = this.schema.properties.attributes;
     return (
@@ -119,7 +124,7 @@ export default class ObjectDetails extends Component {
     );
   }
 
-  renderTags(): Element {
+  renderTags() {
     return (
       <Tags
         attributes={this.attributes}
@@ -128,7 +133,7 @@ export default class ObjectDetails extends Component {
     );
   }
 
-  renderState(): ?Element {
+  renderState() {
     return (
       <ObjectScheduler
         attributes={this.attributes}
@@ -138,7 +143,7 @@ export default class ObjectDetails extends Component {
     );
   }
 
-  renderWatchers(): ?Element {
+  renderWatchers(): ?Element<*> {
     const { object, plural } = this.props;
 
     if (object.id) {
@@ -171,15 +176,18 @@ export default class ObjectDetails extends Component {
     );
   }
 
-  renderNode(description: NodeDesc, section: Array<NodeDesc>): Element {
+  renderNode(description: NodeDesc, section: Array<NodeDesc>) {
     const renderName = `render${_.upperFirst(_.camelCase(description.type))}`;
     // $FlowFixMe: we don't need indexable signature here
     invariant(this[renderName], `There is no method for render ${description.type}.`);
+
+    // $FlowFixMe: call of computed property. Computed property/element cannot be called on
     return this[renderName](description, section);
   }
 
-  renderSection(name: string): Element {
+  renderSection(name: string) {
     const section = this.layout[name];
+
     return addKeys(name, section.map(desc => this.renderNode(desc, section)));
   }
 

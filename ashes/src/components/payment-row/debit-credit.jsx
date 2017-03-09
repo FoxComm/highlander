@@ -12,7 +12,7 @@ type Props = {
   availableBalance: number,
   onCancel: Function,
   onSubmit: Function,
-  title?: string|Element,
+  title?: string|Element<*>,
   amountToUse?: number,
   saveText: string,
 }
@@ -70,7 +70,7 @@ export default class DebitCredit extends Component {
     this.props.onSubmit(this.state.amountToUse);
   }
 
-  get title(): ?Element {
+  get title(): ?Element<*> {
     const { title } = this.props;
 
     if (title) {

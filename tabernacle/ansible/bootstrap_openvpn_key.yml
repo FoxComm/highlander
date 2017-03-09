@@ -1,0 +1,23 @@
+---
+
+- name: OpenVPN Key Generator
+  hosts: '{{hostname}}'
+  become: true
+  vars:
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+    easy_rsa_dir: /etc/openvpn/easy-rsa
+  vars_prompt:
+    - name: "hostname"
+      prompt: "Enter a hostname of OpenVPN service"
+      default: "vpn"
+      private: no
+    - name: "username"
+      prompt: "Enter a username to generate key for"
+      default: "pavel"
+      private: no
+    - name: "download_dir"
+      prompt: "Enter a directory to download"
+      default: "~/Downloads"
+      private: no
+  roles:
+      - { role: dev/openvpn_key }

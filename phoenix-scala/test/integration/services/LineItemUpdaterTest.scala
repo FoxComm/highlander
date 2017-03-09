@@ -7,6 +7,9 @@ import testutils._
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api._
 import utils.MockedApis
+import utils.aliases._
+import utils.db._
+import utils.seeds.Factories
 
 class LineItemUpdaterTest
     extends IntegrationTestBase
@@ -17,7 +20,7 @@ class LineItemUpdaterTest
     with ApiFixtureHelpers
     with BakedFixtures {
 
-  def createProducts(num: Int): Seq[ProductVariantResponse.Root] = {
+  def createProducts(num: Int): Seq[ProductVariantResponse.Partial] = {
     (1 to num).map { _ ⇒
       new ProductVariant_ApiFixture {}.productVariant
     }

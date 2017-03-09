@@ -2,7 +2,7 @@ package routes.admin
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
+import utils.http.JsonSupport._
 import models.account.User
 import models.returns.Return
 import payloads.ReturnPayloads._
@@ -46,21 +46,6 @@ object ReturnRoutes {
               mutateOrFailures {
                 ReturnService.updateMessageToCustomer(refNum, payload)
               }
-          } ~
-          (get & path("lock") & pathEnd) {
-            getOrFailures {
-              ReturnLockUpdater.getLockState(refNum)
-            }
-          } ~
-          (post & path("lock") & pathEnd) {
-            mutateOrFailures {
-              ReturnLockUpdater.lock(refNum, auth.model)
-            }
-          } ~
-          (post & path("unlock") & pathEnd) {
-            mutateOrFailures {
-              ReturnLockUpdater.unlock(refNum)
-            }
           } ~
           pathPrefix("line-items" / "skus") {
             (post & pathEnd & entity(as[ReturnSkuLineItemsPayload])) { payload ⇒

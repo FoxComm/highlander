@@ -44,9 +44,7 @@ class ProductInvariantIT
     with FlatTaxons_Baked {
       val taxonId = taxons.head.formId
 
-      taxonApi(taxonId).assignProduct(product.id).mustBeOk()
-
-      // productsApi(product.id).get().as[Root].taxons.taxons.map(_.id) must contain(taxonId)
+      taxonsApi(taxonId).assignProduct(product.id).mustBeOk()
     }
   }
 
@@ -80,8 +78,8 @@ class ProductInvariantIT
 
         val reusedVariant = productsApi.create(createPayload2).as[Root].variants.onlyElement
         reusedVariant.attributes.code must === (variantCode)
-        (reusedVariant.attributes \ "salePrice" \ "v" \ "value").extract[Int] must === (newPrice)
-        (reusedVariant.attributes \ "retailPrice" \ "v" \ "value").extract[Int] must === (newPrice)
+        reusedVariant.attributes.salePrice must === (newPrice)
+        reusedVariant.attributes.retailPrice must === (newPrice)
         reusedVariant.albums must have size 1
       }
 
@@ -127,16 +125,16 @@ class ProductInvariantIT
         productsApi.create(createPayload).mustFailWithMessage("SKU code not found in payload")
       }
 
-      "trying to create a product and variant with empty code" in new Schemas_Seed {
+      "trying to create a product and variant with empty code" in {
         val createPayload =
           PayloadBuilder().createPayload.copy(variants = Seq(buildVariantPayload(code = "")))
 
         val errorMessage =
-          """Object product-variant with id=3 doesn't pass validation: $.code: must be at least 1 characters long"""
+          """Object product-variant with id=2 doesn't pass validation: $.code: must be at least 1 characters long"""
         productsApi.create(createPayload).mustFailWithMessage(errorMessage)
       }
 
-      "trying to create a product with string price" in new Schemas_Seed {
+      "trying to create a product with string price" in {
         val failPriceAttr: Json = tv(("currency" → "USD") ~ ("value" → "666"), "price")
 
         // Stuff wrong price attr instead of a good one

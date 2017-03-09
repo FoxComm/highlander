@@ -3,7 +3,7 @@
 // libs
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
-import React, { Component, Element } from 'react';
+import React, { Component } from 'react';
 
 // components
 import { FormField } from '../forms';
@@ -45,7 +45,7 @@ class EditAlbum extends Component {
     this._input ? this._input.focus() : _.noop();
   }
 
-  get closeAction(): Element {
+  get closeAction() {
     return <a onClick={this.props.onCancel}>&times;</a>;
   }
 
@@ -72,7 +72,7 @@ class EditAlbum extends Component {
     }
   };
 
-  render(): Element {
+  render() {
     const title = this.props.isNew ? 'Add New Album' : 'Edit Album';
 
     return (

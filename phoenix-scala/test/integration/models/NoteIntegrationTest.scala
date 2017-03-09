@@ -4,19 +4,19 @@ import models.account.Scope
 import testutils.CustomMatchers._
 import testutils._
 import testutils.fixtures.BakedFixtures
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 
 class NoteIntegrationTest extends IntegrationTestBase with BakedFixtures with TestObjectContext {
 
   "Note" - {
     "Postgres constraints" - {
       "body is limited to 1000 characters" in new Fixture {
-        val failure = Notes.create(note.copy(body = "z" * 1001)).run().futureValue.leftVal
+        val failure = Notes.create(note.copy(body = "z" * 1001)).gimmeFailures
         failure.getMessage must include("bodySize got 1001, expected 1000 or less")
       }
 
       "must have a body" in new Fixture {
-        val failure = Notes.create(note.copy(body = "")).run().futureValue.leftVal
+        val failure = Notes.create(note.copy(body = "")).gimmeFailures
         failure.getMessage must include("body must not be empty")
       }
     }

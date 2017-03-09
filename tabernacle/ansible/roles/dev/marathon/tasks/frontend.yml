@@ -1,0 +1,9 @@
+---
+
+- name: Start Ashes
+  include: app_ashes.yml
+  when: marathon_restart.ashes
+
+- name: Start Firebrand
+  include: app_peacock.yml
+  when: marathon_restart.peacock

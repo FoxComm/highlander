@@ -1,0 +1,29 @@
+---
+
+- name: Take a nap for a while
+  pause: seconds=30
+  when: is_ci
+
+- name: Start Isaac
+  include: app_isaac.yml
+  when: marathon_restart.isaac
+
+- name: Start Phoenix
+  include: app_phoenix.yml
+  when: marathon_restart.phoenix
+
+- name: Start Solomon
+  include: app_solomon.yml
+  when: marathon_restart.solomon
+
+- name: Start Middlewarehouse
+  include: app_middlewarehouse.yml
+  when: marathon_restart.middlewarehouse
+
+- name: Start Hyperion
+  include: app_hyperion.yml
+  when: marathon_restart.hyperion
+
+- name: Start Marketplace
+  include: app_marketplace.yml
+  when: with_marketplace and marathon_restart.marketplace

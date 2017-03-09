@@ -1,19 +1,21 @@
 import cats.implicits._
+import failures.NotFoundFailure404
+import failures.ProductFailures.DuplicatedOptionValueForVariant
 import models.objects.{ProductOptionLinks, ProductVariantLinks}
-import models.product.Products
+import models.product.{Product, Products}
 import payloads.ProductPayloads._
 import responses.ProductOptionResponses.ProductOptionResponse
 import responses.ProductResponses.ProductResponse.Root
 import testutils._
-import testutils.apis.PhoenixAdminApi
+import testutils.apis.{PhoenixAdminApi, PhoenixStorefrontApi}
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api._
 import testutils.fixtures.api.products._
-import utils.db.DbResultT
 
 class ProductIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
+    with PhoenixStorefrontApi
     with AutomaticAuth
     with BakedFixtures
     with ApiFixtures
@@ -22,16 +24,9 @@ class ProductIntegrationTest
 
   "GET v1/products/:context" - {
     "returns assigned taxonomies" in new ProductAndSkus_Baked with FlatTaxons_Baked {
-      taxonApi(taxons.head.formId).assignProduct(simpleProduct.formId).mustBeOk()
+      taxonsApi(taxons.head.formId).assignProduct(simpleProduct.formId).mustBeOk()
       val product = productsApi(simpleProduct.formId).get().as[Root]
       product.taxons.flatMap(_.taxons.map(_.id)) must contain(taxons.head.formId)
-    }
-
-    "queries product by slug" in new Product_ColorSizeOptions_ApiFixture {
-      val slug          = "simple-product"
-      val simpleProduct = Products.mustFindById404(product.id).gimme
-
-      val updated = simpleProduct.copy(slug = slug)
     }
   }
 
@@ -39,6 +34,48 @@ class ProductIntegrationTest
 
   "GET v1/products/:context" - {
     // TODO: returns variants and options?
+  }
+
+  "GET v1/my/products/:ref/baked" - {
+    "404 for archived products" in new ProductVariant_ApiFixture {
+      productsApi(product.id).archive().mustBeOk()
+
+      storefrontProductsApi(product.slug)
+        .get()
+        .mustFailWith404(NotFoundFailure404(Product, product.slug))
+    }
+
+    "404 for inactive products" in {
+      val inactive: CreateProductPayload = {
+        val active = InvariantProductPayloadBuilder().createPayload
+        active.copy(attributes = active.attributes - "activeFrom")
+      }
+      val slug = productsApi.create(inactive).as[Root].slug
+
+      storefrontProductsApi(slug).get().mustFailWith404(NotFoundFailure404(Product, slug))
+    }
+
+    "404 if all variants are archived" in new ProductVariant_ApiFixture {
+      productVariantsApi(productVariant.id).archive().mustBeOk()
+
+      storefrontProductsApi(product.slug)
+        .get()
+        .mustFailWith404(NotFoundFailure404(Product, product.slug))
+    }
+
+    "404 if all variants are inactive" in {
+      val newProduct: CreateProductPayload = {
+        val payloadBuilder = InvariantProductPayloadBuilder()
+        val activeVariant  = payloadBuilder.variantPayload
+        val inactiveVariant =
+          activeVariant.copy(attributes = activeVariant.attributes - "activeFrom")
+        payloadBuilder.createPayload.copy(variants = Seq(inactiveVariant))
+      }
+
+      val slug = productsApi.create(newProduct).as[Root].slug
+
+      storefrontProductsApi(slug).get().mustFailWith404(NotFoundFailure404(Product, slug))
+    }
   }
 
   "POST v1/products/:context" - {
@@ -109,6 +146,20 @@ class ProductIntegrationTest
           OneOptionProductPayloadBuilder(singleOptionCfg, NoneVariantsCfg).createProductPayload
         productsApi.create(createPayload).mustFailWithMessage("Product variants must not be empty")
       }
+
+      "variant values in payload are duplicated" in {
+        val payloadBuilder = OneOptionProductPayloadBuilder(
+            ProductOptionCfg("foo", Seq("bar", "baz", "quux", "baz", "bar")))
+
+        val expectedFailures = payloadBuilder.variantCodes
+          .filterNot(_.contains("quux"))
+          .distinct
+          .map(DuplicatedOptionValueForVariant(_))
+
+        productsApi
+          .create(payloadBuilder.createProductPayload)
+          .mustFailWith400(expectedFailures: _*)
+      }
     }
   }
 
@@ -157,8 +208,8 @@ class ProductIntegrationTest
     "Replaces variants on a product if options are Some(Seq.empty)" in new Product_ColorSizeOptions_ApiFixture {
       import slick.driver.PostgresDriver.api._
       val productModel = Products.filter(_.formId === product.id).result.head.gimme
-      ProductOptionLinks.filterLeft(productModel).deleteAll(DbResultT.none, DbResultT.none).gimme
-      ProductVariantLinks.filterLeft(productModel).deleteAll(DbResultT.none, DbResultT.none).gimme
+      ProductOptionLinks.filterLeft(productModel).delete.gimme
+      ProductVariantLinks.filterLeft(productModel).delete.gimme
 
       val newVariant = buildVariantPayload(code = "XXX")
       val updatePayload = UpdateProductPayload(attributes = Map.empty,

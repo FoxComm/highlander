@@ -1,0 +1,39 @@
+{
+  "id": "/product-search",
+  "cmd": null,
+  "cpus": 1,
+  "mem": 128,
+  "disk": 0,
+  "instances": 1,
+  "labels": {
+    "LAYER": "backend",
+    "LANG": "go",
+    "TAG": "{{docker_tags.product_search}}"
+  },
+  "env": {
+    "PHOENIX_URL": "https://{{storefront_server_name}}",
+    "ELASTIC_URL": "https://{{storefront_server_name}}"
+  },
+  "container": {
+    "type": "DOCKER",
+    "docker": {
+      "image": "{{docker_registry}}:5000/product-search:{{docker_tags.product_search}}",
+      "network": "HOST",
+      "privileged": false,
+      "parameters": [],
+      "forcePullImage": true
+    }
+  },
+  "healthChecks": [
+    {
+      "protocol": "COMMAND",
+      "command": {
+        "value": "ps -ef | grep -v grep | grep product-search"
+      },
+      "gracePeriodSeconds": 300,
+      "intervalSeconds": 20,
+      "timeoutSeconds": 20,
+      "maxConsecutiveFailures": 3
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+---
+
+- name: Copy Mapping Command
+  template: src=create_es_mappings.sh dest=/usr/local/bin/create_es_mappings.sh mode="u+x,g+x,o+x"
+
+- name: Create ES Mappings
+  shell: /usr/local/bin/create_es_mappings.sh
+
+- name: Restart Green River in Marathon
+  shell: 'curl -sS -XPOST http://{{marathon_server}}/v2/apps/greenriver/restart'
+
+- name: Get Green River Marathon tasks in `healthy` state
+  shell: curl -sS -XGET http://{{marathon_server}}/v2/apps/greenriver | jq '.app.tasksHealthy > 0'
+  register: healthy_tasks_available
+  until: healthy_tasks_available.stdout == 'true'
+  retries: "{{marathon_retries}}"
+  delay: "{{marathon_delay}}"

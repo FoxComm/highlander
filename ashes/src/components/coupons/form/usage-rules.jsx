@@ -69,7 +69,7 @@ export default class UsageRules extends Component {
     return !_.eq(this.props, nextProps);
   }
 
-  render(): Element {
+  render() {
     return (
       <ContentBox title="Usage Rules">
         <div styleName="form-group">

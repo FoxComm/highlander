@@ -116,7 +116,7 @@ export default class PromotionForm extends ObjectDetails {
     this.props.onUpdateObject(newPromotion);
   }
 
-  renderState(): ?Element {
+  renderState(): ?Element<*> {
     const applyType = this.props.object.applyType;
     return super.renderState();
   }
@@ -150,7 +150,6 @@ export default class PromotionForm extends ObjectDetails {
       </div>  
     );
   }
-
 
   renderCustomers() {
     return (

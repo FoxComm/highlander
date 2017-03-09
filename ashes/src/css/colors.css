@@ -75,6 +75,8 @@
   --tooltip-bg: --decor3;
   --subtitle: #abb2b6;
 
+  --hover-link-color: var(--decor39);
+
   // Default colors
   --default-fg: --decor1;
   --default-bg: --decor0;

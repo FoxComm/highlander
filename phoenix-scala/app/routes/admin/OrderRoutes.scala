@@ -3,7 +3,7 @@ package routes.admin
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import cats.implicits._
-import de.heikoseeberger.akkahttpjson4s.Json4sSupport._
+import utils.http.JsonSupport._
 import models.account.User
 import models.cord.Cord.cordRefNumRegex
 import models.payment.giftcard.GiftCard
@@ -82,18 +82,6 @@ object OrderRoutes {
           (post & path("increase-remorse-period") & pathEnd) {
             mutateOrFailures {
               OrderUpdater.increaseRemorsePeriod(refNum, auth.model)
-            }
-          } ~
-          // deprecated in favor of /carts route
-          (post & path("lock") & pathEnd) {
-            mutateOrFailures {
-              CartLockUpdater.lock(refNum, auth.model)
-            }
-          } ~
-          // deprecated in favor of /carts route
-          (post & path("unlock") & pathEnd) {
-            mutateOrFailures {
-              CartLockUpdater.unlock(refNum)
             }
           } ~
           // deprecated in favor of /carts route

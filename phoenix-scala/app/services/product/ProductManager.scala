@@ -1,42 +1,44 @@
 package services.product
 
 import java.time.Instant
-import cats.data._
+
+import cats.data.{ValidatedNel, _}
 import cats.implicits._
-import failures._
+import com.typesafe.scalalogging.LazyLogging
 import failures.ArchiveFailures._
 import failures.ProductFailures._
+import failures._
+import models.account._
 import models.inventory._
 import models.objects._
 import models.product._
-import models.account._
+import org.json4s.JsonDSL._
+import org.json4s._
 import payloads.ImagePayloads.AlbumPayload
+import payloads.ProductOptionPayloads._
 import payloads.ProductPayloads._
 import payloads.ProductVariantPayloads._
-import payloads.ProductOptionPayloads._
 import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
 import responses.AlbumResponses._
 import responses.ObjectResponses.ObjectContextResponse
+import responses.ProductOptionResponses.ProductOptionResponse
 import responses.ProductResponses._
 import responses.ProductVariantResponses._
-import responses.ProductOptionResponses.ProductOptionResponse
+import services.LogActivity
 import services.image.ImageManager
+import services.image.ImageManager.FullAlbumWithImages
 import services.inventory.ProductVariantManager
 import services.objects.ObjectManager
+import services.taxonomy.TaxonomyManager
 import services.variant.ProductOptionManager
 import services.variant.ProductOptionManager._
 import slick.driver.PostgresDriver.api._
 import utils.Validation._
 import utils.aliases._
+import utils.apis.Apis
 import utils.db._
-import org.json4s._
-import org.json4s.JsonDSL._
-import services.LogActivity
-import services.taxonomy.TaxonomyManager
-import services.image.ImageManager.FullAlbumWithImages
-import utils.apis.{Apis, CreateSku}
 
-object ProductManager {
+object ProductManager extends LazyLogging {
 
   def createProduct(admin: User, payload: CreateProductPayload)(
       implicit ec: EC,
@@ -48,11 +50,12 @@ object ProductManager {
 
     val form                  = ObjectForm.fromPayload(Product.kind, payload.attributes)
     val shadow                = ObjectShadow.fromPayload(payload.attributes)
-    val productOptionPayloads = payload.options.getOrElse(Seq.empty)
+    val productOptionPayloads = payload.options.getOrElse(Seq.empty).distinct
     val hasOptions            = productOptionPayloads.nonEmpty
     val albumPayloads         = payload.albums.getOrElse(Seq.empty)
 
     for {
+      _     ← * <~ payload.validate
       scope ← * <~ Scope.resolveOverride(payload.scope)
       _     ← * <~ validateCreate(payload)
       ins   ← * <~ ObjectUtils.insert(form, shadow, payload.schema)
@@ -82,14 +85,34 @@ object ProductManager {
 
   }
 
-  def getProduct(productId: ProductReference)(implicit ec: EC,
-                                              db: DB,
-                                              oc: OC): DbResultT[ProductResponse.Root] =
+  def getProduct(productId: ProductReference, checkActive: Boolean = false)(
+      implicit ec: EC,
+      db: DB,
+      oc: OC): DbResultT[ProductResponse.Root] =
     for {
       oldProduct ← * <~ Products.mustFindFullByReference(productId)
-      albums     ← * <~ ImageManager.getAlbumsForProduct(oldProduct.model.reference)
+      illuminated = IlluminatedProduct
+        .illuminate(oc, oldProduct.model, oldProduct.form, oldProduct.shadow)
+      _ ← * <~ doOrMeh(checkActive, {
+           illuminated.mustBeActive match {
+             case Xor.Left(err) ⇒ {
+               logger.warn(err.toString)
+               DbResultT.failure(NotFoundFailure404(Product, oldProduct.model.slug))
+             }
+             case Xor.Right(_) ⇒ DbResultT.unit
+           }
+         })
+      albums ← * <~ ImageManager.getAlbumsForProduct(oldProduct.model.reference)
 
-      fullVariants    ← * <~ ProductVariantLinks.queryRightByLeft(oldProduct.model)
+      fullVariants ← * <~ ProductVariantLinks.queryRightByLeft(oldProduct.model)
+      _ ← * <~ failIf(
+             checkActive && fullVariants
+               .filter(variant ⇒ IlluminatedVariant.illuminate(oc, variant).mustBeActive.isRight)
+               .isEmpty, {
+               logger.warn(
+                   s"Product variants for product with id=${oldProduct.model.slug} is archived or inactive")
+               NotFoundFailure404(Product, oldProduct.model.slug)
+             })
       productVariants ← * <~ fullVariants.map(ProductVariantManager.illuminateVariant)
 
       productOptions ← * <~ ProductOptionLinks.queryRightByLeft(oldProduct.model)
@@ -102,12 +125,11 @@ object ProductManager {
 
       taxons ← * <~ TaxonomyManager.getAssignedTaxons(oldProduct.model)
     } yield
-      ProductResponse.build(
-          IlluminatedProduct.illuminate(oc, oldProduct.model, oldProduct.form, oldProduct.shadow),
-          albums,
-          if (hasOptions) productOptionVariants else productVariants,
-          productOptionResponses,
-          taxons)
+      ProductResponse.build(illuminated,
+                            albums,
+                            if (hasOptions) productOptionVariants else productVariants,
+                            productOptionResponses,
+                            taxons)
 
   def updateProduct(productId: ProductReference, payload: UpdateProductPayload)(
       implicit ec: EC,
@@ -228,15 +250,14 @@ object ProductManager {
       )
   }
 
-  private def getProductOptionsWithRelatedVariants(productOptions: Seq[FullProductOption])(
-      implicit ec: EC,
-      db: DB,
-      oc: OC): DbResultT[(Seq[ProductVariantResponse.Root], Seq[ProductOptionResponse.Root])] = {
+  private def getProductOptionsWithRelatedVariants(
+      productOptions: Seq[FullProductOption])(implicit ec: EC, db: DB, oc: OC)
+    : DbResultT[(Seq[ProductVariantResponse.Partial], Seq[ProductOptionResponse.Root])] = {
     val optionIds = productOptions.flatMap { case (_, optionValue) ⇒ optionValue }.map(_.model.id)
     for {
       optionValueToVariantIdMap ← * <~ ProductOptionManager.mapOptionValuesToVariantIds(optionIds)
       variantIds = optionValueToVariantIdMap.values.toSet.flatten
-      productVariants ← * <~ variantIds.map(ProductVariantManager.getByFormId)
+      productVariants ← * <~ variantIds.toList.map(ProductVariantManager.getPartialByFormId)
       illuminated = productOptions.map {
         case (fullOption, values) ⇒
           val variant = IlluminatedProductOption.illuminate(oc, fullOption)
@@ -273,7 +294,7 @@ object ProductManager {
   }
 
   private def validateVariantsMatchesProductOptions(
-      variants: Seq[ProductVariantResponse.Root],
+      variants: Seq[ProductVariantResponse.Partial],
       options: Seq[(FullObject[ProductOption], Seq[FullObject[ProductOptionValue]])])
     : ValidatedNel[Failure, Unit] = {
     val maxOptions = options.map { case (_, values) ⇒ values.length.max(1) }.product
@@ -369,11 +390,11 @@ object ProductManager {
         skuMapping ← * <~ ProductVariantSkus.mustFindByVariantFormId(up.form.id)
         options    ← * <~ ProductVariantManager.optionValuesForVariant(up.model)
       } yield
-        ProductVariantResponse.buildLite(IlluminatedVariant.illuminate(oc, up),
-                                         albums,
-                                         skuMapping.skuId,
-                                         skuMapping.skuCode,
-                                         options)
+        ProductVariantResponse.buildPartial(IlluminatedVariant.illuminate(oc, up),
+                                            albums,
+                                            skuMapping.skuId,
+                                            skuMapping.skuCode,
+                                            options)
     }
 
   private def findOrCreateOptionsForProduct(product: Product, payload: Seq[ProductOptionPayload])(

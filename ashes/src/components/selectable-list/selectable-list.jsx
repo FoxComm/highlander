@@ -23,10 +23,10 @@ type Props = {
   onSelect?: (itemIds: Array<number>, event: SyntheticEvent) => any,
   onBlur?: Function,
   selectedItemIds: Array<number>,
-  renderItem: (item: ItemType) => Element,
+  renderItem: (item: ItemType) => Element<*>,
   actionTitle: string,
   popup: boolean,
-  emptyMessage?: Element|string,
+  emptyMessage?: Element<*>|string,
 };
 
 type State = {
@@ -78,7 +78,7 @@ export default class SelectableList extends Component {
     });
   }
 
-  get items(): Array<Element> {
+  get items(): Array<Element<*>> {
     const { props } = this;
 
     return _.map(props.items, item => {
@@ -132,7 +132,7 @@ export default class SelectableList extends Component {
     }
   }
 
-  get defaultFooter(): Element {
+  get defaultFooter(): Element<*> {
     return (
       <PrimaryButton
         styleName="choose-button"

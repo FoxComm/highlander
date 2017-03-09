@@ -4,6 +4,7 @@ import React, { Component, Element } from 'react';
 import FoxRouter from 'lib/fox-router';
 import { frn } from 'lib/frn';
 
+import Analytics from 'components/analytics/analytics';
 import ActivityTrailPage from 'components/activity-trail/activity-trail-page';
 import Notes from 'components/notes/notes';
 
@@ -63,11 +64,22 @@ const getRoutes = (jwt: Object) => {
           component: ActivityTrailPage,
           frn: frn.activity.product,
         }),
+        router.read('product-analytics', {
+          title: 'Analytics',
+          path: 'analytics',
+          component: Analytics,
+          frn: frn.activity.product,
+        }),
       ]),
     ]);
 
   const productVariantRoutes =
-    router.read('product-variants-base', { title: 'Product Variants', path: 'variants', frn: frn.pim.sku }, [
+    router.read('product-variants-base', {
+      title: 'Product Variants',
+      path: 'variants',
+      frn: frn.pim.sku,
+      hidden: true
+    }, [
       router.read('product-variant', { path: ':productVariantId', component: ProductVariantPage }, [
         router.read('product-variant-details', { component: ProductVariantDetails, isIndex: true }),
         router.read('product-variant-images', {

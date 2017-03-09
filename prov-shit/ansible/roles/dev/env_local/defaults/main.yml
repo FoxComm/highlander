@@ -1,3 +1,0 @@
-google_ssh_user: ubuntu
-google_ssh_key: "{{home}}/.ssh/id_rsa"
-google_json_key_location: "{{home}}/foxcomm-staging.json"

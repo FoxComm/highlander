@@ -14,6 +14,7 @@ import Breadcrumb from './breadcrumb';
 import UserMenu from './usermenu';
 import * as userActions from 'modules/user';
 import { toggleUserMenu } from 'modules/usermenu';
+import Icon from '../icon/icon';
 
 import type { TUser } from 'modules/user';
 
@@ -47,36 +48,40 @@ export default class Header extends React.Component {
     this.props.toggleUserMenu();
   }
 
-  get initials(): ?Element {
+  get initials(): ?Element<*> {
     const { user } = this.props;
     if (user) {
       return <DetailedInitials {...user} />;
     }
   }
 
-  render(): Element {
+  render() {
     const props = this.props;
     const user: ?TUser = props.user;
 
     const name = (user == null || _.isEmpty(user) || user.name == null) ? '' : user.name.split(' ')[0];
     return (
-      <header role='banner' styleName="header">
-        <Breadcrumb routes={props.routes} params={props.params}/>
-        <div styleName="sub-nav">
-          <div styleName="notifications">
-            <NotificationBlock />
-          </div>
-          <div styleName="user" onClick={this.handleUserClick}>
-            <div styleName="initials">{this.initials}</div>
-            <div styleName="name">{name}</div>
-            <div id="user-menu-btn" styleName="arrow">
-              {props.isMenuVisible ? <i className="icon-chevron-up"/> : <i className="icon-chevron-down"/>}
+      <header role='banner' styleName="header" name="">
+        <div styleName="logo">
+          <Icon name="logo" className={styles["logo-icon"]}/>
+        </div>
+        <div styleName="top-nav-menu">
+          <Breadcrumb routes={props.routes} params={props.params}/>
+          <div styleName="sub-nav">
+            <div styleName="notifications">
+              <NotificationBlock />
             </div>
-            {props.isMenuVisible && <UserMenu user={props.user}/>}
+            <div styleName="user" onClick={this.handleUserClick}>
+              <div styleName="initials">{this.initials}</div>
+              <div styleName="name">{name}</div>
+              <div id="fct-user-menu-btn" styleName="arrow">
+                {props.isMenuVisible ? <i className="icon-chevron-up"/> : <i className="icon-chevron-down"/>}
+              </div>
+              {props.isMenuVisible && <UserMenu user={props.user}/>}
+            </div>
           </div>
         </div>
       </header>
     );
   };
 }
-

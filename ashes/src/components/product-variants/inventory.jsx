@@ -13,7 +13,7 @@ type Props = {
 const InventoryPage = (props: Props) => {
   return (
     <InventoryAndTransactions
-      skuId={props.object.middlewarehouseSkuId}
+      skuId={props.object.skuId}
       // @TODO: get rid of passing code here
       skuCode={props.object.attributes.code.v}
       showSkuLink

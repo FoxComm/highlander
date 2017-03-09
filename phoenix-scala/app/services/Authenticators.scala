@@ -1,8 +1,7 @@
 package services
 
-import scala.concurrent.Future
 import akka.http.scaladsl.model.headers.{HttpChallenge, HttpCookie, RawHeader}
-import akka.http.scaladsl.model.{ContentTypes, DateTime, HttpEntity, HttpResponse, StatusCodes, Uri}
+import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.AuthenticationFailedRejection.{CredentialsMissing, CredentialsRejected}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
@@ -11,18 +10,20 @@ import akka.http.scaladsl.server.directives.RespondWithDirectives.respondWithHea
 import akka.http.scaladsl.server.directives.SecurityDirectives.AuthenticationResult
 import akka.http.scaladsl.server.directives.{AuthenticationDirective, AuthenticationResult}
 
-import cats.data.Xor
+import cats._
+import cats.data._
+import cats.implicits._
 import failures.AuthFailures._
 import failures._
 import models.account._
 import models.admin._
 import models.auth._
-import org.jose4j.jwt.JwtClaims
 import payloads.{AuthPayload, LoginPayload}
+import scala.concurrent.Future
 import services.account._
 import services.customers.CustomerManager
 import slick.driver.PostgresDriver.api._
-import utils.FoxConfig.{RichConfig, config}
+import utils.FoxConfig.config
 import utils.aliases._
 import utils.db._
 
@@ -55,13 +56,13 @@ object JwtCookie {
   def apply(authPayload: AuthPayload): HttpCookie = HttpCookie(
       name = "JWT",
       value = authPayload.jwt,
-      secure = config.getOptBool("auth.cookieSecure").getOrElse(true),
+      secure = config.auth.cookie.secure,
       httpOnly = true,
-      expires = config.getOptLong("auth.cookieTTL").map { ttl ⇒
+      expires = config.auth.cookie.ttl.map { ttl ⇒
         DateTime.now + ttl * 1000
       },
       path = Some("/"),
-      domain = config.getOptString("auth.cookieDomain")
+      domain = config.auth.cookie.domain
   )
 }
 
@@ -108,7 +109,8 @@ object Authenticator {
                    .findByIdAndRatchet(token.id, token.ratchet)
                    .mustFindOr(AuthFailed("account not found"))
         user ← * <~ Users.mustFindByAccountId(token.id)
-      } yield AuthData[User](token, user, account)).run().map {
+      } yield
+        AuthData[User](token, user, account)).runDBIO.runEmptyA.value.map { // TODO: rethink discarding warnings here @michalrus
         case Xor.Right(data) ⇒ AuthenticationResult.success(data)
         case Xor.Left(f)     ⇒ AuthenticationResult.failWithChallenge(FailureChallenge(realm, f))
       }
@@ -121,10 +123,11 @@ object Authenticator {
         account ← * <~ Accounts.mustFindById404(user.accountId)
         claims  ← * <~ AccountManager.getClaims(user.accountId, guestCreateContext.scopeId)
       } yield
-        AuthData[User](UserToken.fromUserAccount(user, account, claims),
-                       user,
-                       account,
-                       isGuest = true)).run().map {
+        AuthData[User](
+            UserToken.fromUserAccount(user, account, claims),
+            user,
+            account,
+            isGuest = true)).runDBIO.runEmptyA.value.map { // TODO: rethink discarding warnings here @michalrus
         case Xor.Right(data) ⇒ AuthenticationResult.success(data)
         case Xor.Left(f)     ⇒ AuthenticationResult.failWithChallenge(FailureChallenge(realm, f))
       }
@@ -230,8 +233,7 @@ object Authenticator {
   }
 
   def authenticate(payload: LoginPayload)(implicit ec: EC, db: DB): Result[Route] = {
-
-    val tokenResult = (for {
+    val tokenResult = for {
       organization ← * <~ Organizations.findByName(payload.org).mustFindOr(LoginFailed)
       user         ← * <~ Users.findByEmail(payload.email.toLowerCase).mustFindOneOr(LoginFailed)
       _            ← * <~ user.mustNotBeMigrated
@@ -251,11 +253,12 @@ object Authenticator {
       claimSet     ← * <~ AccountManager.getClaims(account.id, organization.scopeId)
       _            ← * <~ validateClaimSet(claimSet)
       checkedToken ← * <~ UserToken.fromUserAccount(user, account, claimSet)
-    } yield checkedToken).run()
+    } yield checkedToken
 
-    tokenResult.map(_.flatMap { token ⇒
-      authTokenLoginResponse(token)
-    })
+    for {
+      token ← tokenResult.runDBIO
+      route ← Result.fromXor(authTokenLoginResponse(token))
+    } yield route
   }
 
   //A user must have at least some role in an organization to login under that

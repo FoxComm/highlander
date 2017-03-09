@@ -1,24 +1,38 @@
-
+// @flow
 // libs
 import _ from 'lodash';
 import { filter, map, join, flow } from 'lodash/fp';
-import React, {PropTypes} from 'react';
-import { inflect } from 'fleck';
-import { assoc } from 'sprout-data';
+import React, { PropTypes, Component } from 'react';
 import { autobind } from 'core-decorators';
+import { connect } from 'react-redux';
 
 // components
-import { Link, IndexLink } from '../link/index';
+import { Link } from '../link/index';
+
+// types
+import type { LinkData } from 'modules/breadcrumbs';
 
 const onServer = process.env.ON_SERVER;
 const rootPath = onServer ? '/admin' : '/';
 
-export default class Breadcrumb extends React.Component {
+type Props = {
+  // connected
+  routesData: {
+    [routeName: string]: Object,
+  },
+  extraLinks: {
+    [routeName: string]: Array<LinkData>,
+  },
+  routes: Array<Object>,
+  params: ?Object,
+}
 
-  static propTypes = {
-    routes: PropTypes.array,
-    params: PropTypes.object,
-  };
+function mapStateToProps(state) {
+  return state.breadcrumbs;
+}
+
+class Breadcrumb extends Component {
+  props: Props;
 
   @autobind
   readableName(route) {
@@ -36,65 +50,81 @@ export default class Breadcrumb extends React.Component {
     }
 
     if (titleParam) {
-      return _.get(this.props, ['params', titleParam.slice(1)], title);
-    } else {
-      return title;
+      const paramValue = _.get(this.props, ['params', titleParam.slice(1)]);
+      if (paramValue != null) {
+        return _.get(this.props.routesData, [route.name, paramValue], paramValue);
+      }
     }
+
+    return title;
   }
 
-  delimeter(idx) {
+  delimiter(idx) {
     return (
-      <li className="fc-breadcrumbs__delimeter" key={`${idx}-breadcrumbs-delimeter`}>
-        <i className="icon-chevron-right"></i>
+      <li className="fc-breadcrumbs__delimiter" key={`${idx}-breadcrumbs-delimiter`}>
+        <i className="icon-chevron-right" />
       </li>
     );
   }
 
   get crumbs() {
-    return _.compact(this.props.routes.map((route) => {
-      if (_.isEmpty(route.path)) {
-        return null;
+    return _.flatMap(this.props.routes, route => {
+      if (_.isEmpty(route.path) || route.hidden) {
+        return [];
       } else if (route.path === rootPath && _.isEmpty(route.name)) {
         return (
           <li className="fc-breadcrumbs__item" key="home-breadcrumbs-link">
             <Link to="home" params={this.props.params} className="fc-breadcrumbs__link">Home</Link>
           </li>
         );
-      } else if (_.isEmpty(route.indexRoute)) {
-        return (
-          <li className="fc-breadcrumbs__item" key={`${route.name}-breadcrumbs-link`}>
-            <Link to={route.name} params={this.props.params} className="fc-breadcrumbs__link">
-              {this.readableName(route)}
-            </Link>
-          </li>
-        );
       } else {
-        return (
-          <li className="fc-breadcrumbs__item" key={`${route.name}-breadcrumbs-link`}>
-            <IndexLink id="item-id" to={route.indexRoute.name} params={this.props.params} className="fc-breadcrumbs__link">
-              {this.readableName(route)}
-            </IndexLink>
+        const targetName = route.indexRoute ? route.indexRoute.name : route.name;
+        const link = (
+          <li className="fc-breadcrumbs__item" key={targetName}>
+            <Link
+              to={targetName}
+              params={this.props.params}
+              className="fc-breadcrumbs__link"
+              children={this.readableName(route)}
+            />
           </li>
         );
+
+        const extraLinks = _.get(this.props.extraLinks, route.name, []).map((linkData: LinkData) => {
+          return (
+            <li className="fc-breadcrumbs__item" key={linkData.to}>
+              <Link
+                to={linkData.to}
+                params={linkData.params}
+                className="fc-breadcrumbs__link"
+                children={linkData.title}
+              />
+            </li>
+          );
+        });
+
+        return [...extraLinks, link];
       }
-    }));
+    });
   }
 
   render() {
     const fromRoutes = this.crumbs;
 
-    const delimeters = _.range(1, fromRoutes.length).map((idx) => {
-      return this.delimeter(idx);
+    const delimiters = _.range(1, fromRoutes.length).map((idx) => {
+      return this.delimiter(idx);
     });
 
-    const withDelimeter = _.zip(fromRoutes, delimeters);
+    const withDelimiter = _.zip(fromRoutes, delimiters);
 
     return (
       <div className="fc-breadcrumbs">
         <ul>
-          {withDelimeter}
+          {withDelimiter}
         </ul>
       </div>
     );
   }
 }
+
+export default connect(mapStateToProps)(Breadcrumb);

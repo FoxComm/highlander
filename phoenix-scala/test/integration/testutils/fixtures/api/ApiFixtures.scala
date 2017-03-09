@@ -4,12 +4,13 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit.DAYS
 
 import faker.Lorem
+import models.promotion.Promotion
 import org.json4s.JsonDSL._
 import org.scalatest.SuiteMixin
 import payloads.CouponPayloads.CreateCoupon
 import responses.CouponResponses.CouponResponse
 import responses.ProductResponses.ProductResponse.{Root ⇒ ProductRoot}
-import responses.ProductVariantResponses.ProductVariantResponse.{Root ⇒ VariantRoot}
+import responses.ProductVariantResponses.ProductVariantResponse.{Partial ⇒ VariantPartial}
 import responses.PromotionResponses.PromotionResponse
 import testutils.PayloadHelpers._
 import testutils._
@@ -18,7 +19,8 @@ import testutils.fixtures.api.PromotionPayloadBuilder._
 import testutils.fixtures.api.products._
 import utils.aliases.Json
 
-trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi { self: FoxSuite ⇒
+trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with TestSeeds {
+  self: FoxSuite ⇒
 
   trait ProductVariant_ApiFixture {
     def productVariantPrice: Int = 20000
@@ -28,8 +30,8 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi { sel
 
     val product: ProductRoot = productsApi.create(payloadBuilder.createPayload).as[ProductRoot]
 
-    val productVariant: VariantRoot = product.variants.onlyElement
-    val productVariantCode: String  = productVariant.attributes.code
+    val productVariant: VariantPartial = product.variants.onlyElement
+    val productVariantCode: String     = productVariant.attributes.code
   }
 
   // Generates all possible variant codes and attaches them to all appropriate options
@@ -71,6 +73,7 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi { sel
     def percentOff: Int        = 10
 
     private lazy val promoPayload = PromotionPayloadBuilder.build(
+        Promotion.Coupon,
         PromoOfferBuilder.CartPercentOff(percentOff),
         PromoQualifierBuilder.CartTotalAmount(qualifiedSubtotal))
 
@@ -82,6 +85,7 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi { sel
     def percentOff: Int        = 10
 
     private lazy val promoPayload = PromotionPayloadBuilder.build(
+        Promotion.Coupon,
         PromoOfferBuilder.CartPercentOff(percentOff),
         PromoQualifierBuilder.CartNumUnits(qualifiedNumItems))
 

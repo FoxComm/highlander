@@ -1,0 +1,15 @@
+---
+
+- name: Remove Old Docker Logs Config
+  file: path=/etc/rsyslog.d/51-mesos.conf state=absent
+
+- name: Install New Docker Log Config
+  template: >
+    src=mesos.conf.j2
+    dest=/etc/rsyslog.d/51-mesos.conf
+    owner=root
+    group=root
+    mode=0644
+
+- name: Restart Rsyslog
+  service: name=rsyslog state=restarted enabled=yes
