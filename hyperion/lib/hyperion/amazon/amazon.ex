@@ -49,7 +49,7 @@ defmodule Hyperion.Amazon do
   # merge product with all skus, delete empty :description field
   # add variants to spoper skus
   # sets parent product
-  def process_products(response) do
+  defp process_products(response) do
     raw_products = response.body["attributes"]
                |> format_map
 
@@ -70,7 +70,7 @@ defmodule Hyperion.Amazon do
   # atomizes the keys
   # transform variants data to proper structure
   # assign variants options to associated sku
-  def process_variants(variants) do
+  defp process_variants(variants) do
     func = fn var ->
       {String.to_atom(var["attributes"]["name"]["v"]), atomize_keys(var["values"])}
     end
@@ -86,7 +86,7 @@ defmodule Hyperion.Amazon do
 
   # for each sku in list (not unique) gets the all available options as {key, name}
   # groups the list by sku and flatten it
-  def transform_variants({key, var}) do
+  defp transform_variants({key, var}) do
     for v <- var do
       name = v[:name]
       list = Keyword.new
@@ -130,7 +130,7 @@ defmodule Hyperion.Amazon do
     |> Enum.reject(fn({_k, v}) -> v == nil || v == "" end)
   end
 
-  def format_string(str) do
+  defp format_string(str) do
     str
     |> String.downcase
     |> String.replace(~r/\s+/, "")
