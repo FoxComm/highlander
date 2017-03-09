@@ -51,14 +51,14 @@ const Sidebar = (props: SidebarProps): HTMLElement => {
 
   const renderSessionLink = userAuthorized ? (
     <a styleName="session-link" onClick={handleLogout}>
-      {t('LOG OUT')}
+      {t('Log out')}
     </a>
   ) : (
     <Link
       styleName="session-link"
       to={{pathname: props.path, query: {auth: 'LOGIN'}}}
     >
-      {t('LOG IN')}
+      {t('Log in')}
     </Link>
   );
 
@@ -68,7 +68,7 @@ const Sidebar = (props: SidebarProps): HTMLElement => {
       styleName="session-link"
       activeClassName={styles['active-link']}
     >
-      PROFILE
+      Profile
     </Link>
   ) : null;
 
@@ -78,9 +78,9 @@ const Sidebar = (props: SidebarProps): HTMLElement => {
       <div styleName="container">
         <div styleName="controls">
           <div styleName="controls-close">
-            <a styleName="close-button" onClick={props.toggleSidebar}>
-              <Icon name="fc-close" className="close-icon"/>
-            </a>
+            <span styleName="close-button" onClick={props.toggleSidebar}>
+              Close
+            </span>
           </div>
           <div styleName="controls-search">
             <Search onSearch={props.toggleSidebar} isActive/>
@@ -91,11 +91,13 @@ const Sidebar = (props: SidebarProps): HTMLElement => {
                 path={props.path}
               />
             </div>
-            <div styleName="controls-session">
-              {myProfileLink}
-            </div>
-            <div styleName="controls-session">
-              {renderSessionLink}
+            <div styleName="controls-session-wrapper">
+              <div styleName="controls-session">
+                {myProfileLink}
+              </div>
+              <div styleName="controls-session">
+                {renderSessionLink}
+              </div>
             </div>
           </div>
         </div>

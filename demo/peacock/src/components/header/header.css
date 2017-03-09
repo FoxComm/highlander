@@ -41,12 +41,16 @@
   }
 
   .hamburger {
-    & :global(.icon) {
       cursor: pointer;
-      stroke: var(--icon);
-      width: 32px;
-      height: 32px;
-    }
+      margin-left: 10px;
+  }
+
+  .tools {
+    margin-right: 10px;
+  }
+
+  :global(.icon).logo {
+    width: 75px;
   }
 }
 

@@ -40,7 +40,7 @@ class Header extends React.Component {
         <div styleName="header">
           <div styleName="wrap">
             <div styleName="hamburger" onClick={this.props.toggleSidebar}>
-              <Icon name="fc-hamburger" styleName="head-icon"/>
+              Menu
             </div>
             <div styleName="nav-search-logo-wrapper">
               <Link to="/" styleName="logo-link">
