@@ -23,20 +23,10 @@ import s from './amazon.css';
 // types
 // import type { OriginIntegration } from 'paragons/origin-integration';
 
-// type Props = {
-//   details: {
-//     originIntegration: ?OriginIntegration,
-//   },
-//   isFetching: boolean,
-//   fetchError: ?Object,
-//   isCreating: boolean,
-//   createError: ?Object,
-//   isUpdating: boolean,
-//   isUpdating: ?Object,
-//   fetchOriginIntegration: Function,
-//   createOriginIntegration: Function,
-//   updateOriginIntegration: Function,
-// };
+type Props = {
+  isFetching: boolean,
+  credentials: ?Object,
+};
 
 type State = {
   seller_id: string,
@@ -52,23 +42,21 @@ function mapDispatchToProps(dispatch) {
 }
 
 function mapStateToProps(state) {
-  const aa = state.asyncActions;
+  const { fetchAmazonCredentials = {}, updateAmazonCredentials = {} } = state.asyncActions;
   const { credentials } = state.channels.amazon;
 
   return {
     credentials,
-    isFetching: aa.fetchAmazonCredentials && aa.fetchAmazonCredentials.inProgress || !credentials,
-    // isFetching: _.get(state.asyncActions, 'getOriginIntegration.inProgress', true),
-    // fetchError: _.get(state.asyncActions, 'getOriginIntegration.err', null),
-    // isCreating: _.get(state.asyncActions, 'createOriginIntegration.inProgress', false),
-    // createError: _.get(state.asyncActions, 'createOriginIntegration.err', null),
-    // isUpdating: _.get(state.asyncActions, 'updateOriginIntegration.inProgress', false),
-    // updateError: _.get(state.asyncActions, 'updateOriginIntegration.err', null),
+    notReady: fetchAmazonCredentials.inProgress || !credentials,
+    isFetching: fetchAmazonCredentials.inProgress,
+    isPushing: updateAmazonCredentials.inProgress,
+    fetchError: _.get(state.asyncActions, 'fetchAmazonCredentials.err', null),
+    updateError: _.get(state.asyncActions, 'updateAmazonCredentials.err', null),
   };
 };
 
 class AmazonCredentials extends Component {
-  // props: Props;
+  props: Props;
   state: State = {
     seller_id: '',
     mws_auth_token: '',
@@ -78,7 +66,7 @@ class AmazonCredentials extends Component {
     this.props.actions.fetchAmazonCredentials();
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps(nextProps: Props) {
     const nextCredentials = nextProps.credentials;
     const { credentials } = this.props;
 
@@ -90,40 +78,19 @@ class AmazonCredentials extends Component {
     }
   }
 
-  // get isDirty(): boolean {
-  //   const { originIntegration } = this.props.details;
-  //   const key = _.get(originIntegration, 'client_id', '');
-  //   const password = _.get(originIntegration, 'seller_id', '');
-  //   const domain = _.get(originIntegration, 'mws_auth_token', '');
-
-  //   return this.state.client_id !== key ||
-  //     this.state.seller_id !== password ||
-  //     this.state.mws_auth_token !== domain;
-  // }
-
-  @autobind
-  handleSubmit() {
-    const params = {
-      seller_id: this.state.seller_id,
-      mws_auth_token: this.state.mws_auth_token,
-    };
-
-    this.props.actions.updateAmazonCredentials(params);
-  }
-
   render() {
-    const { isFetching } = this.props;
+    const { notReady, isFetching, isPushing, fetchError, updateError } = this.props;
 
-    // @todo button stuff
-    // const { isCreating, isUpdating } = this.props;
-    // const isLoading = isCreating || isUpdating;
-    // const disabled = isLoading || !this.isDirty;
-
-    const disabled = false;
-    const isLoading = false;
-
-    if (isFetching) {
+    if (notReady) {
       return <div><WaitAnimation className={s.waiting} /></div>;
+    }
+
+    if (fetchError) {
+      return <div>fetchError</div>;
+    }
+
+    if (updateError) {
+      return <div>updateError</div>;
     }
 
     return (
@@ -156,9 +123,9 @@ class AmazonCredentials extends Component {
               </ul>
               <PrimaryButton
                 type="button"
-                disabled={disabled}
-                isLoading={isLoading}
-                onClick={this.handleSubmit}>
+                disabled={isPushing}
+                isLoading={isPushing}
+                onClick={() => this._handleSubmit()}>
                 Save
               </PrimaryButton>
             </ContentBox>
@@ -166,6 +133,15 @@ class AmazonCredentials extends Component {
         </div>
       </div>
     );
+  }
+
+  _handleSubmit() {
+    const params = {
+      seller_id: this.state.seller_id,
+      mws_auth_token: this.state.mws_auth_token,
+    };
+
+    this.props.actions.updateAmazonCredentials(params);
   }
 
   _handleSellerId({ target }) {

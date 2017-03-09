@@ -15,6 +15,23 @@ const initialState = {
   },
 };
 
+export function clearErrors() {
+  return (dispatch: Function) => {
+    dispatch(_fetchSuggest.clearErrors());
+    dispatch(_fetchAmazonCategory.clearErrors());
+    dispatch(_fetchAmazonSchema.clearErrors());
+    dispatch(_fetchAmazonCredentials.clearErrors());
+    dispatch(_updateAmazonCredentials.clearErrors());
+  };
+}
+
+export function clearSubmitErrors() {
+  return (dispatch: Function) => {
+    dispatch(_createSku.clearErrors());
+    dispatch(_updateSku.clearErrors());
+  };
+}
+
 const _fetchSuggest = createAsyncActions(
   'fetchSuggest',
   (product_id: string, text: string) => {
@@ -75,6 +92,7 @@ const reducer = createReducer({
   [_fetchAmazonCategory.succeeded]: (state, res) => ({ ...state, fields: res }),
   [_fetchAmazonSchema.succeeded]: (state, res) => ({ ...state, schema: res }),
   [_fetchAmazonCredentials.succeeded]: (state, res) => ({ ...state, credentials: res }),
+  [_updateAmazonCredentials.succeeded]: (state, res) => ({ ...state, credentials: res }),
 }, initialState);
 
 export default reducer;
