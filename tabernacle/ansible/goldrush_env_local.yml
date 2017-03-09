@@ -24,7 +24,7 @@
       private: no
     - name: "with_ic_input"
       prompt: "Should we provision instance with IC apps?"
-      default: "true"
+      default: "yes"
       private: no
 
   roles:
