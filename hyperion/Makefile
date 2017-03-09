@@ -69,7 +69,7 @@ push-hyperion:
 ####################################################################
 
 clean:
-    $(call header, Cleaning)
+	$(call header, Cleaning)
 	mix deps.clean --all
 	mix clean --all
 
