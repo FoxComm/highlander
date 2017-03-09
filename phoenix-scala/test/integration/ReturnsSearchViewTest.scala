@@ -1,10 +1,11 @@
 import cats.implicits._
+import models.payment.PaymentMethod
 import models.returns.Return
 import models.returns.Return.{Pending, Processing, ReturnType}
-import payloads.ReturnPayloads.{ReturnMessageToCustomerPayload, ReturnUpdateStatePayload}
+import payloads.ReturnPayloads.{ReturnMessageToCustomerPayload, ReturnPaymentPayload, ReturnUpdateStatePayload}
 import responses.ReturnResponse
-import testutils.fixtures.{BakedFixtures, ReturnsFixtures}
 import testutils._
+import testutils.fixtures.{BakedFixtures, ReturnsFixtures}
 
 case class ReturnsSearchViewResult(
     id: Int,
@@ -39,7 +40,13 @@ class ReturnsSearchViewTest
   val searchKeyName: String  = "id"
 
   "Returns search view row must be found when" - {
-    "a return was created" in new ReturnDefaults {
+    "a return was created" in new ReturnPaymentDefaults {
+      createReturnPayment(Map(PaymentMethod.CreditCard → 100), rma.referenceNumber)
+
+      returnsApi(rma.referenceNumber).paymentMethods
+        .add(PaymentMethod.CreditCard, ReturnPaymentPayload(amount = 20))
+        .as[ReturnResponse.Root]
+
       val rmaSearchView = viewOne(rma.id)
 
       {
@@ -52,6 +59,8 @@ class ReturnsSearchViewTest
         messageToAccount must === (rma.messageToCustomer)
         returnType must === (rma.rmaType)
         createdAt must === (rma.createdAt.toString)
+        totalRefund.nonEmpty must === (true)
+        totalRefund must === (Some(120))
 
         rma.customer.map(c ⇒ {
           rmaSearchView.customer.id must === (c.id)

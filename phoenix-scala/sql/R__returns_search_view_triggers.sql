@@ -20,7 +20,7 @@ create or replace function update_returns_search_view_from_returns_insert_fn() r
                new.order_ref as order_ref,
                to_json_timestamp(new.created_at) as created_at,
                new.state as state,
-               (select sum(rp.amount) from return_payments as rp where (new.id = rp.return_id and rp.amount > 0)) as total_refund,
+               new.total_refund as total_refund,
                new.message_to_account as message_to_account,
                new.return_type as return_type,
                -- customer
@@ -44,7 +44,8 @@ begin
   update returns_search_view set
     state = new.state,
     return_type = new.return_type,
-    message_to_account = new.message_to_account
+    message_to_account = new.message_to_account,
+    total_refund = new.total_refund
     -- TODO update more fields?
   where id = new.id;
   return null;

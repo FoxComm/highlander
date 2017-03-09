@@ -17,6 +17,7 @@ import services.carts.CartTotaler
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
+import cats.implicits._
 
 object ReturnPaymentUpdater {
   def addPayments(refNum: String, payload: ReturnPaymentsPayload)(
@@ -38,6 +39,7 @@ object ReturnPaymentUpdater {
         _        ← * <~ validateMaxAllowedPayments(rma, payments)
         payment  ← * <~ mustFindCcPaymentsByOrderRef(rma.orderRef)
         _        ← * <~ payments.map(addPayment(rma, payment, _)).toList
+        _        ← * <~ updateTotalsReturn(rma)
         updated  ← * <~ Returns.refresh(rma)
         response ← * <~ ReturnResponse.fromRma(updated)
       } yield response
@@ -52,9 +54,16 @@ object ReturnPaymentUpdater {
       _        ← * <~ validateMaxAllowedPayments(rma, Map(method → payload.amount))
       payment  ← * <~ mustFindCcPaymentsByOrderRef(rma.orderRef)
       _        ← * <~ processAddPayment(rma, payment, method, payload.amount)
+      _        ← * <~ updateTotalsReturn(rma)
       updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(updated)
     } yield response
+
+  private[this] def updateTotalsReturn(rma: Return)(implicit ec: EC, db: DB, au: AU) =
+    for {
+      totalRefund ← * <~ ReturnPayments.filter(_.returnId === rma.id).map(_.amount).sum.result
+      _           ← * <~ Returns.update(rma, rma.copy(totalRefund = rma.totalRefund |+| totalRefund))
+    } yield ()
 
   private def validateMaxAllowedPayments(rma: Return, payments: Map[PaymentMethod.Type, Int])(
       implicit ec: EC,

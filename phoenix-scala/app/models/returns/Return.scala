@@ -30,7 +30,8 @@ case class Return(id: Int = 0,
                   canceledReasonId: Option[Int] = None,
                   createdAt: Instant = Instant.now,
                   updatedAt: Instant = Instant.now,
-                  deletedAt: Option[Instant] = None)
+                  deletedAt: Option[Instant] = None,
+                  totalRefund: Option[Int] = None)
     extends FoxModel[Return]
     with FSM[Return.State, Return] {
 
@@ -104,6 +105,7 @@ class Returns(tag: Tag) extends FoxTable[Return](tag, "returns") {
   def createdAt        = column[Instant]("created_at")
   def updatedAt        = column[Instant]("updated_at")
   def deletedAt        = column[Option[Instant]]("deleted_at")
+  def totalRefund      = column[Option[Int]]("total_refund")
 
   def * =
     (id,
@@ -118,7 +120,8 @@ class Returns(tag: Tag) extends FoxTable[Return](tag, "returns") {
      canceledReasonId,
      createdAt,
      updatedAt,
-     deletedAt) <> ((Return.apply _).tupled, Return.unapply)
+     deletedAt,
+     totalRefund) <> ((Return.apply _).tupled, Return.unapply)
 
   // TODO why have both reference to order id and order ref ?
   def orderIdFKey =
