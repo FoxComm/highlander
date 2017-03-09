@@ -5,6 +5,7 @@ import java.time.Instant
 import failures.CustomerGroupFailures.CustomerGroupMemberCannotBeDeleted
 import failures.NotFoundFailure404
 import models.account.{Scope, User}
+import models.customer.CustomerGroup.Manual
 import models.customer._
 import org.json4s._
 import org.json4s.jackson.JsonMethods._
@@ -41,10 +42,13 @@ object GroupManager {
       group ← * <~ CustomerGroups.mustFindById404(groupId)
       _ ← * <~ failIf(group.deletedAt.isDefined && group.deletedAt.get.isBeforeNow,
                       NotFoundFailure404(CustomerGroup, groupId))
+      memberCount ← * <~ CustomerGroupMembers.findByGroupId(group.id).countDistinct.result
+      payloadWithCount = if (group.groupType == Manual) payload.copy(customersCount = memberCount)
+      else payload
       groupEdited ← * <~ CustomerGroups.update(
                        group,
                        CustomerGroup
-                         .fromPayloadAndAdmin(payload, group.createdBy, scope)
+                         .fromPayloadAndAdmin(payloadWithCount, group.createdBy, scope)
                          .copy(id = groupId, updatedAt = Instant.now))
       _ ← * <~ LogActivity.customerGroupUpdated(groupEdited, admin)
     } yield build(groupEdited)
