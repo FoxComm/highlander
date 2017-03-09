@@ -6,12 +6,11 @@
   top: 0;
   z-index: 10;
   width: 100%;
-  height: 86px;
-  font-weight: 400;
-  font-size: 15px;
-  background: var(--background-color);
-  color: #212121;
-  box-shadow: 0 1px var(--border-color);
+  height: 50px;
+  font-size: 16px;
+  background: #fff;
+  border-bottom: 1px solid #dddddd;
+  color: #212121;;
 }
 
 .header {
@@ -28,7 +27,7 @@
 .navigation {
   display: none;
   transition: all 300ms;
-  background: var(--background-color);
+  background: none;
 }
 
 .tools {
@@ -54,14 +53,14 @@
 .nav-search-logo-wrapper {
   display: flex;
   align-items: center;
-  height: 86px;
+  height: 50px;
   width: auto;
 }
 
 @media (--large) {
 
   .navigation {
-    height: 86px;
+    height: 50px;
     display: flex;
     justify-content: center;
     margin-left: 20px;
@@ -74,11 +73,11 @@
   :global(.icon).logo {
     vertical-align: middle;
     margin-left: 20px;
-    width: 87px;
+    width: 80px;
   }
 
   .search {
-    height: 86px;
+    height: 50px;
     width: auto;
     display: flex;
     align-items: center;
