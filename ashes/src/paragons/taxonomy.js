@@ -8,6 +8,7 @@ export const createEmptyTaxonomy = (context: string, isHierarchical: boolean): T
     attributes: {
       name: { t: 'string', v: '' },
       description: { t: 'richText', v: '' },
+      hierarchical: { t: 'bool', v: isHierarchical }
     },
     context: {
       name: context,
