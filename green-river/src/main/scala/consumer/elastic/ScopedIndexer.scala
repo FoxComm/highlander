@@ -63,7 +63,8 @@ class ScopedIndexer(uri: String,
 
           // if no scope found, just save the good old way
           case _ ⇒
-            Console.out.println(s"No scope found for document ID $jid from $topic, performing unscoped indexing...")
+            Console.out.println(
+                s"No scope found for document ID $jid from $topic, performing unscoped indexing...")
             indexDocument(indexName, jid, document, topic)
         }
       case _ ⇒
