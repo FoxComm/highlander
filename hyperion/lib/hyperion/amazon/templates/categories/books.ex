@@ -4,9 +4,9 @@ defmodule Hyperion.Amazon.Templates.Categories.Books do
     <Books>
       <ProductType>
         <BooksMisc>
-          <Author><%= author %></Author>
-          <Binding><%= bindingtypes %></Binding>
-          <Language><%= language %></Language>
+          <Author><%= @author %></Author>
+          <Binding><%= @bindingtypes %></Binding>
+          <Language><%= @language %></Language>
         </BooksMisc>
       </ProductType>
     </Books>

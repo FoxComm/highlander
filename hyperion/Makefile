@@ -26,7 +26,7 @@ prepare:
 
 test:
 	$(call header, Testing)
-	true
+	MIX_ENV=test mix espec
 
 seed:
 	mix run priv/seeds/clothes_accessories_categories.exs

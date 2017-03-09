@@ -41,8 +41,12 @@ defmodule Hyperion.Amazon do
       Enum.map(sku["albums"], fn(album) ->
         {String.to_atom(album["name"]), album["images"]}
       end)
-    end) |> Enum.reject(fn(list) -> list == [] end) |> hd
-    Enum.map(r["skus"], fn(x)-> [albums: albums, code: x["attributes"]["code"]["v"]] end)
+    end) |> Enum.reject(fn(list) -> list == [] end)
+
+    case albums do
+      [] -> raise "No images for product #{r["id"]}"
+      x -> Enum.map(r["skus"], fn(x)-> [albums: hd(albums), code: x["attributes"]["code"]["v"]] end)
+    end
   end
 
   # gets product, skus, and variants info
