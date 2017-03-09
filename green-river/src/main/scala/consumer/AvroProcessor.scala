@@ -38,7 +38,7 @@ class AvroProcessor(schemaRegistryUrl: String, processor: JsonProcessor)(implici
     try {
 
       val keyJson =
-        if (key.isEmpty) {
+        if (key == null || key.isEmpty) {
           Console.err.println(
               s"Warning, message has no key for topic ${topic}: ${new String(message, "UTF-8")}")
           ""
