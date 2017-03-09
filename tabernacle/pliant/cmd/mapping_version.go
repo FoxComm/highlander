@@ -1,4 +1,4 @@
-package elastic
+package cmd
 
 import (
 	"fmt"
@@ -6,40 +6,42 @@ import (
 	"strings"
 )
 
-type MappingUpdate struct {
+const mappingDir = "./mappings"
+
+type MappingVersion struct {
 	Filename string
 	Contents []byte
 }
 
-func NewMappingUpdate(fileDir, filename string) (*MappingUpdate, error) {
+func NewMappingVersion(fileDir, filename string) (*MappingVersion, error) {
 	path := fmt.Sprintf("%s/%s", fileDir, filename)
 	contents, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
 
-	return &MappingUpdate{
+	return &MappingVersion{
 		Filename: filename,
 		Contents: contents,
 	}, nil
 }
 
-func LatestMappingUpdate(fileDir, baseName string) (*MappingUpdate, error) {
+func LatestMappingVersion(fileDir, baseName string) (*MappingVersion, error) {
 	latestFilename, err := getLatestMapping(baseName)
 	if err != nil {
 		return nil, err
 	}
 
-	return NewMappingUpdate(fileDir, latestFilename)
+	return NewMappingVersion(fileDir, latestFilename)
 }
 
-func NewMappingUpdates(fileDir string) (map[string]*MappingUpdate, error) {
+func NewMappingVersions(fileDir string) (map[string]*MappingVersion, error) {
 	fileHandles, err := ioutil.ReadDir(fileDir)
 	if err != nil {
 		return nil, err
 	}
 
-	mappings := map[string]*MappingUpdate{}
+	mappings := map[string]*MappingVersion{}
 	for i := len(fileHandles); i >= 0; i-- {
 		handle := fileHandles[i].Name()
 		baseName, err := extractBaseName(handle)
@@ -48,7 +50,7 @@ func NewMappingUpdates(fileDir string) (map[string]*MappingUpdate, error) {
 		}
 
 		if _, found := mappings[baseName]; !found {
-			mu, err := NewMappingUpdate(fileDir, handle)
+			mu, err := NewMappingVersion(fileDir, handle)
 			if err != nil {
 				return nil, err
 			}
@@ -58,7 +60,7 @@ func NewMappingUpdates(fileDir string) (map[string]*MappingUpdate, error) {
 	return mappings, nil
 }
 
-func (m *MappingUpdate) ElasticMapping() string {
+func (m *MappingVersion) ElasticMapping() string {
 	// Strip any directories
 	pathParts := strings.Split(m.Filename, "/")
 	filename := pathParts[len(pathParts)-1]

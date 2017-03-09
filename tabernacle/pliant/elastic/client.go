@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"strings"
 
@@ -13,8 +12,6 @@ import (
 )
 
 const (
-	mappingDir = "./mappings"
-
 	esIndex      = "%s/%s"
 	esMapping    = "%s/%s/_mapping/%s"
 	esGetIndices = "%s/_cat/indices?h=index"
@@ -91,47 +88,38 @@ func (c *Client) GetMapping(index, mappingName string) (*Mapping, error) {
 	return mapping, nil
 }
 
-func (c *Client) CreateMapping(index string, mappingName string, isScoped bool) error {
-	mu, err := LatestMappingUpdate(mappingDir, mappingName)
-	if err != nil {
-		return err
-	}
-
-	mappingExists, err := c.testMapping(index, mu.ElasticMapping())
-	if err != nil {
-		return err
-	} else if mappingExists {
-		return fmt.Errorf("Mapping %s exists in index %s", esMapping, index)
-	}
-
-	return c.createMapping(index, esMapping, mu.Contents)
+// CreateMapping tests to see whether the mapping exists in the scope, then
+// tries to create it. Will error if the mapping already exists.
+func (c *Client) CreateMapping(index string, isScoped bool, mappingName string, mappingContents []byte) error {
+	return c.createMapping(index, isScoped, mappingName, mappingContents, true)
 }
 
-func (c *Client) UpdateMapping(mappingName string, index string, isScoped bool) error {
-	mu, err := LatestMappingUpdate(mappingDir, mappingName)
+// UpdateMapping tries to update an existing mapping. If this version of the
+// mapping has already been pushed, the function acts as a noop.
+func (c *Client) UpdateMapping(index string, isScoped bool, mappingName string, mappingContents []byte) error {
+	return c.createMapping(index, isScoped, mappingName, mappingContents, false)
+}
+
+func (c *Client) createMapping(baseIndex string, isScoped bool, mappingName string, mappingContents []byte, errorIfExists bool) error {
+	indexList, err := c.getIndexList(baseIndex, isScoped)
 	if err != nil {
 		return err
 	}
 
-	indexList, err := c.getIndexList(index, isScoped)
-	if err != nil {
-		return err
-	}
-
-	for _, idx := range indexList {
-		mappingExists, err := c.testMapping(idx, mu.ElasticMapping())
-		if err != nil {
+	// Check the status of all mappings before pushing.
+	for _, index := range indexList {
+		if exists, err := c.testMapping(index, mappingName); err != nil {
 			return err
-		}
-
-		if mappingExists {
-			log.Printf("Mapping %s is already present in index %s", mu.ElasticMapping(), idx)
+		} else if !exists && errorIfExists {
+			return fmt.Errorf("Mapping %s exists in index %s", mappingName, index)
+		} else if !exists && !errorIfExists {
 			return nil
 		}
 	}
 
-	for _, idx := range indexList {
-		if err := c.createMapping(idx, esMapping, mu.Contents); err != nil {
+	// Put the mappings that don't exist
+	for _, index := range indexList {
+		if err := c.putMapping(index, mappingName, mappingContents); err != nil {
 			return err
 		}
 	}
@@ -180,26 +168,12 @@ func (c *Client) getIndexList(indexName string, isScoped bool) ([]string, error)
 	return indexList, nil
 }
 
-func (c *Client) createMapping(index string, mapping string, contents []byte) error {
+func (c *Client) putMapping(index string, mapping string, contents []byte) error {
 	url := fmt.Sprintf(esMapping, c.hostname, index, mapping)
-	log.Printf("Pushing mapping to %s", url)
+	payload := bytes.NewReader(contents)
+	_, err := gohttp.Put(url, nil, payload)
 
-	request, err := http.NewRequest("PUT", url, bytes.NewReader(contents))
-	if err != nil {
-		return err
-	}
-
-	client := http.Client{}
-	resp, err := client.Do(request)
-	if err != nil {
-		return err
-	}
-
-	if resp.StatusCode > 299 {
-		return fmt.Errorf("Unexpected error updating mapping: %d", resp.StatusCode)
-	}
-
-	return nil
+	return err
 }
 
 func (c *Client) testMapping(index, mapping string) (bool, error) {
