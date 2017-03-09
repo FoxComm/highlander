@@ -1,7 +1,7 @@
 ---
 
 - name: Download Erlang Solutions Package
-  get_url: url=https://packages.erlang-solutions.com/erlang-solutions_1.0_all.deb dest={{home}}
+  get_url: url={{erlang_solutions_url}} dest={{home}}
 
 - name: Install Erlang Solutions Package
   shell: dpkg -i {{home}}/erlang-solutions_1.0_all.deb
