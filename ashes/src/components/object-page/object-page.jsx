@@ -134,6 +134,7 @@ export class ObjectPage extends Component {
   state = {
     object: this.props.originalObject,
     schema: this.props.schema,
+    justSaved: false,
   };
   _context: {
     validationDispatcher: EventEmitter,
@@ -245,15 +246,19 @@ export class ObjectPage extends Component {
 
   receiveNewObject(nextObject) {
     const nextObjectId = getObjectId(nextObject);
-    const isNew = this.isNew;
+    const wasNew = this.isNew;
 
     this.setState({
       object: nextObject
     }, () => {
-      if (isNew && nextObjectId) {
-        this.transitionTo(nextObjectId);
+      if (wasNew && nextObjectId) {
+        this.setState({
+          justSaved: true,
+        }, () => {
+          this.transitionTo(nextObjectId);
+        });
       }
-      if (!isNew && !nextObjectId) {
+      if (!wasNew && !nextObjectId) {
         this.transitionTo('new');
       }
     });
@@ -516,11 +521,17 @@ export class ObjectPage extends Component {
     );
   }
 
+  get isFetching(): boolean {
+    const { props } = this;
+    const isSupposedToBeFetched = !this.isNew && !this.state.justSaved;
+    return (isSupposedToBeFetched && props.isFetching !== false) || props.isSchemaFetching !== false;
+  }
+
   render() {
     const props = this.props;
     const { object } = this.state;
 
-    if ((!this.isNew && props.isFetching !== false) || props.isSchemaFetching !== false) {
+    if (this.isFetching) {
       return <div><WaitAnimation /></div>;
     }
 
