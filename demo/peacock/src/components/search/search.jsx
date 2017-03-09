@@ -88,14 +88,10 @@ class Search extends Component {
   render(): HTMLElement {
     const searchStyle = this.props.isActive ? 'search-expanded' : 'search';
 
-    const cls = classNames({
-      _scrolled: this.props.isScrolled,
-    });
-
     const { t } = this.props;
 
     return (
-      <div styleName={searchStyle} className={cls}>
+      <div styleName='search'>
         <form action="." >
           <input value={this.state.term}
             onChange={this.onChange}
@@ -107,8 +103,6 @@ class Search extends Component {
             type="search"
           />
         </form>
-        <Icon styleName="head-icon" name="fc-magnifying-glass" onClick={this.handleClickSearch}/>
-        <Icon styleName="close-icon" name="fc-close" onClick={this.props.toggleActive}/>
       </div>
     );
   }

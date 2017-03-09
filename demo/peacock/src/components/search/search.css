@@ -1,135 +1,23 @@
 @import "colors.css";
-@import "media-queries";
 
-.search,
-.search-expanded {
+.search {
   position: relative;
-  transition: height 300ms;
+  margin-left: 20px;
 }
 
 .search-input {
   border: none;
   position: relative;
   padding: 0;
-  background: rgba(255, 255, 255, .05);
-  color: var(--lightest-blackish);
-  text-transform: uppercase;
-  font-size: 16px;
-  line-height: 46px;
   z-index: 1;
+  width: 59px;
+  font-family: Lato;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: normal;
+  letter-spacing: normal;
+  color: #aaaaaa;
 
-  width: 0;
-}
-
-.search-input::placeholder {
-  color: var(--search-placeholder);
-}
-
-.search-input:focus {
-  color: var(--whitish);
-}
-
-.head-icon,
-.close-icon {
-  position: absolute;
-  top: 13px;
-  cursor: pointer;
-  transition: color 300ms;
-}
-
-.head-icon {
-  stroke: none;
-}
-
-.search {
-  & .head-icon {
-    color: var(--icon);
-  }
-
-  & .close-icon {
-    display: none;
-  }
-}
-
-.search-expanded {
-  & .head-icon {
-    color: rgba(255, 255, 255, .3);
-
-    &:hover {
-      color: #fff;
-    }
-  }
-}
-
-@media (--small-only), (--medium-only) {
-  .search-expanded .search-input {
-    font-size: 16px;
-    line-height: 38px;
-    padding-left: 40px;
-    width: 100%;
-  }
-
-  .search-expanded .head-icon {
-    display: block;
-    top: 9px;
-    left: 10px;
-    z-index: 1;
-  }
-
-  .close-icon {
-    display: none;
-  }
-}
-
-@media (--large) {
-  .search {
-    height: 0;
-  }
-
-  .search-expanded {
-    position: absolute;
-    z-index: 2;
-    top: 136px;
-    left: 0;
-    height: 86px;
-    width: 100%;
-    background: var(--additional-color);
-
-    & .search-input {
-      lost-column: 10/12;
-      lost-offset: -1/12;
-      margin-top: 20px;
-      font-weight: 400;
-      font-size: 22px;
-      letter-spacing: 0.4px;
-      color: #fff;
-      background: none;
-      border-bottom: 1px solid #fff;
-    }
-
-    & .head-icon {
-      top: 30px;
-      right: 0;
-      left: auto;
-      margin-right: 8.5325%;
-      z-index: 1;
-    }
-
-    &:global(._scrolled) {
-      top: 86px;
-
-      & .close-icon {
-        top: -55px;
-      }
-    }
-
-    & .close-icon {
-      left: 0;
-      lost-offset: -1/12;
-      top: -80px;
-      stroke-width: 2;
-      cursor: pointer;
-      color: var(--icon);
-    }
-  }
 }
