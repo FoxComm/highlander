@@ -15,8 +15,8 @@ defmodule Hyperion.PhoenixScala.Client do
   """
   def login do
     params = Poison.encode!(%{email: "admin@admin.com", password: "password", org: "tenant"})
-    case post("/api/v1/public/login", params, request_headers()) do
-      {:ok, resp} -> Keyword.take(resp.headers, ["JWT"]) |> hd |> elem(1)
+    case post("/api/v1/public/login", params, make_request_headers()) do
+      {:ok, resp} -> Keyword.take(resp.headers, ["Jwt"]) |> hd |> elem(1)
       {:error, err} -> inspect(err)
     end
   end
@@ -25,12 +25,12 @@ defmodule Hyperion.PhoenixScala.Client do
   Returns product by id
   """
   def get_product(product_id, token, ctx \\ "default") do
-    get("/api/v1/products/#{ctx}/#{product_id}", request_headers(token))
+    get("/api/v1/products/#{ctx}/#{product_id}", make_request_headers(token))
     |> parse_response(token)
   end
 
   def get_sku(sku_code, token, ctx \\ "default") do
-    get("/api/v1/skus/#{ctx}/#{sku_code}", request_headers(token))
+    get("/api/v1/skus/#{ctx}/#{sku_code}", make_request_headers(token))
     |> parse_response(token)
   end
 
@@ -48,7 +48,7 @@ defmodule Hyperion.PhoenixScala.Client do
   end
 
 
-  def request_headers(jwt \\ nil) do
+  def make_request_headers(jwt \\ nil) do
     case jwt do
       nil -> ["Content-Type": "application/json"]
       _ -> ["Content-Type": "application/json", "JWT": jwt]
