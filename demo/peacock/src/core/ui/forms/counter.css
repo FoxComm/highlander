@@ -1,0 +1,58 @@
+
+@import "colors.css";
+@import "inputs.css";
+
+.container {
+  width: 100%;
+  display: flex;
+  font-size: 17px;
+  color: var(--blackish);
+  line-height: 21px;
+  font-weight: 300;
+}
+
+.counter-prepend, .counter-append {
+  width: 40px;
+  height: 40px;
+}
+
+.counter-button {
+  background: var(--whitish);
+  border: 2px solid var(--blackish);
+  width: 40px;
+  height: 40px;
+  font-size: 17px;
+  color: var(--blackish);
+  font-weight: 300;
+  padding: 0;
+
+  & > span {
+    display: inline-block;
+    line-height: 36px;
+  }
+
+  &:hover {
+    background: var(--blackish);
+    color: var(--whitish);
+  }
+}
+
+.counter-field {
+  font-size: 17px;
+  color: var(--blackish);
+  line-height: 21px;
+  font-weight: 300;
+  background: var(--white-smokish);
+  border: 2px solid var(--white-smokish);
+  text-align: center;
+  flex-grow: 1;
+}
+
+input.counter-field {
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+  margin: 0;
+  width: calc(100% - 80px);
+}

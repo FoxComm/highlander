@@ -1,0 +1,91 @@
+@import 'variables.css';
+@import 'colors.css';
+
+.order-placed {
+  composes: inner-wrap from 'ui/css/layout.css';
+
+  & .to-home {
+    padding: 15px 45px;
+    margin-bottom: 45px;
+    text-transform: uppercase;
+  }
+
+  & .summary {
+    margin-bottom: 70px;
+  }
+}
+
+.thank-you {
+  text-align: center;
+}
+
+.title {
+  composes: title-devider from 'ui/css/layout.css';
+
+  margin-bottom: 30px;
+  font-family: var(--font-playfair);
+  font-size: 30px;
+  letter-spacing: 1.27px;
+  line-height: 40px;
+  font-weight: 400;
+
+  &:after {
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+.subtitle {
+  margin: 0;
+  padding: 30px 0;
+  font-family: var(--font-playfair);
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 2.25px;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.order-number {
+  margin-bottom: 40px;
+  padding-bottom: 30px;
+  border: 2px solid var(--border-color);
+
+  & .subtitle {
+    padding-bottom: 10px;
+  }
+}
+
+.number {
+  display: block;
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.desc {
+  margin-bottom: 40px;
+
+  & p {
+    margin: 0;
+    font-weight: 300;
+    font-size: 15px;
+    line-height: 33px;
+  }
+}
+
+.summary {
+  margin-bottom: 70px;
+  border: 2px solid var(--border-color);
+}
+
+@media (--medium) {
+  .title {
+    font-size: 41px;
+    letter-spacing: 2.7px;
+  }
+
+  .subtitle {
+    padding: 40px 0;
+    font-size: 18px;
+  }
+}

@@ -34,10 +34,6 @@ shortcuts:
 
   targets:
   # Bootstrappers
-  - name: Bootstrap Build Agents Keys
-    alias: build_agent_keys.yml
-    target: ansible/bootstrap_build_agent_keys.yml
-
   - name: Bootstrap Consul Alerts
     alias: consul_alerts.yml
     target: ansible/bootstrap_consul_alerts.yml
@@ -62,6 +58,10 @@ shortcuts:
     alias: store_admin.yml
     target: ansible/bootstrap_store_admin.yml
 
+  - name: Update UI Testing Software
+    alias: selenium.yml
+    target: ansible/bootstrap_selenium.yml
+
   # Custom
   - name: Bootstrap Annabelle
     alias: annabelle.yml
@@ -75,6 +75,10 @@ shortcuts:
   - name: Generate .env.local
     alias: env_local.yml
     target: ansible/goldrush_env_local.yml
+
+  - name: Create Feature Branch Pipeline
+    alias: feature_branch.yml
+    target: ansible/goldrush_feature_branch.yml
 
   - name: Update Application Docker Tag
     alias: update_app.yml

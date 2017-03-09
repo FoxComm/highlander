@@ -10,5 +10,6 @@ case object OrderAnyQualifier extends Qualifier {
   val qualifierType: QualifierType = OrderAny
 
   def check(input: DiscountInput)(implicit db: DB, ec: EC, es: ES, au: AU): Result[Unit] =
-    Result.unit
+    if (input.isEligibleForDiscount) accept()
+    else reject(input, "Items in cart are not eligible for discount")
 }

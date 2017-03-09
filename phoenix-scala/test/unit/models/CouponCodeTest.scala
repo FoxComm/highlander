@@ -26,7 +26,7 @@ class CouponCodeTest extends TestBase {
 
       "generates correct number of codes" in {
         val codePrefix      = "RAND"
-        val desiredQuantity = Random.nextInt(1000)
+        val desiredQuantity = 1 + Random.nextInt(1000 - 1)
         val result          = CouponCodes.generateCodes(codePrefix, 10, desiredQuantity)
 
         result.length must === (desiredQuantity)

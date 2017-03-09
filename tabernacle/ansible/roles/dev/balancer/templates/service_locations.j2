@@ -174,7 +174,7 @@ location /api/v1/inventory/ {
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     break;
 }
-
+{% if with_ic %}
 location /api/v1/time/ {
     auth_request /internal-auth;
     default_type 'application/json';
@@ -217,6 +217,7 @@ location /api/v1/recommend/ {
     add_header Content-Type 'application/json';
     break;
 }
+{% endif %}
 
 # Proxy to phoenix and use basic auth.
 location /api/v1/public/ {

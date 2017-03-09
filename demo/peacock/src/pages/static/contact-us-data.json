@@ -1,0 +1,39 @@
+[
+  {
+    "type": "well",
+    "content": [
+      {
+        "type": "title",
+        "content": "CUSTOMER CARE"
+      },
+      {
+        "type": "paragraph-title",
+        "content": "Email"
+      },
+      {
+        "type": "email",
+        "content": "info@theperfectgourmet.com"
+      },
+      {
+        "type": "paragraph-title",
+        "content": "Phone"
+      },
+      {
+        "type": "phone",
+        "content": "(866) 461 - 4183"
+      },
+      {
+        "type": "paragraph-title",
+        "content": "Address"
+      },
+      {
+        "type": "paragraph",
+        "content": "8012 Bellona Ave Suite B"
+      },
+      {
+        "type": "paragraph",
+        "content": "Towson, MD 21204"
+      }
+    ]
+  }
+]

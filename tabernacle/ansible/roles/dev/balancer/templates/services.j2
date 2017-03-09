@@ -1,9 +1,9 @@
-
 upstream river-rock {
   << range service "river-rock" >> server << .Address >>:<< .Port >> max_fails=10 fail_timeout=30s weight=1;
   << else >> server {{river_rock_server}} fail_timeout=30s max_fails=10; << end >>
 }
 
+{% if with_ic %}
 upstream henhouse {
   << range service "henhouse" >> server << .Address >>:<< .Port >> max_fails=10 fail_timeout=30s weight=1;
   << else >> server {{henhouse_server}} fail_timeout=30s max_fails=10; << end >>
@@ -18,6 +18,8 @@ upstream cross-sell {
   << range service "cross-sell" >> server << .Address >>:<< .Port >> max_fails=10 fail_timeout=30s weight=1;
   << else >> server {{cross_sell_server}} fail_timeout=30s max_fails=10; << end >>
 }
+
+{% endif %}
 
 upstream search {
   << range service "elasticsearch" >> server << .Address >>:<< .Port >> max_fails=10 fail_timeout=30s weight=1;

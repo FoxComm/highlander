@@ -38,6 +38,7 @@ gce_zone: "us-central1-a"
 docker_tags:
     ashes: "{{ lookup('env', 'DOCKER_TAG_ASHES') | default('master', true) }}"
     firebrand: "{{ lookup('env', 'DOCKER_TAG_FIREBRAND') | default('master', true) }}"
+    peacock: "{{ lookup('env', 'DOCKER_TAG_PEACOCK') | default('master', true) }}"
     phoenix: "{{ lookup('env', 'DOCKER_TAG_PHOENIX') | default('master', true) }}"
     greenriver: "{{ lookup('env', 'DOCKER_TAG_GREENRIVER') | default('master', true) }}"
     middlewarehouse: "{{ lookup('env', 'DOCKER_TAG_MIDDLEWAREHOUSE') | default('master', true) }}"
@@ -64,6 +65,7 @@ docker_tags:
 marathon_restart:
     ashes: "{{ lookup('env', 'MARATHON_ASHES') | default(true, true) | bool }}"
     firebrand: "{{ lookup('env', 'MARATHON_FIREBRAND') | default(true, true) | bool }}"
+    peacock: "{{ lookup('env', 'MARATHON_PEACOCK') | default(true, true) | bool }}"
     phoenix: "{{ lookup('env', 'MARATHON_PHOENIX') | default(true, true) | bool }}"
     greenriver: "{{ lookup('env', 'MARATHON_GREENRIVER') | default(true, true) | bool }}"
     middlewarehouse: "{{ lookup('env', 'MARATHON_MIDDLEWAREHOUSE') | default(true, true) | bool }}"
@@ -86,6 +88,9 @@ marathon_restart:
     digger_sphex: "{{ lookup('env', 'MARATHON_DIGGER_SPHEX') | default(true, true) | bool }}"
     orders_sphex: "{{ lookup('env', 'MARATHON_ORDERS_SPHEX') | default(true, true) | bool }}"
     cross_sell: "{{ lookup('env', 'MARATHON_CROSS_SELL') | default(true, true) | bool }}"
+
+# Should we use Intelligent Commerce
+with_ic: "{{ lookup('env', 'WITH_INTELLIGENT_COMMERCE') | default(true, true) | bool }}"
 
 # Consul Service Discovery
 consul_data_dir: /var/consul
@@ -116,7 +121,7 @@ ashes_port: 4000
 ashes_server: "{{ashes_host}}:{{ashes_port}}"
 
 storefront_port: 4041
-storefront_host: "storefront.{{consul_suffix}}"
+storefront_host: "peacock.{{consul_suffix}}"
 storefront_server: "{{storefront_host}}:{{storefront_port}}"
 
 storefront_top_drawer_host: "storefront-top-drawer.{{consul_suffix}}"
@@ -368,3 +373,4 @@ with_shipstation: false
 with_base_seeds: true
 with_gatling_seeder: false
 with_mwh_seeder: true
+with_hyperion_seeder: true
