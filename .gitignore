@@ -23,3 +23,5 @@ middlewarehouse/consumers/shipstation/shipstation-consumer
 
 # goldrush files
 goldrush.state
+
+*.sublime*
