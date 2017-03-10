@@ -42,6 +42,3 @@
       - "{{user}}"
       - phoenix
       - middlewarehouse
-
-- include: ../../../base/db/tasks/flyway.yml
-  when: download_flyway

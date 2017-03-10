@@ -11,7 +11,6 @@
     self_host: "{{dns_record}}.foxcommerce.com"
     ashes_server_name: "{{dns_record}}.foxcommerce.com"
     storefront_server_name: "{{dns_record}}.foxcommerce.com"
-    download_flyway: false
     is_appliance: true
     is_redeploy: true
     with_base_seeds: true

@@ -1,0 +1,34 @@
+---
+
+- name: Stop Services
+  service: name={{item}} state=stopped enabled=true
+  with_items:
+    - docker
+    - zookeeper
+    - kafka
+    - elasticsearch
+    - elasticsearch-5
+    - kibana
+    - schema-registry
+    - bottledwater_phoenix
+    - bottledwater_middlewarehouse
+    - mesos_master
+    - mesos_worker
+    - marathon
+    - postgresql
+    - pgweb
+
+- name: Purge Zookeeper Data
+  file: path=/var/lib/zookeeper state=absent
+
+- name: Create Zookeeper Directory
+  file: path=/var/lib/zookeeper state=directory
+
+- name: Start Services
+  service: name={{item}} state=restarted enabled=true
+  with_items:
+    - docker
+    - zookeeper
+    - mesos_master
+    - mesos_worker
+    - marathon
