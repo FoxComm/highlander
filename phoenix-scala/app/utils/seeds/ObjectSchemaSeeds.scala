@@ -11,30 +11,30 @@ trait ObjectSchemaSeeds {
 
   // Some tests have invalid data ⇒ can't create all schemas
   // Will be fixed in scope of promotion work
-  def createObjectSchemasForTest(): DbResultT[Unit] =
+  def createObjectSchemasForTest(contextId: Int): DbResultT[Unit] =
     for {
-      _ ← * <~ ObjectSchemas.create(getSchema("empty"))
-      _ ← * <~ ObjectSchemas.create(getSchema("album"))
-      _ ← * <~ ObjectSchemas.create(getSchema("image"))
-      _ ← * <~ ObjectSchemas.create(getSchema("price"))
-      _ ← * <~ ObjectSchemas.create(getSchema("product-variant"))
-      _ ← * <~ ObjectSchemas.create(getSchema("coupon"))
-      _ ← * <~ ObjectSchemas.create(getSchema("discount"))
+      _ ← * <~ ObjectSchemas.create(getSchema("empty", contextId))
+      _ ← * <~ ObjectSchemas.create(getSchema("album", contextId))
+      _ ← * <~ ObjectSchemas.create(getSchema("image", contextId))
+      _ ← * <~ ObjectSchemas.create(getSchema("price", contextId))
+      _ ← * <~ ObjectSchemas.create(getSchema("product-variant", contextId))
+      _ ← * <~ ObjectSchemas.create(getSchema("coupon", contextId))
+      _ ← * <~ ObjectSchemas.create(getSchema("discount", contextId))
       // _ ← * <~ ObjectSchemas.create(getSchema("promotion"))
-      _ ← * <~ ObjectSchemas.create(getSchema("product"))
+      _ ← * <~ ObjectSchemas.create(getSchema("product", contextId))
     } yield {}
 
-  def createObjectSchemas(): DbResultT[Unit] =
+  def createObjectSchemas(contextId: Int): DbResultT[Unit] =
     for {
-      _ ← * <~ ObjectSchemas.create(getSchema("empty"))
-      _ ← * <~ ObjectSchemas.create(getSchema("album"))
-      _ ← * <~ ObjectSchemas.create(getSchema("image"))
-      _ ← * <~ ObjectSchemas.create(getSchema("price"))
-      _ ← * <~ ObjectSchemas.create(getSchema("product-variant"))
-      _ ← * <~ ObjectSchemas.create(getSchema("coupon"))
-      _ ← * <~ ObjectSchemas.create(getSchema("discount"))
-      _ ← * <~ ObjectSchemas.create(getSchema("promotion"))
-      _ ← * <~ ObjectSchemas.create(getSchema("product"))
+      _ ← * <~ ObjectSchemas.create(getSchema("empty", contextId))
+      _ ← * <~ ObjectSchemas.create(getSchema("album", contextId))
+      _ ← * <~ ObjectSchemas.create(getSchema("image", contextId))
+      _ ← * <~ ObjectSchemas.create(getSchema("price", contextId))
+      _ ← * <~ ObjectSchemas.create(getSchema("product-variant", contextId))
+      _ ← * <~ ObjectSchemas.create(getSchema("coupon", contextId))
+      _ ← * <~ ObjectSchemas.create(getSchema("discount", contextId))
+      _ ← * <~ ObjectSchemas.create(getSchema("promotion", contextId))
+      _ ← * <~ ObjectSchemas.create(getSchema("product", contextId))
     } yield {}
 
   private def loadJson(fileName: String): JValue = {
@@ -46,10 +46,14 @@ trait ObjectSchemaSeeds {
     }
   }
 
-  def getSchema(name: String): ObjectSchema = {
+  def getSchema(name: String, contextId: Int): ObjectSchema = {
     val schema       = loadJson(s"/object_schemas/$name.json")
     val dependencies = getDependencies(schema).toList
-    ObjectSchema(kind = name, name = name, dependencies = dependencies, schema = schema)
+    ObjectSchema(contextId = contextId,
+                 kind = name,
+                 name = name,
+                 dependencies = dependencies,
+                 schema = schema)
   }
 
   private def getDependencies(schema: JValue): Set[String] = {

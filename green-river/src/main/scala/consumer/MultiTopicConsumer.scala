@@ -49,7 +49,7 @@ private case class StartFromBeginning[A, B](consumer: KafkaConsumer[A, B])
   def onPartitionsAssigned(partitions: Collection[TopicPartition]): Unit = {
     partitions.foreach { p ⇒
       Console.out.println(
-          s"Consuming from beggining for topic ${p.topic} using partition ${p.partition}")
+          s"Consuming from beginning for topic ${p.topic} using partition ${p.partition}")
       consumer.seekToBeginning(p)
     }
   }
@@ -67,7 +67,7 @@ private case class StartFromLastCommit[A, B](consumer: KafkaConsumer[A, B])
       val offsetMetadata = consumer.committed(p)
       if (offsetMetadata == null) {
         Console.out.println(
-            s"No offset commited. Consuming from beggining for topic ${p.topic} using partition ${p.partition}")
+            s"No offset commited. Consuming from beginning for topic ${p.topic} using partition ${p.partition}")
         consumer.seekToBeginning(p)
       } else {
         Console.out.println(
@@ -168,7 +168,7 @@ class MultiTopicConsumer(topics: Seq[String],
   def subscribe(topics: Seq[String], startFromBeginning: Boolean): Unit = {
     Console.out.println(s"Subscribing to topics: $topics")
     if (startFromBeginning) {
-      Console.out.println(s"Consuming from beggining...")
+      Console.out.println(s"Consuming from beginning...")
       consumer.subscribe(topics.toList, StartFromBeginning(consumer))
     } else {
       consumer.subscribe(topics.toList, StartFromLastCommit(consumer))

@@ -74,9 +74,9 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
     // Base test data
     (for {
       context ← * <~ ObjectContexts.create(SimpleContext.create())
-      _       ← * <~ Factories.createObjectSchemasForTest(context.id)
+      _ ← * <~ Factories.createObjectSchemasForTest(context.id)
       // Can't enable all right now because test are fucky
-      // _ ← * <~ Factories.createObjectSchemas
+      // _ ← * <~ Factories.createObjectSchemas(context.id)
       _ ← * <~ Factories.createSingleMerchantSystem
     } yield {}).gimme
 

@@ -3,6 +3,7 @@ package models.objects
 import java.time.Instant
 
 import org.json4s.JsonAST.JObject
+import payloads.ObjectSchemaPayloads._
 import shapeless._
 import utils.aliases._
 import utils.db.ExPostgresDriver.api._
@@ -13,6 +14,7 @@ import utils.{JsonFormatters, Validation}
   Represent json-schema for views: ObjectForm applied to ObjectShadow.
   */
 case class ObjectSchema(id: Int = 0,
+                        contextId: Int,
                         kind: String,
                         name: String,
                         dependencies: List[String],
@@ -21,8 +23,22 @@ case class ObjectSchema(id: Int = 0,
     extends FoxModel[ObjectSchema]
     with Validation[ObjectSchema]
 
+object ObjectSchema {
+  def fromCreatePayload(payload: CreateSchemaPayload): ObjectSchema =
+    ObjectSchema(contextId = payload.contextId,
+                 kind = payload.kind,
+                 name = payload.name,
+                 dependencies = payload.dependencies,
+                 schema = payload.schema)
+
+  def fromUpdatePayload(original: ObjectSchema, payload: UpdateSchemaPayload): ObjectSchema =
+    original.copy(schema = payload.schema.getOrElse(original.schema),
+                  dependencies = payload.dependencies.getOrElse(original.dependencies))
+}
+
 class ObjectSchemas(tag: Tag) extends FoxTable[ObjectSchema](tag, "object_schemas") {
   def id           = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def contextId    = column[Int]("context_id")
   def name         = column[String]("name")
   def kind         = column[String]("kind")
   def dependencies = column[List[String]]("dependencies")
@@ -30,7 +46,7 @@ class ObjectSchemas(tag: Tag) extends FoxTable[ObjectSchema](tag, "object_schema
   def createdAt    = column[Instant]("created_at")
 
   def * =
-    (id, name, kind, dependencies, schema, createdAt) <> ((ObjectSchema.apply _).tupled, ObjectSchema.unapply)
+    (id, contextId, name, kind, dependencies, schema, createdAt) <> ((ObjectSchema.apply _).tupled, ObjectSchema.unapply)
 }
 
 object ObjectSchemas
@@ -40,6 +56,9 @@ object ObjectSchemas
   val returningLens: Lens[ObjectSchema, Int] = lens[ObjectSchema].id
 
   implicit val formats = JsonFormatters.phoenixFormats
+
+  def mustFindByName404(name: String)(implicit ec: EC): DbResultT[ObjectSchema] =
+    filter(_.name === name).mustFindOneOr(failures.NotFoundFailure404(ObjectSchemas, "name", name))
 }
 
 /**
@@ -48,6 +67,7 @@ object ObjectSchemas
   ObjectFullSchemas automatically generates from ObjectSchemas by postgres triggers.
   */
 case class ObjectFullSchema(id: Int = 0,
+                            contextId: Int,
                             name: String,
                             kind: String,
                             schema: Json,
@@ -56,18 +76,20 @@ case class ObjectFullSchema(id: Int = 0,
     with Validation[ObjectFullSchema]
 
 object ObjectFullSchema {
-  def emptySchema = ObjectFullSchema(name = "empty", kind = "empty", schema = JObject())
+  def emptySchema =
+    ObjectFullSchema(contextId = 0, name = "empty", kind = "empty", schema = JObject())
 }
 
 class ObjectFullSchemas(tag: Tag) extends FoxTable[ObjectFullSchema](tag, "object_full_schemas") {
   def id        = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def contextId = column[Int]("context_id")
   def name      = column[String]("name")
   def kind      = column[String]("kind")
   def schema    = column[Json]("schema")
   def createdAt = column[Instant]("created_at")
 
   def * =
-    (id, kind, name, schema, createdAt) <> ((ObjectFullSchema.apply _).tupled, ObjectFullSchema.unapply)
+    (id, contextId, name, kind, schema, createdAt) <> ((ObjectFullSchema.apply _).tupled, ObjectFullSchema.unapply)
 }
 
 object ObjectFullSchemas
