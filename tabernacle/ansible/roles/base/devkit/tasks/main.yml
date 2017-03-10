@@ -20,8 +20,5 @@
 - name: Install kt
   unarchive: src={{kt_download_url}} dest=/usr/local/bin/ remote_src=yes mode=0755
 
-- name: Download docker-clean Installer
-  get_url: url={{docker_clean_url}} dest=/usr/local/bin/docker-clean mode=0755
-
-- name: Install Docker Clean to cron.hourly
+- name: Install Docker clean script to cron.hourly
   copy: src=docker-clean.sh dest=/etc/cron.hourly/dockerclean mode=0755
