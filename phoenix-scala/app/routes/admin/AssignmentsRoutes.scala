@@ -667,7 +667,7 @@ object AssignmentsRoutes {
             }
           }
         }
-      }
+      } ~
       // Taxonomies Single Assignments
       pathPrefix("taxonomies" / IntNumber) { taxonomyId ⇒
         pathPrefix("assignees") {
