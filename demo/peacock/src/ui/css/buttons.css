@@ -12,10 +12,6 @@
   text-align: center;
   cursor: pointer;
 
-  &:hover {
-    background: #594B4D;
-  }
-
   & > span {
     vertical-align: middle;
   }
@@ -26,10 +22,7 @@
   }
 
   &:disabled {
-    background: var(--blackish);
-
     &:hover {
-      color: var(--whitish);
       cursor: not-allowed;
     }
   }
