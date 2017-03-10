@@ -45,7 +45,7 @@ defmodule Hyperion.Amazon do
 
     case albums do
       [] -> raise "No images for product #{r["id"]}"
-      x -> Enum.map(r["skus"], fn(x)-> [albums: hd(albums), code: x["attributes"]["code"]["v"]] end)
+      _ -> Enum.map(r["skus"], fn(x)-> [albums: hd(albums), code: x["attributes"]["code"]["v"]] end)
     end
   end
 
