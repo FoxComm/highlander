@@ -22,7 +22,7 @@ defmodule Hyperion.Mixfile do
      mod: {Hyperion, []}]
   end
 
-  defp elixirc_paths(:test), do: ["lib", "web", "spec/support"]
+  defp elixirc_paths(:test), do: ["lib", "spec/support"]
   defp elixirc_paths(_), do: ["lib"]
 
   # Dependencies can be Hex packages:
