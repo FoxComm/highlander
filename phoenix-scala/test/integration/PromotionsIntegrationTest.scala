@@ -112,16 +112,15 @@ class PromotionsIntegrationTest
 
   "Auto-applied promotions:" - {
     "with many available, the best one is chosen" in new Customer_Seed with ProductSku_ApiFixture {
-      val percentOffs = List.fill(6)(0.1 + 0.8 * scala.util.Random.nextDouble)
+      val percentOffs = List.fill(11)(scala.util.Random.nextInt(100))
       val percentOff  = percentOffs.max
 
       val promos = percentOffs.map(
           percentOff ⇒
             promotionsApi
-              .create(PromotionPayloadBuilder.build(
-                      Promotion.Auto,
-                      PromoOfferBuilder.CartPercentOff((percentOff * 100).toInt),
-                      PromoQualifierBuilder.CartAny))
+              .create(PromotionPayloadBuilder.build(Promotion.Auto,
+                                                    PromoOfferBuilder.CartPercentOff(percentOff),
+                                                    PromoQualifierBuilder.CartAny))
               .as[PromotionResponse.Root])
 
       val refNum =
@@ -131,15 +130,13 @@ class PromotionsIntegrationTest
         .add(Seq(UpdateLineItemsPayload(skuCode, 1)))
         .asTheResult[CartResponse]
 
-      // FIXME: in CordResponsePromotions.fetchPromoDetails
       cartWithProduct.promotion mustBe 'defined
-
       cartWithProduct.coupon mustBe 'empty
-      import cartWithProduct.totals
 
+      import cartWithProduct.totals
       implicit val doubleEquality = TolerantNumerics.tolerantDoubleEquality(1.0)
-      totals.adjustments.toDouble must === (sku.attributes.salePrice * percentOff)
-      totals.total.toDouble must === (sku.attributes.salePrice * (1.0 - percentOff))
+      totals.adjustments.toDouble must === (sku.attributes.salePrice * (percentOff / 100.0))
+      totals.total.toDouble must === (sku.attributes.salePrice * (1.0 - percentOff / 100.0))
     }
   }
 
