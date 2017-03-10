@@ -21,7 +21,8 @@ import services.promotion.PromotionManager
 import testutils.PayloadHelpers.tv
 import testutils._
 import testutils.apis.PhoenixAdminApi
-import testutils.fixtures.api.ApiFixtures
+import testutils.fixtures.api.PromotionPayloadBuilder.{PromoOfferBuilder, PromoQualifierBuilder}
+import testutils.fixtures.api.{ApiFixtures, PromotionPayloadBuilder}
 import testutils.fixtures.{BakedFixtures, PromotionFixtures}
 import utils.IlluminateAlgorithm
 import utils.aliases._
@@ -117,25 +118,10 @@ class PromotionsIntegrationTest
 
       val promo = promotionsApi
         .create(
-            CreatePromotion(
-                applyType = Promotion.Auto,
-                discounts = List(
-                    CreateDiscount(
-                        attributes = Map(
-                            "qualifier" → tv(Map("orderAny" → Map.empty), t = "qualifier"),
-                            "offer" → tv(Map("orderPercentOff" → Map(
-                                                 "discount" → math.round(percentOff * 100))),
-                                         t = "offer")
-                        )
-                    )
-                ),
-                attributes = Map(
-                    "name"           → tv("testyPromo"),
-                    "storefrontName" → tv("<p>Testy promo</p>", "reechText"),
-                    "activeFrom"     → tv(Instant.now, "datetime"),
-                    "activeTo"       → tv(JNull, "datetime")
-                )
-            ))
+            PromotionPayloadBuilder.build(
+                Promotion.Auto,
+                PromoOfferBuilder.CartPercentOff((percentOff * 100).toInt),
+                PromoQualifierBuilder.CartAny))
         .as[PromotionResponse.Root]
 
       val refNum =
@@ -151,11 +137,9 @@ class PromotionsIntegrationTest
       cartWithProduct.coupon mustBe 'empty
       import cartWithProduct.totals
 
-      // TODO: really ceiling? Why not round? @michalrus
-      // TODO: With round, I’ve once gotten `1377 did not equal 1376 (PromotionsIntegrationTest.scala:154)` @michalrus
-      totals.adjustments must === (math.ceil(sku.attributes.salePrice * percentOff).toInt)
-      // TODO: if we were using round everywhere, the following would also be round, not floor. Easier… @michalrus
-      totals.total must === (math.floor(sku.attributes.salePrice * (1.0 - percentOff)).toInt)
+      implicit val doubleEquality = TolerantNumerics.tolerantDoubleEquality(1.0)
+      totals.adjustments.toDouble must === (sku.attributes.salePrice * percentOff)
+      totals.total.toDouble must === (sku.attributes.salePrice * (1.0 - percentOff))
     }
 
     "with many available, the best one is chosen" in {
