@@ -16,6 +16,7 @@ import payloads.GiftCardPayloads._
 import payloads.ImagePayloads._
 import payloads.LineItemPayloads._
 import payloads.NotePayloads._
+import payloads.ObjectSchemaPayloads._
 import payloads.OrderPayloads._
 import payloads.PaymentPayloads._
 import payloads.ProductOptionPayloads._
@@ -689,5 +690,27 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
     def updateLastSeen(activityId: Int): HttpResponse =
       POST(s"$notificationsPrefix/last-seen/$activityId")
+  }
+
+  object schemasApi {
+    val schemasPrefix = s"$rootPrefix/object/schemas"
+
+    def create(payload: CreateSchemaPayload): HttpResponse =
+      POST(schemasPrefix, payload)
+
+    def update(name: String, payload: UpdateSchemaPayload): HttpResponse = {
+      val path = s"$schemasPrefix/byName/$name"
+      PATCH(path, payload)
+    }
+
+    def getByName(name: String): HttpResponse = {
+      val path = s"$schemasPrefix/byName/$name"
+      GET(path)
+    }
+
+    def getByKind(kind: String): HttpResponse = {
+      val path = s"$schemasPrefix/byKind/$kind"
+      GET(path)
+    }
   }
 }

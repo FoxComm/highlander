@@ -2,6 +2,7 @@ package services.objects
 
 import failures.NotFoundFailure404
 import failures.ObjectFailures._
+import payloads.ObjectSchemaPayloads._
 import responses.ObjectResponses.ObjectSchemaResponse._
 import models.objects._
 import utils.aliases._
@@ -26,6 +27,20 @@ object ObjectSchemasManager {
     for {
       schemas ← * <~ ObjectFullSchemas.result
     } yield schemas.map(build)
+
+  def createSchema(payload: CreateSchemaPayload)(implicit ec: EC, db: DB): DbResultT[Root] =
+    for {
+      _          ← * <~ ObjectSchemas.create(ObjectSchema.fromCreatePayload(payload))
+      fullSchema ← * <~ getSchema(payload.name)
+    } yield fullSchema
+
+  def updateSchema(name: String, payload: UpdateSchemaPayload)(implicit ec: EC, db: DB) =
+    for {
+      schema     ← * <~ ObjectSchemas.mustFindByName404(name)
+      toUpdate   ← * <~ ObjectSchema.fromUpdatePayload(schema, payload)
+      _          ← * <~ ObjectSchemas.update(schema, toUpdate)
+      fullSchema ← * <~ getSchema(toUpdate.name)
+    } yield fullSchema
 
   private def mustGetEmptySchema()(implicit ec: EC): DbResultT[ObjectFullSchema] =
     ObjectFullSchemas

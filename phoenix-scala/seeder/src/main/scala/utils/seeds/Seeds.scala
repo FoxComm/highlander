@@ -260,7 +260,7 @@ object Seeds {
   def createBase(implicit db: DB): DbResultT[Int] =
     for {
       context ← * <~ ObjectContexts.create(SimpleContext.create())
-      _       ← * <~ Factories.createObjectSchemas
+      _       ← * <~ Factories.createObjectSchemas(context.id)
     } yield context.id
 
   def createShipmentRules(implicit db: DB): DbResultT[Int] =
