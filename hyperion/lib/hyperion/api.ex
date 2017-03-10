@@ -23,9 +23,9 @@ defmodule Hyperion.API do
   Returns contents of cutomer_id header
   """
   def customer_id(conn) do
-    case List.keyfind(conn.req_headers, "customer_id", 0) do
-      {"customer_id", id} -> id
-      nil -> raise "No customer_id header provided"
+    case List.keyfind(conn.req_headers, "customer-id", 0) do
+      {"customer-id", id} -> id
+      nil -> raise "No Customer-ID header provided"
     end
   end
 
