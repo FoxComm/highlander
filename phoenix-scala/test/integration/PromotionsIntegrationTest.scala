@@ -109,10 +109,10 @@ class PromotionsIntegrationTest
     }
   }
 
-  "Auto-applied promotions" - {
+  "Auto-applied promotions:" - {
     import org.json4s.jackson.JsonMethods.pretty
 
-    "should ⸮" in new Customer_Seed with ProductSku_ApiFixture {
+    "should be auto-applied, if applicable" in new Customer_Seed with ProductSku_ApiFixture {
       val percentOff = 0.4
 
       val promo = promotionsApi
@@ -146,7 +146,7 @@ class PromotionsIntegrationTest
         .asTheResult[CartResponse]
 
       // FIXME: in CordResponsePromotions.fetchPromoDetails
-      //cartWithProduct.promotion mustBe 'defined
+      cartWithProduct.promotion mustBe 'defined
 
       cartWithProduct.coupon mustBe 'empty
       import cartWithProduct.totals
@@ -156,6 +156,10 @@ class PromotionsIntegrationTest
       totals.adjustments must === (math.ceil(sku.attributes.salePrice * percentOff).toInt)
       // TODO: if we were using round everywhere, the following would also be round, not floor. Easier… @michalrus
       totals.total must === (math.floor(sku.attributes.salePrice * (1.0 - percentOff)).toInt)
+    }
+
+    "with many available, the best one is chosen" in {
+      // TODO: @michalrus
     }
   }
 
