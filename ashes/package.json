@@ -89,7 +89,7 @@
     "react-dom": "^15.4.2",
     "react-input-mask": "github:anru/react-input-mask#a7b8dc04debe9e8dfe7eee3ad31facb79b7c1826",
     "react-motion": "^0.4.4",
-    "react-redux": "5.0.2",
+    "react-redux": "5.0.3",
     "react-router": "^2.3.0",
     "react-router-redux": "^4.0.2",
     "reduce-reducers": "^0.1.1",
