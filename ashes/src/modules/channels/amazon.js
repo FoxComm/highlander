@@ -4,7 +4,7 @@
 
 import { createAction, createReducer } from 'redux-act';
 import { createAsyncActions } from '@foxcomm/wings';
-import Api from 'lib/api';
+import Api, { request } from 'lib/api';
 import { getUserId } from 'lib/claims';
 
 const initialState = {
@@ -66,7 +66,8 @@ const _fetchAmazonCredentials = createAsyncActions(
   () => {
     const userId = getUserId() || '';
 
-    return Api.get(`/amazon/credentials/${userId}`);
+    // return Api.get(`/amazon/credentials/${userId}`);
+    return request('get', `/node/amazon/credentials/${userId}`)
   }
 );
 

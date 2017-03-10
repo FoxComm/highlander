@@ -43,7 +43,7 @@ router.get('/api/v1/amazon/categories/schema', function *(next) {
   this.body = fieldsFixture;
 });
 
-router.get('/api/v1/amazon/credentials/:customer_id', function *(next) {
+router.get('/node/amazon/credentials/:customer_id', function *(next) {
   const customer_id = this.params.customer_id;
 
   // @todo request to real hyperion
