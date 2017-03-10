@@ -7,7 +7,7 @@ Later it can be a great foundation for building our own CMS, where the platform 
 
 ## The Way of Developing
 
-It is necessary to move towards writing modular code, considering that our end goal is having reusable blocks of code. For example, we should have separate modules for checkout, billing forms, etc.
+It is necessary to move towards writing modular code (compared to the current monolithic style), considering that our end goal is having reusable blocks of code. For example, we should have separate modules for checkout, billing forms, etc.
 Also, it must have strictly defined user interfaces. For this job it's better to use TypeScript than ES6 + flow.
 
 Ideally, we've got the following:
