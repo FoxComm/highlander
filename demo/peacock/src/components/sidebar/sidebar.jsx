@@ -103,7 +103,7 @@ class Sidebar extends React.Component {
 
     return (
       <div styleName={sidebarClass}>
-        <div styleName="overlay" onClick={this.props.toggleSidebar}>
+        <div styleName="overlay" onClick={this.props.toggleSidebar}></div>
         <div styleName="container">
           <div styleName="controls">
             <div styleName="controls-close">
@@ -130,7 +130,6 @@ class Sidebar extends React.Component {
               </div>
             </div>
           </div>
-        </div>
         </div>
       </div>
     );
