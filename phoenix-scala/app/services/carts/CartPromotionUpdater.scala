@@ -56,12 +56,12 @@ object CartPromotionUpdater {
       au: AU,
       db: DB,
       ctx: OC): DbResultT[(OrderPromotion, Promotion, Seq[OrderLineItemAdjustment])] =
-    findApplicableCouponPromotion(cart, failFatally).handleErrorWith(
+    findAppliedCouponPromotion(cart, failFatally).handleErrorWith(
         couponErr ⇒
           findApplicableAutoAppliedPromotion(cart).handleErrorWith(_ ⇒ // Any error? @michalrus
                 DbResultT.failures(couponErr)))
 
-  private def findApplicableCouponPromotion(
+  private def findAppliedCouponPromotion(
       cart: Cart,
       failFatally: Boolean /* FIXME with the new foxy monad @michalrus */ )(
       implicit ec: EC,
@@ -96,9 +96,9 @@ object CartPromotionUpdater {
                                       getAdjustmentsForPromotion(cart, promo, true).map(
                                           (promo, _))))
                             .ensure(OrderHasNoPromotions.single)(_.nonEmpty)
-      best = allWithAdjustments
-        .maxBy(_._2.map(_.subtract).sum) // FIXME: This approach doesn’t seem very efficient… @michalrus
-      (bestPromo, bestAdjustments) = best
+      (bestPromo, bestAdjustments) = allWithAdjustments.maxBy {
+        case (_, adjustments) ⇒ adjustments.map(_.subtract).sum
+      } // FIXME: This approach doesn’t seem very efficient… @michalrus
       // Replace previous OrderPromotions bindings with the current best one.
       // TODO: only if they differ?
       _          ← * <~ OrderPromotions.filterByCordRef(cart.refNum).autoApplied.delete
