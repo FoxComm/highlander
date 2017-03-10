@@ -23,16 +23,19 @@ type SearchProps = Localized & {
   forceSearch: () => void,
   onSearch?: Function,
   isScrolled: boolean,
+  setFocus: ?Function
 };
 
 type SearchState = {
   term: string,
+  focus: boolean
 };
 
 class Search extends Component {
   props: SearchProps;
   state: SearchState = {
     term: '',
+    focus: false
   };
 
   static defaultProps = {
@@ -86,6 +89,13 @@ class Search extends Component {
     this.setState({ term: target.value });
   }
 
+  @autobind
+  setFocus() {
+    if (this.props.setFocus){
+      this.props.setFocus(!this.state.focus);
+      this.setState({ focus: !this.state.focus });
+    }
+  }
   render(): HTMLElement {
     const searchStyle = this.props.isActive ? 'search-expanded' : 'search';
 
@@ -97,6 +107,8 @@ class Search extends Component {
           <input value={this.state.term}
             onChange={this.onChange}
             onKeyDown={this.onKeyDown}
+            onFocus={this.setFocus}
+            onBlur={this.setFocus}
             styleName="search-input"
             autoComplete="off"
             placeholder={t('Search...')}

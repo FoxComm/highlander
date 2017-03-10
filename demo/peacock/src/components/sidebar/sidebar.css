@@ -54,11 +54,18 @@
     border-bottom: 1px solid #ddd;
     margin: 30px 10px 20px 10px;
   }
+
+  .controls-search-focused {
+    composes: controls-search;
+    border-bottom: 2px solid #0b7ddc;
+  }
 }
 
 .controls-session-wrapper {
   margin-top: 20px;
 }
+
+
 
 .controls-categories,
 .controls-session {
