@@ -22,10 +22,18 @@ object TaxonomyResponses {
     }
   }
 
+  object TaxonomyResponse {
+    case class Root(id: Int) extends ResponseItem
+
+    //Taxonomy here is a placeholder for future. Using only form
+    def build(t: Taxonomy): Root = Root(id = t.formId)
+  }
+
   case class FullTaxonomyResponse(id: Int,
                                   hierarchical: Boolean,
                                   attributes: Json,
                                   taxons: Seq[TaxonTreeResponse])
+      extends ResponseItem
 
   object FullTaxonomyResponse {
     def build(taxon: FullObject[Taxonomy], taxons: Seq[LinkedTaxon]): FullTaxonomyResponse = {
@@ -40,7 +48,8 @@ object TaxonomyResponses {
   case class AssignedTaxonsResponse(taxonomyId: Int,
                                     hierarchical: Boolean,
                                     attributes: Json,
-                                    taxons: Seq[Taxon])
+                                    taxons: Seq[TaxonResponse])
+      extends ResponseItem
   object AssignedTaxonsResponse {
     def build(taxonomy: FullObject[Taxonomy],
               taxons: Seq[FullObject[ModelTaxon]]): AssignedTaxonsResponse = {
@@ -50,38 +59,40 @@ object TaxonomyResponses {
       AssignedTaxonsResponse(taxonomy.model.formId,
                              taxonomy.model.hierarchical,
                              taxonAttributes,
-                             taxons.map(Taxon.build))
+                             taxons.map(TaxonResponse.build))
     }
   }
 
-  case class SingleTaxonResponse(taxonomyId: Int, taxon: Taxon, parentId: Option[Integer])
+  case class SingleTaxonResponse(taxonomyId: Int, taxon: TaxonResponse, parentId: Option[Integer])
+      extends ResponseItem
 
   object SingleTaxonResponse {
     def build(taxonomyId: Integer,
               taxon: FullObject[ModelTaxon],
               parentTaxonId: Option[Integer]): SingleTaxonResponse =
-      SingleTaxonResponse(taxonomyId, Taxon.build(taxon), parentTaxonId)
+      SingleTaxonResponse(taxonomyId, TaxonResponse.build(taxon), parentTaxonId)
   }
 
-  case class TaxonTreeResponse(taxon: Taxon, children: Option[Seq[TaxonTreeResponse]]) {
+  case class TaxonTreeResponse(taxon: TaxonResponse, children: Option[Seq[TaxonTreeResponse]])
+      extends ResponseItem {
     def childrenAsList: Seq[TaxonTreeResponse] = children.getOrElse(Seq.empty)
   }
 
-  case class Taxon(id: Int, name: String)
+  case class TaxonResponse(id: Int, name: String) extends ResponseItem
 
-  object Taxon {
+  object TaxonResponse {
     implicit val formats = JsonFormatters.phoenixFormats
 
-    def build(taxon: FullObject[ModelTaxon]): Taxon = {
-      Taxon(taxon.model.formId,
-            IlluminateAlgorithm
-              .get("name", taxon.form.attributes, taxon.shadow.attributes)
-              .extract[String])
+    def build(taxon: FullObject[ModelTaxon]): TaxonResponse = {
+      TaxonResponse(taxon.model.formId,
+                    IlluminateAlgorithm
+                      .get("name", taxon.form.attributes, taxon.shadow.attributes)
+                      .extract[String])
     }
   }
 
   object TaxonTreeResponse {
-    def build(taxon: Taxon, children: Seq[TaxonTreeResponse]): TaxonTreeResponse = {
+    def build(taxon: TaxonResponse, children: Seq[TaxonTreeResponse]): TaxonTreeResponse = {
       TaxonTreeResponse(taxon, children.some.filterNot(_.isEmpty))
     }
 
@@ -93,7 +104,7 @@ object TaxonomyResponses {
       val headsByPosition = heads.sortBy { case (_, link)     ⇒ link.position }
       headsByPosition.map {
         case (taxon, link) ⇒
-          TaxonTreeResponse.build(Taxon.build(taxon), buildTree(level + 1, tail.filter {
+          TaxonTreeResponse.build(TaxonResponse.build(taxon), buildTree(level + 1, tail.filter {
             case (_, lnk) ⇒ lnk.path.value.startsWith(link.childPath.value)
           }))
       }
