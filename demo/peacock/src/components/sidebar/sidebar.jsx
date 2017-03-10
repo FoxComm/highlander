@@ -58,9 +58,12 @@ class Sidebar extends React.Component {
    }
   };
 
-  @autobind
-  renderSessionLink(userAuthorized) {
-    return userAuthorized ?
+  get userAuthorized() {
+    return isAuthorizedUser(this.props.user);
+  }
+
+  get renderSessionLink() {
+    return this.userAuthorized ?
         <a styleName="session-link" onClick={this.handleLogout}>
           {this.props.t('Log out')}
         </a>
@@ -74,9 +77,8 @@ class Sidebar extends React.Component {
       ;
    }
 
-   @autobind
-   myProfileLink(userAuthorized) {
-     return userAuthorized ?
+   get myProfileLink() {
+     return this.userAuthorized ?
         <Link
           to="/profile"
           styleName="session-link"
@@ -97,11 +99,11 @@ class Sidebar extends React.Component {
 
     const { t } = this.props;
 
-    const userAuthorized = isAuthorizedUser(this.props.user);
+    const userAuthorized = this.userAuthorized;
 
     return (
       <div styleName={sidebarClass}>
-        <div styleName="overlay" onClick={this.props.toggleSidebar}></div>
+        <div styleName="overlay" onClick={this.props.toggleSidebar}>
         <div styleName="container">
           <div styleName="controls">
             <div styleName="controls-close">
@@ -120,14 +122,15 @@ class Sidebar extends React.Component {
               </div>
               <div styleName="controls-session-wrapper">
                 <div styleName="controls-session">
-                  {this.myProfileLink(userAuthorized)}
+                  {this.myProfileLink}
                 </div>
                 <div styleName="controls-session">
-                  {this.renderSessionLink(userAuthorized)}
+                  {this.renderSessionLink}
                 </div>
               </div>
             </div>
           </div>
+        </div>
         </div>
       </div>
     );

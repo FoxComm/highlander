@@ -24,18 +24,6 @@
   width: 320px;
 }
 
-/*@media (--small-only) {
-  .container {
-    lost-column: 10/12;
-  }
-}
-
-@media (--medium-only) {
-  .container {
-    lost-column: 7/12;
-  }
-}*/
-
 .sidebar-shown .overlay {
   opacity: 1;
   transform: translateX(0);
