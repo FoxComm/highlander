@@ -1,4 +1,4 @@
-{
+module.exports = {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "title": "amazon_clothes_product",
   "type": "object",
@@ -82,4 +82,4 @@
                    "retailPrice"]
     }
   }
-}
+};

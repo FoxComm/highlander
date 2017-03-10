@@ -25,7 +25,7 @@ function processList(list) {
 function delay(ms) {
   return function(callback) {
     setTimeout(callback, ms);
-  }
+  };
 }
 
 router.get('/api/v1/amazon/categories/suggester', function *(next) {

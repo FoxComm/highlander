@@ -1,4 +1,4 @@
-{
+module.exports = {
   "secondary": [
     {
       "node_path": "Clothing, Shoes & Jewelry/Novelty & More/Clothing/Novelty/Girls/Tops & Tees/T-Shirts",
@@ -32,4 +32,4 @@
     "department": "boys"
   },
   "count": 5
-}
+};
