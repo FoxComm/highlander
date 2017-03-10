@@ -108,28 +108,28 @@ docker run -it --rm [container-id]
 Here are available urls:
 
 ```elixir
-v1   GET    /v1/health  Check hyperion health
-v1   GET    /v1/credentials/:client_id  Get MWS credentials for exact client
-v1   POST   /v1/credentials  Store new credentials
-v1   PUT    /v1/credentials/:client_id  Update credentials
-v1   DELETE /v1/credentials/:client_id  Remove credentials for specific client
-v1   POST   /v1/products  Get products by ids and submit them to the Amazon MWS
-v1   POST   /v1/products/by_asin  Add products by asin
-v1   GET    /v1/products/search  Search products by code or query
-v1   GET    /v1/products/find_by_asin/:asin  Searches product by ASIN code
-v1   GET    /v1/products/categories/:asin  Returns categories for given asin
-v1   GET    /v1/categories  Search for Amazon `department` and `item-type' by `node_path'
-v1   GET    /v1/categories/suggest  Suggests category for product by title
-v1   GET    /v1/orders  Get all orders
-v1   POST   /v1/prices  Submit prices for already submitted products
-v1   POST   /v1/inventory  Submit inventory for already submitted products
-v1   POST   /v1/images  submit images feed
-v1   GET    /v1/submission_result/:feed_id  Check result of submitted feed
-v1   POST   /v1/subscribe  Subscribe to notifications queue
-v1   DELETE /v1/subscribe  Unubscribe from notifications queue
-v1   GET    /v1/object_schema/:schema_name  Fetch object schema by name
-v1   GET    /v1/object_schema/category/:category_id  Get object schema by amazon category id
-v1   GET    /v1/object_schema  Get all available schemas
+v1   GET    /api/v1/health  Check hyperion health
+v1   GET    /api/v1/credentials/:client_id  Get MWS credentials for exact client
+v1   POST   /api/v1/credentials  Store new credentials
+v1   PUT    /api/v1/credentials/:client_id  Update credentials
+v1   DELETE /api/v1/credentials/:client_id  Remove credentials for specific client
+v1   POST   /api/v1/products  Get products by ids and submit them to the Amazon MWS
+v1   POST   /api/v1/products/by_asin  Add products by asin
+v1   GET    /api/v1/products/search  Search products by code or query
+v1   GET    /api/v1/products/find_by_asin/:asin  Searches product by ASIN code
+v1   GET    /api/v1/products/categories/:asin  Returns categories for given asin
+v1   GET    /api/v1/categories  Search for Amazon `department` and `item-type' by `node_path'
+v1   GET    /api/v1/categories/suggest  Suggests category for product by title
+v1   GET    /api/v1/orders  Get all orders
+v1   POST   /api/v1/prices  Submit prices for already submitted products
+v1   POST   /api/v1/inventory  Submit inventory for already submitted products
+v1   POST   /api/v1/images  submit images feed
+v1   GET    /api/v1/submission_result/:feed_id  Check result of submitted feed
+v1   POST   /api/v1/subscribe  Subscribe to notifications queue
+v1   DELETE /api/v1/subscribe  Unubscribe from notifications queue
+v1   GET    /api/v1/object_schema/:schema_name  Fetch object schema by name
+v1   GET    /api/v1/object_schema/category/:category_id  Get object schema by amazon category id
+v1   GET    /api/v1/object_schema  Get all available schemas
 ```
 
 Get Postman collection [here](https://www.getpostman.com/collections/effaaa57089a01898f14)

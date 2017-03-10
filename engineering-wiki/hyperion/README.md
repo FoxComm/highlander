@@ -19,7 +19,7 @@ All requests should have two headers:
 *request*
 
 ```
-GET /v1/credentials/:customer_id
+GET /api/v1/hyperion/credentials/:customer_id
 ```
 
 *response*
@@ -37,7 +37,7 @@ GET /v1/credentials/:customer_id
 *request*
 
 ```
-POST /v1/credentials
+POST /api/v1/hyperion/credentials
 ```
 body:
 
@@ -64,7 +64,7 @@ body:
 *request*
 
 ```
-PUT /v1/credentials/:customer_id
+PUT /api/v1/hyperion/credentials/:customer_id
 ```
 body:
 
@@ -90,7 +90,7 @@ body:
 *request*
 
 ```
-DELETE /v1/credentials/:client_id
+DELETE /api/v1/hyperion/credentials/:client_id
 ```
 
 *response*
@@ -111,7 +111,7 @@ If no credentials found:
 *request*
 
 ```
-POST /v1/products
+POST /api/v1/hyperion/products
 ```
 
 |name|type|description|required?|
@@ -151,7 +151,7 @@ body:
 ####Submit products feed by ASIN
 
 ```
-POST /v1/products/by_asin
+POST /api/v1/hyperion/products/by_asin
 ```
 
 |name|type|description|required?|
@@ -194,7 +194,7 @@ body:
 *request*
 
 ```
-POST /v1/prices
+POST /api/v1/hyperion/prices
 ```
 body:
 
@@ -230,7 +230,7 @@ body:
 *request*
 
 ```
-POST /v1/inventory
+POST /api/v1/hyperion/inventory
 ```
 body:
 
@@ -267,7 +267,7 @@ body:
 *request*
 
 ```
-POST /v1/images
+POST /api/v1/hyperion/images
 ```
 body:
 
@@ -302,7 +302,7 @@ body:
 *request*
 
 ```
-GET /v1/products/search?q=:query_string
+GET /api/v1/hyperion/products/search?q=:query_string
 ```
 
 *response*
@@ -329,7 +329,7 @@ _IMPORTANT:_ Feed can be processed with warnings. In most cases with warnings yo
 *request*
 
 ```
-GET /v1/submission_result/:feed_id
+GET /api/v1/hyperion/submission_result/:feed_id
 ```
 
 *response*
@@ -415,7 +415,7 @@ Warning
 *request*
 
 ```
-GET /v1/products/find_by_asin/:asin
+GET /api/v1/hyperion/products/find_by_asin/:asin
 ```
 
 *response*
@@ -548,7 +548,7 @@ Params marked with * are mandatory.
 *request*
 
 ```
-GET /v1/products/categories/:asin
+GET /api/v1/hyperion/products/categories/:asin
 ```
 
 *response*
@@ -591,7 +591,7 @@ GET /v1/products/categories/:asin
 
 *request*
 ```
-GET /v1/categories?node_path=t-shirt&size=2
+GET /api/v1/hyperion/categories?node_path=t-shirt&size=2
 ```
 
 **response**
@@ -623,7 +623,7 @@ GET /v1/categories?node_path=t-shirt&size=2
 *request*
 
 ```
-GET /v1/categories/suggest?q=necktie
+GET /api/v1/hyperion/categories/suggest?q=necktie
 ```
 
 *response*
@@ -668,7 +668,7 @@ GET /v1/categories/suggest?q=necktie
 *request*
 
 ```
-POST /v1/subscribe
+POST /api/v1/hyperion/subscribe
 ```
 
 body:
@@ -714,7 +714,7 @@ If already subscribed error will return:
 *request*
 
 ```
-DELETE /v1/subscribe
+DELETE /api/v1/hyperion/subscribe
 ```
 
 body:
@@ -758,7 +758,7 @@ If already unsubscribed error will return:
 *request*
 
 ```
-GET /v1/object_schema
+GET /api/v1/hyperion/object_schema
 ```
 
 *response*
@@ -780,7 +780,7 @@ GET /v1/object_schema
 *request*
 
 ```
-GET /v1/object_schema/:schema_name
+GET /api/v1/hyperion/object_schema/:schema_name
 ```
 
 ```json
@@ -925,7 +925,7 @@ GET /v1/object_schema/:schema_name
 *request*
 
 ```
-GET /v1/object_schema/category/7132434011
+GET /api/v1/hyperion/object_schema/category/7132434011
 ```
 
 *response*
