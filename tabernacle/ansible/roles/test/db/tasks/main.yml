@@ -29,11 +29,12 @@
     - libpq-dev
     - python-psycopg2
 
-- name: Create Phoenix Test DB
-  postgresql_db: name={{phoenix_test_db_name}}
-
-- name: Create Middlewarehouse Test DB
-  postgresql_db: name={{middlewarehouse_test_db_name}}
+- name: Create Test Databases
+  postgresql_db: name={{item}}
+  with_items:
+    - "{{phoenix_test_db_name}}"
+    - "{{middlewarehouse_test_db_name}}"
+    - "{{hyperion_test_db_name}}"
 
 - name: Configure Db Users
   postgresql_user: name={{item}} state=present role_attr_flags=SUPERUSER
@@ -42,3 +43,4 @@
       - "{{user}}"
       - phoenix
       - middlewarehouse
+      - hyperion

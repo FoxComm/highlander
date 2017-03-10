@@ -245,12 +245,13 @@ hyperion_db_user: hyperion
 hyperion_db_password: hyperion
 hyperion_db_host: "{{db_host}}"
 hyperion_db_connection_string: "postgresql://{{hyperion_db_user}}@{{hyperion_db_host}}/{{hyperion_db_name}}"
+hyperion_test_db_name: hyperion_test
 
-#Eggcreate
+# Eggcreate
 eggcrate_host: "eggcrate.{{consul_suffix}}"
 eggcrate_server: "{{eggcrate_host}}"
 
-#Bernardo
+# Bernardo
 bernardo_dir: /bernardo
 bernardo_src: ../../intelligence/bernardo/
 bernardo_db_name: ic
@@ -260,7 +261,7 @@ bernardo_port: "9290"
 bernardo_host: bernardo.service.consul
 bernardo_server: "{{bernardo_host}}:{{bernardo_port}}"
 
-#River Rock
+# River Rock
 river_rock_port: "9390"
 river_rock_host: river-rock.service.consul
 river_rock_server: "{{river_rock_host}}:{{river_rock_port}}"
