@@ -31,6 +31,9 @@
       },
       "required": ["name"],
       "description": "Taxonomy attributes itself"
+    },
+    "hierarchical": {
+      "type": "boolean"
     }
   }
 }
