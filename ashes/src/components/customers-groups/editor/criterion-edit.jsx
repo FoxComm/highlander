@@ -1,6 +1,6 @@
 //libs
 import _ from 'lodash';
-import React, { PropTypes } from 'react';
+import React, { Component, PropTypes } from 'react';
 import classNames from 'classnames';
 
 //data
@@ -13,23 +13,36 @@ import { prefix } from 'lib/text-utils';
 import { Dropdown, DropdownItem } from 'components/dropdown';
 
 const prefixed = prefix('fc-customer-group-builder');
-const fields = criterions.map(({field,label}) => [field, label]);
+const fields = criterions.map(({ field,label }) => [ field, label ]);
 
-const Criterion = ({field, operator, value, changeField, changeOperator, changeValue, remove}) => {
-  const criterion = getCriterion(field);
+class Criterion extends Component {
+  shouldComponentUpdate(nextProps, nextState) {
+    const { field, operator, value } = this.props;
 
-  return (
-    <div className={classNames('fc-grid', prefixed('criterion'))}>
-      <Dropdown items={fields}
-                className={prefixed('field')}
-                placeholder='- Select criteria -'
-                value={field}
-                onChange={changeField} />
-      {renderOperator(criterion, operator, changeOperator)}
-      {renderValue(criterion, operator, value, changeValue)}
-      <i onClick={remove} className={classNames(prefixed('remove-criterion'), 'icon-close')} />
-    </div>
-  );
+    console.log('should update', nextProps.field != field || nextProps.operator != operator || nextProps.value != value);
+
+    return nextProps.field != field || nextProps.operator != operator || nextProps.value != value;
+  }
+
+  render() {
+    const { field, operator, value, changeField, changeOperator, changeValue, remove } = this.props;
+    const criterion = getCriterion(field);
+
+    return (
+      <div className={classNames('fc-grid', prefixed('criterion'))}>
+        <Dropdown
+          items={fields}
+          className={prefixed('field')}
+          placeholder='- Select criteria -'
+          value={field}
+          onChange={changeField}
+        />
+        {renderOperator(criterion, operator, changeOperator)}
+        {renderValue(criterion, operator, value, changeValue)}
+        <i onClick={remove} className={classNames(prefixed('remove-criterion'), 'icon-close')} />
+      </div>
+    );
+  }
 };
 
 const renderOperator = (criterion, operator, changeOperator) => {
@@ -40,11 +53,13 @@ const renderOperator = (criterion, operator, changeOperator) => {
   const operators = _.map(getOperators(criterion), (label, operator) => [operator, label]);
 
   return (
-    <Dropdown items={operators}
-              className={prefixed('operator')}
-              placeholder='- Select operator -'
-              value={operator}
-              onChange={changeOperator} />
+    <Dropdown
+      items={operators}
+      className={prefixed('operator')}
+      placeholder='- Select operator -'
+      value={operator}
+      onChange={changeOperator}
+    />
   );
 };
 
