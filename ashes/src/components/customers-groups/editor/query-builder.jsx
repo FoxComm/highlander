@@ -39,24 +39,31 @@ export default class QueryBuilder extends React.Component {
   }
 
   @autobind
-  renderCriterion([field, operator, value], index) {
+  changeValue(index, field, operator, value) {
+    this.updateCondition(index, [field, operator, value]);
+  }
+
+  @autobind
+  changeOperator(index, field, operator) {
+    const criterion = getCriterion(field);
+    const { getDefault } = getWidget(criterion, operator);
+
+    this.updateCondition(index, [field, operator, getDefault(criterion)]);
+  }
+
+  @autobind
+  remove(index) {
     const {conditions, setConditions} = this.props;
 
-    const changeOperator = (operator) => {
-      const criterion = getCriterion(field);
-      const {getDefault} = getWidget(criterion, operator);
+    setConditions([
+      ...conditions.slice(0, index),
+      ...conditions.slice(index + 1),
+    ]);
+  }
 
-      this.updateCondition(index, [field, operator, getDefault(criterion)]);
-    };
-    const changeValue = (value) => {
-      this.updateCondition(index, [field, operator, value]);
-    };
-    const remove = () => {
-      setConditions([
-        ...conditions.slice(0, index),
-        ...conditions.slice(index + 1),
-      ]);
-    };
+  @autobind
+  renderCriterion([field, operator, value], index) {
+    const {conditions, setConditions} = this.props;
 
     return (
       <Criterion
@@ -64,10 +71,10 @@ export default class QueryBuilder extends React.Component {
         field={field}
         operator={operator}
         value={value}
-        changeField={(field) => this.changeField(index, field)}
-        changeOperator={changeOperator}
-        changeValue={changeValue}
-        remove={remove}
+        changeField={field => this.changeField(index, field)}
+        changeOperator={op => this.changeOperator(index, field, op)}
+        changeValue={v => this.changeValue(index, field, operator, v)}
+        remove={() => this.remove(index)}
       />
     );
   }

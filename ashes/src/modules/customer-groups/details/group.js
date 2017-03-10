@@ -152,8 +152,6 @@ export const saveGroup = () => (dispatch: Function, getState: Function) => {
     elasticRequest = requestAdapter(groupId, criterions, mainCondition, conditions).toRequest();
   }
 
-  console.log(customersCount, state);
-
   const data = {
     name,
     groupType,

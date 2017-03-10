@@ -19,8 +19,6 @@ class Criterion extends Component {
   shouldComponentUpdate(nextProps, nextState) {
     const { field, operator, value } = this.props;
 
-    console.log('should update', nextProps.field != field || nextProps.operator != operator || nextProps.value != value);
-
     return nextProps.field != field || nextProps.operator != operator || nextProps.value != value;
   }
 
