@@ -14,6 +14,7 @@ import { Checkbox } from '../../checkbox/checkbox';
 import Counter from '../../forms/counter';
 import FormField from '../../forms/formfield';
 import CodeCreationModal from './code-creation-modal';
+import { transitionTo } from 'browserHistory';
 
 // styles
 import styles from './styles.css';
@@ -104,11 +105,11 @@ class CouponCodes extends Component {
     const { codesPrefix, codesLength, codesQuantity } = this.props.codeGeneration;
 
     this.props.generateCodes(codesPrefix, codesLength, codesQuantity).then(() => {
-      this.props.couponsGenerationReset()
+      this.props.couponsGenerationReset();
     }).then(() => {
-      console.log("generated")
+      transitionTo('promotion-coupons', {promotionId: this.props.promotionId});
     });
-  }
+  } 
 
   codeIsOfValidLength(): boolean {
     return this.props.codeIsOfValidLength();

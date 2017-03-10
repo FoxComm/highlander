@@ -145,7 +145,7 @@ export function codeIsOfValidLength(): Function {
 /* module state */
 
 const initialCodeGenerationState = {
-  bulk: void 0,
+  bulk: false,
   codesPrefix: '',
   singleCode: '',
   codesQuantity: 1,

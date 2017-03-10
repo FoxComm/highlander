@@ -61,13 +61,13 @@ export default class MarketingEntry extends Component {
             expectedClaims={promotionClaims}>
             Promotions
           </IndexLink>
-          <IndexLink
+          {/*<IndexLink
             to="coupons"
             className="fc-navigation-item__sublink"
             actualClaims={claims}
             expectedClaims={couponClaims}>
             Coupons
-          </IndexLink>
+          </IndexLink>*/}
         </NavigationItem>
       </li>
     );

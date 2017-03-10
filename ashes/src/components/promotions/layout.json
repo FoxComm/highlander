@@ -31,9 +31,6 @@
         },
         {
           "type": "customers"
-        },
-        {
-          "type": "add-discount"
         }
       ]
     },

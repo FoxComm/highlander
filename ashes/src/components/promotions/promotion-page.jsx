@@ -1,6 +1,7 @@
 /* @flow weak */
 
 // libs
+import _ from 'lodash';
 import React, { Element } from 'react';
 
 // components
@@ -11,7 +12,6 @@ import { transitionTo } from 'browserHistory';
 // actions
 import * as PromotionActions from 'modules/promotions/details';
 
-
 class PromotionPage extends ObjectPage {
   save(): ?Promise {
   	let isNew = this.isNew;
@@ -20,15 +20,15 @@ class PromotionPage extends ObjectPage {
     if (willBePromo && isNew) {
         willBePromo.then((data) => {
         	if (data.applyType === 'coupon') {
-        		transitionTo('promotion-coupon-new',{promotionId: data.id})
+        		transitionTo('promotion-coupon-new',{promotionId: data.id});
         	}
-        })
+        });
     }
 
     return willBePromo;
   }
   subNav(): Element {
-    return <SubNav applyType={this.props.details.promotion.applyType} promotionId={this.entityId} />;
+    return <SubNav applyType={_.get(this.props, 'details.promotion.applyType')} promotionId={this.entityId} />;
   }
 }
 
