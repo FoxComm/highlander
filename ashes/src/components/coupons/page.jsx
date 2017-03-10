@@ -81,7 +81,7 @@ class CouponPage extends ObjectPage {
         }).then(() => {
           this.props.actions.couponsGenerationReset();
         }).then(() => {
-          transitionTo('promotion-coupons',{promotionId: this.props.params.promotionId})
+          transitionTo('promotion-coupons',{promotionId: this.props.params.promotionId});
         });
       }
 
@@ -98,17 +98,18 @@ class CouponPage extends ObjectPage {
   @autobind
   receiveNewObject(nextObject) {
     nextObject.promotion = Number(this.props.params.promotionId);
-    console.log(nextObject);
-    
     nextObject.attributes.name = { // TO BE REMOVED WHEN COUPON NAME WILL BE REMOVED FROM COUPONS SCHEMA
       t: "string",
       v: "Dummy coupon"
     };
-
     this.setState({
       object: nextObject
     });
   }  
+
+  componentDidUpdate(prevProps, prevState) {
+    return;
+  }
 
   @autobind
   titleBar() {

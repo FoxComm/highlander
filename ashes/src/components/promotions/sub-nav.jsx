@@ -10,18 +10,18 @@ import { Link, IndexLink } from '../link';
 import LocalNav from '../local-nav/local-nav';
 
 type SubNavProps = {
-  promotionId: string|number;
-}
+  promotionId: string|number,
+  applyType: string
+};
 
 const SubNav = (props: SubNavProps) => {
   const params = {
-    promotionId: props.promotionId,
-    applyType: props.applyType
+    promotionId: props.promotionId
   };
 
   const isNew = props.promotionId === 'new';
   const isAutoApply = props.applyType === 'auto';
-
+  
   return (
     <LocalNav>
       <IndexLink to="promotion-details" params={params}>Details</IndexLink>

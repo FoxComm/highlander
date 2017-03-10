@@ -12,7 +12,7 @@ import { PrimaryButton } from '../../components/common/buttons';
 
 export default class PromoCouponsPage extends React.Component {
   constructor(props) {
-    super(props)
+    super(props);
   }
 
   @autobind
