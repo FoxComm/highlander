@@ -29,5 +29,9 @@ docker-push:
 	docker tag $(DOCKER_TAG) $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
 	docker push $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
 
+test:
+	$(call header, Testing)
+	true
+
 clean:
 	rm -rf ./pkg eggcrate
