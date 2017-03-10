@@ -110,7 +110,7 @@ object ReturnPaymentUpdater {
           orderCCPayment     ← * <~ orderCCPaymentQuery
           maxCCAmount = orderCCPayment - previousCCPayments
           _ ← * <~ failIf(ccAmount > maxCCAmount,
-                          ReturnCCPaymentExceeded(refNum = rma.referenceNumber,
+                          ReturnCcPaymentExceeded(refNum = rma.referenceNumber,
                                                   amount = ccAmount,
                                                   maxAmount = maxCCAmount))
         } yield ()
@@ -257,28 +257,36 @@ object ReturnPaymentUpdater {
     } yield ()
   }
 
-  def issuePayments(rma: Return)(implicit ec: EC, apis: Apis): DbResultT[Unit] = {
+  def issueRefunds(rma: Return)(implicit ec: EC, db: DB, apis: Apis): DbResultT[Unit] = {
     for {
       ccPayment ← * <~ ReturnPayments.findAllByReturnId(rma.id).creditCards.one
-      _         ← * <~ ccPayment.map(issueCcPayment(rma, _))
+      _         ← * <~ ccPayment.map(issueCcRefund(rma, _))
     } yield ()
   }
 
-  private def issueCcPayment(rma: Return, payment: ReturnPayment)(implicit ec: EC,
-                                                                  apis: Apis): DbResultT[Unit] = {
+  private def issueCcRefund(rma: Return, payment: ReturnPayment)(implicit ec: EC,
+                                                                 db: DB,
+                                                                 apis: Apis): DbResultT[Unit] = {
     val authorizeRefund =
       ((id: String, amount: Int) ⇒
          for {
            _ ← * <~ apis.stripe.authorizeRefund(id, amount, RefundReason.RequestedByCustomer)
-           ccPayment = ReturnCcPayment.build(
+           ccPayment = ReturnCcPayment(
                returnPaymentId = payment.id,
                chargeId = id,
                returnId = payment.returnId,
-               amount = amount
+               amount = amount,
+               currency = payment.currency
            )
            created ← * <~ ReturnCcPayments.create(ccPayment)
          } yield created).tupled
+        .andThen(_.runTxn()) // we want to run each stripe refund in separate transaction to avoid any rollback of `ReturnCcPayments` table
 
+    /** Splits total refund amount into order cc charges.
+      *
+      * Each charge is used either up to its maximum or to the refund amount left (whichever is less).
+      * Note that subsequent charges will be taken into account only if amount left to split will be greater than 0.
+      */
     @tailrec
     def splitAmount(amount: Int,
                     charges: Seq[CreditCardCharge],
@@ -291,28 +299,38 @@ object ReturnPaymentUpdater {
     }
 
     for {
-      previousCcPayments ← * <~ Returns
-                            .findPrevious(rma)
-                            .join(ReturnCcPayments)
-                            .on(_.id === _.returnId)
-                            .map { case (_, ccPayment) ⇒ ccPayment.chargeId → ccPayment.amount }
-                            .result
-                            .map(_.groupBy(_._1).mapValues(_.map(_._2).sum))
+      previousCcRefunds ← * <~ Returns
+                           .findPreviousOrCurrent(rma)
+                           .join(ReturnCcPayments)
+                           .on(_.id === _.returnId)
+                           .map { case (_, ccPayment) ⇒ ccPayment.chargeId → ccPayment.amount }
+                           .groupBy(_._1)
+                           .map {
+                             case (id, ccPayment) ⇒ id → ccPayment.map(_._2).sum.getOrElse(0)
+                           }
+                           .result
+                           .map(_.toMap)
       ccCharges ← * <~ OrderPayments
                    .findAllCreditCardsForOrder(rma.orderRef)
                    .join(CreditCardCharges)
                    .on(_.id === _.orderPaymentId)
                    .map { case (_, charge) ⇒ charge }
-                   .filter(_.currency === payment.currency)
                    .result
+      _ ← * <~ failIf(ccCharges.exists(_.currency != payment.currency),
+                      ReturnCcPaymentCurrencyMismatch(
+                          refNum = rma.refNum,
+                          expected = payment.currency,
+                          actual = ccCharges.collect {
+                            case charge if charge.currency != payment.currency ⇒ charge.currency
+                          }(collection.breakOut)))
       adjustedCcCharges = ccCharges
-        .map(c ⇒ c.copy(amount = c.amount - previousCcPayments.getOrElse(c.chargeId, 0)))
+        .map(c ⇒ c.copy(amount = c.amount - previousCcRefunds.getOrElse(c.chargeId, 0)))
         .filter(_.amount > 0)
       amountToRefund = splitAmount(payment.amount, adjustedCcCharges, Vector.empty)
-      refunds ← * <~ amountToRefund.map(authorizeRefund)
+      refunds ← * <~ amountToRefund.map(authorizeRefund).sequenceU
       totalRefund = refunds.map(_.amount).sum
       _ ← * <~ failIf(totalRefund != payment.amount,
-                      ReturnCCPaymentViolation(refNum = rma.refNum,
+                      ReturnCcPaymentViolation(refNum = rma.refNum,
                                                issued = totalRefund,
                                                allowed = payment.amount))
     } yield ()

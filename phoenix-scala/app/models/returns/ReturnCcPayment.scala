@@ -3,24 +3,16 @@ package models.returns
 import models.payment.creditcard.CreditCardCharges
 import shapeless._
 import slick.driver.PostgresDriver.api._
+import utils.Money.Currency
 import utils.db._
 
 case class ReturnCcPayment(id: Int = 0,
                            returnPaymentId: Int,
                            chargeId: String,
                            returnId: Int,
-                           amount: Int)
+                           amount: Int,
+                           currency: Currency)
     extends FoxModel[ReturnCcPayment]
-
-object ReturnCcPayment {
-  def build(returnPaymentId: Int, chargeId: String, returnId: Int, amount: Int): ReturnCcPayment =
-    ReturnCcPayment(
-        returnPaymentId = returnPaymentId,
-        chargeId = chargeId,
-        returnId = returnId,
-        amount = amount
-    )
-}
 
 class ReturnCcPayments(tag: Tag) extends FoxTable[ReturnCcPayment](tag, "return_cc_payments") {
   def id              = column[Int]("id", O.AutoInc)
@@ -28,9 +20,10 @@ class ReturnCcPayments(tag: Tag) extends FoxTable[ReturnCcPayment](tag, "return_
   def chargeId        = column[String]("charge_id")
   def returnId        = column[Int]("return_id")
   def amount          = column[Int]("amount")
+  def currency        = column[Currency]("currency")
 
   def * =
-    (id, returnPaymentId, chargeId, returnId, amount) <> ((ReturnCcPayment.apply _).tupled,
+    (id, returnPaymentId, chargeId, returnId, amount, currency) <> ((ReturnCcPayment.apply _).tupled,
         ReturnCcPayment.unapply)
 
   def pk = primaryKey(tableName, (returnPaymentId, chargeId))

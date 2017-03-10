@@ -475,7 +475,7 @@ class ReturnIntegrationTest
 
         returnsApi(rma.referenceNumber).paymentMethods
           .add(PaymentMethod.CreditCard, ReturnPaymentPayload(maxCCAmount))
-          .mustFailWith400(ReturnCCPaymentExceeded(rma.referenceNumber,
+          .mustFailWith400(ReturnCcPaymentExceeded(rma.referenceNumber,
                                                    amount = payload.amount,
                                                    maxAmount = maxCCAmount - 25))
       }

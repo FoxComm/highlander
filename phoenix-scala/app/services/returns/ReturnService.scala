@@ -46,11 +46,12 @@ object ReturnService {
 
   private def update(rma: Return, reason: Option[Reason], payload: ReturnUpdateStatePayload)(
       implicit ec: EC,
+      db: DB,
       apis: Apis) =
     for {
       rma ← * <~ Returns
              .update(rma, rma.copy(state = payload.state, canceledReasonId = reason.map(_.id)))
-      _ ← * <~ doOrMeh(rma.state == Return.Complete, ReturnPaymentUpdater.issuePayments(rma))
+      _ ← * <~ doOrMeh(rma.state == Return.Complete, ReturnPaymentUpdater.issueRefunds(rma))
     } yield rma
 
   // todo should be available for non-admin as well

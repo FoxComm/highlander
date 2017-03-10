@@ -20,7 +20,7 @@ trait FoxStripeApi {
                           address: Address)(implicit ec: EC): Result[(StripeCustomer, StripeCard)]
 
   @deprecated(message = "Use `createCardFromToken` instead", "Until we are PCI compliant")
-  def createCardFromSource(emStripeReturnail: Option[String],
+  def createCardFromSource(email: Option[String],
                            card: CreateCreditCardFromSourcePayload,
                            stripeCustomerId: Option[String],
                            address: Address)(implicit ec: EC): Result[(StripeCustomer, StripeCard)]
