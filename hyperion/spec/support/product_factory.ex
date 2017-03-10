@@ -1,7 +1,7 @@
 defmodule Hyperion.ProductFactory do
   use ExMachina
 
-  def product_without_varians do
+  def product_without_varians_factory do
     %{body: %{"albums" => [%{"createdAt" => "2017-02-28T10:38:33.711Z", "id" => 27,
            "images" => [%{"alt" => "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Quay_Side.jpg",
               "id" => 7,
@@ -29,7 +29,7 @@ defmodule Hyperion.ProductFactory do
         "slug" => "fox", "taxons" => [], "variants" => []}}
   end
 
-  def product_with_variants do
+  def product_with_variants_factory do
     %{body: %{"albums" => [],
         "attributes" => %{"activeFrom" => %{"t" => "datetime",
             "v" => "2017-03-09T02:21:07.763Z"},
@@ -63,7 +63,7 @@ defmodule Hyperion.ProductFactory do
               "swatch" => ""}]}]}}
   end
 
-  def sku_with_images do
+  def sku_with_images_factory do
     %{body: %{"albums" => [%{"createdAt" => "2017-02-28T10:38:33.711Z", "id" => 27,
            "images" => [%{"alt" => "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Quay_Side.jpg",
               "id" => 7,

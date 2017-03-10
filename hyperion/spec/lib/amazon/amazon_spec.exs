@@ -4,7 +4,7 @@ defmodule AmazonSpec do
 
   describe "get_product" do
     context "when no variants present" do
-      let resp: product_without_varians()
+      let resp: build(:product_without_varians)
       let product: [{[parentage: "parent", activefrom: "2017-02-28T10:38:32.559Z",
                       description: "Stylish fit, stylish finish.", tags: ["sunglasses"],
                       title: "Fox", activefrom: "2017-02-28T10:38:33.627Z", code: "PARENTSKU-TRL",
@@ -24,7 +24,7 @@ defmodule AmazonSpec do
     end # with variants
 
     context "when variants not present" do
-      let resp: product_with_variants()
+      let resp: build(:product_with_variants)
       let product: [{[parentage: "parent", color: "white", size: "S",
                       activefrom: "2017-03-09T02:21:07.763Z", description: "<p>bar baz</p>",
                       tags: ["a", "b", "c", "d"], title: "foo",
@@ -45,7 +45,7 @@ defmodule AmazonSpec do
   end # get_product
 
   describe "price_feed" do
-    let resp: product_without_varians()
+    let resp: build(:product_without_varians)
     let product: [{[code: "SKU-TRL", retailprice: %{"currency" => "USD", "value" => 10500}], 1}]
     before do: allow(Hyperion.PhoenixScala.Client).to accept(:get_product, fn(_, _) -> resp() end)
 
@@ -56,7 +56,7 @@ defmodule AmazonSpec do
 
   describe "images_feed" do
     context "when product have images" do
-      let resp: sku_with_images()
+      let resp: build(:sku_with_images)
       let images: [[albums: [Fox: [%{"alt" => "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Quay_Side.jpg",
                             "id" => 7,
                             "src" => "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Quay_Side.jpg",
@@ -70,7 +70,7 @@ defmodule AmazonSpec do
     end # when product have images
 
     context "when product have no images" do
-      let resp: sku_with_images()
+      let resp: build(:sku_with_images)
       before do: allow(Hyperion.PhoenixScala.Client).to accept(:get_product, fn(_, _) -> resp() end)
 
       it "raises an exception" do
