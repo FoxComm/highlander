@@ -4,6 +4,7 @@
 import _ from 'lodash';
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
+import invariant from 'invariant';
 import { assoc } from 'sprout-data';
 import { flow, filter } from 'lodash/fp';
 import { expandRefs } from 'lib/object-schema';
@@ -141,6 +142,19 @@ export default class ObjectDetailsDeux extends Component {
     }
   }
 
+  renderId() {
+    if (!this.props.object.id) {
+      return null
+    }
+
+    return (
+      <div styleName="id-container">
+        <label>ID</label>
+        <div>{this.props.object.id}</div>
+      </div>
+    )
+  }
+
   renderGroup(group: NodeDesc, section: Array<NodeDesc>) {
     const { title, fields, renderer, content } = group;
 
@@ -158,6 +172,7 @@ export default class ObjectDetailsDeux extends Component {
 
     return (
       <ContentBox title={title}>
+        {this.renderId()}
         {children}
       </ContentBox>
     );
@@ -167,12 +182,18 @@ export default class ObjectDetailsDeux extends Component {
     switch (description.type) {
       case 'group':
         return this.renderGroup(description, section);
+      case 'fields':
+        return this.renderFields(description, section);
       case 'state':
         return this.renderState();
       case 'tags':
         return this.renderTags();
       case 'watchers':
         return this.renderWatchers();
+      default:
+        const renderName = description.type;
+        invariant(this.props.renderers[renderName], `There is no method for render ${description.type}.`);
+        return this.props.renderers[renderName](description, section);
     }
 
     return null;
