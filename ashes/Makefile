@@ -5,11 +5,6 @@ DOCKER_REPO ?= $(DOCKER_STAGE_REPO)
 DOCKER_IMAGE ?= ashes
 DOCKER_TAG ?= master
 
-NODE_MODULES ?= node_modules
-export PATH := $(PWD)/$(NODE_MODULES)/.bin:$(PATH)
-export NODE_MODULES := $(NODE_MODULES)
-SHELL := env PATH=$(PATH) /bin/bash
-
 default: test
 NODE_ENV = test
 CFLAGS = -c -g -D $(NODE_ENV)
@@ -23,10 +18,7 @@ clean:
 test:
 	$(call header, Testing)
 	make setup
-	make t
-
-t:
-	@NODE_ENV=$(NODE_ENV) gulp test
+	@NODE_ENV=$(NODE_ENV) ./node_modules/.bin/gulp test
 
 tag:
 	git push
@@ -44,39 +36,27 @@ run-staging: setup stop
 	export NODE_ENV=staging; nohup npm run dev 2>&1 &
 
 run-production: setup stop
-	export NODE_ENV=production; nohup gulp server 2>&1 &
-
-# @todo these hooks should be only for ashes, not for highlander
-# Auto-install and update git hooks
-# HOOKS_SRC = tools/hooks
-# HOOKS_DST = ../.git/hooks
-# GIT_HOOKS = $(addprefix $(HOOKS_DST)/, $(notdir $(wildcard $(HOOKS_SRC)/*)))
-
-# $(HOOKS_DST)/%: $(HOOKS_SRC)/%
-# 	@cp -p $< $@
-# 	@chmod a+x $@
-
-# hooks: $(GIT_HOOKS)
+	export NODE_ENV=production; nohup ./node_modules/.bin/gulp server 2>&1 &
 
 rev:
 	git describe --always | cat > .git-rev
 
 dev d: rev
-	test -f .env && export eval `cat .env` || true && gulp dev
+	test -f .env && export eval `cat .env` || true && ./node_modules/.bin/gulp dev
 
 prod p:
-	test -f .env && export eval `cat .env` || true && NODE_ENV=production gulp build
+	test -f .env && export eval `cat .env` || true && NODE_ENV=production ./node_modules/.bin/gulp build
 	test -f .env && export eval `cat .env` || true && NODE_ENV=production node boot.js
 
-flow:
-	flow check
+build-dev: setup
+	./node_modules/.bin/flow check
+	test -f .env && export eval `cat .env` || true && ON_SERVER=true ./node_modules/.bin/gulp build
 
-build-dev: setup flow
-	test -f .env && export eval `cat .env` || true && ON_SERVER=true gulp build
-
-build: rev setup flow
+build: rev
 	$(call header, Building)
-	test -f .env && export eval `cat .env` || true && NODE_ENV=production ON_SERVER=true gulp build
+	make setup
+	./node_modules/.bin/flow check
+	test -f .env && export eval `cat .env` || true && NODE_ENV=production ON_SERVER=true ./node_modules/.bin/gulp build
 
 docker:
 	$(call header, Dockerizing)
@@ -87,4 +67,4 @@ docker-push:
 	docker tag $(DOCKER_IMAGE) $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
 	docker push $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
 
-.PHONY: hooks rev dev d prod p build test test-cov tag docker docker-push
+.PHONY: rev dev d prod p build test test-cov tag docker docker-push
