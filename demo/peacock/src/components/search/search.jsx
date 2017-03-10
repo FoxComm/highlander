@@ -23,19 +23,19 @@ type SearchProps = Localized & {
   forceSearch: () => void,
   onSearch?: Function,
   isScrolled: boolean,
-  setFocus: ?Function
+  setFocus: ?Function,
 };
 
 type SearchState = {
   term: string,
-  focus: boolean
+  focus: boolean,
 };
 
 class Search extends Component {
   props: SearchProps;
   state: SearchState = {
     term: '',
-    focus: false
+    focus: false,
   };
 
   static defaultProps = {

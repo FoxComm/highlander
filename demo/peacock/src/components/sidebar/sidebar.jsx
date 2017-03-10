@@ -27,7 +27,7 @@ type SidebarProps = Localized & {
 };
 
 type State = {
-  searchFocused: boolean
+  searchFocused: boolean,
 }
 
 
@@ -35,7 +35,7 @@ class Sidebar extends React.Component {
   props: SidebarProps;
 
   state: State = {
-    searchFocused: false
+    searchFocused: false,
   }
 
   @autobind
