@@ -15,12 +15,11 @@ test:
 
 docker:
 	$(call header, Dockerizing)
-	docker build -t $(DOCKER_TAG) .
+	true
 
 docker-push:
 	$(call header, Registering)
-	docker tag $(DOCKER_TAG) $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
-	docker push $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
+	true
 
 clean:
 	$(call header, Cleaning)
