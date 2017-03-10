@@ -91,10 +91,10 @@ object CartPromotionUpdater {
       ctx: OC): DbResultT[(OrderPromotion, Promotion, Seq[OrderLineItemAdjustment])] =
     for {
       all ← * <~ Promotions.filterByContext(ctx.id).autoApplied.result
-      allWithAdjustments ← * <~ DbResultT
-                            .onlySuccessful(all.toList.map(promo ⇒
-                                      getAdjustmentsForPromotion(cart, promo, true).map(
-                                          (promo, _))))
+      allWithAdjustments ← * <~ all.toList
+                            .map(promo ⇒
+                                  getAdjustmentsForPromotion(cart, promo, true).map((promo, _)))
+                            .ignoreFailures
                             .ensure(OrderHasNoPromotions.single)(_.nonEmpty)
       (bestPromo, bestAdjustments) = allWithAdjustments.maxBy {
         case (_, adjustments) ⇒ adjustments.map(_.subtract).sum
