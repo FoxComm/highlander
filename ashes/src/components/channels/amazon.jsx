@@ -25,7 +25,12 @@ import s from './amazon.css';
 
 type Props = {
   isFetching: boolean,
+  isPushing: boolean,
   credentials: ?Object,
+  actions: Object,
+  notReady: boolean,
+  fetchError: any,
+  updateError: any,
 };
 
 type State = {
