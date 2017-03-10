@@ -9,17 +9,20 @@
         },
         {
           "type": "fields",
-          "canAddProperty": true,
-          "includeRest": true,
-          "value": [
-            "name",
-            "description"
-          ],
-          "omit": [
-            "activeFrom",
-            "activeTo",
-            "hierarchical"
-          ]
+          "fields": {
+            "canAddProperty": true,
+            "includeRest": true,
+            "value": [
+              "name",
+              "description"
+            ],
+            "omit": [
+              "activeFrom",
+              "activeTo",
+              "hierarchical"
+            ]
+          }
+
         }
       ]
     }

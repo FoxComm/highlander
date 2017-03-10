@@ -7,7 +7,7 @@ import { assoc } from 'sprout-data';
 
 // components
 import ObjectDetailsDeux from 'components/object-page/object-details-deux';
-import { SliderCheckbox } from '../checkbox/checkbox'
+import { SliderCheckbox } from '../checkbox/checkbox';
 
 //styles
 import styles from './taxonomy.css';
@@ -26,7 +26,7 @@ export default class TaxonomyDetails extends React.Component {
   @autobind
   renderHierarchical() {
     if (this.props.taxonomy.id) {
-      return null
+      return null;
     }
     return (
       <div styleName="toggle-container">
@@ -39,7 +39,7 @@ export default class TaxonomyDetails extends React.Component {
           />
         </div>
       </div>
-    )
+    );
   }
 
   @autobind

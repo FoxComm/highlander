@@ -47,6 +47,7 @@ type Props = {
   object: ObjectView,
   schema: ObjectSchema,
   onUpdateObject: (object: ObjectView) => void,
+  renderers: { [key: string]: (desc: NodeDesc) => ?Element<*> }
 };
 
 export default class ObjectDetailsDeux extends Component {
@@ -144,7 +145,7 @@ export default class ObjectDetailsDeux extends Component {
 
   renderId() {
     if (!this.props.object.id) {
-      return null
+      return null;
     }
 
     return (
@@ -152,7 +153,7 @@ export default class ObjectDetailsDeux extends Component {
         <label>ID</label>
         <div>{this.props.object.id}</div>
       </div>
-    )
+    );
   }
 
   renderGroup(group: NodeDesc, section: Array<NodeDesc>) {
@@ -183,7 +184,7 @@ export default class ObjectDetailsDeux extends Component {
       case 'group':
         return this.renderGroup(description, section);
       case 'fields':
-        return this.renderFields(description, section);
+        return this.renderFields(_.get(description, 'fields'), section);
       case 'state':
         return this.renderState();
       case 'tags':
@@ -195,8 +196,6 @@ export default class ObjectDetailsDeux extends Component {
         invariant(this.props.renderers[renderName], `There is no method for render ${description.type}.`);
         return this.props.renderers[renderName](description, section);
     }
-
-    return null;
   }
 
   renderSection(name: string) {

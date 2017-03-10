@@ -129,7 +129,7 @@ class TaxonomyPage extends Component {
   }
 
   @autobind
-  handleObjectUpdate(obj: ObjectView) {
+  handleObjectUpdate(obj: Taxonomy) {
     const { taxonomy } = this.state;
     if (taxonomy) {
       const { attributes, hierarchical } = obj;
