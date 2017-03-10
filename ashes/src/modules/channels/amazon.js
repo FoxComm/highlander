@@ -67,7 +67,7 @@ const _fetchAmazonCredentials = createAsyncActions(
     const userId = getUserId() || '';
 
     // return Api.get(`/amazon/credentials/${userId}`);
-    return request('get', `/node/amazon/credentials/${userId}`)
+    return request('get', `/node/amazon/credentials/${userId}`);
   }
 );
 
