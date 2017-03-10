@@ -7,8 +7,8 @@ BUILD_PATH=$(BUILD_ROOT_PATH)/intelligence/river-rock
 HIGHLANDER_PATH=$(CURDIR)/../..
 
 DOCKER_REPO ?= $(DOCKER_STAGE_REPO)
-DOCKER_TAG ?= river-rock
-DOCKER_BRANCH ?= master
+DOCKER_IMAGE ?= river-rock
+DOCKER_TAG ?= master
 
 prepare:
 	$(call header, Prepare)
@@ -29,11 +29,11 @@ test:
 
 docker:
 	$(call header, Dockerizing)
-	docker build -t $(DOCKER_TAG) .
+	docker build -t $(DOCKER_IMAGE) .
 
 docker-push:
 	$(call header, Registering)
-	docker tag $(DOCKER_TAG) $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
-	docker push $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
+	docker tag $(DOCKER_IMAGE) $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
+	docker push $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
 
 .PHONY: build test docker docker-push

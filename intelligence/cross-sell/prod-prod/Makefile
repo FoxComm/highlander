@@ -2,8 +2,8 @@ include ../../../makelib
 header = $(call baseheader, $(1), prod-prod)
 
 DOCKER_REPO ?= $(DOCKER_STAGE_REPO)
-DOCKER_TAG ?= prod-prod
-DOCKER_BRANCH ?= master
+DOCKER_IMAGE ?= prod-prod
+DOCKER_TAG ?= master
 
 build:
 	$(call header, Building)
