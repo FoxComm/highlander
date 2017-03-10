@@ -74,7 +74,6 @@ Various package management and build systems which are necessary for modern deve
 Baked in command-line utilities which ease problem solving:
 
 * [consulate](https://github.com/gmr/consulate) - command-line client for the Consul HTTP API.
-* [docker-clean](https://github.com/ZZROTDesign/docker-clean) - a simple shell script to clean up the Docker Daemon.
 * [docker-compose](https://github.com/docker/compose) - define and run multi-container applications with Docker.
 * [flyway](https://flywaydb.org) - open-source database migration tool.
 * [httpie](https://httpie.org) - a command line HTTP client that will make you smile.

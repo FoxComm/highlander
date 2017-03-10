@@ -3,7 +3,7 @@
 
 .fc-sidebar {
   margin-top: 60px;
-  z-index: 1;
+  z-index: 3;
 
   &__control {
     display: flex;
@@ -41,6 +41,12 @@
   &._open {
     flex: 0 0 @sideber-open-width;
     width: @sideber-open-width;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    height: 100%;
+    position: fixed;
+    z-index: 2;
+
 
     ~ header,
     ~ main {
@@ -50,14 +56,22 @@
 
   &__navigation-list {
     border-top: 1px solid @color-decor2;
+    margin-bottom: 70px;
   }
 
   .fc-navigation-item-container {
-    border-left: 5px solid @color-transparent;
+    border-left: 4px solid @color-transparent;
 
     &._active {
-      background-color: @color-decor2;
-      border-left-color: @color-decor15;
+      background-color: rgba(0, 0, 0, 0.27);
+      border-left-color: #49cab9;
+      & svg {
+        opacity: 1;
+      }
+    }
+
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.27);
     }
   }
 
@@ -68,6 +82,14 @@
 
     &__link {
       flex-grow: 1;
+      padding-left: 10px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+
+      > span {
+        color: #fff;
+      }
     }
 
     &__expand {

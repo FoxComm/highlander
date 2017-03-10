@@ -1,0 +1,52 @@
+{
+    "name": "Feature Branch {{feature_branch_title}}",
+    "repository": "git@github.com:FoxComm/highlander.git",
+    "branch_configuration": "{{feature_branch_name}}",
+    "steps": [{
+        "type": "script",
+        "name": "Build :package:",
+        "command": "cd phoenix-scala\r\nmake build\r\nmake docker\r\nDOCKER_TAG={{docker_tag_name}} make docker-push",
+        "branch_configuration": "{{feature_branch_name}}",
+        "agent_query_rules": ["queue=core"]
+    }, {
+        "type": "waiter"
+    }, {
+        "type": "script",
+        "name": "Deploy :rocket:",
+        "command": "cd tabernacle\r\ncp /var/lib/buildkite-agent/.vault_pass ./\r\nmake deploy-feature-branch",
+        "branch_configuration": "{{feature_branch_name}}",
+        "agent_query_rules": ["queue=core"]
+    }],
+    "env": {
+        "BUILDKITE_CLEAN_CHECKOUT": "true",
+        "APPLIANCE_HOSTNAME": "feature-branch-{{docker_tag_name}}",
+        "APPLIANCE_DNS_RECORD": "feature-branch-{{docker_tag_name}}",
+        "DOCKER_TAG_PHOENIX": "{{docker_tag_name}}",
+        "MARATHON_PHOENIX": "true",
+        "MARATHON_ASHES": "false",
+        "MARATHON_FIREBRAND": "false",
+        "MARATHON_GREENRIVER": "false",
+        "MARATHON_MIDDLEWAREHOUSE": "false",
+        "MARATHON_MESSAGING": "false",
+        "MARATHON_ISAAC": "false",
+        "MARATHON_SOLOMON": "false",
+        "MARATHON_CAPTURE_CONSUMER": "false",
+        "MARATHON_GIFT_CARD_CONSUMER": "false",
+        "MARATHON_SHIPMENTS_CONSUMER": "false",
+        "MARATHON_SHIPSTATION_CONSUMER": "false",
+        "MARATHON_STOCK_ITEMS_CONSUMER": "false",
+        "MARATHON_STOREFRONT_TOPDRAWER": "false",
+        "MARATHON_STOREFRONT_TPG": "false",
+        "MARATHON_MARKETPLACE": "false",
+        "MARATHON_MARKETPLACE_UI": "false",
+        "MARATHON_PRODUCT_SEARCH": "false",
+        "MARATHON_DEMO_SEARCH": "false",
+        "MARATHON_HYPERION": "false",
+        "MARATHON_BERNARDO": "false",
+        "MARATHON_HENHOUSE": "false",
+        "MARATHON_EGGCRATE": "false",
+        "MARATHON_RIVER_ROCK": "false",
+        "MARATHON_DIGGER_SPHEX": "false",
+        "MARATHON_ORDERS_SPHEX": "false"
+    }
+}

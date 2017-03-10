@@ -1,0 +1,36 @@
+---
+
+- name: Set URLs
+  set_fact:
+    buildkite_post_url: "{{buildkite_url}}/pipelines?access_token={{buildkite_api_token}}"
+    buildkite_get_url: "{{buildkite_url}}/pipelines/feature-branch-{{docker_tag_name}}?access_token={{buildkite_api_token}}"
+    github_post_url: "{{github_url}}/hooks?access_token={{github_api_token}}"
+
+- name: Create Pipeline Template Instance
+  template: src="pipeline.json.j2" dest="/tmp/pipeline.json"
+
+- name: Create New Pipeline
+  shell: "curl -sS -XPOST --header \"Content-Type: application/json\" {{buildkite_post_url}} -d @/tmp/pipeline.json"
+
+- name: Get Pipeline Webhook
+  shell: "curl -sS -XGET {{buildkite_get_url}} | jq '.provider.webhook_url' -r"
+  register: curl_jq_output
+
+- name: Set Webhook URL
+  set_fact:
+    webhook_url: "{{curl_jq_output.stdout}}"
+
+- name: Debug Webhook URL
+  debug: msg="{{webhook_url}}"
+
+- name: Create Webhook Template Instance
+  template: src="webhook.json.j2" dest="/tmp/webhook.json"
+
+- name: Create New Webhook
+  shell: "curl -sS -XPOST --header \"Content-Type: application/json\" {{github_post_url}} -d @/tmp/webhook.json"
+
+- name: Cleanup
+  file: path={{item}} state=absent
+  with_items:
+    - "/tmp/pipeline.json"
+    - "/tmp/webhook.json"

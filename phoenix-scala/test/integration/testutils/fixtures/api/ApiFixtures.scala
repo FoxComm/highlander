@@ -3,7 +3,6 @@ package testutils.fixtures.api
 import java.time.Instant
 import java.time.temporal.ChronoUnit.DAYS
 
-import scala.util.Random
 import faker.Lorem
 import models.promotion.Promotion
 import org.json4s.JsonDSL._
@@ -14,17 +13,20 @@ import payloads.SkuPayloads.SkuPayload
 import responses.CouponResponses.CouponResponse
 import responses.ProductResponses.ProductResponse.{Root ⇒ ProductRoot}
 import responses.PromotionResponses.PromotionResponse
+import responses.SkuResponses.SkuResponse
 import testutils.PayloadHelpers._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.api.PromotionPayloadBuilder.{PromoOfferBuilder, PromoQualifierBuilder}
 import utils.aliases.Json
 
+import scala.util.Random
+
 trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi { self: FoxSuite ⇒
 
   trait ProductSku_ApiFixture {
-    private val productCode = s"testprod_${Lorem.numerify("####")}"
-    val skuCode             = s"$productCode-sku_${Lorem.letterify("????").toUpperCase}"
+    val productCode: String = s"testprod_${Lorem.numerify("####")}"
+    val skuCode: String     = s"$productCode-sku_${Lorem.letterify("????").toUpperCase}"
     def skuPrice: Int = Random.nextInt(20000) + 100
 
     private val skuPayload = SkuPayload(
@@ -37,11 +39,22 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi { sel
       CreateProductPayload(
           attributes =
             Map("name" → tv(productCode.capitalize), "title" → tv(productCode.capitalize)),
-          slug = productCode.toLowerCase,
           skus = Seq(skuPayload),
           variants = None)
 
-    val product = productsApi.create(productPayload).as[ProductRoot]
+    val product: ProductRoot  = productsApi.create(productPayload).as[ProductRoot]
+    val sku: SkuResponse.Root = product.skus.onlyElement
+  }
+
+  trait Coupon_AnyQualifier_PercentOff extends CouponFixtureBase {
+    def percentOff: Int = 10
+
+    private lazy val promoPayload = PromotionPayloadBuilder.build(
+        Promotion.Coupon,
+        PromoOfferBuilder.CartPercentOff(percentOff),
+        PromoQualifierBuilder.CartAny)
+
+    def promotion = promotionsApi.create(promoPayload).as[PromotionResponse.Root]
   }
 
   trait Coupon_TotalQualifier_PercentOff extends CouponFixtureBase {

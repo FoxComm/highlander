@@ -23,13 +23,14 @@ build:
 prepare:
 	mix local.hex --force
 	mix deps.get
-	
+
 test:
 	$(call header, Testing)
 	true
 
 seed:
 	mix run priv/seeds/clothes_accessories_categories.exs
+	mix run priv/seeds/clothes_schema.exs
 
 ####################################################################
 # Docker build targets                                             #
@@ -44,19 +45,20 @@ docker-hyperion:
 	docker build -t $(DOCKER_IMAGE) .
 
 docker-hyperion-seeder:
-	docker build -t hyperion_seeder -f Dockerfile.seed --build-arg db_host=$(ALIAS_IP) .
+	docker build -t hyperion-seeder -f Dockerfile.seed --build-arg db_host=$(ALIAS_IP) .
 
 ####################################################################
 # Docker build targets                                             #
 ####################################################################
 
 docker-push:
+	$(call header, Registering)
 	make push-hyperion
 	make push-hyperion-seeder
 
 push-hyperion-seeder:
-	docker tag hyperion_seeder $(DOCKER_REPO)/hyperion_seeder:$(DOCKER_TAG)
-	docker push $(DOCKER_REPO)/hyperion_seeder:$(DOCKER_TAG)
+	docker tag hyperion-seeder $(DOCKER_REPO)/hyperion-seeder:$(DOCKER_TAG)
+	docker push $(DOCKER_REPO)/hyperion-seeder:$(DOCKER_TAG)
 
 push-hyperion:
 	docker tag $(DOCKER_IMAGE) $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
@@ -88,4 +90,3 @@ create-user:
 	createuser -s $(DB_USER)
 
 .PHONY: build test docker docker-push
-

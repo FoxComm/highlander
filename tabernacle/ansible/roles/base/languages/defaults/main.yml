@@ -6,3 +6,4 @@ golang_url: "https://storage.googleapis.com/golang/go{{golang_version}}.linux-am
 glide_url: "https://github.com/Masterminds/glide/releases/download/v{{glide_version}}/glide-v{{glide_version}}-linux-amd64.tar.gz"
 lein_url: "https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein"
 boot_url: "https://github.com/boot-clj/boot-bin/releases/download/latest/boot.sh"
+erlang_solutions_url: "https://packages.erlang-solutions.com/erlang-solutions_1.0_all.deb"

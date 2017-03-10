@@ -11,9 +11,7 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-
-    overflow-y: auto;
-    overflow-x: hidden;
+    overflow: hidden;
 
     .fc-main {
       flex: 1;
@@ -21,11 +19,16 @@
       flex-direction: column;
       border-top: 1px solid @color-header-border;
       margin-top: 60px;
-      z-index: 1;
+      margin-left: 206px;
 
       > * {
         flex: 1;
       }
     }
   }
+}
+
+main.fc-main {
+  height: 0;
+  overflow-y: auto;
 }

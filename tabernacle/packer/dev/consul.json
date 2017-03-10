@@ -39,7 +39,7 @@
             "type": "ansible",
             "playbook_file" : "ansible/packer_dev_consul.yml",
             "extra_arguments": [
-                "-vvvv",
+                "-v",
                 "--extra-vars", "@packer/envs/{{user `project_base`}}/params.json"
             ]
         }
