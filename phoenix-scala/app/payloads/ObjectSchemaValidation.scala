@@ -16,7 +16,7 @@ object ObjectSchemaValidation {
   trait SchemaValidation[M] {
     this: M ⇒
     def defaultSchemaName: String
-    val schema: Option[String] = None
+    def schema: Option[String]
 
     private def validatePayload(payload: M, jsonSchema: Json)(implicit ec: EC): DbResultT[M] = {
       val jsonSchemaFactory = new JsonSchemaFactory
