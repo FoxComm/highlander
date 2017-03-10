@@ -13,7 +13,7 @@ import models.product.{ProductReference, Products}
 import models.taxonomy.TaxonomyTaxonLinks.scope._
 import models.taxonomy.{TaxonLocation ⇒ _, _}
 import payloads.TaxonomyPayloads._
-import responses.TaxonomyResponses.{Taxon ⇒ _, _}
+import responses.TaxonomyResponses.{TaxonResponse ⇒ _, _}
 import services.objects.ObjectManager
 import utils.Validation
 import utils.aliases._
