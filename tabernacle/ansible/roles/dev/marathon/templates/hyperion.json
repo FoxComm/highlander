@@ -49,7 +49,7 @@
   },
   "healthChecks": [
     {
-      "path": "/v1/health",
+      "path": "/v1/public/health",
       "protocol": "HTTP",
       "gracePeriodSeconds": 300,
       "intervalSeconds": 30,
