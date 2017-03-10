@@ -1,12 +1,12 @@
 // @flow
 
 // libs
+import { get } from 'lodash';
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { transitionTo } from 'browserHistory';
-import _ from 'lodash';
 
 // components
 import ObjectPageDeux from 'components/object-page/object-page-deux';
@@ -27,6 +27,7 @@ type Props = {
   },
   isFetching: boolean,
   fetchError: ?Object,
+  archiveState: AsyncState,
   params: TaxonomyParams,
 };
 
@@ -80,26 +81,11 @@ class TaxonomyPage extends Component {
 
   get actions(): ObjectActions<Taxonomy> {
     const { context } = this.props.params;
-    const {
-      newObject,
-      duplicate,
-      reset,
-      fetch,
-      create,
-      update,
-      archive
-    } = this.props.actions;
 
     return {
-      newObject,
-      duplicate,
-      reset,
-      fetch,
-      create,
-      update,
-      archive,
-      cancel: () => transitionTo('taxonomies'),
-      getTitle: (t: Taxonomy) => _.get(t.attributes, 'name.v', ''),
+      ...this.props.actions,
+      close: () => transitionTo('taxonomies'),
+      getTitle: (t: Taxonomy) => get(t.attributes, 'name.v', ''),
       transition: (id: number|string) => transitionTo('taxonomy-details', {
         taxonomyId: id,
         context: context
@@ -155,13 +141,14 @@ class TaxonomyPage extends Component {
       <ObjectPageDeux
         actions={this.actions}
         context={context}
-        identifier={taxonomyId}
+        identifier={get(this.props.details.taxonomy, 'id', taxonomyId)}
         isFetching={this.isFetching}
         fetchError={this.props.fetchError}
         navLinks={this.navLinks}
         object={this.state.taxonomy}
         objectType="taxonomy"
         originalObject={this.props.details.taxonomy}
+        archiveState={this.props.archiveState}
       >
         {children}
       </ObjectPageDeux>
@@ -172,8 +159,9 @@ class TaxonomyPage extends Component {
 const mapStateToProps = state => {
   return {
     details: state.taxonomies.details,
-    isFetching: _.get(state.asyncActions, 'fetchTaxonomy.inProgress', null),
-    fetchError: _.get(state.asyncActions, 'fetchTaxonomy.err', null),
+    isFetching: get(state.asyncActions, 'fetchTaxonomy.inProgress', null),
+    fetchError: get(state.asyncActions, 'fetchTaxonomy.err', null),
+    archiveState: get(state.asyncActions, 'archiveTaxonomy', {}),
   };
 };
 

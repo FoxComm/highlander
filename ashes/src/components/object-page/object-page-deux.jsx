@@ -1,5 +1,7 @@
 // @flow
 
+import { pluralize } from 'fleck';
+import { capitalize, noop } from 'lodash';
 import React, { Component, Element } from 'react';
 import { IndexLink, Link } from 'components/link';
 import { PageTitle } from 'components/section-title';
@@ -9,22 +11,27 @@ import SaveCancel from 'components/common/save-cancel';
 import WaitAnimation from 'components/common/wait-animation';
 import { autobind } from 'core-decorators';
 
+// components
+import ArchiveActionsSection from 'components/archive-actions/archive-actions';
+
 // helpers
 import { SAVE_COMBO, SAVE_COMBO_ITEMS } from 'paragons/common';
-import { transitionTo } from 'browserHistory';
+import { transitionToLazy } from 'browserHistory';
 
 class ObjectPageDeux extends Component {
   // TODO: replace *
   props: ObjectProps<*, *>;
 
   componentDidMount() {
-    const { context, identifier } = this.props;
-    this.props.actions.fetch(identifier, context);
+    const { context, identifier, actions } = this.props;
+
+    actions.fetch(identifier, context);
   }
 
   get isNew(): boolean {
     const { identifier, object } = this.props;
-    return identifier.toLowerCase() === 'new' || !object;
+
+    return identifier.toString().toLowerCase() === 'new' || !object;
   }
 
   get localNav() {
@@ -34,55 +41,47 @@ class ObjectPageDeux extends Component {
 
     const links = this.props.navLinks.map((settings, idx) => {
       const LinkComponent = idx === 0 ? IndexLink : Link;
+
       return (
         <LinkComponent
           to={settings.to}
           params={settings.params}
           key={settings.key}
-        >
-          {settings.title}
-        </LinkComponent>
+          children={settings.title}
+        />
       );
     });
 
     return <LocalNav>{links}</LocalNav>;
   }
 
-
   get pageTitle(): string {
+    const { objectType, originalObject, actions } = this.props;
+
     if (this.isNew) {
-      const { objectType } = this.props;
       return `New ${objectType}`;
     }
 
-    const { originalObject } = this.props;
-    const { getTitle } = this.props.actions;
-    return getTitle(originalObject);
+    return actions.getTitle(originalObject);
   }
 
   @autobind
   createNewEntity() {
-    const { actions } = this.props;
-    actions.newObject && actions.transition  !== undefined
-      ? actions.newObject() && actions.transition('new')
-      : () => {};
+    this.props.actions.reset();
+    this.props.actions.transition('new');
   }
 
   @autobind
   duplicateEntity() {
-    const { actions } = this.props;
-    actions.duplicate && actions.transition !== undefined
-      ? actions.duplicate() && actions.transition('new')
-      : () => {};
+    this.props.actions.duplicate();
+    this.props.actions.transition('new');
   }
 
   @autobind
   handleSelectSaving(value: string) {
     const { actions } = this.props;
-    const mayBeSaved = this.save();
-    if (!mayBeSaved) return;
 
-    mayBeSaved.then(() => {
+    this.save().then(() => {
       switch (value) {
         case SAVE_COMBO.NEW:
           this.createNewEntity();
@@ -91,7 +90,7 @@ class ObjectPageDeux extends Component {
           this.duplicateEntity();
           break;
         case SAVE_COMBO.CLOSE:
-          actions.cancel();
+          actions.close();
           break;
       }
     });
@@ -99,40 +98,62 @@ class ObjectPageDeux extends Component {
 
   @autobind
   handleSaveButton() {
-    const mayBeSaved = this.save();
-    if (!mayBeSaved) return;
-    mayBeSaved.then(() => {
-      this.transitionToObject();
-    });
+    this.save().then(this.transitionToObject);
   }
 
   @autobind
   transitionToObject() {
-    const { actions, object } = this.props;
-    if (!object) return;
-    actions.transition(object.id);
+    const { identifier, actions } = this.props;
+
+    actions.transition(identifier);
   }
 
   @autobind
   save() {
     const { context, object, actions } = this.props;
-    let mayBeSaved = false;
-    this.isNew
-      ? mayBeSaved = actions.create(object, context)
-      : mayBeSaved = actions.update(object, context);
-    return mayBeSaved;
+
+    const saveFn = this.isNew ? actions.create : actions.update;
+
+    return saveFn(object, context);
   }
 
-  renderButtonCluster() {
+  @autobind
+  archive() {
+    const { identifier, objectType, actions } = this.props;
+
+    const plural = pluralize(objectType);
+
+    actions.archive(identifier).then(transitionToLazy(plural));
+  }
+
+  get headerControls() {
     const { isFetching } = this.props;
 
     return (
       <SaveCancel
         isLoading={isFetching}
-        onCancel={this.props.actions.cancel}
+        onCancel={this.props.actions.close}
         saveItems={SAVE_COMBO_ITEMS}
         onSave={this.handleSaveButton}
         onSaveSelect={this.handleSelectSaving}
+      />
+    );
+  }
+
+  get footerControls() {
+    if (this.isNew) {
+      return null;
+    }
+
+    const { object, objectType, actions, archiveState } = this.props;
+
+    return (
+      <ArchiveActionsSection
+        type={capitalize(objectType)}
+        title={actions.getTitle(object)}
+        archive={this.archive}
+        archiveState={archiveState}
+        clearArchiveErrors={actions.clearArchiveErrors}
       />
     );
   }
@@ -150,10 +171,11 @@ class ObjectPageDeux extends Component {
     return (
       <div>
         <PageTitle title={this.pageTitle}>
-          {this.renderButtonCluster()}
+          {this.headerControls}
         </PageTitle>
         {this.localNav}
         {children}
+        {this.footerControls}
       </div>
     );
   }
