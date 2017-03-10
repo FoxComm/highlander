@@ -3,12 +3,14 @@ include ../makelib
 header = $(call baseheader, $(1), hyperion)
 
 FLYWAY=flyway -configFile=sql/flyway.conf -locations=filesystem:sql/
+FLYWAY_TEST=flyway -configFile=sql/flyway.test.conf -locations=filesystem:sql/
 
 DOCKER_REPO ?= $(DOCKER_STAGE_REPO)
 DOCKER_IMAGE ?= hyperion
 DOCKER_TAG ?= master
 
 DB=hyperion_development
+DB_TEST=hyperion_test
 DB_USER=hyperion
 ALIAS_IP=203.0.113.1
 
@@ -27,6 +29,8 @@ prepare:
 
 test:
 	$(call header, Testing)
+	make prepare
+	make reset-test
 	MIX_ENV=test mix espec
 
 seed:
@@ -90,5 +94,13 @@ drop-user:
 
 create-user:
 	createuser -s $(DB_USER)
+
+reset-test:
+	dropdb --if-exists $(DB_TEST) -U $(DB_USER)
+	createdb $(DB_TEST) -U $(DB_USER)
+	@make migrate-test
+
+migrate-test:
+	$(FLYWAY_TEST) migrate
 
 .PHONY: build test docker docker-push
