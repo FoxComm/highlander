@@ -13,7 +13,7 @@ type Props = {
   type: string,
   archive: Function,
   archiveState: AsyncState,
-  clearArchiveErrors: () => Promise<*>,
+  clearArchiveErrors: () => void,
 };
 
 type State = {
