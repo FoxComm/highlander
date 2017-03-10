@@ -63,9 +63,6 @@ const schema = {
           'type': 'string',
           'widget': 'richText'
         },
-        'hierarchical': {
-          'type': 'boolean'
-        }
       },
       'description': 'Taxonomy attributes itself'
     }
@@ -135,11 +132,11 @@ class TaxonomyPage extends Component {
   handleObjectUpdate(obj: ObjectView) {
     const { taxonomy } = this.state;
     if (taxonomy) {
-      const { attributes } = obj;
+      const { attributes, hierarchical } = obj;
       const newTaxonomy = {
         ...taxonomy,
         attributes: { ...taxonomy.attributes, ...attributes },
-        hierarchical: attributes.hierarchical.v
+        hierarchical
       };
       this.setState({ taxonomy: newTaxonomy });
     }
