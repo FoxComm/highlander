@@ -28,7 +28,15 @@ export function clearErrors() {
 const _fetchSuggest = createAsyncActions(
   'fetchSuggest',
   (product_id: string, text: string) => {
-    return Api.get(`/amazon/categories/suggester?product_id=${product_id}&q=${text}`);
+    const userId = getUserId() || '';
+    // @todo move to hyperion
+    const options = {
+      headers: {
+        'Customer-ID': userId,
+      },
+    };
+
+    return Api.get(`/hyperion/categories/suggest?product_id=${product_id}&q=${text}`, {foo: 'bar'}, options);
   }
 );
 
@@ -66,8 +74,7 @@ const _fetchAmazonCredentials = createAsyncActions(
   () => {
     const userId = getUserId() || '';
 
-    // return Api.get(`/amazon/credentials/${userId}`);
-    return request('get', `/node/amazon/credentials/${userId}`);
+    return Api.get(`/hyperion/credentials/${userId}`);
   }
 );
 
@@ -75,7 +82,22 @@ export const fetchAmazonCredentials = _fetchAmazonCredentials.perform;
 
 const _updateAmazonCredentials = createAsyncActions(
   'updateAmazonCredentials',
-  (params) => Api.post(`/amazon/credentials`, params)
+  (params) => {
+    const userId = getUserId() || '';
+    const data = {
+      seller_id: params.seller_id,
+      mws_auth_token: params.mws_auth_token,
+      client_id: userId,
+    };
+    // @todo move customer_id (which now emulated through getUserId) to hyperion
+    const options = {
+      headers: {
+        'Customer-ID': userId,
+      },
+    };
+
+    return Api.post(`/hyperion/credentials/`, data, options);
+  }
 );
 
 export const updateAmazonCredentials = _updateAmazonCredentials.perform;

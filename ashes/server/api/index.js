@@ -6,6 +6,7 @@ module.exports = function(app) {
   const config = app.config.api;
   const matchUriRegexp = new RegExp(`^/api/`);
 
+  // @todo remove custom logic from nodejs
   app.use(hyperion.routes());
 
   app.use(function *apiHandler(next) {

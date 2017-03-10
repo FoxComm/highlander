@@ -3,6 +3,7 @@ const router = require('koa-router')();
 const suggestFixture = require('./suggest.fixture');
 const fieldsFixture = require('./fields.fixture');
 
+// @todo move all logic to hyperion, after that remove this file
 function processList(list) {
   if (!list) {
     return null;
@@ -28,46 +29,19 @@ function delay(ms) {
   };
 }
 
-router.get('/api/v1/amazon/categories/suggester', function *(next) {
-  const primary = processList([suggestFixture.primary]);
-  const secondary = processList(suggestFixture.secondary);
-  const send = {
-    primary,
-    secondary,
-  };
+// router.get('/api/v1/amazon/categories/suggester', function *(next) {
+//   const primary = processList([suggestFixture.primary]);
+//   const secondary = processList(suggestFixture.secondary);
+//   const send = {
+//     primary,
+//     secondary,
+//   };
 
-  this.body = send;
-});
+//   this.body = send;
+// });
 
-router.get('/api/v1/amazon/categories/schema', function *(next) {
-  this.body = fieldsFixture;
-});
-
-router.get('/node/amazon/credentials/:customer_id', function *(next) {
-  const customer_id = this.params.customer_id;
-
-  // @todo request to real hyperion
-
-  this.body = {customer_id, seller_id: '', mws_auth_token: ''};
-});
-
-router.post('/api/v1/amazon/credentials', function *(next) {
-  const { seller_id, mws_auth_token } = this.request.body;
-
-  if (!seller_id || !mws_auth_token) {
-    this.status = 400;
-    this.body = 'All fields are required';
-    return;
-  }
-
-  // @todo request to real hyperion
-
-  yield delay(4000);
-
-  this.body = {status: 'ok'};
-
-  // @todo handle Amazon auth fail (wrong credentials)
-  // this.body = {status: 'not_ok'};
-});
+// router.get('/api/v1/amazon/categories/schema', function *(next) {
+//   this.body = fieldsFixture;
+// });
 
 module.exports = router;
