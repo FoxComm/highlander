@@ -111,18 +111,18 @@ class PromotionsIntegrationTest
   }
 
   "Auto-applied promotions:" - {
-    import org.json4s.jackson.JsonMethods.pretty
+    "with many available, the best one is chosen" in new Customer_Seed with ProductSku_ApiFixture {
+      val percentOffs = List.fill(6)(0.1 + 0.8 * scala.util.Random.nextDouble)
+      val percentOff  = percentOffs.max
 
-    "should be auto-applied, if applicable" in new Customer_Seed with ProductSku_ApiFixture {
-      val percentOff = 0.4
-
-      val promo = promotionsApi
-        .create(
-            PromotionPayloadBuilder.build(
-                Promotion.Auto,
-                PromoOfferBuilder.CartPercentOff((percentOff * 100).toInt),
-                PromoQualifierBuilder.CartAny))
-        .as[PromotionResponse.Root]
+      val promos = percentOffs.map(
+          percentOff ⇒
+            promotionsApi
+              .create(PromotionPayloadBuilder.build(
+                      Promotion.Auto,
+                      PromoOfferBuilder.CartPercentOff((percentOff * 100).toInt),
+                      PromoQualifierBuilder.CartAny))
+              .as[PromotionResponse.Root])
 
       val refNum =
         cartsApi.create(CreateCart(email = customer.email)).as[CartResponse].referenceNumber
@@ -140,10 +140,6 @@ class PromotionsIntegrationTest
       implicit val doubleEquality = TolerantNumerics.tolerantDoubleEquality(1.0)
       totals.adjustments.toDouble must === (sku.attributes.salePrice * percentOff)
       totals.total.toDouble must === (sku.attributes.salePrice * (1.0 - percentOff))
-    }
-
-    "with many available, the best one is chosen" in {
-      // TODO: @michalrus
     }
   }
 
