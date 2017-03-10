@@ -1,0 +1,10 @@
+.toggle-container {
+    & > label {
+          font-weight: 600;
+        }
+
+    & > div {
+          margin-top: 10px;
+          margin-bottom: 20px;
+        }
+}
