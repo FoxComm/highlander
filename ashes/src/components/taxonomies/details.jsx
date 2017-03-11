@@ -31,13 +31,11 @@ export default class TaxonomyDetails extends React.Component {
     return (
       <div styleName="toggle-container">
         <label>Hierarchical</label>
-        <div>
           <SliderCheckbox
             id="hierarchicalType"
             onChange={this.handleHierarchicalChange}
             checked={this.props.taxonomy.hierarchical}
           />
-        </div>
       </div>
     );
   }
@@ -53,23 +51,23 @@ export default class TaxonomyDetails extends React.Component {
   }
 
   render () {
-  const { schema, taxonomy, onUpdateObject } = this.props;
-    if (!taxonomy) {
-      return <div></div>;
+    const { schema, taxonomy, onUpdateObject } = this.props;
+      if (!taxonomy) {
+        return <div></div>;
+      }
+      return (
+        <ObjectDetailsDeux
+          layout={layout}
+          title="taxonomy"
+          plural="taxonomies"
+          object={taxonomy}
+          schema={schema}
+          onUpdateObject={onUpdateObject}
+          renderers={{
+            hierarchical: this.renderHierarchical
+          }}
+        />
+      );
     }
-    return (
-      <ObjectDetailsDeux
-        layout={layout}
-        title="taxonomy"
-        plural="taxonomies"
-        object={taxonomy}
-        schema={schema}
-        onUpdateObject={onUpdateObject}
-        renderers={{
-          hierarchical: this.renderHierarchical
-        }}
-      />
-    );
-  }
 };
 

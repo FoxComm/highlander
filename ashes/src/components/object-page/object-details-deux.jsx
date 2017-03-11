@@ -149,9 +149,13 @@ export default class ObjectDetailsDeux extends Component {
     }
 
     return (
-      <div styleName="id-container">
-        <label>ID</label>
-        <div>{this.props.object.id}</div>
+      <div>
+        <div className="fc-object-form__field-label">
+          <label>ID</label>
+        </div>
+        <div className="fc-object-form__field">
+          {this.props.object.id}
+        </div>
       </div>
     );
   }
