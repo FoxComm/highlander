@@ -82,7 +82,7 @@
     "watchify": "^3.9.0"
   },
   "dependencies": {
-    "@foxcomm/api-js": "^1.1.3",
+    "api-js": "git+ssh://git@github.com/FoxComm/api-js.git#feature/ic-cross-sell",
     "@foxcomm/wings": "^1.9.4",
     "classnames": "^2.2.3",
     "core-decorators": "^0.11.0",
