@@ -1,6 +1,8 @@
 'use strict';
 
 const { spawn } = require('child_process');
+const watch = require('glob-watcher');
+const path = require('path');
 
 function runScript(name, cb = () => {}) {
   let child = spawn('yarn',
@@ -41,15 +43,20 @@ module.exports = function (gulp) {
       .pipe(gulp.dest('lib'));
   });
 
-  const logBabelified = file => {
-    console.info(`src/${file.relative} -> lib/${file.relative}`);
+  const projectPath = path.resolve(__dirname, '../src');
+
+  const logSrcToLib = filepath => {
+    const fullPath = path.resolve(filepath);
+    const relative = path.relative(projectPath, fullPath);
+
+    console.info(`src/${relative} -> lib/${relative}`);
   };
 
   gulp.task('precompile.source', function () {
     return gulp.src('src/**/*.{jsx,js}')
       .pipe(changed('lib', {extension: '.js'}))
       .pipe(through.obj((file, enc, cb) => {
-        logBabelified(file);
+        logSrcToLib(file.path);
         cb(null, file);
       }))
       .pipe(babel())
@@ -59,12 +66,17 @@ module.exports = function (gulp) {
   gulp.task('precompile', ['precompile.static', 'precompile.source']);
 
   gulp.task('precompile.watch', function () {
-    gulp.watch(statics).on('change', file => {
-      logBabelified(file);
+    const handleChanged = path => {
+      logSrcToLib(path);
       gulp
-        .src(file.path, { base: 'src' })
+        .src(path, { base: 'src' })
         .pipe(gulp.dest('./lib'));
-    });
+    };
+
+    watch(statics)
+      .on('change', handleChanged)
+      .on('add', handleChanged);
+
 
     runScript(`watch-precompile`);
   });
