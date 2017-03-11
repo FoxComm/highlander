@@ -285,15 +285,13 @@ object Seeds {
              context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
              ruContext ← * <~ ObjectContexts.create(
                             SimpleContext.create(name = SimpleContext.ru, lang = "ru"))
-             customers  ← * <~ Factories.createCustomers(organization.scopeId)
-             _          ← * <~ Factories.createAddresses(customers)
-             _          ← * <~ Factories.createCreditCards(customers)
-             products   ← * <~ Factories.createProducts
-             ruProducts ← * <~ Factories.createRuProducts(products)
-             _          ← * <~ Reasons.createAll(Factories.reasons.map(_.copy(storeAdminId = adminId)))
-             _          ← * <~ Factories.createGiftCards
-             _          ← * <~ Factories.createStoreCredits(adminId, customers._1, customers._3)
-             _          ← * <~ Factories.createShipmentRules
+             customers ← * <~ Factories.createCustomers(organization.scopeId)
+             _         ← * <~ Factories.createAddresses(customers)
+             _         ← * <~ Factories.createCreditCards(customers)
+             _         ← * <~ Reasons.createAll(Factories.reasons.map(_.copy(storeAdminId = adminId)))
+             _         ← * <~ Factories.createGiftCards
+             _         ← * <~ Factories.createStoreCredits(adminId, customers._1, customers._3)
+             _         ← * <~ Factories.createShipmentRules
              // Promotions
              search     ← * <~ Factories.createSharedSearches(adminId)
              discounts  ← * <~ Factories.createDiscounts(search)
