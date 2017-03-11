@@ -52,22 +52,22 @@ export default class TaxonomyDetails extends React.Component {
 
   render () {
     const { schema, taxonomy, onUpdateObject } = this.props;
-      if (!taxonomy) {
-        return <div></div>;
-      }
-      return (
-        <ObjectDetailsDeux
-          layout={layout}
-          title="taxonomy"
-          plural="taxonomies"
-          object={taxonomy}
-          schema={schema}
-          onUpdateObject={onUpdateObject}
-          renderers={{
-            hierarchical: this.renderHierarchical
-          }}
-        />
-      );
+    if (!taxonomy) {
+      return <div></div>;
     }
+    return (
+      <ObjectDetailsDeux
+        layout={layout}
+        title="taxonomy"
+        plural="taxonomies"
+        object={taxonomy}
+        schema={schema}
+        onUpdateObject={onUpdateObject}
+        renderers={{
+          hierarchical: this.renderHierarchical
+        }}
+      />
+    );
+  }
 };
 
