@@ -2,8 +2,8 @@ include ../../../makelib
 header = $(call baseheader, $(1), prod-prod)
 
 DOCKER_REPO ?= $(DOCKER_STAGE_REPO)
-DOCKER_TAG ?= prod-prod
-DOCKER_BRANCH ?= master
+DOCKER_IMAGE ?= prod-prod
+DOCKER_TAG ?= master
 
 build:
 	$(call header, Building)
@@ -15,12 +15,11 @@ test:
 
 docker:
 	$(call header, Dockerizing)
-	docker build -t $(DOCKER_TAG) .
+	true
 
 docker-push:
 	$(call header, Registering)
-	docker tag $(DOCKER_TAG) $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
-	docker push $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
+	true
 
 clean:
 	$(call header, Cleaning)
