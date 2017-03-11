@@ -1,5 +1,6 @@
 package services
 
+import cats.implicits._
 import failures.CartFailures._
 import failures.OrderFailures.OrderLineItemNotFound
 import failures.ProductFailures.SkuNotFoundForContext
@@ -59,15 +60,18 @@ object LineItemUpdater {
                                                                                  db: DB,
                                                                                  ac: AC,
                                                                                  ctx: OC) =
-    DbResultT.sequence(payload.map(updatePayload ⇒
-              for {
-        orderLineItem ← * <~ OrderLineItems
-                         .filter(_.referenceNumber === updatePayload.referenceNumber)
-                         .mustFindOneOr(OrderLineItemNotFound(updatePayload.referenceNumber))
-        patch = orderLineItem.copy(state = updatePayload.state,
-                                   attributes = updatePayload.attributes)
-        updatedItem ← * <~ OrderLineItems.update(orderLineItem, patch)
-      } yield updatedItem))
+    DbResultT.seqCollectFailures(
+        payload
+          .map(updatePayload ⇒
+                for {
+          orderLineItem ← * <~ OrderLineItems
+                           .filter(_.referenceNumber === updatePayload.referenceNumber)
+                           .mustFindOneOr(OrderLineItemNotFound(updatePayload.referenceNumber))
+          patch = orderLineItem.copy(state = updatePayload.state,
+                                     attributes = updatePayload.attributes)
+          updatedItem ← * <~ OrderLineItems.update(orderLineItem, patch)
+        } yield updatedItem)
+          .toList)
 
   def updateQuantitiesOnCustomersCart(customer: User, payload: Seq[UpdateLineItemsPayload])(
       implicit ec: EC,
@@ -141,13 +145,17 @@ object LineItemUpdater {
       ctx: OC,
       au: AU): DbResultT[TheResponse[CartResponse]] =
     for {
-      _     ← * <~ CartPromotionUpdater.readjust(cart).recover { case _ ⇒ Unit }
-      cart  ← * <~ CartTotaler.saveTotals(cart)
+      readjustedCartWithWarnings ← * <~ CartPromotionUpdater
+                                    .readjust(cart, failFatally = false)
+                                    .recover {
+                                      case _ ⇒ TheResponse(cart) /* FIXME: don’t swallow errors @michalrus */
+                                    }
+      cart  ← * <~ CartTotaler.saveTotals(readjustedCartWithWarnings.result)
       valid ← * <~ CartValidator(cart).validate()
       res   ← * <~ CartResponse.buildRefreshed(cart)
       li    ← * <~ CartLineItems.byCordRef(cart.refNum).countSkus
       _     ← * <~ logAct(res, li)
-    } yield TheResponse.validated(res, valid)
+    } yield readjustedCartWithWarnings.flatMap(_ ⇒ TheResponse.validated(res, valid))
 
   def foldQuantityPayload(payload: Seq[UpdateLineItemsPayload]): Map[String, Int] =
     payload.foldLeft(Map[String, Int]()) { (acc, item) ⇒
@@ -204,7 +212,7 @@ object LineItemUpdater {
                     removeLineItems(sku.id, -lineItem.quantity, cart.refNum, lineItem.attributes))
       } yield {}
     }
-    DbResultT.sequence(lineItemUpdActions).meh
+    DbResultT.seqCollectFailures(lineItemUpdActions.toList).meh
   }
 
   private def mustFindProductIdForSku(sku: Sku, refNum: String)(implicit ec: EC, oc: OC) = {

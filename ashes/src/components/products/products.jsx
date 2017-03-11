@@ -21,7 +21,6 @@ import { filterArchived } from 'elastic/archive';
 
 // types
 import type { Product } from 'paragons/product';
-import type { SearchFilter } from 'elastic/common';
 
 type Column = {
   field: string,

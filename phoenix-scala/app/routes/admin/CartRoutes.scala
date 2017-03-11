@@ -50,16 +50,6 @@ object CartRoutes {
                 }
               }
             } ~
-            (post & path("lock") & pathEnd) {
-              mutateOrFailures {
-                CartLockUpdater.lock(refNum, auth.model)
-              }
-            } ~
-            (post & path("unlock") & pathEnd) {
-              mutateOrFailures {
-                CartLockUpdater.unlock(refNum)
-              }
-            } ~
             (post & path("checkout")) {
               mutateOrFailures {
                 Checkout.fromCart(refNum)

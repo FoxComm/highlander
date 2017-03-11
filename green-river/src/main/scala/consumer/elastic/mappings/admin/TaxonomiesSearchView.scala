@@ -10,7 +10,9 @@ final case class TaxonomiesSearchView()(implicit ec: EC) extends AvroTransformer
   def mapping() = esMapping("taxonomies_search_view").fields(
       field("id", IntegerType),
       field("taxonomyId", IntegerType),
-      field("name", StringType).analyzer("autocomplete"),
+      field("name", StringType)
+        .analyzer("autocomplete")
+        .fields(field("raw", StringType).index("not_analyzed")),
       field("context", StringType).index("not_analyzed"),
       field("scope", StringType).index("not_analyzed"),
       field("type", StringType).index("not_analyzed"),

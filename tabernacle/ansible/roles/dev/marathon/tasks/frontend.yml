@@ -5,5 +5,5 @@
   when: marathon_restart.ashes
 
 - name: Start Firebrand
-  include: app_firebrand.yml
-  when: marathon_restart.firebrand
+  include: app_peacock.yml
+  when: marathon_restart.peacock

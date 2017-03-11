@@ -8,7 +8,7 @@ import models.location.Address
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import testutils.CustomMatchers._
 import testutils.TestBase
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 
 class CreditCardTest extends TestBase {
   val today = ZonedDateTime.now()

@@ -22,7 +22,7 @@ resource "google_compute_instance" "agent" {
   disk {
     image = "${var.image}"
     type  = "pd-ssd"
-    size  = "30"
+    size  = "60"
   }
 
   network_interface {

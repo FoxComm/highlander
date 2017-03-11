@@ -2,27 +2,47 @@ include ../makelib
 header = $(call baseheader, $(1), phoenix-scala)
 
 DOCKER_REPO ?= $(DOCKER_STAGE_REPO)
-DOCKER_IMAGE ?= phoenix
 DOCKER_TAG ?= master
 
 build:
 	$(call header, Building)
-	sbt assembly
+	sbt 'fullAssembly'
+
+build-phoenix:
+	sbt 'phoenixScala/assembly'
+
+build-seeder:
+	sbt 'seeder/assembly'
 
 clean:
-	sbt clean
+	sbt '; phoenixScala/clean; seeder/clean'
 
 test:
 	$(call header, Testing)
-	sbt '; scalafmtTestAll ; test; seed'
+	sbt '; scalafmtTestAll ; test; seedDemo'
 
 docker:
 	$(call header, Dockerizing)
-	docker build -t $(DOCKER_IMAGE) .
+	make docker-phoenix
+	make docker-seeder
+
+docker-phoenix:
+	docker build -t phoenix .
+
+docker-seeder:
+	docker build -t phoenix-seeder -f seeder/Dockerfile .
 
 docker-push:
 	$(call header, Registering)
-	docker tag $(DOCKER_IMAGE) $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
-	docker push $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
+	make docker-push-phoenix
+	make docker-push-seeder
+
+docker-push-phoenix:
+	docker tag phoenix $(DOCKER_REPO)/phoenix:$(DOCKER_TAG)
+	docker push $(DOCKER_REPO)/phoenix:$(DOCKER_TAG)
+
+docker-push-seeder:
+	docker tag phoenix-seeder $(DOCKER_REPO)/phoenix-seeder:$(DOCKER_TAG)
+	docker push $(DOCKER_REPO)/phoenix-seeder:$(DOCKER_TAG)
 
 .PHONY: build test clean docker docker-push

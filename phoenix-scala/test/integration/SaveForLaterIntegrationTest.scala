@@ -10,7 +10,7 @@ import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import utils.db._
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 
 class SaveForLaterIntegrationTest
     extends IntegrationTestBase
@@ -20,12 +20,12 @@ class SaveForLaterIntegrationTest
 
   "GET v1/save-for-later/:customerId" - {
     "shows all save for later items for customer" in new Fixture {
-      saveForLaterApi(customer.accountId).get().as[SavedForLater].result mustBe empty
+      saveForLaterApi(customer.accountId).get().as[SavedForLater] mustBe empty
 
       SaveForLaters
         .create(SaveForLater(accountId = customer.accountId, skuId = product.skuId))
         .gimme
-      saveForLaterApi(customer.accountId).get().as[SavedForLater].result must === (roots)
+      saveForLaterApi(customer.accountId).get().as[SavedForLater] must === (roots)
     }
 
     "404 if customer is not found" in {
@@ -35,15 +35,13 @@ class SaveForLaterIntegrationTest
 
   "POST v1/save-for-later/:customerId/:sku" - {
     "adds sku to customer's save for later list" in new Fixture {
-      saveForLaterApi(customer.accountId).create(product.code).as[SavedForLater].result must === (
-          roots)
+      saveForLaterApi(customer.accountId).create(product.code).as[SavedForLater] must === (roots)
 
-      saveForLaterApi(customer.accountId).get().as[SavedForLater].result must === (roots)
+      saveForLaterApi(customer.accountId).get().as[SavedForLater] must === (roots)
     }
 
     "does not create duplicate records" in new Fixture {
-      val result =
-        saveForLaterApi(customer.accountId).create(product.code).as[SavedForLater].result
+      val result = saveForLaterApi(customer.accountId).create(product.code).as[SavedForLater]
       result must === (roots)
 
       saveForLaterApi(customer.accountId)
@@ -67,7 +65,7 @@ class SaveForLaterIntegrationTest
   "DELETE v1/save-for-later/:id" - {
     "deletes save for later" in new Fixture {
       val saveForLaterId =
-        saveForLaterApi(customer.accountId).create(product.code).as[SavedForLater].result.head.id
+        saveForLaterApi(customer.accountId).create(product.code).as[SavedForLater].head.id
 
       saveForLaterApi.delete(saveForLaterId).mustBeEmpty()
     }

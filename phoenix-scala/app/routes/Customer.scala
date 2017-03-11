@@ -37,7 +37,7 @@ object Customer {
             pathPrefix("products" / ProductRef / "baked") { productId ⇒
               (get & pathEnd) {
                 getOrFailures {
-                  ProductManager.getProduct(productId)
+                  ProductManager.getProduct(productId, checkActive = true)
                 }
               }
             } ~

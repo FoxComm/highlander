@@ -8,10 +8,10 @@ import failures.CustomerFailures.CustomerMustHaveCredentials
 import models.location.Address
 import models.payment.creditcard.CreditCard
 import payloads.PaymentPayloads.CreateCreditCardFromSourcePayload
-import services.{Result, ResultT}
 import utils.Money._
 import utils.aliases._
 import utils.aliases.stripe._
+import utils.db._
 
 /**
   * Fox Stripe API implementation
@@ -19,10 +19,11 @@ import utils.aliases.stripe._
   */
 class FoxStripe(stripe: StripeWrapper)(implicit ec: EC) extends FoxStripeApi {
 
-  def createCardFromToken(email: Option[String],
-                          token: String,
-                          stripeCustomerId: Option[String],
-                          address: Address): Result[(StripeCustomer, StripeCard)] = email match {
+  def createCardFromToken(
+      email: Option[String],
+      token: String,
+      stripeCustomerId: Option[String],
+      address: Address)(implicit ec: EC): Result[(StripeCustomer, StripeCard)] = email match {
     case Some(e) ⇒
       createCardAndMaybeCustomer(e, Map("source" → token), stripeCustomerId, address)
     case _ ⇒
@@ -30,10 +31,11 @@ class FoxStripe(stripe: StripeWrapper)(implicit ec: EC) extends FoxStripeApi {
   }
 
   @deprecated(message = "Use `createCardFromToken` instead", "Until we are PCI compliant")
-  def createCardFromSource(email: Option[String],
-                           card: CreateCreditCardFromSourcePayload,
-                           stripeCustomerId: Option[String],
-                           address: Address): Result[(StripeCustomer, StripeCard)] = {
+  def createCardFromSource(
+      email: Option[String],
+      card: CreateCreditCardFromSourcePayload,
+      stripeCustomerId: Option[String],
+      address: Address)(implicit ec: EC): Result[(StripeCustomer, StripeCard)] = {
     lazy val details = Map[String, Object]("object" → "card",
                                            "number"        → card.cardNumber,
                                            "exp_month"     → card.expMonth.toString,
@@ -56,27 +58,27 @@ class FoxStripe(stripe: StripeWrapper)(implicit ec: EC) extends FoxStripeApi {
       email: String,
       source: Map[String, Object],
       stripeCustomerId: Option[String],
-      address: Address): Result[(StripeCustomer, StripeCard)] = {
-    def existingCustomer(id: String): ResultT[(StripeCustomer, StripeCard)] = {
+      address: Address)(implicit ec: EC): Result[(StripeCustomer, StripeCard)] = {
+    def existingCustomer(id: String): Result[(StripeCustomer, StripeCard)] = {
       for {
-        cust ← ResultT(stripe.findCustomer(id))
-        card ← ResultT(stripe.createCard(cust, source))
+        cust ← stripe.findCustomer(id)
+        card ← stripe.createCard(cust, source)
       } yield (cust, card)
     }
 
-    def newCustomer: ResultT[(StripeCustomer, StripeCard)] = {
+    def newCustomer: Result[(StripeCustomer, StripeCard)] = {
       val params = Map[String, Object](
             "description" → "FoxCommerce",
             "email"       → email
         ) ++ source
 
       for {
-        cust ← ResultT(stripe.createCustomer(params))
-        card ← ResultT(stripe.getCustomersOnlyCard(cust))
+        cust ← stripe.createCustomer(params)
+        card ← stripe.getCustomersOnlyCard(cust)
       } yield (cust, card)
     }
 
-    stripeCustomerId.fold(newCustomer)(existingCustomer).value
+    stripeCustomerId.fold(newCustomer)(existingCustomer)
   }
 
   def authorizeAmount(customerId: String,
@@ -115,20 +117,20 @@ class FoxStripe(stripe: StripeWrapper)(implicit ec: EC) extends FoxStripeApi {
       stripe.updateCard(stripeCard, params)
     }
 
-    (for {
-      stripeCard ← ResultT(getCard(cc.gatewayCustomerId, cc.gatewayCardId))
-      updated    ← ResultT(update(stripeCard))
-    } yield updated).value
+    for {
+      stripeCard ← getCard(cc.gatewayCustomerId, cc.gatewayCardId)
+      updated    ← update(stripeCard)
+    } yield updated
   }
 
   private def getCard(gatewayCustomerId: String, gatewayCardId: String): Result[StripeCard] =
     stripe.findCardByCustomerId(gatewayCustomerId, gatewayCardId)
 
   def deleteCard(cc: CreditCard): Result[DeletedCard] = {
-    (for {
-      stripeCard ← ResultT(getCard(cc.gatewayCustomerId, cc.gatewayCardId))
-      updated    ← ResultT(stripe.deleteCard(stripeCard))
-    } yield updated).value
+    for {
+      stripeCard ← getCard(cc.gatewayCustomerId, cc.gatewayCardId)
+      updated    ← stripe.deleteCard(stripeCard)
+    } yield updated
   }
 
 }

@@ -1,18 +1,20 @@
 // @flow
 
 // libs
+import { get } from 'lodash';
+import { assoc } from 'sprout-data';
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { transitionTo } from 'browserHistory';
-import _ from 'lodash';
+import { transitionTo, transitionToLazy } from 'browserHistory';
 
 // components
 import ObjectPageDeux from 'components/object-page/object-page-deux';
 
 // actions
-import * as TaxonomyActions from 'modules/taxonomies/details';
+import { fetchSchema } from 'modules/object-schema';
+import * as taxonomiesActions from 'modules/taxonomies/details';
 
 type TaxonomyParams = {
   taxonomyId: string,
@@ -20,98 +22,58 @@ type TaxonomyParams = {
 };
 
 type Props = {
+  schema: ?Object,
   actions: ObjectActions<Taxonomy>,
+  fetchSchema: (namespace: string) => Promise<*>,
   children: Element<*>,
   details: {
     taxonomy: ?Taxonomy,
   },
-  isFetching: boolean,
-  fetchError: ?Object,
+  fetchState: AsyncState,
+  schemaFetchState: AsyncState,
+  archiveState: AsyncState,
   params: TaxonomyParams,
 };
 
-const schema = {
-  'type': 'object',
-  'title': 'Taxonomy',
-  '$schema': 'http://json-schema.org/draft-04/schema#',
-  'properties': {
-    'attributes': {
-      'type': 'object',
-      'required': [
-        'name'
-      ],
-      'properties': {
-        'name': {
-          'type': 'string',
-          'minLength': 1
-        },
-        'activeTo': {
-          'type': [
-            'string',
-            'null'
-          ],
-          'format': 'date-time'
-        },
-        'activeFrom': {
-          'type': [
-            'string',
-            'null'
-          ],
-          'format': 'date-time'
-        },
-        'description': {
-          'type': 'string',
-          'widget': 'richText'
-        },
-      },
-      'description': 'Taxonomy attributes itself'
-    }
-  }
+type State = {
+  taxonomy: ?Taxonomy
 };
 
 class TaxonomyPage extends Component {
   props: Props;
-  state: { taxonomy: ?Taxonomy } = { taxonomy: null };
+  state: State = { taxonomy: null };
+
+  componentDidMount() {
+    if (!this.props.schema) {
+      this.props.fetchSchema('taxonomy');
+    }
+  }
 
   componentWillReceiveProps(nextProps: Props) {
     const { taxonomy } = nextProps.details;
+
     this.setState({ taxonomy });
   }
 
   get actions(): ObjectActions<Taxonomy> {
-    const { context } = this.props.params;
-    const {
-      newObject,
-      duplicate,
-      reset,
-      fetch,
-      create,
-      update,
-      archive
-    } = this.props.actions;
-
     return {
-      newObject,
-      duplicate,
-      reset,
-      fetch,
-      create,
-      update,
-      archive,
-      cancel: () => transitionTo('taxonomies'),
-      getTitle: (t: Taxonomy) => _.get(t.attributes, 'name.v', ''),
+      ...this.props.actions,
+      close: transitionToLazy('taxonomies'),
+      getTitle: (t: Taxonomy) => get(t.attributes, 'name.v', ''),
       transition: (id: number|string) => transitionTo('taxonomy-details', {
         taxonomyId: id,
-        context: context
+        context: this.props.params.context
       })
     };
   }
 
   get isFetching(): boolean {
-    const { isFetching, fetchError } = this.props;
-    const { taxonomy } = this.props.details;
+    const { details, schema, fetchState, schemaFetchState } = this.props;
 
-    return isFetching || (!taxonomy && !fetchError);
+    const inProgress = fetchState.inProgress || schemaFetchState.inProgress;
+    const noError = (!details.taxonomy && !fetchState.err) || (!schema && !schemaFetchState.err);
+
+    return inProgress || noError;
   }
 
   get navLinks(): NavLinks<TaxonomyParams> {
@@ -131,19 +93,19 @@ class TaxonomyPage extends Component {
   @autobind
   handleObjectUpdate(obj: Taxonomy) {
     const { taxonomy } = this.state;
+
     if (taxonomy) {
-      const { attributes, hierarchical } = obj;
-      const newTaxonomy = {
-        ...taxonomy,
-        attributes: { ...taxonomy.attributes, ...attributes },
-        hierarchical
-      };
+      const newTaxonomy = assoc(taxonomy, 'attributes', obj.attributes, 'hierarchical', obj.hierarchical);
+
       this.setState({ taxonomy: newTaxonomy });
     }
   }
 
   render() {
+    const { details, fetchState, archiveState, schema } = this.props;
     const { taxonomyId, context } = this.props.params;
+
+
     const childProps = {
       schema,
       taxonomy: this.state.taxonomy,
@@ -156,13 +118,14 @@ class TaxonomyPage extends Component {
       <ObjectPageDeux
         actions={this.actions}
         context={context}
-        identifier={taxonomyId}
+        identifier={get(this.props.details.taxonomy, 'id', taxonomyId)}
         isFetching={this.isFetching}
-        fetchError={this.props.fetchError}
+        fetchError={fetchState.err}
         navLinks={this.navLinks}
         object={this.state.taxonomy}
         objectType="taxonomy"
-        originalObject={this.props.details.taxonomy}
+        originalObject={details.taxonomy}
+        archiveState={archiveState}
       >
         {children}
       </ObjectPageDeux>
@@ -170,18 +133,19 @@ class TaxonomyPage extends Component {
   }
 }
 
-const mapStateToProps = state => {
-  return {
-    details: state.taxonomies.details,
-    isFetching: _.get(state.asyncActions, 'fetchTaxonomy.inProgress', null),
-    fetchError: _.get(state.asyncActions, 'fetchTaxonomy.err', null),
-  };
-};
+const mapState = state => ({
+  details: state.taxonomies.details,
+  fetchState: get(state.asyncActions, 'fetchTaxonomy', {}),
+  archiveState: get(state.asyncActions, 'archiveTaxonomy', {}),
+  schemaFetchState: get(state.asyncActions, 'fetchSchema', {}),
+  schema: get(state.objectSchemas, 'taxonomy'),
+});
 
-const mapDispatchToProps = dispatch => {
-  return {
-    actions: bindActionCreators(TaxonomyActions, dispatch),
-  };
-};
+const mapActions = dispatch => ({
+  actions: {
+    ...bindActionCreators(taxonomiesActions, dispatch),
+  },
+  fetchSchema: bindActionCreators(fetchSchema, dispatch),
+});
 
-export default connect(mapStateToProps, mapDispatchToProps)(TaxonomyPage);
+export default connect(mapState, mapActions)(TaxonomyPage);

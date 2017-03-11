@@ -1,5 +1,6 @@
 package routes
 
+import cats.implicits._
 import akka.http.scaladsl.model.{StatusCodes, Uri}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
@@ -22,7 +23,7 @@ object AuthRoutes {
 
     pathPrefix("public") {
       (post & path("login") & entity(as[LoginPayload])) { payload ⇒
-        onSuccess(Authenticator.authenticate(payload)) { result ⇒
+        onSuccess(Authenticator.authenticate(payload).runEmptyA.value) { result ⇒ // TODO: rethink discarding warnings here @michalrus
           result.fold({ f ⇒
             complete(renderFailure(f))
           }, identity)

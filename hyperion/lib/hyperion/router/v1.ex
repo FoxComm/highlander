@@ -1,14 +1,14 @@
 defmodule Hyperion.Router.V1 do
   use Maru.Router
 
-  import Ecto.Query
   require Logger
 
   alias Hyperion.Repo, warn: true
   alias Hyperion.Amazon, warn: true
-  alias Hyperion.PhoenixScala.Client, warn: true
   alias Hyperion.API, warn: true
   alias Hyperion.Amazon.TemplateBuilder, warn: true
+
+  import Ecto.Query
 
   version "v1" do
     namespace :health do
@@ -42,9 +42,13 @@ defmodule Hyperion.Router.V1 do
 
       post do
         changeset = Credentials.changeset(%Credentials{}, params)
-        case Repo.insert(changeset) do
-          {:ok, creds} -> respond_with(conn, creds)
-          {:error, changeset} -> respond_with(conn, changeset.errors, 422)
+        try do
+          case Repo.insert(changeset) do
+            {:ok, creds} -> respond_with(conn, creds)
+            {:error, changeset} -> respond_with(conn, changeset.errors, 422)
+          end
+        rescue _e in Ecto.ConstraintError ->
+          respond_with(conn, %{error: "Credentials for this client (client_id: #{params[:client_id]}) is already here"}, 422)
         end
       end # create new credentials
 
@@ -57,18 +61,34 @@ defmodule Hyperion.Router.V1 do
       route_param :client_id do
         put do
           try do
-            IO.puts inspect(params)
             creds = Repo.get_by!(Credentials, client_id: params[:client_id])
             changeset = Credentials.changeset(creds, params)
             case Repo.update(changeset) do
               {:ok, creds} -> respond_with(conn, creds)
               {:error, changeset} -> respond_with(conn, changeset.errors, 422)
             end
-          rescue e in Ecto.NoResultsError ->
+          rescue _e in Ecto.NoResultsError ->
             respond_with(conn, %{error: "Not found"}, 404)
           end
         end # update credentials
       end
+
+      desc "Remove credentials for specific client"
+      route_param :client_id do
+        delete do
+          try do
+            creds = Repo.get_by!(Credentials, client_id: params[:client_id])
+            case Repo.delete(creds) do
+              {:ok, _} -> conn
+                          |> put_status(204)
+                          |> text(nil)
+              {:error, err} -> respond_with(conn, %{error: err}, 422)
+            end
+          rescue e in Ecto.NoResultsError ->
+            respond_with(conn, %{error: "Credentials for client #{params[:client_id]} not found"}, 404)
+          end
+        end
+      end # destroy credentials
     end # credentials
 
     namespace :products do
@@ -80,7 +100,7 @@ defmodule Hyperion.Router.V1 do
       end
 
       post do
-        cfg = API.customer_id(conn) |> MWSAuthAgent.get
+        cfg = API.amazon_credentials(conn)
         purge = if (params[:purge]), do: true , else: false
 
         products = Amazon.product_feed(params[:ids], API.jwt(conn))
@@ -101,7 +121,7 @@ defmodule Hyperion.Router.V1 do
       end
 
       post :by_asin do
-        cfg = API.customer_id(conn) |> MWSAuthAgent.get
+        cfg = API.amazon_credentials(conn)
         purge = if (params[:purge]), do: true , else: false
         products = Amazon.product_feed(params[:ids], API.jwt(conn))
                   |> TemplateBuilder.submit_product_by_asin(%{seller_id: cfg.seller_id,
@@ -155,6 +175,39 @@ defmodule Hyperion.Router.V1 do
       end # categories
     end # products
 
+    namespace :categories do
+      desc "Search for Amazon `department` and `item-type' by `node_path'"
+
+      params do
+        requires :node_path, type: String
+        optional :from, type: Integer
+        optional :size, type: Integer
+      end
+
+      get do
+        res = (from c in Category, limit: ^params[:size], offset: ^params[:from],
+               where: ilike(c.node_path, ^"%#{String.downcase(params[:node_path])}%"))
+              |> Hyperion.Repo.all
+        respond_with(conn, res)
+      end
+
+      desc "Suggests category for product by title"
+
+      params do
+        requires :q, type: String
+      end
+
+      get :suggest do
+        try do
+          cfg = API.amazon_credentials(conn)
+          res = CategorySuggester.suggest_categories(params[:q], cfg)
+          respond_with(conn, res)
+        rescue e in RuntimeError ->
+          respond_with(conn, %{error: e.message}, 422)
+        end
+      end
+    end # categories
+
     namespace :orders do
       desc "Get all orders"
       params do
@@ -174,7 +227,7 @@ defmodule Hyperion.Router.V1 do
                     _ -> params[:last_updated_after]
                    end
 
-        # Remove :last_updated_after and convert Map to KeyworkList
+        # Remove :last_updated_after and convert Map to KeywordList
         list = Map.drop(params, [:last_updated_after])
                |>Enum.map(fn {k, v} -> {k, String.split(v, ",")}  end)
 
@@ -193,7 +246,7 @@ defmodule Hyperion.Router.V1 do
       end
 
       post do
-        cfg = API.customer_id(conn) |> MWSAuthAgent.get
+        cfg = API.amazon_credentials(conn)
         prices = Amazon.price_feed(params[:ids], API.jwt(conn))
                  |> TemplateBuilder.submit_price_feed(cfg)
         case MWSClient.submit_price_feed(prices, MWSAuthAgent.get(API.customer_id(conn))) do
@@ -214,7 +267,7 @@ defmodule Hyperion.Router.V1 do
       end
 
       post do
-        cfg = API.customer_id(conn) |> MWSAuthAgent.get
+        cfg = API.amazon_credentials(conn)
         inv_list = params[:inventory] |> Enum.with_index(1)
         inventories = TemplateBuilder.submit_inventory_feed(inv_list, %{seller_id: cfg.seller_id})
 
@@ -233,7 +286,7 @@ defmodule Hyperion.Router.V1 do
       end
 
       post do
-        cfg = API.customer_id(conn) |> MWSAuthAgent.get
+        cfg = API.amazon_credentials(conn)
         images = Amazon.images_feed(params[:ids], API.jwt(conn))
                  |> TemplateBuilder.submit_images_feed(cfg)
         case MWSClient.submit_images_feed(images, MWSAuthAgent.get(API.customer_id(conn))) do
@@ -282,6 +335,41 @@ defmodule Hyperion.Router.V1 do
         end
       end
     end # subscribe
+
+    namespace :object_schema do
+      desc "Fetch object schema by name"
+      route_param :schema_name do
+        get do
+          schema = Repo.get_by(ObjectSchema, schema_name: params[:schema_name])
+          case schema do
+            nil -> respond_with(conn, %{error: "Not found"}, 404)
+            s -> respond_with(conn, s)
+          end
+        end
+      end # route_param
+
+
+      desc "Get object schema by amazon category id"
+      namespace :category do
+        route_param :category_id do
+          get do
+            case Repo.get_by(Category, node_id: params[:category_id]) do
+              nil -> respond_with(conn, %{error: "Category not found"}, 404)
+              x ->
+                schema = Repo.get(ObjectSchema, x.object_schema_id)
+                respond_with(conn, schema)
+            end
+          end
+        end
+      end
+
+      desc "Get all available schemas"
+      get do
+        schemas = Repo.all(ObjectSchema)
+                  |> Enum.map(fn(x) -> %{id: x.id, name: x.schema_name} end)
+        respond_with(conn, schemas)
+      end
+    end # object_schema
   end # v1
 
   defp respond_with(conn, body \\ [], status \\ 200) do
@@ -293,7 +381,7 @@ defmodule Hyperion.Router.V1 do
 
   defp wrap(collection) do
     if is_list(collection) do
-      %{collection: collection,
+      %{items: collection,
         count: Enum.count(collection) }
     else
       collection

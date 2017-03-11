@@ -1,5 +1,6 @@
 import java.time.Instant
 
+import cats.implicits._
 import failures.NotFoundFailure404
 import models._
 import models.payment.giftcard._
@@ -11,7 +12,7 @@ import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import utils.db._
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 import utils.time.RichInstant
 
 class GiftCardNotesIntegrationTest
@@ -49,7 +50,7 @@ class GiftCardNotesIntegrationTest
       val createNotes = List("abc", "123", "xyz").map { body ⇒
         GiftCardNoteManager.create(giftCard.code, storeAdmin, CreateNote(body = body))
       }
-      DbResultT.sequence(createNotes).gimme
+      DbResultT.seqCollectFailures(createNotes).gimme
 
       val notes = notesApi.giftCard(giftCard.code).get().as[Seq[Root]]
       notes must have size 3

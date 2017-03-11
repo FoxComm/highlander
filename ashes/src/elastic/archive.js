@@ -1,7 +1,5 @@
 import _ from 'lodash';
 
-import type { SearchFilter } from 'elastic/common';
-
 function archivedFilter(operator) {
   return {
     term: 'archivedAt',

@@ -6,7 +6,7 @@ import cats.implicits._
 import payloads.CartPayloads.CreateCart
 import testutils.CustomMatchers._
 import testutils.TestBase
-import utils.seeds.Seeds.Factories
+import utils.seeds.Factories
 
 class CartPayloadsTest extends TestBase {
   val today = ZonedDateTime.now()

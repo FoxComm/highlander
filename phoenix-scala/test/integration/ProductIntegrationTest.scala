@@ -1,11 +1,11 @@
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
-
 import cats.implicits._
 import failures.ArchiveFailures._
 import failures.ObjectFailures.ObjectContextNotFound
-import failures.ProductFailures
+import failures.{NotFoundFailure404, ProductFailures}
 import failures.ProductFailures._
 import models.account.Scope
 import models.inventory.Skus
@@ -23,7 +23,7 @@ import responses.ProductResponses.ProductResponse
 import responses.ProductResponses.ProductResponse.Root
 import responses.cord.CartResponse
 import testutils._
-import testutils.apis.PhoenixAdminApi
+import testutils.apis.{PhoenixAdminApi, PhoenixStorefrontApi}
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api.ApiFixtures
 import utils.JsonFormatters
@@ -50,6 +50,7 @@ object ProductTestExtensions {
 class ProductIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
+    with PhoenixStorefrontApi
     with AutomaticAuth
     with BakedFixtures
     with ApiFixtures
@@ -88,6 +89,75 @@ class ProductIntegrationTest
       Products.update(simpleProduct, updated).gimme
 
       productsApi(slug).get().as[ProductResponse.Root].id must === (updated.formId)
+    }
+  }
+
+  "GET v1/my/products/:ref/baked" - {
+    "404 for archived products" in new ProductSku_ApiFixture {
+      val slug = "simple-product"
+
+      productsApi(product.id)
+        .update(
+            UpdateProductPayload(productPayload.attributes,
+                                 slug = slug.some,
+                                 skus = None,
+                                 variants = None))
+        .mustBeOk()
+
+      productsApi(product.id).archive().mustBeOk()
+
+      storefrontProductsApi(slug).get.mustFailWith404(NotFoundFailure404(Product, slug))
+    }
+
+    "404 for inactive products" in new Customer_Seed with Fixture {
+      val slug = "simple-product"
+
+      productsApi(product.formId)
+        .update(
+            UpdateProductPayload(attributes = inactiveAttrMap,
+                                 slug = slug.some,
+                                 skus =
+                                   allSkus.map(sku ⇒ makeSkuPayload(sku, skuAttrMap, None)).some,
+                                 albums = None,
+                                 variants = None))
+        .mustBeOk()
+
+      storefrontProductsApi(slug).get.mustFailWith404(NotFoundFailure404(Product, slug))
+    }
+
+    "404 if all SKUs are archived" in new Customer_Seed with Fixture {
+      val slug = "simple-product"
+
+      productsApi(product.formId)
+        .update(
+            UpdateProductPayload(attributes = activeAttrMap,
+                                 slug = slug.some,
+                                 skus =
+                                   allSkus.map(sku ⇒ makeSkuPayload(sku, skuAttrMap, None)).some,
+                                 albums = None,
+                                 variants = None))
+        .mustBeOk()
+
+      allSkus.map(sku ⇒ skusApi(sku).archive().mustBeOk())
+
+      storefrontProductsApi(slug).get.mustFailWith404(NotFoundFailure404(Product, slug))
+    }
+
+    "404 if all SKUs are inactive" in new Customer_Seed with Fixture {
+      val slug = "simple-product"
+
+      productsApi(product.formId)
+        .update(
+            UpdateProductPayload(
+                attributes = activeAttrMap,
+                slug = slug.some,
+                skus =
+                  allSkus.map(sku ⇒ makeSkuPayload(sku, skuAttrMap ++ inactiveAttrMap, None)).some,
+                albums = None,
+                variants = None))
+        .mustBeOk()
+
+      storefrontProductsApi(slug).get.mustFailWith404(NotFoundFailure404(Product, slug))
     }
   }
 
@@ -757,8 +827,12 @@ class ProductIntegrationTest
     val skuAttrMap = Map("price" → priceJson)
     val skuPayload = makeSkuPayload("SKU-NEW-TEST", skuAttrMap, None)
 
-    val nameJson = ("t"       → "string") ~ ("v"  → "Product name")
-    val attrMap  = Map("name" → nameJson, "title" → nameJson)
+    val nameJson        = ("t"                        → "string") ~ ("v" → "Product name")
+    val attrMap         = Map("name"                  → nameJson, "title" → nameJson)
+    val activeFromJson  = ("t"                        → "date") ~ ("v" → (Instant.now.minus(2, ChronoUnit.DAYS)).toString)
+    val activeToJson    = ("t"                        → "date") ~ ("v" → (Instant.now.minus(1, ChronoUnit.DAYS)).toString)
+    val inactiveAttrMap = attrMap ++ Map("activeFrom" → activeFromJson, "activeTo" → activeToJson)
+    val activeAttrMap   = attrMap ++ Map("activeFrom" → activeFromJson)
     val productPayload = CreateProductPayload(attributes = attrMap,
                                               skus = Seq(skuPayload),
                                               variants = None,

@@ -4,11 +4,11 @@ import cats.Show
 import cats.implicits._
 import com.pellucid.sealerate
 import com.typesafe.config.{Config, ConfigFactory}
+import com.typesafe.scalalogging.StrictLogging
 import pureconfig._
 import scala.reflect._
 import scala.util.{Failure, Success, Try}
 import shapeless._
-import utils.FoxConfig._
 
 sealed trait Environment {
   def isProd: Boolean = false
@@ -32,15 +32,15 @@ object Environment {
     }
 }
 
-case class FoxConfig(apis: Apis,
-                     app: App,
-                     auth: Auth,
-                     db: DB,
-                     http: Http,
-                     taxRules: TaxRules,
-                     users: Users)
+case class FoxConfig(apis: FoxConfig.Apis,
+                     app: FoxConfig.App,
+                     auth: FoxConfig.Auth,
+                     db: FoxConfig.DB,
+                     http: FoxConfig.Http,
+                     taxRules: FoxConfig.TaxRules,
+                     users: FoxConfig.Users)
 
-object FoxConfig {
+object FoxConfig extends StrictLogging {
   implicit val booleanConfigConvert: ConfigConvert[Boolean] = ConfigConvert.fromNonEmptyString {
     case "true" | "yes" | "on"  ⇒ Success(true)
     case "false" | "no" | "off" ⇒ Success(false)
@@ -112,10 +112,10 @@ object FoxConfig {
                          redirectUri: String,
                          hostedDomain: Option[String])
 
-  private def loadBareConfigWithEnv(cfg: Config = ConfigFactory.load)(
-      implicit env: Environment): Config = {
-    val envConfig = cfg.getConfig("env." ++ env.show)
-    ConfigFactory.systemProperties.withFallback(envConfig.withFallback(cfg))
+  private def loadBareConfigWithEnv()(implicit env: Environment): Config = {
+    logger.info(s"Loading configuration using ${env.show} environment")
+    val envConfig = ConfigFactory.load(env.show)
+    ConfigFactory.systemProperties.withFallback(envConfig.withFallback(ConfigFactory.load()))
   }
 
   val app: Lens[FoxConfig, App] = lens[FoxConfig].app
@@ -139,9 +139,12 @@ object FoxConfig {
   val admin: Lens[Users, User]             = lens[Users].admin
   val googleOauth: Lens[User, GoogleOauth] = lens[User].oauth.google
 
+  def loadConfigWithEnv()(implicit env: Environment): Try[(FoxConfig, Config)] =
+    for {
+      underlying ← Try(loadBareConfigWithEnv())
+      config     ← loadConfig[FoxConfig](underlying)
+    } yield (config, underlying)
+
   // impure, but throwing an exception is exactly what we want here
-  val (config, unsafe) = (for {
-    underlying ← Try(loadBareConfigWithEnv())
-    config     ← loadConfig[FoxConfig](underlying)
-  } yield (config, underlying)).get
+  val (config, unsafe) = loadConfigWithEnv().get
 }

@@ -38,6 +38,7 @@ object Dimension {
   val promotion    = "promotion"
   val rma          = "return"
   val sku          = "sku"
+  val taxonomy     = "taxonomy"
 }
 
 class Dimensions(tag: Tag) extends FoxTable[Dimension](tag, "activity_dimensions") {

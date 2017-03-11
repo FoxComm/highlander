@@ -38,10 +38,7 @@ class ImageIntegrationTest
   "Album Tests" - {
     "GET v1/albums/:context/:id" - {
       "Searching for a valid album returns the album" in new Fixture {
-        val albumResponse = albumsApi(album.formId).get().as[AlbumRoot]
-
-        albumResponse.images.length must === (1)
-        albumResponse.images.head.src must not be empty
+        albumsApi(album.formId).get().as[AlbumRoot].images.onlyElement.src must not be empty
       }
 
       "404 if wrong context name" in new Fixture {
@@ -89,7 +86,8 @@ class ImageIntegrationTest
                                  images = Seq(ImagePayload(src = "url")).some))
             .as[AlbumRoot]
             .images
-            .length must === (1)
+            .onlyElement
+            .src must === ("url")
         }
 
         "multiple images" in new Fixture {
@@ -161,8 +159,7 @@ class ImageIntegrationTest
       "Request the album after updating" in new Fixture {
         def checkAlbum(album: AlbumRoot): Unit = {
           album.name must === ("Name 2.0")
-          album.images must have size 1
-          val image = album.images.head
+          val image = album.images.onlyElement
           image.src must === ("http://lorem.png")
           image.alt.value must === ("Lorem Ipsum")
           image.title.value must === ("lorem.png")
@@ -181,8 +178,7 @@ class ImageIntegrationTest
         val albumResponse = productsApi(prodForm.id).albums.create(payload).as[AlbumRoot]
 
         albumResponse.name must === (testAlbumName)
-        albumResponse.images.length must === (1)
-        albumResponse.images.head.src must === ("url")
+        albumResponse.images.onlyElement.src must === ("url")
       }
 
       "Puts new album at the end" in new ProductFixture {
@@ -226,8 +222,7 @@ class ImageIntegrationTest
         val response = productsApi(prodForm.id).albums.get().as[Seq[AlbumRoot]].headOption.value
 
         response.name must === (testAlbumName)
-        response.images.length must === (1)
-        response.images.head.src must === ("http://lorem.png")
+        response.images.onlyElement.src must === ("http://lorem.png")
       }
 
       "Retrieves a correct version of an album after an update" in new ProductFixture {
@@ -247,40 +242,35 @@ class ImageIntegrationTest
 
     "GET v1/products/:context/:id" - {
       "Retrieves all the albums associated with a product" in new ProductFixture {
-        val productResponse = productsApi(prodForm.id).get().as[ProductResponse.Root]
-        productResponse.albums.length must === (1)
+        val onlyAlbum = productsApi(prodForm.id).get().as[ProductResponse.Root].albums.onlyElement
 
-        val headAlbum = productResponse.albums.head
-        headAlbum.images.length must === (1)
-
-        headAlbum.name must === ("Sample Album")
-        headAlbum.images.head.src must === ("http://lorem.png")
+        onlyAlbum.name must === ("Sample Album")
+        onlyAlbum.images.onlyElement.src must === ("http://lorem.png")
       }
 
       "Retrieves the albums associated with product's SKUs" in new ProductFixture {
-        val productResponse = productsApi(prodForm.id).get().as[ProductResponse.Root]
-
-        productResponse.skus.headOption.value.albums.length must === (1)
+        productsApi(prodForm.id)
+          .get()
+          .as[ProductResponse.Root]
+          .skus
+          .onlyElement
+          .albums must have size 1
       }
 
       "Archived albums are not present in list" in new ProductFixture {
         albumsApi(album.formId).delete().mustBeOk()
 
         val productResponse = productsApi(prodForm.id).get().as[ProductResponse.Root]
-        productResponse.skus.headOption.value.albums.length must === (0)
+        productResponse.skus.onlyElement.albums mustBe empty
       }
     }
 
     "GET v1/skus/:context/:code" - {
       "Retrieves all the albums associated with a SKU" in new ProductFixture {
-        val skuResponse = skusApi(sku.code).get().as[SkuResponse.Root]
-        skuResponse.albums.length must === (1)
+        val onlyAlbum = skusApi(sku.code).get().as[SkuResponse.Root].albums.onlyElement
 
-        val headAlbum = skuResponse.albums.head
-        headAlbum.images.length must === (1)
-
-        headAlbum.name must === ("Sample Album")
-        headAlbum.images.head.src must === ("http://lorem.png")
+        onlyAlbum.name must === ("Sample Album")
+        onlyAlbum.images.onlyElement.src must === ("http://lorem.png")
       }
 
       "Archived albums are not present in list" in new ProductFixture {
@@ -298,26 +288,26 @@ class ImageIntegrationTest
         val albumResponse = skusApi(sku.code).albums.create(payload).as[AlbumRoot]
 
         albumResponse.name must === ("Sku Album")
-        albumResponse.images.length must === (1)
-        albumResponse.images.head.src must === ("url")
+        albumResponse.images.onlyElement.src must === ("url")
       }
     }
 
     "GET v1/skus/:context/:id/albums" - {
       "Retrieves all the albums associated with a SKU" in new ProductFixture {
         val albumResponse = skusApi(sku.code).albums.get().as[Seq[AlbumRoot]].headOption.value
-        albumResponse.images.length must === (1)
 
         albumResponse.name must === ("Sample Album")
-        albumResponse.images.head.src must === ("http://lorem.png")
+        albumResponse.images.onlyElement.src must === ("http://lorem.png")
       }
 
       "Retrieves a correct version of an album after an update" in new ProductFixture {
-        val response = albumsApi(album.formId).update(AlbumPayload(name = "Name 2.0".some))
-        response.as[AlbumRoot].name must === ("Name 2.0")
+        private val newAlbumName = "Name 2.0"
+        albumsApi(album.formId)
+          .update(AlbumPayload(name = newAlbumName.some))
+          .as[AlbumRoot]
+          .name must === (newAlbumName)
 
-        val response2 = skusApi(sku.code).albums.get()
-        response2.as[Seq[AlbumRoot]].headOption.value.name must === ("Name 2.0")
+        skusApi(sku.code).albums.get().as[Seq[AlbumRoot]].onlyElement.name must === (newAlbumName)
       }
 
       "Archived albums are not present in list" in new ProductFixture {

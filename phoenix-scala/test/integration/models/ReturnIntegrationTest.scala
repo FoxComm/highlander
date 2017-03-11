@@ -25,7 +25,7 @@ class ReturnIntegrationTest extends IntegrationTestBase with TestObjectContext w
 
     "has a unique index on referenceNumber" in new Fixture {
       val rma     = Returns.create(Return.build(order, storeAdmin)).gimme
-      val failure = Returns.create(rma.copy(id = 0)).run().futureValue.leftVal
+      val failure = Returns.create(rma.copy(id = 0)).gimmeFailures
       val errorMessage =
         "ERROR: duplicate key value violates unique constraint \"returns_reference_number_key\"\n" +
           "  Detail: Key (reference_number)=(BR10001.1) already exists."
