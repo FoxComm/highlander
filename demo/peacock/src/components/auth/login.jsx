@@ -10,7 +10,8 @@ import { browserHistory } from 'lib/history';
 
 import styles from './auth.css';
 
-import { TextInput, TextInputWithLabel } from 'ui/inputs';
+import TextInput from '../../ui/text-input/text-input';
+import TextInputWithLabel from '../../ui/text-input-with-label/text-input-with-label';
 import { FormField, Form } from 'ui/forms';
 import Button from 'ui/buttons';
 
@@ -114,8 +115,21 @@ class Login extends Component {
   get title() {
     const { t, title } = this.props;
     return title !== null
-      ? <div styleName="title">{title || t('LOG IN')}</div>
+      ? <div styleName="title">{title || t('Log in')}</div>
       : null;
+  }
+
+  get topMessage() {
+    const { props } = this;
+    const { t } = props;
+
+    return (
+      <div styleName="top-message">
+        <Link to={props.getPath(authBlockTypes.SIGNUP)} onClick={props.onSignupClick} styleName="link">
+          {t('Don’t have an account?')}
+        </Link>
+      </div>
+    );
   }
 
   render(): HTMLElement {
@@ -129,21 +143,17 @@ class Login extends Component {
       </Link>
     );
 
-    const signupLink = (
-      <Link to={getPath(authBlockTypes.SIGNUP)} onClick={props.onSignupClick} styleName="link">
-        {t('Sign Up')}
-      </Link>
-    );
-
     return (
       <div>
         {this.title}
+        {this.topMessage}
         <Form onSubmit={this.authenticate}>
           <FormField key="email" styleName="form-field" error={this.state.error}>
-            <TextInput placeholder={t('EMAIL')} value={email} type="email" onChange={this.onChangeEmail} />
+            <TextInput adjoin="b" placeholder={t('EMAIL')} value={email} type="email" onChange={this.onChangeEmail} />
           </FormField>
           <FormField key="passwd" styleName="form-field" error={!!this.state.error}>
             <TextInputWithLabel
+              adjoin="t"
               styleName="form-field-input"
               placeholder="PASSWORD"
               label={!password && restoreLink}
@@ -159,9 +169,6 @@ class Login extends Component {
             {t('LOG IN')}
           </Button>
         </Form>
-        <div styleName="switch-stage">
-          {t('Don’t have an account?')} {signupLink}
-        </div>
       </div>
     );
   }

@@ -23,7 +23,6 @@
 
 .code {
   composes: text-input from "ui/css/input.css";
-  width: 100%;
   border-right: none;
   background-color: white;
   border-color: white;

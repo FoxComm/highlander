@@ -135,23 +135,31 @@ class Signup extends Component {
   get title() {
     const { t, title } = this.props;
     return title !== null
-      ? <div styleName="title">{title || t('SIGN UP')}</div>
+      ? <div styleName="title">{title || t('Sign up')}</div>
       : null;
+  }
+
+  get topMessage() {
+    const { props } = this;
+    const { t } = props;
+
+    return (
+      <div styleName="top-message">
+        <Link to={props.getPath(authBlockTypes.LOGIN)} onClick={props.onLoginClick} styleName="link">
+          {t('Already have an account?')}
+        </Link>
+      </div>
+    );
   }
 
   render(): HTMLElement {
     const { email, password, username, emailError, usernameError } = this.state;
-    const { t, isLoading, getPath, onLoginClick } = this.props;
-
-    const loginLink = (
-      <Link to={getPath(authBlockTypes.LOGIN)} onClick={onLoginClick} styleName="link">
-        {t('Log in')}
-      </Link>
-    );
+    const { t, isLoading } = this.props;
 
     return (
       <div>
         {this.title}
+        {this.topMessage}
         <Form onSubmit={this.submitUser}>
           <FormField key="username" styleName="form-field" error={usernameError}>
             <TextInput
@@ -190,9 +198,6 @@ class Signup extends Component {
             {t('SIGN UP')}
           </Button>
         </Form>
-        <div styleName="switch-stage">
-          {t('Already have an account?')} {loginLink}
-        </div>
       </div>
     );
   }
