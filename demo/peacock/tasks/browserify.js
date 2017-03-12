@@ -10,7 +10,7 @@ const runSequence = require('run-sequence');
 const affectsServer = require('./server').affectsServer;
 const envify = require('envify/custom');
 
-const plugins = require('../src/postcss').plugins;
+const plugins = require('../src/postcss.config').plugins;
 
 function setApiURL() {
   process.env.API_URL = process.env.API_URL || '/api';

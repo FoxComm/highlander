@@ -5,7 +5,6 @@ input[type=number]::-webkit-inner-spin-button {
 }
 
 input[type=tel] {
-  border-radius: 0;
   -webkit-appearance: none;
 }
 
@@ -29,7 +28,6 @@ input[type=text],
 input[type=password],
 input[type=email] {
   -webkit-appearance: none;
-  -webkit-border-radius: 0;
 }
 
 @media (-webkit-min-device-pixel-ratio: 2) {

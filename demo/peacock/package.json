@@ -9,11 +9,13 @@
     "dev": "gulp dev --optimize_for_size --stack_size=4096",
     "test": "node_modules/mocha/bin/mocha",
     "precompile": "babel src -d lib",
-    "watch-precompile": "babel src -d lib -w --skip-initial-build"
+    "watch-precompile": "babel src -d lib -w --skip-initial-build",
+    "storybook": "start-storybook -p 9001 -s ./public -c .storybook"
   },
   "author": "FoxCommerce",
   "license": "ISC",
   "devDependencies": {
+    "@kadira/storybook": "^2.35.3",
     "autoprefixer": "^6.3.2",
     "babel-cli": "^6.23.0",
     "babel-core": "^6.23.1",

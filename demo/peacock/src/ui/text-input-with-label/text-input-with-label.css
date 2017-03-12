@@ -1,0 +1,13 @@
+
+.root {
+  position: relative;
+}
+
+.label {
+  --line-height: 20px;
+  position: absolute;
+  right: 6px;
+  line-height: var(--line-height);
+  top: calc(50% - var(--line-height) / 2);
+  font-size: 10px;
+}

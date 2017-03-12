@@ -2,7 +2,7 @@ const path = require('path');
 
 process.env.NODE_PATH = `${process.env.NODE_PATH}:${path.resolve('./lib')}`;
 
-require('./src/postcss').installHook();
+require('./src/postcss.config').installHook();
 
 const makeRoutes = require('./lib/routes').default;
 const Sitemap = require('react-router-sitemap').default;
