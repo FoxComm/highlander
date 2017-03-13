@@ -9,6 +9,11 @@ object ObjectFailures {
       NotFoundFailure404(s"Context with name $name cannot be found")
   }
 
+  object ObjectNotFoundForContext {
+    def apply(id: Int, context: String): NotFoundFailure404 =
+      NotFoundFailure404(s"Object $id not found for context $context")
+  }
+
   case class ObjectValidationFailure(kind: String, id: Int, errors: String) extends Failure {
     override def description = s"Object $kind with id=$id doesn't pass validation: $errors"
   }

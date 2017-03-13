@@ -3,7 +3,9 @@ package services.objects
 import failures._
 import failures.ObjectFailures._
 import models.objects._
+import models.account.Scope
 import payloads.ContextPayloads._
+import payloads.GenericObjectPayloads._
 import responses.ObjectResponses._
 import utils.aliases._
 import utils.db.ExPostgresDriver.api._
@@ -52,6 +54,110 @@ object ObjectManager {
 
   def mustFindShadowById404(id: Int)(implicit ec: EC): DbResultT[ObjectShadow] =
     ObjectShadows.findOneById(id).mustFindOr(NotFoundFailure404(ObjectShadow, id))
+
+  def create(payload: CreateGenericObject, contextName: String)(
+      implicit ec: EC,
+      db: DB,
+      au: AU): DbResultT[IlluminatedObjectResponse.Root] =
+    for {
+      context ← * <~ ObjectContexts
+                 .filterByName(contextName)
+                 .mustFindOneOr(ObjectContextNotFound(contextName))
+      genericObject ← * <~ createInternal(payload, context)
+    } yield
+      IlluminatedObjectResponse.build(
+          IlluminatedObject.illuminate(genericObject.form, genericObject.shadow))
+
+  case class CreateInternalResult(genericObject: GenericObject,
+                                  commit: ObjectCommit,
+                                  form: ObjectForm,
+                                  shadow: ObjectShadow)
+      extends FormAndShadow {
+    override def update(form: ObjectForm, shadow: ObjectShadow): FormAndShadow =
+      copy(form = form, shadow = shadow)
+  }
+
+  def createInternal(payload: CreateGenericObject, context: ObjectContext)(
+      implicit ec: EC,
+      au: AU): DbResultT[CreateInternalResult] = {
+    val fs = FormAndShadow.fromPayload(payload.kind, payload.attributes)
+    for {
+      scope ← * <~ Scope.resolveOverride(payload.scope)
+      ins   ← * <~ ObjectUtils.insert(fs.form, fs.shadow, payload.schema)
+      genericObject ← * <~ GenericObjects.create(
+                         GenericObject(scope = scope,
+                                       kind = payload.kind,
+                                       contextId = context.id,
+                                       formId = ins.form.id,
+                                       shadowId = ins.shadow.id,
+                                       commitId = ins.commit.id))
+    } yield CreateInternalResult(genericObject, ins.commit, ins.form, ins.shadow)
+  }
+
+  def update(genericObjectId: Int, payload: UpdateGenericObject, contextName: String)(
+      implicit ec: EC,
+      db: DB): DbResultT[IlluminatedObjectResponse.Root] =
+    for {
+      context ← * <~ ObjectContexts
+                 .filterByName(contextName)
+                 .mustFindOneOr(ObjectContextNotFound(contextName))
+      genericObject ← * <~ updateInternal(genericObjectId, payload.attributes, context)
+    } yield
+      IlluminatedObjectResponse.build(
+          IlluminatedObject.illuminate(genericObject.form, genericObject.shadow))
+
+  case class UpdateInternalResult(oldGenericObject: GenericObject,
+                                  genericObject: GenericObject,
+                                  form: ObjectForm,
+                                  shadow: ObjectShadow)
+  def updateInternal(
+      genericObjectId: Int,
+      attributes: Map[String, Json],
+      context: ObjectContext,
+      forceUpdate: Boolean = false)(implicit ec: EC, db: DB): DbResultT[UpdateInternalResult] = {
+
+    for {
+      genericObject ← * <~ GenericObjects
+                       .filter(_.contextId === context.id)
+                       .filter(_.formId === genericObjectId)
+                       .mustFindOneOr(ObjectNotFoundForContext(genericObjectId, context.name))
+      fs = FormAndShadow.fromPayload(genericObject.kind, attributes)
+      update ← * <~ ObjectUtils.update(genericObject.formId,
+                                       genericObject.shadowId,
+                                       fs.form.attributes,
+                                       fs.shadow.attributes,
+                                       forceUpdate)
+      commit  ← * <~ ObjectUtils.commit(update)
+      updated ← * <~ updateHead(genericObject, update.shadow, commit)
+    } yield UpdateInternalResult(genericObject, updated, update.form, update.shadow)
+  }
+
+  def getIlluminated(id: Int, contextName: String)(
+      implicit ec: EC,
+      db: DB): DbResultT[IlluminatedObjectResponse.Root] =
+    for {
+      context ← * <~ ObjectContexts
+                 .filterByName(contextName)
+                 .mustFindOneOr(ObjectContextNotFound(contextName))
+      genericObject ← * <~ GenericObjects
+                       .filter(_.contextId === context.id)
+                       .filter(_.formId === id)
+                       .mustFindOneOr(NotFoundFailure404(GenericObject, id))
+      form   ← * <~ ObjectForms.mustFindById404(genericObject.formId)
+      shadow ← * <~ ObjectShadows.mustFindById404(genericObject.shadowId)
+    } yield IlluminatedObjectResponse.build(IlluminatedObject.illuminate(form, shadow))
+
+  private def updateHead(
+      genericObject: GenericObject,
+      shadow: ObjectShadow,
+      maybeCommit: Option[ObjectCommit])(implicit ec: EC): DbResultT[GenericObject] =
+    maybeCommit match {
+      case Some(commit) ⇒
+        GenericObjects
+          .update(genericObject, genericObject.copy(shadowId = shadow.id, commitId = commit.id))
+      case None ⇒
+        DbResultT.good(genericObject)
+    }
 
   def getFullObject[T <: ObjectHead[T]](
       readHead: ⇒ DbResultT[T])(implicit ec: EC, db: DB): DbResultT[FullObject[T]] =

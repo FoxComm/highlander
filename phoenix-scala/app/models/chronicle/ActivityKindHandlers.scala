@@ -2,7 +2,7 @@ package models.chronicle
 
 import java.time.Instant
 
-import models.objects.{ObjectHead, ObjectHeads}
+import models.objects.{GenericObjects, GenericObject, ObjectHead, ObjectHeads}
 import models.objects.ObjectUtils.InsertResult
 import shapeless._
 import slick.lifted.Tag
@@ -31,7 +31,7 @@ class ActivityKindHandlers(tag: Tag) extends FoxTable[ActivityKindHandler](tag, 
     (id, scope, kind, activityHandlerHead, createdAt) <> ((ActivityKindHandler.apply _).tupled, ActivityKindHandler.unapply)
 
   def activityHead =
-    foreignKey(ActivityHandlers.tableName, activityHandlerHead, ActivityHandlers)(_.id)
+    foreignKey(GenericObjects.tableName, activityHandlerHead, GenericObjects)(_.id)
 }
 
 object ActivityKindHandlers
