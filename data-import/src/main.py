@@ -1,3 +1,6 @@
+#!/usr/bin/python3
+#
+
 import json
 import os.path
 import sys
