@@ -27,8 +27,9 @@ export function clearErrors() {
 
 const _fetchSuggest = createAsyncActions(
   'fetchSuggest',
-  (product_id: string, text: string) => {
+  (title: string, q: string) => {
     const userId = getUserId() || '';
+    const data = { title, q };
     // @todo move to hyperion
     const options = {
       headers: {
@@ -36,7 +37,7 @@ const _fetchSuggest = createAsyncActions(
       },
     };
 
-    return Api.get(`/hyperion/categories/suggest?product_id=${product_id}&q=${text}`, {foo: 'bar'}, options);
+    return Api.get(`/hyperion/categories/suggest`, data, options);
   }
 );
 

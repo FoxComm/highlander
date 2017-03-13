@@ -44,6 +44,7 @@ type State = {
   form: boolean,
 };
 
+// @todo maybe move to another component?
 const steps = [{
   text: 'Choose Category'
 }, {
@@ -119,9 +120,9 @@ class ProductAmazon extends Component {
   }
 
   _onTextChange(text) {
-    const { params: { productId } } = this.props;
+    const { title } = this.props;
 
-    this.props.actions.fetchSuggest(productId, text);
+    this.props.actions.fetchSuggest(title, text);
   }
 
   _onCatPick(categoryId) {
