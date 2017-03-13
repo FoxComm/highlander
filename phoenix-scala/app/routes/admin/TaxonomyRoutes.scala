@@ -40,9 +40,9 @@ object TaxonomyRoutes {
               }
             } ~
             (post & pathPrefix(IntNumber) & pathEnd & entity(as[CreateTaxonPayload])) {
-              (taxonFormId, payload) ⇒
+              (taxonomyFormId, payload) ⇒
                 mutateOrFailures {
-                  TaxonomyManager.createTaxon(taxonFormId, payload)
+                  TaxonomyManager.createTaxon(taxonomyFormId, payload)
                 }
             }
           }

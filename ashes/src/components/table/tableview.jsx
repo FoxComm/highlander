@@ -1,7 +1,5 @@
 // libs
-import _ from 'lodash';
 import React, { Component, PropTypes } from 'react';
-import classNames from 'classnames';
 
 // components
 import Table from './table';
@@ -19,7 +17,7 @@ function getLine(position, items) {
 
   return (
     <div className={`fc-table__${position}`}>
-      {items.map((item, index) => React.cloneElement(item, {key: `${position}-${index}`}))}
+      {items.map((item, index) => React.cloneElement(item, { key: `${position}-${index}` }))}
     </div>
   );
 }
@@ -28,7 +26,7 @@ const TableView = props => {
   let setState = null;
   if (props.setState) {
     setState = params => {
-      props.setState({...props.data, ...params});
+      props.setState({ ...props.data, ...params });
     };
   }
 
@@ -48,7 +46,7 @@ const TableView = props => {
   // hold actions menu
   const showBulkActions = Boolean(props.bulkActions.length);
   if (showBulkActions) {
-    const {bulkActions, toggledIds, allChecked, data:{total}} = props;
+    const { bulkActions, toggledIds, allChecked, data:{ total } } = props;
 
     //disabled if no data or nothing selected
     const totalSelected = allChecked ? total - toggledIds.length : toggledIds.length;
@@ -65,7 +63,7 @@ const TableView = props => {
 
   const showPagination = props.paginator && props.setState;
   if (showPagination) {
-    const {from, total, size} = props.data;
+    const { from, total, size } = props.data;
     const flexSeparator = <div className="fc-table__flex-separator" />;
     const tablePaginator = <TablePaginator total={total} from={from} size={size} setState={setState} />;
 

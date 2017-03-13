@@ -27,7 +27,7 @@ const getRoutes = (jwt: Object) => {
         component: TaxonomyPage
       }, [
           router.read('taxonomy-details', { component: TaxonomyDetails, isIndex: true }),
-          router.read('taxons', { path: 'taxons', component: TaxonsListPage, frn: frn.merch.taxon }),
+          router.read('values', { path: 'values', component: TaxonsListPage, frn: frn.merch.taxon }),
         ]),
 
     ]);

@@ -13,7 +13,7 @@ import MultiSelectTable from 'components/table/multi-select-table';
 import TaxonRow from './taxon-row';
 
 // helpers
-import { filterArchived } from 'elastic/archive';
+import * as dsl from 'elastic/dsl';
 
 // styling
 import styles from './taxons.css';
@@ -25,6 +25,7 @@ type Column = {
 };
 
 type Props = {
+  taxonomy: Taxonomy,
   actions: Object,
   list: Object,
 };
@@ -40,6 +41,9 @@ export class TaxonsListPage extends Component {
   props: Props;
 
   componentDidMount() {
+    this.props.actions.setExtraFilters([
+      dsl.termFilter('taxonomyId', this.props.taxonomy.id)
+    ]);
     this.props.actions.fetch();
   }
 
@@ -53,19 +57,20 @@ export class TaxonsListPage extends Component {
     const results = list.currentSearch().results;
 
     return (
-      <MultiSelectTable
-        className={styles.container}
-        columns={tableColumns}
-        data={results}
-        renderRow={this.renderRow}
-        setState={actions.updateStateAndFetch}
-        predicate={({id}) => id}
-        hasActionsColumn={false}
-        isLoading={results.isFetching}
-        failed={results.failed}
-        emptyMessage={"No taxons found."}
-        key={list.currentSearch().title}
-      />
+      <div className={styles.container}>
+        <MultiSelectTable
+          columns={tableColumns}
+          data={results}
+          renderRow={this.renderRow}
+          setState={actions.updateStateAndFetch}
+          predicate={({id}) => id}
+          hasActionsColumn={false}
+          isLoading={results.isFetching}
+          failed={results.failed}
+          emptyMessage={'This taxonomy does not have any values yet.'}
+          key={list.currentSearch().title}
+        />
+      </div>
     );
   }
 }
