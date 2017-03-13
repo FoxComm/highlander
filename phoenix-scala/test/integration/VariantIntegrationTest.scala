@@ -127,9 +127,11 @@ class VariantIntegrationTest
 
     val skus = Mvp.insertSkus(scope, ctx.id, testSkus).gimme
 
-    val createVariantValuePayload = VariantValuePayload(name = Some("Red"),
-                                                        swatch = Some("ff0000"),
-                                                        skuCodes = Seq(skus.head.code))
+    val createVariantValuePayload = VariantValuePayload(
+        name = Some("Red"),
+        swatch = Some("ff0000"),
+        image = Some("http://t.fod4.com/t/2e6ea38d82/c640x360_1.jpg"),
+        skuCodes = Seq(skus.head.code))
   }
 
   trait VariantFixture extends Fixture {

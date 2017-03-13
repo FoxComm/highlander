@@ -25,7 +25,7 @@ update-app:
 
 provision:
 	$(call header, Provisioning GCE Machine)
-	ansible-playbook --user$(GOOGLE_SSH_USERNAME) --private-key=$(GOOGLE_SSH_KEY) tabernacle/ansible/goldrush_applianca.yml
+	ansible-playbook --user=$(GOOGLE_SSH_USERNAME) --private-key=$(GOOGLE_SSH_KEY) tabernacle/ansible/goldrush_appliance.yml
 	@cat goldrush.log
 
 .PHONY: up migrate provision destroy update-app dotenv prepare clean

@@ -47,9 +47,7 @@ class DbResultSequenceIntegrationTest extends IntegrationTestBase {
       failures must === (
           NonEmptyList.fromList(List.fill[Failure](numTries - 1)(expectedFailure)).value)
 
-      val allAccounts = Users.gimme
-      allAccounts must have size 1
-      allAccounts.head.accountId must === (1)
+      Users.gimme.onlyElement.accountId must === (1)
     }
   }
 }

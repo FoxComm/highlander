@@ -1,5 +1,8 @@
 ---
 
+- name: Drop IC Database
+  postgresql_db: name={{bernardo_db_name}} state=absent
+
 - name: Create IC Database
   postgresql_db: name={{bernardo_db_name}} encoding='UTF-8' lc_ctype='en_US.UTF-8' lc_collate='en_US.UTF-8' template='template0'
 
@@ -8,13 +11,13 @@
 
 - name: Create Bernardo Directory
   file: path={{bernardo_dir}} state=directory owner="{{user}}"
-  
+
 - name: Synchronize Bernardo SQL
   synchronize: src="{{bernardo_src}}/sql" dest="{{bernardo_dir}}" delete=yes recursive=yes
 
 - name: Create Bernardo Log Directory
-  file: path="{{bernardo_dir}}/log" state=directory owner="{{user}}"  mode="0777"
-  
+  file: path="{{bernardo_dir}}/log" state=directory owner="{{user}}" mode="0777"
+
 - name: Setup Flyway Config
   template: src=flyway.conf dest="{{bernardo_dir}}/sql/flyway.conf" mode="u+x,g+x,o+x"
 

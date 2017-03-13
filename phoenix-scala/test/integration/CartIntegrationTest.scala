@@ -1,7 +1,6 @@
 import akka.http.scaladsl.model.StatusCodes
 import cats.implicits._
 import failures.CartFailures._
-import failures.LockFailures._
 import failures.ShippingMethodFailures._
 import failures.{NotFoundFailure400, NotFoundFailure404}
 import faker.Lorem
@@ -124,11 +123,14 @@ class CartIntegrationTest
 
     "should successfully update line items" in new OrderShippingMethodFixture
     with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
-      val root = cartsApi(cart.refNum).lineItems.add(payload).asTheResult[CartResponse]
-      val skus = root.lineItems.skus
-      skus must have size 1
-      skus.map(_.sku).toSet must === (Set("SKU-YAX"))
-      skus.map(_.quantity).toSet must === (Set(2))
+      val sku = cartsApi(cart.refNum).lineItems
+        .add(payload)
+        .asTheResult[CartResponse]
+        .lineItems
+        .skus
+        .onlyElement
+      sku.sku must === ("SKU-YAX")
+      sku.quantity must === (2)
     }
 
     "adding a SKU with no product should return an error" in new OrderShippingMethodFixture
@@ -144,10 +146,11 @@ class CartIntegrationTest
       val (_, _, skus) = productWithVariants
       val code         = skus.head.code
 
-      val testPayload = Seq(UpdateLineItemsPayload(code, 1))
-      val root        = cartsApi(cart.refNum).lineItems.add(testPayload).asTheResult[CartResponse]
-      val liSkus      = root.lineItems.skus
-      liSkus must have size 1
+      cartsApi(cart.refNum).lineItems
+        .add(Seq(UpdateLineItemsPayload(code, 1)))
+        .asTheResult[CartResponse]
+        .lineItems
+        .skus must have size 1
     }
 
     "should respond with 404 if cart is not found" in {
@@ -177,17 +180,23 @@ class CartIntegrationTest
 
     "should successfully add line items" in new OrderShippingMethodFixture
     with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
-      val root = cartsApi(cart.refNum).lineItems.update(addPayload).asTheResult[CartResponse]
-      val skus = root.lineItems.skus
-      skus must have size 1
-      skus.map(_.sku).headOption.value must === ("SKU-YAX")
-      skus.map(_.quantity).headOption.value must === (4)
+      val sku = cartsApi(cart.refNum).lineItems
+        .update(addPayload)
+        .asTheResult[CartResponse]
+        .lineItems
+        .skus
+        .onlyElement
+      sku.sku must === ("SKU-YAX")
+      sku.quantity must === (4)
 
-      val root2 = cartsApi(cart.refNum).lineItems.update(addPayload).asTheResult[CartResponse]
-      val skus2 = root2.lineItems.skus
-      skus2 must have size 1
-      skus2.map(_.sku).headOption.value must === ("SKU-YAX")
-      skus2.map(_.quantity).headOption.value must === (6)
+      val updatedSku = cartsApi(cart.refNum).lineItems
+        .update(addPayload)
+        .asTheResult[CartResponse]
+        .lineItems
+        .skus
+        .onlyElement
+      updatedSku.sku must === ("SKU-YAX")
+      updatedSku.quantity must === (6)
     }
 
     "should successfully add a gift card line item" in new Customer_Seed
@@ -215,11 +224,14 @@ class CartIntegrationTest
     "should successfully remove line items" in new OrderShippingMethodFixture
     with EmptyCartWithShipAddress_Baked with PaymentStateFixture {
       val subtractPayload = Seq(UpdateLineItemsPayload("SKU-YAX", -1))
-      val root            = cartsApi(cart.refNum).lineItems.update(subtractPayload).asTheResult[CartResponse]
-      val skus            = root.lineItems.skus
-      skus must have size 1
-      skus.map(_.sku).headOption.value must === ("SKU-YAX")
-      skus.map(_.quantity).headOption.value must === (1)
+      val sku = cartsApi(cart.refNum).lineItems
+        .update(subtractPayload)
+        .asTheResult[CartResponse]
+        .lineItems
+        .skus
+        .onlyElement
+      sku.sku must === ("SKU-YAX")
+      sku.quantity must === (1)
     }
 
     "should successfully remove gift card line item" in new Customer_Seed
@@ -263,47 +275,6 @@ class CartIntegrationTest
       skus must have size 2
       skus.map(_.sku) must contain theSameElementsAs Seq("SKU-YAX", "TEST")
       skus.map(_.quantity) must contain theSameElementsAs Seq(1, 2)
-    }
-  }
-
-  "POST /v1/carts/:refNum/lock" - {
-    "successfully locks a cart" in new Fixture {
-      cartsApi(cart.refNum).lock().mustBeOk()
-
-      Carts.findByRefNum(cart.refNum).gimme.head.isLocked must === (true)
-
-      val locks: Seq[CartLockEvent] = CartLockEvents.findByCartRef(cart.refNum).gimme
-      locks must have size 1
-      locks.head.lockedBy must === (1)
-    }
-
-    "refuses to lock an already locked cart" in new Fixture {
-      Carts.update(cart, cart.copy(isLocked = true)).gimme
-
-      cartsApi(cart.refNum).lock().mustFailWith400(LockedFailure(Cart, cart.refNum))
-    }
-
-    "avoids race condition" in new Fixture {
-      pending // FIXME when DbResultT gets `select for update` https://github.com/FoxComm/phoenix-scala/issues/587
-
-      Seq(0, 1).par
-        .map(_ ⇒ cartsApi(cart.refNum).lock())
-        .map(_.status) must contain allOf (StatusCodes.OK, StatusCodes.BadRequest)
-
-      CartLockEvents.size.gimme must === (1)
-    }
-  }
-
-  "POST /v1/carts/:refNum/unlock" - {
-    "unlocks cart" in new Fixture {
-      cartsApi(cart.refNum).lock().mustBeOk()
-      cartsApi(cart.refNum).unlock().mustBeOk()
-
-      Carts.findByRefNum(cart.refNum).gimme.head.isLocked must === (false)
-    }
-
-    "refuses to unlock an already unlocked cart" in new Fixture {
-      cartsApi(cart.refNum).unlock().mustFailWith400(NotLockedFailure(Cart, cart.refNum))
     }
   }
 

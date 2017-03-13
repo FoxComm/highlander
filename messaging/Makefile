@@ -9,6 +9,10 @@ build:
 	$(call header, Building)
 	lein uberjar
 
+clean:
+	$(call header, Cleaning)
+	lein clean
+
 docker:
 	$(call header, Dockerizing)
 	docker build -t $(DOCKER_IMAGE) .

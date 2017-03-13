@@ -2,8 +2,8 @@ include ../../../makelib
 header = $(call baseheader, $(1), digger-sphex)
 
 DOCKER_REPO ?= $(DOCKER_STAGE_REPO)
-DOCKER_TAG ?= digger-sphex
-DOCKER_BRANCH ?= master
+DOCKER_IMAGE ?= digger-sphex
+DOCKER_TAG ?= master
 
 build:
 	$(call header, Building)
@@ -15,12 +15,12 @@ test:
 
 docker:
 	$(call header, Dockerizing)
-	docker build -t $(DOCKER_TAG) .
+	docker build -t $(DOCKER_IMAGE) .
 
 docker-push:
 	$(call header, Registering)
-	docker tag $(DOCKER_TAG) $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
-	docker push $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
+	docker tag $(DOCKER_IMAGE) $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
+	docker push $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
 
 clean:
 	$(call header, Cleaning)

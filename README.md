@@ -18,17 +18,14 @@ Highlander is the brand-spanking-new FoxCommerce mono-repo.
 | [messaging](messaging)                      | Kafka consumer that handles e-mail notifications through Mailchimp, written in Clojure.                      |
 | [ashes](ashes)                              | The Admin UI, written in React.js.                                                                           |
 | [api-js](https://github.com/FoxComm/api-js) | A JavaScript library for interacting with the FoxCommerce API.                                               |
-| [firebrand](firebrand)                      | A demo storefront used to show off the capabilities of FoxCommerce APIs.                                     |
+| [demo](demo)                                | Our demo applications.                                                                                       |
 | [api-docs](api-docs)                        | Our API documentation in API Blueprint format and Postman query collections.                                 |
 | [hyperion](hyperion)                        | A microservice that handles requests to Amazon MWS API, written in Elixir.                                   |
 | [intelligence](intelligence)                | Intelligent Commerce Projects. Data Collection Pipeline, analytics, and ML.                                  |
 
 ## Development Environment
 
-The simplest way to get started is to use Vagrant to build out a virtual
-machine that runs the entire system. It's really easy, though you'll
-probably want to grab a coffee or take a nap the first time you run it -- it
-has a lot to do!
+The simplest way to get started is setup a personal developer appliance in Google Cloud that runs the entire system. It's really easy, though you'll probably want to grab a coffee the first time you run it - it has a lot to do!
 
 ### Install Prerequisites
 
@@ -66,12 +63,10 @@ Please refer to related [wiki page](engineering-wiki/devops/Deploying-Custom-Bra
 
 ## FoxCommerce Software Relationships
 
-Logical relationships between services and software. 
+Logical relationships between services and software.
 
 ![alt text](engineering-wiki/diagrams/system/system.dot.png "Logical Model")
 
 Physical model.
 
 ![alt text](engineering-wiki/diagrams/system/system.neato.png "Physical Model")
-
-

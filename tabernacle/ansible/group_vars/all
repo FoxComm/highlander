@@ -10,6 +10,12 @@ foxcomm_domain: foxcommerce.com
 logrotate_dir: /etc/logrotate.d
 appliance_prefix: appliance
 
+# Prompt answers
+prompt_yes:
+    - y
+    - yes
+    - yep
+
 # Marathon defaults
 marathon_retries: 60
 marathon_delay: 10
@@ -32,6 +38,7 @@ gce_zone: "us-central1-a"
 docker_tags:
     ashes: "{{ lookup('env', 'DOCKER_TAG_ASHES') | default('master', true) }}"
     firebrand: "{{ lookup('env', 'DOCKER_TAG_FIREBRAND') | default('master', true) }}"
+    peacock: "{{ lookup('env', 'DOCKER_TAG_PEACOCK') | default('master', true) }}"
     phoenix: "{{ lookup('env', 'DOCKER_TAG_PHOENIX') | default('master', true) }}"
     greenriver: "{{ lookup('env', 'DOCKER_TAG_GREENRIVER') | default('master', true) }}"
     middlewarehouse: "{{ lookup('env', 'DOCKER_TAG_MIDDLEWAREHOUSE') | default('master', true) }}"
@@ -57,6 +64,7 @@ docker_tags:
 marathon_restart:
     ashes: "{{ lookup('env', 'MARATHON_ASHES') | default(true, true) | bool }}"
     firebrand: "{{ lookup('env', 'MARATHON_FIREBRAND') | default(true, true) | bool }}"
+    peacock: "{{ lookup('env', 'MARATHON_PEACOCK') | default(true, true) | bool }}"
     phoenix: "{{ lookup('env', 'MARATHON_PHOENIX') | default(true, true) | bool }}"
     greenriver: "{{ lookup('env', 'MARATHON_GREENRIVER') | default(true, true) | bool }}"
     middlewarehouse: "{{ lookup('env', 'MARATHON_MIDDLEWAREHOUSE') | default(true, true) | bool }}"
@@ -78,6 +86,9 @@ marathon_restart:
     river_rock: "{{ lookup('env', 'MARATHON_RIVER_ROCK') | default(true, true) | bool }}"
     digger_sphex: "{{ lookup('env', 'MARATHON_DIGGER_SPHEX') | default(true, true) | bool }}"
     orders_sphex: "{{ lookup('env', 'MARATHON_ORDERS_SPHEX') | default(true, true) | bool }}"
+
+# Should we use Intelligent Commerce
+with_ic: "{{ lookup('env', 'WITH_INTELLIGENT_COMMERCE') | default(true, true) | bool }}"
 
 # Consul Service Discovery
 consul_data_dir: /var/consul
@@ -108,7 +119,7 @@ ashes_port: 4000
 ashes_server: "{{ashes_host}}:{{ashes_port}}"
 
 storefront_port: 4041
-storefront_host: "storefront.{{consul_suffix}}"
+storefront_host: "peacock.{{consul_suffix}}"
 storefront_server: "{{storefront_host}}:{{storefront_port}}"
 
 storefront_top_drawer_host: "storefront-top-drawer.{{consul_suffix}}"
@@ -234,12 +245,13 @@ hyperion_db_user: hyperion
 hyperion_db_password: hyperion
 hyperion_db_host: "{{db_host}}"
 hyperion_db_connection_string: "postgresql://{{hyperion_db_user}}@{{hyperion_db_host}}/{{hyperion_db_name}}"
+hyperion_test_db_name: hyperion_test
 
-#Eggcreate
+# Eggcreate
 eggcrate_host: "eggcrate.{{consul_suffix}}"
 eggcrate_server: "{{eggcrate_host}}"
 
-#Bernardo
+# Bernardo
 bernardo_dir: /bernardo
 bernardo_src: ../../intelligence/bernardo/
 bernardo_db_name: ic
@@ -249,7 +261,7 @@ bernardo_port: "9290"
 bernardo_host: bernardo.service.consul
 bernardo_server: "{{bernardo_host}}:{{bernardo_port}}"
 
-#River Rock
+# River Rock
 river_rock_port: "9390"
 river_rock_host: river-rock.service.consul
 river_rock_server: "{{river_rock_host}}:{{river_rock_port}}"
@@ -356,3 +368,4 @@ with_shipstation: false
 with_base_seeds: true
 with_gatling_seeder: false
 with_mwh_seeder: true
+with_hyperion_seeder: true

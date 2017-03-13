@@ -20,7 +20,8 @@
     "AWS_SECRET_ACCESS_KEY": "{{hyperion_aws_secret_access_key}}",
     "MWS_ACCESS_KEY_ID": "{{hyperion_mws_access_key_id}}",
     "MWS_SECRET_ACCESS_KEY" : "{{hyperion_mws_secret_access_key}}",
-    "PHOENIX_URL": "https://{{storefront_server_name}}"
+    "PHOENIX_URL": "https://{{storefront_server_name}}",
+    "ELASTIC_URL": "http://{{search_server}}"
   },
   "ports": [{{hyperion_port}}],
   "constraints": [["hostname", "UNIQUE"]],

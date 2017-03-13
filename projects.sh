@@ -21,7 +21,8 @@ set -ue
 # define buildable projects array
 PROJECTS=(
     'ashes'
-    'firebrand'
+    'demo'
+    'intelligence'
     'green-river'
     'isaac'
     'messaging'
