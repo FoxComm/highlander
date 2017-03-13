@@ -54,7 +54,7 @@ provider "dnsimple" {
 resource "dnsimple_record" "agent-dns-record" {
   domain = "foxcommerce.com"
   name   = "${var.dns_record}"
-  value  = "${google_compute_instance.agent.0.network_interface.0.address}"
+  value  = "${google_compute_instance.agent.0.network_interface.0.access_config.0.assigned_nat_ip}"
   type   = "A"
   ttl    = 3600
 }
