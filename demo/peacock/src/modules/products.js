@@ -29,14 +29,6 @@ function apiCall(
   categoryName: ?string, productType: ?string, { ignoreGiftCards = true } = {}): global.Promise {
   let payload = defaultSearch(context);
 
-  [categoryName, productType].forEach(tag => {
-    // products do not have 'ALL' tag
-    if (tag && tag.toUpperCase() !== 'ALL') {
-      const tagTerm = termFilter('tags', tag.toUpperCase());
-      payload = addTermFilter(payload, tagTerm);
-    }
-  });
-
   if (ignoreGiftCards) {
     const giftCardTerm = termFilter('tags', GIFT_CARD_TAG);
     payload = addMustNotFilter(payload, giftCardTerm);
