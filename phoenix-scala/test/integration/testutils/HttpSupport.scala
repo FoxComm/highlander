@@ -41,7 +41,7 @@ object HttpSupport {
   protected var system: ActorSystem             = _
   protected var materializer: ActorMaterializer = _
   protected var service: Service                = _
-  protected var serverBinding: ServerBinding    = _
+  var serverBinding: ServerBinding              = _
 }
 
 trait HttpSupport

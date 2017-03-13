@@ -1,8 +1,8 @@
-package playground.simulations
+package gatling
 
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
-import org.json4s.jackson.Serialization.{write => json}
+import org.json4s.jackson.Serialization.{write ⇒ json}
 import payloads.LoginPayload
 import utils.JsonFormatters
 

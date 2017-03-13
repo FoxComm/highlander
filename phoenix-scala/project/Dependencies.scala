@@ -71,7 +71,7 @@ object Dependencies {
     "org.slf4j"                  % "slf4j-api"       % "1.7.21"
   )
 
-  val test = Seq(
+  val test = gatling ++ Seq(
     "org.scalatest"     %% "scalatest"           % Versions.scalatest,
     "org.scalacheck"    %% "scalacheck"          % Versions.scalacheck,
     "org.mockito"       % "mockito-core"         % "2.1.0-beta.125",

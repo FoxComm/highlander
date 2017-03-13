@@ -13,5 +13,5 @@ object Tasks {
   lazy val seedDemo       = inputKey[Unit]("Reset and seed the database (admins and test data)")
   lazy val seedOneshot    = inputKey[Unit]("Run oneshot gatling seeds")
   lazy val seedContinuous = inputKey[Unit]("Run continuous gatling seeds")
-
+  lazy val testSimulations = taskKey[Unit]("Run gatling test simulations")
 }
