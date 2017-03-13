@@ -114,7 +114,7 @@ object TaxonomyManager {
       response  ← * <~ buildSingleTaxonResponse(taxonFull)
     } yield response
 
-  def createTaxon(taxonFormId: ObjectForm#Id, payload: CreateTaxonPayload)(
+  def createTaxon(taxonomyFormId: ObjectForm#Id, payload: CreateTaxonPayload)(
       implicit ec: EC,
       oc: OC,
       au: AU): DbResultT[SingleTaxonResponse] = {
@@ -122,7 +122,7 @@ object TaxonomyManager {
     for {
       _        ← * <~ payload.validate
       scope    ← * <~ Scope.resolveOverride(payload.scope)
-      taxonomy ← * <~ Taxonomies.mustFindByFormId404(taxonFormId)
+      taxonomy ← * <~ Taxonomies.mustFindByFormId404(taxonomyFormId)
 
       ins ← * <~ ObjectUtils.insert(form, shadow)
       taxon ← * <~ Taxons.create(

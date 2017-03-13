@@ -16,7 +16,7 @@ import ObjectPageDeux from 'components/object-page/object-page-deux';
 import { fetchSchema } from 'modules/object-schema';
 import * as taxonomiesActions from 'modules/taxonomies/details';
 
-type TaxonomyParams = {
+export type TaxonomyParams = {
   taxonomyId: string,
   context: string,
 };
@@ -69,9 +69,9 @@ class TaxonomyPage extends Component {
       key: 'taxonomy-details-link',
     }, {
       title: 'Values',
-      to: 'taxons',
+      to: 'values',
       params: this.props.params,
-      key: 'taxons-list-link',
+      key: 'values-list-link',
     }];
   }
 

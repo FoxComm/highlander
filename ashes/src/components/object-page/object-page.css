@@ -1,7 +1,5 @@
 
 .object-details {
-  margin: 0 1.85%;
-
   & > :global(.fc-errors) {
     margin-bottom: 20px;
 

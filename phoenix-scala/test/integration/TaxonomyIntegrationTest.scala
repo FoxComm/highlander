@@ -108,7 +108,7 @@ class TaxonomyIntegrationTest
     }
   }
 
-  "POST v1/taxonomies/:contextName/:taxonomyFormId" - {
+  "POST v1/taxonomies/:contextName/:taxonomyFormId/taxons" - {
     "creates taxon" in new TaxonomyFixture {
       private val taxonName: String = "name"
       val response = taxonomiesApi(taxonomy.formId)

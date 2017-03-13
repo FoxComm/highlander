@@ -1,7 +1,7 @@
 // @flow
 
 // libs
-import React, { Component } from 'react';
+import React, { Component, Element } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
@@ -10,13 +10,17 @@ import { actions } from 'modules/taxons/list';
 
 // components
 import MultiSelectTable from 'components/table/multi-select-table';
+import { AddButton } from 'components/common/buttons';
 import TaxonRow from './taxon-row';
 
 // helpers
-import { filterArchived } from 'elastic/archive';
+import * as dsl from 'elastic/dsl';
+import { transitionToLazy } from 'browserHistory';
 
 // styling
 import styles from './taxons.css';
+
+import type { TaxonomyParams } from '../taxonomy';
 
 type Column = {
   field: string,
@@ -25,14 +29,18 @@ type Column = {
 };
 
 type Props = {
+  taxonomy: Taxonomy,
   actions: Object,
   list: Object,
+  params: TaxonomyParams,
 };
 
 const tableColumns = [
   { field: 'name', text: 'Value Name' },
   { field: 'taxonId', text: 'ID' },
   { field: 'productsCount', text: 'Products' },
+  { field: 'createdAt', type: 'datetime', text: 'Date/Time Created' },
+  { field: 'updatedAt', type: 'datetime', text: 'Date/Time Updated' },
   { field: 'state', text: 'State' },
 ];
 
@@ -40,11 +48,22 @@ export class TaxonsListPage extends Component {
   props: Props;
 
   componentDidMount() {
+    this.props.actions.setExtraFilters([
+      dsl.termFilter('taxonomyId', this.props.taxonomy.id)
+    ]);
     this.props.actions.fetch();
   }
 
   renderRow(row: TaxonResult, index: number, columns: Array<Column>, params: Object) {
     return <TaxonRow key={row.id} taxon={row} columns={columns} params={params} />;
+  }
+
+  get tableControls(): Array<Element<*>> {
+    const handleClick = transitionToLazy('value', { ...this.props.params, taxonId: 'new' });
+
+    return [
+      <AddButton className="fc-btn-primary" onClick={handleClick}>Value</AddButton>
+    ];
   }
 
   render() {
@@ -53,19 +72,21 @@ export class TaxonsListPage extends Component {
     const results = list.currentSearch().results;
 
     return (
-      <MultiSelectTable
-        className={styles.container}
-        columns={tableColumns}
-        data={results}
-        renderRow={this.renderRow}
-        setState={actions.updateStateAndFetch}
-        predicate={({id}) => id}
-        hasActionsColumn={false}
-        isLoading={results.isFetching}
-        failed={results.failed}
-        emptyMessage={"No taxons found."}
-        key={list.currentSearch().title}
-      />
+      <div className={styles.container}>
+        <MultiSelectTable
+          columns={tableColumns}
+          data={results}
+          renderRow={this.renderRow}
+          setState={actions.updateStateAndFetch}
+          predicate={({id}) => id}
+          hasActionsColumn={false}
+          isLoading={results.isFetching}
+          failed={results.failed}
+          emptyMessage={'This taxonomy does not have any values yet.'}
+          headerControls={this.tableControls}
+          footerControls={this.tableControls}
+        />
+      </div>
     );
   }
 }

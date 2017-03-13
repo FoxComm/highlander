@@ -1,7 +1,7 @@
 
 .object-details {
   lost-flex-container: row;
-  margin: 0 20px;
+  margin: 0 1.85%;
 
   & :global(.fc-confirmation-dialog) {
     margin-bottom: 0;
