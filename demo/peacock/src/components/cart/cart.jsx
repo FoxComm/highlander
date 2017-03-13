@@ -181,12 +181,10 @@ class Cart extends Component {
             </div>
 
             <div styleName="cart-subtotal">
-              <div styleName="subtotal-title">{t('SUBTOTAL')}</div>
               <div styleName="subtotal-price">
                 <Currency value={ totals.subTotal } />
               </div>
             </div>
-
             {this.errorsLine}
           </div>
 

@@ -100,7 +100,6 @@
   text-align: center;
   cursor: pointer;
   background-color: #0b7ddc;
-  border-radius: 4px;
 }
 
 .cart-content {
@@ -108,7 +107,6 @@
   padding: 0 var(--cart-gap);
   width: 100%;
   top: var(--cart-header-height);
-  bottom: var(--cart-footer-height);
   max-height: 100%;
   display: flex;
   flex-direction: column;
@@ -129,18 +127,13 @@
 }
 
 .cart-subtotal {
-  display: flex;
-  align-content: space-around;
-  align-items: center;
-  flex-shrink: 0;
+  text-align: right;
+  margin-top: 20px;
   width: 100%;
   height: 40px;
-  line-height: 17px;
-  font-weight: 400;
-  font-size: 13px;
-  color: #212121;
-  background: var(--whitish);
-  border-top: 1px solid var(--border-color);
+  font-size: 22px;
+  font-weight: 900;
+  color: #222;
 }
 
 .cart-footer {
