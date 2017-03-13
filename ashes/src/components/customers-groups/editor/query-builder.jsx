@@ -23,45 +23,59 @@ export default class QueryBuilder extends React.Component {
     setConditions: PropTypes.func.isRequired,
   };
 
+  updateCondition(index, value) {
+    const {conditions, setConditions} = this.props;
+
+    setConditions([
+      ...conditions.slice(0, index),
+      value,
+      ...conditions.slice(index + 1),
+    ]);
+  }
+
+  @autobind
+  changeField(index, field) {
+    this.updateCondition(index, [field, null, null]);
+  }
+
+  @autobind
+  changeValue(index, field, operator, value) {
+    this.updateCondition(index, [field, operator, value]);
+  }
+
+  @autobind
+  changeOperator(index, field, operator) {
+    const criterion = getCriterion(field);
+    const { getDefault } = getWidget(criterion, operator);
+
+    this.updateCondition(index, [field, operator, getDefault(criterion)]);
+  }
+
+  @autobind
+  remove(index) {
+    const {conditions, setConditions} = this.props;
+
+    setConditions([
+      ...conditions.slice(0, index),
+      ...conditions.slice(index + 1),
+    ]);
+  }
+
   @autobind
   renderCriterion([field, operator, value], index) {
     const {conditions, setConditions} = this.props;
 
-    const updateCondition = (value) => {
-      setConditions([
-        ...conditions.slice(0, index),
-        value,
-        ...conditions.slice(index + 1),
-      ]);
-    };
-    const changeField = (field) => {
-      updateCondition([field, null, null]);
-    };
-    const changeOperator = (operator) => {
-      const criterion = getCriterion(field);
-      const {getDefault} = getWidget(criterion, operator);
-
-      updateCondition([field, operator, getDefault(criterion)]);
-    };
-    const changeValue = (value) => {
-      updateCondition([field, operator, value]);
-    };
-    const remove = () => {
-      setConditions([
-        ...conditions.slice(0, index),
-        ...conditions.slice(index + 1),
-      ]);
-    };
-
     return (
-      <Criterion key={`${field}.${operator}.${index}`}
-                 field={field}
-                 operator={operator}
-                 value={value}
-                 changeField={changeField}
-                 changeOperator={changeOperator}
-                 changeValue={changeValue}
-                 remove={remove} />
+      <Criterion
+        key={`${field}.${operator}.${index}`}
+        field={field}
+        operator={operator}
+        value={value}
+        changeField={field => this.changeField(index, field)}
+        changeOperator={op => this.changeOperator(index, field, op)}
+        changeValue={v => this.changeValue(index, field, operator, v)}
+        remove={() => this.remove(index)}
+      />
     );
   }
 
