@@ -1,6 +1,6 @@
 [
   {
-    "id": "redeploy-bigbag",
+    "id": "deploy-bigbag",
     "execute-command": "{{webhook_dir}}/deploy-bigbag.sh",
     "command-working-directory": "{{webhook_dir}}",
     "trigger-rule":

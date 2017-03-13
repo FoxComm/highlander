@@ -6,6 +6,7 @@ set -ue
 git clone https://github.com/kpashka/bigbag.git
 cd bigbag
 make docker
+make docker-push
 
 # Trigger Marathon deployment
 
