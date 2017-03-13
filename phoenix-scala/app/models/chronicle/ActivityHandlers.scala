@@ -13,13 +13,6 @@ import utils.db._
 import com.github.tminglei.slickpg._
 
 object ActivityHandler {
-  def build(scope: LTree, contextId: Int, insertResult: InsertResult): ActivityHandler =
-    ActivityHandler(scope = scope,
-                    contextId = contextId,
-                    formId = insertResult.form.id,
-                    shadowId = insertResult.shadow.id,
-                    commitId = insertResult.commit.id)
-
   val kind = "activityHandler"
 }
 
@@ -40,15 +33,15 @@ case class ActivityHandler(id: Int = 0,
     this.copy(shadowId = shadowId, commitId = commitId)
 }
 
-class Categories(tag: Tag) extends ObjectHeads[ActivityHandler](tag, "activity_handlers") {
+class ActivityHandlers(tag: Tag) extends ObjectHeads[ActivityHandler](tag, "activity_handlers") {
   def * =
     (id, scope, contextId, shadowId, formId, commitId, updatedAt, createdAt, archivedAt) <>
       ((ActivityHandler.apply _).tupled, ActivityHandler.unapply)
 }
 
-object Categories
-    extends FoxTableQuery[ActivityHandler, Categories](new Categories(_))
-    with ReturningId[ActivityHandler, Categories] {
+object ActivityHandlers
+    extends FoxTableQuery[ActivityHandler, ActivityHandlers](new ActivityHandlers(_))
+    with ReturningId[ActivityHandler, ActivityHandlers] {
 
   val returningLens: Lens[ActivityHandler, Int] = lens[ActivityHandler].id
 
