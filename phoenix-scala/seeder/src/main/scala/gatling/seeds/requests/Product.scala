@@ -71,7 +71,9 @@ object Product {
     http("Create product")
       .post("/v1/products/default")
       .requireAdminAuth
-      .body(StringBody(session ⇒ session.get("productPayload").as[String]))
+      .body(StringBody { session ⇒
+        json(session.get("productPayload").as[CreateProductPayload])
+      })
 
   val createProducts = foreach(Factories.products, "simpleProduct") {
     exec(session ⇒ {
