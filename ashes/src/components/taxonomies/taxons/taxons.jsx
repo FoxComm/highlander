@@ -39,6 +39,8 @@ const tableColumns = [
   { field: 'name', text: 'Value Name' },
   { field: 'taxonId', text: 'ID' },
   { field: 'productsCount', text: 'Products' },
+  { field: 'createdAt', type: 'datetime', text: 'Date/Time Created' },
+  { field: 'updatedAt', type: 'datetime', text: 'Date/Time Updated' },
   { field: 'state', text: 'State' },
 ];
 
