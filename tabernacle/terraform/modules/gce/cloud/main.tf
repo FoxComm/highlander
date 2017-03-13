@@ -15,7 +15,7 @@ variable "dnsimple_email" {}
 resource "google_compute_instance" "agent" {
   name         = "${var.instance_name}"
   machine_type = "n1-standard-2"
-  tags         = ["${var.instance_name}", "webhook"]
+  tags         = ["${var.instance_name}", "http-server", "https-server"]
   zone         = "us-central1-a"
 
   disk {
