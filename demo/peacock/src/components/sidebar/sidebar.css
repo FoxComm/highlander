@@ -54,17 +54,9 @@
   }
 }
 
-/*@media (--media), (--large) {
-  .container {
-    lost-column: 3/11;
-  }
-}*/
-
 .controls-session-wrapper {
   margin-top: 20px;
 }
-
-
 
 .controls-categories,
 .controls-session {
@@ -95,7 +87,7 @@
 .close-button {
   color: #0b7ddc;
   cursor: pointer;
-  margin-right:5px;
+  margin-right: 5px;
   font-size: 14px;
 }
 

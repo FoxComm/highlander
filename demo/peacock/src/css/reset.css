@@ -22,7 +22,7 @@ body {
   font-smooth: always;
   overflow: hidden;
   position: fixed;
-  width:100vw;
+  width: 100vw;
   height: 100vh;
 }
 #body-wrapper {
