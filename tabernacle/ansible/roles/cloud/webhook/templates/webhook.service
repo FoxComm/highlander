@@ -1,0 +1,12 @@
+[Service]
+WorkingDirectory=/usr/local/share
+ExecStart=/usr/local/bin/run_webhook.sh
+Restart=always
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=webhook
+TimeoutStartSec=5m
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

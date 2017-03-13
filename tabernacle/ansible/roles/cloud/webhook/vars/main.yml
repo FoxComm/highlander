@@ -1,0 +1,3 @@
+webhook_base_url: https://github.com/adnanh/webhook
+webhook_url: "{{webhook_base_url}}/releases/download/2.6.2/webhook-linux-amd64.tar.gz"
+webhook_dir: /var/webhook

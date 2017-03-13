@@ -1,0 +1,25 @@
+---
+
+- name: Get Webhook
+  get_url: url={{webhook_url}} dest=/usr/local/bin/webhook
+
+- name: Create Configuration Directory
+  file: path={{webhook_dir}} state=directory
+
+- name: Make Executable
+  file: path=/usr/local/bin/webhook mode=750
+
+- name: Copy Execution File
+  template: src=run_webhook.sh dest=/usr/local/bin/run_webhook.sh mode=750
+
+- name: Copy Hooks Configuration
+  template: src=hooks.json dest={{webhook_dir}}
+
+- name: Copy Service
+  template: src=webhook.service dest="{{dest_services}}/webhook.service"
+
+- name: Reload Systemd
+  command: systemctl daemon-reload
+
+- name: Restart Service
+  service: name=webhook state=restarted enabled=yes
