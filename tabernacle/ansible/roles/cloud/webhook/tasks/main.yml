@@ -12,6 +12,9 @@
 - name: Copy Demo Deployment Script
   template: src=deploy-bigbag.sh dest={{webhook_dir}} mode=750
 
+- name: Copy Marathon Configuration
+  template: src="{{role_path}}/../bigbag/templates/storefront.json" dest={{webhook_dir}} mode=750
+
 - name: Make Executable
   file: path=/usr/local/bin/webhook mode=750
 

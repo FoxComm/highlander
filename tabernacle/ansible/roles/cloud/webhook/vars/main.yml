@@ -1,3 +1,5 @@
+cloud_demo_server: 10.240.0.13:8080
+
 webhook_base_url: https://github.com/adnanh/webhook
 webhook_archive_dir: webhook-linux-amd64
 webhook_archive_file: "{{webhook_archive_dir}}.tar.gz"
