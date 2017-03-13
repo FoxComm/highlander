@@ -204,12 +204,17 @@ defmodule Hyperion.Router.V1 do
         params do
           optional :q, type: String
           optional :title, type: String
+          optional :limit, type: Integer
         end
 
         get :suggest do
           try do
             cfg = Credentials.mws_config(API.customer_id(conn))
-            res = CategorySuggester.suggest_categories(params, cfg)
+            prms = case params[:limit] do
+                     nil -> Map.merge(params, %{limit: 15})
+                     _ -> params
+                   end
+            res = CategorySuggester.suggest_categories(prms, cfg)
             respond_with(conn, res)
           rescue e in RuntimeError ->
             respond_with(conn, %{error: e.message}, 422)
