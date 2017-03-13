@@ -15,7 +15,7 @@ docker login --username=$DOCKER_LOGIN --password=$DOCKER_PASSWORD
 
 # Build and push
 make docker
-make docker-push
+make docker-push | tee
 
 # Trigger Marathon deployment
 sed "s/NOW/$(date +%Y-%m-%d:%H:%M:%S)/g" storefront.json > latest.json
