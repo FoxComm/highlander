@@ -87,7 +87,7 @@ class Phoenix:
         try:
             response = urllib.request.urlopen(req)
         except HTTPError as err:
-            print(repr(err))
+            print("HTTP error. code: {}. message: {}".format(err.code, err.read()))
             raise
         return response.getcode(), json.loads(response.read().decode('utf-8'))
 
@@ -335,8 +335,8 @@ def load_products(file_name):
     return products
 
 
-def query_es_taxonomies(jwt: str):
-    es = Elasticsearch(jwt)
+def query_es_taxonomies(jwt: str, host:str):
+    es = Elasticsearch(jwt, host=host)
     taxons = es.get_taxons()
     taxonomies = es.get_taxonomies()
 
@@ -392,7 +392,7 @@ def assign_taxonomies(p: Phoenix, taxonomies, data_product, product_id):
 
 def import_taxonomies(p: Phoenix):
     if p.ensure_logged_in():
-        imported = query_es_taxonomies(p.jwt)
+        imported = query_es_taxonomies(p.jwt, p.host)
         taxonomies = load_file_taxonomies()
 
         print("about to add {} taxonomies with overall {} taxons".format(len(taxonomies),
@@ -421,7 +421,7 @@ def import_products(p:Phoenix):
     products = load_products("./addidas/products.json")
     cache_dir = "cache"
     p.ensure_logged_in()
-    taxonomies = query_es_taxonomies(p.jwt)
+    taxonomies = query_es_taxonomies(p.jwt, p.host)
 
     for v in products.values():
         product = p.create_product(v)
