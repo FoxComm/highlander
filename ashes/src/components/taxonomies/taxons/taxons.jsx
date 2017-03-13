@@ -1,7 +1,7 @@
 // @flow
 
 // libs
-import React, { Component } from 'react';
+import React, { Component, Element } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
@@ -20,6 +20,8 @@ import { transitionToLazy } from 'browserHistory';
 // styling
 import styles from './taxons.css';
 
+import type { TaxonomyParams } from '../taxonomy';
+
 type Column = {
   field: string,
   text: string,
@@ -30,6 +32,7 @@ type Props = {
   taxonomy: Taxonomy,
   actions: Object,
   list: Object,
+  params: TaxonomyParams,
 };
 
 const tableColumns = [
@@ -53,7 +56,7 @@ export class TaxonsListPage extends Component {
     return <TaxonRow key={row.id} taxon={row} columns={columns} params={params} />;
   }
 
-  get tableControls() {
+  get tableControls(): Array<Element<*>> {
     const handleClick = transitionToLazy('value', { ...this.props.params, taxonId: 'new' });
 
     return [

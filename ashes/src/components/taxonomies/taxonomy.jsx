@@ -16,7 +16,7 @@ import ObjectPageDeux from 'components/object-page/object-page-deux';
 import { fetchSchema } from 'modules/object-schema';
 import * as taxonomiesActions from 'modules/taxonomies/details';
 
-type TaxonomyParams = {
+export type TaxonomyParams = {
   taxonomyId: string,
   context: string,
 };
