@@ -3,3 +3,4 @@ webhook_archive_dir: webhook-linux-amd64
 webhook_archive_file: "{{webhook_archive_dir}}.tar.gz"
 webhook_url: "{{webhook_base_url}}/releases/download/2.6.2/{{webhook_archive_file}}"
 webhook_dir: /var/webhook
+webhook_secret: Canidae1988

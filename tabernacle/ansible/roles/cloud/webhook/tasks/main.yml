@@ -9,6 +9,9 @@
 - name: Create Configuration Directory
   file: path={{webhook_dir}} state=directory
 
+- name: Copy Deployment Script
+  template: src=deploy-bigbag.sh dest={{webhook_dir}}
+
 - name: Make Executable
   file: path=/usr/local/bin/webhook mode=750
 
