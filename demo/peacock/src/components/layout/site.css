@@ -27,6 +27,7 @@ button {
 .site {
   lost-flex-container: row;
   color: var(--blackish);
+  font-family: var(--font-main);
 }
 
 button {

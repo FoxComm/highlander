@@ -148,26 +148,27 @@ class Login extends Component {
         {this.title}
         {this.topMessage}
         <Form onSubmit={this.authenticate}>
-          <FormField key="email" styleName="form-field" error={this.state.error}>
-            <TextInput adjoin="b" placeholder={t('EMAIL')} value={email} type="email" onChange={this.onChangeEmail} />
-          </FormField>
-          <FormField key="passwd" styleName="form-field" error={!!this.state.error}>
-            <TextInputWithLabel
-              adjoin="t"
-              styleName="form-field-input"
-              placeholder="PASSWORD"
-              label={!password && restoreLink}
-              value={password}
-              onChange={this.onChangePassword} type="password"
-            />
-          </FormField>
+          <div styleName="input-body">
+            <FormField key="email" styleName="form-field" error={this.state.error}>
+              <TextInput pos="t" placeholder={t('EMAIL')} value={email} type="email" onChange={this.onChangeEmail} />
+            </FormField>
+            <FormField key="passwd" styleName="form-field" error={!!this.state.error}>
+              <TextInputWithLabel
+                pos="b"
+                styleName="form-field-input"
+                placeholder="PASSWORD"
+                label={!password && restoreLink}
+                value={password}
+                onChange={this.onChangePassword} type="password"
+              />
+            </FormField>
+          </div>
           <Button
             type="submit"
             styleName="primary-button"
             isLoading={this.props.isLoading}
-          >
-            {t('LOG IN')}
-          </Button>
+            children={t('LOG IN')}
+          />
         </Form>
       </div>
     );

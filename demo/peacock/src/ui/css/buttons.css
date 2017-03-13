@@ -2,15 +2,27 @@
 @import "colors.css";
 @import "media-queries.css";
 
+:root {
+  --button-bg: var(--water-blue);
+  --button-fg: var(--whitish);
+  --button-hover-bg: #19ccb1; /* TODO: it's random color, replace it after Stephen make colors for various states */
+  --button-disabled-bg: var(--blackish);
+}
+
 .button {
+  width: 100%;
   font-size: 14px;
   line-height: 20px;
   padding: 14px 10px;
   border: none;
-  background-color: var(--additional-color);
-  color: var(--whitish);
+  background-color: var(--button-bg);
+  color: var(--button-fg);
   text-align: center;
   cursor: pointer;
+
+  &:hover {
+    background: var(--button-hover-bg);
+  }
 
   & > span {
     vertical-align: middle;
@@ -22,8 +34,9 @@
   }
 
   &:disabled {
-    background: #ccc;
     color: #eee;
+    background: var(--button-disabled-bg);
+
     &:hover {
       cursor: not-allowed;
     }
@@ -52,29 +65,6 @@
   }
 }
 
-.button-primary {
-  padding: 0 10px;
-  height: 60px;
-  font-size: 16px;
-  text-transform: uppercase;
-  border: 2px solid var(--blueish);
-  background-color: var(--blueish);
-  color: #616161;
-  cursor: pointer;
-
-  &:hover {
-    background: var(--whitish);
-  }
-
-  &:disabled {
-    background: var(--blueish);
-
-    &:hover {
-      background: var(--blueish);
-      color: #616161;
-    }
-  }
-}
 
 .button-secondary {
   min-width: 11.2em;

@@ -52,6 +52,10 @@
   color: var(--redish);
 }
 
+.input-body {
+  margin-bottom: 58px;
+}
+
 .google-login {
   composes: button from "ui/css/buttons.css";
   background-color: var(--redish);
