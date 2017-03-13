@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 from prod_prod.PPRecommend import PPRecommend
 from InvalidUsage import InvalidUsage
-from controllers.PurchaseController import add_purchase_event
+from controllers.PurchaseController import add_purchase_event, get_all_by_channel
 import os
 
 from neomodel import db
@@ -15,7 +15,7 @@ def get_pprec(pprecs, channel_id):
     """get_pprec
     Return PPRecommend object at channel_id if found else create new PPRecommend
     """
-    if channel_id in pprecs:
+    if channel_id in pprecs.keys():
         return pprecs[channel_id]
     else:
         return PPRecommend()
@@ -26,6 +26,18 @@ def update_pprec(pprecs, channel_id, pprec):
     """
     pprecs[channel_id] = pprec
     return pprecs
+
+def startup_pprecs():
+    """startup_pprecs
+    get data from neo4j and train pprecs for all present channels
+    """
+    query = "MATCH ()-[r]-() RETURN DISTINCT r.channel"
+    channels, _ = db.cypher_query(query)
+    for [channel_id] in channels:
+        pprec = get_pprec(pprecs, channel_id)
+        for [cust_id, prod_id] in get_all_by_channel(channel_id):
+            pprec.add_point(cust_id, prod_id)
+        update_pprec(pprecs, channel_id, pprec)
 
 # Register Middleware
 @app.errorhandler(InvalidUsage)
@@ -50,13 +62,15 @@ def rec_prod_prod(prod_id):
     """rec_prod_prod
     """
     # Handle Invalid Channel
-    channel_id = int(request.args.get('channel', -1))
-    if channel_id <= -1:
+    channel_id = str(request.args.get('channel', ""))
+    if channel_id == "":
         raise InvalidUsage('Invalid Channel ID', status_code=400,
                            payload={'error_code': 100})
 
+    print("looking for channel", channel_id, "in", pprecs.keys())
     pprec = get_pprec(pprecs, channel_id)
     if pprec.is_empty():
+        print("I didn't find one.")
         raise InvalidUsage('Channel ID not found', status_code=400,
                            payload={'error_code': 101})
 
@@ -81,7 +95,7 @@ def train_prod_prod():
         channel_id = point['chanID']
         pprec = get_pprec(pprecs, channel_id)
 
-        pprec.add_point(point['custID'], point['prodID'], channel_id)
+        pprec.add_point(point['custID'], point['prodID'])
 
         update_pprec(pprecs, channel_id, pprec)
         add_purchase_event(point['custID'], point['prodID'], channel_id)
@@ -91,5 +105,5 @@ def train_prod_prod():
 port = os.getenv('PORT', 5000)
 
 if __name__ == "__main__":
+    startup_pprecs()
     app.run(host='0.0.0.0', port=port)
-

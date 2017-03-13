@@ -7,14 +7,14 @@ class PPRecommend(object):
         self.events = set()
         self.up_to_date = False
 
-    def add_point(self, cust_id, prod_id, chan_id):
+    def add_point(self, cust_id, prod_id):
         """add_point
-        takes and event 'custID purchased prodID, channel ID' and adds it to
+        takes and event 'cust_id purchased prod_id' and adds it to
         the recommender data.
         The sparse matrix needs to be recomputed before making more
         recommendations.
         """
-        self.events.add((cust_id, prod_id, chan_id))
+        self.events.add((cust_id, prod_id))
         self.up_to_date = False
 
     def make_matrix(self):
@@ -32,26 +32,26 @@ class PPRecommend(object):
         these are the values to go in the sparse matrix so that the columns are
         l2 normalized.
         """
-        return np.array([1.0/sqrt(self.count(x)) for (_, x, _) in self.events])
+        return np.array([1.0/sqrt(self.count(x)) for (_, x) in self.events])
 
     def count(self, prod_id):
-        """how many customers have purchased product prodID
+        """how many customers have purchased product prod_id
         """
-        return len([prod for (_, prod, _) in self.events if prod == prod_id])
+        return len([prod for (_, prod) in self.events if prod == prod_id])
 
     def is_empty(self):
         return len(self.events) == 0
 
     def product_ids(self):
-        return [prod_id for (_, prod_id, _) in self.events]
+        return [prod_id for (_, prod_id) in self.events]
 
     def coords(self):
         """coords
-        list of tuples (cust_id, prod_id, chan_id) where cust_id has purchased prod_id
+        list of tuples (cust_id, prod_id) where cust_id has purchased prod_id
         """
         return (
-            [cust_id for (cust_id, _, _) in self.events],
-            [prod_id for (_, prod_id, _) in self.events]
+            [cust_id for (cust_id, _) in self.events],
+            [prod_id for (_, prod_id) in self.events]
         )
 
     def recommend(self, prod_id):
