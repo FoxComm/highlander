@@ -3,18 +3,28 @@
     {
       "type": "group",
       "title": "General",
-      "fields": {
-        "canAddProperty": true,
-        "value": [
-          "name",
-          "description"
-        ],
-        "includeRest": true,
-        "omit": [
-          "activeFrom",
-          "activeTo"
-        ]
-      }
+      "content": [
+        {
+          "type": "hierarchical"
+        },
+        {
+          "type": "fields",
+          "fields": {
+            "canAddProperty": true,
+            "includeRest": true,
+            "value": [
+              "name",
+              "description"
+            ],
+            "omit": [
+              "activeFrom",
+              "activeTo",
+              "hierarchical"
+            ]
+          }
+
+        }
+      ]
     }
   ],
   "aside": [
