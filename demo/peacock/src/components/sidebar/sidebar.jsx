@@ -39,13 +39,20 @@ class Sidebar extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    let overflow, position;
     if(nextProps.isVisible) {
-      document.body.style.overflow = "hidden";
+      overflow = 'hidden';
+      position = 'absolute';
     }else {
-      document.body.style.overflow = "auto";
+      overflow = 'auto';
+      position = 'relative';
     }
+    Object.assign(document.body.style, {
+      overflow,
+      position,
+    });
   }
-  
+
   @autobind
   setFocus(focus) {
     this.setState({ searchFocused: focus });
