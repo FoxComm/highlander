@@ -1,6 +1,6 @@
 defmodule AmazonSpec do
   use ESpec
-  import Hyperion.ProductFactory
+  import Hyperion.Factory
 
   describe "get_product" do
     context "when no variants present" do

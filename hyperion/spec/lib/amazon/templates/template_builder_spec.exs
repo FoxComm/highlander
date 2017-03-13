@@ -1,6 +1,6 @@
 defmodule TemplateBuilderSpec do
   use ESpec
-  import Hyperion.ProductFactory
+  import Hyperion.Factory
 
   describe "submit_product_feed" do
     let list: submit_product_feed_data()
