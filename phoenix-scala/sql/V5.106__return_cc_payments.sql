@@ -6,6 +6,6 @@ create table return_cc_payments (
   charge_id generic_string not null references credit_card_charges(charge_id) on update cascade on delete restrict,
   return_id integer not null references returns(id) on update cascade on delete restrict,
   amount integer not null check (amount > 0),
-  currency currency,
+  currency currency not null,
   primary key (return_payment_id, charge_id)
 );

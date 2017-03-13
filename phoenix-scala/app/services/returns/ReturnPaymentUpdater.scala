@@ -298,6 +298,17 @@ object ReturnPaymentUpdater {
       case _ ⇒ acc
     }
 
+    def checkCurrency(ccCharges: Seq[CreditCardCharge]) = {
+      val mismatchedCharges = ccCharges.collect {
+        case charge if charge.currency != payment.currency ⇒ charge.currency
+      }
+      failIf(mismatchedCharges.nonEmpty,
+        ReturnCcPaymentCurrencyMismatch(
+          refNum = rma.refNum,
+          expected = payment.currency,
+          actual = mismatchedCharges.toList))
+    }
+
     for {
       previousCcRefunds ← * <~ Returns
                            .findPreviousOrCurrent(rma)
@@ -316,13 +327,7 @@ object ReturnPaymentUpdater {
                    .on(_.id === _.orderPaymentId)
                    .map { case (_, charge) ⇒ charge }
                    .result
-      _ ← * <~ failIf(ccCharges.exists(_.currency != payment.currency),
-                      ReturnCcPaymentCurrencyMismatch(
-                          refNum = rma.refNum,
-                          expected = payment.currency,
-                          actual = ccCharges.collect {
-                            case charge if charge.currency != payment.currency ⇒ charge.currency
-                          }(collection.breakOut)))
+      _ ← * <~ checkCurrency(ccCharges)
       adjustedCcCharges = ccCharges
         .map(c ⇒ c.copy(amount = c.amount - previousCcRefunds.getOrElse(c.chargeId, 0)))
         .filter(_.amount > 0)
