@@ -49,6 +49,12 @@
   }
 }
 
+@media (--media), (--large) {
+  .container {
+    lost-column: 3/11;
+  }
+}
+
 .controls-session-wrapper {
   margin-top: 20px;
 }
