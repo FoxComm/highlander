@@ -20,7 +20,7 @@ defmodule Hyperion.Amazon.CategorySuggester do
   @doc """
   Suggests category only by query
   """
-  def suggest_categories(%{q: q, limit: limit}, cfg) do
+  def suggest_categories(%{q: q, limit: limit}, _cfg) do
     secondary = fetch_secondary_categories(q, nil, limit)
     %{primary: nil, secondary: secondary, count: Enum.count(secondary)}
   end
