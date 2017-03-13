@@ -7,6 +7,7 @@ defmodule Hyperion.Router.V1 do
   alias Hyperion.Amazon, warn: true
   alias Hyperion.API, warn: true
   alias Hyperion.Amazon.TemplateBuilder, warn: true
+  alias Hyperion.Amazon.CategorySuggester, warn: true
 
   import Ecto.Query
 
@@ -201,13 +202,14 @@ defmodule Hyperion.Router.V1 do
         desc "Suggests category for product by title"
 
         params do
-          requires :q, type: String
+          optional :q, type: String
+          optional :title, type: String
         end
 
         get :suggest do
           try do
             cfg = Credentials.mws_config(API.customer_id(conn))
-            res = CategorySuggester.suggest_categories(params[:q], cfg)
+            res = CategorySuggester.suggest_categories(params, cfg)
             respond_with(conn, res)
           rescue e in RuntimeError ->
             respond_with(conn, %{error: e.message}, 422)

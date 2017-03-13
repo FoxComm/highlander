@@ -12,7 +12,7 @@ How to start and some quick info is [here](https://github.com/FoxComm/highlander
 
 All requests should have two headers:
 * `jwt` header to work with Phoenix-scala
-* `customer_id` to get Amazon credentials
+* `customer-id` to get Amazon credentials
 
 ####Get client credentials
 
@@ -618,12 +618,72 @@ GET /api/v1/hyperion/categories?node_path=t-shirt&size=2
 }
 ```
 
-####Suggest categories by product title
+####Suggest categories
+
+|name|type|description|required?|
+|----|----|-----------|---------|
+|q |String|Query string |No|
+|title |String|Product title|No|
+
+Search for categories in Amazon and against Hyperion DB.
+`q` — used for searching against Hyperion DB, `title` — to search in Amazon by product ASIN.
+
+If no params passed empty result will return.
+
+
+*request*
+
+When only `q` is passed
+
+```
+GET /api/v1/hyperion/categories/suggest?q=necktie
+```
+
+*response*
+
+```json
+{
+    "secondary": [
+        {
+            "size_opts": null,
+            "node_path": "Clothing, Shoes & Jewelry/Boys/Accessories/Neckties",
+            "node_id": 5427586011,
+            "item_type": "neckties",
+            "department": "boys"
+        },
+        {
+            "size_opts": null,
+            "node_path": "Clothing, Shoes & Jewelry/Men/Accessories/Neckties",
+            "node_id": 2474955011,
+            "item_type": "neckties",
+            "department": "mens"
+        },
+        {
+            "size_opts": null,
+            "node_path": "Clothing, Shoes & Jewelry/Novelty & More/Clothing/Novelty/Boys/Accessories/Neckties",
+            "node_id": 9057120011,
+            "item_type": "novelty-neckties",
+            "department": "boys"
+        },
+        {
+            "size_opts": null,
+            "node_path": "Clothing, Shoes & Jewelry/Novelty & More/Clothing/Novelty/Men/Accessories/Neckties",
+            "node_id": 9057017011,
+            "item_type": "novelty-neckties",
+            "department": "mens"
+        }
+    ],
+    "primary": null,
+    "count": 4
+}
+```
+
+When `q` and `title` are passed
 
 *request*
 
 ```
-GET /api/v1/hyperion/categories/suggest?q=necktie
+GET /api/v1/hyperion/categories/suggest?q=necktie&title=Spiderman necktie
 ```
 
 *response*
@@ -653,15 +713,64 @@ GET /api/v1/hyperion/categories/suggest?q=necktie
             "department": "mens"
         }
     ],
-    "primary": {
-        "node_path": "Clothing, Shoes & Jewelry/Men/Accessories/Neckties",
-        "node_id": 2474955011,
-        "item_type": "neckties",
-        "department": "mens"
-    },
+    "primary": [
+        {
+            "size_opts": null,
+            "node_path": "Clothing, Shoes & Jewelry/Men/Accessories/Neckties",
+            "node_id": 2474955011,
+            "item_type": "neckties",
+            "department": "mens"
+        }
+    ],
     "count": 4
 }
 ```
+
+When only `title` is passed
+
+*request*
+
+```
+GET /api/v1/hyperion/categories/suggest?title=Spiderman necktie
+```
+
+*response*
+
+
+```json
+{
+    "secondary": null,
+    "primary": [
+        {
+            "size_opts": null,
+            "node_path": "Clothing, Shoes & Jewelry/Men/Accessories/Neckties",
+            "node_id": 2474955011,
+            "item_type": "neckties",
+            "department": "mens"
+        }
+    ],
+    "count": 1
+}
+```
+
+When no params passed
+
+*request*
+
+```
+GET /api/v1/hyperion/categories/suggest
+```
+
+*response*
+
+```json
+{
+    "secondary": null,
+    "primary": null,
+    "count": 0
+}
+```
+
 
 ####Subscrube to notification queue
 
