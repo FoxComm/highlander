@@ -26,7 +26,7 @@
 
 .top-nav-menu {
   align-content: space-between;
-  border: solid 0.5px #d9d9d9;
+  border: solid 1px #d9d9d9;
   padding-right: 0;
   height: 60px;
   flex-grow: 1;
@@ -36,7 +36,7 @@
   height: 60px;
   width: 206px;
   text-align: center;
-  border: solid 0.5px #d9d9d9;
+  border: solid 1px #d9d9d9;
 }
 
 .logo-icon {
