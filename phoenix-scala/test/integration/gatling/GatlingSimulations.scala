@@ -8,7 +8,7 @@ import scala.reflect.{ClassTag, classTag}
 // running gatling sims as an integration tests
 // https://github.com/FoxComm/highlander/pull/732#discussion_r98843060
 object GatlingSimulations extends App with Runner {
-  runSimulation[EvilGuestSimulationLocally]()
+  runSimulation[EvilGuestSimulation]()
 //  runSimulation[AdminLoginSimulation]()
 }
 

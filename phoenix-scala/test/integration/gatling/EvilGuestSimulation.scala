@@ -10,7 +10,7 @@ import payloads.LoginPayload
 import scala.language.postfixOps
 import scala.util.Random
 
-class EvilGuestSimulationLocally extends BaseSimulation {
+class EvilGuestSimulation extends BaseSimulation {
 
   override def scn: ScenarioBuilder = {
     val userEmail    = "guest%d@guest.com".format(Random.nextInt(1000))
