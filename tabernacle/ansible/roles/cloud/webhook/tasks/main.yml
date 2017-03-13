@@ -28,7 +28,4 @@
   service: name=webhook state=restarted enabled=yes
 
 - name: Cleanup
-  file: path={{item}} state=absent
-  with_items:
-    - "{{home}}/{{webhook_archive_file}}"
-    - "{{home}}/{{webhook_archive_dir}}"
+  file: path={{webhook_archive_dir}} state=absent
