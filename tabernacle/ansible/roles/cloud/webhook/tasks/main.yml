@@ -1,7 +1,7 @@
 ---
 
 - name: Get Webhook
-  unarchive: url={{webhook_url}} dest={{home}} remote_src=yes
+  unarchive: src={{webhook_url}} dest={{home}} remote_src=yes
 
 - name: Copy Binary to Working Directory
   shell: mv {{home}}/{{webhook_archive_dir}}/webhook /usr/local/bin/
