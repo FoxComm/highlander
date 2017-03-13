@@ -67,6 +67,14 @@ class Cart extends Component {
     }
   }
 
+  componentWillReceiveProps(nextProps) {
+    if(nextProps.isVisible) {
+      document.body.style.overflow = "hidden";
+    }else {
+      document.body.style.overflow = "auto";
+    }
+  }
+
   @autobind
   deleteLineItem(sku) {
     tracking.removeFromCart(sku, sku.quantity);
