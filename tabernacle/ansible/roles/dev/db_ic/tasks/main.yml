@@ -18,6 +18,11 @@
 - name: Setup Flyway Config
   template: src=flyway.conf dest="{{bernardo_dir}}/sql/flyway.conf" mode="u+x,g+x,o+x"
 
+- name: Clean Bernardo Database
+  shell: FLYWAY_HOME={{flyway_dir}} {{flyway}} clean
+  args:
+    chdir: "{{bernardo_dir}}"
+
 - name: Migrate Bernardo Database
   shell: FLYWAY_HOME={{flyway_dir}} {{flyway}} migrate
   args:
