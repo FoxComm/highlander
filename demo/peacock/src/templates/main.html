@@ -2,7 +2,7 @@
 <html>
   <head>
     <title>The Perfect Gourmet</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no" />
     <link rel="shortcut icon" href="{{= it.urlPrefix }}/favicon.png" type="image/png" />
     <link rel="stylesheet" href="{{= it.urlPrefix }}/{{= it.appCss }}" />
     <script>
@@ -127,19 +127,21 @@
     </script>
   </head>
   <body>
-    {{#def.fcSprite}}
+    <div id="body-wrapper">
+      {{#def.fcSprite}}
 
-    <div id="app">{{= it.html }}</div>
+      <div id="app">{{= it.html }}</div>
 
-    <!-- its a Redux initial data -->
-    <script charset="UTF-8">
-      window.__data={{= it.state }};
-      window.__i18n={{= it.i18n }};
-      function makeXhr(a,b){return b=new XMLHttpRequest,b.open("GET",a),a=[],b.onreadystatechange=b.then=function(c,d,e,f){if(c&&c.call&&(a=[,c,d]),4==b.readyState&&(e=a[0|b.status/200])){try{f=JSON.parse(b.responseText)}catch(g){f=null}e(f,b)}},b.send(),b}
-    </script>
-    <script type="text/javascript" src="{{= it.urlPrefix }}/{{= it.appJs }}"></script>
-    <script type="text/javascript">
-      App.renderApp();
-    </script>
+      <!-- its a Redux initial data -->
+      <script charset="UTF-8">
+        window.__data={{= it.state }};
+        window.__i18n={{= it.i18n }};
+        function makeXhr(a,b){return b=new XMLHttpRequest,b.open("GET",a),a=[],b.onreadystatechange=b.then=function(c,d,e,f){if(c&&c.call&&(a=[,c,d]),4==b.readyState&&(e=a[0|b.status/200])){try{f=JSON.parse(b.responseText)}catch(g){f=null}e(f,b)}},b.send(),b}
+      </script>
+      <script type="text/javascript" src="{{= it.urlPrefix }}/{{= it.appJs }}"></script>
+      <script type="text/javascript">
+        App.renderApp();
+      </script>
+    </div>
   </body>
 </html>
