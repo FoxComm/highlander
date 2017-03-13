@@ -17,10 +17,19 @@
     border-color: #525252;
   }
 
+  &:active {
+    z-index: 1;
+  }
+
   &::-webkit-input-placeholder { color: var(--input-placeholder-color); }
   &::-moz-placeholder { color: var(--input-placeholder-color); }
   &:-moz-placeholder { color: var(--input-placeholder-color); }
   &:-ms-input-placeholder { color: var(--input-placeholder-color); }
+}
+
+.error {
+  border: 1px solid var(--color-error);
+  color: var(--color-error);
 }
 
 .pos-b {

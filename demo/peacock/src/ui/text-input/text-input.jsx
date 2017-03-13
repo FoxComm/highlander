@@ -6,16 +6,26 @@ import classNames from 'classnames';
 
 type Props = {
   className?: string,
-  pos?: string, // could be any combination of characters l, r, b, t or "middle"
+  pos?: string, // could be any combination of characters l, r, b, t or one of "middle-v", "middle-h"
+  error?: boolean,
 }
 
 const TextInput = (props: Props) => {
-  const positions = props.pos == 'middle' ? ['t', 'b'] : (props.pos || '').split('');
+  let positions = [];
+  if (props.pos === 'middle-v') {
+    positions = ['t', 'b'];
+  } else if (props.pos === 'middle-h') {
+    positions = ['r', 'l'];
+  } else if (props.pos) {
+    positions = props.pos.split('');
+  }
   const posClassNames = positions.map(side => s[`pos-${side}`]);
 
   const {className, ...rest} = props;
 
-  const cls = classNames(s.textInput, posClassNames, className);
+  const cls = classNames(s.textInput, posClassNames, className, {
+    [s.error]: props.error,
+  });
 
   return <input className={cls} type="text" {...rest} />;
 };

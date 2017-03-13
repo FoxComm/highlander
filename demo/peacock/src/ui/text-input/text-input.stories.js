@@ -4,7 +4,10 @@ import TextInput from './text-input';
 
 storiesOf('ui.TextInput', module)
   .add('base', () => (
-    <TextInput />
+    <TextInput placeholder="hello" />
+  ))
+  .add('error', () => (
+    <TextInput value="wrong value" error />
   ))
   .add('adjoin vertical 2', () => (
     <div>
@@ -15,7 +18,7 @@ storiesOf('ui.TextInput', module)
   .add('adjoin vertical 3', () => (
     <div>
       <TextInput pos="t" />
-      <TextInput pos="middle" />
+      <TextInput pos="middle-v" />
       <TextInput pos="b" />
     </div>
   ))
@@ -28,7 +31,7 @@ storiesOf('ui.TextInput', module)
   .add('adjoin horizontal 3', () => (
     <div style={{display: 'inline-flex'}}>
       <TextInput pos="l" />
-      <TextInput pos="middle" />
+      <TextInput pos="middle-h" />
       <TextInput pos="r" />
     </div>
   ));

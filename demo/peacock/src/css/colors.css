@@ -19,6 +19,7 @@
 
   /* peacock: */
   --water-blue: #0b7ddc;
+  --cherry-red: #e90018;
 }
 
 :root {
@@ -27,7 +28,7 @@
   --border-color: rgba(33, 33, 33, 0.10);
   --background-color: #FBFBFB;
 
-  --color-error: var(--redish);
+  --color-error: var(--cherry-red);
   --color-panels-bg: var(--white-smokish);
   --color-text-grey: var(--greyish);
 
