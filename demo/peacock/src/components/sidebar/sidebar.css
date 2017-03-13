@@ -22,6 +22,7 @@
   transform: translateX(-100%);
   transition: transform .2s;
   lost-column: 4/12;
+  overflow-y: auto;
 }
 
 .sidebar-shown .overlay {

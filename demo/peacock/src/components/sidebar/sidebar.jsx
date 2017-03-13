@@ -39,18 +39,12 @@ class Sidebar extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    let overflow, position;
     if(nextProps.isVisible) {
-      overflow = 'hidden';
-      position = 'absolute';
+      const className = window.innerWidth < 1120 ? 'no-scroll-mobile' : 'no-scroll';
+      document.getElementById('body-wrapper').className = className;
     }else {
-      overflow = 'auto';
-      position = 'relative';
+      document.getElementById('body-wrapper').className = "";
     }
-    Object.assign(document.body.style, {
-      overflow,
-      position,
-    });
   }
 
   @autobind
