@@ -67,10 +67,8 @@ def rec_prod_prod(prod_id):
         raise InvalidUsage('Invalid Channel ID', status_code=400,
                            payload={'error_code': 100})
 
-    print("looking for channel", channel_id, "in", pprecs.keys())
     pprec = get_pprec(pprecs, channel_id)
     if pprec.is_empty():
-        print("I didn't find one.")
         raise InvalidUsage('Channel ID not found', status_code=400,
                            payload={'error_code': 101})
 
