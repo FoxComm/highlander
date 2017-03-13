@@ -38,7 +38,7 @@
         {
             "type": "ansible",
             "playbook_file" : "ansible/packer_base_united.yml",
-            "extra_arguments": ["-vvvv"]
+            "extra_arguments": ["-v"]
         }
     ]
 }

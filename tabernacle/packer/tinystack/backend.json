@@ -40,7 +40,7 @@
             "type": "ansible",
             "playbook_file" : "ansible/packer_tinystack_backend.yml",
             "extra_arguments": [
-                "-vvvv",
+                "-v",
                 "--extra-vars", "@packer/envs/{{user `project_base`}}/params.json"
             ]
         }

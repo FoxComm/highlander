@@ -1,0 +1,21 @@
+---
+
+- name: Provision Cloud Demo
+  hosts: cloud-demo
+  become: true
+  vars:
+    is_amigo: true
+    storefront_server_name: example.foxcommerce.com
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+  roles:
+    - { role: dev/appliance }
+    - { role: dev/consul_agent }
+    - { role: cloud/zookeeper }
+    - { role: cloud/bigbag }
+    - { role: dev/balancer }
+    - { role: hotfix/mesos_consul }
+    - { role: cloud/balancer }
+
+  handlers:
+     - include: roles/base/consul_agent/handlers/main.yml
+     - include: roles/base/mesos_consul/handlers/main.yml

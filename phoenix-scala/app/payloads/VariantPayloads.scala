@@ -16,13 +16,16 @@ object VariantPayloads {
   case class VariantValuePayload(id: Option[Int] = None,
                                  name: Option[String],
                                  swatch: Option[String],
+                                 image: Option[String],
                                  skuCodes: Seq[String],
                                  schema: Option[String] = None,
                                  scope: Option[String] = None) {
 
     def formAndShadow: FormAndShadow = {
-      val jsonBuilder: AttributesBuilder = ObjectPayloads
-        .optionalAttributes(name.map(StringField("name", _)), swatch.map(StringField("swatch", _)))
+      val jsonBuilder: AttributesBuilder = ObjectPayloads.optionalAttributes(
+          name.map(StringField("name", _)),
+          swatch.map(StringField("swatch", _)),
+          swatch.map(StringField("image", _)))
 
       (ObjectForm(kind = VariantValue.kind, attributes = jsonBuilder.objectForm),
        ObjectShadow(attributes = jsonBuilder.objectShadow))

@@ -22,7 +22,7 @@ set -ue
 PROJECTS=(
     'ashes'
     'demo'
-#    'intelligence'
+    'intelligence'
     'green-river'
     'isaac'
     'messaging'
