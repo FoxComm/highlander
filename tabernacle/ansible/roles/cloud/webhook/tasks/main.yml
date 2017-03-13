@@ -1,7 +1,10 @@
 ---
 
 - name: Get Webhook
-  get_url: url={{webhook_url}} dest=/usr/local/bin/webhook
+  unarchive: url={{webhook_url}} dest={{home}} remote_src=yes
+
+- name: Copy Binary to Working Directory
+  shell: mv {{home}}/{{webhook_archive_dir}}/webhook /usr/local/bin/
 
 - name: Create Configuration Directory
   file: path={{webhook_dir}} state=directory
@@ -16,10 +19,16 @@
   template: src=hooks.json dest={{webhook_dir}}
 
 - name: Copy Service
-  template: src=webhook.service dest="{{dest_services}}/webhook.service"
+  template: src=webhook.service dest={{dest_services}}
 
 - name: Reload Systemd
   command: systemctl daemon-reload
 
 - name: Restart Service
   service: name=webhook state=restarted enabled=yes
+
+- name: Cleanup
+  file: path={{item}} state=absent
+  with_items:
+    - "{{home}}/{{webhook_archive_file}}"
+    - "{{home}}/{{webhook_archive_dir}}"
