@@ -6,15 +6,16 @@ import classNames from 'classnames';
 
 type Props = {
   className?: string,
+  pos?: string, // could be any combination of characters l, r, b, t or "middle"
 }
 
 const TextInput = (props: Props) => {
-  const adjoins = props.adjoin ? props.adjoin.split('') : [];
-  const adjoinClassNames = adjoins.map(side => s[`adjoin-${side}`]);
+  const positions = props.pos == 'middle' ? ['t', 'b'] : (props.pos || '').split('');
+  const posClassNames = positions.map(side => s[`pos-${side}`]);
 
   const {className, ...rest} = props;
 
-  const cls = classNames(s.textInput, adjoinClassNames, className);
+  const cls = classNames(s.textInput, posClassNames, className);
 
   return <input className={cls} type="text" {...rest} />;
 };

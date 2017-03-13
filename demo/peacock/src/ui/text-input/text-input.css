@@ -23,24 +23,24 @@
   &:-ms-input-placeholder { color: var(--input-placeholder-color); }
 }
 
-.adjoin-t {
+.pos-b {
   border-top-right-radius: 0;
   border-top-left-radius: 0;
 }
 
-.adjoin-r {
+.pos-l {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
   margin-right: -1px;
 }
 
-.adjoin-b {
+.pos-t {
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
   margin-bottom: -1px;
 }
 
-.adjoin-l {
+.pos-r {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
 }

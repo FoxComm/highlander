@@ -3,7 +3,7 @@ import React from 'react';
 import styles from './css/input.css';
 
 export const TextInput = props => {
-  // deprecated: use ui/forms/text-input instead
+  // deprecated: use ui/text-input instead
   return <input styleName="text-input" type="text" {...props} />;
 };
 

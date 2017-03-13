@@ -8,29 +8,29 @@ storiesOf('ui.TextInput', module)
   ))
   .add('adjoin vertical 2', () => (
     <div>
-      <TextInput adjoin="b" />
-      <TextInput adjoin="t" />
+      <TextInput pos="t" />
+      <TextInput pos="b" />
     </div>
   ))
   .add('adjoin vertical 3', () => (
     <div>
-      <TextInput adjoin="b" />
-      <TextInput adjoin="bt" />
-      <TextInput adjoin="t" />
+      <TextInput pos="t" />
+      <TextInput pos="middle" />
+      <TextInput pos="b" />
     </div>
   ))
   .add('adjoin horizontal 2', () => (
     <div style={{display: 'inline-flex'}}>
-      <TextInput adjoin="r" />
-      <TextInput adjoin="l" />
+      <TextInput pos="l" />
+      <TextInput pos="r" />
     </div>
   ))
   .add('adjoin horizontal 3', () => (
     <div style={{display: 'inline-flex'}}>
-      <TextInput adjoin="r" />
-      <TextInput adjoin="rl" />
-      <TextInput adjoin="l" />
+      <TextInput pos="l" />
+      <TextInput pos="middle" />
+      <TextInput pos="r" />
     </div>
-  ))
+  ));
 
 
