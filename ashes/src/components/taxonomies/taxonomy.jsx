@@ -52,9 +52,13 @@ class TaxonomyPage extends Component {
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    const { taxonomy } = nextProps.details;
+    const { fetchState, createState, updateState } = nextProps;
 
-    this.setState({ taxonomy });
+    if (!fetchState.inProgress && !createState.inProgress && !updateState.inProgress) {
+      const { taxonomy } = nextProps.details;
+
+      this.setState({ taxonomy });
+    }
   }
 
   get navLinks(): NavLinks<TaxonomyParams> {
