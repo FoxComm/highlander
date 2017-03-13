@@ -5,7 +5,7 @@
   "mem": 64,
   "disk": 0,
   "instances": 1,
-  "label": {
+  "labels": {
     "DEPLOYMENT_DATE": "NOW"
   },
   "container": {
