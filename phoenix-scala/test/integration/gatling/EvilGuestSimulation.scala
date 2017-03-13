@@ -19,7 +19,7 @@ class EvilGuestSimulation extends BaseSimulation {
                                                 name = Some("guest"),
                                                 password = Some(loginPayload.password))
 
-    scenario("EvilGuestSimulation")
+    scenario("Guest checkout must not break user account with the same email")
       .go(http("user should not exist")
             .post("/v1/public/login")
             .body(StringBody(json(loginPayload)))

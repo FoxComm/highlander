@@ -7,6 +7,7 @@ import testutils.HttpSupport
 import utils.JsonFormatters
 import io.gatling.http.Predef._
 import io.gatling.core.Predef._
+import io.gatling.core.session.Session
 
 abstract class BaseSimulation extends Simulation {
 
@@ -16,8 +17,8 @@ abstract class BaseSimulation extends Simulation {
     Uri(s"http://$host:$port")
   }
 
-  val defaultAssertion = global.failedRequests.count.is(0)
-  implicit val formats = JsonFormatters.phoenixFormats
+  val defaultAssertion: Assertion = global.failedRequests.count.is(0)
+  implicit val formats            = JsonFormatters.phoenixFormats
   lazy val httpConf = http
     .acceptHeader("application/json")
     .contentTypeHeader("application/json")
@@ -27,6 +28,6 @@ abstract class BaseSimulation extends Simulation {
 
   def scn: ScenarioBuilder
 
-  setUp(scn.inject(atOnceUsers(1))).protocols(httpConf)
+  setUp(scn.inject(atOnceUsers(1))).protocols(httpConf).assertions(defaultAssertion)
 
 }

@@ -1,6 +1,7 @@
 import io.gatling.app.Gatling
 import io.gatling.core.Predef._
 import io.gatling.core.scenario.Simulation
+import io.gatling.core.session.Session
 import io.gatling.core.structure.{ChainBuilder, StructureBuilder}
 import io.gatling.http.request.builder.HttpRequestBuilder
 
@@ -13,9 +14,9 @@ package object gatling {
     def stopOnFailure =
       builder.exec {
         doIf(session ⇒ session.isFailed)(exec { session ⇒
-          Console.err.println("[ERROR] Gatling ITs failed, exiting.")
-          session.onExit(session)
-          // TODO break tests here
+          println("Gatling test failed!")
+          System.exit(1)
+          session.exit()
           session
         })
       }
@@ -28,4 +29,5 @@ package object gatling {
   implicit class Stepper[B <: StructureBuilder[B]](val builder: B) extends AnyVal {
     def go(http: HttpRequestBuilder) = builder.exec(http).stopOnFailure
   }
+
 }

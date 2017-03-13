@@ -8,25 +8,18 @@ import utils.JsonFormatters
 
 import scala.language.postfixOps
 
-class AdminLoginSimulation extends Simulation {
+class AdminLoginSimulation extends BaseSimulation {
 
-  implicit val formats = JsonFormatters.phoenixFormats
-  val connection       = http.contentTypeHeader("application/json;charset=UTF-8").disableFollowRedirect
+  override def scn = {
+    val loginPayload = LoginPayload("admin@admin.com", "password", "tenant")
 
-  val loginPayload = LoginPayload("admin@admin.com", "password", "tenant")
-
-  val scn = scenario("AdminLoginSimulation")
-    .go(
-        http("do login")
-          .post("/v1/public/login")
-          .body(StringBody(json(loginPayload)))
-          .check(status.is(200)))
-    .go(http("do logout").post("/v1/public/logout").check(status.is(302)))
-
-  def setup(url: String) = {
-    val conn = connection.baseURL(url)
-    setUp(scn.inject(atOnceUsers(1))).protocols(conn)
+    scenario("Admin must be able to log in")
+      .go(
+          http("do login")
+            .post("/v1/public/login")
+            .body(StringBody(json(loginPayload)))
+            .check(status.is(200)))
+      .go(http("do logout").post("/v1/public/logout").check(status.is(302)))
   }
 
-  setup("http://localhost:9090")
 }
