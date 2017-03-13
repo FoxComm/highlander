@@ -1,5 +1,5 @@
 [Service]
-WorkingDirectory=/usr/local/share
+WorkingDirectory={{webhook_dir}}
 ExecStart=/usr/local/bin/run_webhook.sh
 Restart=always
 StandardOutput=syslog
