@@ -10,10 +10,12 @@ import { actions } from 'modules/taxons/list';
 
 // components
 import MultiSelectTable from 'components/table/multi-select-table';
+import { AddButton } from 'components/common/buttons';
 import TaxonRow from './taxon-row';
 
 // helpers
 import * as dsl from 'elastic/dsl';
+import { transitionToLazy } from 'browserHistory';
 
 // styling
 import styles from './taxons.css';
@@ -51,6 +53,14 @@ export class TaxonsListPage extends Component {
     return <TaxonRow key={row.id} taxon={row} columns={columns} params={params} />;
   }
 
+  get tableControls() {
+    const handleClick = transitionToLazy('value', { ...this.props.params, taxonId: 'new' });
+
+    return [
+      <AddButton className="fc-btn-primary" onClick={handleClick}>Value</AddButton>
+    ];
+  }
+
   render() {
     const { list, actions } = this.props;
 
@@ -68,7 +78,8 @@ export class TaxonsListPage extends Component {
           isLoading={results.isFetching}
           failed={results.failed}
           emptyMessage={'This taxonomy does not have any values yet.'}
-          key={list.currentSearch().title}
+          headerControls={this.tableControls}
+          footerControls={this.tableControls}
         />
       </div>
     );

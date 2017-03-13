@@ -9,7 +9,6 @@ import TablePaginator from './paginator';
 import TablePageSize from './pagesize';
 import ColumnSelector from './column-selector';
 
-
 function getLine(position, items) {
   if (!items.length) {
     return;
@@ -72,6 +71,11 @@ const TableView = props => {
     bottomItems.push(<TablePageSize setState={setState} value={size} />, flexSeparator, tablePaginator);
   }
 
+  const { headerControls = [], footerControls = [] } = props;
+
+  topItems.push(...headerControls);
+  bottomItems.push(...footerControls);
+
   const TableComponent = props.dataTable ? DataTable : Table;
 
   return (
@@ -111,6 +115,8 @@ TableView.propTypes = {
   errorMessage: PropTypes.string,
   className: PropTypes.string,
   renderHeadIfEmpty: PropTypes.bool,
+  headerControls: PropTypes.array,
+  footerControls: PropTypes.array,
 };
 
 TableView.defaultProps = {
