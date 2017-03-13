@@ -41,24 +41,10 @@
   opacity: 0.63;
 }
 
-.delete-icon {
-  width: 18px;
-  height: 18px;
-  stroke-width: 2px;
-}
-
 .delete-button {
   cursor: pointer;
-
-  & :global(.icon) {
-    color: #767676;
-  }
-
-  &:hover {
-    & :global(.icon) {
-      color: var(--blackish);
-    }
-  }
+  color: #0b7ddc;
+  font-size: 14px;
 }
 
 @media (--small-only) {
@@ -78,12 +64,6 @@
 @media (--large) {
   .box {
     padding: 20px 0;
-  }
-
-  .delete-icon {
-    width: 30px;
-    height: 30px;
-    stroke-width: 1px;
   }
 
   .details {

@@ -179,16 +179,15 @@ class Cart extends Component {
             <div styleName="line-items">
               {this.lineItems}
             </div>
-
-            <div styleName="cart-subtotal">
-              <div styleName="subtotal-price">
-                <Currency value={ totals.subTotal } />
-              </div>
-            </div>
             {this.errorsLine}
           </div>
 
           <div styleName="cart-footer">
+          <div styleName="cart-subtotal">
+            <div styleName="subtotal-price">
+              <Currency value={ totals.subTotal } />
+            </div>
+          </div>
             <Button onClick={this.onCheckout} disabled={checkoutDisabled} styleName="checkout-button">
               {t('Checkout')}
             </Button>
