@@ -6,6 +6,7 @@ import { createAction, createReducer } from 'redux-act';
 import { createAsyncActions } from '@foxcomm/wings';
 import Api, { request } from 'lib/api';
 import { getUserId } from 'lib/claims';
+import schemaFixture from './schema.fixture';
 
 const initialState = {
   credentials: null,
@@ -63,7 +64,11 @@ export function fetchAmazonCategory(product_id: string, text: string) {
 const _fetchAmazonSchema = createAsyncActions(
   'fetchAmazonSchema',
   (category_id: string, text: string) => {
-    return Api.get(`/amazon/categories/schema?category_id=${category_id}`);
+    // @todo move to hyperion
+    // return Api.get(`/amazon/categories/schema?category_id=${category_id}`);
+    return new Promise(function(resolve, reject) {
+      setTimeout(() => resolve(schemaFixture), 1000);
+    });
   }
 );
 

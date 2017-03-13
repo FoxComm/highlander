@@ -29,6 +29,7 @@ function delay(ms) {
   };
 }
 
+// @todo remove after full integration
 // router.get('/api/v1/amazon/categories/suggester', function *(next) {
 //   const primary = processList([suggestFixture.primary]);
 //   const secondary = processList(suggestFixture.secondary);

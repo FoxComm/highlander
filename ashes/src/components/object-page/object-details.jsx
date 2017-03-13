@@ -79,6 +79,7 @@ export default class ObjectDetails extends Component {
 
   @autobind
   handleObjectChange(attributes: Attributes) {
+    console.log('attributes', attributes);
     const newObject = this.updateAttributes(attributes);
     this.props.onUpdateObject(newObject);
   }

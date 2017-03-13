@@ -14,13 +14,17 @@ import s from './product-amazon.css';
 import { Suggester } from 'components/suggester/suggester';
 import WaitAnimation from '../common/wait-animation';
 import Progressbar from '../common/progressbar';
+import { getSuggest } from './selector';
 
 function mapDispatchToProps(dispatch) {
   return {
     actions: bindActionCreators({
-      ...amazonActions,
-      ...productActions,
       ...schemaActions,
+      updateProduct: productActions.updateProduct,
+      fetchProduct: productActions.fetchProduct,
+      clearAmazonErrors: amazonActions.clearErrors,
+      fetchAmazonSchema: amazonActions.fetchAmazonSchema,
+      fetchSuggest: amazonActions.fetchSuggest,
     }, dispatch),
   };
 }
@@ -33,7 +37,8 @@ function mapStateToProps(state) {
     title: product && product.attributes && product.attributes.title.v,
     product,
     fetchingProduct: state.asyncActions.fetchProduct && state.asyncActions.fetchProduct.inProgress,
-    suggest,
+    fetchingSuggest: state.asyncActions.fetchSuggest && state.asyncActions.fetchSuggest.inProgress,
+    suggest: getSuggest(suggest),
     schema,
   };
 }
@@ -63,38 +68,78 @@ class ProductAmazon extends Component {
   componentDidMount() {
     const { productId } = this.props.params;
     const { product } = this.props;
-    const { clearFetchErrors, fetchSchema, fetchProduct } = this.props.actions;
+    const { clearAmazonErrors, fetchSchema, fetchProduct } = this.props.actions;
 
     if (!product) {
-      clearFetchErrors();
+      clearAmazonErrors();
       fetchSchema('product');
       fetchProduct(productId);
     }
   }
 
+  // @todo move to the new component
+  renderForm() {
+    const { schema } = this.props;
+    const items = [];
+    const p = schema && schema.properties.attributes.properties;
+
+    for (let key in p) {
+      const value = p[key];
+
+      items.push(
+        <div className="fc-form-field fc-object-form__field" key={key}>
+          <div className="fc-form-field-label">{key}</div>
+          <input
+            onChange={(e) => this._handleChange(e, key)}
+            type="text" name={key}
+            className="fc-object-form__field-value" />
+        </div>
+      );
+    }
+
+    return (
+      <form onSubmit={(e) => this._handleSubmit(e)}>
+        {items}
+        <button type="submit">Submit</button>
+      </form>
+    );
+  }
+
+  _handleChange(e, name) {
+    this.setState({
+      [name]: e.target.value
+    });
+  }
+
+  _handleSubmit(e) {
+    e.preventDefault();
+
+    const { product, actions: { updateProduct } } = this.props;
+    const attributes = {
+      'manufacturer': {
+        t: 'string',
+        v: 'test manufacturer value',
+      }
+    };
+    const newProduct = {
+      ...product,
+      attributes: {
+        ...product.attributes,
+        ...attributes,
+      },
+    };
+
+    updateProduct(newProduct);
+  }
+
   render() {
-    const { title, suggest, schema, product, fetchingProduct } = this.props;
+    const { title, suggest, product, fetchingProduct, fetchingSuggest } = this.props;
     const { categoryId, stepNum } = this.state;
     const progressSteps = steps.map((step, i) => ({
       text: `${i+1}. ${step.text}`,
       current: i == stepNum,
       incompleted: i > stepNum,
     }));
-    let productForm = [];
-
-    if (schema) {
-      const p = schema.properties.attributes.properties;
-
-      for (let key in p) {
-        const value = p[key];
-        productForm.push(
-          <div className="fc-form-field fc-object-form__field">
-            <div className="fc-form-field-label">{key}</div>
-            <input type="text" className="fc-object-form__field-value" />
-          </div>
-        );
-      }
-    }
 
     if (!product || fetchingProduct) {
       return <div className={s.root}><WaitAnimation /></div>;
@@ -111,10 +156,11 @@ class ProductAmazon extends Component {
             onChange={(text) => this._onTextChange(text)}
             onPick={(id) => this._onCatPick(id)}
             data={suggest}
+            inProgress={fetchingSuggest}
           />
         </div>
 
-        {this.state.form && productForm}
+        {this.state.form && this.renderForm()}
       </div>
     );
   }

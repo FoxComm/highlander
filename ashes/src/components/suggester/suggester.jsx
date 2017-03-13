@@ -23,6 +23,7 @@ export class Suggester extends Component {
     onChange: () => {},
     onPick: () => {},
     className: '',
+    minLength: 3,
   };
 
   static propTypes = {
@@ -45,7 +46,14 @@ export class Suggester extends Component {
   }
 
   render() {
-    const { primaryTitle, othersTitle, className, data: { primary, secondary } } = this.props;
+    const {
+      primaryTitle,
+      othersTitle,
+      className,
+      minLength,
+      data: { primary, secondary },
+      inProgress,
+    } = this.props;
     const { value } = this.state;
 
     const primaryHtml = !!primary && primary.map(line => (
@@ -55,12 +63,14 @@ export class Suggester extends Component {
         <div className={s.itemValue}>{line.text}</div>
       </div>
     ));
-    const secondaryHtml = secondary.map(line => (
+    const secondaryHtml = !!secondary && secondary.map(line => (
       <div className={s.item} key={line.id} onClick={() => this._onPick(line)}>
         <div className={s.itemPrefix}>{line.prefix}</div>
         <div className={s.itemValue}>{line.text}</div>
       </div>
     ));
+    const noResults = !primaryHtml && !secondaryHtml && !inProgress;
+    const noResText = value.length >= minLength ? 'No category found' : `Type at least ${minLength} letters`;
 
     return (
       <div className={classNames(s.root, className)}>
@@ -81,6 +91,14 @@ export class Suggester extends Component {
           <div className={s.others}>
             {secondaryHtml}
           </div>
+
+          {noResults && (
+            <div className={classNames(s.listHeader, s._no)}>{noResText}</div>
+          )}
+
+          {inProgress && (
+            <div className={classNames(s.listHeader, s._no)}>Loading..</div>
+          )}
         </div>
       </div>
     );
@@ -88,9 +106,14 @@ export class Suggester extends Component {
 
   _input: any;
 
-  _onType(e) {
-    this.setState({ value: e.target.value });
-    this.props.onChange(e.target.value);
+  _onType({ target: { value } }) {
+    const { minLength } = this.props;
+
+    this.setState({ value });
+
+    if (value.length >= minLength) {
+      this.props.onChange(value);
+    }
   }
 
   _onPick(item) {
