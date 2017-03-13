@@ -29,7 +29,7 @@
   top: 0;
   right: 0;
   height: 100%;
-  width: 320px;
+  lost-column: 4/12;
   background: var(--whitish);
   transform: translateX(100%);
   transition: transform .2s;
@@ -99,7 +99,7 @@
   max-height: 100%;
   display: flex;
   flex-direction: column;
-  overflow-y: hidden;
+  overflow-y: auto;
 
   & :global(.fc-errors) {
     width: 100%;
@@ -112,7 +112,7 @@
 }
 
 .line-items {
-  overflow-y: auto;
+  /*overflow-y: auto;*/
   height: 100%;
 }
 
@@ -158,8 +158,8 @@
   }
 }
 
-@media (--medium), (--large) {
+@media (--small-only), (--medium-only) {
   .cart-box {
-    lost-column: 3/11;
+    lost-column: 12/12;
   }
 }

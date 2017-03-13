@@ -21,7 +21,7 @@
   background: #fff;
   transform: translateX(-100%);
   transition: transform .2s;
-  width: 320px;
+  lost-column: 4/12;
 }
 
 .sidebar-shown .overlay {
@@ -38,6 +38,10 @@
 }
 
 @media (--small-only), (--medium-only) {
+  .container {
+    lost-column: 12/12;
+  }
+
   .controls-search {
     border-bottom: 1px solid #ddd;
     margin: 30px 10px 20px 10px;
@@ -49,11 +53,11 @@
   }
 }
 
-@media (--media), (--large) {
+/*@media (--media), (--large) {
   .container {
     lost-column: 3/11;
   }
-}
+}*/
 
 .controls-session-wrapper {
   margin-top: 20px;
