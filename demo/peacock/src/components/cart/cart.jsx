@@ -183,13 +183,11 @@ class Cart extends Component {
           </div>
 
           <div styleName="cart-footer">
-          <div styleName="cart-subtotal">
-            <div styleName="subtotal-price">
-              <Currency value={ totals.subTotal } />
-            </div>
-          </div>
             <Button onClick={this.onCheckout} disabled={checkoutDisabled} styleName="checkout-button">
               {t('Checkout')}
+              <span styleName="subtotal-price">
+                <Currency value={ totals.subTotal } />
+              </span>
             </Button>
           </div>
         </div>
