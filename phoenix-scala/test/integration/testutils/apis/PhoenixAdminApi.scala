@@ -639,7 +639,7 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
     def delete = DELETE(s"v1/taxonomies/${ctx.name}/$taxonomyId")
     def get    = GET(s"v1/taxonomies/${ctx.name}/$taxonomyId")
     def createTaxon(payload: CreateTaxonPayload) =
-      POST(s"v1/taxonomies/${ctx.name}/$taxonomyId", payload)
+      POST(s"v1/taxonomies/${ctx.name}/$taxonomyId/taxons", payload)
   }
 
   case class taxonsApi(taxonId: Int)(implicit ctx: OC) {

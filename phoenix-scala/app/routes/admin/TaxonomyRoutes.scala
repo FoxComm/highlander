@@ -37,13 +37,14 @@ object TaxonomyRoutes {
                 deleteOrFailures {
                   TaxonomyManager.archiveByContextAndId(taxonomyFormId)
                 }
-              }
-            } ~
-            (post & pathPrefix(IntNumber) & pathEnd & entity(as[CreateTaxonPayload])) {
-              (taxonomyFormId, payload) ⇒
-                mutateOrFailures {
-                  TaxonomyManager.createTaxon(taxonomyFormId, payload)
+              } ~
+              pathPrefix("taxons") {
+                (post & pathEnd & entity(as[CreateTaxonPayload])) { payload ⇒
+                  mutateOrFailures {
+                    TaxonomyManager.createTaxon(taxonomyFormId, payload)
+                  }
                 }
+              }
             }
           }
         }
