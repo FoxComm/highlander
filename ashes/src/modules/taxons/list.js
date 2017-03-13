@@ -2,10 +2,6 @@
 
 import makeLiveSearch from '../live-search';
 
-const defaultSort = {
-  rawSorts: ['name'],
-};
-
 const searchTerms = [];
 const storeLocation = 'taxons.list';
 const searchView = 'taxons_search_view/_search';
@@ -16,7 +12,10 @@ const { reducer, actions } = makeLiveSearch(
   searchTerms,
   searchView,
   scope,
-  defaultSort
+  {
+    initialState: { sortBy: 'name' },
+    rawSorts: ['name'],
+  }
 );
 
 export {

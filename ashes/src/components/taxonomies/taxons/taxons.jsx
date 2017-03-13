@@ -72,21 +72,19 @@ export class TaxonsListPage extends Component {
     const results = list.currentSearch().results;
 
     return (
-      <div className={styles.container}>
-        <MultiSelectTable
-          columns={tableColumns}
-          data={results}
-          renderRow={this.renderRow}
-          setState={actions.updateStateAndFetch}
-          predicate={({id}) => id}
-          hasActionsColumn={false}
-          isLoading={results.isFetching}
-          failed={results.failed}
-          emptyMessage={'This taxonomy does not have any values yet.'}
-          headerControls={this.tableControls}
-          footerControls={this.tableControls}
-        />
-      </div>
+      <MultiSelectTable
+        columns={tableColumns}
+        data={results}
+        renderRow={this.renderRow}
+        setState={actions.updateStateAndFetch}
+        predicate={({id}) => id}
+        hasActionsColumn={false}
+        isLoading={results.isFetching}
+        failed={results.failed}
+        emptyMessage={'This taxonomy does not have any values yet.'}
+        headerControls={this.tableControls}
+        footerControls={this.tableControls}
+      />
     );
   }
 }

@@ -18,6 +18,8 @@ import ArchiveActionsSection from 'components/archive-actions/archive-actions';
 import { SAVE_COMBO, SAVE_COMBO_ITEMS } from 'paragons/common';
 import { transitionToLazy } from 'browserHistory';
 
+import styles from './object-page.css';
+
 class ObjectPageDeux extends Component {
   // TODO: replace *
   props: ObjectProps<*, *>;
@@ -175,7 +177,9 @@ class ObjectPageDeux extends Component {
           {this.headerControls}
         </PageTitle>
         {this.localNav}
-        {children}
+        <div styleName="object-details">
+          {children}
+        </div>
         {this.footerControls}
       </div>
     );
