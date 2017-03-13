@@ -1,7 +1,7 @@
 // @flow
 
 import { pluralize } from 'fleck';
-import { capitalize, noop } from 'lodash';
+import { get, capitalize, noop } from 'lodash';
 import React, { Component, Element } from 'react';
 import { IndexLink, Link } from 'components/link';
 import { PageTitle } from 'components/section-title';
@@ -22,6 +22,10 @@ class ObjectPageDeux extends Component {
   // TODO: replace *
   props: ObjectProps<*, *>;
 
+  static defaultProps = {
+    identifierFieldName: 'id',
+  };
+
   componentDidMount() {
     const { context, identifier, actions } = this.props;
 
@@ -35,11 +39,9 @@ class ObjectPageDeux extends Component {
   }
 
   get localNav() {
-    if (this.isNew) {
-      return null;
-    }
+    const navLinks = this.isNew ? this.props.navLinks.slice(0, 1) : this.props.navLinks;
 
-    const links = this.props.navLinks.map((settings, idx) => {
+    const links = navLinks.map((settings, idx) => {
       const LinkComponent = idx === 0 ? IndexLink : Link;
 
       return (
@@ -103,9 +105,9 @@ class ObjectPageDeux extends Component {
 
   @autobind
   transitionToObject() {
-    const { identifier, actions } = this.props;
+    const { object, identifierFieldName, actions } = this.props;
 
-    actions.transition(identifier);
+    actions.transition(get(object, identifierFieldName));
   }
 
   @autobind
@@ -127,11 +129,9 @@ class ObjectPageDeux extends Component {
   }
 
   get headerControls() {
-    const { isFetching } = this.props;
-
     return (
       <SaveCancel
-        isLoading={isFetching}
+        isLoading={this.props.saveState.inProgress}
         onCancel={this.props.actions.close}
         saveItems={SAVE_COMBO_ITEMS}
         onSave={this.handleSaveButton}
@@ -159,13 +159,14 @@ class ObjectPageDeux extends Component {
   }
 
   render() {
-    const { children, identifier, isFetching, fetchError, object, objectType } = this.props;
-    if (isFetching) {
+    const { children, identifier, fetchState, object, objectType } = this.props;
+
+    if (fetchState.inProgress) {
       return <div><WaitAnimation /></div>;
     }
 
     if (!object) {
-      return <Error err={fetchError} notFound={`There is no ${objectType} with id ${identifier}.`} />;
+      return <Error err={fetchState.err} notFound={`There is no ${objectType} with id ${identifier}.`} />;
     }
 
     return (

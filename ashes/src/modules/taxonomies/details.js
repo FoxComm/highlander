@@ -69,13 +69,10 @@ export const fetch = (id: string, context: string = defaultContext): ActionDispa
 // Reducer.
 ////////////////////////////////////////////////////////////////////////////////
 
-const initialState = { taxonomy: null };
+const initialState = { taxonomy: createEmptyTaxonomy(defaultContext, false) };
 
 const reducer = createReducer({
-  [reset]: () => ({
-    ...initialState,
-    taxonomy: createEmptyTaxonomy(defaultContext, false)
-  }),
+  [reset]: () => initialState,
   [duplicate]: (state) => ({
     ...initialState,
     taxonomy: duplicateTaxonomy(_.get(state, 'taxonomy', {} ))

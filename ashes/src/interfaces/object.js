@@ -1,4 +1,3 @@
-
 export type Attribute = { t: string, v: any };
 export type Attributes = {
   [name: string]: Attribute;
@@ -44,11 +43,12 @@ export type ObjectProps<T, U> = {
   children?: Element<*>|Array<Element<*>>,
   context?: string,
   identifier: string,
-  isFetching: boolean,
-  fetchError: ?Object,
   navLinks: NavLinks<U>,
   object: ?T,
   objectType: string,
+  identifierFieldName: string,
   originalObject: ?T,
+  fetchState: AsyncState,
+  saveState: AsyncState,
   archiveState: AsyncState,
 };

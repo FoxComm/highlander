@@ -30,6 +30,8 @@ type Props = {
     taxonomy: ?Taxonomy,
   },
   fetchState: AsyncState,
+  createState: AsyncState,
+  updateState: AsyncState,
   schemaFetchState: AsyncState,
   archiveState: AsyncState,
   params: TaxonomyParams,
@@ -55,27 +57,6 @@ class TaxonomyPage extends Component {
     this.setState({ taxonomy });
   }
 
-  get actions(): ObjectActions<Taxonomy> {
-    return {
-      ...this.props.actions,
-      close: transitionToLazy('taxonomies'),
-      getTitle: (t: Taxonomy) => get(t.attributes, 'name.v', ''),
-      transition: (id: number|string) => transitionTo('taxonomy-details', {
-        taxonomyId: id,
-        context: this.props.params.context
-      })
-    };
-  }
-
-  get isFetching(): boolean {
-    const { details, schema, fetchState, schemaFetchState } = this.props;
-
-    const inProgress = fetchState.inProgress || schemaFetchState.inProgress;
-    const noError = (!details.taxonomy && !fetchState.err) || (!schema && !schemaFetchState.err);
-
-    return inProgress || noError;
-  }
-
   get navLinks(): NavLinks<TaxonomyParams> {
     return [{
       title: 'Details',
@@ -90,6 +71,38 @@ class TaxonomyPage extends Component {
     }];
   }
 
+  get actions(): ObjectActions<Taxonomy> {
+    return {
+      ...this.props.actions,
+      close: transitionToLazy('taxonomies'),
+      getTitle: (t: Taxonomy) => get(t.attributes, 'name.v', ''),
+      transition: (id: number|string) => transitionTo('taxonomy-details', {
+        taxonomyId: id,
+        context: this.props.params.context
+      })
+    };
+  }
+
+  get fetchState(): AsyncState {
+    const { details, schema, fetchState, schemaFetchState } = this.props;
+
+    const inProgress = fetchState.inProgress || schemaFetchState.inProgress;
+    const noError = (!details.taxonomy && !fetchState.err) || (!schema && !schemaFetchState.err);
+
+    return {
+      ...fetchState,
+      inProgress: inProgress || noError,
+    };
+  }
+
+  get saveState(): AsyncState {
+    return {
+      inProgress: this.props.createState.inProgress || this.props.updateState.inProgress,
+      err: this.props.createState.err || this.props.updateState.err,
+      finished: this.props.createState.finished || this.props.updateState.finished,
+    };
+  }
+
   @autobind
   handleObjectUpdate(obj: Taxonomy) {
     const { taxonomy } = this.state;
@@ -102,9 +115,8 @@ class TaxonomyPage extends Component {
   }
 
   render() {
-    const { details, fetchState, archiveState, schema } = this.props;
+    const { details, archiveState, schema } = this.props;
     const { taxonomyId, context } = this.props.params;
-
 
     const childProps = {
       schema,
@@ -118,14 +130,14 @@ class TaxonomyPage extends Component {
       <ObjectPageDeux
         actions={this.actions}
         context={context}
-        identifier={get(this.props.details.taxonomy, 'id', taxonomyId)}
-        isFetching={this.isFetching}
-        fetchError={fetchState.err}
+        identifier={taxonomyId}
+        fetchState={this.fetchState}
+        saveState={this.saveState}
+        archiveState={archiveState}
         navLinks={this.navLinks}
         object={this.state.taxonomy}
         objectType="taxonomy"
         originalObject={details.taxonomy}
-        archiveState={archiveState}
       >
         {children}
       </ObjectPageDeux>
@@ -136,6 +148,8 @@ class TaxonomyPage extends Component {
 const mapState = state => ({
   details: state.taxonomies.details,
   fetchState: get(state.asyncActions, 'fetchTaxonomy', {}),
+  createState: get(state.asyncActions, 'createTaxonomy', {}),
+  updateState: get(state.asyncActions, 'updateTaxonomy', {}),
   archiveState: get(state.asyncActions, 'archiveTaxonomy', {}),
   schemaFetchState: get(state.asyncActions, 'fetchSchema', {}),
   schema: get(state.objectSchemas, 'taxonomy'),
