@@ -39,8 +39,8 @@
     - { role: dev/db }
     - { role: dev/db_ic }
     # Marathon
+    - { role: dev/seed_system }
     - { role: dev/marathon }
-    - { role: dev/seeder }
     - { role: dev/marathon_consumers }
     - { role: dev/ic }
     - { role: ext/td/storefront, when: marathon_restart.storefront_td }
@@ -49,6 +49,8 @@
     - { role: dev/balancer }
     - { role: hotfix/mesos_consul }
     - { role: demo/balancer }
+    #Seed
+    - { role: dev/seeder }
     # Finale
     - { role: dev/healthcheck }
 

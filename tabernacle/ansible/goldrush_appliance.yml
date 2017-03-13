@@ -52,7 +52,7 @@
     - { role: dev/db }
     - { role: dev/db_ic }
     # Marathon
-    - { role: dev/seeder }
+    - { role: dev/seed_system }
     - { role: dev/marathon }
     - { role: dev/marathon_consumers }
     - { role: dev/ic }
@@ -62,6 +62,10 @@
     - { role: dev/balancer }
     - { role: hotfix/mesos_consul }
     - { role: demo/balancer }
+
+    # Seed
+    - { role: dev/seeder }
+
     # Finale
     - { role: dev/healthcheck }
     - { role: dev/appliance_dns }

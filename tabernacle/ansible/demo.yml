@@ -37,6 +37,7 @@
     - { role: dev/stage_mesos, when: first_run }
     - { role: base/ssh_keys, when: first_run }
     - { role: hotfix/rsyslog }
+    - { role: dev/seed_system, when: first_run }
     - { role: dev/marathon }
     - { role: dev/marathon_consumers }
     - { role: dev/ic }
