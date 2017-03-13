@@ -2,6 +2,9 @@
 
 set -ue
 
+# Clean checkout
+rm -rf bigbag
+
 # Clone and build
 git clone https://github.com/kpashka/bigbag.git
 cd bigbag
@@ -15,6 +18,3 @@ curl --header "Content-Type: application/json" \
     -d @latest.json \
     -XPUT http://{{cloud_demo_server}}/v2/apps/storefront
 
-# Cleanup
-cd ../
-rm -rf bigbag
