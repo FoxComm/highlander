@@ -6,7 +6,7 @@ create table notifications(
     dimension_id integer not null references activity_dimensions(id) on update restrict on delete restrict,
     object_id generic_string not null,
     activity jsonb not null,
-    created_at generic_timestamp
+    created_at generic_timestamp not null
 );
 
 create index notifications_idx on notifications(scope, account_id);
