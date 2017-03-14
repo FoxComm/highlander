@@ -29,6 +29,7 @@ type State = {
 export default class PromotionForm extends ObjectDetails {
   // $FlowFixMe: flow!
   state: State = {
+    qualifyAll: true,
     qualifiedCustomerGroupIds: [], // it's temporary state until qualified customer groups not implemented in backend!
   };
   layout = layout;
@@ -124,11 +125,11 @@ export default class PromotionForm extends ObjectDetails {
   renderDiscounts() {
     let discountChilds = [];
     const discounts = _.get(this.props.object, 'discounts', []);
-    discounts.map(disc => {
+    discounts.map((disc,index) => {
         discountChilds.push(<div styleName="sub-title">Qualifier</div>),
         discountChilds.push(<DiscountAttrs 
-          blockId="promo-qualifier-block"
-          dropdownId="promo-qualifier-dd"
+          blockId={"promo-qualifier-block-"+index}
+          dropdownId={"promo-qualifier-dd-"+index}
           discount={disc}
           attr="qualifier"
           descriptions={qualifiers}
@@ -136,8 +137,8 @@ export default class PromotionForm extends ObjectDetails {
         />);
         discountChilds.push(<div styleName="sub-title">Offer</div>),
         discountChilds.push(<DiscountAttrs 
-          blockId="promo-offer-block"
-          dropdownId="promo-offer-dd"
+          blockId={"promo-offer-block-"+index}
+          dropdownId={"promo-offer-dd-"+index}
           discount={disc}
           attr="offer"
           descriptions={offers}
@@ -151,19 +152,33 @@ export default class PromotionForm extends ObjectDetails {
     );
   }
 
+  @autobind
+  handleQualifyAllChange(isAllQualify) {
+    const promotion = this.props.object;
+    const arr = isAllQualify ? [] : promotion.qualifiedCustomerGroupIds;
+    const newPromotion1 = assoc(promotion, 'qualifyAll', isAllQualify);
+    const newPromotion2 = assoc(newPromotion1, 'qualifiedCustomerGroupIds', arr);
+    this.props.onUpdateObject(newPromotion2);
+  }
+
+  @autobind
+  handleQulifierGroupChange(ids){
+    const promotion = this.props.object;
+    const newPromotion = assoc(promotion, 'qualifiedCustomerGroupIds', ids);
+    this.props.onUpdateObject(newPromotion);    
+  }
+
   renderCustomers() {
+    const promotion = this.props.object;
     return (
       <div styleName="customer-groups">  
         <div styleName="sub-title" >Customers</div>
         <SelectCustomerGroups
           parent="Promotions"
-          selectedGroupIds={this.state.qualifiedCustomerGroupIds}
-          onSelect={(ids) => {
-            // $FlowFixMe: WTF!
-                  this.setState({
-                    qualifiedCustomerGroupIds: ids,
-                  });
-                }}
+          selectedGroupIds={promotion.qualifiedCustomerGroupIds}
+          qualifyAll={promotion.qualifyAll}
+          qualifyAllChange={this.handleQualifyAllChange}
+          onSelect={this.handleQulifierGroupChange}
         />
       </div>
     );

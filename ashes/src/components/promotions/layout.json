@@ -9,10 +9,10 @@
           "includeRest": true,
           "type": "fields",
           "value": [
-            "name",
-            "storefrontName"
+            "name"
           ],
           "omit": [
+            "storefrontName",
             "description",
             "details",
             "activeFrom",
