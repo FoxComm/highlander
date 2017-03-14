@@ -22,7 +22,7 @@ import testutils.PayloadHelpers.tv
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.api.PromotionPayloadBuilder.{PromoOfferBuilder, PromoQualifierBuilder}
-import testutils.fixtures.api.{ApiFixtures, PromotionPayloadBuilder}
+import testutils.fixtures.api._
 import testutils.fixtures.{BakedFixtures, PromotionFixtures}
 import utils.IlluminateAlgorithm
 import utils.aliases._
@@ -36,6 +36,7 @@ class PromotionsIntegrationTest
     with TestActivityContext.AdminAC
     with BakedFixtures
     with ApiFixtures
+    with ApiFixtureHelpers
     with PromotionFixtures {
 
   "DELETE /v1/promotions/:context/:id" - {
@@ -111,7 +112,7 @@ class PromotionsIntegrationTest
   }
 
   "Auto-applied promotions:" - {
-    "with many available, the best one is chosen" in new Customer_Seed with ProductSku_ApiFixture {
+    "with many available, the best one is chosen" in new ProductSku_ApiFixture {
       val percentOffs = List.fill(11)(scala.util.Random.nextInt(100))
       val percentOff  = percentOffs.max
 
@@ -122,6 +123,8 @@ class PromotionsIntegrationTest
                                                 PromoQualifierBuilder.CartAny))
           .as[PromotionResponse.Root]
       }
+
+      val customer = api_newCustomer()
 
       val refNum =
         cartsApi.create(CreateCart(email = customer.email)).as[CartResponse].referenceNumber
