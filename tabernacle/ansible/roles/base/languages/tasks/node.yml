@@ -29,6 +29,5 @@
   shell: npm install -g {{item}}
   with_items:
     - babel-cli
-    - flow-bin
     - gulp
     - yarn
