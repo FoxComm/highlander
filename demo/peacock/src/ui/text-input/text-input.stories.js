@@ -3,11 +3,29 @@ import { storiesOf, action } from '@kadira/storybook';
 import TextInput from './text-input';
 
 storiesOf('ui.TextInput', module)
+  .addDecorator((story) => (
+    <div className="_story">
+      {story()}
+    </div>
+  ))
   .add('base', () => (
     <TextInput placeholder="hello" />
   ))
   .add('error', () => (
     <TextInput value="wrong value" error />
+  ))
+  .add('placeholder', () => (
+    <TextInput value="Some value" placeholder="Field YyBvarV"/>
+  ))
+  .add('with label', () => (
+    <div style={{width: '200px'}}>
+      <TextInput label="EXPAND" />
+    </div>
+  ))
+  .add('error message', () => (
+    <div style={{width: '200px'}}>
+      <TextInput error="Something went wrong" placeholder="Address" />
+    </div>
   ))
   .add('adjoin vertical 2', () => (
     <div>
@@ -17,9 +35,9 @@ storiesOf('ui.TextInput', module)
   ))
   .add('adjoin vertical 3', () => (
     <div>
-      <TextInput pos="t" />
+      <TextInput placeholder="test" pos="t" error="error" />
       <TextInput pos="middle-v" />
-      <TextInput pos="b" />
+      <TextInput pos="b" error />
     </div>
   ))
   .add('adjoin horizontal 2', () => (
@@ -28,11 +46,11 @@ storiesOf('ui.TextInput', module)
       <TextInput pos="r" />
     </div>
   ))
-  .add('adjoin horizontal 3', () => (
+  .add('full ', () => (
     <div style={{display: 'inline-flex'}}>
-      <TextInput pos="l" />
+      <TextInput pos="l" error="something went wrong" />
       <TextInput pos="middle-h" />
-      <TextInput pos="r" />
+      <TextInput pos="r" error />
     </div>
   ));
 

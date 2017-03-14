@@ -13,7 +13,7 @@ import { browserHistory } from 'lib/history';
 import localized from 'lib/i18n';
 import type { Localized } from 'lib/i18n';
 
-import { TextInput } from 'ui/inputs';
+import TextInput from 'ui/text-input/text-input';
 import ShowHidePassword from 'ui/forms/show-hide-password';
 import { FormField, Form } from 'ui/forms';
 import Button from 'ui/buttons';
@@ -161,42 +161,46 @@ class Signup extends Component {
         {this.title}
         {this.topMessage}
         <Form onSubmit={this.submitUser}>
-          <FormField key="username" styleName="form-field" error={usernameError}>
-            <TextInput
-              required
-              placeholder={t('FIRST & LAST NAME')}
-              name="username"
-              value={username}
-              onChange={this.onChangeUsername}
-            />
-          </FormField>
-          <FormField key="email" styleName="form-field" error={emailError}>
-            <TextInput
-              required
-              placeholder={t('EMAIL')}
-              name="email"
-              value={email}
-              type="email"
-              onChange={this.onChangeEmail}
-            />
-          </FormField>
-          <FormField key="passwd" styleName="form-field">
-            <ShowHidePassword
-              className={styles['form-field-input']}
-              placeholder={t('CREATE PASSWORD')}
-              name="password"
-              value={password}
-              onChange={this.onChangePassword}
-            />
-          </FormField>
-          <ErrorAlerts errors={this.state.generalErrors} />
+          <div styleName="inputs-body">
+            <ErrorAlerts errors={this.state.generalErrors} errors={["Something went wrong"]} />
+            <FormField key="username" styleName="form-field" error={usernameError}>
+              <TextInput
+                pos="t"
+                required
+                placeholder={t('FIRST & LAST NAME')}
+                name="username"
+                value={username}
+                onChange={this.onChangeUsername}
+              />
+            </FormField>
+            <FormField key="email" styleName="form-field" error={emailError}>
+              <TextInput
+                pos="middle-v"
+                required
+                placeholder={t('EMAIL')}
+                name="email"
+                value={email}
+                type="email"
+                onChange={this.onChangeEmail}
+              />
+            </FormField>
+            <FormField key="passwd" styleName="form-field">
+              <ShowHidePassword
+                pos="b"
+                className={styles['form-field-input']}
+                placeholder={t('CREATE PASSWORD')}
+                name="password"
+                value={password}
+                onChange={this.onChangePassword}
+              />
+            </FormField>
+          </div>
           <Button
             styleName="primary-button"
             isLoading={isLoading}
             type="submit"
-          >
-            {t('SIGN UP')}
-          </Button>
+            children={t('Sign up')}
+          />
         </Form>
       </div>
     );

@@ -2,6 +2,10 @@
 @import "colors.css";
 @import "media-queries.css";
 
+.block {
+  position: relative;
+}
+
 .textInput {
   height: 40px;
   width: 100%;
@@ -13,12 +17,8 @@
   color: #000;
   box-shadow: none;
 
-  &:focus {
-    border-color: #525252;
-  }
-
   &:active {
-    z-index: 1;
+    z-index: 2;
   }
 
   &::-webkit-input-placeholder { color: var(--input-placeholder-color); }
@@ -27,29 +27,79 @@
   &:-ms-input-placeholder { color: var(--input-placeholder-color); }
 }
 
-.error {
+.hasTopMessages .textInput {
+  padding-top: 15px;
+}
+
+input.error {
   border: 1px solid var(--color-error);
   color: var(--color-error);
 }
 
-.pos-b {
+.block.error {
+  z-index: 1;
+}
+
+.block:focus {
+  z-index: 2;
+}
+
+:root {
+  --top-line-height: 10px;
+  --top-font-size: 8px;
+}
+
+.errorMessage {
+  font-size: var(--top-font-size);
+  position: absolute;
+  right: 11px;
+  top: 6px;
+  line-height: var(--top-line-height);
+  color: var(--color-error);
+}
+
+.placeholder {
+  font-size: var(--top-font-size);
+  position: absolute;
+  left: 11px;
+  top: 6px;
+  line-height: var(--top-line-height);
+  color: var(--input-placeholder-color);
+}
+
+.label {
+  --line-height: 28px;
+  position: absolute;
+  right: 6px;
+  line-height: var(--line-height);
+  top: calc(50% - var(--line-height) / 2);
+  font-size: 10px;
+}
+
+input.pos-b {
   border-top-right-radius: 0;
   border-top-left-radius: 0;
 }
 
-.pos-l {
+input.pos-l {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
+}
+
+div.pos-l {
   margin-right: -1px;
 }
 
-.pos-t {
+input.pos-t {
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
+}
+
+div.pos-t {
   margin-bottom: -1px;
 }
 
-.pos-r {
+input.pos-r {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
 }

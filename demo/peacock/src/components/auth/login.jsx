@@ -10,8 +10,8 @@ import { browserHistory } from 'lib/history';
 
 import styles from './auth.css';
 
-import TextInput from '../../ui/text-input/text-input';
-import TextInputWithLabel from '../../ui/text-input-with-label/text-input-with-label';
+import TextInput from 'ui/text-input/text-input';
+import TextInputWithLabel from 'ui/text-input-with-label/text-input-with-label';
 import { FormField, Form } from 'ui/forms';
 import Button from 'ui/buttons';
 
@@ -148,18 +148,19 @@ class Login extends Component {
         {this.title}
         {this.topMessage}
         <Form onSubmit={this.authenticate}>
-          <div styleName="input-body">
+          <div styleName="inputs-body">
             <FormField key="email" styleName="form-field" error={this.state.error}>
               <TextInput pos="t" placeholder={t('EMAIL')} value={email} type="email" onChange={this.onChangeEmail} />
             </FormField>
             <FormField key="passwd" styleName="form-field" error={!!this.state.error}>
-              <TextInputWithLabel
+              <TextInput
+                type="password"
                 pos="b"
                 styleName="form-field-input"
                 placeholder="PASSWORD"
                 label={!password && restoreLink}
                 value={password}
-                onChange={this.onChangePassword} type="password"
+                onChange={this.onChangePassword}
               />
             </FormField>
           </div>

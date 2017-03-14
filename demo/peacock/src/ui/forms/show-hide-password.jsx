@@ -1,5 +1,6 @@
 /* @flow */
 
+import _ from 'lodash';
 import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
 import styles from './show-hide-password.css';
@@ -7,7 +8,7 @@ import classNames from 'classnames';
 
 import localized from 'lib/i18n';
 
-import { TextInputWithLabel } from 'ui/inputs';
+import TextInputWithLabel from 'ui/text-input-with-label/text-input-with-label';
 
 type State = {
   isShown: boolean
@@ -51,19 +52,14 @@ class ShowHidePassword extends Component {
   }
 
   render() {
-    const { name, className, onChange, placeholder, value, minLength } = this.props;
+    const inputProps = _.omit(this.props, ['linkClassName', 't']);
     const inputType = this.state.isShown ? 'text' : 'password';
 
     return (
       <TextInputWithLabel
-        className={className}
-        placeholder={placeholder}
-        name={name}
-        value={value}
-        onChange={onChange}
+        {...inputProps}
         type={inputType}
         label={this.showLink}
-        minLength={minLength}
       />
     );
   }

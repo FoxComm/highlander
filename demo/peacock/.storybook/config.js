@@ -1,4 +1,4 @@
-import { configure } from '@kadira/storybook';
+import { configure, addDecorator } from '@kadira/storybook';
 
 const req = require.context('../src/ui', true, /.stories.js$/)
 
