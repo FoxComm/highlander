@@ -5,7 +5,7 @@
   position: relative;
   border: 1px solid #ddd;
   border-radius: 12px;
-  &:hover {
+  &:active {
     border: solid 3px #b6d7ff;
   }
 }

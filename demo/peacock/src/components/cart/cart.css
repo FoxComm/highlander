@@ -145,6 +145,12 @@
   }
 }
 
+@media (--medium), (--large) {
+  .cart-close {
+    margin-right: 25px;
+  }
+}
+
 @media (--large) {
   .cart-content {
     height: calc(100% - 130px);
@@ -163,9 +169,5 @@
   .checkout-button {
     width: calc(100% - 50px);
     border-radius: 4px;
-  }
-
-  .cart-close {
-    margin-right: 25px;
   }
 }
