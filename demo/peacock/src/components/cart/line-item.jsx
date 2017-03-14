@@ -63,9 +63,11 @@ class LineItem extends Component {
                 {this.props.name}
               </div>
             </div>
-            <a styleName="delete-button" onClick={this.deleteItem}>
-              Remove
-            </a>
+            <div styleName="delete">
+              <a styleName="delete-button" onClick={this.deleteItem}>
+                Remove
+              </a>
+            </div>
           </div>
 
           <div styleName="details">
@@ -82,7 +84,7 @@ class LineItem extends Component {
                   sortItems={false}
                 />
               </div>
-              <span styleName="multiply">x</span>
+              <span styleName="multiply">&times;</span>
               <div styleName="price">
                 <Currency value={this.props.price}/>
               </div>

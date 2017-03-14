@@ -31,7 +31,12 @@
 
 .product-name {
   font-weight: 900;
-  font-size: 16px;
+  font-size: 15px;
+}
+
+.delete {
+  display: flex;
+  justify-content: flex-end;
 }
 
 .delete-button {
@@ -77,6 +82,10 @@
   .price-qty {
     margin: -5px;
   }
+
+  .delete {
+    margin-right: -5px;
+  }
 }
 
 @media (--large) {
@@ -84,27 +93,10 @@
     padding: 20px 0;
   }
 
-  .product {
-    display: flex;
-    flex-direction: row;
-    min-height: 42px;
-  }
-
   .image {
     width: 25%;
     max-width: 90px;
     height: auto;
     margin-right: 10px;
-  }
-
-  .product-name {
-    width: 100%;
-    padding-right: var(--cart-gap);
-    font-size: 16px;
-    letter-spacing: .94px;
-  }
-
-  .total-price {
-    font-size: 16px;
   }
 }
