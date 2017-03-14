@@ -65,7 +65,6 @@ Various package management and build systems which are necessary for modern deve
     * [boot](https://github.com/boot-clj/boot) - Clojure build framework and ad-hoc Clojure script evaluator.
 * JavaScript
     * [babel-cli](https://github.com/babel/babel) - command-line compiler for writing next generation JavaScript.
-    * [flow-bin](https://github.com/flowtype/flow-bin) - Binary wrapper for Flow - a static type checker for JavaScript.
     * [gulp](https://github.com/gulpjs/gulp) - streaming build system for Node.js.
     * [yarn](https://yarnpkg.com) - fast, reliable, and secure dependency management for Node.js.
 
