@@ -3,7 +3,7 @@ package services.returns
 import cats.implicits._
 import failures.OrderFailures.OrderPaymentNotFoundFailure
 import failures.ReturnFailures._
-import models.account.Scope
+import models.account.{Scope, User, Users}
 import models.cord.OrderPayments.scope._
 import models.cord._
 import models.payment.PaymentMethod
@@ -257,10 +257,18 @@ object ReturnPaymentUpdater {
     } yield ()
   }
 
-  def issueRefunds(rma: Return)(implicit ec: EC, db: DB, apis: Apis): DbResultT[Unit] = {
+  def issueRefunds(rma: Return)(implicit ec: EC, db: DB, au: AU, apis: Apis): DbResultT[Unit] = {
     for {
+      customer ← * <~ Users.mustFindByAccountId(rma.accountId)
+
       ccPayment ← * <~ ReturnPayments.findAllByReturnId(rma.id).creditCards.one
       _         ← * <~ ccPayment.map(issueCcRefund(rma, _))
+
+      gc ← * <~ ReturnPayments.findOnHoldGiftCards(rma.id).one
+      _  ← * <~ gc.map(issueGcRefund(customer, rma, _))
+
+      sc ← * <~ ReturnPayments.findOnHoldStoreCredits(rma.id).one
+      _  ← * <~ sc.map(issueScRefund(customer, rma, _))
     } yield ()
   }
 
@@ -303,10 +311,9 @@ object ReturnPaymentUpdater {
         case charge if charge.currency != payment.currency ⇒ charge.currency
       }
       failIf(mismatchedCharges.nonEmpty,
-        ReturnCcPaymentCurrencyMismatch(
-          refNum = rma.refNum,
-          expected = payment.currency,
-          actual = mismatchedCharges.toList))
+             ReturnCcPaymentCurrencyMismatch(refNum = rma.refNum,
+                                             expected = payment.currency,
+                                             actual = mismatchedCharges.toList))
     }
 
     for {
@@ -340,4 +347,28 @@ object ReturnPaymentUpdater {
                                                allowed = payment.amount))
     } yield ()
   }
+
+  private def issueGcRefund(customer: User, rma: Return, gc: GiftCard)(implicit ec: EC,
+                                                                       au: AU): DbResultT[Unit] =
+    GiftCards
+      .update(gc,
+              gc.copy(state = GiftCard.Active,
+                      senderName = au.model.name,
+                      recipientName = customer.name,
+                      recipientEmail = customer.email))
+      .meh
+
+  private def issueScRefund(customer: User, rma: Return, sc: StoreCredit)(
+      implicit ec: EC,
+      au: AU): DbResultT[Unit] =
+    StoreCredits.update(sc, sc.copy(state = StoreCredit.Active)).meh
+
+  def cancelRefunds(rma: Return)(implicit ec: EC): DbResultT[Unit] =
+    for {
+      gc ← * <~ ReturnPayments.findOnHoldGiftCards(rma.id).one
+      _  ← * <~ gc.map(gc ⇒ GiftCards.update(gc, gc.copy(state = GiftCard.Canceled)))
+
+      sc ← * <~ ReturnPayments.findOnHoldStoreCredits(rma.id).one
+      _  ← * <~ sc.map(sc ⇒ StoreCredits.update(sc, sc.copy(state = StoreCredit.Canceled)))
+    } yield ()
 }

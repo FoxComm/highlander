@@ -1,9 +1,8 @@
 package models.returns
 
 import models.payment.PaymentMethod
-import models.payment.creditcard.{CreditCard, CreditCards}
-import models.payment.giftcard.GiftCard
-import models.payment.storecredit.StoreCredit
+import models.payment.giftcard.{GiftCard, GiftCards}
+import models.payment.storecredit.{StoreCredit, StoreCredits}
 import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils.Money._
@@ -48,14 +47,29 @@ class ReturnPayments(tag: Tag) extends FoxTable[ReturnPayment](tag, "return_paym
 object ReturnPayments
     extends FoxTableQuery[ReturnPayment, ReturnPayments](new ReturnPayments(_))
     with ReturningId[ReturnPayment, ReturnPayments] {
+  import scope._
 
   val returningLens: Lens[ReturnPayment, Int] = lens[ReturnPayment].id
 
   def findAllByReturnId(returnId: Int): QuerySeq =
     filter(_.returnId === returnId)
 
+  def findOnHoldGiftCards(returnId: Int): GiftCards.QuerySeq =
+    findAllByReturnId(returnId).giftCards
+      .join(GiftCards)
+      .on(_.paymentMethodId === _.id)
+      .map { case (_, gc) ⇒ gc }
+      .filter(_.state === (GiftCard.OnHold: GiftCard.State))
+
+  def findOnHoldStoreCredits(returnId: Int): StoreCredits.QuerySeq =
+    findAllByReturnId(returnId).storeCredits
+      .join(StoreCredits)
+      .on(_.paymentMethodId === _.id)
+      .map { case (_, sc) ⇒ sc }
+      .filter(_.state === (StoreCredit.OnHold: StoreCredit.State))
+
   object scope {
-    implicit class RmaPaymentsQuerySeqConversions(q: QuerySeq) {
+    implicit class RmaPaymentsQuerySeqConversions(private val q: QuerySeq) extends AnyVal {
       def giftCards: QuerySeq    = q.byType(PaymentMethod.GiftCard)
       def creditCards: QuerySeq  = q.byType(PaymentMethod.CreditCard)
       def storeCredits: QuerySeq = q.byType(PaymentMethod.StoreCredit)

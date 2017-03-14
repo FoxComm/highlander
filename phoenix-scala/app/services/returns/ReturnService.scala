@@ -30,9 +30,11 @@ object ReturnService {
       response ← * <~ ReturnResponse.fromRma(updated)
     } yield response
 
-  def updateStateByCsr(
-      refNum: String,
-      payload: ReturnUpdateStatePayload)(implicit ec: EC, db: DB, apis: Apis): DbResultT[Root] =
+  def updateStateByCsr(refNum: String, payload: ReturnUpdateStatePayload)(
+      implicit ec: EC,
+      db: DB,
+      au: AU,
+      apis: Apis): DbResultT[Root] =
     for {
       rma    ← * <~ Returns.mustFindByRefNum(refNum)
       _      ← * <~ rma.transitionState(payload.state)
@@ -47,11 +49,13 @@ object ReturnService {
   private def update(rma: Return, reason: Option[Reason], payload: ReturnUpdateStatePayload)(
       implicit ec: EC,
       db: DB,
+      au: AU,
       apis: Apis) =
     for {
       rma ← * <~ Returns
              .update(rma, rma.copy(state = payload.state, canceledReasonId = reason.map(_.id)))
       _ ← * <~ doOrMeh(rma.state == Return.Complete, ReturnPaymentUpdater.issueRefunds(rma))
+      _ ← * <~ doOrMeh(rma.state == Return.Canceled, ReturnPaymentUpdater.cancelRefunds(rma))
     } yield rma
 
   // todo should be available for non-admin as well
