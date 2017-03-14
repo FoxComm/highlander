@@ -7,6 +7,7 @@ import { createAsyncActions } from '@foxcomm/wings';
 import { updateCart, resetCart } from 'modules/cart';
 import { api as foxApi } from '../lib/api';
 import * as tracking from 'lib/analytics';
+import * as crossSell from 'lib/cross-sell';
 
 import type { Address } from 'types/address';
 import type { CreditCardType } from '../../pages/checkout/types';
@@ -339,14 +340,19 @@ const _checkout = createAsyncActions(
     const { dispatch, getState } = this;
     const cartState = getState().cart;
 
+    const customerId = _.get(cartState, ['customer', 'id'], -1)
+    const channelId = 1; //TODO: Where do we get channelId from?
+    const cartLineItemsSkus = _.get(cartState, ['lineItems', 'skus'], []);
+
     return foxApi.cart.checkout().then(res => {
       tracking.purchase({
         ...cartState,
         referenceNumber: res.referenceNumber,
       });
+      crossSell.train(customerId, channelId, cartLineItemsSkus);
       dispatch(orderPlaced(res));
       dispatch(resetCart());
-      return res;
+      return res
     });
   }
 );
