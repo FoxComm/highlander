@@ -1,0 +1,540 @@
+[
+  {
+    "slug": "donkey",
+    "attributes": {
+      "tags": {
+        "t": "tags",
+        "v": [
+          "eyeglasses",
+          "readers"
+        ]
+      },
+      "title": {
+        "t": "string",
+        "v": "Donkey"
+      },
+      "activeFrom": {
+        "t": "date",
+        "v": "2017-01-23T18:31:59.011Z"
+      },
+      "description": {
+        "t": "richText",
+        "v": "A styled fit for the donkey life."
+      }
+    },
+    "albums": [
+      {
+        "name": "Donkey",
+        "images": [
+          {
+            "src": "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Granger_Three_Quarter.jpg",
+            "title": "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Granger_Three_Quarter.jpg",
+            "alt": "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Granger_Three_Quarter.jpg"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "attributes": {
+          "code": {
+            "t": "string",
+            "v": "SKU-YAX"
+          },
+          "tags": {
+            "t": "tags",
+            "v": [
+              "eyeglasses",
+              "readers"
+            ]
+          },
+          "title": {
+            "t": "string",
+            "v": "Donkey"
+          },
+          "salePrice": {
+            "t": "price",
+            "v": {
+              "value": 3300,
+              "currency": "USD"
+            }
+          },
+          "activeFrom": {
+            "t": "date",
+            "v": "2017-01-23T18:31:59.044Z"
+          },
+          "retailPrice": {
+            "t": "price",
+            "v": {
+              "value": 3800,
+              "currency": "USD"
+            }
+          }
+        },
+        "albums": []
+      }
+    ],
+    "options": [],
+    "taxons": []
+  },
+  {
+    "slug": "shark",
+    "attributes": {
+      "tags": {
+        "t": "tags",
+        "v": [
+          "sunglasses",
+          "readers"
+        ]
+      },
+      "title": {
+        "t": "string",
+        "v": "Shark"
+      },
+      "activeFrom": {
+        "t": "date",
+        "v": "2017-01-23T18:31:59.020Z"
+      },
+      "description": {
+        "t": "richText",
+        "v": "Sharks come with balanced framing."
+      }
+    },
+    "albums": [
+      {
+        "name": "Shark",
+        "images": [
+          {
+            "src": "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Festival_Three_Quarter.jpg",
+            "title": "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Festival_Three_Quarter.jpg",
+            "alt": "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Festival_Three_Quarter.jpg"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "attributes": {
+          "code": {
+            "t": "string",
+            "v": "SKU-BRO"
+          },
+          "tags": {
+            "t": "tags",
+            "v": [
+              "sunglasses",
+              "readers"
+            ]
+          },
+          "title": {
+            "t": "string",
+            "v": "Shark"
+          },
+          "salePrice": {
+            "t": "price",
+            "v": {
+              "value": 0,
+              "currency": "USD"
+            }
+          },
+          "activeFrom": {
+            "t": "date",
+            "v": "2017-01-23T18:31:59.339Z"
+          },
+          "retailPrice": {
+            "t": "price",
+            "v": {
+              "value": 0,
+              "currency": "USD"
+            }
+          }
+        },
+        "albums": []
+      }
+    ],
+    "options": [],
+    "taxons": []
+  },
+  {
+    "slug": "sharkling",
+    "attributes": {
+      "tags": {
+        "t": "tags",
+        "v": [
+          "sunglasses"
+        ]
+      },
+      "title": {
+        "t": "string",
+        "v": "Sharkling"
+      },
+      "activeFrom": {
+        "t": "date",
+        "v": "2017-01-23T18:31:59.022Z"
+      },
+      "description": {
+        "t": "richText",
+        "v": "Designed for the beach."
+      }
+    },
+    "albums": [
+      {
+        "name": "Sharkling",
+        "images": [
+          {
+            "src": "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Gold_Blue_Three_Quarter.jpg",
+            "title": "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Gold_Blue_Three_Quarter.jpg",
+            "alt": "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Gold_Blue_Three_Quarter.jpg"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "attributes": {
+          "code": {
+            "t": "string",
+            "v": "SKU-ABC"
+          },
+          "tags": {
+            "t": "tags",
+            "v": [
+              "sunglasses"
+            ]
+          },
+          "title": {
+            "t": "string",
+            "v": "Sharkling"
+          },
+          "salePrice": {
+            "t": "price",
+            "v": {
+              "value": 4500,
+              "currency": "USD"
+            }
+          },
+          "activeFrom": {
+            "t": "date",
+            "v": "2017-01-23T18:31:59.461Z"
+          },
+          "retailPrice": {
+            "t": "price",
+            "v": {
+              "value": 5000,
+              "currency": "USD"
+            }
+          }
+        },
+        "albums": []
+      }
+    ],
+    "options": [],
+    "taxons": []
+  },
+  {
+    "slug": "duck",
+    "attributes": {
+      "tags": {
+        "t": "tags",
+        "v": [
+          "sunglasses"
+        ]
+      },
+      "title": {
+        "t": "string",
+        "v": "Duck"
+      },
+      "activeFrom": {
+        "t": "date",
+        "v": "2017-01-23T18:31:59.023Z"
+      },
+      "description": {
+        "t": "richText",
+        "v": "The yellow trim accentuates deep pond style."
+      }
+    },
+    "albums": [
+      {
+        "name": "Duck",
+        "images": [
+          {
+            "src": "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Emma_Top_Front.jpg",
+            "title": "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Emma_Top_Front.jpg",
+            "alt": "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Emma_Top_Front.jpg"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "attributes": {
+          "code": {
+            "t": "string",
+            "v": "SKU-SHH"
+          },
+          "tags": {
+            "t": "tags",
+            "v": [
+              "sunglasses"
+            ]
+          },
+          "title": {
+            "t": "string",
+            "v": "Duck"
+          },
+          "salePrice": {
+            "t": "price",
+            "v": {
+              "value": 1500,
+              "currency": "USD"
+            }
+          },
+          "activeFrom": {
+            "t": "date",
+            "v": "2017-01-23T18:31:59.544Z"
+          },
+          "retailPrice": {
+            "t": "price",
+            "v": {
+              "value": 2000,
+              "currency": "USD"
+            }
+          }
+        },
+        "albums": []
+      }
+    ],
+    "options": [],
+    "taxons": []
+  },
+  {
+    "slug": "duckling",
+    "attributes": {
+      "tags": {
+        "t": "tags",
+        "v": [
+          "sunglasses",
+          "readers"
+        ]
+      },
+      "title": {
+        "t": "string",
+        "v": "Duckling"
+      },
+      "activeFrom": {
+        "t": "date",
+        "v": "2017-01-23T18:31:59.025Z"
+      },
+      "description": {
+        "t": "richText",
+        "v": "A fit for a smaller face."
+      }
+    },
+    "albums": [
+      {
+        "name": "Duckling",
+        "images": [
+          {
+            "src": "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Marley_Top_Front.jpg",
+            "title": "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Marley_Top_Front.jpg",
+            "alt": "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Marley_Top_Front.jpg"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "attributes": {
+          "code": {
+            "t": "string",
+            "v": "SKU-ZYA"
+          },
+          "tags": {
+            "t": "tags",
+            "v": [
+              "sunglasses",
+              "readers"
+            ]
+          },
+          "title": {
+            "t": "string",
+            "v": "Duckling"
+          },
+          "salePrice": {
+            "t": "price",
+            "v": {
+              "value": 8800,
+              "currency": "USD"
+            }
+          },
+          "activeFrom": {
+            "t": "date",
+            "v": "2017-01-23T18:31:59.611Z"
+          },
+          "retailPrice": {
+            "t": "price",
+            "v": {
+              "value": 9300,
+              "currency": "USD"
+            }
+          }
+        },
+        "albums": []
+      }
+    ],
+    "options": [],
+    "taxons": []
+  },
+  {
+    "slug": "chicken",
+    "attributes": {
+      "tags": {
+        "t": "tags",
+        "v": [
+          "eyeglasses"
+        ]
+      },
+      "title": {
+        "t": "string",
+        "v": "Chicken"
+      },
+      "activeFrom": {
+        "t": "date",
+        "v": "2017-01-23T18:31:59.026Z"
+      },
+      "description": {
+        "t": "richText",
+        "v": "Cross the road in these with confidence."
+      }
+    },
+    "albums": [
+      {
+        "name": "Chicken",
+        "images": [
+          {
+            "src": "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Round_Readers_Top_Front.jpg",
+            "title": "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Round_Readers_Top_Front.jpg",
+            "alt": "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Round_Readers_Top_Front.jpg"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "attributes": {
+          "code": {
+            "t": "string",
+            "v": "SKU-MRP"
+          },
+          "tags": {
+            "t": "tags",
+            "v": [
+              "eyeglasses"
+            ]
+          },
+          "title": {
+            "t": "string",
+            "v": "Chicken"
+          },
+          "salePrice": {
+            "t": "price",
+            "v": {
+              "value": 7700,
+              "currency": "USD"
+            }
+          },
+          "activeFrom": {
+            "t": "date",
+            "v": "2017-01-23T18:31:59.678Z"
+          },
+          "retailPrice": {
+            "t": "price",
+            "v": {
+              "value": 8200,
+              "currency": "USD"
+            }
+          }
+        },
+        "albums": []
+      }
+    ],
+    "options": [],
+    "taxons": []
+  },
+  {
+    "slug": "fox",
+    "attributes": {
+      "tags": {
+        "t": "tags",
+        "v": [
+          "sunglasses"
+        ]
+      },
+      "title": {
+        "t": "string",
+        "v": "Fox"
+      },
+      "activeFrom": {
+        "t": "date",
+        "v": "2017-01-23T18:31:59.027Z"
+      },
+      "description": {
+        "t": "richText",
+        "v": "Stylish fit, stylish finish."
+      }
+    },
+    "albums": [
+      {
+        "name": "Fox",
+        "images": [
+          {
+            "src": "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Quay_Side.jpg",
+            "title": "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Quay_Side.jpg",
+            "alt": "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Quay_Side.jpg"
+          }
+        ]
+      }
+    ],
+    "variants": [
+      {
+        "attributes": {
+          "code": {
+            "t": "string",
+            "v": "SKU-TRL"
+          },
+          "tags": {
+            "t": "tags",
+            "v": [
+              "sunglasses"
+            ]
+          },
+          "title": {
+            "t": "string",
+            "v": "Fox"
+          },
+          "salePrice": {
+            "t": "price",
+            "v": {
+              "value": 10000,
+              "currency": "USD"
+            }
+          },
+          "activeFrom": {
+            "t": "date",
+            "v": "2017-01-23T18:31:59.766Z"
+          },
+          "retailPrice": {
+            "t": "price",
+            "v": {
+              "value": 10500,
+              "currency": "USD"
+            }
+          }
+        },
+        "albums": []
+      }
+    ],
+    "options": [],
+    "taxons": []
+  }
+]
