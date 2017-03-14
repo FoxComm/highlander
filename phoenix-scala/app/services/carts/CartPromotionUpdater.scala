@@ -93,7 +93,8 @@ object CartPromotionUpdater {
       all ← * <~ Promotions.filterByContext(ctx.id).autoApplied.result
       allWithAdjustments ← * <~ all.toList
                             .map(promo ⇒
-                                  getAdjustmentsForPromotion(cart, promo, true).map((promo, _)))
+                                  getAdjustmentsForPromotion(cart, promo, failFatally = true).map(
+                                      (promo, _)))
                             .ignoreFailures
                             .ensure(OrderHasNoPromotions.single)(_.nonEmpty)
       (bestPromo, bestAdjustments) = allWithAdjustments.maxBy {

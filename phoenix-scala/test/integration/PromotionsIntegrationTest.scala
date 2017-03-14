@@ -115,13 +115,13 @@ class PromotionsIntegrationTest
       val percentOffs = List.fill(11)(scala.util.Random.nextInt(100))
       val percentOff  = percentOffs.max
 
-      val promos = percentOffs.map(
-          percentOff ⇒
-            promotionsApi
-              .create(PromotionPayloadBuilder.build(Promotion.Auto,
-                                                    PromoOfferBuilder.CartPercentOff(percentOff),
-                                                    PromoQualifierBuilder.CartAny))
-              .as[PromotionResponse.Root])
+      val promos = percentOffs.map { percentOff ⇒
+        promotionsApi
+          .create(PromotionPayloadBuilder.build(Promotion.Auto,
+                                                PromoOfferBuilder.CartPercentOff(percentOff),
+                                                PromoQualifierBuilder.CartAny))
+          .as[PromotionResponse.Root]
+      }
 
       val refNum =
         cartsApi.create(CreateCart(email = customer.email)).as[CartResponse].referenceNumber

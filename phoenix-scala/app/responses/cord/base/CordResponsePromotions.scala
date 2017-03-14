@@ -68,7 +68,7 @@ object CordResponsePromotions {
                    .filterByContextAndShadowId(ctx.id, promotionShadowId)
                    .autoApplied
                    .mustFindOneOr(PromotionNotFound(promotionShadowId))
-      resp ← renderPromotionResponse(promotion)
+      resp ← * <~ renderPromotionResponse(promotion)
     } yield resp
 
   // TBD: Get discounts from cached field in `OrderPromotion` model
@@ -94,7 +94,7 @@ object CordResponsePromotions {
       // Illuminate
       theCoupon = IlluminatedCoupon.illuminate(ctx, coupon, couponForm, couponShadow)
       // Responses
-      respPromo ← renderPromotionResponse(promotion)
+      respPromo ← * <~ renderPromotionResponse(promotion)
       respCoupon     = CouponResponse.build(theCoupon, coupon)
       respCouponPair = CordResponseCouponPair(coupon = respCoupon, code = couponCode.code)
     } yield (respPromo, respCouponPair)
