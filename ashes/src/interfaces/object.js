@@ -51,4 +51,8 @@ export type ObjectProps<T, U> = {
   fetchState: AsyncState,
   saveState: AsyncState,
   archiveState: AsyncState,
+  listRoute?: {
+    name: string,
+    params: { [key: string]: string }
+  }
 };
