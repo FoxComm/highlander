@@ -5,6 +5,7 @@ import akka.http.scaladsl.server.Directive1
 import akka.http.scaladsl.server.directives.AuthenticationResult
 import akka.http.scaladsl.server.directives.BasicDirectives.provide
 import akka.http.scaladsl.server.directives.SecurityDirectives._
+
 import models.account._
 import models.auth.UserToken
 import org.scalatest.SuiteMixin

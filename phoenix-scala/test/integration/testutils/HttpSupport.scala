@@ -175,7 +175,9 @@ trait HttpSupport
     Uri(s"http://$host:$port/$path")
   }
 
-  def buildRequest[T <: AnyRef](method: HttpMethod, path: String, payload: Option[T] = None) = {
+  def buildRequest[T <: AnyRef](method: HttpMethod,
+                                path: String,
+                                payload: Option[T] = None): HttpRequest = {
     val entity = payload.fold(HttpEntity.Empty)(
         p ⇒
           HttpEntity.Strict(
@@ -210,24 +212,6 @@ trait HttpSupport
     response
   }
 
-  def runRequests(requests: Seq[HttpRequest]): HttpResponse = {
-    //  validResponseContentTypes check failing for /logout for some reason
-    def dispatchRequest(req: HttpRequest): HttpResponse =
-      Http().singleRequest(req, settings = connectionPoolSettings).futureValue
-
-    requests.foldLeft[HttpResponse](HttpResponse.apply(status = StatusCodes.OK))(
-        (cachedResponse: HttpResponse, request: HttpRequest) ⇒ {
-      val cachedHttpHeaders = cachedResponse.headers ++ request.headers
-
-      if (Seq(StatusCodes.OK, StatusCodes.Found) contains cachedResponse.status) {
-        val httpResponse = dispatchRequest(request.withHeaders(cachedHttpHeaders))
-        httpResponse.withHeaders(httpResponse.headers ++ cachedHttpHeaders)
-      } else {
-        cachedResponse
-      }
-    })
-  }
-
   lazy final val connectionPoolSettings: ConnectionPoolSettings = ConnectionPoolSettings
     .default(implicitly[ActorSystem])
     .withMaxConnections(32)
@@ -258,13 +242,5 @@ trait HttpSupport
 
     def probe(source: Source[String, Any]): Probe[String] =
       source.runWith(TestSink.probe[String])
-  }
-
-  implicit class RichHttpRequest(request: HttpRequest) {
-    def run: HttpResponse = dispatchRequest(request)
-  }
-
-  implicit class RichHttpRequests(rr: Seq[HttpRequest]) {
-    def run: HttpResponse = runRequests(rr)
   }
 }
