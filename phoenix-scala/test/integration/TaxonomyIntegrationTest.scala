@@ -42,19 +42,19 @@ class TaxonomyIntegrationTest
       response.attributes must === (JObject(taxonomyAttributes.toList: _*))
     }
 
-//    "gets full hierarchy" in new HierarchyTaxonsFixture {
-//      val response = queryGetTaxonomy(taxonomy.formId)
-//
-//      response.id must === (taxonomy.formId)
-//
-//      response.taxons.map((_.taxon.attributes \ "name" \ "v").extract[String]) must === (
-//          Seq("taxon1", "taxon2"))
-//      response.taxons.head.childrenAsList
-//        .map((_.taxon.attributes \ "name" \ "v").extract[String]) must === (
-//          Seq("taxon3", "taxon4"))
-//      response.taxons.head.childrenAsList.head.childrenAsList
-//        .map((_.taxon.attributes \ "name" \ "v").extract[String]) must === (Seq("taxon7"))
-//    }
+    "gets full hierarchy" in new HierarchyTaxonsFixture {
+      val response = queryGetTaxonomy(taxonomy.formId)
+
+      response.id must === (taxonomy.formId)
+
+      response.taxons.map(tree ⇒ (tree.taxon.attributes \ "name" \ "v").extract[String]) must === (
+          Seq("taxon1", "taxon2"))
+      response.taxons.head.childrenAsList.map(tree ⇒
+            (tree.taxon.attributes \ "name" \ "v").extract[String]) must === (
+          Seq("taxon3", "taxon4"))
+      response.taxons.head.childrenAsList.head.childrenAsList.map(tree ⇒
+            (tree.taxon.attributes \ "name" \ "v").extract[String]) must === (Seq("taxon7"))
+    }
   }
 
   "POST v1/taxonomies/:contextName" - {
@@ -111,8 +111,9 @@ class TaxonomyIntegrationTest
   }
 
   "POST v1/taxonomies/:contextName/:taxonomyFormId/taxons" - {
-    "creates taxon" in new FlatTaxonsFixture {
+    "creates taxon" in new TaxonomyFixture {
       private val taxonName: String = "name"
+      private val taxonAttributes = Map("name" → (("t" → "string") ~ ("v" → "name")))
 
       val response = taxonomiesApi(taxonomy.formId)
         .createTaxon(CreateTaxonPayload(taxonAttributes, None))
@@ -197,8 +198,7 @@ class TaxonomyIntegrationTest
       val newParentId       = right.taxon.id
 
       val resp = taxonsApi(taxonToMoveId).update(
-          UpdateTaxonPayload(right.taxon.attributes.asInstanceOf[Map[String, Json]],
-                             TaxonLocation(newParentId.some, Some(0)).some))
+          UpdateTaxonPayload(Map(), TaxonLocation(newParentId.some, Some(0)).some))
       resp.status must === (StatusCodes.OK)
 
       val taxonsAfter = queryGetTaxonomy(taxonomy.formId).taxons
@@ -218,8 +218,7 @@ class TaxonomyIntegrationTest
       val taxonToMoveId = left.taxon.id
 
       val resp = taxonsApi(taxonToMoveId).update(
-          UpdateTaxonPayload(left.taxon.attributes.asInstanceOf[Map[String, Json]],
-                             TaxonLocation(newParentId.some, Some(0)).some))
+          UpdateTaxonPayload(Map(), TaxonLocation(newParentId.some, Some(0)).some))
       resp.status must === (StatusCodes.BadRequest)
       resp.error must === (CannotMoveParentTaxonUnderChild.description)
     }
