@@ -1,4 +1,4 @@
-package consumers
+package http
 
 import (
 	"bytes"
@@ -9,6 +9,10 @@ import (
 
 	"github.com/FoxComm/highlander/middlewarehouse/common/utils"
 )
+
+func Delete(url string, headers map[string]string) (*http.Response, error) {
+	return request("DELETE", url, headers, nil)
+}
 
 func Get(url string, headers map[string]string) (*http.Response, error) {
 	return request("GET", url, headers, nil)
@@ -22,20 +26,28 @@ func Patch(url string, headers map[string]string, payload interface{}) (*http.Re
 	return request("PATCH", url, headers, payload)
 }
 
-func request(method string, url string, headers map[string]string, payload interface{}) (*http.Response, error) {
-	if method != "POST" && method != "PATCH" && method != "GET" {
-		return nil, fmt.Errorf("Invalid method %s. Only GET, POST and PATCH are currently supported", method)
-	}
+func Put(url string, headers map[string]string, payload interface{}) (*http.Response, error) {
+	return request("PUT", url, headers, payload)
+}
 
+func request(method string, url string, headers map[string]string, payload interface{}) (*http.Response, error) {
 	var req *http.Request
 	var err error
-	if method == "GET" {
+	if method == "GET" || method == "DELETE" {
 		req, err = http.NewRequest(method, url, nil)
 	} else {
-		payloadBytes := []byte{}
-		payloadBytes, err = json.Marshal(&payload)
-		if err != nil {
-			return nil, fmt.Errorf("Unable to marshal payload: %s", err.Error())
+		var payloadBytes []byte
+		// determine payload
+		switch v := payload.(type) {
+		case string:
+			payloadBytes = []byte(v)
+		case []byte:
+			payloadBytes = v
+		case interface{}:
+			payloadBytes, err = json.Marshal(&v)
+			if err != nil {
+				return nil, fmt.Errorf("Unable to marshal payload: %s", err.Error())
+			}
 		}
 
 		log.Printf("HTTP --> %s %s %s", method, url, utils.SanitizePassword(payloadBytes))

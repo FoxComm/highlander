@@ -187,7 +187,9 @@ object ProductManager extends LazyLogging {
   def archiveByContextAndId(productId: ProductReference)(
       implicit ec: EC,
       db: DB,
-      oc: OC): DbResultT[ProductResponse.Root] = {
+      oc: OC,
+      ac: AC,
+      au: AU): DbResultT[ProductResponse.Root] = {
     val payload = Map("activeFrom" → (("v" → JNull) ~ ("type" → JString("datetime"))),
                       "activeTo" → (("v" → JNull) ~ ("type" → JString("datetime"))))
 
@@ -235,8 +237,7 @@ object ProductManager extends LazyLogging {
       variantAndSkus  ← * <~ getVariantsWithRelatedSkus(variants)
       (variantSkus, variantResponses) = variantAndSkus
       taxons ← * <~ TaxonomyManager.getAssignedTaxons(productObject.model)
-    } yield
-      ProductResponse.build(
+      response = ProductResponse.build(
           product =
             IlluminatedProduct.illuminate(oc, archiveResult, inactive.form, inactive.shadow),
           albums = albums,
@@ -244,6 +245,10 @@ object ProductManager extends LazyLogging {
           variantResponses,
           taxons
       )
+      _ ← * <~ LogActivity
+           .fullProductArchived(Some(au.model), response, ObjectContextResponse.build(oc))
+    } yield response
+
   }
 
   private def getVariantsWithRelatedSkus(variants: Seq[FullVariant])(

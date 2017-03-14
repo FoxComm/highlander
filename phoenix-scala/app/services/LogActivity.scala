@@ -492,6 +492,12 @@ object LogActivity {
       context: ObjectContextResponse.Root)(implicit ec: EC, ac: AC): DbResultT[Activity] =
     Activities.log(FullProductUpdated(admin.map(buildUser), product, context))
 
+  def fullProductArchived(
+      admin: Option[User],
+      product: ProductResponse.Root,
+      context: ObjectContextResponse.Root)(implicit ec: EC, ac: AC): DbResultT[Activity] =
+    Activities.log(FullProductArchived(admin.map(buildUser), product, context))
+
   /* SKUs */
   def fullSkuCreated(
       admin: Option[User],

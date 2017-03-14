@@ -19,6 +19,11 @@ ashes/public_key.pem
 *.log
 
 # target folder
+target/
+
+# Consumers
+consumers/product-index/product-index-consumer
+consumers/product-index/vendor/
 middlewarehouse/consumers/shipstation/shipstation-consumer
 
 # goldrush files

@@ -112,6 +112,7 @@ class Service(
         routes.admin.ObjectRoutes.routes ~
         routes.admin.PluginRoutes.routes ~
         routes.admin.TaxonomyRoutes.routes ~
+        routes.admin.SearchRoutes.routes ~
         routes.service.PaymentRoutes.routes ~ //Migrate this to auth with service tokens once we have them
         routes.service.MigrationRoutes.routes(customerCreateContext)
       }

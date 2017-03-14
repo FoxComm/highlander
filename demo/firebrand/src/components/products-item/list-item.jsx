@@ -27,7 +27,8 @@ type Product = {
   description: string,
   salePrice: string,
   currency: string,
-  albums: ?Array<Album>,
+  albums?: ?Array<Album>,
+  image?: string,
 };
 
 class ListItem extends React.Component {
@@ -35,7 +36,7 @@ class ListItem extends React.Component {
 
   render(): HTMLElement {
     const {productId, title, albums, salePrice, currency} = this.props;
-    const previewImage = _.get(albums, [0, 'images', 0, 'src']);
+    const previewImage = this.props.image;
 
     const image = previewImage
       ? <img src={previewImage} styleName="preview-image" />

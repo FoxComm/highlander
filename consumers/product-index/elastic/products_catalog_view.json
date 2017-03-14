@@ -1,0 +1,62 @@
+{
+  "properties": {
+    "context": {
+      "type": "string",
+      "index": "not_analyzed"
+    },
+    "skus": {
+      "type": "nested",
+      "properties": {
+        "skuId": {
+          "type": "integer"
+        },
+        "code": {
+          "type": "string",
+          "index": "not_analyzed"
+        }
+      }
+    },
+    "variants": {
+      "type": "nested",
+      "properties": {
+        "variantId": {
+          "type": "integer"
+        },
+        "variantName": {
+          "type": "string",
+          "index": "not_analyzed"
+        },
+        "variantValueId": {
+          "type": "integer"
+        },
+        "variantValueName": {
+          "type": "string",
+          "index": "not_analyzed"
+        }
+      }
+    },
+    "title": {
+      "type": "string",
+      "analyzer": "autocomplete"
+    },
+    "description": {
+      "type": "string",
+      "analyzer": "autocomplete"
+    },
+    "image": {
+      "type": "string",
+      "index": "not_analyzed"
+    },
+    "salePrice": {
+      "type": "integer"
+    },
+    "currency": {
+      "type": "string",
+      "index": "not_analyzed"
+    },
+    "tags": {
+      "type": "string",
+      "index": "not_analyzed"
+    }
+  }
+}

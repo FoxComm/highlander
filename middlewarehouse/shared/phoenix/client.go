@@ -7,9 +7,8 @@ import (
 	"log"
 	"net/http"
 	"time"
-
+	foxhttp "github.com/FoxComm/highlander/shared/golang/http"
 	mwhPayloads "github.com/FoxComm/highlander/middlewarehouse/api/payloads"
-	"github.com/FoxComm/highlander/middlewarehouse/consumers"
 	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix/responses"
 )
@@ -58,7 +57,7 @@ func (c *phoenixClient) Authenticate() error {
 	url := fmt.Sprintf("%s/v1/public/login", c.baseURL)
 	headers := map[string]string{}
 
-	resp, err := consumers.Post(url, headers, &payload)
+	resp, err := foxhttp.Post(url, headers, &payload)
 	if err != nil {
 		return fmt.Errorf("Unable to login: %s", err.Error())
 	}
@@ -125,7 +124,7 @@ func (c *phoenixClient) CapturePayment(capturePayload *payloads.CapturePayload) 
 		"JWT": c.jwt,
 	}
 
-	rawCaptureResp, err := consumers.Post(url, headers, &capturePayload)
+	rawCaptureResp, err := foxhttp.Post(url, headers, &capturePayload)
 	if err != nil {
 		return err
 	}
@@ -157,7 +156,7 @@ func (c *phoenixClient) CreateGiftCards(giftCards []mwhPayloads.CreateGiftCardPa
 	headers := map[string]string{
 		"JWT": c.jwt,
 	}
-	return consumers.Post(url, headers, &giftCards)
+	return foxhttp.Post(url, headers, &giftCards)
 }
 
 // GetOrder
@@ -171,7 +170,7 @@ func (c *phoenixClient) GetOrder(refNum string) (*mwhPayloads.OrderResult, error
 		"JWT": c.jwt,
 	}
 
-	rawOrderResp, err := consumers.Get(url, headers)
+	rawOrderResp, err := foxhttp.Get(url, headers)
 	if err != nil {
 		return nil, err
 	}
@@ -198,7 +197,7 @@ func (c *phoenixClient) GetOrderForShipstation(refNum string) (*http.Response, e
 		"JWT": c.jwt,
 	}
 
-	return consumers.Get(url, headers)
+	return foxhttp.Get(url, headers)
 }
 
 // UpdateOrder
@@ -217,7 +216,7 @@ func (c *phoenixClient) UpdateOrder(refNum, shipmentState, orderState string) er
 		"JWT": c.jwt,
 	}
 
-	rawOrderResp, err := consumers.Patch(url, headers, &payload)
+	rawOrderResp, err := foxhttp.Patch(url, headers, &payload)
 	if err != nil {
 		return err
 	}
@@ -244,7 +243,7 @@ func (c *phoenixClient) UpdateOrderLineItems(updatePayload []mwhPayloads.UpdateO
 		"JWT": c.jwt,
 	}
 
-	rawOrderResp, err := consumers.Patch(url, headers, &updatePayload)
+	rawOrderResp, err := foxhttp.Patch(url, headers, &updatePayload)
 	if err != nil {
 		return err
 	}
