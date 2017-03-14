@@ -33,11 +33,16 @@ object CordResponsePromotions {
       ec: EC,
       ctx: OC): DbResultT[Option[CordResponsePromoDetails]] = {
     // FIXME: how to compose this better without laziness? This is awful. :/ @michalrus
-    val coupon = orderPromo.traverseM(
-        _.couponCodeId.traverse(x ⇒ fetchCoupon(x).map { case (a, b) ⇒ (a, Some(b)) }))
-    lazy val auto = orderPromo.traverse(x ⇒
-          fetchAutoApply(x.promotionShadowId).map((_, Option.empty[CordResponseCouponPair])))
-    coupon.flatMap(_.fold(auto)(x ⇒ DbResultT.pure(x.some)))
+    val coupon    = orderPromo.traverseM(_.couponCodeId.traverse(fetchCoupon))
+    lazy val auto = orderPromo.traverse(x ⇒ fetchAutoApply(x.promotionShadowId))
+    lazyOrElse(fa = coupon.map(_.map { case (a, b) ⇒ (a, b.some) }),
+               fb = auto.map(_.map((_, none))))
+  }
+
+  /** Try `fa` and if it’s `None`, evaluate and fallback to `fb`. Basically, `Option#orElse` lifted to `DbResultT`. */
+  private def lazyOrElse[A](fa: DbResultT[Option[A]], fb: ⇒ DbResultT[Option[A]])(
+      implicit ec: EC): DbResultT[Option[A]] = {
+    fa.flatMap(_.map(a ⇒ DbResultT.pure(a.some)).getOrElse(fb))
   }
 
   private def renderPromotionResponse(
@@ -59,7 +64,6 @@ object CordResponsePromotions {
                                                      db: DB,
                                                      ctx: OC): DbResultT[PromotionResponse.Root] =
     for {
-      // Promotion
       promotion ← * <~ Promotions
                    .filterByContextAndShadowId(ctx.id, promotionShadowId)
                    .autoApplied
