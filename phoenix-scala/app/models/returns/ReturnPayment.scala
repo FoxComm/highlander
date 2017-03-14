@@ -7,7 +7,6 @@ import models.payment.storecredit.StoreCredit
 import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils.Money._
-import utils.aliases.stripe._
 import utils.db._
 
 case class ReturnPayment(id: Int = 0,
@@ -16,40 +15,19 @@ case class ReturnPayment(id: Int = 0,
                          currency: Currency = Currency.USD,
                          paymentMethodId: Int,
                          paymentMethodType: PaymentMethod.Type)
-    extends FoxModel[ReturnPayment] {
-
-  def isCreditCard: Boolean  = paymentMethodType == PaymentMethod.CreditCard
-  def isGiftCard: Boolean    = paymentMethodType == PaymentMethod.GiftCard
-  def isStoreCredit: Boolean = paymentMethodType == PaymentMethod.StoreCredit
-}
+    extends FoxModel[ReturnPayment]
 
 object ReturnPayment {
-  def fromStripeCustomer(stripeCustomer: StripeCustomer, rma: Return): ReturnPayment =
-    ReturnPayment(returnId = rma.id,
-                  paymentMethodId = 1,
-                  paymentMethodType = PaymentMethod.CreditCard)
-
-  def build(method: PaymentMethod, returnId: Int, amount: Int, currency: Currency): ReturnPayment =
-    method match {
-      case gc: GiftCard ⇒
-        ReturnPayment(returnId = returnId,
-                      amount = amount,
-                      currency = currency,
-                      paymentMethodId = gc.id,
-                      paymentMethodType = PaymentMethod.GiftCard)
-      case cc: CreditCard ⇒
-        ReturnPayment(returnId = returnId,
-                      amount = amount,
-                      currency = currency,
-                      paymentMethodId = cc.id,
-                      paymentMethodType = PaymentMethod.CreditCard)
-      case sc: StoreCredit ⇒
-        ReturnPayment(returnId = returnId,
-                      amount = amount,
-                      currency = currency,
-                      paymentMethodId = sc.id,
-                      paymentMethodType = PaymentMethod.StoreCredit)
-    }
+  def build(method: PaymentMethod.Type,
+            methodId: Int,
+            returnId: Int,
+            amount: Int,
+            currency: Currency): ReturnPayment =
+    ReturnPayment(returnId = returnId,
+                  amount = amount,
+                  currency = currency,
+                  paymentMethodId = methodId,
+                  paymentMethodType = method)
 }
 
 class ReturnPayments(tag: Tag) extends FoxTable[ReturnPayment](tag, "return_payments") {

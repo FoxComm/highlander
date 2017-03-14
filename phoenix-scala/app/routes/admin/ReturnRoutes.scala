@@ -11,13 +11,14 @@ import payloads.ReturnPayloads._
 import services.returns._
 import services.Authenticator.AuthData
 import utils.aliases._
+import utils.apis.Apis
 import utils.http.CustomDirectives._
 import utils.http.Http._
 
 object ReturnRoutes {
   val PaymentMethodMatcher = PathMatcher(PaymentMethod.Type.typeMap)
 
-  def routes(implicit ec: EC, db: DB, auth: AuthData[User]): Route = {
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis): Route = {
 
     activityContext(auth.model) { implicit ac ⇒
       determineObjectContext(db, ec) { implicit productContext ⇒

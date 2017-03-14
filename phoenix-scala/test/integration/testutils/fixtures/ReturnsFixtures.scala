@@ -98,6 +98,23 @@ trait ReturnsFixtures
         implicit sl: SL,
         sf: SF): ReturnResponse.Root =
       returnsApi.create(ReturnCreatePayload(orderRef, returnType)).as[ReturnResponse.Root]
+
+    def updateReturnState(refNum: String, returnState: Return.State, reasonId: Option[Int] = None)(
+        implicit sl: SL,
+        sf: SF): ReturnResponse.Root =
+      returnsApi(refNum)
+        .update(ReturnUpdateStatePayload(returnState, reasonId))
+        .as[ReturnResponse.Root]
+
+    def completeReturn(refNum: String)(implicit sl: SL, sf: SF) = {
+      val happyPath = List(Return.Pending, Return.Processing, Return.Review, Return.Complete)
+      val current   = returnsApi(refNum).get().as[ReturnResponse.Root]
+
+      happyPath
+        .dropWhile(_ != current.state)
+        .drop(1)
+        .foldLeft(current)((_, state) ⇒ updateReturnState(refNum = refNum, returnState = state))
+    }
   }
 
   trait ReturnDefaults extends ReturnFixture with OrderDefaults {

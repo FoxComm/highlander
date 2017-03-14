@@ -1,10 +1,8 @@
 package utils.apis
 
 import java.util.concurrent.Executors
-
 import scala.collection.JavaConversions._
 import scala.concurrent.{ExecutionContext, Future, blocking}
-
 import cats.data.Xor
 import cats.implicits._
 import com.stripe.exception.{CardException, StripeException}
@@ -65,6 +63,14 @@ class StripeWrapper extends StripeApiWrapper with LazyLogging {
     inBlockingPool(StripeCharge.retrieve(chargeId))
   }
 
+  def refundCharge(chargeId: String, options: Map[String, AnyRef]): Result[StripeCharge] = {
+    logger.info(s"Refund charge, id: $chargeId, options: $options")
+    for {
+      charge ← getCharge(chargeId)
+      refund ← inBlockingPool(charge.refund(mapAsJavaMap(options)))
+    } yield refund
+  }
+
   def captureCharge(chargeId: String, options: Map[String, AnyRef]): Result[StripeCharge] = {
     logger.info(s"Capture charge, id: $chargeId, options: $options")
     for {
@@ -107,7 +113,7 @@ class StripeWrapper extends StripeApiWrapper with LazyLogging {
   // param: ⇒ A makes method param "lazy". Do not remove!
   @inline protected[utils] final def inBlockingPool[A <: AnyRef](action: ⇒ A): Result[A] = {
     // TODO: don’t we need to catch Future (and DBIO) failures like that in general? Also handling ExecutionException. See dispatch.EnrichedFuture#either @michalrus
-    val f = Future(Xor.right(blocking(action))).recover {
+    val f = Future(Xor.right(action)).recover {
       case t: CardException if cardExceptionMap.contains(t.getCode) ⇒
         Xor.left(cardExceptionMap(t.getCode).single)
       case t: StripeException ⇒

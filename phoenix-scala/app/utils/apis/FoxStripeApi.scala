@@ -4,7 +4,6 @@ import com.stripe.model.DeletedCard
 import models.location.Address
 import models.payment.creditcard.CreditCard
 import payloads.PaymentPayloads.CreateCreditCardFromSourcePayload
-import services._
 import utils.Money._
 import utils.aliases._
 import utils.aliases.stripe._
@@ -33,8 +32,17 @@ trait FoxStripeApi {
 
   def captureCharge(chargeId: String, amount: Int): Result[StripeCharge]
 
+  def authorizeRefund(chargeId: String, amount: Int, reason: RefundReason): Result[StripeCharge]
+
   def editCard(cc: CreditCard): Result[StripeCard]
 
   def deleteCard(cc: CreditCard): Result[DeletedCard]
 
+}
+
+sealed abstract class RefundReason(val apiValue: String)
+object RefundReason {
+  case object Duplicate           extends RefundReason("duplicate")
+  case object Fraudulent          extends RefundReason("fraudulent")
+  case object RequestedByCustomer extends RefundReason("requested_by_customer")
 }

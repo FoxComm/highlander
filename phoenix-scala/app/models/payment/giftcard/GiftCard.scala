@@ -200,19 +200,6 @@ object GiftCard {
     )
   }
 
-  def buildRmaProcess(originId: Int, currency: Currency)(implicit au: AU): GiftCard = {
-    GiftCard(
-        scope = Scope.current,
-        originId = originId,
-        originType = GiftCard.RmaProcess,
-        state = GiftCard.Cart,
-        currency = currency,
-        originalBalance = 0,
-        availableBalance = 0,
-        currentBalance = 0
-    )
-  }
-
   def validateStateReason(state: State, reason: Option[Int]): ValidatedNel[Failure, Unit] = {
     if (state == Canceled) {
       validExpr(reason.isDefined, EmptyCancellationReasonFailure.description)

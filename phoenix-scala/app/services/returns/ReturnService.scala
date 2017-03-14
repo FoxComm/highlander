@@ -14,6 +14,7 @@ import responses.ReturnResponse._
 import responses.{CustomerResponse, ReturnResponse, StoreAdminResponse}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
+import utils.apis.Apis
 import utils.db._
 
 object ReturnService {
@@ -22,16 +23,16 @@ object ReturnService {
       implicit ec: EC,
       db: DB): DbResultT[Root] =
     for {
-      rma ← * <~ Returns.mustFindPendingByRefNum404(refNum)
+      rma ← * <~ Returns.mustFindActiveByRefNum404(refNum)
       newMessage = if (payload.message.length > 0) Some(payload.message) else None
       update   ← * <~ Returns.update(rma, rma.copy(messageToAccount = newMessage))
       updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(updated)
     } yield response
 
-  def updateStateByCsr(refNum: String, payload: ReturnUpdateStatePayload)(
-      implicit ec: EC,
-      db: DB): DbResultT[Root] =
+  def updateStateByCsr(
+      refNum: String,
+      payload: ReturnUpdateStatePayload)(implicit ec: EC, db: DB, apis: Apis): DbResultT[Root] =
     for {
       rma    ← * <~ Returns.mustFindByRefNum(refNum)
       _      ← * <~ rma.transitionState(payload.state)
@@ -44,9 +45,14 @@ object ReturnService {
     } yield response
 
   private def update(rma: Return, reason: Option[Reason], payload: ReturnUpdateStatePayload)(
-      implicit ec: EC) = {
-    Returns.update(rma, rma.copy(state = payload.state, canceledReasonId = reason.map(_.id)))
-  }
+      implicit ec: EC,
+      db: DB,
+      apis: Apis) =
+    for {
+      rma ← * <~ Returns
+             .update(rma, rma.copy(state = payload.state, canceledReasonId = reason.map(_.id)))
+      _ ← * <~ doOrMeh(rma.state == Return.Complete, ReturnPaymentUpdater.issueRefunds(rma))
+    } yield rma
 
   // todo should be available for non-admin as well
   def createByAdmin(admin: User, payload: ReturnCreatePayload)(implicit ec: EC,

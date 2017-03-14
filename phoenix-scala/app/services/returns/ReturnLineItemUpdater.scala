@@ -19,7 +19,7 @@ object ReturnLineItemUpdater {
       db: DB,
       oc: OC): DbResultT[ReturnResponse.Root] =
     for {
-      rma ← * <~ Returns.mustFindPendingByRefNum404(refNum)
+      rma ← * <~ Returns.mustFindActiveByRefNum404(refNum)
       reason ← * <~ ReturnReasons
                 .filter(_.id === payload.reasonId)
                 .mustFindOneOr(ReturnReasonNotFoundFailure(payload.reasonId))
@@ -50,10 +50,11 @@ object ReturnLineItemUpdater {
     for {
       order ← * <~ Orders.mustFindByRefNum(rma.orderRef)
       orderShippingTotal = order.shippingTotal
-      previouslyReturnedCost ← * <~ ReturnLineItemShippingCosts
-                                .findByOrderRef(rma.orderRef)
-                                .filter(_.returnId =!= rma.id)
-                                .map(_.amount)
+      previouslyReturnedCost ← * <~ Returns
+                                .findPrevious(rma)
+                                .join(ReturnLineItemShippingCosts)
+                                .on(_.id === _.returnId)
+                                .map { case (_, shippingCost) ⇒ shippingCost.amount }
                                 .sum
                                 .getOrElse(0)
                                 .result
@@ -93,7 +94,7 @@ object ReturnLineItemUpdater {
   def deleteLineItem(refNum: String, lineItemId: Int)(implicit ec: EC,
                                                       db: DB): DbResultT[ReturnResponse.Root] =
     for {
-      rma      ← * <~ Returns.mustFindPendingByRefNum404(refNum)
+      rma      ← * <~ Returns.mustFindActiveByRefNum404(refNum)
       li       ← * <~ ReturnLineItems.mustFindById404(lineItemId)
       _        ← * <~ processDeleteLineItem(li, li.originType)
       _        ← * <~ ReturnLineItems.filter(_.id === lineItemId).deleteAll

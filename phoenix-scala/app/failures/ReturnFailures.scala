@@ -1,6 +1,7 @@
 package failures
 
-import models.returns.{Return, ReturnReason}
+import models.returns.ReturnReason
+import utils.Money.Currency
 import utils.friendlyClassName
 
 object ReturnFailures {
@@ -34,8 +35,22 @@ object ReturnFailures {
       s"Returned payment ($amount) cannot be greater than $maxAmount for return $refNum"
   }
 
-  case class ReturnCCPaymentExceeded(refNum: String, amount: Int, maxAmount: Int) extends Failure {
+  case class ReturnCcPaymentExceeded(refNum: String, amount: Int, maxAmount: Int) extends Failure {
     def description: String =
       s"Returned credit card payment ($amount) cannot be greater than $maxAmount for return $refNum"
+  }
+
+  case class ReturnCcPaymentCurrencyMismatch(refNum: String,
+                                             expected: Currency,
+                                             actual: List[Currency])
+      extends Failure {
+    def description: String =
+      "Cannot have return for order with more than one currency. " +
+        s"Expected $expected, but got: ${actual.mkString(", ")}"
+  }
+
+  case class ReturnCcPaymentViolation(refNum: String, issued: Int, allowed: Int) extends Failure {
+    def description: String =
+      s"Issued credit card payment ($issued) is different than $allowed for return $refNum"
   }
 }
