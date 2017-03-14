@@ -8,7 +8,7 @@ import classNames from 'classnames';
 
 import localized from 'lib/i18n';
 
-import TextInputWithLabel from 'ui/text-input-with-label/text-input-with-label';
+import TextInput from 'ui/text-input/text-input';
 
 type State = {
   isShown: boolean
@@ -56,7 +56,7 @@ class ShowHidePassword extends Component {
     const inputType = this.state.isShown ? 'text' : 'password';
 
     return (
-      <TextInputWithLabel
+      <TextInput
         {...inputProps}
         type={inputType}
         label={this.showLink}

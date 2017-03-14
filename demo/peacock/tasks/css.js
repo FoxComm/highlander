@@ -9,12 +9,13 @@ module.exports = function(gulp, $) {
     'public/css/reset.css',
     'public/css/inputs.css',
     'node_modules/@foxcomm/wings/lib/bundle.css',
+    'public/common.css',
     'build/bundle.css',
     'node_modules/slick-carousel/slick/slick.css',
     'node_modules/slick-carousel/slick/slick-theme.css',
   ];
 
-  gulp.task('css', function() {
+  gulp.task('css', ['css.common'], () => {
     return gulp.src(src)
       .pipe($.concat('app.css'))
       .pipe(_if(process.env.NODE_ENV === 'production', cssnano()))
@@ -25,5 +26,24 @@ module.exports = function(gulp, $) {
 
   gulp.task('css.watch', function() {
     gulp.watch(src, ['css']);
+  });
+
+  const commonSrc = [
+    'src/css/common/*.css',
+  ];
+
+  gulp.task('css.common', () => {
+    const postcss = require('gulp-postcss');
+    const { plugins } = require('../src/postcss.config');
+
+    return gulp.src(commonSrc)
+      .pipe(postcss(plugins))
+      .pipe($.concat('common.css'))
+      .pipe(_if(process.env.NODE_ENV === 'production', cssnano()))
+      .pipe(gulp.dest('public'))
+  });
+
+  gulp.task('css.common.watch', function() {
+    gulp.watch(src, ['css.common']);
   });
 };

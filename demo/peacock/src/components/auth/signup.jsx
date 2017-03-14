@@ -17,7 +17,7 @@ import TextInput from 'ui/text-input/text-input';
 import ShowHidePassword from 'ui/forms/show-hide-password';
 import { FormField, Form } from 'ui/forms';
 import Button from 'ui/buttons';
-import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
+import ErrorAlerts from 'ui/alerts/error-alerts';
 
 import * as actions from 'modules/auth';
 import { authBlockTypes } from 'paragons/auth';
@@ -162,7 +162,7 @@ class Signup extends Component {
         {this.topMessage}
         <Form onSubmit={this.submitUser}>
           <div styleName="inputs-body">
-            <ErrorAlerts errors={this.state.generalErrors} errors={["Something went wrong"]} />
+            <ErrorAlerts errors={this.state.generalErrors} />
             <FormField key="username" styleName="form-field" error={usernameError}>
               <TextInput
                 pos="t"
