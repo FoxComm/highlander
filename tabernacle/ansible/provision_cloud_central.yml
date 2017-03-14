@@ -1,0 +1,9 @@
+---
+
+- name: Provision Cloud Central
+  hosts: cloud-central
+  become: true
+  vars:
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+  roles:
+    - { role: cloud/webhook }

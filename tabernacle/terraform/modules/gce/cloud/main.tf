@@ -14,8 +14,8 @@ variable "dnsimple_email" {}
 
 resource "google_compute_instance" "agent" {
   name         = "${var.instance_name}"
-  machine_type = "n1-standard-4"
-  tags         = ["no-ip", "${var.instance_name}"]
+  machine_type = "n1-standard-2"
+  tags         = ["${var.instance_name}", "http-server", "https-server"]
   zone         = "us-central1-a"
 
   disk {
@@ -26,6 +26,8 @@ resource "google_compute_instance" "agent" {
 
   network_interface {
     network = "default"
+
+    access_config {}
   }
 
   connection {
@@ -36,7 +38,7 @@ resource "google_compute_instance" "agent" {
 
   provisioner "remote-exec" {
     inline = [
-      "sudo systemctl restart buildkite-agent",
+      "sudo systemctl stop buildkite-agent",
     ]
   }
 }
@@ -52,7 +54,7 @@ provider "dnsimple" {
 resource "dnsimple_record" "agent-dns-record" {
   domain = "foxcommerce.com"
   name   = "${var.dns_record}"
-  value  = "${google_compute_instance.agent.0.network_interface.0.address}"
+  value  = "${google_compute_instance.agent.0.network_interface.0.access_config.0.assigned_nat_ip}"
   type   = "A"
   ttl    = 3600
 }
