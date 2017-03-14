@@ -13,7 +13,7 @@ import models.product.{ProductReference, Products}
 import models.taxonomy.TaxonomyTaxonLinks.scope._
 import models.taxonomy.{TaxonLocation ⇒ _, _}
 import payloads.TaxonomyPayloads._
-import responses.TaxonomyResponses.{TaxonResponse ⇒ _, _}
+import responses.TaxonomyResponses.{TaxonResponse, _}
 import services.objects.ObjectManager
 import utils.Validation
 import utils.aliases._
@@ -106,19 +106,19 @@ object TaxonomyManager {
       archived ← * <~ Taxonomies.update(taxonomy, taxonomy.copy(archivedAt = Some(Instant.now)))
     } yield {}
 
-  def getTaxon(taxonFormId: ObjectForm#Id)(implicit ec: EC,
-                                           oc: OC,
-                                           db: DB): DbResultT[SingleTaxonResponse] =
+  def getTaxon(
+      taxonFormId: ObjectForm#Id)(implicit ec: EC, oc: OC, db: DB): DbResultT[TaxonResponse] =
     for {
-      taxonFull ← * <~ ObjectManager.getFullObject(Taxons.mustFindByFormId404(taxonFormId))
-      response  ← * <~ buildSingleTaxonResponse(taxonFull)
+      taxon    ← * <~ ObjectManager.getFullObject(Taxons.mustFindByFormId404(taxonFormId))
+      response ← * <~ buildSingleTaxonResponse(taxon)
     } yield response
 
-  def createTaxon(taxonomyFormId: ObjectForm#Id, payload: CreateTaxonPayload)(
-      implicit ec: EC,
-      oc: OC,
-      au: AU): DbResultT[SingleTaxonResponse] = {
-    val (form, shadow) = payload.formAndShadow.tupled
+  def createTaxon(
+      taxonomyFormId: ObjectForm#Id,
+      payload: CreateTaxonPayload)(implicit ec: EC, oc: OC, au: AU): DbResultT[TaxonResponse] = {
+    val form   = ObjectForm.fromPayload(Taxonomy.kind, payload.attributes)
+    val shadow = ObjectShadow.fromPayload(payload.attributes)
+
     for {
       _        ← * <~ payload.validate
       scope    ← * <~ Scope.resolveOverride(payload.scope)
@@ -173,10 +173,9 @@ object TaxonomyManager {
          }
     } yield parentLink
 
-  def updateTaxon(taxonId: Int, payload: UpdateTaxonPayload)(
-      implicit ec: EC,
-      oc: OC,
-      db: DB): DbResultT[SingleTaxonResponse] = {
+  def updateTaxon(taxonId: Int, payload: UpdateTaxonPayload)(implicit ec: EC,
+                                                             oc: OC,
+                                                             db: DB): DbResultT[TaxonResponse] = {
     for {
       _        ← * <~ payload.validate
       taxon    ← * <~ Taxons.mustFindByFormId404(taxonId)
@@ -190,14 +189,14 @@ object TaxonomyManager {
   }
 
   private def buildSingleTaxonResponse(taxonFull: FullObject[Taxon])(
-      implicit ec: EC): DbResultT[SingleTaxonResponse] =
+      implicit ec: EC): DbResultT[TaxonResponse] =
     for {
       taxonomyTaxonLink ← * <~ TaxonomyTaxonLinks
                            .filterRight(taxonFull.model)
                            .mustFindOneOr(InvalidTaxonomiesForTaxon(taxonFull.model, 0))
+      taxonomy    ← * <~ Taxonomies.findOneById(taxonomyTaxonLink.leftId).safeGet
       maybeParent ← * <~ TaxonomyTaxonLinks.parentOf(taxonomyTaxonLink)
-    } yield
-      SingleTaxonResponse.build(taxonomyTaxonLink.leftId, taxonFull, maybeParent.map(_.rightId))
+    } yield TaxonResponse.build(taxonFull, taxonomy.formId, maybeParent.map(_.rightId))
 
   private def updateTaxonomyHierarchy(taxon: Taxon,
                                       location: TaxonLocation)(implicit ec: EC, db: DB, oc: OC) =
@@ -243,7 +242,8 @@ object TaxonomyManager {
       taxon: Taxon,
       payload: UpdateTaxonPayload)(implicit ec: EC, db: DB, oc: OC): DbResultT[Taxon] = {
 
-    val (form, shadow) = payload.formAndShadow.tupled
+    val form   = ObjectForm.fromPayload(Taxonomy.kind, payload.attributes)
+    val shadow = ObjectShadow.fromPayload(payload.attributes)
 
     for {
       fullTaxon ← * <~ ObjectManager.getFullObject(DbResultT.good(taxon))

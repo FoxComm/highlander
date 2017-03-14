@@ -66,9 +66,11 @@ trait TaxonomySeeds extends TestFixtureBase {
   trait FlatTaxons_Raw extends TaxonSeedBase {
     def taxonomy: Taxonomy
 
-    val taxonNames         = (1 to 2).map("taxon" + _.toString)
-    val taxonAttributes    = taxonNames.map(name ⇒ Map("name" → (("t" → "string") ~ ("v" → name))))
-    val taxons: Seq[Taxon] = createTaxons(taxonAttributes)
+    val taxonAttributes = Map("name" → (("t" → "string") ~ ("v" → "name")))
+
+    val taxonsNames        = (1 to 2).map("taxon" + _.toString)
+    val taxonsAttributes   = taxonsNames.map(name ⇒ Map("name" → (("t" → "string") ~ ("v" → name))))
+    val taxons: Seq[Taxon] = createTaxons(taxonsAttributes)
 
     val links: Seq[TaxonomyTaxonLink] = {
       require(!taxonomy.hierarchical)
@@ -90,9 +92,11 @@ trait TaxonomySeeds extends TestFixtureBase {
   trait HierarchicalTaxons_Raw extends TaxonSeedBase {
     def taxonomy: Taxonomy
 
-    val taxonNames = (1 to 7).map(i ⇒ s"taxon$i")
+    val taxonAttributes = Map("name" → (("t" → "string") ~ ("v" → "name")))
+
+    val taxonsNames = (1 to 7).map(i ⇒ s"taxon$i")
     val taxons: Seq[Taxon] = createTaxons(
-        taxonNames.map(name ⇒ Map("name" → (("t" → "string") ~ ("v" → name)))))
+        taxonsNames.map(name ⇒ Map("name" → (("t" → "string") ~ ("v" → name)))))
 
     val links: Seq[TaxonomyTaxonLink] = {
       require(taxonomy.hierarchical)
