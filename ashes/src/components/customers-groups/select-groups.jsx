@@ -24,12 +24,12 @@ type Props = {
   onSelect: (groups: Array<number>) => any;
   groups: Array<GroupType>;
   selectedGroupIds: Array<number>;
+  qualifyAll: boolean,
   dispatch: (action: any) => any;
   parent: string;
 };
 
 type State = {
-  qualifyAll: boolean;
   popupOpened: boolean;
 };
 
@@ -41,7 +41,6 @@ class SelectCustomerGroups extends Component {
   };
 
   state: State = {
-    qualifyAll: true,
     popupOpened: false,
   };
 
@@ -51,9 +50,8 @@ class SelectCustomerGroups extends Component {
 
   @autobind
   handleChangeQualifier({target}: Object) {
-    this.setState({
-      qualifyAll: target.getAttribute('name') == 'qualifyAll',
-    });
+    let isAllQualify = target.getAttribute('name') == 'qualifyAll'
+    this.props.qualifyAllChange(isAllQualify);
   }
 
   get tableColumns(): Array<Object> {
@@ -119,7 +117,7 @@ class SelectCustomerGroups extends Component {
   }
 
   get customersGroups(): ?Element<*> {
-    if (this.state.qualifyAll !== false) return null;
+    if (this.props.qualifyAll !== false) return null;
 
     return (
       <div>
@@ -165,7 +163,7 @@ class SelectCustomerGroups extends Component {
         <RadioButton
           id="qualifyAll"
           name="qualifyAll"
-          checked={this.state.qualifyAll === true}
+          checked={this.props.qualifyAll === true}
           onChange={this.handleChangeQualifier}
         >
           <label htmlFor="qualifyAll">All customers qualify</label>
@@ -173,10 +171,10 @@ class SelectCustomerGroups extends Component {
         <RadioButton
           id="qualifyGroups"
           name="qualifyGroups"
-          checked={this.state.qualifyAll === false}
+          checked={this.props.qualifyAll === false}
           onChange={this.handleChangeQualifier}
         >
-          <label htmlFor="qualifyGroups">Select Customer Groups qualify</label>
+          <label htmlFor="qualifyGroups">Select customer groups qualify</label>
         </RadioButton>
         {this.customersGroups}
       </div>

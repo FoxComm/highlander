@@ -82,6 +82,8 @@ class CouponPage extends ObjectPage {
           this.props.actions.couponsGenerationReset();
         }).then(() => {
           transitionTo('promotion-coupons',{promotionId: this.props.params.promotionId});
+        }).catch((err) => {
+          this.props.submitError(err.message)
         });
       }
 
@@ -100,7 +102,7 @@ class CouponPage extends ObjectPage {
     nextObject.promotion = Number(this.props.params.promotionId);
     nextObject.attributes.name = { // TO BE REMOVED WHEN COUPON NAME WILL BE REMOVED FROM COUPONS SCHEMA
       t: "string",
-      v: "Dummy coupon"
+      v: "Coupon name"
     };
     this.setState({
       object: nextObject

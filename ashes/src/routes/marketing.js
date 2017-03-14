@@ -93,28 +93,8 @@ const getRoutes = (jwt: Object) => {
 
   const couponRoutes =
     router.read('coupons-base', { path: 'coupons', frn: frn.mkt.coupon }, [
-      router.read('coupons-list-page', { component: CouponsListPage }, [
-        router.read('coupons', { component: Coupons, isIndex: true }),
-        router.read('coupons-activity-trail', {
-          path: 'activity-trail',
-          dimension: 'coupon',
-          component: ActivityTrailPage,
-          frn: frn.mkt.coupon,
-        }),
-      ]),
       router.read('coupon', { path: ':couponId', component: CouponPage }, [
-        router.read('coupon-details', { component: CouponForm, isIndex: true }),
-        router.read('coupon-codes', { path: 'codes', component: CouponCodes }),
-        router.read('coupon-notes', {
-          path: 'notes',
-          component: Notes,
-          frn: frn.note.coupon,
-        }),
-        router.read('coupon-activity-trail', {
-          path: 'activity-trail',
-          component: ActivityTrailPage,
-          frn: frn.activity.coupon,
-        }),
+        router.read('coupon-details', { component: CouponForm, isIndex: true })
       ]),
     ]);
 
