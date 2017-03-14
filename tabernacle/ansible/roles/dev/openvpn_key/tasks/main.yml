@@ -20,3 +20,7 @@
   with_items:
     - "{{visc_base_dir}}/{{visc_filename}}"
     - "{{visc_base_dir}}/{{visc_bundle_dir}}"
+
+- name: IMPORTANT, gently remind
+  debug:
+    msg: "Change remote ip in config to a valid real ip address of vpn server"
