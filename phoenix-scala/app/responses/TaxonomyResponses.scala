@@ -79,33 +79,10 @@ object TaxonomyResponses {
     }
   }
 
-//  case class SingleTaxonResponse(taxonomyId: Int, taxon: TaxonResponse, parentId: Option[Integer])
-//      extends ResponseItem
-//
-//  object SingleTaxonResponse {
-//    def build(taxonomyId: Integer,
-//              taxon: FullObject[Taxon],
-//              parentTaxonId: Option[Integer]): SingleTaxonResponse =
-//      SingleTaxonResponse(taxonomyId, TaxonResponse.build(taxon), parentTaxonId)
-//  }
-
   case class TaxonTreeResponse(taxon: TaxonResponse, children: Option[Seq[TaxonTreeResponse]])
       extends ResponseItem {
     def childrenAsList: Seq[TaxonTreeResponse] = children.getOrElse(Seq.empty)
   }
-
-//  case class TaxonResponse(id: Int, name: String) extends ResponseItem
-//
-//  object TaxonResponse {
-//    implicit val formats = JsonFormatters.phoenixFormats
-//
-//    def build(taxon: FullObject[Taxon]): TaxonResponse = {
-//      TaxonResponse(taxon.model.formId,
-//                    IlluminateAlgorithm
-//                      .get("name", taxon.form.attributes, taxon.shadow.attributes)
-//                      .extract[String])
-//    }
-//  }
 
   object TaxonTreeResponse {
     def build(taxon: TaxonResponse, children: Seq[TaxonTreeResponse]): TaxonTreeResponse = {
