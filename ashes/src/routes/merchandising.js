@@ -9,6 +9,7 @@ import TaxonomiesSearchableList from 'components/taxonomies/searchable-list';
 import TaxonomyPage from 'components/taxonomies/taxonomy';
 import TaxonomyDetails from 'components/taxonomies/details';
 
+import TaxonPage from 'components/taxonomies/taxons/taxon';
 import TaxonDetails from 'components/taxonomies/taxons/details';
 import TaxonsListPage from 'components/taxonomies/taxons/taxons';
 
@@ -25,9 +26,11 @@ const getRoutes = (jwt: Object) => {
 
       router.read('value', {
         path: ':context/:taxonomyId/values/:taxonId',
-        component: TaxonDetails,
+        component: TaxonPage,
         frn: frn.merch.taxon
-      }),
+      }, [
+        router.read('value-details', { component: TaxonDetails, isIndex: true })
+      ]),
 
       router.read('taxonomy', {
         path: ':context/:taxonomyId',
