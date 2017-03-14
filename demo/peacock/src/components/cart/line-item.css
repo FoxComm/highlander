@@ -4,7 +4,8 @@
 
 .box {
   position: relative;
-  padding: 15px 0 55px;
+  height: 90px;
+  padding-top: 15px;
   display: flex;
   border-bottom: 1px solid var(--border-color);
 }
@@ -46,7 +47,7 @@
 }
 
 .details {
-  margin-top: 20px;
+  margin-top: 13px;
   width: 100%;
   display: flex;
   justify-content: space-between;
@@ -75,7 +76,7 @@
   }
 
   .price, .multiply, .total-price, .quantity {
-    font-size: 12px;
+    font-size: 13px;
     margin: 5px;
   }
 
@@ -86,17 +87,8 @@
   .delete {
     margin-right: -5px;
   }
-}
 
-@media (--large) {
-  .box {
-    padding: 20px 0;
-  }
-
-  .image {
-    width: 25%;
-    max-width: 90px;
-    height: auto;
-    margin-right: 10px;
+  .details {
+    margin-top: 18px;
   }
 }
