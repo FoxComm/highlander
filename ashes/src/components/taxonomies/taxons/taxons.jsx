@@ -59,7 +59,7 @@ export class TaxonsListPage extends Component {
   }
 
   get tableControls(): Array<Element<*>> {
-    const handleClick = transitionToLazy('value', { ...this.props.params, taxonId: 'new' });
+    const handleClick = transitionToLazy('value-details', { ...this.props.params, taxonId: 'new' });
 
     return [
       <AddButton className="fc-btn-primary" onClick={handleClick}>Value</AddButton>
