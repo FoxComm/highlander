@@ -152,12 +152,8 @@ class ListItem extends React.Component {
           <h1 styleName="title" alt={title}>
             <Link to={`/products/${productSlug}`}>{title}</Link>
           </h1>
-          <h2 styleName="description">{/* serving size */}</h2>
           <div styleName="price-line">
             {this.isOnSale()}
-            <div styleName="add-to-cart-btn">
-              <AddToCartBtn onClick={this.addToCart} expanded />
-            </div>
           </div>
         </div>
       </div>

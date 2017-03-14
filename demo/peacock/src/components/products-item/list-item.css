@@ -3,8 +3,10 @@
 @import "media-queries";
 
 .list-item {
-  width: calc(50% - (var(--grid-margin)/2));
+  width: 180px;
   margin-bottom: 20px;
+  margin-right: 20px;
+  margin-left: 20px;
   padding-bottom: 20px;
   text-align: center;
   line-height: 19px;
@@ -37,25 +39,19 @@
 
 .text-block {
   text-align: left;
-  min-height: 149px;
-  max-height: 149px;
   position: relative;
 }
 
 .title {
-  composes: title-devider from 'ui/css/layout.css';
+/*  composes: title-devider from 'ui/css/layout.css';*/
 
   margin-top: 20px;
   font-family: var(--font-playfair);
-  font-weight: 400;
-  font-size: 26px;
+  font-weight: 900;
+  font-size: 16px;
   color: var(--text-color-main);
-  letter-spacing: 0.7px;
   white-space: pre-line;
-  overflow: hidden;
-  line-height: 30px;
-  min-height: 82px;
-  position: relative;
+  line-height: 19px;
 
   &:after {
     position: absolute;
@@ -88,11 +84,10 @@
 
 .price {
   font-family: var(--font-main);
-  font-weight: 400;
-  font-size: 15px;
+  font-weight: normal;
+  font-size: 14px;
   color: var(--text-color-main);
-  opacity: 0.74;
-  letter-spacing: 1.5px;
+  line-height: 17px;
 }
 
 .on-sale-price,
@@ -109,15 +104,6 @@
 }
 
 @media (--small-only) {
-  .title {
-    font-weight: 400;
-    font-size: 15px;
-    color: #212121;
-    letter-spacing: 0.52px;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  }
-
   .description {
     font-size: 13px;
     letter-spacing: 0px;
@@ -125,11 +111,6 @@
 }
 
 @media (--medium) {
-  .title {
-    font-size: 20px;
-    letter-spacing: 0.7px;
-  }
-
   .hover-info {
     position: absolute;
     left: 0;
@@ -167,11 +148,6 @@
 }
 
 @media (--large), (--x-large) {
-  .title {
-    font-size: 26px;
-    letter-spacing: 0.7px;
-  }
-
   .description {
     font-size: 15px;
     letter-spacing: 0px;
