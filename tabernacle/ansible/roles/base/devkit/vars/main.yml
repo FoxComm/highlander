@@ -5,3 +5,5 @@ zkcli_download_url: "https://github.com/outbrain/zookeepercli/releases/download/
 
 kt_filename: "kt-v10.0.0-linux-amd64.txz"
 kt_download_url: "https://github.com/fgeller/kt/releases/download/v10.0.0/{{kt_filename}}"
+
+ctop_download_url: https://github.com/bcicen/ctop/releases/download/v0.4.1/ctop-0.4.1-linux-amd64

@@ -11,6 +11,9 @@
 - name: Install consulate
   pip: name=consulate
 
+- name: Install ctop
+  get_url: url={{ctop_download_url}} dest="/usr/local/bin/ctop" mode=0755
+
 - name: Download zookeepercli
   get_url: url={{zkcli_download_url}} dest="{{home}}/{{zkcli_filename}}"
 
