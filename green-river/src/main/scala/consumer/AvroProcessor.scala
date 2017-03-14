@@ -101,9 +101,10 @@ object AvroProcessor {
       |}
     """.stripMargin.replaceAll("\n", " ")
 
-  val activitySchema      = (new Schema.Parser()).parse(activityAvroSchema)
-  val activityTrailSchema = (new Schema.Parser()).parse(activityTrailAvroSchema)
-  val keySchema           = (new Schema.Parser()).parse(keyAvroSchema)
+  val parser              = new Schema.Parser()
+  val activitySchema      = parser.parse(activityAvroSchema)
+  val activityTrailSchema = parser.parse(activityTrailAvroSchema)
+  val keySchema           = parser.parse(keyAvroSchema)
 }
 
 /**

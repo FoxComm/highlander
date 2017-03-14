@@ -51,11 +51,11 @@ final case class ActivityConnectionTransformer(
 
   val jsonFields = List("id", "activity", "connectedBy")
 
-  def transform(json: String): Future[String] = {
+  def transform(json: String): Future[String] = Future {
     Console.out.println(json)
 
     parse(json) \ "id" \ "long" match {
-      case JInt(id) ⇒ Future { AvroJsonHelper.transformJson(json, jsonFields) }
+      case JInt(id) ⇒ AvroJsonHelper.transformJson(json, jsonFields)
       case _        ⇒ throw new IllegalArgumentException("Activity connection is missing id")
     }
   }

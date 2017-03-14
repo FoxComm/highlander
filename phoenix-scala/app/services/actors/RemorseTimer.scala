@@ -2,6 +2,7 @@ package services.actors
 
 import cats.implicits._
 import java.time.Instant
+import faker.Lorem.letterify
 
 import scala.util.Success
 import akka.actor.{Actor, ActorLogging}
@@ -50,7 +51,10 @@ class RemorseTimer(implicit db: DB, ec: EC) extends Actor {
           case (scope, scopeOrders) ⇒
             val refNums = scopeOrders.map(_.referenceNumber)
 
-            implicit val ac = ActivityContext.build(userId = 1, userType = "admin", scope = scope)
+            implicit val ac = ActivityContext.build(userId = 1,
+                                                    userType = "admin",
+                                                    scope = scope,
+                                                    transactionId = letterify("?" * 5))
 
             LogActivity().withScope(scope).orderBulkStateChanged(newState, refNums)
         }

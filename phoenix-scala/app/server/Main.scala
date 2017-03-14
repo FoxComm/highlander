@@ -81,10 +81,9 @@ class Service(
   val orgName  = config.users.customer.org
   val scopeId  = config.users.customer.scopeId
 
-  val scope = Await.result(Scopes.findOneById(scopeId).run(), Duration.Inf) match {
-    case Some(s) ⇒ s
-    case _       ⇒ throw new RuntimeException(s"Unable to find a scope with id $scopeId")
-  }
+  val scope = Await
+    .result(Scopes.findOneById(scopeId).run(), Duration.Inf)
+    .getOrElse(throw new RuntimeException(s"Unable to find a scope with id $scopeId"))
 
   val customerCreateContext                = AccountCreateContext(List(roleName), orgName, scopeId)
   implicit val userAuth: UserAuthenticator = Authenticator.forUser(customerCreateContext)

@@ -29,11 +29,11 @@ object NotificationManager {
                                                       db: DB): DbResultT[ActivityResponse.Root] = {
     for {
       dimension ← * <~ Dimensions.findOrCreateByName(payload.sourceDimension)
-      activity ← * <~ Activity(id = payload.activity.id,
-                               activityType = payload.activity.kind,
-                               data = payload.activity.data,
-                               context = payload.activity.context,
-                               createdAt = payload.activity.createdAt)
+      activity = Activity(id = payload.activity.id,
+                          activityType = payload.activity.kind,
+                          data = payload.activity.data,
+                          context = payload.activity.context,
+                          createdAt = payload.activity.createdAt)
 
       adminIds ← * <~ Subs
                   .findByDimensionAndObject(dimension.id, payload.sourceObjectId)
@@ -41,16 +41,17 @@ object NotificationManager {
                   .result
       response ← * <~ ActivityResponse.build(activity)
 
-      notifications ← * <~ adminIds.toList.map { adminId ⇒
-                       Notifications.create(
-                           Notification(scope = payload.activity.context.scope,
-                                        accountId = adminId,
-                                        dimensionId = dimension.id,
-                                        objectId = payload.sourceObjectId,
-                                        activity = decompose(payload.activity)))
-                     }
+      notifications = adminIds.toList.map { adminId ⇒
+        Notification(scope = payload.activity.context.scope,
+                     accountId = adminId,
+                     dimensionId = dimension.id,
+                     objectId = payload.sourceObjectId,
+                     activity = decompose(payload.activity))
+      }
 
-      _ ← * <~ DBIO.sequence(notifications.map { notification ⇒
+      createdNotifications ← * <~ Notifications.createAllReturningModels(notifications)
+
+      _ ← * <~ DBIO.sequence(createdNotifications.map { notification ⇒
            var payload        = compact(decompose(NotificationResponse.build(notification)))
            var escapedPayload = PgjdbcUtils.escapeLiteral(null, payload, false).toString
            sqlu"NOTIFY #${notificationChannel(notification.accountId)}, '#$escapedPayload'"
@@ -63,8 +64,8 @@ object NotificationManager {
       ec: EC,
       db: DB): DbResultT[LastSeenNotificationResponse] =
     for {
-      scope ← * <~ Scope.current
-      _     ← * <~ Accounts.mustFindById404(accountId)
+      _ ← * <~ Accounts.mustFindById404(accountId)
+      scope = Scope.current
       lastSeen ← * <~ LastSeenNotifications
                   .findByScopeAndAccountId(scope, accountId)
                   .one

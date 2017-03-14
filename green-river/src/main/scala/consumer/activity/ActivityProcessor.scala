@@ -167,8 +167,6 @@ class ActivityProcessor(
         }
         resp
       })
-      .map { r ⇒
-        ()
-      }
+      .map(_ ⇒ ())
   }
 }

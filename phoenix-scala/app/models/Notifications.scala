@@ -43,7 +43,7 @@ class Notifications(tag: Tag) extends FoxTable[Notification](tag, "notifications
 }
 
 object Notification {
-  def notificationChannel(adminId: Int) = s"notifications_for_admin_$adminId"
+  def notificationChannel(adminId: Int): String = s"notifications_for_admin_$adminId"
 }
 
 object Notifications

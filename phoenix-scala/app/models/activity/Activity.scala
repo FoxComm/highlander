@@ -9,7 +9,6 @@ import scala.concurrent.Future
 import scala.util.{Failure, Success}
 import com.github.tminglei.slickpg.LTree
 import com.typesafe.scalalogging.LazyLogging
-import faker.Lorem.letterify
 import models.account.Scope
 import org.apache.avro.Schema
 import org.apache.avro.generic.GenericData
@@ -23,16 +22,17 @@ import org.json4s.jackson.Serialization.{write ⇒ render}
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
-import slick.lifted.Tag
+import slick.lifted._
 import utils.FoxConfig.config
 import utils.{Environment, JsonFormatters}
 import utils.aliases._
 import utils.db.ExPostgresDriver.api._
-import utils.db.{DbResultT, _}
+import utils.db._
 
 case class ActivityContext(userId: Int, userType: String, transactionId: String, scope: LTree) {
-  def withCurrentScope(implicit au: AU) = withScope(Scope.current)
-  def withScope(scope: LTree)           = ActivityContext(userId, userType, transactionId, scope)
+  def withCurrentScope(implicit au: AU): ActivityContext = withScope(Scope.current)
+  def withScope(scope: LTree): ActivityContext =
+    ActivityContext(userId, userType, transactionId, scope)
 }
 
 object ActivityContext {
@@ -46,10 +46,7 @@ object ActivityContext {
     )
   }
 
-  def build(userId: Int,
-            userType: String,
-            scope: LTree,
-            transactionId: String = letterify("?" * 5)): ActivityContext =
+  def build(userId: Int, userType: String, scope: LTree, transactionId: String): ActivityContext =
     ActivityContext(userId = userId,
                     userType = userType,
                     transactionId = transactionId,
@@ -77,8 +74,8 @@ object Activities extends LazyLogging {
 
   val producer =
     if (Environment.default != Environment.Test)
-      new KafkaProducer[GenericData.Record, GenericData.Record](kafkaProducerProps())
-    else null
+      Some(new KafkaProducer[GenericData.Record, GenericData.Record](kafkaProducerProps()))
+    else None
 
   val topic  = "scoped_activities"
   val schema = new Schema.Parser().parse("""
@@ -161,33 +158,38 @@ object Activities extends LazyLogging {
 
     for {
       id ← * <~ nextActivityId()
-      phoenixId      = s"phoenix-$id"
-      _              = record.put("id", phoenixId)
-      _              = sendActivity(activity, record)
-      activityWithId = activity.copy(id = phoenixId)
-    } yield activityWithId
+      phoenixId = s"phoenix-$id"
+      _         = record.put("id", phoenixId)
+      _         = sendActivity(activity, record)
+    } yield activity.copy(id = phoenixId)
   }
 
   def nextActivityId()(implicit ec: EC): DbResultT[Int] =
-    sql"select nextval('activities_id_seq');".as[Int].dbresult.map(_.head)
+    sql"select nextval('activities_id_seq');".as[Int].head.dbresult
 
   def sendActivity(a: Activity, record: GenericData.Record)(implicit activityContext: AC, ec: EC) {
     val msg = new ProducerRecord[GenericData.Record, GenericData.Record](topic, record)
 
     // Workaround until we decide how to test Phoenix => Kafka service integration
-    if (Environment.default != Environment.Test) {
-      val kafkaSendFuture = Future {
-        producer.send(msg)
-      }
+    producer match {
 
-      kafkaSendFuture onComplete {
-        case Success(_) ⇒
-          logger.info(
-              s"Kafka Activity ${a.activityType} by ${activityContext.userType} ${activityContext.userId} SUCCESS")
-        case Failure(_) ⇒
-          logger.info(
-              s"Kafka Activity ${a.activityType} by ${activityContext.userType} ${activityContext.userId} FAILURE")
+      case Some(p) ⇒ {
+        val kafkaSendFuture = Future {
+          p.send(msg)
+        }
+
+        kafkaSendFuture onComplete {
+          case Success(_) ⇒
+            logger.info(
+                s"Kafka Activity ${a.activityType} by ${activityContext.userType} ${activityContext.userId} SUCCESS")
+          case Failure(_) ⇒
+            logger.info(
+                s"Kafka Activity ${a.activityType} by ${activityContext.userType} ${activityContext.userId} FAILURE")
+        }
       }
+      case None ⇒
+        logger.info(
+            s"Test Kafka Activity ${a.activityType} by ${activityContext.userType} ${activityContext.userId}")
     }
   }
 }

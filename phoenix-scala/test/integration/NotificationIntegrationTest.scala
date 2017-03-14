@@ -193,14 +193,12 @@ class NotificationIntegrationTest
     NotificationManager.unsubscribe(Seq(1), Seq("1"), Watching, Dimension.order).gimme
 
   trait Fixture extends StoreAdmin_Seed {
-    val (adminId) = (for {
-      _ ← * <~ createDimension
-    } yield (storeAdmin.accountId)).gimme
+    createDimension.gimme
+    val adminId = storeAdmin.accountId
   }
 
   trait Fixture2 extends StoreAdmin_Seed {
-    val adminId = (for {
-      _ ← * <~ createDimension
-    } yield storeAdmin.accountId).gimme
+    createDimension.gimme
+    val adminId = storeAdmin.accountId
   }
 }
