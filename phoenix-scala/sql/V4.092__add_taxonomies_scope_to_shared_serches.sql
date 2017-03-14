@@ -5,4 +5,4 @@ alter domain shared_search_scope add constraint shared_search_scope_check check 
                                                         'customersScope', 'ordersScope', 'storeAdminsScope',
                                                         'giftCardsScope', 'productsScope', 'inventoryScope',
                                                         'promotionsScope', 'couponsScope', 'couponCodesScope',
-                                                        'skusScope', 'cartsScope', 'taxonomiesScope'));
+                                                        'skusScope', 'cartsScope', 'taxonomiesScope', 'taxonsScope'));
