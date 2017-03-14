@@ -153,3 +153,26 @@
     lost-column: 12/12;
   }
 }
+
+@media (--large) {
+  .cart-content {
+    height: calc(100% - 109px);
+  }
+
+  .cart-footer {
+    width: 100%;
+    height: 60px;
+    position: absolute;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .checkout-button {
+    width: 85%;
+    height: 40px;
+    padding: 0;
+    border-radius: 4px;
+  }
+}
