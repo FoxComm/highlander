@@ -113,7 +113,7 @@ class TaxonomyIntegrationTest
   "POST v1/taxonomies/:contextName/:taxonomyFormId/taxons" - {
     "creates taxon" in new TaxonomyFixture {
       private val taxonName: String = "name"
-      private val taxonAttributes = Map("name" → (("t" → "string") ~ ("v" → "name")))
+      private val taxonAttributes   = Map("name" → (("t" → "string") ~ ("v" → "name")))
 
       val response = taxonomiesApi(taxonomy.formId)
         .createTaxon(CreateTaxonPayload(taxonAttributes, None))
