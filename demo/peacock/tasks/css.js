@@ -40,7 +40,7 @@ module.exports = function(gulp, $) {
       .pipe(postcss(plugins))
       .pipe($.concat('common.css'))
       .pipe(_if(process.env.NODE_ENV === 'production', cssnano()))
-      .pipe(gulp.dest('public'))
+      .pipe(gulp.dest('public'));
   });
 
   gulp.task('css.common.watch', function() {

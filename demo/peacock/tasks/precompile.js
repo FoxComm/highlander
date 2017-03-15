@@ -66,10 +66,10 @@ module.exports = function (gulp) {
   gulp.task('precompile', ['precompile.static', 'precompile.source']);
 
   gulp.task('precompile.watch', function () {
-    const handleChanged = path => {
-      logSrcToLib(path);
+    const handleChanged = filepath => {
+      logSrcToLib(filepath);
       gulp
-        .src(path, { base: 'src' })
+        .src(filepath, { base: 'src' })
         .pipe(gulp.dest('./lib'));
     };
 

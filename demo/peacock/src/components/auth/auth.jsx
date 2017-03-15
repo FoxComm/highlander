@@ -9,7 +9,6 @@ import { autobind } from 'core-decorators';
 import styles from './auth.css';
 import type { HTMLElement } from 'types';
 
-import Icon from 'ui/icon';
 import Logo from '../logo/logo';
 import Login from './login';
 import Signup from './signup';

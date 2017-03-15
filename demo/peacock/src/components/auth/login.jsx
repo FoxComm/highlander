@@ -11,7 +11,6 @@ import { browserHistory } from 'lib/history';
 import styles from './auth.css';
 
 import TextInput from 'ui/text-input/text-input';
-import TextInputWithLabel from 'ui/text-input-with-label/text-input-with-label';
 import { FormField, Form } from 'ui/forms';
 import Button from 'ui/buttons';
 
@@ -157,7 +156,7 @@ class Login extends Component {
                 pos="b"
                 styleName="form-field-input"
                 placeholder="Password"
-                label={!password && restoreLink}
+                label={password ? null : restoreLink}
                 value={password}
                 onChange={this.onChangePassword}
               />

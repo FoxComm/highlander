@@ -1,5 +1,5 @@
 import React from 'react';
-import { storiesOf, action } from '@kadira/storybook';
+import { storiesOf } from '@kadira/storybook';
 import TextInput from './text-input';
 
 storiesOf('ui.TextInput', module)
@@ -53,5 +53,3 @@ storiesOf('ui.TextInput', module)
       <TextInput pos="r" error />
     </div>
   ));
-
-

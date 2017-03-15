@@ -6,7 +6,7 @@ import WingsErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
 
 
 const ErrorAlerts = (props) => {
-  return <WingsErrorAlerts {...props} className={s.block} />
+  return <WingsErrorAlerts {...props} className={s.block} />;
 };
 
 export default ErrorAlerts;
