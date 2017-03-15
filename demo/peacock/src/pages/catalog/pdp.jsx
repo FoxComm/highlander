@@ -127,7 +127,9 @@ class Pdp extends Component {
 
   componentDidMount() {
     this.productPromise.then(() => {
+      const { product } = this.props;
       tracking.viewDetails(this.product);
+      this.props.actions.fetchRelatedProducts(product.id, 1);
     });
   }
 
@@ -143,6 +145,7 @@ class Pdp extends Component {
       this.props.actions.resetProduct();
       this.fetchProduct(nextProps, id);
       this.props.actions.clearRelatedProducts();
+      this.props.actions.fetchRelatedProducts(id, 1);
     }
   }
 
