@@ -17,10 +17,12 @@ import type { Localized } from 'lib/i18n';
 import { searchGiftCards } from 'modules/products';
 import { fetch, getNextId, getPreviousId, resetProduct } from 'modules/product-details';
 import { addLineItem, toggleCart } from 'modules/cart';
+import { fetchRelatedProducts, clearRelatedProducts } from 'modules/cross-sell';
 
 // types
 import type { HTMLElement } from 'types';
 import type { ProductResponse, ProductSlug } from 'modules/product-details';
+import type { RelatedProductResponse } from 'modules/cross-sell';
 
 // components
 import Gallery from 'ui/gallery/gallery';
@@ -45,6 +47,8 @@ type Actions = {
   resetProduct: Function,
   addLineItem: Function,
   toggleCart: Function,
+  fetchRelatedProducts: Function,
+  clearRelatedProducts: Function,
 };
 
 type Props = Localized & {
@@ -54,6 +58,7 @@ type Props = Localized & {
   isLoading: boolean,
   isCartLoading: boolean,
   notFound: boolean,
+  relatedProducts: ?RelatedProductResponse,
 };
 
 type State = {
@@ -76,13 +81,16 @@ type Product = {
 
 const mapStateToProps = state => {
   const product = state.productDetails.product;
+  const relatedProducts = state.crossSell.relatedProducts;
 
   return {
     product,
+    relatedProducts,
     fetchError: _.get(state.asyncActions, 'pdp.err', null),
     notFound: !product && _.get(state.asyncActions, 'pdp.err.response.status') == 404,
     isLoading: _.get(state.asyncActions, ['pdp', 'inProgress'], true),
     isCartLoading: _.get(state.asyncActions, ['cartChange', 'inProgress'], false),
+    isRelatedProductsLoading: _.get(state.asyncActions, ['relatedProducts', 'inProgress'], true),
   };
 };
 
@@ -94,6 +102,8 @@ const mapDispatchToProps = dispatch => ({
     resetProduct,
     addLineItem,
     toggleCart,
+    fetchRelatedProducts,
+    clearRelatedProducts,
   }, dispatch),
 });
 
@@ -123,6 +133,7 @@ class Pdp extends Component {
 
   componentWillUnmount() {
     this.props.actions.resetProduct();
+    this.props.actions.clearRelatedProducts();
   }
 
   componentWillUpdate(nextProps) {
@@ -131,6 +142,7 @@ class Pdp extends Component {
     if (this.productId !== id) {
       this.props.actions.resetProduct();
       this.fetchProduct(nextProps, id);
+      this.props.actions.clearRelatedProducts();
     }
   }
 
@@ -251,7 +263,7 @@ class Pdp extends Component {
   }
 
   render(): HTMLElement {
-    const { t, isLoading, notFound, fetchError } = this.props;
+    const { t, isLoading, notFound, fetchError, isRelatedProductsLoading } = this.props;
 
     if (isLoading) {
       return <Loader />;

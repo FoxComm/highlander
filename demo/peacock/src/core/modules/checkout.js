@@ -7,7 +7,7 @@ import { createAsyncActions } from '@foxcomm/wings';
 import { updateCart, resetCart } from 'modules/cart';
 import { api as foxApi } from '../lib/api';
 import * as tracking from 'lib/analytics';
-import * as crossSell from 'lib/cross-sell';
+import * as crossSell from './cross-sell';
 
 import type { Address } from 'types/address';
 import type { CreditCardType } from '../../pages/checkout/types';
