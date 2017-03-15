@@ -24,22 +24,24 @@ const getRoutes = (jwt: Object) => {
         router.read('taxonomies', { component: TaxonomiesSearchableList, isIndex: true }),
       ]),
 
-      router.read('value', {
-        path: ':context/:taxonomyId/values/:taxonId',
-        component: TaxonPage,
-        frn: frn.merch.taxon
-      }, [
-        router.read('value-details', { component: TaxonDetails, isIndex: true })
-      ]),
-
-      router.read('taxonomy', {
-        path: ':context/:taxonomyId',
-        titleParam: ':taxonomyId',
-        component: TaxonomyPage
-      }, [
+      router.read('taxonomy', { path: ':context/:taxonomyId', titleParam: ':taxonomyId', component: TaxonomyPage }, [
         router.read('taxonomy-details', { component: TaxonomyDetails, isIndex: true }),
         router.read('values', { path: 'values', component: TaxonsListPage, frn: frn.merch.taxon }),
       ]),
+
+      // fake :context/:taxonomyId path w/o components to build breadcrumbs like Taxonomies -> 1 -> Value -> 1
+      router.read('taxonomy', { path: ':context/:taxonomyId', titleParam: ':taxonomyId' }, [
+        router.read('values-base', { path: 'values', frn: frn.merch.taxonomy }, [
+          router.read('value', {
+            path: ':taxonId',
+            titleParam: ':taxonId',
+            component: TaxonPage,
+            frn: frn.merch.taxon
+          }, [
+            router.read('value-details', { component: TaxonDetails, isIndex: true })
+          ]),
+        ]),
+      ])
 
     ]);
 

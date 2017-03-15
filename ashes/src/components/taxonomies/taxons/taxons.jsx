@@ -83,7 +83,6 @@ export class TaxonsListPage extends Component {
         failed={results.failed}
         emptyMessage={'This taxonomy does not have any values yet.'}
         headerControls={this.tableControls}
-        footerControls={this.tableControls}
       />
     );
   }

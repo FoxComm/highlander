@@ -15,7 +15,6 @@ import ArchiveActionsSection from 'components/archive-actions/archive-actions';
 
 // helpers
 import { SAVE_COMBO, SAVE_COMBO_ITEMS } from 'paragons/common';
-import { transitionToLazy } from 'browserHistory';
 
 import styles from './object-page.css';
 
@@ -158,13 +157,14 @@ class ObjectPageDeux extends Component {
   }
 
   get children(): Element<*> {
-    const { layout, schema, objectType, object, onUpdateObject } = this.props;
+    const { layout, schema, object, objectType, internalObjectType, onUpdateObject } = this.props;
 
     return React.cloneElement(React.Children.only(this.props.children), {
       layout,
       schema,
-      objectType,
       object,
+      objectType,
+      internalObjectType,
       onUpdateObject,
     });
   }

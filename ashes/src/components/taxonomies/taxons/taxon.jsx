@@ -146,6 +146,7 @@ class TaxonPage extends React.Component {
         identifier={taxonId}
         object={this.state.taxon}
         objectType="value"
+        internalObjectType="taxon"
         originalObject={details.taxon}
         actions={this.actions}
         onUpdateObject={this.handleObjectUpdate}

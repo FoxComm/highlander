@@ -69,6 +69,7 @@ declare type ObjectPageProps<T, U> = {
   navLinks: NavLinks<U>,
   object: ?T,
   objectType: string,
+  internalObjectType?: string, // field for cases when UI type (breadcrumbs and lots of block titles are based on it) differs from api object type (e.g. taxon -> value)
   identifierFieldName: string,
   originalObject: ?T,
   fetchState: AsyncState,
@@ -80,7 +81,8 @@ declare type ObjectPageProps<T, U> = {
 declare type ObjectPageChildProps<T> = {
   layout: ObjectPageLayout,
   schema: ObjectSchema,
-  objectType: string,
   object: T,
+  objectType: string,
+  internalObjectType?: string,
   onUpdateObject: (object: T) => void,
 };
