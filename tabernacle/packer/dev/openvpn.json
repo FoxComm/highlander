@@ -10,7 +10,7 @@
             "zone": "{{user `zone`}}",
             "image_name": "base-openvpn-{{isotime \"060102-150405\"}}",
             "image_description": "Base OpenVPN Image",
-            "instance_name": "packer-dev--{{uuid}}",
+            "instance_name": "packer-dev-openvpn-{{uuid}}",
             "machine_type": "n1-standard-1",
             "tags": ["ssh"],
             "use_internal_ip": true,
