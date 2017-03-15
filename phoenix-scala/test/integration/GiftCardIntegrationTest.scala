@@ -1,5 +1,4 @@
 import akka.http.scaladsl.model.StatusCodes
-
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
 import failures.GiftCardFailures.GiftCardConvertFailure
@@ -13,11 +12,13 @@ import models.payment.giftcard._
 import models.payment.{InStorePaymentStates, storecredit}
 import models.payment.storecredit.StoreCredit
 import org.json4s.jackson.JsonMethods._
+import payloads.CartPayloads.CreateCart
 import payloads.GiftCardPayloads._
 import responses.GiftCardAdjustmentsResponse.{Root ⇒ GcAdjRoot}
 import responses.GiftCardResponse.{Root ⇒ GcRoot}
 import responses.StoreCreditResponse.{Root ⇒ ScRoot}
 import responses._
+import responses.cord.CartResponse
 import slick.driver.PostgresDriver.api._
 import testutils._
 import testutils.apis.PhoenixAdminApi
@@ -116,7 +117,10 @@ class GiftCardIntegrationTest
 
     "POST /v1/customer-gift-cards" - {
       "successfully creates gift card as a custumer from payload" in new Reason_Baked {
-        val cordInsert = Carts.create(Factories.cart(LTree("1"))).gimme
+        val cordInsert = cartsApi
+          .create(
+              CreateCart(customerId = 1.some, email = "sender@example.com".some, scope = "1".some))
+          .as[CartResponse]
         val attributes = Some(parse("""{"attributes":{"giftCard":{"senderName":"senderName",
                  "recipientName":"recipientName",
                  "recipientEmail":"example@example.com"}}}""".stripMargin))
@@ -137,7 +141,10 @@ class GiftCardIntegrationTest
       }
 
       "successfully creates gift cards as a custumer from payload" in new Reason_Baked {
-        val cordInsert = Carts.create(Factories.cart(LTree("1"))).gimme
+        val cordInsert = cartsApi
+          .create(
+              CreateCart(customerId = 1.some, email = "sender@example.com".some, scope = "1".some))
+          .as[CartResponse]
         val attributes = Some(
             parse("""{"attributes":{"giftCard":{"senderName":"senderName","recipientName":"recipientName","recipientEmail":"example@example.com"}}}"""))
         val root = giftCardsApi
