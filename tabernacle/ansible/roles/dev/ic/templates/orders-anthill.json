@@ -1,5 +1,5 @@
 {
-  "id": "/orders-cross-sell",
+  "id": "/orders-anthill",
   "cmd": null,
   "cpus": 0.25,
   "mem": 64,
@@ -8,12 +8,12 @@
   "labels": {
     "LAYER": "consumer",
     "LANG": "go",
-    "TAG": "{{docker_tags.orders_cross_sell}}"
+    "TAG": "{{docker_tags.orders_anthill}}"
   },
   "container": {
     "type": "DOCKER",
     "docker": {
-      "image": "{{docker_registry}}:5000/orders-sphex:{{docker_tags.orders_cross_sell}}",
+      "image": "{{docker_registry}}:5000/orders-sphex:{{docker_tags.orders_anthill}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],
@@ -25,13 +25,13 @@
     "SCHEMA_REPOSITORY_URL": "http://{{schema_server}}",
     "ZOOKEEPER_URL": "{{zookeeper_server}}",
     "MWH_URL": "http://{{middlewarehouse_server}}",
-    "CROSS_SELL_HOST": "{{cross-sell}}"
+    "ANTHILL_HOST": "{{anthill}}"
   },
   "healthChecks": [
     {
       "protocol": "COMMAND",
       "command": {
-        "value": "ps -ef | grep -v grep | grep orders-cross-sell"
+        "value": "ps -ef | grep -v grep | grep orders-anthill"
       },
       "gracePeriodSeconds": 300,
       "intervalSeconds": 30,

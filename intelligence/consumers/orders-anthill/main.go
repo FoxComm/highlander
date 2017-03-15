@@ -10,10 +10,10 @@ import (
 
 const (
 	groupId  = "orders-2"
-	clientId = "hal-orders-cross-sell"
+	clientId = "hal-orders-anthill"
 )
 
-var apiUrl = os.Getenv("CROSS_SELL_HOST")
+var apiUrl = os.Getenv("ANTHILL_HOST")
 
 func main() {
 	config, err := consumers.MakeConsumerConfig()
