@@ -16,11 +16,9 @@ import localized from 'lib/i18n';
 import Currency from 'ui/currency';
 import LineItem from './line-item';
 import Button from 'ui/buttons';
-import Icon from 'ui/icon';
 import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
 import { skuIdentity } from '@foxcomm/wings/lib/paragons/sku';
 import { parseError } from '@foxcomm/api-js';
-import CouponCode from '../promo-code/promo-code';
 import Overlay from 'ui/overlay/overlay';
 
 // styles
@@ -31,15 +29,12 @@ import type { Totals } from 'modules/cart';
 
 // actions
 import * as actions from 'modules/cart';
-import { saveCouponCode, removeCouponCode } from 'modules/checkout';
 
 type Props = {
   fetch: Function,
   deleteLineItem: Function,
   updateLineItemQuantity: Function,
   toggleCart: Function,
-  saveCode: Function,
-  removeCode: Function,
   skus: Array<any>,
   coupon: ?Object,
   promotion: ?Object,
@@ -142,13 +137,9 @@ class Cart extends Component {
     const {
       t,
       totals,
-      coupon,
       toggleCart,
       skus,
-      promotion,
       isVisible,
-      saveCode,
-      removeCode,
     } = this.props;
 
     const cartClass = classNames({
@@ -192,6 +183,4 @@ const mapStateToProps = state => ({ ...state.cart, ...state.auth });
 
 export default connect(mapStateToProps, {
   ...actions,
-  saveCode: saveCouponCode,
-  removeCode: removeCouponCode,
 })(localized(Cart));

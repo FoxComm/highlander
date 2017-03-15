@@ -1,7 +1,6 @@
 /* @flow */
 
 import React from 'react';
-import type { HTMLElement } from 'types';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
 import classNames from 'classnames';
@@ -37,70 +36,70 @@ class Sidebar extends React.Component {
 
   state: State = {
     searchFocused: false,
-  }
+  };
 
   @autobind
-  setFocus(focus) {
+  setFocus(focus: boolean) {
     this.setState({ searchFocused: focus });
   }
 
   @autobind
   handleLogout(e) {
-   e.preventDefault();
-   this.props.logout().then(() => {
-     this.props.fetchCart();
-   });
+    e.preventDefault();
+    this.props.logout().then(() => {
+      this.props.fetchCart();
+    });
   }
 
   @autobind
   onLinkClick(e) {
-   if (e.target.tagName === 'A') {
-     this.props.toggleSidebar();
-   }
-  };
+    if (e.target.tagName === 'A') {
+      this.props.toggleSidebar();
+    }
+  }
 
   get userAuthorized() {
     return isAuthorizedUser(this.props.user);
   }
 
   get renderSessionLink() {
-    return this.userAuthorized ?
+    const { t } = this.props;
+
+    if (this.userAuthorized) {
+      return (
         <a styleName="session-link" onClick={this.handleLogout}>
           {this.props.t('Log out')}
         </a>
-      :
-        <Link
-          styleName="session-link"
-          to={{pathname: this.props.path, query: {auth: 'LOGIN'}}}
-        >
-          {this.props.t('Log in')}
-        </Link>
-      ;
-   }
+      );
+    }
 
-   get myProfileLink() {
-     return this.userAuthorized ?
+    return (
+      <Link
+        styleName="session-link"
+        to={{pathname: this.props.path, query: {auth: 'LOGIN'}}}
+        children={t('Log in')}
+      />
+    );
+  }
+
+  get myProfileLink() {
+    if (this.userAuthorized) {
+      return (
         <Link
           to="/profile"
           styleName="session-link"
           activeClassName={styles['active-link']}
-        >
-          Profile
-        </Link>
-      :
-        null
-      ;
-   }
+          children="Profile"
+        />
+      );
+    }
+  }
 
-  render(){
+  render() {
     const sidebarClass = classNames({
       'sidebar-hidden': !this.props.isVisible,
       'sidebar-shown': this.props.isVisible,
     });
-
-    const { t } = this.props;
-
-    const userAuthorized = this.userAuthorized;
 
     return (
       <div styleName={sidebarClass}>

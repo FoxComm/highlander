@@ -2,7 +2,6 @@ import classNames from 'classnames/dedupe';
 import React from 'react';
 
 import styles from './css/buttons.css';
-import type { HTMLElement } from 'types';
 
 import Icon from 'ui/icon';
 

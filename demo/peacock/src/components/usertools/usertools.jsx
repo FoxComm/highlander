@@ -16,7 +16,6 @@ import localized from 'lib/i18n';
 
 import styles from './usertools.css';
 
-import Icon from 'ui/icon';
 import { Link } from 'react-router';
 import UserMenu from './usermenu';
 
