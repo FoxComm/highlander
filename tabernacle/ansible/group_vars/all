@@ -360,6 +360,10 @@ mailchimp_api_key: ""
 update_materialized_views_sql: "/usr/local/share/update_materialized_views.sql"
 update_materialized_views_cmd: "psql {{db_connection_string}} -f {{update_materialized_views_sql}}"
 
+# External analytics
+facebook_pixel_id: "433654337026546"
+ga_tracking_id: ""
+
 # Various flags
 first_run: false
 is_ci: false
