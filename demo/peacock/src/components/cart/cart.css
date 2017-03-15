@@ -15,16 +15,16 @@
   transition: transform .2s;
 
   & ::-webkit-scrollbar {
-      width: 5px;
+    width: 5px;
   }
 
   & ::-webkit-scrollbar-track {
-      background: transparent;
+    background: transparent;
   }
 
   & ::-webkit-scrollbar-thumb {
-      background: rgba(0,0,0,0.30);
-      border-radius: 2px;
+    background: rgba(0,0,0,0.30);
+    border-radius: 2px;
   }
 }
 
