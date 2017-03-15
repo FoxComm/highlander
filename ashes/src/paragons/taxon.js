@@ -12,7 +12,7 @@ export const createEmptyTaxon = () => {
   };
 };
 
-export const duplicateTaxon = (taxon) => {
+export const duplicateTaxon = (taxon: Taxon) => {
   const cleared = dissoc(taxon, 'id', 'taxonomyId');
   return cleared;
 };

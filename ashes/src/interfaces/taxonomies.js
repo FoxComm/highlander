@@ -25,6 +25,7 @@ export type Taxon = {
   id?: number,
   parentId?: number,
   name: string,
+  attributes: Attributes
 };
 
 export type TaxonResult = {

@@ -47,7 +47,7 @@ type Props = {
   object: ObjectView,
   schema: ObjectSchema,
   onUpdateObject: (object: ObjectView) => void,
-  renderers: { [key: string]: (desc: NodeDesc) => ?Element<*> }
+  renderers?: { [key: string]: (desc: NodeDesc) => ?Element<*> }
 };
 
 export default class ObjectDetailsDeux extends Component {
@@ -197,8 +197,11 @@ export default class ObjectDetailsDeux extends Component {
         return this.renderWatchers();
       default:
         const renderName = description.type;
-        invariant(this.props.renderers[renderName], `There is no method for render ${description.type}.`);
-        return this.props.renderers[renderName](description, section);
+        if (this.props.renderers) {
+          invariant(this.props.renderers[renderName], `There is no method for render ${description.type}.`);
+          return this.props.renderers[renderName](description, section);
+        }
+        return
     }
   }
 

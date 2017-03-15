@@ -24,7 +24,6 @@ class ObjectPageDeux extends Component {
 
   static defaultProps = {
     identifierFieldName: 'id',
-    listRoute: {}
   };
 
   componentDidMount() {
@@ -123,9 +122,13 @@ class ObjectPageDeux extends Component {
   @autobind
   archive() {
     const { identifier, objectType, actions, listRoute } = this.props;
-    const { name = pluralize(objectType), params = {} } = listRoute;
-
-    actions.archive(identifier).then(transitionToLazy(name, params));
+    if (listRoute) {
+      const { name, params } = listRoute;
+      actions.archive(identifier).then(transitionToLazy(name, params))
+    } else {
+      const name = pluralize(objectType);
+      actions.archive(identifier).then(transitionToLazy(name));
+    }
   }
 
   get headerControls() {

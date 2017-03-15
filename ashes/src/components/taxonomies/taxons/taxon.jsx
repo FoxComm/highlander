@@ -34,6 +34,10 @@ type Props = {
   params: TaxonParams,
 };
 
+type State = {
+  taxon: ?Taxon
+};
+
 const schema = {
   'type': 'object',
   'title': 'Taxon',
@@ -60,12 +64,8 @@ const schema = {
 };
 
 class TaxonPage extends React.Component {
-  props: any;
-  state = { taxon: null };
-
-  componentDidMount () {
-    console.log('componentDidMount')
-  }
+  props: Props;
+  state: State = { taxon: null };
 
   componentWillReceiveProps(nextProps: Props) {
     const { fetchState, createState, updateState } = nextProps;
@@ -107,11 +107,6 @@ class TaxonPage extends React.Component {
 
     const inProgress = fetchState.inProgress;
     const noError = (!details.taxon && !fetchState.err) || (!schema);
-    console.log(!details.taxon);
-    console.log(!fetchState.err);
-    console.log(!schema);
-    console.log(noError);
-    console.log(inProgress);
     return {
       ...fetchState,
       inProgress: inProgress || noError,

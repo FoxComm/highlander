@@ -29,8 +29,8 @@ const _createTaxon = createAsyncActions(
 
 const _updateTaxon = createAsyncActions(
   'updateTaxon',
-  (taxon: Taxon, context: string = defaultContext) =>
-    Api.patch(`/taxons/${context}/${taxon.id}`, taxon)
+  (taxonId: number, context: string = defaultContext) =>
+    Api.patch(`/taxons/${context}/${taxonId}`)
 );
 
 const _archiveTaxon = createAsyncActions(
