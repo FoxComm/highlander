@@ -99,9 +99,11 @@
   font-weight: 900;
   cursor: pointer;
   background-color: #0b7ddc;
-  display: flex;
+  /*display: flex;
   justify-content: center;
-  align-items: baseline;
+  align-items: baseline;*/
+  text-align: center;
+  line-height: 29px;
 }
 
 .cart-content {
