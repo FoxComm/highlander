@@ -1,0 +1,17 @@
+.discount_qualifier :global .autowidth_dd{
+	width: auto;
+	margin-right: 10px;
+}
+.discount_qualifier :global .inline-container{
+	display: inline-block;
+	vertical-align: top;
+}
+.discount_qualifier :global .fc-input-group{
+	width: 90px;
+}
+.sub-title{
+    font-weight: 600;
+    font-size: 14px;
+    color: #484848;
+    margin: 1em 0 0.5em 0;
+}

@@ -1,3 +1,4 @@
+
 // @flow weak
 
 import _ from 'lodash';
@@ -435,6 +436,26 @@ export class ObjectPage extends Component {
     return null;
   }
 
+  @autobind
+  alterSave(){
+    return null;
+  }
+
+  @autobind
+  titleBar() {
+    return (<PageTitle title={this.pageTitle}>
+        {this.renderHead()}
+        <ButtonWithMenu
+          title="Save"
+          menuPosition="right"
+          onPrimaryClick={this.handleSubmit}
+          onSelect={this.handleSelectSaving}
+          isLoading={this.props.isSaving}
+          items={SAVE_COMBO_ITEMS}
+        />
+      </PageTitle>);    
+  }
+
   childrenProps() {
     const props = this.props;
     const { object, schema } = this.state;
@@ -488,23 +509,14 @@ export class ObjectPage extends Component {
           message="You have unsaved changes. Are you sure you want to leave this page?"
           when={this.unsaved}
         />
-        <PageTitle title={this.pageTitle}>
-          {this.renderHead()}
-          <ButtonWithMenu
-            title="Save"
-            menuPosition="right"
-            onPrimaryClick={this.handleSubmit}
-            onSelect={this.handleSelectSaving}
-            isLoading={props.isSaving}
-            items={SAVE_COMBO_ITEMS}
-          />
-        </PageTitle>
+        {this.titleBar()}
         {this.subNav()}
         <div styleName="object-details">
           {this.errors}
           {this.children}
         </div>
         {!this.isNew && this.renderArchiveActions()}
+        {this.alterSave()}
       </div>
     );
   }

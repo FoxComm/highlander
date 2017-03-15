@@ -66,7 +66,6 @@ export default class SelectableSearchList extends React.Component {
     const props = this.props;
     const currentSearch = props.list.currentSearch();
     const { results, title } = currentSearch;
-
     return (
       <LiveSearchAdapter
         {...props.searchOptions}

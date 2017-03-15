@@ -110,6 +110,7 @@ export default class CouponForm extends ObjectDetails {
     return (
       <CouponCodes
         createCoupon={this.props.createCoupon}
+        promotionId={this.props.object.promotion}
         codeGeneration={this.props.codeGeneration}
         isNew={this.props.isNew}
       />

@@ -151,8 +151,11 @@ export default class ObjectDetails extends Component {
     }
   }
 
-  renderGroup(group: NodeDesc, section: Array<NodeDesc>) {
-    const { title, fields, renderer, content } = group;
+  renderGroup(group: NodeDesc, section: Array<NodeDesc>): Element {
+    const { title, fields, renderer, content, showIfNew } = group;
+    if( !this.props.isNew && showIfNew ){
+      return null;
+    }
 
     let children;
     if (content) {
