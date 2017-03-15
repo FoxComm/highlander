@@ -102,7 +102,7 @@ class Search extends Component {
     const { t } = this.props;
 
     return (
-      <div styleName='search'>
+      <div styleName="search">
         <form action="." >
           <input value={this.state.term}
             onChange={this.onChange}

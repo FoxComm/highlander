@@ -39,11 +39,11 @@ class Sidebar extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if(nextProps.isVisible) {
+    if (nextProps.isVisible) {
       const className = window.innerWidth < 1120 ? 'no-scroll-mobile' : 'no-scroll';
       document.getElementById('body-wrapper').className = className;
-    }else {
-      document.getElementById('body-wrapper').className = "";
+    } else {
+      document.getElementById('body-wrapper').className = '';
     }
   }
 

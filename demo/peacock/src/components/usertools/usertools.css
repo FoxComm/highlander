@@ -17,7 +17,7 @@
   display: inline-block;
   line-height: 30px;
   text-decoration: none;
-  color:#222222;
+  color: #222;
 
   &:hover {
     opacity: .7;
@@ -81,20 +81,20 @@
   vertical-align: top;
   display: inline-block;
   text-align: center;
-  color:#fff;
-  width:14px;
-  height:14px;
+  color: #fff;
+  width: 14px;
+  height: 14px;
   text-align: center;
   top: -5px;
 }
 .cart-quantity {
   border-radius: 50%;
-  background-color:#0b7ddc;
+  background-color: #0b7ddc;
   display: flex;
   align-items: center;
   justify-content: center;
-  width:16px;
-  height:17px;
+  width: 16px;
+  height: 17px;
   font-size: 11px;
   font-weight: 900;
 }
@@ -102,7 +102,7 @@
 .cart {
   white-space: nowrap;
   cursor: pointer;
-  color: #222222;
+  color: #222;
 
   &:hover {
     opacity: 0.7;
@@ -126,8 +126,4 @@
   .cart-quantity {
     top: 8px;
   }
-}
-
-@media (--large) {
-
 }
