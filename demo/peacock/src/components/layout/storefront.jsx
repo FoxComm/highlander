@@ -37,8 +37,6 @@ const StoreFront = (props: Props) => {
       <Header
         path={props.location.pathname}
         query={props.location.query}
-        isBannerVisible={props.banner.isVisible}
-        closeBanner={props.closeBanner}
       />
       <div className={bodyClass}>
         {props.children}
