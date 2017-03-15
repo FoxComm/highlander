@@ -349,7 +349,6 @@ const _checkout = createAsyncActions(
         ...cartState,
         referenceNumber: res.referenceNumber,
       });
-      crossSell.train(customerId, channelId, cartLineItemsSkus);
       dispatch(orderPlaced(res));
       dispatch(resetCart());
       return res;
