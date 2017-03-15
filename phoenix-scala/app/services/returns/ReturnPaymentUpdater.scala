@@ -61,7 +61,7 @@ object ReturnPaymentUpdater {
 
   private[this] def updateTotalsReturn(rma: Return)(implicit ec: EC, db: DB, au: AU) =
     for {
-      totalRefund ← * <~ ReturnPayments.filter(_.returnId === rma.id).map(_.amount).sum.result
+      totalRefund ← * <~ ReturnPayments.findAllByReturnId(rma.id).map(_.amount).sum.result
       _           ← * <~ Returns.update(rma, rma.copy(totalRefund = rma.totalRefund |+| totalRefund))
     } yield ()
 
