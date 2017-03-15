@@ -50,6 +50,11 @@ object CartRoutes {
                 }
               }
             } ~
+            (post & path("checkout") & pathEnd & entity(as[CheckoutCart])) { payload ⇒
+              mutateOrFailures {
+                Checkout.fromPayload(payload)
+              }
+            } ~
             (post & path("checkout")) {
               mutateOrFailures {
                 Checkout.fromCart(refNum)

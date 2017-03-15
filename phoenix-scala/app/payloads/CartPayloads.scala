@@ -5,6 +5,7 @@ import cats.implicits._
 import failures.Failure
 import utils.Validation
 import Validation._
+import payloads.LineItemPayloads.UpdateLineItemsPayload
 
 object CartPayloads {
 
@@ -15,8 +16,12 @@ object CartPayloads {
 
     def validate: ValidatedNel[Failure, CreateCart] = {
 
-      (validExpr(customerId.isDefined || email.isDefined, "customerId or email must be given") |@| email
-            .fold(ok)(notEmpty(_, "email"))).map { case _ ⇒ this }
+      (validExpr(customerId.isDefined || email.isDefined, "customerId or email must be given") |+|
+            email.fold(ok)(notEmpty(_, "email"))).map(_ ⇒ this)
     }
   }
+
+  case class CheckoutCart(customerId: Int,
+                          item: UpdateLineItemsPayload,
+                          scope: Option[String] = None)
 }

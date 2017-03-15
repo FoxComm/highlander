@@ -20,16 +20,10 @@ object CartCreator {
 
     def existingCustomerOrNewGuest: DbResultT[CartResponse] =
       (payload.customerId, payload.email) match {
-        case (Some(customerId), _) ⇒ createCartForCustomer(customerId)
+        case (Some(customerId), _) ⇒ createCartForCustomer(admin, customerId)
         case (_, Some(email))      ⇒ createCartAndGuest(email)
         case _                     ⇒ ???
       }
-
-    def createCartForCustomer(accountId: Int)(implicit ctx: OC): DbResultT[CartResponse] =
-      for {
-        customer ← * <~ Users.mustFindByAccountId(accountId)
-        fullCart ← * <~ CartQueries.findOrCreateCartByAccountInner(customer, Some(admin))
-      } yield fullCart
 
     def createCartAndGuest(email: String): DbResultT[CartResponse] =
       for {
@@ -47,11 +41,16 @@ object CartCreator {
              .cartCreated(Some(admin), root(cart, guest, custData))
       } yield root(cart, guest, custData)
 
-    for {
-      _    ← * <~ payload.validate.toXor
-      root ← * <~ existingCustomerOrNewGuest
-    } yield root
+    existingCustomerOrNewGuest
   }
+
+  def createCartForCustomer(
+      admin: User,
+      accountId: Int)(implicit ec: EC, db: DB, ac: AC, au: AU, ctx: OC): DbResultT[CartResponse] =
+    for {
+      customer ← * <~ Users.mustFindByAccountId(accountId)
+      fullCart ← * <~ CartQueries.findOrCreateCartByAccountInner(customer, Some(admin))
+    } yield fullCart
 
   private def root(cart: Cart, customer: User, custData: CustomerData): CartResponse =
     CartResponse.buildEmpty(cart = cart, customer = customer.some, custData.some)

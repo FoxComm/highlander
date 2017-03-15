@@ -4,7 +4,9 @@ import scala.util.Random
 import cats.data.Xor
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
+import failures.AddressFailures.NoDefaultAddressForCustomer
 import failures.CouponFailures.CouponWithCodeCannotBeFound
+import failures.CreditCardFailures.NoDefaultCreditCardForCustomer
 import failures.GeneralFailure
 import failures.PromotionFailures.PromotionNotFoundForContext
 import models.account._
@@ -13,13 +15,16 @@ import models.cord.lineitems.CartLineItems
 import models.cord.lineitems.CartLineItems.scope._
 import models.coupon._
 import models.account._
+import models.location.Addresses
 import models.objects._
 import models.payment.creditcard._
 import models.payment.giftcard._
 import models.payment.storecredit._
 import models.promotion._
 import org.json4s.JsonAST._
+import payloads.CartPayloads.CheckoutCart
 import responses.cord.OrderResponse
+import services.carts.{CartCreator, CartPaymentUpdater, CartShippingAddressUpdater}
 import services.coupon.CouponUsageService
 import services.inventory.SkuManager
 import slick.driver.PostgresDriver.api._
@@ -88,6 +93,35 @@ object Checkout {
                 .findOrCreateExtended(Carts.create(
                         Cart(accountId = customer.accountId, scope = LTree(au.token.scope))))
       (cart, _) = result
+      order ← * <~ Checkout(cart, CartValidator(cart)).checkout
+    } yield order
+
+  def fromPayload(payload: CheckoutCart)(implicit ec: EC,
+                                         es: ES,
+                                         db: DB,
+                                         apis: Apis,
+                                         ac: AC,
+                                         ctx: OC,
+                                         au: AU): DbResultT[OrderResponse] =
+    for {
+      cartResponse ← * <~ CartCreator.createCartForCustomer(au.model, payload.customerId)
+      refNum     = cartResponse.referenceNumber
+      customerId = payload.customerId
+
+      _ ← * <~ LineItemUpdater.addQuantitiesOnCart(au.model, refNum, List(payload.item))
+
+      cc ← * <~ CreditCards
+            .findDefaultByAccountId(customerId)
+            .mustFindOneOr(NoDefaultCreditCardForCustomer(customerId))
+      _ ← * <~ CartPaymentUpdater.addCreditCard(au.model, cc.id, refNum.some)
+
+      address ← * <~ Addresses
+                 .findShippingDefaultByAccountId(customerId)
+                 .mustFindOneOr(NoDefaultAddressForCustomer(customerId))
+      _ ← * <~ CartShippingAddressUpdater
+           .createShippingAddressFromAddressId(au.model, address.id, refNum.some)
+
+      cart  ← * <~ Carts.mustFindByRefNum(cartResponse.referenceNumber)
       order ← * <~ Checkout(cart, CartValidator(cart)).checkout
     } yield order
 }
