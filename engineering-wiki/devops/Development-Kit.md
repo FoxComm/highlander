@@ -64,8 +64,6 @@ Various package management and build systems which are necessary for modern deve
     * [lein](https://github.com/technomancy/leiningen) - automating Clojure projects without setting your hair on fire.
     * [boot](https://github.com/boot-clj/boot) - Clojure build framework and ad-hoc Clojure script evaluator.
 * JavaScript
-    * [babel-cli](https://github.com/babel/babel) - command-line compiler for writing next generation JavaScript.
-    * [gulp](https://github.com/gulpjs/gulp) - streaming build system for Node.js.
     * [yarn](https://yarnpkg.com) - fast, reliable, and secure dependency management for Node.js.
 
 ## Command line utilities
