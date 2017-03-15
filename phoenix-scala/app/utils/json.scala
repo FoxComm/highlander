@@ -1,5 +1,6 @@
 package utils
 
+import com.github.tminglei.slickpg.LTree
 import models.admin.AdminData
 import models.auth.Identity.IdentityKind
 import models.cord.{CordPaymentState, Order}
@@ -18,7 +19,8 @@ import models.rules.{Condition, QueryStatement}
 import models.sharedsearch.SharedSearch
 import models.shipping.Shipment
 import models.{Assignment, Note, Reason}
-import org.json4s.{TypeHints, jackson}
+import org.json4s.JsonAST.JString
+import org.json4s.{CustomSerializer, JNull, TypeHints, jackson}
 import payloads.AuthPayload
 import payloads.ReturnPayloads.ReturnLineItemPayload
 import responses.PublicResponses.CountryWithRegions
@@ -82,4 +84,12 @@ object JsonFormatters {
       PaymentMethod.Type.jsonFormat + SkuType.jsonFormat + SharedSearch.Scope.jsonFormat +
       IdentityKind.jsonFormat + AdminData.State.jsonFormat + PluginSettings.SettingType.jsonFormat +
       AuthPayload.JwtClaimsSerializer + ReturnLineItemPayload.typeHints + PaymentMethod.Type.jsonKeyFormat
+
+
+  object LTreeFormat
+    extends CustomSerializer[LTree](format ⇒
+      ({
+        case JString(s)      ⇒ LTree(s)
+        case JNull           ⇒ LTree("")
+      }, { case value: LTree ⇒ JString(value.toString) }))
 }
