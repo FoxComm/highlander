@@ -64,10 +64,13 @@ object CordResponsePromotions {
                                                      db: DB,
                                                      ctx: OC): DbResultT[PromotionResponse.Root] =
     for {
+      _ ← * <~ println(
+             s"----------------- fetchAutoApply — shadowId = $promotionShadowId & ctx.id = ${ctx.id}")
       promotion ← * <~ Promotions
                    .filterByContextAndShadowId(ctx.id, promotionShadowId)
-                   .autoApplied
+                   //.autoApplied
                    .mustFindOneOr(PromotionNotFound(promotionShadowId))
+      _    ← * <~ println(s"---------- Promotion found")
       resp ← * <~ renderPromotionResponse(promotion)
     } yield resp
 

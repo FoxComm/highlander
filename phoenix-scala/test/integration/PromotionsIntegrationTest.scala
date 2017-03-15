@@ -1,21 +1,31 @@
 import java.time.Instant
 
+import cats._
+import cats.implicits._
 import failures.NotFoundFailure404
 import failures.ObjectFailures._
+import models.Reasons
 import models.objects.{ObjectContext, ObjectUtils}
 import models.promotion.Promotion.{Auto, Coupon}
 import models.promotion._
+import models.rules.QueryStatement
+import models.shipping.{ShippingMethod, ShippingMethods}
 import org.json4s.JsonAST._
 import org.json4s.JsonDSL._
+import org.json4s.jackson.JsonMethods._
 import org.scalactic.TolerantNumerics
+import payloads.AddressPayloads.CreateAddressPayload
 import payloads.CouponPayloads.CreateCoupon
 import payloads.DiscountPayloads.CreateDiscount
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.CartPayloads.CreateCart
+import payloads.PaymentPayloads.{CreateManualStoreCredit, StoreCreditPayment}
 import payloads.PromotionPayloads._
+import payloads.UpdateShippingMethod
 import responses.CouponResponses.CouponResponse
+import responses.{CustomerResponse, StoreCreditResponse}
 import responses.PromotionResponses.PromotionResponse
-import responses.cord.CartResponse
+import responses.cord.{CartResponse, OrderResponse}
 import services.objects.ObjectManager
 import services.promotion.PromotionManager
 import testutils.PayloadHelpers.tv
@@ -27,6 +37,7 @@ import testutils.fixtures.{BakedFixtures, PromotionFixtures}
 import utils.IlluminateAlgorithm
 import utils.aliases._
 import utils.db._
+import utils.seeds.{Factories, ShipmentSeeds}
 import utils.time.RichInstant
 
 class PromotionsIntegrationTest
@@ -140,6 +151,92 @@ class PromotionsIntegrationTest
       implicit val doubleEquality = TolerantNumerics.tolerantDoubleEquality(1.0)
       totals.adjustments.toDouble must === (sku.attributes.salePrice * (percentOff / 100.0))
       totals.total.toDouble must === (sku.attributes.salePrice * (1.0 - percentOff / 100.0))
+    }
+
+    "keep correct promo versions for Carts & Orders after admin updates" in new ProductSku_ApiFixture
+    with StoreAdmin_Seed {
+      val percentOffInitial = 33
+      val percentOffUpdated = 17
+
+      val promo = promotionsApi
+        .create(
+            PromotionPayloadBuilder.build(Promotion.Auto,
+                                          PromoOfferBuilder.CartPercentOff(percentOffInitial),
+                                          PromoQualifierBuilder.CartAny))
+        .as[PromotionResponse.Root]
+
+      val customerA, customerB = api_newCustomer()
+
+      // FIXME: use API
+      val shippingMethod = UpdateShippingMethod(
+          ShippingMethods
+            .create(
+                ShippingMethod(
+                    adminDisplayName = "a",
+                    storefrontDisplayName = "b",
+                    code = "c",
+                    price = 1000,
+                    conditions = Some(parse("""{"comparison": "and", "conditions": []}""")
+                          .extract[QueryStatement])
+                ))
+            .gimme
+            .id)
+
+      // FIXME: use API
+      val reason = Reasons.create(Factories.reason(storeAdmin.accountId)).gimme
+
+      def cartPreCheckout(customer: CustomerResponse.Root): CartResponse = {
+        val refNum = cartsApi
+          .create(CreateCart(customerId = customer.id.some))
+          .as[CartResponse]
+          .referenceNumber
+        cartsApi(refNum).lineItems
+          .add(Seq(UpdateLineItemsPayload(skuCode, 1)))
+          .asTheResult[CartResponse]
+        cartsApi(refNum).shippingAddress
+          .create(
+              CreateAddressPayload(name = "Home Office",
+                                   regionId = 1,
+                                   address1 = "3000 Coolio Dr",
+                                   city = "Seattle",
+                                   zip = "55555"))
+          .asTheResult[CartResponse]
+        val c = cartsApi(refNum).shippingMethod.update(shippingMethod).asTheResult[CartResponse]
+        import c.totals.total
+        val scr = customersApi(customer.id).payments.storeCredit
+          .create(CreateManualStoreCredit(
+                  amount = total,
+                  reasonId = reason.id
+              ))
+          .as[StoreCreditResponse.Root]
+        cartsApi(refNum).payments.storeCredit
+          .add(StoreCreditPayment(total))
+          .asTheResult[CartResponse]
+      }
+
+      val List(cartA, cartB) = List(customerA, customerB).map(cartPreCheckout)
+
+      val orderA = cartsApi(cartA.referenceNumber).checkout().as[OrderResponse]
+
+      // Now, let’s update the promotion and see if orderA’s one stays intact, while cartB’s is updated.
+
+      val promoUpdated = promotionsApi(promo.id).update {
+        val payload =
+          PromotionPayloadBuilder.build(Promotion.Auto,
+                                        PromoOfferBuilder.CartPercentOff(percentOffUpdated),
+                                        PromoQualifierBuilder.CartAny)
+        UpdatePromotion(
+            applyType = payload.applyType,
+            attributes = payload.attributes,
+            discounts =
+              Seq(UpdatePromoDiscount(promo.discounts.head.id, payload.discounts.head.attributes)))
+      }.as[PromotionResponse.Root]
+
+      println("----------------------------- FETCHING ORDER ----------------------------------")
+      val orderA2 = ordersApi(orderA.referenceNumber).get().asTheResult[OrderResponse]
+
+      info(s"upd = $orderA2")
+
     }
   }
 
