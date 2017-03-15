@@ -139,19 +139,15 @@ class ListItem extends React.Component {
         <Link onClick={this.handleClick} to={`/products/${productSlug}`}>
           <div styleName="preview">
             {this.image}
-            <div styleName="hover-info">
-              <h2
-                styleName="additional-description"
-                dangerouslySetInnerHTML={{__html: description}}
-              />
-            </div>
           </div>
         </Link>
 
         <div styleName="text-block">
-          <h1 styleName="title" alt={title}>
-            <Link to={`/products/${productSlug}`}>{title}</Link>
-          </h1>
+          <div styleName="title-line">
+            <h1 styleName="title" alt={title}>
+              <Link to={`/products/${productSlug}`}>{title}</Link>
+            </h1>
+          </div>
           <div styleName="price-line">
             {this.isOnSale()}
           </div>

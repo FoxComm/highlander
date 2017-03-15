@@ -3,7 +3,7 @@
 @import "media-queries";
 
 .list-item {
-  width: 180px;
+  lost-column: 1/4;
   margin-bottom: 20px;
   margin-right: 20px;
   margin-left: 20px;
@@ -40,12 +40,17 @@
 .text-block {
   text-align: left;
   position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.title-line {
+  height: 38px;
+  margin: 8px 0;
 }
 
 .title {
-/*  composes: title-devider from 'ui/css/layout.css';*/
-
-  margin-top: 20px;
+  margin: 0;
   font-family: var(--font-playfair);
   font-weight: 900;
   font-size: 16px;
@@ -64,18 +69,7 @@
   }
 }
 
-.description {
-  font-family: var(--font-main);
-  font-weight: 300;
-  font-size: 15px;
-  color: var(--text-color-main);
-  opacity: 0.44;
-  letter-spacing: 2.15px;
-  margin-top: 10px;
-}
-
 .price-line {
-  margin-top: 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -104,39 +98,18 @@
 }
 
 @media (--small-only) {
-  .description {
-    font-size: 13px;
-    letter-spacing: 0px;
+  .list-item {
+    lost-column: 1/2;
+  }
+}
+
+@media (--medium-only) {
+  .list-item {
+    lost-column: 1/2;
   }
 }
 
 @media (--medium) {
-  .hover-info {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: #332A2C;
-    opacity: 0;
-    transition: opacity .3s ease-out;
-    display: flex;
-    padding: 12px;
-
-    & .additional-description {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      text-align: center;
-      justify-content: center;
-      font-family: var(--font-main);
-      font-weight: 300;
-      font-size: 16px;
-      color: white;
-      line-height: 33px;
-    }
-  }
-
   .on-sale-price,
   .retail-price {
     display: inline-block;
@@ -144,12 +117,5 @@
 
   .retail-price {
     margin-right: 7px;
-  }
-}
-
-@media (--large), (--x-large) {
-  .description {
-    font-size: 15px;
-    letter-spacing: 0px;
   }
 }

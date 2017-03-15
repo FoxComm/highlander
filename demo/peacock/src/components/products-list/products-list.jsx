@@ -30,7 +30,7 @@ type Props = {
 
 type State = {
   shownProducts: {[productId: string]: number},
-}
+};
 
 class ProductsList extends Component {
   props: Props;
