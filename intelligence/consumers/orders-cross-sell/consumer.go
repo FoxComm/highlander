@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"log"
+	"net"
+	"strconv"
 
 	"bytes"
 	"net/http"
@@ -33,8 +35,9 @@ type Activity struct {
 	Order Order `json:"order"`
 }
 
+type urlGetter func() (string, error)
 type OrderConsumer struct {
-	apiUrl string
+	apiUrl urlGetter
 }
 
 type Point struct {
@@ -51,12 +54,12 @@ const (
 	orderCheckoutCompleted = "order_checkout_completed"
 )
 
-func NewOrderConsumer(apiUrl string) (*OrderConsumer, error) {
-	if apiUrl == "" {
+func NewOrderConsumer(crossSellHost string) (*OrderConsumer, error) {
+	if crossSellHost == "" {
 		return nil, errors.New("cross sell host is required")
 	}
 
-	crossSellUrl := apiUrl + "/public/recommend/prod-prod/train"
+	crossSellUrl := lookupSrv(crossSellHost)
 	return &OrderConsumer{crossSellUrl}, nil
 }
 
@@ -85,7 +88,11 @@ func (o OrderConsumer) track(payload ProdProdPayload) error {
 	if jsonErr != nil {
 		return jsonErr
 	}
-	_, err := http.Post(o.apiUrl, "application/json", bytes.NewBuffer(body))
+	apiString, err1 := o.apiUrl()
+	if err1 != nil {
+		return err1
+	}
+	_, err := http.Post(apiString, "application/json", bytes.NewBuffer(body))
 	return err
 }
 
@@ -104,4 +111,25 @@ func (o OrderConsumer) Handler(message metamorphosis.AvroMessage) error {
 		return err
 	}
 	return nil
+}
+
+func lookupSrv(host string) func() (string, error) {
+	return func() (string, error) {
+		_, srvs, err := net.LookupSRV("", "", host)
+		if err != nil {
+			return "", err
+		}
+
+		if len(srvs) == 0 {
+			return "", errors.New("Unable to find port for " + host)
+		}
+
+		srv := srvs[0]
+
+		host = srv.Target
+		port := strconv.Itoa(int(srv.Port))
+		crossSellUrl := "http://" + host + ":" + port + "/prod-prod/train"
+
+		return crossSellUrl, nil
+	}
 }

@@ -13,7 +13,7 @@ const (
 	clientId = "hal-orders-cross-sell"
 )
 
-var apiUrl = os.Getenv("API_URL")
+var apiUrl = os.Getenv("CROSS_SELL_HOST")
 
 func main() {
 	config, err := consumers.MakeConsumerConfig()
