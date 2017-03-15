@@ -9,7 +9,7 @@ all: build
 
 build:
 	$(call header, Building)
-	true
+	cd pliant && make build
 
 test:
 	$(call header, Testing)

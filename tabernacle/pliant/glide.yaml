@@ -1,0 +1,4 @@
+package: github.com/FoxComm/highlander/tabernacle/pliant
+import:
+  - package: github.com/urfave/cli
+  - package: gopkg.in/yaml.v2
