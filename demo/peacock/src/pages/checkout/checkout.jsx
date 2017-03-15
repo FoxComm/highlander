@@ -237,13 +237,7 @@ class Checkout extends Component {
 
   render() {
     const props = this.props;
-
-    const setStates = {
-      setShippingStage: this.setShippingStage,
-      setDeliveryStage: this.setDeliveryStage,
-      setBillingStage: this.setBillingStage,
-    };
-
+    
     const body = props.fetchCartState.finished ? this.content : <Loader />;
 
     return (
