@@ -65,7 +65,6 @@ Various package management and build systems which are necessary for modern deve
     * [boot](https://github.com/boot-clj/boot) - Clojure build framework and ad-hoc Clojure script evaluator.
 * JavaScript
     * [babel-cli](https://github.com/babel/babel) - command-line compiler for writing next generation JavaScript.
-    * [flow-bin](https://github.com/flowtype/flow-bin) - Binary wrapper for Flow - a static type checker for JavaScript.
     * [gulp](https://github.com/gulpjs/gulp) - streaming build system for Node.js.
     * [yarn](https://yarnpkg.com) - fast, reliable, and secure dependency management for Node.js.
 
@@ -74,8 +73,10 @@ Various package management and build systems which are necessary for modern deve
 Baked in command-line utilities which ease problem solving:
 
 * [consulate](https://github.com/gmr/consulate) - command-line client for the Consul HTTP API.
+* [ctop](https://github.com/bcicen/ctop) - `top`-like interface for container metrics.
 * [docker-compose](https://github.com/docker/compose) - define and run multi-container applications with Docker.
 * [flyway](https://flywaydb.org) - open-source database migration tool.
+* [htop](https://github.com/hishamhm/htop) - interactive text-mode process viewer for Unix systems.
 * [httpie](https://httpie.org) - a command line HTTP client that will make you smile.
 * [jq](https://stedolan.github.io/jq) - lightweight and flexible command-line JSON processor.
 * [kt](https://github.com/fgeller/kt) - commandline tool for Apache Kafka.

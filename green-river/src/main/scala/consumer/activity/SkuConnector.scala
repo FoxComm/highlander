@@ -13,7 +13,7 @@ object SkuConnector extends ActivityConnector {
       skuIds.distinct.map(createConnection(_, activity.id))
     }
 
-  def createConnection(formId: String, activityId: Int): Connection = {
+  def createConnection(formId: String, activityId: String): Connection = {
     Connection(dimension = dimension,
                objectId = formId,
                data = JNothing,

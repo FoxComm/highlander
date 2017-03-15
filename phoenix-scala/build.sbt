@@ -27,7 +27,7 @@ lazy val phoenixScala = (project in file("."))
     ),
     libraryDependencies ++= {
       import Dependencies._
-      akka ++ http ++ auth ++ db ++ slick ++ json4s ++ fasterxml ++ apis ++ logging ++ test ++ misc
+      akka ++ http ++ auth ++ db ++ slick ++ json4s ++ fasterxml ++ apis ++ logging ++ test ++ misc ++ kafka
     },
     addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.3"),
     scalaSource in Compile <<= baseDirectory(_ / "app"),
@@ -46,6 +46,7 @@ lazy val phoenixScala = (project in file("."))
     unmanagedResources in Compile += file("version"),
     testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oD"),
     javaOptions in Test ++= Seq("-Xmx2G", "-XX:+UseConcMarkSweepGC", "-Dphoenix.env=test"),
+    parallelExecution in Compile := true,
     parallelExecution in Test := true,
     parallelExecution in IT   := false,
     parallelExecution in ET   := false,
@@ -62,6 +63,10 @@ lazy val phoenixScala = (project in file("."))
     Revolver.settings,
     assemblyMergeStrategy in assembly := {
       case PathList("org", "joda", "time", xs @ _ *) ⇒
+        MergeStrategy.first
+      case PathList("org", "slf4j", xs @ _ *) ⇒
+        MergeStrategy.first
+      case PathList("ch", "qos", "logback", xs @ _ *) ⇒
         MergeStrategy.first
       case PathList("scala", xs @ _ *) ⇒ // FIXME: investigate what’s still pulling in Lightbend Scala?
         MergeStrategy.first
@@ -82,6 +87,14 @@ lazy val seeder = (project in file("seeder"))
     reformatOnCompileSettings, // scalafmt,
     Revolver.settings,
     assemblyMergeStrategy in assembly := {
+      case PathList("org", "joda", "time", xs @ _ *) ⇒
+        MergeStrategy.first
+      case PathList("org", "slf4j", xs @ _ *) ⇒
+        MergeStrategy.first
+      case PathList("ch", "qos", "logback", xs @ _ *) ⇒
+        MergeStrategy.first
+      case PathList("io", "netty", xs @ _ *) ⇒
+        MergeStrategy.first
       case PathList("META-INF", "io.netty.versions.properties") ⇒
         MergeStrategy.first
       case x ⇒

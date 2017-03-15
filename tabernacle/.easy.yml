@@ -97,6 +97,11 @@ shortcuts:
     alias: provision_appliance.yml
     target: ansible/provision_appliance.yml
 
+  # Cloud
+  - name: Provision Cloud Central
+    alias: cloud_central.yml
+    target: ansible/provision_cloud_central.yml
+
   - name: Provision Cloud Demo
     alias: cloud_demo.yml
     target: ansible/provision_cloud_demo.yml
