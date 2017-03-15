@@ -35,4 +35,4 @@ docker-push:
 clean:
 	true
 
-.PHONY: all build clean lint test docker docker-push
+.PHONY: all build clean test docker docker-push
