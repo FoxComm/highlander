@@ -36,15 +36,13 @@ const TaxonRow = (props: Props) => {
     params,
   };
 
-  return <MultiSelectRow {...commonParams} />;
-
-  // return (
-  //   <MultiSelectRow
-  //     {...commonParams}
-  //     linkTo="taxonomy-details"
-  //     linkParams={{taxonomyId: taxonomy.taxonomyId, context: taxonomy.context}}
-  //   />
-  // );
+  return (
+    <MultiSelectRow
+      {...commonParams}
+      linkTo="value-details"
+      linkParams={taxon}
+    />
+  );
 };
 
 export default TaxonRow;

@@ -32,7 +32,7 @@ declare type Taxon = TaxonDraft & {
 };
 
 declare type TaxonResult = {
-  id?: number,
+  id: number,
   parentId?: number,
   name: string,
 };
