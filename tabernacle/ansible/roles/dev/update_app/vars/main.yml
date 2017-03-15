@@ -95,3 +95,4 @@ docker_tags:
     river_rock: "{{tag_name}}"
     digger_sphex: "{{tag_name}}"
     orders_sphex: "{{tag_name}}"
+    orders_cross_sell: "{{tag_name}}"

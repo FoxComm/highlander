@@ -58,7 +58,7 @@ docker_tags:
     river_rock: "{{ lookup('env', 'DOCKER_TAG_RIVER_ROCK') | default('master', true) }}"
     digger_sphex: "{{ lookup('env', 'DOCKER_TAG_DIGGER_SPHEX') | default('master', true) }}"
     orders_sphex: "{{ lookup('env', 'DOCKER_TAG_ORDERS_SPHEX') | default('master', true) }}"
-    cross_sell: "{{ lookup('env', 'DOCKER_TAG_CROSS_SELL') | default('master', true) }}"
+    orders_cross_sell: "{{ lookup('env', 'DOCKER_TAG_ORDERS_CROSS_SELL') | default('master', true) }}"
 
 # Configurable Marathon re-deploys
 marathon_restart:
