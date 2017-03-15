@@ -6,6 +6,7 @@ import failures.ScopeFailures._
 import failures._
 import models.Reason
 import models.account._
+import models.cord.lineitems.GiftCardLineItemAttributes
 import models.cord.{Carts, Cord, Cords}
 import models.payment.giftcard.GiftCard._
 import models.payment.giftcard._
@@ -121,9 +122,7 @@ class GiftCardIntegrationTest
           .create(
               CreateCart(customerId = 1.some, email = "sender@example.com".some, scope = "1".some))
           .as[CartResponse]
-        val attributes = Some(parse("""{"attributes":{"giftCard":{"senderName":"senderName",
-                 "recipientName":"recipientName",
-                 "recipientEmail":"example@example.com"}}}""".stripMargin))
+
         val root = giftCardsApi
           .createFromCustomer(
               GiftCardCreatedByCustomer(balance = 555,
@@ -145,8 +144,7 @@ class GiftCardIntegrationTest
           .create(
               CreateCart(customerId = 1.some, email = "sender@example.com".some, scope = "1".some))
           .as[CartResponse]
-        val attributes = Some(
-            parse("""{"attributes":{"giftCard":{"senderName":"senderName","recipientName":"recipientName","recipientEmail":"example@example.com"}}}"""))
+
         val root = giftCardsApi
           .createMultipleFromCustomer(
               Seq(GiftCardCreatedByCustomer(balance = 555,
@@ -172,9 +170,11 @@ class GiftCardIntegrationTest
       }
 
       "successfully creates gift cards with empty messages as a custumer from payload" in new Reason_Baked {
-        val cordInsert = Carts.create(Factories.cart(LTree("1"))).gimme
-        val attributes = Some(
-            parse("""{"attributes":{"giftCard":{"senderName":"senderName","recipientName":"recipientName","recipientEmail":"example@example.com"}}}"""))
+        val cordInsert = cartsApi
+          .create(
+              CreateCart(customerId = 1.some, email = "sender@example.com".some, scope = "1".some))
+          .as[CartResponse]
+
         val root = giftCardsApi
           .createMultipleFromCustomer(
               Seq(GiftCardCreatedByCustomer(balance = 555,

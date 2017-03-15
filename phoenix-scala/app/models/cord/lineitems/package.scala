@@ -32,7 +32,7 @@ package object lineitems {
   case class GiftCardLineItemAttributes(senderName: String,
                                         recipientName: String,
                                         recipientEmail: String,
-                                        message: Option[String],
+                                        message: Option[String] = None,
                                         code: Option[String] = None)
       extends Validation[GiftCardLineItemAttributes] {
 
