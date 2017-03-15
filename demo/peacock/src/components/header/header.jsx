@@ -12,25 +12,17 @@ import Icon from 'ui/icon';
 import Search from '../search/search';
 import UserTools from '../usertools/usertools';
 import Navigation from '../navigation/navigation';
+import Cart from 'components/cart/cart';
+import Sidebar from 'components/sidebar/sidebar';
 
 type Props = {
   toggleSidebar: Function,
   path: string,
   query: ?Object,
-  closeBanner: Function,
-  isBannerVisible: boolean,
-};
-
-type State = {
-  isScrolled: boolean,
 };
 
 class Header extends React.Component {
   props: Props;
-
-  state: State = {
-    isScrolled: false,
-  };
 
   render() {
     return (
@@ -48,7 +40,7 @@ class Header extends React.Component {
                 <Navigation path={this.props.path} />
               </div>
               <div styleName="search">
-                <Search isScrolled={false}/>
+                <Search />
               </div>
             </div>
             <div styleName="tools">
@@ -56,6 +48,13 @@ class Header extends React.Component {
             </div>
           </div>
         </div>
+
+        <Cart />
+
+        <div styleName="mobile-sidebar">
+          <Sidebar path={this.props.path} />
+        </div>
+
       </div>
     );
   }

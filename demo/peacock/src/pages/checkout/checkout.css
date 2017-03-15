@@ -70,10 +70,6 @@
 }
 
 @media (--small-only), (--medium-only) {
-  .content {
-    margin-top: 150px;
-  }
-
   .summary-content {
     position: fixed;
     box-shadow: 0 5px 10px rgba(0, 0, 0, .1);
@@ -106,7 +102,6 @@
 
 @media (--large) {
   .content {
-    margin-top: 355px;
     display: flex;
     flex-direction: column;
     lost-column: 10/12;

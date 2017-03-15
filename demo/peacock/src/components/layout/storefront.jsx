@@ -6,10 +6,7 @@ import { connect } from 'react-redux';
 import classNames from 'classnames';
 
 import Header from '../header/header';
-import Sidebar from '../sidebar/sidebar';
 import Footer from '../footer/footer';
-import Cart from '../cart/cart';
-
 import * as actions from 'modules/banner';
 
 import styles from './storefront.css';
@@ -37,19 +34,11 @@ const StoreFront = (props: Props) => {
       <Header
         path={props.location.pathname}
         query={props.location.query}
-        isBannerVisible={props.banner.isVisible}
-        closeBanner={props.closeBanner}
       />
       <div className={bodyClass}>
         {props.children}
       </div>
       <Footer />
-      <div styleName="mobile-sidebar">
-        <Sidebar path={props.location.pathname} />
-      </div>
-      <div>
-        <Cart />
-      </div>
     </div>
   );
 };

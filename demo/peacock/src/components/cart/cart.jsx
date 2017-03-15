@@ -35,6 +35,7 @@ type Props = {
   deleteLineItem: Function,
   updateLineItemQuantity: Function,
   toggleCart: Function,
+  hideCart: Function,
   skus: Array<any>,
   coupon: ?Object,
   promotion: ?Object,
@@ -130,7 +131,11 @@ class Cart extends Component {
 
   @autobind
   onCheckout() {
-    browserHistory.push('/checkout');
+    Promise.resolve(this.props.hideCart())
+      .then(() => {
+        browserHistory.push('/checkout');
+      })
+    ;
   }
 
   render() {
