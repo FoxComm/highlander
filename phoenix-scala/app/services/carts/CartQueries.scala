@@ -77,7 +77,7 @@ object CartQueries extends CordQueries {
                               cart: CartResponse,
                               admin: Option[User])(implicit ec: EC, ac: AC) =
     foundOrCreated match {
-      case Created ⇒ LogActivity.cartCreated(admin, cart)
+      case Created ⇒ LogActivity().cartCreated(admin, cart)
       case Found   ⇒ DbResultT.unit
     }
 }

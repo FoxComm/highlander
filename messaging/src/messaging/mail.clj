@@ -77,7 +77,7 @@
 
 (defn dispatch-activity
   [activity]
-  (keyword (:activity_type activity)))
+  (keyword (:kind activity)))
 
 
 (defmulti handle-activity dispatch-activity)
