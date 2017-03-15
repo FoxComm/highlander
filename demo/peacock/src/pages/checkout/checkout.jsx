@@ -237,7 +237,6 @@ class Checkout extends Component {
 
   render() {
     const props = this.props;
-    
     const body = props.fetchCartState.finished ? this.content : <Loader />;
 
     return (

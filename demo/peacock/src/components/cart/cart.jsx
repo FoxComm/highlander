@@ -35,6 +35,7 @@ type Props = {
   deleteLineItem: Function,
   updateLineItemQuantity: Function,
   toggleCart: Function,
+  hideCart: Function,
   skus: Array<any>,
   coupon: ?Object,
   promotion: ?Object,
