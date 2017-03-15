@@ -45,7 +45,6 @@ class Search extends Component {
   @autobind
   onKeyDown({ keyCode }: any): void {
     if (keyCode === 13) {
-      console.log("Enter");
       this.search();
       this.refs.input.blur();
     }
@@ -91,7 +90,7 @@ class Search extends Component {
 
   @autobind
   setFocus() {
-    if (this.props.setFocus){
+    if (this.props.setFocus) {
       this.props.setFocus(!this.state.focus);
       this.setState({ focus: !this.state.focus });
     }
