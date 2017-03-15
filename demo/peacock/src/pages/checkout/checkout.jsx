@@ -15,7 +15,7 @@ import Delivery from './02-delivery/delivery';
 import Billing from './03-billing/billing';
 import GuestAuth from './05-guest-auth/guest-auth';
 import OrderSummary from 'components/order-summary/order-summary';
-import Header from './header';
+import Header from 'components/header/header';
 import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
 import Loader from 'ui/loader';
 
@@ -249,10 +249,8 @@ class Checkout extends Component {
     return (
       <section styleName="checkout">
         <Header
-          isScrolled={this.state.isScrolled}
-          isGuestAuth={props.editStage == EditStages.GUEST_AUTH}
-          currentStage={props.editStage}
-          {...setStates}
+          path={props.location.pathname}
+          query={props.location.query}
         />
 
         <div styleName="content">
