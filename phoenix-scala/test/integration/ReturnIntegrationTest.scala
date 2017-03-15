@@ -59,7 +59,7 @@ class ReturnIntegrationTest
 
     "PATCH /v1/returns/:refNum" - {
       "successfully changes status of Return" in new ReturnDefaults {
-        val payload = ReturnUpdateStatePayload(state = Processing)
+        val payload = ReturnUpdateStatePayload(state = Processing, reasonId = None)
         returnsApi(rma.referenceNumber).update(payload).as[ReturnResponse.Root].state must === (
             Processing)
       }
@@ -71,12 +71,24 @@ class ReturnIntegrationTest
             Canceled)
       }
 
-      "fail if return reason has wrong type" in new ReturnDefaults {
+      "fails if return reason has wrong type" in new ReturnDefaults {
         assert(reason.reasonType != Cancellation)
         val payload = ReturnUpdateStatePayload(state = Canceled, reasonId = reason.id.some)
         returnsApi(rma.referenceNumber)
           .update(payload)
           .mustFailWith400(InvalidCancellationReasonFailure)
+      }
+
+      "fails if no reason is provided upon return cancellation" in new ReturnDefaults {
+        returnsApi(rma.referenceNumber)
+          .update(ReturnUpdateStatePayload(state = Canceled, reasonId = None))
+          .mustFailWith400(EmptyCancellationReasonFailure)
+      }
+
+      "fails if cancellation reason is provided with different than canceled state" in new ReturnDefaults {
+        returnsApi(rma.referenceNumber)
+          .update(ReturnUpdateStatePayload(state = Processing, reasonId = reason.id.some))
+          .mustFailWith400(NonEmptyCancellationReasonFailure)
       }
 
       "Cancel state should be final " in new ReturnDefaults {
@@ -89,7 +101,7 @@ class ReturnIntegrationTest
         canceled.canceledReasonId must === (cancellationReason.id.some)
 
         returnsApi(rma.referenceNumber)
-          .update(ReturnUpdateStatePayload(state = Pending, reasonId = cancellationReason.id.some))
+          .update(ReturnUpdateStatePayload(state = Pending, reasonId = None))
           .mustFailWith400(
               StateTransitionNotAllowed(Return, "Canceled", "Pending", rma.referenceNumber))
       }
@@ -97,8 +109,8 @@ class ReturnIntegrationTest
       "Returns should be fine with state transition " in new ReturnDefaults {
         returnsApi(rma.referenceNumber).get().as[ReturnResponse.Root].state must === (Pending)
 
-        def state(s: State) = {
-          ReturnUpdateStatePayload(state = s, reasonId = cancellationReason.id.some)
+        def state(s: State, reasonId: Option[Int] = None) = {
+          ReturnUpdateStatePayload(state = s, reasonId = reasonId)
         }
 
         returnsApi(rma.referenceNumber)
@@ -172,7 +184,7 @@ class ReturnIntegrationTest
 
       "fails if RMA refNum is not found" in new ReturnDefaults {
         returnsApi(refNotExist)
-          .update(ReturnUpdateStatePayload(state = Processing))
+          .update(ReturnUpdateStatePayload(state = Processing, reasonId = None))
           .mustFailWith404(NotFoundFailure404(Return, refNotExist))
       }
     }
@@ -535,18 +547,18 @@ class ReturnIntegrationTest
 
     "DELETE /v1/returns/:ref/payment-methods/credit-cards" - {
       "successfully delete any supported payment method" in new ReturnPaymentDefaults {
-        forAll(paymentMethodTable) { paymentType ⇒
+        forAll(paymentMethodTable) { paymentMethod ⇒
           val response = returnsApi(rma.referenceNumber).paymentMethods
-            .remove(paymentType)
+            .remove(paymentMethod)
             .as[ReturnResponse.Root]
 
-          response.payments mustBe 'empty
+          response.payments.asMap.get(paymentMethod) mustBe 'empty
         }
       }
 
       "fails if the refNum is not found" in new ReturnPaymentFixture {
-        forAll(paymentMethodTable) { paymentType ⇒
-          val response = returnsApi("TRY_HARDER").paymentMethods.remove(paymentType)
+        forAll(paymentMethodTable) { paymentMethod ⇒
+          val response = returnsApi("TRY_HARDER").paymentMethods.remove(paymentMethod)
 
           response.mustFailWith404(NotFoundFailure404(Return, "TRY_HARDER"))
         }

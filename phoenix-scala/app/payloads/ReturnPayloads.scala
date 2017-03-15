@@ -2,7 +2,7 @@ package payloads
 
 import cats.data._
 import cats.implicits._
-import failures.Failure
+import failures.{EmptyCancellationReasonFailure, Failure, InvalidCancellationReasonFailure, NonEmptyCancellationReasonFailure}
 import models.payment.PaymentMethod
 import models.returns.{Return, ReturnLineItem}
 import models.returns.ReturnLineItem.InventoryDisposition
@@ -15,7 +15,15 @@ object ReturnPayloads {
 
   case class ReturnCreatePayload(cordRefNum: String, returnType: Return.ReturnType)
 
-  case class ReturnUpdateStatePayload(state: Return.State, reasonId: Option[Int] = None)
+  case class ReturnUpdateStatePayload(state: Return.State, reasonId: Option[Int])
+      extends Validation[ReturnUpdateStatePayload] {
+    def validate: ValidatedNel[Failure, ReturnUpdateStatePayload] =
+      (Validation.ok |+|
+            Validation.isInvalid(state == Return.Canceled && reasonId.isEmpty,
+                                 EmptyCancellationReasonFailure) |+|
+            Validation.isInvalid(state != Return.Canceled && reasonId.isDefined,
+                                 NonEmptyCancellationReasonFailure)).map(_ ⇒ this)
+  }
 
   /* Line item updater payloads */
 

@@ -78,6 +78,10 @@ case object EmptyCancellationReasonFailure extends Failure {
   override def description = "Please provide valid cancellation reason"
 }
 
+case object NonEmptyCancellationReasonFailure extends Failure {
+  override def description = "Cancellation reason shouldn't be specified in irrelevant context"
+}
+
 case object InvalidCancellationReasonFailure extends Failure {
   override def description = "Invalid cancellation reason provided"
 }
