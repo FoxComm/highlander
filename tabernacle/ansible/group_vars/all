@@ -320,7 +320,8 @@ messaging_jmx_port: 39012
 loyalty_jmx_port: 39013
 
 # Seeds
-seeds_cmd: utils.seeds.Seeds seed --seedAdmins --seedDemo 1
+seeds_cmd: utils.seeds.Seeds seed --seedAdmins
+seeds_demo_cmd: utils.seeds.Seeds seed --seedDemo 1
 gatling_oneshot_seeds_cmd: gatling.seeds.OneshotSeeds
 gatling_continuous_seeds_cmd: gatling.seeds.ContinuousSeeds
 

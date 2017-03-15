@@ -17,10 +17,6 @@
   wait_for: host={{phoenix_host}} port={{phoenix_port}} timeout=1200
   when: with_base_seeds is defined and with_base_seeds
 
-- name: Gatling Seed Db
-  shell: docker run --network host -t {{docker_registry}}:5000/phoenix-seeder:{{docker_tags.phoenix}} java -Dphoenix.env={{phoenix_env}} -Dapp.baseUrl=http://{{phoenix_server}} -Dhttp.interface={{phoenix_host}} -Ddb.host={{db_host}} -Ddb.url=jdbc:postgresql://{{db_host}}/{{db_name}}?user={{db_user}} -Ddb.name={{db_name}} -cp '{{phoenix_seeder_jar}}:{{phoenix_jar}}' {{gatling_oneshot_seeds_cmd}}
-  when: with_gatling_seeder is defined and with_gatling_seeder
-
 # Middlewarehouse
 
 - name: Create Middlewarehouse Seeder directory
@@ -38,6 +34,15 @@
 - name: Run Middlewarehouse Seeder docker container
   command: docker run --env-file "{{middlewarehouse_dir}}/seeder/.env" --network host {{docker_registry}}:5000/middlewarehouse-seeder:{{docker_tags.middlewarehouse}}
   when: with_mwh_seeder is defined and with_mwh_seeder
+
+# Main API
+
+- name: Gatling Seed Db
+  shell: docker run --network host -t {{docker_registry}}:5000/phoenix-seeder:{{docker_tags.phoenix}} java -Dphoenix.env={{phoenix_env}} -Dapp.baseUrl=http://{{phoenix_server}} -Dhttp.interface={{phoenix_host}} -Ddb.host={{db_host}} -Ddb.url=jdbc:postgresql://{{db_host}}/{{db_name}}?user={{db_user}} -Ddb.name={{db_name}} -cp '{{phoenix_seeder_jar}}:{{phoenix_jar}}' {{gatling_oneshot_seeds_cmd}}
+
+- name: Seed Phoenix Database with Demo
+  shell: docker run --network host -t {{docker_registry}}:5000/phoenix-seeder:{{docker_tags.phoenix}} java -Dphoenix.env={{phoenix_env}} -Ddb.host={{db_host}} -Ddb.url=jdbc:postgresql://{{db_host}}/{{db_name}}?user={{db_user}} -Ddb.name={{db_name}} -cp '{{phoenix_seeder_jar}}:{{phoenix_jar}}' {{seeds_demo_cmd}}
+  when: seeds_demo_cmd is defined and seeds_demo_cmd
 
 # Hyperion
 
