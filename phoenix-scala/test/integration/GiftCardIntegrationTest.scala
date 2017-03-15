@@ -130,7 +130,7 @@ class GiftCardIntegrationTest
                                         senderName = "senderName",
                                         recipientName = "recipienName",
                                         recipientEmail = "recipientEmail@mail.com",
-                                        message = "test message",
+                                        message = "test message".some,
                                         cordRef = cordInsert.referenceNumber))
           .as[GiftCardResponse.Root]
         root.currency must === (Currency.USD)
@@ -153,13 +153,13 @@ class GiftCardIntegrationTest
                                             senderName = "senderName",
                                             recipientName = "recipienName",
                                             recipientEmail = "recipientEmail@mail.com",
-                                            message = "test message",
+                                            message = "test message".some,
                                             cordRef = cordInsert.referenceNumber),
                   GiftCardCreatedByCustomer(balance = 100,
                                             senderName = "senderName2",
                                             recipientName = "recipienName2",
                                             recipientEmail = "recipientEmail@mail.com2",
-                                            message = "test message2",
+                                            message = "test message2".some,
                                             cordRef = cordInsert.referenceNumber)))
           .as[Seq[GiftCardResponse.Root]]
         root.head.currency must === (Currency.USD)
@@ -181,22 +181,23 @@ class GiftCardIntegrationTest
                                             senderName = "senderName",
                                             recipientName = "recipienName",
                                             recipientEmail = "recipientEmail@mail.com",
-                                            message = "",
+                                            message = None,
                                             cordRef = cordInsert.referenceNumber),
                   GiftCardCreatedByCustomer(balance = 100,
                                             senderName = "senderName2",
                                             recipientName = "recipienName2",
                                             recipientEmail = "recipientEmail@mail.com2",
-                                            message = "",
+                                            message = "".some,
                                             cordRef = cordInsert.referenceNumber)))
           .as[Seq[GiftCardResponse.Root]]
         root.head.currency must === (Currency.USD)
         root.head.availableBalance must === (555)
         root.tail.head.currency must === (Currency.USD)
         root.tail.head.availableBalance must === (100)
-        root.head.message.get must === ("")
+        root.head.message must === (None)
         root.head.senderName.get must === ("senderName")
         root.tail.head.recipientEmail.get must === ("recipientEmail@mail.com2")
+        root.tail.head.message must === ("".some)
       }
     }
 

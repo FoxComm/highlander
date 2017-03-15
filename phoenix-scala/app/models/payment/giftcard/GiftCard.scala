@@ -170,7 +170,7 @@ object GiftCard {
         senderName = payload.senderName.some,
         recipientName = payload.recipientName.some,
         recipientEmail = payload.recipientEmail.some,
-        message = payload.message.some
+        message = payload.message
     )
   }
 
