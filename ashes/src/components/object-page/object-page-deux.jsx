@@ -1,7 +1,6 @@
 // @flow
 
-import { pluralize } from 'fleck';
-import { get, capitalize, noop } from 'lodash';
+import { get, capitalize, noop, pick } from 'lodash';
 import React, { Component, Element } from 'react';
 import { IndexLink, Link } from 'components/link';
 import { PageTitle } from 'components/section-title';
@@ -20,7 +19,7 @@ import { transitionToLazy } from 'browserHistory';
 
 class ObjectPageDeux extends Component {
   // TODO: replace *
-  props: ObjectProps<*, *>;
+  props: ObjectPageProps<*, *>;
 
   static defaultProps = {
     identifierFieldName: 'id',
@@ -121,14 +120,9 @@ class ObjectPageDeux extends Component {
 
   @autobind
   archive() {
-    const { identifier, objectType, actions, listRoute } = this.props;
-    if (listRoute) {
-      const { name, params } = listRoute;
-      actions.archive(identifier).then(transitionToLazy(name, params));
-    } else {
-      const name = pluralize(objectType);
-      actions.archive(identifier).then(transitionToLazy(name));
-    }
+    const { identifier, actions } = this.props;
+
+    actions.archive(identifier).then(actions.close);
   }
 
   get headerControls() {
@@ -161,14 +155,26 @@ class ObjectPageDeux extends Component {
     );
   }
 
+  get children(): Element<*> {
+    const { layout, schema, objectType, object, onUpdateObject } = this.props;
+
+    return React.cloneElement(React.Children.only(this.props.children), {
+      layout,
+      schema,
+      objectType,
+      object,
+      onUpdateObject,
+    });
+  }
+
   render() {
-    const { children, identifier, fetchState, object, objectType } = this.props;
+    const { schema, objectType, object, identifier, fetchState } = this.props;
 
     if (fetchState.inProgress) {
       return <div><WaitAnimation /></div>;
     }
 
-    if (!object) {
+    if (!object || !schema) {
       return <Error err={fetchState.err} notFound={`There is no ${objectType} with id ${identifier}.`} />;
     }
 
@@ -178,7 +184,7 @@ class ObjectPageDeux extends Component {
           {this.headerControls}
         </PageTitle>
         {this.localNav}
-        {children}
+        {this.children}
         {this.footerControls}
       </div>
     );

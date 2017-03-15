@@ -16,13 +16,16 @@ import ObjectPageDeux from 'components/object-page/object-page-deux';
 import { fetchSchema } from 'modules/object-schema';
 import * as taxonomiesActions from 'modules/taxonomies/details';
 
+// page layout
+import layout from './layout.json';
+
 export type TaxonomyParams = {
   taxonomyId: string,
   context: string,
 };
 
 type Props = {
-  schema: ?Object,
+  schema: ?ObjectSchema,
   actions: ObjectActions<Taxonomy>,
   fetchSchema: (namespace: string) => Promise<*>,
   children: Element<*>,
@@ -119,19 +122,13 @@ class TaxonomyPage extends Component {
   }
 
   render() {
-    const { details, archiveState, schema } = this.props;
+    const { schema, details, archiveState, children } = this.props;
     const { taxonomyId, context } = this.props.params;
-
-    const childProps = {
-      schema,
-      taxonomy: this.state.taxonomy,
-      onUpdateObject: this.handleObjectUpdate,
-    };
-
-    const children = React.cloneElement(this.props.children, childProps);
 
     return (
       <ObjectPageDeux
+        layout={layout}
+        schema={schema}
         actions={this.actions}
         context={context}
         identifier={taxonomyId}
@@ -142,6 +139,7 @@ class TaxonomyPage extends Component {
         object={this.state.taxonomy}
         objectType="taxonomy"
         originalObject={details.taxonomy}
+        onUpdateObject={this.handleObjectUpdate}
       >
         {children}
       </ObjectPageDeux>

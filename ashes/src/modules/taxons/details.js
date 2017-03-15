@@ -23,14 +23,14 @@ const _fetchTaxon = createAsyncActions(
 
 const _createTaxon = createAsyncActions(
   'createTaxon',
-  (taxonomyId, taxon, context: string = defaultContext) =>
+  (taxonomyId: number, taxon: TaxonDraft, context: string = defaultContext) =>
     Api.post(`/taxonomies/${context}/${taxonomyId}/taxons`, taxon)
 );
 
 const _updateTaxon = createAsyncActions(
   'updateTaxon',
-  (taxonId: number, context: string = defaultContext) =>
-    Api.patch(`/taxons/${context}/${taxonId}`)
+  (taxon: Taxon, context: string = defaultContext) =>
+    Api.patch(`/taxons/${context}/${taxon.id}`, taxon)
 );
 
 const _archiveTaxon = createAsyncActions(
@@ -71,7 +71,7 @@ const reducer = createReducer({
   [reset]: () => initialState,
   [duplicate]: (state) => ({
     ...initialState,
-    taxon: duplicateTaxon(_.get(state, 'taxon', {} ))
+    taxon: duplicateTaxon(_.get(state, 'taxon', {}))
   }),
   [_fetchTaxon.succeeded]: (state, taxon) => ({ ...state, taxon }),
   [_createTaxon.succeeded]: (state, taxon) => ({ ...state, taxon }),

@@ -15,6 +15,9 @@ import ObjectPageDeux from 'components/object-page/object-page-deux';
 // actions
 import * as taxonsActions from 'modules/taxons/details';
 
+// page layout
+import layout from './layout.json';
+
 export type TaxonParams = {
   taxonomyId: string,
   context: string,
@@ -38,28 +41,26 @@ type State = {
   taxon: ?Taxon
 };
 
-const schema = {
-  'type': 'object',
-  'title': 'Taxon',
-  '$schema': 'http://json-schema.org/draft-04/schema#',
-  'properties': {
-    'attributes': {
-      'type': 'object',
-      'required': [
-        'name'
-      ],
-      'properties': {
-        'name': {
-          'type': 'string',
-          'minLength': 1
+const schema: ObjectSchema = {
+  type: 'object',
+  title: 'Taxon',
+  $schema: 'http://json-schema.org/draft-04/schema#',
+  properties: {
+    attributes: {
+      type: 'object',
+      required: ['name'],
+      properties: {
+        name: {
+          type: 'string',
+          minLength: 1
         },
-        'description': {
-          'type': 'string',
-          'widget': 'richText'
+        description: {
+          type: 'string',
+          widget: 'richText'
         }
       },
-      'description': 'Taxon attributes itself'
-    }
+    },
+    description: 'Taxon attributes'
   }
 };
 
@@ -135,39 +136,29 @@ class TaxonPage extends React.Component {
   }
 
   render() {
-    const { taxonomyId, taxonId, context } = this.props.params;
-    const { details, archiveState } = this.props;
-
-    const childProps = {
-      schema,
-      taxon: this.state.taxon,
-      onUpdateObject: this.handleObjectUpdate
-    };
-
-    const children = React.cloneElement(this.props.children, childProps);
+    const { details, archiveState, params: { taxonId, context }, children }  = this.props;
 
     return (
       <ObjectPageDeux
-        actions={this.actions}
         context={context}
+        layout={layout}
+        schema={schema}
         identifier={taxonId}
+        object={this.state.taxon}
+        objectType="value"
+        originalObject={details.taxon}
+        actions={this.actions}
+        onUpdateObject={this.handleObjectUpdate}
         fetchState={this.fetchState}
         saveState={this.saveState}
         archiveState={archiveState}
         navLinks={this.navLinks}
-        object={this.state.taxon}
-        objectType="value"
-        originalObject={details.taxon}
-        listRoute={{
-          name: 'values',
-          params: { taxonomyId, context }
-        }}
       >
         {children}
       </ObjectPageDeux>
     );
   }
-};
+}
 
 const mapState = state => ({
   details: state.taxons.details,

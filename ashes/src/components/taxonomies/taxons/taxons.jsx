@@ -28,8 +28,7 @@ type Column = {
   type: ?string,
 };
 
-type Props = {
-  taxonomy: Taxonomy,
+type Props = ObjectPageChildProps<Taxonomy> & {
   actions: Object,
   list: Object,
   params: TaxonomyParams,
@@ -49,7 +48,8 @@ export class TaxonsListPage extends Component {
 
   componentDidMount() {
     this.props.actions.setExtraFilters([
-      dsl.termFilter('taxonomyId', this.props.taxonomy.id)
+      dsl.existsFilter('archivedAt', 'missing'),
+      dsl.termFilter('taxonomyId', this.props.object.id)
     ]);
     this.props.actions.fetch();
   }

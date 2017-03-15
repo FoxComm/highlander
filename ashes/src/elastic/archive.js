@@ -13,7 +13,8 @@ function archivedFilter(operator) {
 
 
 export function filterArchived(filters: Array<SearchFilter>) {
-  const archiveAtFilter = _.find(filters, {term: 'archivedAt'});
+  const archiveAtFilter = _.find(filters, { term: 'archivedAt' });
+
   if (!archiveAtFilter) {
     return [
       archivedFilter('missing'),

@@ -1,15 +1,15 @@
-export type TaxonomyDraft = {
+declare type TaxonomyDraft = {
   context: Context,
   hierarchical: boolean,
   attributes: Attributes,
   taxons: Array<Object>,
 };
 
-export type Taxonomy = TaxonomyDraft & {
+declare type Taxonomy = TaxonomyDraft & {
   id: number,
 }
 
-export type TaxonomyResult = {
+declare type TaxonomyResult = {
   id: number,
   taxonomyId: number,
   name: string,
@@ -21,14 +21,17 @@ export type TaxonomyResult = {
   archivedAt: ?string,
 };
 
-export type Taxon = {
-  id?: number,
+declare type TaxonDraft = {
   parentId?: number,
   name: string,
   attributes: Attributes
 };
 
-export type TaxonResult = {
+declare type Taxon = TaxonDraft & {
+  id: number,
+};
+
+declare type TaxonResult = {
   id?: number,
   parentId?: number,
   name: string,
