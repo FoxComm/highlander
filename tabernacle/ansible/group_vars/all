@@ -60,6 +60,7 @@ docker_tags:
     digger_sphex: "{{ lookup('env', 'DOCKER_TAG_DIGGER_SPHEX') | default('master', true) }}"
     orders_sphex: "{{ lookup('env', 'DOCKER_TAG_ORDERS_SPHEX') | default('master', true) }}"
     orders_cross_sell: "{{ lookup('env', 'DOCKER_TAG_ORDERS_CROSS_SELL') | default('master', true) }}"
+    cross_sell: "{{ lookup('env', 'DOCKER_TAG_CROSS_SELL') | default('master', true) }}"
 
 # Configurable Marathon re-deploys
 marathon_restart:
@@ -87,6 +88,7 @@ marathon_restart:
     river_rock: "{{ lookup('env', 'MARATHON_RIVER_ROCK') | default(true, true) | bool }}"
     digger_sphex: "{{ lookup('env', 'MARATHON_DIGGER_SPHEX') | default(true, true) | bool }}"
     orders_sphex: "{{ lookup('env', 'MARATHON_ORDERS_SPHEX') | default(true, true) | bool }}"
+    orders_cross_sell: "{{ lookup('env', 'MARATHON_ORDERS_CROSS_SELL') | default(true, true) | bool }}"
     cross_sell: "{{ lookup('env', 'MARATHON_CROSS_SELL') | default(true, true) | bool }}"
 
 # Should we use Intelligent Commerce
