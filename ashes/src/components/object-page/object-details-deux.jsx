@@ -2,6 +2,7 @@
 
 // libs
 import _ from 'lodash';
+import { pluralize } from 'fleck';
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import invariant from 'invariant';
@@ -20,34 +21,11 @@ import ParticipantsPanel from 'components/participants';
 
 import styles from './object-details.css';
 
-type Layout = {
-  content: Array<Object>,
-  aside: Array<Object>,
-};
+export type Renderer = (desc: NodeDesc) => ?Element<*>;
+export type Renderers = { [key: string]: Renderer };
 
-type Fields = {
-  canAddProperty: boolean,
-  value: Array<string>,
-  includeRest: boolean,
-  omit: Array<string>,
-}
-
-type NodeDesc = {
-  type: string,
-  title?: string,
-  fields?: Fields,
-  renderer?: string,
-  content?: Array<NodeDesc>,
-}
-
-type Props = {
-  layout: Layout,
-  title: string,
-  plural: string,
-  object: ObjectView,
-  schema: ObjectSchema,
-  onUpdateObject: (object: ObjectView) => void,
-  renderers: { [key: string]: (desc: NodeDesc) => ?Element<*> }
+type Props = ObjectPageChildProps<*> & {
+  renderers?: Renderers,
 };
 
 export default class ObjectDetailsDeux extends Component {
@@ -76,11 +54,13 @@ export default class ObjectDetailsDeux extends Component {
   @autobind
   handleObjectChange(attributes: Attributes) {
     const newObject = this.updateAttributes(attributes);
+
     this.props.onUpdateObject(newObject);
   }
 
   calcFieldsToRender(fields: Fields, section: Array<NodeDesc>): Array<string> {
     let result: Array<string> = fields.value || [];
+
     if (fields.includeRest) {
       const restAttrs: Array<string> = _.reduce(section, (acc: Array<string>, nodeDesc: NodeDesc) => {
         if (nodeDesc.fields) {
@@ -130,16 +110,16 @@ export default class ObjectDetailsDeux extends Component {
       <ObjectScheduler
         attributes={this.attributes}
         onChange={this.handleObjectChange}
-        title={this.props.title}
+        title={this.props.objectType}
       />
     );
   }
 
   renderWatchers() {
-    const { object, plural } = this.props;
+    const { object, objectType } = this.props;
 
     if (object.id) {
-      return <ParticipantsPanel entity={{entityId: object.id, entityType: plural}} />;
+      return <ParticipantsPanel entity={{entityId: object.id, entityType: pluralize(objectType)}} />;
     }
   }
 
@@ -197,14 +177,16 @@ export default class ObjectDetailsDeux extends Component {
         return this.renderWatchers();
       default:
         const renderName = description.type;
-        invariant(this.props.renderers[renderName], `There is no method for render ${description.type}.`);
-        return this.props.renderers[renderName](description, section);
+        if (this.props.renderers) {
+          invariant(this.props.renderers[renderName], `There is no method for render ${description.type}.`);
+          return this.props.renderers[renderName](description, section);
+        }
+        return;
     }
   }
 
   renderSection(name: string) {
-    const { layout } = this.props;
-    const section = layout[name];
+    const section = this.props.layout[name];
 
     return addKeys(name, section.map(desc => this.renderNode(desc, section)));
   }

@@ -1,0 +1,24 @@
+{
+  "main": [
+    {
+      "type": "group",
+      "title": "General",
+      "fields": {
+        "canAddProperty": true,
+        "includeRest": true,
+        "value": [
+          "name",
+          "description"
+        ]
+      }
+    }
+  ],
+  "aside": [
+    {
+      "type": "state"
+    },
+    {
+      "type": "watchers"
+    }
+  ]
+}

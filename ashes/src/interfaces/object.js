@@ -1,9 +1,9 @@
-export type Attribute = { t: string, v: any };
-export type Attributes = {
+declare type Attribute = { t: string, v: any };
+declare type Attributes = {
   [name: string]: Attribute;
 };
 
-export type Context = {
+declare type Context = {
   name: string,
   attributes?: {
     lang: string,
@@ -11,12 +11,32 @@ export type Context = {
   },
 }
 
-export type ObjectView = {
+declare type ObjectPageLayout = {
+  content: Array<Object>,
+  aside: Array<Object>,
+};
+
+declare type Fields = {
+  canAddProperty: boolean,
+  value: Array<string>,
+  includeRest: boolean,
+  omit: Array<string>,
+}
+
+declare type NodeDesc = {
+  type: string,
+  title?: string,
+  fields?: Fields,
+  renderer?: string,
+  content?: Array<NodeDesc>,
+}
+
+declare type ObjectView = {
   attributes: Attributes,
   context: Context;
 }
 
-export type ObjectSchema = {
+declare type ObjectSchema = {
   type: string,
   title: string,
   properties: {
@@ -25,7 +45,7 @@ export type ObjectSchema = {
   },
 };
 
-export type ObjectActions<T> = {
+declare type ObjectActions<T> = {
   reset: () => void,
   close: () => void,
   duplicate: () => void,
@@ -39,7 +59,9 @@ export type ObjectActions<T> = {
   clearArchiveErrors: () => void,
 };
 
-export type ObjectProps<T, U> = {
+declare type ObjectPageProps<T, U> = {
+  layout: ObjectPageLayout,
+  schema: ?ObjectSchema,
   actions: ObjectActions<T>,
   children?: Element<*>|Array<Element<*>>,
   context?: string,
@@ -52,4 +74,13 @@ export type ObjectProps<T, U> = {
   fetchState: AsyncState,
   saveState: AsyncState,
   archiveState: AsyncState,
+  onUpdateObject: (object: T) => void,
+};
+
+declare type ObjectPageChildProps<T> = {
+  layout: ObjectPageLayout,
+  schema: ObjectSchema,
+  objectType: string,
+  object: T,
+  onUpdateObject: (object: T) => void,
 };

@@ -9,65 +9,50 @@ import { assoc } from 'sprout-data';
 import ObjectDetailsDeux from 'components/object-page/object-details-deux';
 import { SliderCheckbox } from '../checkbox/checkbox';
 
+import type { Renderers } from 'components/object-page/object-details-deux';
+
 //styles
 import styles from './taxonomy.css';
 
-const layout = require('./layout.json');
-
-type Props = {
-  schema: ObjectSchema,
-  taxonomy: ?Taxonomy,
-  onUpdateObject: (object: ObjectView) => void,
-};
-
-
 export default class TaxonomyDetails extends React.Component {
+  props: ObjectPageChildProps<Taxonomy>;
 
   @autobind
   renderHierarchical() {
-    if (this.props.taxonomy.id) {
+    if (this.props.object.id) {
       return null;
     }
     return (
       <div styleName="toggle-container">
         <label>Hierarchical</label>
-          <SliderCheckbox
-            id="hierarchicalType"
-            onChange={this.handleHierarchicalChange}
-            checked={this.props.taxonomy.hierarchical}
-          />
+        <SliderCheckbox
+          id="hierarchicalType"
+          onChange={this.handleHierarchicalChange}
+          checked={this.props.object.hierarchical}
+        />
       </div>
     );
   }
 
   @autobind
   handleHierarchicalChange() {
-    const newTaxonomy = assoc(
-      this.props.taxonomy,
-      'hierarchical',
-      !this.props.taxonomy.hierarchical
-    );
+    const newTaxonomy = assoc(this.props.object, 'hierarchical', !this.props.object.hierarchical);
+
     this.props.onUpdateObject(newTaxonomy);
   }
 
-  render () {
-    const { schema, taxonomy, onUpdateObject } = this.props;
-    if (!taxonomy) {
-      return <div></div>;
-    }
+  get renderers(): Renderers {
+    return {
+      hierarchical: this.renderHierarchical,
+    };
+  }
+
+  render() {
     return (
       <ObjectDetailsDeux
-        layout={layout}
-        title="taxonomy"
-        plural="taxonomies"
-        object={taxonomy}
-        schema={schema}
-        onUpdateObject={onUpdateObject}
-        renderers={{
-          hierarchical: this.renderHierarchical
-        }}
+        {...this.props}
+        renderers={this.renderers}
       />
     );
   }
-};
-
+}

@@ -1,7 +1,6 @@
 // @flow
 
-import { pluralize } from 'fleck';
-import { get, capitalize, noop } from 'lodash';
+import { get, capitalize, noop, pick } from 'lodash';
 import React, { Component, Element } from 'react';
 import { IndexLink, Link } from 'components/link';
 import { PageTitle } from 'components/section-title';
@@ -22,7 +21,7 @@ import styles from './object-page.css';
 
 class ObjectPageDeux extends Component {
   // TODO: replace *
-  props: ObjectProps<*, *>;
+  props: ObjectPageProps<*, *>;
 
   static defaultProps = {
     identifierFieldName: 'id',
@@ -123,11 +122,9 @@ class ObjectPageDeux extends Component {
 
   @autobind
   archive() {
-    const { identifier, objectType, actions } = this.props;
+    const { identifier, actions } = this.props;
 
-    const plural = pluralize(objectType);
-
-    actions.archive(identifier).then(transitionToLazy(plural));
+    actions.archive(identifier).then(actions.close);
   }
 
   get headerControls() {
@@ -160,14 +157,26 @@ class ObjectPageDeux extends Component {
     );
   }
 
+  get children(): Element<*> {
+    const { layout, schema, objectType, object, onUpdateObject } = this.props;
+
+    return React.cloneElement(React.Children.only(this.props.children), {
+      layout,
+      schema,
+      objectType,
+      object,
+      onUpdateObject,
+    });
+  }
+
   render() {
-    const { children, identifier, fetchState, object, objectType } = this.props;
+    const { schema, objectType, object, identifier, fetchState } = this.props;
 
     if (fetchState.inProgress) {
       return <div><WaitAnimation /></div>;
     }
 
-    if (!object) {
+    if (!object || !schema) {
       return <Error err={fetchState.err} notFound={`There is no ${objectType} with id ${identifier}.`} />;
     }
 
@@ -177,9 +186,7 @@ class ObjectPageDeux extends Component {
           {this.headerControls}
         </PageTitle>
         {this.localNav}
-        <div styleName="object-details">
-          {children}
-        </div>
+        {this.children}
         {this.footerControls}
       </div>
     );

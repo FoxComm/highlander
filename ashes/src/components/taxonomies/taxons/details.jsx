@@ -3,8 +3,9 @@
 // lib
 import React, { Element } from 'react';
 
-export default class TaxonDetails extends React.Component {
-  render() {
-    return <div>New taxon page</div>;
-  }
-};
+// components
+import ObjectDetailsDeux from 'components/object-page/object-details-deux';
+
+export default (props: ObjectPageChildProps<Taxon>) => (
+  <ObjectDetailsDeux {...props} />
+);
