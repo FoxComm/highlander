@@ -22,6 +22,8 @@
   }
 
   &:disabled {
+    background: #ccc;
+    color: #eee;
     &:hover {
       cursor: not-allowed;
     }
