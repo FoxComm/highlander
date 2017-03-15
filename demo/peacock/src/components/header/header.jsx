@@ -12,6 +12,8 @@ import Icon from 'ui/icon';
 import Search from '../search/search';
 import UserTools from '../usertools/usertools';
 import Navigation from '../navigation/navigation';
+import Cart from 'components/cart/cart';
+import Sidebar from 'components/sidebar/sidebar';
 
 type Props = {
   toggleSidebar: Function,
@@ -46,6 +48,13 @@ class Header extends React.Component {
             </div>
           </div>
         </div>
+
+        <Cart />
+
+        <div styleName="mobile-sidebar">
+          <Sidebar path={this.props.path} />
+        </div>
+
       </div>
     );
   }
