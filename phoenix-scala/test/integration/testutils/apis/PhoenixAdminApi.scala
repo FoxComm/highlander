@@ -24,7 +24,8 @@ import payloads.SharedSearchPayloads._
 import payloads.SkuPayloads._
 import payloads.StoreAdminPayloads._
 import payloads.StoreCreditPayloads._
-import payloads.TaxonomyPayloads.{CreateTaxonPayload, CreateTaxonomyPayload, UpdateTaxonPayload, UpdateTaxonomyPayload}
+import payloads.TaxonomyPayloads._
+import payloads.TaxonPayloads._
 import payloads.UserPayloads._
 import payloads.VariantPayloads._
 import payloads._

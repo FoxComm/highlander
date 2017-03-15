@@ -13,7 +13,9 @@ import models.product.{ProductReference, Products}
 import models.taxonomy.TaxonomyTaxonLinks.scope._
 import models.taxonomy.{TaxonLocation ⇒ _, _}
 import payloads.TaxonomyPayloads._
-import responses.TaxonomyResponses.{TaxonResponse, _}
+import payloads.TaxonPayloads._
+import responses.TaxonomyResponses._
+import responses.TaxonResponses._
 import services.objects.ObjectManager
 import utils.Validation
 import utils.aliases._
@@ -107,15 +109,16 @@ object TaxonomyManager {
     } yield {}
 
   def getTaxon(
-      taxonFormId: ObjectForm#Id)(implicit ec: EC, oc: OC, db: DB): DbResultT[TaxonResponse] =
+      taxonFormId: ObjectForm#Id)(implicit ec: EC, oc: OC, db: DB): DbResultT[FullTaxonResponse] =
     for {
       taxon    ← * <~ ObjectManager.getFullObject(Taxons.mustFindByFormId404(taxonFormId))
       response ← * <~ buildSingleTaxonResponse(taxon)
     } yield response
 
-  def createTaxon(
-      taxonomyFormId: ObjectForm#Id,
-      payload: CreateTaxonPayload)(implicit ec: EC, oc: OC, au: AU): DbResultT[TaxonResponse] = {
+  def createTaxon(taxonomyFormId: ObjectForm#Id, payload: CreateTaxonPayload)(
+      implicit ec: EC,
+      oc: OC,
+      au: AU): DbResultT[FullTaxonResponse] = {
     val form   = ObjectForm.fromPayload(Taxonomy.kind, payload.attributes)
     val shadow = ObjectShadow.fromPayload(payload.attributes)
 
@@ -173,9 +176,10 @@ object TaxonomyManager {
          }
     } yield parentLink
 
-  def updateTaxon(taxonId: Int, payload: UpdateTaxonPayload)(implicit ec: EC,
-                                                             oc: OC,
-                                                             db: DB): DbResultT[TaxonResponse] = {
+  def updateTaxon(taxonId: Int, payload: UpdateTaxonPayload)(
+      implicit ec: EC,
+      oc: OC,
+      db: DB): DbResultT[FullTaxonResponse] = {
     for {
       _        ← * <~ payload.validate
       taxon    ← * <~ Taxons.mustFindByFormId404(taxonId)
@@ -189,14 +193,14 @@ object TaxonomyManager {
   }
 
   private def buildSingleTaxonResponse(taxonFull: FullObject[Taxon])(
-      implicit ec: EC): DbResultT[TaxonResponse] =
+      implicit ec: EC): DbResultT[FullTaxonResponse] =
     for {
       taxonomyTaxonLink ← * <~ TaxonomyTaxonLinks
                            .filterRight(taxonFull.model)
                            .mustFindOneOr(InvalidTaxonomiesForTaxon(taxonFull.model, 0))
       taxonomy    ← * <~ Taxonomies.findOneById(taxonomyTaxonLink.leftId).safeGet
       maybeParent ← * <~ TaxonomyTaxonLinks.parentOf(taxonomyTaxonLink)
-    } yield TaxonResponse.build(taxonFull, taxonomy.formId, maybeParent.map(_.rightId))
+    } yield FullTaxonResponse.build(taxonFull, taxonomy.formId, maybeParent.map(_.rightId))
 
   private def updateTaxonomyHierarchy(taxon: Taxon,
                                       location: TaxonLocation)(implicit ec: EC, db: DB, oc: OC) =

@@ -5,6 +5,7 @@ import akka.http.scaladsl.server.Route
 import utils.http.JsonSupport._
 import models.account.User
 import payloads.TaxonomyPayloads._
+import payloads.TaxonPayloads._
 import services.Authenticator.AuthData
 import services.taxonomy.TaxonomyManager
 import utils.aliases._

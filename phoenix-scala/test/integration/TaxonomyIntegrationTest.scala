@@ -8,7 +8,9 @@ import models.taxonomy.{Taxon ⇒ ModelTaxon, _}
 import org.json4s.JsonDSL._
 import org.json4s._
 import payloads.TaxonomyPayloads._
+import payloads.TaxonPayloads._
 import responses.TaxonomyResponses._
+import responses.TaxonResponses._
 import slick.jdbc.GetResult
 import testutils._
 import testutils.apis.PhoenixAdminApi
@@ -103,7 +105,7 @@ class TaxonomyIntegrationTest
       private val taxonToQuery: ModelTaxon = taxons.head
       val taxonToQueryName                 = taxonsNames.head
 
-      val response = taxonsApi(taxonToQuery.formId).get.as[TaxonResponse]
+      val response = taxonsApi(taxonToQuery.formId).get.as[FullTaxonResponse]
 
       response.id must === (taxonToQuery.formId)
       (response.attributes \ "name" \ "v").extract[String] must === (taxonToQueryName)
@@ -117,7 +119,7 @@ class TaxonomyIntegrationTest
 
       val response = taxonomiesApi(taxonomy.formId)
         .createTaxon(CreateTaxonPayload(taxonAttributes, None))
-        .as[TaxonResponse]
+        .as[FullTaxonResponse]
       (response.attributes \ "name" \ "v").extract[String] must === (taxonName)
 
       val taxonsResp = queryGetTaxonomy(taxonomy.formId).taxons
@@ -132,7 +134,7 @@ class TaxonomyIntegrationTest
         .createTaxon(
             CreateTaxonPayload(taxonAttributes,
                                location = TaxonLocation(parent = None, position = 1.some).some))
-        .as[TaxonResponse]
+        .as[FullTaxonResponse]
 
       val newTaxons = queryGetTaxonomy(taxonomy.formId).taxons
 
@@ -146,7 +148,7 @@ class TaxonomyIntegrationTest
         .createTaxon(
             CreateTaxonPayload(taxonAttributes,
                                location = TaxonLocation(parent = None, position = None).some))
-        .as[TaxonResponse]
+        .as[FullTaxonResponse]
 
       val newTaxons = queryGetTaxonomy(taxonomy.formId).taxons
 
@@ -166,7 +168,7 @@ class TaxonomyIntegrationTest
       val response = taxonomiesApi(taxonomy.formId)
         .createTaxon(
             CreateTaxonPayload(taxonAttributes, TaxonLocation(parentFormId.some, Some(0)).some))
-        .as[TaxonResponse]
+        .as[FullTaxonResponse]
 
       val newTaxons      = queryGetTaxonomy(taxonomy.formId).taxons
       val responseParent = findTaxonsById(newTaxons, parentFormId).get
