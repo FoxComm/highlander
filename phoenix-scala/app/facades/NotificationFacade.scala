@@ -6,21 +6,30 @@ import akka.stream.OverflowStrategy
 import akka.stream.scaladsl.{Keep, Sink, Source}
 
 import de.heikoseeberger.akkasse.{EventStreamElement, ServerSentEvent ⇒ SSE}
-import models.activity.{Activities, Activity, Connections, Trail, Trails}
-import models.{NotificationTrailMetadata}
-import models.account.Users
-import org.json4s.jackson.Serialization.write
-import responses.ActivityResponse
 import slick.driver.PostgresDriver.api._
+
+import models.account.Scope
+import models.account.Users
+import models.activity.{Activities, Activity}
+import models.{LastSeenNotification, LastSeenNotifications, Notification, Notifications}
+import org.json4s.jackson.Serialization.write
+import responses.NotificationResponse
 import utils.aliases._
 import utils.db._
 import utils.{JsonFormatters, NotificationListener}
 
+/**
+  * TODO: Create a new notificatons table that store notifications for an admin.
+  * Don't use old activities and trails tables.
+  *
+  */
 object NotificationFacade {
   implicit val formats = JsonFormatters.phoenixFormats
 
-  def streamByAdminId(
-      adminId: Int)(implicit ec: EC, db: DB, mat: Mat): Future[Source[EventStreamElement, Any]] = {
+  def streamByAdminId(adminId: Int)(implicit au: AU,
+                                    ec: EC,
+                                    db: DB,
+                                    mat: Mat): Future[Source[EventStreamElement, Any]] = {
     Users.findOneByAccountId(adminId).run().map {
       case Some(admin) ⇒
         oldNotifications(adminId)
@@ -40,28 +49,24 @@ object NotificationFacade {
     Source.fromPublisher(publisher)
   }
 
-  private def oldNotifications(adminId: Int)(implicit db: DB): Source[SSE, Any] = {
+  private def oldNotifications(adminId: Int)(implicit au: AU, db: DB): Source[SSE, Any] = {
     val disableAutocommit = SimpleDBIO(_.connection.setAutoCommit(false))
 
-    val activities = (for {
-      trail      ← Trails.findNotificationByAdminId(adminId)
-      connection ← Connections.filter(_.trailId === trail.id)
-      activity   ← Activities.filter(_.id === connection.activityId)
-    } yield (trail, activity)).result.withStatementParameters(fetchSize = 32)
+    val notifications = (for {
+      lastSeen     ← LastSeenNotifications.findByScopeAndAccountId(Scope.current, adminId)
+      notification ← Notifications.findByScopeAndAccountId(Scope.current, adminId)
+    } yield (lastSeen, notification)).result.withStatementParameters(fetchSize = 32)
 
-    val publisher = db.stream[(Trail, Activity)](disableAutocommit >> activities)
+    val publisher =
+      db.stream[(LastSeenNotification, Notification)](disableAutocommit >> notifications)
 
     Source
       .fromPublisher(publisher)
       .filter {
-        case (trail, activity) ⇒
-          val lastSeen = for {
-            json     ← trail.data
-            metadata ← json.extractOpt[NotificationTrailMetadata]
-          } yield metadata.lastSeenActivityId
-          activity.id > lastSeen.getOrElse(0)
+        case (lastSeen, notification) ⇒
+          notification.id > lastSeen.notificationId
       }
-      .map { case (trail, activity) ⇒ SSE(write(ActivityResponse.build(activity))) }
+      .map { case (lastSeen, notification) ⇒ SSE(write(NotificationResponse.build(notification))) }
   }
 
 }

@@ -41,7 +41,7 @@ object CartPaymentUpdater {
              OrderPayment.build(gc).copy(cordRef = cart.refNum, amount = amount.some))
       resp  ← * <~ CartResponse.buildRefreshed(cart)
       valid ← * <~ CartValidator(cart).validate()
-      _     ← * <~ LogActivity.orderPaymentMethodAddedGc(originator, resp, gc, amount)
+      _     ← * <~ LogActivity().orderPaymentMethodAddedGc(originator, resp, gc, amount)
     } yield TheResponse.validated(resp, valid)
 
   def editGiftCard(originator: User, payload: GiftCardPayment, refNum: Option[String] = None)(
@@ -59,7 +59,7 @@ object CartPaymentUpdater {
       _     ← * <~ OrderPayments.update(orderPayment, orderPayment.copy(amount = amount.some))
       resp  ← * <~ CartResponse.buildRefreshed(cart)
       valid ← * <~ CartValidator(cart).validate()
-      _ ← * <~ LogActivity
+      _ ← * <~ LogActivity()
            .orderPaymentMethodUpdatedGc(originator, resp, gc, orderPayment.amount, amount)
     } yield TheResponse.validated(resp, valid)
 
@@ -113,7 +113,7 @@ object CartPaymentUpdater {
       -          ← * <~ updateSC(available, reqAmount, cart, storeCredits.toList)
       validation ← * <~ CartValidator(cart).validate()
       response   ← * <~ CartResponse.buildRefreshed(cart)
-      _          ← * <~ LogActivity.orderPaymentMethodAddedSc(originator, response, payload.amount)
+      _          ← * <~ LogActivity().orderPaymentMethodAddedSc(originator, response, payload.amount)
     } yield TheResponse.validated(response, validation)
   }
 
@@ -132,7 +132,7 @@ object CartPaymentUpdater {
              OrderPayment.build(cc).copy(cordRef = cart.refNum, amount = None))
       valid ← * <~ CartValidator(cart).validate()
       resp  ← * <~ CartResponse.buildRefreshed(cart)
-      _     ← * <~ LogActivity.orderPaymentMethodAddedCc(originator, resp, cc, region)
+      _     ← * <~ LogActivity().orderPaymentMethodAddedCc(originator, resp, cc, region)
     } yield TheResponse.validated(resp, valid)
 
   def deleteCreditCard(
@@ -158,7 +158,7 @@ object CartPaymentUpdater {
                          onFailure = DbResultT.failure(OrderPaymentNotFoundFailure(pmt)))
       updatedCart ← * <~ getCartByOriginator(originator, refNum)
       valid       ← * <~ CartValidator(updatedCart).validate()
-      _           ← * <~ LogActivity.orderPaymentMethodDeleted(originator, resp, pmt)
+      _           ← * <~ LogActivity().orderPaymentMethodDeleted(originator, resp, pmt)
     } yield TheResponse.validated(resp, valid)
 
   def deleteGiftCard(originator: User, code: String, refNum: Option[String] = None)(
@@ -178,6 +178,6 @@ object CartPaymentUpdater {
                                   OrderPaymentNotFoundFailure(PaymentMethod.GiftCard)))
       updatedCart ← * <~ getCartByOriginator(originator, refNum)
       validated   ← * <~ CartValidator(updatedCart).validate()
-      _           ← * <~ LogActivity.orderPaymentMethodDeletedGc(originator, deleteRes, giftCard)
+      _           ← * <~ LogActivity().orderPaymentMethodDeletedGc(originator, deleteRes, giftCard)
     } yield TheResponse.validated(deleteRes, validated)
 }

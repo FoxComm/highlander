@@ -19,6 +19,7 @@
     - { role: base/kafka }
     - { role: base/schema-registry }
     - { role: base/elasticsearch }
+    - { role: base/flyway }
     - { role: base/db }
     - { role: base/bottledwater }
     - { role: base/rsyslog }

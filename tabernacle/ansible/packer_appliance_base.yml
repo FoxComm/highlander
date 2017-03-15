@@ -34,6 +34,7 @@
     - { role: base/mesos_worker }
     - { role: base/mesos_consul }
     # PostgreSQL
+    - { role: base/flyway }
     - { role: base/db }
     - { role: base/bottledwater }
     - { role: base/pgweb }

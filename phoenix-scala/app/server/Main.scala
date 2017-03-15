@@ -2,7 +2,7 @@ package server
 
 import scala.collection.immutable
 import scala.concurrent.duration._
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{Await, ExecutionContext, Future}
 import akka.actor.{ActorSystem, Props}
 import akka.agent.Agent
 import akka.event.Logging
@@ -14,7 +14,7 @@ import akka.http.scaladsl.server._
 import akka.stream.ActorMaterializer
 import com.stripe.Stripe
 import com.typesafe.scalalogging.LazyLogging
-import models.account.AccountAccessMethod
+import models.account.{AccountAccessMethod, Scopes}
 import org.json4s._
 import org.json4s.jackson._
 import services.account.AccountCreateContext
@@ -27,6 +27,7 @@ import utils.apis._
 import utils.http.CustomHandlers
 import utils.http.HttpLogger.logFailedRequests
 import utils.{ElasticsearchApi, Environment, FoxConfig}
+import utils.db._
 
 object Main extends App with LazyLogging {
   logger.info("Starting phoenix server")
@@ -80,13 +81,17 @@ class Service(
   val orgName  = config.users.customer.org
   val scopeId  = config.users.customer.scopeId
 
+  val scope = Await
+    .result(Scopes.findOneById(scopeId).run(), Duration.Inf)
+    .getOrElse(throw new RuntimeException(s"Unable to find a scope with id $scopeId"))
+
   val customerCreateContext                = AccountCreateContext(List(roleName), orgName, scopeId)
   implicit val userAuth: UserAuthenticator = Authenticator.forUser(customerCreateContext)
 
   val defaultRoutes = {
     pathPrefix("v1") {
-      routes.AuthRoutes.routes ~
-      routes.Public.routes(customerCreateContext) ~
+      routes.AuthRoutes.routes(scope.ltree) ~
+      routes.Public.routes(customerCreateContext, scope.ltree) ~
       routes.Customer.routes ~
       requireAdminAuth(userAuth) { implicit auth ⇒
         routes.admin.AdminRoutes.routes ~
@@ -98,7 +103,6 @@ class Service(
         routes.admin.CustomerGroupsRoutes.routes ~
         routes.admin.GiftCardRoutes.routes ~
         routes.admin.ReturnRoutes.routes ~
-        routes.admin.Activity.routes ~
         routes.admin.ProductRoutes.routes ~
         routes.admin.SkuRoutes.routes ~
         routes.admin.VariantRoutes.routes ~
@@ -113,7 +117,7 @@ class Service(
         routes.admin.PluginRoutes.routes ~
         routes.admin.TaxonomyRoutes.routes ~
         routes.service.PaymentRoutes.routes ~ //Migrate this to auth with service tokens once we have them
-        routes.service.MigrationRoutes.routes(customerCreateContext)
+        routes.service.MigrationRoutes.routes(customerCreateContext, scope.ltree)
       }
     }
   }

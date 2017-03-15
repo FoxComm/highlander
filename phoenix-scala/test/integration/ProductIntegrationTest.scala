@@ -212,8 +212,11 @@ class ProductIntegrationTest
       }
 
       "a new SKU in variant successfully" in new Fixture {
-        val valuePayload =
-          Seq(VariantValuePayload(skuCodes = Seq(skuName), swatch = None, name = Some("Test")))
+        val valuePayload = Seq(
+            VariantValuePayload(skuCodes = Seq(skuName),
+                                swatch = None,
+                                image = None,
+                                name = Some("Test")))
         val variantPayload =
           Seq(VariantPayload(attributes = Map("test" → "Test"), values = Some(valuePayload)))
 
@@ -284,8 +287,11 @@ class ProductIntegrationTest
 
       "empty variant successfully" in new Fixture {
         val redSkuPayload = makeSkuPayload(skuRedSmallCode, skuAttrMap, None)
-        val values =
-          Seq(VariantValuePayload(name = Some("value"), swatch = None, skuCodes = Seq.empty))
+        val values = Seq(
+            VariantValuePayload(name = Some("value"),
+                                swatch = None,
+                                image = None,
+                                skuCodes = Seq.empty))
         val variantPayload =
           Seq(VariantPayload(attributes = Map("t" → "t"), values = Some(values)))
         val payload =
@@ -346,6 +352,7 @@ class ProductIntegrationTest
         val values = Seq(
             VariantValuePayload(name = Some("name"),
                                 swatch = None,
+                                image = None,
                                 skuCodes = Seq("SKU-TEST1", "SKU-TEST2")))
         val variantPayload =
           Seq(VariantPayload(attributes = Map("t" → "t"), values = Some(values)))
@@ -656,10 +663,14 @@ class ProductIntegrationTest
         private val newSkuCode: ActivityType = "SKU-NEW-TEST"
         val newSkuPayload                    = makeSkuPayload(newSkuCode, skuAttrMap, None)
 
-        val goldValuePayload =
-          VariantValuePayload(name = Some("Gold"), swatch = None, skuCodes = Seq(newSkuCode))
-        val silverValuePayload =
-          VariantValuePayload(name = Some("Silver"), swatch = None, skuCodes = Seq.empty)
+        val goldValuePayload = VariantValuePayload(name = Some("Gold"),
+                                                   swatch = None,
+                                                   image = None,
+                                                   skuCodes = Seq(newSkuCode))
+        val silverValuePayload = VariantValuePayload(name = Some("Silver"),
+                                                     swatch = None,
+                                                     image = None,
+                                                     skuCodes = Seq.empty)
         val metalVariantPayload =
           makeVariantPayload("Metal", Seq(goldValuePayload, silverValuePayload))
 
@@ -921,10 +932,14 @@ class ProductIntegrationTest
     val smallSkus = Seq(skuRedSmallCode, skuGreenSmallCode)
     val largeSkus = Seq(skuRedLargeCode, skuGreenLargeCode)
 
-    val redValuePayload =
-      VariantValuePayload(name = Some("Red"), swatch = Some("ff0000"), skuCodes = Seq.empty)
-    val greenValuePayload =
-      VariantValuePayload(name = Some("Green"), swatch = Some("00ff00"), skuCodes = Seq.empty)
+    val redValuePayload = VariantValuePayload(name = Some("Red"),
+                                              swatch = Some("ff0000"),
+                                              image = None,
+                                              skuCodes = Seq.empty)
+    val greenValuePayload = VariantValuePayload(name = Some("Green"),
+                                                swatch = Some("00ff00"),
+                                                image = None,
+                                                skuCodes = Seq.empty)
 
     val justColorVariantPayload = makeVariantPayload(
         "Color",
@@ -932,10 +947,10 @@ class ProductIntegrationTest
             greenValuePayload.copy(skuCodes = Seq(skuGreenSmallCode))))
 
     val smallValuePayload =
-      VariantValuePayload(name = Some("Small"), swatch = None, skuCodes = Seq.empty)
+      VariantValuePayload(name = Some("Small"), swatch = None, image = None, skuCodes = Seq.empty)
 
     val largeValuePayload =
-      VariantValuePayload(name = Some("Large"), swatch = None, skuCodes = Seq.empty)
+      VariantValuePayload(name = Some("Large"), swatch = None, image = None, skuCodes = Seq.empty)
 
     val justSizeVariantPayload = makeVariantPayload(
         "Size",

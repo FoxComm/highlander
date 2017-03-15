@@ -72,7 +72,7 @@ trait NoteManager[K, T <: Identity[T]] {
                      referenceType = refType,
                      body = payload.body,
                      scope = Scope.current))
-      _ ← * <~ LogActivity.noteCreated(author, entity, note)
+      _ ← * <~ LogActivity().noteCreated(author, entity, note)
     } yield note
 
   private def updateInner(entity: T, noteId: Int, author: User, payload: UpdateNote)(
@@ -84,7 +84,7 @@ trait NoteManager[K, T <: Identity[T]] {
                  .filterByIdAndAdminId(noteId, author.accountId)
                  .mustFindOneOr(NotFoundFailure404(Note, noteId))
       newNote ← * <~ Notes.update(oldNote, oldNote.copy(body = payload.body))
-      _       ← * <~ LogActivity.noteUpdated(author, entity, oldNote, newNote)
+      _       ← * <~ LogActivity().noteUpdated(author, entity, oldNote, newNote)
     } yield AdminNotes.build(newNote, author)
 
   private def deleteInner(entity: T, noteId: Int, admin: User)(implicit ec: EC,
@@ -95,7 +95,7 @@ trait NoteManager[K, T <: Identity[T]] {
       _ ← * <~ Notes.update(
              note,
              note.copy(deletedAt = Some(Instant.now), deletedBy = Some(admin.accountId)))
-      _ ← * <~ LogActivity.noteDeleted(admin, entity, note)
+      _ ← * <~ LogActivity().noteDeleted(admin, entity, note)
     } yield ()
 
   private def forModel[M <: FoxModel[M]](

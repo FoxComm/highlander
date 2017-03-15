@@ -1,60 +1,49 @@
 /* @flow */
-import React, { Component, Element } from 'react';
 
-import { isPermitted } from 'lib/claims';
+import React, { Element } from 'react';
+
+import { anyPermitted, isPermitted } from 'lib/claims';
 import { frn, readAction } from 'lib/frn';
 
-import NavigationItem from 'components/sidebar/navigation-item';
+import NavigationItem from '../navigation-item';
 import { IndexLink, Link } from 'components/link';
 
-import type { Claims } from 'lib/claims';
-
-type Props = {
-  claims: Claims,
-  routes: Array<Object>,
-  collapsed: boolean,
-  status: string,
-  toggleMenuItem: Function,
-};
+import styles from './entries.css';
 
 const customerClaims = readAction(frn.user.customer);
 const customerGroupClaims = readAction(frn.user.customerGroup);
 
-export default class CustomersEntry extends Component {
-  props: Props;
+const CustomersEntry = ({ claims, routes }: TMenuEntry) => {
+    const allClaims = { ...customerClaims, ...customerGroupClaims };
 
-  render() {
-    const { claims } = this.props;
-    if (!isPermitted(customerClaims, this.props.claims)) {
+    if (!anyPermitted(allClaims, claims)) {
       return <div></div>;
     }
 
     return (
-      <li>
-        <NavigationItem
-          to="customers"
-          icon="icon-customers"
-          title="Customers"
-          isIndex={true}
-          isExpandable={true}
-          routes={this.props.routes}
-          collapsed={this.props.collapsed}
-          status={this.props.status}
-          toggleMenuItem={this.props.toggleMenuItem}>
-          <IndexLink
+      <div styleName="fc-entries-wrapper">
+        <h3>CUSTOMERS</h3>
+        <li>
+          <NavigationItem
             to="customers"
-            className="fc-navigation-item__sublink">
-            Customers
-          </IndexLink>
-          <IndexLink
-            to="groups"
-            className="fc-navigation-item__sublink"
+            icon="customers"
+            title="Customers"
+            routes={routes}
             actualClaims={claims}
-            expectedClaims={customerGroupClaims}>
-            Customer Groups
-          </IndexLink>
-        </NavigationItem>
-      </li>
+            expectedClaims={customerClaims}
+          />
+        </li>
+        <li>
+          <NavigationItem
+            to="groups"
+            icon="groups"
+            title="Customer Groups"
+            routes={routes}
+            actualClaims={claims}
+            expectedClaims={customerGroupClaims}
+          />
+        </li>
+      </div>
     );
-  }
-}
+};
+export default CustomersEntry;

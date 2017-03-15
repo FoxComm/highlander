@@ -1,0 +1,7 @@
+account_file         = "foxcomm-staging.json"
+gce_project          = "foxcomm-staging"
+region               = "us-central1"
+agent_image          = "buildkite-agent-170306-164444"
+appliance_image      = "appliance-base-170207-004420"
+datacenter           = "foxcomm-cloud"
+consul_leader        = "10.240.0.10"

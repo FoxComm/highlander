@@ -12,6 +12,8 @@
   },
   "env": {
     "PORT":"{{phoenix_port}}",
+    "SCHEMA_REGISTRY_URL": "http://{{schema_server}}",
+    "KAFKA_BROKER": "{{kafka_server}}",
     "PHOENIX_PUBLIC_KEY": "/keys/public_key.der",
     "PHOENIX_PRIVATE_KEY": "/keys/private_key.der",
     "PHOENIX_COOKIE_SECURE": "off",

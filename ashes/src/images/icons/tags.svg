@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="18px" height="9px" viewBox="0 0 18 9" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 42 (36781) - http://www.bohemiancoding.com/sketch -->
+    <title>Icon_Tags</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <path d="M11.252136,0 L4.49572805,0 C2.01243417,0 0,2.01471863 0,4.5 C0,6.98022433 2.01280601,9 4.49572805,9 L11.252136,9 L9,9 L9,0 L11.252136,0 Z" id="path-1"></path>
+        <mask id="mask-2" maskContentUnits="userSpaceOnUse" maskUnits="objectBoundingBox" x="0" y="0" width="11.252136" height="9" fill="white">
+            <use xlink:href="#path-1"></use>
+        </mask>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Artboard-Copy" transform="translate(-197.000000, -191.000000)">
+            <g id="Icon_Tags" transform="translate(197.000000, 191.000000)">
+                <rect id="Rectangle-626-Copy-4" fill="#FFFFFF" x="0" y="0" width="18" height="9" rx="4.5"></rect>
+                <use id="Combined-Shape" stroke="#FFFFFF" mask="url(#mask-2)" stroke-width="2" fill="#263349" xlink:href="#path-1"></use>
+            </g>
+        </g>
+    </g>
+</svg>

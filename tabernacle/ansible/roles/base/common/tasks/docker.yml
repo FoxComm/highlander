@@ -1,10 +1,10 @@
 ---
 
 - name: Add Docker Key
-  apt_key: keyserver=hkp://p80.pool.sks-keyservers.net:80 id=58118E89F3A912897C070ADBF76221572C52609D
+  apt_key: url=https://download.docker.com/linux/ubuntu/gpg state=present
 
 - name: Add Docker Repository
-  apt_repository: repo="deb https://apt.dockerproject.org/repo ubuntu-xenial main" state=present update_cache=yes
+  apt_repository: repo="deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable" state=present update_cache=yes
 
 - name: Install Docker-Compose Dependency
   pip: name=ipaddress
@@ -12,7 +12,7 @@
 - name: Install Docker
   apt: name={{item}} state=latest force=yes
   with_items:
-    - docker-engine
+    - docker-ce
     - docker-compose
 
 - name: Add User to Docker Group

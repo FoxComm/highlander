@@ -2,7 +2,6 @@ package services.inventory
 
 import java.time.Instant
 
-import com.github.tminglei.slickpg.LTree
 import cats.data._
 import failures.ProductFailures._
 import failures.{Failures, GeneralFailure, NotFoundFailure400}
@@ -39,7 +38,9 @@ object SkuManager {
       albums ← * <~ findOrCreateAlbumsForSku(sku.model, albumPayloads)
       albumResponse = albums.map { case (album, images) ⇒ AlbumResponse.build(album, images) }
       response      = SkuResponse.build(IlluminatedSku.illuminate(oc, sku), albumResponse)
-      _ ← * <~ LogActivity.fullSkuCreated(Some(admin), response, ObjectContextResponse.build(oc))
+      _ ← * <~ LogActivity()
+           .withScope(sku.model.scope)
+           .fullSkuCreated(Some(admin), response, ObjectContextResponse.build(oc))
     } yield response
   }
 
@@ -62,7 +63,7 @@ object SkuManager {
       updatedSku ← * <~ updateSkuInner(sku, payload)
       albums     ← * <~ updateAssociatedAlbums(updatedSku.model, payload.albums)
       response = SkuResponse.build(IlluminatedSku.illuminate(oc, updatedSku), albums)
-      _ ← * <~ LogActivity.fullSkuUpdated(Some(admin), response, ObjectContextResponse.build(oc))
+      _ ← * <~ LogActivity().fullSkuUpdated(Some(admin), response, ObjectContextResponse.build(oc))
     } yield response
 
   def archiveByCode(code: String)(implicit ec: EC, db: DB, oc: OC): DbResultT[SkuResponse.Root] =

@@ -32,6 +32,7 @@ type State = {
 type ButtonData = { label: string, value: string, title?: string };
 
 const headerStyles = [
+  { label: 'P', value: 'unstyled'},
   { label: 'H1', value: 'header-one' },
   { label: 'H2', value: 'header-two' },
   { label: 'H3', value: 'header-three' },

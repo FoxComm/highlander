@@ -27,7 +27,7 @@ const getRoutes = (jwt: JWT) => {
   const router = new FoxRouter(jwt);
 
   const userRoutes =
-    router.read('user-base', { path: 'users', frn: frn.settings.user }, [
+    router.read('users-base', { path: 'users', frn: frn.settings.user }, [
       router.read('users-list-page', { component: UsersListPage }, [
         router.read('users', { component: Users, isIndex: true }),
         router.read('users-activity-trail', {

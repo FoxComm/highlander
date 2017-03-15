@@ -22,13 +22,13 @@ object Http {
   private def renderNotFoundFailure(f: NotFoundFailure404): HttpResponse =
     notFoundResponse.copy(entity = jsonEntity("errors" → Seq(f.message)))
 
-  private final case class SuccessfulResponse(result: AnyRef,
+  private final case class SuccessfulResponse(result: Any,
                                               warnings: Option[List[String]],
                                               errors: Option[List[String]],
                                               batch: Option[BatchMetadata])
 
   private object SuccessfulResponse {
-    def from(result: AnyRef, uiInfo: List[MetaResponse]): SuccessfulResponse = {
+    def from(result: Any, uiInfo: List[MetaResponse]): SuccessfulResponse = {
       val uiInfoWarnings = uiInfo.collect { case MetaResponse.Warning(f)        ⇒ f.description }
       val uiInfoErrors   = uiInfo.collect { case MetaResponse.Error(f)          ⇒ f.description }
       val uiInfoBatches  = uiInfo.collectFirst { case MetaResponse.BatchInfo(b) ⇒ b }
@@ -59,9 +59,11 @@ object Http {
   def render(result: AnyRef, uiInfo: List[MetaResponse], statusCode: StatusCode = OK) = {
     val response = SuccessfulResponse.from(result, uiInfo)
     val temporaryHack: AnyRef = result match {
-      case _: TheResponse[_]                                        ⇒ response
-      case _ if response.batch.isEmpty && response.warnings.isEmpty ⇒ response.result
-      case _                                                        ⇒ response
+      case _: TheResponse[_] ⇒ response
+      case _ if response.batch.isEmpty && response.warnings.isEmpty ⇒
+        response.result
+          .asInstanceOf[AnyRef] // Includes autoboxing for AnyVals. This is only temporary! @michalrus
+      case _ ⇒ response
     }
     HttpResponse(statusCode, entity = jsonEntity(temporaryHack))
   }
