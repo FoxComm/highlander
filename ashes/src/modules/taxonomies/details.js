@@ -13,8 +13,6 @@ const defaultContext = 'default';
 // Internal async actions.
 ////////////////////////////////////////////////////////////////////////////////
 
-const clearTaxonomy = createAction('TAXONOMY_CLEAR');
-
 const _fetchTaxonomy = createAsyncActions(
   'fetchTaxonomy',
   (id: number, context: string = defaultContext) => {
@@ -49,6 +47,7 @@ const _archiveTaxonomy = createAsyncActions(
 
 export const reset = createAction('TAXONOMY_RESET');
 export const duplicate = createAction('TAXONOMY_DUPLICATE');
+export const clearFetchErrors = _fetchTaxonomy.clearErrors;
 export const clearArchiveErrors = _archiveTaxonomy.clearErrors;
 
 export const create = _createTaxonomy.perform;

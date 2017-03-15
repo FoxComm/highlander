@@ -450,7 +450,7 @@ export class ObjectPage extends Component {
           />
         </PageTitle>
         {this.subNav()}
-        <div>
+        <div styleName="object-details">
           <ErrorAlerts
             error={this.props.submitError}
             closeAction={actions.clearSubmitErrors}

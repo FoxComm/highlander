@@ -55,6 +55,7 @@ declare type ObjectActions<T> = {
   archive: (object: T, context?: string) => Promise<*>,
   getTitle: (object: T) => string,
   transition: (id: number|string) => void,
+  clearFetchErrors: () => void,
   clearArchiveErrors: () => void,
 };
 

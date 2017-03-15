@@ -17,6 +17,8 @@ import ArchiveActionsSection from 'components/archive-actions/archive-actions';
 import { SAVE_COMBO, SAVE_COMBO_ITEMS } from 'paragons/common';
 import { transitionToLazy } from 'browserHistory';
 
+import styles from './object-page.css';
+
 class ObjectPageDeux extends Component {
   // TODO: replace *
   props: ObjectPageProps<*, *>;
