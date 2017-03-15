@@ -771,6 +771,9 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
   case class storeCreditsApi(id: Int) {
     val storeCreditPath = s"${storeCreditsApi.storeCreditsPrefix}/$id"
 
+    def get(): HttpResponse =
+      GET(storeCreditPath)
+
     def update(payload: StoreCreditUpdateStateByCsr): HttpResponse =
       PATCH(storeCreditPath, payload)
   }

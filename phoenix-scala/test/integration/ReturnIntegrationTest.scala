@@ -7,6 +7,8 @@ import models.account._
 import models.cord._
 import models.payment.PaymentMethod
 import models.payment.creditcard.CreditCardCharges
+import models.payment.giftcard.GiftCard
+import models.payment.storecredit.StoreCredit
 import models.returns.Return._
 import models.returns._
 import org.scalatest.prop.PropertyChecks
@@ -118,6 +120,54 @@ class ReturnIntegrationTest
           .update(state(Pending))
           .mustFailWith400(
               StateTransitionNotAllowed(Return, "Complete", "Pending", rma.referenceNumber))
+      }
+
+      "gift cards and store credits should be activated on complete state" in new ReturnLineItemDefaults
+      with ReturnPaymentFixture {
+        val payments = createReturnPayment(Map(
+                                               PaymentMethod.GiftCard    → 100,
+                                               PaymentMethod.StoreCredit → 150
+                                           ),
+                                           refNum = rma.referenceNumber).payments
+        val gcPayment = payments.giftCard.value
+        val scPayment = payments.storeCredit.value
+
+        giftCardsApi(gcPayment.code).get().as[GiftCardResponse.Root].state must === (
+            GiftCard.OnHold)
+        storeCreditsApi(scPayment.id).get().as[StoreCreditResponse.Root].state must === (
+            StoreCredit.OnHold)
+
+        completeReturn(rma.referenceNumber).payments must === (payments)
+        giftCardsApi(gcPayment.code).get().as[GiftCardResponse.Root].state must === (
+            GiftCard.Active)
+        storeCreditsApi(scPayment.id).get().as[StoreCreditResponse.Root].state must === (
+            StoreCredit.Active)
+      }
+
+      "gift cards and store credits should be canceled on canceled state" in new ReturnLineItemDefaults
+      with ReturnPaymentFixture {
+        val payments = createReturnPayment(Map(
+                                               PaymentMethod.GiftCard    → 100,
+                                               PaymentMethod.StoreCredit → 150
+                                           ),
+                                           refNum = rma.referenceNumber).payments
+        val gcPayment = payments.giftCard.value
+        val scPayment = payments.storeCredit.value
+
+        giftCardsApi(gcPayment.code).get().as[GiftCardResponse.Root].state must === (
+            GiftCard.OnHold)
+        storeCreditsApi(scPayment.id).get().as[StoreCreditResponse.Root].state must === (
+            StoreCredit.OnHold)
+
+        returnsApi(rma.referenceNumber)
+          .update(
+              ReturnUpdateStatePayload(state = Canceled, reasonId = cancellationReason.id.some))
+          .as[ReturnResponse.Root]
+          .payments must === (payments)
+        giftCardsApi(gcPayment.code).get().as[GiftCardResponse.Root].state must === (
+            GiftCard.Canceled)
+        storeCreditsApi(scPayment.id).get().as[StoreCreditResponse.Root].state must === (
+            StoreCredit.Canceled)
       }
 
       "fails if RMA refNum is not found" in new ReturnDefaults {
@@ -384,11 +434,14 @@ class ReturnIntegrationTest
       "succeeds for bulk insert" in new ReturnPaymentDefaults {
         val payload = ReturnPaymentsPayload(
             Map(PaymentMethod.CreditCard → 100, PaymentMethod.StoreCredit → 120))
-        val payments =
-          returnsApi(rma.referenceNumber).paymentMethods.add(payload).as[ReturnResponse.Root].payments.asMap
+        val payments = returnsApi(rma.referenceNumber).paymentMethods
+          .add(payload)
+          .as[ReturnResponse.Root]
+          .payments
+          .asMap
 
         payments must have size 2
-        payments.mapValues(_.amount) must contain theSameElementsAs payload.payments
+        payments.mapValues(_.amount) must === (payload.payments)
       }
 
       "succeeds for any supported payment" in new ReturnPaymentFixture with ReturnDefaults
