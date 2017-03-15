@@ -11,9 +11,6 @@ build:
 	$(call header, Building)
 	true
 
-lint:
-	ansible-lint -x ANSIBLE0007,ANSIBLE0004 ansible/*.yml
-
 test:
 	$(call header, Testing)
 	./terraform/testfmt.sh
