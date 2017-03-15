@@ -17,6 +17,7 @@ import styles from './sidebar.css';
 
 import Categories from '../navigation/navigation';
 import Search from '../search/search';
+import Overlay from 'ui/overlay/overlay';
 
 import * as actions from 'modules/sidebar';
 
@@ -36,15 +37,6 @@ class Sidebar extends React.Component {
 
   state: State = {
     searchFocused: false,
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.isVisible) {
-      const className = window.innerWidth < 1120 ? 'no-scroll-mobile' : 'no-scroll';
-      document.getElementById('body-wrapper').className = className;
-    } else {
-      document.getElementById('body-wrapper').className = '';
-    }
   }
 
   @autobind
@@ -112,7 +104,7 @@ class Sidebar extends React.Component {
 
     return (
       <div styleName={sidebarClass}>
-        <div styleName="overlay" onClick={this.props.toggleSidebar}></div>
+        <Overlay onClick={this.props.toggleSidebar} shown={this.props.isVisible} />
         <div styleName="container">
           <div styleName="controls">
             <div styleName="controls-close">
@@ -121,7 +113,7 @@ class Sidebar extends React.Component {
               </span>
             </div>
             <div styleName={ this.state.searchFocused ? 'controls-search-focused' : 'controls-search'}>
-              <Search onSearch={this.props.toggleSidebar} setFocus={this.setFocus} isActive/>
+              <Search onSearch={this.props.toggleSidebar} setFocus={this.setFocus} isActive />
             </div>
             <div styleName="links-group" onClick={this.onLinkClick}>
               <div styleName="controls-categories">

@@ -1,18 +1,6 @@
 @import "media-queries.css";
 @import "colors.css";
 
-.overlay {
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  position: fixed;
-  background: var(--light-grayish);
-  opacity: 0;
-  transition: opacity .1s;
-  transform: translateX(-100%);
-}
-
 .container {
   position: fixed;
   top: 0;
@@ -23,11 +11,6 @@
   transition: transform .2s;
   lost-column: 4/12;
   overflow-y: auto;
-}
-
-.sidebar-shown .overlay {
-  opacity: 1;
-  transform: translateX(0);
 }
 
 .sidebar-shown .container {

@@ -21,6 +21,7 @@ import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
 import { skuIdentity } from '@foxcomm/wings/lib/paragons/sku';
 import { parseError } from '@foxcomm/api-js';
 import CouponCode from '../promo-code/promo-code';
+import Overlay from 'ui/overlay/overlay';
 
 // styles
 import styles from './cart.css';
@@ -64,15 +65,6 @@ class Cart extends Component {
       this.props.fetch(this.props.user);
     } else {
       this.props.fetch();
-    }
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.isVisible) {
-      const className = window.innerWidth < 1120 ? 'no-scroll-mobile' : 'no-scroll';
-      document.getElementById('body-wrapper').className = className;
-    } else {
-      document.getElementById('body-wrapper').className = '';
     }
   }
 
@@ -168,7 +160,7 @@ class Cart extends Component {
 
     return (
       <div styleName={cartClass}>
-        <div styleName="overlay" onClick={toggleCart}></div>
+        <Overlay onClick={toggleCart} shown={isVisible} />
         <div styleName="cart-box">
           <div styleName="cart-header">
             <span styleName="my-cart" onClick={toggleCart}>My Cart</span>

@@ -22,22 +22,13 @@ body {
   font-smooth: always;
   overflow: hidden;
   position: fixed;
-  width: 100vw;
-  height: 100vh;
-}
-#body-wrapper {
-  overflow: auto;
-  width: 100%;
-  height: 100%;
-  margin-top: 50px;
-}
-.no-scroll {
-  overflow: hidden !important;
 }
 
-.no-scroll-mobile {
-  overflow: hidden !important;
-  width: auto !important;
+#app {
+  overflow: auto;
+  width: 100vw;
+  height: 100vh;
+  margin-top: 50px;
 }
 
 fieldset {
