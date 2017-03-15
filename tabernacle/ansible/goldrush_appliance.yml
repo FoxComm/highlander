@@ -22,6 +22,7 @@
     first_run: "{{ FIRST_RUN | default(false) }}"
     is_appliance: true
     is_amigo: true
+    is_ci: "{{ lookup('env', 'CI') }}"
     mesos_quorum: 1
     with_base_seeds: true
     url_prefix_perfectgourmet: "/perfect-gourmet"
@@ -49,7 +50,7 @@
     - { role: hotfix/rsyslog }
     - { role: hotfix/kibana }
     - { role: dev/db }
-    - { role: dev/db_ic }
+    - { role: dev/db_ic, when: with_ic }
     # Marathon
     - { role: dev/marathon }
     - { role: dev/seeder }
@@ -64,7 +65,3 @@
     # Finale
     - { role: dev/healthcheck }
     - { role: dev/appliance_dns }
-
-  handlers:
-     - include: roles/base/consul_agent/handlers/main.yml
-     - include: roles/base/mesos_consul/handlers/main.yml

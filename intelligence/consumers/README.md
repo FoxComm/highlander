@@ -8,3 +8,4 @@ system. The consumers are outlined below.
 | [digger-sphex](digger-sphex)           | The digger sphex is a consumer that processes nginx logs and aggregates data into henhouse |
 | [orders-sphex](orders-sphex)           | The orders consumer parses `order_checkout_completed` activities and aggregates data into henhousee |
 | [orders-cross-sell](orders-cross-sell) | The orders consumer parses `order_checkout_completed` activities and aggregates data into cross-sell |
+

@@ -17,10 +17,7 @@ class CartCreditCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestB
   "POST /v1/carts/:ref/payment-methods/credit-cards" - {
     "succeeds" in new CreditCardFixture {
       cartsApi(cart.refNum).payments.creditCard.add(CreditCardPayment(creditCard.id)).mustBeOk()
-      val payments = creditCardPayments(cart)
-
-      payments must have size 1
-      payments.head.amount must === (None)
+      creditCardPayments(cart).onlyElement.amount must === (None)
     }
 
     "successfully replaces an existing card" in new CreditCardFixture {
@@ -28,9 +25,7 @@ class CartCreditCardPaymentsIntegrationTest extends CartPaymentsIntegrationTestB
       val newCreditCard = CreditCards.create(creditCard.copy(id = 0, isDefault = false)).gimme
       cartsApi(cart.refNum).payments.creditCard.add(CreditCardPayment(newCreditCard.id)).mustBeOk()
 
-      val payments = creditCardPayments(cart)
-      payments must have size 1
-      payments.head.paymentMethodId must === (newCreditCard.id)
+      creditCardPayments(cart).onlyElement.paymentMethodId must === (newCreditCard.id)
     }
 
     "fails if the cart is not found" in new CreditCardFixture {

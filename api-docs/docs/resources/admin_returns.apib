@@ -17,27 +17,6 @@ Expanded view with embedded Order + warnings and includes.
 + Response 200 (application/json)
     + Attributes (ReturnExpanded)
 
-### View Lock [GET /v1/returns/{refNum}/lock]
-
-+ Parameters
-    + refNum: `ABC-123.1` (required, string) - Return reference number
-+ Response 200 (application/json)
-    + Attributes (ReturnLockInfo)
-
-### Lock [POST /v1/returns/{refNum}/lock]
-
-+ Parameters
-    + refNum: `ABC-123.1` (required, string) - Return reference number
-+ Response 200 (application/json)
-    + Attributes (Return)
-
-### Unlock [POST /v1/returns/{refNum}/unlock]
-
-+ Parameters
-    + refNum: `ABC-123.1` (required, string) - Return reference number
-+ Response 200 (application/json)
-    + Attributes (Return)
-
 ### Create [POST /v1/returns]
 
 + Request (application/json)

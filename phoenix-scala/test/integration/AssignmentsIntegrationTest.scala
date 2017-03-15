@@ -27,9 +27,7 @@ class AssignmentsIntegrationTest
         .assign(AssignmentPayload(assignees = Seq(storeAdmin.accountId)))
         .as[TheResponse[Seq[AssignmentResponse.Root]]]
 
-      response.result must have size 1
-
-      private val assignment = response.result.headOption.value
+      private val assignment = response.result.onlyElement
       assignment.assignee.id mustBe storeAdmin.accountId
       assignment.assignmentType mustBe Assignment.Assignee
 
@@ -42,15 +40,11 @@ class AssignmentsIntegrationTest
         .assign(AssignmentPayload(assignees = Seq(storeAdmin.accountId, 666)))
         .asThe[Seq[AssignmentResponse.Root]]
 
-      response.result must have size 1
-
-      private val assignment = response.result.headOption.value
+      private val assignment = response.result.onlyElement
       assignment.assignee.id must === (storeAdmin.id)
       assignment.assignmentType must === (Assignment.Assignee)
 
-      private val errors = response.errors.value
-      errors must have size 1
-      errors.headOption.value must === (NotFoundFailure404(User, 666).description)
+      response.errors.value.onlyElement must === (NotFoundFailure404(User, 666).description)
     }
 
     "returns error if order not found" in new Order_Baked {

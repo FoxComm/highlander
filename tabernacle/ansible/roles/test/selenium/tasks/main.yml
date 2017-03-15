@@ -6,7 +6,7 @@
 - name: Add Chrome apt repository
   apt_repository: repo='{{item}}' state=present update_cache=yes
   with_items:
-    - deb http://dl.google.com/linux/chrome/deb/ stable main
+    - "deb {{chrome_deb}} stable main"
 
 - name: Install Chrome and dependencies
   apt: name={{item}} force=yes state=latest
@@ -14,14 +14,14 @@
     - google-chrome-stable
     - xvfb
 
-- name: Create Dirs for allure and chromedriver
+- name: Create Dirs for Allure and ChromeDriver
   file: path={{home}}/{{item}} state=directory
   with_items:
     - allure
     - chromedriver
 
 - name: Get Allure Test Report
-  get_url: url=https://github.com/allure-framework/allure-core/releases/download/allure-core-1.4.23.HOTFIX1/allure-commandline.tar.gz dest={{home}}
+  get_url: url={{allure_download_url}} dest={{home}}
 
 - name: Unzip Allure
   unarchive: src={{home}}/allure-commandline.tar.gz dest={{home}}/allure copy=no
@@ -33,7 +33,7 @@
   file: src={{home}}/allure/bin/allure dest=/usr/local/bin/allure state=link
 
 - name: Get Web Driver
-  get_url: url=http://chromedriver.storage.googleapis.com/2.27/chromedriver_linux64.zip dest={{home}}
+  get_url: url={{chromedriver_url}} dest={{home}}
 
 - name: Unzip Web Driver
   unarchive: src={{home}}/chromedriver_linux64.zip dest={{home}}/chromedriver copy=no

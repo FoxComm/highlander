@@ -24,9 +24,7 @@ case class CartResponse(referenceNumber: String,
                         customer: Option[CustomerResponse.Root] = None,
                         shippingMethod: Option[ShippingMethodsResponse.Root] = None,
                         shippingAddress: Option[AddressResponse] = None,
-                        paymentMethods: Seq[CordResponsePayments] = Seq.empty,
-                        // Cart-specific
-                        lockedBy: Option[User] = None)
+                        paymentMethods: Seq[CordResponsePayments] = Seq.empty)
     extends ResponseItem
 
 object CartResponse {
@@ -52,7 +50,6 @@ object CartResponse {
       paymentMethods ← * <~ (if (isGuest) DBIO.successful(Seq())
                              else CordResponsePayments.fetchAll(cart.refNum))
       paymentState ← * <~ CartQueries.getCordPaymentState(cart.refNum)
-      lockedBy     ← * <~ currentLock(cart)
       coveredByInStoreMethods ← * <~ OrderPayments
                                  .findAllByCordRef(cart.refNum)
                                  .inStoreMethods
@@ -76,8 +73,7 @@ object CartResponse {
           shippingMethod = shippingMethod,
           shippingAddress = shippingAddress,
           paymentMethods = paymentMethods,
-          paymentState = paymentState,
-          lockedBy = lockedBy
+          paymentState = paymentState
       )
 
   def buildEmpty(cart: Cart,
@@ -95,10 +91,4 @@ object CartResponse {
     )
   }
 
-  private def currentLock(cart: Cart): DBIO[Option[User]] =
-    if (cart.isLocked) (for {
-      lock  ← CartLockEvents.latestLockByCartRef(cart.refNum)
-      admin ← lock.storeAdmin
-    } yield admin).one
-    else DBIO.successful(none)
 }

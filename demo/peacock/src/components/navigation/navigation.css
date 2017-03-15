@@ -1,0 +1,61 @@
+@import "media-queries.css";
+@import "colors.css";
+
+.item-link {
+  line-height: 40px;
+  text-decoration: none;
+}
+
+@media (--small-only), (--medium-only) {
+  .item-link {
+    color: var(--whitish);
+  }
+
+  .item {
+    &.active {
+      & .item-link {
+        box-shadow: 0 2px rgba(255, 255, 255, 0.70);
+      }
+    }
+  }
+}
+
+@media (--large) {
+  .list {
+    display: flex;
+    justify-content: center;
+    align-self: stretch;
+  }
+
+  .item {
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    border-bottom: 3px solid transparent;
+
+    &.active {
+      border-color: #3E3436;
+    }
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+
+  .item-link {
+    display: inline-block;
+    white-space: nowrap;
+    text-transform: uppercase;
+    color: var(--blackish);
+
+    &:hover {
+      opacity: .7;
+    }
+  }
+}
+
+@media (--x-large) {
+  .item {
+    margin-right: 50px;
+  }
+}

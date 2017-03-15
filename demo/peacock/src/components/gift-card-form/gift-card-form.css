@@ -1,0 +1,61 @@
+@import "colors.css";
+@import "variables.css";
+@import "media-queries.css";
+
+.title {
+  composes: title from '../../pages/catalog/pdp.css';
+}
+
+.description {
+  composes: description from '../../pages/catalog/pdp.css';
+}
+
+.form {
+  margin-top: 40px;
+  margin-bottom: 70px;
+}
+
+.price-selector {
+  margin: 15px 0;
+}
+
+.input-field {
+  composes: text-input from "ui/css/input.css";
+  width: 100%;
+  border: 1px solid #3E3436;
+  margin-bottom: 15px;
+
+  /* Validation error */
+  & + div {
+    margin-top: -16px;
+    margin-bottom: 15px;
+  }
+}
+
+.input-field::placeholder {
+  text-transform: uppercase;
+}
+
+.message-field {
+  composes: input-field;
+  height: 100px;
+  padding: 10px;
+}
+
+@media (--large) {
+  .card-image {
+    width: 602px;
+    height: 578px;
+    flex: none;
+    padding: 150px 50px;
+  }
+
+  .card-form {
+    flex: 1;
+  }
+
+  .form {
+    max-width: 500px;
+    margin: 0 auto;
+  }
+}

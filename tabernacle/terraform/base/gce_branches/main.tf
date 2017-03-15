@@ -51,3 +51,33 @@ module "coupons" {
   dnsimple_email  = "${var.dnsimple_email}"
   dnsimple_token  = "${var.dnsimple_token}"
 }
+
+##############################################
+# Setup Storefront (Peacock) Feature Branch
+##############################################
+module "peacock" {
+  source          = "../../modules/gce/appliance"
+  instance_name   = "feature-branch-peacock"
+  dns_record      = "feature-branch-peacock"
+  appliance_image = "${var.appliance_image}"
+  consul_leader   = "${var.consul_leader}"
+  ssh_user        = "${var.ssh_user}"
+  ssh_private_key = "${var.ssh_private_key}"
+  dnsimple_email  = "${var.dnsimple_email}"
+  dnsimple_token  = "${var.dnsimple_token}"
+}
+
+##############################################
+# Setup Amazon Feature Branch
+##############################################
+module "amazon" {
+  source          = "../../modules/gce/appliance"
+  instance_name   = "feature-branch-amazon"
+  dns_record      = "feature-branch-amazon"
+  appliance_image = "${var.appliance_image}"
+  consul_leader   = "${var.consul_leader}"
+  ssh_user        = "${var.ssh_user}"
+  ssh_private_key = "${var.ssh_private_key}"
+  dnsimple_email  = "${var.dnsimple_email}"
+  dnsimple_token  = "${var.dnsimple_token}"
+}

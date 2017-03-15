@@ -14,6 +14,9 @@ test:
 	$(call header, Testing)
 	true
 
+clean:
+	true
+
 docker:
 	$(call header, Dockerizing)
 	docker build -t $(DOCKER_TAG) .
@@ -23,4 +26,4 @@ docker-push:
 	docker tag $(DOCKER_TAG) $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
 	docker push $(DOCKER_REPO)/$(DOCKER_TAG):$(DOCKER_BRANCH)
 
-.PHONY: build test docker docker-push
+.PHONY: build clean test docker docker-push

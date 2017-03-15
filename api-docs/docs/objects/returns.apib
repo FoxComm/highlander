@@ -98,15 +98,6 @@
 + Include ReturnState
 + reasonId (optional, number) - Possible reason, required for cancellation.
 
-### ReturnLockInfo
-+ isLocked: true (required, boolean) - Whether Return is locked or not.
-+ lock (optional, ReturnLock) - Return lock information.
-
-### ReturnLock
-+ id: 1 (required, number) - Lock ID.
-+ lockedBy (required, StoreAdminResponse) - Locker information.
-+ lockedAt: `2020-01-01T12:00:00Z` (optional, string) - Timestamp of when Return was lock.
-
 ### ReturnSkuLineItemPayload
 + sku: `ABC-123` (required, string) - SKU.
 + reasonId: 1 (required, number) - Return reason.

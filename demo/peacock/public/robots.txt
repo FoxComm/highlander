@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://theperfectgourmet.com/sitemap.xml

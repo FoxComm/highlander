@@ -1,0 +1,141 @@
+@import 'media-queries.css';
+@import "colors.css";
+
+.order-summary {
+  width: 100%;
+  padding: 0;
+  background: #FFFFFF;
+  color: #212121;
+}
+
+.divider {
+  height: 1px;
+  width: 100%;
+  background-color: #E6E6E6;
+}
+
+.header {
+  height: 50px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.title {
+  width: 100%;
+}
+
+.content {
+  font-size: 13px;
+  border-top: 1px solid var(--border-color);
+}
+
+.price-summary {
+  margin: 0;
+  padding: 1em 0;
+  list-style-type: none;
+
+  & > li {
+    padding-bottom: 10px;
+
+    &:last-child {
+      padding-bottom: 0;
+    }
+  }
+
+  border-bottom: 1px solid var(--border-color);
+}
+
+.grand-total {
+  composes: term-value-line from "ui/css/term-value-line.css";
+  padding: 1.3em 0;
+}
+
+@media (--small-only) {
+  .header,
+  .content {
+    margin-left: 20px;
+    margin-right: 20px;
+  }
+}
+
+@media (--small-only), (--medium-only) {
+  .header {
+    &:after {
+      content: "▲";
+      margin-left: 20px;
+      font-size: 12px;
+      transform: scaleY(.7);
+    }
+  }
+
+  .order-summary {
+    overflow-y: auto;
+    max-height: calc(100% - 146px);
+
+    &.collapsed {
+      & .header:after {
+        content: "▼";
+      }
+
+      & .content {
+        display: none;
+      }
+    }
+
+    &.scrolled {
+      top: 60px;
+      max-height: calc(100% - 60px);
+    }
+  }
+}
+
+@media (--medium-only) {
+  .header,
+  .content {
+    lost-column: 10/12;
+    lost-offset: -1/12;
+  }
+}
+
+@media (--medium) {
+  .header {
+    height: 70px;
+  }
+}
+
+@media (--large) {
+  .checkout {
+    display: flex;
+  }
+
+  .header {
+    justify-content: center;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 500;
+
+    & .price {
+      display: none;
+    }
+  }
+
+  .content {
+    border-top: 0;
+    font-size: 15px;
+    font-weight: 300;
+  }
+
+  .order-summary {
+    padding: 0 20px;
+    border: 2px solid var(--border-color);
+  }
+
+  .embedded {
+    padding: 0;
+    border: 0 none;
+  }
+}
+
