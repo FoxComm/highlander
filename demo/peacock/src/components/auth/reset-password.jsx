@@ -128,8 +128,9 @@ export default class ResetPassword extends Component {
     return [
       <FormField key="passwd1" styleName="form-field" error={!!error}>
         <ShowHidePassword
+          pos="t"
           className={styles['form-field-input']}
-          placeholder={t('NEW PASSWORD')}
+          placeholder={t('New password')}
           type="password"
           minLength={8}
           value={passwd1}
@@ -139,8 +140,9 @@ export default class ResetPassword extends Component {
       </FormField>,
       <FormField key="passwd2" styleName="form-field" error={!!error}>
         <ShowHidePassword
+          pos="b"
           className={styles['form-field-input']}
-          placeholder={t('CONFIRM PASSWORD')}
+          placeholder={t('Confirm password')}
           type="password"
           minLength={8}
           value={passwd2}
@@ -161,11 +163,11 @@ export default class ResetPassword extends Component {
 
     if (isReseted) {
       return (
-        <Button styleName="primary-button" type="button" onClick={this.goToLogin}>{t('BACK TO LOG IN')}</Button>
+        <Button styleName="primary-button" type="button" onClick={this.goToLogin}>{t('Back to log in')}</Button>
       );
     }
 
-    return <Button styleName="primary-button" type="submit">{t('RESET PASSWORD')}</Button>;
+    return <Button styleName="primary-button" type="submit">{t('Reset password')}</Button>;
   }
 
   render(): HTMLElement {
@@ -173,10 +175,12 @@ export default class ResetPassword extends Component {
 
     return (
       <div>
-        <div styleName="title">{t('RESET PASSWORD')}</div>
+        <div styleName="title">{t('Reset password')}</div>
         {this.topMessage}
         <Form onSubmit={this.handleSubmit}>
-          {this.passwordFields}
+          <div styleName="inputs-body">
+            {this.passwordFields}
+          </div>
           {this.primaryButton}
         </Form>
       </div>

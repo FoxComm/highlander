@@ -122,7 +122,7 @@ export default class RestorePasswordForm extends Component {
 
     return (
       <FormField name="email" key="email" styleName="form-field">
-        <TextInput placeholder={t('EMAIL')} required type="email" value={email} onChange={this.changeEmail} />
+        <TextInput placeholder={t('Email')} required type="email" value={email} onChange={this.changeEmail} />
       </FormField>
     );
   }
@@ -138,7 +138,7 @@ export default class RestorePasswordForm extends Component {
     if (emailSent) {
       return (
         <Button styleName="primary-button" onClick={this.goToLogin} type="button">
-          {t('BACK TO SIGN IN')}
+          {t('Back to sign in')}
         </Button>
       );
     }
@@ -152,9 +152,9 @@ export default class RestorePasswordForm extends Component {
 
     if (!emailSent) {
       return (
-        <div styleName="switch-stage">
+        <div styleName="bottom-message">
           <Link to={getPath(authBlockTypes.LOGIN)} styleName="link">
-            {t('BACK TO SIGN IN')}
+            {t('Back to sign in')}
           </Link>
         </div>
       );
@@ -167,7 +167,9 @@ export default class RestorePasswordForm extends Component {
         <div styleName="title">{this.props.title}</div>
         {this.topMessage}
         <Form onSubmit={this.handleSubmit}>
-          {this.emailField}
+          <div styleName="inputs-body">
+            {this.emailField}
+          </div>
           {this.primaryButton}
         </Form>
         {this.switchStage}

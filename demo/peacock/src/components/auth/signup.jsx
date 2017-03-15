@@ -139,12 +139,12 @@ class Signup extends Component {
       : null;
   }
 
-  get topMessage() {
+  get bottomMessage() {
     const { props } = this;
     const { t } = props;
 
     return (
-      <div styleName="top-message">
+      <div styleName="bottom-message">
         <Link to={props.getPath(authBlockTypes.LOGIN)} onClick={props.onLoginClick} styleName="link">
           {t('Already have an account?')}
         </Link>
@@ -159,7 +159,6 @@ class Signup extends Component {
     return (
       <div>
         {this.title}
-        {this.topMessage}
         <Form onSubmit={this.submitUser}>
           <div styleName="inputs-body">
             <ErrorAlerts errors={this.state.generalErrors} />
@@ -167,7 +166,7 @@ class Signup extends Component {
               <TextInput
                 pos="t"
                 required
-                placeholder={t('FIRST & LAST NAME')}
+                placeholder={t('First & last name')}
                 name="username"
                 value={username}
                 onChange={this.onChangeUsername}
@@ -177,7 +176,7 @@ class Signup extends Component {
               <TextInput
                 pos="middle-v"
                 required
-                placeholder={t('EMAIL')}
+                placeholder={t('Email')}
                 name="email"
                 value={email}
                 type="email"
@@ -188,7 +187,7 @@ class Signup extends Component {
               <ShowHidePassword
                 pos="b"
                 className={styles['form-field-input']}
-                placeholder={t('CREATE PASSWORD')}
+                placeholder={t('Create password')}
                 name="password"
                 value={password}
                 onChange={this.onChangePassword}
@@ -201,6 +200,7 @@ class Signup extends Component {
             type="submit"
             children={t('Sign up')}
           />
+          {this.bottomMessage}
         </Form>
       </div>
     );

@@ -119,12 +119,12 @@ class Login extends Component {
       : null;
   }
 
-  get topMessage() {
+  get bottomMessage() {
     const { props } = this;
     const { t } = props;
 
     return (
-      <div styleName="top-message">
+      <div styleName="bottom-message">
         <Link to={props.getPath(authBlockTypes.SIGNUP)} onClick={props.onSignupClick} styleName="link">
           {t('Don’t have an account?')}
         </Link>
@@ -146,18 +146,17 @@ class Login extends Component {
     return (
       <div>
         {this.title}
-        {this.topMessage}
         <Form onSubmit={this.authenticate}>
           <div styleName="inputs-body">
             <FormField key="email" styleName="form-field" error={this.state.error}>
-              <TextInput pos="t" placeholder={t('EMAIL')} value={email} type="email" onChange={this.onChangeEmail} />
+              <TextInput pos="t" placeholder={t('Email')} value={email} type="email" onChange={this.onChangeEmail} />
             </FormField>
             <FormField key="passwd" styleName="form-field" error={!!this.state.error}>
               <TextInput
                 type="password"
                 pos="b"
                 styleName="form-field-input"
-                placeholder="PASSWORD"
+                placeholder="Password"
                 label={!password && restoreLink}
                 value={password}
                 onChange={this.onChangePassword}
@@ -170,6 +169,7 @@ class Login extends Component {
             isLoading={this.props.isLoading}
             children={t('LOG IN')}
           />
+          {this.bottomMessage}
         </Form>
       </div>
     );

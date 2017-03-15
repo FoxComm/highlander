@@ -35,9 +35,10 @@
 }
 
 .top-message {
+  margin-top: 27px;
   margin-bottom: 30px;
-  font-size: 15px;
-  line-height: 33px;
+  font-size: 16px;
+  line-height: 1.25;
   text-align: left;
   font-weight: 300;
 }
@@ -53,7 +54,8 @@
 }
 
 .inputs-body {
-  margin-bottom: 58px;
+  margin-top: 24px;
+  margin-bottom: 32px;
 }
 
 .google-login {
@@ -86,13 +88,9 @@
   width: 100%;
 }
 
-.switch-stage {
+.bottom-message {
   margin-top: 20px;
-  font-size: 15px;
-  line-height: 18px;
-  font-weight: 300;
-  color: var(--dark-blackish);
-  text-align: center;
+  font-size: 14px;
 }
 
 .restore-link {

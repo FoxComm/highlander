@@ -59,7 +59,7 @@ class GuestAuth extends Component {
         <Login
           mergeGuestCart
           getPath={this.getPath}
-          title="LOG IN & CHECKOUT"
+          title="Log in & checkout"
           onSignupClick={this.toggleAuthForm}
         />
       );
@@ -68,7 +68,7 @@ class GuestAuth extends Component {
       <Signup
         mergeGuestCart
         getPath={this.getPath}
-        title="SIGN UP & CHECKOUT"
+        title="Sign up & checkout"
         onLoginClick={this.toggleAuthForm}
       />
     );
@@ -93,7 +93,6 @@ class GuestAuth extends Component {
           <div styleName="auth-block">
             {this.authForm}
           </div>
-          <div styleName="divider" />
           <div styleName="mobile-divider-block">
             <div styleName="mobile-divider" />
             <p>or</p>
