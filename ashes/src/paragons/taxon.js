@@ -7,8 +7,9 @@ export const createEmptyTaxon = () => {
   return {
     attributes: {
       name: { t: 'string', v: '' },
-      description: { t: 'richText', v: '' }
-    }
+      description: { t: 'richText', v: '' },
+      colorSwatch: { t: 'color', v: '' }
+    },
   };
 };
 
