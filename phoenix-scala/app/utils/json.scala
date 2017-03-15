@@ -85,11 +85,10 @@ object JsonFormatters {
       IdentityKind.jsonFormat + AdminData.State.jsonFormat + PluginSettings.SettingType.jsonFormat +
       AuthPayload.JwtClaimsSerializer + ReturnLineItemPayload.typeHints + PaymentMethod.Type.jsonKeyFormat
 
-
   object LTreeFormat
-    extends CustomSerializer[LTree](format ⇒
-      ({
-        case JString(s)      ⇒ LTree(s)
-        case JNull           ⇒ LTree("")
-      }, { case value: LTree ⇒ JString(value.toString) }))
+      extends CustomSerializer[LTree](format ⇒
+            ({
+          case JString(s)      ⇒ LTree(s)
+          case JNull           ⇒ LTree("")
+        }, { case value: LTree ⇒ JString(value.toString) }))
 }

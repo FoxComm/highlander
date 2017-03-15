@@ -303,10 +303,9 @@ object ReturnPaymentUpdater {
         case charge if charge.currency != payment.currency ⇒ charge.currency
       }
       failIf(mismatchedCharges.nonEmpty,
-        ReturnCcPaymentCurrencyMismatch(
-          refNum = rma.refNum,
-          expected = payment.currency,
-          actual = mismatchedCharges.toList))
+             ReturnCcPaymentCurrencyMismatch(refNum = rma.refNum,
+                                             expected = payment.currency,
+                                             actual = mismatchedCharges.toList))
     }
 
     for {
