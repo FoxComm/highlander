@@ -1,0 +1,25 @@
+# Data Structures
+
+## InventoryItemType
++ type: `Sellable` (required, enum[string]) - Inventory item type.
+    + Members
+        + `Sellable`
+        + `Non-sellable`
+        + `Preorder`
+        + `Backorder`
+
+## InventoryItem
+- Include InventoryItemType
++ sku: `TEST-SKU` (required, string) - Associated SKU code.
++ stockItem (required, StockItemResponse) - Associated stock item.
++ stockLocation (required, StockLocationResponse) - Associated stock location.
++ onHand: 1 (required, number) - Number of items on hand.
++ onHold: 1 (required, number) - Number of items on hold.
++ reserved: 1 (required, number) - Number of reserved items.
++ shipped: 1 (required, number) - Number of shipped items.
++ afs: 1 (required, number) - Number of items available for sale.
++ afsCost: 1000 (required, number) - Total cost of all the items available for sale.
++ createdAt: `2020-01-01T12:00:00Z` (required, string) - Creation date.
+
+## InventoryResponse
++ summary (required, array[InventoryItem]) - Inventory items.
