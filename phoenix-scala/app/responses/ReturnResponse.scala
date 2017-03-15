@@ -6,12 +6,12 @@ import models.customer.CustomersData
 import models.admin.AdminsData
 import models.inventory.Sku
 import models.objects._
-import models.payment.PaymentMethod
-import models.payment.giftcard.GiftCard
+import models.payment.giftcard.{GiftCard, GiftCards}
 import models.product.Mvp
 import models.returns._
-import responses.CustomerResponse.{Root ⇒ Customer}
-import responses.StoreAdminResponse.{Root ⇒ User}
+import models.returns.ReturnPayments.scope._
+import responses.CustomerResponse.{Root => Customer}
+import responses.StoreAdminResponse.{Root => User}
 import services.carts.CartTotaler
 import services.returns.ReturnTotaler
 import slick.driver.PostgresDriver.api._
@@ -33,12 +33,19 @@ object ReturnResponse {
                        shippingCosts: Option[LineItemShippingCost] = Option.empty)
       extends ResponseItem
 
-  case class DisplayPayment(id: Int,
-                            amount: Int,
-                            currency: Currency = Currency.USD,
-                            paymentMethodId: Int,
-                            paymentMethodType: PaymentMethod.Type)
-      extends ResponseItem
+  sealed trait Payment extends ResponseItem {
+    def id: Int
+    def amount: Int
+    def currency: Currency
+  }
+  object Payment {
+    case class CreditCard(id: Int, amount: Int, currency: Currency) extends Payment
+    case class GiftCard(id: Int, code: String, amount: Int, currency: Currency) extends Payment
+    case class StoreCredit(id: Int, amount: Int, currency: Currency) extends Payment
+  }
+  case class Payments(creditCard: Option[Payment.CreditCard] = None,
+                      giftCard: Option[Payment.GiftCard] = None,
+                      storeCredit: Option[Payment.StoreCredit] = None) extends ResponseItem
 
   case class DisplaySku(imagePath: String = "http://lorempixel.com/75/75/fashion",
                         name: String = "donkey product",
@@ -54,7 +61,7 @@ object ReturnResponse {
                   rmaType: Return.ReturnType,
                   state: Return.State,
                   lineItems: LineItems,
-                  payments: Seq[DisplayPayment],
+                  payments: Payments,
                   customer: Option[Customer] = None,
                   storeAdmin: Option[User] = None,
                   messageToCustomer: Option[String] = None,
@@ -64,13 +71,11 @@ object ReturnResponse {
                   totals: Option[ReturnTotals])
       extends ResponseItem
 
-  def buildPayment(pmt: ReturnPayment): DisplayPayment =
-    DisplayPayment(
-        id = pmt.id,
-        amount = pmt.amount,
-        currency = pmt.currency,
-        paymentMethodId = pmt.paymentMethodId,
-        paymentMethodType = pmt.paymentMethodType
+  def buildPayments(creditCard: Option[ReturnPayment], giftCard: Option[(ReturnPayment, GiftCard)], storeCredit: Option[ReturnPayment]): Payments =
+    Payments(
+      creditCard = creditCard.map(cc => Payment.CreditCard(cc.paymentMethodId, cc.amount, cc.currency)),
+      giftCard = giftCard.map { case (p, gc) => Payment.GiftCard(p.paymentMethodId, gc.code, p.amount, p.currency) },
+      storeCredit = storeCredit.map(sc => Payment.StoreCredit(sc.paymentMethodId, sc.amount, sc.currency))
     )
 
   def buildLineItems(
@@ -110,7 +115,9 @@ object ReturnResponse {
                    .map(AdminsData.findOneByAccountId)
                    .getOrElse(lift(None))
       // Payment methods
-      payments ← * <~ ReturnPayments.filter(_.returnId === rma.id).result
+      ccPayment <- * <~ ReturnPayments.findAllByReturnId(rma.id).creditCards.one
+      gcPayment <- * <~ ReturnPayments.findGiftCards(rma.id).one
+      scPayment <- * <~ ReturnPayments.findAllByReturnId(rma.id).storeCredits.one
       // Line items of each subtype
       lineItems     ← * <~ ReturnLineItemSkus.findLineItemsByRma(rma)
       giftCards     ← * <~ ReturnLineItemGiftCards.findLineItemsByRma(rma)
@@ -134,7 +141,7 @@ object ReturnResponse {
             a  ← storeAdmin
             au ← adminData
           } yield StoreAdminResponse.build(a, au),
-          payments = payments.map(buildPayment),
+          payments = buildPayments(creditCard = ccPayment, giftCard = gcPayment, storeCredit = scPayment),
           lineItems = buildLineItems(lineItems, giftCards, shippingCosts),
           totals = Some(buildTotals(subTotal = subTotal, shipping = shipping, adjustments = adjustments, taxes = taxes))
       )
@@ -144,7 +151,7 @@ object ReturnResponse {
             customer: Option[Customer] = None,
             storeAdmin: Option[User] = None,
             lineItems: LineItems = LineItems(),
-            payments: Seq[DisplayPayment] = Seq.empty,
+            payments: Payments = Payments(),
             totals: Option[ReturnTotals] = None): Root =
     Root(id = rma.id,
          referenceNumber = rma.refNum,

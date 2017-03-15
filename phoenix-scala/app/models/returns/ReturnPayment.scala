@@ -54,18 +54,20 @@ object ReturnPayments
   def findAllByReturnId(returnId: Int): QuerySeq =
     filter(_.returnId === returnId)
 
+  def findGiftCards(
+      returnId: Int): Query[(ReturnPayments, GiftCards), (ReturnPayment, GiftCard), Seq] =
+    findAllByReturnId(returnId).giftCards.join(GiftCards).on(_.paymentMethodId === _.id)
+
+  def findStoreCredits(
+      returnId: Int): Query[(ReturnPayments, StoreCredits), (ReturnPayment, StoreCredit), Seq] =
+    findAllByReturnId(returnId).storeCredits.join(StoreCredits).on(_.paymentMethodId === _.id)
+
   def findOnHoldGiftCards(returnId: Int): GiftCards.QuerySeq =
-    findAllByReturnId(returnId).giftCards
-      .join(GiftCards)
-      .on(_.paymentMethodId === _.id)
-      .map { case (_, gc) ⇒ gc }
+    findGiftCards(returnId).map { case (_, gc) ⇒ gc }
       .filter(_.state === (GiftCard.OnHold: GiftCard.State))
 
   def findOnHoldStoreCredits(returnId: Int): StoreCredits.QuerySeq =
-    findAllByReturnId(returnId).storeCredits
-      .join(StoreCredits)
-      .on(_.paymentMethodId === _.id)
-      .map { case (_, sc) ⇒ sc }
+    findStoreCredits(returnId).map { case (_, sc) ⇒ sc }
       .filter(_.state === (StoreCredit.OnHold: StoreCredit.State))
 
   object scope {

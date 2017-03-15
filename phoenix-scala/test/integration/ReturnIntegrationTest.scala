@@ -384,17 +384,16 @@ class ReturnIntegrationTest
       "succeeds for bulk insert" in new ReturnPaymentDefaults {
         val payload = ReturnPaymentsPayload(
             Map(PaymentMethod.CreditCard → 100, PaymentMethod.StoreCredit → 120))
-        val response =
-          returnsApi(rma.referenceNumber).paymentMethods.add(payload).as[ReturnResponse.Root]
+        val payments =
+          returnsApi(rma.referenceNumber).paymentMethods.add(payload).as[ReturnResponse.Root].payments.asMap
 
-        response.payments must have size 2
-        response.payments.map(payment ⇒ payment.paymentMethodType → payment.amount) must
-          contain theSameElementsAs payload.payments
+        payments must have size 2
+        payments.mapValues(_.amount) must contain theSameElementsAs payload.payments
       }
 
       "succeeds for any supported payment" in new ReturnPaymentFixture with ReturnDefaults
       with ReturnReasonDefaults {
-        forAll(paymentMethodTable) { paymentType ⇒
+        forAll(paymentMethodTable) { paymentMethod ⇒
           val order = createDefaultOrder()
           val rma   = createReturn(orderRef = order.referenceNumber)
           val shippingCostPayload =
@@ -403,11 +402,11 @@ class ReturnIntegrationTest
 
           val payload = ReturnPaymentPayload(amount = shippingCostPayload.amount)
           val response = returnsApi(rma.referenceNumber).paymentMethods
-            .add(paymentType, payload)
+            .add(paymentMethod, payload)
             .as[ReturnResponse.Root]
 
-          val payment = response.payments.onlyElement
-          payment.paymentMethodType must === (paymentType)
+          val (pm, payment) = response.payments.asMap.onlyElement
+          pm must === (paymentMethod)
           payment.amount must === (payload.amount)
         }
       }
@@ -424,9 +423,9 @@ class ReturnIntegrationTest
       }
 
       "fails if the RMA is not found" in new ReturnPaymentFixture {
-        forAll(paymentMethodTable) { paymentType ⇒
+        forAll(paymentMethodTable) { paymentMethod ⇒
           val payload  = ReturnPaymentPayload(amount = 42)
-          val response = returnsApi("TRY_HARDER").paymentMethods.add(paymentType, payload)
+          val response = returnsApi("TRY_HARDER").paymentMethods.add(paymentMethod, payload)
 
           response.mustFailWith404(NotFoundFailure404(Return, "TRY_HARDER"))
         }
