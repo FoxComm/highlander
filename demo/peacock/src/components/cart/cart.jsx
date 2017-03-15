@@ -130,7 +130,11 @@ class Cart extends Component {
 
   @autobind
   onCheckout() {
-    browserHistory.push('/checkout');
+    Promise.resolve(this.props.hideCart())
+      .then(() => {
+        browserHistory.push('/checkout');
+      })
+    ;
   }
 
   render() {
