@@ -352,7 +352,7 @@ const _checkout = createAsyncActions(
       crossSell.train(customerId, channelId, cartLineItemsSkus);
       dispatch(orderPlaced(res));
       dispatch(resetCart());
-      return res
+      return res;
     });
   }
 );
