@@ -356,12 +356,17 @@ retailer_name: "FoxCommerce"
 contact_email: "pavel@foxcommerce.com"
 mailchimp_api_key: ""
 
+# Materialized views
+update_materialized_views_sql: "/usr/local/share/update_materialized_views.sql"
+update_materialized_views_cmd: "psql {{db_connection_string}} -f {{update_materialized_views_sql}}"
+
 # Various flags
 first_run: false
 is_ci: false
 is_amigo: false
 is_appliance: false
 is_redeploy: false
+jmx_enabled: false
 packing: false
 with_marketplace: false
 with_shipstation: false
