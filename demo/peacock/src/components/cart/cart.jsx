@@ -21,6 +21,7 @@ import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
 import { skuIdentity } from '@foxcomm/wings/lib/paragons/sku';
 import { parseError } from '@foxcomm/api-js';
 import CouponCode from '../promo-code/promo-code';
+import Overlay from 'ui/overlay/overlay';
 
 // styles
 import styles from './cart.css';
@@ -159,42 +160,26 @@ class Cart extends Component {
 
     return (
       <div styleName={cartClass}>
-        <div styleName="overlay" onClick={toggleCart}></div>
+        <Overlay onClick={toggleCart} shown={isVisible} />
         <div styleName="cart-box">
-          <div styleName="cart-header" onClick={toggleCart}>
-            <Icon name="fc-chevron-left" styleName="back-icon"/>
-            <div styleName="header-text">{t('KEEP SHOPPING')}</div>
+          <div styleName="cart-header">
+            <span styleName="my-cart" onClick={toggleCart}>My Cart</span>
+            <span styleName="cart-close" onClick={toggleCart}>Close</span>
           </div>
 
           <div styleName="cart-content">
             <div styleName="line-items">
               {this.lineItems}
             </div>
-
-            <CouponCode
-              coupon={coupon}
-              promotion={promotion}
-              discountValue={totals.adjustments}
-              saveCode={saveCode}
-              removeCode={removeCode}
-              disabled={checkoutDisabled}
-              placeholder="Coupon Code"
-              theme="dark"
-            />
-
-            <div styleName="cart-subtotal">
-              <div styleName="subtotal-title">{t('SUBTOTAL')}</div>
-              <div styleName="subtotal-price">
-                <Currency value={ totals.subTotal } />
-              </div>
-            </div>
-
             {this.errorsLine}
           </div>
 
           <div styleName="cart-footer">
             <Button onClick={this.onCheckout} disabled={checkoutDisabled} styleName="checkout-button">
-              {t('CHECKOUT')}
+              {t('Checkout')}
+              <span styleName="subtotal-price">
+                <Currency value={ totals.subTotal } />
+              </span>
             </Button>
           </div>
         </div>

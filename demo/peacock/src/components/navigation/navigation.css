@@ -8,7 +8,7 @@
 
 @media (--small-only), (--medium-only) {
   .item-link {
-    color: var(--whitish);
+    color: #222;
   }
 
   .item {

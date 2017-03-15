@@ -57,31 +57,42 @@ class LineItem extends Component {
           <img src={this.props.imagePath} />
         </div>
         <div styleName="container">
+          <div styleName="top">
+            <div styleName="product">
+              <div styleName="product-name">
+                {this.props.name}
+              </div>
+            </div>
+            <div styleName="delete">
+              <a styleName="delete-button" onClick={this.deleteItem}>
+                Remove
+              </a>
+            </div>
+          </div>
+
           <div styleName="details">
-            <div styleName="product-name">
-              {this.props.name}
-            </div>
-            <div styleName="price">
-              <Currency value={this.props.totalPrice}/>
-            </div>
+            <div styleName="price-qty">
+              <div styleName="quantity">
+                <Select
+                  inputProps={{
+                    type: 'number',
+                  }}
+                  getItemValue={item => item}
+                  items={this.quantityItems()}
+                  onSelect={this.changeQuantity}
+                  selectedItem={this.props.quantity}
+                  sortItems={false}
+                />
+              </div>
+              <span styleName="multiply">&times;</span>
+              <div styleName="price">
+                <Currency value={this.props.price}/>
+              </div>
+              </div>
+              <div styleName="total-price">
+                <Currency value={this.props.totalPrice}/>
+              </div>
           </div>
-          <div styleName="quantity">
-            <Select
-              inputProps={{
-                type: 'number',
-              }}
-              getItemValue={item => item}
-              items={this.quantityItems()}
-              onSelect={this.changeQuantity}
-              selectedItem={this.props.quantity}
-              sortItems={false}
-            />
-          </div>
-        </div>
-        <div styleName="controls">
-          <a styleName="delete-button" onClick={this.deleteItem}>
-            <Icon name="fc-close" styleName="delete-icon" />
-          </a>
         </div>
       </div>
     );

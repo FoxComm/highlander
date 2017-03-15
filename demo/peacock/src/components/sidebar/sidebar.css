@@ -1,44 +1,17 @@
 @import "media-queries.css";
 @import "colors.css";
 
-.overlay {
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  position: fixed;
-  background: var(--light-grayish);
-  opacity: 0;
-  transition: opacity .1s;
-  transform: translateX(-100%);
-}
-
 .container {
   position: fixed;
   top: 0;
   bottom: 0;
   left: 0;
-  background: var(--additional-color);
-  color: var(--whitish);
+  background: #fff;
   transform: translateX(-100%);
   transition: transform .2s;
-}
-
-@media (--small-only) {
-  .container {
-    lost-column: 10/12;
-  }
-}
-
-@media (--medium-only) {
-  .container {
-    lost-column: 7/12;
-  }
-}
-
-.sidebar-shown .overlay {
-  opacity: 1;
-  transform: translateX(0);
+  lost-column: 4/12;
+  overflow-y: auto;
+  z-index: 4;
 }
 
 .sidebar-shown .container {
@@ -47,40 +20,59 @@
 
 .controls {
   margin: 20px 10px;
-  color: var(--whitish);
-  font-size: 15px;
-  font-weight: 300;
 }
 
-.controls-search {
-  margin-top: 30px;
-  margin-bottom: 20px;
+@media (--small-only), (--medium-only) {
+  .container {
+    lost-column: 12/12;
+  }
+
+  .controls-search {
+    border-bottom: 1px solid #ddd;
+    margin: 30px 10px 20px 10px;
+  }
+
+  .controls-search-focused {
+    composes: controls-search;
+    border-bottom: 2px solid #0b7ddc;
+  }
+}
+
+.controls-session-wrapper {
+  margin-top: 20px;
 }
 
 .controls-categories,
 .controls-session {
-  margin-left: 40px;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.controls-categories > ul li {
+  border-bottom: 1px solid #ddd;
+  font-size: 18px;
+  font-weight: 900;
 }
 
 .controls-session {
   line-height: 40px;
 }
 
+.controls-close {
+  text-align: right;
+}
+
 .session-link {
-  color: var(--whitish);
+  color: #222;
   text-decoration: none;
+  font-size: 18px;
 }
 
 .close-button {
-  color: var(--whitish);
-  text-decoration: none;
-  margin-left: 10px;
-  stroke: var(--whitish);
-
-  & :global(.icon) {
-    stroke-width: 1;
-    cursor: pointer;
-  }
+  color: #0b7ddc;
+  cursor: pointer;
+  margin-right: 5px;
+  font-size: 14px;
 }
 
 .active-link {
