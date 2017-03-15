@@ -270,6 +270,12 @@ henhouse_server: "{{henhouse_host}}"
 cross_sell_host: "cross-sell.{{consul_suffix}}"
 cross_sell_server: "{{cross_sell_host}}"
 
+# neo4j
+neo4j_user: "neo4j"
+neo4j_pass: "password"
+neo4j_host: "neo4j.{{consul_suffix}}"
+neo4j_port: "7687"
+
 # Elasticsearch 2.x
 es_version: elasticsearch-2.1.2
 es_zip: "{{es_version}}.zip"

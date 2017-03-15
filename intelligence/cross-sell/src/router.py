@@ -5,7 +5,11 @@ from controllers.PurchaseController import add_purchase_event, get_all_by_channe
 import os
 
 from neomodel import db
-db.set_connection('bolt://neo4j:password@localhost:7687')
+NEO4J_USER = os.getenv('NEO4J_USER') # neo4j
+NEO4J_PASS = os.getenv('NEO4J_PASS') # password
+NEO4J_HOST = os.getenv('NEO4J_HOST') # localhost
+NEO4J_PORT = os.getenv('NEO4J_PORT') # 7687
+db.set_connection('bolt://%s:%s@%s:%s' % (NEO4J_USER, NEO4J_PASS, NEO4J_HOST, NEO4J_PORT))
 
 app = Flask(__name__)
 
