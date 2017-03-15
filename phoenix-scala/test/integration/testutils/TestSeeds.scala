@@ -15,7 +15,6 @@ import testutils.fixtures.TestFixtureBase
 import utils.aliases._
 import utils.db._
 import utils.seeds.Factories
-import utils.seeds.ObjectSchemaSeeds
 
 /**
   * Seeds are simple values that can be created without any external dependencies.
@@ -23,11 +22,6 @@ import utils.seeds.ObjectSchemaSeeds
 trait TestSeeds extends TestFixtureBase {
 
   val TENANT = "tenant"
-
-  trait Schemas_Seed extends ObjectSchemaSeeds {
-    private val _productSchema = createObjectSchemas().gimme
-
-  }
 
   trait StoreAdmin_Seed {
     def storeAdminAccount: Account         = _storeAdminAccount

@@ -5,17 +5,17 @@ import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 import cats.implicits._
 import failures.ArchiveFailures._
 import failures.ObjectFailures.ObjectContextNotFound
-import failures.{NotFoundFailure404, ProductFailures}
 import failures.ProductFailures._
+import failures.{NotFoundFailure404, ProductFailures}
 import models.account.Scope
 import models.inventory.Skus
 import models.objects._
 import models.product._
 import org.json4s.JsonDSL._
 import org.json4s._
+import payloads.CartPayloads.CreateCart
 import payloads.ImagePayloads._
 import payloads.LineItemPayloads.UpdateLineItemsPayload
-import payloads.CartPayloads.CreateCart
 import payloads.ProductPayloads._
 import payloads.SkuPayloads.SkuPayload
 import payloads.VariantPayloads.{VariantPayload, VariantValuePayload}
@@ -814,7 +814,7 @@ class ProductIntegrationTest
     }
   }
 
-  trait Fixture extends StoreAdmin_Seed with Schemas_Seed {
+  trait Fixture extends StoreAdmin_Seed {
 
     def makeSkuPayload(code: String, name: String, albums: Option[Seq[AlbumPayload]]): SkuPayload = {
       val attrMap = Map("title" → (("t" → "string") ~ ("v" → name)),
