@@ -105,6 +105,95 @@ If no credentials found:
 }
 ```
 
+####Push product to amazon
+
+*request*
+
+
+|name|type|description|required?|
+|----|----|-----------|---------|
+|purge |Boolean|If `true` will replace existing product. Can be omitted.|No|
+|inventory|Array|Array of inventory objects|Yes|
+|inventory.sku|String|Variant SKU|Yes|
+|inventory. quantity |Integer|Variant quantitu to sell on Amazon|Yes|
+
+
+
+```
+POST /api/v1/hyperion/:product_id/push
+```
+
+```json
+{
+  "purge": false,
+  "inventory":[
+    {"sku": "AMZ2331", "quantity": 100}
+  ]
+}
+```
+
+*response*
+
+```json
+{
+    "product_id": 484,
+    "product_feed": {
+        "SubmittedDate": "2017-03-15T08:58:35+00:00",
+        "FeedType": "_POST_PRODUCT_DATA_",
+        "FeedSubmissionId": "50162017240",
+        "FeedProcessingStatus": "_SUBMITTED_"
+    },
+    "price_feed": {
+        "SubmittedDate": "2017-03-15T08:58:36+00:00",
+        "FeedType": "_POST_PRODUCT_PRICING_DATA_",
+        "FeedSubmissionId": "50163017240",
+        "FeedProcessingStatus": "_SUBMITTED_"
+    },
+    "inventory_feed": {
+        "SubmittedDate": "2017-03-15T08:58:37+00:00",
+        "FeedType": "_POST_INVENTORY_AVAILABILITY_DATA_",
+        "FeedSubmissionId": "50164017240",
+        "FeedProcessingStatus": "_SUBMITTED_"
+    },
+    "images_feed": null
+}
+```
+
+###Get push result for a product
+
+*request*
+
+```
+GET /api/v1/hyperion/:product_id/result
+```
+
+*response*
+
+```json
+{
+    "product_id": 484,
+    "product_feed": {
+        "SubmittedDate": "2017-03-15T08:58:35+00:00",
+        "FeedType": "_POST_PRODUCT_DATA_",
+        "FeedSubmissionId": "50162017240",
+        "FeedProcessingStatus": "_SUBMITTED_"
+    },
+    "price_feed": {
+        "SubmittedDate": "2017-03-15T08:58:36+00:00",
+        "FeedType": "_POST_PRODUCT_PRICING_DATA_",
+        "FeedSubmissionId": "50163017240",
+        "FeedProcessingStatus": "_SUBMITTED_"
+    },
+    "inventory_feed": {
+        "SubmittedDate": "2017-03-15T08:58:37+00:00",
+        "FeedType": "_POST_INVENTORY_AVAILABILITY_DATA_",
+        "FeedSubmissionId": "50164017240",
+        "FeedProcessingStatus": "_SUBMITTED_"
+    },
+    "images_feed": null
+}
+```
+
 
 ####Submit product feed to MWS
 

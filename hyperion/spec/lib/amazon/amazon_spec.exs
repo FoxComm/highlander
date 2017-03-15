@@ -5,18 +5,12 @@ defmodule AmazonSpec do
   describe "get_product" do
     context "when no variants present" do
       let resp: build(:product_without_varians)
-      let product: [{[parentage: "parent", activefrom: "2017-02-28T10:38:32.559Z",
-                      description: "Stylish fit, stylish finish.", tags: ["sunglasses"],
-                      title: "Fox", activefrom: "2017-02-28T10:38:33.627Z", code: "PARENTSKU-TRL",
-                      retailprice: %{"currency" => "USD", "value" => 10500},
-                      saleprice: %{"currency" => "USD", "value" => 10000}, tags: ["sunglasses"],
-                      title: "Fox"], 1},
-                    {[parentage: "child", activefrom: "2017-02-28T10:38:32.559Z",
+      let product: [{[activefrom: "2017-02-28T10:38:32.559Z",
                       description: "Stylish fit, stylish finish.", tags: ["sunglasses"],
                       title: "Fox", activefrom: "2017-02-28T10:38:33.627Z", code: "SKU-TRL",
                       retailprice: %{"currency" => "USD", "value" => 10500},
                       saleprice: %{"currency" => "USD", "value" => 10000}, tags: ["sunglasses"],
-                      title: "Fox"], 2}]
+                      title: "Fox"], 1}]
       before do: allow(Hyperion.PhoenixScala.Client).to accept(:get_product, fn(_, _) -> resp() end)
       it "returns atomized products Keyword structure" do
         expect(Hyperion.Amazon.product_feed([1], "foo")).to eq(product())
@@ -57,11 +51,7 @@ defmodule AmazonSpec do
   describe "images_feed" do
     context "when product have images" do
       let resp: build(:sku_with_images)
-      let images: [[albums: [Fox: [%{"alt" => "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Quay_Side.jpg",
-                            "id" => 7,
-                            "src" => "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Quay_Side.jpg",
-                            "title" => "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/Quay_Side.jpg"}]],
-                            code: "SKU-TRL"]]
+      let images: submit_images_feed_data()
       before do: allow(Hyperion.PhoenixScala.Client).to accept(:get_product, fn(_, _) -> resp() end)
 
       it "returns atomized images for products" do

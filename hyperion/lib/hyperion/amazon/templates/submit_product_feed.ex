@@ -17,46 +17,21 @@ defmodule Hyperion.Amazon.Templates.SubmitProductFeed do
       <OperationType>Update</OperationType>
         <Product>
           <SKU><%= p[:code] %></SKU>
-          <%= if p[:parentage] == "child" do %>
-              <%= cond do %>
-                <% Keyword.has_key?(p, :asin) -> %>
-                  <StandardProductID>
-                  <Type>ASIN</Type>
-                  <Value><%= p[:asin]%></Value>
-                  </StandardProductID>
-                <% Keyword.has_key?(p, :upc) -> %>
-                  <StandardProductID>
-                  <Type>UPC</Type>
-                  <Value><%= p[:upc]%></Value>
-                  </StandardProductID>
-                <% Keyword.has_key?(p, :ean) -> %>
-                  <StandardProductID>
-                  <Type>EAN</Type>
-                  <Value><%= p[:ean]%></Value>
-                  </StandardProductID>
-                <% Keyword.has_key?(p, :isbn) -> %>
-                  <StandardProductID>
-                  <Type>ISBN</Type>
-                  <Value><%= p[:isbn]%></Value>
-                  </StandardProductID>
-                <% true -> %>
-                  <% nil %>
-              <% end %>
-            <ProductTaxCode><%= p[:taxcode] %></ProductTaxCode>
-            <LaunchDate><%= Hyperion.Amazon.Templates.SubmitProductFeed.format_date_time(p[:activefrom]) %></LaunchDate>
-          <% end %>
+          <%= Hyperion.Amazon.Templates.SubmitProductFeed.render_product_code(p) %>
+          <%= Hyperion.Amazon.TemplateBuilder.render_field(p, :taxcode, "ProductTaxCode") %>
+          <LaunchDate><%= Hyperion.Amazon.Templates.SubmitProductFeed.format_date_time(p[:activefrom]) %></LaunchDate>
           <DescriptionData>
             <Title><%= p[:title] %></Title>
             <Brand><%= p[:brand] %></Brand>
             <Description><%= HtmlSanitizeEx.strip_tags(p[:description]) %></Description>
             <%= Hyperion.Amazon.Templates.SubmitProductFeed.render_bullet_points(p) %>
-            <!-- <Manufacturer><%#= p[:manufacturer] %></Manufacturer>-->
+            <%= Hyperion.Amazon.TemplateBuilder.render_field(p, :manufacturer, "Manufacturer") %>
             <%= for t <- p[:tags] do %>
               <SearchTerms><%= t %></SearchTerms>
             <% end %>
-            <!-- <ItemType></ItemType> -->
-            <!-- <IsGiftWrapAvailable>false</IsGiftWrapAvailable>
-            <IsGiftMessageAvailable>false</IsGiftMessageAvailable> -->
+            <%= Hyperion.Amazon.TemplateBuilder.render_field(p, :item_type, "ItemType") %>
+            <%= Hyperion.Amazon.TemplateBuilder.render_field(p, :isgiftwrapavailable, "IsGiftWrapAvailable") %>
+            <%= Hyperion.Amazon.TemplateBuilder.render_field(p, :isgiftmessageavailable, "IsGiftMessageAvailable") %>
           </DescriptionData>
           <ProductData>
             <%= cond do %>
@@ -83,6 +58,43 @@ defmodule Hyperion.Amazon.Templates.SubmitProductFeed do
         <BulletPoint>#{v}</BulletPoint>
         """
       end
+    end
+  end
+
+  def render_product_code(list) do
+    cond do
+      Keyword.has_key?(list, :asin) ->
+        """
+        <StandardProductID>
+        <Type>ASIN</Type>
+        <Value>#{list[:asin]}</Value>
+        </StandardProductID>
+        """
+      Keyword.has_key?(list, :upc) ->
+        """
+        <StandardProductID>
+        <Type>UPC</Type>
+        <Value>#{list[:upc]}</Value>
+        </StandardProductID>
+        """
+      Keyword.has_key?(list, :ean) ->
+        """
+        <StandardProductID>
+        <Type>EAN</Type>
+        <Value>#{list[:ean]}</Value>
+        </StandardProductID>
+        """
+      Keyword.has_key?(list, :isbn) ->
+        """
+        <StandardProductID>
+        <Type>ISBN</Type>
+        <Value>#{list[:isbn]}</Value>
+        </StandardProductID>
+        """
+      true ->
+        """
+        #{nil}
+        """
     end
   end
 

@@ -8,6 +8,7 @@ defmodule Hyperion.Router.V1 do
   alias Hyperion.API, warn: true
   alias Hyperion.Amazon.TemplateBuilder, warn: true
   alias Hyperion.Amazon.CategorySuggester, warn: true
+  alias Hyperion.Amazon.Pusher, warn: true
 
   import Ecto.Query
 
@@ -95,6 +96,38 @@ defmodule Hyperion.Router.V1 do
       end # credentials
 
       namespace :products do
+        desc "Push product to amazon"
+
+        params do
+          optional :purge, type: Boolean
+          group :inventory, type: CharList |> List do
+            requires :sku, type: String
+            requires :quantity, type: Integer
+          end
+        end
+
+        route_param :product_id do
+          post :push do
+            cfg = Credentials.mws_config(API.customer_id(conn))
+            jwt = API.jwt(conn)
+            purge = if (params[:purge]), do: true , else: false
+            # opts = %{cfg: cfg, jwt: jwt, purge: purge}
+            r = Pusher.push(params[:product_id], cfg, jwt, purge, params[:inventory])
+            respond_with(conn, r)
+          end
+        end
+
+        desc "Get push result for a product"
+
+        route_param :product_id do
+          get :result do
+            case SubmissionResult.submission_result(params[:product_id]) do
+              res -> respond_with(conn, res)
+              %{} -> respond_with(conn, %{error: "Result for product #{params[:product_id]} not found"}, 404)
+            end
+          end
+        end
+
         desc "Get products by ids and submit them to the Amazon MWS"
 
         params do

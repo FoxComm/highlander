@@ -81,7 +81,13 @@ clean:
 migrate:
 	$(FLYWAY) migrate
 
-reset: drop-db drop-user create-user create-db migrate
+reset:
+	@make drop-db
+	dropdb --if-exists $(DB_TEST) -U $(DB_USER)
+	@make drop-user
+	@make create-user
+	@make create-db
+	@make migrate
 
 drop-db:
 	dropdb --if-exists $(DB)
