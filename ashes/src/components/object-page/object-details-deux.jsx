@@ -116,9 +116,9 @@ export default class ObjectDetailsDeux extends Component {
   }
 
   renderWatchers() {
-    const { object, objectType }  = this.props;
+    const { object, objectType, internalObjectType }  = this.props;
 
-    const entityType = pluralize(_.get(this.props, 'internalObjectType', objectType));
+    const entityType = pluralize(internalObjectType || objectType);
 
     if (object.id) {
       return <ParticipantsPanel entity={{entityId: object.id, entityType }} />;
