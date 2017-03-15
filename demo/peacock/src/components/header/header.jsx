@@ -3,7 +3,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
-import classNames from 'classnames';
 
 import { toggleSidebar } from 'modules/sidebar';
 
@@ -13,7 +12,6 @@ import Icon from 'ui/icon';
 import Search from '../search/search';
 import UserTools from '../usertools/usertools';
 import Navigation from '../navigation/navigation';
-import TopBanner from '../top-banner/top-banner';
 
 type Props = {
   toggleSidebar: Function,

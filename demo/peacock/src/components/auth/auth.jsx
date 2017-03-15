@@ -9,7 +9,7 @@ import { autobind } from 'core-decorators';
 import styles from './auth.css';
 import type { HTMLElement } from 'types';
 
-import Icon from 'ui/icon';
+import Logo from '../logo/logo';
 import Login from './login';
 import Signup from './signup';
 import ResetPassword from './reset-password';
@@ -24,7 +24,7 @@ type Props = {
 class Auth extends Component {
   props: Props;
 
-  renderContent() {
+  get body() {
     const authProps = {
       getPath: this.getPath,
       path: this.props.path,
@@ -55,10 +55,10 @@ class Auth extends Component {
   render(): HTMLElement {
     return (
       <div styleName="auth-block">
-        <Link to={ this.props.path }>
-          <Icon styleName="logo" name="fc-logo" />
+        <Link to={ this.props.path } styleName="logo">
+          <Logo />
         </Link>
-        {this.renderContent()}
+        {this.body}
       </div>
     );
   }

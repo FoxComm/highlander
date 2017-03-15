@@ -41,6 +41,10 @@ class FormField extends Component {
     validateOnBlur: false,
   };
 
+  static childContextTypes = {
+    error: PropTypes.string,
+  };
+
   state = {
     fieldErrors: [],
     submitError: null,
@@ -48,6 +52,12 @@ class FormField extends Component {
     isValid: true,
     submitted: false,
   };
+
+  getChildContext() {
+    return {
+      error: this.errors[0],
+    };
+  }
 
   toggleBindToDispatcher(bind) {
     const { formDispatcher } = this.context;
@@ -134,7 +144,7 @@ class FormField extends Component {
       errors = [this.props.error, ...errors];
     }
 
-    if (this.state.submitError && this.props.submitError !== true) {
+    if (this.state.submitError && this.state.submitError !== true) {
       errors = [this.state.submitError, ...errors];
     }
 
@@ -146,7 +156,7 @@ class FormField extends Component {
   }
 
   get hasError() {
-    return this.errors.length !== 0 || !this.state.isValid || this.props.error || this.props.submitError;
+    return this.errors.length !== 0 || !this.state.isValid || this.props.error || this.state.submitError;
   }
 
   get readyToShowErrors() {
@@ -242,22 +252,6 @@ class FormField extends Component {
     }
   }
 
-  get errorMessages() {
-    if (this.errors.length && this.readyToShowErrors) {
-      return (
-        <div>
-          {this.errors.map((error, index) => {
-            return (
-              <div key={`error-${index}`} styleName="error">
-                {error}
-              </div>
-            );
-          })}
-        </div>
-      );
-    }
-  }
-
   render() {
     const className = classNames(this.props.className, {
       [styles['has-error']]: this.hasError && this.readyToShowErrors,
@@ -266,7 +260,6 @@ class FormField extends Component {
     return (
       <div className={className} >
         {this.props.children}
-        {this.errorMessages}
       </div>
     );
   }

@@ -10,7 +10,7 @@ import { browserHistory } from 'lib/history';
 
 import styles from './auth.css';
 
-import { TextInput, TextInputWithLabel } from 'ui/inputs';
+import TextInput from 'ui/text-input/text-input';
 import { FormField, Form } from 'ui/forms';
 import Button from 'ui/buttons';
 
@@ -114,8 +114,21 @@ class Login extends Component {
   get title() {
     const { t, title } = this.props;
     return title !== null
-      ? <div styleName="title">{title || t('LOG IN')}</div>
+      ? <div styleName="title">{title || t('Log in')}</div>
       : null;
+  }
+
+  get bottomMessage() {
+    const { props } = this;
+    const { t } = props;
+
+    return (
+      <div styleName="bottom-message">
+        <Link to={props.getPath(authBlockTypes.SIGNUP)} onClick={props.onSignupClick} styleName="link">
+          {t('Don’t have an account?')}
+        </Link>
+      </div>
+    );
   }
 
   render(): HTMLElement {
@@ -129,39 +142,34 @@ class Login extends Component {
       </Link>
     );
 
-    const signupLink = (
-      <Link to={getPath(authBlockTypes.SIGNUP)} onClick={props.onSignupClick} styleName="link">
-        {t('Sign Up')}
-      </Link>
-    );
-
     return (
       <div>
         {this.title}
         <Form onSubmit={this.authenticate}>
-          <FormField key="email" styleName="form-field" error={this.state.error}>
-            <TextInput placeholder={t('EMAIL')} value={email} type="email" onChange={this.onChangeEmail} />
-          </FormField>
-          <FormField key="passwd" styleName="form-field" error={!!this.state.error}>
-            <TextInputWithLabel
-              styleName="form-field-input"
-              placeholder="PASSWORD"
-              label={!password && restoreLink}
-              value={password}
-              onChange={this.onChangePassword} type="password"
-            />
-          </FormField>
+          <div styleName="inputs-body">
+            <FormField key="email" styleName="form-field" error={this.state.error}>
+              <TextInput pos="top" placeholder={t('Email')} value={email} type="email" onChange={this.onChangeEmail} />
+            </FormField>
+            <FormField key="passwd" styleName="form-field" error={!!this.state.error}>
+              <TextInput
+                type="password"
+                pos="bottom"
+                styleName="form-field-input"
+                placeholder="Password"
+                label={password ? null : restoreLink}
+                value={password}
+                onChange={this.onChangePassword}
+              />
+            </FormField>
+          </div>
           <Button
             type="submit"
             styleName="primary-button"
             isLoading={this.props.isLoading}
-          >
-            {t('LOG IN')}
-          </Button>
+            children={t('LOG IN')}
+          />
+          {this.bottomMessage}
         </Form>
-        <div styleName="switch-stage">
-          {t('Don’t have an account?')} {signupLink}
-        </div>
       </div>
     );
   }

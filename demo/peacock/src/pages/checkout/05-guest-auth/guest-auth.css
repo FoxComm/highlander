@@ -33,13 +33,7 @@
 .home {
   text-align: center;
   width: 100%;
-  margin-top: 0px;
-
-  & .divider {
-    width: 100%;
-    height: 1px;
-    background: var(--white-smokish);
-  }
+  margin-top: 0;
 
   & .title {
     line-height: 33px;
@@ -80,13 +74,6 @@
   margin-left: 0 !important;
 }
 
-.divider {
-  width: 1px;
-  height: 255px;
-  background: #3E3436;
-  position: absolute;
-}
-
 .mobile-divider-block {
   visibility: hidden;
 }
@@ -118,18 +105,13 @@
     width: 100%;
   }
 
-  .title,
-  .divider {
+  .title {
     visibility: hidden;
     margin: 0;
   }
 
 
   .home {
-    & > .divider {
-      visibility: visible;
-    }
-
     & > .title {
       height: 0;
       margin: 0;

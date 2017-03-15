@@ -2,7 +2,7 @@
 :root {
   --lightest-blackish: #595959;
   --light-blackish: #3F3F3F;
-  --blackish: #363636;
+  --blackish: #222;
   --black-decor: #868686;
   --dark-blackish: #212121;
   --whitish: #fff;
@@ -15,7 +15,11 @@
   --white-smokish: #F4F4F4;
   --star-dustish: #9F9F9F;
   --bunker: rgb(33, 33, 33);
-  --bunker-transparent: rgba(33, 33, 33, .38)
+  --bunker-transparent: rgba(33, 33, 33, .38);
+
+  /* peacock: */
+  --water-blue: #0b7ddc;
+  --cherry-red: #e90018;
 }
 
 :root {
@@ -24,13 +28,14 @@
   --border-color: rgba(33, 33, 33, 0.10);
   --background-color: #FBFBFB;
 
-  --color-error: var(--redish);
+  --color-error: var(--cherry-red);
   --color-panels-bg: var(--white-smokish);
   --color-text-grey: var(--greyish);
 
   --search-placeholder: rgba(255,255,255,.14);
   --icon: var(--bunker);
-  --input-text-color: var(--bunker-transparent);
+  --input-text-color: #000000;
+  --input-placeholder-color: #888888;
   --text-color-dark: var(--bunker);
   --text-color-main: var(--bunker);
 

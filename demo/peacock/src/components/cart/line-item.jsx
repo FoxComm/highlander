@@ -12,7 +12,6 @@ import styles from './line-item.css';
 import localized from 'lib/i18n';
 
 // components
-import Icon from 'ui/icon';
 import Currency from 'ui/currency';
 import Select from 'ui/select/select';
 

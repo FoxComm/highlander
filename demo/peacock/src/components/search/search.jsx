@@ -1,7 +1,6 @@
 /* flow */
 
 import React, { Component } from 'react';
-import classNames from 'classnames';
 import type { HTMLElement } from 'types';
 import { browserHistory } from 'lib/history';
 import { autobind } from 'core-decorators';
@@ -11,8 +10,6 @@ import styles from './search.css';
 
 import localized from 'lib/i18n';
 import type { Localized } from 'lib/i18n';
-
-import Icon from 'ui/icon';
 
 import { toggleActive, forceSearch } from 'modules/search';
 
@@ -96,8 +93,6 @@ class Search extends Component {
     }
   }
   render(): HTMLElement {
-    const searchStyle = this.props.isActive ? 'search-expanded' : 'search';
-
     const { t } = this.props;
 
     return (
