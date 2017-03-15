@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/FoxComm/highlander/tabernacle/pliant/cmd"
+	"github.com/FoxComm/highlander/tabernacle/elasticmanager/cmd"
 	"github.com/urfave/cli"
 )
 

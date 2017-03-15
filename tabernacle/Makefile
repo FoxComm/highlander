@@ -9,7 +9,7 @@ all: build
 
 build:
 	$(call header, Building)
-	cd pliant && make build
+	cd elasticmanager && make build
 
 test:
 	$(call header, Testing)
