@@ -186,7 +186,9 @@ class ObjectPageDeux extends Component {
           {this.headerControls}
         </PageTitle>
         {this.localNav}
-        {this.children}
+        <div styleName="object-details">
+          {this.children}
+        </div>
         {this.footerControls}
       </div>
     );
