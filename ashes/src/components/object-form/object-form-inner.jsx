@@ -302,7 +302,7 @@ export default class ObjectFormInner extends Component {
             onChange={onChange}
           />
       </div>
-    )
+    );
   }
 
   shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
