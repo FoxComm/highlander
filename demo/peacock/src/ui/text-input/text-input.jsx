@@ -6,7 +6,8 @@ import classNames from 'classnames';
 
 type Props = {
   className?: string,
-  pos?: string, // could be any combination of characters l, r, b, t or one of "middle-v", "middle-h"
+  // could be any combination of characters l, r, b, t or one of "middle-v", "middle-h", "top", "bottom", "left", "right"
+  pos?: string,
   error?: boolean|string,
   type?: string,
   placeholder?: string,
@@ -24,17 +25,31 @@ class TextInput extends Component {
     return this.context.error;
   }
 
+  calcPositions(position: ?string): Array<string> {
+    if (!position) return [];
+
+    switch (position) {
+      case 'middle-v':
+        return ['t', 'b'];
+      case 'middle-h':
+        return ['r', 'l'];
+      case 'top':
+        return ['t'];
+      case 'bottom':
+        return ['b'];
+      case 'right':
+        return ['r'];
+      case 'left':
+        return ['l'];
+      default:
+        return position.split('');
+    }
+  }
+
   render() {
     const { props } = this;
 
-    let positions = [];
-    if (props.pos === 'middle-v') {
-      positions = ['t', 'b'];
-    } else if (props.pos === 'middle-h') {
-      positions = ['r', 'l'];
-    } else if (props.pos) {
-      positions = props.pos.split('');
-    }
+    const positions = this.calcPositions(props.pos);
     const posClassNames = positions.map(side => s[`pos-${side}`]);
 
     const {className, type = 'text', ...rest} = props;

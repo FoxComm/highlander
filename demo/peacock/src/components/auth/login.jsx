@@ -148,12 +148,12 @@ class Login extends Component {
         <Form onSubmit={this.authenticate}>
           <div styleName="inputs-body">
             <FormField key="email" styleName="form-field" error={this.state.error}>
-              <TextInput pos="t" placeholder={t('Email')} value={email} type="email" onChange={this.onChangeEmail} />
+              <TextInput pos="top" placeholder={t('Email')} value={email} type="email" onChange={this.onChangeEmail} />
             </FormField>
             <FormField key="passwd" styleName="form-field" error={!!this.state.error}>
               <TextInput
                 type="password"
-                pos="b"
+                pos="bottom"
                 styleName="form-field-input"
                 placeholder="Password"
                 label={password ? null : restoreLink}

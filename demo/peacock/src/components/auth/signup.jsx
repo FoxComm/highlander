@@ -164,7 +164,7 @@ class Signup extends Component {
             <ErrorAlerts errors={this.state.generalErrors} />
             <FormField key="username" styleName="form-field" error={usernameError}>
               <TextInput
-                pos="t"
+                pos="top"
                 required
                 placeholder={t('First & last name')}
                 name="username"
@@ -185,7 +185,7 @@ class Signup extends Component {
             </FormField>
             <FormField key="passwd" styleName="form-field">
               <ShowHidePassword
-                pos="b"
+                pos="bottom"
                 className={styles['form-field-input']}
                 placeholder={t('Create password')}
                 name="password"

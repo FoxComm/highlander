@@ -128,7 +128,7 @@ export default class ResetPassword extends Component {
     return [
       <FormField key="passwd1" styleName="form-field" error={!!error}>
         <ShowHidePassword
-          pos="t"
+          pos="top"
           className={styles['form-field-input']}
           placeholder={t('New password')}
           type="password"
@@ -140,7 +140,7 @@ export default class ResetPassword extends Component {
       </FormField>,
       <FormField key="passwd2" styleName="form-field" error={!!error}>
         <ShowHidePassword
-          pos="b"
+          pos="bottom"
           className={styles['form-field-input']}
           placeholder={t('Confirm password')}
           type="password"
