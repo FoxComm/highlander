@@ -124,7 +124,7 @@ class ObjectPageDeux extends Component {
     const { identifier, objectType, actions, listRoute } = this.props;
     if (listRoute) {
       const { name, params } = listRoute;
-      actions.archive(identifier).then(transitionToLazy(name, params))
+      actions.archive(identifier).then(transitionToLazy(name, params));
     } else {
       const name = pluralize(objectType);
       actions.archive(identifier).then(transitionToLazy(name));

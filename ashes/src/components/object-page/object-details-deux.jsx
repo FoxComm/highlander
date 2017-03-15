@@ -201,7 +201,7 @@ export default class ObjectDetailsDeux extends Component {
           invariant(this.props.renderers[renderName], `There is no method for render ${description.type}.`);
           return this.props.renderers[renderName](description, section);
         }
-        return
+        return;
     }
   }
 
