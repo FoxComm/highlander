@@ -57,6 +57,9 @@ const schema: ObjectSchema = {
         description: {
           type: 'string',
           widget: 'richText'
+        },
+        colorSwatch: {
+          type: 'color',
         }
       },
     },
