@@ -77,7 +77,7 @@ export class TaxonProductsPage extends Component {
           title="Products"
           subtitle={<TotalCounter />}
           addTitle="Product"
-          onAddClick={transitionToLazy('value-details', this.props.params)}
+          onAddClick={transitionToLazy('taxon-details', this.props.params)}
         />
 
         <SelectableSearchList

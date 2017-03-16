@@ -32,15 +32,15 @@ const getRoutes = (jwt: Object) => {
 
       // fake :context/:taxonomyId path w/o components to build breadcrumbs like Taxonomies -> 1 -> Value -> 1
       router.read('taxonomy', { path: ':context/:taxonomyId', titleParam: ':taxonomyId' }, [
-        router.read('values-base', { path: 'values', frn: frn.merch.taxonomy }, [
-          router.read('value', {
+        router.read('taxons-base', { path: 'values', title: 'Values', frn: frn.merch.taxonomy }, [
+          router.read('taxon', {
             path: ':taxonId',
             titleParam: ':taxonId',
             component: TaxonPage,
             frn: frn.merch.taxon
           }, [
-            router.read('value-details', { component: TaxonDetails, isIndex: true }),
-            router.read('value-products', { path: 'products', component: TaxonProducts, title: 'Products' }),
+            router.read('taxon-details', { component: TaxonDetails, isIndex: true }),
+            router.read('taxon-products', { path: 'products', component: TaxonProducts, title: 'Products' }),
           ]),
         ]),
       ])
