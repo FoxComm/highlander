@@ -24,6 +24,7 @@ import slick.driver.PostgresDriver.api._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
+import testutils.fixtures.api.ApiFixtureHelpers
 import utils.Money._
 import utils.db._
 import utils.seeds.Factories
@@ -32,7 +33,8 @@ class GiftCardIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
     with AutomaticAuth
-    with BakedFixtures {
+    with BakedFixtures
+    with ApiFixtureHelpers {
 
   "GiftCards" - {
 
@@ -117,11 +119,8 @@ class GiftCardIntegrationTest
     }
 
     "POST /v1/customer-gift-cards" - {
-      "successfully creates gift card as a custumer from payload" in new Reason_Baked {
-        val cordInsert = cartsApi
-          .create(
-              CreateCart(customerId = 1.some, email = "sender@example.com".some, scope = "1".some))
-          .as[CartResponse]
+      "successfully creates gift card as a customer from payload" in new Fixture {
+        val cordInsert = api_newCustomerCart(customer.id)
 
         val root = giftCardsApi
           .createFromCustomer(
@@ -139,11 +138,8 @@ class GiftCardIntegrationTest
         root.recipientEmail.get must === ("recipientEmail@mail.com")
       }
 
-      "successfully creates gift cards as a custumer from payload" in new Reason_Baked {
-        val cordInsert = cartsApi
-          .create(
-              CreateCart(customerId = 1.some, email = "sender@example.com".some, scope = "1".some))
-          .as[CartResponse]
+      "successfully creates gift cards as a customer from payload" in new Fixture {
+        val cordInsert = api_newCustomerCart(customer.id)
 
         val root = giftCardsApi
           .createMultipleFromCustomer(
@@ -160,6 +156,9 @@ class GiftCardIntegrationTest
                                             message = "test message2".some,
                                             cordRef = cordInsert.referenceNumber)))
           .as[Seq[GiftCardResponse.Root]]
+
+        root.size must === (2)
+
         root.head.currency must === (Currency.USD)
         root.head.availableBalance must === (555)
         root.tail.head.currency must === (Currency.USD)
@@ -169,11 +168,8 @@ class GiftCardIntegrationTest
         root.tail.head.recipientEmail.get must === ("recipientEmail@mail.com2")
       }
 
-      "successfully creates gift cards with empty messages as a custumer from payload" in new Reason_Baked {
-        val cordInsert = cartsApi
-          .create(
-              CreateCart(customerId = 1.some, email = "sender@example.com".some, scope = "1".some))
-          .as[CartResponse]
+      "successfully creates gift cards with empty messages as a customer from payload" in new Fixture {
+        val cordInsert = api_newCustomerCart(customer.id)
 
         val root = giftCardsApi
           .createMultipleFromCustomer(
@@ -190,14 +186,12 @@ class GiftCardIntegrationTest
                                             message = "".some,
                                             cordRef = cordInsert.referenceNumber)))
           .as[Seq[GiftCardResponse.Root]]
-        root.head.currency must === (Currency.USD)
-        root.head.availableBalance must === (555)
-        root.tail.head.currency must === (Currency.USD)
-        root.tail.head.availableBalance must === (100)
-        root.head.message must === (None)
-        root.head.senderName.get must === ("senderName")
-        root.tail.head.recipientEmail.get must === ("recipientEmail@mail.com2")
-        root.tail.head.message must === ("".some)
+
+        root.size must === (2)
+
+        root.map { gc ⇒
+          (gc.currency, gc.availableBalance, gc.message)
+        } must contain theSameElementsAs Seq((Currency.USD, 555, None), (Currency.USD, 100, None))
       }
     }
 
