@@ -71,7 +71,7 @@ defmodule Hyperion.Amazon do
       _ -> Enum.map(r["skus"], fn(x)-> [albums: hd(albums), code: x["attributes"]["code"]["v"]] end)
     end
     |> Enum.flat_map(fn(product) ->
-        main = render_main_section(product[:albums][:main], product[:code])
+        main = render_main_section(hd(product[:albums]), product[:code])
         [main, render_swatch_section(product[:albums][:swatches], product[:code], Enum.count(main))]
        end) |> Enum.reject(fn el -> el == nil end)
   end
@@ -82,11 +82,11 @@ defmodule Hyperion.Amazon do
   # {[type: "PT",
   #   location: "http:", id: 1],
   #   2}],
-  defp render_main_section([h|[]], sku) do
+  defp render_main_section({_, [h|[]]}, sku) do
     [{[sku: sku, type: "Main", location: String.replace(h["src"], "https", "http")], 1}]
   end
 
-  defp render_main_section([h|t], sku) do
+  defp render_main_section({_, [h|t]}, sku) do
     main = [sku: sku, type: "Main", location: String.replace(h["src"], "https", "http")]
 
     pt = Enum.with_index(t, 1)

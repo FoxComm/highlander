@@ -11,17 +11,15 @@ defmodule Hyperion.Amazon.Pusher do
     |> submit_images(cfg)
   end
 
-  def submit_product(product, cfg, purge) do
+  defp submit_product(product, cfg, purge) do
     tpl = Amazon.product_feed(product)
           |> TemplateBuilder.submit_product_feed(%{seller_id: cfg.seller_id, purge_and_replace: purge})
 
     case MWSClient.submit_product_feed(tpl, cfg) do
       {:error, error} ->
-        IO.puts(inspect(error))
         store_submition_result(product.body["id"], %{product_feed: inspect(error)})
         raise "Submit_product error: " <> inspect(error)
       {:warn, warn} ->
-        IO.puts(inspect(warn))
         store_submition_result(product.body["id"], %{product_feed: warn["ErrorResponse"]})
         raise "Submit_product warning: " <> warn["ErrorResponse"]["Error"]["Message"]
       {_, resp} ->
@@ -31,7 +29,7 @@ defmodule Hyperion.Amazon.Pusher do
     end
   end
 
-  def submit_price(product, cfg) do
+  defp submit_price(product, cfg) do
     tpl = Amazon.price_feed(product)
           |> TemplateBuilder.submit_price_feed(cfg)
 
@@ -46,11 +44,10 @@ defmodule Hyperion.Amazon.Pusher do
         store_submition_result(product.body["id"],
                                %{price_feed: resp["SubmitFeedResponse"]["SubmitFeedResult"]["FeedSubmissionInfo"]})
         product
-        # SubmissionResult.submission_result(product.body["id"])
     end
   end
 
-  def submit_inventory(product, inventory, cfg) do
+  defp submit_inventory(product, inventory, cfg) do
     tpl = inventory
           |> Enum.with_index(1)
           |> TemplateBuilder.submit_inventory_feed(%{seller_id: cfg.seller_id})
@@ -69,7 +66,7 @@ defmodule Hyperion.Amazon.Pusher do
     end
   end
 
-  def submit_images(product, cfg) do
+  defp submit_images(product, cfg) do
     tpl = Amazon.images_feed(product)
           |> TemplateBuilder.submit_images_feed(cfg)
 
@@ -82,16 +79,15 @@ defmodule Hyperion.Amazon.Pusher do
         raise "Submit_images warning: " <> warn["ErrorResponse"]["Error"]["Message"]
       {_, resp} ->
         store_submition_result(product.body["id"], %{images_feed: resp["SubmitFeedResponse"]["SubmitFeedResult"]["FeedSubmissionInfo"]})
-        # product
         SubmissionResult.submission_result(product.body["id"])
     end
   end
 
-  def store_submition_result(product_id, payload) do
+  defp store_submition_result(product_id, payload) do
     SubmissionResult.store_step_result(product_id, payload)
   end
 
-  def get_submisstion_result(product_id) do
+  defp get_submisstion_result(product_id) do
     SubmissionResult.submission_result(product_id)
   end
 end
