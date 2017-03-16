@@ -129,7 +129,7 @@
 }
 
 .payment-icon {
-  composes: payment-icon from '../../pages/checkout/03-billing/view-billing.css';
+  composes: payment-icon from '../../pages/checkout/billing/view-billing.css';
 }
 
 .payment-method {

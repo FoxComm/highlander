@@ -25,7 +25,7 @@ import ContactUsPage from './pages/static/contact-us-page';
 import AboutPage from './pages/about/about-page';
 
 import Checkout from './pages/checkout/checkout';
-import OrderPlaced from './pages/checkout/04-order-placed/order-placed';
+import OrderPlaced from './pages/checkout/order-placed/order-placed';
 
 import { isAuthorizedUser } from 'paragons/auth';
 
