@@ -1,26 +1,32 @@
 /* @flow */
 
+// libs
 import get from 'lodash/get';
 import { autobind } from 'core-decorators';
 import React, { Component, Element } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { transitionToLazy } from 'browserHistory';
 
+// actions
 import { actions } from 'modules/taxons/details/products-list';
 
+// components
 import { SectionTitle } from 'components/section-title';
 import { AddButton } from 'components/common/buttons';
 import SelectableSearchList from 'components/list-page/selectable-search-list';
 import ProductRow from 'components/products/product-row';
-
 import { makeTotalCounter } from 'components/list-page';
+import ProductsAddModal from './products-add-modal';
 
-import * as dsl from 'elastic/dsl';
+// helpers
+import { transitionToLazy } from 'browserHistory';
 import { filterArchived } from 'elastic/archive';
+import * as dsl from 'elastic/dsl';
 
+// styles
 import styles from './taxons.css';
 
+// types
 import type { Product } from 'paragons/product';
 import type { TaxonomyParams } from '../taxonomy';
 
@@ -36,15 +42,24 @@ type Props = ObjectPageChildProps<Taxonomy> & {
   params: TaxonomyParams,
 };
 
+type State = {
+  modalVisible: boolean,
+}
+
 const tableColumns: Array<Column> = [
-  { field: 'productId', text: 'Product ID', type: null },
+  { field: 'productId', text: 'ID' },
   { field: 'image', text: 'Image', type: 'image' },
-  { field: 'title', text: 'Name', type: null },
-  { field: 'state', text: 'State', type: null },
+  { field: 'title', text: 'Name' },
+  { field: 'skus', text: 'Skus' },
+  { field: 'state', text: 'State' },
 ];
 
 export class TaxonProductsPage extends Component {
   props: Props;
+
+  state: State = {
+    modalVisible: false,
+  };
 
   componentDidMount() {
     this.props.actions.setExtraFilters([
@@ -52,6 +67,16 @@ export class TaxonProductsPage extends Component {
     ]);
 
     this.props.actions.fetch();
+  }
+
+  @autobind
+  openModal() {
+    this.setState({ modalVisible: true });
+  }
+
+  @autobind
+  closeModal() {
+    this.setState({ modalVisible: false });
   }
 
   @autobind
@@ -79,7 +104,7 @@ export class TaxonProductsPage extends Component {
           title="Products"
           subtitle={<TotalCounter />}
           addTitle="Product"
-          onAddClick={transitionToLazy('taxon-details', this.props.params)}
+          onAddClick={this.openModal}
         />
 
         <SelectableSearchList
@@ -91,6 +116,12 @@ export class TaxonProductsPage extends Component {
           searchOptions={{ singleSearch: true }}
           searchActions={searchActions}
           predicate={({ id }) => id}
+        />
+        <ProductsAddModal
+          title="Products"
+          isVisible={this.state.modalVisible}
+          onCancel={this.closeModal}
+          onConfirm={this.closeModal}
         />
       </div>
     );

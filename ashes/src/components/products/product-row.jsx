@@ -22,6 +22,8 @@ type Props = {
 
 function setCellContents(product, field) {
   switch (field) {
+    case 'skus':
+      return _.size(_.get(product, 'skus'));
     case 'image':
       return _.get(product, ['albums', 0, 'images', 0, 'src']);
     case 'state':
