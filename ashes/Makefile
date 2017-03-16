@@ -24,9 +24,10 @@ clean:
 test:
 	$(call header, Testing)
 	make setup
-	make t
+	@NODE_ENV=$(NODE_ENV) ./node_modules/.bin/gulp test
 
 t:
+	make flow
 	@NODE_ENV=$(NODE_ENV) ./node_modules/.bin/gulp test
 
 tag:

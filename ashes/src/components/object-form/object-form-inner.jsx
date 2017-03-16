@@ -36,12 +36,14 @@ type AttrSchema = {
   title?: string,
   widget?: string,
   properties?: Object,
+  disabled: boolean,
 };
 
 type AttrOptions = {
   required: boolean,
   label: string,
   isDefined: (value: any) => boolean,
+  disabled?: boolean,
 };
 
 const inputClass = 'fc-object-form__field-value';
