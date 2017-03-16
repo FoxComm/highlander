@@ -1,25 +1,21 @@
 /* @flow */
 
 import makeLiveSearch from 'modules/live-search';
-
-const searchTerms = [];
-const storeLocation = 'taxons.list';
-const searchView = 'taxons_search_view/_search';
-const scope = 'taxonsScope';
+import productsSearchTerms from 'modules/products/search-terms';
 
 const { reducer, actions } = makeLiveSearch(
-  storeLocation,
-  searchTerms,
-  searchView,
-
-  scope,
+  'taxons.details.products',
+  productsSearchTerms,
+  'products_search_view/_search',
+  'productsScope',
   {
     initialState: { sortBy: 'name' },
     rawSorts: ['name'],
+    skipInitialFetch: true,
   }
 );
 
-export {
+export  {
   reducer as default,
   actions,
 };

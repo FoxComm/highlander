@@ -11,6 +11,7 @@ import TaxonomyDetails from 'components/taxonomies/details';
 
 import TaxonPage from 'components/taxonomies/taxons/taxon';
 import TaxonDetails from 'components/taxonomies/taxons/details';
+import TaxonProducts from 'components/taxonomies/taxons/products';
 import TaxonsListPage from 'components/taxonomies/taxons/taxons';
 
 import type { Claims } from 'lib/claims';
@@ -38,7 +39,8 @@ const getRoutes = (jwt: Object) => {
             component: TaxonPage,
             frn: frn.merch.taxon
           }, [
-            router.read('value-details', { component: TaxonDetails, isIndex: true })
+            router.read('value-details', { component: TaxonDetails, isIndex: true }),
+            router.read('value-products', { path: 'products', component: TaxonProducts, title: 'Products' }),
           ]),
         ]),
       ])

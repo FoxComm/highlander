@@ -13,8 +13,6 @@ const defaultContext = 'default';
 // Internal async actions.
 ////////////////////////////////////////////////////////////////////////////////
 
-const clearTaxon = createAction('TAXON_CLEAR');
-
 const _fetchTaxon = createAsyncActions(
   'fetchTaxon',
   (taxonId: number, context: string = defaultContext) =>
@@ -65,18 +63,15 @@ export const fetch = (id: string, context: string = defaultContext): ActionDispa
 // Reducer.
 ////////////////////////////////////////////////////////////////////////////////
 
-const initialState = { taxon: createEmptyTaxon() };
+const initialState = createEmptyTaxon();
 
 const reducer = createReducer({
   [reset]: () => initialState,
-  [duplicate]: (state) => ({
-    ...initialState,
-    taxon: duplicateTaxon(_.get(state, 'taxon', {}))
-  }),
-  [_fetchTaxon.succeeded]: (state, taxon) => ({ ...state, taxon }),
-  [_createTaxon.succeeded]: (state, taxon) => ({ ...state, taxon }),
-  [_updateTaxon.succeeded]: (state, taxon) => ({ ...state, taxon }),
-  [_archiveTaxon.succeeded]: (state, taxon) => ({ ...state, taxon })
+  [duplicate]: (state) => duplicateTaxon(state),
+  [_fetchTaxon.succeeded]: (state, taxon) => taxon,
+  [_createTaxon.succeeded]: (state, taxon) => taxon,
+  [_updateTaxon.succeeded]: (state, taxon) => taxon,
+  [_archiveTaxon.succeeded]: (state, taxon) => taxon
 }, initialState);
 
 export default reducer;
