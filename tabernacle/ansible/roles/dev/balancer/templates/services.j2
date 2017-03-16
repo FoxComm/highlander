@@ -19,6 +19,11 @@ upstream cross-sell {
   << else >> server {{cross_sell_server}} fail_timeout=30s max_fails=10; << end >>
 }
 
+upstream neo4j {
+  << range service "neo4j" >> server << .Address >>:<< .Port >> max_fails=10 fail_timeout=30s weight=1;
+  << else >> server {{neo4j_server}} fail_timeout=30s max_fails=10; << end >>
+}
+
 upstream search {
   << range service "elasticsearch" >> server << .Address >>:<< .Port >> max_fails=10 fail_timeout=30s weight=1;
   << else >> server {{search_server_http}} fail_timeout=30s max_fails=10; << end >>
