@@ -15,6 +15,7 @@ import responses.PromotionResponses.PromotionResponse
 import responses.ResponseItem
 import utils.aliases._
 import utils.db._
+import slick.driver.PostgresDriver.api._
 
 case class CordResponseCouponPair(coupon: CouponResponse.Root, code: String) extends ResponseItem
 
@@ -63,16 +64,32 @@ object CordResponsePromotions {
   private def fetchAutoApply(promotionShadowId: Int)(implicit ec: EC,
                                                      db: DB,
                                                      ctx: OC): DbResultT[PromotionResponse.Root] =
+    renderHistoricalPromotion(promotionShadowId)
+
+  private def renderHistoricalPromotion(promotionShadowId: Int)(
+      implicit ec: EC,
+      db: DB,
+      ctx: OC): DbResultT[PromotionResponse.Root] = {
     for {
-      _ ← * <~ println(
-             s"----------------- fetchAutoApply — shadowId = $promotionShadowId & ctx.id = ${ctx.id}")
-      promotion ← * <~ Promotions
-                   .filterByContextAndShadowId(ctx.id, promotionShadowId)
-                   //.autoApplied
-                   .mustFindOneOr(PromotionNotFound(promotionShadowId))
-      _    ← * <~ println(s"---------- Promotion found")
-      resp ← * <~ renderPromotionResponse(promotion)
-    } yield resp
+      promotionShadow ← * <~ ObjectShadows.mustFindById404(promotionShadowId)
+      promotionFormId = promotionShadow.formId
+      promotionForm ← * <~ ObjectForms.mustFindById404(promotionFormId)
+      promotionHead ← * <~ Promotions
+                       .filterByContext(ctx.id)
+                       .filter(_.formId === promotionFormId)
+                       .mustFindOneOr(PromotionNotFound(promotionFormId))
+
+      illuminatedPromotion = IlluminatedPromotion
+        .illuminate(ctx, promotionHead, promotionForm, promotionShadow)
+
+      // FIXME: this is soooo very wrong @michalrus
+      // FIXME: we’re returning **CURRENT** head discounts for a historical promotion… @michalrus
+      // FIXME: https://foxcommerce.slack.com/archives/phoenix/p1489674138182180 @michalrus
+      discounts ← * <~ PromotionDiscountLinks.queryRightByLeft(promotionHead)
+      illuminatedDiscounts = discounts.map(discount ⇒
+            IlluminatedDiscount.illuminate(ctx.some, discount.form, discount.shadow))
+    } yield PromotionResponse.build(illuminatedPromotion, illuminatedDiscounts, promotionHead)
+  }
 
   // TBD: Get discounts from cached field in `OrderPromotion` model
   private def fetchCoupon(couponCodeId: Int)(
@@ -90,6 +107,8 @@ object CordResponsePromotions {
       couponForm   ← * <~ ObjectForms.mustFindById404(coupon.formId)
       couponShadow ← * <~ ObjectShadows.mustFindById404(coupon.shadowId)
       // Promotion
+      // FIXME: very, very wrong @michalrus
+      // FIXME: if that promotion got edited by an admin, we’ll get current version in OrderResponse @michalrus
       promotion ← * <~ Promotions
                    .filterByContextAndFormId(ctx.id, coupon.promotionId)
                    .requiresCoupon
