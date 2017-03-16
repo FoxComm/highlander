@@ -19,6 +19,10 @@ upstream anthill {
   << else >> server {{anthill_server}} fail_timeout=30s max_fails=10; << end >>
 }
 
+upstream neo4j {
+  << range service "neo4j" >> server << .Address >>:<< .Port >> max_fails=10 fail_timeout=30s weight=1;
+  << else >> server {{neo4j_server}} fail_timeout=30s max_fails=10; << end >>
+}
 {% endif %}
 
 upstream search {

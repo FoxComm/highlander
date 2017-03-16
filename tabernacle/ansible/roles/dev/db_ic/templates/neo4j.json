@@ -1,0 +1,46 @@
+{
+  "id": "/neo4j",
+  "cmd": null,
+  "cpus": 1,
+  "mem": 128,
+  "disk": 0,
+  "instances": 1,
+  "container": {
+    "type": "DOCKER",
+    "volumes": [
+      {
+        "containerPath": "data",
+        "mode": "RW",
+        "persistent": {
+          "size": 1048
+        }
+      },
+      {
+        "containerPath": "logs",
+        "mode": "RW",
+        "persistent": {
+          "size": 1048
+        }
+      }
+    ],
+    "docker": {
+      "image": "neo4j:3.0",
+      "network": "HOST",
+      "portMappings": null,
+      "privileged": false,
+      "parameters": [],
+      "forcePullImage": false
+    }
+  },
+  "portDefinitions": [
+    {
+      "port": 10011,
+      "protocol": "tcp",
+      "labels": {}
+    }
+  ],
+  "upgradeStrategy": {
+    "minimumHealthCapacity": 0.5,
+    "maximumOverCapacity": 0
+  }
+}

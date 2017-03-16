@@ -30,3 +30,7 @@
   shell: FLYWAY_HOME={{flyway_dir}} {{flyway}} migrate
   args:
     chdir: "{{bernardo_dir}}"
+
+- name: Start Neo4j
+  include: app_neo4j.yml
+  when: marathon_restart.neo4j

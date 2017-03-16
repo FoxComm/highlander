@@ -7,7 +7,9 @@ purchased this also purchased that".
 #### Training
 When customer `1` buys products `4, 5, 6` over channel `1`.
 
-`POST /api/v1/recommend/prod-prod`
+*TODO: Make this endpoint private*
+
+`POST /api/v1/public/recommend/prod-prod/train`
 body
 ```
 {
@@ -34,7 +36,7 @@ body
 ### Getting a recommendation
 See what products are similar to product 4
 
-`GET /api/v1/recommend/prod-prod/4`
+`GET /api/v1/public/recommend/prod-prod/4`
 
 Response:
 ```
