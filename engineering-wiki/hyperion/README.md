@@ -632,6 +632,140 @@ Params:
 
 Params marked with * are mandatory.
 
+####Get order details
+
+*request*
+
+```
+GET /api/v1/hyperion/orders/:amazon_order_id
+```
+
+*response*
+
+```json
+{
+    "GetOrderResponse": {
+        "ResponseMetadata": {
+            "RequestId": "17a19fe3-b8df-4862-997f-815a0f5c4c1b"
+        },
+        "GetOrderResult": {
+            "Orders": {
+                "Order": {
+                    "ShippingAddress": {
+                        "StateOrRegion": "WA",
+                        "PostalCode": "98121-1044",
+                        "Phone": "5672039430",
+                        "Name": "Bree Swineford",
+                        "CountryCode": "US",
+                        "City": "SEATTLE",
+                        "AddressLine1": "3131 ELLIOTT AVE STE 240"
+                    },
+                    "ShippedByAmazonTFM": "false",
+                    "ShipmentServiceLevelCategory": "FreeEconomy",
+                    "ShipServiceLevel": "Econ Cont US",
+                    "SalesChannel": "Amazon.com",
+                    "PurchaseDate": "2017-03-08T19:38:36Z",
+                    "PaymentMethodDetails": {
+                        "PaymentMethodDetail": "CreditCard"
+                    },
+                    "PaymentMethod": "Other",
+                    "OrderType": "StandardOrder",
+                    "OrderTotal": {
+                        "CurrencyCode": "USD",
+                        "Amount": "45.00"
+                    },
+                    "OrderStatus": "Shipped",
+                    "NumberOfItemsUnshipped": "0",
+                    "NumberOfItemsShipped": "1",
+                    "MarketplaceId": "ATVPDKIKX0DER",
+                    "LatestShipDate": "2017-03-11T07:59:59Z",
+                    "LatestDeliveryDate": "2017-03-22T06:59:59Z",
+                    "LastUpdateDate": "2017-03-08T21:02:24Z",
+                    "IsReplacementOrder": "false",
+                    "IsPrime": "false",
+                    "IsPremiumOrder": "false",
+                    "IsBusinessOrder": "false",
+                    "FulfillmentChannel": "MFN",
+                    "EarliestShipDate": "2017-03-09T08:00:00Z",
+                    "EarliestDeliveryDate": "2017-03-15T07:00:00Z",
+                    "BuyerName": "Zakk Pershing",
+                    "BuyerEmail": "67xlr8kb83lx0t2@marketplace.amazon.com",
+                    "AmazonOrderId": "111-5296499-9653858"
+                }
+            }
+        }
+    }
+}
+```
+
+####Get order items
+
+*request*
+
+```
+GET /api/v1/hyperion/order/:amazon_order_id/items
+```
+
+*response*
+
+
+```json
+{
+    "ListOrderItemsResponse": {
+        "ResponseMetadata": {
+            "RequestId": "b2ae1c4f-ec7b-4beb-ba71-eb403d50bb27"
+        },
+        "ListOrderItemsResult": {
+            "OrderItems": {
+                "OrderItem": {
+                    "Title": "FoxCommerce Startup Hoodie (Small, Light Grey)",
+                    "ShippingTax": {
+                        "CurrencyCode": "USD",
+                        "Amount": "0.00"
+                    },
+                    "ShippingPrice": {
+                        "CurrencyCode": "USD",
+                        "Amount": "0.00"
+                    },
+                    "ShippingDiscount": {
+                        "CurrencyCode": "USD",
+                        "Amount": "0.00"
+                    },
+                    "SellerSKU": "FOX-2131",
+                    "QuantityShipped": "1",
+                    "QuantityOrdered": "1",
+                    "PromotionDiscount": {
+                        "CurrencyCode": "USD",
+                        "Amount": "0.00"
+                    },
+                    "OrderItemId": "63361525774498",
+                    "ItemTax": {
+                        "CurrencyCode": "USD",
+                        "Amount": "0.00"
+                    },
+                    "ItemPrice": {
+                        "CurrencyCode": "USD",
+                        "Amount": "45.00"
+                    },
+                    "GiftWrapTax": {
+                        "CurrencyCode": "USD",
+                        "Amount": "0.00"
+                    },
+                    "GiftWrapPrice": {
+                        "CurrencyCode": "USD",
+                        "Amount": "0.00"
+                    },
+                    "ConditionSubtypeId": "New",
+                    "ConditionId": "New",
+                    "ASIN": "B06XGSRGC8"
+                }
+            },
+            "AmazonOrderId": "111-5296499-9653858"
+        }
+    }
+}
+```
+
 ####Get categories for ASIN
 
 *request*

@@ -284,6 +284,27 @@ defmodule Hyperion.Router.V1 do
             {_, resp} -> respond_with(conn, resp)
           end
         end
+
+        desc "Get order details"
+
+        route_param :order_id do
+          get do
+            case MWSClient.get_order([params[:order_id]], Credentials.mws_config(API.customer_id(conn))) do
+              {:error, error} -> respond_with(conn, inspect(error), 422)
+              {:warn, warn} -> respond_with(conn, %{error: warn["ErrorResponse"]["Error"]["Message"]}, 400)
+              {_, resp} -> respond_with(conn, resp)
+            end
+          end # get order details
+
+          desc "Get order items"
+          get :items do
+            case MWSClient.list_order_items(params[:order_id], Credentials.mws_config(API.customer_id(conn))) do
+              {:error, error} -> respond_with(conn, inspect(error), 422)
+              {:warn, warn} -> respond_with(conn, %{error: warn["ErrorResponse"]["Error"]["Message"]}, 400)
+              {_, resp} -> respond_with(conn, resp)
+            end
+          end # get order details
+        end # get order details and items
       end # orders
 
       namespace :prices do
