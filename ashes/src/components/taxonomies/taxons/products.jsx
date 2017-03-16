@@ -16,12 +16,12 @@ import ProductRow from 'components/products/product-row';
 
 import { makeTotalCounter } from 'components/list-page';
 
-// helpers
 import * as dsl from 'elastic/dsl';
 import { filterArchived } from 'elastic/archive';
 
 import styles from './taxons.css';
 
+import type { Product } from 'paragons/product';
 import type { TaxonomyParams } from '../taxonomy';
 
 type Column = {
@@ -31,6 +31,8 @@ type Column = {
 };
 
 type Props = ObjectPageChildProps<Taxonomy> & {
+  actions: Object,
+  list: Object,
   params: TaxonomyParams,
 };
 
