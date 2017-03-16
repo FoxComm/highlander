@@ -10,6 +10,7 @@ import invariant from 'invariant';
 import { push } from 'react-router-redux';
 import { autobind } from 'core-decorators';
 import jsen from 'jsen';
+import { makeLocalStore, addAsyncReducer } from '@foxcomm/wings';
 
 import styles from './object-page.css';
 
@@ -31,10 +32,12 @@ import { supressTV } from 'paragons/object';
 
 // modules
 import * as SchemaActions from 'modules/object-schema';
+import schemaReducer from 'modules/object-schema';
 
-export function connectPage(namespace, actions) {
+export function connectPage(namespace, actions, options = {}) {
   const capitalized = _.upperFirst(namespace);
   const plural = `${namespace}s`;
+  const schemaName = options.schemaName || namespace;
   const actionNames = {
     new: `${namespace}New`, // promotionNew
     fetch: `fetch${capitalized}`, // fetchPromotion
@@ -56,7 +59,6 @@ export function connectPage(namespace, actions) {
       details: state[plural].details,
       originalObject: _.get(state, [plural, 'details', namespace], {}),
       isFetching: _.get(state.asyncActions, `${actionNames.fetch}.inProgress`, null),
-      isSchemaFetching: _.get(state.asyncActions, 'fetchSchema.inProgress', null),
       fetchError: _.get(state.asyncActions, `${actionNames.fetch}.err`, null),
       createError: _.get(state.asyncActions, `${actionNames.create}.err`, null),
       updateError: _.get(state.asyncActions, `${actionNames.update}.err`, null),
@@ -75,7 +77,6 @@ export function connectPage(namespace, actions) {
   function generalizeActions(actions) {
     const result = {
       ...actions,
-      ...SchemaActions
     };
 
     _.each(actionNames, (name, key) => {
@@ -92,8 +93,32 @@ export function connectPage(namespace, actions) {
     };
   }
 
+  function mapSchemaProps(state) {
+    return {
+      schema: _.get(state, schemaName),
+      isSchemaFetching: _.get(state.asyncActions, 'fetchSchema.inProgress', null),
+    };
+  }
+
+  function mapSchemaActions(dispatch, props) {
+    return {
+      actions: {
+        ...props.actions,
+        ...bindActionCreators(SchemaActions, dispatch),
+      },
+    };
+  }
+
+  const connectOptions = {
+    areStatePropsEqual: _.isEqual,
+  };
+
   return Page => {
-    return connect(mapStateToProps, mapDispatchToProps)(Page);
+    return _.flowRight(
+      connect(mapStateToProps, mapDispatchToProps, void 0, connectOptions),
+      makeLocalStore(addAsyncReducer(schemaReducer)),
+      connect(mapSchemaProps, mapSchemaActions, void 0, connectOptions)
+    )(Page);
   };
 }
 
@@ -105,6 +130,7 @@ export class ObjectPage extends Component {
   state = {
     object: this.props.originalObject,
     schema: this.props.schema,
+    justSaved: false,
   };
   _context: {
     validationDispatcher: EventEmitter,
@@ -199,7 +225,7 @@ export class ObjectPage extends Component {
     const { isFetching, isSaving, fetchError, createError, updateError } = nextProps;
 
     const nextSchema = nextProps.schema;
-    if (nextSchema) {
+    if (nextSchema && nextSchema != this.state.schema) {
       this.setState({
         schema: nextSchema,
       });
@@ -208,21 +234,29 @@ export class ObjectPage extends Component {
     if (!isFetching && !isSaving && !fetchError && !createError && !updateError) {
       const nextObject = nextProps.originalObject;
       if (nextObject && nextObject != this.props.originalObject) {
-        const nextObjectId = getObjectId(nextObject);
-        const isNew = this.isNew;
-
-        this.setState({
-          object: nextProps.originalObject
-        }, () => {
-          if (isNew && nextObjectId) {
-            this.transitionTo(nextObjectId);
-          }
-          if (!isNew && !nextObjectId) {
-            this.transitionTo('new');
-          }
-        });
+        this.receiveNewObject(nextObject);
       }
     }
+  }
+
+  receiveNewObject(nextObject) {
+    const nextObjectId = getObjectId(nextObject);
+    const wasNew = this.isNew;
+
+    this.setState({
+      object: nextObject
+    }, () => {
+      if (wasNew && nextObjectId) {
+        this.setState({
+          justSaved: true,
+        }, () => {
+          this.transitionTo(nextObjectId);
+        });
+      }
+      if (!wasNew && !nextObjectId) {
+        this.transitionTo('new');
+      }
+    });
   }
 
   receiveNewObject(nextObject) {
@@ -454,12 +488,18 @@ export class ObjectPage extends Component {
     return this.cancelButton;
   }
 
+  get isFetching(): boolean {
+    const { props } = this;
+    const isSupposedToBeFetched = !this.isNew && !this.state.justSaved;
+    return (isSupposedToBeFetched && props.isFetching !== false) || props.isSchemaFetching !== false;
+  }
+
   render() {
     const props = this.props;
     const { object } = this.state;
     const { actions, namespace } = props;
 
-    if ((props.isFetching !== false && !object) || (props.isSchemaFetching !== false || !props.schema)) {
+    if (this.isFetching) {
       return <div><WaitAnimation /></div>;
     }
 

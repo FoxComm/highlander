@@ -15,31 +15,28 @@ import CouponForm from '../coupons/form';
 class CouponNew extends Component {
   props: Props;
 
-  constructor(props: Props) {
- 		super(props);
+  @autobind
+  cancelAction() {
+    transitionTo('promotion-coupons', {promotionId: this.props.promotionId});
   }
 
-  @autobind
-  cancelAction(){
-    transitionTo('promotion-coupons', {promotionId: this.props.promotionId});
-  };
-
   render() {
-  	let actionBlock = <i onClick={this.cancelAction} className="fc-btn-close icon-close" title="Close" />;
+    const actionBlock = <i onClick={this.cancelAction} className="fc-btn-close icon-close" title="Close" />;
     return (
       <div styleName="promotion-coupons-new">
 	      <ContentBox actionBlock={actionBlock} title="Add Coupon Code">
           <CouponPage params={{
-          		couponId: 'new', 
-              promotionId: this.props.promotionId,
-          		modalCancelAction: this.cancelAction
-          	}}>
+             couponId: 'new',
+             promotionId: this.props.promotionId,
+             modalCancelAction: this.cancelAction
+            }}
+          >
           	<CouponForm/>
-          </CouponPage>	
+          </CouponPage>
         </ContentBox>
       </div>
     );
-  }  
+  }
 }
 
 export default wrapModal(CouponNew);

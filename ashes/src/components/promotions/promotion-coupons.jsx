@@ -1,6 +1,6 @@
 /* @flow */
 import _ from 'lodash';
-import React from 'react';
+import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
 import { transitionTo } from 'browserHistory';
 import styles from './promotion-coupons.css';
@@ -10,11 +10,7 @@ import Coupons from '../coupons/coupons';
 import { SectionTitle } from '../section-title';
 import { PrimaryButton } from '../../components/common/buttons';
 
-export default class PromoCouponsPage extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
+export default class PromoCouponsPage extends Component {
   @autobind
   addAction() {
     transitionTo('promotion-coupon-new', {promotionId: this.props.object.id});
@@ -32,5 +28,5 @@ export default class PromoCouponsPage extends React.Component {
         {children}
       </div>
     );
-  }  
+  }
 };

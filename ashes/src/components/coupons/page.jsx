@@ -107,7 +107,7 @@ class CouponPage extends ObjectPage {
     this.setState({
       object: nextObject
     });
-  }  
+  }
 
   componentDidUpdate(prevProps, prevState) {
     return;
@@ -120,12 +120,15 @@ class CouponPage extends ObjectPage {
 
   @autobind
   alterSave() {
-    return (<SaveCancel
-            onSave={this.handleSubmit}
-            cancelDisabled={this.props.isSaving}
-            saveDisabled={this.props.isSaving}
-            onCancel={this.props.params.modalCancelAction}
-            saveText="Generate Coupon Code(s)" />);  
+    return (
+      <SaveCancel
+        onSave={this.handleSubmit}
+        cancelDisabled={this.props.isSaving}
+        saveDisabled={this.props.isSaving}
+        onCancel={this.props.params.modalCancelAction}
+        saveText="Generate Coupon Code(s)"
+      />
+    );
   }
 
   @autobind

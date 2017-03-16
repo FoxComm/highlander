@@ -8,10 +8,6 @@ import CouponNew from './coupon-new';
 export default class PromoCouponNewModal extends Component {
   props: Props;
 
-  constructor(props: Props) {
-    super(props);
-  };
-
   render() {
     return (
       <CouponNew
@@ -19,6 +15,6 @@ export default class PromoCouponNewModal extends Component {
         isVisible={true}
       />
     );
-  }  
+  }
 }
 
