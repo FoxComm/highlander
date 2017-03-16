@@ -11,7 +11,6 @@ import { addLineItem, toggleCart } from 'modules/cart';
 import { connect } from 'react-redux';
 import * as tracking from 'lib/analytics';
 
-import AddToCartBtn from 'ui/add-to-cart-btn';
 import Currency from 'ui/currency';
 import ImagePlaceholder from './image-placeholder';
 
@@ -129,7 +128,6 @@ class ListItem extends React.Component {
       productId,
       slug,
       title,
-      description,
     } = this.props;
 
     const productSlug = slug != null && !_.isEmpty(slug) ? slug : productId;
@@ -139,25 +137,17 @@ class ListItem extends React.Component {
         <Link onClick={this.handleClick} to={`/products/${productSlug}`}>
           <div styleName="preview">
             {this.image}
-            <div styleName="hover-info">
-              <h2
-                styleName="additional-description"
-                dangerouslySetInnerHTML={{__html: description}}
-              />
-            </div>
           </div>
         </Link>
 
         <div styleName="text-block">
-          <h1 styleName="title" alt={title}>
-            <Link to={`/products/${productSlug}`}>{title}</Link>
-          </h1>
-          <h2 styleName="description">{/* serving size */}</h2>
+          <div styleName="title-line">
+            <h1 styleName="title" alt={title}>
+              <Link to={`/products/${productSlug}`}>{title}</Link>
+            </h1>
+          </div>
           <div styleName="price-line">
             {this.isOnSale()}
-            <div styleName="add-to-cart-btn">
-              <AddToCartBtn onClick={this.addToCart} expanded />
-            </div>
           </div>
         </div>
       </div>

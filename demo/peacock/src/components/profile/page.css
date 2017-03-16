@@ -1,8 +1,6 @@
-
 @import "variables.css";
 
 .title {
-  font-family: var(--font-playfair);
   font-weight: 400;
   font-size: 41px;
   color: #212121;

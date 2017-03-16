@@ -3,7 +3,6 @@
 @import "media-queries.css";
 
 .page-title {
-  font-family: var(--font-playfair);
   text-align: center;
   font-weight: 400;
   font-size: 30px;
@@ -45,7 +44,6 @@
 
 .paragraph-title {
   line-height: 33px;
-  font-family: var(--font-playfair);
   font-weight: 400;
   font-size: 20px;
   color: #212121;
