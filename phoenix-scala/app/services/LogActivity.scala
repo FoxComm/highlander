@@ -16,6 +16,8 @@ import models.payment.PaymentMethod
 import models.payment.creditcard.{CreditCard, CreditCardCharge}
 import models.payment.giftcard.GiftCard
 import models.payment.storecredit.StoreCredit
+import models.returns.Return.State
+import models.returns.Returns
 import models.sharedsearch.SharedSearch
 import models.shipping.ShippingMethod
 import payloads.GiftCardPayloads.GiftCardUpdateStateByCsr
@@ -45,6 +47,7 @@ import services.activity.NotesTailored._
 import services.activity.OrderTailored._
 import services.activity.ProductTailored._
 import services.activity.PromotionTailored._
+import services.activity.ReturnTailored._
 import services.activity.SharedSearchTailored._
 import services.activity.SkuTailored._
 import services.activity.StoreAdminsTailored._
@@ -134,6 +137,7 @@ case class LogActivity(implicit ac: AC) {
     Activities.log(CustomerActivated(buildUser(admin), user))
 
   /* Users */
+  // FIXME unused, do we need it? @aafa
   def userCreated(user: UserResponse, admin: Option[User])(implicit ec: EC): DbResultT[Activity] =
     admin match {
       case Some(a) ⇒
@@ -142,9 +146,11 @@ case class LogActivity(implicit ac: AC) {
         Activities.log(UserRegistered(user))
     }
 
+  // FIXME unused, do we need it? @aafa
   def userActivated(user: UserResponse, admin: User)(implicit ec: EC): DbResultT[Activity] =
     Activities.log(UserActivated(buildUser(admin), user))
 
+  // FIXME unused, do we need it? @aafa
   def userUpdated(user: User, updated: User, admin: Option[User])(
       implicit ec: EC): DbResultT[Activity] =
     Activities.log(UserUpdated(buildUser(user), buildUser(updated), admin.map(buildUser)))
@@ -434,6 +440,15 @@ case class LogActivity(implicit ac: AC) {
 
   def orderCouponDetached(cart: Cart)(implicit ec: EC): DbResultT[Activity] =
     Activities.log(CartCouponDetached(cart))
+
+  /* Returns */
+  def returnCreated(admin: Option[User], rma: ReturnResponse.Root)(
+      implicit ec: EC): DbResultT[Activity] =
+    Activities.log(ReturnCreated(admin.map(buildUser), rma))
+
+  def returnStateChanged(admin: User, rma: ReturnResponse.Root, oldState: State)(
+      implicit ec: EC): DbResultT[Activity] =
+    Activities.log(ReturnStateChanged(buildUser(admin), rma, oldState))
 
   /* Categories */
   def fullCategoryCreated(

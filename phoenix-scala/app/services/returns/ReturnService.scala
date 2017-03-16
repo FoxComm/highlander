@@ -12,10 +12,12 @@ import models.{Reason, Reasons}
 import payloads.ReturnPayloads._
 import responses.ReturnResponse._
 import responses.{CustomerResponse, ReturnResponse, StoreAdminResponse}
+import services.LogActivity
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.apis.Apis
 import utils.db._
+import cats.implicits._
 
 object ReturnService {
 
@@ -34,6 +36,7 @@ object ReturnService {
       implicit ec: EC,
       db: DB,
       au: AU,
+      ac: AC,
       apis: Apis): DbResultT[Root] =
     for {
       rma    ← * <~ Returns.mustFindByRefNum(refNum)
@@ -44,6 +47,9 @@ object ReturnService {
       _        ← * <~ update(rma, reason, payload)
       updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(updated)
+      customer ← * <~ Users.mustFindByAccountId(rma.accountId)
+      _ ← * <~ doOrMeh(rma.state != payload.state,
+                       LogActivity().returnStateChanged(customer, response, payload.state))
     } yield response
 
   private def update(rma: Return, reason: Option[Reason], payload: ReturnUpdateStatePayload)(
@@ -60,7 +66,8 @@ object ReturnService {
 
   // todo should be available for non-admin as well
   def createByAdmin(admin: User, payload: ReturnCreatePayload)(implicit ec: EC,
-                                                               db: DB): DbResultT[Root] =
+                                                               db: DB,
+                                                               ac: AC): DbResultT[Root] =
     for {
       order     ← * <~ Orders.mustFindByRefNum(payload.cordRefNum)
       rma       ← * <~ Returns.create(Return.build(order, admin, payload.returnType))
@@ -69,7 +76,9 @@ object ReturnService {
       adminData ← * <~ AdminsData.mustFindByAccountId(admin.accountId)
       adminResponse    = Some(StoreAdminResponse.build(admin, adminData))
       customerResponse = CustomerResponse.build(customer, custData)
-    } yield build(rma, Some(customerResponse), adminResponse)
+      response         = build(rma, Some(customerResponse), adminResponse)
+      _ ← * <~ LogActivity().returnCreated(admin.some, response)
+    } yield response
 
   def list(implicit ec: EC, db: DB): DbResultT[Seq[Root]] =
     for {
