@@ -25,7 +25,7 @@ export type RelatedProductResponse = {
 };
 
 // helpers
-function elasticSearchProductsQuery(rpResponse: RelatedProductResponse): Object {
+function elasticSearchProductsQuery(rpResponse): Object {
   const matchingProductIds = _.reduce(rpResponse.products, (result, product) => {
     if (product.score > 0) {
       result.push(product.id);
