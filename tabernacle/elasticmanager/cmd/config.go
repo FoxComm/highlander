@@ -1,11 +1,14 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 
 	yaml "gopkg.in/yaml.v2"
 )
+
+type mappingFinder func(search SearchDefinition) bool
 
 // Config is a representation of the main configuration file.
 type Config struct {
@@ -34,16 +37,28 @@ func NewConfig(filename string) (*Config, error) {
 	return config, nil
 }
 
+func (c *Config) SearchDefinitionByName(name string) (*SearchDefinition, error) {
+	errMsg := fmt.Sprintf("No search definition for name %s", name)
+	finder := func(search SearchDefinition) bool { return search.Name == name }
+	return c.findSearchDefinition(finder, errMsg)
+}
+
 func (c *Config) SearchDefinitionByMapping(mappingName string) (*SearchDefinition, error) {
+	errMsg := fmt.Sprintf("No search definition for mapping %s", mappingName)
+	finder := func(search SearchDefinition) bool { return search.Mapping == mappingName }
+	return c.findSearchDefinition(finder, errMsg)
+}
+
+func (c *Config) findSearchDefinition(finder mappingFinder, errMsg string) (*SearchDefinition, error) {
 	for _, index := range c.ElasticIndices {
 		for _, search := range index.Searches {
-			if search.Mapping == mappingName {
+			if finder(search) {
 				return &search, nil
 			}
 		}
 	}
 
-	return nil, fmt.Errorf("No search definition for mapping %s", mappingName)
+	return nil, errors.New(errMsg)
 }
 
 // ElasticURL returns the HTTP URL used to connect to the ES cluster.

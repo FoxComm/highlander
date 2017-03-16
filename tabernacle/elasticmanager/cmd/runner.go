@@ -13,6 +13,8 @@ import (
 const defaultConfig = "config.yml"
 const mappingDir = "./mappings"
 
+type PutFn func(index string, isScoped bool, mappingName string, mappingContents []byte) error
+
 type Runner struct {
 	OptionAll     bool
 	OptionIndex   string
@@ -49,11 +51,11 @@ func (r *Runner) Create(c *cli.Context) error {
 
 	if r.OptionAll {
 		return r.CreateAll()
-	} else {
-		fmt.Println("Creating one...")
+	} else if r.OptionSearch != "" {
+		return r.CreateOne(r.OptionSearch)
 	}
 
-	return nil
+	return errors.New("Must select one of --all or --search")
 }
 
 func (r *Runner) Update(c *cli.Context) error {
@@ -62,12 +64,12 @@ func (r *Runner) Update(c *cli.Context) error {
 	}
 
 	if r.OptionAll {
-		fmt.Println("Updating all...")
-	} else {
-		fmt.Println("Updating one...")
+		return r.UpdateAll()
+	} else if r.OptionSearch != "" {
+		return r.UpdateOne(r.OptionSearch)
 	}
 
-	return nil
+	return errors.New("Must select one of --all or --search")
 }
 
 func (r *Runner) Pull(c *cli.Context) error {
@@ -88,6 +90,9 @@ func (r *Runner) Pull(c *cli.Context) error {
 
 const (
 	infoCreateAll   = "\nCreate all mappings in cluster %s...\n\n"
+	infoCreateOne   = "\nCreate mapping %s in cluster %s...\n\n"
+	infoUpdateAll   = "\nUpdate all mappings in cluster %s...\n\n"
+	infoUpdateOne   = "\nUpdate mapping %s in cluster %s...\n\n"
 	infoPullAll     = "\nPull all mappings from cluster %s...\n\n"
 	infoPullIndex   = "\nPull mappings in index %s for cluster %s...\n\n"
 	infoPullMapping = "\nPulling mapping %s from cluster %s...\n\n"
@@ -109,16 +114,75 @@ func (r *Runner) CreateAll() error {
 			return err
 		}
 
-		index := searchDefn.Index
-		isScoped := searchDefn.Scoped
-		mapping := version.ElasticMapping()
-		contents := version.Contents
-		if err := r.client.CreateMapping(index, isScoped, mapping, contents); err != nil {
+		if err := r.putMapping(searchDefn, version, r.client.CreateMapping); err != nil {
 			return err
 		}
 	}
 
 	return nil
+}
+
+func (r *Runner) CreateOne(search string) error {
+	fmt.Printf(infoCreateOne, search, r.cfg.ElasticURL())
+
+	searchDefn, err := r.cfg.SearchDefinitionByName(search)
+	if err != nil {
+		return err
+	}
+
+	version, err := LatestMappingVersion(mappingDir, search)
+	if err != nil {
+		return err
+	}
+
+	return r.putMapping(searchDefn, version, r.client.CreateMapping)
+}
+
+func (r *Runner) UpdateAll() error {
+	fmt.Printf(infoUpdateAll, r.cfg.ElasticURL())
+
+	mappingVersions, err := NewMappingVersions(mappingDir)
+	if err != nil {
+		return err
+	}
+
+	for name, version := range mappingVersions {
+		searchDefn, err := r.cfg.SearchDefinitionByMapping(name)
+		if err != nil {
+			return err
+		}
+
+		if err := r.putMapping(searchDefn, version, r.client.UpdateMapping); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (r *Runner) UpdateOne(search string) error {
+	fmt.Printf(infoUpdateOne, search, r.cfg.ElasticURL())
+
+	searchDefn, err := r.cfg.SearchDefinitionByName(search)
+	if err != nil {
+		return err
+	}
+
+	version, err := LatestMappingVersion(mappingDir, search)
+	if err != nil {
+		return err
+	}
+
+	return r.putMapping(searchDefn, version, r.client.UpdateMapping)
+}
+
+func (r *Runner) putMapping(search *SearchDefinition, version *MappingVersion, putFn PutFn) error {
+	index := search.Index
+	isScoped := search.Scoped
+	mapping := version.ElasticMapping()
+	contents := version.Contents
+
+	return putFn(index, isScoped, mapping, contents)
 }
 
 func (r *Runner) PullAll() error {
