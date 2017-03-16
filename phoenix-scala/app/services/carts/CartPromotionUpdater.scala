@@ -60,10 +60,10 @@ object CartPromotionUpdater {
       offer       ← * <~ OfferAstCompiler(offer(form, shadow)).compile()
       adjustments ← * <~ getAdjustments(promoShadow, cart, qualifier, offer, failFatally)
       // Delete previous adjustments and create new
-      _ ← * <~ OrderLineItemAdjustments
+      _ ← * <~ CartLineItemAdjustments
            .filterByOrderRefAndShadow(cart.refNum, orderPromo.promotionShadowId)
            .delete
-      _ ← * <~ OrderLineItemAdjustments.createAll(adjustments.result)
+      _ ← * <~ CartLineItemAdjustments.createAll(adjustments.result)
     } yield adjustments.map(_ ⇒ cart)
 
   def attachCoupon(originator: User, refNum: Option[String] = None, code: String)(
@@ -121,7 +121,7 @@ object CartPromotionUpdater {
       deleteShadowIds = promotions.map(_.shadowId)
       // Write
       _ ← * <~ OrderPromotions.filterByOrderRefAndShadows(cart.refNum, deleteShadowIds).delete
-      _ ← * <~ OrderLineItemAdjustments
+      _ ← * <~ CartLineItemAdjustments
            .filterByOrderRefAndShadows(cart.refNum, deleteShadowIds)
            .delete
       _         ← * <~ CartTotaler.saveTotals(cart)
@@ -146,7 +146,7 @@ object CartPromotionUpdater {
       implicit ec: EC,
       es: ES,
       db: DB,
-      au: AU): DbResultT[TheResponse[Seq[OrderLineItemAdjustment]]] =
+      au: AU): DbResultT[TheResponse[Seq[CartLineItemAdjustment]]] =
     for {
       lineItems      ← * <~ LineItemManager.getCartLineItems(cart.refNum)
       shippingMethod ← * <~ shipping.ShippingMethods.forCordRef(cart.refNum).one

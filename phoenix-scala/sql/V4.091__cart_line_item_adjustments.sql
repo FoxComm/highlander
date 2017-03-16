@@ -1,0 +1,1 @@
+alter table order_line_item_adjustments rename to cart_line_item_adjustments;

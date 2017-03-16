@@ -60,14 +60,14 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
       //some line items will not have adjustments. Then finally aggregate to
       //get total line item price.
       linePrices  ← * <~ getPrices(lineItemData)
-      adjustments ← * <~ OrderLineItemAdjustments.findByCordRef(payload.order).result
+      adjustments ← * <~ CartLineItemAdjustments.findByCordRef(payload.order).result
       lineItemAdjustments = adjustments.filter(
-          _.adjustmentType == OrderLineItemAdjustment.LineItemAdjustment)
+          _.adjustmentType == CartLineItemAdjustment.LineItemAdjustment)
       adjustedPrices     ← * <~ adjust(linePrices, lineItemAdjustments)
       totalLineItemPrice ← * <~ aggregatePrices(adjustedPrices)
 
       orderAdjustmentCost = adjustments
-        .filter(_.adjustmentType == OrderLineItemAdjustment.OrderAdjustment)
+        .filter(_.adjustmentType == CartLineItemAdjustment.OrderAdjustment)
         .foldLeft(0)(_ + _.subtract)
 
       //find the shipping method used for the order, take the minimum between
@@ -78,7 +78,7 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
                         .forCordRef(payload.order)
                         .mustFindOneOr(ShippingMethodNotFoundInOrder(payload.order))
       shippingAdjustments = adjustments.filter(a ⇒
-            a.adjustmentType == OrderLineItemAdjustment.ShippingAdjustment)
+            a.adjustmentType == CartLineItemAdjustment.ShippingAdjustment)
 
       adjustedShippingCost ← * <~ adjustShippingCost(shippingMethod,
                                                      shippingAdjustments,
@@ -218,7 +218,7 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
   } ensuring (t ⇒ t <= originalGrandTotal && t >= 0)
 
   private def adjustShippingCost(shippingMethod: ShippingMethod,
-                                 adjustments: Seq[OrderLineItemAdjustment],
+                                 adjustments: Seq[CartLineItemAdjustment],
                                  requestedShippingCost: CapturePayloads.ShippingCost): Int = {
     require(adjustments.length <= 1)
     require(requestedShippingCost.total >= 0)
@@ -247,7 +247,7 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
   private val NO_REF = "no_ref"
 
   private def adjust(linePrices: Seq[LineItemPrice],
-                     adjustments: Seq[OrderLineItemAdjustment]): DbResultT[Seq[LineItemPrice]] = {
+                     adjustments: Seq[CartLineItemAdjustment]): DbResultT[Seq[LineItemPrice]] = {
     val adjMap = adjustments.map(a ⇒ a.lineItemRefNum.getOrElse(NO_REF) → a).toMap
     for {
       adjustedPrices ← * <~ linePrices.map { p ⇒
@@ -258,7 +258,7 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
   }
 
   private def adjustPrice(line: LineItemPrice,
-                          adjMap: Map[String, OrderLineItemAdjustment]): LineItemPrice =
+                          adjMap: Map[String, CartLineItemAdjustment]): LineItemPrice =
     adjMap.get(line.referenceNumber) match {
       case Some(adj) ⇒ {
         require(line.price >= 0)
