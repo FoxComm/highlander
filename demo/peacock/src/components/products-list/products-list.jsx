@@ -56,7 +56,7 @@ class ProductsList extends Component {
   }
 
   renderProducts() {
-    return _.map(this.props.list, (item, index) => {
+    const products = _.map(this.props.list, (item, index) => {
       return (
         <ListItem
           {...item}
@@ -66,6 +66,15 @@ class ProductsList extends Component {
         />
       );
     });
+
+    return (
+      <div>
+        {this.sorting}
+        <div styleName="list" ref={this.handleListRendered}>
+          {products}
+        </div>
+      </div>
+    );
   }
 
   trackProductView() {
@@ -130,6 +139,14 @@ class ProductsList extends Component {
     }
   }
 
+  get sorting(): HTMLElement {
+    return (
+      <div styleName="sorting">
+        Sorting widgets
+      </div>
+    );
+  }
+
   render() : HTMLElement {
     const { props } = this;
     const { loadingBehavior = LoadingBehaviors.ShowLoader } = props;
@@ -143,7 +160,7 @@ class ProductsList extends Component {
     return (
       <div styleName="list-wrapper">
         {this.loadingWrapper}
-        <div styleName="list" ref={this.handleListRendered}>
+        <div>
           {items}
         </div>
       </div>

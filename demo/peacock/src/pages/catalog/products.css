@@ -5,6 +5,7 @@
 .catalog {
   overflow: auto;
   padding-bottom: 70px;
+  margin-top: 50px;
 }
 
 .header-wrap {
