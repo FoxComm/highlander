@@ -7,6 +7,8 @@ import models.account._
 import models.cord._
 import models.payment.PaymentMethod
 import models.payment.creditcard.CreditCardCharges
+import models.payment.giftcard.GiftCard
+import models.payment.storecredit.StoreCredit
 import models.returns.Return._
 import models.returns._
 import org.scalatest.prop.PropertyChecks
@@ -57,7 +59,7 @@ class ReturnIntegrationTest
 
     "PATCH /v1/returns/:refNum" - {
       "successfully changes status of Return" in new ReturnDefaults {
-        val payload = ReturnUpdateStatePayload(state = Processing)
+        val payload = ReturnUpdateStatePayload(state = Processing, reasonId = None)
         returnsApi(rma.referenceNumber).update(payload).as[ReturnResponse.Root].state must === (
             Processing)
       }
@@ -69,12 +71,24 @@ class ReturnIntegrationTest
             Canceled)
       }
 
-      "fail if return reason has wrong type" in new ReturnDefaults {
+      "fails if return reason has wrong type" in new ReturnDefaults {
         assert(reason.reasonType != Cancellation)
         val payload = ReturnUpdateStatePayload(state = Canceled, reasonId = reason.id.some)
         returnsApi(rma.referenceNumber)
           .update(payload)
           .mustFailWith400(InvalidCancellationReasonFailure)
+      }
+
+      "fails if no reason is provided upon return cancellation" in new ReturnDefaults {
+        returnsApi(rma.referenceNumber)
+          .update(ReturnUpdateStatePayload(state = Canceled, reasonId = None))
+          .mustFailWith400(EmptyCancellationReasonFailure)
+      }
+
+      "fails if cancellation reason is provided with different than canceled state" in new ReturnDefaults {
+        returnsApi(rma.referenceNumber)
+          .update(ReturnUpdateStatePayload(state = Processing, reasonId = reason.id.some))
+          .mustFailWith400(NonEmptyCancellationReasonFailure)
       }
 
       "Cancel state should be final " in new ReturnDefaults {
@@ -87,7 +101,7 @@ class ReturnIntegrationTest
         canceled.canceledReasonId must === (cancellationReason.id.some)
 
         returnsApi(rma.referenceNumber)
-          .update(ReturnUpdateStatePayload(state = Pending, reasonId = cancellationReason.id.some))
+          .update(ReturnUpdateStatePayload(state = Pending, reasonId = None))
           .mustFailWith400(
               StateTransitionNotAllowed(Return, "Canceled", "Pending", rma.referenceNumber))
       }
@@ -95,8 +109,8 @@ class ReturnIntegrationTest
       "Returns should be fine with state transition " in new ReturnDefaults {
         returnsApi(rma.referenceNumber).get().as[ReturnResponse.Root].state must === (Pending)
 
-        def state(s: State) = {
-          ReturnUpdateStatePayload(state = s, reasonId = cancellationReason.id.some)
+        def state(s: State, reasonId: Option[Int] = None) = {
+          ReturnUpdateStatePayload(state = s, reasonId = reasonId)
         }
 
         returnsApi(rma.referenceNumber)
@@ -120,9 +134,49 @@ class ReturnIntegrationTest
               StateTransitionNotAllowed(Return, "Complete", "Pending", rma.referenceNumber))
       }
 
+      "gift cards and store credits should be activated on complete state" in new ReturnLineItemDefaults
+      with ReturnPaymentFixture {
+        val payments = createReturnPayment(Map(
+                                               PaymentMethod.GiftCard    → 100,
+                                               PaymentMethod.StoreCredit → 150
+                                           ),
+                                           refNum = rma.referenceNumber).payments
+        val gcApi = giftCardsApi(payments.giftCard.value.code)
+        val scApi = storeCreditsApi(payments.storeCredit.value.id)
+
+        gcApi.get().as[GiftCardResponse.Root].state must === (GiftCard.OnHold)
+        scApi.get().as[StoreCreditResponse.Root].state must === (StoreCredit.OnHold)
+
+        completeReturn(rma.referenceNumber).payments must === (payments)
+        gcApi.get().as[GiftCardResponse.Root].state must === (GiftCard.Active)
+        scApi.get().as[StoreCreditResponse.Root].state must === (StoreCredit.Active)
+      }
+
+      "gift cards and store credits should be canceled on canceled state" in new ReturnLineItemDefaults
+      with ReturnPaymentFixture {
+        val payments = createReturnPayment(Map(
+                                               PaymentMethod.GiftCard    → 100,
+                                               PaymentMethod.StoreCredit → 150
+                                           ),
+                                           refNum = rma.referenceNumber).payments
+        val gcApi = giftCardsApi(payments.giftCard.value.code)
+        val scApi = storeCreditsApi(payments.storeCredit.value.id)
+
+        gcApi.get().as[GiftCardResponse.Root].state must === (GiftCard.OnHold)
+        scApi.get().as[StoreCreditResponse.Root].state must === (StoreCredit.OnHold)
+
+        returnsApi(rma.referenceNumber)
+          .update(
+              ReturnUpdateStatePayload(state = Canceled, reasonId = cancellationReason.id.some))
+          .as[ReturnResponse.Root]
+          .payments must === (payments)
+        gcApi.get().as[GiftCardResponse.Root].state must === (GiftCard.Canceled)
+        scApi.get().as[StoreCreditResponse.Root].state must === (StoreCredit.Canceled)
+      }
+
       "fails if RMA refNum is not found" in new ReturnDefaults {
         returnsApi(refNotExist)
-          .update(ReturnUpdateStatePayload(state = Processing))
+          .update(ReturnUpdateStatePayload(state = Processing, reasonId = None))
           .mustFailWith404(NotFoundFailure404(Return, refNotExist))
       }
     }
@@ -384,17 +438,19 @@ class ReturnIntegrationTest
       "succeeds for bulk insert" in new ReturnPaymentDefaults {
         val payload = ReturnPaymentsPayload(
             Map(PaymentMethod.CreditCard → 100, PaymentMethod.StoreCredit → 120))
-        val response =
-          returnsApi(rma.referenceNumber).paymentMethods.add(payload).as[ReturnResponse.Root]
+        val payments = returnsApi(rma.referenceNumber).paymentMethods
+          .add(payload)
+          .as[ReturnResponse.Root]
+          .payments
+          .asMap
 
-        response.payments must have size 2
-        response.payments.map(payment ⇒ payment.paymentMethodType → payment.amount) must
-          contain theSameElementsAs payload.payments
+        payments must have size 2
+        payments.mapValues(_.amount) must === (payload.payments)
       }
 
       "succeeds for any supported payment" in new ReturnPaymentFixture with ReturnDefaults
       with ReturnReasonDefaults {
-        forAll(paymentMethodTable) { paymentType ⇒
+        forAll(paymentMethodTable) { paymentMethod ⇒
           val order = createDefaultOrder()
           val rma   = createReturn(orderRef = order.referenceNumber)
           val shippingCostPayload =
@@ -403,11 +459,11 @@ class ReturnIntegrationTest
 
           val payload = ReturnPaymentPayload(amount = shippingCostPayload.amount)
           val response = returnsApi(rma.referenceNumber).paymentMethods
-            .add(paymentType, payload)
+            .add(paymentMethod, payload)
             .as[ReturnResponse.Root]
 
-          val payment = response.payments.onlyElement
-          payment.paymentMethodType must === (paymentType)
+          val (pm, payment) = response.payments.asMap.onlyElement
+          pm must === (paymentMethod)
           payment.amount must === (payload.amount)
         }
       }
@@ -424,9 +480,9 @@ class ReturnIntegrationTest
       }
 
       "fails if the RMA is not found" in new ReturnPaymentFixture {
-        forAll(paymentMethodTable) { paymentType ⇒
+        forAll(paymentMethodTable) { paymentMethod ⇒
           val payload  = ReturnPaymentPayload(amount = 42)
-          val response = returnsApi("TRY_HARDER").paymentMethods.add(paymentType, payload)
+          val response = returnsApi("TRY_HARDER").paymentMethods.add(paymentMethod, payload)
 
           response.mustFailWith404(NotFoundFailure404(Return, "TRY_HARDER"))
         }
@@ -483,18 +539,18 @@ class ReturnIntegrationTest
 
     "DELETE /v1/returns/:ref/payment-methods/credit-cards" - {
       "successfully delete any supported payment method" in new ReturnPaymentDefaults {
-        forAll(paymentMethodTable) { paymentType ⇒
+        forAll(paymentMethodTable) { paymentMethod ⇒
           val response = returnsApi(rma.referenceNumber).paymentMethods
-            .remove(paymentType)
+            .remove(paymentMethod)
             .as[ReturnResponse.Root]
 
-          response.payments mustBe 'empty
+          response.payments.asMap.get(paymentMethod) mustBe 'empty
         }
       }
 
       "fails if the refNum is not found" in new ReturnPaymentFixture {
-        forAll(paymentMethodTable) { paymentType ⇒
-          val response = returnsApi("TRY_HARDER").paymentMethods.remove(paymentType)
+        forAll(paymentMethodTable) { paymentMethod ⇒
+          val response = returnsApi("TRY_HARDER").paymentMethods.remove(paymentMethod)
 
           response.mustFailWith404(NotFoundFailure404(Return, "TRY_HARDER"))
         }

@@ -169,6 +169,14 @@ trait ReturnsFixtures
                                    PaymentMethod.CreditCard,
                                    PaymentMethod.GiftCard,
                                    PaymentMethod.StoreCredit)
+
+    implicit class RichReturnPayments(payments: ReturnResponse.Payments) {
+      def asMap: Map[PaymentMethod.Type, ReturnResponse.Payment] =
+        Map.empty[PaymentMethod.Type, ReturnResponse.Payment] ++
+          payments.creditCard.map(PaymentMethod.CreditCard   → _) ++
+          payments.giftCard.map(PaymentMethod.GiftCard       → _) ++
+          payments.storeCredit.map(PaymentMethod.StoreCredit → _)
+    }
   }
 
   trait ReturnPaymentDefaults

@@ -78,7 +78,7 @@ class ReturnsSearchViewTest
       viewOne(rma.id).state must === (rma.state)
 
       returnsApi(rma.referenceNumber)
-        .update(ReturnUpdateStatePayload(state = Processing))
+        .update(ReturnUpdateStatePayload(state = Processing, reasonId = None))
         .as[ReturnResponse.Root]
         .state must === (Processing)
 
