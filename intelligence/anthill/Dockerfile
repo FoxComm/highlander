@@ -5,7 +5,7 @@ RUN apt-get update && apt-get install -y python3 python3-pip \
 
 RUN pip3 install numpy scipy Flask neomodel
 
-RUN mkdir -p /cross-sell
-ADD . /cross-sell/
+RUN mkdir -p /anthill
+ADD . /anthill/
 
-CMD ["/cross-sell/cross-sell.sh"]
+CMD ["/anthill/anthill.sh"]

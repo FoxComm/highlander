@@ -54,13 +54,13 @@ const (
 	orderCheckoutCompleted = "order_checkout_completed"
 )
 
-func NewOrderConsumer(crossSellHost string) (*OrderConsumer, error) {
-	if crossSellHost == "" {
-		return nil, errors.New("cross sell host is required")
+func NewOrderConsumer(anthillHost string) (*OrderConsumer, error) {
+	if anthillHost == "" {
+		return nil, errors.New("anthill host is required")
 	}
 
-	crossSellUrl := lookupSrv(crossSellHost)
-	return &OrderConsumer{crossSellUrl}, nil
+	anthillUrl := lookupSrv(anthillHost)
+	return &OrderConsumer{anthillUrl}, nil
 }
 
 func (o OrderConsumer) parseData(data string) error {
@@ -128,8 +128,8 @@ func lookupSrv(host string) func() (string, error) {
 
 		host = srv.Target
 		port := strconv.Itoa(int(srv.Port))
-		crossSellUrl := "http://" + host + ":" + port + "/prod-prod/train"
+		anthillUrl := "http://" + host + ":" + port + "/prod-prod/train"
 
-		return crossSellUrl, nil
+		return anthillUrl, nil
 	}
 }

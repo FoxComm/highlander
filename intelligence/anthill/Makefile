@@ -1,8 +1,8 @@
 include ../../makelib
-header = $(call baseheader, $(1), cross-sell)
+header = $(call baseheader, $(1), anthill)
 
 DOCKER_REPO ?= $(DOCKER_STAGE_REPO)
-DOCKER_TAG ?= cross-sell
+DOCKER_TAG ?= anthill
 DOCKER_BRANCH ?= master
 
 build:

@@ -1,5 +1,5 @@
 {
-  "id": "/cross-sell",
+  "id": "/anthill",
   "cmd": null,
   "cpus": 1,
   "mem": 512,
@@ -8,13 +8,13 @@
   "labels": {
     "LAYER": "backend",
     "LANG": "python",
-    "TAG": "{{docker_tags.cross_sell}}"
+    "TAG": "{{docker_tags.anthill}}"
   },
   "container": {
     "type": "DOCKER",
     "volumes": [],
     "docker": {
-      "image": "{{docker_registry}}:5000/cross-sell:{{docker_tags.cross_sell}}",
+      "image": "{{docker_registry}}:5000/anthill:{{docker_tags.anthill}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],
