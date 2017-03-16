@@ -27,7 +27,6 @@
 }
 
 .title {
-  font-family: var(--font-playfair);
   font-weight: 400;
   font-size: 30px;
   letter-spacing: 1.28px;
@@ -208,7 +207,6 @@
 
 
   .item-title {
-    font-family: var(--font-playfair);
     text-transform: none;
     font-size: 20px;
     padding: 36px 45px;

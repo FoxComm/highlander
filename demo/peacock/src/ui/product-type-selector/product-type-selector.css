@@ -23,7 +23,6 @@
 }
 
 .item {
-  font-family: var(--font-playfair);
   font-weight: 400;
   font-size: 20px;
   color: white;

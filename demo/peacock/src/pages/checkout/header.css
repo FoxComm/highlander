@@ -111,7 +111,6 @@
     margin: 0;
     padding: 25px 0;
     text-align: center;
-    font-family: var(--font-playfair);
     font-weight: 300;
     letter-spacing: 3px;
     font-size: 22px;
@@ -129,4 +128,3 @@
 
   }
 }
-
