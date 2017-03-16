@@ -1,1 +1,49 @@
-{"properties":{"archivedAt":{"format":"yyyy-MM-dd'T'HH:mm:ss.SSSZ||yyyy-MM-dd'T'HH:mm:ssZ","type":"date"},"context":{"index":"not_analyzed","type":"string"},"externalId":{"index":"not_analyzed","type":"string"},"id":{"type":"integer"},"retailPrice":{"type":"integer"},"retailPriceCurrency":{"type":"string"},"salePrice":{"type":"integer"},"salePriceCurrency":{"type":"string"},"scope":{"index":"not_analyzed","type":"string"},"skuCode":{"analyzer":"upper_cased","type":"string"},"title":{"analyzer":"autocomplete","fields":{"raw":{"index":"not_analyzed","type":"string"}},"type":"string"}}}
+{
+  "properties": {
+    "archivedAt": {
+      "format": "yyyy-MM-dd'T'HH:mm:ss.SSSZ||yyyy-MM-dd'T'HH:mm:ssZ",
+      "type": "date"
+    },
+    "context": {
+      "index": "not_analyzed",
+      "type": "string"
+    },
+    "externalId": {
+      "index": "not_analyzed",
+      "type": "string"
+    },
+    "id": {
+      "type": "integer"
+    },
+    "retailPrice": {
+      "type": "integer"
+    },
+    "retailPriceCurrency": {
+      "type": "string"
+    },
+    "salePrice": {
+      "type": "integer"
+    },
+    "salePriceCurrency": {
+      "type": "string"
+    },
+    "scope": {
+      "index": "not_analyzed",
+      "type": "string"
+    },
+    "skuCode": {
+      "analyzer": "upper_cased",
+      "type": "string"
+    },
+    "title": {
+      "analyzer": "autocomplete",
+      "fields": {
+        "raw": {
+          "index": "not_analyzed",
+          "type": "string"
+        }
+      },
+      "type": "string"
+    }
+  }
+}

@@ -1,1 +1,28 @@
-{"properties":{"code":{"analyzer":"upper_cased","type":"string"},"couponId":{"type":"integer"},"createdAt":{"format":"yyyy-MM-dd'T'HH:mm:ss.SSSZ||yyyy-MM-dd'T'HH:mm:ssZ","type":"date"},"id":{"type":"integer"},"promotionId":{"type":"integer"},"scope":{"index":"not_analyzed","type":"string"},"totalUsed":{"type":"integer"}}}
+{
+  "properties": {
+    "code": {
+      "analyzer": "upper_cased",
+      "type": "string"
+    },
+    "couponId": {
+      "type": "integer"
+    },
+    "createdAt": {
+      "format": "yyyy-MM-dd'T'HH:mm:ss.SSSZ||yyyy-MM-dd'T'HH:mm:ssZ",
+      "type": "date"
+    },
+    "id": {
+      "type": "integer"
+    },
+    "promotionId": {
+      "type": "integer"
+    },
+    "scope": {
+      "index": "not_analyzed",
+      "type": "string"
+    },
+    "totalUsed": {
+      "type": "integer"
+    }
+  }
+}

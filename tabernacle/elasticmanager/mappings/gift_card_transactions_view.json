@@ -1,1 +1,78 @@
-{"properties":{"availableBalance":{"type":"integer"},"code":{"analyzer":"upper_cased","type":"string"},"createdAt":{"format":"yyyy-MM-dd'T'HH:mm:ss.SSSZ||yyyy-MM-dd'T'HH:mm:ssZ","type":"date"},"credit":{"type":"integer"},"currency":{"index":"not_analyzed","type":"string"},"debit":{"type":"integer"},"giftCardCreatedAt":{"format":"yyyy-MM-dd'T'HH:mm:ss.SSSZ||yyyy-MM-dd'T'HH:mm:ssZ","type":"date"},"id":{"type":"integer"},"orderPayment":{"properties":{"orderCreatedAt":{"format":"yyyy-MM-dd'T'HH:mm:ss.SSSZ||yyyy-MM-dd'T'HH:mm:ssZ","type":"date"},"orderPaymentCreatedAt":{"format":"yyyy-MM-dd'T'HH:mm:ss.SSSZ||yyyy-MM-dd'T'HH:mm:ssZ","type":"date"},"orderReferenceNumber":{"analyzer":"upper_cased","type":"string"}},"type":"nested"},"originType":{"index":"not_analyzed","type":"string"},"scope":{"index":"not_analyzed","type":"string"},"state":{"index":"not_analyzed","type":"string"},"storeAdmin":{"properties":{"department":{"analyzer":"autocomplete","type":"string"},"email":{"analyzer":"autocomplete","type":"string"},"name":{"analyzer":"autocomplete","type":"string"}},"type":"nested"}}}
+{
+  "properties": {
+    "availableBalance": {
+      "type": "integer"
+    },
+    "code": {
+      "analyzer": "upper_cased",
+      "type": "string"
+    },
+    "createdAt": {
+      "format": "yyyy-MM-dd'T'HH:mm:ss.SSSZ||yyyy-MM-dd'T'HH:mm:ssZ",
+      "type": "date"
+    },
+    "credit": {
+      "type": "integer"
+    },
+    "currency": {
+      "index": "not_analyzed",
+      "type": "string"
+    },
+    "debit": {
+      "type": "integer"
+    },
+    "giftCardCreatedAt": {
+      "format": "yyyy-MM-dd'T'HH:mm:ss.SSSZ||yyyy-MM-dd'T'HH:mm:ssZ",
+      "type": "date"
+    },
+    "id": {
+      "type": "integer"
+    },
+    "orderPayment": {
+      "properties": {
+        "orderCreatedAt": {
+          "format": "yyyy-MM-dd'T'HH:mm:ss.SSSZ||yyyy-MM-dd'T'HH:mm:ssZ",
+          "type": "date"
+        },
+        "orderPaymentCreatedAt": {
+          "format": "yyyy-MM-dd'T'HH:mm:ss.SSSZ||yyyy-MM-dd'T'HH:mm:ssZ",
+          "type": "date"
+        },
+        "orderReferenceNumber": {
+          "analyzer": "upper_cased",
+          "type": "string"
+        }
+      },
+      "type": "nested"
+    },
+    "originType": {
+      "index": "not_analyzed",
+      "type": "string"
+    },
+    "scope": {
+      "index": "not_analyzed",
+      "type": "string"
+    },
+    "state": {
+      "index": "not_analyzed",
+      "type": "string"
+    },
+    "storeAdmin": {
+      "properties": {
+        "department": {
+          "analyzer": "autocomplete",
+          "type": "string"
+        },
+        "email": {
+          "analyzer": "autocomplete",
+          "type": "string"
+        },
+        "name": {
+          "analyzer": "autocomplete",
+          "type": "string"
+        }
+      },
+      "type": "nested"
+    }
+  }
+}

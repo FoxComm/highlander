@@ -1,1 +1,25 @@
-{"properties":{"context":{"index":"not_analyzed","type":"string"},"id":{"type":"integer"},"name":{"analyzer":"autocomplete","type":"string"},"scope":{"index":"not_analyzed","type":"string"},"taxonId":{"type":"long"},"taxonomyId":{"type":"integer"}}}
+{
+  "properties": {
+    "context": {
+      "index": "not_analyzed",
+      "type": "string"
+    },
+    "id": {
+      "type": "integer"
+    },
+    "name": {
+      "analyzer": "autocomplete",
+      "type": "string"
+    },
+    "scope": {
+      "index": "not_analyzed",
+      "type": "string"
+    },
+    "taxonId": {
+      "type": "long"
+    },
+    "taxonomyId": {
+      "type": "integer"
+    }
+  }
+}

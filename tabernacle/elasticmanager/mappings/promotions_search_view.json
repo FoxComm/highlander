@@ -1,1 +1,56 @@
-{"properties":{"activeFrom":{"format":"yyyy-MM-dd'T'HH:mm:ss.SSSZ||yyyy-MM-dd'T'HH:mm:ssZ","type":"date"},"activeTo":{"format":"yyyy-MM-dd'T'HH:mm:ss.SSSZ||yyyy-MM-dd'T'HH:mm:ssZ","type":"date"},"applyType":{"index":"not_analyzed","type":"string"},"archivedAt":{"format":"yyyy-MM-dd'T'HH:mm:ss.SSSZ||yyyy-MM-dd'T'HH:mm:ssZ","type":"date"},"context":{"index":"not_analyzed","type":"string"},"createdAt":{"format":"yyyy-MM-dd'T'HH:mm:ss.SSSZ||yyyy-MM-dd'T'HH:mm:ssZ","type":"date"},"currentCarts":{"type":"integer"},"description":{"analyzer":"autocomplete","type":"string"},"discounts":{"type":"integer"},"id":{"type":"integer"},"promotionName":{"analyzer":"autocomplete","type":"string"},"scope":{"index":"not_analyzed","type":"string"},"storefrontName":{"analyzer":"autocomplete","type":"string"},"totalUsed":{"type":"integer"}}}
+{
+  "properties": {
+    "activeFrom": {
+      "format": "yyyy-MM-dd'T'HH:mm:ss.SSSZ||yyyy-MM-dd'T'HH:mm:ssZ",
+      "type": "date"
+    },
+    "activeTo": {
+      "format": "yyyy-MM-dd'T'HH:mm:ss.SSSZ||yyyy-MM-dd'T'HH:mm:ssZ",
+      "type": "date"
+    },
+    "applyType": {
+      "index": "not_analyzed",
+      "type": "string"
+    },
+    "archivedAt": {
+      "format": "yyyy-MM-dd'T'HH:mm:ss.SSSZ||yyyy-MM-dd'T'HH:mm:ssZ",
+      "type": "date"
+    },
+    "context": {
+      "index": "not_analyzed",
+      "type": "string"
+    },
+    "createdAt": {
+      "format": "yyyy-MM-dd'T'HH:mm:ss.SSSZ||yyyy-MM-dd'T'HH:mm:ssZ",
+      "type": "date"
+    },
+    "currentCarts": {
+      "type": "integer"
+    },
+    "description": {
+      "analyzer": "autocomplete",
+      "type": "string"
+    },
+    "discounts": {
+      "type": "integer"
+    },
+    "id": {
+      "type": "integer"
+    },
+    "promotionName": {
+      "analyzer": "autocomplete",
+      "type": "string"
+    },
+    "scope": {
+      "index": "not_analyzed",
+      "type": "string"
+    },
+    "storefrontName": {
+      "analyzer": "autocomplete",
+      "type": "string"
+    },
+    "totalUsed": {
+      "type": "integer"
+    }
+  }
+}

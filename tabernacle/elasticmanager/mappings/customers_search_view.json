@@ -1,1 +1,232 @@
-{"properties":{"billingAddresses":{"properties":{"address1":{"analyzer":"autocomplete","type":"string"},"address2":{"analyzer":"autocomplete","type":"string"},"city":{"analyzer":"autocomplete","fields":{"raw":{"index":"not_analyzed","type":"string"}},"type":"string"},"continent":{"analyzer":"autocomplete","fields":{"raw":{"index":"not_analyzed","type":"string"}},"type":"string"},"country":{"analyzer":"autocomplete","fields":{"raw":{"index":"not_analyzed","type":"string"}},"type":"string"},"currency":{"index":"not_analyzed","type":"string"},"region":{"index":"not_analyzed","type":"string"},"zip":{"index":"not_analyzed","type":"string"}},"type":"nested"},"billingAddressesCount":{"type":"integer"},"blacklistedBy":{"type":"integer"},"blacklistedReason":{"analyzer":"autocomplete","type":"string"},"email":{"analyzer":"autocomplete","fields":{"raw":{"index":"not_analyzed","type":"string"}},"type":"string"},"id":{"type":"integer"},"isBlacklisted":{"type":"boolean"},"isDisabled":{"type":"boolean"},"isGuest":{"type":"boolean"},"joinedAt":{"format":"yyyy-MM-dd'T'HH:mm:ss.SSSZ||yyyy-MM-dd'T'HH:mm:ssZ","type":"date"},"location":{"analyzer":"autocomplete","type":"string"},"name":{"analyzer":"autocomplete","fields":{"raw":{"index":"not_analyzed","type":"string"}},"type":"string"},"orderCount":{"type":"integer"},"orders":{"properties":{"adjustmentsTotal":{"type":"integer"},"createdAt":{"format":"yyyy-MM-dd'T'HH:mm:ss.SSSZ||yyyy-MM-dd'T'HH:mm:ssZ","type":"date"},"customerId":{"type":"integer"},"grandTotal":{"type":"integer"},"itemsCount":{"type":"integer"},"placedAt":{"format":"yyyy-MM-dd'T'HH:mm:ss.SSSZ||yyyy-MM-dd'T'HH:mm:ssZ","type":"date"},"referenceNumber":{"analyzer":"upper_cased","type":"string"},"shippingTotal":{"type":"integer"},"state":{"index":"not_analyzed","type":"string"},"subTotal":{"type":"integer"},"taxesTotal":{"type":"integer"}},"type":"nested"},"phoneNumber":{"index":"not_analyzed","type":"string"},"rank":{"type":"integer"},"revenue":{"type":"integer"},"scope":{"index":"not_analyzed","type":"string"},"shippingAddresses":{"properties":{"address1":{"analyzer":"autocomplete","type":"string"},"address2":{"analyzer":"autocomplete","type":"string"},"city":{"analyzer":"autocomplete","fields":{"raw":{"index":"not_analyzed","type":"string"}},"type":"string"},"continent":{"analyzer":"autocomplete","fields":{"raw":{"index":"not_analyzed","type":"string"}},"type":"string"},"country":{"analyzer":"autocomplete","fields":{"raw":{"index":"not_analyzed","type":"string"}},"type":"string"},"currency":{"index":"not_analyzed","type":"string"},"region":{"index":"not_analyzed","type":"string"},"zip":{"index":"not_analyzed","type":"string"}},"type":"nested"},"shippingAddressesCount":{"type":"integer"},"storeCreditCount":{"type":"integer"},"storeCreditTotal":{"type":"integer"}}}
+{
+  "properties": {
+    "billingAddresses": {
+      "properties": {
+        "address1": {
+          "analyzer": "autocomplete",
+          "type": "string"
+        },
+        "address2": {
+          "analyzer": "autocomplete",
+          "type": "string"
+        },
+        "city": {
+          "analyzer": "autocomplete",
+          "fields": {
+            "raw": {
+              "index": "not_analyzed",
+              "type": "string"
+            }
+          },
+          "type": "string"
+        },
+        "continent": {
+          "analyzer": "autocomplete",
+          "fields": {
+            "raw": {
+              "index": "not_analyzed",
+              "type": "string"
+            }
+          },
+          "type": "string"
+        },
+        "country": {
+          "analyzer": "autocomplete",
+          "fields": {
+            "raw": {
+              "index": "not_analyzed",
+              "type": "string"
+            }
+          },
+          "type": "string"
+        },
+        "currency": {
+          "index": "not_analyzed",
+          "type": "string"
+        },
+        "region": {
+          "index": "not_analyzed",
+          "type": "string"
+        },
+        "zip": {
+          "index": "not_analyzed",
+          "type": "string"
+        }
+      },
+      "type": "nested"
+    },
+    "billingAddressesCount": {
+      "type": "integer"
+    },
+    "blacklistedBy": {
+      "type": "integer"
+    },
+    "blacklistedReason": {
+      "analyzer": "autocomplete",
+      "type": "string"
+    },
+    "email": {
+      "analyzer": "autocomplete",
+      "fields": {
+        "raw": {
+          "index": "not_analyzed",
+          "type": "string"
+        }
+      },
+      "type": "string"
+    },
+    "id": {
+      "type": "integer"
+    },
+    "isBlacklisted": {
+      "type": "boolean"
+    },
+    "isDisabled": {
+      "type": "boolean"
+    },
+    "isGuest": {
+      "type": "boolean"
+    },
+    "joinedAt": {
+      "format": "yyyy-MM-dd'T'HH:mm:ss.SSSZ||yyyy-MM-dd'T'HH:mm:ssZ",
+      "type": "date"
+    },
+    "location": {
+      "analyzer": "autocomplete",
+      "type": "string"
+    },
+    "name": {
+      "analyzer": "autocomplete",
+      "fields": {
+        "raw": {
+          "index": "not_analyzed",
+          "type": "string"
+        }
+      },
+      "type": "string"
+    },
+    "orderCount": {
+      "type": "integer"
+    },
+    "orders": {
+      "properties": {
+        "adjustmentsTotal": {
+          "type": "integer"
+        },
+        "createdAt": {
+          "format": "yyyy-MM-dd'T'HH:mm:ss.SSSZ||yyyy-MM-dd'T'HH:mm:ssZ",
+          "type": "date"
+        },
+        "customerId": {
+          "type": "integer"
+        },
+        "grandTotal": {
+          "type": "integer"
+        },
+        "itemsCount": {
+          "type": "integer"
+        },
+        "placedAt": {
+          "format": "yyyy-MM-dd'T'HH:mm:ss.SSSZ||yyyy-MM-dd'T'HH:mm:ssZ",
+          "type": "date"
+        },
+        "referenceNumber": {
+          "analyzer": "upper_cased",
+          "type": "string"
+        },
+        "shippingTotal": {
+          "type": "integer"
+        },
+        "state": {
+          "index": "not_analyzed",
+          "type": "string"
+        },
+        "subTotal": {
+          "type": "integer"
+        },
+        "taxesTotal": {
+          "type": "integer"
+        }
+      },
+      "type": "nested"
+    },
+    "phoneNumber": {
+      "index": "not_analyzed",
+      "type": "string"
+    },
+    "rank": {
+      "type": "integer"
+    },
+    "revenue": {
+      "type": "integer"
+    },
+    "scope": {
+      "index": "not_analyzed",
+      "type": "string"
+    },
+    "shippingAddresses": {
+      "properties": {
+        "address1": {
+          "analyzer": "autocomplete",
+          "type": "string"
+        },
+        "address2": {
+          "analyzer": "autocomplete",
+          "type": "string"
+        },
+        "city": {
+          "analyzer": "autocomplete",
+          "fields": {
+            "raw": {
+              "index": "not_analyzed",
+              "type": "string"
+            }
+          },
+          "type": "string"
+        },
+        "continent": {
+          "analyzer": "autocomplete",
+          "fields": {
+            "raw": {
+              "index": "not_analyzed",
+              "type": "string"
+            }
+          },
+          "type": "string"
+        },
+        "country": {
+          "analyzer": "autocomplete",
+          "fields": {
+            "raw": {
+              "index": "not_analyzed",
+              "type": "string"
+            }
+          },
+          "type": "string"
+        },
+        "currency": {
+          "index": "not_analyzed",
+          "type": "string"
+        },
+        "region": {
+          "index": "not_analyzed",
+          "type": "string"
+        },
+        "zip": {
+          "index": "not_analyzed",
+          "type": "string"
+        }
+      },
+      "type": "nested"
+    },
+    "shippingAddressesCount": {
+      "type": "integer"
+    },
+    "storeCreditCount": {
+      "type": "integer"
+    },
+    "storeCreditTotal": {
+      "type": "integer"
+    }
+  }
+}
