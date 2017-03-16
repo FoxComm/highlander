@@ -1,0 +1,13 @@
+@import "colors.css";
+
+.credit-card {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 0 15px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.action {
+  composes: action from "ui/editable-block/editable-block.css";
+}

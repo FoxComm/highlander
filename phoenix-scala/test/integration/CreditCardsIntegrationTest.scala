@@ -77,8 +77,7 @@ class CreditCardsIntegrationTest
       customersApi(customer.accountId).payments.creditCards.create(thePayload).mustBeOk()
       Mockito.verify(stripeWrapperMock).createCustomer(customerSourceMap(customer))
 
-      val creditCards = CreditCards.result.gimme
-      creditCards must have size 1
+      val cc = CreditCards.result.gimme.onlyElement
 
       val expected = CreditCard(id = 1,
                                 gatewayCustomerId = stripeCustomer.getId,
@@ -95,9 +94,9 @@ class CreditCardsIntegrationTest
                                 lastFour = "1234",
                                 expMonth = 1,
                                 expYear = expYear,
-                                createdAt = creditCards.head.createdAt)
+                                createdAt = cc.createdAt)
 
-      creditCards.head must === (expected)
+      cc must === (expected)
 
       // With existing Stripe customer
       Mockito.clearInvocations(stripeWrapperMock)
@@ -234,8 +233,7 @@ class CreditCardsIntegrationTest
       POST("v1/my/payment-methods/credit-cards", thePayload).mustBeOk()
       Mockito.verify(stripeWrapperMock).createCustomer(customerSourceMap(customer))
 
-      CreditCards.result.gimme must have size 1
-      val result: CreditCard = CreditCards.result.gimme.head
+      val cc: CreditCard = CreditCards.result.gimme.onlyElement
 
       val expected = CreditCard(id = 1,
                                 gatewayCustomerId = stripeCustomer.getId,
@@ -252,9 +250,9 @@ class CreditCardsIntegrationTest
                                 expMonth = 1,
                                 expYear = expYear,
                                 gatewayCardId = stripeCard.getId,
-                                createdAt = result.createdAt)
+                                createdAt = cc.createdAt)
 
-      result must === (expected)
+      cc must === (expected)
 
       // With existing Stripe customer
       Mockito.clearInvocations(stripeWrapperMock)

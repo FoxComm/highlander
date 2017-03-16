@@ -1,0 +1,1 @@
+alter table amazon_credentials add constraint client_id_uniq unique (client_id);

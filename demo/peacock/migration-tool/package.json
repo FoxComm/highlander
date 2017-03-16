@@ -1,0 +1,22 @@
+{
+  "name": "gourmet-migration-tool",
+  "version": "1.0.0",
+  "description": "",
+  "main": "tool.js",
+  "scripts": {
+    "customers": "babel-node src/customers.js",
+    "products": "babel-node src/products_new.js",
+    "orders": "babel-node src/orders.js",
+    "parse": "babel-node src/parseData.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-cli": "^6.11.4",
+    "csv-parse": "^1.1.7",
+    "lodash": "^4.15.0",
+    "moment": "^2.14.1",
+    "superagent": "^2.2.0",
+    "xml2js": "^0.4.17"
+  }
+}

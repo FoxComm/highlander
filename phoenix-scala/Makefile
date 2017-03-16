@@ -19,7 +19,7 @@ clean:
 
 test:
 	$(call header, Testing)
-	sbt '; scalafmtTestAll ; test; seed'
+	sbt '; scalafmtTestAll ; test; seedDemo'
 
 docker:
 	$(call header, Dockerizing)

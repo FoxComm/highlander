@@ -1,0 +1,2 @@
+buildkite_url: https://api.buildkite.com/v2/organizations/foxcommerce
+github_url: https://api.github.com/repos/FoxComm/highlander

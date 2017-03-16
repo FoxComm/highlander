@@ -22,6 +22,10 @@
       prompt: "Enter preferred development instance name (optional)"
       default: ""
       private: no
+    - name: "with_ic_input"
+      prompt: "Should we provision instance with IC apps?"
+      default: "yes"
+      private: no
 
   roles:
     - { role: dev/env_local }

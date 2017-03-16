@@ -1,6 +1,6 @@
 package testutils.fixtures.api
 
-import models.promotion.Promotion
+import models.promotion.Promotion.ApplyType
 import org.json4s.JsonAST.JArray
 import org.json4s.jackson.parseJson
 import payloads.DiscountPayloads.CreateDiscount
@@ -10,7 +10,8 @@ import utils.aliases.Json
 
 object PromotionPayloadBuilder {
 
-  def build(offer: PromoOfferBuilder,
+  def build(applyType: ApplyType,
+            offer: PromoOfferBuilder,
             qualifier: PromoQualifierBuilder,
             tags: PromoTagsBuilder = PromoTagsBuilder.Empty,
             title: String = faker.Lorem.sentence(),
@@ -24,7 +25,7 @@ object PromotionPayloadBuilder {
         "offer"       → offer.payloadJson
     )
 
-    CreatePromotion(applyType = Promotion.Coupon,
+    CreatePromotion(applyType = applyType,
                     attributes = Map("name" → tv(faker.Lorem.sentence(1))),
                     discounts = Seq(CreateDiscount(discountAttrs)))
   }
@@ -32,6 +33,10 @@ object PromotionPayloadBuilder {
   sealed trait PromoQualifierBuilder extends Jsonable
 
   object PromoQualifierBuilder {
+
+    case object CartAny extends PromoQualifierBuilder {
+      def payloadJson: Json = tv(parseJson("""{ "orderAny": {} }"""), "qualifier")
+    }
 
     case class CartTotalAmount(qualifiedSubtotal: Int) extends PromoQualifierBuilder {
       def payloadJson: Json =

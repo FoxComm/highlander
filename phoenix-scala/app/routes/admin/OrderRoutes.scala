@@ -85,18 +85,6 @@ object OrderRoutes {
             }
           } ~
           // deprecated in favor of /carts route
-          (post & path("lock") & pathEnd) {
-            mutateOrFailures {
-              CartLockUpdater.lock(refNum, auth.model)
-            }
-          } ~
-          // deprecated in favor of /carts route
-          (post & path("unlock") & pathEnd) {
-            mutateOrFailures {
-              CartLockUpdater.unlock(refNum)
-            }
-          } ~
-          // deprecated in favor of /carts route
           (post & path("checkout")) {
             mutateOrFailures {
               Checkout.fromCart(refNum)

@@ -1,0 +1,185 @@
+{
+  "id": null,
+  "productId": null,
+  "attributes": {
+    "title": {
+      "t": "string",
+      "v": "GiftCard"
+    },
+    "tags": {
+      "t": "tags",
+      "v": [
+        "GIFT-CARD"
+      ]
+    }
+  },
+  "skus": [
+    {
+      "attributes": {
+        "code": {
+          "t": "string",
+          "v": "GFT-010"
+        },
+        "title": {
+          "t": "string",
+          "v": "Gift Card"
+        },
+        "retailPrice": {
+          "t": "price",
+          "v": {
+            "value": 1000,
+            "currency": "USD"
+          }
+        },
+        "salePrice": {
+          "t": "price",
+          "v": {
+            "value": 1000,
+            "currency": "USD"
+          }
+        },
+        "context": {
+          "v": "default"
+        }
+      }
+    },
+    {
+      "attributes": {
+        "code": {
+          "t": "string",
+          "v": "GFT-025"
+        },
+        "title": {
+          "t": "string",
+          "v": "Gift Card"
+        },
+        "retailPrice": {
+          "t": "price",
+          "v": {
+            "value": 2500,
+            "currency": "USD"
+          }
+        },
+        "salePrice": {
+          "t": "price",
+          "v": {
+            "value": 2500,
+            "currency": "USD"
+          }
+        },
+        "context": {
+          "v": "default"
+        }
+      }
+    },
+    {
+      "attributes": {
+        "code": {
+          "t": "string",
+          "v": "GFT-050"
+        },
+        "title": {
+          "t": "string",
+          "v": "Gift Card"
+        },
+        "retailPrice": {
+          "t": "price",
+          "v": {
+            "value": 5000,
+            "currency": "USD"
+          }
+        },
+        "salePrice": {
+          "t": "price",
+          "v": {
+            "value": 5000,
+            "currency": "USD"
+          }
+        },
+        "context": {
+          "v": "default"
+        }
+      }
+    },
+    {
+      "attributes": {
+        "code": {
+          "t": "string",
+          "v": "GFT-100"
+        },
+        "title": {
+          "t": "string",
+          "v": "Gift Card"
+        },
+        "retailPrice": {
+          "t": "price",
+          "v": {
+            "value": 10000,
+            "currency": "USD"
+          }
+        },
+        "salePrice": {
+          "t": "price",
+          "v": {
+            "value": 10000,
+            "currency": "USD"
+          }
+        },
+        "context": {
+          "v": "default"
+        }
+      }
+    }
+  ],
+  "context": {
+    "name": "default"
+  },
+  "variants": [
+    {
+      "attributes": {
+        "name": {
+          "t": "string",
+          "v": "Gift size"
+        },
+        "type": {
+          "t": "string",
+          "v": ""
+        }
+      },
+      "values": [
+        {
+          "name": "$10",
+          "swatch": "",
+          "image": "",
+          "skuCodes": [
+            "GFT-010"
+          ]
+        },
+        {
+          "name": "$25",
+          "swatch": "",
+          "image": "",
+          "skuCodes": [
+            "GFT-025"
+          ]
+        },
+        {
+          "name": "$50",
+          "swatch": "",
+          "image": "",
+          "skuCodes": [
+            "GFT-050"
+          ]
+        },
+        {
+          "name": "$100",
+          "swatch": "",
+          "image": "",
+          "skuCodes": [
+            "GFT-100"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+
+@import "variables.css";
+
+.block {
+  border: 2px solid #F4F4F4;
+  margin-bottom: 20px;
+}
+
+.header {
+  background-color: #F4F4F4;
+  height: 74px;
+  text-transform: uppercase;
+  text-align: center;
+  font-family: var(--font-main);
+  font-weight: 300;
+  font-size: 15px;
+  color: #212121;
+  line-height: 20px;
+  padding-top: 27px;
+}
+
+.content {
+  padding: 20px;
+}

@@ -1,5 +1,7 @@
 package services
 
+import cats._
+import cats.implicits._
 import failures.CartFailures._
 import failures.{Failure, Failures}
 import models.cord._

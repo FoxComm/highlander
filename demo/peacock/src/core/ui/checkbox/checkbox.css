@@ -1,0 +1,53 @@
+
+@import "colors.css";
+
+.checkbox {
+  --size: 1em;
+  --disabled-color: #C6BFBF;
+  width: var(--size);
+  margin: 0;
+  padding: 0;
+  opacity: 0;
+
+  & + label {
+    display: inline-block;
+    margin-left: -1em;
+    line-height: var(--size);
+    position: relative;
+
+    &::before {
+      content: "";
+      display: inline-block;
+      width: var(--size);
+      height: var(--size);
+      background: #ffffff;
+      margin-right: 0.5em;
+      vertical-align: middle;
+      line-height: var(--size);
+      color: var(--blackish);
+      text-align: center;
+      font-size: 20px;
+      border: 1px solid #8C757A;
+    }
+  }
+
+  &:checked, &:hover {
+    & + label::before {
+      content: "\2715";
+    }
+  }
+
+  &:hover:not(:checked) {
+    & + label:before {
+      color: var(--disabled-color);
+    }
+  }
+
+  &:disabled {
+    & + label:before {
+      color: var(--disabled-color);
+    }
+  }
+
+}
+
