@@ -64,6 +64,8 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
         persistConn.prepareStatement(s"select truncate_nonempty_tables('$sqlTables'::text[])")
       }
 
+      Factories.createSingleMerchantSystem.gimme
+
       migrated = true
     }
   }
@@ -71,18 +73,20 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
   override abstract protected def withFixture(test: NoArgTest): Outcome = {
     truncateTablesStmt.executeQuery()
 
+    // TODO: Use Seeds.createBase after promo tests are fixed?
+    createBaseTestSeeds()
+
+    test()
+  }
+
+  private def createBaseTestSeeds() = {
     // Base test data
     (for {
       _ ← * <~ ObjectContexts.create(SimpleContext.create())
-      _ ← * <~ Factories.FIXME_createAllButPromoSchemas
-      // Can't enable all right now because promo tests are fucky
+      // Can't create all schemas right now because promo tests are fucky
       // FIXME @anna @michalrus
-      // _ ← * <~ Factories.createObjectSchemas
-      // TODO: Use Seeds.createBase after promo tests are fixed?
-      _ ← * <~ Factories.createSingleMerchantSystem
+      _ ← * <~ Factories.FIXME_createAllButPromoSchemas
     } yield {}).gimme
-
-    test()
   }
 }
 
