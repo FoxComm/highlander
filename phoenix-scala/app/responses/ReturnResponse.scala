@@ -73,9 +73,9 @@ object ReturnResponse {
 
   def buildPayments(creditCard: Option[ReturnPayment], giftCard: Option[(ReturnPayment, GiftCard)], storeCredit: Option[ReturnPayment]): Payments =
     Payments(
-      creditCard = creditCard.map(cc => Payment.CreditCard(cc.paymentMethodId, cc.amount, cc.currency)),
-      giftCard = giftCard.map { case (p, gc) => Payment.GiftCard(p.paymentMethodId, gc.code, p.amount, p.currency) },
-      storeCredit = storeCredit.map(sc => Payment.StoreCredit(sc.paymentMethodId, sc.amount, sc.currency))
+      creditCard = creditCard.map(cc ⇒ Payment.CreditCard(cc.paymentMethodId, cc.amount, cc.currency)),
+      giftCard = giftCard.map { case (p, gc) ⇒ Payment.GiftCard(p.paymentMethodId, gc.code, p.amount, p.currency) },
+      storeCredit = storeCredit.map(sc ⇒ Payment.StoreCredit(sc.paymentMethodId, sc.amount, sc.currency))
     )
 
   def buildLineItems(
@@ -100,7 +100,11 @@ object ReturnResponse {
   }
 
   def buildTotals(subTotal: Int, shipping: Int, adjustments: Int, taxes: Int): ReturnTotals = {
-    ReturnTotals(subTotal = subTotal, shipping = shipping, adjustments = adjustments, taxes = taxes, total = subTotal + shipping + taxes - adjustments)
+    ReturnTotals(subTotal = subTotal,
+                 shipping = shipping,
+                 adjustments = adjustments,
+                 taxes = taxes,
+                 total = subTotal + shipping + taxes - adjustments)
   }
 
   def fromRma(rma: Return)(implicit ec: EC, db: DB): DbResultT[Root] = {

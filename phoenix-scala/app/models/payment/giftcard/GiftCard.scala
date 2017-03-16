@@ -34,8 +34,8 @@ case class GiftCard(id: Int = 0,
                     currency: Currency = Currency.USD,
                     state: State = GiftCard.Active,
                     originalBalance: Int,
-                    currentBalance: Int = 0,
-                    availableBalance: Int = 0,
+                    currentBalance: Int = 0, // opening balance minus ‘captured’ debits
+                    availableBalance: Int = 0, // current balance minus ‘auth’ debits
                     canceledAmount: Option[Int] = None,
                     canceledReason: Option[Int] = None,
                     reloadable: Boolean = false,

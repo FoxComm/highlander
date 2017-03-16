@@ -366,19 +366,19 @@ object ReturnPaymentUpdater {
   def cancelRefunds(rma: Return)(implicit ec: EC): DbResultT[Unit] =
     for {
       gc ← * <~ ReturnPayments.findOnHoldGiftCards(rma.id).one
-      _ ← * <~ gc.map(
-             gc ⇒
-               GiftCards.update(gc,
-                                gc.copy(state = GiftCard.Canceled,
-                                        canceledAmount = gc.originalBalance.some,
-                                        canceledReason = rma.canceledReasonId)))
+      _ ← * <~ gc.map { gc ⇒
+           GiftCards.update(gc,
+                            gc.copy(state = GiftCard.Canceled,
+                                    canceledAmount = gc.availableBalance.some,
+                                    canceledReason = rma.canceledReasonId))
+         }
 
       sc ← * <~ ReturnPayments.findOnHoldStoreCredits(rma.id).one
-      _ ← * <~ sc.map(
-             sc ⇒
-               StoreCredits.update(sc,
-                                   sc.copy(state = StoreCredit.Canceled,
-                                           canceledAmount = sc.originalBalance.some,
-                                           canceledReason = rma.canceledReasonId)))
+      _ ← * <~ sc.map { sc ⇒
+           StoreCredits.update(sc,
+                               sc.copy(state = StoreCredit.Canceled,
+                                       canceledAmount = sc.availableBalance.some,
+                                       canceledReason = rma.canceledReasonId))
+         }
     } yield ()
 }

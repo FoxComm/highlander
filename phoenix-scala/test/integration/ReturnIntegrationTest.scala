@@ -141,19 +141,15 @@ class ReturnIntegrationTest
                                                PaymentMethod.StoreCredit → 150
                                            ),
                                            refNum = rma.referenceNumber).payments
-        val gcPayment = payments.giftCard.value
-        val scPayment = payments.storeCredit.value
+        val gcApi = giftCardsApi(payments.giftCard.value.code)
+        val scApi = storeCreditsApi(payments.storeCredit.value.id)
 
-        giftCardsApi(gcPayment.code).get().as[GiftCardResponse.Root].state must === (
-            GiftCard.OnHold)
-        storeCreditsApi(scPayment.id).get().as[StoreCreditResponse.Root].state must === (
-            StoreCredit.OnHold)
+        gcApi.get().as[GiftCardResponse.Root].state must === (GiftCard.OnHold)
+        scApi.get().as[StoreCreditResponse.Root].state must === (StoreCredit.OnHold)
 
         completeReturn(rma.referenceNumber).payments must === (payments)
-        giftCardsApi(gcPayment.code).get().as[GiftCardResponse.Root].state must === (
-            GiftCard.Active)
-        storeCreditsApi(scPayment.id).get().as[StoreCreditResponse.Root].state must === (
-            StoreCredit.Active)
+        gcApi.get().as[GiftCardResponse.Root].state must === (GiftCard.Active)
+        scApi.get().as[StoreCreditResponse.Root].state must === (StoreCredit.Active)
       }
 
       "gift cards and store credits should be canceled on canceled state" in new ReturnLineItemDefaults
@@ -163,23 +159,19 @@ class ReturnIntegrationTest
                                                PaymentMethod.StoreCredit → 150
                                            ),
                                            refNum = rma.referenceNumber).payments
-        val gcPayment = payments.giftCard.value
-        val scPayment = payments.storeCredit.value
+        val gcApi = giftCardsApi(payments.giftCard.value.code)
+        val scApi = storeCreditsApi(payments.storeCredit.value.id)
 
-        giftCardsApi(gcPayment.code).get().as[GiftCardResponse.Root].state must === (
-            GiftCard.OnHold)
-        storeCreditsApi(scPayment.id).get().as[StoreCreditResponse.Root].state must === (
-            StoreCredit.OnHold)
+        gcApi.get().as[GiftCardResponse.Root].state must === (GiftCard.OnHold)
+        scApi.get().as[StoreCreditResponse.Root].state must === (StoreCredit.OnHold)
 
         returnsApi(rma.referenceNumber)
           .update(
               ReturnUpdateStatePayload(state = Canceled, reasonId = cancellationReason.id.some))
           .as[ReturnResponse.Root]
           .payments must === (payments)
-        giftCardsApi(gcPayment.code).get().as[GiftCardResponse.Root].state must === (
-            GiftCard.Canceled)
-        storeCreditsApi(scPayment.id).get().as[StoreCreditResponse.Root].state must === (
-            StoreCredit.Canceled)
+        gcApi.get().as[GiftCardResponse.Root].state must === (GiftCard.Canceled)
+        scApi.get().as[StoreCreditResponse.Root].state must === (StoreCredit.Canceled)
       }
 
       "fails if RMA refNum is not found" in new ReturnDefaults {
