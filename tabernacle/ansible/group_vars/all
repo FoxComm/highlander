@@ -364,6 +364,11 @@ update_materialized_views_cmd: "psql {{db_connection_string}} -f {{update_materi
 facebook_pixel_id: "433654337026546"
 ga_tracking_id: ""
 
+# Imgix S3 source for products images
+imgix_products_source: ""
+s3_bucket_name: ""
+s3_bucket_prefix: ""
+
 # Various flags
 first_run: false
 is_ci: false
