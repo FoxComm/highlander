@@ -1,13 +1,13 @@
 include ../../../makelib
-header = $(call baseheader, $(1), orders-cross-sell)
+header = $(call baseheader, $(1), orders-anthill)
 
 DOCKER_REPO ?= $(DOCKER_STAGE_REPO)
-DOCKER_IMAGE ?= orders-cross-sell
+DOCKER_IMAGE ?= orders-anthill
 DOCKER_TAG ?= master
 
 build:
 	$(call header, Building)
-	GOOS=linux CGO_ENABLED=0 go build -o orders-cross-sell ./*.go
+	GOOS=linux CGO_ENABLED=0 go build -o orders-anthill ./*.go
 
 test:
 	$(call header, Testing)
@@ -24,6 +24,6 @@ docker-push:
 
 clean:
 	$(call header, Cleaning)
-	rm -rf ./pkg orders-cross-sell
+	rm -rf ./pkg orders-anthill
 
 .PHONY: build test docker docker-push

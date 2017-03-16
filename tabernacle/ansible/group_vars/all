@@ -59,8 +59,8 @@ docker_tags:
     river_rock: "{{ lookup('env', 'DOCKER_TAG_RIVER_ROCK') | default('master', true) }}"
     digger_sphex: "{{ lookup('env', 'DOCKER_TAG_DIGGER_SPHEX') | default('master', true) }}"
     orders_sphex: "{{ lookup('env', 'DOCKER_TAG_ORDERS_SPHEX') | default('master', true) }}"
-    orders_cross_sell: "{{ lookup('env', 'DOCKER_TAG_ORDERS_CROSS_SELL') | default('master', true) }}"
-    cross_sell: "{{ lookup('env', 'DOCKER_TAG_CROSS_SELL') | default('master', true) }}"
+    orders_anthill: "{{ lookup('env', 'DOCKER_TAG_ORDERS_ANTHILL') | default('master', true) }}"
+    anthill: "{{ lookup('env', 'DOCKER_TAG_ANTHILL') | default('master', true) }}"
 
 # Configurable Marathon re-deploys
 marathon_restart:
@@ -88,8 +88,8 @@ marathon_restart:
     river_rock: "{{ lookup('env', 'MARATHON_RIVER_ROCK') | default(true, true) | bool }}"
     digger_sphex: "{{ lookup('env', 'MARATHON_DIGGER_SPHEX') | default(true, true) | bool }}"
     orders_sphex: "{{ lookup('env', 'MARATHON_ORDERS_SPHEX') | default(true, true) | bool }}"
-    orders_cross_sell: "{{ lookup('env', 'MARATHON_ORDERS_CROSS_SELL') | default(true, true) | bool }}"
-    cross_sell: "{{ lookup('env', 'MARATHON_CROSS_SELL') | default(true, true) | bool }}"
+    orders_anthill: "{{ lookup('env', 'MARATHON_ORDERS_ANTHILL') | default(true, true) | bool }}"
+    anthill: "{{ lookup('env', 'MARATHON_ANTHILL') | default(true, true) | bool }}"
 
 # Should we use Intelligent Commerce
 with_ic: "{{ lookup('env', 'WITH_INTELLIGENT_COMMERCE') | default(true, true) | bool }}"
@@ -273,9 +273,9 @@ river_rock_server: "{{river_rock_host}}:{{river_rock_port}}"
 henhouse_host: "henhouse.{{consul_suffix}}"
 henhouse_server: "{{henhouse_host}}"
 
-# Cross-sell
-cross_sell_host: "cross-sell.{{consul_suffix}}"
-cross_sell_server: "{{cross_sell_host}}"
+# anthill
+anthill_host: "anthill.{{consul_suffix}}"
+anthill_server: "{{anthill_host}}"
 
 # Elasticsearch 2.x
 es_version: elasticsearch-2.1.2

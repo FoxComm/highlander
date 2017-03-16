@@ -19,9 +19,9 @@
   include: app_orders_sphex.yml
   when: with_ic and marathon_restart.orders_sphex
 
-- name: Start Orders Cross-Sell
-  include: app_orders_cross_sell.yml
-  when: marathon_restart.orders_cross_sell
+- name: Start Orders anthill
+  include: app_orders_anthill.yml
+  when: marathon_restart.orders_anthill
 
 - name: Start Eggcrate
   include: app_eggcrate.yml
