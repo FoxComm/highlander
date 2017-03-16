@@ -51,7 +51,6 @@
 
 .title {
   margin: 0;
-  font-family: var(--font-playfair);
   font-weight: 900;
   font-size: 16px;
   color: var(--text-color-main);
