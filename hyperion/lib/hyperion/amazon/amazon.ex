@@ -15,7 +15,7 @@ defmodule Hyperion.Amazon do
   @doc """
   Formats the given product
   """
-  def product_feed(data = %{body: product}) do
+  def product_feed(data = %{body: _product}) do
     process_products(data, true)
     |> Enum.with_index(1)
   end
@@ -33,7 +33,7 @@ defmodule Hyperion.Amazon do
   @doc """
   Formats the given price
   """
-  def price_feed(data = %{body: product}) do
+  def price_feed(data = %{body: _product}) do
     process_products(data)
     |> Enum.map(fn(x) -> Enum.filter(x, fn({k, _v}) -> k == :code || k == :retailprice end) end)
     |> Enum.with_index(1)
@@ -51,13 +51,13 @@ defmodule Hyperion.Amazon do
   @doc """
   Formats the given inventory
   """
-  def images_feed(data = %{body: product}) do
+  def images_feed(data = %{body: _product}) do
     process_images(data)
   end
 
   # gets the albums and images for skus,
-  # sets the album name as key and atomize it
   # adds the SKU for matching
+  # renders main, pt and swatch images
   defp process_images(response) do
     r = response.body
     albums = Enum.map(r["skus"], fn(sku)->
@@ -73,7 +73,7 @@ defmodule Hyperion.Amazon do
     |> Enum.flat_map(fn(product) ->
         main = render_main_section(product[:albums][:main], product[:code])
         [main, render_swatch_section(product[:albums][:swatches], product[:code], Enum.count(main))]
-       end)
+       end) |> Enum.reject(fn el -> el == nil end)
   end
 
   # renders main images section as:
@@ -82,6 +82,10 @@ defmodule Hyperion.Amazon do
   # {[type: "PT",
   #   location: "http:", id: 1],
   #   2}],
+  defp render_main_section([h|[]], sku) do
+    [{[sku: sku, type: "Main", location: String.replace(h["src"], "https", "http")], 1}]
+  end
+
   defp render_main_section([h|t], sku) do
     main = [sku: sku, type: "Main", location: String.replace(h["src"], "https", "http")]
 
@@ -92,14 +96,18 @@ defmodule Hyperion.Amazon do
     [main, pt]
     |> Enum.with_index(1)
   end
+
+  def render_swatch_section(nil, _, _), do: nil
+
   # renders swatches section as:
   # [[type: Swatch, lication: http://, id: id]]
-  defp render_swatch_section(list, sku, initial) do
+  def render_swatch_section(list, sku, initial) do
     Enum.with_index(list, initial + 1)
     |> Enum.map(fn {image, idx} ->
       [sku: sku, type: "Swatch", location: String.replace(image["src"], "https", "http"), idx: idx]
     end)
   end
+
 
   # gets product, skus, and variants info
   # merge product with all skus, delete empty :description field

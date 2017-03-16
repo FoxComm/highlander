@@ -35,6 +35,7 @@ defmodule Hyperion.Amazon.Templates.SubmitImages do
     """
   end
 
+
   def render_pt_images([_|pt_images]) do
     for {item, idx} <- pt_images do
       """
@@ -50,6 +51,8 @@ defmodule Hyperion.Amazon.Templates.SubmitImages do
       """
     end
   end
+
+  def render_swatches([]), do: ""
 
   def render_swatches([swatches|_]) do
     for swatch <- swatches do
