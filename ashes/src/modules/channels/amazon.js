@@ -7,6 +7,7 @@ import { createAsyncActions } from '@foxcomm/wings';
 import Api, { request } from 'lib/api';
 import { getUserId } from 'lib/claims';
 import schemaFixture from './schema.fixture';
+import suggestFixture from './suggest.fixture';
 
 const initialState = {
   credentials: null,
@@ -38,7 +39,11 @@ const _fetchSuggest = createAsyncActions(
       },
     };
 
+    // @todo hyperion is broken!
     return Api.get(`/hyperion/categories/suggest`, data, options);
+    // return new Promise(function(resolve, reject) {
+    //   setTimeout(() => resolve(suggestFixture), 100);
+    // });
   }
 );
 

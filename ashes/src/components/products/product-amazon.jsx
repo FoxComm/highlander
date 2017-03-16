@@ -7,6 +7,7 @@ import React, { Component, Element, PropTypes } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
+import _ from 'lodash';
 import * as productActions from 'modules/products/details';
 import * as amazonActions from 'modules/channels/amazon';
 import * as schemaActions from 'modules/object-schema';
@@ -15,6 +16,8 @@ import { Suggester } from 'components/suggester/suggester';
 import WaitAnimation from '../common/wait-animation';
 import Progressbar from '../common/progressbar';
 import { getSuggest } from './selector';
+import ObjectFormInner from '../object-form/object-form-inner';
+import ProductAmazonForm from './product-amazon-form';
 
 function mapDispatchToProps(dispatch) {
   return {
@@ -36,8 +39,9 @@ function mapStateToProps(state) {
   return {
     title: product && product.attributes && product.attributes.title.v,
     product,
-    fetchingProduct: state.asyncActions.fetchProduct && state.asyncActions.fetchProduct.inProgress,
-    fetchingSuggest: state.asyncActions.fetchSuggest && state.asyncActions.fetchSuggest.inProgress,
+    fetchingProduct: _.get(state.asyncActions, 'fetchProduct.inProgress'),
+    fetchingSuggest: _.get(state.asyncActions, 'fetchSuggest.inProgress'),
+    fetchingSchema: _.get(state.asyncActions, 'fetchAmazonSchema.inProgress'),
     suggest: getSuggest(suggest),
     schema,
   };
@@ -79,29 +83,23 @@ class ProductAmazon extends Component {
 
   // @todo move to the new component
   renderForm() {
-    const { schema } = this.props;
-    const items = [];
-    const p = schema && schema.properties.attributes.properties;
+    const { schema, product, fetchingSchema } = this.props;
+    const { categoryId } = this.state;
 
-    for (let key in p) {
-      const value = p[key];
+    if (!schema) {
+      if (fetchingSchema) {
+        return <WaitAnimation />;
+      }
 
-      items.push(
-        <div className="fc-form-field fc-object-form__field" key={key}>
-          <div className="fc-form-field-label">{key}</div>
-          <input
-            onChange={(e) => this._handleChange(e, key)}
-            type="text" name={key}
-            className="fc-object-form__field-value" />
-        </div>
-      );
+      return null;
     }
 
     return (
-      <form onSubmit={(e) => this._handleSubmit(e)}>
-        {items}
-        <button type="submit">Submit</button>
-      </form>
+      <ProductAmazonForm
+        schema={schema}
+        product={product}
+        categoryId={categoryId}
+        onSubmit={(p) => this._handleSubmit(p)} />
     );
   }
 
@@ -111,25 +109,10 @@ class ProductAmazon extends Component {
     });
   }
 
-  _handleSubmit(e) {
-    e.preventDefault();
+  _handleSubmit(nextProduct) {
+    const { actions: { updateProduct } } = this.props;
 
-    const { product, actions: { updateProduct } } = this.props;
-    const attributes = {
-      'manufacturer': {
-        t: 'string',
-        v: 'test manufacturer value',
-      }
-    };
-    const newProduct = {
-      ...product,
-      attributes: {
-        ...product.attributes,
-        ...attributes,
-      },
-    };
-
-    updateProduct(newProduct);
+    updateProduct(nextProduct);
   }
 
   render() {
@@ -160,7 +143,7 @@ class ProductAmazon extends Component {
           />
         </div>
 
-        {this.state.form && this.renderForm()}
+        {this.renderForm()}
       </div>
     );
   }
@@ -180,13 +163,10 @@ class ProductAmazon extends Component {
     const { fetchAmazonSchema } = this.props.actions;
 
     this.setState({
-      form: true,
       stepNum: 1,
     });
 
     fetchAmazonSchema();
-
-    // @todo call action to fetch schema
   }
 }
 

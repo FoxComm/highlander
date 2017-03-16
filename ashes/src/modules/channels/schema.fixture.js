@@ -6,15 +6,21 @@ module.exports = {
     "attributes": {
       "type": "object",
       "properties": {
+        "category_id" : {
+          "title": "Amazon Category ID",
+          "disabled": true,
+          "type": ["string", "null"]
+        },
         "title": {
           "type": ["string", "null"]
         },
-        "category" : {
-          "type": ["hidden", "clothes"]
+        "description": {
+          "type": "string",
+          "widget": "richText"
         },
-        "taxCode" : {
-          "type": ["string", "A_GEN_NOTAX"]
-        },
+        // "taxCode" : {
+        //   "type": ["string", "A_GEN_NOTAX"]
+        // },
         "brand" : {
           "type": ["string", "null"]
         },
@@ -32,10 +38,6 @@ module.exports = {
         },
         "bulletPoint4" : {
           "type": ["string", "null"]
-        },
-        "description": {
-          "type": "string",
-          "widget": "richText"
         },
       },
       "required": ["code", "brand", "bulletPoint1", "bulletPoint2", "bulletPoint3", "bulletPoint4"]
