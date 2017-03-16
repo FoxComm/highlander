@@ -8,7 +8,7 @@ defmodule Hyperion.Amazon.Pusher do
     submit_product(product, cfg, purge)
     |> submit_price(cfg)
     |> submit_inventory(inventory, cfg)
-    # |> submit_images(cfg)
+    |> submit_images(cfg)
   end
 
   def submit_product(product, cfg, purge) do
@@ -65,25 +65,25 @@ defmodule Hyperion.Amazon.Pusher do
       {_, resp} ->
         store_submition_result(product.body["id"],
                                %{inventory_feed: resp["SubmitFeedResponse"]["SubmitFeedResult"]["FeedSubmissionInfo"]})
-        # product
-        SubmissionResult.submission_result(product.body["id"])
+        product
     end
   end
 
   def submit_images(product, cfg) do
-    list = Amazon.images_feed(product)
-    tpl = TemplateBuilder.submit_images_feed(list, cfg)
+    tpl = Amazon.images_feed(product)
+          |> TemplateBuilder.submit_images_feed(cfg)
 
     case MWSClient.submit_images_feed(tpl, cfg) do
       {:error, error} ->
-        store_submition_result(product["id"], %{images_feed: inspect(error)})
+        store_submition_result(product.body["id"], %{images_feed: inspect(error)})
         raise "Submit_images error: " <>  inspect(error)
       {:warn, warn} ->
-        store_submition_result(product["id"], %{images_feed: warn["ErrorResponse"]})
+        store_submition_result(product.body["id"], %{images_feed: warn["ErrorResponse"]})
         raise "Submit_images warning: " <> warn["ErrorResponse"]["Error"]["Message"]
       {_, resp} ->
-        store_submition_result(product["id"], %{images_feed: resp["SubmitFeedResponse"]["SubmitFeedResult"]["FeedSubmissionInfo"]})
-        product
+        store_submition_result(product.body["id"], %{images_feed: resp["SubmitFeedResponse"]["SubmitFeedResult"]["FeedSubmissionInfo"]})
+        # product
+        SubmissionResult.submission_result(product.body["id"])
     end
   end
 
