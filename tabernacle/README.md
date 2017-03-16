@@ -8,16 +8,15 @@ All of our DevOps tools for deploying the application to both development and pr
 
 - [Ansible](https://ansible.com) 2.2.x
 - [AWS CLI](https://aws.amazon.com/cli)
-- [Docker](https://docker.com) 1.12 or above
+- [Docker](https://docker.com) 1.13
 - [Go](https://golang.org) 1.6 or above
 - [Google Cloud SDK](https://cloud.google.com/sdk/gcloud)
 - [Packer](https://packer.io)
 - [Python](https://www.python.org) 2.7.x
-- [Terraform](https://terraform.io)
+- [Terraform](https://terraform.io) 0.8.8
 
 #### Optional
 
-- [ansible-lint](https://github.com/willthames/ansible-lint)
 - [easy](https://github.com/kpashka/easy)
 - [shellcheck](https://www.shellcheck.net)
 

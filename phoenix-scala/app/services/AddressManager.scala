@@ -34,7 +34,7 @@ object AddressManager {
       customer ← * <~ Users.mustFindByAccountId(accountId)
       address  ← * <~ Addresses.create(Address.fromPayload(payload, accountId))
       response ← * <~ AddressResponse.fromAddress(address)
-      _        ← * <~ LogActivity.addressCreated(originator, customer, response)
+      _        ← * <~ LogActivity().addressCreated(originator, customer, response)
     } yield response
 
   def edit(originator: User, addressId: Int, accountId: Int, payload: CreateAddressPayload)(
@@ -50,7 +50,7 @@ object AddressManager {
       _           ← * <~ Addresses.insertOrUpdate(address)
       response    ← * <~ AddressResponse.fromAddress(address)
       oldResponse ← * <~ AddressResponse.fromAddress(oldAddress)
-      _           ← * <~ LogActivity.addressUpdated(originator, customer, response, oldResponse)
+      _           ← * <~ LogActivity().addressUpdated(originator, customer, response, oldResponse)
     } yield response
 
   def remove(originator: User, addressId: Int, accountId: Int)(implicit ec: EC,
@@ -64,7 +64,7 @@ object AddressManager {
       softDelete ← * <~ address.copy(deletedAt = Instant.now.some, isDefaultShipping = false)
       updated    ← * <~ Addresses.update(address, softDelete)
       response   ← * <~ AddressResponse.fromAddress(updated)
-      _          ← * <~ LogActivity.addressDeleted(originator, customer, response)
+      _          ← * <~ LogActivity().addressDeleted(originator, customer, response)
     } yield {}
 
   def setDefaultShippingAddress(addressId: Int, accountId: Int)(

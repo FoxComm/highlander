@@ -116,7 +116,7 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
                              shipping = adjustedShippingCost,
                              currency = order.currency)
 
-      _ ← * <~ LogActivity.orderCaptured(order, resp)
+      _ ← * <~ LogActivity().orderCaptured(order, resp)
       //return Capture table tuple id?
     } yield resp
 
@@ -142,8 +142,9 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
       scIds   = scPayments.map { case (_, sc) ⇒ sc.id }.distinct
       gcCodes = gcPayments.map { case (_, gc) ⇒ gc.code }.distinct
 
-      _ ← * <~ doOrMeh(scTotal > 0, LogActivity.scFundsCaptured(customer, order, scIds, scTotal))
-      _ ← * <~ doOrMeh(gcTotal > 0, LogActivity.gcFundsCaptured(customer, order, gcCodes, gcTotal))
+      _ ← * <~ doOrMeh(scTotal > 0, LogActivity().scFundsCaptured(customer, order, scIds, scTotal))
+      _ ← * <~ doOrMeh(gcTotal > 0,
+                       LogActivity().gcFundsCaptured(customer, order, gcCodes, gcTotal))
     } yield {}
 
   private def externalCapture(total: Int, order: Order): DbResultT[Option[CreditCardCharge]] = {
@@ -170,7 +171,7 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
         stripeCharge ← * <~ apis.stripe.captureCharge(charge.chargeId, total)
         updatedCharge = charge.copy(state = CreditCardCharge.FullCapture)
         _ ← * <~ CreditCardCharges.update(charge, updatedCharge)
-        _ ← * <~ LogActivity.creditCardCharge(order, updatedCharge)
+        _ ← * <~ LogActivity().creditCardCharge(order, updatedCharge)
       } yield updatedCharge.some
     } else
       DbResultT.failure(CaptureFailures.ChargeNotInAuth(charge))

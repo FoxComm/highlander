@@ -6,3 +6,5 @@ folly_version: "f6b5f78bd533b91f51c3afc6d310698a42edb65d"
 
 wangle_install_dir: "{{home}}/proxygen/proxygen/wangle"
 wangle_version: "2c55f2bdcc84216c26c6058e754b874c3029e39f"
+
+terraform_download_url: "https://releases.hashicorp.com/terraform/0.8.2/terraform_0.8.2_linux_amd64.zip"
