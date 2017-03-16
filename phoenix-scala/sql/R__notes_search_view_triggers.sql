@@ -127,7 +127,7 @@ begin
                     returns.reference_number,
                     returns.state,
                     returns.return_type,
-                    to_char(returns.created_at, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"')
+                    to_json_timestamp(returns.created_at)
                 )::export_returns)
               into strict new_note.return
               from returns

@@ -1,21 +1,23 @@
 import cats.implicits._
+import models.payment.PaymentMethod
 import models.returns.Return
 import models.returns.Return.{Pending, Processing, ReturnType}
-import org.json4s.JObject
-import payloads.ReturnPayloads.{ReturnMessageToCustomerPayload, ReturnUpdateStatePayload}
+import payloads.ReturnPayloads.{ReturnMessageToCustomerPayload, ReturnPaymentPayload, ReturnUpdateStatePayload}
 import responses.ReturnResponse
-import testutils.fixtures.{BakedFixtures, ReturnsFixtures}
 import testutils._
+import testutils.fixtures.{BakedFixtures, ReturnsFixtures}
 
 case class ReturnsSearchViewResult(
     id: Int,
     referenceNumber: String,
     orderId: Int,
     orderRef: String,
+    createdAt: String,
     state: Return.State,
+    totalRefund: Option[Int],
     messageToAccount: Option[String],
     returnType: ReturnType,
-    customer: JObject
+    customer: CustomerSearchViewResult
 )
 
 case class CustomerSearchViewResult(
@@ -37,31 +39,41 @@ class ReturnsSearchViewTest
   val searchViewName: String = "returns_search_view"
   val searchKeyName: String  = "id"
 
-  "smoke test search view" - {
-    "should work against fixture return" in new ReturnDefaults {
+  "Returns search view row must be found when" - {
+    "a return was created" in new ReturnPaymentDefaults {
+      createReturnPayment(Map(PaymentMethod.CreditCard → 100), rma.referenceNumber)
+
+      returnsApi(rma.referenceNumber).paymentMethods
+        .add(PaymentMethod.CreditCard, ReturnPaymentPayload(amount = 20))
+        .as[ReturnResponse.Root]
+
       val rmaSearchView = viewOne(rma.id)
 
-      val customerSearchViewResult = rmaSearchView.customer.extract[CustomerSearchViewResult]
+      {
+        import rmaSearchView._
 
-      import rmaSearchView._
+        id must === (rma.id)
+        referenceNumber must === (rma.referenceNumber)
+        orderRef must === (rma.cordRefNum)
+        state must === (rma.state)
+        messageToAccount must === (rma.messageToCustomer)
+        returnType must === (rma.rmaType)
+        createdAt must === (rma.createdAt.toString)
+        totalRefund.nonEmpty must === (true)
+        totalRefund must === (Some(120))
 
-      id must === (rma.id)
-      referenceNumber must === (rma.referenceNumber)
-      orderRef must === (rma.cordRefNum)
-      state must === (rma.state)
-      messageToAccount must === (rma.messageToCustomer)
-      returnType must === (rma.rmaType)
+        rma.customer.map(c ⇒ {
+          rmaSearchView.customer.id must === (c.id)
+          rmaSearchView.customer.name.some must === (c.name)
+          rmaSearchView.customer.email.some must === (c.email)
+        })
 
-      rma.customer.map { c ⇒
-        customerSearchViewResult.id must === (c.id)
-        customerSearchViewResult.name.some must === (c.name)
-        customerSearchViewResult.email.some must === (c.email)
       }
     }
   }
 
-  "update search view" - {
-    "should update state" in new ReturnDefaults {
+  "Returns search view row must be updated when" - {
+    "a return state was updated" in new ReturnDefaults {
       assert(rma.state == Pending)
       viewOne(rma.id).state must === (rma.state)
 
@@ -73,7 +85,7 @@ class ReturnsSearchViewTest
       viewOne(rma.id).state must === (Processing)
     }
 
-    "should update message to customer" in new ReturnDefaults {
+    "a return message-to-customer was updated" in new ReturnDefaults {
       viewOne(rma.id).messageToAccount must === (None)
 
       val payload = ReturnMessageToCustomerPayload(message = "Hello!")
