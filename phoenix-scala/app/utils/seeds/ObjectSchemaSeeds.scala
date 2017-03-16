@@ -9,33 +9,20 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 trait ObjectSchemaSeeds {
 
-  // Some tests have invalid data ⇒ can't create all schemas
-  // Will be fixed in scope of promotion work
-  def createObjectSchemasForTest(): DbResultT[Unit] =
-    for {
-      _ ← * <~ ObjectSchemas.create(getSchema("empty"))
-      _ ← * <~ ObjectSchemas.create(getSchema("album"))
-      _ ← * <~ ObjectSchemas.create(getSchema("image"))
-      _ ← * <~ ObjectSchemas.create(getSchema("price"))
-      _ ← * <~ ObjectSchemas.create(getSchema("sku"))
-      _ ← * <~ ObjectSchemas.create(getSchema("coupon"))
-      _ ← * <~ ObjectSchemas.create(getSchema("discount"))
-      // _ ← * <~ ObjectSchemas.create(getSchema("promotion"))
-      _ ← * <~ ObjectSchemas.create(getSchema("product"))
-    } yield {}
+  private val allButPromoSchemaNames =
+    Seq("empty", "album", "image", "price", "sku", "coupon", "discount", "product")
+  private val allSchemaNames = allButPromoSchemaNames :+ "promotion"
 
-  def createObjectSchemas(): DbResultT[Unit] =
-    for {
-      _ ← * <~ ObjectSchemas.create(getSchema("empty"))
-      _ ← * <~ ObjectSchemas.create(getSchema("album"))
-      _ ← * <~ ObjectSchemas.create(getSchema("image"))
-      _ ← * <~ ObjectSchemas.create(getSchema("price"))
-      _ ← * <~ ObjectSchemas.create(getSchema("sku"))
-      _ ← * <~ ObjectSchemas.create(getSchema("coupon"))
-      _ ← * <~ ObjectSchemas.create(getSchema("discount"))
-      _ ← * <~ ObjectSchemas.create(getSchema("promotion"))
-      _ ← * <~ ObjectSchemas.create(getSchema("product"))
-    } yield {}
+  private lazy val allButPromoSchemas = allButPromoSchemaNames.map(getSchema)
+  private lazy val allSchemas         = allSchemaNames.map(getSchema)
+
+  // Some tests have invalid data ⇒ can't create all schemas
+  // TODO @anna @michalrus fix this in scope of promotion work
+  def FIXME_createAllButPromoSchemas(): DbResultT[Option[Int]] =
+    ObjectSchemas.createAll(allButPromoSchemas)
+
+  def createObjectSchemas(): DbResultT[Option[Int]] =
+    ObjectSchemas.createAll(allSchemas)
 
   private def loadJson(fileName: String): JValue = {
     val streamMaybe = Option(getClass.getResourceAsStream(fileName))
