@@ -23,7 +23,7 @@ lazy val phoenixScala = (project in file("."))
       "hseeberger bintray" at "http://dl.bintray.com/hseeberger/maven",
       "pellucid bintray"   at "http://dl.bintray.com/pellucid/maven",
       "justwrote"          at "http://repo.justwrote.it/releases/",
-      "Confluent Maven Repo" at "http://packages.confluent.io/maven/",
+      "confluent"          at "http://packages.confluent.io/maven/",
       Resolver.bintrayRepo("kwark", "maven") // Slick with deadlock patch
     ),
     libraryDependencies ++= {
