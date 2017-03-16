@@ -28,6 +28,7 @@ trait TestSeeds extends TestFixtureBase {
     def storeAdmin: User                   = _storeAdmin
     def storeAdminUser: AdminData          = _storeAdminUser
     def storeAdminClaims: Account.ClaimSet = _storeAdminClaims
+    val password = "password"
 
     def storeAdminAuthData: AuthData[User] =
       AuthData[User](token =
@@ -46,9 +47,9 @@ trait TestSeeds extends TestFixtureBase {
                 case Some(admin) ⇒ DbResultT.pure(admin)
                 case None ⇒
                   Factories.createStoreAdmin(user = Factories.storeAdmin,
-                                             password = "password",
+                                             password = password,
                                              state = AdminData.Active,
-                                             org = "tenant",
+                                             org = TENANT,
                                              roles = List("admin"),
                                              author = None)
               })

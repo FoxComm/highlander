@@ -1,6 +1,5 @@
 package testutils
 
-import scala.concurrent.Future
 import akka.http.scaladsl.model.headers.HttpChallenge
 import akka.http.scaladsl.server.Directive1
 import akka.http.scaladsl.server.directives.AuthenticationResult
@@ -10,12 +9,15 @@ import akka.http.scaladsl.server.directives.SecurityDirectives._
 import models.account._
 import models.auth.UserToken
 import org.scalatest.SuiteMixin
-import org.scalatest.concurrent.ScalaFutures
-import services.Authenticator.{AuthData, UserAuthenticator}
+import services.Authenticator.{AuthData, JwtAuthenticator, UserAuthenticator}
+import services.account.AccountCreateContext
 import utils.seeds.Factories
+
+import scala.concurrent.Future
 
 abstract class FakeAuth extends UserAuthenticator {
   type C = String
+
   def readCredentials(): Directive1[Option[String]] = provide(Some("ok"))
 }
 
@@ -62,4 +64,12 @@ trait AutomaticAuth extends SuiteMixin with HttpSupport { self: FoxSuite ⇒
 
   override def overrideUserAuth: UserAuthenticator =
     AuthAs(authedUser, authedCustomer)
+}
+
+trait JWTAuth extends SuiteMixin with HttpSupport with TestSeeds { self: FoxSuite ⇒
+  private val accountCreateContext =
+    AccountCreateContext(roles = List(), org = "merchant", scopeId = 2)
+  private val jwtAuthenticator = new JwtAuthenticator(accountCreateContext)
+
+  override def overrideUserAuth: UserAuthenticator = jwtAuthenticator
 }
