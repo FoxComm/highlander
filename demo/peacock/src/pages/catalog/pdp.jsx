@@ -129,7 +129,7 @@ class Pdp extends Component {
     this.productPromise.then(() => {
       const { product } = this.props;
       tracking.viewDetails(this.product);
-      this.props.actions.fetchRelatedProducts(product.id, 1);
+      this.props.actions.fetchRelatedProducts(product.id, 1).catch(_.noop);
     });
   }
 
