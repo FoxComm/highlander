@@ -17,6 +17,13 @@ defmodule Category do
   end
 
   def get_category_data(node_id) do
+    case node_id do
+      nil -> []
+      _ -> fetch_data(node_id)
+    end
+  end
+
+  def fetch_data(node_id) do
     q = from c in Category,
         where: c.node_id in ^[node_id]
     case Hyperion.Repo.all(q) do
@@ -25,6 +32,6 @@ defmodule Category do
     end
   end
 
-  def get_category_data(nil), do: []
+
 
 end
