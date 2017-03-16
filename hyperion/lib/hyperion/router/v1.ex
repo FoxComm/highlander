@@ -122,8 +122,8 @@ defmodule Hyperion.Router.V1 do
         route_param :product_id do
           get :result do
             case SubmissionResult.submission_result(params[:product_id]) do
+              nil -> respond_with(conn, %{error: "Result for product ID: #{params[:product_id]} not found"}, 404)
               res -> respond_with(conn, res)
-              %{} -> respond_with(conn, %{error: "Result for product #{params[:product_id]} not found"}, 404)
             end
           end
         end

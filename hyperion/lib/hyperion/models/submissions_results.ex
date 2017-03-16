@@ -38,10 +38,10 @@ defmodule SubmissionResult do
   end
 
   def submission_result(product_id) do
-    res = Hyperion.Repo.get_by(SubmissionResult, product_id: product_id)
-    case res do
-      nil -> %{}
-      r -> res
+    # res = Hyperion.Repo.get_by(SubmissionResult, product_id: product_id)
+    case Hyperion.Repo.get_by(SubmissionResult, product_id: product_id) do
+      empty when empty == %{} -> nil
+      x -> x
     end
   end
 end
