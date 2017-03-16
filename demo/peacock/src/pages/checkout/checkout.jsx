@@ -10,10 +10,10 @@ import * as tracking from 'lib/analytics';
 import { emailIsSet, isGuest } from 'paragons/auth';
 
 // components
-import Shipping from './01-shipping/shipping';
-import Delivery from './02-delivery/delivery';
-import Billing from './03-billing/billing';
-import GuestAuth from './05-guest-auth/guest-auth';
+import Shipping from './shipping/shipping';
+import Delivery from './delivery/delivery';
+import Billing from './billing/billing';
+import GuestAuth from './guest-auth/guest-auth';
 import OrderSummary from 'components/order-summary/order-summary';
 import Header from 'components/header/header';
 import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';

@@ -29,7 +29,7 @@ import Loader from 'ui/loader';
 // styles
 import styles from './billing.css';
 // $FlowFixMe: there is style name from css module
-import { subtitle } from '../01-shipping/guest-shipping.css';
+import { subtitle } from '../shipping/guest-shipping.css';
 
 // actions
 import * as cartActions from 'modules/cart';
