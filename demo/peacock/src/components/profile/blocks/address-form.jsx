@@ -87,11 +87,8 @@ class AddressForm extends Component {
       newAddress,
       addressId != 'new' ? addressId : void 0
     ).then(() => {
-      Promise.resolve(
         this.props.checkoutActions.fetchAddresses()
-      )
-        .then(
-          () => browserHistory.push('/profile')
+          .then(() => browserHistory.push('/profile')
         );
       });
   }
