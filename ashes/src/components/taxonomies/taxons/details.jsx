@@ -3,6 +3,7 @@
 // lib
 import React, { Element } from 'react';
 import { autobind } from 'core-decorators';
+import _ from 'lodash';
 
 // components
 import ObjectDetailsDeux from 'components/object-page/object-details-deux';
@@ -12,16 +13,16 @@ import type { Renderers } from 'components/object-page/object-details-deux';
 
 export default class TaxonDetails extends React.Component {
 
-  props: ObjectPageChildProps<Taxon>;
+  props: ObjectPageChildProps<Taxon>
 
   @autobind
   renderTaxonListWidget() {
-    const { taxonomyId, context, taxonId } = this.props.params;
+    const params = _.get(this.props, 'params', {});
     return(
       <TaxonListWidget
-        id={taxonomyId}
-        context={context}
-        currentTaxon={taxonId}
+        id={params.taxonomyId}
+        context={params.context}
+        currentTaxon={params.taxonId}
       />
     );
   };
