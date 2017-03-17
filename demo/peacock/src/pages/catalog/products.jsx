@@ -2,13 +2,11 @@
 
 // libs
 import _ from 'lodash';
-import React, { Component, PropTypes } from 'react';
-import type { HTMLElement } from 'types';
+import React, { Component } from 'react';
 import { browserHistory } from 'lib/history';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import * as actions from 'modules/products';
-import { Router } from 'react-router';
 
 // components
 import ProductsList, { LoadingBehaviors } from 'components/products-list/products-list';
@@ -21,6 +19,8 @@ import styles from './products.css';
 import { productTypes } from 'modules/categories';
 
 // types
+import { HTMLElement, Route } from 'types';
+
 type Params = {
   categoryName: ?string,
   productType: ?string,
@@ -39,7 +39,7 @@ type Props = {
   isLoading: boolean,
   fetch: Function,
   location: any,
-  routes: Array<any>,
+  routes: Array<Route>,
   routerParams: Object,
 };
 
@@ -64,12 +64,6 @@ const mapStateToProps = state => {
 const defaultProductType = productTypes[0];
 
 class Products extends Component {
-
-  static propTypes = {
-    routes: PropTypes.array.isRequired,
-    params: PropTypes.object.isRequired
-  };
-
   props: Props;
   state: State = {
     sorting: {

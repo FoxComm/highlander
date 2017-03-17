@@ -11,7 +11,9 @@ import * as actions from 'modules/banner';
 
 import styles from './storefront.css';
 
-type Props = {
+import type { RoutesParams } from 'types';
+
+type Props = RoutesParams & {
   children: HTMLElement,
   location: any,
   banner: {

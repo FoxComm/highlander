@@ -3,9 +3,7 @@
 // libs
 import _ from 'lodash';
 import { filter, map, join, flow } from 'lodash/fp';
-import React, {PropTypes} from 'react';
-import { inflect } from 'fleck';
-import { assoc } from 'sprout-data';
+import React from 'react';
 import { autobind } from 'core-decorators';
 
 // components
@@ -13,19 +11,7 @@ import { Link } from 'react-router';
 
 import styles from './breadcrumbs.css';
 
-import type { HTMLElement } from 'types';
-
-type Route = {
-  path: string,
-  name: string,
-  indexRoute: Object,
-  titleParam: Object,
-};
-
-type Props = {
-  routes: Array<Route>,
-  params: Object,
-};
+import type { HTMLElement, RoutesParams, Route } from 'types';
 
 const Delimiter = (props: {idx: number}) => {
   return (
@@ -54,7 +40,7 @@ const Crumb = (props: {to: string, params: Object, name: string}) => {
 };
 
 export default class Breadcrumbses extends React.Component {
-  props: Props;
+  props: RoutesParams;
 
   @autobind
   readableName(route: Route) {
@@ -66,6 +52,10 @@ export default class Breadcrumbses extends React.Component {
     )(parts);
     const title = _.get(route, 'title', titlePath);
 
+    if (route.name == 'category') {
+      return _.get(this.props, ['params', 'categoryName'], title);
+    }
+
     let titleParam = route.titleParam;
     if (!titleParam && route.path && route.path[0] === ':') {
       titleParam = route.path;
@@ -73,9 +63,9 @@ export default class Breadcrumbses extends React.Component {
 
     if (titleParam) {
       return _.get(this.props, ['params', titleParam.slice(1)], title);
-    } else {
-      return title;
     }
+
+    return title;
   }
 
   delimeter(idx: number) {
@@ -84,21 +74,25 @@ export default class Breadcrumbses extends React.Component {
 
   get crumbs(): Array<HTMLElement> {
     return _.compact(_.map(this.props.routes, (route) => {
+      let result = null;
+
       if (_.isEmpty(route.path)) {
-        return null;
+        result = null;
       } else if (route.path === '/' && _.isEmpty(route.name)) {
-        return (
+        result = (
           <HomeCrumb params={this.props.params} />
         );
       } else if (_.isEmpty(route.indexRoute)) {
-        return (
+        result = (
           <Crumb to={route.name} params={this.props.params} name={this.readableName(route)} />
         );
       } else {
-        return (
+        result = (
           <Crumb to={route.indexRoute.name} params={this.props.params} name={this.readableName(route)} />
         );
       }
+
+      return result;
     }));
   }
 

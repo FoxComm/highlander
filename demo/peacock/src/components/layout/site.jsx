@@ -1,4 +1,6 @@
-import React, { PropTypes, Component } from 'react';
+/* @flow */
+
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { dissoc } from 'sprout-data';
 
@@ -9,18 +11,18 @@ import styles from './site.css';
 import Overlay from '../overlay/overlay';
 import Auth from '../auth/auth';
 
+import type { RoutesParams } from 'types';
+
 const mapState = state => ({
   isAuthBlockVisible: state.auth.isAuthBlockVisible,
 });
 
-/* ::`*/
-@connect(mapState, actions)
-/* ::`*/
+type Props = RoutesParams & {
+  children: Array<any>,
+};
+
 class Site extends Component {
-  static propTypes = {
-    routes: PropTypes.array.isRequired,
-    params: PropTypes.object.isRequired
-  };
+  props: Props;
 
   renderAuthBlock() {
     const auth = this.props.location.query.auth;
@@ -53,8 +55,4 @@ class Site extends Component {
   }
 }
 
-Site.propTypes = {
-  children: PropTypes.node,
-};
-
-export default Site;
+export default connect(mapState, actions)(Site);
