@@ -40,6 +40,7 @@ class TaxonListWidget extends Component {
     }
   }
 
+  @autobind
   handleAddButton() {
     if (this.props.currentTaxon !== 'new') {
       this.props.addNewValue();
