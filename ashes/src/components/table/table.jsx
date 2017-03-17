@@ -26,10 +26,6 @@ export function tableMessage(message: Element<*>|string, inline: boolean = false
 
 type RowType = Object;
 type Rows = Array<RowType>;
-type Column = {
-  type: string;
-  field?: string;
-}
 
 export type Props = {
   data: {
@@ -51,7 +47,7 @@ export type Props = {
   className?: string;
   showLoadingOnMount?: boolean;
   wrapToTbody: boolean;
-  columns: Array<Column>;
+  columns: Columns;
   renderHeadIfEmpty: boolean;
   tbodyId?: string;
 }

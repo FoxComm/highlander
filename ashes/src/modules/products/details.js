@@ -10,9 +10,6 @@ import { createEmptyProduct, configureProduct, duplicateProduct } from 'paragons
 import { createAsyncActions } from '@foxcomm/wings';
 import { dissoc, assoc, update, merge } from 'sprout-data';
 
-// types
-import type { Product } from 'paragons/product';
-
 export type ProductDetailsState = {
   product: ?Product,
   skuVariantMap: Object,

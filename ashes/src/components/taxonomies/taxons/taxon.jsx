@@ -13,7 +13,7 @@ import { autobind } from 'core-decorators';
 import ObjectPageDeux from 'components/object-page/object-page-deux';
 
 // actions
-import * as taxonsActions from 'modules/taxons/details';
+import * as taxonsActions from 'modules/taxons/details/taxon';
 
 // page layout
 import layout from './layout.json';
@@ -89,7 +89,7 @@ class TaxonPage extends React.Component {
         context: this.props.params.context
       }),
       getTitle: (t: Taxon) => get(t.attributes, 'name.v', ''),
-      transition: (id: number|string) => transitionTo('value-details', {
+      transition: (id: number|string) => transitionTo('taxon-details', {
         taxonomyId: this.props.params.taxonomyId,
         context: this.props.params.context,
         taxonId: id
@@ -98,12 +98,10 @@ class TaxonPage extends React.Component {
   }
 
   get navLinks(): NavLinks<TaxonParams> {
-    return [{
-      title: 'Details',
-      to: 'value-details',
-      params: this.props.params,
-      key: 'value-details-link',
-    }];
+    return [
+      { title: 'Details', to: 'taxon-details', params: this.props.params },
+      { title: 'Products', to: 'taxon-products', params: this.props.params },
+    ];
   }
 
   get fetchState(): AsyncState {

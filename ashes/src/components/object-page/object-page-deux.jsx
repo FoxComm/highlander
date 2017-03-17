@@ -48,7 +48,7 @@ class ObjectPageDeux extends Component {
         <LinkComponent
           to={settings.to}
           params={settings.params}
-          key={settings.key}
+          key={settings.to}
           children={settings.title}
         />
       );

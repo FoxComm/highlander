@@ -23,12 +23,12 @@ declare type TaxonomyResult = {
 
 declare type TaxonDraft = {
   parentId?: number,
-  name: string,
   attributes: Attributes
 };
 
 declare type Taxon = TaxonDraft & {
   id: number,
+  taxonomyId: number,
 };
 
 declare type TaxonResult = {
