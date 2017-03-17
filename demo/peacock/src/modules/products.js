@@ -19,7 +19,7 @@ export type Product = {
   skus: Array<string>,
   tags: Array<string>,
   albums: ?Array<Object> | Object,
-}
+};
 
 const MAX_RESULTS = 1000;
 const context = process.env.FIREBIRD_CONTEXT || 'default';
@@ -36,6 +36,7 @@ function apiCall(
     const giftCardTerm = termFilter('tags', GIFT_CARD_TAG);
     payload = addMustNotFilter(payload, giftCardTerm);
     const order = sorting.direction === -1 ? 'desc' : 'asc';
+    // $FlowFixMe
     payload.sort = [{ [sorting.field]: { order } }];
   }
 
@@ -43,7 +44,7 @@ function apiCall(
 }
 
 function searchGiftCards() {
-  return apiCall.call({ api }, GIFT_CARD_TAG, null, { ignoreGiftCards: false });
+  return apiCall.call({ api }, GIFT_CARD_TAG, null, {direction: 1, field: 'salesPrice'}, { ignoreGiftCards: false });
 }
 
 const {fetch, ...actions} = createAsyncActions('products', apiCall);

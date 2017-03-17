@@ -8,11 +8,9 @@ import { browserHistory } from 'lib/history';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import * as actions from 'modules/products';
-import { assetsUrl } from 'lib/env';
 
 // components
 import ProductsList, { LoadingBehaviors } from 'components/products-list/products-list';
-import ProductTypeSelector from 'ui/product-type-selector';
 
 // styles
 import styles from './products.css';
