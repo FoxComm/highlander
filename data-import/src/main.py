@@ -8,6 +8,7 @@ import urllib.request
 from collections import defaultdict
 from copy import deepcopy
 from urllib.error import HTTPError
+import itertools
 
 
 class Taxon:
@@ -348,8 +349,8 @@ def query_es_taxonomies(jwt: str, host:str):
 
 
 def load_file_taxonomies():
-    listing_taxonomies = load_taxonomies("./addidas/listings.json")
-    taxonomies = load_taxonomies("./addidas/products.json")
+    listing_taxonomies = load_taxonomies("./data/listings.json")
+    taxonomies = load_taxonomies("./data/products.json")
 
     # merge taxonomies from listing.json and products.json
     for k in listing_taxonomies:
@@ -417,14 +418,16 @@ def import_taxonomies(p: Phoenix):
                                                                                             existing_taxon.taxon_id))
 
 
-def import_products(p:Phoenix):
-    products = load_products("./addidas/products.json")
+def import_products(p:Phoenix, max_products):
+    products = load_products("./data/products.json")
     cache_dir = "cache"
     p.ensure_logged_in()
     taxonomies = query_es_taxonomies(p.jwt, p.host)
 
-    for v in products.values():
-        product = p.create_product(v)
+    product_groups = products.values() if max_products == None else itertools.islice(products.values(),int(max_products))
+
+    for g in product_groups:
+        product = p.create_product(g)
         if product is not None:
             code = product['skus'][0]['attributes']['code']['v']
 
@@ -435,26 +438,32 @@ def import_products(p:Phoenix):
                 uploaded, result = p.upload_product(code, product)
                 if uploaded:
                     json.dump(product, open(cache_file, 'w'))
-                    assign_taxonomies(p, taxonomies, v, result['id'])
+                    assign_taxonomies(p, taxonomies, g, result['id'])
 
 
 def main():
     host = sys.argv[1]
-    command = None if len(sys.argv) < 3 else sys.argv[2]
+    command = sys.argv[2]
+    max_products = None if len(sys.argv) < 4 else sys.argv[3]
+
     print("HOST: ", host)
     print("CMD: ", command)
+    if max_products != None:
+        print("MAX: ", max_products)
 
     p = Phoenix(host=host)
 
     if command == 'taxonomies':
         import_taxonomies(p)
     elif command == 'products':
-        import_products(p)
-    elif command is None:
+        import_products(p, max_products)
+    elif command == 'both':
         print("Importing taxonomies\n")
         import_taxonomies(p)
         print("Importing products\n")
-        import_products(p)
+        import_products(p, max_products)
+    else:
+        print ("Valid commands are, 'taxonomies', 'products', or 'both'")
 
 if __name__ == "__main__":
     main()
