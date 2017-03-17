@@ -29,6 +29,7 @@ type Props = {
   fetchAddresses: () => Promise,
   addresses: Array<Address>,
   updateAddress: Function,
+  updateShippingAddress: Function,
   deleteAddress: (id: number) => Promise,
   restoreAddress: (id: number) => Promise,
   t: any,
@@ -78,6 +79,10 @@ class MyShippingAddresses extends Component {
   selectAddressById(id) {
     const newShippingAddress = _.find(this.props.addresses, { id });
     this.props.updateShippingAddress(newShippingAddress);
+    if (!newShippingAddress.isDefault) {
+      newShippingAddress.isDefault = true;
+      this.props.updateAddress(newShippingAddress, id);
+    }
     this.setState({
       activeAddressId: id,
     });
