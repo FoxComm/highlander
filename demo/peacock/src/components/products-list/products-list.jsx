@@ -27,6 +27,10 @@ type Props = {
   loadingBehavior?: 0|1,
   list: ?Array<Object>,
   isLoading: ?boolean,
+  sorting: {
+    direction: number,
+    field: string,
+  },
 };
 
 type State = {
@@ -37,10 +41,6 @@ class ProductsList extends Component {
   props: Props;
   state: State = {
     shownProducts: {},
-    sorting: {
-      direction: 1,
-      field: 'price',
-    },
   };
   _willUnmount: boolean = false;
 
@@ -144,46 +144,21 @@ class ProductsList extends Component {
     }
   }
 
-  @autobind
-  changeSorting(field: string) {
-    let newState = null;
-    if (this.state.sorting.field === field) {
-      const direction = this.state.sorting.direction * (-1);
-      newState = {
-        sorting: {
-          field,
-          direction,
-        },
-      };
-    } else {
-      const direction = this.state.sorting.direction;
-      newState = {
-        sorting: {
-          field,
-          direction,
-        },
-      };
-    }
-
-    console.log(field, newState);
-
-    this.setState(newState);
-  }
-
   get sorting(): HTMLElement {
+    const { sorting, changeSorting } = this.props;
     return (
       <div styleName="sorting">
         <SortPill
           field="price"
-          direction={this.state.sorting.direction}
-          isActive={this.state.sorting.field === 'price'}
-          onClick={() => this.changeSorting('price')}
+          direction={sorting.direction}
+          isActive={sorting.field === 'salePrice'}
+          onClick={() => changeSorting('salePrice')}
         />
         <SortPill
           field="name"
-          direction={this.state.sorting.direction}
-          isActive={this.state.sorting.field === 'name'}
-          onClick={() => this.changeSorting('name')}
+          direction={sorting.direction}
+          isActive={sorting.field === 'title'}
+          onClick={() => changeSorting('title')}
         />
       </div>
     );

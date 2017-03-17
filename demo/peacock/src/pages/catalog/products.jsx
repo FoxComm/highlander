@@ -41,6 +41,13 @@ type Props = {
   location: any,
 };
 
+type State = {
+  sorting: {
+    direction: number,
+    field: string,
+  },
+};
+
 // redux
 const mapStateToProps = state => {
   const async = state.asyncActions.products;
@@ -56,9 +63,16 @@ const defaultProductType = productTypes[0];
 
 class Products extends Component {
   props: Props;
+  state: State = {
+    sorting: {
+      direction: 1,
+      field: 'salePrice',
+    },
+  };
 
   componentWillMount() {
     const { categoryName, productType } = this.props.params;
+    const { sorting } = this.state;
     this.props.fetch(categoryName, productType);
   }
 
@@ -72,6 +86,23 @@ class Products extends Component {
     if ((categoryName !== nextCategoryName) || (productType !== nextProductType)) {
       this.props.fetch(nextCategoryName, nextProductType);
     }
+  }
+
+
+  @autobind
+  changeSorting(field: string) {
+    const direction = this.state.sorting.field === field
+      ? this.state.sorting.direction * (-1)
+      : this.state.sorting.direction;
+
+    const newState = {
+      sorting: {
+        field,
+        direction,
+      },
+    };
+
+    this.setState(newState);
   }
 
   @autobind
@@ -154,6 +185,8 @@ class Products extends Component {
           {this.navBar}
         </div>
         <ProductsList
+          sorting={this.state.sorting}
+          changeSorting={this.changeSorting}
           list={this.props.list}
           isLoading={this.props.isLoading}
           loadingBehavior={LoadingBehaviors.ShowWrapper}
