@@ -11,7 +11,7 @@ import { AddButton } from 'components/common/buttons';
 
 // actions
 import * as TaxonomyActions from 'modules/taxonomies/details';
-import * as TaxonActions from 'modules/taxons/details';
+import * as TaxonActions from 'modules/taxons/details/taxon';
 
 // style
 import styles from './taxon-list-widget.css';
@@ -24,13 +24,14 @@ class TaxonListWidget extends Component {
   }
 
   transition(id: number|string) {
-    transitionTo('value-details', {
+    transitionTo('taxon-details', {
       taxonomyId: this.props.id,
       context: this.props.context,
       taxonId: id
     });
   }
 
+  @autobind
   handleTaxonClick(id: string) {
     const { fetchTaxon, context, currentTaxon } = this.props;
 
@@ -73,18 +74,16 @@ class TaxonListWidget extends Component {
   render () {
     const { taxonomy } = this.props;
 
-    if (!this.props.taxonomy || this.props.taxonomy.hierarchical) {
+    if (!taxonomy || taxonomy.hierarchical) {
       return <div></div>;
     }
 
     return (
-      <div styleName="taxon-list">
+      <div styleName="root">
         <div styleName="header">
           {taxonomy.attributes.name.v}
         </div>
-        <div styleName="items">
           {this.renderChildren()}
-        </div>
         <div styleName="footer">
           <AddButton className="fc-btn-primary" onClick={this.handleAddButton}>
             Value
