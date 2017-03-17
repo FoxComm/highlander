@@ -9,7 +9,7 @@ import { connect } from 'react-redux';
 // components
 import EditAddress from 'ui/address/edit-address';
 import CheckoutForm from '../checkout-form';
-import { TextInput } from 'ui/inputs';
+import { TextInput } from 'ui/text-input';
 import { FormField } from 'ui/forms';
 
 import { saveEmail } from 'modules/auth';
@@ -99,7 +99,7 @@ class GuestShipping extends Component {
       >
         <div styleName="subtitle">YOUR INFORMATION</div>
         <FormField>
-          <TextInput value={this.state.email} styleName="guest-email" onChange={this.handleChangeEmail}/>
+          <TextInput value={this.state.email} onChange={this.handleChangeEmail}/>
         </FormField>
         <div styleName="subtitle">SHIPPING ADDRESS</div>
         <EditAddress

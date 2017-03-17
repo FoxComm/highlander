@@ -6,7 +6,7 @@ import styles from './autocomplete.css';
 import { autobind } from 'core-decorators';
 import scrollIntoView from 'dom-scroll-into-view';
 
-import { TextInputWithLabel } from 'ui/inputs';
+import { TextInput } from 'ui/text-input';
 
 /* eslint react/sort-comp: 0 */
 
@@ -407,11 +407,11 @@ class Autocomplete extends Component {
 
     return (
       <div ref="container" styleName="autocomplete" >
-        <TextInputWithLabel
+        <TextInput
           label={this.state.isOpen ? '▲' : '▼'}
+          hasSymbol
           type="text"
           {...inputProps}
-          styleName="input"
           role="combobox"
           aria-autocomplete="both"
           onFocus={this.handleInputFocus}

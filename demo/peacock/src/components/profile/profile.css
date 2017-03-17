@@ -86,13 +86,6 @@
   width: 100px;
 }
 
-.text-input {
-  composes: text-input from "ui/css/input.css";
-  background-color: #f4f4f4;
-  color: var(--text-color-dark);
-  width: 100%;
-}
-
 .form-field {
   margin-bottom: 10px;
 }

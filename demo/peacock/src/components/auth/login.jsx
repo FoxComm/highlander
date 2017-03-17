@@ -166,7 +166,7 @@ class Login extends Component {
             type="submit"
             styleName="primary-button"
             isLoading={this.props.isLoading}
-            children={t('LOG IN')}
+            children={t('Login')}
           />
           {this.bottomMessage}
         </Form>

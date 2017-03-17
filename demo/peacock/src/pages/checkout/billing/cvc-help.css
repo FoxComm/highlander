@@ -8,6 +8,7 @@
   text-align: center;
   width: 19px;
   height: 19px;
+  line-height: 19px;
   display: inline-block;
   position: relative;
   cursor: pointer;
@@ -29,7 +30,7 @@
   display: block;
   animation: show-popup 0.3s ease-out;
   right: -24px;
-  bottom: calc(100% + 24px);
+  bottom: calc(100% + 18px);
   background: #fff;
   color: var(--blackish);
   font-size: 14px;

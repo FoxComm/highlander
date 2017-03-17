@@ -8,9 +8,3 @@
     margin-top: 0;
   }
 }
-
-.guest-email {
-  composes: text-input from "ui/css/input.css";
-  width: 100%;
-}
-

@@ -13,7 +13,7 @@ import type { Localized } from 'lib/i18n';
 
 // components
 import MaskedInput from 'react-text-mask';
-import { TextInput } from '../inputs';
+import { TextInput } from 'ui/text-input';
 import { FormField } from 'ui/forms';
 import Select from 'ui/select/select';
 import Autocomplete from 'ui/autocomplete';

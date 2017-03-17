@@ -13,7 +13,7 @@ import { authBlockTypes } from 'paragons/auth';
 
 import localized from 'lib/i18n';
 
-import { TextInput } from 'ui/inputs';
+import { TextInput } from 'ui/text-input';
 import { FormField, Form } from 'ui/forms';
 import Button from 'ui/buttons';
 

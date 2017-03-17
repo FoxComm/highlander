@@ -15,6 +15,7 @@
   line-height: 20px;
   padding: 14px 10px;
   border: none;
+  border-radius: 4px;
   background-color: var(--button-bg);
   color: var(--button-fg);
   text-align: center;

@@ -10,7 +10,7 @@ import { email } from 'ui/forms/validators';
 import styles from './gift-card-form.css';
 
 // components
-import { TextInput } from 'ui/inputs';
+import { TextInput } from 'ui/text-input';
 import { Form, FormField } from 'ui/forms';
 import AddToCartBtn from 'ui/add-to-cart-btn';
 import Select from 'ui/select/select';

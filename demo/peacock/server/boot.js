@@ -23,7 +23,7 @@ if (process.env.NODE_ENV == 'production' &&
 
 const App = require('./app');
 
-process.title = 'tpg-ui';
+process.title = 'peacock-ui';
 
 const app = new App();
 app.start();

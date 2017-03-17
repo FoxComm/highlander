@@ -6,7 +6,7 @@ import { autobind } from 'core-decorators';
 import _ from 'lodash';
 
 // components
-import { TextInput } from 'ui/inputs';
+import { TextInput } from 'ui/text-input';
 import Button from 'ui/buttons';
 import { FormField } from 'ui/forms';
 import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
