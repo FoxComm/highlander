@@ -15,7 +15,7 @@ type Props = {
   isVisible: boolean,
   onCancel: () => void,
   onConfirm: (users: Array<TUser>) => void,
-  onAddProduct: (productId: number) => Promise<*>,
+  onAddProduct: (product: Product) => Promise<*>,
   addState: AsyncState,
   addedProducts: Array<Product>,
   title: string|Element<*>,

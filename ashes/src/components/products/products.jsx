@@ -25,10 +25,10 @@ type Props = {
 };
 
 const tableColumns: Columns = [
-  { field: 'productId', text: 'Product ID', type: null },
+  { field: 'productId', text: 'Product ID' },
   { field: 'image', text: 'Image', type: 'image' },
-  { field: 'title', text: 'Name', type: null },
-  { field: 'state', text: 'State', type: null },
+  { field: 'title', text: 'Name' },
+  { field: 'state', text: 'State' },
 ];
 
 export class Products extends Component {

@@ -2,7 +2,7 @@
 
 //libs
 import { get, find, reduce, size } from 'lodash';
-import React, { PropTypes } from 'react';
+import React, { Element } from 'react';
 
 // helpers
 import { activeStatus, isArchived } from 'paragons/common';
@@ -17,7 +17,7 @@ import styles from './product-add.css';
 type Params = {
   addState: AsyncState,
   addedProducts: Array<Product>,
-  onAdd: (product: Product) => void,
+  onAdd: (product: Product) => any,
 };
 
 type Props = {

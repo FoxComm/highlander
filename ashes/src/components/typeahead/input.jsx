@@ -11,7 +11,7 @@ type Props = {
 class TypeaheadInput extends Component {
   props: Props;
 
-  _input: Element<*>;
+  _input: HTMLElement;
 
   static defaultProps = {
     className: '',

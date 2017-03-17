@@ -17,7 +17,6 @@ import { DeleteButton } from 'components/common/buttons';
 
 import reducer, { suggestSkus } from 'modules/skus/suggest';
 import type { SuggestOptions } from 'modules/skus/suggest';
-import type { Sku as SearchViewSku } from 'modules/skus/list';
 import { skuId } from 'paragons/product';
 
 type Props = {
@@ -32,7 +31,7 @@ type Props = {
   isFetchingSkus: boolean,
   variantsSkusIndex: Object,
   suggestSkus: (code: string, context?: SuggestOptions) => Promise<*>,
-  suggestedSkus: Array<SearchViewSku>,
+  suggestedSkus: SkuSearch,
   variants: Array<any>,
 };
 
@@ -53,7 +52,7 @@ function stop(event: SyntheticEvent) {
   event.stopPropagation();
 }
 
-function pickSkuAttrs(searchViewSku: SearchViewSku) {
+function pickSkuAttrs(searchViewSku: SkuSearchItem) {
   const sku = _.pick(searchViewSku, ['title', 'context']);
   sku.salePrice = {
     value: Number(searchViewSku.salePrice),
@@ -161,12 +160,12 @@ class EditableSkuRow extends Component {
     });
   }
 
-  updateAttrsBySearchViewSku(searchViewSku: SearchViewSku) {
+  updateAttrsBySearchViewSku(searchViewSku: SkuSearchItem) {
     this.updateSku(pickSkuAttrs(searchViewSku));
   }
 
   @autobind
-  handleSelectSku(searchViewSku: SearchViewSku) {
+  handleSelectSku(searchViewSku: SkuSearchItem) {
     this.closeSkusMenu(
       () => this.updateAttrsBySearchViewSku(searchViewSku)
     );
@@ -194,7 +193,7 @@ class EditableSkuRow extends Component {
   get menuItemsContent(): Array<Element<*>> {
     const items = this.props.suggestedSkus;
 
-    return items.map((sku: SearchViewSku) => {
+    return items.map((sku: SkuSearchItem) => {
       return (
         <li
           id={`fct-search-view-line__${sku.skuCode}`}

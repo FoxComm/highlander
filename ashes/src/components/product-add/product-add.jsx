@@ -21,7 +21,7 @@ import styles from './product-add.css';
 type Props = {
   addState: AsyncState,
   addedProducts: Array<Product>,
-  onAddProduct: (productId: number) => Promise<*>,
+  onAddProduct: (product: Product) => Promise<*>,
 };
 
 type State = {
@@ -38,7 +38,7 @@ const tableColumns = [
   { field: 'add' },
 ];
 
-class ProductsSearch extends Component {
+class ProductsAdd extends Component {
   props: Props;
 
   state: State = {
@@ -49,18 +49,20 @@ class ProductsSearch extends Component {
 
   @debounce(400)
   search() {
-    this.setState({ inProgress: true }, () =>
+    this.setState({ inProgress: true }, () => {
       searchProducts(this.state.search)
         .then(response => this.setState({
           products: get(response, 'result', []),
           inProgress: false
         }))
-        .catch({ inProgress: false })
-    );
+        .catch(() => this.setState({ inProgress: false }));
+
+      return; // searchProducts returns Promise, setState's callback returns void
+    });
   }
 
   @autobind
-  handleInputChange({ target }: InputEvent) {
+  handleInputChange({ target }: { target: HTMLInputElement }) {
     this.setState({ search: target.value });
 
     this.search();
@@ -104,4 +106,4 @@ class ProductsSearch extends Component {
   }
 }
 
-export default ProductsSearch;
+export default ProductsAdd;

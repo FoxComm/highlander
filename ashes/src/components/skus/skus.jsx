@@ -27,8 +27,8 @@ export class Skus extends Component {
   props: Props;
 
   static tableColumns: Columns = [
-    { field: 'skuCode', text: 'SKU', type: null },
-    { field: 'title', text: 'Title', type: null },
+    { field: 'skuCode', text: 'SKU' },
+    { field: 'title', text: 'Title' },
     { field: 'salePrice', currencyField: 'salePriceCurrency', text: 'Sale Price', type: 'currency' },
     { field: 'retailPrice', currencyField: 'retailPriceCurrency', text: 'Retail Price', type: 'currency' }
   ];
