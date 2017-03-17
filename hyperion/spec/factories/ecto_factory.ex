@@ -9,6 +9,16 @@ defmodule Hyperion.EctoFactory do
           item_type: "tees"
         }
       end
+
+      def submission_result_factory do
+        %SubmissionResult{
+          product_id: 123,
+          product_feed: nil,
+          price_feed: nil,
+          inventory_feed: nil,
+          images_feed: nil
+        }
+      end
     end
   end
 end

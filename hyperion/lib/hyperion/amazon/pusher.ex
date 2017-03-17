@@ -1,17 +1,19 @@
 defmodule Hyperion.Amazon.Pusher do
   alias Hyperion.PhoenixScala.Client, warn: true
-  alias Hyperion.Amazon, warn: true
   alias Hyperion.Amazon.TemplateBuilder, warn: true
+  alias Hyperion.Amazon, warn: true
 
   def push(product_id, cfg, jwt, purge, inventory) do
     product = Client.get_product(product_id, jwt)
-    submit_product(product, cfg, purge)
-    |> submit_price(cfg)
-    |> submit_inventory(inventory, cfg)
-    |> submit_images(cfg)
+    result = SubmissionResult.first_or_create(product_id)
+
+    submit_product(product, cfg, purge, result.product_feed)
+    |> submit_price(cfg, result.price_feed)
+    |> submit_inventory(inventory, cfg, result.inventory_feed)
+    |> submit_images(cfg, result.images_feed)
   end
 
-  defp submit_product(product, cfg, purge) do
+  defp submit_product(product, cfg, purge, nil) do
     tpl = Amazon.product_feed(product)
           |> TemplateBuilder.submit_product_feed(%{seller_id: cfg.seller_id, purge_and_replace: purge})
 
@@ -29,7 +31,9 @@ defmodule Hyperion.Amazon.Pusher do
     end
   end
 
-  defp submit_price(product, cfg) do
+  defp submit_product(product, _cfg, _purge, _result), do: product
+
+  defp submit_price(product, cfg, nil) do
     tpl = Amazon.price_feed(product)
           |> TemplateBuilder.submit_price_feed(cfg)
 
@@ -47,7 +51,9 @@ defmodule Hyperion.Amazon.Pusher do
     end
   end
 
-  defp submit_inventory(product, inventory, cfg) do
+  defp submit_price(product, _cfg, _), do: product
+
+  defp submit_inventory(product, inventory, cfg, nil) do
     tpl = inventory
           |> Enum.with_index(1)
           |> TemplateBuilder.submit_inventory_feed(%{seller_id: cfg.seller_id})
@@ -66,7 +72,9 @@ defmodule Hyperion.Amazon.Pusher do
     end
   end
 
-  defp submit_images(product, cfg) do
+  defp submit_inventory(product, _inventory, _cfg, _), do: product
+
+  defp submit_images(product, cfg, nil) do
     tpl = Amazon.images_feed(product)
           |> TemplateBuilder.submit_images_feed(cfg)
 
@@ -82,6 +90,8 @@ defmodule Hyperion.Amazon.Pusher do
         SubmissionResult.submission_result(product.body["id"])
     end
   end
+
+  defp submit_images(product, _cfg, _), do: get_submisstion_result(product.body["id"])
 
   defp store_submition_result(product_id, payload) do
     SubmissionResult.store_step_result(product_id, payload)
