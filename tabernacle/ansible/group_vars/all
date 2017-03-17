@@ -364,6 +364,10 @@ update_materialized_views_cmd: "psql {{db_connection_string}} -f {{update_materi
 facebook_pixel_id: "433654337026546"
 ga_tracking_id: ""
 
+# S3
+s3_bucket: foxcomm-images
+s3_region: us-west-1
+
 # Imgix S3 source for products images
 imgix_products_source: ""
 s3_bucket_name: ""
