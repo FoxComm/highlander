@@ -12,6 +12,7 @@ import { assetsUrl } from 'lib/env';
 
 // components
 import ProductsList, { LoadingBehaviors } from 'components/products-list/products-list';
+import Facets from 'components/facets/facets';
 import ProductTypeSelector from 'ui/product-type-selector';
 
 // styles
@@ -153,11 +154,18 @@ class Products extends Component {
         <div styleName="dropDown">
           {this.navBar}
         </div>
-        <ProductsList
-          list={this.props.list}
-          isLoading={this.props.isLoading}
-          loadingBehavior={LoadingBehaviors.ShowWrapper}
-        />
+        <div styleName="facetted-container">
+          <div styleName="sidebar">
+            <Facets facets={[]} />
+          </div>
+          <div styleName="content">
+            <ProductsList
+              list={this.props.list}
+              isLoading={this.props.isLoading}
+              loadingBehavior={LoadingBehaviors.ShowWrapper}
+            />
+          </div>
+        </div>
       </section>
     );
   }

@@ -1,0 +1,27 @@
+.facets {
+    width: 200px;
+    padding-top: 100px;
+    padding-left: 50px;
+}
+
+.facet h2 {
+    width: 54px;
+    height: 20px;
+    font-family: Lato;
+    font-size: 16px;
+    font-weight: 900;
+    font-style: normal;
+    font-stretch: normal;
+    line-height: 1.25;
+    letter-spacing: normal;
+    color: #222222;
+    color: var(--black);
+}
+
+.checkbox-facet {
+}
+
+.circle-facet {
+    display: flex;
+    flex-wrap: wrap;
+}

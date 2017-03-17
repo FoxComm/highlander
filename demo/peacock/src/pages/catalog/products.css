@@ -112,3 +112,17 @@
     height: 727px;
   }
 }
+
+.facetted-container {
+}
+
+.sidebar{
+    float: left;
+    width: 20%;
+}
+
+.content{
+    float: right;
+    width: 80%;
+
+}
