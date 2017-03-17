@@ -12,7 +12,7 @@ import { TableRow, TableCell } from 'components/table';
 import { Button } from 'components/common/buttons';
 
 // styles
-import styles from './product-add.css';
+import styles from './products-add.css';
 
 type Params = {
   addState: AsyncState,

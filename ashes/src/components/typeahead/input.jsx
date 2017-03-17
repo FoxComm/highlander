@@ -4,7 +4,7 @@
 import React, { Component } from 'react';
 
 type Props = {
-  focusOnMount: boolean,
+  autoFocus: boolean,
   className: string,
 };
 
@@ -17,14 +17,8 @@ class TypeaheadInput extends Component {
     className: '',
   };
 
-  componentDidMount() {
-    if (this.props.focusOnMount) {
-      this._input.focus();
-    }
-  }
-
   render() {
-    const { className, focusOnMount, ...rest } = this.props;
+    const { className, ...rest } = this.props;
 
     return (
       <div className={className}>

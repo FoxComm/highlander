@@ -6,10 +6,10 @@ import React, { Component, Element } from 'react';
 // components
 import { ModalContainer } from 'components/modal/base';
 import ContentBox from 'components/content-box/content-box';
-import ProductsSearch from './product-add';
+import ProductsAdd from './products-add';
 
 // styles
-import styles from './product-add.css';
+import styles from './products-add.css';
 
 type Props = {
   isVisible: boolean,
@@ -47,7 +47,7 @@ class ProductsAddModal extends Component {
           actionBlock={this.actionBlock}
         >
           <div className="fc-modal-body">
-            <ProductsSearch
+            <ProductsAdd
               addedProducts={addedProducts}
               addState={addState}
               onAddProduct={onAddProduct}

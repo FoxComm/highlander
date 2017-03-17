@@ -16,7 +16,7 @@ import ProductRow from './product-row';
 import { searchProducts } from 'elastic/products';
 
 // styles
-import styles from './product-add.css';
+import styles from './products-add.css';
 
 type Props = {
   addState: AsyncState,
@@ -89,7 +89,7 @@ class ProductsAdd extends Component {
             className={styles.search}
             value={this.state.search}
             onChange={this.handleInputChange}
-            focusOnMount
+            autoFocus
           />
         </LoadingInputWrapper>
 

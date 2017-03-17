@@ -17,7 +17,7 @@ import { AddButton } from 'components/common/buttons';
 import SelectableSearchList from 'components/list-page/selectable-search-list';
 import ProductRow from 'components/products/product-row';
 import { makeTotalCounter } from 'components/list-page';
-import { ProductsAddModal } from 'components/product-add';
+import { ProductsAddModal } from 'components/products-add';
 
 // helpers
 import { filterArchived } from 'elastic/archive';
