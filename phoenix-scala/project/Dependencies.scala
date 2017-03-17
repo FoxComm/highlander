@@ -76,7 +76,8 @@ object Dependencies {
     "org.scalacheck"    %% "scalacheck"          % Versions.scalacheck,
     "org.mockito"       % "mockito-core"         % "2.1.0-beta.125",
     "com.typesafe.akka" %% "akka-testkit"        % Versions.akka,
-    "com.typesafe.akka" %% "akka-stream-testkit" % Versions.akka
+    "com.typesafe.akka" %% "akka-stream-testkit" % Versions.akka,
+    "io.gatling"        % "gatling-app"          % Versions.gatling
   ).map { testDep ⇒
     testDep % "test,it,et"
   }
@@ -104,5 +105,11 @@ object Dependencies {
     "com.github.tototoshi"  %% "scala-csv"              % "1.3.3",
     "org.typelevel"         %% "cats"                   % "0.7.2",
     "com.github.melrief"    %% "pureconfig"             % "0.5.1"
+  )
+
+  val kafka = Seq(
+    "org.apache.kafka"  % "kafka_2.11"            % "0.9.0.1",
+    "io.confluent"      % "kafka-avro-serializer" % "1.0",
+    "org.apache.avro"   % "avro"                  % "1.8.1"
   )
 }

@@ -13,8 +13,9 @@ defmodule Category do
     field :department
     field :item_type
     field :size_opts
+    field :object_schema_id, :integer
 
-    timestamps
+    timestamps()
   end
 
   def mapping do

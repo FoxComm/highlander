@@ -7,7 +7,8 @@ import consumer.elastic.AvroTransformer
 import consumer.elastic.mappings._
 
 case class CustomerGroupsSearchView()(implicit ec: EC) extends AvroTransformer {
-  def mapping() = esMapping("customer_groups_search_view").fields(
+  def topic() = "customer_groups_search_view"
+  def mapping() = esMapping(topic()).fields(
       field("id", IntegerType),
       field("name", StringType).analyzer("autocomplete"),
       field("groupType", StringType).index("not_analyzed"),

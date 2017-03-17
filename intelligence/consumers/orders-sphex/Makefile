@@ -1,11 +1,22 @@
 include ../../../makelib
 header = $(call baseheader, $(1), orders-sphex)
+export GOPATH = /tmp/go
+BUILD_ROOT_PATH=$(GOPATH)/src/github.com/FoxComm/highlander
+BUILD_PATH=$(BUILD_ROOT_PATH)/intelligence/consumers/orders-sphex
+HIGHLANDER_PATH=$(CURDIR)/../../../
 
 DOCKER_REPO ?= $(DOCKER_STAGE_REPO)
 DOCKER_IMAGE ?= orders-sphex
 DOCKER_TAG ?= master
 
-build:
+prepare:
+	$(call header, Prepare)
+	rm $(BUILD_ROOT_PATH) || true
+	mkdir -p $(GOPATH)/src/github.com/FoxComm
+	ln -s $(HIGHLANDER_PATH) $(BUILD_ROOT_PATH) || true
+	go get github.com/FoxComm/metamorphosis
+
+build: prepare
 	$(call header, Building)
 	GOOS=linux CGO_ENABLED=0 go build -o orders-sphex ./*.go
 

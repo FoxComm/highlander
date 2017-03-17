@@ -36,7 +36,8 @@ export default class Tags extends Component {
           onBlur={this.submitTags}
           onKeyDown={this.handleKeyDown}
           onChange={this.handleChange}
-          value={this.state.addingValue} />
+          value={this.state.addingValue}
+          autoFocus />
       );
     }
   }

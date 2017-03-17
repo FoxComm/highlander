@@ -5,23 +5,23 @@
 
 - name: Start Henhouse
   include: app_henhouse.yml
-  when: marathon_restart.henhouse
+  when: with_ic and marathon_restart.henhouse
 
 - name: Start Bernardo
   include: app_bernardo.yml
-  when: marathon_restart.bernardo
+  when: with_ic and marathon_restart.bernardo
 
 - name: Start Digger Sphex
   include: app_digger_sphex.yml
-  when: marathon_restart.digger_sphex
+  when: with_ic and marathon_restart.digger_sphex
 
 - name: Start Orders Sphex
   include: app_orders_sphex.yml
-  when: marathon_restart.orders_sphex
+  when: with_ic and marathon_restart.orders_sphex
 
 - name: Start Eggcrate
   include: app_eggcrate.yml
-  when: marathon_restart.eggcrate
+  when: with_ic and marathon_restart.eggcrate
 
 - name: Start River Rock
   include: app_river_rock.yml

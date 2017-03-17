@@ -1,4 +1,4 @@
-FROM mhart/alpine-node:6.9.1
+FROM mhart/alpine-node:7.7.1
 
 RUN npm install -g gulp
 

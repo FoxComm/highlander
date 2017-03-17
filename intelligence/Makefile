@@ -1,4 +1,4 @@
-SUBDIRS := consumers bernardo
+SUBDIRS := consumers bernardo cross-sell eggcrate river-rock
 BUILDDIRS := $(SUBDIRS:%=build-%)
 CLEANDIRS := $(SUBDIRS:%=clean-%)
 TESTDIRS := $(SUBDIRS:%=test-%)

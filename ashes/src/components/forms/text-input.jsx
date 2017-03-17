@@ -1,6 +1,4 @@
-/**
- * @flow
- */
+/* @flow */
 
 import React, { Component, Element, PropTypes } from 'react';
 import classNames from 'classnames';
@@ -11,6 +9,7 @@ type Props = {
   onChange: (value: string) => void,
   placeholder?: string,
   value: ?string,
+  autoFocus?: boolean
 };
 
 type State = {
@@ -20,15 +19,12 @@ type State = {
 export default class TextInput extends Component {
   props: Props;
 
-  static propTypes = {
-    className: PropTypes.string,
-    onChange: PropTypes.func,
-    placeholder: PropTypes.string,
-    value: PropTypes.string,
-  };
-
   static defaultProps = {
     value: ''
+  };
+
+  state: State = {
+    value: this.props.value
   };
 
   componentWillUpdate(nextProps: Props) {
@@ -44,10 +40,6 @@ export default class TextInput extends Component {
     } else {
       this.setState({value});
     }
-  };
-
-  state: State = {
-    value: this.props.value
   };
 
   render() {

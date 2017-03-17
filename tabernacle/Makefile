@@ -11,9 +11,6 @@ build:
 	$(call header, Building)
 	true
 
-lint:
-	ansible-lint -x ANSIBLE0007,ANSIBLE0004 ansible/*.yml
-
 test:
 	$(call header, Testing)
 	./terraform/testfmt.sh
@@ -38,4 +35,4 @@ docker-push:
 clean:
 	true
 
-.PHONY: all build clean lint test docker docker-push
+.PHONY: all build clean test docker docker-push

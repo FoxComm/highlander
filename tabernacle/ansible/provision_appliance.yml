@@ -13,12 +13,8 @@
     mesos_quorum: 1
     dns_record: "{{hostname}}"
     appliance_hostname: "{{dns_record}}.{{foxcomm_domain}}"
-    ashes_server_name: "{{dns_record}}.{{foxcomm_domain}}"
     storefront_server_name: "{{dns_record}}.{{foxcomm_domain}}"
     private_ip: "{{ansible_default_ipv4.address}}"
-    with_base_seeds: true
-    url_prefix_perfectgourmet: "/perfect-gourmet"
-    url_prefix_topdrawer: "/top-drawer"
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
   vars_prompt:
     - name: "hostname"
@@ -39,8 +35,8 @@
     - { role: dev/db }
     - { role: dev/db_ic }
     # Marathon
+    - { role: dev/seed_system }
     - { role: dev/marathon }
-    - { role: dev/seeder }
     - { role: dev/marathon_consumers }
     - { role: dev/ic }
     - { role: ext/td/storefront, when: marathon_restart.storefront_td }
@@ -49,9 +45,7 @@
     - { role: dev/balancer }
     - { role: hotfix/mesos_consul }
     - { role: demo/balancer }
+    #Seed
+    - { role: dev/seeder }
     # Finale
     - { role: dev/healthcheck }
-
-  handlers:
-     - include: roles/base/consul_agent/handlers/main.yml
-     - include: roles/base/mesos_consul/handlers/main.yml

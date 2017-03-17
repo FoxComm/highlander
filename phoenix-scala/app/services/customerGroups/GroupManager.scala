@@ -50,7 +50,7 @@ object GroupManager {
                        CustomerGroup
                          .fromPayloadAndAdmin(payloadWithCount, group.createdBy, scope)
                          .copy(id = groupId, updatedAt = Instant.now))
-      _ ← * <~ LogActivity.customerGroupUpdated(groupEdited, admin)
+      _ ← * <~ LogActivity().customerGroupUpdated(groupEdited, admin)
     } yield build(groupEdited)
 
   def delete(groupId: Int, admin: User)(implicit ec: EC, db: DB, au: AU, ac: AC): DbResultT[Unit] =
@@ -69,7 +69,7 @@ object GroupManager {
                DbResultT.unit,
                id ⇒ CustomerGroupMemberCannotBeDeleted(groupId, member.id))
          }
-      _ ← * <~ LogActivity.customerGroupArchived(group, admin)
+      _ ← * <~ LogActivity().customerGroupArchived(group, admin)
     } yield DbResultT.unit
 
   private def createCustom(payload: CustomerGroupPayload,
@@ -81,7 +81,7 @@ object GroupManager {
       updated ← * <~ doOrGood(group.elasticRequest == JObject() || group.elasticRequest == JNull,
                               CustomerGroups.update(group, withGroupQuery(group)),
                               group)
-      _ ← * <~ LogActivity.customerGroupCreated(updated, admin)
+      _ ← * <~ LogActivity().customerGroupCreated(updated, admin)
     } yield build(updated)
 
   private def createTemplateGroup(templateId: Int, payload: CustomerGroupPayload, admin: User)(
@@ -98,7 +98,7 @@ object GroupManager {
              GroupTemplateInstance(groupId = group.id,
                                    groupTemplateId = template.id,
                                    scope = scope))
-      _ ← * <~ LogActivity.customerGroupCreated(group, admin)
+      _ ← * <~ LogActivity().customerGroupCreated(group, admin)
     } yield build(group)
 
   private def withGroupQuery(group: CustomerGroup): CustomerGroup = {

@@ -25,10 +25,5 @@
 - name: Install Specific Node Version
   shell: n {{node_version}}
 
-- name: Install NPM Packages
-  shell: npm install -g {{item}}
-  with_items:
-    - babel-cli
-    - flow-bin
-    - gulp
-    - yarn
+- name: Install Yarn
+  shell: npm install -g yarn

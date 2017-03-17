@@ -34,7 +34,7 @@ object LineItemUpdater {
       au: AU): DbResultT[TheResponse[CartResponse]] = {
 
     val logActivity = (cart: CartResponse, oldQtys: Map[String, Int]) ⇒
-      LogActivity.orderLineItemsUpdated(cart, oldQtys, payload, Some(admin))
+      LogActivity().orderLineItemsUpdated(cart, oldQtys, payload, Some(admin))
 
     for {
       cart     ← * <~ Carts.mustFindByRefNum(refNum)
@@ -82,7 +82,7 @@ object LineItemUpdater {
       au: AU): DbResultT[TheResponse[CartResponse]] = {
 
     val logActivity = (cart: CartResponse, oldQtys: Map[String, Int]) ⇒
-      LogActivity.orderLineItemsUpdated(cart, oldQtys, payload)
+      LogActivity().orderLineItemsUpdated(cart, oldQtys, payload)
 
     val finder = Carts
       .findByAccountId(customer.accountId)
@@ -105,7 +105,7 @@ object LineItemUpdater {
       au: AU): DbResultT[TheResponse[CartResponse]] = {
 
     val logActivity = (cart: CartResponse, oldQtys: Map[String, Int]) ⇒
-      LogActivity.orderLineItemsUpdated(cart, oldQtys, payload, Some(admin))
+      LogActivity().orderLineItemsUpdated(cart, oldQtys, payload, Some(admin))
 
     for {
       cart     ← * <~ Carts.mustFindByRefNum(refNum)
@@ -123,7 +123,7 @@ object LineItemUpdater {
       au: AU): DbResultT[TheResponse[CartResponse]] = {
 
     val logActivity = (cart: CartResponse, oldQtys: Map[String, Int]) ⇒
-      LogActivity.orderLineItemsUpdated(cart, oldQtys, payload)
+      LogActivity().orderLineItemsUpdated(cart, oldQtys, payload)
 
     val finder = Carts
       .findByAccountId(customer.accountId)
@@ -145,13 +145,17 @@ object LineItemUpdater {
       ctx: OC,
       au: AU): DbResultT[TheResponse[CartResponse]] =
     for {
-      _     ← * <~ CartPromotionUpdater.readjust(cart).recover { case _ ⇒ Unit }
-      cart  ← * <~ CartTotaler.saveTotals(cart)
+      readjustedCartWithWarnings ← * <~ CartPromotionUpdater
+                                    .readjust(cart, failFatally = false)
+                                    .recover {
+                                      case _ ⇒ TheResponse(cart) /* FIXME: don’t swallow errors @michalrus */
+                                    }
+      cart  ← * <~ CartTotaler.saveTotals(readjustedCartWithWarnings.result)
       valid ← * <~ CartValidator(cart).validate()
       res   ← * <~ CartResponse.buildRefreshed(cart)
       li    ← * <~ CartLineItems.byCordRef(cart.refNum).countSkus
       _     ← * <~ logAct(res, li)
-    } yield TheResponse.validated(res, valid)
+    } yield readjustedCartWithWarnings.flatMap(_ ⇒ TheResponse.validated(res, valid))
 
   def foldQuantityPayload(payload: Seq[UpdateLineItemsPayload]): Map[String, Int] =
     payload.foldLeft(Map[String, Int]()) { (acc, item) ⇒
