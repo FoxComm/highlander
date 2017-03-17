@@ -3,8 +3,6 @@
 import React from 'react';
 import classNames from 'classnames';
 
-import Icon from 'ui/icon';
-
 import styles from './sort-pill.css';
 
 type Props = {

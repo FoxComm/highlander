@@ -26,14 +26,17 @@ const context = process.env.FIREBIRD_CONTEXT || 'default';
 const GIFT_CARD_TAG = 'GIFT-CARD';
 
 function apiCall(
-  categoryName: ?string, productType: ?string, sorting: { direction: number, field: string }, { ignoreGiftCards = true } = {}): global.Promise {
+  categoryName: ?string,
+  productType: ?string,
+  sorting: { direction: number, field: string },
+  { ignoreGiftCards = true } = {}): global.Promise {
   let payload = defaultSearch(context);
 
   if (ignoreGiftCards) {
     const giftCardTerm = termFilter('tags', GIFT_CARD_TAG);
     payload = addMustNotFilter(payload, giftCardTerm);
     const order = sorting.direction === -1 ? 'desc' : 'asc';
-    payload.sort = [ { [sorting.field]: { order } } ];
+    payload.sort = [{ [sorting.field]: { order } }];
   }
 
   return this.api.post(`/search/public/products_catalog_view/_search?size=${MAX_RESULTS}`, payload);
