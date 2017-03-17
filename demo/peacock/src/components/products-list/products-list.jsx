@@ -37,6 +37,10 @@ class ProductsList extends Component {
   props: Props;
   state: State = {
     shownProducts: {},
+    sorting: {
+      direction: 1,
+      field: 'price',
+    },
   };
   _willUnmount: boolean = false;
 
@@ -140,11 +144,47 @@ class ProductsList extends Component {
     }
   }
 
+  @autobind
+  changeSorting(field: string) {
+    let newState = null;
+    if (this.state.sorting.field === field) {
+      const direction = this.state.sorting.direction * (-1);
+      newState = {
+        sorting: {
+          field,
+          direction,
+        },
+      };
+    } else {
+      const direction = this.state.sorting.direction;
+      newState = {
+        sorting: {
+          field,
+          direction,
+        },
+      };
+    }
+
+    console.log(field, newState);
+
+    this.setState(newState);
+  }
+
   get sorting(): HTMLElement {
     return (
       <div styleName="sorting">
-        <SortPill field="price" direction={1} isActive/>
-        <SortPill field="name" direction={1} />
+        <SortPill
+          field="price"
+          direction={this.state.sorting.direction}
+          isActive={this.state.sorting.field === 'price'}
+          onClick={() => this.changeSorting('price')}
+        />
+        <SortPill
+          field="name"
+          direction={this.state.sorting.direction}
+          isActive={this.state.sorting.field === 'name'}
+          onClick={() => this.changeSorting('name')}
+        />
       </div>
     );
   }

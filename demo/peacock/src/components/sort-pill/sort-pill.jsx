@@ -11,6 +11,7 @@ type Props = {
   field: string,
   direction: number,
   isActive: boolean,
+  onClick?: Function,
 };
 
 const SortPill = (props: Props) => {
@@ -20,7 +21,7 @@ const SortPill = (props: Props) => {
   });
 
   return (
-    <div className={classes}>
+    <div className={classes} onClick={props.onClick}>
       {props.field}
       &nbsp;
       {props.isActive && <span styleName="pill-chevron">{icon}</span>}
