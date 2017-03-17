@@ -17,6 +17,11 @@ const mapState = state => ({
 @connect(mapState, actions)
 /* ::`*/
 class Site extends Component {
+  static propTypes = {
+    routes: PropTypes.array.isRequired,
+    params: PropTypes.object.isRequired
+  };
+
   renderAuthBlock() {
     const auth = this.props.location.query.auth;
     const pathname = this.props.location.pathname;
@@ -32,10 +37,19 @@ class Site extends Component {
   render() {
     const isAuthBlockVisible = this.props.location.query && this.props.location.query.auth;
 
+    console.log('Site', this.props);
+
+    const childrenWithRoutes = React.Children.map(this.props.children,
+      (child) => React.cloneElement(child, {
+        routes: this.props.routes,
+        routerParams: this.props.params,
+      })
+    );
+
     return (
       <div styleName="site">
         {isAuthBlockVisible && this.renderAuthBlock()}
-        {this.props.children}
+        {childrenWithRoutes}
       </div>
     );
   }

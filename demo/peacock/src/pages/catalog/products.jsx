@@ -2,15 +2,17 @@
 
 // libs
 import _ from 'lodash';
-import React, { Component } from 'react';
+import React, { Component, PropTypes } from 'react';
 import type { HTMLElement } from 'types';
 import { browserHistory } from 'lib/history';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import * as actions from 'modules/products';
+import { Router } from 'react-router';
 
 // components
 import ProductsList, { LoadingBehaviors } from 'components/products-list/products-list';
+import Breadcrumbs from 'components/breadcrumbs/breadcrumbs';
 
 // styles
 import styles from './products.css';
@@ -37,6 +39,8 @@ type Props = {
   isLoading: boolean,
   fetch: Function,
   location: any,
+  routes: Array<any>,
+  routerParams: Object,
 };
 
 type State = {
@@ -48,6 +52,7 @@ type State = {
 
 // redux
 const mapStateToProps = state => {
+  console.log(state);
   const async = state.asyncActions.products;
 
   return {
@@ -60,6 +65,12 @@ const mapStateToProps = state => {
 const defaultProductType = productTypes[0];
 
 class Products extends Component {
+
+  static propTypes = {
+    routes: PropTypes.array.isRequired,
+    params: PropTypes.object.isRequired
+  };
+
   props: Props;
   state: State = {
     sorting: {
@@ -141,12 +152,21 @@ class Products extends Component {
 
     return (
       <header styleName={className}>
-            {title}
+        <div styleName="crumbs">
+          <Breadcrumbs
+            routes={this.props.routes}
+            params={this.props.routerParams}
+          />
+        </div>
+        <div>
+          {title}
+        </div>
       </header>
     );
   }
 
   render(): HTMLElement {
+    console.log(this.props);
     return (
       <section styleName="catalog">
         {this.renderHeader()}

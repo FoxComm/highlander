@@ -29,6 +29,15 @@ const StoreFront = (props: Props) => {
     [styles['_without-banner']]: !props.banner.isVisible,
   });
 
+  const childrenWithRoutes = React.Children.map(props.children,
+    (child) => React.cloneElement(child, {
+      routes: props.routes,
+      routerParams: props.params,
+    })
+  );
+
+  console.log('SF', props);
+
   return (
     <div styleName="container">
       <Header
@@ -36,7 +45,7 @@ const StoreFront = (props: Props) => {
         query={props.location.query}
       />
       <div className={bodyClass}>
-        {props.children}
+        {childrenWithRoutes}
       </div>
       <Footer />
     </div>

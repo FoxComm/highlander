@@ -8,6 +8,11 @@
   margin-top: 50px;
 }
 
+.crumbs {
+  composes: inner-wrap from 'ui/css/layout.css';
+  display: flex;
+}
+
 .title {
   font-size: 40px;
   font-weight: 900;
