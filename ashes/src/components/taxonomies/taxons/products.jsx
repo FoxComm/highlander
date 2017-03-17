@@ -9,6 +9,7 @@ import { connect } from 'react-redux';
 
 // actions
 import { actions } from 'modules/taxons/details/products-list';
+import { addProduct } from 'modules/taxons/details/taxon';
 
 // components
 import { SectionTitle } from 'components/section-title';
@@ -16,7 +17,7 @@ import { AddButton } from 'components/common/buttons';
 import SelectableSearchList from 'components/list-page/selectable-search-list';
 import ProductRow from 'components/products/product-row';
 import { makeTotalCounter } from 'components/list-page';
-import ProductsAddModal from './products-add-modal';
+import ProductsSearchModal from './products-search-modal';
 
 // helpers
 import { transitionToLazy } from 'browserHistory';
@@ -36,10 +37,13 @@ type Column = {
   type: ?string,
 };
 
-type Props = ObjectPageChildProps<Taxonomy> & {
+type Props = ObjectPageChildProps<Taxon> & {
   actions: Object,
   list: Object,
-  params: TaxonomyParams,
+  addState: AsyncState,
+  params: TaxonomyParams & {
+    taxonId: number,
+  },
 };
 
 type State = {
@@ -50,7 +54,7 @@ const tableColumns: Array<Column> = [
   { field: 'productId', text: 'ID' },
   { field: 'image', text: 'Image', type: 'image' },
   { field: 'title', text: 'Name' },
-  { field: 'skus', text: 'Skus' },
+  { field: 'skus', text: 'SKUs' },
   { field: 'state', text: 'State' },
 ];
 
@@ -63,7 +67,7 @@ export class TaxonProductsPage extends Component {
 
   componentDidMount() {
     this.props.actions.setExtraFilters([
-      dsl.termFilter('taxonomies', this.props.object.id)
+      dsl.nestedTermFilter('taxonomies.taxons', get(this.props.object, 'attributes.name.v')),
     ]);
 
     this.props.actions.fetch();
@@ -84,12 +88,21 @@ export class TaxonProductsPage extends Component {
     return this.props.actions.addSearchFilters(filterArchived(filters), initial);
   }
 
+  @autobind
+  handleAddProduct(product: Product) {
+    const { actions, params: { taxonId, context } } = this.props;
+
+    actions.addProduct(taxonId, product.productId, context)
+      .then(this.props.actions.fetch);
+  }
+
   renderRow(row: Product, index: number, columns: Array<Column>, params: Object) {
     return <ProductRow key={row.id} product={row} columns={columns} params={params} />;
   }
 
   render() {
-    const { list, actions } = this.props;
+    const { list, actions, addState } = this.props;
+    const products = get(list, 'savedSearches[0].results.rows');
 
     const searchActions = {
       ...actions,
@@ -117,11 +130,13 @@ export class TaxonProductsPage extends Component {
           searchActions={searchActions}
           predicate={({ id }) => id}
         />
-        <ProductsAddModal
-          title="Products"
+        <ProductsSearchModal
           isVisible={this.state.modalVisible}
           onCancel={this.closeModal}
           onConfirm={this.closeModal}
+          onAddProduct={this.handleAddProduct}
+          addState={addState}
+          addedProducts={products}
         />
       </div>
     );
@@ -130,10 +145,14 @@ export class TaxonProductsPage extends Component {
 
 const mapState = state => ({
   list: get(state, 'taxons.details.products'),
+  addState: get(state.asyncActions, 'taxonAddProduct', {}),
 });
 
 const mapActions = dispatch => ({
-  actions: bindActionCreators(actions, dispatch),
+  actions: {
+    ...bindActionCreators(actions, dispatch),
+    addProduct: bindActionCreators(addProduct, dispatch),
+  },
 });
 
 export default connect(mapState, mapActions)(TaxonProductsPage);

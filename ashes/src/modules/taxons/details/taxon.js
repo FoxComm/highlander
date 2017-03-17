@@ -5,7 +5,6 @@ import { createAction, createReducer } from 'redux-act';
 import Api from 'lib/api';
 import { createAsyncActions } from '@foxcomm/wings';
 import { createEmptyTaxon, duplicateTaxon } from 'paragons/taxon';
-import _ from 'lodash';
 
 const defaultContext = 'default';
 
@@ -37,6 +36,13 @@ const _archiveTaxon = createAsyncActions(
     Api.delete(`/taxons/${context}/${taxonId}`)
 );
 
+
+const _addProduct = createAsyncActions(
+  'taxonAddProduct',
+  (taxonId: number, productId, context: string = defaultContext) =>
+    Api.patch(`/taxons/${context}/${taxonId}/product/${productId}`)
+);
+
 ////////////////////////////////////////////////////////////////////////////////
 // Public actions.
 ////////////////////////////////////////////////////////////////////////////////
@@ -48,6 +54,7 @@ export const clearArchiveErrors = _archiveTaxon.clearErrors;
 export const create = (taxonomyId: string) => _createTaxon.perform.bind(null, taxonomyId);
 export const archive = _archiveTaxon.perform;
 export const update = _updateTaxon.perform;
+export const addProduct = _addProduct.perform;
 
 export const fetch = (id: string, context: string = defaultContext): ActionDispatch => {
   return dispatch => {

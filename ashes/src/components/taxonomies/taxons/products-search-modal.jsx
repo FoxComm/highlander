@@ -1,23 +1,34 @@
 /* @flow */
 
 // libs
-import { autobind } from 'core-decorators';
+import classNames from 'classnames';
 import React, { Component, Element } from 'react';
 
 // components
 import { ModalContainer } from 'components/modal/base';
 import ContentBox from 'components/content-box/content-box';
 import SaveCancel from 'components/common/save-cancel';
+import ProductsSearch from './product-search/product-search';
+
+// styles
+import styles from './product-search/product-search.css';
 
 type Props = {
   isVisible: boolean,
   onCancel: () => void,
   onConfirm: (users: Array<TUser>) => void,
+  onAddProduct: (productId: number) => Promise<*>,
+  addState: AsyncState,
+  addedProducts: Array<Product>,
   title: string|Element<*>,
 }
 
 class ProductsAddModal extends Component {
   props: Props;
+
+  static defaultProps = {
+    title: 'Add Product',
+  };
 
   get actionBlock() {
     return (
@@ -27,35 +38,22 @@ class ProductsAddModal extends Component {
     );
   }
 
-  @autobind
-  handleSave() {
-    this.props.onConfirm();
-  }
-
-  get footer() {
-    return (
-      <SaveCancel
-        className="fc-modal-footer fc-add-watcher-modal__footer"
-        onCancel={this.props.onCancel}
-        onSave={this.handleSave}
-        saveText="Confirm"
-      />
-    );
-  }
-
   render() {
-    const { isVisible, title } = this.props;
+    const { isVisible, title, addedProducts, addState, onAddProduct, onCancel } = this.props;
 
     return (
-      <ModalContainer isVisible={isVisible}>
+      <ModalContainer isVisible={isVisible} onCancel={onCancel}>
         <ContentBox
-          className="fc-add-watcher-modal"
+          className={styles.modal}
           title={title}
           actionBlock={this.actionBlock}
-          footer={this.footer}
         >
           <div className="fc-modal-body">
-            Products add component goes here
+            <ProductsSearch
+              addedProducts={addedProducts}
+              addState={addState}
+              onAddProduct={onAddProduct}
+            />
           </div>
         </ContentBox>
       </ModalContainer>
