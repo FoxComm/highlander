@@ -7,6 +7,6 @@ defmodule Marketplace.Repo.Migrations.AddMerchantApplicationBusinessProfiles do
       add :business_profile_id, references(:business_profiles)
     end
 
-    create unique_index(:merchant_application_business_profiles, [:merchant_application_id])
+    create unique_index(:merchant_application_business_profiles, [:merchant_application_id], name: :merch_app_business_index)
   end
 end
