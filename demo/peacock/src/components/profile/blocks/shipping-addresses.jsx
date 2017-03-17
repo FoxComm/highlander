@@ -23,7 +23,7 @@ import type { Address } from 'types/address';
 
 const styles = {...addressStyles, ...profileStyles};
 
-import { updateAddress, fetchAddresses, deleteAddress, restoreAddress } from 'modules/checkout';
+import { updateAddress, fetchAddresses, deleteAddress, restoreAddress, updateShippingAddress } from 'modules/checkout';
 
 type Props = {
   fetchAddresses: () => Promise,
@@ -76,6 +76,8 @@ class MyShippingAddresses extends Component {
 
   @autobind
   selectAddressById(id) {
+    const newShippingAddress = _.find(this.props.addresses, { id });
+    this.props.updateShippingAddress(newShippingAddress);
     this.setState({
       activeAddressId: id,
     });
@@ -152,6 +154,6 @@ class MyShippingAddresses extends Component {
 }
 
 export default _.flowRight(
-  connect(mapStateToProps, {updateAddress, fetchAddresses, deleteAddress, restoreAddress}),
+  connect(mapStateToProps, {updateAddress, fetchAddresses, deleteAddress, restoreAddress, updateShippingAddress}),
   localized
 )(MyShippingAddresses);
