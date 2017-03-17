@@ -52,7 +52,6 @@ type State = {
 
 // redux
 const mapStateToProps = state => {
-  console.log(state);
   const async = state.asyncActions.products;
 
   return {
@@ -166,7 +165,6 @@ class Products extends Component {
   }
 
   render(): HTMLElement {
-    console.log(this.props);
     return (
       <section styleName="catalog">
         {this.renderHeader()}

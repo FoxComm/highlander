@@ -38,7 +38,7 @@ const Delimiter = (props: {idx: number}) => {
 const HomeCrumb = (props: {params: Object}) => {
   return (
     <li styleName="item" key="home-breadcrumbs-link">
-      <Link to="home" params={props.params} styleName="link">Home</Link>
+      <Link to="/" params={props.params} styleName="link">Home</Link>
     </li>
   );
 };

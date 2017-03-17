@@ -36,8 +36,6 @@ const StoreFront = (props: Props) => {
     })
   );
 
-  console.log('SF', props);
-
   return (
     <div styleName="container">
       <Header

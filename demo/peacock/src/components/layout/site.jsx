@@ -37,8 +37,6 @@ class Site extends Component {
   render() {
     const isAuthBlockVisible = this.props.location.query && this.props.location.query.auth;
 
-    console.log('Site', this.props);
-
     const childrenWithRoutes = React.Children.map(this.props.children,
       (child) => React.cloneElement(child, {
         routes: this.props.routes,
