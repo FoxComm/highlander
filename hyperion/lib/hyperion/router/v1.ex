@@ -110,9 +110,7 @@ defmodule Hyperion.Router.V1 do
           post :push do
             cfg = Credentials.mws_config(API.customer_id(conn))
             jwt = API.jwt(conn)
-            purge = if (params[:purge]), do: true , else: false
-            # opts = %{cfg: cfg, jwt: jwt, purge: purge}
-            r = Pusher.push(params[:product_id], cfg, jwt, purge, params[:inventory])
+            r = Pusher.push(params[:product_id], cfg, jwt, params[:purge], params[:inventory])
             respond_with(conn, r)
           end
         end

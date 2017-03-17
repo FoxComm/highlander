@@ -107,12 +107,20 @@ If no credentials found:
 
 ####Push product to amazon
 
-*request*
+Product pushed in four steps:
 
+* product info
+* proce info
+* inventory
+* images
+
+If some steps had failed and product has been pushed one more time only failed steps will be executed then.
+
+*request*
 
 |name|type|description|required?|
 |----|----|-----------|---------|
-|purge |Boolean|If `true` will replace existing product. Can be omitted.|No|
+|purge |Boolean|If `true` will replace existing product in Amazon. All steps will be executed. Parameter can be omitted.|No|
 |inventory|Array|Array of inventory objects|Yes|
 |inventory.sku|String|Variant SKU|Yes|
 |inventory. quantity |Integer|Variant quantitu to sell on Amazon|Yes|

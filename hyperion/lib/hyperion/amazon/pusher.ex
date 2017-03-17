@@ -3,10 +3,10 @@ defmodule Hyperion.Amazon.Pusher do
   alias Hyperion.Amazon.TemplateBuilder, warn: true
   alias Hyperion.Amazon, warn: true
 
-  def push(product_id, cfg, jwt, purge, inventory) do
+  def push(product_id, cfg, jwt, purge \\ false, inventory) do
     product = Client.get_product(product_id, jwt)
-    result = SubmissionResult.first_or_create(product_id)
-
+    result = get_submisstion_result(product_id, purge)
+    IO.puts(inspect(result))
     submit_product(product, cfg, purge, result.product_feed)
     |> submit_price(cfg, result.price_feed)
     |> submit_inventory(inventory, cfg, result.inventory_feed)
@@ -87,7 +87,7 @@ defmodule Hyperion.Amazon.Pusher do
         raise "Submit_images warning: " <> warn["ErrorResponse"]["Error"]["Message"]
       {_, resp} ->
         store_submition_result(product.body["id"], %{images_feed: resp["SubmitFeedResponse"]["SubmitFeedResult"]["FeedSubmissionInfo"]})
-        SubmissionResult.submission_result(product.body["id"])
+        get_submisstion_result(product.body["id"], false)
     end
   end
 
@@ -97,7 +97,7 @@ defmodule Hyperion.Amazon.Pusher do
     SubmissionResult.store_step_result(product_id, payload)
   end
 
-  defp get_submisstion_result(product_id) do
-    SubmissionResult.submission_result(product_id)
+  defp get_submisstion_result(product_id, force \\ false) do
+    SubmissionResult.submission_result(product_id, force)
   end
 end

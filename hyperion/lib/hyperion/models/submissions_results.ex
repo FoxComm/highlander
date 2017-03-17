@@ -23,9 +23,10 @@ defmodule SubmissionResult do
   end
 
   def first_or_create(product_id) do
+    pid = if is_integer(product_id), do: product_id , else: String.to_integer(product_id)
     q = from r in SubmissionResult,
         where: r.product_id == ^product_id
-    Repo.one(q) || Repo.insert!(%SubmissionResult{product_id: product_id})
+    Repo.one(q) || Repo.insert!(%SubmissionResult{product_id: pid})
   end
 
   def store_step_result(product_id, changes)  do
@@ -37,11 +38,18 @@ defmodule SubmissionResult do
     end
   end
 
-  def submission_result(product_id) do
-    # res = Hyperion.Repo.get_by(SubmissionResult, product_id: product_id)
+  def submission_result(product_id, false) do
     case Hyperion.Repo.get_by(SubmissionResult, product_id: product_id) do
-      empty when empty == %{} -> nil
+      nil -> first_or_create(product_id)
       x -> x
+    end
+  end
+
+  def submission_result(product_id, true) do
+    res = Hyperion.Repo.get_by(SubmissionResult, product_id: product_id)
+    case Hyperion.Repo.delete(res) do
+      {:ok, _} -> first_or_create(product_id)
+      {:error, changeset} -> raise changeset.error
     end
   end
 end
