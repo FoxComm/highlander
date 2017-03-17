@@ -242,7 +242,6 @@ export class ObjectPage extends Component {
   receiveNewObject(nextObject) {
     const nextObjectId = getObjectId(nextObject);
     const wasNew = this.isNew;
-
     this.setState({
       object: nextObject
     }, () => {
@@ -254,22 +253,6 @@ export class ObjectPage extends Component {
         });
       }
       if (!wasNew && !nextObjectId) {
-        this.transitionTo('new');
-      }
-    });
-  }
-
-  receiveNewObject(nextObject) {
-    const nextObjectId = getObjectId(nextObject);
-    const isNew = this.isNew;
-
-    this.setState({
-      object: nextObject
-    }, () => {
-      if (isNew && nextObjectId) {
-        this.transitionTo(nextObjectId);
-      }
-      if (!isNew && !nextObjectId) {
         this.transitionTo('new');
       }
     });
