@@ -9,8 +9,9 @@ import { trackEvent } from 'lib/analytics';
 import styles from './select-groups.css';
 
 import RadioButton from '../forms/radio-button';
-import { Table, TableRow, TableCell } from '../table';
-import { SelectableList, SelectableItem } from '../selectable-list';
+import Typeahead from '../typeahead/typeahead';
+import PilledInput from '../pilled-search/pilled-input';
+import CustomerGroupRow from './customer-group-row';
 
 import { fetchCustomerGroups } from '../../modules/customer-groups/all';
 
@@ -21,7 +22,7 @@ type GroupType = {
 }
 
 type Props = {
-  onSelect: (groups: Array<number>) => any;
+  updateSelectedIds: (groups: Array<number>) => any;
   groups: Array<GroupType>;
   selectedGroupIds: Array<number>;
   qualifyAll: boolean,
@@ -30,7 +31,7 @@ type Props = {
 };
 
 type State = {
-  popupOpened: boolean;
+  term: string,
 };
 
 class SelectCustomerGroups extends Component {
@@ -41,7 +42,7 @@ class SelectCustomerGroups extends Component {
   };
 
   state: State = {
-    popupOpened: false,
+    term: ''
   };
 
   componentDidMount() {
@@ -54,106 +55,72 @@ class SelectCustomerGroups extends Component {
     this.props.qualifyAllChange(isAllQualify);
   }
 
-  get tableColumns(): Array<Object> {
-    return [
-      { field: 'name', text: 'Customer Group Name', type: null },
-      { field: 'type', text: 'Type', type: null },
-      { type: null, control: this.togglePopupControl },
-    ];
-  }
-
-  @autobind
-  togglePopup() {
-    const eventName = this.state.popupOpened ? 'click_popup_close' : 'click_popup_open';
-    trackEvent(`Customer groups(${this.props.parent})`, eventName);
-    this.setState({
-      popupOpened: !this.state.popupOpened,
-    });
-  }
-
-  @autobind
-  handleSelect(groups: Array<number>) {
-    this.closePopup();
-    this.props.onSelect(groups);
-  }
-
-  @autobind
-  closePopup() {
-    this.setState({
-      popupOpened: false,
-    });
-  }
-
-  @autobind
-  renderGroup(group: GroupType) {
-    return (
-      <SelectableItem id={group.id}>
-        <strong>{group.name}</strong>
-        <span styleName="group-description">• {group.type}</span>
-      </SelectableItem>
-    );
-  }
-
-  get togglePopupControl() {
-    const iconClass = this.state.popupOpened ? 'icon-close' : 'icon-add';
-
-    return (
-      <i className={iconClass} styleName="toggle-control" onClick={this.togglePopup}>
-        <SelectableList
-          visible={this.state.popupOpened}
-          onSelect={this.handleSelect}
-          items={this.props.groups}
-          selectedItemIds={this.props.selectedGroupIds}
-          onBlur={this.closePopup}
-          emptyMessage="There are no customers groups."
-          renderItem={this.renderGroup}
-        />
-      </i>
-    );
-  }
-
-  get selectedGroups(): Array<GroupType> {
-    return _.filter(this.props.groups, group => this.props.selectedGroupIds.indexOf(group.id) != -1);
+  get suggestedGroups(){
+    let suggestions = _.filter(this.props.groups, (item) => {
+      return _.includes(item.name.toLowerCase(), this.state.term.toLowerCase());
+    })   
+    return suggestions;
   }
 
   get customersGroups(): ?Element<*> {
     if (this.props.qualifyAll !== false) return null;
-
-    return (
-      <div>
-        <Table
-          styleName="groups-table"
-          emptyMessage="No customer groups yet."
-          columns={this.tableColumns}
-          renderRow={this.renderCustomerGroupRow}
-          data={{
-            rows: this.selectedGroups,
-          }}
-        />
-      </div>
-    );
+    return (<div styleName="root">
+          <Typeahead
+            className="_no-search-icon"
+            isFetching={false}
+            isAsync={false}
+            component={CustomerGroupRow}
+            items={this.suggestedGroups}
+            name="customerGroupSelect"
+            placeholder={'Add groups...'}
+            inputElement={this.pilledInput}
+            hideOnBlur={true}
+            onItemSelected={this.handleSelectItem}
+          />
+        </div>);   
   }
 
-  removeGroup(idForRemoval) {
-    const newGroupIds = _.filter(this.props.selectedGroupIds, id => id != idForRemoval);
+  setTerm(term: string) {
+    this.setState({
+      term,
+    });
+  }
 
-    this.props.onSelect(newGroupIds);
+  deselectItem(index: number) {
+    const selected = [].slice.call(this.props.selectedGroupIds);
+    selected.splice(index, 1);
+    this.props.updateSelectedIds(selected);
   }
 
   @autobind
-  renderCustomerGroupRow(group) {
+  handleSelectItem(item, event: Object) {
+    if (_.find(this.state.selected, {id: item.id})) {
+      event.preventHiding();
+    } else {
+      this.setState({
+        term: '',
+      });
+      this.props.updateSelectedIds([...this.props.selectedGroupIds, item.id])
+    }
+  }
+
+  get pilledInput() {
+    const { state, props } = this;
+    const pills = props.selectedGroupIds.map((cg) => {
+      return _.find(props.groups, { 'id': cg }).name;
+    });
+
     return (
-      <TableRow key={`row-${group.id}`}>
-        <TableCell styleName="row-name">{group.name}</TableCell>
-        <TableCell styleName="row-type">{group.type}</TableCell>
-        <TableCell>
-          <i
-            className="icon-trash"
-            styleName="remove-customer-group"
-            onClick={() => this.removeGroup(group.id)}
-          />
-        </TableCell>
-      </TableRow>
+      <PilledInput
+        solid={true}
+        autoFocus={true}
+        value={state.term}
+        disabled={false}
+        onChange={({target}) => this.setTerm(target.value)}
+        pills={pills}
+        icon={null}
+        onPillClose={(name, index) => this.deselectItem(index)}
+      />
     );
   }
 

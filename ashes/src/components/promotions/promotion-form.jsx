@@ -178,7 +178,7 @@ export default class PromotionForm extends ObjectDetails {
           selectedGroupIds={promotion.qualifiedCustomerGroupIds}
           qualifyAll={promotion.qualifyAll}
           qualifyAllChange={this.handleQualifyAllChange}
-          onSelect={this.handleQulifierGroupChange}
+          updateSelectedIds={this.handleQulifierGroupChange}
         />
       </div>
     );

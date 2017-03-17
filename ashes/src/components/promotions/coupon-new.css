@@ -58,3 +58,7 @@
   display: block;
   line-height: 30px;
 }
+
+.promotion-coupons-new form > div{
+  width: 100%;
+}

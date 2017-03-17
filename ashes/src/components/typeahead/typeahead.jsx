@@ -23,6 +23,7 @@ export default class Typeahead extends React.Component {
     component: PropTypes.func,
     hideOnBlur: PropTypes.bool,
     isFetching: PropTypes.bool,
+    isAsync: PropTypes.bool,
     items: PropTypes.array,
     label: PropTypes.string,
     name: PropTypes.string,
@@ -44,6 +45,7 @@ export default class Typeahead extends React.Component {
     minQueryLength: 1,
     autoComplete: 'off',
     initialValue: '',
+    isAsync: true,
   };
 
   state = {
@@ -54,7 +56,11 @@ export default class Typeahead extends React.Component {
   };
 
   componentWillReceiveProps(nextProps) {
-    if (this.props.isFetching && !nextProps.isFetching) {
+    if(this.props.isAsync){
+      if (this.props.isFetching && !nextProps.isFetching) {
+        this.toggleVisibility(true);
+      }
+    } else {
       this.toggleVisibility(true);
     }
   }
