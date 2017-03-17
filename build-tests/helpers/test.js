@@ -22,11 +22,11 @@ export default (name, cb, ...args) => test(name, async (t, ...cbArgs) => {
         retryCount += 1;
         continue;
       } else {
-        let errorMessageLines = [error.message];
+        let errorMessageLines = error.message ? [error.message] : [];
         if (error.responseJson && error.responseJson.errors) {
           errorMessageLines = errorMessageLines.concat(error.responseJson.errors);
         }
-        if (t.apiLog) {
+        if (config.fullApiSequenceLogging && t.apiLog) {
           errorMessageLines = errorMessageLines.concat(
             t.apiLog.map(entry =>
               `${entry.apiCategoryName}.${entry.methodName}(${entry.args.map(JSON.stringify)}) -> ` +
