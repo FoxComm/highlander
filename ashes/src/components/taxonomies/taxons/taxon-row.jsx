@@ -39,7 +39,7 @@ const TaxonRow = (props: Props) => {
   return (
     <MultiSelectRow
       {...commonParams}
-      linkTo="value-details"
+      linkTo="taxon-details"
       linkParams={taxon}
     />
   );

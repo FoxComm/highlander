@@ -15,9 +15,6 @@ import { connectPage, ObjectPage } from '../object-page/object-page';
 // actions
 import * as SkuActions from 'modules/skus/details';
 
-// types
-import type { Sku } from 'modules/skus/details';
-
 type Props = {
   actions: {
     skuNew: () => void,

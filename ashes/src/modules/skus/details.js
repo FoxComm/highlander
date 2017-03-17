@@ -12,17 +12,6 @@ import { createEmptySku } from 'paragons/sku';
 
 import { pushStockItemChanges } from '../inventory/warehouses';
 
-export type Sku = {
-  code?: string,
-  feCode?: string,
-  attributes: Attributes,
-  id: any,
-  context: {
-    attributes?: Object,
-    name: string,
-  }
-};
-
 const defaultContext = 'default';
 
 export const skuNew = createAction('SKU_NEW');
@@ -55,7 +44,7 @@ const _createSku = createAsyncActions(
 
 const _updateSku = createAsyncActions(
   'updateSku',
-  function(sku: Sku, context: string = defaultContext) {
+  function (sku: Sku, context: string = defaultContext) {
     const { dispatch, getState } = this;
     const oldSku = _.get(getState(), ['skus', 'details', 'sku', 'attributes', 'code', 'v']);
     if (oldSku) {

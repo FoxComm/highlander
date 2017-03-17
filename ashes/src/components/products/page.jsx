@@ -18,9 +18,6 @@ import SubNav from './sub-nav';
 import { connectPage, ObjectPage } from '../object-page/object-page';
 import { Dropdown } from '../dropdown';
 
-// types
-import type { Product } from 'paragons/product';
-
 type Props = {
   actions: {
     createProduct: (product: Product) => void,

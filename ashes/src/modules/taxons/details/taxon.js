@@ -5,15 +5,12 @@ import { createAction, createReducer } from 'redux-act';
 import Api from 'lib/api';
 import { createAsyncActions } from '@foxcomm/wings';
 import { createEmptyTaxon, duplicateTaxon } from 'paragons/taxon';
-import _ from 'lodash';
 
 const defaultContext = 'default';
 
 ////////////////////////////////////////////////////////////////////////////////
 // Internal async actions.
 ////////////////////////////////////////////////////////////////////////////////
-
-const clearTaxon = createAction('TAXON_CLEAR');
 
 const _fetchTaxon = createAsyncActions(
   'fetchTaxon',
@@ -39,6 +36,13 @@ const _archiveTaxon = createAsyncActions(
     Api.delete(`/taxons/${context}/${taxonId}`)
 );
 
+
+const _addProduct = createAsyncActions(
+  'taxonAddProduct',
+  (taxonId: number, productId, context: string = defaultContext) =>
+    Api.patch(`/taxons/${context}/${taxonId}/product/${productId}`)
+);
+
 ////////////////////////////////////////////////////////////////////////////////
 // Public actions.
 ////////////////////////////////////////////////////////////////////////////////
@@ -50,6 +54,7 @@ export const clearArchiveErrors = _archiveTaxon.clearErrors;
 export const create = (taxonomyId: string) => _createTaxon.perform.bind(null, taxonomyId);
 export const archive = _archiveTaxon.perform;
 export const update = _updateTaxon.perform;
+export const addProduct = _addProduct.perform;
 
 export const fetch = (id: string, context: string = defaultContext): ActionDispatch => {
   return dispatch => {
@@ -65,18 +70,15 @@ export const fetch = (id: string, context: string = defaultContext): ActionDispa
 // Reducer.
 ////////////////////////////////////////////////////////////////////////////////
 
-const initialState = { taxon: createEmptyTaxon() };
+const initialState = createEmptyTaxon();
 
 const reducer = createReducer({
   [reset]: () => initialState,
-  [duplicate]: (state) => ({
-    ...initialState,
-    taxon: duplicateTaxon(_.get(state, 'taxon', {}))
-  }),
-  [_fetchTaxon.succeeded]: (state, taxon) => ({ ...state, taxon }),
-  [_createTaxon.succeeded]: (state, taxon) => ({ ...state, taxon }),
-  [_updateTaxon.succeeded]: (state, taxon) => ({ ...state, taxon }),
-  [_archiveTaxon.succeeded]: (state, taxon) => ({ ...state, taxon })
+  [duplicate]: (state) => duplicateTaxon(state),
+  [_fetchTaxon.succeeded]: (state, taxon) => taxon,
+  [_createTaxon.succeeded]: (state, taxon) => taxon,
+  [_updateTaxon.succeeded]: (state, taxon) => taxon,
+  [_archiveTaxon.succeeded]: (state, taxon) => taxon
 }, initialState);
 
 export default reducer;

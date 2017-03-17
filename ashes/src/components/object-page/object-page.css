@@ -13,6 +13,10 @@
   & :global(.fc-content-box) + :global(.fc-content-box) {
     margin-top: 20px;
   }
+
+  & :global(.fc-live-search) {
+    padding: 0;
+  }
 }
 
 .cancel-button {
