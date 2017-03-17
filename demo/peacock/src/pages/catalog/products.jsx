@@ -135,13 +135,6 @@ class Products extends Component {
       return;
     }
 
-    const description = (category && category.description && category.showNameCatPage)
-      ? <p styleName="description">{category.description}</p>
-      : '';
-
-    const bgImageStyle = category.imageUrl ?
-    { backgroundImage: `url(${assetsUrl(category.imageUrl)})` } : {};
-
     const className = `header-${categoryName}`;
 
     const title = (category.showNameCatPage)
@@ -150,42 +143,15 @@ class Products extends Component {
 
     return (
       <header styleName={className}>
-        <div styleName="header-wrap" style={bgImageStyle}>
-          <div styleName="text-wrap">
-            <span styleName="description">{description}</span>
             {title}
-          </div>
-        </div>
       </header>
     );
-  }
-
-  get navBar() {
-    const { categoryName, productType } = this.props.params;
-
-    const type = (productType && !_.isEmpty(productType))
-      ? _.capitalize(productType)
-      : productTypes[0];
-
-    if (categoryName == 'ENTRÉES') {
-      return (
-        <ProductTypeSelector
-          items={productTypes}
-          activeItem={type}
-          onItemClick={this.onDropDownItemClick}
-        />
-      );
-    }
-    return null;
   }
 
   render(): HTMLElement {
     return (
       <section styleName="catalog">
         {this.renderHeader()}
-        <div styleName="dropDown">
-          {this.navBar}
-        </div>
         <ProductsList
           sorting={this.state.sorting}
           changeSorting={this.changeSorting}
