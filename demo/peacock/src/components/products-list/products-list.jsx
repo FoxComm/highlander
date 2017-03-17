@@ -31,6 +31,7 @@ type Props = {
     direction: number,
     field: string,
   },
+  changeSorting: Function,
 };
 
 type State = {

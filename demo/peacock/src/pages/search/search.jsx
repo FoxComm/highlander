@@ -78,6 +78,8 @@ class Search extends Component {
           <strong styleName="term">"{term}"</strong>
         </h1>
         <ProductsList
+          sorting={{direction: 1, field: 'salesPrice'}}
+          changeSorting={_.noop}
           list={result}
           isLoading={this.props.searchState.inProgress !== false}
         />

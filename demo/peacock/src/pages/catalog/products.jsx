@@ -73,7 +73,7 @@ class Products extends Component {
   componentWillMount() {
     const { categoryName, productType } = this.props.params;
     const { sorting } = this.state;
-    this.props.fetch(categoryName, productType);
+    this.props.fetch(categoryName, productType, sorting);
   }
 
   componentWillReceiveProps(nextProps: Props) {
@@ -84,25 +84,27 @@ class Products extends Component {
     } = nextProps.params;
 
     if ((categoryName !== nextCategoryName) || (productType !== nextProductType)) {
-      this.props.fetch(nextCategoryName, nextProductType);
+      this.props.fetch(nextCategoryName, nextProductType, this.state.sorting);
     }
   }
 
 
   @autobind
   changeSorting(field: string) {
-    const direction = this.state.sorting.field === field
-      ? this.state.sorting.direction * (-1)
-      : this.state.sorting.direction;
+    const { sorting } = this.state;
+    const direction = sorting.field === field
+      ? sorting.direction * (-1)
+      : sorting.direction;
 
     const newState = {
-      sorting: {
-        field,
-        direction,
-      },
+      field,
+      direction,
     };
 
-    this.setState(newState);
+    this.setState({sorting: newState}, () => {
+      const { categoryName, productType } = this.props.params;
+      this.props.fetch(categoryName, productType, newState);
+    });
   }
 
   @autobind
