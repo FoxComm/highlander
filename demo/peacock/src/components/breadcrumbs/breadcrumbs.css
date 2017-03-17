@@ -13,6 +13,10 @@
   color: #888888;
 }
 
+.item:last-child .link {
+  color: #1a1a1a;
+}
+
 .item {
   font-size: 14px;
   color: #888888;
