@@ -4,18 +4,6 @@
 
 import makeLiveSearch from '../live-search';
 
-export type Sku = {
-  id: number;
-  image: string|null,
-  context: string,
-  skuCode: string,
-  title: string,
-  salePrice: string,
-  salePriceCurrency: string,
-  retailPrice: string,
-  retailPriceCurrency: string,
-};
-
 const searchTerms = [
   {
     title: 'SKU : Code',

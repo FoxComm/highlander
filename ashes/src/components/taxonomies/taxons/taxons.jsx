@@ -22,12 +22,6 @@ import styles from './taxons.css';
 
 import type { TaxonomyParams } from '../taxonomy';
 
-type Column = {
-  field: string,
-  text: string,
-  type: ?string,
-};
-
 type Props = ObjectPageChildProps<Taxonomy> & {
   actions: Object,
   list: Object,
@@ -54,7 +48,7 @@ export class TaxonsListPage extends Component {
     this.props.actions.fetch();
   }
 
-  renderRow(row: TaxonResult, index: number, columns: Array<Column>, params: Object) {
+  renderRow(row: TaxonResult, index: number, columns: Columns, params: Object) {
     return <TaxonRow key={row.id} taxon={row} columns={columns} params={params} />;
   }
 

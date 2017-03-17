@@ -12,31 +12,7 @@ import { getJWT } from 'lib/claims';
 import * as t from 'paragons/object-types';
 
 // types
-import type { Sku } from 'modules/skus/details';
 import type { JWT } from 'lib/claims';
-
-export type OptionValue = {
-  name: string,
-  swatch: ?string,
-  image: ?string,
-  skuCodes: Array<string>,
-};
-
-export type Option = {
-  attributes?: {
-    name: {t: string, v: string},
-    type?: {t: string, v: string},
-  },
-  values: Array<OptionValue>,
-};
-
-// exported types
-export type Product = ObjectView & {
-  id?: number,
-  productId: ?number,
-  skus: Array<Sku>,
-  variants: Array<Option>,
-};
 
 // we should identity sku be feCode first
 // because we want to persist sku even if code has been changes

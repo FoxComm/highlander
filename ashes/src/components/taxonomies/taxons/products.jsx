@@ -17,10 +17,9 @@ import { AddButton } from 'components/common/buttons';
 import SelectableSearchList from 'components/list-page/selectable-search-list';
 import ProductRow from 'components/products/product-row';
 import { makeTotalCounter } from 'components/list-page';
-import ProductsSearchModal from './products-search-modal';
+import { ProductsAddModal } from 'components/product-add';
 
 // helpers
-import { transitionToLazy } from 'browserHistory';
 import { filterArchived } from 'elastic/archive';
 import * as dsl from 'elastic/dsl';
 
@@ -28,14 +27,7 @@ import * as dsl from 'elastic/dsl';
 import styles from './taxons.css';
 
 // types
-import type { Product } from 'paragons/product';
 import type { TaxonomyParams } from '../taxonomy';
-
-type Column = {
-  field: string,
-  text: string,
-  type: ?string,
-};
 
 type Props = ObjectPageChildProps<Taxon> & {
   actions: Object,
@@ -50,7 +42,7 @@ type State = {
   modalVisible: boolean,
 }
 
-const tableColumns: Array<Column> = [
+const tableColumns: Columns = [
   { field: 'productId', text: 'ID' },
   { field: 'image', text: 'Image', type: 'image' },
   { field: 'title', text: 'Name' },
@@ -96,7 +88,7 @@ export class TaxonProductsPage extends Component {
       .then(this.props.actions.fetch);
   }
 
-  renderRow(row: Product, index: number, columns: Array<Column>, params: Object) {
+  renderRow(row: Product, index: number, columns: Columns, params: Object) {
     return <ProductRow key={row.id} product={row} columns={columns} params={params} />;
   }
 
@@ -130,7 +122,7 @@ export class TaxonProductsPage extends Component {
           searchActions={searchActions}
           predicate={({ id }) => id}
         />
-        <ProductsSearchModal
+        <ProductsAddModal
           isVisible={this.state.modalVisible}
           onCancel={this.closeModal}
           onConfirm={this.closeModal}

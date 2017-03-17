@@ -12,16 +12,7 @@ import { TableRow, TableCell } from 'components/table';
 import { Button } from 'components/common/buttons';
 
 // styles
-import styles from './product-search.css';
-
-// types
-import type { Product } from 'paragons/product';
-
-type Column = {
-  field: string,
-  text: string,
-  type: ?string,
-};
+import styles from './product-add.css';
 
 type Params = {
   addState: AsyncState,
@@ -31,7 +22,7 @@ type Params = {
 
 type Props = {
   product: Product,
-  columns?: Array<Column>,
+  columns?: Columns,
   params: Params,
 };
 

@@ -4,7 +4,6 @@
 import get from 'lodash/get';
 import { autobind, debounce } from 'core-decorators';
 import React, { Component, Element } from 'react';
-import { connect } from 'react-redux';
 
 // components
 import { ModalContainer } from 'components/modal/base';
@@ -17,10 +16,7 @@ import ProductRow from './product-row';
 import { searchProducts } from 'elastic/products';
 
 // styles
-import styles from './product-search.css';
-
-// types
-import type { Product } from 'paragons/product';
+import styles from './product-add.css';
 
 type Props = {
   addState: AsyncState,
@@ -53,10 +49,6 @@ class ProductsSearch extends Component {
 
   @debounce(400)
   search() {
-    // if (!this.state.search.length) {
-    //   return;
-    // }
-
     this.setState({ inProgress: true }, () =>
       searchProducts(this.state.search)
         .then(response => this.setState({

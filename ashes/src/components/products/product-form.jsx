@@ -22,7 +22,6 @@ import styles from './form.css';
 
 // types
 import type { DetailsProps } from '../object-page/object-details';
-import type { Product, Option, OptionValue } from 'paragons/product';
 const layout = require('./layout.json');
 
 type Props = DetailsProps & {

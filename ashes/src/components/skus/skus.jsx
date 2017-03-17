@@ -18,15 +18,6 @@ import SkuRow from './sku-row';
 // helpers
 import { filterArchived } from 'elastic/archive';
 
-// types
-import type { Sku } from 'modules/skus/list';
-
-type Column = {
-  field: string,
-  text: string,
-  type: ?string,
-};
-
 type Props = {
   actions: Object,
   list: Object,
@@ -35,7 +26,7 @@ type Props = {
 export class Skus extends Component {
   props: Props;
 
-  static tableColumns: Array<Column> = [
+  static tableColumns: Columns = [
     { field: 'skuCode', text: 'SKU', type: null },
     { field: 'title', text: 'Title', type: null },
     { field: 'salePrice', currencyField: 'salePriceCurrency', text: 'Sale Price', type: 'currency' },
@@ -47,7 +38,7 @@ export class Skus extends Component {
     return this.props.actions.addSearchFilters(filterArchived(filters), initial);
   }
 
-  renderRow(row: Sku, index: number, columns: Array<Column>, params: Object) {
+  renderRow(row: SkuSearchItem, index: number, columns: Columns, params: Object) {
     const key = `skus-${row.id}`;
     return <SkuRow key={key} sku={row} columns={columns} params={params} />;
   }

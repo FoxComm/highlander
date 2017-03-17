@@ -19,21 +19,12 @@ import ProductRow from './product-row';
 // helpers
 import { filterArchived } from 'elastic/archive';
 
-// types
-import type { Product } from 'paragons/product';
-
-type Column = {
-  field: string,
-  text: string,
-  type: ?string,
-};
-
 type Props = {
   actions: Object,
   list: Object,
 };
 
-const tableColumns: Array<Column> = [
+const tableColumns: Columns = [
   { field: 'productId', text: 'Product ID', type: null },
   { field: 'image', text: 'Image', type: 'image' },
   { field: 'title', text: 'Name', type: null },
@@ -48,7 +39,7 @@ export class Products extends Component {
     return this.props.actions.addSearchFilters(filterArchived(filters), initial);
   }
 
-  renderRow(row: Product, index: number, columns: Array<Column>, params: Object) {
+  renderRow(row: Product, index: number, columns: Columns, params: Object) {
     const key = `products-${get(row, 'id', index)}`;
     return <ProductRow key={key} product={row} columns={columns} params={params} />;
   }

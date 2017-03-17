@@ -1,17 +1,15 @@
 /* @flow */
 
 // libs
-import classNames from 'classnames';
 import React, { Component, Element } from 'react';
 
 // components
 import { ModalContainer } from 'components/modal/base';
 import ContentBox from 'components/content-box/content-box';
-import SaveCancel from 'components/common/save-cancel';
-import ProductsSearch from './product-search/product-search';
+import ProductsSearch from './product-add';
 
 // styles
-import styles from './product-search/product-search.css';
+import styles from './product-add.css';
 
 type Props = {
   isVisible: boolean,

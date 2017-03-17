@@ -17,17 +17,11 @@ import { DeleteButton } from 'components/common/buttons';
 
 import reducer, { suggestSkus } from 'modules/skus/suggest';
 import type { SuggestOptions } from 'modules/skus/suggest';
-import type { Sku } from 'modules/skus/details';
 import type { Sku as SearchViewSku } from 'modules/skus/list';
 import { skuId } from 'paragons/product';
 
-type Column = {
-  field: string,
-  text: string,
-};
-
 type Props = {
-  columns: Array<Column>,
+  columns: Columns,
   sku: Sku,
   index: number,
   params: Object,
