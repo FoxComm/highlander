@@ -158,7 +158,7 @@ object GiftCard {
                               originId: Int,
                               scope: LTree): GiftCard = {
     val message: Option[String] =
-      payload.message.map(msg ⇒ if (msg.trim.isEmpty) None else Option(msg.trim)).getOrElse(None)
+      payload.message.flatMap(msg ⇒ if (msg.trim.isEmpty) None else Option(msg.trim))
     GiftCard(
         scope = scope,
         originId = originId,
