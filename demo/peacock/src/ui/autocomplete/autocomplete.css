@@ -29,16 +29,6 @@
   top: 100%;
 }
 
-.input {
-  composes: text-input from "ui/css/input.css";
-  width: 100%;
-  border-color: var(--additional-color);
-
-  &:hover {
-    border-color: #8D757A;
-  }
-}
-
 .item {
   font-size: 16px;
   line-height: 19px;

@@ -3,7 +3,7 @@
 // libs
 import _ from 'lodash';
 import React, { Component } from 'react';
-import textStyles from 'ui/css/input.css';
+import textStyles from 'ui/text-input/text-input.css';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import { cardMask } from '@foxcomm/wings/lib/payment-cards';
@@ -13,7 +13,7 @@ import { createNumberMask } from 'lib/i18n/field-masks';
 
 // components
 import { FormField } from 'ui/forms';
-import { TextInput, TextInputWithLabel } from 'ui/inputs';
+import { TextInput } from 'ui/text-input';
 import Checkbox from 'ui/checkbox/checkbox';
 import Autocomplete from 'ui/autocomplete';
 import MaskedInput from 'react-text-mask';
@@ -165,7 +165,8 @@ class EditBilling extends Component {
   // Possible values: https://stripe.com/docs/stripe.js?#card-cardType
   get cardType() {
     const { number } = this.props.data;
-    return foxApi.creditCards.cardType(number);
+    const stripeType = foxApi.creditCards.cardType(number);
+    return stripeType !== 'Unknown' ? stripeType : void 0;
   }
 
   @autobind
@@ -177,7 +178,6 @@ class EditBilling extends Component {
     if (this.cardType) {
       return (
         <Icon
-          styleName="payment-icon"
           name={`fc-payment-${_.kebabCase(this.cardType)}`}
         />
       );
@@ -297,14 +297,16 @@ class EditBilling extends Component {
         </FormField>
         <div styleName="union-fields">
           <FormField styleName="card-number-field" validator={this.validateCardNumber}>
-            <TextInputWithLabel
+            <TextInput
               label={this.paymentIcon}
+              labelClass={styles['payment-icon']}
+              hasCard={!!this.cardType}
             >
               <MaskedInput
                 required
                 disabled={editingSavedCard}
                 styleName="payment-input"
-                className={textStyles['text-input']}
+                className={textStyles.textInput}
                 type="tel"
                 mask={this.cardMask}
                 placeholderChar={'\u2000'}
@@ -313,13 +315,14 @@ class EditBilling extends Component {
                 value={data.number}
                 onChange={this.changeCardNumber}
               />
-            </TextInputWithLabel>
+            </TextInput>
           </FormField>
           <FormField styleName="cvc-field" validator={this.validateCvcNumber}>
-            <TextInputWithLabel
+            <TextInput
               required
               disabled={editingSavedCard}
               label={<CvcHelp />}
+              labelClass={styles['cvc-icon']}
               type="number"
               pattern="\d*"
               inputMode="numeric"

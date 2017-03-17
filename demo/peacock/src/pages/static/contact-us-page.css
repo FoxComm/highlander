@@ -16,15 +16,7 @@
 }
 
 .input-field {
-  composes: text-input from "ui/css/input.css";
-  border: 1px solid #3E3436;
   margin-bottom: 15px;
-
-  /* Validation error */
-  & + div {
-    margin-top: -16px;
-    margin-bottom: 15px;
-  }
 
   &::placeholder {
     text-transform: uppercase;

@@ -1,6 +1,5 @@
 @import "media-queries.css";
 @import "colors.css";
-@import "icons.css";
 
 .billing {
   composes: checkout-block from '../checkout.css';
@@ -102,6 +101,12 @@
 }
 
 .payment-icon {
-  margin-top: -6px;
+  --payment-icon-height: 30px;
+  top: calc(50% - var(--payment-icon-height) / 2);
+}
+
+.cvc-icon {
+  --cvc-height: 19px;
+  top: calc(50% - var(--cvc-height) / 2);
 }
 

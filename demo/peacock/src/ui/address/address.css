@@ -10,7 +10,7 @@
 }
 
 .text-input {
-  composes: text-input from "ui/css/input.css";
+  composes: textInput from "ui/text-input/text-input.css";
 }
 
 .theme-white-bg {

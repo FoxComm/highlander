@@ -7,7 +7,7 @@ import { nodeApi } from 'lib/api';
 
 // components
 import PageTitle from 'components/cms/page-title';
-import { TextInput } from 'ui/inputs';
+import { TextInput } from 'ui/text-input';
 import { Form, FormField } from 'ui/forms';
 import Button from 'ui/buttons';
 import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';

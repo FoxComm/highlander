@@ -22,11 +22,6 @@
 }
 
 .code {
-  composes: text-input from "ui/css/input.css";
-  border-right: none;
-  background-color: white;
-  border-color: white;
-
   &::placeholder {
     text-transform: uppercase;
   }
