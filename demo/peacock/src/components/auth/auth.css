@@ -85,7 +85,8 @@
 
 .primary-button {
   composes: button from "ui/css/buttons.css";
-  width: 100%;
+  font-size: 20px;
+  font-weight: 900;
 }
 
 .bottom-message {
@@ -107,7 +108,7 @@
 
 .link {
   color: #0b7ddc;
-  text-decoration: underline;
+  text-decoration: none;
   font-weight: 500;
 
   &:hover {
