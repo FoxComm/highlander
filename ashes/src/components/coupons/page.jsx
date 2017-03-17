@@ -21,6 +21,8 @@ type State = {
 
 type Params = {
   couponId: string,
+  promotionId: Number,
+  modalCancelAction: Function,
 };
 
 type Actions = {
@@ -83,7 +85,7 @@ class CouponPage extends ObjectPage {
         }).then(() => {
           transitionTo('promotion-coupons',{promotionId: this.props.params.promotionId});
         }).catch((err) => {
-          this.props.submitError(err.message)
+          this.props.submitError(err.message);
         });
       }
 

@@ -2,6 +2,10 @@
 import React, { PropTypes } from 'react';
 import styles from './customer-group-row.css';
 
+type Props = {
+	model: Object
+};
+
 const CustomerGroupRow = (props: Props) => {
   const { name } = props.model;
 

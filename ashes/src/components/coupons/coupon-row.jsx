@@ -18,6 +18,7 @@ type CouponRowProps = {
   coupon: Object,
   columns: Array<string>,
   params: Object,
+  promotionId: Number
 };
 
 // This is a workaround for empty fields

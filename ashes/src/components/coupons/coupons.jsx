@@ -28,7 +28,7 @@ import type { SearchFilter } from 'elastic/common';
 type CouponsProps = {
   actions: Object,
   list: Object,
-  promotionId: Number|undefined
+  promotionId: Number
 };
 
 const mapStateToProps = (state: Object) => {
@@ -84,7 +84,7 @@ export default class Coupons extends Component {
   }
 
   @autobind
-  renderRow(row: Object, index: number, columns: Array<any>, params: Object, promotionId: Number = this.props.promotionId): Element<*> {
+  renderRow(row: Object, index: number, columns: Array<any>, params: Object): Element<*> {
     const key = `coupon-${row.id}`;
     return (
       <CouponRow
@@ -92,12 +92,12 @@ export default class Coupons extends Component {
         columns={columns}
         key={key}
         params={params}
-        promotionId={promotionId}
+        promotionId={this.props.promotionId}
       />
     );
   }
 
-  render(): Element {
+  render(): Element<*> {
     const {list, actions, promotionId} = this.props;
 
     const searchActions = {

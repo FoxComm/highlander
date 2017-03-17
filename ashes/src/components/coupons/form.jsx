@@ -55,7 +55,7 @@ export default class CouponForm extends ObjectDetails {
   }
 
   get promotionSelector() {
-    const id = _.get(this.props, 'object.promotion');
+    const id = _.get(this.props, 'object.promotion', null);
     return (
       <div>
         <div styleName="field-label">
@@ -107,10 +107,11 @@ export default class CouponForm extends ObjectDetails {
   }
 
   renderCouponCodes() {
+    const id = _.get(this.props, 'object.promotion', null);
     return (
       <CouponCodes
         createCoupon={this.props.createCoupon}
-        promotionId={this.props.object.promotion}
+        promotionId={id}
         codeGeneration={this.props.codeGeneration}
         isNew={this.props.isNew}
       />

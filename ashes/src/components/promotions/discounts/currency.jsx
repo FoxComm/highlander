@@ -5,7 +5,12 @@ import styles from '../attrs-edit.css';
 
 import CurrencyInput from '../../forms/currency-input';
 
-const Currency = (props) => {
+type Props = {
+	value: Number,
+	onChange: Function
+}; 
+
+const Currency = (props: Props) => {
   return (
     <CurrencyInput
       styleName="inline-edit-input"

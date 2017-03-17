@@ -1,4 +1,3 @@
-/* @flow */
 import React, { Element } from 'react';
 import styles from '../attrs-edit.css';
 

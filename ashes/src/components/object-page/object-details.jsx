@@ -34,6 +34,7 @@ type Fields = {
 
 type NodeDesc = {
   type: string,
+  showIfNew?: boolean,
   title?: string,
   fields?: Fields,
   renderer?: string,

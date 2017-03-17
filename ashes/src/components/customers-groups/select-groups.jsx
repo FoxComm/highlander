@@ -28,6 +28,7 @@ type Props = {
   qualifyAll: boolean,
   dispatch: (action: any) => any;
   parent: string;
+  qualifyAllChange: Function
 };
 
 type State = {
@@ -51,14 +52,14 @@ class SelectCustomerGroups extends Component {
 
   @autobind
   handleChangeQualifier({target}: Object) {
-    let isAllQualify = target.getAttribute('name') == 'qualifyAll'
+    let isAllQualify = target.getAttribute('name') == 'qualifyAll';
     this.props.qualifyAllChange(isAllQualify);
   }
 
   get suggestedGroups(){
     let suggestions = _.filter(this.props.groups, (item) => {
       return _.includes(item.name.toLowerCase(), this.state.term.toLowerCase());
-    })   
+    });   
     return suggestions;
   }
 
@@ -94,13 +95,13 @@ class SelectCustomerGroups extends Component {
 
   @autobind
   handleSelectItem(item, event: Object) {
-    if (_.find(this.state.selected, {id: item.id})) {
+    if (_.find(this.props.selectedGroupIds, (i) => {return i == item.id;})) {
       event.preventHiding();
     } else {
       this.setState({
         term: '',
       });
-      this.props.updateSelectedIds([...this.props.selectedGroupIds, item.id])
+      this.props.updateSelectedIds([...this.props.selectedGroupIds, item.id]);
     }
   }
 

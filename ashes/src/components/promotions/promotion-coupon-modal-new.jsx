@@ -5,6 +5,14 @@ import React, { Element, Component } from 'react';
 // components
 import CouponNew from './coupon-new';
 
+type Params = {
+	promotionId: String,
+};
+
+type Props = {
+	params: Params,
+};
+
 export default class PromoCouponNewModal extends Component {
   props: Props;
 

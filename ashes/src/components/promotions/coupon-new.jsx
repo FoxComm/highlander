@@ -12,6 +12,10 @@ import ContentBox from '../content-box/content-box';
 import CouponPage from '../coupons/page';
 import CouponForm from '../coupons/form';
 
+type Props = {
+  promotionId: String,
+};
+
 class CouponNew extends Component {
   props: Props;
 

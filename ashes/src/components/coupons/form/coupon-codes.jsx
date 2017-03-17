@@ -26,6 +26,7 @@ type Props = {
   isNew: boolean,
   isValid: boolean,
   codeGeneration: Object,
+  promotionId: Number,
   coupon: Object,
   createCoupon: Function,
   couponsGenerationSelectBulk: Function,

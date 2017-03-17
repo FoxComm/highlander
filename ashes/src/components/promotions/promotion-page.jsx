@@ -13,7 +13,7 @@ import { transitionTo } from 'browserHistory';
 import * as PromotionActions from 'modules/promotions/details';
 
 class PromotionPage extends ObjectPage {
-  save(): ?Promise {
+  save(): ?Promise<*> {
   	let isNew = this.isNew;
     let willBePromo = super.save();
 
@@ -28,7 +28,7 @@ class PromotionPage extends ObjectPage {
     return willBePromo;
   }
 
-  subNav(): Element {
+  subNav(): Element<*> {
     return <SubNav applyType={_.get(this.props, 'details.promotion.applyType')} promotionId={this.entityId} />;
   }
 }
