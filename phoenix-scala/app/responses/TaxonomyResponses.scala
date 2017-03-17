@@ -1,26 +1,12 @@
 package responses
 
-import cats.implicits._
-import com.github.tminglei.slickpg.LTree
 import models.objects.FullObject
-import models.taxonomy.{Taxon ⇒ ModelTaxon, _}
-import utils.{IlluminateAlgorithm, JsonFormatters}
+import models.taxonomy.Taxonomy
+import responses.TaxonResponses._
+import utils.{IlluminateAlgorithm}
 import utils.aliases.Json
 
 object TaxonomyResponses {
-
-  type LinkedTaxon = (FullObject[ModelTaxon], TaxonomyTaxonLink)
-
-  implicit class LTreeExtension(ltree: LTree) {
-    def level = ltree.value match {
-      case List("") ⇒ 0
-      case list     ⇒ list.size
-    }
-
-    def parentOf(other: LTree): Boolean = {
-      if (level == 0) other.level == 1 else other.value.startsWith(ltree.value)
-    }
-  }
 
   object TaxonomyResponse {
     case class Root(id: Int) extends ResponseItem
@@ -36,78 +22,12 @@ object TaxonomyResponses {
       extends ResponseItem
 
   object FullTaxonomyResponse {
-    def build(taxon: FullObject[Taxonomy], taxons: Seq[LinkedTaxon]): FullTaxonomyResponse = {
-      FullTaxonomyResponse(
-          taxon.model.formId,
-          taxon.model.hierarchical,
-          IlluminateAlgorithm.projectAttributes(taxon.form.attributes, taxon.shadow.attributes),
-          TaxonTreeResponse.buildTree(taxons))
-    }
-  }
-
-  case class AssignedTaxonsResponse(taxonomyId: Int,
-                                    hierarchical: Boolean,
-                                    attributes: Json,
-                                    taxons: Seq[TaxonResponse])
-      extends ResponseItem
-  object AssignedTaxonsResponse {
-    def build(taxonomy: FullObject[Taxonomy],
-              taxons: Seq[FullObject[ModelTaxon]]): AssignedTaxonsResponse = {
-      val taxonAttributes =
-        IlluminateAlgorithm.projectAttributes(taxonomy.form.attributes, taxonomy.shadow.attributes)
-
-      AssignedTaxonsResponse(taxonomy.model.formId,
-                             taxonomy.model.hierarchical,
-                             taxonAttributes,
-                             taxons.map(TaxonResponse.build))
-    }
-  }
-
-  case class SingleTaxonResponse(taxonomyId: Int, taxon: TaxonResponse, parentId: Option[Integer])
-      extends ResponseItem
-
-  object SingleTaxonResponse {
-    def build(taxonomyId: Integer,
-              taxon: FullObject[ModelTaxon],
-              parentTaxonId: Option[Integer]): SingleTaxonResponse =
-      SingleTaxonResponse(taxonomyId, TaxonResponse.build(taxon), parentTaxonId)
-  }
-
-  case class TaxonTreeResponse(taxon: TaxonResponse, children: Option[Seq[TaxonTreeResponse]])
-      extends ResponseItem {
-    def childrenAsList: Seq[TaxonTreeResponse] = children.getOrElse(Seq.empty)
-  }
-
-  case class TaxonResponse(id: Int, name: String) extends ResponseItem
-
-  object TaxonResponse {
-    implicit val formats = JsonFormatters.phoenixFormats
-
-    def build(taxon: FullObject[ModelTaxon]): TaxonResponse = {
-      TaxonResponse(taxon.model.formId,
-                    IlluminateAlgorithm
-                      .get("name", taxon.form.attributes, taxon.shadow.attributes)
-                      .extract[String])
-    }
-  }
-
-  object TaxonTreeResponse {
-    def build(taxon: TaxonResponse, children: Seq[TaxonTreeResponse]): TaxonTreeResponse = {
-      TaxonTreeResponse(taxon, children.some.filterNot(_.isEmpty))
-    }
-
-    def buildTree(nodes: Seq[LinkedTaxon]): Seq[TaxonTreeResponse] =
-      buildTree(0, nodes.sortBy { case (_, link) ⇒ link.path.level })
-
-    private def buildTree(level: Int, nodesSorted: Seq[LinkedTaxon]): Seq[TaxonTreeResponse] = {
-      val (heads, tail)   = nodesSorted.span { case (_, link) ⇒ link.path.level == level }
-      val headsByPosition = heads.sortBy { case (_, link)     ⇒ link.position }
-      headsByPosition.map {
-        case (taxon, link) ⇒
-          TaxonTreeResponse.build(TaxonResponse.build(taxon), buildTree(level + 1, tail.filter {
-            case (_, lnk) ⇒ lnk.path.value.startsWith(link.childPath.value)
-          }))
-      }
+    def build(taxonomy: FullObject[Taxonomy], taxons: Seq[LinkedTaxon]): FullTaxonomyResponse = {
+      FullTaxonomyResponse(taxonomy.model.formId,
+                           taxonomy.model.hierarchical,
+                           IlluminateAlgorithm.projectAttributes(taxonomy.form.attributes,
+                                                                 taxonomy.shadow.attributes),
+                           TaxonTreeResponse.buildTree(taxons, taxonomy.model.formId))
     }
   }
 }
