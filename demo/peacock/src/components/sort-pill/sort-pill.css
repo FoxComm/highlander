@@ -15,3 +15,7 @@
 ._is-active {
   background-color: #eeeeee;
 }
+
+._is-inactive {
+  margin-right: 12px;
+}

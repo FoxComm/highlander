@@ -16,6 +16,7 @@ const SortPill = (props: Props) => {
   const icon = props.direction === -1 ? '▲' : '▼';
   const classes = classNames(styles.pill, {
     [styles['_is-active']]: props.isActive,
+    [styles['_is-inactive']]: !props.isActive,
   });
 
   return (
