@@ -1,0 +1,17 @@
+.pill {
+  padding: 0 15px;
+  font-size: 16px;
+  line-height: 20px;
+  height: 22px;
+  color: #222222;
+  border-radius: 22px;
+}
+
+.pill-chevron {
+  font-size: 12px;
+  line-height: 20px;
+}
+
+._is-active {
+  background-color: #eeeeee;
+}

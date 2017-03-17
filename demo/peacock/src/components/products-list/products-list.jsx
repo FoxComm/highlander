@@ -13,6 +13,7 @@ import styles from './products-list.css';
 // components
 import ListItem from '../products-item/list-item';
 import Loader from 'ui/loader';
+import SortPill from 'components/sort-pill/sort-pill';
 
 // types
 import type { HTMLElement } from 'types';
@@ -142,7 +143,8 @@ class ProductsList extends Component {
   get sorting(): HTMLElement {
     return (
       <div styleName="sorting">
-        Sorting widgets
+        <SortPill field="price" direction={1} isActive/>
+        <SortPill field="name" direction={1} />
       </div>
     );
   }

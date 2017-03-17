@@ -37,6 +37,7 @@
 .sorting {
   composes: inner-wrap from 'ui/css/layout.css';
   margin-bottom: 20px;
+  display: flex;
 }
 
 @media (--small-only) {
