@@ -7,10 +7,28 @@ across the FoxCommerce platform. In order to use it correctly, we must create
 and update indicies, manage mappings per scope, and push information to ES. This
 document outlines how we approach those problems.
 
-* Manage Mappings
+* Approach
 
-This section covers how we create an manage mappings across ElasticSearch. There
-are a number of challenges when doing this, including:
+This section covers how we create an manage mappings and indices across 
+ElasticSearch. At the most basic level, we want to create views of data and
+import them into ElasticSearch in order to be queried in fast, structured ways.
+Then, we will need to manage the evolution of that search over time by changing
+the structure of mappings and reindexing.
+
+** Create Initial Mappings:w
+
+
+ 
+
+
+ElasticSearch. Over the course of time, we are going to want to create new
+searches in our system and index data jj[[
+
+
+There are a number of challenges when doing this, including:
 
 - Creating initial mappings
 - Synchronizing the ES table contents with PostgreSQL tables
+- Updating mappings
+- Reindexing
+
