@@ -340,10 +340,6 @@ const _checkout = createAsyncActions(
     const { dispatch, getState } = this;
     const cartState = getState().cart;
 
-    const customerId = _.get(cartState, ['customer', 'id'], -1)
-    const channelId = 1; //TODO: Where do we get channelId from?
-    const cartLineItemsSkus = _.get(cartState, ['lineItems', 'skus'], []);
-
     return foxApi.cart.checkout().then(res => {
       tracking.purchase({
         ...cartState,
