@@ -1,6 +1,7 @@
 package services.carts
 
-import cats.data.{Xor, XorT}
+import cats._
+import cats.data._
 import cats.implicits._
 import failures.CouponFailures._
 import failures.DiscountCompilerFailures._
@@ -35,19 +36,87 @@ object CartPromotionUpdater {
       es: ES,
       db: DB,
       ctx: OC,
-      au: AU): DbResultT[TheResponse[Cart]] =
+      au: AU): DbResultT[Unit] =
     for {
       // Fetch base stuff
+      oppa ← * <~ findApplicablePromotion(cart, failFatally)
+      (orderPromo, promotion, adjustments) = oppa // 🙄
+      // Delete previous adjustments and create new
+      _ ← * <~ OrderLineItemAdjustments
+           .filterByOrderRefAndShadow(cart.refNum, orderPromo.promotionShadowId)
+           .delete
+      _ ← * <~ OrderLineItemAdjustments.createAll(adjustments)
+    } yield {}
+
+  private def findApplicablePromotion(
+      cart: Cart,
+      failFatally: Boolean /* FIXME with the new foxy monad @michalrus */ )(
+      implicit ec: EC,
+      es: ES,
+      au: AU,
+      db: DB,
+      ctx: OC): DbResultT[(OrderPromotion, Promotion, Seq[OrderLineItemAdjustment])] =
+    findAppliedCouponPromotion(cart, failFatally).handleErrorWith(
+        couponErr ⇒
+          findApplicableAutoAppliedPromotion(cart).handleErrorWith(_ ⇒ // Any error? @michalrus
+                DbResultT.failures(couponErr)))
+
+  private def findAppliedCouponPromotion(
+      cart: Cart,
+      failFatally: Boolean /* FIXME with the new foxy monad @michalrus */ )(
+      implicit ec: EC,
+      au: AU,
+      es: ES,
+      db: DB,
+      ctx: OC): DbResultT[(OrderPromotion, Promotion, Seq[OrderLineItemAdjustment])] = {
+    for {
       orderPromo ← * <~ OrderPromotions
                     .filterByCordRef(cart.refNum)
                     .requiresCoupon
                     .mustFindOneOr(OrderHasNoPromotions)
-      // Fetch promotion
       promotion ← * <~ Promotions
                    .filterByContextAndShadowId(ctx.id, orderPromo.promotionShadowId)
                    .requiresCoupon
                    .mustFindOneOr(
                        PromotionShadowNotFoundForContext(orderPromo.promotionShadowId, ctx.id))
+      adjustments ← * <~ getAdjustmentsForPromotion(cart, promotion, failFatally)
+    } yield (orderPromo, promotion, adjustments)
+  }
+
+  private def findApplicableAutoAppliedPromotion(cart: Cart)(
+      implicit ec: EC,
+      es: ES,
+      au: AU,
+      db: DB,
+      ctx: OC): DbResultT[(OrderPromotion, Promotion, Seq[OrderLineItemAdjustment])] =
+    for {
+      all ← * <~ Promotions.filterByContext(ctx.id).autoApplied.result
+      allWithAdjustments ← * <~ all.toList
+                            .map(promo ⇒
+                                  getAdjustmentsForPromotion(cart, promo, failFatally = true).map(
+                                      (promo, _)))
+                            .ignoreFailures
+                            .ensure(OrderHasNoPromotions.single)(_.nonEmpty)
+      (bestPromo, bestAdjustments) = allWithAdjustments.maxBy {
+        case (_, adjustments) ⇒ adjustments.map(_.subtract).sum
+      } // FIXME: This approach doesn’t seem very efficient… @michalrus
+      // Replace previous OrderPromotions bindings with the current best one.
+      // TODO: only if they differ?
+      _          ← * <~ OrderPromotions.filterByCordRef(cart.refNum).autoApplied.delete
+      orderPromo ← * <~ OrderPromotions.create(OrderPromotion.buildAuto(cart, bestPromo))
+    } yield (orderPromo, bestPromo, bestAdjustments)
+
+  private def getAdjustmentsForPromotion(
+      cart: Cart,
+      promotion: Promotion,
+      failFatally: Boolean /* FIXME with the new foxy monad @michalrus */ )(
+      implicit ec: EC,
+      es: ES,
+      au: AU,
+      db: DB,
+      ctx: OC): DbResultT[Seq[OrderLineItemAdjustment]] =
+    for {
+      // Fetch promotion
       promoForm   ← * <~ ObjectForms.mustFindById404(promotion.formId)
       promoShadow ← * <~ ObjectShadows.mustFindById404(promotion.shadowId)
       promoObject = IlluminatedPromotion.illuminate(ctx, promotion, promoForm, promoShadow)
@@ -56,15 +125,14 @@ object CartPromotionUpdater {
       // Safe AST compilation
       discount ← * <~ tryDiscount(discounts)
       (form, shadow) = discount.tupled
-      qualifier   ← * <~ QualifierAstCompiler(qualifier(form, shadow)).compile()
-      offer       ← * <~ OfferAstCompiler(offer(form, shadow)).compile()
-      adjustments ← * <~ getAdjustments(promoShadow, cart, qualifier, offer, failFatally)
-      // Delete previous adjustments and create new
-      _ ← * <~ OrderLineItemAdjustments
-           .filterByOrderRefAndShadow(cart.refNum, orderPromo.promotionShadowId)
-           .delete
-      _ ← * <~ OrderLineItemAdjustments.createAll(adjustments.result)
-    } yield adjustments.map(_ ⇒ cart)
+      qualifier ← * <~ QualifierAstCompiler(qualifier(form, shadow)).compile()
+      offer     ← * <~ OfferAstCompiler(offer(form, shadow)).compile()
+      maybeFailedAdjustments = getAdjustments(promoShadow, cart, qualifier, offer)
+      adjustments ← * <~ (if (failFatally) maybeFailedAdjustments
+                          else
+                            (maybeFailedAdjustments
+                              .failuresToWarnings(Seq.empty) { case _ ⇒ true }))
+    } yield adjustments
 
   def attachCoupon(originator: User, refNum: Option[String] = None, code: String)(
       implicit ec: EC,
@@ -78,7 +146,7 @@ object CartPromotionUpdater {
       cart ← * <~ getCartByOriginator(originator, refNum)
       _ ← * <~ OrderPromotions
            .filterByCordRef(cart.refNum)
-           .requiresCoupon
+           .requiresCoupon // TODO: decide what happens here, when we allow multiple promos per cart. @michalrus
            .mustNotFindOneOr(OrderAlreadyHasCoupon)
       // Fetch coupon + validate
       couponCode ← * <~ CouponCodes.mustFindByCode(code)
@@ -96,15 +164,15 @@ object CartPromotionUpdater {
                    .requiresCoupon
                    .mustFindOneOr(PromotionNotFoundForContext(coupon.promotionId, ctx.name))
       // Create connected promotion and line item adjustments
-      _                          ← * <~ OrderPromotions.create(OrderPromotion.buildCoupon(cart, promotion, couponCode))
-      readjustedCartWithWarnings ← * <~ readjust(cart, failFatally = true)
+      _ ← * <~ OrderPromotions.create(OrderPromotion.buildCoupon(cart, promotion, couponCode))
+      _ ← * <~ readjust(cart, failFatally = true)
       // Write event to application logs
-      _ ← * <~ LogActivity().orderCouponAttached(readjustedCartWithWarnings.result, couponCode)
+      _ ← * <~ LogActivity().orderCouponAttached(cart, couponCode)
       // Response
-      cart      ← * <~ CartTotaler.saveTotals(readjustedCartWithWarnings.result)
+      cart      ← * <~ CartTotaler.saveTotals(cart)
       validated ← * <~ CartValidator(cart).validate()
       response  ← * <~ CartResponse.buildRefreshed(cart)
-    } yield readjustedCartWithWarnings.flatMap(_ ⇒ TheResponse.validated(response, validated))
+    } yield TheResponse.validated(response, validated)
 
   def detachCoupon(originator: User, refNum: Option[String] = None)(
       implicit ec: EC,
@@ -133,20 +201,16 @@ object CartPromotionUpdater {
   /**
     * Getting only first discount now
     */
-  def tryDiscount[T](discounts: Seq[T]): Failures Xor T = discounts.headOption match {
+  private def tryDiscount[T](discounts: Seq[T]): Failures Xor T = discounts.headOption match {
     case Some(discount) ⇒ Xor.Right(discount)
     case _              ⇒ Xor.Left(EmptyDiscountFailure.single)
   }
 
-  private def getAdjustments(promo: ObjectShadow,
-                             cart: Cart,
-                             qualifier: Qualifier,
-                             offer: Offer,
-                             failFatally: Boolean /* FIXME with the new foxy monad @michalrus */ )(
+  private def getAdjustments(promo: ObjectShadow, cart: Cart, qualifier: Qualifier, offer: Offer)(
       implicit ec: EC,
       es: ES,
       db: DB,
-      au: AU): DbResultT[TheResponse[Seq[OrderLineItemAdjustment]]] =
+      au: AU): DbResultT[Seq[OrderLineItemAdjustment]] =
     for {
       lineItems      ← * <~ LineItemManager.getCartLineItems(cart.refNum)
       shippingMethod ← * <~ shipping.ShippingMethods.forCordRef(cart.refNum).one
@@ -154,17 +218,7 @@ object CartPromotionUpdater {
       shipTotal      ← * <~ CartTotaler.shippingTotal(cart)
       cartWithTotalsUpdated = cart.copy(subTotal = subTotal, shippingTotal = shipTotal)
       input                 = DiscountInput(promo, cartWithTotalsUpdated, lineItems, shippingMethod)
-      adjustments ← * <~ qualifier
-                     .check(input)
-                     .flatMap(_ ⇒ offer.adjust(input))
-                     .map(TheResponse(_))
-                     .recoverWith {
-                       // FIXME: convert errors to warnings better with the new monad @michalrus
-                       case qualifierErrors if failFatally ⇒ Result.failures(qualifierErrors)
-                       case qualifierErrors ⇒
-                         Result.pure(
-                             TheResponse.build(Seq.empty, warnings = Some(qualifierErrors)))
-                     }
-                     .value
+      _           ← * <~ qualifier.check(input)
+      adjustments ← * <~ offer.adjust(input)
     } yield adjustments
 }
