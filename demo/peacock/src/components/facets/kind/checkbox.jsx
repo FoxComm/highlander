@@ -43,16 +43,21 @@ class Checkbox extends React.Component {
       checked,
     } = this.props;
 
+    const id = 'checkbox-' + value;
+
     return (<div styleName="facet-checkbox">
-              <label>
                 <input
+                  styleName="facet-checkbox-input"
+                  id={id}
                   type="checkbox"
                   value={value}
                   defaultChecked={checked}
                   onChange={this.click()}
                 />
-                {label}
-              </label>
+                <div styleName="facet-checkbox-box">
+                  <label htmlFor={id}>{"✔"}</label>
+                </div>
+              <label styleName="facet-checkbox-label" htmlFor={id}>{label} </label>
             </div>);
   }
 }

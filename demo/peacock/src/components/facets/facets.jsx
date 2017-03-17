@@ -32,6 +32,14 @@ const testFacets = [
     ]
   },
   {
+    name: 'Shoes',
+    kind: 'checkbox',
+    values: [
+      {label: 'Shoes', value: 'shoes', click: null},
+      {label: 'High Tops', value: 'hightops', click: null},
+    ]
+  },
+  {
     name: 'Size',
     kind: 'circle',
     values: [
@@ -43,9 +51,21 @@ const testFacets = [
       {label: '9.5', value: '9.5', click: null},
       {label: '10', value: '10', click: null},
       {label: '10.5', value: '10.5', click: null},
-      {label: '14', value: '14.5', click: null},
+      {label: '14', value: '14', click: null},
+      {label: '14.5', value: '14.5', click: null},
     ]
-  }
+  },
+  {
+    name: 'Franchise',
+    kind: 'checkbox',
+    values: [
+      {label: 'Cloudform', value: 'cloudform', click: null},
+      {label: 'Raleigh', value: 'raleigh', click: null},
+      {label: 'Avantage Clean', value: 'avantageclean', click: null},
+      {label: 'Life Racer', value: 'liferacer', click: null},
+      {label: 'BB9TIS', value: 'bb8tis', click: null},
+    ]
+  },
 
 ]
 

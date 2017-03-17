@@ -1,7 +1,12 @@
 .facets {
-    width: 200px;
+    width: 250px;
     padding-top: 100px;
     padding-left: 50px;
+}
+
+.facet {
+    margin-bottom: 22px;
+
 }
 
 .facet h2 {

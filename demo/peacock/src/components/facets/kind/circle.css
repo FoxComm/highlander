@@ -1,5 +1,5 @@
 .circle-checkbox input[type=checkbox] {
-    visibility: hidden;
+    display: none;
 }
 
 .circle-checkbox div {
@@ -9,6 +9,7 @@
     text-align: center;
     float: left;
     margin-right: 11px;
+    margin-bottom: 10px;
 }
 
 .circle-checkbox label {
