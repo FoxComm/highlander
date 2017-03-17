@@ -1,9 +1,13 @@
 /* @flow */
 
 // libs
-import get from 'lodash/get';
+import { get, flow } from 'lodash';
 import { autobind, debounce } from 'core-decorators';
 import React, { Component, Element } from 'react';
+import { connect } from 'react-redux';
+import { createReducer, createAction } from 'redux-act';
+import { makeLocalStore, addAsyncReducer } from '@foxcomm/wings';
+import { createAsyncActions } from '@foxcomm/wings';
 
 // components
 import { ModalContainer } from 'components/modal/base';
@@ -12,22 +16,23 @@ import LoadingInputWrapper from 'components/forms/loading-input-wrapper';
 import { Table } from 'components/table';
 import ProductRow from './product-row';
 
-// actions
+// redux
 import { searchProducts } from 'elastic/products';
 
 // styles
 import styles from './products-add.css';
 
 type Props = {
-  addState: AsyncState,
-  addedProducts: Array<Product>,
-  onAddProduct: (product: Product) => Promise<*>,
-};
-
-type State = {
   search: string,
+  setTerm: (term: string) => void,
+  fetch: (token: string) => Promise<*>,
+  fetchState: AsyncState,
+  addState: AsyncState,
   products: Array<Product>,
-  inProgress: boolean,
+  addedProductId: ?number,
+  addedProducts: Array<Product>,
+  setAddedProduct: (productId: ?number) => void,
+  onAddProduct: (product: Product) => Promise<*>,
 };
 
 const tableColumns = [
@@ -41,53 +46,51 @@ const tableColumns = [
 class ProductsAdd extends Component {
   props: Props;
 
-  state: State = {
-    search: '',
-    products: [],
-    inProgress: false,
-  };
-
   @debounce(400)
   search() {
-    this.setState({ inProgress: true }, () => {
-      searchProducts(this.state.search)
-        .then(response => this.setState({
-          products: get(response, 'result', []),
-          inProgress: false
-        }))
-        .catch(() => this.setState({ inProgress: false }));
-
-      return; // searchProducts returns Promise, setState's callback returns void
-    });
+    this.props.fetch(this.props.search);
   }
 
   @autobind
   handleInputChange({ target }: { target: HTMLInputElement }) {
-    this.setState({ search: target.value });
+    this.props.setTerm(target.value);
 
     this.search();
   }
 
+  // Workaround to handle single item fetch state
+  @autobind
+  handleAddProduct(product: Product) {
+    this.props.setAddedProduct(product.productId);
+    this.props.onAddProduct(product);
+  }
+
   @autobind
   renderRow(row: Product) {
-    const { addState, addedProducts, onAddProduct } = this.props;
+    const { addState, addedProducts, addedProductId } = this.props;
+
+    const isNew = !addedProducts.some((p: Product) => p.productId === row.productId);
+    const inProgress = addState.inProgress && addedProductId === row.productId;
+
     return (
       <ProductRow
         product={row}
         columns={tableColumns}
-        params={{ onAdd: onAddProduct, addState, addedProducts }}
-        key={row.productId}
+        params={{ onAdd: this.handleAddProduct, isNew, inProgress }}
+        key={row.id}
       />
     );
   }
 
   render() {
+    const { products, fetchState: { inProgress } } = this.props;
+
     return (
       <div className={styles.productSearch}>
-        <LoadingInputWrapper inProgress={this.state.inProgress}>
+        <LoadingInputWrapper inProgress={inProgress}>
           <SearchInput
             className={styles.search}
-            value={this.state.search}
+            value={this.props.search}
             onChange={this.handleInputChange}
             autoFocus
           />
@@ -96,14 +99,37 @@ class ProductsAdd extends Component {
         <Table
           className={styles.table}
           emptyMessage="Search to find and add products"
-          data={{ rows: this.state.products }}
+          data={{ rows: products }}
           renderRow={this.renderRow}
           columns={tableColumns}
-          isLoading={this.state.inProgress}
+          isLoading={inProgress}
         />
       </div>
     );
   }
 }
 
-export default ProductsAdd;
+/*
+ * Local redux store
+ */
+const fetch = createAsyncActions('fetchProducts', searchProducts);
+const setTerm = createAction('setTerm');
+const setAddedProduct = createAction('setAddedProduct');
+
+const reducer = createReducer({
+  [fetch.succeeded]: (state, response) => ({ ...state, products: get(response, 'result', []) }),
+  [setAddedProduct]: (state, addedProductId) => ({ ...state, addedProductId }),
+  [setTerm]: (state, term) => ({ ...state, term }),
+});
+
+const mapState = state => ({
+  search: state.term,
+  products: state.products,
+  addedProductId: state.addedProductId,
+  fetchState: get(state.asyncActions, 'fetchProducts', {}),
+});
+
+export default flow(
+  connect(mapState, { fetch: fetch.perform, setTerm, setAddedProduct }),
+  makeLocalStore(addAsyncReducer(reducer), { term: '', products: [] }),
+)(ProductsAdd);

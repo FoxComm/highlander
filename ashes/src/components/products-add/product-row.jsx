@@ -15,8 +15,8 @@ import { Button } from 'components/common/buttons';
 import styles from './products-add.css';
 
 type Params = {
-  addState: AsyncState,
-  addedProducts: Array<Product>,
+  inProgress: boolean,
+  isNew: boolean,
   onAdd: (product: Product) => any,
 };
 
@@ -29,15 +29,13 @@ type Props = {
 function setCellContents(product: Product, field: string, params: Params) {
   switch (field) {
     case 'add':
-      const isNew = !find(params.addedProducts, (p: Product) => p.productId === product.productId);
-
       return (
         <Button
           className={styles.button}
-          isLoading={params.addState.inProgress}
+          isLoading={params.inProgress}
           onClick={() => params.onAdd(product)}
-          children={isNew ? 'Add' : 'Added'}
-          disabled={!isNew}
+          children={params.isNew ? 'Add' : 'Added'}
+          disabled={!params.isNew}
         />
       );
     case 'skus':
