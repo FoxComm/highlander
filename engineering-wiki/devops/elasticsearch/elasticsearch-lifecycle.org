@@ -15,20 +15,84 @@ import them into ElasticSearch in order to be queried in fast, structured ways.
 Then, we will need to manage the evolution of that search over time by changing
 the structure of mappings and reindexing.
 
-** Create Initial Mappings:w
+** Definitions
 
+*=search=*
 
- 
+Search is a FoxCommerce-defined concept that allows us to aggregate data,
+analyze that data, and query against it. It rolls up a number of ElasticSearch
+primitives, such as aliases and mappings, to get around some of the inherent
+limitations of ES and give us zero-downtime deployments.
+and updates.
 
+*=search_view=*
 
-ElasticSearch. Over the course of time, we are going to want to create new
-searches in our system and index data jj[[
+One or more Postgres tables that contain the raw data that can be searched.
+This data is consumed by /Green River/ and pushed to ElasticSearch.
 
+*=mapping=*
 
-There are a number of challenges when doing this, including:
+A =mapping= is a fundamental part of ElasticSearch. It's comprised of two parts:
+1.) a definition that describes every field in the =mapping= and how ElasticSearch
+will analyze the contents of those fields, and 2.) the indexed data that we
+import from the =search_view=.
 
-- Creating initial mappings
-- Synchronizing the ES table contents with PostgreSQL tables
-- Updating mappings
-- Reindexing
+We consider mapping definitions to be immutable, though that's not a strict
+requirement of ElasticSearch, and each search will consist of multiple versioned
+mappings.
 
+There are a few restrictions that exist for updating ElasticSearch mappings:
+
+1. Adding a field to a mapping does not require data to be reindexed
+2. Changing the type or analyzer used on a field requires a complete reindex of the mapping
+3. Renaming a field requires a complete reindex of the mapping
+4. Removing a field requires a complete reindex of the mapping
+
+It is the limitations of items #2-4 that caused us to create the =search=.
+
+*=alias=*
+
+Think of an alias as a symlink in ElasticSearch. In short, an alias is a named
+shortcut for a mapping.
+
+** Search Architecture
+
+As mentioned earlier, a =search= is a structure that allows us to create and
+manage the lifecycle of a mapping. Here's a brief overview of the architcture of
+the search and how it fits into the overall context of the system.
+
+#+BEGIN_EXAMPLE
+
+               ┌─────────────────────┐
+               │ API Gateway [nginx] │
+               └──────────┬──────────┘  
+                          |
+             ┌────────────┴───────────┐           
+    ┌────────┴────────┐       ┌───────┴───────┐
+    │ Application API │       │ ElasticSearch │
+    └────────┬────────┘       │ [index]       │
+             │                └───────┬───────┘
+             │                        │   ┌──────────┐   ┌──────────────────────────┐
+             │                        ├──→│ products ├──→│ products_search_view__v2 │
+             │                        │ ┌→│ [alias]  │   │ [mapping]                │
+             │                        │ │ └──────────┘   └──────────────────────────┘
+             │                        │ │                ┌──────────────────────────┐              
+             │                        │ │                │ products_search_view__v1 │
+             │                        │ │                │ [mapping]                │
+             │                        │ │                └──────────────────────────┘
+             │                        │ │
+             │                        │ │ 
+             │                        │ │ ┌──────────┐   ┌──────────────────────────┐
+             │                        └─+→│ orders   ├──→│ orders_search_view__v2   │
+             │                          ├→│ [alias]  │   │ [mapping]                │
+             │                          │ └──────────┘   └──────────────────────────┘
+             │                          │                ┌──────────────────────────┐              
+             │                          │                │ orders_search_view__v1   │
+             │                          │                │ [mapping]                │
+             │                          │                └──────────────────────────┘
+          ╭──┴─╮                        │
+          │    │     ┌───────┐     ┌────┴────────┐
+          │ DB ├────→│ Kafka │────→│ Green River │
+          │    │     └───────┘     └─────────────┘
+          ╰────╯                                
+#+END_EXAMPLE
