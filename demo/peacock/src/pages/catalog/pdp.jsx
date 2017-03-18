@@ -32,6 +32,8 @@ import ProductDetails from './product-details';
 import GiftCardForm from '../../components/gift-card-form';
 import ProductAttributes from './product-attributes';
 import ImagePlaceholder from '../../components/products-item/image-placeholder';
+import RelatedProductsList,
+  { LoadingBehaviors } from '../../components/related-products-list/related-products-list';
 
 // styles
 import styles from './pdp.css';
@@ -129,7 +131,6 @@ class Pdp extends Component {
     this.productPromise.then(() => {
       const { product } = this.props;
       tracking.viewDetails(this.product);
-      this.props.actions.fetchRelatedProducts(product.id, 1).catch(_.noop);
     });
   }
 
@@ -139,18 +140,20 @@ class Pdp extends Component {
   }
 
   componentWillUpdate(nextProps) {
-    const id = this.getId(nextProps);
+    const nextId = this.getId(nextProps);
 
-    if (this.productId !== id) {
+    if (this.productId !== nextId) {
       this.props.actions.resetProduct();
-      this.fetchProduct(nextProps, id);
       this.props.actions.clearRelatedProducts();
-      this.props.actions.fetchRelatedProducts(id, 1);
+      this.fetchProduct(nextProps, nextId);
     }
   }
 
   safeFetch(id) {
-    return this.props.actions.fetch(id).catch(_.noop);
+    return this.props.actions.fetch(id).catch(_.noop)
+      .then(product => {
+        this.props.actions.fetchRelatedProducts(product.id, 1).catch(_.noop);
+      });
   }
 
   fetchProduct(_props, _productId) {
@@ -266,7 +269,14 @@ class Pdp extends Component {
   }
 
   render(): HTMLElement {
-    const { t, isLoading, notFound, fetchError, isRelatedProductsLoading } = this.props;
+    const {
+      t,
+      isLoading,
+      notFound,
+      fetchError,
+      isRelatedProductsLoading,
+      relatedProducts,
+    } = this.props;
 
     if (isLoading) {
       return <Loader />;
@@ -304,11 +314,18 @@ class Pdp extends Component {
                 onQuantityChange={this.changeQuantity}
                 addToCart={this.addToCart}
               />}
-
             <ErrorAlerts error={this.state.error} />
           </div>
         </div>
-
+        {!_.isEmpty(relatedProducts) && relatedProducts.total ?
+          <RelatedProductsList
+            title='You might also like'
+            list={relatedProducts.result}
+            isLoading={isRelatedProductsLoading}
+            loadingBehavior={LoadingBehaviors.ShowWrapper}
+          />
+          : false
+        }
         {!this.isGiftCard() && <ProductAttributes product={this.props.product} />}
       </div>
     );
