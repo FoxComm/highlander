@@ -17,7 +17,7 @@ the structure of mappings and reindexing.
 
 ** Definitions
 
-*=search=*
+*search*
 
 Search is a FoxCommerce-defined concept that allows us to aggregate data,
 analyze that data, and query against it. It rolls up a number of ElasticSearch
@@ -25,12 +25,12 @@ primitives, such as aliases and mappings, to get around some of the inherent
 limitations of ES and give us zero-downtime deployments.
 and updates.
 
-*=search_view=*
+*search_view*
 
 One or more Postgres tables that contain the raw data that can be searched.
 This data is consumed by /Green River/ and pushed to ElasticSearch.
 
-*=mapping=*
+*mapping*
 
 A =mapping= is a fundamental part of ElasticSearch. It's comprised of two parts:
 1.) a definition that describes every field in the =mapping= and how ElasticSearch
@@ -50,7 +50,7 @@ There are a few restrictions that exist for updating ElasticSearch mappings:
 
 It is the limitations of items #2-4 that caused us to create the =search=.
 
-*=alias=*
+*alias*
 
 Think of an alias as a symlink in ElasticSearch. In short, an alias is a named
 shortcut for a mapping.
@@ -96,3 +96,56 @@ the search and how it fits into the overall context of the system.
           │    │     └───────┘     └─────────────┘
           ╰────╯                                
 #+END_EXAMPLE
+
+*** Search Results
+
+As the simplified document above shows, an ElasticSearch index is populated by
+numerous =search= instances (represented as an alias). There may be multiple
+mappings for each alias, but that alias will only pull results from the most
+recent version of its mapping.
+
+This means that when a client makes a request to =/api/v1/search/products=,
+there are a number of things happening in the background.
+
+1. Nginx is routing the request to the appropriate index (see /Scopes/ for more details)
+2. Once inside the index, the request is routed to an alias
+3. The alias retrieves results from the specific mapping to which it's linked
+
+*** Indexing
+
+A similar process as what's described above is used to insert, update, and
+delete data from ElasticSearch.
+
+1. Postgres instances contain tables that match the schemas of the ElasticSearch mappings
+2. These tables are updated via Postgres triggers as changes occur in the system
+3. Those changes are streamed through Kafka and picked up by /Green River/
+4. Based on =scope= and an internal mapping, /Green River/ decides what alias should be updated
+5. /Green River/ makes a =PUT= against the appropriate alias
+6. The mapping that is linked to the alias gets updated
+
+** Indexes
+   
+*** Scopes
+
+Scope is a data primitive that we use for permissioning across the platform.
+While many of the details of scopes are outside the scope (ha!) of this 
+document, it's of note here because for searches that contain private data, we
+create an index per scope.
+
+To illustrate this concept, let's look at the following example. In this example,
+we have three scopes: 1, 2, and 3. 1 is the parent of 2 and 3, and they form the
+following tree:
+
+#+BEGIN_EXAMPLE
+  1
+ / \
+2   3
+#+END_EXAMPLE
+
+Since all are stored using the ltree format, we write each scope as a '.'
+delimited directory. Here are the three scopes written in the format that we
+will use going forward:
+
+- 1 = 1
+- 2 = 1.2
+- 3 = 1.3
