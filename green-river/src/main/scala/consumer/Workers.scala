@@ -24,7 +24,9 @@ object Workers {
                                  PromotionConnector,
                                  CouponConnector)
 
-    val activityProcessor = new ActivityProcessor(connectionInfo, activityConnectors)
+    val kafkaInfo = KafkaConnectionInfo(
+        broker = conf.kafkaBroker, schemaRegistryURL = conf.avroSchemaRegistryUrl)
+    val activityProcessor = new ActivityProcessor(kafkaInfo, connectionInfo, activityConnectors)
 
     val avroProcessor = new AvroProcessor(
         schemaRegistryUrl = conf.avroSchemaRegistryUrl, processor = activityProcessor)
@@ -184,7 +186,7 @@ object Workers {
       "store_admins_search_view"           → StoreAdminsSearchView(),
       "store_credit_transactions_view"     → StoreCreditTransactionsSearchView(),
       "store_credits_search_view"          → StoreCreditsSearchView(),
-      "activity_connections_view"          → ActivityConnectionTransformer(connectionInfo),
+      "scoped_activity_trails"             → ActivityConnectionTransformer(connectionInfo),
       "taxonomies_search_view"             → TaxonomiesSearchView(),
       "taxons_search_view"                 → TaxonsSearchView()
   )

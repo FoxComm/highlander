@@ -15,26 +15,25 @@ import utils.http.JsonSupport._
 
 object ObjectRoutes {
   def routes(implicit ec: EC, db: DB, auth: AuthData[User]): Route = {
-    activityContext(auth.model) { implicit ac ⇒
-      pathPrefix("object") {
-        pathPrefix("schemas") {
-          (get & pathEnd) {
-            getOrFailures {
-              ObjectSchemasManager.getAllSchemas()
+    activityContext(auth) { implicit ac ⇒
+        pathPrefix("object" / "schemas") {
+            (get & pathEnd) {
+                getOrFailures {
+                    ObjectSchemasManager.getAllSchemas()
+                }
+            } ~
+            pathPrefix("byKind") {
+                (get & path(Segment)) { kind ⇒
+                    getOrFailures {
+                        ObjectSchemasManager.getSchemasForKind(kind)
+                    }
+                }
+            } ~
+            (get & pathPrefix("byName") & path(Segment)) { schemaName ⇒
+                getOrFailures {
+                    ObjectSchemasManager.getSchema(schemaName)
+                }
             }
-          } ~
-          pathPrefix("byKind") {
-            (get & path(Segment)) { kind ⇒
-              getOrFailures {
-                ObjectSchemasManager.getSchemasForKind(kind)
-              }
-            }
-          } ~
-          (get & pathPrefix("byName") & path(Segment)) { schemaName ⇒
-            getOrFailures {
-              ObjectSchemasManager.getSchema(schemaName)
-            }
-          }
         } ~
         pathPrefix(Segment) { (context) ⇒
           (post & pathEnd & entity(as[CreateGenericObject])) { payload ⇒

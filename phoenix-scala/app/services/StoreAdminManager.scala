@@ -44,7 +44,7 @@ object StoreAdminManager {
                                state = AdminData.Invited,
                                scope = scope))
 
-      _ ← * <~ LogActivity.storeAdminCreated(admin, author)
+      _ ← * <~ LogActivity().storeAdminCreated(admin, author)
     } yield StoreAdminResponse.build(admin, adminUser)
   }
 
@@ -59,7 +59,7 @@ object StoreAdminManager {
                                            phoneNumber = payload.phoneNumber,
                                            email = Some(payload.email)))
       adminData ← * <~ AdminsData.mustFindByAccountId(accountId)
-      _         ← * <~ LogActivity.storeAdminUpdated(saved, author)
+      _         ← * <~ LogActivity().storeAdminUpdated(saved, author)
     } yield StoreAdminResponse.build(saved, adminData)
 
   def delete(accountId: Int, author: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[Unit] =
@@ -73,7 +73,7 @@ object StoreAdminManager {
       _      ← * <~ AccountRoles.findByAccountId(accountId).delete
       _      ← * <~ AccountOrganizations.findByAccountId(accountId).delete
       _      ← * <~ Accounts.deleteById(accountId, DbResultT.unit, i ⇒ NotFoundFailure404(Account, i))
-      _      ← * <~ LogActivity.storeAdminDeleted(admin, author)
+      _      ← * <~ LogActivity().storeAdminDeleted(admin, author)
     } yield result
 
   def changeState(id: Int, payload: StateChangeStoreAdminPayload, author: User)(
@@ -85,6 +85,6 @@ object StoreAdminManager {
       adminUser ← * <~ AdminsData.mustFindByAccountId(id)
       _         ← * <~ adminUser.transitionState(payload.state)
       result    ← * <~ AdminsData.update(adminUser, adminUser.copy(state = payload.state))
-      _         ← * <~ LogActivity.storeAdminStateChanged(admin, adminUser.state, result.state, author)
+      _         ← * <~ LogActivity().storeAdminStateChanged(admin, adminUser.state, result.state, author)
     } yield StoreAdminResponse.build(admin, result)
 }

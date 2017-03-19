@@ -10,11 +10,12 @@ import akka.http.scaladsl.server.PathMatcher.Matched
 import akka.http.scaladsl.server._
 import akka.http.scaladsl.unmarshalling.{FromRequestUnmarshaller, Unmarshaller}
 
+import com.github.tminglei.slickpg.LTree
+
 import cats._
 import cats.data._
 import cats.implicits._
 import failures._
-import models.account._
 import models.activity.ActivityContext
 import models.objects.{ObjectContext, ObjectContexts}
 import models.product.{ProductReference, SimpleContext}
@@ -42,21 +43,33 @@ object CustomDirectives {
     }
   }
 
-  def activityContext(user: User): Directive1[ActivityContext] = {
+  def activityContext(au: AU): Directive1[ActivityContext] = {
+    val user  = au.model
+    val scope = LTree(au.token.scope)
+
     optionalHeaderValueByName("x-request-id").map {
       case (Some(uuid)) ⇒
-        ActivityContext(userId = user.accountId, userType = "user", transactionId = uuid)
+        ActivityContext(userId = user.accountId,
+                        userType = "user",
+                        transactionId = uuid,
+                        scope = scope)
       case (None) ⇒
-        ActivityContext(userId = user.accountId, userType = "user", transactionId = generateUuid)
+        ActivityContext(userId = user.accountId,
+                        userType = "user",
+                        transactionId = generateUuid,
+                        scope = scope)
     }
   }
 
-  def activityContext(): Directive1[ActivityContext] = {
+  def activityContext(scope: LTree): Directive1[ActivityContext] = {
     optionalHeaderValueByName("x-request-id").map {
       case (Some(uuid)) ⇒
-        ActivityContext(userId = 0, userType = "guest", transactionId = uuid)
+        ActivityContext(userId = 0, userType = "guest", transactionId = uuid, scope = scope)
       case (None) ⇒
-        ActivityContext(userId = 0, userType = "guest", transactionId = generateUuid)
+        ActivityContext(userId = 0,
+                        userType = "guest",
+                        transactionId = generateUuid,
+                        scope = scope)
     }
   }
 

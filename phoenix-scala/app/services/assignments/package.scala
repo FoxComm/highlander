@@ -42,7 +42,7 @@ package object assignments {
                                          keys: Seq[String])(implicit ec: EC, ac: AC) = {
 
     if (keys.nonEmpty)
-      LogActivity
+      LogActivity()
         .bulkAssigned(originator, admin, keys, manager.assignmentType, manager.referenceType)
     else
       DbResultT.unit
@@ -54,7 +54,7 @@ package object assignments {
                                            keys: Seq[String])(implicit ec: EC, ac: AC) = {
 
     if (keys.nonEmpty)
-      LogActivity
+      LogActivity()
         .bulkUnassigned(originator, admin, keys, manager.assignmentType, manager.referenceType)
     else
       DbResultT.unit
