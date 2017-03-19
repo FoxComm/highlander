@@ -11,6 +11,7 @@
     - ufw
     - bridge-utils
     - udev
+    - zip
 
 - name: Setup IPv4 forwarding
   command: echo 1 > /proc/sys/net/ipv4/ip_forward
@@ -65,16 +66,6 @@
 
 - name: Copy OpenVPN Execution File
   template: src=run_openvpn.sh dest=/usr/local/bin/run_openvpn.sh mode="u+x,g+x,o+x"
-
-- name: Create empty certificate revocation list file
-  file: 
-    path: /etc/openvpn/keys/crl.pem
-    owner: root
-    state: touch
-    mode: "u=rw,g-rw,o-rw"
-
-- name: Copy OpenVPN Service
-  template: src=openvpn.service dest="{{dest_services}}/openvpn.service"
 
 - name: Reload Systemd for OpenVPN
   command: systemctl daemon-reload
