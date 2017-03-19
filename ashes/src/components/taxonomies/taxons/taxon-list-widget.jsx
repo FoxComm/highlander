@@ -50,7 +50,7 @@ class TaxonListWidget extends Component {
     }
   }
 
-  renderChildren() {
+  get content() {
     const { taxons } = this.props.taxonomy;
 
     const children = taxons.map((item) => {
@@ -83,7 +83,7 @@ class TaxonListWidget extends Component {
         <div styleName="header">
           {taxonomy.attributes.name.v}
         </div>
-          {this.renderChildren()}
+          {this.content}
         <div styleName="footer">
           <AddButton className="fc-btn-primary" onClick={this.handleAddButton}>
             Value
