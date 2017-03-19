@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+set -u
+
+# Revoke key
+cd {{easy_rsa_dir}}
+source ./vars
+./revoke-full $1
