@@ -30,6 +30,37 @@
             }
         }
     },
+    "Eyeglasses" : {
+        "start" : "signup",
+        "states" : {
+            "homepage" : {
+                "signup" : {"p": 1.0}
+            },
+            "signup" : {
+                "category" : {"p": 1.0, "select": [ "eyeglasses"]}
+            },
+            "category" : { 
+                "product" : {"p": 0.5},
+                "category" : {"p": 0.5, "select": ["eyeglasses"]}
+            },
+            "product" : {
+                "cart" : {"p": 0.5 },
+                "category" : {"p": 0.5 , "select": ["eyeglasses"]}
+            },
+            "cart" : {
+                "purchase" : {"p": 0.5},
+                "category" : {"p": 0.5, "select": ["eyeglasses"]},
+                "clear_cart" : {"p": 0.1}
+            },
+            "purchase": {
+                "category": {"p": 0.2, "select": ["eyeglasses"]},
+                "done" : {"p": 0.8}
+            },
+            "clear_cart" : {
+                "category" : {"p": 1.0, "select": ["eyeglasses"]}
+            }
+        }
+    },
     "hoarder" : {
         "start" : "signup",
         "states" : {

@@ -76,7 +76,8 @@ object Dependencies {
     "org.scalacheck"    %% "scalacheck"          % Versions.scalacheck,
     "org.mockito"       % "mockito-core"         % "2.1.0-beta.125",
     "com.typesafe.akka" %% "akka-testkit"        % Versions.akka,
-    "com.typesafe.akka" %% "akka-stream-testkit" % Versions.akka
+    "com.typesafe.akka" %% "akka-stream-testkit" % Versions.akka,
+    "io.gatling"        % "gatling-app"          % Versions.gatling
   ).map { testDep ⇒
     testDep % "test,it,et"
   }
