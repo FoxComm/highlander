@@ -1,7 +1,5 @@
 
 .root {
-  display: flex;
-  flex-direction: column;
   background-color: #FFFFFF;
   border: 1px solid #d9d9d9;
 }
@@ -14,48 +12,24 @@
   margin: 20px;
 }
 
-.list {
-  display: flex;
-  flex-direction: column;
-}
-
 .item {
-  display: flex;
-  flex-direction: row;
   height: 46px;
+  font-size: 13px;
+  font-weight: 400;
+  color: #484848;
+  padding-left: 18px;
+  line-height: 46px;
 
   &:hover {
     background-color: #F7F7F7;
     cursor: pointer;
   }
 
-}
-
-.item-current {
-  display: flex;
-  flex-direction: row;
-  height: 46px;
-  background-color: #F7F7F7;
-
-  & > span {
-    width: 2px;
-    background-color: #49C2CA;
+  &.active {
+    border-left: 3px solid #49C2CA;
+    background-color: #F7F7F7;
   }
 
-}
-
-.rectangle {
-  width: 2px;
-  background-color: transparent;
-}
-
-.text {
-  text-align: left;
-  font-size: 13px;
-  font-weight: 400;
-  color: #484848;
-  padding-left: 18px;
-  line-height: 46px;
 }
 
 .footer {

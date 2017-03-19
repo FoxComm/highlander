@@ -5,13 +5,14 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { transitionTo } from 'browserHistory';
 import { autobind } from 'core-decorators';
+import cx from 'classnames';
 
 // components
 import { AddButton } from 'components/common/buttons';
 
 // actions
-import * as TaxonomyActions from 'modules/taxonomies/details';
-import * as TaxonActions from 'modules/taxons/details/taxon';
+import { fetch as fetchTaxonomy } from 'modules/taxonomies/details';
+import { fetch, reset } from 'modules/taxons/details/taxon';
 
 // style
 import styles from './taxon-list-widget.css';
@@ -51,19 +52,18 @@ class TaxonListWidget extends Component {
 
   renderChildren() {
     const { taxons } = this.props.taxonomy;
+
     const children = taxons.map((item) => {
-      const styleName = this.props.currentTaxon == item.taxon.id ? 'item-current' : 'item';
+      const active = (this.props.currentTaxon === item.taxon.id.toString());
+      const className = cx(styles['item'], { [styles.active]: active });
 
        return (
          <div
-           styleName={styleName}
+           className={className}
            onClick={() => this.handleTaxonClick(item.taxon.id)}
            key={item.taxon.id}
          >
-           <span styleName="rectangle"></span>
-           <div styleName="text">
-             {item.taxon.attributes.name.v}
-           </div>
+           {item.taxon.attributes.name.v}
          </div>
          );
        }
@@ -75,7 +75,7 @@ class TaxonListWidget extends Component {
     const { taxonomy } = this.props;
 
     if (!taxonomy || taxonomy.hierarchical) {
-      return <div></div>;
+      return null;
     }
 
     return (
@@ -100,9 +100,9 @@ const mapState = ( {taxonomies: { details } }) => ({
 });
 
 const mapDispatch = (dispatch) => ({
-    fetchTaxonomy: (id: string, context: string ) => dispatch(TaxonomyActions.fetch(id, context)),
-    fetchTaxon: (id: string, context: string) => dispatch(TaxonActions.fetch(id, context)),
-    addNewValue: () => dispatch(TaxonActions.reset())
+    fetchTaxonomy: (id: string, context: string ) => dispatch(fetchTaxonomy(id, context)),
+    fetchTaxon: (id: string, context: string) => dispatch(fetch(id, context)),
+    addNewValue: () => dispatch(reset())
 });
 
 export default connect(mapState, mapDispatch)(TaxonListWidget);
