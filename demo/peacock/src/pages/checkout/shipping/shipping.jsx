@@ -56,11 +56,28 @@ class Shipping extends Component {
     }
   }
 
-  content() {
+  get action() {
+    const { props } = this;
+
+    if (!_.isEmpty(props.shippingAddress)) {
+      return (
+        <div styleName="btn-action">Change</div>
+      );
+    } else if (_.isEmpty(props.shippingAddress) && props.addresses.length > 0) {
+      return (
+        <div styleName="btn-action">Choose</div>
+      );
+    }
+    return (
+      <div styleName="btn-action">+ Add new</div>
+    );
+  }
+
+  get content() {
     const { props } = this;
     const savedAddress = props.shippingAddress;
 
-    if ((!_.isEmpty(savedAddress) && !props.isEditing)) {
+    if (!_.isEmpty(savedAddress)) {
       return (
         <AddressDetails address={savedAddress} styleName="savedAddress" />
       );
@@ -77,24 +94,18 @@ class Shipping extends Component {
         />
       );
     }
-
-    return (
-      <AddressList { ...props } activeAddress={savedAddress}/>
-    );
   }
 
   render() {
     const { t } = this.props;
 
     return (
-      <div >
-        <EditableBlock
-          isEditing={this.props.isEditing}
-          styleName="shipping"
-          title={t('SHIPPING')}
-          content={this.content()}
-          editAction={this.props.editAction}
-        />
+      <div>
+        <div styleName="header">
+          <span styleName="title">Shipping address</span>
+          {this.action}
+        </div>
+        {this.content}
       </div>
     );
   }
