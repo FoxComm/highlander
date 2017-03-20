@@ -37,7 +37,7 @@ class ObjectPageDeux extends Component {
   componentWillReceiveProps(nextProps: ObjectPageProps<*, *>) {
     const { actions, identifier, context } = nextProps;
 
-    if (this.props.identifier !== identifier) {
+    if (this.props.identifier !== identifier && nextProps.identifier !== 'new') {
       actions.fetch(identifier, context);
     }
   }
@@ -136,7 +136,7 @@ class ObjectPageDeux extends Component {
     actions.archive(identifier).then(actions.close);
   }
 
-  get headerControls() {
+  get headerControls(): Array<any> {
     return [
       ...this.props.headerControls,
       <ButtonWithMenu
@@ -183,13 +183,13 @@ class ObjectPageDeux extends Component {
   }
 
   render() {
-    const { objectType, identifier, fetchState } = this.props;
+    const { object, objectType, identifier, fetchState } = this.props;
 
     if (fetchState.err) {
       return <Error err={fetchState.err} notFound={`There is no ${objectType} with id ${identifier}.`} />;
     }
 
-    if (fetchState.inProgress) {
+    if (!object || fetchState.inProgress) {
       return <div><WaitAnimation /></div>;
     }
 

@@ -1,28 +1,58 @@
 // @flow
 
 // lib
-
-import get from 'lodash/get';
-import { assoc } from 'sprout-data';
+import { get, isEmpty, values } from 'lodash';
+import { assoc, merge } from 'sprout-data';
 import { autobind } from 'core-decorators';
 import React, { Component, Element } from 'react';
 
 // components
 import FormField from 'components/forms/formfield';
 import TextInput from 'components/forms/text-input';
+import { Dropdown, DropdownItem } from 'components/dropdown';
 import ObjectDetailsDeux from 'components/object-page/object-details-deux';
 
-// types
-import type { Renderers } from 'components/object-page/object-details-deux';
+type ReduceResult = { [key: string]: Array<number|string> };
+
+const getName = (taxon: Taxon) => get(taxon, 'attributes.name.v', '');
+
+const buildTaxonsDropDownItems = (taxons: TaxonsTree, prefix: string, sep: string, finale: ReduceResult = {}) =>
+  taxons.reduce((res: ReduceResult, node: TaxonNode) => {
+    const name = `${prefix}${getName(node.taxon)}`;
+    res = assoc(res, [node.taxon.id], [node.taxon.id, name]);
+
+    if (!isEmpty(node.children)) {
+      res = merge(res, buildTaxonsDropDownItems(node.children, `${name}${sep}`, sep, res));
+    }
+
+    return res;
+  }, finale);
 
 export default class TaxonDetails extends Component {
+  /*
+   * should be
+   * props: ObjectPageChildProps<Taxon> & {
+   *  taxonomy: Taxonomy,
+   * }
+   * but flow does not understand that props are of type ObjectPageChildProps<Taxon> and throw an error in
+   * <ObjectDetailsDeux
+   *   {...this.props}
+   *   renderers={this.renderers}
+   * />
+   */
   props: ObjectPageChildProps<Taxon>;
 
   @autobind
-  handleParentChange(value) {
+  handleParentChange(value: number) {
     const newTaxon = assoc(this.props.object, ['location', 'parent'], parseInt(value, 10));
 
     this.props.onUpdateObject(newTaxon);
+  }
+
+  get parentItems(): Array<Array<number|string>> {
+    const taxons = get(this.props, 'taxonomy.taxons', []);
+
+    return values(buildTaxonsDropDownItems(taxons, '', ' :: '));
   }
 
   @autobind
@@ -33,11 +63,12 @@ export default class TaxonDetails extends Component {
         labelClassName="fc-object-form__field-label"
         label="Parent"
       >
-        <TextInput
+        <Dropdown
           id="parentId"
           name="parentId"
-          onChange={this.handleParentChange}
           value={get(this.props.object, 'location.parent', '')}
+          onChange={this.handleParentChange}
+          items={this.parentItems}
         />
       </FormField>
     );
@@ -52,8 +83,8 @@ export default class TaxonDetails extends Component {
   render() {
     return (
       <ObjectDetailsDeux
-        renderers={this.renderers}
         {...this.props}
+        renderers={this.renderers}
       />
     );
   }

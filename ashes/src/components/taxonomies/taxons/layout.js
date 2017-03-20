@@ -2,7 +2,7 @@
 
 import compact from 'lodash/compact';
 
-export default (taxonomy: Taxonomy) => ({
+export default (taxonomy: Taxonomy): ObjectPageLayout => ({
   main: [
     {
       type: 'group',

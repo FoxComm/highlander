@@ -32,8 +32,8 @@ export type TaxonParams = {
 type Props = {
   actions: ObjectActions<Taxon>,
   children: Element<*>,
-  taxon: ?Taxon,
-  taxonomy: ?Taxonomy,
+  taxon: Taxon,
+  taxonomy: Taxonomy,
   fetchState: AsyncState,
   createState: AsyncState,
   updateState: AsyncState,
@@ -41,6 +41,7 @@ type Props = {
   archiveState: AsyncState,
   fetchStateTaxonomy: AsyncState,
   fetchTaxonomy: (id: number) => Promise<*>,
+  addSubvalue: (parentId: number) => void,
   params: TaxonParams,
 };
 
@@ -159,7 +160,7 @@ class TaxonPage extends React.Component {
 
   @autobind
   handleAddSubvalue() {
-    this.props.actions.addSubvalue(this.props.taxon.id);
+    this.props.addSubvalue(this.props.taxon.id);
 
     transitionTo('taxon-details', { ...this.props.params, taxonId: 'new' });
   }
@@ -199,7 +200,7 @@ class TaxonPage extends React.Component {
         navLinks={this.navLinks}
         headerControls={this.headerControls}
       >
-        {children}
+        {React.cloneElement(children, { taxonomy })}
       </ObjectPageDeux>
     );
   }
@@ -221,6 +222,7 @@ const mapActions = (dispatch, props) => ({
     create: bindActionCreators(taxonsActions.create(props.params.taxonomyId), dispatch),
   },
   fetchTaxonomy: bindActionCreators(fetchTaxonomy, dispatch),
+  addSubvalue: bindActionCreators(taxonsActions.addSubvalue, dispatch),
 });
 
 export default connect(mapState, mapActions)(TaxonPage);

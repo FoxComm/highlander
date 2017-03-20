@@ -21,15 +21,8 @@ import ParticipantsPanel from 'components/participants';
 
 import styles from './object-details.css';
 
-export type Renderer = (desc: NodeDesc) => ?Element<*>;
-export type Renderers = { [key: string]: Renderer };
-
-type Props = ObjectPageChildProps<*> & {
-  renderers?: Renderers,
-};
-
 export default class ObjectDetailsDeux extends Component {
-  props: Props;
+  props: ObjectPageChildProps<*>;
 
   get schema(): Object {
     return expandRefs(this.props.schema);

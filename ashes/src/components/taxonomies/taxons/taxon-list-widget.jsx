@@ -8,7 +8,6 @@ import { transitionTo } from 'browserHistory';
 import { autobind } from 'core-decorators';
 import { createReducer } from 'redux-act';
 import { makeLocalStore, addAsyncReducer } from '@foxcomm/wings';
-import { createAsyncActions } from '@foxcomm/wings';
 
 // components
 import { AddButton } from 'components/common/buttons';

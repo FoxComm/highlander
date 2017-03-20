@@ -69,6 +69,7 @@ export const deleteProductCurried = (productId: number, context: string) => _del
 
 export const fetch = (id: string, context: string = defaultContext): ActionDispatch => {
   return dispatch => {
+    // WTF??? TODO: get rid of this magic
     if (id.toString().toLowerCase() === 'new') {
       return dispatch(reset());
     } else {
