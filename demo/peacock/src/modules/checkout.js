@@ -44,7 +44,7 @@ const markAddressAsRestored = createAction(
   'CHECKOUT_MARK_ADDRESS_AS_RESTORED',
   (oldId: number, newAddress: Address) => [oldId, newAddress]
 );
-const markAddressAsDefault = createAction(
+const markDefaultAddress = createAction(
   'MARK_ADDRESS_AS_DEFAULT',
   (id) => id
 );
@@ -141,12 +141,12 @@ const _setAddressAsDefault = createAsyncActions(
     const { dispatch } = this;
     return foxApi.addresses.setAsDefault(id)
       .then(() => {
-        dispatch(markAddressAsDefault(id));
+        dispatch(markDefaultAddress(id));
       });
   }
 );
 
-export const markAddrAsDefault = _setAddressAsDefault.perform;
+export const markAddressAsDefault = _setAddressAsDefault.perform;
 
 const _removeShippingAddress = createAsyncActions(
   'REMOVE_SHIPPING_ADDRESS',
@@ -447,7 +447,7 @@ const reducer = createReducer({
       addresses: list,
     };
   },
-  [markAddressAsDefault]: (state, addressId) => {
+  [markDefaultAddress]: (state, addressId) => {
     const newAddresses = _.map(state.addresses, (address) => {
       if (address.id === addressId) {
         return {...address, isDefault: true};

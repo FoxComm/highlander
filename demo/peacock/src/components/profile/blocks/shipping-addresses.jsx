@@ -31,7 +31,7 @@ type Props = {
   updateAddress: (address: Address, id?: number) => Promise,
   deleteAddress: (id: number) => Promise,
   restoreAddress: (id: number) => Promise,
-  markAddrAsDefault: (id: number) => Promise,
+  markAddressAsDefault: (id: number) => Promise,
   updateShippingAddress: (address: Address) => Promise,
   saveShippingAddress: (id: number) => Promise,
   removeShippingAddress: Function,
@@ -88,7 +88,7 @@ class MyShippingAddresses extends Component {
     const newShippingAddress = _.find(this.props.addresses, { id: addressId });
 
     if (deleted) {
-      this.props.markAddrAsDefault(addressId);
+      this.props.markAddressAsDefault(addressId);
     } else {
       if (!newShippingAddress.isDefault) {
         newShippingAddress.isDefault = true;
