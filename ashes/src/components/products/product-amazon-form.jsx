@@ -15,6 +15,7 @@ import ContentBox from '../content-box/content-box';
 import MultiSelectTable from 'components/table/multi-select-table';
 import EditableSkuRow from './skus/editable-sku-row';
 import { setSkuAttribute } from 'paragons/product';
+import { PrimaryButton } from '../common/buttons';
 
 type State = {
   product: Object,
@@ -118,7 +119,7 @@ export default class ProductAmazonForm extends Component {
           {this.renderVariants()}
         </ContentBox>
 
-        <button type="submit">Save</button>
+        <PrimaryButton type="submit">Save</PrimaryButton>
       </Form>
     );
   }

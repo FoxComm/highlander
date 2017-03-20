@@ -126,7 +126,10 @@ const _pushToAmazon = createAsyncActions(
   (id) => {
     const userId = getUserId() || '';
     // https://github.com/FoxComm/highlander/blob/amazon/engineering-wiki/hyperion/README.md#push-product-to-amazon
-    const data = {};
+    const data = {
+      // @todo nofity user about overwritting
+      purge: true
+    };
     // @todo move customer_id (which now emulated through getUserId) to hyperion
     const options = {
       headers: {

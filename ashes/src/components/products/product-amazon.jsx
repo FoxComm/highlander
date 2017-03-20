@@ -19,6 +19,7 @@ import { getSuggest } from './selector';
 import ObjectFormInner from '../object-form/object-form-inner';
 import ProductAmazonForm from './product-amazon-form';
 import ContentBox from '../content-box/content-box';
+import { PrimaryButton } from '../common/buttons';
 
 function mapDispatchToProps(dispatch) {
   return {
@@ -157,7 +158,7 @@ class ProductAmazon extends Component {
           </div>
         </ContentBox>
         {this.renderForm()}
-        <button onClick={this._handlePush.bind(this)}>Push</button>
+        <PrimaryButton onClick={this._handlePush.bind(this)}>Push</PrimaryButton>
       </div>
     );
   }
