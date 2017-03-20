@@ -16,12 +16,12 @@ export default class PromoCouponsPage extends Component {
   };
 
   render() {
-  	const promotionId = this.props.object.id;
-  	const children = this.props.children;
+    const promotionId = this.props.object.id;
+    const children = this.props.children;
     return (
       <div styleName="promotion-coupons-page">
         <SectionTitle title="Coupons">
-        	<PrimaryButton onClick={this.addAction} icon="add">Coupon</PrimaryButton>
+          <PrimaryButton onClick={this.addAction} icon="add">Coupon</PrimaryButton>
         </SectionTitle>
         <Coupons promotionId={promotionId} />
         {children}

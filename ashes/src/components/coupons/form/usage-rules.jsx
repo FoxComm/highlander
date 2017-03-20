@@ -102,9 +102,6 @@ export default class UsageRules extends Component {
               />
             </div>
           </div>
-          {/*<div styleName="field-comment">
-            Maximum times the coupon can be used.
-          </div>*/}
         </div>
         <div styleName="form-group">
           <div className="fc-form-field">
@@ -136,9 +133,6 @@ export default class UsageRules extends Component {
               />
             </div>
           </div>
-          {/*<div styleName="field-comment">
-            Maximum times the coupon can be used per customer account.
-          </div>*/}
         </div>
       </ContentBox>
     );

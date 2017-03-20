@@ -2,8 +2,12 @@
 import React, { PropTypes } from 'react';
 import styles from './customer-group-row.css';
 
+type Group = {
+  name: String,
+};
+
 type Props = {
-	model: Object
+  model: Group,
 };
 
 const CustomerGroupRow = (props: Props) => {

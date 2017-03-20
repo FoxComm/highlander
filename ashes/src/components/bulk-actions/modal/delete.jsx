@@ -3,7 +3,7 @@ import _ from 'lodash';
 import React, { PropTypes } from 'react';
 
 // helpers
-import { numberize } from '../../../lib/text-utils';
+import { numberize } from 'lib/text-utils';
 
 // components
 import modal from '../../modal/wrapper';

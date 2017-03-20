@@ -191,12 +191,6 @@ class CouponCodes extends Component {
             Excludes prefix
           </div>
         </div>
-        {/* <PrimaryButton
-          type="button"
-          disabled={this.generateCodesDisabled}
-          onClick={this.handleGenerateBulkClick} >
-          Generate Codes
-        </PrimaryButton> */}
       </div>
     );
   }

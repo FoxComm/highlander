@@ -28,14 +28,13 @@ class CouponNew extends Component {
     const actionBlock = <i onClick={this.cancelAction} className="fc-btn-close icon-close" title="Close" />;
     return (
       <div styleName="promotion-coupons-new">
-	      <ContentBox actionBlock={actionBlock} title="Add Coupon Code">
+        <ContentBox actionBlock={actionBlock} title="Add Coupon Code">
           <CouponPage params={{
-             couponId: 'new',
-             promotionId: this.props.promotionId,
-             modalCancelAction: this.cancelAction
-            }}
-          >
-          	<CouponForm/>
+              couponId: 'new',
+              promotionId: this.props.promotionId,
+              modalCancelAction: this.cancelAction
+            }}>
+            <CouponForm/>
           </CouponPage>
         </ContentBox>
       </div>

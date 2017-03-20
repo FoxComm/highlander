@@ -52,12 +52,12 @@ class SelectCustomerGroups extends Component {
 
   @autobind
   handleChangeQualifier({target}: Object) {
-    let isAllQualify = target.getAttribute('name') == 'qualifyAll';
+    const isAllQualify = target.getAttribute('name') == 'qualifyAll';
     this.props.qualifyAllChange(isAllQualify);
   }
 
   get suggestedGroups(){
-    let suggestions = _.filter(this.props.groups, (item) => {
+    const suggestions = _.filter(this.props.groups, (item) => {
       return _.includes(item.name.toLowerCase(), this.state.term.toLowerCase());
     });   
     return suggestions;

@@ -1,7 +1,7 @@
 
 .promotion-coupons-page :global .fc-bulk-messages{
-	margin-left: 0;
-	margin-right: 0;
+  margin-left: 0;
+  margin-right: 0;
 }
 
 .promotion-coupons-page :global .fc-live-search {
@@ -19,6 +19,3 @@
   justify-content: flex-end;
   align-content: flex-end;
 }
-
-
- 

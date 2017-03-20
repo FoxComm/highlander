@@ -28,7 +28,7 @@ import type { SearchFilter } from 'elastic/common';
 type CouponsProps = {
   actions: Object,
   list: Object,
-  promotionId: Number
+  promotionId: Number,
 };
 
 const mapStateToProps = (state: Object) => {
@@ -98,7 +98,7 @@ export default class Coupons extends Component {
   }
 
   render(): Element<*> {
-    const {list, actions, promotionId} = this.props;
+    const {list, actions} = this.props;
 
     const searchActions = {
       ...actions,
