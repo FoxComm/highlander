@@ -90,7 +90,7 @@ class MyShippingAddresses extends Component {
     if (deleted) {
       this.props.markAddressAsDefault(addressId);
     } else {
-      if (!newShippingAddress.isDefault) {
+      if (newShippingAddress && !newShippingAddress.isDefault) {
         newShippingAddress.isDefault = true;
         this.props.updateAddress(newShippingAddress, addressId);
       }
