@@ -29,4 +29,11 @@
   color: #0b7ddc;
   font-size: 16px;
   cursor: pointer;
+  display: flex;
+  margin-right: 16px;
+}
+
+.plus {
+  margin-right: 8px;
+  width: 12px;
 }

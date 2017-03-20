@@ -11,6 +11,7 @@ import EditableBlock from 'ui/editable-block';
 import { AddressDetails } from 'ui/address';
 import AddressList from './address-list';
 import GuestShipping from './guest-shipping';
+import Icon from 'ui/icon';
 
 import { saveShippingAddress, updateAddress, addShippingAddress, updateShippingAddress } from 'modules/checkout';
 import type { Address } from 'types/address';
@@ -69,7 +70,7 @@ class Shipping extends Component {
       );
     }
     return (
-      <div styleName="btn-action">+ Add new</div>
+      <div styleName="btn-action"><Icon styleName="plus" name="fc-plus"/> Add new</div>
     );
   }
 
