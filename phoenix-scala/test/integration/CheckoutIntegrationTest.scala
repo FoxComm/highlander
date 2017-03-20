@@ -1,7 +1,5 @@
 import java.time.Instant
-
 import akka.http.scaladsl.model.HttpResponse
-
 import cats.implicits._
 import failures.NotFoundFailure404
 import failures.ShippingMethodFailures.ShippingMethodNotFoundByName
@@ -15,26 +13,30 @@ import models.inventory._
 import models.location.{Address, Addresses}
 import models.payment.InStorePaymentStates
 import models.payment.giftcard._
-import models.product.Mvp
+import models.product.{Mvp, SimpleProductData}
 import models.shipping._
 import models.{Reason, Reasons}
+import payloads.AddressPayloads.CreateAddressPayload
 import payloads.GiftCardPayloads.GiftCardCreateByCsr
 import payloads.LineItemPayloads._
-import payloads.CartPayloads.CreateCart
-import payloads.PaymentPayloads.GiftCardPayment
+import payloads.CartPayloads.{CheckoutCart, CreateCart}
+import payloads.PaymentPayloads.{CreateCreditCardFromTokenPayload, CreateManualStoreCredit, GiftCardPayment, ToggleDefaultCreditCard}
 import payloads.UpdateShippingMethod
 import responses.GiftCardResponse
 import responses.cord._
 import slick.driver.PostgresDriver.api._
 import testutils._
-import testutils.apis.PhoenixAdminApi
+import testutils.apis.{PhoenixAdminApi, PhoenixStorefrontApi}
 import testutils.fixtures.BakedFixtures
+import testutils.fixtures.api.ApiFixtureHelpers
 import utils.db._
 import utils.seeds.Factories
 
 class CheckoutIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
+    with PhoenixStorefrontApi
+    with ApiFixtureHelpers
     with AutomaticAuth
     with BakedFixtures {
 
@@ -45,8 +47,7 @@ class CheckoutIntegrationTest
                                    recipientEmail = "example@example.com",
                                    message = "Boop").some).some
 
-    val addGiftCardPayload = Seq(UpdateLineItemsPayload("SKU-YAX", 2, attributes))
-    "should update attributes of line-items succesfully" in new Fixture {
+    "should update attributes of line-items successfully" in new Fixture {
       val refNum =
         cartsApi.create(CreateCart(customer.accountId.some)).as[CartResponse].referenceNumber
       val orderResponse =
@@ -97,6 +98,21 @@ class CheckoutIntegrationTest
 
   "POST v1/carts/:refNum/checkout" - {
 
+    "allow to do one-click checkout" in new OneClickCheckoutFixture {
+      storefrontAddressesApi(address.id).setDefault().mustBeOk()
+
+      storefrontPaymentsApi
+        .creditCard(creditCard.id)
+        .toggleDefault(ToggleDefaultCreditCard(isDefault = true))
+        .mustBeOk()
+
+      shippingMethodsApi.default.set(shipMethod.id).mustBeOk()
+
+      val orderResponse = storefrontCartsApi
+        .checkout(CheckoutCart(items = List(UpdateLineItemsPayload(sku.code, 1))))
+        .as[OrderResponse]
+    }
+
     "places order as admin" in new Fixture {
       val orderResponse = doCheckout(customer, sku, address, shipMethod, reason).as[OrderResponse]
 
@@ -112,6 +128,12 @@ class CheckoutIntegrationTest
       // Authorizes payments
       GiftCardAdjustments.map(_.state).gimme must contain only InStorePaymentStates.Auth
     }
+
+    "fails to do one-click checkout if no default credit card is selected for a customer" in new Fixture {}
+
+    "fails to do one-click checkout if no default shipping address is selected for a customer" in new Fixture {}
+
+    "fails to do one-click checkout if no default shipping method is selected for an organisation" in new Fixture {}
 
     "fails if customer's credentials are empty" in new Fixture {
       val refNum =
@@ -170,6 +192,37 @@ class CheckoutIntegrationTest
 
       _cartApi.checkout()
     }
+  }
+
+  trait OneClickCheckoutFixture extends Fixture {
+    val creditCard = {
+      val cc = Factories.creditCard
+      api_newCreditCard(customer.accountId,
+                        CreateCreditCardFromTokenPayload(
+                            token = "whatever",
+                            lastFour = cc.lastFour,
+                            expYear = cc.expYear,
+                            expMonth = cc.expMonth,
+                            brand = cc.brand,
+                            holderName = cc.holderName,
+                            billingAddress = CreateAddressPayload(
+                                name = cc.address.name,
+                                regionId = cc.address.regionId,
+                                address1 = cc.address.address1,
+                                address2 = cc.address.address2,
+                                city = cc.address.city,
+                                zip = cc.address.zip,
+                                isDefault = false,
+                                phoneNumber = cc.address.phoneNumber
+                            ),
+                            addressIsNew = true
+                        ))
+    }
+
+    val giftCard = api_newGiftCard(GiftCardCreateByCsr(balance = 1000, reasonId = reason.id))
+
+    val storeCredit =
+      api_newStoreCredit(customer.id, CreateManualStoreCredit(amount = 1000, reasonId = reason.id))
   }
 
   trait FullCartWithGcPayment

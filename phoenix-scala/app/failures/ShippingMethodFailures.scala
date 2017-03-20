@@ -1,5 +1,7 @@
 package failures
 
+import com.github.tminglei.slickpg.LTree
+
 object ShippingMethodFailures {
 
   case class ShippingMethodNotFoundInOrder(orderRef: String) extends Failure {
@@ -16,5 +18,9 @@ object ShippingMethodFailures {
 
   case class ShippingMethodNotApplicableToCart(id: Int, refNum: String) extends Failure {
     override def description = s"Shipping method $id is not applicable to cart $refNum"
+  }
+
+  case class NoDefaultShippingMethod(scope: LTree) extends Failure {
+    def description: String = s"No default shipping method found in $scope"
   }
 }

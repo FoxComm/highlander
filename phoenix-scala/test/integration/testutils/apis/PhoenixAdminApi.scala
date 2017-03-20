@@ -384,8 +384,24 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
   object shippingMethodsApi {
     val shippingMethodsPrefix = s"$rootPrefix/shipping-methods"
 
+    def active(): HttpResponse =
+      GET(shippingMethodsPrefix)
+
     def forCart(refNum: String): HttpResponse =
       GET(s"$shippingMethodsPrefix/$refNum")
+
+    object default {
+      val requestPath = s"$shippingMethodsPrefix/default"
+
+      def get(): HttpResponse =
+        GET(requestPath)
+
+      def set(shippingMethodId: Int): HttpResponse =
+        POST(s"$requestPath/$shippingMethodId")
+
+      def remove(shippingMethodId: Int): HttpResponse =
+        DELETE(s"$requestPath/$shippingMethodId")
+    }
   }
 
   case object skusApi {

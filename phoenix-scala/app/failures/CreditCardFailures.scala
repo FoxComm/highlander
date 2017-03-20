@@ -60,7 +60,7 @@ object CreditCardFailures {
     override def description = "customer already has default credit card"
   }
 
-  case class NoDefaultCreditCardForCustomer(customerId: Int) extends Failure {
-    def description: String = s"customer $customerId has no default credit card"
+  case object NoDefaultCreditCardForCustomer extends Failure {
+    def description: String = s"No default credit card defined"
   }
 }

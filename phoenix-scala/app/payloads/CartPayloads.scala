@@ -21,7 +21,5 @@ object CartPayloads {
     }
   }
 
-  case class CheckoutCart(customerId: Int,
-                          item: UpdateLineItemsPayload,
-                          scope: Option[String] = None)
+  case class CheckoutCart(items: List[UpdateLineItemsPayload])
 }

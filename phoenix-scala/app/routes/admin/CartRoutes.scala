@@ -50,11 +50,6 @@ object CartRoutes {
                 }
               }
             } ~
-            (post & path("checkout") & pathEnd & entity(as[CheckoutCart])) { payload ⇒
-              mutateOrFailures {
-                Checkout.fromPayload(payload)
-              }
-            } ~
             (post & path("checkout")) {
               mutateOrFailures {
                 Checkout.fromCart(refNum)
@@ -152,7 +147,9 @@ object CartRoutes {
             pathPrefix("shipping-method") {
               (patch & pathEnd & entity(as[UpdateShippingMethod])) { payload ⇒
                 mutateOrFailures {
-                  CartShippingMethodUpdater.updateShippingMethod(auth.model, payload, Some(refNum))
+                  CartShippingMethodUpdater.updateShippingMethod(auth.model,
+                                                                 payload.shippingMethodId,
+                                                                 Some(refNum))
                 }
               } ~
               (delete & pathEnd) {

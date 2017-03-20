@@ -9,6 +9,7 @@ import failures.CouponFailures.CouponWithCodeCannotBeFound
 import failures.CreditCardFailures.NoDefaultCreditCardForCustomer
 import failures.GeneralFailure
 import failures.PromotionFailures.PromotionNotFoundForContext
+import failures.ShippingMethodFailures.NoDefaultShippingMethod
 import models.account._
 import models.cord._
 import models.cord.lineitems.CartLineItems
@@ -21,10 +22,11 @@ import models.payment.creditcard._
 import models.payment.giftcard._
 import models.payment.storecredit._
 import models.promotion._
+import models.shipping.DefaultShippingMethods
 import org.json4s.JsonAST._
 import payloads.CartPayloads.CheckoutCart
 import responses.cord.OrderResponse
-import services.carts.{CartCreator, CartPaymentUpdater, CartShippingAddressUpdater}
+import services.carts._
 import services.coupon.CouponUsageService
 import services.inventory.SkuManager
 import slick.driver.PostgresDriver.api._
@@ -96,33 +98,42 @@ object Checkout {
       order ← * <~ Checkout(cart, CartValidator(cart)).checkout
     } yield order
 
-  def fromPayload(payload: CheckoutCart)(implicit ec: EC,
-                                         es: ES,
-                                         db: DB,
-                                         apis: Apis,
-                                         ac: AC,
-                                         ctx: OC,
-                                         au: AU): DbResultT[OrderResponse] =
+  def forCustomerOneClick(payload: CheckoutCart)(implicit ec: EC,
+                                                 es: ES,
+                                                 db: DB,
+                                                 apis: Apis,
+                                                 ac: AC,
+                                                 ctx: OC,
+                                                 au: AU): DbResultT[OrderResponse] =
     for {
-      cartResponse ← * <~ CartCreator.createCartForCustomer(au.model, payload.customerId)
-      refNum     = cartResponse.referenceNumber
-      customerId = payload.customerId
+      cart ← * <~ CartQueries.findOrCreateCartByAccount(au.model, ctx)
+      refNum     = cart.referenceNumber.some
+      customerId = au.model.accountId
+      scope      = Scope.current
 
-      _ ← * <~ LineItemUpdater.addQuantitiesOnCart(au.model, refNum, List(payload.item))
+      _ ← * <~ LineItemUpdater.updateQuantitiesOnCustomersCart(au.model, payload.items)
 
-      cc ← * <~ CreditCards
-            .findDefaultByAccountId(customerId)
-            .mustFindOneOr(NoDefaultCreditCardForCustomer(customerId))
-      _ ← * <~ CartPaymentUpdater.addCreditCard(au.model, cc.id, refNum.some)
+      ccId ← * <~ CreditCards
+              .findDefaultByAccountId(customerId)
+              .map(_.id)
+              .mustFindOneOr(NoDefaultCreditCardForCustomer)
+      _ ← * <~ CartPaymentUpdater.addCreditCard(au.model, ccId, refNum)
 
-      address ← * <~ Addresses
-                 .findShippingDefaultByAccountId(customerId)
-                 .mustFindOneOr(NoDefaultAddressForCustomer(customerId))
+      addressId ← * <~ Addresses
+                   .findShippingDefaultByAccountId(customerId)
+                   .map(_.id)
+                   .mustFindOneOr(NoDefaultAddressForCustomer)
       _ ← * <~ CartShippingAddressUpdater
-           .createShippingAddressFromAddressId(au.model, address.id, refNum.some)
+           .createShippingAddressFromAddressId(au.model, addressId, refNum)
 
-      cart  ← * <~ Carts.mustFindByRefNum(cartResponse.referenceNumber)
-      order ← * <~ Checkout(cart, CartValidator(cart)).checkout
+      shippingMethodId ← * <~ DefaultShippingMethods
+                          .findDefaultByScope(scope)
+                          .map(_.shippingMethodId)
+                          .mustFindOneOr(NoDefaultShippingMethod(scope))
+      _ ← * <~ CartShippingMethodUpdater.updateShippingMethod(au.model, shippingMethodId, refNum)
+
+      cart2 ← * <~ Carts.mustFindByRefNum(cart.referenceNumber)
+      order ← * <~ Checkout(cart2, CartValidator(cart2)).checkout
     } yield order
 }
 
