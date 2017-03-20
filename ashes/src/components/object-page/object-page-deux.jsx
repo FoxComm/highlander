@@ -32,7 +32,7 @@ class ObjectPageDeux extends Component {
     actions.fetch(identifier, context);
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps(nextProps: ObjectPageProps<*, *>) {
     const { actions, identifier, context } = nextProps;
 
     if (this.props.identifier !== identifier) {
