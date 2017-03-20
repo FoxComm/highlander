@@ -50,7 +50,6 @@ const tableColumns: Array<Object> = [
   {field: 'usesPerCode', text: 'Max Uses'},
   {field: 'usesPerCustomer', text: 'Max Uses per Customer'},
   {field: 'currentCarts', text: 'Current Carts'},
-  {field: 'state', text: 'State'},
 ];
 
 /* ::`*/
