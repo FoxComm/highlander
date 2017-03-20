@@ -53,7 +53,7 @@ case class Promotion(id: Int = 0,
 
 class Promotions(tag: Tag) extends ObjectHeads[Promotion](tag, "promotions") {
 
-  def requireCoupon = column[Promotion.ApplyType]("apply_type")
+  def applyType = column[Promotion.ApplyType]("apply_type")
 
   def * =
     (id,
@@ -62,7 +62,7 @@ class Promotions(tag: Tag) extends ObjectHeads[Promotion](tag, "promotions") {
      shadowId,
      formId,
      commitId,
-     requireCoupon,
+     applyType,
      updatedAt,
      createdAt,
      archivedAt) <> ((Promotion.apply _).tupled, Promotion.unapply)
@@ -86,10 +86,10 @@ object Promotions
   object scope {
     implicit class PromotionQuerySeqConversions(q: QuerySeq) {
       def autoApplied: QuerySeq =
-        q.filter(_.requireCoupon === (Promotion.Auto: Promotion.ApplyType))
+        q.filter(_.applyType === (Promotion.Auto: Promotion.ApplyType))
 
-      def requiresCoupon: QuerySeq =
-        q.filter(_.requireCoupon === (Promotion.Coupon: Promotion.ApplyType))
+      def couponOnly: QuerySeq =
+        q.filter(_.applyType === (Promotion.Coupon: Promotion.ApplyType))
     }
   }
 }
