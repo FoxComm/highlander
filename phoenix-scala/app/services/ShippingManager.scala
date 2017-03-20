@@ -40,14 +40,14 @@ object ShippingManager {
   def removeDefault()(implicit ec: EC, au: AU): DbResultT[Option[ShippingMethodsResponse.Root]] = {
     val scope = Scope.current
     for {
-      shippingMethod ← * <~ DefaultShippingMethods.findByScope(scope).one
+      shippingMethod ← * <~ DefaultShippingMethods.resolve(scope)
       _              ← * <~ DefaultShippingMethods.findDefaultByScope(scope).deleteAll
     } yield shippingMethod.map(ShippingMethodsResponse.build(_))
   }
 
   def getDefault(implicit ec: EC, au: AU): DbResultT[Option[ShippingMethodsResponse.Root]] =
     for {
-      shippingMethod ← * <~ DefaultShippingMethods.findByScope(Scope.current).one
+      shippingMethod ← * <~ DefaultShippingMethods.resolve(Scope.current)
     } yield shippingMethod.map(ShippingMethodsResponse.build(_))
 
   def getActive(implicit ec: EC): DbResultT[Seq[ShippingMethodsResponse.Root]] =

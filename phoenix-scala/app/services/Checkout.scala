@@ -126,14 +126,13 @@ object Checkout {
       _ ← * <~ CartShippingAddressUpdater
            .createShippingAddressFromAddressId(au.model, addressId, refNum)
 
-      shippingMethodId ← * <~ DefaultShippingMethods
-                          .findDefaultByScope(scope)
-                          .map(_.shippingMethodId)
-                          .mustFindOneOr(NoDefaultShippingMethod(scope))
-      _ ← * <~ CartShippingMethodUpdater.updateShippingMethod(au.model, shippingMethodId, refNum)
+      shippingMethod ← * <~ DefaultShippingMethods
+                        .resolve(scope)
+                        .mustFindOr(NoDefaultShippingMethod(scope))
+      _ ← * <~ CartShippingMethodUpdater.updateShippingMethod(au.model, shippingMethod.id, refNum)
 
-      cart2 ← * <~ Carts.mustFindByRefNum(cart.referenceNumber)
-      order ← * <~ Checkout(cart2, CartValidator(cart2)).checkout
+      cart  ← * <~ Carts.mustFindByRefNum(cart.referenceNumber)
+      order ← * <~ Checkout(cart, CartValidator(cart)).checkout
     } yield order
 }
 

@@ -399,8 +399,8 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
       def set(shippingMethodId: Int): HttpResponse =
         POST(s"$requestPath/$shippingMethodId")
 
-      def remove(shippingMethodId: Int): HttpResponse =
-        DELETE(s"$requestPath/$shippingMethodId")
+      def remove(): HttpResponse =
+        DELETE(s"$requestPath")
     }
   }
 
