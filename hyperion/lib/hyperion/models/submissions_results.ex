@@ -4,11 +4,12 @@ defmodule SubmissionResult do
   import Ecto.Query
   import Ecto.Changeset
 
-  @derive {Poison.Encoder, only: [:product_id, :product_feed, :price_feed, :inventory_feed, :images_feed]}
+  @derive {Poison.Encoder, only: [:product_id, :product_feed, :variations_feed, :price_feed, :inventory_feed, :images_feed]}
 
   schema "amazon_submission_results" do
     field :product_id, :integer
     field :product_feed, :map
+    field :variations_feed, :map
     field :price_feed, :map
     field :inventory_feed, :map
     field :images_feed, :map
@@ -18,7 +19,7 @@ defmodule SubmissionResult do
 
   def changeset(results, params \\ %{}) do
     results
-    |> cast(params, [:product_id, :product_feed, :price_feed, :inventory_feed, :images_feed])
+    |> cast(params, [:product_id, :product_feed, :variations_feed, :price_feed, :inventory_feed, :images_feed])
     |> validate_required([:product_id])
   end
 

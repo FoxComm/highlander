@@ -7,8 +7,8 @@ defmodule Hyperion.Amazon.Templates.Categories.ClothingAccessories do
           <%= if @parentage == "child" do %>
             <%= Hyperion.Amazon.TemplateBuilder.render_field(assigns[:size], "Size") %>
             <%= Hyperion.Amazon.TemplateBuilder.render_field(assigns[:color], "Color") %>
-            <%= Hyperion.Amazon.Templates.Categories.ClothingAccessories.render_variation_theme(assigns[:size], assigns[:color]) %>
           <% end %>
+          <%= Hyperion.Amazon.Templates.Categories.ClothingAccessories.render_variation_theme(assigns[:size], assigns[:color]) %>
         </VariationData>
       <ClassificationData>
         <Department><%= @department %></Department>

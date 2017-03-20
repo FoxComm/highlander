@@ -107,10 +107,11 @@ If no credentials found:
 
 ####Push product to amazon
 
-Product pushed in four steps:
+Product pushed in five steps:
 
 * product info
-* proce info
+* variations info (will be skipped if product has no variants)
+* price info
 * inventory
 * images
 
@@ -120,6 +121,7 @@ If some steps had failed and product has been pushed one more time only failed s
 
 |name|type|description|required?|
 |----|----|-----------|---------|
+|has_variants|Boolean|Indicates that product has variants.|Yes|
 |purge |Boolean|If `true` will replace existing product in Amazon. All steps will be executed. Parameter can be omitted.|No|
 |inventory|Array|Array of inventory objects|Yes|
 |inventory.sku|String|Variant SKU|Yes|
@@ -617,6 +619,13 @@ _IMPORTANT:_ This endpoint will be upgraded soon. It will stay backward compatib
 
 Params:
 
+|name|type|description|required?|
+|----|----|-----------|---------|
+|created_after|String|Date orders created after:   |No|
+|title |String|Product title|No|
+
+* created_after — DateTime is ISO8601 format `%Y-%m-%dT%H:%M:%SZ`. Yes, if `last_updated_after` is not specified. Specifying both `created_after` and `last_updated_after` returns an error.
+* created_before — DateTime is ISO8601 format `%Y-%m-%dT%H:%M:%SZ`. Must be later than `created_after`.
 * fulfillment_channel
   * `MFN` — Merchant fullfilment
   * `AFN` – Amazon Fulfillmen
@@ -634,9 +643,11 @@ Params:
   * `Undeliverable` — The package cannot be delivered.
   * `ReturnedToSeller` — The package was not delivered to the customer and was returned to the seller.
   * `Lost` — Package was lost by the carrier.
-* last_updated_after * — DateTime is ISO8601 format `%Y-%m-%dT%H:%M:%SZ`
+* last\_updated\_after — DateTime is ISO8601 format `%Y-%m-%dT%H:%M:%SZ`.Yes, if `created_after` is not specified. Specifying both `created_after` and `last_updated_after` returns an error. If `last_updated_after` is specified, then `buyer_email` and `seller_order_id` cannot be specified.
+* last\_updated\_before — DateTime is ISO8601 format `%Y-%m-%dT%H:%M:%SZ`. Must be later than `last_updated_after`.
 * buyer_email — The e-mail address of a buyer. Used to select only the orders that contain the specified e-mail address.
-* seller_order_id — An order identifier that is specified by the seller. Not an Amazon order identifier. Used to select only the orders that match a seller-specified order identifier.
+* seller\_order\_id — An order identifier that is specified by the seller. Not an Amazon order identifier. Used to select only the orders that match a seller-specified order identifier.
+* max\_results\_per\_page — A number that indicates the maximum number of orders that can be returned per page.
 
 Params marked with * are mandatory.
 

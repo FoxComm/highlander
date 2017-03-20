@@ -100,6 +100,7 @@ defmodule Hyperion.Router.V1 do
 
         params do
           optional :purge, type: Boolean
+          requires :has_variants, type: Boolean
           group :inventory, type: CharList |> List do
             requires :sku, type: String
             requires :quantity, type: Integer
@@ -110,7 +111,7 @@ defmodule Hyperion.Router.V1 do
           post :push do
             cfg = Credentials.mws_config(API.customer_id(conn))
             jwt = API.jwt(conn)
-            r = Pusher.push(params[:product_id], cfg, jwt, params[:purge], params[:inventory])
+            r = Pusher.push(params[:product_id], cfg, jwt, params[:purge], params[:inventory], params[:has_variants])
             respond_with(conn, r)
           end
         end
@@ -119,7 +120,7 @@ defmodule Hyperion.Router.V1 do
 
         route_param :product_id do
           get :result do
-            case SubmissionResult.submission_result(params[:product_id]) do
+            case SubmissionResult.submission_result(params[:product_id], false) do
               nil -> respond_with(conn, %{error: "Result for product ID: #{params[:product_id]} not found"}, 404)
               res -> respond_with(conn, res)
             end
@@ -240,6 +241,7 @@ defmodule Hyperion.Router.V1 do
 
         get :suggest do
           try do
+            Logger.info  "params: #{inspect(params)}"
             cfg = Credentials.mws_config(API.customer_id(conn))
             prms = case params[:limit] do
                      nil -> Map.merge(params, %{limit: 15})
@@ -264,19 +266,9 @@ defmodule Hyperion.Router.V1 do
         end
 
         get do
-          # If no date given — use beginning of current month
-          last_upd = case params[:last_updated_after] do
-                      nil -> Timex.beginning_of_month(DateTime.utc_now)
-                             |> Timex.format("%Y-%m-%dT%H:%M:%SZ", :strftime)
-                             |> elem(1)
-                      _ -> params[:last_updated_after]
-                     end
+          list = Enum.map(params, fn {k, v} -> {k, String.split(v, ",")}  end)
 
-          # Remove :last_updated_after and convert Map to KeywordList
-          list = Map.drop(params, [:last_updated_after])
-                 |>Enum.map(fn {k, v} -> {k, String.split(v, ",")}  end)
-
-          case MWSClient.list_orders(list, last_upd, Credentials.mws_config(API.customer_id(conn))) do
+          case MWSClient.list_orders(list, Credentials.mws_config(API.customer_id(conn))) do
             {:error, error} -> respond_with(conn, inspect(error), 422)
             {:warn, warn} -> respond_with(conn, %{error: warn["ErrorResponse"]["Error"]["Message"]}, 400)
             {_, resp} -> respond_with(conn, resp)

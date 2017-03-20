@@ -3,11 +3,11 @@ defmodule Hyperion.Amazon.Pusher do
   alias Hyperion.Amazon.TemplateBuilder, warn: true
   alias Hyperion.Amazon, warn: true
 
-  def push(product_id, cfg, jwt, purge \\ false, inventory) do
+  def push(product_id, cfg, jwt, purge \\ false, inventory, has_variants \\ false) do
     product = Client.get_product(product_id, jwt)
     result = get_submisstion_result(product_id, purge)
-    IO.puts(inspect(result))
     submit_product(product, cfg, purge, result.product_feed)
+    |> submit_variations(cfg, purge, result.variations_feed, has_variants)
     |> submit_price(cfg, result.price_feed)
     |> submit_inventory(inventory, cfg, result.inventory_feed)
     |> submit_images(cfg, result.images_feed)
@@ -32,6 +32,33 @@ defmodule Hyperion.Amazon.Pusher do
   end
 
   defp submit_product(product, _cfg, _purge, _result), do: product
+
+  defp submit_variations(product, cfg, _purge, nil, true) do
+    tpl = Amazon.product_feed(product)
+          |> TemplateBuilder.submit_variation_feed(%{seller_id: cfg.seller_id})
+
+    case MWSClient.submit_variation_feed(tpl, cfg) do
+      {:error, error} ->
+        store_submition_result(product.body["id"], %{variations_feed: inspect(error)})
+        raise "Submit_variations error: " <> inspect(error)
+      {:warn, warn} ->
+        store_submition_result(product.body["id"], %{variations_feed: warn["ErrorResponse"]})
+        raise "Submit_variations warning: " <> warn["ErrorResponse"]["Error"]["Message"]
+      {_, resp} ->
+        store_submition_result(product.body["id"],
+                               %{variations_feed: resp["SubmitFeedResponse"]["SubmitFeedResult"]["FeedSubmissionInfo"]})
+        product
+    end
+  end
+
+# If product has variations and variations were submitted — return product
+  defp submit_variations(product, _cfg, _purge, _result, true), do: product
+
+  # If product has no variations and variations were not submitted — return product
+  defp submit_variations(product, _cfg, _purge, nil, false), do: product
+
+  # If product has no variations and variations were submitted — return product
+  defp submit_variations(product, _cfg, _purge, _result, false), do: product
 
   defp submit_price(product, cfg, nil) do
     tpl = Amazon.price_feed(product)

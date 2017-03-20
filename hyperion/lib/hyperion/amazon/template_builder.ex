@@ -21,6 +21,11 @@ defmodule Hyperion.Amazon.TemplateBuilder do
     EEx.eval_string(Hyperion.Amazon.Templates.SubmitProductFeed.template_string, data)
   end
 
+  def submit_variation_feed(list, opts) do
+    data = [seller_id: opts.seller_id, variations: list]
+    EEx.eval_string(Hyperion.Amazon.Templates.SubmitVariationFeed.template_string, data)
+  end
+
   def submit_product_by_asin(list, opts) do
     data = [seller_id: opts.seller_id, purge_and_replace: opts.purge_and_replace,
             products: list]

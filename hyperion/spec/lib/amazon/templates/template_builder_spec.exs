@@ -71,7 +71,7 @@ defmodule TemplateBuilderSpec do
   describe "clothing_category" do
     context "when parent product passed" do
       let list: [parentage: "parent", department: "mens"]
-      let template: "<ClothingAccessories>\n  <VariationData>\n      <Parentage>parent</Parentage>\n      \n    </VariationData>\n  <ClassificationData>\n    <Department>mens</Department>\n  </ClassificationData>\n</ClothingAccessories>\n"
+      let template: "<ClothingAccessories>\n  <VariationData>\n      <Parentage>parent</Parentage>\n      \n      \n\n    </VariationData>\n  <ClassificationData>\n    <Department>mens</Department>\n  </ClassificationData>\n</ClothingAccessories>\n"
 
       it "should render clothing_category template" do
         expect Hyperion.Amazon.TemplateBuilder.clothing_category(list())
@@ -81,7 +81,7 @@ defmodule TemplateBuilderSpec do
 
     context "when child product passed" do
       let list: [parentage: "child", department: "mens", size: "S", color: "Black"]
-      let template: "<ClothingAccessories>\n  <VariationData>\n      <Parentage>child</Parentage>\n      \n        <Size>S</Size>\n        <Color>Black</Color>\n        <VariationTheme>SizeColor</VariationTheme>\n\n      \n    </VariationData>\n  <ClassificationData>\n    <Department>mens</Department>\n  </ClassificationData>\n</ClothingAccessories>\n"
+      let template: "<ClothingAccessories>\n  <VariationData>\n      <Parentage>child</Parentage>\n      \n        <Size>S</Size>\n        <Color>Black</Color>\n      \n      <VariationTheme>SizeColor</VariationTheme>\n\n    </VariationData>\n  <ClassificationData>\n    <Department>mens</Department>\n  </ClassificationData>\n</ClothingAccessories>\n"
 
       it "should render clothing_category template" do
         expect Hyperion.Amazon.TemplateBuilder.clothing_category(list())
