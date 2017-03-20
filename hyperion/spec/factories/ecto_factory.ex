@@ -16,6 +16,7 @@ defmodule Hyperion.EctoFactory do
           product_feed: nil,
           price_feed: nil,
           inventory_feed: nil,
+          variations_feed: nil,
           images_feed: nil
         }
       end

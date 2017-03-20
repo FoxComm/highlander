@@ -55,6 +55,22 @@ defmodule Hyperion.Amazon do
     process_images(data)
   end
 
+  def inventory_feed([product_id], jwt) do
+    Client.get_product(product_id, jwt)
+    |> process_images
+    |> process_inventory
+  end
+
+  def inventory_feed(data = %{body: _product}) do
+    process_products(data)
+    |> process_inventory
+  end
+
+  defp process_inventory(products) do
+    Enum.map(products, fn(el) -> [%{sku: el[:code], quantity: el[:inventory]}] end)
+    |> Enum.with_index(1)
+  end
+
   # gets the albums and images for skus,
   # adds the SKU for matching
   # renders main, pt and swatch images
@@ -126,6 +142,7 @@ defmodule Hyperion.Amazon do
 
     products = Enum.map(skus, fn(s) -> Enum.into(s, raw_products) end)
                |> Enum.map(fn list -> Keyword.delete(list, :description, "<p><br></p>") end)
+               |> Enum.filter(fn el -> el[:amazon] == true end)
 
     # If we have variants — process them, set parent product, and attach category
     # if not — return products list and attach category
@@ -203,7 +220,13 @@ defmodule Hyperion.Amazon do
   # to foo: "value"
   # removes empty and nil values
   defp format_map(map) do
-    Enum.map(map, fn({k, %{"t" => _t, "v" => v}}) -> {format_string(k), v} end)
+    attrs = fn x ->
+      case x do
+        {k, %{"t" => _t, "v" => v}} -> {format_string(k), v}
+        {k, %{"v" => v }} -> {format_string(k), v}
+      end
+    end
+    Enum.map(map, attrs)
     |> Enum.reject(fn({_k, v}) -> v == nil || v == "" end)
   end
 

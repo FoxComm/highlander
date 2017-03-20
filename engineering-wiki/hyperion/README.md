@@ -121,12 +121,7 @@ If some steps had failed and product has been pushed one more time only failed s
 
 |name|type|description|required?|
 |----|----|-----------|---------|
-|has_variants|Boolean|Indicates that product has variants.|Yes|
 |purge |Boolean|If `true` will replace existing product in Amazon. All steps will be executed. Parameter can be omitted.|No|
-|inventory|Array|Array of inventory objects|Yes|
-|inventory.sku|String|Variant SKU|Yes|
-|inventory. quantity |Integer|Variant quantitu to sell on Amazon|Yes|
-
 
 
 ```
@@ -136,10 +131,6 @@ POST /api/v1/hyperion/products/:product_id/push
 ```json
 {
   "purge": false,
-  "has_variants": true,
-  "inventory":[
-    {"sku": "AMZ2331", "quantity": 100}
-  ]
 }
 ```
 

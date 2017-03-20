@@ -100,18 +100,13 @@ defmodule Hyperion.Router.V1 do
 
         params do
           optional :purge, type: Boolean
-          requires :has_variants, type: Boolean
-          group :inventory, type: CharList |> List do
-            requires :sku, type: String
-            requires :quantity, type: Integer
-          end
         end
 
         route_param :product_id do
           post :push do
             cfg = Credentials.mws_config(API.customer_id(conn))
             jwt = API.jwt(conn)
-            r = Pusher.push(params[:product_id], cfg, jwt, params[:purge], params[:inventory], params[:has_variants])
+            r = Pusher.push(params[:product_id], cfg, jwt, params[:purge])
             respond_with(conn, r)
           end
         end
