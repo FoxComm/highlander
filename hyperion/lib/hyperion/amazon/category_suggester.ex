@@ -8,8 +8,10 @@ defmodule Hyperion.Amazon.CategorySuggester do
   Suggests category by query and title
   """
   def suggest_categories(%{q: q, title: title, limit: limit}, cfg) do
-    asin = get_product_asin(title, cfg)
-    primary = get_primary_category(asin, cfg)
+    # AMAZON turned off
+    # asin = get_product_asin(title, cfg)
+    # primary = get_primary_category(asin, cfg)
+    primary = []
     secondary = fetch_secondary_categories(q, primary[:node_id], limit)
     case primary[:data] do
       nil -> %{primary: nil, secondary: secondary, count: Enum.count(secondary)}
@@ -79,7 +81,7 @@ defmodule Hyperion.Amazon.CategorySuggester do
   defp fetch_main_category_details(node_id) do
     data = (from c in Category, select: %{node_id: c.node_id, node_path: c.node_path, size_opts: c.size_opts,
                                           department: c.department, item_type: c.item_type})
-           |> where([c], c.node_id in ^[node_id])
+           |> where([c], c.node_id in ^[node_id] and not is_nil(c.department) and not is_nil(c.item_type))
            |> Hyperion.Repo.all
     case data do
       [] -> %{data: nil, node_id: node_id}
@@ -88,13 +90,16 @@ defmodule Hyperion.Amazon.CategorySuggester do
   end
 
   defp fetch_secondary_categories(q, nil, limit) do
-    (from c in Category, where: ilike(c.node_path,^"%#{String.downcase(q)}%") and not is_nil(c.node_id), limit: ^limit)
+    (from c in Category, where: ilike(c.node_path,^"%#{String.downcase(q)}%") 
+     and not is_nil(c.node_id) and not is_nil(c.department) and not is_nil(c.item_type), limit: ^limit)
     |> Hyperion.Repo.all
   end
 
   defp fetch_secondary_categories(q, node_id, limit) do
     (from c in Category,
-     where: ilike(c.node_path,^"%#{String.downcase(q)}%") and c.node_id != ^node_id and not is_nil(c.node_id),
+     where: ilike(c.node_path,^"%#{String.downcase(q)}%") 
+     and c.node_id != ^node_id and not is_nil(c.node_id)
+     and not is_nil(c.department) and not is_nil(c.item_type),
      limit: ^limit)
     |> Hyperion.Repo.all
   end

@@ -104,9 +104,10 @@ defmodule Hyperion.Router.V1 do
 
         route_param :product_id do
           post :push do
+            purge = if params[:purge], do: params[:purge], else: false
             cfg = Credentials.mws_config(API.customer_id(conn))
             jwt = API.jwt(conn)
-            r = Pusher.push(params[:product_id], cfg, jwt, params[:purge])
+            r = Pusher.push(params[:product_id], cfg, jwt, purge)
             respond_with(conn, r)
           end
         end
