@@ -18,6 +18,9 @@ export default class PromoCouponsPage extends Component {
   render() {
     const promotionId = this.props.object.id;
     const children = this.props.children;
+    const applyType = this.props.object.applyType;
+    
+    if (applyType == "auto") return null;
     return (
       <div styleName="promotion-coupons-page">
         <SectionTitle title="Coupons">

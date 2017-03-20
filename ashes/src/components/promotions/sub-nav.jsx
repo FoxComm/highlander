@@ -11,12 +11,12 @@ import LocalNav from '../local-nav/local-nav';
 
 type SubNavProps = {
   promotionId: string|number,
-  applyType: string
+  applyType: string,
 };
 
 const SubNav = (props: SubNavProps) => {
   const params = {
-    promotionId: props.promotionId
+    promotionId: props.promotionId,
   };
 
   const isNew = props.promotionId === 'new';
