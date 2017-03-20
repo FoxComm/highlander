@@ -1,4 +1,4 @@
-#Hyperion wiki
+# Hyperion wiki
 
 Hyperion is a mecroservice for comunications with Amawon MWS:
     * submit products
@@ -8,13 +8,13 @@ Hyperion is a mecroservice for comunications with Amawon MWS:
 
 How to start and some quick info is [here](https://github.com/FoxComm/highlander/tree/add_amazon_microservice/hyperion)
 
-##Examples
+## Examples
 
 All requests should have two headers:
 * `jwt` header to work with Phoenix-scala
 * `customer-id` to get Amazon credentials
 
-####Get client credentials
+#### Get client credentials
 
 *request*
 
@@ -32,7 +32,7 @@ GET /api/v1/hyperion/credentials/:customer_id
 }
 ```
 
-####Store cleint credentials
+#### Store cleint credentials
 
 *request*
 
@@ -59,7 +59,7 @@ body:
 }
 ```
 
-####Update client credentials
+#### Update client credentials
 
 *request*
 
@@ -85,7 +85,7 @@ body:
 }
 ```
 
-####Delete client credentials
+#### Delete client credentials
 
 *request*
 
@@ -105,7 +105,7 @@ If no credentials found:
 }
 ```
 
-####Push product to amazon
+#### Push product to amazon
 
 Product pushed in five steps:
 
@@ -130,12 +130,13 @@ If some steps had failed and product has been pushed one more time only failed s
 
 
 ```
-POST /api/v1/hyperion/:product_id/push
+POST /api/v1/hyperion/products/:product_id/push
 ```
 
 ```json
 {
   "purge": false,
+  "has_variants": true,
   "inventory":[
     {"sku": "AMZ2331", "quantity": 100}
   ]
@@ -169,7 +170,7 @@ POST /api/v1/hyperion/:product_id/push
 }
 ```
 
-###Get push result for a product
+### Get push result for a product
 
 *request*
 
@@ -205,7 +206,7 @@ GET /api/v1/hyperion/:product_id/result
 ```
 
 
-####Submit product feed to MWS
+#### Submit product feed to MWS
 
 *request*
 
@@ -247,7 +248,7 @@ body:
 }
 ```
 
-####Submit products feed by ASIN
+#### Submit products feed by ASIN
 
 ```
 POST /api/v1/hyperion/products/by_asin
@@ -288,7 +289,7 @@ body:
 ```
 
 
-####Submit price feed to MWS
+#### Submit price feed to MWS
 
 *request*
 
@@ -324,7 +325,7 @@ body:
 ```
 
 
-####Submit inventory feed to MWS
+#### Submit inventory feed to MWS
 
 *request*
 
@@ -361,7 +362,7 @@ body:
 }
 ```
 
-####Submit images feed
+#### Submit images feed
 
 *request*
 
@@ -396,7 +397,7 @@ body:
 }
 ```
 
-####List matching products by query string
+#### List matching products by query string
 
 *request*
 
@@ -421,7 +422,7 @@ GET /api/v1/hyperion/products/search?q=:query_string
 }
 ```
 
-####Get feed submission result
+#### Get feed submission result
 
 _IMPORTANT:_ Feed can be processed with warnings. In most cases with warnings your product reached MWS.
 
@@ -509,7 +510,7 @@ Warning
 }
 ```
 
-###Get matching product by ASIN
+### Get matching product by ASIN
 
 *request*
 
@@ -613,7 +614,7 @@ GET /api/v1/hyperion/products/find_by_asin/:asin
 }
 ```
 
-####Get orders
+#### Get orders
 
 _IMPORTANT:_ This endpoint will be upgraded soon. It will stay backward compatible but will have some additional params.
 
@@ -651,7 +652,7 @@ Params:
 
 Params marked with * are mandatory.
 
-####Get order details
+#### Get order details
 
 *request*
 
@@ -717,7 +718,7 @@ GET /api/v1/hyperion/orders/:amazon_order_id
 }
 ```
 
-####Get order items
+#### Get order items
 
 *request*
 
@@ -785,7 +786,7 @@ GET /api/v1/hyperion/order/:amazon_order_id/items
 }
 ```
 
-####Get categories for ASIN
+#### Get categories for ASIN
 
 *request*
 
@@ -823,7 +824,7 @@ GET /api/v1/hyperion/products/categories/:asin
 }
 ```
 
-####Search for Amazon category ID pair: `department — item-type`
+#### Search for Amazon category ID pair: `department — item-type`
 
 |name|type|description|required?|
 |----|----|-----------|---------|
@@ -860,7 +861,7 @@ GET /api/v1/hyperion/categories?node_path=t-shirt&size=2
 }
 ```
 
-####Suggest categories
+#### Suggest categories
 
 |name|type|description|required?|
 |----|----|-----------|---------|
@@ -1014,7 +1015,7 @@ GET /api/v1/hyperion/categories/suggest
 ```
 
 
-####Subscrube to notification queue
+#### Subscrube to notification queue
 
 *request*
 
@@ -1060,7 +1061,7 @@ If already subscribed error will return:
 
 
 
-####Unsubscribe from notification queue
+#### Unsubscribe from notification queue
 
 *request*
 
@@ -1104,7 +1105,7 @@ If already unsubscribed error will return:
 }
 ```
 
-####Get all available object_schemas
+#### Get all available object_schemas
 
 *request*
 
@@ -1126,7 +1127,7 @@ GET /api/v1/hyperion/object_schema
 }
 ```
 
-####Get object_schema by its name
+#### Get object_schema by its name
 
 *request*
 
@@ -1271,7 +1272,7 @@ GET /api/v1/hyperion/object_schema/:schema_name
 }
 ```
 
-####Get schema by category id
+#### Get schema by category id
 
 *request*
 
