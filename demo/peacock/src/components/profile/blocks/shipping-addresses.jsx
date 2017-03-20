@@ -7,7 +7,6 @@ import { autobind } from 'core-decorators';
 import localized from 'lib/i18n';
 import { connect } from 'react-redux';
 import { browserHistory } from 'lib/history';
-import { api as foxApi } from 'lib/api';
 
 // components
 import { Link } from 'react-router';
@@ -30,11 +29,12 @@ type Props = {
   fetchAddresses: () => Promise,
   addresses: Array<Address>,
   updateAddress: (address: Address, id?: number) => Promise,
-  updateShippingAddress: (address: Address) => Promise,
-  markAddressAsDefault: Function,
-  saveShippingAddress: (id: number) => Promise,
   deleteAddress: (id: number) => Promise,
   restoreAddress: (id: number) => Promise,
+  markAddrAsDefault: (id: number) => Promise,
+  updateShippingAddress: (address: Address) => Promise,
+  saveShippingAddress: (id: number) => Promise,
+  removeShippingAddress: Function,
   t: any,
 };
 
@@ -59,9 +59,7 @@ class MyShippingAddresses extends Component {
     this.props.fetchAddresses()
       .then(() => {
         if (this.props.addresses.length >= 1) {
-          const defaultAddress = _.find(this.props.addresses, { isDefault: true });
-          const selected = defaultAddress ? defaultAddress.id : this.props.addresses[0].id;
-          this.handleAddresses(selected, false);
+          this.selectAddrOnLoad(this.props.addresses);
         }
       });
   }
@@ -69,10 +67,15 @@ class MyShippingAddresses extends Component {
   componentWillUpdate(nextProps: Props, nextState: State) {
     const selectedAddress = _.find(nextProps.addresses, { id: nextState.activeAddressId });
     if (nextProps.addresses.length > 0 && !selectedAddress) {
-      const defaultAddress = _.find(nextProps.addresses, { isDefault: true });
-      const selected = defaultAddress ? defaultAddress.id : nextProps.addresses[0].id;
-      this.handleAddresses(selected, false);
+      this.selectAddrOnLoad(nextProps.addresses);
     }
+  }
+
+  @autobind
+  selectAddrOnLoad(addresses) {
+    const defaultAddress = _.find(addresses, { isDefault: true });
+    const selected = defaultAddress ? defaultAddress.id : addresses[0].id;
+    this.handleAddresses(selected, false);
   }
 
   @autobind
@@ -85,8 +88,7 @@ class MyShippingAddresses extends Component {
     const newShippingAddress = _.find(this.props.addresses, { id: addressId });
 
     if (deleted) {
-      this.props.markAddressAsDefault(addressId);
-      foxApi.addresses.setAsDefault(addressId);
+      this.props.markAddrAsDefault(addressId);
     } else {
       if (!newShippingAddress.isDefault) {
         newShippingAddress.isDefault = true;
@@ -112,7 +114,7 @@ class MyShippingAddresses extends Component {
           if (newDefault) {
             this.handleAddresses(newDefault, true);
           } else {
-            foxApi.cart.removeShippingAddress();
+            this.props.removeShippingAddress();
           }
         }
       });
