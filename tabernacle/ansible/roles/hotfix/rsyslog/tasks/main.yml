@@ -11,5 +11,8 @@
     group=root
     mode=0644
 
+- name: Update Syslog Rotation
+  lineinfile: dest="{{logrotate_dir}}/rsyslog" regexp='^daily' line='size=100M'
+
 - name: Restart Rsyslog
   service: name=rsyslog state=restarted enabled=yes
