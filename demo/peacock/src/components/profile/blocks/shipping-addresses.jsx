@@ -75,7 +75,7 @@ class MyShippingAddresses extends Component {
   selectAddrOnLoad(addresses) {
     const defaultAddress = _.find(addresses, { isDefault: true });
     const selected = defaultAddress ? defaultAddress.id : addresses[0].id;
-    this.handleAddresses(selected, false);
+    this.selectAddressById(selected, false);
   }
 
   @autobind
@@ -84,7 +84,7 @@ class MyShippingAddresses extends Component {
   }
 
   @autobind
-  handleAddresses(addressId, deleted) {
+  selectAddressById(addressId, deleted) {
     const newShippingAddress = _.find(this.props.addresses, { id: addressId });
 
     if (deleted) {
@@ -96,7 +96,9 @@ class MyShippingAddresses extends Component {
       }
     }
     this.setCartShippingAddress(newShippingAddress);
-    this.selectAddressById(addressId);
+    this.setState({
+      activeAddressId: addressId,
+    });
   }
 
   @autobind
@@ -112,7 +114,7 @@ class MyShippingAddresses extends Component {
             }
           });
           if (newDefault) {
-            this.handleAddresses(newDefault, true);
+            this.selectAddressById(newDefault, true);
           } else {
             this.props.removeShippingAddress();
           }
@@ -127,13 +129,6 @@ class MyShippingAddresses extends Component {
     } else {
       this.props.updateShippingAddress(addr);
     }
-  }
-
-  @autobind
-  selectAddressById(id) {
-    this.setState({
-      activeAddressId: id,
-    });
   }
 
   renderAddresses() {
@@ -174,7 +169,7 @@ class MyShippingAddresses extends Component {
             name={`address-radio-${key}`}
             checked={checked}
             disabled={address.isDeleted}
-            onChange={() => this.handleAddresses(address.id, false)}
+            onChange={() => this.selectAddressById(address.id, false)}
           >
             <EditableBlock
               styleName="item-content"

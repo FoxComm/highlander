@@ -48,14 +48,6 @@ const markAddressAsDefault = createAction(
   'MARK_ADDRESS_AS_DEFAULT',
   (id) => id
 );
-export const setAddrAsDefault = createAction(
-  'SET_ADDRESS_AS_DEFAULT',
-  (id) => foxApi.addresses.setAsDefault(id)
-);
-export const removeShippingAddress = createAction(
-  'REMOVE_SHIPPING_ADDRESS',
-  () => foxApi.cart.removeShippingAddress()
-);
 
 export const resetCheckout = createAction('CHECKOUT_RESET');
 const orderPlaced = createAction('CHECKOUT_ORDER_PLACED');
@@ -143,8 +135,8 @@ const _updateShippingAddress = createAsyncActions(
 
 export const updateShippingAddress = _updateShippingAddress.perform;
 
-const _markAddressAsDefault = createAsyncActions(
-  'markAddressAsDefault',
+const _setAddressAsDefault = createAsyncActions(
+  'setAddressAsDefault',
   function (id) {
     const { dispatch } = this;
     return foxApi.addresses.setAsDefault(id)
@@ -154,7 +146,14 @@ const _markAddressAsDefault = createAsyncActions(
   }
 );
 
-export const markAddrAsDefault = _markAddressAsDefault.perform;
+export const markAddrAsDefault = _setAddressAsDefault.perform;
+
+const _removeShippingAddress = createAsyncActions(
+  'REMOVE_SHIPPING_ADDRESS',
+  () => foxApi.cart.removeShippingAddress()
+);
+
+export const removeShippingAddress = _removeShippingAddress.perform;
 
 const _saveShippingMethod = createAsyncActions(
   'saveShippingMethod',
@@ -449,16 +448,13 @@ const reducer = createReducer({
     };
   },
   [markAddressAsDefault]: (state, addressId) => {
-    const oldDefault = _.find(state.addresses, {isDefault: true});
     const newAddresses = _.map(state.addresses, (address) => {
-      const newAddr = _.cloneDeep(address);
-      if (newAddr.id === addressId) {
-        newAddr.isDefault = true;
+      if (address.id === addressId) {
+        return {...address, isDefault: true};
+      } else if (address.isDefault) {
+        return {...address, isDefault: false};
       }
-      if (newAddr.id === oldDefault.id) {
-        newAddr.isDefault = false;
-      }
-      return newAddr;
+      return address;
     });
     return {
       ...state,
