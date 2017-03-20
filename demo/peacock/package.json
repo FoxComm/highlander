@@ -91,7 +91,6 @@
     "core-decorators": "^0.11.0",
     "currency-symbol-map": "^2.2.0",
     "dom-scroll-into-view": "^1.1.0",
-    "fleck": "^0.5.1",
     "hoist-non-react-statics": "^1.2.0",
     "isomorphic-fetch": "^2.2.1",
     "jsonwebtoken": "^5.7.0",
