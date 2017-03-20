@@ -22,7 +22,7 @@
             "type": "ansible",
             "playbook_file" : "ansible/packer_tinyprod_amigo.yml",
             "extra_arguments": [
-                "-vvvv",
+                "-v",
                 "--extra-vars", "@packer/envs/{{user `project_base`}}/params.json"
             ]
         }

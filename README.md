@@ -25,10 +25,7 @@ Highlander is the brand-spanking-new FoxCommerce mono-repo.
 
 ## Development Environment
 
-The simplest way to get started is to use Vagrant to build out a virtual
-machine that runs the entire system. It's really easy, though you'll
-probably want to grab a coffee or take a nap the first time you run it -- it
-has a lot to do!
+The simplest way to get started is setup a personal developer appliance in Google Cloud that runs the entire system. It's really easy, though you'll probably want to grab a coffee the first time you run it - it has a lot to do!
 
 ### Install Prerequisites
 

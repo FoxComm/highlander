@@ -1,4 +1,4 @@
-#Consumers
+# Consumers
 
 These are consumers processing kafka topics related to the intelligence commerce 
 system. The consumers are outlined below.

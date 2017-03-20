@@ -6,7 +6,7 @@ import models.activity.{Activity, ActivityContext}
 import utils.aliases._
 
 object ActivityResponse {
-  case class Root(id: Int,
+  case class Root(id: String,
                   kind: ActivityType,
                   data: Json,
                   context: ActivityContext,

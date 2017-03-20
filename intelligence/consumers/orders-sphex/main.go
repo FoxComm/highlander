@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	groupId  = "orders-1"
-	clientId = "hal-orders-sphex"
+	clientId = "orders-01"
+	groupId  = "hal-orders-consumers"
 )
 
 var henhouseHost = os.Getenv("HENHOUSE")

@@ -1,5 +1,7 @@
 package utils.seeds
 
+import com.github.tminglei.slickpg.LTree
+
 import cats._
 import cats.data._
 import cats.implicits._
@@ -119,7 +121,8 @@ object Seeds {
   def runMain(cfg: CliConfig, usage: String): Unit = {
     val config: Config           = FoxConfig.unsafe
     implicit val db: DatabaseDef = Database.forConfig("db", config)
-    implicit val ac: AC          = ActivityContext(userId = 1, userType = "user", transactionId = "seeds")
+    implicit val ac: AC = ActivityContext
+      .build(userId = 1, userType = "user", scope = LTree("1"), transactionId = "seeds")
 
     cfg.mode match {
       case Seed ⇒

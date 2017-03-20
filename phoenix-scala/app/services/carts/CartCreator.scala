@@ -42,7 +42,9 @@ object CartCreator {
                                    scope = Scope.current))
         scope ← * <~ Scope.resolveOverride(payload.scope)
         cart  ← * <~ Carts.create(Cart(accountId = account.id, scope = scope))
-        _     ← * <~ LogActivity.cartCreated(Some(admin), root(cart, guest, custData))
+        _ ← * <~ LogActivity()
+             .withScope(scope)
+             .cartCreated(Some(admin), root(cart, guest, custData))
       } yield root(cart, guest, custData)
 
     for {

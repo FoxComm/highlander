@@ -17,7 +17,8 @@
     "STRIPE_PUBLISHABLE_KEY": "{{stripe_publishable_key}}",
     "CONTACT_EMAIL": "{{contact_email}}",
     "MAILCHIMP_API_KEY": "{{mailchimp_api_key}}",
-    "URL_PREFIX": "{{url_prefix_topdrawer}}"
+    "URL_PREFIX": "{{url_prefix_topdrawer}}",
+    "GA_TRACKING_ID": "{{ga_tracking_id}}"
   },
   "healthChecks": [
     {
