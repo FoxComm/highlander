@@ -30,7 +30,7 @@ class Taxonomy:
 
 
 class Elasticsearch:
-    def __init__(self, jwt, host='appliance-10-240-0-14.foxcommerce.com'):
+    def __init__(self, jwt, host):
         self.host = host
         self.jwt = jwt
         self.taxonomies = {}
@@ -392,6 +392,7 @@ def assign_taxonomies(p: Phoenix, taxonomies, data_product, product_id):
 
 
 def import_taxonomies(p: Phoenix):
+    print("Importing taxonomies\n")
     if p.ensure_logged_in():
         imported = query_es_taxonomies(p.jwt, p.host)
         taxonomies = load_file_taxonomies()
@@ -419,6 +420,7 @@ def import_taxonomies(p: Phoenix):
 
 
 def import_products(p:Phoenix, max_products):
+    print("Importing products\n")
     products = load_products("./data/products.json")
     cache_dir = "cache"
     p.ensure_logged_in()
@@ -458,9 +460,7 @@ def main():
     elif command == 'products':
         import_products(p, max_products)
     elif command == 'both':
-        print("Importing taxonomies\n")
         import_taxonomies(p)
-        print("Importing products\n")
         import_products(p, max_products)
     else:
         print ("Valid commands are, 'taxonomies', 'products', or 'both'")
