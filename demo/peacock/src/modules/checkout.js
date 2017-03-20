@@ -44,6 +44,10 @@ const markAddressAsRestored = createAction(
   'CHECKOUT_MARK_ADDRESS_AS_RESTORED',
   (oldId: number, newAddress: Address) => [oldId, newAddress]
 );
+export const markAddressAsDefault = createAction(
+  'MARK_ADDRESS_AS_DEFAULT',
+  (id) => id
+);
 
 export const resetCheckout = createAction('CHECKOUT_RESET');
 const orderPlaced = createAction('CHECKOUT_ORDER_PLACED');
@@ -422,6 +426,23 @@ const reducer = createReducer({
       ...state,
       addresses: list,
     };
+  },
+  [markAddressAsDefault]: (state, addressId) => {
+    const oldDefault = _.find(state.addresses, {'isDefault': true});
+    const newAddresses = state.addresses.map((address) => {
+      if (address.id === oldDefault.id) {
+        address.isDefault = false;
+      }
+      if (address.id === addressId) {
+        address.isDefault = true;
+      }
+      return address;
+    });
+    return {
+      ...state,
+      newAddresses,
+    };
+
   },
   [markAddressAsDeleted]: (state, addressId) => {
     const index = _.findIndex(state.addresses, {id: addressId});

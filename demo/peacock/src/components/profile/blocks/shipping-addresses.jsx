@@ -7,6 +7,7 @@ import { autobind } from 'core-decorators';
 import localized from 'lib/i18n';
 import { connect } from 'react-redux';
 import { browserHistory } from 'lib/history';
+import { api as foxApi } from 'lib/api';
 
 // components
 import { Link } from 'react-router';
@@ -23,7 +24,7 @@ import type { Address } from 'types/address';
 
 const styles = {...addressStyles, ...profileStyles};
 
-import { updateAddress, fetchAddresses, deleteAddress, restoreAddress, updateShippingAddress } from 'modules/checkout';
+import * as checkoutActions from 'modules/checkout';
 
 type Props = {
   fetchAddresses: () => Promise,
@@ -53,12 +54,15 @@ class MyShippingAddresses extends Component {
   };
 
   componentWillMount() {
-    this.props.fetchAddresses();
-    if (this.props.addresses.length >= 1) {
-      const defaultAddress = _.find(this.props.addresses, { isDefault: true });
-      const selected = defaultAddress ? defaultAddress.id : this.props.addresses[0].id;
-      this.selectAddressById(selected);
-    }
+    this.props.fetchAddresses()
+      .then(() => {
+        if (this.props.addresses.length >= 1) {
+          const defaultAddress = _.find(this.props.addresses, { isDefault: true });
+          const selected = defaultAddress ? defaultAddress.id : this.props.addresses[0].id;
+          this.handleAddresses(selected, false);
+        }
+      });
+
   }
 
   componentWillUpdate(nextProps: Props, nextState: State) {
@@ -66,7 +70,7 @@ class MyShippingAddresses extends Component {
     if (nextProps.addresses.length > 0 && !selectedAddress) {
       const defaultAddress = _.find(nextProps.addresses, { isDefault: true });
       const selected = defaultAddress ? defaultAddress.id : nextProps.addresses[0].id;
-      this.selectAddressById(selected);
+      this.handleAddresses(selected, false);
     }
   }
 
@@ -76,13 +80,55 @@ class MyShippingAddresses extends Component {
   }
 
   @autobind
-  selectAddressById(id) {
-    const newShippingAddress = _.find(this.props.addresses, { id });
-    this.props.updateShippingAddress(newShippingAddress);
-    if (!newShippingAddress.isDefault) {
-      newShippingAddress.isDefault = true;
-      this.props.updateAddress(newShippingAddress, id);
+  handleAddresses(addressId, deleted) {
+    const newShippingAddress = _.find(this.props.addresses, { 'id': addressId });
+
+    if (deleted) {
+      this.props.markAddressAsDefault(addressId);
+      foxApi.addresses.setAsDefault(addressId);
+    } else {
+      if (!newShippingAddress.isDefault) {
+        newShippingAddress.isDefault = true;
+        this.props.updateAddress(newShippingAddress, addressId);
+      }
     }
+    this.setCartShippingAddress(newShippingAddress);
+    this.selectAddressById(addressId);
+  }
+
+  @autobind
+  deleteAddress(id, isDefault) {
+    this.props.deleteAddress(id)
+      .then(() => {
+        if (isDefault) {
+          let newDefault;
+          this.props.addresses.some((address) => {
+            if (!address.isDeleted) {
+              newDefault = address.id;
+              return true;
+            }
+          });
+          if (newDefault) {
+            this.handleAddresses(newDefault, true);
+          }
+          else {
+            foxApi.cart.removeShippingAddress();
+          }
+        }
+      });
+  }
+
+  @autobind
+  setCartShippingAddress(addr) {
+    if (this.props.addresses.length === 1) {
+      this.props.saveShippingAddress(addr.id);
+    } else {
+      this.props.updateShippingAddress(addr);
+    }
+  }
+
+  @autobind
+  selectAddressById(id) {
     this.setState({
       activeAddressId: id,
     });
@@ -111,7 +157,7 @@ class MyShippingAddresses extends Component {
           <div styleName="actions-block">
             <Link styleName="link" to={`/profile/addresses/${address.id}`}>{props.t('EDIT')}</Link>
             &nbsp;|&nbsp;
-            <div styleName="link" onClick={() => this.props.deleteAddress(address.id)}>{props.t('REMOVE')}</div>
+            <div styleName="link" onClick={() => this.deleteAddress(address.id, address.isDefault)}>{props.t('REMOVE')}</div>
           </div>
         );
         title = address.name;
@@ -124,7 +170,7 @@ class MyShippingAddresses extends Component {
             name={`address-radio-${key}`}
             checked={checked}
             disabled={address.isDeleted}
-            onChange={() => this.selectAddressById(address.id)}
+            onChange={() => this.handleAddresses(address.id, false)}
           >
             <EditableBlock
               styleName="item-content"
@@ -159,6 +205,6 @@ class MyShippingAddresses extends Component {
 }
 
 export default _.flowRight(
-  connect(mapStateToProps, {updateAddress, fetchAddresses, deleteAddress, restoreAddress, updateShippingAddress}),
+  connect(mapStateToProps, {...checkoutActions}),
   localized
 )(MyShippingAddresses);
