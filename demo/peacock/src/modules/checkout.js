@@ -44,6 +44,10 @@ const markAddressAsRestored = createAction(
   'CHECKOUT_MARK_ADDRESS_AS_RESTORED',
   (oldId: number, newAddress: Address) => [oldId, newAddress]
 );
+const markDefaultAddress = createAction(
+  'MARK_ADDRESS_AS_DEFAULT',
+  (id) => id
+);
 
 export const resetCheckout = createAction('CHECKOUT_RESET');
 const orderPlaced = createAction('CHECKOUT_ORDER_PLACED');
@@ -130,6 +134,26 @@ const _updateShippingAddress = createAsyncActions(
 );
 
 export const updateShippingAddress = _updateShippingAddress.perform;
+
+const _setAddressAsDefault = createAsyncActions(
+  'setAddressAsDefault',
+  function (id) {
+    const { dispatch } = this;
+    return foxApi.addresses.setAsDefault(id)
+      .then(() => {
+        dispatch(markDefaultAddress(id));
+      });
+  }
+);
+
+export const markAddressAsDefault = _setAddressAsDefault.perform;
+
+const _removeShippingAddress = createAsyncActions(
+  'REMOVE_SHIPPING_ADDRESS',
+  () => foxApi.cart.removeShippingAddress()
+);
+
+export const removeShippingAddress = _removeShippingAddress.perform;
 
 const _saveShippingMethod = createAsyncActions(
   'saveShippingMethod',
@@ -421,6 +445,20 @@ const reducer = createReducer({
     return {
       ...state,
       addresses: list,
+    };
+  },
+  [markDefaultAddress]: (state, addressId) => {
+    const newAddresses = _.map(state.addresses, (address) => {
+      if (address.id === addressId) {
+        return {...address, isDefault: true};
+      } else if (address.isDefault) {
+        return {...address, isDefault: false};
+      }
+      return address;
+    });
+    return {
+      ...state,
+      addresses: newAddresses,
     };
   },
   [markAddressAsDeleted]: (state, addressId) => {
