@@ -9,6 +9,7 @@ import classNames from 'classnames';
 
 // components
 import { AddButton } from 'components/common/buttons';
+import TreeNode from './tree-node'
 
 // actions
 import { fetch as fetchTaxonomy } from 'modules/taxonomies/details';
@@ -50,28 +51,44 @@ class TaxonListWidget extends Component {
   get content() {
     const { taxons } = this.props.taxonomy;
 
-    const children = taxons.map((item) => {
-      const active = (this.props.currentTaxon === item.taxon.id.toString());
-      const className = classNames(styles['item'], { [styles.active]: active });
+    if (!this.props.taxonomy.hierarchical) {
+      return taxons.map((item) => {
+          const active = (this.props.currentTaxon === item.taxon.id.toString());
+          const className = classNames(styles['item'], { [styles.active]: active });
 
-       return (
-         <div
-           className={className}
-           onClick={() => this.handleTaxonClick(item.taxon.id)}
-           key={item.taxon.id}
-         >
-           {item.taxon.attributes.name.v}
-         </div>
-         );
-       }
-    );
-    return children;
+          return (
+            <div
+              className={className}
+              onClick={() => this.handleTaxonClick(item.taxon.id)}
+              key={item.taxon.id}
+            >
+              {item.taxon.attributes.name.v}
+            </div>
+          );
+        }
+      );
+
+    }
+
+    if (this.props.taxonomy.hierarchical) {
+
+      return taxons.map((item) => {
+        return (
+          <TreeNode
+            node={item}
+            visible={true}
+            level={1}
+          />
+        )
+      })
+    }
+
   }
 
   render () {
     const { taxonomy } = this.props;
 
-    if (!taxonomy || taxonomy.hierarchical) {
+    if (!taxonomy) {
       return null;
     }
 
