@@ -16,6 +16,7 @@ const initialState = {
     secondary: [],
   },
   push: null,
+  productStatus: null,
 };
 
 export function clearErrors() {
@@ -39,7 +40,7 @@ const _fetchSuggest = createAsyncActions(
   'fetchSuggest',
   (title: string, q: string) => {
     const userId = getUserId() || '';
-    const data = { title, q };
+    const data = { q, title };
     // @todo move to hyperion
     const options = {
       headers: {
@@ -122,11 +123,10 @@ export const updateAmazonCredentials = _updateAmazonCredentials.perform;
 
 const _pushToAmazon = createAsyncActions(
   'pushToAmazon',
-  (params) => {
+  (id) => {
     const userId = getUserId() || '';
-    const data = {
-      ids: [params.id],
-    };
+    // https://github.com/FoxComm/highlander/blob/amazon/engineering-wiki/hyperion/README.md#push-product-to-amazon
+    const data = {};
     // @todo move customer_id (which now emulated through getUserId) to hyperion
     const options = {
       headers: {
@@ -134,11 +134,29 @@ const _pushToAmazon = createAsyncActions(
       },
     };
 
-    return Api.post(`/hyperion/products/`, data, options);
+    return Api.post(`/hyperion/products/${id}/push`, data, options);
   }
 );
 
 export const pushToAmazon = _pushToAmazon.perform;
+
+const _fetchAmazonProductStatus = createAsyncActions(
+  'fetchAmazonProductStatus',
+  (id) => {
+    const userId = getUserId() || '';
+    const data = {};
+    // @todo move customer_id (which now emulated through getUserId) to hyperion
+    const options = {
+      headers: {
+        'Customer-ID': userId,
+      },
+    };
+
+    return Api.get(`/hyperion/products/${id}/result`, data, options);
+  }
+);
+
+export const fetchAmazonProductStatus = _fetchAmazonProductStatus.perform;
 
 const reducer = createReducer({
   [_fetchSuggest.succeeded]: (state, res) => ({ ...state, suggest: res }),
@@ -148,6 +166,7 @@ const reducer = createReducer({
   [_fetchAmazonCredentials.succeeded]: (state, res) => ({ ...state, credentials: res }),
   [_updateAmazonCredentials.succeeded]: (state, res) => ({ ...state, credentials: res }),
   [_pushToAmazon.succeeded]: (state, res) => ({ ...state, push: res }),
+  [_fetchAmazonProductStatus.succeeded]: (state, res) => ({ ...state, productStatus: res }),
 
   [resetState]: (state) => initialState,
 }, initialState);

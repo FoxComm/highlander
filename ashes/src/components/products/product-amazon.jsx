@@ -31,17 +31,19 @@ function mapDispatchToProps(dispatch) {
       fetchAmazonSchema: amazonActions.fetchAmazonSchema,
       fetchSuggest: amazonActions.fetchSuggest,
       pushProduct: amazonActions.pushToAmazon,
+      fetchProductStatus: amazonActions.fetchAmazonProductStatus,
     }, dispatch),
   };
 }
 
 function mapStateToProps(state) {
   const product = state.products.details.product;
-  const { suggest, schema } = state.channels.amazon;
+  const { suggest, schema, productStatus } = state.channels.amazon;
 
   return {
     title: product && product.attributes && product.attributes.title.v,
     product,
+    productStatus,
     fetchingProduct: _.get(state.asyncActions, 'fetchProduct.inProgress'),
     fetchingSuggest: _.get(state.asyncActions, 'fetchSuggest.inProgress'),
     fetchingSchema: _.get(state.asyncActions, 'fetchAmazonSchema.inProgress'),
@@ -76,7 +78,7 @@ class ProductAmazon extends Component {
   componentDidMount() {
     const { productId } = this.props.params;
     const { product } = this.props;
-    const { clearAmazonErrors, fetchProduct, fetchSchema, resetAmazonState } = this.props.actions;
+    const { clearAmazonErrors, fetchProduct, fetchProductStatus, fetchSchema, resetAmazonState } = this.props.actions;
 
     if (!product) {
       clearAmazonErrors();
@@ -84,13 +86,16 @@ class ProductAmazon extends Component {
       fetchSchema('product');
       fetchProduct(productId);
     }
+
+    // setInterval(() => {
+    //   fetchProductStatus(productId);
+    // }, 10 * 1000);
   }
 
   componentWillUpdate(nextProps) {
-    const nodeId = _.get(this.props.product, ['attributes', 'node_id', 'v'], null);
-    const nextNodeId = _.get(nextProps.product, ['attributes', 'node_id', 'v'], null);
-    const nextNodePath = _.get(nextProps.product, ['attributes', 'node_path', 'v'], null);
-    console.log('nextProps', nextProps);
+    const nodeId = _.get(this.props.product, ['attributes', 'nodeId', 'v'], null);
+    const nextNodeId = _.get(nextProps.product, ['attributes', 'nodeId', 'v'], null);
+    const nextNodePath = _.get(nextProps.product, ['attributes', 'nodePath', 'v'], null);
 
     if (nextNodeId && nextNodeId != nodeId && nextNodePath) {
       this._setCat(nextNodeId, nextNodePath);
@@ -122,7 +127,7 @@ class ProductAmazon extends Component {
   }
 
   render() {
-    const { title, suggest, product, fetchingProduct, fetchingSuggest } = this.props;
+    const { title, suggest, product, productStatus, fetchingProduct, fetchingSuggest } = this.props;
     const { stepNum } = this.state;
     const progressSteps = steps.map((step, i) => ({
       text: `${i+1}. ${step.text}`,
@@ -133,6 +138,8 @@ class ProductAmazon extends Component {
     if (!product || fetchingProduct) {
       return <div className={s.root}><WaitAnimation /></div>;
     }
+
+    // @todo productStatus
 
     return (
       <div className={s.root}>
@@ -158,7 +165,7 @@ class ProductAmazon extends Component {
   _getNodeId() {
     const { product } = this.props;
 
-    return _.get(product, ['attributes', 'node_id', 'v'], null);
+    return _.get(product, ['attributes', 'nodeId', 'v'], null);
   }
 
   _onTextChange(text) {

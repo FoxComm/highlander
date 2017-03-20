@@ -1,13 +1,8 @@
-
 const proxy = require('koa-proxy');
-const hyperion = require('./hyperion');
 
 module.exports = function(app) {
   const config = app.config.api;
   const matchUriRegexp = new RegExp(`^/api/`);
-
-  // @todo remove custom logic from nodejs
-  app.use(hyperion.routes());
 
   app.use(function *apiHandler(next) {
     if (this.request.url.match(matchUriRegexp)) {

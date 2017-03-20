@@ -6,12 +6,12 @@ module.exports = {
     "attributes": {
       "type": "object",
       "properties": {
-        "node_id" : {
+        "nodeId" : {
           "title": "Amazon Category ID",
           "disabled": true,
           "type": ["string", "null"]
         },
-        "node_path" : {
+        "nodePath" : {
           "title": "Amazon Category Path",
           "disabled": true,
           "type": ["string", "null"]
@@ -45,7 +45,7 @@ module.exports = {
           "type": ["string", "null"]
         },
       },
-      "required": ["node_id", "code", "brand", "bulletPoint1", "bulletPoint2", "bulletPoint3", "bulletPoint4"]
+      "required": ["nodeId", "code", "brand", "bulletPoint1", "bulletPoint2", "bulletPoint3", "bulletPoint4"]
     }
   }
 };

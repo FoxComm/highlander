@@ -99,8 +99,8 @@ export default class ProductAmazonForm extends Component {
       t: 'string',
       v: '',
     }));
-    amazonVoidAttrs.node_id.v = categoryId;
-    amazonVoidAttrs.node_path.v = categoryPath;
+    amazonVoidAttrs.nodeId.v = categoryId;
+    amazonVoidAttrs.nodePath.v = categoryPath;
     const amazonExistedAttrs = _.pick(attributes, pKeys);
     const amazonAllAttrs = { ...amazonVoidAttrs, ...amazonExistedAttrs };
 
@@ -151,8 +151,6 @@ export default class ProductAmazonForm extends Component {
   _handleSubmit() {
     const { product } = this.state;
     const { onSubmit } = this.props;
-
-    console.log('product', product);
 
     onSubmit(product);
   }
