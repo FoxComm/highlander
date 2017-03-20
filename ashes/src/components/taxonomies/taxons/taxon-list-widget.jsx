@@ -5,7 +5,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { transitionTo } from 'browserHistory';
 import { autobind } from 'core-decorators';
-import cx from 'classnames';
+import classNames from 'classnames';
 
 // components
 import { AddButton } from 'components/common/buttons';
@@ -53,7 +53,7 @@ class TaxonListWidget extends Component {
 
     const children = taxons.map((item) => {
       const active = (this.props.currentTaxon === item.taxon.id.toString());
-      const className = cx(styles['item'], { [styles.active]: active });
+      const className = classNames(styles['item'], { [styles.active]: active });
 
        return (
          <div
