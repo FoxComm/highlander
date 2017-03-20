@@ -12,7 +12,6 @@ import { AddButton } from 'components/common/buttons';
 
 // actions
 import { fetch as fetchTaxonomy } from 'modules/taxonomies/details';
-import { fetch, reset } from 'modules/taxons/details/taxon';
 
 // style
 import styles from './taxon-list-widget.css';
@@ -34,18 +33,17 @@ class TaxonListWidget extends Component {
 
   @autobind
   handleTaxonClick(id: string) {
-    const { fetchTaxon, context, currentTaxon } = this.props;
+    const {currentTaxon } = this.props;
 
     if (currentTaxon !== id.toString()) {
       this.transition(id);
-      fetchTaxon(id, context);
+
     }
   }
 
   @autobind
   handleAddButton() {
     if (this.props.currentTaxon !== 'new') {
-      this.props.addNewValue();
       this.transition('new');
     }
   }
@@ -99,10 +97,4 @@ const mapState = ( {taxonomies: { details } }) => ({
   taxonomy: details.taxonomy
 });
 
-const mapDispatch = (dispatch) => ({
-    fetchTaxonomy: (id: string, context: string ) => dispatch(fetchTaxonomy(id, context)),
-    fetchTaxon: (id: string, context: string) => dispatch(fetch(id, context)),
-    addNewValue: () => dispatch(reset())
-});
-
-export default connect(mapState, mapDispatch)(TaxonListWidget);
+export default connect(mapState, { fetchTaxonomy })(TaxonListWidget);
