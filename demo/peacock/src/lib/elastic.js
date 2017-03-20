@@ -65,6 +65,36 @@ export function addMustNotFilter(initialQuery: BoolQuery, filter: MatchFilter | 
   );
 }
 
+function defaultAggregation() {
+  return {
+    aggs: {
+      taxonomies: {
+        nested: {
+          path: "taxonomies"
+        },
+        aggs: {
+          taxonomy: {
+            terms: {
+              field: "taxonomies.taxonomy"
+            },
+            aggs: {
+              taxon: {
+                terms: {
+                  field: "taxonomies.taxons"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+export function addTaxonomiesAggregation(initialQuery: BoolQuery) {
+  return assoc(initialQuery,["aggs"],defaultAggregation().aggs);
+}
+
 export function addMatchQuery(query: BoolQuery, searchString: string): BoolQuery {
   const matchFilter = {
     match: {

@@ -2,7 +2,7 @@
 
 import { createReducer } from 'redux-act';
 import { createAsyncActions } from '@foxcomm/wings';
-import { addMustNotFilter, defaultSearch, termFilter } from 'lib/elastic';
+import { addTaxonomiesAggregation, addMustNotFilter, defaultSearch, termFilter } from 'lib/elastic';
 import _ from 'lodash';
 import { api } from 'lib/api';
 
@@ -33,6 +33,8 @@ function apiCall(
     const giftCardTerm = termFilter('tags', GIFT_CARD_TAG);
     payload = addMustNotFilter(payload, giftCardTerm);
   }
+
+  payload = addTaxonomiesAggregation(payload);
 
   return this.api.post(`/search/public/products_catalog_view/_search?size=${MAX_RESULTS}`, payload);
 }
