@@ -63,7 +63,7 @@ declare type ObjectPageProps<T, U> = {
   layout: ObjectPageLayout,
   schema: ?ObjectSchema,
   actions: ObjectActions<T>,
-  children?: Element<*>|Array<Element<*>>,
+  children?: Element,
   context?: string,
   identifier: string,
   navLinks: NavLinks<U>,
