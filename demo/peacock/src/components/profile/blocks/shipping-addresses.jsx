@@ -95,7 +95,7 @@ class MyShippingAddresses extends Component {
         this.props.updateAddress(newShippingAddress, addressId);
       }
     }
-    this.setCartShippingAddress(newShippingAddress);
+    this.props.saveShippingAddress(addressId);
     this.setState({
       activeAddressId: addressId,
     });
@@ -121,16 +121,7 @@ class MyShippingAddresses extends Component {
         }
       });
   }
-
-  @autobind
-  setCartShippingAddress(addr) {
-    if (this.props.addresses.length === 1) {
-      this.props.saveShippingAddress(addr.id);
-    } else {
-      this.props.updateShippingAddress(addr);
-    }
-  }
-
+  
   renderAddresses() {
     const { props } = this;
     const items = _.map(props.addresses, (address: Address) => {
