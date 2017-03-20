@@ -121,7 +121,6 @@ class MyShippingAddresses extends Component {
         }
       });
   }
-  
   renderAddresses() {
     const { props } = this;
     const items = _.map(props.addresses, (address: Address) => {
