@@ -2,7 +2,6 @@
 
 // lib
 import React, { Element } from 'react';
-import { transitionTo, transitionToLazy } from 'browserHistory';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { get } from 'lodash';
@@ -11,12 +10,18 @@ import { autobind } from 'core-decorators';
 
 // components
 import ObjectPageDeux from 'components/object-page/object-page-deux';
+import { AddButton } from 'components/common/buttons';
 
 // actions
+import { fetch as fetchTaxonomy } from 'modules/taxonomies/details';
 import * as taxonsActions from 'modules/taxons/details/taxon';
 
+// helpers
+import { transitionTo, transitionToLazy } from 'browserHistory';
+
+
 // page layout
-import layout from './layout.json';
+import layout from './layout';
 
 export type TaxonParams = {
   taxonomyId: string,
@@ -27,13 +32,15 @@ export type TaxonParams = {
 type Props = {
   actions: ObjectActions<Taxon>,
   children: Element<*>,
-  details: {
-    taxon: ?Taxon,
-  },
+  taxon: ?Taxon,
+  taxonomy: ?Taxonomy,
   fetchState: AsyncState,
   createState: AsyncState,
   updateState: AsyncState,
   archiveState: AsyncState,
+  archiveState: AsyncState,
+  fetchStateTaxonomy: AsyncState,
+  fetchTaxonomy: (id: number) => Promise<*>,
   params: TaxonParams,
 };
 
@@ -60,22 +67,36 @@ const schema: ObjectSchema = {
         },
       },
     },
+    location: {},
     description: 'Taxon attributes'
   }
 };
 
 class TaxonPage extends React.Component {
   props: Props;
-  state: State = { taxon: null };
+  state: State = {
+    taxon: this.props.taxon,
+  };
+
+  componentDidMount() {
+    const taxonomyParam = parseInt(this.props.params.taxonomyId, 10);
+    const taxonParam = parseInt(this.props.params.taxonId, 10);
+
+    if (this.props.taxonomy.id !== taxonomyParam) {
+      this.props.fetchTaxonomy(taxonomyParam);
+    }
+  }
 
   componentWillReceiveProps(nextProps: Props) {
-    const { fetchState, createState, updateState } = nextProps;
+    const { taxon, fetchState, createState, updateState } = nextProps;
 
     if (!fetchState.inProgress && !createState.inProgress && !updateState.inProgress) {
-      const { taxon } = nextProps.details;
-
       this.setState({ taxon });
     }
+  }
+
+  get isNew() {
+    return this.props.params.taxonId === 'new';
   }
 
   get actions(): ObjectActions<Taxon> {
@@ -102,21 +123,25 @@ class TaxonPage extends React.Component {
   }
 
   get fetchState(): AsyncState {
-    const { details, fetchState } = this.props;
+    const { taxonomy, taxon, fetchState, fetchStateTaxonomy } = this.props;
 
-    const inProgress = fetchState.inProgress;
-    const noError = (!details.taxon && !fetchState.err) || (!schema);
+    const inProgress = fetchState.inProgress || fetchStateTaxonomy.inProgress;
+    const notStarted = !inProgress && (!taxonomy.id || (!this.isNew && !taxon.id) || !schema);
+    const err = fetchState.err || fetchStateTaxonomy.err;
+    const finished = (!this.isNew && fetchState.finished) && fetchStateTaxonomy.finished;
+
     return {
-      ...fetchState,
-      inProgress: inProgress || noError,
+      inProgress: inProgress || notStarted,
+      finished,
+      err,
     };
   }
 
   get saveState(): AsyncState {
     return {
       inProgress: this.props.createState.inProgress || this.props.updateState.inProgress,
-      err: this.props.createState.err || this.props.updateState.err,
       finished: this.props.createState.finished || this.props.updateState.finished,
+      err: this.props.createState.err || this.props.updateState.err,
     };
   }
 
@@ -124,34 +149,55 @@ class TaxonPage extends React.Component {
   handleObjectUpdate(obj) {
     const { taxon } = this.state;
 
-    if (taxon) {
-      const newTaxon = assoc(
-        taxon, 'attributes', obj.attributes,
-      );
+    const newTaxon = assoc(taxon,
+      'attributes', obj.attributes,
+      'location', obj.location,
+    );
 
-      this.setState({ taxon: newTaxon });
+    this.setState({ taxon: newTaxon });
+  }
+
+  @autobind
+  handleAddSubvalue() {
+    this.props.actions.addSubvalue(this.props.taxon.id);
+
+    transitionTo('taxon-details', { ...this.props.params, taxonId: 'new' });
+  }
+
+  get headerControls() {
+    if (this.isNew) {
+      return;
     }
+
+    return [
+      <AddButton
+        onClick={this.handleAddSubvalue}
+        children={'Subvalue'}
+        key="subvalue-btn"
+      />,
+    ];
   }
 
   render() {
-    const { details, archiveState, params: { taxonId, context }, children }  = this.props;
+    const { taxonomy, taxon, archiveState, params: { taxonId, context }, children }  = this.props;
 
     return (
       <ObjectPageDeux
         context={context}
-        layout={layout}
+        layout={layout(taxonomy)}
         schema={schema}
         identifier={taxonId}
         object={this.state.taxon}
         objectType="value"
         internalObjectType="taxon"
-        originalObject={details.taxon}
+        originalObject={taxon}
         actions={this.actions}
         onUpdateObject={this.handleObjectUpdate}
         fetchState={this.fetchState}
         saveState={this.saveState}
         archiveState={archiveState}
         navLinks={this.navLinks}
+        headerControls={this.headerControls}
       >
         {children}
       </ObjectPageDeux>
@@ -160,18 +206,21 @@ class TaxonPage extends React.Component {
 }
 
 const mapState = state => ({
-  details: state.taxons.details,
+  taxon: state.taxons.details.taxon,
+  taxonomy: state.taxonomies.details.taxonomy,
   fetchState: get(state.asyncActions, 'fetchTaxon', {}),
   createState: get(state.asyncActions, 'createTaxon', {}),
   updateState: get(state.asyncActions, 'updateTaxon', {}),
   archiveState: get(state.asyncActions, 'archiveTaxon', {}),
+  fetchStateTaxonomy: get(state.asyncActions, 'fetchTaxonomy', {}),
 });
 
 const mapActions = (dispatch, props) => ({
   actions: {
     ...bindActionCreators(taxonsActions, dispatch),
-    create: bindActionCreators(taxonsActions.create(props.params.taxonomyId), dispatch)
-  }
+    create: bindActionCreators(taxonsActions.create(props.params.taxonomyId), dispatch),
+  },
+  fetchTaxonomy: bindActionCreators(fetchTaxonomy, dispatch),
 });
 
 export default connect(mapState, mapActions)(TaxonPage);

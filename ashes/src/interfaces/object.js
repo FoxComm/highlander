@@ -76,6 +76,7 @@ declare type ObjectPageProps<T, U> = {
   saveState: AsyncState,
   archiveState: AsyncState,
   onUpdateObject: (object: T) => void,
+  headerControls: Array<Element<*>>,
 };
 
 declare type ObjectPageChildProps<T> = {

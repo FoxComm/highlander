@@ -1,6 +1,7 @@
 // @flow
 
 // libs
+import { assoc } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
 import Api from 'lib/api';
 import { createAsyncActions } from '@foxcomm/wings';
@@ -55,6 +56,7 @@ const _deleteProduct = createAsyncActions(
 
 export const reset = createAction('TAXON_RESET');
 export const duplicate = createAction('TAXON_DUPLICATE');
+export const addSubvalue = createAction('TAXON_ADD_SUBVALUE');
 export const clearArchiveErrors = _archiveTaxon.clearErrors;
 
 export const create = (taxonomyId: string) => _createTaxon.perform.bind(null, taxonomyId);
@@ -84,6 +86,7 @@ const initialState = createEmptyTaxon();
 const reducer = createReducer({
   [reset]: () => initialState,
   [duplicate]: (state) => duplicateTaxon(state),
+  [addSubvalue]: (state, parentId) => assoc(initialState, ['location', 'parent'], parentId),
   [_fetchTaxon.succeeded]: (state, taxon) => taxon,
   [_createTaxon.succeeded]: (state, taxon) => taxon,
   [_updateTaxon.succeeded]: (state, taxon) => taxon,

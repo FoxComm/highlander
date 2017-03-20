@@ -161,11 +161,9 @@ export default class ObjectDetailsDeux extends Component {
         return this.renderWatchers();
       default:
         const renderName = description.type;
-        if (this.props.renderers) {
-          invariant(this.props.renderers[renderName], `There is no method for render ${description.type}.`);
-          return this.props.renderers[renderName](description, section);
-        }
-        return;
+        invariant(this.props.renderers, `There are no renderers provided. Can not find method to render custom field ${description.type}.`);
+        invariant(this.props.renderers[renderName], `There is no method for render ${description.type}.`);
+        return this.props.renderers[renderName](description, section);
     }
   }
 

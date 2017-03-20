@@ -29,9 +29,7 @@ type Props = {
   actions: ObjectActions<Taxonomy>,
   fetchSchema: (namespace: string) => Promise<*>,
   children: Element<*>,
-  details: {
-    taxonomy: ?Taxonomy,
-  },
+  taxonomy: ?Taxonomy,
   fetchState: AsyncState,
   createState: AsyncState,
   updateState: AsyncState,
@@ -55,11 +53,9 @@ class TaxonomyPage extends Component {
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    const { fetchState, createState, updateState } = nextProps;
+    const { taxonomy, fetchState, createState, updateState } = nextProps;
 
     if (!fetchState.inProgress && !createState.inProgress && !updateState.inProgress) {
-      const { taxonomy } = nextProps.details;
-
       this.setState({ taxonomy });
     }
   }
@@ -91,10 +87,10 @@ class TaxonomyPage extends Component {
   }
 
   get fetchState(): AsyncState {
-    const { details, schema, fetchState, schemaFetchState } = this.props;
+    const { taxonomy, schema, fetchState, schemaFetchState } = this.props;
 
     const inProgress = fetchState.inProgress || schemaFetchState.inProgress;
-    const noError = (!details.taxonomy && !fetchState.err) || (!schema && !schemaFetchState.err);
+    const noError = (!taxonomy && !fetchState.err) || (!schema && !schemaFetchState.err);
 
     return {
       ...fetchState,
@@ -122,7 +118,7 @@ class TaxonomyPage extends Component {
   }
 
   render() {
-    const { schema, details, archiveState, children } = this.props;
+    const { schema, taxonomy, archiveState, children } = this.props;
     const { taxonomyId, context } = this.props.params;
 
     return (
@@ -138,7 +134,7 @@ class TaxonomyPage extends Component {
         navLinks={this.navLinks}
         object={this.state.taxonomy}
         objectType="taxonomy"
-        originalObject={details.taxonomy}
+        originalObject={taxonomy}
         onUpdateObject={this.handleObjectUpdate}
       >
         {React.cloneElement(children, { taxonomy: this.state.taxonomy })}
@@ -148,7 +144,7 @@ class TaxonomyPage extends Component {
 }
 
 const mapState = state => ({
-  details: state.taxonomies.details,
+  taxonomy: state.taxonomies.details.taxonomy,
   fetchState: get(state.asyncActions, 'fetchTaxonomy', {}),
   createState: get(state.asyncActions, 'createTaxonomy', {}),
   updateState: get(state.asyncActions, 'updateTaxonomy', {}),

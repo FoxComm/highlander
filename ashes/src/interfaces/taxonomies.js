@@ -21,8 +21,12 @@ declare type TaxonomyResult = {
   archivedAt: ?string,
 };
 
+declare type TaxonLocation = {
+  parent?: number,
+  location?: number,
+}
 declare type TaxonDraft = {
-  parentId?: number,
+  location?: TaxonLocation,
   attributes: Attributes
 };
 
@@ -33,8 +37,8 @@ declare type Taxon = TaxonDraft & {
 
 declare type TaxonResult = {
   id: number,
-  parentId?: number,
   name: string,
+  location?: TaxonLocation,
 };
 
 declare type TaxonNode = {
