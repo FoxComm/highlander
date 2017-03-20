@@ -18,7 +18,7 @@ defmodule Hyperion.Amazon.CategorySuggesterSpec do
 
       it "should return primary and secondary categories" do
         res = Hyperion.Amazon.CategorySuggester.suggest_categories(%{q: "Foo", title: "Bar", limit: 15}, %{})
-        expect res.count |> to(eq(2))
+        expect res.count |> to(eq(1))
         expect res |> to(have_key(:primary))
         expect res |> to(have_key(:secondary))
       end
