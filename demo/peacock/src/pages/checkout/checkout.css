@@ -14,6 +14,12 @@
   }
 }
 
+.shipping {
+  border-bottom: 1px solid #ddd;
+  margin: 15px;
+  padding-bottom: 15px;
+}
+
 .summary {
   position: relative;
   z-index: 2;
@@ -108,7 +114,7 @@
     lost-offset: -1/12;
   }
 
-  .body {
+  .wrapper {
     margin-top: 20px;
     display: flex;
     flex-direction: row-reverse;

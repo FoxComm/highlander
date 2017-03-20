@@ -180,19 +180,48 @@ class Checkout extends Component {
   }
 
   get content() {
+    /* elements to be added later
+    <div styleName="summary">
+      <OrderSummary
+        isScrolled={this.state.isScrolled}
+        styleName="summary-content"
+        { ...props.cart }
+      />
+    </div>
+
+    <Delivery
+      isEditing={props.editStage == EditStages.DELIVERY}
+      editAllowed={props.editStage >= EditStages.DELIVERY}
+      collapsed={!props.isDeliveryDirty && props.editStage < EditStages.DELIVERY}
+      editAction={this.setDeliveryStage}
+      onComplete={this.setBillingStage}
+      shippingMethods={props.shippingMethods}
+      cart={this.state.cart}
+      onUpdateCart={this.handleUpdateCart}
+      fetchShippingMethods={props.fetchShippingMethods}
+    />
+    <Billing
+      isGuestMode={isGuestMode}
+      isEditing={props.editStage == EditStages.BILLING}
+      editAllowed={props.editStage >= EditStages.BILLING}
+      collapsed={!props.isBillingDirty && props.editStage < EditStages.BILLING}
+      editAction={this.setBillingStage}
+      continueAction={this.placeOrder}
+      paymentMethods={_.get(props.cart, 'paymentMethods', [])}
+    />
+
+
+    <GuestAuth
+      isEditing={!this.isEmailSetForCheckout()}
+      continueAction={this.startShipping}
+      location={this.props.location}
+    />
+    */
     const { props } = this;
     const isGuestMode = isGuest(_.get(props.auth, 'user'));
     return (
-      <div styleName="body">
-        <div styleName="summary">
-          <OrderSummary
-            isScrolled={this.state.isScrolled}
-            styleName="summary-content"
-            { ...props.cart }
-          />
-        </div>
-
-        <div styleName="forms">
+      <div styleName="wrapper">
+        <div styleName="shipping">
           <Shipping
             isEditing={props.editStage == EditStages.SHIPPING}
             collapsed={props.editStage < EditStages.SHIPPING}
@@ -204,33 +233,7 @@ class Checkout extends Component {
             auth={this.props.auth}
             isGuestMode={isGuestMode}
           />
-          <Delivery
-            isEditing={props.editStage == EditStages.DELIVERY}
-            editAllowed={props.editStage >= EditStages.DELIVERY}
-            collapsed={!props.isDeliveryDirty && props.editStage < EditStages.DELIVERY}
-            editAction={this.setDeliveryStage}
-            onComplete={this.setBillingStage}
-            shippingMethods={props.shippingMethods}
-            cart={this.state.cart}
-            onUpdateCart={this.handleUpdateCart}
-            fetchShippingMethods={props.fetchShippingMethods}
-          />
-          <Billing
-            isGuestMode={isGuestMode}
-            isEditing={props.editStage == EditStages.BILLING}
-            editAllowed={props.editStage >= EditStages.BILLING}
-            collapsed={!props.isBillingDirty && props.editStage < EditStages.BILLING}
-            editAction={this.setBillingStage}
-            continueAction={this.placeOrder}
-            paymentMethods={_.get(props.cart, 'paymentMethods', [])}
-          />
         </div>
-
-        <GuestAuth
-          isEditing={!this.isEmailSetForCheckout()}
-          continueAction={this.startShipping}
-          location={this.props.location}
-        />
       </div>
     );
   }
