@@ -428,21 +428,15 @@ const reducer = createReducer({
     };
   },
   [markAddressAsDefault]: (state, addressId) => {
-    const oldDefault = _.find(state.addresses, {'isDefault': true});
-    const newAddresses = state.addresses.map((address) => {
-      if (address.id === oldDefault.id) {
-        address.isDefault = false;
-      }
-      if (address.id === addressId) {
-        address.isDefault = true;
-      }
-      return address;
-    });
+    const oldDefault = _.find(state.addresses, {isDefault: true});
+    const newDefault = _.find(state.addresses, {id: addressId});
+    oldDefault.isDefault = false;
+    newDefault.isDefault = true;
     return {
       ...state,
-      newAddresses,
+      oldDefault,
+      newDefault,
     };
-
   },
   [markAddressAsDeleted]: (state, addressId) => {
     const index = _.findIndex(state.addresses, {id: addressId});

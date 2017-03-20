@@ -41,6 +41,7 @@ type Props = {
   fetchAddress: (addressId: number) => Promise,
   checkoutActions: {
     updateAddress: (address: Address, id?: number) => Promise,
+    fetchAddresses: () => Promise,
   },
   address: Address|void,
 }
@@ -87,10 +88,10 @@ class AddressForm extends Component {
       newAddress,
       addressId != 'new' ? addressId : void 0
     ).then(() => {
-        this.props.checkoutActions.fetchAddresses()
-          .then(() => browserHistory.push('/profile')
-        );
-      });
+      this.props.checkoutActions.fetchAddresses()
+        .then(() => browserHistory.push('/profile')
+      );
+    });
   }
 
   @autobind

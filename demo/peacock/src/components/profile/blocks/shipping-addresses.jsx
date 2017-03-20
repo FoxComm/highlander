@@ -29,8 +29,10 @@ import * as checkoutActions from 'modules/checkout';
 type Props = {
   fetchAddresses: () => Promise,
   addresses: Array<Address>,
-  updateAddress: Function,
-  updateShippingAddress: Function,
+  updateAddress: (address: Address, id?: number) => Promise,
+  updateShippingAddress: (address: Address) => Promise,
+  markAddressAsDefault: Function,
+  saveShippingAddress: (id: number) => Promise,
   deleteAddress: (id: number) => Promise,
   restoreAddress: (id: number) => Promise,
   t: any,
@@ -62,7 +64,6 @@ class MyShippingAddresses extends Component {
           this.handleAddresses(selected, false);
         }
       });
-
   }
 
   componentWillUpdate(nextProps: Props, nextState: State) {
@@ -81,7 +82,7 @@ class MyShippingAddresses extends Component {
 
   @autobind
   handleAddresses(addressId, deleted) {
-    const newShippingAddress = _.find(this.props.addresses, { 'id': addressId });
+    const newShippingAddress = _.find(this.props.addresses, { id: addressId });
 
     if (deleted) {
       this.props.markAddressAsDefault(addressId);
@@ -110,8 +111,7 @@ class MyShippingAddresses extends Component {
           });
           if (newDefault) {
             this.handleAddresses(newDefault, true);
-          }
-          else {
+          } else {
             foxApi.cart.removeShippingAddress();
           }
         }
@@ -157,7 +157,9 @@ class MyShippingAddresses extends Component {
           <div styleName="actions-block">
             <Link styleName="link" to={`/profile/addresses/${address.id}`}>{props.t('EDIT')}</Link>
             &nbsp;|&nbsp;
-            <div styleName="link" onClick={() => this.deleteAddress(address.id, address.isDefault)}>{props.t('REMOVE')}</div>
+            <div styleName="link" onClick={() => this.deleteAddress(address.id, address.isDefault)}>
+              {props.t('REMOVE')}
+            </div>
           </div>
         );
         title = address.name;
