@@ -92,7 +92,7 @@ const mapStateToProps = state => {
     notFound: !product && _.get(state.asyncActions, 'pdp.err.response.status') == 404,
     isLoading: _.get(state.asyncActions, ['pdp', 'inProgress'], true),
     isCartLoading: _.get(state.asyncActions, ['cartChange', 'inProgress'], false),
-    isRelatedProductsLoading: _.get(state.asyncActions, ['relatedProducts', 'inProgress'], true),
+    isRelatedProductsLoading: _.get(state.asyncActions, ['relatedProducts', 'inProgress'], false),
   };
 };
 
@@ -129,8 +129,11 @@ class Pdp extends Component {
 
   componentDidMount() {
     this.productPromise.then(() => {
-      const { product } = this.props;
+      const { product, isRelatedProductsLoading, actions } = this.props;
       tracking.viewDetails(this.product);
+      if(!isRelatedProductsLoading) {
+        actions.fetchRelatedProducts(product.id, 1).catch(_.noop);
+      }
     });
   }
 
