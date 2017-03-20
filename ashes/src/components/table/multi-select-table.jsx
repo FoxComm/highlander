@@ -29,6 +29,7 @@ export default class MultiSelectTable extends React.Component {
     isLoading: PropTypes.bool,
     failed: PropTypes.bool,
     identifier: PropTypes.string,
+    onCheck: PropTypes.func,
   };
 
   static defaultProps = {
@@ -36,6 +37,7 @@ export default class MultiSelectTable extends React.Component {
     hasActionsColumn: true,
     predicate: entity => entity.id,
     columns: [],
+    onCheck: () => {},
   };
 
   constructor(props, context) {
@@ -74,6 +76,7 @@ export default class MultiSelectTable extends React.Component {
 
   getRowSetChecked(key) {
     return (checked) => {
+      const { onCheck } = this.props;
       let { allChecked, toggledIds } = this.state;
 
       if (allChecked !== checked) {
@@ -83,6 +86,7 @@ export default class MultiSelectTable extends React.Component {
       }
 
       toggledIds = _.uniq(toggledIds);
+      onCheck(toggledIds);
 
       this.setState({ toggledIds });
     };

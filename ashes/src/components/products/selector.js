@@ -3,8 +3,9 @@ function processItem(item) {
   const text = parts.pop();
   const prefix = parts.join(' » ');
   const id = item.node_id;
+  const path = item.node_path;
 
-  return {id, prefix, text};
+  return {id, path, prefix, text};
 }
 
 /**

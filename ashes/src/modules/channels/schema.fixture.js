@@ -6,8 +6,13 @@ module.exports = {
     "attributes": {
       "type": "object",
       "properties": {
-        "category_id" : {
+        "node_id" : {
           "title": "Amazon Category ID",
+          "disabled": true,
+          "type": ["string", "null"]
+        },
+        "node_path" : {
+          "title": "Amazon Category Path",
           "disabled": true,
           "type": ["string", "null"]
         },
@@ -18,9 +23,9 @@ module.exports = {
           "type": "string",
           "widget": "richText"
         },
-        // "taxCode" : {
-        //   "type": ["string", "A_GEN_NOTAX"]
-        // },
+        "taxCode" : {
+          "type": ["string", "A_GEN_NOTAX"]
+        },
         "brand" : {
           "type": ["string", "null"]
         },
@@ -40,7 +45,7 @@ module.exports = {
           "type": ["string", "null"]
         },
       },
-      "required": ["code", "brand", "bulletPoint1", "bulletPoint2", "bulletPoint3", "bulletPoint4"]
+      "required": ["node_id", "code", "brand", "bulletPoint1", "bulletPoint2", "bulletPoint3", "bulletPoint4"]
     }
   }
 };

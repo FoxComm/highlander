@@ -18,6 +18,7 @@ import Progressbar from '../common/progressbar';
 import { getSuggest } from './selector';
 import ObjectFormInner from '../object-form/object-form-inner';
 import ProductAmazonForm from './product-amazon-form';
+import ContentBox from '../content-box/content-box';
 
 function mapDispatchToProps(dispatch) {
   return {
@@ -26,8 +27,10 @@ function mapDispatchToProps(dispatch) {
       updateProduct: productActions.updateProduct,
       fetchProduct: productActions.fetchProduct,
       clearAmazonErrors: amazonActions.clearErrors,
+      resetAmazonState: amazonActions.reset,
       fetchAmazonSchema: amazonActions.fetchAmazonSchema,
       fetchSuggest: amazonActions.fetchSuggest,
+      pushProduct: amazonActions.pushToAmazon,
     }, dispatch),
   };
 }
@@ -42,6 +45,7 @@ function mapStateToProps(state) {
     fetchingProduct: _.get(state.asyncActions, 'fetchProduct.inProgress'),
     fetchingSuggest: _.get(state.asyncActions, 'fetchSuggest.inProgress'),
     fetchingSchema: _.get(state.asyncActions, 'fetchAmazonSchema.inProgress'),
+    pushingProduct: _.get(state.asyncActions, 'pushToAmazon.inProgress'),
     suggest: getSuggest(suggest),
     schema,
   };
@@ -49,8 +53,8 @@ function mapStateToProps(state) {
 
 type State = {
   categoryId: string,
+  categoryPath: string,
   stepNum: number,
-  form: boolean,
 };
 
 // @todo maybe move to another component?
@@ -65,28 +69,40 @@ const steps = [{
 class ProductAmazon extends Component {
   state: State = {
     categoryId: '',
+    categoryPath: '',
     stepNum: 0,
-    form: false,
   };
 
   componentDidMount() {
     const { productId } = this.props.params;
     const { product } = this.props;
-    const { clearAmazonErrors, fetchSchema, fetchProduct } = this.props.actions;
+    const { clearAmazonErrors, fetchProduct, fetchSchema, resetAmazonState } = this.props.actions;
 
     if (!product) {
       clearAmazonErrors();
+      resetAmazonState();
       fetchSchema('product');
       fetchProduct(productId);
+    }
+  }
+
+  componentWillUpdate(nextProps) {
+    const nodeId = _.get(this.props.product, ['attributes', 'node_id', 'v'], null);
+    const nextNodeId = _.get(nextProps.product, ['attributes', 'node_id', 'v'], null);
+    const nextNodePath = _.get(nextProps.product, ['attributes', 'node_path', 'v'], null);
+    console.log('nextProps', nextProps);
+
+    if (nextNodeId && nextNodeId != nodeId && nextNodePath) {
+      this._setCat(nextNodeId, nextNodePath);
     }
   }
 
   // @todo move to the new component
   renderForm() {
     const { schema, product, fetchingSchema } = this.props;
-    const { categoryId } = this.state;
+    const { categoryId, categoryPath } = this.state;
 
-    if (!schema) {
+    if (!schema || !product) {
       if (fetchingSchema) {
         return <WaitAnimation />;
       }
@@ -99,25 +115,15 @@ class ProductAmazon extends Component {
         schema={schema}
         product={product}
         categoryId={categoryId}
-        onSubmit={(p) => this._handleSubmit(p)} />
+        categoryPath={categoryPath}
+        onSubmit={(p) => this._handleSubmit(p)}
+      />
     );
-  }
-
-  _handleChange(e, name) {
-    this.setState({
-      [name]: e.target.value
-    });
-  }
-
-  _handleSubmit(nextProduct) {
-    const { actions: { updateProduct } } = this.props;
-
-    updateProduct(nextProduct);
   }
 
   render() {
     const { title, suggest, product, fetchingProduct, fetchingSuggest } = this.props;
-    const { categoryId, stepNum } = this.state;
+    const { stepNum } = this.state;
     const progressSteps = steps.map((step, i) => ({
       text: `${i+1}. ${step.text}`,
       current: i == stepNum,
@@ -132,20 +138,27 @@ class ProductAmazon extends Component {
       <div className={s.root}>
         <Progressbar steps={progressSteps} className={s.progressbar} />
         <h1>{title} for Amazon</h1>
-        <h2>Choose Amazon category:</h2>
-        <div className={s.suggesterWrapper}>
-          <Suggester
-            className={s.suggester}
-            onChange={(text) => this._onTextChange(text)}
-            onPick={(id) => this._onCatPick(id)}
-            data={suggest}
-            inProgress={fetchingSuggest}
-          />
-        </div>
-
+        <ContentBox title="Amazon Category">
+          <div className={s.suggesterWrapper}>
+            <Suggester
+              className={s.suggester}
+              onChange={(text) => this._onTextChange(text)}
+              onPick={this._onCatPick.bind(this)}
+              data={suggest}
+              inProgress={fetchingSuggest}
+            />
+          </div>
+        </ContentBox>
         {this.renderForm()}
+        <button onClick={this._handlePush.bind(this)}>Push</button>
       </div>
     );
+  }
+
+  _getNodeId() {
+    const { product } = this.props;
+
+    return _.get(product, ['attributes', 'node_id', 'v'], null);
   }
 
   _onTextChange(text) {
@@ -154,19 +167,30 @@ class ProductAmazon extends Component {
     this.props.actions.fetchSuggest(title, text);
   }
 
-  _onCatPick(categoryId) {
-    this.setState({ categoryId });
-    this._setCat(categoryId);
+  _onCatPick(item) {
+    const { id, path } = item;
+
+    this._setCat(id, path);
   }
 
-  _setCat(categoryId) {
+  _setCat(id, path) {
     const { fetchAmazonSchema } = this.props.actions;
 
-    this.setState({
-      stepNum: 1,
-    });
+    this.setState({ categoryId: id, categoryPath: path, stepNum: 1 });
 
-    fetchAmazonSchema();
+    fetchAmazonSchema(id);
+  }
+
+  _handleSubmit(nextProduct) {
+    const { actions: { updateProduct } } = this.props;
+
+    updateProduct(nextProduct);
+  }
+
+  _handlePush() {
+    const { product, actions: { pushProduct } } = this.props;
+
+    pushProduct(product.id);
   }
 }
 

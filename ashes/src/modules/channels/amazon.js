@@ -7,7 +7,7 @@ import { createAsyncActions } from '@foxcomm/wings';
 import Api, { request } from 'lib/api';
 import { getUserId } from 'lib/claims';
 import schemaFixture from './schema.fixture';
-import suggestFixture from './suggest.fixture';
+// import suggestFixture from './suggest.fixture';
 
 const initialState = {
   credentials: null,
@@ -15,6 +15,7 @@ const initialState = {
     primary: null,
     secondary: [],
   },
+  push: null,
 };
 
 export function clearErrors() {
@@ -24,6 +25,13 @@ export function clearErrors() {
     dispatch(_fetchAmazonSchema.clearErrors());
     dispatch(_fetchAmazonCredentials.clearErrors());
     dispatch(_updateAmazonCredentials.clearErrors());
+  };
+}
+
+const resetState = createAction('RESET_AMAZON_STATE');
+export function reset() {
+  return (dispatch: Function) => {
+    dispatch(resetState());
   };
 }
 
@@ -39,7 +47,6 @@ const _fetchSuggest = createAsyncActions(
       },
     };
 
-    // @todo hyperion is broken!
     return Api.get(`/hyperion/categories/suggest`, data, options);
     // return new Promise(function(resolve, reject) {
     //   setTimeout(() => resolve(suggestFixture), 100);
@@ -68,7 +75,7 @@ export function fetchAmazonCategory(product_id: string, text: string) {
 
 const _fetchAmazonSchema = createAsyncActions(
   'fetchAmazonSchema',
-  (category_id: string, text: string) => {
+  (category_id: string) => {
     // @todo move to hyperion
     // return Api.get(`/amazon/categories/schema?category_id=${category_id}`);
     return new Promise(function(resolve, reject) {
@@ -113,6 +120,26 @@ const _updateAmazonCredentials = createAsyncActions(
 
 export const updateAmazonCredentials = _updateAmazonCredentials.perform;
 
+const _pushToAmazon = createAsyncActions(
+  'pushToAmazon',
+  (params) => {
+    const userId = getUserId() || '';
+    const data = {
+      ids: [params.id],
+    };
+    // @todo move customer_id (which now emulated through getUserId) to hyperion
+    const options = {
+      headers: {
+        'Customer-ID': userId,
+      },
+    };
+
+    return Api.post(`/hyperion/products/`, data, options);
+  }
+);
+
+export const pushToAmazon = _pushToAmazon.perform;
+
 const reducer = createReducer({
   [_fetchSuggest.succeeded]: (state, res) => ({ ...state, suggest: res }),
   [_fetchAmazonCategory.started]: (state) => ({ ...state, fields: [] }),
@@ -120,6 +147,9 @@ const reducer = createReducer({
   [_fetchAmazonSchema.succeeded]: (state, res) => ({ ...state, schema: res }),
   [_fetchAmazonCredentials.succeeded]: (state, res) => ({ ...state, credentials: res }),
   [_updateAmazonCredentials.succeeded]: (state, res) => ({ ...state, credentials: res }),
+  [_pushToAmazon.succeeded]: (state, res) => ({ ...state, push: res }),
+
+  [resetState]: (state) => initialState,
 }, initialState);
 
 export default reducer;

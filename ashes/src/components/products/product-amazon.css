@@ -26,3 +26,11 @@
 .form {
   margin: 30px 0;
 }
+
+.table {
+  border: 1px solid #ccc;
+}
+
+.box {
+  margin: 20px 0;
+}

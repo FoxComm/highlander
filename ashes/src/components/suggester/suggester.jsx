@@ -120,6 +120,6 @@ export class Suggester extends Component {
     const { onPick } = this.props;
 
     this.setState({ value: `${item.prefix} » ${item.text}` });
-    this.props.onPick(item.id);
+    this.props.onPick(item);
   }
 }
