@@ -66,7 +66,7 @@ def rec_prod_prod(prod_id):
     """rec_prod_prod
     """
     # Handle Invalid Channel
-    channel_id = str(request.args.get('channel', ""))
+    channel_id = int(request.args.get('channel', ""))
     if channel_id == "":
         raise InvalidUsage('Invalid Channel ID', status_code=400,
                            payload={'error_code': 100})
@@ -94,7 +94,7 @@ def train_prod_prod():
     json_dict = request.get_json()
 
     for point in json_dict['points']:
-        channel_id = point['chanID']
+        channel_id = int(point['chanID'])
         pprec = get_pprec(pprecs, channel_id)
 
         pprec.add_point(point['custID'], point['prodID'])

@@ -1,4 +1,4 @@
-from neomodel import (StructuredRel, StringProperty)
+from neomodel import (StructuredRel, IntegerProperty)
 
 class Purchased(StructuredRel):
-    channel = StringProperty()
+    channel = IntegerProperty()
