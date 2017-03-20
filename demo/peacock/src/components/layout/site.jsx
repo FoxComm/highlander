@@ -1,4 +1,6 @@
-import React, { PropTypes, Component } from 'react';
+/* @flow */
+
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { dissoc } from 'sprout-data';
 
@@ -9,14 +11,19 @@ import styles from './site.css';
 import Overlay from '../overlay/overlay';
 import Auth from '../auth/auth';
 
+import type { RoutesParams } from 'types';
+
 const mapState = state => ({
   isAuthBlockVisible: state.auth.isAuthBlockVisible,
 });
 
-/* ::`*/
-@connect(mapState, actions)
-/* ::`*/
+type Props = RoutesParams & {
+  children: Array<any>,
+};
+
 class Site extends Component {
+  props: Props;
+
   renderAuthBlock() {
     const auth = this.props.location.query.auth;
     const pathname = this.props.location.pathname;
@@ -32,17 +39,20 @@ class Site extends Component {
   render() {
     const isAuthBlockVisible = this.props.location.query && this.props.location.query.auth;
 
+    const childrenWithRoutes = React.Children.map(this.props.children,
+      (child) => React.cloneElement(child, {
+        routes: this.props.routes,
+        routerParams: this.props.params,
+      })
+    );
+
     return (
       <div styleName="site">
         {isAuthBlockVisible && this.renderAuthBlock()}
-        {this.props.children}
+        {childrenWithRoutes}
       </div>
     );
   }
 }
 
-Site.propTypes = {
-  children: PropTypes.node,
-};
-
-export default Site;
+export default connect(mapState, actions)(Site);

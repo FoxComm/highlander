@@ -3751,6 +3751,10 @@ flatten@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/flatten/-/flatten-1.0.2.tgz#dae46a9d78fbe25292258cc1e780a41d95c03782"
 
+fleck@^0.5.1:
+  version "0.5.1"
+  resolved "https://registry.yarnpkg.com/fleck/-/fleck-0.5.1.tgz#4d25e3c30eba2d8c0f3f0dae02554f0311ebf078"
+
 flow-bin@^0.23.0:
   version "0.23.1"
   resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.23.1.tgz#eb6522bb7c6719184593adef46ab22381cc188a6"

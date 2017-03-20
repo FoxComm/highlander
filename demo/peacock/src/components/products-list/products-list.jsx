@@ -13,6 +13,7 @@ import styles from './products-list.css';
 // components
 import ListItem from '../products-item/list-item';
 import Loader from 'ui/loader';
+import SortPill from 'components/sort-pill/sort-pill';
 
 // types
 import type { HTMLElement } from 'types';
@@ -26,6 +27,11 @@ type Props = {
   loadingBehavior?: 0|1,
   list: ?Array<Object>,
   isLoading: ?boolean,
+  sorting: {
+    direction: number,
+    field: string,
+  },
+  changeSorting: Function,
 };
 
 type State = {
@@ -56,7 +62,7 @@ class ProductsList extends Component {
   }
 
   renderProducts() {
-    return _.map(this.props.list, (item, index) => {
+    const products = _.map(this.props.list, (item, index) => {
       return (
         <ListItem
           {...item}
@@ -66,6 +72,15 @@ class ProductsList extends Component {
         />
       );
     });
+
+    return (
+      <div>
+        {this.sorting}
+        <div styleName="list" ref={this.handleListRendered}>
+          {products}
+        </div>
+      </div>
+    );
   }
 
   trackProductView() {
@@ -130,6 +145,26 @@ class ProductsList extends Component {
     }
   }
 
+  get sorting(): HTMLElement {
+    const { sorting, changeSorting } = this.props;
+    return (
+      <div styleName="sorting">
+        <SortPill
+          field="price"
+          direction={sorting.direction}
+          isActive={sorting.field === 'salePrice'}
+          onClick={() => changeSorting('salePrice')}
+        />
+        <SortPill
+          field="name"
+          direction={sorting.direction}
+          isActive={sorting.field === 'title'}
+          onClick={() => changeSorting('title')}
+        />
+      </div>
+    );
+  }
+
   render() : HTMLElement {
     const { props } = this;
     const { loadingBehavior = LoadingBehaviors.ShowLoader } = props;
@@ -143,7 +178,7 @@ class ProductsList extends Component {
     return (
       <div styleName="list-wrapper">
         {this.loadingWrapper}
-        <div styleName="list" ref={this.handleListRendered}>
+        <div>
           {items}
         </div>
       </div>

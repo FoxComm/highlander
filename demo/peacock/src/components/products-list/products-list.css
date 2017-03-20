@@ -20,7 +20,6 @@
 }
 
 .list {
-  margin-top: 90px;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
@@ -35,9 +34,14 @@
   width: 100%;
 }
 
+.sorting {
+  composes: inner-wrap from 'ui/css/layout.css';
+  margin-bottom: 20px;
+  display: flex;
+}
+
 @media (--small-only) {
   .list {
-    margin-top: 50px;
     lost-column: 11/12;
     lost-offset: -0.5/12;
   }
