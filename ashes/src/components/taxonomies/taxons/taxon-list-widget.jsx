@@ -33,11 +33,10 @@ class TaxonListWidget extends Component {
 
   @autobind
   handleTaxonClick(id: string) {
-    const {currentTaxon } = this.props;
+    const { currentTaxon } = this.props;
 
     if (currentTaxon !== id.toString()) {
       this.transition(id);
-
     }
   }
 
