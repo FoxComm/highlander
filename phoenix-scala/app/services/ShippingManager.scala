@@ -9,14 +9,14 @@ import models.inventory.Sku
 import models.location.Region
 import models.objects._
 import models.rules.{Condition, QueryStatement}
-import models.shipping.{ShippingMethod, ShippingMethods}
+import models.shipping.{DefaultShippingMethod, DefaultShippingMethods, ShippingMethod, ShippingMethods}
 import services.carts.getCartByOriginator
 import utils.JsonFormatters
 import utils.aliases._
 import utils.db._
-
 import slick.driver.PostgresDriver.api._
 import org.json4s.JsonAST._
+import responses.ShippingMethodsResponse
 
 object ShippingManager {
   implicit val formats = JsonFormatters.phoenixFormats
@@ -27,6 +27,33 @@ object ShippingManager {
                           shippingAddress: Option[OrderShippingAddress] = None,
                           shippingRegion: Option[Region] = None,
                           lineItems: Seq[CartLineItemProductData])
+
+  def setDefault(shippingMethodId: Int)(implicit ec: EC,
+                                        db: DB,
+                                        au: AU): DbResultT[ShippingMethodsResponse.Root] =
+    for {
+      shippingMethod ← * <~ ShippingMethods.mustFindById404(shippingMethodId)
+      _ ← * <~ DefaultShippingMethods.create(
+             DefaultShippingMethod(scope = Scope.current, shippingMethodId = shippingMethodId))
+    } yield ShippingMethodsResponse.build(shippingMethod)
+
+  def removeDefault()(implicit ec: EC, au: AU): DbResultT[Option[ShippingMethodsResponse.Root]] = {
+    val scope = Scope.current
+    for {
+      shippingMethod ← * <~ DefaultShippingMethods.findByScope(scope).one
+      _              ← * <~ DefaultShippingMethods.findDefaultByScope(scope).deleteAll
+    } yield shippingMethod.map(ShippingMethodsResponse.build(_))
+  }
+
+  def getDefault(implicit ec: EC, au: AU): DbResultT[Option[ShippingMethodsResponse.Root]] =
+    for {
+      shippingMethod ← * <~ DefaultShippingMethods.findByScope(Scope.current).one
+    } yield shippingMethod.map(ShippingMethodsResponse.build(_))
+
+  def getActive(implicit ec: EC): DbResultT[Seq[ShippingMethodsResponse.Root]] =
+    for {
+      shippingMethods ← * <~ ShippingMethods.findActive.result
+    } yield shippingMethods.map(responses.ShippingMethodsResponse.build(_))
 
   def getShippingMethodsForCart(originator: User)(
       implicit ec: EC,
