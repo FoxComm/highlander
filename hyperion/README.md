@@ -134,4 +134,4 @@ v1   GET    /v1/object_schema  Get all available schemas
 
 Get Postman collection [here](https://www.getpostman.com/collections/effaaa57089a01898f14)
 
-Examples can be seen [here](https://github.com/FoxComm/highlander/tree/master/engineering-wiki/hyperion)
+Examples can be seen [here](https://github.com/FoxComm/highlander/wiki/Hyperion-Documentation)
