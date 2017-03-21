@@ -176,6 +176,7 @@ shortcuts:
       branches: terraform/envs/gce_branches/terraform.tfstate
       cloud: terraform/envs/gce_cloud/terraform.tfstate
       dev: terraform/envs/gce_dev/terraform.tfstate
+      demo: terraform/envs/gce_demo/terraform.tfstate
       staging: terraform/envs/gce_staging/terraform.tfstate
       target: terraform/envs/aws_target/terraform.tfstate
       topdrawer: terraform/envs/gce_topdrawer/terraform.tfstate
@@ -187,9 +188,10 @@ shortcuts:
       branches: terraform/envs/gce_branches/branches.tfvars
       cloud: terraform/envs/gce_cloud/cloud.tfvars
       dev: terraform/envs/gce_dev/dev.tfvars
+      demo: terraform/envs/gce_demo/demo.tfvars
       staging: terraform/envs/gce_staging/staging.tfvars
       target: terraform/envs/aws_target/target.tfvars
-      topdrawer: terraform/envs/gce_topdrawer/topdrawer.tfvars
+      topdrawer: terraform/envs/gce_td/td.tfvars
       tpg: terraform/envs/gce_tpg/tpg.tfvars
 
   targets:
@@ -215,7 +217,7 @@ shortcuts:
 
   - name: TopDrawer Production
     alias: topdrawer
-    target: terraform/base/gce_topdrawer
+    target: terraform/base/gce_td
 
   - name: TPG Production
     alias: tpg

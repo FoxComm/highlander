@@ -13,13 +13,9 @@ All of our DevOps tools for deploying the application to both development and pr
 - [Google Cloud SDK](https://cloud.google.com/sdk/gcloud)
 - [Packer](https://packer.io)
 - [Python](https://www.python.org) 2.7.x
-- [Terraform](https://terraform.io) 0.8.8
+- [Terraform](https://terraform.io) 0.9.1 or above
 
 #### Optional
 
 - [easy](https://github.com/kpashka/easy)
 - [shellcheck](https://www.shellcheck.net)
-
-### Description
-
-TBD.

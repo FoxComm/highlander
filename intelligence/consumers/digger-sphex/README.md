@@ -1,4 +1,4 @@
-#Digger Sphex
+# Digger Sphex
 
 The digger sphex is a type of wasp otherwise known as the gold digger.
 

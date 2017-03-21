@@ -22,7 +22,7 @@ variable "consul_leader" {}
 
 variable "dnsimple_token" {}
 
-variable "dnsimple_email" {}
+variable "dnsimple_account" {}
 
 provider "google" {
   credentials = "${file(var.account_file)}"
@@ -49,8 +49,8 @@ module "foxcomm-staging" {
 # Setup DNS
 ##############################################
 provider "dnsimple" {
-  token = "${var.dnsimple_token}"
-  email = "${var.dnsimple_email}"
+  token   = "${var.dnsimple_token}"
+  account = "${var.dnsimple_account}"
 }
 
 resource "dnsimple_record" "frontend-dns-record" {
