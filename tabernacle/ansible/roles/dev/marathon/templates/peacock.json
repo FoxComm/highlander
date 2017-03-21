@@ -1,5 +1,5 @@
 {
-  "id": "/storefront",
+  "id": "/peacock",
   "cmd": null,
   "cpus": 1,
   "mem": 1024,
@@ -16,7 +16,8 @@
     "PHOENIX_PUBLIC_KEY": "/keys/public_key.pem",
     "STRIPE_PUBLISHABLE_KEY": "{{stripe_publishable_key}}",
     "MAILCHIMP_API_KEY": "{{mailchimp_api_key}}",
-    "CONTACT_EMAIL": "{{contact_email}}"
+    "CONTACT_EMAIL": "{{contact_email}}",
+    "GA_TRACKING_ID": "{{ga_tracking_id}}"
   },
   "healthChecks": [
     {
@@ -45,7 +46,7 @@
       }
     ],
     "docker": {
-      "image": "{{docker_registry}}:5000/firebrand:{{docker_tags.peacock}}",
+      "image": "{{docker_registry}}:5000/peacock:{{docker_tags.peacock}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],

@@ -1,2 +1,0 @@
-update_materialized_views_sql: "/usr/local/share/update_materialized_views.sql"
-update_materialized_views_cmd: "psql {{db_connection_string}} -f {{update_materialized_views_sql}}"

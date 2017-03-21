@@ -1,10 +1,7 @@
 package testutils
 
 import java.net.ServerSocket
-import scala.collection.immutable
-import scala.concurrent.Await
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration._
+
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
@@ -27,10 +24,15 @@ import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
 import server.Service
 import services.Authenticator.UserAuthenticator
+import utils.FoxConfig.config
 import utils.apis.Apis
 import utils.seeds.Factories
-import utils.{Environment, FoxConfig, JsonFormatters}
-import utils.FoxConfig.config
+import utils.{FoxConfig, JsonFormatters}
+
+import scala.collection.immutable
+import scala.concurrent.Await
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
 
 // TODO: Move away from root package when `Service' moverd
 object HttpSupport {
@@ -39,7 +41,7 @@ object HttpSupport {
   protected var system: ActorSystem             = _
   protected var materializer: ActorMaterializer = _
   protected var service: Service                = _
-  protected var serverBinding: ServerBinding    = _
+  var serverBinding: ServerBinding              = _
 }
 
 trait HttpSupport
@@ -92,10 +94,10 @@ trait HttpSupport
 
   private def actorSystemConfig =
     ConfigFactory.parseString("""
-      |akka {
-      |  log-dead-letters = off
-      |}
-    """.stripMargin).withFallback(ConfigFactory.load())
+        |akka {
+        |  log-dead-letters = off
+        |}
+      """.stripMargin).withFallback(ConfigFactory.load())
 
   val adminUser    = Factories.storeAdmin.copy(id = 1, accountId = 1)
   val customerData = Factories.customer.copy(id = 2, accountId = 2)

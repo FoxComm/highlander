@@ -22,7 +22,7 @@ variable "consul_leader" {}
 
 variable "dnsimple_token" {}
 
-variable "dnsimple_email" {}
+variable "dnsimple_account" {}
 
 provider "google" {
   credentials = "${file(var.account_file)}"
@@ -31,7 +31,7 @@ provider "google" {
 }
 
 ##############################################
-# Setup Demo Tiny Stack 
+# Setup Demo Tiny Stack
 ##############################################
 module "foxdemo" {
   source                = "../../modules/gce/tinystack"
@@ -49,8 +49,8 @@ module "foxdemo" {
 # Setup DNS
 ##############################################
 provider "dnsimple" {
-  token = "${var.dnsimple_token}"
-  email = "${var.dnsimple_email}"
+  token   = "${var.dnsimple_token}"
+  account = "${var.dnsimple_account}"
 }
 
 resource "dnsimple_record" "frontend-dns-record" {
