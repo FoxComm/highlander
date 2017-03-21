@@ -155,7 +155,7 @@ const _removeShippingAddress = createAsyncActions(
   'REMOVE_SHIPPING_ADDRESS',
   function() {
     const { getState, dispatch } = this;
-    const shippingAddress = getState().cart;
+    const { shippingAddress } = getState().cart;
     if (_.isEmpty(shippingAddress)) return Promise.resolve({});
 
     return foxApi.cart.removeShippingAddress()
