@@ -137,17 +137,17 @@ object Checkout {
 }
 
 class ExternalCalls {
-  var authPaymentsSuccess: Boolean    = false
-  var middleWarehouseSuccess: Boolean = false
+  @volatile var authPaymentsSuccess: Boolean    = false
+  @volatile var middleWarehouseSuccess: Boolean = false
 }
 
 case class Checkout(
     cart: Cart,
     cartValidator: CartValidation)(implicit ec: EC, db: DB, apis: Apis, ac: AC, ctx: OC, au: AU) {
 
-  var externalCalls = new ExternalCalls()
+  val externalCalls = new ExternalCalls()
 
-  def checkout: Result[OrderResponse] = {
+  def checkout: DbResultT[OrderResponse] = {
     val actions = for {
       customer  ← * <~ Users.mustFindByAccountId(cart.accountId)
       _         ← * <~ customer.mustHaveCredentials
@@ -164,14 +164,15 @@ case class Checkout(
       _         ← * <~ LogActivity().orderCheckoutCompleted(fullOrder)
     } yield fullOrder
 
-    actions.runTxn().mapXor {
-      case failures @ Xor.Left(_) ⇒
-        if (externalCalls.middleWarehouseSuccess) cancelHoldInMiddleWarehouse
-        failures
-
-      case result @ Xor.Right(_) ⇒
-        result
-    }
+    actions.transformF(_.recoverWith {
+      case failures if externalCalls.middleWarehouseSuccess ⇒
+        DbResultT
+          .fromResult(cancelHoldInMiddleWarehouse.mapXor {
+            case Xor.Left(cancelationFailures) ⇒ Xor.Left(failures |+| cancelationFailures)
+            case _                             ⇒ Xor.Left(failures)
+          })
+          .runEmpty
+    })
   }
 
   private case class InventoryTrackedSku(isInventoryTracked: Boolean, code: String, qty: Int)
