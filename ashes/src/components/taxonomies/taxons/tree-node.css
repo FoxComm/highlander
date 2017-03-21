@@ -3,8 +3,21 @@
   display: none;
 
   &.visible {
-    border: 1px solid green;
     display: block;
-    margin: 10px;
+    line-height: 46px;
+    font-size: 13px;
+    font-weight: 400;
+    color: #484848;
+
+    &.active {
+      border-left: 3px solid #49C2CA;
+      background-color: #F7F7F7;;
+    }
+
   }
+
+}
+
+.item {
+  margin-left: 20px;
 }

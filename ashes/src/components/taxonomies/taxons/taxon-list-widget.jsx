@@ -33,7 +33,9 @@ class TaxonListWidget extends Component {
   }
 
   @autobind
-  handleTaxonClick(id: string) {
+  handleTaxonClick(id: string, event) {
+    {event && event.stopPropagation()};
+
     const { currentTaxon } = this.props;
 
     if (currentTaxon !== id.toString()) {
@@ -77,7 +79,9 @@ class TaxonListWidget extends Component {
           <TreeNode
             node={item}
             visible={true}
-            level={1}
+            depth={0}
+            handleTaxonClick={this.handleTaxonClick}
+            currentTaxon={this.props.currentTaxon}
           />
         )
       })
