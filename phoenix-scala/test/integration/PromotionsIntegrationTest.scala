@@ -241,6 +241,28 @@ class PromotionsIntegrationTest
       percentOff(orderA2.promotion.value) must === (percentOffInitial) // FIXME: this line fails @michalrus
       percentOff(cartB2.promotion.value) must === (percentOffUpdated)
     }
+
+    "should be applied retroactively" in new ProductSku_ApiFixture {
+      val customer = api_newCustomer()
+
+      val refNum =
+        cartsApi.create(CreateCart(email = customer.email)).as[CartResponse].referenceNumber
+
+      val cartWithProduct = cartsApi(refNum).lineItems
+        .add(Seq(UpdateLineItemsPayload(skuCode, 1)))
+        .asTheResult[CartResponse]
+
+      cartWithProduct.promotion mustBe 'empty
+
+      val promo = promotionsApi
+        .create(
+            PromotionPayloadBuilder.build(Promotion.Auto,
+                                          PromoOfferBuilder.CartPercentOff(37),
+                                          PromoQualifierBuilder.CartAny))
+        .as[PromotionResponse.Root]
+
+      cartsApi(refNum).get.asTheResult[CartResponse].promotion mustBe 'defined
+    }
   }
 
   "Should apply order percent off promo+coupon to cart" - {
