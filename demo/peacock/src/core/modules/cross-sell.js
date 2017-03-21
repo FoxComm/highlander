@@ -34,29 +34,29 @@ function elasticSearchProductsQuery(rpResponse): Object {
   }, []);
 
   const query = {
-    "query": {
-      "bool": {
-        "filter": [
+    query: {
+      bool: {
+        filter: [
           {
-            "term": {
-              "context": "default"
-            }
+            term: {
+              context: 'default'
+            },
           },
           {
-            "terms": {
-              "productId": matchingProductIds
-            }
-          }
+            terms: {
+              productId: matchingProductIds
+            },
+          },
         ],
-        "must_not": [
+        must_not: [
           {
-            "term": {
-              "tags": GIFT_CARD_TAG
-            }
-          }
-        ]
-      }
-    }
+            term: {
+              tags: GIFT_CARD_TAG
+            },
+          },
+        ],
+      },
+    },
   };
 
   return query;
