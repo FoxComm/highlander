@@ -1,4 +1,4 @@
-#SRC
+# SRC
 
 The simulation code is composed of several orthogonal pieces. The types of users
 are defined in [personas.json](personas.json). The definition is a state machine
