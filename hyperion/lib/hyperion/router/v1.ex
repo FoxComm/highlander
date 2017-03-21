@@ -26,26 +26,25 @@ defmodule Hyperion.Router.V1 do
       end
 
       namespace :credentials do
-        route_param :client_id do
-          desc "Get MWS credentials for exact client"
-          get do
-            creds = Repo.get_by(Credentials, client_id: params[:client_id])
-            case creds do
-              nil -> respond_with(conn, %{error: "Not found"}, 404)
-              c -> respond_with(conn, c)
-            end
-          end # get credentials for client
-        end
+        desc "Get MWS credentials for exact client"
+        get do
+          creds = Repo.get_by(Credentials, client_id: API.customer_id(conn))
+          case creds do
+            nil -> respond_with(conn, %{error: "Not found"}, 404)
+            c -> respond_with(conn, c)
+          end
+        end # get credentials for client
 
         desc "Store new credentials"
+
         params do
           requires :mws_auth_token, type: String
           requires :seller_id, type: String
-          requires :client_id, type: Integer
         end
 
         post do
-          changeset = Credentials.changeset(%Credentials{}, params)
+          changes = Map.merge(params, %{client_id: API.customer_id(conn)})
+          changeset = Credentials.changeset(%Credentials{}, changes)
           try do
             case Repo.insert(changeset) do
               {:ok, creds} -> respond_with(conn, creds)
@@ -54,7 +53,7 @@ defmodule Hyperion.Router.V1 do
           rescue _e in Ecto.ConstraintError ->
             respond_with(conn, %{error: "Credentials for this client (client_id: #{params[:client_id]}) is already here"}, 422)
           end
-        end # create new credentials
+        end # post
 
         desc "Update credentials"
         params do
@@ -62,37 +61,33 @@ defmodule Hyperion.Router.V1 do
           optional :seller_id, type: String
         end
 
-        route_param :client_id do
-          put do
-            try do
-              creds = Repo.get_by!(Credentials, client_id: params[:client_id])
-              changeset = Credentials.changeset(creds, params)
-              case Repo.update(changeset) do
-                {:ok, creds} -> respond_with(conn, creds)
-                {:error, changeset} -> respond_with(conn, changeset.errors, 422)
-              end
-            rescue _e in Ecto.NoResultsError ->
-              respond_with(conn, %{error: "Not found"}, 404)
+        put do
+          try do
+            creds = Repo.get_by!(Credentials, client_id: API.customer_id(conn))
+            changeset = Credentials.changeset(creds, params)
+            case Repo.update(changeset) do
+              {:ok, creds} -> respond_with(conn, creds)
+              {:error, changeset} -> respond_with(conn, changeset.errors, 422)
             end
-          end # update credentials
-        end
+          rescue Ecto.NoResultsError ->
+            respond_with(conn, %{error: "Not found"}, 404)
+          end
+        end # put
 
         desc "Remove credentials for specific client"
-        route_param :client_id do
-          delete do
-            try do
-              creds = Repo.get_by!(Credentials, client_id: params[:client_id])
-              case Repo.delete(creds) do
-                {:ok, _} -> conn
-                            |> put_status(204)
-                            |> text(nil)
-                {:error, err} -> respond_with(conn, %{error: err}, 422)
-              end
-            rescue _e in Ecto.NoResultsError ->
-              respond_with(conn, %{error: "Credentials for client #{params[:client_id]} not found"}, 404)
+        delete do
+          try do
+            creds = Repo.get_by!(Credentials, client_id: API.customer_id(conn))
+            case Repo.delete(creds) do
+              {:ok, _} -> conn
+                          |> put_status(204)
+                          |> text(nil)
+              {:error, err} -> respond_with(conn, %{error: err}, 422)
             end
+          rescue Ecto.NoResultsError ->
+            respond_with(conn, %{error: "Credentials for client #{API.customer_id(conn)} not found"}, 404)
           end
-        end # destroy credentials
+        end # delete
       end # credentials
 
       namespace :products do

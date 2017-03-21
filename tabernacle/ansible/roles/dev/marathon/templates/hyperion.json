@@ -22,7 +22,7 @@
     "MWS_ACCESS_KEY_ID": "{{hyperion_mws_access_key_id}}",
     "MWS_SECRET_ACCESS_KEY" : "{{hyperion_mws_secret_access_key}}",
     "PHOENIX_URL": "https://{{storefront_server_name}}",
-    "ELASTIC_URL": "http://{{search_server}}"
+    "PUBLIC_KEY": "{{public_keys_dest_dir}}/public_key.pem"
   },
   "ports": [{{hyperion_port}}],
   "constraints": [["hostname", "UNIQUE"]],

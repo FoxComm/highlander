@@ -12,14 +12,18 @@ How to start and some quick info is [here](https://github.com/FoxComm/highlander
 
 All requests should have two headers:
 * `jwt` header to work with Phoenix-scala
-* `customer-id` to get Amazon credentials
+
+### MWS Credentials
+
+Next endpoints used to manage client credentials for MWS.
+Client ID is taken from decoded JWT.
 
 #### Get client credentials
 
 *request*
 
 ```
-GET /api/v1/hyperion/credentials/:customer_id
+GET /api/v1/hyperion/credentials
 ```
 
 *response*
@@ -43,7 +47,6 @@ body:
 
 ```json
 {
-  "client_id": 222,
   "seller_id": "foo",
   "mws_auth_token": "bar"
 }
@@ -64,7 +67,7 @@ body:
 *request*
 
 ```
-PUT /api/v1/hyperion/credentials/:customer_id
+PUT /api/v1/hyperion/credentials
 ```
 body:
 
@@ -90,7 +93,7 @@ body:
 *request*
 
 ```
-DELETE /api/v1/hyperion/credentials/:client_id
+DELETE /api/v1/hyperion/credentials
 ```
 
 *response*
@@ -104,6 +107,9 @@ If no credentials found:
     "error": "Credentials for client 123 not found"
 }
 ```
+### MWS
+
+The next endpoints used to manage MWS products and orders and stuff like Categories, object schemas and so on.
 
 #### Push product to amazon
 

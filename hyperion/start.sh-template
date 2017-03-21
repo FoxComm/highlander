@@ -6,6 +6,9 @@ export HYPERION_DB_PASSWORD=''
 export HYPERION_DB_NAME=hyperion_development
 export HYPERION_DB_HOST=localhost
 
+# JWT
+export PUBLIC_KEY=/full/path/to/public_key.pem
+
 # AWS
 export AWS_ACCESS_KEY_ID=aws-access-key
 export AWS_SECRET_ACCESS_KEY=aws-secret-key
@@ -15,6 +18,5 @@ export MWS_SECRET_ACCESS_KEY=mws-secret-key
 
 # phoenix
 export PHOENIX_URL=your-developer-appliance-url
-export ELASTIC_URL=your-developer-appliance-url:9200
 
 iex -S mix

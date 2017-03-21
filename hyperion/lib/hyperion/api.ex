@@ -20,12 +20,15 @@ defmodule Hyperion.API do
   end
 
   @doc """
-  Returns contents of cutomer_id header
+  Verifies JWT header and extracts scope of a current user
   """
   def customer_id(conn) do
-    case List.keyfind(conn.req_headers, "customer-id", 0) do
-      {"customer-id", id} -> id
-      nil -> raise "No Customer-ID header provided"
+    token = jwt(conn)
+    try do
+      {:ok, data} = Hyperion.JwtAuth.verify(token)
+      data[:scope]
+    rescue RuntimeError ->
+      raise NotAllowed
     end
   end
 
@@ -36,6 +39,7 @@ defmodule Hyperion.API do
     st = case e do
       Maru.Exceptions.NotFound -> 404
       Unauthorized -> 401
+      %NotAllowed{} -> 401
       Maru.Exceptions.MethodNotAllowed -> 405
       _ -> 500
     end

@@ -17,6 +17,12 @@ export HYPERION_DB_PASSWORD=''
 export HYPERION_DB_NAME=hyperion_development
 export HYPERION_DB_HOST=localhost
 
+# for tests
+export HYPERION_DB_TEST_NAME=hyperion_test
+
+# for JWTAuth
+export public_key=/full/path/to/public_key.pem
+
 # AWS
 export AWS_ACCESS_KEY_ID=aws_access_key
 export AWS_SECRET_ACCESS_KEY=aws_secret
@@ -26,9 +32,6 @@ export MWS_ACCESS_KEY_ID=mws_access_key
 export MWS_SECRET_ACCESS_KEY=mws_secret
 
 export PHOENIX_URL=https://appliance-10-240-0-12.foxcommerce.com
-
-export ELASTIC_URL=https://10.240.0.12:9200
-
 ```
 
 _IMPORTANT:_ Please keep in mind that AWS credentials differ from MWS. You can not use AWS data to access MWS and vice versa.
@@ -109,10 +112,10 @@ Here are available urls:
 
 ```elixir
 v1   GET    /v1/public/health  Check hyperion health
-v1   GET    /v1/public/credentials/:client_id  Get MWS credentials for exact client
+v1   GET    /v1/public/credentials  Get MWS credentials for exact client
 v1   POST   /v1/public/credentials  Store new credentials
-v1   PUT    /v1/public/credentials/:client_id  Update credentials
-v1   DELETE /v1/public/credentials/:client_id  Remove credentials for specific client
+v1   PUT    /v1/public/credentials  Update credentials
+v1   DELETE /v1/public/credentials  Remove credentials for specific client
 v1   POST   /v1/public/products/:product_id/push  Push product to amazon
 v1   GET    /v1/public/products/:product_id/result  Get push result for a product
 v1   POST   /v1/public/products  Get products by ids and submit them to the Amazon MWS
