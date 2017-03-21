@@ -29,7 +29,7 @@ function apiCall(
   categoryName: ?string,
   productType: ?string,
   sorting: { direction: number, field: string },
-  { ignoreGiftCards = true } = {}): global.Promise {
+  { ignoreGiftCards = true } = {}): Promise<*> {
   let payload = defaultSearch(context);
 
   if (ignoreGiftCards) {

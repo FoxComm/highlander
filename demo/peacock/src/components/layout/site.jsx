@@ -31,7 +31,7 @@ class Site extends Component {
     const path = {pathname, query};
     return (
       <Overlay path={path}>
-        <Auth authBlockType={auth} path={path}/>
+        <Auth authBlockType={auth} path={path} />
       </Overlay>
     );
   }
@@ -40,7 +40,7 @@ class Site extends Component {
     const isAuthBlockVisible = this.props.location.query && this.props.location.query.auth;
 
     const childrenWithRoutes = React.Children.map(this.props.children,
-      (child) => React.cloneElement(child, {
+      child => React.cloneElement(child, {
         routes: this.props.routes,
         routerParams: this.props.params,
       })

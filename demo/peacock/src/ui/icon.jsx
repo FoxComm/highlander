@@ -16,10 +16,10 @@ function wrapSpinner(svg: string, className: string) {
 type IconSize = 'custom' | 'm' | 'l' | 'xl' | 'xxl';
 
 type IconProps = {
-  size: ?IconSize,
+  size?: IconSize,
   name: string,
-  className: ?string,
-  onClick: ?Function,
+  className?: string,
+  onClick?: Function,
 };
 
 const Icon = (props: IconProps) => {

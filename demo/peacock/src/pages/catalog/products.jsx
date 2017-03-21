@@ -19,7 +19,7 @@ import styles from './products.css';
 import { productTypes } from 'modules/categories';
 
 // types
-import { HTMLElement, Route } from 'types';
+import { Element, Route } from 'types';
 
 type Params = {
   categoryName: ?string,
@@ -51,12 +51,12 @@ type State = {
 };
 
 // redux
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   const async = state.asyncActions.products;
 
   return {
     ...state.products,
-    isLoading: !!async ? async.inProgress : true,
+    isLoading: async ? async.inProgress : true,
     categories: state.categories.list,
   };
 };
@@ -114,8 +114,10 @@ class Products extends Component {
     const { categoryName = defaultProductType.toUpperCase() } = this.props.params;
 
     if (productType.toLowerCase() !== defaultProductType.toLowerCase()) {
+      // $FlowFixMe: categoryName can't be null here
       browserHistory.push(`/${categoryName}/${productType.toUpperCase()}`);
     } else {
+      // $FlowFixMe: categoryName can't be null here
       browserHistory.push(`/${categoryName}`);
     }
   }
@@ -158,7 +160,7 @@ class Products extends Component {
     );
   }
 
-  render(): HTMLElement {
+  render(): Element<*> {
     return (
       <section styleName="catalog">
         {this.renderHeader()}

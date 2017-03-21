@@ -3,7 +3,7 @@ import { storiesOf } from '@kadira/storybook';
 import TextInput from './text-input';
 
 storiesOf('ui.TextInput', module)
-  .addDecorator((story) => (
+  .addDecorator(story => (
     <div className="_story">
       {story()}
     </div>
@@ -15,7 +15,7 @@ storiesOf('ui.TextInput', module)
     <TextInput value="wrong value" error />
   ))
   .add('placeholder', () => (
-    <TextInput value="Some value" placeholder="Field YyBvarV"/>
+    <TextInput value="Some value" placeholder="Field YyBvarV" />
   ))
   .add('with label', () => (
     <div style={{width: '200px'}}>

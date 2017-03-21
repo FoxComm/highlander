@@ -59,7 +59,11 @@ export default class StoresPage extends React.Component {
                     <div>Sat - Sun: 12pm - 4pm</div>
                   </div>
                 </div>
-                <a href="https://www.google.com/maps?saddr=My+Location&daddr=8012+Bellona+Ave+Towson+MD+21204" target="_blank">
+                <a
+                  href="https://www.google.com/maps?saddr=My+Location&daddr=8012+Bellona+Ave+Towson+MD+21204"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                >
                   <Button styleName="get-directions-btn">GET DIRECTIONS</Button>
                 </a>
               </div>

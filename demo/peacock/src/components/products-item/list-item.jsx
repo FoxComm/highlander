@@ -1,8 +1,7 @@
 /* @flow */
 
-import React from 'react';
+import React, { Element } from 'react';
 import { findDOMNode } from 'react-dom';
-import type { HTMLElement } from 'types';
 import styles from './list-item.css';
 import { Link } from 'react-router';
 import _ from 'lodash';
@@ -66,7 +65,7 @@ class ListItem extends React.Component {
       .then(() => {
         this.props.toggleCart();
       })
-      .catch(ex => {
+      .catch((ex) => {
         this.setState({
           error: ex,
         });
@@ -92,7 +91,7 @@ class ListItem extends React.Component {
     tracking.clickPdp(props, props.index);
   }
 
-  isOnSale(): HTMLElement {
+  isOnSale(): Element<*> {
     const { currency } = this.props;
 
     let {
@@ -105,17 +104,17 @@ class ListItem extends React.Component {
 
     return (retailPrice > salePrice) ? (
       <div styleName="price">
-          <Currency
-            styleName="retail-price"
-            value={retailPrice}
-            currency={currency}
-          />
-          <Currency
-            styleName="on-sale-price"
-            value={salePrice}
-            currency={currency}
-          />
-        </div>
+        <Currency
+          styleName="retail-price"
+          value={retailPrice}
+          currency={currency}
+        />
+        <Currency
+          styleName="on-sale-price"
+          value={salePrice}
+          currency={currency}
+        />
+      </div>
       ) : (
         <div styleName="price">
           <Currency value={salePrice} currency={currency} />
@@ -123,7 +122,7 @@ class ListItem extends React.Component {
       );
   }
 
-  render(): HTMLElement {
+  render(): Element<*> {
     const {
       productId,
       slug,

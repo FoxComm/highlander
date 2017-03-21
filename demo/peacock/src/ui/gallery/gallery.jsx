@@ -1,10 +1,7 @@
 /* @flow */
 
 // libs
-import React, { Component } from 'react';
-
-// types
-import type { HTMLElement } from 'types';
+import React, { Component, Element } from 'react';
 
 // styles
 import styles from './gallery.css';
@@ -36,7 +33,7 @@ class Gallery extends Component {
     return this.props.images.length > 1;
   }
 
-  get previews(): HTMLElement {
+  get previews(): Element<*> {
     const { selected } = this.state;
 
     return (
@@ -53,7 +50,7 @@ class Gallery extends Component {
     );
   }
 
-  get currentImage(): HTMLElement {
+  get currentImage(): Element<*> {
     return (
       <div styleName="image">
         <img src={this.props.images[this.state.selected]} />

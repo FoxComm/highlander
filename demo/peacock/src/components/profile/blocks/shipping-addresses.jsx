@@ -26,11 +26,11 @@ const styles = {...addressStyles, ...profileStyles};
 import * as checkoutActions from 'modules/checkout';
 
 type Props = {
-  fetchAddresses: () => Promise,
+  fetchAddresses: () => Promise<*>,
   addresses: Array<Address>,
-  deleteAddress: (id: number) => Promise,
-  restoreAddress: (id: number) => Promise,
-  setAddressAsDefault: (id: number) => Promise,
+  deleteAddress: (id: number) => Promise<*>,
+  restoreAddress: (id: number) => Promise<*>,
+  setAddressAsDefault: (id: number) => Promise<*>,
   cleanDeletedAddresses: () => void,
   t: any,
 };

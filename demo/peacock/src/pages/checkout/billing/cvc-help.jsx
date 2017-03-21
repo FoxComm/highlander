@@ -39,7 +39,7 @@ export default class CvcHelp extends Component {
   }
 
   get popup() {
-    if (! this.state.popupVisible) return null;
+    if (!this.state.popupVisible) return null;
 
     return (
       <div styleName="popup">

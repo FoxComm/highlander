@@ -34,7 +34,7 @@ class Header extends React.Component {
             </div>
             <div styleName="nav-search-logo-wrapper">
               <Link to="/" styleName="logo-link">
-                <Icon styleName="logo" name="fc-logo"/>
+                <Icon styleName="logo" name="fc-logo" />
               </Link>
               <div styleName="navigation">
                 <Navigation path={this.props.path} />
@@ -44,7 +44,7 @@ class Header extends React.Component {
               </div>
             </div>
             <div styleName="tools">
-              <UserTools path={this.props.path} query={this.props.query}/>
+              <UserTools path={this.props.path} query={this.props.query} />
             </div>
           </div>
         </div>

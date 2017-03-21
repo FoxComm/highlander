@@ -74,7 +74,7 @@ const renderBlock = (block) => {
 };
 
 const renderStatic = (blocks: Array<any>) => {
-  return _.map(blocks, block => {
+  return _.map(blocks, (block) => {
     return renderBlock(block);
   });
 };

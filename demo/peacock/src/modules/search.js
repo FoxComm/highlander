@@ -57,7 +57,7 @@ const reducer = createReducer({
       force: false,
     };
   },
-  [forceSearch]: state => {
+  [forceSearch]: (state) => {
     return {
       ...state,
       force: true,

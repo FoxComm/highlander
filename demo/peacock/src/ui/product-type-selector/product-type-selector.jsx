@@ -15,24 +15,23 @@ export default class ProductTypeSelector extends Component {
   static defaultProps = {
     items: [],
     onClick: _.noop,
-  }
+  };
 
   state = {
     activeItem: this.props.items[0],
-  }
+  };
 
   render () {
-    const items =
-      this.props.items.map(item => {
-        const itemCls = classNames(styles.item, {
-          [styles.active]: item.toLowerCase() === this.props.activeItem.toLowerCase(),
-        });
-        const onClick = this.props.onItemClick.bind(this, item);
-
-        return (
-          <div className={itemCls} onClick={onClick} key={item}>{item}</div>
-        );
+    const items = this.props.items.map((item) => {
+      const itemCls = classNames(styles.item, {
+        [styles.active]: item.toLowerCase() === this.props.activeItem.toLowerCase(),
       });
+      const onClick = () => { this.props.onItemClick(item); };
+
+      return (
+        <div className={itemCls} onClick={onClick} key={item}>{item}</div>
+      );
+    });
 
     return (
       <div styleName="dropdown">

@@ -57,7 +57,7 @@ class OrderPlaced extends Component {
     }
 
     if (!order) {
-      return <Loader/>;
+      return <Loader />;
     }
 
     const header = (
@@ -69,7 +69,7 @@ class OrderPlaced extends Component {
         isCollapsed={false}
         header={header}
         styleName="summary"
-        { ...order }
+        {...order}
         skus={order.lineItems.skus}
         orderPlaced
       />

@@ -38,7 +38,7 @@ type State = {
   value: string|number,
   isOpen: boolean,
   menuDirection: string,
-  highlightedIndex?: any,
+  highlightedIndex: null|number,
   changingStarted?: boolean,
 };
 
@@ -130,22 +130,20 @@ class Autocomplete extends Component {
   maybeSelectItem() {
     const props = this.props;
 
-    const exactlyItem = _.find(props.items, item => {
+    const exactlyItem = _.find(props.items, (item) => {
       return props.compareValues(props.getItemValue(item), this.state.value);
     });
 
     if (exactlyItem) {
       props.onSelect(exactlyItem, this.state.value);
+    } else if (props.allowCustomValues) {
+      props.onSelect(this.state.value);
     } else {
-      if (props.allowCustomValues) {
-        props.onSelect(this.state.value);
-      } else {
-        const item = props.selectedItem || props.items[0];
-        if (item) {
-          this.setState({
-            value: props.getItemValue(item),
-          });
-        }
+      const item = props.selectedItem || props.items[0];
+      if (item) {
+        this.setState({
+          value: props.getItemValue(item),
+        });
       }
     }
   }
@@ -276,7 +274,7 @@ class Autocomplete extends Component {
     let items = this.props.items;
 
     if (this.props.shouldItemRender && this.state.changingStarted) {
-      items = items.filter((item) => (
+      items = items.filter(item => (
         this.props.shouldItemRender(item, this.state.value)
       ));
     }
@@ -403,7 +401,7 @@ class Autocomplete extends Component {
   }
 
   render () {
-    const { inputProps, ...rest } = this.props;
+    const { inputProps } = this.props;
 
     return (
       <div ref="container" styleName="autocomplete" >
@@ -414,6 +412,7 @@ class Autocomplete extends Component {
           {...inputProps}
           role="combobox"
           aria-autocomplete="both"
+          aria-expanded={this.state.isOpen ? 'true' : 'false'}
           onFocus={this.handleInputFocus}
           onBlur={this.handleInputBlur}
           onChange={this.handleChange}

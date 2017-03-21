@@ -29,11 +29,11 @@ type Props = {
   isEditing: boolean,
   t: any,
   shippingAddress: Object,
-  addShippingAddress: (address: Address) => Promise,
-  updateShippingAddress: (address: Address) => Promise,
-  saveShippingAddress: (id: number) => Promise,
+  addShippingAddress: (address: Address) => Promise<*>,
+  updateShippingAddress: (address: Address) => Promise<*>,
+  saveShippingAddress: (id: number) => Promise<*>,
   saveShippingState: AsyncStatus,
-  updateAddress: (address: Address, id?: number) => Promise,
+  updateAddress: (address: Address, id?: number) => Promise<*>,
   auth: ?Object,
   isGuestMode: boolean,
 };
@@ -70,7 +70,7 @@ class Shipping extends Component {
       );
     }
     return (
-      <div styleName="btn-action"><Icon styleName="plus" name="fc-plus"/> Add new</div>
+      <div styleName="btn-action"><Icon styleName="plus" name="fc-plus" /> Add new</div>
     );
   }
 

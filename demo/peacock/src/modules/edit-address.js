@@ -21,7 +21,7 @@ const _initAddressData = createAsyncActions(
 
     const isAddressValid = !_.isEmpty(address) && address.region;
 
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       if (!isAddressValid) {
         uiAddressData = _.reduce(addressFields, (acc, field) => {
           return {

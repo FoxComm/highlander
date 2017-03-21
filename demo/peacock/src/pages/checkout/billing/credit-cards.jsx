@@ -50,7 +50,7 @@ class CreditCards extends Component {
   get creditCards() {
     const { creditCards, selectedCreditCard, selectCreditCard, onEditCard, onDeleteCard } = this.props;
 
-    return creditCards.map(creditCard => {
+    return creditCards.map((creditCard) => {
       const selected = !!selectedCreditCard && selectedCreditCard.id === creditCard.id;
 
       return (

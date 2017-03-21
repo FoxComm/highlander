@@ -25,7 +25,7 @@ type Props = {
   onAttributeChange: Function,
 };
 
-const formatSkuPrice = sku => {
+const formatSkuPrice = (sku) => {
   const price = _.get(sku, 'attributes.salePrice.v', {});
   const value = _.get(price, 'value', 0);
   const currency = _.get(price, 'currency', 'USD');

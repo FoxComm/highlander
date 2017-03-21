@@ -1,17 +1,14 @@
 /* @flow */
 
 // libs
-import React from 'react';
+import React, { Element } from 'react';
 
 // styles
 import styles from './radiobutton.css';
 
-// types
-import type { HTMLElement } from 'types';
-
 type Props = {
   id: string|number,
-  children?: HTMLElement|string,
+  children?: Element<*>|string,
   className?: string,
 };
 

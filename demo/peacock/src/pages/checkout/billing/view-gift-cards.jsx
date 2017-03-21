@@ -15,12 +15,12 @@ type Props = {
 };
 
 const ViewGiftCards = (props: Props) => {
-  const giftCards = _.map(props.paymentMethods, method => {
+  const giftCards = _.map(props.paymentMethods, (method) => {
     if (method.type == 'giftCard') {
       return (
         <li styleName="payment-gift" key={`${method.code}-giftCard`} >
           GIFT CARD { method.code }
-          <Currency styleName="price" value={ method.currentBalance } />
+          <Currency styleName="price" value={method.currentBalance} />
         </li>
       );
     }

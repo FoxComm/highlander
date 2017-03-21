@@ -26,7 +26,7 @@ class Delivery extends Component {
 
     return cost == 0
       ? <div styleName="delivery-cost">{t('FREE')}</div>
-      : <Currency styleName="delivery-cost" value={cost}/>;
+      : <Currency styleName="delivery-cost" value={cost} />;
   }
 
   @autobind

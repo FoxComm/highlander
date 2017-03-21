@@ -1,8 +1,7 @@
 /* @flow */
 
 import _ from 'lodash';
-import { get, reduce } from 'lodash';
-import React, { Component } from 'react';
+import React, { Component, Element } from 'react';
 import styles from './auth.css';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
@@ -23,7 +22,6 @@ import * as actions from 'modules/auth';
 import { authBlockTypes } from 'paragons/auth';
 import { fetch as fetchCart, saveLineItemsAndCoupons } from 'modules/cart';
 
-import type { HTMLElement } from 'types';
 import type { SignUpPayload } from 'modules/auth';
 
 type AuthState = {
@@ -41,7 +39,7 @@ type Props = Localized & {
   fetchCart: Function,
   saveLineItemsAndCoupons: Function,
   onLoginClick: Function,
-  title?: string|Element|null,
+  title?: string|Element<*>|null,
   mergeGuestCart: boolean,
   onAuthenticated?: Function,
 };
@@ -103,12 +101,12 @@ class Signup extends Component {
         this.props.saveLineItemsAndCoupons(this.props.mergeGuestCart);
       }
       browserHistory.push(this.props.getPath());
-    }).catch(err => {
-      const errors = get(err, ['responseJson', 'errors'], [err.toString()]);
+    }).catch((err) => {
+      const errors = _.get(err, ['responseJson', 'errors'], [err.toString()]);
       let emailError = false;
       let usernameError = false;
 
-      const restErrors = reduce(errors, (acc, error) => {
+      const restErrors = _.reduce(errors, (acc, error) => {
         if (error.indexOf('email') >= 0) {
           emailError = error;
         } else if (error.indexOf('name') >= 0) {
@@ -152,7 +150,7 @@ class Signup extends Component {
     );
   }
 
-  render(): HTMLElement {
+  render(): Element<*> {
     const { email, password, username, emailError, usernameError } = this.state;
     const { t, isLoading } = this.props;
 
