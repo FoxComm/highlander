@@ -39,7 +39,7 @@ object LineItemUpdater {
     for {
       cart     ← * <~ Carts.mustFindByRefNum(refNum)
       _        ← * <~ updateQuantities(cart, payload)
-      response ← * <~ runUpdates(cart, logActivity)
+      response ← * <~ runUpdates(cart, logActivity.some)
     } yield response
   }
 
@@ -92,7 +92,7 @@ object LineItemUpdater {
     for {
       cart     ← * <~ finder
       _        ← * <~ updateQuantities(cart, payload)
-      response ← * <~ runUpdates(cart, logActivity)
+      response ← * <~ runUpdates(cart, logActivity.some)
     } yield response
   }
 
@@ -110,7 +110,7 @@ object LineItemUpdater {
     for {
       cart     ← * <~ Carts.mustFindByRefNum(refNum)
       _        ← * <~ addQuantities(cart, payload)
-      response ← * <~ runUpdates(cart, logActivity)
+      response ← * <~ runUpdates(cart, logActivity.some)
     } yield response
   }
 
@@ -133,12 +133,12 @@ object LineItemUpdater {
     for {
       cart     ← * <~ finder
       _        ← * <~ addQuantities(cart, payload)
-      response ← * <~ runUpdates(cart, logActivity)
+      response ← * <~ runUpdates(cart, logActivity.some)
     } yield response
   }
 
-  private def runUpdates(cart: Cart,
-                         logAct: (CartResponse, Map[String, Int]) ⇒ DbResultT[Activity])(
+  def runUpdates(cart: Cart,
+                 logAct: Option[(CartResponse, Map[String, Int]) ⇒ DbResultT[Activity]])(
       implicit ec: EC,
       es: ES,
       db: DB,
@@ -152,7 +152,7 @@ object LineItemUpdater {
       valid ← * <~ CartValidator(cart).validate()
       res   ← * <~ CartResponse.buildRefreshed(cart)
       li    ← * <~ CartLineItems.byCordRef(cart.refNum).countSkus
-      _     ← * <~ logAct(res, li)
+      _     ← * <~ logAct.traverse(_ (res, li)).void
     } yield TheResponse.validated(res, valid)
 
   def foldQuantityPayload(payload: Seq[UpdateLineItemsPayload]): Map[String, Int] =

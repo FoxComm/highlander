@@ -1,5 +1,7 @@
 package services.carts
 
+import cats._
+import cats.implicits._
 //import com.github.tminglei.slickpg.LTree
 import failures.NotFoundFailure404
 import models.account._
@@ -7,33 +9,34 @@ import models.cord._
 import models.objects.ObjectContext
 import responses.TheResponse
 import responses.cord.CartResponse
-import services.{CartValidator, CordQueries, LogActivity}
+import services.{CartValidator, CordQueries, LineItemUpdater, LogActivity}
 import utils.aliases._
 import utils.db._
 
 object CartQueries extends CordQueries {
 
-  def findOne(refNum: String, grouped: Boolean = true)(
-      implicit ec: EC,
-      db: DB,
-      ctx: OC): DbResultT[TheResponse[CartResponse]] =
+  def findOne(refNum: String)(implicit ec: EC,
+                              db: DB,
+                              ctx: OC,
+                              es: ES,
+                              au: AU): DbResultT[TheResponse[CartResponse]] =
     for {
-      cart      ← * <~ Carts.mustFindByRefNum(refNum)
-      validated ← * <~ CartValidator(cart).validate()
-      response  ← * <~ CartResponse.fromCart(cart, grouped)
-    } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)
+      cart ← * <~ Carts.mustFindByRefNum(refNum)
+      resp ← * <~ LineItemUpdater.runUpdates(cart, None) // FIXME: so costly… @michalrus
+    } yield resp
 
   def findOneByUser(refNum: String, customer: User, grouped: Boolean = true)(
       implicit ec: EC,
       db: DB,
+      es: ES,
+      au: AU,
       ctx: OC): DbResultT[TheResponse[CartResponse]] =
     for {
       cart ← * <~ Carts
               .findByRefNumAndAccountId(refNum, customer.accountId)
               .mustFindOneOr(NotFoundFailure404(Carts, refNum))
-      validated ← * <~ CartValidator(cart).validate()
-      response  ← * <~ CartResponse.fromCart(cart, grouped)
-    } yield TheResponse.build(response, alerts = validated.alerts, warnings = validated.warnings)
+      resp ← * <~ LineItemUpdater.runUpdates(cart, None) // FIXME: so costly… @michalrus
+    } yield resp
 
   def findOrCreateCartByAccount(customer: User,
                                 context: ObjectContext,
@@ -41,6 +44,7 @@ object CartQueries extends CordQueries {
                                                             db: DB,
                                                             ac: AC,
                                                             ctx: OC,
+                                                            es: ES,
                                                             au: AU): DbResultT[CartResponse] =
     findOrCreateCartByAccountInner(customer, admin)
 
@@ -50,6 +54,7 @@ object CartQueries extends CordQueries {
                                                               db: DB,
                                                               ac: AC,
                                                               ctx: OC,
+                                                              es: ES,
                                                               au: AU): DbResultT[CartResponse] =
     for {
       customer  ← * <~ Users.mustFindByAccountId(accountId)
@@ -61,6 +66,7 @@ object CartQueries extends CordQueries {
       ec: EC,
       ac: AC,
       au: AU,
+      es: ES,
       ctx: OC): DbResultT[CartResponse] =
     for {
       result ← * <~ Carts
@@ -69,15 +75,11 @@ object CartQueries extends CordQueries {
                 .findOrCreateExtended(
                     Carts.create(Cart(accountId = customer.accountId, scope = Scope.current)))
       (cart, foundOrCreated) = result
-      fullOrder ← * <~ CartResponse.fromCart(cart, grouped, au.isGuest)
-      _         ← * <~ logCartCreation(foundOrCreated, fullOrder, admin)
-    } yield fullOrder
-
-  private def logCartCreation(foundOrCreated: FoundOrCreated,
-                              cart: CartResponse,
-                              admin: Option[User])(implicit ec: EC, ac: AC) =
-    foundOrCreated match {
-      case Created ⇒ LogActivity().cartCreated(admin, cart)
-      case Found   ⇒ DbResultT.unit
-    }
+      resp ← if (foundOrCreated == Created) for {
+              fullOrder ← * <~ CartResponse.fromCart(cart, grouped, au.isGuest)
+              _         ← * <~ LogActivity().cartCreated(admin, fullOrder)
+            } yield TheResponse(fullOrder)
+            else LineItemUpdater.runUpdates(cart, None) // FIXME: so costly… @michalrus
+    } yield
+      resp.result // FIXME: discarding warnings until we get rid of TheResponse completely @michalrus
 }
