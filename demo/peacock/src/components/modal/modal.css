@@ -1,0 +1,58 @@
+@import "media-queries.css";
+
+.modal {
+  display: none;
+}
+
+.modal-show {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.modal-wrapper {
+  z-index: 4;
+  height: 100vh;
+  lost-column: 1/1;
+  background: #fff;
+  position: absolute;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px;
+  font-size: 17px;
+}
+
+.modal-body {
+  width: 100%;
+  padding: 0 15px;
+  height: calc(100% - 110px);
+  overflow-y: auto;
+}
+
+.modal-footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+}
+
+@media (--large) {
+  .modal-show {
+    justify-content: center;
+    align-items: center;
+  }
+  .modal-wrapper {
+    lost-column: 4/12;
+    height: 500px;
+    border-radius: 8px;
+  }
+
+  .modal-footer {
+    padding: 10px 15px;
+  }
+}
