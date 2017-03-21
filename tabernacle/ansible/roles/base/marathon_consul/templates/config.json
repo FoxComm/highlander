@@ -35,7 +35,7 @@
     "Force": false
   },
   "Marathon": {
-    "Location": "localhost:8080",
+    "Location": "marathon.service.consul:8080",
     "Protocol": "http",
     "Username": "",
     "Password": "",
@@ -43,9 +43,9 @@
     "Timeout": "30s"
   },
   "Metrics": {
-    "Target": "stdout",
+    "Target": "",
     "Prefix": "default",
-    "Interval": "30s",
+    "Interval": "1h",
     "Addr": ""
   },
   "Log": {
