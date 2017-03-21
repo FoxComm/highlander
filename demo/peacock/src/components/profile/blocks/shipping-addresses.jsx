@@ -69,11 +69,13 @@ class MyShippingAddresses extends Component {
 
   renderAddresses() {
     const { props } = this;
+    const seenAddressNames = {};
     const items = _.map(props.addresses, (address: Address) => {
       const contentAttrs = address.isDeleted ? {className: styles['deleted-content']} : {};
       const content = <AddressDetails address={address} hideName {...contentAttrs} />;
       const checked = address.isDefault;
-      const key = address.id;
+      const key = address.name in seenAddressNames ? address.id : address.name;
+      seenAddressNames[address.name] = 1;
 
       let actionsContent;
       let title;
@@ -99,21 +101,23 @@ class MyShippingAddresses extends Component {
       }
 
       return (
-        <li styleName="item" key={`address-radio-${key}`}>
+        <li styleName="list-item" key={`address-radio-${key}`}>
           <RadioButton
             id={`address-radio-${key}`}
             name={`address-radio-${key}`}
             checked={checked}
             disabled={address.isDeleted}
             onChange={() => this.handleSelectAddress(address)}
+            styleName="shipping-row"
           >
             <EditableBlock
               styleName="item-content"
               title={title}
               content={content}
-              actionsContent={actionsContent}
+              editAllowed={false}
             />
           </RadioButton>
+          {actionsContent}
         </li>
       );
     });

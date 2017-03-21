@@ -412,6 +412,15 @@ const initialState: CheckoutState = {
   creditCard: null,
 };
 
+function sortAddresses(addresses: Array<Address>): Array<Address> {
+  return addresses.slice().sort((a, b) => {
+    if (!a.isDeleted && !b.isDeleted) return a.id - b.id;
+    if (a.isDeleted) return 1;
+    if (b.isDeleted) return -1;
+    return 0;
+  });
+}
+
 const reducer = createReducer({
   [setEditStage]: (state, editStage: EditStage) => {
     return {
@@ -455,7 +464,7 @@ const reducer = createReducer({
   },
   [_fetchAddresses.succeeded]: (state, list) => {
     const deletedAddresses = _.filter(state.addresses, {isDeleted: true});
-    const addresses = [...deletedAddresses, ...list].sort((a, b) => a.id - b.id);
+    const addresses = [...list, ...deletedAddresses];
     return {
       ...state,
       addresses,
@@ -484,17 +493,25 @@ const reducer = createReducer({
   [markAddressAsDeleted]: (state, addressId) => {
     const index = _.findIndex(state.addresses, {id: addressId});
     if (index != -1) {
-      return assoc(state,
-        ['addresses', index, 'isDeleted'], true,
-        ['addresses', index, 'isDefault'], false
+      const newAddresses = assoc(state.addresses,
+        [index, 'isDeleted'], true,
+        [index, 'isDefault'], false
       );
+      return {
+        ...state,
+        addresses: sortAddresses(newAddresses),
+      };
     }
     return state;
   },
   [markAddressAsRestored]: (state, [addressId, addressData]) => {
     const index = _.findIndex(state.addresses, {id: addressId});
     if (index != -1) {
-      return assoc(state, ['addresses', index], addressData);
+      const newAddresses = assoc(state.addresses, index, addressData);
+      return {
+        ...state,
+        addresses: sortAddresses(newAddresses),
+      };
     }
     return state;
   },
