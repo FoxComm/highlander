@@ -2,6 +2,10 @@ defmodule Hyperion.Amazon.PusherSpec do
   use ESpec
   import Hyperion.Factory
 
+  before_all do
+    Hyperion.Repo.delete_all(SubmissionResult)
+  end
+
   describe "push" do
     context "when no product pushed" do
       let product: build(:sku_with_images)

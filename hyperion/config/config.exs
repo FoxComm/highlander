@@ -9,15 +9,6 @@ config :maru, Hyperion.API,
 
 config :hyperion, ecto_repos: [Hyperion.Repo]
 
-# Configure your database
-config :hyperion, Hyperion.Repo,
-  adapter: Ecto.Adapters.Postgres,
-  username: System.get_env("HYPERION_DB_USER"),
-  password: System.get_env("HYPERION_DB_PASSWORD"),
-  database: System.get_env("HYPERION_DB_NAME"),
-  hostname: System.get_env("HYPERION_DB_HOST"),
-  pool_size: 10
-
 config :ex_aws,
   access_key_id: [{:system, "AWS_ACCESS_KEY_ID"}, :instance_role],
   secret_access_key: [{:system, "AWS_SECRET_ACCESS_KEY"}, :instance_role],
@@ -55,4 +46,5 @@ config :hyperion,
 # Configuration from the imported file will override the ones defined
 # here (which is why it is important to import them last).
 #
-#     import_config "#{Mix.env}.exs"
+
+import_config "#{Mix.env}.exs"
