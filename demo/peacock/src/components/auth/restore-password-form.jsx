@@ -64,7 +64,7 @@ class RestorePasswordForm extends Component {
         });
       }).catch(() => {
         this.setState({
-          error: t(`Oops! We don’t have a user with that email. Please check your entry and try again.`),
+          error: t('Oops! We don’t have a user with that email. Please check your entry and try again.'),
         });
       }
     );

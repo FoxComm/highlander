@@ -79,7 +79,7 @@ export default class EditAddress extends Component {
   }
 
   resolveCountry(address) {
-    this.props.initAddressData(address).then(uiAddressData => {
+    this.props.initAddressData(address).then((uiAddressData) => {
       this.setState({
         address: uiAddressData,
         lastSyncedAddress: address,
@@ -182,7 +182,7 @@ export default class EditAddress extends Component {
     } else {
       const onChange = ({ target: { value }}) => this.handlePhoneChange(value);
       input = (
-        <TextInput {...inputAttributes} onChange={onChange} maxLength="15"/>
+        <TextInput {...inputAttributes} onChange={onChange} maxLength="15" />
       );
     }
 
@@ -219,16 +219,16 @@ export default class EditAddress extends Component {
       }
 
       this.lookupXhr = makeXhr(`${env.URL_PREFIX}/node/lookup-zip/usa/${zip}`).then(
-        result => {
+        (result) => {
           this.setAddressData('city', result.city);
-          const currentState = _.find(selectedCountry.regions, region => {
+          const currentState = _.find(selectedCountry.regions, (region) => {
             return region.name.toLowerCase() == result.state.toLowerCase();
           });
           if (currentState) {
             this.setAddressData('state', currentState);
           }
         },
-        err => {
+        (err) => {
           console.error(err);
         }
       );
@@ -269,7 +269,7 @@ export default class EditAddress extends Component {
   }
 
   render() {
-    if (!this.isAddressLoaded) return <Loader size="m"/>;
+    if (!this.isAddressLoaded) return <Loader size="m" />;
 
     const props: EditAddressProps = this.props;
     const { t, withCountry } = props;
@@ -305,7 +305,7 @@ export default class EditAddress extends Component {
           <TextInput required placeholder={t('ZIP')} onChange={this.handleZipChange} value={data.zip} />
         </FormField>
         <FormField styleName="text-field">
-          <TextInput required name="city" placeholder={t('CITY')} onChange={this.changeFormData} value={data.city}/>
+          <TextInput required name="city" placeholder={t('CITY')} onChange={this.changeFormData} value={data.city} />
         </FormField>
         { withCountry && this.countryInput }
         <FormField styleName="text-field">

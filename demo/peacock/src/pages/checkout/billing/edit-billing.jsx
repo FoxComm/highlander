@@ -197,7 +197,7 @@ class EditBilling extends Component {
     const { cvc } = this.props.data;
     const { t } = this.props;
 
-    return foxApi.creditCards.validateCVC(cvc) ? null : t(`Please enter a valid cvc number`);
+    return foxApi.creditCards.validateCVC(cvc) ? null : t('Please enter a valid cvc number');
   }
 
   @autobind
@@ -232,7 +232,7 @@ class EditBilling extends Component {
       ? this.props.updateCreditCard(id, billingAddressIsSame)
       : this.props.addCreditCard(billingAddressIsSame);
 
-    return operation.then(card => {
+    return operation.then((card) => {
       this.props.fetchCreditCards();
       this.props.resetBillingData();
       this.setState({ addingNew: false, cardAdded: (id === undefined) });
@@ -272,13 +272,13 @@ class EditBilling extends Component {
     const cvcPlaceholder = editingSavedCard ? '***' : 'CVC';
 
     const defaultCheckbox = withoutDefaultCheckbox ? null : (
-        <Checkbox
-          styleName="checkbox-field"
-          name="isDefault"
-          checked={checkedDefaultCard}
-          onChange={({target}) => this.changeDefault(target.checked)}
-          id="set-default-card"
-        >
+      <Checkbox
+        styleName="checkbox-field"
+        name="isDefault"
+        checked={checkedDefaultCard}
+        onChange={({target}) => this.changeDefault(target.checked)}
+        id="set-default-card"
+      >
           Make this card my default
         </Checkbox>
       );
@@ -406,7 +406,7 @@ class EditBilling extends Component {
 
   @autobind
   submitCardAndContinue() {
-    return this.updateCreditCard().then(card => {
+    return this.updateCreditCard().then((card) => {
       this.props.selectCreditCard(card);
       this.props.continueAction();
     });
@@ -449,7 +449,7 @@ class EditBilling extends Component {
       };
 
       const { data } = props;
-      const title = !!data.id ? t('Edit Card') : t('Add Card');
+      const title = data.id ? t('Edit Card') : t('Add Card');
 
       return (
         <CheckoutForm

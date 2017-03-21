@@ -29,7 +29,7 @@ class Overlay extends Component {
       overlay: !this.props.shown,
       'overlay-shown': this.props.shown,
     });
-    return <div styleName={style} onClick={this.props.onClick}></div>;
+    return <div styleName={style} onClick={this.props.onClick} />;
   }
 }
 

@@ -31,7 +31,7 @@ const StoreFront = (props: Props) => {
   });
 
   const childrenWithRoutes = React.Children.map(props.children,
-    (child) => React.cloneElement(child, {
+    child => React.cloneElement(child, {
       routes: props.routes,
       routerParams: props.params,
     })

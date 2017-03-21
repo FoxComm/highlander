@@ -70,7 +70,7 @@ class EditDelivery extends Component {
   get shippingMethods() {
     const { shippingMethods, cart } = this.props;
 
-    return shippingMethods.map(shippingMethod => {
+    return shippingMethods.map((shippingMethod) => {
       const cost = this.props.shippingMethodCost(shippingMethod.price);
       const checked = cart.shippingMethod && cart.shippingMethod.id == shippingMethod.id;
 

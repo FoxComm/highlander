@@ -46,7 +46,7 @@ const markAddressAsRestored = createAction(
 );
 const markDefaultAddress = createAction(
   'MARK_ADDRESS_AS_DEFAULT',
-  (id) => id
+  id => id
 );
 export const cleanDeletedAddresses = createAction('CHECKOUT_CLEAN_DELETED_ADDRESSES');
 
@@ -100,7 +100,7 @@ const _saveShippingAddress = createAsyncActions(
     const { dispatch } = this;
 
     return foxApi.cart.setShippingAddressById(id)
-      .then(res => {
+      .then((res) => {
         dispatch(updateCart(res.result));
       });
   }
@@ -114,7 +114,7 @@ const _addShippingAddress = createAsyncActions(
     const { dispatch } = this;
     const payload = addressToPayload(address);
     return foxApi.cart.setShippingAddress(payload)
-      .then(res => {
+      .then((res) => {
         dispatch(updateCart(res.result));
       });
   }
@@ -128,7 +128,7 @@ const _updateShippingAddress = createAsyncActions(
     const { dispatch } = this;
     const payload = addressToPayload(address);
     return foxApi.cart.updateShippingAddress(payload)
-      .then(res => {
+      .then((res) => {
         dispatch(updateCart(res.result));
       });
   }
@@ -174,7 +174,7 @@ const _saveShippingMethod = createAsyncActions(
     const methodId = shippingMethod.id;
 
     return api.cart.chooseShippingMethod(methodId)
-      .then(res => {
+      .then((res) => {
         dispatch(updateCart(res.result));
       });
   }
@@ -187,7 +187,7 @@ export function saveGiftCard(code: string): Function {
     const payload = { code: code.trim() };
 
     return foxApi.cart.addGiftCard(payload)
-      .then(res => {
+      .then((res) => {
         dispatch(updateCart(res.result));
       });
   };
@@ -196,7 +196,7 @@ export function saveGiftCard(code: string): Function {
 export function removeGiftCard(code: string): Function {
   return (dispatch) => {
     return foxApi.cart.removeGiftCard(code)
-      .then(res => {
+      .then((res) => {
         dispatch(updateCart(res.result));
       });
   };
@@ -205,7 +205,7 @@ export function removeGiftCard(code: string): Function {
 export function saveCouponCode(code: string): Function {
   return (dispatch) => {
     return foxApi.cart.addCoupon(code)
-      .then(res => {
+      .then((res) => {
         dispatch(updateCart(res.result));
       });
   };
@@ -214,7 +214,7 @@ export function saveCouponCode(code: string): Function {
 export function removeCouponCode() {
   return (dispatch) => {
     return foxApi.cart.removeCoupon()
-      .then(res => {
+      .then((res) => {
         dispatch(updateCart(res.result));
       });
   };
@@ -293,12 +293,12 @@ const _restoreAddress = createAsyncActions(
     const address = _.find(getState().checkout.addresses, {id: addressId});
     if (address) {
       const payload = addressToPayload(address);
-      const promise = foxApi.addresses.add(payload).then(response => {
+      const promise = foxApi.addresses.add(payload).then((response) => {
         dispatch(markAddressAsRestored(addressId, response));
         return response;
       });
       if (payload.isDefault) {
-        return promise.then(response => {
+        return promise.then((response) => {
           return foxApi.addresses.setAsDefault(response.id);
         });
       }
@@ -345,7 +345,7 @@ export function chooseCreditCard(): Function {
     const creditCard = getState().checkout.creditCard;
 
     return foxApi.cart.addCreditCard(creditCard.id)
-      .then(res => {
+      .then((res) => {
         dispatch(updateCart(res.result));
       });
   };
@@ -388,7 +388,7 @@ const _checkout = createAsyncActions(
     const { dispatch, getState } = this;
     const cartState = getState().cart;
 
-    return foxApi.cart.checkout().then(res => {
+    return foxApi.cart.checkout().then((res) => {
       tracking.purchase({
         ...cartState,
         referenceNumber: res.referenceNumber,

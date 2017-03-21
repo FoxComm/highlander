@@ -14,7 +14,7 @@ const initialState : FormData = {
 };
 
 const reducer = createReducer({
-  [toggleUserMenu]: state => {
+  [toggleUserMenu]: (state) => {
     const currentState = _.get(state, 'isVisible', false);
     return {
       ...state,

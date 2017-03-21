@@ -43,10 +43,10 @@ const instagramLinks = [
 
 const HomePage = () => {
   const actionBlocks = mainBlocks.map(
-    (blockProps, i) => <ActionBlock {...blockProps} key={i}/>
+    (blockProps, i) => <ActionBlock {...blockProps} key={i} />
   );
 
-  const instagramImages = _.range(1, 6).map(i => {
+  const instagramImages = _.range(1, 6).map((i) => {
     const imageUrl = assetsUrl(`/images/home-page/Instagram_${i}_2x.jpg`);
     return (
       <div
@@ -54,9 +54,9 @@ const HomePage = () => {
         style={{ backgroundImage: `url(${imageUrl})`}}
         key={i}
       >
-        <a href={instagramLinks[i - 1]} target="_blank">
+        <a href={instagramLinks[i - 1]} target="_blank" rel="noopener noreferrer">
           <div styleName="instagram-image-hover">
-            <Icon name="fc-instagram" styleName="instagram-icon"/>
+            <Icon name="fc-instagram" styleName="instagram-icon" />
           </div>
         </a>
       </div>

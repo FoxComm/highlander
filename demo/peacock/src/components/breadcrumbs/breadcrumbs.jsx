@@ -16,7 +16,7 @@ import type { RoutesParams, Route } from 'types';
 const Delimiter = (props: {idx: number}) => {
   return (
     <li styleName="delimiter" key={`${props.idx}-breadcrumbs-delimeter`}>
-      <i className="icon-chevron-right">></i>
+      <i className="icon-chevron-right">&gt;</i>
     </li>
   );
 };

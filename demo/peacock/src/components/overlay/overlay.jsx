@@ -17,7 +17,7 @@ const Overlay = (props: OverlayProps) => {
     <div styleName="overlay">
       {props.children}
       <Link styleName="close-button" to={props.path}>
-        <Icon name="fc-close" styleName="close-icon" size="custom"/>
+        <Icon name="fc-close" styleName="close-icon" size="custom" />
       </Link>
     </div>
   );

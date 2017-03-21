@@ -97,7 +97,8 @@ class Search extends Component {
     return (
       <div styleName="search">
         <form action="." >
-          <input value={this.state.term}
+          <input
+            value={this.state.term}
             onChange={this.onChange}
             onKeyDown={this.onKeyDown}
             onFocus={this.setFocus}

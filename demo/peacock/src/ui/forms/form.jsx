@@ -42,7 +42,7 @@ export default class Form extends Component {
       if (!isFieldValid) isValid = false;
     });
 
-    const setErrors = errors => {
+    const setErrors = (errors) => {
       this._emit('errors', errors || {});
     };
 

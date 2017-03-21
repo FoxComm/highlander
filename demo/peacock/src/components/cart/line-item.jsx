@@ -85,12 +85,12 @@ class LineItem extends Component {
               </div>
               <span styleName="multiply">&times;</span>
               <div styleName="price">
-                <Currency value={this.props.price}/>
+                <Currency value={this.props.price} />
               </div>
-              </div>
-              <div styleName="total-price">
-                <Currency value={this.props.totalPrice}/>
-              </div>
+            </div>
+            <div styleName="total-price">
+              <Currency value={this.props.totalPrice} />
+            </div>
           </div>
         </div>
       </div>

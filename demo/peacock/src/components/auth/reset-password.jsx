@@ -1,7 +1,7 @@
 /* @flow */
 
 import _ from 'lodash';
-import React, { Component, PropTypes, Element } from 'react';
+import React, { Component, Element } from 'react';
 import styles from './auth.css';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
@@ -28,17 +28,6 @@ type ResetState = {
 @localized
 /* ::`*/
 export default class ResetPassword extends Component {
-
-  static propTypes = {
-    fields: PropTypes.object.isRequired,
-    handleSubmit: PropTypes.func.isRequired,
-    resetForm: PropTypes.func.isRequired,
-    submitting: PropTypes.bool.isRequired,
-    dispatch: PropTypes.func.isRequired,
-    getPath: PropTypes.func,
-    path: PropTypes.object.isRequired,
-  };
-
   state: ResetState = {
     isReseted: false,
     passwd1: '',
@@ -153,7 +142,7 @@ export default class ResetPassword extends Component {
 
   goToLogin() {
     browserHistory.push(this.props.getPath(authBlockTypes.LOGIN));
-  };
+  }
 
   get primaryButton(): Element<*> {
     const { isReseted } = this.state;

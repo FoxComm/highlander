@@ -1,5 +1,7 @@
 /* @flow */
 
+/* eslint-disable react/jsx-no-target-blank */
+
 import React, { Element } from 'react';
 
 import styles from './footer.css';

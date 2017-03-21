@@ -42,9 +42,9 @@ class ProductsList extends Component {
   };
   _willUnmount: boolean = false;
 
- componentDidMount() {
-   window.addEventListener('scroll', this.handleScroll);
- }
+  componentDidMount() {
+    window.addEventListener('scroll', this.handleScroll);
+  }
 
   componentWillUnmount() {
     this._willUnmount = true;
@@ -87,7 +87,7 @@ class ProductsList extends Component {
     const shownProducts = {};
 
     if (visibleProducts.length > 0) {
-      _.each(visibleProducts, item => {
+      _.each(visibleProducts, (item) => {
         shownProducts[item.id] = 1;
         tracking.addImpression(item, item.index);
       });
@@ -135,7 +135,7 @@ class ProductsList extends Component {
       return (
         <div styleName="loading-wrapper">
           <div styleName="loader">
-            <Loader/>
+            <Loader />
           </div>
         </div>
       );
@@ -166,7 +166,7 @@ class ProductsList extends Component {
     const { props } = this;
     const { loadingBehavior = LoadingBehaviors.ShowLoader } = props;
     if (loadingBehavior == LoadingBehaviors.ShowLoader && props.isLoading) {
-      return <Loader/>;
+      return <Loader />;
     }
     const items = props.list && props.list.length > 0
       ? this.renderProducts()

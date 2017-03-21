@@ -33,7 +33,7 @@ const displayAttribute = (product, attributeName) => {
 const renderAttributes = (product, attributeNames = []) => {
   return (
     <div>
-      {attributeNames.map((attributeName) => displayAttribute(product, attributeName))}
+      {attributeNames.map(attributeName => displayAttribute(product, attributeName))}
     </div>
   );
 };

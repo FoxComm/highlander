@@ -16,7 +16,6 @@ import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
 
 import * as actions from 'modules/profile';
 
-import type { Promise as PromiseType } from 'types/promise';
 import type { AsyncStatus } from 'types/async-actions';
 
 
@@ -41,8 +40,8 @@ type EmptyAccount = {
 
 type EditEmailProps = {
   account: Account|EmptyAccount,
-  fetchAccount: () => PromiseType,
-  updateAccount: (payload: Object) => PromiseType,
+  fetchAccount: () => Promise<*>,
+  updateAccount: (payload: Object) => Promise<*>,
   updateState: AsyncStatus,
   clearErrorsFor: (...args: Array<string>) => void,
 }

@@ -75,7 +75,7 @@ export function getPreviousId(current: number): Function {
   };
 }
 
-function fetchProduct(id: ProductSlug): global.Promise {
+function fetchProduct(id: ProductSlug): Promise<*> {
   return this.api.get(`/v1/public/products/${id}`);
 }
 

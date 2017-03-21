@@ -54,7 +54,7 @@ class Auth extends Component {
   render(): Element<*> {
     return (
       <div styleName="auth-block">
-        <Link to={ this.props.path } styleName="logo">
+        <Link to={this.props.path} styleName="logo">
           <Logo />
         </Link>
         {this.body}

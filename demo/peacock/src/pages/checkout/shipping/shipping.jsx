@@ -70,7 +70,7 @@ class Shipping extends Component {
       );
     }
     return (
-      <div styleName="btn-action"><Icon styleName="plus" name="fc-plus"/> Add new</div>
+      <div styleName="btn-action"><Icon styleName="plus" name="fc-plus" /> Add new</div>
     );
   }
 

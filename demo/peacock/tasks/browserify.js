@@ -90,7 +90,7 @@ module.exports = function(gulp, $, opts) {
   gulp.task('browserify.purge_cache', function() {
     const cache = watchify.args.cache;
 
-    Object.keys(cache).map(key => {
+    Object.keys(cache).forEach((key) => {
       delete cache[key];
     });
   });
@@ -101,7 +101,7 @@ module.exports = function(gulp, $, opts) {
       .on('error', function(err) {
         stream.emit('error', err);
       })
-      .pipe(source(`app.js`))
+      .pipe(source('app.js'))
       .pipe(buffer())
       .pipe($.if(production, $.uglify({
         compress: {

@@ -110,7 +110,7 @@ export function deleteLineItem(sku) {
   return updateLineItemQuantity(sku, 0);
 }
 
-function fetchMyCart(user): global.Promise {
+function fetchMyCart(user): Promise<*> {
   const api = user ? foxApi : foxApi.removeAuth();
   return api.cart.get();
 }
@@ -140,7 +140,7 @@ export function saveLineItemsAndCoupons(merge: boolean = false) {
         const persistedLineItems = _.get(data, 'lineItems.skus', []);
         const persistedPayload = collectItemsToSubmit(persistedLineItems);
 
-        const originalCart = _.map(persistedPayload, item => {
+        const originalCart = _.map(persistedPayload, (item) => {
           const itemInNewCart = _.find(guestLineItemsToSubmit, { sku: item.sku });
 
           if (itemInNewCart) {
@@ -174,7 +174,7 @@ export function saveLineItemsAndCoupons(merge: boolean = false) {
 
         const toDelete = _.difference(oldSkus, newSkus);
 
-        const itemsToDelete = _.map(toDelete, sku => {
+        const itemsToDelete = _.map(toDelete, (sku) => {
           return {
             sku,
             quantity: 0,
@@ -252,14 +252,14 @@ function updateCartState(state, cart) {
 }
 
 const reducer = createReducer({
-  [toggleCart]: state => {
+  [toggleCart]: (state) => {
     const currentState = _.get(state, 'isVisible', false);
     return {
       ...state,
       isVisible: !currentState,
     };
   },
-  [hideCart]: state => {
+  [hideCart]: (state) => {
     return {
       ...state,
       isVisible: false,
@@ -278,7 +278,7 @@ const reducer = createReducer({
   },
   [actions.succeeded]: updateCartState,
   [updateCart]: updateCartState,
-  [cleanShippingAddress]: state => {
+  [cleanShippingAddress]: (state) => {
     return {
       ...state,
       shippingAddress: {},

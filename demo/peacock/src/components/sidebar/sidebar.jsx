@@ -111,7 +111,7 @@ class Sidebar extends React.Component {
                 Close
               </span>
             </div>
-            <div styleName={ this.state.searchFocused ? 'controls-search-focused' : 'controls-search'}>
+            <div styleName={this.state.searchFocused ? 'controls-search-focused' : 'controls-search'}>
               <Search onSearch={this.props.toggleSidebar} setFocus={this.setFocus} isActive />
             </div>
             <div styleName="links-group" onClick={this.onLinkClick}>

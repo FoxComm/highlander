@@ -35,7 +35,7 @@ class FormField extends Component {
 
   static defaultProps = {
     target: 'input,textarea,select',
-    getTargetValue: node => node.type == 'checkbox' ? node.checked : node.value,
+    getTargetValue: (node) => { return node.type == 'checkbox' ? node.checked : node.value; },
     validateOnBlur: false,
   };
 

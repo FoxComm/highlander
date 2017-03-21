@@ -9,7 +9,7 @@ type Props = {
 const Loader = (props: Props): Element<*> => {
   return (
     <div styleName="loader" className={styles[`loader-${props.size}`]}>
-      <Icon name="fc-ripple" size={props.size}/>
+      <Icon name="fc-ripple" size={props.size} />
     </div>
   );
 };

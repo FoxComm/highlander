@@ -24,7 +24,7 @@ class CountryInfo extends Component {
     if (this.country) {
       return <span>{ this.props.display(this.country) } </span>;
     }
-    return <span></span>;
+    return <span />;
   }
 }
 

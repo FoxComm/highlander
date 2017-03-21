@@ -51,12 +51,12 @@ type State = {
 };
 
 // redux
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   const async = state.asyncActions.products;
 
   return {
     ...state.products,
-    isLoading: !!async ? async.inProgress : true,
+    isLoading: async ? async.inProgress : true,
     categories: state.categories.list,
   };
 };

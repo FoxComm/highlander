@@ -65,7 +65,7 @@ class ListItem extends React.Component {
       .then(() => {
         this.props.toggleCart();
       })
-      .catch(ex => {
+      .catch((ex) => {
         this.setState({
           error: ex,
         });
@@ -104,17 +104,17 @@ class ListItem extends React.Component {
 
     return (retailPrice > salePrice) ? (
       <div styleName="price">
-          <Currency
-            styleName="retail-price"
-            value={retailPrice}
-            currency={currency}
-          />
-          <Currency
-            styleName="on-sale-price"
-            value={salePrice}
-            currency={currency}
-          />
-        </div>
+        <Currency
+          styleName="retail-price"
+          value={retailPrice}
+          currency={currency}
+        />
+        <Currency
+          styleName="on-sale-price"
+          value={salePrice}
+          currency={currency}
+        />
+      </div>
       ) : (
         <div styleName="price">
           <Currency value={salePrice} currency={currency} />

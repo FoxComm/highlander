@@ -1,7 +1,6 @@
 /* @flow */
 
 import _ from 'lodash';
-import { get, reduce } from 'lodash';
 import React, { Component, Element } from 'react';
 import styles from './auth.css';
 import { autobind } from 'core-decorators';
@@ -102,12 +101,12 @@ class Signup extends Component {
         this.props.saveLineItemsAndCoupons(this.props.mergeGuestCart);
       }
       browserHistory.push(this.props.getPath());
-    }).catch(err => {
-      const errors = get(err, ['responseJson', 'errors'], [err.toString()]);
+    }).catch((err) => {
+      const errors = _.get(err, ['responseJson', 'errors'], [err.toString()]);
       let emailError = false;
       let usernameError = false;
 
-      const restErrors = reduce(errors, (acc, error) => {
+      const restErrors = _.reduce(errors, (acc, error) => {
         if (error.indexOf('email') >= 0) {
           emailError = error;
         } else if (error.indexOf('name') >= 0) {

@@ -11,7 +11,7 @@ export function lookupAddressId(addresses: Array<Address>, address: ?Address): n
   if (address) {
     const sample = _.omit(address, 'id');
 
-    _.some(addresses, nextAddress => {
+    _.some(addresses, (nextAddress) => {
       if (_.isEqual(_.omit(nextAddress, 'id'), sample)) {
         addressId = nextAddress.id;
         return true;

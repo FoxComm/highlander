@@ -14,7 +14,7 @@ const _fetchAccount = createAsyncActions(
 const _updateAccount = createAsyncActions(
   'updateAccount',
   function(payload) {
-    return this.api.account.update(payload).then(account => {
+    return this.api.account.update(payload).then((account) => {
       this.dispatch(updateUser(account));
       return account;
     });

@@ -27,11 +27,11 @@ class FAQSection extends Component {
         <h2 styleName="title">{this.props.title}</h2>
         {this.props.faqs.map(
           qa =>
-              <FAQ
-                question={qa.question}
-                answer={qa.answer}
-                key={generateKey()}
-              />
+            <FAQ
+              question={qa.question}
+              answer={qa.answer}
+              key={generateKey()}
+            />
         )}
       </div>
     );

@@ -48,14 +48,14 @@ export const authenticate = createAsyncActions('auth-login', function authentica
 
 export const saveEmail = createAsyncActions('save-email', function saveEmail(email: string): Promise<*> {
   return api.account.update({email})
-    .then(user => {
+    .then((user) => {
       this.dispatch(setUser(user));
     });
 }).perform;
 
 export function googleSignin(): asyncAction<void> {
   return () => {
-    api.auth.googleSignin().then(urlInfo => {
+    api.auth.googleSignin().then((urlInfo) => {
       window.location.href = urlInfo.url;
     });
   };
@@ -76,7 +76,7 @@ export const logout = createAsyncActions('auth-logout', function logout(): Promi
 
 export const fetchUser = createAsyncActions('fetch-user', function fetchUser(): Promise<*> {
   return api.account.get()
-    .then(user => {
+    .then((user) => {
       this.dispatch(setUser(user));
     });
 }).perform;

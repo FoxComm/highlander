@@ -6,10 +6,8 @@ import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import { toggleCart } from 'modules/cart';
 import { toggleUserMenu } from 'modules/usermenu';
-import { authBlockTypes } from 'paragons/auth';
+import { authBlockTypes, isAuthorizedUser } from 'paragons/auth';
 import { merge } from 'sprout-data';
-
-import { isAuthorizedUser } from 'paragons/auth';
 
 import localized from 'lib/i18n';
 

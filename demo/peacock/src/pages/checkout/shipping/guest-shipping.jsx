@@ -99,7 +99,7 @@ class GuestShipping extends Component {
       >
         <div styleName="subtitle">YOUR INFORMATION</div>
         <FormField>
-          <TextInput value={this.state.email} onChange={this.handleChangeEmail}/>
+          <TextInput value={this.state.email} onChange={this.handleChangeEmail} />
         </FormField>
         <div styleName="subtitle">SHIPPING ADDRESS</div>
         <EditAddress

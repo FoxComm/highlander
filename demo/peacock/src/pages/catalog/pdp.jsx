@@ -73,7 +73,7 @@ type Product = {
   pathName: string,
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   const product = state.productDetails.product;
 
   return {
@@ -234,7 +234,7 @@ class Pdp extends Component {
           currentSku: null,
         });
       })
-      .catch(ex => {
+      .catch((ex) => {
         this.setState({
           error: ex,
         });

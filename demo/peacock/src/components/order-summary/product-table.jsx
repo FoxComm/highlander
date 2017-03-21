@@ -16,7 +16,7 @@ type Props = {
 };
 
 const Products = (props: Props) => {
-  const rows = _.map(props.skus, (item) => <LineItemRow {...item} key={skuIdentity(item)} />);
+  const rows = _.map(props.skus, item => <LineItemRow {...item} key={skuIdentity(item)} />);
 
   return (
     <table styleName="products">

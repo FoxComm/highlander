@@ -1,6 +1,7 @@
 /* @flow */
 
 // libs
+import classnames from 'classnames';
 import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
@@ -80,14 +81,14 @@ class PromoCode extends Component {
 
     this.props.saveCode(code)
       .then(() => this.setState({ code: '', error: false }))
-      .catch(error => {
+      .catch((error) => {
         this.setState({ error });
       });
   }
 
   removeCode(code?: string) {
     this.props.removeCode(code)
-      .catch(error => {
+      .catch((error) => {
         this.setState({ error });
       });
   }
@@ -107,8 +108,7 @@ class PromoCode extends Component {
           <Icon
             onClick={() => this.removeCode(code)}
             name="fc-close"
-            styleName="delete-promo-icon"
-            styleName="delete-promo-btn"
+            className={classnames(styles['delete-promo-icon'], styles['delete-promo-btn'])}
           />
         }
       </div>
@@ -128,8 +128,7 @@ class PromoCode extends Component {
           {this.props.allowDelete &&
             <Icon
               name="fc-close"
-              styleName="delete-promo-icon"
-              styleName="delete-promo-btn"
+              className={classnames(styles['delete-promo-icon'], styles['delete-promo-btn'])}
               onClick={() => this.removeCode()}
             />
           }

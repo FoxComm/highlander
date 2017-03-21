@@ -67,7 +67,7 @@ class Cart extends Component {
   @autobind
   deleteLineItem(sku) {
     tracking.removeFromCart(sku, sku.quantity);
-    this.props.deleteLineItem(sku).catch(ex => {
+    this.props.deleteLineItem(sku).catch((ex) => {
       this.setState({
         errors: parseError(ex),
       });
@@ -82,7 +82,7 @@ class Cart extends Component {
     } else if (diff < 0) {
       tracking.removeFromCart(sku, -diff);
     }
-    this.props.updateLineItemQuantity(sku, quantity).catch(ex => {
+    this.props.updateLineItemQuantity(sku, quantity).catch((ex) => {
       this.setState({
         errors: parseError(ex),
       });
@@ -98,7 +98,7 @@ class Cart extends Component {
       );
     }
 
-    return _.map(this.props.skus, sku => {
+    return _.map(this.props.skus, (sku) => {
       return (
         <LineItem
           {...sku}
@@ -174,7 +174,7 @@ class Cart extends Component {
             <Button onClick={this.onCheckout} disabled={checkoutDisabled} styleName="checkout-button">
               {t('Checkout')}
               <span styleName="subtotal-price">
-                <Currency value={ totals.subTotal } />
+                <Currency value={totals.subTotal} />
               </span>
             </Button>
           </div>

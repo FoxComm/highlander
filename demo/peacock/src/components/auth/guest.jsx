@@ -41,7 +41,7 @@ class Guest extends Component {
         <div styleName="title">Checkout as guest</div>
         <div styleName="inputs-body">
           <FormField key="email" styleName="form-field">
-            <TextInput placeholder="Email" type="email" value={this.state.email} onChange={this.onEmailChange}/>
+            <TextInput placeholder="Email" type="email" value={this.state.email} onChange={this.onEmailChange} />
           </FormField>
         </div>
         <Button
