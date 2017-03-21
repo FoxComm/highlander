@@ -2,7 +2,7 @@
 
 import { createReducer } from 'redux-act';
 import { createAsyncActions } from '@foxcomm/wings';
-import { addTaxonomiesAggregation, addMustNotFilter, defaultSearch, termFilter } from 'lib/elastic';
+import { addTaxonomyFilter, addTaxonomiesAggregation, addMustNotFilter, defaultSearch, termFilter } from 'lib/elastic';
 import _ from 'lodash';
 import { api } from 'lib/api';
 
@@ -34,6 +34,7 @@ function apiCall(
     payload = addMustNotFilter(payload, giftCardTerm);
   }
 
+  // Example: adds 'color:Black' taxon. payload = addTaxonomyFilter(payload, 'color', 'Black');
   payload = addTaxonomiesAggregation(payload);
 
   return this.api.post(`/search/public/products_catalog_view/_search?size=${MAX_RESULTS}`, payload);

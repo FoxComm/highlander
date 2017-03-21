@@ -65,6 +65,26 @@ export function addMustNotFilter(initialQuery: BoolQuery, filter: MatchFilter | 
   );
 }
 
+export function addTaxonomyFilter(initialQuery: BoolQuery, taxonomy, taxon):BoolQuery{
+  var filter = {
+    nested:{
+      path:'taxonomies',
+          query:{
+            bool:{
+              must:[
+                {term:{'taxonomies.taxonomy':taxonomy} },
+                {term:{'taxonomies.taxons':taxon}}
+                  //TODO: add more "{term:{'taxonomies.taxons':taxon}}" items if there are multiple taxons of the _SAME_ taxonomy.
+              ]
+            }
+          }
+    }
+  };
+  return assoc(initialQuery,
+      ['query', 'bool', 'must'], [...initialQuery.query.bool.must || [], filter]
+  );
+}
+
 function defaultAggregation() {
   return {
     aggs: {
@@ -91,7 +111,7 @@ function defaultAggregation() {
   }
 }
 
-export function addTaxonomiesAggregation(initialQuery: BoolQuery) {
+export function addTaxonomiesAggregation(initialQuery) {
   return assoc(initialQuery,["aggs"],defaultAggregation().aggs);
 }
 
