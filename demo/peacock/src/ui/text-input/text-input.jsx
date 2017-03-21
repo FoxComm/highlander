@@ -67,7 +67,7 @@ class TextInput extends Component {
     const positions = this.calcPositions(props.pos);
     const posClassNames = positions.map(side => s[`pos-${side}`]);
 
-    const {className, labelClass, errorClass, type = 'text', ...rest} = props;
+    const {className, labelClass, errorClass, type = 'text', hasCard, hasSymbol, ...rest} = props;
     const error = props.error || this.contextError;
 
     const showSmallPlaceholder = !!props.value && props.placeholder;
@@ -79,8 +79,8 @@ class TextInput extends Component {
 
     const blockClass = classNames(s.block, posClassNames, {
       [s.error]: !error,
-      [s.hasCard]: props.hasCard,
-      [s.hasSymbol]: props.hasSymbol,
+      [s.hasCard]: hasCard,
+      [s.hasSymbol]: hasSymbol,
       [s.hasTopMessages]: showSmallPlaceholder || showErrorText,
     });
 
