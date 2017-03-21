@@ -1,0 +1,25 @@
+.template {
+  height: 300px;
+  overflow: hidden;
+  color: #484848;
+  background-color: #ced2d5;
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 40px;
+  text-overflow: ellipsis;
+  border: none;
+  cursor: pointer;
+  flex: 1;
+
+  transition: all .2s;
+
+  &:hover {
+    background-color: #4fc2c9;
+    color: #fff;
+  }
+}
+
+.icon {
+  display: block;
+  font-size: 48px;
+}

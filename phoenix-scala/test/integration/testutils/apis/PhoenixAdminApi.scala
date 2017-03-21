@@ -1,7 +1,6 @@
 package testutils.apis
 
 import akka.http.scaladsl.model.HttpResponse
-
 import models.objects.ObjectForm
 import payloads.ActivityTrailPayloads._
 import payloads.AddressPayloads._
@@ -19,12 +18,12 @@ import payloads.NotePayloads._
 import payloads.OrderPayloads._
 import payloads.PaymentPayloads._
 import payloads.ProductPayloads._
-import payloads.PromotionPayloads.{CreatePromotion, UpdatePromotion}
+import payloads.PromotionPayloads._
 import payloads.SharedSearchPayloads._
 import payloads.SkuPayloads._
 import payloads.StoreAdminPayloads._
 import payloads.StoreCreditPayloads._
-import payloads.TaxonomyPayloads.{CreateTaxonPayload, CreateTaxonomyPayload, UpdateTaxonPayload, UpdateTaxonomyPayload}
+import payloads.TaxonomyPayloads._
 import payloads.UserPayloads._
 import payloads.VariantPayloads._
 import payloads._
@@ -138,6 +137,13 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
         def convert(): HttpResponse =
           POST(s"$storeCreditPath/convert")
       }
+    }
+
+    object groups {
+      val customerGroupsPath = s"$customerPath/customer-groups"
+
+      def syncGroups(payload: AddCustomerToGroups): HttpResponse =
+        POST(customerGroupsPath, payload)
     }
   }
 
@@ -343,13 +349,31 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
   }
 
   object customerGroupsApi {
-    val customerGroupsPrefix = s"$rootPrefix/groups"
+    val customerGroupsPrefix = s"$rootPrefix/customer-groups"
+
+    def create(payload: CustomerGroupPayload): HttpResponse =
+      POST(customerGroupsPrefix, payload)
+  }
+
+  object customerGroupTemplateApi {
+    val customerGroupTemplatePrefix = s"$rootPrefix/customer-groups/templates"
 
     def get(): HttpResponse =
-      GET(customerGroupsPrefix)
+      GET(customerGroupTemplatePrefix)
+  }
 
-    def create(payload: CustomerDynamicGroupPayload): HttpResponse =
-      POST(customerGroupsPrefix, payload)
+  case class customerGroupsMembersServiceApi(groupId: Int) {
+    val customerGroupMembersPrefix = s"$rootPrefix/service/customer-groups/$groupId"
+
+    def syncCustomers(payload: CustomerGroupMemberServiceSyncPayload): HttpResponse =
+      POST(s"$customerGroupMembersPrefix/customers", payload)
+  }
+
+  case class customerGroupsMembersApi(groupId: Int) {
+    val customerGroupMembersPrefix = s"$rootPrefix/customer-groups/$groupId/customers"
+
+    def syncCustomers(payload: CustomerGroupMemberSyncPayload): HttpResponse =
+      POST(s"$customerGroupMembersPrefix", payload)
   }
 
   case class customerGroupsApi(id: Int) {
@@ -358,8 +382,11 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
     def get(): HttpResponse =
       GET(customerGroupPath)
 
-    def update(payload: CustomerDynamicGroupPayload): HttpResponse =
+    def update(payload: CustomerGroupPayload): HttpResponse =
       PATCH(customerGroupPath, payload)
+
+    def delete: HttpResponse =
+      DELETE(customerGroupPath)
   }
 
   case class genericTreesApi(name: String) {

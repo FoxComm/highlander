@@ -19,12 +19,10 @@ object PaymentRoutes {
   def routes(implicit ec: EC, es: ES, db: DB, auth: AuthData[User], apis: Apis): Route = {
 
     activityContext(auth) { implicit ac ⇒
-      pathPrefix("service") {
-        pathPrefix("capture") {
-          (post & pathEnd & entity(as[CapturePayloads.Capture])) { payload ⇒
-            mutateOrFailures {
-              Capture.capture(payload)
-            }
+      pathPrefix("capture") {
+        (post & pathEnd & entity(as[CapturePayloads.Capture])) { payload ⇒
+          mutateOrFailures {
+            Capture.capture(payload)
           }
         }
       }

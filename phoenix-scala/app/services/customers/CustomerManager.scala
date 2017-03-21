@@ -19,6 +19,7 @@ import models.shipping.Shipments
 import payloads.AuthPayload
 import payloads.CustomerPayloads._
 import responses.CustomerResponse._
+import responses.GroupResponses.CustomerGroupResponse
 import services._
 import services.account._
 import slick.driver.PostgresDriver.api._
@@ -30,7 +31,7 @@ object CustomerManager {
 
   implicit val formatters = phoenixFormats
 
-  private def resolvePhoneNumber(accountId: Int)(implicit ec: EC): DbResultT[Option[String]] = {
+  def resolvePhoneNumber(accountId: Int)(implicit ec: EC): DbResultT[Option[String]] = {
     def resolveFromShipments(accountId: Int) =
       (for {
         order    ← Orders if order.accountId === accountId
@@ -66,6 +67,9 @@ object CustomerManager {
       phoneOverride ← * <~ doOrGood(customer.phoneNumber.isEmpty,
                                     resolvePhoneNumber(accountId),
                                     None)
+      groupMembership ← * <~ CustomerGroupMembers.findByCustomerDataId(customerData.id).result
+      groupIds = groupMembership.map(_.groupId).toSet
+      groups ← * <~ CustomerGroups.findAllByIds(groupIds).result
     } yield
       build(customer.copy(phoneNumber = customer.phoneNumber.orElse(phoneOverride)),
             customerData,
@@ -73,7 +77,8 @@ object CustomerManager {
             billRegion,
             rank = rank,
             scTotals = totals,
-            lastOrderDays = maxOrdersDate.map(DAYS.between(_, Instant.now)))
+            lastOrderDays = maxOrdersDate.map(DAYS.between(_, Instant.now)),
+            groups = groups.map(CustomerGroupResponse.build))
   }
 
   def create(payload: CreateCustomerPayload,
