@@ -35,6 +35,12 @@
   margin-right: 16px;
 }
 
+.btn-apply {
+  font-weight: 900;
+  height: 58px;
+  font-size: 21px;
+}
+
 .plus {
   margin-right: 8px;
   width: 12px;

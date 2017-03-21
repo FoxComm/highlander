@@ -9,11 +9,14 @@ import { connect } from 'react-redux';
 // components
 // import EditableBlock from 'ui/editable-block';
 import { AddressDetails } from 'ui/address';
-// import AddressList from './address-list';
+import AddressList from './address-list';
 import GuestShipping from './guest-shipping';
 import Icon from 'ui/icon';
 import Overlay from 'ui/overlay/overlay';
+import Modal from 'components/modal/modal';
+import Button from 'ui/buttons';
 
+// actions and types
 import { saveShippingAddress, updateAddress, addShippingAddress, updateShippingAddress, toggleAddresses } from 'modules/checkout';
 import type { Address } from 'types/address';
 import type { AsyncStatus } from 'types/async-actions';
@@ -62,7 +65,7 @@ class Shipping extends Component {
   get action() {
     const { props } = this;
 
-    if (_.isEmpty(props.shippingAddress) && props.addresses.length > 0) {
+    if (!_.isEmpty(props.shippingAddress) || props.addresses.length > 0) {
       return (
         <div styleName="btn-action" onClick={this.props.toggleAddresses}>Choose</div>
       );
@@ -96,9 +99,7 @@ class Shipping extends Component {
   }
 
   render() {
-    // const { t } = this.props;
-    const { toggleAddresses, addressesVisible } = this.props;
-    console.log('addressesVisible -> ', addressesVisible);
+    const { toggleAddresses, addressesVisible, t, shippingAddress } = this.props;
     return (
       <div>
         <div styleName="header">
@@ -106,7 +107,16 @@ class Shipping extends Component {
           {this.action}
         </div>
         {this.content}
-        <Overlay onClick={toggleAddresses} shown={addressesVisible} />
+        <Modal
+          title="Shipping address"
+          action={<div onClick={toggleAddresses}>Close</div>}
+          addressesVisible={addressesVisible}
+          toggleAddresses={toggleAddresses}
+
+        >
+          <div styleName="btn-action"><Icon styleName="plus" name="fc-plus"/> Add new</div>
+           <AddressList { ...this.props } activeAddress={shippingAddress}/>
+        </Modal>
       </div>
     );
   }
