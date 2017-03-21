@@ -21,6 +21,16 @@
         "persistent": {
           "size": 1048
         }
+      },
+      {
+        "containerPath": "/data",
+        "hostPath": "data",
+        "mode": "RW"
+      },
+      {
+        "containerPath": "/logs",
+        "hostPath": "logs",
+        "mode": "RW"
       }
     ],
     "docker": {
