@@ -1,29 +1,31 @@
-
 :root {
-  --lightest-blackish: #595959;
-  --light-blackish: #3F3F3F;
-  --blackish: #222;
-  --black-decor: #868686;
   --dark-blackish: #212121;
-  --whitish: #fff;
+  --whitish: #FFFFFF;
   --greyish: #C4C4C4;
-  --redish: #f65554;
+  --redish: #F65554;
   --greenish: #49C699;
-  --blueish: #A7F4FF;
-  --light-grayish: rgba(0, 0, 0, 0.3);
-  --dark-grayish: #616161;
   --white-smokish: #F4F4F4;
-  --star-dustish: #9F9F9F;
   --bunker: rgb(33, 33, 33);
-  --bunker-transparent: rgba(33, 33, 33, .38);
 
   /* peacock: */
-  --water-blue: #0b7ddc;
-  --cherry-red: #e90018;
+  --water-blue: #0B7DDC;
+  --science-blue: #0266B9;
+  --french-pass: #B6D7FF;
+  --malibu: #66AFF5;
+
+  --cherry-red: #E90018;
+
+  --black: #000000;
+  --blackish: #222222;
+  --mine-shaft: #333333;
+  --gray: #888888;
+  --silver: #CCCCCC;
+  --white: #FFFFFF;
 }
 
 :root {
-  --base-color: #fff;
+  --base-color: var(--whitish);
+
   --additional-color: #3E3436;
   --border-color: rgba(33, 33, 33, 0.10);
   --background-color: #FBFBFB;
@@ -40,4 +42,34 @@
   --text-color-main: var(--bunker);
 
   --text-color-on-sale: #AA0F0F;
+}
+
+:root {
+  /* Backgrounds */
+  --body-background: var(--white);
+  --input-background: var(--white);
+
+  /* Inputs */
+  --input-border-color: var(--gray);
+  --input-error-color: var(--cherry-red);
+
+  /* Text colors */
+  --text-color: var(--blackish);
+  --label-color: var(--gray);
+  --error-color: var(--cherry-red);
+
+  /* Button colors */
+  --button-default-color: var(--water-blue);
+  --button-active-color: var(--science-blue);
+  --button-focus-color: var(--water-blue);
+  --button-in-progress-color: var(--science-blue);
+  --button-alt-default-color: var(--mine-shaft);
+  --button-alt-active-color: var(--black);
+  --button-disabled-color: var(--silver);
+
+  --link-color: var(--warter-blue);
+  --link-hover-color: var(--water-blue);
+  --link-visited-color: var(--malibu);
+
+  --focus-color: var(--french-pass);
 }
