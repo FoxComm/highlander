@@ -12,8 +12,9 @@ import { AddressDetails } from 'ui/address';
 // import AddressList from './address-list';
 import GuestShipping from './guest-shipping';
 import Icon from 'ui/icon';
+import Overlay from 'ui/overlay/overlay';
 
-import { saveShippingAddress, updateAddress, addShippingAddress, updateShippingAddress } from 'modules/checkout';
+import { saveShippingAddress, updateAddress, addShippingAddress, updateShippingAddress, toggleAddresses } from 'modules/checkout';
 import type { Address } from 'types/address';
 import type { AsyncStatus } from 'types/async-actions';
 
@@ -41,6 +42,7 @@ type Props = {
 function mapStateToProps(state) {
   return {
     saveShippingState: _.get(state.asyncActions, 'saveShippingAddress', {}),
+    addressesVisible: _.get(state.checkout, 'addressesVisible', false),
   };
 }
 
@@ -62,11 +64,11 @@ class Shipping extends Component {
 
     if (!_.isEmpty(props.shippingAddress)) {
       return (
-        <div styleName="btn-action">Change</div>
+        <div styleName="btn-action" onClick={this.props.toggleAddresses}>Change</div>
       );
     } else if (_.isEmpty(props.shippingAddress) && props.addresses.length > 0) {
       return (
-        <div styleName="btn-action">Choose</div>
+        <div styleName="btn-action" onClick={this.props.toggleAddresses}>Choose</div>
       );
     }
     return (
@@ -99,7 +101,8 @@ class Shipping extends Component {
 
   render() {
     // const { t } = this.props;
-
+    const { toggleAddresses, addressesVisible } = this.props;
+    console.log('addressesVisible -> ', addressesVisible);
     return (
       <div>
         <div styleName="header">
@@ -107,6 +110,7 @@ class Shipping extends Component {
           {this.action}
         </div>
         {this.content}
+        <Overlay onClick={toggleAddresses} shown={addressesVisible} />
       </div>
     );
   }
@@ -119,5 +123,6 @@ export default _.flowRight(
     addShippingAddress,
     saveShippingAddress,
     updateAddress,
+    toggleAddresses,
   })
 )(Shipping);

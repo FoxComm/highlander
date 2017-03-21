@@ -13,7 +13,7 @@
 
 .savedAddress {
   composes: address-details from 'ui/address/address.css';
-  padding: 15px 0;
+  padding-bottom: 15px;
   line-height: 1.3;
   text-align: left;
   color: var(--text-color);
@@ -24,6 +24,7 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  margin-bottom: 10px;
 }
 
 .btn-action {
