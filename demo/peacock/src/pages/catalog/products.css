@@ -20,7 +20,7 @@
   font-stretch: normal;
   line-height: 1.25;
   letter-spacing: normal;
-  color: #222222;
+  color: var(--text-color);
   min-height: 50px;
   composes: inner-wrap from 'ui/css/layout.css';
 

@@ -38,7 +38,7 @@
 }
 
 .actions-block {
-  color: #8D757A;
+  color: var(--link-color);
 }
 
 .subtitle {
