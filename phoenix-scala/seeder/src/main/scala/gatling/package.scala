@@ -1,17 +1,15 @@
 import io.gatling.app.Gatling
 import io.gatling.core.Predef._
 import io.gatling.core.scenario.Simulation
-import io.gatling.core.session.Session
-import io.gatling.core.structure.{ChainBuilder, StructureBuilder}
+import io.gatling.core.structure.StructureBuilder
 import io.gatling.http.request.builder.HttpRequestBuilder
 
-import scala.concurrent.duration._
 import scala.reflect.{ClassTag, classTag}
 
 package object gatling {
 
   implicit class StopOnFailure[B <: StructureBuilder[B]](val builder: B) extends AnyVal {
-    def stopOnFailure =
+    def stopOnFailure: B =
       builder.exec {
         doIf(session ⇒ session.isFailed)(exec { session ⇒
           println("Gatling test failed!")
@@ -27,7 +25,7 @@ package object gatling {
     Gatling.fromArgs(Array("-nr"), Some(classTag[A].runtimeClass.asInstanceOf[Class[Simulation]]))
 
   implicit class Stepper[B <: StructureBuilder[B]](val builder: B) extends AnyVal {
-    def go(http: HttpRequestBuilder) = builder.exec(http).stopOnFailure
+    def go(http: HttpRequestBuilder): B = builder.exec(http).stopOnFailure
   }
 
 }
