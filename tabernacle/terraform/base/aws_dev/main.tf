@@ -46,7 +46,7 @@ variable "frontend_volume_size" {}
 
 variable "dnsimple_token" {}
 
-variable "dnsimple_email" {}
+variable "dnsimple_account" {}
 
 provider "aws" {
   access_key = "${var.aws_access_key}"
@@ -55,8 +55,8 @@ provider "aws" {
 }
 
 provider "dnsimple" {
-  token = "${var.dnsimple_token}"
-  email = "${var.dnsimple_email}"
+  token   = "${var.dnsimple_token}"
+  account = "${var.dnsimple_account}"
 }
 
 module "dev" {

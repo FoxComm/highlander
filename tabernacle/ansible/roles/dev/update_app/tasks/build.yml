@@ -7,7 +7,7 @@
 - name: Checkout Specified Branch
   shell: "git checkout {{branch_name}}"
   args:
-    chdir: "{{highlander_path_out.stdout}}/{{app_name}}"
+    chdir: "{{app_path}}"
 
 - name: Build Application
   shell: "{{app_build_target}}"

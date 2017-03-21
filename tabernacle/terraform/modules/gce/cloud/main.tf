@@ -10,7 +10,7 @@ variable "ssh_private_key" {}
 
 variable "dnsimple_token" {}
 
-variable "dnsimple_email" {}
+variable "dnsimple_account" {}
 
 resource "google_compute_instance" "agent" {
   name         = "${var.instance_name}"
@@ -47,8 +47,8 @@ resource "google_compute_instance" "agent" {
 # Setup DNS
 ##############################################
 provider "dnsimple" {
-  token = "${var.dnsimple_token}"
-  email = "${var.dnsimple_email}"
+  token   = "${var.dnsimple_token}"
+  account = "${var.dnsimple_account}"
 }
 
 resource "dnsimple_record" "agent-dns-record" {

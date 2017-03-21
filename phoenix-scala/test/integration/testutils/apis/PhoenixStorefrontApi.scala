@@ -7,7 +7,7 @@ import testutils._
 
 trait PhoenixStorefrontApi extends HttpSupport { self: FoxSuite ⇒
 
-  private val rootPrefix = "v1/my"
+  val rootPrefix: String = "v1/my"
 
   case class storefrontProductsApi(reference: String) {
     val productPath = s"$rootPrefix/products/$reference/baked"

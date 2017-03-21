@@ -87,6 +87,8 @@ lazy val seeder = (project in file("seeder"))
     scalafmtConfig := Some(file(".scalafmt")),
     reformatOnCompileSettings, // scalafmt,
     Revolver.settings,
+    // we cannot fork and set javaOptions simply, as it causes some weird issue with db schema creation
+    initialize ~= (_ => System.setProperty("phoenix.env", "test" )),
     assemblyMergeStrategy in assembly := {
       case PathList("org", "joda", "time", xs @ _ *) ⇒
         MergeStrategy.first
