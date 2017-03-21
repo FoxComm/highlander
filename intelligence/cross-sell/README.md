@@ -1,4 +1,4 @@
-#cross-sell
+# cross-sell
 
 These are the algorithms used for cross-selling as a part of intelligent
 commerce. 

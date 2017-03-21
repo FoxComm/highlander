@@ -1,0 +1,12 @@
+---
+
+- name: Copy Revoke script
+  template: src=openvpn_revoke_key.sh.j2 dest={{easy_rsa_dir}}/openvpn_revoke_key.sh mode=0700
+
+- name: Revoke OpenVPN key
+  shell: ./openvpn_revoke_key.sh {{ vpn_user }}
+  args:
+    chdir: "{{ easy_rsa_dir }}"
+
+- name: Restart OpenVPN
+  service: name=openvpn state=restarted
