@@ -1,11 +1,10 @@
 /* @flow */
 
-import React from 'react';
-import type { HTMLElement } from 'types';
+import React, { Element } from 'react';
 
 import styles from './footer.css';
 
-const Footer = () : HTMLElement => {
+const Footer = () : Element<*> => {
   return (
     <section styleName="footer">
       <div styleName="wrap">

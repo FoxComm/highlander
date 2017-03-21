@@ -3,7 +3,7 @@
 // libs
 import _ from 'lodash';
 import { filter, map, join, flow } from 'lodash/fp';
-import React from 'react';
+import React, { Element } from 'react';
 import { autobind } from 'core-decorators';
 
 // components
@@ -11,7 +11,7 @@ import { Link } from 'react-router';
 
 import styles from './breadcrumbs.css';
 
-import type { HTMLElement, RoutesParams, Route } from 'types';
+import type { RoutesParams, Route } from 'types';
 
 const Delimiter = (props: {idx: number}) => {
   return (
@@ -72,7 +72,7 @@ export default class Breadcrumbses extends React.Component {
     return <Delimiter idx={idx} />;
   }
 
-  get crumbs(): Array<HTMLElement> {
+  get crumbs(): Array<Element<*>> {
     return _.compact(_.map(this.props.routes, (route) => {
       let result = null;
 

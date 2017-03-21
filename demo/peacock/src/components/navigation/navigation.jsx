@@ -1,7 +1,6 @@
 /* @flow */
 
-import React, { Component } from 'react';
-import type { HTMLElement } from 'types';
+import React, { Component, Element } from 'react';
 import _ from 'lodash';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
@@ -53,7 +52,7 @@ class Navigation extends Component {
     return url;
   }
 
-  render(): HTMLElement {
+  render(): Element<*> {
     const { t } = this.props;
     const path = decodeURIComponent(this.props.path);
 

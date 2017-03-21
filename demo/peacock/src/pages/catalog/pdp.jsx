@@ -2,7 +2,7 @@
 
 // libs
 import _ from 'lodash';
-import React, { Component } from 'react';
+import React, { Component, Element } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
@@ -19,7 +19,6 @@ import { fetch, getNextId, getPreviousId, resetProduct } from 'modules/product-d
 import { addLineItem, toggleCart } from 'modules/cart';
 
 // types
-import type { HTMLElement } from 'types';
 import type { ProductResponse, ProductSlug } from 'modules/product-details';
 
 // components
@@ -99,7 +98,7 @@ const mapDispatchToProps = dispatch => ({
 
 class Pdp extends Component {
   props: Props;
-  productPromise: Promise;
+  productPromise: Promise<*>;
 
   state: State = {
     quantity: 1,
@@ -250,7 +249,7 @@ class Pdp extends Component {
       : <ImagePlaceholder largeScreenOnly />;
   }
 
-  render(): HTMLElement {
+  render(): Element<any> {
     const { t, isLoading, notFound, fetchError } = this.props;
 
     if (isLoading) {

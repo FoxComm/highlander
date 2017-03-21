@@ -33,8 +33,13 @@ type Account = {
   id: number,
 }
 
+type EmptyAccount = {
+  email: void,
+  name: void,
+}
+
 type EditNameProps = {
-  account: Account|{},
+  account: Account|EmptyAccount,
   fetchAccount: () => PromiseType,
   updateAccount: (payload: Object) => PromiseType,
   updateState: AsyncStatus,

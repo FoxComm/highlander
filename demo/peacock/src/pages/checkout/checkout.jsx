@@ -98,6 +98,7 @@ class Checkout extends Component {
   }
 
   checkScroll = () => {
+    // $FlowFixMe: flow c'mon, documentElement is supported on IE6+, Firefox 2+, Chrome 1+ etc
     const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
     const checkoutHeaderHeight = 136;
     const isScrolled = scrollTop > checkoutHeaderHeight;

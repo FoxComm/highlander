@@ -1,7 +1,7 @@
 /* @flow */
 
 import _ from 'lodash';
-import React, { Component } from 'react';
+import React, { Component, Element } from 'react';
 import styles from './auth.css';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
@@ -19,8 +19,6 @@ import Button from 'ui/buttons';
 
 import { restorePassword } from 'modules/auth';
 
-import type { HTMLElement } from 'types';
-
 type RestoreState = {
   emailSent: boolean;
   error: ?string;
@@ -28,26 +26,18 @@ type RestoreState = {
 };
 
 export type RestorePasswordFormProps = {
-  fields: Object,
-  handleSubmit: Function,
-  resetForm: Function,
-  submitting: boolean,
-  error: string,
-  dispatch: ?Function,
-  changeAuthBlockType: ?Function,
   getPath: Function,
-  topMessage: string,
-  title: string,
-  t: Function,
-  restorePassword: Function,
 };
 
-/* ::`*/
-@connect(null, { restorePassword })
-@localized
-/* ::`*/
-export default class RestorePasswordForm extends Component {
-  props: RestorePasswordFormProps;
+type RestorePasswordFormPropsFinal = RestorePasswordFormProps & {
+  topMessage: string,
+  title: string,
+  restorePassword: Function,
+  t: Function,
+}
+
+class RestorePasswordForm extends Component {
+  props: RestorePasswordFormPropsFinal;
 
   state: RestoreState = {
     emailSent: false,
@@ -56,7 +46,7 @@ export default class RestorePasswordForm extends Component {
   };
 
   @autobind
-  handleSubmit(): ?Promise {
+  handleSubmit(): ?Promise<*> {
     const { email } = this.state;
     const { t } = this.props;
 
@@ -80,7 +70,7 @@ export default class RestorePasswordForm extends Component {
     );
   }
 
-  get topMessage(): HTMLElement {
+  get topMessage(): Element<*> {
     const { emailSent, error, email } = this.state;
     const { t } = this.props;
 
@@ -114,7 +104,7 @@ export default class RestorePasswordForm extends Component {
     });
   }
 
-  get emailField(): ?HTMLElement {
+  get emailField(): ?Element<*> {
     const { emailSent, email } = this.state;
     const { t } = this.props;
 
@@ -131,7 +121,7 @@ export default class RestorePasswordForm extends Component {
     browserHistory.push(this.props.getPath(authBlockTypes.LOGIN));
   };
 
-  get primaryButton(): HTMLElement {
+  get primaryButton(): Element<*> {
     const { emailSent } = this.state;
     const { t } = this.props;
 
@@ -146,7 +136,7 @@ export default class RestorePasswordForm extends Component {
     return <Button styleName="primary-button" type="submit">{t('SUBMIT')}</Button>;
   }
 
-  get switchStage(): ?HTMLElement {
+  get switchStage(): ?Element<*> {
     const { emailSent } = this.state;
     const { t, getPath } = this.props;
 
@@ -161,7 +151,7 @@ export default class RestorePasswordForm extends Component {
     }
   }
 
-  render(): HTMLElement {
+  render(): Element<*> {
     return (
       <div>
         <div styleName="title">{this.props.title}</div>
@@ -177,3 +167,8 @@ export default class RestorePasswordForm extends Component {
     );
   }
 }
+
+export default _.flowRight(
+  connect(null, { restorePassword }),
+  localized
+)(RestorePasswordForm);

@@ -1,7 +1,7 @@
 /* @flow */
 
 import _ from 'lodash';
-import React, { Component, PropTypes } from 'react';
+import React, { Component, PropTypes, Element } from 'react';
 import styles from './auth.css';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
@@ -15,8 +15,6 @@ import { FormField, Form } from 'ui/forms';
 import Button from 'ui/buttons';
 
 import { resetPassword } from 'modules/auth';
-
-import type { HTMLElement } from 'types';
 
 type ResetState = {
   isReseted: boolean;
@@ -49,7 +47,7 @@ export default class ResetPassword extends Component {
   };
 
   @autobind
-  handleSubmit(): ?Promise {
+  handleSubmit(): ?Promise<*> {
     const { passwd1, passwd2 } = this.state;
     const code = _.get(this.props, 'path.query.code');
 
@@ -85,7 +83,7 @@ export default class ResetPassword extends Component {
     });
   }
 
-  get topMessage(): HTMLElement {
+  get topMessage(): Element<*> {
     const { isReseted, error } = this.state;
     const { t } = this.props;
 
@@ -119,7 +117,7 @@ export default class ResetPassword extends Component {
     });
   }
 
-  get passwordFields(): ?HTMLElement[] {
+  get passwordFields(): ?Element<*>[] {
     const { isReseted, passwd1, passwd2, error } = this.state;
     const { t } = this.props;
 
@@ -153,24 +151,24 @@ export default class ResetPassword extends Component {
     ];
   }
 
-  goToLogin: Object = () => {
+  goToLogin() {
     browserHistory.push(this.props.getPath(authBlockTypes.LOGIN));
   };
 
-  get primaryButton(): HTMLElement {
+  get primaryButton(): Element<*> {
     const { isReseted } = this.state;
     const { t } = this.props;
 
     if (isReseted) {
       return (
-        <Button styleName="primary-button" type="button" onClick={this.goToLogin}>{t('Back to log in')}</Button>
+        <Button styleName="primary-button" type="button" onClick={() => this.goToLogin()}>{t('Back to log in')}</Button>
       );
     }
 
     return <Button styleName="primary-button" type="submit">{t('Reset password')}</Button>;
   }
 
-  render(): HTMLElement {
+  render(): Element<*> {
     const { t } = this.props;
 
     return (

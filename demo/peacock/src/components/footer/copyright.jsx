@@ -1,13 +1,12 @@
 /* @flow */
 
-import React from 'react';
-import type { HTMLElement } from 'types';
+import React, { Element } from 'react';
 
 import styles from './footer.css';
 
 import { Link } from 'react-router';
 
-const Copyright = () : HTMLElement => {
+const Copyright = () : Element<*> => {
   return (
     <div styleName="copyright">
       <p>&copy; THE PERFECT GOURMET</p>

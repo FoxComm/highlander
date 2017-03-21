@@ -13,7 +13,7 @@ type Props = {
   error?: boolean|string,
   type?: string,
   placeholder?: string,
-  label?: ?string|Element,
+  label?: ?string|Element<*>,
   // modificators
   hasCard?: boolean,
   hasSymbol?: boolean,

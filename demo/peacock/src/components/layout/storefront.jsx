@@ -1,7 +1,6 @@
 /* @flow */
 
-import React from 'react';
-import type { HTMLElement } from 'types';
+import React, { Element } from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 
@@ -14,7 +13,7 @@ import styles from './storefront.css';
 import type { RoutesParams } from 'types';
 
 type Props = RoutesParams & {
-  children: HTMLElement,
+  children: Element<*>,
   location: any,
   banner: {
     isVisible: boolean,

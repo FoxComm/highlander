@@ -2,7 +2,7 @@
 
 // libs
 import _ from 'lodash';
-import React, { Component } from 'react';
+import React, { Component, Element } from 'react';
 import { autobind, debounce } from 'core-decorators';
 import { isElementInViewport } from 'lib/dom-utils';
 import * as tracking from 'lib/analytics';
@@ -14,9 +14,6 @@ import styles from './products-list.css';
 import ListItem from '../products-item/list-item';
 import Loader from 'ui/loader';
 import SortPill from 'components/sort-pill/sort-pill';
-
-// types
-import type { HTMLElement } from 'types';
 
 export const LoadingBehaviors = {
   ShowLoader: 0,
@@ -133,7 +130,7 @@ class ProductsList extends Component {
     }, 250);
   }
 
-  get loadingWrapper(): ?HTMLElement {
+  get loadingWrapper(): ?Element<*> {
     if (this.props.isLoading) {
       return (
         <div styleName="loading-wrapper">
@@ -145,7 +142,7 @@ class ProductsList extends Component {
     }
   }
 
-  get sorting(): HTMLElement {
+  get sorting(): Element<*> {
     const { sorting, changeSorting } = this.props;
     return (
       <div styleName="sorting">
@@ -165,7 +162,7 @@ class ProductsList extends Component {
     );
   }
 
-  render() : HTMLElement {
+  render() : Element<any> {
     const { props } = this;
     const { loadingBehavior = LoadingBehaviors.ShowLoader } = props;
     if (loadingBehavior == LoadingBehaviors.ShowLoader && props.isLoading) {

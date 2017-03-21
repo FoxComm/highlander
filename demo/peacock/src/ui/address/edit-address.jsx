@@ -29,7 +29,7 @@ import { initAddressData } from 'modules/edit-address';
 
 type EditAddressProps = Localized & {
   onUpdate: (address: Address) => void,
-  initAddressData: (address: Address) => Promise,
+  initAddressData: (address: Address) => Promise<*>,
   colorTheme?: string,
   withCountry?: boolean,
   withoutDefaultCheckbox?: boolean,

@@ -14,10 +14,13 @@ class Overlay extends Component {
   props: Props;
 
   componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.shown) {
-      document.getElementById('app').className = styles['no-scroll'];
-    } else {
-      document.getElementById('app').className = '';
+    const appNode = document.getElementById('app');
+    if (appNode) {
+      if (nextProps.shown) {
+        appNode.className = styles['no-scroll'];
+      } else {
+        appNode.className = '';
+      }
     }
   }
 

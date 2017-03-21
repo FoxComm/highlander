@@ -17,10 +17,10 @@ import { saveEmail } from 'modules/auth';
 type Props = {
   shippingAddress?: Address,
   auth: Object,
-  addShippingAddress: (address: Address) => Promise,
-  updateShippingAddress: (address: Address) => Promise,
+  addShippingAddress: (address: Address) => Promise<*>,
+  updateShippingAddress: (address: Address) => Promise<*>,
   onComplete: Function,
-  saveEmail: (email: string) => Promise,
+  saveEmail: (email: string) => Promise<*>,
   submitInProgress: boolean,
   submitError: any,
 }

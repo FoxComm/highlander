@@ -38,7 +38,7 @@ type State = {
   value: string|number,
   isOpen: boolean,
   menuDirection: string,
-  highlightedIndex?: any,
+  highlightedIndex: null|number,
   changingStarted?: boolean,
 };
 

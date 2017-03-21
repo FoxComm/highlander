@@ -1,13 +1,12 @@
-import React from 'react';
+import React, { Element } from 'react';
 import Icon from 'ui/icon';
-import type { HTMLElement } from 'types';
 import styles from './css/loader.css';
 
 type Props = {
-  size: 'm' | 'l' | 'xl' | 'xxl'
+  size?: 'm' | 'l' | 'xl' | 'xxl'
 };
 
-const Loader = (props: Props): HTMLElement => {
+const Loader = (props: Props): Element<*> => {
   return (
     <div styleName="loader" className={styles[`loader-${props.size}`]}>
       <Icon name="fc-ripple" size={props.size}/>

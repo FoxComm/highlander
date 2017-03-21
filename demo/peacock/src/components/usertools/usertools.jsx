@@ -1,8 +1,7 @@
 /* @flow */
 
 import _ from 'lodash';
-import React, { Component, PropTypes } from 'react';
-import type { HTMLElement } from 'types';
+import React, { Component, PropTypes, Element } from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import { toggleCart } from 'modules/cart';
@@ -48,7 +47,7 @@ class UserTools extends Component {
     );
   }
 
-  render(): HTMLElement {
+  render(): Element<*> {
     return (
       <div styleName="tools">
         <div styleName="login">

@@ -1,13 +1,12 @@
 
-import React, { PropTypes, Component } from 'react';
+import React, { PropTypes, Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { EventEmitter } from 'events';
-import type { HTMLElement } from 'types';
 
 type FormProps = {
   onSubmit?: Function;
-  validate?: (data: Object) => Promise|void;
-  children: HTMLElement;
+  validate?: (data: Object) => Promise<*>|void;
+  children: Element<*>;
 }
 
 export default class Form extends Component {

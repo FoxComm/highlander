@@ -1,7 +1,7 @@
 /* @flow */
 
 // libs
-import React, { Component } from 'react';
+import React, { Component, Element } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 import localized from 'lib/i18n';
@@ -13,7 +13,6 @@ import ProductsList from 'components/products-list/products-list';
 import styles from './search.css';
 
 // types
-import type { HTMLElement } from 'types';
 import type { AsyncStatus } from 'types/async-actions';
 import type { Product } from 'modules/products';
 import type { Localized } from 'lib/i18n';
@@ -37,7 +36,7 @@ type Props = Localized & {
   results: SearchResult,
   params: SearchParams,
   force: boolean,
-  searchProducts: (term: string) => Promise,
+  searchProducts: (term: string) => Promise<*>,
   searchState: AsyncStatus,
 };
 
@@ -65,7 +64,7 @@ class Search extends Component {
     props.searchProducts(props.params.term);
   }
 
-  render(): HTMLElement {
+  render(): Element<*> {
     const { params, results, t } = this.props;
     const { term } = params;
 
