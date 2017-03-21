@@ -26,8 +26,12 @@ final case class ProductsCatalogView()(implicit ec: EC) extends AvroTransformer 
               field("title", StringType).index("not_analyzed"),
               field("baseUrl", StringType).index("not_analyzed")
           )
+      ),
+      field("taxonomies").nested(
+          field("taxons", StringType).index("not_analyzed"),
+          field("taxonomy", StringType).index("not_analyzed")
       )
   )
 
-  override def nestedFields() = List("albums", "tags", "skus")
+  override def nestedFields() = List("albums", "tags", "skus", "taxonomies", "taxons")
 }
