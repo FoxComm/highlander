@@ -11,10 +11,10 @@ import { emailIsSet, isGuest } from 'paragons/auth';
 
 // components
 import Shipping from './shipping/shipping';
-import Delivery from './delivery/delivery';
-import Billing from './billing/billing';
-import GuestAuth from './guest-auth/guest-auth';
-import OrderSummary from 'components/order-summary/order-summary';
+// import Delivery from './delivery/delivery';
+// import Billing from './billing/billing';
+// import GuestAuth from './guest-auth/guest-auth';
+// import OrderSummary from 'components/order-summary/order-summary';
 import Header from 'components/header/header';
 import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
 import Loader from 'ui/loader';

@@ -7,9 +7,9 @@ import localized from 'lib/i18n';
 import { connect } from 'react-redux';
 
 // components
-import EditableBlock from 'ui/editable-block';
+// import EditableBlock from 'ui/editable-block';
 import { AddressDetails } from 'ui/address';
-import AddressList from './address-list';
+// import AddressList from './address-list';
 import GuestShipping from './guest-shipping';
 import Icon from 'ui/icon';
 
@@ -98,7 +98,7 @@ class Shipping extends Component {
   }
 
   render() {
-    const { t } = this.props;
+    // const { t } = this.props;
 
     return (
       <div>
