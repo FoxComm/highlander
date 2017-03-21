@@ -1,5 +1,5 @@
 {
-  "id": "/storefront",
+  "id": "/peacock",
   "cmd": null,
   "cpus": 1,
   "mem": 1024,
@@ -46,7 +46,7 @@
       }
     ],
     "docker": {
-      "image": "{{docker_registry}}:5000/firebrand:{{docker_tags.peacock}}",
+      "image": "{{docker_registry}}:5000/peacock:{{docker_tags.peacock}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],

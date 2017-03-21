@@ -175,19 +175,6 @@ trait HttpSupport
     Uri(s"http://$host:$port/$path")
   }
 
-  def buildRequest[T <: AnyRef](method: HttpMethod,
-                                path: String,
-                                payload: Option[T] = None): HttpRequest = {
-    val entity = payload.fold(HttpEntity.Empty)(
-        p ⇒
-          HttpEntity.Strict(
-              ContentTypes.`application/json`,
-              ByteString(writeJson(p))
-        ))
-
-    HttpRequest(method = method, uri = pathToAbsoluteUrl(path), entity = entity)
-  }
-
   /**
     * Returns an ephemeral port that is free, that is not currently used by the
     * OS and not likely to be used.

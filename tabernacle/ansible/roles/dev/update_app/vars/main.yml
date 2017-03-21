@@ -7,7 +7,7 @@ input_aliases:
 # Supported canonical apps (otherwise, playbook fails fast)
 supported_apps:
     - ashes
-    - firebrand
+    - peacock
     - phoenix
     - greenriver
     - middlewarehouse
@@ -31,6 +31,7 @@ app_highlander_paths:
     shipments-consumer: middlewarehouse
     shipstation-consumer: middlewarehouse
     stock-items-consumer: middlewarehouse
+    peacock: demo/peacock
 
 # Mapping canonical app name to Mararthon template path
 app_template_paths:
@@ -38,7 +39,7 @@ app_template_paths:
 
 # Mapping canonical app name to Marathon app name
 app_marathon_names:
-    firebrand: storefront
+    firebrand: storefront # not removing it, serves as an example and prevents errors in dev/update-app playbook
 
 # Custom `make build` targets
 app_build_targets:
@@ -70,7 +71,7 @@ app_push_targets:
 # Override default Docker tags
 docker_tags:
     ashes: "{{tag_name}}"
-    firebrand: "{{tag_name}}"
+    peacock: "{{tag_name}}"
     phoenix: "{{tag_name}}"
     greenriver: "{{tag_name}}"
     middlewarehouse: "{{tag_name}}"
