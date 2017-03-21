@@ -28,18 +28,11 @@ import * as checkoutActions from 'modules/checkout';
 type Props = {
   fetchAddresses: () => Promise,
   addresses: Array<Address>,
-  updateAddress: (address: Address, id?: number) => Promise,
   deleteAddress: (id: number) => Promise,
   restoreAddress: (id: number) => Promise,
-  markAddressAsDefault: (id: number) => Promise,
-  updateShippingAddress: (address: Address) => Promise,
-  saveShippingAddress: (id: number) => Promise,
-  removeShippingAddress: Function,
+  setAddressAsDefault: (id: number) => Promise,
+  cleanDeletedAddresses: () => void,
   t: any,
-};
-
-type State = {
-  activeAddressId?: number|string,
 };
 
 function mapStateToProps(state) {
@@ -51,31 +44,12 @@ function mapStateToProps(state) {
 class MyShippingAddresses extends Component {
   props: Props;
 
-  state: State = {
-    activeAddressId: void 0,
-  };
-
   componentWillMount() {
-    this.props.fetchAddresses()
-      .then(() => {
-        if (this.props.addresses.length >= 1) {
-          this.selectAddrOnLoad(this.props.addresses);
-        }
-      });
+    this.props.fetchAddresses();
   }
 
-  componentWillUpdate(nextProps: Props, nextState: State) {
-    const selectedAddress = _.find(nextProps.addresses, { id: nextState.activeAddressId });
-    if (nextProps.addresses.length > 0 && !selectedAddress) {
-      this.selectAddrOnLoad(nextProps.addresses);
-    }
-  }
-
-  @autobind
-  selectAddrOnLoad(addresses) {
-    const defaultAddress = _.find(addresses, { isDefault: true });
-    const selected = defaultAddress ? defaultAddress.id : addresses[0].id;
-    this.selectAddressById(selected, false);
+  componentWillUnmount() {
+    this.props.cleanDeletedAddresses();
   }
 
   @autobind
@@ -84,50 +58,24 @@ class MyShippingAddresses extends Component {
   }
 
   @autobind
-  selectAddressById(addressId, deleted) {
-    const newShippingAddress = _.find(this.props.addresses, { id: addressId });
-
-    if (deleted) {
-      this.props.markAddressAsDefault(addressId);
-    } else {
-      if (newShippingAddress && !newShippingAddress.isDefault) {
-        newShippingAddress.isDefault = true;
-        this.props.updateAddress(newShippingAddress, addressId);
-      }
-    }
-    this.props.saveShippingAddress(addressId);
-    this.setState({
-      activeAddressId: addressId,
-    });
+  deleteAddress(address) {
+    this.props.deleteAddress(address.id);
   }
 
   @autobind
-  deleteAddress(id, isDefault) {
-    this.props.deleteAddress(id)
-      .then(() => {
-        if (isDefault) {
-          let newDefault;
-          this.props.addresses.some((address) => {
-            if (!address.isDeleted) {
-              newDefault = address.id;
-              return true;
-            }
-          });
-          if (newDefault) {
-            this.selectAddressById(newDefault, true);
-          } else {
-            this.props.removeShippingAddress();
-          }
-        }
-      });
+  handleSelectAddress(address) {
+    this.props.setAddressAsDefault(address.id);
   }
+
   renderAddresses() {
     const { props } = this;
+    const seenAddressNames = {};
     const items = _.map(props.addresses, (address: Address) => {
       const contentAttrs = address.isDeleted ? {className: styles['deleted-content']} : {};
       const content = <AddressDetails address={address} hideName {...contentAttrs} />;
-      const checked = address.id === this.state.activeAddressId;
-      const key = address.id;
+      const checked = address.isDefault;
+      const key = address.name in seenAddressNames ? address.id : address.name;
+      seenAddressNames[address.name] = 1;
 
       let actionsContent;
       let title;
@@ -144,7 +92,7 @@ class MyShippingAddresses extends Component {
           <div styleName="actions-block">
             <Link styleName="link" to={`/profile/addresses/${address.id}`}>{props.t('EDIT')}</Link>
             &nbsp;|&nbsp;
-            <div styleName="link" onClick={() => this.deleteAddress(address.id, address.isDefault)}>
+            <div styleName="link" onClick={() => this.deleteAddress(address)}>
               {props.t('REMOVE')}
             </div>
           </div>
@@ -153,21 +101,23 @@ class MyShippingAddresses extends Component {
       }
 
       return (
-        <li styleName="item" key={`address-radio-${key}`}>
+        <li styleName="list-item" key={`address-radio-${key}`}>
           <RadioButton
             id={`address-radio-${key}`}
             name={`address-radio-${key}`}
             checked={checked}
             disabled={address.isDeleted}
-            onChange={() => this.selectAddressById(address.id, false)}
+            onChange={() => this.handleSelectAddress(address)}
+            styleName="shipping-row"
           >
             <EditableBlock
               styleName="item-content"
               title={title}
               content={content}
-              actionsContent={actionsContent}
+              editAllowed={false}
             />
           </RadioButton>
+          {actionsContent}
         </li>
       );
     });

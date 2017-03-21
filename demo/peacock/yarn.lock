@@ -2,12 +2,13 @@
 # yarn lockfile v1
 
 
-"@foxcomm/api-js@^1.1.3":
-  version "1.1.3"
-  resolved "https://npm.foxcommerce.com:4873/@foxcomm%2fapi-js/-/api-js-1.1.3.tgz#be9537c7639081859a71d15fb9b59265ccb5b0a5"
+"@foxcomm/api-js@^1.1.5":
+  version "1.1.5"
+  resolved "https://npm.foxcommerce.com:4873/@foxcomm%2fapi-js/-/api-js-1.1.5.tgz#3324246df69868b17f49c1a6835f543171b317bb"
   dependencies:
     debug "^2.2.0"
     jwt-decode "^2.0.1"
+    lodash "^4.17.4"
     postinstall-build "^0.2.1"
     superagent "^3.2.1"
 
@@ -3751,10 +3752,6 @@ flatten@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/flatten/-/flatten-1.0.2.tgz#dae46a9d78fbe25292258cc1e780a41d95c03782"
 
-fleck@^0.5.1:
-  version "0.5.1"
-  resolved "https://registry.yarnpkg.com/fleck/-/fleck-0.5.1.tgz#4d25e3c30eba2d8c0f3f0dae02554f0311ebf078"
-
 flow-bin@^0.23.0:
   version "0.23.1"
   resolved "https://registry.yarnpkg.com/flow-bin/-/flow-bin-0.23.1.tgz#eb6522bb7c6719184593adef46ab22381cc188a6"
@@ -5867,7 +5864,7 @@ lodash.uniq@^4.3.0:
   version "4.5.0"
   resolved "https://registry.yarnpkg.com/lodash.uniq/-/lodash.uniq-4.5.0.tgz#d0225373aeb652adc1bc82e4945339a842754773"
 
-lodash@4.x.x, lodash@^4.1.0, lodash@^4.13.1, lodash@^4.2.0, lodash@^4.2.1, lodash@^4.3.0, lodash@^4.6.1:
+lodash@4.x.x, lodash@^4.1.0, lodash@^4.13.1, lodash@^4.17.4, lodash@^4.2.0, lodash@^4.2.1, lodash@^4.3.0, lodash@^4.6.1:
   version "4.17.4"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.4.tgz#78203a4d1c328ae1d86dca6460e369b57f4055ae"
 

@@ -142,3 +142,11 @@
 .order-summary {
   margin-top: 20px;
 }
+
+.list-item {
+  display: flex;
+}
+
+.shipping-row {
+  flex-grow: 1;
+}
