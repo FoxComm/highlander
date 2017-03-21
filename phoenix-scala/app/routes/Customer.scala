@@ -245,13 +245,10 @@ object Customer {
                   CreditCardManager.getByIdAndCustomer(creditCardId, auth.model)
                 }
               } ~
-              (post & path(IntNumber / "default") & pathEnd & entity(as[ToggleDefaultCreditCard])) {
-                (cardId, payload) ⇒
-                  mutateOrFailures {
-                    CreditCardManager.toggleCreditCardDefault(auth.account.id,
-                                                              cardId,
-                                                              payload.isDefault)
-                  }
+              (post & path(IntNumber / "default") & pathEnd) { cardId ⇒
+                mutateOrFailures {
+                  CreditCardManager.setDefaultCreditCard(auth.account.id, cardId)
+                }
               } ~
               (post & pathEnd & entity(as[CreateCreditCardFromTokenPayload])) { payload ⇒
                 mutateOrFailures {
@@ -267,6 +264,11 @@ object Customer {
               (delete & path(IntNumber) & pathEnd) { cardId ⇒
                 deleteOrFailures {
                   CreditCardManager.deleteCreditCard(auth.account.id, cardId)
+                }
+              } ~
+              (delete & path("default") & pathEnd) {
+                deleteOrFailures {
+                  CreditCardManager.removeDefaultCreditCard(auth.account.id)
                 }
               }
             } ~

@@ -384,7 +384,7 @@ class CustomerIntegrationTest
 
       val ccResp = customersApi(customer.accountId).payments
         .creditCard(creditCard.id)
-        .toggleDefault(ToggleDefaultCreditCard(isDefault = true))
+        .setDefault()
         .as[CardResponse]
 
       ccResp.isDefault mustBe true
@@ -401,7 +401,7 @@ class CustomerIntegrationTest
 
       val ccResp = customersApi(customer.accountId).payments
         .creditCard(nonDefault.id)
-        .toggleDefault(ToggleDefaultCreditCard(isDefault = true))
+        .setDefault()
         .as[CardResponse]
 
       val (prevDefault, currDefault) =
@@ -415,7 +415,7 @@ class CustomerIntegrationTest
     "fails when the credit card doesn't exist" in new Fixture {
       customersApi(customer.accountId).payments
         .creditCard(99)
-        .toggleDefault(ToggleDefaultCreditCard(isDefault = true))
+        .setDefault()
         .mustFailWith404(NotFoundFailure404(CreditCard, 99))
     }
   }

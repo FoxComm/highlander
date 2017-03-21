@@ -1,7 +1,7 @@
 package failures
 
 object AddressFailures {
-  case object NoDefaultAddressForCustomer extends Failure {
-    def description: String = s"No default address defined"
+  object NoDefaultAddressForCustomer {
+    def apply(): Failure = NotFoundFailure404("No default address defined")
   }
 }

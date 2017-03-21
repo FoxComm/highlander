@@ -20,7 +20,7 @@ object ShippingMethodFailures {
     override def description = s"Shipping method $id is not applicable to cart $refNum"
   }
 
-  case class NoDefaultShippingMethod(scope: LTree) extends Failure {
-    def description: String = s"No default shipping method found in $scope"
+  object NoDefaultShippingMethod {
+    def apply(): Failure = NotFoundFailure404(s"No default shipping method found")
   }
 }

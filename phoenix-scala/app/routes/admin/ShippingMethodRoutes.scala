@@ -13,9 +13,9 @@ object ShippingMethodRoutes {
   def routes(implicit ec: EC, db: DB, auth: AuthData[User]): Route = {
     activityContext(auth) { implicit ac ⇒
       pathPrefix("shipping-methods") {
-        (get & pathEnd) {
-          getOrFailures {
-            ShippingManager.getActive
+        (post & path(IntNumber / "default") & pathEnd) { shippingMethodId ⇒
+          mutateOrFailures {
+            ShippingManager.setDefault(shippingMethodId = shippingMethodId)
           }
         } ~
         pathPrefix("default") {
@@ -28,13 +28,11 @@ object ShippingMethodRoutes {
             deleteOrFailures {
               ShippingManager.removeDefault()
             }
-          } ~
-          pathPrefix(IntNumber) { shippingMethodId ⇒
-            (post & pathEnd) {
-              mutateOrFailures {
-                ShippingManager.setDefault(shippingMethodId = shippingMethodId)
-              }
-            }
+          }
+        } ~
+        (get & pathEnd) {
+          getOrFailures {
+            ShippingManager.getActive
           }
         } ~
         path(cordRefNumRegex) { refNum ⇒

@@ -1,9 +1,11 @@
-import java.time.Instant
 import akka.http.scaladsl.model.HttpResponse
 import cats.implicits._
+import failures.AddressFailures.NoDefaultAddressForCustomer
+import failures.CreditCardFailures.NoDefaultCreditCardForCustomer
 import failures.NotFoundFailure404
-import failures.ShippingMethodFailures.ShippingMethodNotFoundByName
+import failures.ShippingMethodFailures.{NoDefaultShippingMethod, ShippingMethodNotFoundByName}
 import failures.UserFailures._
+import java.time.Instant
 import models.account._
 import models.cord.Order.RemorseHold
 import models.cord._
@@ -11,15 +13,15 @@ import models.cord.lineitems._
 import models.customer._
 import models.inventory._
 import models.location.{Address, Addresses}
-import models.payment.InStorePaymentStates
 import models.payment.giftcard._
-import models.product.{Mvp, SimpleProductData}
+import models.payment.{InStorePaymentStates, PaymentMethod}
+import models.product.Mvp
 import models.shipping._
 import models.{Reason, Reasons}
 import payloads.AddressPayloads.CreateAddressPayload
+import payloads.CartPayloads.{CheckoutCart, CreateCart}
 import payloads.GiftCardPayloads.GiftCardCreateByCsr
 import payloads.LineItemPayloads._
-import payloads.CartPayloads.{CheckoutCart, CreateCart}
 import payloads.PaymentPayloads.{CreateCreditCardFromTokenPayload, CreateManualStoreCredit, GiftCardPayment, ToggleDefaultCreditCard}
 import payloads.UpdateShippingMethod
 import responses.GiftCardResponse
@@ -99,18 +101,23 @@ class CheckoutIntegrationTest
   "POST v1/carts/:refNum/checkout" - {
 
     "allow to do one-click checkout" in new OneClickCheckoutFixture {
+      shippingMethodsApi(shipMethod.id).setDefault().mustBeOk()
       storefrontAddressesApi(address.id).setDefault().mustBeOk()
+      storefrontPaymentsApi.creditCard(creditCard.id).setDefault().mustBeOk()
 
-      storefrontPaymentsApi
-        .creditCard(creditCard.id)
-        .toggleDefault(ToggleDefaultCreditCard(isDefault = true))
-        .mustBeOk()
-
-      shippingMethodsApi.default.set(shipMethod.id).mustBeOk()
-
-      val orderResponse = storefrontCartsApi
+      val order = storefrontCartsApi
         .checkout(CheckoutCart(items = List(UpdateLineItemsPayload(sku.code, 1))))
         .as[OrderResponse]
+      order.lineItems.skus.onlyElement must have(
+          'sku (sku.code),
+          'quantity (1)
+      )
+      order.billingCreditCardInfo.value must have(
+          'id (creditCard.id),
+          'type (PaymentMethod.CreditCard)
+      )
+      order.shippingAddress.id must === (address.id)
+      order.shippingMethod.id must === (shipMethod.id)
     }
 
     "places order as admin" in new Fixture {
@@ -129,11 +136,35 @@ class CheckoutIntegrationTest
       GiftCardAdjustments.map(_.state).gimme must contain only InStorePaymentStates.Auth
     }
 
-    "fails to do one-click checkout if no default credit card is selected for a customer" in new Fixture {}
+    "fails to do one-click checkout if no default credit card is selected for a customer" in new OneClickCheckoutFixture {
+      shippingMethodsApi(shipMethod.id).setDefault().mustBeOk()
+      storefrontAddressesApi(address.id).setDefault().mustBeOk()
+      storefrontPaymentsApi.creditCards.unsetDefault().mustBeEmpty()
 
-    "fails to do one-click checkout if no default shipping address is selected for a customer" in new Fixture {}
+      storefrontCartsApi
+        .checkout(CheckoutCart(items = List(UpdateLineItemsPayload(sku.code, 1))))
+        .mustFailWith404(NoDefaultCreditCardForCustomer())
+    }
 
-    "fails to do one-click checkout if no default shipping method is selected for an organisation" in new Fixture {}
+    "fails to do one-click checkout if no default shipping address is selected for a customer" in new OneClickCheckoutFixture {
+      shippingMethodsApi(shipMethod.id).setDefault().mustBeOk()
+      storefrontAddressesApi.unsetDefault().mustBeEmpty()
+      storefrontPaymentsApi.creditCard(creditCard.id).setDefault().mustBeOk()
+
+      storefrontCartsApi
+        .checkout(CheckoutCart(items = List(UpdateLineItemsPayload(sku.code, 1))))
+        .mustFailWith404(NoDefaultAddressForCustomer())
+    }
+
+    "fails to do one-click checkout if no default shipping method is selected for an organisation" in new OneClickCheckoutFixture {
+      shippingMethodsApi.unsetDefault().mustBeEmpty()
+      storefrontAddressesApi(address.id).setDefault().mustBeOk()
+      storefrontPaymentsApi.creditCard(creditCard.id).setDefault().mustBeOk()
+
+      storefrontCartsApi
+        .checkout(CheckoutCart(items = List(UpdateLineItemsPayload(sku.code, 1))))
+        .mustFailWith404(NoDefaultShippingMethod())
+    }
 
     "fails if customer's credentials are empty" in new Fixture {
       val refNum =

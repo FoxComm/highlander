@@ -24,6 +24,9 @@ trait PhoenixStorefrontApi extends HttpSupport { self: FoxSuite ⇒
 
   object storefrontAddressesApi {
     val addressPath = s"$rootPrefix/addresses"
+
+    def unsetDefault(): HttpResponse =
+      DELETE(s"$addressPath/default")
   }
 
   case class storefrontAddressesApi(id: Int) {
@@ -38,13 +41,16 @@ trait PhoenixStorefrontApi extends HttpSupport { self: FoxSuite ⇒
 
     object creditCards {
       val ccPath = s"$paymentPath/credit-cards"
+
+      def unsetDefault(): HttpResponse =
+        DELETE(s"$ccPath/default")
     }
 
     case class creditCard(id: Int) {
       val ccPath = s"${creditCards.ccPath}/$id"
 
-      def toggleDefault(payload: ToggleDefaultCreditCard): HttpResponse =
-        POST(s"$ccPath/default", payload)
+      def setDefault(): HttpResponse =
+        POST(s"$ccPath/default")
     }
   }
 }

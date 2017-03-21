@@ -116,19 +116,19 @@ object Checkout {
       ccId ← * <~ CreditCards
               .findDefaultByAccountId(customerId)
               .map(_.id)
-              .mustFindOneOr(NoDefaultCreditCardForCustomer)
+              .mustFindOneOr(NoDefaultCreditCardForCustomer())
       _ ← * <~ CartPaymentUpdater.addCreditCard(au.model, ccId, refNum)
 
       addressId ← * <~ Addresses
                    .findShippingDefaultByAccountId(customerId)
                    .map(_.id)
-                   .mustFindOneOr(NoDefaultAddressForCustomer)
+                   .mustFindOneOr(NoDefaultAddressForCustomer())
       _ ← * <~ CartShippingAddressUpdater
            .createShippingAddressFromAddressId(au.model, addressId, refNum)
 
       shippingMethod ← * <~ DefaultShippingMethods
                         .resolve(scope)
-                        .mustFindOr(NoDefaultShippingMethod(scope))
+                        .mustFindOr(NoDefaultShippingMethod())
       _ ← * <~ CartShippingMethodUpdater.updateShippingMethod(au.model, shippingMethod.id, refNum)
 
       cart  ← * <~ Carts.mustFindByRefNum(cart.referenceNumber)

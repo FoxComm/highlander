@@ -107,13 +107,16 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
         def create(payload: CreateCreditCardFromTokenPayload): HttpResponse =
           POST(creditCardsPrefix, payload)
+
+        def unsetDefault(): HttpResponse =
+          DELETE(s"$creditCardsPrefix/default")
       }
 
       case class creditCard(id: Int) {
         val creditCardPath = s"${creditCards.creditCardsPrefix}/$id"
 
-        def toggleDefault(payload: ToggleDefaultCreditCard): HttpResponse =
-          POST(s"$creditCardPath/default", payload)
+        def setDefault(): HttpResponse =
+          POST(s"$creditCardPath/default")
 
         def edit(payload: EditCreditCard): HttpResponse =
           PATCH(creditCardPath, payload)
@@ -390,18 +393,16 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
     def forCart(refNum: String): HttpResponse =
       GET(s"$shippingMethodsPrefix/$refNum")
 
-    object default {
-      val requestPath = s"$shippingMethodsPrefix/default"
+    def getDefault(): HttpResponse =
+      GET(s"$shippingMethodsPrefix/default")
 
-      def get(): HttpResponse =
-        GET(requestPath)
+    def unsetDefault(): HttpResponse =
+      DELETE(s"$shippingMethodsPrefix/default")
+  }
 
-      def set(shippingMethodId: Int): HttpResponse =
-        POST(s"$requestPath/$shippingMethodId")
-
-      def remove(): HttpResponse =
-        DELETE(s"$requestPath")
-    }
+  case class shippingMethodsApi(id: Int) {
+    def setDefault(): HttpResponse =
+      POST(s"${shippingMethodsApi.shippingMethodsPrefix}/$id/default")
   }
 
   case object skusApi {
