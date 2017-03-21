@@ -139,14 +139,16 @@ const _setAddressAsDefault = createAsyncActions(
   'setAddressAsDefault',
   function (id) {
     const { dispatch } = this;
+    // optimistic update
+    dispatch(markDefaultAddress(id));
     return foxApi.addresses.setAsDefault(id)
       .then(() => {
-        dispatch(markDefaultAddress(id));
+        dispatch(fetchAddresses());
       });
   }
 );
 
-export const markAddressAsDefault = _setAddressAsDefault.perform;
+export const setAddressAsDefault = _setAddressAsDefault.perform;
 
 const _removeShippingAddress = createAsyncActions(
   'REMOVE_SHIPPING_ADDRESS',
@@ -221,27 +223,36 @@ function createOrUpdateAddress(payload, id) {
   return foxApi.addresses.add(payload);
 }
 
+function autoAssignNewDefaultShippingAddress() {
+  return (dispatch, getState) => {
+    const { addresses } = getState().checkout;
+
+    const newDefault = _.find(addresses, address => !address.isDeleted);
+    if (newDefault) {
+      dispatch(setAddressAsDefault(newDefault.id));
+    } else {
+      dispatch(removeShippingAddress());
+    }
+  };
+}
+
 const _deleteAddress = createAsyncActions(
   'deleteAddress',
   function(addressId: number) {
-    const { dispatch } = this;
+    const { dispatch, getState } = this;
+    const address = _.find(getState().checkout.addresses, {id: addressId});
+    const wasDefault = address.isDefault;
 
     return foxApi.addresses.delete(addressId).then(() => {
       dispatch(markAddressAsDeleted(addressId));
+      if (wasDefault) {
+        dispatch(autoAssignNewDefaultShippingAddress());
+      }
     });
   }
 );
 
 export const deleteAddress = _deleteAddress.perform;
-
-function setDefaultAddress(id: number): Function {
-  return (dispatch) => {
-    return foxApi.addresses.setAsDefault(id)
-      .then(() => {
-        dispatch(fetchAddresses());
-      });
-  };
-}
 
 const _updateAddress = createAsyncActions(
   'updateAddress',
@@ -252,7 +263,7 @@ const _updateAddress = createAsyncActions(
     return createOrUpdateAddress(payload, id)
       .then((addressResponse) => {
         if (payload.isDefault) {
-          dispatch(setDefaultAddress(addressResponse.id));
+          dispatch(setAddressAsDefault(addressResponse.id));
         } else {
           dispatch(fetchAddresses());
         }
@@ -442,9 +453,11 @@ const reducer = createReducer({
     };
   },
   [_fetchAddresses.succeeded]: (state, list) => {
+    const deletedAddresses = _.filter(state.addresses, {isDeleted: true});
+    const addresses = [...deletedAddresses, ...list].sort((a, b) => a.id - b.id);
     return {
       ...state,
-      addresses: list,
+      addresses,
     };
   },
   [markDefaultAddress]: (state, addressId) => {
@@ -464,7 +477,10 @@ const reducer = createReducer({
   [markAddressAsDeleted]: (state, addressId) => {
     const index = _.findIndex(state.addresses, {id: addressId});
     if (index != -1) {
-      return assoc(state, ['addresses', index, 'isDeleted'], true);
+      return assoc(state,
+        ['addresses', index, 'isDeleted'], true,
+        ['addresses', index, 'isDefault'], false
+      );
     }
     return state;
   },
