@@ -6,7 +6,7 @@
   top: 0;
   bottom: 0;
   left: 0;
-  background: #fff;
+  background: var(--body-background);
   transform: translateX(-100%);
   transition: transform .2s;
   lost-column: 4/12;
@@ -28,13 +28,13 @@
   }
 
   .controls-search {
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--input-border-color);
     margin: 30px 10px 20px 10px;
   }
 
   .controls-search-focused {
     composes: controls-search;
-    border-bottom: 2px solid #0b7ddc;
+    border-bottom: 2px solid var(--input-border-color);
   }
 }
 
@@ -49,7 +49,7 @@
 }
 
 .controls-categories > ul li {
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--input-border-color);
   font-size: 18px;
   font-weight: 900;
 }
@@ -69,12 +69,12 @@
 }
 
 .close-button {
-  color: #0b7ddc;
+  color: var(--link-color);
   cursor: pointer;
   margin-right: 5px;
   font-size: 14px;
 }
 
 .active-link {
-  box-shadow: 0 2px rgba(255, 255, 255, 0.70);
+  box-shadow: 0 2px var(--input-border-color);
 }

@@ -8,7 +8,7 @@
   padding-top: 15px;
   padding-bottom: 10px;
   display: flex;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--input-border-color);
 }
 
 .image {
@@ -51,7 +51,7 @@
 
 .delete-button {
   cursor: pointer;
-  color: #0b7ddc;
+  color: var(--link-color);
   font-size: 14px;
 }
 
@@ -71,7 +71,7 @@
 .price, .multiply, .total-price, .quantity {
   margin: 10px;
   font-size: 14px;
-  color: #222;
+  color: var(--text-color);
 }
 
 .total-price {

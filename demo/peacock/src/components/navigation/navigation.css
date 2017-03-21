@@ -8,13 +8,13 @@
 
 @media (--small-only), (--medium-only) {
   .item-link {
-    color: #222;
+    color: var(--link-alt-color);
   }
 
   .item {
     &.active {
       & .item-link {
-        box-shadow: 0 2px rgba(255, 255, 255, 0.70);
+        box-shadow: 0 2px var(--input-border-color);
       }
     }
   }
@@ -34,7 +34,7 @@
     border-bottom: 3px solid transparent;
 
     &.active {
-      border-color: #3E3436;
+      border-color: var(--link-hover-color);
     }
 
     &:last-child {
@@ -46,7 +46,7 @@
     display: inline-block;
     white-space: nowrap;
     text-transform: uppercase;
-    color: var(--blackish);
+    color: var(--linkl-alt-color);
 
     &:hover {
       opacity: .7;
