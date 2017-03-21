@@ -39,15 +39,6 @@ class RelatedProductsList extends Component {
   };
   _willUnmount: boolean = false;
 
- componentDidMount() {
-   window.addEventListener('scroll', this.handleScroll);
- }
-
-  componentWillUnmount() {
-    this._willUnmount = true;
-    window.removeEventListener('scroll', this.handleScroll);
-  }
-
   renderProducts() {
     return _.map(this.props.list, (item, index) => {
       return (
@@ -75,7 +66,7 @@ class RelatedProductsList extends Component {
       const node = this.refs[`product-${item.id}`].getWrappedInstance().getImageNode();
       if (node) {
         if (isElementInViewport(node)) {
-          visibleProducts = [...visibleProducts, {...item, index: i}];
+          visibleProducts = [...visibleProducts, { ...item, index: i }];
         }
       }
     }
@@ -84,21 +75,21 @@ class RelatedProductsList extends Component {
   }
 
   get loadingWrapper(): ?HTMLElement {
-    if (this.props.isLoading) {
+    if(this.props.isLoading) {
       return (
         <div styleName="loading-wrapper">
           <div styleName="loader">
-            <Loader/>
+            <Loader />
           </div>
         </div>
       );
     }
   }
 
-  render() : HTMLElement {
+  render(): HTMLElement {
     const { loadingBehavior = LoadingBehaviors.ShowLoader, isLoading, list, title } = this.props;
     if (loadingBehavior == LoadingBehaviors.ShowLoader && isLoading) {
-      return <Loader/>;
+      return <Loader />;
     }
     const items = list && list.length > 0
       ? this.renderProducts()
@@ -110,7 +101,7 @@ class RelatedProductsList extends Component {
         <div styleName="related-title">
           {title}
         </div>
-        <div styleName="list" ref={this.handleListRendered}>
+        <div styleName="list">
           {items}
         </div>
       </div>
