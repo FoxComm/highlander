@@ -13,7 +13,9 @@ function transitionTo(name, params) {
   });
 };
 
-function transitionToLazy(name, params = {}) {
+function transitionToLazy(name, params) {
+  params = params || {};
+
   return function () {
     return transitionTo(name, params);
   };
