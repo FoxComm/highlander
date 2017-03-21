@@ -17,7 +17,7 @@
   display: inline-block;
   line-height: 30px;
   text-decoration: none;
-  color: #222;
+  color: var(--link-alt-color);
 
   &:hover {
     opacity: .7;
@@ -42,8 +42,8 @@
   top: 30px;
   right: 0;
   min-width: 134px;
-  background: var(--whitish);
-  border: 1px solid #484848;
+  background: var(--body-background);
+  border: 1px solid var(--input-border-color);
 
   &:before {
     content: "";
@@ -53,8 +53,8 @@
     width: 8px;
     height: 8px;
     transform: rotate(39deg) skewX(-10deg);
-    background: var(--whitish);
-    border-color: #484848;
+    background: var(--body-background);
+    border-color: var(--input-border-color);
     border-style: solid;
     border-width: 1px 0 0 1px;
   }
@@ -69,10 +69,10 @@
   line-height: 20px;
   font-size: 13px;
   text-decoration: none;
-  color: #484848;
+  color: var(--link-alt-color);
 
   &:hover {
-    background: var(--white-smokish);
+    background: var(--select-active-background);
   }
 }
 
@@ -81,7 +81,7 @@
   vertical-align: top;
   display: inline-block;
   text-align: center;
-  color: #fff;
+  color: var(--body-background);
   width: 14px;
   height: 14px;
   text-align: center;
@@ -89,7 +89,7 @@
 }
 .cart-quantity {
   border-radius: 50%;
-  background-color: #0b7ddc;
+  background-color: var(--button-default-color);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -102,7 +102,7 @@
 .cart {
   white-space: nowrap;
   cursor: pointer;
-  color: #222;
+  color: var(--link-alt-color);
 
   &:hover {
     opacity: 0.7;
