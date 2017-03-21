@@ -131,7 +131,7 @@ class Pdp extends Component {
     this.productPromise.then(() => {
       const { product, isRelatedProductsLoading, actions } = this.props;
       tracking.viewDetails(this.product);
-      if(!isRelatedProductsLoading) {
+      if (!isRelatedProductsLoading) {
         actions.fetchRelatedProducts(product.id, 1).catch(_.noop);
       }
     });
@@ -322,7 +322,7 @@ class Pdp extends Component {
         </div>
         {!_.isEmpty(relatedProducts) && relatedProducts.total ?
           <RelatedProductsList
-            title='You might also like'
+            title="You might also like"
             list={relatedProducts.result}
             isLoading={isRelatedProductsLoading}
             loadingBehavior={LoadingBehaviors.ShowWrapper}

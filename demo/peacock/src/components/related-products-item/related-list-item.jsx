@@ -7,7 +7,6 @@ import styles from './related-list-item.css';
 import { Link } from 'react-router';
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
-import { connect } from 'react-redux';
 import * as tracking from 'lib/analytics';
 
 import Currency from 'ui/currency';
@@ -110,7 +109,6 @@ class RelatedListItem extends React.Component {
       productId,
       slug,
       title,
-      description,
     } = this.props;
 
     const productSlug = slug != null && !_.isEmpty(slug) ? slug : productId;

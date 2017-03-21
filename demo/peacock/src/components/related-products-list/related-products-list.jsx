@@ -3,7 +3,6 @@
 // libs
 import _ from 'lodash';
 import React, { Component } from 'react';
-import { autobind, debounce } from 'core-decorators';
 import { isElementInViewport } from 'lib/dom-utils';
 
 // styles
@@ -75,7 +74,7 @@ class RelatedProductsList extends Component {
   }
 
   get loadingWrapper(): ?HTMLElement {
-    if(this.props.isLoading) {
+    if (this.props.isLoading) {
       return (
         <div styleName="loading-wrapper">
           <div styleName="loader">

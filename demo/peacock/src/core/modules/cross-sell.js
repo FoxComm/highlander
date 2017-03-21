@@ -39,19 +39,19 @@ function elasticSearchProductsQuery(rpResponse): Object {
         filter: [
           {
             term: {
-              context: 'default'
+              context: 'default',
             },
           },
           {
             terms: {
-              productId: matchingProductIds
+              productId: matchingProductIds,
             },
           },
         ],
         must_not: [
           {
             term: {
-              tags: GIFT_CARD_TAG
+              tags: GIFT_CARD_TAG,
             },
           },
         ],
@@ -80,10 +80,10 @@ export const clearRelatedProducts = createAction('CROSS_SELL_CLEAR_RELATED_PRODU
 
 export const train = (customerId: number, channelId: number, cartLineItemsSkus: Array<any>) => {
   const crossSellPoints = _.map(_(cartLineItemsSkus).map('productFormId').value(), (productFormId) => {
-    return { 'custID': customerId, 'prodID': productFormId, 'chanID': channelId };
+    return { custID: customerId, prodID: productFormId, chanID: channelId };
   });
 
-  return foxApi.crossSell.crossSellTrain({ 'points': crossSellPoints });
+  return foxApi.crossSell.crossSellTrain({ points: crossSellPoints });
 };
 
 export const fetchRelatedProducts = _fetchRelatedProducts.perform;
