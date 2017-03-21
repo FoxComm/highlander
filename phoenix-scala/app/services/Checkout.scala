@@ -12,10 +12,11 @@ import failures.PromotionFailures.PromotionNotFoundForContext
 import failures.ShippingMethodFailures.NoDefaultShippingMethod
 import models.account._
 import models.cord._
-import models.cord.lineitems.CartLineItems
+import models.cord.lineitems.{CartLineItem, CartLineItems}
 import models.cord.lineitems.CartLineItems.scope._
 import models.coupon._
 import models.account._
+import models.inventory.Skus
 import models.location.Addresses
 import models.objects._
 import models.payment.creditcard._
@@ -25,6 +26,7 @@ import models.promotion._
 import models.shipping.DefaultShippingMethods
 import org.json4s.JsonAST._
 import payloads.CartPayloads.CheckoutCart
+import payloads.LineItemPayloads.UpdateLineItemsPayload
 import responses.cord.OrderResponse
 import services.carts._
 import services.coupon.CouponUsageService
@@ -104,14 +106,30 @@ object Checkout {
                                                  apis: Apis,
                                                  ac: AC,
                                                  ctx: OC,
-                                                 au: AU): DbResultT[OrderResponse] =
+                                                 au: AU): DbResultT[OrderResponse] = {
+    def stashItems(refNum: String): DbResultT[Seq[UpdateLineItemsPayload]] =
+      CartLineItems
+        .byCordRef(refNum)
+        .join(Skus)
+        .on(_.skuId === _.id)
+        .result
+        .dbresult
+        .map(_.groupBy { case (cli, sku) ⇒ sku.code → cli.attributes }.map {
+          case ((code, attrs), skus) ⇒
+            UpdateLineItemsPayload(sku = code, quantity = skus.size, attributes = attrs)
+        }.toStream)
+
+    def unstashItems(items: Seq[UpdateLineItemsPayload]): DbResultT[Unit] =
+      LineItemUpdater.updateQuantitiesOnCustomersCart(au.model, items).void
+
     for {
       cart ← * <~ CartQueries.findOrCreateCartByAccount(au.model, ctx)
       refNum     = cart.referenceNumber.some
       customerId = au.model.accountId
       scope      = Scope.current
 
-      _ ← * <~ LineItemUpdater.updateQuantitiesOnCustomersCart(au.model, payload.items)
+      stashedItems ← * <~ stashItems(cart.referenceNumber)
+      _            ← * <~ LineItemUpdater.updateQuantitiesOnCustomersCart(au.model, payload.items)
 
       ccId ← * <~ CreditCards
               .findDefaultByAccountId(customerId)
@@ -133,7 +151,9 @@ object Checkout {
 
       cart  ← * <~ Carts.mustFindByRefNum(cart.referenceNumber)
       order ← * <~ Checkout(cart, CartValidator(cart)).checkout
+      _     ← * <~ unstashItems(stashedItems)
     } yield order
+  }
 }
 
 class ExternalCalls {

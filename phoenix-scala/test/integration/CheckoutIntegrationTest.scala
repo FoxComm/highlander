@@ -120,6 +120,38 @@ class CheckoutIntegrationTest
       order.shippingMethod.id must === (shipMethod.id)
     }
 
+    "should stash existing cart line items on one-click checkout and then bring them back" in new OneClickCheckoutFixture {
+      shippingMethodsApi(shipMethod.id).setDefault().mustBeOk()
+      storefrontAddressesApi(address.id).setDefault().mustBeOk()
+      storefrontPaymentsApi.creditCard(creditCard.id).setDefault().mustBeOk()
+
+      cartsApi(storefrontCartsApi.get().as[CartResponse].referenceNumber).lineItems
+        .update(List(UpdateLineItemsPayload(otherSku.code, 2)))
+        .asThe[CartResponse]
+        .result
+        .lineItems
+        .skus
+        .onlyElement must have(
+          'sku (otherSku.code),
+          'quantity (2)
+      )
+
+      storefrontCartsApi
+        .checkout(CheckoutCart(items = List(UpdateLineItemsPayload(sku.code, 1))))
+        .as[OrderResponse]
+        .lineItems
+        .skus
+        .onlyElement must have(
+          'sku (sku.code),
+          'quantity (1)
+      )
+
+      storefrontCartsApi.get().as[CartResponse].lineItems.skus.onlyElement must have(
+          'sku (otherSku.code),
+          'quantity (2)
+      )
+    }
+
     "places order as admin" in new Fixture {
       val orderResponse = doCheckout(customer, sku, address, shipMethod, reason).as[OrderResponse]
 
@@ -249,11 +281,6 @@ class CheckoutIntegrationTest
                             addressIsNew = true
                         ))
     }
-
-    val giftCard = api_newGiftCard(GiftCardCreateByCsr(balance = 1000, reasonId = reason.id))
-
-    val storeCredit =
-      api_newStoreCredit(customer.id, CreateManualStoreCredit(amount = 1000, reasonId = reason.id))
   }
 
   trait FullCartWithGcPayment
@@ -274,6 +301,11 @@ class CheckoutIntegrationTest
       sku     ← * <~ Skus.mustFindById404(product.skuId)
       reason  ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))
     } yield (shipMethod, product, sku, reason)).gimme
+
+    val otherSku = (for {
+      product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.tail.head)
+      sku     ← * <~ Skus.mustFindById404(product.skuId)
+    } yield sku).gimme
   }
 
   trait BlacklistedFixture extends StoreAdmin_Seed {

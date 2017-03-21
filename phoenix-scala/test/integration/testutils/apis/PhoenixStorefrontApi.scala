@@ -18,6 +18,9 @@ trait PhoenixStorefrontApi extends HttpSupport { self: FoxSuite ⇒
   object storefrontCartsApi {
     val cartPath = s"$rootPrefix/cart"
 
+    def get(): HttpResponse =
+      GET(cartPath)
+
     def checkout(payload: CheckoutCart): HttpResponse =
       POST(s"$cartPath/checkout", payload)
   }
