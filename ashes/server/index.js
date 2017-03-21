@@ -23,6 +23,8 @@ app.init = co.wrap(function *(env) {
   require(`${__dirname}/api`)(app);
   require(`${__dirname}/cms`)(app);
   app.server = app.listen(app.config.server.port);
+
+  console.log('>> Testing `make update-app`');
 });
 
 if (!module.parent) {
