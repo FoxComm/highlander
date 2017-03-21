@@ -3,6 +3,3 @@
 - name: Disable Mesos Consul
   service: name=mesos_consul state=stopped enabled=no
 
-- name: Install marathon consul
-  service: name=mesos_consul state=stopped enabled=no
-

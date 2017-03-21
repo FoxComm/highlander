@@ -22,7 +22,7 @@
     "Listen": ":4000",
     "QueueSize": 1000,
     "WorkersCount": 10,
-    "MaxEventSize": 4096,
+    "MaxEventSize": 32768,
     "Enabled": true
   },
   "SSE": {
