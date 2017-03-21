@@ -1,13 +1,6 @@
 @import "colors.css";
 @import "media-queries.css";
 
-:root {
-  --button-bg: var(--water-blue);
-  --button-fg: var(--whitish);
-  --button-hover-bg: #19ccb1; /* TODO: it's random color, replace it after Stephen make colors for various states */
-  --button-disabled-bg: var(--blackish);
-}
-
 .button {
   width: 100%;
   font-size: 14px;
@@ -43,7 +36,6 @@
   }
 
   &:disabled {
-    color: #eee;
     background: var(--button-disabled-color);
 
     &:hover {
@@ -82,7 +74,7 @@
   text-transform: uppercase;
   font-size: 13px;
   font-weight: 300;
-  color: #212121;
+  color: var(--button-label-color);
 
   &:active {
     background: var(--button-alt-active-color);

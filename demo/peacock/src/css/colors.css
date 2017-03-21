@@ -19,8 +19,9 @@
   --blackish: #222222;
   --mine-shaft: #333333;
   --gray: #888888;
-  --cod-gray: 1a1a1a;
+  --cod-gray: 1A1A1A;
   --silver: #CCCCCC;
+  --gallery: #EEEEEE;
   --white: #FFFFFF;
 }
 
@@ -38,7 +39,7 @@
   --search-placeholder: rgba(255,255,255,.14);
   --icon: var(--bunker);
   --input-text-color: #000000;
-  --input-placeholder-color: #888888;
+
   --text-color-dark: var(--bunker);
   --text-color-main: var(--bunker);
 
@@ -49,10 +50,14 @@
   /* Backgrounds */
   --body-background: var(--white);
   --input-background: var(--white);
+  --select-active-background: var(--gallery);
 
   /* Inputs */
   --input-border-color: var(--gray);
   --input-error-color: var(--cherry-red);
+  --input-placeholder-color: var(--gray);
+  --input-text-color: var(--black);
+  --input-active-border-color: var(--french-pass);
 
   /* Text colors */
   --text-color: var(--blackish);

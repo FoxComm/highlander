@@ -1,23 +1,25 @@
+@import "colors.css";
+
 .crumbs {
   display: flex;
 }
 
 .delimiter {
   font-size: 12px;
-  color: #888888;
+  color: var(--label-color);
   margin: 2px 5px;
 }
 
 .link {
   text-decoration: none;
-  color: #888888;
+  color: var(--label-color);
 }
 
 .item:last-child .link {
-  color: #1a1a1a;
+  color: var(--link-alt-color);
 }
 
 .item {
   font-size: 14px;
-  color: #888888;
+  color: var(--link-alt-color);
 }
