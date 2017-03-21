@@ -1,4 +1,3 @@
-
 @import "media-queries.css";
 @import "colors.css";
 @import "variables.css";
@@ -115,10 +114,16 @@
   }
 
   .wrapper {
-    margin-top: 20px;
+    margin-top: 25px;
     display: flex;
-    flex-direction: row-reverse;
     justify-content: space-between;
+  }
+
+  .shipping {
+    lost-column: 4/12;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px 15px 0;
   }
 
 
