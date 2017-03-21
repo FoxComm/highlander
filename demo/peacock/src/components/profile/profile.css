@@ -1,4 +1,3 @@
-
 @import "colors.css";
 @import "media-queries.css";
 @import "variables.css";
@@ -9,16 +8,16 @@
 
 .link-button {
   composes: button from "ui/css/buttons.css";
-  border: 1px solid #8D757A;
-  background-color: #FFFFFF;
+  border: 1px solid var(--link-color);
+  background-color: var(--body-background);
   font-size: 13px;
   font-weight: 300;
-  color: #212121;
+  color: var(--text-color);
   text-transform: uppercase;
 
   &:hover {
-    border: 1px solid #3E3436;
-    color: var(--whitish)
+    border: 1px solid var(--link-hover-color);
+    color: var(--body-background)
   }
 }
 
@@ -28,13 +27,13 @@
   font-family: var(--font-main);
   font-weight: 400;
   font-size: 13px;
-  color: #8D757A;
+  color: var(--link-color);
   line-height: 20px;
   text-decoration: none;
 
   &:hover {
     text-decoration: underline;
-    color: #3E3436;
+    color: var(--link-hover-color);
   }
 }
 
@@ -46,7 +45,7 @@
   font-family: var(--font-main);
   font-weight: 500;
   font-size: 14px;
-  color: #212121;
+  color: var(--text-color);
   line-height: 20px;
   text-transform: uppercase;
   margin-bottom: 10px;
@@ -56,7 +55,7 @@
   font-family: var(--font-main);
   font-weight: 300;
   font-size: 13px;
-  color: #212121;
+  color: var(--text-color);
   line-height: 20px;
 }
 
@@ -94,11 +93,11 @@
   border-collapse: collapse;
   font-family: var(--font-main);
   font-size: 15px;
-  color: #212121;
+  color: var(--text-color);
   line-height: 20px;
 
   & > thead {
-    border-bottom: 1px solid #f4f4f4;
+    border-bottom: 1px solid var(--text-color);
   }
   & th {
     padding-bottom: 20px;
@@ -116,7 +115,7 @@
     }
 
     & > tr {
-      border-bottom: 1px solid #f4f4f4;
+      border-bottom: 1px solid var(--text-color);
     }
   }
 }

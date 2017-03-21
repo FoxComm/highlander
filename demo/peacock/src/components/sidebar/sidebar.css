@@ -63,7 +63,7 @@
 }
 
 .session-link {
-  color: #222;
+  color: var(--link-alt-color);
   text-decoration: none;
   font-size: 18px;
 }
