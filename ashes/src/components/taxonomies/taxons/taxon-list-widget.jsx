@@ -9,7 +9,7 @@ import classNames from 'classnames';
 
 // components
 import { AddButton } from 'components/common/buttons';
-import TreeNode from './tree-node'
+import TreeNode from './tree-node';
 
 // actions
 import { fetch as fetchTaxonomy } from 'modules/taxonomies/details';
@@ -33,8 +33,8 @@ class TaxonListWidget extends Component {
   }
 
   @autobind
-  handleTaxonClick(id: string, event) {
-    {event && event.stopPropagation()};
+  handleTaxonClick(id: number, event) {
+    { event && event.stopPropagation(); }
 
     const { currentTaxon } = this.props;
 
@@ -76,15 +76,17 @@ class TaxonListWidget extends Component {
 
       return taxons.map((item) => {
         return (
-            <TreeNode
-              node={item}
-              visible={true}
-              depth={20}
-              handleClick={this.handleTaxonClick}
-              currentObject={this.props.currentTaxon}
-            />
-        )
-      })
+            <div key={item.taxon.id}>
+              <TreeNode
+                node={item}
+                visible={true}
+                depth={20}
+                handleClick={this.handleTaxonClick}
+                currentObject={this.props.currentTaxon}
+              />
+            </div>
+        );
+      });
     }
 
   }
