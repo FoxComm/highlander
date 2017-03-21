@@ -1,7 +1,7 @@
 {
     "service" : {
         "name": "marathon",
-        "tags": ["marathon"], 
+        "tags": [], 
         "port": 8080,
         "checks": [
             {
