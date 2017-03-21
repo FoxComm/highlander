@@ -72,11 +72,11 @@ object CartPromotionUpdater {
     for {
       orderPromo ← * <~ OrderPromotions
                     .filterByCordRef(cart.refNum)
-                    .requiresCoupon
+                    .couponOnly
                     .mustFindOneOr(OrderHasNoPromotions)
       promotion ← * <~ Promotions
                    .filterByContextAndShadowId(ctx.id, orderPromo.promotionShadowId)
-                   .requiresCoupon
+                   .couponOnly
                    .mustFindOneOr(
                        PromotionShadowNotFoundForContext(orderPromo.promotionShadowId, ctx.id))
       adjustments ← * <~ getAdjustmentsForPromotion(cart, promotion, failFatally)
@@ -146,7 +146,7 @@ object CartPromotionUpdater {
       cart ← * <~ getCartByOriginator(originator, refNum)
       _ ← * <~ OrderPromotions
            .filterByCordRef(cart.refNum)
-           .requiresCoupon // TODO: decide what happens here, when we allow multiple promos per cart. @michalrus
+           .couponOnly // TODO: decide what happens here, when we allow multiple promos per cart. @michalrus
            .mustNotFindOneOr(OrderAlreadyHasCoupon)
       // Fetch coupon + validate
       couponCode ← * <~ CouponCodes.mustFindByCode(code)
@@ -161,7 +161,7 @@ object CartPromotionUpdater {
       // Fetch promotion + validate
       promotion ← * <~ Promotions
                    .filterByContextAndFormId(ctx.id, coupon.promotionId)
-                   .requiresCoupon
+                   .couponOnly
                    .mustFindOneOr(PromotionNotFoundForContext(coupon.promotionId, ctx.name))
       // Create connected promotion and line item adjustments
       _ ← * <~ OrderPromotions.create(OrderPromotion.buildCoupon(cart, promotion, couponCode))
@@ -183,9 +183,9 @@ object CartPromotionUpdater {
     for {
       // Read
       cart            ← * <~ getCartByOriginator(originator, refNum)
-      orderPromotions ← * <~ OrderPromotions.filterByCordRef(cart.refNum).requiresCoupon.result
+      orderPromotions ← * <~ OrderPromotions.filterByCordRef(cart.refNum).couponOnly.result
       shadowIds = orderPromotions.map(_.promotionShadowId)
-      promotions ← * <~ Promotions.filter(_.shadowId.inSet(shadowIds)).requiresCoupon.result
+      promotions ← * <~ Promotions.filter(_.shadowId.inSet(shadowIds)).couponOnly.result
       deleteShadowIds = promotions.map(_.shadowId)
       // Write
       _ ← * <~ OrderPromotions.filterByOrderRefAndShadows(cart.refNum, deleteShadowIds).delete

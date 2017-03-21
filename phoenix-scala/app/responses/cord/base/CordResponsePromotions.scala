@@ -111,7 +111,7 @@ object CordResponsePromotions {
       // FIXME: if that promotion got edited by an admin, we’ll get current version in OrderResponse @michalrus
       promotion ← * <~ Promotions
                    .filterByContextAndFormId(ctx.id, coupon.promotionId)
-                   .requiresCoupon
+                   .couponOnly
                    .mustFindOneOr(PromotionNotFound(coupon.promotionId))
       // Illuminate
       theCoupon = IlluminatedCoupon.illuminate(ctx, coupon, couponForm, couponShadow)
