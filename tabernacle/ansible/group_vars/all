@@ -360,6 +360,19 @@ mailchimp_api_key: ""
 update_materialized_views_sql: "/usr/local/share/update_materialized_views.sql"
 update_materialized_views_cmd: "psql {{db_connection_string}} -f {{update_materialized_views_sql}}"
 
+# External analytics
+facebook_pixel_id: "433654337026546"
+ga_tracking_id: ""
+
+# S3
+s3_bucket: foxcomm-images
+s3_region: us-west-1
+
+# Imgix S3 source for products images
+imgix_products_source: ""
+imgix_s3_bucket_name: ""
+imgix_s3_bucket_prefix: ""
+
 # Various flags
 first_run: false
 is_ci: false

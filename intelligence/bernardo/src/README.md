@@ -1,4 +1,4 @@
-#src
+# src
 
 Bernardo source is organized in libraries and the main application is
 located [bernardo/bernardo.cpp](bernardo/bernardo.cpp)

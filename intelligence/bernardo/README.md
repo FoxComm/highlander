@@ -1,4 +1,4 @@
-#Bernardo The Architect
+# Bernardo The Architect
 
 Bernardo is an architect who designed the wedding of Marie de Medici to King 
 Henry the IV of France in 1600.
@@ -7,7 +7,7 @@ Bernardo is a service that maps an object with a set of attributes and find the 
 cluster matching that object. The attributes are mapped to a feature vector which is then
 compared to clusters find the best one using kNN search.
 
-#High Level Design
+# High Level Design
 
 Bernardo will have an endpoint that will take a json object as a payload
 
@@ -61,7 +61,7 @@ Given the above mapping and arrangement we get a feature vector.
 The "distance_function" describes a function to use to compare feature vectors, in
 this case we can have "euclidean" and "hamming" for example.
 
-#Performance
+# Performance
 
 The service will use a kNN library called [FLANN](http://www.cs.ubc.ca/research/flann/) do index
 and compare feature vectors.
@@ -69,7 +69,7 @@ and compare feature vectors.
 Eventually we may want to run this on a GPU machine given FLANN's support for CUDA and the eventual
 situation where we have many clusters to match against.
 
-#Directories
+# Directories
  
 | Directories                            | Description                                                                                                  |
 |:---------------------------------------|:-------------------------------------------------------------------------------------------------------------|

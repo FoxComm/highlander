@@ -89,9 +89,16 @@ class ScopedIndexer(uri: String,
   private def indexScopes(
       scopes: Seq[String], documentId: BigInt, document: String, topic: String): Future[Unit] = {
     Future
-      .sequence(scopes.map { scope ⇒
-        val scopedIndexName = s"${indexName}_${scope}"
-        indexDocument(scopedIndexName, documentId, document, topic)
+      .sequence(
+          scopes.map { scope ⇒
+        if (!scope.isEmpty()) {
+          val scopedIndexName = s"${indexName}_${scope}"
+          indexDocument(scopedIndexName, documentId, document, topic)
+        } else {
+          Console.out.println(
+              s"Skipping document with empty scope on topic $topic...\r\n$document")
+          Future { () }
+        }
       })
       .map(_ ⇒ ())
   }
