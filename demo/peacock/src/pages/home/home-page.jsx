@@ -1,10 +1,10 @@
 /* @flow */
 
 // libs
-import React, { Component } from 'react';
+import React from 'react';
 import { browserHistory } from 'lib/history';
 
-class HomePage extends Component {
+class HomePage extends React.Component {
   componentDidMount() {
     browserHistory.push('/ALL');
   }
@@ -12,6 +12,6 @@ class HomePage extends Component {
   render() {
     return null;
   }
-};
+}
 
 export default HomePage;
