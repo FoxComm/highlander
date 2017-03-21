@@ -25,3 +25,16 @@
 .text {
   margin-left: 10px;
 }
+
+.attributes {
+
+  & :global(.icon-category),
+  & :global(.icon-category-expand),
+  & :global(.icon-category-collapse) {
+    font-size: 22px;
+    line-height: 24px;
+    height: 24px;
+    margin-bottom: 8px;
+  }
+
+}
