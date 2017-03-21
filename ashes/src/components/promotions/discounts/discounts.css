@@ -1,13 +1,13 @@
 .discount_qualifier :global .autowidth_dd{
-	width: auto;
-	margin-right: 10px;
+  width: auto;
+  margin-right: 10px;
 }
 .discount_qualifier :global .inline-container{
-	display: inline-block;
-	vertical-align: top;
+  display: inline-block;
+  vertical-align: top;
 }
 .discount_qualifier :global .fc-input-group{
-	width: 90px;
+  width: 90px;
 }
 .sub-title{
   font-weight: 600;
