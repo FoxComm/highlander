@@ -10,58 +10,95 @@ import styles from './tree-node.css';
 export default class TreeNode extends Component {
 
   state = {
-    expanded: false
+    expanded: false,
+    hasChildren: true
   };
 
   toggleExpanded(event) {
-    this.setState({ expanded: !this.state.expanded });
+    if (this.state.hasChildren) {
+      this.setState({ expanded: !this.state.expanded });
+    }
     event.stopPropagation();
   }
 
-  renderChildren() {
-    const { node, depth, visible, handleTaxonClick, currentTaxon } = this.props;
-    const active = node.taxon.id.toString() === currentTaxon;
+  get renderChildren() {
+    const { node, depth, visible, handleClick, currentObject } = this.props;
+    const active = node.taxon.id.toString() === currentObject;
     const className = classNames(styles['node'], { [styles.visible]: visible }, { [styles.active]: active });
 
-    if (!node.children) { return null;}
+    if (!node.children) { return null; }
 
      return node.children.map((child) => (
-          <ul>
+          <div>
             <TreeNode
               visible={this.state.expanded && visible}
               node={child}
-              depth={depth+10}
+              depth={depth+20}
               className={className}
               key={child.taxon.id}
-              handleTaxonClick={handleTaxonClick}
-              currentTaxon={currentTaxon}
+              handleClick={handleClick}
+              currentObject={currentObject}
             />
-          </ul>
+          </div>
         )
       )
 
   }
 
+  get renderIcon() {
+
+    if (this.props.node.children) {
+
+      if (this.state.expanded) {
+        return (
+          <i className="icon-category-collapse" />
+        )
+      }
+
+      if (!this.state.expanded) {
+        return (
+          <i className="icon-category-expand" />
+        )
+      }
+
+    }
+
+    if (!this.props.node.children) {
+      return (
+        <i className="icon-category" />
+      )
+    }
+
+  }
+
   render() {
-    const { node, depth, visible, handleTaxonClick, currentTaxon } = this.props;
-    const active = node.taxon.id.toString() === currentTaxon;
+    const { node, depth, visible, handleClick, currentObject } = this.props;
+    const active = node.taxon.id.toString() === currentObject;
     const className = classNames(styles['node'], { [styles.visible]: visible }, { [styles.active]: active });
 
     return(
-      <li
+      <div
         key={node.taxon.id}
-        className={className}
-        onClick={(event) => handleTaxonClick(node.taxon.id, event)}
       >
-        <span
-          onClick={(event) => this.toggleExpanded(event)}
-          styleName="item"
-          style={{ marginLeft: `${depth + 20}` }}
-        >
-        {node.taxon.attributes.name.v}
-        </span>
-        {this.renderChildren()}
-      </li>
+        <div className={className}>
+          <span
+            onClick={(event) => this.toggleExpanded(event)}
+            styleName="item"
+            style={{ marginLeft: `${depth}px` }}
+          >
+            <span>
+              {this.renderIcon}
+              <span
+                styleName="text"
+                onClick={(event) => handleClick(node.taxon.id, event)}
+              >
+                {node.taxon.attributes.name.v}
+              </span>
+            </span>
+          </span>
+        </div>
+        {this.renderChildren}
+      </div>
     )
   }
 }

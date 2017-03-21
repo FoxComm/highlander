@@ -76,13 +76,13 @@ class TaxonListWidget extends Component {
 
       return taxons.map((item) => {
         return (
-          <TreeNode
-            node={item}
-            visible={true}
-            depth={0}
-            handleTaxonClick={this.handleTaxonClick}
-            currentTaxon={this.props.currentTaxon}
-          />
+            <TreeNode
+              node={item}
+              visible={true}
+              depth={20}
+              handleClick={this.handleTaxonClick}
+              currentObject={this.props.currentTaxon}
+            />
         )
       })
     }
