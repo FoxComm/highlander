@@ -48,6 +48,7 @@ const markDefaultAddress = createAction(
   'MARK_ADDRESS_AS_DEFAULT',
   (id) => id
 );
+export const cleanDeletedAddresses = createAction('CHECKOUT_CLEAN_DELETED_ADDRESSES');
 
 export const resetCheckout = createAction('CHECKOUT_RESET');
 const orderPlaced = createAction('CHECKOUT_ORDER_PLACED');
@@ -458,6 +459,12 @@ const reducer = createReducer({
     return {
       ...state,
       addresses,
+    };
+  },
+  [cleanDeletedAddresses]: (state) => {
+    return {
+      ...state,
+      addresses: _.filter(state.addresses, address => !address.isDeleted),
     };
   },
   [markDefaultAddress]: (state, addressId) => {

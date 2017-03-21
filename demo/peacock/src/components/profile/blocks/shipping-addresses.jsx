@@ -31,6 +31,7 @@ type Props = {
   deleteAddress: (id: number) => Promise,
   restoreAddress: (id: number) => Promise,
   setAddressAsDefault: (id: number) => Promise,
+  cleanDeletedAddresses: () => void,
   t: any,
 };
 
@@ -45,6 +46,10 @@ class MyShippingAddresses extends Component {
 
   componentWillMount() {
     this.props.fetchAddresses();
+  }
+
+  componentWillUnmount() {
+    this.props.cleanDeletedAddresses();
   }
 
   @autobind
