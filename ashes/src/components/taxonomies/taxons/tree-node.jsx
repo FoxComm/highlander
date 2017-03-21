@@ -11,11 +11,10 @@ export default class TreeNode extends Component {
 
   state = {
     expanded: false,
-    hasChildren: true
   };
 
   toggleExpanded(event) {
-    if (this.state.hasChildren) {
+    if (this.props.node.children) {
       this.setState({ expanded: !this.state.expanded });
     }
     event.stopPropagation();
@@ -47,25 +46,21 @@ export default class TreeNode extends Component {
 
   get renderIcon() {
 
-    if (this.props.node.children) {
-
-      if (this.state.expanded) {
-        return (
-          <i className="icon-category-collapse" />
-        )
-      }
-
-      if (!this.state.expanded) {
-        return (
-          <i className="icon-category-expand" />
-        )
-      }
-
-    }
-
     if (!this.props.node.children) {
       return (
         <i className="icon-category" />
+      )
+    }
+
+    if (this.state.expanded) {
+      return (
+        <i className="icon-category-collapse" />
+      )
+    }
+
+    if (!this.state.expanded) {
+      return (
+        <i className="icon-category-expand" />
       )
     }
 
