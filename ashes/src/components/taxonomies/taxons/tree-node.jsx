@@ -89,7 +89,7 @@ export default class TreeNode extends Component {
       >
         {node.taxon.attributes.name.v}
       </span>
-    )
+    );
   }
 
   render() {
