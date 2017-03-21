@@ -12,6 +12,7 @@ export const toggleCart = createAction('TOGGLE_CART');
 export const hideCart = createAction('HIDE_CART');
 export const updateCart = createAction('UPDATE_CART');
 export const resetCart = createAction('RESET_CART');
+export const cleanShippingAddress = createAction('CART_CLEAN_SHIPPING_ADDRESS');
 
 export type ProductInCart = {
   skuId: number;
@@ -277,6 +278,12 @@ const reducer = createReducer({
   },
   [actions.succeeded]: updateCartState,
   [updateCart]: updateCartState,
+  [cleanShippingAddress]: state => {
+    return {
+      ...state,
+      shippingAddress: {},
+    };
+  },
   [resetCart]: () => {
     return initialState;
   },

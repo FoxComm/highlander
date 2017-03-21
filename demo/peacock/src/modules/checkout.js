@@ -4,7 +4,7 @@ import _ from 'lodash';
 import { createAction, createReducer } from 'redux-act';
 import { assoc } from 'sprout-data';
 import { createAsyncActions } from '@foxcomm/wings';
-import { updateCart, resetCart } from 'modules/cart';
+import { updateCart, resetCart, cleanShippingAddress } from 'modules/cart';
 import { api as foxApi } from '../lib/api';
 import * as tracking from 'lib/analytics';
 
@@ -153,7 +153,16 @@ export const setAddressAsDefault = _setAddressAsDefault.perform;
 
 const _removeShippingAddress = createAsyncActions(
   'REMOVE_SHIPPING_ADDRESS',
-  () => foxApi.cart.removeShippingAddress()
+  function() {
+    const { getState, dispatch } = this;
+    const shippingAddress = getState().cart;
+    if (_.isEmpty(shippingAddress)) return Promise.resolve({});
+
+    return foxApi.cart.removeShippingAddress()
+      .then(() => {
+        dispatch(cleanShippingAddress());
+      });
+  }
 );
 
 export const removeShippingAddress = _removeShippingAddress.perform;
@@ -259,17 +268,21 @@ const _updateAddress = createAsyncActions(
   'updateAddress',
   function(address: Address, id?: number) {
     const payload = addressToPayload(address);
-    const { dispatch } = this;
+    const { dispatch, getState } = this;
+    const { addresses } = getState().checkout;
+    const emptyAddressList = _.filter(addresses, addr => !addr.isDeleted).length == 0;
+
+    let result;
 
     return createOrUpdateAddress(payload, id)
       .then((addressResponse) => {
-        if (payload.isDefault) {
-          dispatch(setAddressAsDefault(addressResponse.id));
-        } else {
-          dispatch(fetchAddresses());
+        result = addressResponse;
+        if (payload.isDefault || emptyAddressList) {
+          return dispatch(setAddressAsDefault(addressResponse.id));
         }
-        return addressResponse;
-      });
+        return dispatch(fetchAddresses());
+      })
+      .then(() => result);
   }
 );
 
