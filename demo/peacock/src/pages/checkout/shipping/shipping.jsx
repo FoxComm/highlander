@@ -62,11 +62,7 @@ class Shipping extends Component {
   get action() {
     const { props } = this;
 
-    if (!_.isEmpty(props.shippingAddress)) {
-      return (
-        <div styleName="btn-action" onClick={this.props.toggleAddresses}>Change</div>
-      );
-    } else if (_.isEmpty(props.shippingAddress) && props.addresses.length > 0) {
+    if (_.isEmpty(props.shippingAddress) && props.addresses.length > 0) {
       return (
         <div styleName="btn-action" onClick={this.props.toggleAddresses}>Choose</div>
       );
