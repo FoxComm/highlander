@@ -19,6 +19,7 @@
   --blackish: #222222;
   --mine-shaft: #333333;
   --gray: #888888;
+  --cod-gray: 1a1a1a;
   --silver: #CCCCCC;
   --white: #FFFFFF;
 }
@@ -67,9 +68,12 @@
   --button-alt-active-color: var(--black);
   --button-disabled-color: var(--silver);
 
+  --button-label-color: var(--white);
+
   --link-color: var(--warter-blue);
   --link-hover-color: var(--water-blue);
   --link-visited-color: var(--malibu);
+  --link-alt-color: var(--cod-gray);
 
   --focus-color: var(--french-pass);
 }

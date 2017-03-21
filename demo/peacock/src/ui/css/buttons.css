@@ -1,4 +1,3 @@
-
 @import "colors.css";
 @import "media-queries.css";
 
@@ -16,13 +15,22 @@
   padding: 14px 10px;
   border: none;
   border-radius: 4px;
-  background-color: var(--button-bg);
-  color: var(--button-fg);
+  background-color: var(--button-default-color);
+  color: var(--button-label-color);
   text-align: center;
   cursor: pointer;
 
-  &:hover {
-    background: var(--button-hover-bg);
+  &:active {
+    background: var(--button-active-color);
+  }
+
+  &:visited {
+    background: var(--button-visited-color);
+  }
+
+  &:hover, &:focus {
+    border: 1px solid var(--focus-color);
+    background: var(--button-focus-color);
   }
 
   & > span {
@@ -36,7 +44,7 @@
 
   &:disabled {
     color: #eee;
-    background: var(--button-disabled-bg);
+    background: var(--button-disabled-color);
 
     &:hover {
       cursor: not-allowed;
@@ -55,12 +63,12 @@
   }
 
   &:disabled {
-    background: var(--blackish);
+    background: var(--button-disabled-color);
     background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUAQMAAAC3R49OAAAABlBMVEUAAAAAAAClZ7nPAAAAAnRSTlMAF/VASP8AAABBSURBVHheZckxFYAgFADA8zkwYgMr2MBKNpBoRCHCHxl4YADnsxymy/DoQmyh7aGmUHJwBnfjraxiW+yTNMj9xx9ZVxpfjbpEWgAAAABJRU5ErkJggg==);
     animation: caramel .5s linear infinite;
 
     &:hover {
-      color: var(--whitish);
+      color: var(--button-disabled-color);
       cursor: not-allowed;
     }
   }
@@ -70,16 +78,19 @@
 .button-secondary {
   min-width: 11.2em;
   height: 3.1em;
-  border: 1px solid #8D757A;
-  background: var(--color-panels-bg);
+  background: var(--button-alt-default-color);
   text-transform: uppercase;
   font-size: 13px;
   font-weight: 300;
   color: #212121;
 
-  &:hover {
-    background: #8D757A;
-    color: var(--base-color)
+  &:active {
+    background: var(--button-alt-active-color);
+  }
+
+  &:hover, &:focus {
+    background: var(--button-alt-default-color);
+    color: var(--button-label-color);
   }
 }
 
