@@ -1,4 +1,3 @@
-
 @import "media-queries.css";
 @import "colors.css";
 @import "variables.css";
@@ -12,6 +11,12 @@
     padding-top: 96px;
     margin-top: -96px;
   }
+}
+
+.shipping {
+  border-bottom: 1px solid #ddd;
+  margin: 15px;
+  padding-bottom: 15px;
 }
 
 .summary {
@@ -108,11 +113,17 @@
     lost-offset: -1/12;
   }
 
-  .body {
-    margin-top: 20px;
+  .wrapper {
+    margin-top: 25px;
     display: flex;
-    flex-direction: row-reverse;
     justify-content: space-between;
+  }
+
+  .shipping {
+    lost-column: 4/12;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px 15px 0;
   }
 
 

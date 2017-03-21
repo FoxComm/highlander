@@ -18,10 +18,12 @@
 }
 
 .wrap {
-  composes: wrap from "ui/css/layout.css";
   display: flex;
   justify-content: space-between;
   align-items: center;
+  height: 100%;
+  padding-left: 15px;
+  padding-right: 15px;
 }
 
 .navigation {
@@ -40,15 +42,6 @@
     display: none;
   }
 
-  .hamburger {
-      cursor: pointer;
-      margin-left: 10px;
-  }
-
-  .tools {
-    margin-right: 10px;
-  }
-
   :global(.icon).logo {
     width: 75px;
   }
@@ -62,7 +55,6 @@
 }
 
 @media (--large) {
-
   .navigation {
     height: 50px;
     display: flex;
