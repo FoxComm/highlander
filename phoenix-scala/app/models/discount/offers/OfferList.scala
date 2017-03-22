@@ -6,8 +6,8 @@ import cats._
 import cats.data._
 import cats.implicits._
 import failures._
-import models.cord.lineitems.OrderLineItemAdjustment
-import models.cord.lineitems.OrderLineItemAdjustment._
+import models.cord.lineitems.CartLineItemAdjustment
+import models.cord.lineitems.CartLineItemAdjustment._
 import models.discount.DiscountInput
 import models.discount.offers.Offer.OfferResult
 import utils.aliases._

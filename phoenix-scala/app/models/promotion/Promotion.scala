@@ -56,16 +56,7 @@ class Promotions(tag: Tag) extends ObjectHeads[Promotion](tag, "promotions") {
   def applyType = column[Promotion.ApplyType]("apply_type")
 
   def * =
-    (id,
-     scope,
-     contextId,
-     shadowId,
-     formId,
-     commitId,
-     applyType,
-     updatedAt,
-     createdAt,
-     archivedAt) <> ((Promotion.apply _).tupled, Promotion.unapply)
+    (id, scope, contextId, shadowId, formId, commitId, applyType, updatedAt, createdAt, archivedAt) <> ((Promotion.apply _).tupled, Promotion.unapply)
 }
 
 object Promotions

@@ -3,8 +3,8 @@ package models.discount.offers
 import cats.data.Xor
 import cats.implicits._
 import failures._
-import models.cord.lineitems.OrderLineItemAdjustment
-import models.cord.lineitems.OrderLineItemAdjustment._
+import models.cord.lineitems.CartLineItemAdjustment
+import models.cord.lineitems.CartLineItemAdjustment._
 import models.discount._
 import models.discount.offers.Offer.OfferResult
 import utils.ElasticsearchApi._
@@ -24,7 +24,7 @@ case class ItemsAmountOffer(discount: Int, search: Seq[ProductSearch])
     if (discount > 0) adjustInner(input)(search) else pureResult()
 
   def matchXor(input: DiscountInput)(
-      xor: Failures Xor Buckets): Failures Xor Seq[OrderLineItemAdjustment] =
+      xor: Failures Xor Buckets): Failures Xor Seq[CartLineItemAdjustment] =
     xor match {
       case Xor.Right(buckets) ⇒
         val matchedFormIds = buckets.filter(_.docCount > 0).map(_.key)

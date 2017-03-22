@@ -34,7 +34,7 @@ object JsonFormatters {
     DefaultFormats + Note.ReferenceType.jsonFormat + QualifierType.jsonFormat +
       OfferType.jsonFormat + Assignment.AssignmentType.jsonFormat +
       Assignment.ReferenceType.jsonFormat + Order.State.jsonFormat + Promotion.ApplyType.jsonFormat +
-      OrderLineItem.State.jsonFormat + OrderLineItemAdjustment.AdjustmentType.jsonFormat +
+      OrderLineItem.State.jsonFormat + CartLineItemAdjustment.AdjustmentType.jsonFormat +
       Shipment.State.jsonFormat + GiftCard.OriginType.jsonFormat + GiftCard.State.jsonFormat +
       InStorePaymentStates.State.jsonFormat + CordPaymentState.State.jsonFormat + StoreCredit.State.jsonFormat +
       StoreCredit.OriginType.jsonFormat +

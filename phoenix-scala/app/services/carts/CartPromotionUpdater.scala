@@ -42,10 +42,10 @@ object CartPromotionUpdater {
       oppa ← * <~ findApplicablePromotion(cart, failFatally)
       (orderPromo, promotion, adjustments) = oppa // 🙄
       // Delete previous adjustments and create new
-      _ ← * <~ OrderLineItemAdjustments
+      _ ← * <~ CartLineItemAdjustments
            .filterByOrderRefAndShadow(cart.refNum, orderPromo.promotionShadowId)
            .delete
-      _ ← * <~ OrderLineItemAdjustments.createAll(adjustments)
+      _ ← * <~ CartLineItemAdjustments.createAll(adjustments)
     } yield {}
 
   private def findApplicablePromotion(
@@ -55,7 +55,7 @@ object CartPromotionUpdater {
       es: ES,
       au: AU,
       db: DB,
-      ctx: OC): DbResultT[(OrderPromotion, Promotion, Seq[OrderLineItemAdjustment])] =
+      ctx: OC): DbResultT[(OrderPromotion, Promotion, Seq[CartLineItemAdjustment])] =
     findAppliedCouponPromotion(cart, failFatally).handleErrorWith(
         couponErr ⇒
           findApplicableAutoAppliedPromotion(cart).handleErrorWith(_ ⇒ // Any error? @michalrus
@@ -68,7 +68,7 @@ object CartPromotionUpdater {
       au: AU,
       es: ES,
       db: DB,
-      ctx: OC): DbResultT[(OrderPromotion, Promotion, Seq[OrderLineItemAdjustment])] = {
+      ctx: OC): DbResultT[(OrderPromotion, Promotion, Seq[CartLineItemAdjustment])] = {
     for {
       orderPromo ← * <~ OrderPromotions
                     .filterByCordRef(cart.refNum)
@@ -88,7 +88,7 @@ object CartPromotionUpdater {
       es: ES,
       au: AU,
       db: DB,
-      ctx: OC): DbResultT[(OrderPromotion, Promotion, Seq[OrderLineItemAdjustment])] =
+      ctx: OC): DbResultT[(OrderPromotion, Promotion, Seq[CartLineItemAdjustment])] =
     for {
       all ← * <~ Promotions.filterByContext(ctx.id).autoApplied.result
       allWithAdjustments ← * <~ all.toList
@@ -114,7 +114,7 @@ object CartPromotionUpdater {
       es: ES,
       au: AU,
       db: DB,
-      ctx: OC): DbResultT[Seq[OrderLineItemAdjustment]] =
+      ctx: OC): DbResultT[Seq[CartLineItemAdjustment]] =
     for {
       // Fetch promotion
       promoForm   ← * <~ ObjectForms.mustFindById404(promotion.formId)
@@ -189,7 +189,7 @@ object CartPromotionUpdater {
       deleteShadowIds = promotions.map(_.shadowId)
       // Write
       _ ← * <~ OrderPromotions.filterByOrderRefAndShadows(cart.refNum, deleteShadowIds).delete
-      _ ← * <~ OrderLineItemAdjustments
+      _ ← * <~ CartLineItemAdjustments
            .filterByOrderRefAndShadows(cart.refNum, deleteShadowIds)
            .delete
       _         ← * <~ CartTotaler.saveTotals(cart)
@@ -210,7 +210,7 @@ object CartPromotionUpdater {
       implicit ec: EC,
       es: ES,
       db: DB,
-      au: AU): DbResultT[Seq[OrderLineItemAdjustment]] =
+      au: AU): DbResultT[Seq[CartLineItemAdjustment]] =
     for {
       lineItems      ← * <~ LineItemManager.getCartLineItems(cart.refNum)
       shippingMethod ← * <~ shipping.ShippingMethods.forCordRef(cart.refNum).one
