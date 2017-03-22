@@ -14,7 +14,7 @@
   cursor: pointer;
 
   &:active {
-    background: var(--button-active-background;
+    background: var(--button-active-background);
   }
 
   &:visited {
@@ -36,7 +36,7 @@
   }
 
   &:disabled {
-    color: var(--button-disabled-color)
+    color: var(--button-disabled-color);
     background: var(--button-disabled-background);
 
     &:hover {
