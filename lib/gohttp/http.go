@@ -1,4 +1,4 @@
-package consumers
+package gohttp
 
 import (
 	"bytes"
@@ -29,9 +29,19 @@ func Patch(url string, headers map[string]string, payload interface{}, retval in
 	return err
 }
 
+func Put(url string, headers map[string]string, payload interface{}, retval interface{}) error {
+	_, err := Request("PUT", url, headers, payload, retval)
+
+	return err
+}
+
 func Request(method string, url string, headers map[string]string, payload interface{}, retval interface{}) (*http.Response, error) {
-	if method != "POST" && method != "PATCH" && method != "GET" {
-		return nil, fmt.Errorf("Invalid method %s. Only GET, POST and PATCH are currently supported", method)
+	if method != "POST" && method != "PATCH" && method != "GET" && method != "PUT" {
+		return nil, fmt.Errorf("Invalid method %s. Only GET, POST, PUT, and PATCH are currently supported", method)
+	}
+
+	if headers == nil {
+		headers = map[string]string{}
 	}
 
 	var req *http.Request
