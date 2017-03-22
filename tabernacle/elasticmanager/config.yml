@@ -1,7 +1,7 @@
 ---
 
 es_connection:
-  host: 10.240.0.6
+  host: localhost
   port: 9200
 es_indices:
   - name: public
