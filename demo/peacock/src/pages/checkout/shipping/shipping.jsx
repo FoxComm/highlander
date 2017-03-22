@@ -10,12 +10,9 @@ import { connect } from 'react-redux';
 // import EditableBlock from 'ui/editable-block';
 import { AddressDetails } from 'ui/address';
 import AddressList from './address-list';
-import GuestShipping from './guest-shipping';
-import Icon from 'ui/icon';
-import Overlay from 'ui/overlay/overlay';
 import Modal from 'ui/modal/modal';
-import Button from 'ui/buttons';
 import ActionLink from 'ui/action-link/action-link';
+import Loader from 'ui/loader';
 
 // actions and types
 import { saveShippingAddress, updateAddress, addShippingAddress, updateShippingAddress, toggleModal } from 'modules/checkout';
@@ -37,6 +34,7 @@ type Props = {
   addShippingAddress: (address: Address) => Promise<*>,
   updateShippingAddress: (address: Address) => Promise<*>,
   saveShippingAddress: (id: number) => Promise<*>,
+  toggleModal: Function,
   saveShippingState: AsyncStatus,
   updateAddress: (address: Address, id?: number) => Promise<*>,
   auth: ?Object,
@@ -85,30 +83,32 @@ class Shipping extends Component {
   }
 
   get content() {
-    const { props } = this;
-    const savedAddress = props.shippingAddress;
+    const { toggleModal, modalVisible, shippingAddress } = this.props;
 
-    if (!_.isEmpty(savedAddress)) {
-      return (
-        <AddressDetails address={savedAddress} styleName="savedAddress" />
-      );
-    }
+    return(
+      <div>
+        {
+          !_.isEmpty(shippingAddress)
+          ?
+          <AddressDetails address={shippingAddress} styleName="shippingAddress" />
+          :
+          null
+        }
+        <Modal
+          show={modalVisible}
+          toggle={toggleModal}
+        >
+           <AddressList { ...this.props } activeAddress={shippingAddress}/>
+        </Modal>
+      </div>
+    );
 
-    if (props.isGuestMode) {
-      return (
-        <GuestShipping
-          addShippingAddress={props.addShippingAddress}
-          updateShippingAddress={props.updateShippingAddress}
-          shippingAddress={props.shippingAddress}
-          auth={props.auth}
-          onComplete={props.onComplete}
-        />
-      );
-    }
   }
 
-  render() {
-    const { toggleModal, modalVisible, t, shippingAddress } = this.props;
+get body() {
+  const fetchedAddresses = this.props.addressesState.finished;
+
+  if (fetchedAddresses) {
     return (
       <div>
         <div styleName="header">
@@ -116,14 +116,18 @@ class Shipping extends Component {
           {this.action}
         </div>
         {this.content}
-        <Modal
-          show={modalVisible}
-          toggle={toggleModal}
-
-        >
-           <AddressList { ...this.props } activeAddress={shippingAddress}/>
-        </Modal>
       </div>
+    );
+  }
+
+  return (
+    <Loader size="m"/>
+  );
+}
+
+  render() {
+    return (
+      this.body
     );
   }
 }
@@ -132,6 +136,7 @@ function mapStateToProps(state) {
   return {
     saveShippingState: _.get(state.asyncActions, 'saveShippingAddress', {}),
     modalVisible: _.get(state.checkout, 'modalVisible', false),
+    addressesState: _.get(state.asyncActions, 'addresses', {}),
   };
 }
 

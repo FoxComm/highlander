@@ -11,7 +11,7 @@
   color: var(--text-color);
 }
 
-.savedAddress {
+.shippingAddress {
   composes: address-details from 'ui/address/address.css';
   padding-bottom: 15px;
   line-height: 1.3;

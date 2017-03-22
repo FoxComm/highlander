@@ -49,7 +49,6 @@ type Props = CheckoutState & CheckoutActions & {
 };
 
 type State = {
-  isScrolled: boolean,
   cart: Object,
 }
 
@@ -57,7 +56,6 @@ class Checkout extends Component {
   props: Props;
 
   state: State = {
-    isScrolled: false,
     cart: this.props.cart,
   };
 
@@ -65,18 +63,7 @@ class Checkout extends Component {
     this.props.fetchCart().then(() => {
       const { cart } = this.props;
       tracking.checkoutStart(cart.lineItems);
-
-      let editStage = EditStages.SHIPPING;
-      if (!_.isEmpty(cart.shippingAddress)) {
-        editStage += 1;
-      }
-
-      this.props.setEditStage(editStage);
     });
-    this.props.hideCart();
-
-    this.checkScroll();
-    window.addEventListener('scroll', this.checkScroll);
 
     if (!this.isEmailSetForCheckout()) {
       this.props.fetchUser();
@@ -84,7 +71,6 @@ class Checkout extends Component {
   }
 
   componentWillUnmount() {
-    window.removeEventListener('scroll', this.checkScroll);
     this.props.clearCheckoutErrors();
   }
 
@@ -95,15 +81,6 @@ class Checkout extends Component {
       });
     }
   }
-
-  checkScroll = () => {
-    // $FlowFixMe: flow c'mon, documentElement is supported on IE6+, Firefox 2+, Chrome 1+ etc
-    const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-    const checkoutHeaderHeight = 136;
-    const isScrolled = scrollTop > checkoutHeaderHeight;
-
-    this.setState({isScrolled});
-  };
 
   @autobind
   sanitizeError(error) {
@@ -220,28 +197,35 @@ class Checkout extends Component {
     */
     const { props } = this;
     const isGuestMode = isGuest(_.get(props.auth, 'user'));
-    return (
-      <div styleName="wrapper">
-        <div styleName="shipping">
-          <Shipping
-            isEditing={props.editStage == EditStages.SHIPPING}
-            collapsed={props.editStage < EditStages.SHIPPING}
-            editAction={this.setShippingStage}
-            onComplete={this.setDeliveryStage}
-            addresses={this.props.addresses}
-            fetchAddresses={this.props.fetchAddresses}
-            shippingAddress={_.get(this.props.cart, 'shippingAddress', {})}
-            auth={this.props.auth}
-            isGuestMode={isGuestMode}
-          />
+    const cartFetched = props.fetchCartState.finished;
+
+    if (cartFetched){
+      return (
+        <div styleName="wrapper">
+          <div styleName="shipping">
+            <Shipping
+              isEditing={props.editStage == EditStages.SHIPPING}
+              collapsed={props.editStage < EditStages.SHIPPING}
+              editAction={this.setShippingStage}
+              onComplete={this.setDeliveryStage}
+              addresses={this.props.addresses}
+              fetchAddresses={this.props.fetchAddresses}
+              shippingAddress={_.get(this.props.cart, 'shippingAddress', {})}
+              auth={this.props.auth}
+              isGuestMode={isGuestMode}
+            />
+          </div>
         </div>
-      </div>
+      );
+    }
+
+    return (
+      <Loader />
     );
   }
 
   render() {
     const props = this.props;
-    const body = props.fetchCartState.finished ? this.content : <Loader />;
 
     return (
       <section styleName="checkout">
@@ -255,7 +239,7 @@ class Checkout extends Component {
             sanitizeError={this.sanitizeError}
             error={props.checkoutState.err}
           />
-          {body}
+          {this.content}
         </div>
       </section>
     );
