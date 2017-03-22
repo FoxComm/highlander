@@ -5,15 +5,16 @@ import akka.http.scaladsl.server.Route
 import utils.http.JsonSupport._
 import models.account.User
 import payloads.AddressPayloads.CreateAddressPayload
+import payloads.CustomerGroupPayloads.AddCustomerToGroups
 import payloads.CustomerPayloads._
 import payloads.UserPayloads._
 import payloads.PaymentPayloads._
 import services.carts.CartQueries
-import services.account._
 import services.customers._
 import services.account._
 import services.{AddressManager, CreditCardManager, CustomerCreditConverter, StoreCreditService}
 import services.Authenticator.AuthData
+import services.customerGroups.GroupMemberManager
 import utils.aliases._
 import utils.apis.Apis
 import utils.http.CustomDirectives._
@@ -24,7 +25,7 @@ object CustomerRoutes {
 
   def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis): Route = {
 
-    activityContext(auth.model) { implicit ac ⇒
+    activityContext(auth) { implicit ac ⇒
       pathPrefix("customers") {
         (post & pathEnd & entity(as[CreateCustomerPayload])) { payload ⇒
           mutateOrFailures {
@@ -103,7 +104,7 @@ object CustomerRoutes {
           } ~
           (patch & path(IntNumber) & pathEnd & entity(as[CreateAddressPayload])) {
             (addressId, payload) ⇒
-              activityContext(auth.model) { implicit ac ⇒
+              activityContext(auth) { implicit ac ⇒
                 mutateOrFailures {
                   AddressManager.edit(auth.model, addressId, accountId, payload)
                 }
@@ -158,6 +159,13 @@ object CustomerRoutes {
           (post & path(IntNumber / "convert") & pathEnd) { storeCreditId ⇒
             mutateOrFailures {
               CustomerCreditConverter.toGiftCard(storeCreditId, accountId, auth.model)
+            }
+          }
+        } ~
+        pathPrefix("customer-groups") {
+          (post & pathEnd & entity(as[AddCustomerToGroups])) { payload ⇒
+            mutateOrFailures {
+              GroupMemberManager.addCustomerToGroups(accountId, payload.groups)
             }
           }
         }

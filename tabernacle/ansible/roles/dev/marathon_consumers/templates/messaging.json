@@ -34,7 +34,7 @@
     "API_HOST": "{{messaging_host}}",
     "KAFKA_BROKER": "{{kafka_server}}",
     "SCHEMA_REGISTRY_URL": "http://{{schema_server}}",
-    "JAVA_OPTS": "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port={{messaging_jmx_port}} -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
+    "JAVA_OPTS": "{% if jmx_enabled %}-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port={{messaging_jmx_port}} -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false{% endif %}"
   },
   "healthChecks": [
     {

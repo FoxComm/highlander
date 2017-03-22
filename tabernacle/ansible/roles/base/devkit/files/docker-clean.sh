@@ -1,2 +1,2 @@
 #!/bin/sh
-docker-clean
+docker system prune --force

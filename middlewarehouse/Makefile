@@ -36,6 +36,7 @@ build:
 	make build-shipments-consumer
 	make build-shipstation-consumer
 	make build-stock-items-consumer
+	make build-customer-groups-consumer
 
 build-middlewarehouse:
 	cd $(BUILD_PATH) && go build -o middlewarehouse main.go
@@ -58,6 +59,9 @@ build-shipstation-consumer:
 build-stock-items-consumer:
 	cd $(BUILD_PATH) && go build -o consumers/stock-items/stock-items-consumer consumers/stock-items/*.go
 
+build-customer-groups-consumer:
+	cd $(BUILD_PATH) && go build -o consumers/customer-groups/customer-groups-consumer consumers/customer-groups/*.go
+
 ####################################################################
 # Docker build targets                                             #
 ####################################################################
@@ -70,6 +74,7 @@ docker:
 	make docker-shipments-consumer
 	make docker-shipstation-consumer
 	make docker-stock-items-consumer
+	make docker-customer-groups-consumer
 
 docker-middlewarehouse:
 	cd $(BUILD_PATH) && docker build -t $(DOCKER_IMAGE) .
@@ -92,6 +97,9 @@ docker-shipstation-consumer:
 docker-stock-items-consumer:
 	cd $(BUILD_PATH) && docker build -t stock-items-consumer -f consumers/stock-items/Dockerfile .
 
+docker-customer-groups-consumer:
+	cd $(BUILD_PATH) && docker build -t customer-groups-consumer -f consumers/customer-groups/Dockerfile .
+
 ####################################################################
 # Docker push targets                                              #
 ####################################################################
@@ -104,6 +112,7 @@ docker-push:
 	make push-shipments-consumer
 	make push-shipstation-consumer
 	make push-stock-items-consumer
+	make push-customer-groups-consumer
 
 push-middlewarehouse:
 	docker tag $(DOCKER_IMAGE) $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
@@ -132,6 +141,10 @@ push-shipstation-consumer:
 push-stock-items-consumer:
 	docker tag stock-items-consumer $(DOCKER_REPO)/stock-items-consumer:$(DOCKER_TAG)
 	docker push $(DOCKER_REPO)/stock-items-consumer:$(DOCKER_TAG)
+
+push-customer-groups-consumer:
+	docker tag customer-groups-consumer $(DOCKER_REPO)/customer-groups-consumer:$(DOCKER_TAG)
+	docker push $(DOCKER_REPO)/customer-groups-consumer:$(DOCKER_TAG)
 
 ####################################################################
 # Miscellaneous targets                                            #

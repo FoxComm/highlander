@@ -21,7 +21,7 @@
     }
   },
   "env": {
-    "TOPIC": "activities",
+    "TOPIC": "scoped_activities",
     "SCHEMA_REPOSITORY_URL": "http://{{schema_server}}",
     "ZOOKEEPER_URL": "{{zookeeper_server}}",
     "MWH_URL": "http://{{middlewarehouse_server}}",

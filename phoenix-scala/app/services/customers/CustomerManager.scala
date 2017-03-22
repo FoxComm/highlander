@@ -16,10 +16,10 @@ import models.customer.CustomersData.scope._
 import models.customer._
 import models.location.Addresses
 import models.shipping.Shipments
-import org.json4s.native.Serialization._
 import payloads.AuthPayload
 import payloads.CustomerPayloads._
 import responses.CustomerResponse._
+import responses.GroupResponses.CustomerGroupResponse
 import services._
 import services.account._
 import slick.driver.PostgresDriver.api._
@@ -31,7 +31,7 @@ object CustomerManager {
 
   implicit val formatters = phoenixFormats
 
-  private def resolvePhoneNumber(accountId: Int)(implicit ec: EC): DbResultT[Option[String]] = {
+  def resolvePhoneNumber(accountId: Int)(implicit ec: EC): DbResultT[Option[String]] = {
     def resolveFromShipments(accountId: Int) =
       (for {
         order    ← Orders if order.accountId === accountId
@@ -67,6 +67,9 @@ object CustomerManager {
       phoneOverride ← * <~ doOrGood(customer.phoneNumber.isEmpty,
                                     resolvePhoneNumber(accountId),
                                     None)
+      groupMembership ← * <~ CustomerGroupMembers.findByCustomerDataId(customerData.id).result
+      groupIds = groupMembership.map(_.groupId).toSet
+      groups ← * <~ CustomerGroups.findAllByIds(groupIds).result
     } yield
       build(customer.copy(phoneNumber = customer.phoneNumber.orElse(phoneOverride)),
             customerData,
@@ -74,7 +77,8 @@ object CustomerManager {
             billRegion,
             rank = rank,
             scTotals = totals,
-            lastOrderDays = maxOrdersDate.map(DAYS.between(_, Instant.now)))
+            lastOrderDays = maxOrdersDate.map(DAYS.between(_, Instant.now)),
+            groups = groups.map(CustomerGroupResponse.build))
   }
 
   def create(payload: CreateCustomerPayload,
@@ -83,10 +87,14 @@ object CustomerManager {
                                             db: DB,
                                             ac: AC): DbResultT[(Root, AuthPayload)] =
     for {
-      customer ← * <~ createCustomer(payload, admin, context)
+
+      contextScope ← * <~ Scopes.mustFindById400(context.scopeId)
+      scope        ← * <~ Scope.overwrite(contextScope.path, payload.scope)
+
+      customer ← * <~ createCustomer(payload, admin, context, scope)
       (user, custData) = customer
       result           = build(user, custData)
-      _        ← * <~ LogActivity.customerCreated(result, admin)
+      _        ← * <~ LogActivity().withScope(scope).customerCreated(result, admin)
       account  ← * <~ Accounts.mustFindById400(user.accountId)
       claimSet ← * <~ AccountManager.getClaims(account.id, context.scopeId)
       token    ← * <~ UserToken.fromUserAccount(user, account, claimSet)
@@ -98,17 +106,19 @@ object CustomerManager {
       admin: Option[User] = None,
       context: AccountCreateContext)(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
     for {
-      result ← * <~ createCustomer(payload, admin, context)
+      contextScope ← * <~ Scopes.mustFindById400(context.scopeId)
+      scope        ← * <~ Scope.overwrite(contextScope.path, payload.scope)
+
+      result ← * <~ createCustomer(payload, admin, context, scope)
       resp = build(result._1, result._2)
-      _ ← * <~ LogActivity.customerCreated(resp, admin)
+      _ ← * <~ LogActivity().withScope(scope).customerCreated(resp, admin)
     } yield resp
 
-  private def createCustomer(payload: CreateCustomerPayload,
-                             admin: Option[User] = None,
-                             context: AccountCreateContext)(
-      implicit ec: EC,
-      db: DB,
-      ac: AC): DbResultT[(User, CustomerData)] =
+  private def createCustomer(
+      payload: CreateCustomerPayload,
+      admin: Option[User] = None,
+      context: AccountCreateContext,
+      scope: LTree)(implicit ec: EC, db: DB, ac: AC): DbResultT[(User, CustomerData)] =
     for {
       user ← * <~ AccountManager.createUser(name = payload.name,
                                             email = payload.email.toLowerCase.some,
@@ -116,8 +126,6 @@ object CustomerManager {
                                             context = context,
                                             checkEmail = !payload.isGuest.getOrElse(false))
 
-      contextScope ← * <~ Scopes.mustFindById400(context.scopeId)
-      scope        ← * <~ Scope.overwrite(contextScope.path, payload.scope)
       custData ← * <~ CustomersData.create(
                     CustomerData(accountId = user.accountId,
                                  userId = user.id,
@@ -180,7 +188,7 @@ object CustomerManager {
                 else Users.updateEmailMustBeUnique(payload.email.map(_.toLowerCase), accountId))
       updated ← * <~ Users.update(customer, updatedUser(customer, payload))
       _       ← * <~ CustomersData.update(custData, updatedCustUser(custData, payload))
-      _       ← * <~ LogActivity.customerUpdated(customer, updated, admin)
+      _       ← * <~ LogActivity().customerUpdated(customer, updated, admin)
     } yield (updated, custData)
 
   def changePassword(
@@ -198,7 +206,7 @@ object CustomerManager {
 
       updatedAccess ← * <~ AccountAccessMethods
                        .update(accessMethod, accessMethod.updatePassword(payload.newPassword))
-      _ ← * <~ LogActivity.userPasswordReset(user)
+      _ ← * <~ LogActivity().userPasswordReset(user)
     } yield {}
 
   def updatedUser(customer: User, payload: UpdateCustomerPayload): User = {
@@ -229,7 +237,7 @@ object CustomerManager {
       custData ← * <~ CustomersData.mustFindByAccountId(accountId)
       _        ← * <~ CustomersData.update(custData, custData.copy(isGuest = false))
       response = build(updated, custData)
-      _ ← * <~ LogActivity.customerActivated(response, admin)
+      _ ← * <~ LogActivity().customerActivated(response, admin)
     } yield response
 
   def toggleDisabled(accountId: Int, disabled: Boolean, actor: User)(implicit ec: EC,

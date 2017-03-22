@@ -7,7 +7,7 @@ input_aliases:
 # Supported canonical apps (otherwise, playbook fails fast)
 supported_apps:
     - ashes
-    - firebrand
+    - peacock
     - phoenix
     - greenriver
     - middlewarehouse
@@ -18,6 +18,7 @@ supported_apps:
     - gift-card-consumer
     - shipments-consumer
     - stock-items-consumer
+    - customer-groups-consumer
     - shipstation
     - marketplace
     - hyperion
@@ -31,6 +32,8 @@ app_highlander_paths:
     shipments-consumer: middlewarehouse
     shipstation-consumer: middlewarehouse
     stock-items-consumer: middlewarehouse
+    customer-groups-consumer: middlewarehouse
+    peacock: demo/peacock
 
 # Mapping canonical app name to Mararthon template path
 app_template_paths:
@@ -38,7 +41,7 @@ app_template_paths:
 
 # Mapping canonical app name to Marathon app name
 app_marathon_names:
-    firebrand: storefront
+    firebrand: storefront # not removing it, serves as an example and prevents errors in dev/update-app playbook
 
 # Custom `make build` targets
 app_build_targets:
@@ -48,6 +51,7 @@ app_build_targets:
     shipments-consumer: make prepare && make build-shipments-consumer
     shipstation: make prepare && make build-shipstation-consumer
     stock-items-consumer: make prepare && make build-stock-items-consumer
+    customer-groups-consumer: make prepare && make build-customer-groups-consumer
 
 # Custom `make docker` targets
 app_docker_targets:
@@ -57,6 +61,7 @@ app_docker_targets:
     shipments-consumer: make docker-shipments-consumer
     shipstation: make docker-shipstation-consumer
     stock-items-consumer: make docker-stock-items-consumer
+    customer-groups-consumer: make docker-customer-groups-consumer
 
 # Custom `make docker-push` targets
 app_push_targets:
@@ -66,11 +71,12 @@ app_push_targets:
     shipments-consumer: make push-shipments-consumer
     shipstation: make push-shipstation-consumer
     stock-items-consumer: make push-stock-items-consumer
+    customer-groups-consumer: make push-customer-groups-consumer
 
 # Override default Docker tags
 docker_tags:
     ashes: "{{tag_name}}"
-    firebrand: "{{tag_name}}"
+    peacock: "{{tag_name}}"
     phoenix: "{{tag_name}}"
     greenriver: "{{tag_name}}"
     middlewarehouse: "{{tag_name}}"
@@ -82,6 +88,7 @@ docker_tags:
     shipments_consumer: "{{tag_name}}"
     shipstation_consumer: "{{tag_name}}"
     stock_items_consumer: "{{tag_name}}"
+    customer_groups_consumer: "{{tag_name}}"
     storefront_td: "{{tag_name}}"
     storefront_tpg: "{{tag_name}}"
     marketplace: "{{tag_name}}"

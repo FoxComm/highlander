@@ -24,7 +24,9 @@ object Workers {
                                  PromotionConnector,
                                  CouponConnector)
 
-    val activityProcessor = new ActivityProcessor(connectionInfo, activityConnectors)
+    val kafkaInfo = KafkaConnectionInfo(
+        broker = conf.kafkaBroker, schemaRegistryURL = conf.avroSchemaRegistryUrl)
+    val activityProcessor = new ActivityProcessor(kafkaInfo, connectionInfo, activityConnectors)
 
     val avroProcessor = new AvroProcessor(
         schemaRegistryUrl = conf.avroSchemaRegistryUrl, processor = activityProcessor)
@@ -163,29 +165,30 @@ object Workers {
 
   def topicTransformers(connectionInfo: PhoenixConnectionInfo)(
       implicit ec: EC, ac: AS, mat: AM, cp: CP, sc: SC) = Map(
-      "carts_search_view"                  → CartsSearchView(),
-      "countries"                          → CountriesSearchView(),
-      "customer_items_view"                → CustomerItemsView(),
-      "customers_search_view"              → CustomersSearchView(),
-      "failed_authorizations_search_view"  → FailedAuthorizationsSearchView(),
-      "inventory_search_view"              → InventorySearchView(),
-      "inventory_transactions_search_view" → InventoryTransactionSearchView(),
-      "notes_search_view"                  → NotesSearchView(),
-      "orders_search_view"                 → OrdersSearchView(),
-      "products_catalog_view"              → ProductsCatalogView(),
-      "products_search_view"               → ProductsSearchView(),
-      "promotions_search_view"             → PromotionsSearchView(),
-      "coupons_search_view"                → CouponsSearchView(),
-      "coupon_codes_search_view"           → CouponCodesSearchView(),
-      "regions"                            → RegionsSearchView(),
-      "sku_search_view"                    → SkuSearchView(),
-      "gift_card_transactions_view"        → GiftCardTransactionsSearchView(),
-      "gift_cards_search_view"             → GiftCardsSearchView(),
-      "store_admins_search_view"           → StoreAdminsSearchView(),
-      "store_credit_transactions_view"     → StoreCreditTransactionsSearchView(),
-      "store_credits_search_view"          → StoreCreditsSearchView(),
-      "activity_connections_view"          → ActivityConnectionTransformer(connectionInfo),
-      "taxonomies_search_view"             → TaxonomiesSearchView(),
-      "taxons_search_view"                 → TaxonsSearchView()
+      "carts_search_view"                     → CartsSearchView(),
+      "countries"                             → CountriesSearchView(),
+      "customer_items_view"                   → CustomerItemsView(),
+      "customers_search_view"                 → CustomersSearchView(),
+      "customer_groups_search_view"           → CustomerGroupsSearchView(),
+      "failed_authorizations_search_view"     → FailedAuthorizationsSearchView(),
+      "inventory_search_view"                 → InventorySearchView(),
+      "inventory_transactions_search_view"    → InventoryTransactionSearchView(),
+      "notes_search_view"                     → NotesSearchView(),
+      "orders_search_view"                    → OrdersSearchView(),
+      "products_catalog_view"                 → ProductsCatalogView(),
+      "products_search_view"                  → ProductsSearchView(),
+      "promotions_search_view"                → PromotionsSearchView(),
+      "coupons_search_view"                   → CouponsSearchView(),
+      "coupon_codes_search_view"              → CouponCodesSearchView(),
+      "regions"                               → RegionsSearchView(),
+      "sku_search_view"                       → SkuSearchView(),
+      "gift_card_transactions_view"           → GiftCardTransactionsSearchView(),
+      "gift_cards_search_view"                → GiftCardsSearchView(),
+      "store_admins_search_view"              → StoreAdminsSearchView(),
+      "store_credit_transactions_search_view" → StoreCreditTransactionsSearchView(),
+      "store_credits_search_view"             → StoreCreditsSearchView(),
+      "scoped_activity_trails"                → ActivityConnectionTransformer(connectionInfo),
+      "taxonomies_search_view"                → TaxonomiesSearchView(),
+      "taxons_search_view"                    → TaxonsSearchView()
   )
 }

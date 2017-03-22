@@ -50,10 +50,10 @@
     - { role: hotfix/rsyslog }
     - { role: hotfix/kibana }
     - { role: dev/db }
-    - { role: dev/db_ic }
+    - { role: dev/db_ic, when: with_ic }
     # Marathon
+    - { role: dev/seed_system }
     - { role: dev/marathon }
-    - { role: dev/seeder }
     - { role: dev/marathon_consumers }
     - { role: dev/ic }
     - { role: ext/td/storefront }
@@ -62,10 +62,10 @@
     - { role: dev/balancer }
     - { role: hotfix/mesos_consul }
     - { role: demo/balancer }
+
+    # Seed
+    - { role: dev/seeder }
+
     # Finale
     - { role: dev/healthcheck }
     - { role: dev/appliance_dns }
-
-  handlers:
-     - include: roles/base/consul_agent/handlers/main.yml
-     - include: roles/base/mesos_consul/handlers/main.yml

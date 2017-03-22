@@ -1,4 +1,4 @@
-#Responses
+# Responses
 
 Each response is specified as a struct. 
 

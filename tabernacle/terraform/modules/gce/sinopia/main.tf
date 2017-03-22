@@ -2,7 +2,7 @@ variable "ssh_user" {}
 
 variable "ssh_private_key" {}
 
-variable "dnsimple_email" {}
+variable "dnsimple_account" {}
 
 variable "dnsimple_token" {}
 

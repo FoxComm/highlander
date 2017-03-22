@@ -50,6 +50,7 @@ docker_tags:
     shipments_consumer: "{{ lookup('env', 'DOCKER_TAG_SHIPMENTS_CONSUMER') | default('master', true) }}"
     shipstation_consumer: "{{ lookup('env', 'DOCKER_TAG_SHIPSTATION_CONSUMER') | default('master', true) }}"
     stock_items_consumer: "{{ lookup('env', 'DOCKER_TAG_STOCK_ITEMS_CONSUMER') | default('master', true) }}"
+    customer_groups_consumer: "{{ lookup('env', 'DOCKER_TAG_CUSTOMER_GROUPS_CONSUMER') | default('master', true) }}"
     storefront_td: "{{ lookup('env', 'DOCKER_TAG_STOREFRONT_TOPDRAWER') | default('master', true) }}"
     storefront_tpg: "{{ lookup('env', 'DOCKER_TAG_STOREFRONT_TPG') | default('master', true) }}"
     hyperion: "{{ lookup('env', 'DOCKER_TAG_HYPERION') | default('master', true) }}"
@@ -76,6 +77,7 @@ marathon_restart:
     shipments_consumer: "{{ lookup('env', 'MARATHON_SHIPMENTS_CONSUMER') | default(true, true) | bool }}"
     shipstation_consumer: "{{ lookup('env', 'MARATHON_SHIPSTATION_CONSUMER') | default(true, true) | bool }}"
     stock_items_consumer: "{{ lookup('env', 'MARATHON_STOCK_ITEMS_CONSUMER') | default(true, true) | bool }}"
+    customer_groups_consumer: "{{ lookup('env', 'MARATHON_CUSTOMER_GROUPS_CONSUMER') | default(true, true) | bool }}"
     marketplace: "{{ lookup('env', 'MARATHON_MARKETPLACE') | default(true, true) | bool }}"
     storefront_td: "{{ lookup('env', 'MARATHON_STOREFRONT_TD') | default(true, true) | bool }}"
     storefront_tpg: "{{ lookup('env', 'MARATHON_STOREFRONT_TPG') | default(true, true) | bool }}"
@@ -86,6 +88,9 @@ marathon_restart:
     river_rock: "{{ lookup('env', 'MARATHON_RIVER_ROCK') | default(true, true) | bool }}"
     digger_sphex: "{{ lookup('env', 'MARATHON_DIGGER_SPHEX') | default(true, true) | bool }}"
     orders_sphex: "{{ lookup('env', 'MARATHON_ORDERS_SPHEX') | default(true, true) | bool }}"
+
+# Should we use Intelligent Commerce
+with_ic: "{{ lookup('env', 'WITH_INTELLIGENT_COMMERCE') | default(true, true) | bool }}"
 
 # Consul Service Discovery
 consul_data_dir: /var/consul
@@ -243,12 +248,13 @@ hyperion_db_user: hyperion
 hyperion_db_password: hyperion
 hyperion_db_host: "{{db_host}}"
 hyperion_db_connection_string: "postgresql://{{hyperion_db_user}}@{{hyperion_db_host}}/{{hyperion_db_name}}"
+hyperion_test_db_name: hyperion_test
 
-#Eggcreate
+# Eggcreate
 eggcrate_host: "eggcrate.{{consul_suffix}}"
 eggcrate_server: "{{eggcrate_host}}"
 
-#Bernardo
+# Bernardo
 bernardo_dir: /bernardo
 bernardo_src: ../../intelligence/bernardo/
 bernardo_db_name: ic
@@ -258,7 +264,7 @@ bernardo_port: "9290"
 bernardo_host: bernardo.service.consul
 bernardo_server: "{{bernardo_host}}:{{bernardo_port}}"
 
-#River Rock
+# River Rock
 river_rock_port: "9390"
 river_rock_host: river-rock.service.consul
 river_rock_server: "{{river_rock_host}}:{{river_rock_port}}"
@@ -288,7 +294,7 @@ es5_heap_size: 2048m
 # Shipstation consumer
 shipstation_api_key: ""
 shipstation_api_secret: ""
-shipstation_topic: "activities"
+shipstation_topic: "scoped_activities"
 shipstation_interval: "10s"
 
 # Firebrand variables
@@ -353,12 +359,30 @@ retailer_name: "FoxCommerce"
 contact_email: "pavel@foxcommerce.com"
 mailchimp_api_key: ""
 
+# Materialized views
+update_materialized_views_sql: "/usr/local/share/update_materialized_views.sql"
+update_materialized_views_cmd: "psql {{db_connection_string}} -f {{update_materialized_views_sql}}"
+
+# External analytics
+facebook_pixel_id: "433654337026546"
+ga_tracking_id: ""
+
+# S3
+s3_bucket: foxcomm-images
+s3_region: us-west-1
+
+# Imgix S3 source for products images
+imgix_products_source: ""
+imgix_s3_bucket_name: ""
+imgix_s3_bucket_prefix: ""
+
 # Various flags
 first_run: false
 is_ci: false
 is_amigo: false
 is_appliance: false
 is_redeploy: false
+jmx_enabled: false
 packing: false
 with_marketplace: false
 with_shipstation: false

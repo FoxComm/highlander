@@ -16,7 +16,7 @@
   synchronize: src="{{bernardo_src}}/sql" dest="{{bernardo_dir}}" delete=yes recursive=yes
 
 - name: Create Bernardo Log Directory
-  file: path="{{bernardo_dir}}/log" state=directory owner="{{user}}"  mode="0777"
+  file: path="{{bernardo_dir}}/log" state=directory owner="{{user}}" mode="0777"
 
 - name: Setup Flyway Config
   template: src=flyway.conf dest="{{bernardo_dir}}/sql/flyway.conf" mode="u+x,g+x,o+x"

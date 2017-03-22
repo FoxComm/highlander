@@ -13,6 +13,7 @@
     - { role: base/confluent_platform }
     - { role: base/elasticsearch }
     - { role: base/elasticsearch-5 }
+    - { role: base/flyway }
     - { role: base/db }
     - { role: base/bottledwater }
     - { role: base/pgweb }

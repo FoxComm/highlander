@@ -24,7 +24,7 @@ object CartRoutes {
 
   def routes(implicit ec: EC, es: ES, db: DB, auth: AuthData[User], apis: Apis): Route = {
 
-    activityContext(auth.model) { implicit ac ⇒
+    activityContext(auth) { implicit ac ⇒
       determineObjectContext(db, ec) { implicit ctx ⇒
         pathPrefix("carts") {
           (post & pathEnd & entity(as[CreateCart])) { payload ⇒
