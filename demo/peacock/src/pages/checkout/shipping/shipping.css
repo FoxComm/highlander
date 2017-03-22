@@ -27,7 +27,7 @@
 }
 
 .btn-action {
-  color: var(--button-default-color);
+  color: var(--button-default-background);
   font-size: 16px;
   cursor: pointer;
   display: flex;

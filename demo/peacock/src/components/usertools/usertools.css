@@ -89,7 +89,7 @@
 }
 .cart-quantity {
   border-radius: 50%;
-  background-color: var(--button-default-color);
+  background-color: var(--button-default-background);
   display: flex;
   align-items: center;
   justify-content: center;

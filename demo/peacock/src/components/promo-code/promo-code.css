@@ -44,17 +44,17 @@
   font-weight: 400;
   font-size: 12px;
   color: var(--button-link-color);
-  background-color: var(--button-default-color);
+  background-color: var(--button-default-background);
   text-transform: uppercase;
   min-width: 8em;
   height: 36px;
 
-  &:hover {
-    background: var(--button-focus-color);
+  &:active {
+    background: var(--button-focus-background);
   }
 
   &:disabled {
-    background: var(--button-disabled-color);
+    background: var(--button-disabled-background);
   }
 }
 

@@ -8,22 +8,22 @@
   padding: 14px 10px;
   border: none;
   border-radius: 4px;
-  background-color: var(--button-default-color);
+  background-color: var(--button-default-background);
   color: var(--button-label-color);
   text-align: center;
   cursor: pointer;
 
   &:active {
-    background: var(--button-active-color);
+    background: var(--button-active-background;
   }
 
   &:visited {
-    background: var(--button-visited-color);
+    background: var(--button-visited-background);
   }
 
-  &:hover, &:focus {
-    border: 1px solid var(--focus-color);
-    background: var(--button-focus-color);
+  &:focus {
+    border: 1px solid var(--button-focus-background);
+    background: var(--button-focus-background);
   }
 
   & > span {
@@ -36,7 +36,7 @@
   }
 
   &:disabled {
-    background: var(--button-disabled-color);
+    background: var(--button-disabled-background);
 
     &:hover {
       cursor: not-allowed;
@@ -55,12 +55,12 @@
   }
 
   &:disabled {
-    background: var(--button-disabled-color);
+    background: var(--button-disabled-background);
     background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUAQMAAAC3R49OAAAABlBMVEUAAAAAAAClZ7nPAAAAAnRSTlMAF/VASP8AAABBSURBVHheZckxFYAgFADA8zkwYgMr2MBKNpBoRCHCHxl4YADnsxymy/DoQmyh7aGmUHJwBnfjraxiW+yTNMj9xx9ZVxpfjbpEWgAAAABJRU5ErkJggg==);
     animation: caramel .5s linear infinite;
 
     &:hover {
-      color: var(--button-disabled-color);
+      color: var(--button-disabled-background);
       cursor: not-allowed;
     }
   }
@@ -70,19 +70,19 @@
 .button-secondary {
   min-width: 11.2em;
   height: 3.1em;
-  background: var(--button-alt-default-color);
+  background: var(--button-alt-default-background);
   text-transform: uppercase;
   font-size: 13px;
   font-weight: 300;
-  color: var(--button-label-color);
+  color: var(--button-color);
 
   &:active {
-    background: var(--button-alt-active-color);
+    background: var(--button-alt-active-background);
   }
 
-  &:hover, &:focus {
-    background: var(--button-alt-default-color);
-    color: var(--button-label-color);
+  &:focus {
+    background: var(--button-alt-default-background);
+    color: var(--button-color);
   }
 }
 

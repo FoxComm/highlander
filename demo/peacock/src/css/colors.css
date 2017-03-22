@@ -65,15 +65,15 @@
   --error-color: var(--cherry-red);
 
   /* Button colors */
-  --button-default-color: var(--water-blue);
-  --button-active-color: var(--science-blue);
-  --button-focus-color: var(--water-blue);
-  --button-in-progress-color: var(--science-blue);
-  --button-alt-default-color: var(--mine-shaft);
-  --button-alt-active-color: var(--black);
-  --button-disabled-color: var(--silver);
+  --button-default-background: var(--water-blue);
+  --button-active-background: var(--science-blue);
+  --button-focus-background: var(--water-blue);
+  --button-in-progress-background: var(--science-blue);
+  --button-alt-default-background: var(--mine-shaft);
+  --button-alt-active-background: var(--black);
+  --button-disabled-background: var(--silver);
 
-  --button-label-color: var(--white);
+  --button-color: var(--white);
 
   --link-color: var(--warter-blue);
   --link-hover-color: var(--water-blue);
@@ -81,4 +81,7 @@
   --link-alt-color: var(--cod-gray);
 
   --focus-color: var(--french-pass);
+
+  /* Borders */
+  --border-color: var(--gray);
 }

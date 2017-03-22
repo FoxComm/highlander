@@ -24,14 +24,10 @@
   text-transform: uppercase;
   font-size: 15px;
   font-weight: 700;
-  color: var(--button-label-color);
-  background: var(--button-default-color);
+  color: var(--button-color);
+  background: var(--button-default-background);
   border: none;
   height: 46px;
-}
-
-.button:hover {
-  background: var(--button-focus-color);
 }
 
 .form-field {
