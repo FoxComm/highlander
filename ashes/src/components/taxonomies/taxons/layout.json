@@ -8,8 +8,7 @@
           "includeRest": true,
           "value": [
             "name",
-            "description",
-            "colorSwatch"
+            "description"
           ]
         }
     }

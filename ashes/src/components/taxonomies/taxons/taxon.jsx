@@ -58,9 +58,6 @@ const schema: ObjectSchema = {
           type: 'string',
           widget: 'richText'
         },
-        colorSwatch: {
-          type: 'color',
-        }
       },
     },
     description: 'Taxon attributes'
