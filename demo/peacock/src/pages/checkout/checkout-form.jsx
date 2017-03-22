@@ -60,7 +60,9 @@ class CheckoutForm extends Component {
     return (
       <Form onSubmit={props.submit} styleName="root">
         {this.header}
-        {props.children}
+        <div styleName="form-body">
+          {props.children}
+        </div>
         <ErrorAlerts
           sanitizeError={sanitizeError}
           error={props.error}

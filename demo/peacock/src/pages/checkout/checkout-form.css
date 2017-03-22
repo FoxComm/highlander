@@ -1,35 +1,71 @@
 @import "colors.css";
+@import "media-queries.css";
 
 .root {
-  padding: 20px 0;
+  padding-top: 1px;
+  height: 100%;
+
+  & ::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  & ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  & ::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,0.30);
+    border-radius: 2px;
+  }
 }
 
 .form-header {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 15px;
+  padding: 0 15px;
+  align-items: center;
+  border-bottom: 1px solid #ddd;
+  font-size: 17px;
+  position: absolute;
+  width: 100%;
+  height: 50px;
+}
+
+.form-body {
+  margin-top: 50px;
+  overflow-y: auto;
+  height: calc(100% - 94px);
+  padding-bottom: 15px;
 }
 
 .legend {
-  font-weight: 300;
-  letter-spacing: 1px;
-  text-transform: uppercase;
+
 }
 
 .action-link {
   color: var(--link-color);
-  text-transform: uppercase;
   cursor: pointer;
 }
 
 .button-wrap {
-  padding: 20px 0 30px;
   text-align: center;
+  position: absolute;
+  height: 44px;
+  width: 100%;
+  bottom: 0;
 }
 
 .checkout-submit {
   display: inline-block;
   width: 100%;
-  max-width: 400px;
-  text-transform: uppercase;
+  height: 44px;
+  font-weight: 900;
+  font-size: 20px;
+}
+
+@media (--large) {
+  .button-wrap {
+    padding: 10px;
+    height: 60px;
+  }
 }
