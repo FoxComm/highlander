@@ -1,6 +1,5 @@
 package services
 
-import scala.util.Random
 import cats.data.Xor
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
@@ -12,10 +11,9 @@ import failures.PromotionFailures.PromotionNotFoundForContext
 import failures.ShippingMethodFailures.NoDefaultShippingMethod
 import models.account._
 import models.cord._
-import models.cord.lineitems.{CartLineItem, CartLineItems}
+import models.cord.lineitems.CartLineItems
 import models.cord.lineitems.CartLineItems.scope._
 import models.coupon._
-import models.account._
 import models.inventory.Skus
 import models.location.Addresses
 import models.objects._
@@ -28,6 +26,7 @@ import org.json4s.JsonAST._
 import payloads.CartPayloads.CheckoutCart
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import responses.cord.OrderResponse
+import scala.util.Random
 import services.carts._
 import services.coupon.CouponUsageService
 import services.inventory.SkuManager
@@ -201,14 +200,12 @@ case class Checkout(
     for {
       liSkus               ← * <~ CartLineItems.byCordRef(cart.refNum).countSkus
       inventoryTrackedSkus ← * <~ filterInventoryTrackingSkus(liSkus)
-      skusToHold ← * <~ inventoryTrackedSkus.map { s ⇒
-                    SkuInventoryHold(s.code, s.qty)
-                  }.toSeq
+      skusToHold           ← * <~ inventoryTrackedSkus.map(sku ⇒ SkuInventoryHold(sku.code, sku.qty))
       _ ← * <~ doOrMeh(
-             skusToHold.size > 0,
+             skusToHold.nonEmpty,
              DbResultT.fromResult(
                  apis.middlwarehouse.hold(OrderInventoryHold(cart.referenceNumber, skusToHold))))
-      mutating = externalCalls.middleWarehouseSuccess = skusToHold.size > 0
+      mutating = externalCalls.middleWarehouseSuccess = skusToHold.nonEmpty
     } yield {}
 
   private def filterInventoryTrackingSkus(skus: Map[String, Int]) =

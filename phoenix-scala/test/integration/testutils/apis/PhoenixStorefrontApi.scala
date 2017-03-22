@@ -2,7 +2,6 @@ package testutils.apis
 
 import akka.http.scaladsl.model.HttpResponse
 import payloads.CartPayloads.CheckoutCart
-import payloads.PaymentPayloads.ToggleDefaultCreditCard
 import testutils._
 
 trait PhoenixStorefrontApi extends HttpSupport { self: FoxSuite ⇒

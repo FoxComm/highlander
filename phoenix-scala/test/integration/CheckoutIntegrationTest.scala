@@ -22,7 +22,7 @@ import payloads.AddressPayloads.CreateAddressPayload
 import payloads.CartPayloads.{CheckoutCart, CreateCart}
 import payloads.GiftCardPayloads.GiftCardCreateByCsr
 import payloads.LineItemPayloads._
-import payloads.PaymentPayloads.{CreateCreditCardFromTokenPayload, CreateManualStoreCredit, GiftCardPayment, ToggleDefaultCreditCard}
+import payloads.PaymentPayloads.{CreateCreditCardFromTokenPayload, GiftCardPayment}
 import payloads.UpdateShippingMethod
 import responses.GiftCardResponse
 import responses.cord._
@@ -42,6 +42,36 @@ class CheckoutIntegrationTest
     with AutomaticAuth
     with BakedFixtures {
 
+  def doCheckout(customer: User,
+                 sku: Sku,
+                 address: Address,
+                 shipMethod: ShippingMethod,
+                 reason: Reason,
+                 referenceNumber: Option[String] = None): HttpResponse = {
+    val refNum = referenceNumber.getOrElse(
+        cartsApi.create(CreateCart(customer.accountId.some)).as[CartResponse].referenceNumber)
+    val _cartApi = cartsApi(refNum)
+
+    _cartApi.lineItems.add(Seq(UpdateLineItemsPayload(sku.code, 2))).mustBeOk()
+
+    _cartApi.shippingAddress.updateFromAddress(address.id).mustBeOk()
+
+    val grandTotal = _cartApi.shippingMethod
+      .update(UpdateShippingMethod(shipMethod.id))
+      .asTheResult[CartResponse]
+      .totals
+      .total
+
+    val gcCode = giftCardsApi
+      .create(GiftCardCreateByCsr(grandTotal, reason.id))
+      .as[GiftCardResponse.Root]
+      .code
+
+    _cartApi.payments.giftCard.add(GiftCardPayment(gcCode, grandTotal.some)).mustBeOk()
+
+    _cartApi.checkout()
+  }
+
   "PATCH /v1/carts/:refNum/line-items/attributes" - {
     val attributes = LineItemAttributes(
         GiftCardLineItemAttributes(senderName = "senderName",
@@ -53,7 +83,7 @@ class CheckoutIntegrationTest
       val refNum =
         cartsApi.create(CreateCart(customer.accountId.some)).as[CartResponse].referenceNumber
       val orderResponse =
-        doCheckout(customer, sku, address, shipMethod, reason, refNum).as[OrderResponse]
+        doCheckout(customer, sku, address, shipMethod, reason, Some(refNum)).as[OrderResponse]
       val lineItemToUpdate = orderResponse.lineItems.skus.head
       val root = cartsApi(orderResponse.referenceNumber)
         .updateCartLineItem(
@@ -67,34 +97,6 @@ class CheckoutIntegrationTest
       itemsToCheck
         .forall(oli ⇒ oli.attributes.get.toString == attributes.get.toString()) mustBe true
 
-    }
-
-    def doCheckout(customer: User,
-                   sku: Sku,
-                   address: Address,
-                   shipMethod: ShippingMethod,
-                   reason: Reason,
-                   refNum: String): HttpResponse = {
-      val _cartApi = cartsApi(refNum)
-
-      _cartApi.lineItems.add(Seq(UpdateLineItemsPayload(sku.code, 2))).mustBeOk()
-
-      _cartApi.shippingAddress.updateFromAddress(address.id).mustBeOk()
-
-      val grandTotal = _cartApi.shippingMethod
-        .update(UpdateShippingMethod(shipMethod.id))
-        .asTheResult[CartResponse]
-        .totals
-        .total
-
-      val gcCode = giftCardsApi
-        .create(GiftCardCreateByCsr(grandTotal, reason.id))
-        .as[GiftCardResponse.Root]
-        .code
-
-      _cartApi.payments.giftCard.add(GiftCardPayment(gcCode, grandTotal.some)).mustBeOk()
-
-      _cartApi.checkout()
     }
   }
 
@@ -225,35 +227,6 @@ class CheckoutIntegrationTest
     "fails if customer is blacklisted" in new BlacklistedFixture {
       doCheckout(customer, sku, address, shipMethod, reason).mustFailWith400(
           UserIsBlacklisted(customer.accountId))
-    }
-
-    def doCheckout(customer: User,
-                   sku: Sku,
-                   address: Address,
-                   shipMethod: ShippingMethod,
-                   reason: Reason): HttpResponse = {
-      val refNum =
-        cartsApi.create(CreateCart(customer.accountId.some)).as[CartResponse].referenceNumber
-      val _cartApi = cartsApi(refNum)
-
-      _cartApi.lineItems.add(Seq(UpdateLineItemsPayload(sku.code, 2))).mustBeOk()
-
-      _cartApi.shippingAddress.updateFromAddress(address.id).mustBeOk()
-
-      val grandTotal = _cartApi.shippingMethod
-        .update(UpdateShippingMethod(shipMethod.id))
-        .asTheResult[CartResponse]
-        .totals
-        .total
-
-      val gcCode = giftCardsApi
-        .create(GiftCardCreateByCsr(grandTotal, reason.id))
-        .as[GiftCardResponse.Root]
-        .code
-
-      _cartApi.payments.giftCard.add(GiftCardPayment(gcCode, grandTotal.some)).mustBeOk()
-
-      _cartApi.checkout()
     }
   }
 
