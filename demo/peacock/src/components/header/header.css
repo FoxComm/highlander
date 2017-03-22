@@ -9,8 +9,8 @@
   height: 50px;
   font-size: 16px;
   background: #fff;
-  border-bottom: 1px solid #dddddd;
-  color: #212121;;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-color);
 }
 
 .header {

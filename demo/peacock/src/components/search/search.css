@@ -15,7 +15,7 @@
     width: 59px;
     font-family: Lato;
     font-size: 16px;
-    color: #222;
+    color: var(--text-color);
     transition: width .5s linear;
   }
 
@@ -25,28 +25,28 @@
 }
 @media (--small-only), (--medium-only) {
   ::-webkit-input-placeholder {
-    color: #222;
+    color: var(--text-color);
     opacity: 1;
   }
 
   :-ms-input-placeholder {
-    color: #222;
+    color: var(--text-color);
     opacity: 1;
   }
 
   ::-moz-placeholder {
-    color: #222;
+    color: var(--text-color);
     opacity: 1;
   }
 
   :-moz-placeholder {
-    color: #222;
+    color: var(--text-color);
     opacity: 1;
   }
 
   .search-input {
     font-size: 18px !important;
-    color: #222;
+    color: var(--text-color);
     width: 100%;
     border: none;
     background: none;
@@ -55,6 +55,6 @@
   }
 
   .search-input:focus {
-    border-bottom-color: #0b7ddc;
+    border-bottom-color: var(--input-active-border-color);
   }
 }

@@ -12,8 +12,8 @@
 
   &.expanded, &:hover {
     max-width: 100%;
-    background-color: #3E3436;
-    color: white;
+    background-color: var(--button-focus-background);
+    color: var(--button-color);
     cursor: pointer;
 
     & .add-btn-title {
@@ -23,7 +23,7 @@
   }
 
   &.expanded:hover {
-    background-color: #594B4D;
+    background-color: var(--button-focus-background);
   }
 }
 

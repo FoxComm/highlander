@@ -1,7 +1,7 @@
 .loader {
   padding: 50px 0 100px;
   text-align: center;
-  color: #fff;
+  color: var(--body-background);
 }
 
 .loader-m {

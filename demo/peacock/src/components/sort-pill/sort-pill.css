@@ -1,9 +1,11 @@
+@import "colors.css";
+
 .pill {
   padding: 0 15px;
   font-size: 16px;
   line-height: 20px;
   height: 22px;
-  color: #222222;
+  color: var(--text-color);
   border-radius: 22px;
 }
 
@@ -13,7 +15,7 @@
 }
 
 ._is-active {
-  background-color: #eeeeee;
+  background-color: var(--select-active-color);
 }
 
 ._is-inactive {

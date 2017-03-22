@@ -1,3 +1,4 @@
+@import "colors.css";
 
 .root {
   padding: 20px 0;
@@ -16,7 +17,7 @@
 }
 
 .action-link {
-  color: #8D757A;
+  color: var(--link-color);
   text-transform: uppercase;
   cursor: pointer;
 }

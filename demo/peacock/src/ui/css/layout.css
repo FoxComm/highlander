@@ -39,7 +39,7 @@
     display: block;
     width: 48px;
     height: 2px;
-    background-color: #8D757A;
+    background-color: var(--input-border-color);
     margin-top: 20px;
   }
 }
