@@ -36,6 +36,7 @@
   }
 
   &:disabled {
+    color: var(--button-disabled-color)
     background: var(--button-disabled-background);
 
     &:hover {

@@ -19,8 +19,9 @@
   --blackish: #222222;
   --mine-shaft: #333333;
   --gray: #888888;
-  --cod-gray: 1A1A1A;
+  --cod-gray: #1A1A1A;
   --silver: #CCCCCC;
+  --alto: #DDDDDD;
   --gallery: #EEEEEE;
   --white: #FFFFFF;
 }
@@ -74,6 +75,7 @@
   --button-disabled-background: var(--silver);
 
   --button-color: var(--white);
+  --button-disabled-color: var(--gallery)
 
   --link-color: var(--warter-blue);
   --link-hover-color: var(--water-blue);
@@ -83,5 +85,5 @@
   --focus-color: var(--french-pass);
 
   /* Borders */
-  --border-color: var(--gray);
+  --border-color: var(--alto);
 }
