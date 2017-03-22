@@ -23,6 +23,7 @@ import payloads.PromotionPayloads._
 import payloads.UpdateShippingMethod
 import responses.CouponResponses.CouponResponse
 import responses.PromotionResponses.PromotionResponse
+import responses.cord.base.CartResponseTotals
 import responses.cord.{CartResponse, OrderResponse}
 import responses.{CustomerResponse, StoreCreditResponse}
 import services.objects.ObjectManager
@@ -189,6 +190,32 @@ class AutoPromotionsIntegrationTest
       .as[PromotionResponse.Root]
 
     cartsApi(refNum).get.asTheResult[CartResponse].promotion mustBe 'defined
+  }
+
+  "after emptying a cart, no auto-promos are left" in new ProductSku_ApiFixture {
+    val promo = promotionsApi
+      .create(
+          PromotionPayloadBuilder.build(Promotion.Auto,
+                                        PromoOfferBuilder.CartPercentOff(37),
+                                        PromoQualifierBuilder.CartAny))
+      .as[PromotionResponse.Root]
+
+    val customer = api_newCustomer()
+
+    val refNum =
+      cartsApi.create(CreateCart(email = customer.email)).as[CartResponse].referenceNumber
+
+    cartsApi(refNum).lineItems
+      .add(Seq(UpdateLineItemsPayload(skuCode, 1)))
+      .asTheResult[CartResponse]
+      .promotion mustBe 'defined
+
+    cartsApi(refNum).lineItems.update(Seq(UpdateLineItemsPayload(skuCode, -1)))
+
+    val finl = cartsApi(refNum).get.asTheResult[CartResponse]
+
+    finl.promotion mustBe 'empty
+    finl.totals must === (CartResponseTotals(0, 0, 0, 0, 0, 0))
   }
 
 }
