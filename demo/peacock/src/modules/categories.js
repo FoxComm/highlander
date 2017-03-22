@@ -6,27 +6,32 @@ import { createAsyncActions } from '@foxcomm/wings';
 const categories = [
   {
     id: 0,
-    name: 'Women',
+    name: 'WOMEN',
+    description: '',
     showNameCatPage: true,
   },
   {
     id: 1,
-    name: 'Men',
+    name: 'MEN',
+    description: '',
     showNameCatPage: true,
   },
   {
     id: 2,
-    name: 'Kids',
+    name: 'KIDS',
+    description: '',
     showNameCatPage: true,
   },
   {
     id: 3,
-    name: 'Sports',
+    name: 'SPORTS',
+    description: '',
     showNameCatPage: true,
   },
   {
     id: 4,
-    name: 'Brands',
+    name: 'BRANDS',
+    description: '',
     showNameCatPage: true,
   },
   {

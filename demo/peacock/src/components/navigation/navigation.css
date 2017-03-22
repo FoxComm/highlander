@@ -1,9 +1,12 @@
-@import "media-queries.css";
 @import "colors.css";
+@import "media-queries.css";
 
 .item-link {
   line-height: 40px;
   text-decoration: none;
+  color: var(--link-alt-color);
+  white-space: nowrap;
+  text-transform: uppercase;
 }
 
 @media (--small-only), (--medium-only) {
@@ -44,13 +47,6 @@
 
   .item-link {
     display: inline-block;
-    white-space: nowrap;
-    text-transform: uppercase;
-    color: var(--linkl-alt-color);
-
-    &:hover {
-      opacity: .7;
-    }
   }
 }
 
