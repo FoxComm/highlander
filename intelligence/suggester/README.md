@@ -2,7 +2,7 @@
 Takes in customer information and generates a list of possible products for a potential upsell to be consumed by external services
 such as Email or SMS.
 
-## usage
+## Usage
 Add this directory to your `GOPATH`. 
 
 ```export GOPATH=$GOPATH:`pwd` ```
@@ -12,6 +12,11 @@ Run the server.
 
 ```go run src/server.go```
 
+## API
+
+```GET /api/v1/suggester/customer/:customer_id```
+
+## Structure
 | Directory                              | Description                                                                                                  |
 |:---------------------------------------|:-------------------------------------------------------------------------------------------------------------|
 | [src](src)                             | All source files used by the suggester-service  | 

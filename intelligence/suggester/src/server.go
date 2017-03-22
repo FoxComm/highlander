@@ -17,5 +17,7 @@ func main() {
 		return c.String(http.StatusOK, "pong")
 	})
 
+	e.GET("/customer/:id", services.GetSuggestion())
+
 	e.Logger.Fatal(e.Start(PORT))
 }
