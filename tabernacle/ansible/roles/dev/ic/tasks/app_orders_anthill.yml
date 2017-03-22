@@ -1,7 +1,7 @@
 ---
 
 - name: Copy Orders Consumer Marathon JSON
-  template: src="orders-anthill.json" dest=/marathon/applications mode="u+rw,g+rw,o+r"
+  template: src=orders-anthill.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
 
 - name: Update Orders Consumer in Marathon
   shell: 'curl -X PUT -d@/marathon/applications/orders-anthill.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/orders-anthill'

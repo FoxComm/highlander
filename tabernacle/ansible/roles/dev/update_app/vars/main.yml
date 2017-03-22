@@ -94,6 +94,7 @@ docker_tags:
     henhouse: "{{tag_name}}"
     eggcrate: "{{tag_name}}"
     river_rock: "{{tag_name}}"
+    anthill: "{{tag_name}}"
     digger_sphex: "{{tag_name}}"
     orders_sphex: "{{tag_name}}"
     orders_anthill: "{{tag_name}}"
