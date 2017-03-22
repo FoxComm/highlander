@@ -64,8 +64,16 @@
 }
 
 @media (--large) {
+  .form-body {
+    height: calc(100% - 120px);
+  }
+
   .button-wrap {
-    padding: 10px;
-    height: 60px;
+    padding: 0 10px;
+    height: 70px;
+  }
+
+  .checkout-submit {
+    height: 58px;
   }
 }
