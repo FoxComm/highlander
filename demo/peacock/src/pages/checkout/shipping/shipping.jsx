@@ -13,7 +13,7 @@ import AddressList from './address-list';
 import GuestShipping from './guest-shipping';
 import Icon from 'ui/icon';
 import Overlay from 'ui/overlay/overlay';
-import Modal from 'components/modal/modal';
+import Modal from 'ui/modal/modal';
 import Button from 'ui/buttons';
 import ActionLink from 'ui/action-link/action-link';
 
@@ -117,10 +117,8 @@ class Shipping extends Component {
         </div>
         {this.content}
         <Modal
-          title="Shipping address"
-          action={<div onClick={toggleAddresses}>Close</div>}
-          addressesVisible={addressesVisible}
-          toggleAddresses={toggleAddresses}
+          show={addressesVisible}
+          toggle={toggleAddresses}
 
         >
            <AddressList { ...this.props } activeAddress={shippingAddress}/>

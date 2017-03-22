@@ -7,18 +7,18 @@ import Overlay from 'ui/overlay/overlay';
 import styles from './modal.css';
 
 type Props = {
-  addressesVisible: boolean,
-  toggleAddresses: Function,
+  show: boolean,
+  toggle: Function,
 };
 
 const Modal = (props: Props) => {
   const modalClass = classNames(styles['modal'], {
-    [styles['show']]: props.addressesVisible,
+    [styles['show']]: props.show,
   });
 
   return(
     <div className={modalClass}>
-      <Overlay onClick={props.toggleAddresses} shown={props.addressesVisible} />
+      <Overlay onClick={props.toggle} shown={props.show} />
       <div styleName='modal-wrapper'>
         {props.children}
       </div>
