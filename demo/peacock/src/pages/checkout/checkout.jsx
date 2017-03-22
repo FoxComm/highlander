@@ -123,6 +123,7 @@ class Checkout extends Component {
 
   @autobind
   setDeliveryStage() {
+    this.props.toggleAddresses();
     return this.props.setEditStage(EditStages.DELIVERY);
   }
 

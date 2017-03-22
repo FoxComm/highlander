@@ -42,13 +42,6 @@ type Props = {
   isGuestMode: boolean,
 };
 
-function mapStateToProps(state) {
-  return {
-    saveShippingState: _.get(state.asyncActions, 'saveShippingAddress', {}),
-    addressesVisible: _.get(state.checkout, 'addressesVisible', false),
-  };
-}
-
 class Shipping extends Component {
   props: Props;
 
@@ -119,6 +112,13 @@ class Shipping extends Component {
       </div>
     );
   }
+}
+
+function mapStateToProps(state) {
+  return {
+    saveShippingState: _.get(state.asyncActions, 'saveShippingAddress', {}),
+    addressesVisible: _.get(state.checkout, 'addressesVisible', false),
+  };
 }
 
 export default _.flowRight(

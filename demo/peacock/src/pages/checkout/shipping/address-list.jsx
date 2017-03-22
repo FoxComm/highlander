@@ -157,9 +157,6 @@ class AddressList extends Component {
     if (this.state.activeAddressId != null) {
       this.props.saveShippingAddress(this.state.activeAddressId).then(this.props.onComplete);
     }
-    if (this.props.addressesVisible) {
-      this.props.toggleAddresses();
-    }
   }
 
   renderAddresses() {
