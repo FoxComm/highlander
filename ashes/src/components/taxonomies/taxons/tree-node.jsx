@@ -38,12 +38,13 @@ export default class TreeNode extends Component {
   renderChildren() {
     const { node, depth, visible, handleClick, currentObject } = this.props;
     const active = node.taxon.id.toString() === currentObject;
-    const className = classNames(styles['node'], { [styles.visible]: visible }, { [styles.active]: active });
+    const className = classNames(styles['node'],
+      { [styles.visible]: visible }, { [styles.active]: active });
 
     if (!node.children) { return null; }
 
      return node.children.map((child) => (
-          <div key={`div/${child.taxon.id}`}>
+          <div key={child.taxon.id}>
             <TreeNode
               visible={this.state.expanded && visible}
               node={child}
@@ -66,28 +67,20 @@ export default class TreeNode extends Component {
       );
     }
 
-    if (this.state.expanded) {
+    const iconClassName = this.state.expanded ? "icon-category-collapse" : "icon-category-expand";
       return (
-        <i className="icon-category-collapse" />
+        <i className={iconClassName} />
       );
-    }
-
-    if (!this.state.expanded) {
-      return (
-        <i className="icon-category-expand" />
-      );
-    }
-
   }
 
   get renderText() {
-    const { node, handleClick } = this.props;
+    const { node: { taxon }, handleClick } = this.props;
     return (
       <span
         styleName="text"
-        onClick={(event) => handleClick(node.taxon.id, event)}
+        onClick={(event) => handleClick(taxon.id, event)}
       >
-        {node.taxon.attributes.name.v}
+        {taxon.attributes.name.v}
       </span>
     );
   }
@@ -95,7 +88,8 @@ export default class TreeNode extends Component {
   render() {
     const { node, depth, visible, currentObject } = this.props;
     const active = node.taxon.id.toString() === currentObject;
-    const className = classNames(styles['node'], { [styles.visible]: visible }, { [styles.active]: active });
+    const className = classNames(styles['node'],
+      { [styles.visible]: visible }, { [styles.active]: active });
 
     return(
       <div>
