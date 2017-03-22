@@ -17,12 +17,12 @@ import models.payment.creditcard.{CreditCard, CreditCardCharge}
 import models.payment.giftcard.GiftCard
 import models.payment.storecredit.StoreCredit
 import models.returns.Return.State
-import models.returns.ReturnLineItem
+import models.returns.{Return, ReturnLineItem, ReturnReason}
 import models.sharedsearch.SharedSearch
 import models.shipping.ShippingMethod
 import payloads.GiftCardPayloads.GiftCardUpdateStateByCsr
 import payloads.LineItemPayloads.UpdateLineItemsPayload
-import payloads.ReturnPayloads.ReturnLineItemPayload
+import payloads.ReturnPayloads.{ReturnLineItemPayload, ReturnShippingCostLineItemPayload, ReturnSkuLineItemPayload}
 import payloads.StoreCreditPayloads.StoreCreditUpdateStateByCsr
 import responses.CategoryResponses.FullCategoryResponse
 import responses.CouponResponses.CouponResponse
@@ -450,11 +450,22 @@ case class LogActivity(implicit ac: AC) {
       implicit ec: EC): DbResultT[Activity] =
     Activities.log(ReturnStateChanged(buildUser(admin), rma, oldState))
 
-  def returnLineItemsAdded(rma: ReturnResponse.Root, payload: ReturnLineItemPayload)(
-      implicit ec: EC): DbResultT[Activity] = Activities.log(ReturnItemAdded(rma, payload))
+  def returnShippingCostItemAdded(
+      rma: Return,
+      reason: ReturnReason,
+      payload: ReturnShippingCostLineItemPayload)(implicit ec: EC): DbResultT[Activity] =
+    Activities.log(ReturnShippingCostItemAdded(rma, reason, payload))
 
-  def returnLineItemsDeleted(rma: ReturnResponse.Root, li: ReturnLineItem)(
-      implicit ec: EC): DbResultT[Activity] = Activities.log(ReturnItemDeleted(rma, li))
+  def returnSkuLineItemAdded(rma: Return, reason: ReturnReason, payload: ReturnSkuLineItemPayload)(
+      implicit ec: EC): DbResultT[Activity] =
+    Activities.log(ReturnSkuLineItemAdded(rma, reason, payload))
+
+  def returnShippingCostItemDeleted(lineItem: ReturnLineItem)(
+      implicit ec: EC): DbResultT[Activity] =
+    Activities.log(ReturnShippingCostItemDeleted(lineItem))
+
+  def returnSkuLineItemDeleted(lineItem: ReturnLineItem)(implicit ec: EC): DbResultT[Activity] =
+    Activities.log(ReturnSkuLineItemDeleted(lineItem))
 
   def returnPaymentAdded(rma: ReturnResponse.Root, payment: OrderPayment)(
       implicit ec: EC): DbResultT[Activity] = Activities.log(ReturnPaymentAdded(rma, payment))
