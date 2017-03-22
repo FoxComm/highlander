@@ -10,6 +10,7 @@ import { actions } from 'modules/taxons/list';
 
 // components
 import MultiSelectTable from 'components/table/multi-select-table';
+import CollapsibleTable from 'components/table/collapsible-table';
 import { AddButton } from 'components/common/buttons';
 import TaxonRow from './taxon-row';
 
@@ -66,17 +67,18 @@ export class TaxonsListPage extends Component {
     const results = list.currentSearch().results;
 
     return (
-      <MultiSelectTable
+      <CollapsibleTable
         columns={tableColumns}
         data={results}
         renderRow={this.renderRow}
         setState={actions.updateStateAndFetch}
-        predicate={({id}) => id}
         hasActionsColumn={false}
         isLoading={results.isFetching}
         failed={results.failed}
         emptyMessage={'This taxonomy does not have any values yet.'}
         headerControls={this.tableControls}
+        idField="taxonId"
+        className={styles.taxonsTable}
       />
     );
   }

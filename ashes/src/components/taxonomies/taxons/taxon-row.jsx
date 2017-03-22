@@ -27,18 +27,12 @@ const setCellContents = (taxon: TaxonResult, field: string) => {
   }
 };
 
-const TaxonRow = (props: Props) => {
-  const { taxon, columns, params } = props;
-  const commonParams = {
-    columns,
-    row: taxon,
-    setCellContents,
-    params,
-  };
-
+const TaxonRow = ({ taxon, ...rest }: Props) => {
   return (
     <MultiSelectRow
-      {...commonParams}
+      {...rest}
+      row={taxon}
+      setCellContents={setCellContents}
       linkTo="taxon-details"
       linkParams={taxon}
     />

@@ -9,8 +9,25 @@ import { Checkbox } from '../checkbox/checkbox';
 import TableCell from '../table/cell';
 import TableRow from '../table/row';
 
+const stopPropogation = (event: MouseEvent) => {
+  event.preventDefault();
+  event.stopPropagation();
+}
+
 const MultiSelectRow = (props, context) => {
-  const { columns, row, setCellContents, params: {checked, setChecked}, linkTo, linkParams, ...rest } = props;
+  const {
+    columns,
+    row,
+    setCellContents,
+    collapseField,
+    collapsible,
+    collapsed,
+    params: { checked, setChecked, toggleCollapse },
+    linkTo,
+    linkParams,
+    ...rest,
+  } = props;
+
   let { onClick, href } = rest;
 
   // linkTo is shortcut for creating onClick and href properties which leads to defined behaviour:
@@ -19,12 +36,12 @@ const MultiSelectRow = (props, context) => {
   if (linkTo) {
     onClick = (event) => {
       if (event.button == 0 && !event.ctrlKey) {
-        event.preventDefault();
+        stopPropogation(event);
         transitionTo(linkTo, linkParams);
       }
     };
 
-    href = context.router.createHref({name: linkTo, params: linkParams});
+    href = context.router.createHref({ name: linkTo, params: linkParams });
   }
 
   const cells = _.reduce(columns, (visibleCells, col) => {
@@ -32,16 +49,36 @@ const MultiSelectRow = (props, context) => {
     let cellContents = null;
     let cellClickAction = null;
 
-    const onChange = ({target: { checked }}) => {
+    const onChange = ({ target: { checked } }) => {
       setChecked(checked);
     };
+    const onCollapse = (event: MouseEvent) => {
+      stopPropogation(event);
+
+      toggleCollapse(row);
+    };
+
+    let cls = classNames(`fct-row__${col.field}`, {
+      'row-head-left': col.field == 'selectColumn',
+    });
 
     switch (col.field) {
-      case 'toggleColumns':
-        cellContents = '';
+      case collapseField:
+        const iconClassName = classNames(({
+          'icon-category': !collapsible,
+          'icon-category-expand': collapsible && collapsed,
+          'icon-category-collapse': collapsible && !collapsed,
+        }));
+        cellContents = (
+          <span className="fc-collapse">
+            <i className={iconClassName} onClick={onCollapse} />
+            {setCellContents(row, col.field)}
+            </span>
+        );
+        cls = classNames(cls, 'fct-row__collapse');
         break;
       case 'selectColumn':
-        cellClickAction = event => event.stopPropagation();
+        cellClickAction = stopPropogation;
         cellContents = <Checkbox id={`multi-select-${row.id}`} inline={true} checked={checked} onChange={onChange} />;
         break;
       default:
@@ -49,11 +86,6 @@ const MultiSelectRow = (props, context) => {
         cellContents = setCellFn(row, col.field);
         break;
     }
-
-    const cls = classNames(`fct-row__${col.field}`, {
-      'row-head-left': col.field == 'selectColumn',
-      'row-head-right': col.field == 'toggleColumns'
-    });
 
     visibleCells.push(
       <TableCell className={cls} onClick={cellClickAction} key={cellKey} column={col} row={row}>
@@ -78,10 +110,12 @@ MultiSelectRow.propTypes = {
   linkTo: PropTypes.string,
   linkParams: PropTypes.object,
   row: PropTypes.object.isRequired,
-  setCellContents: PropTypes.func,
+  setCellContents: PropTypes.func.isRequired,
+  collapseField: PropTypes.string,
   params: PropTypes.shape({
     checked: PropTypes.bool.isRequired,
     setChecked: PropTypes.func.isRequired,
+    toggleCollapse: PropTypes.func,
   }),
 };
 
@@ -90,7 +124,10 @@ MultiSelectRow.contextTypes = {
 };
 
 MultiSelectRow.defaultProps = {
-  onClick: _.noop
+  onClick: _.noop,
+  params: {
+    toggleCollapse: _.noop,
+  }
 };
 
 export default MultiSelectRow;

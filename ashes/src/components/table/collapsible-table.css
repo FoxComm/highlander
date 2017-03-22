@@ -1,0 +1,12 @@
+.collapsible {
+
+  & ._collapsed {
+  }
+
+  & :global .fc-collapse {
+    & i {
+      font-size: 20px;
+      margin-right: 10px;
+    }
+  }
+}
