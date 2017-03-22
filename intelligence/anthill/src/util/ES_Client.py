@@ -39,7 +39,7 @@ class ES_Client(object):
     def get_products_list(self, prod_ids):
         self.conn.request(
             method='POST',
-            url='/api/search/admin/customers_search_view/_search?size=500',
+            url='/api/search/admin/products_search_view/_search?size=500',
             body=products_list_query(prod_ids),
             headers=self.header
         )
