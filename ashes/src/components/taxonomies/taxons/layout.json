@@ -8,8 +8,7 @@
           "includeRest": true,
           "value": [
             "name",
-            "description",
-            "colorSwatch"
+            "description"
           ]
         }
     }
@@ -20,9 +19,6 @@
     },
     {
       "type": "watchers"
-    },
-    {
-      "type": "taxonList"
     }
   ]
 }
