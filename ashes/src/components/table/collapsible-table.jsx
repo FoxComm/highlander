@@ -21,6 +21,7 @@ type Node<T> = {
   parentId: ?Identifier,
   collapsed: boolean,
   children: Array<Node<T>>,
+  level: number,
 };
 
 type Props<T> = {
@@ -57,6 +58,7 @@ function buildTree<T>(arr: Array<T>, idField: string) {
     parentId: obj.parentId,
     collapsed: true,
     children: [],
+    level: 0,
   }), {});
 
   values(acc).forEach(function (obj: Node<T>) {
@@ -118,16 +120,16 @@ class CollapsibleTable<T> extends Component {
     this.setState({ root: buildTree(nextProps.data.rows, nextProps.idField) });
   }
 
-  get rows(): Array<T> {
-    const _reduce = (rows: T, node: Node<T>) => {
-      const children = !node.collapsed ? node.children.reduce(_reduce, []) : [];
+  get rows(): Array<Node<T>> {
+    const _reduce = (level: number) => (rows: T, node: Node<T>) => {
+      const children = !node.collapsed ? node.children.reduce(_reduce(level + 1), []) : [];
 
-      rows.push(node.row, ...children);
+      rows.push(assoc(node, 'level', level), ...children);
 
       return rows;
     };
 
-    return values(this.state.root).reduce(_reduce, []);
+    return values(this.state.root).reduce(_reduce(0), []);
   }
 
   @autobind
@@ -138,18 +140,16 @@ class CollapsibleTable<T> extends Component {
   }
 
   @autobind
-  renderRow(row: T, index: number, columns: Columns, params: Object) {
-    const node = findNode(this.state.root, row[this.props.idField]);
-
-    const el = this.props.renderRow(row, index, columns, { ...params, toggleCollapse: this.handleCollapse });
+  renderRow(node: Node<T>, index: number, columns: Columns, params: Object) {
+    const el = this.props.renderRow(node.row, index, columns, { ...params, toggleCollapse: this.handleCollapse });
 
     return React.cloneElement(el, {
       collapsible: node.children.length,
       collapsed: node.collapsed,
+      level: node.level,
       collapseField: this.props.collapseField,
       className: classNames({ [styles._collapsed]: node.collapsed }),
     });
-
   }
 
   render() {

@@ -22,6 +22,7 @@ const MultiSelectRow = (props, context) => {
     collapseField,
     collapsible,
     collapsed,
+    level,
     params: { checked, setChecked, toggleCollapse },
     linkTo,
     linkParams,
@@ -70,10 +71,10 @@ const MultiSelectRow = (props, context) => {
           'icon-category-collapse': collapsible && !collapsed,
         }));
         cellContents = (
-          <span className="fc-collapse">
+          <span className="fc-collapse" style={{ paddingLeft: `${level * 20}px`}}>
             <i className={iconClassName} onClick={onCollapse} />
             {setCellContents(row, col.field)}
-            </span>
+          </span>
         );
         cls = classNames(cls, 'fct-row__collapse');
         break;
