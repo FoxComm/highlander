@@ -3,8 +3,6 @@
 import React from 'react';
 import Icon from 'ui/icon';
 
-import type { HTMLElement } from 'types';
-
 import styles from './action-link.css';
 
 type Props = {

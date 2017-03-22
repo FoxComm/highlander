@@ -18,7 +18,7 @@ import Button from 'ui/buttons';
 import ActionLink from 'ui/action-link/action-link';
 
 // actions and types
-import { saveShippingAddress, updateAddress, addShippingAddress, updateShippingAddress, toggleAddresses } from 'modules/checkout';
+import { saveShippingAddress, updateAddress, addShippingAddress, updateShippingAddress, toggleModal } from 'modules/checkout';
 import type { Address } from 'types/address';
 import type { AsyncStatus } from 'types/async-actions';
 
@@ -61,7 +61,7 @@ class Shipping extends Component {
     let action, title, icon;
 
     if (!_.isEmpty(props.shippingAddress) || props.addresses.length > 0) {
-      action = this.props.toggleAddresses;
+      action = this.props.toggleModal;
       title = 'Choose';
     } else {
       action = function() {
@@ -79,7 +79,7 @@ class Shipping extends Component {
         action={action}
         title={title}
         styleName="btn-action"
-        icon={icon ? icon : null}
+        icon={icon}
       />
     );
   }
@@ -108,7 +108,7 @@ class Shipping extends Component {
   }
 
   render() {
-    const { toggleAddresses, addressesVisible, t, shippingAddress } = this.props;
+    const { toggleModal, modalVisible, t, shippingAddress } = this.props;
     return (
       <div>
         <div styleName="header">
@@ -117,8 +117,8 @@ class Shipping extends Component {
         </div>
         {this.content}
         <Modal
-          show={addressesVisible}
-          toggle={toggleAddresses}
+          show={modalVisible}
+          toggle={toggleModal}
 
         >
            <AddressList { ...this.props } activeAddress={shippingAddress}/>
@@ -131,7 +131,7 @@ class Shipping extends Component {
 function mapStateToProps(state) {
   return {
     saveShippingState: _.get(state.asyncActions, 'saveShippingAddress', {}),
-    addressesVisible: _.get(state.checkout, 'addressesVisible', false),
+    modalVisible: _.get(state.checkout, 'modalVisible', false),
   };
 }
 
@@ -142,6 +142,6 @@ export default _.flowRight(
     addShippingAddress,
     saveShippingAddress,
     updateAddress,
-    toggleAddresses,
+    toggleModal,
   })
 )(Shipping);

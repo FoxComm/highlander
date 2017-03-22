@@ -245,7 +245,7 @@ class AddressList extends Component {
   renderList() {
     const { props } = this;
     const action = {
-      handler: props.toggleAddresses,
+      handler: props.toggleModal,
       title: 'Close',
     };
 

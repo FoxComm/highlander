@@ -100,7 +100,6 @@
 }
 
 .action-link-cart {
-  /*white-space: nowrap;*/
   composes: action-link from "ui/action-link/action-link.css";
   color: var(--text-color);
 }

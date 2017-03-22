@@ -39,7 +39,7 @@ export const setBillingData = createAction('CHECKOUT_SET_BILLING_DATA', (key, va
 export const resetBillingData = createAction('CHECKOUT_RESET_BILLING_DATA');
 export const loadBillingData = createAction('CHECKOUT_LOAD_BILLING_DATA');
 export const setBillingAddress = createAction('CHECKOUT_SET_BILLING_ADDRESS');
-export const toggleAddresses = createAction('TOGGLE_ADDRESSES');
+export const toggleModal = createAction('TOGGLE_MODAL');
 const markAddressAsDeleted = createAction('CHECKOUT_MARK_ADDRESS_AS_DELETED');
 const markAddressAsRestored = createAction(
   'CHECKOUT_MARK_ADDRESS_AS_RESTORED',
@@ -424,7 +424,7 @@ const initialState: CheckoutState = {
   addresses: [],
   isAddressLoaded: false,
   creditCard: null,
-  addressesVisible: false,
+  modalVisible: false,
 };
 
 function sortAddresses(addresses: Array<Address>): Array<Address> {
@@ -530,11 +530,11 @@ const reducer = createReducer({
     }
     return state;
   },
-  [toggleAddresses]: state => {
-    const visibleCurrent = _.get(state, 'addressesVisible', false);
+  [toggleModal]: state => {
+    const visibleCurrent = _.get(state, 'modalVisible', false);
     return {
       ...state,
-      addressesVisible: !visibleCurrent,
+      modalVisible: !visibleCurrent,
     };
   },
   [resetCheckout]: () => {
