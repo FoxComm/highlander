@@ -67,7 +67,7 @@ defmodule Hyperion.Amazon do
   end
 
   defp process_inventory(products) do
-    Enum.map(products, fn(el) -> [%{sku: el[:code], quantity: el[:inventory]}] end)
+    Enum.flat_map(products, fn(el) -> [%{sku: el[:code], quantity: el[:inventory]}] end)
     |> Enum.with_index(1)
   end
 
