@@ -29,8 +29,19 @@ defmodule Hyperion.PhoenixScala.Client do
     |> parse_response(token)
   end
 
+  @doc """
+  Returns sku by SKU-CODE
+  """
   def get_sku(sku_code, token, ctx \\ "default") do
     get("/api/v1/skus/#{ctx}/#{sku_code}", make_request_headers(token))
+    |> parse_response(token)
+  end
+  @doc """
+  Returns all non archived skus
+  """
+  def get_all_skus(token, size \\ 50) do
+    q = %{query: %{bool: %{filter: [%{missing: %{field: "archivedAt"}}]}}}
+    post("/api/search/admin/sku_search_view/_search?size=#{size}", Poison.encode!(q), make_request_headers(token))
     |> parse_response(token)
   end
 
@@ -48,7 +59,7 @@ defmodule Hyperion.PhoenixScala.Client do
   end
 
 
-  def make_request_headers(jwt \\ nil) do
+  defp make_request_headers(jwt \\ nil) do
     case jwt do
       nil -> ["Content-Type": "application/json"]
       _ -> ["Content-Type": "application/json", "JWT": jwt]
