@@ -1,11 +1,12 @@
 import http.client
 import json
 from datetime import datetime
+import os
 
 def login_body():
-    org = 'tenant'
-    email = 'admin@admin.com'
-    password = 'password'
+    org = os.getenv('PHOENIX_ORG')
+    email = os.getenv('PHOENIX_EMAIL')
+    password = os.getenv('PHOENIX_PASSWORD')
     return json.dumps({
         'org': org,
         'email': email,
