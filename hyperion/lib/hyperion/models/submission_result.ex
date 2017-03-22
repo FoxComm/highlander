@@ -49,7 +49,7 @@ defmodule SubmissionResult do
   def submission_result(product_id, true) do
     q = from s in SubmissionResult, where: s.product_id == ^product_id
     case Hyperion.Repo.delete_all(q) do
-      {:ok, _} -> first_or_create(product_id)
+      {_, nil} -> first_or_create(product_id)
       {:error, changeset} -> raise changeset.error
     end
   end
