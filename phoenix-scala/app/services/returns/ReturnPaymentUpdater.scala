@@ -1,5 +1,6 @@
 package services.returns
 
+import cats.implicits._
 import failures.OrderFailures.OrderPaymentNotFoundFailure
 import failures.ReturnFailures._
 import models.account.{Scope, User, Users}
@@ -13,15 +14,14 @@ import models.returns.ReturnPayments.scope._
 import models.returns._
 import payloads.ReturnPayloads.{ReturnPaymentPayload, ReturnPaymentsPayload}
 import responses.ReturnResponse
-
-import scala.annotation.tailrec
+import services.LogActivity
 import services.carts.CartTotaler
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.apis.{Apis, RefundReason}
 import utils.db._
-import cats.implicits._
-import services.LogActivity
+
+import scala.annotation.tailrec
 
 object ReturnPaymentUpdater {
   def addPayments(refNum: String, payload: ReturnPaymentsPayload)(
@@ -29,44 +29,36 @@ object ReturnPaymentUpdater {
       db: DB,
       ac: AC,
       au: AU): DbResultT[ReturnResponse.Root] = {
-    @inline
-    def addPayment(rma: Return,
-                   payment: OrderPayment,
-                   paymentMethodAmount: (PaymentMethod.Type, Int)): DbResultT[ReturnPayment] =
-      processAddPayment(rma, payment, paymentMethodAmount._1, paymentMethodAmount._2)
 
     val payments = payload.payments.filter { case (_, amount) ⇒ amount > 0 }
     if (payments.isEmpty)
       Returns.mustFindActiveByRefNum404(refNum).flatMap(ReturnResponse.fromRma)
-    else
+    else {
       for {
         rma      ← * <~ Returns.mustFindActiveByRefNum404(refNum)
-        _        ← * <~ validateMaxAllowedPayments(rma, payments)
         payment  ← * <~ mustFindCcPaymentsByOrderRef(rma.orderRef)
+        _        ← * <~ validateMaxAllowedPayments(rma, payments)
         _        ← * <~ payments.map(addPayment(rma, payment, _)).toList
-        _        ← * <~ updateTotalsReturn(rma)
         updated  ← * <~ Returns.refresh(rma)
         response ← * <~ ReturnResponse.fromRma(updated)
         _        ← * <~ LogActivity().returnPaymentAdded(response, payment)
       } yield response
+    }
   }
 
-  // todo I think we can DRY addPayments/addPayment, they look a lot the same @aafa
-  def addPayment(refNum: String, method: PaymentMethod.Type, payload: ReturnPaymentPayload)(
+  private[this] def addPayment(rma: Return,
+                               payment: OrderPayment,
+                               paymentMethodAmount: (PaymentMethod.Type, Int))(
       implicit ec: EC,
       db: DB,
       ac: AC,
-      au: AU): DbResultT[ReturnResponse.Root] =
+      au: AU): DbResultT[Unit] = {
+    val (method, amount) = paymentMethodAmount
     for {
-      rma      ← * <~ Returns.mustFindActiveByRefNum404(refNum)
-      _        ← * <~ validateMaxAllowedPayments(rma, Map(method → payload.amount))
-      payment  ← * <~ mustFindCcPaymentsByOrderRef(rma.orderRef)
-      _        ← * <~ processAddPayment(rma, payment, method, payload.amount)
-      _        ← * <~ updateTotalsReturn(rma)
-      updated  ← * <~ Returns.refresh(rma)
-      response ← * <~ ReturnResponse.fromRma(updated)
-      _        ← * <~ LogActivity().returnPaymentAdded(response, payment)
-    } yield response
+      _ ← * <~ processAddPayment(rma, payment, method, amount)
+      _ ← * <~ updateTotalsReturn(rma)
+    } yield ()
+  }
 
   private[this] def updateTotalsReturn(rma: Return)(implicit ec: EC, db: DB, au: AU) =
     for {
