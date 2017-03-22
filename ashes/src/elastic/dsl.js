@@ -41,6 +41,14 @@ export function nestedQuery(path, query) {
   };
 }
 
+export function ids(values) {
+  return {
+    ids: {
+      values
+    }
+  };
+}
+
 export function nestedTermFilter(term, value) {
   const path = term.slice(0, term.lastIndexOf('.'));
 

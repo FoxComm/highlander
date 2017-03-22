@@ -123,12 +123,13 @@ export default class StoreCredits extends React.Component {
 
   componentDidMount() {
     this.props.actions.setExtraFilters([
-      { term: { 'customerId': this.customerId } }
+      { term: { 'accountId': this.customerId } }
     ]);
     this.props.reasonsActions.fetchReasons(this.reasonType);
     this.props.totalsActions.fetchTotals(this.customerId);
     this.props.actions.fetch();
   }
+
 
   @autobind
   renderRow(row, index, columns, params) {

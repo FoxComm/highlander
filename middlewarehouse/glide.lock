@@ -1,5 +1,5 @@
-hash: 3fae8a417529827e392f05e5fa6098d186ed92a4ee5623bf256a7da248a31bd7
-updated: 2016-12-18T23:16:23.026650795+03:00
+hash: 96f4bd738bbb69a04f5a290de9cc1c5d72d7df66b65a3fcec0d25d3a706dfd1f
+updated: 2017-01-23T19:34:44.354346652+03:00
 imports:
 - name: github.com/cihub/seelog
   version: d2c6e5aa9fbfdd1c624e140287063c7730654115
@@ -81,10 +81,10 @@ imports:
 - name: github.com/stretchr/testify
   version: f390dcf405f7b83c997eac1b06768bb9f44dec18
   subpackages:
-  - suite
-  - mock
   - assert
+  - mock
   - require
+  - suite
 - name: github.com/yanzay/cfg
   version: 3b647091f880406fdb14edcb309ce750a38d3e85
 - name: golang.org/x/net
@@ -99,6 +99,8 @@ imports:
   version: d2c6e5aa9fbfdd1c624e140287063c7730654115
 - name: gopkg.in/go-playground/validator.v8
   version: c193cecd124b5cc722d7ee5538e945bdb3348435
+- name: gopkg.in/olivere/elastic.v3
+  version: 96b262cf1d25006d71bd495fd99b590493cff29e
 - name: gopkg.in/yaml.v2
   version: e4d366fc3c7938e2958e662b4258c7a89e1f0e3e
 testImports: []
