@@ -24,7 +24,7 @@
   width: 100%;
   position: absolute;
   top: 0;
-  font-size: 14px;
+  font-size: 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -32,18 +32,14 @@
   border-bottom: 1px solid var(--input-border-color);
 }
 
-.my-cart, .cart-close {
-  cursor: pointer;
-}
-
 .my-cart {
   margin-left: 25px;
   color: var(--text-color);
 }
 
-.cart-close {
+.action-link-cart-close {
+  composes: action-link from "ui/action-link/action-link.css";
   margin-right: 20px;
-  color: var(--link-color);
 }
 
 .empty-cart {
@@ -112,7 +108,7 @@
 }
 
 @media (--medium), (--large) {
-  .cart-close {
+  .action-link-cart-close {
     margin-right: 25px;
   }
 }

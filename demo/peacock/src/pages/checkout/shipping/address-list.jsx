@@ -14,6 +14,7 @@ import CheckoutForm from '../checkout-form';
 import RadioButton from 'ui/radiobutton/radiobutton';
 import { AddressDetails } from 'ui/address';
 import Button from 'ui/buttons';
+import ActionLink from 'ui/action-link/action-link';
 
 // styles
 import styles from './address-list.css';
@@ -184,14 +185,22 @@ class AddressList extends Component {
       );
     });
 
+    const icon = {
+      name: 'fc-plus',
+      className: styles['plus-icon'],
+    };
+
     return (
       <div>
         <ul styleName="list">
           {items}
         </ul>
-        <span onClick={this.addAddress}>
-          + Add Address
-        </span>
+        <ActionLink
+          action={this.addAddress}
+          title="Add new"
+          icon={icon}
+          styleName="action-link-add"
+        />
       </div>
     );
   }
@@ -214,7 +223,7 @@ class AddressList extends Component {
   renderEditingForm(address) {
     const id = _.get(address, 'id');
     const action = {
-      action: this.cancelEditing,
+      handler: this.cancelEditing,
       title: 'Cancel',
     };
     const title = _.isEmpty(this.state.addressToEdit) ? 'Add Address' : 'Edit Address';
@@ -236,7 +245,7 @@ class AddressList extends Component {
   renderList() {
     const { props } = this;
     const action = {
-      action: props.toggleAddresses,
+      handler: props.toggleAddresses,
       title: 'Close',
     };
 

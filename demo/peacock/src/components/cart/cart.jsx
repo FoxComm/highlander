@@ -20,6 +20,7 @@ import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
 import { skuIdentity } from '@foxcomm/wings/lib/paragons/sku';
 import { parseError } from '@foxcomm/api-js';
 import Overlay from 'ui/overlay/overlay';
+import ActionLink from 'ui/action-link/action-link';
 
 // styles
 import styles from './cart.css';
@@ -159,8 +160,12 @@ class Cart extends Component {
         <Overlay onClick={toggleCart} shown={isVisible} />
         <div styleName="cart-box">
           <div styleName="cart-header">
-            <span styleName="my-cart" onClick={toggleCart}>My Cart</span>
-            <span styleName="cart-close" onClick={toggleCart}>Close</span>
+            <span styleName="my-cart">My Cart</span>
+            <ActionLink
+              action={toggleCart}
+              title="Close"
+              styleName="action-link-cart-close"
+            />
           </div>
 
           <div styleName="cart-content">

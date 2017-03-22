@@ -20,7 +20,15 @@
   font-weight: 300;
 }
 
-.add-address-button {
-  composes: button-secondary from "ui/css/buttons.css";
-  margin-bottom: 30px;
+.action-link-add {
+  composes: action-link from "ui/action-link/action-link.css";
+  display: flex;
+  align-items: flex-start;
+  margin-left: 15px;
+  font-size: 17px;
+}
+
+.plus-icon {
+  composes: plus-icon from "ui/css/plus-icon.css";
+  width: 13px;
 }

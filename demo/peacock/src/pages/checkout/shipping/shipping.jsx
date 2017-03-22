@@ -15,6 +15,7 @@ import Icon from 'ui/icon';
 import Overlay from 'ui/overlay/overlay';
 import Modal from 'components/modal/modal';
 import Button from 'ui/buttons';
+import ActionLink from 'ui/action-link/action-link';
 
 // actions and types
 import { saveShippingAddress, updateAddress, addShippingAddress, updateShippingAddress, toggleAddresses } from 'modules/checkout';
@@ -57,14 +58,29 @@ class Shipping extends Component {
 
   get action() {
     const { props } = this;
+    let action, title, icon;
 
     if (!_.isEmpty(props.shippingAddress) || props.addresses.length > 0) {
-      return (
-        <div styleName="btn-action" onClick={this.props.toggleAddresses}>Choose</div>
-      );
+      action = this.props.toggleAddresses;
+      title = 'Choose';
+    } else {
+      action = function() {
+        console.log('TODO: render "Add address" form');
+      };
+      title = 'Add new';
+      icon = {
+        name: 'fc-plus',
+        className: styles['plus'],
+      };
     }
+
     return (
-      <div styleName="btn-action"><Icon styleName="plus" name="fc-plus" /> Add new</div>
+      <ActionLink
+        action={action}
+        title={title}
+        styleName="btn-action"
+        icon={icon ? icon : null}
+      />
     );
   }
 
