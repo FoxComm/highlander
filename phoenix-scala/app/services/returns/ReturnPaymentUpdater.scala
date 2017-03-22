@@ -266,7 +266,8 @@ object ReturnPaymentUpdater {
     } yield ()
   }
 
-  def issueRefunds(rma: Return)(implicit ec: EC, db: DB, au: AU, apis: Apis): DbResultT[Unit] = {
+  def issueRefunds(
+      rma: Return)(implicit ec: EC, db: DB, au: AU, ac: AC, apis: Apis): DbResultT[Unit] = {
     for {
       customer ← * <~ Users.mustFindByAccountId(rma.accountId)
 
@@ -281,9 +282,9 @@ object ReturnPaymentUpdater {
     } yield ()
   }
 
-  private def issueCcRefund(rma: Return, payment: ReturnPayment)(implicit ec: EC,
-                                                                 db: DB,
-                                                                 apis: Apis): DbResultT[Unit] = {
+  private def issueCcRefund(
+      rma: Return,
+      payment: ReturnPayment)(implicit ec: EC, db: DB, ac: AC, apis: Apis): DbResultT[Unit] = {
     val authorizeRefund =
       ((id: String, amount: Int) ⇒
          for {
@@ -354,11 +355,14 @@ object ReturnPaymentUpdater {
                       ReturnCcPaymentViolation(refNum = rma.refNum,
                                                issued = totalRefund,
                                                allowed = payment.amount))
+      _ ← * <~ LogActivity().issueCcRefund(rma, payment) //
     } yield ()
   }
 
   private def issueGcRefund(customer: User, rma: Return, gc: GiftCard)(implicit ec: EC,
-                                                                       au: AU): DbResultT[Unit] =
+                                                                       ac: AC,
+                                                                       au: AU): DbResultT[Unit] = {
+    LogActivity().issueGcRefund(customer, rma, gc)
     GiftCards
       .update(gc,
               gc.copy(state = GiftCard.Active,
@@ -366,13 +370,16 @@ object ReturnPaymentUpdater {
                       recipientName = customer.name,
                       recipientEmail = customer.email))
       .meh
+  }
 
-  private def issueScRefund(customer: User, rma: Return, sc: StoreCredit)(
-      implicit ec: EC,
-      au: AU): DbResultT[Unit] =
+  private def issueScRefund(customer: User,
+                            rma: Return,
+                            sc: StoreCredit)(implicit ec: EC, ac: AC, au: AU): DbResultT[Unit] = {
+    LogActivity().issueScRefund(customer, rma, sc)
     StoreCredits.update(sc, sc.copy(state = StoreCredit.Active)).meh
+  }
 
-  def cancelRefunds(rma: Return)(implicit ec: EC): DbResultT[Unit] =
+  def cancelRefunds(rma: Return)(implicit ec: EC, ac: AC): DbResultT[Unit] =
     for {
       gc ← * <~ ReturnPayments.findOnHoldGiftCards(rma.id).one
       _ ← * <~ gc.map { gc ⇒
@@ -389,5 +396,6 @@ object ReturnPaymentUpdater {
                                        canceledAmount = sc.availableBalance.some,
                                        canceledReason = rma.canceledReasonId))
          }
+      _ ← * <~ LogActivity().cancelRefund(rma)
     } yield ()
 }

@@ -17,7 +17,7 @@ import models.payment.creditcard.{CreditCard, CreditCardCharge}
 import models.payment.giftcard.GiftCard
 import models.payment.storecredit.StoreCredit
 import models.returns.Return.State
-import models.returns.{Return, ReturnLineItem, ReturnReason}
+import models.returns.{Return, ReturnLineItem, ReturnPayment, ReturnReason}
 import models.sharedsearch.SharedSearch
 import models.shipping.ShippingMethod
 import payloads.GiftCardPayloads.GiftCardUpdateStateByCsr
@@ -473,6 +473,20 @@ case class LogActivity(implicit ac: AC) {
   def returnPaymentDeleted(rma: ReturnResponse.Root, paymentMethod: PaymentMethod.Type)(
       implicit ec: EC): DbResultT[Activity] =
     Activities.log(ReturnPaymentDeleted(rma, paymentMethod))
+
+  def issueCcRefund(rma: Return, payment: ReturnPayment)(implicit ec: EC): DbResultT[Activity] =
+    Activities.log(ReturnIssueCcRefund(rma, payment))
+
+  def issueGcRefund(customer: User, rma: Return, gc: GiftCard)(
+      implicit ec: EC): DbResultT[Activity] =
+    Activities.log(ReturnIssueGcRefund(customer, rma, gc))
+
+  def issueScRefund(customer: User, rma: Return, sc: StoreCredit)(
+      implicit ec: EC): DbResultT[Activity] =
+    Activities.log(ReturnIssueScRefund(customer, rma, sc))
+
+  def cancelRefund(rma: Return)(implicit ec: EC): DbResultT[Activity] =
+    Activities.log(ReturnCancelRefund(rma))
 
   /* Categories */
   def fullCategoryCreated(
