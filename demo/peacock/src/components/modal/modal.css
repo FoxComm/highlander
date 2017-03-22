@@ -1,16 +1,17 @@
 @import "media-queries.css";
 
 .modal {
-  display: none;
-}
-
-.modal-show {
+  visibility: hidden;
   display: flex;
   width: 100vw;
   height: 100vh;
   position: absolute;
   top: 0;
   right: 0;
+}
+
+.show {
+  visibility: visible;
 }
 
 .modal-wrapper {
@@ -21,14 +22,34 @@
   position: absolute;
 }
 
+@media (--small-only), (--medium-only) {
+  .modal {
+    transition: visibility .3s ease;
+  }
+
+  .modal-wrapper {
+    transition: transform .3s ease;
+    transform: translateX(100%);
+  }
+
+  .show .modal-wrapper {
+    transform: translateX(0);
+  }
+}
+
 @media (--large) {
-  .modal-show {
+  .show {
     justify-content: center;
     align-items: center;
   }
   .modal-wrapper {
+    display: none;
     lost-column: 4/12;
     height: 500px;
     border-radius: 8px;
+  }
+
+  .show .modal-wrapper {
+    display: block;
   }
 }

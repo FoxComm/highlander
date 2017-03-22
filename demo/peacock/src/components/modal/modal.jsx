@@ -1,5 +1,6 @@
 /* @flow */
 import React from 'react';
+import classNames from 'classnames';
 
 import Overlay from 'ui/overlay/overlay';
 
@@ -11,8 +12,12 @@ type Props = {
 };
 
 const Modal = (props: Props) => {
+  const modalClass = classNames(styles['modal'], {
+    [styles['show']]: props.addressesVisible,
+  });
+
   return(
-    <div styleName={props.addressesVisible ? 'modal-show' : 'modal'}>
+    <div className={modalClass}>
       <Overlay onClick={props.toggleAddresses} shown={props.addressesVisible} />
       <div styleName='modal-wrapper'>
         {props.children}
