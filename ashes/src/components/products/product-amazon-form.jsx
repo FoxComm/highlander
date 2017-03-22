@@ -70,13 +70,18 @@ export default class ProductAmazonForm extends Component {
       this.setState({ product: nextProduct });
     };
 
+    const checkedIds = product.skus
+      .filter(sku => _.get(sku, 'attributes.amazon.v'))
+      .map(sku => sku.id);
+
     return (
       <MultiSelectTable
         className={s.table}
         tbodyId="fct-sku-list"
         columns={arr}
+        initialCheckedIds={checkedIds}
         dataTable={false}
-        data={{ rows: skus }}
+        data={{ rows: skus, total: skus.length }}
         renderRow={this.renderRow.bind(this)}
         emptyMessage="emptyMessage"
         hasActionsColumn={false}
