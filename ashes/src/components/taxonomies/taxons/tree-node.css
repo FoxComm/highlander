@@ -28,6 +28,10 @@
 
 .attributes {
 
+  &:hover {
+   cursor: pointer;
+  }
+
   & :global(.icon-category),
   & :global(.icon-category-expand),
   & :global(.icon-category-collapse) {
