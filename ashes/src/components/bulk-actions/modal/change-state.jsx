@@ -1,27 +1,24 @@
 /* @flow */
-import _ from 'lodash';
-import React, { PropTypes } from 'react';
 
-// helpers
-import { numberize } from '../../../lib/text-utils';
+import capitalize from 'lodash/capitalize';
+import React, { Element } from 'react';
 
-// components
-import modal from '../../modal/wrapper';
-import ContentBox from '../../content-box/content-box';
-import SaveCancel from '../../common/save-cancel';
+import { numberize } from 'lib/text-utils';
+
+import modal from 'components/modal/wrapper';
+import ModalBase from './modal-base';
 
 type Props = {
-  entity: string;
-  stateTitle: string;
-  label?: string;
-  count: number;
-  onCancel: Function;
-  onConfirm: Function;
+  entity: string,
+  stateTitle: string,
+  label?: Element<*>|string,
+  count: number,
+  onCancel: Function,
+  onConfirm: Function,
 };
 
 const ChangeStateModal = (props: Props) => {
-  const {entity, stateTitle, count, label: rawLabel, onCancel, onConfirm} = props;
-  const actionBlock = <i onClick={onCancel} className="fc-btn-close icon-close" title="Close" />;
+  const { entity, stateTitle, count, label: rawLabel, onCancel, onConfirm } = props;
   const entityForm = numberize(entity, count);
 
   const label = rawLabel
@@ -29,20 +26,14 @@ const ChangeStateModal = (props: Props) => {
     : <span>Are you sure you want to change the state to <b>{stateTitle}</b> for <b>{count} {entityForm}</b>?</span>;
 
   return (
-    <ContentBox title={`Change ${_.capitalize(entityForm)} state to ${stateTitle}?`}
-                className="fc-bulk-action-modal"
-                actionBlock={actionBlock}>
-      <div className="fc-modal-body">
-        {label}
-      </div>
-      <SaveCancel className="fc-modal-footer"
-                  cancelTabIndex="2"
-                  cancelText="No"
-                  onCancel={onCancel}
-                  saveTabIndex="1"
-                  onSave={onConfirm}
-                  saveText="Yes, Change State" />
-    </ContentBox>
+    <ModalBase
+      title={`Change ${capitalize(entityForm)} state to ${stateTitle}?`}
+      label={label}
+      onCancel={onCancel}
+      onConfirm={onConfirm}
+      saveText="Yes, Change State"
+      className="fc-bulk-action-modal"
+    />
   );
 };
 
