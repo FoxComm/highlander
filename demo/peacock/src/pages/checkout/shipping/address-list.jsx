@@ -13,6 +13,7 @@ import EditAddress from 'ui/address/edit-address';
 import CheckoutForm from '../checkout-form';
 import RadioButton from 'ui/radiobutton/radiobutton';
 import { AddressDetails } from 'ui/address';
+import Button from 'ui/buttons';
 
 // styles
 import styles from './address-list.css';
@@ -156,6 +157,9 @@ class AddressList extends Component {
     if (this.state.activeAddressId != null) {
       this.props.saveShippingAddress(this.state.activeAddressId).then(this.props.onComplete);
     }
+    if (this.props.addressesVisible) {
+      this.props.toggleAddresses();
+    }
   }
 
   renderAddresses() {
@@ -185,10 +189,12 @@ class AddressList extends Component {
 
     return (
       <div>
-        <ul styleName="list">{items}</ul>
-        <button styleName="add-address-button" type="button" onClick={this.addAddress}>
-          Add Address
-        </button>
+        <ul styleName="list">
+          {items}
+        </ul>
+        <span onClick={this.addAddress}>
+          + Add Address
+        </span>
       </div>
     );
   }
@@ -210,17 +216,18 @@ class AddressList extends Component {
 
   renderEditingForm(address) {
     const id = _.get(address, 'id');
-    const title = _.isEmpty(this.state.addressToEdit) ? 'Add Address' : 'Edit Address';
     const action = {
       action: this.cancelEditing,
       title: 'Cancel',
     };
+    const title = _.isEmpty(this.state.addressToEdit) ? 'Add Address' : 'Edit Address';
+
 
     return (
       <CheckoutForm
         submit={() => this.finishEditingAddress(id)}
-        title={title}
         buttonLabel="Save Address"
+        title={title}
         action={action}
         error={this.state.error}
       >
@@ -231,15 +238,23 @@ class AddressList extends Component {
 
   renderList() {
     const { props } = this;
+    const action = {
+      action: props.toggleAddresses,
+      title: 'Close',
+    };
+
     return (
-      <CheckoutForm
-        submit={this.saveAndContinue}
-        title="SHIPPING ADDRESS"
-        error={_.get(props.saveShippingState, 'err')}
-        inProgress={_.get(props.saveShippingState, 'inProgress', false)}
-      >
-        {this.renderAddresses()}
-      </CheckoutForm>
+    <CheckoutForm
+      submit={this.saveAndContinue}
+      title="Shipping address"
+      error={_.get(props.saveShippingState, 'err')}
+      inProgress={_.get(props.saveShippingState, 'inProgress', false)}
+      buttonLabel="Apply"
+      action={action}
+    >
+      {this.renderAddresses()}
+    </CheckoutForm>
+
     );
   }
 

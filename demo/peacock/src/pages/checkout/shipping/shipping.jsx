@@ -114,7 +114,6 @@ class Shipping extends Component {
           toggleAddresses={toggleAddresses}
 
         >
-          <div styleName="btn-action"><Icon styleName="plus" name="fc-plus"/> Add new</div>
            <AddressList { ...this.props } activeAddress={shippingAddress}/>
         </Modal>
       </div>
