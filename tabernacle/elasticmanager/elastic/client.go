@@ -64,7 +64,7 @@ func (c *Client) GetMappingsInIndex(index string) (Mappings, error) {
 	url := fmt.Sprintf(esIndex, c.hostname, index)
 	var respBody map[string]IndexDetails
 
-	if _, err := gohttp.GetJSON(url, nil, &respBody); err != nil {
+	if err := gohttp.Get(url, nil, &respBody); err != nil {
 		return nil, err
 	}
 
@@ -81,7 +81,7 @@ func (c *Client) GetMapping(index, mappingName string) (*Mapping, error) {
 	url := fmt.Sprintf(esMapping, c.hostname, index, mappingName)
 	var mapping *Mapping
 
-	if _, err := gohttp.GetJSON(url, nil, mapping); err != nil {
+	if err := gohttp.Get(url, nil, mapping); err != nil {
 		return nil, err
 	}
 
@@ -171,9 +171,8 @@ func (c *Client) getIndexList(indexName string, isScoped bool) ([]string, error)
 func (c *Client) putMapping(index string, mapping string, contents []byte) error {
 	url := fmt.Sprintf(esMapping, c.hostname, index, mapping)
 	payload := bytes.NewReader(contents)
-	_, err := gohttp.Put(url, nil, payload)
-
-	return err
+	respBody := map[string]interface{}{}
+	return gohttp.Put(url, nil, payload, &respBody)
 }
 
 func (c *Client) testMapping(index, mapping string) (bool, error) {
