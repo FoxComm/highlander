@@ -111,7 +111,7 @@ class CouponPage extends ObjectPage {
     });
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps, prevState) { // CHECK IF NEEDED AFTER KANGAROOS MERGE
     return;
   }
 

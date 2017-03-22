@@ -33,12 +33,7 @@ export function createEmptyPromotion() {
     createdAt: null,
     qualifyAll: true,
     qualifiedCustomerGroupIds: [],
-    attributes: {
-      storefrontName: {
-        t: 'richText',
-        v: 'Storefront name'
-      }
-    },
+    attributes: {},
     discounts: [],
   };
 
