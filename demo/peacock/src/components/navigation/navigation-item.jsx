@@ -60,7 +60,7 @@ export default class NavigationItem extends Component {
     this.setState({ expanded: false });
   }
 
-  renderSubcategoryItems(subcategory) {
+  renderSubcategoryItems(subcategory: Category) {
     if (!subcategory.children) return null;
 
     const items = _.map(subcategory.children, (item) => {
@@ -89,13 +89,13 @@ export default class NavigationItem extends Component {
       [styles.open]: this.state.expanded,
     });
 
-    const children = _.map(item.children, (item) => {
+    const children = _.map(item.children, (child) => {
       return (
         <div>
           <Link styleName="drawer-item-link" onClick={onClick}>
-            {item.name}
+            {child.name}
           </Link>
-          { this.renderSubcategoryItems(item) }
+          { this.renderSubcategoryItems(child) }
         </div>
       );
     });
