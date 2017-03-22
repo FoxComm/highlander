@@ -10,7 +10,7 @@ import styles from './action-link.css';
 type Props = {
   action: Function,
   title: string,
-  icon?: Object,
+  icon?: ?Object,
 }
 
 const ActionLink = (props: Props) => {
@@ -29,6 +29,7 @@ const ActionLink = (props: Props) => {
     <span styleName="action-link" onClick={action} {...rest}>
       {actionIcon}
       {title}
+      {props.children}
     </span>
   );
 };
