@@ -5,6 +5,7 @@ import _ from 'lodash';
 import React, { Component } from 'react';
 import localized from 'lib/i18n';
 import { connect } from 'react-redux';
+import { autobind } from 'core-decorators';
 
 // components
 // import EditableBlock from 'ui/editable-block';
@@ -41,54 +42,71 @@ type Props = {
   isGuestMode: boolean,
 };
 
+type State = {
+  fetchedAddresses: boolean,
+};
+
 class Shipping extends Component {
   props: Props;
 
+  state: State = {
+    fetchedAddresses: false,
+  };
+
   componentWillMount() {
-    this.props.fetchAddresses();
+    this.fetchAddresses();
   }
 
   componentWillUpdate(nextProps : Props) {
     if (nextProps.auth !== this.props.auth) {
-      this.props.fetchAddresses();
+      this.setState({ fetchedAddresses: false });
+      this.fetchAddresses();
     }
+  }
+
+  @autobind
+  fetchAddresses() {
+    this.props.fetchAddresses().then(() => {
+      this.setState({ fetchedAddresses: true });
+    });
   }
 
   get action() {
     const { props } = this;
     let action, title, icon;
 
-    if (!_.isEmpty(props.shippingAddress) || props.addresses.length > 0) {
-      action = this.props.toggleModal;
-      title = 'Choose';
-    } else {
-      action = function() {
-        console.log('TODO: render "Add address" form');
-      };
-      title = 'Add new';
-      icon = {
-        name: 'fc-plus',
-        className: styles['plus'],
-      };
-    }
+    if (this.state.fetchedAddresses) {
+      if (!_.isEmpty(props.shippingAddress) || props.addresses.length > 0) {
+        action = props.toggleModal;
+        title = 'Choose';
+      } else {
+        action = function() {
+          console.log('TODO: render "Add address" form');
+        };
+        title = 'Add new';
+        icon = {
+          name: 'fc-plus',
+          className: styles['plus'],
+        };
+      }
 
-    return (
-      <ActionLink
-        action={action}
-        title={title}
-        styleName="btn-action"
-        icon={icon}
-      />
-    );
+      return (
+        <ActionLink
+          action={action}
+          title={title}
+          styleName="btn-action"
+          icon={icon}
+        />
+      );
+    }
   }
 
   get content() {
     const { toggleModal, modalVisible, shippingAddress } = this.props;
-
     return(
       <div>
         {
-          !_.isEmpty(shippingAddress)
+          !_.isEmpty(shippingAddress) && this.state.fetchedAddresses
           ?
           <AddressDetails address={shippingAddress} styleName="shippingAddress" />
           :
@@ -105,10 +123,7 @@ class Shipping extends Component {
 
   }
 
-get body() {
-  const fetchedAddresses = this.props.addressesState.finished;
-
-  if (fetchedAddresses) {
+  render() {
     return (
       <div>
         <div styleName="header">
@@ -117,17 +132,6 @@ get body() {
         </div>
         {this.content}
       </div>
-    );
-  }
-
-  return (
-    <Loader size="m"/>
-  );
-}
-
-  render() {
-    return (
-      this.body
     );
   }
 }
