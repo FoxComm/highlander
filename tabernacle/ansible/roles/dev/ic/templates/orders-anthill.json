@@ -13,7 +13,7 @@
   "container": {
     "type": "DOCKER",
     "docker": {
-      "image": "{{docker_registry}}:5000/orders-sphex:{{docker_tags.orders_anthill}}",
+      "image": "{{docker_registry}}:5000/orders-anthill:{{docker_tags.orders_anthill}}",
       "network": "HOST",
       "privileged": false,
       "parameters": [],

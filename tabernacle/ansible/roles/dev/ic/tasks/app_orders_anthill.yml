@@ -1,12 +1,12 @@
 ---
 
-- name: Copy Orders Consumer Marathon JSON
+- name: Copy Orders Anthill Consumer Marathon JSON
   template: src=orders-anthill.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
 
-- name: Update Orders Consumer in Marathon
+- name: Update Orders Anthill Consumer in Marathon
   shell: 'curl -X PUT -d@/marathon/applications/orders-anthill.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/orders-anthill'
 
-- name: Restart Orders Consumer in Marathon
+- name: Restart Orders Anthill Consumer in Marathon
   shell: 'curl -X POST http://{{marathon_server}}/v2/apps/orders-anthill/restart'
 
 - name: Get Orders Consumer Marathon tasks in `healthy` state
