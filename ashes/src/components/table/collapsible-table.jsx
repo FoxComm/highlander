@@ -110,6 +110,8 @@ function updateNodes(tree: Tree<T>, updater: (node: Node<T>) => void) {
   return tree;
 }
 
+const toggleAll = (tree: Tree<T>, collapse: boolean) => updateNodes(tree, (n: Node<T>) => n.collapsed = collapse);
+
 class CollapsibleTable<T> extends Component {
   props: Props;
 
@@ -137,12 +139,12 @@ class CollapsibleTable<T> extends Component {
 
   @autobind
   expandAll() {
-    this.setState({ root: updateNodes(this.state.root, (n: Node<T>) => n.collapsed = false) });
+    this.setState({ root: toggleAll(this.state.root, false) });
   }
 
   @autobind
   collapseAll() {
-    this.setState({ root: updateNodes(this.state.root, (n: Node<T>) => n.collapsed = true) });
+    this.setState({ root: toggleAll(this.state.root, true) });
   }
 
   get rows(): Array<Node<T>> {

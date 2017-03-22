@@ -1,5 +1,4 @@
 .taxonsTable {
-
   & th:nth-child(2),
   & td:nth-child(2) {
     width: 100% !important;
@@ -26,4 +25,8 @@
     width: 120px !important;
     min-width: 120px !important;
   }
+}
+
+.headerButton {
+  margin-left: 5px;
 }

@@ -1,6 +1,7 @@
 // @flow
 
 // libs
+import classNames from 'classnames';
 import React, { Component, Element } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -58,12 +59,12 @@ export class TaxonsListPage extends Component {
     const handleClick = transitionToLazy('taxon-details', { ...this.props.params, taxonId: 'new' });
 
     return [
-      <AddButton className="fc-btn-primary" onClick={handleClick}>Value</AddButton>
+      <AddButton className={classNames('fc-btn-primary', styles.headerButton)} onClick={handleClick}>Value</AddButton>
     ];
   }
 
   render() {
-    const { taxonomy, list, actions } = this.props;
+    const { taxonomy, list } = this.props;
 
     const results = list.currentSearch().results;
 
