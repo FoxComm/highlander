@@ -125,6 +125,7 @@ v1   GET    /v1/public/products/find_by_asin/:asin  Searches product by ASIN cod
 v1   GET    /v1/public/products/categories/:asin  Returns categories for given asin
 v1   GET    /v1/public/categories  Search for Amazon `department` and `item-type' by `node_path'
 v1   GET    /v1/public/categories/suggest  Suggests category for product by title
+v1   GET    /v1/public/categories/:node_id  Get category by amazon node_id
 v1   GET    /v1/public/orders  Get all orders
 v1   GET    /v1/public/orders/:order_id  Get order details
 v1   GET    /v1/public/orders/:order_id/items  Get order items

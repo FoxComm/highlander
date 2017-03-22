@@ -244,6 +244,16 @@ defmodule Hyperion.Router.V1 do
             respond_with(conn, %{error: e.message}, 422)
           end
         end
+
+        desc "Get category by amazon node_id"
+        route_param :node_id do
+          get do
+            case Category.get_category_with_schema(params[:node_id]) do
+              nil -> respond_with(conn, %{error: "Categories for node_id #{params[:node_id]} not found"}, 404)
+              r -> respond_with(conn, r)
+            end
+          end # get
+        end # route_param
       end # categories
 
       namespace :orders do

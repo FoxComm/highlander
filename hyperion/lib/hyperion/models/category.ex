@@ -2,7 +2,8 @@ defmodule Category do
   use Ecto.Schema
   import Ecto.Query
 
-  @derive {Poison.Encoder, only: [:node_id, :node_path, :department, :item_type, :size_opts, :category_name]}
+  @derive {Poison.Encoder, only: [:node_id, :node_path, :department, :item_type,
+                                  :size_opts, :category_name, :approve_needed]}
 
   schema "amazon_categories" do
     field :node_id, :integer
@@ -12,6 +13,7 @@ defmodule Category do
     field :size_opts
     field :category_name
     field :object_schema_id, :integer
+    field :approve_needed, :boolean
 
     timestamps()
   end
@@ -32,6 +34,13 @@ defmodule Category do
     end
   end
 
-
-
+  def get_category_with_schema(node_id) do
+    q = from c in Category, where: c.node_id == ^node_id
+        and not is_nil(c.department) and not is_nil(c.item_type)
+    case Hyperion.Repo.one(q) do
+      nil -> nil
+      category -> %{category: category,
+                    schema: Hyperion.Repo.get(ObjectSchema, category.object_schema_id)}
+    end
+  end
 end
