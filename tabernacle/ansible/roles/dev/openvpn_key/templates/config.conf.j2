@@ -7,7 +7,7 @@
 #viscosity dns automatic
 #viscosity ipv6 false
 #viscosity dhcp true
-remote {{vpn_server_ip}} {{vpn_server_port}} tcp-client
+remote {{vpn_server_ip.stdout}} {{vpn_server_port}} tcp-client
 persist-key
 tls-client
 pull
@@ -15,6 +15,6 @@ ca ca.crt
 dev tap
 persist-tun
 cert cert.crt
-comp-lzo no
+comp-lzo
 nobind
 key key.key

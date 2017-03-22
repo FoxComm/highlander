@@ -15,6 +15,9 @@ test:
 	$(call header, Testing)
 	./terraform/testfmt.sh
 
+fmt:
+	terraform fmt terraform/
+
 deploy-stage:
 	ansible-playbook -v -i inventory/gce/ ansible/test_stage.yml
 

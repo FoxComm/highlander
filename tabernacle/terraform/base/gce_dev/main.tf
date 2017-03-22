@@ -4,7 +4,7 @@ variable "ssh_private_key" {}
 
 variable "dnsimple_token" {}
 
-variable "dnsimple_email" {}
+variable "dnsimple_account" {}
 
 variable "account_file" {}
 
@@ -31,8 +31,8 @@ provider "google" {
 }
 
 provider "dnsimple" {
-  token = "${var.dnsimple_token}"
-  email = "${var.dnsimple_email}"
+  token   = "${var.dnsimple_token}"
+  account = "${var.dnsimple_account}"
 }
 
 ##############################################
@@ -66,15 +66,15 @@ module "buildagents" {
 # Setup Sinopia Server
 ##############################################
 module "sinopia" {
-  source          = "../../modules/gce/sinopia"
-  network         = "default"
-  datacenter      = "dev"
-  image           = "base-node-1470785359"
-  amigo_leader    = "10.240.0.10"
-  domain          = "foxcommerce.com"
-  subdomain       = "npm"
-  ssh_user        = "${var.ssh_user}"
-  ssh_private_key = "${var.ssh_private_key}"
-  dnsimple_token  = "${var.dnsimple_token}"
-  dnsimple_email  = "${var.dnsimple_email}"
+  source           = "../../modules/gce/sinopia"
+  network          = "default"
+  datacenter       = "dev"
+  image            = "base-node-1470785359"
+  amigo_leader     = "10.240.0.10"
+  domain           = "foxcommerce.com"
+  subdomain        = "npm"
+  ssh_user         = "${var.ssh_user}"
+  ssh_private_key  = "${var.ssh_private_key}"
+  dnsimple_token   = "${var.dnsimple_token}"
+  dnsimple_account = "${var.dnsimple_account}"
 }

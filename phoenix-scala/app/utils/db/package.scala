@@ -175,6 +175,10 @@ package object db {
         .map(_.flattenOption)
   }
 
+  implicit class FoxyTSeqOps[L[_]: TraverseFilter, F[_]: Monad, A](xs: L[FoxyT[F, A]]) {
+    def ignoreFailures: FoxyT[F, L[A]] = FoxyT[F].onlySuccessful(xs)
+  }
+
   // ————————————————————————————— Foxy: aliases —————————————————————————————
 
   type Foxy[A] = FoxyT[Id, A]

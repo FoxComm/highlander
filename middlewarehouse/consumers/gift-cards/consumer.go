@@ -96,7 +96,7 @@ func (consumer GiftCardConsumer) processOrder(order payloads.Order) error {
 
 			skusToUpdate = append(skusToUpdate, sku)
 			for j := 0; j < sku.Quantity; j++ {
-				giftCardPayloads = append(giftCardPayloads, *payloads.NewCreateGiftCardPayload(sku, order.ReferenceNumber))
+				giftCardPayloads = append(giftCardPayloads, *payloads.NewCreateGiftCardPayload(sku, order.ReferenceNumber, order.Scope))
 			}
 		}
 	}
