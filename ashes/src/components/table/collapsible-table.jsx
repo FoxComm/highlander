@@ -9,6 +9,7 @@ import React, { Component, Element } from 'react';
 
 // components
 import MultiSelectTable from 'components/table/multi-select-table';
+import { Button } from 'components/common/buttons';
 
 // styles
 import styles from './collapsible-table.css';
@@ -41,6 +42,7 @@ type Props<T> = {
   emptyMessage: string,
   className: string,
   idField: string,
+  headerControls: Array<Element<*>>,
 };
 
 type State<T> = {
@@ -95,6 +97,19 @@ function collapseNode(tree: Tree<T>, id: Identifier) {
   return tree;
 }
 
+function updateNodes(tree: Tree<T>, updater: (node: Node<T>) => void) {
+  const traverse = (nodes: Array<Node<T>>) =>
+    nodes.forEach((node: Node<T>) => {
+      if (node.children) traverse(node.children);
+
+      updater(node);
+    });
+
+  traverse(values(tree));
+
+  return tree;
+}
+
 class CollapsibleTable<T> extends Component {
   props: Props;
 
@@ -118,6 +133,16 @@ class CollapsibleTable<T> extends Component {
 
   componentWillReceiveProps(nextProps: Props) {
     this.setState({ root: buildTree(nextProps.data.rows, nextProps.idField) });
+  }
+
+  @autobind
+  expandAll() {
+    this.setState({ root: updateNodes(this.state.root, (n: Node<T>) => n.collapsed = false) });
+  }
+
+  @autobind
+  collapseAll() {
+    this.setState({ root: updateNodes(this.state.root, (n: Node<T>) => n.collapsed = true) });
   }
 
   get rows(): Array<Node<T>> {
@@ -152,19 +177,29 @@ class CollapsibleTable<T> extends Component {
     });
   }
 
+  get headerControls() {
+    return [
+      <Button className={styles.headerButton} onClick={this.expandAll}>Expand All</Button>,
+      <Button className={styles.headerButton} onClick={this.collapseAll}>Collapse All</Button>,
+      ...this.props.headerControls,
+    ];
+  }
+
   render() {
     const { data } = this.props;
 
     return (
-      <MultiSelectTable
-        {...this.props}
-        data={{
+      <div className={styles.collapsible}>
+        <MultiSelectTable
+          {...this.props}
+          data={{
           ...data,
           rows: this.rows,
         }}
-        renderRow={this.renderRow}
-        className={classNames(styles.collapsible, this.props.className)}
-      />
+          headerControls={this.headerControls}
+          renderRow={this.renderRow}
+        />
+      </div>
     );
   }
 }

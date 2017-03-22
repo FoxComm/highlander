@@ -60,13 +60,15 @@ const TableView = props => {
     );
   }
 
+  const flexSeparator = <div className="fc-table__flex-separator" />;
+  topItems.push(flexSeparator);
+
   const showPagination = props.paginator && props.setState;
   if (showPagination) {
     const { from, total, size } = props.data;
-    const flexSeparator = <div className="fc-table__flex-separator" />;
     const tablePaginator = <TablePaginator total={total} from={from} size={size} setState={setState} />;
 
-    topItems.push(flexSeparator, tablePaginator);
+    topItems.push(tablePaginator);
 
     bottomItems.push(<TablePageSize setState={setState} value={size} />, flexSeparator, tablePaginator);
   }

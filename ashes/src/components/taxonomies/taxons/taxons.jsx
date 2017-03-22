@@ -24,6 +24,7 @@ import styles from './taxons.css';
 import type { TaxonomyParams } from '../taxonomy';
 
 type Props = ObjectPageChildProps<Taxonomy> & {
+  taxonomy: Taxonomy,
   actions: Object,
   list: Object,
   params: TaxonomyParams,
@@ -62,16 +63,17 @@ export class TaxonsListPage extends Component {
   }
 
   render() {
-    const { list, actions } = this.props;
+    const { taxonomy, list, actions } = this.props;
 
     const results = list.currentSearch().results;
 
+    const Table = taxonomy.hierarchical ? CollapsibleTable : MultiSelectTable;
+
     return (
-      <CollapsibleTable
+      <Table
         columns={tableColumns}
         data={results}
         renderRow={this.renderRow}
-        setState={actions.updateStateAndFetch}
         hasActionsColumn={false}
         isLoading={results.isFetching}
         failed={results.failed}

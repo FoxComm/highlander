@@ -1,6 +1,7 @@
 .collapsible {
 
-  & ._collapsed {
+  & .headerButton {
+    margin: 0 5px;
   }
 
   & :global .fc-collapse {
