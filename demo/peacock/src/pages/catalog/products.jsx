@@ -1,7 +1,7 @@
 /* @flow */
 
 // libs
-import React, { Component } from 'react';
+import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import * as actions from 'modules/products';
@@ -15,7 +15,7 @@ import Breadcrumbs from 'components/breadcrumbs/breadcrumbs';
 import styles from './products.css';
 
 // types
-import { Element, Route } from 'types';
+import { Route } from 'types';
 
 type Params = {
   categoryName: ?string,

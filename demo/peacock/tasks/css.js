@@ -8,11 +8,10 @@ module.exports = function(gulp, $) {
     'node_modules/evil-icons/assets/evil-icons.css',
     'public/css/reset.css',
     'public/css/inputs.css',
+    'node_modules/react-image-gallery/styles/css/image-gallery.css',
     'node_modules/@foxcomm/wings/lib/bundle.css',
     'public/common.css',
     'build/bundle.css',
-    'node_modules/slick-carousel/slick/slick.css',
-    'node_modules/slick-carousel/slick/slick-theme.css',
   ];
 
   gulp.task('css', ['css.common'], () => {

@@ -24,11 +24,13 @@ import type { ProductResponse, ProductSlug } from 'modules/product-details';
 // components
 import Gallery from 'ui/gallery/gallery';
 import Loader from 'ui/loader';
+import Breadcrumbs from 'components/breadcrumbs/breadcrumbs';
 import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
 import ProductDetails from './product-details';
 import GiftCardForm from 'components/gift-card-form';
-import ProductAttributes from './product-attributes';
 import ImagePlaceholder from 'components/products-item/image-placeholder';
+
+import type { RoutesParams } from 'types';
 
 // styles
 import styles from './pdp.css';
@@ -46,7 +48,7 @@ type Actions = {
   toggleCart: Function,
 };
 
-type Props = Localized & {
+type Props = Localized & RoutesParams & {
   actions: Actions,
   params: Params,
   product: ?ProductResponse,
@@ -249,6 +251,10 @@ class Pdp extends Component {
       : <ImagePlaceholder largeScreenOnly />;
   }
 
+  get breadcrumbs(): Element<*> {
+
+  }
+
   render(): Element<any> {
     const { t, isLoading, notFound, fetchError } = this.props;
 
@@ -272,28 +278,28 @@ class Pdp extends Component {
           {this.renderGallery()}
         </div>
         <div styleName="details">
-          <div styleName="details-wrap">
-            {this.isGiftCard() ?
-              <GiftCardForm
-                product={product}
-                addToCart={this.addToCart}
-                onSkuChange={this.setCurrentSku}
-                selectedSku={this.currentSku}
-                attributes={this.state.attributes}
-                onAttributeChange={this.setAttributeFromField}
-              /> :
-              <ProductDetails
-                product={product}
-                quantity={this.state.quantity}
-                onQuantityChange={this.changeQuantity}
-                addToCart={this.addToCart}
-              />}
+          <Breadcrumbs
+            routes={this.props.routes}
+            params={this.props.params}
+          />
+          {this.isGiftCard() ?
+            <GiftCardForm
+              product={product}
+              addToCart={this.addToCart}
+              onSkuChange={this.setCurrentSku}
+              selectedSku={this.currentSku}
+              attributes={this.state.attributes}
+              onAttributeChange={this.setAttributeFromField}
+            /> :
+            <ProductDetails
+              product={product}
+              quantity={this.state.quantity}
+              onQuantityChange={this.changeQuantity}
+              addToCart={this.addToCart}
+            />}
 
-            <ErrorAlerts error={this.state.error} />
-          </div>
+          <ErrorAlerts error={this.state.error} />
         </div>
-
-        {!this.isGiftCard() && <ProductAttributes product={this.props.product} />}
       </div>
     );
   }

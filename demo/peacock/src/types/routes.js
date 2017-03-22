@@ -6,6 +6,6 @@ export type Route = {
 };
 
 export type RoutesParams = {
-  rotues: Array<Route>,
+  routes: Array<Route>,
   params: Object,
 };

@@ -3,7 +3,7 @@
 // libs
 import _ from 'lodash';
 import { filter, map, join, flow } from 'lodash/fp';
-import React, { Element } from 'react';
+import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 
 // components
@@ -39,8 +39,7 @@ const Crumb = (props: {to: string, params: Object, name: string}) => {
   );
 };
 
-export default class Breadcrumbses extends React.Component {
-  props: RoutesParams;
+export default class Breadcrumbses extends Component {
 
   @autobind
   readableName(route: Route) {

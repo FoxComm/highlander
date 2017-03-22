@@ -7,7 +7,6 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  background-color: var(--body-background);
 }
 
 .gallery {
@@ -19,31 +18,15 @@
 .details {
   flex: 0 0 100%;
   height: auto;
-  text-align: center;
-}
-
-.details-wrap {
-  padding: 0 40px;
+  padding: 12px 16px;
 }
 
 .title {
-  font-weight: 400;
-  font-size: 30px;
-  letter-spacing: 1.28px;
+  font-weight: 900;
+  font-size: 24px;
   color: var(--text-color);
   position: relative;
   line-height: 46px;
-
-  &:after {
-    content: '';
-    display: block;
-    position: absolute;
-    width: 66px;
-    height: 2px;
-    left: 50%;
-    transform: translateX(-50%);
-    margin-top: 20px;
-  }
 }
 
 .price {
@@ -185,7 +168,6 @@
 @media (--large) {
   .gallery {
     width: 702px;
-    height: 678px;
     flex: none;
   }
 
