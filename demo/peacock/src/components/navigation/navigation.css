@@ -9,6 +9,20 @@
   text-transform: uppercase;
 }
 
+.submenu {
+  background: white;
+  position: absolute;
+  width: 100%;
+  left: 0;
+  top: 50px;
+  height: 300px;
+  display: none;
+}
+
+.open {
+  display: block;
+}
+
 @media (--small-only), (--medium-only) {
   .item-link {
     color: var(--link-alt-color);
