@@ -14,7 +14,6 @@ const CustomersListPage = props => {
 
   const navLinks = [
     { title: 'Lists', to: 'customers' },
-    { title: 'Customer Groups', to: 'groups' },
     { title: 'Activity Trail', to: 'customers-activity-trail' }
   ];
 

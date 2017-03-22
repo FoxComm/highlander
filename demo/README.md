@@ -1,4 +1,4 @@
-#Demo Directory
+# Demo Directory
 
 This directory contains projects related to demos of ecommerce platform and applications of it.
 
