@@ -1,6 +1,7 @@
 /* @flow */
 
 import React, { Component } from 'react';
+import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import { Link } from 'react-router';
 
@@ -59,6 +60,55 @@ export default class NavigationItem extends Component {
     this.setState({ expanded: false });
   }
 
+  renderSubcategoryItems(subcategory) {
+    if (!subcategory.children) return null;
+
+    const items = _.map(subcategory.children, (item) => {
+      return (
+        <div>
+          <Link styleName="drawer-subitem-link" onClick={this.props.onClick}>
+            {item.name}
+          </Link>
+        </div>
+      );
+    });
+
+    return (
+      <div>
+        { items }
+      </div>
+    );
+  }
+
+  get drawer() {
+    const { item, onClick } = this.props;
+
+    if (!item.children) return null;
+
+    const drawerStyle = classNames(styles.submenu, {
+      [styles.open]: this.state.expanded,
+    });
+
+    const children = _.map(item.children, (item) => {
+      return (
+        <div>
+          <Link styleName="drawer-item-link" onClick={onClick}>
+            {item.name}
+          </Link>
+          { this.renderSubcategoryItems(item) }
+        </div>
+      );
+    });
+
+    return (
+      <div className={drawerStyle}>
+        <div styleName="drawer-columns">
+          { children }
+        </div>
+      </div>
+    );
+  }
+
   render() {
     const { item, path, t } = this.props;
 
@@ -72,10 +122,6 @@ export default class NavigationItem extends Component {
     const isActive = path.match(new RegExp(dashedName, 'i'));
     const linkClasses = classNames(styles.item, {
       [styles.active]: isActive,
-    });
-
-    const drawerStyle = classNames(styles.submenu, {
-      [styles.open]: this.state.expanded,
     });
 
     return (
@@ -92,7 +138,7 @@ export default class NavigationItem extends Component {
         >
           {t(item.name.toUpperCase())}
         </Link>
-        { item.children && <div className={drawerStyle}>Sumbenu { item.name }</div> }
+        { this.drawer }
       </div>
     );
   }

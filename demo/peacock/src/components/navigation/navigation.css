@@ -15,12 +15,32 @@
   width: 100%;
   left: 0;
   top: 50px;
-  height: 300px;
   display: none;
 }
 
 .open {
   display: block;
+}
+
+.drawer-columns {
+  display: flex;
+  justify-content: space-around;
+  margin: 31px 180px 45px;
+}
+
+.drawer-item-link {
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 1.25;
+  letter-spacing: normal;
+  margin-bottom: 19px;
+  display: block;
+}
+
+.drawer-subitem-link {
+  font-size: 14px;
+  line-height: 1.86;
+  color: var(--navigation-alt-color);
 }
 
 @media (--small-only), (--medium-only) {

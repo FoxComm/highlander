@@ -18,6 +18,7 @@
   --black: #000000;
   --blackish: #222222;
   --mine-shaft: #333333;
+  --tundora: #444444;
   --gray: #888888;
   --cod-gray: #1A1A1A;
   --silver: #CCCCCC;
@@ -64,6 +65,7 @@
   --text-color: var(--blackish);
   --label-color: var(--gray);
   --error-color: var(--cherry-red);
+  --navigation-alt-color: var(--tundora);
 
   /* Button colors */
   --button-default-background: var(--water-blue);
