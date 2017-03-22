@@ -1,6 +1,5 @@
 package services.returns
 
-import cats.implicits._
 import failures.OrderFailures.OrderPaymentNotFoundFailure
 import failures.ReturnFailures._
 import models.account.{Scope, User, Users}
@@ -14,6 +13,7 @@ import models.returns.ReturnPayments.scope._
 import models.returns._
 import payloads.ReturnPayloads.{ReturnPaymentPayload, ReturnPaymentsPayload}
 import responses.ReturnResponse
+
 import scala.annotation.tailrec
 import services.carts.CartTotaler
 import slick.driver.PostgresDriver.api._
@@ -21,11 +21,13 @@ import utils.aliases._
 import utils.apis.{Apis, RefundReason}
 import utils.db._
 import cats.implicits._
+import services.LogActivity
 
 object ReturnPaymentUpdater {
   def addPayments(refNum: String, payload: ReturnPaymentsPayload)(
       implicit ec: EC,
       db: DB,
+      ac: AC,
       au: AU): DbResultT[ReturnResponse.Root] = {
     @inline
     def addPayment(rma: Return,
@@ -45,12 +47,15 @@ object ReturnPaymentUpdater {
         _        ← * <~ updateTotalsReturn(rma)
         updated  ← * <~ Returns.refresh(rma)
         response ← * <~ ReturnResponse.fromRma(updated)
+        _        ← * <~ LogActivity().returnPaymentAdded(response, payment)
       } yield response
   }
 
+  // todo I think we can DRY addPayments/addPayment, they look a lot the same @aafa
   def addPayment(refNum: String, method: PaymentMethod.Type, payload: ReturnPaymentPayload)(
       implicit ec: EC,
       db: DB,
+      ac: AC,
       au: AU): DbResultT[ReturnResponse.Root] =
     for {
       rma      ← * <~ Returns.mustFindActiveByRefNum404(refNum)
@@ -60,6 +65,7 @@ object ReturnPaymentUpdater {
       _        ← * <~ updateTotalsReturn(rma)
       updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(updated)
+      _        ← * <~ LogActivity().returnPaymentAdded(response, payment)
     } yield response
 
   private[this] def updateTotalsReturn(rma: Return)(implicit ec: EC, db: DB, au: AU) =
@@ -217,12 +223,14 @@ object ReturnPaymentUpdater {
 
   def deletePayment(refNum: String, paymentMethod: PaymentMethod.Type)(
       implicit ec: EC,
+      ac: AC,
       db: DB): DbResultT[ReturnResponse.Root] =
     for {
       rma      ← * <~ Returns.mustFindActiveByRefNum404(refNum)
       _        ← * <~ processDeletePayment(rma.id, paymentMethod)
       updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(rma)
+      _        ← * <~ LogActivity().returnPaymentDeleted(response, paymentMethod)
     } yield response
 
   def processDeletePayment(returnId: Int, paymentMethod: PaymentMethod.Type)(

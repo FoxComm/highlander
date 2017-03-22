@@ -1,12 +1,12 @@
 package services.returns
 
 import failures.ReturnFailures.{ReturnReasonNotFoundFailure, ReturnShippingCostExceeded}
-import failures._
-import models.cord.{OrderShippingMethods, Orders}
+import models.cord.Orders
 import models.objects._
-import models.returns.{ReturnLineItemShippingCosts, _}
+import models.returns._
 import payloads.ReturnPayloads._
 import responses.ReturnResponse
+import services.LogActivity
 import services.inventory.SkuManager
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
@@ -17,6 +17,7 @@ object ReturnLineItemUpdater {
   def addLineItem(refNum: String, payload: ReturnLineItemPayload)(
       implicit ec: EC,
       db: DB,
+      ac: AC,
       oc: OC): DbResultT[ReturnResponse.Root] =
     for {
       rma ← * <~ Returns.mustFindActiveByRefNum404(refNum)
@@ -26,6 +27,7 @@ object ReturnLineItemUpdater {
       _        ← * <~ processAddLineItem(rma, reason, payload)
       updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(updated)
+      _        ← * <~ LogActivity().returnLineItemsAdded(response, payload)
     } yield response
 
   private def processAddLineItem(
@@ -92,6 +94,7 @@ object ReturnLineItemUpdater {
     } yield li
 
   def deleteLineItem(refNum: String, lineItemId: Int)(implicit ec: EC,
+                                                      ac: AC,
                                                       db: DB): DbResultT[ReturnResponse.Root] =
     for {
       rma      ← * <~ Returns.mustFindActiveByRefNum404(refNum)
@@ -100,6 +103,7 @@ object ReturnLineItemUpdater {
       _        ← * <~ ReturnLineItems.filter(_.id === lineItemId).deleteAll
       updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(updated)
+      _        ← * <~ LogActivity().returnLineItemsDeleted(response, li)
     } yield response
 
   private def processDeleteLineItem(

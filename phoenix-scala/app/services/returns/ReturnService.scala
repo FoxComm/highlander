@@ -35,7 +35,6 @@ object ReturnService {
   def updateStateByCsr(refNum: String, payload: ReturnUpdateStatePayload)(
       implicit ec: EC,
       db: DB,
-      ac: AC,
       au: AU,
       ac: AC,
       apis: Apis): DbResultT[Root] =
@@ -78,7 +77,7 @@ object ReturnService {
       adminResponse    = Some(StoreAdminResponse.build(admin, adminData))
       customerResponse = CustomerResponse.build(customer, custData)
       response         = build(rma, Some(customerResponse), adminResponse)
-      _ ← * <~ LogActivity().returnCreated(admin.some, response)
+      _ ← * <~ LogActivity().returnCreated(admin, response)
     } yield response
 
   def list(implicit ec: EC, db: DB): DbResultT[Seq[Root]] =

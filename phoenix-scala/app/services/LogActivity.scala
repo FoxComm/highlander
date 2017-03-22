@@ -8,7 +8,7 @@ import models.Note
 import models.account.User
 import models.activity.{Activities, Activity}
 import models.admin.AdminData
-import models.cord.{Cart, Order}
+import models.cord.{Cart, Order, OrderPayment}
 import models.coupon.{Coupon, CouponCode}
 import models.customer.CustomerGroup
 import models.location.Region
@@ -17,11 +17,12 @@ import models.payment.creditcard.{CreditCard, CreditCardCharge}
 import models.payment.giftcard.GiftCard
 import models.payment.storecredit.StoreCredit
 import models.returns.Return.State
-import models.returns.Returns
+import models.returns.ReturnLineItem
 import models.sharedsearch.SharedSearch
 import models.shipping.ShippingMethod
 import payloads.GiftCardPayloads.GiftCardUpdateStateByCsr
 import payloads.LineItemPayloads.UpdateLineItemsPayload
+import payloads.ReturnPayloads.ReturnLineItemPayload
 import payloads.StoreCreditPayloads.StoreCreditUpdateStateByCsr
 import responses.CategoryResponses.FullCategoryResponse
 import responses.CouponResponses.CouponResponse
@@ -32,8 +33,8 @@ import responses.ProductResponses.ProductResponse
 import responses.PromotionResponses.PromotionResponse
 import responses.SkuResponses.SkuResponse
 import responses.UserResponse.{Root ⇒ UserResponse, build ⇒ buildUser}
-import responses.cord.{CartResponse, OrderResponse}
 import responses._
+import responses.cord.{CartResponse, OrderResponse}
 import services.LineItemUpdater.foldQuantityPayload
 import services.activity.AssignmentsTailored._
 import services.activity.CartTailored._
@@ -442,13 +443,25 @@ case class LogActivity(implicit ac: AC) {
     Activities.log(CartCouponDetached(cart))
 
   /* Returns */
-  def returnCreated(admin: Option[User], rma: ReturnResponse.Root)(
-      implicit ec: EC): DbResultT[Activity] =
-    Activities.log(ReturnCreated(admin.map(buildUser), rma))
+  def returnCreated(admin: User, rma: ReturnResponse.Root)(implicit ec: EC): DbResultT[Activity] =
+    Activities.log(ReturnCreated(buildUser(admin), rma))
 
   def returnStateChanged(admin: User, rma: ReturnResponse.Root, oldState: State)(
       implicit ec: EC): DbResultT[Activity] =
     Activities.log(ReturnStateChanged(buildUser(admin), rma, oldState))
+
+  def returnLineItemsAdded(rma: ReturnResponse.Root, payload: ReturnLineItemPayload)(
+      implicit ec: EC): DbResultT[Activity] = Activities.log(ReturnItemAdded(rma, payload))
+
+  def returnLineItemsDeleted(rma: ReturnResponse.Root, li: ReturnLineItem)(
+      implicit ec: EC): DbResultT[Activity] = Activities.log(ReturnItemDeleted(rma, li))
+
+  def returnPaymentAdded(rma: ReturnResponse.Root, payment: OrderPayment)(
+      implicit ec: EC): DbResultT[Activity] = Activities.log(ReturnPaymentAdded(rma, payment))
+
+  def returnPaymentDeleted(rma: ReturnResponse.Root, paymentMethod: PaymentMethod.Type)(
+      implicit ec: EC): DbResultT[Activity] =
+    Activities.log(ReturnPaymentDeleted(rma, paymentMethod))
 
   /* Categories */
   def fullCategoryCreated(
