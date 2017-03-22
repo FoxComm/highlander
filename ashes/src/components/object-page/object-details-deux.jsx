@@ -125,23 +125,6 @@ export default class ObjectDetailsDeux extends Component {
     }
   }
 
-  renderId() {
-    if (!this.props.object.id) {
-      return null;
-    }
-
-    return (
-      <div>
-        <div className="fc-object-form__field-label">
-          <label>ID</label>
-        </div>
-        <div className="fc-object-form__field">
-          {this.props.object.id}
-        </div>
-      </div>
-    );
-  }
-
   renderGroup(group: NodeDesc, section: Array<NodeDesc>) {
     const { title, fields, renderer, content } = group;
 
@@ -159,7 +142,6 @@ export default class ObjectDetailsDeux extends Component {
 
     return (
       <ContentBox title={title}>
-        {this.renderId()}
         {children}
       </ContentBox>
     );
