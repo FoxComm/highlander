@@ -14,7 +14,7 @@ import utils.seeds.Factories
 class ReturnPaymentsIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
-    with AutomaticAuth
+    with DefaultAdminAuth
     with BakedFixtures {
 
   "gift cards" - {

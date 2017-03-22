@@ -21,7 +21,7 @@ import utils.db._
 class VariantIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
-    with AutomaticAuth
+    with DefaultAdminAuth
     with MockedApis
     with BakedFixtures {
 

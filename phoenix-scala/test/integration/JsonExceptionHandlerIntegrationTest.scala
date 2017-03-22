@@ -9,7 +9,7 @@ import utils.MockedApis
 class JsonExceptionHandlerIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
-    with AutomaticAuth
+    with DefaultAdminAuth
     with MockedApis {
 
   val illegalRequestExceptionText = "A test IllegalRequestException"

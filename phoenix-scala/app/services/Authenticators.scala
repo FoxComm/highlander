@@ -249,7 +249,6 @@ object Authenticator {
       _ ← * <~ adminUsers.map { adminData ⇒
            DbResultT.fromXor(checkState(adminData))
          }
-
       claimSet     ← * <~ AccountManager.getClaims(account.id, organization.scopeId)
       _            ← * <~ validateClaimSet(claimSet)
       checkedToken ← * <~ UserToken.fromUserAccount(user, account, claimSet)

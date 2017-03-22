@@ -11,7 +11,7 @@ import testutils.fixtures.BakedFixtures
 class StoreAdminIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
-    with AutomaticAuth
+    with DefaultAdminAuth
     with BakedFixtures {
 
   "POST /v1/store-admins" - {
@@ -30,8 +30,8 @@ class StoreAdminIntegrationTest
     }
 
     "don't create with duplicated email" in new Fixture {
-      val payload = CreateStoreAdminPayload(name = authedUser.name.getOrElse(""),
-                                            email = authedUser.email.getOrElse(""),
+      val payload = CreateStoreAdminPayload(name = storeAdmin.name.value,
+                                            email = storeAdmin.email.value,
                                             roles = List("admin"),
                                             org = "tenant")
 
@@ -87,8 +87,8 @@ class StoreAdminIntegrationTest
                                                    roles = List("admin"),
                                                    org = "tenant")
       val admin = storeAdminsApi.create(create_payload).as[Root]
-      val payload = UpdateStoreAdminPayload(name = authedUser.name.getOrElse(""),
-                                            email = authedUser.email.getOrElse(""))
+      val payload =
+        UpdateStoreAdminPayload(name = storeAdmin.name.value, email = storeAdmin.email.value)
 
       storeAdminsApi(admin.id).update(payload).mustFailWith400(UserEmailNotUnique)
     }

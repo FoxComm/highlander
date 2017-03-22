@@ -21,7 +21,7 @@ import utils.seeds.Factories
 class StoreCreditIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
-    with AutomaticAuth
+    with DefaultAdminAuth
     with PhoenixAdminApi
     with BakedFixtures {
 

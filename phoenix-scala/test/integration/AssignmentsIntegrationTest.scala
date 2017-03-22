@@ -17,7 +17,7 @@ import utils.seeds.Factories
 class AssignmentsIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
-    with AutomaticAuth
+    with DefaultAdminAuth
     with BakedFixtures {
 
   "POST /v1/orders/:refNum/assignees" - {

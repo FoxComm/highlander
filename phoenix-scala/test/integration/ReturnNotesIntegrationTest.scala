@@ -18,7 +18,7 @@ import utils.time.RichInstant
 class ReturnNotesIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
-    with AutomaticAuth
+    with DefaultAdminAuth
     with TestActivityContext.AdminAC
     with BakedFixtures {
 

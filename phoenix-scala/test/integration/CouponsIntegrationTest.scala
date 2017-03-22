@@ -27,7 +27,7 @@ class CouponsIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
     with ApiFixtureHelpers
-    with AutomaticAuth
+    with DefaultAdminAuth
     with TestActivityContext.AdminAC
     with ApiFixtures
     with BakedFixtures {
@@ -186,7 +186,6 @@ class CouponsIntegrationTest
       extends StoreAdmin_Seed
       with Coupon_TotalQualifier_PercentOff
       with ProductSku_ApiFixture {
-
     override def skuPrice: Int          = 3100
     override def qualifiedSubtotal: Int = 3000
 
@@ -207,8 +206,13 @@ class CouponsIntegrationTest
   trait RegularAndGiftCardLineItemFixture extends StoreAdmin_Seed {
     val cartRef = api_newGuestCart().referenceNumber
 
-    private val skuCode   = new ProductSku_ApiFixture { override def skuPrice = 3000 }.skuCode
-    private val gcSkuCode = new ProductSku_ApiFixture { override def skuPrice = 2000 }.skuCode
+    private val skuCode = new ProductSku_ApiFixture {
+      override def skuPrice = 3000
+    }.skuCode
+
+    private val gcSkuCode = new ProductSku_ApiFixture {
+      override def skuPrice = 2000
+    }.skuCode
 
     cartsApi(cartRef).lineItems
       .add(Seq(UpdateLineItemsPayload(skuCode, 1),

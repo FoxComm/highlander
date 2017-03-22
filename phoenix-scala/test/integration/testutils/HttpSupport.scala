@@ -7,6 +7,7 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl.client.RequestBuilding.Get
 import akka.http.scaladsl.model._
+import akka.http.scaladsl.model.headers.Cookie
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.settings.ConnectionPoolSettings
 import akka.http.scaladsl.unmarshalling.Unmarshal
@@ -15,6 +16,7 @@ import akka.stream.scaladsl.{Flow, Sink, Source}
 import akka.stream.testkit.TestSubscriber.Probe
 import akka.stream.testkit.scaladsl.TestSink
 import akka.util.ByteString
+import cats.implicits._
 import com.typesafe.config.ConfigFactory
 import de.heikoseeberger.akkasse.EventStreamUnmarshalling._
 import de.heikoseeberger.akkasse.ServerSentEvent
@@ -23,10 +25,8 @@ import org.json4s.jackson.Serialization.{write ⇒ writeJson}
 import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
 import server.Service
-import services.Authenticator.UserAuthenticator
 import utils.FoxConfig.config
 import utils.apis.Apis
-import utils.seeds.Factories
 import utils.{FoxConfig, JsonFormatters}
 
 import scala.collection.immutable
@@ -56,9 +56,6 @@ trait HttpSupport
 
   implicit val formats: Formats = JsonFormatters.phoenixFormats
 
-  private val validResponseContentTypes =
-    Set(ContentTypes.`application/json`, ContentTypes.NoContentType)
-
   protected implicit lazy val mat: ActorMaterializer   = materializer
   protected implicit lazy val actorSystem: ActorSystem = system
 
@@ -84,7 +81,7 @@ trait HttpSupport
       .futureValue
   }
 
-  override protected def afterAll: Unit = {
+  override def afterAll: Unit = {
     super.afterAll
     Await.result(for {
       _ ← Http().shutdownAllConnectionPools()
@@ -99,24 +96,15 @@ trait HttpSupport
         |}
       """.stripMargin).withFallback(ConfigFactory.load())
 
-  val adminUser    = Factories.storeAdmin.copy(id = 1, accountId = 1)
-  val customerData = Factories.customer.copy(id = 2, accountId = 2)
-
-  def overrideUserAuth: UserAuthenticator =
-    AuthAs(adminUser, customerData)
-
   def apisOverride: Apis
 
   private def makeService: Service =
     new Service(dbOverride = Some(db),
                 systemOverride = Some(system),
                 apisOverride = Some(apisOverride),
-                addRoutes = additionalRoutes) {
+                addRoutes = additionalRoutes) {}
 
-      override val userAuth: UserAuthenticator = overrideUserAuth
-    }
-
-  def POST(path: String, rawBody: String): HttpResponse = {
+  def POST(path: String, rawBody: String, jwtCookie: Option[Cookie]): HttpResponse = {
     val request = HttpRequest(method = HttpMethods.POST,
                               uri = pathToAbsoluteUrl(path),
                               entity = HttpEntity.Strict(
@@ -124,16 +112,20 @@ trait HttpSupport
                                   ByteString(rawBody)
                               ))
 
-    dispatchRequest(request)
+    dispatchRequest(jwtCookie.fold(request)(request.addHeader(_)))
   }
 
-  def POST(path: String): HttpResponse = {
+  // TODO @anna #bettertestauth remove this
+  def POST(path: String)(implicit aa: TestAdminAuth): HttpResponse =
+    POST(path, aa.jwtCookie.some)
+
+  def POST(path: String, jwtCookie: Option[Cookie]): HttpResponse = {
     val request = HttpRequest(method = HttpMethods.POST, uri = pathToAbsoluteUrl(path))
 
-    dispatchRequest(request)
+    dispatchRequest(jwtCookie.fold(request)(request.addHeader(_)))
   }
 
-  def PATCH(path: String, rawBody: String): HttpResponse = {
+  def PATCH(path: String, rawBody: String, jwtCookie: Option[Cookie]): HttpResponse = {
     val request = HttpRequest(method = HttpMethods.PATCH,
                               uri = pathToAbsoluteUrl(path),
                               entity = HttpEntity.Strict(
@@ -141,31 +133,51 @@ trait HttpSupport
                                   ByteString(rawBody)
                               ))
 
-    dispatchRequest(request)
+    dispatchRequest(jwtCookie.fold(request)(request.addHeader(_)))
   }
 
-  def PATCH(path: String): HttpResponse = {
+  // TODO @anna #bettertestauth remove this
+  def PATCH(path: String)(implicit aa: TestAdminAuth): HttpResponse =
+    PATCH(path, aa.jwtCookie.some)
+
+  def PATCH(path: String, jwtCookie: Option[Cookie]): HttpResponse = {
     val request = HttpRequest(method = HttpMethods.PATCH, uri = pathToAbsoluteUrl(path))
 
-    dispatchRequest(request)
+    dispatchRequest(jwtCookie.fold(request)(request.addHeader(_)))
   }
 
-  def GET(path: String): HttpResponse = {
+  // TODO @anna #bettertestauth remove this
+  def GET(path: String)(implicit aa: TestAdminAuth): HttpResponse =
+    GET(path, aa.jwtCookie.some)
+
+  def GET(path: String, jwtCookie: Option[Cookie]): HttpResponse = {
     val request = HttpRequest(method = HttpMethods.GET, uri = pathToAbsoluteUrl(path))
 
-    dispatchRequest(request)
+    dispatchRequest(jwtCookie.fold(request)(request.addHeader(_)))
   }
 
-  def POST[T <: AnyRef](path: String, payload: T): HttpResponse =
-    POST(path, writeJson(payload))
+  // TODO @anna #bettertestauth remove this
+  def POST[T <: AnyRef](path: String, payload: T)(implicit aa: TestAdminAuth): HttpResponse =
+    POST(path, payload, aa.jwtCookie.some)
 
-  def PATCH[T <: AnyRef](path: String, payload: T): HttpResponse =
-    PATCH(path, writeJson(payload))
+  def POST[T <: AnyRef](path: String, payload: T, jwtCookie: Option[Cookie]): HttpResponse =
+    POST(path, writeJson(payload), jwtCookie)
 
-  def DELETE(path: String): HttpResponse = {
+  // TODO @anna #bettertestauth remove this
+  def PATCH[T <: AnyRef](path: String, payload: T)(implicit aa: TestAdminAuth): HttpResponse =
+    PATCH(path, payload, aa.jwtCookie.some)
+
+  def PATCH[T <: AnyRef](path: String, payload: T, jwtCookie: Option[Cookie]): HttpResponse =
+    PATCH(path, writeJson(payload), jwtCookie)
+
+  // TODO @anna #bettertestauth remove this
+  def DELETE(path: String)(implicit aa: TestAdminAuth): HttpResponse =
+    DELETE(path, aa.jwtCookie.some)
+
+  def DELETE(path: String, jwtCookie: Option[Cookie]): HttpResponse = {
     val request = HttpRequest(method = HttpMethods.DELETE, uri = pathToAbsoluteUrl(path))
 
-    dispatchRequest(request)
+    dispatchRequest(jwtCookie.fold(request)(request.addHeader(_)))
   }
 
   def pathToAbsoluteUrl(path: String): Uri = {
@@ -193,11 +205,8 @@ trait HttpSupport
     port
   }
 
-  protected def dispatchRequest(req: HttpRequest): HttpResponse = {
-    val response = Http().singleRequest(req, settings = connectionPoolSettings).futureValue
-    validResponseContentTypes must contain(response.entity.contentType)
-    response
-  }
+  protected def dispatchRequest(req: HttpRequest): HttpResponse =
+    Http().singleRequest(req, settings = connectionPoolSettings).futureValue
 
   lazy final val connectionPoolSettings: ConnectionPoolSettings = ConnectionPoolSettings
     .default(implicitly[ActorSystem])

@@ -1,4 +1,4 @@
-import akka.http.scaladsl.model.{HttpRequest, HttpResponse, StatusCode, StatusCodes}
+import akka.http.scaladsl.model._
 import failures.Failure
 import org.json4s.Formats
 import org.json4s.jackson.JsonMethods._
@@ -12,6 +12,9 @@ import scala.concurrent.Await._
 import scala.concurrent.duration._
 
 package object testutils extends MustMatchers with OptionValues with AppendedClues {
+
+  private val validResponseContentTypes =
+    Set(ContentTypes.`application/json`, ContentTypes.NoContentType)
 
   implicit val formats: Formats = JsonFormatters.phoenixFormats
 
@@ -55,6 +58,7 @@ package object testutils extends MustMatchers with OptionValues with AppendedClu
 
     def as[A <: AnyRef](implicit mf: Manifest[A], line: SL, file: SF): A = {
       response.mustBeOk()
+      validResponseContentTypes must contain(response.entity.contentType)
       parse(bodyText).extractOpt[A].value.withClue(s"Failed to parse body!")
     } withClue originalSourceClue
 

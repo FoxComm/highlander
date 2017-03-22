@@ -39,7 +39,7 @@ class CustomerIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
     with PhoenixPublicApi
-    with AutomaticAuth
+    with DefaultAdminAuth
     with MockedApis
     with TestActivityContext.AdminAC
     with BakedFixtures {

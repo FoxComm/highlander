@@ -51,7 +51,7 @@ class ProductIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
     with PhoenixStorefrontApi
-    with AutomaticAuth
+    with DefaultAdminAuth
     with BakedFixtures
     with ApiFixtures
     with TaxonomySeeds {
@@ -106,7 +106,9 @@ class ProductIntegrationTest
 
       productsApi(product.id).archive().mustBeOk()
 
-      storefrontProductsApi(slug).get.mustFailWith404(NotFoundFailure404(Product, slug))
+      withCustomerAuth { implicit ca ⇒
+        storefrontProductsApi(slug).get().mustFailWith404(NotFoundFailure404(Product, slug))
+      }
     }
 
     "404 for inactive products" in new Customer_Seed with Fixture {
@@ -122,7 +124,9 @@ class ProductIntegrationTest
                                  variants = None))
         .mustBeOk()
 
-      storefrontProductsApi(slug).get.mustFailWith404(NotFoundFailure404(Product, slug))
+      withCustomerAuth { implicit ca ⇒
+        storefrontProductsApi(slug).get().mustFailWith404(NotFoundFailure404(Product, slug))
+      }
     }
 
     "404 if all SKUs are archived" in new Customer_Seed with Fixture {
@@ -140,7 +144,9 @@ class ProductIntegrationTest
 
       allSkus.map(sku ⇒ skusApi(sku).archive().mustBeOk())
 
-      storefrontProductsApi(slug).get.mustFailWith404(NotFoundFailure404(Product, slug))
+      withCustomerAuth { implicit ca ⇒
+        storefrontProductsApi(slug).get().mustFailWith404(NotFoundFailure404(Product, slug))
+      }
     }
 
     "404 if all SKUs are inactive" in new Customer_Seed with Fixture {
@@ -157,7 +163,9 @@ class ProductIntegrationTest
                 variants = None))
         .mustBeOk()
 
-      storefrontProductsApi(slug).get.mustFailWith404(NotFoundFailure404(Product, slug))
+      withCustomerAuth { implicit ca ⇒
+        storefrontProductsApi(slug).get().mustFailWith404(NotFoundFailure404(Product, slug))
+      }
     }
   }
 
@@ -588,7 +596,7 @@ class ProductIntegrationTest
     }
 
     "Removes some SKUs from product" in new RemovingSkusFixture {
-      productsApi(product.formId).get.as[Root].skus must have size 4
+      productsApi(product.formId).get().as[Root].skus must have size 4
 
       val remainingSkus: Seq[String] = productsApi(product.formId)
         .update(twoSkuProductPayload)

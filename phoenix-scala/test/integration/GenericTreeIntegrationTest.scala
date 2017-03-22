@@ -17,7 +17,7 @@ import utils.db._
 class GenericTreeIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
-    with AutomaticAuth
+    with DefaultAdminAuth
     with MockedApis {
 
   "GenericTreeIntegrationTest" - {

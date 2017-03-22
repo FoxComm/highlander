@@ -12,11 +12,12 @@ import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import utils.db._
 import utils.seeds.Factories
+import cats.implicits._
 
 class AddressesIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
-    with AutomaticAuth
+    with DefaultAdminAuth
     with PhoenixAdminApi
     with BakedFixtures {
 
@@ -90,7 +91,6 @@ class AddressesIntegrationTest
 
   "DELETE /v1/customers/:customerId/addresses/:addressId" - {
     "can be deleted" in new CustomerAddress_Baked {
-
       //notice the payload is a default shipping address. Delete should make it not default.
       val payload = CreateAddressPayload(name = "Delete Me",
                                          regionId = 1,

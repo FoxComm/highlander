@@ -23,8 +23,6 @@ import utils.seeds.ShipmentSeeds
 
 class ShippingManagerTest extends IntegrationTestBase with TestObjectContext with BakedFixtures {
 
-  implicit val formats = JsonFormatters.phoenixFormats
-
   "ShippingManager" - {
 
     "Evaluates rule: shipped to CA, OR, or WA" - {

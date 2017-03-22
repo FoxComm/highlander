@@ -21,8 +21,8 @@ import utils.seeds.Factories
 class ReturnIntegrationTest
     extends IntegrationTestBase
     with HttpSupport
-    with AutomaticAuth
-    with BakedFixtures {
+    with BakedFixtures
+    with DefaultAdminAuth {
 
   "Returns" - {
     pending

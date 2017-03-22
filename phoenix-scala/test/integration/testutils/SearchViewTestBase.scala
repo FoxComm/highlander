@@ -11,7 +11,6 @@ import utils.db.ExPostgresDriver.api._
 trait SearchViewTestBase
     extends IntegrationTestBase
     with PhoenixAdminApi
-    with AutomaticAuth
     with ApiFixtures
     with AppendedClues
     with MockedApis {

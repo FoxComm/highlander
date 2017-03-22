@@ -14,7 +14,7 @@ import utils.time._
 class OrderIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
-    with AutomaticAuth
+    with DefaultAdminAuth
     with TestObjectContext
     with BakedFixtures {
 

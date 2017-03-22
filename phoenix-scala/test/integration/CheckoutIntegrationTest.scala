@@ -35,7 +35,7 @@ import utils.seeds.Factories
 class CheckoutIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
-    with AutomaticAuth
+    with DefaultAdminAuth
     with BakedFixtures {
 
   "PATCH /v1/carts/:refNum/line-items/attributes" - {

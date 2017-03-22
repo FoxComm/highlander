@@ -36,7 +36,7 @@ import utils.seeds.ShipmentSeeds
 class CartIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
-    with AutomaticAuth
+    with DefaultAdminAuth
     with ApiFixtures
     with BakedFixtures {
 

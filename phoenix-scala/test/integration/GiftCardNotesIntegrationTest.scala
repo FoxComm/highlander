@@ -18,7 +18,7 @@ import utils.time.RichInstant
 class GiftCardNotesIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
-    with AutomaticAuth
+    with DefaultAdminAuth
     with BakedFixtures
     with TestActivityContext.AdminAC {
 

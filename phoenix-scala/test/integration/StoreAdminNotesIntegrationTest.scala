@@ -17,7 +17,7 @@ import utils.time.RichInstant
 class StoreAdminNotesIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
-    with AutomaticAuth
+    with DefaultAdminAuth
     with TestActivityContext.AdminAC
     with BakedFixtures {
 

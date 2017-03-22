@@ -31,7 +31,7 @@ class CartValidatorIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
     with AppendedClues
-    with AutomaticAuth
+    with DefaultAdminAuth
     with BakedFixtures {
 
   "Cart validator must be applied to" - {

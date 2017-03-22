@@ -18,7 +18,7 @@ import utils.seeds.Factories
 class ShippingMethodsIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
-    with AutomaticAuth
+    with DefaultAdminAuth
     with BakedFixtures {
 
   "GET /v1/shipping-methods/:refNum" - {

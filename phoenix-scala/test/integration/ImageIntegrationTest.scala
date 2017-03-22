@@ -32,7 +32,7 @@ import utils.time.RichInstant
 class ImageIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
-    with AutomaticAuth
+    with DefaultAdminAuth
     with BakedFixtures {
 
   "Album Tests" - {

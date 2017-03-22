@@ -25,7 +25,7 @@ import utils.db._
 class CreditCardsIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
-    with AutomaticAuth
+    with DefaultAdminAuth
     with MockitoSugar
     with BakedFixtures
     with BeforeAndAfterEach {

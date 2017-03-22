@@ -31,7 +31,7 @@ import utils.time.RichInstant
 class SkuIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
-    with AutomaticAuth
+    with DefaultAdminAuth
     with BakedFixtures {
 
   "POST v1/skus/:context" - {

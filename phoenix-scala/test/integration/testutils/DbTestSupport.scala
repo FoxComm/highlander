@@ -16,7 +16,11 @@ import utils.seeds.Factories
 
 import scala.annotation.tailrec
 
-trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport {
+trait DbTestSupport
+    extends SuiteMixin
+    with BeforeAndAfterAll
+    with BeforeAndAfterEach
+    with GimmeSupport {
   this: TestSuite ⇒
 
   import DbTestSupport._
@@ -49,34 +53,20 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
       flyway.clean()
       flyway.migrate()
 
-      truncateTablesStmt = {
-        val allTables =
-          persistConn.getMetaData.getTables(persistConn.getCatalog, "public", "%", Array("TABLE"))
-
-        @tailrec
-        def iterate(in: Seq[String]): Seq[String] =
-          if (allTables.next()) iterate(in :+ allTables.getString(3)) else in
-
-        tables = iterate(Seq()).filterNot { t ⇒
-          t.startsWith("pg_") || t.startsWith("sql_") || doNotTruncate.contains(t)
-        }
-        val sqlTables = tables.mkString("{", ",", "}")
-        persistConn.prepareStatement(s"select truncate_nonempty_tables('$sqlTables'::text[])")
-      }
-
       Factories.createSingleMerchantSystem.gimme
 
       migrated = true
     }
   }
 
-  override abstract protected def withFixture(test: NoArgTest): Outcome = {
-    truncateTablesStmt.executeQuery()
-
-    // TODO: Use Seeds.createBase after promo tests are fixed?
+  override def beforeEach(): Unit = {
     createBaseTestSeeds()
+    super.beforeEach()
+  }
 
-    test()
+  override def afterEach(): Unit = {
+    truncateTablesStmt.executeQuery()
+    super.afterEach()
   }
 
   private def createBaseTestSeeds() = {
@@ -87,6 +77,21 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
       // FIXME @anna @michalrus
       _ ← * <~ Factories.FIXME_createAllButPromoSchemas
     } yield {}).gimme
+  }
+
+  private val truncateTablesStmt: PreparedStatement = {
+    val allTables =
+      persistConn.getMetaData.getTables(persistConn.getCatalog, "public", "%", Array("TABLE"))
+
+    @tailrec
+    def iterate(in: Seq[String]): Seq[String] =
+      if (allTables.next()) iterate(in :+ allTables.getString(3)) else in
+
+    tables = iterate(Seq()).filterNot { t ⇒
+      t.startsWith("pg_") || t.startsWith("sql_") || doNotTruncate.contains(t)
+    }
+    val sqlTables = tables.mkString("{", ",", "}")
+    persistConn.prepareStatement(s"select truncate_nonempty_tables('$sqlTables'::text[])")
   }
 }
 

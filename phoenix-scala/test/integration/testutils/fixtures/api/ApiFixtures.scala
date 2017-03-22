@@ -22,8 +22,10 @@ import utils.aliases.Json
 
 import scala.util.Random
 
-trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi { self: FoxSuite ⇒
+trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with RealTestAuth {
+  self: FoxSuite ⇒
 
+  // TODO @anna refactor to class
   trait ProductSku_ApiFixture {
     val productCode: String = s"testprod_${Lorem.numerify("####")}"
     val skuCode: String     = s"$productCode-sku_${Lorem.letterify("????").toUpperCase}"
@@ -42,7 +44,9 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi { sel
           skus = Seq(skuPayload),
           variants = None)
 
-    val product: ProductRoot  = productsApi.create(productPayload).as[ProductRoot]
+    // FIXME @anna resolve auth from constructor
+    val product: ProductRoot =
+      productsApi.create(productPayload)(implicitly, defaultStoreAdminAuth).as[ProductRoot]
     val sku: SkuResponse.Root = product.skus.onlyElement
   }
 
@@ -54,7 +58,10 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi { sel
         PromoOfferBuilder.CartPercentOff(percentOff),
         PromoQualifierBuilder.CartAny)
 
-    def promotion = promotionsApi.create(promoPayload).as[PromotionResponse.Root]
+    def promotion =
+      promotionsApi
+        .create(promoPayload)(implicitly, defaultStoreAdminAuth)
+        .as[PromotionResponse.Root]
   }
 
   trait Coupon_TotalQualifier_PercentOff extends CouponFixtureBase {
@@ -66,7 +73,10 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi { sel
         PromoOfferBuilder.CartPercentOff(percentOff),
         PromoQualifierBuilder.CartTotalAmount(qualifiedSubtotal))
 
-    def promotion = promotionsApi.create(promoPayload).as[PromotionResponse.Root]
+    def promotion =
+      promotionsApi
+        .create(promoPayload)(implicitly, defaultStoreAdminAuth)
+        .as[PromotionResponse.Root]
   }
 
   trait Coupon_NumItemsQualifier_PercentOff extends CouponFixtureBase {
@@ -78,20 +88,27 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi { sel
         PromoOfferBuilder.CartPercentOff(percentOff),
         PromoQualifierBuilder.CartNumUnits(qualifiedNumItems))
 
-    lazy val promotion = promotionsApi.create(promoPayload).as[PromotionResponse.Root]
+    lazy val promotion = promotionsApi
+      .create(promoPayload)(implicitly, defaultStoreAdminAuth)
+      .as[PromotionResponse.Root]
   }
 
   trait CouponFixtureBase {
+
     def couponActiveFrom: Instant       = Instant.now.minus(1, DAYS)
     def couponActiveTo: Option[Instant] = None
 
     def promotion: PromotionResponse.Root
 
     lazy val coupon = couponsApi
-      .create(CreateCoupon(couponAttrs(couponActiveFrom, couponActiveTo), promotion.id))
+      .create(CreateCoupon(couponAttrs(couponActiveFrom, couponActiveTo), promotion.id))(
+          implicitly,
+          defaultStoreAdminAuth)
       .as[CouponResponse.Root]
 
-    lazy val couponCode = couponsApi(coupon.id).codes.generate(Lorem.letterify("?????")).as[String]
+    lazy val couponCode = couponsApi(coupon.id).codes
+      .generate(Lorem.letterify("?????"))(defaultStoreAdminAuth)
+      .as[String]
 
     protected def couponAttrs(activeFrom: Instant, activeTo: Option[Instant]): Map[String, Json] = {
       val usageRules = {

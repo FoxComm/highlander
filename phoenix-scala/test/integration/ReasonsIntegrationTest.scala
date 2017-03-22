@@ -11,7 +11,7 @@ import utils.seeds.Factories
 class ReasonsIntegrationTest
     extends IntegrationTestBase
     with PhoenixPublicApi
-    with AutomaticAuth
+    with DefaultAdminAuth
     with BakedFixtures {
 
   "Reasons" - {

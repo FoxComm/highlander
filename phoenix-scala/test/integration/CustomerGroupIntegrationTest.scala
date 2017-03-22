@@ -13,7 +13,7 @@ import utils.seeds.Factories
 class CustomerGroupIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
-    with AutomaticAuth
+    with DefaultAdminAuth
     with MockitoSugar
     with BakedFixtures {
 

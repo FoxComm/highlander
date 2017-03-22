@@ -29,7 +29,7 @@ import utils.seeds.Factories
 class GiftCardIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
-    with AutomaticAuth
+    with DefaultAdminAuth
     with BakedFixtures {
 
   "GiftCards" - {

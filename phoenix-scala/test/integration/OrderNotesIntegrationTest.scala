@@ -15,7 +15,7 @@ import utils.time._
 class OrderNotesIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
-    with AutomaticAuth
+    with DefaultAdminAuth
     with TestActivityContext.AdminAC
     with BakedFixtures {
 
@@ -23,7 +23,8 @@ class OrderNotesIntegrationTest
     "can be created by an admin for an order" in new Order_Baked {
       val note = notesApi.order(order.refNum).create(CreateNote("foo")).as[Root]
       note.body must === ("foo")
-      note.author must === (AdminNotes.buildAuthor(authedUser))
+      note.author.name must === (storeAdmin.name)
+      note.author.email must === (storeAdmin.email)
     }
 
     "returns a validation error if failed to create" in new Order_Baked {

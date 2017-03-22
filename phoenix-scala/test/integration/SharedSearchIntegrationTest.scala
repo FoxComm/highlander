@@ -19,7 +19,7 @@ import utils.seeds.Factories
 class SharedSearchIntegrationTest
     extends IntegrationTestBase
     with PhoenixAdminApi
-    with AutomaticAuth
+    with DefaultAdminAuth
     with BakedFixtures {
 
   val dummyJVal = parse("{}")
@@ -256,16 +256,8 @@ class SharedSearchIntegrationTest
   }
 
   trait Fixture {
-    val scope             = Scopes.forOrganization(TENANT).gimme
-    val storeAdminAccount = Accounts.create(Account()).gimme
-    val storeAdmin        = Users.create(authedUser.copy(accountId = storeAdminAccount.id)).gimme
-    val storeAdminUser = AdminsData
-      .create(
-          AdminData(userId = storeAdmin.id,
-                    accountId = storeAdmin.accountId,
-                    state = AdminData.Active,
-                    scope = scope))
-      .gimme
+    val scope      = Scopes.forOrganization(TENANT).gimme
+    val storeAdmin = Users.findByAccountId(defaultStoreAdmin.id).gimme.head
   }
 
   trait SharedSearchFixture extends Fixture {
@@ -273,49 +265,49 @@ class SharedSearchIntegrationTest
                                      query = dummyJVal,
                                      rawQuery = dummyJVal,
                                      scope = CustomersScope,
-                                     storeAdminId = storeAdmin.accountId,
+                                     storeAdminId = storeAdmin.id,
                                      accessScope = scope)
     val orderScope = SharedSearch(title = "Manual Hold",
                                   query = dummyJVal,
                                   rawQuery = dummyJVal,
                                   scope = OrdersScope,
-                                  storeAdminId = storeAdmin.accountId,
+                                  storeAdminId = storeAdmin.id,
                                   accessScope = scope)
     val storeAdminScope = SharedSearch(title = "Some Store Admin",
                                        query = dummyJVal,
                                        rawQuery = dummyJVal,
                                        scope = StoreAdminsScope,
-                                       storeAdminId = storeAdmin.accountId,
+                                       storeAdminId = storeAdmin.id,
                                        accessScope = scope)
     val giftCardScope = SharedSearch(title = "Some Gift Card",
                                      query = dummyJVal,
                                      rawQuery = dummyJVal,
                                      scope = GiftCardsScope,
-                                     storeAdminId = storeAdmin.accountId,
+                                     storeAdminId = storeAdmin.id,
                                      accessScope = scope)
     val productScope = SharedSearch(title = "Some Product",
                                     query = dummyJVal,
                                     rawQuery = dummyJVal,
                                     scope = ProductsScope,
-                                    storeAdminId = storeAdmin.accountId,
+                                    storeAdminId = storeAdmin.id,
                                     accessScope = scope)
     val inventoryScope = SharedSearch(title = "Some Inventory",
                                       query = dummyJVal,
                                       rawQuery = dummyJVal,
                                       scope = InventoryScope,
-                                      storeAdminId = storeAdmin.accountId,
+                                      storeAdminId = storeAdmin.id,
                                       accessScope = scope)
     val promotionsScope = SharedSearch(title = "Some Promotions",
                                        query = dummyJVal,
                                        rawQuery = dummyJVal,
                                        scope = PromotionsScope,
-                                       storeAdminId = storeAdmin.accountId,
+                                       storeAdminId = storeAdmin.id,
                                        accessScope = scope)
     val couponsScope = SharedSearch(title = "Some Coupons",
                                     query = dummyJVal,
                                     rawQuery = dummyJVal,
                                     scope = CouponsScope,
-                                    storeAdminId = storeAdmin.accountId,
+                                    storeAdminId = storeAdmin.id,
                                     accessScope = scope)
 
     val (customersSearch,
@@ -390,7 +382,7 @@ class SharedSearchIntegrationTest
                                      query = dummyJVal,
                                      rawQuery = dummyJVal,
                                      scope = CustomersScope,
-                                     storeAdminId = storeAdmin.accountId,
+                                     storeAdminId = storeAdmin.id,
                                      accessScope = scope)
 
     val search = SharedSearches.create(customerScope).gimme
