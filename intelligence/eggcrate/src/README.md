@@ -1,4 +1,4 @@
-#SRC
+# SRC
 
 Eggcrate is composed of several HTTP services that provide high level statistics
 on top of henhouse. The driver is defined in [service.go](service.go)

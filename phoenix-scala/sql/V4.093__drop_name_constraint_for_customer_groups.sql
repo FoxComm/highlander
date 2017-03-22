@@ -1,0 +1,1 @@
+alter table only customer_dynamic_groups drop constraint customer_dynamic_groups_name_key;

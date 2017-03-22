@@ -59,6 +59,28 @@ class CustomerIntegrationTest
         .create(CreateCustomerPayload(email = customer.email.value, name = "test".some))
         .mustFailWith400(CustomerEmailNotUnique)
     }
+
+    "guests may have email that was already registered" in new GuestAndCustomerFixture {
+      val customerCreated = customersApi.create(customer).as[Root]
+      val guestCreated    = customersApi.create(guest).as[Root]
+
+      guestCreated.name must === (guest.name)
+      customerCreated.name must === (customer.name)
+    }
+
+    "customer may have email that was already registered for a guest before" in new GuestAndCustomerFixture {
+      val guestCreated    = customersApi.create(guest).as[Root]
+      val customerCreated = customersApi.create(customer).as[Root]
+
+      guestCreated.name must === (guest.name)
+      customerCreated.name must === (customer.name)
+    }
+
+    trait GuestAndCustomerFixture {
+      val customer = CreateCustomerPayload(email = "test@example.com", name = "customer".some)
+      val guest    = customer.copy(name = "guest".some, isGuest = true.some)
+    }
+
   }
 
   "GET /v1/customers/:accountId" - {
@@ -202,7 +224,6 @@ class CustomerIntegrationTest
 
         // check that states used in sql still actual
         sqlu"UPDATE orders SET state = 'shipped' WHERE reference_number = ${order.refNum}".gimme
-        sql"SELECT public.update_customers_ranking()".as[Boolean].gimme
 
         customersApi(customer.accountId).get().as[Root].rank must === (2.some)
         val rank  = CustomersRanks.findById(customer.accountId).extract.result.head.gimme

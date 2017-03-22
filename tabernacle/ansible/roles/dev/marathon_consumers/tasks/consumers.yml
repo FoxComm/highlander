@@ -16,6 +16,10 @@
   include: app_stock_items_consumer.yml
   when: marathon_restart.stock_items_consumer
 
+- name: Start Customer Groups Consumer
+  include: app_customer_groups_consumer.yml
+  when: marathon_restart.customer_groups_consumer
+
 - name: Start Shipstation Consumer
   include: app_shipstation_consumer.yml
   when: with_shipstation and marathon_restart.shipstation_consumer

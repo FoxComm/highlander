@@ -12,7 +12,12 @@
     "STRIPE_PUBLISHABLE_KEY": "{{stripe_publishable_key}}",
     "MAILCHIMP_API_KEY": "{{mailchimp_api_key}}",
     "CONTACT_EMAIL": "{{contact_email}}",
-    "URL_PREFIX": "{{url_prefix_perfectgourmet}}"
+    "URL_PREFIX": "{{url_prefix_perfectgourmet}}",
+    "FB_PIXEL_ID": "{{facebook_pixel_id}}",
+    "GA_TRACKING_ID": "{{ga_tracking_id}}",
+    "IMGIX_PRODUCTS_SOURCE": "{{imgix_products_source}}",
+    "S3_BUCKET_NAME": "{{imgix_s3_bucket_name}}",
+    "S3_BUCKET_PREFIX": "{{imgix_s3_bucket_prefix}}"
   },
   "labels": {
     "LAYER": "frontend",

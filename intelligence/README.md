@@ -1,4 +1,4 @@
-#Intelligence Directory
+# Intelligence Directory
 
 This directory contains projects related to the intelligent commerce system.
 

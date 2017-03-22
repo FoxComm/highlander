@@ -2,7 +2,7 @@ variable "ssh_user" {}
 
 variable "ssh_private_key" {}
 
-variable "dnsimple_email" {}
+variable "dnsimple_account" {}
 
 variable "dnsimple_token" {}
 
@@ -51,8 +51,8 @@ resource "google_compute_instance" "appliance" {
 # Setup DNS
 ##############################################
 provider "dnsimple" {
-  token = "${var.dnsimple_token}"
-  email = "${var.dnsimple_email}"
+  token   = "${var.dnsimple_token}"
+  account = "${var.dnsimple_account}"
 }
 
 resource "dnsimple_record" "frontend-dns-record" {

@@ -10,6 +10,7 @@ import models.activity.{Activities, Activity}
 import models.admin.AdminData
 import models.cord.{Cart, Order}
 import models.coupon.{Coupon, CouponCode}
+import models.customer.CustomerGroup
 import models.location.Region
 import models.payment.PaymentMethod
 import models.payment.creditcard.{CreditCard, CreditCardCharge}
@@ -30,12 +31,13 @@ import responses.PromotionResponses.PromotionResponse
 import responses.SkuResponses.SkuResponse
 import responses.UserResponse.{Root ⇒ UserResponse, build ⇒ buildUser}
 import responses.cord.{CartResponse, OrderResponse}
-import responses.{AddressResponse, CaptureResponse, CreditCardsResponse, GiftCardResponse, StoreCreditResponse}
+import responses._
 import services.LineItemUpdater.foldQuantityPayload
 import services.activity.AssignmentsTailored._
 import services.activity.CartTailored._
 import services.activity.CategoryTailored._
 import services.activity.CouponsTailored._
+import services.activity.CustomerGroupsTailored._
 import services.activity.CustomerTailored._
 import services.activity.GiftCardTailored._
 import services.activity.MailTailored._
@@ -511,6 +513,19 @@ case class LogActivity(implicit ac: AC) {
                              newState: AdminData.State,
                              admin: User)(implicit ec: EC): DbResultT[Activity] =
     Activities.log(StoreAdminStateChanged(entity, oldState, newState, admin))
+
+  /* Customer Groups */
+  def customerGroupCreated(customerGroup: CustomerGroup,
+                           admin: User)(implicit ec: EC, ac: AC): DbResultT[Activity] =
+    Activities.log(CustomerGroupCreated(customerGroup, admin))
+
+  def customerGroupUpdated(customerGroup: CustomerGroup,
+                           admin: User)(implicit ec: EC, ac: AC): DbResultT[Activity] =
+    Activities.log(CustomerGroupUpdated(customerGroup, admin))
+
+  def customerGroupArchived(customerGroup: CustomerGroup,
+                            admin: User)(implicit ec: EC, ac: AC): DbResultT[Activity] =
+    Activities.log(CustomerGroupArchived(customerGroup, admin))
 
   /* Mail stuff */
 

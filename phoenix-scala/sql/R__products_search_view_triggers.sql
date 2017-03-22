@@ -7,7 +7,7 @@ begin
       product_ids := array_agg(new.left_id);
     when 'taxonomy_taxon_links'
     then
-      product_ids := (select left_id
+      product_ids := (select array_agg(left_id)
                       from product_taxon_links
                       where product_taxon_links.right_id = new.taxon_id);
   end case;

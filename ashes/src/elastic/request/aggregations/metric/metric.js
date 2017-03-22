@@ -8,7 +8,6 @@ import {
   wrapPlainIndirectLeave,
 } from '../wrappings';
 
-
 export default class MetricAggregation extends Aggregation {
 
   constructor(name: string, field?: string) {

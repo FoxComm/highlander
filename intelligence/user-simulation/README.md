@@ -1,13 +1,13 @@
-#User Simulation
+# User Simulation
 
 Simulates users with various personas. The idea is to have two modes, one
 using headless webkit and another hitting the API directly for more performance testing.
 
-#Setup
+# Setup
 
 `make build`
 
-#Running
+# Running
 
 `./run.sh 100% hal.foxcommerce.com api McShopFace`
 

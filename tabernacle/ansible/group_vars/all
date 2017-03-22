@@ -50,6 +50,7 @@ docker_tags:
     shipments_consumer: "{{ lookup('env', 'DOCKER_TAG_SHIPMENTS_CONSUMER') | default('master', true) }}"
     shipstation_consumer: "{{ lookup('env', 'DOCKER_TAG_SHIPSTATION_CONSUMER') | default('master', true) }}"
     stock_items_consumer: "{{ lookup('env', 'DOCKER_TAG_STOCK_ITEMS_CONSUMER') | default('master', true) }}"
+    customer_groups_consumer: "{{ lookup('env', 'DOCKER_TAG_CUSTOMER_GROUPS_CONSUMER') | default('master', true) }}"
     storefront_td: "{{ lookup('env', 'DOCKER_TAG_STOREFRONT_TOPDRAWER') | default('master', true) }}"
     storefront_tpg: "{{ lookup('env', 'DOCKER_TAG_STOREFRONT_TPG') | default('master', true) }}"
     hyperion: "{{ lookup('env', 'DOCKER_TAG_HYPERION') | default('master', true) }}"
@@ -76,6 +77,7 @@ marathon_restart:
     shipments_consumer: "{{ lookup('env', 'MARATHON_SHIPMENTS_CONSUMER') | default(true, true) | bool }}"
     shipstation_consumer: "{{ lookup('env', 'MARATHON_SHIPSTATION_CONSUMER') | default(true, true) | bool }}"
     stock_items_consumer: "{{ lookup('env', 'MARATHON_STOCK_ITEMS_CONSUMER') | default(true, true) | bool }}"
+    customer_groups_consumer: "{{ lookup('env', 'MARATHON_CUSTOMER_GROUPS_CONSUMER') | default(true, true) | bool }}"
     marketplace: "{{ lookup('env', 'MARATHON_MARKETPLACE') | default(true, true) | bool }}"
     storefront_td: "{{ lookup('env', 'MARATHON_STOREFRONT_TD') | default(true, true) | bool }}"
     storefront_tpg: "{{ lookup('env', 'MARATHON_STOREFRONT_TPG') | default(true, true) | bool }}"
@@ -359,6 +361,19 @@ mailchimp_api_key: ""
 # Materialized views
 update_materialized_views_sql: "/usr/local/share/update_materialized_views.sql"
 update_materialized_views_cmd: "psql {{db_connection_string}} -f {{update_materialized_views_sql}}"
+
+# External analytics
+facebook_pixel_id: "433654337026546"
+ga_tracking_id: ""
+
+# S3
+s3_bucket: foxcomm-images
+s3_region: us-west-1
+
+# Imgix S3 source for products images
+imgix_products_source: ""
+imgix_s3_bucket_name: ""
+imgix_s3_bucket_prefix: ""
 
 # Various flags
 first_run: false

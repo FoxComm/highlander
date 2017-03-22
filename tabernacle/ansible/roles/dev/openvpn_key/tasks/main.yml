@@ -3,6 +3,17 @@
 - name: Create Viscosity Bundle Directory
   file: path="{{visc_base_dir}}/{{visc_bundle_dir}}" state=directory owner="{{user}}"
 
+- name: Copy get_public_ip.sh script
+  copy: 
+    src: get_public_ip.sh
+    dest: /usr/local/bin/get_public_ip.sh
+    mode: u+rwx,g+rx,o+x
+    owner: root
+
+- name: Get public ip of VPN
+  command: /usr/local/bin/get_public_ip.sh
+  register: vpn_server_ip
+
 - name: Generate Viscosity Config
   template: src=config.conf.j2 dest="{{visc_base_dir}}/{{visc_bundle_dir}}/config.conf"
 
