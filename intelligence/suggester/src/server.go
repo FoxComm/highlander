@@ -4,6 +4,8 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/FoxComm/highlander/intelligence/suggester/src/services"
+
 	"github.com/labstack/echo"
 )
 
@@ -17,7 +19,7 @@ func main() {
 		return c.String(http.StatusOK, "pong")
 	})
 
-	e.GET("/customer/:id", services.GetSuggestion())
+	e.GET("/customer/:id", services.GetSuggestion)
 
 	e.Logger.Fatal(e.Start(PORT))
 }

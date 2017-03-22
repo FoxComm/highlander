@@ -1,8 +1,6 @@
 package util
 
 import (
-	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -11,27 +9,28 @@ import (
 var url = os.Getenv("API_URL")
 var antHillSrvHost = os.Getenv("ANTHILL_HOST")
 
-func PingAntHill() {
+func PingAntHill() error {
 	antHillPort, err := getPort(antHillSrvHost)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	resp, reqErr := http.Get(url + ":" + antHillPort + "/ping")
 	if reqErr != nil {
-		return nil, reqErr
+		return reqErr
 	}
 
 	fmt.Println(resp)
+
+	return nil
 }
 
 func getPort(srvName string) (string, error) {
-	if port == "" {
-		var portErr error
-		_, port, portErr = LookupSrv(srvName)
-		if portErr != nil {
-			return "", portErr
-		}
+	var port string
+	var portErr error
+	_, port, portErr = LookupSrv(srvName)
+	if portErr != nil {
+		return "", portErr
 	}
 
 	return port, nil

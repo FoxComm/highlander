@@ -1,5 +1,5 @@
 include ../../makelib
-header = $(call baseheader, $(1), eggcrate)
+header = $(call baseheader, $(1), suggester)
 
 export GOPATH = /tmp/go
 BUILD_ROOT_PATH=$(GOPATH)/src/github.com/FoxComm/highlander

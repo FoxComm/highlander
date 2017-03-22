@@ -1,7 +1,6 @@
 package services
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/FoxComm/highlander/intelligence/suggester/src/util"
@@ -9,7 +8,7 @@ import (
 	"github.com/labstack/echo"
 )
 
-func GetSuggestion(c echo.Context) {
-	customerId := c.Param("id")
+func GetSuggestion(c echo.Context) error {
 	util.PingAntHill()
+	return c.String(http.StatusOK, "")
 }
