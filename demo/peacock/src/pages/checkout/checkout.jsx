@@ -199,7 +199,7 @@ class Checkout extends Component {
     const isGuestMode = isGuest(_.get(props.auth, 'user'));
     const cartFetched = props.fetchCartState.finished;
 
-    if (cartFetched){
+    if (cartFetched) {
       return (
         <div styleName="wrapper">
           <div styleName="shipping">

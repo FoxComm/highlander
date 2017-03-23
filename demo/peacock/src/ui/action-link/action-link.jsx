@@ -9,10 +9,11 @@ type Props = {
   action: Function,
   title: string,
   icon?: ?Object,
-}
+  children: any,
+};
 
 const ActionLink = (props: Props) => {
-  const { action, title, icon, ...rest } = props
+  const { action, title, icon, ...rest } = props;
   const actionIcon = icon
     ?
     <Icon
@@ -23,7 +24,7 @@ const ActionLink = (props: Props) => {
     null
   ;
 
-  return(
+  return (
     <span styleName="action-link" onClick={action} {...rest}>
       {actionIcon}
       {title}

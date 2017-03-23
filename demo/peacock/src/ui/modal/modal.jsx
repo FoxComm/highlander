@@ -1,4 +1,5 @@
 /* @flow */
+
 import React from 'react';
 import classNames from 'classnames';
 
@@ -9,17 +10,18 @@ import styles from './modal.css';
 type Props = {
   show: boolean,
   toggle: Function,
+  children: any,
 };
 
 const Modal = (props: Props) => {
-  const modalClass = classNames(styles['modal'], {
-    [styles['show']]: props.show,
+  const modalClass = classNames(styles.modal, {
+    [styles.show]: props.show,
   });
 
-  return(
+  return (
     <div className={modalClass}>
       <Overlay onClick={props.toggle} shown={props.show} />
-      <div styleName='modal-wrapper'>
+      <div styleName="modal-wrapper">
         {props.children}
       </div>
     </div>

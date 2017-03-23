@@ -11,7 +11,7 @@ import { autobind } from 'core-decorators';
 import classNames from 'classnames';
 import { isAuthorizedUser } from 'paragons/auth';
 
-//actions
+// actions
 import { logout } from 'modules/auth';
 import { fetch as fetchCart } from 'modules/cart';
 import * as actions from 'modules/sidebar';

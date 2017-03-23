@@ -32,7 +32,7 @@ class CheckoutForm extends Component {
       return (
         <ActionLink
           action={this.props.action.handler}
-          title={this.props.action.title} 
+          title={this.props.action.title}
         />
       );
     }

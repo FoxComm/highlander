@@ -13,7 +13,6 @@ import EditAddress from 'ui/address/edit-address';
 import CheckoutForm from '../checkout-form';
 import RadioButton from 'ui/radiobutton/radiobutton';
 import { AddressDetails } from 'ui/address';
-import Button from 'ui/buttons';
 import ActionLink from 'ui/action-link/action-link';
 
 // styles
@@ -30,6 +29,7 @@ type Props = {
   updateAddress: (address: Address, id?: number) => Promise<*>,
   editAction: Function,
   onComplete: () => void,
+  toggleModal: Function,
   saveShippingState: AsyncStatus,
   t: any,
 };
@@ -68,7 +68,7 @@ class AddressList extends Component {
   autoSelectAddress(props: Props) {
     if (!_.isEmpty(props.activeAddress)) {
       const addressId = this.lookupAddressId(props.activeAddress);
-      
+
       if (addressId != null) {
         return this.changeAddressOption(addressId);
       }

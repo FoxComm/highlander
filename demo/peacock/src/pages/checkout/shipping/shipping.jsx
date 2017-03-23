@@ -16,7 +16,7 @@ import ActionLink from 'ui/action-link/action-link';
 import Loader from 'ui/loader';
 
 // actions and types
-import { saveShippingAddress, updateAddress, addShippingAddress, updateShippingAddress, toggleModal } from 'modules/checkout';
+import * as checkoutActions from 'modules/checkout';
 import type { Address } from 'types/address';
 import type { AsyncStatus } from 'types/async-actions';
 
@@ -36,6 +36,7 @@ type Props = {
   updateShippingAddress: (address: Address) => Promise<*>,
   saveShippingAddress: (id: number) => Promise<*>,
   toggleModal: Function,
+  modalVisible: boolean,
   saveShippingState: AsyncStatus,
   updateAddress: (address: Address, id?: number) => Promise<*>,
   auth: ?Object,
@@ -73,9 +74,8 @@ class Shipping extends Component {
 
   get action() {
     const { props } = this;
-    let title,
-        icon
-        ;
+    let title;
+    let icon;
 
     if (this.state.fetchedAddresses) {
       if (!_.isEmpty(props.shippingAddress) || props.addresses.length > 0) {
@@ -84,7 +84,7 @@ class Shipping extends Component {
         title = 'Add new';
         icon = {
           name: 'fc-plus',
-          className: styles['plus'],
+          className: styles.plus,
         };
       }
 
@@ -103,7 +103,7 @@ class Shipping extends Component {
     const { toggleModal, modalVisible, shippingAddress } = this.props;
 
     if (this.state.fetchedAddresses) {
-      return(
+      return (
         <div>
           {
             !_.isEmpty(shippingAddress)
@@ -151,10 +151,6 @@ function mapStateToProps(state) {
 export default _.flowRight(
   localized,
   connect(mapStateToProps, {
-    updateShippingAddress,
-    addShippingAddress,
-    saveShippingAddress,
-    updateAddress,
-    toggleModal,
+    ...checkoutActions,
   })
 )(Shipping);
