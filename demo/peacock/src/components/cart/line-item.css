@@ -8,7 +8,7 @@
   padding-top: 15px;
   padding-bottom: 10px;
   display: flex;
-  border-bottom: 1px solid var(--input-border-color);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .image {

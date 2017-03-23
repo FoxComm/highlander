@@ -13,7 +13,7 @@
   &.expanded, &:hover {
     max-width: 100%;
     background-color: var(--button-focus-background);
-    color: var(--button-color);
+    color: var(--button-label-color);
     cursor: pointer;
 
     & .add-btn-title {

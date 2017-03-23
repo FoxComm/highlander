@@ -75,7 +75,7 @@
   --button-alt-active-background: var(--black);
   --button-disabled-background: var(--silver);
 
-  --button-color: var(--white);
+  --button-label-color: var(--white);
   --button-disabled-color: var(--gallery);
 
   --link-color: var(--water-blue);

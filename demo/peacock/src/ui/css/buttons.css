@@ -76,7 +76,7 @@
   text-transform: uppercase;
   font-size: 13px;
   font-weight: 300;
-  color: var(--button-color);
+  color: var(--button-label-color);
 
   &:active {
     background: var(--button-alt-active-background);
@@ -84,7 +84,7 @@
 
   &:focus {
     background: var(--button-alt-default-background);
-    color: var(--button-color);
+    color: var(--button-label-color);
   }
 }
 
