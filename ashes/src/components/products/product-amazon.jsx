@@ -8,17 +8,25 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import _ from 'lodash';
+
+// actions
 import * as productActions from 'modules/products/details';
 import * as amazonActions from 'modules/channels/amazon';
 import * as schemaActions from 'modules/object-schema';
-import s from './product-amazon.css';
+
+// components
 import { Suggester } from 'components/suggester/suggester';
 import WaitAnimation from '../common/wait-animation';
-import { getSuggest } from './selector';
 import ObjectFormInner from '../object-form/object-form-inner';
 import ProductAmazonForm from './product-amazon-form';
 import ContentBox from '../content-box/content-box';
 import { PrimaryButton } from '../common/buttons';
+
+// selectors
+import { getSuggest } from './selector';
+
+// styles
+import s from './product-amazon.css';
 
 function mapDispatchToProps(dispatch) {
   return {
@@ -27,7 +35,7 @@ function mapDispatchToProps(dispatch) {
       updateProduct: productActions.updateProduct,
       fetchProduct: productActions.fetchProduct,
       clearAmazonErrors: amazonActions.clearErrors,
-      resetAmazonState: amazonActions.reset,
+      resetAmazonState: amazonActions.resetState,
       fetchAmazonSchema: amazonActions.fetchAmazonSchema,
       fetchSuggest: amazonActions.fetchSuggest,
       pushProduct: amazonActions.pushToAmazon,

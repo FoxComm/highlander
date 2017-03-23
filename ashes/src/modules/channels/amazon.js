@@ -6,7 +6,6 @@ import { createAction, createReducer } from 'redux-act';
 import { createAsyncActions } from '@foxcomm/wings';
 import Api, { request } from 'lib/api';
 import schemaFixture from './schema.fixture';
-// import suggestFixture from './suggest.fixture';
 
 const initialState = {
   credentials: null,
@@ -27,12 +26,7 @@ export function clearErrors() {
   };
 }
 
-const resetState = createAction('RESET_AMAZON_STATE');
-export function reset() {
-  return (dispatch: Function) => {
-    dispatch(resetState());
-  };
-}
+export const resetState = createAction('RESET_AMAZON_STATE');
 
 const _fetchAmazonCredentials = createAsyncActions(
   'fetchAmazonCredentials',
@@ -68,9 +62,6 @@ const _fetchSuggest = createAsyncActions(
     const data = { q, title };
 
     return Api.get(`/hyperion/categories/suggest`, data);
-    // return new Promise(function(resolve, reject) {
-    //   setTimeout(() => resolve(suggestFixture), 100);
-    // });
   }
 );
 

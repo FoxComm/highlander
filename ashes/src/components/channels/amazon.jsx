@@ -20,15 +20,11 @@ import * as amazonActions from 'modules/channels/amazon';
 import s from './amazon.css';
 
 type Props = {
-  isFetching: boolean,
-  isPushing: boolean,
-  isRemoving: boolean,
-  inProgress: boolean,
   credentials: ?Object,
   actions: Object,
-  fetchError: any,
-  updateError: any,
-  removeError: any,
+  fetchState: AsyncState,
+  updateState: AsyncState,
+  removeState: AsyncState,
 };
 
 type State = {
@@ -54,12 +50,9 @@ function mapStateToProps(state) {
 
   return {
     credentials,
-    isFetching: fetchAmazonCredentials.inProgress,
-    isPushing: updateAmazonCredentials.inProgress,
-    isRemoving: removeAmazonCredentials.inProgress,
-    fetchError: _.get(state.asyncActions, 'fetchAmazonCredentials.err', null),
-    updateError: _.get(state.asyncActions, 'updateAmazonCredentials.err', null),
-    removeError: _.get(state.asyncActions, 'removeAmazonCredentials.err', null),
+    fetchState:  _.get(state.asyncActions, 'fetchAmazonCredentials', {}),
+    updateState:  _.get(state.asyncActions, 'updateAmazonCredentials', {}),
+    removeState:  _.get(state.asyncActions, 'removeAmazonCredentials', {}),
   };
 };
 
@@ -87,8 +80,8 @@ class AmazonCredentials extends Component {
   }
 
   render() {
-    const { isFetching, isPushing, isRemoving, fetchError, updateError, removeError } = this.props;
-    const inProgress = isFetching || isPushing || isRemoving;
+    const { fetchState, updateState, removeState } = this.props;
+    const inProgress = fetchState.inProgress || updateState.inProgress || removeState.inProgress;
 
     return (
       <div>
@@ -121,7 +114,7 @@ class AmazonCredentials extends Component {
               <PrimaryButton
                 type="button"
                 disabled={inProgress}
-                isLoading={isPushing}
+                isLoading={updateState.inProgress}
                 onClick={() => this._handleSubmit()}>
                 Save
               </PrimaryButton>
@@ -130,19 +123,19 @@ class AmazonCredentials extends Component {
                 className={s.remove}
                 type="button"
                 disabled={inProgress}
-                isLoading={isRemoving}
+                isLoading={removeState.inProgress}
                 onClick={() => this._handleRemove()}>
                 Remove
               </PrimaryButton>
 
-              {isFetching &&
+              {fetchState.inProgress &&
                 <div className={s.preloader}>
                   <WaitAnimation className={s.waiting} size="m" />
                 </div>
               }
 
-              {updateError && <div>updateError</div>}
-              {removeError && <div>removeError</div>}
+              {updateState.err && <div>updateError</div>}
+              {removeState.err && <div>removeError</div>}
             </ContentBox>
           </div>
         </div>

@@ -12,9 +12,7 @@ function processItem(item) {
  * Converts Hyperion suggest response to <Suggest /> component format
  */
 export function getSuggest(response) {
-  let ret = {};
-  let primary = null;
-  let secondary = null;
+  const ret = {};
 
   if (response.primary && response.primary.length) {
     ret.primary = response.primary.map(processItem);
