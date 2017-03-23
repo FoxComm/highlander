@@ -4,16 +4,19 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
 
+// actions
 import { toggleSidebar } from 'modules/sidebar';
 
-import styles from './header.css';
-
+// components
 import Icon from 'ui/icon';
-import Search from '../search/search';
-import UserTools from '../usertools/usertools';
-import Navigation from '../navigation/navigation';
+import ActionLink from 'ui/action-link/action-link';
+import Search from 'components/search/search';
+import UserTools from 'components/usertools/usertools';
+import Navigation from 'components/navigation/navigation';
 import Cart from 'components/cart/cart';
 import Sidebar from 'components/sidebar/sidebar';
+
+import styles from './header.css';
 
 type Props = {
   toggleSidebar: Function,
@@ -29,9 +32,11 @@ class Header extends React.Component {
       <div>
         <div styleName="header">
           <div styleName="wrap">
-            <div styleName="hamburger" onClick={this.props.toggleSidebar}>
-              Menu
-            </div>
+            <ActionLink
+              action={this.props.toggleSidebar}
+              title="Menu"
+              styleName="action-link-menu"
+            />
             <div styleName="nav-search-logo-wrapper">
               <Link to="/" styleName="logo-link">
                 <Icon styleName="logo" name="fc-logo" />

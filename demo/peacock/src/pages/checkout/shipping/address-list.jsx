@@ -13,6 +13,7 @@ import EditAddress from 'ui/address/edit-address';
 import CheckoutForm from '../checkout-form';
 import RadioButton from 'ui/radiobutton/radiobutton';
 import { AddressDetails } from 'ui/address';
+import ActionLink from 'ui/action-link/action-link';
 
 // styles
 import styles from './address-list.css';
@@ -21,13 +22,14 @@ import type { Address } from 'types/address';
 import type { AsyncStatus } from 'types/async-actions';
 
 type Props = {
-  activeAddress?: Address,
+  activeAddress?: Address | Object,
   addresses: Array<any>,
   collapsed: boolean,
   saveShippingAddress: (id: number) => Promise<*>,
   updateAddress: (address: Address, id?: number) => Promise<*>,
   editAction: Function,
   onComplete: () => void,
+  toggleModal: Function,
   saveShippingState: AsyncStatus,
   t: any,
 };
@@ -64,13 +66,13 @@ class AddressList extends Component {
   }
 
   autoSelectAddress(props: Props) {
-    if (props.activeAddress) {
+    if (!_.isEmpty(props.activeAddress)) {
       const addressId = this.lookupAddressId(props.activeAddress);
+
       if (addressId != null) {
         return this.changeAddressOption(addressId);
       }
-    }
-    if (props.addresses.length >= 1) {
+    } else if (props.addresses.length > 0) {
       const defaultAddress = _.find(props.addresses, { isDefault: true });
       const activeAddressId = defaultAddress ? defaultAddress.id : props.addresses[0].id;
       this.changeAddressOption(activeAddressId);
@@ -183,12 +185,22 @@ class AddressList extends Component {
       );
     });
 
+    const icon = {
+      name: 'fc-plus',
+      className: styles['plus-icon'],
+    };
+
     return (
       <div>
-        <ul styleName="list">{items}</ul>
-        <button styleName="add-address-button" type="button" onClick={this.addAddress}>
-          Add Address
-        </button>
+        <ul styleName="list">
+          {items}
+        </ul>
+        <ActionLink
+          action={this.addAddress}
+          title="Add new"
+          icon={icon}
+          styleName="action-link-add"
+        />
       </div>
     );
   }
@@ -210,17 +222,18 @@ class AddressList extends Component {
 
   renderEditingForm(address) {
     const id = _.get(address, 'id');
-    const title = _.isEmpty(this.state.addressToEdit) ? 'Add Address' : 'Edit Address';
     const action = {
-      action: this.cancelEditing,
+      handler: this.cancelEditing,
       title: 'Cancel',
     };
+    const title = _.isEmpty(this.state.addressToEdit) ? 'Add Address' : 'Edit Address';
+
 
     return (
       <CheckoutForm
         submit={() => this.finishEditingAddress(id)}
-        title={title}
         buttonLabel="Save Address"
+        title={title}
         action={action}
         error={this.state.error}
       >
@@ -231,12 +244,19 @@ class AddressList extends Component {
 
   renderList() {
     const { props } = this;
+    const action = {
+      handler: props.toggleModal,
+      title: 'Close',
+    };
+
     return (
       <CheckoutForm
         submit={this.saveAndContinue}
-        title="SHIPPING ADDRESS"
+        title="Shipping address"
         error={_.get(props.saveShippingState, 'err')}
         inProgress={_.get(props.saveShippingState, 'inProgress', false)}
+        buttonLabel="Apply"
+        action={action}
       >
         {this.renderAddresses()}
       </CheckoutForm>

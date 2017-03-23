@@ -7,6 +7,7 @@ import sanitizeAll from 'sanitizers';
 // components
 import { Form } from 'ui/forms';
 import Button from 'ui/buttons';
+import ActionLink from 'ui/action-link/action-link';
 import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
 
 // styles
@@ -29,9 +30,10 @@ class CheckoutForm extends Component {
   get actionLink() {
     if (this.props.action) {
       return (
-        <span styleName="action-link" onClick={this.props.action.action}>
-          {this.props.action.title}
-        </span>
+        <ActionLink
+          action={this.props.action.handler}
+          title={this.props.action.title}
+        />
       );
     }
   }
@@ -60,7 +62,9 @@ class CheckoutForm extends Component {
     return (
       <Form onSubmit={props.submit} styleName="root">
         {this.header}
-        {props.children}
+        <div styleName="form-body">
+          {props.children}
+        </div>
         <ErrorAlerts
           sanitizeError={sanitizeError}
           error={props.error}

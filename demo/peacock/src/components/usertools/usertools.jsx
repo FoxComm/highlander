@@ -1,27 +1,38 @@
 /* @flow */
 
+import React, { Component } from 'react';
+
+// libs
 import _ from 'lodash';
-import React, { Component, PropTypes, Element } from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
+import { authBlockTypes } from 'paragons/auth';
+import { merge } from 'sprout-data';
+import { isAuthorizedUser } from 'paragons/auth';
+import localized from 'lib/i18n';
+import { Link } from 'react-router';
+
+// actions
 import { toggleCart } from 'modules/cart';
 import { toggleUserMenu } from 'modules/usermenu';
-import { authBlockTypes, isAuthorizedUser } from 'paragons/auth';
-import { merge } from 'sprout-data';
 
-import localized from 'lib/i18n';
+// components
+import UserMenu from './usermenu';
+import ActionLink from 'ui/action-link/action-link';
 
 import styles from './usertools.css';
 
-import { Link } from 'react-router';
-import UserMenu from './usermenu';
+type Props = {
+  toggleCart: Function,
+  toggleUserMenu: Function,
+  path: string,
+  t: any,
+  query: string,
+  quantity: number,
+};
 
 class UserTools extends Component {
-  static PropTypes = {
-    toggleCart: PropTypes.func,
-    toggleUserMenu: PropTypes.func,
-    path: PropTypes.string,
-  };
+  props: Props;
 
   @autobind
   handleUserClick(e) {
@@ -45,18 +56,21 @@ class UserTools extends Component {
     );
   }
 
-  render(): Element<*> {
+  render() {
     return (
       <div styleName="tools">
         <div styleName="login">
           {this.renderUserInfo()}
         </div>
-        <span styleName="cart" onClick={this.props.toggleCart}>
-          My Cart
+        <ActionLink
+          action={this.props.toggleCart}
+          title="My Cart"
+          styleName="action-link-cart"
+        >
           <div styleName="cart-quantity-wrapper">
             <sup styleName="cart-quantity">{this.props.quantity}</sup>
           </div>
-        </span>
+        </ActionLink>
       </div>
     );
   }

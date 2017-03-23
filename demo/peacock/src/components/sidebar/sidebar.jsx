@@ -1,24 +1,28 @@
 /* @flow */
 
 import React from 'react';
+
+// libs
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
-import classNames from 'classnames';
-import { logout } from 'modules/auth';
-import { fetch as fetchCart } from 'modules/cart';
 import localized from 'lib/i18n';
 import type { Localized } from 'lib/i18n';
 import { autobind } from 'core-decorators';
-
+import classNames from 'classnames';
 import { isAuthorizedUser } from 'paragons/auth';
 
-import styles from './sidebar.css';
-
-import Categories from '../navigation/navigation';
-import Search from '../search/search';
-import Overlay from 'ui/overlay/overlay';
-
+// actions
+import { logout } from 'modules/auth';
+import { fetch as fetchCart } from 'modules/cart';
 import * as actions from 'modules/sidebar';
+
+// components
+import Categories from 'components/navigation/navigation';
+import Search from 'components/search/search';
+import Overlay from 'ui/overlay/overlay';
+import ActionLink from 'ui/action-link/action-link';
+
+import styles from './sidebar.css';
 
 type SidebarProps = Localized & {
   isVisible: boolean,
@@ -107,9 +111,11 @@ class Sidebar extends React.Component {
         <div styleName="container">
           <div styleName="controls">
             <div styleName="controls-close">
-              <span styleName="close-button" onClick={this.props.toggleSidebar}>
-                Close
-              </span>
+              <ActionLink
+                action={this.props.toggleSidebar}
+                title="Close"
+                styleName="action-link-close"
+              />
             </div>
             <div styleName={this.state.searchFocused ? 'controls-search-focused' : 'controls-search'}>
               <Search onSearch={this.props.toggleSidebar} setFocus={this.setFocus} isActive />

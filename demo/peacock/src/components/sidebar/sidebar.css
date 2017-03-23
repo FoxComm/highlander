@@ -68,11 +68,10 @@
   font-size: 18px;
 }
 
-.close-button {
-  color: var(--link-color);
-  cursor: pointer;
+.action-link-close {
+  composes: action-link from "ui/action-link/action-link.css";
   margin-right: 5px;
-  font-size: 14px;
+  font-size: 17px;
 }
 
 .active-link {

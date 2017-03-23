@@ -14,6 +14,7 @@ import localized from 'lib/i18n';
 // components
 import Currency from 'ui/currency';
 import Select from 'ui/select/select';
+import ActionLink from 'ui/action-link/action-link';
 
 const QUANTITY_ITEMS = _.range(1, 1 + 10, 1).map(x => x.toString());
 
@@ -63,9 +64,11 @@ class LineItem extends Component {
               </div>
             </div>
             <div styleName="delete">
-              <a styleName="delete-button" onClick={this.deleteItem}>
-                Remove
-              </a>
+              <ActionLink
+                action={this.deleteItem}
+                title="Remove"
+                styleName="action-link-remove"
+              />
             </div>
           </div>
 

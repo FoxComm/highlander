@@ -5,15 +5,17 @@ import _ from 'lodash';
 import React, { Component } from 'react';
 import localized from 'lib/i18n';
 import { connect } from 'react-redux';
+import { autobind } from 'core-decorators';
 
 // components
-// import EditableBlock from 'ui/editable-block';
 import { AddressDetails } from 'ui/address';
-// import AddressList from './address-list';
-import GuestShipping from './guest-shipping';
-import Icon from 'ui/icon';
+import AddressList from './address-list';
+import Modal from 'ui/modal/modal';
+import ActionLink from 'ui/action-link/action-link';
+import Loader from 'ui/loader';
 
-import { saveShippingAddress, updateAddress, addShippingAddress, updateShippingAddress } from 'modules/checkout';
+// actions and types
+import * as checkoutActions from 'modules/checkout';
 import type { Address } from 'types/address';
 import type { AsyncStatus } from 'types/async-actions';
 
@@ -32,74 +34,104 @@ type Props = {
   addShippingAddress: (address: Address) => Promise<*>,
   updateShippingAddress: (address: Address) => Promise<*>,
   saveShippingAddress: (id: number) => Promise<*>,
+  toggleModal: Function,
+  modalVisible: boolean,
   saveShippingState: AsyncStatus,
   updateAddress: (address: Address, id?: number) => Promise<*>,
   auth: ?Object,
   isGuestMode: boolean,
 };
 
-function mapStateToProps(state) {
-  return {
-    saveShippingState: _.get(state.asyncActions, 'saveShippingAddress', {}),
-  };
-}
+type State = {
+  fetchedAddresses: boolean,
+};
 
 class Shipping extends Component {
   props: Props;
 
+  state: State = {
+    fetchedAddresses: false,
+  };
+
   componentWillMount() {
-    this.props.fetchAddresses();
+    this.fetchAddresses();
   }
 
   componentWillUpdate(nextProps : Props) {
     if (nextProps.auth !== this.props.auth) {
-      this.props.fetchAddresses();
+      this.setState({ fetchedAddresses: false });
+      this.fetchAddresses();
     }
+  }
+
+  @autobind
+  fetchAddresses() {
+    this.props.fetchAddresses().then(() => {
+      this.setState({ fetchedAddresses: true });
+    });
   }
 
   get action() {
     const { props } = this;
+    let title;
+    let icon;
 
-    if (!_.isEmpty(props.shippingAddress)) {
-      return (
-        <div styleName="btn-action">Change</div>
-      );
-    } else if (_.isEmpty(props.shippingAddress) && props.addresses.length > 0) {
-      return (
-        <div styleName="btn-action">Choose</div>
-      );
-    }
-    return (
-      <div styleName="btn-action"><Icon styleName="plus" name="fc-plus" /> Add new</div>
-    );
-  }
+    if (this.state.fetchedAddresses) {
+      if (!_.isEmpty(props.shippingAddress) || props.addresses.length > 0) {
+        title = 'Choose';
+      } else {
+        title = 'Add new';
+        icon = {
+          name: 'fc-plus',
+          className: styles.plus,
+        };
+      }
 
-  get content() {
-    const { props } = this;
-    const savedAddress = props.shippingAddress;
-
-    if (!_.isEmpty(savedAddress)) {
       return (
-        <AddressDetails address={savedAddress} styleName="savedAddress" />
-      );
-    }
-
-    if (props.isGuestMode) {
-      return (
-        <GuestShipping
-          addShippingAddress={props.addShippingAddress}
-          updateShippingAddress={props.updateShippingAddress}
-          shippingAddress={props.shippingAddress}
-          auth={props.auth}
-          onComplete={props.onComplete}
+        <ActionLink
+          action={props.toggleModal}
+          title={title}
+          styleName="action-link-addresses"
+          icon={icon}
         />
       );
     }
   }
 
-  render() {
-    // const { t } = this.props;
+  get addressDetails() {
+    if (!_.isEmpty(this.props.shippingAddress)) {
+      return (
+        <AddressDetails
+          address={this.props.shippingAddress}
+          styleName="shippingAddress"
+        />
+      );
+    }
+  }
 
+  get content() {
+    const { toggleModal, modalVisible, shippingAddress } = this.props;
+
+    if (this.state.fetchedAddresses) {
+      return (
+        <div>
+          {this.addressDetails}
+          <Modal
+            show={modalVisible}
+            toggle={toggleModal}
+          >
+            <AddressList {...this.props} activeAddress={shippingAddress} />
+          </Modal>
+        </div>
+      );
+    }
+
+    return (
+      <Loader size="m" />
+    );
+  }
+
+  render() {
     return (
       <div>
         <div styleName="header">
@@ -112,12 +144,17 @@ class Shipping extends Component {
   }
 }
 
+function mapStateToProps(state) {
+  return {
+    saveShippingState: _.get(state.asyncActions, 'saveShippingAddress', {}),
+    modalVisible: _.get(state.checkout, 'modalVisible', false),
+    addressesState: _.get(state.asyncActions, 'addresses', {}),
+  };
+}
+
 export default _.flowRight(
   localized,
   connect(mapStateToProps, {
-    updateShippingAddress,
-    addShippingAddress,
-    saveShippingAddress,
-    updateAddress,
+    ...checkoutActions,
   })
 )(Shipping);

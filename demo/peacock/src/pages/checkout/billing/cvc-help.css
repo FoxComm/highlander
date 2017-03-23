@@ -31,7 +31,7 @@
   animation: show-popup 0.3s ease-out;
   right: -24px;
   bottom: calc(100% + 18px);
-  background: #fff;
+  background: var(--body-background);
   color: var(--blackish);
   font-size: 14px;
   line-height: 17px;
@@ -53,7 +53,7 @@
     width: 17px;
     height: 17px;
     transform: rotate(45deg);
-    background: #fff;
+    background: var(--body-background);
     right: 25px;
     bottom: -4px;
     box-shadow: 6px 6px 13px -5px rgba(0, 0, 0, 0.30);

@@ -8,7 +8,7 @@
   padding-top: 15px;
   padding-bottom: 10px;
   display: flex;
-  border-bottom: 1px solid var(--input-border-color);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .image {
@@ -49,10 +49,9 @@
   justify-content: flex-end;
 }
 
-.delete-button {
-  cursor: pointer;
-  color: var(--link-color);
-  font-size: 14px;
+.action-link-remove {
+  composes: action-link from "ui/action-link/action-link.css";
+  font-size: 15px;
 }
 
 .details {
