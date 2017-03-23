@@ -3,6 +3,7 @@
 .vscode/
 *.iml
 *.swp
+*~
 
 # Local Build Artifacts
 .vagrant/

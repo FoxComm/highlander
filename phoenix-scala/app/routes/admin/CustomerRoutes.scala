@@ -117,11 +117,10 @@ object CustomerRoutes {
               CreditCardManager.creditCardsInWalletFor(accountId)
             }
           } ~
-          (post & path(IntNumber / "default") & pathEnd & entity(as[ToggleDefaultCreditCard])) {
-            (cardId, payload) ⇒
-              mutateOrFailures {
-                CreditCardManager.toggleCreditCardDefault(accountId, cardId, payload.isDefault)
-              }
+          (post & path(IntNumber / "default") & pathEnd) { cardId ⇒
+            mutateOrFailures {
+              CreditCardManager.setDefaultCreditCard(accountId, cardId)
+            }
           } ~
           (post & pathEnd & entity(as[CreateCreditCardFromTokenPayload])) { payload ⇒
             mutateOrFailures {
@@ -136,6 +135,11 @@ object CustomerRoutes {
           (delete & path(IntNumber) & pathEnd) { cardId ⇒
             deleteOrFailures {
               CreditCardManager.deleteCreditCard(accountId, cardId, Some(auth.model))
+            }
+          } ~
+          (delete & path("default") & pathEnd) {
+            deleteOrFailures {
+              CreditCardManager.removeDefaultCreditCard(accountId)
             }
           }
         } ~

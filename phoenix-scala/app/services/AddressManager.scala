@@ -72,10 +72,7 @@ object AddressManager {
       db: DB): DbResultT[AddressResponse] =
     for {
       customer ← * <~ Users.mustFindByAccountId(accountId)
-      _ ← * <~ Addresses
-           .findShippingDefaultByAccountId(accountId)
-           .map(_.isDefaultShipping)
-           .update(false)
+      _        ← * <~ removeDefaultShippingAddress(accountId)
       address ← * <~ Addresses
                  .findActiveByIdAndAccount(addressId, accountId)
                  .mustFindOneOr(addressNotFound(addressId))
@@ -84,9 +81,13 @@ object AddressManager {
       response ← * <~ AddressResponse.fromAddress(newAddress)
     } yield response
 
-  def removeDefaultShippingAddress(accountId: Int)(implicit ec: EC, db: DB): DbResultT[Int] =
-    ExceptionWrapper.wrapDbio(
-        Addresses.findShippingDefaultByAccountId(accountId).map(_.isDefaultShipping).update(false))
+  def removeDefaultShippingAddress(accountId: Int)(implicit ec: EC, db: DB): DbResultT[Unit] =
+    Addresses
+      .findShippingDefaultByAccountId(accountId)
+      .map(_.isDefaultShipping)
+      .update(false)
+      .dbresult
+      .void
 
   private def findByOriginator(originator: User, addressId: Int, accountId: Int)(implicit ec: EC) =
     if (originator.accountId == accountId)

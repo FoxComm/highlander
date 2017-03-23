@@ -14,7 +14,6 @@ import testutils.apis.PhoenixAdminApi
 import utils.aliases._
 
 trait ApiFixtureHelpers extends PhoenixAdminApi with ApiFixtures { self: FoxSuite ⇒
-
   def api_newCustomer()(implicit sl: SL, sf: SF): CustomerResponse.Root = {
     val name = randomName
     customersApi

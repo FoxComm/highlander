@@ -6,8 +6,8 @@ import (
 	"log"
 	"time"
 
+	"github.com/FoxComm/highlander/lib/gohttp"
 	mwhPayloads "github.com/FoxComm/highlander/middlewarehouse/api/payloads"
-	"github.com/FoxComm/highlander/middlewarehouse/consumers"
 	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix/responses"
 )
@@ -66,7 +66,7 @@ func (c *phoenixClient) Authenticate() error {
 	url := fmt.Sprintf("%s/v1/public/login", c.baseURL)
 
 	loginResp := new(responses.LoginResponse)
-	resp, err := consumers.Request("POST", url, nil, &payload, loginResp)
+	resp, err := gohttp.Request("POST", url, nil, &payload, loginResp)
 	if err != nil {
 		return fmt.Errorf("Unable to login: %s", err.Error())
 	}
@@ -124,7 +124,7 @@ func (c *phoenixClient) CapturePayment(capturePayload *payloads.CapturePayload) 
 	url := fmt.Sprintf("%s/v1/service/capture", c.baseURL)
 
 	captureResp := new(map[string]interface{})
-	err := consumers.Post(url, c.defaultHeaders(), &capturePayload, captureResp)
+	err := gohttp.Post(url, c.defaultHeaders(), &capturePayload, captureResp)
 	if err != nil {
 		return err
 	}
@@ -149,7 +149,7 @@ func (c *phoenixClient) CreateGiftCards(giftCards []mwhPayloads.CreateGiftCardPa
 
 	resp := []*mwhPayloads.GiftCardResponse{}
 
-	err := consumers.Post(url, c.defaultHeaders(), &giftCards, &resp)
+	err := gohttp.Post(url, c.defaultHeaders(), &giftCards, &resp)
 
 	return resp, err
 }
@@ -163,7 +163,7 @@ func (c *phoenixClient) GetOrder(refNum string) (*mwhPayloads.OrderResult, error
 	url := fmt.Sprintf("%s/v1/orders/%s", c.baseURL, refNum)
 
 	orderResp := new(mwhPayloads.OrderResult)
-	err := consumers.Get(url, c.defaultHeaders(), orderResp)
+	err := gohttp.Get(url, c.defaultHeaders(), orderResp)
 	if err != nil {
 		return nil, err
 	}
@@ -186,7 +186,7 @@ func (c *phoenixClient) UpdateOrder(refNum, shipmentState, orderState string) er
 	url := fmt.Sprintf("%s/v1/orders/%s", c.baseURL, refNum)
 
 	orderResp := new(map[string]interface{})
-	err = consumers.Patch(url, c.defaultHeaders(), &payload, orderResp)
+	err = gohttp.Patch(url, c.defaultHeaders(), &payload, orderResp)
 	if err != nil {
 		return err
 	}
@@ -204,7 +204,7 @@ func (c *phoenixClient) UpdateOrderLineItems(updatePayload []mwhPayloads.UpdateO
 	url := fmt.Sprintf("%s/v1/orders/%s/order-line-items", c.baseURL, refNum)
 
 	orderResp := new(map[string]interface{})
-	err := consumers.Patch(url, c.defaultHeaders(), &updatePayload, orderResp)
+	err := gohttp.Patch(url, c.defaultHeaders(), &updatePayload, orderResp)
 	if err != nil {
 		return err
 	}
@@ -220,7 +220,7 @@ func (c *phoenixClient) GetCustomerGroups() ([]*responses.CustomerGroupResponse,
 	url := fmt.Sprintf("%s/v1/service/customer-groups", c.baseURL)
 
 	groups := []*responses.CustomerGroupResponse{}
-	err := consumers.Get(url, c.defaultHeaders(), &groups)
+	err := gohttp.Get(url, c.defaultHeaders(), &groups)
 	if err != nil {
 		return nil, err
 	}
@@ -235,7 +235,7 @@ func (c *phoenixClient) UpdateCustomerGroup(groupID int, group *payloads.Custome
 
 	url := fmt.Sprintf("%s/v1/customer-groups/%d", c.baseURL, groupID)
 
-	err := consumers.Patch(url, c.defaultHeaders(), group, nil)
+	err := gohttp.Patch(url, c.defaultHeaders(), group, nil)
 
 	return err
 }
@@ -253,7 +253,7 @@ func (c *phoenixClient) SetCustomersToGroup(groupID int, customerIDs []int) erro
 
 	url := fmt.Sprintf("%s/v1/service/customer-groups/%d/customers", c.baseURL, groupID)
 
-	err := consumers.Post(url, c.defaultHeaders(), payload, nil)
+	err := gohttp.Post(url, c.defaultHeaders(), payload, nil)
 
 	return err
 }
@@ -266,7 +266,7 @@ func (c *phoenixClient) GetPlugins() ([]*responses.PluginResponse, error) {
 	url := fmt.Sprintf("%s/v1/plugins", c.baseURL)
 
 	plugins := []*responses.PluginResponse{}
-	err := consumers.Get(url, c.defaultHeaders(), &plugins)
+	err := gohttp.Get(url, c.defaultHeaders(), &plugins)
 	if err != nil {
 		return nil, err
 	}
@@ -282,7 +282,7 @@ func (c *phoenixClient) GetPluginSettings(name string) (map[string]interface{}, 
 	url := fmt.Sprintf("%s/v1/plugins/settings/%s", c.baseURL, name)
 
 	settings := map[string]interface{}{}
-	err := consumers.Get(url, c.defaultHeaders(), &settings)
+	err := gohttp.Get(url, c.defaultHeaders(), &settings)
 	if err != nil {
 		return nil, err
 	}
