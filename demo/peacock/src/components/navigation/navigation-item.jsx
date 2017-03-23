@@ -74,7 +74,7 @@ export default class NavigationItem extends Component {
     const items = _.map(subcategory.children, (item) => {
       const url = `${baseUrl}${this.getNavUrl(item)}`;
       return (
-        <div>
+        <div key={`${item.name}-leaf-category`}>
           <Link
             styleName="drawer-subitem-link"
             onClick={this.handleClick}
@@ -109,7 +109,7 @@ export default class NavigationItem extends Component {
     const children = _.map(item.children, (child) => {
       const url = `${this.baseUrl}${this.getNavUrl(child)}`;
       return (
-        <div>
+        <div key={`${child.name}-sub-category`}>
           <Link
             styleName="drawer-item-link"
             to={url}

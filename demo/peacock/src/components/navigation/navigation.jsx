@@ -32,6 +32,7 @@ class Navigation extends Component {
     const categoryItems = _.map(this.props.list, (item) => {
       return (
         <NavigationItem
+          key={`${item.name}-navigation-item`}
           item={item}
           path={path}
           onClick={this.props.onClick}

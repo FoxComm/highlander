@@ -26,25 +26,31 @@ const context = process.env.FIREBIRD_CONTEXT || 'default';
 const GIFT_CARD_TAG = 'GIFT-CARD';
 
 function apiCall(
-  categoryName: ?string,
-  productType: ?string,
+  categoryNames: ?Array<string>,
   sorting: { direction: number, field: string },
   { ignoreGiftCards = true } = {}): Promise<*> {
   let payload = defaultSearch(context);
 
+  _.forEach(categoryNames, cat => {
+    console.log(cat);
+  });
+
   if (ignoreGiftCards) {
     const giftCardTerm = termFilter('tags', GIFT_CARD_TAG);
     payload = addMustNotFilter(payload, giftCardTerm);
-    const order = sorting.direction === -1 ? 'desc' : 'asc';
-    // $FlowFixMe
-    payload.sort = [{ [sorting.field]: { order } }];
   }
+
+  const order = sorting.direction === -1 ? 'desc' : 'asc';
+    // $FlowFixMe
+  payload.sort = [{ [sorting.field]: { order } }];
+
+  console.log(payload);
 
   return this.api.post(`/search/public/products_catalog_view/_search?size=${MAX_RESULTS}`, payload);
 }
 
 function searchGiftCards() {
-  return apiCall.call({ api }, GIFT_CARD_TAG, null, {direction: 1, field: 'salesPrice'}, { ignoreGiftCards: false });
+  return apiCall.call({ api }, [ GIFT_CARD_TAG ], { direction: 1, field: 'salesPrice' }, { ignoreGiftCards: false });
 }
 
 const {fetch, ...actions} = createAsyncActions('products', apiCall);
