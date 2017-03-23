@@ -14,53 +14,46 @@ import models.returns.ReturnPayments.scope._
 import models.returns._
 import payloads.ReturnPayloads.{ReturnPaymentPayload, ReturnPaymentsPayload}
 import responses.ReturnResponse
-import scala.annotation.tailrec
+import services.LogActivity
 import services.carts.CartTotaler
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.apis.{Apis, RefundReason}
 import utils.db._
-import cats.implicits._
+
+import scala.annotation.tailrec
 
 object ReturnPaymentUpdater {
   def addPayments(refNum: String, payload: ReturnPaymentsPayload)(
       implicit ec: EC,
       db: DB,
+      ac: AC,
       au: AU): DbResultT[ReturnResponse.Root] = {
+
     @inline
     def addPayment(rma: Return,
                    payment: OrderPayment,
-                   paymentMethodAmount: (PaymentMethod.Type, Int)): DbResultT[ReturnPayment] =
-      processAddPayment(rma, payment, paymentMethodAmount._1, paymentMethodAmount._2)
+                   paymentMethodAmount: (PaymentMethod.Type, Int)) = {
+      val (method, amount) = paymentMethodAmount
+      processAddPayment(rma, payment, method, amount)
+    }
 
     val payments = payload.payments.filter { case (_, amount) ⇒ amount > 0 }
     if (payments.isEmpty)
       Returns.mustFindActiveByRefNum404(refNum).flatMap(ReturnResponse.fromRma)
-    else
+    else {
       for {
         rma      ← * <~ Returns.mustFindActiveByRefNum404(refNum)
-        _        ← * <~ validateMaxAllowedPayments(rma, payments)
         payment  ← * <~ mustFindCcPaymentsByOrderRef(rma.orderRef)
+        _        ← * <~ validateMaxAllowedPayments(rma, payments)
         _        ← * <~ payments.map(addPayment(rma, payment, _)).toList
         _        ← * <~ updateTotalsReturn(rma)
         updated  ← * <~ Returns.refresh(rma)
         response ← * <~ ReturnResponse.fromRma(updated)
+        _        ← * <~ LogActivity().returnPaymentAdded(response, payment)
       } yield response
+    }
   }
-
-  def addPayment(refNum: String, method: PaymentMethod.Type, payload: ReturnPaymentPayload)(
-      implicit ec: EC,
-      db: DB,
-      au: AU): DbResultT[ReturnResponse.Root] =
-    for {
-      rma      ← * <~ Returns.mustFindActiveByRefNum404(refNum)
-      _        ← * <~ validateMaxAllowedPayments(rma, Map(method → payload.amount))
-      payment  ← * <~ mustFindCcPaymentsByOrderRef(rma.orderRef)
-      _        ← * <~ processAddPayment(rma, payment, method, payload.amount)
-      _        ← * <~ updateTotalsReturn(rma)
-      updated  ← * <~ Returns.refresh(rma)
-      response ← * <~ ReturnResponse.fromRma(updated)
-    } yield response
 
   private[this] def updateTotalsReturn(rma: Return)(implicit ec: EC, db: DB, au: AU) =
     for {
@@ -217,26 +210,30 @@ object ReturnPaymentUpdater {
 
   def deletePayment(refNum: String, paymentMethod: PaymentMethod.Type)(
       implicit ec: EC,
+      ac: AC,
       db: DB): DbResultT[ReturnResponse.Root] =
     for {
-      rma      ← * <~ Returns.mustFindActiveByRefNum404(refNum)
-      _        ← * <~ processDeletePayment(rma.id, paymentMethod)
-      updated  ← * <~ Returns.refresh(rma)
-      response ← * <~ ReturnResponse.fromRma(rma)
+      rma               ← * <~ Returns.mustFindActiveByRefNum404(refNum)
+      paymentWasDeleted ← * <~ processDeletePayment(rma.id, paymentMethod)
+      updated           ← * <~ Returns.refresh(rma)
+      response          ← * <~ ReturnResponse.fromRma(rma)
+
+      _ ← * <~ doOrMeh(paymentWasDeleted,
+                       LogActivity().returnPaymentDeleted(response, paymentMethod))
     } yield response
 
   def processDeletePayment(returnId: Int, paymentMethod: PaymentMethod.Type)(
-      implicit ec: EC): DbResultT[Unit] =
+      implicit ec: EC): DbResultT[Boolean] =
     paymentMethod match {
       case PaymentMethod.CreditCard  ⇒ deleteCcPayment(returnId)
       case PaymentMethod.GiftCard    ⇒ deleteGcPayment(returnId)
       case PaymentMethod.StoreCredit ⇒ deleteScPayment(returnId)
     }
 
-  private def deleteCcPayment(returnId: Int)(implicit ec: EC): DbResultT[Unit] =
-    ReturnPayments.findAllByReturnId(returnId).creditCards.deleteAll.meh
+  private def deleteCcPayment(returnId: Int)(implicit ec: EC): DbResultT[Boolean] =
+    ReturnPayments.findAllByReturnId(returnId).creditCards.deleteAllWithRowsBeingAffected
 
-  private def deleteGcPayment(returnId: Int)(implicit ec: EC): DbResultT[Unit] = {
+  private def deleteGcPayment(returnId: Int)(implicit ec: EC): DbResultT[Boolean] = {
     val gcQuery = ReturnPayments.findAllByReturnId(returnId).giftCards
     for {
       paymentMethodIds ← * <~ gcQuery.paymentMethodIds.result
@@ -245,13 +242,16 @@ object ReturnPaymentUpdater {
                            .map(_.originId)
                            .to[Set]
                            .result
-      _ ← * <~ gcQuery.deleteAll
-      _ ← * <~ GiftCards.findAllByIds(paymentMethodIds).deleteAll
-      _ ← * <~ GiftCardRefunds.findAllByIds(giftCardOriginIds).deleteAll
-    } yield ()
+      queryDeleted ← * <~ gcQuery.deleteAllWithRowsBeingAffected
+      gcDeleted    ← * <~ GiftCards.findAllByIds(paymentMethodIds).deleteAllWithRowsBeingAffected
+      gcRefundsDeleted ← * <~ GiftCardRefunds
+                          .findAllByIds(giftCardOriginIds)
+                          .deleteAllWithRowsBeingAffected
+      somethingWasActuallyDeleted = queryDeleted || gcDeleted || gcRefundsDeleted
+    } yield somethingWasActuallyDeleted
   }
 
-  private def deleteScPayment(returnId: Int)(implicit ec: EC): DbResultT[Unit] = {
+  private def deleteScPayment(returnId: Int)(implicit ec: EC): DbResultT[Boolean] = {
     val scQuery = ReturnPayments.findAllByReturnId(returnId).storeCredits
     for {
       paymentMethodIds ← * <~ scQuery.paymentMethodIds.result
@@ -260,13 +260,17 @@ object ReturnPaymentUpdater {
                               .map(_.originId)
                               .to[Set]
                               .result
-      _ ← * <~ scQuery.deleteAll
-      _ ← * <~ StoreCredits.findAllByIds(paymentMethodIds).deleteAll
-      _ ← * <~ StoreCreditRefunds.findAllByIds(storeCreditOriginIds).deleteAll
-    } yield ()
+      queryDeleted ← * <~ scQuery.deleteAllWithRowsBeingAffected
+      scDeleted    ← * <~ StoreCredits.findAllByIds(paymentMethodIds).deleteAllWithRowsBeingAffected
+      scRefundsDeleted ← * <~ StoreCreditRefunds
+                          .findAllByIds(storeCreditOriginIds)
+                          .deleteAllWithRowsBeingAffected
+      somethingWasActuallyDeleted = queryDeleted || scDeleted || scRefundsDeleted
+    } yield somethingWasActuallyDeleted
   }
 
-  def issueRefunds(rma: Return)(implicit ec: EC, db: DB, au: AU, apis: Apis): DbResultT[Unit] = {
+  def issueRefunds(
+      rma: Return)(implicit ec: EC, db: DB, au: AU, ac: AC, apis: Apis): DbResultT[Unit] = {
     for {
       customer ← * <~ Users.mustFindByAccountId(rma.accountId)
 
@@ -281,9 +285,9 @@ object ReturnPaymentUpdater {
     } yield ()
   }
 
-  private def issueCcRefund(rma: Return, payment: ReturnPayment)(implicit ec: EC,
-                                                                 db: DB,
-                                                                 apis: Apis): DbResultT[Unit] = {
+  private def issueCcRefund(
+      rma: Return,
+      payment: ReturnPayment)(implicit ec: EC, db: DB, ac: AC, apis: Apis): DbResultT[Unit] = {
     val authorizeRefund =
       ((id: String, amount: Int) ⇒
          for {
@@ -354,11 +358,14 @@ object ReturnPaymentUpdater {
                       ReturnCcPaymentViolation(refNum = rma.refNum,
                                                issued = totalRefund,
                                                allowed = payment.amount))
+      _ ← * <~ LogActivity().issueCcRefund(rma, payment)
     } yield ()
   }
 
   private def issueGcRefund(customer: User, rma: Return, gc: GiftCard)(implicit ec: EC,
-                                                                       au: AU): DbResultT[Unit] =
+                                                                       ac: AC,
+                                                                       au: AU): DbResultT[Unit] = {
+    LogActivity().issueGcRefund(customer, rma, gc)
     GiftCards
       .update(gc,
               gc.copy(state = GiftCard.Active,
@@ -366,13 +373,16 @@ object ReturnPaymentUpdater {
                       recipientName = customer.name,
                       recipientEmail = customer.email))
       .meh
+  }
 
-  private def issueScRefund(customer: User, rma: Return, sc: StoreCredit)(
-      implicit ec: EC,
-      au: AU): DbResultT[Unit] =
+  private def issueScRefund(customer: User,
+                            rma: Return,
+                            sc: StoreCredit)(implicit ec: EC, ac: AC, au: AU): DbResultT[Unit] = {
+    LogActivity().issueScRefund(customer, rma, sc)
     StoreCredits.update(sc, sc.copy(state = StoreCredit.Active)).meh
+  }
 
-  def cancelRefunds(rma: Return)(implicit ec: EC): DbResultT[Unit] =
+  def cancelRefunds(rma: Return)(implicit ec: EC, ac: AC): DbResultT[Unit] =
     for {
       gc ← * <~ ReturnPayments.findOnHoldGiftCards(rma.id).one
       _ ← * <~ gc.map { gc ⇒
@@ -389,5 +399,6 @@ object ReturnPaymentUpdater {
                                        canceledAmount = sc.availableBalance.some,
                                        canceledReason = rma.canceledReasonId))
          }
+      _ ← * <~ LogActivity().cancelRefund(rma)
     } yield ()
 }

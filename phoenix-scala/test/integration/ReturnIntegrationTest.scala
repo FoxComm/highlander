@@ -539,6 +539,12 @@ class ReturnIntegrationTest
 
     "DELETE /v1/returns/:ref/payment-methods/credit-cards" - {
       "successfully delete any supported payment method" in new ReturnPaymentDefaults {
+        val payments = createReturnPayment(Map(
+                                               PaymentMethod.GiftCard    → 100,
+                                               PaymentMethod.StoreCredit → 150
+                                           ),
+                                           refNum = rma.referenceNumber).payments
+
         forAll(paymentMethodTable) { paymentMethod ⇒
           val response = returnsApi(rma.referenceNumber).paymentMethods
             .remove(paymentMethod)

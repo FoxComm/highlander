@@ -150,6 +150,7 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
     }
   }
 
+  // todo delete me? not used anywhere @aafa
   object activityTrailsApi {
     val activityTrailPrefix = s"$rootPrefix/trails"
 

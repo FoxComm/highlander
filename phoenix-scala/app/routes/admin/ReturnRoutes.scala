@@ -103,7 +103,9 @@ object ReturnRoutes {
             (post & path(PaymentMethodMatcher) & pathEnd & entity(as[ReturnPaymentPayload])) {
               case (paymentMethod, payload) ⇒
                 mutateOrFailures {
-                  ReturnPaymentUpdater.addPayment(refNum, paymentMethod, payload)
+                  ReturnPaymentUpdater.addPayments(
+                      refNum,
+                      ReturnPaymentsPayload(Map(paymentMethod → payload.amount)))
                 }
             } ~
             (delete & path(PaymentMethodMatcher) & pathEnd) { paymentMethod ⇒
