@@ -250,17 +250,16 @@ class AddressList extends Component {
     };
 
     return (
-    <CheckoutForm
-      submit={this.saveAndContinue}
-      title="Shipping address"
-      error={_.get(props.saveShippingState, 'err')}
-      inProgress={_.get(props.saveShippingState, 'inProgress', false)}
-      buttonLabel="Apply"
-      action={action}
-    >
-      {this.renderAddresses()}
-    </CheckoutForm>
-
+      <CheckoutForm
+        submit={this.saveAndContinue}
+        title="Shipping address"
+        error={_.get(props.saveShippingState, 'err')}
+        inProgress={_.get(props.saveShippingState, 'inProgress', false)}
+        buttonLabel="Apply"
+        action={action}
+      >
+        {this.renderAddresses()}
+      </CheckoutForm>
     );
   }
 

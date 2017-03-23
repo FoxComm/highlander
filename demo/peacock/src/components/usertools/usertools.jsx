@@ -1,6 +1,6 @@
 /* @flow */
 
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
 
 // libs
 import _ from 'lodash';
@@ -20,16 +20,19 @@ import { toggleUserMenu } from 'modules/usermenu';
 import UserMenu from './usermenu';
 import ActionLink from 'ui/action-link/action-link';
 
-import type { HTMLElement } from 'types';
-
 import styles from './usertools.css';
 
+type Props = {
+  toggleCart: Function,
+  toggleUserMenu: Function,
+  path: string,
+  t: any,
+  query: string,
+  quantity: number,
+};
+
 class UserTools extends Component {
-  static PropTypes = {
-    toggleCart: PropTypes.func,
-    toggleUserMenu: PropTypes.func,
-    path: PropTypes.string,
-  };
+  props: Props;
 
   @autobind
   handleUserClick(e) {
@@ -53,7 +56,7 @@ class UserTools extends Component {
     );
   }
 
-  render(): Element<*> {
+  render() {
     return (
       <div styleName="tools">
         <div styleName="login">

@@ -10,7 +10,7 @@ import styles from './modal.css';
 type Props = {
   show: boolean,
   toggle: Function,
-  children: any,
+  children?: any,
 };
 
 const Modal = (props: Props) => {

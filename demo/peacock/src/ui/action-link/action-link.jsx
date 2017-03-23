@@ -9,19 +9,19 @@ type Props = {
   action: Function,
   title: string,
   icon?: ?Object,
-  children: any,
+  children?: any,
 };
 
 const ActionLink = (props: Props) => {
   const { action, title, icon, ...rest } = props;
   const actionIcon = icon
     ?
-    <Icon
-      className={icon.className}
-      name={icon.name}
-    />
+      (<Icon
+        className={icon.className}
+        name={icon.name}
+      />)
     :
-    null
+      null
   ;
 
   return (

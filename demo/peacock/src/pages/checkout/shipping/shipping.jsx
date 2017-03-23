@@ -108,15 +108,18 @@ class Shipping extends Component {
           {
             !_.isEmpty(shippingAddress)
             ?
-            <AddressDetails address={shippingAddress} styleName="shippingAddress" />
+              (<AddressDetails
+                address={shippingAddress}
+                styleName="shippingAddress"
+              />)
             :
-            null
+              null
           }
           <Modal
             show={modalVisible}
             toggle={toggleModal}
           >
-             <AddressList { ...this.props } activeAddress={shippingAddress}/>
+            <AddressList {...this.props} activeAddress={shippingAddress} />
           </Modal>
         </div>
       );
