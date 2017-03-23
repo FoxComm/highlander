@@ -23,8 +23,13 @@ import scala.util.Random
 
 trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi { self: FoxSuite ⇒
 
-  def transitionEntity[T, E](transitionStates: NonEmptyList[T], initial: Option[E])(
-      getState: E ⇒ T)(updateState: T ⇒ E): E = {
+  /** Transitions through list of states.
+    *
+    * If `initial` is empty it will transition through all of the passed `transitionStates`.
+    * If it's defined it will skip any states in `transitionStates` until `initial` is found.
+    */
+  def transitionEntity[S, E](transitionStates: NonEmptyList[S], initial: Option[E])(
+      getState: E ⇒ S)(updateState: S ⇒ E): E = {
     val transition = initial.map { e ⇒
       val initialState = getState(e)
       transitionStates.toList.dropWhile(_ != initialState).drop(1).foldLeft(e) _
