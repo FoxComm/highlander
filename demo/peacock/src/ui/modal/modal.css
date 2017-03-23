@@ -1,3 +1,4 @@
+@import "colors.css";
 @import "media-queries.css";
 
 .modal {
@@ -18,7 +19,7 @@
   z-index: 4;
   height: 100vh;
   lost-column: 1/1;
-  background: #fff;
+  background: var(--body-background);
   position: absolute;
 }
 

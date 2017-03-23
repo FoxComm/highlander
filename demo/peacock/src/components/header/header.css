@@ -8,7 +8,7 @@
   width: 100%;
   height: 50px;
   font-size: 16px;
-  background: #fff;
+  background: var(--body-background);
   border-bottom: 1px solid var(--border-color);
   color: var(--text-color);
 }
@@ -28,7 +28,7 @@
 
 .action-link-menu {
   composes: action-link from "ui/action-link/action-link.css";
-  color: #222;
+  color: var(--text-color);
 }
 
 .navigation {

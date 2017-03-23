@@ -12,7 +12,7 @@
   justify-content: space-between;
   padding: 0 15px;
   align-items: center;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--border-color);
   font-size: 16px;
   position: absolute;
   width: 100%;
@@ -24,15 +24,6 @@
   overflow-y: auto;
   height: calc(100% - 104px);
   padding-bottom: 15px;
-}
-
-.legend {
-
-}
-
-.action-link {
-  color: var(--link-color);
-  cursor: pointer;
 }
 
 .button-wrap {

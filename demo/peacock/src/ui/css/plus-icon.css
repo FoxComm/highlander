@@ -1,5 +1,7 @@
+@import "colors.css";
+
 .plus-icon {
   margin-right: 8px;
   width: 12px;
-  color: #0b7ddc;
+  color: var(--link-color);
 }
