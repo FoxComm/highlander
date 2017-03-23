@@ -49,7 +49,7 @@ case class Return(id: Int = 0,
 }
 
 object Return {
-  sealed trait State
+  sealed trait State extends Product with Serializable
   case object Pending    extends State
   case object Processing extends State
   case object Review     extends State

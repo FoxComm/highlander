@@ -1,5 +1,8 @@
 package testutils.fixtures
 
+import cats.data.NonEmptyList
+import cats.implicits._
+import models.cord.Order
 import models.payment.PaymentMethod
 import models.product.{Mvp, SimpleProductData}
 import models.returns._
@@ -9,6 +12,7 @@ import org.scalatest.prop.Tables._
 import payloads.AddressPayloads.CreateAddressPayload
 import payloads.GiftCardPayloads.GiftCardCreateByCsr
 import payloads.LineItemPayloads.UpdateLineItemsPayload
+import payloads.OrderPayloads.UpdateOrderPayload
 import payloads.PaymentPayloads._
 import payloads.ReturnPayloads._
 import payloads.UpdateShippingMethod
@@ -84,11 +88,20 @@ trait ReturnsFixtures
     }
 
     def createDefaultOrder(paymentMethods: Map[PaymentMethod.Type, Option[Int]] = Map(
-            PaymentMethod.CreditCard → None)): OrderResponse =
-      createOrder(
+                               PaymentMethod.CreditCard → None),
+                           transitionStates: List[Order.State] =
+                             List(Order.FulfillmentStarted, Order.Shipped)): OrderResponse = {
+      val initial = createOrder(
           lineItems = List(UpdateLineItemsPayload(sku = product.code, quantity = 1)),
           paymentMethods = paymentMethods
       )
+      val api = ordersApi(initial.referenceNumber)
+      NonEmptyList
+        .fromList(transitionStates)
+        .map(transitionEntity(_, none[OrderResponse])(_.orderState)(state ⇒
+                  api.update(UpdateOrderPayload(state = state)).as[OrderResponse]))
+        .getOrElse(initial)
+    }
 
     val order: OrderResponse = createDefaultOrder()
   }
@@ -107,13 +120,11 @@ trait ReturnsFixtures
         .as[ReturnResponse.Root]
 
     def completeReturn(refNum: String)(implicit sl: SL, sf: SF) = {
-      val happyPath = List(Return.Pending, Return.Processing, Return.Review, Return.Complete)
-      val current   = returnsApi(refNum).get().as[ReturnResponse.Root]
+      val happyPath = NonEmptyList.fromListUnsafe(
+          List(Return.Pending, Return.Processing, Return.Review, Return.Complete))
 
-      happyPath
-        .dropWhile(_ != current.state)
-        .drop(1)
-        .foldLeft(current)((_, state) ⇒ updateReturnState(refNum = refNum, returnState = state))
+      transitionEntity(happyPath, returnsApi(refNum).get().as[ReturnResponse.Root].some)(_.state)(
+          state ⇒ updateReturnState(refNum = refNum, returnState = state))
     }
   }
 
