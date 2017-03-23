@@ -65,8 +65,11 @@ class PPRecommend(object):
 
         v = self.mat[:, prod_id].toarray()
         inds = np.argsort(v.T[0])[::-1]
-        out = {'products': [{'id': np.asscalar(x), 'score': np.asscalar(y)}
-                            for (x, y) in zip(inds, v[inds].T[0])
-                            if x != int(prod_id)]}
+        products = [
+            {'id': np.asscalar(x), 'score': np.asscalar(y)}
+            for (x, y) in zip(inds, v[inds].T[0])
+            if x != int(prod_id)
+            if y > 0
+        ]
 
-        return out
+        return {'products': products}

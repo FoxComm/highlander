@@ -1,8 +1,11 @@
+import os
+
 from flask import Flask, request, jsonify
 from prod_prod.PPRecommend import PPRecommend
-from InvalidUsage import InvalidUsage
 from controllers.PurchaseController import add_purchase_event, get_all_by_channel
-import os
+from util.ES_Client import ES_Client
+from util.InvalidUsage import InvalidUsage
+from util.response_utils import products_list_from_response, zip_responses
 
 from neomodel import db
 NEO4J_USER = os.getenv('NEO4J_USER') # neo4j
@@ -11,7 +14,8 @@ NEO4J_HOST = os.getenv('NEO4J_HOST') # localhost
 NEO4J_PORT = os.getenv('NEO4J_PORT') # 7687
 db.set_connection('bolt://%s:%s@%s:%s' % (NEO4J_USER, NEO4J_PASS, NEO4J_HOST, NEO4J_PORT))
 
-app = Flask(__name__)
+APP = Flask(__name__)
+ES_CLIENT = ES_Client('ic-cross.foxcommerce.com')
 
 # TODO Create some kind of PPRecommendManager class.
 pprecs = {}
@@ -44,7 +48,7 @@ def startup_pprecs():
         update_pprec(pprecs, channel_id, pprec)
 
 # Register Middleware
-@app.errorhandler(InvalidUsage)
+@APP.errorhandler(InvalidUsage)
 def handle_invalid_usage(error):
     """handle_invalid_usage
     Returns JSON error message
@@ -54,20 +58,20 @@ def handle_invalid_usage(error):
     return response
 
 # API Endpoints
-@app.route('/ping')
+@APP.route('/ping')
 def ping():
     """ping
     Returns pong
     """
     return 'pong'
 
-@app.route('/prod-prod/<int:prod_id>', methods=['GET'])
+@APP.route('/prod-prod/<int:prod_id>', methods=['GET'])
 def rec_prod_prod(prod_id):
     """rec_prod_prod
     """
     # Handle Invalid Channel
-    channel_id = int(request.args.get('channel', ""))
-    if channel_id == "":
+    channel_id = int(request.args.get('channel', -1))
+    if channel_id < 0:
         raise InvalidUsage('Invalid Channel ID', status_code=400,
                            payload={'error_code': 100})
 
@@ -87,7 +91,40 @@ def rec_prod_prod(prod_id):
 
     return jsonify(recommend_output)
 
-@app.route('/prod-prod/train', methods=['POST'])
+@APP.route('/prod-prod/full/<int:prod_id>', methods=['GET'])
+def rec_prod_prod_full(prod_id):
+    """rec_prod_prod_full
+    returns a list of full products from elasticsearch
+    """
+    # Handle Invalid Channel
+    channel_id = int(request.args.get('channel', -1))
+    if channel_id < 0:
+        raise InvalidUsage('Invalid Channel ID', status_code=400,
+                           payload={'error_code': 100})
+
+    pprec = get_pprec(pprecs, channel_id)
+    if pprec.is_empty():
+        raise InvalidUsage('Channel ID not found', status_code=400,
+                           payload={'error_code': 101})
+
+    # Handle product_id that has not been added to valid channel
+    if prod_id not in pprec.product_ids():
+        raise InvalidUsage('Product ID not found in channel', status_code=400,
+                           payload={'error_code': 102})
+
+    size_param = int(request.args.get('size', 5))
+    from_param = int(request.args.get('from', 0))
+    recommend_output = pprec.recommend(prod_id)
+    es_resp = ES_CLIENT.get_products_list(
+        products_list_from_response(recommend_output)[from_param:(from_param + size_param)]
+    )
+    full_resp = zip_responses(recommend_output, es_resp)
+
+    update_pprec(pprecs, channel_id, pprec)
+
+    return jsonify(full_resp)
+
+@APP.route('/prod-prod/train', methods=['POST'])
 def train_prod_prod():
     """train
     """
@@ -108,4 +145,4 @@ port = os.getenv('PORT', 5000)
 
 if __name__ == "__main__":
     startup_pprecs()
-    app.run(host='0.0.0.0', port=port)
+    APP.run(host='0.0.0.0', port=port)
