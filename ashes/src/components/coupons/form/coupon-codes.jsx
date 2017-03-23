@@ -14,6 +14,7 @@ import { Checkbox } from '../../checkbox/checkbox';
 import Counter from '../../forms/counter';
 import FormField from '../../forms/formfield';
 import CodeCreationModal from './code-creation-modal';
+import { transitionTo } from 'browserHistory';
 
 // styles
 import styles from './styles.css';
@@ -25,6 +26,7 @@ type Props = {
   isNew: boolean,
   isValid: boolean,
   codeGeneration: Object,
+  promotionId: Number,
   coupon: Object,
   createCoupon: Function,
   couponsGenerationSelectBulk: Function,
@@ -105,8 +107,10 @@ class CouponCodes extends Component {
 
     this.props.generateCodes(codesPrefix, codesLength, codesQuantity).then(() => {
       this.props.couponsGenerationReset();
+    }).then(() => {
+      transitionTo('promotion-coupons', {promotionId: this.props.promotionId});
     });
-  }
+  } 
 
   codeIsOfValidLength(): boolean {
     return this.props.codeIsOfValidLength();
@@ -138,7 +142,7 @@ class CouponCodes extends Component {
 
     return (
       <div styleName="form-subset">
-        <div styleName="form-group">
+        <div styleName="form-group" className="fc-coupon-inline-row">
           <FormField label="Quantity">
             <div>
               <Counter
@@ -154,7 +158,7 @@ class CouponCodes extends Component {
             </div>
           </FormField>
         </div>
-        <div styleName="form-group">
+        <div styleName="form-group" className="fc-coupon-inline-row">
           <FormField label="Code Prefix">
             <div>
               <input
@@ -167,7 +171,7 @@ class CouponCodes extends Component {
             </div>
           </FormField>
         </div>
-        <div styleName="form-group">
+        <div styleName="form-group" className="fc-coupon-inline-row">
           <FormField label="Code Character Length" >
             <div>
               <Counter
@@ -187,12 +191,6 @@ class CouponCodes extends Component {
             Excludes prefix
           </div>
         </div>
-        <PrimaryButton
-          type="button"
-          disabled={this.generateCodesDisabled}
-          onClick={this.handleGenerateBulkClick} >
-          Generate Codes
-        </PrimaryButton>
       </div>
     );
   }
