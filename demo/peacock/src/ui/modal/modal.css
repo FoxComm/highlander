@@ -17,10 +17,10 @@
 
 .modal-wrapper {
   z-index: 4;
-  height: 100vh;
+  height: 100%;
   lost-column: 1/1;
   background: var(--body-background);
-  position: absolute;
+  position: fixed;
 }
 
 @media (--small-only), (--medium-only) {
