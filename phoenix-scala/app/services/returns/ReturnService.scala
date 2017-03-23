@@ -1,12 +1,12 @@
 package services.returns
 
 import failures.InvalidCancellationReasonFailure
+import failures.ReturnFailures.OrderMustBeShippedForReturn
 import models.Reason.Cancellation
 import models.account._
 import models.admin.AdminsData
-import models.cord.Orders
+import models.cord.{Order, Orders}
 import models.customer.CustomersData
-import models.returns.Return.Canceled
 import models.returns._
 import models.{Reason, Reasons}
 import payloads.ReturnPayloads._
@@ -62,7 +62,9 @@ object ReturnService {
   def createByAdmin(admin: User, payload: ReturnCreatePayload)(implicit ec: EC,
                                                                db: DB): DbResultT[Root] =
     for {
-      order     ← * <~ Orders.mustFindByRefNum(payload.cordRefNum)
+      order ← * <~ Orders.mustFindByRefNum(payload.cordRefNum)
+      _ ← * <~ failIf(order.state != Order.Shipped,
+                      OrderMustBeShippedForReturn(order.refNum, order.state))
       rma       ← * <~ Returns.create(Return.build(order, admin, payload.returnType))
       customer  ← * <~ Users.mustFindByAccountId(order.accountId)
       custData  ← * <~ CustomersData.mustFindByAccountId(order.accountId)

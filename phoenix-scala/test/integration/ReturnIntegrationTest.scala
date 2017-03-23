@@ -52,6 +52,14 @@ class ReturnIntegrationTest
         .copy(totals = None) must === (expected)
     }
 
+    "fails to creare Return for not shipped order" in new ReturnFixture with OrderDefaults {
+      val cordRefNum =
+        createDefaultOrder(transitionStates = List(Order.FulfillmentStarted)).referenceNumber
+      returnsApi
+        .create(ReturnCreatePayload(cordRefNum = cordRefNum, returnType = Standard))
+        .mustFailWith400(OrderMustBeShippedForReturn(cordRefNum, Order.FulfillmentStarted))
+    }
+
     "fails to create Return with invalid order refNum provided" in {
       val payload = ReturnCreatePayload(cordRefNum = refNotExist, returnType = Standard)
       returnsApi.create(payload).mustFailWith404(NotFoundFailure404(Order, refNotExist))

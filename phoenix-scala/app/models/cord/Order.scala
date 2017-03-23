@@ -76,8 +76,7 @@ case class Order(id: Int = 0,
 }
 
 object Order {
-  sealed trait State
-
+  sealed trait State extends Product with Serializable
   case object FraudHold          extends State
   case object RemorseHold        extends State
   case object ManualHold         extends State

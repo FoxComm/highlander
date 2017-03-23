@@ -1,17 +1,23 @@
 package failures
 
+import models.cord.Order
 import models.returns.ReturnReason
 import utils.Money.Currency
 import utils.friendlyClassName
 
 object ReturnFailures {
 
+  case class OrderMustBeShippedForReturn(refNum: String, state: Order.State) extends Failure {
+    def description: String =
+      s"Cannot create return for order $refNum with $state. Order must be in ${Order.Shipped} state."
+  }
+
   case class NoReturnsFoundForOrder(refNum: String) extends Failure {
-    override def description = s"no return for order $refNum was found"
+    override def description = s"No return for order $refNum was found"
   }
 
   case class EmptyReturn(refNum: String) extends Failure {
-    override def description = s"return with referenceNumber=$refNum has no line items"
+    override def description = s"Return with referenceNumber=$refNum has no line items"
   }
 
   object ReturnPaymentNotFoundFailure {

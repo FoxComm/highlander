@@ -280,6 +280,9 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
   case class ordersApi(refNum: String) {
     val orderPath = s"${ordersApi.ordersPrefix}/$refNum"
 
+    def get(): HttpResponse =
+      GET(orderPath)
+
     def update(payload: UpdateOrderPayload): HttpResponse =
       PATCH(orderPath, payload)
 
