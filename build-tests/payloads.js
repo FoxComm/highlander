@@ -80,20 +80,20 @@ const $ = {
     body: faker.lorem.sentence(),
   }),
   randomSkuPayload: () => {
-    const now = Date.now();
+    const ts = teststamp();
     return {
       attributes: {
         code: {
           t: 'string',
-          v: `SKU-BVT-${now}`,
+          v: `SKU-BVT-${ts}`,
         },
         upc: {
           t: 'string',
-          v: `SKU-BVT-${now} UPC`,
+          v: `SKU-BVT-${ts} UPC`,
         },
         title: {
           t: 'string',
-          v: `SKU-BVT-${now} T`,
+          v: `SKU-BVT-${ts} T`,
         },
         description: {
           t: 'richText',
@@ -132,7 +132,7 @@ const $ = {
     };
   },
   randomProductPayload: ({ minSkus, maxSkus } = {}) => {
-    const now = Date.now();
+    const ts = teststamp();
     return {
       attributes: {
         metaDescription: {
@@ -153,7 +153,7 @@ const $ = {
         },
         title: {
           t: 'string',
-          v: `P-BVT-${now}`,
+          v: `P-BVT-${ts}`,
         },
         tags: {
           t: 'tags',
@@ -201,7 +201,7 @@ const $ = {
       images.push($.randomImagePayload());
     }
     return {
-      name: `A-${Date.now()}`,
+      name: `A-${teststamp()}`,
       images,
     };
   },
@@ -224,16 +224,16 @@ const $ = {
     },
   }),
   randomCreatePromotionPayload: () => {
-    const now = Date.now();
+    const ts = teststamp();
     return {
       attributes: {
         name: {
           t: 'string',
-          v: `PROMO-${now}`,
+          v: `PROMO-${ts}`,
         },
         storefrontName: {
           t: 'richText',
-          v: `<p>PROMO-${now}</p>`,
+          v: `<p>PROMO-${ts}</p>`,
         },
         description: {
           t: 'text',
@@ -255,7 +255,7 @@ const $ = {
     applyType: 'coupon',
   }),
   randomCouponPayload: (promotionId) => {
-    const now = Date.now();
+    const ts = teststamp();
     return {
       promotion: promotionId,
       attributes: {
@@ -271,11 +271,11 @@ const $ = {
         },
         name: {
           t: 'string',
-          v: `BVT-COUPON-${now}`,
+          v: `BVT-COUPON-${ts}`,
         },
         storefrontName: {
           t: 'richText',
-          v: `BVT-COUPON-${now}`,
+          v: `BVT-COUPON-${ts}`,
         },
         description: {
           t: 'text',
@@ -297,7 +297,7 @@ const $ = {
     };
   },
   randomGenerateCouponCodesPayload: () => {
-    const prefix = `bvt-${Date.now()}-`;
+    const prefix = `bvt-${teststamp()}-`;
     const quantity = $.randomNumber(1, 40);
     const digits = Math.floor(Math.log10(quantity)) + 1;
     return {
