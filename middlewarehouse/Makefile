@@ -46,7 +46,7 @@ build-middlewarehouse:
 	cd $(BUILD_PATH) && go build -o middlewarehouse main.go
 
 build-elasticmanager:
-	cd $(BUILD_PATH)/elasticmanager && glide install && go build -o elasticmanager main.go
+	cd $(BUILD_PATH) && go build -o elasticmanager/elasticmanager elasticmanager/main.go
 
 build-middlewarehouse-seeder:
 	cd $(BUILD_PATH) && go build -o common/db/seeds/seeder common/db/seeds/main.go
