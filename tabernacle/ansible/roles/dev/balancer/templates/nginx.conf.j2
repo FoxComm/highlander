@@ -163,6 +163,22 @@ http {
 
         return json
       end
+
+      function cleanup_search_result(json)
+
+        -- we need only _source filed from the hits
+        json.hits.result = map(json.hits.hits, function(hit)
+            return hit._source
+        end)
+
+        json.hits.pagination = {total = json.hits.total}
+        json.hits.hits = nil
+        json.hits.total = nil
+
+        -- add aggregations to response
+        json.hits.aggregations = json.aggregations
+
+      end
       ';
 
   log_by_lua '
