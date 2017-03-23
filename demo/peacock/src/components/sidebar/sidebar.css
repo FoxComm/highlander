@@ -75,7 +75,7 @@
 .action-link-close {
   composes: action-link from "ui/action-link/action-link.css";
   margin-right: 5px;
-  font-size: 17px;
+  font-size: 16px;
 }
 
 .active-link {
