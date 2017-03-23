@@ -201,9 +201,7 @@ class AutoPromotionsIntegrationTest
       .as[PromotionResponse.Root]
 
     val customer = api_newCustomer()
-
-    val refNum =
-      cartsApi.create(CreateCart(email = customer.email)).as[CartResponse].referenceNumber
+    val refNum   = api_newCustomerCart(customer.id).referenceNumber
 
     cartsApi(refNum).lineItems
       .add(Seq(UpdateLineItemsPayload(skuCode, 1)))
