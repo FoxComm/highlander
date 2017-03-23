@@ -8,7 +8,6 @@ import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 
 // components
-// import EditableBlock from 'ui/editable-block';
 import { AddressDetails } from 'ui/address';
 import AddressList from './address-list';
 import Modal from 'ui/modal/modal';
