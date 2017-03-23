@@ -112,8 +112,12 @@ def rec_prod_prod_full(prod_id):
         raise InvalidUsage('Product ID not found in channel', status_code=400,
                            payload={'error_code': 102})
 
+    size_param = int(request.args.get('size', 5))
+    from_param = int(request.args.get('from', 0))
     recommend_output = pprec.recommend(prod_id)
-    es_resp = ES_CLIENT.get_products_list(products_list_from_response(recommend_output))
+    es_resp = ES_CLIENT.get_products_list(
+        products_list_from_response(recommend_output)[from_param:(from_param + size_param)]
+    )
     full_resp = zip_responses(recommend_output, es_resp)
 
     update_pprec(pprecs, channel_id, pprec)
