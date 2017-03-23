@@ -12,6 +12,10 @@
     postinstall-build "^0.2.1"
     superagent "^3.2.1"
 
+"@foxcomm/babel-plugin-react-stylenames@^3.1.0":
+  version "3.1.0"
+  resolved "https://npm.foxcommerce.com:4873/@foxcomm%2fbabel-plugin-react-stylenames/-/babel-plugin-react-stylenames-3.1.0.tgz#34b9dc9625a502e42e86536e99548de90f1439e6"
+
 "@foxcomm/wings@1.9.5":
   version "1.9.5"
   resolved "https://npm.foxcommerce.com:4873/@foxcomm%2fwings/-/wings-1.9.5.tgz#a20ac7429673d91fdffc7e91f3e93830abeb3611"
@@ -1149,9 +1153,6 @@ babel-plugin-transform-strict-mode@^6.22.0:
   dependencies:
     babel-runtime "^6.22.0"
     babel-types "^6.22.0"
-
-"babel-plugin-transform-styles@file:src/opt/babel-plugin-transform-styles":
-  version "2.0.0"
 
 babel-plugin-transform-system-register@^0.0.1:
   version "0.0.1"
