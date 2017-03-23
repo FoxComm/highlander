@@ -61,16 +61,15 @@ export default class TreeNode extends Component {
 
   get renderIcon() {
 
-    if (!this.props.node.children) {
-      return (
-        <i className="icon-category" />
-      );
-    }
+    const { children } = this.props.node;
 
-    const iconClassName = this.state.expanded ? "icon-category-collapse" : "icon-category-expand";
-      return (
-        <i className={iconClassName} />
-      );
+    const cls = classNames({
+      'icon-category': !children,
+      'icon-category-expand': children && !this.state.expanded,
+      'icon-category-collapse': children && this.state.expanded,
+    });
+
+    return <i className={cls} />;
   }
 
   get renderText() {
@@ -78,7 +77,7 @@ export default class TreeNode extends Component {
     return (
       <span
         styleName="text"
-        onClick={(event) => handleClick(taxon.id, event)}
+        onClick={() => handleClick(taxon.id)}
       >
         {taxon.attributes.name.v}
       </span>
@@ -88,8 +87,10 @@ export default class TreeNode extends Component {
   render() {
     const { node, depth, visible, currentObject } = this.props;
     const active = node.taxon.id.toString() === currentObject;
-    const className = classNames(styles['node'],
-      { [styles.visible]: visible }, { [styles.active]: active });
+    const className = classNames(styles['node'], {
+      [styles.visible]: visible,
+      [styles.active]: active,
+    });
 
     return(
       <div>
