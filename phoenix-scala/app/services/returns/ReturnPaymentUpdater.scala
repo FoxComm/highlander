@@ -213,25 +213,27 @@ object ReturnPaymentUpdater {
       ac: AC,
       db: DB): DbResultT[ReturnResponse.Root] =
     for {
-      rma      ← * <~ Returns.mustFindActiveByRefNum404(refNum)
-      _        ← * <~ processDeletePayment(rma.id, paymentMethod)
-      updated  ← * <~ Returns.refresh(rma)
-      response ← * <~ ReturnResponse.fromRma(rma)
-      _        ← * <~ LogActivity().returnPaymentDeleted(response, paymentMethod)
+      rma               ← * <~ Returns.mustFindActiveByRefNum404(refNum)
+      paymentWasDeleted ← * <~ processDeletePayment(rma.id, paymentMethod)
+      updated           ← * <~ Returns.refresh(rma)
+      response          ← * <~ ReturnResponse.fromRma(rma)
+
+      _ ← * <~ doOrMeh(paymentWasDeleted,
+                       LogActivity().returnPaymentDeleted(response, paymentMethod))
     } yield response
 
   def processDeletePayment(returnId: Int, paymentMethod: PaymentMethod.Type)(
-      implicit ec: EC): DbResultT[Unit] =
+      implicit ec: EC): DbResultT[Boolean] =
     paymentMethod match {
       case PaymentMethod.CreditCard  ⇒ deleteCcPayment(returnId)
       case PaymentMethod.GiftCard    ⇒ deleteGcPayment(returnId)
       case PaymentMethod.StoreCredit ⇒ deleteScPayment(returnId)
     }
 
-  private def deleteCcPayment(returnId: Int)(implicit ec: EC): DbResultT[Unit] =
-    ReturnPayments.findAllByReturnId(returnId).creditCards.deleteAll.meh
+  private def deleteCcPayment(returnId: Int)(implicit ec: EC): DbResultT[Boolean] =
+    ReturnPayments.findAllByReturnId(returnId).creditCards.deleteAllWithRowsBeingAffected
 
-  private def deleteGcPayment(returnId: Int)(implicit ec: EC): DbResultT[Unit] = {
+  private def deleteGcPayment(returnId: Int)(implicit ec: EC): DbResultT[Boolean] = {
     val gcQuery = ReturnPayments.findAllByReturnId(returnId).giftCards
     for {
       paymentMethodIds ← * <~ gcQuery.paymentMethodIds.result
@@ -240,13 +242,16 @@ object ReturnPaymentUpdater {
                            .map(_.originId)
                            .to[Set]
                            .result
-      _ ← * <~ gcQuery.deleteAll
-      _ ← * <~ GiftCards.findAllByIds(paymentMethodIds).deleteAll
-      _ ← * <~ GiftCardRefunds.findAllByIds(giftCardOriginIds).deleteAll
-    } yield ()
+      queryDeleted ← * <~ gcQuery.deleteAllWithRowsBeingAffected
+      gcDeleted    ← * <~ GiftCards.findAllByIds(paymentMethodIds).deleteAllWithRowsBeingAffected
+      gcRefundsDeleted ← * <~ GiftCardRefunds
+                          .findAllByIds(giftCardOriginIds)
+                          .deleteAllWithRowsBeingAffected
+      somethingWereActuallyDeleted = queryDeleted || gcDeleted || gcRefundsDeleted
+    } yield somethingWereActuallyDeleted
   }
 
-  private def deleteScPayment(returnId: Int)(implicit ec: EC): DbResultT[Unit] = {
+  private def deleteScPayment(returnId: Int)(implicit ec: EC): DbResultT[Boolean] = {
     val scQuery = ReturnPayments.findAllByReturnId(returnId).storeCredits
     for {
       paymentMethodIds ← * <~ scQuery.paymentMethodIds.result
@@ -255,10 +260,13 @@ object ReturnPaymentUpdater {
                               .map(_.originId)
                               .to[Set]
                               .result
-      _ ← * <~ scQuery.deleteAll
-      _ ← * <~ StoreCredits.findAllByIds(paymentMethodIds).deleteAll
-      _ ← * <~ StoreCreditRefunds.findAllByIds(storeCreditOriginIds).deleteAll
-    } yield ()
+      queryDeleted ← * <~ scQuery.deleteAllWithRowsBeingAffected
+      scDeleted    ← * <~ StoreCredits.findAllByIds(paymentMethodIds).deleteAllWithRowsBeingAffected
+      scRefundsDeleted ← * <~ StoreCreditRefunds
+                          .findAllByIds(storeCreditOriginIds)
+                          .deleteAllWithRowsBeingAffected
+      somethingWereActuallyDeleted = queryDeleted || scDeleted || scRefundsDeleted
+    } yield somethingWereActuallyDeleted
   }
 
   def issueRefunds(
