@@ -106,6 +106,6 @@ abstract class FoxTableQuery[M <: FoxModel[M], T <: FoxTable[M]](construct: Tag 
     }
 
     def deleteAllWithRowsBeingAffected(implicit ec: EC): DbResultT[Boolean] =
-      wrapDbio(q.delete.map(_ > 0))
+      deleteAll.map(_ > 0)
   }
 }

@@ -247,8 +247,8 @@ object ReturnPaymentUpdater {
       gcRefundsDeleted ← * <~ GiftCardRefunds
                           .findAllByIds(giftCardOriginIds)
                           .deleteAllWithRowsBeingAffected
-      somethingWereActuallyDeleted = queryDeleted || gcDeleted || gcRefundsDeleted
-    } yield somethingWereActuallyDeleted
+      somethingWasActuallyDeleted = queryDeleted || gcDeleted || gcRefundsDeleted
+    } yield somethingWasActuallyDeleted
   }
 
   private def deleteScPayment(returnId: Int)(implicit ec: EC): DbResultT[Boolean] = {
@@ -265,8 +265,8 @@ object ReturnPaymentUpdater {
       scRefundsDeleted ← * <~ StoreCreditRefunds
                           .findAllByIds(storeCreditOriginIds)
                           .deleteAllWithRowsBeingAffected
-      somethingWereActuallyDeleted = queryDeleted || scDeleted || scRefundsDeleted
-    } yield somethingWereActuallyDeleted
+      somethingWasActuallyDeleted = queryDeleted || scDeleted || scRefundsDeleted
+    } yield somethingWasActuallyDeleted
   }
 
   def issueRefunds(
