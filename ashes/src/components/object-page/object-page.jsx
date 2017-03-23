@@ -30,6 +30,7 @@ import { supressTV } from 'paragons/object';
 
 // modules
 import * as schemaActions from 'modules/object-schema';
+import * as amazonActions from 'modules/channels/amazon';
 
 export function connectPage(namespace, actions) {
   const capitalized = _.upperFirst(namespace);
@@ -91,7 +92,10 @@ export function connectPage(namespace, actions) {
 
   function mapDispatchToProps(dispatch) {
     return {
-      actions: bindActionCreators(generalizeActions(actions), dispatch),
+      actions: bindActionCreators({
+        ...generalizeActions(actions),
+        fetchAmazonCredentials: amazonActions.fetchAmazonCredentials,
+      }, dispatch),
       dispatch,
     };
   }
@@ -181,6 +185,7 @@ export class ObjectPage extends Component {
   componentDidMount() {
     this.props.actions.clearFetchErrors();
     this.props.actions.fetchSchema(this.props.namespace);
+
     if (this.isNew) {
       this.props.actions.newEntity();
     } else {
@@ -189,6 +194,8 @@ export class ObjectPage extends Component {
           if (isArchived(payload)) this.transitionToList();
         });
     }
+
+    this.props.actions.fetchAmazonCredentials();
   }
 
   get unsaved(): boolean {

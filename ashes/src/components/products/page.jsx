@@ -41,6 +41,7 @@ type Props = {
   },
   originalObject: ?Product,
   selectContextAvailable: boolean,
+  hasAmazon: ?boolean,
 };
 
 const SELECT_CONTEXT = [

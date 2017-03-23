@@ -21,6 +21,8 @@ import s from './amazon.css';
 
 type Props = {
   isFetching: boolean,
+  isPushing: boolean,
+  isRemoving: boolean,
   inProgress: boolean,
   credentials: ?Object,
   actions: Object,
@@ -76,7 +78,7 @@ class AmazonCredentials extends Component {
     const nextCredentials = nextProps.credentials;
     const { credentials } = this.props;
 
-    if (!credentials && nextCredentials) {
+    if (credentials != nextCredentials && nextCredentials) {
       this.setState({
         seller_id: nextCredentials.seller_id,
         mws_auth_token: nextCredentials.mws_auth_token,
@@ -158,7 +160,12 @@ class AmazonCredentials extends Component {
   }
 
   _handleRemove() {
-    this.props.actions.removeAmazonCredentials();
+    this.props.actions.removeAmazonCredentials().then(() => {
+      this.setState({
+        seller_id: '',
+        mws_auth_token: '',
+      });
+    });
   }
 
   _handleSellerId({ target }) {
