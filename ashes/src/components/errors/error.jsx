@@ -18,11 +18,7 @@ type Props = {
   err: ?ErrorObject;
 };
 
-const Error = ({
-  err,
-  notFound = NOT_FOUND_ERROR,
-  otherProblem = UNEXPECTED_ERROR,
-}: Props) => {
+const Error = ({ err, notFound = NOT_FOUND_ERROR, otherProblem = UNEXPECTED_ERROR }: Props) => {
   const status = _.get(err, 'status');
   const message = status == 404 ? notFound : otherProblem;
 

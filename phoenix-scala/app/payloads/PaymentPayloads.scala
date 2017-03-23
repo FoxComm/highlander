@@ -71,8 +71,6 @@ object PaymentPayloads {
                                   cvv: Int,
                                   expiration: String)
 
-  case class ToggleDefaultCreditCard(isDefault: Boolean)
-
   case class EditCreditCard(holderName: Option[String] = None,
                             expYear: Option[Int] = None,
                             expMonth: Option[Int] = None,
