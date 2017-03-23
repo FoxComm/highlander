@@ -1,5 +1,6 @@
+// @flow
 import classNames from 'classnames/dedupe';
-import React from 'react';
+import React, { Element } from 'react';
 
 import styles from './css/buttons.css';
 
@@ -7,8 +8,11 @@ import Icon from 'ui/icon';
 
 type ButtonProps = {
   icon?: string,
-  isLoading?: boolean,
+  isLoading?: boolean|null,
   className?: string,
+  disabled?: boolean,
+  children?: Element<*>|string,
+  onClick?: (event: SyntheticEvent) => void,
 };
 
 const Button = (props: ButtonProps) => {

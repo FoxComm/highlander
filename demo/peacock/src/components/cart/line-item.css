@@ -49,10 +49,9 @@
   justify-content: flex-end;
 }
 
-.delete-button {
-  cursor: pointer;
-  color: #0b7ddc;
-  font-size: 14px;
+.action-link-remove {
+  composes: action-link from "ui/action-link/action-link.css";
+  font-size: 15px;
 }
 
 .details {
@@ -71,7 +70,7 @@
 .price, .multiply, .total-price, .quantity {
   margin: 10px;
   font-size: 14px;
-  color: #222;
+  color: var(--text-color);
 }
 
 .total-price {

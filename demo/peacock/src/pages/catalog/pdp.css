@@ -7,7 +7,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  background-color: #EBEAEA;
+  background-color: var(--body-background);
 }
 
 .gallery {
@@ -27,11 +27,10 @@
 }
 
 .title {
-  font-family: var(--font-playfair);
   font-weight: 400;
   font-size: 30px;
   letter-spacing: 1.28px;
-  color: #212121;
+  color: var(--text-color);
   position: relative;
   line-height: 46px;
 
@@ -44,7 +43,6 @@
     left: 50%;
     transform: translateX(-50%);
     margin-top: 20px;
-    background-color: #3E3436;
   }
 }
 
@@ -53,7 +51,7 @@
   font-family: var(--font-main);
   font-weight: 300;
   font-size: 18px;
-  color: #363636;
+  color: var(--text-color);
   opacity: 0.64;
 }
 
@@ -87,7 +85,7 @@
   font-family: var(--font-main);
   font-weight: 300;
   font-size: 16px;
-  color: #212121;
+  color: var(--text-color);
   line-height: 33px;
 }
 
@@ -96,7 +94,7 @@
   font-family: var(--font-main);
   font-weight: 300;
   font-size: 15px;
-  color: #363636;
+  color: var(--text-color);
   opacity: 0.66;
   line-height: 25px;
 }
@@ -111,7 +109,7 @@
 
 .social-icon {
   flex: 0 0 75px;
-  color: #3E3436;
+  color: var(--text-color);
   opacity: 0.86;
   cursor: pointer;
 
@@ -121,9 +119,9 @@
 }
 
 .additional-info {
-  background-color: #3E3436;
+  background-color: var(--body-background);
   width: 100%;
-  color: white;
+  color: var(--text-color);
   display: flex;
   justify-content: center;
 }
@@ -145,11 +143,11 @@
   margin-right: 22px;
 
   &.active {
-    box-shadow: 0 2px rgba(255, 255, 255, 0.70);
+    box-shadow: 0 2px var(--input-border-color);
   }
 
   &:hover {
-    box-shadow: 0 2px rgba(255, 255, 255, 0.27);
+    box-shadow: 0 2px var(--input-border-color);
   }
 }
 
@@ -208,7 +206,6 @@
 
 
   .item-title {
-    font-family: var(--font-playfair);
     text-transform: none;
     font-size: 20px;
     padding: 36px 45px;

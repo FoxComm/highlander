@@ -10,13 +10,13 @@
   background: rgba(0, 0, 0, 0.3);;
   opacity: 0;
   transition: opacity .1s;
-  display: none;
+  transform: translateX(100%);
 }
 
 .overlay-shown {
   composes: overlay;
   opacity: 1;
-  display: block;
+  transform: translateX(0);
 }
 
 .no-scroll {

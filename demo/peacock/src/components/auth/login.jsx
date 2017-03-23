@@ -1,7 +1,7 @@
 /* @flow */
 
 import _ from 'lodash';
-import React, { Component } from 'react';
+import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { Link } from 'react-router';
 import { connect } from 'react-redux';
@@ -17,8 +17,6 @@ import Button from 'ui/buttons';
 import * as actions from 'modules/auth';
 import { authBlockTypes } from 'paragons/auth';
 import { fetch as fetchCart, saveLineItemsAndCoupons } from 'modules/cart';
-
-import type { HTMLElement } from 'types';
 
 import localized from 'lib/i18n';
 import type { Localized } from 'lib/i18n';
@@ -36,7 +34,7 @@ type Props = Localized & {
   fetchCart: Function,
   saveLineItemsAndCoupons: Function,
   onAuthenticated?: Function,
-  title?: string|Element|null,
+  title?: string|Element<*>|null,
   onSignupClick: Function,
   mergeGuestCart: boolean,
 };
@@ -131,7 +129,7 @@ class Login extends Component {
     );
   }
 
-  render(): HTMLElement {
+  render(): Element<*> {
     const { password, email } = this.state;
     const { props } = this;
     const { t, getPath } = props;
@@ -166,7 +164,7 @@ class Login extends Component {
             type="submit"
             styleName="primary-button"
             isLoading={this.props.isLoading}
-            children={t('LOG IN')}
+            children={t('Login')}
           />
           {this.bottomMessage}
         </Form>

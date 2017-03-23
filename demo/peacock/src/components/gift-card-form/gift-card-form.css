@@ -20,16 +20,7 @@
 }
 
 .input-field {
-  composes: text-input from "ui/css/input.css";
-  width: 100%;
-  border: 1px solid #3E3436;
   margin-bottom: 15px;
-
-  /* Validation error */
-  & + div {
-    margin-top: -16px;
-    margin-bottom: 15px;
-  }
 }
 
 .input-field::placeholder {

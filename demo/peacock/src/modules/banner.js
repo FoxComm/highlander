@@ -13,7 +13,7 @@ const initialState : FormData = {
 };
 
 const reducer = createReducer({
-  [closeBanner]: state => {
+  [closeBanner]: (state) => {
     return {
       ...state,
       isVisible: false,

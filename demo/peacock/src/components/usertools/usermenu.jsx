@@ -1,9 +1,8 @@
 /* @flow */
 
-import React, { Component } from 'react';
+import React, { Component, Element } from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
-import type { HTMLElement } from 'types';
 import localized from 'lib/i18n';
 import styles from './usertools.css';
 
@@ -41,7 +40,7 @@ class UserMenu extends Component {
     });
   }
 
-  render(): HTMLElement {
+  render(): Element<*> {
     const { t } = this.props;
     return (
       <ul styleName="menu">

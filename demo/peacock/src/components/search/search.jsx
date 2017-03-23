@@ -1,7 +1,6 @@
 /* flow */
 
-import React, { Component } from 'react';
-import type { HTMLElement } from 'types';
+import React, { Component, Element } from 'react';
 import { browserHistory } from 'lib/history';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
@@ -92,13 +91,14 @@ class Search extends Component {
       this.setState({ focus: !this.state.focus });
     }
   }
-  render(): HTMLElement {
+  render(): Element<*> {
     const { t } = this.props;
 
     return (
       <div styleName="search">
         <form action="." >
-          <input value={this.state.term}
+          <input
+            value={this.state.term}
             onChange={this.onChange}
             onKeyDown={this.onKeyDown}
             onFocus={this.setFocus}

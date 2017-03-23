@@ -31,7 +31,7 @@
   font-size: 40px;
   font-weight: 900;
   line-height: 1.25;
-  color: #222222;
+  color: var(--text-color);
 }
 
 .top-message {
@@ -85,7 +85,8 @@
 
 .primary-button {
   composes: button from "ui/css/buttons.css";
-  width: 100%;
+  font-size: 20px;
+  font-weight: 900;
 }
 
 .bottom-message {
@@ -96,7 +97,7 @@
 .restore-link {
   font-weight: 400;
   font-size: 14px;
-  color: var(--dark-blackish);
+  color: var(--link-alt-color);
   opacity: 0.38;
   text-decoration: none;
 
@@ -106,12 +107,12 @@
 }
 
 .link {
-  color: #0b7ddc;
-  text-decoration: underline;
+  color: var(--link-color);
+  text-decoration: none;
   font-weight: 500;
 
   &:hover {
-    color: #1c6ddc;
+    color: var(--link-hover-color);
   }
 }
 

@@ -15,7 +15,7 @@
 }
 
 .action {
-  color: #8D757A;
+  color: var(--link-color);
   font-size: 13px;
   font-weight: 400;
   text-align: right;

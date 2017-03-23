@@ -1,4 +1,6 @@
 
+/* eslint-disable import/no-named-as-default */
+
 import { combineReducers } from 'redux';
 import { routeReducer } from 'react-router-redux';
 import cart from './cart';

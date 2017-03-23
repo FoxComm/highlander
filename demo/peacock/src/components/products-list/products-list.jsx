@@ -2,7 +2,7 @@
 
 // libs
 import _ from 'lodash';
-import React, { Component } from 'react';
+import React, { Component, Element } from 'react';
 import { autobind, debounce } from 'core-decorators';
 import { isElementInViewport } from 'lib/dom-utils';
 import * as tracking from 'lib/analytics';
@@ -13,9 +13,7 @@ import styles from './products-list.css';
 // components
 import ListItem from '../products-item/list-item';
 import Loader from 'ui/loader';
-
-// types
-import type { HTMLElement } from 'types';
+import SortPill from 'components/sort-pill/sort-pill';
 
 export const LoadingBehaviors = {
   ShowLoader: 0,
@@ -26,11 +24,16 @@ type Props = {
   loadingBehavior?: 0|1,
   list: ?Array<Object>,
   isLoading: ?boolean,
+  sorting: {
+    direction: number,
+    field: string,
+  },
+  changeSorting: Function,
 };
 
 type State = {
   shownProducts: {[productId: string]: number},
-}
+};
 
 class ProductsList extends Component {
   props: Props;
@@ -39,9 +42,9 @@ class ProductsList extends Component {
   };
   _willUnmount: boolean = false;
 
- componentDidMount() {
-   window.addEventListener('scroll', this.handleScroll);
- }
+  componentDidMount() {
+    window.addEventListener('scroll', this.handleScroll);
+  }
 
   componentWillUnmount() {
     this._willUnmount = true;
@@ -56,7 +59,7 @@ class ProductsList extends Component {
   }
 
   renderProducts() {
-    return _.map(this.props.list, (item, index) => {
+    const products = _.map(this.props.list, (item, index) => {
       return (
         <ListItem
           {...item}
@@ -66,6 +69,15 @@ class ProductsList extends Component {
         />
       );
     });
+
+    return (
+      <div>
+        {this.sorting}
+        <div styleName="list" ref={this.handleListRendered}>
+          {products}
+        </div>
+      </div>
+    );
   }
 
   trackProductView() {
@@ -75,7 +87,7 @@ class ProductsList extends Component {
     const shownProducts = {};
 
     if (visibleProducts.length > 0) {
-      _.each(visibleProducts, item => {
+      _.each(visibleProducts, (item) => {
         shownProducts[item.id] = 1;
         tracking.addImpression(item, item.index);
       });
@@ -118,23 +130,43 @@ class ProductsList extends Component {
     }, 250);
   }
 
-  get loadingWrapper(): ?HTMLElement {
+  get loadingWrapper(): ?Element<*> {
     if (this.props.isLoading) {
       return (
         <div styleName="loading-wrapper">
           <div styleName="loader">
-            <Loader/>
+            <Loader />
           </div>
         </div>
       );
     }
   }
 
-  render() : HTMLElement {
+  get sorting(): Element<*> {
+    const { sorting, changeSorting } = this.props;
+    return (
+      <div styleName="sorting">
+        <SortPill
+          field="price"
+          direction={sorting.direction}
+          isActive={sorting.field === 'salePrice'}
+          onClick={() => changeSorting('salePrice')}
+        />
+        <SortPill
+          field="name"
+          direction={sorting.direction}
+          isActive={sorting.field === 'title'}
+          onClick={() => changeSorting('title')}
+        />
+      </div>
+    );
+  }
+
+  render() : Element<any> {
     const { props } = this;
     const { loadingBehavior = LoadingBehaviors.ShowLoader } = props;
     if (loadingBehavior == LoadingBehaviors.ShowLoader && props.isLoading) {
-      return <Loader/>;
+      return <Loader />;
     }
     const items = props.list && props.list.length > 0
       ? this.renderProducts()
@@ -143,7 +175,7 @@ class ProductsList extends Component {
     return (
       <div styleName="list-wrapper">
         {this.loadingWrapper}
-        <div styleName="list" ref={this.handleListRendered}>
+        <div>
           {items}
         </div>
       </div>

@@ -8,7 +8,7 @@ const sanitizers = [sanitizeAddresses, sanitizeCreditCards];
 export default function sanitizeAll(error: string): string {
   let result = error;
 
-  _.some(sanitizers, sanitizeError => {
+  _.some(sanitizers, (sanitizeError) => {
     const sanitized = sanitizeError(error);
     if (sanitized !== error) {
       result = sanitized;

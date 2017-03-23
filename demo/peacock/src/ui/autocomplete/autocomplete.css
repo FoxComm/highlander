@@ -7,7 +7,7 @@
 
 .menu {
   left: 0;
-  background: #ffffff;
+  background: var(--body-background);
   box-shadow: 0 8px 13px 0 rgba(0,0,0,0.30);
   padding: 2px 0;
   font-size: 90%;
@@ -29,16 +29,6 @@
   top: 100%;
 }
 
-.input {
-  composes: text-input from "ui/css/input.css";
-  width: 100%;
-  border-color: var(--additional-color);
-
-  &:hover {
-    border-color: #8D757A;
-  }
-}
-
 .item {
   font-size: 16px;
   line-height: 19px;
@@ -48,13 +38,13 @@
 
 .item-highlighted {
   composes: item;
-  background: #f4f4f4;
+  background: var(--select-active-background);
 }
 
 @media (--medium) {
   .input {
     &:hover {
-      border-color: #8D757A;
+      border-color: var(--link-hover-color);
     }
   }
 }

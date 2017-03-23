@@ -11,7 +11,7 @@ const getPublicKey = _.memoize(() => {
   }
 });
 
-function *verifyJwt(next) {
+function* verifyJwt(next) {
   const jwt = this.cookies.get('JWT');
 
   let decodedToken;
@@ -28,7 +28,7 @@ function *verifyJwt(next) {
           algorithms: ['RS256', 'RS384', 'RS512'],
         });
       } catch (err) {
-        console.error("Can't decode token: ", err);
+        console.error('Can\'t decode token: ', err);
       }
     }
   }

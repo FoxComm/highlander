@@ -1,3 +1,4 @@
+@import "colors.css";
 
 .logo {
   font-family: Lato;
@@ -8,6 +9,6 @@
   line-height: normal;
   letter-spacing: 12px;
   text-align: center;
-  color: #222222;
+  color: var(--text-color);
   text-transform: uppercase;
 }

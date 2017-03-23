@@ -9,7 +9,7 @@ exports.__esModule = true;
 
 function findClassNameAttr(node) {
   let classNameAttr = null;
-  node.attributes = node.attributes.filter(attr => {
+  node.attributes = node.attributes.filter((attr) => {
     if (attr.name && attr.name.name == 'className') {
       classNameAttr = attr;
       return false;

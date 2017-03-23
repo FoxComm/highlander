@@ -7,7 +7,7 @@ import styles from './counter.css';
 // components
 import Button from '../buttons';
 
-const Counter = props => {
+const Counter = (props) => {
   const {decreaseAction, increaseAction, ...rest} = props;
 
   return (

@@ -1,4 +1,3 @@
-
 @import "colors.css";
 @import "media-queries.css";
 
@@ -12,9 +11,9 @@
   font-size: 16px;
   padding: 12px 11px 5px;
   border-radius: 2px;
-  background-color: #ffffff;
-  border: solid 1px #bbbbbb;
-  color: #000;
+  background-color: var(--input-background);
+  border: solid 1px var(--input-border-color);
+  color: var(--input-text-color);
   box-shadow: none;
 
   &:active {
@@ -56,6 +55,15 @@ input.error {
   top: 6px;
   line-height: var(--top-line-height);
   color: var(--color-error);
+  transition: right .4s ease;
+}
+
+.hasCard .errorMessage {
+  right: calc(12px + 44px);
+}
+
+.hasSymbol .errorMessage {
+  right: calc(1em + 11px);
 }
 
 .placeholder {
@@ -67,10 +75,14 @@ input.error {
   color: var(--input-placeholder-color);
 }
 
-.label {
-  --line-height: 28px;
+.labelElement {
   position: absolute;
   right: 6px;
+}
+
+.labelText {
+  composes: labelElement;
+  --line-height: 28px;
   line-height: var(--line-height);
   top: calc(50% - var(--line-height) / 2);
   font-size: 10px;

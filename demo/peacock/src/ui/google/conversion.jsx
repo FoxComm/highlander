@@ -29,9 +29,9 @@ const Conversion = (props: Props) => {
     `label=${label}`,
     `currency_code=${currency}`,
     `value=${value}`,
-    `guid=ON`,
+    'guid=ON',
     orderId ? `oid=${orderId}` : null,
-    `script=0`,
+    'script=0',
   ]).join('&');
 
   const url = `//www.googleadservices.com/pagead/conversion/${id}/?${urlValues}`;

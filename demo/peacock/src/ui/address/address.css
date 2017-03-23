@@ -1,3 +1,4 @@
+@import "colors.css";
 
 .address-details {
   list-style-type: none;
@@ -10,20 +11,20 @@
 }
 
 .text-input {
-  composes: text-input from "ui/css/input.css";
+  composes: textInput from "ui/text-input/text-input.css";
 }
 
 .theme-white-bg {
   & .text-input, & input[type=text] {
     &::placeholder {
-      color: #a5a5a5;
+      color: var(--input-placeholder-color);
     }
-    background: #f4f4f4;
+    background: var(--input-background);
   }
 }
 
 .address-title {
   font-weight: 500;
   font-size: 13px;
-  color: #212121;
+  color: var(--text-color);
 }

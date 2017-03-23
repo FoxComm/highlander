@@ -1,24 +1,22 @@
 
 /* @flow */
 
-import React from 'react';
+import React, { Element } from 'react';
 import styles from './editable-block.css';
 
 import localized from 'lib/i18n';
 import type { Localized } from 'lib/i18n';
-
-import type { HTMLElement } from 'types';
 
 type EditableProps = Localized & {
   isEditing: boolean,
   collapsed?: boolean,
   editAllowed?: boolean,
   className?: string,
-  content?: ?HTMLElement,
-  children?: HTMLElement,
+  content?: ?Element<*>,
+  children?: Element<*>,
   editAction?: () => any,
-  actionsContent?: HTMLElement|Array<HTMLElement>,
-  title: string|HTMLElement,
+  actionsContent?: Element<*>|Array<Element<*>>,
+  title: string|Element<*>,
   t: any,
 };
 

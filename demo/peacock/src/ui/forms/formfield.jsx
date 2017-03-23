@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { autobind, debounce } from 'core-decorators';
-import React, { PropTypes, Component } from 'react';
+import React, { PropTypes, Component, Element } from 'react';
 import { findDOMNode } from 'react-dom';
 import * as validators from './validators';
 import styles from './formfield.css';
@@ -10,12 +10,10 @@ import classNames from 'classnames';
 import localized from 'lib/i18n';
 import type { Localized } from 'lib/i18n';
 
-import type { HTMLElement} from 'types';
-
 type FormFieldProps = Localized & {
   validator: ?string|?(value: any) => string,
   validateOnBlur?: boolean;
-  children: HTMLElement,
+  children: Element<*>,
   required: ?any,
   maxLength: ?number,
   target: ?string,
@@ -37,7 +35,7 @@ class FormField extends Component {
 
   static defaultProps = {
     target: 'input,textarea,select',
-    getTargetValue: node => node.type == 'checkbox' ? node.checked : node.value,
+    getTargetValue: (node) => { return node.type == 'checkbox' ? node.checked : node.value; },
     validateOnBlur: false,
   };
 

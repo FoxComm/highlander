@@ -1,20 +1,19 @@
 /* @flow */
 
-import React, { PropTypes } from 'react';
+import React, { PropTypes, Element } from 'react';
 import formatCurrency from 'lib/format-currency';
-import type { HTMLElement } from 'types';
 
 type CurrencyProps = {
   value: any,
-  fractionBase: number,
-  currency: string,
-  bigNumber: bool,
-  prefix: string,
+  fractionBase?: number,
+  currency?: string,
+  bigNumber?: boolean,
+  prefix?: string,
   className?: string,
 };
 
-const Currency = (props: CurrencyProps): HTMLElement => {
-  const { value, className, prefix, ...rest} = props;
+const Currency = (props: CurrencyProps): Element<*> => {
+  const { value, className, prefix = '', ...rest} = props;
 
   return (
     <span className={className}>

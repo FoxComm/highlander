@@ -40,7 +40,7 @@ const reducer = createReducer({
       current: response.result,
     };
   },
-  [clearOrder]: state => {
+  [clearOrder]: (state) => {
     return {
       ...state,
       current: null,

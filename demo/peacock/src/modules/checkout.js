@@ -4,7 +4,7 @@ import _ from 'lodash';
 import { createAction, createReducer } from 'redux-act';
 import { assoc } from 'sprout-data';
 import { createAsyncActions } from '@foxcomm/wings';
-import { updateCart, resetCart } from 'modules/cart';
+import { updateCart, resetCart, cleanShippingAddress } from 'modules/cart';
 import { api as foxApi } from '../lib/api';
 import * as tracking from 'lib/analytics';
 
@@ -39,11 +39,17 @@ export const setBillingData = createAction('CHECKOUT_SET_BILLING_DATA', (key, va
 export const resetBillingData = createAction('CHECKOUT_RESET_BILLING_DATA');
 export const loadBillingData = createAction('CHECKOUT_LOAD_BILLING_DATA');
 export const setBillingAddress = createAction('CHECKOUT_SET_BILLING_ADDRESS');
+export const toggleModal = createAction('TOGGLE_MODAL');
 const markAddressAsDeleted = createAction('CHECKOUT_MARK_ADDRESS_AS_DELETED');
 const markAddressAsRestored = createAction(
   'CHECKOUT_MARK_ADDRESS_AS_RESTORED',
   (oldId: number, newAddress: Address) => [oldId, newAddress]
 );
+const markDefaultAddress = createAction(
+  'MARK_ADDRESS_AS_DEFAULT',
+  id => id
+);
+export const cleanDeletedAddresses = createAction('CHECKOUT_CLEAN_DELETED_ADDRESSES');
 
 export const resetCheckout = createAction('CHECKOUT_RESET');
 const orderPlaced = createAction('CHECKOUT_ORDER_PLACED');
@@ -95,7 +101,7 @@ const _saveShippingAddress = createAsyncActions(
     const { dispatch } = this;
 
     return foxApi.cart.setShippingAddressById(id)
-      .then(res => {
+      .then((res) => {
         dispatch(updateCart(res.result));
       });
   }
@@ -109,7 +115,7 @@ const _addShippingAddress = createAsyncActions(
     const { dispatch } = this;
     const payload = addressToPayload(address);
     return foxApi.cart.setShippingAddress(payload)
-      .then(res => {
+      .then((res) => {
         dispatch(updateCart(res.result));
       });
   }
@@ -123,13 +129,44 @@ const _updateShippingAddress = createAsyncActions(
     const { dispatch } = this;
     const payload = addressToPayload(address);
     return foxApi.cart.updateShippingAddress(payload)
-      .then(res => {
+      .then((res) => {
         dispatch(updateCart(res.result));
       });
   }
 );
 
 export const updateShippingAddress = _updateShippingAddress.perform;
+
+const _setAddressAsDefault = createAsyncActions(
+  'setAddressAsDefault',
+  function (id) {
+    const { dispatch } = this;
+    // optimistic update
+    dispatch(markDefaultAddress(id));
+    return foxApi.addresses.setAsDefault(id)
+      .then(() => {
+        dispatch(fetchAddresses());
+      });
+  }
+);
+
+export const setAddressAsDefault = _setAddressAsDefault.perform;
+
+const _removeShippingAddress = createAsyncActions(
+  'REMOVE_SHIPPING_ADDRESS',
+  function() {
+    const { getState, dispatch } = this;
+    const { shippingAddress } = getState().cart;
+    if (_.isEmpty(shippingAddress)) return Promise.resolve({});
+
+    return foxApi.cart.removeShippingAddress()
+      .then(() => {
+        dispatch(cleanShippingAddress());
+      });
+  }
+);
+
+export const removeShippingAddress = _removeShippingAddress.perform;
 
 const _saveShippingMethod = createAsyncActions(
   'saveShippingMethod',
@@ -138,7 +175,7 @@ const _saveShippingMethod = createAsyncActions(
     const methodId = shippingMethod.id;
 
     return api.cart.chooseShippingMethod(methodId)
-      .then(res => {
+      .then((res) => {
         dispatch(updateCart(res.result));
       });
   }
@@ -151,7 +188,7 @@ export function saveGiftCard(code: string): Function {
     const payload = { code: code.trim() };
 
     return foxApi.cart.addGiftCard(payload)
-      .then(res => {
+      .then((res) => {
         dispatch(updateCart(res.result));
       });
   };
@@ -160,7 +197,7 @@ export function saveGiftCard(code: string): Function {
 export function removeGiftCard(code: string): Function {
   return (dispatch) => {
     return foxApi.cart.removeGiftCard(code)
-      .then(res => {
+      .then((res) => {
         dispatch(updateCart(res.result));
       });
   };
@@ -169,7 +206,7 @@ export function removeGiftCard(code: string): Function {
 export function saveCouponCode(code: string): Function {
   return (dispatch) => {
     return foxApi.cart.addCoupon(code)
-      .then(res => {
+      .then((res) => {
         dispatch(updateCart(res.result));
       });
   };
@@ -178,7 +215,7 @@ export function saveCouponCode(code: string): Function {
 export function removeCouponCode() {
   return (dispatch) => {
     return foxApi.cart.removeCoupon()
-      .then(res => {
+      .then((res) => {
         dispatch(updateCart(res.result));
       });
   };
@@ -197,43 +234,56 @@ function createOrUpdateAddress(payload, id) {
   return foxApi.addresses.add(payload);
 }
 
+function autoAssignNewDefaultShippingAddress() {
+  return (dispatch, getState) => {
+    const { addresses } = getState().checkout;
+
+    const newDefault = _.find(addresses, address => !address.isDeleted);
+    if (newDefault) {
+      dispatch(setAddressAsDefault(newDefault.id));
+    } else {
+      dispatch(removeShippingAddress());
+    }
+  };
+}
+
 const _deleteAddress = createAsyncActions(
   'deleteAddress',
   function(addressId: number) {
-    const { dispatch } = this;
+    const { dispatch, getState } = this;
+    const address = _.find(getState().checkout.addresses, {id: addressId});
+    const wasDefault = address.isDefault;
 
     return foxApi.addresses.delete(addressId).then(() => {
       dispatch(markAddressAsDeleted(addressId));
+      if (wasDefault) {
+        dispatch(autoAssignNewDefaultShippingAddress());
+      }
     });
   }
 );
 
 export const deleteAddress = _deleteAddress.perform;
 
-function setDefaultAddress(id: number): Function {
-  return (dispatch) => {
-    return foxApi.addresses.setAsDefault(id)
-      .then(() => {
-        dispatch(fetchAddresses());
-      });
-  };
-}
-
 const _updateAddress = createAsyncActions(
   'updateAddress',
   function(address: Address, id?: number) {
     const payload = addressToPayload(address);
-    const { dispatch } = this;
+    const { dispatch, getState } = this;
+    const { addresses } = getState().checkout;
+    const emptyAddressList = _.filter(addresses, addr => !addr.isDeleted).length == 0;
+
+    let result;
 
     return createOrUpdateAddress(payload, id)
       .then((addressResponse) => {
-        if (payload.isDefault) {
-          dispatch(setDefaultAddress(addressResponse.id));
-        } else {
-          dispatch(fetchAddresses());
+        result = addressResponse;
+        if (payload.isDefault || emptyAddressList) {
+          return dispatch(setAddressAsDefault(addressResponse.id));
         }
-        return addressResponse;
-      });
+        return dispatch(fetchAddresses());
+      })
+      .then(() => result);
   }
 );
 
@@ -244,12 +294,12 @@ const _restoreAddress = createAsyncActions(
     const address = _.find(getState().checkout.addresses, {id: addressId});
     if (address) {
       const payload = addressToPayload(address);
-      const promise = foxApi.addresses.add(payload).then(response => {
+      const promise = foxApi.addresses.add(payload).then((response) => {
         dispatch(markAddressAsRestored(addressId, response));
         return response;
       });
       if (payload.isDefault) {
-        return promise.then(response => {
+        return promise.then((response) => {
           return foxApi.addresses.setAsDefault(response.id);
         });
       }
@@ -296,7 +346,7 @@ export function chooseCreditCard(): Function {
     const creditCard = getState().checkout.creditCard;
 
     return foxApi.cart.addCreditCard(creditCard.id)
-      .then(res => {
+      .then((res) => {
         dispatch(updateCart(res.result));
       });
   };
@@ -339,7 +389,7 @@ const _checkout = createAsyncActions(
     const { dispatch, getState } = this;
     const cartState = getState().cart;
 
-    return foxApi.cart.checkout().then(res => {
+    return foxApi.cart.checkout().then((res) => {
       tracking.purchase({
         ...cartState,
         referenceNumber: res.referenceNumber,
@@ -374,7 +424,17 @@ const initialState: CheckoutState = {
   addresses: [],
   isAddressLoaded: false,
   creditCard: null,
+  modalVisible: false,
 };
+
+function sortAddresses(addresses: Array<Address>): Array<Address> {
+  return addresses.slice().sort((a, b) => {
+    if (!a.isDeleted && !b.isDeleted) return a.id - b.id;
+    if (a.isDeleted) return 1;
+    if (b.isDeleted) return -1;
+    return 0;
+  });
+}
 
 const reducer = createReducer({
   [setEditStage]: (state, editStage: EditStage) => {
@@ -418,24 +478,64 @@ const reducer = createReducer({
     };
   },
   [_fetchAddresses.succeeded]: (state, list) => {
+    const deletedAddresses = _.filter(state.addresses, {isDeleted: true});
+    const addresses = [...list, ...deletedAddresses];
     return {
       ...state,
-      addresses: list,
+      addresses,
+    };
+  },
+  [cleanDeletedAddresses]: (state) => {
+    return {
+      ...state,
+      addresses: _.filter(state.addresses, address => !address.isDeleted),
+    };
+  },
+  [markDefaultAddress]: (state, addressId) => {
+    const newAddresses = _.map(state.addresses, (address) => {
+      if (address.id === addressId) {
+        return {...address, isDefault: true};
+      } else if (address.isDefault) {
+        return {...address, isDefault: false};
+      }
+      return address;
+    });
+    return {
+      ...state,
+      addresses: newAddresses,
     };
   },
   [markAddressAsDeleted]: (state, addressId) => {
     const index = _.findIndex(state.addresses, {id: addressId});
     if (index != -1) {
-      return assoc(state, ['addresses', index, 'isDeleted'], true);
+      const newAddresses = assoc(state.addresses,
+        [index, 'isDeleted'], true,
+        [index, 'isDefault'], false
+      );
+      return {
+        ...state,
+        addresses: sortAddresses(newAddresses),
+      };
     }
     return state;
   },
   [markAddressAsRestored]: (state, [addressId, addressData]) => {
     const index = _.findIndex(state.addresses, {id: addressId});
     if (index != -1) {
-      return assoc(state, ['addresses', index], addressData);
+      const newAddresses = assoc(state.addresses, index, addressData);
+      return {
+        ...state,
+        addresses: sortAddresses(newAddresses),
+      };
     }
     return state;
+  },
+  [toggleModal]: state => {
+    const visibleCurrent = _.get(state, 'modalVisible', false);
+    return {
+      ...state,
+      modalVisible: !visibleCurrent,
+    };
   },
   [resetCheckout]: () => {
     return initialState;

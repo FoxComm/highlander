@@ -5,9 +5,6 @@ import StoreFront from './components/layout/storefront';
 import Products from './pages/catalog/products';
 import Pdp from './pages/catalog/pdp';
 import Search from './pages/search/search';
-import ShippingAndReturns from './pages/static/shipping-and-returns';
-import PrivacyPolicy from './pages/static/privacy-policy';
-import TermsOfUse from './pages/static/terms-of-use';
 
 import ProfilePage from './components/profile/page';
 import Profile from './components/profile/profile';
@@ -18,14 +15,10 @@ import ChangePassword from './components/profile/blocks/change-password';
 import Order from './components/profile/blocks/order';
 import AddressForm from './components/profile/blocks/address-form';
 
-import StoresPage from './pages/stores/stores-page';
 import HomePage from './pages/home/home-page';
-import FAQPage from './pages/static/faqs-page';
-import ContactUsPage from './pages/static/contact-us-page';
-import AboutPage from './pages/about/about-page';
 
 import Checkout from './pages/checkout/checkout';
-import OrderPlaced from './pages/checkout/04-order-placed/order-placed';
+import OrderPlaced from './pages/checkout/order-placed/order-placed';
 
 import { isAuthorizedUser } from 'paragons/auth';
 
@@ -55,13 +48,6 @@ export default function makeRoutes(store) {
             <Route path="addresses/:addressId" component={AddressForm} />
           </Route>
         </Route>
-        <Route path="/shipping-and-returns" component={ShippingAndReturns} name="shipping-and-returns" />
-        <Route path="/privacy-policy" component={PrivacyPolicy} name="privacy-policy" />
-        <Route path="/terms-of-use" component={TermsOfUse} name="terms-of-use" />
-        <Route path="/frequently-asked-questions" component={FAQPage} name="frequently-asked-questions" />
-        <Route path="/stores" component={StoresPage} name="stores" />
-        <Route path="/about" component={AboutPage} name="about" />
-        <Route path="/contact-us" component={ContactUsPage} name="contact-us" />
         <Route path="/checkout/done" component={OrderPlaced} />
         <Route path="/products/:productSlug" component={Pdp} name="product" />
         <Route path="/gift-cards" component={Pdp} name="gift-cards" />

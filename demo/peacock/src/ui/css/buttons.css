@@ -1,13 +1,5 @@
-
 @import "colors.css";
 @import "media-queries.css";
-
-:root {
-  --button-bg: var(--water-blue);
-  --button-fg: var(--whitish);
-  --button-hover-bg: #19ccb1; /* TODO: it's random color, replace it after Stephen make colors for various states */
-  --button-disabled-bg: var(--blackish);
-}
 
 .button {
   width: 100%;
@@ -15,13 +7,23 @@
   line-height: 20px;
   padding: 14px 10px;
   border: none;
-  background-color: var(--button-bg);
-  color: var(--button-fg);
+  border-radius: 4px;
+  background-color: var(--button-default-background);
+  color: var(--button-label-color);
   text-align: center;
   cursor: pointer;
 
-  &:hover {
-    background: var(--button-hover-bg);
+  &:active {
+    background: var(--button-active-background);
+  }
+
+  &:visited {
+    background: var(--button-visited-background);
+  }
+
+  &:focus {
+    border: 1px solid var(--button-focus-background);
+    background: var(--button-focus-background);
   }
 
   & > span {
@@ -34,8 +36,8 @@
   }
 
   &:disabled {
-    color: #eee;
-    background: var(--button-disabled-bg);
+    color: var(--button-disabled-color);
+    background: var(--button-disabled-background);
 
     &:hover {
       cursor: not-allowed;
@@ -54,12 +56,13 @@
   }
 
   &:disabled {
-    background: var(--blackish);
+    color: var(--button-disabled-color);
+    background: var(--button-disabled-background);
     background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUAQMAAAC3R49OAAAABlBMVEUAAAAAAAClZ7nPAAAAAnRSTlMAF/VASP8AAABBSURBVHheZckxFYAgFADA8zkwYgMr2MBKNpBoRCHCHxl4YADnsxymy/DoQmyh7aGmUHJwBnfjraxiW+yTNMj9xx9ZVxpfjbpEWgAAAABJRU5ErkJggg==);
     animation: caramel .5s linear infinite;
 
     &:hover {
-      color: var(--whitish);
+      color: var(--button-disabled-color);
       cursor: not-allowed;
     }
   }
@@ -69,16 +72,19 @@
 .button-secondary {
   min-width: 11.2em;
   height: 3.1em;
-  border: 1px solid #8D757A;
-  background: var(--color-panels-bg);
+  background: var(--button-alt-default-background);
   text-transform: uppercase;
   font-size: 13px;
   font-weight: 300;
-  color: #212121;
+  color: var(--button-label-color);
 
-  &:hover {
-    background: #8D757A;
-    color: var(--base-color)
+  &:active {
+    background: var(--button-alt-active-background);
+  }
+
+  &:focus {
+    background: var(--button-alt-default-background);
+    color: var(--button-label-color);
   }
 }
 

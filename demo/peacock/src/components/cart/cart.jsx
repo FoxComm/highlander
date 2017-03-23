@@ -20,6 +20,7 @@ import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
 import { skuIdentity } from '@foxcomm/wings/lib/paragons/sku';
 import { parseError } from '@foxcomm/api-js';
 import Overlay from 'ui/overlay/overlay';
+import ActionLink from 'ui/action-link/action-link';
 
 // styles
 import styles from './cart.css';
@@ -35,6 +36,7 @@ type Props = {
   deleteLineItem: Function,
   updateLineItemQuantity: Function,
   toggleCart: Function,
+  hideCart: Function,
   skus: Array<any>,
   coupon: ?Object,
   promotion: ?Object,
@@ -66,7 +68,7 @@ class Cart extends Component {
   @autobind
   deleteLineItem(sku) {
     tracking.removeFromCart(sku, sku.quantity);
-    this.props.deleteLineItem(sku).catch(ex => {
+    this.props.deleteLineItem(sku).catch((ex) => {
       this.setState({
         errors: parseError(ex),
       });
@@ -81,7 +83,7 @@ class Cart extends Component {
     } else if (diff < 0) {
       tracking.removeFromCart(sku, -diff);
     }
-    this.props.updateLineItemQuantity(sku, quantity).catch(ex => {
+    this.props.updateLineItemQuantity(sku, quantity).catch((ex) => {
       this.setState({
         errors: parseError(ex),
       });
@@ -97,7 +99,7 @@ class Cart extends Component {
       );
     }
 
-    return _.map(this.props.skus, sku => {
+    return _.map(this.props.skus, (sku) => {
       return (
         <LineItem
           {...sku}
@@ -130,7 +132,11 @@ class Cart extends Component {
 
   @autobind
   onCheckout() {
-    browserHistory.push('/checkout');
+    Promise.resolve(this.props.hideCart())
+      .then(() => {
+        browserHistory.push('/checkout');
+      })
+    ;
   }
 
   render() {
@@ -154,8 +160,12 @@ class Cart extends Component {
         <Overlay onClick={toggleCart} shown={isVisible} />
         <div styleName="cart-box">
           <div styleName="cart-header">
-            <span styleName="my-cart" onClick={toggleCart}>My Cart</span>
-            <span styleName="cart-close" onClick={toggleCart}>Close</span>
+            <span styleName="my-cart">My Cart</span>
+            <ActionLink
+              action={toggleCart}
+              title="Close"
+              styleName="action-link-cart-close"
+            />
           </div>
 
           <div styleName="cart-content">
@@ -169,7 +179,7 @@ class Cart extends Component {
             <Button onClick={this.onCheckout} disabled={checkoutDisabled} styleName="checkout-button">
               {t('Checkout')}
               <span styleName="subtotal-price">
-                <Currency value={ totals.subTotal } />
+                <Currency value={totals.subTotal} />
               </span>
             </Button>
           </div>

@@ -14,7 +14,7 @@ const initialState : FormData = {
 };
 
 const reducer = createReducer({
-  [toggleSidebar]: state => {
+  [toggleSidebar]: (state) => {
     const currentState = _.get(state, 'isVisible', false);
     return {
       ...state,

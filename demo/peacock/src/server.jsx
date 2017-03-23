@@ -17,7 +17,7 @@ function getAssetsNames() {
   let appCss = 'app.css';
 
   if (process.env.NODE_ENV === 'production') {
-    const revManifest = require('../build/rev-manifest.json');
+    const revManifest = require('../build/rev-manifest.json'); // eslint-disable-line import/no-unresolved
 
     appJs = revManifest['app.js'];
     appCss = revManifest['app.css'];
@@ -28,7 +28,7 @@ function getAssetsNames() {
 
 const assetsNames = getAssetsNames();
 
-export function *renderReact() {
+export function* renderReact() {
   const history = createServerHistory({
     entries: [this.url],
     basename: process.env.URL_PREFIX || null,

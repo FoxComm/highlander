@@ -8,9 +8,9 @@
   width: 100%;
   height: 50px;
   font-size: 16px;
-  background: #fff;
-  border-bottom: 1px solid #dddddd;
-  color: #212121;;
+  background: var(--body-background);
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-color);
 }
 
 .header {
@@ -18,10 +18,17 @@
 }
 
 .wrap {
-  composes: wrap from "ui/css/layout.css";
   display: flex;
   justify-content: space-between;
   align-items: center;
+  height: 100%;
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+.action-link-menu {
+  composes: action-link from "ui/action-link/action-link.css";
+  color: var(--text-color);
 }
 
 .navigation {
@@ -40,15 +47,6 @@
     display: none;
   }
 
-  .hamburger {
-      cursor: pointer;
-      margin-left: 10px;
-  }
-
-  .tools {
-    margin-right: 10px;
-  }
-
   :global(.icon).logo {
     width: 75px;
   }
@@ -62,7 +60,6 @@
 }
 
 @media (--large) {
-
   .navigation {
     height: 50px;
     display: flex;
@@ -70,7 +67,7 @@
     margin-left: 40px;
   }
 
-  .hamburger {
+  .action-link-menu {
     display: none;
   }
 

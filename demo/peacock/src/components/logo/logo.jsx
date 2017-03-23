@@ -4,7 +4,7 @@ import React from 'react';
 import styles from './logo.css';
 
 type Props = {
-  className: string,
+  className?: string,
 }
 
 const Logo = (props: Props) => {
