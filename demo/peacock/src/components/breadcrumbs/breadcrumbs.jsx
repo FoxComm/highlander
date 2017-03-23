@@ -134,7 +134,7 @@ export default class Breadcrumbses extends Component {
     const withDelimeter = _.zip(fromRoutes, delimeters);
 
     return (
-      <ul styleName="crumbs">
+      <ul styleName="crumbs" className={this.props.className}>
         {withDelimeter}
       </ul>
     );

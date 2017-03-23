@@ -281,6 +281,7 @@ class Pdp extends Component {
           <Breadcrumbs
             routes={this.props.routes}
             params={this.props.params}
+            styleName="breadcrumbs"
           />
           {this.isGiftCard() ?
             <GiftCardForm
