@@ -1,29 +1,15 @@
 package util
 
 import (
-	"fmt"
+	"encoding/json"
+	"errors"
+	"github.com/FoxComm/highlander/intelligence/suggester/src/responses"
 	"net/http"
 	"os"
 )
 
 var url = os.Getenv("API_URL")
 var antHillSrvHost = os.Getenv("ANTHILL_HOST")
-
-func PingAntHill() error {
-	antHillPort, err := getPort(antHillSrvHost)
-	if err != nil {
-		return err
-	}
-
-	resp, reqErr := http.Get(url + ":" + antHillPort + "/ping")
-	if reqErr != nil {
-		return reqErr
-	}
-
-	fmt.Println(resp)
-
-	return nil
-}
 
 func getPort(srvName string) (string, error) {
 	var port string
@@ -34,4 +20,25 @@ func getPort(srvName string) (string, error) {
 	}
 
 	return port, nil
+}
+
+func AntHillQuery() (responses.AntHillResponse, error) {
+	antHillPort, err := getPort(antHillSrvHost)
+	if err != nil {
+		return responses.AntHillResponse{}, errors.New("Unable to locate AntHill Srv Host")
+	}
+
+	testAction := "api/v1/public/recommend/prod-prod/full/5?channel=5"
+	resp, reqErr := http.Get(url + ":" + antHillPort + "/" + testAction)
+	if reqErr != nil {
+		return responses.AntHillResponse{}, reqErr
+	}
+
+	var antHillResponse responses.AntHillResponse
+	jsonErr := json.NewDecoder(resp.Body).Decode(&antHillResponse)
+	if jsonErr != nil {
+		return responses.AntHillResponse{}, jsonErr
+	}
+
+	return antHillResponse, nil
 }
