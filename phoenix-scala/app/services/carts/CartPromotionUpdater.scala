@@ -37,16 +37,32 @@ object CartPromotionUpdater {
       db: DB,
       ctx: OC,
       au: AU): DbResultT[Unit] =
+    tryReadjust(cart, failFatally).recoverWith {
+      case es if es exists OrderHasNoPromotions.== ⇒
+        clearStalePromotions(cart) >> DbResultT.failures(es)
+    }
+
+  private def tryReadjust(cart: Cart,
+                          failFatally: Boolean /* FIXME with the new foxy monad @michalrus */ )(
+      implicit ec: EC,
+      es: ES,
+      db: DB,
+      ctx: OC,
+      au: AU): DbResultT[Unit] =
     for {
       // Fetch base stuff
       oppa ← * <~ findApplicablePromotion(cart, failFatally)
       (orderPromo, promotion, adjustments) = oppa // 🙄
       // Delete previous adjustments and create new
       _ ← * <~ CartLineItemAdjustments
-           .filterByOrderRefAndShadow(cart.refNum, orderPromo.promotionShadowId)
+           .filterByOrderRefAndShadow(cart.refNum, orderPromo.promotionShadowId) // FIXME: why delete only these matching promotionShadowId? @michalrus
            .delete
       _ ← * <~ CartLineItemAdjustments.createAll(adjustments)
-    } yield {}
+    } yield ()
+
+  private def clearStalePromotions(cart: Cart)(implicit ec: EC): DbResultT[Unit] =
+    OrderPromotions.filterByCordRef(cart.refNum).delete.dbresult.void >>
+      CartLineItemAdjustments.findByCordRef(cart.referenceNumber).delete.dbresult.void
 
   private def findApplicablePromotion(
       cart: Cart,
