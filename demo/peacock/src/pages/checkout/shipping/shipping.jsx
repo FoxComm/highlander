@@ -98,22 +98,24 @@ class Shipping extends Component {
     }
   }
 
+  get addressDetails() {
+    if (!_.isEmpty(this.props.shippingAddress)) {
+      return (
+        <AddressDetails
+          address={this.props.shippingAddress}
+          styleName="shippingAddress"
+        />
+      );
+    }
+  }
+
   get content() {
     const { toggleModal, modalVisible, shippingAddress } = this.props;
 
     if (this.state.fetchedAddresses) {
       return (
         <div>
-          {
-            !_.isEmpty(shippingAddress)
-            ?
-              (<AddressDetails
-                address={shippingAddress}
-                styleName="shippingAddress"
-              />)
-            :
-              null
-          }
+          {this.addressDetails}
           <Modal
             show={modalVisible}
             toggle={toggleModal}

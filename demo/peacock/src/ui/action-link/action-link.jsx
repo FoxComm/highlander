@@ -14,15 +14,7 @@ type Props = {
 
 const ActionLink = (props: Props) => {
   const { action, title, icon, ...rest } = props;
-  const actionIcon = icon
-    ?
-      (<Icon
-        className={icon.className}
-        name={icon.name}
-      />)
-    :
-      null
-  ;
+  const actionIcon = icon ? <Icon {...icon} /> : null;
 
   return (
     <span styleName="action-link" onClick={action} {...rest}>
