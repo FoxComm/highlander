@@ -3,7 +3,7 @@ header = $(call baseheader, $(1), elasticmanager)
 
 GOPATH = /tmp/go
 BUILD_ROOT_PATH=$(GOPATH)/src/github.com/FoxComm/highlander
-BUILD_PATH=$(BUILD_ROOT_PATH)/tabernacle/elasticmanager
+BUILD_PATH=$(BUILD_ROOT_PATH)/middlewarehouse/elasticmanager
 HIGHLANDER_PATH=$(CURDIR)/../..
 
 prepare:
