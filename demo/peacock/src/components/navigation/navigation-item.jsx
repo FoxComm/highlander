@@ -1,13 +1,13 @@
 /* @flow */
 
-import React, { Component } from 'react';
+import React, { Component, Element } from 'react';
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import { Link } from 'react-router';
 
 import classNames from 'classnames';
 
-import { convertCategoryNameToUrlPart } from 'modules/categories';
+import { humanize, categoryNameToUrl } from 'paragons/categories';
 
 import styles from './navigation.css';
 
@@ -22,7 +22,6 @@ type Category = {
 type Props = {
   item: Category,
   path: string,
-  t: any,
   onClick: ?Function,
 };
 
@@ -37,17 +36,26 @@ export default class NavigationItem extends Component {
   };
 
   @autobind
-  getNavUrl(category : ?Category) {
+  getNavUrl(category : ?Category): string {
     let url;
 
     if (category == undefined) {
       url = '/';
     } else {
-      const dashedName = convertCategoryNameToUrlPart(category.name);
+      const dashedName = categoryNameToUrl(category.name);
       url = `/${dashedName}`;
     }
 
     return url;
+  }
+
+  @autobind
+  handleClick() {
+    this.setState({ expanded: false }, () => {
+      if (this.props.onClick) {
+        this.props.onClick();
+      }
+    });
   }
 
   @autobind
@@ -60,14 +68,19 @@ export default class NavigationItem extends Component {
     this.setState({ expanded: false });
   }
 
-  renderSubcategoryItems(subcategory: Category) {
+  renderSubcategoryItems(subcategory: Category, baseUrl: string): ?Element<*> {
     if (!subcategory.children) return null;
 
     const items = _.map(subcategory.children, (item) => {
+      const url = `${baseUrl}${this.getNavUrl(item)}`;
       return (
         <div>
-          <Link styleName="drawer-subitem-link" onClick={this.props.onClick}>
-            {item.name}
+          <Link
+            styleName="drawer-subitem-link"
+            onClick={this.handleClick}
+            to={url}
+          >
+            {humanize(item.name)}
           </Link>
         </div>
       );
@@ -80,8 +93,12 @@ export default class NavigationItem extends Component {
     );
   }
 
-  get drawer() {
-    const { item, onClick } = this.props;
+  get baseUrl(): string {
+    return this.getNavUrl(this.props.item);
+  }
+
+  get drawer(): ?Element<*> {
+    const { item } = this.props;
 
     if (!item.children) return null;
 
@@ -90,12 +107,17 @@ export default class NavigationItem extends Component {
     });
 
     const children = _.map(item.children, (child) => {
+      const url = `${this.baseUrl}${this.getNavUrl(child)}`;
       return (
         <div>
-          <Link styleName="drawer-item-link" onClick={onClick}>
-            {child.name}
+          <Link
+            styleName="drawer-item-link"
+            to={url}
+            onClick={this.handleClick}
+          >
+            {humanize(child.name)}
           </Link>
-          { this.renderSubcategoryItems(child) }
+          { this.renderSubcategoryItems(child, url) }
         </div>
       );
     });
@@ -110,18 +132,19 @@ export default class NavigationItem extends Component {
   }
 
   render() {
-    const { item, path, t } = this.props;
+    const { item, path } = this.props;
 
     if (item.hiddenInNavigation) {
       return null;
     }
 
-    const dashedName = item.name.replace(/\s/g, '-');
+    const dashedName = _.toLower(item.name.replace(/\s/g, '-'));
     const key = `category-${dashedName}`;
     const url = this.getNavUrl(item);
     const isActive = path.match(new RegExp(dashedName, 'i'));
     const linkClasses = classNames(styles.item, {
       [styles.active]: isActive,
+      [styles['with-drawer-open']]: this.state.expanded,
     });
 
     return (
@@ -134,9 +157,9 @@ export default class NavigationItem extends Component {
         <Link
           styleName="item-link"
           to={url}
-          onClick={this.props.onClick}
+          onClick={this.handleClick}
         >
-          {t(item.name.toUpperCase())}
+          {humanize(item.name)}
         </Link>
         { this.drawer }
       </div>
