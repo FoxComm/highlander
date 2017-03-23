@@ -26,9 +26,9 @@ type Props = {
   groups: Array<GroupType>;
   selectedGroupIds: Array<number>;
   qualifyAll: boolean,
-  dispatch: (action: any) => any;
-  parent: string;
-  qualifyAllChange: Function
+  fetch: () => Promise<*>,
+  parent: string,
+  qualifyAllChange: Function,
 };
 
 type State = {
