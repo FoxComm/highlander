@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"github.com/FoxComm/highlander/tabernacle/elasticmanager/elastic"
+	"github.com/FoxComm/highlander/middlewarehouse/elasticmanager/elastic"
 	"github.com/urfave/cli"
 )
 

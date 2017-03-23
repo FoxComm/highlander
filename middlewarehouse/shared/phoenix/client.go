@@ -6,8 +6,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/FoxComm/highlander/lib/gohttp"
 	mwhPayloads "github.com/FoxComm/highlander/middlewarehouse/api/payloads"
+	"github.com/FoxComm/highlander/middlewarehouse/lib/gohttp"
 	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix/responses"
 )

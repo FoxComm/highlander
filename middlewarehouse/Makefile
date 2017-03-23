@@ -28,18 +28,24 @@ prepare:
 ####################################################################
 build:
 	$(call header, Building)
+	# We don't need to build consumers in CI, they're being built inside Docker, see PR #753
+	# But we can keep generic `build` target that builds only Middlewarehouse for convenience
 	make prepare
 	make build-middlewarehouse
-	make build-middlewarehouse-seeder
-	make build-capture-consumer
-	make build-gift-card-consumer
-	make build-shipments-consumer
-	make build-shipstation-consumer
-	make build-stock-items-consumer
-	make build-customer-groups-consumer
+	# make build-middlewarehouse-seeder
+	# make build-capture-consumer
+	# make build-gift-card-consumer
+	# make build-shipments-consumer
+	# make build-shipstation-consumer
+	# make build-stock-items-consumer
+	# make build-customer-groups-consumer
+	make build-elasticmanager
 
 build-middlewarehouse:
 	cd $(BUILD_PATH) && go build -o middlewarehouse main.go
+
+build-elasticmanager:
+	cd $(BUILD_PATH)/elasticmanager && make build
 
 build-middlewarehouse-seeder:
 	cd $(BUILD_PATH) && go build -o common/db/seeds/seeder common/db/seeds/main.go
@@ -80,25 +86,25 @@ docker-middlewarehouse:
 	cd $(BUILD_PATH) && docker build -t $(DOCKER_IMAGE) .
 
 docker-middlewarehouse-seeder:
-	cd $(BUILD_PATH) && docker build -t middlewarehouse-seeder -f common/db/seeds/Dockerfile .
+	cd $(BUILD_PATH) && docker build -t middlewarehouse-seeder -f Dockerfile.seeder .
 
 docker-capture-consumer:
-	cd $(BUILD_PATH) && docker build -t capture-consumer -f consumers/capture/Dockerfile .
+	cd $(BUILD_PATH) && docker build -t capture-consumer -f Dockerfile.capture .
 
 docker-gift-card-consumer:
-	cd $(BUILD_PATH) && docker build -t gift-card-consumer -f consumers/gift-cards/Dockerfile .
+	cd $(BUILD_PATH) && docker build -t gift-card-consumer -f Dockerfile.gift-cards .
 
 docker-shipments-consumer:
-	cd $(BUILD_PATH) && docker build -t shipments-consumer -f consumers/shipments/Dockerfile .
+	cd $(BUILD_PATH) && docker build -t shipments-consumer -f Dockerfile.shipments .
 
 docker-shipstation-consumer:
-	cd $(BUILD_PATH) && docker build -t shipstation-consumer -f consumers/shipstation/Dockerfile .
+	cd $(BUILD_PATH) && docker build -t shipstation-consumer -f Dockerfile.shipstation .
 
 docker-stock-items-consumer:
-	cd $(BUILD_PATH) && docker build -t stock-items-consumer -f consumers/stock-items/Dockerfile .
+	cd $(BUILD_PATH) && docker build -t stock-items-consumer -f Dockerfile.stock-items .
 
 docker-customer-groups-consumer:
-	cd $(BUILD_PATH) && docker build -t customer-groups-consumer -f consumers/customer-groups/Dockerfile .
+	cd $(BUILD_PATH) && docker build -t customer-groups-consumer -f Dockerfile.customer-groups .
 
 ####################################################################
 # Docker push targets                                              #

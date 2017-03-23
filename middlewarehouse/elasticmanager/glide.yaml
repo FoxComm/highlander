@@ -1,4 +1,4 @@
-package: github.com/FoxComm/highlander/tabernacle/elasticmanager
+package: github.com/FoxComm/highlander/middlewarehouse/elasticmanager
 import:
   - package: github.com/urfave/cli
   - package: gopkg.in/yaml.v2
