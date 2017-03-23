@@ -194,4 +194,4 @@ test:
 	make prepare
 	make reset-test
 	# -p 1 serves to run tests sequentially, as it is required for non-isolated database tests
-	cd $(BUILD_PATH) && GOENV=test go test -p 1 `glide nv`
+	cd $(BUILD_PATH) && GOENV=test go test -p 1 ./controllers/ ./repositories ./services
