@@ -8,6 +8,7 @@ import { connect } from 'react-redux';
 import styles from './facets.css';
 import Checkbox from './kind/checkbox';
 import Circle from './kind/circle';
+import ColorCircle from './kind/colorcircle';
 import _ from 'lodash';
 
 import localized from 'lib/i18n';
@@ -66,6 +67,15 @@ const testFacets = [
       {label: 'BB9TIS', value: 'bb8tis', click: null},
     ]
   },
+  {
+    name: 'Colors',
+    kind: 'color',
+    values: [
+      {label: 'red', value: 'red', click: null},
+      {label: 'green', value: 'green', click: null},
+      {label: 'blue', value: 'blue', click: null},
+    ]
+  },
 
 ]
 
@@ -98,6 +108,15 @@ class Facets extends Component {
     } else if(f.kind == 'circle') {
       values = _.map(f.values, (v) => {
         return (<Circle 
+          value={v.value} 
+          label={v.label} 
+          checked={false}
+          click={this.handleClickFacets}
+          />);
+      });
+    } else if(f.kind == 'color') {
+      values = _.map(f.values, (v) => {
+        return (<ColorCircle 
           value={v.value} 
           label={v.label} 
           checked={false}
