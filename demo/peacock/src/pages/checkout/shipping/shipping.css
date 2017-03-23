@@ -1,10 +1,6 @@
 @import "colors.css";
 @import "media-queries.css";
 
-.shipping {
-  composes: checkout-block from '../checkout.css';
-}
-
 .title {
   font-size: 19px;
   font-weight: 900;
@@ -27,18 +23,11 @@
   margin-bottom: 10px;
 }
 
-.btn-action {
-  color: var(--button-default-background);
+.action-link-addresses {
+  composes: action-link from "ui/action-link/action-link.css";
   font-size: 16px;
-  cursor: pointer;
   display: flex;
   margin-right: 16px;
-}
-
-.btn-apply {
-  font-weight: 900;
-  height: 58px;
-  font-size: 21px;
 }
 
 .plus {
@@ -47,7 +36,7 @@
 }
 
 @media (--large) {
-  .btn-action {
+  .action-link-addresses {
     margin-right: 0;
   }
 }

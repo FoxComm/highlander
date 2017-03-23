@@ -73,16 +73,14 @@ class Shipping extends Component {
 
   get action() {
     const { props } = this;
-    let action, title, icon;
+    let title,
+        icon
+        ;
 
     if (this.state.fetchedAddresses) {
       if (!_.isEmpty(props.shippingAddress) || props.addresses.length > 0) {
-        action = props.toggleModal;
         title = 'Choose';
       } else {
-        action = function() {
-          console.log('TODO: render "Add address" form');
-        };
         title = 'Add new';
         icon = {
           name: 'fc-plus',
@@ -92,9 +90,9 @@ class Shipping extends Component {
 
       return (
         <ActionLink
-          action={action}
+          action={props.toggleModal}
           title={title}
-          styleName="btn-action"
+          styleName="action-link-addresses"
           icon={icon}
         />
       );
@@ -103,24 +101,30 @@ class Shipping extends Component {
 
   get content() {
     const { toggleModal, modalVisible, shippingAddress } = this.props;
-    return(
-      <div>
-        {
-          !_.isEmpty(shippingAddress) && this.state.fetchedAddresses
-          ?
-          <AddressDetails address={shippingAddress} styleName="shippingAddress" />
-          :
-          null
-        }
-        <Modal
-          show={modalVisible}
-          toggle={toggleModal}
-        >
-           <AddressList { ...this.props } activeAddress={shippingAddress}/>
-        </Modal>
-      </div>
-    );
 
+    if (this.state.fetchedAddresses) {
+      return(
+        <div>
+          {
+            !_.isEmpty(shippingAddress)
+            ?
+            <AddressDetails address={shippingAddress} styleName="shippingAddress" />
+            :
+            null
+          }
+          <Modal
+            show={modalVisible}
+            toggle={toggleModal}
+          >
+             <AddressList { ...this.props } activeAddress={shippingAddress}/>
+          </Modal>
+        </div>
+      );
+    }
+
+    return (
+      <Loader size="m" />
+    );
   }
 
   render() {

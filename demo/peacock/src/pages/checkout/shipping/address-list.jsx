@@ -23,7 +23,7 @@ import type { Address } from 'types/address';
 import type { AsyncStatus } from 'types/async-actions';
 
 type Props = {
-  activeAddress?: Address,
+  activeAddress?: Address | Object,
   addresses: Array<any>,
   collapsed: boolean,
   saveShippingAddress: (id: number) => Promise<*>,
@@ -66,13 +66,13 @@ class AddressList extends Component {
   }
 
   autoSelectAddress(props: Props) {
-    if (props.activeAddress) {
+    if (!_.isEmpty(props.activeAddress)) {
       const addressId = this.lookupAddressId(props.activeAddress);
+      
       if (addressId != null) {
         return this.changeAddressOption(addressId);
       }
-    }
-    if (props.addresses.length >= 1) {
+    } else if (props.addresses.length > 0) {
       const defaultAddress = _.find(props.addresses, { isDefault: true });
       const activeAddressId = defaultAddress ? defaultAddress.id : props.addresses[0].id;
       this.changeAddressOption(activeAddressId);
