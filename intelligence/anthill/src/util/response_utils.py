@@ -6,6 +6,6 @@ def zip_responses(recommender_resp, es_response):
         {'score': rec_prod['score'], 'product': product}
         for rec_prod in recommender_resp['products']
         for product in es_response['result']
-        if rec_prod['id'] == product['id']
+        if rec_prod['id'] == product['productId']
     ]
     return {'products': sorted(products, key=lambda pr: -pr['score'])}

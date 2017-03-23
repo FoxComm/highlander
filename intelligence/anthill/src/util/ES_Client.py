@@ -16,8 +16,12 @@ def login_body():
 def products_list_query(prod_ids):
     return json.dumps({
         'query': {
-            'ids': {
-                'values': prod_ids
+            'bool': {
+                'filter':{
+                    'terms':{
+                        'productId': prod_ids
+                    }
+                }
             }
         }
     })

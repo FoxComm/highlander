@@ -69,6 +69,7 @@ class PPRecommend(object):
             {'id': np.asscalar(x), 'score': np.asscalar(y)}
             for (x, y) in zip(inds, v[inds].T[0])
             if x != int(prod_id)
+            if y > 0
         ]
 
-        return {'products': filter(lambda prod: prod['score'] > 0, products)}
+        return {'products': products}
