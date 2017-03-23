@@ -15,7 +15,7 @@
 }
 
 ._is-active {
-  background-color: var(--select-active-color);
+  background-color: var(--select-active-background);
 }
 
 ._is-inactive {

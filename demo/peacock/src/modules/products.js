@@ -2,7 +2,7 @@
 
 import { createReducer } from 'redux-act';
 import { createAsyncActions } from '@foxcomm/wings';
-import { addMustNotFilter, defaultSearch, termFilter } from 'lib/elastic';
+import { addMustNotFilter, defaultSearch, termFilter, addNestedTermFilter } from 'lib/elastic';
 import _ from 'lodash';
 import { api } from 'lib/api';
 
@@ -31,8 +31,11 @@ function apiCall(
   { ignoreGiftCards = true } = {}): Promise<*> {
   let payload = defaultSearch(context);
 
-  _.forEach(categoryNames, cat => {
-    console.log(cat);
+  const filteredCats = _.remove(categoryNames, cat => cat != null);
+  _.forEach(filteredCats, (cat) => {
+    if (cat != 'ALL') {
+      payload = addNestedTermFilter(payload, 'taxonomies', 'taxonomies.taxons', cat);
+    }
   });
 
   if (ignoreGiftCards) {
@@ -44,13 +47,11 @@ function apiCall(
     // $FlowFixMe
   payload.sort = [{ [sorting.field]: { order } }];
 
-  console.log(payload);
-
   return this.api.post(`/search/public/products_catalog_view/_search?size=${MAX_RESULTS}`, payload);
 }
 
 function searchGiftCards() {
-  return apiCall.call({ api }, [ GIFT_CARD_TAG ], { direction: 1, field: 'salesPrice' }, { ignoreGiftCards: false });
+  return apiCall.call({ api }, [GIFT_CARD_TAG], { direction: 1, field: 'salesPrice' }, { ignoreGiftCards: false });
 }
 
 const {fetch, ...actions} = createAsyncActions('products', apiCall);

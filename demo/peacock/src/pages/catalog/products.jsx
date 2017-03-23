@@ -70,7 +70,7 @@ class Products extends Component {
   componentWillMount() {
     const { categoryName, subCategory, leafCategory } = this.props.params;
     const { sorting } = this.state;
-    this.props.fetch([ categoryName, subCategory, leafCategory ], sorting);
+    this.props.fetch([categoryName, subCategory, leafCategory], sorting);
   }
 
   componentWillReceiveProps(nextProps: Props) {
@@ -84,7 +84,7 @@ class Products extends Component {
     if ((categoryName !== nextCategoryName) ||
         (subCategory !== nextSubCategory) ||
         (leafCategory !== nextLeafCategory)) {
-      this.props.fetch([ nextCategoryName, nextSubCategory, nextLeafCategory ], this.state.sorting);
+      this.props.fetch([nextCategoryName, nextSubCategory, nextLeafCategory], this.state.sorting);
     }
   }
 
@@ -103,7 +103,7 @@ class Products extends Component {
 
     this.setState({sorting: newState}, () => {
       const { categoryName, subCategory, leafCategory } = this.props.params;
-      this.props.fetch([ categoryName, subCategory, leafCategory ], newState);
+      this.props.fetch([categoryName, subCategory, leafCategory], newState);
     });
   }
 
