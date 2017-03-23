@@ -30,6 +30,14 @@ object ReturnPaymentUpdater {
       ac: AC,
       au: AU): DbResultT[ReturnResponse.Root] = {
 
+    @inline
+    def addPayment(rma: Return,
+                   payment: OrderPayment,
+                   paymentMethodAmount: (PaymentMethod.Type, Int)) = {
+      val (method, amount) = paymentMethodAmount
+      processAddPayment(rma, payment, method, amount)
+    }
+
     val payments = payload.payments.filter { case (_, amount) ⇒ amount > 0 }
     if (payments.isEmpty)
       Returns.mustFindActiveByRefNum404(refNum).flatMap(ReturnResponse.fromRma)
@@ -39,25 +47,12 @@ object ReturnPaymentUpdater {
         payment  ← * <~ mustFindCcPaymentsByOrderRef(rma.orderRef)
         _        ← * <~ validateMaxAllowedPayments(rma, payments)
         _        ← * <~ payments.map(addPayment(rma, payment, _)).toList
+        _        ← * <~ updateTotalsReturn(rma)
         updated  ← * <~ Returns.refresh(rma)
         response ← * <~ ReturnResponse.fromRma(updated)
         _        ← * <~ LogActivity().returnPaymentAdded(response, payment)
       } yield response
     }
-  }
-
-  private[this] def addPayment(rma: Return,
-                               payment: OrderPayment,
-                               paymentMethodAmount: (PaymentMethod.Type, Int))(
-      implicit ec: EC,
-      db: DB,
-      ac: AC,
-      au: AU): DbResultT[Unit] = {
-    val (method, amount) = paymentMethodAmount
-    for {
-      _ ← * <~ processAddPayment(rma, payment, method, amount)
-      _ ← * <~ updateTotalsReturn(rma)
-    } yield ()
   }
 
   private[this] def updateTotalsReturn(rma: Return)(implicit ec: EC, db: DB, au: AU) =
@@ -355,7 +350,7 @@ object ReturnPaymentUpdater {
                       ReturnCcPaymentViolation(refNum = rma.refNum,
                                                issued = totalRefund,
                                                allowed = payment.amount))
-      _ ← * <~ LogActivity().issueCcRefund(rma, payment) //
+      _ ← * <~ LogActivity().issueCcRefund(rma, payment)
     } yield ()
   }
 
