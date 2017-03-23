@@ -19,6 +19,10 @@ config :hyperion,
   mws_access_key_id: System.get_env("MWS_ACCESS_KEY_ID")
 
 config :hyperion,
+  phoenix_email: System.get_env("PHOENIX_USER"),
+  phoenix_password: System.get_env("PHOENIX_PASSWORD")
+
+config :hyperion,
   phoenix_url: System.get_env("PHOENIX_URL")
 
 config :hyperion,

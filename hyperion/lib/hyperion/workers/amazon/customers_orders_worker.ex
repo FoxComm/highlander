@@ -1,10 +1,9 @@
-defmodule Hyperion.Amazon.Workers.CustomersWorker do
+defmodule Hyperion.Amazon.Workers.CustomersOrdersWorker do
   use GenServer
   require Logger
 
   alias Hyperion.PhoenixScala.Client
-  alias Hyperion.JwtAuth
-
+  alias Hyperion.Amazon
 
   def start_link do
     GenServer.start_link(__MODULE__, %{})
@@ -30,19 +29,13 @@ defmodule Hyperion.Amazon.Workers.CustomersWorker do
     end
   end
 
-  defp fetch_config do
-    {_, jwt} = Client.login
-               |> JwtAuth.verify
-    Credentials.mws_config(jwt.scope)
-  end
-
+  # TODO: Add order saving into phoenix
   defp fetch_amazon_orders do
     date = Timex.beginning_of_day(Timex.now)
            |> Timex.format!("%Y-%m-%dT%TZ", :strftime)
     list = [fulfillment_channel: ["MFN", "AFN"],
             created_after: [date]]
-
-    case MWSClient.list_orders(list, fetch_config()) do
+    case MWSClient.list_orders(list, Amazon.fetch_config()) do
       {:error, error} -> raise inspect(error)
       {:warn, warn} -> raise warn["ErrorResponse"]["Error"]["Message"]
       {_, resp} -> resp["ListOrdersResponse"]["ListOrdersResult"]["Orders"]
@@ -50,12 +43,13 @@ defmodule Hyperion.Amazon.Workers.CustomersWorker do
   end
 
   defp store_customers(orders) do
-    case orders do
-      [orders] -> Enum.each(orders, fn order ->
-                    Client.create_customer(%{name: order["Order"]["BuyerName"], email: order["Order"]["BuyerEmail"]})
-                  end)
-      %{"Order" => order} -> Client.create_customer(%{name: order["BuyerName"], email: order["BuyerEmail"]})
-      o when o in [%{}, []] -> nil
+    case orders["Orders"]["Order"] do
+      list when is_list(list) -> Enum.each(list, fn order ->
+                                Client.create_customer(%{name: order["Order"]["BuyerName"],
+                                                         email: order["Order"]["BuyerEmail"]})
+                               end)
+      map when is_map(map) -> Client.create_customer(%{name: map["BuyerName"], email: map["BuyerEmail"]})
+      empty when empty in [%{}, []] -> nil
     end
   end
 

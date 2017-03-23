@@ -1,5 +1,7 @@
 defmodule Hyperion.Amazon do
   alias Hyperion.PhoenixScala.Client
+  alias Hyperion.JwtAuth
+  require Logger
 
   @moduledoc """
   This module responsible for transform data from Phoenix to Amazon and vice versa
@@ -73,6 +75,111 @@ defmodule Hyperion.Amazon do
   defp process_inventory(products) do
     Enum.flat_map(products, fn(el) -> [%{sku: el[:code], quantity: el[:inventory]}] end)
     |> Enum.with_index(1)
+  end
+
+  def get_full_order(order_id) do
+    try do
+      order_details = get_order_details(order_id)
+      order_items = get_order_items(order_id)
+      build_order_map(order_details, order_items)
+    rescue e ->
+      er_name = e.__struct__
+      er_name in [AmazonError] -> Logger.error("#{er_name}")
+    end
+  end
+
+  def build_order_map(order, items) do
+    %{
+      result: %{
+        referenceNumber: order["AmazonOrderId"],
+        paymentState: "Captured",
+        line_items: %{
+          skus: [%{
+              name: "foo"
+            }
+          ]
+        },
+        lineItemAdjustments: [],
+        totals: %{
+         subTotal: calculate_amount_for_order(items["OrderItems"]["OrderItem"], "ItemPrice"),
+         taxes: calculate_amount_for_order(items["OrderItems"]["OrderItem"], "ItemTax"),
+         shipping: calculate_amount_for_order(items["OrderItems"]["OrderItem"], "ShippingPrice"),
+         adjustments: 0,
+         total: String.to_float(order["OrderTotal"]["Amount"]) * 100 |> round
+        },
+        customer: %{
+          email: order["BuyerEmail"],
+          name: order["BuyerName"]
+        },
+        shippingMethod: %{
+          id: 0,
+          name: order["ShipmentServiceLevelCategory"],
+          code: order["ShipServiceLevel"],
+          price: calculate_amount_for_order(items["OrderItems"]["OrderItem"], "ShippingPrice"),
+          isEnabled: true
+        },
+        shippingAddress: %{
+          id: 0,
+          region: %{
+            id: 0,
+            countryId: 0,
+            name: order["ShippingAddress"]["StateOrRegion"],
+          },
+          name: order["ShippingAddress"]["Name"],
+          address1: order["ShippingAddress"]["AddressLine1"],
+          address2: order["ShippingAddress"]["AddressLine2"],
+          city: order["ShippingAddress"]["City"],
+          zip: order["ShippingAddress"]["PostalCode"],
+          isDefault: false
+        },
+        paymentMethods: %{
+          id: 0,
+          amount: (String.to_float(order["OrderTotal"]["Amount"]) * 100 |> round),
+          currentBalance: 0,
+          availableBalance: 0,
+          createdAt: order["PurchaseDate"],
+          type: order["PaymentMethodDetails"]["PaymentMethodDetail"]
+        },
+        orderState: order["OrderStatus"],
+        shippingState: "---",
+        fraudScore: 0,
+        placedAt: order["PurchaseDate"],
+        channel: order["SalesChannel"]
+      }
+    }
+  end
+
+  def calculate_amount_for_order(order_items, amount_type) when is_map(order_items) do
+    String.to_float(order_items[amount_type]["Amount"]) * 100
+    |> round
+  end
+
+  def calculate_amount_for_order(order_items, amount_type) when is_list(order_items) do
+    Enum.reduce(order_items, 0, fn(x, acc) ->
+      (String.to_float(x[amount_type]["Amount"]) * 100 |> round) + acc
+    end)
+  end
+
+  def get_order_details(order_id) do
+    case MWSClient.get_order([order_id], fetch_config()) do
+      {:error, error} -> raise %AmazonError{message: "Error while fetching order from amazon: #{inspect(error)}"}
+      {:warn, warn} -> raise %AmazonError{message: warn["ErrorResponse"]["Error"]["Message"]}
+      {_, resp} -> resp["GetOrderResponse"]["GetOrderResult"]["Orders"]["Order"]
+    end
+  end
+
+  def get_order_items(order_id) do
+    case MWSClient.list_order_items(order_id, fetch_config()) do
+      {:error, error} -> raise %AmazonError{message: "Error while fetching order details from amazon: #{inspect(error)}"}
+      {:warn, warn} -> raise %AmazonError{message: warn["ErrorResponse"]["Error"]["Message"]}
+      {_, resp} -> resp["ListOrderItemsResponse"]["ListOrderItemsResult"]
+    end
+  end
+
+  def fetch_config do
+    {_, jwt} = Client.login
+               |> JwtAuth.verify
+    Credentials.mws_config(jwt.scope)
   end
 
   # gets the albums and images for skus,
@@ -233,6 +340,8 @@ defmodule Hyperion.Amazon do
     Enum.map(map, attrs)
     |> Enum.reject(fn({_k, v}) -> v == nil || v == "" end)
   end
+
+  defp format_map(map) when is_list(map), do: []
 
   defp format_string(str) do
     str

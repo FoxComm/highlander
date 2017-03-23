@@ -11,13 +11,15 @@ defmodule Hyperion.PhoenixScala.Client do
   end
 
   @doc """
-  DO NOT USE IT! This function made just for testing!
+  Gets JWT from Phoenix. Try to not use it very often because it takes a lot of time
   """
   def login do
-    params = Poison.encode!(%{email: "admin@admin.com", password: "password", org: "tenant"})
+    email = Application.fetch_env!(:hyperion, :phoenix_email)
+    password = Application.fetch_env!(:hyperion, :phoenix_password)
+    params = Poison.encode!(%{email: email, password: password, org: "tenant"})
     case post("/api/v1/public/login", params, make_request_headers()) do
-      {:ok, resp} -> Keyword.take(resp.headers, ["Jwt"]) |> hd |> elem(1)
-      {:error, err} -> inspect(err)
+      {_, %{body: _, headers: headers, status_code: 200}} -> Keyword.take(headers, ["Jwt"]) |> hd |> elem(1)
+      {_, %{body: resp, headers: _, status_code: _}} -> raise hd(resp["errors"])
     end
   end
 
