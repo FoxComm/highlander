@@ -71,4 +71,4 @@ class PPRecommend(object):
             if x != int(prod_id)
         ]
 
-        return {'products': filter(products, lambda prod: prod['score'] > 0)}
+        return {'products': filter(lambda prod: prod['score'] > 0, products)}
