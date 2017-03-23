@@ -2,7 +2,6 @@
 
 // libs
 import React, { Component, Element } from 'react';
-import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 import { bindActionCreators } from 'redux';
@@ -20,17 +19,14 @@ import * as amazonActions from 'modules/channels/amazon';
 // styles
 import s from './amazon.css';
 
-// types
-// import type { OriginIntegration } from 'paragons/origin-integration';
-
 type Props = {
   isFetching: boolean,
-  isPushing: boolean,
+  inProgress: boolean,
   credentials: ?Object,
   actions: Object,
-  notReady: boolean,
   fetchError: any,
   updateError: any,
+  removeError: any,
 };
 
 type State = {
@@ -47,16 +43,21 @@ function mapDispatchToProps(dispatch) {
 }
 
 function mapStateToProps(state) {
-  const { fetchAmazonCredentials = {}, updateAmazonCredentials = {} } = state.asyncActions;
+  const {
+    fetchAmazonCredentials = {},
+    updateAmazonCredentials = {},
+    removeAmazonCredentials = {},
+  } = state.asyncActions;
   const { credentials } = state.channels.amazon;
 
   return {
     credentials,
-    notReady: fetchAmazonCredentials.inProgress || !credentials,
     isFetching: fetchAmazonCredentials.inProgress,
     isPushing: updateAmazonCredentials.inProgress,
+    isRemoving: removeAmazonCredentials.inProgress,
     fetchError: _.get(state.asyncActions, 'fetchAmazonCredentials.err', null),
     updateError: _.get(state.asyncActions, 'updateAmazonCredentials.err', null),
+    removeError: _.get(state.asyncActions, 'removeAmazonCredentials.err', null),
   };
 };
 
@@ -84,19 +85,8 @@ class AmazonCredentials extends Component {
   }
 
   render() {
-    const { notReady, isFetching, isPushing, fetchError, updateError } = this.props;
-
-    if (notReady) {
-      return <div><WaitAnimation className={s.waiting} /></div>;
-    }
-
-    if (fetchError) {
-      return <div>fetchError</div>;
-    }
-
-    if (updateError) {
-      return <div>updateError</div>;
-    }
+    const { isFetching, isPushing, isRemoving, fetchError, updateError, removeError } = this.props;
+    const inProgress = isFetching || isPushing || isRemoving;
 
     return (
       <div>
@@ -128,11 +118,29 @@ class AmazonCredentials extends Component {
               </ul>
               <PrimaryButton
                 type="button"
-                disabled={isPushing}
+                disabled={inProgress}
                 isLoading={isPushing}
                 onClick={() => this._handleSubmit()}>
                 Save
               </PrimaryButton>
+
+              <PrimaryButton
+                className={s.remove}
+                type="button"
+                disabled={inProgress}
+                isLoading={isRemoving}
+                onClick={() => this._handleRemove()}>
+                Remove
+              </PrimaryButton>
+
+              {isFetching &&
+                <div className={s.preloader}>
+                  <WaitAnimation className={s.waiting} size="m" />
+                </div>
+              }
+
+              {updateError && <div>updateError</div>}
+              {removeError && <div>removeError</div>}
             </ContentBox>
           </div>
         </div>
@@ -147,6 +155,10 @@ class AmazonCredentials extends Component {
     };
 
     this.props.actions.updateAmazonCredentials(params);
+  }
+
+  _handleRemove() {
+    this.props.actions.removeAmazonCredentials();
   }
 
   _handleSellerId({ target }) {

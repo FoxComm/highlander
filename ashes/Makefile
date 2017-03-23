@@ -5,12 +5,6 @@ DOCKER_REPO ?= $(DOCKER_STAGE_REPO)
 DOCKER_IMAGE ?= ashes
 DOCKER_TAG ?= master
 
-# @TODO make it work when all external as `make -f ./ashes/Makefile cmd`
-# NODE_MODULES ?= node_modules
-# export PATH := $(PWD)/$(NODE_MODULES)/.bin:$(PATH)
-# export NODE_MODULES := $(NODE_MODULES)
-# SHELL := env PATH=$(PATH) /bin/bash
-
 default: test
 NODE_ENV = test
 CFLAGS = -c -g -D $(NODE_ENV)
@@ -47,18 +41,6 @@ run-staging: setup stop
 
 run-production: setup stop
 	export NODE_ENV=production; nohup ./node_modules/.bin/gulp server 2>&1 &
-
-# @todo these hooks should be only for ashes, not for highlander
-# Auto-install and update git hooks
-# HOOKS_SRC = tools/hooks
-# HOOKS_DST = ../.git/hooks
-# GIT_HOOKS = $(addprefix $(HOOKS_DST)/, $(notdir $(wildcard $(HOOKS_SRC)/*)))
-
-# $(HOOKS_DST)/%: $(HOOKS_SRC)/%
-#   @cp -p $< $@
-#   @chmod a+x $@
-
-# hooks: $(GIT_HOOKS)
 
 rev:
 	git describe --always | cat > .git-rev

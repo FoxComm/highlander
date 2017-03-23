@@ -46,6 +46,8 @@ export function connectPage(namespace, actions) {
   const requiredActions = _.values(_.omit(actionNames, 'sync'));
 
   function mapStateToProps(state) {
+    const { credentials } = state.channels.amazon;
+
     return {
       namespace,
       plural,
@@ -67,7 +69,8 @@ export function connectPage(namespace, actions) {
       submitError: (
         _.get(state.asyncActions, `${actionNames.create}.err`) ||
         _.get(state.asyncActions, `${actionNames.update}.err`)
-      )
+      ),
+      hasAmazon: !!credentials,
     };
   }
 

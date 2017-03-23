@@ -220,17 +220,22 @@ class ProductPage extends ObjectPage {
 
   handleAmazon() {
     transitionTo('product-amazon', {
-      // context: this.entityContext,
       productId: this.entityId
     });
   }
 
   renderHead() {
-    return [
-      this.amazonButton,
+    const { hasAmazon } = this.props;
+    const buttons = [
       this.selectContextDropdown,
       this.cancelButton,
     ];
+
+    if (hasAmazon) {
+      buttons.unshift(this.amazonButton);
+    }
+
+    return buttons;
   }
 }
 

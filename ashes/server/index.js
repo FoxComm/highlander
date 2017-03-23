@@ -1,6 +1,5 @@
 const path = require('path');
 const koa = require('koa');
-const koaBody   = require('koa-body');
 const co = require('co');
 const favicon = require('koa-favicon');
 const serve = require('koa-better-static');
@@ -10,8 +9,6 @@ require('babel-polyfill');
 require('../src/postcss').installHook();
 
 const app = koa();
-
-app.use(koaBody());
 
 app.init = co.wrap(function *(env) {
   if (env) { app.env = env; }

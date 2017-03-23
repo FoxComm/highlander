@@ -73,7 +73,7 @@ const SettingsEntry = ({ claims, routes }: TMenuEntry) => {
         <li>
           <NavigationItem
             to="channels"
-            icon="applications"
+            icon="channels"
             title="Channels"
             routes={routes}
             actualClaims='none'

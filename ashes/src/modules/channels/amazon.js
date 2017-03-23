@@ -34,6 +34,34 @@ export function reset() {
   };
 }
 
+const _fetchAmazonCredentials = createAsyncActions(
+  'fetchAmazonCredentials',
+  () => Api.get(`/hyperion/credentials/`)
+);
+
+export const fetchAmazonCredentials = _fetchAmazonCredentials.perform;
+
+const _updateAmazonCredentials = createAsyncActions(
+  'updateAmazonCredentials',
+  (params) => {
+    const data = {
+      seller_id: params.seller_id,
+      mws_auth_token: params.mws_auth_token,
+    };
+
+    return Api.post(`/hyperion/credentials/`, data);
+  }
+);
+
+export const updateAmazonCredentials = _updateAmazonCredentials.perform;
+
+const _removeAmazonCredentials = createAsyncActions(
+  'removeAmazonCredentials',
+  () => Api.delete(`/hyperion/credentials/`)
+);
+
+export const removeAmazonCredentials = _removeAmazonCredentials.perform;
+
 const _fetchSuggest = createAsyncActions(
   'fetchSuggest',
   (title: string, q: string) => {
@@ -60,29 +88,6 @@ const _fetchAmazonSchema = createAsyncActions(
 );
 
 export const fetchAmazonSchema = _fetchAmazonSchema.perform;
-
-const _fetchAmazonCredentials = createAsyncActions(
-  'fetchAmazonCredentials',
-  () => {
-    return Api.get(`/hyperion/credentials/`);
-  }
-);
-
-export const fetchAmazonCredentials = _fetchAmazonCredentials.perform;
-
-const _updateAmazonCredentials = createAsyncActions(
-  'updateAmazonCredentials',
-  (params) => {
-    const data = {
-      seller_id: params.seller_id,
-      mws_auth_token: params.mws_auth_token,
-    };
-
-    return Api.post(`/hyperion/credentials/`, data);
-  }
-);
-
-export const updateAmazonCredentials = _updateAmazonCredentials.perform;
 
 const _pushToAmazon = createAsyncActions(
   'pushToAmazon',
@@ -112,8 +117,11 @@ export const fetchAmazonProductStatus = _fetchAmazonProductStatus.perform;
 const reducer = createReducer({
   [_fetchSuggest.succeeded]: (state, res) => ({ ...state, suggest: res }),
   [_fetchAmazonSchema.succeeded]: (state, res) => ({ ...state, schema: res }),
+
   [_fetchAmazonCredentials.succeeded]: (state, res) => ({ ...state, credentials: res }),
   [_updateAmazonCredentials.succeeded]: (state, res) => ({ ...state, credentials: res }),
+  [_removeAmazonCredentials.succeeded]: (state, res) => ({ ...state, credentials: null }),
+
   [_pushToAmazon.succeeded]: (state, res) => ({ ...state, push: res }),
   [_fetchAmazonProductStatus.succeeded]: (state, res) => ({ ...state, productStatus: res }),
 

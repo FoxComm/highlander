@@ -151,7 +151,6 @@ class EditableSkuRow extends Component {
     );
   }
 
-  // @autobind
   upcCell(sku: Sku): Element<*> {
     const value = this.state.sku.upc || _.get(sku, 'attributes.upc.v') || '';
 

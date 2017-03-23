@@ -3,7 +3,7 @@ import React, { PropTypes } from 'react';
 import s from './wait-animation.css';
 
 const WaitAnimation = props => {
-  const cls = classNames(s.root, `_size_${props.size}`, props.className);
+  const cls = classNames(s.root, s[`_size_${props.size}`], props.className);
 
   return (
     <div className={cls}>

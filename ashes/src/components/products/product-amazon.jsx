@@ -14,7 +14,6 @@ import * as schemaActions from 'modules/object-schema';
 import s from './product-amazon.css';
 import { Suggester } from 'components/suggester/suggester';
 import WaitAnimation from '../common/wait-animation';
-import Progressbar from '../common/progressbar';
 import { getSuggest } from './selector';
 import ObjectFormInner from '../object-form/object-form-inner';
 import ProductAmazonForm from './product-amazon-form';
@@ -24,7 +23,7 @@ import { PrimaryButton } from '../common/buttons';
 function mapDispatchToProps(dispatch) {
   return {
     actions: bindActionCreators({
-      ...schemaActions,
+      fetchSchema: schemaActions.fetchSchema,
       updateProduct: productActions.updateProduct,
       fetchProduct: productActions.fetchProduct,
       clearAmazonErrors: amazonActions.clearErrors,
@@ -39,11 +38,12 @@ function mapDispatchToProps(dispatch) {
 
 function mapStateToProps(state) {
   const product = state.products.details.product;
-  const { suggest, schema, productStatus } = state.channels.amazon;
+  const { suggest, schema, productStatus, credentials } = state.channels.amazon;
 
   return {
     title: product && product.attributes && product.attributes.title.v,
     product,
+    amazonEnabled: !!credentials,
     productStatus,
     fetchingProduct: _.get(state.asyncActions, 'fetchProduct.inProgress'),
     fetchingSuggest: _.get(state.asyncActions, 'fetchSuggest.inProgress'),
@@ -57,23 +57,12 @@ function mapStateToProps(state) {
 type State = {
   categoryId: string,
   categoryPath: string,
-  stepNum: number,
 };
-
-// @todo maybe move to another component?
-const steps = [{
-  text: 'Choose Category'
-}, {
-  text: 'Fill all fields'
-}, {
-  text: 'Submit'
-}];
 
 class ProductAmazon extends Component {
   state: State = {
     categoryId: '',
     categoryPath: '',
-    stepNum: 0,
   };
 
   componentDidMount() {
@@ -87,10 +76,6 @@ class ProductAmazon extends Component {
       fetchSchema('product');
       fetchProduct(productId);
     }
-
-    // setInterval(() => {
-    //   fetchProductStatus(productId);
-    // }, 10 * 1000);
   }
 
   componentWillUpdate(nextProps) {
@@ -103,7 +88,6 @@ class ProductAmazon extends Component {
     }
   }
 
-  // @todo move to the new component
   renderForm() {
     const { schema, product, fetchingSchema } = this.props;
     const { categoryId, categoryPath } = this.state;
@@ -129,12 +113,6 @@ class ProductAmazon extends Component {
 
   render() {
     const { title, suggest, product, productStatus, fetchingProduct, fetchingSuggest } = this.props;
-    const { stepNum } = this.state;
-    const progressSteps = steps.map((step, i) => ({
-      text: `${i+1}. ${step.text}`,
-      current: i == stepNum,
-      incompleted: i > stepNum,
-    }));
 
     if (!product || fetchingProduct) {
       return <div className={s.root}><WaitAnimation /></div>;
@@ -144,7 +122,6 @@ class ProductAmazon extends Component {
 
     return (
       <div className={s.root}>
-        <Progressbar steps={progressSteps} className={s.progressbar} />
         <h1>{title} for Amazon</h1>
         <ContentBox title="Amazon Category">
           <div className={s.suggesterWrapper}>
@@ -184,7 +161,7 @@ class ProductAmazon extends Component {
   _setCat(id, path) {
     const { fetchAmazonSchema } = this.props.actions;
 
-    this.setState({ categoryId: id, categoryPath: path, stepNum: 1 });
+    this.setState({ categoryId: id, categoryPath: path });
 
     fetchAmazonSchema(id);
   }
