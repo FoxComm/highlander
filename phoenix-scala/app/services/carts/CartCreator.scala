@@ -48,10 +48,7 @@ object CartCreator {
              .cartCreated(Some(admin), root(cart, guest, custData))
       } yield root(cart, guest, custData)
 
-    for {
-      _    ← * <~ payload.validate.toXor
-      root ← * <~ existingCustomerOrNewGuest
-    } yield root
+    existingCustomerOrNewGuest
   }
 
   private def root(cart: Cart, customer: User, custData: CustomerData): CartResponse =

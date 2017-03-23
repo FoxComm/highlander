@@ -9,7 +9,7 @@ all: build
 
 build:
 	$(call header, Building)
-	true
+	cd elasticmanager && make build
 
 test:
 	$(call header, Testing)

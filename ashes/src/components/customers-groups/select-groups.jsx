@@ -13,13 +13,13 @@ import Typeahead from '../typeahead/typeahead';
 import PilledInput from '../pilled-search/pilled-input';
 import CustomerGroupRow from './customer-group-row';
 
-import { fetchCustomerGroups } from '../../modules/customer-groups/all';
+import { actions } from 'modules/customer-groups/list';
 
 type GroupType = {
-  name: string;
-  type: string;
-  id: number;
-}
+  name: string,
+  type: string,
+  id: number,
+};
 
 type Props = {
   updateSelectedIds: (groups: Array<number>) => any;
@@ -35,6 +35,7 @@ type State = {
   term: string,
 };
 
+
 class SelectCustomerGroups extends Component {
   props: Props;
 
@@ -47,7 +48,7 @@ class SelectCustomerGroups extends Component {
   };
 
   componentDidMount() {
-    this.props.dispatch(fetchCustomerGroups());
+    this.props.fetch();
   }
 
   @autobind
@@ -150,7 +151,8 @@ class SelectCustomerGroups extends Component {
   }
 }
 
-export default connect(
-  state => ({groups: state.customerGroups.all.groups}),
-  dispatch => ({dispatch})
-)(SelectCustomerGroups);
+const mapState = state => ({
+  groups: _.get(_.invoke(state, 'customerGroups.list.currentSearch'), 'results.rows', [])
+});
+
+export default connect(mapState, { fetch: actions.fetch })(SelectCustomerGroups);

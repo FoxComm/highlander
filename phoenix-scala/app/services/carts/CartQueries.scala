@@ -2,7 +2,6 @@ package services.carts
 
 import cats._
 import cats.implicits._
-//import com.github.tminglei.slickpg.LTree
 import failures.NotFoundFailure404
 import models.account._
 import models.cord._
@@ -76,9 +75,9 @@ object CartQueries extends CordQueries {
                     Carts.create(Cart(accountId = customer.accountId, scope = Scope.current)))
       (cart, foundOrCreated) = result
       resp ← if (foundOrCreated == Created) for {
-              fullOrder ← * <~ CartResponse.fromCart(cart, grouped, au.isGuest)
-              _         ← * <~ LogActivity().cartCreated(admin, fullOrder)
-            } yield TheResponse(fullOrder)
+              fullCart ← * <~ CartResponse.fromCart(cart, grouped, au.isGuest)
+              _         ← * <~ LogActivity().cartCreated(admin, fullCart)
+            } yield TheResponse(fullCart)
             else LineItemUpdater.runUpdates(cart, None) // FIXME: so costly… @michalrus
     } yield
       resp.result // FIXME: discarding warnings until we get rid of TheResponse completely @michalrus

@@ -116,8 +116,12 @@ class Service(
         routes.admin.ObjectRoutes.routes ~
         routes.admin.PluginRoutes.routes ~
         routes.admin.TaxonomyRoutes.routes ~
-        routes.service.PaymentRoutes.routes ~ //Migrate this to auth with service tokens once we have them
-        routes.service.MigrationRoutes.routes(customerCreateContext, scope.ltree)
+        routes.admin.ShippingMethodRoutes.routes ~
+        routes.service.MigrationRoutes.routes(customerCreateContext, scope.ltree) ~
+        pathPrefix("service") {
+          routes.service.PaymentRoutes.routes ~ //Migrate this to auth with service tokens once we have them
+          routes.service.CustomerGroupRoutes.routes
+        }
       }
     }
   }
