@@ -1,6 +1,6 @@
 const API_CATEGORY_NAMES = [
-  'customers', 'customerAddresses', 'customerCreditCards', 'customerStoreCredit', 'customerGroups',
-  'skus', 'products', 'productAlbums', 'giftCards', 'promotions', 'coupons', 'couponCodes', 'albums',
+  'customers', 'customerAddresses', 'customerCreditCards', 'customerGroups', 'skus',
+  'products', 'productAlbums', 'giftCards', 'promotions', 'coupons', 'couponCodes', 'albums',
   'notes', 'dev', 'storeAdmins', 'cart', 'carts', 'inventories', 'orders', 'sharedSearches',
 ];
 

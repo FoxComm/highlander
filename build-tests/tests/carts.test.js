@@ -36,7 +36,7 @@ test('Can view cart details', async (t) => {
   const gcPayload = { code: newGiftCard.code, amount: newGiftCard.availableBalance };
   await customerApi.cart.addGiftCard(gcPayload);
   const cart = await customerApi.cart.addCoupon(couponCode).then(r => r.result);
-  const foundCart = await adminApi.carts.get(cart.referenceNumber).then(r => r.result);
+  const foundCart = await adminApi.carts.one(cart.referenceNumber).then(r => r.result);
   t.deepEqual(foundCart, cart);
 });
 
@@ -69,7 +69,7 @@ test('Can update line items', async (t) => {
   const newProduct = await adminApi.products.create('default', productPayload);
   const skuCode = newProduct.skus[0].attributes.code.v;
   const payload = $.randomLineItemsPayload([skuCode]);
-  const updatedCart = await adminApi.carts.updateLineItems(referenceNumber, payload).then(r => r.result);
+  const updatedCart = await adminApi.carts.addLineItemQuantities(referenceNumber, payload).then(r => r.result);
   t.truthy(updatedCart.lineItems);
   t.truthy(isArray(updatedCart.lineItems.skus));
   t.is(updatedCart.lineItems.skus.length, 1);
@@ -93,9 +93,10 @@ test('Updating one line item doesn\'t affect others', async (t) => {
   const skuCode2 = newProduct2.skus[0].attributes.code.v;
   const placeLineItemsPayload = $.randomLineItemsPayload([skuCode1, skuCode2]);
   const [sku1Quantity, sku2Quantity] = placeLineItemsPayload.map(item => item.quantity);
-  await adminApi.carts.updateLineItems(referenceNumber, placeLineItemsPayload);
+  await adminApi.carts.addLineItemQuantities(referenceNumber, placeLineItemsPayload);
   const updateSku1Payload = { sku: skuCode1, quantity: $.randomNumber(1, 10) };
-  const updatedCart = await adminApi.carts.updateLineItems(referenceNumber, [updateSku1Payload]).then(r => r.result);
+  const updatedCart = await adminApi.carts
+    .addLineItemQuantities(referenceNumber, [updateSku1Payload]).then(r => r.result);
   const newSku1Quantity = updatedCart.lineItems.skus.find(item => item.sku === skuCode1).quantity;
   const newSku2Quantity = updatedCart.lineItems.skus.find(item => item.sku === skuCode2).quantity;
   t.is(newSku1Quantity, sku1Quantity + updateSku1Payload.quantity);
@@ -109,7 +110,7 @@ test('Can\'t access the cart once order for it has been placed', async (t) => {
   try {
     const adminApi = Api.withCookies(t);
     await adminApi.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
-    await adminApi.carts.get(fullOrder.referenceNumber);
+    await adminApi.carts.one(fullOrder.referenceNumber);
     t.fail('Accessing cart after placing order should have failed, but it succeeded.');
   } catch (error) {
     if (error && error.response) {

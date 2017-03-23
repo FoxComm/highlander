@@ -150,7 +150,7 @@ test('Can issue store credit', async (t) => {
   const credentials = $.randomUserCredentials();
   const newCustomer = await api.customers.create(credentials);
   const payload = $.randomStoreCreditPayload();
-  const newStoreCredit = await api.customerStoreCredit.create(newCustomer.id, payload);
+  const newStoreCredit = await api.customers.issueStoreCredit(newCustomer.id, payload);
   t.truthy(newStoreCredit.id);
   t.truthy(newStoreCredit.originId);
   t.is(newStoreCredit.originType, 'csrAppeasement');

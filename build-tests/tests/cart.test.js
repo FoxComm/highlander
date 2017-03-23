@@ -208,7 +208,7 @@ test('Can apply store credit', async (t) => {
   const adminApi = Api.withCookies(t);
   await adminApi.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const storeCreditPayload = $.randomStoreCreditPayload();
-  const newStoreCredit = await adminApi.customerStoreCredit.create(account.id, storeCreditPayload);
+  const newStoreCredit = await adminApi.customers.issueStoreCredit(account.id, storeCreditPayload);
   await customerApi.cart.get();
   const fullOrder = await customerApi.cart.addStoreCredit(newStoreCredit.availableBalance).then(r => r.result);
   t.truthy(isArray(fullOrder.paymentMethods));
@@ -230,7 +230,7 @@ test('Can remove store credit', async (t) => {
   const adminApi = Api.withCookies(t);
   await adminApi.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
   const storeCreditPayload = $.randomStoreCreditPayload();
-  const newStoreCredit = await adminApi.customerStoreCredit.create(account.id, storeCreditPayload);
+  const newStoreCredit = await adminApi.customers.issueStoreCredit(account.id, storeCreditPayload);
   await customerApi.cart.get();
   const fullOrderAfterAddingSC =
     await customerApi.cart.addStoreCredit(newStoreCredit.availableBalance).then(r => r.result);
