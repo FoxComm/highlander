@@ -76,7 +76,7 @@ object CartQueries extends CordQueries {
       (cart, foundOrCreated) = result
       resp ← if (foundOrCreated == Created) for {
               fullCart ← * <~ CartResponse.fromCart(cart, grouped, au.isGuest)
-              _         ← * <~ LogActivity().cartCreated(admin, fullCart)
+              _        ← * <~ LogActivity().cartCreated(admin, fullCart)
             } yield TheResponse(fullCart)
             else LineItemUpdater.runUpdates(cart, None) // FIXME: so costly… @michalrus
     } yield
