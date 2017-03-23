@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/FoxComm/highlander/lib/gohttp"
+	"github.com/FoxComm/highlander/middlewarehouse/lib/gohttp"
 )
 
 const (
