@@ -1,7 +1,9 @@
 import java.time.Instant
 
+import akka.http.scaladsl.model.StatusCodes
 import cats._
 import cats.implicits._
+import failures.CouponFailures.{CouponNotFound, CouponWithCodeCannotBeFound}
 import failures.NotFoundFailure404
 import failures.ObjectFailures._
 import models.Reasons
@@ -126,8 +128,8 @@ class PromotionsIntegrationTest
 
     implicit val doubleEquality = TolerantNumerics.tolerantDoubleEquality(1.0)
 
-    // Yields coupon code
-    def setupPromoAndCoupon()(implicit sl: SL, sf: SF): String = {
+    // Yields (CouponResponse.Root, coupon code)
+    def setupPromoAndCoupon()(implicit sl: SL, sf: SF): (CouponResponse.Root, String) = {
       val promoId = {
         val promotionPayload = {
           val discountPayload = {
@@ -151,7 +153,7 @@ class PromotionsIntegrationTest
         promotionsApi.create(promotionPayload).as[PromotionResponse.Root].id
       }
 
-      val couponId = {
+      val coupon = {
         val couponPayload = {
           val usageRules = JObject(JField("isExclusive", false),
                                    JField("isUnlimitedPerCode", false),
@@ -166,14 +168,14 @@ class PromotionsIntegrationTest
                           "activeTo"       → tv(JNull, "datetime"))
           CreateCoupon(promotion = promoId, attributes = attrs)
         }
-        couponsApi.create(couponPayload).as[CouponResponse.Root].id
+        couponsApi.create(couponPayload).as[CouponResponse.Root]
       }
-      couponsApi(couponId).codes.generate("boom").as[String]
+      (coupon, couponsApi(coupon.id).codes.generate("boom").as[String])
     }
 
     "from admin UI" in new StoreAdmin_Seed with Customer_Seed with ProductAndSkus_Baked {
 
-      private val couponCode = setupPromoAndCoupon()
+      private val (_, couponCode) = setupPromoAndCoupon()
 
       private val cartRefNum =
         cartsApi.create(CreateCart(email = customer.email)).as[CartResponse].referenceNumber
@@ -196,7 +198,7 @@ class PromotionsIntegrationTest
 
     "from storefront UI" in new StoreAdmin_Seed with Customer_Seed with ProductAndSkus_Baked {
 
-      private val couponCode = setupPromoAndCoupon()
+      private val (_, couponCode) = setupPromoAndCoupon()
 
       private val cartTotal = POST("v1/my/cart/line-items", Seq(UpdateLineItemsPayload("TEST", 1)))
         .asTheResult[CartResponse]
@@ -214,7 +216,7 @@ class PromotionsIntegrationTest
 
     "should update coupon discount when cart becomes clean" in new Fixture
     with ProductSku_ApiFixture {
-      private val couponCode = setupPromoAndCoupon()
+      private val (_, couponCode) = setupPromoAndCoupon()
 
       POST("v1/my/cart/line-items", Seq(UpdateLineItemsPayload(skuCode, 1))).mustBeOk()
 
@@ -227,6 +229,38 @@ class PromotionsIntegrationTest
 
       emptyCartWithCoupon.result.totals.total must === (0)
       emptyCartWithCoupon.result.totals.adjustments must === (0)
+    }
+
+    "but not after archiving the coupon" in new ProductSku_ApiFixture {
+      val (coupon, couponCode) = setupPromoAndCoupon
+      val cart                 = api_newGuestCart
+      couponsApi(coupon.id).archive
+      cartsApi(cart.referenceNumber).lineItems.add(Seq(UpdateLineItemsPayload(skuCode, 1)))
+      cartsApi(cart.referenceNumber).coupon
+        .add(couponCode)
+        .mustFailWith404(CouponWithCodeCannotBeFound(couponCode))
+      cartsApi(cart.referenceNumber).get.asTheResult[CartResponse].promotion mustBe 'empty
+    }
+
+    "and not after archiving its promotion" in new ProductSku_ApiFixture {
+      val (coupon, couponCode) = setupPromoAndCoupon
+      val cart                 = api_newGuestCart
+      promotionsApi(coupon.promotion).delete.mustBeOk()
+      cartsApi(cart.referenceNumber).lineItems.add(Seq(UpdateLineItemsPayload(skuCode, 1)))
+      cartsApi(cart.referenceNumber).coupon.add(couponCode).mustHaveStatus(StatusCodes.NotFound)
+      cartsApi(cart.referenceNumber).get.asTheResult[CartResponse].promotion mustBe 'empty
+    }
+
+    "and archived promotions ought to be removed from carts" in new ProductSku_ApiFixture {
+      val (coupon, couponCode) = setupPromoAndCoupon
+      val cart                 = api_newGuestCart
+      cartsApi(cart.referenceNumber).lineItems.add(Seq(UpdateLineItemsPayload(skuCode, 1)))
+      cartsApi(cart.referenceNumber).coupon
+        .add(couponCode)
+        .asTheResult[CartResponse]
+        .promotion mustBe 'defined
+      promotionsApi(coupon.promotion).delete.mustBeOk()
+      cartsApi(cart.referenceNumber).get.asTheResult[CartResponse].promotion mustBe 'empty
     }
   }
 

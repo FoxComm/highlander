@@ -201,9 +201,7 @@ class AutoPromotionsIntegrationTest
       .as[PromotionResponse.Root]
 
     val customer = api_newCustomer()
-
-    val refNum =
-      cartsApi.create(CreateCart(email = customer.email)).as[CartResponse].referenceNumber
+    val refNum   = api_newCustomerCart(customer.id).referenceNumber
 
     cartsApi(refNum).lineItems
       .add(Seq(UpdateLineItemsPayload(skuCode, 1)))
@@ -216,6 +214,27 @@ class AutoPromotionsIntegrationTest
 
     finl.promotion mustBe 'empty
     finl.totals must === (CartResponseTotals(0, 0, 0, 0, 0, 0))
+  }
+
+  "archived auto-apply promos are not applied" in new ProductSku_ApiFixture {
+    val promo = promotionsApi
+      .create(
+          PromotionPayloadBuilder.build(Promotion.Auto,
+                                        PromoOfferBuilder.CartPercentOff(37),
+                                        PromoQualifierBuilder.CartAny))
+      .as[PromotionResponse.Root]
+
+    promotionsApi(promo.id).delete().mustBeOk()
+
+    val customer = api_newCustomer()
+
+    val refNum =
+      cartsApi.create(CreateCart(email = customer.email)).as[CartResponse].referenceNumber
+
+    cartsApi(refNum).lineItems
+      .add(Seq(UpdateLineItemsPayload(skuCode, 1)))
+      .asTheResult[CartResponse]
+      .promotion mustBe 'empty
   }
 
 }

@@ -92,9 +92,9 @@ object CartPromotionUpdater {
                     .mustFindOneOr(OrderHasNoPromotions)
       promotion ← * <~ Promotions
                    .filterByContextAndShadowId(ctx.id, orderPromo.promotionShadowId)
+                   .filter(_.archivedAt.isEmpty)
                    .couponOnly
-                   .mustFindOneOr(
-                       PromotionShadowNotFoundForContext(orderPromo.promotionShadowId, ctx.id))
+                   .mustFindOneOr(OrderHasNoPromotions)
       adjustments ← * <~ getAdjustmentsForPromotion(cart, promotion, failFatally)
     } yield (orderPromo, promotion, adjustments)
   }
@@ -106,7 +106,7 @@ object CartPromotionUpdater {
       db: DB,
       ctx: OC): DbResultT[(OrderPromotion, Promotion, Seq[CartLineItemAdjustment])] =
     for {
-      all ← * <~ Promotions.filterByContext(ctx.id).autoApplied.result
+      all ← * <~ Promotions.filterByContext(ctx.id).filter(_.archivedAt.isEmpty).autoApplied.result
       allWithAdjustments ← * <~ all.toList
                             .map(promo ⇒
                                   getAdjustmentsForPromotion(cart, promo, failFatally = true).map(
@@ -168,6 +168,7 @@ object CartPromotionUpdater {
       couponCode ← * <~ CouponCodes.mustFindByCode(code)
       coupon ← * <~ Coupons
                 .filterByContextAndFormId(ctx.id, couponCode.couponFormId)
+                .filter(_.archivedAt.isEmpty)
                 .mustFindOneOr(CouponWithCodeCannotBeFound(code))
       couponForm   ← * <~ ObjectForms.mustFindById404(coupon.formId)
       couponShadow ← * <~ ObjectShadows.mustFindById404(coupon.shadowId)
@@ -177,6 +178,7 @@ object CartPromotionUpdater {
       // Fetch promotion + validate
       promotion ← * <~ Promotions
                    .filterByContextAndFormId(ctx.id, coupon.promotionId)
+                   .filter(_.archivedAt.isEmpty)
                    .couponOnly
                    .mustFindOneOr(PromotionNotFoundForContext(coupon.promotionId, ctx.name))
       // Create connected promotion and line item adjustments
