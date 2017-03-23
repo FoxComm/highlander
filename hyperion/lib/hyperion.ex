@@ -5,7 +5,8 @@ defmodule Hyperion do
     import Supervisor.Spec, warn: false
 
     children = [
-      worker(Hyperion.Repo, [])
+      worker(Hyperion.Repo, []),
+      worker(Hyperion.Amazon.Workers.CustomersWorker, [])
     ]
 
     opts = [strategy: :one_for_one, name: Hyperion.Supervisor]

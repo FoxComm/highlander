@@ -45,6 +45,16 @@ defmodule Hyperion.PhoenixScala.Client do
     |> parse_response(token)
   end
 
+  def create_customer(%{name: name, email: email}) do
+    params = Poison.encode!(%{name: name, email: email})
+    token = login()
+    {st, resp} = post("/api/v1/customers", params, make_request_headers(token))
+    case resp.status_code do
+      code when code == 200 -> parse_response({st, resp}, token)
+      _ -> %{status: resp.status_code, error: resp.body["errors"]}
+    end
+  end
+
   # private functions
   defp parse_response({_status, r = %HTTPoison.Response{}}, token) do
     jwt = if token do

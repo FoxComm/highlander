@@ -1,6 +1,10 @@
 defmodule Hyperion.Amazon do
   alias Hyperion.PhoenixScala.Client
 
+  @moduledoc """
+  This module responsible for transform data from Phoenix to Amazon and vice versa
+  """
+
   @doc """
   Returns formatted indexed list of products gotten by it's ids
   """
