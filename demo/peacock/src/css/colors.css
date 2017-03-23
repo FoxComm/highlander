@@ -77,9 +77,9 @@
   --button-disabled-background: var(--silver);
 
   --button-color: var(--white);
-  --button-disabled-color: var(--gallery)
+  --button-disabled-color: var(--gallery);
 
-  --link-color: var(--warter-blue);
+  --link-color: var(--water-blue);
   --link-hover-color: var(--water-blue);
   --link-visited-color: var(--malibu);
   --link-alt-color: var(--cod-gray);
