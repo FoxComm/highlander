@@ -226,7 +226,7 @@ class AutoPromotionsIntegrationTest
                                         PromoQualifierBuilder.CartAny))
       .as[PromotionResponse.Root]
 
-    promotionsApi(promo.id).delete()
+    promotionsApi(promo.id).delete().mustBeOk()
 
     val customer = api_newCustomer()
 

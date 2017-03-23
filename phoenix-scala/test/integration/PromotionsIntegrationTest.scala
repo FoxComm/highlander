@@ -245,7 +245,7 @@ class PromotionsIntegrationTest
     "and not after archiving its promotion" in new ProductSku_ApiFixture {
       val (coupon, couponCode) = setupPromoAndCoupon
       val cart                 = api_newGuestCart
-      promotionsApi(coupon.promotion).delete
+      promotionsApi(coupon.promotion).delete.mustBeOk()
       cartsApi(cart.referenceNumber).lineItems.add(Seq(UpdateLineItemsPayload(skuCode, 1)))
       cartsApi(cart.referenceNumber).coupon.add(couponCode).mustHaveStatus(StatusCodes.NotFound)
       cartsApi(cart.referenceNumber).get.asTheResult[CartResponse].promotion mustBe 'empty
@@ -259,7 +259,7 @@ class PromotionsIntegrationTest
         .add(couponCode)
         .asTheResult[CartResponse]
         .promotion mustBe 'defined
-      promotionsApi(coupon.promotion).delete
+      promotionsApi(coupon.promotion).delete.mustBeOk()
       cartsApi(cart.referenceNumber).get.asTheResult[CartResponse].promotion mustBe 'empty
     }
   }
