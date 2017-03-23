@@ -31,7 +31,7 @@ build:
 	# We don't need to build consumers in CI, they're being built inside Docker, see PR #753
 	# But we can keep generic `build` target that builds only Middlewarehouse for convenience
 	make prepare
-	make build-middlewarehouse
+	# make build-middlewarehouse
 	# make build-middlewarehouse-seeder
 	# make build-capture-consumer
 	# make build-gift-card-consumer
@@ -45,7 +45,7 @@ build-middlewarehouse:
 	cd $(BUILD_PATH) && go build -o middlewarehouse main.go
 
 build-elasticmanager:
-	cd $(BUILD_PATH)/elasticmanager && make build
+	cd $(BUILD_PATH)/elasticmanager && glide install && go build -o elasticmanager main.go
 
 build-middlewarehouse-seeder:
 	cd $(BUILD_PATH) && go build -o common/db/seeds/seeder common/db/seeds/main.go
