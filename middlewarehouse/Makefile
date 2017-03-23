@@ -21,6 +21,7 @@ prepare:
 	mkdir -p $(GOPATH)/src/github.com/FoxComm
 	ln -s $(HIGHLANDER_PATH) $(BUILD_ROOT_PATH) || true
 	cd $(BUILD_PATH) && glide install
+	cd $(BUILD_PATH)/elasticmanager && glide install
 	rm -rf $(BUILD_PATH)/vendor/github.com/FoxComm/highlander
 
 ####################################################################
@@ -31,7 +32,7 @@ build:
 	# We don't need to build consumers in CI, they're being built inside Docker, see PR #753
 	# But we can keep generic `build` target that builds only Middlewarehouse for convenience
 	make prepare
-	# make build-middlewarehouse
+	make build-middlewarehouse
 	# make build-middlewarehouse-seeder
 	# make build-capture-consumer
 	# make build-gift-card-consumer
