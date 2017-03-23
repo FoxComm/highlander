@@ -5,10 +5,13 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { transitionTo } from 'browserHistory';
 import { autobind } from 'core-decorators';
-import classNames from 'classnames';
+import { get } from 'lodash';
 
 // components
 import { AddButton } from 'components/common/buttons';
+import WaitAnimation from 'components/common/wait-animation';
+import HierarchicalTaxonomyListWidget from './hierarchical-taxonomy-widget';
+import FlatTaxonomyListWidget from './flat-taxonomy-widget';
 
 // actions
 import { fetch as fetchTaxonomy } from 'modules/taxonomies/details';
@@ -32,7 +35,7 @@ class TaxonListWidget extends Component {
   }
 
   @autobind
-  handleTaxonClick(id: string) {
+  handleTaxonClick(id: number) {
     const { currentTaxon } = this.props;
 
     if (currentTaxon !== id.toString()) {
@@ -48,31 +51,37 @@ class TaxonListWidget extends Component {
   }
 
   get content() {
-    const { taxons } = this.props.taxonomy;
+    const { taxonomy: { taxons, hierarchical }, currentTaxon } = this.props;
 
-    const children = taxons.map((item) => {
-      const active = (this.props.currentTaxon === item.taxon.id.toString());
-      const className = classNames(styles['item'], { [styles.active]: active });
+    if (!hierarchical) {
 
-       return (
-         <div
-           className={className}
-           onClick={() => this.handleTaxonClick(item.taxon.id)}
-           key={item.taxon.id}
-         >
-           {item.taxon.attributes.name.v}
-         </div>
-         );
-       }
-    );
-    return children;
+      return (
+        <FlatTaxonomyListWidget
+          taxons={taxons}
+          currentTaxon={currentTaxon}
+          handleTaxonClick={this.handleTaxonClick}
+        />
+      );
+    }
+
+    if (hierarchical) {
+
+      return (
+        <HierarchicalTaxonomyListWidget
+          taxons={taxons}
+          currentTaxon={currentTaxon}
+          handleTaxonClick={this.handleTaxonClick}
+        />
+      );
+    }
+
   }
 
   render () {
-    const { taxonomy } = this.props;
+    const { taxonomy, fetchState } = this.props;
 
-    if (!taxonomy || taxonomy.hierarchical) {
-      return null;
+    if (fetchState.inProgress && !fetchState.err) {
+      return <div><WaitAnimation /></div>;
     }
 
     return (
@@ -92,8 +101,9 @@ class TaxonListWidget extends Component {
 
 }
 
-const mapState = ( {taxonomies: { details } }) => ({
-  taxonomy: details.taxonomy
+const mapState = state => ({
+  taxonomy: get(state.taxonomies, 'details.taxonomy', {}),
+  fetchState: get(state.asyncActions, 'fetchTaxonomy', {})
 });
 
 export default connect(mapState, { fetchTaxonomy })(TaxonListWidget);

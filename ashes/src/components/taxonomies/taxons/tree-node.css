@@ -1,0 +1,41 @@
+
+.node {
+  display: none;
+  line-height: 46px;
+  font-size: 13px;
+  font-weight: 400;
+  color: #484848;
+
+  &.visible {
+    display: block;
+
+    &.active {
+      border-left: 3px solid #49C2CA;
+      background-color: #F7F7F7;;
+    }
+  }
+
+}
+
+.item {
+  margin-left: 20px;
+}
+
+.text {
+  margin-left: 10px;
+}
+
+.attributes {
+
+  &:hover {
+   cursor: pointer;
+  }
+
+  & i {
+    font-size: 22px;
+    line-height: 24px;
+    height: 24px;
+    margin-bottom: 8px;
+  }
+
+}
