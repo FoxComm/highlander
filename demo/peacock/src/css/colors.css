@@ -86,6 +86,13 @@
 
   --focus-color: var(--baby-blue);
 
+  /* Radio button */
+  --radio-button-border: var(--alto);
+  --radio-button-inner-circle: var(--white);
+  --radio-button-unchecked: var(--white);
+  --radio-button-outer-circle: var(--water-blue);
+  --radio-button-disabled-background: var(--silver);
+
   /* Borders */
   --border-color: var(--alto);
 

@@ -21,15 +21,15 @@
 
 .form-body {
   margin-top: 50px;
-  overflow-y: auto;
-  height: calc(100% - 104px);
+  overflow-y: scroll;
+  height: calc(100% - 100px);
   padding-bottom: 15px;
 }
 
 .button-wrap {
   text-align: center;
   position: absolute;
-  height: 44px;
+  height: 50px;
   width: 100%;
   bottom: 0;
 }
@@ -37,14 +37,20 @@
 .checkout-submit {
   display: inline-block;
   width: 100%;
-  height: 44px;
+  height: 50px;
   font-weight: 900;
   font-size: 20px;
 }
 
+@media (--small-only), (--medium-only) {
+  .checkout-submit {
+    border-radius: 0;
+  }
+}
+
 @media (--large) {
   .form-body {
-    height: calc(100% - 130px);
+    height: calc(100% - 120px);
   }
 
   .button-wrap {

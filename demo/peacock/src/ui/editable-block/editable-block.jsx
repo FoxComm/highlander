@@ -2,10 +2,11 @@
 /* @flow */
 
 import React, { Element } from 'react';
-import styles from './editable-block.css';
 
 import localized from 'lib/i18n';
 import type { Localized } from 'lib/i18n';
+
+import styles from './editable-block.css';
 
 type EditableProps = Localized & {
   isEditing: boolean,
