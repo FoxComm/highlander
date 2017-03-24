@@ -47,7 +47,7 @@ export function connectPage(namespace, actions) {
   const requiredActions = _.values(_.omit(actionNames, 'sync'));
 
   function mapStateToProps(state) {
-    const { credentials } = state.channels.amazon;
+    const { status } = state.channels.amazon;
 
     return {
       namespace,
@@ -71,7 +71,7 @@ export function connectPage(namespace, actions) {
         _.get(state.asyncActions, `${actionNames.create}.err`) ||
         _.get(state.asyncActions, `${actionNames.update}.err`)
       ),
-      hasAmazon: !!credentials,
+      hasAmazon: status,
     };
   }
 
@@ -94,7 +94,7 @@ export function connectPage(namespace, actions) {
     return {
       actions: bindActionCreators({
         ...generalizeActions(actions),
-        fetchAmazonCredentials: amazonActions.fetchAmazonCredentials,
+        fetchAmazonStatus: amazonActions.fetchAmazonStatus,
       }, dispatch),
       dispatch,
     };
@@ -195,7 +195,7 @@ export class ObjectPage extends Component {
         });
     }
 
-    this.props.actions.fetchAmazonCredentials();
+    this.props.actions.fetchAmazonStatus();
   }
 
   get unsaved(): boolean {

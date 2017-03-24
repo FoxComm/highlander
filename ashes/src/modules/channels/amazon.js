@@ -28,6 +28,13 @@ export function clearErrors() {
 
 export const resetState = createAction('RESET_AMAZON_STATE');
 
+const _fetchAmazonStatus = createAsyncActions(
+  'fetchAmazonStatus',
+  () => Api.get(`/hyperion/credentials/status`)
+);
+
+export const fetchAmazonStatus = _fetchAmazonStatus.perform;
+
 const _fetchAmazonCredentials = createAsyncActions(
   'fetchAmazonCredentials',
   () => Api.get(`/hyperion/credentials/`)
@@ -109,6 +116,7 @@ const reducer = createReducer({
   [_fetchSuggest.succeeded]: (state, res) => ({ ...state, suggest: res }),
   [_fetchAmazonSchema.succeeded]: (state, res) => ({ ...state, schema: res }),
 
+  [_fetchAmazonStatus.succeeded]: (state, res) => ({ ...state, status: res.credentials }),
   [_fetchAmazonCredentials.succeeded]: (state, res) => ({ ...state, credentials: res }),
   [_updateAmazonCredentials.succeeded]: (state, res) => ({ ...state, credentials: res }),
   [_removeAmazonCredentials.succeeded]: (state, res) => ({ ...state, credentials: null }),
