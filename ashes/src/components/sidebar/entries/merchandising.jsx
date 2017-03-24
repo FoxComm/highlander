@@ -3,7 +3,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { get, flow } from 'lodash';
-import { createReducer, createAction } from 'redux-act';
+import { createReducer } from 'redux-act';
 import { makeLocalStore, addAsyncReducer } from '@foxcomm/wings';
 import { createAsyncActions } from '@foxcomm/wings';
 
@@ -12,6 +12,7 @@ import { frn, readAction } from 'lib/frn';
 
 import NavigationItem from '../navigation-item';
 import { IndexLink, Link } from 'components/link';
+import WaitAnimation from 'components/common/wait-animation';
 
 import type { Claims } from 'lib/claims';
 
@@ -25,11 +26,16 @@ const taxonomyClaims = readAction(frn.merch.taxonomy);
 class MerchandisingEntry extends Component {
 
   componentDidMount() {
-    this.props.fetch()
+    this.props.fetch();
   }
 
   get renderChildren() {
-    const { claims, routes, taxonomies, currentParams } = this.props;
+    const { claims, routes, taxonomies, currentParams, fetchState } = this.props;
+
+    if (!taxonomies || fetchState.inProgress) {
+      return <div><WaitAnimation /></div>;
+    }
+
     return taxonomies.map((taxonomy) => {
       const linkParams = {
         context: taxonomy.context,
@@ -47,11 +53,10 @@ class MerchandisingEntry extends Component {
             routes={routes}
             actualClaims={claims}
             expectedClaims={taxonomyClaims}
-            taxonomy={taxonomy}
           />
         </li>
-      )
-    })
+      );
+    });
   }
 
   render() {
@@ -100,5 +105,5 @@ const mapState = state => ({
 
 export default flow(
   connect(mapState, { fetch: fetch.perform }),
-  makeLocalStore(addAsyncReducer(reducer), { name: '', taxonomies: [] }),
+  makeLocalStore(addAsyncReducer(reducer), { taxonomies: [] }),
 )(MerchandisingEntry);
