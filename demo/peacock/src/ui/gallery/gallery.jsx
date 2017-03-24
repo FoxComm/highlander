@@ -11,10 +11,10 @@ type Props = {
 
 const Gallery = (props: Props) => {
   // @TODO: add imgix integration
-  const items = props.images.map(src => {
+  const items = props.images.map((src) => {
     return {
       original: src,
-      originalClass: s.image
+      originalClass: s.image,
     };
   });
   return (

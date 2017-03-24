@@ -530,7 +530,7 @@ const reducer = createReducer({
     }
     return state;
   },
-  [toggleModal]: state => {
+  [toggleModal]: (state) => {
     const visibleCurrent = _.get(state, 'modalVisible', false);
     return {
       ...state,

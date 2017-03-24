@@ -2,7 +2,7 @@
 
 import React from 'react';
 import classnames from 'classnames';
-import s from './textarea.css'
+import s from './textarea.css';
 
 type Props = {
   [name: string]: any,

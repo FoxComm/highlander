@@ -11,7 +11,7 @@ import { Link } from 'react-router';
 
 import styles from './breadcrumbs.css';
 
-import type { RoutesParams, Route } from 'types';
+import type { Route } from 'types';
 
 const Delimiter = (props: {idx: number}) => {
   return (

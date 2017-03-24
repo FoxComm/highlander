@@ -270,7 +270,7 @@ class Pdp extends Component {
 
   get productDetails(): Element<*> {
     const description = _.get(this.props.product, 'attributes.description.v', '');
-    const description_list = _.get(this.props.product, 'attributes.description_list.v', '');
+    const descriptionList = _.get(this.props.product, 'attributes.description_list.v', '');
     return (
       <div>
         <div
@@ -279,7 +279,7 @@ class Pdp extends Component {
         />
         <div
           styleName="description-list"
-          dangerouslySetInnerHTML={{__html: description_list}}
+          dangerouslySetInnerHTML={{__html: descriptionList}}
         />
       </div>
     );

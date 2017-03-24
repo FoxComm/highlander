@@ -14,7 +14,6 @@ type Props = {
   product: any,
   quantity: number,
   onQuantityChange: Function,
-  addToCart: Function,
 };
 
 const ProductDetails = (props: Props) => {
