@@ -37,10 +37,41 @@ const NavigationItem = (props: Props) => {
       isActive = false;
     }
 
+    if (props.to === 'taxonomy' && props.currentParams.taxonomyId !== props.linkParams.taxonomyId.toString()) {
+      isActive = false;
+    }
+
+    if (props.to === 'taxonomies' && props.currentParams.taxonomyId) {
+      isActive = false;
+    }
+
     return classNames('fc-navigation-item-container', {
       '_active': isActive
     });
+
   };
+
+    if (props.taxonomy) {
+
+      return (
+        <div className={containerClass()}>
+          <div className='fc-navigation-item'>
+            <IndexLink
+              to={props.to}
+              params={props.linkParams}
+              className='fc-navigation-item__link'
+              actualClaims={props.actualClaims}
+              expectedClaims={props.expectedClaims}>
+              <Icon
+                name={props.icon}
+                className={styles["nav-item"]}
+              />
+              <span>{props.title}</span>
+            </IndexLink>
+          </div>
+        </div>
+      );
+    }
 
     return (
       <div className={containerClass()}>
