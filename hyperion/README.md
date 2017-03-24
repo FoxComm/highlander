@@ -129,6 +129,7 @@ v1   GET    /v1/public/categories/:node_id  Get category by amazon node_id
 v1   GET    /v1/public/orders  Get all orders
 v1   GET    /v1/public/orders/:order_id  Get order details
 v1   GET    /v1/public/orders/:order_id/items  Get order items
+v1   GET    /v1/public/orders/:order_id/full  Get full order in FC notation
 v1   POST   /v1/public/prices  Submit prices for already submitted products
 v1   POST   /v1/public/inventory  Submit inventory for already submitted products
 v1   POST   /v1/public/images  submit images feed
