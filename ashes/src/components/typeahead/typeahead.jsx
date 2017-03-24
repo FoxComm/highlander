@@ -229,7 +229,7 @@ export default class Typeahead extends React.Component {
 
     return (
       <div className={className}>
-        <FormField className="fc-typeahead__input-group" label={this.props.label}>
+        <FormField label={this.props.label}>
           <LoadingInputWrapper inProgress={this.props.isFetching}>
             {this.inputContent}
           </LoadingInputWrapper>
