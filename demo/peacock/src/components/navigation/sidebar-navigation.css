@@ -29,6 +29,10 @@
   background: var(--body-background);
 }
 
+.submenu-hovered {
+  top: 0;
+}
+
 .submenu-link-item {
   display: block;
   width: 100%;

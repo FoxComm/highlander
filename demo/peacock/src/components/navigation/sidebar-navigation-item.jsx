@@ -57,37 +57,13 @@ export default class NavigationItem extends Component {
     }
   }
 
-  renderSubcategoryItems(subcategory: Category, baseUrl: string): ?Element<*> {
-    if (!subcategory.children) return null;
-
-    const items = _.map(subcategory.children, (item) => {
-      const url = `${baseUrl}${this.getNavUrl(item)}`;
-      return (
-        <div key={`${item.name}-leaf-category`}>
-          <Link
-            styleName="drawer-subitem-link"
-            onClick={this.handleClick}
-            to={url}
-          >
-            {humanize(item.name)}
-          </Link>
-        </div>
-      );
-    });
-
-    return (
-      <div>
-        { items }
-      </div>
-    );
-  }
-
   get baseUrl(): string {
     return this.getNavUrl(this.props.item);
   }
 
   @autobind
-  drawer(item: Category, parentUrl: string, parentName: string, level: number): ?Element<*> {
+  drawer(item: Category, parentUrl: string, parentName: string): ?Element<*> {
+    const level = this.state.expanded.length;
     const drawerStyle = classNames(styles.submenu, {
       [styles['submenu-open']]: this.state.expanded.indexOf(item.name) >= 0,
     });
@@ -117,13 +93,18 @@ export default class NavigationItem extends Component {
           >
             {name}
           </Link>
-          {this.drawer(child, url, name, level + 1)}
+          {this.drawer(child, url, name)}
         </div>
       );
     });
 
+    let style = {zIndex: 10 * level};
+    if (this.state.expanded.indexOf(item.name) >= 1) {
+      style.top = 0;
+    }
+
     return (
-      <div className={drawerStyle} style={{zIndex: 10 * level}}>
+      <div className={drawerStyle} style={style}>
         <div styleName="drawer-columns">
           <Link
             styleName="item-link"
@@ -160,7 +141,6 @@ export default class NavigationItem extends Component {
       [styles.active]: isActive,
     });
     const name = humanize(item.name);
-    const nextLevel = 1;
 
     return (
       <div
@@ -173,7 +153,7 @@ export default class NavigationItem extends Component {
         >
           {name}
         </Link>
-        {this.drawer(item, url, name, nextLevel)}
+        {this.drawer(item, url, name)}
       </div>
     );
   }
