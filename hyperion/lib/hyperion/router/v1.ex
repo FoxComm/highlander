@@ -295,7 +295,15 @@ defmodule Hyperion.Router.V1 do
               {_, resp} -> respond_with(conn, resp)
             end
           end # get order details
+
+          desc "Get full order in FC notation"
+
+          get :full do
+            order = Hyperion.Amazon.get_full_order(params[:order_id], API.jwt(conn))
+            respond_with(conn, order)
+          end # get full order
         end # get order details and items
+
       end # orders
 
       namespace :prices do

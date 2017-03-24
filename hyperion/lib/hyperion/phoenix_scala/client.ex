@@ -16,7 +16,8 @@ defmodule Hyperion.PhoenixScala.Client do
   def login do
     email = Application.fetch_env!(:hyperion, :phoenix_email)
     password = Application.fetch_env!(:hyperion, :phoenix_password)
-    params = Poison.encode!(%{email: email, password: password, org: "tenant"})
+    org = Application.fetch_env!(:hyperion, :phoenix_org)
+    params = Poison.encode!(%{email: email, password: password, org: org})
     case post("/api/v1/public/login", params, make_request_headers()) do
       {_, %{body: _, headers: headers, status_code: 200}} -> Keyword.take(headers, ["Jwt"]) |> hd |> elem(1)
       {_, %{body: resp, headers: _, status_code: _}} -> raise hd(resp["errors"])
@@ -38,6 +39,7 @@ defmodule Hyperion.PhoenixScala.Client do
     get("/api/v1/skus/#{ctx}/#{sku_code}", make_request_headers(token))
     |> parse_response(token)
   end
+
   @doc """
   Returns all non archived skus
   """
@@ -47,6 +49,37 @@ defmodule Hyperion.PhoenixScala.Client do
     |> parse_response(token)
   end
 
+  @doc """
+  Return all countries from Phoenix
+  """
+  def get_countries(token) do
+    get("/api/v1/public/countries", make_request_headers(token))
+    |> parse_response(token)
+  end
+
+  @doc """
+  Return all countries from Phoenix
+  """
+  def get_countries do
+    token = login()
+    get("/api/v1/public/countries", make_request_headers(token))
+    |> parse_response(token)
+  end
+
+  def get_regions(country_id) do
+    token = login()
+    get("/api/v1/public/countries/#{country_id}", make_request_headers(token))
+    |> parse_response(token)
+  end
+
+  def get_regions(country_id, token) do
+    get("/api/v1/public/countries/#{country_id}", make_request_headers(token))
+    |> parse_response(token)
+  end
+
+  @doc """
+  Creates new customer in Phoenix from Amazon order
+  """
   def create_customer(%{name: name, email: email}) do
     params = Poison.encode!(%{name: name, email: email})
     token = login()

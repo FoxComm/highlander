@@ -40,6 +40,7 @@ defmodule Hyperion.API do
       Maru.Exceptions.NotFound -> 404
       Unauthorized -> 401
       %NotAllowed{} -> 401
+      %AmazonError{} -> 400
       Maru.Exceptions.MethodNotAllowed -> 405
       _ -> 500
     end

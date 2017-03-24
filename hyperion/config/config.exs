@@ -20,7 +20,8 @@ config :hyperion,
 
 config :hyperion,
   phoenix_email: System.get_env("PHOENIX_USER"),
-  phoenix_password: System.get_env("PHOENIX_PASSWORD")
+  phoenix_password: System.get_env("PHOENIX_PASSWORD"),
+  phoenix_org: System.get_env("PHOENIX_ORG")
 
 config :hyperion,
   phoenix_url: System.get_env("PHOENIX_URL")
