@@ -14,6 +14,7 @@ export default class Notification extends React.Component {
       'success',
       'error',
     ]),
+    hideAlertDetails: PropTypes.boolean,
     entity: PropTypes.string.isRequired,
     overviewMessage: PropTypes.string.isRequired,
     children: PropTypes.node.isRequired,
@@ -27,6 +28,22 @@ export default class Notification extends React.Component {
   @autobind
   toggleExpanded() {
     this.setState({expanded: !this.state.expanded});
+  }
+
+  @autobind
+  renderViewLink(e,t) {
+    if (this.props.hideAlertDetails) return null;
+    return (<a className="fc-bulk-notification__details-link" onClick={t}>
+              {e ? 'View Less...' : 'View Details...'}
+            </a>);
+  }
+
+  @autobind
+  renderDetailsContainer(e,c){
+    if (this.props.hideAlertDetails) return null;
+    return (<div className={classNames('fc-bulk-notification__details', {'_open': e})}>
+              {c}
+            </div>);
   }
 
   render() {
@@ -43,15 +60,11 @@ export default class Notification extends React.Component {
             <span className="fc-bulk-notification__message">
               {message}
             </span>
-            <a className="fc-bulk-notification__details-link" onClick={this.toggleExpanded}>
-              {expanded ? 'View Less...' : 'View Details...'}
-            </a>
+            {this.renderViewLink(expanded,this.toggleExpanded)}
             <span className="fc-bulk-notification__flex-separator"></span>
             <i onClick={onHide} className="fc-bulk-notification__close fc-btn-close icon-close" title="Close" />
           </div>
-          <div className={classNames('fc-bulk-notification__details', {'_open': expanded})}>
-            {children}
-          </div>
+          {this.renderDetailsContainer(expanded,children)}
         </div>
       </div>
     );
