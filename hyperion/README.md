@@ -116,6 +116,7 @@ v1   GET    /v1/public/credentials  Get MWS credentials for exact client
 v1   POST   /v1/public/credentials  Store new credentials
 v1   PUT    /v1/public/credentials  Update credentials
 v1   DELETE /v1/public/credentials  Remove credentials for specific client
+v1   GET    /v1/public/credentials/status  Checks credentials for existence
 v1   POST   /v1/public/products/:product_id/push  Push product to amazon
 v1   GET    /v1/public/products/:product_id/result  Get push result for a product
 v1   POST   /v1/public/products  Get products by ids and submit them to the Amazon MWS

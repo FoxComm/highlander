@@ -88,6 +88,15 @@ defmodule Hyperion.Router.V1 do
             respond_with(conn, %{error: "Credentials for client #{API.customer_id(conn)} not found"}, 404)
           end
         end # delete
+
+        desc "Checks credentials for existence"
+        get :status do
+          creds = Repo.get_by(Credentials, client_id: API.customer_id(conn))
+          case creds do
+            nil -> respond_with(conn, %{credentials: false})
+            _ -> respond_with(conn, %{credentials: true})
+          end
+        end
       end # credentials
 
       namespace :products do
