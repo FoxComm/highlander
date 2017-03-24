@@ -242,7 +242,9 @@ class AddressList extends Component {
         action={action}
         error={this.state.error}
       >
-        <EditAddress address={address} onUpdate={this.setNewAddress} />
+        <div styleName="edit-form">
+          <EditAddress address={address} onUpdate={this.setNewAddress} />
+        </div>
       </CheckoutForm>
     );
   }

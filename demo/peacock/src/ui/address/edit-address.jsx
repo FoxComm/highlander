@@ -1,7 +1,9 @@
+/* @flow */
+
+import React, { Component } from 'react';
 
 // libs
 import _ from 'lodash';
-import React, { Component } from 'react';
 import { autobind, debounce } from 'core-decorators';
 import { connect } from 'react-redux';
 import { createNumberMask } from 'lib/i18n/field-masks';
@@ -20,12 +22,12 @@ import Autocomplete from 'ui/autocomplete';
 import Checkbox from '../checkbox/checkbox';
 import Loader from '../loader';
 
-// styles
-import styles from './address.css';
-
-import type { Address } from 'types/address';
 // actions
 import { initAddressData } from 'modules/edit-address';
+
+import type { Address } from 'types/address';
+
+import styles from './address.css';
 
 type EditAddressProps = Localized & {
   onUpdate: (address: Address) => void,
@@ -112,7 +114,7 @@ export default class EditAddress extends Component {
     return (
       <Autocomplete
         inputProps={{
-          placeholder: 'COUNTRY',
+          placeholder: 'Country',
           name: 'country',
         }}
         getItemValue={item => item.name}
@@ -133,14 +135,16 @@ export default class EditAddress extends Component {
     const checked = _.get(this.state.address, 'isDefault', false);
 
     return (
-      <Checkbox
-        name="isDefault"
-        checked={checked}
-        onChange={({target}) => this.changeDefault(target.checked)}
-        id="set-default-address"
-      >
-        Make this address my default
-      </Checkbox>
+      <div styleName="checkbox">
+        <Checkbox
+          name="isDefault"
+          checked={checked}
+          onChange={({target}) => this.changeDefault(target.checked)}
+          id="set-default-address"
+        >
+          Set as default
+        </Checkbox>
+      </div>
     );
   }
 
@@ -159,7 +163,7 @@ export default class EditAddress extends Component {
     const inputAttributes = {
       type: 'tel',
       name: 'phoneNumber',
-      placeholder: t('PHONE'),
+      placeholder: t('Phone'),
       value: address.phoneNumber,
       required: true,
     };
@@ -279,49 +283,58 @@ export default class EditAddress extends Component {
     return (
       <div styleName={`theme-${props.colorTheme}`}>
         { this.title }
+        <div styleName="form-group">
+          <FormField styleName="text-field">
+            <TextInput
+              required
+              name="name"
+              placeholder={t('First & Last Name')}
+              value={data.name}
+              onChange={this.changeFormData}
+            />
+          </FormField>
+          <FormField label={t('Phone Number')} styleName="text-field" validator="phoneNumber">
+            {this.phoneInput}
+          </FormField>
+        </div>
+        <div styleName="form-group">
+          <FormField styleName="text-field">
+            <TextInput
+              required
+              name="address1" placeholder={t('Address Line 1')} value={data.address1} onChange={this.changeFormData}
+            />
+          </FormField>
+          <FormField styleName="text-field">
+            <TextInput
+              name="address2" placeholder={t('Address Line 2 (optional)')} value={data.address2}
+              onChange={this.changeFormData}
+            />
+          </FormField>
+        </div>
+        <div styleName="form-group">
+          <FormField styleName="text-field">
+            <TextInput required name="city" placeholder={t('City')} onChange={this.changeFormData} value={data.city} />
+          </FormField>
+          { withCountry && this.countryInput }
+          <div styleName="input-group">
+            <FormField styleName="text-field-state">
+              <Select
+                inputProps={{
+                  placeholder: t('State'),
+                }}
+                getItemValue={item => item.name}
+                items={selectedCountry.regions}
+                onSelect={this.changeState}
+                selectedItem={this.addressState}
+                name="state"
+              />
+            </FormField>
+            <FormField styleName="text-field-zip" validator="zipCode">
+              <TextInput required placeholder={t('Zip')} onChange={this.handleZipChange} value={data.zip} />
+            </FormField>
+          </div>
+        </div>
         { this.defaultCheckboxInput }
-        <FormField styleName="text-field">
-          <TextInput
-            required
-            name="name"
-            placeholder={t('FIRST & LAST NAME')}
-            value={data.name}
-            onChange={this.changeFormData}
-          />
-        </FormField>
-        <FormField styleName="text-field">
-          <TextInput
-            required
-            name="address1" placeholder={t('STREET ADDRESS 1')} value={data.address1} onChange={this.changeFormData}
-          />
-        </FormField>
-        <FormField styleName="text-field">
-          <TextInput
-            name="address2" placeholder={t('STREET ADDRESS 2 (optional)')} value={data.address2}
-            onChange={this.changeFormData}
-          />
-        </FormField>
-        <FormField styleName="text-field" validator="zipCode">
-          <TextInput required placeholder={t('ZIP')} onChange={this.handleZipChange} value={data.zip} />
-        </FormField>
-        <FormField styleName="text-field">
-          <TextInput required name="city" placeholder={t('CITY')} onChange={this.changeFormData} value={data.city} />
-        </FormField>
-        { withCountry && this.countryInput }
-        <FormField styleName="text-field">
-          <Select
-            inputProps={{
-              placeholder: t('STATE'),
-            }}
-            getItemValue={item => item.name}
-            items={selectedCountry.regions}
-            onSelect={this.changeState}
-            selectedItem={this.addressState}
-          />
-        </FormField>
-        <FormField label={t('Phone Number')} styleName="text-field" validator="phoneNumber">
-          {this.phoneInput}
-        </FormField>
       </div>
     );
   }

@@ -1,7 +1,7 @@
 @import "colors.css";
 
 .list {
-  padding: 15px 10px 15px;
+  padding: 15px 10px 15px 15px;
 }
 
 .item {
@@ -23,6 +23,10 @@
 .item-content {
   flex-grow: 1;
   line-height: 1.6;
+}
+
+.edit-form {
+  padding: 10px 10px 0 15px;
 }
 
 .action-link-add {

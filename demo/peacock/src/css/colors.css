@@ -25,6 +25,7 @@
   --alto: #DDDDDD;
   --gallery: #EEEEEE;
   --white: #FFFFFF;
+  --metallic-gray: #BABABA;
 }
 
 :root {
@@ -55,10 +56,12 @@
   --select-active-background: var(--gallery);
 
   /* Inputs */
-  --input-border-color: var(--gray);
+  --input-background: var(--white);
+  --input-border-color: var(--metallic-gray);
   --input-error-color: var(--cherry-red);
   --input-placeholder-color: var(--gray);
-  --input-text-color: var(--black);
+
+  --input-text-color: var(--blackish);
   --input-active-border-color: var(--baby-blue);
 
   /* Text colors */
@@ -92,6 +95,12 @@
   --radio-button-unchecked: var(--white);
   --radio-button-outer-circle: var(--water-blue);
   --radio-button-disabled-background: var(--silver);
+
+  /* Checkbox */
+  --checkbox-background: var(--white);
+  --checkbox-border: var(--alto);
+  --checkbox-checked: var(--water-blue);
+  --checkbox-disabled: var(--silver);
 
   /* Borders */
   --border-color: var(--alto);
