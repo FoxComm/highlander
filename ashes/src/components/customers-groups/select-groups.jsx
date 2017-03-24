@@ -60,7 +60,7 @@ class SelectCustomerGroups extends Component {
   get suggestedGroups(){
     const suggestions = _.filter(this.props.groups, (item) => {
       return _.includes(item.name.toLowerCase(), this.state.term.toLowerCase());
-    });   
+    });
     return suggestions;
   }
 
@@ -79,7 +79,7 @@ class SelectCustomerGroups extends Component {
             hideOnBlur={true}
             onItemSelected={this.handleSelectItem}
           />
-        </div>);   
+        </div>);
   }
 
   setTerm(term: string) {

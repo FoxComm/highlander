@@ -122,7 +122,7 @@ function deleteEntity(actions, ids, entityType): Function {
               dispatch(actions.bulkError(error));
             }
           );
-      }  
+      }
     };
 }
 

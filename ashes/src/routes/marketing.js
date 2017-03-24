@@ -81,7 +81,7 @@ const getRoutes = (jwt: Object) => {
           frn: frn.note.promotion,
         }),
         router.read('promotion-coupons', { path: 'coupons', component: PromoCouponsPage }, [
-          router.read('promotion-coupon-new', { path: 'new', component: PromoCouponNewModal })             
+          router.read('promotion-coupon-new', { path: 'new', component: PromoCouponNewModal })
         ]),
         router.read('promotion-activity-trail', {
           path: 'activity-trail',

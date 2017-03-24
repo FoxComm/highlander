@@ -128,8 +128,8 @@ export default class PromotionForm extends ObjectDetails {
     discounts.map((disc,index) => {
         discountChilds.push(<div styleName="sub-title">Qualifier</div>),
         discountChilds.push(<DiscountAttrs
-          blockId={"promo-qualifier-block-"+index}
-          dropdownId={"promo-qualifier-dd-"+index}
+          blockId={'promo-qualifier-block-'+index}
+          dropdownId={'promo-qualifier-dd-'+index}
           discount={disc}
           attr="qualifier"
           descriptions={qualifiers}
@@ -137,8 +137,8 @@ export default class PromotionForm extends ObjectDetails {
         />);
         discountChilds.push(<div styleName="sub-title">Offer</div>),
         discountChilds.push(<DiscountAttrs
-          blockId={"promo-offer-block-"+index}
-          dropdownId={"promo-offer-dd-"+index}
+          blockId={'promo-offer-block-'+index}
+          dropdownId={'promo-offer-dd-'+index}
           discount={disc}
           attr="offer"
           descriptions={offers}
