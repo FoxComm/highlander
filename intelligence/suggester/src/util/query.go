@@ -23,13 +23,13 @@ func getPort(srvName string) (string, error) {
 }
 
 func AntHillQuery() (responses.AntHillResponse, error) {
-	antHillPort, err := getPort(antHillSrvHost)
+	_, err := getPort(antHillSrvHost)
 	if err != nil {
 		return responses.AntHillResponse{}, errors.New("Unable to locate AntHill Srv Host")
 	}
 
-	testAction := "api/v1/public/recommend/prod-prod/full/5?channel=5"
-	resp, reqErr := http.Get(url + ":" + antHillPort + "/" + testAction)
+	testAction := "/api/v1/public/recommend/prod-prod/full/5?channel=5"
+	resp, reqErr := http.Get(url + testAction)
 	if reqErr != nil {
 		return responses.AntHillResponse{}, reqErr
 	}

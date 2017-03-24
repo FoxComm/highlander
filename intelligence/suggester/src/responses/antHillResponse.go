@@ -8,7 +8,7 @@ type Image struct {
 }
 
 type Album struct {
-	Name   string  `json:"string"`
+	Name   string  `json:"name"`
 	Images []Image `json:"images"`
 }
 
@@ -20,9 +20,9 @@ type ProductInstance struct {
 	Currency    string   `json:"currency"`
 	Title       string   `json:"title"`
 	Description string   `json:"description"`
-	SalePrice   int      `json:"salePrice"`
+	SalePrice   string   `json:"salePrice"`
 	Scope       string   `json:"scope"`
-	RetailPrice int      `json:"retailPrice"`
+	RetailPrice string   `json:"retailPrice"`
 	Tags        []string `json:"tags"`
 	Skus        []string `json:"skus"`
 	Albums      []Album  `json:"albums"`
