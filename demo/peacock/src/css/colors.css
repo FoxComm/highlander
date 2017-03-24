@@ -19,6 +19,7 @@
   --mine-shaft: #333333;
   --tundora: #444444;
   --gray: #888888;
+  --grayish: #AAAAAA;
   --cod-gray: #1A1A1A;
   --silver: #CCCCCC;
   --alto: #DDDDDD;
@@ -87,4 +88,7 @@
 
   /* Borders */
   --border-color: var(--alto);
+
+  /* Logo */
+  --logo-alt-color: var(--grayish);
 }
