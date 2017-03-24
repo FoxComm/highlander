@@ -127,7 +127,7 @@ class Products extends Component {
     }
 
     return (
-      <header>
+      <header styleName="header">
         <div styleName="crumbs">
           <Breadcrumbs
             routes={this.props.routes}

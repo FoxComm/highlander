@@ -10,11 +10,11 @@
   margin: 90px 0;
 }
 
-.logo {
-  font-size: 14px;
-  font-weight: bold;
-  letter-spacing: 3.5px;
-  color: var(--link-alt-color);
+.link {}
+
+.logo-icon {
+  height: 14px;
+  color: var(--logo-alt-color);
 }
 
 @media (--small-only) {
@@ -26,6 +26,9 @@
   .wrap {
     margin: 30px var(--grid-margin);
     display: flex;
-    composes: inner-wrap from 'ui/css/layout.css';
+  }
+
+  .link {
+    margin-left: -20px;
   }
 }
