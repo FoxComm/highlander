@@ -23,3 +23,7 @@ def get_all_by_channel(channel_id):
             for cust in Customer.nodes
             for prod in cust.purchased.match(channel=channel_id)
            ]
+
+def get_customer_purchases(cust_id, channel_id):
+    customer = Customer.nodes.get(phoenix_id=cust_id)
+    return [product.phoenix_id for product in customer.purchased.match(channel=channel_id)]

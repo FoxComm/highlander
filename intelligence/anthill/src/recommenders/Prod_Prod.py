@@ -54,21 +54,21 @@ class Prod_Prod(object):
             [prod_id for (_, prod_id) in self.events]
         )
 
-    def recommend(self, prod_id):
+    def recommend(self, prod_ids):
         """recommend
         returns a list of (prod_id, similarityScore)
         sorted in descending order.
             worst = 0 <= similarityScore <= 1 = best
         """
-        if ~(self.up_to_date):
+        if not self.up_to_date:
             self.make_matrix()
 
-        v = self.mat[:, prod_id].toarray()
-        inds = np.argsort(v.T[0])[::-1]
+        scores = self.mat[:, prod_ids].toarray().mean(1)
+        inds = np.argsort(scores)[::-1]
         products = [
             {'id': np.asscalar(x), 'score': np.asscalar(y)}
-            for (x, y) in zip(inds, v[inds].T[0])
-            if x != int(prod_id)
+            for (x, y) in zip(inds, scores[inds])
+            if x not in prod_ids
             if y > 0
         ]
 
