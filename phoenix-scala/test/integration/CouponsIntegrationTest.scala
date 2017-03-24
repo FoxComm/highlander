@@ -39,19 +39,6 @@ class CouponsIntegrationTest
       coupon
     }
 
-    "create coupon with invalid date should fail" ignore new StoreAdmin_Seed // TODO: ignored, because we override times to make coupons always active @michalrus
-    with Coupon_TotalQualifier_PercentOff {
-      val invalidDate = "2016-07-19T08:28:21.405+00:00" // should have "Z" instead of "+00:00"…
-
-      private val invalidAttrs =
-        Map[String, Any]("name"       → "donkey coupon",
-                         "activeFrom" → ShadowValue(invalidDate, "datetime")).asShadow
-
-      couponsApi
-        .create(CreateCoupon(attributes = invalidAttrs, promotion = promotion.id))
-        .mustFailWith400(ShadowAttributeInvalidTime("activeFrom", s"JString($invalidDate)"))
-    }
-
     "created coupon should always be active" in new StoreAdmin_Seed
     with Coupon_TotalQualifier_PercentOff {
       override def couponActiveFrom = Instant.now.plus(10, DAYS)
@@ -142,20 +129,6 @@ class CouponsIntegrationTest
     }
 
     "fails to attach coupon" - {
-      "when activeFrom is after now" ignore new CartCouponFixture { // TODO: ignored, because we override times to make coupons always active @michalrus
-        override def couponActiveFrom = now.plus(1, DAYS)
-        override def couponActiveTo   = now.plus(2, DAYS).some
-
-        cartsApi(cartRef).coupon.add(couponCode).mustFailWith400(CouponIsNotActive)
-      }
-
-      "when activeTo is before now" ignore new CartCouponFixture { // TODO: ignored, because we override times to make coupons always active @michalrus
-        override def couponActiveFrom = now.minus(2, DAYS)
-        override def couponActiveTo   = now.minus(1, DAYS).some
-
-        cartsApi(cartRef).coupon.add(couponCode).mustFailWith400(CouponIsNotActive)
-      }
-
       // TODO @anna: This can be removed once /orders vs /carts routes are split
       "when attaching to order" in new CartCouponFixture {
         (for {
