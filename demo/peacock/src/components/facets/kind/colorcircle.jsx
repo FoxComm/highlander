@@ -20,6 +20,18 @@ type State = {
   checked: boolean
 };
 
+const lightColors = [
+  'white',
+  'yellow',
+  'light'
+];
+
+function isLight(c) {
+  return _.some(lightColors, (lc) => {
+    return c.includes(lc);
+  });
+}
+
 class ColorCircle extends React.Component {
   props: Facet;
   state: State = {
@@ -43,7 +55,13 @@ class ColorCircle extends React.Component {
     } = this.props;
 
     let id = 'color-' + label
-    let style = "_lib_components_facets_kind_colorcircle__" + value + " _lib_components_facets_kind_colorcircle__color-checkbox";
+
+    let colorStyle = "_lib_components_facets_kind_colorcircle__" + value;
+    let checkboxStyle = isLight(value) ? 
+      " _lib_components_facets_kind_colorcircle__color-checkbox-light": 
+      " _lib_components_facets_kind_colorcircle__color-checkbox";
+
+    let style = colorStyle + checkboxStyle;
 
     return (
              <div className={style}>

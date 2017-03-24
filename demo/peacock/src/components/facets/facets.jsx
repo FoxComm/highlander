@@ -74,6 +74,9 @@ const testFacets = [
       {label: 'red', value: 'red', click: null},
       {label: 'green', value: 'green', click: null},
       {label: 'blue', value: 'blue', click: null},
+      {label: 'white', value: 'white', click: null},
+      {label: 'yellow', value: 'yellow', click: null},
+      {label: 'floralwhite', value: 'floralwhite', click: null},
     ]
   },
 

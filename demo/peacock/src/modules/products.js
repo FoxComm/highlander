@@ -6,6 +6,17 @@ import { addTaxonomyFilter, addTaxonomiesAggregation, addMustNotFilter, defaultS
 import _ from 'lodash';
 import { api } from 'lib/api';
 
+export type Facet = {
+  label: string,
+  value: string
+}
+
+export type Facets = {
+  name: string,
+  kind: string,
+  values: Array<Facet>,
+}
+
 export type Product = {
   id: number;
   context: string,

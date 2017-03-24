@@ -5,6 +5,8 @@
 
 .antiquewhite div {
     background-color: #FAEBD7;
+    border: solid 1px #222222;
+    border: solid 1px var(--black);
 }
 
 .aqua div {
@@ -185,6 +187,8 @@
 
 .floralwhite div {
     background-color: #FFFAF0;
+    border: solid 1px #222222;
+    border: solid 1px var(--black);
 }
 
 .forestgreen div {
@@ -201,6 +205,8 @@
 
 .ghostwhite div {
     background-color: #F8F8FF;
+    border: solid 1px #222222;
+    border: solid 1px var(--black);
 }
 
 .gold div {
@@ -221,6 +227,8 @@
 
 .greenyellow div {
     background-color: #ADFF2F;
+    border: solid 1px #222222;
+    border: solid 1px var(--black);
 }
 
 .grey div {
@@ -281,6 +289,8 @@
 
 .lightgoldenrodyellow div {
     background-color: #FAFAD2;
+    border: solid 1px #222222;
+    border: solid 1px var(--black);
 }
 
 .lightgreen div {
@@ -321,6 +331,8 @@
 
 .lightyellow div {
     background-color: #FFFFE0;
+    border: solid 1px #222222;
+    border: solid 1px var(--black);
 }
 
 .lime div {
@@ -397,6 +409,8 @@
 
 .navajowhite div {
     background-color: #FFDEAD;
+    border: solid 1px #222222;
+    border: solid 1px var(--black);
 }
 
 .navy div {
@@ -569,21 +583,33 @@
 
 .white div {
     background-color: #FFFFFF;
+    border: solid 1px #222222;
+    border: solid 1px var(--black);
 }
 
 .whitesmoke div {
     background-color: #F5F5F5;
+    border: solid 1px #222222;
+    border: solid 1px var(--black);
 }
 
 .yellow div {
     background-color: #FFFF00;
+    border: solid 1px #222222;
+    border: solid 1px var(--black);
 }
 
 .yellowgreen div {
     background-color: #9ACD32;
+    border: solid 1px #222222;
+    border: solid 1px var(--black);
 }
 
 .color-checkbox input[type=checkbox] {
+    display: none;
+}
+
+.color-checkbox-light input[type=checkbox] {
     display: none;
 }
 
@@ -597,11 +623,34 @@
     margin-bottom: 10px;
 }
 
+.color-checkbox-light div {
+    width: 32px;
+    height: 32px;
+    border-radius: 100px;
+    text-align: center;
+    float: left;
+    margin-right: 11px;
+    margin-bottom: 10px;
+}
+
 .color-checkbox label {
   width: 9px;
   height: 32px;
   font-family: Lato;
-  font-size: 14px;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  font-stretch: normal;
+  letter-spacing: normal;
+  vertical-align: -6px;
+  color: rgba(0,0,0,0);
+}
+
+.color-checkbox-light label {
+  width: 9px;
+  height: 32px;
+  font-family: Lato;
+  font-size: 16px;
   font-weight: normal;
   font-style: normal;
   font-stretch: normal;
@@ -612,4 +661,8 @@
 
 .color-checkbox input[type=checkbox]:checked + div label {
   color: #ffffff;
+}
+
+.color-checkbox-light input[type=checkbox]:checked + div label {
+  color: black;
 }
