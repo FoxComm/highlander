@@ -1,44 +1,36 @@
 .block {
   position: relative;
-
-  /* @todo remove globals from here somehow */
-  &._active {
-    :global(.fc-pilled-input__input-container),
-    :global(.fc-pilled-input__input-container:hover) {
-      border-color: #a2dee1 !important;
-    }
-  }
-
-  :global(.fc-form-field-label) {
-    display: block;
-  }
-
-  :global(.fc-image-column) {
-    max-width: 50px;
-    max-height: 50px;
-  }
 }
 
-.input {
-  width: 700px; /* WHY??? */
-  border: none !important;
-  padding-left: 10px;
+/* @todo remove globals from here somehow */
+.block._active :global(.fc-pilled-input__input-container),
+.block._active :global(.fc-pilled-input__input-container:hover) {
+  border-color: #a2dee1 !important;
+}
 
-  .block._search & {
-    padding-left: 40px;
-  }
+.block :global(.fc-form-field-label) {
+  display: block;
+}
+
+.block :global(.fc-image-column) {
+  max-width: 50px;
+  max-height: 50px;
+}
+
+.list._search .input {
+  padding-left: 40px;
 }
 
 .input-icon {
   display: none;
-  color: @color-decor8;
+  color: #bfbfbf;
   position: absolute;
   left: 13px;
   bottom: 11px;
+}
 
-  .block._search & {
-    display: block;
-  }
+.list._search .input-icon {
+  display: block;
 }
 
 .list {
@@ -47,66 +39,63 @@
   top: 100%;
   width: 100%;
   z-index: 2;
+}
 
-  &._visible {
-    display: block;
-  }
-
-  &._modal {
-    box-shadow: 0 2px 4px 0 @color-decor51;
-  }
+.list._visible {
+  display: block;
 }
 
 .items {
   max-height: 350px;
   overflow-y: scroll;
   overflow-x: hidden;
-  background-color: @color-white;
-  border: 1px solid @color-border;
+  background-color: #fff;
+  border: 1px solid #bbbdbf;
+  border-width: 0 1px 1px 1px;
+  box-shadow: 0 2px 2px rgba(0, 0, 0, .1);
 
   font-size: 12px;
   line-height: 60px;
+}
 
-  .block._users & {
-    width: 600px;
-    overflow-y: auto;
+.list._users .items {
+  width: 600px;
+  overflow-y: auto;
+}
 
-    & > li {
-      padding: 0;
-    }
-  }
+.list._users .item {
+  padding: 0;
 }
 
 .item {
   padding: 15px;
-  border-bottom: 1px solid @color-border;
+  border-bottom: 1px solid #bbbdbf;
+  background-color: #fff;
+}
 
-  &:last-child {
-    border-bottom: none;
-  }
+.item:last-child {
+  border-bottom: none;
+}
 
-  &:hover {
-    background-color: @color-tr-even-bg;
-    cursor: pointer;
-  }
+.item:hover {
+  background-color: #f7f7f7;
+  cursor: pointer;
+}
 
-  :global(.fc-grid) {
-    line-height: 20px;
-  }
+.item :global(.fc-grid) {
+  line-height: 20px;
+}
 
-  .block._modal & {
-    width: 600px;
+.list._modal .item {
+  width: 600px;
+}
 
-    & > li {
-      padding: 0;
-    }
-  }
+.list._modal .item {
+  padding: 0;
 }
 
 .not-found {
-  .block._users & {
-    padding: 0 20px;
-  }
+  padding: 0 20px;
 }
 
 /* @todo refactor Alert component */

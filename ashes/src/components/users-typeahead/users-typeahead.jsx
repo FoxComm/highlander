@@ -4,7 +4,6 @@
 import _ from 'lodash';
 import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
-import classNames from 'classnames';
 
 // styles
 import s from './users-typeahead.css';
@@ -113,7 +112,7 @@ export default class UsersTypeahead extends Component {
           <label>{props.label}</label>
         </div>
         <Typeahead
-          className={classNames(s.typeahead, props.className)}
+          className={props.className}
           view="users"
           isFetching={_.get(props.suggestState, 'inProgress', false)}
           fetchItems={props.suggestUsers}

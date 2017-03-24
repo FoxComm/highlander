@@ -17,7 +17,7 @@ import AdminsTypeahead from '../users-typeahead/admins-typeahead';
 import Alert from '../alerts/alert';
 
 // styles
-import s from 'share-search.css';
+import s from './share-search.css';
 
 const mapStateToProps = (state, props) => {
   const search = _.invoke(state, `${props.entity}.currentSearch`);
