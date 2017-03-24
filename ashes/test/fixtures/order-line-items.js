@@ -6,7 +6,7 @@ const ordersSearchOptions = [
       {
         term: 'ID',
         type: 'string'
-      }, 
+      },
       {
         term: 'State',
         type: 'enum',
@@ -20,7 +20,7 @@ const ordersSearchOptions = [
           'Partially Shipped',
           'Canceled'
         ]
-      }, 
+      },
       {
         term: 'Date Placed',
         type: 'date'

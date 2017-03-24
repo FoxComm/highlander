@@ -67,7 +67,10 @@ const makeStatsRequest = (request): Object => {
 /**
  * Internal actions
  */
-const _fetchGroup = createAsyncActions('fetchCustomerGroup', (groupId: number) => Api.get(`/customer-groups/${groupId}`));
+const _fetchGroup = createAsyncActions(
+  'fetchCustomerGroup',
+  (groupId: number) => Api.get(`/customer-groups/${groupId}`)
+);
 
 const _saveGroup = createAsyncActions(
   'saveCustomerGroup',
@@ -83,7 +86,10 @@ const _saveGroup = createAsyncActions(
   }
 );
 
-const _archiveGroup = createAsyncActions('archiveCustomerGroup', (groupId: number) => Api.delete(`/customer-groups/${groupId}`));
+const _archiveGroup = createAsyncActions(
+  'archiveCustomerGroup',
+  (groupId: number) => Api.delete(`/customer-groups/${groupId}`)
+);
 
 const _fetchStats = createAsyncActions('fetchStatsCustomerGroup', request => {
   return Promise.all([
