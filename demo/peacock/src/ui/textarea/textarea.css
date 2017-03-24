@@ -1,0 +1,15 @@
+@import "colors.css";
+
+.textarea {
+  min-height: 75px;
+  width: 100%;
+  font-size: 16px;
+  padding: 12px 11px;
+  border-radius: 2px;
+  background-color: var(--input-background);
+  border: solid 1px var(--input-border-color);
+  color: var(--input-text-color);
+  box-shadow: none;
+
+  &::placeholder { color: var(--input-placeholder-color); }
+}

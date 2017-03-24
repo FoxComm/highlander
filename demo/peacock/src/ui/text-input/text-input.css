@@ -20,10 +20,7 @@
     z-index: 2;
   }
 
-  &::-webkit-input-placeholder { color: var(--input-placeholder-color); }
-  &::-moz-placeholder { color: var(--input-placeholder-color); }
-  &:-moz-placeholder { color: var(--input-placeholder-color); }
-  &:-ms-input-placeholder { color: var(--input-placeholder-color); }
+  &::placeholder { color: var(--input-placeholder-color); }
 }
 
 .hasTopMessages .textInput {
