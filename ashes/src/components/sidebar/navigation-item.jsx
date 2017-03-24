@@ -27,21 +27,24 @@ const NavigationItem = (props: Props) => {
       const routeNames = props.routes.map(route => route.name);
       let isActive = _.includes(routeNames, props.to) ||
         _.includes(routeNames, `${props.to}-base`);
+      const currentId = _.get(props, 'currentParams.taxonomyId');
+      const linkId = _.get(props, 'linkParams.taxonomyId');
 
     /*
        If I'm in customer groups, routeNames contains customers-base,
        thus setting isActive to true for both 'Customers' and 'Customer Groups'
        menu items
     */
+
     if(props.to === 'customers' && (_.includes(routeNames, 'groups') || _.includes(routeNames, 'groups-base') ) ){
       isActive = false;
     }
 
-    if (props.to === 'taxonomy' && props.currentParams.taxonomyId !== props.linkParams.taxonomyId.toString()) {
+    if (props.to === 'taxonomy' && currentId !== linkId.toString()) {
       isActive = false;
     }
 
-    if (props.to === 'taxonomies' && props.currentParams.taxonomyId) {
+    if (props.to === 'taxonomies' && currentId) {
       isActive = false;
     }
 
@@ -51,33 +54,12 @@ const NavigationItem = (props: Props) => {
 
   };
 
-    if (props.taxonomy) {
-
-      return (
-        <div className={containerClass()}>
-          <div className='fc-navigation-item'>
-            <IndexLink
-              to={props.to}
-              params={props.linkParams}
-              className='fc-navigation-item__link'
-              actualClaims={props.actualClaims}
-              expectedClaims={props.expectedClaims}>
-              <Icon
-                name={props.icon}
-                className={styles["nav-item"]}
-              />
-              <span>{props.title}</span>
-            </IndexLink>
-          </div>
-        </div>
-      );
-    }
-
     return (
       <div className={containerClass()}>
         <div className='fc-navigation-item'>
           <IndexLink
             to={props.to}
+            params={props.linkParams || {}}
             className='fc-navigation-item__link'
             actualClaims={props.actualClaims}
             expectedClaims={props.expectedClaims}>
