@@ -3,7 +3,7 @@
 // libs
 import classNames from 'classnames';
 import { each, filter, find, get, isEmpty, values } from 'lodash';
-import { assoc, update } from 'sprout-data';
+import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
 import React, { Component, Element } from 'react';
 
@@ -16,26 +16,30 @@ import styles from './tree-table.css';
 
 type Identifier = number|string;
 
-type Node<T> = {
-  row: T,
+type Row = { [key: string]: string|number };
+
+type Node = {
+  row: Row,
   id: Identifier,
   parentId: ?Identifier,
   collapsed: boolean,
-  children: Array<Node<T>>,
+  children: Array<Node>,
   level: number,
 };
 
-type Props<T> = {
+type Tree = { [key: Identifier]: Node };
+
+type Props = {
   columns: Columns,
   data: {
-    rows: Array<T>,
+    rows: Array<Row>,
     total: number,
     from: number,
     size: number,
   },
   collapseField: string,
-  renderRow: (row: T, index: number, columns: Columns, params: Object) => Element<*>,
-  setState: (state: Object) => any,
+  renderRow: (row: any, index: number, columns: Columns, params: Object) => Element<*>,
+  setState?: (state: Object) => any,
   hasActionsColumn: boolean,
   isLoading: boolean,
   failed: boolean,
@@ -45,38 +49,36 @@ type Props<T> = {
   headerControls: Array<Element<*>>,
 };
 
-type State<T> = {
-  root: Tree<T>,
+type State = {
+  root: Tree,
 }
 
-type Tree<T> = { [key: Identifier]: Node<T> };
+function buildTree(arr: Array<Row>, idField: string) {
+  const tree: Tree = {};
 
-function buildTree<T>(arr: Array<T>, idField: string) {
-  const tree: Tree<T> = {};
-
-  const acc: Tree<T> = arr.reduce((acc: Acc<T>, obj: T) => assoc(acc, [obj[idField]], {
-    row: obj,
-    id: obj[idField],
-    parentId: obj.parentId,
+  const acc: Tree = arr.reduce((acc: Tree, row: Row) => assoc(acc, row[idField], {
+    row: row,
+    id: row[idField],
+    parentId: row['parentId'],
     collapsed: true,
     children: [],
     level: 0,
   }), {});
 
-  values(acc).forEach(function (obj: Node<T>) {
-    if (obj.parentId) {
-      acc[obj.parentId].children.push(obj);
+  values(acc).forEach(function (node: Node) {
+    if (node.parentId) {
+      acc[node.parentId].children.push(node);
     } else {
-      tree[obj.id] = obj;
+      tree[node.id] = node;
     }
   });
 
   return tree;
 }
 
-function updateNodes(tree: Tree<T>, updater: (node: Node<T>) => void) {
-  const traverse = (nodes: Array<Node<T>>) =>
-    nodes.forEach((node: Node<T>) => {
+function updateNodes(tree: Tree, updater: (node: Node) => any) {
+  const traverse = (nodes: Array<Node>) =>
+    nodes.forEach((node: Node) => {
       if (node.children) traverse(node.children);
 
       updater(node);
@@ -87,9 +89,9 @@ function updateNodes(tree: Tree<T>, updater: (node: Node<T>) => void) {
   return tree;
 }
 
-const toggleAll = (tree: Tree<T>, collapse: boolean) => updateNodes(tree, (n: Node<T>) => n.collapsed = collapse);
+const toggleAll = (tree: Tree, collapse: boolean) => updateNodes(tree, (n: Node) => n.collapsed = collapse);
 
-class TreeTable<T> extends Component {
+class TreeTable extends Component {
   props: Props;
 
   state: State = {
@@ -124,20 +126,20 @@ class TreeTable<T> extends Component {
     this.setState({ root: toggleAll(this.state.root, true) });
   }
 
-  get rows(): Array<Node<T>> {
-    const _reduce = (level: number) => (rows: T, node: Node<T>) => {
+  get rows(): Array<Node> {
+    const _reduce = (level: number) => (nodes: Array<Node>, node: Node) => {
       const children = !node.collapsed ? node.children.reduce(_reduce(level + 1), []) : [];
 
-      rows.push(assoc(node, 'level', level), ...children);
+      nodes.push(assoc(node, 'level', level), ...children);
 
-      return rows;
+      return nodes;
     };
 
     return values(this.state.root).reduce(_reduce(0), []);
   }
 
   @autobind
-  handleCollapse(node: Node<T>, event: MouseEvent) {
+  handleCollapse(node: Node, event: MouseEvent) {
     event.preventDefault();
     event.stopPropagation();
 
@@ -147,7 +149,7 @@ class TreeTable<T> extends Component {
   }
 
   @autobind
-  renderRow(node: Node<T>, index: number, columns: Columns, params: Object) {
+  renderRow(node: Node, index: number, columns: Columns, params: Object) {
     const el = this.props.renderRow(node.row, index, columns, params);
 
     const processCell = (content: Element<*>, col: Column) => {
@@ -178,7 +180,7 @@ class TreeTable<T> extends Component {
     return React.cloneElement(el, { processCell });
   }
 
-  get headerControls() {
+  get headerControls(): Array<Element<*>> {
     return [
       <Button className={styles.headerButton} onClick={this.expandAll}>Expand All</Button>,
       <Button className={styles.headerButton} onClick={this.collapseAll}>Collapse All</Button>,
