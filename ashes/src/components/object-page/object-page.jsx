@@ -31,7 +31,7 @@ import { SAVE_COMBO, SAVE_COMBO_ITEMS } from 'paragons/common';
 import { supressTV } from 'paragons/object';
 
 // modules
-import * as SchemaActions from 'modules/object-schema';
+import * as schemaActions from 'modules/object-schema';
 import schemaReducer from 'modules/object-schema';
 import * as amazonActions from 'modules/channels/amazon';
 
@@ -114,7 +114,7 @@ export function connectPage(namespace, actions, options = {}) {
     return {
       actions: {
         ...props.actions,
-        ...bindActionCreators(SchemaActions, dispatch),
+        ...bindActionCreators(schemaActions, dispatch),
       },
     };
   }
