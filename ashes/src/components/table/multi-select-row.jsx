@@ -12,18 +12,15 @@ import TableRow from '../table/row';
 const stopPropogation = (event: MouseEvent) => {
   event.preventDefault();
   event.stopPropagation();
-}
+};
 
 const MultiSelectRow = (props, context) => {
   const {
     columns,
     row,
     setCellContents,
-    collapseField,
-    collapsible,
-    collapsed,
-    level,
-    params: { checked, setChecked, toggleCollapse },
+    processCell,
+    params: { checked, setChecked },
     linkTo,
     linkParams,
     ...rest,
@@ -50,34 +47,13 @@ const MultiSelectRow = (props, context) => {
     let cellContents = null;
     let cellClickAction = null;
 
-    const onChange = ({ target: { checked } }) => {
-      setChecked(checked);
-    };
-    const onCollapse = (event: MouseEvent) => {
-      stopPropogation(event);
-
-      toggleCollapse(row);
-    };
+    const onChange = ({ target: { checked } }) => setChecked(checked);
 
     let cls = classNames(`fct-row__${col.field}`, {
       'row-head-left': col.field == 'selectColumn',
     });
 
     switch (col.field) {
-      case collapseField:
-        const iconClassName = classNames(({
-          'icon-category': !collapsible,
-          'icon-category-expand': collapsible && collapsed,
-          'icon-category-collapse': collapsible && !collapsed,
-        }));
-        cellContents = (
-          <span className="fc-collapse" style={{ paddingLeft: `${level * 20}px`}}>
-            <i className={iconClassName} onClick={onCollapse} />
-            {setCellContents(row, col.field)}
-          </span>
-        );
-        cls = classNames(cls, 'fct-row__collapse');
-        break;
       case 'selectColumn':
         cellClickAction = stopPropogation;
         cellContents = <Checkbox id={`multi-select-${row.id}`} inline={true} checked={checked} onChange={onChange} />;
@@ -90,7 +66,7 @@ const MultiSelectRow = (props, context) => {
 
     visibleCells.push(
       <TableCell className={cls} onClick={cellClickAction} key={cellKey} column={col} row={row}>
-        {cellContents}
+        {processCell(cellContents, col)}
       </TableCell>
     );
 
@@ -112,11 +88,10 @@ MultiSelectRow.propTypes = {
   linkParams: PropTypes.object,
   row: PropTypes.object.isRequired,
   setCellContents: PropTypes.func.isRequired,
-  collapseField: PropTypes.string,
+  processCell: PropTypes.func,
   params: PropTypes.shape({
     checked: PropTypes.bool.isRequired,
     setChecked: PropTypes.func.isRequired,
-    toggleCollapse: PropTypes.func,
   }),
 };
 
@@ -126,9 +101,6 @@ MultiSelectRow.contextTypes = {
 
 MultiSelectRow.defaultProps = {
   onClick: _.noop,
-  params: {
-    toggleCollapse: _.noop,
-  }
 };
 
 export default MultiSelectRow;

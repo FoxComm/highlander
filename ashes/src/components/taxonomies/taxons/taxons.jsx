@@ -11,7 +11,7 @@ import { actions } from 'modules/taxons/list';
 
 // components
 import MultiSelectTable from 'components/table/multi-select-table';
-import CollapsibleTable from 'components/table/collapsible-table';
+import TreeTable from 'components/table/tree-table';
 import { AddButton } from 'components/common/buttons';
 import TaxonRow from './taxon-row';
 
@@ -68,7 +68,7 @@ export class TaxonsListPage extends Component {
 
     const results = list.currentSearch().results;
 
-    const Table = taxonomy.hierarchical ? CollapsibleTable : MultiSelectTable;
+    const Table = taxonomy.hierarchical ? TreeTable : MultiSelectTable;
 
     return (
       <Table

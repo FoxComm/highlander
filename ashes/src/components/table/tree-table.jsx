@@ -12,7 +12,7 @@ import MultiSelectTable from 'components/table/multi-select-table';
 import { Button } from 'components/common/buttons';
 
 // styles
-import styles from './collapsible-table.css';
+import styles from './tree-table.css';
 
 type Identifier = number|string;
 
@@ -74,29 +74,6 @@ function buildTree<T>(arr: Array<T>, idField: string) {
   return tree;
 }
 
-function findNode(tree: Tree<T>, id: Identifier): Node<T> {
-  const _find = (nodes: Array<Node<T>>, id: Identifier) =>
-    nodes.reduce((res: Node<T>, node) => {
-      if (res) {
-        return res;
-      }
-
-      return node.id === id ? node : _find(node.children, id);
-    }, null);
-
-  const res = _find(values(tree), id);
-
-  return res;
-}
-
-function collapseNode(tree: Tree<T>, id: Identifier) {
-  const node = findNode(tree, id);
-
-  node.collapsed = !node.collapsed;
-
-  return tree;
-}
-
 function updateNodes(tree: Tree<T>, updater: (node: Node<T>) => void) {
   const traverse = (nodes: Array<Node<T>>) =>
     nodes.forEach((node: Node<T>) => {
@@ -112,7 +89,7 @@ function updateNodes(tree: Tree<T>, updater: (node: Node<T>) => void) {
 
 const toggleAll = (tree: Tree<T>, collapse: boolean) => updateNodes(tree, (n: Node<T>) => n.collapsed = collapse);
 
-class CollapsibleTable<T> extends Component {
+class TreeTable<T> extends Component {
   props: Props;
 
   state: State = {
@@ -160,23 +137,45 @@ class CollapsibleTable<T> extends Component {
   }
 
   @autobind
-  handleCollapse(row: T) {
-    const root = collapseNode(this.state.root, row[this.props.idField]);
+  handleCollapse(node: Node<T>, event: MouseEvent) {
+    event.preventDefault();
+    event.stopPropagation();
 
-    this.setState({ root });
+    node.collapsed = !node.collapsed;
+
+    this.forceUpdate();
   }
 
   @autobind
   renderRow(node: Node<T>, index: number, columns: Columns, params: Object) {
-    const el = this.props.renderRow(node.row, index, columns, { ...params, toggleCollapse: this.handleCollapse });
+    const el = this.props.renderRow(node.row, index, columns, params);
 
-    return React.cloneElement(el, {
-      collapsible: node.children.length,
-      collapsed: node.collapsed,
-      level: node.level,
-      collapseField: this.props.collapseField,
-      className: classNames({ [styles._collapsed]: node.collapsed }),
-    });
+    const processCell = (content: Element<*>, col: Column) => {
+      const collapsible = node.children.length;
+      const collapsed = node.collapsed;
+      const level = node.level;
+
+      let cellContents = content;
+
+      if (col.field === this.props.collapseField) {
+        const iconClassName = classNames(({
+          'icon-category': !collapsible,
+          'icon-category-expand': collapsible && collapsed,
+          'icon-category-collapse': collapsible && !collapsed,
+        }));
+
+        cellContents = (
+          <span className="fc-collapse" style={{ paddingLeft: `${level * 20}px`}}>
+              <i className={iconClassName} onClick={this.handleCollapse.bind(this, node)} />
+            {content}
+            </span>
+        );
+      }
+
+      return cellContents;
+    };
+
+    return React.cloneElement(el, { processCell });
   }
 
   get headerControls() {
@@ -191,7 +190,7 @@ class CollapsibleTable<T> extends Component {
     const { data } = this.props;
 
     return (
-      <div className={styles.collapsible}>
+      <div className={styles.tree}>
         <MultiSelectTable
           {...this.props}
           data={{
@@ -206,4 +205,4 @@ class CollapsibleTable<T> extends Component {
   }
 }
 
-export default CollapsibleTable;
+export default TreeTable;
