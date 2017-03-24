@@ -17,7 +17,10 @@ const Checkbox = (props: CheckboxProps) => {
   return (
     <div className={className}>
       <input type="checkbox" styleName="checkbox" {...rest} />
-      <label htmlFor={props.id}>{children}</label>
+      <label htmlFor={props.id}>
+        <span styleName="box"></span>
+        {children}
+      </label>
     </div>
   );
 };

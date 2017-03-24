@@ -1,53 +1,49 @@
 
 @import "colors.css";
 
+:root {
+  --size: 16px;
+}
+
 .checkbox {
-  --size: 1em;
-  --disabled-color: #C6BFBF;
-  width: var(--size);
+  width: 0;
   margin: 0;
   padding: 0;
   opacity: 0;
 
-  & + label {
-    display: inline-block;
-    margin-left: -1em;
-    line-height: var(--size);
-    position: relative;
-
-    &::before {
-      content: "";
-      display: inline-block;
-      width: var(--size);
-      height: var(--size);
-      background: #ffffff;
-      margin-right: 0.5em;
-      vertical-align: middle;
-      line-height: var(--size);
-      color: var(--blackish);
-      text-align: center;
-      font-size: 20px;
-      border: 1px solid #8C757A;
-    }
+  & + label:hover {
+    cursor: pointer;
   }
 
-  &:checked, &:hover {
-    & + label::before {
-      content: "\2715";
-    }
-  }
-
-  &:hover:not(:checked) {
-    & + label:before {
-      color: var(--disabled-color);
+  &:checked {
+    & + label > .box {
+      background: var(--checkbox-checked);
+      &:before {
+        content: "";
+        position: absolute;
+        display: inline-block;
+        width: 100%;
+        height: 100%;
+        background: url('/images/symbols/checkbox.svg') center center no-repeat;
+      }
     }
   }
 
   &:disabled {
-    & + label:before {
-      color: var(--disabled-color);
+    & + label > .box {
+      background: var(--checkbox-disabled);
     }
   }
-
 }
 
+.box {
+  display: inline-block;
+  width: var(--size);
+  height: var(--size);
+  border: 1px solid var(--checkbox-border);
+  border-radius: 4px;
+  background: var(--checkbox-background);
+  position: relative;
+  top: 3px;
+  margin-right: 8px;
+}
