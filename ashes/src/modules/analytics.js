@@ -108,7 +108,10 @@ export function fetchProductConversion(productId, from = null, to = null) {
       const fetchProductTimeComparisonConversionValues = (conversionValuesWithAvg) => {
         return dispatch(_productGetData.perform(timeComparisonUrl)).then(
           comparisonValues => {
-            const chartComparisonValuesWithAvgs = Object.assign({}, conversionValuesWithAvg, { Comparison: comparisonValues });
+            const chartComparisonValuesWithAvgs = {
+              ...conversionValuesWithAvg,
+              Comparison: comparisonValues,
+            };
             dispatch(productConversionReceivedValues(chartComparisonValuesWithAvgs));
           },
           err => dispatch(fetchFailed(err))

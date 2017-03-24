@@ -21,7 +21,10 @@ const AddressDetails = props => {
       <li className="address1">{address.address1}</li>
       {address.address2 && <li className="address2">{address.address2}</li>}
       <li className="city">
-        {address.city}, <span className="region">{address.region && address.region.name}</span> <span className="zip">{address.zip}</span>
+        {address.city}{', '}
+        <span className="region">{address.region && address.region.name}</span>
+        {' '}
+        <span className="zip">{address.zip}</span>
       </li>
       {countryInfo}
       {address.phoneNumber && <li><PhoneNumber>{address.phoneNumber}</PhoneNumber></li>}
