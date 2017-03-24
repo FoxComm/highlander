@@ -20,6 +20,10 @@ test:
 	make setup
 	@NODE_ENV=$(NODE_ENV) ./node_modules/.bin/gulp test
 
+t:
+	make flow
+	@NODE_ENV=$(NODE_ENV) ./node_modules/.bin/gulp test
+
 tag:
 	git push
 	git tag v$(version)
@@ -38,9 +42,6 @@ run-staging: setup stop
 run-production: setup stop
 	export NODE_ENV=production; nohup ./node_modules/.bin/gulp server 2>&1 &
 
-hooks:
-	./node_modules/.bin/gulp hooks
-
 rev:
 	git describe --always | cat > .git-rev
 
@@ -51,14 +52,15 @@ prod p:
 	test -f .env && export eval `cat .env` || true && NODE_ENV=production ./node_modules/.bin/gulp build
 	test -f .env && export eval `cat .env` || true && NODE_ENV=production node boot.js
 
-build-dev: setup
+.PHONY: flow
+flow:
 	./node_modules/.bin/flow check
+
+build-dev: setup flow
 	test -f .env && export eval `cat .env` || true && ON_SERVER=true ./node_modules/.bin/gulp build
 
-build: rev
+build: rev setup flow
 	$(call header, Building)
-	make setup
-	./node_modules/.bin/flow check
 	test -f .env && export eval `cat .env` || true && NODE_ENV=production ON_SERVER=true ./node_modules/.bin/gulp build
 
 docker:

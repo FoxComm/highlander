@@ -47,4 +47,3 @@ export const SAVE_COMBO_ITEMS: SaveComboItems = [
   [SAVE_COMBO.DUPLICATE, 'Save and Duplicate'],
   [SAVE_COMBO.CLOSE, 'Save and Close'],
 ];
-

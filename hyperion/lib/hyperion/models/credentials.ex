@@ -1,7 +1,6 @@
 defmodule Credentials do
   use Ecto.Schema
   import Ecto.Changeset
-  import Ecto.Query
   alias Hyperion.Repo
 
   @derive {Poison.Encoder, only: [:client_id, :mws_auth_token, :seller_id]}
@@ -11,7 +10,7 @@ defmodule Credentials do
     field :mws_auth_token
     field :seller_id
 
-    timestamps
+    timestamps()
   end
 
   def changeset(creds, params \\ %{}) do
@@ -23,9 +22,13 @@ defmodule Credentials do
 
 
   def mws_config(client_id) do
-    case Repo.get_by(Credentials, client_id: client_id) do
-      nil -> %MWSClient.Config{}
-      c -> build_cfg(c)
+    try do
+      case Repo.get_by!(Credentials, client_id: client_id) do
+        nil -> %MWSClient.Config{}
+        c -> build_cfg(c)
+      end
+    rescue _e in Ecto.NoResultsError ->
+      raise "Client with id #{client_id} not found"
     end
   end
 

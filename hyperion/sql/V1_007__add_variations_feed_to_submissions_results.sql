@@ -1,0 +1,1 @@
+alter table amazon_submission_results add column variations_feed jsonb;
