@@ -11,7 +11,8 @@ import styles from './gift-card-form.css';
 
 // components
 import { TextInput } from 'ui/text-input';
-import { Form, FormField } from 'ui/forms';
+import { TextArea } from 'ui/textarea';
+import { FormField } from 'ui/forms';
 import Select from 'ui/select/select';
 
 
@@ -42,7 +43,7 @@ const GiftCardForm = (props: Props) => {
   const senderName = _.get(props.attributes, 'giftCard.senderName', '');
 
   return (
-    <div styleName="card-form-wrap">
+    <div styleName="block">
       <div styleName="price-selector">
         <Select
           inputProps={{
@@ -55,26 +56,28 @@ const GiftCardForm = (props: Props) => {
           sortItems={false}
         />
       </div>
-      <FormField label="Recipient name" required>
-        <TextInput
-          styleName="input-field"
-          value={recipientName}
-          placeholder="Recipient name"
-          onChange={props.onAttributeChange}
-          name="giftCard.recipientName"
-        />
-      </FormField>
-      <FormField label="Recipient email" validator={email} required>
-        <TextInput
-          styleName="input-field"
-          value={recipientEmail}
-          placeholder="Recipient email"
-          onChange={props.onAttributeChange}
-          name="giftCard.recipientEmail"
-        />
-      </FormField>
+      <div styleName="recipient-block">
+        <FormField label="Recipient name" required>
+          <TextInput
+            pos="top"
+            value={recipientName}
+            placeholder="Recipient name"
+            onChange={props.onAttributeChange}
+            name="giftCard.recipientName"
+          />
+        </FormField>
+        <FormField label="Recipient email" validator={email} required>
+          <TextInput
+            pos="bottom"
+            value={recipientEmail}
+            placeholder="Recipient email"
+            onChange={props.onAttributeChange}
+            name="giftCard.recipientEmail"
+          />
+        </FormField>
+      </div>
       <FormField>
-        <textarea
+        <TextArea
           styleName="message-field"
           placeholder="Your message"
           value={message}
@@ -82,11 +85,10 @@ const GiftCardForm = (props: Props) => {
           name="giftCard.message"
         />
       </FormField>
-      <FormField label="Sender name" required>
+      <FormField label="Your name" required>
         <TextInput
-          styleName="input-field"
           value={senderName}
-          placeholder="Sender name"
+          placeholder="Your name"
           onChange={props.onAttributeChange}
           name="giftCard.senderName"
         />

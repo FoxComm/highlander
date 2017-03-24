@@ -8,7 +8,6 @@ import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import { assoc } from 'sprout-data';
 import * as tracking from 'lib/analytics';
-import { isGiftCard } from 'paragons/sku';
 
 // i18n
 import localized from 'lib/i18n';
@@ -214,7 +213,8 @@ class Pdp extends Component {
   }
 
   isGiftCard(props = this.props): boolean {
-    return isGiftCard(props.product);
+    const tags = _.get(props.product, 'attributes.tags.v');
+    return tags.indexOf('GIFT-CARD') !== -1;
   }
 
   @autobind
