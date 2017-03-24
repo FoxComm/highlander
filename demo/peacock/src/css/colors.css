@@ -9,7 +9,7 @@
   /* peacock: */
   --water-blue: #0B7DDC;
   --science-blue: #0266B9;
-  --french-pass: #B6D7FF;
+  --baby-blue: #B6D7FF;
   --malibu: #66AFF5;
 
   --cherry-red: #E90018;
@@ -58,7 +58,7 @@
   --input-error-color: var(--cherry-red);
   --input-placeholder-color: var(--gray);
   --input-text-color: var(--black);
-  --input-active-border-color: var(--french-pass);
+  --input-active-border-color: var(--baby-blue);
 
   /* Text colors */
   --text-color: var(--blackish);
@@ -83,7 +83,7 @@
   --link-visited-color: var(--malibu);
   --link-alt-color: var(--cod-gray);
 
-  --focus-color: var(--french-pass);
+  --focus-color: var(--baby-blue);
 
   /* Borders */
   --border-color: var(--alto);

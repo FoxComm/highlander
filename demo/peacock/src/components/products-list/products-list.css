@@ -1,6 +1,6 @@
-@import "variables";
-@import "media-queries";
-@import "colors";
+@import "variables.css";
+@import "media-queries.css";
+@import "colors.css";
 
 .list-wrapper {
   position: relative;
@@ -28,7 +28,6 @@
 }
 
 .not-found {
-  text-transform: uppercase;
   margin: 80px 0;
   text-align: center;
   width: 100%;

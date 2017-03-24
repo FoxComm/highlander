@@ -8,6 +8,7 @@ import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import { assoc } from 'sprout-data';
 import * as tracking from 'lib/analytics';
+import { isGiftCard } from 'paragons/sku';
 
 // i18n
 import localized from 'lib/i18n';
@@ -18,10 +19,11 @@ import { searchGiftCards } from 'modules/products';
 import { fetch, getNextId, getPreviousId, resetProduct } from 'modules/product-details';
 import { addLineItem, toggleCart } from 'modules/cart';
 
-// types
-import type { ProductResponse, ProductSlug } from 'modules/product-details';
+// styles
+import styles from './pdp.css';
 
 // components
+import AddToCartBtn from 'ui/add-to-cart-btn';
 import Gallery from 'ui/gallery/gallery';
 import Loader from 'ui/loader';
 import Breadcrumbs from 'components/breadcrumbs/breadcrumbs';
@@ -30,10 +32,9 @@ import ProductDetails from './product-details';
 import GiftCardForm from 'components/gift-card-form';
 import ImagePlaceholder from 'components/products-item/image-placeholder';
 
+// types
+import type { ProductResponse, ProductSlug } from 'modules/product-details';
 import type { RoutesParams } from 'types';
-
-// styles
-import styles from './pdp.css';
 
 type Params = {
   productSlug: string,
@@ -70,8 +71,6 @@ type Product = {
   images: Array<string>,
   currency: string,
   price: number|string,
-  amountOfServings: string,
-  servingSize: string,
   pathName: string,
 };
 
@@ -143,7 +142,7 @@ class Pdp extends Component {
     const props = _props || this.props;
     const productId = _productId || this.productId;
 
-    if (this.isGiftCard(props)) {
+    if (this.isGiftCardRoute(props)) {
       return searchGiftCards().then(({ result = [] }) => {
         const giftCard = result[0] || {};
         return this.safeFetch(giftCard.productId);
@@ -189,7 +188,7 @@ class Pdp extends Component {
   @autobind
   setAttributeFromField({ target: { name, value } }) {
     const namePath = ['attributes', ...name.split('.')];
-    const stateValue = name == 'giftCard.message' ? value.split('\n').join('<br>') : value;
+    const stateValue = name === 'giftCard.message' ? value.split('\n').join('<br>') : value;
     this.setState(assoc(this.state, namePath, stateValue));
   }
 
@@ -205,15 +204,17 @@ class Pdp extends Component {
       images: imageUrls,
       currency: _.get(price, 'currency', 'USD'),
       price: _.get(price, 'value', 0),
-      amountOfServings: _.get(attributes, 'Amount of Servings.v', ''),
-      servingSize: _.get(attributes, 'Serving Size.v', ''),
       skus: this.sortedSkus,
       pathName: this.props.location.pathname,
     };
   }
 
-  isGiftCard(props) {
-    return (props || this.props).route.name === 'gift-cards';
+  isGiftCardRoute(props = this.props) {
+    return props.route.name === 'gift-cards';
+  }
+
+  isGiftCard(props = this.props): boolean {
+    return isGiftCard(props.product);
   }
 
   @autobind
@@ -251,8 +252,57 @@ class Pdp extends Component {
       : <ImagePlaceholder largeScreenOnly />;
   }
 
-  get breadcrumbs(): Element<*> {
+  get secondaryTitle(): Element<any> {
+    if (this.isGiftCard()) {
+      return (
+        <div styleName="secondary-title">
+          Spread your love. Make them choose what they want.
+        </div>
+      );
+    }
+    return (
+      <div styleName="secondary-title">
+        Stan Smith sneakers made in vintage-look suede.
+      </div>
+    );
+  }
 
+  get productDetails(): Element<*> {
+    const description = _.get(this.props.product, 'attributes.description.v', '');
+    const description_list = _.get(this.props.product, 'attributes.description_list.v', '');
+    return (
+      <div>
+        <div
+          styleName="description"
+          dangerouslySetInnerHTML={{__html: description}}
+        />
+        <div
+          styleName="description-list"
+          dangerouslySetInnerHTML={{__html: description_list}}
+        />
+      </div>
+    );
+  }
+
+  get productForm(): Element<any> {
+    if (this.isGiftCard()) {
+      return (
+        <GiftCardForm
+          product={this.product}
+          onSkuChange={this.setCurrentSku}
+          selectedSku={this.currentSku}
+          attributes={this.state.attributes}
+          onAttributeChange={this.setAttributeFromField}
+        />
+      );
+    }
+    return (
+      <ProductDetails
+        product={this.product}
+        quantity={this.state.quantity}
+        onQuantityChange={this.changeQuantity}
+      />
+    );
   }
 
   render(): Element<any> {
@@ -269,8 +319,7 @@ class Pdp extends Component {
     if (fetchError) {
       return <ErrorAlerts error={fetchError} />;
     }
-
-    const product = this.product;
+    const title = this.isGiftCard() ? t('Gift Card') : this.product.title;
 
     return (
       <div styleName="container">
@@ -283,23 +332,16 @@ class Pdp extends Component {
             params={this.props.params}
             styleName="breadcrumbs"
           />
-          {this.isGiftCard() ?
-            <GiftCardForm
-              product={product}
-              addToCart={this.addToCart}
-              onSkuChange={this.setCurrentSku}
-              selectedSku={this.currentSku}
-              attributes={this.state.attributes}
-              onAttributeChange={this.setAttributeFromField}
-            /> :
-            <ProductDetails
-              product={product}
-              quantity={this.state.quantity}
-              onQuantityChange={this.changeQuantity}
-              addToCart={this.addToCart}
-            />}
-
           <ErrorAlerts error={this.state.error} />
+          <h1 styleName="title">{title}</h1>
+          {this.productForm}
+          <div styleName="cart-actions">
+            <AddToCartBtn
+              onClick={this.addToCart}
+            />
+          </div>
+          {this.secondaryTitle}
+          {this.productDetails}
         </div>
       </div>
     );
