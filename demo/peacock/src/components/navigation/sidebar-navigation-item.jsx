@@ -26,7 +26,7 @@ type Props = {
 };
 
 type State = {
-  expanded: number,
+  expanded: Array<string>,
 };
 
 export default class NavigationItem extends Component {
@@ -49,14 +49,6 @@ export default class NavigationItem extends Component {
     return url;
   }
 
-  @autobind
-  handleClick() {
-    console.log('handle click');
-    if (this.props.onClick) {
-      this.props.onClick();
-    }
-  }
-
   get baseUrl(): string {
     return this.getNavUrl(this.props.item);
   }
@@ -66,6 +58,7 @@ export default class NavigationItem extends Component {
     const level = this.state.expanded.length;
     const drawerStyle = classNames(styles.submenu, {
       [styles['submenu-open']]: this.state.expanded.indexOf(item.name) >= 0,
+      [styles['submenu-hovered']]: this.state.expanded.indexOf(item.name) >= 1,
     });
 
     const children = _.map(item.children, (child) => {
@@ -98,10 +91,7 @@ export default class NavigationItem extends Component {
       );
     });
 
-    let style = {zIndex: 10 * level};
-    if (this.state.expanded.indexOf(item.name) >= 1) {
-      style.top = 0;
-    }
+    const style = {zIndex: 10 * level};
 
     return (
       <div className={drawerStyle} style={style}>
@@ -122,7 +112,6 @@ export default class NavigationItem extends Component {
   goDown(e: SyntheticEvent, next: string) {
     e.preventDefault();
     e.stopPropagation();
-    console.log('Go down', this.state.expanded);
     this.setState({ expanded: [...this.state.expanded, next] });
   }
 
