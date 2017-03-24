@@ -31,7 +31,11 @@ export AWS_SECRET_ACCESS_KEY=aws_secret
 export MWS_ACCESS_KEY_ID=mws_access_key
 export MWS_SECRET_ACCESS_KEY=mws_secret
 
-export PHOENIX_URL=https://appliance-10-240-0-12.foxcommerce.com
+# phoenix
+export PHOENIX_URL=your-developer-appliance-url
+export PHOENIX_PASSWORD=api-password
+export PHOENIX_USER=user
+export PHOENIX_ORG=org
 ```
 
 _IMPORTANT:_ Please keep in mind that AWS credentials differ from MWS. You can not use AWS data to access MWS and vice versa.

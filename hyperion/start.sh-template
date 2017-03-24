@@ -5,7 +5,6 @@ export HYPERION_DB_USER=hyperion
 export HYPERION_DB_PASSWORD=''
 export HYPERION_DB_NAME=hyperion_development
 export HYPERION_DB_HOST=localhost
-
 # JWT
 export PUBLIC_KEY=/full/path/to/public_key.pem
 
@@ -18,5 +17,8 @@ export MWS_SECRET_ACCESS_KEY=mws-secret-key
 
 # phoenix
 export PHOENIX_URL=your-developer-appliance-url
+export PHOENIX_PASSWORD=api-password
+export PHOENIX_USER=user
+export PHOENIX_ORG=org
 
 iex -S mix
