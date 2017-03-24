@@ -20,10 +20,11 @@ export function searchTaxonomies(token: string): Promise<*> {
       );
     }
   }
+
   const matchRule = dsl.query({
     bool: {
-      should: filters,
-      minimum_number_should_match: 1
+      must: filters,
+      filter: dsl.existsFilter('archivedAt', 'missing')
     },
   });
 
