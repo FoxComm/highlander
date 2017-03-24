@@ -17,7 +17,7 @@ import { fetch as fetchCart } from 'modules/cart';
 import * as actions from 'modules/sidebar';
 
 // components
-import Categories from 'components/navigation/navigation';
+import SidebarNavigation from 'components/navigation/sidebar-navigation';
 import Search from 'components/search/search';
 import Overlay from 'ui/overlay/overlay';
 import ActionLink from 'ui/action-link/action-link';
@@ -32,8 +32,7 @@ type SidebarProps = Localized & {
 
 type State = {
   searchFocused: boolean,
-}
-
+};
 
 class Sidebar extends React.Component {
   props: SidebarProps;
@@ -122,7 +121,7 @@ class Sidebar extends React.Component {
             </div>
             <div styleName="links-group" onClick={this.onLinkClick}>
               <div styleName="controls-categories">
-                <Categories
+                <SidebarNavigation
                   path={this.props.path}
                 />
               </div>
