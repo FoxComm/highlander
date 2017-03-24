@@ -22,6 +22,7 @@ import { addLineItem, toggleCart } from 'modules/cart';
 import styles from './pdp.css';
 
 // components
+import { SecondaryButton } from 'ui/buttons';
 import AddToCartBtn from 'ui/add-to-cart-btn';
 import Gallery from 'ui/gallery/gallery';
 import Loader from 'ui/loader';
@@ -339,6 +340,7 @@ class Pdp extends Component {
             <AddToCartBtn
               onClick={this.addToCart}
             />
+            <SecondaryButton styleName="one-click-checkout">1-click checkout</SecondaryButton>
           </div>
           {this.secondaryTitle}
           {this.productDetails}

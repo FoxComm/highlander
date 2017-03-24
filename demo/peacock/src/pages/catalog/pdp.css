@@ -71,6 +71,10 @@
   font-size: 14px;
 }
 
+.one-click-checkout {
+  margin-top: 8px;
+}
+
 
 @media (--medium) {
   .price {
