@@ -5,6 +5,8 @@ import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import { Link } from 'react-router';
 
+import ActionLink from 'ui/action-link/action-link';
+
 import classNames from 'classnames';
 
 import { humanize, categoryNameToUrl } from 'paragons/categories';
@@ -23,6 +25,7 @@ type Props = {
   item: Category,
   path: string,
   onClick: ?Function,
+  renderBack: Function,
 };
 
 type State = {
@@ -51,6 +54,35 @@ export default class NavigationItem extends Component {
 
   get baseUrl(): string {
     return this.getNavUrl(this.props.item);
+  }
+
+  @autobind
+  goBack() {
+    const cats = this.state.expanded;
+    cats.pop();
+    this.setState({expanded: cats}, () => this.renderBack());
+  }
+
+  @autobind
+  renderBack() {
+    const fabric = () => {
+      const length = this.state.expanded.length;
+      if (length == 0) return null;
+
+      let name = '';
+      if (length == 1) name = 'Menu';
+
+      if (length > 1) name = humanize(this.state.expanded[length - 2]);
+
+      return (
+        <ActionLink
+          action={this.goBack}
+          title={name}
+          styleName="action-link-back"
+        />
+      );
+    };
+    this.props.renderBack(fabric);
   }
 
   @autobind
@@ -112,7 +144,10 @@ export default class NavigationItem extends Component {
   goDown(e: SyntheticEvent, next: string) {
     e.preventDefault();
     e.stopPropagation();
-    this.setState({ expanded: [...this.state.expanded, next] });
+    const expanded = this.state.expanded;
+    this.setState({ expanded: [...expanded, next] }, () => {
+      this.renderBack();
+    });
   }
 
   render() {

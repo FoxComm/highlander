@@ -15,6 +15,7 @@ type Props = {
   fetch: Function,
   onClick?: ?Function,
   path: string,
+  renderBack: Function,
 };
 
 const getState = state => ({...state.categories});
@@ -36,6 +37,7 @@ class SidebarNavigation extends Component {
           item={item}
           path={path}
           onClick={this.props.onClick}
+          renderBack={this.props.renderBack}
         />
       );
     });

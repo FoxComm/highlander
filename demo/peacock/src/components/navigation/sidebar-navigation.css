@@ -47,3 +47,8 @@
   lost-column: 11/12;
   lost-offset: -0.5/12;
 }
+
+.action-link-back {
+  composes: action-link from "ui/action-link/action-link.css";
+  font-size: 17px;
+}
