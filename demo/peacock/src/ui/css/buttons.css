@@ -19,7 +19,8 @@
   }
 
   &:focus {
-    border: 4px solid var(--baby-blue);
+    /* outline: 4px solid var(--baby-blue); */
+    box-shadow: 0 0 3pt 2pt var(--baby-blue);
     background: var(--button-focus-background);
   }
 
@@ -42,8 +43,7 @@
   }
 }
 
-.button-loading {
-  composes: button;
+._loading {
   background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUAQMAAAC3R49OAAAABlBMVEUAAAAAAAClZ7nPAAAAAnRSTlMAF/VASP8AAABBSURBVHheZckxFYAgFADA8zkwYgMr2MBKNpBoRCHCHxl4YADnsxymy/DoQmyh7aGmUHJwBnfjraxiW+yTNMj9xx9ZVxpfjbpEWgAAAABJRU5ErkJggg==);
   animation: caramel .5s linear infinite;
 
@@ -66,13 +66,8 @@
 }
 
 
-.button-secondary {
-  min-width: 11.2em;
-  height: 3.1em;
+._secondary {
   background: var(--button-alt-default-background);
-  text-transform: uppercase;
-  font-size: 13px;
-  font-weight: 300;
   color: var(--button-label-color);
 
   &:active {

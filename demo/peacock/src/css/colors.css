@@ -27,7 +27,7 @@
 }
 
 :root {
-  --base-color: var(--whitish);
+  --base-color: var(--white);
 
   --additional-color: #3E3436;
   --border-color: rgba(33, 33, 33, 0.10);
