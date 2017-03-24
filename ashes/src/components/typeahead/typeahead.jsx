@@ -12,27 +12,30 @@ import { FormField } from '../forms';
 import Alert from '../alerts/alert';
 import LoadingInputWrapper from '../forms/loading-input-wrapper';
 
+// styles
+import s from './typeahead.css';
+
 export default class Typeahead extends React.Component {
 
   static propTypes = {
-    onBlur: PropTypes.func,
-    onChange: PropTypes.func,
-    onItemSelected: PropTypes.func,
+    onBlur: PropTypes.func, // blur handler
+    onChange: PropTypes.func, // input keyup/change handler
+    onItemSelected: PropTypes.func, // on item click/choose handler
     // fetchItems if passed should return promise for results
-    fetchItems: PropTypes.func,
-    component: PropTypes.func,
+    fetchItems: PropTypes.func, // triggers when text is changed and text is valid
+    component: PropTypes.func, // component of one item, props={model: item}
     hideOnBlur: PropTypes.bool,
     isFetching: PropTypes.bool,
-    items: PropTypes.array,
-    label: PropTypes.string,
-    name: PropTypes.string,
-    placeholder: PropTypes.string,
-    className: PropTypes.string,
-    itemsElement: PropTypes.element,
-    inputElement: PropTypes.element,
-    minQueryLength: PropTypes.number,
-    autoComplete: PropTypes.string,
-    initialValue: PropTypes.string,
+    items: PropTypes.array, // Array of data for suggestion. Each element passed to `component`
+    label: PropTypes.string, // title for input
+    name: PropTypes.string, // name attr for default input
+    placeholder: PropTypes.string, // placeholder attr for default input
+    className: PropTypes.string, // additional cl for root element of Typeahead
+    itemsElement: PropTypes.element, // custom component for items as a list (not just for one item)
+    inputElement: PropTypes.element, // custom component for input field, default is `TypeaheadInput`
+    minQueryLength: PropTypes.number, // if < then no fetching
+    autoComplete: PropTypes.string, // autoComplete attr for default input
+    initialValue: PropTypes.string, // value attr for default input
   };
 
   static defaultProps = {
@@ -216,14 +219,12 @@ export default class Typeahead extends React.Component {
   }
 
   render() {
-    const elementClass = classNames('fc-typeahead', { '_active': this.state.active }, this.props.className);
+    const className = classNames(s.block, { [s._active]: this.state.active }, this.props.className);
 
-    const menuClass = classNames('fc-typeahead__menu', {
-      '_visible': this.state.showMenu
-    });
+    const menuClass = classNames('fc-typeahead__menu', { [s._visible]: this.state.showMenu });
 
     return (
-      <div className={elementClass}>
+      <div className={className}>
         <FormField className="fc-typeahead__input-group" label={this.props.label}>
           <LoadingInputWrapper inProgress={this.props.isFetching}>
             {this.inputContent}
