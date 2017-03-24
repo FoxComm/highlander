@@ -12,6 +12,11 @@ import Icon from 'components/icon/icon';
 
 import styles from './navigation-item.css';
 
+type Params = {
+  context: string,
+  taxonomyId: string
+}
+
 type Props = {
     to: string,
     icon: string,
@@ -19,6 +24,8 @@ type Props = {
     routes: Array<Object>,
     actualClaims: Claims|string,
     expectedClaims: Claims|string,
+    currentParams?: Params,
+    linkParams?: Params
   };
 
 const NavigationItem = (props: Props) => {

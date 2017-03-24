@@ -10,9 +10,15 @@ import * as SiteMenuActions from '../../modules/site-menu';
 
 type Props = {
   routes: Array<Object>,
+  params: Params
 }
 
-const Sidebar = ({ routes, params }: Props) => {
+type Params = {
+  context: string,
+  taxonomyId: string
+}
+
+const Sidebar = ({ routes, params}: Props) => {
   const sidebarClass = classNames('fc-sidebar', '_open');
 
   return (

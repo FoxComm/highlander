@@ -17,13 +17,18 @@ import SettingsEntry from './entries/settings';
 
 import type { JWT } from 'lib/claims';
 
+type Params = {
+  context: string,
+  taxonomyId: string
+}
+
 function mapStateToProps(state) {
   return {
     token: state.user.current,
   };
 }
 
-const Navigation = ({ routes, token, params }: { routes: Array<Object>, token: JWT}) => {
+const Navigation = ({ routes, token, params }: { routes: Array<Object>, token: JWT, params: Params}) => {
   const claims = getClaims(token);
 
   return (
