@@ -36,6 +36,7 @@ export default class Typeahead extends React.Component {
     minQueryLength: PropTypes.number, // if < then no fetching
     autoComplete: PropTypes.string, // autoComplete attr for default input
     initialValue: PropTypes.string, // value attr for default input
+    view: PropTypes.string,
   };
 
   static defaultProps = {
@@ -168,7 +169,7 @@ export default class Typeahead extends React.Component {
     );
   }
 
-  get menuContent() {
+  get listContent() {
     if (this.state.showAlert) return this.renderAlert();
 
     const itemsElement = this.props.itemsElement;
@@ -221,7 +222,10 @@ export default class Typeahead extends React.Component {
   render() {
     const className = classNames(s.block, { [s._active]: this.state.active }, this.props.className);
 
-    const menuClass = classNames('fc-typeahead__menu', { [s._visible]: this.state.showMenu });
+    const listClass = classNames(s.list, {
+      [s._visible]: this.state.showMenu,
+      [s._modal]: this.props.view == 'modal',
+    });
 
     return (
       <div className={className}>
@@ -230,8 +234,8 @@ export default class Typeahead extends React.Component {
             {this.inputContent}
           </LoadingInputWrapper>
         </FormField>
-        <div className={menuClass}>
-          {this.menuContent}
+        <div className={listClass}>
+          {this.listContent}
         </div>
       </div>
     );

@@ -13,10 +13,6 @@
     }
   }
 
-  & :global(.fc-typeahead__menu) {
-    box-shadow: 0 2px 4px 0 @color-decor51;
-  }
-
   & :global(.fc-pilled-input__input-container) {
     width: 600px;
 
@@ -30,4 +26,8 @@
 
 .label {
   margin-bottom: 15px;
+}
+
+.typeahead {
+  box-shadow: 0 2px 4px 0 @color-decor51;
 }

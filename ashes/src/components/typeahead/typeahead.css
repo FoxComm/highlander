@@ -46,17 +46,7 @@
     max-height: 50px;
   }
 
-  &__menu {
-    display: none;
 
-    &._visible {
-      display: block;
-    }
-    position: absolute;
-    top: 100%;
-    width: 100%;
-    z-index: 999;
-  }
 
   &__items {
     max-height: 350px;
@@ -91,5 +81,21 @@
     .fc-alert {
       margin-top: 0;
     }
+  }
+}
+
+.list {
+  display: none;
+  position: absolute;
+  top: 100%;
+  width: 100%;
+  z-index: 2;
+
+  &._visible {
+    display: block;
+  }
+
+  &._modal {
+    box-shadow: 0 2px 4px 0 @color-decor51;
   }
 }
