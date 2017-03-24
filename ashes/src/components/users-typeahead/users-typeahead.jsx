@@ -114,7 +114,7 @@ export default class UsersTypeahead extends Component {
         </div>
         <Typeahead
           className={classNames(s.typeahead, props.className)}
-          view="no-search"
+          view="users"
           isFetching={_.get(props.suggestState, 'inProgress', false)}
           fetchItems={props.suggestUsers}
           minQueryLength={2}

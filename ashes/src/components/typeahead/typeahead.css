@@ -3,39 +3,19 @@
 
   /* @todo remove from here */
   &._active {
-    .fc-pilled-input__input-container,
-    .fc-pilled-input__input-container:hover {
+    :global(.fc-pilled-input__input-container),
+    :global(.fc-pilled-input__input-container:hover) {
       border-color: #a2dee1 !important;
     }
   }
 
-  .fc-form-field input[type=text] {
-    padding-left: 40px;
-
-    &.fc-pilled-input__input-field {
-      padding-left: 10px;
-      margin-left: 0;
-    }
-  }
-
-  .fc-form-field-label {
+  :global(.fc-form-field-label) {
     display: block;
   }
 
-  .fc-image-column {
+  :global(.fc-image-column) {
     max-width: 50px;
     max-height: 50px;
-  }
-
-  &__items {
-    max-height: 350px;
-    overflow-y: scroll;
-    overflow-x: hidden;
-    background-color: @color-white;
-    border: 1px solid @color-border;
-
-    font-size: 12px;
-    line-height: 60px;
   }
 
   &__item {
@@ -62,7 +42,7 @@
   border: none !important;
   padding-left: 10px;
 
-  .block._search {
+  .block._search & {
     padding-left: 40px;
   }
 }
@@ -92,6 +72,32 @@
 
   &._modal {
     box-shadow: 0 2px 4px 0 @color-decor51;
+  }
+}
+
+.items {
+  max-height: 350px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  background-color: @color-white;
+  border: 1px solid @color-border;
+
+  font-size: 12px;
+  line-height: 60px;
+
+  .block._users & {
+    width: 600px;
+    overflow-y: auto;
+
+    & > li {
+      padding: 0;
+    }
+  }
+}
+
+.not-found {
+  .block._users & {
+    padding: 0 20px;
   }
 }
 

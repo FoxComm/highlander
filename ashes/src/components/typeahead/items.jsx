@@ -1,12 +1,15 @@
-
+// libs
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
+
+// styles
+import s from './typeahead.css';
 
 const TypeaheadItems = props => {
   let innerContent = null;
 
   if (_.isEmpty(props.items)) {
-    innerContent = <li className="fc-typeahead__item-not-found">No results found.</li>;
+    innerContent = <li className={s['not-found']}>No results found.</li>;
   } else {
     innerContent = props.items.map((item, index) => {
       return (
@@ -18,7 +21,7 @@ const TypeaheadItems = props => {
   }
 
   return (
-    <ul className="fc-typeahead__items">
+    <ul className={s.items}>
       {innerContent}
     </ul>
   );
