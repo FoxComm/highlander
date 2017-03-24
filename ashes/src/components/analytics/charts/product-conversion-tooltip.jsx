@@ -1,4 +1,5 @@
 // @flow
+/*eslint max-len: ["error", 2000]*/
 
 // libs
 import React from 'react';
@@ -126,7 +127,7 @@ export default class ProductConversionToolTip extends React.Component {
             text={`${deltaValue} %`}
             orientation="left"
             labelComponent={
-              <VictoryLabel 
+              <VictoryLabel
                 dx={deltaToolTipCoordinates.deltaTextDx}
                 dy={deltaToolTipCoordinates.deltaTextDy} />
             }

@@ -24,6 +24,9 @@ t:
 	make flow
 	@NODE_ENV=$(NODE_ENV) ./node_modules/.bin/gulp test
 
+lint:
+	@NODE_ENV=$(NODE_ENV) ./node_modules/.bin/gulp lint
+
 tag:
 	git push
 	git tag v$(version)

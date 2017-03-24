@@ -39,7 +39,7 @@ class SegmentControlList extends Component {
   get segments(): Array<HTMLElement> {
     const { items, activeSegment, onSelect } = this.props;
 
-    const activeSegmentId = !_.isNil(activeSegment)    
+    const activeSegmentId = !_.isNil(activeSegment)
       ? activeSegment.id : false;
 
     return _.map(items, (item, index) => (

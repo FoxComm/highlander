@@ -52,7 +52,7 @@ const NavigationItem = (props: Props) => {
           expectedClaims={props.expectedClaims}>
           <Icon
             name={props.icon}
-            className={styles["nav-item"]}
+            className={styles['nav-item']}
           />
           <span>{props.title}</span>
         </IndexLink>

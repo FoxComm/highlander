@@ -57,7 +57,10 @@ export class Suggester extends Component {
     const { value } = this.state;
 
     const primaryHtml = !!primary && primary.map(line => (
-      <div className={classNames(s.item, s._proposed)} key={`${line.id}${line.prefix}`} onClick={() => this._onPick(line)}>
+      <div
+        className={classNames(s.item, s._proposed)}
+        key={`${line.id}${line.prefix}`}
+        onClick={() => this._onPick(line)}>
 
         <div className={s.itemPrefix}>{line.prefix}</div>
         <div className={s.itemValue}>{line.text}</div>
