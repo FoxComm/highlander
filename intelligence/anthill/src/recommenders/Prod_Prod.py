@@ -2,7 +2,7 @@ from math import sqrt
 import numpy as np
 from scipy.sparse import csr_matrix
 
-class PPRecommend(object):
+class Prod_Prod(object):
     def __init__(self):
         self.events = set()
         self.up_to_date = False
