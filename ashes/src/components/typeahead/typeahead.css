@@ -76,12 +76,6 @@
       line-height: 20px;
     }
   }
-
-  &__need-more-characters {
-    .fc-alert {
-      margin-top: 0;
-    }
-  }
 }
 
 .list {
@@ -98,4 +92,9 @@
   &._modal {
     box-shadow: 0 2px 4px 0 @color-decor51;
   }
+}
+
+/* @todo refactor Alert component */
+.need-more-characters {
+  margin-top: 0;
 }

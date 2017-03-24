@@ -161,11 +161,9 @@ export default class Typeahead extends React.Component {
 
   renderAlert() {
     return (
-      <div className="fc-typeahead__need-more-characters">
-        <Alert type={Alert.WARNING}>
-          Please enter at least {this.props.minQueryLength} characters.
-        </Alert>
-      </div>
+      <Alert type={Alert.WARNING} className={s['need-more-characters']}>
+        Please enter at least {this.props.minQueryLength} characters.
+      </Alert>
     );
   }
 
