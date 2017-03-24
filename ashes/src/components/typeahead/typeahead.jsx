@@ -201,6 +201,7 @@ export default class Typeahead extends React.Component {
       name: this.props.name,
       placeholder: this.props.placeholder,
       autoComplete: this.props.autoComplete,
+      className: s.input,
     };
 
     const handlers = {
@@ -223,6 +224,7 @@ export default class Typeahead extends React.Component {
     const listClass = classNames(s.list, {
       [s._visible]: this.state.showMenu,
       [s._modal]: this.props.view == 'modal',
+      [s._search]: this.props.view != 'no-search',
     });
 
     return (

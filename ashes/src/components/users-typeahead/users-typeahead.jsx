@@ -113,7 +113,8 @@ export default class UsersTypeahead extends Component {
           <label>{props.label}</label>
         </div>
         <Typeahead
-          className={classNames('_no-search-icon', s.typeahead, props.className)}
+          className={classNames(s.typeahead, props.className)}
+          view="no-search"
           isFetching={_.get(props.suggestState, 'inProgress', false)}
           fetchItems={props.suggestUsers}
           minQueryLength={2}

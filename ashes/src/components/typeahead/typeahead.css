@@ -1,27 +1,12 @@
 .block {
   position: relative;
 
+  /* @todo remove from here */
   &._active {
     .fc-pilled-input__input-container,
     .fc-pilled-input__input-container:hover {
       border-color: #a2dee1 !important;
     }
-  }
-
-  input[type=text] {
-    width: 700px;
-    border: none !important;
-  }
-
-  &__input-icon {
-    color: @color-decor8;
-    position: absolute;
-    left: 13px;
-    bottom: 11px;
-  }
-
-  &._no-search-icon &__input-icon {
-    display: none;
   }
 
   .fc-form-field input[type=text] {
@@ -33,10 +18,6 @@
     }
   }
 
-  &._no-search-icon &__input[type=text] {
-    padding-left: 10px;
-  }
-
   .fc-form-field-label {
     display: block;
   }
@@ -45,8 +26,6 @@
     max-width: 50px;
     max-height: 50px;
   }
-
-
 
   &__items {
     max-height: 350px;
@@ -75,6 +54,28 @@
     .fc-grid {
       line-height: 20px;
     }
+  }
+}
+
+.input {
+  width: 700px; /* WHY??? */
+  border: none !important;
+  padding-left: 10px;
+
+  .block._search {
+    padding-left: 40px;
+  }
+}
+
+.input-icon {
+  display: none;
+  color: @color-decor8;
+  position: absolute;
+  left: 13px;
+  bottom: 11px;
+
+  .block._search & {
+    display: block;
   }
 }
 

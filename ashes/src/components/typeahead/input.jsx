@@ -1,10 +1,14 @@
-
+//  libs
 import React, { PropTypes } from 'react';
+import classNames from 'classnames';
+
+// styles
+import s from './typeahead.css';
 
 const TypeaheadInput = props => {
   return (
     <div>
-      <i className="fc-typeahead__input-icon icon-search"></i>
+      <i className={classNames(s['input-icon'], 'icon-search')} />
       <input
         className="fc-input fc-typeahead__input"
         type="text"
