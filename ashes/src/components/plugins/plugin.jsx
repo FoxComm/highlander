@@ -23,7 +23,7 @@ type Props = {
   settings: Object,
   schema: Object,
   isFetching: boolean,
-}
+};
 
 const pluginName = (props: Props): string => {
   return props.params.name;
