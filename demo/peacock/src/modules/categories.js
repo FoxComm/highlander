@@ -6,15 +6,15 @@ import { createAsyncActions } from '@foxcomm/wings';
 const featured = [
   {
     id: 100,
-    name: 'New Arrivals',
+    name: 'new arrivals',
   },
   {
     id: 101,
-    name: 'Best Sellers',
+    name: 'best sellers',
   },
   {
     id: 102,
-    name: 'Sale',
+    name: 'sale',
   },
   {
     id: 103,
@@ -22,58 +22,58 @@ const featured = [
   },
   {
     id: 104,
-    name: 'Superstar',
+    name: 'superstar',
   },
   {
     id: 105,
-    name: 'Workout Essentials',
+    name: 'workout essentials',
   },
   {
     id: 106,
-    name: 'Blue Blast',
+    name: 'blue blast',
   },
 ];
 
 const shoes = [
   {
     id: 201,
-    name: 'Originals',
+    name: 'originals',
   },
   {
     id: 202,
-    name: 'Soccer',
+    name: 'soccer',
   },
   {
     id: 203,
-    name: 'Running',
+    name: 'running',
   },
   {
     id: 204,
-    name: 'Basketball',
+    name: 'basketball',
   },
   {
     id: 205,
-    name: 'Training',
+    name: 'training',
   },
   {
     id: 206,
-    name: 'Outdoor',
+    name: 'outdoor',
   },
   {
     id: 207,
-    name: 'Football',
+    name: 'football',
   },
   {
     id: 208,
-    name: 'Baseball',
+    name: 'baseball',
   },
   {
     id: 209,
-    name: 'Tennis',
+    name: 'tennis',
   },
   {
     id: 210,
-    name: 'Sandals & Slides',
+    name: 'sandals & slides',
   },
   {
     id: 211,
@@ -84,172 +84,172 @@ const shoes = [
 const apparel = [
   {
     id: 301,
-    name: 'Jackets',
+    name: 'jackets',
   },
   {
     id: 302,
-    name: 'Hoodies & Sweatshirts',
+    name: 'hoodies & sweatshirts',
   },
   {
     id: 303,
-    name: 'Track Suits & Warm Ups',
+    name: 'track suits & warm ups',
   },
   {
     id: 304,
-    name: 'Long Sleeve Tops',
+    name: 'long sleeve tops',
   },
   {
     id: 305,
-    name: 'Short Sleeve Tops',
+    name: 'short sleeve tops',
   },
   {
     id: 306,
-    name: 'Graphic Tees',
+    name: 'graphic tees',
   },
   {
     id: 307,
-    name: 'Sleeveless Tops',
+    name: 'sleeveless tops',
   },
   {
     id: 308,
-    name: 'Jerseys',
+    name: 'jerseys',
   },
   {
     id: 309,
-    name: 'Pants',
+    name: 'pants',
   },
   {
     id: 310,
-    name: 'Tights',
+    name: 'tights',
   },
   {
     id: 311,
-    name: 'Shorts',
+    name: 'shorts',
   },
 ];
 
 const accessories = [
   {
     id: 401,
-    name: 'Bags',
+    name: 'bags',
   },
   {
     id: 402,
-    name: 'Balls',
+    name: 'balls',
   },
   {
     id: 403,
-    name: 'Sunglasses',
+    name: 'sunglasses',
   },
   {
     id: 404,
-    name: 'Watches',
+    name: 'watches',
   },
   {
     id: 405,
-    name: 'Gloves',
+    name: 'gloves',
   },
   {
     id: 406,
-    name: 'Hats',
+    name: 'hats',
   },
   {
     id: 407,
-    name: 'Socks',
+    name: 'socks',
   },
   {
     id: 408,
-    name: 'Underwear',
+    name: 'underwear',
   },
   {
     id: 409,
-    name: 'Scarves',
+    name: 'scarves',
   },
 ];
 
 const sports = [
   {
     id: 501,
-    name: 'Soccer',
+    name: 'soccer',
   },
   {
     id: 502,
-    name: 'Running',
+    name: 'running',
   },
   {
     id: 503,
-    name: 'Basketball',
+    name: 'basketball',
   },
   {
     id: 504,
-    name: 'Training',
+    name: 'training',
   },
   {
     id: 505,
-    name: 'Football',
+    name: 'football',
   },
   {
     id: 506,
-    name: 'Baseball',
+    name: 'baseball',
   },
   {
     id: 507,
-    name: 'Tennis',
+    name: 'tennis',
   },
   {
     id: 508,
-    name: 'Outdoor',
+    name: 'outdoor',
   },
   {
     id: 509,
-    name: 'Weightlifting',
+    name: 'weightlifting',
   },
   {
     id: 510,
-    name: 'Skateboarding',
+    name: 'skateboarding',
   },
   {
     id: 511,
-    name: 'Snowboarding',
+    name: 'snowboarding',
   },
   {
     id: 512,
-    name: 'Hockey',
+    name: 'hockey',
   },
   {
     id: 513,
-    name: 'Lacrosse',
+    name: 'lacrosse',
   },
   {
     id: 514,
-    name: 'Volleyball',
+    name: 'volleyball',
   },
 ];
 
 const groups = [
   {
     id: 10,
-    name: 'Featured',
+    name: 'featured',
     children: featured,
   },
   {
     id: 11,
-    name: 'Shoes',
+    name: 'shoes',
     children: shoes,
   },
   {
     id: 12,
-    name: 'Apparel',
+    name: 'apparel',
     children: apparel,
   },
   {
     id: 13,
-    name: 'Accessories',
+    name: 'accessories',
     children: accessories,
   },
   {
     id: 14,
-    name: 'Sports',
+    name: 'sports',
     children: sports,
   },
 ];
@@ -257,63 +257,52 @@ const groups = [
 const categories = [
   {
     id: 0,
-    name: 'WOMEN',
+    name: 'women',
     description: '',
     showNameCatPage: true,
     children: groups,
   },
   {
     id: 1,
-    name: 'MEN',
+    name: 'men',
     description: '',
     showNameCatPage: true,
     children: groups,
   },
   {
     id: 2,
-    name: 'KIDS',
+    name: 'kids',
     description: '',
     showNameCatPage: true,
     children: groups,
   },
   {
     id: 3,
-    name: 'SPORTS',
+    name: 'sports',
     description: '',
     showNameCatPage: true,
     children: groups,
   },
   {
     id: 4,
-    name: 'BRANDS',
+    name: 'brands',
     description: '',
     showNameCatPage: true,
     children: groups,
   },
   {
     id: 5,
-    name: 'GIFT CARDS',
+    name: 'gift cards',
     description: 'Gift cards will be here',
     imageUrl: '',
     showNameCatPage: true,
   },
 ];
 
-const productTypes = [
-  'All',
-  'Poultry',
-  'Seafood',
-  'Meat',
-  'Vegetarian',
-];
-
-function convertCategoryNameToUrlPart(categoryName: string) {
-  return encodeURIComponent(categoryName.replace(/\s/g, '-'));
-}
-
 const initialState = {
   list: [],
 };
+
 const {fetch, ...actions} = createAsyncActions(
   'categories',
   () => Promise.resolve(categories)
@@ -332,6 +321,4 @@ export {
   reducer as default,
   fetch,
   categories,
-  productTypes,
-  convertCategoryNameToUrlPart,
 };

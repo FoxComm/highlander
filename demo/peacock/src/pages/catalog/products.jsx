@@ -1,12 +1,11 @@
 /* @flow */
 
 // libs
-import _ from 'lodash';
 import React, { Component } from 'react';
-import { browserHistory } from 'lib/history';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import * as actions from 'modules/products';
+import { categoryNameFromUrl } from 'paragons/categories';
 
 // components
 import ProductsList, { LoadingBehaviors } from 'components/products-list/products-list';
@@ -15,15 +14,13 @@ import Breadcrumbs from 'components/breadcrumbs/breadcrumbs';
 // styles
 import styles from './products.css';
 
-// constants
-import { productTypes } from 'modules/categories';
-
 // types
 import { Element, Route } from 'types';
 
 type Params = {
   categoryName: ?string,
-  productType: ?string,
+  subCategory: ?string,
+  leafCategory: ?string,
 };
 
 type Category = {
@@ -61,8 +58,6 @@ const mapStateToProps = (state) => {
   };
 };
 
-const defaultProductType = productTypes[0];
-
 class Products extends Component {
   props: Props;
   state: State = {
@@ -73,20 +68,23 @@ class Products extends Component {
   };
 
   componentWillMount() {
-    const { categoryName, productType } = this.props.params;
+    const { categoryName, subCategory, leafCategory } = this.props.params;
     const { sorting } = this.state;
-    this.props.fetch(categoryName, productType, sorting);
+    this.props.fetch([categoryName, subCategory, leafCategory], sorting);
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    const { categoryName, productType } = this.props.params;
+    const { categoryName, subCategory, leafCategory } = this.props.params;
     const {
       categoryName: nextCategoryName,
-      productType: nextProductType,
+      subCategory: nextSubCategory,
+      leafCategory: nextLeafCategory,
     } = nextProps.params;
 
-    if ((categoryName !== nextCategoryName) || (productType !== nextProductType)) {
-      this.props.fetch(nextCategoryName, nextProductType, this.state.sorting);
+    if ((categoryName !== nextCategoryName) ||
+        (subCategory !== nextSubCategory) ||
+        (leafCategory !== nextLeafCategory)) {
+      this.props.fetch([nextCategoryName, nextSubCategory, nextLeafCategory], this.state.sorting);
     }
   }
 
@@ -104,49 +102,32 @@ class Products extends Component {
     };
 
     this.setState({sorting: newState}, () => {
-      const { categoryName, productType } = this.props.params;
-      this.props.fetch(categoryName, productType, newState);
+      const { categoryName, subCategory, leafCategory } = this.props.params;
+      this.props.fetch([categoryName, subCategory, leafCategory], newState);
     });
   }
 
   @autobind
-  onDropDownItemClick (productType = '') {
-    const { categoryName = defaultProductType.toUpperCase() } = this.props.params;
-
-    if (productType.toLowerCase() !== defaultProductType.toLowerCase()) {
-      // $FlowFixMe: categoryName can't be null here
-      browserHistory.push(`/${categoryName}/${productType.toUpperCase()}`);
-    } else {
-      // $FlowFixMe: categoryName can't be null here
-      browserHistory.push(`/${categoryName}`);
-    }
+  categoryName(categoryName: string) {
+    return categoryNameFromUrl(categoryName);
   }
 
+  @autobind
   renderHeader() {
-    const props = this.props;
-    const { categories } = props;
-    const { categoryName } = props.params;
+    const { params } = this.props;
+    const { categoryName, subCategory, leafCategory } = params;
 
-    const realCategoryName =
-      decodeURIComponent(categoryName || '').toUpperCase().replace(/-/g, ' ');
-
-    const category = _.find(categories, {
-      name: realCategoryName,
-    });
-
-    if (!category || !categoryName ||
-      (categoryName.toLowerCase() === defaultProductType.toLowerCase())) {
-      return;
+    let realCategoryName = '';
+    if (leafCategory) {
+      realCategoryName = this.categoryName(leafCategory);
+    } else if (subCategory) {
+      realCategoryName = this.categoryName(subCategory);
+    } else if (categoryName) {
+      realCategoryName = this.categoryName(categoryName);
     }
 
-    const className = `header-${categoryName}`;
-
-    const title = (category.showNameCatPage)
-      ? <h1 styleName="title">{category.name}</h1>
-      : <h1 styleName="title">{category.description}</h1>;
-
     return (
-      <header styleName={className}>
+      <header>
         <div styleName="crumbs">
           <Breadcrumbs
             routes={this.props.routes}
@@ -154,7 +135,7 @@ class Products extends Component {
           />
         </div>
         <div>
-          {title}
+          <h1 styleName="title">{realCategoryName}</h1>
         </div>
       </header>
     );

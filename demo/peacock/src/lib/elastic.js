@@ -78,3 +78,22 @@ export function addMatchQuery(query: BoolQuery, searchString: string): BoolQuery
 
   return addMustFilter(query, matchFilter);
 }
+
+export function addNestedTermFilter(query: BoolQuery, block: string, path: string, term: TermFilter): BoolQuery {
+  const filter = {
+    nested: {
+      path: block,
+      query: {
+        bool: {
+          filter: {
+            term: {
+              [path]: term
+            }
+          }
+        }
+      }
+    }
+  };
+
+  return assoc(query, ['query', 'bool', 'filter'], [...query.query.bool.filter || [], filter]);
+}

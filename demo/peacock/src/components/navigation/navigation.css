@@ -6,7 +6,6 @@
   text-decoration: none;
   color: var(--link-alt-color);
   white-space: nowrap;
-  text-transform: uppercase;
 }
 
 .submenu {
@@ -16,10 +15,15 @@
   left: 0;
   top: 50px;
   display: none;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .open {
   display: block;
+}
+
+.with-drawer-open {
+  background: var(--select-active-background);
 }
 
 .drawer-columns {
@@ -35,12 +39,14 @@
   letter-spacing: normal;
   margin-bottom: 19px;
   display: block;
+  text-decoration: none;
 }
 
 .drawer-subitem-link {
   font-size: 14px;
   line-height: 1.86;
   color: var(--navigation-alt-color);
+  text-decoration: none;
 }
 
 @media (--small-only), (--medium-only) {
