@@ -110,7 +110,7 @@ class CouponCodes extends Component {
     }).then(() => {
       transitionTo('promotion-coupons', {promotionId: this.props.promotionId});
     });
-  } 
+  }
 
   codeIsOfValidLength(): boolean {
     return this.props.codeIsOfValidLength();

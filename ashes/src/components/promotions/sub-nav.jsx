@@ -21,7 +21,7 @@ const SubNav = (props: SubNavProps) => {
 
   const isNew = props.promotionId === 'new';
   const isAutoApply = props.applyType === 'auto';
-  
+
   return (
     <LocalNav>
       <IndexLink to="promotion-details" params={params}>Details</IndexLink>

@@ -8,7 +8,7 @@ import CurrencyInput from '../../forms/currency-input';
 type Props = {
   value: Number,
   onChange: Function
-}; 
+};
 
 const Currency = (props: Props) => {
   return (
