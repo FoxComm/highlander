@@ -39,7 +39,7 @@ class CouponsIntegrationTest
       coupon
     }
 
-    "create coupon with invalid date should fail" in new StoreAdmin_Seed
+    "create coupon with invalid date should fail" ignore new StoreAdmin_Seed // TODO: ignored, because we override times to make coupons always active @michalrus
     with Coupon_TotalQualifier_PercentOff {
       val invalidDate = "2016-07-19T08:28:21.405+00:00" // should have "Z" instead of "+00:00"…
 
@@ -142,14 +142,14 @@ class CouponsIntegrationTest
     }
 
     "fails to attach coupon" - {
-      "when activeFrom is after now" in new CartCouponFixture {
+      "when activeFrom is after now" ignore new CartCouponFixture { // TODO: ignored, because we override times to make coupons always active @michalrus
         override def couponActiveFrom = now.plus(1, DAYS)
         override def couponActiveTo   = now.plus(2, DAYS).some
 
         cartsApi(cartRef).coupon.add(couponCode).mustFailWith400(CouponIsNotActive)
       }
 
-      "when activeTo is before now" in new CartCouponFixture {
+      "when activeTo is before now" ignore new CartCouponFixture { // TODO: ignored, because we override times to make coupons always active @michalrus
         override def couponActiveFrom = now.minus(2, DAYS)
         override def couponActiveTo   = now.minus(1, DAYS).some
 
