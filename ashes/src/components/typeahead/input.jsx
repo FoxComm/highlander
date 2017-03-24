@@ -10,7 +10,7 @@ const TypeaheadInput = props => {
     <div>
       <i className={classNames(s['input-icon'], 'icon-search')} />
       <input
-        className="fc-input fc-typeahead__input"
+        className={classNames('fc-input', s.input)}
         type="text"
         {...props}
       />

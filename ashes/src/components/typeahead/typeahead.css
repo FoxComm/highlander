@@ -1,7 +1,7 @@
 .block {
   position: relative;
 
-  /* @todo remove from here */
+  /* @todo remove globals from here somehow */
   &._active {
     :global(.fc-pilled-input__input-container),
     :global(.fc-pilled-input__input-container:hover) {
@@ -16,24 +16,6 @@
   :global(.fc-image-column) {
     max-width: 50px;
     max-height: 50px;
-  }
-
-  &__item {
-    padding: 15px;
-    border-bottom: 1px solid @color-border;
-
-    &:last-child {
-      border-bottom: none;
-    }
-
-    &:hover {
-      background-color: @color-tr-even-bg;
-      cursor: pointer;
-    }
-
-    .fc-grid {
-      line-height: 20px;
-    }
   }
 }
 
@@ -88,6 +70,32 @@
   .block._users & {
     width: 600px;
     overflow-y: auto;
+
+    & > li {
+      padding: 0;
+    }
+  }
+}
+
+.item {
+  padding: 15px;
+  border-bottom: 1px solid @color-border;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background-color: @color-tr-even-bg;
+    cursor: pointer;
+  }
+
+  :global(.fc-grid) {
+    line-height: 20px;
+  }
+
+  .block._modal & {
+    width: 600px;
 
     & > li {
       padding: 0;

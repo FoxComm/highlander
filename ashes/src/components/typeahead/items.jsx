@@ -13,7 +13,7 @@ const TypeaheadItems = props => {
   } else {
     innerContent = props.items.map((item, index) => {
       return (
-        <li className="fc-typeahead__item" onMouseDown={() => { props.onItemSelected(item); }} key={`item-${index}`}>
+        <li className={s.item} onMouseDown={() => { props.onItemSelected(item); }} key={`item-${index}`}>
           {React.createElement(props.component, {model: item})}
         </li>
       );
