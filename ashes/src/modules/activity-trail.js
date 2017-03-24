@@ -67,7 +67,7 @@ export function fetchActivityTrail({dimension, objectId = null}, from) {
       response => {
         // nginx sends empty object instead of empty array
         const result = _.isEmpty(response.result) ? [] : response.result;
-        const activities = processActivities(result.map(con => { 
+        const activities = processActivities(result.map(con => {
               //TODO Using connection id as activity id until activities get
               //real ids
               let activity = con.activity;

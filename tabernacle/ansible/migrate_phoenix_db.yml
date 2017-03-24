@@ -15,4 +15,5 @@
       private: no
 
   roles:
+    - { role: base/flyway, become: true }
     - { role: prod/migrate_phoenix_db, become: true }

@@ -41,7 +41,7 @@ class SegmentControl extends Component {
     const isActiveStyle = isActive ? 'active' : 'inactive';
 
     return (
-      <div 
+      <div
         styleName={`segment-control-container-${isActiveStyle}`} onClick={this.onClickHandler}>
         <div styleName="segment-control-title">
           {title}

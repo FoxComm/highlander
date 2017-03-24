@@ -249,6 +249,7 @@ hyperion_env: prod
 hyperion_src: ../../hyperion/
 hyperion_dir: /hyperion
 hyperion_db_name: hyperion_development
+hyperion_db_test_name: hyperion_test
 hyperion_db_user: hyperion
 hyperion_db_password: hyperion
 hyperion_db_host: "{{db_host}}"
