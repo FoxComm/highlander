@@ -10,7 +10,7 @@
   border: none;
   border-radius: 4px;
   background-color: var(--button-default-background);
-  color: var(--button-color);
+  color: var(--button-label-color);
   text-align: center;
   cursor: pointer;
 
