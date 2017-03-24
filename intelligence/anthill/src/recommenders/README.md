@@ -1,4 +1,5 @@
-# anthill
+# Anthill Recommenders
+
 ## KNN product-product recommender
 Generates a product similarity matrix for products based on "customers who
 purchased this also purchased that".

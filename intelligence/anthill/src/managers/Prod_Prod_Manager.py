@@ -53,10 +53,9 @@ class Prod_Prod_Manager(object):
         elif channel_id not in self.recommenders.keys():
             raise InvalidUsage('Channel ID not found', status_code=400,
                                payload={'error_code': 101})
-        else:
-            if prod_id not in self.recommenders[channel_id].product_ids():
-                raise InvalidUsage('Product ID not found in channel', status_code=400,
-                                   payload={'error_code': 102})
+        elif prod_id not in self.recommenders[channel_id].product_ids():
+            raise InvalidUsage('Product ID not found in channel', status_code=400,
+                               payload={'error_code': 102})
 
     def recommend(self, prod_id, channel_id):
         self.validate(prod_id, channel_id)
