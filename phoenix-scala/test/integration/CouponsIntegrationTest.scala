@@ -1,3 +1,4 @@
+import java.time.Instant
 import java.time.Instant.now
 import java.time.temporal.ChronoUnit.DAYS
 
@@ -9,6 +10,7 @@ import failures.ObjectFailures._
 import models.cord.{Carts, Orders}
 import models.coupon.Coupon
 import models.objects.ObjectContext
+import models.traits.IlluminatedModel
 import org.json4s.JsonAST._
 import payloads.CouponPayloads._
 import payloads.LineItemPayloads.UpdateLineItemsPayload
@@ -39,14 +41,31 @@ class CouponsIntegrationTest
 
     "create coupon with invalid date should fail" in new StoreAdmin_Seed
     with Coupon_TotalQualifier_PercentOff {
-      private val invalidAttrs = Map[String, Any](
-          "name"       → "donkey coupon",
-          "activeFrom" → ShadowValue("2016-07-19T08:28:21.405+00:00", "datetime")).asShadow
+      val invalidDate = "2016-07-19T08:28:21.405+00:00" // should have "Z" instead of "+00:00"…
+
+      private val invalidAttrs =
+        Map[String, Any]("name"       → "donkey coupon",
+                         "activeFrom" → ShadowValue(invalidDate, "datetime")).asShadow
 
       couponsApi
         .create(CreateCoupon(attributes = invalidAttrs, promotion = promotion.id))
-        .mustFailWith400(
-            ShadowAttributeInvalidTime("activeFrom", "JString(2016-07-19T08:28:21.405+00:00)"))
+        .mustFailWith400(ShadowAttributeInvalidTime("activeFrom", s"JString($invalidDate)"))
+    }
+
+    "created coupon should always be active" in new StoreAdmin_Seed
+    with Coupon_TotalQualifier_PercentOff {
+      override def couponActiveFrom = Instant.now.plus(10, DAYS)
+      override def couponActiveTo   = Some(Instant.now.plus(20, DAYS))
+
+      coupon
+
+      val whatAmIDoing = new IlluminatedModel[Unit] {
+        def archivedAt    = None
+        def attributes    = coupon.attributes
+        def inactiveError = CouponIsNotActive
+      }
+
+      whatAmIDoing.mustBeActive mustBe 'right
     }
   }
 
