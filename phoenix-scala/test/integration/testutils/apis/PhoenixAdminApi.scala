@@ -641,6 +641,9 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
   case class promotionsApi(formId: Int)(implicit ctx: OC) {
     val promotionPath = s"${promotionsApi.promotionsPrefix}/$formId"
 
+    def get(): HttpResponse =
+      GET(promotionPath)
+
     def delete(): HttpResponse =
       DELETE(promotionPath)
 
