@@ -12,12 +12,15 @@ type Props = {
   routes: Array<Object>,
 }
 
-const Sidebar = ({ routes }: Props) => {
+const Sidebar = ({ routes, params }: Props) => {
   const sidebarClass = classNames('fc-sidebar', '_open');
 
   return (
     <aside role="complimentary" className={sidebarClass}>
-      <Navigation routes={routes} />
+      <Navigation
+        routes={routes}
+        params={params}
+      />
     </aside>
   );
 };

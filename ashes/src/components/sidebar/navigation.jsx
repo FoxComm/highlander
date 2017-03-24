@@ -23,7 +23,7 @@ function mapStateToProps(state) {
   };
 }
 
-const Navigation = ({ routes, token }: { routes: Array<Object>, token: JWT}) => {
+const Navigation = ({ routes, token, params }: { routes: Array<Object>, token: JWT}) => {
   const claims = getClaims(token);
 
   return (
@@ -44,6 +44,7 @@ const Navigation = ({ routes, token }: { routes: Array<Object>, token: JWT}) => 
         <MerchandisingEntry
           claims={claims}
           routes={routes}
+          currentParams={params}
         />
         <MarketingEntry
           claims={claims}
