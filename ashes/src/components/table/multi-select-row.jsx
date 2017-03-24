@@ -100,6 +100,7 @@ MultiSelectRow.contextTypes = {
 };
 
 MultiSelectRow.defaultProps = {
+  processCell: _.identity,
   onClick: _.noop,
 };
 
