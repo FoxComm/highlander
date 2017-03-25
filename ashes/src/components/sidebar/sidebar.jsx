@@ -8,17 +8,14 @@ import Navigation from './navigation';
 import { connect } from 'react-redux';
 import * as SiteMenuActions from '../../modules/site-menu';
 
+type Params = { [key: string]: string };
+
 type Props = {
   routes: Array<Object>,
-  params: Params
+  params: Params,
 }
 
-type Params = {
-  context: string,
-  taxonomyId: string
-}
-
-const Sidebar = ({ routes, params}: Props) => {
+const Sidebar = ({ routes, params }: Props) => {
   const sidebarClass = classNames('fc-sidebar', '_open');
 
   return (
