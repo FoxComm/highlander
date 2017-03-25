@@ -1,0 +1,36 @@
+.root {
+  padding: 0 30px;
+}
+.suggesterWrapper {
+  display: flex;
+}
+.suggester {
+  flex: 1 1 auto;
+}
+
+.set {
+  border: none;
+  background-color: #ccc;
+  color: #333;
+  cursor: pointer;
+}
+.set._disabled {
+  color: #999;
+  cursor: default;
+}
+
+.progressbar {
+  margin: 30px 0;
+}
+
+.form {
+  margin: 30px 0;
+}
+
+.table {
+  border: 1px solid #ccc;
+}
+
+.box {
+  margin: 20px 0;
+}

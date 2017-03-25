@@ -188,7 +188,9 @@ object OrderRoutes {
             // deprecated in favor of /carts route
             (patch & pathEnd & entity(as[UpdateShippingMethod])) { payload ⇒
               mutateOrFailures {
-                CartShippingMethodUpdater.updateShippingMethod(auth.model, payload, Some(refNum))
+                CartShippingMethodUpdater.updateShippingMethod(auth.model,
+                                                               payload.shippingMethodId,
+                                                               Some(refNum))
               }
             } ~
             // deprecated in favor of /carts route

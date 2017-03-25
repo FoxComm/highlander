@@ -1,0 +1,82 @@
+---
+
+es_connection:
+  host: localhost
+  port: 9200
+es_indices:
+  - name: public
+    searches:
+      - name: countries
+        scoped: false
+        view: countries_view
+      - name: products_catalog
+        scoped: false
+        view: products_catalog_view
+      - name: regions
+        scoped: false
+        view: regions_view
+  - name: admin
+    searches:
+      - name: activity_connections
+        scoped: false
+        view: activity_connections_view
+      - name: carts
+        scoped: true
+        view: carts_search_view
+      - name: coupon_codes
+        scoped: true
+        view: coupon_codes_search_view
+      - name: coupons
+        scoped: true
+        view: coupons_search_view
+      - name: customer_items
+        scoped: true
+        view: customer_items_search_view
+      - name: customers
+        scoped: true
+        view: customers_search_view
+      - name: failed_authorizations
+        scoped: false
+        view: failed_authorizations_search_view
+      - name: gift_card_transactions
+        scoped: true
+        view: gift_card_transactions_view
+      - name: gift_cards
+        scoped: true
+        view: gift_cards_search_view
+      - name: inventory
+        scoped: true
+        view: inventory_search_view
+      - name: inventory_transactions
+        scoped: true
+        view: inventory_transactions_search_view
+      - name: notes
+        scoped: true
+        view: notes_search_view
+      - name: orders
+        scoped: true
+        view: orders_search_view
+      - name: products
+        scoped: true
+        view: products_search_view
+      - name: promotions
+        scoped: true
+        view: promotions_search_view
+      - name: skus
+        scoped: true
+        view: sku_search_view
+      - name: store_admins
+        scoped: true
+        view: store_admins_search_view
+      - name: store_credit_transactions
+        scoped: true
+        view: store_credit_transactions_view
+      - name: store_credits
+        scoped: true
+        view: store_credits_search_view
+      - name: taxonomies
+        scoped: true
+        view: taxonomies_search_view
+      - name: taxons
+        scoped: true
+        view: taxons_search_view

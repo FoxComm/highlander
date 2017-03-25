@@ -165,14 +165,23 @@ function ensureProductHasSkus(product: Product): Product {
 export function setSkuAttribute(product: Product,
                                 code: string,
                                 label: string,
-                                value: any): Product {
+                                value: any,
+                                type: any): Product {
 
   const updateAttribute = sku => {
     const skuCode = _.get(sku, 'attributes.code.v');
 
-    return (skuCode == code || sku.feCode == code)
-      ? assoc(sku, ['attributes', label, 'v'], value)
-      : sku;
+    if (skuCode == code || sku.feCode == code) {
+      let newSku = assoc(sku, ['attributes', label, 'v'], value);
+
+      if (type) {
+        newSku = assoc(newSku, ['attributes', label, 't'], type);
+      }
+
+      return newSku;
+    }
+
+    return sku;
   };
 
   const newSkus = product.skus.map(sku => updateAttribute(sku));

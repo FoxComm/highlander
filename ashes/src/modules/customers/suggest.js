@@ -8,7 +8,9 @@ import { searchCustomers } from 'elastic/customers';
 
 const _suggestCustomers = createAsyncActions('suggestCustomers', searchCustomers);
 
-export const suggestCustomers = (excludeCustomers: Array<number>) => _suggestCustomers.perform.bind(null, excludeCustomers);
+export const suggestCustomers = (excludeCustomers: Array<number>) => {
+  return _suggestCustomers.perform.bind(null, excludeCustomers);
+};
 
 const initialState = {
   customers: [],

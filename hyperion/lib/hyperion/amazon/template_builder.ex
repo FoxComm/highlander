@@ -1,10 +1,29 @@
 defmodule Hyperion.Amazon.TemplateBuilder do
   require EEx
 
+  def render_field(list, field_name, tag_name) do
+    case Keyword.has_key?(list, field_name) do
+      false -> nil
+      _ -> "<#{tag_name}>#{Keyword.get(list, field_name)}</#{tag_name}>"
+    end
+  end
+
+  def render_field(field, tag_name) do
+    case field do
+      nil -> nil
+      _ -> "<#{tag_name}>#{field}</#{tag_name}>"
+    end
+  end
+
   def submit_product_feed(list, opts) do
     data = [seller_id: opts.seller_id, purge_and_replace: opts.purge_and_replace,
             products: list]
     EEx.eval_string(Hyperion.Amazon.Templates.SubmitProductFeed.template_string, data)
+  end
+
+  def submit_variation_feed(list, opts) do
+    data = [seller_id: opts.seller_id, variations: list]
+    EEx.eval_string(Hyperion.Amazon.Templates.SubmitVariationFeed.template_string, data)
   end
 
   def submit_product_by_asin(list, opts) do
