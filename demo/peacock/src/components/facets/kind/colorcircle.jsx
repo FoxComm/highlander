@@ -11,7 +11,7 @@ import * as tracking from 'lib/analytics';
 
 type Facet = {
   facet: string,
-  value: string,
+  value: Object,
   label: string,
   checked?: boolean,
   click: Function,
@@ -44,7 +44,7 @@ class ColorCircle extends React.Component {
   @autobind
   click(event) {
     if(this.props.click) {
-      this.props.click(this.props.facet, this.props.value, event.target.checked);
+      this.props.click(this.props.facet, this.props.value.value, event.target.checked);
     }
     this.setState({checked : event.target.checked});
   }
@@ -55,11 +55,13 @@ class ColorCircle extends React.Component {
       value,
       label,
     } = this.props;
+    console.log('CORLOR');
+    console.log(value);
 
     let id = facet + '-color-' + label
 
-    let colorStyle = "_lib_components_facets_kind_colorcircle__" + value;
-    let checkboxStyle = isLight(value) ? 
+    let colorStyle = "_lib_components_facets_kind_colorcircle__" + value.color;
+    let checkboxStyle = isLight(value.color) ? 
       " _lib_components_facets_kind_colorcircle__color-checkbox-light": 
       " _lib_components_facets_kind_colorcircle__color-checkbox";
 

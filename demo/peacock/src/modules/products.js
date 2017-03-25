@@ -8,7 +8,7 @@ import { api } from 'lib/api';
 
 export type Facet = {
   label: string,
-  value: string,
+  value: Object | string,
   count: number,
 }
 
@@ -92,9 +92,10 @@ function titleCase(t) {
 }
 
 function mapFacetValue(v, kind) {
+  const orig = v;
   if(kind == 'color') {
-    v = _.toLower(v);
-    v = v.replace(/\s/g, '');
+    let color = _.toLower(v).replace(/\s/g, '');
+    v = {color: color, value: orig};
   } 
 
   return v;
@@ -104,6 +105,7 @@ function mapAggregationsToFacets(aggregations) {
     return _.map(aggregations, (a) => {
       const kind = determineFacetKind(a.key);
       const values = _.map(a.taxon.buckets, (t) => {
+
         return {
           label: titleCase(t.key),
           value: mapFacetValue(t.key, kind),
