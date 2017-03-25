@@ -49,6 +49,7 @@ type State = {
     direction: number,
     field: string,
   },
+  selectedFacets: [],
 };
 
 // redux
@@ -71,12 +72,13 @@ class Products extends Component {
       direction: 1,
       field: 'salePrice',
     },
+    selectedFacets: [],
   };
 
   componentWillMount() {
     const { categoryName, productType } = this.props.params;
-    const { sorting } = this.state;
-    this.props.fetch(categoryName, productType, sorting);
+    const { sorting, selectedFacets } = this.state;
+    this.props.fetch(categoryName, productType, sorting, selectedFacets);
   }
 
   componentWillReceiveProps(nextProps: Props) {
@@ -87,14 +89,14 @@ class Products extends Component {
     } = nextProps.params;
 
     if ((categoryName !== nextCategoryName) || (productType !== nextProductType)) {
-      this.props.fetch(nextCategoryName, nextProductType, this.state.sorting);
+      this.props.fetch(nextCategoryName, nextProductType, this.state.sorting, this.state.selectedFacets);
     }
   }
 
 
   @autobind
   changeSorting(field: string) {
-    const { sorting } = this.state;
+    const { sorting, selectedFacets } = this.state;
     const direction = sorting.field === field
       ? sorting.direction * (-1)
       : sorting.direction;
@@ -104,9 +106,9 @@ class Products extends Component {
       direction,
     };
 
-    this.setState({sorting: newState}, () => {
+    this.setState({selectedFacets: selectedFacets, sorting: newState}, () => {
       const { categoryName, productType } = this.props.params;
-      this.props.fetch(categoryName, productType, newState);
+      this.props.fetch(categoryName, productType, newState, selectedFacets);
     });
   }
 
@@ -121,6 +123,27 @@ class Products extends Component {
       // $FlowFixMe: categoryName can't be null here
       browserHistory.push(`/${categoryName}`);
     }
+  }
+
+  @autobind
+  onSelectFacet(facet, value, selected) {
+    console.log('FACET: ' + facet + ' v: ' + value + ' s: ' + selected);
+    let newSelection = [];
+    if(selected) {
+      newSelection = [
+        ...this.state.selectedFacets,
+        {facet: facet, value: value},
+      ];
+    } else {
+      newSelection = _.filter(this.state.selectedFacets, (f) => {
+        return f.facet != facet && f.value != value;
+      });
+    }
+
+    this.setState({selectedFacets: newSelection, sorting: this.state.sorting}, () => {
+      const { categoryName, productType } = this.props.params;
+      this.props.fetch(categoryName, productType, this.state.sorting, newSelection);
+    });
   }
 
   renderHeader() {
@@ -170,7 +193,7 @@ class Products extends Component {
         </div>
         <div styleName="facetted-container">
           <div styleName="sidebar">
-            <Facets facets={[]} />
+            <Facets facets={this.props.facets} onSelect={this.onSelectFacet} />
           </div>
           <div styleName="content">
             <ProductsList

@@ -10,6 +10,7 @@ import { connect } from 'react-redux';
 import * as tracking from 'lib/analytics';
 
 type Facet = {
+  facet: string,
   value: string,
   label: string,
   checked?: boolean,
@@ -29,30 +30,30 @@ class Checkbox extends React.Component {
   static defaultProps = {};
 
   @autobind
-  click() {
+  click(event) {
     if(this.props.click) {
-      this.props.click(this.props.value)
+      this.props.click(this.props.facet, this.props.value, event.target.checked);
     }
-    this.state.checked = !this.state.checked;
+    this.setState({checked: event.target.checked});
   }
 
   render(): HTMLElement {
     const {
+      facet,
       value,
       label,
-      checked,
     } = this.props;
 
-    const id = 'checkbox-' + value;
+    const id = facet + '-checkbox-' + value;
 
     return (<div styleName="facet-checkbox">
                 <input
                   styleName="facet-checkbox-input"
                   id={id}
                   type="checkbox"
-                  value={value}
-                  defaultChecked={checked}
-                  onChange={this.click()}
+                  value={this.props.checked}
+                  defaultChecked={this.props.checked}
+                  onChange={this.click}
                 />
                 <div styleName="facet-checkbox-box">
                   <label htmlFor={id}>{"✔"}</label>

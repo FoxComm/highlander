@@ -22,76 +22,18 @@ type FacetsProps = {
 type FacetsState = {
 };
 
-const testFacets = [
-  {
-    name: 'Gender',
-    kind: 'checkbox',
-    values: [
-      {label: 'Men', value: 'men', click: null},
-      {label: 'Women', value: 'women', click: null},
-      {label: 'Kids', value: 'kids', click: null},
-    ]
-  },
-  {
-    name: 'Shoes',
-    kind: 'checkbox',
-    values: [
-      {label: 'Shoes', value: 'shoes', click: null},
-      {label: 'High Tops', value: 'hightops', click: null},
-    ]
-  },
-  {
-    name: 'Size',
-    kind: 'circle',
-    values: [
-      {label: '4', value: '4', click: null},
-      {label: '4.5', value: '4.5', click: null},
-      {label: '5', value: '5', click: null},
-      {label: '5.5', value: '5.5', click: null},
-      {label: '9', value: '9', click: null},
-      {label: '9.5', value: '9.5', click: null},
-      {label: '10', value: '10', click: null},
-      {label: '10.5', value: '10.5', click: null},
-      {label: '14', value: '14', click: null},
-      {label: '14.5', value: '14.5', click: null},
-    ]
-  },
-  {
-    name: 'Franchise',
-    kind: 'checkbox',
-    values: [
-      {label: 'Cloudform', value: 'cloudform', click: null},
-      {label: 'Raleigh', value: 'raleigh', click: null},
-      {label: 'Avantage Clean', value: 'avantageclean', click: null},
-      {label: 'Life Racer', value: 'liferacer', click: null},
-      {label: 'BB9TIS', value: 'bb8tis', click: null},
-    ]
-  },
-  {
-    name: 'Colors',
-    kind: 'color',
-    values: [
-      {label: 'red', value: 'red', click: null},
-      {label: 'green', value: 'green', click: null},
-      {label: 'blue', value: 'blue', click: null},
-      {label: 'white', value: 'white', click: null},
-      {label: 'yellow', value: 'yellow', click: null},
-      {label: 'floralwhite', value: 'floralwhite', click: null},
-    ]
-  },
-
-]
-
 class Facets extends Component {
   props: FacetsProps;
   state: FacetsState = {};
 
-  static defaultProps = {};
+  static defaultProps = {
+    facets: [],
+  };
 
   @autobind
-  handleClickFacets(facet): void {
+  handleClickFacets(facet, value, selected): void {
     if (this.props.onSelect) {
-      this.props.onSelect(facet);
+      this.props.onSelect(facet, value, selected);
     }
   }
 
@@ -102,6 +44,7 @@ class Facets extends Component {
     if(f.kind == 'checkbox') {
       values = _.map(f.values, (v) => {
         return (<Checkbox 
+          facet={f.key}
           value={v.value} 
           label={v.label} 
           checked={false}
@@ -111,6 +54,7 @@ class Facets extends Component {
     } else if(f.kind == 'circle') {
       values = _.map(f.values, (v) => {
         return (<Circle 
+          facet={f.key}
           value={v.value} 
           label={v.label} 
           checked={false}
@@ -120,6 +64,7 @@ class Facets extends Component {
     } else if(f.kind == 'color') {
       values = _.map(f.values, (v) => {
         return (<ColorCircle 
+          facet={f.key}
           value={v.value} 
           label={v.label} 
           checked={false}
@@ -141,10 +86,8 @@ class Facets extends Component {
   }
 
   render(): HTMLElement {
-    const { t } = this.props;
-
     //const facets = _.map(this.props.facets, (f) => {
-    const facets = _.map(testFacets, (f) => {
+    const facets = _.map(this.props.facets, (f) => {
       return this.renderFacet(f);
     });
 

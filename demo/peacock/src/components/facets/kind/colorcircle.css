@@ -33,6 +33,10 @@
     background-color: #000000;
 }
 
+.coreblack div {
+    background-color: #000000;
+}
+
 .blanchedalmond div {
     background-color: #FFEBCD;
 }
@@ -417,6 +421,10 @@
     background-color: #000080;
 }
 
+.collegiatenavy div {
+    background-color: #000080;
+}
+
 .oldlace div {
     background-color: #FDF5E6;
 }
@@ -525,11 +533,19 @@
     background-color: #C0C0C0;
 }
 
+.metallicsilver div {
+    background-color: #C0C0C0;
+}
+
 .skyblue div {
     background-color: #87CEEB;
 }
 
 .slateblue div {
+    background-color: #6A5ACD;
+}
+
+.mysteryblue div {
     background-color: #6A5ACD;
 }
 
@@ -588,6 +604,18 @@
 }
 
 .whitesmoke div {
+    background-color: #F5F5F5;
+    border: solid 1px #222222;
+    border: solid 1px var(--black);
+}
+
+.runningwhiteftw div {
+    background-color: #F5F5F5;
+    border: solid 1px #222222;
+    border: solid 1px var(--black);
+}
+
+.runningwhite div {
     background-color: #F5F5F5;
     border: solid 1px #222222;
     border: solid 1px var(--black);

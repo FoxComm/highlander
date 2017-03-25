@@ -1,6 +1,6 @@
 /* @flow */
 
-import { createReducer } from 'redux-act';
+import { createReducer, createAction } from 'redux-act';
 import { createAsyncActions } from '@foxcomm/wings';
 import { addTaxonomyFilter, addTaxonomiesAggregation, addMustNotFilter, defaultSearch, termFilter } from 'lib/elastic';
 import _ from 'lodash';
@@ -8,10 +8,12 @@ import { api } from 'lib/api';
 
 export type Facet = {
   label: string,
-  value: string
+  value: string,
+  count: number,
 }
 
 export type Facets = {
+  key: string,
   name: string,
   kind: string,
   values: Array<Facet>,
@@ -40,6 +42,7 @@ function apiCall(
   categoryName: ?string,
   productType: ?string,
   sorting: { direction: number, field: string },
+  selectedFacets: Array<Object>,
   { ignoreGiftCards = true } = {}): Promise<*> {
   let payload = defaultSearch(context);
 
@@ -54,7 +57,17 @@ function apiCall(
   // Example: adds 'color:Black' taxon. payload = addTaxonomyFilter(payload, 'color', 'Black');
   payload = addTaxonomiesAggregation(payload);
 
-  return this.api.post(`/search/public/products_catalog_view/_search?size=${MAX_RESULTS}`, payload);
+  _.forEach(selectedFacets, (f) => {
+    payload = addTaxonomyFilter(payload, f.facet, f.value);
+  });
+
+    return this.api.post(`/search/public/products_catalog_view/_search?size=${MAX_RESULTS}`, payload)
+    .then((payload) => {
+      return {
+        payload: payload,
+        selectedFacets,
+      };
+    });
 }
 
 function searchGiftCards() {
@@ -65,14 +78,60 @@ const {fetch, ...actions} = createAsyncActions('products', apiCall);
 
 const initialState = {
   list: [],
+  facets: [],
 };
 
+function determineFacetKind(f) {
+  if(f.includes('color')) return 'color';
+  else if(f.includes('size')) return 'circle';
+  else return 'checkbox';
+}
+
+function titleCase(t) { 
+  return _.startCase(_.toLower(t));
+}
+
+function mapFacetValue(v, kind) {
+  if(kind == 'color') {
+    v = _.toLower(v);
+    v = v.replace(/\s/g, '');
+  } 
+
+  return v;
+}
+
+function mapAggregationsToFacets(aggregations) { 
+    return _.map(aggregations, (a) => {
+      const kind = determineFacetKind(a.key);
+      const values = _.map(a.taxon.buckets, (t) => {
+        return {
+          label: titleCase(t.key),
+          value: mapFacetValue(t.key, kind),
+          count: t.doc_count,
+        };
+      });
+      return {
+        key: a.key,
+        name: titleCase(a.key),
+        kind: kind,
+        values: values,
+      };
+    });
+}
+
 const reducer = createReducer({
-  [actions.succeeded]: (state, payload) => {
-    const result = _.isEmpty(payload.result) ? [] : payload.result;
+  [actions.succeeded]: (state, action) => {
+    const {payload, selectedFacets} = action;
+    const payloadResult = payload.result;
+    const payloadAggregations = payload.aggregations.taxonomies.taxonomy.buckets;
+    const list = _.isEmpty(payloadResult) ? [] : payloadResult;
+    const aggregations = _.isEmpty(payloadAggregations) ? [] : payload.aggregations.taxonomies.taxonomy.buckets;
+    const facets = _.isEmpty(selectedFacets) ? mapAggregationsToFacets(aggregations) : state.facets;
+
     return {
       ...state,
-      list: result,
+      list: list,
+      facets: facets,
     };
   },
 }, initialState);
