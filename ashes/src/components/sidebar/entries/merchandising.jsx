@@ -2,7 +2,7 @@
 
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { get, flow } from 'lodash';
+import { includes, get, flow } from 'lodash';
 import { createReducer } from 'redux-act';
 import { makeLocalStore, addAsyncReducer } from '@foxcomm/wings';
 import { createAsyncActions } from '@foxcomm/wings';
@@ -29,14 +29,14 @@ class MerchandisingEntry extends Component {
     this.props.fetch();
   }
 
-  get renderChildren() {
+  get taxonomiesList() {
     const { claims, routes, taxonomies, currentParams, fetchState } = this.props;
 
     if (!taxonomies || fetchState.inProgress) {
       return <div><WaitAnimation /></div>;
     }
 
-    return taxonomies.map((taxonomy) => {
+    return taxonomies.map((taxonomy: TaxonomyResult) => {
       const linkParams = {
         context: taxonomy.context,
         taxonomyId: taxonomy.taxonomyId
@@ -47,12 +47,12 @@ class MerchandisingEntry extends Component {
           <NavigationItem
             to="taxonomy"
             linkParams={linkParams}
-            currentParams={currentParams}
             icon="taxonomies"
             title={`${taxonomy.name}`}
             routes={routes}
             actualClaims={claims}
             expectedClaims={taxonomyClaims}
+            forceActive={taxonomy.taxonomyId.toString() === currentParams.taxonomyId}
           />
         </li>
       );
@@ -60,18 +60,21 @@ class MerchandisingEntry extends Component {
   }
 
   render() {
-
     const { claims, routes, currentParams } = this.props;
     const allClaims = taxonomyClaims;
 
     if (!anyPermitted(allClaims, claims)) {
-      return <div></div>;
+      return null;
     }
+
+    const routeNames = routes.map(route => route.name);
+    const manageRoute = includes(routeNames, 'taxonomies') && !currentParams.taxonomyId ||
+      includes(routeNames, 'taxonomy') && currentParams.taxonomyId === 'new';
 
     return (
       <div styleName="fc-entries-wrapper">
         <h3>MERCHANDISING</h3>
-        {this.renderChildren}
+        {this.taxonomiesList}
         <li>
           <NavigationItem
             to="taxonomies"
@@ -81,12 +84,12 @@ class MerchandisingEntry extends Component {
             actualClaims={claims}
             expectedClaims={taxonomyClaims}
             currentParams={currentParams}
+            forceActive={manageRoute}
           />
         </li>
       </div>
     );
   }
-
 }
 
 /*
