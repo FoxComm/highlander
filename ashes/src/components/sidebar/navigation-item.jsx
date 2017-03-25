@@ -16,7 +16,7 @@ type Props = {
   to: string,
   icon: string,
   title: string,
-  forceActive: boolean,
+  forceActive?: boolean,
   routes: Array<Object>,
   actualClaims: Claims | string,
   expectedClaims: Claims | string,
