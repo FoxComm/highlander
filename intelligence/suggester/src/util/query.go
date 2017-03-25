@@ -29,8 +29,8 @@ func AntHillQuery(customerId string, channel string) (responses.AntHillResponse,
 		return responses.AntHillResponse{}, errors.New("Unable to locate AntHill Srv Host")
 	}
 
-	action := "/prod-prod/full/" + customerId + "?channel=" + channel
-	resp, reqErr := http.Get(host + port + action)
+	action := "/cust-prod/full/" + customerId + "?channel=" + channel
+	resp, reqErr := http.Get("http://" + host + ":" + port + action)
 	if reqErr != nil {
 		return responses.AntHillResponse{}, reqErr
 	}
