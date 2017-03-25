@@ -8,28 +8,29 @@ import (
 	"os"
 )
 
-var url = os.Getenv("API_URL")
 var antHillSrvHost = os.Getenv("ANTHILL_HOST")
 
-func getPort(srvName string) (string, error) {
+func getHostAndPort(srvName string) (string, string, error) {
+	var host string
 	var port string
 	var portErr error
-	_, port, portErr = LookupSrv(srvName)
+
+	host, port, portErr = LookupSrv(srvName)
 	if portErr != nil {
-		return "", portErr
+		return "", "", portErr
 	}
 
-	return port, nil
+	return host, port, nil
 }
 
-func AntHillQuery() (responses.AntHillResponse, error) {
-	_, err := getPort(antHillSrvHost)
+func AntHillQuery(customerId string, channel string) (responses.AntHillResponse, error) {
+	host, port, err := getHostAndPort(antHillSrvHost)
 	if err != nil {
 		return responses.AntHillResponse{}, errors.New("Unable to locate AntHill Srv Host")
 	}
 
-	testAction := "/api/v1/public/recommend/prod-prod/full/5?channel=5"
-	resp, reqErr := http.Get(url + testAction)
+	action := "/prod-prod/full/" + customerId + "?channel=" + channel
+	resp, reqErr := http.Get(host + port + action)
 	if reqErr != nil {
 		return responses.AntHillResponse{}, reqErr
 	}

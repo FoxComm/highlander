@@ -9,8 +9,10 @@ import (
 )
 
 func GetSuggestion(c echo.Context) error {
-	//customerId := Param("id")
-	queryResponse, queryError := util.AntHillQuery()
+	customerId := c.Param("id")
+	channel := c.QueryParam("channel")
+
+	queryResponse, queryError := util.AntHillQuery(customerId, channel)
 	if queryError != nil {
 		return c.String(http.StatusBadRequest, queryError.Error())
 	}
