@@ -1,12 +1,12 @@
 /* @flow */
 
 // libs
-import _ from 'lodash';
 import React, { Component } from 'react';
-import { browserHistory } from 'lib/history';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import * as actions from 'modules/products';
+import { categoryNameFromUrl } from 'paragons/categories';
+import _ from 'lodash';
 
 // components
 import ProductsList, { LoadingBehaviors } from 'components/products-list/products-list';
@@ -16,15 +16,13 @@ import Breadcrumbs from 'components/breadcrumbs/breadcrumbs';
 // styles
 import styles from './products.css';
 
-// constants
-import { productTypes } from 'modules/categories';
-
 // types
 import { Element, Route } from 'types';
 
 type Params = {
   categoryName: ?string,
-  productType: ?string,
+  subCategory: ?string,
+  leafCategory: ?string,
 };
 
 type Category = {
@@ -49,7 +47,7 @@ type State = {
     direction: number,
     field: string,
   },
-  selectedFacets: [],
+  selectedFacets: {},
 };
 
 // redux
@@ -63,8 +61,6 @@ const mapStateToProps = (state) => {
   };
 };
 
-const defaultProductType = productTypes[0];
-
 class Products extends Component {
   props: Props;
   state: State = {
@@ -72,24 +68,27 @@ class Products extends Component {
       direction: 1,
       field: 'salePrice',
     },
-    selectedFacets: [],
+    selectedFacets: {},
   };
 
   componentWillMount() {
-    const { categoryName, productType } = this.props.params;
+    const { categoryName, subCategory, leafCategory } = this.props.params;
     const { sorting, selectedFacets } = this.state;
-    this.props.fetch(categoryName, productType, sorting, selectedFacets);
+    this.props.fetch([categoryName, subCategory, leafCategory], sorting, selectedFacets);
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    const { categoryName, productType } = this.props.params;
+    const { categoryName, subCategory, leafCategory } = this.props.params;
     const {
       categoryName: nextCategoryName,
-      productType: nextProductType,
+      subCategory: nextSubCategory,
+      leafCategory: nextLeafCategory,
     } = nextProps.params;
 
-    if ((categoryName !== nextCategoryName) || (productType !== nextProductType)) {
-      this.props.fetch(nextCategoryName, nextProductType, this.state.sorting, this.state.selectedFacets);
+    if ((categoryName !== nextCategoryName) ||
+        (subCategory !== nextSubCategory) ||
+        (leafCategory !== nextLeafCategory)) {
+      this.props.fetch([nextCategoryName, nextSubCategory, nextLeafCategory], this.state.sorting, this.state.selectedFacets);
     }
   }
 
@@ -107,70 +106,54 @@ class Products extends Component {
     };
 
     this.setState({selectedFacets: selectedFacets, sorting: newState}, () => {
-      const { categoryName, productType } = this.props.params;
-      this.props.fetch(categoryName, productType, newState, selectedFacets);
+      const { categoryName, subCategory, leafCategory } = this.props.params;
+      this.props.fetch([categoryName, subCategory, leafCategory], newState, selectedFacets);
     });
   }
 
   @autobind
-  onDropDownItemClick (productType = '') {
-    const { categoryName = defaultProductType.toUpperCase() } = this.props.params;
-
-    if (productType.toLowerCase() !== defaultProductType.toLowerCase()) {
-      // $FlowFixMe: categoryName can't be null here
-      browserHistory.push(`/${categoryName}/${productType.toUpperCase()}`);
-    } else {
-      // $FlowFixMe: categoryName can't be null here
-      browserHistory.push(`/${categoryName}`);
-    }
+  categoryName(categoryName: string) {
+    return categoryNameFromUrl(categoryName);
   }
 
   @autobind
   onSelectFacet(facet, value, selected) {
-    console.log('FACET: ' + facet + ' v: ' + value + ' s: ' + selected);
-    let newSelection = [];
+    let newSelection = this.state.selectedFacets;
     if(selected) {
-      newSelection = [
-        ...this.state.selectedFacets,
-        {facet: facet, value: value},
-      ];
-    } else {
-      newSelection = _.filter(this.state.selectedFacets, (f) => {
-        return f.facet != facet && f.value != value;
+      if (facet in newSelection) {
+        newSelection[facet].push(value);
+      } else {
+        newSelection[facet] = [value];
+      }
+    } else if (facet in newSelection) {
+      let values = newSelection[facet];
+      let newValues = _.filter(values, (v) => {
+        return v != value;
       });
+      newSelection[facet] = newValues;
     }
 
     this.setState({selectedFacets: newSelection, sorting: this.state.sorting}, () => {
-      const { categoryName, productType } = this.props.params;
-      this.props.fetch(categoryName, productType, this.state.sorting, newSelection);
+      const { categoryName, subCategory, leafCategory } = this.props.params;
+      this.props.fetch([categoryName, subCategory, leafCategory], this.state.sorting, newSelection);
     });
   }
 
   renderHeader() {
-    const props = this.props;
-    const { categories } = props;
-    const { categoryName } = props.params;
+    const { params } = this.props;
+    const { categoryName, subCategory, leafCategory } = params;
 
-    const realCategoryName =
-      decodeURIComponent(categoryName || '').toUpperCase().replace(/-/g, ' ');
-
-    const category = _.find(categories, {
-      name: realCategoryName,
-    });
-
-    if (!category || !categoryName ||
-      (categoryName.toLowerCase() === defaultProductType.toLowerCase())) {
-      return;
+    let realCategoryName = '';
+    if (leafCategory) {
+      realCategoryName = this.categoryName(leafCategory);
+    } else if (subCategory) {
+      realCategoryName = this.categoryName(subCategory);
+    } else if (categoryName) {
+      realCategoryName = this.categoryName(categoryName);
     }
 
-    const className = `header-${categoryName}`;
-
-    const title = (category.showNameCatPage)
-      ? <h1 styleName="title">{category.name}</h1>
-      : <h1 styleName="title">{category.description}</h1>;
-
     return (
-      <header styleName={className}>
+      <header styleName="header">
         <div styleName="crumbs">
           <Breadcrumbs
             routes={this.props.routes}
@@ -178,7 +161,7 @@ class Products extends Component {
           />
         </div>
         <div>
-          {title}
+          <h1 styleName="title">{realCategoryName}</h1>
         </div>
       </header>
     );

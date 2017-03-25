@@ -6,8 +6,6 @@ import { connect } from 'react-redux';
 
 import NavigationItem from './navigation-item';
 
-import localized from 'lib/i18n';
-
 import * as actions from 'modules/categories';
 
 import styles from './navigation.css';
@@ -16,7 +14,6 @@ type Props = {
   list: Array<any>,
   fetch: Function,
   onClick?: ?Function,
-  t: any,
   path: string,
 };
 
@@ -35,9 +32,9 @@ class Navigation extends Component {
     const categoryItems = _.map(this.props.list, (item) => {
       return (
         <NavigationItem
+          key={`${item.name}-navigation-item`}
           item={item}
           path={path}
-          t={this.props.t}
           onClick={this.props.onClick}
         />
       );
@@ -51,4 +48,4 @@ class Navigation extends Component {
   }
 }
 
-export default connect(getState, actions)(localized(Navigation));
+export default connect(getState, actions)(Navigation);

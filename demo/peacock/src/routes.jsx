@@ -52,7 +52,7 @@ export default function makeRoutes(store) {
         <Route path="/products/:productSlug" component={Pdp} name="product" />
         <Route path="/gift-cards" component={Pdp} name="gift-cards" />
         <Route path="/search/:term" component={Search} name="search" />
-        <Route path=":categoryName(/:productType)" component={Products} name="category" />
+        <Route path=":categoryName(/:subCategory(/:leafCategory))" component={Products} name="category" />
       </Route>
     </Route>
   );

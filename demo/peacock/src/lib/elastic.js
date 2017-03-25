@@ -1,5 +1,6 @@
 /* @flow */
 import { assoc } from 'sprout-data';
+import _ from 'lodash';
 
 
 export type TermFilter = {
@@ -65,7 +66,12 @@ export function addMustNotFilter(initialQuery: BoolQuery, filter: MatchFilter | 
   );
 }
 
-export function addTaxonomyFilter(initialQuery: BoolQuery, taxonomy, taxon):BoolQuery{
+export function addTaxonomyFilter(initialQuery: BoolQuery, taxonomy, taxons):BoolQuery{
+
+  const taxonTerms = _.map(taxons, (t) => {
+    return {term:{'taxonomies.taxons':t}};
+  });
+
   var filter = {
     nested:{
       path:'taxonomies',
@@ -73,8 +79,7 @@ export function addTaxonomyFilter(initialQuery: BoolQuery, taxonomy, taxon):Bool
             bool:{
               must:[
                 {term:{'taxonomies.taxonomy':taxonomy} },
-                {term:{'taxonomies.taxons':taxon}}
-                  //TODO: add more "{term:{'taxonomies.taxons':taxon}}" items if there are multiple taxons of the _SAME_ taxonomy.
+                {query: { bool: {should: taxonTerms}}},
               ]
             }
           }
@@ -127,4 +132,23 @@ export function addMatchQuery(query: BoolQuery, searchString: string): BoolQuery
   };
 
   return addMustFilter(query, matchFilter);
+}
+
+export function addNestedTermFilter(query: BoolQuery, block: string, path: string, term: TermFilter): BoolQuery {
+  const filter = {
+    nested: {
+      path: block,
+      query: {
+        bool: {
+          filter: {
+            term: {
+              [path]: term
+            }
+          }
+        }
+      }
+    }
+  };
+
+  return assoc(query, ['query', 'bool', 'filter'], [...query.query.bool.filter || [], filter]);
 }

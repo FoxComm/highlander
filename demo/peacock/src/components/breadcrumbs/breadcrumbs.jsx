@@ -52,10 +52,6 @@ export default class Breadcrumbses extends React.Component {
     )(parts);
     const title = _.get(route, 'title', titlePath);
 
-    if (route.name == 'category') {
-      return _.get(this.props, ['params', 'categoryName'], title);
-    }
-
     let titleParam = route.titleParam;
     if (!titleParam && route.path && route.path[0] === ':') {
       titleParam = route.path;
@@ -72,6 +68,34 @@ export default class Breadcrumbses extends React.Component {
     return <Delimiter idx={idx} />;
   }
 
+  get categoryRoutes(): Array<Object> {
+    const categoryName = _.get(this.props, ['params', 'categoryName']);
+    const subCategory = _.get(this.props, ['params', 'subCategory']);
+    const leafCategory = _.get(this.props, ['params', 'leafCategory']);
+
+    const categoryRoutes = [];
+    if (categoryName) {
+      categoryRoutes.push({
+        path: `/${categoryName}`,
+        name: categoryName,
+      });
+    }
+    if (subCategory) {
+      categoryRoutes.push({
+        path: `/${categoryName}/${subCategory}`,
+        name: subCategory,
+      });
+    }
+    if (leafCategory) {
+      categoryRoutes.push({
+        path: `/${categoryName}/${subCategory}/${leafCategory}`,
+        name: leafCategory,
+      });
+    }
+
+    return categoryRoutes;
+  }
+
   get crumbs(): Array<Element<*>> {
     return _.compact(_.map(this.props.routes, (route) => {
       let result = null;
@@ -82,6 +106,11 @@ export default class Breadcrumbses extends React.Component {
         result = (
           <HomeCrumb params={this.props.params} />
         );
+      } else if (_.isEmpty(route.indexRoute) && route.name === 'category') {
+        const categoryRoutes = this.categoryRoutes;
+        result = _.map(categoryRoutes, part => (
+          <Crumb to={part.path} params={this.props.params} name={this.readableName(part)} />
+        ));
       } else if (_.isEmpty(route.indexRoute)) {
         result = (
           <Crumb to={route.name} params={this.props.params} name={this.readableName(route)} />
@@ -97,7 +126,7 @@ export default class Breadcrumbses extends React.Component {
   }
 
   render() {
-    const fromRoutes = this.crumbs;
+    const fromRoutes = _.flatten(this.crumbs);
 
     const delimeters = _.range(1, fromRoutes.length).map((idx) => {
       return this.delimeter(idx);
