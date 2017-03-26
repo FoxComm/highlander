@@ -6,13 +6,14 @@ import React from 'react';
 // components
 import TreeNode from 'components/tree-node/tree-node';
 
+// types
 import type { Node } from 'components/tree-node/tree-node';
 
 type Props = {
   taxons: TaxonsTree,
   activeTaxonId: string,
   handleTaxonClick: (id: number) => any,
-  getTitle: (node: TaxonNode) => string,
+  getTitle: (node: Taxon) => string,
 }
 
 const _reduce = (res: Array<Node<Taxon>>, node: TaxonNode) => {

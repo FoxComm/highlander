@@ -1,11 +1,14 @@
 // @flow
 
 // libs
+import { get, flow } from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { transitionTo } from 'browserHistory';
 import { autobind } from 'core-decorators';
-import { get } from 'lodash';
+import { createReducer } from 'redux-act';
+import { makeLocalStore, addAsyncReducer } from '@foxcomm/wings';
+import { createAsyncActions } from '@foxcomm/wings';
 
 // components
 import { AddButton } from 'components/common/buttons';
@@ -14,7 +17,7 @@ import HierarchicalTaxonomyListWidget from './hierarchical-taxonomy-widget';
 import FlatTaxonomyListWidget from './flat-taxonomy-widget';
 
 // actions
-import { fetch as fetchTaxonomy } from 'modules/taxonomies/details';
+import { fetchTaxonomyInternal as fetchTaxonomy } from 'modules/taxonomies/details';
 
 // style
 import styles from './taxon-list-widget.css';
@@ -64,7 +67,7 @@ class TaxonListWidget extends Component {
   render() {
     const { taxonomy, fetchState, activeTaxonId } = this.props;
 
-    if (fetchState.inProgress && !fetchState.err) {
+    if (!taxonomy || fetchState.inProgress && !fetchState.err) {
       return <div><WaitAnimation /></div>;
     }
 
@@ -79,7 +82,7 @@ class TaxonListWidget extends Component {
           taxons={taxonomy.taxons}
           activeTaxonId={activeTaxonId}
           handleTaxonClick={this.handleTaxonClick}
-          getTitle={(node: TaxonNode) => get(node, 'attributes.name.v')}
+          getTitle={(node: Taxon) => get(node, 'attributes.name.v')}
         />
         <div styleName="footer">
           <AddButton className="fc-btn-primary" onClick={this.handleAddButton}>
@@ -89,12 +92,22 @@ class TaxonListWidget extends Component {
       </div>
     );
   }
-
 }
 
+/*
+ * Local redux store
+ */
+
+const reducer = createReducer({
+  [fetchTaxonomy.succeeded]: (state, response) => ({ ...state, taxonomy: response }),
+});
+
 const mapState = state => ({
-  taxonomy: get(state.taxonomies, 'details.taxonomy', {}),
+  taxonomy: state.taxonomy,
   fetchState: get(state.asyncActions, 'fetchTaxonomy', {})
 });
 
-export default connect(mapState, { fetchTaxonomy })(TaxonListWidget);
+export default flow(
+  connect(mapState, { fetchTaxonomy: fetchTaxonomy.perform }),
+  makeLocalStore(addAsyncReducer(reducer), { taxonomy: null }),
+)(TaxonListWidget);

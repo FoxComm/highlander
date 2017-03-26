@@ -19,6 +19,9 @@
     },
     {
       "type": "watchers"
+    },
+    {
+      "type": "taxonList"
     }
   ]
 }

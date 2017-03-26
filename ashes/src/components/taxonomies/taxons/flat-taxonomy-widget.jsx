@@ -11,7 +11,7 @@ type Props = {
   taxons: TaxonsTree,
   activeTaxonId: string,
   handleTaxonClick: (id: number) => any,
-  getTitle: (node: TaxonNode) => string,
+  getTitle: (taxon: Taxon) => string,
 };
 
 export default ({ taxons, activeTaxonId, handleTaxonClick, getTitle }: Props) => (
@@ -23,7 +23,7 @@ export default ({ taxons, activeTaxonId, handleTaxonClick, getTitle }: Props) =>
 
         return (
           <div className={className} onClick={() => handleTaxonClick(id)} key={id}>
-            {getTitle(item)}
+            {getTitle(item.taxon)}
           </div>
         );
       }

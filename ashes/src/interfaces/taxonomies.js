@@ -36,3 +36,10 @@ declare type TaxonResult = {
   parentId?: number,
   name: string,
 };
+
+declare type TaxonNode = {
+  children: TaxonsTree,
+  taxon: Taxon,
+};
+
+declare type TaxonsTree = Array<TaxonNode>;
