@@ -19,16 +19,29 @@ import { fetch as fetchTaxonomy } from 'modules/taxonomies/details';
 // style
 import styles from './taxon-list-widget.css';
 
+type Props = {
+  context: string,
+  taxonomyId: string,
+  activeTaxonId: string,
+  taxonomy: Taxonomy,
+  fetchState: AsyncState,
+  fetchTaxonomy: (id: number | string) => Promise<*>,
+};
+
 class TaxonListWidget extends Component {
+  props: Props;
 
   componentDidMount() {
-    const { id, context } = this.props;
-    this.props.fetchTaxonomy(id, context);
+    const { taxonomy, taxonomyId, context } = this.props;
+
+    if (!taxonomy) {
+      this.props.fetchTaxonomy(taxonomyId, context);
+    }
   }
 
-  transition(id: number|string) {
+  transition(id: number | string) {
     transitionTo('taxon-details', {
-      taxonomyId: this.props.id,
+      taxonomyId: this.props.taxonomy.id,
       context: this.props.context,
       taxonId: id
     });
@@ -36,60 +49,38 @@ class TaxonListWidget extends Component {
 
   @autobind
   handleTaxonClick(id: number) {
-    const { currentTaxon } = this.props;
-
-    if (currentTaxon !== id.toString()) {
+    if (this.props.activeTaxonId !== id.toString()) {
       this.transition(id);
     }
   }
 
   @autobind
   handleAddButton() {
-    if (this.props.currentTaxon !== 'new') {
+    if (this.props.activeTaxonId !== 'new') {
       this.transition('new');
     }
   }
 
-  get content() {
-    const { taxonomy: { taxons, hierarchical }, currentTaxon } = this.props;
-
-    if (!hierarchical) {
-
-      return (
-        <FlatTaxonomyListWidget
-          taxons={taxons}
-          currentTaxon={currentTaxon}
-          handleTaxonClick={this.handleTaxonClick}
-        />
-      );
-    }
-
-    if (hierarchical) {
-
-      return (
-        <HierarchicalTaxonomyListWidget
-          taxons={taxons}
-          currentTaxon={currentTaxon}
-          handleTaxonClick={this.handleTaxonClick}
-        />
-      );
-    }
-
-  }
-
-  render () {
-    const { taxonomy, fetchState } = this.props;
+  render() {
+    const { taxonomy, fetchState, activeTaxonId } = this.props;
 
     if (fetchState.inProgress && !fetchState.err) {
       return <div><WaitAnimation /></div>;
     }
 
+    const TaxonsWidget = taxonomy.hierarchical ? HierarchicalTaxonomyListWidget : FlatTaxonomyListWidget;
+
     return (
       <div styleName="root">
         <div styleName="header">
-          {taxonomy.attributes.name.v}
+          {get(taxonomy, 'attributes.name.v')}
         </div>
-          {this.content}
+        <TaxonsWidget
+          taxons={taxonomy.taxons}
+          activeTaxonId={activeTaxonId}
+          handleTaxonClick={this.handleTaxonClick}
+          getTitle={(node: TaxonNode) => get(node, 'attributes.name.v')}
+        />
         <div styleName="footer">
           <AddButton className="fc-btn-primary" onClick={this.handleAddButton}>
             Value

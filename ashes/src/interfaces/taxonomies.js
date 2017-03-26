@@ -2,7 +2,7 @@ declare type TaxonomyDraft = {
   context: Context,
   hierarchical: boolean,
   attributes: Attributes,
-  taxons: Array<Object>,
+  taxons: TaxonsTree,
 };
 
 declare type Taxonomy = TaxonomyDraft & {

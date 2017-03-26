@@ -1,4 +1,3 @@
-
 .node {
   display: none;
   line-height: 46px;
@@ -14,7 +13,6 @@
       background-color: #F7F7F7;;
     }
   }
-
 }
 
 .item {
@@ -26,7 +24,6 @@
 }
 
 .attributes {
-
   &:hover {
    cursor: pointer;
   }
@@ -37,5 +34,4 @@
     height: 24px;
     margin-bottom: 8px;
   }
-
 }
