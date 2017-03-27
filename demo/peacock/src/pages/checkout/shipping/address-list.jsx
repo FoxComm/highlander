@@ -237,10 +237,11 @@ class AddressList extends Component {
     return (
       <CheckoutForm
         submit={() => this.finishEditingAddress(id)}
-        buttonLabel="Save Address"
+        buttonLabel="Save address"
         title={title}
         action={action}
         error={this.state.error}
+        inProgress={_.get(this.props.updateAddressState, 'inProgress', false)}
       >
         <div styleName="edit-form">
           <EditAddress address={address} onUpdate={this.setNewAddress} />

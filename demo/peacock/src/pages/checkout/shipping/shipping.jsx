@@ -149,6 +149,7 @@ function mapStateToProps(state) {
     saveShippingState: _.get(state.asyncActions, 'saveShippingAddress', {}),
     modalVisible: _.get(state.checkout, 'modalVisible', false),
     addressesState: _.get(state.asyncActions, 'addresses', {}),
+    updateAddressState: _.get(state.asyncActions, 'updateAddress', false),
   };
 }
 
