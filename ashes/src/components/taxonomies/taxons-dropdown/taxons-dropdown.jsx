@@ -34,7 +34,6 @@ type Props = {
 
 type State = {
   token: string,
-  ddOpen: boolean,
   treeMode: boolean,
 };
 
@@ -78,12 +77,13 @@ const buildTaxonsDropDownItems = (taxons: TaxonsTree, prefix: string, sep: strin
 const mapNeedle = (token: string) => (part: string, i: number, arr: Array<string>) =>
   part.replace(new RegExp(token, 'ig'), x => `<span class=${styles.needle}>${x}</span>`);
 
-const filterItems = (toFilter: Array<DDItem>) => (token: string): Array<DDItem> => {
+const filterItems = (toFilter: Array<DDItem>, token: string, current: Taxon): Array<DDItem> => {
   if (!token.length) {
     return toFilter;
   }
 
   return toFilter
+    .filter(({ id }) => id !== current.id)
     .filter(({ path }) => path.toLowerCase().indexOf(token.toLowerCase()) > -1)
     .map(item => assoc(item, 'path', item.path.split(SEP).map(mapNeedle(token)).join(SEP)));
 };
@@ -93,9 +93,10 @@ export default class TaxonsDropdown extends Component {
 
   state: State = {
     token: '',
-    ddOpen: false,
     treeMode: false,
   };
+
+  _d: GenericDropdown;
 
   get parentItems(): Array<DDItem> {
     const taxons = this.props.taxonomy.taxons;
@@ -107,13 +108,14 @@ export default class TaxonsDropdown extends Component {
   handleTokenChange({ target }: { target: HTMLInputElement }) {
     this.setState({
       token: target.value,
-      ddOpen: target.value.length > 0,
     });
   }
 
   @autobind
   handleParentSelect(id: ?number) {
-    this.setState({ ddOpen: false, token: '' });
+    this.setState({ token: '' });
+
+    this._d.closeMenu();
 
     this.props.onChange(id);
   }
@@ -123,17 +125,12 @@ export default class TaxonsDropdown extends Component {
     return (e: MouseEvent) => {
       handleToggleClick(e);
 
-      this.setState({ ddOpen: !this.state.ddOpen, treeMode: treeMode });
+      this.setState({ treeMode: treeMode });
     };
   }
 
   @autobind
-  close() {
-    this.setState({ ddOpen: false });
-  }
-
-  @autobind
-  renderInput(value: number, title: string, props: any, handleToggleClick: (e: Mouse) => void): Element<*> {
+  renderInput(value: any, title: any, props: any, handleToggleClick: (e: MouseEvent) => void): Element<*> {
     const parentId = get(this.props.taxon, ['location', 'parent']);
     const parent = findNode(this.props.taxonomy.taxons, parentId);
     const parentName = getName(parent, null);
@@ -153,13 +150,13 @@ export default class TaxonsDropdown extends Component {
     );
   }
 
-  get searchResults(): Array<Element<*>> {
-    const items = filterItems(this.parentItems)(this.state.token);
+  get searchResults(): Array<Element<any>> {
+    const items = filterItems(this.parentItems, this.state.token, this.props.taxon);
 
     if (this.state.treeMode) {
       return renderTree({
         taxons: this.props.taxonomy.taxons,
-        handleClick: this.handleParentSelect,
+        onClick: this.handleParentSelect,
         getTitle: getName,
       });
     }
@@ -175,11 +172,11 @@ export default class TaxonsDropdown extends Component {
     return (
       <GenericDropdown
         className={styles.dropdown}
-        // open={this.state.ddOpen}
         onChange={this.handleParentSelect}
         renderDropdownInput={this.renderInput}
         emptyMessage="No values found"
         noControls
+        ref={d => this._d = d}
       >
         {this.searchResults}
       </GenericDropdown>

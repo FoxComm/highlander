@@ -80,7 +80,7 @@ class TaxonListWidget extends Component {
         <TaxonsWidget
           taxons={taxonomy.taxons}
           activeTaxonId={activeTaxonId}
-          handleTaxonClick={this.handleTaxonClick}
+          onClick={this.handleTaxonClick}
           getTitle={(node: Taxon) => get(node, 'attributes.name.v')}
         />
         <div styleName="footer">

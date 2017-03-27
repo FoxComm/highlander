@@ -9,12 +9,12 @@ import styles from './taxon-list-widget.css';
 
 type Props = {
   taxons: TaxonsTree,
-  activeTaxonId: string,
-  handleTaxonClick: (id: number) => any,
+  activeTaxonId?: string,
+  onClick: (id: number) => any,
   getTitle: (taxon: Taxon) => string,
 };
 
-export default ({ taxons, activeTaxonId, handleTaxonClick, getTitle }: Props) => (
+export default ({ taxons, activeTaxonId, onClick, getTitle }: Props) => (
   <div>
     {taxons.map((item: TaxonNode) => {
         const id = item.taxon.id;
@@ -22,7 +22,7 @@ export default ({ taxons, activeTaxonId, handleTaxonClick, getTitle }: Props) =>
         const className = classNames(styles.item, { [styles.active]: active });
 
         return (
-          <div className={className} onClick={() => handleTaxonClick(id)} key={id}>
+          <div className={className} onClick={() => onClick(id)} key={id}>
             {getTitle(item.taxon)}
           </div>
         );

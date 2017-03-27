@@ -3,7 +3,7 @@
 // libs
 import noop from 'lodash/noop';
 import { autobind } from 'core-decorators';
-import React, { Component } from 'react';
+import React, { Component, Element } from 'react';
 import classNames from 'classnames';
 
 // style
@@ -21,8 +21,8 @@ type Props<T> = {
   visible: boolean,
   node: Node<T>,
   depth: number,
-  handleClick: (id: number) => void,
-  currentObjectId: string,
+  onClick: (id: number) => void,
+  currentObjectId?: string,
   getTitle: (node: T) => string,
 }
 
@@ -34,7 +34,7 @@ export default class TreeNode extends Component {
   };
 
   static defaultProps = {
-    handleClick: noop,
+    onClick: noop,
   };
 
   @autobind
@@ -64,7 +64,7 @@ export default class TreeNode extends Component {
     return <span styleName="text">{getTitle(node.node)}</span>;
   }
 
-  get children() {
+  get children(): ?Array<Element<*>> {
     const { node, depth, visible, currentObjectId, ...rest } = this.props;
 
     if (!node.children) {
@@ -84,8 +84,8 @@ export default class TreeNode extends Component {
     );
   }
 
-  get node() {
-    const { node, depth, currentObjectId, handleClick } = this.props;
+  get node(): Element<*> {
+    const { node, depth, currentObjectId, onClick } = this.props;
     const active = node.node.id.toString() === currentObjectId;
 
     const className = classNames(styles.node, {
@@ -96,7 +96,7 @@ export default class TreeNode extends Component {
 
     return (
       <div className={className}>
-        <div styleName="item" onClick={() => handleClick(node.node.id)} style={style}>
+        <div styleName="item" onClick={() => onClick(node.node.id)} style={style}>
           <div styleName="attributes">
             {this.icon}
             {this.label}

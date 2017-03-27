@@ -15,6 +15,12 @@ export type ValueType = ?string | number;
 
 export type DropdownItemType = [ValueType, string | Element<*>, bool];
 
+export type MouseHandler = (e: MouseEvent) => void;
+
+export type RenderDropdownFunction = (value: any, title:
+                                        ?string
+                                        | Element<*>, props: Props, handleToggleClick: MouseHandler) => Element<*>
+
 export type Props = {
   id?: string,
   dropdownValueId?: string,
@@ -32,7 +38,7 @@ export type Props = {
   changeable?: bool,
   disabled?: bool,
   inputFirst?: bool,
-  renderDropdownInput?: () => Element<*>,
+  renderDropdownInput?: RenderDropdownFunction,
   renderNullTitle?: Function,
   renderPrepend?: Function,
   renderAppend?: Function,
@@ -219,9 +225,8 @@ export default class GenericDropdown extends Component {
     if (this.props.disabled) {
       return;
     }
-    this.setState({
-      open: !this.state.open
-    });
+
+    this.toggleMenu();
   }
 
   @autobind
@@ -236,6 +241,11 @@ export default class GenericDropdown extends Component {
         this.props.onChange(value, title);
       }
     });
+  }
+
+  @autobind
+  toggleMenu() {
+    this.setState({ open: !this.state.open });
   }
 
   @autobind

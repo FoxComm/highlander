@@ -1,7 +1,7 @@
 // @flow
 
 // libs
-import React from 'react';
+import React, { Element } from 'react';
 
 // components
 import TreeNode from 'components/tree-node/tree-node';
@@ -11,10 +11,9 @@ import type { Node } from 'components/tree-node/tree-node';
 
 type Props = {
   taxons: TaxonsTree,
-  activeTaxonId: string,
-  handleClick: (id: number) => any,
+  activeTaxonId?: string,
+  onClick: (id: number) => any,
   getTitle: (node: Taxon) => string,
-  wrapWith: Element<*>,
 }
 
 const _reduce = (res: Array<Node<Taxon>>, node: TaxonNode) => {
@@ -27,7 +26,7 @@ const _reduce = (res: Array<Node<Taxon>>, node: TaxonNode) => {
 
 const prepareTree = (taxons: TaxonsTree): Array<Node<Taxon>> => taxons.reduce(_reduce, []);
 
-export const renderTree = ({ taxons, activeTaxonId = '', ...rest }: Props) =>
+export const renderTree = ({ taxons, activeTaxonId = '', ...rest }: Props): Array<Element<any>> =>
   prepareTree(taxons).map((item: Node<Taxon>) => (
     <TreeNode
       node={item}
