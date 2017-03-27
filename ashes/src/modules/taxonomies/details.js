@@ -53,6 +53,7 @@ export const clearArchiveErrors = _archiveTaxonomy.clearErrors;
 export const create = _createTaxonomy.perform;
 export const update = _updateTaxonomy.perform;
 export const archive = _archiveTaxonomy.perform;
+export const fetchTaxonomyInternal = _fetchTaxonomy;
 
 export const fetch = (id: string, context: string = defaultContext): ActionDispatch => {
   return dispatch => {
@@ -74,7 +75,7 @@ const reducer = createReducer({
   [reset]: () => initialState,
   [duplicate]: (state) => ({
     ...initialState,
-    taxonomy: duplicateTaxonomy(_.get(state, 'taxonomy', {} ))
+    taxonomy: duplicateTaxonomy(_.get(state, 'taxonomy', {}))
   }),
   [_fetchTaxonomy.succeeded]: (state, taxonomy) => ({ ...state, taxonomy }),
   [_createTaxonomy.succeeded]: (state, taxonomy) => ({ ...state, taxonomy }),

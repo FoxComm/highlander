@@ -7,22 +7,25 @@ import classNames from 'classnames';
 // style
 import styles from './tree-node.css';
 
-type Props = {
-  visible: boolean,
-  node: Node,
-  depth: number,
-  handleClick: (id: number) => void,
-  currentObject: string,
+export type Node<T> = {
+  children: ?Array<Node<T>>,
+  node: {
+    id: number,
+    [key: string]: any,
+  },
 }
 
-type Node = {
-  taxon: Taxon,
-  children?: Array<Node>
+type Props<T> = {
+  visible: boolean,
+  node: Node<T>,
+  depth: number,
+  handleClick: (id: number) => void,
+  currentObjectId: string,
+  getTitle: (node: T) => string,
 }
 
 export default class TreeNode extends Component {
-
-  props: Props;
+  props: Props<*>;
 
   state = {
     expanded: false,
@@ -36,26 +39,28 @@ export default class TreeNode extends Component {
   }
 
   renderChildren() {
-    const { node, depth, visible, handleClick, currentObject } = this.props;
-    const active = node.taxon.id.toString() === currentObject;
-    const className = classNames(styles['node'],
+    const { node, depth, visible, handleClick, currentObjectId, getTitle } = this.props;
+    const active = node.node.id.toString() === currentObjectId;
+    const className = classNames(styles.node,
       { [styles.visible]: visible }, { [styles.active]: active });
 
-    if (!node.children) { return null; }
+    if (!node.children) {
+      return null;
+    }
 
-     return node.children.map((child) => (
-          <div key={child.taxon.id}>
-            <TreeNode
-              visible={this.state.expanded && visible}
-              node={child}
-              depth={depth+20}
-              className={className}
-              handleClick={handleClick}
-              currentObject={currentObject}
-            />
-          </div>
-        )
-      );
+    return node.children.map((child: Node<any>) => (
+        <TreeNode
+          visible={this.state.expanded && visible}
+          node={child}
+          depth={depth + 20}
+          className={className}
+          handleClick={handleClick}
+          currentObjectId={currentObjectId}
+          getTitle={getTitle}
+          key={child.node.id}
+        />
+      )
+    );
 
   }
 
@@ -73,26 +78,23 @@ export default class TreeNode extends Component {
   }
 
   get renderText() {
-    const { node: { taxon }, handleClick } = this.props;
+    const { node, getTitle, handleClick } = this.props;
     return (
-      <span
-        styleName="text"
-        onClick={() => handleClick(taxon.id)}
-      >
-        {taxon.attributes.name.v}
+      <span styleName="text" onClick={() => handleClick(node.node.id)}>
+        {getTitle(node.node)}
       </span>
     );
   }
 
   render() {
-    const { node, depth, visible, currentObject } = this.props;
-    const active = node.taxon.id.toString() === currentObject;
+    const { node, depth, visible, currentObjectId } = this.props;
+    const active = node.node.id.toString() === currentObjectId;
     const className = classNames(styles['node'], {
       [styles.visible]: visible,
       [styles.active]: active,
     });
 
-    return(
+    return (
       <div>
         <div className={className}>
           <div

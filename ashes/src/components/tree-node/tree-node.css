@@ -1,5 +1,5 @@
-
 .node {
+  position: relative;
   display: none;
   line-height: 46px;
   font-size: 13px;
@@ -10,11 +10,19 @@
     display: block;
 
     &.active {
-      border-left: 3px solid #49C2CA;
       background-color: #F7F7F7;;
+
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background: #49C2CA;
+      }
     }
   }
-
 }
 
 .item {
@@ -26,9 +34,8 @@
 }
 
 .attributes {
-
   &:hover {
-   cursor: pointer;
+    cursor: pointer;
   }
 
   & i {
@@ -37,5 +44,4 @@
     height: 24px;
     margin-bottom: 8px;
   }
-
 }

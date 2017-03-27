@@ -58,7 +58,8 @@ class ArchiveActions extends Component {
         <Button
           id="archive-btn"
           type="button"
-          onClick={this.showArchiveConfirmation}>
+          onClick={this.showArchiveConfirmation}
+        >
           Archive {this.props.type}
         </Button>
         <ArchiveConfirmation
