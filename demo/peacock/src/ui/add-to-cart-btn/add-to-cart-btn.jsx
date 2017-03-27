@@ -14,7 +14,7 @@ type Props = {
 const AddToCartBtn = (props: Props) => {
   return (
     <Button {...props}>
-      Add to bag
+      Add to cart
     </Button>
   );
 };
