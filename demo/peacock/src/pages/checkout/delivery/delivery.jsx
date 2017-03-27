@@ -10,6 +10,7 @@ import Currency from 'ui/currency';
 import EditDelivery from './edit-delivery';
 import ViewDelivery from './view-delivery';
 import ActionLink from 'ui/action-link/action-link';
+import Modal from 'ui/modal/modal';
 
 // styles
 import styles from './delivery.css';
@@ -43,15 +44,23 @@ class Delivery extends Component {
   get content() {
     if (this.props.isEditing) {
       return (
-        <EditDelivery {...this.props} shippingMethodCost={this.shippingMethodCost} />
+
       );
     }
 
     return (
-      <ViewDelivery
-        shippingMethodCost={this.shippingMethodCost}
-        shippingMethod={this.props.shippingMethod}
-      />
+      <div>
+        <ViewDelivery
+          shippingMethodCost={this.shippingMethodCost}
+          shippingMethod={this.props.shippingMethod}
+        />
+        <Modal
+          show={deliveryModalVisible}
+          toggle={toggleDeliveryModal}
+        >
+          <EditDelivery {...this.props} shippingMethodCost={this.shippingMethodCost} />
+        </Modal>
+      </div>
     );
   }
 
