@@ -13,10 +13,9 @@
   }
 }
 
-.shipping {
+.shipping, .delivery {
   border-bottom: 1px solid var(--border-color);
   margin: 15px;
-  max-height: 150px;
 }
 
 .summary {
@@ -57,6 +56,10 @@
 }
 
 @media (--small-only) {
+  .shipping, .delivery {
+    max-height: 150px;
+  }
+
   .checkout-block {
     & > header {
       flex-direction: column;
@@ -117,9 +120,10 @@
     margin-top: 25px;
     display: flex;
     justify-content: space-between;
+    align-items: baseline;
   }
 
-  .shipping {
+  .shipping, .delivery {
     lost-column: 4/12;
     border: 1px solid var(--border-color);
     border-radius: 4px;

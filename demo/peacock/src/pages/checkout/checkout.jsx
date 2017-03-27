@@ -11,7 +11,7 @@ import { emailIsSet, isGuest } from 'paragons/auth';
 
 // components
 import Shipping from './shipping/shipping';
-// import Delivery from './delivery/delivery';
+import Delivery from './delivery/delivery';
 // import Billing from './billing/billing';
 import GuestAuth from './guest-auth/guest-auth';
 // import OrderSummary from 'components/order-summary/order-summary';
@@ -204,8 +204,7 @@ class Checkout extends Component {
         <div styleName="wrapper">
           <div styleName="shipping">
             <Shipping
-              isEditing={props.editStage == EditStages.SHIPPING}
-              collapsed={props.editStage < EditStages.SHIPPING}
+              isEditing={props.editStage}
               editAction={this.setShippingStage}
               onComplete={this.setDeliveryStage}
               addresses={this.props.addresses}
@@ -213,6 +212,17 @@ class Checkout extends Component {
               shippingAddress={_.get(this.props.cart, 'shippingAddress', {})}
               auth={this.props.auth}
               isGuestMode={isGuestMode}
+            />
+          </div>
+          <div styleName="delivery">
+            <Delivery
+              isEditing={props.editStage}
+              editAction={this.setDeliveryStage}
+              onComplete={this.setBillingStage}
+              shippingMethods={props.shippingMethods}
+              cart={this.state.cart}
+              onUpdateCart={this.handleUpdateCart}
+              fetchShippingMethods={props.fetchShippingMethods}
             />
           </div>
 

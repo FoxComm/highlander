@@ -6,10 +6,10 @@ import { autobind } from 'core-decorators';
 import localized from 'lib/i18n';
 
 // components
-import EditableBlock from 'ui/editable-block';
 import Currency from 'ui/currency';
 import EditDelivery from './edit-delivery';
 import ViewDelivery from './view-delivery';
+import ActionLink from 'ui/action-link/action-link';
 
 // styles
 import styles from './delivery.css';
@@ -29,8 +29,18 @@ class Delivery extends Component {
       : <Currency styleName="delivery-cost" value={cost} />;
   }
 
-  @autobind
-  renderContent() {
+
+  get action() {
+    return (
+      <ActionLink
+        action={this.props.toggleModal}
+        title='Choose'
+        styleName="action-link-delivery"
+      />
+    );
+  }
+
+  get content() {
     if (this.props.isEditing) {
       return (
         <EditDelivery {...this.props} shippingMethodCost={this.shippingMethodCost} />
@@ -49,14 +59,13 @@ class Delivery extends Component {
     const { t } = this.props;
 
     return (
-      <EditableBlock
-        isEditing={this.props.isEditing}
-        editAction={this.props.editAction}
-        editAllowed={this.props.editAllowed}
-        styleName="delivery"
-        title={t('DELIVERY')}
-        content={this.renderContent()}
-      />
+      <div>
+        <div styleName="header">
+          <span styleName="title">Delivery</span>
+          {this.action}
+        </div>
+        {this.content}
+      </div>
     );
   }
 }
