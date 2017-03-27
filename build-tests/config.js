@@ -71,4 +71,4 @@ export default {
     testGiftCardFlow: false,
     fullApiSequenceLogging: false,
   },
-}[process.env['BVT_ENV'] || 'STAGE'];
+}[process.env['BVT_ENV'] || 'APPLIANCE-AEMXDP'];

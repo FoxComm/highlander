@@ -1,6 +1,6 @@
 import ava from 'ava';
 import test from '../helpers/test';
-import Api from '../helpers/Api';
+import { AdminApi } from '../helpers/Api';
 import $ from '../payloads';
 import isDate from '../helpers/isDate';
 import isArray from '../helpers/isArray';
@@ -10,17 +10,15 @@ import isNumber from '../helpers/isNumber';
 const newSharedSearchCodes = [];
 
 ava.always.after('Remove shared searches created in tests', async () => {
-  const api = Api.withCookies();
-  await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
+  const adminApi = await AdminApi.loggedIn();
   for (const code of newSharedSearchCodes) {
-    await api.sharedSearches.delete(code);
+    await adminApi.sharedSearches.delete(code);
   }
 });
 
 test('Can list shared searches', async (t) => {
-  const api = Api.withCookies(t);
-  await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
-  const sharedSearches = await api.sharedSearches.list('ordersScope');
+  const adminApi = await AdminApi.loggedIn(t);
+  const sharedSearches = await adminApi.sharedSearches.list('ordersScope');
   t.truthy(isArray(sharedSearches));
   for (const sharedSearch of sharedSearches) {
     t.truthy(isNumber(sharedSearch.id));
@@ -35,10 +33,9 @@ test('Can list shared searches', async (t) => {
 });
 
 test('Can create shared search', async (t) => {
-  const api = Api.withCookies(t);
-  await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
+  const adminApi = await AdminApi.loggedIn(t);
   const payload = $.randomSharedSearchPayload();
-  const newSharedSearch = await api.sharedSearches.create(payload);
+  const newSharedSearch = await adminApi.sharedSearches.create(payload);
   t.truthy(isString(newSharedSearch.code));
   newSharedSearchCodes.push(newSharedSearch.code);
   t.truthy(isNumber(newSharedSearch.id));
@@ -51,24 +48,22 @@ test('Can create shared search', async (t) => {
 });
 
 test('Can view shared search details', async (t) => {
-  const api = Api.withCookies(t);
-  await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
+  const adminApi = await AdminApi.loggedIn(t);
   const payload = $.randomSharedSearchPayload();
-  const newSharedSearch = await api.sharedSearches.create(payload);
+  const newSharedSearch = await adminApi.sharedSearches.create(payload);
   t.truthy(isString(newSharedSearch.code));
   newSharedSearchCodes.push(newSharedSearch.code);
-  const foundSharedSearch = await api.sharedSearches.one(newSharedSearch.code);
+  const foundSharedSearch = await adminApi.sharedSearches.one(newSharedSearch.code);
   t.deepEqual(foundSharedSearch, newSharedSearch);
 });
 
 test('Can delete shared search', async (t) => {
-  const api = Api.withCookies(t);
-  await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
+  const adminApi = await AdminApi.loggedIn(t);
   const payload = $.randomSharedSearchPayload();
-  const newSharedSearch = await api.sharedSearches.create(payload);
-  await api.sharedSearches.delete(newSharedSearch.code);
+  const newSharedSearch = await adminApi.sharedSearches.create(payload);
+  await adminApi.sharedSearches.delete(newSharedSearch.code);
   try {
-    await api.sharedSearches.one(newSharedSearch.code);
+    await adminApi.sharedSearches.one(newSharedSearch.code);
     t.fail('Shared search was found after deletion.');
   } catch (error) {
     if (error && error.response) {
@@ -82,12 +77,11 @@ test('Can delete shared search', async (t) => {
 });
 
 test('Can list associates', async (t) => {
-  const api = Api.withCookies(t);
-  await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
-  const newSharedSearch = await api.sharedSearches.create($.randomSharedSearchPayload());
+  const adminApi = await AdminApi.loggedIn(t);
+  const newSharedSearch = await adminApi.sharedSearches.create($.randomSharedSearchPayload());
   t.truthy(isString(newSharedSearch.code));
   newSharedSearchCodes.push(newSharedSearch.code);
-  const associates = await api.sharedSearches.getAssociates(newSharedSearch.code);
+  const associates = await adminApi.sharedSearches.getAssociates(newSharedSearch.code);
   t.truthy(isArray(associates));
   for (const associate of associates) {
     t.truthy(isNumber(associate.id));
@@ -98,17 +92,16 @@ test('Can list associates', async (t) => {
 });
 
 test('Can add associate', async (t) => {
-  const api = Api.withCookies(t);
-  await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
-  const newSharedSearch = await api.sharedSearches.create($.randomSharedSearchPayload());
+  const adminApi = await AdminApi.loggedIn(t);
+  const newSharedSearch = await adminApi.sharedSearches.create($.randomSharedSearchPayload());
   t.truthy(isString(newSharedSearch.code));
   newSharedSearchCodes.push(newSharedSearch.code);
-  const newStoreAdmin = await api.storeAdmins.create($.randomStoreAdminPayload());
+  const newStoreAdmin = await adminApi.storeAdmins.create($.randomStoreAdminPayload());
   const associationPayload = { associates: [newStoreAdmin.id] };
-  const updatedSharedSearch = await api.sharedSearches
+  const updatedSharedSearch = await adminApi.sharedSearches
     .addAssociate(newSharedSearch.code, associationPayload).then(r => r.result);
   t.deepEqual(updatedSharedSearch, newSharedSearch);
-  const associates = await api.sharedSearches.getAssociates(newSharedSearch.code);
+  const associates = await adminApi.sharedSearches.getAssociates(newSharedSearch.code);
   t.truthy(associates.length > 0);
   const newAssociate = associates.find(a => a.id === newStoreAdmin.id);
   t.is(newAssociate.id, newStoreAdmin.id);
@@ -117,15 +110,14 @@ test('Can add associate', async (t) => {
 });
 
 test('Can remove associate', async (t) => {
-  const api = Api.withCookies(t);
-  await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
-  const newSharedSearch = await api.sharedSearches.create($.randomSharedSearchPayload());
+  const adminApi = await AdminApi.loggedIn(t);
+  const newSharedSearch = await adminApi.sharedSearches.create($.randomSharedSearchPayload());
   t.truthy(isString(newSharedSearch.code));
   newSharedSearchCodes.push(newSharedSearch.code);
-  const newStoreAdmin = await api.storeAdmins.create($.randomStoreAdminPayload());
+  const newStoreAdmin = await adminApi.storeAdmins.create($.randomStoreAdminPayload());
   const associationPayload = { associates: [newStoreAdmin.id] };
-  await api.sharedSearches.addAssociate(newSharedSearch.code, associationPayload);
-  await api.sharedSearches.removeAssociate(newSharedSearch.code, newStoreAdmin.id);
-  const associates = await api.sharedSearches.getAssociates(newSharedSearch.code);
+  await adminApi.sharedSearches.addAssociate(newSharedSearch.code, associationPayload);
+  await adminApi.sharedSearches.removeAssociate(newSharedSearch.code, newStoreAdmin.id);
+  const associates = await adminApi.sharedSearches.getAssociates(newSharedSearch.code);
   t.falsy(associates.find(associate => associate.id === newStoreAdmin.id));
 });

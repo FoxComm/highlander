@@ -1,11 +1,10 @@
 import createCreditCard from './createCreditCard';
 import waitFor from './waitFor';
-import Api from '../helpers/Api';
+import { AdminApi, CustomerApi } from '../helpers/Api';
 import $ from '../payloads';
 
 export default async (t) => {
-  const adminApi = Api.withCookies(t);
-  await adminApi.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
+  const adminApi = await AdminApi.loggedIn(t);
   const credentials = $.randomUserCredentials();
   const newCustomer = await adminApi.customers.create(credentials);
   const newCard = await createCreditCard(adminApi, newCustomer.id);
@@ -15,7 +14,7 @@ export default async (t) => {
   const inventory = await waitFor(500, 10000, () => adminApi.inventories.get(skuCode));
   const stockItemId = inventory.summary.find(item => item.type === 'Sellable').stockItem.id;
   await adminApi.inventories.increment(stockItemId, { qty: 1, status: 'onHand', type: 'Sellable' });
-  const customerApi = Api.withCookies(t);
+  const customerApi = new CustomerApi(t);
   await customerApi.auth.login(credentials.email, credentials.password, $.customerOrg);
   await customerApi.cart.get();
   await customerApi.cart.addSku(skuCode, 1);

@@ -5,6 +5,7 @@ const API_CATEGORY_NAMES = [
 ];
 
 function getAllMethodNames(object) {
+  if (!object) return [];
   const temp = {};
   for (const key of Object.getOwnPropertyNames(object)) {
     temp[key] = true;

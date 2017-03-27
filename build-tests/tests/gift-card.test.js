@@ -1,6 +1,6 @@
 import test from '../helpers/test';
 import testNotes from './testNotes';
-import Api from '../helpers/Api';
+import { AdminApi, CustomerApi } from '../helpers/Api';
 import createCreditCard from '../helpers/createCreditCard';
 import waitFor from '../helpers/waitFor';
 import isNumber from '../helpers/isNumber';
@@ -10,10 +10,9 @@ import $ from '../payloads';
 import config from '../config';
 
 test('Can create a gift card', async (t) => {
-  const api = await Api.withCookies(t);
-  await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
+  const adminApi = await AdminApi.loggedIn(t);
   const payload = $.randomGiftCardPayload();
-  const newGiftCard = await api.giftCards.create(payload);
+  const newGiftCard = await adminApi.giftCards.create(payload);
   t.truthy(isNumber(newGiftCard.id));
   t.truthy(isDate(newGiftCard.createdAt));
   t.truthy(isString(newGiftCard.code));
@@ -30,19 +29,17 @@ test('Can create a gift card', async (t) => {
 });
 
 test('Can view gift card details', async (t) => {
-  const api = await Api.withCookies(t);
-  await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
+  const adminApi = await AdminApi.loggedIn(t);
   const payload = $.randomGiftCardPayload();
-  const newGiftCard = await api.giftCards.create(payload);
-  const foundGiftCard = await api.giftCards.one(newGiftCard.code);
+  const newGiftCard = await adminApi.giftCards.create(payload);
+  const foundGiftCard = await adminApi.giftCards.one(newGiftCard.code);
   t.deepEqual(foundGiftCard, newGiftCard);
 });
 
 test('Can put a gift card "On Hold"', async (t) => {
-  const api = await Api.withCookies(t);
-  await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
-  const newGiftCard = await api.giftCards.create($.randomGiftCardPayload());
-  const updatedGiftCard = await api.giftCards.update(newGiftCard.code, { state: 'onHold' });
+  const adminApi = await AdminApi.loggedIn(t);
+  const newGiftCard = await adminApi.giftCards.create($.randomGiftCardPayload());
+  const updatedGiftCard = await adminApi.giftCards.update(newGiftCard.code, { state: 'onHold' });
   t.is(updatedGiftCard.state, 'onHold');
   t.is(updatedGiftCard.id, newGiftCard.id);
   t.is(updatedGiftCard.createdAt, newGiftCard.createdAt);
@@ -56,11 +53,10 @@ test('Can put a gift card "On Hold"', async (t) => {
 });
 
 test('Can "Cancel" a gift card', async (t) => {
-  const api = await Api.withCookies(t);
-  await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
-  const newGiftCard = await api.giftCards.create($.randomGiftCardPayload());
+  const adminApi = await AdminApi.loggedIn(t);
+  const newGiftCard = await adminApi.giftCards.create($.randomGiftCardPayload());
   const payload = { state: 'canceled', reasonId: 1 };
-  const updatedGiftCard = await api.giftCards.update(newGiftCard.code, payload);
+  const updatedGiftCard = await adminApi.giftCards.update(newGiftCard.code, payload);
   t.is(updatedGiftCard.state, payload.state);
   t.is(updatedGiftCard.canceledReason, payload.reasonId);
   t.is(updatedGiftCard.id, newGiftCard.id);
@@ -76,26 +72,24 @@ test('Can "Cancel" a gift card', async (t) => {
 });
 
 test('Can make gift card "Active"', async (t) => {
-  const api = await Api.withCookies(t);
-  await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
-  const newGiftCard = await api.giftCards.create($.randomGiftCardPayload());
-  const updatedGiftCardOnHold = await api.giftCards.update(newGiftCard.code, { state: 'onHold' });
+  const adminApi = await AdminApi.loggedIn(t);
+  const newGiftCard = await adminApi.giftCards.create($.randomGiftCardPayload());
+  const updatedGiftCardOnHold = await adminApi.giftCards.update(newGiftCard.code, { state: 'onHold' });
   t.is(updatedGiftCardOnHold.state, 'onHold');
-  const updatedActiveGiftCard = await api.giftCards.update(newGiftCard.code, { state: 'active' });
+  const updatedActiveGiftCard = await adminApi.giftCards.update(newGiftCard.code, { state: 'active' });
   t.is(updatedActiveGiftCard.state, 'active');
 });
 
 if (config.testGiftCardFlow) {
   test('Can send gift card to a customer', async (t) => {
-    const adminApi = Api.withCookies(t);
-    await adminApi.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
+    const adminApi = await AdminApi.loggedIn(t);
     const credentials = $.randomUserCredentials();
     const newCustomer = await adminApi.customers.create(credentials);
     const newCard = await createCreditCard(adminApi, newCustomer.id);
     const inventory = await adminApi.inventories.get($.testGiftCardSkuCode);
     const stockItemId = inventory.summary.find(item => item.type === 'Sellable').stockItem.id;
     await adminApi.inventories.increment(stockItemId, { qty: 1, status: 'onHand', type: 'Sellable' });
-    const customerApi = Api.withCookies(t);
+    const customerApi = new CustomerApi(t);
     await customerApi.auth.login(credentials.email, credentials.password, $.customerOrg);
     await customerApi.cart.get();
     const giftCardAttributes = $.randomGiftCardAttributes({ senderName: credentials.name });
@@ -121,6 +115,6 @@ if (config.testGiftCardFlow) {
 
 testNotes({
   objectType: 'gift-card',
-  createObject: api => api.giftCards.create($.randomGiftCardPayload()),
+  createObject: adminApi => adminApi.giftCards.create($.randomGiftCardPayload()),
   selectId: giftCard => giftCard.code,
 });

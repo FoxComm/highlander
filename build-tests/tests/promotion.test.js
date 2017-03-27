@@ -1,15 +1,14 @@
 import test from '../helpers/test';
 import testNotes from './testNotes';
-import Api from '../helpers/Api';
+import { AdminApi } from '../helpers/Api';
 import isNumber from '../helpers/isNumber';
 import isDate from '../helpers/isDate';
 import $ from '../payloads';
 
 test('Can create a promotion', async (t) => {
-  const api = await Api.withCookies(t);
-  await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
+  const adminApi = await AdminApi.loggedIn(t);
   const payload = $.randomCreatePromotionPayload();
-  const newPromotion = await api.promotions.create('default', payload);
+  const newPromotion = await adminApi.promotions.create('default', payload);
   t.truthy(isNumber(newPromotion.id));
   t.is(newPromotion.context.name, 'default');
   t.is(newPromotion.applyType, payload.applyType);
@@ -28,19 +27,17 @@ test('Can create a promotion', async (t) => {
 });
 
 test('Can view promotion details', async (t) => {
-  const api = await Api.withCookies(t);
-  await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
-  const newPromotion = await api.promotions.create('default', $.randomCreatePromotionPayload());
-  const foundPromotion = await api.promotions.one('default', newPromotion.id);
+  const adminApi = await AdminApi.loggedIn(t);
+  const newPromotion = await adminApi.promotions.create('default', $.randomCreatePromotionPayload());
+  const foundPromotion = await adminApi.promotions.one('default', newPromotion.id);
   t.deepEqual(foundPromotion, newPromotion);
 });
 
 test('Can update promotion details', async (t) => {
-  const api = Api.withCookies(t);
-  await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
-  const newPromotion = await api.promotions.create('default', $.randomCreatePromotionPayload());
+  const adminApi = await AdminApi.loggedIn(t);
+  const newPromotion = await adminApi.promotions.create('default', $.randomCreatePromotionPayload());
   const payload = $.randomUpdatePromotionPayload(newPromotion.discounts.map(d => d.id));
-  const updatedPromotion = await api.promotions.update('default', newPromotion.id, payload);
+  const updatedPromotion = await adminApi.promotions.update('default', newPromotion.id, payload);
   t.is(updatedPromotion.id, newPromotion.id);
   t.is(updatedPromotion.context.name, 'default');
   t.is(updatedPromotion.applyType, payload.applyType);
@@ -59,5 +56,5 @@ test('Can update promotion details', async (t) => {
 
 testNotes({
   objectType: 'promotion',
-  createObject: api => api.promotions.create('default', $.randomCreatePromotionPayload()),
+  createObject: adminApi => adminApi.promotions.create('default', $.randomCreatePromotionPayload()),
 });

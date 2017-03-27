@@ -1,6 +1,6 @@
 import test from '../helpers/test';
 import testNotes from './testNotes';
-import Api from '../helpers/Api';
+import { AdminApi } from '../helpers/Api';
 import isNumber from '../helpers/isNumber';
 import isDate from '../helpers/isDate';
 import isArray from '../helpers/isArray';
@@ -8,10 +8,9 @@ import waitFor from '../helpers/waitFor';
 import $ from '../payloads';
 
 test('Can create a new SKU', async (t) => {
-  const api = await Api.withCookies(t);
-  await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
+  const adminApi = await AdminApi.loggedIn(t);
   const payload = $.randomSkuPayload();
-  const newSku = await api.skus.create('default', payload);
+  const newSku = await adminApi.skus.create('default', payload);
   t.truthy(isNumber(newSku.id));
   t.truthy(newSku.context);
   t.is(newSku.context.name, 'default');
@@ -20,19 +19,17 @@ test('Can create a new SKU', async (t) => {
 });
 
 test('Can view SKU details', async (t) => {
-  const api = await Api.withCookies(t);
-  await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
-  const newSku = await api.skus.create('default', $.randomSkuPayload());
-  const foundSku = await api.skus.one('default', newSku.attributes.code.v);
+  const adminApi = await AdminApi.loggedIn(t);
+  const newSku = await adminApi.skus.create('default', $.randomSkuPayload());
+  const foundSku = await adminApi.skus.one('default', newSku.attributes.code.v);
   t.deepEqual(foundSku, newSku);
 });
 
 test('Can update SKU details', async (t) => {
-  const api = Api.withCookies(t);
-  await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
-  const newSku = await api.skus.create('default', $.randomSkuPayload());
+  const adminApi = await AdminApi.loggedIn(t);
+  const newSku = await adminApi.skus.create('default', $.randomSkuPayload());
   const payload = $.randomSkuPayload();
-  const updatedSku = await api.skus.update('default', newSku.attributes.code.v, payload);
+  const updatedSku = await adminApi.skus.update('default', newSku.attributes.code.v, payload);
   t.truthy(isNumber(updatedSku.id));
   t.truthy(updatedSku.context);
   t.is(updatedSku.context.name, 'default');
@@ -41,10 +38,9 @@ test('Can update SKU details', async (t) => {
 });
 
 test('Can archive a SKU', async (t) => {
-  const api = await Api.withCookies(t);
-  await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
-  const newSku = await api.skus.create('default', $.randomSkuPayload());
-  const archivedSku = await api.skus.archive('default', newSku.attributes.code.v);
+  const adminApi = await AdminApi.loggedIn(t);
+  const newSku = await adminApi.skus.create('default', $.randomSkuPayload());
+  const archivedSku = await adminApi.skus.archive('default', newSku.attributes.code.v);
   t.truthy(isDate(archivedSku.archivedAt));
   t.is(archivedSku.id, newSku.id);
   t.deepEqual(archivedSku.attributes, newSku.attributes);
@@ -53,10 +49,9 @@ test('Can archive a SKU', async (t) => {
 });
 
 test('Can access the inventory', async (t) => {
-  const api = await Api.withCookies(t);
-  await api.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
-  const newSku = await api.skus.create('default', $.randomSkuPayload());
-  const inventory = await waitFor(500, 10000, () => api.skus.inventory(newSku.attributes.code.v));
+  const adminApi = await AdminApi.loggedIn(t);
+  const newSku = await adminApi.skus.create('default', $.randomSkuPayload());
+  const inventory = await waitFor(500, 10000, () => adminApi.skus.inventory(newSku.attributes.code.v));
   t.truthy(isArray(inventory.summary));
   t.is(inventory.summary.length, 4);
   const inventoryItemTypes = inventory.summary.map(item => item.type);
@@ -77,6 +72,6 @@ test('Can access the inventory', async (t) => {
 
 testNotes({
   objectType: 'sku',
-  createObject: api => api.skus.create('default', $.randomSkuPayload()),
+  createObject: adminApi => adminApi.skus.create('default', $.randomSkuPayload()),
   selectId: sku => sku.attributes.code.v,
 });

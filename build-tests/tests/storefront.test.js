@@ -1,7 +1,6 @@
 import superagent from 'superagent';
 import test from '../helpers/test';
-import startRandomUserSession from '../helpers/startRandomUserSession';
-import Api from '../helpers/Api';
+import { AdminApi, CustomerApi } from '../helpers/Api';
 import $ from '../payloads';
 import config from '../config';
 
@@ -39,20 +38,17 @@ for (const storefront of config.storefronts) {
     const unauthorisedResponse = await superagent.get(`${storefront.url}/profile`);
     t.is(unauthorisedResponse.status, 200);
     t.is(unauthorisedResponse.redirects.length, 1);
-    const customerApi = Api.withCookies(t);
-    await startRandomUserSession(customerApi);
+    const customerApi = await CustomerApi.loggedIn(t);
     const authorisedResponse = await customerApi.agent.get(`${storefront.url}/profile`);
     t.is(authorisedResponse.status, 200);
     t.is(authorisedResponse.redirects.length, 0);
   });
 
   test(`Can access ${storefront.name} product details page`, async (t) => {
-    const adminApi = await Api.withCookies(t);
-    await adminApi.auth.login($.adminEmail, $.adminPassword, $.adminOrg);
+    const adminApi = await AdminApi.loggedIn(t);
     const payload = $.randomProductPayload();
     const newProduct = await adminApi.products.create('default', payload);
-    const customerApi = Api.withCookies(t);
-    await startRandomUserSession(customerApi);
+    const customerApi = await CustomerApi.loggedIn(t);
     const response = await customerApi.agent.get(`${storefront.url}/products/${newProduct.id}`);
     t.is(response.status, 200);
   });
