@@ -231,8 +231,12 @@ defmodule Hyperion.Amazon do
 
   defp get_sku_image(sku, token) do
     sku = Client.get_sku(sku, token)
-    first_image = hd(sku.body["albums"])["images"] |> hd
-    first_image["src"]
+    case sku.body["errors"] do
+      nil ->
+        first_image = hd(sku.body["albums"])["images"] |> hd
+        first_image["src"]
+      err -> raise %AmazonError{message: "#{err}"}
+    end
   end
 
   # gets the albums and images for skus,
