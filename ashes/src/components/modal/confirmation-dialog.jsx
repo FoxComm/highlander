@@ -62,7 +62,7 @@ const ConfirmationDialog = (props: Props) => {
           onCancel={props.onCancel}
           onSave={props.confirmAction}
           saveText={props.confirm}
-          isLoading={props.asyncState.inProgress}
+          isLoading={_.get(props.asyncState, 'inProgress', false)}
         />
       </ContentBox>
     </div>
