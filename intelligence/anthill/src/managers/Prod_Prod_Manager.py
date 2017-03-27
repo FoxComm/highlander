@@ -77,6 +77,7 @@ class Prod_Prod_Manager(object):
         pprec = self.get_recommender(channel_id)
         pprec.add_point(cust_id, prod_id)
         add_purchase_event(cust_id, prod_id, channel_id)
+        self.update_pprec(channel_id, pprec)
 
     def train(self, points):
         for point in points:
