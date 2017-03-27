@@ -17,8 +17,8 @@ const categoryNameFromUrl = (url: string): string => {
   return fromParts(decoded);
 };
 
-const humanize = (name: string): string => {
-  return fromParts(name.split(' '));
+const humanize = (name: string, sep: string = ' '): string => {
+  return fromParts(name.split(sep));
 };
 
 export {

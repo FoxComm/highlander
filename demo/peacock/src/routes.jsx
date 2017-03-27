@@ -22,9 +22,9 @@ import OrderPlaced from './pages/checkout/order-placed/order-placed';
 
 import { isAuthorizedUser } from 'paragons/auth';
 
-export default function makeRoutes(store) {
+export default function makeRoutes(getStore) {
   function handleProfileEnter(nextState, replace, callback) {
-    const { auth } = store.getState();
+    const { auth } = getStore().getState();
 
     if (!auth || !isAuthorizedUser(auth.user)) {
       replace('/?auth=LOGIN');
@@ -35,10 +35,10 @@ export default function makeRoutes(store) {
 
   return (
     <Route path="/" component={Site}>
-      <Route path="/checkout" component={Checkout} />
+      <Route name="checkout" path="/checkout" component={Checkout} />
       <Route component={StoreFront}>
         <IndexRoute component={HomePage} />
-        <Route path="/profile" component={ProfilePage} onEnter={handleProfileEnter}>
+        <Route name="profile" path="/profile" component={ProfilePage} onEnter={handleProfileEnter}>
           <IndexRoute component={Profile} />
           <Route component={ProfileUnit}>
             <Route path="name" component={EditName} />
@@ -49,10 +49,10 @@ export default function makeRoutes(store) {
           </Route>
         </Route>
         <Route path="/checkout/done" component={OrderPlaced} />
-        <Route path="/products/:productSlug" component={Pdp} name="product" />
-        <Route path="/gift-cards" component={Pdp} name="gift-cards" />
-        <Route path="/search/:term" component={Search} name="search" />
-        <Route path=":categoryName(/:subCategory(/:leafCategory))" component={Products} name="category" />
+        <Route name="product" path="/products/:productSlug" component={Pdp} />
+        <Route name="gift-cards" path="/gift-cards" component={Pdp} />
+        <Route name="search" path="/search/:term" component={Search} />
+        <Route name="category" path=":categoryName(/:subCategory(/:leafCategory))" component={Products} />
       </Route>
     </Route>
   );

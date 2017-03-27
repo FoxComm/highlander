@@ -118,12 +118,13 @@
     "react-text-mask": "^0.19.0",
     "recast": "^0.11.4",
     "reduce-reducers": "^0.1.2",
-    "redux": "^3.3.1",
+    "redux": "^3.6.0",
     "redux-act": "1.1.0",
     "redux-isomorphic-render": "^1.2.1",
     "redux-logger": "^2.7.4",
     "reselect": "^2.1.0",
     "sprout-data": "^0.2.3",
+    "use-named-routes": "^0.3.2",
     "zipcodes": "^2.0.0"
   }
 }

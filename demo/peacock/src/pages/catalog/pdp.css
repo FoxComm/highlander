@@ -5,7 +5,7 @@
 .container {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .gallery {
@@ -109,6 +109,26 @@
     display: flex;
     justify-content: center;
   }
+}
+
+@media (--large) {
+  .container {
+    lost-column: 6/8;
+    lost-offset: -1/8;
+  }
+
+  .breadcrumbs {
+    margin-bottom: 24px;
+  }
+
+  .title {
+    margin: 0 0 12px 0;
+  }
+
+  .cart-actions {
+    margin-bottom: 90px;
+  }
+
 }
 
 .not-found {

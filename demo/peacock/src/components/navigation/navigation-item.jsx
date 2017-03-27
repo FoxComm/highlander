@@ -3,7 +3,7 @@
 import React, { Component, Element } from 'react';
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
-import { Link } from 'react-router';
+import { Link, routerShape } from 'react-router';
 
 import classNames from 'classnames';
 
@@ -33,6 +33,10 @@ export default class NavigationItem extends Component {
   props: Props;
   state: State = {
     expanded: false,
+  };
+
+  static contextTypes = {
+    router: routerShape,
   };
 
   @autobind
@@ -133,6 +137,7 @@ export default class NavigationItem extends Component {
 
   render() {
     const { item, path } = this.props;
+    const { router } = this.context;
 
     if (item.hiddenInNavigation) {
       return null;
@@ -141,7 +146,8 @@ export default class NavigationItem extends Component {
     const dashedName = _.toLower(item.name.replace(/\s/g, '-'));
     const key = `category-${dashedName}`;
     const url = this.getNavUrl(item);
-    const isActive = path.match(new RegExp(dashedName, 'i'));
+    const basePath = router.createPath({name: 'category', params: {categoryName: item.name}}, true);
+    const isActive = `${path}/`.startsWith(basePath);
     const linkClasses = classNames(styles.item, {
       [styles.active]: isActive,
       [styles['with-drawer-open']]: this.state.expanded,
