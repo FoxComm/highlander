@@ -54,6 +54,7 @@ def rec_prod_prod_full(prod_id):
 def rec_cust_prod(cust_id):
     """rec_cust_prod
     """
+    connect_to_neo4j()
     channel_id = int(request.args.get('channel', -1))
     resp = PP_MANAGER.cust_recommend(cust_id, channel_id)
     return jsonify(resp)
@@ -63,6 +64,7 @@ def rec_cust_prod_full(cust_id):
     """rec_cust_prod_full
     returns a list of full products from elasticsearch
     """
+    connect_to_neo4j()
     channel_id = int(request.args.get('channel', -1))
     size_param = int(request.args.get('size', 5))
     from_param = int(request.args.get('from', 0))
@@ -73,6 +75,7 @@ def rec_cust_prod_full(cust_id):
 def train_prod_prod():
     """train
     """
+    connect_to_neo4j()
     json_dict = request.get_json()
     PP_MANAGER.train(json_dict['points'])
     return 'success'
