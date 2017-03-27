@@ -51,7 +51,7 @@ module.exports = function(app) {
         });
       }
       if (!_.includes(token.roles, 'admin')) {
-        console.log('token.roles doesn\'t contain admin role', token.roles);
+        console.info('token.roles doesn\'t contain admin role', token.roles);
         return null; // only admins allowed to proceed
       }
       return token;
