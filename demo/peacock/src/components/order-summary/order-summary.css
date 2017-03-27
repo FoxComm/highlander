@@ -35,16 +35,18 @@
 .price-summary {
   margin: 0;
   list-style-type: none;
-  font-size: 16px;
   line-height: 1.63;
 }
 
 .grand-total {
-  font-size: 18px;
   font-weight: 900;
   line-height: 1.44;
   margin-top: 12px;
   display: flex;
+}
+
+.value {
+  font-weight: 900;
 }
 
 @media (--small-only) {

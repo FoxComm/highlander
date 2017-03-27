@@ -86,6 +86,7 @@
 
   .totals-list {
     margin: 22px 10px 50px;
+    font-size: 12px;
   }
 
   .place-order-block {
@@ -162,6 +163,7 @@
     lost-column: 4/12;
     border: 1px solid var(--border-color);
     border-radius: 4px;
+    font-size: 16px;
   }
 
   .totals-list {
