@@ -9,24 +9,44 @@ import { createAsyncActions } from '@foxcomm/wings';
 
 import { anyPermitted, isPermitted } from 'lib/claims';
 import { frn, readAction } from 'lib/frn';
+import { searchTaxonomies } from 'elastic/taxonomy';
 
 import NavigationItem from '../navigation-item';
 import { IndexLink, Link } from 'components/link';
 import WaitAnimation from 'components/common/wait-animation';
 
-import type { Claims } from 'lib/claims';
-
-// redux
-import { searchTaxonomies } from 'elastic/taxonomy';
-
+// styles
 import styles from './entries.css';
 
 const taxonomyClaims = readAction(frn.merch.taxonomy);
 
+type Props = TMenuEntry & {
+  taxonomies: Array<TaxonomyResult>,
+  fetchState: AsyncState,
+  archiveState: AsyncState,
+  createState: AsyncState,
+  updateState: AsyncState,
+  fetch: () => Promise<*>,
+  currentParams: {
+    taxonomyId: string,
+  }
+};
+
 class MerchandisingEntry extends Component {
+  props: Props;
 
   componentDidMount() {
     this.props.fetch();
+  }
+
+  componentWillReceiveProps(nextProps: Props) {
+    const created = this.props.createState.inProgress && !nextProps.createState.inProgress;
+    const updated = this.props.updateState.inProgress && !nextProps.updateState.inProgress;
+    const archived = this.props.archiveState.inProgress && !nextProps.archiveState.inProgress;
+
+    if (created || updated || archived) {
+      this.props.fetch();
+    }
   }
 
   get taxonomiesList() {
@@ -106,7 +126,14 @@ const mapState = state => ({
   fetchState: get(state.asyncActions, 'fetchTaxonomies', {}),
 });
 
+const mapGlobalState = state => ({
+  createState: get(state.asyncActions, 'createTaxonomy', {}),
+  updateState: get(state.asyncActions, 'updateTaxonomy', {}),
+  archiveState: get(state.asyncActions, 'archiveTaxonomy', {}),
+});
+
 export default flow(
   connect(mapState, { fetch: fetch.perform }),
   makeLocalStore(addAsyncReducer(reducer), { taxonomies: [] }),
+  connect(mapGlobalState),
 )(MerchandisingEntry);

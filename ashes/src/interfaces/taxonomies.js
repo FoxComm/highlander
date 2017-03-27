@@ -2,7 +2,7 @@ declare type TaxonomyDraft = {
   context: Context,
   hierarchical: boolean,
   attributes: Attributes,
-  taxons: Array<Object>,
+  taxons: TaxonsTree,
 };
 
 declare type Taxonomy = TaxonomyDraft & {
@@ -36,3 +36,10 @@ declare type TaxonResult = {
   parentId?: number,
   name: string,
 };
+
+declare type TaxonNode = {
+  children: TaxonsTree,
+  taxon: Taxon,
+};
+
+declare type TaxonsTree = Array<TaxonNode>;
