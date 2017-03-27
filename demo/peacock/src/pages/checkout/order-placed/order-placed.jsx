@@ -83,17 +83,23 @@ class OrderPlaced extends Component {
       <div styleName="order-placed">
         <div styleName="thank-you">
           <h1 styleName="title">Thank you for your order!</h1>
-          <div styleName="order-number">
-            <h2 styleName="subtitle">ORDER CONFIRMATION NUMBER</h2>
-            <strong>{orderPlaced}</strong>
-          </div>
+
           <div styleName="desc">
-            <p>We’ve received your order and we’re packing up some tasty food!</p>
-            <p>Keep your eye out for an email confirmation headed your way shortly.</p>
+            <p>We've received your order and we'll be packaging it up to ship out soon!</p>
+            <p>Keep your eye out for an email confirmation, which you should receive shortly.</p>
           </div>
-          <Button styleName="to-home" onClick={this.toHome}>{t('Take me home')}</Button>
+          <Button styleName="to-home" onClick={this.toHome}>{t('Continue Shopping')}</Button>
         </div>
-        {this.orderSummary}
+        <div styleName="order-summary">
+          <div styleName="order-number">
+            <div styleName="order-number-content">
+              <h2 styleName="subtitle">Order Confirmation Number</h2>
+              <p styleName="order-ref">{orderPlaced}</p>
+            </div>
+          </div>
+
+          {this.orderSummary}
+        </div>
       </div>
     );
   }
