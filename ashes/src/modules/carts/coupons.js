@@ -57,7 +57,7 @@ export function removeCoupon(orderRefNum: string) {
         order => {
           dispatch(fetchCartSucceeded(order));
         },
-        err => console.log(err)
+        err => console.error(err)
       );
   };
 }
