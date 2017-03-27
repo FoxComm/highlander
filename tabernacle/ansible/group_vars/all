@@ -62,6 +62,7 @@ docker_tags:
     orders_anthill: "{{ lookup('env', 'DOCKER_TAG_ORDERS_ANTHILL') | default('master', true) }}"
     anthill: "{{ lookup('env', 'DOCKER_TAG_ANTHILL') | default('master', true) }}"
     neo4j: "{{ lookup('env', 'DOCKER_TAG_NEO4J') | default('master', true) }}"
+    suggester: "{{ lookup('env', 'DOCKER_TAG_SUGGESTER') | default('master', true) }}"
 
 # Configurable Marathon re-deploys
 marathon_restart:
@@ -92,6 +93,7 @@ marathon_restart:
     orders_anthill: "{{ lookup('env', 'MARATHON_ORDERS_ANTHILL') | default(true, true) | bool }}"
     anthill: "{{ lookup('env', 'MARATHON_ANTHILL') | default(true, true) | bool }}"
     neo4j: "{{ lookup('env', 'MARATHON_NEO4J') | default(true, true) | bool }}"
+    suggester: "{{ lookup('env', 'MARATHON_SUGGESTER') | default(true, true) | bool }}"
 
 # Should we use Intelligent Commerce
 with_ic: "{{ lookup('env', 'WITH_INTELLIGENT_COMMERCE') | default(true, true) | bool }}"
@@ -286,6 +288,10 @@ neo4j_pass: "password"
 neo4j_host: "neo4j.{{consul_suffix}}"
 neo4j_server: "{{neo4j_host}}"
 neo4j_port: "7687"
+
+# suggester
+suggester_host: "suggester.{{consul_suffix}}"
+suggester_server: "{{suggester_host}}"
 
 # Elasticsearch 2.x
 es_version: elasticsearch-2.1.2
