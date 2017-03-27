@@ -704,6 +704,43 @@ object AssignmentsRoutes {
             }
           }
         }
+      } ~
+      // Taxons Single Assignments
+      pathPrefix("taxons" / IntNumber) { taxonId ⇒
+        pathPrefix("assignees") {
+          (get & pathEnd) {
+            getOrFailures {
+              TaxonAssignmentsManager.list(taxonId)
+            }
+          } ~
+          (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
+            mutateOrFailures {
+              TaxonAssignmentsManager.assign(taxonId, payload, auth.model)
+            }
+          } ~
+          (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
+            mutateOrFailures {
+              TaxonAssignmentsManager.unassign(taxonId, assigneeId, auth.model)
+            }
+          }
+        } ~
+        pathPrefix("watchers") {
+          (get & pathEnd) {
+            getOrFailures {
+              TaxonWatchersManager.list(taxonId)
+            }
+          } ~
+          (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
+            mutateOrFailures {
+              TaxonWatchersManager.assign(taxonId, payload, auth.model)
+            }
+          } ~
+          (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
+            mutateOrFailures {
+              TaxonWatchersManager.unassign(taxonId, assigneeId, auth.model)
+            }
+          }
+        }
       }
     }
   }
