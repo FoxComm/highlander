@@ -35,8 +35,7 @@
   composes: select-box;
   border-radius: 0;
   width: 100%;
-  border-left: none;
-  border-bottom: none;
+  border: none;
   &::after {
     top: calc(50% - 1px);
   }
