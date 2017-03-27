@@ -3,10 +3,10 @@ package services.returns
 import failures.NotFoundFailure404
 import models.returns._
 import payloads.ReturnPayloads.ReturnReasonPayload
-import responses.ReturnReasonsResponse.{buildResponse, _}
+import responses.ReturnReasonsResponse._
 import slick.driver.PostgresDriver.api._
 import utils.aliases.{DB, EC}
-import utils.db.{*, DbResultT, _}
+import utils.db._
 
 object ReturnReasonsManager {
 
