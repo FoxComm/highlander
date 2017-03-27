@@ -85,8 +85,8 @@ class OrderPlaced extends Component {
           <h1 styleName="title">Thank you for your order!</h1>
 
           <div styleName="desc">
-            <p>We&#39;ve received your order and we&#39;ll be packaging it up to ship out soon!</p>
-            <p>Keep your eye out for an email confirmation, which you should receive shortly.</p>
+            <p>{t('We\'ve received your order and we\'ll be packing it up for shipping soon!')}</p>
+            <p>{t('Keep your eye out for an email confirmation, which you should receive shortly.')}</p>
           </div>
           <Button styleName="to-home" onClick={this.toHome}>{t('Continue Shopping')}</Button>
         </div>

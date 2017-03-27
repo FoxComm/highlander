@@ -81,7 +81,7 @@
   height: 60px;
 }
 
-@media (--small-only) {
+@media (--small-only), (--medium-only) {
   .order-placed {
     flex-direction: column;
     margin: var(--grid-margin);
