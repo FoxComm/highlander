@@ -288,6 +288,7 @@ neo4j_pass: "password"
 neo4j_host: "neo4j.{{consul_suffix}}"
 neo4j_server: "{{neo4j_host}}"
 neo4j_port: "7687"
+neo4j_http_port: "7474"
 
 # Elasticsearch 2.x
 es_version: elasticsearch-2.1.2
