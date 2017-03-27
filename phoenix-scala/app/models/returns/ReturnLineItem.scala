@@ -19,7 +19,6 @@ case class ReturnLineItem(id: Int = 0,
                           originId: Int,
                           originType: OriginType,
                           quantity: Int = 1,
-                          isReturnItem: Boolean = false,
                           inventoryDisposition: InventoryDisposition = Putaway,
                           createdAt: Instant = Instant.now)
     extends FoxModel[ReturnLineItem] {}
@@ -44,43 +43,6 @@ object ReturnLineItem {
     def types = sealerate.values[InventoryDisposition]
   }
 
-  def buildSku(rma: Return,
-               reason: ReturnReason,
-               origin: ReturnLineItemSku,
-               payload: ReturnSkuLineItemPayload): ReturnLineItem = {
-    ReturnLineItem(
-        returnId = rma.id,
-        reasonId = reason.id,
-        quantity = payload.quantity,
-        originId = origin.id,
-        originType = SkuItem,
-        isReturnItem = payload.isReturnItem,
-        inventoryDisposition = payload.inventoryDisposition
-    )
-  }
-
-  def buildGiftCard(rma: Return,
-                    reason: ReturnReason,
-                    origin: ReturnLineItemGiftCard): ReturnLineItem = {
-    ReturnLineItem(
-        returnId = rma.id,
-        reasonId = reason.id,
-        originId = origin.id,
-        originType = GiftCardItem
-    )
-  }
-
-  def buildShippingCost(rma: Return,
-                        reason: ReturnReason,
-                        origin: ReturnLineItemShippingCost): ReturnLineItem = {
-    ReturnLineItem(
-        returnId = rma.id,
-        reasonId = reason.id,
-        originId = origin.id,
-        originType = ShippingCost
-    )
-  }
-
   implicit val OriginTypeColumnType: JdbcType[OriginType] with BaseTypedType[OriginType] =
     OriginType.slickColumn
   implicit val InvDispColumnType: JdbcType[InventoryDisposition] with BaseTypedType[
@@ -95,7 +57,6 @@ class ReturnLineItems(tag: Tag) extends FoxTable[ReturnLineItem](tag, "return_li
   def originId             = column[Int]("origin_id")
   def originType           = column[OriginType]("origin_type")
   def quantity             = column[Int]("quantity")
-  def isReturnItem         = column[Boolean]("is_return_item")
   def inventoryDisposition = column[InventoryDisposition]("inventory_disposition")
   def createdAt            = column[Instant]("created_at")
 
@@ -107,7 +68,6 @@ class ReturnLineItems(tag: Tag) extends FoxTable[ReturnLineItem](tag, "return_li
      originId,
      originType,
      quantity,
-     isReturnItem,
      inventoryDisposition,
      createdAt) <> ((ReturnLineItem.apply _).tupled, ReturnLineItem.unapply)
 

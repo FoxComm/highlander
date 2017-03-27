@@ -2,10 +2,10 @@ package services.returns
 
 import failures.ReturnFailures._
 import models.cord.Orders
-import models.cord.lineitems.{OrderLineItem, OrderLineItems}
+import models.cord.lineitems.OrderLineItems
 import models.inventory.Skus
 import models.objects._
-import models.returns.{Returns, _}
+import models.returns._
 import payloads.ReturnPayloads._
 import responses.ReturnResponse
 import services.LogActivity
@@ -79,9 +79,15 @@ object ReturnLineItemUpdater {
       _ ← * <~ ReturnLineItemShippingCosts.findByRmaId(rma.id).deleteAll
       origin ← * <~ ReturnLineItemShippingCosts.create(
                   ReturnLineItemShippingCost(returnId = rma.id, amount = payload.amount))
-      _  ← * <~ ReturnLineItems.filter(_.originId === origin.id).deleteAll
-      li ← * <~ ReturnLineItems.create(ReturnLineItem.buildShippingCost(rma, reason, origin))
-      _  ← * <~ LogActivity().returnShippingCostItemAdded(rma, reason, payload)
+      _ ← * <~ ReturnLineItems.filter(_.originId === origin.id).deleteAll
+      li ← * <~ ReturnLineItems.create(
+              ReturnLineItem(
+                  returnId = rma.id,
+                  reasonId = reason.id,
+                  originId = origin.id,
+                  originType = ReturnLineItem.ShippingCost
+              ))
+      _ ← * <~ LogActivity().returnShippingCostItemAdded(rma, reason, payload)
     } yield li
 
   private def validateMaxQuantity(rma: Return, sku: String, quantity: Int)(
@@ -120,8 +126,16 @@ object ReturnLineItemUpdater {
       skuShadow ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
       origin ← * <~ ReturnLineItemSkus.create(
                   ReturnLineItemSku(returnId = rma.id, skuId = sku.id, skuShadowId = skuShadow.id))
-      li ← * <~ ReturnLineItems.create(ReturnLineItem.buildSku(rma, reason, origin, payload))
-      _  ← * <~ LogActivity().returnSkuLineItemAdded(rma, reason, payload)
+      li ← * <~ ReturnLineItems.create(
+              ReturnLineItem(
+                  returnId = rma.id,
+                  reasonId = reason.id,
+                  quantity = payload.quantity,
+                  originId = origin.id,
+                  originType = ReturnLineItem.SkuItem,
+                  inventoryDisposition = payload.inventoryDisposition
+              ))
+      _ ← * <~ LogActivity().returnSkuLineItemAdded(rma, reason, payload)
     } yield li
 
   def deleteLineItem(refNum: String, lineItemId: Int)(implicit ec: EC,
@@ -150,14 +164,16 @@ object ReturnLineItemUpdater {
     ReturnLineItemGiftCards.filter(_.id === lineItem.originId).deleteAll.meh
 
   private def deleteShippingCostLineItem(
-      lineItem: ReturnLineItem)(implicit ec: EC, ac: AC, db: DB): DbResultT[Unit] = {
-    LogActivity().returnShippingCostItemDeleted(lineItem)
-    ReturnLineItemShippingCosts.filter(_.id === lineItem.originId).deleteAll.meh
-  }
+      lineItem: ReturnLineItem)(implicit ec: EC, ac: AC, db: DB): DbResultT[Unit] =
+    for {
+      deleted ← * <~ ReturnLineItemShippingCosts.filter(_.id === lineItem.originId).deleteAll
+      _       ← * <~ doOrMeh(deleted > 0, LogActivity().returnShippingCostItemDeleted(lineItem))
+    } yield ()
 
   private def deleteSkuLineItem(
-      lineItem: ReturnLineItem)(implicit ec: EC, ac: AC, db: DB): DbResultT[Unit] = {
-    LogActivity().returnSkuLineItemDeleted(lineItem)
-    ReturnLineItemSkus.filter(_.id === lineItem.originId).deleteAll.meh
-  }
+      lineItem: ReturnLineItem)(implicit ec: EC, ac: AC, db: DB): DbResultT[Unit] =
+    for {
+      deleted ← * <~ ReturnLineItemSkus.filter(_.id === lineItem.originId).deleteAll
+      _       ← * <~ doOrMeh(deleted > 0, LogActivity().returnSkuLineItemDeleted(lineItem))
+    } yield ()
 }
