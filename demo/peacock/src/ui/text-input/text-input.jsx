@@ -19,6 +19,7 @@ type Props = {
       bottom-right
       middle-v - combination of t and b
       middle-h - combination of l and r
+      or any combination of t, l, b, and r
   */
   pos?: string,
   error?: boolean|string,

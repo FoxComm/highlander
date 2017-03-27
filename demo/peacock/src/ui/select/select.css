@@ -22,12 +22,10 @@
      right: 8px;
      content: '';
      background: url('/images/symbols/caret-down.svg') center right no-repeat;
-   }
+  }
 }
 
 .select-box select {
-   -webkit-appearance: none;
-   -moz-appearance: none;
    appearance: none;
 }
 
