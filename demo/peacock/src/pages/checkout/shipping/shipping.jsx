@@ -37,6 +37,7 @@ type Props = {
   toggleModal: Function,
   modalVisible: boolean,
   saveShippingState: AsyncStatus,
+  cartChangeState: AsyncStatus,
   updateAddress: (address: Address, id?: number) => Promise<*>,
   auth: ?Object,
   isGuestMode: boolean,
@@ -57,9 +58,11 @@ class Shipping extends Component {
     this.fetchAddresses();
   }
 
-  componentWillUpdate(nextProps : Props) {
+  componentWillReceiveProps(nextProps: Props) {
     if (nextProps.auth !== this.props.auth) {
       this.setState({ fetchedAddresses: false });
+    }
+    if (nextProps.cartChangeState.finished && !this.state.fetchedAddresses) {
       this.fetchAddresses();
     }
   }
@@ -149,6 +152,8 @@ function mapStateToProps(state) {
     saveShippingState: _.get(state.asyncActions, 'saveShippingAddress', {}),
     modalVisible: _.get(state.checkout, 'modalVisible', false),
     addressesState: _.get(state.asyncActions, 'addresses', {}),
+    updateAddressState: _.get(state.asyncActions, 'updateAddress', false),
+    cartChangeState: _.get(state.asyncActions, 'cartChange', false),
   };
 }
 

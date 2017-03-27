@@ -1,28 +1,30 @@
-// @flow weak
+/* @flow */
+
+import React, { Component } from 'react';
 
 // libs
 import _ from 'lodash';
-import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
 import localized from 'lib/i18n';
 import { lookupAddressId } from 'paragons/address';
+import classNames from 'classnames';
 
 // components
 import EditableBlock from 'ui/editable-block';
 import EditAddress from 'ui/address/edit-address';
-import CheckoutForm from '../checkout-form';
+import CheckoutForm from 'pages/checkout/checkout-form';
 import RadioButton from 'ui/radiobutton/radiobutton';
 import { AddressDetails } from 'ui/address';
 import ActionLink from 'ui/action-link/action-link';
 
-// styles
-import styles from './address-list.css';
-
+// types
 import type { Address } from 'types/address';
 import type { AsyncStatus } from 'types/async-actions';
 
+import styles from './address-list.css';
+
 type Props = {
-  activeAddress?: Address | Object,
+  activeAddress?: Address | {},
   addresses: Array<any>,
   collapsed: boolean,
   saveShippingAddress: (id: number) => Promise<*>,
@@ -31,6 +33,7 @@ type Props = {
   onComplete: () => void,
   toggleModal: Function,
   saveShippingState: AsyncStatus,
+  updateAddressState: AsyncStatus,
   t: any,
 };
 
@@ -164,9 +167,12 @@ class AddressList extends Component {
     const items = _.map(this.props.addresses, (address, key) => {
       const content = <AddressDetails address={address} hideName />;
       const checked = address.id === this.state.activeAddressId;
+      const itemClasses = classNames(styles.item, {
+        [styles.chosen]: checked,
+      });
 
       return (
-        <li styleName="item" key={`address-radio-${key}`}>
+        <li className={itemClasses} key={`address-radio-${key}`}>
           <RadioButton
             id={`address-radio-${key}`}
             name={`address-radio-${key}`}
@@ -232,12 +238,15 @@ class AddressList extends Component {
     return (
       <CheckoutForm
         submit={() => this.finishEditingAddress(id)}
-        buttonLabel="Save Address"
+        buttonLabel="Save address"
         title={title}
         action={action}
         error={this.state.error}
+        inProgress={_.get(this.props.updateAddressState, 'inProgress', false)}
       >
-        <EditAddress address={address} onUpdate={this.setNewAddress} />
+        <div styleName="edit-form">
+          <EditAddress address={address} onUpdate={this.setNewAddress} />
+        </div>
       </CheckoutForm>
     );
   }

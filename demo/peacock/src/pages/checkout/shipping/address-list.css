@@ -1,13 +1,19 @@
 @import "colors.css";
 
 .list {
-  padding: 15px;
+  padding: 15px 10px 15px 15px;
 }
 
 .item {
-  margin-bottom: 1.15em;
-  padding-bottom: 1.15em;
-  border-bottom: 1px solid var(--border-color);
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+.chosen {
+  background: var(--select-active-background);
+  border-color: transparent;
 }
 
 .deleted-content {
@@ -17,7 +23,10 @@
 .item-content {
   flex-grow: 1;
   line-height: 1.6;
-  font-weight: 300;
+}
+
+.edit-form {
+  padding: 10px 10px 0 15px;
 }
 
 .action-link-add {
