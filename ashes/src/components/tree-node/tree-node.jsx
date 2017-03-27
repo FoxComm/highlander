@@ -1,6 +1,8 @@
 // @flow
 
 // libs
+import noop from 'lodash/noop';
+import { autobind } from 'core-decorators';
 import React, { Component } from 'react';
 import classNames from 'classnames';
 
@@ -31,18 +33,39 @@ export default class TreeNode extends Component {
     expanded: false,
   };
 
+  static defaultProps = {
+    handleClick: noop,
+  };
+
+  @autobind
   toggleExpanded(event: SyntheticEvent) {
+    event.stopPropagation();
+
     if (this.props.node.children) {
       this.setState({ expanded: !this.state.expanded });
     }
-    event.stopPropagation();
   }
 
-  renderChildren() {
-    const { node, depth, visible, handleClick, currentObjectId, getTitle } = this.props;
-    const active = node.node.id.toString() === currentObjectId;
-    const className = classNames(styles.node,
-      { [styles.visible]: visible }, { [styles.active]: active });
+  get icon() {
+    const { children } = this.props.node;
+
+    const cls = classNames({
+      'icon-category': !children,
+      'icon-category-expand': children && !this.state.expanded,
+      'icon-category-collapse': children && this.state.expanded,
+    });
+
+    return <i className={cls} onClick={this.toggleExpanded} />;
+  }
+
+  get label() {
+    const { node, getTitle } = this.props;
+
+    return <span styleName="text">{getTitle(node.node)}</span>;
+  }
+
+  get children() {
+    const { node, depth, visible, currentObjectId, ...rest } = this.props;
 
     if (!node.children) {
       return null;
@@ -53,62 +76,45 @@ export default class TreeNode extends Component {
           visible={this.state.expanded && visible}
           node={child}
           depth={depth + 20}
-          className={className}
-          handleClick={handleClick}
           currentObjectId={currentObjectId}
-          getTitle={getTitle}
           key={child.node.id}
+          {...rest}
         />
       )
     );
-
   }
 
-  get renderIcon() {
+  get node() {
+    const { node, depth, currentObjectId, handleClick } = this.props;
+    const active = node.node.id.toString() === currentObjectId;
 
-    const { children } = this.props.node;
-
-    const cls = classNames({
-      'icon-category': !children,
-      'icon-category-expand': children && !this.state.expanded,
-      'icon-category-collapse': children && this.state.expanded,
+    const className = classNames(styles.node, {
+      [styles.active]: active,
     });
 
-    return <i className={cls} />;
-  }
+    const style = { marginLeft: `${depth}px` };
 
-  get renderText() {
-    const { node, getTitle, handleClick } = this.props;
     return (
-      <span styleName="text" onClick={() => handleClick(node.node.id)}>
-        {getTitle(node.node)}
-      </span>
+      <div className={className}>
+        <div styleName="item" onClick={() => handleClick(node.node.id)} style={style}>
+          <div styleName="attributes">
+            {this.icon}
+            {this.label}
+          </div>
+        </div>
+      </div>
     );
   }
 
   render() {
-    const { node, depth, visible, currentObjectId } = this.props;
-    const active = node.node.id.toString() === currentObjectId;
-    const className = classNames(styles['node'], {
-      [styles.visible]: visible,
-      [styles.active]: active,
-    });
+    if (!this.props.visible) {
+      return null;
+    }
 
     return (
       <div>
-        <div className={className}>
-          <div
-            styleName="item"
-            onClick={(event) => this.toggleExpanded(event)}
-            style={{ marginLeft: `${depth}px` }}
-          >
-            <div styleName="attributes">
-              {this.renderIcon}
-              {this.renderText}
-            </div>
-          </div>
-        </div>
-        {this.renderChildren()}
+        {this.node}
+        {this.children}
       </div>
     );
   }

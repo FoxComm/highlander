@@ -11,7 +11,8 @@ import FormField from 'components/forms/formfield';
 import ObjectDetailsDeux from 'components/object-page/object-details-deux';
 import TaxonsDropdown from '../taxons-dropdown';
 
-export default class TaxonDetails extends Component {
+
+import HierarchicalTaxonomyListWidget from './hierarchical-taxonomy-widget';export default class TaxonDetails extends Component {
   /*
    * should be
    * props: ObjectPageChildProps<Taxon> & {

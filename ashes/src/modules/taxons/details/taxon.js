@@ -38,7 +38,6 @@ const _archiveTaxon = createAsyncActions(
     Api.delete(`/taxons/${context}/${taxonId}`)
 );
 
-
 const _addProduct = createAsyncActions(
   'taxonAddProduct',
   (taxonId: number, productId, context: string = defaultContext) =>

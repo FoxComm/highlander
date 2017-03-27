@@ -12,8 +12,9 @@ import type { Node } from 'components/tree-node/tree-node';
 type Props = {
   taxons: TaxonsTree,
   activeTaxonId: string,
-  handleTaxonClick: (id: number) => any,
+  handleClick: (id: number) => any,
   getTitle: (node: Taxon) => string,
+  wrapWith: Element<*>,
 }
 
 const _reduce = (res: Array<Node<Taxon>>, node: TaxonNode) => {
@@ -26,18 +27,18 @@ const _reduce = (res: Array<Node<Taxon>>, node: TaxonNode) => {
 
 const prepareTree = (taxons: TaxonsTree): Array<Node<Taxon>> => taxons.reduce(_reduce, []);
 
-export default ({ taxons, handleTaxonClick, activeTaxonId, getTitle }: Props) => (
-  <div>
-    {prepareTree(taxons).map((item: Node<Taxon>) => (
-      <TreeNode
-        node={item}
-        visible={true}
-        depth={20}
-        handleClick={handleTaxonClick}
-        currentObjectId={activeTaxonId}
-        getTitle={getTitle}
-        key={item.node.id}
-      />
-    ))}
-  </div>
+export const renderTree = ({ taxons, activeTaxonId = '', ...rest }: Props) =>
+  prepareTree(taxons).map((item: Node<Taxon>) => (
+    <TreeNode
+      node={item}
+      visible={true}
+      depth={20}
+      currentObjectId={activeTaxonId}
+      key={item.node.id}
+      {...rest}
+    />
+  ));
+
+export default (props: Props) => (
+  <div>{renderTree(props)}</div>
 );

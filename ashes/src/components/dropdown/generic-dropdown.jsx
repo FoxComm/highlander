@@ -82,7 +82,6 @@ export default class GenericDropdown extends Component {
   componentWillReceiveProps(newProps: Props) {
     this.setState({
       selectedValue: newProps.value,
-      open: newProps.open !== this.props.open ? newProps.open : this.state.open,
     });
   }
 

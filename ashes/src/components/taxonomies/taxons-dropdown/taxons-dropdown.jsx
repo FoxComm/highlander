@@ -11,6 +11,7 @@ import TextInput from 'components/forms/text-input';
 import { DropdownItem } from 'components/dropdown';
 import GenericDropdown from 'components/dropdown/generic-dropdown';
 import PilledInput from 'components/pilled-search/pilled-input';
+import { renderTree } from '../taxons/hierarchical-taxonomy-widget';
 
 // styles
 import styles from './taxons-dropdown.css';
@@ -74,19 +75,17 @@ const buildTaxonsDropDownItems = (taxons: TaxonsTree, prefix: string, sep: strin
     return res;
   }, finale);
 
-const mapFilterResult = (token: string) => (part: string, i: number, arr: Array<string>) =>
+const mapNeedle = (token: string) => (part: string, i: number, arr: Array<string>) =>
   part.replace(new RegExp(token, 'ig'), x => `<span class=${styles.needle}>${x}</span>`);
 
 const filterItems = (toFilter: Array<DDItem>) => (token: string): Array<DDItem> => {
-  let items = [];
-
-  if (token.length > 0) {
-    items = toFilter
-      .filter(({ path }) => path.toLowerCase().indexOf(token.toLowerCase()) > -1)
-      .map(item => assoc(item, 'path', item.path.split(SEP).map(mapFilterResult(token)).join(SEP)));
+  if (!token.length) {
+    return toFilter;
   }
 
-  return items;
+  return toFilter
+    .filter(({ path }) => path.toLowerCase().indexOf(token.toLowerCase()) > -1)
+    .map(item => assoc(item, 'path', item.path.split(SEP).map(mapNeedle(token)).join(SEP)));
 };
 
 export default class TaxonsDropdown extends Component {
@@ -120,12 +119,21 @@ export default class TaxonsDropdown extends Component {
   }
 
   @autobind
+  handleInputClick(treeMode: boolean, handleToggleClick: (e: MouseEvent) => void) {
+    return (e: MouseEvent) => {
+      handleToggleClick(e);
+
+      this.setState({ ddOpen: !this.state.ddOpen, treeMode: treeMode });
+    };
+  }
+
+  @autobind
   close() {
     this.setState({ ddOpen: false });
   }
 
   @autobind
-  renderInput(): Element<*> {
+  renderInput(value: number, title: string, props: any, handleToggleClick: (e: Mouse) => void): Element<*> {
     const parentId = get(this.props.taxon, ['location', 'parent']);
     const parent = findNode(this.props.taxonomy.taxons, parentId);
     const parentName = getName(parent, null);
@@ -134,19 +142,27 @@ export default class TaxonsDropdown extends Component {
       <PilledInput
         solid
         icon="hierarchy"
+        placeholder="Parent value name"
         value={this.state.token}
         onChange={this.handleTokenChange}
         pills={compact([parentName])}
         onPillClose={() => this.handleParentSelect(null)}
-        onPillClick={() => this.setState({ treeMode: true })}
-        onFocus={() => this.setState({ ddOpen: this.state.token.length > 0 })}
-        onBlur={this.close}
+        onIconClick={this.handleInputClick(true, handleToggleClick)}
+        onClick={this.handleInputClick(false, handleToggleClick)}
       />
     );
   }
 
   get searchResults(): Array<Element<*>> {
     const items = filterItems(this.parentItems)(this.state.token);
+
+    if (this.state.treeMode) {
+      return renderTree({
+        taxons: this.props.taxonomy.taxons,
+        handleClick: this.handleParentSelect,
+        getTitle: getName,
+      });
+    }
 
     return items.map(({ id, path }: DDItem) => (
       <DropdownItem value={id} key={id}>
@@ -159,7 +175,7 @@ export default class TaxonsDropdown extends Component {
     return (
       <GenericDropdown
         className={styles.dropdown}
-        open={this.state.ddOpen}
+        // open={this.state.ddOpen}
         onChange={this.handleParentSelect}
         renderDropdownInput={this.renderInput}
         emptyMessage="No values found"
