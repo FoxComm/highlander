@@ -37,6 +37,7 @@ type Props = {
   toggleModal: Function,
   modalVisible: boolean,
   saveShippingState: AsyncStatus,
+  cartChangeState: AsyncStatus,
   updateAddress: (address: Address, id?: number) => Promise<*>,
   auth: ?Object,
   isGuestMode: boolean,

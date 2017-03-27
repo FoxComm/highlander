@@ -18,7 +18,7 @@ const Checkbox = (props: CheckboxProps) => {
     <div className={className}>
       <input type="checkbox" styleName="checkbox" {...rest} />
       <label htmlFor={props.id}>
-        <span styleName="box"></span>
+        <span styleName="box" />
         {children}
       </label>
     </div>

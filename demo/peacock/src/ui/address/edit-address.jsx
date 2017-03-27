@@ -1,5 +1,3 @@
-/* @flow */
-
 import React, { Component } from 'react';
 
 // libs
@@ -277,7 +275,7 @@ export default class EditAddress extends Component {
     if (!this.isAddressLoaded) return <Loader size="m" />;
 
     const props: EditAddressProps = this.props;
-    const { t, withCountry } = props;
+    const { t } = props;
     const selectedCountry = this.selectedCountry;
     const data = this.state.address;
 

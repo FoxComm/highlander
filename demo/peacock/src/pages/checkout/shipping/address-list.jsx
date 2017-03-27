@@ -33,6 +33,7 @@ type Props = {
   onComplete: () => void,
   toggleModal: Function,
   saveShippingState: AsyncStatus,
+  updateAddressState: AsyncStatus,
   t: any,
 };
 

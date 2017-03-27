@@ -28,6 +28,7 @@ type Props = {
   // modificators
   hasCard?: boolean,
   hasSymbol?: boolean,
+  children?: any,
 }
 
 class TextInput extends Component {
