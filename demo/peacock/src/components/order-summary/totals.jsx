@@ -3,9 +3,6 @@
 // libs
 import _ from 'lodash';
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { autobind } from 'core-decorators';
-import classNames from 'classnames/dedupe';
 
 // localization
 import localized from 'lib/i18n';
@@ -13,8 +10,6 @@ import localized from 'lib/i18n';
 // components
 import TermValueLine from 'ui/term-value-line';
 import Currency from 'ui/currency';
-import ProductTable from './product-table';
-import GoogleConversion from 'ui/google/conversion';
 
 // styles
 import styles from './order-summary.css';

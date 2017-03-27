@@ -160,7 +160,6 @@ class Checkout extends Component {
   }
 
   get orderTotals() {
-    const { t } = this.props
     return (
       <div styleName="order-totals">
         <div styleName="totals-list">

@@ -11,7 +11,6 @@ import localized from 'lib/i18n';
 // components
 import Button from 'ui/buttons';
 import Loader from 'ui/loader';
-import OrderSummary from 'components/order-summary/order-summary';
 import OrderTotals from 'components/order-summary/totals';
 
 // styles
