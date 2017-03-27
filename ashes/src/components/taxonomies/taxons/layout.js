@@ -31,8 +31,5 @@ export default (taxonomy: Taxonomy): ObjectPageLayout => ({
     {
       type: 'watchers',
     },
-    {
-      type: 'taxonList',
-    },
   ]
 });

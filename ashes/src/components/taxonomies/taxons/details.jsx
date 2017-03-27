@@ -1,32 +1,14 @@
 // @flow
 
 // lib
-import { get, isEmpty, values } from 'lodash';
-import { assoc, merge } from 'sprout-data';
+import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
 import React, { Component, Element } from 'react';
 
 // components
 import FormField from 'components/forms/formfield';
-import TextInput from 'components/forms/text-input';
-import { Dropdown, DropdownItem } from 'components/dropdown';
 import ObjectDetailsDeux from 'components/object-page/object-details-deux';
-
-type ReduceResult = { [key: string]: Array<number|string> };
-
-const getName = (taxon: Taxon) => get(taxon, 'attributes.name.v', '');
-
-const buildTaxonsDropDownItems = (taxons: TaxonsTree, prefix: string, sep: string, finale: ReduceResult = {}) =>
-  taxons.reduce((res: ReduceResult, node: TaxonNode) => {
-    const name = `${prefix}${getName(node.taxon)}`;
-    res = assoc(res, [node.taxon.id], [node.taxon.id, name]);
-
-    if (!isEmpty(node.children)) {
-      res = merge(res, buildTaxonsDropDownItems(node.children, `${name}${sep}`, sep, res));
-    }
-
-    return res;
-  }, finale);
+import TaxonsDropdown from '../taxons-dropdown';
 
 export default class TaxonDetails extends Component {
   /*
@@ -43,16 +25,10 @@ export default class TaxonDetails extends Component {
   props: ObjectPageChildProps<Taxon>;
 
   @autobind
-  handleParentChange(value: number) {
-    const newTaxon = assoc(this.props.object, ['location', 'parent'], parseInt(value, 10));
+  handleParentChange(id: ?number) {
+    const newTaxon = assoc(this.props.object, ['location', 'parent'], id);
 
     this.props.onUpdateObject(newTaxon);
-  }
-
-  get parentItems(): Array<Array<number|string>> {
-    const taxons = get(this.props, 'taxonomy.taxons', []);
-
-    return values(buildTaxonsDropDownItems(taxons, '', ' :: '));
   }
 
   @autobind
@@ -63,12 +39,10 @@ export default class TaxonDetails extends Component {
         labelClassName="fc-object-form__field-label"
         label="Parent"
       >
-        <Dropdown
-          id="parentId"
-          name="parentId"
-          value={get(this.props.object, 'location.parent', '')}
+        <TaxonsDropdown
+          taxonomy={this.props.taxonomy}
+          taxon={this.props.object}
           onChange={this.handleParentChange}
-          items={this.parentItems}
         />
       </FormField>
     );

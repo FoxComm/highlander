@@ -11,9 +11,9 @@ import Overlay from '../overlay/overlay';
 import { Button } from '../common/buttons';
 import BodyPortal from '../body-portal/body-portal';
 
-export type ValueType = ?string|number;
+export type ValueType = ?string | number;
 
-export type DropdownItemType = [ValueType, string|Element<*>, bool];
+export type DropdownItemType = [ValueType, string | Element<*>, bool];
 
 export type Props = {
   id?: string,
@@ -23,7 +23,7 @@ export type Props = {
   className?: string,
   listClassName?: string,
   placeholder?: string,
-  emptyMessage?: string|Element<*>,
+  emptyMessage?: string | Element<*>,
   open?: bool,
   children?: Element<*>,
   items?: Array<DropdownItemType>,
@@ -39,6 +39,7 @@ export type Props = {
   onChange?: Function,
   dropdownProps?: Object,
   detached?: boolean,
+  noControls?: boolean,
 };
 
 type State = {
@@ -66,6 +67,7 @@ export default class GenericDropdown extends Component {
     name: '',
     value: '',
     detached: false,
+    noControls: false,
   };
 
   state: State = {
@@ -77,9 +79,10 @@ export default class GenericDropdown extends Component {
   _menu: HTMLElement;
   _container: HTMLElement;
 
-  componentWillReceiveProps(newProps: Props) {
+  componentWillReceiveProps(newProps: Props, newState: State) {
     this.setState({
       selectedValue: newProps.value,
+      open: newProps.open !== this.props.open ? newProps.open : this.state.open,
     });
   }
 
@@ -125,7 +128,7 @@ export default class GenericDropdown extends Component {
     });
   }
 
-  renderNullTitle(value: ?number|string, placeholder: ?string): ?string|Element<*> {
+  renderNullTitle(value: ?number | string, placeholder: ?string): ?string | Element<*> {
     if (this.props.renderNullTitle) {
       return this.props.renderNullTitle(value, placeholder);
     }
@@ -133,7 +136,7 @@ export default class GenericDropdown extends Component {
     return placeholder;
   }
 
-  findTitleByValue(value: ?string|number, props: Props): string {
+  findTitleByValue(value: ?string | number, props: Props): string {
     if (props.items) {
       const item = _.find(props.items, item => item[0] == value);
       return item && item[1];
@@ -186,11 +189,11 @@ export default class GenericDropdown extends Component {
     return renderDropdownInput
       ? renderDropdownInput(actualValue, title, this.props, this.handleToggleClick)
       : (
-      <div className="fc-dropdown__value" onClick={this.handleToggleClick}>
-        {title}
-        <input name={name} type="hidden" value={valueForInput} readOnly />
-      </div>
-    );
+        <div className="fc-dropdown__value" onClick={this.handleToggleClick}>
+          {title}
+          <input name={name} type="hidden" value={valueForInput} readOnly />
+        </div>
+      );
   }
 
   get prependList(): ?Element<*> {
@@ -223,7 +226,7 @@ export default class GenericDropdown extends Component {
   }
 
   @autobind
-  handleItemClick(value: number|string, title: string) {
+  handleItemClick(value: number | string, title: string) {
     let state = { open: false };
     if (this.props.changeable) {
       state = { ...state, selectedValue: value };
@@ -264,8 +267,12 @@ export default class GenericDropdown extends Component {
     });
   }
 
-  get controls(): Element<*>[] {
-    const { inputFirst } = this.props;
+  get controls(): Element<*> {
+    const { inputFirst, noControls } = this.props;
+
+    if (noControls) {
+      return this.dropdownInput;
+    }
 
     return createFragment({
       left: inputFirst ? this.dropdownInput : this.dropdownButton,

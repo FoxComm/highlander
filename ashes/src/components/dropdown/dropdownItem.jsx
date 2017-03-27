@@ -29,7 +29,7 @@ const DropdownItem = ({
   });
 
   return (
-    <li className={classnames} key={value} onClick={handleClick}>
+    <li className={classnames} key={value} onMouseDown={handleClick}>
       {children}
     </li>
   );

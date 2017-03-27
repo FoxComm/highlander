@@ -1,6 +1,7 @@
 // @flow
 
 // libs
+import pick from 'lodash/pick';
 import { assoc } from 'sprout-data';
 import { createAction, createReducer } from 'redux-act';
 import Api from 'lib/api';
@@ -22,13 +23,13 @@ const _fetchTaxon = createAsyncActions(
 const _createTaxon = createAsyncActions(
   'createTaxon',
   (taxonomyId: number, taxon: TaxonDraft, context: string = defaultContext) =>
-    Api.post(`/taxonomies/${context}/${taxonomyId}/taxons`, taxon)
+    Api.post(`/taxonomies/${context}/${taxonomyId}/taxons`, pick(taxon, ['attributes', 'location']))
 );
 
 const _updateTaxon = createAsyncActions(
   'updateTaxon',
   (taxon: Taxon, context: string = defaultContext) =>
-    Api.patch(`/taxons/${context}/${taxon.id}`, taxon)
+    Api.patch(`/taxons/${context}/${taxon.id}`, pick(taxon, ['attributes', 'location']))
 );
 
 const _archiveTaxon = createAsyncActions(
