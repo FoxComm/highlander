@@ -68,7 +68,7 @@ class OrderTotals extends Component {
 
     return (
       <li>
-        <TermValueLine>
+        <TermValueLine className={styles.value}>
           <span>{t('Gift Card')}</span>
           <Currency prefix="– " value={amount} />
         </TermValueLine>
@@ -81,7 +81,7 @@ class OrderTotals extends Component {
 
     return (
       <li>
-        <TermValueLine>
+        <TermValueLine className={styles.value}>
           <span>{t('Promo Code')}</span>
           <Currency prefix="– " value={amount} />
         </TermValueLine>
@@ -109,19 +109,19 @@ class OrderTotals extends Component {
       <div>
         <ul styleName="price-summary">
           <li>
-            <TermValueLine>
+            <TermValueLine className={styles.value}>
               <span>{t('Subtotal')}</span>
               <Currency value={props.totals.subTotal} />
             </TermValueLine>
           </li>
           <li>
-            <TermValueLine>
+            <TermValueLine className={styles.value}>
               <span>{t('Shipping')}</span>
               <Currency value={props.totals.shipping} />
             </TermValueLine>
           </li>
           <li>
-            <TermValueLine>
+            <TermValueLine className={styles.value}>
               <span>{t('Tax')}</span>
               <Currency value={props.totals.taxes} />
             </TermValueLine>
@@ -129,7 +129,7 @@ class OrderTotals extends Component {
           {this.renderGiftCard(giftCardAmount)}
           {couponBlock}
         </ul>
-        <TermValueLine styleName="grand-total">
+        <TermValueLine className={`${styles['grand-total']} ${styles.value}`}>
           <span>{this.props.totalTitle}</span>
           <Currency value={grandTotalResult} />
         </TermValueLine>

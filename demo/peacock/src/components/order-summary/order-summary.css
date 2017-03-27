@@ -39,14 +39,17 @@
 }
 
 .grand-total {
-  font-weight: 900;
   line-height: 1.44;
   margin-top: 12px;
   display: flex;
 }
 
 .value {
-  font-weight: 900;
+  display: flex;
+
+  & div:last-child {
+    font-weight: 900;
+  }
 }
 
 @media (--small-only) {
