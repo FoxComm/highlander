@@ -69,10 +69,7 @@ export default class NavigationItem extends Component {
       const length = this.state.expanded.length;
       if (length == 0) return null;
 
-      let name = '';
-      if (length == 1) name = 'Menu';
-
-      if (length > 1) name = humanize(this.state.expanded[length - 2]);
+      const name = length === 1 ? 'Menu' : humanize(this.state.expanded[length - 2]);
 
       return (
         <ActionLink
