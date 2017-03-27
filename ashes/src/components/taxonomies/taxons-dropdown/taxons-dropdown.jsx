@@ -65,30 +65,25 @@ const buildTaxonsDropDownItems = (taxons: TaxonsTree, prefix: string, sep: strin
     const name = getName(node.taxon);
     const path = `${prefix}${name}`;
 
+    res = assoc(res, node.taxon.id, { id: node.taxon.id, name, path });
+
     if (!isEmpty(node.children)) {
       res = merge(res, buildTaxonsDropDownItems(node.children, `${name}${sep}`, sep, res));
-    } else {
-      res = assoc(res, node.taxon.id, { id: node.taxon.id, name, path });
     }
 
     return res;
   }, finale);
 
-const mapFilterResult = (token: string) => (part: string, i: number, arr: Array<string>) => {
-  if (i < arr.length - 1) {
-    return part;
-  }
-
-  return part.replace(new RegExp(token, 'ig'), x => `<span class=${styles.needle}>${x}</span>`);
-};
+const mapFilterResult = (token: string) => (part: string, i: number, arr: Array<string>) =>
+  part.replace(new RegExp(token, 'ig'), x => `<span class=${styles.needle}>${x}</span>`);
 
 const filterItems = (toFilter: Array<DDItem>) => (token: string): Array<DDItem> => {
   let items = [];
 
   if (token.length > 0) {
     items = toFilter
-      .filter(({ name }) => name.toLowerCase().indexOf(token.toLowerCase()) > -1)
-      .map(item => assoc(item, 'name', item.path.split(SEP).map(mapFilterResult(token)).join(SEP)));
+      .filter(({ path }) => path.toLowerCase().indexOf(token.toLowerCase()) > -1)
+      .map(item => assoc(item, 'path', item.path.split(SEP).map(mapFilterResult(token)).join(SEP)));
   }
 
   return items;
@@ -153,9 +148,9 @@ export default class TaxonsDropdown extends Component {
   get searchResults(): Array<Element<*>> {
     const items = filterItems(this.parentItems)(this.state.token);
 
-    return items.map(({ id, name }: DDItem) => (
+    return items.map(({ id, path }: DDItem) => (
       <DropdownItem value={id} key={id}>
-        <span dangerouslySetInnerHTML={{ __html: name }} />
+        <span dangerouslySetInnerHTML={{ __html: path }} />
       </DropdownItem>
     ));
   }
