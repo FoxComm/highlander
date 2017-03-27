@@ -1,9 +1,12 @@
 /* @flow */
 
-// libs
 import React, { Component } from 'react';
+
+// libs
 import { autobind } from 'core-decorators';
 import localized from 'lib/i18n';
+import _ from 'lodash';
+import { connect } from 'react-redux';
 
 // components
 import Currency from 'ui/currency';
@@ -11,6 +14,9 @@ import EditDelivery from './edit-delivery';
 import ViewDelivery from './view-delivery';
 import ActionLink from 'ui/action-link/action-link';
 import Modal from 'ui/modal/modal';
+
+// actions
+import { toggleDeliveryModal } from 'modules/checkout.js';
 
 // styles
 import styles from './delivery.css';
@@ -34,7 +40,7 @@ class Delivery extends Component {
   get action() {
     return (
       <ActionLink
-        action={this.props.toggleShippingModal}
+        action={this.props.toggleDeliveryModal}
         title='Choose'
         styleName="action-link-delivery"
       />
@@ -42,12 +48,7 @@ class Delivery extends Component {
   }
 
   get content() {
-    if (this.props.isEditing) {
-      return (
-
-      );
-    }
-
+    const { deliveryModalVisible, toggleDeliveryModal } = this.props;
     return (
       <div>
         <ViewDelivery
@@ -79,4 +80,15 @@ class Delivery extends Component {
   }
 }
 
-export default localized(Delivery);
+const mapStateToProps = (state) => {
+  return {
+    deliveryModalVisible: _.get(state.checkout, 'deliveryModalVisible', false),
+  };
+};
+
+export default _.flowRight(
+  localized,
+  connect(mapStateToProps, {
+    toggleDeliveryModal,
+  })
+)(Delivery);
