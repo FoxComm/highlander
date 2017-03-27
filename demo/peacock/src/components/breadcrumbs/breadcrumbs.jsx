@@ -5,6 +5,7 @@ import _ from 'lodash';
 import { filter, map, join, flow } from 'lodash/fp';
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
+import { humanize } from 'paragons/categories';
 
 // components
 import { Link } from 'react-router';
@@ -78,21 +79,21 @@ export default class Breadcrumbses extends Component {
       categoryRoutes.push({
         name: 'category',
         params: { categoryName },
-        title: _.capitalize(categoryName),
+        title: humanize(categoryName, '-'),
       });
     }
     if (subCategory) {
       categoryRoutes.push({
         name: 'category',
         params: { categoryName, subCategory },
-        title: _.capitalize(subCategory),
+        title: humanize(subCategory, '-'),
       });
     }
     if (leafCategory) {
       categoryRoutes.push({
         name: 'category',
         params: { categoryName, subCategory, leafCategory },
-        title: _.capitalize(leafCategory),
+        title: humanize(leafCategory, '-'),
       });
     }
 
