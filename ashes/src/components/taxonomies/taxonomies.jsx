@@ -20,7 +20,7 @@ type Props = {
 // structure under /admin/taxonomies.
 const TaxonomiesPage = (props: Props) => {
   const TotalCounter = makeTotalCounter(state => state.taxonomies.list, actions);
-  const addAction = () => console.log('Not implemented');
+  const addAction = () => console.info('Not implemented');
   const navLinks = [{ title: 'Lists', to: 'taxonomies' }];
 
   return (

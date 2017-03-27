@@ -21,4 +21,3 @@
                                  (stop-phoenix)
                                  (stop-app))))
    (<!! (thread (start-app react-app)))))
-

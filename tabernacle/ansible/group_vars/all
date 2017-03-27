@@ -197,6 +197,12 @@ bottledwater_slot_phoenix: bottledwater_phoenix
 bottledwater_slot_middlewarehouse: bottledwater_middlewarehouse
 bottledwater_slot_marketplace: bottledwater_marketplace
 
+# Flyway
+flyway_vers: 4.0.3
+flyway_dir: "/usr/local/share/flyway-{{flyway_vers}}"
+flyway_url: "https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/{{flyway_vers}}/flyway-commandline-{{flyway_vers}}-linux-x64.tar.gz"
+flyway: "{{flyway_dir}}/flyway -locations=filesystem:sql/ -configFile=sql/flyway.conf"
+
 # Phoenix
 phoenix_version: 1.0
 phoenix_env: staging
@@ -291,10 +297,13 @@ es5_jmx_port: 29111
 es5_max_file_descriptors: 65536
 es5_heap_size: 2048m
 
+# Consumers
+activities_topic: "scoped_activities"
+
 # Shipstation consumer
 shipstation_api_key: ""
 shipstation_api_secret: ""
-shipstation_topic: "scoped_activities"
+shipstation_topic: "{{activities_topic}}"
 shipstation_interval: "10s"
 
 # Firebrand variables
