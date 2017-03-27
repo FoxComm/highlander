@@ -36,7 +36,7 @@ export default class NavigationItem extends Component {
   };
 
   static contextTypes = {
-    router: routerShape
+    router: routerShape,
   };
 
   @autobind
