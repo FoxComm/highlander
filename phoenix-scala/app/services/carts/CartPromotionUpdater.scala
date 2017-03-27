@@ -24,7 +24,7 @@ import models.shipping
 import responses.TheResponse
 import responses.cord.CartResponse
 import services.discount.compilers._
-import services.{CartValidator, LineItemManager, LogActivity}
+import services.{CartValidator, LineItemManager, LineItemUpdater, LogActivity}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
@@ -181,6 +181,11 @@ object CartPromotionUpdater {
                    .filter(_.archivedAt.isEmpty)
                    .couponOnly
                    .mustFindOneOr(PromotionNotFoundForContext(coupon.promotionId, ctx.name))
+      promoForm   ← * <~ ObjectForms.mustFindById404(promotion.formId)
+      promoShadow ← * <~ ObjectShadows.mustFindById404(promotion.shadowId)
+      promoObject = IlluminatedPromotion.illuminate(ctx, promotion, promoForm, promoShadow)
+      _ ← * <~ promoObject.mustBeActive
+
       // Create connected promotion and line item adjustments
       _ ← * <~ OrderPromotions.create(OrderPromotion.buildCoupon(cart, promotion, couponCode))
       _ ← * <~ readjust(cart, failFatally = true)
