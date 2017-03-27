@@ -80,3 +80,28 @@
   width: 330px;
   height: 60px;
 }
+
+@media (--small-only) {
+  .order-placed {
+    flex-direction: column;
+    margin: var(--grid-margin);
+  }
+
+  .thank-you {
+    lost-column: 1/1;
+    margin-botton: 50px;
+  }
+
+  .order-summary {
+    lost-column: 1/1;
+    margin: var(--grid-margin);
+  }
+
+  .order-number {
+    width: 100%;
+  }
+
+  .to-home {
+    width: 100%;
+  }
+}
