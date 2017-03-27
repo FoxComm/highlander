@@ -253,21 +253,6 @@ class Pdp extends Component {
       : <ImagePlaceholder largeScreenOnly />;
   }
 
-  get secondaryTitle(): Element<any> {
-    if (this.isGiftCard()) {
-      return (
-        <div styleName="secondary-title">
-          Spread your love. Make them choose what they want.
-        </div>
-      );
-    }
-    return (
-      <div styleName="secondary-title">
-        Stan Smith sneakers made in vintage-look suede.
-      </div>
-    );
-  }
-
   get productDetails(): Element<*> {
     const description = _.get(this.props.product, 'attributes.description.v', '');
     const descriptionList = _.get(this.props.product, 'attributes.description_list.v', '');
@@ -342,7 +327,6 @@ class Pdp extends Component {
             />
             <SecondaryButton styleName="one-click-checkout">1-click checkout</SecondaryButton>
           </div>
-          {this.secondaryTitle}
           {this.productDetails}
         </div>
       </div>
