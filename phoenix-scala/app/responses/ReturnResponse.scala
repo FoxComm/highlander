@@ -29,7 +29,6 @@ object ReturnResponse {
   case class LineItemShippingCost(lineItemId: Int, amount: Int) extends ResponseItem
 
   case class LineItems(skus: Seq[LineItemSku] = Seq.empty,
-                       giftCards: Seq[LineItemGiftCard] = Seq.empty,
                        shippingCosts: Option[LineItemShippingCost] = Option.empty)
       extends ResponseItem
 
@@ -80,17 +79,12 @@ object ReturnResponse {
 
   def buildLineItems(
       skus: Seq[(Sku, ObjectForm, ObjectShadow, ReturnLineItem)],
-      giftCards: Seq[(GiftCard, ReturnLineItem)],
       shippingCosts: Option[(ReturnLineItemShippingCost, ReturnLineItem)]): LineItems = {
     LineItems(
         skus = skus.map {
           case (sku, form, shadow, li) ⇒
             LineItemSku(lineItemId = li.id,
                         sku = DisplaySku(sku = sku.code, price = Mvp.priceAsInt(form, shadow)))
-        },
-        giftCards = giftCards.map {
-          case (gc, li) ⇒
-            LineItemGiftCard(lineItemId = li.id, giftCard = GiftCardResponse.build(gc))
         },
         shippingCosts = shippingCosts.map {
           case (costs, li) ⇒
@@ -124,7 +118,6 @@ object ReturnResponse {
       scPayment <- * <~ ReturnPayments.findAllByReturnId(rma.id).storeCredits.one
       // Line items of each subtype
       lineItems     ← * <~ ReturnLineItemSkus.findLineItemsByRma(rma)
-      giftCards     ← * <~ ReturnLineItemGiftCards.findLineItemsByRma(rma)
       shippingCosts ← * <~ ReturnLineItemShippingCosts.findLineItemByRma(rma)
       // Totals
       adjustments <- * <~ ReturnTotaler.adjustmentsTotal(rma)
@@ -146,7 +139,7 @@ object ReturnResponse {
             au ← adminData
           } yield StoreAdminResponse.build(a, au),
           payments = buildPayments(creditCard = ccPayment, giftCard = gcPayment, storeCredit = scPayment),
-          lineItems = buildLineItems(lineItems, giftCards, shippingCosts),
+          lineItems = buildLineItems(lineItems, shippingCosts),
           totals = Some(buildTotals(subTotal = subTotal, shipping = shipping, adjustments = adjustments, taxes = taxes))
       )
   }

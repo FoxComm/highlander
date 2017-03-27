@@ -26,7 +26,6 @@ case class ReturnLineItem(id: Int = 0,
 object ReturnLineItem {
   sealed trait OriginType extends Product with Serializable
   case object SkuItem      extends OriginType
-  case object GiftCardItem extends OriginType
   case object ShippingCost extends OriginType
 
   sealed trait InventoryDisposition

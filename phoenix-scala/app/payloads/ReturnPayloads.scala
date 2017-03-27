@@ -36,7 +36,6 @@ object ReturnPayloads {
     def typeHints =
       ADTTypeHints(
           Map(
-              ReturnLineItem.GiftCardItem → classOf[ReturnGiftCardLineItemPayload],
               ReturnLineItem.ShippingCost → classOf[ReturnShippingCostLineItemPayload],
               ReturnLineItem.SkuItem      → classOf[ReturnSkuLineItemPayload]
           ))
@@ -52,9 +51,6 @@ object ReturnPayloads {
     override def validate: ValidatedNel[Failure, ReturnLineItemPayload] =
       greaterThan(quantity, 0, "Quantity").map(_ ⇒ this)
   }
-
-  case class ReturnGiftCardLineItemPayload(code: String, reasonId: Int)
-      extends ReturnLineItemPayload
 
   case class ReturnShippingCostLineItemPayload(amount: Int, reasonId: Int)
       extends ReturnLineItemPayload {

@@ -283,16 +283,6 @@ class ReturnIntegrationTest
 
   "Return line items" - {
     "POST /v1/returns/:refNum/line-items" - {
-      "successfully adds gift card line item" in new ReturnDefaults with ReturnReasonDefaults {
-        pending
-
-        val payload =
-          ReturnGiftCardLineItemPayload(code = giftCard.code, reasonId = returnReason.id)
-        val response =
-          returnsApi(rma.referenceNumber).lineItems.add(payload).as[ReturnResponse.Root]
-        response.lineItems.giftCards.headOption.value.giftCard.code must === (giftCard.code)
-      }
-
       "successfully adds shipping cost line item" in new ReturnDefaults with ReturnReasonDefaults {
         val payload =
           ReturnShippingCostLineItemPayload(amount = order.totals.shipping, reasonId = reason.id)
@@ -411,20 +401,6 @@ class ReturnIntegrationTest
     }
 
     "DELETE /v1/returns/:refNum/line-items/:id" - {
-
-      "successfully deletes gift card line item" in new ReturnLineItemDefaults {
-        pending
-
-        val lineItemId =
-          createReturnLineItem(giftCardPayload, rma.referenceNumber).lineItems.giftCards.headOption.value.lineItemId
-
-        returnsApi(rma.referenceNumber).lineItems
-          .remove(lineItemId)
-          .as[ReturnResponse.Root]
-          .lineItems
-          .giftCards mustBe 'empty
-      }
-
       "successfully deletes shipping cost line item" in new ReturnLineItemDefaults {
         returnsApi(rma.referenceNumber).lineItems
           .remove(shippingCostItemId)

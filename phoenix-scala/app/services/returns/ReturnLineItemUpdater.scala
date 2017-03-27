@@ -36,17 +36,10 @@ object ReturnLineItemUpdater {
       reason: ReturnReason,
       payload: ReturnLineItemPayload)(implicit ec: EC, db: DB, ac: AC, oc: OC) = {
     payload match {
-      case giftCard: ReturnGiftCardLineItemPayload     ⇒ addGiftCardItem(rma, reason, giftCard)
       case shipping: ReturnShippingCostLineItemPayload ⇒ addShippingCostItem(rma, reason, shipping)
       case sku: ReturnSkuLineItemPayload               ⇒ addSkuLineItem(rma, reason, sku)
     }
   }
-
-  private def addGiftCardItem(
-      rma: Return,
-      reason: ReturnReason,
-      payload: ReturnGiftCardLineItemPayload)(implicit ec: EC, db: DB): DbResultT[ReturnLineItem] =
-    ??? // TODO add gift card handling
 
   private def validateMaxShippingCost(rma: Return, amount: Int)(implicit ec: EC,
                                                                 db: DB): DbResultT[Unit] =
@@ -154,14 +147,9 @@ object ReturnLineItemUpdater {
       lineItem: ReturnLineItem,
       originType: ReturnLineItem.OriginType)(implicit ec: EC, ac: AC, db: DB): DbResultT[Unit] =
     originType match {
-      case ReturnLineItem.GiftCardItem ⇒ deleteGiftCardLineItem(lineItem)
       case ReturnLineItem.ShippingCost ⇒ deleteShippingCostLineItem(lineItem)
       case ReturnLineItem.SkuItem      ⇒ deleteSkuLineItem(lineItem)
     }
-
-  private def deleteGiftCardLineItem(lineItem: ReturnLineItem)(implicit ec: EC,
-                                                               db: DB): DbResultT[Unit] =
-    ReturnLineItemGiftCards.filter(_.id === lineItem.originId).deleteAll.meh
 
   private def deleteShippingCostLineItem(
       lineItem: ReturnLineItem)(implicit ec: EC, ac: AC, db: DB): DbResultT[Unit] =

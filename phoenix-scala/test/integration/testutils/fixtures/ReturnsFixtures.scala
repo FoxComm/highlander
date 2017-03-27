@@ -151,8 +151,6 @@ trait ReturnsFixtures
       extends ReturnLineItemFixture
       with ReturnReasonDefaults
       with ReturnDefaults {
-    val giftCardPayload =
-      ReturnGiftCardLineItemPayload(code = giftCard.code, reasonId = returnReason.id)
 
     val shippingCostPayload =
       ReturnShippingCostLineItemPayload(amount = order.totals.shipping, reasonId = reason.id)

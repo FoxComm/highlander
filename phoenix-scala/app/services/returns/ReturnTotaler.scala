@@ -19,10 +19,8 @@ object ReturnTotaler {
       skus               ← Skus if skus.id === returnLineItemSkus.skuId
       form               ← ObjectForms if form.id === skus.formId
       shadow             ← ObjectShadows if shadow.id === returnLineItemSkus.skuShadowId
-      gcli               ← ReturnLineItemGiftCards if gcli.id === returnLineItems.id
-      gc                 ← GiftCards if gc.id === gcli.giftCardId
 
       total = ((form.attributes +> ((shadow.attributes +> "salePrice") +>> "ref")) +>> "value")
         .asColumnOf[Int]
-    } yield gc.originalBalance + total).sum.filter(_ > 0).getOrElse(0).result.dbresult
+    } yield total).sum.filter(_ > 0).getOrElse(0).result.dbresult
 }
