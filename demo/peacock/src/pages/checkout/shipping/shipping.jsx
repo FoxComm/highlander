@@ -34,7 +34,7 @@ type Props = {
   addShippingAddress: (address: Address) => Promise<*>,
   updateShippingAddress: (address: Address) => Promise<*>,
   saveShippingAddress: (id: number) => Promise<*>,
-  toggleModal: Function,
+  toggleShippingModal: Function,
   modalVisible: boolean,
   saveShippingState: AsyncStatus,
   cartChangeState: AsyncStatus,
@@ -92,7 +92,7 @@ class Shipping extends Component {
 
       return (
         <ActionLink
-          action={props.toggleModal}
+          action={props.toggleShippingModal}
           title={title}
           styleName="action-link-addresses"
           icon={icon}
@@ -113,7 +113,7 @@ class Shipping extends Component {
   }
 
   get content() {
-    const { toggleModal, modalVisible, shippingAddress } = this.props;
+    const { toggleShippingModal, modalVisible, shippingAddress } = this.props;
 
     if (this.state.fetchedAddresses) {
       return (
@@ -121,7 +121,7 @@ class Shipping extends Component {
           {this.addressDetails}
           <Modal
             show={modalVisible}
-            toggle={toggleModal}
+            toggle={toggleShippingModal}
           >
             <AddressList {...this.props} activeAddress={shippingAddress} />
           </Modal>

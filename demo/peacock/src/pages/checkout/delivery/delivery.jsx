@@ -33,7 +33,7 @@ class Delivery extends Component {
   get action() {
     return (
       <ActionLink
-        action={this.props.toggleModal}
+        action={this.props.toggleShippingModal}
         title='Choose'
         styleName="action-link-delivery"
       />

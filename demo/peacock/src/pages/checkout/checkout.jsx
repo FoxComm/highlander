@@ -100,7 +100,7 @@ class Checkout extends Component {
 
   @autobind
   setDeliveryStage() {
-    this.props.toggleModal();
+    this.props.toggleShippingModal();
     return this.props.setEditStage(EditStages.DELIVERY);
   }
 

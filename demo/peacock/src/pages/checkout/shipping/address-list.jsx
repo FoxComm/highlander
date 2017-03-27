@@ -31,7 +31,7 @@ type Props = {
   updateAddress: (address: Address, id?: number) => Promise<*>,
   editAction: Function,
   onComplete: () => void,
-  toggleModal: Function,
+  toggleShippingModal: Function,
   saveShippingState: AsyncStatus,
   updateAddressState: AsyncStatus,
   t: any,
@@ -254,7 +254,7 @@ class AddressList extends Component {
   renderList() {
     const { props } = this;
     const action = {
-      handler: props.toggleModal,
+      handler: props.toggleShippingModal,
       title: 'Close',
     };
 

@@ -39,7 +39,7 @@ export const setBillingData = createAction('CHECKOUT_SET_BILLING_DATA', (key, va
 export const resetBillingData = createAction('CHECKOUT_RESET_BILLING_DATA');
 export const loadBillingData = createAction('CHECKOUT_LOAD_BILLING_DATA');
 export const setBillingAddress = createAction('CHECKOUT_SET_BILLING_ADDRESS');
-export const toggleModal = createAction('TOGGLE_MODAL');
+export const toggleShippingModal = createAction('TOGGLE_SHIPPING_MODAL');
 const markAddressAsDeleted = createAction('CHECKOUT_MARK_ADDRESS_AS_DELETED');
 const markAddressAsRestored = createAction(
   'CHECKOUT_MARK_ADDRESS_AS_RESTORED',
@@ -530,7 +530,7 @@ const reducer = createReducer({
     }
     return state;
   },
-  [toggleModal]: (state) => {
+  [toggleShippingModal]: (state) => {
     const visibleCurrent = _.get(state, 'modalVisible', false);
     return {
       ...state,
