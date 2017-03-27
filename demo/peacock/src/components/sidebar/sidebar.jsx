@@ -17,7 +17,7 @@ import { fetch as fetchCart } from 'modules/cart';
 import * as actions from 'modules/sidebar';
 
 // components
-import Categories from 'components/navigation/navigation';
+import SidebarNavigation from 'components/navigation/sidebar-navigation';
 import Search from 'components/search/search';
 import Overlay from 'ui/overlay/overlay';
 import ActionLink from 'ui/action-link/action-link';
@@ -32,14 +32,15 @@ type SidebarProps = Localized & {
 
 type State = {
   searchFocused: boolean,
-}
-
+  backButton: () => ?Element,
+};
 
 class Sidebar extends React.Component {
   props: SidebarProps;
 
   state: State = {
     searchFocused: false,
+    backButton: () => null,
   };
 
   @autobind
@@ -99,6 +100,28 @@ class Sidebar extends React.Component {
     }
   }
 
+  get renderControlls() {
+    return (
+      <div styleName="controls-close">
+        <div styleName="back-button">
+          {this.state.backButton()}
+        </div>
+        <div styleName="close-button">
+          <ActionLink
+            action={this.props.toggleSidebar}
+            title="Close"
+            styleName="action-link-close"
+          />
+        </div>
+      </div>
+    );
+  }
+
+  @autobind
+  changeBackButton(backFabric: Function) {
+    this.setState({backButton: backFabric});
+  }
+
   render() {
     const sidebarClass = classNames({
       'sidebar-hidden': !this.props.isVisible,
@@ -110,20 +133,15 @@ class Sidebar extends React.Component {
         <Overlay onClick={this.props.toggleSidebar} shown={this.props.isVisible} />
         <div styleName="container">
           <div styleName="controls">
-            <div styleName="controls-close">
-              <ActionLink
-                action={this.props.toggleSidebar}
-                title="Close"
-                styleName="action-link-close"
-              />
-            </div>
+            { this.renderControlls }
             <div styleName={this.state.searchFocused ? 'controls-search-focused' : 'controls-search'}>
               <Search onSearch={this.props.toggleSidebar} setFocus={this.setFocus} isActive />
             </div>
             <div styleName="links-group" onClick={this.onLinkClick}>
               <div styleName="controls-categories">
-                <Categories
+                <SidebarNavigation
                   path={this.props.path}
+                  renderBack={this.changeBackButton}
                 />
               </div>
               <div styleName="controls-session-wrapper">
