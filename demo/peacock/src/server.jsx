@@ -3,6 +3,7 @@ import { renderToString } from 'react-dom/server';
 import { match, RouterContext } from 'react-router';
 import createHistory from 'history/lib/createMemoryHistory';
 import { useQueries, useBasename } from 'history';
+import useNamedRoutes from 'use-named-routes';
 import { Provider } from 'react-redux';
 
 import makeStore from './store';
@@ -10,7 +11,7 @@ import makeRoutes from './routes';
 import I18nProvider from 'lib/i18n/provider';
 import renderPage from '../build/main.html';
 
-const createServerHistory = useQueries(useBasename(createHistory));
+const createServerHistory = useNamedRoutes(useQueries(useBasename(createHistory)));
 
 function getAssetsNames() {
   let appJs = 'app.js';
@@ -29,9 +30,14 @@ function getAssetsNames() {
 const assetsNames = getAssetsNames();
 
 export function* renderReact() {
+  let store;
+  const getStore = () => store;
+  const routes = makeRoutes(getStore);
+
   const history = createServerHistory({
     entries: [this.url],
     basename: process.env.URL_PREFIX || null,
+    routes: routes,
   });
 
   const authHeader = this.get('Authorization');
@@ -40,8 +46,8 @@ export function* renderReact() {
   const initialState = auth ? {auth} : {};
   if (authHeader) initialState.authHeader = authHeader;
 
-  const store = makeStore(history, initialState);
-  const routes = makeRoutes(store);
+  store = makeStore(history, initialState);
+
 
   const [redirectLocation, renderProps] = yield match.bind(null, { routes, location: this.url, history });
 

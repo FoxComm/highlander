@@ -21,18 +21,19 @@ const Delimiter = (props: {idx: number}) => {
   );
 };
 
-const HomeCrumb = (props: {params: Object}) => {
+const HomeCrumb = () => {
   return (
     <li styleName="item" key="home-breadcrumbs-link">
-      <Link to="/" params={props.params} styleName="link">Home</Link>
+      <Link to="/" styleName="link">Home</Link>
     </li>
   );
 };
 
 const Crumb = (props: {to: string, params: Object, name: string}) => {
+  const linkTo = {name: props.to, params: props.params};
   return (
     <li styleName="item" key={`${props.name}-breadcrumbs-link`}>
-      <Link to={props.to} params={props.params} styleName="link">
+      <Link to={linkTo} styleName="link">
         {props.name}
       </Link>
     </li>
@@ -63,7 +64,7 @@ export default class Breadcrumbses extends Component {
     return title;
   }
 
-  delimeter(idx: number) {
+  delimiter(idx: number) {
     return <Delimiter idx={idx} />;
   }
 
@@ -75,22 +76,28 @@ export default class Breadcrumbses extends Component {
     const categoryRoutes = [];
     if (categoryName) {
       categoryRoutes.push({
-        path: `/${categoryName}`,
-        name: categoryName,
+        name: 'category',
+        params: { categoryName },
+        title: _.capitalize(categoryName),
       });
     }
     if (subCategory) {
       categoryRoutes.push({
-        path: `/${categoryName}/${subCategory}`,
-        name: subCategory,
+        name: 'category',
+        params: { categoryName, subCategory },
+        title: _.capitalize(subCategory),
       });
     }
     if (leafCategory) {
       categoryRoutes.push({
-        path: `/${categoryName}/${subCategory}/${leafCategory}`,
-        name: leafCategory,
+        name: 'category',
+        params: { categoryName, subCategory, leafCategory },
+        title: _.capitalize(leafCategory),
       });
     }
+
+    // we don't need last one
+    categoryRoutes.pop();
 
     return categoryRoutes;
   }
@@ -108,7 +115,7 @@ export default class Breadcrumbses extends Component {
       } else if (_.isEmpty(route.indexRoute) && route.name === 'category') {
         const categoryRoutes = this.categoryRoutes;
         result = _.map(categoryRoutes, part => (
-          <Crumb to={part.path} params={this.props.params} name={this.readableName(part)} />
+          <Crumb to={part.name} params={part.params} name={this.readableName(part)} />
         ));
       } else if (_.isEmpty(route.indexRoute)) {
         result = (
@@ -127,15 +134,15 @@ export default class Breadcrumbses extends Component {
   render() {
     const fromRoutes = _.flatten(this.crumbs);
 
-    const delimeters = _.range(1, fromRoutes.length).map((idx) => {
-      return this.delimeter(idx);
+    const delimiters = _.range(1, fromRoutes.length).map((idx) => {
+      return this.delimiter(idx);
     });
 
-    const withDelimeter = _.zip(fromRoutes, delimeters);
+    const withDelimiter = _.zip(fromRoutes, delimiters);
 
     return (
       <ul styleName="crumbs" className={this.props.className}>
-        {withDelimeter}
+        {withDelimiter}
       </ul>
     );
   }
