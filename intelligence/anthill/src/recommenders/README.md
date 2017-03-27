@@ -1,6 +1,6 @@
 # Anthill Recommenders
 
-## KNN product-product recommender
+## KNN purchase recommender
 Generates a product similarity matrix for products based on "customers who
 purchased this also purchased that".
 
@@ -10,7 +10,8 @@ When customer `1` buys products `4, 5, 6` over channel `1`.
 
 *TODO: Make this endpoint private*
 
-`POST /api/v1/public/recommend/prod-prod/train`
+> `POST /api/v1/public/recommend/prod-prod/train`
+
 body
 ```
 {
@@ -37,7 +38,7 @@ body
 ### Getting a recommendation
 See what products are similar to product 4
 
-`GET /api/v1/public/recommend/prod-prod/4`
+> `GET /api/v1/public/recommend/prod-prod/4?channel=1`
 
 Response:
 ```
@@ -71,13 +72,11 @@ Response:
 }
 ```
 
-### TODO:
-- only send the top `k` suggestions
-- create an activity consumer to train the recommender
+See what products are recommended for customer with id 5
 
-### Dependencies
-- python3
-  - `brew install python3` or `sudo apt-get install python3`
-- numpy, scipy, Flask, matplotlib
-  - `pip3 install --upgrade pip`
-  - `pip3 install numpy scipy Flask matplotlib`
+> `GET /api/v1/public/recommend/cust-prod/5?channel=1`
+
+To get replace the product ids in the previous response with full products from elasticsearch, use the endpoint
+
+> `GET /api/v1/public/recommend/prod-prod/full/4?channel=1`
+> `GET /api/v1/public/recommend/cust-prod/full/5?channel=1`
