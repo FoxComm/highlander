@@ -4,6 +4,7 @@
 .block {
   position: relative;
   border: 1px solid var(--input-border-color);
+  border-radius: 2px;
 }
 
 .textInput {
@@ -82,30 +83,24 @@
   font-size: 10px;
 }
 
-input.pos-b {
+div.pos-b {
   border-top-right-radius: 0;
   border-top-left-radius: 0;
 }
 
-input.pos-l {
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-}
-
 div.pos-l {
   margin-right: -1px;
-}
-
-input.pos-t {
-  border-bottom-left-radius: 0;
+  border-top-right-radius: 0;
   border-bottom-right-radius: 0;
 }
 
 div.pos-t {
   margin-bottom: -1px;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
 }
 
-input.pos-r {
+div.pos-r {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
 }
