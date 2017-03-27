@@ -7,6 +7,12 @@
   composes: scrollbar from "ui/css/scrollbar.css";
 }
 
+.error-alerts div {
+   background: transparent !important;
+   color: var(--color-error);
+   font-size: 17px;
+}
+
 .form-header {
   display: flex;
   justify-content: space-between;

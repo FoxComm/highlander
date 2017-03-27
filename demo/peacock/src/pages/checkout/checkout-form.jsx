@@ -63,12 +63,13 @@ class CheckoutForm extends Component {
       <Form onSubmit={props.submit} styleName="root">
         {this.header}
         <div styleName="form-body">
+          <ErrorAlerts
+            sanitizeError={sanitizeError}
+            error={props.error}
+            styleName="error-alerts"
+          />
           {props.children}
         </div>
-        <ErrorAlerts
-          sanitizeError={sanitizeError}
-          error={props.error}
-        />
         <div styleName="button-wrap">
           <Button styleName="checkout-submit" type="submit" isLoading={props.inProgress}>{this.buttonLabel}</Button>
         </div>
