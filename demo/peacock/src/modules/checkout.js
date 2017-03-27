@@ -424,7 +424,7 @@ const initialState: CheckoutState = {
   addresses: [],
   isAddressLoaded: false,
   creditCard: null,
-  modalVisible: false,
+  shippingModalVisible: false,
 };
 
 function sortAddresses(addresses: Array<Address>): Array<Address> {
@@ -531,10 +531,10 @@ const reducer = createReducer({
     return state;
   },
   [toggleShippingModal]: (state) => {
-    const visibleCurrent = _.get(state, 'modalVisible', false);
+    const visibleCurrent = _.get(state, 'shippingModalVisible', false);
     return {
       ...state,
-      modalVisible: !visibleCurrent,
+      shippingModalVisible: !visibleCurrent,
     };
   },
   [resetCheckout]: () => {
