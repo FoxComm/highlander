@@ -3,12 +3,8 @@
 
 .order-placed {
   composes: inner-wrap from 'ui/css/layout.css';
-
-  & .to-home {
-    padding: 15px 45px;
-    margin-bottom: 45px;
-    text-transform: uppercase;
-  }
+  display: flex;
+  margin-top: 50px;
 
   & .summary {
     margin-bottom: 70px;
@@ -16,17 +12,19 @@
 }
 
 .thank-you {
-  text-align: center;
+  lost-column: 7/11;
+}
+
+.order-summary {
+  lost-column: 4/11;
 }
 
 .title {
-  composes: title-devider from 'ui/css/layout.css';
-
-  margin-bottom: 30px;
-  font-size: 30px;
-  letter-spacing: 1.27px;
-  line-height: 40px;
-  font-weight: 400;
+  margin-bottom: 24px;
+  margin-top: 0;
+  font-size: 40px;
+  font-weight: 900;
+  line-height: 1.25;
 
   &:after {
     margin-left: auto;
@@ -35,23 +33,26 @@
 }
 
 .subtitle {
-  margin: 0;
-  padding: 30px 0;
-  font-size: 14px;
-  font-weight: 400;
-  letter-spacing: 2.25px;
-  text-align: center;
-  text-transform: uppercase;
+  font-size: 16px;
+  line-height: 1.63;
+  font-weight: normal;
 }
 
 .order-number {
   margin-bottom: 40px;
   padding-bottom: 30px;
   border: 2px solid var(--border-color);
+  border-radius: 3px;
+}
 
-  & .subtitle {
-    padding-bottom: 10px;
-  }
+.order-number-content {
+  margin: 15px 18px 10px;
+}
+
+.order-ref {
+  font-size: 32px;
+  font-weight: 900;
+  line-height: 1.19;
 }
 
 .number {
@@ -62,12 +63,11 @@
 
 .desc {
   margin-bottom: 40px;
+  font-size: 20px;
+  line-height: 1.6;
 
   & p {
     margin: 0;
-    font-weight: 300;
-    font-size: 15px;
-    line-height: 33px;
   }
 }
 
@@ -76,14 +76,32 @@
   border: 2px solid var(--border-color);
 }
 
-@media (--medium) {
-  .title {
-    font-size: 41px;
-    letter-spacing: 2.7px;
+.to-home {
+  width: 330px;
+  height: 60px;
+}
+
+@media (--small-only), (--medium-only) {
+  .order-placed {
+    flex-direction: column;
+    margin: var(--grid-margin);
   }
 
-  .subtitle {
-    padding: 40px 0;
-    font-size: 18px;
+  .thank-you {
+    lost-column: 1/1;
+    margin-botton: 50px;
+  }
+
+  .order-summary {
+    lost-column: 1/1;
+    margin: var(--grid-margin);
+  }
+
+  .order-number {
+    width: 100%;
+  }
+
+  .to-home {
+    width: 100%;
   }
 }
