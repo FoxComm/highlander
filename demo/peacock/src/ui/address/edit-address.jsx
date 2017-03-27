@@ -181,6 +181,7 @@ export default class EditAddress extends Component {
           mask={mask}
           styleName="text-input"
           placeholderChar={'\u2000'}
+          pos="bottom"
         />
       );
     } else {
@@ -286,6 +287,7 @@ export default class EditAddress extends Component {
         <div styleName="form-group">
           <FormField styleName="text-field">
             <TextInput
+              pos="top"
               required
               name="name"
               placeholder={t('First & Last Name')}
@@ -293,29 +295,45 @@ export default class EditAddress extends Component {
               onChange={this.changeFormData}
             />
           </FormField>
-          <FormField label={t('Phone Number')} styleName="text-field" validator="phoneNumber">
+          <FormField
+            label={t('Phone Number')}
+            styleName="text-field"
+            validator="phoneNumber"
+          >
             {this.phoneInput}
           </FormField>
         </div>
         <div styleName="form-group">
           <FormField styleName="text-field">
             <TextInput
+              pos="top"
               required
-              name="address1" placeholder={t('Address Line 1')} value={data.address1} onChange={this.changeFormData}
+              name="address1"
+              placeholder={t('Address Line 1')}
+              value={data.address1}
+              onChange={this.changeFormData}
             />
           </FormField>
           <FormField styleName="text-field">
             <TextInput
-              name="address2" placeholder={t('Address Line 2 (optional)')} value={data.address2}
+              pos="bottom"
+              name="address2"
+              placeholder={t('Address Line 2 (optional)')}
+              value={data.address2}
               onChange={this.changeFormData}
             />
           </FormField>
         </div>
         <div styleName="form-group">
           <FormField styleName="text-field">
-            <TextInput required name="city" placeholder={t('City')} onChange={this.changeFormData} value={data.city} />
+            <TextInput
+              pos="top"
+              required
+              name="city"
+              placeholder={t('City')}
+              onChange={this.changeFormData} value={data.city}
+            />
           </FormField>
-          { withCountry && this.countryInput }
           <div styleName="input-group">
             <FormField styleName="text-field-state">
               <Select
@@ -329,8 +347,17 @@ export default class EditAddress extends Component {
                 name="state"
               />
             </FormField>
-            <FormField styleName="text-field-zip" validator="zipCode">
-              <TextInput required placeholder={t('Zip')} onChange={this.handleZipChange} value={data.zip} />
+            <FormField
+              styleName="text-field-zip"
+              validator="zipCode"
+            >
+              <TextInput
+                pos="bottom-right"
+                required
+                placeholder={t('Zip')}
+                onChange={this.handleZipChange}
+                value={data.zip}
+              />
             </FormField>
           </div>
         </div>

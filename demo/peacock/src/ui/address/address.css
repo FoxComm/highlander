@@ -8,13 +8,6 @@
 
 .form-group {
   margin-bottom: 10px;
-  border: 1px solid var(--input-border-color);
-  border-top: none;
-  border-radius: 4px;
-  & input {
-    border: none;
-    border-top: 1px solid var(--input-border-color);
-  }
 }
 
 .input-group {
@@ -32,6 +25,8 @@
   composes: text-field;
   flex-grow: 2;
   display: flex;
+  border: 1px solid var(--input-border-color);
+  border-right-width: 0;
 }
 
 .text-field-zip {
