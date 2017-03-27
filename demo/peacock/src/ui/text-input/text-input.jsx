@@ -1,8 +1,10 @@
-// @flow
+/* @flow */
 
 import React, { Element, Component, PropTypes } from 'react';
-import s from './text-input.css';
+
 import classNames from 'classnames';
+
+import s from './text-input.css';
 
 type Props = {
   className?: string,
@@ -38,6 +40,8 @@ class TextInput extends Component {
         return ['t', 'b'];
       case 'middle-h':
         return ['r', 'l'];
+      case 'bottom-right':
+        return ['b', 'r'];
       case 'top':
         return ['t'];
       case 'bottom':
@@ -78,7 +82,7 @@ class TextInput extends Component {
     });
 
     const blockClass = classNames(s.block, posClassNames, {
-      [s.error]: !error,
+      [s.error]: error,
       [s.hasCard]: hasCard,
       [s.hasSymbol]: hasSymbol,
       [s.hasTopMessages]: showSmallPlaceholder || showErrorText,

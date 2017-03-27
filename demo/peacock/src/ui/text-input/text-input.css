@@ -3,6 +3,7 @@
 
 .block {
   position: relative;
+  border: 1px solid var(--input-border-color);
 }
 
 .textInput {
@@ -12,8 +13,8 @@
   padding: 12px 11px 5px;
   border-radius: 2px;
   background-color: var(--input-background);
-  border: solid 1px var(--input-border-color);
   color: var(--input-text-color);
+  border: none;
   box-shadow: none;
 
   &:active {
@@ -27,13 +28,14 @@
   padding-top: 15px;
 }
 
-input.error {
+/*input.error {
   border: 1px solid var(--color-error);
   color: var(--color-error);
-}
+}*/
 
 .block.error {
-  z-index: 1;
+  z-index: 2;
+  border-color: red;
 }
 
 .block:focus {
