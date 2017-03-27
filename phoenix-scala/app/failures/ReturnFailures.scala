@@ -36,6 +36,12 @@ object ReturnFailures {
       s"Returned shipping cost ($amount) cannot be greater than $maxAmount for return $refNum"
   }
 
+  case class ReturnSkuItemQuantityExceeded(refNum: String, quantity: Int, maxQuantity: Int)
+      extends Failure {
+    def description: String =
+      s"Returned sku line item quantity ($quantity) cannot be greater than $maxQuantity for return $refNum"
+  }
+
   case class ReturnPaymentExceeded(refNum: String, amount: Int, maxAmount: Int) extends Failure {
     def description: String =
       s"Returned payment ($amount) cannot be greater than $maxAmount for return $refNum"

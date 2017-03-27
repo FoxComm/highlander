@@ -1,9 +1,11 @@
 package services.returns
 
-import failures.ReturnFailures.{ReturnReasonNotFoundFailure, ReturnShippingCostExceeded}
+import failures.ReturnFailures._
 import models.cord.Orders
+import models.cord.lineitems.{OrderLineItem, OrderLineItems}
+import models.inventory.Skus
 import models.objects._
-import models.returns._
+import models.returns.{Returns, _}
 import payloads.ReturnPayloads._
 import responses.ReturnResponse
 import services.LogActivity
@@ -82,12 +84,38 @@ object ReturnLineItemUpdater {
       _  ← * <~ LogActivity().returnShippingCostItemAdded(rma, reason, payload)
     } yield li
 
+  private def validateMaxQuantity(rma: Return, sku: String, quantity: Int)(
+      implicit ec: EC,
+      db: DB,
+      oc: OC): DbResultT[Unit] =
+    for {
+      order ← * <~ Orders.mustFindByRefNum(rma.orderRef)
+      orderedQuantity ← * <~ OrderLineItems
+                         .findByOrderRef(rma.orderRef)
+                         .join(Skus.filter(_.code === sku))
+                         .on(_.skuId === _.id)
+                         .countDistinct
+                         .result
+      previouslyReturned ← * <~ Returns
+                            .findPrevious(rma)
+                            .join(ReturnLineItemSkus)
+                            .on(_.id === _.returnId)
+                            .countDistinct
+                            .result
+      maxQuantity = orderedQuantity - previouslyReturned
+      _ ← * <~ failIf(quantity > maxQuantity,
+                      ReturnSkuItemQuantityExceeded(refNum = rma.referenceNumber,
+                                                    quantity = quantity,
+                                                    maxQuantity = maxQuantity))
+    } yield ()
+
   private def addSkuLineItem(rma: Return, reason: ReturnReason, payload: ReturnSkuLineItemPayload)(
       implicit ec: EC,
       db: DB,
       ac: AC,
       oc: OC): DbResultT[ReturnLineItem] =
     for {
+      _         ← * <~ validateMaxQuantity(rma, payload.sku, payload.quantity)
       sku       ← * <~ SkuManager.mustFindSkuByContextAndCode(oc.id, payload.sku)
       skuShadow ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
       origin ← * <~ ReturnLineItemSkus.create(

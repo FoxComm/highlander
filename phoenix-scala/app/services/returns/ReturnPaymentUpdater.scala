@@ -151,11 +151,11 @@ object ReturnPaymentUpdater {
       cc ← * <~ CreditCards.mustFindById404(payment.paymentMethodId)
       _  ← * <~ deleteCcPayment(returnId)
       ccRefund ← * <~ ReturnPayments.create(
-                    ReturnPayment.build(method = PaymentMethod.CreditCard,
-                                        methodId = cc.id,
-                                        returnId = returnId,
-                                        amount = amount,
-                                        currency = payment.currency))
+                    ReturnPayment(returnId = returnId,
+                                  amount = amount,
+                                  currency = payment.currency,
+                                  paymentMethodId = cc.id,
+                                  paymentMethodType = PaymentMethod.CreditCard))
     } yield ccRefund
 
   private def addGiftCard(returnId: Int,
@@ -176,11 +176,11 @@ object ReturnPaymentUpdater {
                   currentBalance = amount
               ))
       pmt ← * <~ ReturnPayments.create(
-               ReturnPayment.build(method = PaymentMethod.GiftCard,
-                                   methodId = gc.id,
-                                   returnId = returnId,
-                                   amount = amount,
-                                   currency = payment.currency))
+               ReturnPayment(returnId = returnId,
+                             amount = amount,
+                             currency = payment.currency,
+                             paymentMethodId = gc.id,
+                             paymentMethodType = PaymentMethod.GiftCard))
     } yield pmt
 
   private def addStoreCredit(returnId: Int, accountId: Int, payment: OrderPayment, amount: Int)(
@@ -201,11 +201,11 @@ object ReturnPaymentUpdater {
                           availableBalance = amount,
                           currentBalance = amount))
       pmt ← * <~ ReturnPayments.create(
-               ReturnPayment.build(method = PaymentMethod.StoreCredit,
-                                   methodId = sc.id,
-                                   returnId = returnId,
-                                   amount = amount,
-                                   currency = payment.currency))
+               ReturnPayment(returnId = returnId,
+                             amount = amount,
+                             currency = payment.currency,
+                             paymentMethodId = sc.id,
+                             paymentMethodType = PaymentMethod.StoreCredit))
     } yield pmt
 
   def deletePayment(refNum: String, paymentMethod: PaymentMethod.Type)(

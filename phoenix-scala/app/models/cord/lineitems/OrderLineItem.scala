@@ -137,7 +137,7 @@ object OrderLineItems
 
   val returningLens: Lens[OrderLineItem, Int] = lens[OrderLineItem].id
 
-  def findByOrderRef(cordRef: Rep[String]): Query[OrderLineItems, OrderLineItem, Seq] =
+  def findByOrderRef(cordRef: String): QuerySeq =
     filter(_.cordRef === cordRef)
 
   def findBySkuId(id: Int): DBIO[Option[OrderLineItem]] =
