@@ -1,6 +1,6 @@
 @import "colors.css";
 @import "variables.css";
-@import "media-queries";
+@import "media-queries.css";
 
 .list-item {
   width: calc(20% - (var(--grid-margin)/2));
