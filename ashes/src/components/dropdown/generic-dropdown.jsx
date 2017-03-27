@@ -79,7 +79,7 @@ export default class GenericDropdown extends Component {
   _menu: HTMLElement;
   _container: HTMLElement;
 
-  componentWillReceiveProps(newProps: Props, newState: State) {
+  componentWillReceiveProps(newProps: Props) {
     this.setState({
       selectedValue: newProps.value,
       open: newProps.open !== this.props.open ? newProps.open : this.state.open,

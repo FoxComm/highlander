@@ -28,7 +28,7 @@ type ReduceResult = {
 type Props = {
   taxonomy: Taxonomy,
   taxon: Taxon,
-  onChange: (id: number) => any,
+  onChange: (id: ?number) => any,
 };
 
 type State = {
@@ -39,9 +39,9 @@ type State = {
 
 const SEP = ' > ';
 
-const getName = (taxon: Taxon, dft = '') => get(taxon, 'attributes.name.v', dft);
+const getName = (taxon: ?Taxon, dft = '') => get(taxon, 'attributes.name.v', dft);
 
-function findNode(taxons: TaxonsTree, id: number): Taxon {
+function findNode(taxons: TaxonsTree, id: number): ?Taxon {
   const _find = (taxons: TaxonsTree, id: number) =>
     taxons.reduce((res: ?Taxon, node): ?Taxon => {
       if (res) {
@@ -74,7 +74,7 @@ const buildTaxonsDropDownItems = (taxons: TaxonsTree, prefix: string, sep: strin
     return res;
   }, finale);
 
-const mapFilterResult = (token: string) => (part: string, i: number, arr: Array<DDItem>) => {
+const mapFilterResult = (token: string) => (part: string, i: number, arr: Array<string>) => {
   if (i < arr.length - 1) {
     return part;
   }
@@ -110,10 +110,10 @@ export default class TaxonsDropdown extends Component {
   }
 
   @autobind
-  handleTokenChange({ target: { value } }) {
+  handleTokenChange({ target }: { target: HTMLInputElement }) {
     this.setState({
-      token: value,
-      ddOpen: value.length > 0,
+      token: target.value,
+      ddOpen: target.value.length > 0,
     });
   }
 
@@ -130,7 +130,7 @@ export default class TaxonsDropdown extends Component {
   }
 
   @autobind
-  renderInput() {
+  renderInput(): Element<*> {
     const parentId = get(this.props.taxon, ['location', 'parent']);
     const parent = findNode(this.props.taxonomy.taxons, parentId);
     const parentName = getName(parent, null);
@@ -150,7 +150,7 @@ export default class TaxonsDropdown extends Component {
     );
   }
 
-  get searchResults() {
+  get searchResults(): Array<Element<*>> {
     const items = filterItems(this.parentItems)(this.state.token);
 
     return items.map(({ id, name }: DDItem) => (

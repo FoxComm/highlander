@@ -1,9 +1,10 @@
 // @flow
 
 // lib
+import get from 'lodash/get';
 import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
-import React, { Component, Element } from 'react';
+import React, { Component } from 'react';
 
 // components
 import FormField from 'components/forms/formfield';
@@ -40,7 +41,7 @@ export default class TaxonDetails extends Component {
         label="Parent"
       >
         <TaxonsDropdown
-          taxonomy={this.props.taxonomy}
+          taxonomy={get(this.props, 'taxonomy')}
           taxon={this.props.object}
           onChange={this.handleParentChange}
         />
