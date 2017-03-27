@@ -79,6 +79,22 @@
     position: fixed;
     box-shadow: 0 5px 10px rgba(0, 0, 0, .1);
   }
+
+  .order-totals {
+    width: 100%;
+  }
+
+  .totals-list {
+    margin: 22px 10px 50px;
+  }
+
+  .place-order-block {
+    height: 44px;
+  }
+
+  .place-order-button {
+    border-radius: 0;
+  }
 }
 
 @media (--medium-only) {
@@ -141,6 +157,22 @@
     margin-bottom: 20px;
     font-size: 15px;
   }
+
+  .order-totals {
+    lost-column: 4/12;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+  }
+
+  .totals-list {
+    margin: 12px 18px;
+  }
+
+  .place-order-block {
+    margin: 29px 18px 21px;
+  }
+
+  .place-order-button {}
 }
 
 .text-field {
