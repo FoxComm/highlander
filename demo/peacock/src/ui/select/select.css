@@ -13,20 +13,20 @@
   }
 
    &::after {
-     position: absolute;
-     pointer-events: none;
-     display: block;
-     width: 12px;
-     height: 9px;
-     top: calc(50% - 4px);
-     right: 8px;
-     content: '';
-     background: url('/images/symbols/caret-down.svg') center right no-repeat;
+    position: absolute;
+    pointer-events: none;
+    display: block;
+    width: 12px;
+    height: 9px;
+    top: calc(50% - 4px);
+    right: 8px;
+    content: '';
+    background: url('/images/symbols/caret-down.svg') center right no-repeat;
   }
 }
 
 .select-box select {
-   appearance: none;
+  appearance: none;
 }
 
 .state-select-box {
