@@ -15,7 +15,6 @@ import auth from './auth';
 import usermenu from './usermenu';
 import profile from './profile';
 import orders from './orders';
-import banner from './banner';
 
 import { reducer as asyncReducer } from '@foxcomm/wings/lib/redux/async-utils';
 
@@ -34,7 +33,6 @@ const reducer = combineReducers({
   usermenu,
   profile,
   orders,
-  banner,
 });
 
 export default reducer;

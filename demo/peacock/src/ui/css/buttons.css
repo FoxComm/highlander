@@ -3,9 +3,10 @@
 
 .button {
   width: 100%;
-  font-size: 14px;
-  line-height: 20px;
-  padding: 14px 10px;
+  font-weight: 900;
+  font-size: 16px;
+  line-height: 2.75;
+  padding: 0;
   border: none;
   border-radius: 4px;
   background-color: var(--button-default-background);
@@ -17,12 +18,9 @@
     background: var(--button-active-background);
   }
 
-  &:visited {
-    background: var(--button-visited-background);
-  }
-
   &:focus {
-    border: 1px solid var(--button-focus-background);
+    /* outline: 4px solid var(--baby-blue); */
+    box-shadow: 0 0 3pt 2pt var(--baby-blue);
     background: var(--button-focus-background);
   }
 
@@ -45,8 +43,7 @@
   }
 }
 
-.button-loading {
-  composes: button;
+._loading {
   background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUAQMAAAC3R49OAAAABlBMVEUAAAAAAAClZ7nPAAAAAnRSTlMAF/VASP8AAABBSURBVHheZckxFYAgFADA8zkwYgMr2MBKNpBoRCHCHxl4YADnsxymy/DoQmyh7aGmUHJwBnfjraxiW+yTNMj9xx9ZVxpfjbpEWgAAAABJRU5ErkJggg==);
   animation: caramel .5s linear infinite;
 
@@ -69,13 +66,8 @@
 }
 
 
-.button-secondary {
-  min-width: 11.2em;
-  height: 3.1em;
+._secondary {
   background: var(--button-alt-default-background);
-  text-transform: uppercase;
-  font-size: 13px;
-  font-weight: 300;
   color: var(--button-label-color);
 
   &:active {
@@ -88,10 +80,10 @@
   }
 }
 
-@media (--small-only) {
+@media (--large) {
   .button {
-    line-height: 16px;
-    padding: 11px 6px;
+    font-size: 20px;
+    line-height: 2.9;
   }
 }
 

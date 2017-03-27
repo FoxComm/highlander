@@ -3,7 +3,7 @@
 // libs
 import _ from 'lodash';
 import { filter, map, join, flow } from 'lodash/fp';
-import React, { Element } from 'react';
+import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 
 // components
@@ -11,7 +11,7 @@ import { Link } from 'react-router';
 
 import styles from './breadcrumbs.css';
 
-import type { RoutesParams, Route } from 'types';
+import type { Route } from 'types';
 
 const Delimiter = (props: {idx: number}) => {
   return (
@@ -39,8 +39,7 @@ const Crumb = (props: {to: string, params: Object, name: string}) => {
   );
 };
 
-export default class Breadcrumbses extends React.Component {
-  props: RoutesParams;
+export default class Breadcrumbses extends Component {
 
   @autobind
   readableName(route: Route) {
@@ -135,7 +134,7 @@ export default class Breadcrumbses extends React.Component {
     const withDelimeter = _.zip(fromRoutes, delimeters);
 
     return (
-      <ul styleName="crumbs">
+      <ul styleName="crumbs" className={this.props.className}>
         {withDelimeter}
       </ul>
     );
