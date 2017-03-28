@@ -36,7 +36,7 @@ TypeaheadItems.propTypes = {
   items: PropTypes.array,
 };
 
-TypeaheadItems.defaultValues = {
+TypeaheadItems.defaultProps = {
   items: [],
 };
 

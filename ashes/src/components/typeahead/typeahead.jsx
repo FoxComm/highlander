@@ -8,9 +8,9 @@ import _ from 'lodash';
 // components
 import TypeaheadItems from './items';
 import TypeaheadInput from './input';
-import { FormField } from '../forms';
-import Alert from '../alerts/alert';
-import LoadingInputWrapper from '../forms/loading-input-wrapper';
+import { FormField } from 'components/forms';
+import Alert from 'components/alerts/alert';
+import LoadingInputWrapper from 'components/forms/loading-input-wrapper';
 
 // styles
 import s from './typeahead.css';

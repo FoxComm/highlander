@@ -1,5 +1,5 @@
 // libs
-import React, { Component, PropTypes } from 'react';
+import React from 'react';
 import s from './category-item.css';
 
 export const CategoryItem = props => {

@@ -7,15 +7,19 @@ import React, { Component, Element, PropTypes } from 'react';
 import classNames from 'classnames';
 import _ from 'lodash';
 import { assoc } from 'sprout-data';
-import s from './product-amazon.css';
-import Form from '../forms/form';
-import WaitAnimation from '../common/wait-animation';
-import ObjectFormInner from '../object-form/object-form-inner';
-import ContentBox from '../content-box/content-box';
+
+// components
+import Form from 'components/forms/form';
+import WaitAnimation from 'components/common/wait-animation';
+import ObjectFormInner from 'components/object-form/object-form-inner';
+import ContentBox from 'components/content-box/content-box';
 import MultiSelectTable from 'components/table/multi-select-table';
 import EditableSkuRow from './skus/editable-sku-row';
 import { setSkuAttribute } from 'paragons/product';
-import { PrimaryButton } from '../common/buttons';
+import { PrimaryButton } from 'components/common/buttons';
+
+// styles
+import s from './product-amazon.css';
 
 type State = {
   product: Object,

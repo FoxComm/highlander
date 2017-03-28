@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import _ from 'lodash';
 
 // components
-import LoadingInputWrapper from '../forms/loading-input-wrapper';
+import LoadingInputWrapper from 'components/forms/loading-input-wrapper';
 import { INPUT_ATTRS } from 'paragons/common';
 
 // styles

@@ -8,6 +8,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import _ from 'lodash';
+import { autobind } from 'core-decorators';
 
 // actions
 import * as productActions from 'modules/products/details';
@@ -15,12 +16,12 @@ import * as amazonActions from 'modules/channels/amazon';
 import * as schemaActions from 'modules/object-schema';
 
 // components
-import WaitAnimation from '../common/wait-animation';
-import ObjectFormInner from '../object-form/object-form-inner';
+import WaitAnimation from 'components/common/wait-animation';
+import ObjectFormInner from 'components/object-form/object-form-inner';
 import ProductAmazonForm from './product-amazon-form';
-import ContentBox from '../content-box/content-box';
-import { PrimaryButton } from '../common/buttons';
-import Typeahead from '../typeahead/typeahead';
+import ContentBox from 'components/content-box/content-box';
+import { PrimaryButton } from 'components/common/buttons';
+import Typeahead from 'components/typeahead/typeahead';
 import { CategoryItem } from './category-item';
 
 // selectors
@@ -115,7 +116,7 @@ class ProductAmazon extends Component {
         product={product}
         categoryId={categoryId}
         categoryPath={categoryPath}
-        onSubmit={(p) => this._handleSubmit(p)}
+        onSubmit={this._handleSubmit}
       />
     );
   }
@@ -136,17 +137,17 @@ class ProductAmazon extends Component {
           <div className={s.suggesterWrapper}>
             <Typeahead
               className={s.suggester}
-              onItemSelected={this._onCatPick.bind(this)}
+              onItemSelected={this._onCatPick}
               items={suggest}
               isFetching={fetchingSuggest}
-              fetchItems={this._handleFetch.bind(this)}
+              fetchItems={this._handleFetch}
               component={CategoryItem}
               initialValue={this.state.categoryPath}
             />
           </div>
         </ContentBox>
         {this.renderForm()}
-        <PrimaryButton onClick={this._handlePush.bind(this)}>Push</PrimaryButton>
+        <PrimaryButton onClick={this._handlePush}>Push</PrimaryButton>
       </div>
     );
   }
@@ -157,12 +158,14 @@ class ProductAmazon extends Component {
     return _.get(product, ['attributes', 'nodeId', 'v'], null);
   }
 
+  @autobind
   _handleFetch(text) {
     const { title } = this.props;
 
     this.props.actions.fetchSuggest(title, text);
   }
 
+  @autobind
   _onCatPick(item) {
     const { id, path } = item;
 
@@ -177,12 +180,14 @@ class ProductAmazon extends Component {
     fetchAmazonSchema(id);
   }
 
+  @autobind
   _handleSubmit(nextProduct) {
     const { actions: { updateProduct } } = this.props;
 
     updateProduct(nextProduct);
   }
 
+  @autobind
   _handlePush() {
     const { product, actions: { pushProduct } } = this.props;
 

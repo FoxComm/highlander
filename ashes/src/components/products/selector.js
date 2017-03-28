@@ -13,15 +13,6 @@ function processItem(item) {
  */
 export function getSuggest(response) {
   // @todo find a way to search by title in hyperion
-  // const ret = {};
-
-  // if (response.primary && response.primary.length) {
-  //   ret.primary = response.primary.map(processItem);
-  // }
-
-  // if (response.secondary && response.secondary.length) {
-  //   ret.secondary = response.secondary.map(processItem);
-  // }
 
   return (response.secondary || []).map(processItem);
 }
