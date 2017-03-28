@@ -18,6 +18,8 @@ import GuestAuth from './guest-auth/guest-auth';
 import Header from 'components/header/header';
 import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
 import Loader from 'ui/loader';
+import OrderTotals from 'components/order-summary/totals';
+import Button from 'ui/buttons';
 
 // styles
 import styles from './checkout.css';
@@ -157,6 +159,22 @@ class Checkout extends Component {
     });
   }
 
+  get orderTotals() {
+    return (
+      <div styleName="order-totals">
+        <div styleName="totals-list">
+          <OrderTotals totals={this.props.cart.totals} />
+        </div>
+
+        <div styleName="place-order-block">
+          <Button styleName="place-order-button" onClick={this.placeOrder} disabled={false}>
+            Place Order
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   get content() {
     /* elements to be added later
     <div styleName="summary">
@@ -215,6 +233,8 @@ class Checkout extends Component {
               isGuestMode={isGuestMode}
             />
           </div>
+
+          {this.orderTotals}
 
           <GuestAuth
             isEditing={!this.isEmailSetForCheckout()}
