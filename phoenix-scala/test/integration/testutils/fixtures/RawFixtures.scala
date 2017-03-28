@@ -2,6 +2,7 @@ package testutils.fixtures
 
 import cats.implicits._
 import com.github.tminglei.slickpg.LTree
+import models.Reason.Cancellation
 import models._
 import models.account._
 import models.cord._
@@ -28,7 +29,9 @@ trait RawFixtures extends RawPaymentFixtures with TestSeeds {
   trait Reason_Raw {
     def storeAdmin: User
 
-    val reason: Reason = Reasons.create(Factories.reason(storeAdmin.accountId)).gimme
+    private val r: Reason          = Factories.reason(storeAdmin.accountId)
+    val reason: Reason             = Reasons.create(r).gimme
+    val cancellationReason: Reason = Reasons.create(r.copy(reasonType = Cancellation)).gimme
   }
 
   trait CustomerAddress_Raw {

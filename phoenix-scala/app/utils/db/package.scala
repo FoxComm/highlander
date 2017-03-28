@@ -274,18 +274,18 @@ package object db {
   def doOrMeh(condition: Boolean, action: DbResultT[_])(implicit ec: EC): DbResultT[Unit] =
     if (condition) action.meh else DbResultT.unit
 
-  def doOrGood[A](condition: Boolean, action: DbResultT[A], good: A)(
+  def doOrGood[A](condition: Boolean, action: DbResultT[A], good: ⇒ A)(
       implicit ec: EC): DbResultT[A] =
     if (condition) action else DbResultT.good(good)
 
-  def doOrFail[A](condition: Boolean, action: DbResultT[A], failure: Failure)(
+  def doOrFail[A](condition: Boolean, action: DbResultT[A], failure: ⇒ Failure)(
       implicit ec: EC): DbResultT[A] =
     if (condition) action else DbResultT.failure(failure)
 
-  def failIf(condition: Boolean, failure: Failure)(implicit ec: EC): DbResultT[Unit] =
+  def failIf(condition: Boolean, failure: ⇒ Failure)(implicit ec: EC): DbResultT[Unit] =
     if (condition) DbResultT.failure(failure) else DbResultT.unit
 
-  def failIfNot(condition: Boolean, failure: Failure)(implicit ec: EC): DbResultT[Unit] =
+  def failIfNot(condition: Boolean, failure: ⇒ Failure)(implicit ec: EC): DbResultT[Unit] =
     failIf(!condition, failure)
 
   def failIfFailures(failures: Seq[Failure])(implicit ec: EC): DbResultT[Unit] =
