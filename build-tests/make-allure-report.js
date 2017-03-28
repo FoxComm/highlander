@@ -9,8 +9,7 @@ fs.readFile(process.argv[2], 'utf8', (err, data) => {
   } else {
     const testCasesBySuite = Object.create(null);
     const outputBlocks = data.split('\n\n\n');
-    const resultsBlock = outputBlocks[0];
-    const resultsText = resultsBlock.trim().split('\n\n')[0];
+    const resultsText = outputBlocks[0].trim();
 
     for (const testCaseResultText of resultsText.split('\n')) {
       const match = /✔ ([A-Za-z-]+) › (.+) \(\d+\.\d+s\)/.exec(testCaseResultText.trim());
