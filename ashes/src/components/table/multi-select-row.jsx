@@ -9,11 +9,6 @@ import { Checkbox } from '../checkbox/checkbox';
 import TableCell from '../table/cell';
 import TableRow from '../table/row';
 
-const stopPropogation = (event: MouseEvent) => {
-  event.preventDefault();
-  event.stopPropagation();
-};
-
 const MultiSelectRow = (props, context) => {
   const {
     columns,
@@ -32,9 +27,11 @@ const MultiSelectRow = (props, context) => {
   // single click leads to transition
   // over click leads to page load
   if (linkTo) {
-    onClick = (event) => {
+    onClick = (event: MouseEvent) => {
       if (event.button == 0 && !event.ctrlKey) {
-        stopPropogation(event);
+        event.preventDefault();
+        event.stopPropagation();
+
         transitionTo(linkTo, linkParams);
       }
     };
@@ -42,12 +39,12 @@ const MultiSelectRow = (props, context) => {
     href = context.router.createHref({ name: linkTo, params: linkParams });
   }
 
+  const onChange = ({ target: { checked } }) => setChecked(checked);
+
   const cells = _.reduce(columns, (visibleCells, col) => {
     const cellKey = `row-${col.field}`;
     let cellContents = null;
     let cellClickAction = null;
-
-    const onChange = ({ target: { checked } }) => setChecked(checked);
 
     const cls = classNames(`fct-row__${col.field}`, {
       'row-head-left': col.field == 'selectColumn',
@@ -55,7 +52,7 @@ const MultiSelectRow = (props, context) => {
 
     switch (col.field) {
       case 'selectColumn':
-        cellClickAction = stopPropogation;
+        cellClickAction = (event: MouseEvent) => event.stopPropagation();
         cellContents = <Checkbox id={`multi-select-${row.id}`} inline={true} checked={checked} onChange={onChange} />;
         break;
       default:
