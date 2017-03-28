@@ -17,25 +17,28 @@ type Props = {
 };
 
 const LineItemRow = (props: Props) => {
-  console.log(props);
   return (
     <div styleName="line-item">
       <div styleName="content">
-      <div styleName="product-image">
-        <img src={props.imagePath} />
-      </div>
-      <div styleName="product-info">
-        <div styleName="product-name">{props.name}</div>
-        <div styleName="product-variant">{/* TODO: variant info must be here */}</div>
-      </div>
-      <div styleName="price-and-quantity">
-        <div styleName="price-block">{props.quantity}</div>
-        <div>×</div>
-        <div styleName="price-block"><Currency value={props.price} /></div>
-      </div>
-      <div styleName="product-price">
-        <Currency value={props.totalPrice} />
-      </div>
+        <div styleName="product-image">
+          <img src={props.imagePath} />
+        </div>
+        <div styleName="product-data">
+          <div styleName="product-info">
+            <div styleName="product-name">{props.name}</div>
+            <div styleName="product-variant">{/* TODO: variant info must be here */}</div>
+          </div>
+          <div styleName="price-data">
+            <div styleName="price-and-quantity">
+              <div styleName="qnt-block">{props.quantity}</div>
+              <div>×</div>
+              <div styleName="price-block"><Currency value={props.price} /></div>
+            </div>
+            <div styleName="product-price">
+              <Currency value={props.totalPrice} />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

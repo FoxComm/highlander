@@ -99,6 +99,10 @@
   .place-order-button {
     border-radius: 0;
   }
+
+  .order-content {
+    margin: 0 var(--grid-margin);
+  }
 }
 
 @media (--medium-only) {
