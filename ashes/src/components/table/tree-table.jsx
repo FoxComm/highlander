@@ -7,6 +7,9 @@ import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
 import React, { Component, Element } from 'react';
 
+// helpers
+import { collapseNode, updateNodes } from 'paragons/tree';
+
 // components
 import MultiSelectTable from 'components/table/multi-select-table';
 import { Button } from 'components/common/buttons';
@@ -14,20 +17,11 @@ import { Button } from 'components/common/buttons';
 // styles
 import styles from './tree-table.css';
 
-type Identifier = number|string;
+type Row = { [key: string]: string | number };
 
-type Row = { [key: string]: string|number };
-
-type Node = {
+type TableNode = TreeNode & {
   row: Row,
-  id: Identifier,
-  parentId: ?Identifier,
-  collapsed: boolean,
-  children: Array<Node>,
-  level: number,
 };
-
-type Tree = { [key: Identifier]: Node };
 
 type Props = {
   columns: Columns,
@@ -65,7 +59,7 @@ function buildTree(arr: Array<Row>, idField: string) {
     level: 0,
   }), {});
 
-  values(acc).forEach(function (node: Node) {
+  values(acc).forEach(function (node: TreeNode) {
     if (node.parentId) {
       acc[node.parentId].children.push(node);
     } else {
@@ -76,26 +70,13 @@ function buildTree(arr: Array<Row>, idField: string) {
   return tree;
 }
 
-function updateNodes(tree: Tree, updater: (node: Node) => any) {
-  const traverse = (nodes: Array<Node>) =>
-    nodes.forEach((node: Node) => {
-      if (node.children) traverse(node.children);
-
-      updater(node);
-    });
-
-  traverse(values(tree));
-
-  return tree;
-}
-
-const toggleAll = (tree: Tree, collapse: boolean) => updateNodes(tree, (n: Node) => n.collapsed = collapse);
+const toggleAll = (tree: Tree, collapse: boolean) => updateNodes(tree, (n: TreeNode) => n.collapsed = collapse);
 
 class TreeTable extends Component {
   props: Props;
 
   state: State = {
-    root: {},
+    root: buildTree(this.props.data.rows, this.props.idField),
   };
 
   static defaultProps = {
@@ -105,12 +86,6 @@ class TreeTable extends Component {
     failed: false,
     className: '',
   };
-
-  constructor(props: Props) {
-    super(props);
-
-    this.state.root = buildTree(props.data.rows, props.idField);
-  }
 
   componentWillReceiveProps(nextProps: Props) {
     this.setState({ root: buildTree(nextProps.data.rows, nextProps.idField) });
@@ -126,30 +101,34 @@ class TreeTable extends Component {
     this.setState({ root: toggleAll(this.state.root, true) });
   }
 
-  get rows(): Array<Node> {
-    const _reduce = (level: number) => (nodes: Array<Node>, node: Node) => {
+  get rows(): Array<TableNode> {
+    const _reduce = (level: number) => (nodes: Array<TreeNode>, node: TreeNode) => {
       const children = !node.collapsed ? node.children.reduce(_reduce(level + 1), []) : [];
 
-      nodes.push(assoc(node, 'level', level), ...children);
+      nodes.push(assoc(node, 'level', level));
+
+      children.forEach((child: TreeNode) => nodes.push(child));
 
       return nodes;
     };
 
-    return values(this.state.root).reduce(_reduce(0), []);
+    const rows = values(this.state.root).reduce(_reduce(0), []);
+
+    return rows;
   }
 
   @autobind
-  handleCollapse(node: Node, event: MouseEvent) {
+  handleCollapse(node: TreeNode, event: MouseEvent) {
     event.preventDefault();
     event.stopPropagation();
 
-    node.collapsed = !node.collapsed;
+    const root = collapseNode(this.state.root, node.id);
 
-    this.forceUpdate();
+    this.setState({ root });
   }
 
   @autobind
-  renderRow(node: Node, index: number, columns: Columns, params: Object) {
+  renderRow(node: TableNode, index: number, columns: Columns, params: Object) {
     const el = this.props.renderRow(node.row, index, columns, params);
 
     const processCell = (content: Element<*>, col: Column) => {
@@ -167,7 +146,7 @@ class TreeTable extends Component {
         }));
 
         cellContents = (
-          <span className="fc-collapse" style={{ paddingLeft: `${level * 20}px`}}>
+          <span className="fc-collapse" style={{ paddingLeft: `${level * 20}px` }}>
               <i className={iconClassName} onClick={this.handleCollapse.bind(this, node)} />
             {content}
             </span>
@@ -196,9 +175,9 @@ class TreeTable extends Component {
         <MultiSelectTable
           {...this.props}
           data={{
-          ...data,
-          rows: this.rows,
-        }}
+            ...data,
+            rows: this.rows,
+          }}
           headerControls={this.headerControls}
           renderRow={this.renderRow}
         />
