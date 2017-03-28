@@ -8,3 +8,7 @@ SyslogIdentifier=marathon
 
 [Install]
 WantedBy=multi-user.target
+
+[Unit]
+Requires=mesos_master.service
+After=mesos_master.service

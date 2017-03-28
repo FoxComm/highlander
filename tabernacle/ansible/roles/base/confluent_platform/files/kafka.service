@@ -5,8 +5,11 @@ Restart=always
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=kafka
-TimeoutStartSec=5m
 RestartSec=10
 
 [Install]
 WantedBy=multi-user.target
+
+[Unit]
+Requires=zookeeper.service
+After=zookeeper.service

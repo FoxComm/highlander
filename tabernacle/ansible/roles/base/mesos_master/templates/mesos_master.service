@@ -8,3 +8,7 @@ SyslogIdentifier=mesos_master
 
 [Install]
 WantedBy=multi-user.target
+
+[Unit]
+Requires=zookeeper.service
+After=zookeeper.service

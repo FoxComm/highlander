@@ -5,6 +5,13 @@ RestartSec=5
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=mesos_worker
+KillMode=control-cgroup
 
 [Install]
 WantedBy=multi-user.target
+
+{% if is_appliance %}
+[Unit]
+Requires=mesos_master.service
+After=mesos_master.service
+{% endif %}
