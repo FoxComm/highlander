@@ -16,7 +16,7 @@ export type FacetValue = {
 export type Facet = {
   key: string,
   name: string,
-  kind: string,
+  kind: 'color' | 'circle' | 'checkbox',
   values: Array<FacetValue>,
 }
 
