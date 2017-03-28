@@ -150,8 +150,21 @@ export default class ProductForm extends ObjectDetails {
   }
 
   renderTaxonomies() {
+    const addedTaxons = _.get(this.props.object, 'taxons', []);
+    const productId = _.get(this.props.object, 'id', []);
     return (
-      <TaxonomiesListWidget />
+      <TaxonomiesListWidget
+        addedTaxons={addedTaxons}
+        productId={productId}
+        handleChange={this.onTaxonsListChange}
+      />
     )
   }
+
+  @autobind
+  onTaxonsListChange(addedTaxonList) {
+     const newObject = assoc(this.props.object, 'taxons', addedTaxonList);
+     this.props.onUpdateObject(newObject);
+  };
+
 }

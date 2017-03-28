@@ -16,9 +16,12 @@ import { AddButton } from 'components/common/buttons';
 import WaitAnimation from 'components/common/wait-animation';
 import HierarchicalTaxonomyListWidget from './taxons/hierarchical-taxonomy-widget';
 import FlatTaxonomyListWidget from './taxons/flat-taxonomy-widget';
+import RoundedPill from 'components/rounded-pill/rounded-pill'
+import { bindActionCreators } from 'redux';
 
 // actions
 import { fetchTaxonomyInternal as fetchTaxonomy } from 'modules/taxonomies/details';
+import { deleteProductCurried  } from 'modules/taxons/details/taxon';
 
 // style
 import styles from './taxonomy-widget.css';
@@ -47,9 +50,9 @@ class TaxonomyWidget extends Component {
 
   // @autobind
   // handleTaxonClick(id: number) {
-  //   if (this.props.activeTaxonId !== id.toString()) {
-  //     this.transition(id);
-  //   }
+  //   console.log(id);
+  //   this.props.addProduct();
+  //   console.log('i am here')
   // }
   //
   // @autobind
@@ -58,6 +61,12 @@ class TaxonomyWidget extends Component {
   //     this.transition('new');
   //   }
   // }
+
+  @autobind
+  handleCloseClick(taxonId) {
+    this.props.deleteProductCurried(taxonId)
+    this.props.handleDelete(this.props.taxonomy.id, taxonId);
+  }
 
   @autobind
   handleAddButton() {
@@ -71,35 +80,53 @@ class TaxonomyWidget extends Component {
 
   @autobind
   handleBlur() {
-    this.setState({ isFocused: false })
+    // this.setState({ isFocused: false })
   }
 
-  get renderList() {
-    const { taxonomy, activeTaxonId} = this.props;
-    const TaxonsWidget = taxonomy.hierarchical ? HierarchicalTaxonomyListWidget : FlatTaxonomyListWidget;
-    const visible = this.state.isFocused;
-    const className = classNames(styles.list, { [styles.visible]: visible });
+  // get renderList() {
+  //   const { taxonomy, activeTaxonId} = this.props;
+  //   const TaxonsWidget = taxonomy.hierarchical ? HierarchicalTaxonomyListWidget : FlatTaxonomyListWidget;
+  //   const visible = this.state.isFocused;
+  //   const className = classNames(styles.list, { [styles.visible]: visible });
+  //
+  //   return (
+  //     <div className={className}>
+  //       <TaxonsWidget
+  //         taxons={taxonomy.taxons}
+  //         activeTaxonId={activeTaxonId}
+  //         handleTaxonClick={this.handleTaxonClick}
+  //         getTitle={(node: Taxon) => get(node, 'attributes.name.v')}
+  //       />
+  //       <div styleName="footer">
+  //         <AddButton className="fc-btn-primary" onClick={this.handleAddButton}>
+  //           Value
+  //         </AddButton>
+  //       </div>
+  //     </div>
+  //   )
+  // }
 
-    return (
-      <div className={className}>
-        <TaxonsWidget
-          taxons={taxonomy.taxons}
-          activeTaxonId={activeTaxonId}
-          handleTaxonClick={this.handleTaxonClick}
-          getTitle={(node: Taxon) => get(node, 'attributes.name.v')}
-        />
-        <div styleName="footer">
-          <AddButton className="fc-btn-primary" onClick={this.handleAddButton}>
-            Value
-          </AddButton>
-        </div>
-      </div>
-    )
+  get addedTaxons() {
+    const { addedTaxons } = this.props;
+
+
+    return addedTaxons.map((item) => {
+      return item.taxons.map((taxon) => {
+        return (
+          <RoundedPill
+            text={taxon.attributes.name.v}
+            onClose={this.handleCloseClick}
+            value={taxon.id}
+            styleName="pill"
+          />
+        )
+      });
+
+    })
   }
 
   render() {
     const { taxonomy, fetchState, title } = this.props;
-
 
     if (!taxonomy || fetchState.inProgress && !fetchState.err) {
       return <div><WaitAnimation /></div>;
@@ -126,10 +153,7 @@ class TaxonomyWidget extends Component {
             onChange={() => console.log('display search')}
           />
         </div>
-        {this.renderList}
-        <div>
-          here will be added taxons
-        </div>
+        {this.addedTaxons}
       </div>
     );
   }
@@ -145,10 +169,15 @@ const reducer = createReducer({
 
 const mapState = state => ({
   taxonomy: state.taxonomy,
-  fetchState: get(state.asyncActions, 'fetchTaxonomy', {})
+  fetchState: get(state.asyncActions, 'fetchTaxonomy', {}),
+});
+
+const mapActions = (dispatch, props) => ({
+  fetchTaxonomy: bindActionCreators(fetchTaxonomy.perform, dispatch),
+  deleteProductCurried: bindActionCreators(deleteProductCurried(props.productId, props.context), dispatch)
 });
 
 export default flow(
-  connect(mapState, { fetchTaxonomy: fetchTaxonomy.perform }),
+  connect(mapState, mapActions),
   makeLocalStore(addAsyncReducer(reducer), { taxonomy: null }),
 )(TaxonomyWidget);

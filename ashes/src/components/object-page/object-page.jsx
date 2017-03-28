@@ -197,6 +197,8 @@ export class ObjectPage extends Component {
   componentWillReceiveProps(nextProps) {
     const { isFetching, isSaving, fetchError, createError, updateError } = nextProps;
 
+    console.log(nextProps);
+
     const nextSchema = nextProps.schema;
     if (nextSchema) {
       this.setState({
@@ -222,6 +224,7 @@ export class ObjectPage extends Component {
         });
       }
     }
+
   }
 
   componentWillUnmount() {
