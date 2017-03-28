@@ -15,7 +15,7 @@ const { reducer, actions } = makeLiveSearch(
   }
 );
 
-export  {
+export {
   reducer as default,
   actions,
 };
