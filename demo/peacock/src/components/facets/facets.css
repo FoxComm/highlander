@@ -1,3 +1,5 @@
+@import "colors.css";
+
 .facets {
     width: 250px;
     padding-top: 100px;
@@ -6,21 +8,15 @@
 
 .facet {
     margin-bottom: 22px;
-
 }
 
 .facet h2 {
     width: 54px;
     height: 20px;
-    font-family: Lato;
     font-size: 16px;
     font-weight: 900;
-    font-style: normal;
-    font-stretch: normal;
     line-height: 1.25;
-    letter-spacing: normal;
-    color: #222222;
-    color: var(--black);
+    color: var(--blackish);
 }
 
 .checkbox-facet {

@@ -9,7 +9,6 @@
 }
 
 .facet-checkbox-label {
-    font-family: Lato;
     font-size: 16px;
     font-weight: normal;
     font-style: normal;
@@ -32,7 +31,6 @@
 .facet-checkbox-box label {
     color: white;
     font-size: 10px;
-    font-family: Lato;
     vertical-align: 6px;
 }
 

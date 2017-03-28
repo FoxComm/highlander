@@ -1,12 +1,13 @@
 
+@import "colors.css";
+
 .aliceblue div {
     background-color: #F0F8FF;
 }
 
 .antiquewhite div {
     background-color: #FAEBD7;
-    border: solid 1px #222222;
-    border: solid 1px var(--black);
+    border: solid 1px var(--blackishish);
 }
 
 .aqua div {
@@ -191,8 +192,7 @@
 
 .floralwhite div {
     background-color: #FFFAF0;
-    border: solid 1px #222222;
-    border: solid 1px var(--black);
+    border: solid 1px var(--blackish);
 }
 
 .forestgreen div {
@@ -209,8 +209,7 @@
 
 .ghostwhite div {
     background-color: #F8F8FF;
-    border: solid 1px #222222;
-    border: solid 1px var(--black);
+    border: solid 1px var(--blackish);
 }
 
 .gold div {
@@ -231,8 +230,7 @@
 
 .greenyellow div {
     background-color: #ADFF2F;
-    border: solid 1px #222222;
-    border: solid 1px var(--black);
+    border: solid 1px var(--blackish);
 }
 
 .grey div {
@@ -293,8 +291,7 @@
 
 .lightgoldenrodyellow div {
     background-color: #FAFAD2;
-    border: solid 1px #222222;
-    border: solid 1px var(--black);
+    border: solid 1px var(--blackish);
 }
 
 .lightgreen div {
@@ -335,8 +332,7 @@
 
 .lightyellow div {
     background-color: #FFFFE0;
-    border: solid 1px #222222;
-    border: solid 1px var(--black);
+    border: solid 1px var(--blackish);
 }
 
 .lime div {
@@ -413,8 +409,7 @@
 
 .navajowhite div {
     background-color: #FFDEAD;
-    border: solid 1px #222222;
-    border: solid 1px var(--black);
+    border: solid 1px var(--blackish);
 }
 
 .navy div {
@@ -599,38 +594,32 @@
 
 .white div {
     background-color: #FFFFFF;
-    border: solid 1px #222222;
-    border: solid 1px var(--black);
+    border: solid 1px var(--blackish);
 }
 
 .whitesmoke div {
     background-color: #F5F5F5;
-    border: solid 1px #222222;
-    border: solid 1px var(--black);
+    border: solid 1px var(--blackish);
 }
 
 .runningwhiteftw div {
     background-color: #F5F5F5;
-    border: solid 1px #222222;
-    border: solid 1px var(--black);
+    border: solid 1px var(--blackish);
 }
 
 .runningwhite div {
     background-color: #F5F5F5;
-    border: solid 1px #222222;
-    border: solid 1px var(--black);
+    border: solid 1px var(--blackish);
 }
 
 .yellow div {
     background-color: #FFFF00;
-    border: solid 1px #222222;
-    border: solid 1px var(--black);
+    border: solid 1px var(--blackish);
 }
 
 .yellowgreen div {
     background-color: #9ACD32;
-    border: solid 1px #222222;
-    border: solid 1px var(--black);
+    border: solid 1px var(--blackish);
 }
 
 .color-checkbox input[type=checkbox] {
@@ -664,12 +653,8 @@
 .color-checkbox label {
   width: 9px;
   height: 32px;
-  font-family: Lato;
   font-size: 16px;
   font-weight: normal;
-  font-style: normal;
-  font-stretch: normal;
-  letter-spacing: normal;
   vertical-align: -6px;
   color: rgba(0,0,0,0);
 }
@@ -677,12 +662,8 @@
 .color-checkbox-light label {
   width: 9px;
   height: 32px;
-  font-family: Lato;
   font-size: 16px;
   font-weight: normal;
-  font-style: normal;
-  font-stretch: normal;
-  letter-spacing: normal;
   vertical-align: -6px;
   color: rgba(0,0,0,0);
 }

@@ -4,6 +4,7 @@ const path = require('path');
 function generateLongName(exportedName, filepath) {
   const sanitisedPath = path.relative(process.cwd(), filepath)
     .replace('src/components', '')
+    .replace('lib/components', '')
     .replace(/\.[^\.\/\\]+$/, '')
     .replace(/[\W_]+/g, '_')
     .replace(/^_|_$/g, '');

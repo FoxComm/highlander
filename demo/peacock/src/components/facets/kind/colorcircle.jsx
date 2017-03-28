@@ -1,5 +1,6 @@
 /* @flow */
 
+import classnames from 'classnames';
 import React, { Component, Element } from 'react';
 import styles from './colorcircle.css';
 import _ from 'lodash';
@@ -46,16 +47,13 @@ class ColorCircle extends Component {
 
     const id = `${facet}-color-${label}`;
 
-    // @TODO: get rid of this weird approach
-    const colorStyle = `_lib_components_facets_kind_colorcircle__${value.color}`;
-    const checkboxStyle = isLight(value.color) ?
-      ' _lib_components_facets_kind_colorcircle__color-checkbox-light' :
-      ' _lib_components_facets_kind_colorcircle__color-checkbox';
-
-    const style = colorStyle + checkboxStyle;
+    const className = classnames(
+      styles[value.color],
+      isLight(value.color) ? styles['color-checkbox-light'] : styles['color-checkbox']
+    );
 
     return (
-      <div className={style}>
+      <div className={className}>
         <input
           id={id}
           type="checkbox"

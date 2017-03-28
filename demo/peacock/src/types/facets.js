@@ -4,7 +4,7 @@ export type FacetElementProps = {
   value: string,
   label: string,
   checked?: boolean,
-  click: Function,
+  click: (facet: string, value: string, checked: boolean) => void,
 };
 
 export type FacetValue = {

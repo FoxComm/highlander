@@ -1,3 +1,5 @@
+@import "colors.css";
+
 .circle-checkbox input[type=checkbox] {
     display: none;
 }
@@ -15,18 +17,13 @@
 .circle-checkbox label {
   width: 9px;
   height: 32px;
-  font-family: Lato;
   font-size: 14px;
   font-weight: normal;
-  font-style: normal;
-  font-stretch: normal;
-  letter-spacing: normal;
   vertical-align: -6px;
   color: #888888;
 }
 
 .circle-checkbox input[type=checkbox]:checked + div {
-    background-color: #0b7ddc;
     background-color: var(--water-blue);
 }
 
