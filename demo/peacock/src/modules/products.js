@@ -5,23 +5,12 @@ import { createAsyncActions } from '@foxcomm/wings';
 import {
   addTaxonomyFilter,
   addTaxonomiesAggregation,
-  addMustNotFilter, defaultSearch, termFilter, addNestedTermFilter, addTermFilter
+  addMustNotFilter, defaultSearch, termFilter, addNestedTermFilter, addTermFilter,
 } from 'lib/elastic';
 import _ from 'lodash';
 import { api } from 'lib/api';
 
-export type Facet = {
-  label: string,
-  value: Object | string,
-  count: number,
-}
-
-export type Facets = {
-  key: string,
-  name: string,
-  kind: string,
-  values: Array<Facet>,
-}
+import type { Facet } from 'types/facets';
 
 export type Product = {
   id: number;
@@ -47,7 +36,6 @@ function apiCall(
   sorting: ?{ direction: number, field: string },
   selectedFacets: Object,
   { ignoreGiftCards = true } = {}): Promise<*> {
-
   let payload = defaultSearch(context);
 
   _.forEach(_.compact(categoryNames), (cat) => {
@@ -66,22 +54,21 @@ function apiCall(
 
   if (sorting) {
     const order = sorting.direction === -1 ? 'desc' : 'asc';
-    // $FlowFixMe
     payload.sort = [{ [sorting.field]: { order } }];
   }
 
   payload = addTaxonomiesAggregation(payload);
 
-  _.forEach(selectedFacets, (values, facet) => {
-    if(!_.isEmpty(values)) {
+  _.forEach(selectedFacets, (values: Array<string>, facet: string) => {
+    if (!_.isEmpty(values)) {
       payload = addTaxonomyFilter(payload, facet, values);
     }
   });
 
   return this.api.post(`/search/public/products_catalog_view/_search?size=${MAX_RESULTS}`, payload)
-  .then((payload) => {
+  .then((response) => {
     return {
-      payload: payload,
+      payload: response,
       selectedFacets,
     };
   });
@@ -98,10 +85,10 @@ const initialState = {
   facets: [],
 };
 
-function determineFacetKind(f) {
-  if(f.includes('color')) return 'color';
-  else if(f.includes('size')) return 'circle';
-  else return 'checkbox';
+function determineFacetKind(f: string): string {
+  if (f.includes('color')) return 'color';
+  else if (f.includes('size')) return 'circle';
+  return 'checkbox';
 }
 
 function titleCase(t) {
@@ -109,33 +96,32 @@ function titleCase(t) {
 }
 
 function mapFacetValue(v, kind) {
-  const orig = v;
-  if(kind == 'color') {
-    let color = _.toLower(v).replace(/\s/g, '');
-    v = {color: color, value: orig};
+  let value = v;
+  if (kind == 'color') {
+    const color = _.toLower(v).replace(/\s/g, '');
+    value = {color, value: v};
   }
 
-  return v;
+  return value;
 }
 
-function mapAggregationsToFacets(aggregations) {
-    return _.map(aggregations, (a) => {
-      const kind = determineFacetKind(a.key);
-      const values = _.map(a.taxon.buckets, (t) => {
-
-        return {
-          label: titleCase(t.key),
-          value: mapFacetValue(t.key, kind),
-          count: t.doc_count,
-        };
-      });
+function mapAggregationsToFacets(aggregations): Array<Facet> {
+  return _.map(aggregations, (a) => {
+    const kind = determineFacetKind(a.key);
+    const values = _.map(a.taxon.buckets, (t) => {
       return {
-        key: a.key,
-        name: titleCase(a.key),
-        kind: kind,
-        values: values,
+        label: titleCase(t.key),
+        value: mapFacetValue(t.key, kind),
+        count: t.doc_count,
       };
     });
+    return {
+      key: a.key,
+      name: titleCase(a.key),
+      kind,
+      values,
+    };
+  });
 }
 
 const reducer = createReducer({
@@ -149,8 +135,8 @@ const reducer = createReducer({
 
     return {
       ...state,
-      list: list,
-      facets: facets,
+      list,
+      facets,
     };
   },
 }, initialState);

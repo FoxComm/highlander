@@ -1,30 +1,24 @@
 /* flow */
 
-import React, { Component } from 'react';
-import type { HTMLElement } from 'types';
-import { browserHistory } from 'lib/history';
+import _ from 'lodash';
+import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
-import { connect } from 'react-redux';
 import styles from './facets.css';
+
+// components
 import Checkbox from './kind/checkbox';
 import Circle from './kind/circle';
 import ColorCircle from './kind/colorcircle';
-import _ from 'lodash';
 
-import localized from 'lib/i18n';
-import type { Localized } from 'lib/i18n';
+import type { Facet } from 'types/facets';
 
 type FacetsProps = {
-  facets: Array<Object>,
+  facets: Array<Facet>,
   onSelect: ?Function,
-};
-
-type FacetsState = {
 };
 
 class Facets extends Component {
   props: FacetsProps;
-  state: FacetsState = {};
 
   static defaultProps = {
     facets: [],
@@ -38,55 +32,55 @@ class Facets extends Component {
   }
 
   @autobind
-  renderFacet(f) { 
+  renderFacet(f) {
     let values = {};
 
-    if(f.kind == 'checkbox') {
-      values = _.map(f.values, (v) => {
-        return (<Checkbox 
+    if (f.kind == 'checkbox') {
+      values = _.map(f.values, v => (
+        <Checkbox
           facet={f.key}
-          value={v.value} 
-          label={v.label} 
+          value={v.value}
+          label={v.label}
           checked={false}
           click={this.handleClickFacets}
-          />);
-      });
-    } else if(f.kind == 'circle') {
-      values = _.map(f.values, (v) => {
-        return (<Circle 
+        />
+      ));
+    } else if (f.kind == 'circle') {
+      values = _.map(f.values, v => (
+        <Circle
           facet={f.key}
-          value={v.value} 
-          label={v.label} 
+          value={v.value}
+          label={v.label}
           checked={false}
           click={this.handleClickFacets}
-          />);
-      });
-    } else if(f.kind == 'color') {
-      values = _.map(f.values, (v) => {
-        return (<ColorCircle 
+        />
+      ));
+    } else if (f.kind == 'color') {
+      values = _.map(f.values, v => (
+        <ColorCircle
           facet={f.key}
-          value={v.value} 
-          label={v.label} 
+          value={v.value}
+          label={v.label}
           checked={false}
           click={this.handleClickFacets}
-          />);
-      });
+        />
+      ));
     } else {
-      values = (<div> 'unsuported type' </div>);
+      values = (<div> unsuported type </div>);
     }
-    let facetStyle = f.kind + '-facet';
+
+    const facetStyle = `${f.kind}-facet`;
     return (
-      <div styleName = 'facet'>
+      <div styleName="facet">
         <h2>{f.name}</h2>
         <div styleName={facetStyle}>
-        {values}
+          {values}
         </div>
       </div>
     );
   }
 
-  render(): HTMLElement {
-    //const facets = _.map(this.props.facets, (f) => {
+  render(): Element<*> {
     const facets = _.map(this.props.facets, (f) => {
       return this.renderFacet(f);
     });

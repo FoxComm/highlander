@@ -7,7 +7,6 @@ import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import * as actions from 'modules/products';
 import { categoryNameFromUrl } from 'paragons/categories';
-import _ from 'lodash';
 
 // components
 import ProductsList, { LoadingBehaviors } from 'components/products-list/products-list';
@@ -19,7 +18,8 @@ import ErrorAlerts from 'ui/alerts/error-alerts';
 import styles from './products.css';
 
 // types
-import { Route } from 'types';
+import type { Route } from 'types';
+import type { Facet } from 'types/facets';
 
 type Params = {
   categoryName: ?string,
@@ -42,6 +42,7 @@ type Props = {
   location: any,
   routes: Array<Route>,
   routerParams: Object,
+  facets: Array<Facet>,
 };
 
 type State = {
@@ -85,10 +86,16 @@ class Products extends Component {
       leafCategory: nextLeafCategory,
     } = nextProps.params;
 
-    if ((categoryName !== nextCategoryName) ||
-        (subCategory !== nextSubCategory) ||
-        (leafCategory !== nextLeafCategory)) {
-      this.props.fetch([nextCategoryName, nextSubCategory, nextLeafCategory], this.state.sorting, this.state.selectedFacets);
+    const mustInvalidate = (categoryName !== nextCategoryName) ||
+      (subCategory !== nextSubCategory) ||
+      (leafCategory !== nextLeafCategory);
+
+    if (mustInvalidate) {
+      this.props.fetch(
+        [nextCategoryName, nextSubCategory, nextLeafCategory],
+        this.state.sorting,
+        this.state.selectedFacets
+      );
     }
   }
 
@@ -105,7 +112,7 @@ class Products extends Component {
       direction,
     };
 
-    this.setState({selectedFacets: selectedFacets, sorting: newState}, () => {
+    this.setState({selectedFacets, sorting: newState}, () => {
       const { categoryName, subCategory, leafCategory } = this.props.params;
       this.props.fetch([categoryName, subCategory, leafCategory], newState, selectedFacets);
     });
@@ -118,16 +125,16 @@ class Products extends Component {
 
   @autobind
   onSelectFacet(facet, value, selected) {
-    let newSelection = this.state.selectedFacets;
-    if(selected) {
+    const newSelection = this.state.selectedFacets;
+    if (selected) {
       if (facet in newSelection) {
         newSelection[facet].push(value);
       } else {
         newSelection[facet] = [value];
       }
     } else if (facet in newSelection) {
-      let values = newSelection[facet];
-      let newValues = _.filter(values, (v) => {
+      const values = newSelection[facet];
+      const newValues = _.filter(values, (v) => {
         return v != value;
       });
       newSelection[facet] = newValues;
@@ -165,6 +172,9 @@ class Products extends Component {
         </div>
       </header>
     );
+  }
+
+  get navBar(): ?Element<*> {
   }
 
   get body(): Element<any> {
