@@ -1,10 +1,11 @@
 [Service]
-ExecStart=/usr/bin/marathon --master {{zookeepers}}/mesos --zk {{zookeepers}}/marathon --mesos_authentication --mesos_authentication_principal=marathon --mesos_authentication_secret={{mesos_pass}} --mesos_role=marathon
+WorkingDirectory=/usr/local/share
+ExecStart=/usr/local/bin/run_marathon.sh
 Restart=always
-RestartSec=5
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=marathon
+RestartSec=10
 
 [Install]
 WantedBy=multi-user.target
