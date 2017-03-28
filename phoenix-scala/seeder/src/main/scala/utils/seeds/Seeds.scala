@@ -297,7 +297,7 @@ object Seeds {
              _          ← * <~ Factories.createGiftCards
              _          ← * <~ Factories.createStoreCredits(adminId, customers._1, customers._3)
              _          ← * <~ Factories.createShipmentRules
-//             _          ← * <~ Factories.createReturns // todo fix Returns seeding
+             _          ← * <~ Factories.createReturns
              // Promotions
              search     ← * <~ Factories.createSharedSearches(adminId)
              discounts  ← * <~ Factories.createDiscounts(search)

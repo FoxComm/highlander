@@ -29,20 +29,20 @@ trait ReturnSeeds {
            accountId = 1)
 
   def returnLineItemSkus = Seq(
-      ReturnLineItemSku(id = 0, returnId = 1, skuId = 1, skuShadowId = 1),
-      ReturnLineItemSku(id = 0, returnId = 1, skuId = 2, skuShadowId = 2)
+      ReturnLineItemSku(returnId = 1, skuId = 1, skuShadowId = 1),
+      ReturnLineItemSku(returnId = 1, skuId = 2, skuShadowId = 2)
   )
 
   def returnLineItems =
     Seq(
-        ReturnLineItem(id = 0,
-                       returnId = 1,
+        ReturnLineItem(
+          returnId = 1,
                        reasonId = 12,
                        originId = 1,
                        originType = ReturnLineItem.SkuItem,
                        inventoryDisposition = ReturnLineItem.Putaway),
-        ReturnLineItem(id = 0,
-                       returnId = 1,
+        ReturnLineItem(
+          returnId = 1,
                        reasonId = 12,
                        originId = 2,
                        originType = ReturnLineItem.SkuItem,
