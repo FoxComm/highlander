@@ -13,7 +13,7 @@
 
 - name: Start anthill
   include: app_anthill.yml
-  when: marathon_restart.anthill
+  when: with_ic and marathon_restart.anthill
 
 - name: Start Digger Sphex
   include: app_digger_sphex.yml
@@ -25,7 +25,7 @@
 
 - name: Start Orders anthill
   include: app_orders_anthill.yml
-  when: marathon_restart.orders_anthill
+  when: with_ic and marathon_restart.orders_anthill
 
 - name: Start Eggcrate
   include: app_eggcrate.yml
