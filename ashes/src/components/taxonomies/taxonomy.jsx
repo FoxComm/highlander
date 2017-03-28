@@ -141,7 +141,7 @@ class TaxonomyPage extends Component {
         originalObject={details.taxonomy}
         onUpdateObject={this.handleObjectUpdate}
       >
-        {children}
+        {React.cloneElement(children, { taxonomy: this.state.taxonomy })}
       </ObjectPageDeux>
     );
   }

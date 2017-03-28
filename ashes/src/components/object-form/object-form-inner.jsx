@@ -16,7 +16,7 @@ import CustomProperty from '../products/custom-property';
 import DatePicker from '../datepicker/datepicker';
 import RichTextEditor from '../rich-text-editor/rich-text-editor';
 import { Dropdown } from '../dropdown';
-import  SwatchInput  from '../forms/swatch-input';
+import SwatchInput from '../forms/swatch-input';
 
 type Props = {
   canAddProperty?: boolean,
@@ -296,7 +296,7 @@ export default class ObjectFormInner extends Component {
   renderColor(name: string, value: string = '', options: AttrOptions) {
     const label = _.upperFirst(options.label);
     const onChange = v => this.handleChange(name, 'color', v);
-    
+
     return (
       <div>
         <label className="fc-object-form__field-label">{label}</label>

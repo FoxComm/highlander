@@ -21,24 +21,18 @@ const setCellContents = (taxon: TaxonResult, field: string) => {
     case 'state':
       return <RoundedPill text={activeStatus(taxon)} />;
     case 'productsCount':
-      return 0;
+      return 0; // TODO: fix after ES mapping update
     default:
       return taxon[field];
   }
 };
 
-const TaxonRow = (props: Props) => {
-  const { taxon, columns, params } = props;
-  const commonParams = {
-    columns,
-    row: taxon,
-    setCellContents,
-    params,
-  };
-
+const TaxonRow = ({ taxon, ...rest }: Props) => {
   return (
     <MultiSelectRow
-      {...commonParams}
+      {...rest}
+      row={taxon}
+      setCellContents={setCellContents}
       linkTo="taxon-details"
       linkParams={taxon}
     />

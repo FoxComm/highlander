@@ -1,6 +1,7 @@
 // @flow
 
 // libs
+import classNames from 'classnames';
 import React, { Component, Element } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -10,6 +11,7 @@ import { actions } from 'modules/taxons/list';
 
 // components
 import MultiSelectTable from 'components/table/multi-select-table';
+import TreeTable from 'components/table/tree-table';
 import { AddButton } from 'components/common/buttons';
 import TaxonRow from './taxon-row';
 
@@ -23,6 +25,7 @@ import styles from './taxons.css';
 import type { TaxonomyParams } from '../taxonomy';
 
 type Props = ObjectPageChildProps<Taxonomy> & {
+  taxonomy: Taxonomy,
   actions: Object,
   list: Object,
   params: TaxonomyParams,
@@ -56,27 +59,29 @@ export class TaxonsListPage extends Component {
     const handleClick = transitionToLazy('taxon-details', { ...this.props.params, taxonId: 'new' });
 
     return [
-      <AddButton className="fc-btn-primary" onClick={handleClick}>Value</AddButton>
+      <AddButton className={classNames('fc-btn-primary', styles.headerButton)} onClick={handleClick}>Value</AddButton>
     ];
   }
 
   render() {
-    const { list, actions } = this.props;
+    const { taxonomy, list } = this.props;
 
     const results = list.currentSearch().results;
 
+    const Table = taxonomy.hierarchical ? TreeTable : MultiSelectTable;
+
     return (
-      <MultiSelectTable
+      <Table
         columns={tableColumns}
         data={results}
         renderRow={this.renderRow}
-        setState={actions.updateStateAndFetch}
-        predicate={({id}) => id}
         hasActionsColumn={false}
         isLoading={results.isFetching}
         failed={results.failed}
         emptyMessage={'This taxonomy does not have any values yet.'}
         headerControls={this.tableControls}
+        idField="taxonId"
+        className={styles.taxonsTable}
       />
     );
   }
