@@ -27,7 +27,6 @@
 
 .title {
   margin-bottom: 12px;
-  font-family: Lato;
   font-size: 40px;
   font-weight: 900;
   line-height: 1.25;
@@ -116,7 +115,7 @@
   }
 }
 
-@media (--small-only) {
+@media (--small-only), (--medium-only) {
   .auth-block {
     lost-column: 1/1;
     lost-offset: 0;
@@ -137,6 +136,8 @@
 
   .title {
     margin-bottom: 20px;
+    font-size: 17px;
+    font-weight: normal;
   }
 
   .google-login {
