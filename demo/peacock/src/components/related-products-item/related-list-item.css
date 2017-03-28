@@ -1,6 +1,6 @@
 @import "colors.css";
 @import "variables.css";
-@import "media-queries";
+@import "media-queries.css";
 
 .list-item {
   width: calc(20% - (var(--grid-margin)/2));
@@ -14,7 +14,6 @@
 }
 
 .preview {
-  width: 100%;
   max-width: 100%;
   position: relative;
   display: flex;
@@ -22,15 +21,13 @@
 }
 
 .preview-image {
-  width: 100%;
   max-width: 100%;
   height: auto;
 }
 
 .text-block {
   text-align: left;
-  min-height: 149px;
-  max-height: 149px;
+  height: 149px;
   position: relative;
 }
 

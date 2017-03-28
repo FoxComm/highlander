@@ -49,6 +49,17 @@
       "labels": {}
     }
   ],
+  "healthChecks": [
+      {
+          "protocol": "TCP",
+          "gracePeriodSeconds": 300,
+          "intervalSeconds": 60,
+          "timeoutSeconds": 20,
+          "maxConsecutiveFailures": 3,
+          "ignoreHttp1xx": false,
+          "port": 7474
+      }
+  ],
   "upgradeStrategy": {
     "minimumHealthCapacity": 0.5,
     "maximumOverCapacity": 0

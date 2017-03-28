@@ -50,6 +50,7 @@ docker_tags:
     shipments_consumer: "{{ lookup('env', 'DOCKER_TAG_SHIPMENTS_CONSUMER') | default('master', true) }}"
     shipstation_consumer: "{{ lookup('env', 'DOCKER_TAG_SHIPSTATION_CONSUMER') | default('master', true) }}"
     stock_items_consumer: "{{ lookup('env', 'DOCKER_TAG_STOCK_ITEMS_CONSUMER') | default('master', true) }}"
+    customer_groups_consumer: "{{ lookup('env', 'DOCKER_TAG_CUSTOMER_GROUPS_CONSUMER') | default('master', true) }}"
     storefront_td: "{{ lookup('env', 'DOCKER_TAG_STOREFRONT_TOPDRAWER') | default('master', true) }}"
     storefront_tpg: "{{ lookup('env', 'DOCKER_TAG_STOREFRONT_TPG') | default('master', true) }}"
     hyperion: "{{ lookup('env', 'DOCKER_TAG_HYPERION') | default('master', true) }}"
@@ -80,6 +81,7 @@ marathon_restart:
     shipments_consumer: "{{ lookup('env', 'MARATHON_SHIPMENTS_CONSUMER') | default(true, true) | bool }}"
     shipstation_consumer: "{{ lookup('env', 'MARATHON_SHIPSTATION_CONSUMER') | default(true, true) | bool }}"
     stock_items_consumer: "{{ lookup('env', 'MARATHON_STOCK_ITEMS_CONSUMER') | default(true, true) | bool }}"
+    customer_groups_consumer: "{{ lookup('env', 'MARATHON_CUSTOMER_GROUPS_CONSUMER') | default(true, true) | bool }}"
     marketplace: "{{ lookup('env', 'MARATHON_MARKETPLACE') | default(true, true) | bool }}"
     storefront_td: "{{ lookup('env', 'MARATHON_STOREFRONT_TD') | default(true, true) | bool }}"
     storefront_tpg: "{{ lookup('env', 'MARATHON_STOREFRONT_TPG') | default(true, true) | bool }}"
@@ -203,6 +205,12 @@ bottledwater_slot_phoenix: bottledwater_phoenix
 bottledwater_slot_middlewarehouse: bottledwater_middlewarehouse
 bottledwater_slot_marketplace: bottledwater_marketplace
 
+# Flyway
+flyway_vers: 4.0.3
+flyway_dir: "/usr/local/share/flyway-{{flyway_vers}}"
+flyway_url: "https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/{{flyway_vers}}/flyway-commandline-{{flyway_vers}}-linux-x64.tar.gz"
+flyway: "{{flyway_dir}}/flyway -locations=filesystem:sql/ -configFile=sql/flyway.conf"
+
 # Phoenix
 phoenix_version: 1.0
 phoenix_env: staging
@@ -249,6 +257,7 @@ hyperion_env: prod
 hyperion_src: ../../hyperion/
 hyperion_dir: /hyperion
 hyperion_db_name: hyperion_development
+hyperion_db_test_name: hyperion_test
 hyperion_db_user: hyperion
 hyperion_db_password: hyperion
 hyperion_db_host: "{{db_host}}"
@@ -288,6 +297,7 @@ neo4j_pass: "password"
 neo4j_host: "neo4j.{{consul_suffix}}"
 neo4j_server: "{{neo4j_host}}"
 neo4j_port: "7687"
+neo4j_http_port: "7474"
 
 # suggester
 suggester_host: "suggester.{{consul_suffix}}"
@@ -311,10 +321,13 @@ es5_jmx_port: 29111
 es5_max_file_descriptors: 65536
 es5_heap_size: 2048m
 
+# Consumers
+activities_topic: "scoped_activities"
+
 # Shipstation consumer
 shipstation_api_key: ""
 shipstation_api_secret: ""
-shipstation_topic: "scoped_activities"
+shipstation_topic: "{{activities_topic}}"
 shipstation_interval: "10s"
 
 # Firebrand variables

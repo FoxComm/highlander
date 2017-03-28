@@ -7,4 +7,4 @@ RUN mkdir -p /orders-anthill
 WORKDIR /orders-anthill
 COPY orders-anthill /orders-anthill
 
-CMD ["/orders-anthill/orders-anthill"]
+CMD /orders-anthill/orders-anthill 2>&1 | tee /logs/orders-anthill.log

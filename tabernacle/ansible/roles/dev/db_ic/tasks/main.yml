@@ -1,5 +1,8 @@
 ---
 
+- name: Creates Marathon JSON directory
+  file: path=/marathon/applications state=directory
+
 - name: Drop IC Database
   postgresql_db: name={{bernardo_db_name}} state=absent
 

@@ -18,14 +18,21 @@
       "privileged": false,
       "parameters": [],
       "forcePullImage": true
-    }
+    },
+    "volumes": [
+      {
+        "containerPath": "{{docker_logs_dir}}",
+        "hostPath": "{{docker_logs_host_dir}}",
+        "mode": "RW"
+      }
+    ]
   },
   "env": {
-    "TOPIC": "activities",
+    "TOPIC": "scoped_activities",
     "SCHEMA_REPOSITORY_URL": "http://{{schema_server}}",
     "ZOOKEEPER_URL": "{{zookeeper_server}}",
     "MWH_URL": "http://{{middlewarehouse_server}}",
-    "ANTHILL_HOST": "{{anthill}}"
+    "ANTHILL_HOST": "{{anthill_host}}"
   },
   "healthChecks": [
     {

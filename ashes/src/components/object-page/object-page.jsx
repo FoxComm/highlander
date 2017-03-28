@@ -29,7 +29,8 @@ import { SAVE_COMBO, SAVE_COMBO_ITEMS } from 'paragons/common';
 import { supressTV } from 'paragons/object';
 
 // modules
-import * as SchemaActions from 'modules/object-schema';
+import * as schemaActions from 'modules/object-schema';
+import * as amazonActions from 'modules/channels/amazon';
 
 export function connectPage(namespace, actions) {
   const capitalized = _.upperFirst(namespace);
@@ -46,6 +47,8 @@ export function connectPage(namespace, actions) {
   const requiredActions = _.values(_.omit(actionNames, 'sync'));
 
   function mapStateToProps(state) {
+    const { status } = state.channels.amazon;
+
     return {
       namespace,
       plural,
@@ -67,14 +70,17 @@ export function connectPage(namespace, actions) {
       submitError: (
         _.get(state.asyncActions, `${actionNames.create}.err`) ||
         _.get(state.asyncActions, `${actionNames.update}.err`)
-      )
+      ),
+      hasAmazon: status,
     };
   }
 
+  // Duplicates action names for general usage from different components
+  // For example: updateProduct -> updateEntity, as well as updatePromotion -> updateEntity
   function generalizeActions(actions) {
     const result = {
       ...actions,
-      ...SchemaActions
+      ...schemaActions
     };
 
     _.each(actionNames, (name, key) => {
@@ -86,7 +92,10 @@ export function connectPage(namespace, actions) {
 
   function mapDispatchToProps(dispatch) {
     return {
-      actions: bindActionCreators(generalizeActions(actions), dispatch),
+      actions: bindActionCreators({
+        ...generalizeActions(actions),
+        fetchAmazonStatus: amazonActions.fetchAmazonStatus,
+      }, dispatch),
       dispatch,
     };
   }
@@ -114,9 +123,17 @@ export class ObjectPage extends Component {
   };
 
   getChildContext() {
-    return this._context || (this._context = {
-      validationDispatcher: new EventEmitter()
-    });
+    if (!this._context) {
+      const emitter = new EventEmitter();
+
+      emitter.setMaxListeners(20);
+
+      this._context = {
+        validationDispatcher: emitter
+      };
+    }
+
+    return this._context;
   }
 
   get entityIdName(): string {
@@ -168,6 +185,7 @@ export class ObjectPage extends Component {
   componentDidMount() {
     this.props.actions.clearFetchErrors();
     this.props.actions.fetchSchema(this.props.namespace);
+
     if (this.isNew) {
       this.props.actions.newEntity();
     } else {
@@ -176,6 +194,8 @@ export class ObjectPage extends Component {
           if (isArchived(payload)) this.transitionToList();
         });
     }
+
+    this.props.actions.fetchAmazonStatus();
   }
 
   get unsaved(): boolean {
@@ -375,6 +395,7 @@ export class ObjectPage extends Component {
     if (this.isNew) {
       return (
         <Button
+          key="cancelButton"
           type="button"
           onClick={this.handleCancel}
           styleName="cancel-button">
@@ -413,6 +434,10 @@ export class ObjectPage extends Component {
     return error;
   }
 
+  get menuItems() {
+    return SAVE_COMBO_ITEMS;
+  }
+
   renderHead() {
     return this.cancelButton;
   }
@@ -446,7 +471,7 @@ export class ObjectPage extends Component {
             onPrimaryClick={this.handleSubmit}
             onSelect={this.handleSelectSaving}
             isLoading={props.isSaving}
-            items={SAVE_COMBO_ITEMS}
+            items={this.menuItems}
           />
         </PageTitle>
         {this.subNav()}

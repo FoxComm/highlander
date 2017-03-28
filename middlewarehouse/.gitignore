@@ -23,6 +23,8 @@ stock-items-consumer
 shipments-consumer
 capture-consumer
 gift-card-consumer
+customer-groups-consumer
+shipstation-consumer
 
 # other binaries
 seeder

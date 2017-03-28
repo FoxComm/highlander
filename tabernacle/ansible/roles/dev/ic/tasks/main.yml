@@ -11,6 +11,10 @@
   include: app_bernardo.yml
   when: with_ic and marathon_restart.bernardo
 
+- name: Start anthill
+  include: app_anthill.yml
+  when: marathon_restart.anthill
+
 - name: Start Digger Sphex
   include: app_digger_sphex.yml
   when: with_ic and marathon_restart.digger_sphex

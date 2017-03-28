@@ -3,6 +3,7 @@ defmodule Hyperion.Amazon.Templates.SubmitImages do
   Renders whole images feed based on albums
   More info here https://sellercentral.amazon.com/gp/help/200386840?ie=UTF8&*Version*=1&*entries*=0&
   """
+
   def template_string do
     """
     <?xml version="1.0" encoding="utf-8" ?>
@@ -13,66 +14,56 @@ defmodule Hyperion.Amazon.Templates.SubmitImages do
         <MerchantIdentifier><%= seller_id %></MerchantIdentifier>
       </Header>
       <MessageType>ProductImage</MessageType>
-      <%= for image <- images do %>
-        <%= Hyperion.Amazon.Templates.SubmitImages.render_main(image[:albums][:main], image[:code]) %>
-        <%= Hyperion.Amazon.Templates.SubmitImages.render_swatches(image[:albums][:swatches],
-                                                                   image[:code],
-                                                                   image[:albums][:main]) %>
-      <% end %>
+        <%= Hyperion.Amazon.Templates.SubmitImages.render_main_image(hd(images)) %>
+        <%= Hyperion.Amazon.Templates.SubmitImages.render_pt_images(hd(images)) %>
+        <%= Hyperion.Amazon.Templates.SubmitImages.render_swatches(tl(images)) %>
     </AmazonEnvelope>
     """
   end
 
-  @doc """
-  Renders main and alternate images starting with `1' index'
-  """
-  def render_main(list, sku) do
-    images = Enum.with_index(list, 1)
-    for {data, idx} <- images do
-      case {data, idx} do
-        {data, 1} ->
-          """
-          <Message>
-            <MessageID>#{idx}</MessageID>
-            <OperationType>Update</OperationType>
-            <ProductImage>
-              <SKU>#{sku}</SKU>
-              <ImageType>Main</ImageType>
-              <ImageLocation>#{String.replace(data["src"], "https", "http")}</ImageLocation>
-            </ProductImage>
-          </Message>
-          """
-        {data, _} ->
-          """
-          <Message>
-            <MessageID>#{idx}</MessageID>
-            <OperationType>Update</OperationType>
-          <ProductImage>
-            <SKU>#{sku}</SKU>
-            <ImageType>PT#{idx + 1}</ImageType>
-            <ImageLocation>#{String.replace(data["src"], "https", "http")}</ImageLocation>
-          </ProductImage>
-          </Message>
-          """
-      end
-    end
+  def render_main_image([{main, message_id}|_]) do
+    """
+    <Message>
+      <MessageID>#{message_id}</MessageID>
+      <OperationType>Update</OperationType>
+      <ProductImage>
+        <SKU>#{main[:sku]}</SKU>
+        <ImageType>Main</ImageType>
+        <ImageLocation>#{main[:location]}</ImageLocation>
+      </ProductImage>
+    </Message>
+    """
   end
 
-  @doc """
-  Renders swatches images indexed by `intial' count + 1
-  """
-  def render_swatches(list, sku, initial) do
-    offset = Enum.count(initial) + 1
-    images = Enum.with_index(list, offset)
-    for {image, idx} <- images do
+
+  def render_pt_images([_|pt_images]) do
+    for {item, idx} <- pt_images do
       """
       <Message>
         <MessageID>#{idx}</MessageID>
         <OperationType>Update</OperationType>
         <ProductImage>
-          <SKU>#{sku}</SKU>
-          <ImageType>Swatch</ImageType>
-          <ImageLocation>#{String.replace(image["src"], "https", "http")}</ImageLocation>
+          <SKU>#{item[:sku]}</SKU>
+          <ImageType>#{item[:type]}#{item[:id]}</ImageType>
+          <ImageLocation>#{item[:location]}</ImageLocation>
+        </ProductImage>
+      </Message>
+      """
+    end
+  end
+
+  def render_swatches([]), do: ""
+
+  def render_swatches([swatches|_]) do
+    for swatch <- swatches do
+      """
+      <Message>
+        <MessageID>#{swatch[:idx]}</MessageID>
+        <OperationType>Update</OperationType>
+        <ProductImage>
+          <SKU>#{swatch[:sku]}</SKU>
+          <ImageType>#{swatch[:type]}</ImageType>
+          <ImageLocation>#{swatch[:location]}</ImageLocation>
         </ProductImage>
       </Message>
       """
