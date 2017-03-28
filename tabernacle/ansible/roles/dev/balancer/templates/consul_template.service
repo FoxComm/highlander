@@ -5,7 +5,6 @@ Restart=always
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=consul_template
-TimeoutStartSec=30
 RestartSec=5
 
 [Install]
