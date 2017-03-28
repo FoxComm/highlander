@@ -14,6 +14,9 @@ up:
 	ansible-playbook --user=$(GOOGLE_SSH_USERNAME) --private-key=$(GOOGLE_SSH_KEY) --extra-vars '{"FIRST_RUN": true}' tabernacle/ansible/goldrush_appliance.yml
 	@cat goldrush.log
 
+debug:
+	ansible-playbook --user=$(GOOGLE_SSH_USERNAME) --private-key=$(GOOGLE_SSH_KEY) tabernacle/ansible/goldrush_debug.yml
+
 destroy:
 	$(call header, Destroying GCE Machine)
 	ansible-playbook tabernacle/ansible/goldrush_appliance_destroy.yml
@@ -28,4 +31,4 @@ provision:
 	ansible-playbook --user=$(GOOGLE_SSH_USERNAME) --private-key=$(GOOGLE_SSH_KEY) tabernacle/ansible/goldrush_appliance.yml
 	@cat goldrush.log
 
-.PHONY: up migrate provision destroy update-app dotenv prepare clean
+.PHONY: prepare config up debug destroy update-app provision

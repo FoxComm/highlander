@@ -76,6 +76,10 @@ shortcuts:
     alias: goldrush_cfg.yml
     target: ansible/goldrush_config_gen.yml
 
+  - name: Debug Goldrush Configuration
+    alias: goldrush_debug.yml
+    target: ansible/goldrush_debug.yml
+
   - name: Create Feature Branch Pipeline
     alias: feature_branch.yml
     target: ansible/goldrush_feature_branch.yml
