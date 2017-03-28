@@ -135,35 +135,28 @@ object Seeds {
 
         if (cfg.seedBase) runStage("Inserting Base Seeds", createBase)
         if (cfg.seedShippingRules) runStage("Inserting Shipping Seeds", createShipmentRules)
-        if (cfg.seedAdmins) createStageAdminsSeeds
+        if (cfg.seedAdmins) {
+          createStageAdminsSeeds
+          runStage("Create default dictionary values", createDefaultDictionaries)
+        }
         if (cfg.seedRandom > 0)
           createRandomSeeds(cfg.seedRandom, cfg.customersScaleMultiplier)
-        if (cfg.seedStage) {
-          val adminId = mustGetFirstAdmin.id
-          runStage("Inserting Stage seeds", createStage(adminId))
-        }
+        if (cfg.seedStage) runStage("Inserting Stage seeds", createStage)
         if (cfg.seedDemo > 0) {
-          val adminId = mustGetFirstAdmin.id
-          runStage("Inserting Stage seeds", createStage(adminId))
+          runStage("Inserting Stage seeds", createStage)
           createRandomSeeds(cfg.seedDemo, cfg.customersScaleMultiplier)
         }
       case CreateAdmin ⇒
-        createAdminManually(name = cfg.adminName,
-                            email = cfg.adminEmail,
-                            org = cfg.adminOrg,
-                            roles = cfg.adminRoles.split(",").toList)
+        runStage("Create Store Admin seeds",
+                 Factories.createStoreAdminManual(cfg.adminName,
+                                                  cfg.adminEmail,
+                                                  cfg.adminOrg,
+                                                  cfg.adminRoles.split(",").toList))
       case _ ⇒
         System.err.println(usage)
     }
 
     db.close()
-  }
-
-  def mustGetFirstAdmin(implicit db: DB, ec: EC, ac: AC): User = {
-    @inline def getFirstAdmin(implicit db: DB): DbResultT[User] =
-      Users.take(1).mustFindOneOr(NotFoundFailure404(User, "first"))
-
-    runStage("Get first admin", getFirstAdmin)
   }
 
   def createStageAdminsSeeds(implicit db: DB, ec: EC, ac: AC): Int = {
@@ -173,29 +166,14 @@ object Seeds {
       admins ← * <~ Factories.createStoreAdmins
     } yield admins
 
-    runStage("Admins", r)
-  }
-
-  def createAdminManually(name: String, email: String, org: String, roles: List[String])(
-      implicit db: DB,
-      ec: EC,
-      ac: AC): User = {
-    runStage("Create Store Admin seeds", Factories.createStoreAdminManual(name, email, org, roles))
-  }
-
-  def createDefaultDictionariesSeeds(adminId: Int)(implicit db: DB, ac: AC, ec: EC) {
-    runStage("Create default dictionary values", createDefaultDictionaries(adminId))
-  }
-
-  def createStageSeeds(adminId: Int)(implicit db: DB, ac: AC) {
-    runStage("Inserting Stage seeds", createStage(adminId))
+    runStage("Create stage admins seeds", r)
   }
 
   def runStage[T](name: String, f: DbResultT[T], waitFor: FiniteDuration = 4.minute)(
       implicit db: DB,
       ec: EC,
       ac: AC): T = {
-    Console.err.println(name) // todo Do we need `err` level here?
+    Console.err.println(name) // todo Do we need `err` level here? @aafa
     // TODO: Should we really be discarding all warnings here (and git-grep 'runEmptyA')? Rethink! @michalrus
     val result: Failures Xor T = Await.result(f.runTxn().runEmptyA.value, waitFor)
     validateResults(name, result)
@@ -221,14 +199,14 @@ object Seeds {
     val customers            = customersScaleMultiplier * scale
     val batchSize            = Math.min(100, customers)
     val appeasementsPerBatch = 8
-    val batchs               = customers / batchSize
+    val batches              = customers / batchSize
 
-    Console.err.println(s"Generating $customers customers in $batchs batches")
+    Console.err.println(s"Generating $customers customers in $batches batches")
 
     // Have to generate data in batches because of DBIO.seq stack overflow bug.
     // https://github.com/slick/slick/issues/1186
-    (1 to batchs).foreach { b ⇒
-      Console.err.println(s"Generating random batch $b of $batchSize customers")
+    (1 to batches).foreach { b ⇒
+      Console.err.println(s"Generating random batch $b of $batches total")
       val r = for {
         r ← * <~ getMerchant
         (organization, merchant, account, claims) = r
@@ -264,13 +242,14 @@ object Seeds {
   def createAdmins(implicit db: DB, ec: EC, ac: AC): DbResultT[Int] =
     Factories.createStoreAdmins
 
-  def createDefaultDictionaries(adminId: Int)(implicit db: DB, ac: AC, ec: EC): DbResultT[Unit] =
+  def createDefaultDictionaries(implicit db: DB, ac: AC, ec: EC): DbResultT[Unit] =
     for {
-      _ ← * <~ Reasons.createAll(Factories.reasons.map(_.copy(storeAdminId = adminId)))
-      _ ← * <~ Factories.createReturnReasons
+      admin ← * <~ Users.take(1).mustFindOneOr(NotFoundFailure404(User, "first"))
+      _     ← * <~ Reasons.createAll(Factories.reasons.map(_.copy(storeAdminId = admin.id)))
+      _     ← * <~ Factories.createReturnReasons
     } yield {}
 
-  def createStage(adminId: Int)(implicit db: DB, ac: AC): DbResultT[Unit] =
+  def createStage(implicit db: DB, ac: AC): DbResultT[Unit] =
     for {
       r ← * <~ getMerchant
       (organization, merchant, account, claims) = r
@@ -281,6 +260,7 @@ object Seeds {
                                             account = account)
 
            for {
+             admin   ← * <~ Users.take(1).mustFindOneOr(NotFoundFailure404(User, "first"))
              context ← * <~ ObjectContexts.mustFindById404(SimpleContext.id)
              ruContext ← * <~ ObjectContexts.create(
                             SimpleContext.create(name = SimpleContext.ru, lang = "ru"))
@@ -290,11 +270,10 @@ object Seeds {
              products   ← * <~ Factories.createProducts
              ruProducts ← * <~ Factories.createRuProducts(products)
              _          ← * <~ Factories.createGiftCards
-             _          ← * <~ Factories.createStoreCredits(adminId, customers._1, customers._3)
+             _          ← * <~ Factories.createStoreCredits(admin.id, customers._1, customers._3)
              _          ← * <~ Factories.createShipmentRules
-             _          ← * <~ Factories.createReturns
              // Promotions
-             search     ← * <~ Factories.createSharedSearches(adminId)
+             search     ← * <~ Factories.createSharedSearches(admin.id)
              discounts  ← * <~ Factories.createDiscounts(search)
              promotions ← * <~ Factories.createCouponPromotions(discounts)
              coupons    ← * <~ Factories.createCoupons(promotions)
@@ -321,10 +300,10 @@ object Seeds {
 
   private def validateResults[R](seed: String, result: Failures Xor R)(implicit db: DB): R = {
     result.fold(failures ⇒ {
-      Console.err.println(s"Failed generating $seed seeds!")
+      Console.err.println(s"'$seed' has failed!")
       failures.flatten.foreach(Console.err.println)
       db.close()
       sys.exit(1)
-    }, v ⇒ { Console.err.println(s"Successfully created $seed seeds!"); v })
+    }, v ⇒ { Console.err.println(s"Successfully completed '$seed'!"); v })
   }
 }
