@@ -1,8 +1,12 @@
 /* @flow */
 
-import { createReducer, createAction } from 'redux-act';
+import { createReducer } from 'redux-act';
 import { createAsyncActions } from '@foxcomm/wings';
-import { addTaxonomyFilter, addTaxonomiesAggregation, addMustNotFilter, defaultSearch, termFilter, addNestedTermFilter } from 'lib/elastic';
+import {
+  addTaxonomyFilter,
+  addTaxonomiesAggregation,
+  addMustNotFilter, defaultSearch, termFilter, addNestedTermFilter, addTermFilter
+} from 'lib/elastic';
 import _ from 'lodash';
 import { api } from 'lib/api';
 
@@ -40,16 +44,18 @@ const GIFT_CARD_TAG = 'GIFT-CARD';
 
 function apiCall(
   categoryNames: ?Array<string>,
-  sorting: { direction: number, field: string },
+  sorting: ?{ direction: number, field: string },
   selectedFacets: Object,
   { ignoreGiftCards = true } = {}): Promise<*> {
 
   let payload = defaultSearch(context);
 
-  const filteredCats = _.remove(categoryNames, cat => cat != null);
-  _.forEach(filteredCats, (cat) => {
-    if (cat != 'ALL') {
+  _.forEach(_.compact(categoryNames), (cat) => {
+    if (cat !== 'ALL' && cat !== GIFT_CARD_TAG) {
       payload = addNestedTermFilter(payload, 'taxonomies', 'taxonomies.taxons', cat);
+    } else if (cat === GIFT_CARD_TAG) {
+      const tagTerm = termFilter('tags', cat.toUpperCase());
+      payload = addTermFilter(payload, tagTerm);
     }
   });
 
@@ -58,9 +64,11 @@ function apiCall(
     payload = addMustNotFilter(payload, giftCardTerm);
   }
 
-  const order = sorting.direction === -1 ? 'desc' : 'asc';
+  if (sorting) {
+    const order = sorting.direction === -1 ? 'desc' : 'asc';
     // $FlowFixMe
-  payload.sort = [{ [sorting.field]: { order } }];
+    payload.sort = [{ [sorting.field]: { order } }];
+  }
 
   payload = addTaxonomiesAggregation(payload);
 
@@ -80,7 +88,7 @@ function apiCall(
 }
 
 function searchGiftCards() {
-  return apiCall.call({ api }, [GIFT_CARD_TAG], { direction: 1, field: 'salesPrice' }, { ignoreGiftCards: false });
+  return apiCall.call({ api }, [GIFT_CARD_TAG], null, { ignoreGiftCards: false });
 }
 
 const {fetch, ...actions} = createAsyncActions('products', apiCall);
@@ -96,7 +104,7 @@ function determineFacetKind(f) {
   else return 'checkbox';
 }
 
-function titleCase(t) { 
+function titleCase(t) {
   return _.startCase(_.toLower(t));
 }
 
@@ -105,12 +113,12 @@ function mapFacetValue(v, kind) {
   if(kind == 'color') {
     let color = _.toLower(v).replace(/\s/g, '');
     v = {color: color, value: orig};
-  } 
+  }
 
   return v;
 }
 
-function mapAggregationsToFacets(aggregations) { 
+function mapAggregationsToFacets(aggregations) {
     return _.map(aggregations, (a) => {
       const kind = determineFacetKind(a.key);
       const values = _.map(a.taxon.buckets, (t) => {

@@ -5,28 +5,20 @@
 
 .header {
   display: flex;
+  align-items: baseline;
 }
 
 .title {
   flex-grow: 1;
   margin: 0;
-  text-transform: uppercase;
-  font-size: 1em;
+  font-size: 16px;
+  font-weight: 900;
 }
 
 .action {
-  color: var(--link-color);
-  font-size: 13px;
-  font-weight: 400;
-  text-align: right;
-  text-transform: uppercase;
-  cursor: pointer;
-
+  composes: action-link from "ui/action-link/action-link.css";
+  font-size: 16px;
   & + .action {
     margin-left: 10px;
-  }
-
-  &:hover {
-    text-decoration: underline;
   }
 }

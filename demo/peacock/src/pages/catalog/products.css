@@ -1,6 +1,6 @@
-@import "variables";
-@import "media-queries";
-@import "colors";
+@import "variables.css";
+@import "media-queries.css";
+@import "colors.css";
 
 .catalog {
   overflow: auto;
@@ -9,6 +9,11 @@
 }
 
 .crumbs {
+  composes: inner-wrap from 'ui/css/layout.css';
+  display: flex;
+}
+
+.products-error {
   composes: inner-wrap from 'ui/css/layout.css';
   display: flex;
 }
@@ -33,7 +38,7 @@
     left: 50%;
     transform: translateX(-50%);
     margin-top: 20px;
-    background-color: var(--whitish);
+    background-color: var(--white);
   }
 }
 

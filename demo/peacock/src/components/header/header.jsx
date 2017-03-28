@@ -24,47 +24,41 @@ type Props = {
   query: ?Object,
 };
 
-class Header extends React.Component {
-  props: Props;
-
-  render() {
-    return (
-      <div>
-        <div styleName="header">
-          <div styleName="wrap">
-            <ActionLink
-              action={this.props.toggleSidebar}
-              title="Menu"
-              styleName="action-link-menu"
-            />
-            <div styleName="nav-search-logo-wrapper">
-              <Link to="/" styleName="logo-link">
-                <Icon styleName="logo" name="fc-logo" />
-              </Link>
-              <div styleName="navigation">
-                <Navigation path={this.props.path} />
-              </div>
-              <div styleName="search">
-                <Search />
-              </div>
+const Header = (props: Props) => {
+  return (
+    <div>
+      <div styleName="header">
+        <div styleName="wrap">
+          <ActionLink
+            action={props.toggleSidebar}
+            title="Menu"
+            styleName="action-link-menu"
+          />
+          <div styleName="nav-search-logo-wrapper">
+            <Link to="/" styleName="logo-link">
+              <Icon styleName="logo" name="fc-logo" />
+            </Link>
+            <div styleName="navigation">
+              <Navigation path={props.path} />
             </div>
-            <div styleName="tools">
-              <UserTools path={this.props.path} query={this.props.query} />
+            <div styleName="search">
+              <Search />
             </div>
           </div>
+          <div styleName="tools">
+            <UserTools path={props.path} query={props.query} />
+          </div>
         </div>
-
-        <Cart />
-
-        <div styleName="mobile-sidebar">
-          <Sidebar path={this.props.path} />
-        </div>
-
       </div>
-    );
-  }
-}
 
+      <Cart />
+
+      <div styleName="mobile-sidebar">
+        <Sidebar path={props.path} />
+      </div>
+    </div>
+  );
+};
 
 export default connect(void 0, {
   toggleSidebar,

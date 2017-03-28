@@ -1,7 +1,8 @@
 /* @flow */
 
 // libs
-import React, { Component } from 'react';
+import _ from 'lodash';
+import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import * as actions from 'modules/products';
@@ -12,12 +13,13 @@ import _ from 'lodash';
 import ProductsList, { LoadingBehaviors } from 'components/products-list/products-list';
 import Facets from 'components/facets/facets';
 import Breadcrumbs from 'components/breadcrumbs/breadcrumbs';
+import ErrorAlerts from 'ui/alerts/error-alerts';
 
 // styles
 import styles from './products.css';
 
 // types
-import { Element, Route } from 'types';
+import { Route } from 'types';
 
 type Params = {
   categoryName: ?string,
@@ -35,7 +37,7 @@ type Props = {
   params: Params,
   list: Array<Object>,
   categories: ?Array<Category>,
-  isLoading: boolean,
+  fetchState: AsyncState,
   fetch: Function,
   location: any,
   routes: Array<Route>,
@@ -52,11 +54,9 @@ type State = {
 
 // redux
 const mapStateToProps = (state) => {
-  const async = state.asyncActions.products;
-
   return {
     ...state.products,
-    isLoading: async ? async.inProgress : true,
+    fetchState: _.get(state.asyncActions, 'products', {}),
     categories: state.categories.list,
   };
 };
@@ -74,7 +74,7 @@ class Products extends Component {
   componentWillMount() {
     const { categoryName, subCategory, leafCategory } = this.props.params;
     const { sorting, selectedFacets } = this.state;
-    this.props.fetch([categoryName, subCategory, leafCategory], sorting, selectedFacets);
+    this.props.fetch([categoryName, subCategory, leafCategory], sorting, selectedFacets).catch(_.noop);
   }
 
   componentWillReceiveProps(nextProps: Props) {
@@ -167,10 +167,13 @@ class Products extends Component {
     );
   }
 
-  render(): Element<*> {
+  get body(): Element<any> {
+    const { err, finished } = this.props.fetchState;
+    if (err) {
+      return <ErrorAlerts styleName="products-error" error={err} />;
+    }
     return (
-      <section styleName="catalog">
-        {this.renderHeader()}
+      <div>
         <div styleName="dropDown">
           {this.navBar}
         </div>
@@ -183,11 +186,20 @@ class Products extends Component {
               sorting={this.state.sorting}
               changeSorting={this.changeSorting}
               list={this.props.list}
-              isLoading={this.props.isLoading}
+              isLoading={!finished}
               loadingBehavior={LoadingBehaviors.ShowWrapper}
             />
           </div>
         </div>
+      </div>
+    );
+  }
+
+  render(): Element<*> {
+    return (
+      <section styleName="catalog">
+        {this.renderHeader()}
+        {this.body}
       </section>
     );
   }

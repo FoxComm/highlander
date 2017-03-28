@@ -2,10 +2,13 @@
 /* @flow */
 
 import React, { Element } from 'react';
-import styles from './editable-block.css';
+
+import ActionLink from 'ui/action-link/action-link';
 
 import localized from 'lib/i18n';
 import type { Localized } from 'lib/i18n';
+
+import styles from './editable-block.css';
 
 type EditableProps = Localized & {
   isEditing: boolean,
@@ -21,11 +24,19 @@ type EditableProps = Localized & {
 };
 
 const EditableBlock = (props: EditableProps) => {
-  const editLink = !props.isEditing && !props.collapsed && props.editAllowed
-    ? <div onClick={props.editAction} styleName="action">{props.t('EDIT')}</div>
-    : null;
+  const editLink = () => {
+    if (!props.isEditing && !props.collapsed && props.editAllowed) {
+      return (
+        <ActionLink
+          action={props.editAction}
+          title={props.t('Edit')}
+          styleName="action"
+        />
+      );
+    }
+  };
 
-  const actions = props.actionsContent || editLink;
+  const actions = props.actionsContent || editLink();
   const content = !props.collapsed ? (props.content || props.children) : null;
 
   return (

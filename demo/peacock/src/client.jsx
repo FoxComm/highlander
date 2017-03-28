@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import React from 'react';
 import { Router, applyRouterMiddleware } from 'react-router';
-import { browserHistory } from 'lib/history';
+import { createAppHistory } from 'lib/history';
 
 import useScroll from 'react-router-scroll';
 import { Provider } from 'react-redux';
@@ -25,9 +25,14 @@ function scrollHandler(prevRouterProps, { params }) {
 }
 
 export function renderApp() {
-  const history = browserHistory;
-  const store = makeStore(history, window.__data);
-  const routes = makeRoutes(store);
+  let store;
+  const getStore = () => store;
+  const routes = makeRoutes(getStore);
+  const history = createAppHistory({
+    routes,
+  });
+  store = makeStore(history, window.__data);
+
 
   if (DEBUG) {
     window.store = store;
@@ -46,7 +51,7 @@ export function renderApp() {
   render((
     <I18nProvider locale={language} translation={translation}>
       <Provider store={store} key="provider">
-        <Router history={history} render={applyRouterMiddleware(useScroll(scrollHandler))}>
+        <Router history={history} routes={routes} render={applyRouterMiddleware(useScroll(scrollHandler))}>
           {routes}
         </Router>
       </Provider>

@@ -15,7 +15,7 @@ type ButtonProps = {
   onClick?: (event: SyntheticEvent) => void,
 };
 
-const Button = (props: ButtonProps) => {
+export const Button = (props: ButtonProps) => {
   const { isLoading, className, disabled, ...rest } = props;
   let { icon } = props;
 
@@ -23,13 +23,22 @@ const Button = (props: ButtonProps) => {
     icon = <Icon name={icon} />;
   }
 
-  const cls = classNames(styles[isLoading ? 'button-loading' : 'button'], className);
+  const cls = classNames(styles.button, className, {
+    [styles._loading]: isLoading,
+  });
 
   return (
     <button className={cls} disabled={isLoading || disabled} {...rest}>
       {icon}
       {props.children}
     </button>
+  );
+};
+
+export const SecondaryButton = (props: ButtonProps) => {
+  const { className, ...rest } = props;
+  return (
+    <Button className={classNames(styles._secondary, className)} {...rest} />
   );
 };
 
