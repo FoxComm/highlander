@@ -41,7 +41,6 @@ class Facets extends Component {
           facet={f.key}
           value={v.value}
           label={v.label}
-          checked={false}
           click={this.handleClickFacets}
         />
       ));
@@ -51,7 +50,6 @@ class Facets extends Component {
           facet={f.key}
           value={v.value}
           label={v.label}
-          checked={false}
           click={this.handleClickFacets}
         />
       ));
@@ -61,7 +59,6 @@ class Facets extends Component {
           facet={f.key}
           value={v.value}
           label={v.label}
-          checked={false}
           click={this.handleClickFacets}
         />
       ));
