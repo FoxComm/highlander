@@ -141,7 +141,7 @@ class Products extends Component {
     );
   }
 
-  get body(): Element<*> {
+  get body(): Element<any> {
     const { err, finished } = this.props.fetchState;
     if (err) {
       return <ErrorAlerts styleName="products-error" error={err} />;
