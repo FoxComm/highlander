@@ -15,7 +15,7 @@
 
 .shipping, .delivery {
   border-bottom: 1px solid var(--border-color);
-  margin: 15px;
+  margin: 0 var(--grid-margin);
 }
 
 .summary {
@@ -140,21 +140,28 @@
   .wrapper {
     margin-top: 25px;
     display: flex;
-    justify-content: space-between;
-    align-items: baseline;
+  }
+
+  .left-wrapper {
+    lost-column: 8/12;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .right-wrapper {
+    lost-column: 4/12;
+    display: flex;
+  }
+
+  .editables {
+    display: flex;
   }
 
   .shipping, .delivery {
-    lost-column: 4/12;
+    lost-column: 6/12;
     border: 1px solid var(--border-color);
     border-radius: 4px;
     padding: 10px 10px 5px;
-
-  }
-
-  .summary {
-    lost-column: 4/10;
-    margin: 0 !important;
   }
 
   .forms {
@@ -167,10 +174,10 @@
   }
 
   .order-totals {
-    lost-column: 4/12;
     border: 1px solid var(--border-color);
     border-radius: 4px;
     font-size: 16px;
+    width: 100%;
   }
 
   .totals-list {
@@ -183,9 +190,7 @@
 
   .place-order-button {}
 
-  .order-content {
-    lost-column: 2/3;
-  }
+  .order-content {}
 }
 
 .text-field {

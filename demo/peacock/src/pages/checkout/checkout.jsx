@@ -228,8 +228,9 @@ class Checkout extends Component {
 
     if (cartFetched) {
       return (
-        <div>
-          <div styleName="wrapper">
+        <div styleName="wrapper">
+          <div styleName="left-wrapper">
+            <div styleName="editables">
             <div styleName="shipping">
               <Shipping
                 isEditing={props.editStage}
@@ -253,17 +254,18 @@ class Checkout extends Component {
                 fetchShippingMethods={props.fetchShippingMethods}
               />
             </div>
-
+            </div>
+            <div styleName="order-summary">
+              {this.orderContent}
+            </div>
+          </div>
+          <div styleName="right-wrapper">
             {this.orderTotals}
-
-            <GuestAuth
-              isEditing={!this.isEmailSetForCheckout()}
-              location={this.props.location}
-            />
           </div>
-          <div styleName="wrapper">
-            {this.orderContent}
-          </div>
+          <GuestAuth
+            isEditing={!this.isEmailSetForCheckout()}
+            location={this.props.location}
+          />
         </div>
       );
     }
