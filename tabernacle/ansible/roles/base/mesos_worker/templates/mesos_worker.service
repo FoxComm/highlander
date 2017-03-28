@@ -1,11 +1,11 @@
 [Service]
+WorkingDirectory=/usr/local/share
 ExecStart=/usr/local/bin/run_mesos_worker.sh
 Restart=always
-RestartSec=5
+RestartSec=10
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=mesos_worker
-KillMode=control-cgroup
 
 [Install]
 WantedBy=multi-user.target

@@ -1,11 +1,11 @@
 [Service]
-WorkingDirectory=/usr/local/bin
+WorkingDirectory=/usr/local/share
 ExecStart=/usr/local/bin/consul-template -config {{consul_data_dir}}/consul_template.conf
 Restart=always
+RestartSec=10
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=consul_template
-RestartSec=5
 
 [Install]
 WantedBy=multi-user.target

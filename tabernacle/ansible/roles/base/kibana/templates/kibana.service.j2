@@ -2,10 +2,10 @@
 WorkingDirectory={{kibana_dir}}
 ExecStart={{kibana_bin}}
 Restart=always
+RestartSec=10
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=kibana
-RestartSec=10
 
 [Install]
 WantedBy=multi-user.target
