@@ -148,7 +148,6 @@
 
   }
 
-
   .summary {
     lost-column: 4/10;
     margin: 0 !important;
@@ -179,6 +178,10 @@
   }
 
   .place-order-button {}
+
+  .order-content {
+    lost-column: 2/3;
+  }
 }
 
 .text-field {
