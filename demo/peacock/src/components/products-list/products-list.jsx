@@ -131,7 +131,7 @@ class ProductsList extends Component {
   }
 
   get loadingWrapper(): ?Element<*> {
-    if (this.props.isLoading) {
+    if (this.props.isLoading && _.isEmpty(this.props.list)) {
       return (
         <div styleName="loading-wrapper">
           <div styleName="loader">

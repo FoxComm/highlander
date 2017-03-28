@@ -1,5 +1,6 @@
 
 @import "colors.css";
+@import "media-queries.css";
 
 .aliceblue div {
   background-color: #F0F8FF;
@@ -44,6 +45,14 @@
 
 .blue div {
   background-color: #0000FF;
+}
+
+.intenseblue div {
+  background-color: #1111FF;
+}
+
+.neonblue div {
+  background-color: #8A2BE2;
 }
 
 .blueviolet div {
@@ -472,6 +481,10 @@
   background-color: #CD853F;
 }
 
+.corepink div {
+  background-color: #FFC0CB;
+}
+
 .pink div {
   background-color: #FFC0CB;
 }
@@ -486,6 +499,10 @@
 
 .purple div {
   background-color: #800080;
+}
+
+.brightred div {
+  background-color: #FF1111;
 }
 
 .red div {
@@ -597,18 +614,23 @@
   border: solid 1px var(--blackish);
 }
 
+.offwhite div {
+  background-color: #F5F5F5;
+  border: solid 1px var(--blackish);
+}
+
 .whitesmoke div {
   background-color: #F5F5F5;
   border: solid 1px var(--blackish);
 }
 
 .runningwhiteftw div {
-  background-color: #F5F5F5;
+  background-color: #F5F5F3;
   border: solid 1px var(--blackish);
 }
 
 .runningwhite div {
-  background-color: #F5F5F5;
+  background-color: #F5F5F0;
   border: solid 1px var(--blackish);
 }
 
@@ -631,8 +653,8 @@
 }
 
 .color-checkbox div {
-  width: 32px;
-  height: 32px;
+  width: 16px;
+  height: 16px;
   border-radius: 100px;
   text-align: center;
   float: left;
@@ -641,8 +663,8 @@
 }
 
 .color-checkbox-light div {
-  width: 32px;
-  height: 32px;
+  width: 16px;
+  height: 16px;
   border-radius: 100px;
   text-align: center;
   float: left;
@@ -650,28 +672,67 @@
   margin-bottom: 10px;
 }
 
-.color-checkbox label {
-  width: 9px;
-  height: 32px;
-  font-size: 16px;
+@media ( --medium ) {
+    .color-checkbox div {
+        width: 24px;
+        height: 24px;
+    }
+
+    .color-checkbox-light div {
+        width: 24px;
+        height: 24px;
+    }
+}
+
+
+@media ( --large ) {
+    .color-checkbox div {
+        width: 32px;
+        height: 32px;
+        border-radius: 100px;
+        text-align: center;
+        float: left;
+        margin-right: 11px;
+        margin-bottom: 10px;
+    }
+
+    .color-checkbox-light div {
+        width: 32px;
+        height: 32px;
+        border-radius: 100px;
+        text-align: center;
+        float: left;
+        margin-right: 11px;
+        margin-bottom: 10px;
+    }
+}
+
+.color-checkbox div label {
   font-weight: normal;
-  vertical-align: -6px;
+  vertical-align: -25%;
   color: rgba(0,0,0,0);
+  padding: 25% 25%;
+  margin: -25% -25%;
 }
 
-.color-checkbox-light label {
-  width: 9px;
-  height: 32px;
-  font-size: 16px;
+.color-checkbox-light div label {
   font-weight: normal;
-  vertical-align: -6px;
+  vertical-align: -25%;
   color: rgba(0,0,0,0);
+  padding: 25% 25%;
+  margin: -25% -25%;
 }
 
-.color-checkbox input[type=checkbox]:checked + div label {
-  color: #ffffff;
+.color-checkbox input[type=checkbox]:checked + div {
+  background-image: url(images/symbols/checkbox.svg);
+  background-size: 37.5%, 37.5%;
+  background-repeat: no-repeat no-repeat;
+  background-position: center;
 }
 
-.color-checkbox-light input[type=checkbox]:checked + div label {
-  color: black;
+.color-checkbox-light input[type=checkbox]:checked + div {
+  background-image: url(images/symbols/blackcheckbox.svg);
+  background-size: 37.5%, 37.5%;
+  background-repeat: no-repeat no-repeat;
+  background-position: center;
 }

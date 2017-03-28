@@ -32,43 +32,57 @@ class Facets extends Component {
   }
 
   @autobind
-  renderFacet(f) {
+  renderValues(f) {
     let values = {};
 
-    if (f.kind == 'checkbox') {
-      values = _.map(f.values, v => (
-        <Checkbox
-          facet={f.key}
-          value={v.value}
-          label={v.label}
-          click={this.handleClickFacets}
-        />
-      ));
-    } else if (f.kind == 'circle') {
-      values = _.map(f.values, v => (
-        <Circle
-          facet={f.key}
-          value={v.value}
-          label={v.label}
-          click={this.handleClickFacets}
-        />
-      ));
-    } else if (f.kind == 'color') {
-      values = _.map(f.values, v => (
-        <ColorCircle
-          facet={f.key}
-          value={v.value}
-          label={v.label}
-          click={this.handleClickFacets}
-        />
-      ));
-    } else {
-      values = (<div> unsuported type </div>);
-    }
+    values = _.map(f.values, v => {
+      let w = {};
+      let key = 'val-' + f.kind + '-' + f.key + '-' + v.label;
 
+      if (f.kind == 'checkbox') {
+        w = (<Checkbox
+          key={key}
+          facet={f.key}
+          value={v.value}
+          label={v.label}
+          click={this.handleClickFacets}
+          />
+        );
+      } else if (f.kind == 'circle') {
+        w = (<Circle
+          key={key}
+          facet={f.key}
+          value={v.value}
+          label={v.label}
+          click={this.handleClickFacets}
+          />
+        );
+      } else if (f.kind == 'color') {
+        w = (<ColorCircle
+          key={key}
+          facet={f.key}
+          value={v.value}
+          label={v.label}
+          click={this.handleClickFacets}
+          />
+        );
+      } else {
+        w = (<div key={key}> unsuported type </div>);
+      }
+      return w;
+    });
+
+    return values;
+  }
+
+  @autobind
+  renderFacet(f) {
+
+    const values = this.renderValues(f);
     const facetStyle = `${f.kind}-facet`;
+
     return (
-      <div styleName="facet">
+      <div key={f.key} styleName="facet">
         <h2>{f.name}</h2>
         <div styleName={facetStyle}>
           {values}
@@ -78,7 +92,11 @@ class Facets extends Component {
   }
 
   render(): Element<*> {
-    const facets = _.map(this.props.facets, (f) => {
+    const nonEmpty = _.filter(this.props.facets, (f) => {
+      return !_.isEmpty(f.values);
+    });
+
+    const facets = _.map(nonEmpty, (f) => {
       return this.renderFacet(f);
     });
 

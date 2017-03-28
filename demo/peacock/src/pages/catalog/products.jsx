@@ -177,6 +177,35 @@ class Products extends Component {
     return <div />;
   }
 
+  renderSidebar() {
+    const { params } = this.props;
+    const { categoryName, subCategory, leafCategory } = params;
+
+    let realCategoryName = '';
+    if (leafCategory) {
+      realCategoryName = this.categoryName(leafCategory);
+    } else if (subCategory) {
+      realCategoryName = this.categoryName(subCategory);
+    } else if (categoryName) {
+      realCategoryName = this.categoryName(categoryName);
+    }
+
+    return (
+      <div styleName="sidebar">
+        <div styleName="crumbs">
+          <Breadcrumbs
+            routes={this.props.routes}
+            params={this.props.routerParams}
+          />
+        </div>
+        <div styleName="title">
+          {realCategoryName}
+        </div>
+        <Facets facets={this.props.facets} onSelect={this.onSelectFacet} />
+      </div>
+    );
+  }
+
   get body(): Element<any> {
     const { err, finished } = this.props.fetchState;
     if (err) {
@@ -188,9 +217,7 @@ class Products extends Component {
           {this.navBar}
         </div>
         <div styleName="facetted-container">
-          <div styleName="sidebar">
-            <Facets facets={this.props.facets} onSelect={this.onSelectFacet} />
-          </div>
+          {this.renderSidebar()}
           <div styleName="content">
             <ProductsList
               sorting={this.state.sorting}
@@ -208,7 +235,6 @@ class Products extends Component {
   render(): Element<*> {
     return (
       <section styleName="catalog">
-        {this.renderHeader()}
         {this.body}
       </section>
     );

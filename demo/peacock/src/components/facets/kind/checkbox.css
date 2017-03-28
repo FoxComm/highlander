@@ -20,6 +20,7 @@
 
 .facet-checkbox-box {
   width: 16px;
+  min-width: 16px;
   height: 16px;
   border-radius: 2px;
   border: solid 1px #888888;
@@ -32,6 +33,12 @@
   color: white;
   font-size: 10px;
   vertical-align: 6px;
+  padding: 5px;
+  margin: -5px;
+  background: url(images/symbols/checkbox.svg);
+  background-size: 12px, 12px;
+  background-repeat: no-repeat no-repeat;
+  background-position: center;
 }
 
 .facet-checkbox input[type=checkbox]:checked + .facet-checkbox-box {

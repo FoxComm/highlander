@@ -53,7 +53,7 @@ class Checkbox extends Component {
           onChange={this.click}
         />
         <div styleName="facet-checkbox-box">
-          <label htmlFor={id}>{'✔'}</label>
+          <label htmlFor={id}>{''}</label>
         </div>
         <label styleName="facet-checkbox-label" htmlFor={id}>{label} </label>
       </div>

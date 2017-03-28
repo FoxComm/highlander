@@ -71,7 +71,7 @@ class ColorCircle extends Component {
           onChange={this.click}
         />
         <div>
-          <label htmlFor={id}>{'✔'}</label>
+          <label htmlFor={id}>{''}</label>
         </div>
       </div>
     );

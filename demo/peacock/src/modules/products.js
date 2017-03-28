@@ -56,7 +56,7 @@ function apiCall(
     const order = sorting.direction === -1 ? 'desc' : 'asc';
     payload.sort = [{ [sorting.field]: { order } }];
   }
-
+    
   payload = addTaxonomiesAggregation(payload);
 
   _.forEach(selectedFacets, (values: Array<string>, facet: string) => {
@@ -108,13 +108,14 @@ function mapFacetValue(v, kind) {
 function mapAggregationsToFacets(aggregations): Array<Facet> {
   return _.map(aggregations, (a) => {
     const kind = determineFacetKind(a.key);
-    const values = _.map(a.taxon.buckets, (t) => {
+    const values = _.uniq(_.map(a.taxon.buckets, (t) => {
       return {
         label: titleCase(t.key),
         value: mapFacetValue(t.key, kind),
         count: t.doc_count,
       };
-    });
+    }), (v) => {v.label});
+
     return {
       key: a.key,
       name: titleCase(a.key),
@@ -128,15 +129,33 @@ const reducer = createReducer({
   [actions.succeeded]: (state, action) => {
     const {payload, selectedFacets} = action;
     const payloadResult = payload.result;
-    const payloadAggregations = payload.aggregations.taxonomies.taxonomy.buckets;
+    const aggregations = _.isNil(payload.aggregations) ? [] : payload.aggregations.taxonomies.taxonomy.buckets;
     const list = _.isEmpty(payloadResult) ? [] : payloadResult;
-    const aggregations = _.isEmpty(payloadAggregations) ? [] : payload.aggregations.taxonomies.taxonomy.buckets;
-    const facets = _.isEmpty(selectedFacets) ? mapAggregationsToFacets(aggregations) : state.facets;
+
+    const queryFacets = mapAggregationsToFacets(aggregations);
+    const originalFacets = state.facets;
+
+    let facets = [];
+
+    //the only time this should be empty is on first call.
+    if(_.isEmpty(state.facets)) {
+      facets = queryFacets;
+    } else {
+      //merge aggregations from quiries into existing state. 
+      //Keep existinged selected facets and only change unselected ones.. 
+      //This avoids quiries that would return empty results.
+      //While also keeping the interface from changing too much.
+      const groupedQueyFacets = _.groupBy(queryFacets, (f) => { return f.key});
+
+      facets = _.map(state.facets, (v) => {
+        return (!_.isEmpty(selectedFacets[v.key])) ? v : groupedQueyFacets[v.key][0];
+      });
+    }
 
     return {
       ...state,
-      list,
-      facets,
+      list: list,
+      facets: facets,
     };
   },
 }, initialState);

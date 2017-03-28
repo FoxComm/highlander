@@ -1,9 +1,6 @@
 @import "colors.css";
 
 .facets {
-    width: 250px;
-    padding-top: 100px;
-    padding-left: 50px;
 }
 
 .facet {
@@ -28,6 +25,9 @@
 }
 
 .color-facet {
+    max-width: 200px;
     display: flex;
     flex-wrap: wrap;
+    lost-column: 11/12;
+    lost-offset: -0.5/12;
 }

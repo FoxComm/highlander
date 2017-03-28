@@ -10,11 +10,15 @@
 
 .crumbs {
   composes: inner-wrap from 'ui/css/layout.css';
+  lost-column: 11/12;
+  lost-offset: -0.5/12;
   display: flex;
 }
 
 .products-error {
   composes: inner-wrap from 'ui/css/layout.css';
+  lost-column: 11/12;
+  lost-offset: -0.5/12;
   display: flex;
 }
 
@@ -27,19 +31,9 @@
   letter-spacing: normal;
   color: var(--text-color);
   min-height: 50px;
-  composes: inner-wrap from 'ui/css/layout.css';
+  margin-top: 24px;
+  margin-bottom: 42px;
 
-  &:after {
-    content: '';
-    display: block;
-    position: absolute;
-    width: 93px;
-    height: 3px;
-    left: 50%;
-    transform: translateX(-50%);
-    margin-top: 20px;
-    background-color: var(--white);
-  }
 }
 
 .header {}
@@ -66,11 +60,33 @@
 
 .sidebar{
     float: left;
-    width: 20%;
+    width: 50%;
 }
 
 .content{
+    margin-top: 135px;
     float: right;
-    width: 80%;
+    width: 50%;
+}
 
+@media ( --medium ) { 
+    .sidebar{
+        width: 40%;
+        padding-left: 5%;
+    }
+
+    .content{
+        width: 60%;
+    }
+}
+
+@media ( --large ) { 
+    .sidebar{
+        width: 20%;
+        padding-left: 8%;
+    }
+
+    .content{
+        width: 80%;
+    }
 }
