@@ -106,6 +106,7 @@ class Checkout extends Component {
 
   @autobind
   setBillingStage() {
+    this.props.toggleDeliveryModal();
     return this.props.setEditStage(EditStages.BILLING);
   }
 
