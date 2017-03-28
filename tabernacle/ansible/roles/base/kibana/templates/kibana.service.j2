@@ -1,6 +1,6 @@
 [Service]
-ExecStart={{kibana_bin}}
 WorkingDirectory={{kibana_dir}}
+ExecStart={{kibana_bin}}
 Restart=always
 StandardOutput=syslog
 StandardError=syslog
@@ -11,5 +11,5 @@ RestartSec=10
 WantedBy=multi-user.target
 
 [Unit]
-Requires=elasticsearch.service
-After=elasticsearch.service
+Requires=elasticsearch_5.service
+After=elasticsearch_5.service
