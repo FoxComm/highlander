@@ -86,6 +86,10 @@ class EditableSkuRow extends Component {
     validationDispatcher: PropTypes.object,
   };
 
+  static defaultProps = {
+    skuContext: 'default',
+  };
+
   toggleBindToDispatcher(bind) {
     const { validationDispatcher } = this.context;
     if (validationDispatcher) {
@@ -148,12 +152,20 @@ class EditableSkuRow extends Component {
     );
   }
 
-  @autobind
   upcCell(sku: Sku): Element<*> {
-    const value = this.state.sku.upc || _.get(sku, 'attributes.upc.v');
+    const value = this.state.sku.upc || _.get(sku, 'attributes.upc.v') || '';
+
     return (
       <FormField>
-        <input type="text" value={value} onChange={this.handleUpdateUpc} />
+        <input
+          className="fc-text-input"
+          type="text"
+          value={value}
+          onChange={({ target: { value } }) => {
+            this.updateSku({ upc: value });
+          }}
+          placeholder="UPC"
+        />
       </FormField>
     );
   }
@@ -234,7 +246,6 @@ class EditableSkuRow extends Component {
   }
 
   skuCell(sku: Sku): Element<*> {
-    const code = _.get(this.props, 'sku.attributes.code.v');
     const { codeError } = this.state;
     const error = codeError ? `SKU Code violates constraint: ${codeError.keyword}` : void 0;
     return (
@@ -252,6 +263,42 @@ class EditableSkuRow extends Component {
         </FormField>
         {this.skusMenu}
       </div>
+    );
+  }
+
+  inventoryCell(sku: Sku): Element<*> {
+    const value = this.state.sku.inventory || _.get(this.props, 'sku.attributes.inventory.v') || '';
+
+    return (
+      <FormField>
+        <input
+          className="fc-text-input"
+          type="text"
+          value={value}
+          onChange={({ target: { value } }) => {
+            this.updateSku({ inventory: value });
+          }}
+          placeholder="Inventory"
+        />
+      </FormField>
+    );
+  }
+
+  asinCell(sku: Sku): Element<*> {
+    const value = this.state.sku.asin || _.get(this.props, 'sku.attributes.asin.v') || '';
+
+    return (
+      <FormField>
+        <input
+          className="fc-text-input"
+          type="text"
+          value={value}
+          onChange={({ target: { value } }) => {
+            this.updateSku({ asin: value });
+          }}
+          placeholder="ASIN"
+        />
+      </FormField>
     );
   }
 
@@ -321,6 +368,10 @@ class EditableSkuRow extends Component {
         return this.imageCell(sku);
       case 'actions':
         return this.actionsCell(sku);
+      case 'inventory':
+        return this.inventoryCell(sku);
+      case 'asin':
+        return this.asinCell(sku);
       default:
         return this.variantCell(field, sku);
     }
@@ -358,15 +409,6 @@ class EditableSkuRow extends Component {
         currency,
         value: Number(value),
       },
-    });
-  }
-
-  @autobind
-  handleUpdateUpc({target}: Object) {
-    const value = target.value;
-
-    this.updateSku({
-      upc: value,
     });
   }
 

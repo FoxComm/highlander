@@ -9,15 +9,6 @@ config :maru, Hyperion.API,
 
 config :hyperion, ecto_repos: [Hyperion.Repo]
 
-# Configure your database
-config :hyperion, Hyperion.Repo,
-  adapter: Ecto.Adapters.Postgres,
-  username: System.get_env("HYPERION_DB_USER"),
-  password: System.get_env("HYPERION_DB_PASSWORD"),
-  database: System.get_env("HYPERION_DB_NAME"),
-  hostname: System.get_env("HYPERION_DB_HOST"),
-  pool_size: 10
-
 config :ex_aws,
   access_key_id: [{:system, "AWS_ACCESS_KEY_ID"}, :instance_role],
   secret_access_key: [{:system, "AWS_SECRET_ACCESS_KEY"}, :instance_role],
@@ -28,10 +19,16 @@ config :hyperion,
   mws_access_key_id: System.get_env("MWS_ACCESS_KEY_ID")
 
 config :hyperion,
+  phoenix_email: System.get_env("PHOENIX_USER"),
+  phoenix_password: System.get_env("PHOENIX_PASSWORD"),
+  phoenix_org: System.get_env("PHOENIX_ORG")
+
+config :hyperion,
   phoenix_url: System.get_env("PHOENIX_URL")
 
-config :tirexs,
-  elastic_uri: System.get_env("ELASTIC_URL")
+config :hyperion,
+  public_key: System.get_env("PUBLIC_KEY")
+
 # This configuration is loaded before any dependency and is restricted
 # to this project. If another project depends on this project, this
 # file won't be loaded nor affect the parent project. For this reason,
@@ -57,4 +54,5 @@ config :tirexs,
 # Configuration from the imported file will override the ones defined
 # here (which is why it is important to import them last).
 #
-#     import_config "#{Mix.env}.exs"
+
+import_config "#{Mix.env}.exs"

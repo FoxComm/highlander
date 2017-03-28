@@ -18,6 +18,7 @@ import ProductsListPage from 'components/products/list-page';
 import Products from 'components/products/products';
 import ProductPage from 'components/products/page';
 import ProductForm from 'components/products/product-form';
+import ProductAmazon from 'components/products/product-amazon';
 import ProductImages from 'components/products/images';
 
 import Skus from 'components/skus/skus';
@@ -42,6 +43,11 @@ const getRoutes = (jwt: Object) => {
           frn: frn.activity.product,
         }),
       ]),
+      router.read('product-amazon', {
+        title: 'Amazon',
+        path: 'amazon/:productId',
+        component: ProductAmazon,
+      }),
       router.read('product', {
         path: ':context/:productId',
         titleParam: ':productId',
