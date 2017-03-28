@@ -52,17 +52,17 @@ export default {
     fullApiSequenceLogging: false,
   },
   'APPLIANCE-AEMXDP': {
-    apiUrl: 'https://appliance-10-240-0-30.foxcommerce.com',
+    apiUrl: 'https://appliance-10-240-0-35.foxcommerce.com',
     storefronts: [
       {
         name: 'TPG',
-        url: 'https://appliance-10-240-0-30.foxcommerce.com/perfect-gourmet',
+        url: 'https://appliance-10-240-0-35.foxcommerce.com/perfect-gourmet',
         categories: TPG_CATEGORIES,
         aboutPagePath: 'about',
       },
       {
         name: 'TD',
-        url: 'https://appliance-10-240-0-30.foxcommerce.com/top-drawer',
+        url: 'https://appliance-10-240-0-35.foxcommerce.com/top-drawer',
         categories: TD_CATEGORIES,
       },
     ],

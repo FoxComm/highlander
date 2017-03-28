@@ -20,8 +20,9 @@
     "test-dev": "ava --verbose tests/dev.test.js || true"
   },
   "dependencies": {
-    "@foxcomm/api-js": "^1.1.5",
     "@foxcomm/admin-api-js": "file:./admin-api-js",
+    "@foxcomm/api-js": "^1.1.5",
+    "allure-js-commons": "^1.2.1",
     "ava": "^0.18.2",
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-es2015": "^6.22.0",
