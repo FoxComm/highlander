@@ -14,6 +14,7 @@ import EditDelivery from './edit-delivery';
 import ViewDelivery from './view-delivery';
 import ActionLink from 'ui/action-link/action-link';
 import Modal from 'ui/modal/modal';
+import Loader from 'ui/loader';
 
 // actions
 import { toggleDeliveryModal } from 'modules/checkout.js';
@@ -55,20 +56,27 @@ class Delivery extends Component {
   }
 
   get content() {
-    const { deliveryModalVisible, toggleDeliveryModal } = this.props;
+    const { deliveryModalVisible, toggleDeliveryModal, cartState } = this.props;
+
+    if (cartState.finished){
+      return (
+        <div>
+          <ViewDelivery
+            shippingMethodCost={this.shippingMethodCost}
+            shippingMethod={this.props.shippingMethod}
+          />
+          <Modal
+            show={deliveryModalVisible}
+            toggle={toggleDeliveryModal}
+          >
+            <EditDelivery {...this.props} shippingMethodCost={this.shippingMethodCost} />
+          </Modal>
+        </div>
+      );
+    }
+
     return (
-      <div>
-        <ViewDelivery
-          shippingMethodCost={this.shippingMethodCost}
-          shippingMethod={this.props.shippingMethod}
-        />
-        <Modal
-          show={deliveryModalVisible}
-          toggle={toggleDeliveryModal}
-        >
-          <EditDelivery {...this.props} shippingMethodCost={this.shippingMethodCost} />
-        </Modal>
-      </div>
+      <Loader size="m" />
     );
   }
 

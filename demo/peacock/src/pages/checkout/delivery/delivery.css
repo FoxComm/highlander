@@ -1,4 +1,5 @@
 @import "colors.css";
+@import "media-queries.css";
 
 .title {
   font-size: 19px;
@@ -24,6 +25,8 @@
   justify-content: space-between;
   align-items: baseline;
   padding-bottom: 15px;
+  padding-right: 6px;
+  font-size: 14px;
 
   & .method {
     line-height: 1.33;
@@ -45,7 +48,7 @@
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  padding: 10px;
+  padding: 7px;
   border: 1px solid var(--border-color);
   border-radius: 4px;
   margin-bottom: 10px;
@@ -59,4 +62,14 @@
 
 .method-name {
   font-weight: 900;
+}
+
+@media (--large) {
+  .delivery {
+    padding-right: 0;
+  }
+
+  .action-link-delivery {
+    margin-right: 0;
+  }
 }
