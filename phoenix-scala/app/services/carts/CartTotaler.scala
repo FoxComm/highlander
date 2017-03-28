@@ -1,7 +1,5 @@
 package services.carts
 
-import scala.util.Try
-
 import models.cord.lineitems._
 import models.cord._
 import slick.driver.PostgresDriver.api._
@@ -56,10 +54,10 @@ object CartTotaler {
       sum = lineItemAdjustments.foldLeft(0)(_ + _.subtract)
     } yield sum
 
-  def taxesTotal(cart: Cart, subTotal: Int, shipping: Int, adjustments: Int)(
+  def taxesTotal(cordRef: String, subTotal: Int, shipping: Int, adjustments: Int)(
       implicit ec: EC): DbResultT[Int] =
     for {
-      maybeAddress ← * <~ OrderShippingAddresses.findByOrderRef(cart.refNum).one
+      maybeAddress ← * <~ OrderShippingAddresses.findByOrderRef(cordRef).one
       optionalCustomRate = for {
         address     ← maybeAddress
         taxRegionId ← config.taxRules.regionId
@@ -73,7 +71,10 @@ object CartTotaler {
       sub  ← * <~ subTotal(cart)
       ship ← * <~ shippingTotal(cart)
       adj  ← * <~ adjustmentsTotal(cart)
-      tax  ← * <~ taxesTotal(cart = cart, subTotal = sub, shipping = ship, adjustments = adj)
+      tax ← * <~ taxesTotal(cordRef = cart.refNum,
+                            subTotal = sub,
+                            shipping = ship,
+                            adjustments = adj)
     } yield Totals.build(subTotal = sub, shipping = ship, adjustments = adj, taxes = tax)
 
   def saveTotals(cart: Cart)(implicit ec: EC): DbResultT[Cart] =
