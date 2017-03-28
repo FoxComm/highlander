@@ -41,7 +41,7 @@ import RelatedProductsList,
   { LoadingBehaviors } from 'components/related-products-list/related-products-list';
 
 // types
-import type { ProductResponse, ProductSlug } from 'modules/product-details';
+import type { ProductResponse } from 'modules/product-details';
 import type { RoutesParams } from 'types';
 
 type Params = {
@@ -158,13 +158,13 @@ class Pdp extends Component {
 
   safeFetch(id) {
     return this.props.actions.fetch(id)
-      .then(product => {
+      .then((product) => {
         this.props.actions.fetchRelatedProducts(product.id, 1).catch(_.noop);
       })
       .catch(() => {
         const { params } = this.props;
         this.props.actions.fetch(params.productSlug)
-        .then(product => {
+        .then((product) => {
           this.props.actions.fetchRelatedProducts(product.id, 1).catch(_.noop);
         });
       });

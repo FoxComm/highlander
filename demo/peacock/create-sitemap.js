@@ -6,10 +6,6 @@ require('./src/postcss.config').installHook();
 
 const makeRoutes = require('./lib/routes').default;
 const Sitemap = require('react-router-sitemap').default;
-const {
-  categories,
-  productTypes,
-} = require('modules/categories');
 
 const routes = makeRoutes();
 
