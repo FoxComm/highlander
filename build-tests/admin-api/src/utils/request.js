@@ -74,23 +74,22 @@ export default function request(method, uri, data, options) {
   }
 
   if (options.handleResponse !== false) {
+    const error = new Error();
+    Error.captureStackTrace(error, request);
     return requestPromise
       .then(
         response => {
           debug(`${response.status} ${method.toUpperCase()} ${uri}`);
-
           return response.body;
         },
         err => {
           if (err.statusCode === 401) {
             options.unauthorizedHandler();
           }
-
-          const error = createError(err);
-          const message = `${method.toUpperCase()} ${uri} responded with ${err.statusCode}`;
-
-          debug(message);
-
+          error.message = err.message || String(err);
+          error.response = err.response;
+          error.responseJson = err.response ? err.response.body : err;
+          debug(`${method.toUpperCase()} ${uri} responded with ${err.statusCode}`);
           throw error;
         }
       );
@@ -98,4 +97,3 @@ export default function request(method, uri, data, options) {
 
   return requestPromise;
 }
-

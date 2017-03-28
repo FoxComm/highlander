@@ -1,23 +1,27 @@
 import sleep from './sleep';
 
-export default async (pollDelayMs, timeoutAfterMs, promiseFn, conditionFn = () => true) => {
-  let timePassed = 0;
-  for (; ;) {
-    try {
-      const result = await promiseFn();
-      if (conditionFn(result)) {
-        return result;
-      }
-      throw new Error('Awaitable condition timeout\n' +
-        `result=${JSON.stringify(result, null, 2)},\n` +
-        `condition=${conditionFn}`);
-    } catch (error) {
-      if (timePassed >= timeoutAfterMs) {
+function waitFor(pollDelayMs, timeoutAfterMs, promiseFn, conditionFn = () => true) {
+  const error = new Error('Awaitable condition timeout');
+  Error.captureStackTrace(error, waitFor);
+  return (async () => {
+    let timePassed = 0;
+    for (; ;) {
+      try {
+        const result = await promiseFn();
+        if (conditionFn(result)) {
+          return result;
+        }
         throw error;
-      } else {
-        await sleep(pollDelayMs);
-        timePassed += pollDelayMs;
+      } catch (err) {
+        if (timePassed >= timeoutAfterMs) {
+          throw err;
+        } else {
+          await sleep(pollDelayMs);
+          timePassed += pollDelayMs;
+        }
       }
     }
-  }
-};
+  })();
+}
+
+export default waitFor;

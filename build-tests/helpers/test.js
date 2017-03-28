@@ -33,7 +33,8 @@ export default (name, cb, ...args) => test(name, async (t, ...cbArgs) => {
               `${JSON.stringify(entry.result)}`),
           );
         }
-        throw new Error(errorMessageLines.join('\n\n;;;\n\n'));
+        error.message = errorMessageLines.join('\n\n');
+        throw error;
       }
     }
   }
