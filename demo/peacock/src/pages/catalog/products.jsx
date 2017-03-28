@@ -1,6 +1,7 @@
 /* @flow */
 
 // libs
+import _ from 'lodash';
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
@@ -10,6 +11,7 @@ import { categoryNameFromUrl } from 'paragons/categories';
 // components
 import ProductsList, { LoadingBehaviors } from 'components/products-list/products-list';
 import Breadcrumbs from 'components/breadcrumbs/breadcrumbs';
+import ErrorAlerts from 'ui/alerts/error-alerts';
 
 // styles
 import styles from './products.css';
@@ -33,7 +35,7 @@ type Props = {
   params: Params,
   list: Array<Object>,
   categories: ?Array<Category>,
-  isLoading: boolean,
+  fetchState: AsyncState,
   fetch: Function,
   location: any,
   routes: Array<Route>,
@@ -49,11 +51,9 @@ type State = {
 
 // redux
 const mapStateToProps = (state) => {
-  const async = state.asyncActions.products;
-
   return {
     ...state.products,
-    isLoading: async ? async.inProgress : true,
+    fetchState: _.get(state.asyncActions, 'products', {}),
     categories: state.categories.list,
   };
 };
@@ -70,7 +70,7 @@ class Products extends Component {
   componentWillMount() {
     const { categoryName, subCategory, leafCategory } = this.props.params;
     const { sorting } = this.state;
-    this.props.fetch([categoryName, subCategory, leafCategory], sorting);
+    this.props.fetch([categoryName, subCategory, leafCategory], sorting).catch(_.noop);
   }
 
   componentWillReceiveProps(nextProps: Props) {
@@ -141,17 +141,27 @@ class Products extends Component {
     );
   }
 
+  get body(): Element<*> {
+    const { err, finished } = this.props.fetchState;
+    if (err) {
+      return <ErrorAlerts styleName="products-error" error={err} />;
+    }
+    return (
+      <ProductsList
+        sorting={this.state.sorting}
+        changeSorting={this.changeSorting}
+        list={this.props.list}
+        isLoading={!finished}
+        loadingBehavior={LoadingBehaviors.ShowWrapper}
+      />
+    );
+  }
+
   render(): Element<*> {
     return (
       <section styleName="catalog">
         {this.renderHeader()}
-        <ProductsList
-          sorting={this.state.sorting}
-          changeSorting={this.changeSorting}
-          list={this.props.list}
-          isLoading={this.props.isLoading}
-          loadingBehavior={LoadingBehaviors.ShowWrapper}
-        />
+        {this.body}
       </section>
     );
   }
