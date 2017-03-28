@@ -12,27 +12,31 @@ import { FormField } from '../forms';
 import Alert from '../alerts/alert';
 import LoadingInputWrapper from '../forms/loading-input-wrapper';
 
+// styles
+import s from './typeahead.css';
+
 export default class Typeahead extends React.Component {
 
   static propTypes = {
-    onBlur: PropTypes.func,
-    onChange: PropTypes.func,
-    onItemSelected: PropTypes.func,
+    onBlur: PropTypes.func, // blur handler
+    onChange: PropTypes.func, // input keyup/change handler
+    onItemSelected: PropTypes.func, // on item click/choose handler
     // fetchItems if passed should return promise for results
-    fetchItems: PropTypes.func,
-    component: PropTypes.func,
+    fetchItems: PropTypes.func, // triggers when text is changed and text is valid
+    component: PropTypes.func, // component of one item, props={model: item}
     hideOnBlur: PropTypes.bool,
     isFetching: PropTypes.bool,
-    items: PropTypes.array,
-    label: PropTypes.string,
-    name: PropTypes.string,
-    placeholder: PropTypes.string,
-    className: PropTypes.string,
-    itemsElement: PropTypes.element,
-    inputElement: PropTypes.element,
-    minQueryLength: PropTypes.number,
-    autoComplete: PropTypes.string,
-    initialValue: PropTypes.string,
+    items: PropTypes.array, // Array of data for suggestion. Each element passed to `component`
+    label: PropTypes.string, // title for input
+    name: PropTypes.string, // name attr for default input
+    placeholder: PropTypes.string, // placeholder attr for default input
+    className: PropTypes.string, // additional cl for root element of Typeahead
+    itemsElement: PropTypes.element, // custom component for items as a list (not just for one item)
+    inputElement: PropTypes.element, // custom component for input field, default is `TypeaheadInput`
+    minQueryLength: PropTypes.number, // if < then no fetching
+    autoComplete: PropTypes.string, // autoComplete attr for default input
+    initialValue: PropTypes.string, // value attr for default input
+    view: PropTypes.string,
   };
 
   static defaultProps = {
@@ -157,15 +161,13 @@ export default class Typeahead extends React.Component {
 
   renderAlert() {
     return (
-      <div className="fc-typeahead__need-more-characters">
-        <Alert type={Alert.WARNING}>
-          Please enter at least {this.props.minQueryLength} characters.
-        </Alert>
-      </div>
+      <Alert type={Alert.WARNING} className={s['need-more-characters']}>
+        Please enter at least {this.props.minQueryLength} characters.
+      </Alert>
     );
   }
 
-  get menuContent() {
+  get listContent() {
     if (this.state.showAlert) return this.renderAlert();
 
     const itemsElement = this.props.itemsElement;
@@ -199,6 +201,7 @@ export default class Typeahead extends React.Component {
       name: this.props.name,
       placeholder: this.props.placeholder,
       autoComplete: this.props.autoComplete,
+      className: s.input,
     };
 
     const handlers = {
@@ -216,21 +219,24 @@ export default class Typeahead extends React.Component {
   }
 
   render() {
-    const elementClass = classNames('fc-typeahead', { '_active': this.state.active }, this.props.className);
+    const className = classNames(s.block, { [s._active]: this.state.active }, this.props.className);
 
-    const menuClass = classNames('fc-typeahead__menu', {
-      '_visible': this.state.showMenu
+    const listClass = classNames(s.list, {
+      [s._visible]: this.state.showMenu,
+      [s._modal]: this.props.view == 'modal',
+      [s._search]: this.props.view != 'no-search' && this.props.view != 'users',
+      [s._users]: this.props.view == 'users',
     });
 
     return (
-      <div className={elementClass}>
-        <FormField className="fc-typeahead__input-group" label={this.props.label}>
+      <div className={className}>
+        <FormField label={this.props.label}>
           <LoadingInputWrapper inProgress={this.props.isFetching}>
             {this.inputContent}
           </LoadingInputWrapper>
         </FormField>
-        <div className={menuClass}>
-          {this.menuContent}
+        <div className={listClass}>
+          {this.listContent}
         </div>
       </div>
     );

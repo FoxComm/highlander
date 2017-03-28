@@ -15,9 +15,7 @@ import utils.db._
 
 object CartShippingMethodUpdater {
 
-  def updateShippingMethod(originator: User,
-                           payload: UpdateShippingMethod,
-                           refNum: Option[String] = None)(
+  def updateShippingMethod(originator: User, shippingMethodId: Int, refNum: Option[String] = None)(
       implicit ec: EC,
       es: ES,
       db: DB,
@@ -27,7 +25,7 @@ object CartShippingMethodUpdater {
     for {
       cart           ← * <~ getCartByOriginator(originator, refNum)
       oldShipMethod  ← * <~ ShippingMethods.forCordRef(cart.refNum).one
-      shippingMethod ← * <~ ShippingMethods.mustFindById400(payload.shippingMethodId)
+      shippingMethod ← * <~ ShippingMethods.mustFindById400(shippingMethodId)
       _              ← * <~ shippingMethod.mustBeActive
       _              ← * <~ ShippingManager.evaluateShippingMethodForCart(shippingMethod, cart)
       _ ← * <~ Shipments
@@ -52,7 +50,7 @@ object CartShippingMethodUpdater {
       order     ← * <~ CartTotaler.saveTotals(cart)
       validated ← * <~ CartValidator(order).validate()
       response  ← * <~ CartResponse.buildRefreshed(order)
-      _         ← * <~ LogActivity.orderShippingMethodUpdated(originator, response, oldShipMethod)
+      _         ← * <~ LogActivity().orderShippingMethodUpdated(originator, response, oldShipMethod)
     } yield readjustedCartWithWarnings.flatMap(_ ⇒ TheResponse.validated(response, validated))
 
   def deleteShippingMethod(originator: User, refNum: Option[String] = None)(
@@ -77,6 +75,6 @@ object CartShippingMethodUpdater {
       cart  ← * <~ CartTotaler.saveTotals(readjustedCartWithWarnings.result)
       valid ← * <~ CartValidator(cart).validate()
       resp  ← * <~ CartResponse.buildRefreshed(cart)
-      _     ← * <~ LogActivity.orderShippingMethodDeleted(originator, resp, shipMethod)
+      _     ← * <~ LogActivity().orderShippingMethodDeleted(originator, resp, shipMethod)
     } yield readjustedCartWithWarnings.flatMap(_ ⇒ TheResponse.validated(resp, valid))
 }

@@ -65,9 +65,3 @@ object NotificationSubscriptions
     findByDimensionAndObject(dimensionId = dimensionId, objectId = objectId)
       .filter(_.adminId === adminId)
 }
-
-object Notification {
-  def notificationChannel(adminId: Int) = s"notifications_for_admin_$adminId"
-}
-
-case class NotificationTrailMetadata(lastSeenActivityId: Int)

@@ -1,37 +1,28 @@
 /* @flow */
 
 // libs
-import React, { Component } from 'react';
+import classNames from 'classnames';
+import React from 'react';
+
+// styles
+import s from './typeahead.css';
 
 type Props = {
   autoFocus: boolean,
   className: string,
 };
 
-class TypeaheadInput extends Component {
-  props: Props;
-
-  _input: HTMLElement;
-
-  static defaultProps = {
-    className: '',
-  };
-
-  render() {
-    const { className, ...rest } = this.props;
-
-    return (
-      <div className={className}>
-        <i className="fc-typeahead__input-icon icon-search" />
-        <input
-          className="fc-input fc-typeahead__input"
-          type="text"
-          {...rest}
-          ref={i => this._input = i}
-        />
-      </div>
-    );
-  }
-}
+const TypeaheadInput = ({ className, ...rest }: Props) => {
+  return (
+    <div className={className}>
+      <i className={classNames(s['input-icon'], 'icon-search')} />
+      <input
+        className={classNames('fc-input', s.input)}
+        type="text"
+        {...rest}
+      />
+    </div>
+  );
+};
 
 export default TypeaheadInput;

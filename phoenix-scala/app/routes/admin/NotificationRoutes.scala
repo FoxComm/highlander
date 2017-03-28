@@ -16,7 +16,7 @@ import utils.http.Http._
 object NotificationRoutes {
 
   def routes(implicit ec: EC, db: DB, mat: Mat, auth: AuthData[User]): Route = {
-    activityContext(auth.model) { implicit ac ⇒
+    activityContext(auth) { implicit ac ⇒
       pathPrefix("notifications") {
         (get & pathEnd) {
           complete {
@@ -28,9 +28,9 @@ object NotificationRoutes {
             NotificationManager.createNotification(payload)
           }
         } ~
-        (post & path("last-seen" / IntNumber) & pathEnd) { activityId ⇒
+        (post & path("last-seen" / IntNumber) & pathEnd) { notificationId ⇒
           mutateOrFailures {
-            NotificationManager.updateLastSeen(auth.account.id, activityId)
+            NotificationManager.updateLastSeen(auth.account.id, notificationId)
           }
         }
       }

@@ -59,4 +59,8 @@ object CreditCardFailures {
   case object CustomerHasDefaultCreditCard extends Failure {
     override def description = "customer already has default credit card"
   }
+
+  object NoDefaultCreditCardForCustomer {
+    def apply(): Failure = NotFoundFailure404("No default credit card defined")
+  }
 }

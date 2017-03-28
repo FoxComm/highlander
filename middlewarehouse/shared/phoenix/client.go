@@ -1,15 +1,13 @@
 package phoenix
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
-	"net/http"
 	"time"
 
 	mwhPayloads "github.com/FoxComm/highlander/middlewarehouse/api/payloads"
-	"github.com/FoxComm/highlander/middlewarehouse/consumers"
+	"github.com/FoxComm/highlander/middlewarehouse/lib/gohttp"
 	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix/payloads"
 	"github.com/FoxComm/highlander/middlewarehouse/shared/phoenix/responses"
 )
@@ -21,10 +19,14 @@ type PhoenixClient interface {
 	EnsureAuthentication() error
 	CapturePayment(capturePayload *payloads.CapturePayload) error
 	UpdateOrder(refNum, shipmentState, orderState string) error
-	CreateGiftCards(giftCards []mwhPayloads.CreateGiftCardPayload) (*http.Response, error)
+	CreateGiftCards(giftCards []mwhPayloads.CreateGiftCardPayload) ([]*mwhPayloads.GiftCardResponse, error)
 	GetOrder(refNum string) (*mwhPayloads.OrderResult, error)
-	GetOrderForShipstation(refNum string) (*http.Response, error)
 	UpdateOrderLineItems(updatePayload []mwhPayloads.UpdateOrderLineItem, refNum string) error
+	GetCustomerGroups() ([]*responses.CustomerGroupResponse, error)
+	UpdateCustomerGroup(groupID int, group *payloads.CustomerGroupPayload) error
+	SetCustomersToGroup(groupID int, customers []int) error
+	GetPlugins() ([]*responses.PluginResponse, error)
+	GetPluginSettings(name string) (map[string]interface{}, error)
 }
 
 func NewPhoenixClient(baseURL, email, password string) PhoenixClient {
@@ -43,6 +45,12 @@ type phoenixClient struct {
 	password      string
 }
 
+func (c *phoenixClient) defaultHeaders() map[string]string {
+	return map[string]string{
+		"JWT": c.jwt,
+	}
+}
+
 func (c *phoenixClient) GetJwt() string {
 	return c.jwt
 }
@@ -56,9 +64,9 @@ func (c *phoenixClient) Authenticate() error {
 	}
 
 	url := fmt.Sprintf("%s/v1/public/login", c.baseURL)
-	headers := map[string]string{}
 
-	resp, err := consumers.Post(url, headers, &payload)
+	loginResp := new(responses.LoginResponse)
+	resp, err := gohttp.Request("POST", url, nil, &payload, loginResp)
 	if err != nil {
 		return fmt.Errorf("Unable to login: %s", err.Error())
 	}
@@ -76,13 +84,6 @@ func (c *phoenixClient) Authenticate() error {
 	}
 
 	c.jwt = jwt[0]
-
-	defer resp.Body.Close()
-	loginResp := new(responses.LoginResponse)
-	if err := json.NewDecoder(resp.Body).Decode(loginResp); err != nil {
-		return fmt.Errorf("Error reading login response: %s", err.Error())
-	}
-
 	c.jwtExpiration = loginResp.Expiration
 
 	return nil
@@ -121,24 +122,15 @@ func (c *phoenixClient) CapturePayment(capturePayload *payloads.CapturePayload) 
 	}
 
 	url := fmt.Sprintf("%s/v1/service/capture", c.baseURL)
-	headers := map[string]string{
-		"JWT": c.jwt,
-	}
 
-	rawCaptureResp, err := consumers.Post(url, headers, &capturePayload)
+	captureResp := new(map[string]interface{})
+	err := gohttp.Post(url, c.defaultHeaders(), &capturePayload, captureResp)
 	if err != nil {
 		return err
 	}
 
-	defer rawCaptureResp.Body.Close()
-	captureResp := new(map[string]interface{})
-	if err := json.NewDecoder(rawCaptureResp.Body).Decode(captureResp); err != nil {
-		log.Printf("Unable to read capture response from Phoenix with error: %s", err.Error())
-		return err
-	}
-
 	log.Printf("Successfully captured from Phoenix with response: %v", captureResp)
-	log.Printf("Updating order state")
+	log.Println("Updating order state")
 
 	if err := c.UpdateOrder(capturePayload.ReferenceNumber, "shipped", "shipped"); err != nil {
 		log.Printf("Enable to update order with error %s", err.Error())
@@ -149,15 +141,17 @@ func (c *phoenixClient) CapturePayment(capturePayload *payloads.CapturePayload) 
 }
 
 // CreateGiftCards
-func (c *phoenixClient) CreateGiftCards(giftCards []mwhPayloads.CreateGiftCardPayload) (*http.Response, error) {
+func (c *phoenixClient) CreateGiftCards(giftCards []mwhPayloads.CreateGiftCardPayload) ([]*mwhPayloads.GiftCardResponse, error) {
 	if err := c.EnsureAuthentication(); err != nil {
 		return nil, err
 	}
 	url := fmt.Sprintf("%s/v1/customer-gift-cards/bulk", c.baseURL)
-	headers := map[string]string{
-		"JWT": c.jwt,
-	}
-	return consumers.Post(url, headers, &giftCards)
+
+	resp := []*mwhPayloads.GiftCardResponse{}
+
+	err := gohttp.Post(url, c.defaultHeaders(), &giftCards, &resp)
+
+	return resp, err
 }
 
 // GetOrder
@@ -167,38 +161,15 @@ func (c *phoenixClient) GetOrder(refNum string) (*mwhPayloads.OrderResult, error
 	}
 
 	url := fmt.Sprintf("%s/v1/orders/%s", c.baseURL, refNum)
-	headers := map[string]string{
-		"JWT": c.jwt,
-	}
 
-	rawOrderResp, err := consumers.Get(url, headers)
-	if err != nil {
-		return nil, err
-	}
-
-	defer rawOrderResp.Body.Close()
 	orderResp := new(mwhPayloads.OrderResult)
-	if err := json.NewDecoder(rawOrderResp.Body).Decode(orderResp); err != nil {
-		log.Printf("Unable to read order response from Phoenix with error: %s", err.Error())
+	err := gohttp.Get(url, c.defaultHeaders(), orderResp)
+	if err != nil {
 		return nil, err
 	}
 
 	log.Printf("Successfully fetched order %s from Phoenix", refNum)
 	return orderResp, nil
-}
-
-// GetOrderForShipstation - ugly workaround for split codebase for now
-func (c *phoenixClient) GetOrderForShipstation(refNum string) (*http.Response, error) {
-	if err := c.EnsureAuthentication(); err != nil {
-		return nil, err
-	}
-
-	url := fmt.Sprintf("%s/v1/orders/%s", c.baseURL, refNum)
-	headers := map[string]string{
-		"JWT": c.jwt,
-	}
-
-	return consumers.Get(url, headers)
 }
 
 // UpdateOrder
@@ -213,19 +184,10 @@ func (c *phoenixClient) UpdateOrder(refNum, shipmentState, orderState string) er
 	}
 
 	url := fmt.Sprintf("%s/v1/orders/%s", c.baseURL, refNum)
-	headers := map[string]string{
-		"JWT": c.jwt,
-	}
 
-	rawOrderResp, err := consumers.Patch(url, headers, &payload)
-	if err != nil {
-		return err
-	}
-
-	defer rawOrderResp.Body.Close()
 	orderResp := new(map[string]interface{})
-	if err := json.NewDecoder(rawOrderResp.Body).Decode(orderResp); err != nil {
-		log.Printf("Unable to read order response from Phoenix with error: %s", err.Error())
+	err = gohttp.Patch(url, c.defaultHeaders(), &payload, orderResp)
+	if err != nil {
 		return err
 	}
 
@@ -240,21 +202,90 @@ func (c *phoenixClient) UpdateOrderLineItems(updatePayload []mwhPayloads.UpdateO
 	}
 
 	url := fmt.Sprintf("%s/v1/orders/%s/order-line-items", c.baseURL, refNum)
-	headers := map[string]string{
-		"JWT": c.jwt,
-	}
 
-	rawOrderResp, err := consumers.Patch(url, headers, &updatePayload)
+	orderResp := new(map[string]interface{})
+	err := gohttp.Patch(url, c.defaultHeaders(), &updatePayload, orderResp)
 	if err != nil {
 		return err
 	}
 
-	defer rawOrderResp.Body.Close()
-	orderResp := new(map[string]interface{})
-	if err := json.NewDecoder(rawOrderResp.Body).Decode(orderResp); err != nil {
-		log.Printf("Unable to read order response from Phoenix with error: %s", err.Error())
+	return nil
+}
+
+func (c *phoenixClient) GetCustomerGroups() ([]*responses.CustomerGroupResponse, error) {
+	if err := c.EnsureAuthentication(); err != nil {
+		return nil, err
+	}
+
+	url := fmt.Sprintf("%s/v1/service/customer-groups", c.baseURL)
+
+	groups := []*responses.CustomerGroupResponse{}
+	err := gohttp.Get(url, c.defaultHeaders(), &groups)
+	if err != nil {
+		return nil, err
+	}
+
+	return groups, nil
+}
+
+func (c *phoenixClient) UpdateCustomerGroup(groupID int, group *payloads.CustomerGroupPayload) error {
+	if err := c.EnsureAuthentication(); err != nil {
 		return err
 	}
 
-	return nil
+	url := fmt.Sprintf("%s/v1/customer-groups/%d", c.baseURL, groupID)
+
+	err := gohttp.Patch(url, c.defaultHeaders(), group, nil)
+
+	return err
+}
+
+func (c *phoenixClient) SetCustomersToGroup(groupID int, customerIDs []int) error {
+	if err := c.EnsureAuthentication(); err != nil {
+		return err
+	}
+
+	payload := struct {
+		Customers []int `json:"customers"`
+	}{
+		Customers: customerIDs,
+	}
+
+	url := fmt.Sprintf("%s/v1/service/customer-groups/%d/customers", c.baseURL, groupID)
+
+	err := gohttp.Post(url, c.defaultHeaders(), payload, nil)
+
+	return err
+}
+
+func (c *phoenixClient) GetPlugins() ([]*responses.PluginResponse, error) {
+	if err := c.EnsureAuthentication(); err != nil {
+		return nil, err
+	}
+
+	url := fmt.Sprintf("%s/v1/plugins", c.baseURL)
+
+	plugins := []*responses.PluginResponse{}
+	err := gohttp.Get(url, c.defaultHeaders(), &plugins)
+	if err != nil {
+		return nil, err
+	}
+
+	return plugins, nil
+}
+
+func (c *phoenixClient) GetPluginSettings(name string) (map[string]interface{}, error) {
+	if err := c.EnsureAuthentication(); err != nil {
+		return nil, err
+	}
+
+	url := fmt.Sprintf("%s/v1/plugins/settings/%s", c.baseURL, name)
+
+	settings := map[string]interface{}{}
+	err := gohttp.Get(url, c.defaultHeaders(), &settings)
+	if err != nil {
+		return nil, err
+	}
+
+	return settings, nil
 }

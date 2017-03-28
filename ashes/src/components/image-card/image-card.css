@@ -48,14 +48,11 @@
   position: relative;
   padding: 18px;
   max-width: 300px;
-  background: #fff;
+  background-color: #fff;
 }
 
-.loading {
-  & .description {
-    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUAQMAAAC3R49OAAAABlBMVEUAAAAAAAClZ7nPAAAAAnRSTlMAF/VASP8AAABBSURBVHheZckxFYAgFADA8zkwYgMr2MBKNpBoRCHCHxl4YADnsxymy/DoQmyh7aGmUHJwBnfjraxiW+yTNMj9xx9ZVxpfjbpEWgAAAABJRU5ErkJggg==);
-    animation: caramel .5s linear infinite;
-  }
+._loading {
+  composes: loading from '../../css/animations.css';
 }
 
 .title {

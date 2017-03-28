@@ -1,27 +1,10 @@
 # Highlander
 
-[![Build status](https://badge.buildkite.com/9194ecb4f86c089e8962db23843a00662dac85e98418697dd4.svg)](https://buildkite.com/foxcommerce/developer-appliance-gce)
+[![Build status](https://badge.buildkite.com/f3f7826395143bf97d4f1b11fd2fb3c78ecb2a9c71b5acb43e.svg)](https://buildkite.com/foxcommerce/highlander-master)
 
 Highlander is the brand-spanking-new FoxCommerce mono-repo.
 
-## The Projects
-
-| Project                                     | Description                                                                                                  |
-|:--------------------------------------------|:-------------------------------------------------------------------------------------------------------------|
-| [engineering-wiki](engineering-wiki)        | Internal design documents, guidelines and other tips in Markdown format.                                     |
-| [tabernacle](tabernacle)                    | All of our DevOps tools for deploying the application to both development and production.                    |
-| [phoenix-scala](phoenix-scala)              | Our main API that handles the business logic for the customer, merchandising, and order management systems.  |
-| [green-river](green-river)                  | Kafka consumer to handle indexing search views and activities into Elastic Search                            |
-| [middlewarehouse](middlewarehouse)          | A lightweight and fast shipping and inventory management service written in Go.                              |
-| [isaac](isaac)                              | A C++ JWT verification service.                                                                              |
-| [solomon](solomon)                          | A microservice that handles scopes, claims, roles and permissions, written in Elixir.                        |
-| [messaging](messaging)                      | Kafka consumer that handles e-mail notifications through Mailchimp, written in Clojure.                      |
-| [ashes](ashes)                              | The Admin UI, written in React.js.                                                                           |
-| [api-js](https://github.com/FoxComm/api-js) | A JavaScript library for interacting with the FoxCommerce API.                                               |
-| [demo](demo)                                | Our demo applications.                                                                                       |
-| [api-docs](api-docs)                        | Our API documentation in API Blueprint format and Postman query collections.                                 |
-| [hyperion](hyperion)                        | A microservice that handles requests to Amazon MWS API, written in Elixir.                                   |
-| [intelligence](intelligence)                | Intelligent Commerce Projects. Data Collection Pipeline, analytics, and ML.                                  |
+Please proceed to [wiki](https://github.com/FoxComm/highlander/wiki) for more detailed info.
 
 ## Development Environment
 
@@ -59,14 +42,14 @@ The simplest way to get started is setup a personal developer appliance in Googl
 
 #### Deploying Custom Branches
 
-Please refer to related [wiki page](engineering-wiki/devops/Deploying-Custom-Branches.md) for more information.
+Please refer to related [wiki page](https://github.com/FoxComm/highlander/wiki/Deploying-Custom-Branches) for more information.
 
 ## FoxCommerce Software Relationships
 
 Logical relationships between services and software.
 
-![alt text](engineering-wiki/diagrams/system/system.dot.png "Logical Model")
+![alt text](documents/diagrams/system/system.dot.png "Logical Model")
 
 Physical model.
 
-![alt text](engineering-wiki/diagrams/system/system.neato.png "Physical Model")
+![alt text](documents/diagrams/system/system.neato.png "Physical Model")

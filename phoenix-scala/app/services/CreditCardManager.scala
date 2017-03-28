@@ -59,7 +59,7 @@ object CreditCardManager {
                                         payload = payload,
                                         address = address,
                                         cardToken = stripeCard.getId))
-      _        ← * <~ LogActivity.ccCreated(customer, cc, admin)
+      _        ← * <~ LogActivity().ccCreated(customer, cc, admin)
       response ← * <~ CreditCardsResponse.buildFromCreditCard(cc)
     } yield response
   }
@@ -79,7 +79,7 @@ object CreditCardManager {
         cc = CreditCard.buildFromSource(accountId, sCustomer, sCard, payload, address)
         newCard ← * <~ CreditCards.create(cc)
         region  ← * <~ Regions.findOneById(newCard.address.regionId).safeGet
-        _       ← * <~ LogActivity.ccCreated(customer, cc, admin)
+        _       ← * <~ LogActivity().ccCreated(customer, cc, admin)
       } yield buildResponse(newCard, region)
 
     def getExistingStripeIdAndAddress =
@@ -105,16 +105,17 @@ object CreditCardManager {
     } yield newCard
   }
 
-  def toggleCreditCardDefault(accountId: Int, cardId: Int, isDefault: Boolean)(
-      implicit ec: EC,
-      db: DB): DbResultT[Root] =
+  def setDefaultCreditCard(accountId: Int, cardId: Int)(implicit ec: EC, db: DB): DbResultT[Root] =
     for {
-      _  ← * <~ CreditCards.findDefaultByAccountId(accountId).map(_.isDefault).update(false)
+      _  ← * <~ removeDefaultCreditCard(accountId)
       cc ← * <~ CreditCards.mustFindByIdAndAccountId(cardId, accountId)
       default = cc.copy(isDefault = true)
       _      ← * <~ CreditCards.filter(_.id === cardId).map(_.isDefault).update(true)
       region ← * <~ Regions.findOneById(cc.address.regionId).safeGet
     } yield buildResponse(default, region)
+
+  def removeDefaultCreditCard(accountId: Int)(implicit ec: EC, db: DB): DbResultT[Unit] =
+    CreditCards.findDefaultByAccountId(accountId).map(_.isDefault).update(false).dbresult.void
 
   def deleteCreditCard(
       accountId: Int,
@@ -125,7 +126,7 @@ object CreditCardManager {
       cc       ← * <~ CreditCards.mustFindByIdAndAccountId(ccId, accountId)
       _        ← * <~ CreditCards.update(cc, cc.copy(inWallet = false, deletedAt = Some(Instant.now())))
       _        ← * <~ apis.stripe.deleteCard(cc)
-      _        ← * <~ LogActivity.ccDeleted(customer, cc, admin)
+      _        ← * <~ LogActivity().ccDeleted(customer, cc, admin)
     } yield ()
 
   def editCreditCard(accountId: Int, id: Int, payload: EditCreditCard, admin: Option[User] = None)(
@@ -146,7 +147,7 @@ object CreditCardManager {
         _  ← * <~ failIf(!cc.inWallet, CannotUseInactiveCreditCard(cc))
         _  ← * <~ CreditCards.update(cc, cc.copy(inWallet = false))
         cc ← * <~ CreditCards.create(updated)
-        _  ← * <~ LogActivity.ccUpdated(customer, updated, cc, admin)
+        _  ← * <~ LogActivity().ccUpdated(customer, updated, cc, admin)
       } yield cc
     }
 

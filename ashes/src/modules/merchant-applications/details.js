@@ -56,7 +56,7 @@ export const fetchRealSocialProfile = _getRealSocialProfile.perform;
 
 function applicationSucceeded(state: State, payload: Object): State {
   const application = payload.merchant_application || payload;
-  console.log('astasrt');
+  console.info('astasrt');
   return { ...state, application };
 }
 

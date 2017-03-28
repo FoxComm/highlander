@@ -4,7 +4,6 @@
   hosts: '{{hostname}}'
   become: true
   vars:
-    vpn_server_ip: 10.0.0.2
     vpn_network: 10.8.0.0
     vpn_server: 10.0.0.0 255.255.255.0
     vpn_network_interface: ens4

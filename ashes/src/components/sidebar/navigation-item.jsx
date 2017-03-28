@@ -3,7 +3,6 @@
 import _ from 'lodash';
 import React from 'react';
 import classNames from 'classnames';
-import { autobind } from 'core-decorators';
 
 import { IndexLink, Link } from '../link';
 import type { Claims } from 'lib/claims';

@@ -7,9 +7,10 @@ import consumer.elastic.AvroTransformer
 import consumer.elastic.mappings.dateFormat
 
 final case class NotesSearchView()(implicit ec: EC) extends AvroTransformer {
-  def mapping() = esMapping("notes_search_view").fields(
+  def topic() = "notes_search_view"
+  def mapping() = esMapping(topic()).fields(
       // Note
-      field("id", IntegerType),
+      field("id", LongType),
       field("scope", StringType).index("not_analyzed"),
       field("referenceId", IntegerType),
       field("referenceType", StringType).index("not_analyzed"),
@@ -36,7 +37,7 @@ final case class NotesSearchView()(implicit ec: EC) extends AvroTransformer {
           field("itemsCount", IntegerType)
       ),
       field("customer").nested(
-          field("id", IntegerType),
+          field("id", LongType),
           field("name", StringType).analyzer("autocomplete"),
           field("email", StringType).analyzer("autocomplete"),
           field("isBlacklisted", BooleanType),
@@ -49,26 +50,26 @@ final case class NotesSearchView()(implicit ec: EC) extends AvroTransformer {
           field("createdAt", DateType).format(dateFormat)
       ),
       field("skuItem").nested(
-          field("id", IntegerType),
+          field("id", LongType),
           field("sku", StringType).analyzer("upper_cased"),
           field("type", ObjectType),
           field("attributes", ObjectType),
           field("createdAt", DateType).format(dateFormat)
       ),
       field("product").nested(
-          field("id", IntegerType),
+          field("id", LongType),
           field("attributes", ObjectType),
           field("variants", ObjectType),
           field("createdAt", DateType).format(dateFormat)
       ),
       field("promotion").nested(
-          field("id", IntegerType),
+          field("id", LongType),
           field("applyType", StringType).index("not_analyzed"),
           field("attributes", ObjectType),
           field("createdAt", DateType).format(dateFormat)
       ),
       field("coupon").nested(
-          field("id", IntegerType),
+          field("id", LongType),
           field("promotion_id", IntegerType),
           field("attributes", ObjectType),
           field("createdAt", DateType).format(dateFormat)

@@ -8,30 +8,31 @@ import { trackEvent } from 'lib/analytics';
 
 import styles from './select-groups.css';
 
-import RadioButton from '../forms/radio-button';
-import { Table, TableRow, TableCell } from '../table';
-import { SelectableList, SelectableItem } from '../selectable-list';
+import RadioButton from 'components/forms/radio-button';
+import { Table, TableRow, TableCell } from 'components/table';
+import { SelectableList, SelectableItem } from 'components/selectable-list';
 
-import { fetchCustomerGroups } from '../../modules/customer-groups/all';
+import { actions } from 'modules/customer-groups/list';
 
 type GroupType = {
-  name: string;
-  type: string;
-  id: number;
-}
+  name: string,
+  type: string,
+  id: number,
+};
 
 type Props = {
-  onSelect: (groups: Array<number>) => any;
-  groups: Array<GroupType>;
-  selectedGroupIds: Array<number>;
-  dispatch: (action: any) => any;
-  parent: string;
+  onSelect: (groups: Array<number>) => any,
+  groups: Array<GroupType>,
+  selectedGroupIds: Array<number>,
+  fetch: () => Promise<*>,
+  parent: string,
 };
 
 type State = {
-  qualifyAll: boolean;
-  popupOpened: boolean;
+  qualifyAll: boolean,
+  popupOpened: boolean,
 };
+
 
 class SelectCustomerGroups extends Component {
   props: Props;
@@ -46,11 +47,11 @@ class SelectCustomerGroups extends Component {
   };
 
   componentDidMount() {
-    this.props.dispatch(fetchCustomerGroups());
+    this.props.fetch();
   }
 
   @autobind
-  handleChangeQualifier({target}: Object) {
+  handleChangeQualifier({ target }: Object) {
     this.setState({
       qualifyAll: target.getAttribute('name') == 'qualifyAll',
     });
@@ -91,7 +92,7 @@ class SelectCustomerGroups extends Component {
     return (
       <SelectableItem id={group.id}>
         <strong>{group.name}</strong>
-        <span styleName="group-description">• {group.type}</span>
+        <span styleName="group-description">• Dynamic</span>
       </SelectableItem>
     );
   }
@@ -184,7 +185,8 @@ class SelectCustomerGroups extends Component {
   }
 }
 
-export default connect(
-  state => ({groups: state.customerGroups.all.groups}),
-  dispatch => ({dispatch})
-)(SelectCustomerGroups);
+const mapState = state => ({
+  groups: _.get(_.invoke(state, 'customerGroups.list.currentSearch'), 'results.rows', [])
+});
+
+export default connect(mapState, { fetch: actions.fetch })(SelectCustomerGroups);

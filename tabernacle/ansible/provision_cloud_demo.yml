@@ -15,7 +15,3 @@
     - { role: dev/balancer }
     - { role: hotfix/mesos_consul }
     - { role: cloud/balancer }
-
-  handlers:
-     - include: roles/base/consul_agent/handlers/main.yml
-     - include: roles/base/mesos_consul/handlers/main.yml

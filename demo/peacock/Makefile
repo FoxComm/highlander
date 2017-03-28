@@ -18,10 +18,15 @@ docker-push:
 	docker tag $(DOCKER_IMAGE) $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
 	docker push $(DOCKER_REPO)/$(DOCKER_IMAGE):$(DOCKER_TAG)
 
-clean:
+clean: clean-build
 	rm -rf ./node_modules
 
+clean-build:
+	rm -rf ./build/* ./lib/* ./public/app-*.css ./public/app-*.js
+
 test:
+	yarn lint
+	yarn flow
 	yarn test
 
 .PHONY: dev d setup build docker docker-push clean test

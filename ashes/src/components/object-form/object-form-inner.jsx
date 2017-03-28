@@ -37,13 +37,15 @@ type AttrSchema = {
   title?: string,
   widget?: string,
   properties?: Object,
-}
+  disabled: boolean,
+};
 
 type AttrOptions = {
   required: boolean,
   label: string,
   isDefined: (value: any) => boolean,
-}
+  disabled?: boolean,
+};
 
 const inputClass = 'fc-object-form__field-value';
 
@@ -231,6 +233,7 @@ export default class ObjectFormInner extends Component {
         name={name}
         value={value || ''}
         onChange={onChange}
+        disabled={options.disabled}
       />
     );
 
@@ -344,6 +347,7 @@ export default class ObjectFormInner extends Component {
       required: this.isRequired(name),
       label: schema && schema.title || formatLabel(name),
       isDefined: isDefined,
+      disabled: schema && schema.disabled,
     };
     if (schema && schema.widget == 'richText') {
       options.isDefined = value => isDefined(stripTags(value));

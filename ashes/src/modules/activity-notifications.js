@@ -19,11 +19,11 @@ export function startFetchingNotifications() {
     };
 
     eventSource.onopen = function (e) {
-      console.log('Connection was opened.');
+      console.info('Connection was opened.');
     };
 
     eventSource.onerror = function (e) {
-      console.log('Connection was closed.');
+      console.info('Connection was closed.');
     };
   };
 }
