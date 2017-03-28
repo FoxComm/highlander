@@ -239,11 +239,11 @@ class Checkout extends Component {
           </div>
           {this.orderTotals}
 
-        <GuestAuth
-          isEditing={!this.isEmailSetForCheckout()}
-          location={this.props.location}
-        />
-      </div>
+          <GuestAuth
+            isEditing={!this.isEmailSetForCheckout()}
+            location={this.props.location}
+          />
+        </div>
       );
     }
 
