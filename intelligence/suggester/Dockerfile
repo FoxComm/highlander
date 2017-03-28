@@ -7,5 +7,5 @@ RUN mkdir -p /suggester
 WORKDIR /suggester
 COPY suggester /suggester
 
-CMD ["/suggester/suggester"] 
+CMD "/suggester/suggester" 2>&1 | tee /logs/suggester.log
 
