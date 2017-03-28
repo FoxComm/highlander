@@ -162,14 +162,14 @@ class Checkout extends Component {
 
   get orderTotals() {
     return (
-      <div styleName="order-totals">
+      <div styleName="total-cost">
         <div styleName="totals-list">
           <OrderTotals totals={this.props.cart.totals} />
         </div>
 
         <div styleName="place-order-block">
           <Button styleName="place-order-button" onClick={this.placeOrder} disabled={false}>
-            Place Order
+            Place order
           </Button>
         </div>
       </div>
@@ -193,18 +193,6 @@ class Checkout extends Component {
         { ...props.cart }
       />
     </div>
-
-    <Delivery
-      isEditing={props.editStage == EditStages.DELIVERY}
-      editAllowed={props.editStage >= EditStages.DELIVERY}
-      collapsed={!props.isDeliveryDirty && props.editStage < EditStages.DELIVERY}
-      editAction={this.setDeliveryStage}
-      onComplete={this.setBillingStage}
-      shippingMethods={props.shippingMethods}
-      cart={this.state.cart}
-      onUpdateCart={this.handleUpdateCart}
-      fetchShippingMethods={props.fetchShippingMethods}
-    />
     <Billing
       isGuestMode={isGuestMode}
       isEditing={props.editStage == EditStages.BILLING}
@@ -213,13 +201,6 @@ class Checkout extends Component {
       editAction={this.setBillingStage}
       continueAction={this.placeOrder}
       paymentMethods={_.get(props.cart, 'paymentMethods', [])}
-    />
-
-
-    <GuestAuth
-      isEditing={!this.isEmailSetForCheckout()}
-      continueAction={this.startShipping}
-      location={this.props.location}
     />
     */
     const { props } = this;
@@ -262,6 +243,7 @@ class Checkout extends Component {
           <div styleName="right-wrapper">
             {this.orderTotals}
           </div>
+          
           <GuestAuth
             isEditing={!this.isEmailSetForCheckout()}
             location={this.props.location}
