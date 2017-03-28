@@ -20,11 +20,19 @@
 
 .shipping, .delivery {
   border-bottom: 1px solid var(--border-color);
-  margin: 0 var(--grid-margin);
+  margin: 15px;
 }
 
 .total-cost {
   margin-top: auto;
+}
+
+.order-summary {
+  margin: 15px;
+}
+
+.order-content {
+  padding-right: 6px;
 }
 
 .totals-list {
@@ -39,7 +47,7 @@
 .place-order-button {
   border-radius: 0;
   height: 50px;
-  font: 20px;
+  font-size: 20px;
 }
 
 @media (--small-only), (--medium-only) {
@@ -65,6 +73,7 @@
     justify-content: space-between;
     align-items: baseline;
     flex-direction: row;
+    flex-wrap: wrap;
   }
 
   .shipping, .delivery, .total-cost {
@@ -91,5 +100,15 @@
   .place-order-button {
     border-radius: 4px;
     height: 58px;
+  }
+
+  .order-summary {
+    order: 4;
+    width: 65%;
+    margin: 0;
+  }
+
+  .order-content {
+    padding: 0;
   }
 }

@@ -1,8 +1,9 @@
 /* @flow */
 
+import React, { Component } from 'react';
+
 // libs
 import _ from 'lodash';
-import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import { browserHistory } from 'lib/history';
@@ -210,45 +211,39 @@ class Checkout extends Component {
     if (cartFetched) {
       return (
         <div styleName="wrapper">
-          <div styleName="left-wrapper">
-            <div styleName="editables">
-              <div styleName="shipping">
-                <Shipping
-                  isEditing={props.editStage}
-                  editAction={this.setShippingStage}
-                  onComplete={this.setDeliveryStage}
-                  addresses={this.props.addresses}
-                  fetchAddresses={this.props.fetchAddresses}
-                  shippingAddress={_.get(this.props.cart, 'shippingAddress', {})}
-                  auth={this.props.auth}
-                  isGuestMode={isGuestMode}
-                />
-              </div>
-              <div styleName="delivery">
-                <Delivery
-                  isEditing={props.editStage}
-                  editAction={this.setDeliveryStage}
-                  onComplete={this.setBillingStage}
-                  shippingMethods={props.shippingMethods}
-                  cart={this.state.cart}
-                  onUpdateCart={this.handleUpdateCart}
-                  fetchShippingMethods={props.fetchShippingMethods}
-                />
-              </div>
-            </div>
-            <div styleName="order-summary">
-              {this.orderContent}
-            </div>
+          <div styleName="shipping">
+            <Shipping
+              isEditing={props.editStage}
+              editAction={this.setShippingStage}
+              onComplete={this.setDeliveryStage}
+              addresses={this.props.addresses}
+              fetchAddresses={this.props.fetchAddresses}
+              shippingAddress={_.get(this.props.cart, 'shippingAddress', {})}
+              auth={this.props.auth}
+              isGuestMode={isGuestMode}
+            />
           </div>
-          <div styleName="right-wrapper">
-            {this.orderTotals}
+          <div styleName="delivery">
+            <Delivery
+              isEditing={props.editStage}
+              editAction={this.setDeliveryStage}
+              onComplete={this.setBillingStage}
+              shippingMethods={props.shippingMethods}
+              cart={this.state.cart}
+              onUpdateCart={this.handleUpdateCart}
+              fetchShippingMethods={props.fetchShippingMethods}
+            />
           </div>
-          
-          <GuestAuth
-            isEditing={!this.isEmailSetForCheckout()}
-            location={this.props.location}
-          />
-        </div>
+          <div styleName="order-summary">
+            {this.orderContent}
+          </div>
+          {this.orderTotals}
+
+        <GuestAuth
+          isEditing={!this.isEmailSetForCheckout()}
+          location={this.props.location}
+        />
+      </div>
       );
     }
 
