@@ -21,7 +21,7 @@ import { fetchRelatedProducts, clearRelatedProducts } from 'modules/cross-sell';
 
 // types
 import type { HTMLElement } from 'types';
-import type { ProductResponse, ProductSlug } from 'modules/product-details';
+import type { ProductResponse } from 'modules/product-details';
 import type { RelatedProductResponse } from 'modules/cross-sell';
 
 // components
@@ -153,9 +153,13 @@ class Pdp extends Component {
   }
 
   safeFetch(id) {
-    return this.props.actions.fetch(id).catch(_.noop)
+    return this.props.actions.fetch(id)
       .then(product => {
         this.props.actions.fetchRelatedProducts(product.id, 1).catch(_.noop);
+      })
+      .catch(reason => {
+        const { params } = this.props;
+        this.safeFetch(params.productSlug);
       });
   }
 
@@ -172,7 +176,7 @@ class Pdp extends Component {
     return this.safeFetch(productId);
   }
 
-  get productId(): ProductSlug {
+  get productId(): string|number {
     return this.getId(this.props);
   }
 
@@ -180,7 +184,8 @@ class Pdp extends Component {
     return !!_.get(this.props, ['product', 'archivedAt']);
   }
 
-  getId(props): ProductSlug {
+  @autobind
+  getId(props): string|number {
     const slug = props.params.productSlug;
 
     if (/^\d+$/g.test(slug)) {
