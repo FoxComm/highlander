@@ -47,3 +47,15 @@ export const SAVE_COMBO_ITEMS: SaveComboItems = [
   [SAVE_COMBO.DUPLICATE, 'Save and Duplicate'],
   [SAVE_COMBO.CLOSE, 'Save and Close'],
 ];
+
+export const INPUT_ATTRS = [
+  'name',
+  'value',
+  'placeholder',
+  'disabled',
+  'autoComplete',
+  'onBlur',
+  'onChange',
+  'onFocus',
+  'onKeyUp',
+];

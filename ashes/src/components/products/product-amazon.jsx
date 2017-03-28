@@ -8,6 +8,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import _ from 'lodash';
+import { autobind } from 'core-decorators';
 
 // actions
 import * as productActions from 'modules/products/details';
@@ -15,15 +16,16 @@ import * as amazonActions from 'modules/channels/amazon';
 import * as schemaActions from 'modules/object-schema';
 
 // components
-import { Suggester } from 'components/suggester/suggester';
-import WaitAnimation from '../common/wait-animation';
-import ObjectFormInner from '../object-form/object-form-inner';
+import WaitAnimation from 'components/common/wait-animation';
+import ObjectFormInner from 'components/object-form/object-form-inner';
 import ProductAmazonForm from './product-amazon-form';
-import ContentBox from '../content-box/content-box';
-import { PrimaryButton } from '../common/buttons';
+import ContentBox from 'components/content-box/content-box';
+import { PrimaryButton } from 'components/common/buttons';
+import Typeahead from 'components/typeahead/typeahead';
+import { CategoryItem } from './category-item';
 
 // selectors
-import { getSuggest } from './selector';
+import { getSuggest, cat } from './selector';
 
 // styles
 import s from './product-amazon.css';
@@ -114,7 +116,7 @@ class ProductAmazon extends Component {
         product={product}
         categoryId={categoryId}
         categoryPath={categoryPath}
-        onSubmit={(p) => this._handleSubmit(p)}
+        onSubmit={this._handleSubmit}
       />
     );
   }
@@ -131,19 +133,21 @@ class ProductAmazon extends Component {
     return (
       <div className={s.root}>
         <h1>{title} for Amazon</h1>
-        <ContentBox title="Amazon Category">
+        <ContentBox title="Amazon Listing Information">
           <div className={s.suggesterWrapper}>
-            <Suggester
+            <Typeahead
               className={s.suggester}
-              onChange={(text) => this._onTextChange(text)}
-              onPick={this._onCatPick.bind(this)}
-              data={suggest}
-              inProgress={fetchingSuggest}
+              onItemSelected={this._onCatPick}
+              items={suggest}
+              isFetching={fetchingSuggest}
+              fetchItems={this._handleFetch}
+              component={CategoryItem}
+              initialValue={this.state.categoryPath}
             />
           </div>
         </ContentBox>
         {this.renderForm()}
-        <PrimaryButton onClick={this._handlePush.bind(this)}>Push</PrimaryButton>
+        <PrimaryButton onClick={this._handlePush}>Push</PrimaryButton>
       </div>
     );
   }
@@ -154,12 +158,14 @@ class ProductAmazon extends Component {
     return _.get(product, ['attributes', 'nodeId', 'v'], null);
   }
 
-  _onTextChange(text) {
+  @autobind
+  _handleFetch(text) {
     const { title } = this.props;
 
     this.props.actions.fetchSuggest(title, text);
   }
 
+  @autobind
   _onCatPick(item) {
     const { id, path } = item;
 
@@ -169,17 +175,19 @@ class ProductAmazon extends Component {
   _setCat(id, path) {
     const { fetchAmazonSchema } = this.props.actions;
 
-    this.setState({ categoryId: id, categoryPath: path });
+    this.setState({ categoryId: id, categoryPath: cat(path) });
 
     fetchAmazonSchema(id);
   }
 
+  @autobind
   _handleSubmit(nextProduct) {
     const { actions: { updateProduct } } = this.props;
 
     updateProduct(nextProduct);
   }
 
+  @autobind
   _handlePush() {
     const { product, actions: { pushProduct } } = this.props;
 
