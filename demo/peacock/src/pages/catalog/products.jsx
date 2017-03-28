@@ -175,6 +175,7 @@ class Products extends Component {
   }
 
   get navBar(): ?Element<*> {
+    return <div />;
   }
 
   get body(): Element<any> {
