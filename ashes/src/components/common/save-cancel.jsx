@@ -1,8 +1,8 @@
 /* @flow */
 
 // libs
-import isEmpty from 'lodash/isEmpty';
-import React, { Component, PropTypes } from 'react';
+import { isEmpty, noop } from 'lodash';
+import React, { Component } from 'react';
 import classNames from 'classnames';
 
 // components
