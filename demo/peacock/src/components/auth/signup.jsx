@@ -181,7 +181,7 @@ class Signup extends Component {
                 onChange={this.onChangeEmail}
               />
             </FormField>
-            <FormField key="passwd" styleName="form-field">
+            <FormField key="passwd" styleName="form-field" required>
               <ShowHidePassword
                 pos="bottom"
                 className={styles['form-field-input']}

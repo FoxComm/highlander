@@ -1,4 +1,3 @@
-
 /* @flow */
 
 import React, { Component } from 'react';
@@ -40,7 +39,7 @@ class Guest extends Component {
       <Form onSubmit={this.onClick}>
         <div styleName="title">Checkout as guest</div>
         <div styleName="inputs-body">
-          <FormField key="email" styleName="form-field">
+          <FormField key="email" styleName="form-field" required>
             <TextInput placeholder="Email" type="email" value={this.state.email} onChange={this.onEmailChange} />
           </FormField>
         </div>

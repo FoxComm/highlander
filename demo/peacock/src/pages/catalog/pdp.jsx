@@ -214,7 +214,7 @@ class Pdp extends Component {
   }
 
   isGiftCard(props = this.props): boolean {
-    const tags = _.get(props.product, 'attributes.tags.v');
+    const tags = _.get(props.product, 'attributes.tags.v', []);
     return tags.indexOf('GIFT-CARD') !== -1;
   }
 
