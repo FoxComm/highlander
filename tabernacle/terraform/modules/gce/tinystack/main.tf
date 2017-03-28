@@ -21,9 +21,9 @@ variable "frontend_disk_size" {
 }
 
 resource "google_compute_instance" "tiny-consul" {
-  name         = "${var.datacenter}-consul-server"
+  name         = "${var.datacenter}-amigo"
   machine_type = "n1-standard-1"
-  tags         = ["no-ip", "${var.datacenter}-consul-server", "${var.datacenter}"]
+  tags         = ["no-ip", "${var.datacenter}-amigo", "${var.datacenter}"]
   zone         = "us-central1-a"
 
   service_account {
