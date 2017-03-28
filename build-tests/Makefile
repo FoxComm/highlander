@@ -1,5 +1,5 @@
 test:
-	./node_modules/.bin/ava --verbose --no-color > results.txt 2>&1
+	./node_modules/.bin/ava --verbose > results.txt 2>&1
 
 report:
 	rm -rf allure-report allure-results

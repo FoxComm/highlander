@@ -1,6 +1,7 @@
 /* eslint-disable */
 
 const fs = require('fs');
+const stripColorCodes = require('stripcolorcodes');
 const Allure = require('allure-js-commons');
 
 fs.readFile(process.argv[2], 'utf8', (err, data) => {
@@ -8,7 +9,7 @@ fs.readFile(process.argv[2], 'utf8', (err, data) => {
     console.error(err);
   } else {
     const testCasesBySuite = Object.create(null);
-    const outputBlocks = data.split('\n\n\n');
+    const outputBlocks = stripColorCodes(data).split('\n\n\n');
     const resultsText = outputBlocks[0].trim();
 
     for (const testCaseResultText of resultsText.split('\n')) {
@@ -44,7 +45,9 @@ fs.readFile(process.argv[2], 'utf8', (err, data) => {
         if (result.status == 'success') {
           allureReporter.endCase('passed');
         } else {
-          allureReporter.endCase('broken', result.description);
+          allureReporter.endCase('failed', {
+            message: result.description,
+          });
         }
       }
       allureReporter.endSuite();
