@@ -34,6 +34,7 @@ type Props = {
   isLoading: boolean,
   onUpdateCart: (cart: Object) => void,
   saveDeliveryState: AsyncStatus,
+  toggleDeliveryModal: Function,
 };
 
 class EditDelivery extends Component {
@@ -76,7 +77,7 @@ class EditDelivery extends Component {
             onChange={() => this.setShippingMethod(shippingMethod)}
             id={`delivery${shippingMethod.id}`}
           >
-            <div className={styles["method-name"]}>{shippingMethod.name}</div>
+            <div className={styles['method-name']}>{shippingMethod.name}</div>
           </RadioButton>
           <div className={styles['method-price']}>{cost}</div>
         </div>
@@ -97,19 +98,18 @@ class EditDelivery extends Component {
     };
 
     return (
-        <CheckoutForm
-          buttonLabel="Apply"
-          submit={this.handleSubmit}
-          title="Delivery"
-          error={props.saveDeliveryState.err}
-          inProgress={props.saveDeliveryState.inProgress}
-          action={action}
-        >
-          <div className={styles['shipping-methods']}>
-            {this.shippingMethods}
-          </div>
-        </CheckoutForm>
-
+      <CheckoutForm
+        buttonLabel="Apply"
+        submit={this.handleSubmit}
+        title="Delivery"
+        error={props.saveDeliveryState.err}
+        inProgress={props.saveDeliveryState.inProgress}
+        action={action}
+      >
+        <div className={styles['shipping-methods']}>
+          {this.shippingMethods}
+        </div>
+      </CheckoutForm>
     );
   }
 }

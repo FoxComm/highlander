@@ -49,25 +49,25 @@ class Delivery extends Component {
     return (
       <ActionLink
         action={this.props.toggleDeliveryModal}
-        title='Choose'
+        title="Choose"
         styleName="action-link-delivery"
       />
     );
   }
 
   get content() {
-    const { deliveryModalVisible, toggleDeliveryModal, cartState } = this.props;
+    const { props } = this;
 
-    if (cartState.finished){
+    if (props.cartState.finished) {
       return (
         <div>
           <ViewDelivery
             shippingMethodCost={this.shippingMethodCost}
-            shippingMethod={this.props.shippingMethod}
+            shippingMethod={props.shippingMethod}
           />
           <Modal
-            show={deliveryModalVisible}
-            toggle={toggleDeliveryModal}
+            show={props.deliveryModalVisible}
+            toggle={props.toggleDeliveryModal}
           >
             <EditDelivery {...this.props} shippingMethodCost={this.shippingMethodCost} />
           </Modal>
@@ -81,8 +81,6 @@ class Delivery extends Component {
   }
 
   render() {
-    const { t } = this.props;
-
     return (
       <div>
         <div styleName="header">

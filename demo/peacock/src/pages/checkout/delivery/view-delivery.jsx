@@ -2,9 +2,6 @@
 
 import React from 'react';
 
-// libs
-import { connect } from 'react-redux';
-
 // styles
 import styles from './delivery.css';
 
