@@ -11,19 +11,19 @@ const facets = [
       {
         label: 'Men',
         value: 'men',
-        count: 1
+        count: 1,
       },
       {
         label: 'Women',
         value: 'women',
-        count: 1
+        count: 1,
       },
       {
         label: 'Kids',
         value: 'kids',
-        count: 1
+        count: 1,
       },
-    ]
+    ],
   }, {
     key: 'size',
     name: 'Shoes',
@@ -31,9 +31,9 @@ const facets = [
     values: [4, 4.5, 5, 5.5, 9, 9.5, 10, 10.5, 14, 14.5].map(v => ({
       value: String(v),
       label: String(v),
-      count: 1
-    }))
-  }
+      count: 1,
+    })),
+  },
 ];
 
 storiesOf('components.Facets', module)

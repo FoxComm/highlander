@@ -1,37 +1,37 @@
 .facet-checkbox {
-    display: flex;
-    align-items: baseline;
-    align-content: flex-start;
+  display: flex;
+  align-items: center;
+  align-content: flex-start;
 }
 
 .facet-checkbox-input {
-    display: none;
+  display: none;
 }
 
 .facet-checkbox-label {
-    font-size: 16px;
-    font-weight: normal;
-    font-style: normal;
-    font-stretch: normal;
-    line-height: 1.88;
-    letter-spacing: normal;
-    color: #000000;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: 1.88;
+  letter-spacing: normal;
+  color: #000000;
 }
 
 .facet-checkbox-box {
-    width: 16px;
-    height: 16px;
-    border-radius: 2px;
-    border: solid 1px #888888;
-    margin-right: 12px;
-    background-color: white;
-    text-align: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 2px;
+  border: solid 1px #888888;
+  margin-right: 12px;
+  background-color: white;
+  text-align: center;
 }
 
 .facet-checkbox-box label {
-    color: white;
-    font-size: 10px;
-    vertical-align: 6px;
+  color: white;
+  font-size: 10px;
+  vertical-align: 6px;
 }
 
 .facet-checkbox input[type=checkbox]:checked + .facet-checkbox-box {
