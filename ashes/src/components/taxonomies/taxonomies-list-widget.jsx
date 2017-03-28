@@ -20,28 +20,11 @@ class TaxonomiesListWidget extends Component {
     this.props.fetch()
   }
 
-  @autobind
-  handleDelete(taxonomyId, taxonId) {
-    const { handleChange, addedTaxons } = this.props;
-
-    const taxonomyIndex = findIndex(addedTaxons, (taxonomy) => {
-      return taxonomy.taxonomyId === taxonomyId
-    });
-
-    const taxonomy = find(addedTaxons, (taxonomy) => {
-      return taxonomy.taxonomyId === taxonomyId
-    });
-
-    remove(taxonomy.taxons, (taxon) => {
-     return taxon.id === taxonId
-    });
-
-    addedTaxons[taxonomyIndex].taxons = taxonomy.taxons;
-
-    handleChange(addedTaxons)
+  componentWillReceiveProps(nextProps) {
+    console.log(nextProps);
   }
 
-  content() {
+  get content() {
     const { taxonomies, addedTaxons, productId} = this.props;
 
     return taxonomies.map((taxonomy) => {
@@ -62,7 +45,7 @@ class TaxonomiesListWidget extends Component {
             context={taxonomy.context}
             taxonomyId={taxonomy.taxonomyId}
             title={taxonomy.name}
-            handleDelete={this.handleDelete}
+            onChange={this.props.onChange}
           />
       </div>
      )
@@ -72,7 +55,7 @@ class TaxonomiesListWidget extends Component {
   render() {
     return (
       <div>
-        {this.content()}
+        {this.content}
       </div>
     )
   }

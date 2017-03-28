@@ -21,7 +21,7 @@ import { bindActionCreators } from 'redux';
 
 // actions
 import { fetchTaxonomyInternal as fetchTaxonomy } from 'modules/taxonomies/details';
-import { deleteProductCurried  } from 'modules/taxons/details/taxon';
+import { deleteProductCurried } from 'modules/taxons/details/taxon';
 
 // style
 import styles from './taxonomy-widget.css';
@@ -48,24 +48,12 @@ class TaxonomyWidget extends Component {
     this.props.fetchTaxonomy(taxonomyId, context);
   }
 
-  // @autobind
-  // handleTaxonClick(id: number) {
-  //   console.log(id);
-  //   this.props.addProduct();
-  //   console.log('i am here')
-  // }
-  //
-  // @autobind
-  // handleAddValueButton() {
-  //   if (this.props.activeTaxonId !== 'new') {
-  //     this.transition('new');
-  //   }
-  // }
-
   @autobind
   handleCloseClick(taxonId) {
     this.props.deleteProductCurried(taxonId)
-    this.props.handleDelete(this.props.taxonomy.id, taxonId);
+      .then(response => {
+        this.props.onChange(response)
+      });
   }
 
   @autobind
@@ -143,7 +131,7 @@ class TaxonomyWidget extends Component {
             {title}
           </span>
           <span styleName="button">
-            <i className={iconClassName} onClick={this.handleAddButton}/>
+            <i className={iconClassName} onClick={this.handleAddButton} />
           </span>
         </div>
         <div className={inputClass}>
