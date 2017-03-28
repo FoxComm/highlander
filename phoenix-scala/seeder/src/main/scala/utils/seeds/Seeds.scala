@@ -140,9 +140,9 @@ object Seeds {
         }
         if (cfg.seedRandom > 0)
           createRandomSeeds(cfg.seedRandom, cfg.customersScaleMultiplier)
-        if (cfg.seedStage) step("Insert Stage seeds", createStage)
+        if (cfg.seedStage) step("Insert Stage seeds", createStageSeeds)
         if (cfg.seedDemo > 0) {
-          step("Insert Stage seeds", createStage)
+          step("Insert Stage seeds", createStageSeeds)
           createRandomSeeds(cfg.seedDemo, cfg.customersScaleMultiplier)
         }
       case CreateAdmin ⇒
@@ -248,7 +248,7 @@ object Seeds {
       _     ← * <~ Factories.createReturnReasons
     } yield {}
 
-  def createStage(implicit db: DB, ac: AC): DbResultT[Unit] =
+  def createStageSeeds(implicit db: DB, ac: AC): DbResultT[Unit] =
     for {
       r ← * <~ getMerchant
       (organization, merchant, account, claims) = r
@@ -271,6 +271,7 @@ object Seeds {
              _          ← * <~ Factories.createGiftCards
              _          ← * <~ Factories.createStoreCredits(admin.id, customers._1, customers._3)
              _          ← * <~ Factories.createShipmentRules
+
              // Promotions
              search     ← * <~ Factories.createSharedSearches(admin.id)
              discounts  ← * <~ Factories.createDiscounts(search)
