@@ -1,0 +1,17 @@
+---
+
+- name: Copy Customer Groups Consumer Marathon JSON
+  template: src=customer-groups-consumer.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
+
+- name: Update Customer Groups Consumer in Marathon
+  shell: 'curl -sS -XPUT -d@/marathon/applications/customer-groups-consumer.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/customer-groups-consumer'
+
+- name: Restart Customer Groups Consumer in Marathon
+  shell: 'curl -sS -XPOST http://{{marathon_server}}/v2/apps/customer-groups-consumer/restart'
+
+- name: Get Consumers Marathon tasks in `healthy` state
+  shell: curl -sS -XGET http://{{marathon_server}}/v2/apps/customer-groups-consumer | jq '.app.tasksHealthy > 0'
+  register: healthy_tasks_available
+  until: healthy_tasks_available.stdout == 'true'
+  retries: "{{marathon_retries}}"
+  delay: "{{marathon_delay}}"

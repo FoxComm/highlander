@@ -3,6 +3,7 @@ package services
 import cats.implicits._
 import failures.GeneralFailure
 import faker.Lorem
+import java.util.concurrent.atomic.AtomicBoolean
 import models.Reasons
 import models.account.Scope
 import models.cord._
@@ -13,15 +14,18 @@ import models.payment.giftcard._
 import models.payment.storecredit._
 import models.product.{Mvp, SimpleContext}
 import models.shipping.ShippingMethods
+import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
 import org.scalacheck.Prop.BooleanOperators
 import org.scalacheck.{Gen, Prop, Test ⇒ QTest}
 import org.scalatest.mockito.MockitoSugar
 import payloads.LineItemPayloads.UpdateLineItemsPayload
+import scala.concurrent.Future
 import slick.driver.PostgresDriver.api._
 import testutils._
 import testutils.fixtures.BakedFixtures
 import utils.MockedApis
+import utils.aliases._
 import utils.db._
 import utils.seeds.Factories
 
@@ -65,6 +69,21 @@ class CheckoutTest
 
       val result = Checkout(cart, mockValidator).checkout.gimmeFailures
       result must === (failure.single)
+    }
+
+    "cancel MWH hold on any failure" in new EmptyCustomerCart_Baked {
+      val holdCanceled = new AtomicBoolean(false)
+      when(middlewarehouseApiMock.cancelHold(any[String])(any[EC], any[AU]))
+        .thenReturn(Result.fromF(Future {
+          holdCanceled.set(true)
+          ()
+        }))
+      // NullPointerException coming from access on empty mock will cause here TestFailedException
+      intercept[Throwable] {
+        Checkout(cart, mock[CartValidation]).checkout.gimme
+      }
+
+      holdCanceled.get() must === (true)
     }
 
     "authorizes payments" - {

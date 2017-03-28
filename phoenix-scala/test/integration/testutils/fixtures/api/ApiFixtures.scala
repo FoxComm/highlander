@@ -1,8 +1,8 @@
 package testutils.fixtures.api
 
+import cats.data.NonEmptyList
 import java.time.Instant
 import java.time.temporal.ChronoUnit.DAYS
-
 import faker.Lorem
 import models.promotion.Promotion
 import org.json4s.JsonDSL._
@@ -19,10 +19,28 @@ import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.api.PromotionPayloadBuilder.{PromoOfferBuilder, PromoQualifierBuilder}
 import utils.aliases.Json
-
 import scala.util.Random
 
 trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi { self: FoxSuite ⇒
+
+  /** Transitions through list of states.
+    *
+    * If `initial` is empty it will transition through all of the passed `transitionStates`.
+    * If it's defined it will skip any states in `transitionStates` until `initial` is found.
+    */
+  def transitionEntity[S, E](transitionStates: NonEmptyList[S], initial: Option[E])(
+      getState: E ⇒ S)(updateState: S ⇒ E): E = {
+    val transition = initial.map { e ⇒
+      val initialState = getState(e)
+      transitionStates.toList.dropWhile(_ != initialState).drop(1).foldLeft(e) _
+    }.getOrElse(transitionStates.tail.foldLeft(updateState(transitionStates.head)) _)
+
+    transition { (_, state) ⇒
+      val updated = updateState(state)
+      getState(updated) must === (state)
+      updated
+    }
+  }
 
   trait ProductSku_ApiFixture {
     val productCode: String = s"testprod_${Lorem.numerify("####")}"

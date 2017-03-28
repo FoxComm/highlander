@@ -9,6 +9,7 @@ const SUCCESS = 'success';
 const Alert = props => {
   const className = classNames(
     `fc-alert is-alert-${props.type}`,
+    props.className,
     {'is-can-be-closed': props.closeAction}
   );
 
@@ -31,7 +32,8 @@ Alert.propTypes = {
     ERROR, WARNING, SUCCESS
   ]).isRequired,
   closeAction: PropTypes.func,
-  children: PropTypes.node
+  children: PropTypes.node,
+  className: PropTypes.string,
 };
 
 Alert.ERROR = ERROR;

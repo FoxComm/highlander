@@ -58,7 +58,7 @@ begin
 
   if array_length(insert_ids, 1) > 0 then
     insert into products_catalog_view(id, product_id, slug, context, title, description, sale_price, currency, tags,
-                                      albums, scope, skus, retail_price)
+                                      albums, scope, skus, retail_price, taxonomies)
       select
       p.id,
       f.id as product_id,
@@ -72,7 +72,8 @@ begin
       albumLink.albums as albums,
       p.scope as scope,
       sv.skus as skus,
-      sku.retail_price as retail_price
+      sku.retail_price as retail_price,
+      psv.taxonomies
       from products as p
         inner join object_contexts as context on (p.context_id = context.id)
         inner join object_forms as f on (f.id = p.form_id)
@@ -80,6 +81,7 @@ begin
         inner join product_sku_links_view as sv on (sv.product_id = p.id) --get list of sku codes for the product
         inner join sku_search_view as sku on (sku.context_id = context.id and sku.sku_code = sv.skus->>0)
         left join product_album_links_view as albumLink on (albumLink.product_id = p.id)
+        left join products_search_view as psv on psv.id = p.id
       where p.id = any(insert_ids);
     end if;
 
@@ -132,3 +134,17 @@ begin
   return null;
 end;
 $$ language plpgsql;
+
+create or replace function refresh_products_cat_taxonomies_from_search_view_fn() returns trigger as $$
+declare
+begin
+    update products_catalog_view set taxonomies = new.taxonomies where id = new.id;
+  return null;
+end;
+$$ language plpgsql;
+
+drop trigger if exists update_products_cat_view_taxonomies_from_search on products_search_view;
+create trigger update_products_cat_view_taxonomies_from_search
+after update on products_search_view
+for each row
+execute procedure refresh_products_cat_taxonomies_from_search_view_fn();

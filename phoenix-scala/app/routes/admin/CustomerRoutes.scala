@@ -5,15 +5,16 @@ import akka.http.scaladsl.server.Route
 import utils.http.JsonSupport._
 import models.account.User
 import payloads.AddressPayloads.CreateAddressPayload
+import payloads.CustomerGroupPayloads.AddCustomerToGroups
 import payloads.CustomerPayloads._
 import payloads.UserPayloads._
 import payloads.PaymentPayloads._
 import services.carts.CartQueries
-import services.account._
 import services.customers._
 import services.account._
 import services.{AddressManager, CreditCardManager, CustomerCreditConverter, StoreCreditService}
 import services.Authenticator.AuthData
+import services.customerGroups.GroupMemberManager
 import utils.aliases._
 import utils.apis.Apis
 import utils.http.CustomDirectives._
@@ -116,11 +117,10 @@ object CustomerRoutes {
               CreditCardManager.creditCardsInWalletFor(accountId)
             }
           } ~
-          (post & path(IntNumber / "default") & pathEnd & entity(as[ToggleDefaultCreditCard])) {
-            (cardId, payload) ⇒
-              mutateOrFailures {
-                CreditCardManager.toggleCreditCardDefault(accountId, cardId, payload.isDefault)
-              }
+          (post & path(IntNumber / "default") & pathEnd) { cardId ⇒
+            mutateOrFailures {
+              CreditCardManager.setDefaultCreditCard(accountId, cardId)
+            }
           } ~
           (post & pathEnd & entity(as[CreateCreditCardFromTokenPayload])) { payload ⇒
             mutateOrFailures {
@@ -135,6 +135,11 @@ object CustomerRoutes {
           (delete & path(IntNumber) & pathEnd) { cardId ⇒
             deleteOrFailures {
               CreditCardManager.deleteCreditCard(accountId, cardId, Some(auth.model))
+            }
+          } ~
+          (delete & path("default") & pathEnd) {
+            deleteOrFailures {
+              CreditCardManager.removeDefaultCreditCard(accountId)
             }
           }
         } ~
@@ -158,6 +163,13 @@ object CustomerRoutes {
           (post & path(IntNumber / "convert") & pathEnd) { storeCreditId ⇒
             mutateOrFailures {
               CustomerCreditConverter.toGiftCard(storeCreditId, accountId, auth.model)
+            }
+          }
+        } ~
+        pathPrefix("customer-groups") {
+          (post & pathEnd & entity(as[AddCustomerToGroups])) { payload ⇒
+            mutateOrFailures {
+              GroupMemberManager.addCustomerToGroups(accountId, payload.groups)
             }
           }
         }

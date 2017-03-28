@@ -1,0 +1,60 @@
+.stats {
+  margin-bottom: 40px;
+}
+
+._loading {
+  composes: loading from '../../../css/animations.css';
+
+  & :global(.fc-panel-list-panel) {
+    opacity: .8;
+  }
+}
+
+.periods {
+  display: flex;
+
+  & :global(.fc-radio) {
+    position: relative;
+    flex: 1;
+    line-height: 50px;
+    background: #ced2d5;
+    text-align: center;
+    margin: 1px;
+    margin-bottom: 20px;
+
+    & input[type=radio]:not(old) {
+      & + label {
+        position: absolute;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        margin: 0;
+        line-height: 50px;
+        cursor: pointer;
+        transition: all .2s;
+
+        &:hover {
+          background: #bdc3c6;
+        }
+
+        &::before,
+        &::after {
+          content: initial;
+        }
+      }
+
+      &:checked {
+        & + label {
+          background: #4fc2c9;
+          color: #fff
+        }
+      }
+    }
+  }
+}
+
+.percent {
+  display: block;
+  font-size: 16px;
+}

@@ -8,17 +8,21 @@ import models.Note
 import models.account.User
 import models.activity.{Activities, Activity}
 import models.admin.AdminData
-import models.cord.{Cart, Order}
+import models.cord.{Cart, Order, OrderPayment}
 import models.coupon.{Coupon, CouponCode}
+import models.customer.CustomerGroup
 import models.location.Region
 import models.payment.PaymentMethod
 import models.payment.creditcard.{CreditCard, CreditCardCharge}
 import models.payment.giftcard.GiftCard
 import models.payment.storecredit.StoreCredit
+import models.returns.Return.State
+import models.returns.{Return, ReturnLineItem, ReturnPayment, ReturnReason}
 import models.sharedsearch.SharedSearch
 import models.shipping.ShippingMethod
 import payloads.GiftCardPayloads.GiftCardUpdateStateByCsr
 import payloads.LineItemPayloads.UpdateLineItemsPayload
+import payloads.ReturnPayloads.{ReturnLineItemPayload, ReturnShippingCostLineItemPayload, ReturnSkuLineItemPayload}
 import payloads.StoreCreditPayloads.StoreCreditUpdateStateByCsr
 import responses.CategoryResponses.FullCategoryResponse
 import responses.CouponResponses.CouponResponse
@@ -29,13 +33,14 @@ import responses.ProductResponses.ProductResponse
 import responses.PromotionResponses.PromotionResponse
 import responses.SkuResponses.SkuResponse
 import responses.UserResponse.{Root ⇒ UserResponse, build ⇒ buildUser}
+import responses._
 import responses.cord.{CartResponse, OrderResponse}
-import responses.{AddressResponse, CaptureResponse, CreditCardsResponse, GiftCardResponse, StoreCreditResponse}
 import services.LineItemUpdater.foldQuantityPayload
 import services.activity.AssignmentsTailored._
 import services.activity.CartTailored._
 import services.activity.CategoryTailored._
 import services.activity.CouponsTailored._
+import services.activity.CustomerGroupsTailored._
 import services.activity.CustomerTailored._
 import services.activity.GiftCardTailored._
 import services.activity.MailTailored._
@@ -43,6 +48,7 @@ import services.activity.NotesTailored._
 import services.activity.OrderTailored._
 import services.activity.ProductTailored._
 import services.activity.PromotionTailored._
+import services.activity.ReturnTailored._
 import services.activity.SharedSearchTailored._
 import services.activity.SkuTailored._
 import services.activity.StoreAdminsTailored._
@@ -132,6 +138,7 @@ case class LogActivity(implicit ac: AC) {
     Activities.log(CustomerActivated(buildUser(admin), user))
 
   /* Users */
+  // FIXME unused, do we need it? @aafa
   def userCreated(user: UserResponse, admin: Option[User])(implicit ec: EC): DbResultT[Activity] =
     admin match {
       case Some(a) ⇒
@@ -140,9 +147,11 @@ case class LogActivity(implicit ac: AC) {
         Activities.log(UserRegistered(user))
     }
 
+  // FIXME unused, do we need it? @aafa
   def userActivated(user: UserResponse, admin: User)(implicit ec: EC): DbResultT[Activity] =
     Activities.log(UserActivated(buildUser(admin), user))
 
+  // FIXME unused, do we need it? @aafa
   def userUpdated(user: User, updated: User, admin: Option[User])(
       implicit ec: EC): DbResultT[Activity] =
     Activities.log(UserUpdated(buildUser(user), buildUser(updated), admin.map(buildUser)))
@@ -433,6 +442,52 @@ case class LogActivity(implicit ac: AC) {
   def orderCouponDetached(cart: Cart)(implicit ec: EC): DbResultT[Activity] =
     Activities.log(CartCouponDetached(cart))
 
+  /* Returns */
+  def returnCreated(admin: User, rma: ReturnResponse.Root)(implicit ec: EC): DbResultT[Activity] =
+    Activities.log(ReturnCreated(buildUser(admin), rma))
+
+  def returnStateChanged(admin: User, rma: ReturnResponse.Root, oldState: State)(
+      implicit ec: EC): DbResultT[Activity] =
+    Activities.log(ReturnStateChanged(buildUser(admin), rma, oldState))
+
+  def returnShippingCostItemAdded(
+      rma: Return,
+      reason: ReturnReason,
+      payload: ReturnShippingCostLineItemPayload)(implicit ec: EC): DbResultT[Activity] =
+    Activities.log(ReturnShippingCostItemAdded(rma, reason, payload))
+
+  def returnSkuLineItemAdded(rma: Return, reason: ReturnReason, payload: ReturnSkuLineItemPayload)(
+      implicit ec: EC): DbResultT[Activity] =
+    Activities.log(ReturnSkuLineItemAdded(rma, reason, payload))
+
+  def returnShippingCostItemDeleted(lineItem: ReturnLineItem)(
+      implicit ec: EC): DbResultT[Activity] =
+    Activities.log(ReturnShippingCostItemDeleted(lineItem))
+
+  def returnSkuLineItemDeleted(lineItem: ReturnLineItem)(implicit ec: EC): DbResultT[Activity] =
+    Activities.log(ReturnSkuLineItemDeleted(lineItem))
+
+  def returnPaymentAdded(rma: ReturnResponse.Root, payment: OrderPayment)(
+      implicit ec: EC): DbResultT[Activity] = Activities.log(ReturnPaymentAdded(rma, payment))
+
+  def returnPaymentDeleted(rma: ReturnResponse.Root, paymentMethod: PaymentMethod.Type)(
+      implicit ec: EC): DbResultT[Activity] =
+    Activities.log(ReturnPaymentDeleted(rma, paymentMethod))
+
+  def issueCcRefund(rma: Return, payment: ReturnPayment)(implicit ec: EC): DbResultT[Activity] =
+    Activities.log(ReturnIssueCcRefund(rma, payment))
+
+  def issueGcRefund(customer: User, rma: Return, gc: GiftCard)(
+      implicit ec: EC): DbResultT[Activity] =
+    Activities.log(ReturnIssueGcRefund(customer, rma, gc))
+
+  def issueScRefund(customer: User, rma: Return, sc: StoreCredit)(
+      implicit ec: EC): DbResultT[Activity] =
+    Activities.log(ReturnIssueScRefund(customer, rma, sc))
+
+  def cancelRefund(rma: Return)(implicit ec: EC): DbResultT[Activity] =
+    Activities.log(ReturnCancelRefund(rma))
+
   /* Categories */
   def fullCategoryCreated(
       admin: Option[User],
@@ -511,6 +566,19 @@ case class LogActivity(implicit ac: AC) {
                              newState: AdminData.State,
                              admin: User)(implicit ec: EC): DbResultT[Activity] =
     Activities.log(StoreAdminStateChanged(entity, oldState, newState, admin))
+
+  /* Customer Groups */
+  def customerGroupCreated(customerGroup: CustomerGroup,
+                           admin: User)(implicit ec: EC, ac: AC): DbResultT[Activity] =
+    Activities.log(CustomerGroupCreated(customerGroup, admin))
+
+  def customerGroupUpdated(customerGroup: CustomerGroup,
+                           admin: User)(implicit ec: EC, ac: AC): DbResultT[Activity] =
+    Activities.log(CustomerGroupUpdated(customerGroup, admin))
+
+  def customerGroupArchived(customerGroup: CustomerGroup,
+                            admin: User)(implicit ec: EC, ac: AC): DbResultT[Activity] =
+    Activities.log(CustomerGroupArchived(customerGroup, admin))
 
   /* Mail stuff */
 

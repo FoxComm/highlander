@@ -1,6 +1,5 @@
 package services.carts
 
-//import com.github.tminglei.slickpg.LTree
 import failures.NotFoundFailure404
 import models.account._
 import models.cord._
@@ -69,15 +68,7 @@ object CartQueries extends CordQueries {
                 .findOrCreateExtended(
                     Carts.create(Cart(accountId = customer.accountId, scope = Scope.current)))
       (cart, foundOrCreated) = result
-      fullOrder ← * <~ CartResponse.fromCart(cart, grouped, au.isGuest)
-      _         ← * <~ logCartCreation(foundOrCreated, fullOrder, admin)
-    } yield fullOrder
-
-  private def logCartCreation(foundOrCreated: FoundOrCreated,
-                              cart: CartResponse,
-                              admin: Option[User])(implicit ec: EC, ac: AC) =
-    foundOrCreated match {
-      case Created ⇒ LogActivity().cartCreated(admin, cart)
-      case Found   ⇒ DbResultT.unit
-    }
+      fullCart ← * <~ CartResponse.fromCart(cart, grouped, au.isGuest)
+      _        ← * <~ doOrMeh(foundOrCreated == Created, LogActivity().cartCreated(admin, fullCart))
+    } yield fullCart
 }

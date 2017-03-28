@@ -1,19 +1,17 @@
 package models.returns
 
-import java.time.Instant
-
-import cats.data.Validated._
-import cats.data.{State ⇒ _, _}
+import cats.data.{State ⇒ _}
 import com.pellucid.sealerate
-import failures.Failure
+import failures.NotFoundFailure404
+import java.time.Instant
 import models.account._
-import models.cord.Order
+import models.cord.{Order, Orders}
 import models.returns.Return._
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
 import slick.jdbc.JdbcType
-import utils.Validation._
+import utils.aliases._
 import utils.db._
 import utils.{ADT, FSM}
 
@@ -26,10 +24,11 @@ case class Return(id: Int = 0,
                   accountId: Int,
                   storeAdminId: Option[Int] = None,
                   messageToAccount: Option[String] = None,
-                  canceledReason: Option[Int] = None,
+                  canceledReasonId: Option[Int] = None,
                   createdAt: Instant = Instant.now,
                   updatedAt: Instant = Instant.now,
-                  deletedAt: Option[Instant] = None)
+                  deletedAt: Option[Instant] = None,
+                  totalRefund: Option[Int] = None)
     extends FoxModel[Return]
     with FSM[Return.State, Return] {
 
@@ -50,7 +49,7 @@ case class Return(id: Int = 0,
 }
 
 object Return {
-  sealed trait State
+  sealed trait State extends Product with Serializable
   case object Pending    extends State
   case object Processing extends State
   case object Review     extends State
@@ -74,7 +73,7 @@ object Return {
     ReturnType.slickColumn
   implicit val StateTypeColumnType: JdbcType[State] with BaseTypedType[State] = State.slickColumn
 
-  val returnRefNumRegex         = """([a-zA-Z0-9-_.]*)""".r
+  val returnRefNumRegex         = """([a-zA-Z0-9-_.]*)""".r // normally it's "[Order.refNumber].#"
   val messageToAccountMaxLength = 1000
 
   def build(order: Order, admin: User, rmaType: ReturnType = Return.Standard): Return = {
@@ -87,13 +86,6 @@ object Return {
     )
   }
 
-  def validateStateReason(state: State, reason: Option[Int]): ValidatedNel[Failure, Unit] = {
-    if (state == Canceled) {
-      validExpr(reason.isDefined, "Please provide valid cancellation reason")
-    } else {
-      valid({})
-    }
-  }
 }
 
 class Returns(tag: Tag) extends FoxTable[Return](tag, "returns") {
@@ -106,10 +98,11 @@ class Returns(tag: Tag) extends FoxTable[Return](tag, "returns") {
   def accountId        = column[Int]("account_id")
   def storeAdminId     = column[Option[Int]]("store_admin_id")
   def messageToAccount = column[Option[String]]("message_to_account")
-  def canceledReason   = column[Option[Int]]("canceled_reason")
+  def canceledReasonId = column[Option[Int]]("canceled_reason_id") // see models.Reasons
   def createdAt        = column[Instant]("created_at")
   def updatedAt        = column[Instant]("updated_at")
   def deletedAt        = column[Option[Instant]]("deleted_at")
+  def totalRefund      = column[Option[Int]]("total_refund")
 
   def * =
     (id,
@@ -121,16 +114,28 @@ class Returns(tag: Tag) extends FoxTable[Return](tag, "returns") {
      accountId,
      storeAdminId,
      messageToAccount,
-     canceledReason,
+     canceledReasonId,
      createdAt,
      updatedAt,
-     deletedAt) <> ((Return.apply _).tupled, Return.unapply)
+     deletedAt,
+     totalRefund) <> ((Return.apply _).tupled, Return.unapply)
+
+  // TODO why have both reference to order id and order ref ?
+  def orderIdFKey =
+    foreignKey("returns_order_id_fkey", orderId, Orders)(_.id,
+                                                         onUpdate = ForeignKeyAction.Restrict,
+                                                         onDelete = ForeignKeyAction.Restrict)
+  def orderRefFKey =
+    foreignKey("returns_order_ref_fkey", orderRef, Orders)(_.referenceNumber,
+                                                           onUpdate = ForeignKeyAction.Restrict,
+                                                           onDelete = ForeignKeyAction.Restrict)
 }
 
 object Returns
     extends FoxTableQuery[Return, Returns](new Returns(_))
     with ReturningIdAndString[Return, Returns]
     with SearchByRefNum[Return, Returns] {
+  private[this] val activeStates = Set(Return.Pending, Return.Processing, Return.Review)
 
   def findByRefNum(refNum: String): QuerySeq = filter(_.referenceNumber === refNum)
 
@@ -138,14 +143,26 @@ object Returns
 
   def findByOrderRefNum(refNum: String): QuerySeq = filter(_.orderRef === refNum)
 
+  def findPrevious(rma: Return): QuerySeq =
+    findByOrderRefNum(rma.orderRef).filter(r ⇒
+          r.id =!= rma.id && r.state === (Return.Complete: Return.State))
+
+  def findPreviousOrCurrent(rma: Return): QuerySeq =
+    findByOrderRefNum(rma.orderRef).filter(r ⇒
+          (r.id =!= rma.id && r.state === (Return.Complete: Return.State)) || r.id === rma.id)
+
   def findOneByRefNum(refNum: String): DBIO[Option[Return]] =
-    filter(_.referenceNumber === refNum).one
+    findByRefNum(refNum).one
 
-  def findOnePendingByRefNum(refNum: String): DBIO[Option[Return]] =
-    filter(_.referenceNumber === refNum).filter(_.state === (Return.Pending: Return.State)).one
+  def mustFindActiveByRefNum404(refNum: String)(implicit ec: EC): DbResultT[Return] =
+    findByRefNum(refNum)
+      .filter(_.state inSet activeStates)
+      .mustFindOneOr(NotFoundFailure404(Return, refNum))
 
-  private val rootLens                           = lens[Return]
+  private[this] val rootLens = lens[Return]
+
   val returningLens: Lens[Return, (Int, String)] = rootLens.id ~ rootLens.referenceNumber
+
   override val returningQuery = map { rma ⇒
     (rma.id, rma.referenceNumber)
   }

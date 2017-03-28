@@ -15,9 +15,7 @@ import utils.db._
 
 object CartShippingMethodUpdater {
 
-  def updateShippingMethod(originator: User,
-                           payload: UpdateShippingMethod,
-                           refNum: Option[String] = None)(
+  def updateShippingMethod(originator: User, shippingMethodId: Int, refNum: Option[String] = None)(
       implicit ec: EC,
       es: ES,
       db: DB,
@@ -27,7 +25,7 @@ object CartShippingMethodUpdater {
     for {
       cart           ← * <~ getCartByOriginator(originator, refNum)
       oldShipMethod  ← * <~ ShippingMethods.forCordRef(cart.refNum).one
-      shippingMethod ← * <~ ShippingMethods.mustFindById400(payload.shippingMethodId)
+      shippingMethod ← * <~ ShippingMethods.mustFindById400(shippingMethodId)
       _              ← * <~ shippingMethod.mustBeActive
       _              ← * <~ ShippingManager.evaluateShippingMethodForCart(shippingMethod, cart)
       _ ← * <~ Shipments

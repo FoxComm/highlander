@@ -7,7 +7,7 @@ class NavDropdown extends Component {
     children: PropTypes.node.isRequired,
     className: PropTypes.string
   };
-  
+
   render() {
     const { title, className, children } = this.props;
     const cls = classNames(

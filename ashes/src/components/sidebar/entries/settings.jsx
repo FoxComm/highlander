@@ -70,6 +70,16 @@ const SettingsEntry = ({ claims, routes }: TMenuEntry) => {
             expectedClaims={applicationClaims}
           />
         </li>
+        {/*<li>
+          <NavigationItem
+            to="channels"
+            icon="channels"
+            title="Channels"
+            routes={routes}
+            actualClaims='none'
+            expectedClaims='none'
+          />
+        </li>*/}
       </div>
     );
 };

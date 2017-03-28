@@ -1,6 +1,6 @@
 # Highlander
 
-[![Build status](https://badge.buildkite.com/9194ecb4f86c089e8962db23843a00662dac85e98418697dd4.svg)](https://buildkite.com/foxcommerce/developer-appliance-gce)
+[![Build status](https://badge.buildkite.com/f3f7826395143bf97d4f1b11fd2fb3c78ecb2a9c71b5acb43e.svg)](https://buildkite.com/foxcommerce/highlander-master)
 
 Highlander is the brand-spanking-new FoxCommerce mono-repo.
 
@@ -22,16 +22,16 @@ The simplest way to get started is setup a personal developer appliance in Googl
 
 3. [Generate Google service account key](https://cloud.google.com/storage/docs/authentication#generating-a-private-key) and download it in JSON format to your machine.
 
-4. Run `.env.local` generator, required for Vagrant. You'll be prompted for you corporate e-mail and SSH/JSON key locations.
-
-    ```
-    $ make dotenv
-    ```
-
-5. Pre-configure Ansible by running:
+4. Install Ansible dependencies by running:
 
     ```
     $ make prepare
+    ```
+
+5. Run config generator, required for Ansible. You'll be prompted for you corporate e-mail and SSH/JSON key locations.
+
+    ```
+    $ make config
     ```
 
 6. You're ready to spin up the machine! Do it by running:

@@ -21,9 +21,9 @@ export type Product = {
   albums: ?Array<Object> | Object,
 };
 
-const MAX_RESULTS = 1000;
+export const MAX_RESULTS = 1000;
 const context = process.env.FIREBIRD_CONTEXT || 'default';
-const GIFT_CARD_TAG = 'GIFT-CARD';
+export const GIFT_CARD_TAG = 'GIFT-CARD';
 
 function apiCall(
   categoryNames: ?Array<string>,
