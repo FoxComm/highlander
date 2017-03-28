@@ -62,7 +62,7 @@ export const archive = _archiveTaxon.perform;
 export const update = _updateTaxon.perform;
 export const addProduct = _addProduct.perform;
 export const deleteProduct = _deleteProduct.perform;
-export const deleteProductCurried = (productId, context) => _deleteProduct.perform.bind(null, productId, context);
+export const deleteProductCurried = (productId: number, context: string) => _deleteProduct.perform.bind(null, productId, context);
 
 
 export const fetch = (id: string, context: string = defaultContext): ActionDispatch => {

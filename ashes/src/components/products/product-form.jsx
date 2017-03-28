@@ -158,7 +158,7 @@ export default class ProductForm extends ObjectDetails {
         productId={productId}
         onChange={this.onTaxonsListChange}
       />
-    )
+    );
   }
 
   @autobind

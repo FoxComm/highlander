@@ -4,11 +4,9 @@
 import { get, flow } from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { transitionTo } from 'browserHistory';
 import { autobind } from 'core-decorators';
 import { createReducer } from 'redux-act';
 import { makeLocalStore, addAsyncReducer } from '@foxcomm/wings';
-import { createAsyncActions } from '@foxcomm/wings';
 import classNames from 'classnames';
 
 // components
@@ -16,7 +14,7 @@ import { AddButton } from 'components/common/buttons';
 import WaitAnimation from 'components/common/wait-animation';
 import HierarchicalTaxonomyListWidget from './taxons/hierarchical-taxonomy-widget';
 import FlatTaxonomyListWidget from './taxons/flat-taxonomy-widget';
-import RoundedPill from 'components/rounded-pill/rounded-pill'
+import RoundedPill from 'components/rounded-pill/rounded-pill';
 import { bindActionCreators } from 'redux';
 
 // actions
@@ -27,12 +25,15 @@ import { deleteProductCurried } from 'modules/taxons/details/taxon';
 import styles from './taxonomy-widget.css';
 
 type Props = {
+  title: string,
   context: string,
   taxonomyId: string,
   activeTaxonId: string,
   taxonomy: Taxonomy,
   fetchState: AsyncState,
   fetchTaxonomy: (id: number | string) => Promise<*>,
+  deleteProductCurried: (taxonId: number | string) => Promise<*>,
+  onChange: Function,
 };
 
 class TaxonomyWidget extends Component {
@@ -52,24 +53,24 @@ class TaxonomyWidget extends Component {
   handleCloseClick(taxonId) {
     this.props.deleteProductCurried(taxonId)
       .then(response => {
-        this.props.onChange(response)
+        this.props.onChange(response);
       });
   }
 
   @autobind
   handleAddButton() {
-    this.setState({ inputOpened: !this.state.inputOpened })
+    this.setState({ inputOpened: !this.state.inputOpened });
   }
 
-  @autobind
-  handleFocus() {
-    this.setState({ isFocused: true })
-  }
-
-  @autobind
-  handleBlur() {
-    // this.setState({ isFocused: false })
-  }
+  // @autobind
+  // handleFocus() {
+  //   this.setState({ isFocused: true })
+  // }
+  //
+  // @autobind
+  // handleBlur() {
+  //   // this.setState({ isFocused: false })
+  // }
 
   // get renderList() {
   //   const { taxonomy, activeTaxonId} = this.props;
@@ -97,7 +98,6 @@ class TaxonomyWidget extends Component {
   get addedTaxons() {
     const { addedTaxons } = this.props;
 
-
     return addedTaxons.map((item) => {
       return item.taxons.map((taxon) => {
         return (
@@ -107,10 +107,9 @@ class TaxonomyWidget extends Component {
             value={taxon.id}
             styleName="pill"
           />
-        )
+        );
       });
-
-    })
+    });
   }
 
   render() {
@@ -122,7 +121,7 @@ class TaxonomyWidget extends Component {
 
     const opened = this.state.inputOpened;
     const inputClass = classNames(styles.input, { [styles.opened]: opened });
-    const iconClassName = this.state.inputOpened ? "icon-close" : "icon-add";
+    const iconClassName = this.state.inputOpened ? 'icon-close' : 'icon-add';
 
     return (
       <div styleName="root">
@@ -135,10 +134,7 @@ class TaxonomyWidget extends Component {
           </span>
         </div>
         <div className={inputClass}>
-          <input
-            onFocus={this.handleFocus}
-            onBlur={this.handleBlur}
-            onChange={() => console.log('display search')}
+          <input onChange={() => console.log('display search')}
           />
         </div>
         {this.addedTaxons}

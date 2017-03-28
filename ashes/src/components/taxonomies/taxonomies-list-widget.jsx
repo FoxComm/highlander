@@ -1,27 +1,24 @@
+// @flow
+
+// libs
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { includes, get, flow, findIndex, find, remove } from 'lodash';
+import { flow, get } from 'lodash';
 import { createReducer } from 'redux-act';
 import { makeLocalStore, addAsyncReducer } from '@foxcomm/wings';
 import { createAsyncActions } from '@foxcomm/wings';
-import { dissoc } from 'sprout-data';
-import { autobind } from 'core-decorators';
 
 // redux
 import { searchTaxonomies } from 'elastic/taxonomy';
 
 // components
-import TaxonomyWidget from './taxonomy-widget'
+import TaxonomyWidget from './taxonomy-widget';
 
 
 class TaxonomiesListWidget extends Component {
 
   componentDidMount() {
-    this.props.fetch()
-  }
-
-  componentWillReceiveProps(nextProps) {
-    console.log(nextProps);
+    this.props.fetch();
   }
 
   get content() {
@@ -33,12 +30,12 @@ class TaxonomiesListWidget extends Component {
 
       addedTaxons.map((taxon) => {
         if (taxon.taxonomyId === taxonomy.taxonomyId) {
-          addedTaxonsList.push(taxon)
+          addedTaxonsList.push(taxon);
         }
       });
 
-     return (
-       <div key={taxonomy.taxonomyId}>
+      return (
+        <div key={taxonomy.taxonomyId}>
           <TaxonomyWidget
             addedTaxons={addedTaxonsList}
             productId={productId}
@@ -47,9 +44,9 @@ class TaxonomiesListWidget extends Component {
             title={taxonomy.name}
             onChange={this.props.onChange}
           />
-      </div>
-     )
-    })
+        </div>
+      );
+    });
   }
 
   render() {
@@ -57,7 +54,7 @@ class TaxonomiesListWidget extends Component {
       <div>
         {this.content}
       </div>
-    )
+    );
   }
 
 }
