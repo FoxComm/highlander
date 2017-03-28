@@ -15,15 +15,16 @@ import * as amazonActions from 'modules/channels/amazon';
 import * as schemaActions from 'modules/object-schema';
 
 // components
-import { Suggester } from 'components/suggester/suggester';
 import WaitAnimation from '../common/wait-animation';
 import ObjectFormInner from '../object-form/object-form-inner';
 import ProductAmazonForm from './product-amazon-form';
 import ContentBox from '../content-box/content-box';
 import { PrimaryButton } from '../common/buttons';
+import Typeahead from '../typeahead/typeahead';
+import { CategoryItem } from './category-item';
 
 // selectors
-import { getSuggest } from './selector';
+import { getSuggest, cat } from './selector';
 
 // styles
 import s from './product-amazon.css';
@@ -131,14 +132,16 @@ class ProductAmazon extends Component {
     return (
       <div className={s.root}>
         <h1>{title} for Amazon</h1>
-        <ContentBox title="Amazon Category">
+        <ContentBox title="Amazon Listing Information">
           <div className={s.suggesterWrapper}>
-            <Suggester
+            <Typeahead
               className={s.suggester}
-              onChange={(text) => this._onTextChange(text)}
-              onPick={this._onCatPick.bind(this)}
-              data={suggest}
-              inProgress={fetchingSuggest}
+              onItemSelected={this._onCatPick.bind(this)}
+              items={suggest}
+              isFetching={fetchingSuggest}
+              fetchItems={this._handleFetch.bind(this)}
+              component={CategoryItem}
+              initialValue={this.state.categoryPath}
             />
           </div>
         </ContentBox>
@@ -154,7 +157,7 @@ class ProductAmazon extends Component {
     return _.get(product, ['attributes', 'nodeId', 'v'], null);
   }
 
-  _onTextChange(text) {
+  _handleFetch(text) {
     const { title } = this.props;
 
     this.props.actions.fetchSuggest(title, text);
@@ -169,7 +172,7 @@ class ProductAmazon extends Component {
   _setCat(id, path) {
     const { fetchAmazonSchema } = this.props.actions;
 
-    this.setState({ categoryId: id, categoryPath: path });
+    this.setState({ categoryId: id, categoryPath: cat(path) });
 
     fetchAmazonSchema(id);
   }
