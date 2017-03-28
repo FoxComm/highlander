@@ -5,6 +5,7 @@ import models.cord.Orders
 import models.cord.lineitems.OrderLineItems
 import models.inventory.Skus
 import models.objects._
+import models.returns.ReturnLineItem.OriginType
 import models.returns._
 import payloads.ReturnPayloads._
 import responses.ReturnResponse
@@ -69,17 +70,19 @@ object ReturnLineItemUpdater {
       db: DB): DbResultT[ReturnLineItem] =
     for {
       _ ← * <~ validateMaxShippingCost(rma, payload.amount)
-      _ ← * <~ ReturnLineItemShippingCosts.findByRmaId(rma.id).deleteAll
-      origin ← * <~ ReturnLineItemShippingCosts.create(
-                  ReturnLineItemShippingCost(returnId = rma.id, amount = payload.amount))
-      _ ← * <~ ReturnLineItems.filter(_.originId === origin.id).deleteAll
+      oli ← * <~ ReturnLineItems
+             .findByRmaId(rma.id)
+             .filter(_.originType === (ReturnLineItem.ShippingCost: OriginType))
+             .one
+      _ ← * <~ oli.map(processDeleteLineItem)
       li ← * <~ ReturnLineItems.create(
               ReturnLineItem(
                   returnId = rma.id,
                   reasonId = reason.id,
-                  originId = origin.id,
                   originType = ReturnLineItem.ShippingCost
               ))
+      _ ← * <~ ReturnLineItemShippingCosts.create(
+             ReturnLineItemShippingCost(id = li.id, returnId = rma.id, amount = payload.amount))
       _ ← * <~ LogActivity().returnShippingCostItemAdded(rma, reason, payload)
     } yield li
 
@@ -91,7 +94,7 @@ object ReturnLineItemUpdater {
       order ← * <~ Orders.mustFindByRefNum(rma.orderRef)
       orderedQuantity ← * <~ OrderLineItems
                          .findByOrderRef(rma.orderRef)
-                         .join(Skus.filter(_.code === sku))
+                         .join(Skus.filterByContextAndCode(oc.id, sku))
                          .on(_.skuId === _.id)
                          .countDistinct
                          .result
@@ -117,17 +120,27 @@ object ReturnLineItemUpdater {
       _         ← * <~ validateMaxQuantity(rma, payload.sku, payload.quantity)
       sku       ← * <~ SkuManager.mustFindSkuByContextAndCode(oc.id, payload.sku)
       skuShadow ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
-      origin ← * <~ ReturnLineItemSkus.create(
-                  ReturnLineItemSku(returnId = rma.id, skuId = sku.id, skuShadowId = skuShadow.id))
+      oli ← * <~ ReturnLineItemSkus
+             .findByRmaId(rma.id)
+             .filter(_.skuId === sku.id)
+             .join(ReturnLineItems)
+             .on(_.id === _.id)
+             .map { case (_, rli) ⇒ rli }
+             .one
+      _ ← * <~ oli.map(processDeleteLineItem)
       li ← * <~ ReturnLineItems.create(
               ReturnLineItem(
                   returnId = rma.id,
                   reasonId = reason.id,
                   quantity = payload.quantity,
-                  originId = origin.id,
                   originType = ReturnLineItem.SkuItem,
                   inventoryDisposition = payload.inventoryDisposition
               ))
+      _ ← * <~ ReturnLineItemSkus.create(
+             ReturnLineItemSku(id = li.id,
+                               returnId = rma.id,
+                               skuId = sku.id,
+                               skuShadowId = skuShadow.id))
       _ ← * <~ LogActivity().returnSkuLineItemAdded(rma, reason, payload)
     } yield li
 
@@ -137,31 +150,34 @@ object ReturnLineItemUpdater {
     for {
       rma      ← * <~ Returns.mustFindActiveByRefNum404(refNum)
       li       ← * <~ ReturnLineItems.mustFindById404(lineItemId)
-      _        ← * <~ processDeleteLineItem(li, li.originType)
-      _        ← * <~ ReturnLineItems.filter(_.id === lineItemId).deleteAll
+      _        ← * <~ processDeleteLineItem(li)
       updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(updated)
     } yield response
 
   private def processDeleteLineItem(
-      lineItem: ReturnLineItem,
-      originType: ReturnLineItem.OriginType)(implicit ec: EC, ac: AC, db: DB): DbResultT[Unit] =
-    originType match {
-      case ReturnLineItem.ShippingCost ⇒ deleteShippingCostLineItem(lineItem)
-      case ReturnLineItem.SkuItem      ⇒ deleteSkuLineItem(lineItem)
-    }
+      lineItem: ReturnLineItem)(implicit ec: EC, ac: AC, db: DB): DbResultT[Unit] =
+    for {
+      _ ← * <~ (lineItem.originType match {
+               case ReturnLineItem.ShippingCost ⇒ deleteShippingCostLineItem(lineItem)
+               case ReturnLineItem.SkuItem      ⇒ deleteSkuLineItem(lineItem)
+             })
+      _ ← * <~ ReturnLineItems.filter(_.id === lineItem.id).deleteAll
+    } yield ()
 
   private def deleteShippingCostLineItem(
       lineItem: ReturnLineItem)(implicit ec: EC, ac: AC, db: DB): DbResultT[Unit] =
     for {
-      deleted ← * <~ ReturnLineItemShippingCosts.filter(_.id === lineItem.originId).deleteAll
-      _       ← * <~ doOrMeh(deleted > 0, LogActivity().returnShippingCostItemDeleted(lineItem))
+      deleted ← * <~ ReturnLineItemShippingCosts
+                 .filter(_.id === lineItem.id)
+                 .deleteAllWithRowsBeingAffected
+      _ ← * <~ doOrMeh(deleted, LogActivity().returnShippingCostItemDeleted(lineItem))
     } yield ()
 
   private def deleteSkuLineItem(
       lineItem: ReturnLineItem)(implicit ec: EC, ac: AC, db: DB): DbResultT[Unit] =
     for {
-      deleted ← * <~ ReturnLineItemSkus.filter(_.id === lineItem.originId).deleteAll
-      _       ← * <~ doOrMeh(deleted > 0, LogActivity().returnSkuLineItemDeleted(lineItem))
+      deleted ← * <~ ReturnLineItemSkus.filter(_.id === lineItem.id).deleteAllWithRowsBeingAffected
+      _       ← * <~ doOrMeh(deleted, LogActivity().returnSkuLineItemDeleted(lineItem))
     } yield ()
 }

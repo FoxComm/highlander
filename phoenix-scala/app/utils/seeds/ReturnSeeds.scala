@@ -16,8 +16,8 @@ trait ReturnSeeds {
       order ← * <~ Orders.findOneById(1).safeGet
       _     ← * <~ ReturnReasons.createAll(returnReasons)
       _     ← * <~ Returns.create(rma.copy(orderRef = order.referenceNumber))
-      _     ← * <~ ReturnLineItemSkus.createAll(returnLineItemSkus)
-      _     ← * <~ ReturnLineItems.createAll(returnLineItems)
+      ids   ← * <~ ReturnLineItems.createAllReturningIds(returnLineItems)
+      _     ← * <~ ReturnLineItemSkus.createAll(returnLineItemSkus.zip(ids).map { case (sku, id) => sku.copy(id = id) })
       _     ← * <~ Notes.createAll(returnNotes)
     } yield {}
 
@@ -38,13 +38,11 @@ trait ReturnSeeds {
         ReturnLineItem(id = 0,
                        returnId = 1,
                        reasonId = 12,
-                       originId = 1,
                        originType = ReturnLineItem.SkuItem,
                        inventoryDisposition = ReturnLineItem.Putaway),
         ReturnLineItem(id = 0,
                        returnId = 1,
                        reasonId = 12,
-                       originId = 2,
                        originType = ReturnLineItem.SkuItem,
                        inventoryDisposition = ReturnLineItem.Putaway)
     )

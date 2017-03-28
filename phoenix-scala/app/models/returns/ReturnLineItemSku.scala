@@ -8,18 +8,16 @@ import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 
-case class ReturnLineItemSku(id: Int = 0,
+case class ReturnLineItemSku(id: Int,
                              returnId: Int,
                              skuId: Int,
                              skuShadowId: Int,
                              createdAt: Instant = Instant.now)
     extends FoxModel[ReturnLineItemSku]
 
-object ReturnLineItemSku {}
-
 class ReturnLineItemSkus(tag: Tag)
     extends FoxTable[ReturnLineItemSku](tag, "return_line_item_skus") {
-  def id          = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def id          = column[Int]("id", O.PrimaryKey)
   def returnId    = column[Int]("return_id")
   def skuId       = column[Int]("sku_id")
   def skuShadowId = column[Int]("sku_shadow_id")
@@ -27,6 +25,8 @@ class ReturnLineItemSkus(tag: Tag)
 
   def * =
     (id, returnId, skuId, skuShadowId, createdAt) <> ((ReturnLineItemSku.apply _).tupled, ReturnLineItemSku.unapply)
+
+  def li     = foreignKey(ReturnLineItems.tableName, id, ReturnLineItems)(_.id)
   def sku    = foreignKey(Skus.tableName, skuId, Skus)(_.id)
   def shadow = foreignKey(ObjectShadows.tableName, skuShadowId, ObjectShadows)(_.id)
 }
@@ -43,8 +43,8 @@ object ReturnLineItemSkus
   def findLineItemsByRma(rma: Return)(
       implicit ec: EC): DbResultT[Seq[(Sku, ObjectForm, ObjectShadow, ReturnLineItem)]] =
     (for {
-      li     ← ReturnLineItems.filter(_.returnId === rma.id)
-      liSku  ← li.skuLineItems
+      liSku  ← ReturnLineItemSkus.findByRmaId(rma.id)
+      li     ← ReturnLineItems if liSku.id === li.id
       sku    ← liSku.sku
       shadow ← liSku.shadow
       form   ← ObjectForms if form.id === sku.formId

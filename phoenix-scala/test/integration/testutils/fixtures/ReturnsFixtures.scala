@@ -158,7 +158,6 @@ trait ReturnsFixtures
     val skuPayload = ReturnSkuLineItemPayload(sku = product.code,
                                               quantity = 1,
                                               reasonId = returnReason.id,
-                                              isReturnItem = true,
                                               inventoryDisposition = ReturnLineItem.Putaway)
 
     val shippingCostItemId =

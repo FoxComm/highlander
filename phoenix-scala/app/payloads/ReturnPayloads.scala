@@ -44,7 +44,6 @@ object ReturnPayloads {
   case class ReturnSkuLineItemPayload(sku: String,
                                       quantity: Int,
                                       reasonId: Int,
-                                      isReturnItem: Boolean,
                                       inventoryDisposition: InventoryDisposition)
       extends ReturnLineItemPayload {
 
@@ -82,7 +81,7 @@ object ReturnPayloads {
       extends Validation[ReturnMessageToCustomerPayload] {
 
     def validate: ValidatedNel[Failure, ReturnMessageToCustomerPayload] = {
-      (greaterThanOrEqual(message.length, 0, "Message length") |@| lesserThanOrEqual(
+      (greaterThanOrEqual(message.length, 0, "Message length") |+| lesserThanOrEqual(
               message.length,
               Return.messageToAccountMaxLength,
               "Message length")).map {
@@ -96,7 +95,7 @@ object ReturnPayloads {
 
     def validate: ValidatedNel[Failure, ReturnReasonPayload] = {
       val clue = "Reason name length"
-      (greaterThan(name.length, 0, clue) |@| lesserThanOrEqual(name.length,
+      (greaterThan(name.length, 0, clue) |+| lesserThanOrEqual(name.length,
                                                                reasonNameMaxLength,
                                                                clue)).map {
         case _ ⇒ this
