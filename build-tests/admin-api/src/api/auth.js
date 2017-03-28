@@ -21,7 +21,6 @@
 // Accessible via [auth](#foxapi-auth) property of [FoxApi](#foxapi) instance.
 
 import endpoints from '../endpoints';
-import createError from '../utils/create-error';
 
 export default class Auth {
   constructor(api) {
@@ -29,6 +28,8 @@ export default class Auth {
   }
 
   _processJWT(promise, jwt) {
+    const error = new Error();
+    Error.captureStackTrace(error, this._processJWT);
     return promise.then(
       response => {
         jwt = response.header.jwt;
@@ -36,8 +37,9 @@ export default class Auth {
         return response.body;
       },
       err => {
-        const error = createError(err);
-
+        error.message = err.message || String(err);
+        error.response = err.response;
+        error.responseJson = err.response ? err.response.body : err;
         throw error;
       }
     )

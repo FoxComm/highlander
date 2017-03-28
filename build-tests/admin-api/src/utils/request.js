@@ -1,6 +1,5 @@
 import superagent from 'superagent';
 import makeDebug from 'debug';
-import createError from './create-error';
 
 const debug = makeDebug('foxapi');
 
