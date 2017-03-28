@@ -5,6 +5,39 @@
   composes: checkout-block from '../checkout.css';
 }
 
+
+.title {
+  font-size: 19px;
+  font-weight: 900;
+  color: var(--text-color);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.action-link-payment {
+  composes: action-link from "ui/action-link/action-link.css";
+  font-size: 16px;
+  display: flex;
+  margin-right: 16px;
+}
+
+.plus {
+  margin-right: 8px;
+  width: 12px;
+}
+
+@media (--large) {
+  .action-link-payment {
+    margin-right: 0;
+  }
+}
+
+
 .billing-summary {
   & ul {
     text-align: center;
@@ -109,4 +142,3 @@
   --cvc-height: 19px;
   top: calc(50% - var(--cvc-height) / 2);
 }
-

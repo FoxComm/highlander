@@ -7,10 +7,12 @@ import { connect } from 'react-redux';
 import localized from 'lib/i18n';
 
 // components
-import EditableBlock from 'ui/editable-block';
 import EditBilling from './edit-billing';
 import ViewBilling from './view-billing';
 import PromoCode from 'components/promo-code/promo-code';
+import ActionLink from 'ui/action-link/action-link';
+import Modal from 'ui/modal/modal';
+import Loader from 'ui/loader';
 
 // styles
 import styles from './billing.css';
@@ -39,7 +41,34 @@ class Billing extends Component {
     );
   }
 
-  get viewBilling() {
+  get action() {
+    const { props } = this;
+    let title;
+    let icon;
+
+    if (props.cartState.finished) {
+      if (props.paymentMethods.length > 0) {
+        title = 'Choose';
+      } else {
+        title = 'Add new';
+        icon = {
+          name: 'fc-plus',
+          className: styles.plus,
+        };
+      }
+
+      return (
+        <ActionLink
+          action={props.toggleShippingModal}
+          title={title}
+          styleName="action-link-payment"
+          icon={icon}
+        />
+      );
+    }
+  }
+
+  get content() {
     const { coupon, promotion, totals, creditCard } = this.props;
 
     return (
@@ -73,27 +102,25 @@ class Billing extends Component {
     );
   }
 
-  renderContent() {
-    return (this.props.isEditing) ? this.editBilling : this.viewBilling;
-  }
-
   render() {
-    const { t } = this.props;
-
     return (
-      <EditableBlock
-        isEditing={this.props.isEditing}
-        editAction={this.props.editAction}
-        editAllowed={this.props.editAllowed}
-        styleName="billing"
-        title={t('BILLING')}
-        content={this.renderContent()}
-      />
+      <div>
+        <div styleName="header">
+          <span styleName="title">Payment</span>
+          {this.action}
+        </div>
+        {this.content}
+      </div>
     );
   }
 }
 
-export default connect(state => ({
-  creditCard: state.checkout.creditCard,
-  ...state.cart,
-}))(localized(Billing));
+const mapStateToProps = (state) => {
+  return {
+    creditCard: state.checkout.creditCard,
+    ...state.cart,
+    cartState: _.get(state.asyncActions, 'cart', {}),
+  };
+};
+
+export default connect(mapStateToProps)(localized(Billing));
