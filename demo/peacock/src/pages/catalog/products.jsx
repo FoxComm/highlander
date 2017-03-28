@@ -134,10 +134,9 @@ class Products extends Component {
       }
     } else if (facet in newSelection) {
       const values = newSelection[facet];
-      const newValues = _.filter(values, (v) => {
+      newSelection[facet] = _.filter(values, (v) => {
         return v != value;
       });
-      newSelection[facet] = newValues;
     }
 
     this.setState({selectedFacets: newSelection, sorting: this.state.sorting}, () => {

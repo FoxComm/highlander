@@ -14,7 +14,7 @@ import type { Facet } from 'types/facets';
 
 type FacetsProps = {
   facets: Array<Facet>,
-  onSelect: ?Function,
+  onSelect?: (facet: string, value: string, selected: boolean) => void,
 };
 
 class Facets extends Component {
@@ -25,7 +25,7 @@ class Facets extends Component {
   };
 
   @autobind
-  handleClickFacets(facet, value, selected): void {
+  handleClickFacets(facet: string, value: string, selected: boolean): void {
     if (this.props.onSelect) {
       this.props.onSelect(facet, value, selected);
     }
