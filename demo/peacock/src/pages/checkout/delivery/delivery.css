@@ -36,3 +36,11 @@
     color: var(--text-color);
   }
 }
+
+.shipping-methods {
+  padding: 15px 10px 15px 15px;
+}
+
+.shipping-method {
+
+}

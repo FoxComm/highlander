@@ -18,21 +18,28 @@ import Modal from 'ui/modal/modal';
 // actions
 import { toggleDeliveryModal } from 'modules/checkout.js';
 
-// styles
-import styles from './delivery.css';
-
 // types
 import type { CheckoutBlockProps } from '../types';
+import type { AsyncStatus } from 'types/async-actions';
+
+import styles from './delivery.css';
+
+type Props = CheckoutBlockProps & {
+  cartState: AsyncStatus,
+  toggleDeliveryModal: Function,
+  deliveryModalVisible: boolean,
+  shippingMethod: Object,
+};
 
 class Delivery extends Component {
-  props: CheckoutBlockProps;
+  props: Props;
 
   @autobind
   shippingMethodCost(cost) {
     const { t } = this.props;
 
     return cost == 0
-      ? <div styleName="delivery-cost">{t('FREE')}</div>
+      ? <div styleName="delivery-cost">{t('Free')}</div>
       : <Currency styleName="delivery-cost" value={cost} />;
   }
 
@@ -83,6 +90,8 @@ class Delivery extends Component {
 const mapStateToProps = (state) => {
   return {
     deliveryModalVisible: _.get(state.checkout, 'deliveryModalVisible', false),
+    cartState: _.get(state.asyncActions, 'cart', false),
+    shippingMethod: _.get(state.cart, 'shippingMethod', {}),
   };
 };
 

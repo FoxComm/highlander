@@ -18,11 +18,11 @@ const ViewDelivery = (props: Props) => {
   if (!shippingMethod) return null;
 
   return (
-    <div styleName="delivery">
-      <div styleName="method">{shippingMethod.name}</div>
-      <div styleName="cost">{props.shippingMethodCost(shippingMethod.price)}</div>
+    <div styleName="selected">
+      <div styleName="name">{shippingMethod.name}</div>
+      <div styleName="price">{props.shippingMethodCost(shippingMethod.price)}</div>
     </div>
   );
 };
 
-export default connect(state => state.cart)(ViewDelivery);
+export default ViewDelivery;
