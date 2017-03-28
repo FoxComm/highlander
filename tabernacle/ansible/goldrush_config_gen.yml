@@ -1,6 +1,6 @@
 ---
 
-- name: .env.local generator
+- name: Goldrush Configuration Generator
   hosts: localhost
   connection: local
   vars:
@@ -28,4 +28,4 @@
       private: no
 
   roles:
-    - { role: dev/env_local }
+    - { role: dev/goldrush_cfg }

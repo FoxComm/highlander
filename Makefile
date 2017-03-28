@@ -1,13 +1,13 @@
 # Development environment Makefile
 include makelib
--include .env.local
+-include goldrush.cfg
 header = $(call baseheader, $(1), root)
 
 prepare:
 	sudo pip install -r tabernacle/requirements.txt
 
-dotenv:
-	cd tabernacle && ansible-playbook --inventory-file=inventory/static/dev ansible/goldrush_env_local.yml
+config:
+	cd tabernacle && ansible-playbook --inventory-file=inventory/static/dev ansible/goldrush_config_gen.yml
 
 up:
 	$(call header, Creating GCE Machine)

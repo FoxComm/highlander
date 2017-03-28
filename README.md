@@ -22,13 +22,13 @@ The simplest way to get started is setup a personal developer appliance in Googl
 
 3. [Generate Google service account key](https://cloud.google.com/storage/docs/authentication#generating-a-private-key) and download it in JSON format to your machine.
 
-4. Run `.env.local` generator, required for Vagrant. You'll be prompted for you corporate e-mail and SSH/JSON key locations.
+4. Run config generator, required for Ansible. You'll be prompted for you corporate e-mail and SSH/JSON key locations.
 
     ```
-    $ make dotenv
+    $ make config
     ```
 
-5. Pre-configure Ansible by running:
+5. Install Ansible dependencies by running:
 
     ```
     $ make prepare

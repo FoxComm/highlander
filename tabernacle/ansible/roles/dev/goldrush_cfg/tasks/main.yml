@@ -19,4 +19,4 @@
   when: google_instance_name == ""
 
 - name: Overwrite Highlander .env.local
-  template: src=env.local.j2 dest="{{highlander_path_out.stdout}}/.env.local"
+  template: src=goldrush.cfg.j2 dest="{{highlander_path_out.stdout}}/goldrush.cfg"

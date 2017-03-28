@@ -72,9 +72,9 @@ shortcuts:
     target: ansible/bootstrap_sinopia.yml
 
   # Goldrush
-  - name: Generate .env.local
-    alias: env_local.yml
-    target: ansible/goldrush_env_local.yml
+  - name: Generate Goldrush Configuration
+    alias: goldrush_cfg.yml
+    target: ansible/goldrush_config_gen.yml
 
   - name: Create Feature Branch Pipeline
     alias: feature_branch.yml
