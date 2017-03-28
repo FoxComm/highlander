@@ -1,0 +1,115 @@
+
+@miniclass CreditCard (CreditCards)
+@aka creditcard
+
+@field id: Number = 1
+Unique identifier.
+
+@field customerId: Number = 1
+Customer ID.
+
+@field holderName: String = `John Smith`
+Cardholder name.
+
+@field lastFour: String = `8752`
+Last four digits.
+
+@field expMonth: Number = 4
+Expiration month.
+
+@field expYear: Number = 2020
+Expiration year.
+
+@field isDefault: Boolean = false
+Defines whether credit card is default.
+
+@field inWallet: Boolean = false
+Defines whether credit card is in wallet.
+
+@field brand: String = `Visa`
+Brand name.
+
+@field address: Address
+Billing address.
+
+@miniclass CreditCardCreatePayload (CreditCards)
+@aka creditcardcreatepayload
+
+@field token: String = `tok_absj22123mjssm`
+stripe.js credit card token.
+
+@field lastFour: String = `1234`
+Last four digits of card number.
+
+@field expYear: Number = 2020
+Expiration year.
+
+@field expMonth: Number = 4
+Expiration month.
+
+@field brand: String = `Visa`
+Credit card brand.
+
+@field holderName: String = `John Smith`
+Cardholder name.
+
+@field billingAddress: CreateAddressPayload
+Billing address.
+
+@field addressIsNew: Boolean = false
+If the billing address was just created.
+
+@miniclass CreditCardUpdatePayload (CreditCards)
+@aka creditcardupdatepayload
+
+@field holderName?: String = `John Smith`
+Cardholder name.
+
+@field expMonth?: Number = 4
+Expiration month.
+
+@field expYear?: Number = 2020
+Expiration year.
+
+@field address?: CreateAddressPayload
+Billing address.
+
+@field addressId?: Number
+Billing address ID.
+
+@miniclass CreditCardsResponse (CreditCards)
+@aka creditcardsresponse
+
+
+@miniclass IssueCreditCardTokenPayload (CreditCards)
+@aka issuecreditcardtokenpayload
+
+@field customerId: Number = 1
+Customer ID.
+
+@field cardNumber: String = `4242424242424242`
+Credit card number.
+
+@field expMonth: Number = 4
+Expiration month.
+
+@field expYear: Number = 2020
+Expiration year.
+
+@field cvv: Number = 123
+Credit card CVV.
+
+@field address: Address
+Billing address.
+
+@miniclass CreditCardTokenResponse (CreditCards)
+@aka creditcardtokenresponse
+
+@field token: String = `tok_absj22123mjssm`
+stripe.js credit card token.
+
+@field brand: String = `Visa`
+Credit card brand.
+
+@field lastFour: String = `1234`
+Last four digits of card number.

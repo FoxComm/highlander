@@ -1,0 +1,55 @@
+
+@miniclass PromotionApplyType (Promotions)
+@aka promotionapplytype
+
+@field applyType: String = `auto`
+Promotion apply-type (either coupon or automatic).
+Available values:
+<ul class="collapsible collapsed">
+<li>`auto`</li>
+<li>`coupon`</li>
+</ul>
+
+@miniclass PromotionIlluminated (Promotions)
+@aka promotionilluminated
+@inherits PromotionApplyType
+
+@field id: Number = 1
+Promotion ID.
+
+@field context: String = `default`
+Related context.
+
+@field attributes: String = `<json>`
+Promotion attributes.
+
+@field discounts: Array<DiscountIlluminated>
+Related illuminated discounts.
+
+@miniclass DiscountIlluminated (Promotions)
+@aka discountilluminated
+
+@field id: Number = 1
+Promotion form ID.
+
+@field context?: String = `default`
+Related context.
+
+@field attributes: String = `<json>`
+Promotion form attributes.
+
+@miniclass PromotionPayload (Promotions)
+@aka promotionpayload
+@inherits PromotionApplyType
+
+@field attributes: String = `<json>`
+Promotion form attributes.
+
+@field discounts: Array<CreateDiscountForm>
+Promotion form discounts.
+
+@miniclass CreateDiscountForm (Promotions)
+@aka creatediscountform
+
+@field attributes: String = `<json>`
+Discount form attributes.

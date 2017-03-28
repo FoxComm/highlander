@@ -1,0 +1,24 @@
+
+@miniclass SkuPayload (Skus)
+@aka skupayload
+
+@field attributes: String = `<json>`
+SKU attributes.
+
+@miniclass SkuResponse (Skus)
+@aka skuresponse
+
+@field id: Number = 1
+SKU ID.
+
+@field attributes: String = `<json>`
+SKU attributes.
+
+@field context: ObjectContext
+Related context.
+
+@field albums: Array<AlbumResponse>
+SKU albums.
+
+@field archivedAt?: String = `2020-01-01T12:00:00Z`
+Archiving date.

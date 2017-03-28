@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>{{ title }}</title>
+	<meta charset="utf-8">
+
+	<link rel="stylesheet" href="http://leafletjs.com/docs/css/normalize.css" />
+	<link rel="stylesheet" href="http://leafletjs.com/docs/css/main.css" />
+	<script src="http://leafletjs.com/docs/highlight/highlight.pack.js"></script>
+	<link rel="stylesheet" href="http://leafletjs.com/docs/highlight/styles/github-gist.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/evil-icons/1.7.8/evil-icons.min.css">
+    <script src="https://cdn.jsdelivr.net/evil-icons/1.7.8/evil-icons.min.js"></script>
+</head>
+<body class='api-page'>
+	<div class='container'>
+
+	<h2>FoxCommerce API reference</h2>
+    <div id="toc" class="clearfix">
+        <div class="toc-col map-col">
+            <h4>FoxApi</h4>
+            <ul>
+                <li><a href="#foxapi-example">Usage example</a></li>
+                <li><a href="#foxapi-option">Options</a></li>
+                <li><a href="#foxapi-property">Properties</a></li>
+            </ul>
+            <h4>Utils</h4>
+            <ul>
+                <li><a href="#utils">Utils methods</a></li>
+            </ul>
+        </div>
+        <div class="toc-col">
+            <h4>FoxApi namespaces</h4>
+            <ul>
+                <li><a href="#auth">Auth</a></li>
+                <li><a href="#account">Account</a></li>
+                <li><a href="#addresses">Addresses</a></li>
+                <li><a href="#albums">Albums</a></li>
+                <li><a href="#notes">Notes</a></li>
+                <li><a href="#cart">Customer Cart</a></li>
+                <li><a href="#carts">Carts</a></li>
+                <li><a href="#orders">Orders</a></li>
+                <li><a href="#creditcards">Credit Cards</a></li>
+                <li><a href="#storecredits">Store Credits</a></li>
+                <li><a href="#customers">Customers</a></li>
+                <li><a href="#customeraddresses">Customer Addresses</a></li>
+                <li><a href="#customercreditcards">Customer Credit Cards</a></li>
+                <li><a href="#customergroups">Customer Groups</a></li>
+                <li><a href="#skus">SKUs</a></li>
+                <li><a href="#products">Products</a></li>
+                <li><a href="#productalbums">Product Albums</a></li>
+                <li><a href="#giftcards">Gift Cards</a></li>
+                <li><a href="#promotions">Promotions</a></li>
+                <li><a href="#coupons">Coupons</a></li>
+                <li><a href="#couponcodes">Coupon Codes</a></li>
+                <li><a href="#inventories">Inventories</a></li>
+                <li><a href="#orders">Orders</a></li>
+                <li><a href="#sharedsearches">Shared Searches</a></li>
+                <li><a href="#storeadmins">Store Admins</a></li>
+                <li><a href="#dev">Dev</a></li>
+            </ul>
+        </div>
+    </div>
+
+	{{{ body }}}
+
+	</div>
+    <script src="http://leafletjs.com/docs/js/docs.js"></script>
+	<script>
+	hljs.configure({tabReplace: '    '});
+	hljs.initHighlightingOnLoad();
+
+
+	var elems = document.querySelectorAll('div.accordion');
+	for (var i = 0, len = elems.length; i < len; i++) {
+		var el = elems[i];
+
+		el.querySelector('label').addEventListener('click', function(c){
+			return function() {
+				if (c.className === 'accordion expanded') {
+					c.className = 'accordion collapsed';
+				} else {
+					c.className = 'accordion expanded';
+				}
+				console.log(c);
+			};
+		}(el));
+
+// 		el.className = 'accordion collapsed';
+// 		el.querySelector('.accordion-content').style.display = 'none';
+	}
+
+    function navigateToTarget(e) {
+        if (e.offsetX < 0) {
+            window.location.hash = '#' + this.id;
+        }
+    }
+
+    var rows = document.querySelectorAll('table tr');
+    for (var i = 0, len = rows.length; i < len; i++) {
+        rows[i].onclick = navigateToTarget;
+    }
+
+    var headers = document.querySelectorAll('h2[id]');
+    for (var i = 0, len = headers.length; i < len; i++) {
+        headers[i].onclick = navigateToTarget;
+    }
+
+    [].map.call(document.querySelectorAll('ul.collapsible'), function(ul) {
+        ul.addEventListener('click', function(event) {
+            ul.classList.toggle('collapsed');
+            event.stopPropagation();
+        });
+    });
+
+    </script>
+<style>
+    .api-page .toc-col {
+        width: initial !important;
+    }
+
+	div.accordion {
+		width: 100%;
+		overflow: hidden;
+	}
+
+	div.accordion > label,
+	section.collapsable h4 {
+		display: block;
+		background: #EEE;
+		padding: 0.5em 1em;
+		font-weight: bold;
+		font-size: 12px;
+		margin: 0;
+	}
+
+	div.accordion > label {
+		cursor: pointer;
+	}
+
+	div.accordion > div.accordion-content {
+		max-height: 0;
+		display: none;
+	}
+
+	div.accordion.collapsed > div.accordion-content {
+		animation-duration: 0.4s;
+		animation-name: collapse;
+/* 		height: 0; */
+		max-height: 0;
+		display: block;
+	}
+
+	div.accordion.expanded > div.accordion-content {
+		animation-duration: 0.4s;
+		animation-name: expand;
+/* 		height: auto; */
+		max-height: none;
+		display: block;
+	}
+
+	@keyframes collapse {
+		0% { max-height: 100vh; }
+		100% { max-height: 0; }
+	}
+
+	@keyframes expand {
+		0% { max-height: 0; }
+		100% { max-height: 100vh; }
+	}
+
+/*	div.accordion > div.accordion-content {
+		transition: max-height 0.4s ease-out 0s;
+	}*/
+
+	div.accordion.expanded > label > span.expander {
+		transform: rotate(90deg);
+	}
+
+	div.accordion > label > span.expander {
+		transition: transform 0.4s ease-out 0s;
+		display: inline-block;
+	}
+
+	table {
+		margin-bottom: 0;
+	}
+
+    section.collapsable {
+        margin-bottom: 20px;
+    }
+
+	section.collapsable {
+/* 		background: pink; */
+	}
+
+	section.collapsable div.section-comments {
+		background: #eee;
+		padding: 0 1em;
+		font-size: 12px;
+	}
+
+	section.collapsable pre {
+		margin:0;
+	}
+
+	section.collapsable p:last-child {
+		margin-bottom: 0;
+	}
+
+    ul.collapsible {
+        position: relative;
+        padding: 0;
+        margin: 0;
+        padding-left: 32px;
+        pointer-events: none;
+    }
+
+    ul.collapsible.collapsed li code {
+        white-space: nowrap;
+    }
+
+    ul.collapsed {
+        list-style-type: none;
+        padding-left: 0;
+        overflow: hidden;
+        max-width: 260px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    ul.collapsible::before {
+        cursor: pointer;
+        pointer-events: auto;
+        padding-right: 5px;
+    }
+
+    ul.collapsible:not(.collapsed)::before {
+        content: "-";
+        position: absolute;
+        left: 0;
+        top: 0;
+    }
+
+    ul.collapsed.collapsed::before {
+        content: "+";
+    }
+
+    ul.collapsed li {
+        display: inline;
+    }
+
+    ul.collapsed li::after {
+        content: ",";
+    }
+
+    ul.collapsed li:last-child::after {
+        content: "";
+    }
+
+</style>
+</body></html>

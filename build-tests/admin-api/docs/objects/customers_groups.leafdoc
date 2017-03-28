@@ -1,0 +1,43 @@
+
+@miniclass GroupResponse (CustomerGroups)
+@aka groupresponse
+@inherits LineItemState
+
+@field id: Number = 1
+Unique identifier.
+
+@field name: String = `Super Awesome Group`
+Name of group.
+
+@field email: String = `john@smith.com`
+E-mail.
+
+@field clientState: String = `<json>`
+client json state,.
+
+@field elasticRequest: String = `<json>
+client json state.
+
+@field customersCount?: Number = 15
+Customers count in group.
+
+@field updatedAt: String = `2020-01-01T12:00:00Z`
+Last update time.
+
+@field createdAt: String = `2020-01-01T12:00:00Z`
+Creation time.
+
+@miniclass GroupPayload (CustomerGroups)
+@aka grouppayload
+
+@field name: String = `New group name`
+New name of group.
+
+@field clientState: String = `<json>`
+client json state,.
+
+@field elasticRequest: String = `<json>
+client json state.
+
+@field customersCount?: Number = 15
+Customers count in group.

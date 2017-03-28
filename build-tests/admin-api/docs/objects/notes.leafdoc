@@ -1,0 +1,30 @@
+
+@miniclass AdminNote (Notes)
+@aka adminnote
+
+@field id: Number = 1
+Unique identifier.
+
+@field body: String = `Lorem ipsum`
+Note message.
+
+@field author: NoteAuthor
+Note author.
+
+@field createdAt: String = `2020-01-01T12:00:00Z`
+Creation date.
+
+@miniclass NotePayload (Notes)
+@aka notepayload
+
+@field body: String = `Lorem ipsum`
+Note message.
+
+@miniclass NoteAuthor (Notes)
+@aka noteauthor
+
+@field name: String = `John Smith`
+Author name.
+
+@field email: String = `john@smith.com`
+E-mail.

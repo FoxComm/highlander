@@ -1,0 +1,36 @@
+{
+  "name": "@foxcomm/admin-api-js",
+  "version": "1.0.0",
+  "description": "Javascript Library for interacting with FoxCommerce Admin API",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "mocha test",
+    "build": "babel src -d lib",
+    "docs": "APIARY_DOCS_PATH=../phoenix-scala/docs/api/docs/objects node ./bin/import-docs.js && node ./bin/make-docs.js",
+    "prepublish": "npm run build"
+  },
+  "keywords": [
+    "foxcommerce",
+    "api"
+  ],
+  "author": "FoxCommerce team",
+  "license": "ISC",
+  "dependencies": {
+    "debug": "^2.2.0",
+    "jwt-decode": "^2.0.1",
+    "lodash": "^4.17.4",
+    "postinstall-build": "^0.2.1",
+    "superagent": "^3.2.1"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.9.0",
+    "babel-plugin-lodash": "^3.2.11",
+    "babel-preset-es2015": "^6.9.0",
+    "babel-preset-stage-1": "^6.5.0",
+    "escape-html": "^1.0.3",
+    "leafdoc": "github:anru/Leafdoc#v1.1",
+    "mkdirp": "^0.5.1",
+    "mocha": "^2.5.2",
+    "nock": "^8.0.0"
+  }
+}

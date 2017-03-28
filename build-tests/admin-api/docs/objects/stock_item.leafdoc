@@ -1,0 +1,19 @@
+
+@miniclass StockItemPayload (FoxApi)
+@aka stockitempayload
+
+@field sku: String = `TEST-SKU`
+Code representing the SKU with which to associate the Stock Item.
+
+@field stockLocationId: Number = 1
+ID of the Stock Location the Stock Item should be a part of.
+
+@field defaultUnitCost?: Number = 0
+A default unit cost to give all new units of a Stock Item.
+
+@miniclass StockItemResponse (FoxApi)
+@aka stockitemresponse
+@inherits StockItemPayload
+
+@field id: Number = 1
+Unique ID.
