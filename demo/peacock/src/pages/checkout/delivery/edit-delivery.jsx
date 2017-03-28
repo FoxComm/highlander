@@ -1,23 +1,23 @@
 /* @flow */
 
+import React, { Component } from 'react';
+
 // libs
 import _ from 'lodash';
-import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import * as tracking from 'lib/analytics';
+import classNames from 'classnames';
 
 // components
 import RadioButton from 'ui/radiobutton/radiobutton';
 import Loader from 'ui/loader';
-import CheckoutForm from '../checkout-form';
+import CheckoutForm from 'pages/checkout/checkout-form';
 
-// types
-
-import type { AsyncStatus } from 'types/async-actions';
 import { saveShippingMethod } from 'modules/checkout';
 
-// styles
+import type { AsyncStatus } from 'types/async-actions';
+
 import styles from './delivery.css';
 
 type ShippingMethodLike = {
@@ -34,15 +34,8 @@ type Props = {
   isLoading: boolean,
   onUpdateCart: (cart: Object) => void,
   saveDeliveryState: AsyncStatus,
+  toggleDeliveryModal: Function,
 };
-
-function mapStateToProps(state) {
-  return {
-    isLoading: _.get(state.asyncActions, ['shippingMethods', 'inProgress'], true),
-    saveDeliveryState: _.get(state.asyncActions, 'saveShippingMethod', {}),
-  };
-}
-
 
 class EditDelivery extends Component {
   props: Props;
@@ -73,18 +66,20 @@ class EditDelivery extends Component {
     return shippingMethods.map((shippingMethod) => {
       const cost = this.props.shippingMethodCost(shippingMethod.price);
       const checked = cart.shippingMethod && cart.shippingMethod.id == shippingMethod.id;
-
+      const methodClasses = classNames(styles['shipping-method'], {
+        [styles.chosen]: checked,
+      });
       return (
-        <div key={shippingMethod.id} styleName="shipping-method">
+        <div key={shippingMethod.id} className={methodClasses}>
           <RadioButton
             name="delivery"
             checked={checked || false}
             onChange={() => this.setShippingMethod(shippingMethod)}
             id={`delivery${shippingMethod.id}`}
           >
-            {shippingMethod.name}
+            <div className={styles['method-name']}>{shippingMethod.name}</div>
           </RadioButton>
-          <div styleName="price">{cost}</div>
+          <div className={styles['method-price']}>{cost}</div>
         </div>
       );
     });
@@ -97,17 +92,33 @@ class EditDelivery extends Component {
       return <Loader size="m" />;
     }
 
+    const action = {
+      title: 'Close',
+      handler: this.props.toggleDeliveryModal,
+    };
+
     return (
       <CheckoutForm
+        buttonLabel="Apply"
         submit={this.handleSubmit}
-        title="DELIVERY METHOD"
+        title="Delivery"
         error={props.saveDeliveryState.err}
         inProgress={props.saveDeliveryState.inProgress}
+        action={action}
       >
-        {this.shippingMethods}
+        <div className={styles['shipping-methods']}>
+          {this.shippingMethods}
+        </div>
       </CheckoutForm>
     );
   }
+}
+
+function mapStateToProps(state) {
+  return {
+    isLoading: _.get(state.asyncActions, ['shippingMethods', 'inProgress'], true),
+    saveDeliveryState: _.get(state.asyncActions, 'saveShippingMethod', {}),
+  };
 }
 
 export default connect(mapStateToProps, {

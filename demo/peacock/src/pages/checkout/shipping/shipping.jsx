@@ -34,8 +34,8 @@ type Props = {
   addShippingAddress: (address: Address) => Promise<*>,
   updateShippingAddress: (address: Address) => Promise<*>,
   saveShippingAddress: (id: number) => Promise<*>,
-  toggleModal: Function,
-  modalVisible: boolean,
+  toggleShippingModal: Function,
+  shippingModalVisible: boolean,
   saveShippingState: AsyncStatus,
   cartChangeState: AsyncStatus,
   updateAddress: (address: Address, id?: number) => Promise<*>,
@@ -92,7 +92,7 @@ class Shipping extends Component {
 
       return (
         <ActionLink
-          action={props.toggleModal}
+          action={props.toggleShippingModal}
           title={title}
           styleName="action-link-addresses"
           icon={icon}
@@ -113,15 +113,15 @@ class Shipping extends Component {
   }
 
   get content() {
-    const { toggleModal, modalVisible, shippingAddress } = this.props;
+    const { toggleShippingModal, shippingModalVisible, shippingAddress } = this.props;
 
     if (this.state.fetchedAddresses) {
       return (
         <div>
           {this.addressDetails}
           <Modal
-            show={modalVisible}
-            toggle={toggleModal}
+            show={shippingModalVisible}
+            toggle={toggleShippingModal}
           >
             <AddressList {...this.props} activeAddress={shippingAddress} />
           </Modal>
@@ -150,7 +150,7 @@ class Shipping extends Component {
 function mapStateToProps(state) {
   return {
     saveShippingState: _.get(state.asyncActions, 'saveShippingAddress', {}),
-    modalVisible: _.get(state.checkout, 'modalVisible', false),
+    shippingModalVisible: _.get(state.checkout, 'shippingModalVisible', false),
     addressesState: _.get(state.asyncActions, 'addresses', {}),
     updateAddressState: _.get(state.asyncActions, 'updateAddress', false),
     cartChangeState: _.get(state.asyncActions, 'cartChange', false),

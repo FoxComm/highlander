@@ -39,7 +39,8 @@ export const setBillingData = createAction('CHECKOUT_SET_BILLING_DATA', (key, va
 export const resetBillingData = createAction('CHECKOUT_RESET_BILLING_DATA');
 export const loadBillingData = createAction('CHECKOUT_LOAD_BILLING_DATA');
 export const setBillingAddress = createAction('CHECKOUT_SET_BILLING_ADDRESS');
-export const toggleModal = createAction('TOGGLE_MODAL');
+export const toggleShippingModal = createAction('TOGGLE_SHIPPING_MODAL');
+export const toggleDeliveryModal = createAction('TOGGLE_DELIVERY_MODAL');
 const markAddressAsDeleted = createAction('CHECKOUT_MARK_ADDRESS_AS_DELETED');
 const markAddressAsRestored = createAction(
   'CHECKOUT_MARK_ADDRESS_AS_RESTORED',
@@ -424,7 +425,8 @@ const initialState: CheckoutState = {
   addresses: [],
   isAddressLoaded: false,
   creditCard: null,
-  modalVisible: false,
+  shippingModalVisible: false,
+  deliveryModalVisible: false,
 };
 
 function sortAddresses(addresses: Array<Address>): Array<Address> {
@@ -530,11 +532,18 @@ const reducer = createReducer({
     }
     return state;
   },
-  [toggleModal]: (state) => {
-    const visibleCurrent = _.get(state, 'modalVisible', false);
+  [toggleShippingModal]: (state) => {
+    const visibleCurrent = _.get(state, 'shippingModalVisible', false);
     return {
       ...state,
-      modalVisible: !visibleCurrent,
+      shippingModalVisible: !visibleCurrent,
+    };
+  },
+  [toggleDeliveryModal]: (state) => {
+    const visibleCurrent = _.get(state, 'deliveryModalVisible', false);
+    return {
+      ...state,
+      deliveryModalVisible: !visibleCurrent,
     };
   },
   [resetCheckout]: () => {

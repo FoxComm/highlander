@@ -1,39 +1,75 @@
+@import "colors.css";
+@import "media-queries.css";
+
+.title {
+  font-size: 19px;
+  font-weight: 900;
+  color: var(--text-color);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.action-link-delivery {
+  composes: action-link from "ui/action-link/action-link.css";
+  font-size: 16px;
+  margin-right: 16px;
+}
+
 .delivery {
-  composes: checkout-block from '../checkout.css';
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-bottom: 15px;
+  padding-right: 6px;
+  font-size: 14px;
+
+  & .method {
+    line-height: 1.33;
+    color: var(--text-color);
+  }
+
+  & .cost {
+    font-weight: 900;
+    line-height: 1.33;
+    color: var(--text-color);
+  }
+}
+
+.shipping-methods {
+  padding: 15px 10px 15px 15px;
 }
 
 .shipping-method {
-  margin: 0 0 15px;
   display: flex;
-  text-transform: uppercase;
-
-  & > div:first-child {
-    flex-grow: 1;
-  }
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 7px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  margin-bottom: 10px;
+  line-height: 1.6;
 }
 
-.price {
-  font-weight: 300;
+.chosen {
+  background: var(--select-active-background);
+  border-color: transparent;
 }
 
-.selected {
-  padding: 15px 0;
-  text-align: center;
-  text-transform: uppercase;
-
-  & .name {
-    margin-bottom: 10px;
-    font-weight: 300;
-  }
-
-  & .price {
-    font-weight: 500;
-  }
+.method-name {
+  font-weight: 900;
 }
 
 @media (--large) {
-  .shipping-method,
-  .selected {
-    font-size: 15px;
+  .delivery {
+    padding-right: 0;
+  }
+
+  .action-link-delivery {
+    margin-right: 0;
   }
 }
