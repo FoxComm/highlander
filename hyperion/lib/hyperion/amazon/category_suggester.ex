@@ -31,12 +31,14 @@ defmodule Hyperion.Amazon.CategorySuggester do
   Suggests category only by title
   """
   def suggest_categories(%{title: title, limit: _limit}, cfg) do
-    asin = get_product_asin(title, cfg)
-    primary = get_primary_category(asin, cfg)
-    case primary[:data] do
-      nil -> %{primary: nil, secondary: nil, count: 0}
-      _ -> %{primary: primary[:data], secondary: nil, count: Enum.count primary[:data]}
-    end
+    (from c in Category, limit: 10) |> Hyperion.Repo.all
+    # We should keep the next code
+    # asin = get_product_asin(title, cfg)
+    # primary = get_primary_category(asin, cfg)
+    # case primary[:data] do
+    #   nil -> %{primary: nil, secondary: nil, count: 0}
+    #   _ -> %{primary: primary[:data], secondary: nil, count: Enum.count primary[:data]}
+    # end
   end
 
   @doc """
@@ -90,14 +92,14 @@ defmodule Hyperion.Amazon.CategorySuggester do
   end
 
   defp fetch_secondary_categories(q, nil, limit) do
-    (from c in Category, where: ilike(c.node_path,^"%#{String.downcase(q)}%") 
+    (from c in Category, where: ilike(c.node_path,^"%#{String.downcase(q)}%")
      and not is_nil(c.node_id) and not is_nil(c.department) and not is_nil(c.item_type), limit: ^limit)
     |> Hyperion.Repo.all
   end
 
   defp fetch_secondary_categories(q, node_id, limit) do
     (from c in Category,
-     where: ilike(c.node_path,^"%#{String.downcase(q)}%") 
+     where: ilike(c.node_path,^"%#{String.downcase(q)}%")
      and c.node_id != ^node_id and not is_nil(c.node_id)
      and not is_nil(c.department) and not is_nil(c.item_type),
      limit: ^limit)
