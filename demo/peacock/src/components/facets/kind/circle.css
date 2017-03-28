@@ -21,6 +21,7 @@
   font-weight: normal;
   vertical-align: -6px;
   color: #888888;
+  user-select: none;
 }
 
 .circle-checkbox input[type=checkbox]:checked + div {
