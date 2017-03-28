@@ -7,7 +7,10 @@ import com.stripe.model.DeletedCard
 import org.mockito.ArgumentMatcher
 import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
+import org.mockito.invocation.InvocationOnMock
+import org.mockito.stubbing.Answer
 import org.scalatest.mockito.MockitoSugar
+import scala.util.{Random, Try}
 import testutils.TestBase
 import utils.TestStripeSupport.randomStripeishId
 import utils.aliases._
@@ -54,7 +57,29 @@ trait MockedApis extends MockitoSugar {
     when(mocked.deleteCard(any())).thenReturn(Result.good(new DeletedCard()))
 
     when(mocked.captureCharge(any(), any())).thenReturn(Result.good(new StripeCharge))
-    when(mocked.createCharge(any())).thenReturn(Result.good(new StripeCharge))
+    when(mocked.createCharge(any())).thenAnswer(new Answer[Result[StripeCharge]] {
+      def answer(invocation: InvocationOnMock): Result[StripeCharge] = {
+        val map    = invocation.getArgument[Map[String, AnyRef]](0)
+        val charge = new StripeCharge
+        map.get("amount").flatMap(s ⇒ Try(s.toString.toInt).toOption).foreach(charge.setAmount(_))
+        map.get("currency").foreach(s ⇒ charge.setCurrency(s.toString))
+        charge.setId(Random.nextString(10))
+        Result.good(charge)
+      }
+    })
+    when(mocked.refundCharge(any(), any())).thenAnswer(new Answer[Result[StripeCharge]] {
+      def answer(invocation: InvocationOnMock): Result[StripeCharge] = {
+        val id     = invocation.getArgument[String](0)
+        val map    = invocation.getArgument[Map[String, AnyRef]](1)
+        val charge = new StripeCharge
+        map
+          .get("amount")
+          .flatMap(s ⇒ Try(s.toString.toInt).toOption)
+          .foreach(charge.setAmountRefunded(_))
+        charge.setId(id)
+        Result.good(charge)
+      }
+    })
 
     mocked
   }

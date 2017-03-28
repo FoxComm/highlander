@@ -41,7 +41,10 @@ object Main extends App with LazyLogging {
     logger.info("Startup process complete")
   } catch {
     case e: Throwable ⇒
-      logger.error(s"${e.getMessage}\nExiting now!")
+      val cause = Option(e.getCause).fold("") { c ⇒
+        s"\nCaused by $c"
+      }
+      logger.error(s"$e$cause\nExiting now!")
       Thread.sleep(1000)
       System.exit(1)
   }
@@ -116,6 +119,7 @@ class Service(
         routes.admin.ObjectRoutes.routes ~
         routes.admin.PluginRoutes.routes ~
         routes.admin.TaxonomyRoutes.routes ~
+        routes.admin.ShippingMethodRoutes.routes ~
         routes.service.MigrationRoutes.routes(customerCreateContext, scope.ltree) ~
         pathPrefix("service") {
           routes.service.PaymentRoutes.routes ~ //Migrate this to auth with service tokens once we have them

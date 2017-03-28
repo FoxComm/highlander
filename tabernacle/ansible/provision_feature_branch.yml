@@ -1,6 +1,6 @@
 ---
 
-- name: Provision Returns Feature Branch Instance
+- name: Provision Feature Branch Instance
   hosts: "{{hostname}}"
   become: true
   vars:

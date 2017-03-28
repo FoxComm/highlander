@@ -70,7 +70,7 @@ object ShippingMethods
 
   val returningLens: Lens[ShippingMethod, Int] = lens[ShippingMethod].id
 
-  def findActive: Query[ShippingMethods, ShippingMethod, Seq] = filter(_.isActive === true)
+  def findActive: QuerySeq = filter(_.isActive === true)
 
   def findActiveById(id: Int): QuerySeq = findActive.filter(_.id === id)
 
