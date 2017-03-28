@@ -1,7 +1,6 @@
 package utils.seeds
 
 import com.github.tminglei.slickpg.LTree
-
 import cats._
 import cats.data._
 import cats.implicits._
@@ -10,6 +9,7 @@ import com.typesafe.config.Config
 import failures.UserFailures._
 import failures.{Failures, FailuresOps, NotFoundFailure404}
 import java.time.{Instant, ZoneId}
+
 import models.Reasons
 import models.account._
 import models.activity.ActivityContext
@@ -17,6 +17,7 @@ import models.auth.UserToken
 import models.objects.ObjectContexts
 import models.product.SimpleContext
 import org.postgresql.ds.PGSimpleDataSource
+
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
@@ -27,6 +28,7 @@ import slick.driver.PostgresDriver.backend.DatabaseDef
 import utils.aliases._
 import utils.db._
 import utils.db.flyway.newFlyway
+import utils.seeds.Seeds.runStage
 import utils.seeds.generators.SeedsGenerator
 import utils.{ADT, FoxConfig}
 
@@ -131,18 +133,18 @@ object Seeds {
           flyWayMigrate(config)
         }
 
-        if (cfg.seedBase) createBaseSeeds
-        if (cfg.seedShippingRules) createShippingRulesSeeds
+        if (cfg.seedBase) runStage("Inserting Base Seeds", createBase)
+        if (cfg.seedShippingRules) runStage("Inserting Shipping Seeds", createShipmentRules)
         if (cfg.seedAdmins) createStageAdminsSeeds
         if (cfg.seedRandom > 0)
           createRandomSeeds(cfg.seedRandom, cfg.customersScaleMultiplier)
         if (cfg.seedStage) {
           val adminId = mustGetFirstAdmin.id
-          createStageSeeds(adminId)
+          runStage("Inserting Stage seeds", createStage(adminId))
         }
         if (cfg.seedDemo > 0) {
           val adminId = mustGetFirstAdmin.id
-          createStageSeeds(adminId)
+          runStage("Inserting Stage seeds", createStage(adminId))
           createRandomSeeds(cfg.seedDemo, cfg.customersScaleMultiplier)
         }
       case CreateAdmin ⇒
@@ -157,26 +159,11 @@ object Seeds {
     db.close()
   }
 
-  def createBaseSeeds(implicit db: DB): Int = {
-    Console.err.println("Inserting Base Seeds")
-    // TODO: Should we really be discarding all warnings here (and git-grep 'runEmptyA')? Rethink! @michalrus
-    val result: Failures Xor Int = Await.result(createBase.runTxn().runEmptyA.value, 4.minutes)
-    validateResults("base", result)
-  }
+  def mustGetFirstAdmin(implicit db: DB, ec: EC, ac: AC): User = {
+    @inline def getFirstAdmin(implicit db: DB): DbResultT[User] =
+      Users.take(1).mustFindOneOr(NotFoundFailure404(User, "first"))
 
-  def createShippingRulesSeeds(implicit db: DB): Int = {
-    Console.err.println("Inserting Shipping Seeds")
-    val result: Failures Xor Int =
-      Await.result(createShipmentRules.runTxn().runEmptyA.value, 4.minutes)
-    validateResults("shipping", result)
-  }
-
-  def getFirstAdmin(implicit db: DB): DbResultT[User] =
-    Users.take(1).mustFindOneOr(NotFoundFailure404(User, "first"))
-
-  def mustGetFirstAdmin(implicit db: DB): User = {
-    val result = Await.result(getFirstAdmin.runDBIO().runEmptyA.value, 1.minute)
-    validateResults("get first admin", result)
+    runStage("Get first admin", getFirstAdmin)
   }
 
   def createStageAdminsSeeds(implicit db: DB, ec: EC, ac: AC): Int = {
@@ -186,26 +173,32 @@ object Seeds {
       admins ← * <~ Factories.createStoreAdmins
     } yield admins
 
-    val result: Failures Xor Int = Await.result(r.runDBIO().runEmptyA.value, 4.minutes)
-    validateResults("admins", result)
+    runStage("Admins", r)
   }
 
   def createAdminManually(name: String, email: String, org: String, roles: List[String])(
       implicit db: DB,
       ec: EC,
       ac: AC): User = {
-    Console.err.println("Create Store Admin seeds")
-    val result: Failures Xor User = Await.result(
-        Factories.createStoreAdminManual(name, email, org, roles).runTxn().runEmptyA.value,
-        1.minute)
-    validateResults("admin", result)
+    runStage("Create Store Admin seeds", Factories.createStoreAdminManual(name, email, org, roles))
+  }
+
+  def createDefaultDictionariesSeeds(adminId: Int)(implicit db: DB, ac: AC, ec: EC) {
+    runStage("Create default dictionary values", createDefaultDictionaries(adminId))
   }
 
   def createStageSeeds(adminId: Int)(implicit db: DB, ac: AC) {
-    Console.err.println("Inserting Stage seeds")
-    val result: Failures Xor Unit =
-      Await.result(createStage(adminId).runTxn().runEmptyA.value, 4.minutes)
-    validateResults("stage", result)
+    runStage("Inserting Stage seeds", createStage(adminId))
+  }
+
+  def runStage[T](name: String, f: DbResultT[T], waitFor: FiniteDuration = 4.minute)(
+      implicit db: DB,
+      ec: EC,
+      ac: AC): T = {
+    Console.err.println(name) // todo Do we need `err` level here?
+    // TODO: Should we really be discarding all warnings here (and git-grep 'runEmptyA')? Rethink! @michalrus
+    val result: Failures Xor T = Await.result(f.runTxn().runEmptyA.value, waitFor)
+    validateResults(name, result)
   }
 
   val MERCHANT       = "merchant"
@@ -225,8 +218,6 @@ object Seeds {
     } yield (organization, merchant, account, claims)
 
   def createRandomSeeds(scale: Int, customersScaleMultiplier: Int)(implicit db: DB, ac: AC) {
-    Console.err.println("Inserting random seeds")
-
     val customers            = customersScaleMultiplier * scale
     val batchSize            = Math.min(100, customers)
     val appeasementsPerBatch = 8
@@ -253,8 +244,7 @@ object Seeds {
            }
       } yield {}
 
-      val result = Await.result(r.runTxn().runEmptyA.value, (120 * scale).second)
-      validateResults(s"random batch $b", result)
+      runStage(s"Random batch $b", r)
     }
   }
 
@@ -273,6 +263,12 @@ object Seeds {
 
   def createAdmins(implicit db: DB, ec: EC, ac: AC): DbResultT[Int] =
     Factories.createStoreAdmins
+
+  def createDefaultDictionaries(adminId: Int)(implicit db: DB, ac: AC, ec: EC): DbResultT[Unit] =
+    for {
+      _ ← * <~ Reasons.createAll(Factories.reasons.map(_.copy(storeAdminId = adminId)))
+      _ ← * <~ Factories.createReturnReasons
+    } yield {}
 
   def createStage(adminId: Int)(implicit db: DB, ac: AC): DbResultT[Unit] =
     for {
@@ -293,7 +289,6 @@ object Seeds {
              _          ← * <~ Factories.createCreditCards(customers)
              products   ← * <~ Factories.createProducts
              ruProducts ← * <~ Factories.createRuProducts(products)
-             _          ← * <~ Reasons.createAll(Factories.reasons.map(_.copy(storeAdminId = adminId)))
              _          ← * <~ Factories.createGiftCards
              _          ← * <~ Factories.createStoreCredits(adminId, customers._1, customers._3)
              _          ← * <~ Factories.createShipmentRules

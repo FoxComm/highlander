@@ -1,24 +1,25 @@
 package utils.seeds
 
 import scala.concurrent.ExecutionContext.Implicits.global
-
 import models.account.Scope
 import models.cord.Orders
 import models.returns._
 import models.{Note, Notes}
-import utils.aliases.AU
+import utils.aliases.{AU, EC}
 import utils.db._
 
 trait ReturnSeeds {
 
   def createReturns(implicit au:AU): DbResultT[Unit] =
     for {
-      order ← * <~ Orders.findOneById(1).safeGet
-      _     ← * <~ ReturnReasons.createAll(returnReasons)
-      _     ← * <~ Returns.create(rma.copy(orderRef = order.referenceNumber))
       _     ← * <~ ReturnLineItemSkus.createAll(returnLineItemSkus)
       _     ← * <~ ReturnLineItems.createAll(returnLineItems)
       _     ← * <~ Notes.createAll(returnNotes)
+    } yield {}
+
+  def createReturnReasons(implicit ec: EC): DbResultT[Unit] =
+    for {
+      _     ← * <~ ReturnReasons.createAll(returnReasons)
     } yield {}
 
   def rma =
