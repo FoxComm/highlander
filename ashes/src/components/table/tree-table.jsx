@@ -2,7 +2,7 @@
 
 // libs
 import classNames from 'classnames';
-import { each, filter, find, get, isEmpty, values } from 'lodash';
+import { eq, values } from 'lodash';
 import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
 import React, { Component, Element } from 'react';
@@ -88,7 +88,9 @@ class TreeTable extends Component {
   };
 
   componentWillReceiveProps(nextProps: Props) {
-    this.setState({ root: buildTree(nextProps.data.rows, nextProps.idField) });
+    if (!eq(nextProps.data.rows, this.props.data.rows)) {
+      this.setState({ root: buildTree(nextProps.data.rows, nextProps.idField) });
+    }
   }
 
   @autobind

@@ -49,7 +49,7 @@ const MultiSelectRow = (props, context) => {
 
     const onChange = ({ target: { checked } }) => setChecked(checked);
 
-    let cls = classNames(`fct-row__${col.field}`, {
+    const cls = classNames(`fct-row__${col.field}`, {
       'row-head-left': col.field == 'selectColumn',
     });
 
