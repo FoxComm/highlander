@@ -66,7 +66,7 @@ function elasticSearchProductsQuery(rpResponse): Object {
 const _fetchRelatedProducts = createAsyncActions('relatedProducts',
   function(productFormId: number, channelId: number) {
     return this.api.crossSell.crossSellRelated(productFormId, channelId)
-      .then(res => {
+      .then((res) => {
         const payload = elasticSearchProductsQuery(res);
         return this.api.post(
           `/search/public/products_catalog_view/_search?size=${MAX_RESULTS}`, payload
@@ -100,7 +100,7 @@ const reducer = createReducer({
       relatedProducts: response,
     };
   },
-  [clearRelatedProducts]: state => {
+  [clearRelatedProducts]: (state) => {
     return {
       ...state,
       relatedProducts: initialState.relatedProducts,
