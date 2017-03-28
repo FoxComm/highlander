@@ -1,5 +1,8 @@
 ---
 
+- name: Creates Marathon JSON directory
+  file: path=/marathon/applications state=directory
+
 - name: Drop IC Database
   postgresql_db: name={{bernardo_db_name}} state=absent
 
@@ -30,3 +33,7 @@
   shell: FLYWAY_HOME={{flyway_dir}} {{flyway}} migrate
   args:
     chdir: "{{bernardo_dir}}"
+
+- name: Start Neo4j
+  include: app_neo4j.yml
+  when: marathon_restart.neo4j

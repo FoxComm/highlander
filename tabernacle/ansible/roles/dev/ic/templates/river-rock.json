@@ -19,7 +19,14 @@
       "privileged": false,
       "parameters": [],
       "forcePullImage": true
-    }
+    },
+    "volumes": [
+      {
+        "containerPath": "{{docker_logs_dir}}",
+        "hostPath": "{{docker_logs_host_dir}}",
+        "mode": "RW"
+      }
+    ]
   },
   "env": {
     "DB_HOST": "{{docker_db_host}}",
