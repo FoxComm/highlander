@@ -14,7 +14,7 @@ import Shipping from './shipping/shipping';
 import Delivery from './delivery/delivery';
 // import Billing from './billing/billing';
 import GuestAuth from './guest-auth/guest-auth';
-// import OrderSummary from 'components/order-summary/order-summary';
+import Products from 'components/order-summary/product-table';
 import Header from 'components/header/header';
 import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
 import Loader from 'ui/loader';
@@ -176,6 +176,14 @@ class Checkout extends Component {
     );
   }
 
+  get orderContent() {
+    return (
+      <div styleName="order-content">
+        <Products skus={this.props.cart.skus} />
+      </div>
+    );
+  }
+
   get content() {
     /* elements to be added later
     <div styleName="summary">
@@ -221,32 +229,39 @@ class Checkout extends Component {
     if (cartFetched) {
       return (
         <div styleName="wrapper">
-          <div styleName="shipping">
-            <Shipping
-              isEditing={props.editStage}
-              editAction={this.setShippingStage}
-              onComplete={this.setDeliveryStage}
-              addresses={this.props.addresses}
-              fetchAddresses={this.props.fetchAddresses}
-              shippingAddress={_.get(this.props.cart, 'shippingAddress', {})}
-              auth={this.props.auth}
-              isGuestMode={isGuestMode}
-            />
+          <div styleName="left-wrapper">
+            <div styleName="editables">
+              <div styleName="shipping">
+                <Shipping
+                  isEditing={props.editStage}
+                  editAction={this.setShippingStage}
+                  onComplete={this.setDeliveryStage}
+                  addresses={this.props.addresses}
+                  fetchAddresses={this.props.fetchAddresses}
+                  shippingAddress={_.get(this.props.cart, 'shippingAddress', {})}
+                  auth={this.props.auth}
+                  isGuestMode={isGuestMode}
+                />
+              </div>
+              <div styleName="delivery">
+                <Delivery
+                  isEditing={props.editStage}
+                  editAction={this.setDeliveryStage}
+                  onComplete={this.setBillingStage}
+                  shippingMethods={props.shippingMethods}
+                  cart={this.state.cart}
+                  onUpdateCart={this.handleUpdateCart}
+                  fetchShippingMethods={props.fetchShippingMethods}
+                />
+              </div>
+            </div>
+            <div styleName="order-summary">
+              {this.orderContent}
+            </div>
           </div>
-          <div styleName="delivery">
-            <Delivery
-              isEditing={props.editStage}
-              editAction={this.setDeliveryStage}
-              onComplete={this.setBillingStage}
-              shippingMethods={props.shippingMethods}
-              cart={this.state.cart}
-              onUpdateCart={this.handleUpdateCart}
-              fetchShippingMethods={props.fetchShippingMethods}
-            />
+          <div styleName="right-wrapper">
+            {this.orderTotals}
           </div>
-
-          {this.orderTotals}
-
           <GuestAuth
             isEditing={!this.isEmailSetForCheckout()}
             location={this.props.location}
