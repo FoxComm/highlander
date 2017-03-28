@@ -1,6 +1,5 @@
 
 // libs
-import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import React, { PropTypes } from 'react';
 import classNames from 'classnames';
