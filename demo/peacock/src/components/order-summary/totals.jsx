@@ -23,21 +23,12 @@ type Totals = {
 
 type Props = {
   totals: Totals,
-  skus: Array<any>,
   paymentMethods?: Object,
   t: any,
-  isScrolled: boolean,
-  isCollapsed: boolean,
   header?: any,
   className?: string,
-  embedded?: boolean,
   totalTitle?: string,
   orderPlaced?: ?boolean,
-  referenceNumber: string,
-};
-
-type State = {
-  isCollapsed: boolean,
 };
 
 class OrderTotals extends Component {
@@ -45,14 +36,7 @@ class OrderTotals extends Component {
 
   static defaultProps = {
     paymentMethods: {},
-    isCollapsed: true,
-    isScrolled: false,
-    embedded: false,
     totalTitle: 'Grand Total',
-  };
-
-  state: State = {
-    isCollapsed: this.props.isCollapsed,
   };
 
   get giftCards() {
