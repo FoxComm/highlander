@@ -42,5 +42,21 @@
 }
 
 .shipping-method {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  margin-bottom: 10px;
+  line-height: 1.6;
+}
 
+.chosen {
+  background: var(--select-active-background);
+  border-color: transparent;
+}
+
+.method-name {
+  font-weight: 900;
 }

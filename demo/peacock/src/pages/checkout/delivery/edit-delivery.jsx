@@ -1,12 +1,13 @@
 /* @flow */
 
-// libs
 import React, { Component } from 'react';
 
+// libs
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import * as tracking from 'lib/analytics';
+import classNames from 'classnames';
 
 // components
 import RadioButton from 'ui/radiobutton/radiobutton';
@@ -64,18 +65,20 @@ class EditDelivery extends Component {
     return shippingMethods.map((shippingMethod) => {
       const cost = this.props.shippingMethodCost(shippingMethod.price);
       const checked = cart.shippingMethod && cart.shippingMethod.id == shippingMethod.id;
-
+      const methodClasses = classNames(styles['shipping-method'], {
+        [styles.chosen]: checked,
+      });
       return (
-        <div key={shippingMethod.id} className={styles["shipping-method"]}>
+        <div key={shippingMethod.id} className={methodClasses}>
           <RadioButton
             name="delivery"
             checked={checked || false}
             onChange={() => this.setShippingMethod(shippingMethod)}
             id={`delivery${shippingMethod.id}`}
           >
-            {shippingMethod.name}
+            <div className={styles["method-name"]}>{shippingMethod.name}</div>
           </RadioButton>
-          <div styleName="price">{cost}</div>
+          <div className={styles['method-price']}>{cost}</div>
         </div>
       );
     });
