@@ -14,7 +14,6 @@ import Shipping from './shipping/shipping';
 import Delivery from './delivery/delivery';
 // import Billing from './billing/billing';
 import GuestAuth from './guest-auth/guest-auth';
-// import OrderSummary from 'components/order-summary/order-summary';
 import Products from 'components/order-summary/product-table';
 import Header from 'components/header/header';
 import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';

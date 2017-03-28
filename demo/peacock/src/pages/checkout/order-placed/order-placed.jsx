@@ -12,6 +12,7 @@ import localized from 'lib/i18n';
 import Button from 'ui/buttons';
 import Loader from 'ui/loader';
 import OrderTotals from 'components/order-summary/totals';
+import Products from 'components/order-summary/product-table';
 
 // styles
 import styles from './order-placed.css';
@@ -65,6 +66,17 @@ class OrderPlaced extends Component {
     );
   }
 
+  get orderLineitems() {
+    const { orderPlaced, order } = this.props;
+    if (!orderPlaced || !order) {
+      return null;
+    }
+
+    return (
+      <Products skus={order.skus} />
+    );
+  }
+
   render() {
     const { t, orderPlaced } = this.props;
 
@@ -88,6 +100,7 @@ class OrderPlaced extends Component {
           </div>
 
           <div styleName="bordered-block">
+            {this.orderLineItems}
             {this.orderSummary}
           </div>
         </div>
