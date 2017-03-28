@@ -66,7 +66,7 @@ class OrderPlaced extends Component {
     );
   }
 
-  get orderLineitems() {
+  get orderLineItems() {
     const { orderPlaced, order } = this.props;
     if (!orderPlaced || !order) {
       return null;

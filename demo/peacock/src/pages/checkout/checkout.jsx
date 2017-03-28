@@ -231,29 +231,29 @@ class Checkout extends Component {
         <div styleName="wrapper">
           <div styleName="left-wrapper">
             <div styleName="editables">
-            <div styleName="shipping">
-              <Shipping
-                isEditing={props.editStage}
-                editAction={this.setShippingStage}
-                onComplete={this.setDeliveryStage}
-                addresses={this.props.addresses}
-                fetchAddresses={this.props.fetchAddresses}
-                shippingAddress={_.get(this.props.cart, 'shippingAddress', {})}
-                auth={this.props.auth}
-                isGuestMode={isGuestMode}
-              />
-            </div>
-            <div styleName="delivery">
-              <Delivery
-                isEditing={props.editStage}
-                editAction={this.setDeliveryStage}
-                onComplete={this.setBillingStage}
-                shippingMethods={props.shippingMethods}
-                cart={this.state.cart}
-                onUpdateCart={this.handleUpdateCart}
-                fetchShippingMethods={props.fetchShippingMethods}
-              />
-            </div>
+              <div styleName="shipping">
+                <Shipping
+                  isEditing={props.editStage}
+                  editAction={this.setShippingStage}
+                  onComplete={this.setDeliveryStage}
+                  addresses={this.props.addresses}
+                  fetchAddresses={this.props.fetchAddresses}
+                  shippingAddress={_.get(this.props.cart, 'shippingAddress', {})}
+                  auth={this.props.auth}
+                  isGuestMode={isGuestMode}
+                />
+              </div>
+              <div styleName="delivery">
+                <Delivery
+                  isEditing={props.editStage}
+                  editAction={this.setDeliveryStage}
+                  onComplete={this.setBillingStage}
+                  shippingMethods={props.shippingMethods}
+                  cart={this.state.cart}
+                  onUpdateCart={this.handleUpdateCart}
+                  fetchShippingMethods={props.fetchShippingMethods}
+                />
+              </div>
             </div>
             <div styleName="order-summary">
               {this.orderContent}

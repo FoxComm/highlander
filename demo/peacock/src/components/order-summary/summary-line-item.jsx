@@ -13,6 +13,7 @@ type Props = {
   imagePath: string,
   name: string,
   quantity: number,
+  price: number,
   totalPrice: number,
 };
 
