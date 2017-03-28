@@ -28,7 +28,6 @@ import slick.driver.PostgresDriver.backend.DatabaseDef
 import utils.aliases._
 import utils.db._
 import utils.db.flyway.newFlyway
-import utils.seeds.Seeds.runStage
 import utils.seeds.generators.SeedsGenerator
 import utils.{ADT, FoxConfig}
 
@@ -133,25 +132,25 @@ object Seeds {
           flyWayMigrate(config)
         }
 
-        if (cfg.seedBase) runStage("Inserting Base Seeds", createBase)
-        if (cfg.seedShippingRules) runStage("Inserting Shipping Seeds", createShipmentRules)
+        if (cfg.seedBase) step("Insert Base Seeds", createBase)
+        if (cfg.seedShippingRules) step("Insert Shipping Seeds", createShipmentRules)
         if (cfg.seedAdmins) {
           createStageAdminsSeeds
-          runStage("Create default dictionary values", createDefaultDictionaries)
+          step("Create default dictionary values", createDefaultDictionaries)
         }
         if (cfg.seedRandom > 0)
           createRandomSeeds(cfg.seedRandom, cfg.customersScaleMultiplier)
-        if (cfg.seedStage) runStage("Inserting Stage seeds", createStage)
+        if (cfg.seedStage) step("Insert Stage seeds", createStage)
         if (cfg.seedDemo > 0) {
-          runStage("Inserting Stage seeds", createStage)
+          step("Insert Stage seeds", createStage)
           createRandomSeeds(cfg.seedDemo, cfg.customersScaleMultiplier)
         }
       case CreateAdmin ⇒
-        runStage("Create Store Admin seeds",
-                 Factories.createStoreAdminManual(cfg.adminName,
-                                                  cfg.adminEmail,
-                                                  cfg.adminOrg,
-                                                  cfg.adminRoles.split(",").toList))
+        step("Create Store Admin seeds",
+             Factories.createStoreAdminManual(cfg.adminName,
+                                              cfg.adminEmail,
+                                              cfg.adminOrg,
+                                              cfg.adminRoles.split(",").toList))
       case _ ⇒
         System.err.println(usage)
     }
@@ -166,14 +165,14 @@ object Seeds {
       admins ← * <~ Factories.createStoreAdmins
     } yield admins
 
-    runStage("Create stage admins seeds", r)
+    step("Create stage admins seeds", r)
   }
 
-  def runStage[T](name: String, f: DbResultT[T], waitFor: FiniteDuration = 4.minute)(
+  private[this] def step[T](name: String, f: DbResultT[T], waitFor: FiniteDuration = 4.minute)(
       implicit db: DB,
       ec: EC,
       ac: AC): T = {
-    Console.err.println(name) // todo Do we need `err` level here? @aafa
+    Console.out.println(name)
     // TODO: Should we really be discarding all warnings here (and git-grep 'runEmptyA')? Rethink! @michalrus
     val result: Failures Xor T = Await.result(f.runTxn().runEmptyA.value, waitFor)
     validateResults(name, result)
@@ -222,7 +221,7 @@ object Seeds {
            }
       } yield {}
 
-      runStage(s"Random batch $b", r)
+      step(s"Random batch $b", r)
     }
   }
 

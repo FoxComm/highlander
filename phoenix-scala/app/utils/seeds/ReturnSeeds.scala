@@ -17,10 +17,8 @@ trait ReturnSeeds {
       _     ← * <~ Notes.createAll(returnNotes)
     } yield {}
 
-  def createReturnReasons(implicit ec: EC): DbResultT[Unit] =
-    for {
-      _     ← * <~ ReturnReasons.createAll(returnReasons)
-    } yield {}
+  def createReturnReasons(implicit ec: EC): DbResultT[Option[Int]] =
+    ReturnReasons.createAll(returnReasons)
 
   def rma =
     Return(orderId = 1,
