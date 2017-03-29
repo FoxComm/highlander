@@ -4,4 +4,4 @@ RUN mkdir -p /data-import
 WORKDIR /data-import
 ADD . /data-import/
 
-CMD python3 src/main.py 10.240.0.10 both 10
+CMD python3 src/main.py $API_HOST $CMD $MAX

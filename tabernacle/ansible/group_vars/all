@@ -64,6 +64,7 @@ docker_tags:
     orders_anthill: "{{ lookup('env', 'DOCKER_TAG_ORDERS_ANTHILL') | default('master', true) }}"
     anthill: "{{ lookup('env', 'DOCKER_TAG_ANTHILL') | default('master', true) }}"
     neo4j: "{{ lookup('env', 'DOCKER_TAG_NEO4J') | default('master', true) }}"
+    data_import: "{{ lookup('env', 'DOCKER_TAG_DATA_IMPORT') | default('master', true) }}"
 
 # Configurable Marathon re-deploys
 marathon_restart:
@@ -410,6 +411,7 @@ data_import_s3_bucket: fc-dev-assets
 data_import_s3_region: us-west-2
 data_import_listings_path: "/sample_data/listings.json"
 data_import_products_path: "/sample_data/products.json"
+data_import_docker_url: "{{docker_registry}}:5000/data-import:{{docker_tags.data_import}}"
 
 # Various flags
 first_run: false
