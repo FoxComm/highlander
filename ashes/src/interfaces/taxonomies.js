@@ -9,6 +9,10 @@ declare type Taxonomy = TaxonomyDraft & {
   id: number,
 }
 
+declare type LinkedTaxonomy = TaxonomyDraft & {
+  taxonomyId: number,
+}
+
 declare type TaxonomyResult = {
   id: number,
   taxonomyId: number,

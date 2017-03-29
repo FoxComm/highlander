@@ -190,7 +190,7 @@ class ObjectPageDeux extends Component {
     }
 
     if (!object || fetchState.inProgress) {
-      return <div><WaitAnimation /></div>;
+      return <WaitAnimation className={styles.waiting} />;
     }
 
     return (

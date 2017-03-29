@@ -13,7 +13,7 @@ import ObjectDetails from '../object-page/object-details';
 import OptionList from './options/option-list';
 import SkuContentBox from './skus/sku-content-box';
 import InputMask from 'react-input-mask';
-import TaxonomiesListWidget from '../taxonomies/taxonomies-list-widget';
+import TaxonomiesListWidget from '../taxonomies/widget/taxonomies-list-widget';
 
 import { renderFormField } from 'components/object-form/object-form-inner';
 
@@ -150,12 +150,13 @@ export default class ProductForm extends ObjectDetails {
   }
 
   renderTaxonomies() {
-    const addedTaxons = _.get(this.props.object, 'taxons', []);
+    const linkedTaxonomies = _.get(this.props.object, 'taxons', []);
     const productId = _.get(this.props.object, 'id', []);
+
     return (
       <TaxonomiesListWidget
-        addedTaxons={addedTaxons}
         productId={productId}
+        linkedTaxonomies={linkedTaxonomies}
         onChange={this.onTaxonsListChange}
       />
     );

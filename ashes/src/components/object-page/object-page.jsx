@@ -449,7 +449,7 @@ export class ObjectPage extends Component {
     const { actions, namespace } = props;
 
     if ((props.isFetching !== false && !object) || (props.isSchemaFetching !== false || !props.schema)) {
-      return <div><WaitAnimation /></div>;
+      return <WaitAnimation className={styles.waiting} />;
     }
 
     if (!object) {

@@ -12,14 +12,14 @@ import classNames from 'classnames';
 // components
 import { AddButton } from 'components/common/buttons';
 import WaitAnimation from 'components/common/wait-animation';
-import HierarchicalTaxonomyListWidget from './taxons/hierarchical-taxonomy-widget';
-import FlatTaxonomyListWidget from './taxons/flat-taxonomy-widget';
+import HierarchicalTaxonomyListWidget from '../taxons/hierarchical-taxonomy-widget';
+import FlatTaxonomyListWidget from '../taxons/flat-taxonomy-widget';
 import RoundedPill from 'components/rounded-pill/rounded-pill';
 import { bindActionCreators } from 'redux';
 
 // actions
 import { fetchTaxonomyInternal as fetchTaxonomy } from 'modules/taxonomies/details';
-import { deleteProductCurried } from 'modules/taxons/details/taxon';
+import { deleteProductCurried as unlinkProduct } from 'modules/taxons/details/taxon';
 
 // style
 import styles from './taxonomy-widget.css';
@@ -31,10 +31,11 @@ type Props = {
   activeTaxonId: string,
   taxonomy: Taxonomy,
   fetchState: AsyncState,
+  unlinkState: AsyncState,
   fetchTaxonomy: (id: number | string) => Promise<*>,
-  deleteProductCurried: (taxonId: number | string) => Promise<*>,
+  unlinkProduct: (taxonId: number | string) => Promise<*>,
   onChange: Function,
-  addedTaxons: Array<Taxonomy>
+  linkedTaxonomy: Array<LinkedTaxonomy>
 };
 
 class TaxonomyWidget extends Component {
@@ -52,7 +53,7 @@ class TaxonomyWidget extends Component {
 
   @autobind
   handleCloseClick(taxonId) {
-    this.props.deleteProductCurried(taxonId)
+    this.props.unlinkProduct(taxonId)
       .then(response => {
         this.props.onChange(response);
       });
@@ -63,15 +64,15 @@ class TaxonomyWidget extends Component {
     this.setState({ inputOpened: !this.state.inputOpened });
   }
 
-  get addedTaxons() {
-    const taxons = get(this.props.addedTaxons, '0.taxons');
+  get linkedTaxonomy() {
+    const { linkedTaxonomy, unlinkState } = this.props;
 
-    if (!taxons) {
+    if (!linkedTaxonomy || !linkedTaxonomy.taxons) {
       return null;
     }
 
     // temporary hack for hierarchical taxonomies
-    if (this.props.addedTaxons[0].hierarchical) {
+    if (linkedTaxonomy.hierarchical) {
       const sortedTaxons = sortedUniqBy(taxons, (item) => item.id);
 
       return sortedTaxons.map((taxon) => {
@@ -81,49 +82,60 @@ class TaxonomyWidget extends Component {
             onClose={this.handleCloseClick}
             value={taxon.id}
             styleName="pill"
+            inProgress={unlinkState.inProgress}
             key={taxon.id}
           />
         );
       });
     }
 
-    return taxons.map((taxon) => {
-        return (
-          <RoundedPill
-            text={taxon.attributes.name.v}
-            onClose={this.handleCloseClick}
-            value={taxon.id}
-            styleName="pill"
-            key={taxon.id}
-          />
-        );
+    return linkedTaxonomy.taxons.map((taxon) => {
+      return (
+        <RoundedPill
+          text={taxon.attributes.name.v}
+          onClose={this.handleCloseClick}
+          value={taxon.id}
+          styleName="pill"
+          inProgress={unlinkState.inProgress}
+          key={taxon.id}
+        />
+      );
     });
   }
 
-  render() {
-    const { taxonomy, fetchState, title } = this.props;
+  get content() {
+    const { taxonomy, fetchState } = this.props;
 
     if (!taxonomy || fetchState.inProgress && !fetchState.err) {
-      return <div><WaitAnimation /></div>;
+      return <WaitAnimation className={styles.waiting} />;
     }
 
     const opened = this.state.inputOpened;
     const inputClass = classNames(styles.input, { [styles.opened]: opened });
+
+    return (
+      <div>
+        <div className={inputClass}>
+        </div>
+        {this.linkedTaxonomy}
+      </div>
+    );
+  }
+
+  render() {
     const iconClassName = this.state.inputOpened ? 'icon-close' : 'icon-add';
 
     return (
       <div styleName="root">
         <div styleName="header">
           <span styleName="title">
-            {title}
+            {this.props.title}
           </span>
           <span styleName="button">
             <i className={iconClassName} onClick={this.handleAddButton} />
           </span>
         </div>
-        <div className={inputClass}>
-        </div>
-        {this.addedTaxons}
+        {this.content}
       </div>
     );
   }
@@ -140,11 +152,12 @@ const reducer = createReducer({
 const mapState = state => ({
   taxonomy: state.taxonomy,
   fetchState: get(state.asyncActions, 'fetchTaxonomy', {}),
+  unlinkState: get(state.asyncActions, 'taxonDeleteProduct', {}),
 });
 
 const mapActions = (dispatch, props) => ({
   fetchTaxonomy: bindActionCreators(fetchTaxonomy.perform, dispatch),
-  deleteProductCurried: bindActionCreators(deleteProductCurried(props.productId, props.context), dispatch)
+  unlinkProduct: bindActionCreators(unlinkProduct(props.productId, props.context), dispatch)
 });
 
 export default flow(

@@ -1,6 +1,6 @@
 .main {
   align-items: center;
-  background: #3a4350;
+  background-color: #3a4350;
   border-radius: 20px;
   color: #fff;
   display: inline-flex;
@@ -8,8 +8,12 @@
   padding: 6px 15px;
 }
 
-.main-closable {
-  composes: main;
+._loading {
+  composes: loading from '../../css/animations.css';
+  background-color: rgba(58, 67, 80, .8);
+}
+
+.closable {
   padding-right: 6px;
 }
 
