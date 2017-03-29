@@ -2,15 +2,15 @@
 
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { includes, get, flow } from 'lodash';
-import { createReducer } from 'redux-act';
-import { makeLocalStore, addAsyncReducer } from '@foxcomm/wings';
-import { createAsyncActions } from '@foxcomm/wings';
+import { includes, get } from 'lodash';
 
 import { anyPermitted } from 'lib/claims';
 import { frn, readAction } from 'lib/frn';
-import { searchTaxonomies } from 'elastic/taxonomy';
 
+// actions
+import { fetch } from 'modules/taxonomies/flatList';
+
+// components
 import NavigationItem from '../navigation-item';
 import WaitAnimation from 'components/common/wait-animation';
 
@@ -111,28 +111,12 @@ class MerchandisingEntry extends Component {
   }
 }
 
-/*
- * Local redux store
- */
-const fetch = createAsyncActions('fetchTaxonomies', searchTaxonomies);
-
-const reducer = createReducer({
-  [fetch.succeeded]: (state, response) => ({ ...state, taxonomies: get(response, 'result', []) }),
-});
-
 const mapState = state => ({
-  taxonomies: state.taxonomies,
+  taxonomies: state.taxonomies.flatList,
   fetchState: get(state.asyncActions, 'fetchTaxonomies', {}),
-});
-
-const mapGlobalState = state => ({
   createState: get(state.asyncActions, 'createTaxonomy', {}),
   updateState: get(state.asyncActions, 'updateTaxonomy', {}),
   archiveState: get(state.asyncActions, 'archiveTaxonomy', {}),
 });
 
-export default flow(
-  connect(mapState, { fetch: fetch.perform }),
-  makeLocalStore(addAsyncReducer(reducer), { taxonomies: [] }),
-  connect(mapGlobalState),
-)(MerchandisingEntry);
+export default connect(mapState, { fetch })(MerchandisingEntry);
