@@ -14,7 +14,7 @@ import ActionLink from 'ui/action-link/action-link';
 import Modal from 'ui/modal/modal';
 import Loader from 'ui/loader';
 
-import { togglePaymentModal } from 'modules/checkout';
+import { togglePaymentModal, fetchCreditCards } from 'modules/checkout';
 
 import type { CheckoutBlockProps, BillingData } from '../types';
 
@@ -28,6 +28,11 @@ type Props = CheckoutBlockProps & {
 
 class Billing extends Component {
   props: Props;
+
+  componentWillMount() {
+    this.props.fetchCreditCards();
+  }
+
 
   get giftCards() {
     return _.filter(this.props.paymentMethods, {type: 'giftCard'});
@@ -47,8 +52,8 @@ class Billing extends Component {
     let title;
     let icon;
 
-    if (props.cartState.finished) {
-      if (props.creditCard) {
+    if (props.cardsState.finished) {
+      if (props.creditCards.length > 0) {
         title = 'Choose';
       } else {
         title = 'Add new';
@@ -70,42 +75,48 @@ class Billing extends Component {
   }
 
   get content() {
-    const { coupon, promotion, totals, creditCard, paymentModalVisible } = this.props;
+    const { coupon, promotion, totals, creditCard, paymentModalVisible, cardsState } = this.props;
+
+    if (cardsState.finished) {
+      return (
+        <div styleName="billing-summary">
+          <ViewBilling billingData={creditCard} />
+
+          {coupon &&
+            <div styleName="promo-line">
+              <PromoCode
+                placeholder="Coupon Code"
+                coupon={coupon}
+                promotion={promotion}
+                discountValue={totals.adjustments}
+                allowDelete={false}
+                editable={false}
+                context="billingView"
+              />
+            </div>}
+
+          {this.giftCards &&
+            <div styleName="promo-line">
+              <PromoCode
+                placeholder="Gift Card Number"
+                giftCards={this.giftCards}
+                allowDelete={false}
+                editable={false}
+                context="billingView"
+              />
+            </div>}
+            <Modal
+              show={paymentModalVisible}
+              toggle={this.props.togglePaymentModal}
+            >
+              {this.editBilling}
+            </Modal>
+        </div>
+      );
+    }
 
     return (
-      <div styleName="billing-summary">
-        <ViewBilling billingData={creditCard} />
-
-        {coupon &&
-          <div styleName="promo-line">
-            <PromoCode
-              placeholder="Coupon Code"
-              coupon={coupon}
-              promotion={promotion}
-              discountValue={totals.adjustments}
-              allowDelete={false}
-              editable={false}
-              context="billingView"
-            />
-          </div>}
-
-        {this.giftCards &&
-          <div styleName="promo-line">
-            <PromoCode
-              placeholder="Gift Card Number"
-              giftCards={this.giftCards}
-              allowDelete={false}
-              editable={false}
-              context="billingView"
-            />
-          </div>}
-          <Modal
-            show={paymentModalVisible}
-            toggle={this.props.togglePaymentModal}
-          >
-            {this.editBilling}
-          </Modal>
-      </div>
+      <Loader size="m" />
     );
   }
 
@@ -125,12 +136,15 @@ class Billing extends Component {
 const mapStateToProps = (state) => {
   return {
     creditCard: state.checkout.creditCard,
+    creditCards: _.get(state.checkout, 'creditCards', []),
     ...state.cart,
     cartState: _.get(state.asyncActions, 'cart', {}),
+    cardsState: _.get(state.asyncActions, 'creditCards', {}),
     paymentModalVisible: _.get(state.checkout, 'paymentModalVisible', false),
   };
 };
 
 export default connect(mapStateToProps, {
   togglePaymentModal,
+  fetchCreditCards,
 })(localized(Billing));

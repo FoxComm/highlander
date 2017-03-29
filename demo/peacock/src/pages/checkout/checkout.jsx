@@ -220,7 +220,6 @@ class Checkout extends Component {
             <Billing
               isGuestMode={isGuestMode}
               editAction={this.setBillingStage}
-              continueAction={this.placeOrder}
               paymentMethods={_.get(props.cart, 'paymentMethods', [])}
             />
           </div>

@@ -44,7 +44,6 @@ type Props = CheckoutActions & {
   error: Array<any>,
   data: CreditCardType,
   billingData: ?CreditCardType,
-  continueAction: Function,
   t: any,
   saveCouponCode: Function,
   removeCouponCode: Function,
@@ -66,6 +65,7 @@ type State = {
   addingNew: boolean,
   billingAddressIsSame: boolean,
   cardAdded: boolean,
+  selectedCard: CreditCardType,
 };
 
 function numbersComparator(value1, value2) {
@@ -94,21 +94,21 @@ class EditBilling extends Component {
     addingNew: false,
     billingAddressIsSame: true,
     cardAdded: false,
+    selectedCard: {},
   };
 
   componentWillMount() {
     if (!this.props.isGuestMode) {
-      this.props.fetchCreditCards();
+      const defaultCard = _.find(this.props.creditCards, {'isDefault': true});
+      if (defaultCard) {
+        this.selectCreditCard(defaultCard);
+        this.props.selectCreditCard(defaultCard);
+      }
     }
 
     if (this.props.data.address) {
       this.state.billingAddressIsSame = false;
     }
-  }
-
-  @autobind
-  handleSubmit() {
-    this.props.continueAction();
   }
 
   @autobind
@@ -221,8 +221,7 @@ class EditBilling extends Component {
 
   @autobind
   selectCreditCard(creditCard) {
-    this.props.selectCreditCard(creditCard);
-    this.setState({ addingNew: false });
+    this.setState({ addingNew: false, selectedCard: creditCard });
   }
 
   @autobind
@@ -410,8 +409,14 @@ class EditBilling extends Component {
   submitCardAndContinue() {
     return this.updateCreditCard().then((card) => {
       this.props.selectCreditCard(card);
-      this.props.continueAction();
     });
+  }
+
+  @autobind
+  saveAndContinue() {
+    Promise.resolve(this.props.selectCreditCard(this.state.selectedCard))
+      .then(() => this.props.togglePaymentModal())
+    ;
   }
 
   renderGuestView() {
@@ -478,7 +483,7 @@ class EditBilling extends Component {
     };
     return (
       <CheckoutForm
-        submit={this.handleSubmit}
+        submit={this.saveAndContinue}
         title="Payment"
         error={null} // error for placing order action is showed in Checkout component
         buttonLabel="Apply"
@@ -492,6 +497,7 @@ class EditBilling extends Component {
             onEditCard={this.editCard}
             onDeleteCard={this.deleteCreditCard}
             cardAdded={this.state.cardAdded}
+            selectedCard={this.state.selectedCard}
           />
           <ActionLink
             action={this.addNew}
