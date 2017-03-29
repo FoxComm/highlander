@@ -32,7 +32,7 @@ function init() {
   global.Image = global.window.Image;
   global.navigator = window.navigator;
   global.HTMLElement = window.HTMLElement;
-  console.log('jsdom configured');
+  console.info('jsdom configured');
 }
 
 init();

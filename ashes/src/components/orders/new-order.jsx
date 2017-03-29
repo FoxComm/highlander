@@ -1,9 +1,11 @@
+// libs
 import React, { Component, PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import { transitionTo } from 'browserHistory';
 import { push } from 'react-router-redux';
 import _ from 'lodash';
+import classNames from 'classnames';
 
 import * as newOrderActions from '../../modules/orders/new-order';
 import { email } from '../../lib/validators';
@@ -18,6 +20,9 @@ import FormField from '../forms/formfield';
 import PilledInput from '../pilled-search/pilled-input';
 import PageTitle from '../section-title/page-title';
 import Typeahead from '../typeahead/typeahead';
+
+// styles
+import s from './new-order.css';
 
 function mapStateToProps(state) {
   return {
@@ -112,7 +117,7 @@ export default class NewOrder extends Component {
 
     return (
       <Typeahead
-        className="fc-order-create__customer-search fc-col-md-5-8"
+        className={classNames('fc-order-create__customer-search', s.typeahead)}
         component={ChooseCustomerRow}
         fetchItems={(item) => this.props.suggestCustomers(item, this.state.checkoutAsGuest)}
         hideOnBlur={this.state.checkoutAsGuest}
@@ -204,7 +209,7 @@ export default class NewOrder extends Component {
                   className="fc-grid fc-grid-no-gutter">
                   {this.search}
                   <FormField
-                    className="fc-order-create__guest-checkout fc-col-md-2-8"
+                    className={classNames('fc-order-create__guest-checkout', s.checkbox)}
                     label="Checkout as guest"
                     labelAfterInput={true}>
                     <BigCheckbox
@@ -213,7 +218,7 @@ export default class NewOrder extends Component {
                       value={this.state.checkoutAsGuest}
                       onToggle={this.toggleGuest} />
                   </FormField>
-                  <div className="fc-col-md-1-8">
+                  <div className={s.button}>
                     {this.nextButton}
                   </div>
                 </Form>

@@ -9,7 +9,7 @@ all: build
 
 build:
 	$(call header, Building)
-	cd elasticmanager && make build
+	true
 
 test:
 	$(call header, Testing)
@@ -22,7 +22,7 @@ deploy-stage:
 	ansible-playbook -v -i inventory/gce/ ansible/test_stage.yml
 
 deploy-demo:
-	ansible-playbook -v -i inventory/gce/ ansible/test_stage.yml
+	ansible-playbook -v -i inventory/gce/ ansible/demo.yml
 
 deploy-feature-branch:
 	ansible-playbook -v -i inventory/gce/ ansible/provision_feature_branch.yml

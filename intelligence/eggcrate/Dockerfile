@@ -8,4 +8,4 @@ WORKDIR /eggcrate
 COPY eggcrate /eggcrate
 
 EXPOSE 10020
-CMD ["/eggcrate/eggcrate"] 
+CMD /eggcrate/eggcrate 2>&1 | tee /logs/eggcrate.log

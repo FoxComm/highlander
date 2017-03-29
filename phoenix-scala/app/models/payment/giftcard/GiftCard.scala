@@ -157,6 +157,8 @@ object GiftCard {
   def buildByCustomerPurchase(payload: GiftCardCreatedByCustomer,
                               originId: Int,
                               scope: LTree): GiftCard = {
+    val message: Option[String] =
+      payload.message.flatMap(msg ⇒ if (msg.trim.isEmpty) None else Option(msg.trim))
     GiftCard(
         scope = scope,
         originId = originId,
@@ -167,10 +169,10 @@ object GiftCard {
         originalBalance = payload.balance,
         availableBalance = payload.balance,
         currentBalance = payload.balance,
-        senderName = Some(payload.senderName),
-        recipientName = Some(payload.recipientName),
-        recipientEmail = Some(payload.recipientEmail),
-        message = Some(payload.message)
+        senderName = payload.senderName.some,
+        recipientName = payload.recipientName.some,
+        recipientEmail = payload.recipientEmail.some,
+        message = message
     )
   }
 

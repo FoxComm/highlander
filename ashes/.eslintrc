@@ -23,7 +23,7 @@
     "react/prop-types": 0,
     "strict": 0,
     "max-len": [
-      1,
+      2,
       120,
       2,
       {
@@ -51,6 +51,11 @@
         }
       }
     ],
+    "no-trailing-spaces": 2,
+    "eol-last": ["error", "always"],
+    "no-console": ["error", { allow: ["warn", "error", "info", "dir"] }],
+    "no-alert": 2,
+    "no-debugger": 2,
     "react/display-name": 0,
     "react/jsx-uses-react": 1,
     "react/jsx-uses-vars": 1,

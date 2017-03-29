@@ -1,0 +1,104 @@
+.block {
+  position: relative;
+}
+
+/* @todo remove globals from here somehow */
+.block._active :global(.fc-pilled-input__input-container),
+.block._active :global(.fc-pilled-input__input-container:hover) {
+  border-color: #a2dee1 !important;
+}
+
+.block :global(.fc-form-field-label) {
+  display: block;
+}
+
+.block :global(.fc-image-column) {
+  max-width: 50px;
+  max-height: 50px;
+}
+
+.list._search .input {
+  padding-left: 40px;
+}
+
+.input-icon {
+  display: none;
+  color: #bfbfbf;
+  position: absolute;
+  left: 13px;
+  bottom: 11px;
+}
+
+.list._search .input-icon {
+  display: block;
+}
+
+.list {
+  display: none;
+  position: absolute;
+  top: 100%;
+  width: 100%;
+  z-index: 2;
+}
+
+.list._visible {
+  display: block;
+}
+
+.items {
+  max-height: 350px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  background-color: #fff;
+  border: 1px solid #bbbdbf;
+  border-width: 0 1px 1px 1px;
+  box-shadow: 0 2px 2px rgba(0, 0, 0, .1);
+
+  font-size: 12px;
+  line-height: 60px;
+}
+
+.list._users .items {
+  width: 600px;
+  overflow-y: auto;
+}
+
+.list._users .item {
+  padding: 0;
+}
+
+.item {
+  padding: 15px;
+  border-bottom: 1px solid #bbbdbf;
+  background-color: #fff;
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+.item:hover {
+  background-color: #f7f7f7;
+  cursor: pointer;
+}
+
+.item :global(.fc-grid) {
+  line-height: 20px;
+}
+
+.list._modal .item {
+  width: 600px;
+}
+
+.list._modal .item {
+  padding: 0;
+}
+
+.not-found {
+  padding: 0 20px;
+}
+
+/* @todo refactor Alert component */
+.need-more-characters {
+  margin-top: 0;
+}

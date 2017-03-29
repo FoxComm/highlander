@@ -108,6 +108,7 @@ export default class ObjectDetails extends Component {
   renderFields(fields: Fields, section: Array<NodeDesc>): Element<*> {
     const fieldsToRender = this.calcFieldsToRender(fields, section);
     const attrsSchema = this.schema.properties.attributes;
+
     return (
       <ObjectFormInner
         canAddProperty={fields.canAddProperty}
