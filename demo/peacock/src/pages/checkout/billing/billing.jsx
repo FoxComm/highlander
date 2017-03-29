@@ -100,7 +100,7 @@ class Billing extends Component {
   }
 
   get content() {
-    const { coupon, promotion, totals, creditCard, paymentModalVisible, cardsState } = this.props;
+    const { coupon, promotion, totals, creditCard, paymentModalVisible } = this.props;
     if (this.state.fetchedCreditCards) {
       return (
         <div styleName="billing-summary">
@@ -129,12 +129,12 @@ class Billing extends Component {
                 context="billingView"
               />
             </div>}
-            <Modal
-              show={paymentModalVisible}
-              toggle={this.props.togglePaymentModal}
-            >
-              {this.editBilling}
-            </Modal>
+          <Modal
+            show={paymentModalVisible}
+            toggle={this.props.togglePaymentModal}
+          >
+            {this.editBilling}
+          </Modal>
         </div>
       );
     }

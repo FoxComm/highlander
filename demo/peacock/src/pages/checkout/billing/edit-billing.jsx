@@ -99,7 +99,7 @@ class EditBilling extends Component {
 
   componentWillMount() {
     if (!this.props.isGuestMode) {
-      const defaultCard = _.find(this.props.creditCards, {'isDefault': true});
+      const defaultCard = _.find(this.props.creditCards, { isDefault: true });
       if (defaultCard) {
         this.selectCreditCard(defaultCard);
         this.props.selectCreditCard(defaultCard);

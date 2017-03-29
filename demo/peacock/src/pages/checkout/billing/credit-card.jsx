@@ -26,7 +26,7 @@ type Props = {
 };
 
 const CreditCard = (props: Props) => {
-  const { creditCard, selected, onSelect, onEditCard, onDeleteCard } = props;
+  const { creditCard, selected, onSelect, onDeleteCard } = props;
   const { id } = creditCard;
   const cardClasses = classNames(styles['credit-card'], {
     [styles.chosen]: selected,
