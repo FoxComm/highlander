@@ -62,6 +62,10 @@ const mapStateToProps = (state) => {
   };
 };
 
+const facetWhitelist = [
+  'gender', 'category', 'color', 'brand', 'sport',
+];
+
 class Products extends Component {
   props: Props;
   state: State = {
@@ -201,7 +205,7 @@ class Products extends Component {
         <div styleName="title">
           {realCategoryName}
         </div>
-        <Facets facets={this.props.facets} onSelect={this.onSelectFacet} />
+        <Facets facets={this.props.facets} whitelist={facetWhitelist} onSelect={this.onSelectFacet} />
       </div>
     );
   }

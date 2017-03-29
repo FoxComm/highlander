@@ -14,6 +14,7 @@ import type { Facet } from 'types/facets';
 
 type FacetsProps = {
   facets: Array<Facet>,
+  whitelist?: Array<string>,
   onSelect?: (facet: string, value: string, selected: boolean) => void,
 };
 
@@ -22,6 +23,7 @@ class Facets extends Component {
 
   static defaultProps = {
     facets: [],
+    whitelist: [],
   };
 
   @autobind
@@ -92,17 +94,19 @@ class Facets extends Component {
   }
 
   render(): Element<*> {
-    const nonEmpty = _.filter(this.props.facets, (f) => {
-      return !_.isEmpty(f.values);
+    const { facets, whitelist} = this.props;
+
+    const renderable = _.filter(facets, (f) => {
+      return !_.isEmpty(f.values) && (_.isEmpty(whitelist) || _.indexOf(whitelist, f.key) != -1);
     });
 
-    const facets = _.map(nonEmpty, (f) => {
+    const rendered = _.map(renderable, (f) => {
       return this.renderFacet(f);
     });
 
     return (
       <div styleName="facets">
-        {facets}
+        {rendered}
       </div>
     );
   }
