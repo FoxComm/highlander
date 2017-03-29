@@ -414,9 +414,8 @@ class EditBilling extends Component {
 
   @autobind
   saveAndContinue() {
-    Promise.resolve(this.props.selectCreditCard(this.state.selectedCard))
-      .then(() => this.props.togglePaymentModal())
-    ;
+    this.props.selectCreditCard(this.state.selectedCard);
+    this.props.togglePaymentModal();
   }
 
   renderGuestView() {

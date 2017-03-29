@@ -38,10 +38,6 @@ class Billing extends Component {
     fetchedCreditCards: false,
   };
 
-  componentWillMount() {
-    this.fetchCreditCards();
-  }
-
   componentWillReceiveProps(nextProps: Props) {
     if (!this.state.fetchedCreditCards) {
       this.fetchCreditCards();
@@ -74,61 +70,71 @@ class Billing extends Component {
 
   get action() {
     const { props } = this;
-    let title;
-    let icon;
 
-    if (this.state.fetchedCreditCards) {
-      if (props.creditCards.length > 0) {
-        title = 'Choose';
-      } else {
-        title = 'Add new';
-        icon = {
-          name: 'fc-plus',
-          className: styles.plus,
-        };
-      }
+    if (!this.state.fetchedCreditCards) return null;
 
-      return (
-        <ActionLink
-          action={this.props.togglePaymentModal}
-          title={title}
-          styleName="action-link-payment"
-          icon={icon}
+    const hasCards = !_.isEmpty(props.creditCards);
+    const icon = {
+      name: 'fc-plus',
+      className: styles.plus,
+    };
+    const title = hasCards ? 'Choose' : 'Add new';
+    const addIcon = !hasCards ? icon : null;
+
+    return (
+      <ActionLink
+        action={props.togglePaymentModal}
+        title={title}
+        styleName="action-link-payment"
+        icon={addIcon}
+      />
+    );
+  }
+
+  get coupon() {
+    const { props } = this;
+    if (!props.coupon) return null;
+
+    return (
+      <div styleName="promo-line">
+        <PromoCode
+          placeholder="Coupon Code"
+          coupon={props.coupon}
+          promotion={props.promotion}
+          discountValue={props.totals.adjustments}
+          allowDelete={false}
+          editable={false}
+          context="billingView"
         />
-      );
-    }
+      </div>
+    );
+  }
+
+  get giftCard() {
+    if (!this.giftCards) return null;
+
+    return (
+      <div styleName="promo-line">
+        <PromoCode
+          placeholder="Gift Card Number"
+          giftCards={this.giftCards}
+          allowDelete={false}
+          editable={false}
+          context="billingView"
+        />
+      </div>
+    );
   }
 
   get content() {
-    const { coupon, promotion, totals, creditCard, paymentModalVisible } = this.props;
     if (this.state.fetchedCreditCards) {
+      const { creditCard, paymentModalVisible } = this.props;
+
       return (
         <div styleName="billing-summary">
           <ViewBilling billingData={creditCard} />
-
-          {coupon &&
-            <div styleName="promo-line">
-              <PromoCode
-                placeholder="Coupon Code"
-                coupon={coupon}
-                promotion={promotion}
-                discountValue={totals.adjustments}
-                allowDelete={false}
-                editable={false}
-                context="billingView"
-              />
-            </div>}
-
-          {this.giftCards &&
-            <div styleName="promo-line">
-              <PromoCode
-                placeholder="Gift Card Number"
-                giftCards={this.giftCards}
-                allowDelete={false}
-                editable={false}
-                context="billingView"
-              />
-            </div>}
+          {this.coupon}
+          {this.giftCard}
           <Modal
             show={paymentModalVisible}
             toggle={this.props.togglePaymentModal}

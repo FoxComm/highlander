@@ -24,13 +24,13 @@ const ViewBilling = (props: Props) => {
   const { brand, expMonth, expYear, address, holderName, lastFour, isDefault } = billingData;
 
   const getAddress = () => {
-    if (!_.isEmpty(address)) {
-      return (
-        <li styleName="billing-address">
-          Billing address: <AddressDetails styleName="billing-address" address={address} />
-        </li>
-      );
-    }
+    if (_.isEmpty(address)) return null;
+
+    return (
+      <li styleName="billing-address">
+        Billing address: <AddressDetails styleName="billing-address" address={address} />
+      </li>
+    );
   };
 
   const paymentType = brand ? _.upperCase(brand) : '';
