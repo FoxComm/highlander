@@ -44,7 +44,7 @@ const SEP = ' > ';
 const getName = (taxon: ?Taxon, dft = '') => get(taxon, 'attributes.name.v', dft);
 
 const buildTaxonsDropDownItems = (taxons: TaxonsTree, prefix: string, sep: string, finale: ReduceResult = {}) =>
-  taxons.reduce((res: ReduceResult, node: TaxonNode) => {
+  taxons.reduce((res: ReduceResult, node: TaxonTreeNode) => {
     const name = getName(node.node);
     const path = `${prefix}${name}`;
 
@@ -117,7 +117,7 @@ export default class TaxonsDropdown extends Component {
     const { taxonomy: { taxons }, taxon } = this.props;
 
     const parentId = get(taxon, ['location', 'parent']);
-    const parent = findNode((taxons: Array<TNode<Taxon>>), parentId, (node: TNode<Taxon>) => node.node.id);
+    const parent = findNode(taxons, parentId);
     const parentName = getName(get(parent, 'node'));
 
     return (

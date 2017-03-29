@@ -17,18 +17,7 @@ import { Button } from 'components/common/buttons';
 // styles
 import styles from './tree-table.css';
 
-type Row = { [key: string]: string | number };
-
-type TTableNode = {
-  row: Row,
-  parentId: ?Identifier,
-  collapsed: boolean,
-  level: number,
-};
-
-type TableTreeNode = TNode<TTableNode>;
-
-type TableTree = { [key: number]: TableTreeNode };
+type TableTreeMap = { [key: number]: TableTreeNode };
 
 type Props = {
   columns: Columns,
@@ -51,13 +40,13 @@ type Props = {
 };
 
 type State = {
-  root: Array<TableTreeNode>,
+  root: TableTree,
 }
 
 function buildTree(arr: Array<Row>, idField: string) {
-  const tree: Array<TableTreeNode> = [];
+  const tree: TableTree = [];
 
-  const acc: TableTree = arr.reduce((acc: TableTree, row: Row) => assoc(acc, row[idField], {
+  const acc: TableTreeMap = arr.reduce((acc: TableTreeMap, row: Row) => assoc(acc, row[idField], {
     children: [],
     node: {
       id: row[idField],
@@ -80,7 +69,7 @@ function buildTree(arr: Array<Row>, idField: string) {
   return tree;
 }
 
-const collapseNode = (tree: Array<TableTreeNode>, id: Identifier) => {
+const collapseNode = (tree: TableTree, id: Identifier) => {
   let node = findNode(tree, id);
 
   if (node) {
@@ -90,7 +79,7 @@ const collapseNode = (tree: Array<TableTreeNode>, id: Identifier) => {
   return tree;
 };
 
-const toggleAll = (tree: Array<TableTreeNode>, collapse: boolean) =>
+const toggleAll = (tree: TableTree, collapse: boolean) =>
   updateNodes(tree, (n: TableTreeNode) => n.node.collapsed = collapse);
 
 class TreeTable extends Component {
@@ -124,8 +113,8 @@ class TreeTable extends Component {
     this.setState({ root: toggleAll(this.state.root, true) });
   }
 
-  get rows(): Array<TableTreeNode> {
-    const _reduce = (level: number) => (nodes: Array<TableTreeNode>, node: TableTreeNode) => {
+  get rows(): TableTree {
+    const _reduce = (level: number) => (nodes: TableTree, node: TableTreeNode) => {
       const children = !node.node.collapsed ? node.children.reduce(_reduce(level + 1), []) : [];
 
       nodes.push(assoc(node, ['node', 'level'], level));

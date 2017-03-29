@@ -16,7 +16,7 @@ type Props = {
   getTitle: (node: Taxon) => string,
 }
 
-const _reduce = (res: Array<Node<Taxon>>, node: TaxonNode) => {
+const _reduce = (res: Array<Node<Taxon>>, node: TaxonTreeNode) => {
   const children = node.children ? node.children.reduce(_reduce, []) : null;
 
   res.push({ children, node: node.node });

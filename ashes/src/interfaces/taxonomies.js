@@ -42,9 +42,6 @@ declare type TaxonResult = {
   location?: TaxonLocation,
 };
 
-declare type TaxonNode = {
-  children: TaxonsTree,
-  node: Taxon,
-};
+declare type TaxonTreeNode = TNode<Taxon>;
 
-declare type TaxonsTree = Array<TaxonNode>;
+declare type TaxonsTree = Array<TaxonTreeNode>;

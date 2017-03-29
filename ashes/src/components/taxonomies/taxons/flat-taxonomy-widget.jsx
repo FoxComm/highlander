@@ -16,7 +16,7 @@ type Props = {
 
 export default ({ taxons, activeTaxonId, onClick, getTitle }: Props) => (
   <div>
-    {taxons.map((item: TaxonNode) => {
+    {taxons.map((item: TaxonTreeNode) => {
         const id = item.node.id;
         const active = (activeTaxonId === id.toString());
         const className = classNames(styles.item, { [styles.active]: active });
