@@ -28,7 +28,7 @@ class TaxonomyIntegrationTest
 
   def findTaxonsById(taxons: Seq[TaxonTreeResponse], id: Int): Option[TaxonTreeResponse] =
     taxons
-      .find(_.taxon.id == id)
+      .find(_.node.id == id)
       .orElse(
           taxons.map(t ⇒ findTaxonsById(t.childrenAsList.toList, id)).find(_.isDefined).flatten
       )
@@ -49,13 +49,13 @@ class TaxonomyIntegrationTest
 
       response.id must === (taxonomy.formId)
 
-      response.taxons.map(tree ⇒ (tree.taxon.attributes \ "name" \ "v").extract[String]) must === (
+      response.taxons.map(tree ⇒ (tree.node.attributes \ "name" \ "v").extract[String]) must === (
           Seq("taxon1", "taxon2"))
       response.taxons.head.childrenAsList.map(tree ⇒
-            (tree.taxon.attributes \ "name" \ "v").extract[String]) must === (
+            (tree.node.attributes \ "name" \ "v").extract[String]) must === (
           Seq("taxon3", "taxon4"))
       response.taxons.head.childrenAsList.head.childrenAsList.map(tree ⇒
-            (tree.taxon.attributes \ "name" \ "v").extract[String]) must === (Seq("taxon7"))
+            (tree.node.attributes \ "name" \ "v").extract[String]) must === (Seq("taxon7"))
     }
   }
 
@@ -124,8 +124,8 @@ class TaxonomyIntegrationTest
 
       val taxonsResp = queryGetTaxonomy(taxonomy.formId).taxons
       taxonsResp.size must === (1)
-      taxonsResp.head.taxon.id must === (response.id)
-      (taxonsResp.head.taxon.attributes \ "name" \ "v").extract[String] must === (
+      taxonsResp.head.node.id must === (response.id)
+      (taxonsResp.head.node.attributes \ "name" \ "v").extract[String] must === (
           (response.attributes \ "name" \ "v").extract[String])
     }
 
@@ -138,9 +138,9 @@ class TaxonomyIntegrationTest
 
       val newTaxons = queryGetTaxonomy(taxonomy.formId).taxons
 
-      newTaxons.map(_.taxon.id) must contain theSameElementsInOrderAs Seq(taxons.head.formId,
-                                                                          response.id,
-                                                                          taxons(1).formId)
+      newTaxons.map(_.node.id) must contain theSameElementsInOrderAs Seq(taxons.head.formId,
+                                                                         response.id,
+                                                                         taxons(1).formId)
     }
 
     "creates taxon at last position" in new FlatTaxonsFixture {
@@ -152,9 +152,9 @@ class TaxonomyIntegrationTest
 
       val newTaxons = queryGetTaxonomy(taxonomy.formId).taxons
 
-      newTaxons.map(_.taxon.id) must contain theSameElementsInOrderAs Seq(taxons.head.formId,
-                                                                          taxons(1).formId,
-                                                                          response.id)
+      newTaxons.map(_.node.id) must contain theSameElementsInOrderAs Seq(taxons.head.formId,
+                                                                         taxons(1).formId,
+                                                                         response.id)
     }
 
     "creates child taxon" in new HierarchyTaxonsFixture {
@@ -173,7 +173,7 @@ class TaxonomyIntegrationTest
       val newTaxons      = queryGetTaxonomy(taxonomy.formId).taxons
       val responseParent = findTaxonsById(newTaxons, parentFormId).get
       responseParent.childrenAsList.size must === (children.size + 1)
-      responseParent.childrenAsList.map(_.taxon.id) must contain(response.id)
+      responseParent.childrenAsList.map(_.node.id) must contain(response.id)
     }
 
     "fails if position is invalid" in new HierarchyTaxonsFixture {
@@ -196,8 +196,8 @@ class TaxonomyIntegrationTest
       val taxonsBefore = queryGetTaxonomy(taxonomy.formId).taxons
 
       val List(left, right) = taxonsBefore.take(2)
-      val taxonToMoveId     = left.childrenAsList.head.taxon.id
-      val newParentId       = right.taxon.id
+      val taxonToMoveId     = left.childrenAsList.head.node.id
+      val newParentId       = right.node.id
 
       val resp = taxonsApi(taxonToMoveId).update(
           UpdateTaxonPayload(Map(), TaxonLocation(newParentId.some, Some(0)).some))
@@ -208,7 +208,7 @@ class TaxonomyIntegrationTest
       val List(leftAfter, rightAfter) = taxonsAfter.take(2)
       leftAfter.childrenAsList.size must === (left.childrenAsList.size - 1)
       rightAfter.childrenAsList.size must === (right.childrenAsList.size + 1)
-      rightAfter.childrenAsList.map(_.taxon.id) must contain(taxonToMoveId)
+      rightAfter.childrenAsList.map(_.node.id) must contain(taxonToMoveId)
     }
 
     "fails to move taxon to children" in new HierarchyTaxonsFixture {
@@ -216,8 +216,8 @@ class TaxonomyIntegrationTest
 
       val List(left, right) = taxonsBefore.take(2)
 
-      val newParentId   = left.childrenAsList.head.taxon.id
-      val taxonToMoveId = left.taxon.id
+      val newParentId   = left.childrenAsList.head.node.id
+      val taxonToMoveId = left.node.id
 
       val resp = taxonsApi(taxonToMoveId).update(
           UpdateTaxonPayload(Map(), TaxonLocation(newParentId.some, Some(0)).some))
