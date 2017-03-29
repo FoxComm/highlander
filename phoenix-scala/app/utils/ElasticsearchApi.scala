@@ -89,6 +89,11 @@ case class ElasticsearchApi(config: ESConfig)(implicit ec: EC) extends LazyLoggi
     client.execute(request).map(getBuckets)
   }
 
+  def numResults(searchView: SearchView, esQuery: Json): Future[Long] =
+    client.execute {
+      search in getIndexAndType(searchView) rawQuery compact(render(esQuery)) size 0
+    }.map(_.totalHits)
+
   /**
     * Render compact query for logging
     */
