@@ -1,22 +1,19 @@
 // @flow
 
 // libs
-import { get, flow, noop, sortedUniqBy } from 'lodash';
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { autobind } from 'core-decorators';
-import { createReducer } from 'redux-act';
-import { makeLocalStore, addAsyncReducer } from '@foxcomm/wings';
+import { get, sortedUniqBy } from 'lodash';
 import classNames from 'classnames';
+import { autobind } from 'core-decorators';
+import React, { Component } from 'react';
+import { bindActionCreators } from 'redux';
 
 // components
 import { AddButton } from 'components/common/buttons';
 import WaitAnimation from 'components/common/wait-animation';
 import RoundedPill from 'components/rounded-pill/rounded-pill';
-import { bindActionCreators } from 'redux';
+import { withTaxonomy } from '../hoc';
 
 // actions
-import { fetchTaxonomyInternal as fetchTaxonomy } from 'modules/taxonomies/details';
 import { deleteProductCurried as unlinkProduct } from 'modules/taxons/details/taxon';
 
 // style
@@ -30,7 +27,6 @@ type Props = {
   taxonomy: Taxonomy,
   fetchState: AsyncState,
   unlinkState: AsyncState,
-  fetchTaxonomy: (id: number | string) => Promise<*>,
   unlinkProduct: (taxonId: number | string) => Promise<*>,
   onChange: Function,
   linkedTaxonomy: LinkedTaxonomy,
@@ -45,11 +41,6 @@ class TaxonomyWidget extends Component {
     isFocused: false,
     inputOpened: false
   };
-
-  componentDidMount() {
-    const { taxonomyId, context } = this.props;
-    this.props.fetchTaxonomy(taxonomyId, context);
-  }
 
   @autobind
   handleCloseClick(taxonId) {
@@ -109,7 +100,10 @@ class TaxonomyWidget extends Component {
   }
 
   render() {
-    const iconClassName = this.state.inputOpened ? 'icon-close' : 'icon-add';
+    const iconClassName = classNames({
+      'icon-close': this.state.inputOpened,
+      'icon-add': !this.state.inputOpened,
+    });
 
     return (
       <div styleName="root">
@@ -127,26 +121,12 @@ class TaxonomyWidget extends Component {
   }
 }
 
-/*
- * Local redux store
- */
-
-const reducer = createReducer({
-  [fetchTaxonomy.succeeded]: (state, response) => ({ ...state, taxonomy: response }),
-});
-
 const mapState = state => ({
-  taxonomy: state.taxonomy,
-  fetchState: get(state.asyncActions, 'fetchTaxonomy', {}),
   unlinkState: get(state.asyncActions, 'taxonDeleteProduct', {}),
 });
 
 const mapActions = (dispatch, props) => ({
-  fetchTaxonomy: bindActionCreators(fetchTaxonomy.perform, dispatch),
   unlinkProduct: bindActionCreators(unlinkProduct(props.productId, props.context), dispatch)
 });
 
-export default flow(
-  connect(mapState, mapActions),
-  makeLocalStore(addAsyncReducer(reducer), { taxonomy: null }),
-)(TaxonomyWidget);
+export default withTaxonomy({ showLoader: false, mapState, mapActions })(TaxonomyWidget);

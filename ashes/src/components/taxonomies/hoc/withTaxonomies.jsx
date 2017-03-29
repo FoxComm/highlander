@@ -1,29 +1,29 @@
 /* @flow */
 
+import { isEmpty, get, merge, omit } from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { get, omit } from 'lodash';
 
 // actions
 import { fetch } from 'modules/taxonomies/flatList';
+
+// helpers
+import { getDisplayName } from 'lib/react-utils';
 
 // components
 import WaitAnimation from 'components/common/wait-animation';
 
 // styles
-import styles from './taxonomy.css';
+import styles from './taxonomies.css';
 
 const omitProps = [
+  'taxonomy',
   'taxonomies',
   'fetch',
   'createState',
   'updateState',
   'archiveState',
 ];
-
-function getDisplayName(WrappedComponent) {
-  return WrappedComponent.displayName || WrappedComponent.name || 'Component';
-}
 
 type Props = {
   taxonomies: Array<TaxonomyResult>,
@@ -36,20 +36,39 @@ type Props = {
 
 type Options = {
   showLoader?: boolean,
+  taxonomiesField: string,
+  fetchStateField: string,
 };
 
 const defaultOptions: Options = {
   showLoader: true,
+  taxonomiesField: 'taxonomies',
+  fetchStateField: 'fetchState',
 };
 
-export function withTaxonomies(options: Options = defaultOptions) {
+/**
+ * Higher Order Component for mapping taxonomies list to underlying component
+ *
+ * @param {Object}  options                   HOC Options
+ * @param {boolean} options.showLoader        If to show wait loader instead wrapped component on fetching.
+ *                                            Instead handle loading in wrapped component
+ * @param {boolean} options.taxonomiesField   The name of prop field that taxonomies list would be mapped to
+ * @param {boolean} options.fetchStateField   The name of prop field that fetchState would be mapped to
+ *
+ * @returns {Function}
+ */
+export default function withTaxonomies(options: Options) {
+  options = merge({}, defaultOptions, options);
+
   // TODO: proper type for component argument
   return function (WrappedComponent: any) {
     class Wrapper extends Component {
       props: Props;
 
       componentDidMount() {
-        this.props.fetch();
+        if (isEmpty(this.props.taxonomies)) {
+          this.props.fetch();
+        }
       }
 
       componentWillReceiveProps(nextProps: Props) {
@@ -65,13 +84,13 @@ export function withTaxonomies(options: Options = defaultOptions) {
       render() {
         const { taxonomies, fetchState } = this.props;
 
-        if (!taxonomies || fetchState.inProgress && !fetchState.err && options.showLoader) {
+        if (options.showLoader && (!taxonomies || fetchState.inProgress && !fetchState.err)) {
           return <WaitAnimation className={styles.waiting} />;
         }
 
         const props = {
-          [get(options, 'taxonomiesField', 'taxonomies')]: this.props.taxonomies,
-          [get(options, 'fetchStateField', 'fetchState')]: this.props.fetchState,
+          [options.taxonomiesField]: this.props.taxonomies,
+          [options.fetchStateField]: this.props.fetchState,
           ...omit(this.props, omitProps),
         };
 
