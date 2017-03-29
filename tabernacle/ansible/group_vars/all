@@ -412,6 +412,8 @@ data_import_s3_region: us-west-2
 data_import_listings_path: "/sample_data/listings.json"
 data_import_products_path: "/sample_data/products.json"
 data_import_docker_url: "{{docker_registry}}:5000/data-import:{{docker_tags.data_import}}"
+data_import_cmd: both
+data_import_max_count: 100
 
 # Various flags
 first_run: false
@@ -427,3 +429,4 @@ with_base_seeds: true
 with_gatling_seeder: false
 with_mwh_seeder: true
 with_hyperion_seeder: true
+with_data_import: true
