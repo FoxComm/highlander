@@ -24,13 +24,38 @@ type Props = CheckoutBlockProps & {
   paymentMethods: Array<any>,
   creditCard: BillingData,
   paymentModalVisible: boolean,
+  auth: ?Object,
+};
+
+type State = {
+  fetchedCreditCards: boolean,
 };
 
 class Billing extends Component {
   props: Props;
 
+  state: State = {
+    fetchedCreditCards: false,
+  };
+
   componentWillMount() {
-    this.props.fetchCreditCards();
+    this.fetchCreditCards();
+  }
+
+  componentWillReceiveProps(nextProps: Props) {
+    if (!this.state.fetchedCreditCards) {
+      this.fetchCreditCards();
+    }
+
+    if (nextProps.auth !== this.props.auth) {
+      this.setState({ fetchedCreditCards: false });
+    }
+  }
+
+  fetchCreditCards() {
+    this.props.fetchCreditCards().then(() => {
+      this.setState({ fetchedCreditCards: true });
+    });
   }
 
 
@@ -52,7 +77,7 @@ class Billing extends Component {
     let title;
     let icon;
 
-    if (props.cardsState.finished) {
+    if (this.state.fetchedCreditCards) {
       if (props.creditCards.length > 0) {
         title = 'Choose';
       } else {
@@ -76,8 +101,7 @@ class Billing extends Component {
 
   get content() {
     const { coupon, promotion, totals, creditCard, paymentModalVisible, cardsState } = this.props;
-
-    if (cardsState.finished) {
+    if (this.state.fetchedCreditCards) {
       return (
         <div styleName="billing-summary">
           <ViewBilling billingData={creditCard} />
@@ -139,7 +163,6 @@ const mapStateToProps = (state) => {
     creditCards: _.get(state.checkout, 'creditCards', []),
     ...state.cart,
     cartState: _.get(state.asyncActions, 'cart', {}),
-    cardsState: _.get(state.asyncActions, 'creditCards', {}),
     paymentModalVisible: _.get(state.checkout, 'paymentModalVisible', false),
   };
 };

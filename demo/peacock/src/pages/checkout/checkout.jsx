@@ -221,6 +221,7 @@ class Checkout extends Component {
               isGuestMode={isGuestMode}
               editAction={this.setBillingStage}
               paymentMethods={_.get(props.cart, 'paymentMethods', [])}
+              auth={this.props.auth}
             />
           </div>
           <div styleName="order-summary">
