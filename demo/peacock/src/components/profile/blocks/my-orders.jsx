@@ -29,7 +29,7 @@ class MyOrders extends Component {
 
   componentWillMount() {
     if (_.get(this.props.auth, 'jwt')) {
-      this.props.fetchOrders().catch(ex => {
+      this.props.fetchOrders().catch((ex) => {
         this.setState({
           error: ex.toString(),
         });
@@ -54,14 +54,14 @@ class MyOrders extends Component {
     return (
       <table styleName="simple-table">
         <thead>
-        <tr>
-          <th>Date</th>
-          <th>Order #</th>
-          <th>Total</th>
-          <th>Status</th>
-          <th>Tracking</th>
-          <th>&nbsp;</th>
-        </tr>
+          <tr>
+            <th>Date</th>
+            <th>Order #</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Tracking</th>
+            <th>&nbsp;</th>
+          </tr>
         </thead>
         <tbody>
           {_.map(props.orders, this.renderOrder)}

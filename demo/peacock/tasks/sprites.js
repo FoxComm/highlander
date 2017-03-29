@@ -9,7 +9,7 @@ const spriteHead = new Buffer(`<svg
     xmlns:xlink="http://www.w3.org/1999/xlink"
     id="fc-sprite" style="display:none">`);
 
-const spriteTail = new Buffer(`</svg>`);
+const spriteTail = new Buffer('</svg>');
 
 function svgoOpts(file) {
   const plugins = [

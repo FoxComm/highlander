@@ -10,13 +10,13 @@ const runSequence = require('run-sequence');
 const affectsServer = require('./server').affectsServer;
 const envify = require('envify/custom');
 
-const plugins = require('../src/postcss').plugins;
+const plugins = require('../src/postcss.config').plugins;
 
 function setApiURL() {
   process.env.API_URL = process.env.API_URL || '/api';
 }
 
-process.env.NODE_PATH = `${process.env.NODE_PATH}:${path.resolve('./lib/core')}`;
+process.env.NODE_PATH = `${process.env.NODE_PATH}:${path.resolve('./lib')}`;
 
 function setDemoAuthToken() {
   /*  The demo site is protected by basic auth. All requests from javascript
@@ -90,7 +90,7 @@ module.exports = function(gulp, $, opts) {
   gulp.task('browserify.purge_cache', function() {
     const cache = watchify.args.cache;
 
-    Object.keys(cache).map(key => {
+    Object.keys(cache).forEach((key) => {
       delete cache[key];
     });
   });
@@ -101,7 +101,7 @@ module.exports = function(gulp, $, opts) {
       .on('error', function(err) {
         stream.emit('error', err);
       })
-      .pipe(source(`app.js`))
+      .pipe(source('app.js'))
       .pipe(buffer())
       .pipe($.if(production, $.uglify({
         compress: {

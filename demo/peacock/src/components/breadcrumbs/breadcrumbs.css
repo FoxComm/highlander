@@ -1,0 +1,25 @@
+@import "colors.css";
+
+.crumbs {
+  display: flex;
+}
+
+.delimiter {
+  font-size: 12px;
+  color: var(--label-color);
+  margin: 2px 5px;
+}
+
+.link {
+  text-decoration: none;
+  color: var(--label-color);
+}
+
+.item:last-child .link {
+  color: var(--link-alt-color);
+}
+
+.item {
+  font-size: 14px;
+  color: var(--link-alt-color);
+}

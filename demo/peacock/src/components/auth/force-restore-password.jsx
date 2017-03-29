@@ -11,7 +11,7 @@ const ForcedRestorePassword = (props: RestorePasswordFormProps) => {
     + 'We’ll send you an email with a link to create a new one.';
   return (
     <RestorePasswordForm
-      title="RESET PASSWORD"
+      title="Reset password"
       topMessage={message}
       {...props}
     />

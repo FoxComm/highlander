@@ -9,9 +9,9 @@ import MyShippingAddresses from './blocks/shipping-addresses';
 const Profile = () => {
   return (
     <div styleName="profile">
-      <Details/>
-      <MyOrders/>
-      <MyShippingAddresses/>
+      <Details />
+      <MyOrders />
+      <MyShippingAddresses />
     </div>
   );
 };

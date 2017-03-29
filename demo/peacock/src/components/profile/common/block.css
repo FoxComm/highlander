@@ -1,20 +1,19 @@
-
 @import "variables.css";
 
 .block {
-  border: 2px solid #F4F4F4;
+  border: 2px solid var(--input-border-color);
   margin-bottom: 20px;
 }
 
 .header {
-  background-color: #F4F4F4;
+  background-color: var(--body-background);
   height: 74px;
   text-transform: uppercase;
   text-align: center;
   font-family: var(--font-main);
   font-weight: 300;
   font-size: 15px;
-  color: #212121;
+  color: var(--text-color);
   line-height: 20px;
   padding-top: 27px;
 }

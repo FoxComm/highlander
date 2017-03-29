@@ -3,33 +3,38 @@
 
 .header-base {
   position: fixed;
-  top: 66px;
-  z-index: 10;
+  top: 0;
+  z-index: 2;
   width: 100%;
-  height: 86px;
-  font-weight: 400;
-  font-size: 15px;
-  background: var(--background-color);
-  color: #212121;
-  box-shadow: 0 1px var(--border-color);
+  height: 50px;
+  font-size: 16px;
+  background: var(--body-background);
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-color);
 }
 
-.header,
-.header-scrolled {
+.header {
   composes: header-base;
 }
 
 .wrap {
-  composes: wrap from "ui/css/layout.css";
   display: flex;
   justify-content: space-between;
   align-items: center;
+  height: 100%;
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+.action-link-menu {
+  composes: action-link from "ui/action-link/action-link.css";
+  color: var(--text-color);
 }
 
 .navigation {
   display: none;
   transition: all 300ms;
-  background: var(--background-color);
+  background: none;
 }
 
 .tools {
@@ -42,117 +47,48 @@
     display: none;
   }
 
-  .hamburger {
-    & :global(.icon) {
-      cursor: pointer;
-      stroke: var(--icon);
-      width: 32px;
-      height: 32px;
-    }
+  :global(.icon).logo {
+    width: 75px;
   }
 }
 
-@media (--small-only) {
-  .header {
-    top: 105px;
-
-    &._without-banner {
-      top: 0;
-    }
-  }
-
-  .header-scrolled {
-    top: 105px;
-
-    &._without-banner {
-      top: 0;
-    }
-  }
-}
-
-@media (--medium-only) {
-  .header {
-    top: 70px;
-
-    &._without-banner {
-      top: 0;
-    }
-  }
-
-  .header-scrolled {
-    top: 70px;
-
-    &._without-banner {
-      top: 0;
-    }
-  }
+.nav-search-logo-wrapper {
+  display: flex;
+  align-items: center;
+  height: 50px;
+  width: auto;
 }
 
 @media (--large) {
-  .wrap {
-    lost-column: 10/12;
-    lost-offset: -1/12;
-  }
-
   .navigation {
-    height: 86px;
+    height: 50px;
     display: flex;
     justify-content: center;
+    margin-left: 40px;
   }
 
-  .hamburger {
+  .action-link-menu {
     display: none;
   }
 
   :global(.icon).logo {
     vertical-align: middle;
+    margin-left: 20px;
+    width: 80px;
   }
 
   .search {
-    width: 35%;
-    height: 48px;
+    height: 50px;
+    width: auto;
+    display: flex;
+    align-items: center;
+    margin-top: -4px;
+    margin-left: 30px;
+    margin-right: 20px;
   }
 
   .tools {
-    width: 35%;
-  }
-
-  .header {
-    height: 136px;
-
-    & .navigation {
-      position: absolute;
-      top: 136px;
-      width: 100%;
-      left: 0;
-      box-shadow: 0 0 0 1px var(--border-color);
-    }
-
-    &._without-banner {
-      top: 0;
-    }
-  }
-
-  .header-scrolled {
-    &._without-banner {
-      top: 0;
-    }
-
-    & :global(.icon--fc-logo) {
-      width: 130px;
-      height: 62px;
-    }
-
-    & .navigation {
-      margin-left: 20px;
-    }
-
-    & .search{
-      width: 50px;
-    }
-
-    & .tools {
-      width: auto;
-    }
+    width: auto;
+    margin-right: 20px;
   }
 }

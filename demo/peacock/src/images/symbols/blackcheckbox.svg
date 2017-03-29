@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="8px"
+   height="6px"
+   viewBox="0 0 8 6"
+   version="1.1"
+   id="svg2"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="blackcheckbox.svg">
+  <metadata
+     id="metadata20">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1278"
+     inkscape:window-height="478"
+     id="namedview18"
+     showgrid="false"
+     inkscape:zoom="39.333333"
+     inkscape:cx="-0.46186441"
+     inkscape:cy="3"
+     inkscape:window-x="3200"
+     inkscape:window-y="480"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg2" />
+  <!-- Generator: Sketch 42 (36781) - http://www.bohemiancoding.com/sketch -->
+  <title
+     id="title4">UI/Checkbox/Checkmark</title>
+  <desc
+     id="desc6">Created with Sketch.</desc>
+  <defs
+     id="defs8" />
+  <g
+     id="UI"
+     stroke="none"
+     stroke-width="1"
+     fill="none"
+     fill-rule="evenodd"
+     style="fill:#000000">
+    <g
+       transform="translate(-390.000000, -1258.000000)"
+       id="Radio-and-checkbox"
+       fill="#FFFFFF"
+       style="fill:#000000">
+      <g
+         transform="translate(0.000000, 1197.000000)"
+         id="g12"
+         style="fill:#000000">
+        <g
+           id="Group-5"
+           transform="translate(387.000000, 0.000000)"
+           style="fill:#000000">
+          <g
+             id="Group-6"
+             transform="translate(0.000000, 57.000000)"
+             style="fill:#000000">
+            <g
+               id="UI/Checkbox/Checkmark"
+               transform="translate(3.000000, 4.000000)"
+               style="fill:#000000">
+              <path
+                 d="M6.86366296,0.148245253 C6.77613603,0.0593691253 6.66968659,0.0149143808 6.54456122,0.0149143808 C6.41932077,0.0149143808 6.31287132,0.0593691253 6.22534439,0.148245253 L3.14621806,3.27720871 L1.76625509,1.87225529 C1.67862952,1.78334581 1.57224583,1.7389411 1.44712046,1.7389411 C1.32191289,1.7389411 1.2155292,1.78334581 1.12790364,1.87225529 L0.489568626,2.51996009 C0.401943057,2.6088529 0.358146712,2.71682872 0.358146712,2.84385419 C0.358146712,2.97077957 0.401943057,3.07885548 0.489568626,3.16773161 L2.18866623,4.89169161 L2.82705055,5.53937972 C2.9146268,5.62832257 3.02104337,5.67272727 3.14621806,5.67272727 C3.27134343,5.67272727 3.37776,5.6282058 3.46538556,5.53937972 L4.10375345,4.89169161 L7.50199797,1.44367152 C7.58954134,1.35476203 7.63341989,1.24680289 7.63341989,1.11977742 C7.63348565,0.992818676 7.58954134,0.884842855 7.50199797,0.795933366 L6.86366296,0.148245253 Z"
+                 id="Shape"
+                 style="fill:#000000" />
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

@@ -2,7 +2,7 @@
 
 // libs
 import _ from 'lodash';
-import React, { Component } from 'react';
+import React, { Component, Element } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
@@ -19,24 +19,30 @@ import { fetch, getNextId, getPreviousId, resetProduct } from 'modules/product-d
 import { addLineItem, toggleCart } from 'modules/cart';
 import { fetchRelatedProducts, clearRelatedProducts } from 'modules/cross-sell';
 
-// types
-import type { HTMLElement } from 'types';
-import type { ProductResponse } from 'modules/product-details';
-import type { RelatedProductResponse } from 'modules/cross-sell';
-
-// components
-import Gallery from 'ui/gallery/gallery';
-import Loader from 'ui/loader';
-import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
-import ProductDetails from './product-details';
-import GiftCardForm from '../../components/gift-card-form';
-import ProductAttributes from './product-attributes';
-import ImagePlaceholder from '../../components/products-item/image-placeholder';
-import RelatedProductsList,
-  { LoadingBehaviors } from '../../components/related-products-list/related-products-list';
 
 // styles
 import styles from './pdp.css';
+
+// types
+import type { RelatedProductResponse } from 'modules/cross-sell';
+
+// components
+import { SecondaryButton } from 'ui/buttons';
+import AddToCartBtn from 'ui/add-to-cart-btn';
+import Gallery from 'ui/gallery/gallery';
+import Loader from 'ui/loader';
+import Breadcrumbs from 'components/breadcrumbs/breadcrumbs';
+import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
+import ProductDetails from './product-details';
+
+import GiftCardForm from 'components/gift-card-form';
+import ImagePlaceholder from 'components/products-item/image-placeholder';
+import RelatedProductsList,
+  { LoadingBehaviors } from 'components/related-products-list/related-products-list';
+
+// types
+import type { ProductResponse } from 'modules/product-details';
+import type { RoutesParams } from 'types';
 
 type Params = {
   productSlug: string,
@@ -53,7 +59,7 @@ type Actions = {
   clearRelatedProducts: Function,
 };
 
-type Props = Localized & {
+type Props = Localized & RoutesParams & {
   actions: Actions,
   params: Params,
   product: ?ProductResponse,
@@ -76,12 +82,10 @@ type Product = {
   images: Array<string>,
   currency: string,
   price: number|string,
-  amountOfServings: string,
-  servingSize: string,
   pathName: string,
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   const product = state.productDetails.product;
   const relatedProducts = state.crossSell.relatedProducts;
 
@@ -111,7 +115,7 @@ const mapDispatchToProps = dispatch => ({
 
 class Pdp extends Component {
   props: Props;
-  productPromise: Promise;
+  productPromise: Promise<*>;
 
   state: State = {
     quantity: 1,
@@ -154,13 +158,13 @@ class Pdp extends Component {
 
   safeFetch(id) {
     return this.props.actions.fetch(id)
-      .then(product => {
+      .then((product) => {
         this.props.actions.fetchRelatedProducts(product.id, 1).catch(_.noop);
       })
       .catch(() => {
         const { params } = this.props;
         this.props.actions.fetch(params.productSlug)
-        .then(product => {
+        .then((product) => {
           this.props.actions.fetchRelatedProducts(product.id, 1).catch(_.noop);
         });
       });
@@ -170,7 +174,7 @@ class Pdp extends Component {
     const props = _props || this.props;
     const productId = _productId || this.productId;
 
-    if (this.isGiftCard(props)) {
+    if (this.isGiftCardRoute(props)) {
       return searchGiftCards().then(({ result = [] }) => {
         const giftCard = result[0] || {};
         return this.safeFetch(giftCard.productId);
@@ -217,7 +221,7 @@ class Pdp extends Component {
   @autobind
   setAttributeFromField({ target: { name, value } }) {
     const namePath = ['attributes', ...name.split('.')];
-    const stateValue = name == 'giftCard.message' ? value.split('\n').join('<br>') : value;
+    const stateValue = name === 'giftCard.message' ? value.split('\n').join('<br>') : value;
     this.setState(assoc(this.state, namePath, stateValue));
   }
 
@@ -233,15 +237,18 @@ class Pdp extends Component {
       images: imageUrls,
       currency: _.get(price, 'currency', 'USD'),
       price: _.get(price, 'value', 0),
-      amountOfServings: _.get(attributes, 'Amount of Servings.v', ''),
-      servingSize: _.get(attributes, 'Serving Size.v', ''),
       skus: this.sortedSkus,
       pathName: this.props.location.pathname,
     };
   }
 
-  isGiftCard(props) {
-    return (props || this.props).route.name === 'gift-cards';
+  isGiftCardRoute(props = this.props) {
+    return props.route.name === 'gift-cards';
+  }
+
+  isGiftCard(props = this.props): boolean {
+    const tags = _.get(props.product, 'attributes.tags.v', []);
+    return tags.indexOf('GIFT-CARD') !== -1;
   }
 
   @autobind
@@ -264,7 +271,7 @@ class Pdp extends Component {
           currentSku: null,
         });
       })
-      .catch(ex => {
+      .catch((ex) => {
         this.setState({
           error: ex,
         });
@@ -279,7 +286,45 @@ class Pdp extends Component {
       : <ImagePlaceholder largeScreenOnly />;
   }
 
-  render(): HTMLElement {
+  get productDetails(): Element<*> {
+    const description = _.get(this.props.product, 'attributes.description.v', '');
+    const descriptionList = _.get(this.props.product, 'attributes.description_list.v', '');
+    return (
+      <div>
+        <div
+          styleName="description"
+          dangerouslySetInnerHTML={{__html: description}}
+        />
+        <div
+          styleName="description-list"
+          dangerouslySetInnerHTML={{__html: descriptionList}}
+        />
+      </div>
+    );
+  }
+
+  get productForm(): Element<any> {
+    if (this.isGiftCard()) {
+      return (
+        <GiftCardForm
+          product={this.product}
+          onSkuChange={this.setCurrentSku}
+          selectedSku={this.currentSku}
+          attributes={this.state.attributes}
+          onAttributeChange={this.setAttributeFromField}
+        />
+      );
+    }
+    return (
+      <ProductDetails
+        product={this.product}
+        quantity={this.state.quantity}
+        onQuantityChange={this.changeQuantity}
+      />
+    );
+  }
+
+  render(): Element<any> {
     const {
       t,
       isLoading,
@@ -300,8 +345,7 @@ class Pdp extends Component {
     if (fetchError) {
       return <ErrorAlerts error={fetchError} />;
     }
-
-    const product = this.product;
+    const title = this.isGiftCard() ? t('Gift Card') : this.product.title;
 
     return (
       <div styleName="container">
@@ -309,24 +353,21 @@ class Pdp extends Component {
           {this.renderGallery()}
         </div>
         <div styleName="details">
-          <div styleName="details-wrap">
-            {this.isGiftCard() ?
-              <GiftCardForm
-                product={product}
-                addToCart={this.addToCart}
-                onSkuChange={this.setCurrentSku}
-                selectedSku={this.currentSku}
-                attributes={this.state.attributes}
-                onAttributeChange={this.setAttributeFromField}
-              /> :
-              <ProductDetails
-                product={product}
-                quantity={this.state.quantity}
-                onQuantityChange={this.changeQuantity}
-                addToCart={this.addToCart}
-              />}
-            <ErrorAlerts error={this.state.error} />
+          <Breadcrumbs
+            routes={this.props.routes}
+            params={this.props.params}
+            styleName="breadcrumbs"
+          />
+          <ErrorAlerts error={this.state.error} />
+          <h1 styleName="title">{title}</h1>
+          {this.productForm}
+          <div styleName="cart-actions">
+            <AddToCartBtn
+              onClick={this.addToCart}
+            />
+            <SecondaryButton styleName="one-click-checkout">1-click checkout</SecondaryButton>
           </div>
+          {this.productDetails}
         </div>
         {!_.isEmpty(relatedProducts) && relatedProducts.total ?
           <RelatedProductsList
@@ -337,7 +378,6 @@ class Pdp extends Component {
           />
           : false
         }
-        {!this.isGiftCard() && <ProductAttributes product={this.props.product} />}
       </div>
     );
   }
