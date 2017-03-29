@@ -20,6 +20,7 @@ import styles from './products.css';
 // types
 import type { Route } from 'types';
 import type { Facet } from 'types/facets';
+import type { AbortablePromise } from 'types/promise';
 
 type Params = {
   categoryName: ?string,
@@ -75,7 +76,7 @@ class Products extends Component {
     },
     selectedFacets: {},
   };
-  lastFetch: ?Promise<*>;
+  lastFetch: ?AbortablePromise<*>;
 
   fetch(...args): void {
     if (this.lastFetch && this.lastFetch.abort) {
