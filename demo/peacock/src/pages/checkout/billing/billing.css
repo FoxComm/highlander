@@ -30,7 +30,6 @@
   composes: action-link from "ui/action-link/action-link.css";
   display: flex;
   align-items: flex-start;
-  margin-left: 15px;
   font-size: 17px;
 }
 
@@ -39,7 +38,7 @@
   width: 12px;
 }
 
-.credit-cards-list {
+.credit-cards-list, .gc-coupon {
   padding: 15px 10px 15px 15px;
 }
 

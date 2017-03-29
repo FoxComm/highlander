@@ -3,6 +3,8 @@
 .view-billing {
   text-align: left;
   font-size: 14px;
+  line-height: 1.33;
+  padding-bottom: 15px;
 }
 
 .billing-address {
@@ -47,6 +49,5 @@
 }
 
 .default-card {
-  font-weight: bold;
-  color: var(--greenish);
+  font-weight: 900;
 }

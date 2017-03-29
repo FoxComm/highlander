@@ -379,7 +379,7 @@ class EditBilling extends Component {
 
   renderPaymentFeatures() {
     return (
-      <div key="payment-features">
+      <div key="payment-features" styleName="gc-coupon">
         <Accordion title="COUPON CODE?">
           <PromoCode
             placeholder="Coupon Code"
