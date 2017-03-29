@@ -109,12 +109,12 @@ export default class ObjectDetailsDeux extends Component {
   }
 
   renderWatchers() {
-    const { object, objectType, internalObjectType }  = this.props;
+    const { object, objectType, internalObjectType } = this.props;
 
     const entityType = pluralize(internalObjectType || objectType);
 
     if (object.id) {
-      return <ParticipantsPanel entity={{entityId: object.id, entityType }} />;
+      return <ParticipantsPanel entity={{ entityId: object.id, entityType }} />;
     }
   }
 
@@ -154,7 +154,8 @@ export default class ObjectDetailsDeux extends Component {
         return this.renderWatchers();
       default:
         const renderName = description.type;
-        invariant(this.props.renderers, `There are no renderers provided. Can not find method to render custom field ${description.type}.`);
+        invariant(this.props.renderers,
+          `There are no renderers provided. Can not find method to render custom field ${description.type}.`);
         invariant(this.props.renderers[renderName], `There is no method for render ${description.type}.`);
         return this.props.renderers[renderName](description, section);
     }
