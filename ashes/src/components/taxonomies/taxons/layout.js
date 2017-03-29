@@ -17,7 +17,6 @@ export default (taxonomy: Taxonomy): ObjectPageLayout => ({
             value: [
               'name',
               'description',
-              'colorSwatch',
             ],
           },
         }

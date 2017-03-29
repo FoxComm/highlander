@@ -81,7 +81,6 @@ class TaxonPage extends React.Component {
 
   componentDidMount() {
     const taxonomyParam = parseInt(this.props.params.taxonomyId, 10);
-    const taxonParam = parseInt(this.props.params.taxonId, 10);
 
     if (this.props.taxonomy.id !== taxonomyParam) {
       this.props.fetchTaxonomy(taxonomyParam);
