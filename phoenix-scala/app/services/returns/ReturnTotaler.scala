@@ -1,6 +1,6 @@
 package services.returns
 
-import models.cord.lineitems.{OrderLineItemAdjustments, OrderLineItems}
+import models.cord.lineitems.{CartLineItemAdjustments, OrderLineItems}
 import models.inventory.Skus
 import models.objects.{ObjectForms, ObjectShadows}
 import models.payment.giftcard.GiftCards
