@@ -1,7 +1,7 @@
 // @flow
 
 // libs
-import { get, flow } from 'lodash';
+import { get, flow, sortedUniqBy } from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
@@ -34,6 +34,7 @@ type Props = {
   fetchTaxonomy: (id: number | string) => Promise<*>,
   deleteProductCurried: (taxonId: number | string) => Promise<*>,
   onChange: Function,
+  addedTaxons: Array<Taxonomy>
 };
 
 class TaxonomyWidget extends Component {
@@ -62,53 +63,40 @@ class TaxonomyWidget extends Component {
     this.setState({ inputOpened: !this.state.inputOpened });
   }
 
-  // @autobind
-  // handleFocus() {
-  //   this.setState({ isFocused: true })
-  // }
-  //
-  // @autobind
-  // handleBlur() {
-  //   // this.setState({ isFocused: false })
-  // }
-
-  // get renderList() {
-  //   const { taxonomy, activeTaxonId} = this.props;
-  //   const TaxonsWidget = taxonomy.hierarchical ? HierarchicalTaxonomyListWidget : FlatTaxonomyListWidget;
-  //   const visible = this.state.isFocused;
-  //   const className = classNames(styles.list, { [styles.visible]: visible });
-  //
-  //   return (
-  //     <div className={className}>
-  //       <TaxonsWidget
-  //         taxons={taxonomy.taxons}
-  //         activeTaxonId={activeTaxonId}
-  //         handleTaxonClick={this.handleTaxonClick}
-  //         getTitle={(node: Taxon) => get(node, 'attributes.name.v')}
-  //       />
-  //       <div styleName="footer">
-  //         <AddButton className="fc-btn-primary" onClick={this.handleAddButton}>
-  //           Value
-  //         </AddButton>
-  //       </div>
-  //     </div>
-  //   )
-  // }
-
   get addedTaxons() {
-    const { addedTaxons } = this.props;
+    const taxons = get(this.props.addedTaxons, '0.taxons');
 
-    return addedTaxons.map((item) => {
-      return item.taxons.map((taxon) => {
+    if (!taxons) {
+      return null
+    }
+
+    // temporary hack for hierarchical taxonomies
+    if (this.props.addedTaxons[0].hierarchical) {
+      const sortedTaxons = sortedUniqBy(taxons, (item) => item.id);
+
+      return sortedTaxons.map((taxon) => {
         return (
           <RoundedPill
             text={taxon.attributes.name.v}
             onClose={this.handleCloseClick}
             value={taxon.id}
             styleName="pill"
+            key={taxon.id}
           />
         );
       });
+    }
+
+    return taxons.map((taxon) => {
+        return (
+          <RoundedPill
+            text={taxon.attributes.name.v}
+            onClose={this.handleCloseClick}
+            value={taxon.id}
+            styleName="pill"
+            key={taxon.id}
+          />
+        );
     });
   }
 
@@ -134,8 +122,7 @@ class TaxonomyWidget extends Component {
           </span>
         </div>
         <div className={inputClass}>
-          <input onChange={() => console.log('display search')}
-          />
+          <input onChange={() => console.log('display search')} />
         </div>
         {this.addedTaxons}
       </div>
