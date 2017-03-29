@@ -404,12 +404,12 @@ imgix_products_source: ""
 imgix_s3_bucket_name: ""
 imgix_s3_bucket_prefix: ""
 
-# Product Seeder
-product_seeder_dir: "/product_seeder"
-product_seeder_s3_bucket: fc-dev-assets
-product_seeder_s3_region: us-west-2
-product_seeder_listings_path: "/sample_data/listings.json"
-product_seeder_products_path: "/sample_data/products.json"
+# Data Import
+data_import_dir: "/data_import"
+data_import_s3_bucket: fc-dev-assets
+data_import_s3_region: us-west-2
+data_import_listings_path: "/sample_data/listings.json"
+data_import_products_path: "/sample_data/products.json"
 
 # Various flags
 first_run: false
