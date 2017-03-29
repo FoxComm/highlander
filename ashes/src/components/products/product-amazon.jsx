@@ -11,6 +11,7 @@ import _ from 'lodash';
 import { autobind } from 'core-decorators';
 
 // actions
+import { transitionTo } from 'browserHistory';
 import * as productActions from 'modules/products/details';
 import * as amazonActions from 'modules/channels/amazon';
 import * as schemaActions from 'modules/object-schema';
@@ -20,7 +21,7 @@ import WaitAnimation from 'components/common/wait-animation';
 import ObjectFormInner from 'components/object-form/object-form-inner';
 import ProductAmazonForm from './product-amazon-form';
 import ContentBox from 'components/content-box/content-box';
-import { PrimaryButton } from 'components/common/buttons';
+import { Button, PrimaryButton } from 'components/common/buttons';
 import Typeahead from 'components/typeahead/typeahead';
 import { CategoryItem } from './category-item';
 
@@ -121,6 +122,21 @@ class ProductAmazon extends Component {
     );
   }
 
+  renderButtons() {
+    const { categoryId } = this.state;
+
+    return [
+      <Button onClick={this._handleCancel}>Cancel</Button>,
+      <PrimaryButton
+        onClick={this._handlePush}
+        className={s.saveBtn}
+        disabled={!categoryId}
+      >
+        Push to Amazon
+      </PrimaryButton>
+    ];
+  }
+
   render() {
     const { title, suggest, product, productStatus, fetchingProduct, fetchingSuggest } = this.props;
 
@@ -132,7 +148,10 @@ class ProductAmazon extends Component {
 
     return (
       <div className={s.root}>
-        <h1>{title} for Amazon</h1>
+        <header className={s.header}>
+          <h1 className={s.title}>{title} for Amazon</h1>
+          {this.renderButtons()}
+        </header>
         <ContentBox title="Amazon Listing Information">
           <div className={s.suggesterWrapper}>
             <Typeahead
@@ -147,9 +166,21 @@ class ProductAmazon extends Component {
           </div>
         </ContentBox>
         {this.renderForm()}
-        <PrimaryButton onClick={this._handlePush}>Push</PrimaryButton>
+        <footer className={s.footer}>
+          {this.renderButtons()}
+        </footer>
       </div>
     );
+  }
+
+  @autobind
+  _handleCancel() {
+    const { product } = this.props;
+
+    transitionTo('product', {
+      productId: product.id,
+      context: 'default',
+    });
   }
 
   _getNodeId() {

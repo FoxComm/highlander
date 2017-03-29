@@ -1,6 +1,19 @@
 .root {
   padding: 0 30px;
 }
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 0;
+}
+.title {
+  margin: 0;
+  flex-grow: 1;
+}
+.saveBtn {
+  margin-left: 8px;
+}
 .suggesterWrapper {
   display: flex;
 }
@@ -33,4 +46,10 @@
 
 .box {
   margin: 20px 0;
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 30px 0;
 }
