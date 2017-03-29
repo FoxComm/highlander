@@ -1,10 +1,9 @@
 package models.returns
 
 import java.time.Instant
-import models.inventory.{Sku, Skus}
+import models.inventory.Skus
 import models.objects._
 import shapeless._
-import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 
@@ -43,16 +42,6 @@ object ReturnLineItemSkus
 
   def findByRmaId(returnId: Rep[Int]): QuerySeq =
     filter(_.returnId === returnId)
-
-  def findLineItemsByRma(rma: Return)(
-      implicit ec: EC): DbResultT[Seq[(Sku, ObjectForm, ObjectShadow, ReturnLineItem)]] =
-    (for {
-      liSku  ← ReturnLineItemSkus.findByRmaId(rma.id)
-      li     ← ReturnLineItems if liSku.id === li.id
-      sku    ← liSku.sku
-      shadow ← liSku.shadow
-      form   ← ObjectForms if form.id === sku.formId
-    } yield (sku, form, shadow, li)).result.dbresult
 
   def findByContextAndCode(contextId: Int, code: String): QuerySeq =
     for {

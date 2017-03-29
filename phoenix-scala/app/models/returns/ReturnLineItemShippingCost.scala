@@ -3,7 +3,6 @@ package models.returns
 import java.time.Instant
 import shapeless._
 import slick.driver.PostgresDriver.api._
-import utils.aliases._
 import utils.db._
 
 case class ReturnLineItemShippingCost(id: Int,
@@ -37,8 +36,4 @@ object ReturnLineItemShippingCosts
 
   def findByRmaId(returnId: Int): QuerySeq =
     filter(_.returnId === returnId)
-
-  def findLineItemByRma(rma: Return)(
-      implicit ec: EC): DbResultT[Option[(ReturnLineItemShippingCost, ReturnLineItem)]] =
-    findByRmaId(rma.id).join(ReturnLineItems).on(_.id === _.id).one.dbresult
 }

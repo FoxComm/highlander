@@ -295,7 +295,14 @@ class ReturnIntegrationTest
           ReturnSkuLineItemPayload(sku = product.code, quantity = 1, reasonId = returnReason.id)
         val response =
           returnsApi(rma.referenceNumber).lineItems.add(payload).as[ReturnResponse.Root]
-        response.lineItems.skus.headOption.value.sku.sku must === (product.code)
+        response.lineItems.skus.onlyElement must have(
+            'sku (product.code),
+            'title (product.title),
+            'imagePath (product.image),
+            'quantity (1),
+            'price (product.price),
+            'currency (product.currency)
+        )
       }
 
       "overwrites existing shipping cost" in new ReturnLineItemFixture with ReturnDefaults

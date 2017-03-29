@@ -39,6 +39,8 @@ class ReturnLineItems(tag: Tag) extends FoxTable[ReturnLineItem](tag, "return_li
 
   def * =
     (id, returnId, reasonId, originType, createdAt) <> ((ReturnLineItem.apply _).tupled, ReturnLineItem.unapply)
+
+  def returnReason = foreignKey(ReturnReasons.tableName, reasonId, ReturnReasons)(_.id)
 }
 
 object ReturnLineItems

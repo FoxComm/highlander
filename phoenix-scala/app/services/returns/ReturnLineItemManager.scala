@@ -1,21 +1,24 @@
 package services.returns
 
+import cats.implicits._
 import failures.ReturnFailures._
 import models.cord.Orders
 import models.cord.lineitems.OrderLineItems
 import models.cord.lineitems.OrderLineItems.scope._
 import models.objects._
+import models.product.Mvp
 import models.returns.ReturnLineItem.OriginType
 import models.returns._
 import payloads.ReturnPayloads._
 import responses.ReturnResponse
-import services.LogActivity
+import responses.cord.base.CordResponseLineItems
+import services.{LineItemManager, LogActivity}
 import services.inventory.SkuManager
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
 
-object ReturnLineItemUpdater {
+object ReturnLineItemManager {
 
   def addLineItem(refNum: String, payload: ReturnLineItemPayload)(
       implicit ec: EC,
@@ -155,4 +158,54 @@ object ReturnLineItemUpdater {
       updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(updated)
     } yield response
+
+  def fetchSkuLineItems(rma: Return)(implicit ec: EC,
+                                     db: DB): DbResultT[Seq[ReturnResponse.LineItem.Sku]] = {
+    val skusQuery = (for {
+      liSku  ← ReturnLineItemSkus.findByRmaId(rma.id)
+      li     ← ReturnLineItems if liSku.id === li.id
+      reason ← li.returnReason
+      sku    ← liSku.sku
+      shadow ← liSku.shadow
+      form   ← ObjectForms if form.id === sku.formId
+    } yield (li.id, reason.name, liSku.quantity, sku, form, shadow)).result
+
+    for {
+      skus ← * <~ skusQuery
+      skus ← * <~ skus.toStream.traverse {
+              case v @ (_, _, _, sku, _, _) ⇒ LineItemManager.getLineItemImage(sku).map(_ → v)
+            }
+    } yield
+      skus.flatMap {
+        case (image, (id, reason, quantity, sku, form, shadow)) ⇒
+          for {
+            (price, currency) ← Mvp.price(form, shadow)
+            title             ← Mvp.title(form, shadow)
+          } yield
+            ReturnResponse.LineItem.Sku(
+                id = id,
+                reason = reason,
+                imagePath = image.getOrElse(CordResponseLineItems.NO_IMAGE),
+                title = title,
+                sku = sku.code,
+                quantity = quantity,
+                price = price,
+                currency = currency)
+      }
+  }
+
+  def fetchShippingCostLineItem(rma: Return)(
+      implicit ec: EC): DbResultT[Option[ReturnResponse.LineItem.ShippingCost]] = {
+    val shippingCosts = (for {
+      liSc   ← ReturnLineItemShippingCosts.findByRmaId(rma.id)
+      li     ← liSc.li
+      reason ← li.returnReason
+    } yield (liSc, li, reason)).one.dbresult
+
+    shippingCosts.map(_.map {
+      case (costs, li, reason) ⇒
+        ReturnResponse.LineItem
+          .ShippingCost(id = li.id, reason = reason.name, amount = costs.amount)
+    })
+  }
 }

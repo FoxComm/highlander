@@ -2,19 +2,15 @@ package responses
 
 import java.time.Instant
 import models.account.Users
-import models.customer.CustomersData
 import models.admin.AdminsData
-import models.inventory.Sku
-import models.objects._
-import models.payment.giftcard.{GiftCard, GiftCards}
-import models.product.Mvp
-import models.returns._
+import models.customer.CustomersData
+import models.payment.giftcard.GiftCard
 import models.returns.ReturnPayments.scope._
+import models.returns._
 import responses.CustomerResponse.{Root => Customer}
 import responses.StoreAdminResponse.{Root => User}
 import services.carts.CartTotaler
-import services.returns.ReturnTotaler
-import slick.driver.PostgresDriver.api._
+import services.returns.{ReturnLineItemManager, ReturnTotaler}
 import utils.Money._
 import utils.aliases._
 import utils.db._
@@ -25,12 +21,15 @@ object ReturnResponse {
 
   sealed trait LineItem extends ResponseItem {
     def id: Int
+    def reason: String
   }
-  case class LineItemSku(id: Int, sku: DisplaySku) extends LineItem
-  case class LineItemShippingCost(id: Int, amount: Int) extends LineItem
-
-  case class LineItems(skus: Seq[LineItemSku] = Seq.empty,
-                       shippingCosts: Option[LineItemShippingCost] = Option.empty)
+  object LineItem {
+    case class Sku(id: Int, reason: String, imagePath: String, title: String, sku: String, quantity: Int, price: Int, currency: Currency)
+      extends LineItem
+    case class ShippingCost(id: Int, reason: String, amount: Int) extends LineItem
+  }
+  case class LineItems(skus: Seq[LineItem.Sku] = Seq.empty,
+                       shippingCosts: Option[LineItem.ShippingCost] = Option.empty)
       extends ResponseItem
 
   sealed trait Payment extends ResponseItem {
@@ -46,14 +45,6 @@ object ReturnResponse {
   case class Payments(creditCard: Option[Payment.CreditCard] = None,
                       giftCard: Option[Payment.GiftCard] = None,
                       storeCredit: Option[Payment.StoreCredit] = None) extends ResponseItem
-
-  case class DisplaySku(imagePath: String = "http://lorempixel.com/75/75/fashion",
-                        name: String = "donkey product",
-                        sku: String,
-                        price: Int = 33,
-                        quantity: Int = 1,
-                        totalPrice: Int = 33)
-      extends ResponseItem
 
   case class Root(id: Int,
                   referenceNumber: String,
@@ -77,22 +68,6 @@ object ReturnResponse {
       giftCard = giftCard.map { case (p, gc) ⇒ Payment.GiftCard(p.paymentMethodId, gc.code, p.amount, p.currency) },
       storeCredit = storeCredit.map(sc ⇒ Payment.StoreCredit(sc.paymentMethodId, sc.amount, sc.currency))
     )
-
-  def buildLineItems(
-      skus: Seq[(Sku, ObjectForm, ObjectShadow, ReturnLineItem)],
-      shippingCosts: Option[(ReturnLineItemShippingCost, ReturnLineItem)]): LineItems = {
-    LineItems(
-        skus = skus.map {
-          case (sku, form, shadow, li) ⇒
-            LineItemSku(id = li.id,
-                        sku = DisplaySku(sku = sku.code, price = Mvp.priceAsInt(form, shadow)))
-        },
-        shippingCosts = shippingCosts.map {
-          case (costs, li) ⇒
-            LineItemShippingCost(id = li.id, amount = costs.amount)
-        }
-    )
-  }
 
   def buildTotals(subTotal: Int, shipping: Int, adjustments: Int, taxes: Int): ReturnTotals = {
     ReturnTotals(subTotal = subTotal,
@@ -118,12 +93,12 @@ object ReturnResponse {
       gcPayment <- * <~ ReturnPayments.findGiftCards(rma.id).one
       scPayment <- * <~ ReturnPayments.findAllByReturnId(rma.id).storeCredits.one
       // Line items of each subtype
-      lineItems     ← * <~ ReturnLineItemSkus.findLineItemsByRma(rma)
-      shippingCosts ← * <~ ReturnLineItemShippingCosts.findLineItemByRma(rma)
+      lineItems     ← * <~ ReturnLineItemManager.fetchSkuLineItems(rma)
+      shippingCosts ← * <~ ReturnLineItemManager.fetchShippingCostLineItem(rma)
       // Totals
       adjustments <- * <~ ReturnTotaler.adjustmentsTotal(rma)
       subTotal ← * <~ ReturnTotaler.subTotal(rma)
-      shipping = shippingCosts.map { case (rli, _) ⇒ rli.amount }.getOrElse(0)
+      shipping = shippingCosts.map(_.amount).getOrElse(0)
       taxes ← * <~ CartTotaler.taxesTotal(rma.orderRef,
                                           subTotal = subTotal,
                                           shipping = shipping,
@@ -140,7 +115,7 @@ object ReturnResponse {
             au ← adminData
           } yield StoreAdminResponse.build(a, au),
           payments = buildPayments(creditCard = ccPayment, giftCard = gcPayment, storeCredit = scPayment),
-          lineItems = buildLineItems(lineItems, shippingCosts),
+          lineItems = LineItems(skus = lineItems, shippingCosts = shippingCosts),
           totals = Some(buildTotals(subTotal = subTotal, shipping = shipping, adjustments = adjustments, taxes = taxes))
       )
   }
