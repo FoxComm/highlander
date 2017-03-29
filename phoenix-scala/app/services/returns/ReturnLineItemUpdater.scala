@@ -1,98 +1,135 @@
 package services.returns
 
-import failures._
-import models.cord.lineitems._
+import failures.ReturnFailures.{ReturnReasonNotFoundFailure, ReturnShippingCostExceeded}
+import models.cord.Orders
 import models.objects._
-import models.payment.giftcard._
 import models.returns._
-import models.shipping.Shipments
 import payloads.ReturnPayloads._
 import responses.ReturnResponse
-import responses.ReturnResponse.Root
+import services.LogActivity
 import services.inventory.SkuManager
-import services.returns.Helpers._
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
 
 object ReturnLineItemUpdater {
 
-  // FIXME: Fetch reasons with `mustFindOneById`, cc @anna
-  def addSkuLineItem(refNum: String, payload: ReturnSkuLineItemsPayload, context: ObjectContext)(
+  def addLineItem(refNum: String, payload: ReturnLineItemPayload)(
       implicit ec: EC,
-      db: DB): DbResultT[Root] =
+      db: DB,
+      ac: AC,
+      oc: OC): DbResultT[ReturnResponse.Root] =
     for {
-      // Checks
-      payload ← * <~ payload.validate
-      rma     ← * <~ mustFindPendingReturnByRefNum(refNum)
+      rma ← * <~ Returns.mustFindActiveByRefNum404(refNum)
       reason ← * <~ ReturnReasons
                 .filter(_.id === payload.reasonId)
-                .mustFindOneOr(NotFoundFailure400(ReturnReason, payload.reasonId))
-      sku       ← * <~ SkuManager.mustFindSkuByContextAndCode(context.id, payload.sku)
+                .mustFindOneOr(ReturnReasonNotFoundFailure(payload.reasonId))
+      _        ← * <~ processAddLineItem(rma, reason, payload)
+      updated  ← * <~ Returns.refresh(rma)
+      response ← * <~ ReturnResponse.fromRma(updated)
+    } yield response
+
+  private def processAddLineItem(
+      rma: Return,
+      reason: ReturnReason,
+      payload: ReturnLineItemPayload)(implicit ec: EC, db: DB, ac: AC, oc: OC) = {
+    payload match {
+      case giftCard: ReturnGiftCardLineItemPayload     ⇒ addGiftCardItem(rma, reason, giftCard)
+      case shipping: ReturnShippingCostLineItemPayload ⇒ addShippingCostItem(rma, reason, shipping)
+      case sku: ReturnSkuLineItemPayload               ⇒ addSkuLineItem(rma, reason, sku)
+    }
+  }
+
+  private def addGiftCardItem(
+      rma: Return,
+      reason: ReturnReason,
+      payload: ReturnGiftCardLineItemPayload)(implicit ec: EC, db: DB): DbResultT[ReturnLineItem] =
+    ??? // TODO add gift card handling
+
+  private def validateMaxShippingCost(rma: Return, amount: Int)(implicit ec: EC,
+                                                                db: DB): DbResultT[Unit] =
+    for {
+      order ← * <~ Orders.mustFindByRefNum(rma.orderRef)
+      orderShippingTotal = order.shippingTotal
+      previouslyReturnedCost ← * <~ Returns
+                                .findPrevious(rma)
+                                .join(ReturnLineItemShippingCosts)
+                                .on(_.id === _.returnId)
+                                .map { case (_, shippingCost) ⇒ shippingCost.amount }
+                                .sum
+                                .getOrElse(0)
+                                .result
+      maxAmount = orderShippingTotal - previouslyReturnedCost
+      _ ← * <~ failIf(amount > maxAmount,
+                      ReturnShippingCostExceeded(refNum = rma.referenceNumber,
+                                                 amount = amount,
+                                                 maxAmount = maxAmount))
+    } yield ()
+
+  private def addShippingCostItem(rma: Return,
+                                  reason: ReturnReason,
+                                  payload: ReturnShippingCostLineItemPayload)(
+      implicit ec: EC,
+      ac: AC,
+      db: DB): DbResultT[ReturnLineItem] =
+    for {
+      _ ← * <~ validateMaxShippingCost(rma, payload.amount)
+      _ ← * <~ ReturnLineItemShippingCosts.findByRmaId(rma.id).deleteAll
+      origin ← * <~ ReturnLineItemShippingCosts.create(
+                  ReturnLineItemShippingCost(returnId = rma.id, amount = payload.amount))
+      _  ← * <~ ReturnLineItems.filter(_.originId === origin.id).deleteAll
+      li ← * <~ ReturnLineItems.create(ReturnLineItem.buildShippingCost(rma, reason, origin))
+      _  ← * <~ LogActivity().returnShippingCostItemAdded(rma, reason, payload)
+    } yield li
+
+  private def addSkuLineItem(rma: Return, reason: ReturnReason, payload: ReturnSkuLineItemPayload)(
+      implicit ec: EC,
+      db: DB,
+      ac: AC,
+      oc: OC): DbResultT[ReturnLineItem] =
+    for {
+      sku       ← * <~ SkuManager.mustFindSkuByContextAndCode(oc.id, payload.sku)
       skuShadow ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
-      // Inserts
       origin ← * <~ ReturnLineItemSkus.create(
                   ReturnLineItemSku(returnId = rma.id, skuId = sku.id, skuShadowId = skuShadow.id))
       li ← * <~ ReturnLineItems.create(ReturnLineItem.buildSku(rma, reason, origin, payload))
-      // Response
-      updated  ← * <~ Returns.refresh(rma)
-      response ← * <~ ReturnResponse.fromRma(updated)
-    } yield response
+      _  ← * <~ LogActivity().returnSkuLineItemAdded(rma, reason, payload)
+    } yield li
 
-  def deleteSkuLineItem(refNum: String, lineItemId: Int)(implicit ec: EC,
-                                                         db: DB): DbResultT[Root] =
-    (for {
-      // Checks
-      rma ← * <~ mustFindPendingReturnByRefNum(refNum)
-      lineItem ← * <~ ReturnLineItems
-                  .join(ReturnLineItemSkus)
-                  .on(_.originId === _.id)
-                  .filter { case (oli, sku) ⇒ oli.returnId === rma.id && oli.id === lineItemId }
-                  .mustFindOneOr(NotFoundFailure400(ReturnLineItem, lineItemId))
-      // Deletes
-      _ ← * <~ ReturnLineItems.filter(_.id === lineItemId).delete
-      _ ← * <~ ReturnLineItemSkus.filter(_.id === lineItem._2.id).delete
-      // Response
-      updated  ← * <~ Returns.refresh(rma)
-      response ← * <~ ReturnResponse.fromRma(updated)
-    } yield response)
-
-  def addShippingCostItem(refNum: String, payload: ReturnShippingCostLineItemsPayload)(
-      implicit ec: EC,
-      db: DB): DbResultT[Root] =
+  def deleteLineItem(refNum: String, lineItemId: Int)(implicit ec: EC,
+                                                      ac: AC,
+                                                      db: DB): DbResultT[ReturnResponse.Root] =
     for {
-      // Checks
-      rma ← * <~ mustFindPendingReturnByRefNum(refNum)
-      reason ← * <~ ReturnReasons
-                .filter(_.id === payload.reasonId)
-                .mustFindOneOr(NotFoundFailure400(ReturnReason, payload.reasonId))
-      shipment ← * <~ Shipments
-                  .filter(_.cordRef === rma.orderRef)
-                  .mustFindOneOr(ShipmentNotFoundFailure(rma.orderRef))
-      // Inserts
-      origin ← * <~ ReturnLineItemShippingCosts.create(
-                  ReturnLineItemShippingCost(returnId = rma.id, shipmentId = shipment.id))
-      li ← * <~ ReturnLineItems.create(ReturnLineItem.buildShippinCost(rma, reason, origin))
-      // Response
+      rma      ← * <~ Returns.mustFindActiveByRefNum404(refNum)
+      li       ← * <~ ReturnLineItems.mustFindById404(lineItemId)
+      _        ← * <~ processDeleteLineItem(li, li.originType)
+      _        ← * <~ ReturnLineItems.filter(_.id === lineItemId).deleteAll
       updated  ← * <~ Returns.refresh(rma)
       response ← * <~ ReturnResponse.fromRma(updated)
     } yield response
 
-  def deleteShippingCostLineItem(refNum: String, lineItemId: Int)(implicit ec: EC,
-                                                                  db: DB): DbResultT[Root] =
-    for {
-      // Checks
-      rma ← * <~ mustFindPendingReturnByRefNum(refNum)
-      lineItem ← * <~ ReturnLineItems
-                  .join(ReturnLineItemShippingCosts)
-                  .on(_.originId === _.id)
-                  .filter { case (oli, sku) ⇒ oli.returnId === rma.id && oli.id === lineItemId }
-                  .mustFindOneOr(NotFoundFailure400(ReturnLineItem, lineItemId))
-      // Deletes
-      _ ← * <~ ReturnLineItems.filter(_.id === lineItemId).delete
-      _ ← * <~ ReturnLineItemShippingCosts.filter(_.id === lineItem._2.id).delete
-      // Response
-      updated  ← * <~ Returns.refresh(rma)
-      response ← * <~ ReturnResponse.fromRma(updated)
-    } yield response
+  private def processDeleteLineItem(
+      lineItem: ReturnLineItem,
+      originType: ReturnLineItem.OriginType)(implicit ec: EC, ac: AC, db: DB): DbResultT[Unit] =
+    originType match {
+      case ReturnLineItem.GiftCardItem ⇒ deleteGiftCardLineItem(lineItem)
+      case ReturnLineItem.ShippingCost ⇒ deleteShippingCostLineItem(lineItem)
+      case ReturnLineItem.SkuItem      ⇒ deleteSkuLineItem(lineItem)
+    }
+
+  private def deleteGiftCardLineItem(lineItem: ReturnLineItem)(implicit ec: EC,
+                                                               db: DB): DbResultT[Unit] =
+    ReturnLineItemGiftCards.filter(_.id === lineItem.originId).deleteAll.meh
+
+  private def deleteShippingCostLineItem(
+      lineItem: ReturnLineItem)(implicit ec: EC, ac: AC, db: DB): DbResultT[Unit] = {
+    LogActivity().returnShippingCostItemDeleted(lineItem)
+    ReturnLineItemShippingCosts.filter(_.id === lineItem.originId).deleteAll.meh
+  }
+
+  private def deleteSkuLineItem(
+      lineItem: ReturnLineItem)(implicit ec: EC, ac: AC, db: DB): DbResultT[Unit] = {
+    LogActivity().returnSkuLineItemDeleted(lineItem)
+    ReturnLineItemSkus.filter(_.id === lineItem.originId).deleteAll.meh
+  }
 }

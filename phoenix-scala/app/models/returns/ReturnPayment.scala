@@ -1,13 +1,11 @@
 package models.returns
 
 import models.payment.PaymentMethod
-import models.payment.creditcard.{CreditCard, CreditCards}
-import models.payment.giftcard.GiftCard
-import models.payment.storecredit.StoreCredit
+import models.payment.giftcard.{GiftCard, GiftCards}
+import models.payment.storecredit.{StoreCredit, StoreCredits}
 import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils.Money._
-import utils.aliases.stripe._
 import utils.db._
 
 case class ReturnPayment(id: Int = 0,
@@ -16,40 +14,19 @@ case class ReturnPayment(id: Int = 0,
                          currency: Currency = Currency.USD,
                          paymentMethodId: Int,
                          paymentMethodType: PaymentMethod.Type)
-    extends FoxModel[ReturnPayment] {
-
-  def isCreditCard: Boolean  = paymentMethodType == PaymentMethod.CreditCard
-  def isGiftCard: Boolean    = paymentMethodType == PaymentMethod.GiftCard
-  def isStoreCredit: Boolean = paymentMethodType == PaymentMethod.StoreCredit
-}
+    extends FoxModel[ReturnPayment]
 
 object ReturnPayment {
-  def fromStripeCustomer(stripeCustomer: StripeCustomer, rma: Return): ReturnPayment =
-    ReturnPayment(returnId = rma.id,
-                  paymentMethodId = 1,
-                  paymentMethodType = PaymentMethod.CreditCard)
-
-  def build(method: PaymentMethod, returnId: Int, amount: Int, currency: Currency): ReturnPayment =
-    method match {
-      case gc: GiftCard ⇒
-        ReturnPayment(returnId = returnId,
-                      amount = amount,
-                      currency = currency,
-                      paymentMethodId = gc.id,
-                      paymentMethodType = PaymentMethod.GiftCard)
-      case cc: CreditCard ⇒
-        ReturnPayment(returnId = returnId,
-                      amount = amount,
-                      currency = currency,
-                      paymentMethodId = cc.id,
-                      paymentMethodType = PaymentMethod.CreditCard)
-      case sc: StoreCredit ⇒
-        ReturnPayment(returnId = returnId,
-                      amount = amount,
-                      currency = currency,
-                      paymentMethodId = sc.id,
-                      paymentMethodType = PaymentMethod.StoreCredit)
-    }
+  def build(method: PaymentMethod.Type,
+            methodId: Int,
+            returnId: Int,
+            amount: Int,
+            currency: Currency): ReturnPayment =
+    ReturnPayment(returnId = returnId,
+                  amount = amount,
+                  currency = currency,
+                  paymentMethodId = methodId,
+                  paymentMethodType = method)
 }
 
 class ReturnPayments(tag: Tag) extends FoxTable[ReturnPayment](tag, "return_payments") {
@@ -70,32 +47,36 @@ class ReturnPayments(tag: Tag) extends FoxTable[ReturnPayment](tag, "return_paym
 object ReturnPayments
     extends FoxTableQuery[ReturnPayment, ReturnPayments](new ReturnPayments(_))
     with ReturningId[ReturnPayment, ReturnPayments] {
+  import scope._
 
   val returningLens: Lens[ReturnPayment, Int] = lens[ReturnPayment].id
 
-  def findAllByRmaId(returnId: Int): QuerySeq =
+  def findAllByReturnId(returnId: Int): QuerySeq =
     filter(_.returnId === returnId)
 
-  def findAllStoreCredit: QuerySeq =
-    filter(_.paymentMethodType === (PaymentMethod.StoreCredit: PaymentMethod.Type))
+  def findGiftCards(
+      returnId: Int): Query[(ReturnPayments, GiftCards), (ReturnPayment, GiftCard), Seq] =
+    findAllByReturnId(returnId).giftCards.join(GiftCards).on(_.paymentMethodId === _.id)
 
-  def findAllPaymentMethodmentsFor(
-      returnId: Int): Query[(ReturnPayments, CreditCards), (ReturnPayment, CreditCard), Seq] = {
-    for {
-      payments ← this.filter(_.returnId === returnId)
-      cards    ← CreditCards if cards.id === payments.id
-    } yield (payments, cards)
-  }
+  def findStoreCredits(
+      returnId: Int): Query[(ReturnPayments, StoreCredits), (ReturnPayment, StoreCredit), Seq] =
+    findAllByReturnId(returnId).storeCredits.join(StoreCredits).on(_.paymentMethodId === _.id)
 
-  def findAllCreditCardsForOrder(returnId: Rep[Int]): QuerySeq =
-    filter(_.returnId === returnId)
-      .filter(_.paymentMethodType === (PaymentMethod.CreditCard: PaymentMethod.Type))
+  def findOnHoldGiftCards(returnId: Int): GiftCards.QuerySeq =
+    findGiftCards(returnId).map { case (_, gc) ⇒ gc }
+      .filter(_.state === (GiftCard.OnHold: GiftCard.State))
+
+  def findOnHoldStoreCredits(returnId: Int): StoreCredits.QuerySeq =
+    findStoreCredits(returnId).map { case (_, sc) ⇒ sc }
+      .filter(_.state === (StoreCredit.OnHold: StoreCredit.State))
 
   object scope {
-    implicit class RmaPaymentsQuerySeqConversions(q: QuerySeq) {
+    implicit class RmaPaymentsQuerySeqConversions(private val q: QuerySeq) extends AnyVal {
       def giftCards: QuerySeq    = q.byType(PaymentMethod.GiftCard)
       def creditCards: QuerySeq  = q.byType(PaymentMethod.CreditCard)
       def storeCredits: QuerySeq = q.byType(PaymentMethod.StoreCredit)
+
+      def paymentMethodIds: Query[Rep[Int], Int, Set] = q.map(_.paymentMethodId).to[Set]
 
       def byType(pmt: PaymentMethod.Type): QuerySeq =
         q.filter(_.paymentMethodType === (pmt: PaymentMethod.Type))

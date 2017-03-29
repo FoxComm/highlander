@@ -94,7 +94,6 @@ abstract class FoxTableQuery[M <: FoxModel[M], T <: FoxTable[M]](construct: Tag 
   type QuerySeq = Query[T, M, Seq]
 
   implicit class EnrichedTableQuery(q: QuerySeq) {
-
     def deleteAll(implicit ec: EC): DbResultT[Int] = wrapDbio(q.delete)
 
     def deleteAll[A](onSuccess: ⇒ DbResultT[A], onFailure: ⇒ DbResultT[A])(
@@ -105,5 +104,8 @@ abstract class FoxTableQuery[M <: FoxModel[M], T <: FoxTable[M]](construct: Tag 
       }
       wrapDbResultT(deleteResult)
     }
+
+    def deleteAllWithRowsBeingAffected(implicit ec: EC): DbResultT[Boolean] =
+      deleteAll.map(_ > 0)
   }
 }

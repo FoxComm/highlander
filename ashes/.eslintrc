@@ -33,7 +33,7 @@
       }
     ],
     "quotes": [
-      1,
+      2,
       "single",
       { "allowTemplateLiterals": true }
     ],
@@ -53,6 +53,10 @@
     ],
     "no-trailing-spaces": 2,
     "eol-last": ["error", "always"],
+    "no-console": ["error", { allow: ["warn", "error", "info", "dir"] }],
+    "no-alert": 2,
+    "no-debugger": 2,
+    "no-unused-vars": ["warn", { "vars": "local", "args": "none" }],
     "react/display-name": 0,
     "react/jsx-uses-react": 1,
     "react/jsx-uses-vars": 1,
