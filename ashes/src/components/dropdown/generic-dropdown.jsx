@@ -17,9 +17,10 @@ export type DropdownItemType = [ValueType, string | Element<*>, bool];
 
 export type MouseHandler = (e: MouseEvent) => void;
 
-export type RenderDropdownFunction = (value: any, title:
-                                        ?string
-                                        | Element<*>, props: Props, handleToggleClick: MouseHandler) => Element<*>
+export type RenderDropdownFunction = (value: any,
+                                      title: ?string | Element<*>,
+                                      props: Props,
+                                      handleToggleClick: MouseHandler) => Element<*>
 
 export type Props = {
   id?: string,

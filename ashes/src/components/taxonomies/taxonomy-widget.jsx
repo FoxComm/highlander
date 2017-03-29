@@ -122,7 +122,6 @@ class TaxonomyWidget extends Component {
           </span>
         </div>
         <div className={inputClass}>
-          <input onChange={noop} />
         </div>
         {this.addedTaxons}
       </div>
