@@ -92,7 +92,7 @@ export default class TreeNode extends Component {
       [styles.active]: active,
     });
 
-    const style = { marginLeft: `${depth}px` };
+    const style = { paddingLeft: `${depth}px` };
 
     return (
       <div className={className}>
