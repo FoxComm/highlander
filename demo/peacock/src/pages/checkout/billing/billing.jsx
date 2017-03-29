@@ -14,15 +14,16 @@ import ActionLink from 'ui/action-link/action-link';
 import Modal from 'ui/modal/modal';
 import Loader from 'ui/loader';
 
-// styles
-import styles from './billing.css';
+import { togglePaymentModal } from 'modules/checkout';
 
-// types
 import type { CheckoutBlockProps, BillingData } from '../types';
+
+import styles from './billing.css';
 
 type Props = CheckoutBlockProps & {
   paymentMethods: Array<any>,
   creditCard: BillingData,
+  paymentModalVisible: boolean,
 };
 
 class Billing extends Component {
@@ -59,7 +60,7 @@ class Billing extends Component {
 
       return (
         <ActionLink
-          action={props.toggleShippingModal}
+          action={this.props.togglePaymentModal}
           title={title}
           styleName="action-link-payment"
           icon={icon}
@@ -69,7 +70,7 @@ class Billing extends Component {
   }
 
   get content() {
-    const { coupon, promotion, totals, creditCard } = this.props;
+    const { coupon, promotion, totals, creditCard, paymentModalVisible } = this.props;
 
     return (
       <div styleName="billing-summary">
@@ -98,6 +99,12 @@ class Billing extends Component {
               context="billingView"
             />
           </div>}
+          <Modal
+            show={paymentModalVisible}
+            toggle={this.props.togglePaymentModal}
+          >
+            {this.editBilling}
+          </Modal>
       </div>
     );
   }
@@ -120,7 +127,10 @@ const mapStateToProps = (state) => {
     creditCard: state.checkout.creditCard,
     ...state.cart,
     cartState: _.get(state.asyncActions, 'cart', {}),
+    paymentModalVisible: _.get(state.checkout, 'paymentModalVisible', false),
   };
 };
 
-export default connect(mapStateToProps)(localized(Billing));
+export default connect(mapStateToProps, {
+  togglePaymentModal,
+})(localized(Billing));

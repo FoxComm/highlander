@@ -215,6 +215,7 @@ class EditBilling extends Component {
       addingNew: false,
       cardAdded: false,
     });
+    this.props.togglePaymentModal();
   }
 
   @autobind
@@ -444,7 +445,7 @@ class EditBilling extends Component {
     // Explicitly show card form if user doesn't have any cards
     if (this.state.addingNew || _.isEmpty(creditCards)) {
       const action = {
-        action: this.cancelEditing,
+        handler: this.cancelEditing,
         title: 'Cancel',
       };
 
