@@ -2,15 +2,15 @@
 # yarn lockfile v1
 
 
-"@foxcomm/api-js@^1.1.5":
-  version "1.1.5"
-  resolved "https://npm.foxcommerce.com:4873/@foxcomm%2fapi-js/-/api-js-1.1.5.tgz#3324246df69868b17f49c1a6835f543171b317bb"
+"@foxcomm/api-js@^1.1.6":
+  version "1.1.6"
+  resolved "https://npm.foxcommerce.com:4873/@foxcomm%2fapi-js/-/api-js-1.1.6.tgz#53ff369e3ba745886c95e206f890a06deb43a41a"
   dependencies:
     debug "^2.2.0"
     jwt-decode "^2.0.1"
     lodash "^4.17.4"
     postinstall-build "^0.2.1"
-    superagent "^3.2.1"
+    superagent "^3.5.2"
 
 "@foxcomm/babel-plugin-react-stylenames@^3.1.0":
   version "3.1.0"
@@ -8845,7 +8845,7 @@ sum-up@^1.0.1:
   dependencies:
     chalk "^1.0.0"
 
-superagent@^3.2.1:
+superagent@^3.5.2:
   version "3.5.2"
   resolved "https://registry.yarnpkg.com/superagent/-/superagent-3.5.2.tgz#3361a3971567504c351063abeaae0faa23dbf3f8"
   dependencies:
@@ -9178,7 +9178,7 @@ ua-parser-js@0.7.12, ua-parser-js@^0.7.9:
   version "0.7.12"
   resolved "https://registry.yarnpkg.com/ua-parser-js/-/ua-parser-js-0.7.12.tgz#04c81a99bdd5dc52263ea29d24c6bf8d4818a4bb"
 
-uglify-js@2.6.4, uglify-js@^2.6:
+uglify-js@2.6.4:
   version "2.6.4"
   resolved "https://registry.yarnpkg.com/uglify-js/-/uglify-js-2.6.4.tgz#65ea2fb3059c9394692f15fed87c2b36c16b9adf"
   dependencies:
@@ -9187,7 +9187,7 @@ uglify-js@2.6.4, uglify-js@^2.6:
     uglify-to-browserify "~1.0.0"
     yargs "~3.10.0"
 
-uglify-js@^2.6.1, uglify-js@~2.7.3:
+uglify-js@^2.6, uglify-js@^2.6.1, uglify-js@~2.7.3:
   version "2.7.5"
   resolved "https://registry.yarnpkg.com/uglify-js/-/uglify-js-2.7.5.tgz#4612c0c7baaee2ba7c487de4904ae122079f2ca8"
   dependencies:

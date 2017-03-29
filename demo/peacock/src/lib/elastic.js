@@ -1,5 +1,6 @@
 /* @flow */
 import { assoc } from 'sprout-data';
+import _ from 'lodash';
 
 
 export type TermFilter = {
@@ -18,6 +19,14 @@ export type MatchFilter = {
   },
 };
 
+type SortOrder = {
+  order: 'desc' | 'asc',
+}
+
+type SortValue = {
+  [key: string]: SortOrder,
+}
+
 export type BoolQuery = {
   query: {
     bool: {
@@ -27,6 +36,7 @@ export type BoolQuery = {
       must_not?: Array<MatchFilter | TermFilter>,
     },
   },
+  sort?: Array<SortValue>,
 };
 
 export function termFilter(term: string, value: any): TermFilter {
@@ -63,6 +73,60 @@ export function addMustNotFilter(initialQuery: BoolQuery, filter: MatchFilter | 
   return assoc(initialQuery,
     ['query', 'bool', 'must_not'], [...initialQuery.query.bool.must_not || [], filter]
   );
+}
+
+export function addTaxonomyFilter(initialQuery: BoolQuery, taxonomy: string, taxons: Array<string>): BoolQuery {
+
+  const taxonTerms = _.map(taxons, (t) => {
+    return {term: {'taxonomies.taxons': t}};
+  });
+
+  var filter = {
+    nested:{
+      path:'taxonomies',
+          query:{
+            bool:{
+              must:[
+                {term:{'taxonomies.taxonomy':taxonomy} },
+                {query: { bool: {should: taxonTerms}}},
+              ]
+            }
+          }
+    }
+  };
+  return assoc(initialQuery,
+      ['query', 'bool', 'must'], [...initialQuery.query.bool.must || [], filter]
+  );
+}
+
+function defaultAggregation() {
+  return {
+    aggs: {
+      taxonomies: {
+        nested: {
+          path: "taxonomies"
+        },
+        aggs: {
+          taxonomy: {
+            terms: {
+              field: "taxonomies.taxonomy"
+            },
+            aggs: {
+              taxon: {
+                terms: {
+                  field: "taxonomies.taxons"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+export function addTaxonomiesAggregation(initialQuery: BoolQuery): BoolQuery {
+  return assoc(initialQuery,["aggs"],defaultAggregation().aggs);
 }
 
 export function addMatchQuery(query: BoolQuery, searchString: string): BoolQuery {

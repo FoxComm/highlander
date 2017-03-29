@@ -10,6 +10,7 @@ import { categoryNameFromUrl } from 'paragons/categories';
 
 // components
 import ProductsList, { LoadingBehaviors } from 'components/products-list/products-list';
+import Facets from 'components/facets/facets';
 import Breadcrumbs from 'components/breadcrumbs/breadcrumbs';
 import ErrorAlerts from 'ui/alerts/error-alerts';
 
@@ -17,7 +18,9 @@ import ErrorAlerts from 'ui/alerts/error-alerts';
 import styles from './products.css';
 
 // types
-import { Route } from 'types';
+import type { Route } from 'types';
+import type { Facet } from 'types/facets';
+import type { AbortablePromise } from 'types/promise';
 
 type Params = {
   categoryName: ?string,
@@ -40,6 +43,7 @@ type Props = {
   location: any,
   routes: Array<Route>,
   routerParams: Object,
+  facets: Array<Facet>,
 };
 
 type State = {
@@ -47,6 +51,7 @@ type State = {
     direction: number,
     field: string,
   },
+  selectedFacets: {},
 };
 
 // redux
@@ -58,6 +63,10 @@ const mapStateToProps = (state) => {
   };
 };
 
+const facetWhitelist = [
+  'gender', 'category', 'color', 'brand', 'sport',
+];
+
 class Products extends Component {
   props: Props;
   state: State = {
@@ -65,12 +74,23 @@ class Products extends Component {
       direction: 1,
       field: 'salePrice',
     },
+    selectedFacets: {},
   };
+  lastFetch: ?AbortablePromise<*>;
+
+  fetch(...args): void {
+    if (this.lastFetch && this.lastFetch.abort) {
+      this.lastFetch.abort();
+      this.lastFetch = null;
+    }
+    this.lastFetch = this.props.fetch(...args);
+    this.lastFetch.catch(_.noop);
+  }
 
   componentWillMount() {
     const { categoryName, subCategory, leafCategory } = this.props.params;
-    const { sorting } = this.state;
-    this.props.fetch([categoryName, subCategory, leafCategory], sorting).catch(_.noop);
+    const { sorting, selectedFacets } = this.state;
+    this.fetch([categoryName, subCategory, leafCategory], sorting, selectedFacets);
   }
 
   componentWillReceiveProps(nextProps: Props) {
@@ -81,17 +101,23 @@ class Products extends Component {
       leafCategory: nextLeafCategory,
     } = nextProps.params;
 
-    if ((categoryName !== nextCategoryName) ||
-        (subCategory !== nextSubCategory) ||
-        (leafCategory !== nextLeafCategory)) {
-      this.props.fetch([nextCategoryName, nextSubCategory, nextLeafCategory], this.state.sorting);
+    const mustInvalidate = (categoryName !== nextCategoryName) ||
+      (subCategory !== nextSubCategory) ||
+      (leafCategory !== nextLeafCategory);
+
+    if (mustInvalidate) {
+      this.fetch(
+        [nextCategoryName, nextSubCategory, nextLeafCategory],
+        this.state.sorting,
+        this.state.selectedFacets
+      );
     }
   }
 
 
   @autobind
   changeSorting(field: string) {
-    const { sorting } = this.state;
+    const { sorting, selectedFacets } = this.state;
     const direction = sorting.field === field
       ? sorting.direction * (-1)
       : sorting.direction;
@@ -101,9 +127,9 @@ class Products extends Component {
       direction,
     };
 
-    this.setState({sorting: newState}, () => {
+    this.setState({selectedFacets, sorting: newState}, () => {
       const { categoryName, subCategory, leafCategory } = this.props.params;
-      this.props.fetch([categoryName, subCategory, leafCategory], newState);
+      this.props.fetch([categoryName, subCategory, leafCategory], newState, selectedFacets);
     });
   }
 
@@ -113,6 +139,27 @@ class Products extends Component {
   }
 
   @autobind
+  onSelectFacet(facet, value, selected) {
+    const newSelection = this.state.selectedFacets;
+    if (selected) {
+      if (facet in newSelection) {
+        newSelection[facet].push(value);
+      } else {
+        newSelection[facet] = [value];
+      }
+    } else if (facet in newSelection) {
+      const values = newSelection[facet];
+      newSelection[facet] = _.filter(values, (v) => {
+        return v != value;
+      });
+    }
+
+    this.setState({selectedFacets: newSelection, sorting: this.state.sorting}, () => {
+      const { categoryName, subCategory, leafCategory } = this.props.params;
+      this.fetch([categoryName, subCategory, leafCategory], this.state.sorting, newSelection);
+    });
+  }
+
   renderHeader() {
     const { params } = this.props;
     const { categoryName, subCategory, leafCategory } = params;
@@ -141,26 +188,68 @@ class Products extends Component {
     );
   }
 
+  get navBar(): ?Element<*> {
+    return <div />;
+  }
+
+  renderSidebar() {
+    const { params } = this.props;
+    const { categoryName, subCategory, leafCategory } = params;
+
+    let realCategoryName = '';
+    if (leafCategory) {
+      realCategoryName = this.categoryName(leafCategory);
+    } else if (subCategory) {
+      realCategoryName = this.categoryName(subCategory);
+    } else if (categoryName) {
+      realCategoryName = this.categoryName(categoryName);
+    }
+
+    return (
+      <div styleName="sidebar">
+        <div styleName="crumbs">
+          <Breadcrumbs
+            routes={this.props.routes}
+            params={this.props.routerParams}
+          />
+        </div>
+        <div styleName="title">
+          {realCategoryName}
+        </div>
+        <Facets facets={this.props.facets} whitelist={facetWhitelist} onSelect={this.onSelectFacet} />
+      </div>
+    );
+  }
+
   get body(): Element<any> {
     const { err, finished } = this.props.fetchState;
     if (err) {
       return <ErrorAlerts styleName="products-error" error={err} />;
     }
     return (
-      <ProductsList
-        sorting={this.state.sorting}
-        changeSorting={this.changeSorting}
-        list={this.props.list}
-        isLoading={!finished}
-        loadingBehavior={LoadingBehaviors.ShowWrapper}
-      />
+      <div>
+        <div styleName="dropDown">
+          {this.navBar}
+        </div>
+        <div styleName="facetted-container">
+          {this.renderSidebar()}
+          <div styleName="content">
+            <ProductsList
+              sorting={this.state.sorting}
+              changeSorting={this.changeSorting}
+              list={this.props.list}
+              isLoading={!finished}
+              loadingBehavior={LoadingBehaviors.ShowWrapper}
+            />
+          </div>
+        </div>
+      </div>
     );
   }
 
   render(): Element<*> {
     return (
       <section styleName="catalog">
-        {this.renderHeader()}
         {this.body}
       </section>
     );
