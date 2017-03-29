@@ -242,6 +242,7 @@ export class ObjectPage extends Component {
         });
       }
     }
+
   }
 
   componentWillUnmount() {

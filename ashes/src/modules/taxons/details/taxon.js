@@ -43,6 +43,12 @@ const _addProduct = createAsyncActions(
     Api.patch(`/taxons/${context}/${taxonId}/product/${productId}`)
 );
 
+const _deleteProduct = createAsyncActions(
+  'taxonDeleteProduct',
+  (productId, context: string = defaultContext, taxonId: number) =>
+    Api.delete(`/taxons/${context}/${taxonId}/product/${productId}`)
+);
+
 ////////////////////////////////////////////////////////////////////////////////
 // Public actions.
 ////////////////////////////////////////////////////////////////////////////////
@@ -55,6 +61,9 @@ export const create = (taxonomyId: string) => _createTaxon.perform.bind(null, ta
 export const archive = _archiveTaxon.perform;
 export const update = _updateTaxon.perform;
 export const addProduct = _addProduct.perform;
+export const deleteProduct = _deleteProduct.perform;
+export const deleteProductCurried = (productId: number, context: string) => _deleteProduct.perform.bind(null, productId, context);
+
 
 export const fetch = (id: string, context: string = defaultContext): ActionDispatch => {
   return dispatch => {
