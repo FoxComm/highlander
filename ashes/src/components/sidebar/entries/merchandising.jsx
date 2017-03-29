@@ -7,12 +7,11 @@ import { createReducer } from 'redux-act';
 import { makeLocalStore, addAsyncReducer } from '@foxcomm/wings';
 import { createAsyncActions } from '@foxcomm/wings';
 
-import { anyPermitted, isPermitted } from 'lib/claims';
+import { anyPermitted } from 'lib/claims';
 import { frn, readAction } from 'lib/frn';
 import { searchTaxonomies } from 'elastic/taxonomy';
 
 import NavigationItem from '../navigation-item';
-import { IndexLink, Link } from 'components/link';
 import WaitAnimation from 'components/common/wait-animation';
 
 // styles

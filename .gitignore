@@ -6,7 +6,6 @@
 *~
 
 # Local Build Artifacts
-.vagrant/
 .vault_pass
 .env.local
 .DS_Store
@@ -19,10 +18,8 @@ ashes/public_key.pem
 # Logs
 *.log
 
-# target folder
-middlewarehouse/consumers/shipstation/shipstation-consumer
-
 # goldrush files
+goldrush.cfg
 goldrush.state
 
 *.sublime*

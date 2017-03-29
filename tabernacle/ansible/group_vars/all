@@ -29,7 +29,8 @@ docker_logs_host_dir: /var/log/docker
 
 # Google Cloud defaults
 gce_disk_size: 40
-gce_image: appliance-base-170207-004420
+gce_image: appliance-base-170328-215629
+
 gce_machine_type: n1-standard-4
 gce_project_id: "foxcomm-staging"
 gce_zone: "us-central1-a"
@@ -60,6 +61,9 @@ docker_tags:
     river_rock: "{{ lookup('env', 'DOCKER_TAG_RIVER_ROCK') | default('master', true) }}"
     digger_sphex: "{{ lookup('env', 'DOCKER_TAG_DIGGER_SPHEX') | default('master', true) }}"
     orders_sphex: "{{ lookup('env', 'DOCKER_TAG_ORDERS_SPHEX') | default('master', true) }}"
+    orders_anthill: "{{ lookup('env', 'DOCKER_TAG_ORDERS_ANTHILL') | default('master', true) }}"
+    anthill: "{{ lookup('env', 'DOCKER_TAG_ANTHILL') | default('master', true) }}"
+    neo4j: "{{ lookup('env', 'DOCKER_TAG_NEO4J') | default('master', true) }}"
 
 # Configurable Marathon re-deploys
 marathon_restart:
@@ -88,6 +92,9 @@ marathon_restart:
     river_rock: "{{ lookup('env', 'MARATHON_RIVER_ROCK') | default(true, true) | bool }}"
     digger_sphex: "{{ lookup('env', 'MARATHON_DIGGER_SPHEX') | default(true, true) | bool }}"
     orders_sphex: "{{ lookup('env', 'MARATHON_ORDERS_SPHEX') | default(true, true) | bool }}"
+    orders_anthill: "{{ lookup('env', 'MARATHON_ORDERS_ANTHILL') | default(true, true) | bool }}"
+    anthill: "{{ lookup('env', 'MARATHON_ANTHILL') | default(true, true) | bool }}"
+    neo4j: "{{ lookup('env', 'MARATHON_NEO4J') | default(true, true) | bool }}"
 
 # Should we use Intelligent Commerce
 with_ic: "{{ lookup('env', 'WITH_INTELLIGENT_COMMERCE') | default(true, true) | bool }}"
@@ -278,6 +285,18 @@ river_rock_server: "{{river_rock_host}}:{{river_rock_port}}"
 # Henhouse
 henhouse_host: "henhouse.{{consul_suffix}}"
 henhouse_server: "{{henhouse_host}}"
+
+# anthill
+anthill_host: "anthill.{{consul_suffix}}"
+anthill_server: "{{anthill_host}}"
+
+# neo4j
+neo4j_user: "neo4j"
+neo4j_pass: "password"
+neo4j_host: "neo4j.{{consul_suffix}}"
+neo4j_server: "{{neo4j_host}}"
+neo4j_port: "7687"
+neo4j_http_port: "7474"
 
 # Elasticsearch 2.x
 es_version: elasticsearch-2.1.2

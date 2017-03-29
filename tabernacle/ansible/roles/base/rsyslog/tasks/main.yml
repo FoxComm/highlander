@@ -1,7 +1,7 @@
 ---
 
 - name: Install Rsyslog Dependencies
-  apt: name={{item}} state=installed
+  apt: name={{item}} state=latest force=yes update_cache=yes
   with_items:
       - debconf-utils
       - librdkafka-dev
@@ -13,6 +13,8 @@
       - uuid-dev
       - libgcrypt-dev
       - liblogging-stdlog-dev
+      - pkg-config
+      - zlib1g-dev
 
 - name: Get libfastjson
   git: repo=https://github.com/rsyslog/libfastjson.git dest={{home}}/libfastjson
