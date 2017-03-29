@@ -12,8 +12,6 @@ import classNames from 'classnames';
 // components
 import { AddButton } from 'components/common/buttons';
 import WaitAnimation from 'components/common/wait-animation';
-import HierarchicalTaxonomyListWidget from '../taxons/hierarchical-taxonomy-widget';
-import FlatTaxonomyListWidget from '../taxons/flat-taxonomy-widget';
 import RoundedPill from 'components/rounded-pill/rounded-pill';
 import { bindActionCreators } from 'redux';
 
@@ -35,8 +33,10 @@ type Props = {
   fetchTaxonomy: (id: number | string) => Promise<*>,
   unlinkProduct: (taxonId: number | string) => Promise<*>,
   onChange: Function,
-  linkedTaxonomy: Array<LinkedTaxonomy>
+  linkedTaxonomy: LinkedTaxonomy,
 };
+
+const getName = (obj: any) => get(obj, 'attributes.name.v');
 
 class TaxonomyWidget extends Component {
   props: Props;
@@ -72,29 +72,15 @@ class TaxonomyWidget extends Component {
     }
 
     // temporary hack for hierarchical taxonomies
-    if (linkedTaxonomy.hierarchical) {
-      const sortedTaxons = sortedUniqBy(taxons, (item) => item.id);
+    const taxons = linkedTaxonomy.hierarchical ?
+      sortedUniqBy(linkedTaxonomy.taxons, (item) => item.id) : linkedTaxonomy.taxons;
 
-      return sortedTaxons.map((taxon) => {
-        return (
-          <RoundedPill
-            text={taxon.attributes.name.v}
-            onClose={this.handleCloseClick}
-            value={taxon.id}
-            styleName="pill"
-            inProgress={unlinkState.inProgress}
-            key={taxon.id}
-          />
-        );
-      });
-    }
-
-    return linkedTaxonomy.taxons.map((taxon) => {
+    return taxons.map((taxon: Taxon) => {
       return (
         <RoundedPill
-          text={taxon.attributes.name.v}
+          text={getName(taxon)}
           onClose={this.handleCloseClick}
-          value={taxon.id}
+          value={String(taxon.id)}
           styleName="pill"
           inProgress={unlinkState.inProgress}
           key={taxon.id}

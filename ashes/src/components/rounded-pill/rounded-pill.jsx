@@ -13,7 +13,7 @@ type Props = {
   onClose?: (value: string) => void,
   className?: string,
   pillId?: string,
-  inProgress: boolean,
+  inProgress?: boolean,
 };
 
 const RoundedPill = (props: Props) => {
