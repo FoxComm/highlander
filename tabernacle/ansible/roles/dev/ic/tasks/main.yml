@@ -3,6 +3,10 @@
 - name: Creates Marathon JSON directory
   file: path=/marathon/applications state=directory
 
+- name: Start Neo4j
+  include: app_neo4j.yml
+  when: with_ic and marathon_restart.neo4j
+
 - name: Start Henhouse
   include: app_henhouse.yml
   when: with_ic and marathon_restart.henhouse
