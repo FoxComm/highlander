@@ -188,6 +188,7 @@ class TreeTable extends Component {
             ...data,
             rows: this.rows,
           }}
+          predicate={({ node }: TableTreeNode) => node.id}
           headerControls={this.headerControls}
           renderRow={this.renderRow}
         />
