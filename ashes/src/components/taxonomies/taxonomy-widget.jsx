@@ -67,7 +67,7 @@ class TaxonomyWidget extends Component {
     const taxons = get(this.props.addedTaxons, '0.taxons');
 
     if (!taxons) {
-      return null
+      return null;
     }
 
     // temporary hack for hierarchical taxonomies
