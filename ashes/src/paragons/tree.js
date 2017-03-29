@@ -1,40 +1,32 @@
 /* @flow */
-import values from 'lodash/values';
 
-export function findNode(tree: Tree, id: Identifier): ?TreeNode {
-  const _find = (nodes: Array<TreeNode>, id: Identifier) =>
-    nodes.reduce((res: ?TreeNode, node): ?TreeNode => {
-      if (res) {
-        return res;
-      }
+export function findNode(tree: Array<TNode<any>>, id: Identifier): ?TNode<any> {
+  return tree.reduce((res: ?TNode<any>, node: TNode<any>): ?TNode<any> => {
+    if (res) {
+      return res;
+    }
 
-      return node.id === id ? node : _find(node.children, id);
-    }, null);
+    if (node.node.id === id) {
+      return node;
+    }
 
-  const res = _find(values(tree), id);
+    if (node.children) {
+      return findNode(node.children, id);
+    }
 
-  return res;
+    return null;
+  }, null);
 }
 
-export function collapseNode(tree: Tree, id: Identifier) {
-  const node = findNode(tree, id);
-
-  if (node) {
-    node.collapsed = !node.collapsed;
-  }
-
-  return tree;
-}
-
-export function updateNodes(tree: Tree, updater: (node: TreeNode) => any) {
-  const traverse = (nodes: Array<TreeNode>) =>
-    nodes.forEach((node: TreeNode) => {
+export function updateNodes(tree: Array<TNode<any>>, updater: (node: TNode<any>) => any) {
+  const traverse = (nodes: Array<TNode<any>>) =>
+    nodes.forEach(node => {
       if (node.children) traverse(node.children);
 
       updater(node);
     });
 
-  traverse(values(tree));
+  traverse(tree);
 
   return tree;
 }

@@ -1,7 +1,6 @@
 // @flow
 
 // lib
-import get from 'lodash/get';
 import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
 import React, { Component } from 'react';
@@ -11,20 +10,10 @@ import FormField from 'components/forms/formfield';
 import ObjectDetailsDeux from 'components/object-page/object-details-deux';
 import TaxonsDropdown from '../taxons-dropdown';
 
-
-import HierarchicalTaxonomyListWidget from './hierarchical-taxonomy-widget';export default class TaxonDetails extends Component {
-  /*
-   * should be
-   * props: ObjectPageChildProps<Taxon> & {
-   *  taxonomy: Taxonomy,
-   * }
-   * but flow does not understand that props are of type ObjectPageChildProps<Taxon> and throw an error in
-   * <ObjectDetailsDeux
-   *   {...this.props}
-   *   renderers={this.renderers}
-   * />
-   */
-  props: ObjectPageChildProps<Taxon>;
+export default class TaxonDetails extends Component {
+  props: ObjectPageChildProps<Taxon> & {
+    taxonomy: Taxonomy,
+  };
 
   @autobind
   handleParentChange(id: ?number) {
@@ -42,7 +31,7 @@ import HierarchicalTaxonomyListWidget from './hierarchical-taxonomy-widget';expo
         label="Parent"
       >
         <TaxonsDropdown
-          taxonomy={get(this.props, 'taxonomy')}
+          taxonomy={this.props.taxonomy}
           taxon={this.props.object}
           onChange={this.handleParentChange}
         />
@@ -57,9 +46,12 @@ import HierarchicalTaxonomyListWidget from './hierarchical-taxonomy-widget';expo
   }
 
   render() {
+    // workaround for flow strange behavior with intersection types
+    const props: ObjectPageChildProps<Taxon> = this.props;
+
     return (
       <ObjectDetailsDeux
-        {...this.props}
+        {...props}
         renderers={this.renderers}
       />
     );

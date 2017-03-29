@@ -68,7 +68,7 @@ object TaxonResponses {
     }
   }
 
-  case class TaxonTreeResponse(taxon: FullTaxonResponse, children: Option[Seq[TaxonTreeResponse]])
+  case class TaxonTreeResponse(node: FullTaxonResponse, children: Option[Seq[TaxonTreeResponse]])
       extends ResponseItem {
     def childrenAsList: Seq[TaxonTreeResponse] = children.getOrElse(Seq.empty)
   }

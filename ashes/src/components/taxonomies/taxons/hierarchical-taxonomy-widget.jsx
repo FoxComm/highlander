@@ -19,7 +19,7 @@ type Props = {
 const _reduce = (res: Array<Node<Taxon>>, node: TaxonNode) => {
   const children = node.children ? node.children.reduce(_reduce, []) : null;
 
-  res.push({ children, node: node.taxon });
+  res.push({ children, node: node.node });
 
   return res;
 };

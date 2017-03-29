@@ -44,7 +44,7 @@ declare type TaxonResult = {
 
 declare type TaxonNode = {
   children: TaxonsTree,
-  taxon: Taxon,
+  node: Taxon,
 };
 
 declare type TaxonsTree = Array<TaxonNode>;

@@ -7,11 +7,13 @@ import { autobind } from 'core-decorators';
 import React, { Component, Element } from 'react';
 
 // components
-import TextInput from 'components/forms/text-input';
 import { DropdownItem } from 'components/dropdown';
 import GenericDropdown from 'components/dropdown/generic-dropdown';
 import PilledInput from 'components/pilled-search/pilled-input';
 import { renderTree } from '../taxons/hierarchical-taxonomy-widget';
+
+// helpers
+import { findNode } from 'paragons/tree';
 
 // styles
 import styles from './taxons-dropdown.css';
@@ -41,31 +43,12 @@ const SEP = ' > ';
 
 const getName = (taxon: ?Taxon, dft = '') => get(taxon, 'attributes.name.v', dft);
 
-function findNode(taxons: TaxonsTree, id: number): ?Taxon {
-  const _find = (taxons: TaxonsTree, id: number) =>
-    taxons.reduce((res: ?Taxon, node): ?Taxon => {
-      if (res) {
-        return res;
-      }
-      if (node.taxon.id === id) {
-        return node.taxon;
-      }
-      if (node.children) {
-        return _find(node.children, id);
-      }
-
-      return null;
-    }, null);
-
-  return _find(taxons, id);
-}
-
 const buildTaxonsDropDownItems = (taxons: TaxonsTree, prefix: string, sep: string, finale: ReduceResult = {}) =>
   taxons.reduce((res: ReduceResult, node: TaxonNode) => {
-    const name = getName(node.taxon);
+    const name = getName(node.node);
     const path = `${prefix}${name}`;
 
-    res = assoc(res, node.taxon.id, { id: node.taxon.id, name, path });
+    res = assoc(res, node.node.id, { id: node.node.id, name, path });
 
     if (!isEmpty(node.children)) {
       res = merge(res, buildTaxonsDropDownItems(node.children, `${name}${sep}`, sep, res));
@@ -131,9 +114,11 @@ export default class TaxonsDropdown extends Component {
 
   @autobind
   renderInput(value: any, title: any, props: any, handleToggleClick: (e: MouseEvent) => void): Element<*> {
-    const parentId = get(this.props.taxon, ['location', 'parent']);
-    const parent = findNode(this.props.taxonomy.taxons, parentId);
-    const parentName = getName(parent, null);
+    const { taxonomy: { taxons }, taxon } = this.props;
+
+    const parentId = get(taxon, ['location', 'parent']);
+    const parent = findNode((taxons: Array<TNode<Taxon>>), parentId, (node: TNode<Taxon>) => node.node.id);
+    const parentName = getName(get(parent, 'node'));
 
     return (
       <PilledInput
