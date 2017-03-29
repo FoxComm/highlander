@@ -44,7 +44,7 @@
       max-height: var(--size);
       background: var(--radio-button-unchecked);
       margin-right: 8px;
-      margin-top: 2px;
+      margin-top: 1px;
       vertical-align: middle;
       border-radius: 100%;
       border: 1px solid var(--radio-button-border);

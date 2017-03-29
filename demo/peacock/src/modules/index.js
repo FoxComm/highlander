@@ -1,4 +1,3 @@
-
 /* eslint-disable import/no-named-as-default */
 
 import { combineReducers } from 'redux';
@@ -15,6 +14,7 @@ import auth from './auth';
 import usermenu from './usermenu';
 import profile from './profile';
 import orders from './orders';
+import crossSell from './cross-sell';
 
 import { reducer as asyncReducer } from '@foxcomm/wings/lib/redux/async-utils';
 
@@ -33,6 +33,7 @@ const reducer = combineReducers({
   usermenu,
   profile,
   orders,
+  crossSell,
 });
 
 export default reducer;

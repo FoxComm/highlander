@@ -20,7 +20,7 @@ export default function wrapModal(Modal) {
     componentDidUpdate() {
       document.body.classList[this.props.isVisible ? 'add' : 'remove']('fc-is-modal-opened');
     }
-    
+
     componentWillUnmount() {
       document.body.classList.remove('fc-is-modal-opened');
     }

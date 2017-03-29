@@ -11,7 +11,8 @@ import localized from 'lib/i18n';
 // components
 import Button from 'ui/buttons';
 import Loader from 'ui/loader';
-import OrderSummary from 'components/order-summary/order-summary';
+import OrderTotals from 'components/order-summary/totals';
+import Products from 'components/order-summary/product-table';
 
 // styles
 import styles from './order-placed.css';
@@ -60,19 +61,19 @@ class OrderPlaced extends Component {
       return <Loader />;
     }
 
-    const header = (
-      <h2 styleName="subtitle">Your Order</h2>
+    return (
+      <OrderTotals totals={order.totals} />
     );
+  }
+
+  get orderLineItems() {
+    const { orderPlaced, order } = this.props;
+    if (!orderPlaced || !order) {
+      return null;
+    }
 
     return (
-      <OrderSummary
-        isCollapsed={false}
-        header={header}
-        styleName="summary"
-        {...order}
-        skus={order.lineItems.skus}
-        orderPlaced
-      />
+      <Products skus={order.skus} />
     );
   }
 
@@ -91,14 +92,17 @@ class OrderPlaced extends Component {
           <Button styleName="to-home" onClick={this.toHome}>{t('Continue Shopping')}</Button>
         </div>
         <div styleName="order-summary">
-          <div styleName="order-number">
+          <div styleName="bordered-block">
             <div styleName="order-number-content">
               <h2 styleName="subtitle">Order Confirmation Number</h2>
               <p styleName="order-ref">{orderPlaced}</p>
             </div>
           </div>
 
-          {this.orderSummary}
+          <div styleName="bordered-block">
+            {this.orderLineItems}
+            {this.orderSummary}
+          </div>
         </div>
       </div>
     );

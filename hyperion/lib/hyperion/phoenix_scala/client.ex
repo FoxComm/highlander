@@ -11,14 +11,16 @@ defmodule Hyperion.PhoenixScala.Client do
   end
 
   @doc """
-  DO NOT USE IT! This function made just for testing!
+  Gets JWT from Phoenix. Try to not use it very often because it takes a lot of time
   """
   def login do
-    {:ok, req} = Poison.encode(%{email: "admin@admin.com", password: "password", org: "tenant"})
-    post("/api/v1/public/login", req, request_headers)
-    case post("/api/v1/public/login", req, request_headers) do
-      {:ok, resp} -> Keyword.take(resp.headers, ["JWT"]) |> hd |> elem(1)
-      {:error, err} -> inspect(err)
+    email = Application.fetch_env!(:hyperion, :phoenix_email)
+    password = Application.fetch_env!(:hyperion, :phoenix_password)
+    org = Application.fetch_env!(:hyperion, :phoenix_org)
+    params = Poison.encode!(%{email: email, password: password, org: org})
+    case post("/api/v1/public/login", params, make_request_headers()) do
+      {_, %{body: _, headers: headers, status_code: 200}} -> Keyword.take(headers, ["Jwt"]) |> hd |> elem(1)
+      {_, %{body: resp, headers: _, status_code: _}} -> raise hd(resp["errors"])
     end
   end
 
@@ -26,13 +28,66 @@ defmodule Hyperion.PhoenixScala.Client do
   Returns product by id
   """
   def get_product(product_id, token, ctx \\ "default") do
-    get("/api/v1/products/#{ctx}/#{product_id}", request_headers(token))
+    get("/api/v1/products/#{ctx}/#{product_id}", make_request_headers(token))
     |> parse_response(token)
   end
 
+  @doc """
+  Returns sku by SKU-CODE
+  """
   def get_sku(sku_code, token, ctx \\ "default") do
-    get("/api/v1/skus/#{ctx}/#{sku_code}", request_headers(token))
+    get("/api/v1/skus/#{ctx}/#{sku_code}", make_request_headers(token))
     |> parse_response(token)
+  end
+
+  @doc """
+  Returns all non archived skus
+  """
+  def get_all_skus(token, size \\ 50) do
+    q = %{query: %{bool: %{filter: [%{missing: %{field: "archivedAt"}}]}}}
+    post("/api/search/admin/sku_search_view/_search?size=#{size}", Poison.encode!(q), make_request_headers(token))
+    |> parse_response(token)
+  end
+
+  @doc """
+  Return all countries from Phoenix
+  """
+  def get_countries(token) do
+    get("/api/v1/public/countries", make_request_headers(token))
+    |> parse_response(token)
+  end
+
+  @doc """
+  Return all countries from Phoenix
+  """
+  def get_countries do
+    token = login()
+    get("/api/v1/public/countries", make_request_headers(token))
+    |> parse_response(token)
+  end
+
+  def get_regions(country_id) do
+    token = login()
+    get("/api/v1/public/countries/#{country_id}", make_request_headers(token))
+    |> parse_response(token)
+  end
+
+  def get_regions(country_id, token) do
+    get("/api/v1/public/countries/#{country_id}", make_request_headers(token))
+    |> parse_response(token)
+  end
+
+  @doc """
+  Creates new customer in Phoenix from Amazon order
+  """
+  def create_customer(%{name: name, email: email}) do
+    params = Poison.encode!(%{name: name, email: email})
+    token = login()
+    {st, resp} = post("/api/v1/customers", params, make_request_headers(token))
+    case resp.status_code do
+      code when code == 200 -> parse_response({st, resp}, token)
+      _ -> %{status: resp.status_code, error: resp.body["errors"]}
+    end
   end
 
   # private functions
@@ -48,9 +103,10 @@ defmodule Hyperion.PhoenixScala.Client do
     %{body: r.body, jwt: jwt}
   end
 
-  def request_headers(jwt \\ nil) do
-    case jwt == nil do
-      true -> ["Content-Type": "application/json"]
+
+  defp make_request_headers(jwt \\ nil) do
+    case jwt do
+      nil -> ["Content-Type": "application/json"]
       _ -> ["Content-Type": "application/json", "JWT": jwt]
     end
   end

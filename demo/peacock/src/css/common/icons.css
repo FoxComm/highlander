@@ -1,6 +1,7 @@
 /*
  This file only extends base class which defined in evil-icons node package
 */
+@import "media-queries.css";
 
 :global(.icon) {
   stroke: currentColor;

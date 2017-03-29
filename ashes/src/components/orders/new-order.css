@@ -1,0 +1,13 @@
+.typeahead {
+  flex: 1 1 auto;
+}
+
+.checkbox {
+  flex: 0 1 auto;
+  margin-left: 8px;
+}
+
+.button {
+  flex: 0 1 auto;
+  margin-left: 8px;
+}

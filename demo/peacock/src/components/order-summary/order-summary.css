@@ -34,23 +34,22 @@
 
 .price-summary {
   margin: 0;
-  padding: 1em 0;
   list-style-type: none;
-
-  & > li {
-    padding-bottom: 10px;
-
-    &:last-child {
-      padding-bottom: 0;
-    }
-  }
-
-  border-bottom: 1px solid var(--input-border-color);
+  line-height: 1.63;
 }
 
 .grand-total {
-  composes: term-value-line from "ui/css/term-value-line.css";
-  padding: 1.3em 0;
+  line-height: 1.44;
+  margin-top: 12px;
+  display: flex;
+}
+
+.value {
+  display: flex;
+
+  & div:last-child {
+    font-weight: 900;
+  }
 }
 
 @media (--small-only) {

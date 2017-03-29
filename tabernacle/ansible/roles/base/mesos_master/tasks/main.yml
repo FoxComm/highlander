@@ -7,6 +7,7 @@
   template: src={{item}} dest=/usr/local/bin mode="u+x,g+x,o+x"
   with_items:
     - run_mesos_master.sh
+    - run_marathon.sh
     - mesos_master_check.sh
 
 - name: Install Service Entries

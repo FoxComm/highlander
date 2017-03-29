@@ -1,8 +1,9 @@
 /* @flow */
 
+import React, { Component } from 'react';
+
 // libs
 import _ from 'lodash';
-import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import { browserHistory } from 'lib/history';
@@ -11,13 +12,15 @@ import { emailIsSet, isGuest } from 'paragons/auth';
 
 // components
 import Shipping from './shipping/shipping';
-// import Delivery from './delivery/delivery';
+import Delivery from './delivery/delivery';
 // import Billing from './billing/billing';
 import GuestAuth from './guest-auth/guest-auth';
-// import OrderSummary from 'components/order-summary/order-summary';
+import Products from 'components/order-summary/product-table';
 import Header from 'components/header/header';
 import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
 import Loader from 'ui/loader';
+import OrderTotals from 'components/order-summary/totals';
+import Button from 'ui/buttons';
 
 // styles
 import styles from './checkout.css';
@@ -100,12 +103,13 @@ class Checkout extends Component {
 
   @autobind
   setDeliveryStage() {
-    this.props.toggleModal();
+    this.props.toggleShippingModal();
     return this.props.setEditStage(EditStages.DELIVERY);
   }
 
   @autobind
   setBillingStage() {
+    this.props.toggleDeliveryModal();
     return this.props.setEditStage(EditStages.BILLING);
   }
 
@@ -157,6 +161,30 @@ class Checkout extends Component {
     });
   }
 
+  get orderTotals() {
+    return (
+      <div styleName="total-cost">
+        <div styleName="totals-list">
+          <OrderTotals totals={this.props.cart.totals} />
+        </div>
+
+        <div styleName="place-order-block">
+          <Button styleName="place-order-button" onClick={this.placeOrder} disabled={false}>
+            Place order
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  get orderContent() {
+    return (
+      <div styleName="order-content">
+        <Products skus={this.props.cart.skus} />
+      </div>
+    );
+  }
+
   get content() {
     /* elements to be added later
     <div styleName="summary">
@@ -166,18 +194,6 @@ class Checkout extends Component {
         { ...props.cart }
       />
     </div>
-
-    <Delivery
-      isEditing={props.editStage == EditStages.DELIVERY}
-      editAllowed={props.editStage >= EditStages.DELIVERY}
-      collapsed={!props.isDeliveryDirty && props.editStage < EditStages.DELIVERY}
-      editAction={this.setDeliveryStage}
-      onComplete={this.setBillingStage}
-      shippingMethods={props.shippingMethods}
-      cart={this.state.cart}
-      onUpdateCart={this.handleUpdateCart}
-      fetchShippingMethods={props.fetchShippingMethods}
-    />
     <Billing
       isGuestMode={isGuestMode}
       isEditing={props.editStage == EditStages.BILLING}
@@ -186,13 +202,6 @@ class Checkout extends Component {
       editAction={this.setBillingStage}
       continueAction={this.placeOrder}
       paymentMethods={_.get(props.cart, 'paymentMethods', [])}
-    />
-
-
-    <GuestAuth
-      isEditing={!this.isEmailSetForCheckout()}
-      continueAction={this.startShipping}
-      location={this.props.location}
     />
     */
     const { props } = this;
@@ -204,8 +213,7 @@ class Checkout extends Component {
         <div styleName="wrapper">
           <div styleName="shipping">
             <Shipping
-              isEditing={props.editStage == EditStages.SHIPPING}
-              collapsed={props.editStage < EditStages.SHIPPING}
+              isEditing={props.editStage}
               editAction={this.setShippingStage}
               onComplete={this.setDeliveryStage}
               addresses={this.props.addresses}
@@ -215,6 +223,21 @@ class Checkout extends Component {
               isGuestMode={isGuestMode}
             />
           </div>
+          <div styleName="delivery">
+            <Delivery
+              isEditing={props.editStage}
+              editAction={this.setDeliveryStage}
+              onComplete={this.setBillingStage}
+              shippingMethods={props.shippingMethods}
+              cart={this.state.cart}
+              onUpdateCart={this.handleUpdateCart}
+              fetchShippingMethods={props.fetchShippingMethods}
+            />
+          </div>
+          <div styleName="order-summary">
+            {this.orderContent}
+          </div>
+          {this.orderTotals}
 
           <GuestAuth
             isEditing={!this.isEmailSetForCheckout()}

@@ -67,6 +67,19 @@ trait MockedApis extends MockitoSugar {
         Result.good(charge)
       }
     })
+    when(mocked.refundCharge(any(), any())).thenAnswer(new Answer[Result[StripeCharge]] {
+      def answer(invocation: InvocationOnMock): Result[StripeCharge] = {
+        val id     = invocation.getArgument[String](0)
+        val map    = invocation.getArgument[Map[String, AnyRef]](1)
+        val charge = new StripeCharge
+        map
+          .get("amount")
+          .flatMap(s ⇒ Try(s.toString.toInt).toOption)
+          .foreach(charge.setAmountRefunded(_))
+        charge.setId(id)
+        Result.good(charge)
+      }
+    })
 
     mocked
   }

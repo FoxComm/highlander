@@ -6,7 +6,6 @@ import { assoc, dissoc } from 'sprout-data';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
 
-import Copyright from 'components/footer/copyright';
 import Guest from 'components/auth/guest';
 import Login from 'components/auth/login';
 import Signup from 'components/auth/signup';
@@ -85,9 +84,6 @@ class GuestAuth extends Component {
           <Link to="/">
             <Icon styleName="logo" name="fc-logo" />
           </Link>
-          <div styleName="divider" />
-          <p styleName="title">Checkout</p>
-          <div styleName="divider" />
         </div>
         <div styleName="forms">
           <div styleName="auth-block">
@@ -95,15 +91,10 @@ class GuestAuth extends Component {
           </div>
           <div styleName="mobile-divider-block">
             <div styleName="mobile-divider" />
-            <p>or</p>
-            <div styleName="mobile-divider" />
           </div>
           <div styleName="auth-block">
             <Guest onGuestCheckout={this.onGuestCheckout} />
           </div>
-        </div>
-        <div styleName="footer">
-          <Copyright styleName="copyright" />
         </div>
       </article>
     );
