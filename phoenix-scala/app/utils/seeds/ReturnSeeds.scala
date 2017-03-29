@@ -29,8 +29,8 @@ trait ReturnSeeds {
            accountId = 1)
 
   def returnLineItemSkus = Seq(
-      ReturnLineItemSku(id = 0, returnId = 1, skuId = 1, skuShadowId = 1),
-      ReturnLineItemSku(id = 0, returnId = 1, skuId = 2, skuShadowId = 2)
+      ReturnLineItemSku(id = 0, returnId = 1, quantity = 1, skuId = 1, skuShadowId = 1),
+      ReturnLineItemSku(id = 0, returnId = 1, quantity = 2, skuId = 2, skuShadowId = 2)
   )
 
   def returnLineItems =
@@ -38,13 +38,11 @@ trait ReturnSeeds {
         ReturnLineItem(id = 0,
                        returnId = 1,
                        reasonId = 12,
-                       originType = ReturnLineItem.SkuItem,
-                       inventoryDisposition = ReturnLineItem.Putaway),
+                       originType = ReturnLineItem.SkuItem),
         ReturnLineItem(id = 0,
                        returnId = 1,
                        reasonId = 12,
-                       originType = ReturnLineItem.SkuItem,
-                       inventoryDisposition = ReturnLineItem.Putaway)
+                       originType = ReturnLineItem.SkuItem)
     )
 
   def returnNotes(implicit au:AU): Seq[Note] = {

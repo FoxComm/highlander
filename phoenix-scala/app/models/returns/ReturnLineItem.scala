@@ -14,8 +14,6 @@ case class ReturnLineItem(id: Int = 0,
                           returnId: Int,
                           reasonId: Int,
                           originType: OriginType,
-                          quantity: Int = 1,
-                          inventoryDisposition: InventoryDisposition = Putaway,
                           createdAt: Instant = Instant.now)
     extends FoxModel[ReturnLineItem]
 
@@ -28,34 +26,19 @@ object ReturnLineItem {
     def types = sealerate.values[OriginType]
   }
 
-  sealed trait InventoryDisposition
-  case object Putaway      extends InventoryDisposition
-  case object Damage       extends InventoryDisposition
-  case object Recovery     extends InventoryDisposition
-  case object Discontinued extends InventoryDisposition
-
-  object InventoryDisposition extends ADT[InventoryDisposition] {
-    def types = sealerate.values[InventoryDisposition]
-  }
-
   implicit val OriginTypeColumnType: JdbcType[OriginType] with BaseTypedType[OriginType] =
     OriginType.slickColumn
-  implicit val InvDispColumnType: JdbcType[InventoryDisposition] with BaseTypedType[
-      InventoryDisposition] = InventoryDisposition.slickColumn
 }
 
 class ReturnLineItems(tag: Tag) extends FoxTable[ReturnLineItem](tag, "return_line_items") {
-  def id                   = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def referenceNumber      = column[String]("reference_number")
-  def returnId             = column[Int]("return_id")
-  def reasonId             = column[Int]("reason_id")
-  def originType           = column[OriginType]("origin_type")
-  def quantity             = column[Int]("quantity")
-  def inventoryDisposition = column[InventoryDisposition]("inventory_disposition")
-  def createdAt            = column[Instant]("created_at")
+  def id         = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def returnId   = column[Int]("return_id")
+  def reasonId   = column[Int]("reason_id")
+  def originType = column[OriginType]("origin_type")
+  def createdAt  = column[Instant]("created_at")
 
   def * =
-    (id, returnId, reasonId, originType, quantity, inventoryDisposition, createdAt) <> ((ReturnLineItem.apply _).tupled, ReturnLineItem.unapply)
+    (id, returnId, reasonId, originType, createdAt) <> ((ReturnLineItem.apply _).tupled, ReturnLineItem.unapply)
 }
 
 object ReturnLineItems

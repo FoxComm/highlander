@@ -291,10 +291,8 @@ class ReturnIntegrationTest
       }
 
       "successfully adds SKU line item" in new ReturnDefaults with ReturnReasonDefaults {
-        val payload = ReturnSkuLineItemPayload(sku = product.code,
-                                               quantity = 1,
-                                               reasonId = returnReason.id,
-                                               inventoryDisposition = ReturnLineItem.Putaway)
+        val payload =
+          ReturnSkuLineItemPayload(sku = product.code, quantity = 1, reasonId = returnReason.id)
         val response =
           returnsApi(rma.referenceNumber).lineItems.add(payload).as[ReturnResponse.Root]
         response.lineItems.skus.headOption.value.sku.sku must === (product.code)
@@ -328,10 +326,8 @@ class ReturnIntegrationTest
       }
 
       "fails if quantity for sku is invalid" in new ReturnDefaults with ReturnReasonDefaults {
-        val payload = ReturnSkuLineItemPayload(sku = product.code,
-                                               quantity = -42,
-                                               reasonId = returnReason.id,
-                                               inventoryDisposition = ReturnLineItem.Putaway)
+        val payload =
+          ReturnSkuLineItemPayload(sku = product.code, quantity = -42, reasonId = returnReason.id)
 
         returnsApi(rma.referenceNumber).lineItems
           .add(payload)
@@ -340,10 +336,8 @@ class ReturnIntegrationTest
 
       "fails if quantity for sku is more then maximum allowed quantity" in new ReturnLineItemFixture
       with ReturnDefaults with ReturnReasonDefaults {
-        val payload = ReturnSkuLineItemPayload(sku = product.code,
-                                               quantity = 1,
-                                               reasonId = returnReason.id,
-                                               inventoryDisposition = ReturnLineItem.Putaway)
+        val payload =
+          ReturnSkuLineItemPayload(sku = product.code, quantity = 1, reasonId = returnReason.id)
 
         // create some other return for different order
         val otherOrderRef = createDefaultOrder().referenceNumber

@@ -22,7 +22,9 @@ class ReturnLineItemShippingCosts(tag: Tag)
   def * =
     (id, returnId, amount, createdAt) <> ((ReturnLineItemShippingCost.apply _).tupled, ReturnLineItemShippingCost.unapply)
 
-  def li      = foreignKey(ReturnLineItems.tableName, id, ReturnLineItems)(_.id)
+  def li =
+    foreignKey(ReturnLineItems.tableName, id, ReturnLineItems)(_.id,
+                                                               onDelete = ForeignKeyAction.Cascade)
   def returns = foreignKey(Returns.tableName, returnId, Returns)(_.id)
 }
 

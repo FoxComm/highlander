@@ -1,6 +1,8 @@
 alter table return_line_items
+  drop column inventory_disposition,
   drop column is_return_item,
   drop column origin_id,
+  drop column quantity,
   drop column reference_number;
 
 alter table return_line_item_shipping_costs
@@ -8,6 +10,7 @@ alter table return_line_item_shipping_costs
   add constraint return_line_item_shipping_costs_id_key foreign key (id) references return_line_items (id) on delete cascade on update restrict;
 
 alter table return_line_item_skus
+  add column quantity integer,
   add constraint return_line_item_skus_id_key foreign key (id) references return_line_items (id) on delete cascade on update restrict;
 
 drop table return_line_item_gift_cards;

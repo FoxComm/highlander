@@ -144,12 +144,18 @@ object OrderLineItems
     filter(_.skuId === id).one
 
   object scope {
-    implicit class OrderLineItemQuerySeqConversions(q: QuerySeq) {
+    implicit class OrderLineItemQuerySeqConversions(private val q: QuerySeq) extends AnyVal {
       def withSkus: Query[(OrderLineItems, Skus), (OrderLineItem, Sku), Seq] =
         for {
           items ← q
           skus  ← items.sku
         } yield (items, skus)
+
+      def forContextAndCode(contextId: Int, code: String): QuerySeq =
+        for {
+          items ← q
+          sku   ← items.sku if sku.code === code && sku.contextId === contextId
+        } yield items
     }
   }
 

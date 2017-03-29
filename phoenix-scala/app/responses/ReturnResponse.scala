@@ -23,10 +23,11 @@ object ReturnResponse {
   case class ReturnTotals(subTotal: Int, taxes: Int, shipping: Int, adjustments: Int, total: Int)
       extends ResponseItem
 
-  case class LineItemSku(lineItemId: Int, sku: DisplaySku) extends ResponseItem
-  case class LineItemGiftCard(lineItemId: Int, giftCard: GiftCardResponse.Root)
-      extends ResponseItem
-  case class LineItemShippingCost(lineItemId: Int, amount: Int) extends ResponseItem
+  sealed trait LineItem extends ResponseItem {
+    def id: Int
+  }
+  case class LineItemSku(id: Int, sku: DisplaySku) extends LineItem
+  case class LineItemShippingCost(id: Int, amount: Int) extends LineItem
 
   case class LineItems(skus: Seq[LineItemSku] = Seq.empty,
                        shippingCosts: Option[LineItemShippingCost] = Option.empty)
@@ -83,12 +84,12 @@ object ReturnResponse {
     LineItems(
         skus = skus.map {
           case (sku, form, shadow, li) ⇒
-            LineItemSku(lineItemId = li.id,
+            LineItemSku(id = li.id,
                         sku = DisplaySku(sku = sku.code, price = Mvp.priceAsInt(form, shadow)))
         },
         shippingCosts = shippingCosts.map {
           case (costs, li) ⇒
-            LineItemShippingCost(lineItemId = li.id, amount = costs.amount)
+            LineItemShippingCost(id = li.id, amount = costs.amount)
         }
     )
   }

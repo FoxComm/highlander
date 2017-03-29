@@ -10,6 +10,7 @@ import utils.db._
 
 case class ReturnLineItemSku(id: Int,
                              returnId: Int,
+                             quantity: Int,
                              skuId: Int,
                              skuShadowId: Int,
                              createdAt: Instant = Instant.now)
@@ -19,14 +20,17 @@ class ReturnLineItemSkus(tag: Tag)
     extends FoxTable[ReturnLineItemSku](tag, "return_line_item_skus") {
   def id          = column[Int]("id", O.PrimaryKey)
   def returnId    = column[Int]("return_id")
+  def quantity    = column[Int]("quantity")
   def skuId       = column[Int]("sku_id")
   def skuShadowId = column[Int]("sku_shadow_id")
   def createdAt   = column[Instant]("created_at")
 
   def * =
-    (id, returnId, skuId, skuShadowId, createdAt) <> ((ReturnLineItemSku.apply _).tupled, ReturnLineItemSku.unapply)
+    (id, returnId, quantity, skuId, skuShadowId, createdAt) <> ((ReturnLineItemSku.apply _).tupled, ReturnLineItemSku.unapply)
 
-  def li     = foreignKey(ReturnLineItems.tableName, id, ReturnLineItems)(_.id)
+  def li =
+    foreignKey(ReturnLineItems.tableName, id, ReturnLineItems)(_.id,
+                                                               onDelete = ForeignKeyAction.Cascade)
   def sku    = foreignKey(Skus.tableName, skuId, Skus)(_.id)
   def shadow = foreignKey(ObjectShadows.tableName, skuShadowId, ObjectShadows)(_.id)
 }
@@ -49,4 +53,10 @@ object ReturnLineItemSkus
       shadow ← liSku.shadow
       form   ← ObjectForms if form.id === sku.formId
     } yield (sku, form, shadow, li)).result.dbresult
+
+  def findByContextAndCode(contextId: Int, code: String): QuerySeq =
+    for {
+      li  ← ReturnLineItemSkus
+      sku ← li.sku if sku.code === code && sku.contextId === contextId
+    } yield li
 }

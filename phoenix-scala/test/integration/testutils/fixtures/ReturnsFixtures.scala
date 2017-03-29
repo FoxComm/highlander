@@ -155,15 +155,12 @@ trait ReturnsFixtures
     val shippingCostPayload =
       ReturnShippingCostLineItemPayload(amount = order.totals.shipping, reasonId = reason.id)
 
-    val skuPayload = ReturnSkuLineItemPayload(sku = product.code,
-                                              quantity = 1,
-                                              reasonId = returnReason.id,
-                                              inventoryDisposition = ReturnLineItem.Putaway)
+    val skuPayload =
+      ReturnSkuLineItemPayload(sku = product.code, quantity = 1, reasonId = returnReason.id)
 
     val shippingCostItemId =
-      createReturnLineItem(shippingCostPayload, rma.referenceNumber).lineItems.shippingCosts.value.lineItemId
-    val skuItemId =
-      createReturnLineItem(skuPayload, rma.referenceNumber).lineItems.skus.head.lineItemId
+      createReturnLineItem(shippingCostPayload, rma.referenceNumber).lineItems.shippingCosts.value.id
+    val skuItemId = createReturnLineItem(skuPayload, rma.referenceNumber).lineItems.skus.head.id
   }
 
   trait ReturnPaymentFixture extends ReturnLineItemFixture {

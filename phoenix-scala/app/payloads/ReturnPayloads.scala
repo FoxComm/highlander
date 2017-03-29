@@ -5,7 +5,6 @@ import cats.implicits._
 import failures.{EmptyCancellationReasonFailure, Failure, InvalidCancellationReasonFailure, NonEmptyCancellationReasonFailure}
 import models.payment.PaymentMethod
 import models.returns.{Return, ReturnLineItem}
-import models.returns.ReturnLineItem.InventoryDisposition
 import utils.{ADTTypeHints, Validation}
 import utils.Validation._
 
@@ -41,10 +40,7 @@ object ReturnPayloads {
           ))
   }
 
-  case class ReturnSkuLineItemPayload(sku: String,
-                                      quantity: Int,
-                                      reasonId: Int,
-                                      inventoryDisposition: InventoryDisposition)
+  case class ReturnSkuLineItemPayload(sku: String, quantity: Int, reasonId: Int)
       extends ReturnLineItemPayload {
 
     override def validate: ValidatedNel[Failure, ReturnLineItemPayload] =

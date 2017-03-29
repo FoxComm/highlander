@@ -16,7 +16,7 @@ object ReturnTotaler {
     (for {
       returnLineItems    ← ReturnLineItems if returnLineItems.returnId === rma.id
       returnLineItemSkus ← ReturnLineItemSkus if returnLineItemSkus.id === returnLineItems.id
-      skus               ← Skus if skus.id === returnLineItemSkus.skuId
+      skus               ← returnLineItemSkus.sku
       form               ← ObjectForms if form.id === skus.formId
       shadow             ← ObjectShadows if shadow.id === returnLineItemSkus.skuShadowId
 
