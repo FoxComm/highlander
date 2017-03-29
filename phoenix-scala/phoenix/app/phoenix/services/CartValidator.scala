@@ -11,6 +11,7 @@ import phoenix.models.payment.storecredit.{StoreCreditAdjustments, StoreCredits}
 import phoenix.utils.aliases._
 import services.objects.ObjectManager
 import slick.jdbc.PostgresProfile.api._
+import utils.Money._
 import utils.db._
 
 trait CartValidation {
@@ -146,7 +147,8 @@ case class CartValidator(cart: Cart)(implicit ec: EC, db: DB, ctx: OC) extends C
       }
     }
 
-    def availableFunds(grandTotal: Int, payments: Seq[OrderPayment]): DBIO[CartValidatorResponse] = {
+    def availableFunds(grandTotal: Long,
+                       payments: Seq[OrderPayment]): DBIO[CartValidatorResponse] = {
       // we'll find out if the CC doesn't auth at checkout but we presume sufficient funds if we have a
       // credit card regardless of GC/SC funds availability
       if (payments.exists(_.isCreditCard)) {

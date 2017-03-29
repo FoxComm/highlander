@@ -17,6 +17,7 @@ import scala.annotation.tailrec
 import phoenix.services.LogActivity
 import phoenix.services.carts.CartTotaler
 import slick.jdbc.PostgresProfile.api._
+import utils.Money._
 import phoenix.utils.aliases._
 import phoenix.utils.apis.{Apis, RefundReason}
 import utils.db._
@@ -31,7 +32,7 @@ object ReturnPaymentManager {
     @inline
     def addPayment(rma: Return,
                    payment: OrderPayment,
-                   paymentMethodAmount: (PaymentMethod.Type, Int)) = {
+                   paymentMethodAmount: (PaymentMethod.Type, Long)) = {
       val (method, amount) = paymentMethodAmount
       processAddPayment(rma, payment, method, amount)
     }
@@ -68,7 +69,7 @@ object ReturnPaymentManager {
 
   private def validateMaxAllowedPayments(
       rma: Return,
-      payments: Map[PaymentMethod.Type, Int],
+      payments: Map[PaymentMethod.Type, Long],
       sumOther: Boolean)(implicit ec: EC, db: DB): DbResultT[Unit] = {
     def validateTotalPayment() =
       for {
@@ -78,13 +79,13 @@ object ReturnPaymentManager {
                     .findByRmaId(rma.id)
                     .map(_.amount)
                     .sum
-                    .getOrElse(0)
+                    .getOrElse(0L)
                     .result
         taxes ← * <~ CartTotaler.taxesTotal(cordRef = rma.orderRef,
                                             subTotal = subTotal,
                                             shipping = shipping,
                                             adjustments = adjustments)
-        maxAmount = math.max(0, subTotal + taxes + shipping - adjustments)
+        maxAmount = Math.max(0L, subTotal + taxes + shipping - adjustments)
         amount    = payments.valuesIterator.sum
 
         _ ← * <~ failIf(amount > maxAmount,
@@ -100,7 +101,7 @@ object ReturnPaymentManager {
         .on(_.id === _.orderPaymentId)
         .map { case (_, charge) ⇒ charge.amount }
         .sum
-        .getOrElse(0)
+        .getOrElse(0L)
         .result
       val previousCCPaymentsQuery = Returns
         .findPrevious(rma)
@@ -108,9 +109,9 @@ object ReturnPaymentManager {
         .on(_.id === _.returnId)
         .map { case (_, payment) ⇒ payment.amount }
         .sum
-        .getOrElse(0)
+        .getOrElse(0L)
         .result
-      val ccAmount = payments.getOrElse(PaymentMethod.CreditCard, 0)
+      val ccAmount = payments.getOrElse(PaymentMethod.CreditCard, 0L)
 
       if (ccAmount > 0)
         for {
@@ -142,7 +143,7 @@ object ReturnPaymentManager {
       rma: Return,
       payment: OrderPayment,
       method: PaymentMethod.Type,
-      amount: Int)(implicit ec: EC, db: DB, au: AU): DbResultT[ReturnPayment] =
+      amount: Long)(implicit ec: EC, db: DB, au: AU): DbResultT[ReturnPayment] =
     method match {
       case PaymentMethod.CreditCard ⇒ addCreditCard(rma.id, payment, amount)
       case PaymentMethod.GiftCard   ⇒ addGiftCard(rma.id, payment, amount)
@@ -150,7 +151,7 @@ object ReturnPaymentManager {
         addStoreCredit(returnId = rma.id, accountId = rma.accountId, payment, amount)
     }
 
-  private def addCreditCard(returnId: Int, payment: OrderPayment, amount: Int)(
+  private def addCreditCard(returnId: Int, payment: OrderPayment, amount: Long)(
       implicit ec: EC,
       db: DB): DbResultT[ReturnPayment] =
     for {
@@ -164,9 +165,10 @@ object ReturnPaymentManager {
                                   paymentMethodType = PaymentMethod.CreditCard))
     } yield ccRefund
 
-  private def addGiftCard(returnId: Int,
-                          payment: OrderPayment,
-                          amount: Int)(implicit ec: EC, db: DB, au: AU): DbResultT[ReturnPayment] =
+  private def addGiftCard(returnId: Int, payment: OrderPayment, amount: Long)(
+      implicit ec: EC,
+      db: DB,
+      au: AU): DbResultT[ReturnPayment] =
     for {
       _      ← * <~ deleteGcPayment(returnId)
       origin ← * <~ GiftCardRefunds.create(GiftCardRefund(returnId = returnId))
@@ -189,7 +191,7 @@ object ReturnPaymentManager {
                              paymentMethodType = PaymentMethod.GiftCard))
     } yield pmt
 
-  private def addStoreCredit(returnId: Int, accountId: Int, payment: OrderPayment, amount: Int)(
+  private def addStoreCredit(returnId: Int, accountId: Int, payment: OrderPayment, amount: Long)(
       implicit ec: EC,
       db: DB,
       au: AU): DbResultT[ReturnPayment] =
@@ -309,7 +311,7 @@ object ReturnPaymentManager {
       rma: Return,
       payment: ReturnPayment)(implicit ec: EC, db: DB, ac: AC, apis: Apis): DbResultT[Unit] = {
     val authorizeRefund =
-      ((id: String, amount: Int) ⇒
+      ((id: String, amount: Long) ⇒
          for {
            _ ← * <~ apis.stripe.authorizeRefund(id, amount, RefundReason.RequestedByCustomer)
            ccPayment = ReturnCcPayment(
@@ -329,9 +331,9 @@ object ReturnPaymentManager {
       * Note that subsequent charges will be taken into account only if amount left to split will be greater than 0.
       */
     @tailrec
-    def splitAmount(amount: Int,
+    def splitAmount(amount: Long,
                     charges: Seq[CreditCardCharge],
-                    acc: Vector[(String, Int)]): Vector[(String, Int)] = charges match {
+                    acc: Vector[(String, Long)]): Vector[(String, Long)] = charges match {
       case c +: cs if amount > c.amount ⇒
         splitAmount(amount - c.amount, cs, acc :+ (c.chargeId → c.amount))
       case c +: cs if amount <= c.amount ⇒
@@ -357,7 +359,8 @@ object ReturnPaymentManager {
                            .map { case (_, ccPayment) ⇒ ccPayment.chargeId → ccPayment.amount }
                            .groupBy(_._1)
                            .map {
-                             case (id, ccPayment) ⇒ id → ccPayment.map(_._2).sum.getOrElse(0)
+                             case (id, ccPayment) ⇒
+                               id → ccPayment.map(_._2).sum.getOrElse(0L)
                            }
                            .result
                            .map(_.toMap)
@@ -369,8 +372,8 @@ object ReturnPaymentManager {
                    .result
       _ ← * <~ checkCurrency(ccCharges)
       adjustedCcCharges = ccCharges
-        .map(c ⇒ c.copy(amount = c.amount - previousCcRefunds.getOrElse(c.chargeId, 0)))
-        .filter(_.amount > 0)
+        .map(c ⇒ c.copy(amount = c.amount - previousCcRefunds.getOrElse(c.chargeId, 0L)))
+        .filter(_.amount > 0L)
       amountToRefund = splitAmount(payment.amount, adjustedCcCharges, Vector.empty)
       refunds ← * <~ amountToRefund.map(authorizeRefund).sequenceU
       totalRefund = refunds.map(_.amount).sum

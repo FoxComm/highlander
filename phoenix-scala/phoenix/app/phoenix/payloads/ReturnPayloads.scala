@@ -7,7 +7,7 @@ import phoenix.failures.{EmptyCancellationReasonFailure, NonEmptyCancellationRea
 import phoenix.models.payment.PaymentMethod
 import phoenix.models.returns.{Return, ReturnLineItem}
 import phoenix.utils.ADTTypeHints
-import utils.Validation
+import utils.{ADTTypeHints, Validation}
 import utils.Validation._
 
 object ReturnPayloads {
@@ -46,27 +46,27 @@ object ReturnPayloads {
       greaterThan(quantity, 0, "Quantity").map(_ ⇒ this)
   }
 
-  case class ReturnShippingCostLineItemPayload(amount: Int, reasonId: Int)
+  case class ReturnShippingCostLineItemPayload(amount: Long, reasonId: Int)
       extends ReturnLineItemPayload {
     def validate: ValidatedNel[Failure, ReturnLineItemPayload] =
-      greaterThan(amount, 0, "Amount").map(_ ⇒ this)
+      greaterThan(amount, 0L, "Long").map(_ ⇒ this)
   }
 
   /* Payment payloads */
 
-  case class ReturnPaymentsPayload(payments: Map[PaymentMethod.Type, Int])
+  case class ReturnPaymentsPayload(payments: Map[PaymentMethod.Type, Long])
       extends Validation[ReturnPaymentsPayload] {
     def validate: ValidatedNel[Failure, ReturnPaymentsPayload] = {
       payments.collect {
         case (paymentType, amount) if amount <= 0 ⇒
-          greaterThanOrEqual(amount, 0, s"$paymentType amount")
+          greaterThanOrEqual(amount, 0L, s"$paymentType amount")
       }.fold(Validation.ok)(_ |+| _).map(_ ⇒ this)
     }
   }
 
-  case class ReturnPaymentPayload(amount: Int) extends Validation[ReturnPaymentPayload] {
+  case class ReturnPaymentPayload(amount: Long) extends Validation[ReturnPaymentPayload] {
     def validate: ValidatedNel[Failure, ReturnPaymentPayload] = {
-      greaterThan(amount, 0, "Amount").map(_ ⇒ this)
+      greaterThan(amount, 0L, "Long").map(_ ⇒ this)
     }
   }
 

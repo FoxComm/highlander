@@ -11,7 +11,7 @@ import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
 
 // Amount off single item
-case class ItemAmountOffer(discount: Int, search: Seq[ProductSearch])
+case class ItemAmountOffer(discount: Long, search: Seq[ProductSearch])
     extends Offer
     with AmountOffer
     with NonEmptySearch

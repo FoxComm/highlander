@@ -7,12 +7,14 @@ import phoenix.models.payment.giftcard.GiftCards
 import phoenix.models.returns._
 import phoenix.utils.aliases._
 import utils.db._
+import utils.Money._
 import utils.db.ExPostgresDriver.api._
+import Predef.{any2stringadd ⇒ _, _}
 
 object ReturnTotaler {
-  def adjustmentsTotal(rma: Return)(implicit ec: EC): DbResultT[Int] = DbResultT.pure(0)
+  def adjustmentsTotal(rma: Return)(implicit ec: EC): DbResultT[Long] = DbResultT.pure(0)
 
-  def subTotal(rma: Return)(implicit ec: EC): DbResultT[Int] =
+  def subTotal(rma: Return)(implicit ec: EC): DbResultT[Long] =
     (for {
       returnLineItems    ← ReturnLineItems if returnLineItems.returnId === rma.id
       returnLineItemSkus ← ReturnLineItemSkus if returnLineItemSkus.id === returnLineItems.id
@@ -21,6 +23,6 @@ object ReturnTotaler {
       shadow             ← ObjectShadows if shadow.id === returnLineItemSkus.skuShadowId
 
       total = ((form.attributes +> ((shadow.attributes +> "salePrice") +>> "ref")) +>> "value")
-        .asColumnOf[Int]
-    } yield total).sum.filter(_ > 0).getOrElse(0).result.dbresult
+        .asColumnOf[Long]
+    } yield total).sum.filter(_ > 0).getOrElse(0L).result.dbresult
 }

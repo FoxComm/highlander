@@ -6,7 +6,7 @@ import phoenix.models.discount.offers.Offer.OfferResult
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
 
-case class OrderAmountOffer(discount: Int) extends Offer with AmountOffer {
+case class OrderAmountOffer(discount: Long) extends Offer with AmountOffer {
 
   val offerType: OfferType           = OrderAmountOff
   val adjustmentType: AdjustmentType = OrderAdjustment

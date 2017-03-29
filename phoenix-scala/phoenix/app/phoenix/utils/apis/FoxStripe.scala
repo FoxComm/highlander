@@ -82,7 +82,7 @@ class FoxStripe(stripe: StripeWrapper)(implicit ec: EC) extends FoxStripeApi {
 
   def authorizeAmount(customerId: String,
                       creditCardId: String,
-                      amount: Int,
+                      amount: Long,
                       currency: Currency): Result[StripeCharge] = {
     val chargeMap: Map[String, Object] = Map(
         "amount"   → amount.toString,
@@ -95,10 +95,10 @@ class FoxStripe(stripe: StripeWrapper)(implicit ec: EC) extends FoxStripeApi {
     stripe.createCharge(chargeMap)
   }
 
-  def captureCharge(chargeId: String, amount: Int): Result[StripeCharge] =
+  def captureCharge(chargeId: String, amount: Long): Result[StripeCharge] =
     stripe.captureCharge(chargeId, Map[String, Object]("amount" → amount.toString))
 
-  def authorizeRefund(chargeId: String, amount: Int, reason: RefundReason): Result[StripeCharge] =
+  def authorizeRefund(chargeId: String, amount: Long, reason: RefundReason): Result[StripeCharge] =
     stripe.refundCharge(
         chargeId,
         Map[String, Object]("amount" → amount.toString, "reason" → reason.apiValue))

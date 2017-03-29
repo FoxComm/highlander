@@ -21,7 +21,7 @@ import phoenix.services.image.ImageManager
 import phoenix.services.inventory.SkuManager
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
-import utils.Money.Currency
+import utils.Money.{Currency, Price}
 import utils.db._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -101,7 +101,7 @@ case class SimpleAlbumShadow(album: SimpleAlbum) {
 
 case class SimpleSku(code: String,
                      title: String,
-                     price: Int,
+                     price: Long,
                      currency: Currency = Currency.USD,
                      active: Boolean = false,
                      tags: Seq[String] = Seq.empty) {
@@ -114,11 +114,11 @@ case class SimpleSku(code: String,
         "code": "$code",
         "title" : "$title",
         "retailPrice" : {
-          "value" : ${price + 500},
+          "value" : ${price.toLong + 500},
           "currency" : "${currency.getCode}"
         },
         "salePrice" : {
-          "value" : $price,
+          "value" : ${price.toLong},
           "currency" : "${currency.getCode}"
         },
         "activeFrom" : $activeFrom,
@@ -195,7 +195,7 @@ case class SimpleProductData(productId: Int = 0,
                              description: String,
                              image: String,
                              code: String,
-                             price: Int,
+                             price: Long,
                              currency: Currency = Currency.USD,
                              active: Boolean = false,
                              tags: Seq[String] = Seq.empty)
@@ -500,12 +500,12 @@ object Mvp {
     } yield album
   }
 
-  def getPrice(skuId: Int)(implicit db: DB): DbResultT[Int] =
+  def getPrice(skuId: Int)(implicit db: DB): DbResultT[Long] =
     for {
       sku    ← * <~ Skus.mustFindById404(skuId)
       form   ← * <~ ObjectForms.mustFindById404(sku.formId)
       shadow ← * <~ ObjectShadows.mustFindById404(sku.shadowId)
-      p      ← * <~ priceAsInt(form, shadow)
+      p      ← * <~ priceAsAmount(form, shadow)
     } yield p
 
   def getProductTuple(d: SimpleProductData)(implicit db: DB): DbResultT[SimpleProductTuple] =
@@ -531,23 +531,23 @@ object Mvp {
       results ← * <~ ps.map(p ⇒ insertProductNewContext(oldContextId, contextId, p))
     } yield results
 
-  def priceFromJson(p: Json): Option[(Int, Currency)] = {
-    val price = for {
+  def priceFromJson(p: Json): Option[Price] = {
+    val price: List[Price] = for {
       JInt(value)       ← p \ "value"
       JString(currency) ← p \ "currency"
-    } yield (value.toInt, Currency(currency))
+    } yield (value.toLong, Currency(currency))
     if (price.isEmpty) None else price.headOption
   }
 
-  def price(f: ObjectForm, s: ObjectShadow): Option[(Int, Currency)] = {
+  def price(f: ObjectForm, s: ObjectShadow): Option[Price] = {
     ObjectUtils.get("salePrice", f, s) match {
       case JNothing ⇒ None
       case v        ⇒ priceFromJson(v)
     }
   }
 
-  def priceAsInt(f: ObjectForm, s: ObjectShadow): Int =
-    price(f, s).map { case (value, _) ⇒ value }.getOrElse(0)
+  def priceAsAmount(f: ObjectForm, s: ObjectShadow): Long =
+    price(f, s).map { case (value, _) ⇒ value }.getOrElse(0L)
 
   def title(f: ObjectForm, s: ObjectShadow): Option[String] = {
     ObjectUtils.get("title", f, s) match {

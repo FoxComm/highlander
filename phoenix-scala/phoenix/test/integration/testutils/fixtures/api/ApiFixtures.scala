@@ -21,6 +21,10 @@ import testutils.PayloadHelpers._
 import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.api.PromotionPayloadBuilder.{PromoOfferBuilder, PromoQualifierBuilder}
+import utils.JsonFormatters
+import utils.Money._
+
+import utils.aliases.Json
 
 import scala.util.Random
 
@@ -49,19 +53,15 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with 
   trait ProductSku_ApiFixture {
     val productCode: String = s"testprod_${Lorem.numerify("####")}"
     val skuCode: String     = s"$productCode-sku_${Lorem.letterify("????").toUpperCase}"
-    def skuPrice: Int = Random.nextInt(20000) + 100
+    def skuPrice: Long = Random.nextInt(20000).toLong + 100
 
     private val aeternalActivity = Map(
         "activeFrom" → (("t" → "datetime") ~ ("v" → Instant.ofEpochMilli(1).toString)),
-        "activeTo"   → (("t" → "datetime") ~ ("v" → JNull)))
-
-    private val skuPayload =
-      SkuPayload(
-          attributes = Map("code"      → tv(skuCode),
-                           "title"     → tv(skuCode.capitalize),
-                           "salePrice" → tv(("currency" → "USD") ~ ("value" → skuPrice), "price"),
-                           "retailPrice" → tv(("currency" → "USD") ~ ("value" → skuPrice),
-                                              "price")) ++ aeternalActivity)
+        "activeTo"   → (("t" → "datetime") ~ ("v" → JNull)))private val skuPayload = SkuPayload(
+        attributes = Map("code"        → tv(skuCode),
+                         "title"       → tv(skuCode.capitalize),
+                         "salePrice"   → usdPrice( skuPrice),
+                         "retailPrice" → usdPrice( skuPrice))++ aeternalActivity)
 
     val productPayload =
       CreateProductPayload(attributes =
@@ -88,8 +88,8 @@ trait ApiFixtures extends SuiteMixin with HttpSupport with PhoenixAdminApi with 
   }
 
   trait Coupon_TotalQualifier_PercentOff extends CouponFixtureBase {
-    def qualifiedSubtotal: Int = 5000
-    def percentOff: Int        = 10
+    def qualifiedSubtotal: Long = 5000
+    def percentOff: Int         = 10
 
     private lazy val promoPayload = PromotionPayloadBuilder.build(
         Promotion.Coupon,

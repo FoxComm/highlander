@@ -1,6 +1,7 @@
 package phoenix.failures
 
 import failures.Failure
+
 import phoenix.models.payment.creditcard._
 
 object CaptureFailures {
@@ -15,7 +16,7 @@ object CaptureFailures {
       s"The SKU $sku is missing a price"
   }
 
-  case class ShippingCostNegative(total: Int) extends Failure {
+  case class ShippingCostNegative(total: Long) extends Failure {
     override def description =
       s"Expected a shipping cost greater than zero but got $total"
   }

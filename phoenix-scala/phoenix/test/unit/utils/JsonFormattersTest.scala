@@ -22,7 +22,7 @@ class JsonFormattersTest extends TestBase {
                   gc: GiftCard.State,
                   cc: CreditCardCharge.State,
                   sas: AdminData.State)
-  case class Product(price: Int, currency: Currency)
+  case class Product(price: Long, currency: Currency)
 
   "Adt serialization" - {
     "can (de-)serialize JSON" in {
@@ -41,7 +41,7 @@ class JsonFormattersTest extends TestBase {
 
   "Can JSON (de-)serialize Currency" in {
     val ast = parse(write(Product(price = 50, currency = Currency.USD)))
-    (ast \ "price").extract[Int] must === (50)
+    (ast \ "price").extract[Long] must === (50L)
     (ast \ "currency").extract[Currency] must === (Currency.USD)
   }
 

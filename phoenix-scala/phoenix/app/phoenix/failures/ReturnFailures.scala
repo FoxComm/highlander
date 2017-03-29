@@ -25,7 +25,7 @@ object ReturnFailures {
       NotFoundFailure400(s"${friendlyClassName(m)} payment not found")
   }
 
-  case class ReturnShippingCostExceeded(refNum: String, amount: Int, maxAmount: Int)
+  case class ReturnShippingCostExceeded(refNum: String, amount: Long, maxAmount: Long)
       extends Failure {
     def description: String =
       s"Returned shipping cost ($amount) cannot be greater than $maxAmount for return $refNum"
@@ -37,12 +37,13 @@ object ReturnFailures {
       s"Returned sku line item quantity ($quantity) cannot be greater than $maxQuantity for return $refNum"
   }
 
-  case class ReturnPaymentExceeded(refNum: String, amount: Int, maxAmount: Int) extends Failure {
+  case class ReturnPaymentExceeded(refNum: String, amount: Long, maxAmount: Long) extends Failure {
     def description: String =
       s"Returned payment ($amount) cannot be greater than $maxAmount for return $refNum"
   }
 
-  case class ReturnCcPaymentExceeded(refNum: String, amount: Int, maxAmount: Int) extends Failure {
+  case class ReturnCcPaymentExceeded(refNum: String, amount: Long, maxAmount: Long)
+      extends Failure {
     def description: String =
       s"Returned credit card payment ($amount) cannot be greater than $maxAmount for return $refNum"
   }
@@ -56,7 +57,8 @@ object ReturnFailures {
         s"Expected $expected, but got: ${actual.mkString(", ")}"
   }
 
-  case class ReturnCcPaymentViolation(refNum: String, issued: Int, allowed: Int) extends Failure {
+  case class ReturnCcPaymentViolation(refNum: String, issued: Long, allowed: Long)
+      extends Failure {
     def description: String =
       s"Issued credit card payment ($issued) is different than $allowed for return $refNum"
   }

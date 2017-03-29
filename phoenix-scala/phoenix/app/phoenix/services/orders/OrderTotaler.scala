@@ -1,19 +1,20 @@
 package phoenix.services.orders
 
 import phoenix.models.cord.lineitems._
-import phoenix.models.cord.{Order, OrderShippingMethods, Orders, Cart}
+import phoenix.models.cord.{Cart, Order, OrderShippingMethods, Orders}
 import slick.jdbc.PostgresProfile.api._
+import utils.Money._
 import phoenix.utils.aliases._
 import utils.db._
 
 // TODO: Use utils.Money
 object OrderTotaler {
 
-  case class Totals(subTotal: Int, taxes: Int, shipping: Int, adjustments: Int, total: Int)
+  case class Totals(subTotal: Long, taxes: Long, shipping: Long, adjustments: Long, total: Long)
 
   object Totals {
-    def build(subTotal: Int, shipping: Int, adjustments: Int): Totals = {
-      val taxes = ((subTotal - adjustments + shipping) * 0.05).toInt
+    def build(subTotal: Long, shipping: Long, adjustments: Long): Totals = {
+      val taxes: Long = (subTotal - adjustments + shipping).applyTaxes(0.05)
 
       Totals(subTotal = subTotal,
              taxes = taxes,
@@ -25,7 +26,7 @@ object OrderTotaler {
     def empty: Totals = Totals(0, 0, 0, 0, 0)
   }
 
-  def subTotal(cart: Cart, order: Order)(implicit ec: EC): DBIO[Int] =
+  def subTotal(cart: Cart, order: Order)(implicit ec: EC): DBIO[Long] =
     sql"""select count(*), sum(coalesce(cast(sku_form.attributes->(sku_shadow.attributes->'salePrice'->>'ref')->>'value' as integer), 0)) as sum
           |	from order_line_items oli
           |	left outer join skus sku on (sku.id = oli.sku_id)
@@ -33,21 +34,21 @@ object OrderTotaler {
           |	left outer join object_shadows sku_shadow on (sku_shadow.id = oli.sku_shadow_id)
           |
           |	where oli.cord_ref = ${cart.refNum}
-          | """.stripMargin.as[(Int, Int)].headOption.map {
+          | """.stripMargin.as[(Int, Long)].headOption.map {
       case Some((count, total)) if count > 0 ⇒ total
       case _                                 ⇒ 0
     }
 
-  def shippingTotal(order: Order)(implicit ec: EC): DbResultT[Int] =
+  def shippingTotal(order: Order)(implicit ec: EC): DbResultT[Long] =
     for {
       orderShippingMethods ← * <~ OrderShippingMethods.findByOrderRef(order.refNum).result
-      sum = orderShippingMethods.foldLeft(0)(_ + _.price)
+      sum = orderShippingMethods.foldLeft(0L)(_ + _.price)
     } yield sum
 
-  def adjustmentsTotal(order: Order)(implicit ec: EC): DbResultT[Int] =
+  def adjustmentsTotal(order: Order)(implicit ec: EC): DbResultT[Long] =
     for {
       lineItemAdjustments ← * <~ CartLineItemAdjustments.filter(_.cordRef === order.refNum).result
-      sum = lineItemAdjustments.foldLeft(0)(_ + _.subtract)
+      sum = lineItemAdjustments.foldLeft(0L)(_ + _.subtract)
     } yield sum
 
   def totals(cart: Cart, order: Order)(implicit ec: EC): DbResultT[Totals] =

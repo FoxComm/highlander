@@ -21,6 +21,7 @@ import testutils._
 import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api._
+import utils.Money._
 import utils.db._
 
 class CouponsIntegrationTest
@@ -104,7 +105,7 @@ class CouponsIntegrationTest
 
         "for cart total qualifier" in new Coupon_TotalQualifier_PercentOff
         with RegularAndGiftCardLineItemFixture {
-          override def qualifiedSubtotal: Int = 2000
+          override def qualifiedSubtotal: Long = 2000
 
           cartsApi(cartRef).coupon
             .add(couponCode)
@@ -154,7 +155,7 @@ class CouponsIntegrationTest
 
         "for `cart total` qualifier" in new Coupon_TotalQualifier_PercentOff
         with RegularAndGiftCardLineItemFixture {
-          override def qualifiedSubtotal: Int = 4000
+          override def qualifiedSubtotal: Long = 4000
 
           val message = "qualifier orderTotalAmountQualifier rejected order with refNum=BR10001, " +
               "reason: Order subtotal is less than 4000"
@@ -178,8 +179,8 @@ class CouponsIntegrationTest
       with Coupon_TotalQualifier_PercentOff
       with ProductSku_ApiFixture {
 
-    override def skuPrice: Int          = 3100
-    override def qualifiedSubtotal: Int = 3000
+    override def skuPrice: Long          = 3100
+    override def qualifiedSubtotal: Long = 3000
 
     val cartRef: String = {
       val cartRef = cartsApi

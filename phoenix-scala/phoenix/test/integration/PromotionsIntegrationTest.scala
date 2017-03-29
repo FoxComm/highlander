@@ -33,6 +33,7 @@ import testutils.fixtures.api._
 import testutils.fixtures.{BakedFixtures, PromotionFixtures}
 import utils.IlluminateAlgorithm
 import utils.db._
+import utils.Money._
 
 class PromotionsIntegrationTest
     extends IntegrationTestBase

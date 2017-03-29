@@ -10,7 +10,7 @@ import phoenix.utils.ElasticsearchApi._
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
 
-case class SetPriceOffer(setPrice: Int, numUnits: Int, search: Seq[ProductSearch])
+case class SetPriceOffer(setPrice: Long, numUnits: Int, search: Seq[ProductSearch])
     extends Offer
     with SetOffer
     with NonEmptySearch

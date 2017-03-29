@@ -4,13 +4,13 @@ import java.time.Instant
 
 import com.pellucid.sealerate
 import failures.NotFoundFailure404
-import phoenix.models.account._
+import phoenix. models.account._
 import phoenix.models.cord.{Order, Orders}
-import phoenix.models.returns.Return._
-import phoenix.utils.{ADT, FSM}
+import phoenix.models.returns.Return._import phoenix.utils.{ADT, FSM}
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.jdbc.JdbcType
+import utils.Money._
 import slick.jdbc.PostgresProfile.api._
 import utils.db._
 
@@ -27,7 +27,7 @@ case class Return(id: Int = 0,
                   createdAt: Instant = Instant.now,
                   updatedAt: Instant = Instant.now,
                   deletedAt: Option[Instant] = None,
-                  totalRefund: Option[Int] = None)
+                  totalRefund: Option[Long] = None)
     extends FoxModel[Return]
     with FSM[Return.State, Return] {
 
@@ -101,7 +101,7 @@ class Returns(tag: Tag) extends FoxTable[Return](tag, "returns") {
   def createdAt        = column[Instant]("created_at")
   def updatedAt        = column[Instant]("updated_at")
   def deletedAt        = column[Option[Instant]]("deleted_at")
-  def totalRefund      = column[Option[Int]]("total_refund")
+  def totalRefund      = column[Option[Long]]("total_refund")
 
   def * =
     (id,

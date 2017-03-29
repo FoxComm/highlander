@@ -17,7 +17,7 @@ case class OrderPayment(id: Int = 0,
                         // FIXME @anna WTF is wrong with these defaults?
                         // CURRY ALL THE THINGS
                         cordRef: String = "",
-                        amount: Option[Int] = None,
+                        amount: Option[Long] = None,
                         currency: Currency = Currency.USD,
                         paymentMethodId: Int,
                         paymentMethodType: PaymentMethod.Type)
@@ -28,9 +28,10 @@ case class OrderPayment(id: Int = 0,
   def isStoreCredit: Boolean = paymentMethodType == PaymentMethod.StoreCredit
 
   override def validate: ValidatedNel[Failure, OrderPayment] = {
+    val paymentAmount: Long = amount.getOrElse(0)
     val amountOk = paymentMethodType match {
       case PaymentMethod.StoreCredit | PaymentMethod.GiftCard ⇒
-        validExpr(amount.getOrElse(0) > 0, s"amount must be > 0 for $paymentMethodType")
+        validExpr(paymentAmount > 0, s"amount must be > 0 for $paymentMethodType")
       case PaymentMethod.CreditCard ⇒
         validExpr(amount.isEmpty, "amount must be empty for creditCard")
     }
@@ -38,8 +39,8 @@ case class OrderPayment(id: Int = 0,
     amountOk.map(_ ⇒ this)
   }
 
-  def getAmount(amountLimit: Option[Int] = None) = {
-    val paymentAmount = amount.getOrElse(0)
+  def getAmount(amountLimit: Option[Long] = None) = {
+    val paymentAmount: Long = amount.getOrElse(0)
     amountLimit.fold(paymentAmount)(_.min(paymentAmount))
   }
 }
@@ -66,7 +67,7 @@ class OrderPayments(tag: Tag) extends FoxTable[OrderPayment](tag, "order_payment
   def cordRef           = column[String]("cord_ref")
   def paymentMethodId   = column[Int]("payment_method_id")
   def paymentMethodType = column[PaymentMethod.Type]("payment_method_type")
-  def amount            = column[Option[Int]]("amount")
+  def amount            = column[Option[Long]]("amount")
   def currency          = column[Currency]("currency")
 
   def * =

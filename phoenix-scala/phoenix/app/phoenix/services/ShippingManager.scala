@@ -20,13 +20,17 @@ import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
 import utils.db._
+import utils.Money._
+import responses.ShippingMethodsResponse
+import responses.ShippingMethodsResponse.Root
+import failures.AddressFailures.NoCountryFound
 
 object ShippingManager {
   implicit val formats = JsonFormatters.phoenixFormats
 
   case class ShippingData(cart: Cart,
-                          cartTotal: Int,
-                          cartSubTotal: Int,
+                          cartTotal: Long,
+                          cartSubTotal: Long,
                           shippingAddress: Option[OrderShippingAddress] = None,
                           shippingRegion: Option[Region] = None,
                           lineItems: Seq[CartLineItemProductData] = Seq())
@@ -143,9 +147,11 @@ object ShippingManager {
 
   private def evaluateOrderCondition(shippingData: ShippingData, condition: Condition): Boolean = {
     condition.field match {
-      case "subtotal"   ⇒ Condition.matches(shippingData.cartSubTotal, condition)
-      case "grandtotal" ⇒ Condition.matches(shippingData.cartTotal, condition)
-      case _            ⇒ false
+      case "subtotal" ⇒
+        Condition.matches(shippingData.cartSubTotal.toInt, condition) // FIXME  .toInt
+      case "grandtotal" ⇒
+        Condition.matches(shippingData.cartTotal.toInt, condition) // FIXME  .toInt
+      case _ ⇒ false
     }
   }
 

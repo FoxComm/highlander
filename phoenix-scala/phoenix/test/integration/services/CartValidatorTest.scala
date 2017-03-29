@@ -16,6 +16,7 @@ import phoenix.services.carts.CartTotaler
 import phoenix.utils.seeds.Factories
 import testutils._
 import testutils.fixtures.BakedFixtures
+import utils.Money._
 import utils.db._
 
 class CartValidatorTest extends IntegrationTestBase with TestObjectContext with BakedFixtures {
@@ -53,8 +54,8 @@ class CartValidatorTest extends IntegrationTestBase with TestObjectContext with 
 
       "if the cart has no credit card and insufficient GC/SC available balances" in new LineItemsFixture
       with StoreAdmin_Seed {
-        val skuPrice       = Mvp.priceAsInt(skuForm, skuShadow)
-        val notEnoughFunds = skuPrice - 1
+        val skuPrice             = Mvp.priceAsAmount(skuForm, skuShadow)
+        val notEnoughFunds: Long = skuPrice - 1
 
         (for {
           reason ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))

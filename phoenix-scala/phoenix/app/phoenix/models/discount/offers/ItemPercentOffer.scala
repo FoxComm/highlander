@@ -11,7 +11,7 @@ import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
 
 // Percent off single item
-case class ItemPercentOffer(discount: Int, search: Seq[ProductSearch])
+case class ItemPercentOffer(discount: Long, search: Seq[ProductSearch])
     extends Offer
     with PercentOffer
     with NonEmptySearch

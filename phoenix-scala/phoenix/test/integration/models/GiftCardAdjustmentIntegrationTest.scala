@@ -4,7 +4,9 @@ import cats.implicits._
 import phoenix.models.payment.giftcard._
 import testutils._
 import testutils.fixtures.BakedFixtures
+import cats.implicits._
 import utils.db._
+import utils.Money._
 
 class GiftCardAdjustmentIntegrationTest
     extends IntegrationTestBase
@@ -84,9 +86,9 @@ class GiftCardAdjustmentIntegrationTest
       override def gcPaymentAmount = giftCard.availableBalance
 
       val debits = List(50, 25, 15, 10)
-      def auth(amount: Int) =
+      def auth(amount: Long) =
         GiftCards.auth(giftCard = giftCard, orderPaymentId = orderPayments.head.id, debit = amount)
-      val adjustments = DbResultT.seqCollectFailures((1 to 4).toList.map(auth)).gimme
+      val adjustments = DbResultT.seqCollectFailures((1L to 4L).toList.map(auth)).gimme
 
       adjustments.map { adj ⇒
         GiftCardAdjustments.cancel(adj.id).gimme

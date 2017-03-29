@@ -19,7 +19,7 @@ case class CreditCardCharge(id: Int = 0,
                             chargeId: String,
                             state: CreditCardCharge.State = CreditCardCharge.Cart,
                             currency: Currency = Currency.USD,
-                            amount: Int,
+                            amount: Long,
                             createdAt: Instant = Instant.now)
     extends FoxModel[CreditCardCharge]
     with FSM[CreditCardCharge.State, CreditCardCharge] {
@@ -75,7 +75,7 @@ class CreditCardCharges(tag: Tag) extends FoxTable[CreditCardCharge](tag, "credi
   def chargeId       = column[String]("charge_id")
   def state          = column[CreditCardCharge.State]("state")
   def currency       = column[Currency]("currency")
-  def amount         = column[Int]("amount")
+  def amount         = column[Long]("amount")
   def createdAt      = column[Instant]("created_at")
 
   def * =

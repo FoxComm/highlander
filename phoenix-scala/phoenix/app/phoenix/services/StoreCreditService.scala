@@ -15,6 +15,7 @@ import phoenix.responses.StoreCreditResponse._
 import phoenix.responses.{StoreCreditResponse, StoreCreditSubTypesResponse}
 import phoenix.utils.aliases._
 import slick.jdbc.PostgresProfile.api._
+import utils.Money._
 import utils.db._
 
 object StoreCreditService {
@@ -56,7 +57,8 @@ object StoreCreditService {
       .map { case (_, q) ⇒ (q.map(_.availableBalance).sum, q.map(_.currentBalance).sum) }
       .one
       .map(_.map {
-        case (avail, curr) ⇒ StoreCreditResponse.Totals(avail.getOrElse(0), curr.getOrElse(0))
+        case (avail, curr) ⇒
+          StoreCreditResponse.Totals(avail.getOrElse(0L), curr.getOrElse(0L))
       })
   }
 

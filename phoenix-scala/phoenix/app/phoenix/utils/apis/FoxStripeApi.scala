@@ -26,12 +26,12 @@ trait FoxStripeApi {
 
   def authorizeAmount(customerId: String,
                       creditCardId: String,
-                      amount: Int,
+                      amount: Long,
                       currency: Currency): Result[StripeCharge]
 
-  def captureCharge(chargeId: String, amount: Int): Result[StripeCharge]
+  def captureCharge(chargeId: String, amount: Long): Result[StripeCharge]
 
-  def authorizeRefund(chargeId: String, amount: Int, reason: RefundReason): Result[StripeCharge]
+  def authorizeRefund(chargeId: String, amount: Long, reason: RefundReason): Result[StripeCharge]
 
   def editCard(cc: CreditCard): Result[StripeCard]
 

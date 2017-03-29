@@ -10,7 +10,7 @@ import utils.db._
 
 case class ReturnPayment(id: Int = 0,
                          returnId: Int = 0,
-                         amount: Int = 0,
+                         amount: Long = 0,
                          currency: Currency = Currency.USD,
                          paymentMethodId: Int,
                          paymentMethodType: PaymentMethod.Type)
@@ -21,7 +21,7 @@ class ReturnPayments(tag: Tag) extends FoxTable[ReturnPayment](tag, "return_paym
   def returnId          = column[Int]("return_id")
   def paymentMethodId   = column[Int]("payment_method_id")
   def paymentMethodType = column[PaymentMethod.Type]("payment_method_type")
-  def amount            = column[Int]("amount")
+  def amount            = column[Long]("amount")
   def currency          = column[Currency]("currency")
 
   def * =

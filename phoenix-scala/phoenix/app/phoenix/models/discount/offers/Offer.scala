@@ -10,6 +10,7 @@ import phoenix.models.discount.offers.Offer.OfferResult
 import phoenix.utils.ElasticsearchApi.Buckets
 import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
+import utils.Money._
 import utils.db._
 
 trait Offer extends DiscountBase {
@@ -22,7 +23,7 @@ trait Offer extends DiscountBase {
 
   // Returns single line item adjustment for now
   def build(input: DiscountInput,
-            subtract: Int,
+            subtract: Long,
             lineItemRefNum: Option[String] = None): Adjustment =
     Adjustment(cordRef = input.cart.refNum,
                promotionShadowId = input.promotion.id,
@@ -31,11 +32,11 @@ trait Offer extends DiscountBase {
                lineItemRefNum = lineItemRefNum)
 
   def buildEither(input: DiscountInput,
-                  subtract: Int,
+                  subtract: Long,
                   lineItemRefNum: Option[String] = None): Either[Failures, Seq[Adjustment]] =
     Either.right(Seq(build(input, subtract, lineItemRefNum)))
 
-  def buildResult(input: DiscountInput, subtract: Int, lineItemRefNum: Option[String] = None)(
+  def buildResult(input: DiscountInput, subtract: Long, lineItemRefNum: Option[String] = None)(
       implicit ec: EC): OfferResult =
     Result.good(Seq(build(input, subtract, lineItemRefNum)))
 
@@ -54,7 +55,7 @@ object Offer {
 trait AmountOffer {
 
   // If discount amount is bigger than price - subtract price, otherwise subtract discount
-  def subtract(price: Int, discount: Int): Int = {
+  def subtract(price: Long, discount: Long): Long = {
     val delta = price - discount
     if (delta > 0) discount else price
   }
@@ -66,7 +67,8 @@ trait AmountOffer {
 trait PercentOffer {
 
   // Ceiling will give a discount bigger by one penny
-  def subtract(price: Int, discount: Int): Int = Math.ceil((price * discount) / 100.0d).toInt
+  def subtract(price: Long, discount: Long): Long =
+    Math.ceil((price * discount).toDouble / 100).toLong
 }
 
 /**
@@ -75,7 +77,7 @@ trait PercentOffer {
 trait SetOffer {
 
   // If set value is bigger than price - subtract price, otherwise subtract delta to reach desired set value
-  def subtract(price: Int, setPrice: Int): Int = {
+  def subtract(price: Long, setPrice: Long): Long = {
     val delta = price - setPrice
     if (delta > 0) delta else price
   }

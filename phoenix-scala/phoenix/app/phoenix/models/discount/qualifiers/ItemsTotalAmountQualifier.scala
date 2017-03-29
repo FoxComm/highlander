@@ -9,7 +9,7 @@ import phoenix.utils.aliases._
 import phoenix.utils.apis.Apis
 import utils.db._
 
-case class ItemsTotalAmountQualifier(totalAmount: Int, search: Seq[ProductSearch])
+case class ItemsTotalAmountQualifier(totalAmount: Long, search: Seq[ProductSearch])
     extends Qualifier
     with ItemsQualifier
     with NonEmptySearch {

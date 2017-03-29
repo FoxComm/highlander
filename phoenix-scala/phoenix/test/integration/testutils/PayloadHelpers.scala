@@ -10,6 +10,7 @@ import org.json4s.JsonDSL._
 import phoenix.payloads.ImagePayloads.{AlbumPayload, ImagePayload}
 import phoenix.utils.JsonFormatters
 import phoenix.utils.aliases._
+import utils.Money._
 
 object PayloadHelpers {
   implicit val formats: Formats = JsonFormatters.phoenixFormats
@@ -32,7 +33,7 @@ object PayloadHelpers {
       case _         ⇒ ("t" → t) ~ ("v" → decompose(v))
     }
 
-  def usdPrice(price: Int): JObject =
+  def usdPrice(price: Long): JObject =
     tv(("currency" → "USD") ~ ("value" → price), "price")
 
   implicit class AttributesJsonifyValues(val attrs: Map[String, Any]) extends AnyVal {

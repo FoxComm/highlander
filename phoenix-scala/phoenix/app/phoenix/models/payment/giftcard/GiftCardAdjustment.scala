@@ -10,14 +10,15 @@ import phoenix.utils.FSM
 import shapeless._
 import slick.jdbc.PostgresProfile.api._
 import utils.db._
+import utils.Money._
 
 case class GiftCardAdjustment(id: Int = 0,
                               giftCardId: Int,
                               orderPaymentId: Option[Int],
                               storeAdminId: Option[Int] = None,
-                              credit: Int,
-                              debit: Int,
-                              availableBalance: Int,
+                              credit: Long,
+                              debit: Long,
+                              availableBalance: Long,
                               state: State = Auth,
                               createdAt: Instant = Instant.now())
     extends FoxModel[GiftCardAdjustment]
@@ -28,7 +29,7 @@ case class GiftCardAdjustment(id: Int = 0,
   override def updateTo(newModel: GiftCardAdjustment): Either[Failures, GiftCardAdjustment] =
     super.transitionModel(newModel)
 
-  def getAmount: Int = if (credit > 0) credit else -debit
+  def getAmount: Long = if (credit > 0) credit else -debit
 
   val fsm: Map[State, Set[State]] = Map(
       Auth → Set(Canceled, Capture)
@@ -49,7 +50,7 @@ class GiftCardAdjustments(tag: Tag)
     extends InStorePaymentAdjustmentTable[GiftCardAdjustment](tag, "gift_card_adjustments") {
 
   def giftCardId = column[Int]("gift_card_id")
-  def credit     = column[Int]("credit")
+  def credit     = column[Long]("credit")
 
   def * =
     (id,
