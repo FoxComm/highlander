@@ -65,20 +65,24 @@ function apiCall(
     }
   });
 
-  return this.api.post(`/search/public/products_catalog_view/_search?size=${MAX_RESULTS}`, payload)
-  .then((response) => {
+  const promise = this.api.post(`/search/public/products_catalog_view/_search?size=${MAX_RESULTS}`, payload);
+
+  const chained = promise.then((response) => {
     return {
       payload: response,
       selectedFacets,
     };
   });
+  chained.abort = promise.abort;
+  return chained;
 }
 
-function searchGiftCards() {
+export function searchGiftCards() {
   return apiCall.call({ api }, [GIFT_CARD_TAG], null, { ignoreGiftCards: false });
 }
 
-const {fetch, ...actions} = createAsyncActions('products', apiCall);
+const _fetchProducts = createAsyncActions('products', apiCall);
+export const fetch = _fetchProducts.perform;
 
 const initialState = {
   list: [],
@@ -433,7 +437,7 @@ function mapAggregationsToFacets(aggregations): Array<Facet> {
 }
 
 const reducer = createReducer({
-  [actions.succeeded]: (state, action) => {
+  [_fetchProducts.succeeded]: (state, action) => {
     const {payload, selectedFacets} = action;
     const payloadResult = payload.result;
     const aggregations = _.isNil(payload.aggregations) ? [] : payload.aggregations.taxonomies.taxonomy.buckets;
@@ -466,8 +470,4 @@ const reducer = createReducer({
   },
 }, initialState);
 
-export {
-  reducer as default,
-  fetch,
-  searchGiftCards,
-};
+export default reducer;

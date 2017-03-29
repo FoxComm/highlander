@@ -75,11 +75,21 @@ class Products extends Component {
     },
     selectedFacets: {},
   };
+  lastFetch: ?Promise<*>;
+
+  fetch(...args): void {
+    if (this.lastFetch && this.lastFetch.abort) {
+      this.lastFetch.abort();
+      this.lastFetch = null;
+    }
+    this.lastFetch = this.props.fetch(...args);
+    this.lastFetch.catch(_.noop);
+  }
 
   componentWillMount() {
     const { categoryName, subCategory, leafCategory } = this.props.params;
     const { sorting, selectedFacets } = this.state;
-    this.props.fetch([categoryName, subCategory, leafCategory], sorting, selectedFacets).catch(_.noop);
+    this.fetch([categoryName, subCategory, leafCategory], sorting, selectedFacets);
   }
 
   componentWillReceiveProps(nextProps: Props) {
@@ -95,7 +105,7 @@ class Products extends Component {
       (leafCategory !== nextLeafCategory);
 
     if (mustInvalidate) {
-      this.props.fetch(
+      this.fetch(
         [nextCategoryName, nextSubCategory, nextLeafCategory],
         this.state.sorting,
         this.state.selectedFacets
@@ -145,7 +155,7 @@ class Products extends Component {
 
     this.setState({selectedFacets: newSelection, sorting: this.state.sorting}, () => {
       const { categoryName, subCategory, leafCategory } = this.props.params;
-      this.props.fetch([categoryName, subCategory, leafCategory], this.state.sorting, newSelection);
+      this.fetch([categoryName, subCategory, leafCategory], this.state.sorting, newSelection);
     });
   }
 
