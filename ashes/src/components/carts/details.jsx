@@ -61,7 +61,7 @@ export default class CartDetails extends Component {
             <DiscountsPanel id="fct-cart-discounts-block" promotion={cart.promotion} />
             <CartCoupons id="fct-cart-coupons-block" cart={cart} />
               <CartPayments id="fct-cart-payment-method-block" cart={cart} status={paymentMethodStatus} />
-            <Checkout cart={cart} validations={details.validations} />            
+            <Checkout cart={cart} validations={details.validations} />
             <CartShippingAddress id="fct-cart-shipping-address-block" status={shippingAddressStatus} cart={cart} />
             <CartShippingMethod id="fct-cart-shipping-method-block" status={shippingMethodStatus} cart={cart} />
           </div>
