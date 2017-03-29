@@ -37,7 +37,7 @@ class Facets extends Component {
   renderValues(f) {
     let values = {};
 
-    values = _.map(f.values, v => {
+    values = _.map(f.values, (v) => {
       const key = `val-${f.kind}-${f.key}-${v.label}`;
       let w = {};
 
