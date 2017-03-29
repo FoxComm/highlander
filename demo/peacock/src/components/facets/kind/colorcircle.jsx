@@ -64,8 +64,8 @@ class ColorCircle extends Component {
       isLight(value.color) ? styles['color-checkbox-light'] : styles['color-checkbox']
     );
 
-    return _.isNil(colorStyle) ? (<div></div>) : (
-      <div className={className}>
+    return _.isNil(colorStyle) ? (<div />) :
+      (<div className={className}>
         <input
           id={id}
           type="checkbox"
@@ -75,8 +75,7 @@ class ColorCircle extends Component {
         <div>
           <label htmlFor={id}>{''}</label>
         </div>
-      </div>
-    );
+      </div>);
   }
 }
 

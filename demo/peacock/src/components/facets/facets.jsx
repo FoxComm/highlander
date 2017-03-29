@@ -38,8 +38,8 @@ class Facets extends Component {
     let values = {};
 
     values = _.map(f.values, v => {
+      const key = `val-${f.kind}-${f.key}-${v.label}`;
       let w = {};
-      let key = 'val-' + f.kind + '-' + f.key + '-' + v.label;
 
       if (f.kind == 'checkbox') {
         w = (<Checkbox
@@ -48,8 +48,7 @@ class Facets extends Component {
           value={v.value}
           label={v.label}
           click={this.handleClickFacets}
-          />
-        );
+        />);
       } else if (f.kind == 'circle') {
         w = (<Circle
           key={key}
@@ -57,8 +56,7 @@ class Facets extends Component {
           value={v.value}
           label={v.label}
           click={this.handleClickFacets}
-          />
-        );
+        />);
       } else if (f.kind == 'color') {
         w = (<ColorCircle
           key={key}
@@ -66,8 +64,7 @@ class Facets extends Component {
           value={v.value}
           label={v.label}
           click={this.handleClickFacets}
-          />
-        );
+        />);
       } else {
         w = (<div key={key}> unsuported type </div>);
       }
@@ -79,7 +76,6 @@ class Facets extends Component {
 
   @autobind
   renderFacet(f) {
-
     const values = this.renderValues(f);
     const facetStyle = `${f.kind}-facet`;
 
