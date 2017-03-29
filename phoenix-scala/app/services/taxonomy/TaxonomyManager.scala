@@ -200,7 +200,10 @@ object TaxonomyManager {
                            .mustFindOneOr(InvalidTaxonomiesForTaxon(taxonFull.model, 0))
       taxonomy    ← * <~ Taxonomies.findOneById(taxonomyTaxonLink.leftId).safeGet
       maybeParent ← * <~ TaxonomyTaxonLinks.parentOf(taxonomyTaxonLink)
-    } yield FullTaxonResponse.build(taxonFull, taxonomy.formId, maybeParent.map(_.rightId))
+      parentTaxon ← * <~ maybeParent
+                     .map(link ⇒ Taxons.findOneById(link.rightId))
+                     .getOrElse(lift(None))
+    } yield FullTaxonResponse.build(taxonFull, taxonomy.formId, parentTaxon.map(_.formId))
 
   private def updateTaxonomyHierarchy(taxon: Taxon,
                                       location: TaxonLocation)(implicit ec: EC, db: DB, oc: OC) =

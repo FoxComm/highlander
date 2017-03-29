@@ -8,7 +8,6 @@ import { transitionTo } from 'browserHistory';
 import { autobind } from 'core-decorators';
 import { createReducer } from 'redux-act';
 import { makeLocalStore, addAsyncReducer } from '@foxcomm/wings';
-import { createAsyncActions } from '@foxcomm/wings';
 
 // components
 import { AddButton } from 'components/common/buttons';
@@ -81,7 +80,7 @@ class TaxonListWidget extends Component {
         <TaxonsWidget
           taxons={taxonomy.taxons}
           activeTaxonId={activeTaxonId}
-          handleTaxonClick={this.handleTaxonClick}
+          onClick={this.handleTaxonClick}
           getTitle={(node: Taxon) => get(node, 'attributes.name.v')}
         />
         <div styleName="footer">

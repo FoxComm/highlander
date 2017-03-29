@@ -1,14 +1,14 @@
 /* @flow */
 
 // libs
+import { eq, noop, values } from 'lodash';
 import classNames from 'classnames';
-import { eq, values } from 'lodash';
-import { assoc } from 'sprout-data';
+import { assoc, update } from 'sprout-data';
 import { autobind } from 'core-decorators';
 import React, { Component, Element } from 'react';
 
 // helpers
-import { collapseNode, updateNodes } from 'paragons/tree';
+import { findNode, updateNodes } from 'paragons/tree';
 
 // components
 import MultiSelectTable from 'components/table/multi-select-table';
@@ -17,11 +17,7 @@ import { Button } from 'components/common/buttons';
 // styles
 import styles from './tree-table.css';
 
-type Row = { [key: string]: string | number };
-
-type TableNode = TreeNode & {
-  row: Row,
-};
+type TableTreeMap = { [key: number]: TableTreeNode };
 
 type Props = {
   columns: Columns,
@@ -44,33 +40,47 @@ type Props = {
 };
 
 type State = {
-  root: Tree,
+  root: TableTree,
 }
 
 function buildTree(arr: Array<Row>, idField: string) {
-  const tree: Tree = {};
+  const tree: TableTree = [];
 
-  const acc: Tree = arr.reduce((acc: Tree, row: Row) => assoc(acc, row[idField], {
-    row: row,
-    id: row[idField],
-    parentId: row['parentId'],
-    collapsed: true,
+  const acc: TableTreeMap = arr.reduce((acc: TableTreeMap, row: Row) => assoc(acc, row[idField], {
     children: [],
-    level: 0,
+    node: {
+      id: row[idField],
+      row,
+      parentId: row['parentId'],
+      collapsed: true,
+      level: 0,
+    },
+
   }), {});
 
-  values(acc).forEach(function (node: TreeNode) {
-    if (node.parentId) {
-      acc[node.parentId].children.push(node);
+  values(acc).forEach(function (node: TableTreeNode) {
+    if (node.node.parentId) {
+      acc[node.node.parentId].children.push(node);
     } else {
-      tree[node.id] = node;
+      tree.push(node);
     }
   });
 
   return tree;
 }
 
-const toggleAll = (tree: Tree, collapse: boolean) => updateNodes(tree, (n: TreeNode) => n.collapsed = collapse);
+const collapseNode = (tree: TableTree, id: Identifier) => {
+  let node = findNode(tree, id);
+
+  if (node) {
+    node.node.collapsed = !node.node.collapsed;
+  }
+
+  return tree;
+};
+
+const toggleAll = (tree: TableTree, collapse: boolean) =>
+  updateNodes(tree, (n: TableTreeNode) => n.node.collapsed = collapse);
 
 class TreeTable extends Component {
   props: Props;
@@ -103,40 +113,38 @@ class TreeTable extends Component {
     this.setState({ root: toggleAll(this.state.root, true) });
   }
 
-  get rows(): Array<TableNode> {
-    const _reduce = (level: number) => (nodes: Array<TreeNode>, node: TreeNode) => {
-      const children = !node.collapsed ? node.children.reduce(_reduce(level + 1), []) : [];
+  get rows(): TableTree {
+    const _reduce = (level: number) => (nodes: TableTree, node: TableTreeNode) => {
+      const children = !node.node.collapsed ? node.children.reduce(_reduce(level + 1), []) : [];
 
-      nodes.push(assoc(node, 'level', level));
+      nodes.push(assoc(node, ['node', 'level'], level));
 
-      children.forEach((child: TreeNode) => nodes.push(child));
+      children.forEach((child: TableTreeNode) => nodes.push(child));
 
       return nodes;
     };
 
-    const rows = values(this.state.root).reduce(_reduce(0), []);
-
-    return rows;
+    return this.state.root.reduce(_reduce(0), []);
   }
 
   @autobind
-  handleCollapse(node: TreeNode, event: MouseEvent) {
+  handleCollapse(node: TableTreeNode, event: MouseEvent) {
     event.preventDefault();
     event.stopPropagation();
 
-    const root = collapseNode(this.state.root, node.id);
+    const root = collapseNode(this.state.root, node.node.id);
 
     this.setState({ root });
   }
 
   @autobind
-  renderRow(node: TableNode, index: number, columns: Columns, params: Object) {
-    const el = this.props.renderRow(node.row, index, columns, params);
+  renderRow(node: TableTreeNode, index: number, columns: Columns, params: Object) {
+    const el = this.props.renderRow(node.node.row, index, columns, params);
 
     const processCell = (content: Element<*>, col: Column) => {
-      const collapsible = node.children.length;
-      const collapsed = node.collapsed;
-      const level = node.level;
+      const collapsible = !!node.children.length;
+      const collapsed = node.node.collapsed;
+      const level = node.node.level;
 
       let cellContents = content;
 
@@ -180,6 +188,7 @@ class TreeTable extends Component {
             ...data,
             rows: this.rows,
           }}
+          predicate={({ node }: TableTreeNode) => node.id}
           headerControls={this.headerControls}
           renderRow={this.renderRow}
         />

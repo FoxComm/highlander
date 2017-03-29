@@ -9,6 +9,9 @@ export const createEmptyTaxon = () => {
       name: { t: 'string', v: '' },
       description: { t: 'richText', v: '' },
     },
+    location: {
+      parent: null,
+    },
   };
 };
 

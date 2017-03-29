@@ -12,7 +12,7 @@ declare type Context = {
 }
 
 declare type ObjectPageLayout = {
-  content: Array<Object>,
+  main: Array<Object>,
   aside: Array<Object>,
 };
 
@@ -76,7 +76,11 @@ declare type ObjectPageProps<T, U> = {
   saveState: AsyncState,
   archiveState: AsyncState,
   onUpdateObject: (object: T) => void,
+  headerControls: Array<Element<*>>,
 };
+
+declare type Renderer = (desc: NodeDesc) => ?any; // fuck flow and react elements!!!
+declare type Renderers = { [key: string]: Renderer };
 
 declare type ObjectPageChildProps<T> = {
   layout: ObjectPageLayout,
@@ -85,4 +89,5 @@ declare type ObjectPageChildProps<T> = {
   objectType: string,
   internalObjectType?: string,
   onUpdateObject: (object: T) => void,
+  renderers?: Renderers,
 };

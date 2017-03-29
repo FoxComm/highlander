@@ -1,7 +1,7 @@
 // @flow
 
 // libs
-import { get, flow, sortedUniqBy } from 'lodash';
+import { get, flow, noop, sortedUniqBy } from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
@@ -122,7 +122,6 @@ class TaxonomyWidget extends Component {
           </span>
         </div>
         <div className={inputClass}>
-          <input onChange={() => console.log('display search')} />
         </div>
         {this.addedTaxons}
       </div>

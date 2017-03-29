@@ -1,6 +1,7 @@
 // @flow
 
 // lib
+import get from 'lodash/get';
 import React, { Element } from 'react';
 import { autobind } from 'core-decorators';
 import { assoc } from 'sprout-data';
@@ -8,8 +9,6 @@ import { assoc } from 'sprout-data';
 // components
 import ObjectDetailsDeux from 'components/object-page/object-details-deux';
 import { SliderCheckbox } from '../checkbox/checkbox';
-
-import type { Renderers } from 'components/object-page/object-details-deux';
 
 //styles
 import styles from './taxonomy.css';
@@ -19,9 +18,10 @@ export default class TaxonomyDetails extends React.Component {
 
   @autobind
   renderHierarchical() {
-    if (this.props.object.id) {
+    if (get(this.props.object, 'id')) {
       return null;
     }
+
     return (
       <div styleName="toggle-container">
         <label>Hierarchical</label>

@@ -48,25 +48,27 @@ object TaxonResponses {
     def build(t: Taxon): Root = Root(id = t.formId)
   }
 
+  case class TaxonLocationResponse(parent: Option[Int] = None) extends ResponseItem
+
   case class FullTaxonResponse(id: Int,
                                taxonomyId: Int,
-                               parentId: Option[Integer],
+                               location: TaxonLocationResponse,
                                attributes: Json)
       extends ResponseItem
 
   object FullTaxonResponse {
     def build(taxon: FullObject[Taxon],
               taxonomyId: Int,
-              parentId: Option[Integer] = None): FullTaxonResponse = {
+              parentId: Option[Int] = None): FullTaxonResponse = {
       FullTaxonResponse(
           taxon.model.formId,
           taxonomyId,
-          parentId,
+          TaxonLocationResponse(parentId),
           IlluminateAlgorithm.projectAttributes(taxon.form.attributes, taxon.shadow.attributes))
     }
   }
 
-  case class TaxonTreeResponse(taxon: FullTaxonResponse, children: Option[Seq[TaxonTreeResponse]])
+  case class TaxonTreeResponse(node: FullTaxonResponse, children: Option[Seq[TaxonTreeResponse]])
       extends ResponseItem {
     def childrenAsList: Seq[TaxonTreeResponse] = children.getOrElse(Seq.empty)
   }

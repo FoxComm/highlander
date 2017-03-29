@@ -32,11 +32,11 @@ const controlsContainer = controls => {
   }
 };
 
-const iconWrapper = icon => {
+const iconWrapper = (icon, onIconClick) => {
   if (icon) {
     return (
-      <div className="fc-pilled-input__icon-wrapper">
-        <i className={`icon-${icon}`}></i>
+      <div className="fc-pilled-input__icon-wrapper" onClick={onIconClick}>
+        <i className={`icon-${icon}`} />
       </div>
     );
   }
@@ -44,7 +44,7 @@ const iconWrapper = icon => {
 
 const PilledInput = props => {
 
-  const { controls, children, className, icon, pills = [], solid, disabled, ...rest } = props;
+  const { controls, children, className, icon, pills = [], solid, disabled, onIconClick, ...rest } = props;
 
   const containerClass = classNames('fc-pilled-input__input-container', {
     '_solid': solid
@@ -72,7 +72,7 @@ const PilledInput = props => {
             })}
           <div className="fc-pilled-input__input-wrapper">
             {input}
-            {iconWrapper(icon)}
+            {iconWrapper(icon, onIconClick)}
           </div>
         </div>
         {controlsContainer(controls)}

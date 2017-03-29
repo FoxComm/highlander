@@ -1,17 +1,18 @@
 // @flow
 
 import { get, capitalize, noop, pick } from 'lodash';
+import { autobind } from 'core-decorators';
 import React, { Component, Element } from 'react';
+
+// components
 import { IndexLink, Link } from 'components/link';
 import { PageTitle } from 'components/section-title';
 import Error from 'components/errors/error';
 import LocalNav from 'components/local-nav/local-nav';
-import SaveCancel from 'components/common/save-cancel';
 import WaitAnimation from 'components/common/wait-animation';
-import { autobind } from 'core-decorators';
-
-// components
 import ArchiveActionsSection from 'components/archive-actions/archive-actions';
+import ButtonWithMenu from '../common/button-with-menu';
+
 
 // helpers
 import { SAVE_COMBO, SAVE_COMBO_ITEMS } from 'paragons/common';
@@ -24,6 +25,7 @@ class ObjectPageDeux extends Component {
 
   static defaultProps = {
     identifierFieldName: 'id',
+    headerControls: [],
   };
 
   componentDidMount() {
@@ -35,7 +37,7 @@ class ObjectPageDeux extends Component {
   componentWillReceiveProps(nextProps: ObjectPageProps<*, *>) {
     const { actions, identifier, context } = nextProps;
 
-    if (this.props.identifier !== identifier) {
+    if (this.props.identifier !== identifier && nextProps.identifier !== 'new') {
       actions.fetch(identifier, context);
     }
   }
@@ -134,16 +136,19 @@ class ObjectPageDeux extends Component {
     actions.archive(identifier).then(actions.close);
   }
 
-  get headerControls() {
-    return (
-      <SaveCancel
+  get headerControls(): Array<any> {
+    return [
+      ...this.props.headerControls,
+      <ButtonWithMenu
+        title="Save"
+        menuPosition="right"
+        onPrimaryClick={this.handleSaveButton}
+        onSelect={this.handleSelectSaving}
         isLoading={this.props.saveState.inProgress}
-        onCancel={this.props.actions.close}
-        saveItems={SAVE_COMBO_ITEMS}
-        onSave={this.handleSaveButton}
-        onSaveSelect={this.handleSelectSaving}
+        items={SAVE_COMBO_ITEMS}
+        key="save-btn"
       />
-    );
+    ];
   }
 
   get footerControls() {
@@ -178,14 +183,14 @@ class ObjectPageDeux extends Component {
   }
 
   render() {
-    const { schema, objectType, object, identifier, fetchState } = this.props;
+    const { object, objectType, identifier, fetchState } = this.props;
 
-    if (fetchState.inProgress) {
-      return <div><WaitAnimation /></div>;
+    if (fetchState.err) {
+      return <Error err={fetchState.err} notFound={`There is no ${objectType} with id ${identifier}.`} />;
     }
 
-    if (!object || !schema) {
-      return <Error err={fetchState.err} notFound={`There is no ${objectType} with id ${identifier}.`} />;
+    if (!object || fetchState.inProgress) {
+      return <div><WaitAnimation /></div>;
     }
 
     return (

@@ -1,4 +1,4 @@
-declare type Identifier = number | string;
+declare type Identifier = number;
 
 declare type TreeNode = {
   id: Identifier,
@@ -9,3 +9,13 @@ declare type TreeNode = {
 };
 
 declare type Tree = { [key: Identifier]: TreeNode };
+
+declare type TNodeData = {
+  id: Identifier,
+  [key: string]: any,
+};
+
+declare type TNode<T> = {
+  node: T & { id: Identifier },
+  children: Array<TNode<T>>,
+};

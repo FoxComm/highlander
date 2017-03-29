@@ -11,7 +11,6 @@ const { reducer, actions } = makeLiveSearch(
   storeLocation,
   searchTerms,
   searchView,
-
   scope,
   {
     initialState: { sortBy: 'name' },
