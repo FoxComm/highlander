@@ -5,7 +5,7 @@ import { createAsyncActions } from '@foxcomm/wings';
 import {
   addTaxonomyFilter,
   addTaxonomiesAggregation,
-  addMustNotFilter, defaultSearch, termFilter, addNestedTermFilter, addTermFilter,
+  addMustNotFilter, defaultSearch, termFilter, addCategoryFilter, addTermFilter,
 } from 'lib/elastic';
 import _ from 'lodash';
 import { api } from 'lib/api';
@@ -38,14 +38,19 @@ function apiCall(
   { ignoreGiftCards = true } = {}): Promise<*> {
   let payload = defaultSearch(context);
 
+  const categoryFilters = [];
   _.forEach(_.compact(categoryNames), (cat) => {
     if (cat !== 'ALL' && cat !== GIFT_CARD_TAG) {
-      payload = addNestedTermFilter(payload, 'taxonomies', 'taxonomies.taxons', cat);
+      categoryFilters.push(cat.toUpperCase());
     } else if (cat === GIFT_CARD_TAG) {
       const tagTerm = termFilter('tags', cat.toUpperCase());
       payload = addTermFilter(payload, tagTerm);
     }
   });
+
+  if (!_.isEmpty(categoryFilters)) {
+    payload = addCategoryFilter(payload, categoryFilters);
+  }
 
   if (ignoreGiftCards) {
     const giftCardTerm = termFilter('tags', GIFT_CARD_TAG);

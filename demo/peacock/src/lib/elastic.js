@@ -143,21 +143,22 @@ export function addMatchQuery(query: BoolQuery, searchString: string): BoolQuery
   return addMustFilter(query, matchFilter);
 }
 
-export function addNestedTermFilter(query: BoolQuery, block: string, path: string, term: TermFilter): BoolQuery {
-  const filter = {
-    nested: {
-      path: block,
+export function addCategoryFilter(query: BoolQuery, terms: Array<TermFilter>): BoolQuery {
+  const taxonTerms = _.map(terms, t => ({ term: { 'taxonomies.taxons': t } }));
+
+  var filter = {
+    nested:{
+      path: 'taxonomies',
       query: {
         bool: {
-          filter: {
-            term: {
-              [path]: term
-            }
-          }
+          must: [
+            { query: { bool: { should: taxonTerms }}},
+          ]
         }
       }
     }
   };
-
-  return assoc(query, ['query', 'bool', 'filter'], [...query.query.bool.filter || [], filter]);
+  return assoc(query,
+      ['query', 'bool', 'must'], [...query.query.bool.must || [], filter]
+  );
 }
