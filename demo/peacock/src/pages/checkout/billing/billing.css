@@ -26,9 +26,21 @@
   margin-right: 16px;
 }
 
+.action-link-add-card {
+  composes: action-link from "ui/action-link/action-link.css";
+  display: flex;
+  align-items: flex-start;
+  margin-left: 15px;
+  font-size: 17px;
+}
+
 .plus {
   margin-right: 8px;
   width: 12px;
+}
+
+.credit-cards-list {
+  padding: 15px 10px 15px 15px;
 }
 
 @media (--large) {
@@ -39,23 +51,6 @@
 
 .promo-line {
   padding: 0;
-}
-
-.fieldset {
-  border-bottom: 1px solid var(--border-color);
-}
-
-.fieldset-cards {
-  composes: fieldset;
-  padding-bottom: 40px;
-}
-
-.fieldset-coupon {
-  composes: fieldset;
-}
-
-.fieldset-gift {
-  composes: fieldset;
 }
 
 .add-card-button {

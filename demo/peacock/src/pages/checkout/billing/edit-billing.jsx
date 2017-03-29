@@ -25,6 +25,7 @@ import PromoCode from 'components/promo-code/promo-code';
 import CheckoutForm from '../checkout-form';
 import Accordion from 'components/accordion/accordion';
 import Loader from 'ui/loader';
+import ActionLink from 'ui/action-link/action-link';
 
 // styles
 import styles from './billing.css';
@@ -466,15 +467,25 @@ class EditBilling extends Component {
       );
     }
 
+    const action = {
+      title: 'Close',
+      handler: this.props.togglePaymentModal,
+    };
+
+    const icon = {
+      name: 'fc-plus',
+      className: styles.plus,
+    };
     return (
       <CheckoutForm
         submit={this.handleSubmit}
-        title="PAYMENT METHOD"
+        title="Payment"
         error={null} // error for placing order action is showed in Checkout component
-        buttonLabel="Place Order"
+        buttonLabel="Apply"
         inProgress={props.checkoutState.inProgress}
+        action={action}
       >
-        <fieldset styleName="fieldset-cards">
+        <fieldset styleName="credit-cards-list">
           <CreditCards
             creditCards={creditCards}
             selectCreditCard={this.selectCreditCard}
@@ -482,7 +493,12 @@ class EditBilling extends Component {
             onDeleteCard={this.deleteCreditCard}
             cardAdded={this.state.cardAdded}
           />
-          <button onClick={this.addNew} type="button" styleName="add-card-button">Add Card</button>
+          <ActionLink
+            action={this.addNew}
+            title="Add card"
+            icon={icon}
+            styleName="action-link-add-card"
+          />
         </fieldset>
         { this.renderPaymentFeatures() }
       </CheckoutForm>

@@ -20,7 +20,6 @@ type Props = {
 
 const ViewBilling = (props: Props) => {
   const { billingData } = props;
-  console.log('billing data -> ',billingData);
   if (!billingData || _.isEmpty(billingData)) return null;
 
   const { brand, expMonth, expYear, address, holderName, lastFour, isDefault } = billingData;
@@ -30,7 +29,6 @@ const ViewBilling = (props: Props) => {
   const lastTwoYear = expYear && expYear.toString().slice(-2);
   const monthYear = expMonth && expYear ?
     `${expMonth < 10 ? `0${expMonth}` : expMonth}/${lastTwoYear}` : null;
-  console.log('address -> ', address);
   const addressInfo = !_.isEmpty(address) ?
     <li styleName="billing-address">Billing address: <AddressDetails styleName="billing-address" address={address} /></li> : null;
 

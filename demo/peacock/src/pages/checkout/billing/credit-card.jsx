@@ -2,10 +2,12 @@
 
 // libs
 import React from 'react';
+import classNames from 'classnames';
 
 // components
 import Radiobutton from 'ui/radiobutton/radiobutton';
 import ViewBilling from './view-billing';
+import ActionLink from 'ui/action-link/action-link';
 
 // types
 import type { CreditCardType } from '../types';
@@ -26,9 +28,12 @@ type Props = {
 const CreditCard = (props: Props) => {
   const { creditCard, selected, onSelect, onEditCard, onDeleteCard } = props;
   const { id } = creditCard;
+  const cardClasses = classNames(styles['credit-card'], {
+    [styles.chosen]: selected,
+  });
 
   return (
-    <div key={id} styleName="credit-card">
+    <div key={id} className={cardClasses}>
       <Radiobutton
         name="credit-card"
         checked={selected}
@@ -37,10 +42,11 @@ const CreditCard = (props: Props) => {
       >
         <ViewBilling billingData={creditCard} />
       </Radiobutton>
-      <div styleName="actions">
-        {props.allowEdit && <span styleName="action" onClick={() => onEditCard(creditCard)}>Edit</span>}
-        <span styleName="action" onClick={() => onDeleteCard(id)}>Delete</span>
-      </div>
+      <ActionLink
+        action={() => onDeleteCard(id)}
+        title="Remove"
+        styleName="action-link-remove-card"
+      />
     </div>
   );
 };
