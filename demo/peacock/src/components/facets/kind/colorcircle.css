@@ -2,15 +2,6 @@
 @import "colors.css";
 @import "media-queries.css";
 
-.aliceblue div {
-  background-color: #F0F8FF;
-}
-
-.legacywhite div {
-  background-color: #FAEBD7;
-  border: solid 1px var(--blackish);
-}
-
 .antiquewhite div {
   background-color: #FAEBD7;
   border: solid 1px var(--blackish);
@@ -22,6 +13,10 @@
 
 .aqua div {
   background-color: #00FFFF;
+}
+
+.darkmarine div {
+  background-color: #6EEEC3;
 }
 
 .aquamarine div {
@@ -40,16 +35,12 @@
   background-color: #FFE4C4;
 }
 
+.blackmelage div {
+  background-color: #000000;
+}
+
 .black div {
   background-color: #000000;
-}
-
-.coreblack div {
-  background-color: #000000;
-}
-
-.blanchedalmond div {
-  background-color: #FFEBCD;
 }
 
 .blue div {
@@ -60,12 +51,12 @@
   background-color: #1111FF;
 }
 
-.neonblue div {
+.blueviolet div {
   background-color: #8A2BE2;
 }
 
-.blueviolet div {
-  background-color: #8A2BE2;
+.lightbrown div {
+  background-color: #B53A3A;
 }
 
 .brown div {
@@ -160,11 +151,7 @@
   background-color: #FF8C00;
 }
 
-.darkorchid div {
-  background-color: #9932CC;
-}
-
-.toro div {
+.burgundy div {
   background-color: #8B0000;
 }
 
@@ -202,6 +189,10 @@
 
 .superblush div {
   background-color: #FF1493;
+}
+
+.raypink div {
+  background-color: #FF1696;
 }
 
 .deeppink div {
@@ -266,11 +257,6 @@
   background-color: #008000;
 }
 
-.eqtyellow div {
-  background-color: #ADFF2F;
-  border: solid 1px var(--blackish);
-}
-
 .greenyellow div {
   background-color: #ADFF2F;
   border: solid 1px var(--blackish);
@@ -324,16 +310,16 @@
   background-color: #FFF0F5;
 }
 
+.tracegreen div {
+  background-color: #7CFC00;
+}
+
 .lawngreen div {
   background-color: #7CFC00;
 }
 
 .lemonchiffon div {
   background-color: #FFFACD;
-}
-
-.chillutilityblue div {
-  background-color: #ADD8E6;
 }
 
 .lightblue div {
@@ -355,6 +341,10 @@
 
 .lightgreen div {
   background-color: #90EE90;
+}
+
+.lightsolidgrey div {
+  background-color: #D3D3D3;
 }
 
 .lightgrey div {
@@ -389,11 +379,6 @@
   background-color: #B0C4DE;
 }
 
-.stnomadyellow div {
-  background-color: #FFFFE0;
-  border: solid 1px var(--blackish);
-}
-
 .lightyellow div {
   background-color: #FFFFE0;
   border: solid 1px var(--blackish);
@@ -409,6 +394,10 @@
 
 .linen div {
   background-color: #FAF0E6;
+}
+
+.linengreen div {
+  background-color: #FAFFE6;
 }
 
 .magenta div {
@@ -433,6 +422,10 @@
 
 .mediumorchid div {
   background-color: #BA55D3;
+}
+
+.shockpurple div {
+  background-color: #9370DB;
 }
 
 .mediumpurple div {
@@ -480,11 +473,11 @@
   border: solid 1px var(--blackish);
 }
 
-.navy div {
-  background-color: #000080;
+.darknavy div {
+  background-color: #000060;
 }
 
-.collegiatenavy div {
+.navy div {
   background-color: #000080;
 }
 
@@ -500,8 +493,24 @@
   background-color: #6B8E23;
 }
 
+.pop div {
+  background-color: #FFA500;
+}
+
+.lightorange div {
+  background-color: #FFB510;
+}
+
 .orange div {
   background-color: #FFA500;
+}
+
+.gloworange div {
+  background-color: #FF4500;
+}
+
+.craftchili div {
+  background-color: #FF4500;
 }
 
 .orangered div {
@@ -512,8 +521,16 @@
   background-color: #DA70D6;
 }
 
+.mattegold div {
+  background-color: #EEE8AA;
+}
+
 .palegoldenrod div {
   background-color: #EEE8AA;
+}
+
+.nebraska div {
+  background-color: #98FB98;
 }
 
 .palegreen div {
@@ -548,12 +565,16 @@
   background-color: #FFC0CB;
 }
 
-.plum div {
-  background-color: #DDA0DD;
+.eqtpink div {
+  background-color: #FFC0AB;
 }
 
-.masterblue div {
-  background-color: #B0E0E6;
+.easypink div {
+  background-color: #FFC1CB;
+}
+
+.plum div {
+  background-color: #DDA0DD;
 }
 
 .powderblue div {
@@ -564,20 +585,20 @@
   background-color: #800080;
 }
 
-.brightred div {
-  background-color: #FF1111;
+.lightpurple div {
+  background-color: #A000A0;
 }
 
-.vividred div {
+.darkpurple div {
+  background-color: #600060;
+}
+
+.brightred div {
   background-color: #FF1111;
 }
 
 .red div {
   background-color: #FF0000;
-}
-
-.portlandtimbers div {
-  background-color: #BC8F8F;
 }
 
 .rosybrown div {
@@ -592,6 +613,10 @@
   background-color: #4169E1;
 }
 
+.simplebrown div {
+  background-color: #8B4513;
+}
+
 .saddlebrown div {
   background-color: #8B4513;
 }
@@ -600,8 +625,16 @@
   background-color: #FA8072;
 }
 
+.tracebrown div {
+  background-color: #F4A460;
+}
+
 .sandybrown div {
   background-color: #F4A460;
+}
+
+.easygreen div {
+  background-color: #2E8B57;
 }
 
 .seagreen div {
@@ -617,10 +650,6 @@
 }
 
 .silver div {
-  background-color: #C0C0C0;
-}
-
-.techgreymetallic div {
   background-color: #C0C0C0;
 }
 
@@ -662,6 +691,10 @@
 
 .steelblue div {
   background-color: #4682B4;
+}
+
+.ecru div {
+  background-color: #D2B48C;
 }
 
 .tan div {
@@ -707,15 +740,11 @@
   border: solid 1px var(--blackish);
 }
 
-.runningwhiteftw div {
-  background-color: #F5F5F3;
+.neonyellow div {
+  background-color: #EEEE00;
   border: solid 1px var(--blackish);
 }
 
-.runningwhite div {
-  background-color: #F5F5F0;
-  border: solid 1px var(--blackish);
-}
 
 .yellow div {
   background-color: #FFFF00;
@@ -723,11 +752,6 @@
 }
 
 .solargreen div {
-  background-color: #9ACD32;
-  border: solid 1px var(--blackish);
-}
-
-.neonyellow div {
   background-color: #9ACD32;
   border: solid 1px var(--blackish);
 }

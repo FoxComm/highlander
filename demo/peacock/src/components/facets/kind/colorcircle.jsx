@@ -57,12 +57,14 @@ class ColorCircle extends Component {
 
     const id = `${facet}-color-${label}`;
 
+    const colorStyle = styles[value.color];
+
     const className = classnames(
-      styles[value.color],
+      colorStyle,
       isLight(value.color) ? styles['color-checkbox-light'] : styles['color-checkbox']
     );
 
-    return (
+    return _.isNil(colorStyle) ? (<div></div>) : (
       <div className={className}>
         <input
           id={id}
