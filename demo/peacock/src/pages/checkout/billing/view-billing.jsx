@@ -20,28 +20,25 @@ type Props = {
 
 const ViewBilling = (props: Props) => {
   const { billingData } = props;
-
+  console.log('billing data -> ',billingData);
   if (!billingData || _.isEmpty(billingData)) return null;
 
-  const { brand, expMonth, expYear, billingAddress, holderName, lastFour, isDefault } = billingData;
-  const paymentType = brand ? _.kebabCase(brand) : '';
+  const { brand, expMonth, expYear, address, holderName, lastFour, isDefault } = billingData;
+  const paymentType = brand ? _.upperCase(brand) : '';
 
   const defaultText = isDefault ? <li><div styleName="default-card">Default Card</div></li> : null;
   const lastTwoYear = expYear && expYear.toString().slice(-2);
-  const monthYear = expMonth || expYear ?
-    <li>{ expMonth }/{ lastTwoYear }</li> : null;
-  const addressInfo = !_.isEmpty(billingAddress) ?
-    <li><AddressDetails styleName="billing-address" address={billingAddress} /></li> : null;
-  const paymentIcon = paymentType ?
-    <li><Icon styleName="payment-icon" name={`fc-payment-${paymentType}`} /></li> : null;
+  const monthYear = expMonth && expYear ?
+    `${expMonth < 10 ? `0${expMonth}` : expMonth}/${lastTwoYear}` : null;
+  console.log('address -> ', address);
+  const addressInfo = !_.isEmpty(address) ?
+    <li styleName="billing-address">Billing address: <AddressDetails styleName="billing-address" address={address} /></li> : null;
 
   return (
     <ul styleName="view-billing">
-      {paymentIcon}
+      <li styleName="payment-name">{ `${holderName}'s ${paymentType}` }</li>
       {defaultText}
-      <li styleName="payment-name">{ holderName }</li>
-      <li styleName="payment-last-four">{ lastFour }</li>
-      {monthYear}
+      <li styleName="payment-last-four">{ `Ending in ${lastFour}, expires ${monthYear}` }</li>
       {addressInfo}
     </ul>
   );

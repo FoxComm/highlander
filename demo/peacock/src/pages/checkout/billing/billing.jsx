@@ -48,7 +48,7 @@ class Billing extends Component {
     let icon;
 
     if (props.cartState.finished) {
-      if (props.paymentMethods.length > 0) {
+      if (props.creditCard) {
         title = 'Choose';
       } else {
         title = 'Add new';

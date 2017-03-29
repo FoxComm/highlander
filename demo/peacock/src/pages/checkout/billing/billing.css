@@ -37,18 +37,6 @@
   }
 }
 
-
-.billing-summary {
-  & ul {
-    text-align: center;
-    padding: 15px 0;
-  }
-
-  & ul + ul {
-    border-top: 1px solid var(--border-color);
-  }
-}
-
 .promo-line {
   padding: 0;
 }
