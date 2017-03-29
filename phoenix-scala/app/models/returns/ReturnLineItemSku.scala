@@ -1,10 +1,10 @@
 package models.returns
 
 import java.time.Instant
-
 import models.inventory.{Sku, Skus}
 import models.objects._
 import shapeless._
+import utils.aliases._
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 
@@ -40,14 +40,13 @@ object ReturnLineItemSkus
   def findByRmaId(returnId: Rep[Int]): QuerySeq =
     filter(_.returnId === returnId)
 
-  def findLineItemsByRma(rma: Return): Query[(Skus, ObjectForms, ObjectShadows, ReturnLineItems),
-                                             (Sku, ObjectForm, ObjectShadow, ReturnLineItem),
-                                             Seq] =
-    for {
+  def findLineItemsByRma(rma: Return)(
+      implicit ec: EC): DbResultT[Seq[(Sku, ObjectForm, ObjectShadow, ReturnLineItem)]] =
+    (for {
       li     ← ReturnLineItems.filter(_.returnId === rma.id)
       liSku  ← li.skuLineItems
       sku    ← liSku.sku
       shadow ← liSku.shadow
       form   ← ObjectForms if form.id === sku.formId
-    } yield (sku, form, shadow, li)
+    } yield (sku, form, shadow, li)).result.dbresult
 }

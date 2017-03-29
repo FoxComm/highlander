@@ -77,7 +77,7 @@ class CheckoutIntegrationTest
         GiftCardLineItemAttributes(senderName = "senderName",
                                    recipientName = "recipientName",
                                    recipientEmail = "example@example.com",
-                                   message = "Boop").some).some
+                                   message = "Boop".some).some).some
 
     "should update attributes of line-items successfully" in new Fixture {
       val refNum =

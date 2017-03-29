@@ -11,8 +11,12 @@
     consul_expect: 1
 
   roles:
+    - { role: base/java }
     - { role: base/consul_server }
     - { role: base/docker_registry }
+    - { role: base/zookeeper }
     - { role: base/mesos_master }
     - { role: base/mesos_consul }
+    - { role: base/elasticsearch }
+    - { role: base/elasticsearch-5 }
     - { role: base/kibana }

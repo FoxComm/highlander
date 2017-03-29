@@ -1,6 +1,3 @@
-
-import _ from 'lodash';
-
 const Variants = requireSource('paragons/variants.js');
 const Products = requireSource('paragons/product.js');
 

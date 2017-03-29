@@ -17,10 +17,12 @@ import type { Localized } from 'lib/i18n';
 import { searchGiftCards } from 'modules/products';
 import { fetch, getNextId, getPreviousId, resetProduct } from 'modules/product-details';
 import { addLineItem, toggleCart } from 'modules/cart';
+import { fetchRelatedProducts, clearRelatedProducts } from 'modules/cross-sell';
 
 // types
 import type { HTMLElement } from 'types';
-import type { ProductResponse, ProductSlug } from 'modules/product-details';
+import type { ProductResponse } from 'modules/product-details';
+import type { RelatedProductResponse } from 'modules/cross-sell';
 
 // components
 import Gallery from 'ui/gallery/gallery';
@@ -30,6 +32,8 @@ import ProductDetails from './product-details';
 import GiftCardForm from '../../components/gift-card-form';
 import ProductAttributes from './product-attributes';
 import ImagePlaceholder from '../../components/products-item/image-placeholder';
+import RelatedProductsList,
+  { LoadingBehaviors } from '../../components/related-products-list/related-products-list';
 
 // styles
 import styles from './pdp.css';
@@ -45,6 +49,8 @@ type Actions = {
   resetProduct: Function,
   addLineItem: Function,
   toggleCart: Function,
+  fetchRelatedProducts: Function,
+  clearRelatedProducts: Function,
 };
 
 type Props = Localized & {
@@ -54,6 +60,7 @@ type Props = Localized & {
   isLoading: boolean,
   isCartLoading: boolean,
   notFound: boolean,
+  relatedProducts: ?RelatedProductResponse,
 };
 
 type State = {
@@ -76,13 +83,16 @@ type Product = {
 
 const mapStateToProps = state => {
   const product = state.productDetails.product;
+  const relatedProducts = state.crossSell.relatedProducts;
 
   return {
     product,
+    relatedProducts,
     fetchError: _.get(state.asyncActions, 'pdp.err', null),
     notFound: !product && _.get(state.asyncActions, 'pdp.err.response.status') == 404,
     isLoading: _.get(state.asyncActions, ['pdp', 'inProgress'], true),
     isCartLoading: _.get(state.asyncActions, ['cartChange', 'inProgress'], false),
+    isRelatedProductsLoading: _.get(state.asyncActions, ['relatedProducts', 'inProgress'], false),
   };
 };
 
@@ -94,6 +104,8 @@ const mapDispatchToProps = dispatch => ({
     resetProduct,
     addLineItem,
     toggleCart,
+    fetchRelatedProducts,
+    clearRelatedProducts,
   }, dispatch),
 });
 
@@ -117,25 +129,41 @@ class Pdp extends Component {
 
   componentDidMount() {
     this.productPromise.then(() => {
+      const { product, isRelatedProductsLoading, actions } = this.props;
       tracking.viewDetails(this.product);
+      if (!isRelatedProductsLoading) {
+        actions.fetchRelatedProducts(product.id, 1).catch(_.noop);
+      }
     });
   }
 
   componentWillUnmount() {
     this.props.actions.resetProduct();
+    this.props.actions.clearRelatedProducts();
   }
 
   componentWillUpdate(nextProps) {
-    const id = this.getId(nextProps);
+    const nextId = this.getId(nextProps);
 
-    if (this.productId !== id) {
+    if (this.productId !== nextId) {
       this.props.actions.resetProduct();
-      this.fetchProduct(nextProps, id);
+      this.props.actions.clearRelatedProducts();
+      this.fetchProduct(nextProps, nextId);
     }
   }
 
   safeFetch(id) {
-    return this.props.actions.fetch(id).catch(_.noop);
+    return this.props.actions.fetch(id)
+      .then(product => {
+        this.props.actions.fetchRelatedProducts(product.id, 1).catch(_.noop);
+      })
+      .catch(() => {
+        const { params } = this.props;
+        this.props.actions.fetch(params.productSlug)
+        .then(product => {
+          this.props.actions.fetchRelatedProducts(product.id, 1).catch(_.noop);
+        });
+      });
   }
 
   fetchProduct(_props, _productId) {
@@ -151,7 +179,7 @@ class Pdp extends Component {
     return this.safeFetch(productId);
   }
 
-  get productId(): ProductSlug {
+  get productId(): string|number {
     return this.getId(this.props);
   }
 
@@ -159,7 +187,8 @@ class Pdp extends Component {
     return !!_.get(this.props, ['product', 'archivedAt']);
   }
 
-  getId(props): ProductSlug {
+  @autobind
+  getId(props): string|number {
     const slug = props.params.productSlug;
 
     if (/^\d+$/g.test(slug)) {
@@ -251,7 +280,14 @@ class Pdp extends Component {
   }
 
   render(): HTMLElement {
-    const { t, isLoading, notFound, fetchError } = this.props;
+    const {
+      t,
+      isLoading,
+      notFound,
+      fetchError,
+      isRelatedProductsLoading,
+      relatedProducts,
+    } = this.props;
 
     if (isLoading) {
       return <Loader />;
@@ -289,11 +325,18 @@ class Pdp extends Component {
                 onQuantityChange={this.changeQuantity}
                 addToCart={this.addToCart}
               />}
-
             <ErrorAlerts error={this.state.error} />
           </div>
         </div>
-
+        {!_.isEmpty(relatedProducts) && relatedProducts.total ?
+          <RelatedProductsList
+            title="You might also like"
+            list={relatedProducts.result}
+            isLoading={isRelatedProductsLoading}
+            loadingBehavior={LoadingBehaviors.ShowWrapper}
+          />
+          : false
+        }
         {!this.isGiftCard() && <ProductAttributes product={this.props.product} />}
       </div>
     );

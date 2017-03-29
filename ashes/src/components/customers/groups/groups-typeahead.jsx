@@ -109,7 +109,6 @@ export default class GroupsTypeahead extends Component {
           <label>Manual Customer Groups</label>
         </div>
         <Typeahead
-          className="_no-search-icon"
           isFetching={_.get(props.suggestState, 'inProgress', false)}
           fetchItems={props.suggestGroups}
           minQueryLength={2}
@@ -120,6 +119,7 @@ export default class GroupsTypeahead extends Component {
           inputElement={this.pilledInput}
           hideOnBlur={props.hideOnBlur}
           onItemSelected={this.handleSelectItem}
+          view="no-search"
         />
       </div>
     );

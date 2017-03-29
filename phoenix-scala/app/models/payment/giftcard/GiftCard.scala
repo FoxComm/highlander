@@ -34,8 +34,8 @@ case class GiftCard(id: Int = 0,
                     currency: Currency = Currency.USD,
                     state: State = GiftCard.Active,
                     originalBalance: Int,
-                    currentBalance: Int = 0,
-                    availableBalance: Int = 0,
+                    currentBalance: Int = 0, // opening balance minus ‘captured’ debits
+                    availableBalance: Int = 0, // current balance minus ‘auth’ debits
                     canceledAmount: Option[Int] = None,
                     canceledReason: Option[Int] = None,
                     reloadable: Boolean = false,
@@ -157,6 +157,8 @@ object GiftCard {
   def buildByCustomerPurchase(payload: GiftCardCreatedByCustomer,
                               originId: Int,
                               scope: LTree): GiftCard = {
+    val message: Option[String] =
+      payload.message.flatMap(msg ⇒ if (msg.trim.isEmpty) None else Option(msg.trim))
     GiftCard(
         scope = scope,
         originId = originId,
@@ -167,10 +169,10 @@ object GiftCard {
         originalBalance = payload.balance,
         availableBalance = payload.balance,
         currentBalance = payload.balance,
-        senderName = Some(payload.senderName),
-        recipientName = Some(payload.recipientName),
-        recipientEmail = Some(payload.recipientEmail),
-        message = Some(payload.message)
+        senderName = payload.senderName.some,
+        recipientName = payload.recipientName.some,
+        recipientEmail = payload.recipientEmail.some,
+        message = message
     )
   }
 
@@ -197,19 +199,6 @@ object GiftCard {
         originalBalance = balance,
         availableBalance = balance,
         currentBalance = balance
-    )
-  }
-
-  def buildRmaProcess(originId: Int, currency: Currency)(implicit au: AU): GiftCard = {
-    GiftCard(
-        scope = Scope.current,
-        originId = originId,
-        originType = GiftCard.RmaProcess,
-        state = GiftCard.Cart,
-        currency = currency,
-        originalBalance = 0,
-        availableBalance = 0,
-        currentBalance = 0
     )
   }
 

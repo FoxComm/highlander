@@ -2,10 +2,10 @@ package services.assignments
 
 import models.{Assignment, NotificationSubscription}
 import models.returns._
-import responses.AllReturns._
 import slick.driver.PostgresDriver.api._
 import utils.db._
 import utils.aliases._
+import responses.ReturnResponse._
 
 object ReturnWatchersManager extends AssignmentsManager[String, Return] {
 

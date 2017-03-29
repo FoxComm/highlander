@@ -333,7 +333,7 @@ export default class Analytics extends React.Component {
         newDataFetchTimeSize = unixTimes.month;
         break;
       default:
-        console.log('INVALID DATE RANGE');
+        console.info('INVALID DATE RANGE');
         displayText = moment().format(datePickerFormat);
         newDataFetchTimeSize = unixTimes.twoHour;
         break;

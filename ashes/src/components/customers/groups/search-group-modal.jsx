@@ -80,6 +80,7 @@ export default class SearchGroupModal extends Component {
               suggested={props.suggested}
               suggestState={props.suggestState}
               onSelect={this.handleSelect}
+              view="modal"
             />
           </div>
         </ContentBox>

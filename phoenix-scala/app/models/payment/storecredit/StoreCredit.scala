@@ -33,8 +33,8 @@ case class StoreCredit(id: Int = 0,
                        subTypeId: Option[Int] = None,
                        currency: Currency = Currency.USD,
                        originalBalance: Int,
-                       currentBalance: Int = 0,
-                       availableBalance: Int = 0,
+                       currentBalance: Int = 0, // opening balance minus ‘captured’ debits
+                       availableBalance: Int = 0, // current balance minus ‘auth’ debits
                        state: State = Active,
                        canceledAmount: Option[Int] = None,
                        canceledReason: Option[Int] = None,
