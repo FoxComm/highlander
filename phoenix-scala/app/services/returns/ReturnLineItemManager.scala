@@ -9,6 +9,7 @@ import models.objects._
 import models.product.Mvp
 import models.returns.ReturnLineItem.OriginType
 import models.returns._
+import models.shipping.ShippingMethods
 import payloads.ReturnPayloads._
 import responses.ReturnResponse
 import responses.cord.base.CordResponseLineItems
@@ -195,17 +196,28 @@ object ReturnLineItemManager {
   }
 
   def fetchShippingCostLineItem(rma: Return)(
-      implicit ec: EC): DbResultT[Option[ReturnResponse.LineItem.ShippingCost]] = {
-    val shippingCosts = (for {
+      implicit ec: EC,
+      db: DB): DbResultT[Option[ReturnResponse.LineItem.ShippingCost]] = {
+    val shippingCostsQuery = (for {
       liSc   ← ReturnLineItemShippingCosts.findByRmaId(rma.id)
       li     ← liSc.li
       reason ← li.returnReason
     } yield (liSc, li, reason)).one.dbresult
 
-    shippingCosts.map(_.map {
-      case (costs, li, reason) ⇒
-        ReturnResponse.LineItem
-          .ShippingCost(id = li.id, reason = reason.name, amount = costs.amount)
-    })
+    for {
+      shippingCosts ← * <~ shippingCostsQuery
+      // FIXME: ShippingMethod has only price attached, without any currency. Also, what with EOM here?
+      order          ← * <~ Orders.mustFindByRefNum(rma.orderRef)
+      shippingMethod ← * <~ ShippingMethods.forCordRef(rma.orderRef).one
+    } yield
+      shippingCosts.map2(shippingMethod) {
+        case ((costs, li, reason), sm) ⇒
+          ReturnResponse.LineItem.ShippingCost(id = li.id,
+                                               reason = reason.name,
+                                               name = sm.adminDisplayName,
+                                               amount = costs.amount,
+                                               price = sm.price,
+                                               currency = order.currency)
+      }
   }
 }

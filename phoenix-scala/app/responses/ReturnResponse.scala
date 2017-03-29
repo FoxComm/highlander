@@ -22,11 +22,13 @@ object ReturnResponse {
   sealed trait LineItem extends ResponseItem {
     def id: Int
     def reason: String
+    def price: Int
+    def currency: Currency
   }
   object LineItem {
     case class Sku(id: Int, reason: String, imagePath: String, title: String, sku: String, quantity: Int, price: Int, currency: Currency)
       extends LineItem
-    case class ShippingCost(id: Int, reason: String, amount: Int) extends LineItem
+    case class ShippingCost(id: Int, reason: String, name: String, amount: Int, price: Int, currency: Currency) extends LineItem
   }
   case class LineItems(skus: Seq[LineItem.Sku] = Seq.empty,
                        shippingCosts: Option[LineItem.ShippingCost] = Option.empty)

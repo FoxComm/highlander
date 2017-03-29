@@ -285,17 +285,28 @@ class ReturnIntegrationTest
       "successfully adds shipping cost line item" in new ReturnDefaults with ReturnReasonDefaults {
         val payload = ReturnShippingCostLineItemPayload(amount = order.totals.shipping,
                                                         reasonId = returnReason.id)
-        val response =
-          returnsApi(rma.referenceNumber).lineItems.add(payload).as[ReturnResponse.Root]
-        response.lineItems.shippingCosts.value.amount must === (order.totals.shipping)
+        returnsApi(rma.referenceNumber).lineItems
+          .add(payload)
+          .as[ReturnResponse.Root]
+          .lineItems
+          .shippingCosts
+          .value must have(
+            'name (shippingMethod.adminDisplayName),
+            'amount (order.totals.shipping),
+            'price (shippingMethod.price)
+        )
       }
 
       "successfully adds SKU line item" in new ReturnDefaults with ReturnReasonDefaults {
         val payload =
           ReturnSkuLineItemPayload(sku = product.code, quantity = 1, reasonId = returnReason.id)
-        val response =
-          returnsApi(rma.referenceNumber).lineItems.add(payload).as[ReturnResponse.Root]
-        response.lineItems.skus.onlyElement must have(
+
+        returnsApi(rma.referenceNumber).lineItems
+          .add(payload)
+          .as[ReturnResponse.Root]
+          .lineItems
+          .skus
+          .onlyElement must have(
             'sku (product.code),
             'title (product.title),
             'imagePath (product.image),
