@@ -12,6 +12,7 @@ The simplest way to get started is setup a personal developer appliance in Googl
 
 ### Install Prerequisites
 
+- [Python](https://python.org) 2.7.x
 - [Ansible](https://ansible.com) 2.2.x
 
 ### Google Compute VM
