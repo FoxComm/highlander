@@ -1,7 +1,5 @@
 .facet-checkbox {
-  display: flex;
-  align-items: center;
-  align-content: flex-start;
+  white-space: nowrap;
 }
 
 .facet-checkbox-input {
@@ -9,16 +7,21 @@
 }
 
 .facet-checkbox-label {
+  display: inline-block;
+  white-space: normal;
   font-size: 16px;
   font-weight: normal;
   font-style: normal;
   font-stretch: normal;
-  line-height: 1.88;
+  padding: 5px 0;
   letter-spacing: normal;
   color: #000000;
 }
 
 .facet-checkbox-box {
+  display: inline-block;
+  margin-top: 7px;
+  vertical-align: top;
   width: 16px;
   min-width: 16px;
   height: 16px;
