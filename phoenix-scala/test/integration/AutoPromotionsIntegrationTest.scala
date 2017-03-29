@@ -4,6 +4,7 @@ import cats.implicits._
 import failures.NotFoundFailure404
 import failures.ObjectFailures._
 import models.Reasons
+import models.customer.CustomerGroup
 import models.objects.ObjectContext
 import models.promotion.Promotion.{Auto, Coupon}
 import models.promotion._
@@ -16,6 +17,7 @@ import org.scalactic.TolerantNumerics
 import payloads.AddressPayloads.CreateAddressPayload
 import payloads.CartPayloads.CreateCart
 import payloads.CouponPayloads.CreateCoupon
+import payloads.CustomerGroupPayloads.{CustomerGroupMemberSyncPayload, CustomerGroupPayload}
 import payloads.DiscountPayloads.CreateDiscount
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.PaymentPayloads.{CreateManualStoreCredit, StoreCreditPayment}
@@ -25,7 +27,7 @@ import responses.CouponResponses.CouponResponse
 import responses.PromotionResponses.PromotionResponse
 import responses.cord.base.CartResponseTotals
 import responses.cord.{CartResponse, OrderResponse}
-import responses.{CustomerResponse, StoreCreditResponse}
+import responses.{CustomerResponse, GroupResponses, StoreCreditResponse}
 import services.objects.ObjectManager
 import services.promotion.PromotionManager
 import testutils.PayloadHelpers.tv
@@ -235,6 +237,41 @@ class AutoPromotionsIntegrationTest
       .add(Seq(UpdateLineItemsPayload(skuCode, 1)))
       .asTheResult[CartResponse]
       .promotion mustBe 'empty
+  }
+
+  "promotions narrowed down to certain customer groups are applied only for them" in {
+    val group = customerGroupsApi
+      .create(
+          CustomerGroupPayload(name = faker.Lorem.sentence(),
+                               clientState = JNull,
+                               elasticRequest = JNull,
+                               groupType = CustomerGroup.Manual))
+      .as[GroupResponses.GroupResponse.Root]
+
+    val promo = promotionsApi
+      .create(
+          PromotionPayloadBuilder.build(Promotion.Auto,
+                                        PromoOfferBuilder.CartPercentOff(37),
+                                        PromoQualifierBuilder.CartAny,
+                                        extraAttrs = Map(
+                                            "customerGroupIds" → List(group.id)
+                                        )))
+      .as[PromotionResponse.Root]
+
+    val customer = api_newCustomer()
+    val refNum   = api_newCustomerCart(customer.id).referenceNumber
+    val skuCode  = new ProductSku_ApiFixture {}.skuCode
+
+    cartsApi(refNum).lineItems
+      .add(Seq(UpdateLineItemsPayload(skuCode, 1)))
+      .asTheResult[CartResponse]
+      .promotion mustBe 'empty
+
+    customerGroupsMembersApi(group.id)
+      .syncCustomers(CustomerGroupMemberSyncPayload(List(customer.id), List.empty))
+      .mustBeOk()
+
+    cartsApi(refNum).get().asTheResult[CartResponse].promotion mustBe 'defined
   }
 
 }
