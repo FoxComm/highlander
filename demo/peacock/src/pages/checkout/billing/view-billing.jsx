@@ -15,6 +15,7 @@ import type { BillingData } from '../types';
 
 type Props = {
   billingData: ?BillingData,
+  inModal?: boolean,
 };
 
 const ViewBilling = (props: Props) => {
@@ -24,18 +25,18 @@ const ViewBilling = (props: Props) => {
   const { brand, expMonth, expYear, address, holderName, lastFour, isDefault } = billingData;
 
   const getAddress = () => {
-    if (_.isEmpty(address)) return null;
+    if (_.isEmpty(address) || props.inModal) return null;
 
     return (
       <li styleName="billing-address">
-        Billing address: <AddressDetails styleName="billing-address" address={address} />
+        <AddressDetails styleName="billing-address" address={address} />
       </li>
     );
   };
 
   const paymentType = brand ? _.upperCase(brand) : '';
 
-  const defaultText = isDefault ? <li><div styleName="default-card">Default Card</div></li> : null;
+  const defaultText = isDefault ? <span styleName="default-card">(Default)</span> : null;
   const lastTwoYear = expYear && expYear.toString().slice(-2);
   const monthYear = expMonth && expYear ?
     `${expMonth < 10 ? `0${expMonth}` : expMonth}/${lastTwoYear}` : 'xx/xx';
@@ -43,9 +44,8 @@ const ViewBilling = (props: Props) => {
 
   return (
     <ul styleName="view-billing">
-      <li styleName="payment-name">{ `${holderName}'s ${paymentType}` }</li>
+      <li styleName="payment-name">{ `${holderName}'s ${paymentType}`}{defaultText}</li>
       <li styleName="payment-last-four">{ `Ending in ${lastFour}, expires ${monthYear}` }</li>
-      {defaultText}
       {addressInfo}
     </ul>
   );

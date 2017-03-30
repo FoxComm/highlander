@@ -40,7 +40,7 @@ const CreditCard = (props: Props) => {
         onChange={() => onSelect(creditCard)}
         id={`credit-card-${id}`}
       >
-        <ViewBilling billingData={creditCard} />
+        <ViewBilling billingData={creditCard} inModal />
       </Radiobutton>
       <ActionLink
         action={() => onDeleteCard(id)}

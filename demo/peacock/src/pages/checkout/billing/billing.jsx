@@ -17,6 +17,7 @@ import Loader from 'ui/loader';
 import { togglePaymentModal, fetchCreditCards } from 'modules/checkout';
 
 import type { CheckoutBlockProps, BillingData } from '../types';
+import type { AsyncStatus } from 'types/async-actions';
 
 import styles from './billing.css';
 
@@ -24,7 +25,7 @@ type Props = CheckoutBlockProps & {
   paymentMethods: Array<any>,
   creditCard: BillingData,
   paymentModalVisible: boolean,
-  auth: ?Object,
+  loginState: AsyncStatus,
 };
 
 type State = {
@@ -38,12 +39,14 @@ class Billing extends Component {
     fetchedCreditCards: false,
   };
 
-  componentWillReceiveProps(nextProps: Props) {
-    if (!this.state.fetchedCreditCards) {
-      this.fetchCreditCards();
-    }
+  componentWillMount() {
+    this.fetchCreditCards();
+  }
 
-    if (nextProps.auth !== this.props.auth) {
+  componentWillReceiveProps(nextProps: Props) {
+    if (nextProps.loginState.finished && !this.state.fetchedCreditCards) {
+      this.fetchCreditCards();
+    } else if (nextProps.loginState.inProgress) {
       this.setState({ fetchedCreditCards: false });
     }
   }
@@ -53,7 +56,6 @@ class Billing extends Component {
       this.setState({ fetchedCreditCards: true });
     });
   }
-
 
   get giftCards() {
     return _.filter(this.props.paymentMethods, {type: 'giftCard'});
@@ -170,6 +172,7 @@ const mapStateToProps = (state) => {
     ...state.cart,
     cartState: _.get(state.asyncActions, 'cart', {}),
     paymentModalVisible: _.get(state.checkout, 'paymentModalVisible', false),
+    loginState: _.get(state.asyncActions, 'auth-login', {}),
   };
 };
 

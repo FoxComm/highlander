@@ -50,4 +50,6 @@
 
 .default-card {
   font-weight: 900;
+  margin-left: 5px;
+  font-size: 13px;
 }
