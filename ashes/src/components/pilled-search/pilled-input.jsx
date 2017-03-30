@@ -8,12 +8,16 @@ import React, { PropTypes } from 'react';
 /* eslint-disable react/no-multi-comp */
 
 const formatPill = (pill, idx, props) => {
+  const cls = classNames('fc-pilled-input__pill', {
+    'fc-pilled-input__pill_clickable': !!props.onPillClick,
+  });
+
   return (
     <div
-      className="fc-pilled-input__pill"
+      className={cls}
       key={`pill-${idx}`}
-      onClick={() => props.onPillClick(pill, idx)}>
-      {pill}
+      onClick={e => props.onPillClick(pill, idx, e)}>
+      <span className="fc-pilled-input__pill-value">{pill}</span>
       <a onClick={() => props.onPillClose(pill, idx)}
          className="fc-pilled-input__pill-close">
         &times;
@@ -67,9 +71,9 @@ const PilledInput = props => {
     <div className={classNames('fc-pilled-input', className)}>
       <div className={containerClass}>
         <div className="fc-pilled-input__pills-wrapper">
-            {pills.map((pill, idx) => {
-              return props.formatPill(pill, idx, props);
-            })}
+          {pills.map((pill, idx) => {
+            return props.formatPill(pill, idx, props);
+          })}
           <div className="fc-pilled-input__input-wrapper">
             {input}
             {iconWrapper(icon, onIconClick)}

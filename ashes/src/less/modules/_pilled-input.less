@@ -56,7 +56,6 @@
     border-radius: 17px;
     height: 34px;
     margin: 3px 0 0 5px;
-    padding: 0 0 0 10px;
     background: @color-decor3;
     color: @color-white;
     display: flex;
@@ -64,6 +63,12 @@
 
     &:last-child {
       margin-right: 10px;
+    }
+
+    &-value {
+      padding: 0 8px 0 10px;
+      border-top-left-radius: 17px;
+      border-bottom-left-radius: 17px;
     }
 
     &-icon {
@@ -75,7 +80,6 @@
       .font-spec(16px, 700, 34px);
       display: inline-block;
       padding: 0 12px 0 8px;
-      margin-left: 8px;
       border-left: 1px solid #7D848E;
       cursor: pointer;
       border-radius: 0 17px 17px 0;

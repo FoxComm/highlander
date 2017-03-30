@@ -31,6 +31,7 @@ export default class TaxonDetails extends Component {
         label="Parent"
       >
         <TaxonsDropdown
+          context={this.props.params.context}
           taxonomy={this.props.taxonomy}
           taxon={this.props.object}
           onChange={this.handleParentChange}
