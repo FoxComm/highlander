@@ -12,9 +12,11 @@ import { AddButton } from 'components/common/buttons';
 import WaitAnimation from 'components/common/wait-animation';
 import RoundedPill from 'components/rounded-pill/rounded-pill';
 import { withTaxonomy } from '../hoc';
+import TaxonomyDropdown from '../taxonomy-dropdown';
 
 // actions
 import { deleteProductCurried as unlinkProduct } from 'modules/taxons/details/taxon';
+import { addProductCurried as linkProduct } from 'modules/taxons/details/taxon';
 
 // style
 import styles from './taxonomy-widget.css';
@@ -27,7 +29,9 @@ type Props = {
   taxonomy: Taxonomy,
   fetchState: AsyncState,
   unlinkState: AsyncState,
+  linkState: AsyncState,
   unlinkProduct: (taxonId: number | string) => Promise<*>,
+  linkProduct: (taxonId: number | string) => Promise<*>,
   onChange: Function,
   linkedTaxonomy: LinkedTaxonomy,
 };
@@ -38,12 +42,12 @@ class TaxonomyWidget extends Component {
   props: Props;
 
   state = {
-    isFocused: false,
-    inputOpened: false
+    showInput: false,
   };
 
+
   @autobind
-  handleCloseClick(taxonId) {
+  onCloseClick(taxonId) {
     this.props.unlinkProduct(taxonId)
       .then(response => {
         this.props.onChange(response);
@@ -51,12 +55,20 @@ class TaxonomyWidget extends Component {
   }
 
   @autobind
-  handleAddButton() {
-    this.setState({ inputOpened: !this.state.inputOpened });
+  onIconClick() {
+    this.setState({ showInput: !this.state.showInput });
+  }
+
+  @autobind
+  onTaxonClick(taxonId) {
+    this.props.linkProduct(taxonId)
+      .then(response => {
+        this.props.onChange(response);
+      });
   }
 
   get linkedTaxonomy() {
-    const { linkedTaxonomy, unlinkState } = this.props;
+    const { linkedTaxonomy, unlinkState, linkState } = this.props;
 
     if (!linkedTaxonomy || !linkedTaxonomy.taxons) {
       return null;
@@ -70,14 +82,28 @@ class TaxonomyWidget extends Component {
       return (
         <RoundedPill
           text={getName(taxon)}
-          onClose={this.handleCloseClick}
+          onClose={this.onCloseClick}
           value={String(taxon.id)}
           styleName="pill"
-          inProgress={unlinkState.inProgress}
+          inProgress={unlinkState.inProgress || linkState.inProgress}
           key={taxon.id}
         />
       );
     });
+  }
+
+  get renderDropdown() {
+    const opened = this.state.showInput;
+    const inputClass = classNames(styles.input, { [styles.opened]: opened });
+
+    return (
+      <div className={inputClass}>
+        <TaxonomyDropdown
+          onTaxonClick={this.onTaxonClick}
+          taxonomy={this.props.taxonomy}
+        />
+      </div>
+    );
   }
 
   get content() {
@@ -87,13 +113,9 @@ class TaxonomyWidget extends Component {
       return <WaitAnimation className={styles.waiting} />;
     }
 
-    const opened = this.state.inputOpened;
-    const inputClass = classNames(styles.input, { [styles.opened]: opened });
-
     return (
       <div>
-        <div className={inputClass}>
-        </div>
+        {this.renderDropdown}
         {this.linkedTaxonomy}
       </div>
     );
@@ -101,8 +123,8 @@ class TaxonomyWidget extends Component {
 
   render() {
     const iconClassName = classNames({
-      'icon-close': this.state.inputOpened,
-      'icon-add': !this.state.inputOpened,
+      'icon-close': this.state.showInput,
+      'icon-add': !this.state.showInput,
     });
 
     return (
@@ -110,6 +132,9 @@ class TaxonomyWidget extends Component {
         <div styleName="header">
           <span styleName="title">
             {this.props.title}
+          </span>
+          <span styleName="button">
+            <i className={iconClassName} onClick={this.onIconClick} />
           </span>
         </div>
         {this.content}
@@ -120,10 +145,12 @@ class TaxonomyWidget extends Component {
 
 const mapState = state => ({
   unlinkState: get(state.asyncActions, 'taxonDeleteProduct', {}),
+  linkState: get(state.asyncActions, 'taxonAddProduct', {})
 });
 
 const mapActions = (dispatch, props) => ({
-  unlinkProduct: bindActionCreators(unlinkProduct(props.productId, props.context), dispatch)
+  unlinkProduct: bindActionCreators(unlinkProduct(props.productId, props.context), dispatch),
+  linkProduct: bindActionCreators(linkProduct(props.productId, props.context), dispatch)
 });
 
 export default withTaxonomy({ showLoader: false, mapState, mapActions })(TaxonomyWidget);
