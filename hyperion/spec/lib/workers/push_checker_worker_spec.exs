@@ -20,6 +20,9 @@ defmodule PushCheckerWorkerSpec do
     it "should check push" do
       expect Hyperion.Amazon.Workers.PushCheckerWorker.handle_info(:work, "foo")
       |> to(eq({:noreply, "foo"}))
+
+      r = Hyperion.Repo.all(SubmissionResult) |> hd
+      expect r.completed |> to(be_true())
     end
   end
 end
