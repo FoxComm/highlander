@@ -26,7 +26,13 @@ defmodule Hyperion.Amazon.Workers.PushCheckerWorker do
   end
 
   defp get_uncomplete_pushes do
-    (from r in SubmissionResult, where: r.completed == false) |> Hyperion.Repo.all
+     (from r in SubmissionResult, where: r.completed == false
+      and not is_nil(r.product_feed)
+      and not is_nil(r.price_feed)
+      and not is_nil(r.inventory_feed)
+      and not is_nil(r.variations_feed)
+      and not is_nil(r.images_feed))
+    |> Hyperion.Repo.all
   end
 
   # loop for each push
@@ -71,6 +77,6 @@ defmodule Hyperion.Amazon.Workers.PushCheckerWorker do
   end
 
   defp schedule_work do
-    Process.send_after(self(), :work, 30 * 60 * 1000) # In 30 minutes
+    Process.send_after(self(), :work, 1 * 60 * 1000) # In 5 minutes
   end
 end

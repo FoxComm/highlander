@@ -6,7 +6,8 @@ defmodule Hyperion do
 
     children = [
       worker(Hyperion.Repo, []),
-      worker(Hyperion.Amazon.Workers.CustomersOrdersWorker, [])
+      worker(Hyperion.Amazon.Workers.CustomersOrdersWorker, []),
+      worker(Hyperion.Amazon.Workers.PushCheckerWorker, [])
     ]
 
     opts = [strategy: :one_for_one, name: Hyperion.Supervisor]
