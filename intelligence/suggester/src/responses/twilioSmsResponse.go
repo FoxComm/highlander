@@ -13,7 +13,6 @@ type TwilioSmsResponse struct {
 	To              string         `json:"to"`
 	From            string         `json:"from"`
 	Body            string         `json:"body"`
-	Status          string         `json:"status"`
 	NumSegments     string         `json:"num_segments"`
 	NumMedia        string         `json:"num_media"`
 	Direction       string         `json:"direction"`
