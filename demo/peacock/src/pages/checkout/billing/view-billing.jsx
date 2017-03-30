@@ -5,7 +5,6 @@ import _ from 'lodash';
 import React from 'react';
 
 // components
-import Icon from 'ui/icon';
 import { AddressDetails } from 'ui/address';
 
 // styles
@@ -16,32 +15,37 @@ import type { BillingData } from '../types';
 
 type Props = {
   billingData: ?BillingData,
+  inModal?: boolean,
 };
 
 const ViewBilling = (props: Props) => {
   const { billingData } = props;
-
   if (!billingData || _.isEmpty(billingData)) return null;
 
-  const { brand, expMonth, expYear, billingAddress, holderName, lastFour, isDefault } = billingData;
-  const paymentType = brand ? _.kebabCase(brand) : '';
+  const { brand, expMonth, expYear, address, holderName, lastFour, isDefault } = billingData;
 
-  const defaultText = isDefault ? <li><div styleName="default-card">Default Card</div></li> : null;
+  const getAddress = () => {
+    if (_.isEmpty(address) || props.inModal) return null;
+
+    return (
+      <li styleName="billing-address">
+        <AddressDetails styleName="billing-address" address={address} />
+      </li>
+    );
+  };
+
+  const paymentType = brand ? _.upperCase(brand) : '';
+
+  const defaultText = isDefault ? <span styleName="default-card">(Default)</span> : null;
   const lastTwoYear = expYear && expYear.toString().slice(-2);
-  const monthYear = expMonth || expYear ?
-    <li>{ expMonth }/{ lastTwoYear }</li> : null;
-  const addressInfo = !_.isEmpty(billingAddress) ?
-    <li><AddressDetails styleName="billing-address" address={billingAddress} /></li> : null;
-  const paymentIcon = paymentType ?
-    <li><Icon styleName="payment-icon" name={`fc-payment-${paymentType}`} /></li> : null;
+  const monthYear = expMonth && expYear ?
+    `${expMonth < 10 ? `0${expMonth}` : expMonth}/${lastTwoYear}` : 'xx/xx';
+  const addressInfo = getAddress();
 
   return (
     <ul styleName="view-billing">
-      {paymentIcon}
-      {defaultText}
-      <li styleName="payment-name">{ holderName }</li>
-      <li styleName="payment-last-four">{ lastFour }</li>
-      {monthYear}
+      <li styleName="payment-name">{ `${holderName}'s ${paymentType}`}{defaultText}</li>
+      <li styleName="payment-last-four">{ `Ending in ${lastFour}, expires ${monthYear}` }</li>
       {addressInfo}
     </ul>
   );

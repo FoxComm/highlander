@@ -25,6 +25,7 @@ import PromoCode from 'components/promo-code/promo-code';
 import CheckoutForm from '../checkout-form';
 import Accordion from 'components/accordion/accordion';
 import Loader from 'ui/loader';
+import ActionLink from 'ui/action-link/action-link';
 
 // styles
 import styles from './billing.css';
@@ -43,7 +44,6 @@ type Props = CheckoutActions & {
   error: Array<any>,
   data: CreditCardType,
   billingData: ?CreditCardType,
-  continueAction: Function,
   t: any,
   saveCouponCode: Function,
   removeCouponCode: Function,
@@ -59,32 +59,19 @@ type Props = CheckoutActions & {
   clearUpdateCreditCardErrors: () => void,
   creditCards: Array<CreditCardType>,
   creditCardsLoading: boolean,
+  chooseCreditCard: () => Promise<*>,
 };
 
 type State = {
   addingNew: boolean,
   billingAddressIsSame: boolean,
   cardAdded: boolean,
+  selectedCard: CreditCardType,
 };
 
 function numbersComparator(value1, value2) {
   return Number(value1) === Number(value2);
 }
-
-function mapStateToProps(state) {
-  return {
-    data: state.checkout.billingData,
-    ...state.cart,
-    updateCreditCardError: _.get(state.asyncActions, 'addCreditCard.err')
-    || _.get(state.asyncActions, 'updateCreditCard.err'),
-    updateCreditCardInProgress: _.get(state.asyncActions, 'addCreditCard.inProgress', false)
-    || _.get(state.asyncActions, 'updateCreditCard.inProgress', false),
-    checkoutState: _.get(state.asyncActions, 'checkout', {}),
-    creditCardsLoading: _.get(state.asyncActions, ['creditCards', 'inProgress'], true),
-    creditCards: state.checkout.creditCards,
-  };
-}
-
 
 class EditBilling extends Component {
   props: Props;
@@ -93,21 +80,20 @@ class EditBilling extends Component {
     addingNew: false,
     billingAddressIsSame: true,
     cardAdded: false,
+    selectedCard: {},
   };
 
   componentWillMount() {
     if (!this.props.isGuestMode) {
-      this.props.fetchCreditCards();
+      const chosenCreditCard = _.find(this.props.paymentMethods, {type: 'creditCard'});
+      if (chosenCreditCard) {
+        this.props.selectCreditCard(chosenCreditCard);
+      }
     }
 
     if (this.props.data.address) {
       this.state.billingAddressIsSame = false;
     }
-  }
-
-  @autobind
-  handleSubmit() {
-    this.props.continueAction();
   }
 
   @autobind
@@ -215,12 +201,12 @@ class EditBilling extends Component {
       addingNew: false,
       cardAdded: false,
     });
+    this.props.togglePaymentModal();
   }
 
   @autobind
   selectCreditCard(creditCard) {
-    this.props.selectCreditCard(creditCard);
-    this.setState({ addingNew: false });
+    this.setState({ addingNew: false, selectedCard: creditCard });
   }
 
   @autobind
@@ -377,7 +363,7 @@ class EditBilling extends Component {
 
   renderPaymentFeatures() {
     return (
-      <div key="payment-features">
+      <div key="payment-features" styleName="gc-coupon">
         <Accordion title="COUPON CODE?">
           <PromoCode
             placeholder="Coupon Code"
@@ -408,8 +394,14 @@ class EditBilling extends Component {
   submitCardAndContinue() {
     return this.updateCreditCard().then((card) => {
       this.props.selectCreditCard(card);
-      this.props.continueAction();
     });
+  }
+
+  @autobind
+  saveAndContinue() {
+    this.props.selectCreditCard(this.state.selectedCard);
+    this.props.chooseCreditCard();
+    this.props.togglePaymentModal();
   }
 
   renderGuestView() {
@@ -444,7 +436,7 @@ class EditBilling extends Component {
     // Explicitly show card form if user doesn't have any cards
     if (this.state.addingNew || _.isEmpty(creditCards)) {
       const action = {
-        action: this.cancelEditing,
+        handler: this.cancelEditing,
         title: 'Cancel',
       };
 
@@ -465,29 +457,59 @@ class EditBilling extends Component {
       );
     }
 
+    const action = {
+      title: 'Close',
+      handler: this.props.togglePaymentModal,
+    };
+
+    const icon = {
+      name: 'fc-plus',
+      className: styles.plus,
+    };
     return (
       <CheckoutForm
-        submit={this.handleSubmit}
-        title="PAYMENT METHOD"
+        submit={this.saveAndContinue}
+        title="Payment"
         error={null} // error for placing order action is showed in Checkout component
-        buttonLabel="Place Order"
+        buttonLabel="Apply"
         inProgress={props.checkoutState.inProgress}
+        action={action}
       >
-        <fieldset styleName="fieldset-cards">
+        <fieldset styleName="credit-cards-list">
           <CreditCards
             creditCards={creditCards}
             selectCreditCard={this.selectCreditCard}
             onEditCard={this.editCard}
             onDeleteCard={this.deleteCreditCard}
             cardAdded={this.state.cardAdded}
+            selectedCard={this.state.selectedCard}
           />
-          <button onClick={this.addNew} type="button" styleName="add-card-button">Add Card</button>
+          <ActionLink
+            action={this.addNew}
+            title="Add card"
+            icon={icon}
+            styleName="action-link-add-card"
+          />
         </fieldset>
         { this.renderPaymentFeatures() }
       </CheckoutForm>
     );
   }
 }
+
+const mapStateToProps = (state) => {
+  return {
+    data: state.checkout.billingData,
+    ...state.cart,
+    updateCreditCardError: _.get(state.asyncActions, 'addCreditCard.err')
+    || _.get(state.asyncActions, 'updateCreditCard.err'),
+    updateCreditCardInProgress: _.get(state.asyncActions, 'addCreditCard.inProgress', false)
+    || _.get(state.asyncActions, 'updateCreditCard.inProgress', false),
+    checkoutState: _.get(state.asyncActions, 'checkout', {}),
+    creditCardsLoading: _.get(state.asyncActions, ['creditCards', 'inProgress'], true),
+    creditCards: state.checkout.creditCards,
+  };
+};
 
 export default _.flowRight(
   localized,

@@ -18,7 +18,7 @@
   height: 100vh;
 }
 
-.shipping, .delivery {
+.shipping, .delivery, .payment {
   border-bottom: 1px solid var(--border-color);
   margin: 15px;
 }
@@ -76,7 +76,7 @@
     flex-wrap: wrap;
   }
 
-  .shipping, .delivery, .total-cost {
+  .shipping, .delivery, .total-cost, .payment {
     lost-column: 4/12;
     border: 1px solid var(--border-color);
     border-radius: 4px;
@@ -102,10 +102,25 @@
     height: 58px;
   }
 
-  .order-summary {
+  .payment {
+    order: 2;
+  }
+
+  .total-cost {
+    order: 3;
+  }
+
+  .delivery {
     order: 4;
+    margin-top: -100%;
+    margin-bottom: 40px;
+  }
+
+  .order-summary {
+    order: 5;
     width: 65%;
     margin: 0;
+    margin-right: 25%;
   }
 
   .order-content {

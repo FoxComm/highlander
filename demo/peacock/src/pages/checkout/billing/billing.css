@@ -5,36 +5,51 @@
   composes: checkout-block from '../checkout.css';
 }
 
-.billing-summary {
-  & ul {
-    text-align: center;
-    padding: 15px 0;
-  }
 
-  & ul + ul {
-    border-top: 1px solid var(--border-color);
+.title {
+  font-size: 19px;
+  font-weight: 900;
+  color: var(--text-color);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.action-link-payment {
+  composes: action-link from "ui/action-link/action-link.css";
+  font-size: 16px;
+  display: flex;
+  margin-right: 16px;
+}
+
+.action-link-add-card {
+  composes: action-link from "ui/action-link/action-link.css";
+  display: flex;
+  align-items: flex-start;
+  font-size: 17px;
+}
+
+.plus {
+  margin-right: 8px;
+  width: 12px;
+}
+
+.credit-cards-list, .gc-coupon {
+  padding: 15px 10px 15px 15px;
+}
+
+@media (--large) {
+  .action-link-payment {
+    margin-right: 0;
   }
 }
 
 .promo-line {
   padding: 0;
-}
-
-.fieldset {
-  border-bottom: 1px solid var(--border-color);
-}
-
-.fieldset-cards {
-  composes: fieldset;
-  padding-bottom: 40px;
-}
-
-.fieldset-coupon {
-  composes: fieldset;
-}
-
-.fieldset-gift {
-  composes: fieldset;
 }
 
 .add-card-button {
@@ -109,4 +124,3 @@
   --cvc-height: 19px;
   top: calc(50% - var(--cvc-height) / 2);
 }
-
