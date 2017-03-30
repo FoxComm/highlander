@@ -54,9 +54,7 @@ object CartPromotionUpdater {
       oppa ← * <~ findApplicablePromotion(cart, failFatally)
       (orderPromo, promotion, adjustments) = oppa // 🙄
       // Delete previous adjustments and create new
-      _ ← * <~ CartLineItemAdjustments
-           .filterByOrderRefAndShadow(cart.refNum, orderPromo.promotionShadowId) // FIXME: why delete only these matching promotionShadowId? @michalrus
-           .delete
+      _ ← * <~ CartLineItemAdjustments.findByCordRef(cart.refNum).delete
       _ ← * <~ CartLineItemAdjustments.createAll(adjustments)
     } yield ()
 
@@ -185,6 +183,9 @@ object CartPromotionUpdater {
       promoShadow ← * <~ ObjectShadows.mustFindById404(promotion.shadowId)
       promoObject = IlluminatedPromotion.illuminate(ctx, promotion, promoForm, promoShadow)
       _ ← * <~ promoObject.mustBeActive
+
+      // TODO: hmmmm, why is this needed? Shouldn’t be… @michalrus
+      _ ← * <~ OrderPromotions.filterByCordRef(cart.refNum).deleteAll
 
       // Create connected promotion and line item adjustments
       _ ← * <~ OrderPromotions.create(OrderPromotion.buildCoupon(cart, promotion, couponCode))

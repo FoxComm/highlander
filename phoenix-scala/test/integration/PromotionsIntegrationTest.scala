@@ -274,6 +274,34 @@ class PromotionsIntegrationTest
       cartsApi(cart.referenceNumber).lineItems.add(Seq(UpdateLineItemsPayload(skuCode, 1)))
       cartsApi(cart.referenceNumber).coupon.add(couponCode).mustFailWith400(PromotionIsNotActive)
     }
+
+    "but not if there’s an auto-promo already applied" in new ProductSku_ApiFixture {
+      val percentOff = 37
+
+      val autoPromo = promotionsApi
+        .create(
+            PromotionPayloadBuilder.build(Promotion.Auto,
+                                          PromoOfferBuilder.CartPercentOff(percentOff),
+                                          PromoQualifierBuilder.CartAny))
+        .as[PromotionResponse.Root]
+
+      val (coupon, couponCode) = setupPromoAndCoupon()
+
+      val refNum = api_newGuestCart.referenceNumber
+
+      def percentOff(p: PromotionResponse.Root): Int =
+        (p.discounts.head.attributes \ "offer" \ "v" \ "orderPercentOff" \ "discount").extract[Int]
+
+      val woCoupon = cartsApi(refNum).lineItems
+        .add(Seq(UpdateLineItemsPayload(skuCode, 1)))
+        .asTheResult[CartResponse]
+
+      percentOff(woCoupon.promotion.value) must === (percentOff)
+
+      val withCoupon = cartsApi(refNum).coupon.add(couponCode).asTheResult[CartResponse]
+
+      percentOff(withCoupon.promotion.value) must === (40)
+    }
   }
 
   trait Fixture extends StoreAdmin_Seed with Promotion_Seed with Coupon_Raw

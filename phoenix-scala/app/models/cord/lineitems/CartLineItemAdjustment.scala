@@ -60,8 +60,8 @@ object CartLineItemAdjustments
     filter(_.cordRef === cordRef)
 
   def filterByOrderRefAndShadow(cordRef: String, shadowId: Int): QuerySeq =
-    filter(_.cordRef === cordRef).filter(_.promotionShadowId === shadowId)
+    findByCordRef(cordRef).filter(_.promotionShadowId === shadowId)
 
   def filterByOrderRefAndShadows(cordRef: String, shadows: Seq[Int]): QuerySeq =
-    filter(_.cordRef === cordRef).filter(_.promotionShadowId.inSet(shadows))
+    findByCordRef(cordRef).filter(_.promotionShadowId.inSet(shadows))
 }
