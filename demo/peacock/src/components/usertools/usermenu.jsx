@@ -1,9 +1,8 @@
 /* @flow */
 
-import React, { Component } from 'react';
+import React, { Component, Element } from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
-import type { HTMLElement } from 'types';
 import localized from 'lib/i18n';
 import styles from './usertools.css';
 
@@ -41,13 +40,13 @@ class UserMenu extends Component {
     });
   }
 
-  render(): HTMLElement {
+  render(): Element<*> {
     const { t } = this.props;
     return (
       <ul styleName="menu">
         <li>
           <Link to="/profile" styleName="menu-link">
-            {t('PROFILE')}
+            {t('Profile')}
           </Link>
         </li>
         <li>
@@ -55,7 +54,7 @@ class UserMenu extends Component {
             styleName="menu-link"
             to="/logout"
             onClick={this.handleLogout}
-          >{t('LOG OUT')}</Link>
+          >{t('Log out')}</Link>
         </li>
 
       </ul>

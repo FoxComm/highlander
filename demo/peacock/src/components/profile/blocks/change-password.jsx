@@ -20,7 +20,6 @@ import styles from '../profile.css';
 
 import * as actions from 'modules/profile';
 
-import type { Promise as PromiseType } from 'types/promise';
 import type { AsyncStatus } from 'types/async-actions';
 
 function mapStateToProps(state) {
@@ -39,8 +38,8 @@ type Account = {
 
 type ChangePasswordProps = {
   account: Account|{},
-  fetchAccount: () => PromiseType,
-  changePassword: (oldPassword: string, newPassword: string) => PromiseType,
+  fetchAccount: () => Promise<*>,
+  changePassword: (oldPassword: string, newPassword: string) => Promise<*>,
   changeState: AsyncStatus,
 };
 
@@ -92,7 +91,7 @@ class ChangePassword extends Component {
       newPassword1
     ).then(() => {
       browserHistory.push('/profile');
-    }).catch(err => {
+    }).catch((err) => {
       this.setState({error: err});
     });
   }

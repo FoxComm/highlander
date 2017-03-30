@@ -1,12 +1,11 @@
 // @flow
-import React from 'react';
-import type { HTMLElement } from 'types';
+import React, { Element } from 'react';
 
 import styles from './block.css';
 
 type BlockProps = {
   title: string,
-  children: HTMLElement|Array<HTMLElement>,
+  children?: Element<*>|Array<Element<*>>,
 }
 
 const Block = (props: BlockProps) => {
