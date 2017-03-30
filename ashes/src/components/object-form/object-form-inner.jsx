@@ -24,6 +24,7 @@ type Props = {
   attributes: Attributes,
   onChange: (attributes: Attributes) => void,
   schema?: Object,
+  className?: string,
 };
 
 type State = {
@@ -342,7 +343,7 @@ export default class ObjectFormInner extends Component {
 
   render() {
     const { props } = this;
-    const { attributes, schema } = props;
+    const { attributes, schema, className } = props;
     const fieldsToRender = _.isEmpty(props.fieldsToRender) ? Object.keys(attributes) : props.fieldsToRender;
 
     const renderedAttributes: Array<Element<*>> = _.map(fieldsToRender, name => {
@@ -356,7 +357,7 @@ export default class ObjectFormInner extends Component {
     });
 
     return (
-      <div className="fc-object-form">
+      <div className={classNames('fc-object-form', className)}>
         {renderedAttributes}
         {this.addCustomProperty}
         {this.customPropertyForm}
