@@ -53,6 +53,7 @@ type State = {
   open: bool,
   dropup: bool,
   selectedValue: ValueType,
+  pointedValueIndex: number,
 };
 
 /**
@@ -81,10 +82,20 @@ export default class GenericDropdown extends Component {
     open: !!this.props.open,
     dropup: false,
     selectedValue: this.props.value,
+    pointedValueIndex: -1,
   };
 
   _menu: HTMLElement;
+  _items: HTMLElement;
   _container: HTMLElement;
+
+  componentDidMount() {
+    window.addEventListener('keydown', this.handleKeyPress, true);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this.handleKeyPress, true);
+  }
 
   componentWillReceiveProps(newProps: Props) {
     this.setState({
@@ -221,6 +232,47 @@ export default class GenericDropdown extends Component {
   }
 
   @autobind
+  handleKeyPress(e: KeyboardEvent) {
+    if (this.state.open) {
+      const itemsCount = React.Children.count(this.props.children);
+
+      switch (e.keyCode) {
+        // enter
+        case 13:
+          e.preventDefault();
+
+          if (this.state.pointedValueIndex > -1) {
+            this._items.children[this.state.pointedValueIndex].click();
+          }
+
+          break;
+        // esc
+        case 27:
+          e.preventDefault();
+
+          this.setState({ open: false, pointedValueIndex: -1 });
+
+          break;
+        // down
+        case 38:
+          e.preventDefault();
+
+          const sub = this.state.pointedValueIndex - 1 > -1 ? this.state.pointedValueIndex : itemsCount;
+          this.setState({ pointedValueIndex: (sub - 1) % itemsCount });
+
+          break;
+        // up
+        case 40:
+          e.preventDefault();
+
+          this.setState({ pointedValueIndex: (this.state.pointedValueIndex + 1) % itemsCount });
+
+          break;
+      }
+    }
+  }
+
+  @autobind
   handleToggleClick(event: any) {
     event.preventDefault();
     if (this.props.disabled) {
@@ -246,12 +298,17 @@ export default class GenericDropdown extends Component {
 
   @autobind
   toggleMenu() {
-    this.setState({ open: !this.state.open });
+    this.setState({ open: !this.state.open, pointedValueIndex: -1 });
   }
 
   @autobind
   closeMenu() {
     this.setState({ open: false });
+  }
+
+  @autobind
+  openMenu() {
+    this.setState({ open: true });
   }
 
   @autobind
@@ -266,14 +323,18 @@ export default class GenericDropdown extends Component {
       );
     }
 
-    return React.Children.map(children, item => {
-      if (item.type !== DropdownItem) {
-        return item;
+    return React.Children.map(children, (item, index) => {
+      const className = classNames('fc-dropdown__item', { _active: index === this.state.pointedValueIndex });
+
+      const props = {
+        className,
+      };
+
+      if (item.type === DropdownItem) {
+        props.onSelect = this.handleItemClick;
       }
 
-      return React.cloneElement(item, {
-        onSelect: this.handleItemClick,
-      });
+      return React.cloneElement(item, props);
     });
   }
 
@@ -299,7 +360,7 @@ export default class GenericDropdown extends Component {
       <BodyPortal active={this.props.detached}>
         <div className={this.listClassName} ref={m => this._menu = m}>
           {this.prependList}
-          <ul className={this.optionsContainerClass}>
+          <ul className={this.optionsContainerClass} ref={i => this._items = i}>
             {this.renderItems()}
           </ul>
           {this.appendList}

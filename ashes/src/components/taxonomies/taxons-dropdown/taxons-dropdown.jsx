@@ -81,10 +81,39 @@ export default class TaxonsDropdown extends Component {
 
   _d: GenericDropdown;
 
+  componentDidMount() {
+    window.addEventListener('keydown', this.handleKeyPress, true);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this.handleKeyPress, true);
+  }
+
+  componentWillUpdate(nextProps: Props, nextState: State) {
+    if (this.state.token.length !== nextState.token.length) {
+      this._d.openMenu();
+    }
+  }
+
   get parentItems(): Array<DDItem> {
     const taxons = this.props.taxonomy.taxons;
 
     return values(buildTaxonsDropDownItems(taxons, '', SEP));
+  }
+
+  @autobind
+  handleKeyPress(e: KeyboardEvent) {
+    switch (e.keyCode) {
+      // backspace
+      case 8:
+        if (!this.state.token.length && get(this.props.taxon, ['location', 'parent'])) {
+          this.handleParentSelect(null);
+
+          this._d.openMenu();
+        }
+
+        break;
+    }
   }
 
   @autobind
