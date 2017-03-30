@@ -16,25 +16,12 @@ type Props = {
 };
 
 const Products = (props: Props) => {
-  const rows = _.map(props.skus, (item) => <LineItemRow {...item} key={skuIdentity(item)} />);
+  const rows = _.map(props.skus, item => <LineItemRow {...item} key={skuIdentity(item)} />);
 
   return (
-    <table styleName="products">
-      <thead>
-        <tr>
-          <th colSpan="2">
-            <span styleName="info">
-              <span>ITEM</span>
-              <span>QTY</span>
-            </span>
-          </th>
-          <th styleName="price">PRICE</th>
-        </tr>
-      </thead>
-      <tbody>
-        {rows}
-      </tbody>
-    </table>
+    <div styleName="products">
+      {rows}
+    </div>
   );
 };
 

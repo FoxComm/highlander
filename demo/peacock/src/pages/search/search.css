@@ -14,7 +14,6 @@
 
 .term {
   margin-left: .5em;
-  font-family: var(--font-playfair);
   text-transform: uppercase;
   font-weight: 300;
 }

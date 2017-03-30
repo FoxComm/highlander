@@ -101,20 +101,20 @@ class Order extends Component {
   render() {
     const { order } = this.props;
     if (!order) {
-      return <Loader/>;
+      return <Loader />;
     }
 
     return (
       <Block title={`Order ${order.referenceNumber}`}>
         <table styleName="simple-table">
           <thead>
-          <tr>
-            <th>Date</th>
-            <th>Order #</th>
-            <th>Total</th>
-            <th>Status</th>
-            <th>Tracking</th>
-          </tr>
+            <tr>
+              <th>Date</th>
+              <th>Order #</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Tracking</th>
+            </tr>
           </thead>
           <tbody>
             <OrderRow order={order} />
@@ -147,7 +147,7 @@ class Order extends Component {
           totalTitle="ORDER TOTAL"
           embedded
           styleName="order-summary"
-          { ...order }
+          {...order}
           skus={order.lineItems.skus}
         />
       </Block>

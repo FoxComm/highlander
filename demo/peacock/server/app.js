@@ -67,8 +67,7 @@ class App extends KoaApp {
 
   logInfo() {
     const description = require('../package.json').description;
-    /* eslint-disable no-console-log/no-console-log */
-    console.log(
+    console.info(
       `%s: %s ${chalk.blue('%s')} ${chalk.green('api: %s')} ${chalk.red('development url: http://localhost:%d')}`,
       timestamp(),
       description,

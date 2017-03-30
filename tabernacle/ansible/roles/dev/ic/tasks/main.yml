@@ -3,6 +3,10 @@
 - name: Creates Marathon JSON directory
   file: path=/marathon/applications state=directory
 
+- name: Start Neo4j
+  include: app_neo4j.yml
+  when: with_ic and marathon_restart.neo4j
+
 - name: Start Henhouse
   include: app_henhouse.yml
   when: with_ic and marathon_restart.henhouse
@@ -13,7 +17,7 @@
 
 - name: Start anthill
   include: app_anthill.yml
-  when: marathon_restart.anthill
+  when: with_ic and marathon_restart.anthill
 
 - name: Start Digger Sphex
   include: app_digger_sphex.yml
@@ -25,7 +29,7 @@
 
 - name: Start Orders anthill
   include: app_orders_anthill.yml
-  when: marathon_restart.orders_anthill
+  when: with_ic and marathon_restart.orders_anthill
 
 - name: Start Eggcrate
   include: app_eggcrate.yml

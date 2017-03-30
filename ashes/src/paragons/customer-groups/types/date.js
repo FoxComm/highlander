@@ -1,4 +1,4 @@
-import ops, { operatorsMap } from '../operators';
+import ops from '../operators';
 
 
 const type = {

@@ -6,7 +6,6 @@ import classNames from 'classnames';
 import { prefix } from 'lib/text-utils';
 
 //components
-import { Button } from 'components/common/buttons';
 import propTypes from '../widgets/propTypes';
 
 
@@ -31,8 +30,6 @@ export const Input = ({Input: Widget}) => ({criterion, value, className, changeV
 Input.propTypes = propTypes;
 
 const renderInputItem = ({Widget, criterion, values, index, className, changeValue, prefixed}) => {
-  const value = values[index];
-
   const add = () => {
     changeValue([
       ...values,

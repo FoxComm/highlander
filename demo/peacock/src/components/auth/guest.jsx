@@ -1,11 +1,10 @@
-
 /* @flow */
 
 import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
 
 import Button from 'ui/buttons';
-import { TextInput } from 'ui/inputs';
+import TextInput from 'ui/text-input/text-input';
 import { FormField, Form } from 'ui/forms';
 
 import styles from './auth.css';
@@ -38,16 +37,17 @@ class Guest extends Component {
   render() {
     return (
       <Form onSubmit={this.onClick}>
-        <div styleName="title">CHECKOUT AS GUEST</div>
-        <FormField key="email" styleName="form-field">
-          <TextInput placeholder="EMAIL" type="email" value={this.state.email} onChange={this.onEmailChange}/>
-        </FormField>
+        <div styleName="title">Checkout as guest</div>
+        <div styleName="inputs-body">
+          <FormField key="email" styleName="form-field" required>
+            <TextInput placeholder="Email" type="email" value={this.state.email} onChange={this.onEmailChange} />
+          </FormField>
+        </div>
         <Button
           styleName="primary-button"
           type="submit"
-        >
-          CHECKOUT
-        </Button>
+          children="Checkout"
+        />
       </Form>
     );
   }

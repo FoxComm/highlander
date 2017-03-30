@@ -1,0 +1,98 @@
+@import "colors.css";
+@import "media-queries.css";
+
+.button {
+  width: 100%;
+  font-weight: 900;
+  font-size: 16px;
+  line-height: 2.75;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background-color: var(--button-default-background);
+  color: var(--button-label-color);
+  text-align: center;
+  cursor: pointer;
+
+  &:active {
+    background: var(--button-active-background);
+  }
+
+  &:focus {
+    /* outline: 4px solid var(--baby-blue); */
+    box-shadow: 0 0 3pt 2pt var(--baby-blue);
+    background: var(--button-focus-background);
+  }
+
+  & > span {
+    vertical-align: middle;
+  }
+
+  & > :global(.icon) {
+    vertical-align: middle;
+    margin-right: 0.3em;
+  }
+
+  &:disabled {
+    color: var(--button-disabled-color);
+    background: var(--button-disabled-background);
+
+    &:hover {
+      cursor: not-allowed;
+    }
+  }
+}
+
+._loading {
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUAQMAAAC3R49OAAAABlBMVEUAAAAAAAClZ7nPAAAAAnRSTlMAF/VASP8AAABBSURBVHheZckxFYAgFADA8zkwYgMr2MBKNpBoRCHCHxl4YADnsxymy/DoQmyh7aGmUHJwBnfjraxiW+yTNMj9xx9ZVxpfjbpEWgAAAABJRU5ErkJggg==);
+  animation: caramel .5s linear infinite;
+
+  &:hover {
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUAQMAAAC3R49OAAAABlBMVEUAAAAAAAClZ7nPAAAAAnRSTlMAF/VASP8AAABBSURBVHheZckxFYAgFADA8zkwYgMr2MBKNpBoRCHCHxl4YADnsxymy/DoQmyh7aGmUHJwBnfjraxiW+yTNMj9xx9ZVxpfjbpEWgAAAABJRU5ErkJggg==);
+    animation: caramel .5s linear infinite;
+  }
+
+  &:disabled {
+    color: var(--button-disabled-color);
+    background: var(--button-disabled-background);
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUAQMAAAC3R49OAAAABlBMVEUAAAAAAAClZ7nPAAAAAnRSTlMAF/VASP8AAABBSURBVHheZckxFYAgFADA8zkwYgMr2MBKNpBoRCHCHxl4YADnsxymy/DoQmyh7aGmUHJwBnfjraxiW+yTNMj9xx9ZVxpfjbpEWgAAAABJRU5ErkJggg==);
+    animation: caramel .5s linear infinite;
+
+    &:hover {
+      color: var(--button-disabled-color);
+      cursor: not-allowed;
+    }
+  }
+}
+
+
+._secondary {
+  background: var(--button-alt-default-background);
+  color: var(--button-label-color);
+
+  &:active {
+    background: var(--button-alt-active-background);
+  }
+
+  &:focus {
+    background: var(--button-alt-default-background);
+    color: var(--button-label-color);
+  }
+}
+
+@media (--large) {
+  .button {
+    font-size: 20px;
+    line-height: 2.9;
+  }
+}
+
+@keyframes caramel {
+  from {
+    background-position: 0 0;
+  }
+
+  to {
+    background-position: 20px 0;
+  }
+}

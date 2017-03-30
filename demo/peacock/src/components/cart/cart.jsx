@@ -16,11 +16,11 @@ import localized from 'lib/i18n';
 import Currency from 'ui/currency';
 import LineItem from './line-item';
 import Button from 'ui/buttons';
-import Icon from 'ui/icon';
 import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
 import { skuIdentity } from '@foxcomm/wings/lib/paragons/sku';
 import { parseError } from '@foxcomm/api-js';
-import CouponCode from '../promo-code/promo-code';
+import Overlay from 'ui/overlay/overlay';
+import ActionLink from 'ui/action-link/action-link';
 
 // styles
 import styles from './cart.css';
@@ -30,15 +30,13 @@ import type { Totals } from 'modules/cart';
 
 // actions
 import * as actions from 'modules/cart';
-import { saveCouponCode, removeCouponCode } from 'modules/checkout';
 
 type Props = {
   fetch: Function,
   deleteLineItem: Function,
   updateLineItemQuantity: Function,
   toggleCart: Function,
-  saveCode: Function,
-  removeCode: Function,
+  hideCart: Function,
   skus: Array<any>,
   coupon: ?Object,
   promotion: ?Object,
@@ -70,7 +68,7 @@ class Cart extends Component {
   @autobind
   deleteLineItem(sku) {
     tracking.removeFromCart(sku, sku.quantity);
-    this.props.deleteLineItem(sku).catch(ex => {
+    this.props.deleteLineItem(sku).catch((ex) => {
       this.setState({
         errors: parseError(ex),
       });
@@ -85,7 +83,7 @@ class Cart extends Component {
     } else if (diff < 0) {
       tracking.removeFromCart(sku, -diff);
     }
-    this.props.updateLineItemQuantity(sku, quantity).catch(ex => {
+    this.props.updateLineItemQuantity(sku, quantity).catch((ex) => {
       this.setState({
         errors: parseError(ex),
       });
@@ -101,7 +99,7 @@ class Cart extends Component {
       );
     }
 
-    return _.map(this.props.skus, sku => {
+    return _.map(this.props.skus, (sku) => {
       return (
         <LineItem
           {...sku}
@@ -134,20 +132,20 @@ class Cart extends Component {
 
   @autobind
   onCheckout() {
-    browserHistory.push('/checkout');
+    Promise.resolve(this.props.hideCart())
+      .then(() => {
+        browserHistory.push('/checkout');
+      })
+    ;
   }
 
   render() {
     const {
       t,
       totals,
-      coupon,
       toggleCart,
       skus,
-      promotion,
       isVisible,
-      saveCode,
-      removeCode,
     } = this.props;
 
     const cartClass = classNames({
@@ -159,42 +157,30 @@ class Cart extends Component {
 
     return (
       <div styleName={cartClass}>
-        <div styleName="overlay" onClick={toggleCart}></div>
+        <Overlay onClick={toggleCart} shown={isVisible} />
         <div styleName="cart-box">
-          <div styleName="cart-header" onClick={toggleCart}>
-            <Icon name="fc-chevron-left" styleName="back-icon"/>
-            <div styleName="header-text">{t('KEEP SHOPPING')}</div>
+          <div styleName="cart-header">
+            <span styleName="my-cart">My Cart</span>
+            <ActionLink
+              action={toggleCart}
+              title="Close"
+              styleName="action-link-cart-close"
+            />
           </div>
 
           <div styleName="cart-content">
             <div styleName="line-items">
               {this.lineItems}
             </div>
-
-            <CouponCode
-              coupon={coupon}
-              promotion={promotion}
-              discountValue={totals.adjustments}
-              saveCode={saveCode}
-              removeCode={removeCode}
-              disabled={checkoutDisabled}
-              placeholder="Coupon Code"
-              theme="dark"
-            />
-
-            <div styleName="cart-subtotal">
-              <div styleName="subtotal-title">{t('SUBTOTAL')}</div>
-              <div styleName="subtotal-price">
-                <Currency value={ totals.subTotal } />
-              </div>
-            </div>
-
             {this.errorsLine}
           </div>
 
           <div styleName="cart-footer">
             <Button onClick={this.onCheckout} disabled={checkoutDisabled} styleName="checkout-button">
-              {t('CHECKOUT')}
+              {t('Checkout')}
+              <span styleName="subtotal-price">
+                <Currency value={totals.subTotal} />
+              </span>
             </Button>
           </div>
         </div>
@@ -207,6 +193,4 @@ const mapStateToProps = state => ({ ...state.cart, ...state.auth });
 
 export default connect(mapStateToProps, {
   ...actions,
-  saveCode: saveCouponCode,
-  removeCode: removeCouponCode,
 })(localized(Cart));
