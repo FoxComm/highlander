@@ -133,15 +133,6 @@ export default class TaxonsDropdown extends Component {
   }
 
   @autobind
-  handleInputClick(treeMode: boolean, handleToggleClick: (e: MouseEvent) => void) {
-    return (e: MouseEvent) => {
-      handleToggleClick(e);
-
-      this.setState({ treeMode: treeMode });
-    };
-  }
-
-  @autobind
   handlePillClick() {
     const { context, taxonomy, taxon } = this.props;
 
@@ -169,7 +160,7 @@ export default class TaxonsDropdown extends Component {
         pills={compact([parentName])}
         onPillClick={this.handlePillClick}
         onPillClose={() => this.handleParentSelect(null)}
-        onClick={this.handleInputClick(false, handleToggleClick)}
+        onClick={handleToggleClick}
       />
     );
   }

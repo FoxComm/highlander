@@ -335,7 +335,7 @@ export default class GenericDropdown extends Component {
     return React.Children.map(children, (item, index) => {
       const className = classNames('fc-dropdown__item', { _active: index === this.state.pointedValueIndex });
 
-      const props = {
+      const props: any = {
         className,
       };
 

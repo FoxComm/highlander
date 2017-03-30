@@ -13,6 +13,9 @@ import TaxonsDropdown from '../taxons-dropdown';
 export default class TaxonDetails extends Component {
   props: ObjectPageChildProps<Taxon> & {
     taxonomy: Taxonomy,
+    params: {
+      context: string,
+    }
   };
 
   @autobind
