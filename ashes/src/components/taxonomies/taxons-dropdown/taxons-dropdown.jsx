@@ -90,7 +90,7 @@ export default class TaxonsDropdown extends Component {
   }
 
   componentWillUpdate(nextProps: Props, nextState: State) {
-    if (this.state.token.length !== nextState.token.length) {
+    if (this.state.token !== nextState.token) {
       this._d.openMenu();
     }
   }
