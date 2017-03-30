@@ -239,7 +239,7 @@ export default class GenericDropdown extends Component {
   }
 
   @autobind
-  scrollViewport(movingUp = false) {
+  scrollViewport(movingUp: boolean = false) {
     const newIndex = this.state.pointedValueIndex;
     const item = this._items.children[newIndex];
 
