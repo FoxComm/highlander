@@ -74,11 +74,11 @@ class Service(
 
   val logger = Logging(system, getClass)
 
-  implicit val db: Database  = dbOverride.getOrElse(Database.forConfig("db", FoxConfig.unsafe))
-  lazy val defaultApis: Apis = Apis(setupStripe(), new AmazonS3, setupMiddlewarehouse())
-  implicit val apis: Apis    = apisOverride.getOrElse(defaultApis: Apis)
-  implicit val es: ElasticsearchApi =
-    esOverride.getOrElse(ElasticsearchApi.fromConfig(FoxConfig.config))
+  implicit val db: Database         = dbOverride.getOrElse(Database.forConfig("db", FoxConfig.unsafe))
+  lazy val defaultApis: Apis        = Apis(setupStripe(), new AmazonS3, setupMiddlewarehouse())
+  implicit val apis: Apis           = apisOverride.getOrElse(defaultApis: Apis)
+  private lazy val elastic          = ElasticsearchApi.fromConfig(FoxConfig.config)
+  implicit val es: ElasticsearchApi = esOverride.getOrElse(elastic)
 
   val roleName = config.users.customer.role
   val orgName  = config.users.customer.org
