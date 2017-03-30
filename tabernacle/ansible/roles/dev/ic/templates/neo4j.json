@@ -5,6 +5,9 @@
   "mem": 128,
   "disk": 0,
   "instances": 1,
+  "labels": {
+    "LAYER": "backend"
+  },
   "container": {
     "type": "DOCKER",
     "volumes": [
