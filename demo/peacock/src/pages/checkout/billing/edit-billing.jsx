@@ -59,6 +59,7 @@ type Props = CheckoutActions & {
   clearUpdateCreditCardErrors: () => void,
   creditCards: Array<CreditCardType>,
   creditCardsLoading: boolean,
+  chooseCreditCard: () => Promise<*>,
 };
 
 type State = {
@@ -72,21 +73,6 @@ function numbersComparator(value1, value2) {
   return Number(value1) === Number(value2);
 }
 
-function mapStateToProps(state) {
-  return {
-    data: state.checkout.billingData,
-    ...state.cart,
-    updateCreditCardError: _.get(state.asyncActions, 'addCreditCard.err')
-    || _.get(state.asyncActions, 'updateCreditCard.err'),
-    updateCreditCardInProgress: _.get(state.asyncActions, 'addCreditCard.inProgress', false)
-    || _.get(state.asyncActions, 'updateCreditCard.inProgress', false),
-    checkoutState: _.get(state.asyncActions, 'checkout', {}),
-    creditCardsLoading: _.get(state.asyncActions, ['creditCards', 'inProgress'], true),
-    creditCards: state.checkout.creditCards,
-  };
-}
-
-
 class EditBilling extends Component {
   props: Props;
 
@@ -99,10 +85,9 @@ class EditBilling extends Component {
 
   componentWillMount() {
     if (!this.props.isGuestMode) {
-      const defaultCard = _.find(this.props.creditCards, { isDefault: true });
-      if (defaultCard) {
-        this.selectCreditCard(defaultCard);
-        this.props.selectCreditCard(defaultCard);
+      const chosenCreditCard = _.find(this.props.paymentMethods, {type: 'creditCard'});
+      if (chosenCreditCard) {
+        this.props.selectCreditCard(chosenCreditCard);
       }
     }
 
@@ -415,6 +400,7 @@ class EditBilling extends Component {
   @autobind
   saveAndContinue() {
     this.props.selectCreditCard(this.state.selectedCard);
+    this.props.chooseCreditCard();
     this.props.togglePaymentModal();
   }
 
@@ -510,6 +496,20 @@ class EditBilling extends Component {
     );
   }
 }
+
+const mapStateToProps = (state) => {
+  return {
+    data: state.checkout.billingData,
+    ...state.cart,
+    updateCreditCardError: _.get(state.asyncActions, 'addCreditCard.err')
+    || _.get(state.asyncActions, 'updateCreditCard.err'),
+    updateCreditCardInProgress: _.get(state.asyncActions, 'addCreditCard.inProgress', false)
+    || _.get(state.asyncActions, 'updateCreditCard.inProgress', false),
+    checkoutState: _.get(state.asyncActions, 'checkout', {}),
+    creditCardsLoading: _.get(state.asyncActions, ['creditCards', 'inProgress'], true),
+    creditCards: state.checkout.creditCards,
+  };
+};
 
 export default _.flowRight(
   localized,

@@ -94,16 +94,16 @@ class Billing extends Component {
   }
 
   get coupon() {
-    const { props } = this;
-    if (!props.coupon) return null;
+    const { coupon, promotion, totals } = this.props;
+    if (!coupon) return null;
 
     return (
       <div styleName="promo-line">
         <PromoCode
           placeholder="Coupon Code"
-          coupon={props.coupon}
-          promotion={props.promotion}
-          discountValue={props.totals.adjustments}
+          coupon={coupon}
+          promotion={promotion}
+          discountValue={totals.adjustments}
           allowDelete={false}
           editable={false}
           context="billingView"
@@ -113,7 +113,7 @@ class Billing extends Component {
   }
 
   get giftCard() {
-    if (!this.giftCards) return null;
+    if (_.isEmpty(this.giftCards)) return null;
 
     return (
       <div styleName="promo-line">
@@ -129,26 +129,22 @@ class Billing extends Component {
   }
 
   get content() {
-    if (this.state.fetchedCreditCards) {
-      const { creditCard, paymentModalVisible } = this.props;
+    if (!this.state.fetchedCreditCards) return <Loader size="m" />;
 
-      return (
-        <div styleName="billing-summary">
-          <ViewBilling billingData={creditCard} />
-          {this.coupon}
-          {this.giftCard}
-          <Modal
-            show={paymentModalVisible}
-            toggle={this.props.togglePaymentModal}
-          >
-            {this.editBilling}
-          </Modal>
-        </div>
-      );
-    }
+    const { creditCard, paymentModalVisible } = this.props;
 
     return (
-      <Loader size="m" />
+      <div styleName="billing-summary">
+        <ViewBilling billingData={creditCard} />
+        {this.coupon}
+        {this.giftCard}
+        <Modal
+          show={paymentModalVisible}
+          toggle={this.props.togglePaymentModal}
+        >
+          {this.editBilling}
+        </Modal>
+      </div>
     );
   }
 
