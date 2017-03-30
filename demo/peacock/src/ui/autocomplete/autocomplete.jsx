@@ -406,7 +406,6 @@ class Autocomplete extends Component {
     return (
       <div ref="container" styleName="autocomplete" >
         <TextInput
-          hasSymbol
           type="text"
           {...inputProps}
           role="combobox"
