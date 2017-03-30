@@ -5,6 +5,7 @@ Ecto.Adapters.SQL.Sandbox.mode(Hyperion.Repo, {:shared, self()})
 
 ESpec.configure fn(config) ->
   config.before fn(_tags) ->
+    Hyperion.Repo.delete_all(SubmissionResult)
     Hyperion.Repo.delete_all(Category)
   end
 
