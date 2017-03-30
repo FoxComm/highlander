@@ -29,8 +29,6 @@ import { AddressDetails } from 'ui/address';
 
 // styles
 import styles from './billing.css';
-// $FlowFixMe: there is style name from css module
-import { subtitle } from '../shipping/guest-shipping.css';
 
 // actions
 import * as cartActions from 'modules/cart';
@@ -196,7 +194,6 @@ class EditBilling extends Component {
   @autobind
   addNew() {
     this.props.resetBillingData();
-    console.log('adding new');
     this.setState({ addingNew: true });
   }
 
@@ -427,7 +424,6 @@ class EditBilling extends Component {
         title="Payment"
         error={props.updateCreditCardError}
         buttonLabel="Save card"
-        inProgress={props.checkoutState.inProgress}
         inProgress={props.updateCreditCardInProgress || props.checkoutState.inProgress}
         action={action}
         buttonDisabled={_.isEmpty(props.shippingAddress) && this.state.billingAddressIsSame}

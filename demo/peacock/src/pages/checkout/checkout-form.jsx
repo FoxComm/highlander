@@ -72,7 +72,14 @@ class CheckoutForm extends Component {
           {props.children}
         </div>
         <div styleName="button-wrap">
-          <Button styleName="checkout-submit" type="submit" isLoading={props.inProgress} disabled={props.buttonDisabled}>{this.buttonLabel}</Button>
+          <Button
+            styleName="checkout-submit"
+            type="submit"
+            isLoading={props.inProgress}
+            disabled={props.buttonDisabled}
+          >
+            {this.buttonLabel}
+          </Button>
         </div>
       </Form>
     );
