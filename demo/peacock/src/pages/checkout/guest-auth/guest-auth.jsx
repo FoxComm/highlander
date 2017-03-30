@@ -31,9 +31,7 @@ class GuestAuth extends Component {
 
   @autobind
   onGuestCheckout(email: string) {
-    this.props.saveEmail(email).then(() => {
-      this.props.continueAction();
-    });
+    this.props.saveEmail(email);
   }
 
   @autobind
