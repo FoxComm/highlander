@@ -10,13 +10,12 @@ import { clearErrorsFor } from '@foxcomm/wings';
 import { Link } from 'react-router';
 import Block from '../common/block';
 import Button from 'ui/buttons';
-import { TextInput } from 'ui/inputs';
+import { TextInput } from 'ui/text-input';
 import { FormField, Form } from 'ui/forms';
 import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
 
 import * as actions from 'modules/profile';
 
-import type { Promise as PromiseType } from 'types/promise';
 import type { AsyncStatus } from 'types/async-actions';
 
 function mapStateToProps(state) {
@@ -33,10 +32,15 @@ type Account = {
   id: number,
 }
 
+type EmptyAccount = {
+  email: void,
+  name: void,
+}
+
 type EditNameProps = {
-  account: Account|{},
-  fetchAccount: () => PromiseType,
-  updateAccount: (payload: Object) => PromiseType,
+  account: Account|EmptyAccount,
+  fetchAccount: () => Promise<*>,
+  updateAccount: (payload: Object) => Promise<*>,
   updateState: AsyncStatus,
   clearErrorsFor: (...args: Array<string>) => void,
 }
@@ -85,7 +89,6 @@ class EditName extends Component {
           <FormField error={!!this.props.updateState.err}>
             <TextInput
               required
-              styleName="text-input"
               value={this.state.name}
               onChange={this.handleNameChange}
             />

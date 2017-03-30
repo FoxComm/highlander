@@ -3,7 +3,6 @@
 @import "media-queries.css";
 
 .page-title {
-  font-family: var(--font-playfair);
   text-align: center;
   font-weight: 400;
   font-size: 30px;
@@ -24,7 +23,7 @@
 
 .divider {
   width: 66px;
-  border: 1px solid #212121;
+  border: 1px solid var(--input-border-color);
 }
 
 .page-content {
@@ -45,10 +44,9 @@
 
 .paragraph-title {
   line-height: 33px;
-  font-family: var(--font-playfair);
   font-weight: 400;
   font-size: 20px;
-  color: #212121;
+  color: var(--text-color);
   letter-spacing: 2.26px;
   margin-top: 40px;
   margin-bottom: 20px;
@@ -63,8 +61,8 @@
 .well {
   margin-top: 60px;
   margin-bottom: 120px;
-  background: var(--whitish);
-  border: 3px solid #F4F4F4;
+  background: var(--body-background);
+  border: 3px solid var(--input-border-color);
   padding: 30px;
   text-align: center;
 }
@@ -72,12 +70,12 @@
 .link {
   font-weight: 400;
   font-size: 16px;
-  color: #8D757A;
+  color: var(--link-color);
   line-height: 33px;
   text-decoration: underline;
 
   &:hover {
-    color: var(--bunker);
+    color: var(--link-hover-color);
   }
 }
 
