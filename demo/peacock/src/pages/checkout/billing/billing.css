@@ -42,22 +42,9 @@
   padding: 15px 10px 15px 15px;
 }
 
-@media (--large) {
-  .action-link-payment {
-    margin-right: 0;
-  }
-}
-
-.promo-line {
-  padding: 0;
-}
-
-.add-card-button {
-  composes: button-secondary from "ui/css/buttons.css";
-}
-
 .text-field {
   composes: text-field from "../checkout.css";
+  margin: 0;
 }
 
 .union-fields {
@@ -76,6 +63,14 @@
   }
 }
 
+.promo-line {
+  padding: 0;
+}
+
+.add-card-button {
+  composes: button-secondary from "ui/css/buttons.css";
+}
+
 .card-number-field {
   composes: text-field;
 }
@@ -85,25 +80,16 @@
 }
 
 .same-address-checkbox {
-  margin-top: 30px;
-
-  & + div {
-    margin-top: 30px;
-  }
+  margin-top: 20px;
+  margin-bottom: 20px;
 }
 
-.edit-card-form {
-  & > .union-fields {
-    margin: 10px 0;
+.default-checkbox {
+  margin-top: 20px;
+}
 
-    & > .text-field {
-      margin: 0;
-
-      &:first-child {
-        margin-right: 10px;
-      }
-    }
-  }
+.card-form {
+  margin: 15px 10px 15px 15px;
 }
 
 .billing-address {
@@ -123,4 +109,10 @@
 .cvc-icon {
   --cvc-height: 19px;
   top: calc(50% - var(--cvc-height) / 2);
+}
+
+@media (--large) {
+  .action-link-payment {
+    margin-right: 0;
+  }
 }

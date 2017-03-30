@@ -26,6 +26,7 @@ import CheckoutForm from '../checkout-form';
 import Accordion from 'components/accordion/accordion';
 import Loader from 'ui/loader';
 import ActionLink from 'ui/action-link/action-link';
+import { AddressDetails } from 'ui/address';
 
 // styles
 import styles from './billing.css';
@@ -135,7 +136,10 @@ class EditBilling extends Component {
     const { billingAddressIsSame } = this.state;
 
     if (billingAddressIsSame) {
-      return null;
+      const { shippingAddress } = this.props;
+      return (
+        <AddressDetails styleName="billing-address" address={shippingAddress} />
+      );
     }
 
     return (
@@ -254,29 +258,29 @@ class EditBilling extends Component {
     const checkedDefaultCard = _.get(data, 'isDefault', false);
     const editingSavedCard = !!data.id;
     const cardNumberPlaceholder = editingSavedCard ?
-      (_.repeat('**** ', 3) + data.lastFour) : t('CARD NUMBER');
+      (_.repeat('**** ', 3) + data.lastFour) : t('Card Number');
     const cvcPlaceholder = editingSavedCard ? '***' : 'CVC';
 
     const defaultCheckbox = withoutDefaultCheckbox ? null : (
       <Checkbox
-        styleName="checkbox-field"
+        styleName="default-checkbox"
         name="isDefault"
         checked={checkedDefaultCard}
         onChange={({target}) => this.changeDefault(target.checked)}
         id="set-default-card"
       >
-          Make this card my default
+          Set as default
         </Checkbox>
       );
 
     return (
-      <div styleName="edit-card-form">
-        {defaultCheckbox}
+      <div styleName="card-form">
         <FormField styleName="text-field">
           <TextInput
             required
+            pos="top"
             name="holderName"
-            placeholder={t('NAME ON CARD')}
+            placeholder={t('Name on the card')}
             value={data.holderName}
             onChange={this.changeFormData}
           />
@@ -287,6 +291,7 @@ class EditBilling extends Component {
               label={this.paymentIcon}
               labelClass={styles['payment-icon']}
               hasCard={!!this.cardType}
+              pos="tbl"
             >
               <MaskedInput
                 required
@@ -306,6 +311,7 @@ class EditBilling extends Component {
           <FormField styleName="cvc-field" validator={this.validateCvcNumber}>
             <TextInput
               required
+              pos="tbr"
               disabled={editingSavedCard}
               label={<CvcHelp />}
               labelClass={styles['cvc-icon']}
@@ -323,8 +329,9 @@ class EditBilling extends Component {
           <FormField required styleName="text-field" getTargetValue={() => data.expMonth}>
             <Autocomplete
               inputProps={{
-                placeholder: t('MONTH'),
+                placeholder: t('Month'),
                 type: 'text',
+                pos: 'bl',
               }}
               compareValues={numbersComparator}
               getItemValue={item => item}
@@ -336,8 +343,9 @@ class EditBilling extends Component {
           <FormField required styleName="text-field" getTargetValue={() => data.expYear}>
             <Autocomplete
               inputProps={{
-                placeholder: t('YEAR'),
+                placeholder: t('Year'),
                 type: 'text',
+                pos:'br',
               }}
               compareValues={numbersComparator}
               allowCustomValues
@@ -348,6 +356,7 @@ class EditBilling extends Component {
             />
           </FormField>
         </div>
+        {defaultCheckbox}
         <Checkbox
           id="billingAddressIsSame"
           checked={this.state.billingAddressIsSame}

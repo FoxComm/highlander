@@ -402,11 +402,10 @@ class Autocomplete extends Component {
 
   render () {
     const { inputProps } = this.props;
-
+    
     return (
       <div ref="container" styleName="autocomplete" >
         <TextInput
-          label={this.state.isOpen ? '▲' : '▼'}
           hasSymbol
           type="text"
           {...inputProps}
