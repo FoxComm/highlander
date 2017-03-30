@@ -109,6 +109,7 @@ func (o *ProductActivityMonitor) queryFirstTime() error {
 		o.lastQueryTime = time.Unix(values[0].Stats.To, 0)
 		o.lastValue = values[0].Stats.Sum
 	}
+	log.Printf("Last henhouse value for key '%s' is '%d' at '%s'", o.key, o.lastValue, o.lastQueryTime.Format(time.RFC3339))
 	return nil
 }
 
@@ -116,7 +117,7 @@ func (o *ProductActivityMonitor) perform() error {
 	if ((o.lastQueryTime).Unix() + o.interval) < time.Now().Unix() {
 
 		end := time.Unix(o.lastQueryTime.Unix()+o.interval, 0)
-		errorContext:= fmt.Sprintf("%s - %s", o.lastQueryTime.Format(time.RFC3339), end.Format(time.RFC3339))
+		errorContext := fmt.Sprintf("%s - %s", o.lastQueryTime.Format(time.RFC3339), end.Format(time.RFC3339))
 
 		value, err := o.queryES(o.lastQueryTime, end)
 		if err != nil {
