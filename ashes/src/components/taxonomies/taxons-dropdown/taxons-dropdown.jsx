@@ -140,7 +140,6 @@ export default class TaxonsDropdown extends Component {
         pills={compact([parentName])}
         onPillClick={this.handlePillClick}
         onPillClose={() => this.handleParentSelect(null)}
-        onIconClick={this.handleInputClick(true, handleToggleClick)}
         onClick={this.handleInputClick(false, handleToggleClick)}
       />
     );

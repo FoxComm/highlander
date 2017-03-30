@@ -158,7 +158,7 @@ export default class Table extends Component {
     const showLoading = props.showLoadingOnMount && props.isLoading === null || props.isLoading;
 
     if (showLoading) {
-      return tableMessage(<WaitAnimation />, this.loadingInline);
+      return tableMessage(<WaitAnimation className="fc-table__waiting" />, this.loadingInline);
     } else if (props.failed) {
       return tableMessage(props.errorMessage);
     } else if (isEmpty) {
