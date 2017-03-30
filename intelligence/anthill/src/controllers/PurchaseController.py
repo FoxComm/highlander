@@ -25,5 +25,8 @@ def get_all_by_channel(channel_id):
            ]
 
 def get_customer_purchases(cust_id, channel_id):
-    customer = Customer.nodes.get(phoenix_id=cust_id)
+    customer = Customer.nodes.get_or_none(phoenix_id=cust_id)
+    if customer is None:
+        return []
+
     return [product.phoenix_id for product in customer.purchased.match(channel=channel_id)]
