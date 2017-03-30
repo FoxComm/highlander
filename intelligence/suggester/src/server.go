@@ -20,5 +20,13 @@ func main() {
 
 	e.GET("/customer/:id", services.GetSuggestion)
 
+	e.GET("/neo", services.TestNeo4j)
+
+	// Decline or Purchase Endpoint
+	// If purchase forward to the one-click
+	// Else update the Neo4J with 'declined'
+	//e.POST("/customer/:phone/purchase", services.PurchaseSku)
+	//e.POST("/customer/:phone/decline", services.DeclineSku)
+
 	e.Logger.Fatal(e.Start(PORT))
 }

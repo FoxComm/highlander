@@ -15,8 +15,12 @@ func selectUpSellAndPushToSms(phoneNumber string, antHillData responses.AntHillR
 		return responses.TwilioSmsResponse{}, errors.New("There are no products for potential up-sell")
 	}
 
-	// TODO: After testing create a selection algorithm based on score
+	// TODO: After testing create a selection algorithm based on score or previous Rejections filter out
 	productImageUrl := antHillData.Products[0].Product.Albums[0].Images[0].Src
+
+	// Store product-sku in Neo4J customer.products.suggested
+
+	// Send to Twilio
 	twilioSmsResponse, err := util.SuggestionToSMS(phoneNumber, productImageUrl)
 	if err != nil {
 		return responses.TwilioSmsResponse{}, err
@@ -46,4 +50,13 @@ func GetSuggestion(c echo.Context) error {
 	}
 
 	return c.String(http.StatusOK, string(encodedResponse))
+}
+
+func TestNeo4j(c echo.Context) error {
+	result, connErr := util.ConnectToNeo4J()
+	if connErr != nil {
+		return c.String(http.StatusBadRequest, connErr.Error())
+	}
+
+	return c.String(http.StatusOK, result)
 }
