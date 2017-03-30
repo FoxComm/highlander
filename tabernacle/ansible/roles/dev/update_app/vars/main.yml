@@ -104,3 +104,4 @@ docker_tags:
     digger_sphex: "{{tag_name}}"
     orders_sphex: "{{tag_name}}"
     orders_anthill: "{{tag_name}}"
+    product_activity: "{{tag_name}}"
