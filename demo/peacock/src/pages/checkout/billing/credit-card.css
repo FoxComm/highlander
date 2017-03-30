@@ -3,6 +3,7 @@
 .credit-card {
   display: flex;
   justify-content: space-between;
+  align-items: flex-start;
   margin-bottom: 15px;
   padding: 10px 10px 0;
   border: 1px solid var(--border-color);
