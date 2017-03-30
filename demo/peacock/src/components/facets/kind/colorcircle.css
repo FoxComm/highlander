@@ -2,761 +2,761 @@
 @import "colors.css";
 @import "media-queries.css";
 
-.antiquewhite div {
+.antiquewhite {
   background-color: #FAEBD7;
   border: solid 1px var(--blackish);
 }
 
-.lightaqua div {
+.lightaqua {
   background-color: #20FFFF;
 }
 
-.aqua div {
+.aqua {
   background-color: #00FFFF;
 }
 
-.darkmarine div {
+.darkmarine {
   background-color: #6EEEC3;
 }
 
-.aquamarine div {
+.aquamarine {
   background-color: #7FFFD4;
 }
 
-.azure div {
+.azure {
   background-color: #F0FFFF;
 }
 
-.beige div {
+.beige {
   background-color: #F5F5DC;
 }
 
-.bisque div {
+.bisque {
   background-color: #FFE4C4;
 }
 
-.blackmelage div {
+.blackmelage {
   background-color: #000000;
 }
 
-.black div {
+.black {
   background-color: #000000;
 }
 
-.blue div {
+.blue {
   background-color: #0000FF;
 }
 
-.intenseblue div {
+.intenseblue {
   background-color: #1111FF;
 }
 
-.blueviolet div {
+.blueviolet {
   background-color: #8A2BE2;
 }
 
-.lightbrown div {
+.lightbrown {
   background-color: #B53A3A;
 }
 
-.brown div {
+.brown {
   background-color: #A52A2A;
 }
 
-.burlywood div {
+.burlywood {
   background-color: #DEB887;
 }
 
-.cadetblue div {
+.cadetblue {
   background-color: #5F9EA0;
 }
 
-.chartreuse div {
+.chartreuse {
   background-color: #7FFF00;
 }
 
-.chocolate div {
+.chocolate {
   background-color: #D2691E;
 }
 
-.coral div {
+.coral {
   background-color: #FF7F50;
 }
 
-.cornflowerblue div {
+.cornflowerblue {
   background-color: #6495ED;
 }
 
-.cornsilk div {
+.cornsilk {
   background-color: #FFF8DC;
 }
 
-.crimson div {
+.crimson {
   background-color: #DC143C;
 }
 
-.cyan div {
+.cyan {
   background-color: #00FFFF;
 }
 
-.darkblue div {
+.darkblue {
   background-color: #00008B;
 }
 
-.darkcyan div {
+.darkcyan {
   background-color: #008B8B;
 }
 
-.darkgoldenrod div {
+.darkgoldenrod {
   background-color: #B8860B;
 }
 
-.darkgray div {
+.darkgray {
   background-color: #A9A9A9;
 }
 
-.twighlightgreen div {
+.twighlightgreen {
   background-color: #106410;
 }
 
-.darkgreen div {
+.darkgreen {
   background-color: #006400;
 }
 
-.charcoalsolidgrey div {
+.charcoalsolidgrey {
   background-color: #A9A9A9;
 }
 
-.darkgrey div {
+.darkgrey {
   background-color: #A9A9A9;
 }
 
-.lightgranite div {
+.lightgranite {
   background-color: #AAAAAA;
 }
 
-.darkkhaki div {
+.darkkhaki {
   background-color: #BDB76B;
 }
 
-.darkmagenta div {
+.darkmagenta {
   background-color: #8B008B;
 }
 
-.darkolivegreen div {
+.darkolivegreen {
   background-color: #556B2F;
 }
 
-.darkorange div {
+.darkorange {
   background-color: #FF8C00;
 }
 
-.burgundy div {
+.burgundy {
   background-color: #8B0000;
 }
 
-.darkred div {
+.darkred {
   background-color: #8B0000;
 }
 
-.darksalmon div {
+.darksalmon {
   background-color: #E9967A;
 }
 
-.darkseagreen div {
+.darkseagreen {
   background-color: #8FBC8F;
 }
 
-.darkslateblue div {
+.darkslateblue {
   background-color: #483D8B;
 }
 
-.darkslategray div {
+.darkslategray {
   background-color: #2F4F4F;
 }
 
-.darkslategrey div {
+.darkslategrey {
   background-color: #2F4F4F;
 }
 
-.darkturquoise div {
+.darkturquoise {
   background-color: #00CED1;
 }
 
-.darkviolet div {
+.darkviolet {
   background-color: #9400D3;
 }
 
-.superblush div {
+.superblush {
   background-color: #FF1493;
 }
 
-.raypink div {
+.raypink {
   background-color: #FF1696;
 }
 
-.deeppink div {
+.deeppink {
   background-color: #FF1493;
 }
 
-.deepskyblue div {
+.deepskyblue {
   background-color: #00BFFF;
 }
 
-.dimgray div {
+.dimgray {
   background-color: #696969;
 }
 
-.dimgrey div {
+.dimgrey {
   background-color: #696969;
 }
 
-.dodgerblue div {
+.dodgerblue {
   background-color: #1E90FF;
 }
 
-.firebrick div {
+.firebrick {
   background-color: #B22222;
 }
 
-.floralwhite div {
+.floralwhite {
   background-color: #FFFAF0;
   border: solid 1px var(--blackish);
 }
 
-.forestgreen div {
+.forestgreen {
   background-color: #228B22;
 }
 
-.fuchsia div {
+.fuchsia {
   background-color: #FF00FF;
 }
 
-.gainsboro div {
+.gainsboro {
   background-color: #DCDCDC;
 }
 
-.ghostwhite div {
+.ghostwhite {
   background-color: #F8F8FF;
   border: solid 1px var(--blackish);
 }
 
-.gold div {
+.gold {
   background-color: #FFD700;
 }
 
-.goldenrod div {
+.goldenrod {
   background-color: #DAA520;
 }
 
-.gray div {
+.gray {
   background-color: #808080;
 }
 
-.green div {
+.green {
   background-color: #008000;
 }
 
-.greenyellow div {
+.greenyellow {
   background-color: #ADFF2F;
   border: solid 1px var(--blackish);
 }
 
-.grey div {
+.grey {
   background-color: #808080;
 }
 
-.honeydew div {
+.honeydew {
   background-color: #F0FFF0;
 }
 
-.tactilepink div {
+.tactilepink {
   background-color: #FF59B0;
 }
 
-.brightpink div {
+.brightpink {
   background-color: #FF69B4;
 }
 
-.hotpink div {
+.hotpink {
   background-color: #FF69B4;
 }
 
-.redsolid div {
+.redsolid {
   background-color: #CD5C5C;
 }
 
-.indianred div {
+.indianred {
   background-color: #CD5C5C;
 }
 
-.indigo div {
+.indigo {
   background-color: #4B0082;
 }
 
-.ivory div {
+.ivory {
   background-color: #FFFFF0;
 }
 
-.khaki div {
+.khaki {
   background-color: #F0E68C;
 }
 
-.lavender div {
+.lavender {
   background-color: #E6E6FA;
 }
 
-.lavenderblush div {
+.lavenderblush {
   background-color: #FFF0F5;
 }
 
-.tracegreen div {
+.tracegreen {
   background-color: #7CFC00;
 }
 
-.lawngreen div {
+.lawngreen {
   background-color: #7CFC00;
 }
 
-.lemonchiffon div {
+.lemonchiffon {
   background-color: #FFFACD;
 }
 
-.lightblue div {
+.lightblue {
   background-color: #ADD8E6;
 }
 
-.lightcoral div {
+.lightcoral {
   background-color: #F08080;
 }
 
-.lightcyan div {
+.lightcyan {
   background-color: #E0FFFF;
 }
 
-.lightgoldenrodyellow div {
+.lightgoldenrodyellow {
   background-color: #FAFAD2;
   border: solid 1px var(--blackish);
 }
 
-.lightgreen div {
+.lightgreen {
   background-color: #90EE90;
 }
 
-.lightsolidgrey div {
+.lightsolidgrey {
   background-color: #D3D3D3;
 }
 
-.lightgrey div {
+.lightgrey {
   background-color: #D3D3D3;
 }
 
-.lightpink div {
+.lightpink {
   background-color: #FFB6C1;
 }
 
-.lightsalmon div {
+.lightsalmon {
   background-color: #FFA07A;
 }
 
-.lightseagreen div {
+.lightseagreen {
   background-color: #20B2AA;
 }
 
-.lightskyblue div {
+.lightskyblue {
   background-color: #87CEFA;
 }
 
-.lightslategray div {
+.lightslategray {
   background-color: #778899;
 }
 
-.lightslategrey div {
+.lightslategrey {
   background-color: #778899;
 }
 
-.lightsteelblue div {
+.lightsteelblue {
   background-color: #B0C4DE;
 }
 
-.lightyellow div {
+.lightyellow {
   background-color: #FFFFE0;
   border: solid 1px var(--blackish);
 }
 
-.lime div {
+.lime {
   background-color: #00FF00;
 }
 
-.limegreen div {
+.limegreen {
   background-color: #32CD32;
 }
 
-.linen div {
+.linen {
   background-color: #FAF0E6;
 }
 
-.linengreen div {
+.linengreen {
   background-color: #FAFFE6;
 }
 
-.magenta div {
+.magenta {
   background-color: #FF00FF;
 }
 
-.maroon div {
+.maroon {
   background-color: #800000;
 }
 
-.mediumaquamarine div {
+.mediumaquamarine {
   background-color: #66CDAA;
 }
 
-.coreblue div {
+.coreblue {
   background-color: #0000CD;
 }
 
-.mediumblue div {
+.mediumblue {
   background-color: #0000CD;
 }
 
-.mediumorchid div {
+.mediumorchid {
   background-color: #BA55D3;
 }
 
-.shockpurple div {
+.shockpurple {
   background-color: #9370DB;
 }
 
-.mediumpurple div {
+.mediumpurple {
   background-color: #9370DB;
 }
 
-.mediumseagreen div {
+.mediumseagreen {
   background-color: #3CB371;
 }
 
-.mediumslateblue div {
+.mediumslateblue {
   background-color: #7B68EE;
 }
 
-.mediumspringgreen div {
+.mediumspringgreen {
   background-color: #00FA9A;
 }
 
-.mediumturquoise div {
+.mediumturquoise {
   background-color: #48D1CC;
 }
 
-.mediumvioletred div {
+.mediumvioletred {
   background-color: #C71585;
 }
 
-.midnightblue div {
+.midnightblue {
   background-color: #191970;
 }
 
-.mintcream div {
+.mintcream {
   background-color: #F5FFFA;
 }
 
-.mistyrose div {
+.mistyrose {
   background-color: #FFE4E1;
 }
 
-.moccasin div {
+.moccasin {
   background-color: #FFE4B5;
 }
 
-.navajowhite div {
+.navajowhite {
   background-color: #FFDEAD;
   border: solid 1px var(--blackish);
 }
 
-.darknavy div {
+.darknavy {
   background-color: #000060;
 }
 
-.navy div {
+.navy {
   background-color: #000080;
 }
 
-.oldlace div {
+.oldlace {
   background-color: #FDF5E6;
 }
 
-.olive div {
+.olive {
   background-color: #808000;
 }
 
-.olivedrab div {
+.olivedrab {
   background-color: #6B8E23;
 }
 
-.pop div {
+.pop {
   background-color: #FFA500;
 }
 
-.lightorange div {
+.lightorange {
   background-color: #FFB510;
 }
 
-.orange div {
+.orange {
   background-color: #FFA500;
 }
 
-.gloworange div {
+.gloworange {
   background-color: #FF4500;
 }
 
-.craftchili div {
+.craftchili {
   background-color: #FF4500;
 }
 
-.orangered div {
+.orangered {
   background-color: #FF4500;
 }
 
-.orchid div {
+.orchid {
   background-color: #DA70D6;
 }
 
-.mattegold div {
+.mattegold {
   background-color: #EEE8AA;
 }
 
-.palegoldenrod div {
+.palegoldenrod {
   background-color: #EEE8AA;
 }
 
-.nebraska div {
+.nebraska {
   background-color: #98FB98;
 }
 
-.palegreen div {
+.palegreen {
   background-color: #98FB98;
 }
 
-.paleturquoise div {
+.paleturquoise {
   background-color: #AFEEEE;
 }
 
-.palevioletred div {
+.palevioletred {
   background-color: #DB7093;
 }
 
-.papayawhip div {
+.papayawhip {
   background-color: #FFEFD5;
 }
 
-.peachpuff div {
+.peachpuff {
   background-color: #FFDAB9;
 }
 
-.peru div {
+.peru {
   background-color: #CD853F;
 }
 
-.corepink div {
+.corepink {
   background-color: #FFC0CB;
 }
 
-.pink div {
+.pink {
   background-color: #FFC0CB;
 }
 
-.eqtpink div {
+.eqtpink {
   background-color: #FFC0AB;
 }
 
-.easypink div {
+.easypink {
   background-color: #FFC1CB;
 }
 
-.plum div {
+.plum {
   background-color: #DDA0DD;
 }
 
-.powderblue div {
+.powderblue {
   background-color: #B0E0E6;
 }
 
-.purple div {
+.purple {
   background-color: #800080;
 }
 
-.lightpurple div {
+.lightpurple {
   background-color: #A000A0;
 }
 
-.darkpurple div {
+.darkpurple {
   background-color: #600060;
 }
 
-.brightred div {
+.brightred {
   background-color: #FF1111;
 }
 
-.red div {
+.red {
   background-color: #FF0000;
 }
 
-.rosybrown div {
+.rosybrown {
   background-color: #BC8F8F;
 }
 
-.bahialtblue div {
+.bahialtblue {
   background-color: #4169E1;
 }
 
-.royalblue div {
+.royalblue {
   background-color: #4169E1;
 }
 
-.simplebrown div {
+.simplebrown {
   background-color: #8B4513;
 }
 
-.saddlebrown div {
+.saddlebrown {
   background-color: #8B4513;
 }
 
-.salmon div {
+.salmon {
   background-color: #FA8072;
 }
 
-.tracebrown div {
+.tracebrown {
   background-color: #F4A460;
 }
 
-.sandybrown div {
+.sandybrown {
   background-color: #F4A460;
 }
 
-.easygreen div {
+.easygreen {
   background-color: #2E8B57;
 }
 
-.seagreen div {
+.seagreen {
   background-color: #2E8B57;
 }
 
-.seashell div {
+.seashell {
   background-color: #FFF5EE;
 }
 
-.sienna div {
+.sienna {
   background-color: #A0522D;
 }
 
-.silver div {
+.silver {
   background-color: #C0C0C0;
 }
 
-.metallicsilver div {
+.metallicsilver {
   background-color: #C0C0C0;
 }
 
-.skyblue div {
+.skyblue {
   background-color: #87CEEB;
 }
 
-.slateblue div {
+.slateblue {
   background-color: #6A5ACD;
 }
 
-.mysteryblue div {
+.mysteryblue {
   background-color: #6A5ACD;
 }
 
-.legendink div {
+.legendink {
   background-color: #708090;
 }
 
-.tracegrey div {
+.tracegrey {
   background-color: #718091;
 }
 
-.slategrey div {
+.slategrey {
   background-color: #708090;
 }
 
-.snow div {
+.snow {
   background-color: #FFFAFA;
 }
 
-.springgreen div {
+.springgreen {
   background-color: #00FF7F;
 }
 
-.steelblue div {
+.steelblue {
   background-color: #4682B4;
 }
 
-.ecru div {
+.ecru {
   background-color: #D2B48C;
 }
 
-.tan div {
+.tan {
   background-color: #D2B48C;
 }
 
-.teal div {
+.teal {
   background-color: #008080;
 }
 
-.thistle div {
+.thistle {
   background-color: #D8BFD8;
 }
 
-.tomato div {
+.tomato {
   background-color: #FF6347;
 }
 
-.turquoise div {
+.turquoise {
   background-color: #40E0D0;
 }
 
-.violet div {
+.violet {
   background-color: #EE82EE;
 }
 
-.wheat div {
+.wheat {
   background-color: #F5DEB3;
 }
 
-.white div {
+.white {
   background-color: #FFFFFF;
   border: solid 1px var(--blackish);
 }
 
-.offwhite div {
+.offwhite {
   background-color: #F5F5F5;
   border: solid 1px var(--blackish);
 }
 
-.whitesmoke div {
+.whitesmoke {
   background-color: #F5F5F5;
   border: solid 1px var(--blackish);
 }
 
-.neonyellow div {
+.neonyellow {
   background-color: #EEEE00;
   border: solid 1px var(--blackish);
 }
 
 
-.yellow div {
+.yellow {
   background-color: #FFFF00;
   border: solid 1px var(--blackish);
 }
 
-.solargreen div {
+.solargreen {
   background-color: #9ACD32;
   border: solid 1px var(--blackish);
 }
 
-.yellowgreen div {
+.yellowgreen {
   background-color: #9ACD32;
   border: solid 1px var(--blackish);
 }
@@ -765,83 +765,43 @@
   display: none;
 }
 
-.color-checkbox-light input[type=checkbox] {
-  display: none;
-}
-
-.color-checkbox div {
+.color-checkbox {
   cursor: pointer;
-  width: 32px;
-  height: 32px;
-  border-radius: 100px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
   text-align: center;
-  float: left;
-  margin-right: 11px;
-  margin-bottom: 10px;
-}
-
-.color-checkbox-light div {
-  cursor: pointer;
-  width: 32px;
-  height: 32px;
-  border-radius: 100px;
-  text-align: center;
-  float: left;
+  display: inline-block;
   margin-right: 11px;
   margin-bottom: 10px;
 }
 
 @media ( --medium ) {
-  .color-checkbox div {
-    width: 24px;
-    height: 24px;
-  }
-
-  .color-checkbox-light div {
+  .color-checkbox {
     width: 24px;
     height: 24px;
   }
 }
-
 
 @media ( --large ) {
-  .color-checkbox div {
+  .color-checkbox {
     width: 32px;
     height: 32px;
-    border-radius: 100px;
-    text-align: center;
-    float: left;
-    margin-right: 11px;
-    margin-bottom: 10px;
-  }
-
-  .color-checkbox-light div {
-    width: 32px;
-    height: 32px;
-    border-radius: 100px;
-    text-align: center;
-    float: left;
-    margin-right: 11px;
-    margin-bottom: 10px;
   }
 }
 
-.color-checkbox div label {
+.color-checkbox label {
   cursor: pointer;
   font-weight: normal;
   vertical-align: -25%;
   color: rgba(0,0,0,0);
-  padding: 25% 25%;
-  margin: -25% -25%;
+  width: 100%;
+  height: 100%;
+  display: inline-block;
 }
 
-.color-checkbox-light div label {
-  cursor: pointer;
-  font-weight: normal;
-  vertical-align: -25%;
-  color: rgba(0,0,0,0);
-  padding: 25% 25%;
-  margin: -25% -25%;
+.color-checkbox input[type=checkbox] + div {
+  height: 100%;
 }
 
 .color-checkbox input[type=checkbox]:checked + div {
@@ -851,9 +811,10 @@
   background-position: center;
 }
 
-.color-checkbox-light input[type=checkbox]:checked + div {
+.light {
+  color: inherit;
+}
+
+.light.color-checkbox input[type=checkbox]:checked + div {
   background-image: url(images/symbols/blackcheckbox.svg);
-  background-size: 37.5%, 37.5%;
-  background-repeat: no-repeat no-repeat;
-  background-position: center;
 }

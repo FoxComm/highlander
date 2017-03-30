@@ -12,11 +12,12 @@ export type FacetElementProps = {
 export type FacetValue = {
   label: string,
   value: Object|string,
-  count: number,
+  count?: number,
+  selected?: boolean,
 }
 
 export type Facet = {
-  key: string,
+  key?: string,
   name: string,
   kind: 'color' | 'circle' | 'checkbox',
   values: Array<FacetValue>,

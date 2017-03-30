@@ -34,6 +34,92 @@ const facets = [
       count: 1,
     })),
   },
+  {
+    key: 'color',
+    name: 'Color',
+    kind: 'color',
+    values: [
+      {
+        "label": "Black",
+        "value": {
+          "color": "black",
+          "value": "Black"
+        },
+        "count": 66
+      },
+      {
+        "label": "White",
+        "value": {
+          "color": "white",
+          "value": "White"
+        },
+        "count": 31
+      },
+      {
+        "label": "Blue",
+        "value": {
+          "color": "blue",
+          "value": "Blue"
+        },
+        "count": 15
+      },
+      {
+        "label": "Collegiate Navy",
+        "value": {
+          "color": "navy",
+          "value": "Collegiate Navy"
+        },
+        "count": 13
+      },
+      {
+        "label": "Metallic Silver",
+        "value": {
+          "color": "silver",
+          "value": "Metallic Silver"
+        },
+        "count": 10
+      },
+      {
+        "label": "Grey",
+        "value": {
+          "color": "grey",
+          "value": "Grey"
+        },
+        "count": 9
+      },
+      {
+        "label": "Mystery Blue",
+        "value": {
+          "color": "lightblue",
+          "value": "Mystery Blue"
+        },
+        "count": 6
+      }
+    ]
+  },
+  {
+    key: 'image',
+    name: 'Colors',
+    kind: 'image',
+    values: [
+      {
+        "label": "Black",
+        "value": {
+          "image": "http://lorempixel.com/59/63/",
+          "value": "black"
+        },
+        "count": 4
+      },
+      {
+        "label": "Silver",
+        "value": {
+          "image": "http://lorempixel.com/59/63/",
+          "value": "silver"
+        },
+        "count": 12
+      },
+    ]
+  }
 ];
 
 storiesOf('components.Facets', module)

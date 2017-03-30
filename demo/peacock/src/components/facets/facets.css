@@ -5,7 +5,7 @@
 }
 
 .facet {
-    margin-bottom: 22px;
+  margin-bottom: 22px;
 }
 
 .facet-name {
@@ -22,14 +22,14 @@
 }
 
 .circle-facet {
-    display: flex;
-    flex-wrap: wrap;
+  display: flex;
+  flex-wrap: wrap;
 }
 
 .color-facet {
-    max-width: 200px;
-    display: flex;
-    flex-wrap: wrap;
-    lost-column: 11/12;
-    lost-offset: -0.5/12;
+  max-width: 200px;
+  display: flex;
+  flex-wrap: wrap;
+  lost-column: 11/12;
+  lost-offset: -0.5/12;
 }

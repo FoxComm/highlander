@@ -9,12 +9,13 @@ import styles from './facets.css';
 import Checkbox from './kind/checkbox';
 import Circle from './kind/circle';
 import ColorCircle from './kind/colorcircle';
+import Image from './kind/image';
 
-import type { Facet } from 'types/facets';
+import type { Facet as TFacet, FacetValue } from 'types/facets';
 
 type FacetsProps = {
   prefix: string,
-  facets: Array<Facet>,
+  facets: Array<TFacet>,
   whitelist?: Array<string>,
   onSelect?: (facet: string, value: string, selected: boolean) => void,
 };
@@ -36,13 +37,10 @@ class Facets extends Component {
   }
 
   @autobind
-  renderValues(f) {
-    let values = {};
-    const { prefix } = this.props;
-
-    values = _.map(f.values, (v) => {
+  renderValues(f: TFacet) {
+    return _.map(f.values, (v: FacetValue) => {
       const key = `val-${prefix}-${f.kind}-${f.key}-${v.label}`;
-      let w = {};
+      let w = null;
 
       if (f.kind == 'checkbox') {
         w = (<Checkbox
@@ -51,6 +49,7 @@ class Facets extends Component {
           facet={f.key}
           value={v.value}
           label={v.label}
+          checked={v.selected}
           click={this.handleClickFacets}
         />);
       } else if (f.kind == 'circle') {
@@ -60,6 +59,7 @@ class Facets extends Component {
           facet={f.key}
           value={v.value}
           label={v.label}
+          checked={v.selected}
           click={this.handleClickFacets}
         />);
       } else if (f.kind == 'color') {
@@ -69,19 +69,24 @@ class Facets extends Component {
           facet={f.key}
           value={v.value}
           label={v.label}
+          checked={v.selected}
           click={this.handleClickFacets}
         />);
-      } else {
-        w = (<div key={key}> unsuported type </div>);
+      } else if (f.kind == 'image') {
+        w = (<Image
+          key={key}
+          facet={f.key}
+          value={v.value}
+          label={v.label}
+          checked={v.selected}
+          click={this.handleClickFacets}
+        />);
       }
       return w;
     });
-
-    return values;
   }
 
-  @autobind
-  renderFacet(f) {
+  renderFacet(f: TFacet) {
     const values = this.renderValues(f);
     const facetStyle = `${f.kind}-facet`;
 
@@ -107,7 +112,7 @@ class Facets extends Component {
         && (_.isEmpty(whitelist) || _.find(whitelist, key => _.toLower(key) == _.toLower(f.key)));
     });
 
-    const rendered = _.map(renderable, (f) => {
+    const rendered = _.map(renderable, (f: TFacet) => {
       return this.renderFacet(f);
     });
 
