@@ -38,19 +38,14 @@ function apiCall(
   { ignoreGiftCards = true } = {}): Promise<*> {
   let payload = defaultSearch(context);
 
-  const categoryFilters = [];
   _.forEach(_.compact(categoryNames), (cat) => {
     if (cat !== 'ALL' && cat !== GIFT_CARD_TAG) {
-      categoryFilters.push(cat.toUpperCase());
+      payload = addCategoryFilter(payload, cat.toUpperCase());
     } else if (cat === GIFT_CARD_TAG) {
       const tagTerm = termFilter('tags', cat.toUpperCase());
       payload = addTermFilter(payload, tagTerm);
     }
   });
-
-  if (!_.isEmpty(categoryFilters)) {
-    payload = addCategoryFilter(payload, categoryFilters);
-  }
 
   if (ignoreGiftCards) {
     const giftCardTerm = termFilter('tags', GIFT_CARD_TAG);
