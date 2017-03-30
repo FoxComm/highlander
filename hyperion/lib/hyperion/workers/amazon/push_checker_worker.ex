@@ -43,7 +43,7 @@ defmodule Hyperion.Amazon.Workers.PushCheckerWorker do
 
   defp check_feed(push, feed_name, cfg) do
     case MWSClient.get_feed_submission_result(Map.get(push, feed_name)["FeedSubmissionId"], cfg) do
-      {:error, error} -> %{error: inspect(error)}
+      {:error, error} -> Logger.error "Push ID: #{push.id} checking error: #{inspect(error)}"
       {_, resp} ->
         feed_result_name = String.to_atom("#{Atom.to_string(feed_name)}_result")
         data = %{feed_result_name => resp["AmazonEnvelope"]["Message"]["ProcessingReport"]}

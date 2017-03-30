@@ -5,7 +5,7 @@ defmodule SubmissionResult do
   import Ecto.Query
   import Ecto.Changeset
 
-  @derive {Poison.Encoder, only: [:product_id, :product_feed, :variations_feed, 
+  @derive {Poison.Encoder, only: [:product_id, :product_feed, :variations_feed,
                                   :price_feed, :inventory_feed, :images_feed,
                                   :product_feed_result, :variations_feed_result, :price_feed_result,
                                   :inventory_feed_result, :images_feed_result, :completed]}
@@ -67,7 +67,7 @@ defmodule SubmissionResult do
   def mark_as_complete(submission_result) do
     r = Ecto.Changeset.change(submission_result, %{completed: true})
     case Repo.update(r) do
-      {:ok, _} -> Logger.info("Push ID: #{submission_result.id} completed successfully")
+      {:ok, struct} -> Logger.info("Push ID: #{struct.id} completed successfully")
       {:error, changeset} -> Logger.error("Push ID: #{submission_result.id} error occured: #{inspect(changeset)}")
     end
   end
