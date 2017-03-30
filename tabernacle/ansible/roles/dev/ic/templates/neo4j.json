@@ -6,7 +6,8 @@
   "disk": 0,
   "instances": 1,
   "labels": {
-    "LAYER": "backend"
+    "LAYER": "backend",
+    "TAG": "{{docker_tags.neo4j}}"
   },
   "container": {
     "type": "DOCKER",
@@ -53,15 +54,17 @@
     }
   ],
   "healthChecks": [
-      {
-          "protocol": "TCP",
-          "gracePeriodSeconds": 300,
-          "intervalSeconds": 60,
-          "timeoutSeconds": 20,
-          "maxConsecutiveFailures": 3,
-          "ignoreHttp1xx": false,
-          "port": 7474
-      }
+    {
+      "protocol": "COMMAND",
+      "command": {
+        "value": "curl -X GET \"http://{{neo4j_user}}:{{neo4j_pass}}@{{neo4j_host}}:{{neo4j_http_port}}/db/data/\""
+      },
+      "gracePeriodSeconds": 300,
+      "intervalSeconds": 60,
+      "timeoutSeconds": 20,
+      "maxConsecutiveFailures": 3,
+      "ignoreHttp1xx": false
+    }
   ],
   "upgradeStrategy": {
     "minimumHealthCapacity": 0.5,
