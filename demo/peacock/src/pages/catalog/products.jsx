@@ -64,7 +64,7 @@ const mapStateToProps = (state) => {
 };
 
 const facetWhitelist = [
-  'gender', 'category', 'color', 'brand', 'sport',
+  'GENDER', 'CATEGORY', 'COLOR', 'BRAND', 'SPORT',
 ];
 
 class Products extends Component {
