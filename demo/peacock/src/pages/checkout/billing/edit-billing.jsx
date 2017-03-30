@@ -372,28 +372,24 @@ class EditBilling extends Component {
   renderPaymentFeatures() {
     return (
       <div key="payment-features" styleName="gc-coupon">
-        <Accordion title="COUPON CODE?">
-          <PromoCode
-            placeholder="Coupon Code"
-            coupon={this.props.coupon}
-            promotion={this.props.promotion}
-            discountValue={this.props.totals.adjustments}
-            saveCode={this.props.saveCouponCode}
-            removeCode={this.props.removeCouponCode}
-            context="billingEdit"
-          />
-        </Accordion>
+        <PromoCode
+          placeholder="Gift Card Number"
+          buttonLabel="Redeem"
+          giftCards={this.props.giftCards}
+          saveCode={this.props.saveGiftCard}
+          removeCode={this.props.removeGiftCard}
+          context="billingEdit"
+        />
 
-        <Accordion title="GIFT CARD?">
-          <PromoCode
-            placeholder="Gift Card Number"
-            buttonLabel="Redeem"
-            giftCards={this.props.giftCards}
-            saveCode={this.props.saveGiftCard}
-            removeCode={this.props.removeGiftCard}
-            context="billingEdit"
-          />
-        </Accordion>
+        <PromoCode
+          placeholder="Coupon Code"
+          coupon={this.props.coupon}
+          promotion={this.props.promotion}
+          discountValue={this.props.totals.adjustments}
+          saveCode={this.props.saveCouponCode}
+          removeCode={this.props.removeCouponCode}
+          context="billingEdit"
+        />
       </div>
     );
   }

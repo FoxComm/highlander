@@ -94,16 +94,15 @@ class PromoCode extends Component {
   }
 
   renderGiftCard(card: Object) {
-    const { code, amount: discountValue, currentBalance } = card;
+    const { code } = card;
+    const formattedCode = code.match(/.{1,4}/g).join(' ');
 
     return (
       <div styleName="gift-card" key={card.code}>
-        <div styleName="gift-card-description">
-          <div styleName="gift-card-title">{`Gift Card ${code}`}</div>
-          <Currency styleName="gift-card-curr" prefix={'Current Balance: '} value={currentBalance} />
+        <div styleName="gift-card-info">
+          <div>Gift Card</div>
+          <div>{formattedCode}</div>
         </div>
-        <Currency styleName="subtotal-price" value={discountValue} prefix={'– '} />
-
         {this.props.allowDelete &&
           <Icon
             onClick={() => this.removeCode(code)}
@@ -118,13 +117,11 @@ class PromoCode extends Component {
   renderAttachedCoupon() {
     if (this.props.coupon) {
       const promoCode = _.get(this.props, 'coupon.code');
-      const discountValue = this.props.discountValue;
 
       return (
         <div styleName="coupon">
+          <div>Promo Code</div>
           <div styleName="coupon-code">{promoCode}</div>
-          <Currency styleName="subtotal-price" value={discountValue} prefix={'– '} />
-
           {this.props.allowDelete &&
             <Icon
               name="fc-close"

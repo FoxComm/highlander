@@ -136,8 +136,8 @@ class Billing extends Component {
     return (
       <div styleName="billing-summary">
         <ViewBilling billingData={creditCard} />
-        {this.coupon}
         {this.giftCard}
+        {this.coupon}
         <Modal
           show={paymentModalVisible}
           toggle={this.props.togglePaymentModal}

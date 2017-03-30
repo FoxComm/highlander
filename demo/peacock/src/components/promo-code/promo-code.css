@@ -58,46 +58,17 @@
   }
 }
 
-.gift-card {
-  display: flex;
-  align-items: center;
+.gift-card, .coupon {
   color: var(--text-color);
-  padding: 10px 0;
-  border-top: 1px solid var(--input-border-color);
+  padding-bottom: 10px;
+  font-size: 14px;
 }
 
-.root.billingView .gift-card:first-child {
-  border-top: none;
-}
-
-.gift-card-description {
-  flex-grow: 1;
-  line-height: 23px;
-  font-weight: 300;
-}
-
-.gift-card-title {
-  text-transform: uppercase;
+.gift-card-info {
 }
 
 .gift-card-curr {
   display: block;
-}
-
-.coupon {
-  display: flex;
-  align-items: center;
-  color: var(--text-color);
-  padding: 15px 0;
-  border-top: 1px solid var(--input-border-color);
-}
-
-.root.billingView .coupon {
-  border-top: none;
-}
-
-.coupon-code {
-  flex-grow: 1;
 }
 
 .delete-promo-btn {
