@@ -20,7 +20,6 @@ import MaskedInput from 'react-text-mask';
 import EditAddress from 'ui/address/edit-address';
 import CreditCards from './credit-cards';
 import Icon from 'ui/icon';
-import CvcHelp from './cvc-help';
 import PromoCode from 'components/promo-code/promo-code';
 import CheckoutForm from '../checkout-form';
 import Accordion from 'components/accordion/accordion';
@@ -343,7 +342,7 @@ class EditBilling extends Component {
               inputProps={{
                 placeholder: t('Year'),
                 type: 'text',
-                pos:'br',
+                pos: 'br',
               }}
               compareValues={numbersComparator}
               allowCustomValues

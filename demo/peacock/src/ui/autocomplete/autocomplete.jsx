@@ -402,7 +402,7 @@ class Autocomplete extends Component {
 
   render () {
     const { inputProps } = this.props;
-    
+
     return (
       <div ref="container" styleName="autocomplete" >
         <TextInput
