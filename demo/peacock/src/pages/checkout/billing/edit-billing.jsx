@@ -262,7 +262,7 @@ class EditBilling extends Component {
       (_.repeat('**** ', 3) + data.lastFour) : t('Card Number');
     const cvcPlaceholder = editingSavedCard ? '***' : 'CVC';
 
-    const defaultCheckbox = withoutDefaultCheckbox ? '' : (
+    const defaultCheckbox = withoutDefaultCheckbox ? null : (
       <Checkbox
         styleName="default-checkbox"
         name="isDefault"
