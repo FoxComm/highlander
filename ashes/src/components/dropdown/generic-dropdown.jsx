@@ -56,6 +56,13 @@ type State = {
   pointedValueIndex: number,
 };
 
+function getNewItemIndex(itemsCount, currentIndex, increment = 1) {
+  const startIndex = increment > 0 ? -1 : 0;
+  const index = Math.max(currentIndex, startIndex);
+
+  return (itemsCount + index + increment) % itemsCount;
+}
+
 /**
  * Generic Dropdown component
  *
@@ -232,49 +239,65 @@ export default class GenericDropdown extends Component {
   }
 
   @autobind
+  scrollViewport(movingUp = false) {
+    const newIndex = this.state.pointedValueIndex;
+    const item = this._items.children[newIndex];
+
+    const containerTop = this._items.scrollTop;
+    const containerVisibleHeight = this._items.clientHeight;
+    const itemTop = item.offsetTop;
+    const itemHeight = item.offsetHeight;
+
+    // shift height when compare to viewport top position - item height if moving up, zero otherwise
+    const heightShift = movingUp ? itemHeight : 0;
+
+    const elementBelowViewport = containerTop + containerVisibleHeight <= itemTop + itemHeight;
+    const elementAboveViewport = containerTop > itemTop + heightShift;
+
+    if (elementBelowViewport) {
+      this._items.scrollTop = itemTop + itemHeight - containerVisibleHeight;
+    }
+    if (elementAboveViewport) {
+      this._items.scrollTop = itemTop;
+    }
+  }
+
+  @autobind
   handleKeyPress(e: KeyboardEvent) {
-    if (this.state.open) {
+    const { open, pointedValueIndex: currentIndex } = this.state;
+
+    if (open) {
       const itemsCount = React.Children.count(this.props.children);
 
       switch (e.keyCode) {
         // enter
         case 13:
-          e.preventDefault();
-
-          if (this.state.pointedValueIndex > -1) {
-            this._items.children[this.state.pointedValueIndex].click();
+          if (currentIndex > -1) {
+            this._items.children[currentIndex].click();
           }
 
           break;
         // esc
         case 27:
-          e.preventDefault();
-
           this.setState({ open: false, pointedValueIndex: -1 });
 
           break;
         // up
         case 38:
           e.preventDefault();
-          this.setState({ pointedValueIndex: (itemsCount + this.state.pointedValueIndex - 1) % itemsCount }, () => {
-            const item = this._items.children[this.state.pointedValueIndex];
 
-            this._items.scrollTop = item.scrollHeight * this.state.pointedValueIndex;
-          });
+          this.setState({
+            pointedValueIndex: getNewItemIndex(itemsCount, currentIndex, -1),
+          }, this.scrollViewport.bind(this, true));
+
           break;
         // down
         case 40:
           e.preventDefault();
 
-          this.setState({ pointedValueIndex: (this.state.pointedValueIndex + 1) % itemsCount }, () => {
-            const item = this._items.children[this.state.pointedValueIndex];
-
-            const containerVisibleHeight = this._items.clientHeight;
-            const itemTop = item.offsetTop;
-            const itemHeight = item.offsetHeight;
-
-            this._items.scrollTop = itemTop + itemHeight - containerVisibleHeight;
-          });
+          this.setState({
+            pointedValueIndex: getNewItemIndex(itemsCount, currentIndex),
+          }, this.scrollViewport);
 
           break;
       }
