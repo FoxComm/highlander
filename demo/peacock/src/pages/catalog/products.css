@@ -56,6 +56,109 @@
 }
 
 .facetted-container {
+    display: none;
+}
+
+.facetted-container-mobile {
+}
+
+.sidebar-mobile {
+    width: 100%;
+    display: none;
+}
+
+.sidebar-mobile-checkbox {
+    display: none;
+}
+
+.sidebar-mobile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+  width: 95%;
+}
+
+.sidebar-mobile-footer {
+  width: 100%;
+  height: 44px;
+  border-radius: 4px;
+  background-color: #0b7ddc;
+  background-color: var(--water-blue);
+  text-align: center;
+}
+
+.sidebar-mobile-filters {
+  width: 37px;
+  height: 17px;
+  font-family: Lato;
+  font-size: 14px;
+  font-weight: normal;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: normal;
+  letter-spacing: normal;
+  color: #222222;
+  color: var(--black);
+}
+
+.sidebar-mobile-apply {
+  font-family: Lato;
+  font-size: 16px;
+  font-weight: 900;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: 2.75;
+  letter-spacing: normal;
+  text-align: center;
+  color: #ffffff;
+  color: var(--white);
+  padding-left: 30%;
+  padding-right: 30%;
+  padding-top: 5%;
+  padding-bottom: 5%;
+}
+
+.sidebar-mobile-dofilter {
+  width: 35px;
+  height: 17px;
+  font-family: Lato;
+  font-size: 14px;
+  font-weight: normal;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: normal;
+  letter-spacing: normal;
+  text-align: right;
+  color: #0b7ddc;
+  color: var(--water-blue);
+}
+
+.sidebar-mobile-close {
+  width: 35px;
+  height: 17px;
+  font-family: Lato;
+  font-size: 14px;
+  font-weight: normal;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: normal;
+  letter-spacing: normal;
+  text-align: right;
+  color: #0b7ddc;
+  color: var(--water-blue);
+}
+
+.content-mobile {
+    width: 100%;
+}
+
+.sidebar-mobile-checkbox:checked ~ .sidebar-mobile { 
+    display:inline;
+}
+
+.sidebar-mobile-checkbox:checked ~ .content-mobile { 
+    display:none;
 }
 
 .sidebar{
@@ -70,23 +173,39 @@
 }
 
 @media ( --medium ) { 
-    .sidebar{
-        width: 40%;
-        padding-left: 5%;
-    }
+  .facetted-container-mobile {
+    display: none;
+  }
 
-    .content{
-        width: 60%;
-    }
+  .facetted-container {
+    display: inline;
+  }
+
+  .sidebar{
+    width: 40%;
+    padding-left: 5%;
+  }
+
+  .content{
+    width: 60%;
+  }
 }
 
 @media ( --large ) { 
-    .sidebar{
-        width: 20%;
-        padding-left: 8%;
-    }
+  .facetted-container-mobile {
+    display: none;
+  }
 
-    .content{
-        width: 80%;
-    }
+  .facetted-container {
+    display: inline;
+  }
+
+  .sidebar{
+    width: 20%;
+    padding-left: 8%;
+  }
+
+  .content{
+    width: 80%;
+  }
 }

@@ -770,8 +770,8 @@
 }
 
 .color-checkbox div {
-  width: 16px;
-  height: 16px;
+  width: 32px;
+  height: 32px;
   border-radius: 100px;
   text-align: center;
   float: left;
@@ -780,8 +780,8 @@
 }
 
 .color-checkbox-light div {
-  width: 16px;
-  height: 16px;
+  width: 32px;
+  height: 32px;
   border-radius: 100px;
   text-align: center;
   float: left;
@@ -790,38 +790,38 @@
 }
 
 @media ( --medium ) {
-    .color-checkbox div {
-        width: 24px;
-        height: 24px;
-    }
+  .color-checkbox div {
+    width: 24px;
+    height: 24px;
+  }
 
-    .color-checkbox-light div {
-        width: 24px;
-        height: 24px;
-    }
+  .color-checkbox-light div {
+    width: 24px;
+    height: 24px;
+  }
 }
 
 
 @media ( --large ) {
-    .color-checkbox div {
-        width: 32px;
-        height: 32px;
-        border-radius: 100px;
-        text-align: center;
-        float: left;
-        margin-right: 11px;
-        margin-bottom: 10px;
-    }
+  .color-checkbox div {
+    width: 32px;
+    height: 32px;
+    border-radius: 100px;
+    text-align: center;
+    float: left;
+    margin-right: 11px;
+    margin-bottom: 10px;
+  }
 
-    .color-checkbox-light div {
-        width: 32px;
-        height: 32px;
-        border-radius: 100px;
-        text-align: center;
-        float: left;
-        margin-right: 11px;
-        margin-bottom: 10px;
-    }
+  .color-checkbox-light div {
+    width: 32px;
+    height: 32px;
+    border-radius: 100px;
+    text-align: center;
+    float: left;
+    margin-right: 11px;
+    margin-bottom: 10px;
+  }
 }
 
 .color-checkbox div label {

@@ -192,7 +192,7 @@ class Products extends Component {
     return <div />;
   }
 
-  renderSidebar() {
+  determineRealCategoryName() {
     const { params } = this.props;
     const { categoryName, subCategory, leafCategory } = params;
 
@@ -204,6 +204,12 @@ class Products extends Component {
     } else if (categoryName) {
       realCategoryName = this.categoryName(categoryName);
     }
+
+    return realCategoryName;
+  }
+
+  renderSidebar() {
+    const realCategoryName = this.determineRealCategoryName();
 
     return (
       <div styleName="sidebar">
@@ -221,27 +227,85 @@ class Products extends Component {
     );
   }
 
+  renderMobileSidebar() {
+    return (
+      <div styleName="sidebar-mobile">
+        <div styleName="sidebar-mobile-header">
+          <label styleName="sidebar-mobile-filters">Filters</label>
+          <label htmlFor={"sidebar-mobile-checkbox"} styleName="sidebar-mobile-close">Close</label>
+        </div>
+        <Facets facets={this.props.facets} whitelist={facetWhitelist} onSelect={this.onSelectFacet} />
+        <div styleName="sidebar-mobile-footer">
+          <label htmlFor={"sidebar-mobile-checkbox"} styleName="sidebar-mobile-apply">Apply Filters</label>
+        </div>
+      </div>
+    );
+  }
+
+  renderContent() {
+    const { finished } = this.props.fetchState;
+
+    return (
+      <div styleName="content">
+        <ProductsList
+          sorting={this.state.sorting}
+          changeSorting={this.changeSorting}
+          list={this.props.list}
+          isLoading={!finished}
+          loadingBehavior={LoadingBehaviors.ShowWrapper}
+        />
+      </div>);
+  }
+
+  renderMobileContent() {
+
+    const realCategoryName = this.determineRealCategoryName();
+
+    const { finished } = this.props.fetchState;
+    return (
+      <div styleName="content-mobile">
+        <div styleName="crumbs">
+          <Breadcrumbs
+            routes={this.props.routes}
+            params={this.props.routerParams}
+          />
+        </div>
+        <div styleName="title">
+          {realCategoryName}
+        </div>
+        <div styleName="sidebar-mobile-header">
+          <label/>
+          <label htmlFor={"sidebar-mobile-checkbox"} styleName="sidebar-mobile-dofilter">Filters</label>
+        </div>
+        <ProductsList
+          sorting={this.state.sorting}
+          changeSorting={this.changeSorting}
+          list={this.props.list}
+          isLoading={!finished}
+          loadingBehavior={LoadingBehaviors.ShowWrapper}
+        />
+      </div>);
+  }
+
   get body(): Element<any> {
-    const { err, finished } = this.props.fetchState;
+    const { err } = this.props.fetchState;
     if (err) {
       return <ErrorAlerts styleName="products-error" error={err} />;
     }
+
     return (
       <div>
         <div styleName="dropDown">
           {this.navBar}
         </div>
+        <div styleName="facetted-container-mobile">
+          <input styleName="sidebar-mobile-checkbox" id="sidebar-mobile-checkbox" type="checkbox"/>
+          {this.renderMobileSidebar()}
+          {this.renderMobileContent()}
+        </div>
         <div styleName="facetted-container">
           {this.renderSidebar()}
-          <div styleName="content">
-            <ProductsList
-              sorting={this.state.sorting}
-              changeSorting={this.changeSorting}
-              list={this.props.list}
-              isLoading={!finished}
-              loadingBehavior={LoadingBehaviors.ShowWrapper}
-            />
-          </div>
+          {this.renderContent()}
         </div>
       </div>
     );
