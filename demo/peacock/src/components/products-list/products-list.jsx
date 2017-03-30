@@ -21,6 +21,7 @@ export const LoadingBehaviors = {
 };
 
 type Props = {
+  changeSorting: Function,
   loadingBehavior?: 0|1,
   list: ?Array<Object>,
   isLoading: ?boolean,
@@ -28,7 +29,8 @@ type Props = {
     direction: number,
     field: string,
   },
-  changeSorting: Function,
+  filterFor?: string,
+  filterOnClick?: Function,
 };
 
 type State = {
@@ -143,7 +145,11 @@ class ProductsList extends Component {
   }
 
   get sorting(): Element<*> {
-    const { sorting, changeSorting } = this.props;
+    const { sorting, changeSorting, filterFor, filterOnClick } = this.props;
+    const filterLabel = filterFor ?
+      (<label htmlFor={filterFor} styleName="sidebar-mobile-dofilter" onClick={filterOnClick}>
+          Filters
+      </label>) : false;
     return (
       <div styleName="sorting">
         <SortPill
@@ -158,6 +164,8 @@ class ProductsList extends Component {
           isActive={sorting.field === 'title'}
           onClick={() => changeSorting('title')}
         />
+        <div styleName="mobile-filter-spacer" />
+        {filterLabel}
       </div>
     );
   }

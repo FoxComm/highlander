@@ -39,18 +39,35 @@
   composes: inner-wrap from 'ui/css/layout.css';
   margin-bottom: 20px;
   display: flex;
+  align-items: baseline;
   lost-column: 10/12;
   lost-offset: -0.5/12;
 }
 
+.mobile-filter-spacer {
+  flex-grow: 1;
+}
+
+.sidebar-mobile-dofilter {
+  font-family: Lato;
+  font-size: 14px;10px
+  font-weight: normal;
+  font-style: normal;
+  font-stretch: normal;
+  line-height: normal;
+  letter-spacing: normal;
+  color: #0b7ddc;
+  color: var(--water-blue);
+}
+
 @media (--small-only) {
   .list {
-    lost-column: 10/12;
-    lost-offset: -0.5/12;
+    lost-column: 1;
+    lost-offset: 0;
   }
 
   .sorting {
-    lost-column: 10/12;
-    lost-offset: -0.5/12;
+    lost-column: 1;
+    lost-offset: 0;
   }
 }

@@ -139,7 +139,7 @@ class Products extends Component {
   }
 
   @autobind
-  onSelectFacet(facet, value, selected) {
+  newFacetSelectState(facet: string, value: string, selected: boolean) {
     const newSelection = this.state.selectedFacets;
     if (selected) {
       if (facet in newSelection) {
@@ -153,6 +153,12 @@ class Products extends Component {
         return v != value;
       });
     }
+    return newSelection;
+  }
+
+  @autobind
+  onSelectFacet(facet: string, value: string, selected: boolean) {
+    const newSelection = this.newFacetSelectState(facet, value, selected);
 
     this.setState({selectedFacets: newSelection, sorting: this.state.sorting}, () => {
       const { categoryName, subCategory, leafCategory } = this.props.params;
@@ -160,32 +166,30 @@ class Products extends Component {
     });
   }
 
-  renderHeader() {
-    const { params } = this.props;
-    const { categoryName, subCategory, leafCategory } = params;
+  @autobind
+  onSelectMobileFacet(facet, value, selected) {
+    const newSelection = this.newFacetSelectState(facet, value, selected);
+    this.setState({selectedFacets: newSelection, sorting: this.state.sorting});
+  }
 
-    let realCategoryName = '';
-    if (leafCategory) {
-      realCategoryName = this.categoryName(leafCategory);
-    } else if (subCategory) {
-      realCategoryName = this.categoryName(subCategory);
-    } else if (categoryName) {
-      realCategoryName = this.categoryName(categoryName);
-    }
+  @autobind
+  hideMenuBar() {
+    const header = document.getElementById('header');
+    if (header) header.style.display = 'none';
+  }
 
-    return (
-      <header styleName="header">
-        <div styleName="crumbs">
-          <Breadcrumbs
-            routes={this.props.routes}
-            params={this.props.routerParams}
-          />
-        </div>
-        <div>
-          <h1 styleName="title">{realCategoryName}</h1>
-        </div>
-      </header>
-    );
+  @autobind
+  showMenuBar() {
+    const header = document.getElementById('header');
+    if (header) header.style.display = 'inline';
+  }
+
+  @autobind
+  applyMobileFilters() {
+    this.showMenuBar();
+    const { categoryName, subCategory, leafCategory } = this.props.params;
+    const { sorting, selectedFacets} = this.state;
+    this.fetch([categoryName, subCategory, leafCategory], sorting, selectedFacets);
   }
 
   get navBar(): ?Element<*> {
@@ -222,7 +226,12 @@ class Products extends Component {
         <div styleName="title">
           {realCategoryName}
         </div>
-        <Facets facets={this.props.facets} whitelist={facetWhitelist} onSelect={this.onSelectFacet} />
+        <Facets
+          prefix={'big'}
+          facets={this.props.facets}
+          whitelist={facetWhitelist}
+          onSelect={this.onSelectFacet}
+        />
       </div>
     );
   }
@@ -230,13 +239,30 @@ class Products extends Component {
   renderMobileSidebar() {
     return (
       <div styleName="sidebar-mobile">
-        <div styleName="sidebar-mobile-header">
-          <label styleName="sidebar-mobile-filters">Filters</label>
-          <label htmlFor={"sidebar-mobile-checkbox"} styleName="sidebar-mobile-close">Close</label>
+        <div styleName="sidebar-mobile-filter-header">
+          <div styleName="sidebar-mobile-filters">Filters</div>
+          <label
+            htmlFor={'sidebar-mobile-checkbox'}
+            styleName="sidebar-mobile-close"
+            onClick={this.showMenuBar}
+          >
+            Close
+          </label>
         </div>
-        <Facets facets={this.props.facets} whitelist={facetWhitelist} onSelect={this.onSelectFacet} />
+        <Facets
+          prefix={'mobile'}
+          facets={this.props.facets}
+          whitelist={facetWhitelist}
+          onSelect={this.onSelectMobileFacet}
+        />
         <div styleName="sidebar-mobile-footer">
-          <label htmlFor={"sidebar-mobile-checkbox"} styleName="sidebar-mobile-apply">Apply Filters</label>
+          <label
+            htmlFor={'sidebar-mobile-checkbox'}
+            styleName="sidebar-mobile-apply"
+            onClick={this.applyMobileFilters}
+          >
+            Apply Filters
+          </label>
         </div>
       </div>
     );
@@ -258,7 +284,6 @@ class Products extends Component {
   }
 
   renderMobileContent() {
-
     const realCategoryName = this.determineRealCategoryName();
 
     const { finished } = this.props.fetchState;
@@ -273,16 +298,14 @@ class Products extends Component {
         <div styleName="title">
           {realCategoryName}
         </div>
-        <div styleName="sidebar-mobile-header">
-          <label/>
-          <label htmlFor={"sidebar-mobile-checkbox"} styleName="sidebar-mobile-dofilter">Filters</label>
-        </div>
         <ProductsList
           sorting={this.state.sorting}
           changeSorting={this.changeSorting}
           list={this.props.list}
           isLoading={!finished}
           loadingBehavior={LoadingBehaviors.ShowWrapper}
+          filterOnClick={this.hideMenuBar}
+          filterFor={'sidebar-mobile-checkbox'}
         />
       </div>);
   }
@@ -299,7 +322,7 @@ class Products extends Component {
           {this.navBar}
         </div>
         <div styleName="facetted-container-mobile">
-          <input styleName="sidebar-mobile-checkbox" id="sidebar-mobile-checkbox" type="checkbox"/>
+          <input styleName="sidebar-mobile-checkbox" id="sidebar-mobile-checkbox" type="checkbox" />
           {this.renderMobileSidebar()}
           {this.renderMobileContent()}
         </div>
