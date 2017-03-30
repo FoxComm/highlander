@@ -1,4 +1,7 @@
 ---
+
+- include_vars: aws.yml
+  
 # Phoenix
 
 - name: Get Latest Phoenix Seeder Image
@@ -44,3 +47,47 @@
 - name: Run Hyperion Seeder docker container
   command: docker run --env-file "{{hyperion_dir}}/priv/seeds/.env" --network host -e HYPERION_DB_HOST={{docker_db_host}} {{docker_registry}}:5000/hyperion-seeder:{{docker_tags.hyperion}}
   when: with_hyperion_seeder is defined and with_hyperion_seeder
+
+# Data Import
+
+- name: Create Data Import Directory
+  file:
+    path: "{{data_import_dir}}"
+    owner: "{{user}}"
+    state: directory
+    mode: "u=rwx,g=rwx,o=r"
+  when: with_data_import is defined and with_data_import
+
+- name: Copy Data Import .env
+  template: src=data_import.env dest="{{data_import_dir}}/.env"
+  when: with_data_import is defined and with_data_import
+
+- name: Get Latest Data Import Image
+  shell: docker pull {{data_import_docker_url}}
+  when: with_data_import is defined and with_data_import
+
+- name: Pull listing.json
+  s3:
+    aws_access_key: "{{aws_access_key}}"
+    aws_secret_key: "{{aws_secret_key}}"
+    region: "{{data_import_s3_region}}"
+    bucket: "{{data_import_s3_bucket}}"
+    object: "{{data_import_listings_path}}"
+    dest: "{{data_import_dir}}/listings.json"
+    mode: get
+  when: with_data_import is defined and with_data_import
+
+- name: Pull products.json
+  s3:
+    aws_access_key: "{{aws_access_key}}"
+    aws_secret_key: "{{aws_secret_key}}"
+    region: "{{data_import_s3_region}}"
+    bucket: "{{data_import_s3_bucket}}"
+    object: "{{data_import_products_path}}"
+    dest: "{{data_import_dir}}/products.json"
+    mode: get
+  when: with_data_import is defined and with_data_import
+
+- name: Run Data Import Container
+  command: docker run --env-file "{{data_import_dir}}/.env" -v "{{data_import_dir}}:/data-import/data" --network host {{data_import_docker_url}}
+  when: with_data_import is defined and with_data_import
