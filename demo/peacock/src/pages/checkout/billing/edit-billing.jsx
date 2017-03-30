@@ -313,8 +313,6 @@ class EditBilling extends Component {
               required
               pos="tbr"
               disabled={editingSavedCard}
-              label={<CvcHelp />}
-              labelClass={styles['cvc-icon']}
               type="number"
               pattern="\d*"
               inputMode="numeric"
