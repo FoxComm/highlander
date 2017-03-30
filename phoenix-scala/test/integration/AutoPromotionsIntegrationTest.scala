@@ -250,12 +250,14 @@ class AutoPromotionsIntegrationTest
 
     val promo = promotionsApi
       .create(
-          PromotionPayloadBuilder.build(Promotion.Auto,
-                                        PromoOfferBuilder.CartPercentOff(37),
-                                        PromoQualifierBuilder.CartAny,
-                                        extraAttrs = Map(
-                                            "customerGroupIds" → List(group.id)
-                                        )))
+          PromotionPayloadBuilder.build(
+              Promotion.Auto,
+              PromoOfferBuilder.CartPercentOff(37),
+              PromoQualifierBuilder.CartAny,
+              extraAttrs = Map(
+                  "customerGroupIds" → tv(List(group.id),
+                                          "tock673sjgmqbi5zlfx43o4px6jnxi7absotzjvxwir7jo2v")
+              )))
       .as[PromotionResponse.Root]
 
     val customer = api_newCustomer()
@@ -269,7 +271,7 @@ class AutoPromotionsIntegrationTest
 
     customerGroupsMembersApi(group.id)
       .syncCustomers(CustomerGroupMemberSyncPayload(List(customer.id), List.empty))
-      .mustBeOk()
+      .mustBeEmpty()
 
     cartsApi(refNum).get().asTheResult[CartResponse].promotion mustBe 'defined
   }

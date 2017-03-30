@@ -29,10 +29,10 @@ object PromotionPayloadBuilder {
 
     CreatePromotion(applyType = applyType,
                     attributes = Map(
-                        "name"       → tv(faker.Lorem.sentence(1)),
-                        "activeFrom" → tv(Instant.now, "datetime"),
-                        "activeTo"   → tv(JNull, "datetime")
-                    ),
+                          "name"       → tv(faker.Lorem.sentence(1)),
+                          "activeFrom" → tv(Instant.now, "datetime"),
+                          "activeTo"   → tv(JNull, "datetime")
+                      ) ++ extraAttrs,
                     discounts = Seq(CreateDiscount(discountAttrs)))
   }
 
