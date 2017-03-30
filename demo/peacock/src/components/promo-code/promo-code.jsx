@@ -13,6 +13,7 @@ import { FormField } from 'ui/forms';
 import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
 import Currency from 'ui/currency';
 import Icon from 'ui/icon';
+import ActionLink from 'ui/action-link/action-link';
 
 // styles
 import styles from './promo-code.css';
@@ -87,93 +88,105 @@ class PromoCode extends Component {
   }
 
   removeCode(code?: string) {
+    console.log('Removing the code -> ', code);
     this.props.removeCode(code)
       .catch((error) => {
         this.setState({ error });
       });
   }
 
-  renderGiftCard(card: Object) {
-    const { code } = card;
-    const formattedCode = code.match(/.{1,4}/g).join(' ');
+  getRemoveLink(code?: string) {
+    if (!this.props.allowDelete) return null;
 
     return (
-      <div styleName="gift-card" key={card.code}>
-        <div styleName="gift-card-info">
-          <div>Gift Card</div>
-          <div>{formattedCode}</div>
+      <ActionLink
+        title="Remove"
+        action={() => this.removeCode(code ? code : null)}
+        styleName="action-link-remove"
+      />
+    );
+  }
+
+  get renderGiftCards() {
+    if (!this.props.giftCards) return null;
+
+    return _.map(this.props.giftCards, (card) => {
+      const { code } = card;
+      const formattedCode = code.match(/.{1,4}/g).join(' ');
+
+      return (
+        <div styleName="gift-card" key={card.code}>
+          <div styleName="gift-card-info">
+            <div>Gift Card</div>
+            <div>{formattedCode}</div>
+          </div>
+          {this.getRemoveLink(code)}
         </div>
-        {this.props.allowDelete &&
-          <Icon
-            onClick={() => this.removeCode(code)}
-            name="fc-close"
-            className={classnames(styles['delete-promo-icon'], styles['delete-promo-btn'])}
-          />
-        }
+      );
+    });
+  }
+
+  get renderCoupon() {
+    if (!this.props.coupon) return null;
+
+    const promoCode = _.get(this.props, 'coupon.code');
+
+    return (
+      <div styleName="coupon">
+        <div styleName="coupon-info">
+          <div>Promo Code</div>
+          <div styleName="coupon-code">{promoCode}</div>
+        </div>
+        {this.getRemoveLink()}
       </div>
     );
   }
 
-  renderAttachedCoupon() {
-    if (this.props.coupon) {
-      const promoCode = _.get(this.props, 'coupon.code');
+  get editCode() {
+    if (!this.props.editable) return null;
 
-      return (
-        <div styleName="coupon">
-          <div>Promo Code</div>
-          <div styleName="coupon-code">{promoCode}</div>
-          {this.props.allowDelete &&
-            <Icon
-              name="fc-close"
-              className={classnames(styles['delete-promo-icon'], styles['delete-promo-btn'])}
-              onClick={() => this.removeCode()}
-            />
-          }
-        </div>
-      );
-    }
+    return (
+      <div styleName="fieldset">
+        <FormField styleName="code-field">
+          <TextInput
+            styleName="code"
+            placeholder={this.props.placeholder}
+            value={this.state.code}
+            onChange={this.changeCode}
+            onKeyPress={this.onKeyPress}
+          />
+        </FormField>
+        <Button
+          type="button"
+          styleName="submit"
+          onClick={this.saveCode}
+          disabled={this.props.disabled || !this.state.code}
+        >
+          {this.buttonLabel}
+        </Button>
+      </div>
+    );
+  }
 
-    if (this.props.giftCards) {
-      return this.props.giftCards.map(card => this.renderGiftCard(card));
-    }
+  get displayErrors() {
+    if (!!this.state.error) return null;
 
-    return null;
+    return (
+      <div styleName="error">
+        <ErrorAlerts error={this.state.error} />
+      </div>
+    );
   }
 
   render() {
-    const { placeholder, context, editable } = this.props;
+    const { context } = this.props;
 
     return (
       <div styleName="root" className={styles[context]}>
-        {editable &&
-          <div styleName="fieldset">
-            <FormField styleName="code-field">
-              <TextInput
-                styleName="code"
-                placeholder={placeholder}
-                value={this.state.code}
-                onChange={this.changeCode}
-                onKeyPress={this.onKeyPress}
-              />
-            </FormField>
-            <Button
-              type="button"
-              styleName="submit"
-              onClick={this.saveCode}
-              disabled={this.props.disabled || !this.state.code}
-            >
-              {this.buttonLabel}
-            </Button>
-          </div>
-        }
-
-        {!!this.state.error &&
-          <div styleName="error">
-            <ErrorAlerts error={this.state.error} />
-          </div>
-        }
-
-        {this.renderAttachedCoupon()}
+        {this.displayErrors}
+        {this.renderGiftCards}
+        {this.renderCoupon}
+        {this.editCode}
       </div>
     );
   }
