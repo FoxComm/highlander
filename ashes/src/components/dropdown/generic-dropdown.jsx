@@ -307,12 +307,12 @@ export default class GenericDropdown extends Component {
 
   @autobind
   toggleMenu() {
-    this.setState({ open: !this.state.open });
+    this.setState({ open: !this.state.open, pointedValueIndex: -1 });
   }
 
   @autobind
   closeMenu() {
-    this.setState({ open: false });
+    this.setState({ open: false, pointedValueIndex: -1 });
   }
 
   @autobind
