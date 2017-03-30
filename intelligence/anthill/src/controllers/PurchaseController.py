@@ -25,6 +25,10 @@ def get_all_by_channel(channel_id):
            ]
 
 def get_customer_purchases(cust_id, channel_id):
+    """get_customer_purchases
+    return a list of product ids which
+    have been purchased by the Customer
+    """
     customer = Customer.nodes.get_or_none(phoenix_id=cust_id)
     if customer is None:
         return []
