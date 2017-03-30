@@ -81,7 +81,7 @@ export function addTaxonomyFilter(initialQuery: BoolQuery, taxonomy: string, tax
     return {term: {'taxonomies.taxons': t}};
   });
 
-  var filter = {
+  const filter = {
     nested:{
       path:'taxonomies',
           query:{
@@ -143,10 +143,10 @@ export function addMatchQuery(query: BoolQuery, searchString: string): BoolQuery
   return addMustFilter(query, matchFilter);
 }
 
-export function addCategoryFilter(query: BoolQuery, terms: Array<TermFilter>): BoolQuery {
-  const taxonTerms = _.map(terms, t => ({ term: { 'taxonomies.taxons': t } }));
+export function addCategoryFilter(query: BoolQuery, term: TermFilter): BoolQuery {
+  const taxonTerms = { term: { 'taxonomies.taxons': term } };
 
-  var filter = {
+  const filter = {
     nested:{
       path: 'taxonomies',
       query: {
