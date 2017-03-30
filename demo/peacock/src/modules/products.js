@@ -424,7 +424,8 @@ function mapFacetValue(v, kind) {
 function mapAggregationsToFacets(aggregations): Array<Facet> {
   return _.map(aggregations, (a) => {
     const kind = determineFacetKind(a.key);
-    const values = _.uniqBy(_.map(a.taxon.buckets, (t) => {
+    const buckets = _.get(a, 'taxon.buckets', []);
+    const values = _.uniqBy(_.map(buckets, (t) => {
       return {
         label: titleCase(t.key),
         value: mapFacetValue(t.key, kind),
