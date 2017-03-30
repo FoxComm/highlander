@@ -249,8 +249,8 @@ class ProductAmazon extends Component {
       .catch((error) => this.setState({ error, inProgress: false }));
   }
 
-  _nodeId(product = this.state.product) {
-    return _.get(product, 'attributes.nodeId.v', '');
+  _nodeId(product) {
+    return _.get(product || this.state.product || this.props.originalProduct, 'attributes.nodeId.v', '');
   }
 }
 
