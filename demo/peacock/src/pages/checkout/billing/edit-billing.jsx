@@ -29,8 +29,6 @@ import { AddressDetails } from 'ui/address';
 
 // styles
 import styles from './billing.css';
-// $FlowFixMe: there is style name from css module
-import { subtitle } from '../shipping/guest-shipping.css';
 
 // actions
 import * as cartActions from 'modules/cart';
@@ -89,6 +87,8 @@ class EditBilling extends Component {
       if (chosenCreditCard) {
         this.props.selectCreditCard(chosenCreditCard);
       }
+    } else {
+      this.props.resetCreditCard();
     }
 
     if (this.props.data.address) {
@@ -136,6 +136,8 @@ class EditBilling extends Component {
 
     if (billingAddressIsSame) {
       const { shippingAddress } = this.props;
+      if (_.isEmpty(shippingAddress)) return <div>Please, enter an address first</div>;
+
       return (
         <AddressDetails styleName="billing-address" address={shippingAddress} />
       );
@@ -412,16 +414,21 @@ class EditBilling extends Component {
 
   renderGuestView() {
     const { props } = this;
-
+    const action = {
+      handler: this.cancelEditing,
+      title: 'Cancel',
+    };
     return (
       <CheckoutForm
-        submit={this.submitCardAndContinue}
+        submit={this.saveAndContinue}
+        title="Payment"
         error={props.updateCreditCardError}
-        buttonLabel="Place Order"
+        buttonLabel="Save card"
         inProgress={props.updateCreditCardInProgress || props.checkoutState.inProgress}
+        action={action}
+        buttonDisabled={_.isEmpty(props.shippingAddress) && this.state.billingAddressIsSame}
       >
-        <div className={subtitle}>PAYMENT METHOD</div>
-        {this.renderCardEditForm(true)}
+        { this.renderCardEditForm(true) }
         { this.renderPaymentFeatures() }
       </CheckoutForm>
     );
@@ -454,9 +461,10 @@ class EditBilling extends Component {
           submit={this.updateCreditCard}
           title={title}
           error={props.updateCreditCardError}
-          buttonLabel="Save Card"
+          buttonLabel="Save card"
           action={action}
           inProgress={props.updateCreditCardInProgress}
+          buttonDisabled={_.isEmpty(props.shippingAddress) && this.state.billingAddressIsSame}
         >
           {this.renderCardEditForm()}
         </CheckoutForm>
