@@ -14,7 +14,7 @@ import localized from 'lib/i18n';
 import type { Localized } from 'lib/i18n';
 
 // modules
-import { searchGiftCards } from 'modules/products';
+import { searchGiftCards, mapFacetValue } from 'modules/products';
 import { fetch, getNextId, getPreviousId, resetProduct } from 'modules/product-details';
 import { addLineItem, toggleCart } from 'modules/cart';
 import { fetchRelatedProducts, clearRelatedProducts } from 'modules/cross-sell';
@@ -32,17 +32,19 @@ import AddToCartBtn from 'ui/add-to-cart-btn';
 import Gallery from 'ui/gallery/gallery';
 import Loader from 'ui/loader';
 import Breadcrumbs from 'components/breadcrumbs/breadcrumbs';
-import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
+import ErrorAlerts from 'ui/alerts/error-alerts';
 import ProductDetails from './product-details';
 
 import GiftCardForm from 'components/gift-card-form';
 import ImagePlaceholder from 'components/products-item/image-placeholder';
 import RelatedProductsList,
   { LoadingBehaviors } from 'components/related-products-list/related-products-list';
+import Facets from 'components/facets/facets';
 
 // types
 import type { ProductResponse } from 'modules/product-details';
 import type { RoutesParams } from 'types';
+import type { Facet as TFacet } from 'types/facets';
 
 type Params = {
   productSlug: string,
@@ -254,6 +256,27 @@ class Pdp extends Component {
   @autobind
   changeQuantity(quantity: number): void {
     this.setState({ quantity });
+  }
+
+  getSkuByCode(product, code) {
+    return _.find(product.skus, sku => sku.attributes.code.v == code);
+  }
+
+  getFacets(product): Array<TFacet> {
+    const { variants } = product;
+
+    return _.map(variants, variant => {
+      const values = _.map(variant.skuCodes, skuCode => {
+        const sku = this.getSkuByCode(product, skuCode);
+
+
+      });
+      return {
+        name: _.capitalize(variant.attributes.name.v),
+        kind: variant.attributes.type.v,
+        values,
+      };
+    });
   }
 
   @autobind
