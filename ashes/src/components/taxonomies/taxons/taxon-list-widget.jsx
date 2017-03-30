@@ -1,22 +1,16 @@
 // @flow
 
 // libs
-import { get, flow } from 'lodash';
+import { get } from 'lodash';
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import { transitionTo } from 'browserHistory';
 import { autobind } from 'core-decorators';
-import { createReducer } from 'redux-act';
-import { makeLocalStore, addAsyncReducer } from '@foxcomm/wings';
 
 // components
 import { AddButton } from 'components/common/buttons';
-import WaitAnimation from 'components/common/wait-animation';
 import HierarchicalTaxonomyListWidget from './hierarchical-taxonomy-widget';
 import FlatTaxonomyListWidget from './flat-taxonomy-widget';
-
-// actions
-import { fetchTaxonomyInternal as fetchTaxonomy } from 'modules/taxonomies/details';
+import { withTaxonomy } from '../hoc';
 
 // style
 import styles from './taxon-list-widget.css';
@@ -26,20 +20,10 @@ type Props = {
   taxonomyId: string,
   activeTaxonId: string,
   taxonomy: Taxonomy,
-  fetchState: AsyncState,
-  fetchTaxonomy: (id: number | string) => Promise<*>,
 };
 
 class TaxonListWidget extends Component {
   props: Props;
-
-  componentDidMount() {
-    const { taxonomy, taxonomyId, context } = this.props;
-
-    if (!taxonomy) {
-      this.props.fetchTaxonomy(taxonomyId, context);
-    }
-  }
 
   transition(id: number | string) {
     transitionTo('taxon-details', {
@@ -64,11 +48,7 @@ class TaxonListWidget extends Component {
   }
 
   render() {
-    const { taxonomy, fetchState, activeTaxonId } = this.props;
-
-    if (!taxonomy || fetchState.inProgress && !fetchState.err) {
-      return <div><WaitAnimation /></div>;
-    }
+    const { taxonomy, activeTaxonId } = this.props;
 
     const TaxonsWidget = taxonomy.hierarchical ? HierarchicalTaxonomyListWidget : FlatTaxonomyListWidget;
 
@@ -93,20 +73,4 @@ class TaxonListWidget extends Component {
   }
 }
 
-/*
- * Local redux store
- */
-
-const reducer = createReducer({
-  [fetchTaxonomy.succeeded]: (state, response) => ({ ...state, taxonomy: response }),
-});
-
-const mapState = state => ({
-  taxonomy: state.taxonomy,
-  fetchState: get(state.asyncActions, 'fetchTaxonomy', {})
-});
-
-export default flow(
-  connect(mapState, { fetchTaxonomy: fetchTaxonomy.perform }),
-  makeLocalStore(addAsyncReducer(reducer), { taxonomy: null }),
-)(TaxonListWidget);
+export default withTaxonomy()(TaxonListWidget);

@@ -1,18 +1,15 @@
 /* @flow */
 
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { includes, get, flow } from 'lodash';
-import { createReducer } from 'redux-act';
-import { makeLocalStore, addAsyncReducer } from '@foxcomm/wings';
-import { createAsyncActions } from '@foxcomm/wings';
+import { includes } from 'lodash';
 
 import { anyPermitted } from 'lib/claims';
 import { frn, readAction } from 'lib/frn';
-import { searchTaxonomies } from 'elastic/taxonomy';
 
+// components
 import NavigationItem from '../navigation-item';
 import WaitAnimation from 'components/common/wait-animation';
+import { withTaxonomies } from 'components/taxonomies/hoc';
 
 // styles
 import styles from './entries.css';
@@ -22,10 +19,6 @@ const taxonomyClaims = readAction(frn.merch.taxonomy);
 type Props = TMenuEntry & {
   taxonomies: Array<TaxonomyResult>,
   fetchState: AsyncState,
-  archiveState: AsyncState,
-  createState: AsyncState,
-  updateState: AsyncState,
-  fetch: () => Promise<*>,
   currentParams: {
     taxonomyId: string,
   }
@@ -34,25 +27,11 @@ type Props = TMenuEntry & {
 class MerchandisingEntry extends Component {
   props: Props;
 
-  componentDidMount() {
-    this.props.fetch();
-  }
-
-  componentWillReceiveProps(nextProps: Props) {
-    const created = this.props.createState.inProgress && !nextProps.createState.inProgress;
-    const updated = this.props.updateState.inProgress && !nextProps.updateState.inProgress;
-    const archived = this.props.archiveState.inProgress && !nextProps.archiveState.inProgress;
-
-    if (created || updated || archived) {
-      this.props.fetch();
-    }
-  }
-
   get taxonomiesList() {
     const { claims, routes, taxonomies, currentParams, fetchState } = this.props;
 
     if (!taxonomies || fetchState.inProgress) {
-      return <div><WaitAnimation /></div>;
+      return <WaitAnimation />;
     }
 
     return taxonomies.map((taxonomy: TaxonomyResult) => {
@@ -111,28 +90,4 @@ class MerchandisingEntry extends Component {
   }
 }
 
-/*
- * Local redux store
- */
-const fetch = createAsyncActions('fetchTaxonomies', searchTaxonomies);
-
-const reducer = createReducer({
-  [fetch.succeeded]: (state, response) => ({ ...state, taxonomies: get(response, 'result', []) }),
-});
-
-const mapState = state => ({
-  taxonomies: state.taxonomies,
-  fetchState: get(state.asyncActions, 'fetchTaxonomies', {}),
-});
-
-const mapGlobalState = state => ({
-  createState: get(state.asyncActions, 'createTaxonomy', {}),
-  updateState: get(state.asyncActions, 'updateTaxonomy', {}),
-  archiveState: get(state.asyncActions, 'archiveTaxonomy', {}),
-});
-
-export default flow(
-  connect(mapState, { fetch: fetch.perform }),
-  makeLocalStore(addAsyncReducer(reducer), { taxonomies: [] }),
-  connect(mapGlobalState),
-)(MerchandisingEntry);
+export default withTaxonomies({ showLoader: false })(MerchandisingEntry);

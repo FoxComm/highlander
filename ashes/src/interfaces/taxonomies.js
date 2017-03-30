@@ -2,11 +2,16 @@ declare type TaxonomyDraft = {
   context: Context,
   hierarchical: boolean,
   attributes: Attributes,
-  taxons: TaxonsTree,
 };
 
 declare type Taxonomy = TaxonomyDraft & {
   id: number,
+  taxons: TaxonsTree,
+}
+
+declare type LinkedTaxonomy = TaxonomyDraft & {
+  taxonomyId: number,
+  taxons: Array<Taxon>,
 }
 
 declare type TaxonomyResult = {
