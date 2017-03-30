@@ -1,0 +1,10 @@
+
+.dropdown {
+  width: 100%;
+
+  & :global(.fc-dropdown) {
+     border: 1px solid #ced2d5;
+     max-width: 100%;
+  }
+
+}
