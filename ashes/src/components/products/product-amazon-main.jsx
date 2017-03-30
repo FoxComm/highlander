@@ -45,6 +45,11 @@ function mapStateToProps(state) {
   };
 }
 
+const AMAZON_APPROVE_LINK = [
+  `https://sellercentral.amazon.com/gp/case-dashboard/workflow-details.html/`,
+  `?extraArguments={%22caseCategory%22%3A%22apparel%22,%22workflowId%22:%2276%22}`
+].join('');
+
 type Props = {
   product: Object,
   schema: Object,
@@ -125,6 +130,10 @@ class ProductAmazonMain extends Component {
             component={CategoryItem}
             initialValue={categoryPath}
           />
+          <div className={s.approve}>
+            <span>You must be approved from Amazon to sell in the Clothing & Accesories category. </span>
+            <a className={s.approveLink} href={AMAZON_APPROVE_LINK} target="_blank">Apply to sell in this category</a>.
+          </div>
         </div>
         {this.renderFields()}
       </div>

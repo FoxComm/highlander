@@ -20,6 +20,18 @@
 .suggester {
   flex: 1 1 auto;
 }
+.approve {
+  font-size: 12px;
+  padding: 2px 0;
+}
+.approveLink {
+  color: #3fc1ab;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
 .fieldLabel {
   font-weight: 600;
   margin-bottom: 10px;

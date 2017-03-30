@@ -60,7 +60,6 @@ function mapStateToProps(state) {
     productStatus,
     fetchingProduct: _.get(state.asyncActions, 'fetchProduct.inProgress'),
     fetchingSchema: _.get(state.asyncActions, 'fetchAmazonSchema.inProgress'),
-    pushingProduct: _.get(state.asyncActions, 'pushToAmazon.inProgress'),
     schema,
   };
 }
@@ -68,12 +67,14 @@ function mapStateToProps(state) {
 type State = {
   product: Object,
   error: any,
+  inProgress: boolean,
 };
 
 class ProductAmazon extends Component {
   state: State = {
     product: this.props.originalProduct,
     error: '',
+    inProgress: false,
   };
 
   componentDidMount() {
@@ -112,20 +113,29 @@ class ProductAmazon extends Component {
     if (nextCatId && nextCatId != categoryId) {
       fetchAmazonSchema(nextCatId);
     }
+  }
 
-    if (nextProduct && (originalProduct && nextProduct.id != originalProduct.id || !originalProduct)) {
-      this.setState({ product: nextProduct })
+  componentWillReceiveProps(nextProps) {
+    const { originalProduct } = this.props;
+    const nextProduct = nextProps.originalProduct;
+
+    if (nextProduct && nextProduct !== originalProduct) {
+      this.setState({ product: nextProduct });
     }
   }
 
   renderButtons() {
+    const { inProgress, product } = this.state;
+    const { originalProduct } = this.props;
     const productIsValid = this._validate();
+    const disabled = !productIsValid || inProgress || product === originalProduct;
 
     return [
       <Button onClick={this._handleCancel} key="cancel">Cancel</Button>,
       <PrimaryButton
         className={s.saveBtn}
-        disabled={!productIsValid}
+        disabled={disabled}
+        isLoading={inProgress}
         key="push"
         type="submit"
       >
@@ -160,6 +170,7 @@ class ProductAmazon extends Component {
     const { suggest, schema, productStatus, fetchingProduct } = this.props;
     const { product, error } = this.state;
 
+    // @todo show errors/success notifications
     if (error) {
       console.error(error);
     }
@@ -230,9 +241,12 @@ class ProductAmazon extends Component {
     const { actions: { pushProduct, updateProduct } } = this.props;
     const { product } = this.state;
 
+    this.setState({ inProgress: true });
+
     updateProduct(product)
-      // .then(() => pushProduct(product.id))
-      .catch((error) => this.setState({ error }));
+      .then(() => pushProduct(product.id))
+      .then(() => this.setState({ inProgress: false }))
+      .catch((error) => this.setState({ error, inProgress: false }));
   }
 
   _nodeId(product = this.state.product) {
