@@ -253,19 +253,28 @@ export default class GenericDropdown extends Component {
           this.setState({ open: false, pointedValueIndex: -1 });
 
           break;
-        // down
+        // up
         case 38:
           e.preventDefault();
+          this.setState({ pointedValueIndex: (itemsCount + this.state.pointedValueIndex - 1) % itemsCount }, () => {
+            const item = this._items.children[this.state.pointedValueIndex];
 
-          const sub = this.state.pointedValueIndex - 1 > -1 ? this.state.pointedValueIndex : itemsCount;
-          this.setState({ pointedValueIndex: (sub - 1) % itemsCount });
-
+            this._items.scrollTop = item.scrollHeight * this.state.pointedValueIndex;
+          });
           break;
-        // up
+        // down
         case 40:
           e.preventDefault();
 
-          this.setState({ pointedValueIndex: (this.state.pointedValueIndex + 1) % itemsCount });
+          this.setState({ pointedValueIndex: (this.state.pointedValueIndex + 1) % itemsCount }, () => {
+            const item = this._items.children[this.state.pointedValueIndex];
+
+            const containerVisibleHeight = this._items.clientHeight;
+            const itemTop = item.offsetTop;
+            const itemHeight = item.offsetHeight;
+
+            this._items.scrollTop = itemTop + itemHeight - containerVisibleHeight;
+          });
 
           break;
       }
@@ -298,7 +307,7 @@ export default class GenericDropdown extends Component {
 
   @autobind
   toggleMenu() {
-    this.setState({ open: !this.state.open, pointedValueIndex: -1 });
+    this.setState({ open: !this.state.open });
   }
 
   @autobind
