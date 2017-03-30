@@ -58,8 +58,12 @@
     mode: "u=rwx,g=rwx,o=r"
   when: with_data_import is defined and with_data_import
 
-- name: Copy Data Import .env
-  template: src=data_import.env dest="{{data_import_dir}}/.env"
+- name: Copy Taxonomy Import .env
+  template: src=data_import_taxonomies.env dest="{{data_import_dir}}/.env.taxonomies"
+  when: with_data_import is defined and with_data_import
+
+- name: Copy Product Import .env
+  template: src=data_import_products.env dest="{{data_import_dir}}/.env.products"
   when: with_data_import is defined and with_data_import
 
 - name: Get Latest Data Import Image
@@ -88,6 +92,13 @@
     mode: get
   when: with_data_import is defined and with_data_import
 
-- name: Run Data Import Container
-  command: docker run --env-file "{{data_import_dir}}/.env" -v "{{data_import_dir}}:/data-import/data" --network host {{data_import_docker_url}}
+- name: Run Taxonomies Import Container
+  command: docker run --env-file "{{data_import_dir}}/.env.taxonomies" -v "{{data_import_dir}}:/data-import/data" --network host {{data_import_docker_url}}
+  when: with_data_import is defined and with_data_import
+
+- name: Take a nap for indexing to catch up
+  pause: seconds=45
+
+- name: Run Products Import Container
+  command: docker run --env-file "{{data_import_dir}}/.env.products" -v "{{data_import_dir}}:/data-import/data" --network host {{data_import_docker_url}}
   when: with_data_import is defined and with_data_import
