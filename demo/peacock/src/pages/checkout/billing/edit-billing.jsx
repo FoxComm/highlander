@@ -90,19 +90,14 @@ class EditBilling extends Component {
   };
 
   componentWillMount() {
-    if (!this.props.isGuestMode) {
-      const chosenCreditCard = _.find(this.props.paymentMethods, {type: 'creditCard'});
-      if (chosenCreditCard) {
-        this.props.selectCreditCard(chosenCreditCard);
-      }
+    const chosenCreditCard = _.find(this.props.paymentMethods, {type: 'creditCard'});
+    if (chosenCreditCard) {
+      this.props.selectCreditCard(chosenCreditCard);
+    }
 
-      const coupon = this.props.coupon;
-      if (!_.isEmpty(coupon)) {
-        this.setState({ couponCode: coupon.code });
-      }
-
-    } else {
-      this.props.resetCreditCard();
+    const coupon = this.props.coupon;
+    if (!_.isEmpty(coupon)) {
+      this.setState({ couponCode: coupon.code });
     }
 
     if (this.props.data.address) {
@@ -500,7 +495,7 @@ class EditBilling extends Component {
     if (!this.state.addingGC && !this.state.addingCoupon) return null;
 
     const isGC = this.state.addingGC;
-    const { removeGiftCard, removeCouponCode} = this.props;
+    const { removeGiftCard, removeCouponCode, saveGCProgress, saveCouponProgress } = this.props;
 
     const title = isGC ? 'Add gift card' : 'Add coupon code';
     const submit = isGC ? this.saveGiftCard : this.saveCouponCode;
@@ -513,8 +508,7 @@ class EditBilling extends Component {
 
     const onChange = isGC ? this.onGCChange : this.onCouponChange;
     const placeholder = isGC ? 'Gift card code' : 'Coupon code';
-    // const inProgress
-    // const buttonDisabled
+    const inProgress = isGC ? saveGCProgress : saveCouponProgress;
 
     return (
       <CheckoutForm
@@ -523,6 +517,7 @@ class EditBilling extends Component {
         error={this.state.error}
         buttonLabel={buttonLabel}
         action={action}
+        inProgress={inProgress}
       >
         <EditPromos
           onChange={onChange}
@@ -533,36 +528,10 @@ class EditBilling extends Component {
     );
   }
 
-  renderGuestView() {
-    const { props } = this;
-    const action = {
-      handler: this.cancelEditing,
-      title: 'Cancel',
-    };
-    return (
-      <CheckoutForm
-        submit={this.saveAndContinue}
-        title="Payment"
-        error={props.updateCreditCardError}
-        buttonLabel="Save card"
-        inProgress={props.updateCreditCardInProgress || props.checkoutState.inProgress}
-        action={action}
-        buttonDisabled={_.isEmpty(props.shippingAddress) && this.state.billingAddressIsSame}
-      >
-        { this.renderCardEditForm(true) }
-        { this.renderPaymentFeatures() }
-      </CheckoutForm>
-    );
-  }
-
   // main render
   render() {
     const { props } = this;
     const { t, creditCardsLoading, creditCards } = props;
-
-    if (props.isGuestMode) {
-      return this.renderGuestView();
-    }
 
     if (this.state.addingNew || _.isEmpty(creditCards)) {
       const action = {
@@ -641,6 +610,8 @@ const mapStateToProps = (state) => {
     checkoutState: _.get(state.asyncActions, 'checkout', {}),
     creditCardsLoading: _.get(state.asyncActions, ['creditCards', 'inProgress'], true),
     creditCards: state.checkout.creditCards,
+    saveGCProgress: _.get(state.asyncActions, 'saveGiftCard.inProgress', false),
+    saveCouponProgress: _.get(state.asyncActions, 'saveCouponCode.inProgress', false),
   };
 };
 
