@@ -13,6 +13,9 @@ import TaxonsDropdown from '../taxons-dropdown';
 export default class TaxonDetails extends Component {
   props: ObjectPageChildProps<Taxon> & {
     taxonomy: Taxonomy,
+    params: {
+      context: string,
+    }
   };
 
   @autobind
@@ -31,6 +34,7 @@ export default class TaxonDetails extends Component {
         label="Parent"
       >
         <TaxonsDropdown
+          context={this.props.params.context}
           taxonomy={this.props.taxonomy}
           taxon={this.props.object}
           onChange={this.handleParentChange}

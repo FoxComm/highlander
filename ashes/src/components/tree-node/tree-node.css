@@ -21,7 +21,12 @@
 }
 
 .item {
-  margin-left: 20px;
+  padding-left: 20px;
+  transition: background .2s;
+}
+
+.item:hover {
+  background: #f5f5f5;
 }
 
 .text {

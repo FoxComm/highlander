@@ -13,6 +13,7 @@ import PilledInput from 'components/pilled-search/pilled-input';
 import { renderTree } from '../taxons/hierarchical-taxonomy-widget';
 
 // helpers
+import { transitionTo } from 'browserHistory';
 import { findNode } from 'paragons/tree';
 
 // styles
@@ -29,6 +30,7 @@ type ReduceResult = {
 };
 
 type Props = {
+  context: string,
   taxonomy: Taxonomy,
   taxon: Taxon,
   onChange: (id: ?number) => any,
@@ -36,7 +38,6 @@ type Props = {
 
 type State = {
   token: string,
-  treeMode: boolean,
 };
 
 const SEP = ' > ';
@@ -76,15 +77,43 @@ export default class TaxonsDropdown extends Component {
 
   state: State = {
     token: '',
-    treeMode: false,
   };
 
   _d: GenericDropdown;
+
+  componentDidMount() {
+    window.addEventListener('keydown', this.handleKeyPress, true);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('keydown', this.handleKeyPress, true);
+  }
+
+  componentWillUpdate(nextProps: Props, nextState: State) {
+    if (this.state.token !== nextState.token) {
+      this._d.openMenu();
+    }
+  }
 
   get parentItems(): Array<DDItem> {
     const taxons = this.props.taxonomy.taxons;
 
     return values(buildTaxonsDropDownItems(taxons, '', SEP));
+  }
+
+  @autobind
+  handleKeyPress(e: KeyboardEvent) {
+    switch (e.keyCode) {
+      // backspace
+      case 8:
+        if (!this.state.token.length && get(this.props.taxon, ['location', 'parent'])) {
+          this.handleParentSelect(null);
+
+          this._d.openMenu();
+        }
+
+        break;
+    }
   }
 
   @autobind
@@ -104,20 +133,21 @@ export default class TaxonsDropdown extends Component {
   }
 
   @autobind
-  handleInputClick(treeMode: boolean, handleToggleClick: (e: MouseEvent) => void) {
-    return (e: MouseEvent) => {
-      handleToggleClick(e);
+  handlePillClick() {
+    const { context, taxonomy, taxon } = this.props;
 
-      this.setState({ treeMode: treeMode });
-    };
+    const taxonId = get(taxon, ['location', 'parent']);
+    if (taxonId !== this.props.taxon.id) {
+      transitionTo('taxon-details', { context, taxonomyId: taxonomy.id, taxonId });
+    }
   }
 
   @autobind
   renderInput(value: any, title: any, props: any, handleToggleClick: (e: MouseEvent) => void): Element<*> {
-    const { taxonomy: { taxons }, taxon } = this.props;
+    const { taxonomy, taxon } = this.props;
 
     const parentId = get(taxon, ['location', 'parent']);
-    const parent = findNode(taxons, parentId);
+    const parent = findNode(taxonomy.taxons, parentId);
     const parentName = getName(get(parent, 'node'));
 
     return (
@@ -128,9 +158,9 @@ export default class TaxonsDropdown extends Component {
         value={this.state.token}
         onChange={this.handleTokenChange}
         pills={compact([parentName])}
+        onPillClick={this.handlePillClick}
         onPillClose={() => this.handleParentSelect(null)}
-        onIconClick={this.handleInputClick(true, handleToggleClick)}
-        onClick={this.handleInputClick(false, handleToggleClick)}
+        onClick={handleToggleClick}
       />
     );
   }
@@ -138,7 +168,7 @@ export default class TaxonsDropdown extends Component {
   get searchResults(): Array<Element<any>> {
     const items = filterItems(this.parentItems, this.state.token, this.props.taxon);
 
-    if (this.state.treeMode) {
+    if (!this.state.token.length) {
       return renderTree({
         taxons: this.props.taxonomy.taxons,
         onClick: this.handleParentSelect,

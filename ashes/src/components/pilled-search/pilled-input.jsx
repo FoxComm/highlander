@@ -8,14 +8,16 @@ import React, { PropTypes } from 'react';
 /* eslint-disable react/no-multi-comp */
 
 const formatPill = (pill, idx, props) => {
+  const clsValue = classNames('fc-pilled-input__pill-value', {
+    '_clickable': props.onPillClick !== PilledInput.defaultProps.onPillClick,
+  });
+
   return (
-    <div
-      className="fc-pilled-input__pill"
-      key={`pill-${idx}`}
-      onClick={() => props.onPillClick(pill, idx)}>
-      {pill}
-      <a onClick={() => props.onPillClose(pill, idx)}
-         className="fc-pilled-input__pill-close">
+    <div className="fc-pilled-input__pill" key={`pill-${idx}`}>
+      <span className={clsValue} onClick={() => props.onPillClick(pill, idx)}>
+        {pill}
+      </span>
+      <a onClick={() => props.onPillClose(pill, idx)} className="fc-pilled-input__pill-close">
         &times;
       </a>
     </div>
@@ -34,8 +36,12 @@ const controlsContainer = controls => {
 
 const iconWrapper = (icon, onIconClick) => {
   if (icon) {
+    const cls = classNames('fc-pilled-input__icon-wrapper', {
+      '_clickable': onIconClick !== PilledInput.defaultProps.onIconClick,
+    });
+
     return (
-      <div className="fc-pilled-input__icon-wrapper" onClick={onIconClick}>
+      <div className={cls} onClick={onIconClick}>
         <i className={`icon-${icon}`} />
       </div>
     );
@@ -67,9 +73,9 @@ const PilledInput = props => {
     <div className={classNames('fc-pilled-input', className)}>
       <div className={containerClass}>
         <div className="fc-pilled-input__pills-wrapper">
-            {pills.map((pill, idx) => {
-              return props.formatPill(pill, idx, props);
-            })}
+          {pills.map((pill, idx) => {
+            return props.formatPill(pill, idx, props);
+          })}
           <div className="fc-pilled-input__input-wrapper">
             {input}
             {iconWrapper(icon, onIconClick)}

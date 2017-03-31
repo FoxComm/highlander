@@ -18,10 +18,8 @@
   text-align: left;
 
   &__controls {
-    position: relative;
     overflow: hidden;
     display: flex;
-    z-index: 3;
   }
 
   &__value {
@@ -72,7 +70,9 @@
     padding: 0 20px;
     cursor: pointer;
     white-space: nowrap;
+    transition: background .2s;
 
+    &._active,
     &:hover {
       background-color: @color-decor11;
     }
