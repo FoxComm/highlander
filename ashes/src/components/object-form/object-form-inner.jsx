@@ -17,6 +17,8 @@ import DatePicker from '../datepicker/datepicker';
 import RichTextEditor from '../rich-text-editor/rich-text-editor';
 import { Dropdown } from '../dropdown';
 
+import type { AttrSchema } from 'paragons/object';
+
 type Props = {
   canAddProperty?: boolean,
   fieldsToRender?: Array<string>,
@@ -24,19 +26,12 @@ type Props = {
   attributes: Attributes,
   onChange: (attributes: Attributes) => void,
   schema?: Object,
+  className?: string,
 };
 
 type State = {
   isAddingProperty: boolean,
   errors: {[id:string]: any},
-};
-
-type AttrSchema = {
-  type: string,
-  title?: string,
-  widget?: string,
-  properties?: Object,
-  disabled: boolean,
 };
 
 type AttrOptions = {
@@ -342,7 +337,7 @@ export default class ObjectFormInner extends Component {
 
   render() {
     const { props } = this;
-    const { attributes, schema } = props;
+    const { attributes, schema, className } = props;
     const fieldsToRender = _.isEmpty(props.fieldsToRender) ? Object.keys(attributes) : props.fieldsToRender;
 
     const renderedAttributes: Array<Element<*>> = _.map(fieldsToRender, name => {
@@ -356,7 +351,7 @@ export default class ObjectFormInner extends Component {
     });
 
     return (
-      <div className="fc-object-form">
+      <div className={classNames('fc-object-form', className)}>
         {renderedAttributes}
         {this.addCustomProperty}
         {this.customPropertyForm}

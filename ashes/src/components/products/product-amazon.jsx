@@ -1,5 +1,10 @@
 /**
  * @flow weak
+ * This component handles a product prepartion for Amazon
+ * The product itself is in local state, and all modifications goes through it
+ * The product passes by props to the descendant components, but modifies only in
+ * immutable way though handlers
+ * <Form> component is used as a wrapper to use its validation mechanism
  */
 
 // libs
@@ -11,21 +16,26 @@ import _ from 'lodash';
 import { autobind } from 'core-decorators';
 
 // actions
+import { transitionTo } from 'browserHistory';
 import * as productActions from 'modules/products/details';
 import * as amazonActions from 'modules/channels/amazon';
 import * as schemaActions from 'modules/object-schema';
 
 // components
 import WaitAnimation from 'components/common/wait-animation';
-import ObjectFormInner from 'components/object-form/object-form-inner';
-import ProductAmazonForm from './product-amazon-form';
 import ContentBox from 'components/content-box/content-box';
-import { PrimaryButton } from 'components/common/buttons';
-import Typeahead from 'components/typeahead/typeahead';
-import { CategoryItem } from './category-item';
+import { Button, PrimaryButton } from 'components/common/buttons';
+import SaveCancel from 'components/common/save-cancel';
+import Form from 'components/forms/form';
+import ProductAmazonMain from './product-amazon-main';
+import ProductAmazonVariants from './product-amazon-variants';
+
+// types
+import type { Product } from 'paragons/product';
+import type { AttrSchema } from 'paragons/object';
 
 // selectors
-import { getSuggest, cat } from './selector';
+import { getSuggest } from './selector';
 
 // styles
 import s from './product-amazon.css';
@@ -39,7 +49,6 @@ function mapDispatchToProps(dispatch) {
       clearAmazonErrors: amazonActions.clearErrors,
       resetAmazonState: amazonActions.resetState,
       fetchAmazonSchema: amazonActions.fetchAmazonSchema,
-      fetchSuggest: amazonActions.fetchSuggest,
       pushProduct: amazonActions.pushToAmazon,
       fetchProductStatus: amazonActions.fetchAmazonProductStatus,
     }, dispatch),
@@ -47,82 +56,207 @@ function mapDispatchToProps(dispatch) {
 }
 
 function mapStateToProps(state) {
-  const product = state.products.details.product;
+  const originalProduct = state.products.details.product;
   const { suggest, schema, productStatus, credentials } = state.channels.amazon;
 
   return {
-    title: product && product.attributes && product.attributes.title.v,
-    product,
+    originalProduct,
     amazonEnabled: !!credentials,
     productStatus,
     fetchingProduct: _.get(state.asyncActions, 'fetchProduct.inProgress'),
-    fetchingSuggest: _.get(state.asyncActions, 'fetchSuggest.inProgress'),
     fetchingSchema: _.get(state.asyncActions, 'fetchAmazonSchema.inProgress'),
-    pushingProduct: _.get(state.asyncActions, 'pushToAmazon.inProgress'),
-    suggest: getSuggest(suggest),
     schema,
   };
 }
 
 type State = {
-  categoryId: string,
-  categoryPath: string,
+  product: ?Product,
+  error: any,
+  saveBtnIsLoading: boolean,
+};
+
+type Actions = {
+  fetchSchema: Function,
+  updateProduct: Function,
+  fetchProduct: Function,
+  clearAmazonErrors: Function,
+  resetAmazonState: Function,
+  fetchAmazonSchema: Function,
+  pushProduct: Function,
+  fetchProductStatus: Function,
+};
+
+type Params = {
+  productId: string,
+};
+
+type Props = {
+  originalProduct: ?Product,
+  amazonEnabled: boolean,
+  productStatus: any, // @todo
+  fetchingProduct: boolean,
+  fetchingSchema: boolean,
+  schema: AttrSchema,
+  actions: Actions,
+  params: Params,
 };
 
 class ProductAmazon extends Component {
   state: State = {
-    categoryId: '',
-    categoryPath: '',
+    product: this.props.originalProduct,
+    error: '',
+    saveBtnIsLoading: false,
   };
+
+  props: Props;
 
   componentDidMount() {
     const { productId } = this.props.params;
-    const { product } = this.props;
-    const { clearAmazonErrors, fetchProduct, fetchProductStatus, fetchSchema, resetAmazonState } = this.props.actions;
+    const { originalProduct } = this.props;
+    const categoryId = this.nodeId();
+    const {
+      clearAmazonErrors,
+      fetchProduct,
+      fetchProductStatus,
+      fetchSchema,
+      resetAmazonState,
+      fetchAmazonSchema,
+    } = this.props.actions;
 
-    if (!product) {
+    if (!originalProduct) {
       clearAmazonErrors();
       resetAmazonState();
       fetchSchema('product');
       fetchProduct(productId);
     }
-  }
 
-  componentWillUpdate(nextProps) {
-    const nodeId = _.get(this.props.product, ['attributes', 'nodeId', 'v'], null);
-    const nextNodeId = _.get(nextProps.product, ['attributes', 'nodeId', 'v'], null);
-    const nextNodePath = _.get(nextProps.product, ['attributes', 'nodePath', 'v'], null);
-
-    if (nextNodeId && nextNodeId != nodeId && nextNodePath) {
-      this._setCat(nextNodeId, nextNodePath);
+    if (categoryId) {
+      fetchAmazonSchema(categoryId);
     }
   }
 
-  renderForm() {
-    const { schema, product, fetchingSchema } = this.props;
-    const { categoryId, categoryPath } = this.state;
+  // All product changes handles here through the local state
+  componentWillUpdate(nextProps, nextState) {
+    const { actions: { fetchAmazonSchema }, originalProduct } = this.props;
+    const nextProduct = nextProps.originalProduct;
 
-    if (!schema || !product) {
+    const categoryId = this.nodeId();
+    const nextCatId = this.nodeId(nextState.product);
+
+    if (nextCatId && nextCatId != categoryId) {
+      fetchAmazonSchema(nextCatId);
+    }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const { originalProduct } = this.props;
+    const nextProduct = nextProps.originalProduct;
+
+    if (nextProduct && nextProduct !== originalProduct) {
+      this.setState({ product: nextProduct });
+    }
+  }
+
+  renderButtons() {
+    const { saveBtnIsLoading, product } = this.state;
+    const { originalProduct } = this.props;
+    const productIsValid = this.validate();
+    const disabled = !productIsValid || saveBtnIsLoading || product === originalProduct;
+
+    return (
+      <SaveCancel
+        onCancel={this.handleCancel}
+        saveText="Push to Amazon"
+        saveDisabled={disabled}
+        isLoading={saveBtnIsLoading}
+      />
+    );
+  }
+
+  renderVariants() {
+    const { schema, fetchingSchema } = this.props;
+    const { product } = this.state;
+
+    if (!schema) {
       if (fetchingSchema) {
-        return <WaitAnimation />;
+        return <div className={s.root}><WaitAnimation /></div>;
       }
 
       return null;
     }
 
     return (
-      <ProductAmazonForm
-        schema={schema}
-        product={product}
-        categoryId={categoryId}
-        categoryPath={categoryPath}
-        onSubmit={this._handleSubmit}
-      />
+      <ContentBox title="Variants Information">
+        <ProductAmazonVariants
+          product={product}
+          onChange={this.handleProductChange}
+        />
+      </ContentBox>
     );
   }
 
+  @autobind
+  handleSubmit(e) {
+    const { actions: { pushProduct, updateProduct } } = this.props;
+    const { product } = this.state;
+
+    if (!product) {
+      return;
+    }
+
+    this.setState({ saveBtnIsLoading: true });
+
+    updateProduct(product)
+      .then(() => pushProduct(product.id))
+      .then(() => this.setState({ saveBtnIsLoading: false }))
+      .catch((error) => this.setState({ error, saveBtnIsLoading: false }));
+  }
+
+  validate() {
+    const { product } = this.state;
+
+    if (!product) {
+      return false;
+    }
+
+    const hasCategory = !!this.nodeId(product);
+    const checkedVariants = product.skus.filter(sku => _.get(sku, 'attributes.amazon.v', false));
+    const checkedVariantsHasInventory = checkedVariants.every(
+      sku => _.get(sku, 'attributes.inventory.v', 0) > 0
+    );
+    const checkedVariantsHasUpc = checkedVariants.every(sku => !!_.get(sku, 'attributes.upc.v', ''));
+    // @todo validate all other fields
+
+    return hasCategory && checkedVariants.length && checkedVariantsHasInventory && checkedVariantsHasUpc;
+  }
+
+  @autobind
+  handleCancel() {
+    const { productId } = this.props.params;
+
+    transitionTo('product', {
+      productId,
+      context: 'default',
+    });
+  }
+
+  @autobind
+  handleProductChange(nextProduct) {
+    this.setState({ product: nextProduct });
+  }
+
+  nodeId(product) {
+    return _.get(product || this.state.product || this.props.originalProduct, 'attributes.nodeId.v', '');
+  }
+
   render() {
-    const { title, suggest, product, productStatus, fetchingProduct, fetchingSuggest } = this.props;
+    const { schema, fetchingProduct } = this.props;
+    const { product, error } = this.state;
+
+    // @todo show errors/success notifications
+    if (error) {
+      console.error(error);
+    }
 
     if (!product || fetchingProduct) {
       return <div className={s.root}><WaitAnimation /></div>;
@@ -131,67 +265,24 @@ class ProductAmazon extends Component {
     // @todo productStatus
 
     return (
-      <div className={s.root}>
-        <h1>{title} for Amazon</h1>
-        <ContentBox title="Amazon Listing Information">
-          <div className={s.suggesterWrapper}>
-            <Typeahead
-              className={s.suggester}
-              onItemSelected={this._onCatPick}
-              items={suggest}
-              isFetching={fetchingSuggest}
-              fetchItems={this._handleFetch}
-              component={CategoryItem}
-              initialValue={this.state.categoryPath}
-            />
-          </div>
+      <Form className={s.root} onSubmit={this.handleSubmit}>
+        <header className={s.header}>
+          <h1 className={s.title}>New Amazon Listing</h1>
+          {this.renderButtons()}
+        </header>
+        <ContentBox title="Amazon Listing Information" className={s.box}>
+          <ProductAmazonMain
+            product={product}
+            schema={schema}
+            onChange={this.handleProductChange}
+          />
         </ContentBox>
-        {this.renderForm()}
-        <PrimaryButton onClick={this._handlePush}>Push</PrimaryButton>
-      </div>
+        {this.renderVariants()}
+        <footer className={s.footer}>
+          {this.renderButtons()}
+        </footer>
+      </Form>
     );
-  }
-
-  _getNodeId() {
-    const { product } = this.props;
-
-    return _.get(product, ['attributes', 'nodeId', 'v'], null);
-  }
-
-  @autobind
-  _handleFetch(text) {
-    const { title } = this.props;
-
-    this.props.actions.fetchSuggest(title, text);
-  }
-
-  @autobind
-  _onCatPick(item) {
-    const { id, path } = item;
-
-    this._setCat(id, path);
-  }
-
-  _setCat(id, path) {
-    const { fetchAmazonSchema } = this.props.actions;
-
-    this.setState({ categoryId: id, categoryPath: cat(path) });
-
-    fetchAmazonSchema(id);
-  }
-
-  @autobind
-  _handleSubmit(nextProduct) {
-    const { actions: { updateProduct } } = this.props;
-
-    updateProduct(nextProduct);
-  }
-
-  @autobind
-  _handlePush() {
-    const { product, actions: { pushProduct } } = this.props;
-
-    pushProduct(product.id);
   }
 }
 
