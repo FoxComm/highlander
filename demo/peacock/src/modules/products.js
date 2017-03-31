@@ -28,7 +28,7 @@ export type Product = {
 };
 
 export const MAX_RESULTS = 1000;
-export const PAGE_SIZE = 25;
+export const PAGE_SIZE = 20;
 const context = process.env.FIREBIRD_CONTEXT || 'default';
 export const GIFT_CARD_TAG = 'GIFT-CARD';
 
