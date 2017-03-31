@@ -9,9 +9,6 @@ import React, { Component, PropTypes, Element } from 'react';
 import { Link, IndexLink } from '../link';
 import LocalNav from '../local-nav/local-nav';
 
-// types
-import type { Product } from 'paragons/product';
-
 type Props = {
   productId: string,
   product: ?Product,

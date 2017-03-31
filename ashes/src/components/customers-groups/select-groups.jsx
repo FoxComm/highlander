@@ -59,8 +59,8 @@ class SelectCustomerGroups extends Component {
 
   get tableColumns(): Array<Object> {
     return [
-      { field: 'name', text: 'Customer Group Name', type: null },
-      { field: 'type', text: 'Type', type: null },
+      { field: 'name', text: 'Customer Group Name' },
+      { field: 'type', text: 'Type' },
       { type: null, control: this.togglePopupControl },
     ];
   }

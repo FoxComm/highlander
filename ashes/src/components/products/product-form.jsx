@@ -13,6 +13,7 @@ import ObjectDetails from '../object-page/object-details';
 import OptionList from './options/option-list';
 import SkuContentBox from './skus/sku-content-box';
 import InputMask from 'react-input-mask';
+import TaxonomiesListWidget from '../taxonomies/widget/taxonomies-list-widget';
 
 import { renderFormField } from 'components/object-form/object-form-inner';
 
@@ -22,7 +23,6 @@ import styles from './form.css';
 
 // types
 import type { DetailsProps } from '../object-page/object-details';
-import type { Product, Option, OptionValue } from 'paragons/product';
 const layout = require('./layout.json');
 
 type Props = DetailsProps & {
@@ -70,7 +70,7 @@ export default class ProductForm extends ObjectDetails {
     let skus = this.props.object.skus;
     if (skus.length) {
       const syncFields = ['activeTo', 'activeFrom'];
-      const updateArgs =_.flatMap(syncFields, field => {
+      const updateArgs = _.flatMap(syncFields, field => {
         const originalValue = _.get(this.props.object, ['attributes', field]);
         return [
           ['attributes', field], _.get(attributes, field, originalValue)
@@ -126,14 +126,14 @@ export default class ProductForm extends ObjectDetails {
     const value = _.get(this.props, 'object.slug', '');
     const fieldClass = `fc-object-form__field-value ${styles['slug-field']}`;
     const slugField = (
-      <div styleName="slug-field-container" >
-        <span styleName="prefix" >/products/</span>
+      <div styleName="slug-field-container">
+        <span styleName="prefix">/products/</span>
         <input
           className={fieldClass}
           type="text"
           name="slug"
           value={value}
-          onChange={({target}) => this.onSlugChange(target.value)}
+          onChange={({ target }) => this.onSlugChange(target.value)}
         />
         <div styleName="field-comment">
           Slug can only contain letters, numbers, dashes, and underscores.
@@ -148,4 +148,25 @@ export default class ProductForm extends ObjectDetails {
 
     return renderFormField('SLUG', slugField, opts);
   }
+
+  renderTaxonomies() {
+    const linkedTaxonomies = _.get(this.props.object, 'taxons', []);
+    const productId = _.get(this.props.object, 'id', []);
+
+    return (
+      <TaxonomiesListWidget
+        productId={productId}
+        linkedTaxonomies={linkedTaxonomies}
+        onChange={this.onTaxonsListChange}
+      />
+    );
+  }
+
+  @autobind
+  onTaxonsListChange(addedTaxonList) {
+    const newObject = assoc(this.props.object, 'taxons', addedTaxonList);
+
+    this.props.onUpdateObject(newObject);
+  };
+
 }

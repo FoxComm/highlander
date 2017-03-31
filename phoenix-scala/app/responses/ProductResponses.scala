@@ -6,7 +6,7 @@ import models.product._
 import responses.AlbumResponses._
 import responses.ObjectResponses._
 import responses.SkuResponses._
-import responses.TaxonomyResponses.AssignedTaxonsResponse
+import responses.TaxonResponses.AssignedTaxonsResponse
 import responses.VariantResponses._
 import utils.aliases._
 

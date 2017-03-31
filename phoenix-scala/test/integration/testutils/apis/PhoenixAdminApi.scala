@@ -27,6 +27,7 @@ import payloads.SkuPayloads._
 import payloads.StoreAdminPayloads._
 import payloads.StoreCreditPayloads._
 import payloads.TaxonomyPayloads._
+import payloads.TaxonPayloads._
 import payloads.UserPayloads._
 import payloads.VariantPayloads._
 import payloads._
@@ -761,7 +762,7 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
     def delete = DELETE(s"v1/taxonomies/${ctx.name}/$taxonomyId")
     def get    = GET(s"v1/taxonomies/${ctx.name}/$taxonomyId")
     def createTaxon(payload: CreateTaxonPayload) =
-      POST(s"v1/taxonomies/${ctx.name}/$taxonomyId", payload)
+      POST(s"v1/taxonomies/${ctx.name}/$taxonomyId/taxons", payload)
   }
 
   case class taxonsApi(taxonId: Int)(implicit ctx: OC) {

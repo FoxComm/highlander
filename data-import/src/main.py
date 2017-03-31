@@ -114,10 +114,9 @@ class Phoenix:
 
     def create_taxon(self, name, taxonomy_id):
         self.ensure_logged_in()
-        data = {'name': name}
-        code, response = self.do_query("/taxonomies/default/" + str(taxonomy_id), data, method="POST")
-        print("taxon created: id = {}, name = {}".format(response["taxon"]["id"],
-                                                         response["taxon"]["name"]))
+        data = {'attributes': {'name': {'t': 'string', 'v': name}}}
+        code, response = self.do_query("/taxonomies/default/" + str(taxonomy_id) + "/taxons", data, method="POST")
+        print("taxon created: id:%d, attributes: %r" % (response['id'], response['attributes']))
         return response
 
     def login_endpoint(self):

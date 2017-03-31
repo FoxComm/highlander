@@ -10,12 +10,9 @@ import { isArchived } from 'paragons/common';
 // components
 import MultiSelectRow from '../table/multi-select-row';
 
-// types
-import type { Sku } from 'modules/skus/list';
-
 type Props = {
-  sku: Sku,
-  columns?: Array<Object>,
+  sku: SkuSearchItem,
+  columns?: Columns,
   params: Object,
 };
 
