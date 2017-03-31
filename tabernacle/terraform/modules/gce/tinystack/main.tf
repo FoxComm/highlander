@@ -12,6 +12,8 @@ variable "consul_leader" {}
 
 variable "consul_server_image" {}
 
+variable "frontend_public_ip" {}
+
 variable "frontend_machine_type" {
   default = "n1-highcpu-8"
 }
@@ -69,6 +71,9 @@ resource "google_compute_instance" "tiny-frontend" {
 
   network_interface {
     network = "default"
+    access_config {
+      nat_ip = "${var.frontend_public_ip}"
+    }
   }
 
   connection {
