@@ -110,7 +110,7 @@ trait MockedApis extends MockitoSugar {
     mocked
   }
 
-  lazy val elasticSearchMock: ElasticsearchApi = mock[ElasticsearchApi] // TODO: fill me with some defaults
+  lazy val elasticSearchMock: ElasticsearchApi = mock[ElasticsearchApi] // TODO: fill me with some defaults?
 
   implicit lazy val apisOverride: Apis =
     Apis(stripeApiMock, amazonApiMock, middlewarehouseApiMock, elasticSearchMock)

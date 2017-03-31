@@ -14,7 +14,13 @@ import models.shipping.{ShippingMethod, ShippingMethods}
 import org.json4s.JsonAST._
 import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods._
-import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatcher
+import org.mockito.ArgumentMatchers._
+import org.mockito.Mockito._
+import org.mockito.invocation.InvocationOnMock
+import org.mockito.stubbing.Answer
+import org.scalatest.mockito.MockitoSugar
+import org.mockito.Mockito
 import org.mockito.Mockito.when
 import org.scalactic.TolerantNumerics
 import payloads.AddressPayloads.CreateAddressPayload
@@ -30,7 +36,7 @@ import responses.CouponResponses.CouponResponse
 import responses.PromotionResponses.PromotionResponse
 import responses.cord.base.CartResponseTotals
 import responses.cord.{CartResponse, OrderResponse}
-import responses.{CustomerResponse, GroupResponses, StoreCreditResponse}
+import responses.{CustomerResponse, GroupResponses, PromotionResponses, StoreCreditResponse}
 import services.objects.ObjectManager
 import services.promotion.PromotionManager
 import testutils.PayloadHelpers.tv
@@ -292,17 +298,10 @@ class AutoPromotionsIntegrationTest
       cartsApi(refNum).get().asTheResult[CartResponse].promotion mustBe 'defined
     }
 
-    def esApiReturning(numHits: Long): ElasticsearchApi = {
-      val mocked = mock[ElasticsearchApi]
-      when(mocked.numResults(any[ElasticsearchApi.SearchView], any[Json]))
-        .thenReturn(Future.successful(numHits))
-      mocked
-    }
-
-    "dynamic CGs" in {
-      implicit lazy val apisOverride: Int = "Dank Scala, cheers to @kjanosz".asInstanceOf[Int]
-      implicit lazy val apis: Apis =
-        this.apisOverride.copy(elasticSearch = esApiReturning(numHits = 1))
+    def dynamicCGCartPromo(numESHits: Long): Option[PromotionResponses.PromotionResponse.Root] = {
+      reset(elasticSearchMock)
+      when(elasticSearchMock.numResults(any[ElasticsearchApi.SearchView], any[Json]))
+        .thenReturn(Future.successful(numESHits))
 
       groupAndPromo(CustomerGroup.Dynamic)
 
@@ -313,8 +312,11 @@ class AutoPromotionsIntegrationTest
       cartsApi(refNum).lineItems
         .add(Seq(UpdateLineItemsPayload(skuCode, 1)))
         .asTheResult[CartResponse]
-        .promotion mustBe 'defined
+        .promotion
     }
+
+    "dynamic CGs with a match" in { dynamicCGCartPromo(1L) mustBe 'defined }
+    "dynamic CGs w/o matches" in { dynamicCGCartPromo(0L) mustBe 'empty }
   }
 
 }
