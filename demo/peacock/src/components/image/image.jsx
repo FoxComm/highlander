@@ -10,10 +10,11 @@ type Props = {
   height: number,
 };
 
+
 const {
-  IMGIX_PRODUCTS_SOURCE,
-  S3_BUCKET_NAME,
-  S3_BUCKET_PREFIX,
+  IMGIX_PRODUCTS_SOURCE, // $FlowFixMe
+  S3_BUCKET_NAME, // $FlowFixMe
+  S3_BUCKET_PREFIX, // $FlowFixMe
 } = env;
 
 class Image extends Component {
