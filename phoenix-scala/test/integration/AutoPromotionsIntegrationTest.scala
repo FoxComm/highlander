@@ -5,6 +5,7 @@ import failures.NotFoundFailure404
 import failures.ObjectFailures._
 import models.Reasons
 import models.customer.CustomerGroup
+import models.customer.CustomerGroup.GroupType
 import models.objects.ObjectContext
 import models.promotion.Promotion.{Auto, Coupon}
 import models.promotion._
@@ -13,6 +14,8 @@ import models.shipping.{ShippingMethod, ShippingMethods}
 import org.json4s.JsonAST._
 import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods._
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import org.scalactic.TolerantNumerics
 import payloads.AddressPayloads.CreateAddressPayload
 import payloads.CartPayloads.CreateCart
@@ -36,11 +39,14 @@ import testutils.apis.PhoenixAdminApi
 import testutils.fixtures.api.PromotionPayloadBuilder.{PromoOfferBuilder, PromoQualifierBuilder}
 import testutils.fixtures.api._
 import testutils.fixtures.{BakedFixtures, PromotionFixtures}
-import utils.IlluminateAlgorithm
+import utils.{ElasticsearchApi, IlluminateAlgorithm}
 import utils.aliases._
+import utils.apis.Apis
 import utils.db._
 import utils.seeds.Factories
 import utils.time.RichInstant
+
+import scala.concurrent.Future
 
 class AutoPromotionsIntegrationTest
     extends IntegrationTestBase
@@ -239,41 +245,76 @@ class AutoPromotionsIntegrationTest
       .promotion mustBe 'empty
   }
 
-  "promotions narrowed down to certain customer groups are applied only for them" in {
-    val group = customerGroupsApi
-      .create(
-          CustomerGroupPayload(name = faker.Lorem.sentence(),
-                               clientState = JNull,
-                               elasticRequest = JNull,
-                               groupType = CustomerGroup.Manual))
-      .as[GroupResponses.GroupResponse.Root]
+  "promotions narrowed down to certain customer groups are applied only for them in" - {
+    val DefaultPercentOff = 37
 
-    val promo = promotionsApi
-      .create(
-          PromotionPayloadBuilder.build(
-              Promotion.Auto,
-              PromoOfferBuilder.CartPercentOff(37),
-              PromoQualifierBuilder.CartAny,
-              extraAttrs = Map(
-                  "customerGroupIds" → tv(List(group.id),
-                                          "tock673sjgmqbi5zlfx43o4px6jnxi7absotzjvxwir7jo2v")
-              )))
-      .as[PromotionResponse.Root]
+    def groupAndPromo(
+        tpe: GroupType): (GroupResponses.GroupResponse.Root, PromotionResponse.Root) = {
+      val group = customerGroupsApi
+        .create(
+            CustomerGroupPayload(name = faker.Lorem.sentence(),
+                                 clientState = JNull,
+                                 elasticRequest = JNull,
+                                 groupType = tpe))
+        .as[GroupResponses.GroupResponse.Root]
 
-    val customer = api_newCustomer()
-    val refNum   = api_newCustomerCart(customer.id).referenceNumber
-    val skuCode  = new ProductSku_ApiFixture {}.skuCode
+      val promo = promotionsApi
+        .create(
+            PromotionPayloadBuilder.build(
+                Promotion.Auto,
+                PromoOfferBuilder.CartPercentOff(DefaultPercentOff),
+                PromoQualifierBuilder.CartAny,
+                extraAttrs = Map(
+                    "customerGroupIds" → tv(List(group.id),
+                                            "tock673sjgmqbi5zlfx43o4px6jnxi7absotzjvxwir7jo2v")
+                )))
+        .as[PromotionResponse.Root]
 
-    cartsApi(refNum).lineItems
-      .add(Seq(UpdateLineItemsPayload(skuCode, 1)))
-      .asTheResult[CartResponse]
-      .promotion mustBe 'empty
+      (group, promo)
+    }
 
-    customerGroupsMembersApi(group.id)
-      .syncCustomers(CustomerGroupMemberSyncPayload(List(customer.id), List.empty))
-      .mustBeEmpty()
+    "manual CGs" in {
+      val (group, _) = groupAndPromo(CustomerGroup.Manual)
 
-    cartsApi(refNum).get().asTheResult[CartResponse].promotion mustBe 'defined
+      val customer = api_newCustomer()
+      val refNum   = api_newCustomerCart(customer.id).referenceNumber
+      val skuCode  = new ProductSku_ApiFixture {}.skuCode
+
+      cartsApi(refNum).lineItems
+        .add(Seq(UpdateLineItemsPayload(skuCode, 1)))
+        .asTheResult[CartResponse]
+        .promotion mustBe 'empty
+
+      customerGroupsMembersApi(group.id)
+        .syncCustomers(CustomerGroupMemberSyncPayload(List(customer.id), List.empty))
+        .mustBeEmpty()
+
+      cartsApi(refNum).get().asTheResult[CartResponse].promotion mustBe 'defined
+    }
+
+    def esApiReturning(numHits: Long): ElasticsearchApi = {
+      val mocked = mock[ElasticsearchApi]
+      when(mocked.numResults(any[ElasticsearchApi.SearchView], any[Json]))
+        .thenReturn(Future.successful(numHits))
+      mocked
+    }
+
+    "dynamic CGs" in {
+      implicit lazy val apisOverride: Int = "Dank Scala, cheers to @kjanosz".asInstanceOf[Int]
+      implicit lazy val apis: Apis =
+        this.apisOverride.copy(elasticSearch = esApiReturning(numHits = 1))
+
+      groupAndPromo(CustomerGroup.Dynamic)
+
+      val customer = api_newCustomer()
+      val refNum   = api_newCustomerCart(customer.id).referenceNumber
+      val skuCode  = new ProductSku_ApiFixture {}.skuCode
+
+      cartsApi(refNum).lineItems
+        .add(Seq(UpdateLineItemsPayload(skuCode, 1)))
+        .asTheResult[CartResponse]
+        .promotion mustBe 'defined
+    }
   }
 
 }

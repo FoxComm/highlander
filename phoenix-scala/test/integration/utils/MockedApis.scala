@@ -18,6 +18,7 @@ import utils.apis._
 import utils.db._
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 import scala.util.{Random, Try}
 
 trait MockedApis extends MockitoSugar {
@@ -109,7 +110,7 @@ trait MockedApis extends MockitoSugar {
     mocked
   }
 
-  lazy val elasticSearchMock: ElasticsearchApi = utils.ElasticsearchApi.fromConfig(TestBase.config)
+  lazy val elasticSearchMock: ElasticsearchApi = mock[ElasticsearchApi] // TODO: fill me with some defaults
 
   implicit lazy val apisOverride: Apis =
     Apis(stripeApiMock, amazonApiMock, middlewarehouseApiMock, elasticSearchMock)

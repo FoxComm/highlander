@@ -14,7 +14,6 @@ import utils.ElasticsearchApi._
 import utils.FoxConfig.ESConfig
 import utils.aliases._
 
-// TODO: move to Apis?
 case class ElasticsearchApi(config: ESConfig)(implicit ec: EC) extends LazyLogging {
 
   val aggregationName = "my-unique-aggregation"
