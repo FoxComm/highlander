@@ -22,8 +22,6 @@ import CreditCards from './credit-cards';
 import Icon from 'ui/icon';
 import PromoCode from 'components/promo-code/promo-code';
 import CheckoutForm from '../checkout-form';
-import Accordion from 'components/accordion/accordion';
-import Loader from 'ui/loader';
 import ActionLink from 'ui/action-link/action-link';
 import { AddressDetails } from 'ui/address';
 import EditPromos from 'components/promo-code/edit-promos';
@@ -68,6 +66,7 @@ type State = {
   addingCoupon: boolean,
   couponCode: string,
   gcCode: string,
+  error: any,
 };
 
 function numbersComparator(value1, value2) {
@@ -247,7 +246,7 @@ class EditBilling extends Component {
   get addCouponLink() {
     if (!_.isEmpty(this.state.couponCode)) return null;
 
-    const icon =  {
+    const icon = {
       name: 'fc-plus',
       className: styles.plus,
     };
@@ -281,12 +280,12 @@ class EditBilling extends Component {
 
   @autobind
   cancelAddingGC() {
-    this.setState({ addingGC: false, gcCode: '', error: false, });
+    this.setState({ addingGC: false, gcCode: '', error: false });
   }
 
   @autobind
   cancelAddingCoupon() {
-    this.setState({ addingCoupon: false, couponCode: '', error: false, });
+    this.setState({ addingCoupon: false, couponCode: '', error: false });
   }
 
   @autobind
@@ -303,7 +302,7 @@ class EditBilling extends Component {
   saveGiftCard() {
     const code = this.state.gcCode.replace(/\s+/g, '');
     this.props.saveGiftCard(code)
-      .then(() => this.setState({ gcCode: '', error: false, addingGC: false, }))
+      .then(() => this.setState({ gcCode: '', error: false, addingGC: false }))
       .catch((error) => {
         this.setState({ error });
       });
@@ -466,7 +465,8 @@ class EditBilling extends Component {
     const icon = {
       name: 'fc-plus',
       className: styles.plus,
-    }
+    };
+
     return (
       <div key="payment-features" styleName="gc-coupon">
         <PromoCode
@@ -495,7 +495,7 @@ class EditBilling extends Component {
     if (!this.state.addingGC && !this.state.addingCoupon) return null;
 
     const isGC = this.state.addingGC;
-    const { removeGiftCard, removeCouponCode, saveGCProgress, saveCouponProgress } = this.props;
+    const { saveGCProgress, saveCouponProgress } = this.props;
 
     const title = isGC ? 'Add gift card' : 'Add coupon code';
     const submit = isGC ? this.saveGiftCard : this.saveCouponCode;
@@ -531,7 +531,7 @@ class EditBilling extends Component {
   // main render
   render() {
     const { props } = this;
-    const { t, creditCardsLoading, creditCards } = props;
+    const { t, creditCards } = props;
 
     if (this.state.addingNew || _.isEmpty(creditCards)) {
       const action = {
@@ -556,7 +556,7 @@ class EditBilling extends Component {
         </CheckoutForm>
       );
     } else if (this.state.addingGC || this.state.addingCoupon) {
-        return this.renderEditPromoForm;
+      return this.renderEditPromoForm;
     }
 
     const action = {

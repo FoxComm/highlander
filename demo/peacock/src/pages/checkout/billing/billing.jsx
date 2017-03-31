@@ -94,8 +94,8 @@ class Billing extends Component {
   }
 
   get coupon() {
-    const { coupon, totals } = this.props;
-    if (!coupon) return null;
+    const { coupon } = this.props;
+    if (_.isEmpty(coupon)) return null;
 
     return (
       <div styleName="promo-line">

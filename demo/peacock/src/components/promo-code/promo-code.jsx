@@ -1,13 +1,11 @@
 /* @flow */
 
 // libs
-import React, { Component } from 'react';
-import { autobind } from 'core-decorators';
+import React, { Component, Element } from 'react';
 import _ from 'lodash';
 import classNames from 'classnames';
 
 // components
-import { TextInput } from 'ui/text-input';
 import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
 import ActionLink from 'ui/action-link/action-link';
 
@@ -15,7 +13,7 @@ import ActionLink from 'ui/action-link/action-link';
 import styles from './promo-code.css';
 
 type Props = {
-  removeCode: Function,
+  removeCode?: Function,
   coupon?: ?Object,
   giftCards?: ?Array<Object>,
   allowDelete?: ?boolean,
@@ -38,31 +36,31 @@ class PromoCode extends Component {
   };
 
   removeCode(code?: string) {
-    this.props.removeCode(code)
-      .catch((error) => {
-        this.setState({ error });
-      });
+    if (this.props.removeCode) {
+      this.props.removeCode(code)
+        .catch((error) => {
+          this.setState({ error });
+        });
+    }
   }
 
-  getRemoveLink(code?: string) {
+  getRemoveLink(code?: string): Element<*> | null {
     if (!this.props.allowDelete) return null;
 
     return (
       <ActionLink
         title="Remove"
-        action={() => this.removeCode(code ? code : null)}
+        action={() => this.removeCode(code)}
         styleName="action-link-remove"
       />
     );
   }
 
-  get renderGiftCards() {
+  get renderGiftCards(): Array<Element<*>> | null {
     if (_.isEmpty(this.props.giftCards)) return null;
 
     const { className } = this.props;
-    const classes = classNames(styles['gift-card'], {
-      [className]: className,
-    });
+    const classes = classNames(styles['gift-card'], className);
 
     return _.map(this.props.giftCards, (card) => {
       const { code } = card;
@@ -80,14 +78,12 @@ class PromoCode extends Component {
     });
   }
 
-  get renderCoupon() {
+  get renderCoupon(): Element<*> | null {
     if (_.isEmpty(this.props.coupon)) return null;
 
     const { className } = this.props;
     const promoCode = _.get(this.props, 'coupon.code');
-    const classes = classNames(styles.coupon, {
-      [className]: className,
-    });
+    const classes = classNames(styles.coupon, className);
 
     return (
       <div className={classes}>
@@ -100,8 +96,8 @@ class PromoCode extends Component {
     );
   }
 
-  get displayErrors() {
-    if (!!this.state.error) return null;
+  get displayErrors(): Element<*> | null {
+    if (_.isEmpty(this.state.error)) return null;
 
     return (
       <div styleName="error">

@@ -3,13 +3,11 @@
 // libs
 import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
-import _ from 'lodash';
 import classNames from 'classnames';
 
 // components
 import { TextInput } from 'ui/text-input';
 import { FormField } from 'ui/forms';
-import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
 
 // styles
 import styles from './edit-promos.css';
@@ -40,9 +38,7 @@ class EditPromos extends Component {
 
   render() {
     const { className } = this.props;
-    const classes = classNames(styles['edit-promos'], {
-      [className]: className,
-    });
+    const classes = classNames(styles['edit-promos'], className);
 
     return (
       <div className={classes}>
