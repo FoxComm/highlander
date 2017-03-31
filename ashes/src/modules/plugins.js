@@ -1,6 +1,10 @@
 // @flow
+
+import _ from 'lodash';
 import { createReducer } from 'redux-act';
 import Api from 'lib/api';
+import { assoc } from 'sprout-data';
+
 import { createAsyncActions } from '@foxcomm/wings';
 
 export type UpdateSettingsPayload = {
@@ -29,9 +33,21 @@ export const fetchPlugins = _fetchPlugins.perform;
 
 const _fetchSettings = createAsyncActions(
   'fetchPluginSettings',
-  (name: string) => Api.get(`plugins/settings/${name}/detailed`)
+  (name: string) => Api.get(`plugins/settings/${name}/detailed`),
+  (...args) => args
 );
 export const fetchSettings =  _fetchSettings.perform;
+
+export function lazyFetchSettings(name: string) {
+  const alreadyCalled = function(state) {
+    return _.get(state.asyncActions, 'fetchPluginSettings.inProgress', false);
+  };
+  return (dispatch: Function, getState: Function) => {
+    if (!alreadyCalled(getState())) {
+      dispatch(_fetchSettings.perform(name));
+    }
+  }
+}
 
 const _updateSettings = createAsyncActions(
   'setPluginSettings',
@@ -41,7 +57,7 @@ export const updateSettings = _updateSettings.perform;
 
 const initialState = {
   list: [],
-  settings: {},
+  detailed: {},
 };
 
 const reducer = createReducer({
@@ -51,18 +67,11 @@ const reducer = createReducer({
       list: plugins,
     };
   },
-  [_fetchSettings.started]: state => {
-    return {
-      ...state,
-      settings: {},
-    };
+  [_fetchSettings.started]: (state, [name]) => {
+    return assoc(state, ['detailed', name], {});
   },
-  [_fetchSettings.succeeded]: (state, {settings, schema}) => {
-    return {
-      ...state,
-      settings,
-      schema,
-    };
+  [_fetchSettings.succeeded]: (state, [resp, name]) => {
+    return assoc(state, ['detailed', name], resp);
   }
 }, initialState);
 

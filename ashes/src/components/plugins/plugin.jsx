@@ -63,10 +63,11 @@ function settingsFromAttributes(attributes: Attributes): Object {
   }, {});
 }
 
-function mapStateToProps(state) {
+function mapStateToProps(state, props) {
+  const pluginInfo = _.get(state.plugins.detailed, pluginName(props), {});
   return {
-    settings: state.plugins.settings,
-    schema: state.plugins.schema,
+    settings: _.get(pluginInfo, 'settings', {}),
+    schema: _.get(pluginInfo, 'schema', []),
     isFetching: _.get(state.asyncActions, 'fetchPluginSettings.inProgress', null),
   };
 }
