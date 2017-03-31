@@ -38,8 +38,8 @@ export default class FlatTaxonsDropdown extends Component {
   }
 
   @autobind
-  onInputClick() {
-    this._d.toggleMenu();
+  onFocus() {
+    this._d.openMenu();
   }
 
   @autobind
@@ -77,7 +77,7 @@ export default class FlatTaxonsDropdown extends Component {
       <input
         value={value}
         onChange={(event) => this.onInputChange(event)}
-        onClick={this.onInputClick}
+        onFocus={this.onFocus}
       />
     );
   }
