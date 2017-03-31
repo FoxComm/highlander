@@ -1,7 +1,6 @@
 .coupons-panel {
   & td {
     width: 33%;
-    line-height: 82px !important;
 
     &:nth-child(3) {
       width: calc(33% - 70px);

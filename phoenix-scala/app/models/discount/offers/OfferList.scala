@@ -1,7 +1,7 @@
 package models.discount.offers
 
 import cats.implicits._
-import models.cord.lineitems.OrderLineItemAdjustment._
+import models.cord.lineitems.CartLineItemAdjustment._
 import models.discount.DiscountInput
 import models.discount.offers.Offer.OfferResult
 import utils.aliases._

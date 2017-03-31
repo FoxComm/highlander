@@ -87,8 +87,8 @@ MultiSelectRow.propTypes = {
   setCellContents: PropTypes.func.isRequired,
   processCell: PropTypes.func,
   params: PropTypes.shape({
-    checked: PropTypes.bool.isRequired,
-    setChecked: PropTypes.func.isRequired,
+    checked: PropTypes.bool,
+    setChecked: PropTypes.func,
   }),
 };
 

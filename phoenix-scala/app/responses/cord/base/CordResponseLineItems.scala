@@ -162,7 +162,7 @@ object CordResponseLineItems {
 }
 
 case class CordResponseLineItemAdjustment(
-    adjustmentType: OrderLineItemAdjustment.AdjustmentType,
+    adjustmentType: CartLineItemAdjustment.AdjustmentType,
     subtract: Int,
     lineItemRefNum: Option[String]
 ) extends ResponseItem
@@ -170,7 +170,7 @@ case class CordResponseLineItemAdjustment(
 object CordResponseLineItemAdjustments {
 
   def fetch(cordRef: String)(implicit ec: EC): DBIO[Seq[CordResponseLineItemAdjustment]] =
-    OrderLineItemAdjustments
+    CartLineItemAdjustments
       .findByCordRef(cordRef)
       .result
       .map(_.map { model ⇒

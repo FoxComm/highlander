@@ -39,7 +39,6 @@ const mapDispatchToProps = (dispatch: Function) => {
 const tableColumns = [
   {field: 'id', text: 'Promotion ID'},
   {field: 'promotionName', text: 'Name'},
-  {field: 'storefrontName', text: 'Storefront Name'},
   {field: 'applyType', text: 'Apply Type'},
   {field: 'totalUsed', text: 'Total Uses'},
   {field: 'currentCarts', text: 'Current Carts'},
@@ -88,6 +87,7 @@ export default class Promotions extends Component {
             renderRow={this.renderRow}
             tableColumns={tableColumns}
             searchActions={searchActions}
+            autoRefresh={true}
           />
         </BulkWrapper>
       </div>
