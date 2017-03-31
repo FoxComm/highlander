@@ -60,7 +60,7 @@ resource "google_compute_instance" "tiny-consul" {
 resource "google_compute_instance" "tiny-frontend" {
   name         = "${var.datacenter}-frontend"
   machine_type = "${var.frontend_machine_type}"
-  tags         = ["no-ip", "http-server", "https-server", "${var.datacenter}-frontend"]
+  tags         = ["http-server", "https-server", "${var.datacenter}-frontend"]
   zone         = "us-central1-a"
 
   disk {
