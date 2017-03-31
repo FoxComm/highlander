@@ -47,8 +47,6 @@ type Props = CheckoutActions & {
   saveCouponCode: Function,
   removeCouponCode: Function,
   coupon: ?Object,
-  promotion: ?Object,
-  totals: Object,
   updateCreditCardInProgress: boolean,
   updateCreditCardError: void|Object,
   checkoutState: AsyncStatus,
@@ -112,6 +110,7 @@ class EditBilling extends Component {
     }
   }
 
+  // Credit Card Handling
   @autobind
   changeFormData({ target }) {
     this.props.setBillingData(target.name, target.value);
@@ -147,35 +146,6 @@ class EditBilling extends Component {
     this.props.setBillingData('isDefault', value);
   }
 
-  renderBillingAddress(withoutDefaultCheckbox = false) {
-    const { billingAddressIsSame } = this.state;
-
-    if (billingAddressIsSame) {
-      const { shippingAddress } = this.props;
-      if (_.isEmpty(shippingAddress)) return <div>Please, enter an address first</div>;
-
-      return (
-        <AddressDetails styleName="billing-address" address={shippingAddress} />
-      );
-    }
-
-    return (
-      <EditAddress
-        {...this.props}
-        withoutDefaultCheckbox={withoutDefaultCheckbox}
-        address={this.props.data.address}
-        onUpdate={this.props.setBillingAddress}
-      />
-    );
-  }
-
-  // Possible values: https://stripe.com/docs/stripe.js?#card-cardType
-  get cardType() {
-    const { number } = this.props.data;
-    const stripeType = foxApi.creditCards.cardType(number);
-    return stripeType !== 'Unknown' ? stripeType : void 0;
-  }
-
   @autobind
   cardMask() {
     return createNumberMask(cardMask(this.cardType));
@@ -189,6 +159,13 @@ class EditBilling extends Component {
         />
       );
     }
+  }
+
+  // Possible values: https://stripe.com/docs/stripe.js?#card-cardType
+  get cardType() {
+    const { number } = this.props.data;
+    const stripeType = foxApi.creditCards.cardType(number);
+    return stripeType !== 'Unknown' ? stripeType : void 0;
   }
 
   @autobind
@@ -262,6 +239,112 @@ class EditBilling extends Component {
     this.setState({
       billingAddressIsSame: !this.state.billingAddressIsSame,
     });
+  }
+
+  @autobind
+  saveAndContinue() {
+    this.props.selectCreditCard(this.state.selectedCard);
+    this.props.chooseCreditCard();
+    this.props.togglePaymentModal();
+  }
+
+  // Promo Codes Handling
+  get addCouponLink() {
+    if (!_.isEmpty(this.state.couponCode)) return null;
+
+    const icon =  {
+      name: 'fc-plus',
+      className: styles.plus,
+    };
+
+    return (
+      <ActionLink
+        action={this.addCoupon}
+        title="Coupon code"
+        icon={icon}
+        styleName="action-link-add-methods"
+      />
+    );
+  }
+
+  @autobind
+  removeCouponCode() {
+    return this.props.removeCouponCode().then(() => {
+      this.setState({ couponCode: ''});
+    });
+  }
+
+  @autobind
+  addGC() {
+    this.setState({ addingGC: true });
+  }
+
+  @autobind
+  addCoupon() {
+    this.setState({ addingCoupon: true });
+  }
+
+  @autobind
+  cancelAddingGC() {
+    this.setState({ addingGC: false, gcCode: '', error: false, });
+  }
+
+  @autobind
+  cancelAddingCoupon() {
+    this.setState({ addingCoupon: false, couponCode: '', error: false, });
+  }
+
+  @autobind
+  onGCChange(code) {
+    this.setState({ gcCode: code });
+  }
+
+  @autobind
+  onCouponChange(code) {
+    this.setState({ couponCode: code });
+  }
+
+  @autobind
+  saveGiftCard() {
+    const code = this.state.gcCode.replace(/\s+/g, '');
+    this.props.saveGiftCard(code)
+      .then(() => this.setState({ gcCode: '', error: false, addingGC: false, }))
+      .catch((error) => {
+        this.setState({ error });
+      });
+  }
+
+  @autobind
+  saveCouponCode() {
+    const code = this.state.couponCode.replace(/\s+/g, '');
+    this.props.saveCouponCode(code)
+      .then(() => this.setState({ error: false, addingCoupon: false }))
+      .catch((error) => {
+        this.setState({ error });
+      });
+  }
+
+  // Render Methods
+  renderBillingAddress(withoutDefaultCheckbox = false) {
+    const { billingAddressIsSame } = this.state;
+
+    if (billingAddressIsSame) {
+      const { shippingAddress } = this.props;
+      if (_.isEmpty(shippingAddress)) return <div>Please, enter an address first</div>;
+
+      return (
+        <AddressDetails styleName="billing-address" address={shippingAddress} />
+      );
+    }
+
+    return (
+      <EditAddress
+        {...this.props}
+        withoutDefaultCheckbox={withoutDefaultCheckbox}
+        address={this.props.data.address}
+        onUpdate={this.props.setBillingAddress}
+      />
+    );
   }
 
   renderCardEditForm(withoutDefaultCheckbox = false) {
@@ -384,32 +467,6 @@ class EditBilling extends Component {
     );
   }
 
-
-  get addCouponLink() {
-    if (!_.isEmpty(this.state.couponCode)) return null;
-
-    const icon =  {
-      name: 'fc-plus',
-      className: styles.plus,
-    };
-
-    return (
-      <ActionLink
-        action={this.addCoupon}
-        title="Coupon code"
-        icon={icon}
-        styleName="action-link-add-methods"
-      />
-    );
-  }
-
-  @autobind
-  removeCouponCode() {
-    return this.props.removeCouponCode().then(() => {
-      this.setState({ couponCode: ''});
-    });
-  }
-
   renderPaymentFeatures() {
     const icon = {
       name: 'fc-plus',
@@ -437,63 +494,6 @@ class EditBilling extends Component {
         {this.addCouponLink}
       </div>
     );
-  }
-
-  @autobind
-  saveAndContinue() {
-    this.props.selectCreditCard(this.state.selectedCard);
-    this.props.chooseCreditCard();
-    this.props.togglePaymentModal();
-  }
-
-  @autobind
-  addGC() {
-    this.setState({ addingGC: true });
-  }
-
-  @autobind
-  cancelAddingGC() {
-    this.setState({ addingGC: false, gcCode: '', error: false, });
-  }
-
-  @autobind
-  cancelAddingCoupon() {
-    this.setState({ addingCoupon: false, couponCode: '', error: false, });
-  }
-
-  @autobind
-  addCoupon() {
-    this.setState({ addingCoupon: true });
-  }
-
-  @autobind
-  onCouponChange(code) {
-    this.setState({ couponCode: code });
-  }
-
-  @autobind
-  onGCChange(code) {
-    this.setState({ gcCode: code });
-  }
-
-  @autobind
-  saveGiftCard() {
-    const code = this.state.gcCode.replace(/\s+/g, '');
-    this.props.saveGiftCard(code)
-      .then(() => this.setState({ gcCode: '', error: false, addingGC: false, }))
-      .catch((error) => {
-        this.setState({ error });
-      });
-  }
-
-  @autobind
-  saveCouponCode() {
-    const code = this.state.couponCode.replace(/\s+/g, '');
-    this.props.saveCouponCode(code)
-      .then(() => this.setState({ error: false, addingCoupon: false }))
-      .catch((error) => {
-        this.setState({ error });
-      });
   }
 
   get renderEditPromoForm() {
@@ -555,6 +555,7 @@ class EditBilling extends Component {
     );
   }
 
+  // main render
   render() {
     const { props } = this;
     const { t, creditCardsLoading, creditCards } = props;
@@ -563,11 +564,6 @@ class EditBilling extends Component {
       return this.renderGuestView();
     }
 
-    // if (creditCardsLoading) {
-    //   return <Loader size="m" />;
-    // }
-
-    // Explicitly show card form if user doesn't have any cards
     if (this.state.addingNew || _.isEmpty(creditCards)) {
       const action = {
         handler: this.cancelEditing,
