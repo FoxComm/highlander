@@ -3,11 +3,19 @@
 .credit-card {
   display: flex;
   justify-content: space-between;
-  margin: 0 0 15px;
-  padding-bottom: 15px;
-  border-bottom: 1px solid var(--border-color);
+  align-items: flex-start;
+  margin-bottom: 15px;
+  padding: 10px 10px 0;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
 }
 
-.action {
-  composes: action from "ui/editable-block/editable-block.css";
+.chosen {
+  background: var(--select-active-background);
+  border-color: transparent;
+}
+
+
+.action-link-remove-card {
+  composes: action-link from "ui/action-link/action-link.css";
 }

@@ -66,7 +66,7 @@ object OrderPromotions
       def autoApplied: QuerySeq =
         q.filter(_.applyType === (Promotion.Auto: Promotion.ApplyType))
 
-      def requiresCoupon: QuerySeq =
+      def couponOnly: QuerySeq =
         q.filter(_.applyType === (Promotion.Coupon: Promotion.ApplyType))
     }
   }

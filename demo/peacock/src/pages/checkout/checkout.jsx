@@ -13,7 +13,7 @@ import { emailIsSet, isGuest } from 'paragons/auth';
 // components
 import Shipping from './shipping/shipping';
 import Delivery from './delivery/delivery';
-// import Billing from './billing/billing';
+import Billing from './billing/billing';
 import GuestAuth from './guest-auth/guest-auth';
 import Products from 'components/order-summary/product-table';
 import Header from 'components/header/header';
@@ -162,10 +162,14 @@ class Checkout extends Component {
   }
 
   get orderTotals() {
+    const { cart } = this.props;
     return (
       <div styleName="total-cost">
         <div styleName="totals-list">
-          <OrderTotals totals={this.props.cart.totals} />
+          <OrderTotals
+            totals={cart.totals}
+            paymentMethods={cart.paymentMethods}
+          />
         </div>
 
         <div styleName="place-order-block">
@@ -186,24 +190,6 @@ class Checkout extends Component {
   }
 
   get content() {
-    /* elements to be added later
-    <div styleName="summary">
-      <OrderSummary
-        isScrolled={this.state.isScrolled}
-        styleName="summary-content"
-        { ...props.cart }
-      />
-    </div>
-    <Billing
-      isGuestMode={isGuestMode}
-      isEditing={props.editStage == EditStages.BILLING}
-      editAllowed={props.editStage >= EditStages.BILLING}
-      collapsed={!props.isBillingDirty && props.editStage < EditStages.BILLING}
-      editAction={this.setBillingStage}
-      continueAction={this.placeOrder}
-      paymentMethods={_.get(props.cart, 'paymentMethods', [])}
-    />
-    */
     const { props } = this;
     const isGuestMode = isGuest(_.get(props.auth, 'user'));
     const cartFetched = props.fetchCartState.finished;
@@ -232,6 +218,14 @@ class Checkout extends Component {
               cart={this.state.cart}
               onUpdateCart={this.handleUpdateCart}
               fetchShippingMethods={props.fetchShippingMethods}
+            />
+          </div>
+          <div styleName="payment">
+            <Billing
+              isGuestMode={isGuestMode}
+              editAction={this.setBillingStage}
+              paymentMethods={_.get(props.cart, 'paymentMethods', [])}
+              chooseCreditCard={this.props.chooseCreditCard}
             />
           </div>
           <div styleName="order-summary">

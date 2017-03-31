@@ -406,8 +406,6 @@ class Autocomplete extends Component {
     return (
       <div ref="container" styleName="autocomplete" >
         <TextInput
-          label={this.state.isOpen ? '▲' : '▼'}
-          hasSymbol
           type="text"
           {...inputProps}
           role="combobox"

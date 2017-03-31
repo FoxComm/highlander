@@ -17,6 +17,8 @@ import PromotionsListPage from 'components/promotions/list';
 import Promotions from 'components/promotions/promotions';
 import PromotionPage from 'components/promotions/promotion-page';
 import PromotionForm from 'components/promotions/promotion-form';
+import PromoCouponsPage from 'components/promotions/promotion-coupons';
+import PromoCouponNewModal from 'components/promotions/promotion-coupon-modal-new';
 
 import CouponsListPage from 'components/coupons/list';
 import Coupons from 'components/coupons/coupons';
@@ -78,6 +80,9 @@ const getRoutes = (jwt: Object) => {
           component: Notes,
           frn: frn.note.promotion,
         }),
+        router.read('promotion-coupons', { path: 'coupons', component: PromoCouponsPage }, [
+          router.read('promotion-coupon-new', { path: 'new', component: PromoCouponNewModal })
+        ]),
         router.read('promotion-activity-trail', {
           path: 'activity-trail',
           component: ActivityTrailPage,
@@ -88,28 +93,8 @@ const getRoutes = (jwt: Object) => {
 
   const couponRoutes =
     router.read('coupons-base', { path: 'coupons', frn: frn.mkt.coupon }, [
-      router.read('coupons-list-page', { component: CouponsListPage }, [
-        router.read('coupons', { component: Coupons, isIndex: true }),
-        router.read('coupons-activity-trail', {
-          path: 'activity-trail',
-          dimension: 'coupon',
-          component: ActivityTrailPage,
-          frn: frn.mkt.coupon,
-        }),
-      ]),
       router.read('coupon', { path: ':couponId', component: CouponPage }, [
-        router.read('coupon-details', { component: CouponForm, isIndex: true }),
-        router.read('coupon-codes', { path: 'codes', component: CouponCodes }),
-        router.read('coupon-notes', {
-          path: 'notes',
-          component: Notes,
-          frn: frn.note.coupon,
-        }),
-        router.read('coupon-activity-trail', {
-          path: 'activity-trail',
-          component: ActivityTrailPage,
-          frn: frn.activity.coupon,
-        }),
+        router.read('coupon-details', { component: CouponForm, isIndex: true })
       ]),
     ]);
 

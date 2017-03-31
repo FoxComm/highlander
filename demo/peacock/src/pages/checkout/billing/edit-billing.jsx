@@ -20,16 +20,14 @@ import MaskedInput from 'react-text-mask';
 import EditAddress from 'ui/address/edit-address';
 import CreditCards from './credit-cards';
 import Icon from 'ui/icon';
-import CvcHelp from './cvc-help';
 import PromoCode from 'components/promo-code/promo-code';
 import CheckoutForm from '../checkout-form';
-import Accordion from 'components/accordion/accordion';
-import Loader from 'ui/loader';
+import ActionLink from 'ui/action-link/action-link';
+import { AddressDetails } from 'ui/address';
+import EditPromos from 'components/promo-code/edit-promos';
 
 // styles
 import styles from './billing.css';
-// $FlowFixMe: there is style name from css module
-import { subtitle } from '../shipping/guest-shipping.css';
 
 // actions
 import * as cartActions from 'modules/cart';
@@ -43,13 +41,10 @@ type Props = CheckoutActions & {
   error: Array<any>,
   data: CreditCardType,
   billingData: ?CreditCardType,
-  continueAction: Function,
   t: any,
-  saveCouponCode: Function,
-  removeCouponCode: Function,
+  saveCouponCode: () => Promise<*>,
+  removeCouponCode: () => Promise<*>,
   coupon: ?Object,
-  promotion: ?Object,
-  totals: Object,
   updateCreditCardInProgress: boolean,
   updateCreditCardError: void|Object,
   checkoutState: AsyncStatus,
@@ -59,32 +54,24 @@ type Props = CheckoutActions & {
   clearUpdateCreditCardErrors: () => void,
   creditCards: Array<CreditCardType>,
   creditCardsLoading: boolean,
+  chooseCreditCard: () => Promise<*>,
 };
 
 type State = {
   addingNew: boolean,
   billingAddressIsSame: boolean,
   cardAdded: boolean,
+  selectedCard: CreditCardType,
+  addingGC: boolean,
+  addingCoupon: boolean,
+  couponCode: string,
+  gcCode: string,
+  error: any,
 };
 
 function numbersComparator(value1, value2) {
   return Number(value1) === Number(value2);
 }
-
-function mapStateToProps(state) {
-  return {
-    data: state.checkout.billingData,
-    ...state.cart,
-    updateCreditCardError: _.get(state.asyncActions, 'addCreditCard.err')
-    || _.get(state.asyncActions, 'updateCreditCard.err'),
-    updateCreditCardInProgress: _.get(state.asyncActions, 'addCreditCard.inProgress', false)
-    || _.get(state.asyncActions, 'updateCreditCard.inProgress', false),
-    checkoutState: _.get(state.asyncActions, 'checkout', {}),
-    creditCardsLoading: _.get(state.asyncActions, ['creditCards', 'inProgress'], true),
-    creditCards: state.checkout.creditCards,
-  };
-}
-
 
 class EditBilling extends Component {
   props: Props;
@@ -93,11 +80,23 @@ class EditBilling extends Component {
     addingNew: false,
     billingAddressIsSame: true,
     cardAdded: false,
+    selectedCard: {},
+    addingGC: false,
+    addingCoupon: false,
+    couponCode: '',
+    gcCode: '',
+    error: false,
   };
 
   componentWillMount() {
-    if (!this.props.isGuestMode) {
-      this.props.fetchCreditCards();
+    const chosenCreditCard = _.find(this.props.paymentMethods, {type: 'creditCard'});
+    if (chosenCreditCard) {
+      this.props.selectCreditCard(chosenCreditCard);
+    }
+
+    const coupon = this.props.coupon;
+    if (!_.isEmpty(coupon)) {
+      this.setState({ couponCode: coupon.code });
     }
 
     if (this.props.data.address) {
@@ -105,11 +104,7 @@ class EditBilling extends Component {
     }
   }
 
-  @autobind
-  handleSubmit() {
-    this.props.continueAction();
-  }
-
+  // Credit Card Handling
   @autobind
   changeFormData({ target }) {
     this.props.setBillingData(target.name, target.value);
@@ -145,30 +140,6 @@ class EditBilling extends Component {
     this.props.setBillingData('isDefault', value);
   }
 
-  renderBillingAddress(withoutDefaultCheckbox = false) {
-    const { billingAddressIsSame } = this.state;
-
-    if (billingAddressIsSame) {
-      return null;
-    }
-
-    return (
-      <EditAddress
-        {...this.props}
-        withoutDefaultCheckbox={withoutDefaultCheckbox}
-        address={this.props.data.address}
-        onUpdate={this.props.setBillingAddress}
-      />
-    );
-  }
-
-  // Possible values: https://stripe.com/docs/stripe.js?#card-cardType
-  get cardType() {
-    const { number } = this.props.data;
-    const stripeType = foxApi.creditCards.cardType(number);
-    return stripeType !== 'Unknown' ? stripeType : void 0;
-  }
-
   @autobind
   cardMask() {
     return createNumberMask(cardMask(this.cardType));
@@ -182,6 +153,13 @@ class EditBilling extends Component {
         />
       );
     }
+  }
+
+  // Possible values: https://stripe.com/docs/stripe.js?#card-cardType
+  get cardType() {
+    const { number } = this.props.data;
+    const stripeType = foxApi.creditCards.cardType(number);
+    return stripeType !== 'Unknown' ? stripeType : void 0;
   }
 
   @autobind
@@ -219,8 +197,7 @@ class EditBilling extends Component {
 
   @autobind
   selectCreditCard(creditCard) {
-    this.props.selectCreditCard(creditCard);
-    this.setState({ addingNew: false });
+    this.setState({ addingNew: false, selectedCard: creditCard });
   }
 
   @autobind
@@ -258,6 +235,112 @@ class EditBilling extends Component {
     });
   }
 
+  @autobind
+  saveAndContinue() {
+    this.props.selectCreditCard(this.state.selectedCard);
+    this.props.chooseCreditCard();
+    this.props.togglePaymentModal();
+  }
+
+  // Promo Codes Handling
+  get addCouponLink() {
+    if (!_.isEmpty(this.state.couponCode)) return null;
+
+    const icon = {
+      name: 'fc-plus',
+      className: styles.plus,
+    };
+
+    return (
+      <ActionLink
+        action={this.addCoupon}
+        title="Coupon code"
+        icon={icon}
+        styleName="action-link-add-methods"
+      />
+    );
+  }
+
+  @autobind
+  removeCouponCode() {
+    return this.props.removeCouponCode().then(() => {
+      this.setState({ couponCode: ''});
+    });
+  }
+
+  @autobind
+  addGC() {
+    this.setState({ addingGC: true });
+  }
+
+  @autobind
+  addCoupon() {
+    this.setState({ addingCoupon: true });
+  }
+
+  @autobind
+  cancelAddingGC() {
+    this.setState({ addingGC: false, gcCode: '', error: false });
+  }
+
+  @autobind
+  cancelAddingCoupon() {
+    this.setState({ addingCoupon: false, couponCode: '', error: false });
+  }
+
+  @autobind
+  onGCChange(code) {
+    this.setState({ gcCode: code });
+  }
+
+  @autobind
+  onCouponChange(code) {
+    this.setState({ couponCode: code });
+  }
+
+  @autobind
+  saveGiftCard() {
+    const code = this.state.gcCode.replace(/\s+/g, '');
+    this.props.saveGiftCard(code)
+      .then(() => this.setState({ gcCode: '', error: false, addingGC: false }))
+      .catch((error) => {
+        this.setState({ error });
+      });
+  }
+
+  @autobind
+  saveCouponCode() {
+    const code = this.state.couponCode.replace(/\s+/g, '');
+    this.props.saveCouponCode(code)
+      .then(() => this.setState({ error: false, addingCoupon: false }))
+      .catch((error) => {
+        this.setState({ error });
+      });
+  }
+
+  // Render Methods
+  renderBillingAddress(withoutDefaultCheckbox = false) {
+    const { billingAddressIsSame } = this.state;
+
+    if (billingAddressIsSame) {
+      const { shippingAddress } = this.props;
+      if (_.isEmpty(shippingAddress)) return <div>Please, enter an address first</div>;
+
+      return (
+        <AddressDetails styleName="billing-address" address={shippingAddress} />
+      );
+    }
+
+    return (
+      <EditAddress
+        {...this.props}
+        withoutDefaultCheckbox={withoutDefaultCheckbox}
+        address={this.props.data.address}
+        onUpdate={this.props.setBillingAddress}
+      />
+    );
+  }
+
   renderCardEditForm(withoutDefaultCheckbox = false) {
     const { props } = this;
     const { data, t } = props;
@@ -268,29 +351,29 @@ class EditBilling extends Component {
     const checkedDefaultCard = _.get(data, 'isDefault', false);
     const editingSavedCard = !!data.id;
     const cardNumberPlaceholder = editingSavedCard ?
-      (_.repeat('**** ', 3) + data.lastFour) : t('CARD NUMBER');
+      (_.repeat('**** ', 3) + data.lastFour) : t('Card Number');
     const cvcPlaceholder = editingSavedCard ? '***' : 'CVC';
 
     const defaultCheckbox = withoutDefaultCheckbox ? null : (
       <Checkbox
-        styleName="checkbox-field"
+        styleName="default-checkbox"
         name="isDefault"
         checked={checkedDefaultCard}
         onChange={({target}) => this.changeDefault(target.checked)}
         id="set-default-card"
       >
-          Make this card my default
+          Set as default
         </Checkbox>
       );
 
     return (
-      <div styleName="edit-card-form">
-        {defaultCheckbox}
+      <div styleName="card-form">
         <FormField styleName="text-field">
           <TextInput
             required
+            pos="top"
             name="holderName"
-            placeholder={t('NAME ON CARD')}
+            placeholder={t('Name on the card')}
             value={data.holderName}
             onChange={this.changeFormData}
           />
@@ -301,6 +384,7 @@ class EditBilling extends Component {
               label={this.paymentIcon}
               labelClass={styles['payment-icon']}
               hasCard={!!this.cardType}
+              pos="tbl"
             >
               <MaskedInput
                 required
@@ -320,9 +404,8 @@ class EditBilling extends Component {
           <FormField styleName="cvc-field" validator={this.validateCvcNumber}>
             <TextInput
               required
+              pos="tbr"
               disabled={editingSavedCard}
-              label={<CvcHelp />}
-              labelClass={styles['cvc-icon']}
               type="number"
               pattern="\d*"
               inputMode="numeric"
@@ -337,8 +420,9 @@ class EditBilling extends Component {
           <FormField required styleName="text-field" getTargetValue={() => data.expMonth}>
             <Autocomplete
               inputProps={{
-                placeholder: t('MONTH'),
+                placeholder: t('Month'),
                 type: 'text',
+                pos: 'bl',
               }}
               compareValues={numbersComparator}
               getItemValue={item => item}
@@ -350,8 +434,9 @@ class EditBilling extends Component {
           <FormField required styleName="text-field" getTargetValue={() => data.expYear}>
             <Autocomplete
               inputProps={{
-                placeholder: t('YEAR'),
+                placeholder: t('Year'),
                 type: 'text',
+                pos: 'br',
               }}
               compareValues={numbersComparator}
               allowCustomValues
@@ -362,6 +447,7 @@ class EditBilling extends Component {
             />
           </FormField>
         </div>
+        {defaultCheckbox}
         <Checkbox
           id="billingAddressIsSame"
           checked={this.state.billingAddressIsSame}
@@ -376,75 +462,80 @@ class EditBilling extends Component {
   }
 
   renderPaymentFeatures() {
-    return (
-      <div key="payment-features">
-        <Accordion title="COUPON CODE?">
-          <PromoCode
-            placeholder="Coupon Code"
-            coupon={this.props.coupon}
-            promotion={this.props.promotion}
-            discountValue={this.props.totals.adjustments}
-            saveCode={this.props.saveCouponCode}
-            removeCode={this.props.removeCouponCode}
-            context="billingEdit"
-          />
-        </Accordion>
+    const icon = {
+      name: 'fc-plus',
+      className: styles.plus,
+    };
 
-        <Accordion title="GIFT CARD?">
-          <PromoCode
-            placeholder="Gift Card Number"
-            buttonLabel="Redeem"
-            giftCards={this.props.giftCards}
-            saveCode={this.props.saveGiftCard}
-            removeCode={this.props.removeGiftCard}
-            context="billingEdit"
-          />
-        </Accordion>
+    return (
+      <div key="payment-features" styleName="gc-coupon">
+        <PromoCode
+          giftCards={this.props.giftCards}
+          removeCode={this.props.removeGiftCard}
+          styleName="promo-codes"
+        />
+        <ActionLink
+          action={this.addGC}
+          title="Gift card"
+          icon={icon}
+          styleName="action-link-add-methods"
+        />
+
+        <PromoCode
+          coupon={this.props.coupon}
+          removeCode={this.removeCouponCode}
+          styleName="promo-codes"
+        />
+        {this.addCouponLink}
       </div>
     );
   }
 
-  @autobind
-  submitCardAndContinue() {
-    return this.updateCreditCard().then((card) => {
-      this.props.selectCreditCard(card);
-      this.props.continueAction();
-    });
-  }
+  get renderEditPromoForm() {
+    if (!this.state.addingGC && !this.state.addingCoupon) return null;
 
-  renderGuestView() {
-    const { props } = this;
+    const isGC = this.state.addingGC;
+    const { saveGCProgress, saveCouponProgress } = this.props;
+
+    const title = isGC ? 'Add gift card' : 'Add coupon code';
+    const submit = isGC ? this.saveGiftCard : this.saveCouponCode;
+    const buttonLabel = isGC ? 'Redeem' : 'Apply';
+    const handler = isGC ? this.cancelAddingGC : this.cancelAddingCoupon;
+    const action = {
+      title: 'Cancel',
+      handler,
+    };
+
+    const onChange = isGC ? this.onGCChange : this.onCouponChange;
+    const placeholder = isGC ? 'Gift card code' : 'Coupon code';
+    const inProgress = isGC ? saveGCProgress : saveCouponProgress;
 
     return (
       <CheckoutForm
-        submit={this.submitCardAndContinue}
-        error={props.updateCreditCardError}
-        buttonLabel="Place Order"
-        inProgress={props.updateCreditCardInProgress || props.checkoutState.inProgress}
+        submit={submit}
+        title={title}
+        error={this.state.error}
+        buttonLabel={buttonLabel}
+        action={action}
+        inProgress={inProgress}
       >
-        <div className={subtitle}>PAYMENT METHOD</div>
-        {this.renderCardEditForm(true)}
-        { this.renderPaymentFeatures() }
+        <EditPromos
+          onChange={onChange}
+          saveCode={submit}
+          placeholder={placeholder}
+        />
       </CheckoutForm>
     );
   }
 
+  // main render
   render() {
     const { props } = this;
-    const { t, creditCardsLoading, creditCards } = props;
+    const { t, creditCards } = props;
 
-    if (props.isGuestMode) {
-      return this.renderGuestView();
-    }
-
-    if (creditCardsLoading) {
-      return <Loader size="m" />;
-    }
-
-    // Explicitly show card form if user doesn't have any cards
     if (this.state.addingNew || _.isEmpty(creditCards)) {
       const action = {
-        action: this.cancelEditing,
+        handler: this.cancelEditing,
         title: 'Cancel',
       };
 
@@ -456,38 +547,73 @@ class EditBilling extends Component {
           submit={this.updateCreditCard}
           title={title}
           error={props.updateCreditCardError}
-          buttonLabel="Save Card"
+          buttonLabel="Save card"
           action={action}
           inProgress={props.updateCreditCardInProgress}
+          buttonDisabled={_.isEmpty(props.shippingAddress) && this.state.billingAddressIsSame}
         >
           {this.renderCardEditForm()}
         </CheckoutForm>
       );
+    } else if (this.state.addingGC || this.state.addingCoupon) {
+      return this.renderEditPromoForm;
     }
 
+    const action = {
+      title: 'Close',
+      handler: this.props.togglePaymentModal,
+    };
+
+    const icon = {
+      name: 'fc-plus',
+      className: styles.plus,
+    };
     return (
       <CheckoutForm
-        submit={this.handleSubmit}
-        title="PAYMENT METHOD"
+        submit={this.saveAndContinue}
+        title="Payment"
         error={null} // error for placing order action is showed in Checkout component
-        buttonLabel="Place Order"
+        buttonLabel="Apply"
         inProgress={props.checkoutState.inProgress}
+        action={action}
       >
-        <fieldset styleName="fieldset-cards">
+        <fieldset styleName="credit-cards-list">
           <CreditCards
             creditCards={creditCards}
             selectCreditCard={this.selectCreditCard}
             onEditCard={this.editCard}
             onDeleteCard={this.deleteCreditCard}
             cardAdded={this.state.cardAdded}
+            selectedCard={this.state.selectedCard}
           />
-          <button onClick={this.addNew} type="button" styleName="add-card-button">Add Card</button>
+          <ActionLink
+            action={this.addNew}
+            title="Credit card"
+            icon={icon}
+            styleName="action-link-add-methods"
+          />
         </fieldset>
         { this.renderPaymentFeatures() }
       </CheckoutForm>
     );
   }
 }
+
+const mapStateToProps = (state) => {
+  return {
+    data: state.checkout.billingData,
+    ...state.cart,
+    updateCreditCardError: _.get(state.asyncActions, 'addCreditCard.err')
+    || _.get(state.asyncActions, 'updateCreditCard.err'),
+    updateCreditCardInProgress: _.get(state.asyncActions, 'addCreditCard.inProgress', false)
+    || _.get(state.asyncActions, 'updateCreditCard.inProgress', false),
+    checkoutState: _.get(state.asyncActions, 'checkout', {}),
+    creditCardsLoading: _.get(state.asyncActions, ['creditCards', 'inProgress'], true),
+    creditCards: state.checkout.creditCards,
+    saveGCProgress: _.get(state.asyncActions, 'saveGiftCard.inProgress', false),
+    saveCouponProgress: _.get(state.asyncActions, 'saveCouponCode.inProgress', false),
+  };
+};
 
 export default _.flowRight(
   localized,

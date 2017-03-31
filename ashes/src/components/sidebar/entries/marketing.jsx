@@ -43,16 +43,6 @@ const MarketingEntry = ({ claims, routes }: TMenuEntry) => {
             expectedClaims={promotionClaims}
           />
         </li>
-        <li>
-          <NavigationItem
-            to="coupons"
-            icon="promotions"
-            title="Coupons"
-            routes={routes}
-            actualClaims={claims}
-            expectedClaims={couponClaims}
-          />
-        </li>
       </div>
 
     );

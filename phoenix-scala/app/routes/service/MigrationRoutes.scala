@@ -2,19 +2,19 @@ package routes.service
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-
 import com.github.tminglei.slickpg.LTree
-import utils.http.JsonSupport._
 import payloads.CustomerPayloads._
 import services.account.AccountCreateContext
 import services.migration.CustomerImportService
-import utils.http.CustomDirectives._
 import utils.aliases._
+import utils.apis.Apis
+import utils.http.CustomDirectives._
 import utils.http.Http._
+import utils.http.JsonSupport._
 
 object MigrationRoutes {
   def routes(customerCreateContext: AccountCreateContext,
-             defaultScope: LTree)(implicit ec: EC, db: DB, es: ES): Route = {
+             defaultScope: LTree)(implicit ec: EC, db: DB, apis: Apis): Route = {
 
     activityContext(defaultScope) { implicit ac ⇒
       pathPrefix("migration") {

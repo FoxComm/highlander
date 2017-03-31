@@ -3,10 +3,8 @@
 import React, { Component } from 'react';
 import Currency from '../common/currency';
 
-import type { Sku } from 'modules/skus/list';
-
 type Props = {
-  model: Sku,
+  model: SkuSearchItem,
 }
 
 export default class SkuResult extends Component {

@@ -48,7 +48,7 @@ class SwatchInput extends Component {
           onChange={this.handleChange}
           value={hexCode}
         />
-        <span styleName="swatch" style={colorStyle} />
+        <span styleName="swatch" style={colorStyle} key={hexCode}/>
       </div>
     );
   }

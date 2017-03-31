@@ -1,48 +1,53 @@
 @import "media-queries.css";
 @import "colors.css";
 
-.billing {
-  composes: checkout-block from '../checkout.css';
+.title {
+  font-size: 19px;
+  font-weight: 900;
+  color: var(--text-color);
 }
 
-.billing-summary {
-  & ul {
-    text-align: center;
-    padding: 15px 0;
-  }
-
-  & ul + ul {
-    border-top: 1px solid var(--border-color);
-  }
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
 }
 
-.promo-line {
-  padding: 0;
+.action-link-payment {
+  composes: action-link from "ui/action-link/action-link.css";
+  font-size: 16px;
+  display: flex;
+  margin-right: 16px;
 }
 
-.fieldset {
-  border-bottom: 1px solid var(--border-color);
+.action-link-add-methods {
+  composes: action-link from "ui/action-link/action-link.css";
+  display: flex;
+  align-items: flex-start;
+  font-size: 17px;
+  margin-bottom: 15px;
 }
 
-.fieldset-cards {
-  composes: fieldset;
-  padding-bottom: 40px;
+.plus {
+  margin-right: 8px;
+  width: 12px;
 }
 
-.fieldset-coupon {
-  composes: fieldset;
+.credit-cards-list, .gc-coupon {
+  padding: 15px 10px 0px 15px;
 }
 
-.fieldset-gift {
-  composes: fieldset;
-}
-
-.add-card-button {
-  composes: button-secondary from "ui/css/buttons.css";
+.promo-codes {
+  padding: 10px 10px 0 38px;
+  background: var(--select-active-background);
+  border-radius: 4px;
+  margin-bottom: 15px;
 }
 
 .text-field {
-  composes: text-field from "../checkout.css";
+  composes: text-field from "ui/common.css";
+  margin: 0;
 }
 
 .union-fields {
@@ -61,8 +66,8 @@
   }
 }
 
-.card-number-field {
-  composes: text-field;
+.promo-line {
+  padding: 0;
 }
 
 .cvc-field {
@@ -70,34 +75,20 @@
 }
 
 .same-address-checkbox {
-  margin-top: 30px;
-
-  & + div {
-    margin-top: 30px;
-  }
+  margin-top: 20px;
+  margin-bottom: 20px;
 }
 
-.edit-card-form {
-  & > .union-fields {
-    margin: 10px 0;
+.default-checkbox {
+  margin-top: 20px;
+}
 
-    & > .text-field {
-      margin: 0;
-
-      &:first-child {
-        margin-right: 10px;
-      }
-    }
-  }
+.card-form {
+  margin: 15px 10px 15px 15px;
 }
 
 .billing-address {
   margin-top: 1em;
-}
-
-.credit-cards-empty {
-  line-height: 53px;
-  margin-bottom: 40px;
 }
 
 .payment-icon {
@@ -105,8 +96,8 @@
   top: calc(50% - var(--payment-icon-height) / 2);
 }
 
-.cvc-icon {
-  --cvc-height: 19px;
-  top: calc(50% - var(--cvc-height) / 2);
+@media (--large) {
+  .action-link-payment {
+    margin-right: 0;
+  }
 }
-

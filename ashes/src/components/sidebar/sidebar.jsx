@@ -1,6 +1,5 @@
 /* @flow */
 
-import _ from 'lodash';
 import React from 'react';
 import classNames from 'classnames';
 
@@ -9,22 +8,28 @@ import Navigation from './navigation';
 import { connect } from 'react-redux';
 import * as SiteMenuActions from '../../modules/site-menu';
 
+type Params = { [key: string]: string };
+
 type Props = {
   routes: Array<Object>,
+  params: Params,
 }
 
-const Sidebar = ({ routes }: Props) => {
-    const sidebarClass = classNames('fc-sidebar', '_open');
+const Sidebar = ({ routes, params }: Props) => {
+  const sidebarClass = classNames('fc-sidebar', '_open');
 
-    return (
-      <aside role="complimentary" className={sidebarClass}>
-        <Navigation routes={routes} />
-      </aside>
-    );
+  return (
+    <aside role="complimentary" className={sidebarClass}>
+      <Navigation
+        routes={routes}
+        params={params}
+      />
+    </aside>
+  );
 };
 
 const mapState = state => ({
-   ...state.siteMenu,
- });
+  ...state.siteMenu,
+});
 
- export default connect(mapState, SiteMenuActions)(Sidebar);
+export default connect(mapState, SiteMenuActions)(Sidebar);

@@ -60,6 +60,14 @@
   color: var(--water-blue);
 }
 
+.load-more {
+  display: block;
+  width: 100%;
+  text-align: center;
+  color: var(--link-color);
+  cursor: pointer;
+}
+
 @media (--small-only) {
   .list {
     lost-column: 1;

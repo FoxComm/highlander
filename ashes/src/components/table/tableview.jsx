@@ -1,7 +1,5 @@
 // libs
-import _ from 'lodash';
 import React, { Component, PropTypes } from 'react';
-import classNames from 'classnames';
 
 // components
 import Table from './table';
@@ -11,7 +9,6 @@ import TablePaginator from './paginator';
 import TablePageSize from './pagesize';
 import ColumnSelector from './column-selector';
 
-
 function getLine(position, items) {
   if (!items.length) {
     return;
@@ -19,7 +16,7 @@ function getLine(position, items) {
 
   return (
     <div className={`fc-table__${position}`}>
-      {items.map((item, index) => React.cloneElement(item, {key: `${position}-${index}`}))}
+      {items.map((item, index) => React.cloneElement(item, { key: `${position}-${index}` }))}
     </div>
   );
 }
@@ -28,12 +25,13 @@ const TableView = props => {
   let setState = null;
   if (props.setState) {
     setState = params => {
-      props.setState({...props.data, ...params});
+      props.setState({ ...props.data, ...params });
     };
   }
 
-  let topItems = [];
-  let bottomItems = [];
+  const topItemsLeft = [];
+  const topItemsRight = [];
+  const bottomItems = [];
 
   if (props.selectableColumns.length) {
     const toggler = (
@@ -42,19 +40,21 @@ const TableView = props => {
                       identifier={props.tableIdentifier} />
     );
 
-    topItems.push(toggler);
+    topItemsLeft.push(toggler);
   }
+
+  const flexSeparator = <div className="fc-table__flex-separator" />;
 
   // hold actions menu
   const showBulkActions = Boolean(props.bulkActions.length);
   if (showBulkActions) {
-    const {bulkActions, toggledIds, allChecked, data:{total}} = props;
+    const { bulkActions, toggledIds, allChecked, data: { total } } = props;
 
     //disabled if no data or nothing selected
     const totalSelected = allChecked ? total - toggledIds.length : toggledIds.length;
     const disabled = total === 0 || totalSelected === 0;
 
-    topItems.push(
+    topItemsLeft.push(
       <ActionsDropdown actions={bulkActions}
                        disabled={disabled}
                        allChecked={allChecked}
@@ -65,13 +65,22 @@ const TableView = props => {
 
   const showPagination = props.paginator && props.setState;
   if (showPagination) {
-    const {from, total, size} = props.data;
-    const flexSeparator = <div className="fc-table__flex-separator" />;
+    const { from, total, size } = props.data;
     const tablePaginator = <TablePaginator total={total} from={from} size={size} setState={setState} />;
 
-    topItems.push(flexSeparator, tablePaginator);
+    topItemsRight.push(tablePaginator);
 
     bottomItems.push(<TablePageSize setState={setState} value={size} />, flexSeparator, tablePaginator);
+  }
+
+  const { headerControls = [], footerControls = [] } = props;
+
+  topItemsRight.push(...headerControls);
+  bottomItems.push(...footerControls);
+
+  let topItems = [];
+  if (topItemsLeft.length || topItemsRight.length) {
+    topItems = [...topItemsLeft, flexSeparator, ...topItemsRight];
   }
 
   const TableComponent = props.dataTable ? DataTable : Table;
@@ -113,6 +122,8 @@ TableView.propTypes = {
   errorMessage: PropTypes.string,
   className: PropTypes.string,
   renderHeadIfEmpty: PropTypes.bool,
+  headerControls: PropTypes.array,
+  footerControls: PropTypes.array,
 };
 
 TableView.defaultProps = {

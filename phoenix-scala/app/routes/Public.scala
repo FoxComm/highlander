@@ -12,13 +12,14 @@ import services.giftcards.GiftCardService
 import services.product.ProductManager
 import services.{ReasonService, StoreCreditService}
 import utils.aliases._
+import utils.apis.Apis
 import utils.http.CustomDirectives._
 import utils.http.Http._
 import utils.http.JsonSupport._
 
 object Public {
   def routes(customerCreateContext: AccountCreateContext,
-             defaultScope: LTree)(implicit ec: EC, db: DB, es: ES): Route = {
+             defaultScope: LTree)(implicit ec: EC, db: DB, apis: Apis): Route = {
 
     activityContext(defaultScope) { implicit ac ⇒
       pathPrefix("public") {
