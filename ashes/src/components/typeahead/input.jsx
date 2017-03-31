@@ -1,18 +1,25 @@
+/* @flow */
+
 // libs
-import React, { PropTypes } from 'react';
 import classNames from 'classnames';
+import React from 'react';
 
 // styles
 import s from './typeahead.css';
 
-const TypeaheadInput = props => {
+type Props = {
+  autoFocus: boolean,
+  className: string,
+};
+
+const TypeaheadInput = ({ className, ...rest }: Props) => {
   return (
-    <div>
+    <div className={className}>
       <i className={classNames(s['input-icon'], 'icon-search')} />
       <input
         className={classNames('fc-input', s.input)}
         type="text"
-        {...props}
+        {...rest}
       />
     </div>
   );

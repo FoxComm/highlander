@@ -21,7 +21,7 @@ type Props = {
   err: Object,
   archiveState: AsyncState,
   reset: () => void,
-  clearArchiveErrors: () => Promise<*>,
+  clearArchiveErrors: () => void,
   fetchGroup: (id: number) => Promise<*>,
   archiveGroup: (id: number) => Promise<*>,
   push: (location: Object) => void,

@@ -66,7 +66,7 @@ class OrderTotals extends Component {
     return (
       <li>
         <TermValueLine className={styles.value}>
-          <span>{t('Promo Code')}</span>
+          <span>{t('Coupon Code')}</span>
           <Currency prefix="– " value={amount} />
         </TermValueLine>
       </li>

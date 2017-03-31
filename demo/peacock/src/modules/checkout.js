@@ -185,29 +185,38 @@ const _saveShippingMethod = createAsyncActions(
 
 export const saveShippingMethod = _saveShippingMethod.perform;
 
-export function saveGiftCard(code: string): Function {
-  return (dispatch) => {
+const _saveGiftCard = createAsyncActions(
+  'saveGiftCard',
+  function(code) {
+    const { dispatch } = this;
     const payload = { code: code.trim() };
 
     return foxApi.cart.addGiftCard(payload)
       .then((res) => {
         dispatch(updateCart(res.result));
       });
-  };
-}
+  }
+);
+
+export const saveGiftCard = _saveGiftCard.perform;
+
+const _saveCouponCode = createAsyncActions(
+  'saveCouponCode',
+  function(code) {
+    const { dispatch } = this;
+
+    return foxApi.cart.addCoupon(code)
+      .then((res) => {
+        dispatch(updateCart(res.result));
+      });
+  }
+);
+
+export const saveCouponCode = _saveCouponCode.perform;
 
 export function removeGiftCard(code: string): Function {
   return (dispatch) => {
     return foxApi.cart.removeGiftCard(code)
-      .then((res) => {
-        dispatch(updateCart(res.result));
-      });
-  };
-}
-
-export function saveCouponCode(code: string): Function {
-  return (dispatch) => {
-    return foxApi.cart.addCoupon(code)
       .then((res) => {
         dispatch(updateCart(res.result));
       });

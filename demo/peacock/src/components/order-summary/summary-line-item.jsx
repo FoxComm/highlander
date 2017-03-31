@@ -8,6 +8,7 @@ import styles from './summary-line-item.css';
 
 // components
 import Currency from 'ui/currency';
+import ProductImage from 'components/image/image';
 
 type Props = {
   imagePath: string,
@@ -22,7 +23,7 @@ const LineItemRow = (props: Props) => {
     <div styleName="line-item">
       <div styleName="content">
         <div styleName="product-image">
-          <img src={props.imagePath} />
+          <ProductImage src={props.imagePath} width={50} height={50} />
         </div>
         <div styleName="product-data">
           <div styleName="product-info">

@@ -1,4 +1,3 @@
-
 // @flow weak
 
 import _ from 'lodash';
@@ -509,7 +508,7 @@ export class ObjectPage extends Component {
     const { actions, namespace } = props;
 
     if (this.isFetching) {
-      return <div><WaitAnimation /></div>;
+      return <WaitAnimation className={styles.waiting} />;
     }
 
     if (!object) {

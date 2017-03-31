@@ -3,10 +3,7 @@ import _ from 'lodash';
 import Wharf from 'entity-wharf';
 import { cartesianProductOf } from 'lib/utils';
 import { createEmptySku, skuId } from './product';
-import type { Product } from './product';
 import { assoc } from 'sprout-data';
-import type { Sku } from 'modules/skus/details';
-import type { Option, OptionValue } from 'paragons/product';
 
 const dbCache = new Map();
 

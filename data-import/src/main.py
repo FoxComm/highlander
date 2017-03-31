@@ -114,10 +114,9 @@ class Phoenix:
 
     def create_taxon(self, name, taxonomy_id):
         self.ensure_logged_in()
-        data = {'name': name}
-        code, response = self.do_query("/taxonomies/default/" + str(taxonomy_id), data, method="POST")
-        print("taxon created: id = {}, name = {}".format(response["taxon"]["id"],
-                                                         response["taxon"]["name"]))
+        data = {'attributes': {'name': {'t': 'string', 'v': name}}}
+        code, response = self.do_query("/taxonomies/default/" + str(taxonomy_id) + "/taxons", data, method="POST")
+        print("taxon created: id:%d, attributes: %r" % (response['id'], response['attributes']))
         return response
 
     def login_endpoint(self):
@@ -152,6 +151,7 @@ class Phoenix:
             title = s['title']
             description = s['details']['description']
             description_list = s['details'].get('description_list', '')
+            short_description = s['details'].get('short_description', '')
             price = int(float(s['price']['price']) * 100)
             taxonomies = s['taxonomies']
             color = taxonomies['color']
@@ -167,6 +167,10 @@ class Phoenix:
                         'description' : {
                             't': 'richText',
                             'v': description
+                            },
+                        'shortDescription': {
+                            't': 'string',
+                            'v': short_description
                             },
                         'description_list' : {
                             't': 'richText',

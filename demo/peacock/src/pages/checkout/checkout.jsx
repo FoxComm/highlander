@@ -162,10 +162,14 @@ class Checkout extends Component {
   }
 
   get orderTotals() {
+    const { cart } = this.props;
     return (
       <div styleName="total-cost">
         <div styleName="totals-list">
-          <OrderTotals totals={this.props.cart.totals} />
+          <OrderTotals
+            totals={cart.totals}
+            paymentMethods={cart.paymentMethods}
+          />
         </div>
 
         <div styleName="place-order-block">
