@@ -20,6 +20,11 @@ import ObjectFormInner from 'components/object-form/object-form-inner';
 import Typeahead from 'components/typeahead/typeahead';
 import { CategoryItem } from './category-item';
 
+// types
+import type { Product } from 'paragons/product';
+import type { SuggestItem } from './selector';
+import type { AttrSchema } from 'paragons/object';
+
 // actions
 import { fetchSuggest } from 'modules/channels/amazon';
 
@@ -51,10 +56,17 @@ const AMAZON_APPROVE_LINK = [
   `?extraArguments={%22caseCategory%22%3A%22apparel%22,%22workflowId%22:%2276%22}`
 ].join('');
 
+type Actions = {
+  fetchSuggest: Function,
+};
+
 type Props = {
-  product: Object,
-  schema: Object,
-  actions: Object,
+  product: Product,
+  schema: AttrSchema,
+  actions: Actions,
+  fetchingSuggest: boolean,
+  suggest: Array<SuggestItem>,
+  onChange: Function,
 };
 
 type State = {
@@ -84,7 +96,7 @@ class ProductAmazonMain extends Component {
     const { categoryId, categoryPath } = this.state;
     const { schema, product: { attributes } } = this.props;
 
-    if (!schema) {
+    if (!schema || !schema.properties) {
       if (categoryId) {
         return <WaitAnimation />;
       }
@@ -108,7 +120,7 @@ class ProductAmazonMain extends Component {
       <ObjectFormInner
         onChange={this.handleChange}
         attributes={amazonAllAttrs}
-        schema={schema.properties.attributes}
+        schema={schema.properties && schema.properties.attributes}
         className={s.mainForm}
       />
     );

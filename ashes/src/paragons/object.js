@@ -8,12 +8,20 @@ export type Context = {
     lang: string,
     modality: string,
   },
-}
+};
 
 export type ObjectView = {
   attributes: Attributes,
   context: Context;
-}
+};
+
+export type AttrSchema = {
+  type: string,
+  title?: string,
+  widget?: string,
+  properties?: Object,
+  disabled?: boolean,
+};
 
 export function guessType(value: any): string {
   const typeOf = typeof value;

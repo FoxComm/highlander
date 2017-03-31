@@ -17,6 +17,8 @@ import DatePicker from '../datepicker/datepicker';
 import RichTextEditor from '../rich-text-editor/rich-text-editor';
 import { Dropdown } from '../dropdown';
 
+import type { AttrSchema } from 'paragons/object';
+
 type Props = {
   canAddProperty?: boolean,
   fieldsToRender?: Array<string>,
@@ -30,14 +32,6 @@ type Props = {
 type State = {
   isAddingProperty: boolean,
   errors: {[id:string]: any},
-};
-
-type AttrSchema = {
-  type: string,
-  title?: string,
-  widget?: string,
-  properties?: Object,
-  disabled: boolean,
 };
 
 type AttrOptions = {

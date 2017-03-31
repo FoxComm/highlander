@@ -29,10 +29,13 @@ import SaveCancel from 'components/common/save-cancel';
 import Form from 'components/forms/form';
 import ProductAmazonMain from './product-amazon-main';
 import ProductAmazonVariants from './product-amazon-variants';
+
+// types
 import type { Product } from 'paragons/product';
+import type { AttrSchema } from 'paragons/object';
 
 // selectors
-import { getSuggest, cat } from './selector';
+import { getSuggest } from './selector';
 
 // styles
 import s from './product-amazon.css';
@@ -72,12 +75,40 @@ type State = {
   saveBtnIsLoading: boolean,
 };
 
+type Actions = {
+  fetchSchema: Function,
+  updateProduct: Function,
+  fetchProduct: Function,
+  clearAmazonErrors: Function,
+  resetAmazonState: Function,
+  fetchAmazonSchema: Function,
+  pushProduct: Function,
+  fetchProductStatus: Function,
+};
+
+type Params = {
+  productId: string,
+};
+
+type Props = {
+  originalProduct: ?Product,
+  amazonEnabled: boolean,
+  productStatus: any, // @todo
+  fetchingProduct: boolean,
+  fetchingSchema: boolean,
+  schema: AttrSchema,
+  actions: Actions,
+  params: Params,
+};
+
 class ProductAmazon extends Component {
   state: State = {
     product: this.props.originalProduct,
     error: '',
     saveBtnIsLoading: false,
   };
+
+  props: Props;
 
   componentDidMount() {
     const { productId } = this.props.params;
@@ -169,6 +200,10 @@ class ProductAmazon extends Component {
     const { actions: { pushProduct, updateProduct } } = this.props;
     const { product } = this.state;
 
+    if (!product) {
+      return;
+    }
+
     this.setState({ saveBtnIsLoading: true });
 
     updateProduct(product)
@@ -179,6 +214,11 @@ class ProductAmazon extends Component {
 
   validate() {
     const { product } = this.state;
+
+    if (!product) {
+      return false;
+    }
+
     const hasCategory = !!this.nodeId(product);
     const checkedVariants = product.skus.filter(sku => _.get(sku, 'attributes.amazon.v', false));
     const checkedVariantsHasInventory = checkedVariants.every(
@@ -192,10 +232,10 @@ class ProductAmazon extends Component {
 
   @autobind
   handleCancel() {
-    const { product } = this.state;
+    const { productId } = this.props.params;
 
     transitionTo('product', {
-      productId: product.id,
+      productId,
       context: 'default',
     });
   }
@@ -210,7 +250,7 @@ class ProductAmazon extends Component {
   }
 
   render() {
-    const { suggest, schema, productStatus, fetchingProduct } = this.props;
+    const { schema, fetchingProduct } = this.props;
     const { product, error } = this.state;
 
     // @todo show errors/success notifications

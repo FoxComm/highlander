@@ -1,4 +1,15 @@
-function processItem(item) {
+/**
+ * @flow
+ */
+
+export type SuggestItem = {
+  id: string,
+  path: string,
+  prefix: string,
+  text: string,
+};
+
+function processItem(item): SuggestItem {
   let parts = item.node_path.split('/');
   const text = parts.pop();
   const prefix = parts.join(' » ');
@@ -11,12 +22,8 @@ function processItem(item) {
 /**
  * Converts Hyperion suggest response to <Suggest /> component format
  */
-export function getSuggest(response) {
+export function getSuggest(response: any): Array<SuggestItem> {
   // @todo find a way to search by title in hyperion
 
   return (response.secondary || []).map(processItem);
-}
-
-export function cat(str = '') {
-  return str.replace(/\//g, ' » ');
 }
