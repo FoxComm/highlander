@@ -460,11 +460,15 @@ const reducer = createReducer({
       // Keep existinged selected facets and only change unselected ones..
       // This avoids quiries that would return empty results.
       // While also keeping the interface from changing too much.
-      const groupedQueyFacets = _.groupBy(queryFacets, (f) => { return f.key; });
+      const groupedQueyFacets = _.groupBy(queryFacets, 'key');
 
-      facets = _.map(state.facets, (v) => {
-        return (!_.isEmpty(selectedFacets[v.key])) ? v : groupedQueyFacets[v.key][0];
-      });
+      facets = _.compact(_.map(state.facets, (v) => {
+        if (!_.isEmpty(selectedFacets[v.key])) {
+          return v;
+        }
+
+        return _.isArray(groupedQueyFacets[v.key]) ? groupedQueyFacets[v.key][0] : null;
+      }));
     }
 
     return {
