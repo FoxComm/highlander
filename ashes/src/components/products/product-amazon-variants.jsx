@@ -25,9 +25,22 @@ export default class ProductAmazonVariants extends Component {
         index={index}
         params={params}
         key={key}
-        updateFields={this._handleSetSkuProperties}
+        updateFields={this.handleSetSkuProperties}
       />
     );
+  }
+
+  @autobind
+  handleSetSkuProperties(code: string, updateArray: Array<Array<any>>) {
+    const { product, onChange } = this.props;
+
+    if (product) {
+      const nextProduct = _.reduce(updateArray, (p, [field, value]) => {
+        return setSkuAttribute(p, code, field, value, 'string');
+      }, product);
+
+      onChange(nextProduct);
+    }
   }
 
   render() {
@@ -75,18 +88,5 @@ export default class ProductAmazonVariants extends Component {
         onCheck={onCheck.bind(this)}
       />
     );
-  }
-
-  @autobind
-  _handleSetSkuProperties(code: string, updateArray: Array<Array<any>>) {
-    const { product, onChange } = this.props;
-
-    if (product) {
-      const nextProduct = _.reduce(updateArray, (p, [field, value]) => {
-        return setSkuAttribute(p, code, field, value, 'string');
-      }, product);
-
-      onChange(nextProduct);
-    }
   }
 }
