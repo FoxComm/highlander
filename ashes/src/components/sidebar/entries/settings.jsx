@@ -67,7 +67,7 @@ const SettingsEntry = ({ claims, routes }: TMenuEntry) => {
             expectedClaims={applicationClaims}
           />
         </li>
-        {<li>
+        {/*<li>
           <NavigationItem
             to="channels"
             icon="channels"
@@ -76,7 +76,7 @@ const SettingsEntry = ({ claims, routes }: TMenuEntry) => {
             actualClaims='none'
             expectedClaims='none'
           />
-        </li>}
+        </li>*/}
       </div>
     );
 };
