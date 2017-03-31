@@ -5,7 +5,7 @@ import CustomerAccountPassword from './account-password';
 import CustomerAddressBook from './address-book';
 import CustomerCreditCards from './credit-cards';
 import CustomerAccountStatus from './account-status';
-import CustomerSuggestProduct from './suggest-products';
+import CustomerSuggestProducts from './suggest-products';
 import CustomerGroups from './groups/groups';
 import SectionSubtitle from '../section-title/section-subtitle';
 import { connect } from 'react-redux';
@@ -41,7 +41,7 @@ export default class CustomerDetails extends React.Component {
             <CustomerGroups customer={customer} groups={customer.groups} customerId={customer.id} />
           </div>
           <div className="fc-col-md-1-3">
-            <CustomerSuggestProduct />
+            <CustomerSuggestProducts customer={customer} />
           </div>
         </div>
         <div className="fc-grid fc-grid-gutter">
@@ -57,9 +57,6 @@ export default class CustomerDetails extends React.Component {
         <div className="fc-grid fc-grid-gutter">
           <div className="fc-col-md-1-2">
             <CustomerAccountStatus customer={customer}/>
-          </div>
-          <div className="fc-col-md-1-2">
-            <CustomerAccountPassword />
           </div>
         </div>
       </div>

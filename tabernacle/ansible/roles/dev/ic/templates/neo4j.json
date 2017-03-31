@@ -1,0 +1,73 @@
+{
+  "id": "/neo4j",
+  "cmd": null,
+  "cpus": 1,
+  "mem": 128,
+  "disk": 0,
+  "instances": 1,
+  "labels": {
+    "LAYER": "backend",
+    "TAG": "{{docker_tags.neo4j}}"
+  },
+  "container": {
+    "type": "DOCKER",
+    "volumes": [
+      {
+        "containerPath": "data",
+        "mode": "RW",
+        "persistent": {
+          "size": 1048
+        }
+      },
+      {
+        "containerPath": "logs",
+        "mode": "RW",
+        "persistent": {
+          "size": 1048
+        }
+      },
+      {
+        "containerPath": "/data",
+        "hostPath": "data",
+        "mode": "RW"
+      },
+      {
+        "containerPath": "/logs",
+        "hostPath": "logs",
+        "mode": "RW"
+      }
+    ],
+    "docker": {
+      "image": "neo4j:3.0",
+      "network": "HOST",
+      "portMappings": null,
+      "privileged": false,
+      "parameters": [],
+      "forcePullImage": false
+    }
+  },
+  "portDefinitions": [
+    {
+      "port": 10011,
+      "protocol": "tcp",
+      "labels": {}
+    }
+  ],
+  "healthChecks": [
+    {
+      "protocol": "COMMAND",
+      "command": {
+        "value": "curl -X GET \"http://{{neo4j_user}}:{{neo4j_pass}}@{{neo4j_host}}:{{neo4j_http_port}}/db/data/\""
+      },
+      "gracePeriodSeconds": 300,
+      "intervalSeconds": 60,
+      "timeoutSeconds": 20,
+      "maxConsecutiveFailures": 3,
+      "ignoreHttp1xx": false
+    }
+  ],
+  "upgradeStrategy": {
+    "minimumHealthCapacity": 0.5,
+    "maximumOverCapacity": 0
+  }
+}

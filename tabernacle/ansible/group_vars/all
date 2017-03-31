@@ -29,7 +29,8 @@ docker_logs_host_dir: /var/log/docker
 
 # Google Cloud defaults
 gce_disk_size: 40
-gce_image: appliance-base-170207-004420
+gce_image: appliance-base-170328-215629
+
 gce_machine_type: n1-standard-4
 gce_project_id: "foxcomm-staging"
 gce_zone: "us-central1-a"
@@ -64,6 +65,7 @@ docker_tags:
     anthill: "{{ lookup('env', 'DOCKER_TAG_ANTHILL') | default('master', true) }}"
     neo4j: "{{ lookup('env', 'DOCKER_TAG_NEO4J') | default('master', true) }}"
     suggester: "{{ lookup('env', 'DOCKER_TAG_SUGGESTER') | default('master', true) }}"
+    data_import: "{{ lookup('env', 'DOCKER_TAG_DATA_IMPORT') | default('master', true) }}"
 
 # Configurable Marathon re-deploys
 marathon_restart:
@@ -409,6 +411,16 @@ imgix_products_source: ""
 imgix_s3_bucket_name: ""
 imgix_s3_bucket_prefix: ""
 
+# Data Import
+data_import_dir: "/data_import"
+data_import_s3_bucket: fc-dev-assets
+data_import_s3_region: us-west-2
+data_import_listings_path: "/sample_data/listings.json"
+data_import_products_path: "/sample_data/products.json"
+data_import_docker_url: "{{docker_registry}}:5000/data-import:{{docker_tags.data_import}}"
+data_import_cmd: both
+data_import_max_count: 100
+
 # Various flags
 first_run: false
 is_ci: false
@@ -423,3 +435,4 @@ with_base_seeds: true
 with_gatling_seeder: false
 with_mwh_seeder: true
 with_hyperion_seeder: true
+with_data_import: true

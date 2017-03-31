@@ -3,13 +3,11 @@
  */
 
 // libs
-import React, { Component, Element, PropTypes } from 'react';
-import classNames from 'classnames';
+import React, { Component } from 'react';
 import _ from 'lodash';
 import { assoc } from 'sprout-data';
 import s from './product-amazon.css';
 import Form from '../forms/form';
-import WaitAnimation from '../common/wait-animation';
 import ObjectFormInner from '../object-form/object-form-inner';
 import ContentBox from '../content-box/content-box';
 import MultiSelectTable from 'components/table/multi-select-table';
@@ -145,9 +143,9 @@ export default class ProductAmazonForm extends Component {
 
     this.setState({
       product: {
-        ...this.state.product,
+        ...product,
         attributes: {
-          ...this.state.product.attributes,
+          ...product.attributes,
           ...nextAttributes,
         },
       },

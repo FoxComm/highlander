@@ -5,7 +5,6 @@ const jwt = require('jsonwebtoken');
 require('babel-polyfill');
 
 const htmlescape = require('htmlescape');
-const errors = require('./errors');
 
 const { isPathRequiredAuth } = require('../lib/route-rules');
 

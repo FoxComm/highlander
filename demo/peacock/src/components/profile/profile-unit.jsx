@@ -1,20 +1,18 @@
 // @flow
 
-import React from 'react';
+import React, { Element } from 'react';
 import styles from './profile.css';
 
 import Breadcrumb from './breadcrumb';
 
-import type { HTMLElement } from 'types';
-
 type Route = {
   component: {
-    title?: string,
+    title: string,
   },
 }
 
 type Props = {
-  children: HTMLElement|Array<HTMLElement>,
+  children: Element<*>|Array<Element<*>>,
   routes: Array<Route>,
   params: Object,
 }

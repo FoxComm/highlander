@@ -19,7 +19,7 @@ function formatMessage(data) {
   );
 }
 
-function *sendMessage(mandrillClient, params) {
+function* sendMessage(mandrillClient, params) {
   return new Promise((resolve, reject) => {
     mandrillClient.messages.send(params, ([result]) => {
       if (result.status === 'rejected') {
@@ -27,7 +27,7 @@ function *sendMessage(mandrillClient, params) {
       } else {
         resolve(result);
       }
-    }, error => {
+    }, (error) => {
       const err = new Error(error.message || error);
       reject(err);
     });
@@ -38,7 +38,7 @@ function mandrillRouter(apiKey) {
   const mandrillClient = new Mandrill(apiKey);
 
   const router = makeRouter()
-    .post('/node/contact-feedback', function*() {
+    .post('/node/contact-feedback', function* () {
       const { name, email, subject } = this.request.body;
       const text = formatMessage(this.request.body);
       const message = {

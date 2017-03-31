@@ -22,25 +22,19 @@
 }
 
 .code {
-  composes: text-input from "ui/css/input.css";
-  width: 100%;
-  border-right: none;
-  background-color: white;
-  border-color: white;
-
   &::placeholder {
     text-transform: uppercase;
   }
 }
 
 .root.dark .code {
-  background-color: white;
-  border-color: white;
+  background-color: var(--body-background);
+  border-color: var(--input-border-color);
 }
 
 .root.light .code {
-  background-color: #F4F2F2;
-  border-color: #F4F2F2;
+  background-color: var(--body-background);
+  border-color: var(--input-border-color);
 }
 
 .submit {
@@ -49,28 +43,27 @@
   border: none;
   font-weight: 400;
   font-size: 12px;
-  color: #FFFFFF;
-  background-color: #8D757A;
+  color: var(--button-link-color);
+  background-color: var(--button-default-background);
   text-transform: uppercase;
   min-width: 8em;
   height: 36px;
 
-  &:hover {
-    background: var(--additional-color);
-    color: #FFFFFF;
+  &:active {
+    background: var(--button-focus-background);
   }
 
   &:disabled {
-    background: #8D757A;
+    background: var(--button-disabled-background);
   }
 }
 
 .gift-card {
   display: flex;
   align-items: center;
-  color: #212121;
+  color: var(--text-color);
   padding: 10px 0;
-  border-top: 1px solid var(--border-color);
+  border-top: 1px solid var(--input-border-color);
 }
 
 .root.billingView .gift-card:first-child {
@@ -94,9 +87,9 @@
 .coupon {
   display: flex;
   align-items: center;
-  color: #212121;
+  color: var(--text-color);
   padding: 15px 0;
-  border-top: 1px solid var(--border-color);
+  border-top: 1px solid var(--input-border-color);
 }
 
 .root.billingView .coupon {
