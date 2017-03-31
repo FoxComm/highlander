@@ -1,6 +1,6 @@
 package services.carts
 
-import cats.data.{Xor, XorT}
+import cats.data.Xor
 import cats.implicits._
 import failures.CouponFailures._
 import failures.DiscountCompilerFailures._
@@ -26,13 +26,14 @@ import services.discount.compilers._
 import services.{CartValidator, LineItemManager, LogActivity}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
+import utils.apis.Apis
 import utils.db._
 
 object CartPromotionUpdater {
 
   def readjust(cart: Cart, failFatally: Boolean /* FIXME with the new foxy monad @michalrus */ )(
       implicit ec: EC,
-      es: ES,
+      apis: Apis,
       db: DB,
       ctx: OC,
       au: AU): DbResultT[TheResponse[Cart]] =
@@ -68,7 +69,7 @@ object CartPromotionUpdater {
 
   def attachCoupon(originator: User, refNum: Option[String] = None, code: String)(
       implicit ec: EC,
-      es: ES,
+      apis: Apis,
       db: DB,
       ac: AC,
       ctx: OC,
@@ -108,7 +109,7 @@ object CartPromotionUpdater {
 
   def detachCoupon(originator: User, refNum: Option[String] = None)(
       implicit ec: EC,
-      es: ES,
+      apis: Apis,
       db: DB,
       ac: AC,
       ctx: OC): DbResultT[TheResponse[CartResponse]] =
@@ -144,7 +145,7 @@ object CartPromotionUpdater {
                              offer: Offer,
                              failFatally: Boolean /* FIXME with the new foxy monad @michalrus */ )(
       implicit ec: EC,
-      es: ES,
+      apis: Apis,
       db: DB,
       au: AU): DbResultT[TheResponse[Seq[OrderLineItemAdjustment]]] =
     for {
