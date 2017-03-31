@@ -23,23 +23,23 @@ export default Object.freeze({
   customerCartPaymentStoreCredit: '/v1/my/cart/payment-methods/store-credit',
   customerCartPaymentCouponCode: '/v1/my/cart/coupon',
   customerCartPaymentCouponCodeWithCode: code => `/v1/my/cart/coupon/${code}`,
-  shippingAddressId: id => `${shippingAddress}/${id}`,
+  shippingAddressId: id => `/v1/my/cart/shipping-address/${id}`,
 
   addToCart: '/v1/my/cart/add',
   removeFromCart: '/v1/my/cart/line-items/:id/edit',
 
   addresses: '/v1/my/addresses',
   address: addressId => `/v1/my/addresses/${addressId}`,
-  addressDefault: addressId => `${address(addressId)}/default`,
+  addressDefault: addressId => `/v1/my/addresses/${addressId}/default`,
   addressesDefault: '/v1/my/address/default',
 
   creditCards: '/v1/my/payment-methods/credit-cards',
-  creditCard: creditCardId => `${creditCards}/${creditCardId}`,
-  creditCardDefault: creditCardId => `${creditCard(creditCardId)}/default`,
+  creditCard: creditCardId => `/v1/my/payment-methods/credit-cards/${creditCardId}`,
+  creditCardDefault: creditCardId => `/v1/my/payment-methods/credit-cards/${creditCardId}/default`,
 
   storeCredit: storeCreditId => `/v1/my/payment-methods/store-credits/${storeCreditId}`,
-  storeCreditTotals: `/v1/my/payment-methods/store-credits/totals`,
-  storeCredits: `/search/store_credits_search_view/_search`,
+  storeCreditTotals: '/v1/my/payment-methods/store-credits/totals',
+  storeCredits: '/search/store_credits_search_view/_search',
 
   account: '/v1/my/account',
   changePassword: '/v1/my/account/change-password',
@@ -59,8 +59,8 @@ export default Object.freeze({
   customerAddress: (customerId, addressId) => `/v1/customers/${customerId}/addresses/${addressId}`,
   customerCreditCards: customerId => `/v1/customers/${customerId}/payment-methods/credit-cards`,
   customerStoreCredit: customerId => `/v1/customers/${customerId}/payment-methods/store-credit`,
-  customerGroups: '/v1/groups',
-  customerGroup: groupId => `/v1/groups/${groupId}`,
+  customerGroups: '/v1/customer-groups',
+  customerGroup: groupId => `/v1/customer-groups/${groupId}`,
 
   skus: context => `/v1/skus/${context}`,
   sku: (context, skuCode) => `/v1/skus/${context}/${skuCode}`,
