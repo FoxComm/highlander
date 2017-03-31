@@ -71,6 +71,7 @@ resource "google_compute_instance" "tiny-frontend" {
 
   network_interface {
     network = "default"
+
     access_config {
       nat_ip = "${var.frontend_public_ip}"
     }
