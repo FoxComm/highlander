@@ -111,9 +111,6 @@ class TaxonomyWidget extends Component {
           <span styleName="title">
             {this.props.title}
           </span>
-          <span styleName="button">
-            <i className={iconClassName} onClick={this.handleAddButton} />
-          </span>
         </div>
         {this.content}
       </div>
