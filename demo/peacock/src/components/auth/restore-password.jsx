@@ -9,7 +9,7 @@ import type { RestorePasswordFormProps } from './restore-password-form';
 const RestorePassword = (props: RestorePasswordFormProps) => {
   return (
     <RestorePasswordForm
-      title="FORGOT PASSWORD"
+      title="Forgot password"
       topMessage="No worries! We’ll email you instructions on how to reset your password."
       {...props}
     />

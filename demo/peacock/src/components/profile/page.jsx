@@ -1,11 +1,10 @@
 // @flow
-import React from 'react';
-import type { HTMLElement } from 'types';
+import React, { Element } from 'react';
 
 import styles from './page.css';
 
 type Props = {
-  children: HTMLElement,
+  children: Element<*>,
 }
 
 const Page = (props: Props) => {

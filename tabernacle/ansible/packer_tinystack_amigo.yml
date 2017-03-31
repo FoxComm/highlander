@@ -17,6 +17,5 @@
     - { role: base/zookeeper }
     - { role: base/mesos_master }
     - { role: base/mesos_consul }
-    - { role: base/elasticsearch }
     - { role: base/elasticsearch-5 }
     - { role: base/kibana }

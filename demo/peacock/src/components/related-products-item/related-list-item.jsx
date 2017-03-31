@@ -1,6 +1,6 @@
 /* @flow */
 
-import React from 'react';
+import React, { Element } from 'react';
 import { findDOMNode } from 'react-dom';
 import type { HTMLElement } from 'types';
 import styles from './related-list-item.css';
@@ -54,7 +54,7 @@ class RelatedListItem extends React.Component {
     skus: [],
   };
 
-  get image() {
+  get image(): Element<any> {
     const previewImageUrl = _.get(this.props.albums, [0, 'images', 0, 'src']);
 
     return previewImageUrl
@@ -86,17 +86,17 @@ class RelatedListItem extends React.Component {
 
     return (retailPrice > salePrice) ? (
       <div styleName="price">
-          <Currency
-            styleName="retail-price"
-            value={retailPrice}
-            currency={currency}
-          />
-          <Currency
-            styleName="on-sale-price"
-            value={salePrice}
-            currency={currency}
-          />
-        </div>
+        <Currency
+          styleName="retail-price"
+          value={retailPrice}
+          currency={currency}
+        />
+        <Currency
+          styleName="on-sale-price"
+          value={salePrice}
+          currency={currency}
+        />
+      </div>
       ) : (
         <div styleName="price">
           <Currency value={salePrice} currency={currency} />

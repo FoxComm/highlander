@@ -21,6 +21,7 @@ import services.StoreCreditService
 import services.customers.CustomerManager
 import utils.ElasticsearchApi
 import utils.aliases._
+import utils.apis.Apis
 import utils.db.ExPostgresDriver.api._
 import utils.db._
 
@@ -141,14 +142,15 @@ object GroupMemberManager {
     } yield {}
 
   def isMemberOfAny(groupIds: Set[Int], customer: User)(implicit ec: EC,
-                                                        es: ES): DbResultT[Boolean] =
+                                                        apis: Apis): DbResultT[Boolean] =
     for {
       customerGroups ← CustomerGroups.fildAllByIds(groupIds).result.dbresult
       results ← customerGroups.toStream
                  .traverse(isMember(_, customer)) // FIXME: no need to check all of them, but Scala is strict… @michalrus
     } yield results.exists(identity)
 
-  def isMember(group: CustomerGroup, customer: User)(implicit ec: EC, es: ES): DbResultT[Boolean] =
+  def isMember(group: CustomerGroup, customer: User)(implicit ec: EC,
+                                                     apis: Apis): DbResultT[Boolean] =
     if (group.groupType == Manual) for {
       customerData ← CustomersData.mustFindByAccountId(customer.accountId)
       num ← CustomerGroupMembers
@@ -158,8 +160,9 @@ object GroupMemberManager {
              .dbresult
     } yield (num > 0)
     else if (group.groupType == Dynamic) for {
-      num ← * <~ es.numResults(ElasticsearchApi.SearchView(SearchReference.customersSearchView),
-                               narrowDownWithUserId(customer.id)(group.elasticRequest))
+      num ← * <~ apis.elasticSearch.numResults(
+               ElasticsearchApi.SearchView(SearchReference.customersSearchView),
+               narrowDownWithUserId(customer.id)(group.elasticRequest))
     } yield (num > 0)
     else DbResultT.pure(false)
 

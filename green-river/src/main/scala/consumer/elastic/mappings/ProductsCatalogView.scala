@@ -28,8 +28,8 @@ final case class ProductsCatalogView()(implicit ec: EC) extends AvroTransformer 
           )
       ),
       field("taxonomies").nested(
-          field("taxons", StringType).index("not_analyzed"),
-          field("taxonomy", StringType).index("not_analyzed")
+          field("taxons", StringType).analyzer("upper_cased"),
+          field("taxonomy", StringType).analyzer("upper_cased")
       )
   )
 

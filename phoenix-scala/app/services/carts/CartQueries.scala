@@ -1,15 +1,14 @@
 package services.carts
 
-import cats._
-import cats.implicits._
 import failures.NotFoundFailure404
 import models.account._
 import models.cord._
 import models.objects.ObjectContext
 import responses.TheResponse
 import responses.cord.CartResponse
-import services.{CartValidator, CordQueries, LineItemUpdater, LogActivity}
+import services.{CordQueries, LineItemUpdater, LogActivity}
 import utils.aliases._
+import utils.apis.Apis
 import utils.db._
 
 object CartQueries extends CordQueries {
@@ -17,7 +16,7 @@ object CartQueries extends CordQueries {
   def findOne(refNum: String)(implicit ec: EC,
                               db: DB,
                               ctx: OC,
-                              es: ES,
+                              apis: Apis,
                               au: AU): DbResultT[TheResponse[CartResponse]] =
     for {
       cart ← * <~ Carts.mustFindByRefNum(refNum)
@@ -27,7 +26,7 @@ object CartQueries extends CordQueries {
   def findOneByUser(refNum: String, customer: User, grouped: Boolean = true)(
       implicit ec: EC,
       db: DB,
-      es: ES,
+      apis: Apis,
       au: AU,
       ctx: OC): DbResultT[TheResponse[CartResponse]] =
     for {
@@ -43,7 +42,7 @@ object CartQueries extends CordQueries {
                                                             db: DB,
                                                             ac: AC,
                                                             ctx: OC,
-                                                            es: ES,
+                                                            apis: Apis,
                                                             au: AU): DbResultT[CartResponse] =
     findOrCreateCartByAccountInner(customer, admin)
 
@@ -53,7 +52,7 @@ object CartQueries extends CordQueries {
                                                               db: DB,
                                                               ac: AC,
                                                               ctx: OC,
-                                                              es: ES,
+                                                              apis: Apis,
                                                               au: AU): DbResultT[CartResponse] =
     for {
       customer  ← * <~ Users.mustFindByAccountId(accountId)
@@ -65,7 +64,7 @@ object CartQueries extends CordQueries {
       ec: EC,
       ac: AC,
       au: AU,
-      es: ES,
+      apis: Apis,
       ctx: OC): DbResultT[CartResponse] =
     for {
       result ← * <~ Carts

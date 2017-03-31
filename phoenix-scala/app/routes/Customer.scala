@@ -25,7 +25,7 @@ import utils.http.Http._
 import utils.http.JsonSupport._
 
 object Customer {
-  def routes(implicit ec: EC, es: ES, db: DB, auth: UserAuthenticator, apis: Apis): Route = {
+  def routes(implicit ec: EC, db: DB, auth: UserAuthenticator, apis: Apis): Route = {
 
     pathPrefix("my") {
       requireCustomerAuth(auth) { implicit auth ⇒

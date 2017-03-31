@@ -1,0 +1,55 @@
+@import "colors.css";
+
+.view-billing {
+  text-align: left;
+  font-size: 14px;
+  line-height: 1.33;
+  padding-bottom: 15px;
+}
+
+.billing-address {
+  margin-top: 10px;
+}
+
+.payment-name {
+
+}
+
+.payment-last-four {
+
+}
+
+.payment-input {
+  padding-right: 64px;
+}
+
+.payment-card-info {
+  padding-left: 0.5em;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.payment-last-four {
+  margin-right: 0.7em;
+}
+
+.payment-gift {
+  & .price {
+    display: block;
+    font-weight: 400;
+  }
+}
+
+.billing-address {
+  composes: address-details from 'ui/address/address.css';
+
+  & li:first-child {
+    font-weight: bold;
+  }
+}
+
+.default-card {
+  font-weight: 900;
+  margin-left: 5px;
+  font-size: 13px;
+}
