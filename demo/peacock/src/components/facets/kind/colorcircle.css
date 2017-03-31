@@ -770,6 +770,7 @@
 }
 
 .color-checkbox div {
+  cursor: pointer;
   width: 32px;
   height: 32px;
   border-radius: 100px;
@@ -780,6 +781,7 @@
 }
 
 .color-checkbox-light div {
+  cursor: pointer;
   width: 32px;
   height: 32px;
   border-radius: 100px;
@@ -825,6 +827,7 @@
 }
 
 .color-checkbox div label {
+  cursor: pointer;
   font-weight: normal;
   vertical-align: -25%;
   color: rgba(0,0,0,0);
@@ -833,6 +836,7 @@
 }
 
 .color-checkbox-light div label {
+  cursor: pointer;
   font-weight: normal;
   vertical-align: -25%;
   color: rgba(0,0,0,0);

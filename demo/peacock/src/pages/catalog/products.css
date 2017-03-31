@@ -19,10 +19,7 @@
 .title {
   font-size: 40px;
   font-weight: 900;
-  font-style: normal;
-  font-stretch: normal;
   line-height: 1.25;
-  letter-spacing: normal;
   color: var(--text-color);
   min-height: 50px;
   margin-top: 24px;
@@ -34,10 +31,7 @@
   .title {
     font-size: 40px;
     font-weight: 900;
-    font-style: normal;
-    font-stretch: normal;
     line-height: 1.25;
-    letter-spacing: normal;
     color: var(--text-color);
     min-height: 50px;
     margin-top: 10px;
@@ -67,21 +61,21 @@
 }
 
 .facetted-container {
-    display: none;
+  display: none;
 }
 
 .facetted-container-mobile {
 }
 
 .sidebar-mobile {
-    width: 100%;
-    display: none;
-    padding-left: 15px;
-    padding-right: 15px;
+  width: 100%;
+  display: none;
+  padding-left: 15px;
+  padding-right: 15px;
 }
 
 .sidebar-mobile-checkbox {
-    display: none;
+  display: none;
 }
 
 .sidebar-mobile-filter-header {
@@ -117,25 +111,16 @@
 .sidebar-mobile-filters {
   width: 37px;
   height: 17px;
-  font-family: Lato;
   font-size: 14px;
-  font-weight: normal;
-  font-style: normal;
-  font-stretch: normal;
-  line-height: normal;
-  letter-spacing: normal;
   color: #222222;
-  color: var(--black);
+  cursor: pointer;
 }
 
 .sidebar-mobile-apply {
   font-family: Lato;
   font-size: 16px;
   font-weight: 900;
-  font-style: normal;
-  font-stretch: normal;
   line-height: 2.75;
-  letter-spacing: normal;
   text-align: center;
   color: #ffffff;
   color: var(--white);
@@ -150,37 +135,32 @@
   height: 17px;
   font-family: Lato;
   font-size: 14px;
-  font-weight: normal;
-  font-style: normal;
-  font-stretch: normal;
-  line-height: normal;
-  letter-spacing: normal;
   text-align: right;
   color: #0b7ddc;
   color: var(--water-blue);
 }
 
 .content-mobile {
-    width: 100%;
+  width: 100%;
 }
 
 .sidebar-mobile-checkbox:checked ~ .sidebar-mobile { 
-    display:inline;
+  display:inline;
 }
 
 .sidebar-mobile-checkbox:checked ~ .content-mobile { 
-    display:none;
+  display:none;
 }
 
 .sidebar{
-    float: left;
-    width: 50%;
+  float: left;
+  width: 50%;
 }
 
 .content{
-    margin-top: 135px;
-    float: right;
-    width: 50%;
+  margin-top: 135px;
+  float: right;
+  width: 50%;
 }
 
 @media ( --medium ) { 
