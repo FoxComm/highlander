@@ -61,6 +61,10 @@ class Elasticsearch:
         response = self.do_query('products_search_view')
         return response['result']
 
+    def get_inventory(self):
+        response = self.do_query('inventory_search_view')
+        return response['result']
+
 
 class Phoenix:
     def __init__(self, host='appliance-10-240-0-14.foxcommerce.com', user='admin@admin.com', password='password',
@@ -90,7 +94,12 @@ class Phoenix:
         except HTTPError as err:
             print("HTTP error. code: {}. message: {}".format(err.code, err.read()))
             raise
-        return response.getcode(), json.loads(response.read().decode('utf-8'))
+
+        code = response.getcode()
+
+        if code == 204:
+            return code, None
+        return code, json.loads(response.read().decode('utf-8'))
 
     def do_login(self):
         payload = json.dumps({'email': self.user, 'password': self.password, 'org': self.org}).encode()
@@ -446,6 +455,32 @@ def import_products(p:Phoenix, max_products):
                     json.dump(product, open(cache_file, 'w'))
                     assign_taxonomies(p, taxonomies, g, result['id'])
 
+def get_inventory(phoenix):
+    es = Elasticsearch(phoenix.jwt, phoenix.host)
+    return es.get_inventory()
+
+def add_inventory_to_stock_item(phoenix, stock_item, amount):
+
+    itm = stock_item['stockItem']
+    id = str(itm['id'])
+    sku = itm['sku']
+    old_amount = str(stock_item['onHand'])
+
+    print(sku + ' (' + id + ') ' + old_amount + ' => ' +  str(amount))
+    increment = {"qty": amount ,"type":"Sellable","status":"onHand"}
+    try:
+        code, response = phoenix.do_query("/inventory/stock-items/"+ id + "/increment", increment, method="PATCH")
+        if code != 204:
+            print("error adding inventory: " + response)
+    except HTTPError as err:
+        print("error adding inventory: " + repr(err))
+
+
+def add_inventory(phoenix, amount):
+    phoenix.ensure_logged_in()
+    inventory = get_inventory(phoenix)
+    for itm in inventory:
+        add_inventory_to_stock_item(phoenix, itm, amount)
 
 def main():
     host = sys.argv[1]
@@ -466,8 +501,11 @@ def main():
     elif command == 'both':
         import_taxonomies(p)
         import_products(p, max_products)
+    elif command == 'inventory':
+        amount = int(sys.argv[3])
+        add_inventory(p, amount)
     else:
-        print ("Valid commands are, 'taxonomies', 'products', or 'both'")
+        print ("Valid commands are, 'taxonomies', 'products', 'both', or 'inventory'")
 
 if __name__ == "__main__":
     main()
