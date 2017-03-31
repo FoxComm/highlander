@@ -204,7 +204,7 @@ case class Checkout(
       _ ← * <~ doOrMeh(
              skusToHold.nonEmpty,
              DbResultT.fromResult(
-                 apis.middlwarehouse.hold(OrderInventoryHold(cart.referenceNumber, skusToHold))))
+                 apis.middlewarehouse.hold(OrderInventoryHold(cart.referenceNumber, skusToHold))))
       mutating = externalCalls.middleWarehouseSuccess = skusToHold.nonEmpty
     } yield {}
 
@@ -229,7 +229,7 @@ case class Checkout(
     } yield InventoryTrackedSku(trackInventory, skuCode, qty)
 
   private def cancelHoldInMiddleWarehouse: Result[Unit] =
-    apis.middlwarehouse.cancelHold(cart.referenceNumber)
+    apis.middlewarehouse.cancelHold(cart.referenceNumber)
 
   private def activePromos: DbResultT[Unit] =
     for {
