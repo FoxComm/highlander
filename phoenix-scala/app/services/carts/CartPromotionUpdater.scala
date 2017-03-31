@@ -1,6 +1,5 @@
 package services.carts
 
-import cats._
 import cats.data._
 import cats.implicits._
 import failures.CouponFailures._
@@ -24,16 +23,17 @@ import models.shipping
 import responses.TheResponse
 import responses.cord.CartResponse
 import services.discount.compilers._
-import services.{CartValidator, LineItemManager, LineItemUpdater, LogActivity}
+import services.{CartValidator, LineItemManager, LogActivity}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
+import utils.apis.Apis
 import utils.db._
 
 object CartPromotionUpdater {
 
   def readjust(cart: Cart, failFatally: Boolean /* FIXME with the new foxy monad @michalrus */ )(
       implicit ec: EC,
-      es: ES,
+      apis: Apis,
       db: DB,
       ctx: OC,
       au: AU): DbResultT[Unit] =
@@ -45,7 +45,7 @@ object CartPromotionUpdater {
   private def tryReadjust(cart: Cart,
                           failFatally: Boolean /* FIXME with the new foxy monad @michalrus */ )(
       implicit ec: EC,
-      es: ES,
+      apis: Apis,
       db: DB,
       ctx: OC,
       au: AU): DbResultT[Unit] =
@@ -66,7 +66,7 @@ object CartPromotionUpdater {
       cart: Cart,
       failFatally: Boolean /* FIXME with the new foxy monad @michalrus */ )(
       implicit ec: EC,
-      es: ES,
+      apis: Apis,
       au: AU,
       db: DB,
       ctx: OC): DbResultT[(OrderPromotion, Promotion, Seq[CartLineItemAdjustment])] =
@@ -80,7 +80,7 @@ object CartPromotionUpdater {
       failFatally: Boolean /* FIXME with the new foxy monad @michalrus */ )(
       implicit ec: EC,
       au: AU,
-      es: ES,
+      apis: Apis,
       db: DB,
       ctx: OC): DbResultT[(OrderPromotion, Promotion, Seq[CartLineItemAdjustment])] = {
     for {
@@ -99,7 +99,7 @@ object CartPromotionUpdater {
 
   private def findApplicableAutoAppliedPromotion(cart: Cart)(
       implicit ec: EC,
-      es: ES,
+      apis: Apis,
       au: AU,
       db: DB,
       ctx: OC): DbResultT[(OrderPromotion, Promotion, Seq[CartLineItemAdjustment])] =
@@ -125,7 +125,7 @@ object CartPromotionUpdater {
       promotion: Promotion,
       failFatally: Boolean /* FIXME with the new foxy monad @michalrus */ )(
       implicit ec: EC,
-      es: ES,
+      apis: Apis,
       au: AU,
       db: DB,
       ctx: OC): DbResultT[Seq[CartLineItemAdjustment]] =
@@ -150,7 +150,7 @@ object CartPromotionUpdater {
 
   def attachCoupon(originator: User, refNum: Option[String] = None, code: String)(
       implicit ec: EC,
-      es: ES,
+      apis: Apis,
       db: DB,
       ac: AC,
       ctx: OC,
@@ -200,7 +200,7 @@ object CartPromotionUpdater {
 
   def detachCoupon(originator: User, refNum: Option[String] = None)(
       implicit ec: EC,
-      es: ES,
+      apis: Apis,
       db: DB,
       ac: AC,
       ctx: OC): DbResultT[TheResponse[CartResponse]] =
@@ -232,7 +232,7 @@ object CartPromotionUpdater {
 
   private def getAdjustments(promo: ObjectShadow, cart: Cart, qualifier: Qualifier, offer: Offer)(
       implicit ec: EC,
-      es: ES,
+      apis: Apis,
       db: DB,
       au: AU): DbResultT[Seq[CartLineItemAdjustment]] =
     for {

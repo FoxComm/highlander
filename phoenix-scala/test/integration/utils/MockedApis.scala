@@ -1,8 +1,8 @@
 package utils
 
-import cats.implicits._
 import java.io.File
-import scala.concurrent.ExecutionContext.Implicits.global
+
+import cats.implicits._
 import com.stripe.model.DeletedCard
 import org.mockito.ArgumentMatcher
 import org.mockito.ArgumentMatchers._
@@ -10,7 +10,6 @@ import org.mockito.Mockito._
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 import org.scalatest.mockito.MockitoSugar
-import scala.util.{Random, Try}
 import testutils.TestBase
 import utils.TestStripeSupport.randomStripeishId
 import utils.aliases._
@@ -18,17 +17,20 @@ import utils.aliases.stripe._
 import utils.apis._
 import utils.db._
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.{Random, Try}
+
 trait MockedApis extends MockitoSugar {
 
-  val stripeCustomer = newStripeCustomer
-  def newStripeCustomer = {
+  val stripeCustomer: StripeCustomer = newStripeCustomer
+  def newStripeCustomer: StripeCustomer = {
     val stripeCustomer = new StripeCustomer
     stripeCustomer.setId(s"cus_$randomStripeishId")
     stripeCustomer
   }
 
-  val stripeCard = newStripeCard
-  def newStripeCard = {
+  val stripeCard: StripeCard = newStripeCard
+  def newStripeCard: StripeCard = {
     val stripeCard = spy(new StripeCard)
     doReturn(s"card_$randomStripeishId", Nil: _*).when(stripeCard).getId
     stripeCard
@@ -93,21 +95,22 @@ trait MockedApis extends MockitoSugar {
     }
   }
 
-  lazy val amazonApiMock = {
+  lazy val amazonApiMock: AmazonApi = {
     val mocked = mock[AmazonApi]
     when(mocked.uploadFile(any[String], any[File])(any[EC]))
       .thenReturn(Result.good("amazon-image-url"))
     mocked
   }
 
-  lazy val middlewarehouseApiMock = {
+  lazy val middlewarehouseApiMock: MiddlewarehouseApi = {
     val mocked = mock[MiddlewarehouseApi]
     when(mocked.hold(any[OrderInventoryHold])(any[EC], any[AU])).thenReturn(Result.unit)
     when(mocked.cancelHold(any[String])(any[EC], any[AU])).thenReturn(Result.unit)
     mocked
   }
 
-  implicit lazy val apisOverride: Apis = Apis(stripeApiMock, amazonApiMock, middlewarehouseApiMock)
+  lazy val elasticSearchMock: ElasticsearchApi = utils.ElasticsearchApi.fromConfig(TestBase.config)
 
-  implicit lazy val es: ElasticsearchApi = utils.ElasticsearchApi.fromConfig(TestBase.config)
+  implicit lazy val apisOverride: Apis =
+    Apis(stripeApiMock, amazonApiMock, middlewarehouseApiMock, elasticSearchMock)
 }

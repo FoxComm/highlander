@@ -26,7 +26,6 @@ import org.json4s.JsonAST._
 import payloads.CartPayloads.CheckoutCart
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import responses.cord.OrderResponse
-import scala.util.Random
 import services.carts._
 import services.coupon.CouponUsageService
 import services.inventory.SkuManager
@@ -34,6 +33,8 @@ import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.apis._
 import utils.db._
+
+import scala.util.Random
 
 object PaymentHelper {
 
@@ -100,7 +101,6 @@ object Checkout {
     } yield order
 
   def forCustomerOneClick(payload: CheckoutCart)(implicit ec: EC,
-                                                 es: ES,
                                                  db: DB,
                                                  apis: Apis,
                                                  ac: AC,
@@ -204,7 +204,7 @@ case class Checkout(
       _ ← * <~ doOrMeh(
              skusToHold.nonEmpty,
              DbResultT.fromResult(
-                 apis.middlwarehouse.hold(OrderInventoryHold(cart.referenceNumber, skusToHold))))
+                 apis.middlewarehouse.hold(OrderInventoryHold(cart.referenceNumber, skusToHold))))
       mutating = externalCalls.middleWarehouseSuccess = skusToHold.nonEmpty
     } yield {}
 
@@ -229,7 +229,7 @@ case class Checkout(
     } yield InventoryTrackedSku(trackInventory, skuCode, qty)
 
   private def cancelHoldInMiddleWarehouse: Result[Unit] =
-    apis.middlwarehouse.cancelHold(cart.referenceNumber)
+    apis.middlewarehouse.cancelHold(cart.referenceNumber)
 
   private def activePromos: DbResultT[Unit] =
     for {
