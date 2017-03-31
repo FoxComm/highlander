@@ -189,6 +189,11 @@ class EditBilling extends Component {
     this.props.resetBillingData();
     this.props.clearAddCreditCardErrors();
     this.props.clearUpdateCreditCardErrors();
+
+    if (_.isEmpty(this.props.creditCards)) {
+      this.props.togglePaymentModal();
+    }
+
     this.setState({
       addingNew: false,
       cardAdded: false,
