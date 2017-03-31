@@ -31,6 +31,7 @@ type Props = {
   },
   changeSorting: Function,
   fetchMoreProducts: Function,
+  moreAvailable: boolean,
 };
 
 type State = {
