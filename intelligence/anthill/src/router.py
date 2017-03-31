@@ -1,8 +1,6 @@
 import os
 
 from flask import Flask, request, jsonify
-from recommenders.Prod_Prod import Prod_Prod
-from controllers.PurchaseController import add_purchase_event, get_all_by_channel
 from managers.Prod_Prod_Manager import Prod_Prod_Manager
 from util.ES_Client import ES_Client
 from util.InvalidUsage import InvalidUsage

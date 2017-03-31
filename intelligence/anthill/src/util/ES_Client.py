@@ -1,5 +1,5 @@
-import http.client
 import json
+import http.client
 
 def products_list_query(prod_ids):
     """products_list_query
