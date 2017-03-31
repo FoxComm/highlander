@@ -97,6 +97,12 @@ class EditBilling extends Component {
       if (chosenCreditCard) {
         this.props.selectCreditCard(chosenCreditCard);
       }
+
+      const coupon = this.props.coupon;
+      if (!_.isEmpty(coupon)) {
+        this.setState({ couponCode: coupon.code });
+      }
+
     } else {
       this.props.resetCreditCard();
     }
@@ -378,6 +384,32 @@ class EditBilling extends Component {
     );
   }
 
+
+  get addCouponLink() {
+    if (!_.isEmpty(this.state.couponCode)) return null;
+
+    const icon =  {
+      name: 'fc-plus',
+      className: styles.plus,
+    };
+
+    return (
+      <ActionLink
+        action={this.addCoupon}
+        title="Coupon code"
+        icon={icon}
+        styleName="action-link-add-methods"
+      />
+    );
+  }
+
+  @autobind
+  removeCouponCode() {
+    return this.props.removeCouponCode().then(() => {
+      this.setState({ couponCode: ''});
+    });
+  }
+
   renderPaymentFeatures() {
     const icon = {
       name: 'fc-plus',
@@ -399,24 +431,12 @@ class EditBilling extends Component {
 
         <PromoCode
           coupon={this.props.coupon}
-          removeCode={this.props.removeCouponCode}
+          removeCode={this.removeCouponCode}
           styleName="promo-codes"
         />
-        <ActionLink
-          action={this.addCoupon}
-          title="Coupon code"
-          icon={icon}
-          styleName="action-link-add-methods"
-        />
+        {this.addCouponLink}
       </div>
     );
-  }
-
-  @autobind
-  submitCardAndContinue() {
-    return this.updateCreditCard().then((card) => {
-      this.props.selectCreditCard(card);
-    });
   }
 
   @autobind
@@ -470,7 +490,7 @@ class EditBilling extends Component {
   saveCouponCode() {
     const code = this.state.couponCode.replace(/\s+/g, '');
     this.props.saveCouponCode(code)
-      .then(() => this.setState({ error: false }))
+      .then(() => this.setState({ error: false, addingCoupon: false }))
       .catch((error) => {
         this.setState({ error });
       });
