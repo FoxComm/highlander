@@ -76,10 +76,8 @@ class Service(
   val logger: LoggingAdapter = Logging(system, getClass)
 
   implicit val db: Database = dbOverride.getOrElse(Database.forConfig("db", FoxConfig.unsafe))
-  lazy val defaultApis: Apis = Apis(setupStripe(),
-                                    new AmazonS3,
-                                    setupMiddlewarehouse(),
-                                    ElasticsearchApi.fromConfig(FoxConfig.config))
+  lazy val defaultApis: Apis =
+    Apis(setupStripe(), new AmazonS3, setupMiddlewarehouse(), setupElasticSearch())
   implicit val apis: Apis = apisOverride.getOrElse(defaultApis: Apis)
 
   private val roleName: String = config.users.customer.role
@@ -196,6 +194,13 @@ class Service(
     new FoxStripe(new StripeWrapper())
   }
 
-  def setupMiddlewarehouse(): Middlewarehouse =
+  def setupMiddlewarehouse(): Middlewarehouse = {
+    logger.info("Setting up MWH...")
     new Middlewarehouse(config.apis.middlewarehouse.url)
+  }
+
+  def setupElasticSearch(): ElasticsearchApi = {
+    logger.info("Setting up Elastic Search")
+    ElasticsearchApi.fromConfig(FoxConfig.config)
+  }
 }
