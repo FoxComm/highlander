@@ -2,10 +2,12 @@ import test from 'ava';
 import config from '../config';
 
 const NETWORK_ERRORS = [
-  'Service Unavailable',
-  'Gateway Timeout',
-  'Bad Gateway',
-  'Unauthorized',
+  'service unavailable',
+  'gateway timeout',
+  'bad gateway',
+  'unauthorized',
+  'too many clients',
+  'internal server error',
 ];
 
 export default (name, cb, ...args) => test(name, async (t, ...cbArgs) => {
@@ -15,17 +17,18 @@ export default (name, cb, ...args) => test(name, async (t, ...cbArgs) => {
       await cb(t, ...cbArgs);
       return;
     } catch (error) {
+      let errorMessageLines = error.message ? [error.message] : [];
+      if (error.responseJson && error.responseJson.errors) {
+        errorMessageLines = errorMessageLines.concat(error.responseJson.errors);
+      }
+      const lowercaseErrorMessage = errorMessageLines.join(' ').toLowerCase();
       if (
         retryCount < config.networkErrorRetries &&
-        NETWORK_ERRORS.find(msg => error.message.indexOf(msg) > -1)
+        NETWORK_ERRORS.find(msg => lowercaseErrorMessage.indexOf(msg) > -1)
       ) {
         retryCount += 1;
         continue;
       } else {
-        let errorMessageLines = error.message ? [error.message] : [];
-        if (error.responseJson && error.responseJson.errors) {
-          errorMessageLines = errorMessageLines.concat(error.responseJson.errors);
-        }
         if (config.fullApiSequenceLogging && t.apiLog) {
           errorMessageLines = errorMessageLines.concat(
             t.apiLog.map(entry =>
