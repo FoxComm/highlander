@@ -87,7 +87,7 @@ class PromoCode extends Component {
     return (
       <div styleName="coupon">
         <div styleName="coupon-info">
-          <div styleName="title">Promo Code</div>
+          <div styleName="title">Coupon Code</div>
           <div styleName="coupon-code">{promoCode}</div>
         </div>
         {this.getRemoveLink()}

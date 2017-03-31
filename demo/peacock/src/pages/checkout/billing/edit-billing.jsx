@@ -65,6 +65,8 @@ type State = {
   billingAddressIsSame: boolean,
   cardAdded: boolean,
   selectedCard: CreditCardType,
+  addingGC: boolean,
+  addingCoupon: boolean,
 };
 
 function numbersComparator(value1, value2) {
@@ -79,6 +81,8 @@ class EditBilling extends Component {
     billingAddressIsSame: true,
     cardAdded: false,
     selectedCard: {},
+    addingGC: false,
+    addingCoupon: false,
   };
 
   componentWillMount() {
@@ -370,6 +374,10 @@ class EditBilling extends Component {
   }
 
   renderPaymentFeatures() {
+    const icon = {
+      name: 'fc-plus',
+      className: styles.plus,
+    }
     return (
       <div key="payment-features" styleName="gc-coupon">
         <PromoCode
@@ -377,11 +385,23 @@ class EditBilling extends Component {
           removeCode={this.props.removeGiftCard}
           styleName="gift-card-billing"
         />
+        <ActionLink
+          action={this.addGC}
+          title="Gift card"
+          icon={icon}
+          styleName="action-link-add-card"
+        />
 
         <PromoCode
           coupon={this.props.coupon}
           removeCode={this.props.removeCouponCode}
           styleName="coupon-billing"
+        />
+        <ActionLink
+          action={this.addCoupon}
+          title="Coupon code"
+          icon={icon}
+          styleName="action-link-add-card"
         />
       </div>
     );
@@ -399,6 +419,57 @@ class EditBilling extends Component {
     this.props.selectCreditCard(this.state.selectedCard);
     this.props.chooseCreditCard();
     this.props.togglePaymentModal();
+  }
+
+  @autobind
+  addGC() {
+    this.setState({ addingGC: true });
+  }
+
+  @autobind
+  cancelAddingGC() {
+    this.setState({ addingGC: false });
+  }
+
+  @autobind
+  cancelAddingCoupon() {
+    this.setState({ addingCoupon: false });
+  }
+
+  @autobind
+  addCoupon() {
+    this.setState({ addingCoupon: true });
+  }
+
+
+  get renderEditPromoForm() {
+    if (!this.state.addingGC && !this.state.addingCoupon) return null;
+
+    const isGC = this.state.addingGC;
+    const { saveGiftCard, saveCouponCode, removeGiftCard, removeCouponCode} = this.props;
+
+    const title = isGC ? 'Add gift card' : 'Add coupon code';
+    const submit = isGC ? saveGiftCard : saveCouponCode;
+    const buttonLabel = isGC ? 'Redeem' : 'Apply';
+    const handler = isGC ? this.cancelAddingGC : this.cancelAddingCoupon;
+    const action = {
+      title: 'Cancel',
+      handler,
+    };
+    // const inProgress
+    // const buttonDisabled
+
+    return (
+      <CheckoutForm
+        submit={submit}
+        title={title}
+        error={null}
+        buttonLabel={buttonLabel}
+        action={action}
+      >
+        <div>Form here</div>
+      </CheckoutForm>
+    );
   }
 
   renderGuestView() {
@@ -431,9 +502,9 @@ class EditBilling extends Component {
       return this.renderGuestView();
     }
 
-    if (creditCardsLoading) {
-      return <Loader size="m" />;
-    }
+    // if (creditCardsLoading) {
+    //   return <Loader size="m" />;
+    // }
 
     // Explicitly show card form if user doesn't have any cards
     if (this.state.addingNew || _.isEmpty(creditCards)) {
@@ -458,6 +529,8 @@ class EditBilling extends Component {
           {this.renderCardEditForm()}
         </CheckoutForm>
       );
+    } else if (this.state.addingGC || this.state.addingCoupon) {
+        return this.renderEditPromoForm;
     }
 
     const action = {
