@@ -15,6 +15,9 @@ version = $(shell iojs -e "console.log(JSON.parse(require('fs').readFileSync('pa
 clean:
 	rm -rf ./node_modules
 
+clean-lib:
+	rm -rf ./lib
+
 test:
 	$(call header, Testing)
 	make setup
@@ -62,7 +65,7 @@ flow:
 build-dev: setup flow
 	test -f .env && export eval `cat .env` || true && ON_SERVER=true ./node_modules/.bin/gulp build
 
-build: rev setup flow
+build: rev clean-lib setup flow
 	$(call header, Building)
 	test -f .env && export eval `cat .env` || true && NODE_ENV=production ON_SERVER=true ./node_modules/.bin/gulp build
 
