@@ -3,9 +3,10 @@ package util
 import (
 	"encoding/json"
 	"errors"
-	"github.com/FoxComm/highlander/intelligence/suggester/src/responses"
 	"net/http"
 	"os"
+
+	"github.com/FoxComm/highlander/intelligence/suggester/src/responses"
 )
 
 var antHillSrvHost = os.Getenv("ANTHILL_HOST")
@@ -34,6 +35,7 @@ func AntHillQuery(customerId string, channel string) (responses.AntHillResponse,
 	if reqErr != nil {
 		return responses.AntHillResponse{}, reqErr
 	}
+	defer resp.Body.Close()
 
 	var antHillResponse responses.AntHillResponse
 	jsonErr := json.NewDecoder(resp.Body).Decode(&antHillResponse)

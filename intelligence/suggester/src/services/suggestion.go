@@ -10,18 +10,23 @@ import (
 	"github.com/labstack/echo"
 )
 
-func selectUpSellAndPushToSms(phoneNumber string, antHillData responses.AntHillResponse) (responses.TwilioSmsResponse, error) {
+func selectUpSellAndPushToSms(customerID string, phoneNumber string, antHillData responses.AntHillResponse) (responses.TwilioSmsResponse, error) {
 	if len(antHillData.Products) < 1 {
 		return responses.TwilioSmsResponse{}, errors.New("There are no products for potential up-sell")
 	}
 
 	// TODO: After testing create a selection algorithm based on score or previous Rejections filter out
-	productImageUrl := antHillData.Products[0].Product.Albums[0].Images[0].Src
+	productImageURL := antHillData.Products[0].Product.Albums[0].Images[0].Src
+	productID := antHillData.Products[0].Product.Id
 
-	// Store product-sku in Neo4J customer.products.suggested
+	// Create customer <- Suggest -> product in Neo4J
+	_, err := util.CreateNewSuggestProductRelation(customerID, string(productID))
+	if err != nil {
+		return responses.TwilioSmsResponse{}, err
+	}
 
 	// Send to Twilio
-	twilioSmsResponse, err := util.SuggestionToSMS(phoneNumber, productImageUrl)
+	twilioSmsResponse, err := util.SuggestionToSMS(phoneNumber, productImageURL)
 	if err != nil {
 		return responses.TwilioSmsResponse{}, err
 	}
@@ -30,16 +35,16 @@ func selectUpSellAndPushToSms(phoneNumber string, antHillData responses.AntHillR
 }
 
 func GetSuggestion(c echo.Context) error {
-	customerId := c.Param("id")
+	customerID := c.Param("id")
 	channel := c.QueryParam("channel")
 	phoneNumber := c.QueryParam("phone")
 
-	queryResponse, queryError := util.AntHillQuery(customerId, channel)
+	queryResponse, queryError := util.AntHillQuery(customerID, channel)
 	if queryError != nil {
 		return c.String(http.StatusBadRequest, queryError.Error())
 	}
 
-	upSellResponse, upSellError := selectUpSellAndPushToSms(phoneNumber, queryResponse)
+	upSellResponse, upSellError := selectUpSellAndPushToSms(customerID, phoneNumber, queryResponse)
 	if upSellError != nil {
 		return c.String(http.StatusBadRequest, upSellError.Error())
 	}
@@ -52,11 +57,14 @@ func GetSuggestion(c echo.Context) error {
 	return c.String(http.StatusOK, string(encodedResponse))
 }
 
-func TestNeo4j(c echo.Context) error {
-	result, connErr := util.ConnectToNeo4J()
-	if connErr != nil {
-		return c.String(http.StatusBadRequest, connErr.Error())
-	}
+func DeclineSuggestion(c echo.Context) error {
+	//phoneNumber := c.Param("phone")
 
-	return c.String(http.StatusOK, result)
+	return c.String(http.StatusOK, "")
+}
+
+func PurchaseSuggestion(c echo.Context) error {
+	//phoneNumber := c.Param("phone")
+
+	return c.String(http.StatusOK, "")
 }

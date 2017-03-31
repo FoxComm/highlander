@@ -2,11 +2,12 @@ package util
 
 import (
 	"encoding/json"
-	"github.com/FoxComm/highlander/intelligence/suggester/src/responses"
 	"net/http"
 	"net/url"
 	"os"
 	"strings"
+
+	"github.com/FoxComm/highlander/intelligence/suggester/src/responses"
 )
 
 var twilioAccountSid = os.Getenv("TWILIO_ACCOUNT_SID")
@@ -40,6 +41,7 @@ func SuggestionToSMS(phoneNumber string, imageUrl string) (responses.TwilioSmsRe
 	if reqErr != nil {
 		return responses.TwilioSmsResponse{}, reqErr
 	}
+	defer resp.Body.Close()
 
 	// Response
 	var twilioSmsResponse responses.TwilioSmsResponse
