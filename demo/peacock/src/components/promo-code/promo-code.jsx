@@ -23,7 +23,6 @@ type Props = {
 };
 
 type State = {
-  code: string,
   error: any,
 };
 
@@ -32,16 +31,13 @@ class PromoCode extends Component {
 
   static defaultProps = {
     allowDelete: true,
-    removeCode: _.noop,
   };
 
   state: State = {
-    code: '',
     error: false,
   };
 
   removeCode(code?: string) {
-    console.log('Removing the code -> ', code);
     this.props.removeCode(code)
       .catch((error) => {
         this.setState({ error });
@@ -63,12 +59,17 @@ class PromoCode extends Component {
   get renderGiftCards() {
     if (!this.props.giftCards) return null;
 
+    const { className } = this.props;
+    const classes = classNames(styles['gift-card'], {
+      [className]: className,
+    });
+
     return _.map(this.props.giftCards, (card) => {
       const { code } = card;
       const formattedCode = code.match(/.{1,4}/g).join(' ');
 
       return (
-        <div styleName="gift-card" key={card.code}>
+        <div className={classes} key={card.code}>
           <div styleName="gift-card-info">
             <div styleName="title">Gift Card</div>
             <div>{formattedCode}</div>
@@ -82,10 +83,14 @@ class PromoCode extends Component {
   get renderCoupon() {
     if (!this.props.coupon) return null;
 
+    const { className } = this.props;
     const promoCode = _.get(this.props, 'coupon.code');
+    const classes = classNames(styles.coupon, {
+      [className]: className,
+    });
 
     return (
-      <div styleName="coupon">
+      <div className={classes}>
         <div styleName="coupon-info">
           <div styleName="title">Coupon Code</div>
           <div styleName="coupon-code">{promoCode}</div>
@@ -106,12 +111,8 @@ class PromoCode extends Component {
   }
 
   render() {
-    const { context, className } = this.props;
-    const classes = classNames(styles['promo-code'],{
-      [className]: className,
-    });
     return (
-      <div className={classes}>
+      <div styleName="promo-code">
         {this.displayErrors}
         {this.renderGiftCards}
         {this.renderCoupon}
