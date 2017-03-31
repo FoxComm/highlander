@@ -23,7 +23,7 @@ type Album = {
   images: Array<Image>,
 };
 
-type Sku = {
+export type Sku = {
   id?: number,
   attributes: Attributes,
   albums: Array<Album>,

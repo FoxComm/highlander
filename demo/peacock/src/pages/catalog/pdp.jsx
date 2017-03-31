@@ -2,7 +2,7 @@
 
 // libs
 import _ from 'lodash';
-import { assoc, dissoc } from 'sprout-data';
+import { assoc } from 'sprout-data';
 import React, { Component, Element } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -36,13 +36,12 @@ import GiftCardForm from 'components/gift-card-form';
 import ImagePlaceholder from 'components/products-item/image-placeholder';
 import RelatedProductsList,
   { LoadingBehaviors } from 'components/related-products-list/related-products-list';
-import Facets from 'components/facets/facets';
 
 // types
-import type { ProductResponse, ProductVariant, VariantValue } from 'modules/product-details';
+import type { ProductResponse } from 'modules/product-details';
 import type { RelatedProductResponse } from 'modules/cross-sell';
 import type { RoutesParams } from 'types';
-import type { Facet as TFacet } from 'types/facets';
+import type { TProductView } from './types';
 
 type Params = {
   productSlug: string,
@@ -73,18 +72,6 @@ type State = {
   error?: any,
   currentSku?: any,
   attributes?: Object,
-  selectedVariantValues: {
-    [variantType:string]: number,
-  }
-};
-
-type TProductView = {
-  title: string,
-  description: string,
-  images: Array<string>,
-  currency: string,
-  price: number|string,
-  pathName: string,
 };
 
 const mapStateToProps = (state) => {
@@ -122,7 +109,6 @@ class Pdp extends Component {
   state: State = {
     currentSku: null,
     attributes: {},
-    selectedVariantValues: {},
   };
 
   componentWillMount() {
@@ -136,7 +122,7 @@ class Pdp extends Component {
   componentDidMount() {
     this.productPromise.then(() => {
       const { product, isRelatedProductsLoading, actions } = this.props;
-      tracking.viewDetails(this.product);
+      tracking.viewDetails(this.productView);
       if (!isRelatedProductsLoading) {
         actions.fetchRelatedProducts(product.id, 1).catch(_.noop);
       }
@@ -227,7 +213,7 @@ class Pdp extends Component {
     this.setState(assoc(this.state, namePath, stateValue));
   }
 
-  get product(): TProductView {
+  get productView(): TProductView {
     const attributes = _.get(this.props.product, 'attributes', {});
     const price = _.get(this.currentSku, 'attributes.salePrice.v', {});
     let images = _.get(this.currentSku, ['albums', 0, 'images'], []);
@@ -243,7 +229,6 @@ class Pdp extends Component {
       currency: _.get(price, 'currency', 'USD'),
       price: _.get(price, 'value', 0),
       skus: this.sortedSkus,
-      pathName: this.props.location.pathname,
     };
   }
 
@@ -256,67 +241,11 @@ class Pdp extends Component {
     return tags.indexOf('GIFT-CARD') !== -1;
   }
 
-  getSkuByCode(product, code) {
-    return _.find(product.skus, sku => sku.attributes.code.v == code);
-  }
-
-  getFacets(product: ?ProductResponse): Array<TFacet> {
-    if (!product) return [];
-
-    const { variants } = product;
-
-    return _.flatMap(variants, (variant: ProductVariant) => {
-      const variantType = variant.attributes.type.v;
-      let kind = variantType;
-      if (kind === 'color') kind = 'image';
-      else if (kind === 'size') kind = 'circle';
-      const values = _.flatMap(variant.values, (value: VariantValue) => {
-        const facetValue = {
-          valueId: value.id,
-          variantType,
-        };
-
-        const baseProps = {
-          selected: this.state.selectedVariantValues[variantType] == value.id,
-        };
-
-        if (variantType == 'color') {
-          const skuCode = value.skuCodes[0];
-
-          const sku = this.getSkuByCode(product, skuCode);
-          return {
-            ...baseProps,
-            label: value.name,
-            value: {
-              value: facetValue,
-              image: _.get(sku, 'albums.0.images.0.src', '')
-            },
-          };
-        } else if (variantType == 'size') {
-          return {
-            ...baseProps,
-            value: facetValue,
-            label: value.name,
-          };
-        }
-        return [];
-      });
-      if (!values.length) return [];
-
-      return {
-        name: _.capitalize(variantType),
-        key: variantType,
-        kind,
-        values,
-      };
-    });
-  }
-
   @autobind
   addToCart(): void {
     const { actions } = this.props;
     const skuId = _.get(this.currentSku, 'attributes.code.v', '');
-    tracking.addToCart(this.product, 1);
+    tracking.addToCart(this.productView, 1);
     actions.addLineItem(skuId, 1, this.state.attributes)
       .then(() => {
         actions.toggleCart();
@@ -333,7 +262,7 @@ class Pdp extends Component {
   }
 
   renderGallery() {
-    const { images } = this.product;
+    const { images } = this.productView;
 
     return !_.isEmpty(images)
       ? <Gallery images={images} />
@@ -357,47 +286,11 @@ class Pdp extends Component {
     );
   }
 
-
-  @autobind
-  handleSelectFacet(facet: string, value: Object, selected: boolean) {
-    let { selectedVariantValues } = this.state;
-
-    const { variants } = this.props.product;
-
-    const getSkuCodesForVariantValue = (valueId: number, variantType: string) => {
-      const variant: ProductVariant = _.find(variants, variant => variant.attributes.type.v == variantType);
-      const variantValue: VariantValue = _.find(variant.values, {id: valueId});
-
-      return variantValue.skuCodes;
-    };
-
-    if (selected) {
-      // check if we should deselect conflicted variant
-      const allowedSkuCodes = _.keyBy(getSkuCodesForVariantValue(value.valueId, value.variantType));
-      const conflictVariants = _.flatMap(selectedVariantValues, (valueId: number, variantType: string) => {
-        if (variantType == value.variantType) return [];
-        const skuCodes = getSkuCodesForVariantValue(valueId, variantType);
-
-        const someIntersection = _.some(skuCodes, skuCode => skuCode in allowedSkuCodes);
-        return someIntersection ? [] : variantType;
-      });
-      selectedVariantValues = assoc(selectedVariantValues, value.variantType, value.valueId);
-      if (conflictVariants.length) {
-        selectedVariantValues = dissoc(selectedVariantValues, ...conflictVariants);
-      }
-    } else {
-      selectedVariantValues = dissoc(selectedVariantValues, value.variantType);
-    }
-    this.setState({
-      selectedVariantValues,
-    });
-  }
-
   get productForm(): Element<any> {
     if (this.isGiftCard()) {
       return (
         <GiftCardForm
-          product={this.product}
+          productView={this.productView}
           onSkuChange={this.setCurrentSku}
           selectedSku={this.currentSku}
           attributes={this.state.attributes}
@@ -405,14 +298,11 @@ class Pdp extends Component {
         />
       );
     }
-    const facets = this.getFacets(this.props.product);
     return (
-      <div>
-        <ProductDetails
-          product={this.product}
-        />
-        <Facets facets={facets} onSelect={this.handleSelectFacet} />
-      </div>
+      <ProductDetails
+        product={this.props.product}
+        productView={this.productView}
+      />
     );
   }
 
@@ -437,7 +327,7 @@ class Pdp extends Component {
     if (fetchError) {
       return <ErrorAlerts error={fetchError} />;
     }
-    const title = this.isGiftCard() ? t('Gift Card') : this.product.title;
+    const title = this.isGiftCard() ? t('Gift Card') : this.productView.title;
 
     return (
       <div styleName="container">
