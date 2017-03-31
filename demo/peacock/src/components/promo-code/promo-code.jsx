@@ -13,7 +13,7 @@ import ActionLink from 'ui/action-link/action-link';
 import styles from './promo-code.css';
 
 type Props = {
-  removeCode?: Function,
+  removeCode?: () => Promise<*>,
   coupon?: ?Object,
   giftCards?: ?Array<Object>,
   allowDelete?: ?boolean,

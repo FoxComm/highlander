@@ -14,16 +14,16 @@ import styles from './edit-promos.css';
 
 type Props = {
   className?: string,
-  onChange: Function,
+  onChange: (code: string) => void,
   placeholder?: string,
-  saveCode: Function,
+  saveCode: () => void,
 };
 
 class EditPromos extends Component {
   props: Props;
 
   @autobind
-  changeCode({ target }: Object) {
+  changeCode({ target }: SyntheticInputEvent) {
     this.props.onChange(target.value);
   }
 
