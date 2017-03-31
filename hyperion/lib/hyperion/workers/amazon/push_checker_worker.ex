@@ -77,6 +77,7 @@ defmodule Hyperion.Amazon.Workers.PushCheckerWorker do
   end
 
   defp schedule_work do
-    Process.send_after(self(), :work, 5 * 60 * 1000) # In 5 minutes
+    mins = Application.fetch_env!(:hyperion, :push_check_interval) |> String.to_integer
+    Process.send_after(self(), :work, mins * 60 * 1000)
   end
 end
