@@ -57,7 +57,7 @@ class PromoCode extends Component {
   }
 
   get renderGiftCards() {
-    if (!this.props.giftCards) return null;
+    if (_.isEmpty(this.props.giftCards)) return null;
 
     const { className } = this.props;
     const classes = classNames(styles['gift-card'], {
@@ -81,7 +81,7 @@ class PromoCode extends Component {
   }
 
   get renderCoupon() {
-    if (!this.props.coupon) return null;
+    if (_.isEmpty(this.props.coupon)) return null;
 
     const { className } = this.props;
     const promoCode = _.get(this.props, 'coupon.code');
