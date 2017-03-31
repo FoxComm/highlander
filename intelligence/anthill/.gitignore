@@ -1,0 +1,3 @@
+__pycache__
+# Ignore ctags generated for IDE indexers
+tags

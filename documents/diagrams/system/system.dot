@@ -16,6 +16,7 @@ digraph {
         phoenix [shape=rectangle,color=gray];
         middlewarehouse [shape=rectangle,color=gray];
         eggcrate [shape=rectangle,color=gray];
+        anthill [shape=rectangle,color=gray];
         hyperion [shape=rectangle,color=gray];
         isaac [shape=rectangle,color=gray];
         bernardo [shape=rectangle,color=gray];
@@ -26,7 +27,8 @@ digraph {
         greenriver [color=gray];
         "capture consumer" [color=gray];
         "gift card consumer" [color=gray];
-        "order sphex" [color=gray];
+        "orders sphex" [color=gray];
+        "orders anthill" [color=gray];
         "digger sphex" [color=gray];
         "messaging" [color=gray];
         "shipstation consumer" [color=gray];
@@ -52,13 +54,15 @@ digraph {
 
     "capture consumer" -> phoenix;
     "digger sphex" -> henhouse;
-    "order sphex" -> henhouse;
+    "orders sphex" -> henhouse;
+    "orders anthill" -> anthill;
     "shipstation consumer" -> SHIPSTATION [dir=both];
     "shipstation consumer" -> middlewarehouse;
     "stock items consumer" -> middlewarehouse;
     "gift card consumer" -> phoenix;
     api -> eggcrate;
     api -> henhouse;
+    api -> anthill;
     api -> isaac;
     api -> middlewarehouse;
     api -> phoenix;
@@ -76,7 +80,8 @@ digraph {
     kafka -> "capture consumer";
     kafka -> "digger sphex";
     kafka -> "gift card consumer";
-    kafka -> "order sphex";
+    kafka -> "orders sphex";
+    kafka -> "orders anthill";
     kafka -> "shipstation consumer";
     kafka -> "stock items consumer";
     kafka -> greenriver;

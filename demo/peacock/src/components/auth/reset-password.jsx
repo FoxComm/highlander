@@ -1,7 +1,7 @@
 /* @flow */
 
 import _ from 'lodash';
-import React, { Component, PropTypes } from 'react';
+import React, { Component, Element } from 'react';
 import styles from './auth.css';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
@@ -16,8 +16,6 @@ import Button from 'ui/buttons';
 
 import { resetPassword } from 'modules/auth';
 
-import type { HTMLElement } from 'types';
-
 type ResetState = {
   isReseted: boolean;
   passwd1: string;
@@ -30,17 +28,6 @@ type ResetState = {
 @localized
 /* ::`*/
 export default class ResetPassword extends Component {
-
-  static propTypes = {
-    fields: PropTypes.object.isRequired,
-    handleSubmit: PropTypes.func.isRequired,
-    resetForm: PropTypes.func.isRequired,
-    submitting: PropTypes.bool.isRequired,
-    dispatch: PropTypes.func.isRequired,
-    getPath: PropTypes.func,
-    path: PropTypes.object.isRequired,
-  };
-
   state: ResetState = {
     isReseted: false,
     passwd1: '',
@@ -49,7 +36,7 @@ export default class ResetPassword extends Component {
   };
 
   @autobind
-  handleSubmit(): ?Promise {
+  handleSubmit(): ?Promise<*> {
     const { passwd1, passwd2 } = this.state;
     const code = _.get(this.props, 'path.query.code');
 
@@ -85,7 +72,7 @@ export default class ResetPassword extends Component {
     });
   }
 
-  get topMessage(): HTMLElement {
+  get topMessage(): Element<*> {
     const { isReseted, error } = this.state;
     const { t } = this.props;
 
@@ -119,7 +106,7 @@ export default class ResetPassword extends Component {
     });
   }
 
-  get passwordFields(): ?HTMLElement[] {
+  get passwordFields(): ?Element<*>[] {
     const { isReseted, passwd1, passwd2, error } = this.state;
     const { t } = this.props;
 
@@ -128,8 +115,9 @@ export default class ResetPassword extends Component {
     return [
       <FormField key="passwd1" styleName="form-field" error={!!error}>
         <ShowHidePassword
+          pos="top"
           className={styles['form-field-input']}
-          placeholder={t('NEW PASSWORD')}
+          placeholder={t('New password')}
           type="password"
           minLength={8}
           value={passwd1}
@@ -139,8 +127,9 @@ export default class ResetPassword extends Component {
       </FormField>,
       <FormField key="passwd2" styleName="form-field" error={!!error}>
         <ShowHidePassword
+          pos="bottom"
           className={styles['form-field-input']}
-          placeholder={t('CONFIRM PASSWORD')}
+          placeholder={t('Confirm password')}
           type="password"
           minLength={8}
           value={passwd2}
@@ -151,32 +140,34 @@ export default class ResetPassword extends Component {
     ];
   }
 
-  goToLogin: Object = () => {
+  goToLogin() {
     browserHistory.push(this.props.getPath(authBlockTypes.LOGIN));
-  };
+  }
 
-  get primaryButton(): HTMLElement {
+  get primaryButton(): Element<*> {
     const { isReseted } = this.state;
     const { t } = this.props;
 
     if (isReseted) {
       return (
-        <Button styleName="primary-button" type="button" onClick={this.goToLogin}>{t('BACK TO LOG IN')}</Button>
+        <Button styleName="primary-button" type="button" onClick={() => this.goToLogin()}>{t('Back to log in')}</Button>
       );
     }
 
-    return <Button styleName="primary-button" type="submit">{t('RESET PASSWORD')}</Button>;
+    return <Button styleName="primary-button" type="submit">{t('Reset password')}</Button>;
   }
 
-  render(): HTMLElement {
+  render(): Element<*> {
     const { t } = this.props;
 
     return (
       <div>
-        <div styleName="title">{t('RESET PASSWORD')}</div>
+        <div styleName="title">{t('Reset password')}</div>
         {this.topMessage}
         <Form onSubmit={this.handleSubmit}>
-          {this.passwordFields}
+          <div styleName="inputs-body">
+            {this.passwordFields}
+          </div>
           {this.primaryButton}
         </Form>
       </div>

@@ -22,7 +22,7 @@ variable "consul_leader" {}
 
 variable "dnsimple_token" {}
 
-variable "dnsimple_account" {}
+variable "dnsimple_email" {}
 
 provider "google" {
   credentials = "${file(var.account_file)}"
@@ -33,9 +33,9 @@ provider "google" {
 ##############################################
 # Setup Demo Tiny Stack
 ##############################################
-module "foxdemo" {
+module "demo1" {
   source                = "../../modules/gce/tinystack"
-  datacenter            = "foxdemo"
+  datacenter            = "demo1"
   backend_image         = "${var.tiny_backend_image}"
   frontend_image        = "${var.tiny_frontend_image}"
   ssh_user              = "${var.ssh_user}"
@@ -49,14 +49,14 @@ module "foxdemo" {
 # Setup DNS
 ##############################################
 provider "dnsimple" {
-  token   = "${var.dnsimple_token}"
-  account = "${var.dnsimple_account}"
+  token = "${var.dnsimple_token}"
+  email = "${var.dnsimple_email}"
 }
 
 resource "dnsimple_record" "frontend-dns-record" {
   domain = "foxcommerce.com"
-  name   = "foxdemo"
-  value  = "${module.foxdemo.frontend_address}"
+  name   = "demo1"
+  value  = "${module.demo1.frontend_address}"
   type   = "A"
   ttl    = 3600
 }

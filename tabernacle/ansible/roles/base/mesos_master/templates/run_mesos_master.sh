@@ -18,4 +18,3 @@ mesos-master --hostname=$IP \
     --authenticate_frameworks=true \
     --acls=file:///var/lib/mesos/acls.json \
     --credentials=file:///var/lib/mesos/credentials.json
-

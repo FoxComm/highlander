@@ -1,0 +1,15 @@
+
+@import "colors.css";
+
+.block {
+  & :global(.fc-alert._type_error) {
+    background: transparent;
+    padding: 0;
+    font-size: 14px;
+    color: var(--color-error);
+
+    & :global(.icon-error) {
+      display: none;
+    }
+  }
+}

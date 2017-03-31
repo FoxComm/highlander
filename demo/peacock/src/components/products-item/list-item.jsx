@@ -1,8 +1,7 @@
 /* @flow */
 
-import React from 'react';
+import React, { Element } from 'react';
 import { findDOMNode } from 'react-dom';
-import type { HTMLElement } from 'types';
 import styles from './list-item.css';
 import { Link } from 'react-router';
 import _ from 'lodash';
@@ -11,7 +10,6 @@ import { addLineItem, toggleCart } from 'modules/cart';
 import { connect } from 'react-redux';
 import * as tracking from 'lib/analytics';
 
-import AddToCartBtn from 'ui/add-to-cart-btn';
 import Currency from 'ui/currency';
 import ImagePlaceholder from './image-placeholder';
 
@@ -67,7 +65,7 @@ class ListItem extends React.Component {
       .then(() => {
         this.props.toggleCart();
       })
-      .catch(ex => {
+      .catch((ex) => {
         this.setState({
           error: ex,
         });
@@ -93,7 +91,7 @@ class ListItem extends React.Component {
     tracking.clickPdp(props, props.index);
   }
 
-  isOnSale(): HTMLElement {
+  isOnSale(): Element<*> {
     const { currency } = this.props;
 
     let {
@@ -106,17 +104,17 @@ class ListItem extends React.Component {
 
     return (retailPrice > salePrice) ? (
       <div styleName="price">
-          <Currency
-            styleName="retail-price"
-            value={retailPrice}
-            currency={currency}
-          />
-          <Currency
-            styleName="on-sale-price"
-            value={salePrice}
-            currency={currency}
-          />
-        </div>
+        <Currency
+          styleName="retail-price"
+          value={retailPrice}
+          currency={currency}
+        />
+        <Currency
+          styleName="on-sale-price"
+          value={salePrice}
+          currency={currency}
+        />
+      </div>
       ) : (
         <div styleName="price">
           <Currency value={salePrice} currency={currency} />
@@ -124,12 +122,11 @@ class ListItem extends React.Component {
       );
   }
 
-  render(): HTMLElement {
+  render(): Element<*> {
     const {
       productId,
       slug,
       title,
-      description,
     } = this.props;
 
     const productSlug = slug != null && !_.isEmpty(slug) ? slug : productId;
@@ -139,25 +136,17 @@ class ListItem extends React.Component {
         <Link onClick={this.handleClick} to={`/products/${productSlug}`}>
           <div styleName="preview">
             {this.image}
-            <div styleName="hover-info">
-              <h2
-                styleName="additional-description"
-                dangerouslySetInnerHTML={{__html: description}}
-              />
-            </div>
           </div>
         </Link>
 
         <div styleName="text-block">
-          <h1 styleName="title" alt={title}>
-            <Link to={`/products/${productSlug}`}>{title}</Link>
-          </h1>
-          <h2 styleName="description">{/* serving size */}</h2>
+          <div styleName="title-line">
+            <h1 styleName="title" alt={title}>
+              <Link to={`/products/${productSlug}`}>{title}</Link>
+            </h1>
+          </div>
           <div styleName="price-line">
             {this.isOnSale()}
-            <div styleName="add-to-cart-btn">
-              <AddToCartBtn onClick={this.addToCart} expanded />
-            </div>
           </div>
         </div>
       </div>

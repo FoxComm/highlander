@@ -1,11 +1,9 @@
-
 @import "variables.css";
 
 .title {
-  font-family: var(--font-playfair);
   font-weight: 400;
   font-size: 41px;
-  color: #212121;
+  color: var(--text-color);
   letter-spacing: 2.7px;
   text-align: center;
   margin: 0 auto;
@@ -16,7 +14,6 @@
     display: block;
     width: 66px;
     height: 2px;
-    background-color: #3E3436;
     margin: 20px auto 0 auto;
   }
 }
@@ -26,5 +23,5 @@
 }
 
 .profile {
-  background: #fff;
+  background: var(--body-background);
 }

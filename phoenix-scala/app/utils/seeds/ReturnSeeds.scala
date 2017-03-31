@@ -1,25 +1,24 @@
 package utils.seeds
 
 import scala.concurrent.ExecutionContext.Implicits.global
-
 import models.account.Scope
 import models.cord.Orders
 import models.returns._
 import models.{Note, Notes}
-import utils.aliases.AU
+import utils.aliases.{AU, EC}
 import utils.db._
 
 trait ReturnSeeds {
 
   def createReturns(implicit au:AU): DbResultT[Unit] =
     for {
-      order ← * <~ Orders.findOneById(1).safeGet
-      _     ← * <~ ReturnReasons.createAll(returnReasons)
-      _     ← * <~ Returns.create(rma.copy(orderRef = order.referenceNumber))
       _     ← * <~ ReturnLineItemSkus.createAll(returnLineItemSkus)
       _     ← * <~ ReturnLineItems.createAll(returnLineItems)
       _     ← * <~ Notes.createAll(returnNotes)
     } yield {}
+
+  def createReturnReasons(implicit ec: EC): DbResultT[Option[Int]] =
+    ReturnReasons.createAll(returnReasons)
 
   def rma =
     Return(orderId = 1,
@@ -29,20 +28,20 @@ trait ReturnSeeds {
            accountId = 1)
 
   def returnLineItemSkus = Seq(
-      ReturnLineItemSku(id = 0, returnId = 1, skuId = 1, skuShadowId = 1),
-      ReturnLineItemSku(id = 0, returnId = 1, skuId = 2, skuShadowId = 2)
+      ReturnLineItemSku(returnId = 1, skuId = 1, skuShadowId = 1),
+      ReturnLineItemSku(returnId = 1, skuId = 2, skuShadowId = 2)
   )
 
   def returnLineItems =
     Seq(
-        ReturnLineItem(id = 0,
-                       returnId = 1,
+        ReturnLineItem(
+          returnId = 1,
                        reasonId = 12,
                        originId = 1,
                        originType = ReturnLineItem.SkuItem,
                        inventoryDisposition = ReturnLineItem.Putaway),
-        ReturnLineItem(id = 0,
-                       returnId = 1,
+        ReturnLineItem(
+          returnId = 1,
                        reasonId = 12,
                        originId = 2,
                        originType = ReturnLineItem.SkuItem,
