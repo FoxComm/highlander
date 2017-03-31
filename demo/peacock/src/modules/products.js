@@ -28,6 +28,7 @@ export type Product = {
 };
 
 export const MAX_RESULTS = 1000;
+export const PAGE_SIZE = 20;
 const context = process.env.FIREBIRD_CONTEXT || 'default';
 export const GIFT_CARD_TAG = 'GIFT-CARD';
 
@@ -35,6 +36,7 @@ function apiCall(
   categoryNames: ?Array<string>,
   sorting: ?{ direction: number, field: string },
   selectedFacets: Object,
+  loaded: number,
   { ignoreGiftCards = true } = {}): Promise<*> {
   let payload = defaultSearch(context);
 
@@ -65,7 +67,7 @@ function apiCall(
     }
   });
 
-  const promise = this.api.post(`/search/public/products_catalog_view/_search?size=${MAX_RESULTS}`, payload);
+  const promise = this.api.post(`/search/public/products_catalog_view/_search?size=${loaded}`, payload);
 
   const chained = promise.then((response) => {
     return {
@@ -78,7 +80,7 @@ function apiCall(
 }
 
 export function searchGiftCards() {
-  return apiCall.call({ api }, [GIFT_CARD_TAG], null, { ignoreGiftCards: false });
+  return apiCall.call({ api }, [GIFT_CARD_TAG], null, {}, MAX_RESULTS, { ignoreGiftCards: false });
 }
 
 const _fetchProducts = createAsyncActions('products', apiCall);
@@ -87,6 +89,7 @@ export const fetch = _fetchProducts.perform;
 const initialState = {
   list: [],
   facets: [],
+  total: 0,
 };
 
 function determineFacetKind(f: string): string {
@@ -443,6 +446,7 @@ const reducer = createReducer({
     const payloadResult = payload.result;
     const aggregations = _.isNil(payload.aggregations) ? [] : payload.aggregations.taxonomies.taxonomy.buckets;
     const list = _.isEmpty(payloadResult) ? [] : payloadResult;
+    const total = _.get(payload, 'pagination.total', 0);
 
     const queryFacets = mapAggregationsToFacets(aggregations);
 
@@ -467,6 +471,7 @@ const reducer = createReducer({
       ...state,
       list,
       facets,
+      total,
     };
   },
 }, initialState);

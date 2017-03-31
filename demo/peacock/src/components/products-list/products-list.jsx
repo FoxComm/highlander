@@ -14,6 +14,7 @@ import styles from './products-list.css';
 import ListItem from '../products-item/list-item';
 import Loader from 'ui/loader';
 import SortPill from 'components/sort-pill/sort-pill';
+import ActionLink from 'ui/action-link/action-link';
 
 export const LoadingBehaviors = {
   ShowLoader: 0,
@@ -29,6 +30,8 @@ type Props = {
     field: string,
   },
   changeSorting: Function,
+  fetchMoreProducts: Function,
+  moreAvailable: boolean,
 };
 
 type State = {
@@ -58,6 +61,18 @@ class ProductsList extends Component {
     this.trackProductView();
   }
 
+  get loadMoreButton() {
+    if (!this.props.moreAvailable) return null;
+
+    return (
+      <ActionLink
+        action={this.loadMoreProducts}
+        title="Load more"
+        styleName="load-more"
+      />
+    );
+  }
+
   renderProducts() {
     const products = _.map(this.props.list, (item, index) => {
       return (
@@ -76,8 +91,14 @@ class ProductsList extends Component {
         <div styleName="list" ref={this.handleListRendered}>
           {products}
         </div>
+        {this.loadMoreButton}
       </div>
     );
+  }
+
+  @autobind
+  loadMoreProducts() {
+    this.props.fetchMoreProducts();
   }
 
   trackProductView() {

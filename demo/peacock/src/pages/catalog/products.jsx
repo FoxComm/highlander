@@ -7,6 +7,7 @@ import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import * as actions from 'modules/products';
 import { categoryNameFromUrl } from 'paragons/categories';
+import { PAGE_SIZE } from 'modules/products';
 
 // components
 import ProductsList, { LoadingBehaviors } from 'components/products-list/products-list';
@@ -44,6 +45,7 @@ type Props = {
   routes: Array<Route>,
   routerParams: Object,
   facets: Array<Facet>,
+  total: number,
 };
 
 type State = {
@@ -51,6 +53,7 @@ type State = {
     direction: number,
     field: string,
   },
+  toLoad: number,
   selectedFacets: {},
 };
 
@@ -74,6 +77,7 @@ class Products extends Component {
       direction: 1,
       field: 'salePrice',
     },
+    toLoad: PAGE_SIZE,
     selectedFacets: {},
   };
   lastFetch: ?AbortablePromise<*>;
@@ -89,8 +93,8 @@ class Products extends Component {
 
   componentWillMount() {
     const { categoryName, subCategory, leafCategory } = this.props.params;
-    const { sorting, selectedFacets } = this.state;
-    this.fetch([categoryName, subCategory, leafCategory], sorting, selectedFacets);
+    const { sorting, selectedFacets, toLoad } = this.state;
+    this.fetch([categoryName, subCategory, leafCategory], sorting, selectedFacets, toLoad);
   }
 
   componentWillReceiveProps(nextProps: Props) {
@@ -109,7 +113,8 @@ class Products extends Component {
       this.fetch(
         [nextCategoryName, nextSubCategory, nextLeafCategory],
         this.state.sorting,
-        this.state.selectedFacets
+        this.state.selectedFacets,
+        this.state.toLoad
       );
     }
   }
@@ -127,9 +132,20 @@ class Products extends Component {
       direction,
     };
 
-    this.setState({selectedFacets, sorting: newState}, () => {
+    this.setState({selectedFacets, sorting: newState, toLoad: PAGE_SIZE}, () => {
       const { categoryName, subCategory, leafCategory } = this.props.params;
-      this.props.fetch([categoryName, subCategory, leafCategory], newState, selectedFacets);
+      this.props.fetch([categoryName, subCategory, leafCategory], newState, selectedFacets, PAGE_SIZE);
+    });
+  }
+
+  @autobind
+  fetchMoreProducts() {
+    const { categoryName, subCategory, leafCategory } = this.props.params;
+    const { sorting, selectedFacets, toLoad } = this.state;
+
+    const nextToLoad = toLoad + PAGE_SIZE;
+    this.setState({ toLoad: nextToLoad }, () => {
+      this.props.fetch([categoryName, subCategory, leafCategory], sorting, selectedFacets, nextToLoad);
     });
   }
 
@@ -154,9 +170,9 @@ class Products extends Component {
       });
     }
 
-    this.setState({selectedFacets: newSelection, sorting: this.state.sorting}, () => {
+    this.setState({selectedFacets: newSelection, sorting: this.state.sorting, toLoad: PAGE_SIZE}, () => {
       const { categoryName, subCategory, leafCategory } = this.props.params;
-      this.fetch([categoryName, subCategory, leafCategory], this.state.sorting, newSelection);
+      this.fetch([categoryName, subCategory, leafCategory], this.state.sorting, newSelection, PAGE_SIZE);
     });
   }
 
@@ -226,6 +242,8 @@ class Products extends Component {
     if (err) {
       return <ErrorAlerts styleName="products-error" error={err} />;
     }
+
+    const moreAvailable = this.props.list.length !== this.props.total;
     return (
       <div>
         <div styleName="dropDown">
@@ -240,6 +258,8 @@ class Products extends Component {
               list={this.props.list}
               isLoading={!finished}
               loadingBehavior={LoadingBehaviors.ShowWrapper}
+              fetchMoreProducts={this.fetchMoreProducts}
+              moreAvailable={moreAvailable}
             />
           </div>
         </div>
