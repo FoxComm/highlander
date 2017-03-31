@@ -70,6 +70,7 @@ export default class FlatTaxonsDropdown extends Component {
 
   }
 
+  // TODO replace any
   @autobind
   renderInput(value: string): Element<*> {
     return (
