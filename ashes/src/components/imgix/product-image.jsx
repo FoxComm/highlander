@@ -26,7 +26,6 @@ class ProductImage extends Component {
   }
 
   render() {
-    console.log(this.props.settings);
     return (<ProductImageInner
       imgixProductsSource={this.props.settings.cdn_prefix}
       s3BucketName={this.props.settings.s3_bucket}
