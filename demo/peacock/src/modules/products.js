@@ -38,19 +38,14 @@ function apiCall(
   { ignoreGiftCards = true } = {}): Promise<*> {
   let payload = defaultSearch(context);
 
-  const categoryFilters = [];
   _.forEach(_.compact(categoryNames), (cat) => {
     if (cat !== 'ALL' && cat !== GIFT_CARD_TAG) {
-      categoryFilters.push(cat.toUpperCase());
+      payload = addCategoryFilter(payload, cat.toUpperCase());
     } else if (cat === GIFT_CARD_TAG) {
       const tagTerm = termFilter('tags', cat.toUpperCase());
       payload = addTermFilter(payload, tagTerm);
     }
   });
-
-  if (!_.isEmpty(categoryFilters)) {
-    payload = addCategoryFilter(payload, categoryFilters);
-  }
 
   if (ignoreGiftCards) {
     const giftCardTerm = termFilter('tags', GIFT_CARD_TAG);
@@ -424,7 +419,8 @@ function mapFacetValue(v, kind) {
 function mapAggregationsToFacets(aggregations): Array<Facet> {
   return _.map(aggregations, (a) => {
     const kind = determineFacetKind(a.key);
-    const values = _.uniqBy(_.map(a.taxon.buckets, (t) => {
+    const buckets = _.get(a, 'taxon.buckets', []);
+    const values = _.uniqBy(_.map(buckets, (t) => {
       return {
         label: titleCase(t.key),
         value: mapFacetValue(t.key, kind),

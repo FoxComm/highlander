@@ -75,7 +75,7 @@ object Seeds {
               .text("Skip seed base seeds."),
             opt[Unit]("seedShippingRules")
               .action((_, c) ⇒ c.copy(seedShippingRules = true))
-              .text("Create predefined admins"),
+              .text("Create predefined shipping rules"),
             opt[Unit]("seedAdmins")
               .action((_, c) ⇒ c.copy(seedAdmins = true))
               .text("Create predefined admins"),

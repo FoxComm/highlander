@@ -22,6 +22,7 @@ type Props = {
   buttonLabel?: ?string,
   inProgress?: ?boolean,
   sanitizeError?: (error: string) => string,
+  buttonDisabled?: boolean,
 };
 
 class CheckoutForm extends Component {
@@ -71,7 +72,14 @@ class CheckoutForm extends Component {
           {props.children}
         </div>
         <div styleName="button-wrap">
-          <Button styleName="checkout-submit" type="submit" isLoading={props.inProgress}>{this.buttonLabel}</Button>
+          <Button
+            styleName="checkout-submit"
+            type="submit"
+            isLoading={props.inProgress}
+            disabled={props.buttonDisabled}
+          >
+            {this.buttonLabel}
+          </Button>
         </div>
       </Form>
     );

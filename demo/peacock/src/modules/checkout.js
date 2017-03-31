@@ -41,6 +41,7 @@ export const loadBillingData = createAction('CHECKOUT_LOAD_BILLING_DATA');
 export const setBillingAddress = createAction('CHECKOUT_SET_BILLING_ADDRESS');
 export const toggleShippingModal = createAction('TOGGLE_SHIPPING_MODAL');
 export const toggleDeliveryModal = createAction('TOGGLE_DELIVERY_MODAL');
+export const togglePaymentModal = createAction('TOGGLE_PAYMENT_MODAL');
 const markAddressAsDeleted = createAction('CHECKOUT_MARK_ADDRESS_AS_DELETED');
 const markAddressAsRestored = createAction(
   'CHECKOUT_MARK_ADDRESS_AS_RESTORED',
@@ -427,6 +428,7 @@ const initialState: CheckoutState = {
   creditCard: null,
   shippingModalVisible: false,
   deliveryModalVisible: false,
+  paymentModalVisible: false,
 };
 
 function sortAddresses(addresses: Array<Address>): Array<Address> {
@@ -544,6 +546,13 @@ const reducer = createReducer({
     return {
       ...state,
       deliveryModalVisible: !visibleCurrent,
+    };
+  },
+  [togglePaymentModal]: (state) => {
+    const visibleCurrent = _.get(state, 'paymentModalVisible', false);
+    return {
+      ...state,
+      paymentModalVisible: !visibleCurrent,
     };
   },
   [resetCheckout]: () => {
