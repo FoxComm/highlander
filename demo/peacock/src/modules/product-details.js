@@ -34,6 +34,24 @@ type Context = {
   attributes: { [key:string]: string },
 };
 
+export type VariantValue = {
+  id: number,
+  name: string,
+  image: string,
+  swatch: string,
+  skuCodes: Array<string>,
+}
+
+export type ProductVariant = {
+  attributes: {
+    name: { t: string, v: string},
+    type: { t: string, v: string},
+  },
+  values: Array<VariantValue>,
+  id: number,
+}
+
+
 export type ProductResponse = {
   id: number,
   slug?: string,
@@ -41,6 +59,7 @@ export type ProductResponse = {
   attributes: Attributes,
   skus: Array<Sku>,
   albums: Array<Album>,
+  variants: Array<ProductVariant>
 };
 
 export type ProductSlug = string|number;

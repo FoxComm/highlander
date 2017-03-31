@@ -6,7 +6,7 @@ export type FacetElementProps = {
   value: string,
   label: string,
   checked?: boolean,
-  click: (facet: string, value: string, checked: boolean) => void,
+  click: (facet: string, value: string|Object, checked: boolean) => void,
 };
 
 export type FacetValue = {

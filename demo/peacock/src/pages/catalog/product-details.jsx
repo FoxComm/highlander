@@ -12,8 +12,6 @@ import styles from './pdp.css';
 
 type Props = {
   product: any,
-  quantity: number,
-  onQuantityChange: Function,
 };
 
 const ProductDetails = (props: Props) => {

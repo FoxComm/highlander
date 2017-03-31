@@ -21,6 +21,10 @@
   width: 59px;
   height: 63px;
   opacity: 0.7;
+
+  &:hover {
+    opacity: 1;
+  }
 }
 
 .sign-holder {

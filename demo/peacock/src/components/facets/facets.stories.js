@@ -28,7 +28,7 @@ const facets = [
     key: 'size',
     name: 'Shoes',
     kind: 'circle',
-    values: [4, 4.5, 5, 5.5, 9, 9.5, 10, 10.5, 14, 14.5].map(v => ({
+    values: [4, 4.5, 5, 5.5, 9, '9.5v - 10.5v', '10.7v - 18.4h', 10.5, 14, 14.5].map(v => ({
       value: String(v),
       label: String(v),
       count: 1,
