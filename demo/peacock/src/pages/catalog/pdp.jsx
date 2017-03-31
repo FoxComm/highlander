@@ -69,14 +69,12 @@ type Props = Localized & RoutesParams & {
   relatedProducts: ?RelatedProductResponse,
 };
 
-type VariantTypeName = string; // alias
-
 type State = {
   error?: any,
   currentSku?: any,
   attributes?: Object,
   selectedVariantValues: {
-    [variantId:string]: VariantTypeName,
+    [variantType:string]: number,
   }
 };
 
@@ -267,37 +265,23 @@ class Pdp extends Component {
 
     const { variants } = product;
 
-    let allowedSkuCodes = _.reduce(this.state.selectedVariantValues, (acc, variantType: string, valueId: string) => {
-      const variant: ProductVariant = _.find(variants, variant => variant.attributes.type.v == variantType);
-      const variantValue: VariantValue = _.find(variant.values, {id: Number(valueId)});
-
-      return acc === null ? variantValue.skuCodes : _.intersection(acc, variantValue.skuCodes);
-    }, null);
-
-    if (allowedSkuCodes) {
-      allowedSkuCodes = _.keyBy(allowedSkuCodes);
-    }
-
     return _.flatMap(variants, (variant: ProductVariant) => {
       const variantType = variant.attributes.type.v;
       let kind = variantType;
       if (kind === 'color') kind = 'image';
       else if (kind === 'size') kind = 'circle';
       const values = _.flatMap(variant.values, (value: VariantValue) => {
-        if (allowedSkuCodes && !_.some(value.skuCodes, skuCode => skuCode in allowedSkuCodes)) return [];
-
         const facetValue = {
           valueId: value.id,
           variantType,
         };
 
         const baseProps = {
-          selected: value.id in this.state.selectedVariantValues,
+          selected: this.state.selectedVariantValues[variantType] == value.id,
         };
 
         if (variantType == 'color') {
-          const skuCode = allowedSkuCodes ?
-            _.find(value.skuCodes, skuCode => skuCode in allowedSkuCodes) : value.skuCodes[0];
+          const skuCode = value.skuCodes[0];
 
           const sku = this.getSkuByCode(product, skuCode);
           return {
@@ -373,14 +357,36 @@ class Pdp extends Component {
     );
   }
 
+
   @autobind
   handleSelectFacet(facet: string, value: Object, selected: boolean) {
     let { selectedVariantValues } = this.state;
 
+    const { variants } = this.props.product;
+
+    const getSkuCodesForVariantValue = (valueId: number, variantType: string) => {
+      const variant: ProductVariant = _.find(variants, variant => variant.attributes.type.v == variantType);
+      const variantValue: VariantValue = _.find(variant.values, {id: valueId});
+
+      return variantValue.skuCodes;
+    };
+
     if (selected) {
-      selectedVariantValues = assoc(selectedVariantValues, value.valueId, value.variantType);
+      // check if we should deselect conflicted variant
+      const allowedSkuCodes = _.keyBy(getSkuCodesForVariantValue(value.valueId, value.variantType));
+      const conflictVariants = _.flatMap(selectedVariantValues, (valueId: number, variantType: string) => {
+        if (variantType == value.variantType) return [];
+        const skuCodes = getSkuCodesForVariantValue(valueId, variantType);
+
+        const someIntersection = _.some(skuCodes, skuCode => skuCode in allowedSkuCodes);
+        return someIntersection ? [] : variantType;
+      });
+      selectedVariantValues = assoc(selectedVariantValues, value.variantType, value.valueId);
+      if (conflictVariants.length) {
+        selectedVariantValues = dissoc(selectedVariantValues, ...conflictVariants);
+      }
     } else {
-      selectedVariantValues = dissoc(selectedVariantValues, value.valueId);
+      selectedVariantValues = dissoc(selectedVariantValues, value.variantType);
     }
     this.setState({
       selectedVariantValues,

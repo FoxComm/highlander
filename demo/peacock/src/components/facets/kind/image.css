@@ -33,6 +33,7 @@
   position: absolute;
   top: 0;
   left: 0;
+  pointer-events: none;
 }
 
 .image-checkbox input[type=checkbox]:checked + div .sign-holder {
