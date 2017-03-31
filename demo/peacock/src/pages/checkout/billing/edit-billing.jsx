@@ -373,22 +373,15 @@ class EditBilling extends Component {
     return (
       <div key="payment-features" styleName="gc-coupon">
         <PromoCode
-          placeholder="Gift Card Number"
-          buttonLabel="Redeem"
           giftCards={this.props.giftCards}
-          saveCode={this.props.saveGiftCard}
           removeCode={this.props.removeGiftCard}
-          context="billingEdit"
+          styleName="gift-card-billing"
         />
 
         <PromoCode
-          placeholder="Coupon Code"
           coupon={this.props.coupon}
-          promotion={this.props.promotion}
-          discountValue={this.props.totals.adjustments}
-          saveCode={this.props.saveCouponCode}
           removeCode={this.props.removeCouponCode}
-          context="billingEdit"
+          styleName="coupon-billing"
         />
       </div>
     );

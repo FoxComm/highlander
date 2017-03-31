@@ -66,6 +66,10 @@
   justify-content: space-between;
 }
 
+.title {
+  font-weight: 900;
+}
+
 .action-link-remove {
   composes: action-link from "ui/action-link/action-link.css";
   font-size: 16px;
@@ -111,5 +115,4 @@
 }
 
 .error {
-  margin: 8px 0;
 }

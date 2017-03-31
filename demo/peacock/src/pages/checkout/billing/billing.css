@@ -42,6 +42,13 @@
   padding: 15px 10px 15px 15px;
 }
 
+.gift-card-billing, .coupon-billing {
+  padding: 10px 10px 0 38px;
+  background: var(--select-active-background);
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
 .text-field {
   composes: text-field from "../checkout.css";
   margin: 0;

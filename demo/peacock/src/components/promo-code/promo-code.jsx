@@ -1,36 +1,25 @@
 /* @flow */
 
 // libs
-import classnames from 'classnames';
 import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
+import classNames from 'classnames';
 
 // components
 import { TextInput } from 'ui/text-input';
-import Button from 'ui/buttons';
-import { FormField } from 'ui/forms';
 import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
-import Currency from 'ui/currency';
-import Icon from 'ui/icon';
 import ActionLink from 'ui/action-link/action-link';
 
 // styles
 import styles from './promo-code.css';
 
 type Props = {
-  saveCode: Function,
   removeCode: Function,
-  buttonLabel?: ?string,
   coupon?: ?Object,
   giftCards?: ?Array<Object>,
-  promotion?: ?Object,
-  discountValue?: ?number,
   allowDelete?: ?boolean,
-  disabled?: boolean,
-  placeholder?: string,
-  context: string,
-  editable: boolean,
+  className?: string,
 };
 
 type State = {
@@ -43,49 +32,13 @@ class PromoCode extends Component {
 
   static defaultProps = {
     allowDelete: true,
-    saveCode: _.noop,
     removeCode: _.noop,
-    disabled: false,
-    context: 'light',
-    editable: true,
   };
 
   state: State = {
-    code: '', // input value
+    code: '',
     error: false,
   };
-
-  get buttonLabel(): string {
-    return this.props.buttonLabel || 'Apply';
-  }
-
-  @autobind
-  changeCode({ target }: Object) {
-    this.setState({
-      code: target.value,
-      error: false,
-    });
-  }
-
-  @autobind
-  onKeyPress(e: Object) {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-
-      this.saveCode();
-    }
-  }
-
-  @autobind
-  saveCode() {
-    const code = this.state.code.replace(/\s+/g, '');
-
-    this.props.saveCode(code)
-      .then(() => this.setState({ code: '', error: false }))
-      .catch((error) => {
-        this.setState({ error });
-      });
-  }
 
   removeCode(code?: string) {
     console.log('Removing the code -> ', code);
@@ -117,7 +70,7 @@ class PromoCode extends Component {
       return (
         <div styleName="gift-card" key={card.code}>
           <div styleName="gift-card-info">
-            <div>Gift Card</div>
+            <div styleName="title">Gift Card</div>
             <div>{formattedCode}</div>
           </div>
           {this.getRemoveLink(code)}
@@ -134,36 +87,10 @@ class PromoCode extends Component {
     return (
       <div styleName="coupon">
         <div styleName="coupon-info">
-          <div>Promo Code</div>
+          <div styleName="title">Promo Code</div>
           <div styleName="coupon-code">{promoCode}</div>
         </div>
         {this.getRemoveLink()}
-      </div>
-    );
-  }
-
-  get editCode() {
-    if (!this.props.editable) return null;
-
-    return (
-      <div styleName="fieldset">
-        <FormField styleName="code-field">
-          <TextInput
-            styleName="code"
-            placeholder={this.props.placeholder}
-            value={this.state.code}
-            onChange={this.changeCode}
-            onKeyPress={this.onKeyPress}
-          />
-        </FormField>
-        <Button
-          type="button"
-          styleName="submit"
-          onClick={this.saveCode}
-          disabled={this.props.disabled || !this.state.code}
-        >
-          {this.buttonLabel}
-        </Button>
       </div>
     );
   }
@@ -179,14 +106,15 @@ class PromoCode extends Component {
   }
 
   render() {
-    const { context } = this.props;
-
+    const { context, className } = this.props;
+    const classes = classNames(styles['promo-code'],{
+      [className]: className,
+    });
     return (
-      <div styleName="root" className={styles[context]}>
+      <div className={classes}>
         {this.displayErrors}
         {this.renderGiftCards}
         {this.renderCoupon}
-        {this.editCode}
       </div>
     );
   }
