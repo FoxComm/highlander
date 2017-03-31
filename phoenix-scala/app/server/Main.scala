@@ -1,8 +1,5 @@
 package server
 
-import scala.collection.immutable
-import scala.concurrent.duration._
-import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutor, Future}
 import akka.actor.{ActorSystem, Props}
 import akka.agent.Agent
 import akka.event.{Logging, LoggingAdapter}
@@ -17,17 +14,20 @@ import com.typesafe.scalalogging.LazyLogging
 import models.account.{AccountAccessMethod, Scope, Scopes}
 import org.json4s._
 import org.json4s.jackson._
-import services.account.AccountCreateContext
 import services.Authenticator
-import services.Authenticator.UserAuthenticator
-import services.Authenticator.requireAdminAuth
+import services.Authenticator.{UserAuthenticator, requireAdminAuth}
+import services.account.AccountCreateContext
 import services.actors._
 import slick.driver.PostgresDriver.api._
 import utils.apis._
+import utils.db._
 import utils.http.CustomHandlers
 import utils.http.HttpLogger.logFailedRequests
 import utils.{ElasticsearchApi, Environment, FoxConfig}
-import utils.db._
+
+import scala.collection.immutable
+import scala.concurrent.duration._
+import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutor, Future}
 
 object Main extends App with LazyLogging {
   logger.info("Starting phoenix server")
@@ -75,11 +75,12 @@ class Service(
 
   val logger: LoggingAdapter = Logging(system, getClass)
 
-  implicit val db: Database  = dbOverride.getOrElse(Database.forConfig("db", FoxConfig.unsafe))
-  lazy val defaultApis: Apis = Apis(setupStripe(), new AmazonS3, setupMiddlewarehouse())
-  implicit val apis: Apis    = apisOverride.getOrElse(defaultApis: Apis)
-  implicit val es: ElasticsearchApi =
-    esOverride.getOrElse(ElasticsearchApi.fromConfig(FoxConfig.config))
+  implicit val db: Database = dbOverride.getOrElse(Database.forConfig("db", FoxConfig.unsafe))
+  lazy val defaultApis: Apis = Apis(setupStripe(),
+                                    new AmazonS3,
+                                    setupMiddlewarehouse(),
+                                    ElasticsearchApi.fromConfig(FoxConfig.config))
+  implicit val apis: Apis = apisOverride.getOrElse(defaultApis: Apis)
 
   private val roleName: String = config.users.customer.role
   private val orgName: String  = config.users.customer.org

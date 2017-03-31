@@ -1,8 +1,5 @@
 package models.discount.offers
 
-import scala.concurrent.Future
-
-import cats._
 import cats.data._
 import cats.implicits._
 import failures.DiscountFailures.SearchFailure
@@ -13,6 +10,7 @@ import models.discount._
 import models.discount.offers.Offer.OfferResult
 import utils.ElasticsearchApi.Buckets
 import utils.aliases._
+import utils.apis.Apis
 import utils.db._
 
 trait Offer extends DiscountBase {
@@ -21,7 +19,7 @@ trait Offer extends DiscountBase {
 
   val adjustmentType: AdjustmentType
 
-  def adjust(input: DiscountInput)(implicit db: DB, ec: EC, es: ES, au: AU): OfferResult
+  def adjust(input: DiscountInput)(implicit db: DB, ec: EC, apis: Apis, au: AU): OfferResult
 
   // Returns single line item adjustment for now
   def build(input: DiscountInput,
@@ -89,7 +87,7 @@ trait ItemsOffer {
   def matchXor(input: DiscountInput)(xor: Failures Xor Buckets): Failures Xor Seq[Adjustment] // FIXME: why use matchXor instead of .map, if *never* do anything with Left? @michalrus
 
   def adjustInner(input: DiscountInput)(
-      search: Seq[ProductSearch])(implicit db: DB, ec: EC, es: ES, au: AU): OfferResult = {
+      search: Seq[ProductSearch])(implicit db: DB, ec: EC, apis: Apis, au: AU): OfferResult = {
     val inAnyOf = search.map(_.query(input).mapXor(matchXor(input)))
     Result.onlySuccessful(inAnyOf.toList).map(_.headOption.getOrElse(Seq.empty))
   }

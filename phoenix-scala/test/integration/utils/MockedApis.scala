@@ -1,8 +1,8 @@
 package utils
 
-import cats.implicits._
 import java.io.File
-import scala.concurrent.ExecutionContext.Implicits.global
+
+import cats.implicits._
 import com.stripe.model.DeletedCard
 import org.mockito.ArgumentMatcher
 import org.mockito.ArgumentMatchers._
@@ -10,13 +10,15 @@ import org.mockito.Mockito._
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 import org.scalatest.mockito.MockitoSugar
-import scala.util.{Random, Try}
 import testutils.TestBase
 import utils.TestStripeSupport.randomStripeishId
 import utils.aliases._
 import utils.aliases.stripe._
 import utils.apis._
 import utils.db._
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.util.{Random, Try}
 
 trait MockedApis extends MockitoSugar {
 
@@ -107,7 +109,8 @@ trait MockedApis extends MockitoSugar {
     mocked
   }
 
-  implicit lazy val apisOverride: Apis = Apis(stripeApiMock, amazonApiMock, middlewarehouseApiMock)
+  lazy val elasticSearchMock: ElasticsearchApi = utils.ElasticsearchApi.fromConfig(TestBase.config)
 
-  implicit lazy val es: ElasticsearchApi = utils.ElasticsearchApi.fromConfig(TestBase.config)
+  implicit lazy val apisOverride: Apis =
+    Apis(stripeApiMock, amazonApiMock, middlewarehouseApiMock, elasticSearchMock)
 }

@@ -5,19 +5,19 @@ import failures.CartFailures.NoShipMethod
 import models.account.User
 import models.cord._
 import models.shipping.{Shipments, ShippingMethods}
-import payloads.UpdateShippingMethod
 import responses.TheResponse
 import responses.cord.CartResponse
 import services.{CartValidator, LogActivity, ShippingManager}
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
+import utils.apis.Apis
 import utils.db._
 
 object CartShippingMethodUpdater {
 
   def updateShippingMethod(originator: User, shippingMethodId: Int, refNum: Option[String] = None)(
       implicit ec: EC,
-      es: ES,
+      apis: Apis,
       db: DB,
       ac: AC,
       ctx: OC,
@@ -55,7 +55,7 @@ object CartShippingMethodUpdater {
 
   def deleteShippingMethod(originator: User, refNum: Option[String] = None)(
       implicit ec: EC,
-      es: ES,
+      apis: Apis,
       db: DB,
       ac: AC,
       ctx: OC,

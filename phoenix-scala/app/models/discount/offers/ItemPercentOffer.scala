@@ -9,6 +9,7 @@ import models.discount._
 import models.discount.offers.Offer.OfferResult
 import utils.ElasticsearchApi._
 import utils.aliases._
+import utils.apis.Apis
 
 // Percent off single item
 case class ItemPercentOffer(discount: Int, search: Seq[ProductSearch])
@@ -20,7 +21,7 @@ case class ItemPercentOffer(discount: Int, search: Seq[ProductSearch])
   val offerType: OfferType           = ItemPercentOff
   val adjustmentType: AdjustmentType = LineItemAdjustment
 
-  def adjust(input: DiscountInput)(implicit db: DB, ec: EC, es: ES, au: AU): OfferResult =
+  def adjust(input: DiscountInput)(implicit db: DB, ec: EC, apis: Apis, au: AU): OfferResult =
     if (discount > 0 && discount < 100) adjustInner(input)(search) else pureResult()
 
   def matchXor(input: DiscountInput)(
