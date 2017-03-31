@@ -1,0 +1,11 @@
+@import "media-queries.css";
+@import "colors.css";
+
+.gallery {
+  height: 100%;
+}
+
+.image {
+  height: auto;
+}
+
