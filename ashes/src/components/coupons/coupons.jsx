@@ -47,8 +47,6 @@ const tableColumns: Array<Object> = [
   {field: 'codes', text: 'Codes'},
   {field: 'createdAt', text: 'Date/Time Created', type: 'datetime'},
   {field: 'totalUsed', text: 'Total Uses'},
-  {field: 'usesPerCode', text: 'Max Uses'},
-  {field: 'usesPerCustomer', text: 'Max Uses per Customer'},
   {field: 'currentCarts', text: 'Current Carts'},
 ];
 
