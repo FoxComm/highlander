@@ -26,6 +26,7 @@ import Accordion from 'components/accordion/accordion';
 import Loader from 'ui/loader';
 import ActionLink from 'ui/action-link/action-link';
 import { AddressDetails } from 'ui/address';
+import EditPromos from 'components/promo-code/edit-promos';
 
 // styles
 import styles from './billing.css';
@@ -67,6 +68,8 @@ type State = {
   selectedCard: CreditCardType,
   addingGC: boolean,
   addingCoupon: boolean,
+  couponCode: string,
+  gcCode: string,
 };
 
 function numbersComparator(value1, value2) {
@@ -83,6 +86,9 @@ class EditBilling extends Component {
     selectedCard: {},
     addingGC: false,
     addingCoupon: false,
+    couponCode: '',
+    gcCode: '',
+    error: false,
   };
 
   componentWillMount() {
@@ -210,7 +216,6 @@ class EditBilling extends Component {
       addingNew: false,
       cardAdded: false,
     });
-    this.props.togglePaymentModal();
   }
 
   @autobind
@@ -383,25 +388,25 @@ class EditBilling extends Component {
         <PromoCode
           giftCards={this.props.giftCards}
           removeCode={this.props.removeGiftCard}
-          styleName="gift-card-billing"
+          styleName="promo-codes"
         />
         <ActionLink
           action={this.addGC}
           title="Gift card"
           icon={icon}
-          styleName="action-link-add-card"
+          styleName="action-link-add-methods"
         />
 
         <PromoCode
           coupon={this.props.coupon}
           removeCode={this.props.removeCouponCode}
-          styleName="coupon-billing"
+          styleName="promo-codes"
         />
         <ActionLink
           action={this.addCoupon}
           title="Coupon code"
           icon={icon}
-          styleName="action-link-add-card"
+          styleName="action-link-add-methods"
         />
       </div>
     );
@@ -428,12 +433,12 @@ class EditBilling extends Component {
 
   @autobind
   cancelAddingGC() {
-    this.setState({ addingGC: false });
+    this.setState({ addingGC: false, gcCode: '', error: false, });
   }
 
   @autobind
   cancelAddingCoupon() {
-    this.setState({ addingCoupon: false });
+    this.setState({ addingCoupon: false, couponCode: '', error: false, });
   }
 
   @autobind
@@ -441,21 +446,53 @@ class EditBilling extends Component {
     this.setState({ addingCoupon: true });
   }
 
+  @autobind
+  onCouponChange(code) {
+    this.setState({ couponCode: code });
+  }
+
+  @autobind
+  onGCChange(code) {
+    this.setState({ gcCode: code });
+  }
+
+  @autobind
+  saveGiftCard() {
+    const code = this.state.gcCode.replace(/\s+/g, '');
+    this.props.saveGiftCard(code)
+      .then(() => this.setState({ gcCode: '', error: false, addingGC: false, }))
+      .catch((error) => {
+        this.setState({ error });
+      });
+  }
+
+  @autobind
+  saveCouponCode() {
+    const code = this.state.couponCode.replace(/\s+/g, '');
+    this.props.saveCouponCode(code)
+      .then(() => this.setState({ error: false }))
+      .catch((error) => {
+        this.setState({ error });
+      });
+  }
 
   get renderEditPromoForm() {
     if (!this.state.addingGC && !this.state.addingCoupon) return null;
 
     const isGC = this.state.addingGC;
-    const { saveGiftCard, saveCouponCode, removeGiftCard, removeCouponCode} = this.props;
+    const { removeGiftCard, removeCouponCode} = this.props;
 
     const title = isGC ? 'Add gift card' : 'Add coupon code';
-    const submit = isGC ? saveGiftCard : saveCouponCode;
+    const submit = isGC ? this.saveGiftCard : this.saveCouponCode;
     const buttonLabel = isGC ? 'Redeem' : 'Apply';
     const handler = isGC ? this.cancelAddingGC : this.cancelAddingCoupon;
     const action = {
       title: 'Cancel',
       handler,
     };
+
+    const onChange = isGC ? this.onGCChange : this.onCouponChange;
+    const placeholder = isGC ? 'Gift card code' : 'Coupon code';
     // const inProgress
     // const buttonDisabled
 
@@ -463,11 +500,15 @@ class EditBilling extends Component {
       <CheckoutForm
         submit={submit}
         title={title}
-        error={null}
+        error={this.state.error}
         buttonLabel={buttonLabel}
         action={action}
       >
-        <div>Form here</div>
+        <EditPromos
+          onChange={onChange}
+          saveCode={submit}
+          placeholder={placeholder}
+        />
       </CheckoutForm>
     );
   }
@@ -562,9 +603,9 @@ class EditBilling extends Component {
           />
           <ActionLink
             action={this.addNew}
-            title="Add card"
+            title="Credit card"
             icon={icon}
-            styleName="action-link-add-card"
+            styleName="action-link-add-methods"
           />
         </fieldset>
         { this.renderPaymentFeatures() }
