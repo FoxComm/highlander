@@ -12,7 +12,7 @@ describe('Buttons', function() {
 
     expect(button).to.be.instanceof(Object);
     expect(button.props.className).to.contain('fc-btn');
-    expect(button.props.children, 'to contain', <span>Done</span>);
+    expect(button.props.children, 'to contain', <span className="common⁄buttons__text">Done</span>);
   });
 
   it('should pass onClick to Button', function() {

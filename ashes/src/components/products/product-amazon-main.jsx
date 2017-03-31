@@ -1,4 +1,5 @@
 /**
+ * @flow
  * This component responsible for category suggester handling
  * All other data gets from props, and all other actions goes up to props-handlers
  */
@@ -23,7 +24,7 @@ import { CategoryItem } from './category-item';
 import { fetchSuggest } from 'modules/channels/amazon';
 
 // selectors
-import { getSuggest, cat } from './selector';
+import { getSuggest } from './selector';
 
 // styles
 import s from './product-amazon.css';
@@ -91,7 +92,7 @@ class ProductAmazonMain extends Component {
       return null;
     }
 
-    const p = schema && schema.properties.attributes.properties;
+    const p = schema.properties.attributes.properties;
     // @todo should we use the schema as layout?
     const pKeys = _.keys(p); // All Amazon-specific field names, e.g. ['title', 'description' ...]
     const amazonVoidAttrs = _.mapValues(p, attr => ({
@@ -105,12 +106,43 @@ class ProductAmazonMain extends Component {
 
     return (
       <ObjectFormInner
-        onChange={this._handleChange}
+        onChange={this.handleChange}
         attributes={amazonAllAttrs}
         schema={schema.properties.attributes}
         className={s.mainForm}
       />
     );
+  }
+
+  @autobind
+  handleChange(nextAttributes) {
+    const { product, onChange } = this.props;
+
+    onChange(assoc(product, 'attributes', nextAttributes));
+  }
+
+  @autobind
+  handleCatPick({ id, path }) {
+    this.setCat(id, path);
+  }
+
+  setCat(id, path) {
+    this.setState({ categoryId: id, categoryPath: path });
+
+    const nextAttributes = {
+      nodeId: { t: 'string', v: id, },
+      nodePath: { t: 'string', v: path, },
+    };
+
+    this.handleChange(nextAttributes);
+  }
+
+  @autobind
+  handleFetch(text) {
+    const { product } = this.props;
+    const title = _.get(product, 'attributes.title.v', '');
+
+    this.props.actions.fetchSuggest(title, text);
   }
 
   render() {
@@ -123,10 +155,10 @@ class ProductAmazonMain extends Component {
           <div className={s.fieldLabel}>Amazon Category</div>
           <Typeahead
             className={s.suggester}
-            onItemSelected={this._onCatPick}
+            onItemSelected={this.handleCatPick}
             items={suggest}
             isFetching={fetchingSuggest}
-            fetchItems={this._handleFetch}
+            fetchItems={this.handleFetch}
             component={CategoryItem}
             initialValue={categoryPath}
           />
@@ -138,43 +170,6 @@ class ProductAmazonMain extends Component {
         {this.renderFields()}
       </div>
     );
-  }
-
-  @autobind
-  _handleChange(nextAttributes) {
-    const { product, onChange } = this.props;
-
-    onChange({
-      ...product,
-      attributes: {
-        ...product.attributes,
-        ...nextAttributes,
-      },
-    });
-  }
-
-  @autobind
-  _onCatPick({ id, path }) {
-    this._setCat(id, path);
-  }
-
-  _setCat(id, path) {
-    this.setState({ categoryId: id, categoryPath: cat(path) });
-
-    const nextAttributes = {
-      nodeId: { t: 'string', v: id, },
-      nodePath: { t: 'string', v: path, },
-    };
-
-    this._handleChange(nextAttributes);
-  }
-
-  @autobind
-  _handleFetch(text) {
-    const { product } = this.props;
-    const title = _.get(product, 'attributes.title.v', '');
-
-    this.props.actions.fetchSuggest(title, text);
   }
 }
 

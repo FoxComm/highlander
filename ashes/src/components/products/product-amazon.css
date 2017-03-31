@@ -11,9 +11,6 @@
   margin: 0;
   flex-grow: 1;
 }
-.saveBtn {
-  margin-left: 8px;
-}
 .suggesterWrapper {
   margin-bottom: 20px;
 }

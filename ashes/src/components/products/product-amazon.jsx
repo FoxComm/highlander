@@ -25,9 +25,11 @@ import * as schemaActions from 'modules/object-schema';
 import WaitAnimation from 'components/common/wait-animation';
 import ContentBox from 'components/content-box/content-box';
 import { Button, PrimaryButton } from 'components/common/buttons';
+import SaveCancel from 'components/common/save-cancel';
 import Form from 'components/forms/form';
 import ProductAmazonMain from './product-amazon-main';
 import ProductAmazonVariants from './product-amazon-variants';
+import type { Product } from 'paragons/product';
 
 // selectors
 import { getSuggest, cat } from './selector';
@@ -65,22 +67,22 @@ function mapStateToProps(state) {
 }
 
 type State = {
-  product: Object,
+  product: ?Product,
   error: any,
-  inProgress: boolean,
+  saveBtnIsLoading: boolean,
 };
 
 class ProductAmazon extends Component {
   state: State = {
     product: this.props.originalProduct,
     error: '',
-    inProgress: false,
+    saveBtnIsLoading: false,
   };
 
   componentDidMount() {
     const { productId } = this.props.params;
     const { originalProduct } = this.props;
-    const categoryId = this._nodeId();
+    const categoryId = this.nodeId();
     const {
       clearAmazonErrors,
       fetchProduct,
@@ -107,8 +109,8 @@ class ProductAmazon extends Component {
     const { actions: { fetchAmazonSchema }, originalProduct } = this.props;
     const nextProduct = nextProps.originalProduct;
 
-    const categoryId = this._nodeId();
-    const nextCatId = this._nodeId(nextState.product);
+    const categoryId = this.nodeId();
+    const nextCatId = this.nodeId(nextState.product);
 
     if (nextCatId && nextCatId != categoryId) {
       fetchAmazonSchema(nextCatId);
@@ -125,23 +127,19 @@ class ProductAmazon extends Component {
   }
 
   renderButtons() {
-    const { inProgress, product } = this.state;
+    const { saveBtnIsLoading, product } = this.state;
     const { originalProduct } = this.props;
-    const productIsValid = this._validate();
-    const disabled = !productIsValid || inProgress || product === originalProduct;
+    const productIsValid = this.validate();
+    const disabled = !productIsValid || saveBtnIsLoading || product === originalProduct;
 
-    return [
-      <Button onClick={this._handleCancel} key="cancel">Cancel</Button>,
-      <PrimaryButton
-        className={s.saveBtn}
-        disabled={disabled}
-        isLoading={inProgress}
-        key="push"
-        type="submit"
-      >
-        Push to Amazon
-      </PrimaryButton>
-    ];
+    return (
+      <SaveCancel
+        onCancel={this.handleCancel}
+        saveText="Push to Amazon"
+        saveDisabled={disabled}
+        isLoading={saveBtnIsLoading}
+      />
+    );
   }
 
   renderVariants() {
@@ -160,10 +158,55 @@ class ProductAmazon extends Component {
       <ContentBox title="Variants Information">
         <ProductAmazonVariants
           product={product}
-          onChange={this._handleProductChange}
+          onChange={this.handleProductChange}
         />
       </ContentBox>
     );
+  }
+
+  @autobind
+  handleSubmit(e) {
+    const { actions: { pushProduct, updateProduct } } = this.props;
+    const { product } = this.state;
+
+    this.setState({ saveBtnIsLoading: true });
+
+    updateProduct(product)
+      .then(() => pushProduct(product.id))
+      .then(() => this.setState({ saveBtnIsLoading: false }))
+      .catch((error) => this.setState({ error, saveBtnIsLoading: false }));
+  }
+
+  validate() {
+    const { product } = this.state;
+    const hasCategory = !!this.nodeId(product);
+    const checkedVariants = product.skus.filter(sku => _.get(sku, 'attributes.amazon.v', false));
+    const checkedVariantsHasInventory = checkedVariants.every(
+      sku => _.get(sku, 'attributes.inventory.v', 0) > 0
+    );
+    const checkedVariantsHasUpc = checkedVariants.every(sku => !!_.get(sku, 'attributes.upc.v', ''));
+    // @todo validate all other fields
+
+    return hasCategory && checkedVariants.length && checkedVariantsHasInventory && checkedVariantsHasUpc;
+  }
+
+  @autobind
+  handleCancel() {
+    const { product } = this.state;
+
+    transitionTo('product', {
+      productId: product.id,
+      context: 'default',
+    });
+  }
+
+  @autobind
+  handleProductChange(nextProduct) {
+    this.setState({ product: nextProduct });
+  }
+
+  nodeId(product) {
+    return _.get(product || this.state.product || this.props.originalProduct, 'attributes.nodeId.v', '');
   }
 
   render() {
@@ -182,7 +225,7 @@ class ProductAmazon extends Component {
     // @todo productStatus
 
     return (
-      <Form className={s.root} onSubmit={() => this._handleSubmit()}>
+      <Form className={s.root} onSubmit={this.handleSubmit}>
         <header className={s.header}>
           <h1 className={s.title}>New Amazon Listing</h1>
           {this.renderButtons()}
@@ -191,7 +234,7 @@ class ProductAmazon extends Component {
           <ProductAmazonMain
             product={product}
             schema={schema}
-            onChange={this._handleProductChange}
+            onChange={this.handleProductChange}
           />
         </ContentBox>
         {this.renderVariants()}
@@ -200,57 +243,6 @@ class ProductAmazon extends Component {
         </footer>
       </Form>
     );
-  }
-
-  _handleSubmit(e) {
-    this._handlePush();
-  }
-
-  _validate() {
-    const { product } = this.state;
-    const hasCategory = !!this._nodeId(product);
-    const checkedVariants = product.skus.filter(sku => _.get(sku, 'attributes.amazon.v', false));
-    const checkedVariantsHasInventory = checkedVariants.every(
-      sku => _.get(sku, 'attributes.inventory.v', 0) > 0
-    );
-    const checkedVariantsHasUpc = checkedVariants.every(sku => !!_.get(sku, 'attributes.upc.v', ''));
-    // @todo validate all other fields
-
-    return hasCategory && checkedVariants.length && checkedVariantsHasInventory && checkedVariantsHasUpc;
-  }
-
-  @autobind
-  _handleCancel() {
-    const { product } = this.state;
-
-    transitionTo('product', {
-      productId: product.id,
-      context: 'default',
-    });
-  }
-
-  @autobind
-  _handleProductChange(nextProduct) {
-    const { actions: { updateProduct } } = this.props;
-
-    this.setState({ product: nextProduct });
-  }
-
-  @autobind
-  _handlePush() {
-    const { actions: { pushProduct, updateProduct } } = this.props;
-    const { product } = this.state;
-
-    this.setState({ inProgress: true });
-
-    updateProduct(product)
-      .then(() => pushProduct(product.id))
-      .then(() => this.setState({ inProgress: false }))
-      .catch((error) => this.setState({ error, inProgress: false }));
-  }
-
-  _nodeId(product) {
-    return _.get(product || this.state.product || this.props.originalProduct, 'attributes.nodeId.v', '');
   }
 }
 
