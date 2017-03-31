@@ -14,11 +14,10 @@ import localized from 'lib/i18n';
 import type { Localized } from 'lib/i18n';
 
 // modules
-import { searchGiftCards, mapFacetValue } from 'modules/products';
+import { searchGiftCards } from 'modules/products';
 import { fetch, getNextId, getPreviousId, resetProduct } from 'modules/product-details';
 import { addLineItem, toggleCart } from 'modules/cart';
 import { fetchRelatedProducts, clearRelatedProducts } from 'modules/cross-sell';
-
 
 // styles
 import styles from './pdp.css';
@@ -38,7 +37,7 @@ import RelatedProductsList,
   { LoadingBehaviors } from 'components/related-products-list/related-products-list';
 
 // types
-import type { ProductResponse } from 'modules/product-details';
+import type { ProductResponse, Sku } from 'modules/product-details';
 import type { RelatedProductResponse } from 'modules/cross-sell';
 import type { RoutesParams } from 'types';
 import type { TProductView } from './types';
@@ -70,7 +69,7 @@ type Props = Localized & RoutesParams & {
 
 type State = {
   error?: any,
-  currentSku?: any,
+  currentSku?: Sku,
   attributes?: Object,
 };
 
@@ -202,7 +201,7 @@ class Pdp extends Component {
   }
 
   @autobind
-  setCurrentSku(currentSku) {
+  setCurrentSku(currentSku: Sku) {
     this.setState({ currentSku });
   }
 
@@ -302,6 +301,8 @@ class Pdp extends Component {
       <ProductDetails
         product={this.props.product}
         productView={this.productView}
+        selectedSku={this.currentSku}
+        onSkuChange={this.setCurrentSku}
       />
     );
   }

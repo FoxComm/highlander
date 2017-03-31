@@ -15,18 +15,22 @@ import styles from './pdp.css';
 
 // types
 import type { TProductView } from './types';
-import type { ProductResponse, ProductVariant, VariantValue } from 'modules/product-details';
+import type { ProductResponse, ProductVariant, VariantValue, Sku } from 'modules/product-details';
 import type { Facet as TFacet } from 'types/facets';
 
 type Props = {
   productView: TProductView,
   product: ProductResponse,
+  selectedSku: Sku,
+  onSkuChange: (sku: Sku) => void,
+}
+
+type VariantValuesMap = {
+  [variantType:string]: number,
 }
 
 type State = {
-  selectedVariantValues: {
-    [variantType:string]: number,
-  }
+  selectedVariantValues: VariantValuesMap,
 }
 
 class ProductDetails extends Component {
