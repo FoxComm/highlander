@@ -21,13 +21,12 @@ config :hyperion,
 config :hyperion,
   phoenix_email: System.get_env("PHOENIX_USER"),
   phoenix_password: System.get_env("PHOENIX_PASSWORD"),
-  phoenix_org: System.get_env("PHOENIX_ORG")
-
-config :hyperion,
+  phoenix_org: System.get_env("PHOENIX_ORG"),
   phoenix_url: System.get_env("PHOENIX_URL")
 
 config :hyperion,
-  public_key: System.get_env("PUBLIC_KEY")
+  public_key: System.get_env("PUBLIC_KEY"),
+  push_check_interval: System.get_env("PUSH_CHECK_INTERVAL")
 
 # This configuration is loaded before any dependency and is restricted
 # to this project. If another project depends on this project, this
