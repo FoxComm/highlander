@@ -297,6 +297,7 @@ class Phoenix:
                         'title' : first_sku['attributes']['title'],
                         'description' : first_sku['attributes']['description'],
                         'description_list' : first_sku['attributes']['description_list'],
+                        'shortDescription' : first_sku['attributes']['shortDescription'],
                         'tags' : first_sku['attributes']['tags'],
                         'activeTo' : first_sku['attributes']['activeTo'],
                         'activeFrom' : first_sku['attributes']['activeFrom'],
