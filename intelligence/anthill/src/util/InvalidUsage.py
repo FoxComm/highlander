@@ -1,5 +1,3 @@
-from flask import jsonify
-
 class InvalidUsage(Exception):
     """InvalidUsage
     Taken from Flask Documentation on Implementing API Exceptions
