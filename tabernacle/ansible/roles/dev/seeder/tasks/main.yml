@@ -1,7 +1,7 @@
 ---
 
 - include_vars: aws.yml
-  
+
 # Phoenix
 
 - name: Get Latest Phoenix Seeder Image

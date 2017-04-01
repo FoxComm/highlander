@@ -18,10 +18,6 @@ import OptionEditDialog from './option-edit-dialog';
 // styles
 import styles from './option-list.css';
 
-// types
-import type { Option, OptionValue, Product } from 'paragons/product';
-import type { Sku } from 'modules/skus/details';
-
 type Props = {
   variants: Array<Option>,
   updateVariants: Function,

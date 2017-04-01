@@ -1,0 +1,19 @@
+.tree {
+
+  & .headerButton {
+    margin: 0 5px;
+  }
+
+  & :global .fc-collapse {
+    & i {
+      padding: 4px 10px 8px;
+      font-size: 20px;
+    }
+  }
+
+  & :global .fc-table {
+    & :global .fct-row__collapse {
+      padding-left: 10px;
+    }
+  }
+}

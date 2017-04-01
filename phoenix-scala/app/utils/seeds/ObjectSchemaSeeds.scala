@@ -9,8 +9,16 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 trait ObjectSchemaSeeds {
 
-  private val allButPromoSchemaNames =
-    Seq("empty", "album", "image", "price", "sku", "coupon", "discount", "product")
+  private val allButPromoSchemaNames = Seq("empty",
+                                           "album",
+                                           "image",
+                                           "price",
+                                           "sku",
+                                           "coupon",
+                                           "discount",
+                                           "product",
+                                           "taxonomy",
+                                           "taxon")
   private val allSchemaNames = allButPromoSchemaNames :+ "promotion"
 
   private lazy val allButPromoSchemas = allButPromoSchemaNames.map(getSchema)
