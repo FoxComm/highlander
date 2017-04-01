@@ -13,19 +13,19 @@ type Album struct {
 }
 
 type ProductInstance struct {
-	Id          int      `json:"id"`
-	ProductId   int      `json:"productId"`
-	Slug        string   `json:"slug"`
-	Context     string   `json:"context"`
-	Currency    string   `json:"currency"`
-	Title       string   `json:"title"`
-	Description string   `json:"description"`
-	SalePrice   string   `json:"salePrice"`
-	Scope       string   `json:"scope"`
-	RetailPrice string   `json:"retailPrice"`
-	Tags        []string `json:"tags"`
-	Skus        []string `json:"skus"`
-	Albums      []Album  `json:"albums"`
+	ElasticSearchId int      `json:"id"`
+	ProductId       int      `json:"productId"`
+	Slug            string   `json:"slug"`
+	Context         string   `json:"context"`
+	Currency        string   `json:"currency"`
+	Title           string   `json:"title"`
+	Description     string   `json:"description"`
+	SalePrice       string   `json:"salePrice"`
+	Scope           string   `json:"scope"`
+	RetailPrice     string   `json:"retailPrice"`
+	Tags            []string `json:"tags"`
+	Skus            []string `json:"skus"`
+	Albums          []Album  `json:"albums"`
 }
 
 type ProductData struct {

@@ -6,7 +6,8 @@ type Neo4jError struct {
 }
 
 type Neo4jResultsDataGraphNodesProperties struct {
-	PhoenixID int `json:"phoenix_id"`
+	PhoenixID int    `json:"phoenix_id"`
+	SKU       string `json:"sku"`
 }
 
 type Neo4jResultsDataGraphNodes struct {

@@ -3,7 +3,10 @@ package services
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
+	"strconv"
+	"strings"
 
 	"github.com/FoxComm/highlander/intelligence/suggester/src/responses"
 	"github.com/FoxComm/highlander/intelligence/suggester/src/util"
@@ -15,12 +18,13 @@ func selectUpSellAndPushToSms(customerID string, phoneNumber string, antHillData
 		return responses.TwilioSmsResponse{}, errors.New("There are no products for potential up-sell")
 	}
 
-	// TODO: After testing create a selection algorithm based on score or previous Rejections filter out
+	// TODO: After testing create a selection algorithm based on score or previous Rejections filter
 	productImageURL := antHillData.Products[0].Product.Albums[0].Images[0].Src
-	productID := antHillData.Products[0].Product.Id
+	productID := antHillData.Products[0].Product.ProductId
+	productSKU := antHillData.Products[0].Product.Skus[0]
 
 	// Create customer <- Suggest -> product in Neo4J
-	_, err := util.CreateNewSuggestProductRelation(customerID, string(productID))
+	_, err := util.CreateNewSuggestProductRelation(customerID, strconv.Itoa(productID), phoneNumber, productSKU)
 	if err != nil {
 		return responses.TwilioSmsResponse{}, err
 	}
@@ -38,13 +42,14 @@ func GetSuggestion(c echo.Context) error {
 	customerID := c.Param("id")
 	channel := c.QueryParam("channel")
 	phoneNumber := c.QueryParam("phone")
+	phoneNumberClean := "+" + strings.Replace(phoneNumber, " ", "", -1)
 
 	queryResponse, queryError := util.AntHillQuery(customerID, channel)
 	if queryError != nil {
 		return c.String(http.StatusBadRequest, queryError.Error())
 	}
 
-	upSellResponse, upSellError := selectUpSellAndPushToSms(customerID, phoneNumber, queryResponse)
+	upSellResponse, upSellError := selectUpSellAndPushToSms(customerID, phoneNumberClean, queryResponse)
 	if upSellError != nil {
 		return c.String(http.StatusBadRequest, upSellError.Error())
 	}
@@ -58,13 +63,27 @@ func GetSuggestion(c echo.Context) error {
 }
 
 func DeclineSuggestion(c echo.Context) error {
-	//phoneNumber := c.Param("phone")
+	phoneNumber := c.Param("phone")
+	customerID, productID, productSKU, lookupErr := util.FindCustomerAndProductFromPhoneNumber(phoneNumber)
+	if lookupErr != nil {
+		return c.String(http.StatusBadRequest, lookupErr.Error())
+	}
 
-	return c.String(http.StatusOK, "")
+	_, declineErr := util.CreateNewDeclinedProductRelation(customerID, productID)
+	if declineErr != nil {
+		return c.String(http.StatusBadRequest, declineErr.Error())
+	}
+
+	respMsg := fmt.Sprintf("Customer %s declined Product %s with SKU %s", customerID, productID, productSKU)
+	return c.String(http.StatusOK, respMsg)
 }
 
 func PurchaseSuggestion(c echo.Context) error {
 	//phoneNumber := c.Param("phone")
+	//customerID, productID, _, lookupErr := util.FindCustomerAndProductFromPhoneNumber(phoneNumber)
+	//if lookupErr != nil {
+	//return c.String(http.StatusBadRequest, lookupErr.Error())
+	//}
 
 	return c.String(http.StatusOK, "")
 }
