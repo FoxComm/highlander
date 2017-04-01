@@ -77,14 +77,14 @@ object CartPromotionUpdater {
 
     def isApplicable(promotion: Promotion): DbResultT[Boolean] = {
       for {
-        promoForm   ← ObjectForms.mustFindById404(promotion.formId)
-        promoShadow ← ObjectShadows.mustFindById404(promotion.shadowId)
+        promoForm   ← * <~ ObjectForms.mustFindById404(promotion.formId)
+        promoShadow ← * <~ ObjectShadows.mustFindById404(promotion.shadowId)
         promoObject = IlluminatedPromotion.illuminate(ctx, promotion, promoForm, promoShadow)
         customerGroupIdsO = promoObject.attributes \ "customerGroupIds" \ "v" match {
           case JNothing | JNull ⇒ None
           case cgis             ⇒ cgis.extractOpt[Set[Int]]
         }
-        result ← customerGroupIdsO.fold(DbResultT.pure(true))(
+        result ← * <~ customerGroupIdsO.fold(DbResultT.pure(true))(
                     GroupMemberManager.isMemberOfAny(_, user))
       } yield result
     }
@@ -125,9 +125,9 @@ object CartPromotionUpdater {
         .filterByContextAndShadowId(ctx.id, orderPromo.promotionShadowId)
         .filter(_.archivedAt.isEmpty)
         .couponOnly
-      promotions ← promotionsQ.result.dbresult
+      promotions ← * <~ promotionsQ.result.dbresult
                     .map(_.toStream) >>= filterPromotionsUsingCustomerGroups(user)
-      promotion ← promotions.headOption
+      promotion ← * <~ promotions.headOption
                    .map(DbResultT.pure(_))
                    .getOrElse(DbResultT.failure(OrderHasNoPromotions)) // TODO: no function for that? Seems useful? @michalrus
       adjustments ← * <~ getAdjustmentsForPromotion(cart, promotion, failFatally)
@@ -221,7 +221,7 @@ object CartPromotionUpdater {
                    .filter(_.archivedAt.isEmpty)
                    .couponOnly
                    .mustFindOneOr(PromotionNotFoundForContext(coupon.promotionId, ctx.name))
-      _ ← filterPromotionsUsingCustomerGroups(originator)(List(promotion))
+      _ ← * <~ filterPromotionsUsingCustomerGroups(originator)(List(promotion))
            .ensure(OrderHasNoPromotions.single)(_.nonEmpty)
       promoForm   ← * <~ ObjectForms.mustFindById404(promotion.formId)
       promoShadow ← * <~ ObjectShadows.mustFindById404(promotion.shadowId)

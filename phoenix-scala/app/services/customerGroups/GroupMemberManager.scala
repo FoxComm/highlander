@@ -144,16 +144,16 @@ object GroupMemberManager {
   def isMemberOfAny(groupIds: Set[Int], customer: User)(implicit ec: EC,
                                                         apis: Apis): DbResultT[Boolean] =
     for {
-      customerGroups ← CustomerGroups.fildAllByIds(groupIds).result.dbresult
-      results ← customerGroups.toStream
+      customerGroups ← * <~ CustomerGroups.fildAllByIds(groupIds).result.dbresult
+      results ← * <~ customerGroups.toStream
                  .traverse(isMember(_, customer)) // FIXME: no need to check all of them, but Scala is strict… @michalrus
     } yield results.exists(identity)
 
   def isMember(group: CustomerGroup, customer: User)(implicit ec: EC,
                                                      apis: Apis): DbResultT[Boolean] =
     if (group.groupType == Manual) for {
-      customerData ← CustomersData.mustFindByAccountId(customer.accountId)
-      num ← CustomerGroupMembers
+      customerData ← * <~ CustomersData.mustFindByAccountId(customer.accountId)
+      num ← * <~ CustomerGroupMembers
              .findByGroupIdAndCustomerDataId(customerDataId = customerData.id, groupId = group.id)
              .size
              .result
