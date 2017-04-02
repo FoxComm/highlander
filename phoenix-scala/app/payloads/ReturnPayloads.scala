@@ -5,7 +5,6 @@ import cats.implicits._
 import failures.{EmptyCancellationReasonFailure, Failure, InvalidCancellationReasonFailure, NonEmptyCancellationReasonFailure}
 import models.payment.PaymentMethod
 import models.returns.{Return, ReturnLineItem}
-import models.returns.ReturnLineItem.InventoryDisposition
 import utils.{ADTTypeHints, Validation}
 import utils.Validation._
 
@@ -36,25 +35,17 @@ object ReturnPayloads {
     def typeHints =
       ADTTypeHints(
           Map(
-              ReturnLineItem.GiftCardItem → classOf[ReturnGiftCardLineItemPayload],
               ReturnLineItem.ShippingCost → classOf[ReturnShippingCostLineItemPayload],
               ReturnLineItem.SkuItem      → classOf[ReturnSkuLineItemPayload]
           ))
   }
 
-  case class ReturnSkuLineItemPayload(sku: String,
-                                      quantity: Int,
-                                      reasonId: Int,
-                                      isReturnItem: Boolean,
-                                      inventoryDisposition: InventoryDisposition)
+  case class ReturnSkuLineItemPayload(sku: String, quantity: Int, reasonId: Int)
       extends ReturnLineItemPayload {
 
     override def validate: ValidatedNel[Failure, ReturnLineItemPayload] =
       greaterThan(quantity, 0, "Quantity").map(_ ⇒ this)
   }
-
-  case class ReturnGiftCardLineItemPayload(code: String, reasonId: Int)
-      extends ReturnLineItemPayload
 
   case class ReturnShippingCostLineItemPayload(amount: Int, reasonId: Int)
       extends ReturnLineItemPayload {
@@ -86,7 +77,7 @@ object ReturnPayloads {
       extends Validation[ReturnMessageToCustomerPayload] {
 
     def validate: ValidatedNel[Failure, ReturnMessageToCustomerPayload] = {
-      (greaterThanOrEqual(message.length, 0, "Message length") |@| lesserThanOrEqual(
+      (greaterThanOrEqual(message.length, 0, "Message length") |+| lesserThanOrEqual(
               message.length,
               Return.messageToAccountMaxLength,
               "Message length")).map {
@@ -100,7 +91,7 @@ object ReturnPayloads {
 
     def validate: ValidatedNel[Failure, ReturnReasonPayload] = {
       val clue = "Reason name length"
-      (greaterThan(name.length, 0, clue) |@| lesserThanOrEqual(name.length,
+      (greaterThan(name.length, 0, clue) |+| lesserThanOrEqual(name.length,
                                                                reasonNameMaxLength,
                                                                clue)).map {
         case _ ⇒ this

@@ -79,7 +79,7 @@ object JsonFormatters {
       StoreCredit.OriginType.jsonFormat +
       Reason.ReasonType.jsonFormat + ReturnReason.ReasonType.jsonFormat +
       Return.State.jsonFormat + Return.ReturnType.jsonFormat +
-      ReturnLineItem.InventoryDisposition.jsonFormat + ReturnLineItem.OriginType.jsonFormat +
+      ReturnLineItem.OriginType.jsonFormat +
       CreditCardCharge.State.jsonFormat + CountryWithRegions.jsonFormat +
       QueryStatement.Comparison.jsonFormat + Condition.Operator.jsonFormat +
       PaymentMethod.Type.jsonFormat + SkuType.jsonFormat + SharedSearch.Scope.jsonFormat +

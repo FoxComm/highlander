@@ -151,11 +151,11 @@ object ReturnPaymentUpdater {
       cc ← * <~ CreditCards.mustFindById404(payment.paymentMethodId)
       _  ← * <~ deleteCcPayment(returnId)
       ccRefund ← * <~ ReturnPayments.create(
-                    ReturnPayment.build(method = PaymentMethod.CreditCard,
-                                        methodId = cc.id,
-                                        returnId = returnId,
-                                        amount = amount,
-                                        currency = payment.currency))
+                    ReturnPayment(returnId = returnId,
+                                  amount = amount,
+                                  currency = payment.currency,
+                                  paymentMethodId = cc.id,
+                                  paymentMethodType = PaymentMethod.CreditCard))
     } yield ccRefund
 
   private def addGiftCard(returnId: Int,
@@ -176,11 +176,11 @@ object ReturnPaymentUpdater {
                   currentBalance = amount
               ))
       pmt ← * <~ ReturnPayments.create(
-               ReturnPayment.build(method = PaymentMethod.GiftCard,
-                                   methodId = gc.id,
-                                   returnId = returnId,
-                                   amount = amount,
-                                   currency = payment.currency))
+               ReturnPayment(returnId = returnId,
+                             amount = amount,
+                             currency = payment.currency,
+                             paymentMethodId = gc.id,
+                             paymentMethodType = PaymentMethod.GiftCard))
     } yield pmt
 
   private def addStoreCredit(returnId: Int, accountId: Int, payment: OrderPayment, amount: Int)(
@@ -201,11 +201,11 @@ object ReturnPaymentUpdater {
                           availableBalance = amount,
                           currentBalance = amount))
       pmt ← * <~ ReturnPayments.create(
-               ReturnPayment.build(method = PaymentMethod.StoreCredit,
-                                   methodId = sc.id,
-                                   returnId = returnId,
-                                   amount = amount,
-                                   currency = payment.currency))
+               ReturnPayment(returnId = returnId,
+                             amount = amount,
+                             currency = payment.currency,
+                             paymentMethodId = sc.id,
+                             paymentMethodType = PaymentMethod.StoreCredit))
     } yield pmt
 
   def deletePayment(refNum: String, paymentMethod: PaymentMethod.Type)(
@@ -364,23 +364,23 @@ object ReturnPaymentUpdater {
 
   private def issueGcRefund(customer: User, rma: Return, gc: GiftCard)(implicit ec: EC,
                                                                        ac: AC,
-                                                                       au: AU): DbResultT[Unit] = {
-    LogActivity().issueGcRefund(customer, rma, gc)
-    GiftCards
-      .update(gc,
-              gc.copy(state = GiftCard.Active,
-                      senderName = au.model.name,
-                      recipientName = customer.name,
-                      recipientEmail = customer.email))
-      .meh
-  }
+                                                                       au: AU): DbResultT[Unit] =
+    for {
+      gc ← * <~ GiftCards.update(gc,
+                                 gc.copy(state = GiftCard.Active,
+                                         senderName = au.model.name,
+                                         recipientName = customer.name,
+                                         recipientEmail = customer.email))
+      _ ← * <~ LogActivity().issueGcRefund(customer, rma, gc)
+    } yield ()
 
   private def issueScRefund(customer: User,
                             rma: Return,
-                            sc: StoreCredit)(implicit ec: EC, ac: AC, au: AU): DbResultT[Unit] = {
-    LogActivity().issueScRefund(customer, rma, sc)
-    StoreCredits.update(sc, sc.copy(state = StoreCredit.Active)).meh
-  }
+                            sc: StoreCredit)(implicit ec: EC, ac: AC, au: AU): DbResultT[Unit] =
+    for {
+      sc ← * <~ StoreCredits.update(sc, sc.copy(state = StoreCredit.Active))
+      _  ← * <~ LogActivity().issueScRefund(customer, rma, sc)
+    } yield ()
 
   def cancelRefunds(rma: Return)(implicit ec: EC, ac: AC): DbResultT[Unit] =
     for {
@@ -391,7 +391,6 @@ object ReturnPaymentUpdater {
                                     canceledAmount = gc.availableBalance.some,
                                     canceledReason = rma.canceledReasonId))
          }
-
       sc ← * <~ ReturnPayments.findOnHoldStoreCredits(rma.id).one
       _ ← * <~ sc.map { sc ⇒
            StoreCredits.update(sc,
