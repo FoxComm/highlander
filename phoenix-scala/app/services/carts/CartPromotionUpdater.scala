@@ -1,5 +1,6 @@
 package services.carts
 
+import cats._
 import cats.data._
 import cats.implicits._
 import failures.CouponFailures._
@@ -7,11 +8,13 @@ import failures.DiscountCompilerFailures._
 import failures.Failures
 import failures.OrderFailures._
 import failures.PromotionFailures._
-import models.account.User
+import failures.UserFailures.{UserEmailNotUnique, UserWithAccountNotFound}
+import models.account.{User, Users}
 import models.cord.OrderPromotions.scope._
 import models.cord._
 import models.cord.lineitems._
 import models.coupon._
+import models.customer.CustomerGroups
 import models.discount.DiscountHelpers._
 import models.discount._
 import models.discount.offers._
@@ -20,11 +23,14 @@ import models.objects._
 import models.promotion.Promotions.scope._
 import models.promotion._
 import models.shipping
+import org.json4s.JsonAST._
 import responses.TheResponse
 import responses.cord.CartResponse
+import services.customerGroups.GroupMemberManager
 import services.discount.compilers._
 import services.{CartValidator, LineItemManager, LogActivity}
 import slick.driver.PostgresDriver.api._
+import utils.JsonFormatters
 import utils.aliases._
 import utils.apis.Apis
 import utils.db._
@@ -62,6 +68,30 @@ object CartPromotionUpdater {
     OrderPromotions.filterByCordRef(cart.refNum).delete.dbresult.void >>
       CartLineItemAdjustments.findByCordRef(cart.referenceNumber).delete.dbresult.void
 
+  private def filterPromotionsUsingCustomerGroups[L[_]: TraverseFilter](user: User)(
+      promos: L[Promotion])(implicit ec: EC,
+                            apis: Apis,
+                            ctx: OC,
+                            db: DB): DbResultT[L[Promotion]] = {
+    implicit val formats = JsonFormatters.phoenixFormats
+
+    def isApplicable(promotion: Promotion): DbResultT[Boolean] = {
+      for {
+        promoForm   ← * <~ ObjectForms.mustFindById404(promotion.formId)
+        promoShadow ← * <~ ObjectShadows.mustFindById404(promotion.shadowId)
+        promoObject = IlluminatedPromotion.illuminate(ctx, promotion, promoForm, promoShadow)
+        customerGroupIdsO = promoObject.attributes \ "customerGroupIds" \ "v" match {
+          case JNothing | JNull ⇒ None
+          case cgis             ⇒ cgis.extractOpt[Set[Int]]
+        }
+        result ← * <~ customerGroupIdsO.fold(DbResultT.pure(true))(
+                    GroupMemberManager.isMemberOfAny(_, user))
+      } yield result
+    }
+
+    promos.filterA(isApplicable)
+  }
+
   private def findApplicablePromotion(
       cart: Cart,
       failFatally: Boolean /* FIXME with the new foxy monad @michalrus */ )(
@@ -88,11 +118,18 @@ object CartPromotionUpdater {
                     .filterByCordRef(cart.refNum)
                     .couponOnly
                     .mustFindOneOr(OrderHasNoPromotions)
-      promotion ← * <~ Promotions
-                   .filterByContextAndShadowId(ctx.id, orderPromo.promotionShadowId)
-                   .filter(_.archivedAt.isEmpty)
-                   .couponOnly
-                   .mustFindOneOr(OrderHasNoPromotions)
+      user ← * <~ Users
+              .findOneByAccountId(cart.accountId)
+              .mustFindOr(UserWithAccountNotFound(cart.accountId))
+      promotionsQ = Promotions
+        .filterByContextAndShadowId(ctx.id, orderPromo.promotionShadowId)
+        .filter(_.archivedAt.isEmpty)
+        .couponOnly
+      promotions ← * <~ promotionsQ.result.dbresult
+                    .map(_.toStream) >>= filterPromotionsUsingCustomerGroups(user)
+      promotion ← * <~ promotions.headOption
+                   .map(DbResultT.pure(_))
+                   .getOrElse(DbResultT.failure(OrderHasNoPromotions)) // TODO: no function for that? Seems useful? @michalrus
       adjustments ← * <~ getAdjustmentsForPromotion(cart, promotion, failFatally)
     } yield (orderPromo, promotion, adjustments)
   }
@@ -104,7 +141,12 @@ object CartPromotionUpdater {
       db: DB,
       ctx: OC): DbResultT[(OrderPromotion, Promotion, Seq[CartLineItemAdjustment])] =
     for {
-      all ← * <~ Promotions.filterByContext(ctx.id).filter(_.archivedAt.isEmpty).autoApplied.result
+      user ← * <~ Users
+              .findOneByAccountId(cart.accountId)
+              .mustFindOr(UserWithAccountNotFound(cart.accountId))
+      promotionsQ = Promotions.filterByContext(ctx.id).filter(_.archivedAt.isEmpty).autoApplied
+      all ← * <~ promotionsQ.result.dbresult
+             .map(_.toStream) >>= filterPromotionsUsingCustomerGroups(user)
       allWithAdjustments ← * <~ all.toList
                             .map(promo ⇒
                                   getAdjustmentsForPromotion(cart, promo, failFatally = true).map(
@@ -179,6 +221,8 @@ object CartPromotionUpdater {
                    .filter(_.archivedAt.isEmpty)
                    .couponOnly
                    .mustFindOneOr(PromotionNotFoundForContext(coupon.promotionId, ctx.name))
+      _ ← * <~ filterPromotionsUsingCustomerGroups(originator)(List(promotion))
+           .ensure(OrderHasNoPromotions.single)(_.nonEmpty)
       promoForm   ← * <~ ObjectForms.mustFindById404(promotion.formId)
       promoShadow ← * <~ ObjectShadows.mustFindById404(promotion.shadowId)
       promoObject = IlluminatedPromotion.illuminate(ctx, promotion, promoForm, promoShadow)

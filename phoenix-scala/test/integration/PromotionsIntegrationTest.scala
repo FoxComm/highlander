@@ -218,7 +218,7 @@ class PromotionsIntegrationTest
       cartWithCoupon.totals.total.toDouble must === (cartTotal * 0.6)
     }
 
-    "should update coupon discount when cart becomes clean" in new Fixture
+    "should update coupon discount when cart becomes clean" in new Fixture with Customer_Seed
     with ProductSku_ApiFixture {
       private val (_, couponCode) = setupPromoAndCoupon()
 
