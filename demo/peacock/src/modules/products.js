@@ -93,8 +93,8 @@ const initialState = {
 };
 
 function determineFacetKind(f: string): string {
-  if (f.includes('color')) return 'color';
-  else if (f.includes('size')) return 'circle';
+  if (f.includes('COLOR')) return 'color';
+  else if (f.includes('SIZE')) return 'circle';
   return 'checkbox';
 }
 
