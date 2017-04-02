@@ -44,6 +44,12 @@ class EditDelivery extends Component {
     this.props.fetchShippingMethods();
   }
 
+  componentWillReceiveProps(nextProps: Props) {
+    if (nextProps.cart.shippingAddress !== this.props.cart.shippingAddress) {
+      this.props.fetchShippingMethods();
+    }
+  }
+
   @autobind
   handleSubmit() {
     const selectedMethod = this.props.cart.shippingMethod;
