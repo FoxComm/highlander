@@ -462,6 +462,10 @@ def get_inventory(phoenix):
 
 def add_inventory_to_stock_item(phoenix, stock_item, amount):
 
+    typ = stock_item['type']
+    if typ != 'Sellable':
+        return
+
     itm = stock_item['stockItem']
     id = str(itm['id'])
     sku = itm['sku']
