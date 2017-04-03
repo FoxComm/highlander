@@ -60,7 +60,7 @@ export default class Coupons extends Component {
   applyPromotionFilter(filters: Array<SearchFilter>) {
     const promotionFilter = _.find(filters, { term: 'promotionId' });
     const promotionIndex = _.findIndex(filters, { term: 'promotionId' });
-    const newFilters = promotionFilter ? _.remove(filters, (value, index) => {index == promotionIndex}) : filters;
+    const newFilters = promotionFilter ? _.remove(filters, (value, index) => {index == promotionIndex;}) : filters;
     return [
       {
         term: 'promotionId',
