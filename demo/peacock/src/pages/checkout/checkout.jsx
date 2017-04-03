@@ -83,8 +83,13 @@ class Checkout extends Component {
 
   componentWillReceiveProps(nextProps) {
     const { creditCard } = nextProps;
-    const { shippingAddress, shippingMethod } = nextProps.cart;
+    const { shippingAddress, shippingMethod, skus } = nextProps.cart;
     const { billingDone, shippingDone, deliveryDone } = this.state;
+
+    if (_.isEmpty(skus)) {
+     browserHistory.push('/');
+     return;
+    }
 
     if (_.isEmpty(creditCard) && billingDone) {
       this.setState({ billingDone: false });
