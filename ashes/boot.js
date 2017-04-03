@@ -20,7 +20,7 @@ try {
 
 process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 process.env.API_URL = process.env.API_URL || 'http://localhost';
-process.env.NODE_PATH = `${process.env.NODE_PATH}:${path.resolve('./lib')}:${path.resolve('./lib/lib')}`;
+process.env.NODE_PATH = `${process.env.NODE_PATH}:${path.resolve('./lib')}`;
 process.env.GIT_REVISION = rev;
 
 let forks = process.env.NODE_ENV === 'production' ? cpus : 1;
