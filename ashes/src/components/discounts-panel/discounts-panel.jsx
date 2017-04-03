@@ -69,4 +69,4 @@ export default class DiscountsPanel extends Component {
       />
     );
   }
-};
+}

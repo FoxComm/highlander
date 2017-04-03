@@ -13,7 +13,7 @@ export default class PromoCouponsPage extends Component {
   @autobind
   addAction() {
     transitionTo('promotion-coupon-new', {promotionId: this.props.object.id});
-  };
+  }
 
   render() {
     const promotionId = this.props.object.id;
@@ -31,4 +31,4 @@ export default class PromoCouponsPage extends Component {
       </div>
     );
   }
-};
+}

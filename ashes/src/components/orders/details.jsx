@@ -1,7 +1,7 @@
 /* @flow */
 
 // libs
-import React, { Component, Element } from 'react';
+import React, { Component } from 'react';
 
 // components
 import TotalsSummary from 'components/common/totals';
@@ -52,5 +52,5 @@ export default class OrderDetails extends Component {
         </div>
       </div>
     );
-  };
+  }
 }

@@ -60,6 +60,8 @@ export function injectTimeMarks(activities) {
 }
 
 const renderActivityItem = (activity, idx, list, hasMore) => {
+  const isFirst = !hasMore && idx == list.length - 1;
+
   switch (activity.kind) {
     case 'mark':
       return (
@@ -74,7 +76,6 @@ const renderActivityItem = (activity, idx, list, hasMore) => {
         </li>
       );
     default:
-      const isFirst = !hasMore && idx == list.length - 1;
       return <Activity activity={activity} isFirst={isFirst} key={`activity_${activity.id}_${activity.kind}`} />;
   }
 };

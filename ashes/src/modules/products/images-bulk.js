@@ -4,12 +4,9 @@
 
 
 // libs
-import _ from 'lodash';
 import { createAction, createReducer } from 'redux-act';
 
 // helpers
-import Api from '../../lib/api';
-import { singularize } from 'fleck';
 import createStore from '../../lib/store-creator';
 
 // data

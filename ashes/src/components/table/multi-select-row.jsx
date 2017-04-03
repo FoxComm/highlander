@@ -45,6 +45,7 @@ const MultiSelectRow = (props, context) => {
     const cellKey = `row-${col.field}`;
     let cellContents = null;
     let cellClickAction = null;
+    const setCellFn = setCellContents || _.get;
 
     const cls = classNames(`fct-row__${col.field}`, {
       'row-head-left': col.field == 'selectColumn',
@@ -56,7 +57,6 @@ const MultiSelectRow = (props, context) => {
         cellContents = <Checkbox id={`multi-select-${row.id}`} inline={true} checked={checked} onChange={onChange} />;
         break;
       default:
-        const setCellFn = setCellContents || _.get;
         cellContents = setCellFn(row, col.field);
         break;
     }

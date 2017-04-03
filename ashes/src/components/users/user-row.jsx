@@ -8,10 +8,11 @@ import MultiSelectRow from '../table/multi-select-row';
 import UserInitials from '../user-initials/initials';
 
 const setCellContents = (user: Object, field: string) => {
+  const state = _.get(user, 'state', 'invited');
+  const text = state.charAt(0).toUpperCase() + state.slice(1);
+
   switch (field) {
     case 'state':
-      const state = _.get(user, 'state', 'invited');
-      const text = state.charAt(0).toUpperCase() + state.slice(1);
       return <RoundedPill text={text} />;
     case 'roles':
       return _.get(user, field, 'Super Admin');

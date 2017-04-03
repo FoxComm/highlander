@@ -54,6 +54,5 @@ export default class RmaDetails extends React.Component {
         </div>
       </div>
     );
-    return null;
   }
 }

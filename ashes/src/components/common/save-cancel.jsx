@@ -113,4 +113,4 @@ export default class SaveCancel extends Component {
       </div>
     );
   }
-};
+}
