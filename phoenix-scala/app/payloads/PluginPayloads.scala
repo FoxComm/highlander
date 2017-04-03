@@ -20,20 +20,24 @@ object PluginPayloads {
                                    schemaSettings: Option[SettingsSchema])
       extends Validation[RegisterPluginPayload] {
 
-    def isNotManaged(): Boolean = {
-      apiPort.isEmpty || apiHost.isEmpty
+    def isManaged(): Boolean = {
+      apiPort.isDefined && apiHost.isDefined
+    }
+
+    def apiUrlNotEmptyIfManaged(): ValidatedNel[Failure, Unit] = {
+      (notEmptyIf(schemaSettings,
+                  !isManaged(),
+                  "schemaSettings or apiHost & apiPort should be presented")
+            |@| apiPort.fold(ok) { port ⇒
+              greaterThan(port, 0, "Api port")
+            }).map { case _ ⇒ () }
     }
 
     def validate: ValidatedNel[Failure, RegisterPluginPayload] = {
       (notEmpty(name, "name")
             |@| notEmpty(version, "version")
             |@| nullOrNotEmpty(apiHost, "API host")
-            |@| notEmptyIf(schemaSettings,
-                           isNotManaged(),
-                           "schemaSettings or apiHost & apiPort should be presented")
-            |@| apiPort.fold(ok) { port ⇒
-              greaterThan(port, 1, "Api port")
-            }).map { case _ ⇒ this }
+            |@| apiUrlNotEmptyIfManaged()).map { case _ ⇒ this }
     }
   }
 

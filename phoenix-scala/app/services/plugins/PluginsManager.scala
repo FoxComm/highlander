@@ -13,7 +13,7 @@ import responses.plugins.PluginCommonResponses._
 import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.db._
-import utils.JsonFormatters
+import org.json4s.Formats
 import com.typesafe.scalalogging.LazyLogging
 
 object PluginsManager extends LazyLogging {
@@ -27,26 +27,24 @@ object PluginsManager extends LazyLogging {
         .apiUrl()
         .fold(DbResultT.failure[SettingsSchema](
                 GeneralFailure("settingsSchema or apiUrl should be " +
-                      "presented"))) { apiUrl ⇒
-          implicit val formats = JsonFormatters.phoenixFormats
-          val req              = host(apiUrl) / "_settings" / "schema"
+                      "present"))) { apiUrl ⇒
+          val req = host(apiUrl) / "_settings" / "schema"
           DbResultT.fromF(DBIO.from(Http(req OK as.json4s.Json).map(_.extract[SettingsSchema])))
         }
     }(DbResultT.good(_))
 
-  def uploadNewSettingsToPlugin(plugin: Plugin)(implicit ec: EC): Future[String] = {
+  def uploadNewSettingsToPlugin(plugin: Plugin)(implicit ec: EC,
+                                                formats: Formats): Future[String] = {
     plugin.apiUrl().fold(Future.successful("")) { apiUrl ⇒
       val rawReq = host(apiUrl) / "_settings" / "upload"
       val body   = compact(render(plugin.settings.toJson))
       val req    = rawReq.setContentType("application/json", "UTF-8") << body
       logger.info(
           s"Updating plugin ${plugin.name} at ${plugin.apiHost}:${plugin.apiPort}: ${body}")
-      val res = Http(req.POST OK as.String)
-      for {
-        r ← res
-      } yield {
-        logger.info(s"Plugin Response: $r")
-        r
+      val resp = Http(req.POST OK as.String)
+      resp.map { respBody ⇒
+        logger.info(s"Plugin Response: $respBody")
+        respBody
       }
     }
   }
