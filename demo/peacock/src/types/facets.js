@@ -1,5 +1,7 @@
 
 export type FacetElementProps = {
+  reactKey: string,
+  key: string,
   facet: string,
   value: string,
   label: string,

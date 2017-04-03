@@ -50,12 +50,10 @@ class ColorCircle extends Component {
 
   render(): Element<*> {
     const {
-      facet,
+      reactKey,
       value,
       label,
     } = this.props;
-
-    const id = `${facet}-color-${label}`;
 
     const colorStyle = styles[value.color];
 
@@ -67,13 +65,13 @@ class ColorCircle extends Component {
     return _.isNil(colorStyle) ? (<div />) :
       (<div className={className}>
         <input
-          id={id}
+          id={reactKey}
           type="checkbox"
           checked={this.state.checked}
           onChange={this.click}
         />
         <div>
-          <label htmlFor={id}>{''}</label>
+          <label htmlFor={reactKey}>{''}</label>
         </div>
       </div>);
   }

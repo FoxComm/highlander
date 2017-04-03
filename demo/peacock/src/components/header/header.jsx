@@ -27,7 +27,7 @@ type Props = {
 const Header = (props: Props) => {
   return (
     <div>
-      <div styleName="header">
+      <div id="header" styleName="header">
         <div styleName="wrap">
           <ActionLink
             action={props.toggleSidebar}
