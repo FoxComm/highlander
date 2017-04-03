@@ -32,6 +32,7 @@ export default class ObjectDetailsDeux extends Component {
     return _.get(this.props, 'object.attributes', {});
   }
 
+  @autobind
   checkValidity(): boolean {
     return this.refs.form.checkValidity();
   }

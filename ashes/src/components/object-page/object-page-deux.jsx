@@ -2,7 +2,9 @@
 
 import { get, capitalize, noop, pick } from 'lodash';
 import { autobind } from 'core-decorators';
-import React, { Component, Element } from 'react';
+import EventEmitter from 'events';
+import jsen from 'jsen';
+import React, { Component, Element, PropTypes } from 'react';
 
 // components
 import { IndexLink, Link } from 'components/link';
@@ -16,6 +18,7 @@ import ButtonWithMenu from '../common/button-with-menu';
 
 // helpers
 import { SAVE_COMBO, SAVE_COMBO_ITEMS } from 'paragons/common';
+import { supressTV } from 'paragons/object';
 
 import styles from './object-page.css';
 
@@ -26,6 +29,14 @@ class ObjectPageDeux extends Component {
   static defaultProps = {
     identifierFieldName: 'id',
     headerControls: [],
+  };
+
+  _context: {
+    validationDispatcher: EventEmitter,
+  };
+
+  static childContextTypes = {
+    validationDispatcher: PropTypes.object,
   };
 
   componentDidMount() {
@@ -40,6 +51,20 @@ class ObjectPageDeux extends Component {
     if (this.props.identifier !== identifier && nextProps.identifier !== 'new') {
       actions.fetch(identifier, context);
     }
+  }
+
+  getChildContext() {
+    if (!this._context) {
+      const emitter = new EventEmitter();
+
+      emitter.setMaxListeners(20);
+
+      this._context = {
+        validationDispatcher: emitter
+      };
+    }
+
+    return this._context;
   }
 
   get isNew(): boolean {
@@ -92,6 +117,7 @@ class ObjectPageDeux extends Component {
   @autobind
   handleSelectSaving(value: string) {
     const { actions } = this.props;
+    if (!this.save()) { return }
 
     this.save().then(() => {
       switch (value) {
@@ -110,6 +136,7 @@ class ObjectPageDeux extends Component {
 
   @autobind
   handleSaveButton() {
+    if (!this.save()) { return }
     this.save().then(this.transitionToObject);
   }
 
@@ -120,9 +147,55 @@ class ObjectPageDeux extends Component {
     actions.transition(get(object, identifierFieldName));
   }
 
+  prepareObjectForValidation(object) {
+    return object;
+  }
+
+  prepareObjectForSaving(object) {
+    return object;
+  }
+
+  validateForm(): boolean {
+    const { form } = this.refs;
+
+    let formValid = true;
+
+    if (form && form.checkValidity) {
+      if (!form.checkValidity())  formValid = false;
+    };
+
+    return formValid;
+  }
+
+  validateObject(object: Object): ?Array<Object> {
+    const validate = jsen(this.props.schema);
+    if (!validate(supressTV(object))) {
+      return validate.errors;
+    }
+  }
+
+  validate(): boolean {
+    const errors = this.validateObject(
+      supressTV(this.prepareObjectForValidation(this.props.object))
+    );
+    let preventSave = false;
+    const event = {
+      preventSave() {
+        preventSave = true;
+      },
+      errors,
+    };
+    this.getChildContext().validationDispatcher.emit('errors', event);
+    return !errors || !preventSave;
+  }
+
   @autobind
   save() {
-    const { context, object, actions } = this.props;
+    const { context, actions } = this.props;
+    const object = this.prepareObjectForSaving(this.props.object);
+
+    if (!this.validateForm()) return;
+    if (!this.validate()) return;
 
     const saveFn = this.isNew ? actions.create : actions.update;
 
@@ -171,8 +244,10 @@ class ObjectPageDeux extends Component {
 
   get children(): Element<*> {
     const { layout, schema, object, objectType, internalObjectType, onUpdateObject } = this.props;
+    const ref = 'form';
 
-    return React.cloneElement(React.Children.only(this.props.children), {
+    return React.cloneElement(this.props.children, {
+      ref,
       layout,
       schema,
       object,
