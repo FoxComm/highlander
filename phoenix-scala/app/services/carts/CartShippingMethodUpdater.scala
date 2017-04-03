@@ -42,16 +42,14 @@ object CartShippingMethodUpdater {
            .map(_.orderShippingMethodId)
            .update(orderShipMethod.id.some)
       // update changed totals
-      readjustedCartWithWarnings ← * <~ CartPromotionUpdater
-                                    .readjust(cart, failFatally = false)
-                                    .recover {
-                                      case _ ⇒ TheResponse(cart) /* FIXME: don’t swallow errors @michalrus */
-                                    }
+      _ ← * <~ CartPromotionUpdater.readjust(cart, failFatally = false).recover {
+           case _ ⇒ () /* FIXME: don’t swallow errors @michalrus */
+         }
       order     ← * <~ CartTotaler.saveTotals(cart)
       validated ← * <~ CartValidator(order).validate()
       response  ← * <~ CartResponse.buildRefreshed(order)
       _         ← * <~ LogActivity().orderShippingMethodUpdated(originator, response, oldShipMethod)
-    } yield readjustedCartWithWarnings.flatMap(_ ⇒ TheResponse.validated(response, validated))
+    } yield TheResponse.validated(response, validated)
 
   def deleteShippingMethod(originator: User, refNum: Option[String] = None)(
       implicit ec: EC,
@@ -67,14 +65,12 @@ object CartShippingMethodUpdater {
                     .mustFindOneOr(NoShipMethod(cart.refNum))
       _ ← * <~ OrderShippingMethods.findByOrderRef(cart.refNum).delete
       // update changed totals
-      readjustedCartWithWarnings ← * <~ CartPromotionUpdater
-                                    .readjust(cart, failFatally = false)
-                                    .recover {
-                                      case _ ⇒ TheResponse(cart) /* FIXME: don’t swallow errors @michalrus */
-                                    }
-      cart  ← * <~ CartTotaler.saveTotals(readjustedCartWithWarnings.result)
+      _ ← * <~ CartPromotionUpdater.readjust(cart, failFatally = false).recover {
+           case _ ⇒ () /* FIXME: don’t swallow errors @michalrus */
+         }
+      cart  ← * <~ CartTotaler.saveTotals(cart)
       valid ← * <~ CartValidator(cart).validate()
       resp  ← * <~ CartResponse.buildRefreshed(cart)
       _     ← * <~ LogActivity().orderShippingMethodDeleted(originator, resp, shipMethod)
-    } yield readjustedCartWithWarnings.flatMap(_ ⇒ TheResponse.validated(resp, valid))
+    } yield TheResponse.validated(resp, valid)
 }

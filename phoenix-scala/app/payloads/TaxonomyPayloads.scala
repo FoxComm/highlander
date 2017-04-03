@@ -17,43 +17,4 @@ object TaxonomyPayloads {
                                    scope: Option[String] = None)
 
   case class UpdateTaxonomyPayload(attributes: AttributesMap)
-
-  case class TaxonLocation(parent: Option[Int], position: Option[Int])
-      extends Validation[TaxonLocation] {
-    override def validate: ValidatedNel[Failure, TaxonLocation] =
-      position
-        .fold(Validation.ok)(Validation.greaterThanOrEqual(_, 0, "location.position"))
-        .map(_ ⇒ this)
-  }
-
-  case class CreateTaxonPayload(name: String,
-                                location: Option[TaxonLocation],
-                                scope: Option[String] = None)
-      extends Validation[CreateTaxonPayload] {
-    override def validate: ValidatedNel[Failure, CreateTaxonPayload] =
-      location.map(_.validate).getOrElse(Validation.ok).map(_ ⇒ this)
-
-    def formAndShadow: FormAndShadow = {
-
-      val jsonBuilder: AttributesBuilder =
-        ObjectPayloads.AttributesBuilder(StringField("name", name))
-
-      (ObjectForm(kind = Taxon.kind, attributes = jsonBuilder.objectForm),
-       ObjectShadow(attributes = jsonBuilder.objectShadow))
-    }
-  }
-
-  case class UpdateTaxonPayload(name: Option[String], location: Option[TaxonLocation])
-      extends Validation[UpdateTaxonPayload] {
-    override def validate: ValidatedNel[Failure, UpdateTaxonPayload] =
-      location.map(_.validate).getOrElse(Validation.ok).map(_ ⇒ this)
-
-    def formAndShadow: FormAndShadow = {
-      val jsonBuilder: AttributesBuilder =
-        ObjectPayloads.optionalAttributes(name.map(StringField("name", _)))
-
-      (ObjectForm(kind = Taxon.kind, attributes = jsonBuilder.objectForm),
-       ObjectShadow(attributes = jsonBuilder.objectShadow))
-    }
-  }
 }

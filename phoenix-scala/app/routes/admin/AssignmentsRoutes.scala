@@ -667,6 +667,80 @@ object AssignmentsRoutes {
             }
           }
         }
+      } ~
+      // Taxonomies Single Assignments
+      pathPrefix("taxonomies" / IntNumber) { taxonomyId ⇒
+        pathPrefix("assignees") {
+          (get & pathEnd) {
+            getOrFailures {
+              TaxonomyAssignmentsManager.list(taxonomyId)
+            }
+          } ~
+          (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
+            mutateOrFailures {
+              TaxonomyAssignmentsManager.assign(taxonomyId, payload, auth.model)
+            }
+          } ~
+          (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
+            mutateOrFailures {
+              TaxonomyAssignmentsManager.unassign(taxonomyId, assigneeId, auth.model)
+            }
+          }
+        } ~
+        pathPrefix("watchers") {
+          (get & pathEnd) {
+            getOrFailures {
+              TaxonomyWatchersManager.list(taxonomyId)
+            }
+          } ~
+          (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
+            mutateOrFailures {
+              TaxonomyWatchersManager.assign(taxonomyId, payload, auth.model)
+            }
+          } ~
+          (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
+            mutateOrFailures {
+              TaxonomyWatchersManager.unassign(taxonomyId, assigneeId, auth.model)
+            }
+          }
+        }
+      } ~
+      // Taxons Single Assignments
+      pathPrefix("taxons" / IntNumber) { taxonId ⇒
+        pathPrefix("assignees") {
+          (get & pathEnd) {
+            getOrFailures {
+              TaxonAssignmentsManager.list(taxonId)
+            }
+          } ~
+          (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
+            mutateOrFailures {
+              TaxonAssignmentsManager.assign(taxonId, payload, auth.model)
+            }
+          } ~
+          (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
+            mutateOrFailures {
+              TaxonAssignmentsManager.unassign(taxonId, assigneeId, auth.model)
+            }
+          }
+        } ~
+        pathPrefix("watchers") {
+          (get & pathEnd) {
+            getOrFailures {
+              TaxonWatchersManager.list(taxonId)
+            }
+          } ~
+          (post & pathEnd & entity(as[AssignmentPayload])) { payload ⇒
+            mutateOrFailures {
+              TaxonWatchersManager.assign(taxonId, payload, auth.model)
+            }
+          } ~
+          (delete & path(IntNumber) & pathEnd) { assigneeId ⇒
+            mutateOrFailures {
+              TaxonWatchersManager.unassign(taxonId, assigneeId, auth.model)
+            }
+          }
+        }
       }
     }
   }

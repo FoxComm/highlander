@@ -7,7 +7,7 @@ import com.github.tminglei.slickpg.LTree
 import com.pellucid.sealerate
 import failures.CustomerGroupFailures.CustomerGroupTypeIsWrong
 import failures.Failures
-import models.account.Scope
+import models.account.{Scope, User}
 import models.customer.CustomerGroup._
 import payloads.CustomerGroupPayloads.CustomerGroupPayload
 import shapeless._
@@ -111,6 +111,9 @@ object CustomerGroups
 
   def filterActive(): QuerySeq = filter(_.deletedAt.isEmpty)
 
-  def fildAllByIdsAndType(ids: Set[Int], groupType: GroupType) =
-    filter(_.id.inSet(ids)).filter(_.groupType === groupType)
+  def fildAllByIds(ids: Set[Int]): QuerySeq =
+    filter(_.id.inSet(ids))
+
+  def fildAllByIdsAndType(ids: Set[Int], groupType: GroupType): QuerySeq =
+    findAllByIds(ids).filter(_.groupType === groupType)
 }

@@ -4,8 +4,8 @@ import cats.data._
 import cats.implicits._
 import failures.DiscountFailures.SearchFailure
 import failures._
-import models.cord.lineitems.OrderLineItemAdjustment._
-import models.cord.lineitems.{OrderLineItemAdjustment ⇒ Adjustment}
+import models.cord.lineitems.CartLineItemAdjustment._
+import models.cord.lineitems.{CartLineItemAdjustment ⇒ Adjustment}
 import models.discount._
 import models.discount.offers.Offer.OfferResult
 import utils.ElasticsearchApi.Buckets

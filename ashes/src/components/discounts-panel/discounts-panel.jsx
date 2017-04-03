@@ -18,7 +18,6 @@ type Props = {
 
 const viewColumns = [
   {field: 'name', text: 'Name'},
-  {field: 'storefrontName', text: 'Storefront Name'},
 ];
 
 export default class DiscountsPanel extends Component {

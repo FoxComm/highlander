@@ -1,6 +1,6 @@
 package services.returns
 
-import models.cord.lineitems.{OrderLineItemAdjustments, OrderLineItems}
+import models.cord.lineitems.{CartLineItemAdjustments, OrderLineItems}
 import models.inventory.Skus
 import models.objects.{ObjectForms, ObjectShadows}
 import models.payment.giftcard.GiftCards
@@ -16,13 +16,11 @@ object ReturnTotaler {
     (for {
       returnLineItems    ← ReturnLineItems if returnLineItems.returnId === rma.id
       returnLineItemSkus ← ReturnLineItemSkus if returnLineItemSkus.id === returnLineItems.id
-      skus               ← Skus if skus.id === returnLineItemSkus.skuId
+      skus               ← returnLineItemSkus.sku
       form               ← ObjectForms if form.id === skus.formId
       shadow             ← ObjectShadows if shadow.id === returnLineItemSkus.skuShadowId
-      gcli               ← ReturnLineItemGiftCards if gcli.id === returnLineItems.id
-      gc                 ← GiftCards if gc.id === gcli.giftCardId
 
       total = ((form.attributes +> ((shadow.attributes +> "salePrice") +>> "ref")) +>> "value")
         .asColumnOf[Int]
-    } yield gc.originalBalance + total).sum.filter(_ > 0).getOrElse(0).result.dbresult
+    } yield total).sum.filter(_ > 0).getOrElse(0).result.dbresult
 }

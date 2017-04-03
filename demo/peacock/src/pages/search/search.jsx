@@ -5,7 +5,6 @@ import React, { Component, Element } from 'react';
 import { connect } from 'react-redux';
 import _ from 'lodash';
 import localized from 'lib/i18n';
-
 // components
 import ProductsList from 'components/products-list/products-list';
 
@@ -81,6 +80,8 @@ class Search extends Component {
           changeSorting={_.noop}
           list={result}
           isLoading={this.props.searchState.inProgress !== false}
+          fetchMoreProducts={_.noop}
+          moreAvailable={false}
         />
       </div>
     );

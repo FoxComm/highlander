@@ -151,22 +151,16 @@ trait ReturnsFixtures
       extends ReturnLineItemFixture
       with ReturnReasonDefaults
       with ReturnDefaults {
-    val giftCardPayload =
-      ReturnGiftCardLineItemPayload(code = giftCard.code, reasonId = returnReason.id)
 
     val shippingCostPayload =
       ReturnShippingCostLineItemPayload(amount = order.totals.shipping, reasonId = reason.id)
 
-    val skuPayload = ReturnSkuLineItemPayload(sku = product.code,
-                                              quantity = 1,
-                                              reasonId = returnReason.id,
-                                              isReturnItem = true,
-                                              inventoryDisposition = ReturnLineItem.Putaway)
+    val skuPayload =
+      ReturnSkuLineItemPayload(sku = product.code, quantity = 1, reasonId = returnReason.id)
 
     val shippingCostItemId =
-      createReturnLineItem(shippingCostPayload, rma.referenceNumber).lineItems.shippingCosts.value.lineItemId
-    val skuItemId =
-      createReturnLineItem(skuPayload, rma.referenceNumber).lineItems.skus.head.lineItemId
+      createReturnLineItem(shippingCostPayload, rma.referenceNumber).lineItems.shippingCosts.value.id
+    val skuItemId = createReturnLineItem(skuPayload, rma.referenceNumber).lineItems.skus.head.id
   }
 
   trait ReturnPaymentFixture extends ReturnLineItemFixture {

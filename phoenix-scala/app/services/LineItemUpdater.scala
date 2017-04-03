@@ -40,7 +40,7 @@ object LineItemUpdater {
     for {
       cart     ← * <~ Carts.mustFindByRefNum(refNum)
       _        ← * <~ updateQuantities(cart, payload)
-      response ← * <~ runUpdates(cart, logActivity)
+      response ← * <~ runUpdates(cart, logActivity.some)
     } yield response
   }
 
@@ -93,7 +93,7 @@ object LineItemUpdater {
     for {
       cart     ← * <~ finder
       _        ← * <~ updateQuantities(cart, payload)
-      response ← * <~ runUpdates(cart, logActivity)
+      response ← * <~ runUpdates(cart, logActivity.some)
     } yield response
   }
 
@@ -111,7 +111,7 @@ object LineItemUpdater {
     for {
       cart     ← * <~ Carts.mustFindByRefNum(refNum)
       _        ← * <~ addQuantities(cart, payload)
-      response ← * <~ runUpdates(cart, logActivity)
+      response ← * <~ runUpdates(cart, logActivity.some)
     } yield response
   }
 
@@ -134,29 +134,27 @@ object LineItemUpdater {
     for {
       cart     ← * <~ finder
       _        ← * <~ addQuantities(cart, payload)
-      response ← * <~ runUpdates(cart, logActivity)
+      response ← * <~ runUpdates(cart, logActivity.some)
     } yield response
   }
 
-  private def runUpdates(cart: Cart,
-                         logAct: (CartResponse, Map[String, Int]) ⇒ DbResultT[Activity])(
+  def runUpdates(cart: Cart,
+                 logAct: Option[(CartResponse, Map[String, Int]) ⇒ DbResultT[Activity]])(
       implicit ec: EC,
       apis: Apis,
       db: DB,
       ctx: OC,
       au: AU): DbResultT[TheResponse[CartResponse]] =
     for {
-      readjustedCartWithWarnings ← * <~ CartPromotionUpdater
-                                    .readjust(cart, failFatally = false)
-                                    .recover {
-                                      case _ ⇒ TheResponse(cart) /* FIXME: don’t swallow errors @michalrus */
-                                    }
-      cart  ← * <~ CartTotaler.saveTotals(readjustedCartWithWarnings.result)
+      _ ← * <~ CartPromotionUpdater.readjust(cart, failFatally = false).recover {
+           case _ ⇒ () /* FIXME: don’t swallow errors @michalrus */
+         }
+      cart  ← * <~ CartTotaler.saveTotals(cart)
       valid ← * <~ CartValidator(cart).validate()
       res   ← * <~ CartResponse.buildRefreshed(cart)
       li    ← * <~ CartLineItems.byCordRef(cart.refNum).countSkus
-      _     ← * <~ logAct(res, li)
-    } yield readjustedCartWithWarnings.flatMap(_ ⇒ TheResponse.validated(res, valid))
+      _     ← * <~ logAct.traverse(_ (res, li)).void
+    } yield TheResponse.validated(res, valid)
 
   def foldQuantityPayload(payload: Seq[UpdateLineItemsPayload]): Map[String, Int] =
     payload.foldLeft(Map[String, Int]()) { (acc, item) ⇒

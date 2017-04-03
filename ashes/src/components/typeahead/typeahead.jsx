@@ -25,6 +25,7 @@ export default class Typeahead extends React.Component {
     fetchItems: PropTypes.func, // triggers when text is changed and text is valid
     hideOnBlur: PropTypes.bool,
     isFetching: PropTypes.bool,
+    isAsync: PropTypes.bool,
     items: PropTypes.array, // Array of data for suggestion. Each element passed to `component`
     label: PropTypes.string, // title for input
     name: PropTypes.string, // name attr for default input
@@ -48,6 +49,7 @@ export default class Typeahead extends React.Component {
     minQueryLength: 1,
     autoComplete: 'off',
     initialValue: '',
+    isAsync: true,
   };
 
   state = {
@@ -58,7 +60,11 @@ export default class Typeahead extends React.Component {
   };
 
   componentWillReceiveProps(nextProps) {
-    if (this.props.isFetching && !nextProps.isFetching) {
+    if(this.props.isAsync){
+      if (this.props.isFetching && !nextProps.isFetching) {
+        this.toggleVisibility(true);
+      }
+    } else {
       this.toggleVisibility(true);
     }
 

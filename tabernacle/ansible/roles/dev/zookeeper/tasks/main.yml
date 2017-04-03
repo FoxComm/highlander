@@ -1,6 +1,6 @@
 ---
 
-- name: Stop Backend Services
+- name: Stop Services
   service: name={{item}} state=stopped enabled=true
   with_items:
     - docker
@@ -9,54 +9,36 @@
     - bottledwater_phoenix
     - bottledwater_middlewarehouse
     - mesos_worker
-  when: "'backend' in inventory_hostname" 
-
-- name: Stop Amigo Services
-  service: name={{item}} state=stopped enabled=true
-  with_items:
     - zookeeper
     - marathon
     - mesos_master
-  when: "'consul' in inventory_hostname" 
 
 - name: Purge Zookeeper Data
   file: path=/var/lib/zookeeper state=absent
-  when: "'consul' in inventory_hostname" 
 
 - name: Create Zookeeper Directory
   file: path=/var/lib/zookeeper state=directory
-  when: "'consul' in inventory_hostname" 
 
 - name: Purge Kafka Queue
   file: path=/var/lib/kafka state=absent
-  when: "'backend' in inventory_hostname" 
 
 - name: Create Kafka Directory
   file: path=/var/lib/kafka state=directory
-  when: "'backend' in inventory_hostname" 
 
-- name: Start Backend Services
+- name: Start Services
   service: name={{item}} state=restarted enabled=true
   with_items:
     - docker
+    - zookeeper
     - kafka
     - schema-registry
     - bottledwater_phoenix
     - bottledwater_middlewarehouse
-    - mesos_worker
-  when: "'backend' in inventory_hostname" 
-
-- name: Start Amigo Services
-  service: name={{item}} state=started enabled=true
-  with_items:
-    - zookeeper
     - mesos_master
-  when: "'consul' in inventory_hostname" 
+    - mesos_worker
 
 - name: Take a nap for a while
   pause: seconds=20
-  when: "'consul' in inventory_hostname" 
 
 - name: Start Marathon
   service: name=marathon state=started enabled=true
-  when: "'consul' in inventory_hostname" 

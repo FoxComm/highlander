@@ -1,19 +1,18 @@
 package utils.seeds
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import models.account.Scope
-import models.cord.Orders
 import models.returns._
 import models.{Note, Notes}
-import utils.aliases.{AU, EC}
+import scala.concurrent.ExecutionContext.Implicits.global
+import utils.aliases._
 import utils.db._
 
 trait ReturnSeeds {
 
   def createReturns(implicit au:AU): DbResultT[Unit] =
     for {
-      _     ← * <~ ReturnLineItemSkus.createAll(returnLineItemSkus)
-      _     ← * <~ ReturnLineItems.createAll(returnLineItems)
+      ids   ← * <~ ReturnLineItems.createAllReturningIds(returnLineItems)
+      _     ← * <~ ReturnLineItemSkus.createAll(returnLineItemSkus.zip(ids).map { case (sku, id) => sku.copy(id = id) })
       _     ← * <~ Notes.createAll(returnNotes)
     } yield {}
 
@@ -28,24 +27,20 @@ trait ReturnSeeds {
            accountId = 1)
 
   def returnLineItemSkus = Seq(
-      ReturnLineItemSku(returnId = 1, skuId = 1, skuShadowId = 1),
-      ReturnLineItemSku(returnId = 1, skuId = 2, skuShadowId = 2)
+      ReturnLineItemSku(id = 0, returnId = 1, quantity = 1, skuId = 1, skuShadowId = 1),
+      ReturnLineItemSku(id = 0, returnId = 1, quantity = 2, skuId = 2, skuShadowId = 2)
   )
 
   def returnLineItems =
     Seq(
-        ReturnLineItem(
-          returnId = 1,
+        ReturnLineItem(id = 0,
+                       returnId = 1,
                        reasonId = 12,
-                       originId = 1,
-                       originType = ReturnLineItem.SkuItem,
-                       inventoryDisposition = ReturnLineItem.Putaway),
-        ReturnLineItem(
-          returnId = 1,
+                       originType = ReturnLineItem.SkuItem),
+        ReturnLineItem(id = 0,
+                       returnId = 1,
                        reasonId = 12,
-                       originId = 2,
-                       originType = ReturnLineItem.SkuItem,
-                       inventoryDisposition = ReturnLineItem.Putaway)
+                       originType = ReturnLineItem.SkuItem)
     )
 
   def returnNotes(implicit au:AU): Seq[Note] = {

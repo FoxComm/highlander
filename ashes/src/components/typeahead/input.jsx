@@ -1,5 +1,7 @@
+/* @flow */
+
 // libs
-import React, { PropTypes } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import _ from 'lodash';
 
@@ -10,9 +12,13 @@ import { INPUT_ATTRS } from 'paragons/common';
 // styles
 import s from './typeahead.css';
 
-const TypeaheadInput = props => {
-  const { isFetching } = props;
-  const attrs = _.pick(props, INPUT_ATTRS);
+type Props = {
+  autoFocus: boolean,
+  className: string,
+};
+
+const TypeaheadInput = ({ className, isFetching, ...rest }: Props) => {
+  const attrs = _.pick(rest, INPUT_ATTRS);
 
   return (
     <LoadingInputWrapper inProgress={isFetching}>

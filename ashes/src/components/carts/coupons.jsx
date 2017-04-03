@@ -34,8 +34,6 @@ type Props = CouponModuleActions & {
 };
 
 const viewColumns = [
-  { field: 'name', text: 'Name' },
-  { field: 'storefrontName', text: 'Storefront Name' },
   { field: 'code', text: 'Code' },
 ];
 

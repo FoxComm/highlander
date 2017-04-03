@@ -11,9 +11,6 @@ import { activeStatus, isArchived } from 'paragons/common';
 import RoundedPill from '../rounded-pill/rounded-pill';
 import MultiSelectRow from '../table/multi-select-row';
 
-// types
-import type { Product } from 'paragons/product';
-
 type Props = {
   product: Product,
   columns?: Array<Object>,
@@ -22,6 +19,8 @@ type Props = {
 
 function setCellContents(product, field) {
   switch (field) {
+    case 'skus':
+      return _.size(_.get(product, 'skus'));
     case 'image':
       return _.get(product, ['albums', 0, 'images', 0, 'src']);
     case 'state':

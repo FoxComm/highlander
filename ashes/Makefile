@@ -33,6 +33,7 @@ tag:
 	git push --tags origin master
 
 setup:
+	yarn cache clean
 	yarn --pure-lockfile
 	yarn build
 

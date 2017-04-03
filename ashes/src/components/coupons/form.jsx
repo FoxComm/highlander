@@ -28,69 +28,13 @@ type CouponFormProps = {
   onUpdateCouponCode: Function,
   fetchPromotions: Function,
   createCoupon: Function,
-}
+};
 
 const layout = require('./layout.json');
 
 export default class CouponForm extends ObjectDetails {
   props: CouponFormProps & DetailsProps;
   layout = layout;
-
-  handlePromotionSearch(token: string) {
-    return searchCouponPromotions(token).then((result) => {
-      return result.result;
-    });
-  }
-
-  @autobind
-  renderPromotionOption(promotion) {
-    return (
-      <DropdownItem value={promotion.id} key={`${promotion.id}-${promotion.promotionName}`}>
-        <span>{ promotion.promotionName }</span>
-        <span styleName="text-gray">
-          &nbsp;<span className="fc-icon icon-dot"></span>&nbsp;ID: { promotion.id }
-        </span>
-      </DropdownItem>
-    );
-  }
-
-  get promotionSelector() {
-    const id = _.get(this.props, 'object.promotion');
-    return (
-      <div>
-        <div styleName="field-label">
-          <label htmlFor="promotionSelector">
-            Promotion
-          </label>
-        </div>
-        <div>
-          <DropdownSearch
-            id="promotionSelector"
-            styleName="full-width"
-            name="promotion"
-            placeholder="- Select -"
-            value={id}
-            onChange={(value) => this.handlePromotionChange(value)}
-            fetchOptions={this.handlePromotionSearch}
-            renderOption={this.renderPromotionOption}
-            searchbarPlaceholder="Promotion name or storefront name"
-          />
-        </div>
-        { this.props.promotionError && (<div className="fc-form-field-error">
-          Promotion must be selected from the list above.
-        </div>) }
-        <div styleName="field-comment">
-          Only promotions with the Coupon Apply Type can be attached to a coupon.
-        </div>
-      </div>
-    );
-  }
-
-  @autobind
-  handlePromotionChange(value) {
-    const coupon = assoc(this.props.object, 'promotion', value);
-    this.props.onUpdateObject(coupon);
-  }
 
   @autobind
   handleUsageRulesChange(field, value) {
@@ -102,14 +46,13 @@ export default class CouponForm extends ObjectDetails {
     return _.get(this.props, 'object.attributes.usageRules.v', {});
   }
 
-  renderPromotionsSelector() {
-    return this.promotionSelector;
-  }
-
   renderCouponCodes() {
+    const id = _.get(this.props, 'object.promotion', null);
+    if (id == null) return null;
     return (
       <CouponCodes
         createCoupon={this.props.createCoupon}
+        promotionId={id}
         codeGeneration={this.props.codeGeneration}
         isNew={this.props.isNew}
       />

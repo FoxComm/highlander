@@ -85,12 +85,12 @@ object ReturnRoutes {
           pathPrefix("line-items") {
             (post & pathEnd & entity(as[ReturnLineItemPayload])) { payload ⇒
               mutateOrFailures {
-                ReturnLineItemUpdater.addLineItem(refNum, payload)
+                ReturnLineItemManager.addLineItem(refNum, payload)
               }
             } ~
             (delete & path(IntNumber) & pathEnd) { lineItemId ⇒
               mutateOrFailures {
-                ReturnLineItemUpdater.deleteLineItem(refNum, lineItemId)
+                ReturnLineItemManager.deleteLineItem(refNum, lineItemId)
               }
             }
           } ~

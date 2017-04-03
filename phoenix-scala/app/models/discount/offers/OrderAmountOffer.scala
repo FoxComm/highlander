@@ -1,6 +1,6 @@
 package models.discount.offers
 
-import models.cord.lineitems.OrderLineItemAdjustment._
+import models.cord.lineitems.CartLineItemAdjustment._
 import models.discount._
 import models.discount.offers.Offer.OfferResult
 import utils.aliases._

@@ -38,7 +38,7 @@
   "contributors": "https://github.com/FoxComm/highlander/graphs/contributors",
   "homepage": "https://github.com/FoxComm/highlander#readme",
   "dependencies": {
-    "@foxcomm/wings": "^1.9.0",
+    "@foxcomm/wings": "^1.9.6",
     "babel-polyfill": "^6.13.0",
     "browserHistory": "file:src/opt/browserHistory",
     "chance": "^0.7.6",
@@ -88,7 +88,7 @@
     "react-dom": "^15.4.0",
     "react-input-mask": "github:anru/react-input-mask#a7b8dc04debe9e8dfe7eee3ad31facb79b7c1826",
     "react-motion": "^0.4.4",
-    "react-redux": "^4.4.0",
+    "react-redux": "5.0.3",
     "react-router": "^2.3.0",
     "react-router-redux": "^4.0.2",
     "reduce-reducers": "^0.1.1",

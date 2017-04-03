@@ -2,7 +2,7 @@
 
 //libs
 import _ from 'lodash';
-import React, { Component } from 'react';
+import React from 'react';
 
 //components
 import EditGroupBase from './edit-group-base';
@@ -25,7 +25,6 @@ export default (props: Props) => {
     <EditGroupBase
       title={title}
       cancelTo="customer-groups"
-      cancelParams={{/* flow fix */}}
       {...props}
     />
   );

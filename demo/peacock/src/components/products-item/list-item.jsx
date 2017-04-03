@@ -12,6 +12,7 @@ import * as tracking from 'lib/analytics';
 
 import Currency from 'ui/currency';
 import ImagePlaceholder from './image-placeholder';
+import ProductImage from 'components/image/image';
 
 type Image = {
   alt?: string,
@@ -76,7 +77,7 @@ class ListItem extends React.Component {
     const previewImageUrl = _.get(this.props.albums, [0, 'images', 0, 'src']);
 
     return previewImageUrl
-      ? <img src={previewImageUrl} styleName="preview-image" ref="image" />
+      ? <ProductImage src={previewImageUrl} styleName="preview-image" ref="image" width={300} height={300} />
       : <ImagePlaceholder ref="image" />;
   }
 

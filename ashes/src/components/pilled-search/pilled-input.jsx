@@ -9,14 +9,16 @@ import { INPUT_ATTRS } from 'paragons/common';
 /* eslint-disable react/no-multi-comp */
 
 const formatPill = (pill, idx, props) => {
+  const clsValue = classNames('fc-pilled-input__pill-value', {
+    '_clickable': props.onPillClick !== PilledInput.defaultProps.onPillClick,
+  });
+
   return (
-    <div
-      className="fc-pilled-input__pill"
-      key={`pill-${idx}`}
-      onClick={() => props.onPillClick(pill, idx)}>
-      {pill}
-      <a onClick={() => props.onPillClose(pill, idx)}
-         className="fc-pilled-input__pill-close">
+    <div className="fc-pilled-input__pill" key={`pill-${idx}`}>
+      <span className={clsValue} onClick={() => props.onPillClick(pill, idx)}>
+        {pill}
+      </span>
+      <a onClick={() => props.onPillClose(pill, idx)} className="fc-pilled-input__pill-close">
         &times;
       </a>
     </div>
@@ -33,11 +35,15 @@ const controlsContainer = controls => {
   }
 };
 
-const iconWrapper = icon => {
+const iconWrapper = (icon, onIconClick) => {
   if (icon) {
+    const cls = classNames('fc-pilled-input__icon-wrapper', {
+      '_clickable': onIconClick !== PilledInput.defaultProps.onIconClick,
+    });
+
     return (
-      <div className="fc-pilled-input__icon-wrapper">
-        <i className={`icon-${icon}`}></i>
+      <div className={cls} onClick={onIconClick}>
+        <i className={`icon-${icon}`} />
       </div>
     );
   }
@@ -45,7 +51,7 @@ const iconWrapper = icon => {
 
 const PilledInput = props => {
 
-  const { controls, children, className, icon, pills = [], solid, disabled, ...rest } = props;
+  const { controls, children, className, icon, pills = [], solid, disabled, onIconClick, ...rest } = props;
 
   const containerClass = classNames('fc-pilled-input__input-container', {
     '_solid': solid
@@ -70,12 +76,12 @@ const PilledInput = props => {
     <div className={classNames('fc-pilled-input', className)}>
       <div className={containerClass}>
         <div className="fc-pilled-input__pills-wrapper">
-            {pills.map((pill, idx) => {
-              return props.formatPill(pill, idx, props);
-            })}
+          {pills.map((pill, idx) => {
+            return props.formatPill(pill, idx, props);
+          })}
           <div className="fc-pilled-input__input-wrapper">
             {input}
-            {iconWrapper(icon)}
+            {iconWrapper(icon, onIconClick)}
           </div>
         </div>
         {controlsContainer(controls)}
