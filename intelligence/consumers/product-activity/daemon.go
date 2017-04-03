@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-type ProductActivityMonitor struct {
+type ProductActivityDaemon struct {
 	hhClient      *Henhouse
 	esClient      *elastic.Client
 	interval      int64
@@ -18,7 +18,7 @@ type ProductActivityMonitor struct {
 	index         string
 }
 
-func NewProductActivityMonitor(henhouse *Henhouse, esClient *elastic.Client, index string, interval int) (*ProductActivityMonitor, error) {
+func NewProductActivityDaemon(henhouse *Henhouse, esClient *elastic.Client, index string, interval int) (*ProductActivityDaemon, error) {
 	if henhouse == nil {
 		return nil, errors.New("henhouse is required")
 	}
@@ -27,7 +27,7 @@ func NewProductActivityMonitor(henhouse *Henhouse, esClient *elastic.Client, ind
 		return nil, fmt.Errorf("Invalid interval value %d. Should be at least 1 second", interval)
 	}
 
-	return &ProductActivityMonitor{henhouse, esClient, int64(interval), time.Now(), 0, "track.1.products.activated", index}, nil
+	return &ProductActivityDaemon{henhouse, esClient, int64(interval), time.Now(), 0, "track.1.product.activated", index}, nil
 }
 
 const queryPattern = `
@@ -74,7 +74,7 @@ const queryPattern = `
 }
 `
 
-func (o *ProductActivityMonitor) start() error {
+func (o *ProductActivityDaemon) start() error {
 	err := o.queryFirstTime()
 	if err != nil {
 		return err
@@ -94,7 +94,7 @@ func (o *ProductActivityMonitor) start() error {
 	}
 }
 
-func (o *ProductActivityMonitor) queryFirstTime() error {
+func (o *ProductActivityDaemon) queryFirstTime() error {
 	log.Print("Querying henhouse for first time")
 
 	values, err := o.hhClient.Summary([]string{o.key})
@@ -113,7 +113,7 @@ func (o *ProductActivityMonitor) queryFirstTime() error {
 	return nil
 }
 
-func (o *ProductActivityMonitor) perform() error {
+func (o *ProductActivityDaemon) perform() error {
 	if ((o.lastQueryTime).Unix() + o.interval) < time.Now().Unix() {
 
 		end := time.Unix(o.lastQueryTime.Unix()+o.interval, 0)
@@ -137,12 +137,12 @@ func (o *ProductActivityMonitor) perform() error {
 	return nil
 }
 
-func (o *ProductActivityMonitor) queryES(from time.Time, to time.Time) (int64, error) {
+func (o *ProductActivityDaemon) queryES(from time.Time, to time.Time) (int64, error) {
 	query := fmt.Sprintf(queryPattern, to.Format(time.RFC3339), from.Format(time.RFC3339), from.Format(time.RFC3339))
 	q := elastic.RawStringQuery(query)
 	return o.esClient.Count(o.index).Type("products_search_view").Query(q).Do()
 }
 
-func (o *ProductActivityMonitor) track(quantity int64, time time.Time) error {
+func (o *ProductActivityDaemon) track(quantity int64, time time.Time) error {
 	return o.hhClient.Track(o.key, quantity, time)
 }

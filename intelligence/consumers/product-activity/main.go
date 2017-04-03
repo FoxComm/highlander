@@ -66,13 +66,13 @@ func main() {
 		return
 	}
 
-	monitor, err := NewProductActivityMonitor(hh, esClient, esIndex, seconds)
+	daemon, err := NewProductActivityDaemon(hh, esClient, esIndex, seconds)
 	if err != nil {
 		log.Printf("Error creating consumer: %s", err)
 		return
 	}
 
-	monitor.start()
+	daemon.start()
 }
 
 func lookupEnvOr(varible string, defaultValue string) string {

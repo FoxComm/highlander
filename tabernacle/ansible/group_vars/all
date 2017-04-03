@@ -327,7 +327,7 @@ shipstation_api_secret: ""
 shipstation_topic: "{{activities_topic}}"
 shipstation_interval: "10s"
 
-# Product activity monitor
+# Product activity daemon
 product_activity_interval: 60
 
 # Firebrand variables

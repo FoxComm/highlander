@@ -1,15 +1,15 @@
 ---
 
-- name: Copy Product activity monitor Marathon JSON
+- name: Copy Product Activity Marathon JSON
   template: src=product-activity.json dest=/marathon/applications mode="u+rw,g+rw,o+r"
 
-- name: Update Product activity monitor in Marathon
+- name: Update Product Activity in Marathon
   shell: 'curl -X PUT -d@/marathon/applications/product-activity.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/product-activity'
 
-- name: Restart Product activity monitor in Marathon
+- name: Restart Product Activity in Marathon
   shell: 'curl -X POST http://{{marathon_server}}/v2/apps/product-activity/restart'
 
-- name: Get Product Activity Monitor Marathon tasks in `healthy` state
+- name: Get Product Activity Marathon tasks in `healthy` state
   shell: curl -sS -XGET http://{{marathon_server}}/v2/apps/product-activity | jq '.app.tasksHealthy > 0'
   register: healthy_tasks_available
   until: healthy_tasks_available.stdout == 'true'
