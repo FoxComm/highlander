@@ -35,7 +35,7 @@
     color: var(--text-color);
     min-height: 50px;
     margin-top: 10px;
-    margin-bottom: 0px;
+    margin-bottom: 0;
 
   }
 }
@@ -80,8 +80,8 @@
 
 .sidebar-mobile-filter-header {
   position: fixed;
-  top: 0px;
-  left: 0px;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 40px;
   z-index: 2;
@@ -117,7 +117,6 @@
 }
 
 .sidebar-mobile-apply {
-  font-family: Lato;
   font-size: 16px;
   font-weight: 900;
   line-height: 2.75;
@@ -133,7 +132,6 @@
 .sidebar-mobile-close {
   width: 35px;
   height: 17px;
-  font-family: Lato;
   font-size: 14px;
   text-align: right;
   color: #0b7ddc;
@@ -144,11 +142,11 @@
   width: 100%;
 }
 
-.sidebar-mobile-checkbox:checked ~ .sidebar-mobile { 
+.sidebar-mobile-checkbox:checked ~ .sidebar-mobile {
   display:inline;
 }
 
-.sidebar-mobile-checkbox:checked ~ .content-mobile { 
+.sidebar-mobile-checkbox:checked ~ .content-mobile {
   display:none;
 }
 
@@ -163,41 +161,41 @@
   width: 50%;
 }
 
-@media ( --medium ) { 
+@media ( --medium ) {
   .facetted-container-mobile {
     display: none;
-    padding-top: 0px;
+    padding-top: 0;
   }
 
   .facetted-container {
-    display: inline;
+    display: block;
   }
 
-  .sidebar{
+  .sidebar {
     width: 40%;
     padding-left: 5%;
   }
 
-  .content{
+  .content {
     width: 60%;
   }
 }
 
-@media ( --large ) { 
+@media ( --large ) {
   .facetted-container-mobile {
     display: none;
   }
 
   .facetted-container {
-    display: inline;
+    display: block;
   }
 
-  .sidebar{
+  .sidebar {
     width: 20%;
     padding-left: 8%;
   }
 
-  .content{
+  .content {
     width: 80%;
   }
 }
