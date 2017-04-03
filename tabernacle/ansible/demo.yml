@@ -1,7 +1,7 @@
 ---
 
 - name: Purge Demo Amigo
-  hosts: demo1-amigo
+  hosts: "{{application_hostname}}-amigo"
   become: true
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
@@ -9,7 +9,7 @@
     - { role: dev/elasticsearch_5, when: first_run }
 
 - name: Provision Demo Backend
-  hosts: demo1-backend
+  hosts: "{{application_hostname}}-backend"
   become: true
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
@@ -28,7 +28,7 @@
     - include: roles/base/consul_agent/handlers/main.yml
 
 - name: Provision Demo Frontend
-  hosts: demo1-frontend
+  hosts: "{{application_hostname}}-frontend"
   become: true
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
@@ -59,7 +59,7 @@
     - include: roles/base/consul_agent/handlers/main.yml
 
 - name: Provision Demo Amigo
-  hosts: demo1-amigo
+  hosts: "{{application_hostname}}-amigo"
   become: true
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
