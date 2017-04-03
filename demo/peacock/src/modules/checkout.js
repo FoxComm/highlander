@@ -33,7 +33,6 @@ export type CheckoutState = {
 };
 
 export const selectCreditCard = createAction('CHECKOUT_SET_CREDIT_CARD');
-export const resetCreditCard = createAction('CHECKOUT_RESET_CREDIT_CARD');
 export const setEditStage = createAction('CHECKOUT_SET_EDIT_STAGE');
 export const setBillingData = createAction('CHECKOUT_SET_BILLING_DATA', (key, value) => [key, value]);
 export const resetBillingData = createAction('CHECKOUT_RESET_BILLING_DATA');
@@ -65,6 +64,15 @@ function _fetchShippingMethods() {
 function _fetchCreditCards() {
   return foxApi.creditCards.list();
 }
+
+const _resetCreditCard = createAsyncActions(
+  'resetCreditCard',
+  function() {
+    return foxApi.cart.removeCreditCards();
+  }
+);
+
+export const resetCreditCard = _resetCreditCard.perform;
 
 /* eslint-enable quotes, quote-props */
 
@@ -158,12 +166,15 @@ const _removeShippingAddress = createAsyncActions(
   'REMOVE_SHIPPING_ADDRESS',
   function() {
     const { getState, dispatch } = this;
-    const { shippingAddress } = getState().cart;
+    const { shippingAddress, shippingMethod } = getState().cart;
     if (_.isEmpty(shippingAddress)) return Promise.resolve({});
 
     return foxApi.cart.removeShippingAddress()
       .then(() => {
         dispatch(cleanShippingAddress());
+        if (!_.isEmpty(shippingMethod)) {
+          dispatch(removeShippingMethod());
+        }
       });
   }
 );
@@ -184,6 +195,20 @@ const _saveShippingMethod = createAsyncActions(
 );
 
 export const saveShippingMethod = _saveShippingMethod.perform;
+
+const _removeShippingMethod = createAsyncActions(
+  'removeShippingMethod',
+  function() {
+    const { dispatch } = this;
+
+    return foxApi.cart.removeShippingMethod()
+      .then((res) => {
+        dispatch(updateCart(res.result));
+      });
+  }
+);
+
+export const removeShippingMethod = _removeShippingMethod.perform;
 
 const _saveGiftCard = createAsyncActions(
   'saveGiftCard',
@@ -579,7 +604,7 @@ const reducer = createReducer({
       creditCard,
     };
   },
-  [resetCreditCard]: (state) => {
+  [_resetCreditCard.succeeded]: (state) => {
     return {
       ...state,
       creditCard: null,
