@@ -1,12 +1,6 @@
 # This file is responsible for configuring your application
 # and its dependencies with the aid of the Mix.Config module.
 use Mix.Config
-config :maru, Hyperion.API,
-  versioning: [
-    using: :path
-  ],
-  http: [port: 8880]
-
 config :hyperion, ecto_repos: [Hyperion.Repo]
 
 config :ex_aws,
