@@ -21,7 +21,6 @@ import Typeahead from 'components/typeahead/typeahead';
 import { CategoryItem } from './category-item';
 
 // types
-import type { Product } from 'paragons/product';
 import type { SuggestItem } from './selector';
 import type { AttrSchema } from 'paragons/object';
 

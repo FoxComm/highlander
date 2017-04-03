@@ -1,6 +1,6 @@
 /* @flow */
 
-import { capitalize, get, isNumber, isNaN, identity } from 'lodash';
+import { capitalize, get, identity } from 'lodash';
 import classNames from 'classnames';
 import React, { Component, Element } from 'react';
 

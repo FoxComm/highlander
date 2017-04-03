@@ -15,9 +15,10 @@ import s from './typeahead.css';
 type Props = {
   autoFocus: boolean,
   className: string,
+  isFetching?: boolean,
 };
 
-const TypeaheadInput = ({ className, isFetching, ...rest }: Props) => {
+const TypeaheadInput = ({ className, isFetching = false, ...rest }: Props) => {
   const attrs = _.pick(rest, INPUT_ATTRS);
 
   return (

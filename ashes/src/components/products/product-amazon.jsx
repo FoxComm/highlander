@@ -31,7 +31,6 @@ import ProductAmazonMain from './product-amazon-main';
 import ProductAmazonVariants from './product-amazon-variants';
 
 // types
-import type { Product } from 'paragons/product';
 import type { AttrSchema } from 'paragons/object';
 
 // selectors
