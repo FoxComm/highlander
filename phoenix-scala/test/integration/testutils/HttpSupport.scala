@@ -1,7 +1,5 @@
 package testutils
 
-import java.net.ServerSocket
-
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
@@ -18,10 +16,15 @@ import akka.util.ByteString
 import com.typesafe.config.ConfigFactory
 import de.heikoseeberger.akkasse.EventStreamUnmarshalling._
 import de.heikoseeberger.akkasse.ServerSentEvent
+import java.net.ServerSocket
 import org.json4s.Formats
 import org.json4s.jackson.Serialization.{write ⇒ writeJson}
 import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
+import scala.collection.immutable
+import scala.concurrent.Await
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration._
 import server.Service
 import services.Authenticator.UserAuthenticator
 import utils.FoxConfig.config
@@ -29,19 +32,17 @@ import utils.apis.Apis
 import utils.seeds.Factories
 import utils.{FoxConfig, JsonFormatters}
 
-import scala.collection.immutable
-import scala.concurrent.Await
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration._
-
-// TODO: Move away from root package when `Service' moverd
 object HttpSupport {
-  @volatile var akkaConfigured = false
+  implicit lazy val system: ActorSystem =
+    ActorSystem("phoenix-integration-tests", actorSystemConfig)
+  implicit lazy val materializer: ActorMaterializer = ActorMaterializer()
 
-  protected var system: ActorSystem             = _
-  protected var materializer: ActorMaterializer = _
-  protected var service: Service                = _
-  var serverBinding: ServerBinding              = _
+  private def actorSystemConfig =
+    ConfigFactory.parseString("""
+                                |akka {
+                                |  log-dead-letters = off
+                                |}
+                              """.stripMargin).withFallback(ConfigFactory.load())
 }
 
 trait HttpSupport
@@ -52,26 +53,25 @@ trait HttpSupport
     with TestObjectContext {
   self: FoxSuite ⇒
 
-  import HttpSupport._
-
   implicit val formats: Formats = JsonFormatters.phoenixFormats
 
   private val validResponseContentTypes =
     Set(ContentTypes.`application/json`, ContentTypes.NoContentType)
 
-  protected implicit lazy val mat: ActorMaterializer   = materializer
-  protected implicit lazy val actorSystem: ActorSystem = system
+  protected implicit def mat: ActorMaterializer   = HttpSupport.materializer
+  protected implicit def actorSystem: ActorSystem = HttpSupport.system
+
+  private[this] var service: Service             = _
+  private[this] var serverBinding: ServerBinding = _
 
   protected def additionalRoutes: immutable.Seq[Route] = immutable.Seq.empty
 
   override protected def beforeAll(): Unit = {
     super.beforeAll()
-    if (!akkaConfigured) {
-      system = ActorSystem("system", actorSystemConfig)
-      materializer = ActorMaterializer()
 
-      akkaConfigured = true
-    }
+    // init
+    HttpSupport.system
+    HttpSupport.materializer
 
     service = makeService
 
@@ -84,20 +84,14 @@ trait HttpSupport
       .futureValue
   }
 
-  override protected def afterAll: Unit = {
-    super.afterAll
-    Await.result(for {
+  override protected def afterAll(): Unit = {
+    super.afterAll()
+
+    for {
       _ ← Http().shutdownAllConnectionPools()
       _ ← service.close()
-    } yield {}, 1.minute)
+    } yield ()
   }
-
-  private def actorSystemConfig =
-    ConfigFactory.parseString("""
-        |akka {
-        |  log-dead-letters = off
-        |}
-      """.stripMargin).withFallback(ConfigFactory.load())
 
   val adminUser    = Factories.storeAdmin.copy(id = 1, accountId = 1)
   val customerData = Factories.customer.copy(id = 2, accountId = 2)
@@ -109,7 +103,7 @@ trait HttpSupport
 
   private def makeService: Service =
     new Service(dbOverride = Some(db),
-                systemOverride = Some(system),
+                systemOverride = Some(actorSystem),
                 apisOverride = Some(apisOverride),
                 addRoutes = additionalRoutes) {
 
