@@ -26,9 +26,16 @@
   position: relative;
   display: flex;
   align-items: center;
+  background: var(--select-active-background);
 
   &:hover .hover-info {
     opacity: 0.9;
+  }
+
+  &:before {
+    content: "";
+    display: block;
+    padding-top: 100%;
   }
 }
 
