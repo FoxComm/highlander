@@ -105,6 +105,20 @@ function addressToPayload(address) {
   return payload;
 }
 
+const _removeShippingMethod = createAsyncActions(
+  'removeShippingMethod',
+  function() {
+    const { dispatch } = this;
+
+    return foxApi.cart.removeShippingMethod()
+      .then((res) => {
+        dispatch(updateCart(res.result));
+      });
+  }
+);
+
+export const removeShippingMethod = _removeShippingMethod.perform;
+
 const _saveShippingAddress = createAsyncActions(
   'saveShippingAddress',
   function(id: number) {
@@ -195,20 +209,6 @@ const _saveShippingMethod = createAsyncActions(
 );
 
 export const saveShippingMethod = _saveShippingMethod.perform;
-
-const _removeShippingMethod = createAsyncActions(
-  'removeShippingMethod',
-  function() {
-    const { dispatch } = this;
-
-    return foxApi.cart.removeShippingMethod()
-      .then((res) => {
-        dispatch(updateCart(res.result));
-      });
-  }
-);
-
-export const removeShippingMethod = _removeShippingMethod.perform;
 
 const _saveGiftCard = createAsyncActions(
   'saveGiftCard',

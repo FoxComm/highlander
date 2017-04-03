@@ -87,13 +87,13 @@ class Checkout extends Component {
     const { billingDone, shippingDone, deliveryDone } = this.state;
 
     if (_.isEmpty(skus)) {
-     browserHistory.push('/');
-     return;
+      browserHistory.push('/');
+      return;
     }
 
     if (_.isEmpty(creditCard) && billingDone) {
       this.setState({ billingDone: false });
-    } else if (!_.isEmpty(creditCard) && !billingDone){
+    } else if (!_.isEmpty(creditCard) && !billingDone) {
       this.setState({ billingDone: true });
     }
 
@@ -235,7 +235,6 @@ class Checkout extends Component {
               onComplete={this.setDelivery}
               shippingMethods={props.shippingMethods}
               cart={this.props.cart}
-              onUpdateCart={this.handleUpdateCart}
               fetchShippingMethods={props.fetchShippingMethods}
             />
           </div>

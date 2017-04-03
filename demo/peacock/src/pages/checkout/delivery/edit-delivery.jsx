@@ -32,7 +32,6 @@ type Props = {
   shippingMethodCost: Function,
   saveShippingMethod: (shippingMethod: ShippingMethodLike) => Promise<*>,
   isLoading: boolean,
-  onUpdateCart: (cart: Object) => void,
   saveDeliveryState: AsyncStatus,
   toggleDeliveryModal: Function,
 };
