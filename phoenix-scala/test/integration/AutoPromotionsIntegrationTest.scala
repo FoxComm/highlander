@@ -95,6 +95,9 @@ class AutoPromotionsIntegrationTest
     totals.total.toDouble must === (sku.attributes.salePrice * (1.0 - percentOff / 100.0))
   }
 
+  def percentOff(p: PromotionResponse.Root): Int =
+    (p.discounts.head.attributes \ "offer" \ "v" \ "orderPercentOff" \ "discount").extract[Int]
+
   // FIXME: un-ignore this test when you get historical promotions working for OrderResponse… @michalrus
   "keep correct promo versions for Carts & Orders after admin updates" ignore new ProductSku_ApiFixture
   with StoreAdmin_Seed {
@@ -176,9 +179,6 @@ class AutoPromotionsIntegrationTest
 
     val orderA2 = ordersApi(orderA.referenceNumber).get().asTheResult[OrderResponse]
     val cartB2  = cartsApi(cartB.referenceNumber).get().asTheResult[CartResponse]
-
-    def percentOff(p: PromotionResponse.Root): Int =
-      (p.discounts.head.attributes \ "offer" \ "v" \ "orderPercentOff" \ "discount").extract[Int]
 
     percentOff(orderA2.promotion.value) must === (percentOffInitial) // FIXME: this line fails @michalrus
     percentOff(cartB2.promotion.value) must === (percentOffUpdated)
@@ -317,6 +317,36 @@ class AutoPromotionsIntegrationTest
 
     "dynamic CGs with a match" in { dynamicCGCartPromo(1L) mustBe 'defined }
     "dynamic CGs w/o matches" in { dynamicCGCartPromo(0L) mustBe 'empty }
+
+    "and still the best promo is chosen among CG/non-CG ones" - {
+      "lt" in bestIsApplied(DefaultPercentOff - 13)
+      "gt" in bestIsApplied(DefaultPercentOff + 11)
+      def bestIsApplied(otherPercentOff: Int) = {
+        reset(elasticSearchMock)
+        when(elasticSearchMock.numResults(any[ElasticsearchApi.SearchView], any[Json]))
+          .thenReturn(Future.successful(1L))
+        groupAndPromo(CustomerGroup.Dynamic)
+
+        promotionsApi
+          .create(
+              PromotionPayloadBuilder.build(Promotion.Auto,
+                                            PromoOfferBuilder.CartPercentOff(otherPercentOff),
+                                            PromoQualifierBuilder.CartAny))
+          .as[PromotionResponse.Root]
+
+        val customer = api_newCustomer()
+        val refNum   = api_newCustomerCart(customer.id).referenceNumber
+        val skuCode  = new ProductSku_ApiFixture {}.skuCode
+
+        val finalCart = cartsApi(refNum).lineItems
+          .add(Seq(UpdateLineItemsPayload(skuCode, 1)))
+          .asTheResult[CartResponse]
+
+        percentOff(finalCart.promotion.value) must === (
+            math.max(DefaultPercentOff, otherPercentOff))
+      }
+    }
+
   }
 
 }
