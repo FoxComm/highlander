@@ -4,15 +4,20 @@
 
 .list-item {
   lost-column: 1/4;
-  margin-bottom: 20px;
-  margin-right: 20px;
-  margin-left: 20px;
-  padding-bottom: 20px;
+  margin-bottom: 40px;
   text-align: center;
   line-height: 19px;
   font-size: 16px;
   color: var(--text-color);
   transition: all 400ms;
+  text-decoration: none;
+}
+
+.link {
+  display: block;
+  margin-right: 20px;
+  margin-bottom: 20px;
+  text-decoration: none;
 }
 
 .preview {
