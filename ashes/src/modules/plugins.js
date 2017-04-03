@@ -75,10 +75,10 @@ const reducer = createReducer({
     return assoc(state, ['detailed', name], resp);
   },
   [_updateSettings.started]: (state, [name, payload]) => {
-    return assoc(state, ['detailed', name, 'settings'], payload.settings)
+    return assoc(state, ['detailed', name, 'settings'], payload.settings);
   },
   [_updateSettings.succeeded]: (state, [resp, name, payload]) => {
-    return assoc(state, ['detailed', name, 'settings'], payload.settings)
+    return assoc(state, ['detailed', name, 'settings'], payload.settings);
   }
 }, initialState);
 
