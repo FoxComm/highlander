@@ -16,6 +16,7 @@ import CurrencyInput from 'components/forms/currency-input';
 import MultiSelectRow from 'components/table/multi-select-row';
 import LoadingInputWrapper from 'components/forms/loading-input-wrapper';
 import { DeleteButton } from 'components/common/buttons';
+import ProductImage from 'components/imgix/product-image';
 
 import reducer, { suggestSkus } from 'modules/skus/suggest';
 import type { SuggestOptions } from 'modules/skus/suggest';
@@ -301,12 +302,16 @@ class EditableSkuRow extends Component {
 
   imageCell(sku: Sku): Element<*> {
     const imageObject = _.get(sku, ['albums', 0, 'images', 0]);
-    const imageProps = _.pick(imageObject, 'src', 'title');
 
-    if (!_.isEmpty(imageProps)) {
+    if (!_.isEmpty(imageObject)) {
       return (
         <div styleName="image-cell">
-          <img {...imageProps} styleName="cell-thumbnail" />
+          <ProductImage
+            {...imageObject}
+            styleName="cell-thumbnail"
+            width={60}
+            height={60}
+          />
         </div>
       );
     }

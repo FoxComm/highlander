@@ -24,7 +24,8 @@ type Props = {
   settings: Object,
   schema: Object,
   isFetching: boolean,
-}
+  isSaving: boolean,
+};
 
 const pluginName = (props: Props): string => {
   return props.params.name;
@@ -64,18 +65,20 @@ function settingsFromAttributes(attributes: Attributes): Object {
   }, {});
 }
 
-function mapStateToProps(state) {
+function mapStateToProps(state, props) {
+  const pluginInfo = _.get(state.plugins.detailed, pluginName(props), {});
   return {
-    settings: state.plugins.settings,
-    schema: state.plugins.schema,
+    settings: _.get(pluginInfo, 'settings', {}),
+    schema: _.get(pluginInfo, 'schema', []),
     isFetching: _.get(state.asyncActions, 'fetchPluginSettings.inProgress', null),
+    isSaving: _.get(state.asyncActions, 'setPluginSettings.inProgress', null),
   };
 }
 
 type State = {
   settings: Object,
   schema: Object,
-}
+};
 
 class Plugin extends Component {
   props: Props;
@@ -137,6 +140,7 @@ class Plugin extends Component {
           <SaveCancel
             onCancel={transitionToLazy('plugins')}
             onSave={this.handleSave}
+            isLoading={this.props.isSaving}
           />
         </div>
       );
