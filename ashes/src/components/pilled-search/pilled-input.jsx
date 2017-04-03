@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import classNames from 'classnames';
 import React, { PropTypes } from 'react';
+import { INPUT_ATTRS } from 'paragons/common';
 
 // These aren't actually multiple exported components, but ESLint mistakenly
 // thinks that they are.
@@ -60,13 +61,15 @@ const PilledInput = props => {
     '_solid-input': solid
   });
 
+  const attrs = _.pick(rest, INPUT_ATTRS);
+
   const input = children || (
       <input
         className={inputClass}
         type="text"
         autoFocus={props.autoFocus}
         disabled={disabled}
-        {...rest} />
+        {...attrs} />
     );
 
   return (

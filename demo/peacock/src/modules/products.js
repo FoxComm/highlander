@@ -444,7 +444,9 @@ const reducer = createReducer({
   [_fetchProducts.succeeded]: (state, action) => {
     const {payload, selectedFacets} = action;
     const payloadResult = payload.result;
-    const aggregations = _.isNil(payload.aggregations) ? [] : payload.aggregations.taxonomies.taxonomy.buckets;
+    const aggregations = _.isNil(payload.aggregations)
+      ? []
+      : _.get(payload, 'aggregations.taxonomies.taxonomy.buckets', []);
     const list = _.isEmpty(payloadResult) ? [] : payloadResult;
     const total = _.get(payload, 'pagination.total', 0);
 

@@ -1,8 +1,13 @@
 /* @flow */
 
 // libs
-import classNames from 'classnames';
 import React from 'react';
+import classNames from 'classnames';
+import _ from 'lodash';
+
+// components
+import LoadingInputWrapper from 'components/forms/loading-input-wrapper';
+import { INPUT_ATTRS } from 'paragons/common';
 
 // styles
 import s from './typeahead.css';
@@ -10,18 +15,21 @@ import s from './typeahead.css';
 type Props = {
   autoFocus: boolean,
   className: string,
+  isFetching?: boolean,
 };
 
-const TypeaheadInput = ({ className, ...rest }: Props) => {
+const TypeaheadInput = ({ className, isFetching = false, ...rest }: Props) => {
+  const attrs = _.pick(rest, INPUT_ATTRS);
+
   return (
-    <div className={className}>
+    <LoadingInputWrapper inProgress={isFetching}>
       <i className={classNames(s['input-icon'], 'icon-search')} />
       <input
         className={classNames('fc-input', s.input)}
         type="text"
-        {...rest}
+        {...attrs}
       />
-    </div>
+    </LoadingInputWrapper>
   );
 };
 

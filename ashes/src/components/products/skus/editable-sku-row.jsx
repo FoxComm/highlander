@@ -2,13 +2,15 @@
  * @flow
  */
 
+// libs
 import React, { Component, Element, PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
 import { connect } from 'react-redux';
 import { makeLocalStore, addAsyncReducer } from '@foxcomm/wings';
-import styles from './editable-sku-row.css';
+import classNames from 'classnames';
 
+// components
 import { FormField } from 'components/forms';
 import CurrencyInput from 'components/forms/currency-input';
 import MultiSelectRow from 'components/table/multi-select-row';
@@ -19,6 +21,9 @@ import ProductImage from 'components/imgix/product-image';
 import reducer, { suggestSkus } from 'modules/skus/suggest';
 import type { SuggestOptions } from 'modules/skus/suggest';
 import { skuId } from 'paragons/product';
+
+// styles
+import styles from './editable-sku-row.css';
 
 type Props = {
   columns: Columns,
@@ -265,7 +270,7 @@ class EditableSkuRow extends Component {
     return (
       <FormField>
         <input
-          className="fc-text-input"
+          className={classNames('fc-text-input', styles.inventory)}
           type="text"
           value={value}
           onChange={({ target: { value } }) => {

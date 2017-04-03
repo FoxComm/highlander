@@ -2,20 +2,20 @@
 // Wrapper for input which add small loading animation to the end of input.
 
 import React, { Element } from 'react';
-import styles from './css/loading-input-wrapper.css';
+import s from './loading-input-wrapper.css';
 
 import WaitAnimation from '../common/wait-animation';
 
 type Props = {
   children?: Element<*>,
   inProgress: boolean,
-}
+};
 
 const LoadingInputWrapper = (props: Props) => {
-  const animation = props.inProgress ? <WaitAnimation styleName="loader" size="s" /> : null;
+  const animation = props.inProgress ? <WaitAnimation className={s.loader} size="s" /> : null;
 
   return (
-    <div styleName="wrapper">
+    <div className={s.wrapper}>
       {props.children}
       {animation}
     </div>

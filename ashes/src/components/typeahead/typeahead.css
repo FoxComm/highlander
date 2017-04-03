@@ -17,6 +17,10 @@
   max-height: 50px;
 }
 
+.input {
+  flex: 1 1 auto;
+}
+
 .list._search .input {
   padding-left: 40px;
 }
@@ -34,15 +38,18 @@
 }
 
 .list {
-  display: none;
+  visibility: hidden;
+  opacity: 0;
   position: absolute;
   top: 100%;
   width: 100%;
   z-index: 2;
+  transition: all .2s linear;
 }
 
 .list._visible {
-  display: block;
+  visibility: visible;
+  opacity: 1;
 }
 
 .items {
@@ -52,10 +59,9 @@
   background-color: #fff;
   border: 1px solid #bbbdbf;
   border-width: 0 1px 1px 1px;
-  box-shadow: 0 2px 2px rgba(0, 0, 0, .1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .1);
 
   font-size: 12px;
-  line-height: 60px;
 }
 
 .list._users .items {
@@ -63,18 +69,15 @@
   overflow-y: auto;
 }
 
-.list._users .item {
-  padding: 0;
-}
-
 .item {
-  padding: 15px;
-  border-bottom: 1px solid #bbbdbf;
+  padding: 0;
+  border-width: 0 1px 1px;
   background-color: #fff;
+  box-shadow: 0px -0.5px 0px #bbbdbf inset;
 }
 
 .item:last-child {
-  border-bottom: none;
+  box-shadow: none;
 }
 
 .item:hover {
@@ -82,20 +85,16 @@
   cursor: pointer;
 }
 
-.item :global(.fc-grid) {
-  line-height: 20px;
-}
-
 .list._modal .item {
   width: 600px;
 }
 
-.list._modal .item {
-  padding: 0;
+.item :global(.fc-grid) {
+  line-height: 20px;
 }
 
 .not-found {
-  padding: 0 20px;
+  padding: 15px 20px;
 }
 
 /* @todo refactor Alert component */

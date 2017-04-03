@@ -2,6 +2,14 @@
 
 import _ from 'lodash';
 
+export type AttrSchema = {
+  type: string,
+  title?: string,
+  widget?: string,
+  properties?: Object,
+  disabled?: boolean,
+};
+
 export function guessType(value: any): string {
   const typeOf = typeof value;
   switch (typeOf) {
