@@ -24,6 +24,7 @@ type Props = {
   settings: Object,
   schema: Object,
   isFetching: boolean,
+  isSaving: boolean,
 };
 
 const pluginName = (props: Props): string => {
