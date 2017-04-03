@@ -64,7 +64,7 @@ class Prod_Prod(object):
             [prod_id for (_, prod_id) in self.events]
         )
 
-    def recommend(self, prod_ids):
+    def recommend(self, prod_ids, excludes=[]):
         """recommend
         returns a list of (prod_id, similarityScore)
         sorted in descending order.
@@ -79,6 +79,7 @@ class Prod_Prod(object):
             {'id': np.asscalar(x), 'score': np.asscalar(y)}
             for (x, y) in zip(inds, scores[inds])
             if x not in prod_ids
+            if x not in excludes
             if y > 0
         ]
 

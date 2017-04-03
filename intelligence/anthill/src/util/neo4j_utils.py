@@ -31,6 +31,20 @@ def get_purchased_products(customer_id, channel_id):
     res, _meta = db.cypher_query(query, params)
     return [x for [x] in res]
 
+def get_declined_products(customer_id):
+    """get_deleted_products
+    return a list of products which have been declined
+    by the customer through the suggester flow
+    """
+    query = """
+        MATCH (:Customer {phoenix_id: {phoenix_id}})-
+        [:DECLINED]->(p:Product)
+        return p.phoenix_id
+        """
+    params = {"phoenix_id": customer_id}
+    res, _meta = db.cypher_query(query, params)
+    return [x for [x] in res]
+
 def get_all_by_channel(channel_id):
     """get_all_by_channel
     return a list of [customer_id, product_id] purchase events

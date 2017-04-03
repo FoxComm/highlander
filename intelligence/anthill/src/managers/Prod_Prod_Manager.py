@@ -2,7 +2,12 @@ from controllers.PurchaseController import add_purchase_event
 from recommenders.Prod_Prod import Prod_Prod
 from util.response_utils import products_list_from_response, zip_responses
 from util.InvalidUsage import InvalidUsage
-from util.neo4j_utils import get_all_channels, get_purchased_products, get_all_by_channel
+from util.neo4j_utils import (
+    get_all_channels,
+    get_purchased_products,
+    get_declined_products,
+    get_all_by_channel
+)
 
 def start_pprec_from_db(channel_id):
     """start_pprec_from_db
@@ -89,7 +94,8 @@ class Prod_Prod_Manager(object):
         """
         self.validate_channel(channel_id)
         prod_ids = get_purchased_products(cust_id, channel_id)
-        return self.recommenders[channel_id].recommend(prod_ids)
+        excludes = get_declined_products(cust_id)
+        return self.recommenders[channel_id].recommend(prod_ids, excludes)
 
     def cust_recommend_full(self, cust_id, channel_id, es_client, from_param, size_param):
         """cust_recommend_full
