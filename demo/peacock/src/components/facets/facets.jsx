@@ -38,6 +38,8 @@ class Facets extends Component {
 
   @autobind
   renderValues(f: TFacet) {
+    const { prefix } = this.props;
+
     return _.map(f.values, (v: FacetValue) => {
       const key = `val-${prefix}-${f.kind}-${f.key}-${v.label}`;
       let w = null;
