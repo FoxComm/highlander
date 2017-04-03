@@ -2,7 +2,6 @@
 import { createAction, createReducer } from 'redux-act';
 import superagent from 'superagent';
 import Api from '../lib/api';
-import _ from 'lodash';
 import { dissoc } from 'sprout-data';
 import { createAsyncActions } from '@foxcomm/wings';
 
@@ -50,6 +49,7 @@ export function fetchUserInfo(): ActionDispatch {
       try {
         dispatch(setUser(JSON.parse(user)));
       } catch(e) {
+        // pass
       }
     }
   };

@@ -51,7 +51,8 @@ export function lazyFetchSettings(name: string) {
 
 const _updateSettings = createAsyncActions(
   'setPluginSettings',
-  (name: string, payload: UpdateSettingsPayload) => Api.post(`plugins/settings/${name}`, payload)
+  (name: string, payload: UpdateSettingsPayload) => Api.post(`plugins/settings/${name}`, payload),
+  (...args) => args
 );
 export const updateSettings = _updateSettings.perform;
 
@@ -72,6 +73,12 @@ const reducer = createReducer({
   },
   [_fetchSettings.succeeded]: (state, [resp, name]) => {
     return assoc(state, ['detailed', name], resp);
+  },
+  [_updateSettings.started]: (state, [name, payload]) => {
+    return assoc(state, ['detailed', name, 'settings'], payload.settings)
+  },
+  [_updateSettings.succeeded]: (state, [resp, name, payload]) => {
+    return assoc(state, ['detailed', name, 'settings'], payload.settings)
   }
 }, initialState);
 

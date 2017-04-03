@@ -129,7 +129,10 @@ class ProductAmazonMain extends Component {
   handleChange(nextAttributes) {
     const { product, onChange } = this.props;
 
-    onChange(assoc(product, 'attributes', nextAttributes));
+    onChange(assoc(product, 'attributes', {
+      ...product.attributes,
+      ...nextAttributes,
+    }));
   }
 
   @autobind

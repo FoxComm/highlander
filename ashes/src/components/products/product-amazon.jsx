@@ -8,10 +8,9 @@
  */
 
 // libs
-import React, { Component, Element, PropTypes } from 'react';
+import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import classNames from 'classnames';
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
 
@@ -24,7 +23,6 @@ import * as schemaActions from 'modules/object-schema';
 // components
 import WaitAnimation from 'components/common/wait-animation';
 import ContentBox from 'components/content-box/content-box';
-import { Button, PrimaryButton } from 'components/common/buttons';
 import SaveCancel from 'components/common/save-cancel';
 import Form from 'components/forms/form';
 import ProductAmazonMain from './product-amazon-main';
@@ -32,9 +30,6 @@ import ProductAmazonVariants from './product-amazon-variants';
 
 // types
 import type { AttrSchema } from 'paragons/object';
-
-// selectors
-import { getSuggest } from './selector';
 
 // styles
 import s from './product-amazon.css';
@@ -56,7 +51,7 @@ function mapDispatchToProps(dispatch) {
 
 function mapStateToProps(state) {
   const originalProduct = state.products.details.product;
-  const { suggest, schema, productStatus, credentials } = state.channels.amazon;
+  const { schema, productStatus, credentials } = state.channels.amazon;
 
   return {
     originalProduct,
@@ -116,7 +111,6 @@ class ProductAmazon extends Component {
     const {
       clearAmazonErrors,
       fetchProduct,
-      fetchProductStatus,
       fetchSchema,
       resetAmazonState,
       fetchAmazonSchema,
@@ -136,8 +130,7 @@ class ProductAmazon extends Component {
 
   // All product changes handles here through the local state
   componentWillUpdate(nextProps, nextState) {
-    const { actions: { fetchAmazonSchema }, originalProduct } = this.props;
-    const nextProduct = nextProps.originalProduct;
+    const { actions: { fetchAmazonSchema } } = this.props;
 
     const categoryId = this.nodeId();
     const nextCatId = this.nodeId(nextState.product);

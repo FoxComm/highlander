@@ -80,6 +80,6 @@ export class CartShippingMethod extends Component {
         shippingMethods={[shippingMethod]} />
     );
   }
-};
+}
 
 export default connect(mapStateToProps, { ...detailsActions, ...shippingActions })(CartShippingMethod);

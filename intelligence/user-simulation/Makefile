@@ -7,7 +7,8 @@ DOCKER_BRANCH ?= master
 
 build:
 	$(call header, Building)
-	true
+	yarn install
+	cd ./node_modules/api-js/ && yarn
 
 test:
 	$(call header, Testing)

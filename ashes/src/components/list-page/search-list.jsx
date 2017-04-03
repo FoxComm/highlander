@@ -119,5 +119,5 @@ export default class SearchList extends React.Component {
         />
       </LiveSearchAdapter>
     );
-  };
+  }
 }

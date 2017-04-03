@@ -1,6 +1,4 @@
 import React, { PropTypes } from 'react';
-import _ from 'lodash';
-import ContentBox from '../content-box/content-box';
 import TableRow from '../table/row';
 import TableCell from '../table/cell';
 import { DateTime } from '../common/datetime';

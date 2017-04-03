@@ -76,7 +76,7 @@ export default class TextFit extends Component {
 
   componentDidMount() {
     this.setFontSize();
-  };
+  }
 
   render() {
     const style = {

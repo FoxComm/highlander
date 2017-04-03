@@ -18,7 +18,7 @@ type Props = {
   module: string,
   entity: string,
   renderDetails: () => ReactElement,
-
+  hideAlertDetails?: boolean,
   bulk: {
     successes: ?Object,
     errors: ?Object,
@@ -40,7 +40,7 @@ class BulkMessages extends Component {
   }
 
   render() {
-    const { bulk, bulkActions, entity, renderDetail } = this.props;
+    const { bulk, bulkActions, entity, renderDetail, hideAlertDetails } = this.props;
     const { successes, errors, messages, error } = bulk;
     const { clearSuccesses, clearErrors, clearError } = bulkActions;
 
@@ -50,6 +50,7 @@ class BulkMessages extends Component {
       notifications.push(
         <SuccessNotification key="successes"
                              entity={entity}
+                             hideAlertDetails={hideAlertDetails}
                              overviewMessage={messages.success}
                              onHide={clearSuccesses}>
           {map(successes, renderDetail)}
@@ -62,6 +63,7 @@ class BulkMessages extends Component {
         <ErrorNotification key="errors"
                            entity={entity}
                            overviewMessage={messages.error}
+                           hideAlertDetails={hideAlertDetails}
                            onHide={clearErrors}>
           {map(errors, renderDetail)}
         </ErrorNotification>
