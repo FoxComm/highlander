@@ -11,5 +11,4 @@ RUN mix local.rebar --force
 RUN mix deps.get --only prod
 RUN MIX_ENV=prod mix compile
 
-EXPOSE 8880
 CMD MIX_ENV=prod elixir -S mix run --no-compile --no-halt
