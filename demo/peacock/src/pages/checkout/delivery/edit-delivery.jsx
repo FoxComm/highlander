@@ -32,21 +32,37 @@ type Props = {
   shippingMethodCost: Function,
   saveShippingMethod: (shippingMethod: ShippingMethodLike) => Promise<*>,
   isLoading: boolean,
-  onUpdateCart: (cart: Object) => void,
   saveDeliveryState: AsyncStatus,
   toggleDeliveryModal: Function,
+};
+
+type State = {
+  shippingMethod: Object,
 };
 
 class EditDelivery extends Component {
   props: Props;
 
+  state: State = {
+    shippingMethod: {},
+  };
+
   componentWillMount() {
     this.props.fetchShippingMethods();
+    if (!_.isEmpty(this.props.cart.shippingMethod)) {
+      this.setState({ shippingMethod: this.props.cart.shippingMethod });
+    }
+  }
+
+  componentWillReceiveProps(nextProps: Props) {
+    if (nextProps.cart.shippingAddress !== this.props.cart.shippingAddress) {
+      this.props.fetchShippingMethods();
+    }
   }
 
   @autobind
   handleSubmit() {
-    const selectedMethod = this.props.cart.shippingMethod;
+    const selectedMethod = this.state.shippingMethod;
     if (selectedMethod) {
       tracking.chooseShippingMethod(selectedMethod.code || selectedMethod.name);
       this.props.saveShippingMethod(selectedMethod).then(this.props.onComplete);
@@ -54,10 +70,7 @@ class EditDelivery extends Component {
   }
 
   setShippingMethod(shippingMethod) {
-    this.props.onUpdateCart({
-      ...this.props.cart,
-      shippingMethod,
-    });
+    this.setState({ shippingMethod });
   }
 
   get shippingMethods() {
@@ -65,7 +78,7 @@ class EditDelivery extends Component {
 
     return shippingMethods.map((shippingMethod) => {
       const cost = this.props.shippingMethodCost(shippingMethod.price);
-      const checked = cart.shippingMethod && cart.shippingMethod.id == shippingMethod.id;
+      const checked = cart.shippingMethod && this.state.shippingMethod.id == shippingMethod.id;
       const methodClasses = classNames(styles['shipping-method'], {
         [styles.chosen]: checked,
       });

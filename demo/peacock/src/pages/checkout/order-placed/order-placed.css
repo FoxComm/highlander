@@ -40,8 +40,8 @@
 
 .bordered-block {
   margin-bottom: 40px;
-  padding-bottom: 30px;
-  border: 2px solid var(--border-color);
+  padding: 10px;
+  border: 1px solid var(--border-color);
   border-radius: 4px;
 }
 
