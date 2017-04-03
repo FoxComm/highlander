@@ -31,7 +31,7 @@ export default class Notification extends React.Component {
   }
 
   @autobind
-  renderViewLink(expanded,toggleExpanded) {
+  renderViewLink(expanded, toggleExpanded) {
     if (this.props.hideAlertDetails) return null;
     return (
       <a className="fc-bulk-notification__details-link" onClick={toggleExpanded}>
@@ -41,7 +41,7 @@ export default class Notification extends React.Component {
   }
 
   @autobind
-  renderDetailsContainer(expanded,children){
+  renderDetailsContainer(expanded, children) {
     if (this.props.hideAlertDetails) return null;
     return (
       <div className={classNames('fc-bulk-notification__details', {'_open': expanded})}>
