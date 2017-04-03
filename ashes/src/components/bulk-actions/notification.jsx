@@ -64,11 +64,11 @@ export default class Notification extends React.Component {
             <span className="fc-bulk-notification__message">
               {message}
             </span>
-            {this.renderViewLink(expanded,this.toggleExpanded)}
+            {this.renderViewLink(expanded, this.toggleExpanded)}
             <span className="fc-bulk-notification__flex-separator"></span>
             <i onClick={onHide} className="fc-bulk-notification__close fc-btn-close icon-close" title="Close" />
           </div>
-          {this.renderDetailsContainer(expanded,children)}
+          {this.renderDetailsContainer(expanded, children)}
         </div>
       </div>
     );
