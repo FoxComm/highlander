@@ -29,7 +29,7 @@ The simplest way to get started is setup a personal developer appliance in Googl
     $ make prepare
     ```
 
-5. Run config generator, required for Ansible. You'll be prompted for you corporate e-mail and SSH/JSON key locations.
+5. Run config generator, required for Ansible. You'll be prompted for you service account e-mail and SSH/JSON key locations.
 
     ```
     $ make config
