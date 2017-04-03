@@ -91,18 +91,10 @@ const getRoutes = (jwt: Object) => {
       ]),
     ]);
 
-  const couponRoutes =
-    router.read('coupons-base', { path: 'coupons', frn: frn.mkt.coupon }, [
-      router.read('coupon', { path: ':couponId', component: CouponPage }, [
-        router.read('coupon-details', { component: CouponForm, isIndex: true })
-      ]),
-    ]);
-
   return (
     <div>
       {giftCardRoutes}
       {promotionsRoutes}
-      {couponRoutes}
     </div>
   );
 };
