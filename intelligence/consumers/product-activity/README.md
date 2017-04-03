@@ -10,8 +10,8 @@ puts the value to Henhouse.
 | HENHOUSE_HOST          |               | Henhouse host |
 | HENHOUSE_HTTP_PORT     |               | Port of HTTP interface of Henhouse. |
 | HENHOUSE_INPUT_PORT    | 2003          | Port of Graphite interface of Henhouse |
-| ES_INDEX               |               | Name of elasticsearch index. Typically "admin_1" |
+| ELASTIC_INDEX          |               | Name of elasticsearch index. Typically "admin_1" |
 | INTERVAL               | 60            | Polling interval in seconds|
-| ELASTIC_HOST           |               | Elasticsearch host  |
+| ELASTIC_URL            |               | Elasticsearch url  |
 
 
