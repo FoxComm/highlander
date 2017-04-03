@@ -91,23 +91,29 @@ class Checkout extends Component {
       return;
     }
 
+    let billing = billingDone;
+    let shipping = shippingDone;
+    let delivery = deliveryDone;
+
     if (_.isEmpty(creditCard) && billingDone) {
-      this.setState({ billingDone: false });
+      billing = false;
     } else if (!_.isEmpty(creditCard) && !billingDone) {
-      this.setState({ billingDone: true });
+      billing = true;
     }
 
     if (_.isEmpty(shippingAddress) && shippingDone) {
-      this.setState({ shippingDone: false });
+      shipping = false;
     } else if (!_.isEmpty(shippingAddress) && !shippingDone) {
-      this.setState({ shippingDone: true });
+      shipping = true;
     }
 
     if (_.isEmpty(shippingMethod) && deliveryDone) {
-      this.setState({ deliveryDone: false });
+      delivery = false;
     } else if (!_.isEmpty(shippingMethod) && !deliveryDone) {
-      this.setState({ deliveryDone: true });
+      delivery = true;
     }
+
+    this.setState({ billingDone: billing, shippingDone: shipping, deliveryDone: delivery });
   }
 
   @autobind
