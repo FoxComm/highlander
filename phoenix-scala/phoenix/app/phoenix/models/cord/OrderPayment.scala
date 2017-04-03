@@ -8,6 +8,7 @@ import core.utils.Money._
 import core.utils.Validation._
 import phoenix.models.payment.PaymentMethod
 import phoenix.models.payment.creditcard.{CreditCard, CreditCards}
+import phoenix.models.payment.applepay.{ApplePayment, ApplePayments}
 import phoenix.models.payment.giftcard.{GiftCard, GiftCards}
 import phoenix.models.payment.storecredit.{StoreCredit, StoreCredits}
 import phoenix.utils.aliases.stripe.StripeCustomer
@@ -26,10 +27,11 @@ case class OrderPayment(id: Int = 0,
   def isCreditCard: Boolean  = paymentMethodType == PaymentMethod.CreditCard
   def isGiftCard: Boolean    = paymentMethodType == PaymentMethod.GiftCard
   def isStoreCredit: Boolean = paymentMethodType == PaymentMethod.StoreCredit
+  def isApplePay: Boolean    = paymentMethodType == PaymentMethod.ApplePay
 
   override def validate: ValidatedNel[Failure, OrderPayment] = {
     val amountOk = paymentMethodType match {
-      case PaymentMethod.StoreCredit | PaymentMethod.GiftCard ⇒
+      case PaymentMethod.StoreCredit | PaymentMethod.GiftCard | PaymentMethod.ApplePay ⇒
         validExpr(amount.getOrElse(0) > 0, s"amount must be > 0 for $paymentMethodType")
       case PaymentMethod.CreditCard ⇒
         validExpr(amount.isEmpty, "amount must be empty for creditCard")
@@ -101,6 +103,13 @@ object OrderPayments
       sc   ← StoreCredits if sc.id === pmts.paymentMethodId
     } yield (pmts, sc)
 
+  def findAllApplePayByCordRef(
+      cordRef: String): Query[(OrderPayments, ApplePayments), (OrderPayment, ApplePayment), Seq] =
+    for {
+      pmts ← OrderPayments.filter(_.cordRef === cordRef)
+      ap   ← ApplePayments if ap.id === pmts.paymentMethodId
+    } yield (pmts, ap)
+
   def findAllCreditCardsForOrder(cordRef: Rep[String]): QuerySeq =
     filter(_.cordRef === cordRef).creditCards
 
@@ -109,6 +118,7 @@ object OrderPayments
       def giftCards: QuerySeq    = q.byType(PaymentMethod.GiftCard)
       def creditCards: QuerySeq  = q.byType(PaymentMethod.CreditCard)
       def storeCredits: QuerySeq = q.byType(PaymentMethod.StoreCredit)
+      def applePays: QuerySeq    = q.byType(PaymentMethod.ApplePay)
 
       def byType(pmt: PaymentMethod.Type): QuerySeq =
         q.filter(_.paymentMethodType === (pmt: PaymentMethod.Type))

@@ -31,6 +31,7 @@ trait CordQueries {
         GiftCardAdjustments.lastPaymentState(payment.id).map(_.map(fromInStoreState))
       case PaymentMethod.StoreCredit ⇒
         StoreCreditAdjustments.lastPaymentState(payment.id).map(_.map(fromInStoreState))
+      case PaymentMethod.ApplePay ⇒ ??? // TODO implement
     }
   }
 }

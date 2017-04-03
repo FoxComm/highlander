@@ -319,8 +319,15 @@ case class Checkout(
       _ ← * <~ doOrMeh(gcTotal > 0,
                        LogActivity().gcFundsAuthorized(customer, cart, gcCodes, gcTotal))
 
+      // find Apple Pay payment
+      apPayments ← * <~ OrderPayments.findAllApplePayByCordRef(cart.refNum).result
+      apTotal ← * <~ PaymentHelper.paymentTransaction(apPayments,
+                                                      cart.grandTotal - scTotal - gcTotal,
+                                                      ApplePayments.authOrderPayment,
+                                                      (a: GiftCardAdjustment) ⇒ a.getAmount.abs)
+
       // Authorize funds on credit card
-      ccs ← * <~ authCreditCard(cart.grandTotal, gcTotal + scTotal)
+      ccs ← * <~ authCreditCard(cart.grandTotal, gcTotal + scTotal + apTotal)
       mutatingResult = externalCalls.authPaymentsSuccess = true
     } yield {}
 

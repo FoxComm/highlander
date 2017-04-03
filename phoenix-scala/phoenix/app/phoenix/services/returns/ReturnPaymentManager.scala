@@ -147,6 +147,7 @@ object ReturnPaymentManager {
     method match {
       case PaymentMethod.CreditCard ⇒ addCreditCard(rma.id, payment, amount)
       case PaymentMethod.GiftCard   ⇒ addGiftCard(rma.id, payment, amount)
+      case PaymentMethod.ApplePay   ⇒ addApplePayment(rma.id, payment, amount)
       case PaymentMethod.StoreCredit ⇒
         addStoreCredit(returnId = rma.id, accountId = rma.accountId, payment, amount)
     }
@@ -164,6 +165,9 @@ object ReturnPaymentManager {
                                   paymentMethodId = cc.id,
                                   paymentMethodType = PaymentMethod.CreditCard))
     } yield ccRefund
+
+  private def addApplePayment(returnId: Int, payment: OrderPayment, amount: Int) =
+    ??? // TODO implement
 
   private def addGiftCard(returnId: Int,
                           payment: OrderPayment,
@@ -249,6 +253,7 @@ object ReturnPaymentManager {
       case PaymentMethod.CreditCard  ⇒ deleteCcPayment(returnId)
       case PaymentMethod.GiftCard    ⇒ deleteGcPayment(returnId)
       case PaymentMethod.StoreCredit ⇒ deleteScPayment(returnId)
+      case PaymentMethod.ApplePay    ⇒ deleteApPayment(returnId)
     }
 
   private def deleteCcPayment(returnId: Int)(implicit ec: EC): DbResultT[Boolean] =
@@ -289,6 +294,8 @@ object ReturnPaymentManager {
       somethingWasActuallyDeleted = queryDeleted || scDeleted || scRefundsDeleted
     } yield somethingWasActuallyDeleted
   }
+
+  def deleteApPayment(returnId: Int): DbResultT[Boolean] = ??? // TODO implement
 
   def issueRefunds(
       rma: Return)(implicit ec: EC, db: DB, au: AU, ac: AC, apis: Apis): DbResultT[Unit] = {
