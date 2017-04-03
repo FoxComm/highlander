@@ -33,6 +33,7 @@ tag:
 	git push --tags origin master
 
 setup:
+	yarn cache clean
 	yarn --pure-lockfile
 	yarn build
 
@@ -62,7 +63,7 @@ flow:
 build-dev: setup flow
 	test -f .env && export eval `cat .env` || true && ON_SERVER=true ./node_modules/.bin/gulp build
 
-build: rev clean setup flow
+build: rev setup flow
 	$(call header, Building)
 	test -f .env && export eval `cat .env` || true && NODE_ENV=production ON_SERVER=true ./node_modules/.bin/gulp build
 
