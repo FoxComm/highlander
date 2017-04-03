@@ -22,7 +22,10 @@ deploy-stage:
 	ansible-playbook -v -i inventory/gce/ ansible/test_stage.yml
 
 deploy-demo:
-	ansible-playbook -v -i inventory/gce/ ansible/test_stage.yml
+	ansible-playbook -v -i inventory/gce/ ansible/demo.yml --extra-vars='{ "first_run": true }'
+
+update-demo:
+	ansible-playbook -v -i inventory/gce/ ansible/demo.yml --extra-vars='{ "with_data_import": false }'
 
 deploy-feature-branch:
 	ansible-playbook -v -i inventory/gce/ ansible/provision_feature_branch.yml

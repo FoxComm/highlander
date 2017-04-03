@@ -46,7 +46,7 @@ export function lazyFetchSettings(name: string) {
     if (!alreadyCalled(getState())) {
       dispatch(_fetchSettings.perform(name));
     }
-  }
+  };
 }
 
 const _updateSettings = createAsyncActions(

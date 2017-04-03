@@ -41,11 +41,6 @@ object PromotionFailures {
     override def description = "Promotion shadow attributes are empty"
   }
 
-  case class PromotionShadowNotFoundForContext(shadowId: Int, contextId: Int) extends Failure {
-    override def description =
-      s"Promotion shadow with id=$shadowId not found for contextId=$contextId"
-  }
-
   case object OrderHasNoPromotions extends Failure {
     override def description = "Order has no promotions"
   }

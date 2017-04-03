@@ -7,7 +7,7 @@ import responses.PromotionResponses.PromotionResponse
 
 package object base {
 
-  type CordResponsePromoDetails = Option[(PromotionResponse.Root, CordResponseCouponPair)]
+  type CordResponsePromoDetails = (PromotionResponse.Root, Option[CordResponseCouponPair])
 
   type CordResponseCcPayment = (OrderPayment, CreditCard, Region)
 

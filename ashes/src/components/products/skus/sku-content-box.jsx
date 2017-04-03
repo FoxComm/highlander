@@ -20,10 +20,6 @@ import { availableVariantsValues, variantsWithMultipleOptions } from 'paragons/v
 // styles
 import styles from './sku-content-box.css';
 
-// types
-import type { Product, OptionValue } from 'paragons/product';
-import type { Sku } from 'modules/skus/details';
-
 type UpdateFn = (code: string, field: string, value: any) => void;
 
 type Props = {

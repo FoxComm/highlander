@@ -120,7 +120,7 @@ object CordResponseLineItems {
   private def getAttributesHash(attributes: Option[LineItemAttributes]): String =
     attributes.fold("")(_.toString.hashCode.toString)
 
-  private val NO_IMAGE =
+  val NO_IMAGE =
     "https://s3-us-west-2.amazonaws.com/fc-firebird-public/images/product/no_image.jpg"
 
   private def createResponseGrouped(lineItemData: Seq[LineItemProductData[_]],
@@ -162,7 +162,7 @@ object CordResponseLineItems {
 }
 
 case class CordResponseLineItemAdjustment(
-    adjustmentType: OrderLineItemAdjustment.AdjustmentType,
+    adjustmentType: CartLineItemAdjustment.AdjustmentType,
     subtract: Int,
     lineItemRefNum: Option[String]
 ) extends ResponseItem
@@ -170,7 +170,7 @@ case class CordResponseLineItemAdjustment(
 object CordResponseLineItemAdjustments {
 
   def fetch(cordRef: String)(implicit ec: EC): DBIO[Seq[CordResponseLineItemAdjustment]] =
-    OrderLineItemAdjustments
+    CartLineItemAdjustments
       .findByCordRef(cordRef)
       .result
       .map(_.map { model ⇒

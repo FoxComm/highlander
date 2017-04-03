@@ -1,12 +1,9 @@
 /* @flow */
 
-import _ from 'lodash';
 import React, { Element } from 'react';
 import { connect } from 'react-redux';
 
 import { getClaims } from 'lib/claims';
-
-import NavigationItem from './navigation-item';
 
 import CatalogEntry from './entries/catalog';
 import CustomersEntry from './entries/customers';
@@ -17,13 +14,15 @@ import SettingsEntry from './entries/settings';
 
 import type { JWT } from 'lib/claims';
 
+type Params = { [key: string]: string };
+
 function mapStateToProps(state) {
   return {
     token: state.user.current,
   };
 }
 
-const Navigation = ({ routes, token }: { routes: Array<Object>, token: JWT}) => {
+const Navigation = ({ routes, token, params }: { routes: Array<Object>, token: JWT, params: Params }) => {
   const claims = getClaims(token);
 
   return (
@@ -44,6 +43,7 @@ const Navigation = ({ routes, token }: { routes: Array<Object>, token: JWT}) => 
         <MerchandisingEntry
           claims={claims}
           routes={routes}
+          currentParams={params}
         />
         <MarketingEntry
           claims={claims}

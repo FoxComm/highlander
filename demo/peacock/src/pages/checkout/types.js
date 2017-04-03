@@ -42,14 +42,14 @@ type CardActions = {
 type AddressActions = {
   fetchAddresses: Function,
   updateAddress: Function,
-  saveShippingAddress: () => PromiseType,
-  setDefaultAddress: () => PromiseType,
+  saveShippingAddress: () => Promise<*>,
+  setDefaultAddress: () => Promise<*>,
 };
 
 export type CheckoutActions = CardActions & AddressActions & {
   saveCouponCode: Function,
   saveGiftCard: Function,
   fetchShippingMethods: Function,
-  checkout: () => PromiseType,
-  saveShippingMethod: () => PromiseType,
+  checkout: () => Promise<*>,
+  saveShippingMethod: () => Promise<*>,
 };

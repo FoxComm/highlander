@@ -15,9 +15,6 @@ import ConfirmationDialog from 'components/modal/confirmation-dialog';
 
 import { mapSkusToVariants } from 'paragons/variants';
 
-import type { Product } from 'paragons/product';
-import type { Sku } from 'modules/skus/details';
-
 type UpdateFn = (code: string, field: string, value: any) => void;
 
 type Props = {

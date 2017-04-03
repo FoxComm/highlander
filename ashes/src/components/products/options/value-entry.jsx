@@ -13,9 +13,6 @@ import SwatchDisplay from 'components/swatch/swatch-display';
 // styles
 import styles from './option-list.css';
 
-// types
-import type { OptionValue } from 'paragons/product';
-
 type Props = {
   id: string|number,
   editValue: Function,

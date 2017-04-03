@@ -1,0 +1,130 @@
+@import "colors.css";
+@import "variables.css";
+@import "media-queries.css";
+
+.list-item {
+  width: calc(20% - (var(--grid-margin)/2));
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  text-align: center;
+  line-height: 19px;
+  font-size: 16px;
+  color: var(--blackish);
+  transition: all 400ms;
+}
+
+.preview {
+  max-width: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.preview-image {
+  max-width: 100%;
+  height: auto;
+}
+
+.text-block {
+  text-align: left;
+  height: 149px;
+  position: relative;
+}
+
+.title {
+  margin-top: 20px;
+  font-family: var(--font-playfair);
+  font-weight: 400;
+  font-size: 26px;
+  color: var(--text-color-main);
+  letter-spacing: 0.7px;
+  white-space: pre-line;
+  overflow: hidden;
+  line-height: 30px;
+  min-height: 62px;
+  position: relative;
+
+  &:after {
+    position: absolute;
+    top: calc(100% - 2px);
+    margin-top: 0;
+  }
+
+  & a {
+    text-decoration: none;
+  }
+}
+
+.price-line {
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
+}
+
+.price {
+  font-family: var(--font-main);
+  font-weight: 400;
+  font-size: 15px;
+  color: var(--text-color-main);
+  opacity: 0.74;
+  letter-spacing: 1.5px;
+}
+
+.on-sale-price,
+.retail-price {
+  display: block;
+}
+
+.on-sale-price {
+  color: var(--text-color-on-sale);
+}
+
+.retail-price {
+  text-decoration: line-through;
+}
+
+@media (--small-only) {
+  .title {
+    font-weight: 400;
+    font-size: 15px;
+    color: #212121;
+    letter-spacing: 0.52px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .description {
+    font-size: 13px;
+    letter-spacing: 0px;
+  }
+}
+
+@media (--medium) {
+  .title {
+    font-size: 20px;
+    letter-spacing: 0.7px;
+  }
+
+  .on-sale-price,
+  .retail-price {
+    display: inline-block;
+  }
+
+  .retail-price {
+    margin-right: 7px;
+  }
+}
+
+@media (--large), (--x-large) {
+  .title {
+    font-size: 20px;
+    letter-spacing: 0.7px;
+  }
+
+  .description {
+    font-size: 15px;
+    letter-spacing: 0px;
+  }
+}

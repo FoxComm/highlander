@@ -1,0 +1,38 @@
+{
+  "main": [
+    {
+      "type": "group",
+      "title": "General",
+      "content": [
+        {
+          "type": "hierarchical"
+        },
+        {
+          "type": "fields",
+          "fields": {
+            "canAddProperty": true,
+            "includeRest": true,
+            "value": [
+              "name",
+              "description"
+            ],
+            "omit": [
+              "activeFrom",
+              "activeTo",
+              "hierarchical"
+            ]
+          }
+
+        }
+      ]
+    }
+  ],
+  "aside": [
+    {
+      "type": "state"
+    },
+    {
+      "type": "watchers"
+    }
+  ]
+}

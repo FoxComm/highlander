@@ -18,8 +18,6 @@ import { Form } from '../forms';
 import Tags from '../tags/tags';
 import ParticipantsPanel from '../participants';
 
-import type { ObjectView } from 'paragons/object';
-
 type Layout = {
   content: Array<Object>,
   aside: Array<Object>,
@@ -34,6 +32,7 @@ type Fields = {
 
 type NodeDesc = {
   type: string,
+  showIfNew?: boolean,
   title?: string,
   fields?: Fields,
   renderer?: string,
@@ -147,8 +146,11 @@ export default class ObjectDetails extends Component {
     }
   }
 
-  renderGroup(group: NodeDesc, section: Array<NodeDesc>) {
-    const { title, fields, renderer, content } = group;
+  renderGroup(group: NodeDesc, section: Array<NodeDesc>): ?Element<*> {
+    const { title, fields, renderer, content, showIfNew } = group;
+    if( !this.props.isNew && showIfNew ){
+      return null;
+    }
 
     let children;
     if (content) {
@@ -184,15 +186,25 @@ export default class ObjectDetails extends Component {
     return addKeys(name, section.map(desc => this.renderNode(desc, section)));
   }
 
-  render() {
-    return (
-      <Form ref="form" styleName="object-details">
-        <div styleName="main">
-          {this.renderSection('main')}
-        </div>
+  get aside() {
+    if (this.layout.aside != null) {
+      return (
         <div styleName="aside">
           {this.renderSection('aside')}
         </div>
+      );
+    }
+  }
+
+  render() {
+    const mainStyleName = this.layout.aside != null ? 'main' : 'full-page';
+
+    return (
+      <Form ref="form" styleName="object-details">
+        <div styleName={mainStyleName}>
+          {this.renderSection('main')}
+        </div>
+        {this.aside}
       </Form>
     );
   }

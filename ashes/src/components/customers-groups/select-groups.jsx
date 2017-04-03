@@ -8,9 +8,10 @@ import { trackEvent } from 'lib/analytics';
 
 import styles from './select-groups.css';
 
-import RadioButton from 'components/forms/radio-button';
-import { Table, TableRow, TableCell } from 'components/table';
-import { SelectableList, SelectableItem } from 'components/selectable-list';
+import RadioButton from '../forms/radio-button';
+import Typeahead from '../typeahead/typeahead';
+import PilledInput from '../pilled-search/pilled-input';
+import CustomerGroupRow from './customer-group-row';
 
 import { actions } from 'modules/customer-groups/list';
 
@@ -21,16 +22,17 @@ type GroupType = {
 };
 
 type Props = {
-  onSelect: (groups: Array<number>) => any,
-  groups: Array<GroupType>,
-  selectedGroupIds: Array<number>,
+  updateSelectedIds: (groups: Array<number>) => any;
+  groups: Array<GroupType>;
+  selectedGroupIds: Array<number>;
+  qualifyAll: boolean,
   fetch: () => Promise<*>,
   parent: string,
+  qualifyAllChange: Function,
 };
 
 type State = {
-  qualifyAll: boolean,
-  popupOpened: boolean,
+  term: string,
 };
 
 
@@ -42,8 +44,7 @@ class SelectCustomerGroups extends Component {
   };
 
   state: State = {
-    qualifyAll: true,
-    popupOpened: false,
+    term: ''
   };
 
   componentDidMount() {
@@ -51,112 +52,84 @@ class SelectCustomerGroups extends Component {
   }
 
   @autobind
-  handleChangeQualifier({ target }: Object) {
-    this.setState({
-      qualifyAll: target.getAttribute('name') == 'qualifyAll',
+  handleChangeQualifier({target}: Object) {
+    const isAllQualify = target.getAttribute('name') == 'qualifyAll';
+    this.props.qualifyAllChange(isAllQualify);
+  }
+
+  get suggestedGroups(){
+    const suggestions = _.filter(this.props.groups, (item) => {
+      return _.includes(item.name.toLowerCase(), this.state.term.toLowerCase());
     });
+    return suggestions;
   }
 
   get tableColumns(): Array<Object> {
     return [
-      { field: 'name', text: 'Customer Group Name', type: null },
-      { field: 'type', text: 'Type', type: null },
-      { type: null, control: this.togglePopupControl },
+      { field: 'name', text: 'Customer Group Name' },
+      { field: 'type', text: 'Type' },
     ];
   }
 
-  @autobind
-  togglePopup() {
-    const eventName = this.state.popupOpened ? 'click_popup_close' : 'click_popup_open';
-    trackEvent(`Customer groups(${this.props.parent})`, eventName);
-    this.setState({
-      popupOpened: !this.state.popupOpened,
-    });
-  }
-
-  @autobind
-  handleSelect(groups: Array<number>) {
-    this.closePopup();
-    this.props.onSelect(groups);
-  }
-
-  @autobind
-  closePopup() {
-    this.setState({
-      popupOpened: false,
-    });
-  }
-
-  @autobind
-  renderGroup(group: GroupType) {
-    return (
-      <SelectableItem id={group.id}>
-        <strong>{group.name}</strong>
-        <span styleName="group-description">• Dynamic</span>
-      </SelectableItem>
-    );
-  }
-
-  get togglePopupControl() {
-    const iconClass = this.state.popupOpened ? 'icon-close' : 'icon-add';
-
-    return (
-      <i className={iconClass} styleName="toggle-control" onClick={this.togglePopup}>
-        <SelectableList
-          visible={this.state.popupOpened}
-          onSelect={this.handleSelect}
-          items={this.props.groups}
-          selectedItemIds={this.props.selectedGroupIds}
-          onBlur={this.closePopup}
-          emptyMessage="There are no customers groups."
-          renderItem={this.renderGroup}
-        />
-      </i>
-    );
-  }
-
-  get selectedGroups(): Array<GroupType> {
-    return _.filter(this.props.groups, group => this.props.selectedGroupIds.indexOf(group.id) != -1);
-  }
-
   get customersGroups(): ?Element<*> {
-    if (this.state.qualifyAll !== false) return null;
-
-    return (
-      <div>
-        <Table
-          styleName="groups-table"
-          emptyMessage="No customer groups yet."
-          columns={this.tableColumns}
-          renderRow={this.renderCustomerGroupRow}
-          data={{
-            rows: this.selectedGroups,
-          }}
-        />
-      </div>
-    );
+    if (this.props.qualifyAll !== false) return null;
+    return (<div styleName="root">
+          <Typeahead
+            className="_no-search-icon"
+            isFetching={false}
+            isAsync={false}
+            component={CustomerGroupRow}
+            items={this.suggestedGroups}
+            name="customerGroupSelect"
+            placeholder={'Add groups...'}
+            inputElement={this.pilledInput}
+            hideOnBlur={true}
+            onItemSelected={this.handleSelectItem}
+          />
+        </div>);
   }
 
-  removeGroup(idForRemoval) {
-    const newGroupIds = _.filter(this.props.selectedGroupIds, id => id != idForRemoval);
+  setTerm(term: string) {
+    this.setState({
+      term,
+    });
+  }
 
-    this.props.onSelect(newGroupIds);
+  deselectItem(index: number) {
+    const selected = [].slice.call(this.props.selectedGroupIds);
+    selected.splice(index, 1);
+    this.props.updateSelectedIds(selected);
   }
 
   @autobind
-  renderCustomerGroupRow(group) {
+  handleSelectItem(item, event: Object) {
+    if (_.find(this.props.selectedGroupIds, (i) => {return i == item.id;})) {
+      event.preventHiding();
+    } else {
+      this.setState({
+        term: '',
+      });
+      this.props.updateSelectedIds([...this.props.selectedGroupIds, item.id]);
+    }
+  }
+
+  get pilledInput() {
+    const { state, props } = this;
+    const pills = props.selectedGroupIds.map((cg) => {
+      return _.find(props.groups, { 'id': cg }).name;
+    });
+
     return (
-      <TableRow key={`row-${group.id}`}>
-        <TableCell styleName="row-name">{group.name}</TableCell>
-        <TableCell styleName="row-type">{group.type}</TableCell>
-        <TableCell>
-          <i
-            className="icon-trash"
-            styleName="remove-customer-group"
-            onClick={() => this.removeGroup(group.id)}
-          />
-        </TableCell>
-      </TableRow>
+      <PilledInput
+        solid={true}
+        autoFocus={true}
+        value={state.term}
+        disabled={false}
+        onChange={({target}) => this.setTerm(target.value)}
+        pills={pills}
+        icon={null}
+        onPillClose={(name, index) => this.deselectItem(index)}
+      />
     );
   }
 
@@ -166,7 +139,7 @@ class SelectCustomerGroups extends Component {
         <RadioButton
           id="qualifyAll"
           name="qualifyAll"
-          checked={this.state.qualifyAll === true}
+          checked={this.props.qualifyAll === true}
           onChange={this.handleChangeQualifier}
         >
           <label htmlFor="qualifyAll">All customers qualify</label>
@@ -174,10 +147,10 @@ class SelectCustomerGroups extends Component {
         <RadioButton
           id="qualifyGroups"
           name="qualifyGroups"
-          checked={this.state.qualifyAll === false}
+          checked={this.props.qualifyAll === false}
           onChange={this.handleChangeQualifier}
         >
-          <label htmlFor="qualifyGroups">Select Customer Groups qualify</label>
+          <label htmlFor="qualifyGroups">Select customer groups qualify</label>
         </RadioButton>
         {this.customersGroups}
       </div>

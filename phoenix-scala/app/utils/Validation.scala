@@ -20,9 +20,15 @@ object Validation {
 
   val ok: ValidatedNel[Failure, Unit] = valid(Unit)
 
+  def isValid(predicate: Boolean, failure: ⇒ Failure): ValidatedNel[Failure, Unit] =
+    if (predicate) valid(()) else invalidNel(failure)
+
   def validExpr(expression: Boolean, message: ⇒ String): ValidatedNel[Failure, Unit] =
     if (expression) valid({})
     else invalidNel(GeneralFailure(message))
+
+  def isInvalid(predicate: Boolean, failure: ⇒ Failure): ValidatedNel[Failure, Unit] =
+    if (predicate) invalidNel(failure) else valid(())
 
   def invalidExpr(expression: Boolean, message: ⇒ String): ValidatedNel[Failure, Unit] =
     if (expression) invalidNel(GeneralFailure(message))

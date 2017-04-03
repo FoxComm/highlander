@@ -1,7 +1,7 @@
 /* @flow */
 
 //libs
-import React, { Component } from 'react';
+import React from 'react';
 
 //components
 import EditGroupBase from './edit-group-base';

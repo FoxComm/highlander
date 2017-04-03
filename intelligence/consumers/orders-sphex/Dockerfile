@@ -7,4 +7,4 @@ RUN mkdir -p /orders-sphex
 WORKDIR /orders-sphex
 COPY orders-sphex /orders-sphex
 
-CMD ["/orders-sphex/orders-sphex"]
+CMD /orders-sphex/orders-sphex 2>&1 | tee /logs/orders-sphex.log

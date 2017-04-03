@@ -1,12 +1,11 @@
 /* @flow */
 
-import React, { Element } from 'react';
+import React from 'react';
 
-import { anyPermitted, isPermitted } from 'lib/claims';
+import { anyPermitted } from 'lib/claims';
 import { frn, readAction } from 'lib/frn';
 
 import NavigationItem from '../navigation-item';
-import { IndexLink, Link } from 'components/link';
 
 import styles from './entries.css';
 

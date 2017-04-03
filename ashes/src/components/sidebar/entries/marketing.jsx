@@ -1,14 +1,11 @@
 /* @flow */
 
-import React, { Element } from 'react';
+import React from 'react';
 
 import { anyPermitted, isPermitted } from 'lib/claims';
 import { frn, readAction } from 'lib/frn';
 
 import NavigationItem from '../navigation-item';
-import { IndexLink, Link } from 'components/link';
-
-import type { Claims } from 'lib/claims';
 
 import styles from './entries.css';
 
@@ -44,16 +41,6 @@ const MarketingEntry = ({ claims, routes }: TMenuEntry) => {
             routes={routes}
             actualClaims={claims}
             expectedClaims={promotionClaims}
-          />
-        </li>
-        <li>
-          <NavigationItem
-            to="coupons"
-            icon="promotions"
-            title="Coupons"
-            routes={routes}
-            actualClaims={claims}
-            expectedClaims={couponClaims}
           />
         </li>
       </div>

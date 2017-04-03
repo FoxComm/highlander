@@ -38,6 +38,7 @@
         appliance_hostname: "{{dns_record}}.{{foxcomm_domain}}"
         ashes_server_name: "{{dns_record}}.{{foxcomm_domain}}"
         storefront_server_name: "{{dns_record}}.{{foxcomm_domain}}"
+        api_server: "{{dns_record}}.{{foxcomm_domain}}"
   roles:
     # Core
     - { role: dev/appliance }
@@ -62,10 +63,8 @@
     - { role: dev/balancer }
     - { role: hotfix/mesos_consul }
     - { role: demo/balancer }
-
     # Seed
     - { role: dev/seeder }
-
     # Finale
     - { role: dev/healthcheck }
     - { role: dev/appliance_dns }
