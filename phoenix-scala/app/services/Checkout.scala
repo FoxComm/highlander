@@ -17,6 +17,7 @@ import models.coupon._
 import models.inventory.Skus
 import models.location.Addresses
 import models.objects._
+import models.payment.applepay.{ApplePayment, ApplePayments}
 import models.payment.creditcard._
 import models.payment.giftcard._
 import models.payment.storecredit._
@@ -26,6 +27,7 @@ import org.json4s.JsonAST._
 import payloads.CartPayloads.CheckoutCart
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import responses.cord.OrderResponse
+import scala.util.Random
 import services.carts._
 import services.coupon.CouponUsageService
 import services.inventory.SkuManager
@@ -319,8 +321,15 @@ case class Checkout(
       _ ← * <~ doOrMeh(gcTotal > 0,
                        LogActivity().gcFundsAuthorized(customer, cart, gcCodes, gcTotal))
 
+      // find Apple Pay payment
+      apPayments ← * <~ OrderPayments.findAllApplePayByCordRef(cart.refNum).result
+      apTotal ← * <~ PaymentHelper.paymentTransaction(apPayments,
+                                                      cart.grandTotal - scTotal - gcTotal,
+                                                      ApplePayments.authOrderPayment,
+                                                      (a: GiftCardAdjustment) ⇒ a.getAmount.abs)
+
       // Authorize funds on credit card
-      ccs ← * <~ authCreditCard(cart.grandTotal, gcTotal + scTotal)
+      ccs ← * <~ authCreditCard(cart.grandTotal, gcTotal + scTotal + apTotal)
       mutatingResult = externalCalls.authPaymentsSuccess = true
     } yield {}
 

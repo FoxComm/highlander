@@ -5,6 +5,8 @@ import cats.implicits._
 import com.stripe.Stripe
 import failures.CreditCardFailures.CardDeclined
 import java.time.{Instant, ZoneId}
+
+import com.stripe.model.ApplePayDomain
 import testutils._
 import utils.Money.Currency.USD
 import utils.TestStripeSupport._
@@ -40,14 +42,14 @@ class StripeTest extends RealStripeApis {
 
   val customerEmail = faker.Internet.email
 
-  val (cust, card) = stripe
+  val (customer, card) = stripe
     .createCardFromToken(email = customerEmail.some,
                          token = token.getId,
                          stripeCustomerId = none,
                          address = theAddress)
     .gimme
 
-  val realStripeCustomerId = cust.getId
+  val realStripeCustomerId = customer.getId
   val realStripeCardId     = card.getId
 
   "Stripe" - {
@@ -101,8 +103,8 @@ class StripeTest extends RealStripeApis {
 
       "successfully creates a card and new customer when given no customerId" taggedAs External in {
 
-        cust.getDescription must === ("FoxCommerce")
-        cust.getEmail must === (customerEmail)
+        customer.getDescription must === ("FoxCommerce")
+        customer.getEmail must === (customerEmail)
 
         card.getAddressLine1 must === (theAddress.address1)
         card.getAddressLine2 mustBe 'empty
@@ -212,8 +214,19 @@ class StripeTest extends RealStripeApis {
 
     "deleteCustomer" - {
       "successfully deletes a customer" taggedAs External in {
-        deleteCustomer(cust).void.gimme
+        deleteCustomer(customer).void.gimme
         getCustomer(realStripeCustomerId).gimme.getDeleted must === (Boolean.box(true))
+      }
+    }
+
+    "Try Apple Pay" - {
+      import scala.collection.JavaConversions._
+
+      "add domains" in {
+        val map = Map[String, AnyRef]("stage-tpg" -> "stage-tpg.foxcommerce.com")
+        ApplePayDomain.create(mapAsJavaMap(map))
+
+        // todo add domains and test mb?
       }
     }
   }
