@@ -22,15 +22,23 @@ type Props = {
   productView: TProductView,
   product: ProductResponse,
   selectedSku: Sku,
-  onSkuChange: (sku: Sku) => void,
+  onSkuChange: (sku: ?Sku, exactMatch: boolean, unselectedFacets: Array<TFacet>) => void,
 }
 
+// variantType => VariantValue.id
 type VariantValuesMap = {
   [variantType:string]: number,
 }
 
 type State = {
   selectedVariantValues: VariantValuesMap,
+}
+
+function getSkuCodesForVariantValue(product, valueId: number, variantType: string) {
+  const variant: ProductVariant = _.find(product.variants, variant => variant.attributes.type.v == variantType);
+  const variantValue: VariantValue = _.find(variant.values, {id: valueId});
+
+  return variantValue.skuCodes;
 }
 
 class ProductDetails extends Component {
@@ -47,21 +55,14 @@ class ProductDetails extends Component {
   handleSelectFacet(facet: string, value: Object, selected: boolean) {
     let { selectedVariantValues } = this.state;
 
-    const { variants } = this.props.product;
-
-    const getSkuCodesForVariantValue = (valueId: number, variantType: string) => {
-      const variant: ProductVariant = _.find(variants, variant => variant.attributes.type.v == variantType);
-      const variantValue: VariantValue = _.find(variant.values, {id: valueId});
-
-      return variantValue.skuCodes;
-    };
+    const { product } = this.props;
 
     if (selected) {
       // check if we should deselect conflicted variant
-      const allowedSkuCodes = _.keyBy(getSkuCodesForVariantValue(value.valueId, value.variantType));
+      const allowedSkuCodes = _.keyBy(getSkuCodesForVariantValue(product, value.valueId, value.variantType));
       const conflictVariants = _.flatMap(selectedVariantValues, (valueId: number, variantType: string) => {
         if (variantType == value.variantType) return [];
-        const skuCodes = getSkuCodesForVariantValue(valueId, variantType);
+        const skuCodes = getSkuCodesForVariantValue(product, valueId, variantType);
 
         const someIntersection = _.some(skuCodes, skuCode => skuCode in allowedSkuCodes);
         return someIntersection ? [] : variantType;
@@ -75,6 +76,18 @@ class ProductDetails extends Component {
     }
     this.setState({
       selectedVariantValues,
+    }, () => {
+      const [skuCode, exactMatch] = this.findClosestSku();
+      let sku;
+      if (skuCode) {
+        sku = _.find(product.skus, sku => sku.attributes.code.v == skuCode);
+      }
+      let unselectedFacets = [];
+      if (!exactMatch) {
+        unselectedFacets = this.getUnselectedFacets();
+      }
+
+      this.props.onSkuChange(sku, exactMatch, unselectedFacets);
     });
   }
 
@@ -128,6 +141,26 @@ class ProductDetails extends Component {
         values,
       };
     });
+  }
+
+  getUnselectedFacets(): ?string {
+    const facets = this.getFacets(this.props.product);
+    return _.filter(facets, (facet: TFacet) => {
+      return _.every(facet.values, value => !value.selected);
+    });
+  }
+
+  findClosestSku(facets = this.getFacets(this.props.product)): [?string, boolean] {
+    const { product } = this.props;
+
+    const skuCodes = _.reduce(this.state.selectedVariantValues, (acc, variantValueId: number, variantType: string) => {
+      const skuCodes = getSkuCodesForVariantValue(product, variantValueId, variantType);
+      return acc.length ? _.intersection(acc, skuCodes) : skuCodes;
+    }, []);
+
+    // probably we could detect exact match by cheking skuCodes.length == 1
+    // but is there guarantee that only one sku/variant match complete set of variants ?
+    return [skuCodes[0], facets.length === _.size(this.state.selectedVariantValues)];
   }
 
   get facets(): Element<*> {

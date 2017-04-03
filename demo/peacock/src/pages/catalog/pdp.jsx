@@ -71,6 +71,7 @@ type State = {
   error?: any,
   currentSku?: Sku,
   attributes?: Object,
+  unselectedFacets: Array<TFacet>,
 };
 
 const mapStateToProps = (state) => {
@@ -108,6 +109,7 @@ class Pdp extends Component {
   state: State = {
     currentSku: null,
     attributes: {},
+    unselectedFacets: [],
   };
 
   componentWillMount() {
@@ -243,9 +245,15 @@ class Pdp extends Component {
   @autobind
   addToCart(): void {
     const { actions } = this.props;
-    const skuId = _.get(this.currentSku, 'attributes.code.v', '');
+    const { unselectedFacets } = this.state;
+    if (unselectedFacets.length) {
+      // @TODO: design!
+      alert(`Please, select ${unselectedFacets[0].name}`);
+      return;
+    }
+    const skuCode = _.get(this.currentSku, 'attributes.code.v', '');
     tracking.addToCart(this.productView, 1);
-    actions.addLineItem(skuId, 1, this.state.attributes)
+    actions.addLineItem(skuCode, 1, this.state.attributes)
       .then(() => {
         actions.toggleCart();
         this.setState({
@@ -285,6 +293,16 @@ class Pdp extends Component {
     );
   }
 
+  @autobind
+  handleSkuChange(sku: ?Sku, exactMatch: boolean, unselectedFacets: Array<TFacet>) {
+    if (sku) {
+      this.setCurrentSku(sku);
+    }
+    this.setState({
+      unselectedFacets,
+    });
+  }
+
   get productForm(): Element<any> {
     if (this.isGiftCard()) {
       return (
@@ -302,7 +320,7 @@ class Pdp extends Component {
         product={this.props.product}
         productView={this.productView}
         selectedSku={this.currentSku}
-        onSkuChange={this.setCurrentSku}
+        onSkuChange={this.handleSkuChange}
       />
     );
   }
