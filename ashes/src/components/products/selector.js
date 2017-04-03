@@ -1,26 +1,29 @@
-function processItem(item) {
+/**
+ * @flow
+ */
+
+export type SuggestItem = {
+  id: string,
+  path: string,
+  prefix: string,
+  text: string,
+};
+
+function processItem(item): SuggestItem {
   let parts = item.node_path.split('/');
   const text = parts.pop();
   const prefix = parts.join(' » ');
   const id = item.node_id;
   const path = item.node_path;
 
-  return {id, path, prefix, text};
+  return { id, path, prefix, text };
 }
 
 /**
  * Converts Hyperion suggest response to <Suggest /> component format
  */
-export function getSuggest(response) {
-  const ret = {};
+export function getSuggest(response: any): Array<SuggestItem> {
+  // @todo find a way to search by title in hyperion
 
-  if (response.primary && response.primary.length) {
-    ret.primary = response.primary.map(processItem);
-  }
-
-  if (response.secondary && response.secondary.length) {
-    ret.secondary = response.secondary.map(processItem);
-  }
-
-  return ret;
+  return (response.secondary || []).map(processItem);
 }

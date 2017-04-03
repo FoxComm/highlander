@@ -1,19 +1,24 @@
-
+// libs
 import React, { PropTypes } from 'react';
 import classNames from 'classnames';
-import _ from 'lodash';
+
+// styles
+import s from './buttons.css';
 
 const Button = (props = {}) => {
-  const {icon, inline, docked, children, isLoading, ...restProps} = props;
+  const { icon, inline, docked, children, isLoading, ...restProps } = props;
   const className = classNames(
     'fc-btn',
-    {'_docked-left': docked && docked === 'left'},
-    {'_docked-right': docked && docked === 'right'},
-    {'_loading': isLoading},
+    s.block,
+    {
+      '_docked-left': docked === 'left',
+      '_docked-right': docked === 'right',
+      '_loading': isLoading,
+    },
     props.className,
   );
 
-  const content = children != null ? <span>{children}</span> : children;
+  const content = children != null ? <span className={s.text}>{children}</span> : children;
 
   return (
     <button {...restProps} className={className}>
