@@ -106,7 +106,7 @@ export default class Coupons extends Component {
 
     return (
       <div className="coupons">
-        <BulkWrapper hideAlertDetails={true} entity="coupon">
+        <BulkWrapper hideAlertDetails entity="coupon">
           <SelectableSearchList
             entity="coupons.list"
             emptyMessage="No coupons found."

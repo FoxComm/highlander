@@ -31,19 +31,23 @@ export default class Notification extends React.Component {
   }
 
   @autobind
-  renderViewLink(e,t) {
+  renderViewLink(expanded,toggleExpanded) {
     if (this.props.hideAlertDetails) return null;
-    return (<a className="fc-bulk-notification__details-link" onClick={t}>
-              {e ? 'View Less...' : 'View Details...'}
-            </a>);
+    return (
+      <a className="fc-bulk-notification__details-link" onClick={toggleExpanded}>
+        {expanded ? 'View Less...' : 'View Details...'}
+      </a>
+    );
   }
 
   @autobind
-  renderDetailsContainer(e,c){
+  renderDetailsContainer(expanded,children){
     if (this.props.hideAlertDetails) return null;
-    return (<div className={classNames('fc-bulk-notification__details', {'_open': e})}>
-              {c}
-            </div>);
+    return (
+      <div className={classNames('fc-bulk-notification__details', {'_open': expanded})}>
+        {children}
+      </div>
+    );
   }
 
   render() {
