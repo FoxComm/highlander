@@ -1,6 +1,5 @@
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
-import {PaymentMethod} from './helpers';
 import TableView from '../table/tableview';
 import ContentBox from '../content-box/content-box';
 

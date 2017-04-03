@@ -167,6 +167,6 @@ export default class ProductForm extends ObjectDetails {
     const newObject = assoc(this.props.object, 'taxons', addedTaxonList);
 
     this.props.onUpdateObject(newObject);
-  };
+  }
 
 }

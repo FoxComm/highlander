@@ -123,4 +123,4 @@ export default class OrderParagon {
   get stateTitle() {
     return stateTitles[this.orderState];
   }
-};
+}

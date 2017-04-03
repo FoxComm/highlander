@@ -108,7 +108,7 @@ class OptionEntry extends Component {
     const editValue = { id, value };
 
     this.setState({editValue});
-  };
+  }
 
   @autobind
   deleteValue(id: number): void {

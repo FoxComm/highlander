@@ -91,5 +91,5 @@ export default class SelectableSearchList extends React.Component {
           key={props.list.currentSearch().title} />
       </LiveSearchAdapter>
     );
-  };
+  }
 }

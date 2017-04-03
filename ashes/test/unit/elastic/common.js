@@ -165,7 +165,6 @@ describe('elastic.common', () => {
       const expectedQuery = {
         query: {
           bool: {
-            filter: void 0,
             filter: [{
               nested: {
                 path: 'customer',

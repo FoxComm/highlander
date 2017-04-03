@@ -399,7 +399,7 @@ export default class GenericDropdown extends Component {
         </div>
       </BodyPortal>
     );
-  };
+  }
 
   render() {
     const { editable, id } = this.props;

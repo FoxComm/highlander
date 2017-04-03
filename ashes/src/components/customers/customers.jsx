@@ -41,7 +41,7 @@ function renderRow(row, index, columns, params) {
   return (
     <CustomerRow key={row.id} customer={row} columns={columns} params={params} />
   );
-};
+}
 
 class Customers extends Component {
   props: Props;

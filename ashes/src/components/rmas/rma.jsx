@@ -78,7 +78,6 @@ export default class Rma extends React.Component {
 
   render() {
     const rma = this.rma;
-    const params = {rma: rma && rma.referenceNumber || ''};
 
     if (!rma.id) {
       return null;

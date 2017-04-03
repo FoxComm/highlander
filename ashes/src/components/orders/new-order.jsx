@@ -3,14 +3,13 @@ import React, { Component, PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import { transitionTo } from 'browserHistory';
-import { push } from 'react-router-redux';
 import _ from 'lodash';
 import classNames from 'classnames';
 
 import * as newOrderActions from '../../modules/orders/new-order';
 import { email } from '../../lib/validators';
 
-import { Button, PrimaryButton } from '../common/buttons';
+import { PrimaryButton } from '../common/buttons';
 import BigCheckbox from '../checkbox/big-checkbox';
 import ChooseCustomer from './choose-customer';
 import ChooseCustomerRow from './choose-customer-row';
@@ -229,4 +228,4 @@ export default class NewOrder extends Component {
       </div>
     );
   }
-};
+}

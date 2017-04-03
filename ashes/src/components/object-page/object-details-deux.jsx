@@ -141,6 +141,8 @@ export default class ObjectDetailsDeux extends Component {
   }
 
   renderNode(description: NodeDesc, section: Array<NodeDesc>) {
+    const renderName = description.type;
+
     switch (description.type) {
       case 'group':
         return this.renderGroup(description, section);
@@ -153,7 +155,6 @@ export default class ObjectDetailsDeux extends Component {
       case 'watchers':
         return this.renderWatchers();
       default:
-        const renderName = description.type;
         invariant(this.props.renderers,
           `There are no renderers provided. Can not find method to render custom field ${description.type}.`);
         invariant(this.props.renderers[renderName], `There is no method for render ${description.type}.`);

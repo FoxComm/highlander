@@ -9,12 +9,11 @@ import DetailedInitials from '../../../user-initials/detailed-initials';
 
 const AuthorIcon = props => {
   const { activity } = props;
-
   const userType = _.get(activity, ['context', 'userType'], 'system');
+  const adminName = _.get(activity, ['data', 'admin', 'name']);
 
   switch (userType) {
     case 'admin':
-      const adminName = _.get(activity, ['data', 'admin', 'name']);
       if (!_.isEmpty(adminName)) {
         return <DetailedInitials name={adminName} />;
       } else {

@@ -30,7 +30,7 @@ class SwatchInput extends Component {
   @autobind
   handleChange({ target }: EventTarget) {
     this.props.onChange(target.value);
-  };
+  }
 
   render() {
     const hexCode = this.props.value;

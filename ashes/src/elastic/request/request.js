@@ -76,7 +76,7 @@ export default class Request extends Element {
       request._source = this.select.toRequest();
     }
 
-    if (!!this._raw) {
+    if (this._raw) {
       request.query = this._raw;
     }
 

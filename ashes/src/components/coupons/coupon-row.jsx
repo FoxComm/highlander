@@ -23,12 +23,13 @@ type CouponRowProps = {
 
 // This is a workaround for empty fields
 const setCellContents = (coupon: Object, field: string) => {
+  const codes = _.get(coupon, field) || [];
+
   switch (field) {
     case 'totalUsed':
     case 'currentCarts':
       return _.get(coupon, field, 0);
     case 'codes':
-      const codes = _.get(coupon, field) || [];
       if (codes.length > 1) {
         return (
           <span>{codes[0]} <span styleName="text-gray">+{codes.length - 1}</span></span>
