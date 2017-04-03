@@ -9,21 +9,21 @@ import { createAsyncActions } from '@foxcomm/wings';
 
 export type UpdateSettingsPayload = {
   settings: {[key: string]: any},
-}
+};
 
 export type PluginInfo = {
   createdAt: string,
   description: string,
   name: string,
   version: string,
-}
+};
 
 export type SettingDef = {
   name: string,
   title: string,
   type: string,
   "default": any,
-}
+};
 
 const _fetchPlugins = createAsyncActions(
   'fetchPlugins',

@@ -1,7 +1,7 @@
 // @flow
 
 // libs
-import get from 'lodash/get';
+import { isArray, get } from 'lodash';
 import { createReducer } from 'redux-act';
 import { createAsyncActions } from '@foxcomm/wings';
 import { searchTaxonomies } from 'elastic/taxonomy';
@@ -25,7 +25,11 @@ export const fetch = _fetch.perform;
 const initialState = [];
 
 const reducer = createReducer({
-  [_fetch.succeeded]: (state, response) => get(response, 'result', []),
+  [_fetch.succeeded]: (state, response) => {
+    const result = get(response, 'result', []);
+
+    return isArray(result) ? result : [];
+  },
 }, initialState);
 
 export default reducer;

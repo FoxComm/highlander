@@ -130,6 +130,8 @@ class PromotionsIntegrationTest
 
     implicit val doubleEquality = TolerantNumerics.tolerantDoubleEquality(1.0)
 
+    val DefaultDiscountPercent = 40
+
     // Yields (CouponResponse.Root, coupon code)
     def setupPromoAndCoupon(extraPromoAttrs: Map[String, Json] = Map.empty)(
         implicit sl: SL,
@@ -139,7 +141,8 @@ class PromotionsIntegrationTest
           val discountPayload = {
             val discountAttrs = {
               val qualifier = JObject(JField("orderAny", JObject(("", JNothing))))
-              val offer     = JObject(JField("orderPercentOff", JObject(JField("discount", 40))))
+              val offer = JObject(
+                  JField("orderPercentOff", JObject(JField("discount", DefaultDiscountPercent))))
               Map("qualifier" → tv(qualifier, "qualifier"), "offer" → tv(offer, "offer"))
             }
 
@@ -196,8 +199,10 @@ class PromotionsIntegrationTest
       cartWithCoupon.promotion mustBe 'defined
       cartWithCoupon.coupon mustBe 'defined
 
-      cartWithCoupon.totals.adjustments.toDouble must === (cartTotal * 0.4)
-      cartWithCoupon.totals.total.toDouble must === (cartTotal * 0.6)
+      cartWithCoupon.totals.adjustments.toDouble must === (
+          cartTotal * (DefaultDiscountPercent / 100.0))
+      cartWithCoupon.totals.total.toDouble must === (
+          cartTotal * (1.0 - (DefaultDiscountPercent / 100.0)))
     }
 
     "from storefront UI" in new StoreAdmin_Seed with Customer_Seed with ProductAndSkus_Baked {
@@ -214,8 +219,10 @@ class PromotionsIntegrationTest
       cartWithCoupon.promotion mustBe 'defined
       cartWithCoupon.coupon mustBe 'defined
 
-      cartWithCoupon.totals.adjustments.toDouble must === (cartTotal * 0.4)
-      cartWithCoupon.totals.total.toDouble must === (cartTotal * 0.6)
+      cartWithCoupon.totals.adjustments.toDouble must === (
+          cartTotal * (DefaultDiscountPercent / 100.0))
+      cartWithCoupon.totals.total.toDouble must === (
+          cartTotal * (1.0 - (DefaultDiscountPercent / 100.0)))
     }
 
     "should update coupon discount when cart becomes clean" in new Fixture with Customer_Seed
@@ -300,7 +307,7 @@ class PromotionsIntegrationTest
 
       val withCoupon = cartsApi(refNum).coupon.add(couponCode).asTheResult[CartResponse]
 
-      percentOff(withCoupon.promotion.value) must === (40)
+      percentOff(withCoupon.promotion.value) must === (DefaultDiscountPercent)
     }
   }
 
