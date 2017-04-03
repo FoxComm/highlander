@@ -1,16 +1,16 @@
 package models.discount
 
-import cats._
-import cats.data._
 import cats.implicits._
-import scala.concurrent.Future
 import com.github.tminglei.slickpg.LTree
 import models.discount.SearchReference._
 import models.sharedsearch.SharedSearches
 import org.json4s.JsonAST.JObject
-import utils.ElasticsearchApi.{Buckets, ScopedSearchView, SearchView, TheBucket}
+import utils.ElasticsearchApi.{Buckets, ScopedSearchView, SearchView}
 import utils.aliases._
+import utils.apis.Apis
 import utils.db._
+
+import scala.concurrent.Future
 
 /**
   * Linking mechanism for qualifiers (also used in offers)
@@ -20,7 +20,7 @@ sealed trait SearchReference[T] {
   def pureResult(implicit ec: EC): Result[T]
   val searchId: Int
 
-  def query(input: DiscountInput)(implicit db: DB, ec: EC, es: ES): Result[T] = {
+  def query(input: DiscountInput)(implicit db: DB, ec: EC, apis: Apis): Result[T] = {
     val refs = references(input)
 
     if (refs.isEmpty) pureResult
@@ -45,23 +45,23 @@ sealed trait SearchReference[T] {
   protected val searchViewByScope: (LTree ⇒ SearchView)
   protected def references(input: DiscountInput): Seq[String]
   protected def esSearch(searchView: SearchView, query: Json, refs: Seq[String])(
-      implicit es: ES): Future[T]
+      implicit apis: Apis): Future[T]
 }
 
 trait SearchBuckets extends SearchReference[Buckets] {
   def pureResult(implicit ec: EC): Result[Buckets] = pureBuckets
 
   def esSearch(searchView: SearchView, query: Json, refs: Seq[String])(
-      implicit es: ES): Future[Buckets] =
-    es.checkBuckets(searchView, query, fieldName, refs)
+      implicit apis: Apis): Future[Buckets] =
+    apis.elasticSearch.checkBuckets(searchView, query, fieldName, refs)
 }
 
 trait SearchMetrics extends SearchReference[Long] {
   def pureResult(implicit ec: EC): Result[Long] = pureMetrics
 
   def esSearch(searchView: SearchView, query: Json, refs: Seq[String])(
-      implicit es: ES): Future[Long] =
-    es.checkMetrics(searchView, query, fieldName, refs)
+      implicit apis: Apis): Future[Long] =
+    apis.elasticSearch.checkMetrics(searchView, query, fieldName, refs)
 }
 
 case class CustomerSearch(customerSearchId: Int) extends SearchMetrics {

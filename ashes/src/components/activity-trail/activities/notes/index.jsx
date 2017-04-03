@@ -10,9 +10,6 @@ import PromotionLink from '../base/promotion-link';
 import CouponLink from '../base/coupon-link';
 import Title from '../base/title';
 
-const notes_preference_types = ['order', 'giftCard', 'customer', 'return', 'product', 'sku',
-  'promotion', 'coupon', 'storeAdmin'];
-
 function linkForNoteTarget(data) {
 
   switch(data.note.referenceType) {

@@ -61,6 +61,10 @@ class Elasticsearch:
         response = self.do_query('products_search_view')
         return response['result']
 
+    def get_inventory(self):
+        response = self.do_query('inventory_search_view')
+        return response['result']
+
 
 class Phoenix:
     def __init__(self, host='appliance-10-240-0-14.foxcommerce.com', user='admin@admin.com', password='password',
@@ -90,7 +94,12 @@ class Phoenix:
         except HTTPError as err:
             print("HTTP error. code: {}. message: {}".format(err.code, err.read()))
             raise
-        return response.getcode(), json.loads(response.read().decode('utf-8'))
+
+        code = response.getcode()
+
+        if code == 204:
+            return code, None
+        return code, json.loads(response.read().decode('utf-8'))
 
     def do_login(self):
         payload = json.dumps({'email': self.user, 'password': self.password, 'org': self.org}).encode()
@@ -114,10 +123,9 @@ class Phoenix:
 
     def create_taxon(self, name, taxonomy_id):
         self.ensure_logged_in()
-        data = {'name': name}
-        code, response = self.do_query("/taxonomies/default/" + str(taxonomy_id), data, method="POST")
-        print("taxon created: id = {}, name = {}".format(response["taxon"]["id"],
-                                                         response["taxon"]["name"]))
+        data = {'attributes': {'name': {'t': 'string', 'v': name}}}
+        code, response = self.do_query("/taxonomies/default/" + str(taxonomy_id) + "/taxons", data, method="POST")
+        print("taxon created: id:%d, attributes: %r" % (response['id'], response['attributes']))
         return response
 
     def login_endpoint(self):
@@ -152,6 +160,7 @@ class Phoenix:
             title = s['title']
             description = s['details']['description']
             description_list = s['details'].get('description_list', '')
+            short_description = s['details'].get('short_description', '')
             price = int(float(s['price']['price']) * 100)
             taxonomies = s['taxonomies']
             color = taxonomies['color']
@@ -167,6 +176,10 @@ class Phoenix:
                         'description' : {
                             't': 'richText',
                             'v': description
+                            },
+                        'shortDescription': {
+                            't': 'string',
+                            'v': short_description
                             },
                         'description_list' : {
                             't': 'richText',
@@ -284,6 +297,7 @@ class Phoenix:
                         'title' : first_sku['attributes']['title'],
                         'description' : first_sku['attributes']['description'],
                         'description_list' : first_sku['attributes']['description_list'],
+                        'shortDescription' : first_sku['attributes']['shortDescription'],
                         'tags' : first_sku['attributes']['tags'],
                         'activeTo' : first_sku['attributes']['activeTo'],
                         'activeFrom' : first_sku['attributes']['activeFrom'],
@@ -442,6 +456,36 @@ def import_products(p:Phoenix, max_products):
                     json.dump(product, open(cache_file, 'w'))
                     assign_taxonomies(p, taxonomies, g, result['id'])
 
+def get_inventory(phoenix):
+    es = Elasticsearch(phoenix.jwt, phoenix.host)
+    return es.get_inventory()
+
+def add_inventory_to_stock_item(phoenix, stock_item, amount):
+
+    typ = stock_item['type']
+    if typ != 'Sellable':
+        return
+
+    itm = stock_item['stockItem']
+    id = str(itm['id'])
+    sku = itm['sku']
+    old_amount = str(stock_item['onHand'])
+
+    print(sku + ' (' + id + ') ' + old_amount + ' => ' +  str(amount))
+    increment = {"qty": amount ,"type":"Sellable","status":"onHand"}
+    try:
+        code, response = phoenix.do_query("/inventory/stock-items/"+ id + "/increment", increment, method="PATCH")
+        if code != 204:
+            print("error adding inventory: " + response)
+    except HTTPError as err:
+        print("error adding inventory: " + repr(err))
+
+
+def add_inventory(phoenix, amount):
+    phoenix.ensure_logged_in()
+    inventory = get_inventory(phoenix)
+    for itm in inventory:
+        add_inventory_to_stock_item(phoenix, itm, amount)
 
 def main():
     host = sys.argv[1]
@@ -462,8 +506,11 @@ def main():
     elif command == 'both':
         import_taxonomies(p)
         import_products(p, max_products)
+    elif command == 'inventory':
+        amount = int(sys.argv[3])
+        add_inventory(p, amount)
     else:
-        print ("Valid commands are, 'taxonomies', 'products', or 'both'")
+        print ("Valid commands are, 'taxonomies', 'products', 'both', or 'inventory'")
 
 if __name__ == "__main__":
     main()

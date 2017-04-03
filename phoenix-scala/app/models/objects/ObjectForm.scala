@@ -21,6 +21,7 @@ object ObjectForm {
   val sku       = "sku"
   val promotion = "promotion"
   val coupon    = "coupon"
+  val taxonomy  = "taxonomy"
 
   def fromPayload(kind: String, attributes: Map[String, Json]): ObjectForm = {
     val attributesJson = attributes.foldLeft(JNothing: JValue) {

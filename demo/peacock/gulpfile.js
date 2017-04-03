@@ -1,5 +1,7 @@
 'use strict';
 
+/* eslint-disable no-restricted-syntax, import/no-dynamic-require */
+
 const _ = require('lodash');
 const fs = require('fs');
 const path = require('path');

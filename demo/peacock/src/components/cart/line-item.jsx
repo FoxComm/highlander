@@ -12,9 +12,10 @@ import styles from './line-item.css';
 import localized from 'lib/i18n';
 
 // components
-import Icon from 'ui/icon';
 import Currency from 'ui/currency';
 import Select from 'ui/select/select';
+import ActionLink from 'ui/action-link/action-link';
+import ProductImage from 'components/image/image';
 
 const QUANTITY_ITEMS = _.range(1, 1 + 10, 1).map(x => x.toString());
 
@@ -54,34 +55,47 @@ class LineItem extends Component {
     return (
       <div styleName="box">
         <div styleName="image">
-          <img src={this.props.imagePath} />
+          <ProductImage src={this.props.imagePath} width={50} height={50} />
         </div>
         <div styleName="container">
+          <div styleName="top">
+            <div styleName="product">
+              <div styleName="product-name">
+                {this.props.name}
+              </div>
+            </div>
+            <div styleName="delete">
+              <ActionLink
+                action={this.deleteItem}
+                title="Remove"
+                styleName="action-link-remove"
+              />
+            </div>
+          </div>
+
           <div styleName="details">
-            <div styleName="product-name">
-              {this.props.name}
+            <div styleName="price-qty">
+              <div styleName="quantity">
+                <Select
+                  inputProps={{
+                    type: 'number',
+                  }}
+                  getItemValue={item => item}
+                  items={this.quantityItems()}
+                  onSelect={this.changeQuantity}
+                  selectedItem={this.props.quantity}
+                  sortItems={false}
+                />
+              </div>
+              <span styleName="multiply">&times;</span>
+              <div styleName="price">
+                <Currency value={this.props.price} />
+              </div>
             </div>
-            <div styleName="price">
-              <Currency value={this.props.totalPrice}/>
+            <div styleName="total-price">
+              <Currency value={this.props.totalPrice} />
             </div>
           </div>
-          <div styleName="quantity">
-            <Select
-              inputProps={{
-                type: 'number',
-              }}
-              getItemValue={item => item}
-              items={this.quantityItems()}
-              onSelect={this.changeQuantity}
-              selectedItem={this.props.quantity}
-              sortItems={false}
-            />
-          </div>
-        </div>
-        <div styleName="controls">
-          <a styleName="delete-button" onClick={this.deleteItem}>
-            <Icon name="fc-close" styleName="delete-icon" />
-          </a>
         </div>
       </div>
     );

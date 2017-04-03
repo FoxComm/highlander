@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import nock from 'nock';
 
 const { default: formatCurrency, stringToCurrency } = requireSource('lib/format-currency', [
   'stringToCurrency'

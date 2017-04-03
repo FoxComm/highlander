@@ -19,7 +19,7 @@ function convertOrderData(orderDetails) {
   return orderDetails;
 }
 
-const OrderRow = props => {
+const OrderRow = (props) => {
   const { showDetailsLink } = props;
   const order = convertOrderData(props.order);
 

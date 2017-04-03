@@ -10,18 +10,6 @@
           "type": "string",
           "minLength": 1
         },
-        "storefrontName": {
-          "type": "string",
-          "widget": "richText"
-        },
-        "details": {
-          "type": "string",
-          "widget": "richText"
-        },
-        "description": {
-          "type": "string",
-          "widget": "text"
-        },
         "usageRules": {
           "type": "object",
           "properties": {

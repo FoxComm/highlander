@@ -1,3 +1,8 @@
 package utils.apis
 
-case class Apis(stripe: FoxStripeApi, amazon: AmazonApi, middlwarehouse: MiddlewarehouseApi)
+import utils.ElasticsearchApi
+
+case class Apis(stripe: FoxStripeApi,
+                amazon: AmazonApi,
+                middlewarehouse: MiddlewarehouseApi,
+                elasticSearch: ElasticsearchApi)

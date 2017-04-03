@@ -26,7 +26,6 @@ import org.json4s.JsonAST._
 import payloads.CartPayloads.CheckoutCart
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import responses.cord.OrderResponse
-import scala.util.Random
 import services.carts._
 import services.coupon.CouponUsageService
 import services.inventory.SkuManager
@@ -34,6 +33,8 @@ import slick.driver.PostgresDriver.api._
 import utils.aliases._
 import utils.apis._
 import utils.db._
+
+import scala.util.Random
 
 object PaymentHelper {
 
@@ -99,13 +100,33 @@ object Checkout {
       order ← * <~ Checkout(cart, CartValidator(cart)).checkout
     } yield order
 
+  def forAdminOneClick(customerId: Int, payload: CheckoutCart)(implicit ec: EC,
+                                                               db: DB,
+                                                               apis: Apis,
+                                                               ac: AC,
+                                                               ctx: OC,
+                                                               au: AU): DbResultT[OrderResponse] =
+    for {
+      customer ← * <~ Users.mustFindByAccountId(customerId)
+      order    ← * <~ oneClickCheckout(customer, au.model.some, payload)
+    } yield order
+
   def forCustomerOneClick(payload: CheckoutCart)(implicit ec: EC,
-                                                 es: ES,
                                                  db: DB,
                                                  apis: Apis,
                                                  ac: AC,
                                                  ctx: OC,
-                                                 au: AU): DbResultT[OrderResponse] = {
+                                                 au: AU): DbResultT[OrderResponse] =
+    oneClickCheckout(au.model, None, payload)
+
+  private def oneClickCheckout(customer: User, admin: Option[User], payload: CheckoutCart)(
+      implicit ec: EC,
+      db: DB,
+      apis: Apis,
+      ac: AC,
+      ctx: OC,
+      au: AU): DbResultT[OrderResponse] = {
+
     def stashItems(refNum: String): DbResultT[Seq[UpdateLineItemsPayload]] =
       CartLineItems
         .byCordRef(refNum)
@@ -119,34 +140,34 @@ object Checkout {
         }.toStream)
 
     def unstashItems(items: Seq[UpdateLineItemsPayload]): DbResultT[Unit] =
-      LineItemUpdater.updateQuantitiesOnCustomersCart(au.model, items).void
+      LineItemUpdater.updateQuantitiesOnCustomersCart(customer, items).void
 
     for {
-      cart ← * <~ CartQueries.findOrCreateCartByAccount(au.model, ctx)
+      cart ← * <~ CartQueries.findOrCreateCartByAccount(customer, ctx, admin)
       refNum     = cart.referenceNumber.some
-      customerId = au.model.accountId
+      customerId = customer.accountId
       scope      = Scope.current
 
       stashedItems ← * <~ stashItems(cart.referenceNumber)
-      _            ← * <~ LineItemUpdater.updateQuantitiesOnCustomersCart(au.model, payload.items)
+      _            ← * <~ LineItemUpdater.updateQuantitiesOnCustomersCart(customer, payload.items)
 
       ccId ← * <~ CreditCards
               .findDefaultByAccountId(customerId)
               .map(_.id)
               .mustFindOneOr(NoDefaultCreditCardForCustomer())
-      _ ← * <~ CartPaymentUpdater.addCreditCard(au.model, ccId, refNum)
+      _ ← * <~ CartPaymentUpdater.addCreditCard(customer, ccId, refNum)
 
       addressId ← * <~ Addresses
                    .findShippingDefaultByAccountId(customerId)
                    .map(_.id)
                    .mustFindOneOr(NoDefaultAddressForCustomer())
       _ ← * <~ CartShippingAddressUpdater
-           .createShippingAddressFromAddressId(au.model, addressId, refNum)
+           .createShippingAddressFromAddressId(customer, addressId, refNum)
 
       shippingMethod ← * <~ DefaultShippingMethods
                         .resolve(scope)
                         .mustFindOr(NoDefaultShippingMethod())
-      _ ← * <~ CartShippingMethodUpdater.updateShippingMethod(au.model, shippingMethod.id, refNum)
+      _ ← * <~ CartShippingMethodUpdater.updateShippingMethod(customer, shippingMethod.id, refNum)
 
       cart  ← * <~ Carts.mustFindByRefNum(cart.referenceNumber)
       order ← * <~ Checkout(cart, CartValidator(cart)).checkout
@@ -204,7 +225,7 @@ case class Checkout(
       _ ← * <~ doOrMeh(
              skusToHold.nonEmpty,
              DbResultT.fromResult(
-                 apis.middlwarehouse.hold(OrderInventoryHold(cart.referenceNumber, skusToHold))))
+                 apis.middlewarehouse.hold(OrderInventoryHold(cart.referenceNumber, skusToHold))))
       mutating = externalCalls.middleWarehouseSuccess = skusToHold.nonEmpty
     } yield {}
 
@@ -229,7 +250,7 @@ case class Checkout(
     } yield InventoryTrackedSku(trackInventory, skuCode, qty)
 
   private def cancelHoldInMiddleWarehouse: Result[Unit] =
-    apis.middlwarehouse.cancelHold(cart.referenceNumber)
+    apis.middlewarehouse.cancelHold(cart.referenceNumber)
 
   private def activePromos: DbResultT[Unit] =
     for {

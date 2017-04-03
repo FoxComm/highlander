@@ -1,6 +1,7 @@
 /* @flow */
 
 import React from 'react';
+import { transitionToLazy } from 'browserHistory';
 
 import { reset, fetchGroup, saveGroup } from 'modules/customer-groups/details/group';
 import { fetchRegions } from 'modules/regions';
@@ -15,7 +16,7 @@ type Props = {
   group: TCustomerGroup,
   title: string,
   cancelTo: string,
-  cancelParams: Object,
+  cancelParams?: Object,
   saveInProgress: boolean,
   saveError: boolean,
   onSave: () => Promise<*>,
@@ -36,8 +37,7 @@ export default ({ group, title, onSave, cancelTo, cancelParams, saveInProgress, 
 
         <SaveCancel
           className="fc-customer-group-edit__form-submits"
-          cancelTo={cancelTo}
-          cancelParams={cancelParams}
+          onCancel={transitionToLazy(cancelTo, cancelParams)}
           saveText="Save Group"
           saveDisabled={!group.isValid}
           isLoading={saveInProgress}

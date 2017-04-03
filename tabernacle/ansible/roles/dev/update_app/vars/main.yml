@@ -37,6 +37,12 @@ app_highlander_paths:
 
 # Mapping canonical app name to Mararthon template path
 app_template_paths:
+    greenriver: dev/marathon_consumers/templates/greenriver.json
+    capture-consumer: dev/marathon_consumers/templates/capture-consumer.json
+    gift-card-consumer: dev/marathon_consumers/templates/gift-card-consumer.json
+    shipments-consumer: dev/marathon_consumers/templates/shipments.json
+    stock-items-consumer: dev/marathon_consumers/templates/stock-items-consumer.json
+    customer-groups-consumer: dev/marathon_consumers/templates/customer-groups-consumer.json
     marketplace-ui: ext/tgt/marketplace-ui/templates/marketplace-ui.json
 
 # Mapping canonical app name to Marathon app name
@@ -100,5 +106,7 @@ docker_tags:
     henhouse: "{{tag_name}}"
     eggcrate: "{{tag_name}}"
     river_rock: "{{tag_name}}"
+    anthill: "{{tag_name}}"
     digger_sphex: "{{tag_name}}"
     orders_sphex: "{{tag_name}}"
+    orders_anthill: "{{tag_name}}"

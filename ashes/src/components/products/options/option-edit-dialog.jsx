@@ -14,9 +14,6 @@ import { FormField, Form } from 'components/forms';
 // styles
 import styles from './option-list.css';
 
-// types
-import type { Option } from 'paragons/product';
-
 type OptionEntry = {
   id: number|string,
   option: Option,
