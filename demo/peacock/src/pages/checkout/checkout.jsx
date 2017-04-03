@@ -52,14 +52,18 @@ type Props = CheckoutState & CheckoutActions & {
 };
 
 type State = {
-  cart: Object,
+  shippingDone: boolean,
+  deliveryDone: boolean,
+  billingDone: boolean,
 }
 
 class Checkout extends Component {
   props: Props;
 
   state: State = {
-    cart: this.props.cart,
+    shippingDone: false,
+    deliveryDone: false,
+    billingDone: false,
   };
 
   componentDidMount() {
@@ -78,10 +82,26 @@ class Checkout extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.cart != this.props.cart) {
-      this.setState({
-        cart: nextProps.cart,
-      });
+    const { creditCard } = nextProps;
+    const { shippingAddress, shippingMethod } = nextProps.cart;
+    const { billingDone, shippingDone, deliveryDone } = this.state;
+
+    if (_.isEmpty(creditCard) && billingDone) {
+      this.setState({ billingDone: false });
+    } else if (!_.isEmpty(creditCard) && !billingDone){
+      this.setState({ billingDone: true });
+    }
+
+    if (_.isEmpty(shippingAddress) && shippingDone) {
+      this.setState({ shippingDone: false });
+    } else if (!_.isEmpty(shippingAddress) && !shippingDone) {
+      this.setState({ shippingDone: true });
+    }
+
+    if (_.isEmpty(shippingMethod) && deliveryDone) {
+      this.setState({ deliveryDone: false });
+    } else if (!_.isEmpty(shippingMethod) && !deliveryDone) {
+      this.setState({ deliveryDone: true });
     }
   }
 
@@ -97,20 +117,20 @@ class Checkout extends Component {
   }
 
   @autobind
-  setShippingStage() {
-    this.props.setEditStage(EditStages.SHIPPING);
-  }
-
-  @autobind
-  setDeliveryStage() {
+  setShipping() {
     this.props.toggleShippingModal();
-    return this.props.setEditStage(EditStages.DELIVERY);
+    this.setState({ shippingDone: true });
   }
 
   @autobind
-  setBillingStage() {
+  setDelivery() {
     this.props.toggleDeliveryModal();
-    return this.props.setEditStage(EditStages.BILLING);
+    this.setState({ deliveryDone: true });
+  }
+
+  @autobind
+  setBilling() {
+    this.setState({ billingDone: true });
   }
 
   @autobind
@@ -144,25 +164,16 @@ class Checkout extends Component {
   }
 
   @autobind
-  startShipping() {
-    return this.props.setEditStage(EditStages.SHIPPING);
-  }
-
-  @autobind
   isEmailSetForCheckout() {
     const user = _.get(this.props, ['auth', 'user'], null);
     return emailIsSet(user);
   }
 
-  @autobind
-  handleUpdateCart(cart) {
-    this.setState({
-      cart,
-    });
-  }
-
   get orderTotals() {
     const { cart } = this.props;
+    const { billingDone, shippingDone, deliveryDone } = this.state;
+    const disabled = billingDone && shippingDone && deliveryDone;
+
     return (
       <div styleName="total-cost">
         <div styleName="totals-list">
@@ -173,7 +184,12 @@ class Checkout extends Component {
         </div>
 
         <div styleName="place-order-block">
-          <Button styleName="place-order-button" onClick={this.placeOrder} disabled={false}>
+          <Button
+            styleName="place-order-button"
+            onClick={this.placeOrder}
+            disabled={!disabled}
+            isLoading={this.props.checkoutState.inProgress}
+          >
             Place order
           </Button>
         </div>
@@ -200,8 +216,7 @@ class Checkout extends Component {
           <div styleName="shipping">
             <Shipping
               isEditing={props.editStage}
-              editAction={this.setShippingStage}
-              onComplete={this.setDeliveryStage}
+              onComplete={this.setShipping}
               addresses={this.props.addresses}
               fetchAddresses={this.props.fetchAddresses}
               shippingAddress={_.get(this.props.cart, 'shippingAddress', {})}
@@ -212,10 +227,9 @@ class Checkout extends Component {
           <div styleName="delivery">
             <Delivery
               isEditing={props.editStage}
-              editAction={this.setDeliveryStage}
-              onComplete={this.setBillingStage}
+              onComplete={this.setDelivery}
               shippingMethods={props.shippingMethods}
-              cart={this.state.cart}
+              cart={this.props.cart}
               onUpdateCart={this.handleUpdateCart}
               fetchShippingMethods={props.fetchShippingMethods}
             />
@@ -223,9 +237,9 @@ class Checkout extends Component {
           <div styleName="payment">
             <Billing
               isGuestMode={isGuestMode}
-              editAction={this.setBillingStage}
               paymentMethods={_.get(props.cart, 'paymentMethods', [])}
               chooseCreditCard={this.props.chooseCreditCard}
+              onComplete={this.setBilling}
             />
           </div>
           <div styleName="order-summary">

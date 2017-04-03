@@ -243,7 +243,9 @@ class EditBilling extends Component {
   @autobind
   saveAndContinue() {
     this.props.selectCreditCard(this.state.selectedCard);
-    this.props.chooseCreditCard();
+    this.props.chooseCreditCard().then(() => {
+      this.props.onComplete();
+    });
     this.props.togglePaymentModal();
   }
 
