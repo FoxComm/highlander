@@ -36,7 +36,7 @@
   "constraints": [["hostname", "UNIQUE"]],
   "healthChecks": [
     {
-      "path": "/ping",
+      "path": "/public/ping",
       "protocol": "HTTP",
       "portIndex": 0,
       "gracePeriodSeconds": 300,

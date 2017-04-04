@@ -128,7 +128,7 @@ func lookupSrv(host string) func() (string, error) {
 
 		host = srv.Target
 		port := strconv.Itoa(int(srv.Port))
-		anthillUrl := "http://" + host + ":" + port + "/prod-prod/train"
+		anthillUrl := "http://" + host + ":" + port + "private/prod-prod/train"
 
 		return anthillUrl, nil
 	}

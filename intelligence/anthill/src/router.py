@@ -22,14 +22,14 @@ def handle_invalid_usage(error):
     return response
 
 # API Endpoints
-@APP.route('/ping')
+@APP.route('/public/ping')
 def ping():
     """ping
     Returns pong
     """
     return 'pong'
 
-@APP.route('/prod-prod/<int:prod_id>', methods=['GET'])
+@APP.route('/public/prod-prod/<int:prod_id>', methods=['GET'])
 def rec_prod_prod(prod_id):
     """rec_prod_prod
     """
@@ -37,7 +37,7 @@ def rec_prod_prod(prod_id):
     resp = PP_MANAGER.recommend(prod_id, channel_id)
     return jsonify(resp)
 
-@APP.route('/prod-prod/full/<int:prod_id>', methods=['GET'])
+@APP.route('/public/prod-prod/full/<int:prod_id>', methods=['GET'])
 def rec_prod_prod_full(prod_id):
     """rec_prod_prod_full
     returns a list of full products from elasticsearch
@@ -48,7 +48,7 @@ def rec_prod_prod_full(prod_id):
     full_resp = PP_MANAGER.recommend_full(prod_id, channel_id, ES_CLIENT, from_param, size_param)
     return jsonify(full_resp)
 
-@APP.route('/cust-prod/<int:cust_id>', methods=['GET'])
+@APP.route('/public/cust-prod/<int:cust_id>', methods=['GET'])
 def rec_cust_prod(cust_id):
     """rec_cust_prod
     """
@@ -57,7 +57,7 @@ def rec_cust_prod(cust_id):
     resp = PP_MANAGER.cust_recommend(cust_id, channel_id)
     return jsonify(resp)
 
-@APP.route('/cust-prod/full/<int:cust_id>', methods=['GET'])
+@APP.route('/public/cust-prod/full/<int:cust_id>', methods=['GET'])
 def rec_cust_prod_full(cust_id):
     """rec_cust_prod_full
     returns a list of full products from elasticsearch
@@ -69,7 +69,7 @@ def rec_cust_prod_full(cust_id):
     full_resp = PP_MANAGER.cust_recommend_full(cust_id, channel_id, ES_CLIENT, from_param, size_param)
     return jsonify(full_resp)
 
-@APP.route('/prod-prod/train', methods=['POST'])
+@APP.route('/private/prod-prod/train', methods=['POST'])
 def train_prod_prod():
     """train
     """
