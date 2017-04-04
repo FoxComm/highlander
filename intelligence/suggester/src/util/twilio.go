@@ -23,7 +23,7 @@ func SuggestionToSMS(phoneNumber string, imageUrl string) (responses.TwilioSmsRe
 	v := url.Values{}
 	v.Set("To", phoneNumber)
 	v.Set("From", twilioPhoneNumber)
-	v.Set("Body", "Hello, from FoxCommerce! Text \"like\" if you want to buy this product.")
+	v.Set("Body", "Hello, from FoxCommerce! Text \"buy\" if you want to buy this product, or \"pass\" to decline")
 	v.Set("MediaUrl", imageUrl)
 
 	rb := *strings.NewReader(v.Encode())
