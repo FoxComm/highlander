@@ -6,6 +6,7 @@ import failures.NotFoundFailure404
 import failures.ShippingMethodFailures.{NoDefaultShippingMethod, ShippingMethodNotFoundByName}
 import failures.UserFailures._
 import java.time.Instant
+
 import models.account._
 import models.cord.Order.RemorseHold
 import models.cord._
@@ -22,7 +23,7 @@ import payloads.AddressPayloads.CreateAddressPayload
 import payloads.CartPayloads.{CheckoutCart, CreateCart}
 import payloads.GiftCardPayloads.GiftCardCreateByCsr
 import payloads.LineItemPayloads._
-import payloads.PaymentPayloads.{CreateCreditCardFromTokenPayload, GiftCardPayment}
+import payloads.PaymentPayloads.{CreateApplePayPayment, CreateCreditCardFromTokenPayload, GiftCardPayment}
 import payloads.UpdateShippingMethod
 import responses.GiftCardResponse
 import responses.cord._
@@ -73,6 +74,7 @@ class CheckoutIntegrationTest
   }
 
   "PATCH /v1/carts/:refNum/line-items/attributes" - {
+    pending
     val attributes = LineItemAttributes(
         GiftCardLineItemAttributes(senderName = "senderName",
                                    recipientName = "recipientName",
@@ -100,7 +102,22 @@ class CheckoutIntegrationTest
     }
   }
 
+  "POST apple pay" - {
+    "Apple pay test" in new OneClickCheckoutFixture {
+      storefrontCartsApi.get().mustBeOk()
+      storefrontPaymentsApi.applePay
+        .post(
+            CreateApplePayPayment(
+                token = "random",
+                50,
+                cartRef = ""
+            ))
+        .mustBeOk()
+    }
+  }
+
   "POST v1/carts/:refNum/checkout" - {
+    pending
 
     "allow to do one-click checkout" in new OneClickCheckoutFixture {
       shippingMethodsApi(shipMethod.id).setDefault().mustBeOk()

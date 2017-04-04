@@ -223,7 +223,7 @@ class StripeTest extends RealStripeApis {
       import scala.collection.JavaConversions._
 
       "add domains" in {
-        val map = Map[String, AnyRef]("stage-tpg" -> "stage-tpg.foxcommerce.com")
+        val map = Map[String, AnyRef]("stage-tpg" → "stage-tpg.foxcommerce.com")
         ApplePayDomain.create(mapAsJavaMap(map))
 
         // todo add domains and test mb?

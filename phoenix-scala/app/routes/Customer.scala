@@ -88,6 +88,18 @@ object Customer {
                   }
                 }
               } ~
+              pathPrefix("payment-methods" / "apple-pay") {
+                (post & pathEnd & entity(as[CreateApplePayPayment])) { payload ⇒
+                  mutateOrFailures {
+                    CartPaymentUpdater.addApplePayCharge(auth.model, payload)
+                  }
+                } ~
+                (delete & pathEnd) {
+                  mutateOrFailures {
+                    CartPaymentUpdater.deleteApplePayCharge(auth.model)
+                  }
+                }
+              } ~
               pathPrefix("payment-methods" / "gift-cards") {
                 (post & pathEnd & entity(as[GiftCardPayment])) { payload ⇒
                   mutateOrFailures {
