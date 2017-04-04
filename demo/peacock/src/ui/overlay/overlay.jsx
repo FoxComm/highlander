@@ -2,6 +2,7 @@
 
 import React, { Component } from 'react';
 import classNames from 'classnames';
+import _ from 'lodash';
 
 import styles from './overlay.css';
 
@@ -13,10 +14,14 @@ type Props = {
 class Overlay extends Component {
   props: Props;
 
-  componentWillReceiveProps(nextProps: Props) {
+  shouldComponentUpdate(nextProps: Props) {
+    return !_.isEqual(nextProps, this.props);
+  }
+
+  componentDidUpdate() {
     const appNode = document.getElementById('site');
     if (appNode) {
-      if (nextProps.shown) {
+      if (this.props.shown) {
         appNode.setAttribute('style', 'overflow: hidden !important; width: auto !important;');
       } else {
         appNode.setAttribute('style', '');
