@@ -43,13 +43,6 @@ class Prod_Prod_Manager(object):
         """
         self.recommenders[channel_id] = pprec
 
-    def validate(self, prod_id, channel_id):
-        """validate
-        ensures that a valid prod_id and channel_id have been passed
-        """
-        self.validate_channel(channel_id)
-        self.validate_prod_id(prod_id, channel_id)
-
     def validate_channel(self, channel_id):
         """validate_channel
         """
@@ -60,20 +53,17 @@ class Prod_Prod_Manager(object):
             raise InvalidUsage('Channel ID not found', status_code=400,
                                payload={'error_code': 101})
 
-    def validate_prod_id(self, prod_id, channel_id):
-        """validate_prod_id
-        """
-        if prod_id not in self.recommenders[channel_id].product_ids():
-            raise InvalidUsage('Product ID not found in channel', status_code=400,
-                               payload={'error_code': 102})
-
     def recommend(self, prod_id, channel_id):
         """recommend
         take a product id
         get list of product ids from the recommender
         """
-        self.validate(prod_id, channel_id)
-        return self.recommenders[channel_id].recommend([prod_id])
+        self.validate_channel(channel_id)
+        rec = self.get_recommender(channel_id)
+        if prod_id in rec.product_ids():
+            return rec.recommend([prod_id])
+        else:
+            return {'products': []}
 
     def recommend_full(self, prod_id, channel_id, es_client, from_param, size_param):
         """recommend_full
