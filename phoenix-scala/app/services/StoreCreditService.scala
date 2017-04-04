@@ -127,7 +127,6 @@ object StoreCreditService {
       payload: StoreCreditBulkUpdateStateByCsr,
       admin: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[List[ItemResult]] =
     for {
-      _ ← * <~ payload.validate.toXor
       response ← * <~ DbResultT.seqCollectFailures(payload.ids.map { id ⇒
                   val itemPayload = StoreCreditUpdateStateByCsr(payload.state, payload.reasonId)
                   updateStateByCsr(id, itemPayload, admin)
@@ -139,7 +138,6 @@ object StoreCreditService {
                        payload: StoreCreditUpdateStateByCsr,
                        admin: User)(implicit ec: EC, db: DB, ac: AC): DbResultT[Root] =
     for {
-      _           ← * <~ payload.validate
       storeCredit ← * <~ StoreCredits.mustFindById404(id)
       updated     ← * <~ cancelOrUpdate(storeCredit, payload.state, payload.reasonId, admin)
       _           ← * <~ LogActivity().scUpdated(admin, storeCredit, payload)

@@ -8,13 +8,15 @@ import styles from './footer.css';
 
 const Footer = () : Element<*> => {
   return (
-    <section styleName="footer">
-      <div styleName="wrap">
-        <Link to="/" styleName="link">
-          <Icon styleName="logo-icon" name="fc-logo" />
-        </Link>
+    <div styleName="footer-wrap">
+      <div styleName="footer">
+        <div styleName="wrap">
+          <Link to="/" styleName="link">
+            <Icon styleName="logo-icon" name="fc-logo" />
+          </Link>
+        </div>
       </div>
-    </section>
+    </div>
   );
 };
 

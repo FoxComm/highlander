@@ -16,6 +16,7 @@
     - { role: hotfix/rsyslog }
     - { role: prod/migrate_phoenix_db }
     - { role: prod/migrate_middlewarehouse_db }
+    - { role: prod/migrate_hyperion_db }
 
   handlers:
     - include: roles/base/consul_agent/handlers/main.yml
