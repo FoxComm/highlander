@@ -49,4 +49,6 @@
 
 .facet-checkbox input[type=checkbox]:checked + .facet-checkbox-box {
   background-color: #0b7ddc;
+  border: none;
+  padding-top: 2px;
 }
