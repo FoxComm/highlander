@@ -40,62 +40,62 @@ const facets = [
     kind: 'color',
     values: [
       {
-        "label": "Black",
-        "value": {
-          "color": "black",
-          "value": "Black"
+        label: 'Black',
+        value: {
+          color: 'black',
+          value: 'Black',
         },
-        "count": 66
+        count: 66,
       },
       {
-        "label": "White",
-        "value": {
-          "color": "white",
-          "value": "White"
+        label: 'White',
+        value: {
+          color: 'white',
+          value: 'White',
         },
-        "count": 31
+        count: 31,
       },
       {
-        "label": "Blue",
-        "value": {
-          "color": "blue",
-          "value": "Blue"
+        label: 'Blue',
+        value: {
+          color: 'blue',
+          value: 'Blue',
         },
-        "count": 15
+        count: 15,
       },
       {
-        "label": "Collegiate Navy",
-        "value": {
-          "color": "navy",
-          "value": "Collegiate Navy"
+        label: 'Collegiate Navy',
+        value: {
+          color: 'navy',
+          value: 'Collegiate Navy',
         },
-        "count": 13
+        count: 13,
       },
       {
-        "label": "Metallic Silver",
-        "value": {
-          "color": "silver",
-          "value": "Metallic Silver"
+        label: 'Metallic Silver',
+        value: {
+          color: 'silver',
+          value: 'Metallic Silver',
         },
-        "count": 10
+        count: 10,
       },
       {
-        "label": "Grey",
-        "value": {
-          "color": "grey",
-          "value": "Grey"
+        label: 'Grey',
+        value: {
+          color: 'grey',
+          value: 'Grey',
         },
-        "count": 9
+        count: 9,
       },
       {
-        "label": "Mystery Blue",
-        "value": {
-          "color": "lightblue",
-          "value": "Mystery Blue"
+        label: 'Mystery Blue',
+        value: {
+          color: 'lightblue',
+          value: 'Mystery Blue',
         },
-        "count": 6
-      }
-    ]
+        count: 6,
+      },
+    ],
   },
   {
     key: 'image',
@@ -103,23 +103,23 @@ const facets = [
     kind: 'image',
     values: [
       {
-        "label": "Black",
-        "value": {
-          "image": "http://lorempixel.com/59/63/",
-          "value": "black"
+        label: 'Black',
+        value: {
+          image: 'http://lorempixel.com/59/63/',
+          value: 'black',
         },
-        "count": 4
+        count: 4,
       },
       {
-        "label": "Silver",
-        "value": {
-          "image": "http://lorempixel.com/59/63/",
-          "value": "silver"
+        label: 'Silver',
+        value: {
+          image: 'http://lorempixel.com/59/63/',
+          value: 'silver',
         },
-        "count": 12
+        count: 12,
       },
-    ]
-  }
+    ],
+  },
 ];
 
 storiesOf('components.Facets', module)

@@ -110,7 +110,7 @@ class Facets extends Component {
     const facetMessages = {};
     _.forEach(facets, (facet: TFacet) => {
       animationState[facet.key] = true;
-      facetMessages[facet.key] = `We need to know your ${facet.name.toLowerCase()} first!`
+      facetMessages[facet.key] = `We need to know your ${facet.name.toLowerCase()} first!`;
     });
     this.setState({
       animationState,
@@ -129,7 +129,7 @@ class Facets extends Component {
     const values = this.renderValues(f);
     const facetStyle = `${f.kind}-facet`;
 
-    const className = classnames(styles['facet'], {
+    const className = classnames(styles.facet, {
       [styles['facet-flash']]: this.state.animationState[f.key],
     });
     const message = this.state.facetMessages[f.key];

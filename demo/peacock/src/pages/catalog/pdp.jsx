@@ -312,7 +312,7 @@ class Pdp extends Component {
     }
     return (
       <ProductDetails
-        ref={_ref => this._productDetails = _ref}
+        ref={(_ref) => { this._productDetails = _ref; }}
         product={this.props.product}
         productView={this.productView}
         selectedSku={this.currentSku}

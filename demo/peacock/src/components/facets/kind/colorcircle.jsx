@@ -60,7 +60,7 @@ class ColorCircle extends Component {
     const className = classnames(
       colorStyle,
       styles['color-checkbox'], {
-        [styles['light']]: isLight(value.color),
+        [styles.light]: isLight(value.color),
       }
     );
 

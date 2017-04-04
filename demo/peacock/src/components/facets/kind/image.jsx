@@ -1,6 +1,5 @@
 /* @flow */
 
-import _ from 'lodash';
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import styles from './image.css';

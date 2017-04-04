@@ -35,7 +35,7 @@ type State = {
 }
 
 function getSkuCodesForVariantValue(product, valueId: number, variantType: string) {
-  const variant: ProductVariant = _.find(product.variants, variant => variant.attributes.type.v == variantType);
+  const variant: ProductVariant = _.find(product.variants, (v: ProductVariant) => v.attributes.type.v == variantType);
   const variantValue: VariantValue = _.find(variant.values, {id: valueId});
 
   return variantValue.skuCodes;
@@ -91,16 +91,16 @@ class ProductDetails extends Component {
     if (!product) return;
 
     const [skuCode, exactMatch] = this.findClosestSku(props);
-    let sku;
+    let matchedSku;
     if (skuCode) {
-      sku = _.find(product.skus, sku => sku.attributes.code.v == skuCode);
+      matchedSku = _.find(product.skus, sku => sku.attributes.code.v == skuCode);
     }
     let unselectedFacets = [];
     if (!exactMatch) {
       unselectedFacets = this.getUnselectedFacets(product);
     }
 
-    props.onSkuChange(sku, exactMatch, unselectedFacets);
+    props.onSkuChange(matchedSku, exactMatch, unselectedFacets);
   }
 
   getFacets(product: ?ProductResponse): Array<TFacet> {
@@ -132,7 +132,7 @@ class ProductDetails extends Component {
             label: value.name,
             value: {
               value: facetValue,
-              image: _.get(sku, 'albums.0.images.0.src', '')
+              image: _.get(sku, 'albums.0.images.0.src', ''),
             },
           };
         } else if (variantType == 'size') {
@@ -164,23 +164,24 @@ class ProductDetails extends Component {
 
   findClosestSku(props = this.props): [?string, boolean] {
     const { product } = props;
-    const facets = this.getFacets(product)
+    const facets = this.getFacets(product);
 
-    const skuCodes = _.reduce(this.state.selectedVariantValues, (acc, variantValueId: number, variantType: string) => {
-      const skuCodes = getSkuCodesForVariantValue(product, variantValueId, variantType);
-      return acc.length ? _.intersection(acc, skuCodes) : skuCodes;
-    }, []);
+    const matchedSkuCodes =
+      _.reduce(this.state.selectedVariantValues, (acc, variantValueId: number, variantType: string) => {
+        const skuCodes = getSkuCodesForVariantValue(product, variantValueId, variantType);
+        return acc.length ? _.intersection(acc, skuCodes) : skuCodes;
+      }, []);
 
-    // probably we could detect exact match by cheking skuCodes.length == 1
+    // probably we could detect exact match by cheking matchedSkuCodes.length == 1
     // but is there guarantee that only one sku/variant match complete set of variants ?
-    return [skuCodes[0], facets.length === _.size(this.state.selectedVariantValues)];
+    return [matchedSkuCodes[0], facets.length === _.size(this.state.selectedVariantValues)];
   }
 
   get facets(): Element<*> {
     const facets = this.getFacets(this.props.product);
     return (
       <Facets
-        ref={_ref => this._facets = _ref}
+        ref={(_ref) => { this._facets = _ref; }}
         styleName="facets"
         facets={facets}
         onSelect={this.handleSelectFacet}
@@ -230,6 +231,6 @@ class ProductDetails extends Component {
       </div>
     );
   }
-};
+}
 
 export default ProductDetails;
