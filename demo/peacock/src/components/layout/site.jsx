@@ -1,17 +1,20 @@
 /* @flow */
 
+// libs
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { dissoc } from 'sprout-data';
 
-import * as actions from 'modules/auth';
-
-import styles from './site.css';
-
+// components
 import Overlay from '../overlay/overlay';
 import Auth from '../auth/auth';
+import Header from 'components/header/header';
+
+import * as actions from 'modules/auth';
 
 import type { RoutesParams } from 'types';
+
+import styles from './site.css';
 
 const mapState = state => ({
   isAuthBlockVisible: state.auth.isAuthBlockVisible,
@@ -46,8 +49,14 @@ class Site extends Component {
       })
     );
 
+    const { location } = this.props;
+
     return (
-      <div styleName="site">
+      <div styleName="site" id="site">
+        <Header
+          path={location.pathname}
+          query={location.query}
+        />
         {isAuthBlockVisible && this.renderAuthBlock()}
         {childrenWithRoutes}
       </div>

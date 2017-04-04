@@ -7,4 +7,6 @@
   lost-flex-container: row;
   color: var(--blackish);
   font-family: var(--font-main);
+  height: 100%;
+  overflow: auto;
 }

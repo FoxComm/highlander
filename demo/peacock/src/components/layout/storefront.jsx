@@ -2,7 +2,6 @@
 
 import React, { Element } from 'react';
 
-import Header from '../header/header';
 import Footer from '../footer/footer';
 
 import styles from './storefront.css';
@@ -24,10 +23,6 @@ const StoreFront = (props: Props) => {
 
   return (
     <div styleName="container">
-      <Header
-        path={props.location.pathname}
-        query={props.location.query}
-      />
       <div styleName="content-container">
         {childrenWithRoutes}
       </div>
