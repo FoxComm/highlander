@@ -7,7 +7,7 @@ create table generic_objects(
   form_id integer not null references object_forms(id) on update restrict on delete restrict,
   commit_id integer references object_commits(id) on update restrict on delete restrict,
   updated_at generic_timestamp,
-  created_at generic_timestamp,
+  created_at generic_timestamp not null,
   archived_at generic_timestamp
 );
 
@@ -29,8 +29,8 @@ create table activity_kind_object_handlers(
   scope exts.ltree not null,
   kind generic_string,
   dimension generic_string,
-  object_id generic_string
-  generic_object_head integer not null references generic_objects(id) on update restrict on delete restrict,
+  object_id generic_string,
+  generic_object integer not null references generic_objects(id) on update restrict on delete restrict,
   created_at generic_timestamp
 );
 
