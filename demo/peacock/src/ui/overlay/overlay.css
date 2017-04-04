@@ -18,8 +18,3 @@
   opacity: 1;
   transform: translateX(0);
 }
-
-.no-scroll {
-  overflow: hidden !important;
-  width: auto !important;
-}

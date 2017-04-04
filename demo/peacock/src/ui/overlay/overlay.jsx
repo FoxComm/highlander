@@ -14,12 +14,12 @@ class Overlay extends Component {
   props: Props;
 
   componentWillReceiveProps(nextProps: Props) {
-    const appNode = document.getElementById('app');
+    const appNode = document.getElementById('site');
     if (appNode) {
       if (nextProps.shown) {
-        appNode.className = styles['no-scroll'];
+        appNode.setAttribute('style', 'overflow: hidden !important; width: auto !important;');
       } else {
-        appNode.className = '';
+        appNode.setAttribute('style', '');
       }
     }
   }
