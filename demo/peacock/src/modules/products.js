@@ -409,7 +409,7 @@ const fancyColors = {
   'Yellow Cab': 'yellow',
 };
 
-export function mapFacetValue(v, kind) {
+export function mapFacetValue(v: string, kind: string): string|Object {
   let value = v;
   if (kind == 'color') {
     const color = (v in fancyColors) ? fancyColors[v] : _.toLower(v).replace(/\s/g, '');

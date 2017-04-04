@@ -34,7 +34,7 @@ type State = {
   selectedVariantValues: VariantValuesMap,
 }
 
-function getSkuCodesForVariantValue(product, valueId: number, variantType: string) {
+function getSkuCodesForVariantValue(product: ProductResponse, valueId: number, variantType: string): Array<string> {
   const variant: ProductVariant = _.find(product.variants, (v: ProductVariant) => v.attributes.type.v == variantType);
   const variantValue: VariantValue = _.find(variant.values, {id: valueId});
 
@@ -48,7 +48,7 @@ class ProductDetails extends Component {
   };
   _facets: Facets;
 
-  getSkuByCode(product, code) {
+  getSkuByCode(product: ProductResponse, code: string): Sku {
     return _.find(product.skus, sku => sku.attributes.code.v == code);
   }
 
@@ -86,7 +86,7 @@ class ProductDetails extends Component {
     });
   }
 
-  fireSkuChange(props = this.props) {
+  fireSkuChange(props: Props = this.props) {
     const { product } = props;
     if (!product) return;
 
@@ -103,8 +103,8 @@ class ProductDetails extends Component {
     props.onSkuChange(matchedSku, exactMatch, unselectedFacets);
   }
 
-  getFacets(product: ?ProductResponse): Array<TFacet> {
-    if (!product) return [];
+  getFacets(product: ProductResponse): Array<TFacet> {
+    if (product == null) return [];
 
     const { variants } = product;
 
@@ -155,14 +155,14 @@ class ProductDetails extends Component {
     });
   }
 
-  getUnselectedFacets(product = this.props.product): ?string {
+  getUnselectedFacets(product: ProductResponse = this.props.product): Array<string> {
     const facets = this.getFacets(product);
     return _.filter(facets, (facet: TFacet) => {
       return _.every(facet.values, value => !value.selected);
     });
   }
 
-  findClosestSku(props = this.props): [?string, boolean] {
+  findClosestSku(props: Props = this.props): [?string, boolean] {
     const { product } = props;
     const facets = this.getFacets(product);
 

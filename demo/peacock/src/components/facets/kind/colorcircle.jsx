@@ -48,7 +48,7 @@ class ColorCircle extends Component {
     }
   }
 
-  render(): Element<*> {
+  render(): Element<any> {
     const {
       reactKey,
       value,
