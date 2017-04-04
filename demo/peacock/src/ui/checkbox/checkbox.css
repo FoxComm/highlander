@@ -1,4 +1,3 @@
-
 @import "colors.css";
 
 :root {
@@ -17,6 +16,7 @@
 
   &:checked {
     & + label > .box {
+      border: none;
       background: var(--checkbox-checked);
       &:before {
         content: "";

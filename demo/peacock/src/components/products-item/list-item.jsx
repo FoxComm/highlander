@@ -134,22 +134,22 @@ class ListItem extends React.Component {
 
     return (
       <div styleName="list-item">
-        <Link onClick={this.handleClick} to={`/products/${productSlug}`}>
+        <Link styleName="link" onClick={this.handleClick} to={`/products/${productSlug}`}>
           <div styleName="preview">
             {this.image}
           </div>
-        </Link>
 
-        <div styleName="text-block">
-          <div styleName="title-line">
-            <h1 styleName="title" alt={title}>
-              <Link to={`/products/${productSlug}`}>{title}</Link>
-            </h1>
+          <div styleName="text-block">
+            <div styleName="title-line">
+              <h1 styleName="title" alt={title}>
+                {title}
+              </h1>
+            </div>
+            <div styleName="price-line">
+              {this.isOnSale()}
+            </div>
           </div>
-          <div styleName="price-line">
-            {this.isOnSale()}
-          </div>
-        </div>
+        </Link>
       </div>
     );
   }
