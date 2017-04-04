@@ -11,6 +11,7 @@
     "TAG": "{{docker_tags.hyperion}}"
   },
   "env": {
+    "PORT": "{{hyperion_port}}",
     "HYPERION_DB_USER": "{{hyperion_db_user}}",
     "HYPERION_DB_HOST": "{{docker_db_host}}",
     "HYPERION_DB_NAME": "{{hyperion_db_name}}",
