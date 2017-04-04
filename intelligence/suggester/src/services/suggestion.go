@@ -46,17 +46,17 @@ func GetSuggestion(c echo.Context) error {
 
 	queryResponse, queryError := util.AntHillQuery(customerID, channel)
 	if queryError != nil {
-		return c.String(http.StatusBadRequest, queryError.Error())
+		return c.String(http.StatusBadRequest, "queryError: "+queryError.Error())
 	}
 
 	upSellResponse, upSellError := selectUpSellAndPushToSms(customerID, phoneNumberClean, queryResponse)
 	if upSellError != nil {
-		return c.String(http.StatusBadRequest, upSellError.Error())
+		return c.String(http.StatusBadRequest, "upSellError: "+upSellError.Error())
 	}
 
 	encodedResponse, encodeErr := json.Marshal(&upSellResponse)
 	if encodeErr != nil {
-		return c.String(http.StatusBadRequest, encodeErr.Error())
+		return c.String(http.StatusBadRequest, "encodedError: "+encodeErr.Error())
 	}
 
 	return c.String(http.StatusOK, string(encodedResponse))
@@ -75,7 +75,13 @@ func DeclineSuggestion(c echo.Context) error {
 	}
 
 	respMsg := fmt.Sprintf("Customer %s declined Product %s with SKU %s", customerID, productID, productSKU)
-	return c.String(http.StatusOK, respMsg)
+	responseMap := map[string]string{"message": respMsg, "customerID": customerID, "productID": productID, "productSKU": productSKU}
+	responseJSON, responseJSONErr := json.Marshal(responseMap)
+	if responseJSONErr != nil {
+		return c.String(http.StatusBadRequest, responseJSONErr.Error())
+	}
+
+	return c.String(http.StatusOK, string(responseJSON))
 }
 
 func PurchaseSuggestion(c echo.Context) error {

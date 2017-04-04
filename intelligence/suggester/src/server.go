@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"net/http"
 	"os"
 
@@ -15,7 +16,9 @@ func main() {
 	e := echo.New()
 
 	e.GET("/ping", func(c echo.Context) error {
-		return c.String(http.StatusOK, "pong")
+		pongResponseMap := map[string]string{"message": "pong"}
+		pongResponseJSON, _ := json.Marshal(pongResponseMap)
+		return c.String(http.StatusOK, string(pongResponseJSON))
 	})
 
 	e.GET("/customer/:id", services.GetSuggestion)
