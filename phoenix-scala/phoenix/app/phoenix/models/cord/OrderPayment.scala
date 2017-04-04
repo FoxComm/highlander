@@ -59,6 +59,8 @@ object OrderPayment {
       OrderPayment(paymentMethodId = cc.id, paymentMethodType = PaymentMethod.CreditCard)
     case sc: StoreCredit ⇒
       OrderPayment(paymentMethodId = sc.id, paymentMethodType = PaymentMethod.StoreCredit)
+    case ap: ApplePayment ⇒
+      OrderPayment(paymentMethodId = ap.id, paymentMethodType = PaymentMethod.ApplePay)
   }
 }
 

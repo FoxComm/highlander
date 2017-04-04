@@ -181,4 +181,32 @@ object CartPaymentUpdater {
       validated   ← * <~ CartValidator(updatedCart).validate()
       _           ← * <~ LogActivity().orderPaymentMethodDeletedGc(originator, deleteRes, giftCard)
     } yield TheResponse.validated(deleteRes, validated)
+
+  def addApplePayCharge(
+      originator: User,
+      payload: CreateApplePayPayment)(implicit ec: EC, db: DB, ac: AC, ctx: OC): TheFullCart =
+    for {
+      cart ← * <~ getCartByOriginator(originator, payload.cartRef.some)
+      _    ← * <~ OrderPayments.filter(_.cordRef === cart.refNum).applePays.delete
+//    create apple charge
+      apCharge ← * <~ ApplePayCharges.create(
+                    ApplePayCharge(
+                        accountId = originator.id,
+                        gatewayCustomerId = payload.token,
+                        currency = payload.currency,
+                        amount = payload.amount
+                    ))
+      _ ← * <~ OrderPayments.create(
+             OrderPayment(cordRef = cart.refNum,
+                          amount = payload.amount.some,
+                          paymentMethodType = ApplePay,
+                          paymentMethodId = apCharge.id)
+         )
+      valid ← * <~ CartValidator(cart).validate()
+      resp  ← * <~ CartResponse.buildRefreshed(cart)
+//      _     ← * <~ LogActivity().orderPaymentMethodAddedCc(originator, resp, cc, region)
+    } yield TheResponse.validated(resp, valid)
+
+  def deleteApplePayCharge(model: User) = ???
+
 }
