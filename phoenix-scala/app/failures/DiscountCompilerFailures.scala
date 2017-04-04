@@ -4,6 +4,7 @@ import models.discount.DiscountInput
 import models.discount.offers.{Offer, OfferType}
 import models.discount.qualifiers.QualifierType.show
 import models.discount.qualifiers.{Qualifier, QualifierType}
+import org.json4s.MappingException
 import utils.friendlyClassName
 
 object DiscountCompilerFailures {
@@ -44,9 +45,11 @@ object DiscountCompilerFailures {
   }
 
   /* Qualifier Compiler */
-  case class QualifierAttributesExtractionFailure(qualifierType: QualifierType) extends Failure {
+  case class QualifierAttributesExtractionFailure(qualifierType: QualifierType,
+                                                  e: MappingException)
+      extends Failure {
     override def description =
-      s"failed to compile qualifier ${show(qualifierType)}, couldn't extract attributes"
+      s"failed to compile qualifier ${show(qualifierType)}, couldn't extract attributes: ${e.getMessage}"
   }
 
   case class QualifierNotImplementedFailure(qualifierType: QualifierType) extends Failure {
@@ -64,9 +67,10 @@ object DiscountCompilerFailures {
   }
 
   /* Offer Compiler */
-  case class OfferAttributesExtractionFailure(offerType: OfferType) extends Failure {
+  case class OfferAttributesExtractionFailure(offerType: OfferType, e: MappingException)
+      extends Failure {
     override def description =
-      s"failed to compile offer ${OfferType.show(offerType)}, couldn't extract attributes"
+      s"failed to compile offer ${OfferType.show(offerType)}, couldn't extract attributes: ${e.getMessage}"
   }
 
   case class OfferNotImplementedFailure(offerType: OfferType) extends Failure {
