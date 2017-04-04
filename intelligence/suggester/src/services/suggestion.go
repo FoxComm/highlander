@@ -18,7 +18,7 @@ func selectUpSellAndPushToSms(customerID string, phoneNumber string, antHillData
 		return responses.TwilioSmsResponse{}, errors.New("There are no products for potential up-sell")
 	}
 
-	// TODO: After testing create a selection algorithm based on score or previous Rejections filter
+	// The first item in the cross-sell results will have the highest reccomendation score
 	productImageURL := antHillData.Products[0].Product.Albums[0].Images[0].Src
 	productID := antHillData.Products[0].Product.ProductId
 	productSKU := antHillData.Products[0].Product.Skus[0]

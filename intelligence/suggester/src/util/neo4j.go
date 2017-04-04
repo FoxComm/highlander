@@ -3,13 +3,12 @@ package util
 import (
 	"bytes"
 	"crypto/sha1"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"strconv"
-
-	"encoding/json"
 
 	"github.com/FoxComm/highlander/intelligence/suggester/src/responses"
 )
@@ -31,7 +30,7 @@ func hashPhoneNumber(phoneNumber string) string {
 func createNewSuggestProductCypher(customerID string, productID string, phoneNumberHash string, productSKU string) string {
 	matchCustomer := fmt.Sprintf("MATCH (c:Customer {phoenix_id: %s})", customerID)
 	matchProduct := fmt.Sprintf("MATCH (p:Product {phoenix_id: %s})", productID)
-	suggestRelation := fmt.Sprintf("CREATE (c)-[r:SUGGEST { phonehash: '%s' } ]->(p)", phoneNumberHash)
+	suggestRelation := fmt.Sprintf("MERGE (c)-[r:SUGGEST { phonehash: '%s' } ]->(p)", phoneNumberHash)
 	addSKU := fmt.Sprintf("SET p.sku = '%s'", productSKU)
 	returnRelation := "RETURN r"
 
@@ -41,7 +40,7 @@ func createNewSuggestProductCypher(customerID string, productID string, phoneNum
 func createNewDeclinedProductCypher(customerID string, productID string) string {
 	matchCustomer := fmt.Sprintf("MATCH (c:Customer {phoenix_id: %s})", customerID)
 	matchProduct := fmt.Sprintf("MATCH (p:Product {phoenix_id: %s})", productID)
-	declinedRelation := "CREATE (c)-[r:DECLINED]->(p)"
+	declinedRelation := "MERGE (c)-[r:DECLINED]->(p)"
 	returnRelation := "RETURN r"
 
 	return matchCustomer + matchProduct + declinedRelation + returnRelation
