@@ -117,7 +117,7 @@ class ObjectPageDeux extends Component {
   @autobind
   handleSelectSaving(value: string) {
     const { actions } = this.props;
-    if (!this.save()) { return }
+    if (!this.save()) { return; }
 
     this.save().then(() => {
       switch (value) {
@@ -136,7 +136,7 @@ class ObjectPageDeux extends Component {
 
   @autobind
   handleSaveButton() {
-    if (!this.save()) { return }
+    if (!this.save()) { return; }
     this.save().then(this.transitionToObject);
   }
 
@@ -244,10 +244,9 @@ class ObjectPageDeux extends Component {
 
   get children(): Element<*> {
     const { layout, schema, object, objectType, internalObjectType, onUpdateObject } = this.props;
-    const ref = 'form';
 
     return React.cloneElement(this.props.children, {
-      ref,
+      ref: 'form',
       layout,
       schema,
       object,
