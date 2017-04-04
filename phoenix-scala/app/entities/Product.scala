@@ -1,12 +1,14 @@
 package entities
 
-import models.inventory.Sku
+import models.image.Album
+import models.inventory.{Sku, Skus}
 import models.objects.ObjectContext
 import models.objects.{ObjectCommit, ObjectCommits}
 import models.objects.{ObjectForm, ObjectForms}
 import models.objects.{ObjectShadow, ObjectShadows}
-import models.product.{Products ⇒ ProductHeads}
-import models.product.Variant
+import models.objects.{ProductSkuLinks, ProductVariantLinks}
+import models.product.{Product ⇒ ProductHead, Products ⇒ ProductHeads}
+import models.product.{Variant, Variants}
 import slick.lifted.Rep
 import utils.aliases.Json
 import utils.db.ExPostgresDriver.api._
@@ -17,7 +19,6 @@ object ProductReference {
 }
 
 trait ProductReference
-
 case class ProductId(id: ObjectForm#Id) extends ProductReference
 case class ProductSlug(slug: String)    extends ProductReference
 
@@ -27,29 +28,62 @@ case class Product(id: Int,
                    title: String,
                    attributes: Json,
                    skus: Seq[Sku],
-                   variants: Seq[Variant])
+                   variants: Seq[Variant],
+                   albums: Seq[Album])
 
 class Products {
-  type QueryCommit = Query[ObjectCommits, ObjectCommit, Seq]
-  // def filter(ref: ProductReference, contextId: ObjectContext#Id) =
+  type QueryCommitFn = () ⇒ Query[ObjectCommits, ObjectCommit, Seq]
+  type QueryCore = Query[(ObjectForms, ObjectShadows, ObjectCommits),
+                         (ObjectForm, ObjectShadow, ObjectCommit),
+                         Seq]
 
-  private def filterCommitByHead(ref: ProductReference, contextId: ObjectContext#Id) = {
-    val commitQ = ref match {
+  def filter(ref: ProductReference, contextId: ObjectContext#Id): QueryCore =
+    filterCore(fnFilterCommitByHead(ref, contextId))
+
+  def filterByCommit(commitId: Int): QueryCore =
+    filterCore(fnFilterCommitById(commitId))
+
+  private def filterFull(core: QueryCore, contextId: ObjectContext#Id) = {
+    for {
+      form     ← core.map(_._1)
+      head     ← ProductHeads.filter(h ⇒ h.formId === form.id && h.contextId === contextId)
+      skus     ← filterSkus(head.id)
+      variants ← filterVariants(head.id)
+    } yield form
+  }
+
+  private def filterSkus(productHeadId: Rep[Int]) =
+    for {
+      link ← ProductSkuLinks.filter(_.leftId === productHeadId)
+      sku  ← Skus.filter(_.id === link.id)
+    } yield sku
+
+  private def filterVariants(productHeadId: Rep[Int]) =
+    for {
+      link    ← ProductVariantLinks.filter(_.leftId === productHeadId)
+      variant ← Variants.filter(_.id === link.id)
+    } yield variant
+
+  private def fnFilterCommitByHead(ref: ProductReference,
+                                   contextId: ObjectContext#Id): QueryCommitFn = {
+    val headQ = ref match {
       case ProductId(id) ⇒
         ProductHeads.filter(_.id === id)
       case ProductSlug(slug) ⇒
         ProductHeads.filter(_.slug.toLowerCase === slug.toLowerCase)
     }
 
-    commitQ.map(_.commitId)
+    () ⇒
+      for {
+        head   ← headQ
+        commit ← ObjectCommits if head.commitId === commit.id
+      } yield commit
   }
 
-  private def filterCommitId(commitId: Int) = {
-    def commitQ() = ObjectCommits.filter(_.id === commitId)
-    filterCore(commitQ)
-  }
+  private def fnFilterCommitById(commitId: Int): QueryCommitFn =
+    () ⇒ ObjectCommits.filter(_.id === commitId)
 
-  private def filterCore(filterCommit: () ⇒ QueryCommit) =
+  private def filterCore(filterCommit: QueryCommitFn): QueryCore =
     for {
       commit ← filterCommit()
       form   ← ObjectForms if commit.formId === form.id
