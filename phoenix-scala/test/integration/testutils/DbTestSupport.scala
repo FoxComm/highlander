@@ -21,11 +21,10 @@ trait DbTestSupport extends SuiteMixin with BeforeAndAfterAll with GimmeSupport 
          |db.url = "jdbc:postgresql://localhost/$dbName?user=phoenix&prepareThreshold=0"
        """.stripMargin).withFallback(TestBase.bareConfig)
 
-  def dbName: String =
-    suiteName.flatMap {
-      case c if c.isUpper ⇒ s"_${c.toLower}"
-      case c              ⇒ s"$c"
-    }.stripPrefix("_")
+  val dbName: String = suiteName.flatMap {
+    case c if c.isUpper ⇒ s"_${c.toLower}"
+    case c              ⇒ s"$c"
+  }.stripPrefix("_")
 
   implicit lazy val db: DB = {
     DbTestSupport.createDB(dbName)
