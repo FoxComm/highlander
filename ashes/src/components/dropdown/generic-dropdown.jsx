@@ -13,7 +13,7 @@ import BodyPortal from '../body-portal/body-portal';
 
 export type ValueType = ?string | number;
 
-export type DropdownItemType = [ValueType, string | Element<*>, bool];
+export type DropdownItemType = [ValueType, string | Element<*>, ?boolean];
 
 export type MouseHandler = (e: MouseEvent) => void;
 
