@@ -71,7 +71,6 @@ type State = {
   error?: any,
   currentSku?: Sku,
   attributes?: Object,
-  unselectedFacets: Array<TFacet>,
 };
 
 const mapStateToProps = (state) => {
@@ -110,7 +109,6 @@ class Pdp extends Component {
   state: State = {
     currentSku: null,
     attributes: {},
-    unselectedFacets: [],
   };
 
   componentWillMount() {
@@ -246,7 +244,7 @@ class Pdp extends Component {
   @autobind
   addToCart(): void {
     const { actions } = this.props;
-    const { unselectedFacets } = this.state;
+    const unselectedFacets = this._productDetails.getUnselectedFacets();
     if (unselectedFacets.length) {
       this._productDetails.flashUnselectedFacets(unselectedFacets);
       return;
@@ -294,13 +292,10 @@ class Pdp extends Component {
   }
 
   @autobind
-  handleSkuChange(sku: ?Sku, exactMatch: boolean, unselectedFacets: Array<TFacet>) {
+  handleSkuChange(sku: ?Sku) {
     if (sku) {
       this.setCurrentSku(sku);
     }
-    this.setState({
-      unselectedFacets,
-    });
   }
 
   get productForm(): Element<any> {

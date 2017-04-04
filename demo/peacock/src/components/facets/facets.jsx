@@ -25,7 +25,7 @@ type FacetsProps = {
 
 type State = {
   animationState: {[key: string]: boolean},
-  facetMessages: {[key: string]: string},
+  facetMessages: {[key: string]: string|null},
 }
 
 class Facets extends Component {
@@ -44,6 +44,10 @@ class Facets extends Component {
 
   @autobind
   handleClickFacets(facet: string, value: string, selected: boolean): void {
+    const { facetMessages } = this.state;
+    this.setState({
+      facetMessages: assoc(facetMessages, facet, null),
+    });
     if (this.props.onSelect) {
       this.props.onSelect(facet, value, selected);
     }

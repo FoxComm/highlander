@@ -27,7 +27,7 @@ type Props = {
 
 // variantType => VariantValue.id
 type VariantValuesMap = {
-  [variantType:string]: number,
+  [variantType: string]: number,
 }
 
 type State = {
@@ -82,18 +82,25 @@ class ProductDetails extends Component {
     this.setState({
       selectedVariantValues,
     }, () => {
-      const [skuCode, exactMatch] = this.findClosestSku();
-      let sku;
-      if (skuCode) {
-        sku = _.find(product.skus, sku => sku.attributes.code.v == skuCode);
-      }
-      let unselectedFacets = [];
-      if (!exactMatch) {
-        unselectedFacets = this.getUnselectedFacets();
-      }
-
-      this.props.onSkuChange(sku, exactMatch, unselectedFacets);
+      this.fireSkuChange();
     });
+  }
+
+  fireSkuChange(props = this.props) {
+    const { product } = props;
+    if (!product) return;
+
+    const [skuCode, exactMatch] = this.findClosestSku(props);
+    let sku;
+    if (skuCode) {
+      sku = _.find(product.skus, sku => sku.attributes.code.v == skuCode);
+    }
+    let unselectedFacets = [];
+    if (!exactMatch) {
+      unselectedFacets = this.getUnselectedFacets(product);
+    }
+
+    props.onSkuChange(sku, exactMatch, unselectedFacets);
   }
 
   getFacets(product: ?ProductResponse): Array<TFacet> {
@@ -148,15 +155,16 @@ class ProductDetails extends Component {
     });
   }
 
-  getUnselectedFacets(): ?string {
-    const facets = this.getFacets(this.props.product);
+  getUnselectedFacets(product = this.props.product): ?string {
+    const facets = this.getFacets(product);
     return _.filter(facets, (facet: TFacet) => {
       return _.every(facet.values, value => !value.selected);
     });
   }
 
-  findClosestSku(facets = this.getFacets(this.props.product)): [?string, boolean] {
-    const { product } = this.props;
+  findClosestSku(props = this.props): [?string, boolean] {
+    const { product } = props;
+    const facets = this.getFacets(product)
 
     const skuCodes = _.reduce(this.state.selectedVariantValues, (acc, variantValueId: number, variantType: string) => {
       const skuCodes = getSkuCodesForVariantValue(product, variantValueId, variantType);
