@@ -123,7 +123,6 @@ object TaxonomyManager {
     val shadow = ObjectShadow.fromPayload(payload.attributes)
 
     for {
-      _        ← * <~ payload.validate
       scope    ← * <~ Scope.resolveOverride(payload.scope)
       taxonomy ← * <~ Taxonomies.mustFindByFormId404(taxonomyFormId)
 
@@ -181,7 +180,6 @@ object TaxonomyManager {
       oc: OC,
       db: DB): DbResultT[FullTaxonResponse] = {
     for {
-      _        ← * <~ payload.validate
       taxon    ← * <~ Taxons.mustFindByFormId404(taxonId)
       _        ← * <~ failIf(taxon.archivedAt.isDefined, TaxonIsArchived(taxonId))
       newTaxon ← * <~ updateTaxonAttributes(taxon, payload)
