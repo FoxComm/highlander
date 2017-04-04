@@ -117,9 +117,10 @@ class ObjectPageDeux extends Component {
   @autobind
   handleSelectSaving(value: string) {
     const { actions } = this.props;
-    if (!this.save()) { return; }
+    const mayBeSaved = this.save();
+    if (!mayBeSaved) { return; }
 
-    this.save().then(() => {
+    mayBeSaved.then(() => {
       switch (value) {
         case SAVE_COMBO.NEW:
           this.createNewEntity();
@@ -136,8 +137,9 @@ class ObjectPageDeux extends Component {
 
   @autobind
   handleSaveButton() {
-    if (!this.save()) { return; }
-    this.save().then(this.transitionToObject);
+    const mayBeSaved = this.save();
+    if (!mayBeSaved) { return; }
+    mayBeSaved.then(this.transitionToObject);
   }
 
   @autobind
@@ -145,14 +147,6 @@ class ObjectPageDeux extends Component {
     const { object, identifierFieldName, actions } = this.props;
 
     actions.transition(get(object, identifierFieldName));
-  }
-
-  prepareObjectForValidation(object) {
-    return object;
-  }
-
-  prepareObjectForSaving(object) {
-    return object;
   }
 
   validateForm(): boolean {
@@ -174,25 +168,26 @@ class ObjectPageDeux extends Component {
     }
   }
 
+  @autobind
   validate(): boolean {
-    const errors = this.validateObject(
-      supressTV(this.prepareObjectForValidation(this.props.object))
-    );
+
+    // For some reason flow thinks, that 'this.props.object' can be string
+    const object = (typeof(this.props.object) == 'string') ? null : this.props.object;
+    const errors = object ? this.validateObject(supressTV(object)) : [];
     let preventSave = false;
-    const event = {
-      preventSave() {
-        preventSave = true;
-      },
-      errors,
-    };
-    this.getChildContext().validationDispatcher.emit('errors', event);
-    return !errors || !preventSave;
+      const event = {
+        preventSave() {
+          preventSave = true;
+        },
+        errors,
+      };
+      this.getChildContext().validationDispatcher.emit('errors', event);
+      return !errors || !preventSave;
   }
 
   @autobind
   save() {
-    const { context, actions } = this.props;
-    const object = this.prepareObjectForSaving(this.props.object);
+    const { context, object, actions } = this.props;
 
     if (!this.validateForm()) return;
     if (!this.validate()) return;
@@ -245,7 +240,7 @@ class ObjectPageDeux extends Component {
   get children(): Element<*> {
     const { layout, schema, object, objectType, internalObjectType, onUpdateObject } = this.props;
 
-    return React.cloneElement(this.props.children, {
+    return React.cloneElement(React.Children.only(this.props.children), {
       ref: 'form',
       layout,
       schema,
