@@ -49,6 +49,11 @@ export default class TaxonDetails extends Component {
     };
   }
 
+  @autobind
+  checkValidity(): boolean {
+    return this.refs.form.checkValidity();
+  }
+
   render() {
     // workaround for flow strange behavior with intersection types
     const props: ObjectPageChildProps<Taxon> = this.props;
@@ -56,6 +61,7 @@ export default class TaxonDetails extends Component {
     return (
       <ObjectDetailsDeux
         {...props}
+        ref="form"
         renderers={this.renderers}
       />
     );
