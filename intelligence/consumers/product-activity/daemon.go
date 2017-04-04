@@ -102,7 +102,7 @@ func (o *ProductActivityDaemon) queryFirstTime() error {
 		return err
 	}
 
-	if values[0].Stats.To == 0 {
+	if len(values) == 0 || values[0].Stats.To == 0 {
 		o.lastQueryTime = time.Now().Add(time.Duration(-o.interval) * time.Second)
 		o.lastValue = int64(0)
 	} else {
