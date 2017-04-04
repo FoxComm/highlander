@@ -38,7 +38,6 @@ object CreditCardManager {
       payload: CreateCreditCardFromTokenPayload,
       admin: Option[User] = None)(implicit ec: EC, db: DB, apis: Apis, ac: AC): DbResultT[Root] = {
     for {
-      _        ← * <~ payload.validate
       _        ← * <~ Regions.mustFindById400(payload.billingAddress.regionId)
       customer ← * <~ Users.mustFindByAccountId(accountId)
       customerToken ← * <~ CreditCards
@@ -94,7 +93,6 @@ object CreditCardManager {
       } yield (stripeId, address)
 
     for {
-      _                  ← * <~ payload.validate
       customer           ← * <~ Users.mustFindByAccountId(accountId)
       stripeIdAndAddress ← * <~ getExistingStripeIdAndAddress
       (stripeId, address) = stripeIdAndAddress
@@ -190,7 +188,6 @@ object CreditCardManager {
     } yield address.fold(creditCard)(creditCard.copyFromAddress)
 
     for {
-      _           ← * <~ payload.validate
       customer    ← * <~ Users.mustFindByAccountId(accountId)
       creditCard  ← * <~ getCardAndAddressChange
       updated     ← * <~ update(customer, creditCard)

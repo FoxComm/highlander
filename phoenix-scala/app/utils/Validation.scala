@@ -1,15 +1,13 @@
 package utils
 
-import java.time.LocalDateTime
-
-import scala.util.matching.Regex
-
 import cats.data.Validated.{Invalid, Valid, invalidNel, valid}
 import cats.data.{NonEmptyList, Validated, ValidatedNel}
 import com.wix.accord
 import com.wix.accord.RuleViolation
 import com.wix.accord.combinators._
 import failures.{Failure, GeneralFailure}
+import java.time.LocalDateTime
+import scala.util.matching.Regex
 
 trait Validation[M] {
   def validate: ValidatedNel[Failure, M]
