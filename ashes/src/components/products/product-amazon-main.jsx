@@ -177,7 +177,7 @@ class ProductAmazonMain extends Component {
             initialValue={categoryPath}
           />
           <div className={s.approve}>
-            <span>You must be approved from Amazon to sell in the Clothing & Accesories category. </span>
+            <span>⚠ You must be approved from Amazon to sell in the Clothing & Accesories category. </span>
             <a className={s.approveLink} href={AMAZON_APPROVE_LINK} target="_blank">Apply to sell in this category</a>.
           </div>
         </div>

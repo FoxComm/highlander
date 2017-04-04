@@ -195,10 +195,13 @@ export default class Typeahead extends React.Component {
       return React.cloneElement(itemsElement, { ...ourProps, ...clearState });
     } else {
       return (
-        <TypeaheadItems {...ourProps}
+        <TypeaheadItems
+          {...ourProps}
           component={this.props.component}
           items={this.props.items}
-          onItemSelected={this.onItemSelected} />
+          onItemSelected={this.onItemSelected}
+          query={this.state.query}
+        />
       );
     }
   }

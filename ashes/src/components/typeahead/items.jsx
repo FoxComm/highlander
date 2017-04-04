@@ -15,9 +15,9 @@ const TypeaheadItems = props => {
       <li
         className={s.item}
         onMouseDown={() => props.onItemSelected(item)}
-        key={`item-${item.id || item.text}`}
+        key={`item-${item.key || item.id}`}
       >
-        {React.createElement(props.component, {model: item})}
+        {React.createElement(props.component, { model: item, query: props.query })}
       </li>
     ));
   }
