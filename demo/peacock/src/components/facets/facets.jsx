@@ -1,6 +1,8 @@
 /* flow */
 
 import _ from 'lodash';
+import classnames from 'classnames';
+import { assoc } from 'sprout-data';
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import styles from './facets.css';
@@ -14,14 +16,25 @@ import Image from './kind/image';
 import type { Facet as TFacet, FacetValue } from 'types/facets';
 
 type FacetsProps = {
+  className?: string,
   prefix: string,
   facets: Array<TFacet>,
   whitelist?: Array<string>,
   onSelect?: (facet: string, value: string, selected: boolean) => void,
 };
 
+type State = {
+  animationState: {[key: string]: boolean},
+  facetMessages: {[key: string]: string},
+}
+
 class Facets extends Component {
   props: FacetsProps;
+
+  state: State = {
+    animationState: {},
+    facetMessages: {},
+  };
 
   static defaultProps = {
     facets: [],
@@ -88,13 +101,41 @@ class Facets extends Component {
     });
   }
 
+  flashUnselectedFacets(facets: Array<TFacet>) {
+    const animationState = {};
+    const facetMessages = {};
+    _.forEach(facets, (facet: TFacet) => {
+      animationState[facet.key] = true;
+      facetMessages[facet.key] = `We need to know your ${facet.name.toLowerCase()} first!`
+    });
+    this.setState({
+      animationState,
+      facetMessages,
+    });
+  }
+
+  resetFacetAnimation(key: string) {
+    const newState = assoc(this.state.animationState, key, false);
+    this.setState({
+      animationState: newState,
+    });
+  }
+
   renderFacet(f: TFacet) {
     const values = this.renderValues(f);
     const facetStyle = `${f.kind}-facet`;
 
+    const className = classnames(styles['facet'], {
+      [styles['facet-flash']]: this.state.animationState[f.key],
+    });
+    const message = this.state.facetMessages[f.key];
+
     return (
-      <div key={f.key} styleName="facet">
-        <div styleName="facet-name">{f.name}</div>
+      <div key={f.key} className={className} onAnimationEnd={() => this.resetFacetAnimation(f.key)}>
+        <div styleName="facet-header">
+          <div styleName="facet-name">{f.name}</div>
+          {message && <div styleName="facet-message">{message}</div>}
+        </div>
         <div styleName={facetStyle}>
           {values}
         </div>
@@ -103,7 +144,7 @@ class Facets extends Component {
   }
 
   render(): Element<*> {
-    const { facets, whitelist} = this.props;
+    const { facets, whitelist, className } = this.props;
 
     // Only show facets that are in the white list if a white list is specified,
     // or that have more than one element.
@@ -119,7 +160,7 @@ class Facets extends Component {
     });
 
     return (
-      <div styleName="facets">
+      <div styleName="facets" className={className}>
         {rendered}
       </div>
     );

@@ -46,9 +46,14 @@ class ProductDetails extends Component {
   state: State = {
     selectedVariantValues: {},
   };
+  _facets: Facets;
 
   getSkuByCode(product, code) {
     return _.find(product.skus, sku => sku.attributes.code.v == code);
+  }
+
+  flashUnselectedFacets(facets: Array<TFacet>) {
+    this._facets.flashUnselectedFacets(facets);
   }
 
   @autobind
@@ -165,7 +170,14 @@ class ProductDetails extends Component {
 
   get facets(): Element<*> {
     const facets = this.getFacets(this.props.product);
-    return <Facets facets={facets} onSelect={this.handleSelectFacet} />;
+    return (
+      <Facets
+        ref={_ref => this._facets = _ref}
+        styleName="facets"
+        facets={facets}
+        onSelect={this.handleSelectFacet}
+      />
+    );
   }
 
   get productPrice(): Element<*> {

@@ -105,6 +105,7 @@ const mapDispatchToProps = dispatch => ({
 class Pdp extends Component {
   props: Props;
   productPromise: Promise<*>;
+  _productDetails: ProductDetails;
 
   state: State = {
     currentSku: null,
@@ -247,8 +248,7 @@ class Pdp extends Component {
     const { actions } = this.props;
     const { unselectedFacets } = this.state;
     if (unselectedFacets.length) {
-      // @TODO: design!
-      alert(`Please, select ${unselectedFacets[0].name}`);
+      this._productDetails.flashUnselectedFacets(unselectedFacets);
       return;
     }
     const skuCode = _.get(this.currentSku, 'attributes.code.v', '');
@@ -317,6 +317,7 @@ class Pdp extends Component {
     }
     return (
       <ProductDetails
+        ref={_ref => this._productDetails = _ref}
         product={this.props.product}
         productView={this.productView}
         selectedSku={this.currentSku}
