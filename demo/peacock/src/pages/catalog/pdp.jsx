@@ -234,6 +234,7 @@ class Pdp extends Component {
     return {
       title: _.get(attributes, 'title.v', ''),
       description: _.get(attributes, 'description.v', ''),
+      shortDescription: _.get(attributes, 'shortDescription.v', ''),
       images: imageUrls,
       currency: _.get(price, 'currency', 'USD'),
       price: _.get(price, 'value', 0),
@@ -351,6 +352,9 @@ class Pdp extends Component {
       <div styleName="container">
         <div styleName="gallery">
           {this.renderGallery()}
+          {this.product.shortDescription && (
+            <h2 styleName="short-description">{this.product.shortDescription}</h2>
+          )}
         </div>
         <div styleName="details">
           <Breadcrumbs

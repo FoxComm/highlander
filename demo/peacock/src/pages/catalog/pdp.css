@@ -29,6 +29,14 @@
   margin: 0 0 8px 0;
 }
 
+.short-description {
+  margin: var(--grid-margin) var(--grid-margin) 0;
+  font-size: 24px;
+  font-weight: 900;
+  line-height: 1.25;
+  color: var(--black);
+}
+
 .secondary-title {
   font-size: 24px;
   font-weight: 900;
@@ -116,6 +124,11 @@
     font-size: 41px;
     letter-spacing: 2.7px;
     margin: 0 0 12px 0;
+  }
+
+  .short-description {
+    margin: 82px 0 0;
+    font-size: 40px;
   }
 
   .breadcrumbs {
