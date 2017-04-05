@@ -99,6 +99,7 @@
     "no-delete-var": 2,
 
     "indent": ["error", 2, { SwitchCase: 1 }],
+    "no-mixed-spaces-and-tabs": 2,
 
     "react/display-name": 0,
     "react/jsx-uses-react": 1,

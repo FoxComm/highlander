@@ -14,14 +14,14 @@ import * as PromotionActions from 'modules/promotions/details';
 
 class PromotionPage extends ObjectPage {
   save(): ?Promise<*> {
-  	let isNew = this.isNew;
+    let isNew = this.isNew;
     let willBePromo = super.save();
 
     if (willBePromo && isNew) {
       willBePromo.then((data) => {
-      	if (data.applyType === 'coupon') {
-      		transitionTo('promotion-coupon-new',{promotionId: data.id});
-      	}
+        if (data.applyType === 'coupon') {
+          transitionTo('promotion-coupon-new',{promotionId: data.id});
+        }
       });
     }
 
