@@ -52,7 +52,7 @@ const changeStateHandler = function(props: Props, isActivation: boolean): Functi
 };
 
 const deleteHandler = function(props: Props): Function {
-    return (allChecked, toggledIds) => {
+  return (allChecked, toggledIds) => {
     const {deleteEntity} = props.bulkActions;
 
     return (

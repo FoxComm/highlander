@@ -18,11 +18,11 @@ class PromotionPage extends ObjectPage {
     let willBePromo = super.save();
 
     if (willBePromo && isNew) {
-        willBePromo.then((data) => {
-        	if (data.applyType === 'coupon') {
-        		transitionTo('promotion-coupon-new',{promotionId: data.id});
-        	}
-        });
+      willBePromo.then((data) => {
+      	if (data.applyType === 'coupon') {
+      		transitionTo('promotion-coupon-new',{promotionId: data.id});
+      	}
+      });
     }
 
     return willBePromo;
