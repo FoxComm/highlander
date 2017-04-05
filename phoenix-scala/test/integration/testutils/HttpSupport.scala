@@ -151,7 +151,6 @@ trait HttpSupport
   }
 
   def GET(path: String): HttpResponse = {
-    println(s"try path $path")
     val request = HttpRequest(method = HttpMethods.GET, uri = pathToAbsoluteUrl(path))
 
     dispatchRequest(request)

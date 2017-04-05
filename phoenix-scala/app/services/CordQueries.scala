@@ -3,6 +3,7 @@ package services
 import models.cord.CordPaymentState._
 import models.cord.{OrderPayment, OrderPayments}
 import models.payment.PaymentMethod
+import models.payment.applepay.ApplePayCharges
 import models.payment.creditcard.CreditCardCharges
 import models.payment.giftcard.GiftCardAdjustments
 import models.payment.storecredit.StoreCreditAdjustments
@@ -34,7 +35,13 @@ trait CordQueries {
         GiftCardAdjustments.lastPaymentState(payment.id).map(_.map(fromInStoreState))
       case PaymentMethod.StoreCredit ⇒
         StoreCreditAdjustments.lastPaymentState(payment.id).map(_.map(fromInStoreState))
-      case PaymentMethod.ApplePay ⇒ ??? // TODO implement
+      case PaymentMethod.ApplePay ⇒
+        ApplePayCharges
+          .filter(_.orderPaymentId === payment.id)
+          .map(_.state)
+          .result
+          .headOption
+          .map(_.map(fromApState))
     }
   }
 }

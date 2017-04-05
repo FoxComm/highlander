@@ -75,7 +75,6 @@ class CheckoutIntegrationTest
   }
 
   "PATCH /v1/carts/:refNum/line-items/attributes" - {
-    pending
     val attributes = LineItemAttributes(
         GiftCardLineItemAttributes(senderName = "senderName",
                                    recipientName = "recipientName",
@@ -103,30 +102,7 @@ class CheckoutIntegrationTest
     }
   }
 
-  "POST apple pay" - {
-    "Apple pay test" in new Fixture {
-
-      val refNum =
-        cartsApi.create(CreateCart(customer.accountId.some)).as[CartResponse].referenceNumber
-
-      storefrontPaymentsApi.applePay.get().mustBeOk()
-
-      private val payment = CreateApplePayPayment(
-        token = "random",
-        50,
-        cartRef = refNum
-      )
-
-      storefrontPaymentsApi.applePay
-        .post(
-            payment)
-        .mustBeOk()
-
-    }
-  }
-
   "POST v1/carts/:refNum/checkout" - {
-    pending
 
     "allow to do one-click checkout" in new OneClickCheckoutFixture {
       shippingMethodsApi(shipMethod.id).setDefault().mustBeOk()
