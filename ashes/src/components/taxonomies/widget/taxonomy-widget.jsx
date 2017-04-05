@@ -8,7 +8,6 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 
 // components
-import { AddButton } from 'components/common/buttons';
 import WaitAnimation from 'components/common/wait-animation';
 import RoundedPill from 'components/rounded-pill/rounded-pill';
 import { withTaxonomy } from '../hoc';
@@ -100,11 +99,6 @@ class TaxonomyWidget extends Component {
   }
 
   render() {
-    const iconClassName = classNames({
-      'icon-close': this.state.inputOpened,
-      'icon-add': !this.state.inputOpened,
-    });
-
     return (
       <div styleName="root">
         <div styleName="header">

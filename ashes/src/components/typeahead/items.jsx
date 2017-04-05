@@ -10,7 +10,7 @@ const TypeaheadItems = props => {
   let innerContent = null;
 
   if (props.noResults) {
-    return <div className={classNames(s.items, s['not-found'])}>No results found.</div>
+    return <div className={classNames(s.items, s['not-found'])}>No results found.</div>;
   }
 
   if (!_.isEmpty(props.items)) {

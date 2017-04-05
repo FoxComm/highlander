@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-import { anyPermitted, isPermitted } from 'lib/claims';
+import { anyPermitted } from 'lib/claims';
 import { frn, readAction } from 'lib/frn';
 
 import NavigationItem from '../navigation-item';
