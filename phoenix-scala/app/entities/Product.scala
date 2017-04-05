@@ -1,12 +1,12 @@
 package entities
 
-import models.image.Album
+import models.image.{Album, Albums}
 import models.inventory.{Sku, Skus}
 import models.objects.ObjectContext
 import models.objects.{ObjectCommit, ObjectCommits}
 import models.objects.{ObjectForm, ObjectForms}
 import models.objects.{ObjectShadow, ObjectShadows}
-import models.objects.{ProductSkuLinks, ProductVariantLinks}
+import models.objects.{ProductAlbumLinks, ProductSkuLinks, ProductVariantLinks}
 import models.product.{Product ⇒ ProductHead, Products ⇒ ProductHeads}
 import models.product.{Variant, Variants}
 import slick.lifted.Rep
@@ -63,6 +63,12 @@ class Products {
       link    ← ProductVariantLinks.filter(_.leftId === productHeadId)
       variant ← Variants.filter(_.id === link.id)
     } yield variant
+
+  private def filterAlbums(productHeadId: Rep[Int]) =
+    for {
+      link  ← ProductAlbumLinks.filter(_.leftId === productHeadId)
+      album ← Albums.filter(_.id === link.id)
+    } yield album
 
   private def fnFilterCommitByHead(ref: ProductReference,
                                    contextId: ObjectContext#Id): QueryCommitFn = {
