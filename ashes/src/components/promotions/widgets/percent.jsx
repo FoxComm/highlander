@@ -13,10 +13,7 @@ type Props = ItemDesc & {
 const Percent = (props: Props) => {
   const value = props.context.params[props.name] || 0;
   const onChange = (event: Object) => {
-    let percent = Number(event.target.value);
-    percent = isNaN(percent) ? 0 : percent;
-    percent = Math.min(100, percent);
-    percent = Math.max(0, percent);
+    const percent = Percent.getValue(event.target.value);
 
     props.context.setParams({
       [props.name]: percent
@@ -34,6 +31,14 @@ const Percent = (props: Props) => {
       onChange={onChange}
     />
   );
+};
+
+Percent.getValue = function(value) {
+  let percent = Number(value);
+  percent = isNaN(percent) ? 0 : percent;
+  percent = Math.min(100, percent);
+  percent = Math.max(0, percent);
+  return percent;
 };
 
 export default Percent;
