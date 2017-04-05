@@ -182,6 +182,7 @@ object Orders
       orderLineItems ← * <~ lineItems.map { cli ⇒
                         val sku = skuMaps.get(cli.skuId).get
                         OrderLineItem(cordRef = cart.referenceNumber,
+                                      referenceNumber = cli.referenceNumber,
                                       skuId = sku.id,
                                       skuShadowId = sku.shadowId,
                                       state = OrderLineItem.Pending,
