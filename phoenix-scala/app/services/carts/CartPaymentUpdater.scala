@@ -189,7 +189,8 @@ object CartPaymentUpdater {
     for {
       cart ← * <~ getCartByOriginator(originator, payload.cartRef.some)
       _    ← * <~ OrderPayments.filter(_.cordRef === cart.refNum).applePays.delete
-//    create apple charge
+
+      //    create apple charge
       apCharge ← * <~ ApplePayCharges.create(
                     ApplePayCharge(
                         accountId = originator.id,
@@ -210,4 +211,8 @@ object CartPaymentUpdater {
 
   def deleteApplePayCharge(model: User) = ???
 
+  def getApplePayCharge(implicit ec: EC, db: DB, ac: AC): DbResultT[String] =
+    for {
+      r ← * <~ DbResultT.pure("1") // FIXME
+    } yield r
 }

@@ -4,10 +4,7 @@ import java.time.Instant
 
 import akka.actor.FSM
 import slick.driver.PostgresDriver.api._
-import models.payment.{PaymentMethod, applepay}
-import models.payment.applepay.ApplePayCharge.State
-import models.payment.creditcard.BillingAddress
-import shapeless.Lens
+import shapeless.{Lens, lens}
 import slick.lifted._
 import utils.Money.Currency
 import utils.db._
@@ -44,7 +41,19 @@ class ApplePayCharges(tag: Tag) extends FoxTable[ApplePayCharge](tag, "apple_pay
 
 object ApplePayCharges
     extends FoxTableQuery[ApplePayCharge, ApplePayCharges](new ApplePayCharges(_))
-    with ReturningId[ApplePayCharge, ApplePayCharges] {
-  override val returningQuery = ???
-  override val returningLens  = ???
+    with ReturningTableQuery[ApplePayCharge, ApplePayCharges]
+    with Aliases {
+
+  override type Ret       = (Int, Int, Currency, String)
+  override type PackedRet = (Rep[Int], Rep[Int], Rep[Currency], Rep[String])
+  override val returningQuery = map { applePayCharges ⇒
+    (applePayCharges.id,
+     applePayCharges.amount,
+     applePayCharges.currency,
+     applePayCharges.gatewayCustomerId)
+  }
+
+  private val rootLens = lens[ApplePayCharge]
+  val returningLens: Lens[ApplePayCharge, (Int, Int, Currency, String)] =
+    rootLens.id ~ rootLens.amount ~ rootLens.currency ~ rootLens.gatewayCustomerId
 }

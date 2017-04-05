@@ -88,18 +88,6 @@ object Customer {
                   }
                 }
               } ~
-              pathPrefix("payment-methods" / "apple-pay") {
-                (post & pathEnd & entity(as[CreateApplePayPayment])) { payload ⇒
-                  mutateOrFailures {
-                    CartPaymentUpdater.addApplePayCharge(auth.model, payload)
-                  }
-                } ~
-                (delete & pathEnd) {
-                  mutateOrFailures {
-                    CartPaymentUpdater.deleteApplePayCharge(auth.model)
-                  }
-                }
-              } ~
               pathPrefix("payment-methods" / "gift-cards") {
                 (post & pathEnd & entity(as[GiftCardPayment])) { payload ⇒
                   mutateOrFailures {
@@ -243,6 +231,23 @@ object Customer {
               (delete & pathEnd) {
                 deleteOrFailures {
                   AddressManager.remove(auth.model, addressId, auth.account.id)
+                }
+              }
+            } ~
+            pathPrefix("payment-methods" / "apple-pay") {
+              (get & pathEnd) {
+                getOrFailures {
+                  CartPaymentUpdater.getApplePayCharge
+                }
+              } ~
+              (post & pathEnd & entity(as[CreateApplePayPayment])) { payload ⇒
+                mutateOrFailures {
+                  CartPaymentUpdater.addApplePayCharge(auth.model, payload)
+                }
+              } ~
+              (delete & pathEnd) {
+                mutateOrFailures {
+                  CartPaymentUpdater.deleteApplePayCharge(auth.model)
                 }
               }
             } ~

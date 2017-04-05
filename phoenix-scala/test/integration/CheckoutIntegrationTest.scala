@@ -27,6 +27,7 @@ import payloads.PaymentPayloads.{CreateApplePayPayment, CreateCreditCardFromToke
 import payloads.UpdateShippingMethod
 import responses.GiftCardResponse
 import responses.cord._
+import services.carts.CartPaymentUpdater
 import slick.driver.PostgresDriver.api._
 import testutils._
 import testutils.apis.{PhoenixAdminApi, PhoenixStorefrontApi}
@@ -103,16 +104,24 @@ class CheckoutIntegrationTest
   }
 
   "POST apple pay" - {
-    "Apple pay test" in new OneClickCheckoutFixture {
-      storefrontCartsApi.get().mustBeOk()
+    "Apple pay test" in new Fixture {
+
+      val refNum =
+        cartsApi.create(CreateCart(customer.accountId.some)).as[CartResponse].referenceNumber
+
+      storefrontPaymentsApi.applePay.get().mustBeOk()
+
+      private val payment = CreateApplePayPayment(
+        token = "random",
+        50,
+        cartRef = refNum
+      )
+
       storefrontPaymentsApi.applePay
         .post(
-            CreateApplePayPayment(
-                token = "random",
-                50,
-                cartRef = ""
-            ))
+            payment)
         .mustBeOk()
+
     }
   }
 
