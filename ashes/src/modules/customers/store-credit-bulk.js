@@ -50,10 +50,10 @@ const cancelStoreCredits = (actions, ids, reasonId) =>
   dispatch => {
     dispatch(actions.bulkRequest());
     Api.patch('/store-credits', {
-        ids,
-        reasonId,
-        state: 'canceled',
-      })
+      ids,
+      reasonId,
+      state: 'canceled',
+    })
       .then(
         (result) => {
           const {successes, errors} = parseChangeStateResponse(result);
@@ -70,9 +70,9 @@ const changeStoreCreditsState = (actions, ids, state) =>
   dispatch => {
     dispatch(actions.bulkRequest());
     Api.patch('/store-credits', {
-        ids,
-        state,
-      })
+      ids,
+      state,
+    })
       .then(
         (result) => {
           const {successes, errors} = parseChangeStateResponse(result);

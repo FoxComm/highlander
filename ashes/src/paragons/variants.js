@@ -163,7 +163,7 @@ export function availableVariantsValues(product: Product): Array<Array<OptionVal
   const identity = value => value.name;
 
   return _.filter(allVariants, t => {
-     return !_.some(existsVariants,
+    return !_.some(existsVariants,
        values => _.intersection(values.map(identity), t.map(identity)).length === t.length
      );
   });

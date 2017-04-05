@@ -78,8 +78,8 @@ module.exports = {
         }
       },
       'required': ['code', 'brand', 'bulletPoint1',
-                   'bulletPoint2', 'bulletPoint3', 'bulletPoint4',
-                   'retailPrice']
+        'bulletPoint2', 'bulletPoint3', 'bulletPoint4',
+        'retailPrice']
     }
   }
 };
