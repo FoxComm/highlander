@@ -36,6 +36,6 @@ case class QualifierCompiler(qualifierType: QualifierType, attributes: Json) {
       }
     } catch {
       case e: MappingException ⇒
-        Either.left(QualifierAttributesExtractionFailure(qualifierType, e).single)
+        Either.left(QualifierAttributesExtractionFailure(qualifierType, e.getMessage).single)
     }
 }

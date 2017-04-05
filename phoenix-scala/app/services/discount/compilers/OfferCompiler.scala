@@ -36,6 +36,6 @@ case class OfferCompiler(offerType: OfferType, attributes: Json) {
       }
     } catch {
       case e: MappingException ⇒
-        Either.left(OfferAttributesExtractionFailure(offerType, e).single)
+        Either.left(OfferAttributesExtractionFailure(offerType, e.getMessage).single)
     }
 }
