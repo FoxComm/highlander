@@ -1,6 +1,6 @@
 // @flow
 
-import { get, capitalize, noop, pick } from 'lodash';
+import { get, capitalize } from 'lodash';
 import { autobind } from 'core-decorators';
 import EventEmitter from 'events';
 import jsen from 'jsen';
@@ -149,18 +149,6 @@ class ObjectPageDeux extends Component {
     actions.transition(get(object, identifierFieldName));
   }
 
-  validateForm(): boolean {
-    const { form } = this.refs;
-
-    let formValid = true;
-
-    if (form && form.checkValidity) {
-      if (!form.checkValidity())  formValid = false;
-    };
-
-    return formValid;
-  }
-
   validateObject(object: Object): ?Array<Object> {
     const validate = jsen(this.props.schema);
     if (!validate(supressTV(object))) {
@@ -168,28 +156,33 @@ class ObjectPageDeux extends Component {
     }
   }
 
+  _emit(type: string, ...args: any) {
+    this.getChildContext().validationDispatcher.emit(type, ...args);
+  }
+
+  @autobind
+  validateChild() {
+    let isValid = true;
+    this._emit('validate', (isChildValid) => {
+      if (!isChildValid) isValid = false;
+    });
+
+    return isValid;
+  }
+
   @autobind
   validate(): boolean {
+    const object = get(this.props, 'object');
+    const errors = object ? this.validateObject(object) : [];
 
-    // For some reason flow thinks, that 'this.props.object' can be string
-    const object = (typeof(this.props.object) == 'string') ? null : this.props.object;
-    const errors = object ? this.validateObject(supressTV(object)) : [];
-    let preventSave = false;
-      const event = {
-        preventSave() {
-          preventSave = true;
-        },
-        errors,
-      };
-      this.getChildContext().validationDispatcher.emit('errors', event);
-      return !errors || !preventSave;
+    return !errors;
   }
 
   @autobind
   save() {
     const { context, object, actions } = this.props;
 
-    if (!this.validateForm()) return;
+    if (!this.validateChild()) return;
     if (!this.validate()) return;
 
     const saveFn = this.isNew ? actions.create : actions.update;
@@ -241,7 +234,6 @@ class ObjectPageDeux extends Component {
     const { layout, schema, object, objectType, internalObjectType, onUpdateObject } = this.props;
 
     return React.cloneElement(React.Children.only(this.props.children), {
-      ref: 'form',
       layout,
       schema,
       object,

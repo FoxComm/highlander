@@ -47,11 +47,6 @@ export default class TaxonomyDetails extends React.Component {
     };
   }
 
-  @autobind
-  checkValidity(): boolean {
-    return this.refs.form.checkValidity();
-  }
-
   render() {
     return (
       <ObjectDetailsDeux
