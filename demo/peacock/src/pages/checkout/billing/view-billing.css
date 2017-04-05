@@ -1,3 +1,4 @@
+@import "media-queries.css";
 @import "colors.css";
 
 .view-billing {
@@ -55,4 +56,10 @@
   font-weight: 900;
   margin-left: 5px;
   font-size: 12px;
+}
+
+@media (--small-only), (--medium-only) {
+  .view-billing {
+    padding-bottom: 10px;
+  }
 }
