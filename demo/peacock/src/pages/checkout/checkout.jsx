@@ -224,25 +224,27 @@ class Checkout extends Component {
     if (cartFetched) {
       return (
         <div styleName="wrapper">
-          <div styleName="shipping">
-            <Shipping
-              isEditing={props.editStage}
-              onComplete={this.setShipping}
-              addresses={this.props.addresses}
-              fetchAddresses={this.props.fetchAddresses}
-              shippingAddress={_.get(this.props.cart, 'shippingAddress', {})}
-              auth={this.props.auth}
-              isGuestMode={isGuestMode}
-            />
-          </div>
-          <div styleName="delivery">
-            <Delivery
-              isEditing={props.editStage}
-              onComplete={this.setDelivery}
-              shippingMethods={props.shippingMethods}
-              cart={this.props.cart}
-              fetchShippingMethods={props.fetchShippingMethods}
-            />
+          <div styleName="column-1">
+            <div styleName="shipping">
+              <Shipping
+                isEditing={props.editStage}
+                onComplete={this.setShipping}
+                addresses={this.props.addresses}
+                fetchAddresses={this.props.fetchAddresses}
+                shippingAddress={_.get(this.props.cart, 'shippingAddress', {})}
+                auth={this.props.auth}
+                isGuestMode={isGuestMode}
+              />
+            </div>
+            <div styleName="delivery">
+              <Delivery
+                isEditing={props.editStage}
+                onComplete={this.setDelivery}
+                shippingMethods={props.shippingMethods}
+                cart={this.props.cart}
+                fetchShippingMethods={props.fetchShippingMethods}
+              />
+            </div>
           </div>
           <div styleName="payment">
             <Billing
@@ -252,10 +254,10 @@ class Checkout extends Component {
               onComplete={this.setBilling}
             />
           </div>
+          {this.orderTotals}
           <div styleName="order-summary">
             {this.orderContent}
           </div>
-          {this.orderTotals}
 
           <GuestAuth
             isEditing={!this.isEmailSetForCheckout()}

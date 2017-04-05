@@ -331,7 +331,7 @@ class EditBilling extends Component {
 
     if (billingAddressIsSame) {
       const { shippingAddress } = this.props;
-      if (_.isEmpty(shippingAddress)) return <div>Please, enter an address first</div>;
+      if (_.isEmpty(shippingAddress)) return <div styleName="no-address">Please, enter an address first</div>;
 
       return (
         <AddressDetails styleName="billing-address" address={shippingAddress} />
@@ -339,12 +339,14 @@ class EditBilling extends Component {
     }
 
     return (
-      <EditAddress
-        {...this.props}
-        withoutDefaultCheckbox={withoutDefaultCheckbox}
-        address={this.props.data.address}
-        onUpdate={this.props.setBillingAddress}
-      />
+      <div styleName="new-billing-address">
+        <EditAddress
+          {...this.props}
+          withoutDefaultCheckbox={withoutDefaultCheckbox}
+          address={this.props.data.address}
+          onUpdate={this.props.setBillingAddress}
+        />
+      </div>
     );
   }
 

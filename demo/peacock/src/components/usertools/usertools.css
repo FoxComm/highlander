@@ -85,7 +85,8 @@
   width: 14px;
   height: 14px;
   text-align: center;
-  top: -5px;
+  top: -8px;
+  right: 9px;
 }
 .cart-quantity {
   border-radius: 50%;
