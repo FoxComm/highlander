@@ -65,6 +65,7 @@
 @media (--large) {
   .delivery {
     padding-right: 0;
+    padding-bottom: 0;
   }
 
   .action-link-delivery {

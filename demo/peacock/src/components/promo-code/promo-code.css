@@ -1,11 +1,10 @@
-@import 'media-queries.css';
-@import 'colors.css';
+@import "media-queries.css";
+@import "colors.css";
 
 .promo-code {}
 
 .gift-card, .coupon {
   color: var(--text-color);
-  padding-bottom: 15px;
   font-size: 14px;
   display: flex;
   justify-content: space-between;

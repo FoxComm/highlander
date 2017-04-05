@@ -92,7 +92,7 @@
   .shipping, .delivery, .total-cost, .payment {
     border: 1px solid var(--border-color);
     border-radius: 4px;
-    padding: 12px 10px 5px;
+    padding: 12px 15px;
   }
 
   .shipping {
@@ -104,7 +104,7 @@
   }
 
   .total-cost {
-    padding: 13px 20px 0;
+    padding: 10px 20px 0;
     margin-right: 0 !important;
   }
 
@@ -123,9 +123,7 @@
   }
 
   .order-summary {
-    lost-column: 7/11;
-    margin-left: 15px !important;
-    margin-top: 40px;
+    width: 65.5%;
   }
 
   .order-content {
