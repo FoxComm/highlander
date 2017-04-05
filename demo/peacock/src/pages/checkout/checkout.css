@@ -18,17 +18,15 @@
   height: 100vh;
 }
 
-.shipping, .delivery, .payment {
-  border-bottom: 1px solid var(--border-color);
-  margin: 15px;
+.column-1 {
+
 }
 
-.total-cost {
-  margin-top: auto;
+.shipping, .delivery, .payment {
+  border-bottom: 1px solid var(--border-color);
 }
 
 .order-summary {
-  margin: 15px;
 }
 
 .order-content {
@@ -36,7 +34,6 @@
 }
 
 .totals-list {
-  margin: 15px 20px 15px 15px;
   font-size: 14px;
 }
 
@@ -51,10 +48,6 @@
 }
 
 @media (--small-only), (--medium-only) {
-  .wrapper {
-    flex-direction: column;
-  }
-
   .shipping, .delivery {
     max-height: 150px;
   }
@@ -70,22 +63,37 @@
 
   .wrapper {
     margin-top: 25px;
-    justify-content: space-between;
+    display: flex;
     align-items: baseline;
-    flex-direction: row;
+    justify-content: space-between;
     flex-wrap: wrap;
   }
 
-  .shipping, .delivery, .total-cost, .payment {
+  .column-1 {
     lost-column: 4/12;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-right: auto !important;
+  }
+
+  .shipping, .delivery, .total-cost, .payment {
     border: 1px solid var(--border-color);
     border-radius: 4px;
     padding: 12px 10px 5px;
   }
 
+  .shipping {
+    margin-bottom: 15px;
+  }
+
+  .total-cost, .payment {
+    lost-column: 4/12;
+  }
+
   .total-cost {
     padding: 13px 20px 0;
-    margin: 0;
+    margin-right: 0 !important;
   }
 
   .totals-list {
@@ -102,25 +110,10 @@
     height: 58px;
   }
 
-  .payment {
-    order: 2;
-  }
-
-  .total-cost {
-    order: 3;
-  }
-
-  .delivery {
-    order: 4;
-    margin-top: -100%;
-    margin-bottom: 40px;
-  }
-
   .order-summary {
-    order: 5;
-    width: 65%;
-    margin: 0;
-    margin-right: 25%;
+    lost-column: 7/11;
+    margin-left: 15px !important;
+    margin-top: 40px;
   }
 
   .order-content {
