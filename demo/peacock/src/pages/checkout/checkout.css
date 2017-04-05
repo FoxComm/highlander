@@ -51,6 +51,7 @@
 
   .total-cost {
     order: 4;
+    font-size: 12px;
   }
 
   .totals-list {
