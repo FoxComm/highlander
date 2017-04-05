@@ -15,6 +15,10 @@ defmodule Hyperion do
       worker(Hyperion.Amazon.Workers.PushCheckerWorker, [])
     ]
 
+    unless Mix.env == :test do
+      Hyperion.PhoenixScala.Client.create_amazon_plugin_in_ashes()
+    end
+
     opts = [strategy: :one_for_one, name: Hyperion.Supervisor]
     Supervisor.start_link(children, opts)
   end

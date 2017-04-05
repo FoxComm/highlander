@@ -1,6 +1,7 @@
 defmodule Hyperion.Amazon do
-  alias Hyperion.PhoenixScala.Client
-  alias Hyperion.JwtAuth
+  alias Hyperion.PhoenixScala.Client, warn: true
+  alias Hyperion.JwtAuth, warn: true
+  alias Hyperion.Amazon.Credentials, warn: true
   require Logger
 
   @moduledoc """
