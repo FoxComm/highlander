@@ -17,7 +17,6 @@
 .action-link-delivery {
   composes: action-link from "ui/action-link/action-link.css";
   font-size: 16px;
-  margin-right: 16px;
 }
 
 .delivery {
@@ -25,7 +24,6 @@
   justify-content: space-between;
   align-items: baseline;
   padding-bottom: 15px;
-  padding-right: 6px;
   font-size: 14px;
 
   & .method {
