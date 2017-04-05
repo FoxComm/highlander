@@ -11,8 +11,8 @@
   margin-top: 44px;
   margin-bottom: 20px;
 
-  lost-column: 4/11;
-  lost-offset: -1/11;
+  lost-column: 3/12;
+  lost-offset: -1/12;
 
   & :global(.fc-errors) {
     margin-bottom: 10px;

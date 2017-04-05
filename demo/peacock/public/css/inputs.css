@@ -29,12 +29,3 @@ input[type=password],
 input[type=email] {
   -webkit-appearance: none;
 }
-
-@media (-webkit-min-device-pixel-ratio: 2) {
-  select,
-  textarea,
-  input {
-    /* explicitly set font size to prevent zooming on focus for ios */
-    font-size: 13px !important;
-  }
-}
