@@ -6,6 +6,7 @@ import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
 
 // components
+import Input from 'components/forms/text-input';
 import GenericDropdown from './generic-dropdown';
 import DropdownItem from './dropdownItem';
 
@@ -69,7 +70,7 @@ export default class Dropdown extends Component {
     if (props.editable) {
       return (
         <div className="fc-dropdown__value">
-          <input
+          <Input
             name={props.name}
             value={this.state.token}
             onChange={this.handleInputChange}

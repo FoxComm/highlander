@@ -2,7 +2,7 @@
   margin: 10px auto;
 }
 
-.root {
+.taxonomies {
   border: 1px solid #d9d9d9;
   background-color: #f7f7f7;
   margin-bottom: 20px;
@@ -10,7 +10,13 @@
   position: relative;
 }
 
+.taxonomies._open .button i {
+  transform: rotate(-45deg);
+}
+
 .header {
+  display: flex;
+  align-items: center;
   margin-bottom: 10px;
 }
 
@@ -24,32 +30,12 @@
 }
 
 .button {
-  margin-left: 10px;
-
-  & i {
-      font-size: 8px;
-      margin-bottom: 6px;
-  }
+  display: inline-flex;
+  margin-left: 5px;
+  padding: 5px;
 }
 
-.list {
-  display: none;
-
-  &.visible {
-     display: block;
-  }
-}
-
-.input {
-  display: none;
-  position: relative;
-
-  & input {
-    width: 100%;
-    height: 40px;
-  }
-
-  &.opened {
-    display: block;
-  }
+.button i {
+  font-size: 8px;
+  transition: transform .1s;
 }

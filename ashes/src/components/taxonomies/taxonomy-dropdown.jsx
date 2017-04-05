@@ -7,6 +7,10 @@ import React, { Component } from 'react';
 // components
 import { Dropdown } from 'components/dropdown';
 
+// styles
+import s from './taxonomy-dropdown.css';
+
+// types
 import type { DropdownItemType } from 'components/dropdown/generic-dropdown';
 
 type ReduceResult = Array<DropdownItemType>;
@@ -45,6 +49,7 @@ export default class TaxonomyDropdown extends Component {
 
     return (
       <Dropdown
+        className={s.dropdown}
         name="taxons"
         placeholder=""
         items={items}

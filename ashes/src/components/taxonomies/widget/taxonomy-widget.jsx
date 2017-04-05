@@ -8,6 +8,7 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 
 // components
+import Transition from 'react-addons-css-transition-group';
 import { AddButton } from 'components/common/buttons';
 import WaitAnimation from 'components/common/wait-animation';
 import RoundedPill from 'components/rounded-pill/rounded-pill';
@@ -67,7 +68,7 @@ class TaxonomyWidget extends Component {
       });
   }
 
-  get linkedTaxonomy() {
+  get linkedTaxons() {
     const { linkedTaxonomy, unlinkState, linkState } = this.props;
 
     if (!linkedTaxonomy || !linkedTaxonomy.taxons) {
@@ -92,17 +93,22 @@ class TaxonomyWidget extends Component {
     });
   }
 
-  get renderDropdown() {
-    const opened = this.state.showInput;
-    const inputClass = classNames(styles.input, { [styles.opened]: opened });
+  get dropdown() {
+    const transitionProps = {
+      component: 'div',
+      transitionName: `dd-transition-show`,
+      transitionEnterTimeout: 100,
+      transitionLeaveTimeout: 100,
+    };
 
     return (
-      <div className={inputClass}>
+      <Transition {...transitionProps}>
+        {this.state.showInput &&
         <TaxonomyDropdown
           onTaxonClick={this.onTaxonClick}
           taxonomy={this.props.taxonomy}
-        />
-      </div>
+        />}
+      </Transition>
     );
   }
 
@@ -113,28 +119,25 @@ class TaxonomyWidget extends Component {
       return <WaitAnimation className={styles.waiting} />;
     }
 
-    return (
-      <div>
-        {this.renderDropdown}
-        {this.linkedTaxonomy}
-      </div>
-    );
+    return [
+      this.dropdown,
+      this.linkedTaxons
+    ];
   }
 
   render() {
-    const iconClassName = classNames({
-      'icon-close': this.state.showInput,
-      'icon-add': !this.state.showInput,
+    const cls = classNames(styles.taxonomies, {
+      [styles._open]: this.state.showInput,
     });
 
     return (
-      <div styleName="root">
+      <div className={cls}>
         <div styleName="header">
           <span styleName="title">
             {this.props.title}
           </span>
           <span styleName="button">
-            <i className={iconClassName} onClick={this.onIconClick} />
+            <i className="icon-add" onClick={this.onIconClick} />
           </span>
         </div>
         {this.content}
