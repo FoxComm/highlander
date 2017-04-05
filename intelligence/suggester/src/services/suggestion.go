@@ -85,11 +85,16 @@ func DeclineSuggestion(c echo.Context) error {
 }
 
 func PurchaseSuggestion(c echo.Context) error {
-	//phoneNumber := c.Param("phone")
-	//customerID, productID, _, lookupErr := util.FindCustomerAndProductFromPhoneNumber(phoneNumber)
-	//if lookupErr != nil {
-	//return c.String(http.StatusBadRequest, lookupErr.Error())
-	//}
+	phoneNumber := c.Param("phone")
+	customerID, _, productSKU, lookupErr := util.FindCustomerAndProductFromPhoneNumber(phoneNumber)
+	if lookupErr != nil {
+		return c.String(http.StatusBadRequest, lookupErr.Error())
+	}
 
-	return c.String(http.StatusOK, "")
+	purchaseResp, purchaseErr := util.OneClickPurchase(customerID, productSKU)
+	if purchaseErr != nil {
+		return c.String(http.StatusBadRequest, purchaseErr.Error())
+	}
+
+	return c.String(http.StatusOK, purchaseResp)
 }
