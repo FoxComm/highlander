@@ -140,11 +140,11 @@ class ReturnIntegrationTest
 
       "gift cards and store credits should be activated on complete state" in new ReturnLineItemDefaults
       with ReturnPaymentFixture {
-        val payments = createReturnPayment(Map(
-                                               PaymentMethod.GiftCard    → 100,
-                                               PaymentMethod.StoreCredit → 150
-                                           ),
-                                           refNum = rma.referenceNumber).payments
+        val payments = createReturnPayments(Map(
+                                                PaymentMethod.GiftCard    → 100,
+                                                PaymentMethod.StoreCredit → 150
+                                            ),
+                                            refNum = rma.referenceNumber).payments
         val gcApi = giftCardsApi(payments.giftCard.value.code)
         val scApi = storeCreditsApi(payments.storeCredit.value.id)
 
@@ -158,11 +158,11 @@ class ReturnIntegrationTest
 
       "gift cards and store credits should be canceled on canceled state" in new ReturnLineItemDefaults
       with ReturnPaymentFixture {
-        val payments = createReturnPayment(Map(
-                                               PaymentMethod.GiftCard    → 100,
-                                               PaymentMethod.StoreCredit → 150
-                                           ),
-                                           refNum = rma.referenceNumber).payments
+        val payments = createReturnPayments(Map(
+                                                PaymentMethod.GiftCard    → 100,
+                                                PaymentMethod.StoreCredit → 150
+                                            ),
+                                            refNum = rma.referenceNumber).payments
         val gcApi = giftCardsApi(payments.giftCard.value.code)
         val scApi = storeCreditsApi(payments.storeCredit.value.id)
 
@@ -436,19 +436,6 @@ class ReturnIntegrationTest
 
   "Return payment methods" - {
     "POST /v1/returns/:ref/payment-methods" - {
-      "succeeds for bulk insert" in new ReturnPaymentDefaults {
-        val payload = ReturnPaymentsPayload(
-            Map(PaymentMethod.CreditCard → 100, PaymentMethod.StoreCredit → 120))
-        val payments = returnsApi(rma.referenceNumber).paymentMethods
-          .add(payload)
-          .as[ReturnResponse.Root]
-          .payments
-          .asMap
-
-        payments must have size 2
-        payments.mapValues(_.amount) must === (payload.payments)
-      }
-
       "succeeds for any supported payment" in new ReturnPaymentFixture with ReturnDefaults
       with ReturnReasonDefaults {
         forAll(paymentMethodTable) { paymentMethod ⇒
@@ -468,6 +455,38 @@ class ReturnIntegrationTest
           pm must === (paymentMethod)
           payment.amount must === (payload.amount)
         }
+      }
+
+      "succeeds for more complex scenario" in new ReturnPaymentDefaults {
+        val api = returnsApi(rma.referenceNumber).paymentMethods
+
+        api
+          .add(PaymentMethod.GiftCard, ReturnPaymentPayload(130))
+          .as[ReturnResponse.Root]
+          .payments
+          .asMap
+          .mapValues(_.amount) must === (
+            Map[PaymentMethod.Type, Int](PaymentMethod.GiftCard → 130))
+
+        val payload = ReturnPaymentsPayload(
+            Map(PaymentMethod.CreditCard → 100, PaymentMethod.StoreCredit → 120))
+        api.add(payload).as[ReturnResponse.Root].payments.asMap.mapValues(_.amount) must === (
+            payload.payments)
+
+        api
+          .add(PaymentMethod.StoreCredit, ReturnPaymentPayload(50))
+          .as[ReturnResponse.Root]
+          .payments
+          .asMap
+          .mapValues(_.amount) must === (payload.payments + (PaymentMethod.StoreCredit → 50))
+
+        api
+          .add(PaymentMethod.GiftCard, ReturnPaymentPayload(80))
+          .as[ReturnResponse.Root]
+          .payments
+          .asMap
+          .mapValues(_.amount) must === (
+            payload.payments + (PaymentMethod.StoreCredit → 50) + (PaymentMethod.GiftCard → 80))
       }
 
       "fails if the amount is less than zero" in new ReturnPaymentFixture with OrderDefaults {
@@ -519,13 +538,13 @@ class ReturnIntegrationTest
         val otherOrderRef = createDefaultOrder().referenceNumber
         val otherRmaRef   = createReturn(otherOrderRef).referenceNumber
         createReturnLineItem(createPayload(amount = shippingMethod.price), refNum = otherRmaRef)
-        createReturnPayment(Map(PaymentMethod.CreditCard → maxCCAmount), refNum = otherRmaRef)
+        createReturnPayments(Map(PaymentMethod.CreditCard → maxCCAmount), refNum = otherRmaRef)
         completeReturn(refNum = otherRmaRef)
 
         // create some other return for the same order
         val previousRmaRef = createReturn(order.referenceNumber).referenceNumber
         createReturnLineItem(createPayload(amount = 25), refNum = previousRmaRef)
-        createReturnPayment(Map(PaymentMethod.CreditCard → 25), refNum = previousRmaRef)
+        createReturnPayments(Map(PaymentMethod.CreditCard → 25), refNum = previousRmaRef)
         completeReturn(refNum = previousRmaRef)
 
         val rma = createReturn(order.referenceNumber)
@@ -541,11 +560,11 @@ class ReturnIntegrationTest
 
     "DELETE /v1/returns/:ref/payment-methods/credit-cards" - {
       "successfully delete any supported payment method" in new ReturnPaymentDefaults {
-        val payments = createReturnPayment(Map(
-                                               PaymentMethod.GiftCard    → 100,
-                                               PaymentMethod.StoreCredit → 150
-                                           ),
-                                           refNum = rma.referenceNumber).payments
+        val payments = createReturnPayments(Map(
+                                                PaymentMethod.GiftCard    → 100,
+                                                PaymentMethod.StoreCredit → 150
+                                            ),
+                                            refNum = rma.referenceNumber).payments
 
         forAll(paymentMethodTable) { paymentMethod ⇒
           val api = returnsApi(rma.referenceNumber)

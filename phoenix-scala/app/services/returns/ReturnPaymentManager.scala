@@ -41,21 +41,22 @@ object ReturnPaymentManager {
 
     if (paymentsToAdd.isEmpty)
       for {
-        rma      ← * <~ Returns.mustFindActiveByRefNum404(refNum)
-        response ← * <~ ReturnResponse.fromRma(rma)
-        _        ← * <~ doOrMeh(overwrite, deletePayments(response, paymentsToRemove))
+        rma ← * <~ Returns.mustFindActiveByRefNum404(refNum)
+        response ← * <~ ifElse(overwrite,
+                               deletePayments(rma, paymentsToRemove),
+                               ReturnResponse.fromRma(rma))
       } yield response
     else
       for {
-        rma      ← * <~ Returns.mustFindActiveByRefNum404(refNum)
-        payment  ← * <~ mustFindCcPaymentsByOrderRef(rma.orderRef)
-        _        ← * <~ validateMaxAllowedPayments(rma, paymentsToAdd, sumOther = !overwrite)
-        _        ← * <~ paymentsToAdd.map(addPayment(rma, payment, _)).toList
-        _        ← * <~ updateTotalsReturn(rma)
-        updated  ← * <~ Returns.refresh(rma)
-        response ← * <~ ReturnResponse.fromRma(updated)
-        _        ← * <~ doOrMeh(overwrite, deletePayments(response, paymentsToRemove))
-        _        ← * <~ LogActivity().returnPaymentsAdded(response, paymentsToAdd.keysIterator.toList)
+        rma     ← * <~ Returns.mustFindActiveByRefNum404(refNum)
+        payment ← * <~ mustFindCcPaymentsByOrderRef(rma.orderRef)
+        _       ← * <~ validateMaxAllowedPayments(rma, paymentsToAdd, sumOther = !overwrite)
+        _       ← * <~ paymentsToAdd.map(addPayment(rma, payment, _)).toList
+        _       ← * <~ updateTotalsReturn(rma)
+        response ← * <~ ifElse(overwrite,
+                               deletePayments(rma, paymentsToRemove),
+                               Returns.refresh(rma).dbresult.flatMap(ReturnResponse.fromRma))
+        _ ← * <~ LogActivity().returnPaymentsAdded(response, paymentsToAdd.keysIterator.toList)
       } yield response
   }
 
@@ -227,15 +228,19 @@ object ReturnPaymentManager {
                        LogActivity().returnPaymentsDeleted(response, List(paymentMethod)))
     } yield response
 
-  private def deletePayments(rma: ReturnResponse.Root, payments: List[PaymentMethod.Type])(
+  private def deletePayments(rma: Return, payments: List[PaymentMethod.Type])(
       implicit ec: EC,
-      ac: AC): DbResultT[Unit] =
+      db: DB,
+      ac: AC): DbResultT[ReturnResponse.Root] =
     for {
       deleted ← * <~ payments.map(pmt ⇒
                      processDeletePayment(rma.id, pmt).product(DbResultT.pure(pmt)))
       deletedPayments = deleted.collect { case (true, pmt) ⇒ pmt }
-      _ ← * <~ LogActivity().returnPaymentsDeleted(rma, deletedPayments)
-    } yield ()
+      updated  ← * <~ Returns.refresh(rma)
+      response ← * <~ ReturnResponse.fromRma(updated)
+      _ ← * <~ doOrMeh(deletedPayments.nonEmpty,
+                       LogActivity().returnPaymentsDeleted(response, deletedPayments))
+    } yield response
 
   private def processDeletePayment(returnId: Int, paymentMethod: PaymentMethod.Type)(
       implicit ec: EC): DbResultT[Boolean] =

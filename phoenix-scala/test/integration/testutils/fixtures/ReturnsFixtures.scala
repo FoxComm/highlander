@@ -164,10 +164,17 @@ trait ReturnsFixtures
   }
 
   trait ReturnPaymentFixture extends ReturnLineItemFixture {
-    def createReturnPayment(payments: Map[PaymentMethod.Type, Int],
-                            refNum: String)(implicit sl: SL, sf: SF): ReturnResponse.Root =
+    def createReturnPayments(payments: Map[PaymentMethod.Type, Int],
+                             refNum: String)(implicit sl: SL, sf: SF): ReturnResponse.Root =
       returnsApi(refNum).paymentMethods
         .add(ReturnPaymentsPayload(payments))
+        .as[ReturnResponse.Root]
+
+    def createReturnPayment(payment: PaymentMethod.Type, amount: Int, refNum: String)(
+        implicit sl: SL,
+        sf: SF): ReturnResponse.Root =
+      returnsApi(refNum).paymentMethods
+        .add(payment, ReturnPaymentPayload(amount))
         .as[ReturnResponse.Root]
 
     val paymentMethodTable = Table("paymentMethod",
