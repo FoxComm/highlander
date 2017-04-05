@@ -26,7 +26,7 @@ export default class Typeahead extends React.Component {
     hideOnBlur: PropTypes.bool,
     isFetching: PropTypes.bool,
     isAsync: PropTypes.bool,
-    items: PropTypes.array, // Array of data for suggestion. Each element passed to `component`
+    items: PropTypes.array.isRequired, // Array of data for suggestion. Each element passed to `component`
     label: PropTypes.string, // title for input
     name: PropTypes.string, // name attr for default input
     placeholder: PropTypes.string, // placeholder attr for default input
@@ -43,6 +43,7 @@ export default class Typeahead extends React.Component {
   static defaultProps = {
     name: 'typeahead',
     fetchItems: _.noop,
+    items: [],
     onBlur: _.noop,
     hideOnBlur: false,
     placeholder: 'Search',
@@ -57,17 +58,10 @@ export default class Typeahead extends React.Component {
     showMenu: false,
     showAlert: false,
     query: this.props.initialValue,
+    searchedOnce: false,
   };
 
   componentWillReceiveProps(nextProps) {
-    if(this.props.isAsync){
-      if (this.props.isFetching && !nextProps.isFetching) {
-        this.toggleVisibility(true);
-      }
-    } else {
-      this.toggleVisibility(true);
-    }
-
     if (nextProps.initialValue !== this.props.initialValue) {
       this.setState({ query: nextProps.initialValue });
     }
@@ -111,10 +105,7 @@ export default class Typeahead extends React.Component {
   @autobind
   onFocus() {
     this.setState({ active: true });
-
-    if (this.state.query.length >= this.props.minQueryLength) {
-      this.toggleVisibility(true);
-    }
+    this.toggleVisibility(true);
   }
 
   @autobind
@@ -126,11 +117,16 @@ export default class Typeahead extends React.Component {
 
   @debounce(400)
   fetchItems(value) {
-    if (value.length < this.props.minQueryLength) {
+    if (!this.queryIsValid(value)) {
       return this.toggleAlert(true);
     }
 
     this._fetchRequest = this.props.fetchItems(value);
+    this.setState({ searchedOnce: true });
+  }
+
+  queryIsValid(val) {
+    return (val || this.state.query).length >= this.props.minQueryLength;
   }
 
   @autobind
@@ -151,10 +147,11 @@ export default class Typeahead extends React.Component {
 
     if (value.length === 0) {
       return this.toggleVisibility(false);
+    } else if (!this.state.showMenu) {
+      this.toggleVisibility(true);
     }
 
     this.fetchItems(value);
-
   }
 
   toggleVisibility(show) {
@@ -178,21 +175,22 @@ export default class Typeahead extends React.Component {
   }
 
   get listContent() {
-    if (this.state.showAlert) return this.renderAlert();
+    const { items, isFetching, itemsElement } = this.props;
+    const { searchedOnce } = this.state;
 
-    const itemsElement = this.props.itemsElement;
+    if (this.state.showAlert) {
+      return this.renderAlert();
+    }
 
     const ourProps = {
       updating: this.props.isFetching,
       toggleVisibility: show => this.toggleVisibility(show),
-    };
-
-    const clearState = {
       clearInputState: this.clearState,
+      noResults: !items.length && searchedOnce && !isFetching,
     };
 
     if (itemsElement) {
-      return React.cloneElement(itemsElement, { ...ourProps, ...clearState });
+      return React.cloneElement(itemsElement, ourProps);
     } else {
       return (
         <TypeaheadItems

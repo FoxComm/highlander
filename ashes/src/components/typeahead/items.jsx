@@ -1,6 +1,7 @@
 // libs
 import _ from 'lodash';
 import React, { PropTypes } from 'react';
+import classNames from 'classnames';
 
 // styles
 import s from './typeahead.css';
@@ -8,25 +9,27 @@ import s from './typeahead.css';
 const TypeaheadItems = props => {
   let innerContent = null;
 
-  if (_.isEmpty(props.items)) {
-    innerContent = <li className={s['not-found']}>No results found.</li>;
-  } else {
-    innerContent = props.items.map(item => (
-      <li
-        className={s.item}
-        onMouseDown={() => props.onItemSelected(item)}
-        key={`item-${item.key || item.id}`}
-      >
-        {React.createElement(props.component, { model: item, query: props.query })}
-      </li>
-    ));
+  if (props.noResults) {
+    return <div className={classNames(s.items, s['not-found'])}>No results found.</div>
   }
 
-  return (
-    <ul className={s.items}>
-      {innerContent}
-    </ul>
-  );
+  if (!_.isEmpty(props.items)) {
+    return (
+      <ul className={s.items}>
+        {props.items.map(item => (
+          <li
+            className={s.item}
+            onMouseDown={() => props.onItemSelected(item)}
+            key={`item-${item.key || item.id}`}
+          >
+            {React.createElement(props.component, { model: item, query: props.query })}
+          </li>
+        ))}
+      </ul>
+    );
+  }
+
+  return null;
 };
 
 TypeaheadItems.propTypes = {
@@ -34,10 +37,12 @@ TypeaheadItems.propTypes = {
   updating: PropTypes.bool,
   onItemSelected: PropTypes.func,
   items: PropTypes.array,
+  noResults: PropTypes.bool,
 };
 
 TypeaheadItems.defaultProps = {
   items: [],
+  noResults: false,
 };
 
 export default TypeaheadItems;
