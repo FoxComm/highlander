@@ -189,6 +189,8 @@ object CartPaymentUpdater {
       cart ← * <~ getCartByOriginator(originator, payload.cartRef.some)
       _    ← * <~ OrderPayments.filter(_.cordRef === cart.refNum).applePays.delete
 
+      //   todo validate stripe token
+
       //    create apple charge
       apCharge ← * <~ ApplePayCharges.create(
                     ApplePayCharge(
@@ -197,15 +199,16 @@ object CartPaymentUpdater {
                         currency = payload.currency,
                         amount = payload.amount
                     ))
+
       _ ← * <~ OrderPayments.create(
              OrderPayment(cordRef = cart.refNum,
                           amount = payload.amount.some,
                           paymentMethodType = ApplePay,
-                          paymentMethodId = apCharge.id)
+                          paymentMethodId = apCharge.id) // todo fix this method id
          )
+
       valid ← * <~ CartValidator(cart).validate()
       resp  ← * <~ CartResponse.buildRefreshed(cart)
-//      _     ← * <~ LogActivity().orderPaymentMethodAddedCc(originator, resp, cc, region)
     } yield TheResponse.validated(resp, valid)
 
   def deleteApplePayCharge(model: User) = ???

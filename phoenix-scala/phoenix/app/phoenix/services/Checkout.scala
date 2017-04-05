@@ -320,11 +320,8 @@ case class Checkout(
                        LogActivity().gcFundsAuthorized(customer, cart, gcCodes, gcTotal))
 
       // find Apple Pay payment
-      apPayments ← * <~ OrderPayments.findAllApplePayByCordRef(cart.refNum).result
-      apTotal ← * <~ PaymentHelper.paymentTransaction(apPayments,
-                                                      cart.grandTotal - scTotal - gcTotal,
-                                                      ApplePayments.authOrderPayment,
-                                                      (a: GiftCardAdjustment) ⇒ a.getAmount.abs)
+      apPayments ← * <~ OrderPayments.findAllApplePayChargeByCordRef(cart.refNum).result
+      apTotal    ← * <~ apPayments.map { case (_, ap) ⇒ ap.amount }.sum // TODO refactor this
 
       // Authorize funds on credit card
       ccs ← * <~ authCreditCard(cart.grandTotal, gcTotal + scTotal + apTotal)

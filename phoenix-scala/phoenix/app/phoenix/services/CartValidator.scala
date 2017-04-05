@@ -6,6 +6,7 @@ import core.failures.{Failure, Failures}
 import objectframework.services.ObjectManager
 import phoenix.failures.CartFailures._
 import phoenix.models.cord._
+import models.payment.applepay.ApplePayCharges
 import phoenix.models.cord.lineitems.CartLineItems
 import phoenix.models.inventory.{IlluminatedSku, Skus}
 import phoenix.models.payment.giftcard.{GiftCardAdjustments, GiftCards}
@@ -149,7 +150,7 @@ case class CartValidator(cart: Cart)(implicit ec: EC, db: DB, ctx: OC) extends C
     def availableFunds(grandTotal: Int, payments: Seq[OrderPayment]): DBIO[CartValidatorResponse] = {
       // we'll find out if the CC doesn't auth at checkout but we presume sufficient funds if we have a
       // credit card regardless of GC/SC funds availability
-      if (payments.exists(_.isCreditCard)) {
+      if (payments.exists(_.isExternalFunds)) {
         lift(response)
       } else if (payments.nonEmpty) {
         cartFunds(payments).map {

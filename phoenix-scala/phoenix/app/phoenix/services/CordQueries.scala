@@ -8,6 +8,7 @@ import phoenix.models.payment.creditcard.CreditCardCharges
 import phoenix.models.payment.giftcard.GiftCardAdjustments
 import phoenix.models.payment.storecredit.StoreCreditAdjustments
 import phoenix.utils.aliases.EC
+import models.payment.applepay.ApplePayCharges
 import slick.dbio.DBIO
 
 trait CordQueries {
@@ -31,7 +32,13 @@ trait CordQueries {
         GiftCardAdjustments.lastPaymentState(payment.id).map(_.map(fromInStoreState))
       case PaymentMethod.StoreCredit ⇒
         StoreCreditAdjustments.lastPaymentState(payment.id).map(_.map(fromInStoreState))
-      case PaymentMethod.ApplePay ⇒ ??? // TODO implement
+      case PaymentMethod.ApplePay ⇒
+        ApplePayCharges
+          .filter(_.orderPaymentId === payment.id)
+          .map(_.state)
+          .result
+          .headOption
+          .map(_.map(fromApState))
     }
   }
 }

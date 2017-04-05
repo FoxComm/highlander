@@ -5,6 +5,7 @@ import com.pellucid.sealerate
 import phoenix.models.payment.InStorePaymentStates
 import phoenix.models.payment.creditcard.CreditCardCharge
 import phoenix.utils.ADT
+import models.payment.applepay.ApplePayCharge
 
 object CordPaymentState {
   sealed trait State
@@ -37,6 +38,16 @@ object CordPaymentState {
       case CC.FullCapture   ⇒ FullCapture
       case CC.FailedCapture ⇒ FailedCapture
       case _                ⇒ Cart
+    }
+  }
+
+  def fromApState(apState: ApplePayCharge.State): State = {
+    import models.payment.applepay.ApplePayCharge._
+
+    apState match {
+      case STATUS_SUCCESS ⇒ Auth
+      case STATUS_FAILURE ⇒ FailedCapture
+      case _              ⇒ Cart
     }
   }
 

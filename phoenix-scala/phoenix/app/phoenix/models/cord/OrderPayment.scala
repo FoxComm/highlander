@@ -8,7 +8,7 @@ import core.utils.Money._
 import core.utils.Validation._
 import phoenix.models.payment.PaymentMethod
 import phoenix.models.payment.creditcard.{CreditCard, CreditCards}
-import phoenix.models.payment.applepay.{ApplePayment, ApplePayments}
+import phoenix.models.payment.applepay.{ApplePayCharge, ApplePayCharges, ApplePayment, ApplePayments}
 import phoenix.models.payment.giftcard.{GiftCard, GiftCards}
 import phoenix.models.payment.storecredit.{StoreCredit, StoreCredits}
 import phoenix.utils.aliases.stripe.StripeCustomer
@@ -28,6 +28,8 @@ case class OrderPayment(id: Int = 0,
   def isGiftCard: Boolean    = paymentMethodType == PaymentMethod.GiftCard
   def isStoreCredit: Boolean = paymentMethodType == PaymentMethod.StoreCredit
   def isApplePay: Boolean    = paymentMethodType == PaymentMethod.ApplePay
+
+  def isExternalFunds: Boolean = isCreditCard || isApplePay
 
   override def validate: ValidatedNel[Failure, OrderPayment] = {
     val amountOk = paymentMethodType match {
@@ -105,11 +107,11 @@ object OrderPayments
       sc   ← StoreCredits if sc.id === pmts.paymentMethodId
     } yield (pmts, sc)
 
-  def findAllApplePayByCordRef(
-      cordRef: String): Query[(OrderPayments, ApplePayments), (OrderPayment, ApplePayment), Seq] =
+  def findAllApplePayChargeByCordRef(cordRef: String)
+    : Query[(OrderPayments, ApplePayCharges), (OrderPayment, ApplePayCharge), Seq] =
     for {
       pmts ← OrderPayments.filter(_.cordRef === cordRef)
-      ap   ← ApplePayments if ap.id === pmts.paymentMethodId
+      ap   ← ApplePayCharges.filter(_.id === pmts.paymentMethodId)
     } yield (pmts, ap)
 
   def findAllCreditCardsForOrder(cordRef: Rep[String]): QuerySeq =
