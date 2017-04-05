@@ -6,6 +6,7 @@
   position: relative;
   border: 1px solid var(--input-border-color);
   border-radius: 12px;
+  margin: 1px -1px 1px 1px;
 
   &:active {
     border: solid 3px var(--input-active-border-color);
