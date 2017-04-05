@@ -1,6 +1,6 @@
 const ordersSearchTerms = require('../../../fixtures/orders-search-terms.js');
 const ordersSavedSearches = require('../../../fixtures/orders-saved-searches.js');
-const makeLiveSearch = importDefault('modules/live-search/index.js');
+const makeLiveSearch = require('modules/live-search/index.js').default;
 const { reducer, actions } = makeLiveSearch('TEST', ordersSearchTerms, ordersSavedSearches);
 const { selectSavedSearch, submitFilters } = actions;
 
