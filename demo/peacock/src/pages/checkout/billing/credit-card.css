@@ -19,6 +19,7 @@
 
 .action-link-remove-card {
   composes: action-link from "ui/action-link/action-link.css";
+  font-size: 14px;
 }
 
 @media (--large) {
