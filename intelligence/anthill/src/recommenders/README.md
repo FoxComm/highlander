@@ -6,32 +6,18 @@ purchased this also purchased that".
 
 ### API
 #### Training
+
 When customer `1` buys products `4, 5, 6` over channel `1`.
 
-*TODO: Make this endpoint private*
-
-> `POST /api/v1/public/recommend/prod-prod/train`
+> `POST host:port/private/prod-prod/train`
+> > NOTE: This endpoint is not exposed
 
 body
 ```
 {
-  "points": [
-  {
-    "custID": 1,
-    "prodID": 4,
-    "chanID": 1
-  },
-  {
-    "custID": 1,
-    "prodID": 5,
-    "chanID": 1
-  },
-  {
-    "custID": 1,
-    "prodID": 6,
-    "chanID": 1
-  }
-  ]
+  "cust_id": 1,
+  "channel_id": 1,
+  "prod_ids": [4, 5, 6]
 }
 ```
 
