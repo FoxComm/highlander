@@ -1,21 +1,21 @@
-from controllers.PurchaseController import add_purchase_event
 from recommenders.Prod_Prod import Prod_Prod
 from util.response_utils import products_list_from_response, zip_responses
 from util.InvalidUsage import InvalidUsage
 from util.neo4j_utils import (
+    add_purchase_event,
     get_all_channels,
     get_purchased_products,
     get_declined_products,
     get_all_by_channel
 )
 
-def start_pprec_from_db(channel_id):
+def start_pprec_from_db(channel_id, neo4j_client):
     """start_pprec_from_db
     finds all channels used in neo4j, and starts up
     prod-prod recommenders for each one channel
     """
     pprec = Prod_Prod()
-    for [cust_id, prod_id] in get_all_by_channel(channel_id):
+    for [cust_id, prod_id] in get_all_by_channel(channel_id, neo4j_client):
         pprec.add_point(cust_id, prod_id)
     return pprec
 
@@ -23,10 +23,12 @@ class Prod_Prod_Manager(object):
     """Prod_Prod_Manager
     provides an interface for several Prod_Prod recommenders
     """
-    def __init__(self):
+    def __init__(self, neo4j_client, es_client):
         self.recommenders = {}
-        for [channel_id] in get_all_channels():
-            self.update_pprec(channel_id, start_pprec_from_db(channel_id))
+        self.neo4j_client = neo4j_client
+        self.es_client = es_client
+        for channel_id in get_all_channels(self.neo4j_client):
+            self.update_pprec(channel_id, start_pprec_from_db(channel_id, self.neo4j_client))
 
     def get_recommender(self, channel_id):
         """get_pprec
@@ -65,14 +67,14 @@ class Prod_Prod_Manager(object):
         else:
             return {'products': []}
 
-    def recommend_full(self, prod_id, channel_id, es_client, from_param, size_param):
+    def recommend_full(self, prod_id, channel_id, from_param, size_param):
         """recommend_full
         take a product id
         get a list of full products from elasticsearch based on
         product ids from the recommender
         """
         recommender_output = self.recommend(prod_id, channel_id)
-        es_resp = es_client.get_products_list(
+        es_resp = self.es_client.get_products_list(
             products_list_from_response(recommender_output)[from_param:(from_param + size_param)]
         )
         return zip_responses(recommender_output, es_resp)
@@ -83,17 +85,17 @@ class Prod_Prod_Manager(object):
         get list of product ids from the recommender
         """
         self.validate_channel(channel_id)
-        prod_ids = get_purchased_products(cust_id, channel_id)
-        excludes = get_declined_products(cust_id)
+        prod_ids = get_purchased_products(cust_id, channel_id, self.neo4j_client)
+        excludes = get_declined_products(cust_id, self.neo4j_client)
         return self.recommenders[channel_id].recommend(prod_ids, excludes)
 
-    def cust_recommend_full(self, cust_id, channel_id, es_client, from_param, size_param):
+    def cust_recommend_full(self, cust_id, channel_id, from_param, size_param):
         """cust_recommend_full
         get a list of full products from elasticsearch based on
         product ids from the recommender
         """
         recommender_output = self.cust_recommend(cust_id, channel_id)
-        es_resp = es_client.get_products_list(
+        es_resp = self.es_client.get_products_list(
             products_list_from_response(recommender_output)[from_param:(from_param + size_param)]
         )
         return zip_responses(recommender_output, es_resp)
@@ -104,12 +106,14 @@ class Prod_Prod_Manager(object):
         """
         pprec = self.get_recommender(channel_id)
         pprec.add_point(cust_id, prod_id)
-        add_purchase_event(cust_id, prod_id, channel_id)
         self.update_pprec(channel_id, pprec)
 
-    def train(self, points):
+    def train(self, payload):
         """train
         train a recommender with a set of purchase events
         """
-        for point in points:
-            self.add_point(point['custID'], point['prodID'], point['chanID'])
+        add_purchase_event(payload, self.neo4j_client)
+        cust_id = payload.get('cust_id')
+        channel_id = payload.get('channel_id')
+        for prod_id in payload.get('prod_ids'):
+            self.add_point(cust_id, prod_id, channel_id)
