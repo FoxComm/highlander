@@ -164,7 +164,7 @@ export default class ResetPassword extends Component {
       <div>
         <div styleName="title">{t('Reset password')}</div>
         {this.topMessage}
-        <Form onSubmit={this.handleSubmit}>
+        <Form onSubmit={this.handleSubmit} styleName="form">
           <div styleName="inputs-body">
             {this.passwordFields}
           </div>

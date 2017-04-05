@@ -156,7 +156,7 @@ class RestorePasswordForm extends Component {
       <div>
         <div styleName="title">{this.props.title}</div>
         {this.topMessage}
-        <Form onSubmit={this.handleSubmit}>
+        <Form onSubmit={this.handleSubmit} styleName="form">
           <div styleName="inputs-body">
             {this.emailField}
           </div>

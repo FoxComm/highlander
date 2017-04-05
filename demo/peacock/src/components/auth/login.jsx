@@ -143,7 +143,7 @@ class Login extends Component {
     return (
       <div>
         {this.title}
-        <Form onSubmit={this.authenticate}>
+        <Form styleName="form" onSubmit={this.authenticate}>
           <div styleName="inputs-body">
             <FormField key="email" styleName="form-field" error={this.state.error}>
               <TextInput pos="top" placeholder={t('Email')} value={email} type="email" onChange={this.onChangeEmail} />

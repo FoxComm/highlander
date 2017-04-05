@@ -40,6 +40,7 @@
   line-height: 1.25;
   text-align: left;
   font-weight: 300;
+  width: 266px;
 }
 
 .top-message-success {
@@ -55,6 +56,11 @@
 .inputs-body {
   margin-top: 24px;
   margin-bottom: 32px;
+}
+
+.form {
+  display: block;
+  width: 366px;
 }
 
 .google-login {
@@ -159,5 +165,15 @@
   .auth-block {
     lost-column: 5/11;
     lost-offset: -3/11;
+  }
+}
+
+@media (--small-only) {
+  .form {
+    width: 100%;
+  }
+
+  .top-message {
+    width: 100%;
   }
 }

@@ -157,7 +157,7 @@ class Signup extends Component {
     return (
       <div>
         {this.title}
-        <Form onSubmit={this.submitUser}>
+        <Form onSubmit={this.submitUser} styleName="form">
           <div styleName="inputs-body">
             <ErrorAlerts errors={this.state.generalErrors} />
             <FormField key="username" styleName="form-field" error={usernameError}>
