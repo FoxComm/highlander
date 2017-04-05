@@ -54,7 +54,7 @@ class ReturnsSearchViewTest
 
         id must === (rma.id)
         referenceNumber must === (rma.referenceNumber)
-        orderRef must === (rma.cordRefNum)
+        orderRef must === (rma.orderRefNum)
         state must === (rma.state)
         messageToAccount must === (rma.messageToCustomer)
         returnType must === (rma.rmaType)

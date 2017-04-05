@@ -61,8 +61,8 @@ object ReturnService {
     for {
       rma ← * <~ Returns
              .update(rma, rma.copy(state = payload.state, canceledReasonId = reason.map(_.id)))
-      _ ← * <~ doOrMeh(rma.state == Return.Complete, ReturnPaymentUpdater.issueRefunds(rma))
-      _ ← * <~ doOrMeh(rma.state == Return.Canceled, ReturnPaymentUpdater.cancelRefunds(rma))
+      _ ← * <~ doOrMeh(rma.state == Return.Complete, ReturnPaymentManager.issueRefunds(rma))
+      _ ← * <~ doOrMeh(rma.state == Return.Canceled, ReturnPaymentManager.cancelRefunds(rma))
     } yield rma
 
   // todo should be available for non-admin as well

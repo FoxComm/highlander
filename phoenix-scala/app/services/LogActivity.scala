@@ -467,12 +467,12 @@ case class LogActivity(implicit ac: AC) {
   def returnSkuLineItemDeleted(lineItem: ReturnLineItem)(implicit ec: EC): DbResultT[Activity] =
     Activities.log(ReturnSkuLineItemDeleted(lineItem))
 
-  def returnPaymentAdded(rma: ReturnResponse.Root, payment: OrderPayment)(
-      implicit ec: EC): DbResultT[Activity] = Activities.log(ReturnPaymentAdded(rma, payment))
+  def returnPaymentsAdded(rma: ReturnResponse.Root, payments: List[PaymentMethod.Type])(
+      implicit ec: EC): DbResultT[Activity] = Activities.log(ReturnPaymentsAdded(rma, payments))
 
-  def returnPaymentDeleted(rma: ReturnResponse.Root, paymentMethod: PaymentMethod.Type)(
+  def returnPaymentsDeleted(rma: ReturnResponse.Root, payments: List[PaymentMethod.Type])(
       implicit ec: EC): DbResultT[Activity] =
-    Activities.log(ReturnPaymentDeleted(rma, paymentMethod))
+    Activities.log(ReturnPaymentsDeleted(rma, payments))
 
   def issueCcRefund(rma: Return, payment: ReturnPayment)(implicit ec: EC): DbResultT[Activity] =
     Activities.log(ReturnIssueCcRefund(rma, payment))

@@ -45,10 +45,7 @@ class ReturnIntegrationTest
 
     "should get rma" in new ReturnFixture with OrderDefaults {
       val expected = createReturn(order.referenceNumber)
-      returnsApi(expected.referenceNumber)
-        .get()
-        .as[ReturnResponse.Root]
-        .copy(totals = None) must === (expected)
+      returnsApi(expected.referenceNumber).get().as[ReturnResponse.Root] must === (expected)
     }
 
     "fails to creare Return for not shipped order" in new ReturnFixture with OrderDefaults {
@@ -410,19 +407,17 @@ class ReturnIntegrationTest
 
     "DELETE /v1/returns/:refNum/line-items/:id" - {
       "successfully deletes shipping cost line item" in new ReturnLineItemDefaults {
-        returnsApi(rma.referenceNumber).lineItems
-          .remove(shippingCostItemId)
-          .as[ReturnResponse.Root]
-          .lineItems
-          .shippingCosts mustBe 'empty
+        val api = returnsApi(rma.referenceNumber)
+
+        api.lineItems.remove(shippingCostItemId).mustBeEmpty()
+        api.get().as[ReturnResponse.Root].lineItems.shippingCosts mustBe 'empty
       }
 
       "successfully deletes SKU line item" in new ReturnLineItemDefaults {
-        returnsApi(rma.referenceNumber).lineItems
-          .remove(skuItemId)
-          .as[ReturnResponse.Root]
-          .lineItems
-          .skus mustBe 'empty
+        val api = returnsApi(rma.referenceNumber)
+
+        api.lineItems.remove(skuItemId).mustBeEmpty()
+        api.get().as[ReturnResponse.Root].lineItems.skus mustBe 'empty
       }
 
       "fails if refNum is not found" in {
@@ -553,11 +548,10 @@ class ReturnIntegrationTest
                                            refNum = rma.referenceNumber).payments
 
         forAll(paymentMethodTable) { paymentMethod ⇒
-          val response = returnsApi(rma.referenceNumber).paymentMethods
-            .remove(paymentMethod)
-            .as[ReturnResponse.Root]
+          val api = returnsApi(rma.referenceNumber)
 
-          response.payments.asMap.get(paymentMethod) mustBe 'empty
+          api.paymentMethods.remove(paymentMethod).mustBeEmpty()
+          api.get().as[ReturnResponse.Root].payments.asMap.get(paymentMethod) mustBe 'empty
         }
       }
 

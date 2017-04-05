@@ -89,7 +89,7 @@ object ReturnRoutes {
               }
             } ~
             (delete & path(IntNumber) & pathEnd) { lineItemId ⇒
-              mutateOrFailures {
+              deleteOrFailures {
                 ReturnLineItemManager.deleteLineItem(refNum, lineItemId)
               }
             }
@@ -97,20 +97,22 @@ object ReturnRoutes {
           pathPrefix("payment-methods") {
             (post & pathEnd & entity(as[ReturnPaymentsPayload])) { payload ⇒
               mutateOrFailures {
-                ReturnPaymentUpdater.addPayments(refNum, payload)
+                ReturnPaymentManager.updatePayments(refNum, payload.payments, overwrite = true)
               }
             } ~
             (post & path(PaymentMethodMatcher) & pathEnd & entity(as[ReturnPaymentPayload])) {
               case (paymentMethod, payload) ⇒
                 mutateOrFailures {
-                  ReturnPaymentUpdater.addPayments(
+                  ReturnPaymentManager.updatePayments(
                       refNum,
-                      ReturnPaymentsPayload(Map(paymentMethod → payload.amount)))
+                      Map(paymentMethod → payload.amount),
+                      overwrite = false
+                  )
                 }
             } ~
             (delete & path(PaymentMethodMatcher) & pathEnd) { paymentMethod ⇒
-              mutateOrFailures {
-                ReturnPaymentUpdater.deletePayment(refNum, paymentMethod)
+              deleteOrFailures {
+                ReturnPaymentManager.deletePayment(refNum, paymentMethod)
               }
             }
           }

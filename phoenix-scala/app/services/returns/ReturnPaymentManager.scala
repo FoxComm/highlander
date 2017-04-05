@@ -12,8 +12,8 @@ import models.payment.giftcard._
 import models.payment.storecredit._
 import models.returns.ReturnPayments.scope._
 import models.returns._
-import payloads.ReturnPayloads.{ReturnPaymentPayload, ReturnPaymentsPayload}
 import responses.ReturnResponse
+import scala.annotation.tailrec
 import services.LogActivity
 import services.carts.CartTotaler
 import slick.driver.PostgresDriver.api._
@@ -21,10 +21,8 @@ import utils.aliases._
 import utils.apis.{Apis, RefundReason}
 import utils.db._
 
-import scala.annotation.tailrec
-
-object ReturnPaymentUpdater {
-  def addPayments(refNum: String, payload: ReturnPaymentsPayload)(
+object ReturnPaymentManager {
+  def updatePayments(refNum: String, payments: Map[PaymentMethod.Type, Int], overwrite: Boolean)(
       implicit ec: EC,
       db: DB,
       ac: AC,
@@ -38,21 +36,27 @@ object ReturnPaymentUpdater {
       processAddPayment(rma, payment, method, amount)
     }
 
-    val payments = payload.payments.filter { case (_, amount) ⇒ amount > 0 }
-    if (payments.isEmpty)
-      Returns.mustFindActiveByRefNum404(refNum).flatMap(ReturnResponse.fromRma)
-    else {
+    val paymentsToAdd         = payments.filter { case (_, amount) ⇒ amount > 0 }
+    lazy val paymentsToRemove = (PaymentMethod.Type.types -- paymentsToAdd.keySet).toList
+
+    if (paymentsToAdd.isEmpty)
+      for {
+        rma      ← * <~ Returns.mustFindActiveByRefNum404(refNum)
+        response ← * <~ ReturnResponse.fromRma(rma)
+        _        ← * <~ doOrMeh(overwrite, deletePayments(response, paymentsToRemove))
+      } yield response
+    else
       for {
         rma      ← * <~ Returns.mustFindActiveByRefNum404(refNum)
         payment  ← * <~ mustFindCcPaymentsByOrderRef(rma.orderRef)
-        _        ← * <~ validateMaxAllowedPayments(rma, payments)
-        _        ← * <~ payments.map(addPayment(rma, payment, _)).toList
+        _        ← * <~ validateMaxAllowedPayments(rma, paymentsToAdd, sumOther = !overwrite)
+        _        ← * <~ paymentsToAdd.map(addPayment(rma, payment, _)).toList
         _        ← * <~ updateTotalsReturn(rma)
         updated  ← * <~ Returns.refresh(rma)
         response ← * <~ ReturnResponse.fromRma(updated)
-        _        ← * <~ LogActivity().returnPaymentAdded(response, payment)
+        _        ← * <~ doOrMeh(overwrite, deletePayments(response, paymentsToRemove))
+        _        ← * <~ LogActivity().returnPaymentsAdded(response, paymentsToAdd.keysIterator.toList)
       } yield response
-    }
   }
 
   private[this] def updateTotalsReturn(rma: Return)(implicit ec: EC, db: DB, au: AU) =
@@ -61,9 +65,10 @@ object ReturnPaymentUpdater {
       _           ← * <~ Returns.update(rma, rma.copy(totalRefund = rma.totalRefund |+| totalRefund))
     } yield ()
 
-  private def validateMaxAllowedPayments(rma: Return, payments: Map[PaymentMethod.Type, Int])(
-      implicit ec: EC,
-      db: DB): DbResultT[Unit] = {
+  private def validateMaxAllowedPayments(
+      rma: Return,
+      payments: Map[PaymentMethod.Type, Int],
+      sumOther: Boolean)(implicit ec: EC, db: DB): DbResultT[Unit] = {
     def validateTotalPayment() =
       for {
         adjustments ← * <~ ReturnTotaler.adjustmentsTotal(rma)
@@ -219,10 +224,20 @@ object ReturnPaymentUpdater {
       response          ← * <~ ReturnResponse.fromRma(rma)
 
       _ ← * <~ doOrMeh(paymentWasDeleted,
-                       LogActivity().returnPaymentDeleted(response, paymentMethod))
+                       LogActivity().returnPaymentsDeleted(response, List(paymentMethod)))
     } yield response
 
-  def processDeletePayment(returnId: Int, paymentMethod: PaymentMethod.Type)(
+  private def deletePayments(rma: ReturnResponse.Root, payments: List[PaymentMethod.Type])(
+      implicit ec: EC,
+      ac: AC): DbResultT[Unit] =
+    for {
+      deleted ← * <~ payments.map(pmt ⇒
+                     processDeletePayment(rma.id, pmt).product(DbResultT.pure(pmt)))
+      deletedPayments = deleted.collect { case (true, pmt) ⇒ pmt }
+      _ ← * <~ LogActivity().returnPaymentsDeleted(rma, deletedPayments)
+    } yield ()
+
+  private def processDeletePayment(returnId: Int, paymentMethod: PaymentMethod.Type)(
       implicit ec: EC): DbResultT[Boolean] =
     paymentMethod match {
       case PaymentMethod.CreditCard  ⇒ deleteCcPayment(returnId)

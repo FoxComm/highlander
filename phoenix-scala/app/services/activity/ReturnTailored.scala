@@ -36,11 +36,11 @@ object ReturnTailored {
   case class ReturnSkuLineItemDeleted(li: ReturnLineItem)
       extends ActivityBase[ReturnSkuLineItemDeleted]
 
-  case class ReturnPaymentAdded(rma: ReturnResponse, payment: OrderPayment)
-      extends ActivityBase[ReturnPaymentAdded]
+  case class ReturnPaymentsAdded(rma: ReturnResponse, payments: List[PaymentMethod.Type])
+      extends ActivityBase[ReturnPaymentsAdded]
 
-  case class ReturnPaymentDeleted(rma: ReturnResponse, paymentMethod: PaymentMethod.Type)
-      extends ActivityBase[ReturnPaymentDeleted]
+  case class ReturnPaymentsDeleted(rma: ReturnResponse, payments: List[PaymentMethod.Type])
+      extends ActivityBase[ReturnPaymentsDeleted]
 
   case class ReturnIssueCcRefund(rma: Return, payment: ReturnPayment)
       extends ActivityBase[ReturnIssueCcRefund]
