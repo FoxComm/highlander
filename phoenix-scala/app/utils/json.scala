@@ -34,7 +34,6 @@ import responses.PublicResponses.CountryWithRegions
   * {{{
   * ADTTypeHints(
   *   Map(
-  *     ReturnLineItem.GiftCardItem → classOf[ReturnGiftCardLineItemPayload],
   *     ReturnLineItem.ShippingCost → classOf[ReturnShippingCostLineItemPayload],
   *     ReturnLineItem.SkuItem      → classOf[ReturnSkuLineItemPayload]
   * ))

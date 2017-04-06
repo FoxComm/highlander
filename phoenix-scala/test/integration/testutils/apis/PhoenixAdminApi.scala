@@ -248,6 +248,9 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
     object lineItems {
       val requestPath = s"${returns.requestPath}/line-items"
 
+      def addOrReplace(payload: List[ReturnSkuLineItemPayload]): HttpResponse =
+        POST(s"$requestPath/skus", payload)
+
       def add(payload: ReturnLineItemPayload): HttpResponse =
         POST(requestPath, payload)
 
@@ -258,7 +261,7 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
     object paymentMethods {
       val requestPath = s"${returns.requestPath}/payment-methods"
 
-      def add(payload: ReturnPaymentsPayload): HttpResponse =
+      def addOrReplace(payload: ReturnPaymentsPayload): HttpResponse =
         POST(requestPath, payload)
 
       def add(paymentMethod: PaymentMethod.Type, payload: ReturnPaymentPayload): HttpResponse =

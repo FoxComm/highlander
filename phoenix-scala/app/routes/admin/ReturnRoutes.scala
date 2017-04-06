@@ -83,6 +83,11 @@ object ReturnRoutes {
               }
           } ~
           pathPrefix("line-items") {
+            (post & path("skus") & entity(as[List[ReturnSkuLineItemPayload]])) { payload ⇒
+              mutateOrFailures {
+                ReturnLineItemManager.updateSkuLineItems(refNum, payload)
+              }
+            } ~
             (post & pathEnd & entity(as[ReturnLineItemPayload])) { payload ⇒
               mutateOrFailures {
                 ReturnLineItemManager.addLineItem(refNum, payload)

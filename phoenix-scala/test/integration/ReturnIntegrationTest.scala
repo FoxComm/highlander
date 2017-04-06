@@ -8,9 +8,11 @@ import models.cord._
 import models.payment.PaymentMethod
 import models.payment.giftcard.GiftCard
 import models.payment.storecredit.StoreCredit
+import models.product.Mvp
 import models.returns.Return._
 import models.returns._
 import org.scalatest.prop.PropertyChecks
+import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.PaymentPayloads.CreateManualStoreCredit
 import payloads.ReturnPayloads._
 import responses.ReturnResponse.Root
@@ -18,6 +20,7 @@ import responses._
 import testutils._
 import testutils.fixtures.api.ApiFixtureHelpers
 import testutils.fixtures.{BakedFixtures, ReturnsFixtures}
+import utils.seeds.Factories
 
 class ReturnIntegrationTest
     extends IntegrationTestBase
@@ -324,6 +327,39 @@ class ReturnIntegrationTest
         second.lineItems.shippingCosts.value.amount must === (42)
       }
 
+      "overwrite all skus with bulk insert" in new ReturnLineItemFixture with ReturnFixture
+      with ReturnReasonDefaults with OrderDefaults {
+        val secondProduct = Mvp.insertProduct(ctx.id, Factories.products.tail.head).gimme
+        override val order = createDefaultOrder(
+            items = List(UpdateLineItemsPayload(sku = product.code, quantity = 1),
+                         UpdateLineItemsPayload(sku = secondProduct.code, quantity = 1)))
+        val rma = createReturn(orderRef = order.referenceNumber)
+
+        val api = returnsApi(rma.referenceNumber).lineItems
+
+        val payload =
+          ReturnSkuLineItemPayload(sku = product.code, quantity = 1, reasonId = returnReason.id)
+        api.add(payload).as[ReturnResponse.Root].lineItems.skus.onlyElement must have(
+            'sku (product.code),
+            'quantity (1)
+        )
+
+        createReturnLineItem(ReturnShippingCostLineItemPayload(amount = 300,
+                                                               reasonId = returnReason.id),
+                             rma.referenceNumber)
+
+        val payloads = List(
+            ReturnSkuLineItemPayload(sku = secondProduct.code,
+                                     quantity = 1,
+                                     reasonId = returnReason.id))
+        val response = api.addOrReplace(payloads).as[ReturnResponse.Root].lineItems
+        response.shippingCosts mustBe 'defined
+        response.skus.onlyElement must have(
+            'sku (secondProduct.code),
+            'quantity (1)
+        )
+      }
+
       "fails if refNum is not found" in {
         val payload = ReturnShippingCostLineItemPayload(amount = 666, reasonId = 666)
         returnsApi("ABC-666").lineItems
@@ -337,7 +373,7 @@ class ReturnIntegrationTest
 
         returnsApi(rma.referenceNumber).lineItems
           .add(payload)
-          .mustFailWith400(ReturnReasonNotFoundFailure(666))
+          .mustFailWith400(NotFoundFailure400(ReturnReason, 666))
       }
 
       "fails if quantity for sku is invalid" in new ReturnDefaults with ReturnReasonDefaults {
@@ -470,8 +506,12 @@ class ReturnIntegrationTest
 
         val payload = ReturnPaymentsPayload(
             Map(PaymentMethod.CreditCard → 100, PaymentMethod.StoreCredit → 120))
-        api.add(payload).as[ReturnResponse.Root].payments.asMap.mapValues(_.amount) must === (
-            payload.payments)
+        api
+          .addOrReplace(payload)
+          .as[ReturnResponse.Root]
+          .payments
+          .asMap
+          .mapValues(_.amount) must === (payload.payments)
 
         api
           .add(PaymentMethod.StoreCredit, ReturnPaymentPayload(50))
@@ -514,7 +554,7 @@ class ReturnIntegrationTest
             Map(PaymentMethod.CreditCard → 3000, PaymentMethod.StoreCredit → 1500))
 
         returnsApi(rma.referenceNumber).paymentMethods
-          .add(payload)
+          .addOrReplace(payload)
           .mustFailWith400(
               ReturnPaymentExceeded(rma.referenceNumber, amount = 4500, maxAmount = 3600))
       }

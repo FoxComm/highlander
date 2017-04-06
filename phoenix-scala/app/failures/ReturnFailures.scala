@@ -25,11 +25,6 @@ object ReturnFailures {
       NotFoundFailure400(s"${friendlyClassName(m)} payment not found")
   }
 
-  object ReturnReasonNotFoundFailure {
-    def apply(id: ReturnReason#Id): NotFoundFailure400 =
-      NotFoundFailure400(s"Return reason $id not found")
-  }
-
   case class ReturnShippingCostExceeded(refNum: String, amount: Int, maxAmount: Int)
       extends Failure {
     def description: String =
