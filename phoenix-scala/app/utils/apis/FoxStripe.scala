@@ -1,9 +1,8 @@
 package utils.apis
 
 import scala.collection.JavaConversions._
-
 import cats.implicits._
-import com.stripe.model.DeletedCard
+import com.stripe.model.{DeletedCard, Token}
 import failures.CustomerFailures.CustomerMustHaveCredentials
 import models.location.Address
 import models.payment.creditcard.CreditCard
@@ -137,4 +136,7 @@ class FoxStripe(stripe: StripeWrapper)(implicit ec: EC) extends FoxStripeApi {
       updated    ← stripe.deleteCard(stripeCard)
     } yield updated
   }
+
+  def retrieveToken(t: String): Result[StripeToken] =
+    stripe.retrieveToken(t)
 }

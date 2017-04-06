@@ -1,6 +1,6 @@
 package utils.apis
 
-import com.stripe.model.DeletedCard
+import com.stripe.model.{DeletedCard, Token}
 import models.location.Address
 import models.payment.creditcard.CreditCard
 import payloads.PaymentPayloads.CreateCreditCardFromSourcePayload
@@ -37,6 +37,8 @@ trait FoxStripeApi {
   def editCard(cc: CreditCard): Result[StripeCard]
 
   def deleteCard(cc: CreditCard): Result[DeletedCard]
+
+  def retrieveToken(t: String): Result[StripeToken]
 
 }
 

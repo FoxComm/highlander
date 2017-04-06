@@ -1,12 +1,13 @@
 package utils.apis
 
 import java.util.concurrent.Executors
+
 import scala.collection.JavaConversions._
 import scala.concurrent.{ExecutionContext, Future, blocking}
 import cats.data.Xor
 import cats.implicits._
 import com.stripe.exception.{CardException, StripeException}
-import com.stripe.model.{DeletedCard, ExternalAccount, Card ⇒ StripeCard, Charge ⇒ StripeCharge, Customer ⇒ StripeCustomer}
+import com.stripe.model.{DeletedCard, ExternalAccount, Token, Card ⇒ StripeCard, Charge ⇒ StripeCharge, Customer ⇒ StripeCustomer}
 import com.typesafe.scalalogging.LazyLogging
 import failures.StripeFailures.{CardNotFoundForNewCustomer, StripeFailure}
 import failures.{Failures, GeneralFailure}
@@ -19,6 +20,10 @@ import utils.db._
   * If you add new methods, be sure to provide default mock in `MockedApis` trait for testing!
   */
 class StripeWrapper extends StripeApiWrapper with LazyLogging {
+  def retrieveToken(t: String) = {
+    logger.info(s"Retrieve token details: $t")
+    inBlockingPool(Token.retrieve(t))
+  }
 
   private[this] implicit val blockingIOPool: ExecutionContext =
     ExecutionContext.fromExecutor(Executors.newCachedThreadPool)
