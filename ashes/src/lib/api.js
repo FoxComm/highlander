@@ -73,7 +73,7 @@ export function request(method, uri, data, options = {}) {
   let error = null;
 
   const unauthorizedHandler = options.unauthorizedHandler ? options.unauthorizedHandler : () => {
-    window.location.href = '/admin/login';
+    window.location.href = process.env.BEHIND_NGINX ? '/admin/login' : '/login';
   };
 
   const abort = _.bind(result.abort, result);

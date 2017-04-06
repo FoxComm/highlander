@@ -2,8 +2,7 @@
 
 module.exports = function(env) {
   const version = 'v1';
-  const onServer = process.env.ON_SERVER;
-  const loginUri = onServer ? '/admin/login' : '/login';
+  const loginUri = process.env.BEHIND_NGINX ? '/admin/login' : '/login';
 
   function auth() {
     return {
