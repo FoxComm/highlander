@@ -17,10 +17,11 @@ type Props = {
   onClick?: (value: Value) => any,
   className?: string,
   inProgress?: boolean,
+  pillId?: string,
 };
 
 const RoundedPill = (props: Props) => {
-  const { className, onClick, onClose, value, text, inProgress } = props;
+  const { className, onClick, onClose, value, text, inProgress, pillId } = props;
 
   let closeButton = null;
   if (onClose && value) {
@@ -38,7 +39,7 @@ const RoundedPill = (props: Props) => {
   const handleClick = onClick && value ? () => onClick(value) : noop;
 
   return (
-    <div className={cls} key={value}>
+    <div className={cls} key={value} id={pillId}>
       <div className={s.label} onClick={handleClick}>{text}</div>
       {closeButton}
     </div>

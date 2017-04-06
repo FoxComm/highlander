@@ -58,30 +58,30 @@
 
 }
 
-.dropdown-enter,
-.dropdown-leave.dropdown-leave-active {
+.dropdownEnter,
+.dropdownLeave.dropdownLeaveActive {
   display: flex;
   align-items: flex-start;
   height: 0;
   overflow: hidden;
 }
 
-.dropdown-enter.dropdown-enter-active,
-.dropdown-leave {
+.dropdownEnter.dropdownEnterActive,
+.dropdownLeave {
   height: 40px;
   transition: height .1s;
 }
 
-.pill-enter,
-.pill-appear,
-.pill-leave.pill-leave-active {
+.pillEnter,
+.pillAppear,
+.pillLeave.pillLeaveActive {
   opacity: 0.1;
   transform: scale(.8);
 }
 
-.pill-enter.pill-enter-active,
-.pill-appear.pill-appear-active,
-.pill-leave {
+.pillEnter.pillEnterActive,
+.pillAppear.pillAppearActive,
+.pillLeave {
   opacity: 1;
   transform: none;
   transition: all .2s ease-in-out;

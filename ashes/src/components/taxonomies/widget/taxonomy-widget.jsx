@@ -21,6 +21,7 @@ import { addProductCurried as linkProduct } from 'modules/taxons/details/taxon';
 
 // helpers
 import { transitionToLazy } from 'browserHistory';
+import { getTransitionProps } from 'lib/react-utils';
 
 // style
 import styles from './taxonomy-widget.css';
@@ -46,23 +47,10 @@ type State = {
   linkingId: ?number,
   unlinkingId: ?number,
 }
-const transitionProps = {
-  component: 'div',
-  transitionName: styles.dropdown,
-  transitionEnterTimeout: 100,
-  transitionLeaveTimeout: 100,
-};
-
-const pillsTransitionProps = {
-  component: 'div',
-  transitionName: styles.pill,
-  transitionAppear: true,
-  transitionAppearTimeout: 200,
-  transitionEnterTimeout: 200,
-  transitionLeaveTimeout: 200,
-};
 
 const getName = (obj: any) => get(obj, 'attributes.name.v');
+
+const getTransitions = getTransitionProps(styles);
 
 class TaxonomyWidget extends Component {
   props: Props;
@@ -103,8 +91,10 @@ class TaxonomyWidget extends Component {
     // temporary hack for hierarchical taxonomies
     const taxons = sortedUniqBy(get(linkedTaxonomy, 'taxons', []), ({ id }) => id);
 
+    const transitionProps = getTransitions('pill', 200, true);
+
     return (
-      <Transition {...pillsTransitionProps} key="pills">
+      <Transition {...transitionProps} key="pills">
         {taxons.map((taxon: Taxon) => (
           <RoundedPill
             text={getName(taxon)}
@@ -121,6 +111,8 @@ class TaxonomyWidget extends Component {
   }
 
   get dropdown() {
+    const transitionProps = getTransitions('dropdown', 100);
+
     return (
       <Transition {...transitionProps} key="dropdown">
         {this.state.showInput &&
