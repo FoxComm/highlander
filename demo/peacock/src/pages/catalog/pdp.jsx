@@ -69,7 +69,7 @@ type Props = Localized & RoutesParams & {
 
 type State = {
   error?: any,
-  currentSku: Sku|null,
+  currentSku: ?Sku,
   attributes?: Object,
 };
 

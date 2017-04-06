@@ -79,6 +79,7 @@ class ProductDetails extends Component {
     } else {
       selectedVariantValues = dissoc(selectedVariantValues, value.variantType);
     }
+
     this.setState({
       selectedVariantValues,
     }, () => {
@@ -91,14 +92,8 @@ class ProductDetails extends Component {
     if (!product) return;
 
     const [skuCode, exactMatch] = this.findClosestSku(props);
-    let matchedSku;
-    if (skuCode) {
-      matchedSku = _.find(product.skus, sku => sku.attributes.code.v == skuCode);
-    }
-    let unselectedFacets = [];
-    if (!exactMatch) {
-      unselectedFacets = this.getUnselectedFacets(product);
-    }
+    const matchedSku = skuCode ? _.find(product.skus, sku => sku.attributes.code.v == skuCode) : null;
+    const unselectedFacets = exactMatch ? [] : this.getUnselectedFacets(product);
 
     props.onSkuChange(matchedSku, exactMatch, unselectedFacets);
   }
