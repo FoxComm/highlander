@@ -30,15 +30,6 @@
 }
 
 .short-description {
-  margin: 82px 0 0;
-  font-size: 40px;
-  font-weight: 900;
-  line-height: 1.25;
-  color: var(--black);
-  display: none;
-}
-
-.short-description-mobile {
   margin: 0 0 var(--grid-margin);
   font-size: 24px;
   font-weight: 900;
@@ -155,20 +146,20 @@
     margin: 0 0 12px 0;
   }
 
-  .short-description {
-    display: block;
-  }
-
-  .short-description-mobile {
-    display: none;
-  }
-
   .breadcrumbs {
     margin-bottom: 24px;
   }
 
   .cart-actions {
     margin-bottom: 86px;
+  }
+
+  .short-description {
+    margin: 82px 0 0;
+    font-size: 40px;
+    font-weight: 900;
+    line-height: 1.25;
+    color: var(--black);
   }
 }
 
