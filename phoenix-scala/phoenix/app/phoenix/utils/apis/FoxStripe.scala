@@ -1,9 +1,10 @@
 package phoenix.utils.apis
 
+
 import cats.implicits._
-import com.stripe.model.DeletedCard
 import core.db._
 import core.utils.Money._
+import com.stripe.model.{DeletedCard, Token}
 import phoenix.failures.CustomerFailures.CustomerMustHaveCredentials
 import phoenix.models.location.Address
 import phoenix.models.payment.creditcard.CreditCard
@@ -136,4 +137,7 @@ class FoxStripe(stripe: StripeWrapper)(implicit ec: EC) extends FoxStripeApi {
       updated    ← stripe.deleteCard(stripeCard)
     } yield updated
   }
+
+  def retrieveToken(t: String): Result[StripeToken] =
+    stripe.retrieveToken(t)
 }

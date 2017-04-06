@@ -3,6 +3,7 @@ import java.time.Instant
 import akka.http.scaladsl.model.HttpResponse
 import cats.implicits._
 import failures.AddressFailures.NoDefaultAddressForCustomer
+import failures.ApplePayFailures.CustomerShouldPayExactAmount
 import failures.CreditCardFailures.NoDefaultCreditCardForCustomer
 import failures.NotFoundFailure404
 import failures.ShippingMethodFailures.{NoDefaultShippingMethod, ShippingMethodNotFoundByName}
@@ -50,14 +51,17 @@ class ApplePayIntegrationTest
       private val lineItemsPayloads = List(UpdateLineItemsPayload(otherSku.code, 2))
       cartsApi(refNum).lineItems.add(lineItemsPayloads).mustBeOk()
 
+      private val payment = CreateApplePayPayment(
+          token = "random",
+          350000,
+          cartRef = refNum
+      )
+
       storefrontPaymentsApi.applePay
-        .post(
-            CreateApplePayPayment(
-                token = "random",
-                350000,
-                cartRef = refNum
-            ))
-        .mustBeOk()
+        .post(payment)
+        .mustFailWith400(CustomerShouldPayExactAmount(30600, 350000))
+
+      storefrontPaymentsApi.applePay.post(payment.copy(amount = 31600)).mustBeOk()
 
       val grandTotal = cartsApi(refNum).shippingMethod
         .update(UpdateShippingMethod(shipMethod.id))

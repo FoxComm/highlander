@@ -20,7 +20,9 @@ import phoenix.responses.cord.CartResponse
 import phoenix.services.{CartValidator, LogActivity}
 import slick.jdbc.PostgresProfile.api._
 import phoenix.utils.aliases._
+import utils.apis.Apis
 import core.db._
+import failures.ApplePayFailures._
 
 object CartPaymentUpdater {
 
@@ -182,14 +184,23 @@ object CartPaymentUpdater {
       _           ← * <~ LogActivity().orderPaymentMethodDeletedGc(originator, deleteRes, giftCard)
     } yield TheResponse.validated(deleteRes, validated)
 
-  def addApplePayCharge(
-      originator: User,
-      payload: CreateApplePayPayment)(implicit ec: EC, db: DB, ac: AC, ctx: OC): TheFullCart =
+  def addApplePayCharge(originator: User, payload: CreateApplePayPayment)(
+      implicit ec: EC,
+      db: DB,
+      ac: AC,
+      ctx: OC,
+      apis: Apis): TheFullCart =
     for {
       cart ← * <~ getCartByOriginator(originator, payload.cartRef.some)
       _    ← * <~ OrderPayments.filter(_.cordRef === cart.refNum).applePays.delete
 
-      //   todo validate stripe token
+      // make sure stripe token is valid
+      // TODO Fetch all payment info from token!
+//      _ ← * <~ apis.stripe.retrieveToken(payload.token)
+
+      // check if funds spent is not greater than cart's grandTotal.  Final payment check will go later.
+      _ ← * <~ failIfNot(cart.grandTotal >= payload.amount && cart.currency == payload.currency,
+                         CustomerShouldPayExactAmount(cart.grandTotal, payload.amount))
 
       //    create apple charge
       apCharge ← * <~ ApplePayCharges.create(

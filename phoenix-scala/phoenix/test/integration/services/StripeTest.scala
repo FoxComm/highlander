@@ -9,7 +9,8 @@ import phoenix.failures.CreditCardFailures.CardDeclined
 import phoenix.utils.TestStripeSupport._
 import phoenix.utils.apis._
 import phoenix.utils.seeds.Factories
-import com.stripe.model.ApplePayDomain
+import com.stripe.model.{ApplePayDomain, Token}
+import com.stripe.net.RequestOptions
 import testutils._
 import core.utils.Money.Currency.USD
 import utils.RealStripeApi
@@ -213,14 +214,25 @@ class StripeTest extends IntegrationTestBase with RealStripeApi {
       }
     }
 
-    "Try Apple Pay" - {
+    "Test Apple Pay APIs" - {
       import scala.collection.JavaConversions._
 
-      "add domains" in {
-        val map = Map[String, AnyRef]("stage-tpg" → "stage-tpg.foxcommerce.com")
+      "Stripe API should be able to provide allowed domains for Apple Pay" in {
+        val map = Map[String, AnyRef]("domain_name" → "stage-tpg.foxcommerce.com")
         ApplePayDomain.create(mapAsJavaMap(map))
+      }
 
-        // todo add domains and test mb?
+      "Retrieve token and make sure it's valid" in {
+        val gimme = stripe.retrieveToken("random").gimmeFailures
+        gimme.head.description must === ("No such token: random")
+
+        val token: Token = createToken(cardNumber = successfulCard,
+                                       cvv = 123,
+                                       expYear = okExpYear,
+                                       expMonth = okExpMonth,
+                                       address = theAddress).gimme
+
+        stripe.retrieveToken(token.getId).gimme.getId must === (token.getId)
       }
     }
   }
