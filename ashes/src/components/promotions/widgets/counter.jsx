@@ -20,7 +20,7 @@ const CounterWidget = (props: Props) => {
   const value = toNumber(props.context.params[props.name]);
   const setValue = value => {
     props.context.setParams({
-      [props.name]: toNumber(value)
+      [props.name]: CounterWidget.getValue(value)
     });
   };
 
@@ -41,6 +41,10 @@ const CounterWidget = (props: Props) => {
       {...actions}
     />
   );
+};
+
+CounterWidget.getValue = function(value) {
+  return toNumber(value)
 };
 
 export default CounterWidget;

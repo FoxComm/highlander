@@ -110,7 +110,6 @@ export default class PromotionForm extends ObjectDetails {
   }
 
   renderState(): ?Element<*> {
-    const applyType = this.props.object.applyType;
     return super.renderState();
   }
 
@@ -118,8 +117,9 @@ export default class PromotionForm extends ObjectDetails {
     let discountChilds = [];
     const discounts = _.get(this.props.object, 'discounts', []);
     discounts.map((disc,index) => {
-        discountChilds.push(<div styleName="sub-title">Qualifier</div>),
+        discountChilds.push(<div key={'qtitle-'+index} styleName="sub-title">Qualifier</div>),
         discountChilds.push(<DiscountAttrs
+          key={'qual-'+index}
           blockId={'promo-qualifier-block-'+index}
           dropdownId={'promo-qualifier-dd-'+index}
           discount={disc}
@@ -127,8 +127,9 @@ export default class PromotionForm extends ObjectDetails {
           descriptions={qualifiers}
           onChange={this.handleQualifierChange}
         />);
-        discountChilds.push(<div styleName="sub-title">Offer</div>),
+        discountChilds.push(<div key={'otitle-'+index} styleName="sub-title">Offer</div>),
         discountChilds.push(<DiscountAttrs
+          key={'offer-'+index}
           blockId={'promo-offer-block-'+index}
           dropdownId={'promo-offer-dd-'+index}
           discount={disc}

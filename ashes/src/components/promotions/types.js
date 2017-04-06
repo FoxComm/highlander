@@ -21,3 +21,7 @@ export type DescriptionType = {
   content?: Array<DiscountRow>;
 }
 
+export type DiscountWidgetComponent = {
+  getValue: (val: any) => any;
+}
+

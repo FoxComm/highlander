@@ -1,5 +1,7 @@
 /* @flow */
 import _ from 'lodash';
+import { flow, reduce, flatten } from 'lodash/fp';
+import { assoc } from 'sprout-data';
 import React from 'react';
 
 import styles from './attrs-edit.css';
@@ -68,8 +70,23 @@ const DiscountAttrs = (props: Props) => {
   };
 
   const setType = (type: any) => {
+    const newDescription =
+      _.find(props.descriptions, entity => entity.type === type) || props.descriptions[0];
+    const newParams = attrs[type] || {};
+
+    const defaultParams = flow(
+      flatten,
+      reduce((acc, item: ItemDesc) => {
+        const widget = widgets[item.widget];
+        if (widget && widget.getValue) {
+          acc[item.name] = widget.getValue(newParams[item.name]);
+        }
+        return acc;
+      }, {})
+    )(newDescription.content);
+
     props.onChange({
-      [type]: discountParams,
+      [type]: _.assign(defaultParams, discountParams),
     });
   };
 

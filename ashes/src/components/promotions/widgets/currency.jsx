@@ -11,11 +11,17 @@ type Props = ItemDesc & {
   context: Context;
 }
 
+function toNumber(value, def = 0) {
+  const asNumber = Number(value);
+  return isNaN(asNumber) ? def : asNumber;
+}
+
+
 const Currency = (props: Props) => {
   const value = props.context.params[props.name];
   const onChange = value => {
     props.context.setParams({
-      [props.name]: Number(value)
+      [props.name]: Currency.getValue(value)
     });
   };
 
@@ -26,6 +32,10 @@ const Currency = (props: Props) => {
       onChange={onChange}
     />
   );
+};
+
+Currency.getValue = function(value) {
+  return toNumber(value);
 };
 
 export default Currency;
