@@ -1,5 +1,5 @@
-hash: 07c42fb797610e12c3814b0e51d1a84e1e981554d746aeb11bfddd1c393b208b
-updated: 2017-04-05T17:18:51.22817612-07:00
+hash: 26683ecf70fc378fa9129ef9f5994a8a7b47fff5c1575611bcb1dd5e17e2e5aa
+updated: 2017-04-05T17:34:32.977009698-07:00
 imports:
 - name: github.com/cihub/seelog
   version: d2c6e5aa9fbfdd1c624e140287063c7730654115
@@ -23,16 +23,6 @@ imports:
   version: fea3d8822e875ffef3895e68f5c2f172e0dd4300
 - name: github.com/elodina/siesta-producer
   version: a374fc36c515243efb438aed41c536af55d8b19b
-- name: github.com/FoxComm/highlander
-  version: 111fddbb46b2784d7d3472c4ff4f21cec2951bc4
-  subpackages:
-  - middlewarehouse/api/payloads
-  - middlewarehouse/api/responses
-  - middlewarehouse/common/db/utils
-  - middlewarehouse/common/gormfox
-  - middlewarehouse/consumers
-  - middlewarehouse/models
-  - middlewarehouse/models/activities
 - name: github.com/FoxComm/metamorphosis
   version: f357818171523aa95aafb58ca8cf419cb4f0e291
   vcs: git

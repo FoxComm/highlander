@@ -1,4 +1,6 @@
 package: github.com/FoxComm/highlander/intelligence/consumers/orders-sphex
+ignore:
+        - github.com/FoxComm/highlander
 import:
   - package: github.com/FoxComm/metamorphosis
     vcs: git
