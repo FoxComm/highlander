@@ -3,17 +3,14 @@ import _ from 'lodash';
 import React, { PropTypes } from 'react';
 import classNames from 'classnames';
 
+// components
+import WaitAnimation from 'components/common/wait-animation';
+
 // styles
 import s from './typeahead.css';
 
 const TypeaheadItems = props => {
-  let innerContent = null;
-
-  if (props.noResults) {
-    return <div className={classNames(s.items, s['not-found'])}>No results found.</div>;
-  }
-
-  if (!_.isEmpty(props.items)) {
+  if (props.items.length) {
     return (
       <ul className={s.items}>
         {props.items.map(item => (
@@ -27,9 +24,11 @@ const TypeaheadItems = props => {
         ))}
       </ul>
     );
+  } else if (props.updating) {
+    return <div className={s.items}><WaitAnimation /></div>;
   }
 
-  return null;
+  return <div className={classNames(s.items, s['not-found'])}>No results found.</div>;
 };
 
 TypeaheadItems.propTypes = {
@@ -37,12 +36,10 @@ TypeaheadItems.propTypes = {
   updating: PropTypes.bool,
   onItemSelected: PropTypes.func,
   items: PropTypes.array,
-  noResults: PropTypes.bool,
 };
 
 TypeaheadItems.defaultProps = {
   items: [],
-  noResults: false,
 };
 
 export default TypeaheadItems;

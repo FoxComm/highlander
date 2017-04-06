@@ -176,6 +176,7 @@ class ProductAmazonMain extends Component {
             component={CategoryItem}
             initialValue={categoryPath}
             hideOnBlur
+            placeholder="Start typing to search category..."
           />
           <div className={s.approve}>
             <span>
