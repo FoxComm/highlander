@@ -60,6 +60,7 @@
     "no-constant-condition": 2,
     "no-alert": 2,
     "no-debugger": 2,
+    "no-unused-vars": ["warn", { "vars": "local", "args": "none" }],
 
     "no-dupe-args": 2,
     "no-dupe-keys": 2,
