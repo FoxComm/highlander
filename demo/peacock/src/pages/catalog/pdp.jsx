@@ -349,8 +349,8 @@ class Pdp extends Component {
       <div styleName="container">
         <div styleName="gallery">
           {this.renderGallery()}
-          {this.product.shortDescription && (
-            <h2 styleName="short-description">{this.product.shortDescription}</h2>
+          {this.productView.shortDescription && (
+            <h2 styleName="short-description">{this.productView.shortDescription}</h2>
           )}
         </div>
         <div styleName="details">
@@ -368,8 +368,8 @@ class Pdp extends Component {
             />
             {/* <SecondaryButton styleName="one-click-checkout">1-click checkout</SecondaryButton> */}
           </div>
-          {this.product.shortDescription && (
-            <h2 styleName="short-description-mobile">{this.product.shortDescription}</h2>
+          {this.productView.shortDescription && (
+            <h2 styleName="short-description-mobile">{this.productView.shortDescription}</h2>
           )}
           {this.productDetails}
         </div>
