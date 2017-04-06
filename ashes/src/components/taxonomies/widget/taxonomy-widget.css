@@ -50,9 +50,7 @@
 }
 
 /********************************************************
- *
- *                      Animations
- *
+ * Transitions
  ********************************************************/
 
 /* required for transitionName to work as it's used as `transitionName={styles.dropdown}` */

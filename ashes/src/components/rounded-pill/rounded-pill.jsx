@@ -12,7 +12,7 @@ export type Value = string|number;
 
 type Props = {
   text: string,
-  value?: string | number,
+  value?: Value,
   onClose?: (value: Value) => any,
   onClick?: (value: Value) => any,
   className?: string,

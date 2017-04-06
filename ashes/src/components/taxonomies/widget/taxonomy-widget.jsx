@@ -165,7 +165,7 @@ class TaxonomyWidget extends Component {
     return (
       <div className={cls}>
         <div className={styles.header}>
-          <span>{this.props.title}</span>
+          {this.props.title}
           <button className={styles.button} onClick={this.handleShowDropdownClick}><span>&times;</span></button>
         </div>
         {this.content}
