@@ -92,11 +92,11 @@ class Customers extends Component {
     this.props.bulkActions.setMessages({ success, error });
 
     this.setState({
-        addToGroupModalShown: false,
-        customerIds: [],
-      }, () =>
-        groups.forEach(({ id }: TCustomerGroup) =>
-          this.props.bulkActions.addCustomersToGroup(id, customers))
+      addToGroupModalShown: false,
+      customerIds: [],
+    }, () =>
+      groups.forEach(({ id }: TCustomerGroup) =>
+        this.props.bulkActions.addCustomersToGroup(id, customers))
     );
   }
 

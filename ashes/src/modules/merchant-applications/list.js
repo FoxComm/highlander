@@ -24,9 +24,9 @@ export const fetchApplications = _getApplications.perform;
 
 const reducer = createReducer({
   [_getApplications.succeeded]: (state: State, payload: Object): State => {
-	  const applications = get(payload, 'merchant_applications', payload);
-	  return { ...state, applications };
-	},
+    const applications = get(payload, 'merchant_applications', payload);
+    return { ...state, applications };
+  },
 }, initialState);
 
 export default reducer;

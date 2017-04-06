@@ -61,6 +61,7 @@
     "no-alert": 2,
     "no-debugger": 2,
     "no-unused-vars": ["warn", { "vars": "local", "args": "none", varsIgnorePattern: "styles" }],
+
     "no-dupe-args": 2,
     "no-dupe-keys": 2,
     "no-duplicate-case": 2,
@@ -95,6 +96,11 @@
     "no-redeclare": 2,
     "no-self-assign": 2,
     "no-unused-labels": 2,
+
+    "no-delete-var": 2,
+
+    "indent": ["error", 2, { SwitchCase: 1 }],
+    "no-mixed-spaces-and-tabs": 2,
 
     "react/display-name": 0,
     "react/jsx-uses-react": 1,

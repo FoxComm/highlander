@@ -48,7 +48,7 @@ class ColorCircle extends Component {
     }
   }
 
-  render(): Element<*> {
+  render(): Element<any> {
     const {
       reactKey,
       value,
@@ -59,11 +59,15 @@ class ColorCircle extends Component {
 
     const className = classnames(
       colorStyle,
-      isLight(value.color) ? styles['color-checkbox-light'] : styles['color-checkbox']
+      styles['color-checkbox'], {
+        [styles.light]: isLight(value.color),
+      }
     );
 
-    return _.isNil(colorStyle) ? (<div />) :
-      (<div className={className}>
+    if (_.isNil(colorStyle)) return <div />;
+
+    return (
+      <div className={className}>
         <input
           id={reactKey}
           type="checkbox"
@@ -73,7 +77,8 @@ class ColorCircle extends Component {
         <div>
           <label htmlFor={reactKey}>{''}</label>
         </div>
-      </div>);
+      </div>
+    );
   }
 }
 

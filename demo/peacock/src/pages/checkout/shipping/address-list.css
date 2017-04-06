@@ -9,6 +9,7 @@
   border: 1px solid var(--border-color);
   border-radius: 4px;
   margin-bottom: 10px;
+  font-size: 12px;
 }
 
 .chosen {
@@ -34,7 +35,7 @@
   display: flex;
   align-items: flex-start;
   margin-left: 15px;
-  font-size: 17px;
+  font-size: 14px;
 }
 
 .plus-icon {

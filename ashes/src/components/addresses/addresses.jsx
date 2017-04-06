@@ -23,12 +23,13 @@ const Addresses = props => {
         confirm='Yes, Delete'
         onCancel={() => props.stopDeletingAddress(props.customerId) }
         confirmAction={() => {
-            props.stopDeletingAddress();
-            props.deleteAddress(props.customerId, props.deletingId)
-              .then(() => {
-                props.onDeleteAddress && props.onDeleteAddress(props.deletingId);
-              });
-          }} />
+          props.stopDeletingAddress();
+          props.deleteAddress(props.customerId, props.deletingId)
+            .then(() => {
+              props.onDeleteAddress && props.onDeleteAddress(props.deletingId);
+            });
+        }}
+      />
     </div>
   );
 };

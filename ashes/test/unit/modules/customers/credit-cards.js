@@ -54,7 +54,7 @@ describe('customers credit cards module', function() {
 
   context('async actions', function() {
     before(function() {
-      nock(phoenixUrl)
+      nock(process.env.API_URL)
         .get(creditCardsUrl(customerId))
         .reply(200, creditCardPayload);
     });
@@ -87,7 +87,7 @@ describe('customers credit cards module', function() {
 
       beforeEach(function() {
         const uri = creditCardsUrl(customerId);
-        nock(phoenixUrl)
+        nock(process.env.API_URL)
           .get(uri)
           .reply(200, creditCardPayload)
           .post(uri)
@@ -134,7 +134,7 @@ describe('customers credit cards module', function() {
       };
 
       beforeEach(function() {
-        nock(phoenixUrl)
+        nock(process.env.API_URL)
           .get(creditCardsUrl(customerId))
           .reply(200, creditCardPayload)
           .patch(creditCardUrl(customerId, payload.id))
@@ -169,7 +169,7 @@ describe('customers credit cards module', function() {
     context('confirmCreditCardDeletion', function() {
 
       beforeEach(function() {
-        nock(phoenixUrl)
+        nock(process.env.API_URL)
           .get(creditCardsUrl(customerId))
           .reply(200, creditCardPayload)
           .delete(creditCardUrl(customerId, 10))

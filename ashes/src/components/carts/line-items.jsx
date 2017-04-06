@@ -14,7 +14,7 @@ import SkuLineItems, { defaultColumns } from 'components/sku-line-items/sku-line
 import type { SkuItem } from 'paragons/order';
 
 const columns = [
-    ...defaultColumns,
+  ...defaultColumns,
   { field: 'delete', text: '', component: 'DeleteLineItem' }
 ];
 
