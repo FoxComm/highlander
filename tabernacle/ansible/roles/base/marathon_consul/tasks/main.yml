@@ -19,5 +19,8 @@
     daemon_reload: yes
     name: marathon-consul
 
+- name: Copy Consul Service File
+  template: src=marathon-consul.json dest="/etc/consul.d/marathon-consul.json"
+
 - name: Subscribe marathon events to marathon-consul
   command: curl -X POST 'http://marathon.service.consul:8080/v2/eventSubscriptions?callbackUrl=http://marathon-consul.service.consul:4000/events'

@@ -30,7 +30,7 @@
   },
   "Sync": {
     "Enabled": true,
-    "Interval": "15m0s",
+    "Interval": "10m0s",
     "Leader": "",
     "Force": false
   },
