@@ -15,7 +15,7 @@ import settingsRoutes from './routes/settings';
 
 import { getClaims } from 'lib/claims';
 
-const rootPath = process.env.ON_SERVER ? '/admin' : '/';
+const rootPath = process.env.BEHIND_NGINX ? '/admin' : '/';
 const indexRedirect = `${rootPath}/orders`;
 
 export default function makeRoutes(jwtToken) {
