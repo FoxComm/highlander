@@ -30,7 +30,16 @@
 }
 
 .short-description {
-  margin: var(--grid-margin) var(--grid-margin) 0;
+  margin: 82px 0 0;
+  font-size: 40px;
+  font-weight: 900;
+  line-height: 1.25;
+  color: var(--black);
+  display: none;
+}
+
+.short-description-mobile {
+  margin: 0 0 var(--grid-margin);
   font-size: 24px;
   font-weight: 900;
   line-height: 1.25;
@@ -85,7 +94,6 @@
   margin-top: 8px;
 }
 
-
 @media (--medium) {
   .price {
     font-size: 22px;
@@ -127,8 +135,11 @@
   }
 
   .short-description {
-    margin: 82px 0 0;
-    font-size: 40px;
+    display: block;
+  }
+
+  .short-description-mobile {
+    display: none;
   }
 
   .breadcrumbs {

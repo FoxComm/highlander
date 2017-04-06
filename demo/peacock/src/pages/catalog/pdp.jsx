@@ -371,6 +371,9 @@ class Pdp extends Component {
             />
             {/* <SecondaryButton styleName="one-click-checkout">1-click checkout</SecondaryButton> */}
           </div>
+          {this.product.shortDescription && (
+            <h2 styleName="short-description-mobile">{this.product.shortDescription}</h2>
+          )}
           {this.productDetails}
         </div>
         {!_.isEmpty(relatedProducts) && relatedProducts.total ?
