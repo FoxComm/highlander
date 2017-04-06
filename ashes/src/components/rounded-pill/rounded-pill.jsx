@@ -2,7 +2,8 @@
  * @flow
  */
 
-import React, { PropTypes } from 'react';
+import classNames from 'classnames';
+import React from 'react';
 
 import styles from './rounded-pill.css';
 
@@ -12,10 +13,11 @@ type Props = {
   onClose?: (value: string) => void,
   className?: string,
   pillId?: string,
+  inProgress?: boolean,
 };
 
 const RoundedPill = (props: Props) => {
-  const { pillId, className, onClose, value, text } = props;
+  const { pillId, className, onClose, value, text, inProgress } = props;
 
   let closeButton = null;
   if (onClose && value) {
@@ -26,10 +28,13 @@ const RoundedPill = (props: Props) => {
     );
   }
 
-  const styleName = onClose ? 'main-closable' : 'main';
+  const cls = classNames(styles.main, {
+    [styles.closable]: onClose,
+    [styles._loading]: inProgress,
+  }, className);
 
   return (
-    <div id={pillId} styleName={styleName} className={className}>
+    <div id={pillId} className={cls}>
       <div className="fct-pill-label" styleName="text">{text}</div>
       {closeButton}
     </div>

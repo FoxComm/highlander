@@ -14,10 +14,13 @@ import responses.UserResponse.{build ⇒ buildUser}
 import responses._
 import services._
 import slick.driver.PostgresDriver.api._
+import utils.FoxConfig.config
 import utils.aliases._
 import utils.db._
 
 trait AssignmentsManager[K, M <: FoxModel[M]] {
+  val defaultContextId: Int = config.app.defaultContextId
+
   // Assign / unassign
   sealed trait ActionType
   case object Assigning   extends ActionType

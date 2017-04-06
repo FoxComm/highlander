@@ -153,7 +153,7 @@ export function
 percentDifferenceFromAvg(percentValue: number, avgPercentValue: number): number {
   if (avgPercentValue === 0) return 0;
   return _.round(((percentValue - avgPercentValue) / avgPercentValue) * 100, 0);
-};
+}
 
 @connect((state, props) => ({analytics: state.analytics}), AnalyticsActions)
 export default class Analytics extends React.Component {
@@ -369,12 +369,11 @@ export default class Analytics extends React.Component {
       newDateRangeEnd, newDataFetchTimeSize } = this.onDateDropdownChange(selectionIndex);
 
     this.setState({
-        dateDisplay: displayText,
-        dateRangeBegin: newDateRangeBegin,
-        dateRangeEnd: newDateRangeEnd,
-        dataFetchTimeSize: newDataFetchTimeSize,
-      }
-    );
+      dateDisplay: displayText,
+      dateRangeBegin: newDateRangeBegin,
+      dateRangeEnd: newDateRangeEnd,
+      dataFetchTimeSize: newDataFetchTimeSize,
+    });
 
     if (question.title !== questionTitles.ProductConversionRate) {
       this.fetchData(question, newDateRangeBegin, newDateRangeEnd, newDataFetchTimeSize);
@@ -421,23 +420,19 @@ export default class Analytics extends React.Component {
 
   @autobind
   onQuestionBoxSelect(question: QuestionBoxType) {
+    const { dateRangeBegin, dateRangeEnd, dataFetchTimeSize, comparisonPeriod } = this.state;
+
     switch(question.title) {
       case questionTitles.TotalRevenue:
       case questionTitles.TotalOrders:
       case questionTitles.TotalPdPViews:
       case questionTitles.TotalInCarts:
-        const { dateRangeBegin, dateRangeEnd, dataFetchTimeSize } = this.state;
-
-        this.setState({ question: question },
+        this.setState({ question },
           this.fetchData(question, dateRangeBegin, dateRangeEnd, dataFetchTimeSize)
         );
         break;
       case questionTitles.ProductConversionRate:
-        const { comparisonPeriod } = this.state;
-
-        this.setState({
-          question: question
-        },
+        this.setState({ question },
           this.fetchData(
             question,
             comparisonPeriod.dateRangeBegin,
@@ -461,13 +456,13 @@ export default class Analytics extends React.Component {
         newDataFetchTimeSize = (dateRangeBegin === moment().startOf('day').unix())
           ? unixTimes.twoHour
           : unixTimes.day;
-      break;
+        break;
       case segmentTitles.week:
         newDataFetchTimeSize = unixTimes.week;
-      break;
+        break;
       case segmentTitles.month:
         newDataFetchTimeSize = unixTimes.month;
-      break;
+        break;
     }
 
     this.setState({
@@ -558,6 +553,11 @@ export default class Analytics extends React.Component {
           activeSegment={segment}
         />
       );
+      const comparisonCancelButtonVisibility = comparisonPeriod.dataFetchTimeSize > 0
+            ? 'visible'
+            : 'hidden';
+
+      let conversionComparison = {};
 
       switch (question.title) {
         case questionTitles.TotalRevenue:
@@ -586,11 +586,6 @@ export default class Analytics extends React.Component {
             </div>
           );
         case questionTitles.ProductConversionRate:
-          const comparisonCancelButtonVisibility = comparisonPeriod.dataFetchTimeSize > 0
-            ? 'visible'
-            : 'hidden';
-
-          let conversionComparison = {};
           if (_.has(analytics, 'chartValues.Comparison')) {
             conversionComparison = analytics.chartValues.Comparison;
             conversionComparison.Average = analytics.chartValues.Average;

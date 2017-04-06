@@ -7,7 +7,7 @@
   right: 0;
   flex: 1;
   height: 100%;
-  background: rgba(0, 0, 0, 0.3);;
+  background: rgba(0, 0, 0, 0.3);
   opacity: 0;
   transition: opacity .1s;
   transform: translateX(100%);
@@ -17,9 +17,4 @@
   composes: overlay;
   opacity: 1;
   transform: translateX(0);
-}
-
-.no-scroll {
-  overflow: hidden !important;
-  width: auto !important;
 }

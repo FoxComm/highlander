@@ -4,10 +4,12 @@
 import _ from 'lodash';
 import React, { Element } from 'react';
 import { autobind } from 'core-decorators';
+import { transitionTo } from 'browserHistory';
 
 // components
 import { connectPage, ObjectPage } from '../object-page/object-page';
 import SubNav from './sub-nav';
+import SaveCancel from '../common/save-cancel';
 
 // actions
 import * as CouponActions from 'modules/coupons/details';
@@ -19,6 +21,8 @@ type State = {
 
 type Params = {
   couponId: string,
+  promotionId: Number,
+  modalCancelAction: Function,
 };
 
 type Actions = {
@@ -78,6 +82,10 @@ class CouponPage extends ObjectPage {
           return this.props.actions.generateCode(newId, singleCode);
         }).then(() => {
           this.props.actions.couponsGenerationReset();
+        }).then(() => {
+          transitionTo('promotion-coupons',{promotionId: this.props.params.promotionId});
+        }).catch((err) => {
+          this.props.submitError(err.message);
         });
       }
 
@@ -89,6 +97,40 @@ class CouponPage extends ObjectPage {
     }
 
     return willBeCoupon;
+  }
+
+  @autobind
+  receiveNewObject(nextObject) {
+    nextObject.promotion = Number(this.props.params.promotionId);
+    nextObject.attributes.name = { // TO BE REMOVED WHEN COUPON NAME WILL BE REMOVED FROM COUPONS SCHEMA
+      t: 'string',
+      v: 'Coupon name',
+    };
+    this.setState({
+      object: nextObject
+    });
+  }
+
+  componentDidUpdate(prevProps, prevState) { // CHECK IF NEEDED AFTER KANGAROOS MERGE
+    return;
+  }
+
+  @autobind
+  titleBar() {
+    return;
+  }
+
+  @autobind
+  alterSave() {
+    return (
+      <SaveCancel
+        onSave={this.handleSubmit}
+        cancelDisabled={this.props.isSaving}
+        saveDisabled={this.props.isSaving}
+        onCancel={this.props.params.modalCancelAction}
+        saveText="Generate Coupon Code(s)"
+      />
+    );
   }
 
   @autobind
@@ -144,7 +186,7 @@ class CouponPage extends ObjectPage {
   }
 
   subNav() {
-    return <SubNav params={this.props.params} />;
+    return null;
   }
 }
 

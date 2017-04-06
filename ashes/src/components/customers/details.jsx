@@ -62,4 +62,4 @@ export default class CustomerDetails extends React.Component {
       </div>
     );
   }
-};
+}

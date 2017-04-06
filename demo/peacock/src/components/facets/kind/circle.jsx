@@ -26,8 +26,10 @@ class Circle extends Component {
 
   @autobind
   click(event: SyntheticInputEvent) {
+    const { facet, value } = this.props;
+
     if (this.props.click) {
-      this.props.click(this.props.facet, this.props.value, event.target.checked);
+      this.props.click(facet, value, event.target.checked);
     }
     if (this.props.checked == null) {
       this.setState({checked: event.target.checked});
@@ -36,22 +38,20 @@ class Circle extends Component {
 
   render(): Element<*> {
     const {
-      facet,
+      reactKey,
       label,
     } = this.props;
-
-    const id = `${facet}-check-${label}`;
 
     return (
       <div styleName="circle-checkbox">
         <input
-          id={id}
+          id={reactKey}
           type="checkbox"
           checked={this.state.checked}
           onChange={this.click}
         />
         <div>
-          <label htmlFor={id}>
+          <label htmlFor={reactKey}>
             {label}
           </label>
         </div>

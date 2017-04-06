@@ -1,30 +1,21 @@
 /* @flow */
 
 // libs
-import _ from 'lodash';
-import React, { Component, PropTypes, Element } from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
+import React, { Component } from 'react';
 import { autobind } from 'core-decorators';
-
-// helpers
-import { getStore } from 'lib/store-creator';
 
 // styles
 import styles from './shipment-row.css';
 
 // components
-import Currency from 'components/common/currency';
 import TableRow from 'components/table/row';
 import TableCell from 'components/table/cell';
 import { DateTime } from 'components/common/datetime';
 import AddressDetails from 'components/addresses/address-details';
 import ShippedItem from './shipped-item';
 import Transaction from './transaction';
-import WaitAnimation from 'components/common/wait-animation';
 
-//types
-import type { Dictionary } from 'paragons/types';
+// types
 import type { TShippingMethod, TShipmentLineItem } from 'paragons/shipment';
 
 type Props = {

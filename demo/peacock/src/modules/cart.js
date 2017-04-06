@@ -241,12 +241,16 @@ function updateCartState(state, cart) {
   const data = getLineItems(cart);
   const quantity = totalSkuQuantity(cart);
   const shippingAddress = _.get(cart, 'shippingAddress', {});
+  const coupon = _.get(cart, 'coupon', {});
+  const shippingMethod = _.get(cart, 'shippingMethod', {});
 
   return {
     ...state,
     skus: data,
     quantity,
     shippingAddress,
+    coupon,
+    shippingMethod,
     ...cart,
   };
 }

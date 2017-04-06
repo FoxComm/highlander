@@ -7,6 +7,7 @@ import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import * as actions from 'modules/products';
 import { categoryNameFromUrl } from 'paragons/categories';
+import { PAGE_SIZE } from 'modules/products';
 
 // components
 import ProductsList, { LoadingBehaviors } from 'components/products-list/products-list';
@@ -44,6 +45,7 @@ type Props = {
   routes: Array<Route>,
   routerParams: Object,
   facets: Array<Facet>,
+  total: number,
 };
 
 type State = {
@@ -51,6 +53,7 @@ type State = {
     direction: number,
     field: string,
   },
+  toLoad: number,
   selectedFacets: {},
 };
 
@@ -64,7 +67,7 @@ const mapStateToProps = (state) => {
 };
 
 const facetWhitelist = [
-  'gender', 'category', 'color', 'brand', 'sport',
+  'GENDER', 'CATEGORY', 'COLOR', 'BRAND', 'SPORT',
 ];
 
 class Products extends Component {
@@ -74,6 +77,7 @@ class Products extends Component {
       direction: 1,
       field: 'salePrice',
     },
+    toLoad: PAGE_SIZE,
     selectedFacets: {},
   };
   lastFetch: ?AbortablePromise<*>;
@@ -89,8 +93,8 @@ class Products extends Component {
 
   componentWillMount() {
     const { categoryName, subCategory, leafCategory } = this.props.params;
-    const { sorting, selectedFacets } = this.state;
-    this.fetch([categoryName, subCategory, leafCategory], sorting, selectedFacets);
+    const { sorting, selectedFacets, toLoad } = this.state;
+    this.fetch([categoryName, subCategory, leafCategory], sorting, selectedFacets, toLoad);
   }
 
   componentWillReceiveProps(nextProps: Props) {
@@ -109,7 +113,8 @@ class Products extends Component {
       this.fetch(
         [nextCategoryName, nextSubCategory, nextLeafCategory],
         this.state.sorting,
-        this.state.selectedFacets
+        this.state.selectedFacets,
+        this.state.toLoad
       );
     }
   }
@@ -127,9 +132,20 @@ class Products extends Component {
       direction,
     };
 
-    this.setState({selectedFacets, sorting: newState}, () => {
+    this.setState({selectedFacets, sorting: newState, toLoad: PAGE_SIZE}, () => {
       const { categoryName, subCategory, leafCategory } = this.props.params;
-      this.props.fetch([categoryName, subCategory, leafCategory], newState, selectedFacets);
+      this.props.fetch([categoryName, subCategory, leafCategory], newState, selectedFacets, PAGE_SIZE);
+    });
+  }
+
+  @autobind
+  fetchMoreProducts() {
+    const { categoryName, subCategory, leafCategory } = this.props.params;
+    const { sorting, selectedFacets, toLoad } = this.state;
+
+    const nextToLoad = toLoad + PAGE_SIZE;
+    this.setState({ toLoad: nextToLoad }, () => {
+      this.props.fetch([categoryName, subCategory, leafCategory], sorting, selectedFacets, nextToLoad);
     });
   }
 
@@ -139,7 +155,7 @@ class Products extends Component {
   }
 
   @autobind
-  onSelectFacet(facet, value, selected) {
+  newFacetSelectState(facet: string, value: string, selected: boolean) {
     const newSelection = this.state.selectedFacets;
     if (selected) {
       if (facet in newSelection) {
@@ -153,46 +169,50 @@ class Products extends Component {
         return v != value;
       });
     }
+    return newSelection;
+  }
 
-    this.setState({selectedFacets: newSelection, sorting: this.state.sorting}, () => {
+  @autobind
+  onSelectFacet(facet: string, value: string, selected: boolean) {
+    const newSelection = this.newFacetSelectState(facet, value, selected);
+
+    this.setState({selectedFacets: newSelection, sorting: this.state.sorting, toLoad: PAGE_SIZE}, () => {
       const { categoryName, subCategory, leafCategory } = this.props.params;
-      this.fetch([categoryName, subCategory, leafCategory], this.state.sorting, newSelection);
+      this.fetch([categoryName, subCategory, leafCategory], this.state.sorting, newSelection, PAGE_SIZE);
     });
   }
 
-  renderHeader() {
-    const { params } = this.props;
-    const { categoryName, subCategory, leafCategory } = params;
+  @autobind
+  onSelectMobileFacet(facet, value, selected) {
+    const newSelection = this.newFacetSelectState(facet, value, selected);
+    this.setState({selectedFacets: newSelection, sorting: this.state.sorting});
+  }
 
-    let realCategoryName = '';
-    if (leafCategory) {
-      realCategoryName = this.categoryName(leafCategory);
-    } else if (subCategory) {
-      realCategoryName = this.categoryName(subCategory);
-    } else if (categoryName) {
-      realCategoryName = this.categoryName(categoryName);
-    }
+  @autobind
+  hideMenuBar() {
+    const header = document.getElementById('header');
+    if (header) header.style.display = 'none';
+  }
 
-    return (
-      <header styleName="header">
-        <div styleName="crumbs">
-          <Breadcrumbs
-            routes={this.props.routes}
-            params={this.props.routerParams}
-          />
-        </div>
-        <div>
-          <h1 styleName="title">{realCategoryName}</h1>
-        </div>
-      </header>
-    );
+  @autobind
+  showMenuBar() {
+    const header = document.getElementById('header');
+    if (header) header.style.display = 'inline';
+  }
+
+  @autobind
+  applyMobileFilters() {
+    this.showMenuBar();
+    const { categoryName, subCategory, leafCategory } = this.props.params;
+    const { sorting, selectedFacets} = this.state;
+    this.fetch([categoryName, subCategory, leafCategory], sorting, selectedFacets, PAGE_SIZE);
   }
 
   get navBar(): ?Element<*> {
     return <div />;
   }
 
-  renderSidebar() {
+  determineRealCategoryName() {
     const { params } = this.props;
     const { categoryName, subCategory, leafCategory } = params;
 
@@ -204,6 +224,12 @@ class Products extends Component {
     } else if (categoryName) {
       realCategoryName = this.categoryName(categoryName);
     }
+
+    return realCategoryName;
+  }
+
+  renderSidebar() {
+    const realCategoryName = this.determineRealCategoryName();
 
     return (
       <div styleName="sidebar">
@@ -216,32 +242,115 @@ class Products extends Component {
         <div styleName="title">
           {realCategoryName}
         </div>
-        <Facets facets={this.props.facets} whitelist={facetWhitelist} onSelect={this.onSelectFacet} />
+        <Facets
+          prefix={'big'}
+          facets={this.props.facets}
+          whitelist={facetWhitelist}
+          onSelect={this.onSelectFacet}
+        />
       </div>
     );
   }
 
+  renderMobileSidebar() {
+    return (
+      <div styleName="sidebar-mobile">
+        <div styleName="sidebar-mobile-filter-header">
+          <div styleName="sidebar-mobile-filters">Filters</div>
+          <label
+            htmlFor={'sidebar-mobile-checkbox'}
+            styleName="sidebar-mobile-close"
+            onClick={this.showMenuBar}
+          >
+            Close
+          </label>
+        </div>
+        <Facets
+          prefix={'mobile'}
+          facets={this.props.facets}
+          whitelist={facetWhitelist}
+          onSelect={this.onSelectMobileFacet}
+        />
+        <div styleName="sidebar-mobile-footer">
+          <label
+            htmlFor={'sidebar-mobile-checkbox'}
+            styleName="sidebar-mobile-apply"
+            onClick={this.applyMobileFilters}
+          >
+            Apply Filters
+          </label>
+        </div>
+      </div>
+    );
+  }
+
+  renderContent() {
+    const { finished } = this.props.fetchState;
+    const moreAvailable = this.props.list.length !== this.props.total;
+
+    return (
+      <div styleName="content">
+        <ProductsList
+          sorting={this.state.sorting}
+          changeSorting={this.changeSorting}
+          list={this.props.list}
+          isLoading={!finished}
+          loadingBehavior={LoadingBehaviors.ShowWrapper}
+          fetchMoreProducts={this.fetchMoreProducts}
+          moreAvailable={moreAvailable}
+        />
+      </div>);
+  }
+
+  renderMobileContent() {
+    const realCategoryName = this.determineRealCategoryName();
+    const moreAvailable = this.props.list.length !== this.props.total;
+
+    const { finished } = this.props.fetchState;
+    return (
+      <div styleName="content-mobile">
+        <div styleName="crumbs">
+          <Breadcrumbs
+            routes={this.props.routes}
+            params={this.props.routerParams}
+          />
+        </div>
+        <div styleName="title">
+          {realCategoryName}
+        </div>
+        <ProductsList
+          sorting={this.state.sorting}
+          changeSorting={this.changeSorting}
+          list={this.props.list}
+          isLoading={!finished}
+          loadingBehavior={LoadingBehaviors.ShowWrapper}
+          fetchMoreProducts={this.fetchMoreProducts}
+          moreAvailable={moreAvailable}
+          filterOnClick={this.hideMenuBar}
+          filterFor={'sidebar-mobile-checkbox'}
+        />
+      </div>);
+  }
+
   get body(): Element<any> {
-    const { err, finished } = this.props.fetchState;
+    const { err } = this.props.fetchState;
     if (err) {
       return <ErrorAlerts styleName="products-error" error={err} />;
     }
+
     return (
       <div>
         <div styleName="dropDown">
           {this.navBar}
         </div>
+        <div styleName="facetted-container-mobile">
+          <input styleName="sidebar-mobile-checkbox" id="sidebar-mobile-checkbox" type="checkbox" />
+          {this.renderMobileSidebar()}
+          {this.renderMobileContent()}
+        </div>
         <div styleName="facetted-container">
           {this.renderSidebar()}
-          <div styleName="content">
-            <ProductsList
-              sorting={this.state.sorting}
-              changeSorting={this.changeSorting}
-              list={this.props.list}
-              isLoading={!finished}
-              loadingBehavior={LoadingBehaviors.ShowWrapper}
-            />
-          </div>
+          {this.renderContent()}
         </div>
       </div>
     );

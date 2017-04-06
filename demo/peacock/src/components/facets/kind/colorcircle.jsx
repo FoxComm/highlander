@@ -48,34 +48,37 @@ class ColorCircle extends Component {
     }
   }
 
-  render(): Element<*> {
+  render(): Element<any> {
     const {
-      facet,
+      reactKey,
       value,
       label,
     } = this.props;
-
-    const id = `${facet}-color-${label}`;
 
     const colorStyle = styles[value.color];
 
     const className = classnames(
       colorStyle,
-      isLight(value.color) ? styles['color-checkbox-light'] : styles['color-checkbox']
+      styles['color-checkbox'], {
+        [styles.light]: isLight(value.color),
+      }
     );
 
-    return _.isNil(colorStyle) ? (<div />) :
-      (<div className={className}>
+    if (_.isNil(colorStyle)) return <div />;
+
+    return (
+      <div className={className}>
         <input
-          id={id}
+          id={reactKey}
           type="checkbox"
           checked={this.state.checked}
           onChange={this.click}
         />
         <div>
-          <label htmlFor={id}>{''}</label>
+          <label htmlFor={reactKey}>{''}</label>
         </div>
-      </div>);
+      </div>
+    );
   }
 }
 

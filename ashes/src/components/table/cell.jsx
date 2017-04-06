@@ -10,6 +10,7 @@ import Currency from '../common/currency';
 import State from '../common/state';
 import Change from '../common/change';
 import Link from '../link/link';
+import ProductImage from 'components/imgix/product-image';
 
 function getCurrency(column, row) {
   const currencyField = column.currencyField;
@@ -22,7 +23,7 @@ function getCell(column, children, row) {
     case 'id':
       return <Link to={column.model} params={{[column.model]: children}}>{children}</Link>;
     case 'image':
-      return <img src={children} />;
+      return <ProductImage src={children} width={50} height={50} />;
     case 'state':
       return <State value={children} model={column.model} />;
     case 'currency':

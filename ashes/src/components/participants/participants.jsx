@@ -123,7 +123,7 @@ class Participants extends Component {
         </div>
       </div>
     );
-  };
+  }
 
   renderCell(user, hidden = false) {
     const { id } = user;
@@ -141,7 +141,7 @@ class Participants extends Component {
         />
       </div>
     );
-  };
+  }
 
   get usersRow() {
     const { props } = this;

@@ -94,19 +94,14 @@ class Billing extends Component {
   }
 
   get coupon() {
-    const { coupon, promotion, totals } = this.props;
-    if (!coupon) return null;
+    const { coupon } = this.props;
+    if (_.isEmpty(coupon)) return null;
 
     return (
       <div styleName="promo-line">
         <PromoCode
-          placeholder="Coupon Code"
           coupon={coupon}
-          promotion={promotion}
-          discountValue={totals.adjustments}
           allowDelete={false}
-          editable={false}
-          context="billingView"
         />
       </div>
     );
@@ -118,11 +113,8 @@ class Billing extends Component {
     return (
       <div styleName="promo-line">
         <PromoCode
-          placeholder="Gift Card Number"
           giftCards={this.giftCards}
           allowDelete={false}
-          editable={false}
-          context="billingView"
         />
       </div>
     );
@@ -136,8 +128,8 @@ class Billing extends Component {
     return (
       <div styleName="billing-summary">
         <ViewBilling billingData={creditCard} />
-        {this.coupon}
         {this.giftCard}
+        {this.coupon}
         <Modal
           show={paymentModalVisible}
           toggle={this.props.togglePaymentModal}

@@ -111,9 +111,8 @@ class User extends Component {
   @autobind
   handleNewUserSubmit() {
     this.props.createUser(this.state.user).then(({ payload }) => {
-        transitionTo('user', {userId: payload.id});
-      }
-    );
+      transitionTo('user', {userId: payload.id});
+    });
   }
 
   renderNewUserTitle() {

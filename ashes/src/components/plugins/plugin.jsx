@@ -4,6 +4,7 @@ import _ from 'lodash';
 import React, { Component, Element } from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
+import { transitionToLazy } from 'browserHistory';
 import styles from './plugin.css';
 
 import { PageTitle } from 'components/section-title';
@@ -23,7 +24,8 @@ type Props = {
   settings: Object,
   schema: Object,
   isFetching: boolean,
-}
+  isSaving: boolean,
+};
 
 const pluginName = (props: Props): string => {
   return props.params.name;
@@ -47,11 +49,11 @@ function attributesFromSettings(settingsWithSchema: Object): Attributes {
   const schema: Object = settingsWithSchema.schema;
 
   return _.reduce(schema, (acc:Attributes, property: SettingDef) => {
-      const value = settings[property.name];
-      acc[property.name] = {
-        t: guessType(value),
-        v: value
-      };
+    const value = settings[property.name];
+    acc[property.name] = {
+      t: guessType(value),
+      v: value
+    };
     return acc;
   }, {});
 }
@@ -63,18 +65,20 @@ function settingsFromAttributes(attributes: Attributes): Object {
   }, {});
 }
 
-function mapStateToProps(state) {
+function mapStateToProps(state, props) {
+  const pluginInfo = _.get(state.plugins.detailed, pluginName(props), {});
   return {
-    settings: state.plugins.settings,
-    schema: state.plugins.schema,
+    settings: _.get(pluginInfo, 'settings', {}),
+    schema: _.get(pluginInfo, 'schema', []),
     isFetching: _.get(state.asyncActions, 'fetchPluginSettings.inProgress', null),
+    isSaving: _.get(state.asyncActions, 'setPluginSettings.inProgress', null),
   };
 }
 
 type State = {
   settings: Object,
   schema: Object,
-}
+};
 
 class Plugin extends Component {
   props: Props;
@@ -134,8 +138,9 @@ class Plugin extends Component {
             onChange={this.handleChange}
           />
           <SaveCancel
-            cancelTo="plugins"
+            onCancel={transitionToLazy('plugins')}
             onSave={this.handleSave}
+            isLoading={this.props.isSaving}
           />
         </div>
       );

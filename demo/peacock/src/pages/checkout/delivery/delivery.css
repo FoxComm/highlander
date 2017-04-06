@@ -2,7 +2,7 @@
 @import "media-queries.css";
 
 .title {
-  font-size: 19px;
+  font-size: 16px;
   font-weight: 900;
   color: var(--text-color);
 }
@@ -16,8 +16,7 @@
 
 .action-link-delivery {
   composes: action-link from "ui/action-link/action-link.css";
-  font-size: 16px;
-  margin-right: 16px;
+  font-size: 14px;
 }
 
 .delivery {
@@ -25,8 +24,7 @@
   justify-content: space-between;
   align-items: baseline;
   padding-bottom: 15px;
-  padding-right: 6px;
-  font-size: 14px;
+  font-size: 12px;
 
   & .method {
     line-height: 1.33;
@@ -52,7 +50,8 @@
   border: 1px solid var(--border-color);
   border-radius: 4px;
   margin-bottom: 10px;
-  line-height: 1.6;
+  line-height: 1.33;
+  font-size: 12px;
 }
 
 .chosen {
@@ -62,11 +61,13 @@
 
 .method-name {
   font-weight: 900;
+  line-height: 1.6;
 }
 
 @media (--large) {
   .delivery {
     padding-right: 0;
+    padding-bottom: 0;
   }
 
   .action-link-delivery {

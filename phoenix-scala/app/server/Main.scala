@@ -1,11 +1,8 @@
 package server
 
-import scala.collection.immutable
-import scala.concurrent.duration._
-import scala.concurrent.{Await, ExecutionContext, Future}
 import akka.actor.{ActorSystem, Props}
 import akka.agent.Agent
-import akka.event.Logging
+import akka.event.{Logging, LoggingAdapter}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl.server.Directives._
@@ -14,20 +11,23 @@ import akka.http.scaladsl.server._
 import akka.stream.ActorMaterializer
 import com.stripe.Stripe
 import com.typesafe.scalalogging.LazyLogging
-import models.account.{AccountAccessMethod, Scopes}
+import models.account.{AccountAccessMethod, Scope, Scopes}
 import org.json4s._
 import org.json4s.jackson._
-import services.account.AccountCreateContext
 import services.Authenticator
-import services.Authenticator.UserAuthenticator
-import services.Authenticator.requireAdminAuth
+import services.Authenticator.{UserAuthenticator, requireAdminAuth}
+import services.account.AccountCreateContext
 import services.actors._
 import slick.driver.PostgresDriver.api._
 import utils.apis._
+import utils.db._
 import utils.http.CustomHandlers
 import utils.http.HttpLogger.logFailedRequests
 import utils.{ElasticsearchApi, Environment, FoxConfig}
-import utils.db._
+
+import scala.collection.immutable
+import scala.concurrent.duration._
+import scala.concurrent.{Await, ExecutionContext, ExecutionContextExecutor, Future}
 
 object Main extends App with LazyLogging {
   logger.info("Starting phoenix server")
@@ -67,31 +67,31 @@ class Service(
     ActorSystem.create("Orders", FoxConfig.unsafe)
   }
 
-  val threadPool                = java.util.concurrent.Executors.newCachedThreadPool()
-  implicit val executionContext = ExecutionContext.fromExecutor(threadPool)
+  private val threadPool = java.util.concurrent.Executors.newCachedThreadPool()
+  implicit val executionContext: ExecutionContextExecutor =
+    ExecutionContext.fromExecutor(threadPool)
 
   implicit val materializer: ActorMaterializer = ActorMaterializer()
 
-  val logger = Logging(system, getClass)
+  val logger: LoggingAdapter = Logging(system, getClass)
 
-  implicit val db: Database  = dbOverride.getOrElse(Database.forConfig("db", FoxConfig.unsafe))
-  lazy val defaultApis: Apis = Apis(setupStripe(), new AmazonS3, setupMiddlewarehouse())
-  implicit val apis: Apis    = apisOverride.getOrElse(defaultApis: Apis)
-  implicit val es: ElasticsearchApi =
-    esOverride.getOrElse(ElasticsearchApi.fromConfig(FoxConfig.config))
+  implicit val db: Database = dbOverride.getOrElse(Database.forConfig("db", FoxConfig.unsafe))
+  lazy val defaultApis: Apis =
+    Apis(setupStripe(), new AmazonS3, setupMiddlewarehouse(), setupElasticSearch())
+  implicit val apis: Apis = apisOverride.getOrElse(defaultApis: Apis)
 
-  val roleName = config.users.customer.role
-  val orgName  = config.users.customer.org
-  val scopeId  = config.users.customer.scopeId
+  private val roleName: String = config.users.customer.role
+  private val orgName: String  = config.users.customer.org
+  private val scopeId: Int     = config.users.customer.scopeId
 
-  val scope = Await
+  private val scope: Scope = Await
     .result(Scopes.findOneById(scopeId).run(), Duration.Inf)
     .getOrElse(throw new RuntimeException(s"Unable to find a scope with id $scopeId"))
 
-  val customerCreateContext                = AccountCreateContext(List(roleName), orgName, scopeId)
+  private val customerCreateContext        = AccountCreateContext(List(roleName), orgName, scopeId)
   implicit val userAuth: UserAuthenticator = Authenticator.forUser(customerCreateContext)
 
-  val defaultRoutes = {
+  val defaultRoutes: Route = {
     pathPrefix("v1") {
       routes.AuthRoutes.routes(scope.ltree) ~
       routes.Public.routes(customerCreateContext, scope.ltree) ~
@@ -129,7 +129,7 @@ class Service(
     }
   }
 
-  lazy val devRoutes = {
+  lazy val devRoutes: Route = {
     pathPrefix("v1") {
       requireAdminAuth(userAuth) { implicit auth ⇒
         routes.admin.DevRoutes.routes
@@ -137,7 +137,7 @@ class Service(
     }
   }
 
-  val allRoutes = {
+  val allRoutes: Route = {
     val routes = if (!env.isProd) {
       logger.info("Activating dev routes")
       addRoutes.foldLeft(defaultRoutes ~ devRoutes)(_ ~ _)
@@ -194,6 +194,13 @@ class Service(
     new FoxStripe(new StripeWrapper())
   }
 
-  def setupMiddlewarehouse(): Middlewarehouse =
+  def setupMiddlewarehouse(): Middlewarehouse = {
+    logger.info("Setting up MWH...")
     new Middlewarehouse(config.apis.middlewarehouse.url)
+  }
+
+  def setupElasticSearch(): ElasticsearchApi = {
+    logger.info("Setting up Elastic Search")
+    ElasticsearchApi.fromConfig(FoxConfig.config)
+  }
 }

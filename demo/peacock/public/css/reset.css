@@ -23,15 +23,6 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-smooth: always;
-  overflow: hidden;
-  position: fixed;
-}
-
-#app {
-  overflow: auto;
-  width: 100vw;
-  height: 100vh;
-  padding-top: 50px;
 }
 
 fieldset {
@@ -41,7 +32,7 @@ fieldset {
 }
 
 input, textarea, keygen, select, button {
-  font-family: Roboto, Helvetica, sans-serif;
+  font-family: Lato, Helvetica, sans-serif;
 }
 
 hr {

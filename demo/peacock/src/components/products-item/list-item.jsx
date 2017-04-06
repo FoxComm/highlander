@@ -12,6 +12,7 @@ import * as tracking from 'lib/analytics';
 
 import Currency from 'ui/currency';
 import ImagePlaceholder from './image-placeholder';
+import ProductImage from 'components/image/image';
 
 type Image = {
   alt?: string,
@@ -76,7 +77,7 @@ class ListItem extends React.Component {
     const previewImageUrl = _.get(this.props.albums, [0, 'images', 0, 'src']);
 
     return previewImageUrl
-      ? <img src={previewImageUrl} styleName="preview-image" ref="image" />
+      ? <ProductImage src={previewImageUrl} styleName="preview-image" ref="image" width={300} height={300} />
       : <ImagePlaceholder ref="image" />;
   }
 
@@ -133,22 +134,22 @@ class ListItem extends React.Component {
 
     return (
       <div styleName="list-item">
-        <Link onClick={this.handleClick} to={`/products/${productSlug}`}>
+        <Link styleName="link" onClick={this.handleClick} to={`/products/${productSlug}`}>
           <div styleName="preview">
             {this.image}
           </div>
-        </Link>
 
-        <div styleName="text-block">
-          <div styleName="title-line">
-            <h1 styleName="title" alt={title}>
-              <Link to={`/products/${productSlug}`}>{title}</Link>
-            </h1>
+          <div styleName="text-block">
+            <div styleName="title-line">
+              <h1 styleName="title" alt={title}>
+                {title}
+              </h1>
+            </div>
+            <div styleName="price-line">
+              {this.isOnSale()}
+            </div>
           </div>
-          <div styleName="price-line">
-            {this.isOnSale()}
-          </div>
-        </div>
+        </Link>
       </div>
     );
   }

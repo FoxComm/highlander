@@ -1,0 +1,10 @@
+.block {
+  display: inline-flex; /* not just `flex` because of legacy */
+  align-items: center;
+  justify-content: center;
+}
+
+.text {
+  display: block;
+  line-height: 1.2;
+}

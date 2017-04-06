@@ -8,12 +8,11 @@ import CustomerLink from './customer-link';
 
 const AuthorTitle = props => {
   const { activity } = props;
-
   const userType = _.get(activity, ['context', 'userType'], 'system');
+  const adminName = _.get(activity, ['data', 'admin', 'name']);
 
   switch (userType) {
     case 'user':
-      const adminName = _.get(activity, ['data', 'admin', 'name']);
       if (!_.isEmpty(adminName)) {
         return <span>{adminName}</span>;
       } else if (activity.data.user) {

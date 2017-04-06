@@ -28,6 +28,7 @@ export type Product = {
 };
 
 export const MAX_RESULTS = 1000;
+export const PAGE_SIZE = 20;
 const context = process.env.FIREBIRD_CONTEXT || 'default';
 export const GIFT_CARD_TAG = 'GIFT-CARD';
 
@@ -35,6 +36,7 @@ function apiCall(
   categoryNames: ?Array<string>,
   sorting: ?{ direction: number, field: string },
   selectedFacets: Object,
+  loaded: number,
   { ignoreGiftCards = true } = {}): Promise<*> {
   let payload = defaultSearch(context);
 
@@ -65,7 +67,7 @@ function apiCall(
     }
   });
 
-  const promise = this.api.post(`/search/public/products_catalog_view/_search?size=${MAX_RESULTS}`, payload);
+  const promise = this.api.post(`/search/public/products_catalog_view/_search?size=${loaded}`, payload);
 
   const chained = promise.then((response) => {
     return {
@@ -78,7 +80,7 @@ function apiCall(
 }
 
 export function searchGiftCards() {
-  return apiCall.call({ api }, [GIFT_CARD_TAG], null, { ignoreGiftCards: false });
+  return apiCall.call({ api }, [GIFT_CARD_TAG], null, {}, MAX_RESULTS, { ignoreGiftCards: false });
 }
 
 const _fetchProducts = createAsyncActions('products', apiCall);
@@ -87,11 +89,12 @@ export const fetch = _fetchProducts.perform;
 const initialState = {
   list: [],
   facets: [],
+  total: 0,
 };
 
 function determineFacetKind(f: string): string {
-  if (f.includes('color')) return 'color';
-  else if (f.includes('size')) return 'circle';
+  if (f.includes('COLOR')) return 'color';
+  else if (f.includes('SIZE')) return 'circle';
   return 'checkbox';
 }
 
@@ -406,7 +409,7 @@ const fancyColors = {
   'Yellow Cab': 'yellow',
 };
 
-function mapFacetValue(v, kind) {
+export function mapFacetValue(v: string, kind: string): string|Object {
   let value = v;
   if (kind == 'color') {
     const color = (v in fancyColors) ? fancyColors[v] : _.toLower(v).replace(/\s/g, '');
@@ -441,8 +444,11 @@ const reducer = createReducer({
   [_fetchProducts.succeeded]: (state, action) => {
     const {payload, selectedFacets} = action;
     const payloadResult = payload.result;
-    const aggregations = _.isNil(payload.aggregations) ? [] : payload.aggregations.taxonomies.taxonomy.buckets;
+    const aggregations = _.isNil(payload.aggregations)
+      ? []
+      : _.get(payload, 'aggregations.taxonomies.taxonomy.buckets', []);
     const list = _.isEmpty(payloadResult) ? [] : payloadResult;
+    const total = _.get(payload, 'pagination.total', 0);
 
     const queryFacets = mapAggregationsToFacets(aggregations);
 
@@ -456,17 +462,22 @@ const reducer = createReducer({
       // Keep existinged selected facets and only change unselected ones..
       // This avoids quiries that would return empty results.
       // While also keeping the interface from changing too much.
-      const groupedQueyFacets = _.groupBy(queryFacets, (f) => { return f.key; });
+      const groupedQueyFacets = _.groupBy(queryFacets, 'key');
 
-      facets = _.map(state.facets, (v) => {
-        return (!_.isEmpty(selectedFacets[v.key])) ? v : groupedQueyFacets[v.key][0];
-      });
+      facets = _.compact(_.map(state.facets, (v) => {
+        if (!_.isEmpty(selectedFacets[v.key])) {
+          return v;
+        }
+
+        return _.isArray(groupedQueyFacets[v.key]) ? groupedQueyFacets[v.key][0] : null;
+      }));
     }
 
     return {
       ...state,
       list,
       facets,
+      total,
     };
   },
 }, initialState);

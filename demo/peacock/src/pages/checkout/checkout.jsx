@@ -17,7 +17,7 @@ import Billing from './billing/billing';
 import GuestAuth from './guest-auth/guest-auth';
 import Products from 'components/order-summary/product-table';
 import Header from 'components/header/header';
-import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
+import ErrorAlerts from 'ui/alerts/error-alerts';
 import Loader from 'ui/loader';
 import OrderTotals from 'components/order-summary/totals';
 import Button from 'ui/buttons';
@@ -52,14 +52,18 @@ type Props = CheckoutState & CheckoutActions & {
 };
 
 type State = {
-  cart: Object,
+  shippingDone: boolean,
+  deliveryDone: boolean,
+  billingDone: boolean,
 }
 
 class Checkout extends Component {
   props: Props;
 
   state: State = {
-    cart: this.props.cart,
+    shippingDone: false,
+    deliveryDone: false,
+    billingDone: false,
   };
 
   componentDidMount() {
@@ -78,11 +82,38 @@ class Checkout extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.cart != this.props.cart) {
-      this.setState({
-        cart: nextProps.cart,
-      });
+    const { creditCard, fetchCartState } = nextProps;
+    const { shippingAddress, shippingMethod, skus } = nextProps.cart;
+    const { billingDone, shippingDone, deliveryDone } = this.state;
+
+    if (_.isEmpty(skus) && fetchCartState.finished) {
+      browserHistory.push('/');
+      return;
     }
+
+    let billing = billingDone;
+    let shipping = shippingDone;
+    let delivery = deliveryDone;
+
+    if (_.isEmpty(creditCard) && billingDone) {
+      billing = false;
+    } else if (!_.isEmpty(creditCard) && !billingDone) {
+      billing = true;
+    }
+
+    if (_.isEmpty(shippingAddress) && shippingDone) {
+      shipping = false;
+    } else if (!_.isEmpty(shippingAddress) && !shippingDone) {
+      shipping = true;
+    }
+
+    if (_.isEmpty(shippingMethod) && deliveryDone) {
+      delivery = false;
+    } else if (!_.isEmpty(shippingMethod) && !deliveryDone) {
+      delivery = true;
+    }
+
+    this.setState({ billingDone: billing, shippingDone: shipping, deliveryDone: delivery });
   }
 
   @autobind
@@ -97,20 +128,20 @@ class Checkout extends Component {
   }
 
   @autobind
-  setShippingStage() {
-    this.props.setEditStage(EditStages.SHIPPING);
-  }
-
-  @autobind
-  setDeliveryStage() {
+  setShipping() {
     this.props.toggleShippingModal();
-    return this.props.setEditStage(EditStages.DELIVERY);
+    this.setState({ shippingDone: true });
   }
 
   @autobind
-  setBillingStage() {
+  setDelivery() {
     this.props.toggleDeliveryModal();
-    return this.props.setEditStage(EditStages.BILLING);
+    this.setState({ deliveryDone: true });
+  }
+
+  @autobind
+  setBilling() {
+    this.setState({ billingDone: true });
   }
 
   @autobind
@@ -144,32 +175,32 @@ class Checkout extends Component {
   }
 
   @autobind
-  startShipping() {
-    return this.props.setEditStage(EditStages.SHIPPING);
-  }
-
-  @autobind
   isEmailSetForCheckout() {
     const user = _.get(this.props, ['auth', 'user'], null);
     return emailIsSet(user);
   }
 
-  @autobind
-  handleUpdateCart(cart) {
-    this.setState({
-      cart,
-    });
-  }
-
   get orderTotals() {
+    const { cart } = this.props;
+    const { billingDone, shippingDone, deliveryDone } = this.state;
+    const disabled = billingDone && shippingDone && deliveryDone;
+
     return (
       <div styleName="total-cost">
         <div styleName="totals-list">
-          <OrderTotals totals={this.props.cart.totals} />
+          <OrderTotals
+            totals={cart.totals}
+            paymentMethods={cart.paymentMethods}
+          />
         </div>
 
         <div styleName="place-order-block">
-          <Button styleName="place-order-button" onClick={this.placeOrder} disabled={false}>
+          <Button
+            styleName="place-order-button"
+            onClick={this.placeOrder}
+            disabled={!disabled}
+            isLoading={this.props.checkoutState.inProgress}
+          >
             Place order
           </Button>
         </div>
@@ -193,41 +224,40 @@ class Checkout extends Component {
     if (cartFetched) {
       return (
         <div styleName="wrapper">
-          <div styleName="shipping">
-            <Shipping
-              isEditing={props.editStage}
-              editAction={this.setShippingStage}
-              onComplete={this.setDeliveryStage}
-              addresses={this.props.addresses}
-              fetchAddresses={this.props.fetchAddresses}
-              shippingAddress={_.get(this.props.cart, 'shippingAddress', {})}
-              auth={this.props.auth}
-              isGuestMode={isGuestMode}
-            />
-          </div>
-          <div styleName="delivery">
-            <Delivery
-              isEditing={props.editStage}
-              editAction={this.setDeliveryStage}
-              onComplete={this.setBillingStage}
-              shippingMethods={props.shippingMethods}
-              cart={this.state.cart}
-              onUpdateCart={this.handleUpdateCart}
-              fetchShippingMethods={props.fetchShippingMethods}
-            />
+          <div styleName="column-1">
+            <div styleName="shipping">
+              <Shipping
+                isEditing={props.editStage}
+                onComplete={this.setShipping}
+                addresses={this.props.addresses}
+                fetchAddresses={this.props.fetchAddresses}
+                shippingAddress={_.get(this.props.cart, 'shippingAddress', {})}
+                auth={this.props.auth}
+                isGuestMode={isGuestMode}
+              />
+            </div>
+            <div styleName="delivery">
+              <Delivery
+                isEditing={props.editStage}
+                onComplete={this.setDelivery}
+                shippingMethods={props.shippingMethods}
+                cart={this.props.cart}
+                fetchShippingMethods={props.fetchShippingMethods}
+              />
+            </div>
           </div>
           <div styleName="payment">
             <Billing
               isGuestMode={isGuestMode}
-              editAction={this.setBillingStage}
               paymentMethods={_.get(props.cart, 'paymentMethods', [])}
               chooseCreditCard={this.props.chooseCreditCard}
+              onComplete={this.setBilling}
             />
           </div>
+          {this.orderTotals}
           <div styleName="order-summary">
             {this.orderContent}
           </div>
-          {this.orderTotals}
 
           <GuestAuth
             isEditing={!this.isEmailSetForCheckout()}

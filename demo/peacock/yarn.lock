@@ -16,9 +16,9 @@
   version "3.1.0"
   resolved "https://npm.foxcommerce.com:4873/@foxcomm%2fbabel-plugin-react-stylenames/-/babel-plugin-react-stylenames-3.1.0.tgz#34b9dc9625a502e42e86536e99548de90f1439e6"
 
-"@foxcomm/wings@^1.9.9":
-  version "1.9.9"
-  resolved "https://npm.foxcommerce.com:4873/@foxcomm%2fwings/-/wings-1.9.9.tgz#24f473e94233a99abf16abe8c328fb50b2af8bfb"
+"@foxcomm/wings@^1.9.11":
+  version "1.9.11"
+  resolved "https://npm.foxcommerce.com:4873/@foxcomm%2fwings/-/wings-1.9.11.tgz#94c5a84072f1e8a1a1e56b7b0e497f1a188302c3"
   dependencies:
     classnames "^2.2.5"
     flow-bin "^0.36.0"
@@ -5563,7 +5563,7 @@ localtunnel@1.8.2:
     request "2.78.0"
     yargs "3.29.0"
 
-lodash-es@^4.2.1:
+lodash-es@^4.2.0, lodash-es@^4.2.1:
   version "4.17.4"
   resolved "https://registry.yarnpkg.com/lodash-es/-/lodash-es-4.17.4.tgz#dcc1d7552e150a0640073ba9cb31d70f032950e7"
 
@@ -7722,13 +7722,14 @@ react-proxy@^1.1.2:
     lodash "^4.6.1"
     react-deep-force-update "^1.0.0"
 
-react-redux@^4.4.0:
-  version "4.4.6"
-  resolved "https://registry.yarnpkg.com/react-redux/-/react-redux-4.4.6.tgz#4b9d32985307a11096a2dd61561980044fcc6209"
+react-redux@^5.0.3:
+  version "5.0.3"
+  resolved "https://registry.yarnpkg.com/react-redux/-/react-redux-5.0.3.tgz#86c3b68d56e74294a42e2a740ab66117ef6c019f"
   dependencies:
     hoist-non-react-statics "^1.0.3"
     invariant "^2.0.0"
     lodash "^4.2.0"
+    lodash-es "^4.2.0"
     loose-envify "^1.1.0"
 
 react-router-redux@^3.0.0:

@@ -8,9 +8,9 @@ import _ from 'lodash';
 // components
 import TypeaheadItems from './items';
 import TypeaheadInput from './input';
-import { FormField } from '../forms';
-import Alert from '../alerts/alert';
-import LoadingInputWrapper from '../forms/loading-input-wrapper';
+import { FormField } from 'components/forms';
+import Alert from 'components/alerts/alert';
+import LoadingInputWrapper from 'components/forms/loading-input-wrapper';
 
 // styles
 import s from './typeahead.css';
@@ -23,14 +23,15 @@ export default class Typeahead extends React.Component {
     onItemSelected: PropTypes.func, // on item click/choose handler
     // fetchItems if passed should return promise for results
     fetchItems: PropTypes.func, // triggers when text is changed and text is valid
-    component: PropTypes.func, // component of one item, props={model: item}
     hideOnBlur: PropTypes.bool,
     isFetching: PropTypes.bool,
+    isAsync: PropTypes.bool,
     items: PropTypes.array, // Array of data for suggestion. Each element passed to `component`
     label: PropTypes.string, // title for input
     name: PropTypes.string, // name attr for default input
     placeholder: PropTypes.string, // placeholder attr for default input
     className: PropTypes.string, // additional cl for root element of Typeahead
+    component: PropTypes.func, // component of one item, props={model: item}
     itemsElement: PropTypes.element, // custom component for items as a list (not just for one item)
     inputElement: PropTypes.element, // custom component for input field, default is `TypeaheadInput`
     minQueryLength: PropTypes.number, // if < then no fetching
@@ -48,6 +49,7 @@ export default class Typeahead extends React.Component {
     minQueryLength: 1,
     autoComplete: 'off',
     initialValue: '',
+    isAsync: true,
   };
 
   state = {
@@ -58,8 +60,16 @@ export default class Typeahead extends React.Component {
   };
 
   componentWillReceiveProps(nextProps) {
-    if (this.props.isFetching && !nextProps.isFetching) {
+    if(this.props.isAsync){
+      if (this.props.isFetching && !nextProps.isFetching) {
+        this.toggleVisibility(true);
+      }
+    } else {
       this.toggleVisibility(true);
+    }
+
+    if (nextProps.initialValue !== this.props.initialValue) {
+      this.setState({ query: nextProps.initialValue });
     }
   }
 
@@ -194,7 +204,7 @@ export default class Typeahead extends React.Component {
   }
 
   get inputContent() {
-    const inputElement = this.props.inputElement;
+    const { isFetching, inputElement } = this.props;
 
     const defaultProps = {
       value: this.state.query,
@@ -202,6 +212,7 @@ export default class Typeahead extends React.Component {
       placeholder: this.props.placeholder,
       autoComplete: this.props.autoComplete,
       className: s.input,
+      isFetching,
     };
 
     const handlers = {
@@ -212,7 +223,11 @@ export default class Typeahead extends React.Component {
     };
 
     if (inputElement) {
-      return cloneElement(inputElement, { defaultProps, handlers });
+      return (
+        <LoadingInputWrapper inProgress={isFetching}>
+          {cloneElement(inputElement, { defaultProps, handlers })}
+        </LoadingInputWrapper>
+      );
     } else {
       return <TypeaheadInput {...defaultProps} {...handlers} />;
     }
@@ -231,9 +246,7 @@ export default class Typeahead extends React.Component {
     return (
       <div className={className}>
         <FormField label={this.props.label}>
-          <LoadingInputWrapper inProgress={this.props.isFetching}>
-            {this.inputContent}
-          </LoadingInputWrapper>
+          {this.inputContent}
         </FormField>
         <div className={listClass}>
           {this.listContent}

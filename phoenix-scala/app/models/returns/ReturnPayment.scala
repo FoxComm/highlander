@@ -16,19 +16,6 @@ case class ReturnPayment(id: Int = 0,
                          paymentMethodType: PaymentMethod.Type)
     extends FoxModel[ReturnPayment]
 
-object ReturnPayment {
-  def build(method: PaymentMethod.Type,
-            methodId: Int,
-            returnId: Int,
-            amount: Int,
-            currency: Currency): ReturnPayment =
-    ReturnPayment(returnId = returnId,
-                  amount = amount,
-                  currency = currency,
-                  paymentMethodId = methodId,
-                  paymentMethodType = method)
-}
-
 class ReturnPayments(tag: Tag) extends FoxTable[ReturnPayment](tag, "return_payments") {
   def id                = column[Int]("id", O.PrimaryKey, O.AutoInc)
   def returnId          = column[Int]("return_id")

@@ -10,6 +10,7 @@ import styles from './shipped-item.css';
 
 // components
 import Currency from 'components/common/currency';
+import ProductImage from 'components/imgix/product-image';
 
 //types
 import type { TShipmentLineItem } from 'paragons/shipment';
@@ -17,7 +18,12 @@ import type { TShipmentLineItem } from 'paragons/shipment';
 const ShippedItem = (props: TShipmentLineItem): Element<*> => (
   <div styleName="row">
     <div styleName="name">
-      <img src={props.imagePath} />
+      <ProductImage
+        className="fc-image-column"
+        src={props.imagePath}
+        width={64}
+        height={64}
+      />
       {props.name}
     </div>
     <div styleName="sku">{props.sku}</div>

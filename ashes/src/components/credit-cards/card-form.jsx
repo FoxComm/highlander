@@ -215,7 +215,7 @@ export default class CreditCardForm extends React.Component {
         onYearChange={this.onExpYearChange}
       />
     );
-  };
+  }
 
   get billingAddress() {
     const { customerId } = this.props;

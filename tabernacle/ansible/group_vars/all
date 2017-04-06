@@ -62,6 +62,7 @@ docker_tags:
     digger_sphex: "{{ lookup('env', 'DOCKER_TAG_DIGGER_SPHEX') | default('master', true) }}"
     orders_sphex: "{{ lookup('env', 'DOCKER_TAG_ORDERS_SPHEX') | default('master', true) }}"
     orders_anthill: "{{ lookup('env', 'DOCKER_TAG_ORDERS_ANTHILL') | default('master', true) }}"
+    product_activity: "{{ lookup('env', 'DOCKER_TAG_PRODUCT_ACTIVITY') | default('master', true) }}"
     anthill: "{{ lookup('env', 'DOCKER_TAG_ANTHILL') | default('master', true) }}"
     neo4j: "{{ lookup('env', 'DOCKER_TAG_NEO4J') | default('master', true) }}"
     suggester: "{{ lookup('env', 'DOCKER_TAG_SUGGESTER') | default('master', true) }}"
@@ -95,6 +96,7 @@ marathon_restart:
     digger_sphex: "{{ lookup('env', 'MARATHON_DIGGER_SPHEX') | default(true, true) | bool }}"
     orders_sphex: "{{ lookup('env', 'MARATHON_ORDERS_SPHEX') | default(true, true) | bool }}"
     orders_anthill: "{{ lookup('env', 'MARATHON_ORDERS_ANTHILL') | default(true, true) | bool }}"
+    product_activity: "{{ lookup('env', 'MARATHON_PRODUCT_ACTIVITY') | default(true, true) | bool }}"
     anthill: "{{ lookup('env', 'MARATHON_ANTHILL') | default(true, true) | bool }}"
     neo4j: "{{ lookup('env', 'MARATHON_NEO4J') | default(true, true) | bool }}"
     suggester: "{{ lookup('env', 'MARATHON_SUGGESTER') | default(true, true) | bool }}"
@@ -265,6 +267,7 @@ hyperion_db_password: hyperion
 hyperion_db_host: "{{db_host}}"
 hyperion_db_connection_string: "postgresql://{{hyperion_db_user}}@{{hyperion_db_host}}/{{hyperion_db_name}}"
 hyperion_test_db_name: hyperion_test
+hyperion_push_check_interval: 5
 
 # Eggcreate
 eggcrate_host: "eggcrate.{{consul_suffix}}"
@@ -331,6 +334,9 @@ shipstation_api_key: ""
 shipstation_api_secret: ""
 shipstation_topic: "{{activities_topic}}"
 shipstation_interval: "10s"
+
+# Product activity daemon
+product_activity_interval: 60
 
 # Firebrand variables
 firebrand_env: production

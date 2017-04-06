@@ -101,15 +101,15 @@ const reducer = createReducer({
     const inventoryDetailsByLocations = _.reduce(stockItems, (acc, itemSummary: StockItemSummary) => {
       const warehouseDetails =
         acc[itemSummary.stockLocation.id] = acc[itemSummary.stockLocation.id] || {
-        stockItems: [],
-        stockLocation: itemSummary.stockLocation,
-        onHand: 0,
-        onHold: 0,
-        reserved: 0,
-        shipped: 0,
-        afs: 0,
-        afsCost: 0,
-      };
+          stockItems: [],
+          stockLocation: itemSummary.stockLocation,
+          onHand: 0,
+          onHold: 0,
+          reserved: 0,
+          shipped: 0,
+          afs: 0,
+          afsCost: 0,
+        };
 
       warehouseDetails.onHand += itemSummary.onHand;
       warehouseDetails.onHold += itemSummary.onHold;

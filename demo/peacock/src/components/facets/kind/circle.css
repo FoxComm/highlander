@@ -4,19 +4,27 @@
   display: none;
 }
 
-.circle-checkbox div {
-  width: 32px;
+.circle-checkbox {
+  cursor: pointer;
+  white-space: nowrap;
   height: 32px;
-  border-radius: 100px;
+  min-width: 32px;
   text-align: center;
-  float: left;
+  display: inline-block;
   margin-right: 11px;
   margin-bottom: 10px;
 }
 
+.circle-checkbox div {
+  border-radius: 16px;
+  height: 100%;
+}
+
 .circle-checkbox label {
-  width: 9px;
-  height: 32px;
+  cursor: pointer;
+  display: inline-block;
+  padding: 0 7px;
+  height: 100%;
   font-size: 14px;
   font-weight: normal;
   vertical-align: -6px;

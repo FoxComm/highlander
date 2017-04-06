@@ -19,6 +19,6 @@ export default class Aggregation extends Element {
 
   toRequest(): Object {
     return {};
-  };
+  }
 
 }

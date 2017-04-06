@@ -1,6 +1,8 @@
 /* flow */
 
 import _ from 'lodash';
+import classnames from 'classnames';
+import { assoc } from 'sprout-data';
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import styles from './facets.css';
@@ -9,79 +11,135 @@ import styles from './facets.css';
 import Checkbox from './kind/checkbox';
 import Circle from './kind/circle';
 import ColorCircle from './kind/colorcircle';
+import Image from './kind/image';
 
-import type { Facet } from 'types/facets';
+import type { Facet as TFacet, FacetValue } from 'types/facets';
 
 type FacetsProps = {
-  facets: Array<Facet>,
+  className?: string,
+  prefix: string,
+  facets: Array<TFacet>,
   whitelist?: Array<string>,
   onSelect?: (facet: string, value: string, selected: boolean) => void,
 };
 
+type State = {
+  animationState: {[key: string]: boolean},
+  facetMessages: {[key: string]: string|null},
+}
+
 class Facets extends Component {
   props: FacetsProps;
+
+  state: State = {
+    animationState: {},
+    facetMessages: {},
+  };
 
   static defaultProps = {
     facets: [],
     whitelist: [],
+    prefix: '',
   };
 
   @autobind
   handleClickFacets(facet: string, value: string, selected: boolean): void {
+    const { facetMessages } = this.state;
+    this.setState({
+      facetMessages: assoc(facetMessages, facet, null),
+    });
     if (this.props.onSelect) {
       this.props.onSelect(facet, value, selected);
     }
   }
 
   @autobind
-  renderValues(f) {
-    let values = {};
+  renderValues(f: TFacet) {
+    const { prefix } = this.props;
 
-    values = _.map(f.values, (v) => {
-      const key = `val-${f.kind}-${f.key}-${v.label}`;
-      let w = {};
+    return _.map(f.values, (v: FacetValue) => {
+      const key = `val-${prefix}-${f.kind}-${f.key}-${v.label}`;
+      let w = null;
 
       if (f.kind == 'checkbox') {
         w = (<Checkbox
           key={key}
+          reactKey={key}
           facet={f.key}
           value={v.value}
           label={v.label}
+          checked={v.selected}
           click={this.handleClickFacets}
         />);
       } else if (f.kind == 'circle') {
         w = (<Circle
           key={key}
+          reactKey={key}
           facet={f.key}
           value={v.value}
           label={v.label}
+          checked={v.selected}
           click={this.handleClickFacets}
         />);
       } else if (f.kind == 'color') {
         w = (<ColorCircle
           key={key}
+          reactKey={key}
           facet={f.key}
           value={v.value}
           label={v.label}
+          checked={v.selected}
           click={this.handleClickFacets}
         />);
-      } else {
-        w = (<div key={key}> unsuported type </div>);
+      } else if (f.kind == 'image') {
+        w = (<Image
+          key={key}
+          facet={f.key}
+          value={v.value}
+          label={v.label}
+          checked={v.selected}
+          click={this.handleClickFacets}
+        />);
       }
       return w;
     });
-
-    return values;
   }
 
-  @autobind
-  renderFacet(f) {
+  flashUnselectedFacets(facets: Array<TFacet>) {
+    const animationState = {};
+    const facetMessages = {};
+    _.forEach(facets, (facet: TFacet) => {
+      animationState[facet.key] = true;
+      facetMessages[facet.key] = `We need to know your ${facet.name.toLowerCase()} first!`;
+    });
+    this.setState({
+      animationState,
+      facetMessages,
+    });
+  }
+
+  resetFacetAnimation(key: string) {
+    const newState = assoc(this.state.animationState, key, false);
+    this.setState({
+      animationState: newState,
+    });
+  }
+
+  renderFacet(f: TFacet) {
     const values = this.renderValues(f);
     const facetStyle = `${f.kind}-facet`;
 
+    const className = classnames(styles.facet, {
+      [styles['facet-flash']]: this.state.animationState[f.key],
+    });
+    const message = this.state.facetMessages[f.key];
+
     return (
-      <div key={f.key} styleName="facet">
-        <h2>{f.name}</h2>
+      <div key={f.key} className={className} onAnimationEnd={() => this.resetFacetAnimation(f.key)}>
+        <div styleName="facet-header">
+          <div styleName="facet-name">{f.name}</div>
+          {message && <div styleName="facet-message">{message}</div>}
+        </div>
         <div styleName={facetStyle}>
           {values}
         </div>
@@ -90,18 +148,23 @@ class Facets extends Component {
   }
 
   render(): Element<*> {
-    const { facets, whitelist} = this.props;
+    const { facets, whitelist, className } = this.props;
 
+    // Only show facets that are in the white list if a white list is specified,
+    // or that have more than one element.
+    // Only showing facets with more then one element was decided because it
+    // matches the expected behaviour based on research of other sites.
     const renderable = _.filter(facets, (f) => {
-      return !_.isEmpty(f.values) && (_.isEmpty(whitelist) || _.indexOf(whitelist, f.key) != -1);
+      return f.values.length > 1
+        && (_.isEmpty(whitelist) || _.find(whitelist, key => _.toLower(key) == _.toLower(f.key)));
     });
 
-    const rendered = _.map(renderable, (f) => {
+    const rendered = _.map(renderable, (f: TFacet) => {
       return this.renderFacet(f);
     });
 
     return (
-      <div styleName="facets">
+      <div styleName="facets" className={className}>
         {rendered}
       </div>
     );

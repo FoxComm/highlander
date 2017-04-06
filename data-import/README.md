@@ -5,7 +5,7 @@
     ```
 
 1. Host specifies the host of the API to import into.
-2. Command can be "taxonomies", "products", or "both".
+2. Command can be "taxonomies", "products", "both", or "inventory".
 3. Max products is optional and provides a way to restrict how many are imported
 
 

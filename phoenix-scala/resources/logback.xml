@@ -45,6 +45,7 @@
     <logger name="utils.apis.MiddlewarehouseApi" level="DEBUG"/>
     <logger name="utils.apis.AmazonApi" level="DEBUG"/>
     <logger name="utils.apis.FoxStripe" level="DEBUG"/>
+    <logger name="com.amazonaws.AmazonWebServiceClient" level="ERROR"/>
 
     <root level="INFO">
         <appender-ref ref="Console" />

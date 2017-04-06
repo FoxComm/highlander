@@ -241,4 +241,4 @@ export default class Lookup extends Component {
       </div>
     );
   }
-};
+}

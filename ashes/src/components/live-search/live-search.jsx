@@ -381,7 +381,7 @@ export default class LiveSearch extends React.Component {
         onClick={() => props.onPillClick(pill, idx)}
         title={pill.display}>
         <i className={icon} />
-        {pill.display}
+        <span className="fc-pilled-input__pill-value">{pill.display}</span>
         <a onClick={() => props.onPillClose(pill, idx)}
            className="fc-pilled-input__pill-close">
           &times;

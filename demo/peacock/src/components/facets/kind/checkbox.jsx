@@ -26,8 +26,10 @@ class Checkbox extends Component {
 
   @autobind
   click(event: SyntheticInputEvent) {
+    const { facet, value } = this.props;
+
     if (this.props.click) {
-      this.props.click(this.props.facet, this.props.value, event.target.checked);
+      this.props.click(facet, value, event.target.checked);
     }
     if (this.props.checked == null) {
       this.setState({checked: event.target.checked});
@@ -36,26 +38,23 @@ class Checkbox extends Component {
 
   render(): Element<*> {
     const {
-      facet,
-      value,
+      reactKey,
       label,
     } = this.props;
-
-    const id = `${facet}-checkbox-${value}`;
 
     return (
       <div styleName="facet-checkbox">
         <input
           styleName="facet-checkbox-input"
-          id={id}
+          id={reactKey}
           type="checkbox"
           checked={this.state.checked}
           onChange={this.click}
         />
         <div styleName="facet-checkbox-box">
-          <label htmlFor={id}>{''}</label>
+          <label htmlFor={reactKey}>{''}</label>
         </div>
-        <label styleName="facet-checkbox-label" htmlFor={id}>{label} </label>
+        <label styleName="facet-checkbox-label" htmlFor={reactKey}>{label} </label>
       </div>
     );
   }

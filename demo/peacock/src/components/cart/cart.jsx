@@ -177,7 +177,7 @@ class Cart extends Component {
 
           <div styleName="cart-footer">
             <Button onClick={this.onCheckout} disabled={checkoutDisabled} styleName="checkout-button">
-              {t('Checkout')}
+              <span>{t('Checkout')}</span>
               <span styleName="subtotal-price">
                 <Currency value={totals.subTotal} />
               </span>

@@ -33,7 +33,6 @@ export type CheckoutState = {
 };
 
 export const selectCreditCard = createAction('CHECKOUT_SET_CREDIT_CARD');
-export const resetCreditCard = createAction('CHECKOUT_RESET_CREDIT_CARD');
 export const setEditStage = createAction('CHECKOUT_SET_EDIT_STAGE');
 export const setBillingData = createAction('CHECKOUT_SET_BILLING_DATA', (key, value) => [key, value]);
 export const resetBillingData = createAction('CHECKOUT_RESET_BILLING_DATA');
@@ -66,6 +65,15 @@ function _fetchCreditCards() {
   return foxApi.creditCards.list();
 }
 
+const _resetCreditCard = createAsyncActions(
+  'resetCreditCard',
+  function() {
+    return foxApi.cart.removeCreditCards();
+  }
+);
+
+export const resetCreditCard = _resetCreditCard.perform;
+
 /* eslint-enable quotes, quote-props */
 
 const shippingMethodsActions = createAsyncActions('shippingMethods', _fetchShippingMethods);
@@ -96,6 +104,20 @@ function addressToPayload(address) {
 
   return payload;
 }
+
+const _removeShippingMethod = createAsyncActions(
+  'removeShippingMethod',
+  function() {
+    const { dispatch } = this;
+
+    return foxApi.cart.removeShippingMethod()
+      .then((res) => {
+        dispatch(updateCart(res.result));
+      });
+  }
+);
+
+export const removeShippingMethod = _removeShippingMethod.perform;
 
 const _saveShippingAddress = createAsyncActions(
   'saveShippingAddress',
@@ -158,12 +180,15 @@ const _removeShippingAddress = createAsyncActions(
   'REMOVE_SHIPPING_ADDRESS',
   function() {
     const { getState, dispatch } = this;
-    const { shippingAddress } = getState().cart;
+    const { shippingAddress, shippingMethod } = getState().cart;
     if (_.isEmpty(shippingAddress)) return Promise.resolve({});
 
     return foxApi.cart.removeShippingAddress()
       .then(() => {
         dispatch(cleanShippingAddress());
+        if (!_.isEmpty(shippingMethod)) {
+          dispatch(removeShippingMethod());
+        }
       });
   }
 );
@@ -185,29 +210,38 @@ const _saveShippingMethod = createAsyncActions(
 
 export const saveShippingMethod = _saveShippingMethod.perform;
 
-export function saveGiftCard(code: string): Function {
-  return (dispatch) => {
+const _saveGiftCard = createAsyncActions(
+  'saveGiftCard',
+  function(code) {
+    const { dispatch } = this;
     const payload = { code: code.trim() };
 
     return foxApi.cart.addGiftCard(payload)
       .then((res) => {
         dispatch(updateCart(res.result));
       });
-  };
-}
+  }
+);
+
+export const saveGiftCard = _saveGiftCard.perform;
+
+const _saveCouponCode = createAsyncActions(
+  'saveCouponCode',
+  function(code) {
+    const { dispatch } = this;
+
+    return foxApi.cart.addCoupon(code)
+      .then((res) => {
+        dispatch(updateCart(res.result));
+      });
+  }
+);
+
+export const saveCouponCode = _saveCouponCode.perform;
 
 export function removeGiftCard(code: string): Function {
   return (dispatch) => {
     return foxApi.cart.removeGiftCard(code)
-      .then((res) => {
-        dispatch(updateCart(res.result));
-      });
-  };
-}
-
-export function saveCouponCode(code: string): Function {
-  return (dispatch) => {
-    return foxApi.cart.addCoupon(code)
       .then((res) => {
         dispatch(updateCart(res.result));
       });
@@ -570,7 +604,7 @@ const reducer = createReducer({
       creditCard,
     };
   },
-  [resetCreditCard]: (state) => {
+  [_resetCreditCard.succeeded]: (state) => {
     return {
       ...state,
       creditCard: null,

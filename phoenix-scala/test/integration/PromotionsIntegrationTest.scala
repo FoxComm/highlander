@@ -1,32 +1,48 @@
 import java.time.Instant
 
+import akka.http.scaladsl.model.StatusCodes
+import cats._
+import cats.implicits._
+import failures.CouponFailures.{CouponNotFound, CouponWithCodeCannotBeFound}
 import failures.NotFoundFailure404
 import failures.ObjectFailures._
+import failures.PromotionFailures.PromotionIsNotActive
+import models.Reasons
 import models.objects.{ObjectContext, ObjectUtils}
 import models.promotion.Promotion.{Auto, Coupon}
 import models.promotion._
+import models.rules.QueryStatement
+import models.shipping.{ShippingMethod, ShippingMethods}
 import org.json4s.JsonAST._
 import org.json4s.JsonDSL._
+import org.json4s.jackson.JsonMethods._
 import org.scalactic.TolerantNumerics
+import payloads.AddressPayloads.CreateAddressPayload
 import payloads.CouponPayloads.CreateCoupon
 import payloads.DiscountPayloads.CreateDiscount
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.CartPayloads.CreateCart
+import payloads.PaymentPayloads.{CreateManualStoreCredit, StoreCreditPayment}
 import payloads.PromotionPayloads._
+import payloads.UpdateShippingMethod
 import responses.CouponResponses.CouponResponse
+import responses.{CustomerResponse, StoreCreditResponse}
 import responses.PromotionResponses.PromotionResponse
-import responses.cord.CartResponse
+import responses.cord.{CartResponse, OrderResponse}
 import services.objects.ObjectManager
 import services.promotion.PromotionManager
 import testutils.PayloadHelpers.tv
 import testutils._
 import testutils.apis.PhoenixAdminApi
-import testutils.fixtures.api.ApiFixtures
+import testutils.fixtures.api.PromotionPayloadBuilder.{PromoOfferBuilder, PromoQualifierBuilder}
+import testutils.fixtures.api._
 import testutils.fixtures.{BakedFixtures, PromotionFixtures}
 import utils.IlluminateAlgorithm
 import utils.aliases._
 import utils.db._
+import utils.seeds.{Factories, ShipmentSeeds}
 import utils.time.RichInstant
+import java.time.temporal.ChronoUnit.DAYS
 
 class PromotionsIntegrationTest
     extends IntegrationTestBase
@@ -35,6 +51,7 @@ class PromotionsIntegrationTest
     with TestActivityContext.AdminAC
     with BakedFixtures
     with ApiFixtures
+    with ApiFixtureHelpers
     with PromotionFixtures {
 
   "DELETE /v1/promotions/:context/:id" - {
@@ -113,14 +130,19 @@ class PromotionsIntegrationTest
 
     implicit val doubleEquality = TolerantNumerics.tolerantDoubleEquality(1.0)
 
-    // Yields coupon code
-    def setupPromoAndCoupon()(implicit sl: SL, sf: SF): String = {
+    val DefaultDiscountPercent = 40
+
+    // Yields (CouponResponse.Root, coupon code)
+    def setupPromoAndCoupon(extraPromoAttrs: Map[String, Json] = Map.empty)(
+        implicit sl: SL,
+        sf: SF): (CouponResponse.Root, String) = {
       val promoId = {
         val promotionPayload = {
           val discountPayload = {
             val discountAttrs = {
               val qualifier = JObject(JField("orderAny", JObject(("", JNothing))))
-              val offer     = JObject(JField("orderPercentOff", JObject(JField("discount", 40))))
+              val offer = JObject(
+                  JField("orderPercentOff", JObject(JField("discount", DefaultDiscountPercent))))
               Map("qualifier" → tv(qualifier, "qualifier"), "offer" → tv(offer, "offer"))
             }
 
@@ -132,13 +154,13 @@ class PromotionsIntegrationTest
 
           CreatePromotion(applyType = Promotion.Coupon,
                           discounts = Seq(discountPayload),
-                          attributes = promoAttrs)
+                          attributes = promoAttrs ++ extraPromoAttrs)
         }
 
         promotionsApi.create(promotionPayload).as[PromotionResponse.Root].id
       }
 
-      val couponId = {
+      val coupon = {
         val couponPayload = {
           val usageRules = JObject(JField("isExclusive", false),
                                    JField("isUnlimitedPerCode", false),
@@ -153,14 +175,14 @@ class PromotionsIntegrationTest
                           "activeTo"       → tv(JNull, "datetime"))
           CreateCoupon(promotion = promoId, attributes = attrs)
         }
-        couponsApi.create(couponPayload).as[CouponResponse.Root].id
+        couponsApi.create(couponPayload).as[CouponResponse.Root]
       }
-      couponsApi(couponId).codes.generate("boom").as[String]
+      (coupon, couponsApi(coupon.id).codes.generate("boom").as[String])
     }
 
     "from admin UI" in new StoreAdmin_Seed with Customer_Seed with ProductAndSkus_Baked {
 
-      private val couponCode = setupPromoAndCoupon()
+      private val (_, couponCode) = setupPromoAndCoupon()
 
       private val cartRefNum =
         cartsApi.create(CreateCart(email = customer.email)).as[CartResponse].referenceNumber
@@ -177,13 +199,15 @@ class PromotionsIntegrationTest
       cartWithCoupon.promotion mustBe 'defined
       cartWithCoupon.coupon mustBe 'defined
 
-      cartWithCoupon.totals.adjustments.toDouble must === (cartTotal * 0.4)
-      cartWithCoupon.totals.total.toDouble must === (cartTotal * 0.6)
+      cartWithCoupon.totals.adjustments.toDouble must === (
+          cartTotal * (DefaultDiscountPercent / 100.0))
+      cartWithCoupon.totals.total.toDouble must === (
+          cartTotal * (1.0 - (DefaultDiscountPercent / 100.0)))
     }
 
     "from storefront UI" in new StoreAdmin_Seed with Customer_Seed with ProductAndSkus_Baked {
 
-      private val couponCode = setupPromoAndCoupon()
+      private val (_, couponCode) = setupPromoAndCoupon()
 
       private val cartTotal = POST("v1/my/cart/line-items", Seq(UpdateLineItemsPayload("TEST", 1)))
         .asTheResult[CartResponse]
@@ -195,13 +219,15 @@ class PromotionsIntegrationTest
       cartWithCoupon.promotion mustBe 'defined
       cartWithCoupon.coupon mustBe 'defined
 
-      cartWithCoupon.totals.adjustments.toDouble must === (cartTotal * 0.4)
-      cartWithCoupon.totals.total.toDouble must === (cartTotal * 0.6)
+      cartWithCoupon.totals.adjustments.toDouble must === (
+          cartTotal * (DefaultDiscountPercent / 100.0))
+      cartWithCoupon.totals.total.toDouble must === (
+          cartTotal * (1.0 - (DefaultDiscountPercent / 100.0)))
     }
 
-    "should update coupon discount when cart becomes clean" in new Fixture
+    "should update coupon discount when cart becomes clean" in new Fixture with Customer_Seed
     with ProductSku_ApiFixture {
-      private val couponCode = setupPromoAndCoupon()
+      private val (_, couponCode) = setupPromoAndCoupon()
 
       POST("v1/my/cart/line-items", Seq(UpdateLineItemsPayload(skuCode, 1))).mustBeOk()
 
@@ -214,6 +240,74 @@ class PromotionsIntegrationTest
 
       emptyCartWithCoupon.result.totals.total must === (0)
       emptyCartWithCoupon.result.totals.adjustments must === (0)
+    }
+
+    "but not after archiving the coupon" in new ProductSku_ApiFixture {
+      val (coupon, couponCode) = setupPromoAndCoupon()
+      val cart                 = api_newGuestCart
+      couponsApi(coupon.id).archive
+      cartsApi(cart.referenceNumber).lineItems.add(Seq(UpdateLineItemsPayload(skuCode, 1)))
+      cartsApi(cart.referenceNumber).coupon
+        .add(couponCode)
+        .mustFailWith404(CouponWithCodeCannotBeFound(couponCode))
+      cartsApi(cart.referenceNumber).get.asTheResult[CartResponse].promotion mustBe 'empty
+    }
+
+    "and not after archiving its promotion" in new ProductSku_ApiFixture {
+      val (coupon, couponCode) = setupPromoAndCoupon()
+      val cart                 = api_newGuestCart
+      promotionsApi(coupon.promotion).delete.mustBeOk()
+      cartsApi(cart.referenceNumber).lineItems.add(Seq(UpdateLineItemsPayload(skuCode, 1)))
+      cartsApi(cart.referenceNumber).coupon.add(couponCode).mustHaveStatus(StatusCodes.NotFound)
+      cartsApi(cart.referenceNumber).get.asTheResult[CartResponse].promotion mustBe 'empty
+    }
+
+    "and archived promotions ought to be removed from carts" in new ProductSku_ApiFixture {
+      val (coupon, couponCode) = setupPromoAndCoupon()
+      val cart                 = api_newGuestCart
+      cartsApi(cart.referenceNumber).lineItems.add(Seq(UpdateLineItemsPayload(skuCode, 1)))
+      cartsApi(cart.referenceNumber).coupon
+        .add(couponCode)
+        .asTheResult[CartResponse]
+        .promotion mustBe 'defined
+      promotionsApi(coupon.promotion).delete.mustBeOk()
+      cartsApi(cart.referenceNumber).get.asTheResult[CartResponse].promotion mustBe 'empty
+    }
+
+    "but not when the promotion is inactive" in new ProductSku_ApiFixture {
+      val (coupon, couponCode) =
+        setupPromoAndCoupon(Map("activeFrom" → tv(Instant.now.plus(10, DAYS), "datetime")))
+      val cart = api_newGuestCart
+      cartsApi(cart.referenceNumber).lineItems.add(Seq(UpdateLineItemsPayload(skuCode, 1)))
+      cartsApi(cart.referenceNumber).coupon.add(couponCode).mustFailWith400(PromotionIsNotActive)
+    }
+
+    "but not if there’s an auto-promo already applied" in new ProductSku_ApiFixture {
+      val percentOff = 37
+
+      val autoPromo = promotionsApi
+        .create(
+            PromotionPayloadBuilder.build(Promotion.Auto,
+                                          PromoOfferBuilder.CartPercentOff(percentOff),
+                                          PromoQualifierBuilder.CartAny))
+        .as[PromotionResponse.Root]
+
+      val (coupon, couponCode) = setupPromoAndCoupon()
+
+      val refNum = api_newGuestCart.referenceNumber
+
+      def percentOff(p: PromotionResponse.Root): Int =
+        (p.discounts.head.attributes \ "offer" \ "v" \ "orderPercentOff" \ "discount").extract[Int]
+
+      val woCoupon = cartsApi(refNum).lineItems
+        .add(Seq(UpdateLineItemsPayload(skuCode, 1)))
+        .asTheResult[CartResponse]
+
+      percentOff(woCoupon.promotion.value) must === (percentOff)
+
+      val withCoupon = cartsApi(refNum).coupon.add(couponCode).asTheResult[CartResponse]
+
+      percentOff(withCoupon.promotion.value) must === (DefaultDiscountPercent)
     }
   }
 

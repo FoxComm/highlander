@@ -65,6 +65,7 @@
   text-align: center;
   line-height: 29px;
   border-radius: 0;
+  vertical-align: baseline;
 }
 
 .cart-content {
@@ -93,6 +94,7 @@
 
 .subtotal-price {
   margin-left: 5px;
+  vertical-align: baseline;
 }
 
 .cart-footer {

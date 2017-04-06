@@ -60,7 +60,7 @@ module.exports = function(gulp, opts, $) {
       NODE_ENV: process.env.NODE_ENV,
       DEMO_AUTH_TOKEN: process.env.DEMO_AUTH_TOKEN,
       API_URL: process.env.API_URL,
-      ON_SERVER: process.env.ON_SERVER,
+      BEHIND_NGINX: process.env.BEHIND_NGINX,
       GIT_REVISION: rev
     }));
 

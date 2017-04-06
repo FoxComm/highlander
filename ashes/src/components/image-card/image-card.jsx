@@ -109,4 +109,4 @@ export default class ImageCard extends Component {
       </div>
     );
   }
-};
+}

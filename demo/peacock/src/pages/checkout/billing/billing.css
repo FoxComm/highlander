@@ -1,13 +1,8 @@
 @import "media-queries.css";
 @import "colors.css";
 
-.billing {
-  composes: checkout-block from '../checkout.css';
-}
-
-
 .title {
-  font-size: 19px;
+  font-size: 16px;
   font-weight: 900;
   color: var(--text-color);
 }
@@ -21,16 +16,16 @@
 
 .action-link-payment {
   composes: action-link from "ui/action-link/action-link.css";
-  font-size: 16px;
+  font-size: 14px;
   display: flex;
-  margin-right: 16px;
 }
 
-.action-link-add-card {
+.action-link-add-methods {
   composes: action-link from "ui/action-link/action-link.css";
   display: flex;
   align-items: flex-start;
-  font-size: 17px;
+  font-size: 14px;
+  margin-bottom: 15px;
 }
 
 .plus {
@@ -39,11 +34,18 @@
 }
 
 .credit-cards-list, .gc-coupon {
-  padding: 15px 10px 15px 15px;
+  padding: 15px 10px 0px 15px;
+}
+
+.promo-codes {
+  padding: 10px 10px 10px 38px;
+  background: var(--select-active-background);
+  border-radius: 4px;
+  margin-bottom: 15px;
 }
 
 .text-field {
-  composes: text-field from "../checkout.css";
+  composes: text-field from "ui/common.css";
   margin: 0;
 }
 
@@ -64,15 +66,7 @@
 }
 
 .promo-line {
-  padding: 0;
-}
-
-.add-card-button {
-  composes: button-secondary from "ui/css/buttons.css";
-}
-
-.card-number-field {
-  composes: text-field;
+  padding-bottom: 10px;
 }
 
 .cvc-field {
@@ -81,11 +75,13 @@
 
 .same-address-checkbox {
   margin-top: 20px;
-  margin-bottom: 20px;
+  margin-bottom: 5px;
+  font-size: 14px;
 }
 
 .default-checkbox {
   margin-top: 20px;
+  font-size: 14px;
 }
 
 .card-form {
@@ -93,12 +89,17 @@
 }
 
 .billing-address {
-  margin-top: 1em;
+  font-size: 12px;
+  margin-left: 25px;
 }
 
-.credit-cards-empty {
-  line-height: 53px;
-  margin-bottom: 40px;
+.no-address {
+  font-size: 12px;
+  margin-left: 25px;
+}
+
+.new-billing-address {
+  margin-top: 20px;
 }
 
 .payment-icon {
@@ -106,13 +107,13 @@
   top: calc(50% - var(--payment-icon-height) / 2);
 }
 
-.cvc-icon {
-  --cvc-height: 19px;
-  top: calc(50% - var(--cvc-height) / 2);
-}
-
 @media (--large) {
   .action-link-payment {
     margin-right: 0;
+  }
+
+  .promo-line {
+    padding-bottom: 0;
+    padding-top: 10px;
   }
 }

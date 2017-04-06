@@ -9,7 +9,7 @@ export default class Condition extends Element {
 
   toRequest(): Object {
     return {};
-  };
+  }
 
   get length(): number {
     return this._conditions.length;

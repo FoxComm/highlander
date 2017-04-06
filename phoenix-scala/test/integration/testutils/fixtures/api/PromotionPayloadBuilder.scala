@@ -1,7 +1,8 @@
 package testutils.fixtures.api
 
+import java.time.Instant
 import models.promotion.Promotion.ApplyType
-import org.json4s.JsonAST.JArray
+import org.json4s.JsonAST.{JArray, JNull}
 import org.json4s.jackson.parseJson
 import payloads.DiscountPayloads.CreateDiscount
 import payloads.PromotionPayloads.CreatePromotion
@@ -15,6 +16,7 @@ object PromotionPayloadBuilder {
             qualifier: PromoQualifierBuilder,
             tags: PromoTagsBuilder = PromoTagsBuilder.Empty,
             title: String = faker.Lorem.sentence(),
+            extraAttrs: Map[String, Json] = Map.empty,
             description: String = faker.Lorem.sentence()): CreatePromotion = {
 
     val discountAttrs = Map[String, Json](
@@ -26,7 +28,11 @@ object PromotionPayloadBuilder {
     )
 
     CreatePromotion(applyType = applyType,
-                    attributes = Map("name" → tv(faker.Lorem.sentence(1))),
+                    attributes = Map(
+                          "name"       → tv(faker.Lorem.sentence(1)),
+                          "activeFrom" → tv(Instant.now, "datetime"),
+                          "activeTo"   → tv(JNull, "datetime")
+                      ) ++ extraAttrs,
                     discounts = Seq(CreateDiscount(discountAttrs)))
   }
 

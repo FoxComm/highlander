@@ -44,7 +44,10 @@ const ViewBilling = (props: Props) => {
 
   return (
     <ul styleName="view-billing">
-      <li styleName="payment-name">{ `${holderName}'s ${paymentType}`}{defaultText}</li>
+      <li styleName="payment-name">
+        <span styleName="name">{holderName}</span>
+        { `'s ${paymentType}`}{defaultText}
+      </li>
       <li styleName="payment-last-four">{ `Ending in ${lastFour}, expires ${monthYear}` }</li>
       {addressInfo}
     </ul>

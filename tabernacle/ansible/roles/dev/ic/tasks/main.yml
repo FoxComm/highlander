@@ -31,6 +31,10 @@
   include: app_orders_anthill.yml
   when: with_ic and marathon_restart.orders_anthill
 
+- name: Start Product Activity
+  include: app_product_activity.yml
+  when: with_ic and marathon_restart.product_activity
+
 - name: Start Eggcrate
   include: app_eggcrate.yml
   when: with_ic and marathon_restart.eggcrate
