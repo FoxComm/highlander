@@ -53,6 +53,7 @@ export default (props: Props) => {
       placeholder=""
       items={items}
       onChange={onTaxonClick}
+      emptyMessage="No items"
       noControls
       editable
     />
