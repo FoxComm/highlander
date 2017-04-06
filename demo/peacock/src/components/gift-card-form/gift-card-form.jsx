@@ -15,11 +15,14 @@ import { TextArea } from 'ui/textarea';
 import { FormField } from 'ui/forms';
 import Select from 'ui/select/select';
 
+// types
+import type { TProductView } from 'pages/catalog/types';
+import type { Sku } from 'modules/product-details';
 
 type Props = {
-  product: any,
+  productView: TProductView,
   onSkuChange: Function,
-  selectedSku: any,
+  selectedSku: Sku,
   attributes: Object,
   onAttributeChange: Function,
 };
@@ -35,7 +38,7 @@ const formatSkuPrice = (sku) => {
 const GiftCardForm = (props: Props) => {
   const {
     skus,
-  } = props.product;
+  } = props.productView;
 
   const recipientName = _.get(props.attributes, 'giftCard.recipientName', '');
   const recipientEmail = _.get(props.attributes, 'giftCard.recipientEmail', '');

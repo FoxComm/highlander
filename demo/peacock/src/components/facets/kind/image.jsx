@@ -1,10 +1,8 @@
 /* @flow */
 
-import classnames from 'classnames';
 import React, { Component, Element } from 'react';
-import styles from './colorcircle.css';
-import _ from 'lodash';
 import { autobind } from 'core-decorators';
+import styles from './image.css';
 
 import type { FacetElementProps } from 'types/facets';
 
@@ -12,19 +10,8 @@ type State = {
   checked: boolean,
 };
 
-const lightColors = [
-  'white',
-  'yellow',
-  'light',
-];
 
-function isLight(c) {
-  return _.some(lightColors, (lc) => {
-    return c.includes(lc);
-  });
-}
-
-class ColorCircle extends Component {
+class Image extends Component {
   props: FacetElementProps;
   state: State = {
     checked: !!this.props.checked,
@@ -48,38 +35,32 @@ class ColorCircle extends Component {
     }
   }
 
-  render(): Element<any> {
+  render(): Element<*> {
     const {
-      reactKey,
+      facet,
       value,
       label,
     } = this.props;
 
-    const colorStyle = styles[value.color];
-
-    const className = classnames(
-      colorStyle,
-      styles['color-checkbox'], {
-        [styles.light]: isLight(value.color),
-      }
-    );
-
-    if (_.isNil(colorStyle)) return <div />;
+    const id = `${facet}-image-${label}`;
 
     return (
-      <div className={className}>
+      <div styleName="image-checkbox">
         <input
-          id={reactKey}
+          id={id}
           type="checkbox"
           checked={this.state.checked}
           onChange={this.click}
         />
         <div>
-          <label htmlFor={reactKey}>{''}</label>
+          <label htmlFor={id}>
+            <img src={value.image} styleName="image" />
+            <div styleName="sign-holder" />
+          </label>
         </div>
       </div>
     );
   }
 }
 
-export default ColorCircle;
+export default Image;

@@ -21,3 +21,10 @@ a {
 button {
   transition: all 300ms;
 }
+
+#app {
+  overflow: auto;
+  width: 100vw;
+  height: 100vh;
+  padding-top: 50px;
+}
