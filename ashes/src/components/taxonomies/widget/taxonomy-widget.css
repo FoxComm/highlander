@@ -24,6 +24,7 @@
   display: flex;
   align-items: center;
   margin-bottom: 10px;
+  line-height: 30px;
   font-size: 16px;
   font-weight: 600;
 }
@@ -34,19 +35,20 @@
 
 .button {
   display: inline-flex;
-  margin-left: 5px;
-  padding: 5px;
+  margin-left: 10px;
+  padding: 0;
   background: none;
   border: none;
+  font-size: 8px;
 }
 
-.button span {
-  font-size: 14px;
+.button i {
   transition: transform .1s;
+  transform: translateY(1px);
 }
 
-.taxonomies._open .button span {
-  transform: rotate(-45deg);
+.taxonomies._open .button i {
+  transform: translateY(1px) rotate(-45deg);
 }
 
 /********************************************************
