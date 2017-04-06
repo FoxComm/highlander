@@ -8,9 +8,7 @@
 }
 
 .error-alerts div {
-   background: transparent !important;
-   color: var(--color-error);
-   font-size: 17px;
+  margin-left: 15px;
 }
 
 .form-header {
