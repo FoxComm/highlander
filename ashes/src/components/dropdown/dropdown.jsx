@@ -33,7 +33,7 @@ const omitProps = [
 const mapValues = (items: Array<DropdownItemType>): Array<ValueType> => items.map(([value]) => value);
 
 const filterValues = (items: Array<DropdownItemType>, token: string) =>
-  items.filter(([_, name]) => name.toLowerCase().indexOf(token.toLowerCase()) > -1);
+  items.filter(([_, name]) => String(name).toLowerCase().indexOf(token.toLowerCase()) > -1);
 
 const wrap = (reg: RegExp) => (str: string, i: number) =>
   str.search(reg) > -1 ? <span styleName="needle" key={`${str}-${i}`}>{str}</span> : str;
@@ -94,9 +94,10 @@ export default class Dropdown extends Component {
 
 
   renderItems() {
-    const { name, items, editable } = this.props;
+    const { name, editable } = this.props;
     const { token } = this.state;
 
+    const items = _.get(this.props, 'items', []);
     const filtered = editable && token.length ? filterValues(items, token) : items;
     const processItem = editable && token.length ? highlightOccurrence(token) : _.identity;
 

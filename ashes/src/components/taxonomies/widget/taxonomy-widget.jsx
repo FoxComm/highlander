@@ -25,6 +25,9 @@ import { transitionToLazy } from 'browserHistory';
 // style
 import styles from './taxonomy-widget.css';
 
+// types
+import type { Value } from 'components/rounded-pill/rounded-pill';
+
 type Props = {
   title: string,
   context: string,
@@ -72,12 +75,12 @@ class TaxonomyWidget extends Component {
   };
 
   @autobind
-  handleDeleteClick(taxonId) {
-    this.setState({ unlinkingId: taxonId }, () =>
+  handleDeleteClick(taxonId: Value) {
+    this.setState({ unlinkingId: parseInt(taxonId) }, () => {
       this.props.unlinkProduct(taxonId)
         .then(this.props.onChange)
-        .then(() => this.setState({ unlinkingId: null }))
-    );
+        .then(() => this.setState({ unlinkingId: null }));
+    });
   }
 
   @autobind
@@ -86,12 +89,12 @@ class TaxonomyWidget extends Component {
   }
 
   @autobind
-  handleLinkClick(taxonId) {
-    this.setState({ linkingId: taxonId }, () =>
+  handleLinkClick(taxonId: Value) {
+    this.setState({ linkingId: parseInt(taxonId) }, () => {
       this.props.linkProduct(taxonId)
         .then(this.props.onChange)
-        .then(() => this.setState({ linkingId: null }))
-    );
+        .then(() => this.setState({ linkingId: null }));
+    });
   }
 
   get linkedTaxons() {
