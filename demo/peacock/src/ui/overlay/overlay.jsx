@@ -22,7 +22,7 @@ class Overlay extends Component {
     const appNode = document.getElementById('site');
     if (appNode) {
       if (this.props.shown) {
-        appNode.setAttribute('style', 'overflow: hidden !important; width: auto !important;');
+        appNode.setAttribute('style', 'overflow: hidden; width: auto;');
       } else {
         appNode.setAttribute('style', '');
       }
