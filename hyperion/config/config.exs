@@ -20,7 +20,8 @@ config :hyperion,
 
 config :hyperion,
   public_key: System.get_env("PUBLIC_KEY"),
-  push_check_interval: System.get_env("PUSH_CHECK_INTERVAL")
+  push_check_interval: System.get_env("PUSH_CHECK_INTERVAL"),
+  create_plugin: System.get_env("CREATE_ASHES_PLUGIN")
 
 # This configuration is loaded before any dependency and is restricted
 # to this project. If another project depends on this project, this

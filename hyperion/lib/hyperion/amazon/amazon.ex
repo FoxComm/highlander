@@ -74,14 +74,13 @@ defmodule Hyperion.Amazon do
   end
 
   def fetch_config do
-    {_, jwt} = Client.login
-               |> JwtAuth.verify
-    Credentials.mws_config(jwt.scope)
+    token = Client.login
+    fetch_config(token)
+    # Credentials.mws_config(jwt.scope)
   end
 
   def fetch_config(token) do
-    {_, jwt} = JwtAuth.verify(token)
-    Credentials.mws_config(jwt.scope)
+    Credentials.mws_config(token)
   end
 
   def get_full_order(order_id, token) do

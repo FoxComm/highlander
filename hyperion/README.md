@@ -39,6 +39,7 @@ PHOENIX_ORG=org
 
 # misc
 PUSH_CHECK_INTERVAL=5
+CREATE_ASHES_PLUGIN=true
 ```
 
 _IMPORTANT:_ Please keep in mind that AWS credentials differ from MWS. You can not use AWS data to access MWS and vice versa.
