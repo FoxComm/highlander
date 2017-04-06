@@ -56,7 +56,6 @@ export default class TaxonDetails extends Component {
     return (
       <ObjectDetailsDeux
         {...props}
-        ref="form"
         renderers={this.renderers}
       />
     );

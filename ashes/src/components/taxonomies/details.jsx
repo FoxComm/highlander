@@ -51,7 +51,6 @@ export default class TaxonomyDetails extends React.Component {
     return (
       <ObjectDetailsDeux
         {...this.props}
-        ref='form'
         renderers={this.renderers}
       />
     );
