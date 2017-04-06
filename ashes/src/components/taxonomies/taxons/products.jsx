@@ -89,7 +89,7 @@ export class TaxonProductsPage extends Component {
   }
 
   @autobind
-  handleUnlinkProduct(event, product: Product) {
+  handleUnlinkProduct(event: SyntheticEvent, product: Product) {
     event.stopPropagation();
     const { actions, params: { taxonId, context } } = this.props;
 
@@ -107,7 +107,7 @@ export class TaxonProductsPage extends Component {
         params={params}
         onCellClick={this.handleUnlinkProduct}
       />
-    )
+    );
   }
 
   render() {

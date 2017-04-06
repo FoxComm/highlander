@@ -16,6 +16,7 @@ type Props = {
   product: Product,
   columns?: Array<Object>,
   params: Object,
+  onCellClick?: Function
 };
 
 function setCellContents(product, field, onCellClick) {
