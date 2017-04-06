@@ -18,7 +18,8 @@ object PaymentPayloads {
                                               brand: String,
                                               holderName: String,
                                               billingAddress: CreateAddressPayload,
-                                              addressIsNew: Boolean) {
+                                              addressIsNew: Boolean)
+      extends Validation[CreateCreditCardFromTokenPayload] {
     def validate: ValidatedNel[Failure, CreateCreditCardFromTokenPayload] = {
       import Validation._
 
@@ -45,7 +46,8 @@ object PaymentPayloads {
                                                address: Option[CreateAddressPayload] = None,
                                                addressId: Option[Int] = None,
                                                isDefault: Boolean = false,
-                                               isShipping: Boolean = false) {
+                                               isShipping: Boolean = false)
+      extends Validation[CreateCreditCardFromSourcePayload] {
 
     def validate: ValidatedNel[Failure, CreateCreditCardFromSourcePayload] = {
       import Validation._
@@ -76,7 +78,8 @@ object PaymentPayloads {
                             expMonth: Option[Int] = None,
                             addressId: Option[Int] = None,
                             address: Option[CreateAddressPayload] = None,
-                            isShipping: Boolean = false) {
+                            isShipping: Boolean = false)
+      extends Validation[EditCreditCard] {
 
     def validate: ValidatedNel[Failure, EditCreditCard] = {
       import Validation._

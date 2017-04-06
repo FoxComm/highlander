@@ -17,7 +17,7 @@ import Billing from './billing/billing';
 import GuestAuth from './guest-auth/guest-auth';
 import Products from 'components/order-summary/product-table';
 import Header from 'components/header/header';
-import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
+import ErrorAlerts from 'ui/alerts/error-alerts';
 import Loader from 'ui/loader';
 import OrderTotals from 'components/order-summary/totals';
 import Button from 'ui/buttons';
@@ -224,25 +224,27 @@ class Checkout extends Component {
     if (cartFetched) {
       return (
         <div styleName="wrapper">
-          <div styleName="shipping">
-            <Shipping
-              isEditing={props.editStage}
-              onComplete={this.setShipping}
-              addresses={this.props.addresses}
-              fetchAddresses={this.props.fetchAddresses}
-              shippingAddress={_.get(this.props.cart, 'shippingAddress', {})}
-              auth={this.props.auth}
-              isGuestMode={isGuestMode}
-            />
-          </div>
-          <div styleName="delivery">
-            <Delivery
-              isEditing={props.editStage}
-              onComplete={this.setDelivery}
-              shippingMethods={props.shippingMethods}
-              cart={this.props.cart}
-              fetchShippingMethods={props.fetchShippingMethods}
-            />
+          <div styleName="column-1">
+            <div styleName="shipping">
+              <Shipping
+                isEditing={props.editStage}
+                onComplete={this.setShipping}
+                addresses={this.props.addresses}
+                fetchAddresses={this.props.fetchAddresses}
+                shippingAddress={_.get(this.props.cart, 'shippingAddress', {})}
+                auth={this.props.auth}
+                isGuestMode={isGuestMode}
+              />
+            </div>
+            <div styleName="delivery">
+              <Delivery
+                isEditing={props.editStage}
+                onComplete={this.setDelivery}
+                shippingMethods={props.shippingMethods}
+                cart={this.props.cart}
+                fetchShippingMethods={props.fetchShippingMethods}
+              />
+            </div>
           </div>
           <div styleName="payment">
             <Billing
@@ -252,10 +254,10 @@ class Checkout extends Component {
               onComplete={this.setBilling}
             />
           </div>
+          {this.orderTotals}
           <div styleName="order-summary">
             {this.orderContent}
           </div>
-          {this.orderTotals}
 
           <GuestAuth
             isEditing={!this.isEmailSetForCheckout()}

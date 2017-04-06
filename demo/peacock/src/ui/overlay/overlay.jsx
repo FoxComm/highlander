@@ -2,6 +2,7 @@
 
 import React, { Component } from 'react';
 import classNames from 'classnames';
+import _ from 'lodash';
 
 import styles from './overlay.css';
 
@@ -13,13 +14,17 @@ type Props = {
 class Overlay extends Component {
   props: Props;
 
-  componentWillReceiveProps(nextProps: Props) {
-    const appNode = document.getElementById('app');
+  shouldComponentUpdate(nextProps: Props) {
+    return !_.isEqual(nextProps, this.props);
+  }
+
+  componentDidUpdate() {
+    const appNode = document.getElementById('site');
     if (appNode) {
-      if (nextProps.shown) {
-        appNode.className = styles['no-scroll'];
+      if (this.props.shown) {
+        appNode.setAttribute('style', 'overflow: hidden !important; width: auto !important;');
       } else {
-        appNode.className = '';
+        appNode.setAttribute('style', '');
       }
     }
   }

@@ -2,7 +2,7 @@
 @import "colors.css";
 
 .title {
-  font-size: 19px;
+  font-size: 16px;
   font-weight: 900;
   color: var(--text-color);
 }
@@ -16,16 +16,15 @@
 
 .action-link-payment {
   composes: action-link from "ui/action-link/action-link.css";
-  font-size: 16px;
+  font-size: 14px;
   display: flex;
-  margin-right: 16px;
 }
 
 .action-link-add-methods {
   composes: action-link from "ui/action-link/action-link.css";
   display: flex;
   align-items: flex-start;
-  font-size: 17px;
+  font-size: 14px;
   margin-bottom: 15px;
 }
 
@@ -39,7 +38,7 @@
 }
 
 .promo-codes {
-  padding: 10px 10px 0 38px;
+  padding: 10px 10px 10px 38px;
   background: var(--select-active-background);
   border-radius: 4px;
   margin-bottom: 15px;
@@ -67,7 +66,7 @@
 }
 
 .promo-line {
-  padding: 0;
+  padding-bottom: 10px;
 }
 
 .cvc-field {
@@ -76,11 +75,13 @@
 
 .same-address-checkbox {
   margin-top: 20px;
-  margin-bottom: 20px;
+  margin-bottom: 5px;
+  font-size: 14px;
 }
 
 .default-checkbox {
   margin-top: 20px;
+  font-size: 14px;
 }
 
 .card-form {
@@ -88,7 +89,17 @@
 }
 
 .billing-address {
-  margin-top: 1em;
+  font-size: 12px;
+  margin-left: 25px;
+}
+
+.no-address {
+  font-size: 12px;
+  margin-left: 25px;
+}
+
+.new-billing-address {
+  margin-top: 20px;
 }
 
 .payment-icon {
@@ -99,5 +110,10 @@
 @media (--large) {
   .action-link-payment {
     margin-right: 0;
+  }
+
+  .promo-line {
+    padding-bottom: 0;
+    padding-top: 10px;
   }
 }

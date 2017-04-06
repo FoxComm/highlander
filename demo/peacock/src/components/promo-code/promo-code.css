@@ -1,12 +1,11 @@
-@import 'media-queries.css';
-@import 'colors.css';
+@import "media-queries.css";
+@import "colors.css";
 
 .promo-code {}
 
 .gift-card, .coupon {
   color: var(--text-color);
-  padding-bottom: 10px;
-  font-size: 14px;
+  font-size: 12px;
   display: flex;
   justify-content: space-between;
 }
@@ -25,5 +24,5 @@
 
 .action-link-remove {
   composes: action-link from "ui/action-link/action-link.css";
-  font-size: 16px;
+  font-size: 14px;
 }

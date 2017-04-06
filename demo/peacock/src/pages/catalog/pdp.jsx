@@ -2,11 +2,11 @@
 
 // libs
 import _ from 'lodash';
+import { assoc } from 'sprout-data';
 import React, { Component, Element } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
-import { assoc } from 'sprout-data';
 import * as tracking from 'lib/analytics';
 
 // i18n
@@ -19,12 +19,8 @@ import { fetch, getNextId, getPreviousId, resetProduct } from 'modules/product-d
 import { addLineItem, toggleCart } from 'modules/cart';
 import { fetchRelatedProducts, clearRelatedProducts } from 'modules/cross-sell';
 
-
 // styles
 import styles from './pdp.css';
-
-// types
-import type { RelatedProductResponse } from 'modules/cross-sell';
 
 // components
 // import { SecondaryButton } from 'ui/buttons';
@@ -32,7 +28,7 @@ import AddToCartBtn from 'ui/add-to-cart-btn';
 import Gallery from 'ui/gallery/gallery';
 import Loader from 'ui/loader';
 import Breadcrumbs from 'components/breadcrumbs/breadcrumbs';
-import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
+import ErrorAlerts from 'ui/alerts/error-alerts';
 import ProductDetails from './product-details';
 
 import GiftCardForm from 'components/gift-card-form';
@@ -41,8 +37,10 @@ import RelatedProductsList,
   { LoadingBehaviors } from 'components/related-products-list/related-products-list';
 
 // types
-import type { ProductResponse } from 'modules/product-details';
+import type { ProductResponse, Sku } from 'modules/product-details';
+import type { RelatedProductResponse } from 'modules/cross-sell';
 import type { RoutesParams } from 'types';
+import type { TProductView } from './types';
 
 type Params = {
   productSlug: string,
@@ -70,19 +68,9 @@ type Props = Localized & RoutesParams & {
 };
 
 type State = {
-  quantity: number,
   error?: any,
-  currentSku?: any,
+  currentSku: ?Sku,
   attributes?: Object,
-};
-
-type Product = {
-  title: string,
-  description: string,
-  images: Array<string>,
-  currency: string,
-  price: number|string,
-  pathName: string,
 };
 
 const mapStateToProps = (state) => {
@@ -116,9 +104,9 @@ const mapDispatchToProps = dispatch => ({
 class Pdp extends Component {
   props: Props;
   productPromise: Promise<*>;
+  _productDetails: ProductDetails;
 
   state: State = {
-    quantity: 1,
     currentSku: null,
     attributes: {},
   };
@@ -134,7 +122,7 @@ class Pdp extends Component {
   componentDidMount() {
     this.productPromise.then(() => {
       const { product, isRelatedProductsLoading, actions } = this.props;
-      tracking.viewDetails(this.product);
+      tracking.viewDetails(this.productView);
       if (!isRelatedProductsLoading) {
         actions.fetchRelatedProducts(product.id, 1).catch(_.noop);
       }
@@ -214,7 +202,7 @@ class Pdp extends Component {
   }
 
   @autobind
-  setCurrentSku(currentSku) {
+  setCurrentSku(currentSku: Sku) {
     this.setState({ currentSku });
   }
 
@@ -225,10 +213,13 @@ class Pdp extends Component {
     this.setState(assoc(this.state, namePath, stateValue));
   }
 
-  get product(): Product {
+  get productView(): TProductView {
     const attributes = _.get(this.props.product, 'attributes', {});
     const price = _.get(this.currentSku, 'attributes.salePrice.v', {});
-    const images = _.get(this.props.product, ['albums', 0, 'images'], []);
+    let images = _.get(this.currentSku, ['albums', 0, 'images'], []);
+    if (_.isEmpty(images)) {
+      images = _.get(this.props.product, ['albums', 0, 'images'], []);
+    }
     const imageUrls = images.map(image => image.src);
 
     return {
@@ -238,7 +229,6 @@ class Pdp extends Component {
       currency: _.get(price, 'currency', 'USD'),
       price: _.get(price, 'value', 0),
       skus: this.sortedSkus,
-      pathName: this.props.location.pathname,
     };
   }
 
@@ -252,21 +242,19 @@ class Pdp extends Component {
   }
 
   @autobind
-  changeQuantity(quantity: number): void {
-    this.setState({ quantity });
-  }
-
-  @autobind
   addToCart(): void {
     const { actions } = this.props;
-    const { quantity } = this.state;
-    const skuId = _.get(this.currentSku, 'attributes.code.v', '');
-    tracking.addToCart(this.product, quantity);
-    actions.addLineItem(skuId, quantity, this.state.attributes)
+    const unselectedFacets = this._productDetails.getUnselectedFacets();
+    if (unselectedFacets.length) {
+      this._productDetails.flashUnselectedFacets(unselectedFacets);
+      return;
+    }
+    const skuCode = _.get(this.currentSku, 'attributes.code.v', '');
+    tracking.addToCart(this.productView, 1);
+    actions.addLineItem(skuCode, 1, this.state.attributes)
       .then(() => {
         actions.toggleCart();
         this.setState({
-          quantity: 1,
           attributes: {},
           currentSku: null,
         });
@@ -279,7 +267,7 @@ class Pdp extends Component {
   }
 
   renderGallery() {
-    const { images } = this.product;
+    const { images } = this.productView;
 
     return !_.isEmpty(images)
       ? <Gallery images={images} />
@@ -303,11 +291,18 @@ class Pdp extends Component {
     );
   }
 
+  @autobind
+  handleSkuChange(sku: ?Sku) {
+    if (sku) {
+      this.setCurrentSku(sku);
+    }
+  }
+
   get productForm(): Element<any> {
     if (this.isGiftCard()) {
       return (
         <GiftCardForm
-          product={this.product}
+          productView={this.productView}
           onSkuChange={this.setCurrentSku}
           selectedSku={this.currentSku}
           attributes={this.state.attributes}
@@ -317,9 +312,11 @@ class Pdp extends Component {
     }
     return (
       <ProductDetails
-        product={this.product}
-        quantity={this.state.quantity}
-        onQuantityChange={this.changeQuantity}
+        ref={(_ref) => { this._productDetails = _ref; }}
+        product={this.props.product}
+        productView={this.productView}
+        selectedSku={this.currentSku}
+        onSkuChange={this.handleSkuChange}
       />
     );
   }
@@ -345,7 +342,7 @@ class Pdp extends Component {
     if (fetchError) {
       return <ErrorAlerts error={fetchError} />;
     }
-    const title = this.isGiftCard() ? t('Gift Card') : this.product.title;
+    const title = this.isGiftCard() ? t('Gift Card') : this.productView.title;
 
     return (
       <div styleName="container">

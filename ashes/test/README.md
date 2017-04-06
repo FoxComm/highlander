@@ -235,7 +235,7 @@ For mocking api requests use [nock](https://www.npmjs.com/package/nock#read-this
 
 ```es6
 it('editNote', function *() {
-  nock(phoenixUrl)
+  nock(process.env.API_URL)
     .patch(notesUri(entity, 1))
     .reply(200, notePayload);
 

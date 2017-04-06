@@ -17,18 +17,18 @@ type Props = {
 };
 
 const SubNav = (props: Props) => {
-    const params = props.params;
+  const params = props.params;
 
-    const notNew = params.couponId != 'new';
+  const notNew = params.couponId != 'new';
 
-    return (
-      <LocalNav>
-        <IndexLink to="coupon-details" params={params}>Details</IndexLink>
-        { notNew && <Link to="coupon-codes" params={params}>Coupon Codes</Link> }
-        { notNew && <Link to="coupon-notes" params={params}>Notes</Link> }
-        { notNew && <Link to="coupon-activity-trail" params={params}>Activity Trail</Link> }
-      </LocalNav>
-    );
+  return (
+    <LocalNav>
+      <IndexLink to="coupon-details" params={params}>Details</IndexLink>
+      { notNew && <Link to="coupon-codes" params={params}>Coupon Codes</Link> }
+      { notNew && <Link to="coupon-notes" params={params}>Notes</Link> }
+      { notNew && <Link to="coupon-activity-trail" params={params}>Activity Trail</Link> }
+    </LocalNav>
+  );
 };
 
 SubNav.propTypes = {

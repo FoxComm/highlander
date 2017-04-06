@@ -46,13 +46,13 @@ func henhouseProductStats(id, channel, a, b string) (string, error) {
 		return "", qErr
 	}
 
-	activeKey := []string{"track." + channel + ".product.active"}
+	activeKey := []string{"track." + channel + ".product.activated"}
 	activeRes, qErr := util.HenhouseQuery("diff", activeKey, a, b, "agg")
 	if qErr != nil {
 		return "", qErr
 	}
 
-	activeProducts := responses.GetSum("product.active", activeRes)
+	activeProducts := responses.GetSum("product.activated", activeRes)
 
 	return buildStatResponse(pf, activeProducts), nil
 }

@@ -6,36 +6,39 @@ Microservice to work with Amazon Marketplace Web Service
 
 ## Setup
 
-**Create start.sh**
+**Create .env.dev**
 
-Rename `start.sh-template` to `start.sh` and add all needed ENV variables:
+Rename `env.dev.template` to `.env.dev` and add all needed ENV variables:
 
 ```bash
 # DB
-export HYPERION_DB_USER=hyperion
-export HYPERION_DB_PASSWORD=''
-export HYPERION_DB_NAME=hyperion_development
-export HYPERION_DB_HOST=localhost
+HYPERION_DB_USER=hyperion
+HYPERION_DB_PASSWORD=''
+HYPERION_DB_NAME=hyperion_development
+HYPERION_DB_HOST=localhost
 
 # for tests
-export HYPERION_DB_TEST_NAME=hyperion_test
+HYPERION_DB_TEST_NAME=hyperion_test
 
 # for JWTAuth
-export public_key=/full/path/to/public_key.pem
+public_key=/full/path/to/public_key.pem
 
 # AWS
-export AWS_ACCESS_KEY_ID=aws_access_key
-export AWS_SECRET_ACCESS_KEY=aws_secret
+AWS_ACCESS_KEY_ID=aws_access_key
+AWS_SECRET_ACCESS_KEY=aws_secret
 
 # MWS
-export MWS_ACCESS_KEY_ID=mws_access_key
-export MWS_SECRET_ACCESS_KEY=mws_secret
+MWS_ACCESS_KEY_ID=mws_access_key
+MWS_SECRET_ACCESS_KEY=mws_secret
 
 # phoenix
-export PHOENIX_URL=your-developer-appliance-url
-export PHOENIX_PASSWORD=api-password
-export PHOENIX_USER=user
-export PHOENIX_ORG=org
+PHOENIX_URL=your-developer-appliance-url
+PHOENIX_PASSWORD=api-password
+PHOENIX_USER=user
+PHOENIX_ORG=org
+
+# misc
+PUSH_CHECK_INTERVAL=5
 ```
 
 _IMPORTANT:_ Please keep in mind that AWS credentials differ from MWS. You can not use AWS data to access MWS and vice versa.
@@ -48,7 +51,15 @@ Run flyway migrations
 flyway -configFile=sql/flyway.conf -locations=filesystem:sql migrate
 ```
 
+or
+
+```bash
+make migrate
+```
+
 **Seed DB**
+
+If you are trying to start hyperion in docker, you need to add some workaround to psql
 
 Add alias to host machine
 
@@ -103,10 +114,16 @@ Run container
 docker run -it --rm [container-id]
 ```
 
+If you running hyperion w/o docker container, just run seed task then:
+
+```bash
+make seed
+```
+
 **Start application**
 
 ```bash
-./start.sh
+source .env && iex -S mix
 ```
 
 

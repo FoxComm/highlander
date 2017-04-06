@@ -49,11 +49,11 @@ function attributesFromSettings(settingsWithSchema: Object): Attributes {
   const schema: Object = settingsWithSchema.schema;
 
   return _.reduce(schema, (acc:Attributes, property: SettingDef) => {
-      const value = settings[property.name];
-      acc[property.name] = {
-        t: guessType(value),
-        v: value
-      };
+    const value = settings[property.name];
+    acc[property.name] = {
+      t: guessType(value),
+      v: value
+    };
     return acc;
   }, {});
 }
