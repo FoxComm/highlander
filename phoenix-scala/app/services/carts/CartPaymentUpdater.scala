@@ -14,7 +14,7 @@ import models.payment.giftcard._
 import models.payment.storecredit._
 import models.account.User
 import models.payment.PaymentMethod.ApplePay
-import models.payment.applepay.{ApplePayCharge, ApplePayCharges}
+import models.payment.applepay._
 import payloads.PaymentPayloads._
 import responses.TheResponse
 import responses.cord.CartResponse
@@ -195,28 +195,17 @@ object CartPaymentUpdater {
       cart ← * <~ getCartByOriginator(originator, payload.cartRef.some)
       _    ← * <~ OrderPayments.filter(_.cordRef === cart.refNum).applePays.delete
 
-      // make sure stripe token is valid
-      // TODO Fetch all payment info from token!
-//      _ ← * <~ apis.stripe.retrieveToken(payload.token)
-
-      // check if funds spent is not greater than cart's grandTotal.  Final payment check will go later.
-      _ ← * <~ failIfNot(cart.grandTotal >= payload.amount && cart.currency == payload.currency,
-                         CustomerShouldPayExactAmount(cart.grandTotal, payload.amount))
-
       //    create apple charge
-      apCharge ← * <~ ApplePayCharges.create(
-                    ApplePayCharge(
-                        accountId = originator.id,
-                        gatewayCustomerId = payload.token,
-                        currency = payload.currency,
-                        amount = payload.amount
-                    ))
+      applePayment ← * <~ ApplePayments.create(
+                        ApplePayment(accountId = originator.id,
+                                     gatewayTokenId = payload.token,
+                                     gatewayCustomerId = payload.gatewayCustomerId))
 
       _ ← * <~ OrderPayments.create(
              OrderPayment(cordRef = cart.refNum,
-                          amount = payload.amount.some,
+                          amount = None,
                           paymentMethodType = ApplePay,
-                          paymentMethodId = apCharge.id) // todo fix this method id
+                          paymentMethodId = applePayment.id)
          )
 
       valid ← * <~ CartValidator(cart).validate()

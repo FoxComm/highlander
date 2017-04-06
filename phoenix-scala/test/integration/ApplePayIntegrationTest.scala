@@ -1,43 +1,26 @@
-import java.time.Instant
-
-import akka.http.scaladsl.model.HttpResponse
-import cats.implicits._
-import failures.AddressFailures.NoDefaultAddressForCustomer
-import failures.ApplePayFailures.CustomerShouldPayExactAmount
-import failures.CreditCardFailures.NoDefaultCreditCardForCustomer
-import failures.NotFoundFailure404
-import failures.ShippingMethodFailures.{NoDefaultShippingMethod, ShippingMethodNotFoundByName}
-import failures.UserFailures._
-import models.account._
-import models.cord.Order.RemorseHold
-import models.cord._
-import models.cord.lineitems._
-import models.customer._
+import cats.implicits.none
+import failures.ShippingMethodFailures.ShippingMethodNotFoundByName
+import models.Reasons
 import models.inventory._
-import models.location.{Address, Addresses}
-import models.payment.giftcard._
-import models.payment.{InStorePaymentStates, PaymentMethod}
 import models.product.Mvp
 import models.shipping._
-import models.{Reason, Reasons}
-import payloads.AddressPayloads.CreateAddressPayload
-import payloads.CartPayloads.{CheckoutCart, CreateCart}
-import payloads.GiftCardPayloads.GiftCardCreateByCsr
 import payloads.LineItemPayloads._
-import payloads.PaymentPayloads.{CreateApplePayPayment, CreateCreditCardFromTokenPayload, GiftCardPayment}
+import payloads.PaymentPayloads.CreateApplePayPayment
 import payloads.UpdateShippingMethod
-import responses.GiftCardResponse
 import responses.cord._
+import services.{RealStripeApis, StripeTest}
 import slick.driver.PostgresDriver.api._
 import testutils._
-import testutils.apis.{PhoenixAdminApi, PhoenixStorefrontApi}
+import testutils.apis.PhoenixStorefrontApi
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api.ApiFixtureHelpers
+import utils.TestStripeSupport.createTokenForCard
+import utils.apis.StripeWrapper
 import utils.db._
 import utils.seeds.Factories
 
 class ApplePayIntegrationTest
-    extends IntegrationTestBase
+    extends StripeTest
     with PhoenixStorefrontApi
     with ApiFixtureHelpers
     with AutomaticAuth
@@ -45,23 +28,19 @@ class ApplePayIntegrationTest
 
   "POST v1/my/payment-methods/apple-pay" - {
     "Apple pay checkout with funds authorized" in new EmptyCartWithShipAddress_Baked with Fixture {
-
       val refNum = cart.referenceNumber
 
       private val lineItemsPayloads = List(UpdateLineItemsPayload(otherSku.code, 2))
       cartsApi(refNum).lineItems.add(lineItemsPayloads).mustBeOk()
 
+      // test with cc token cause we can't create Apple Pay token, they act virtually the same tho
       private val payment = CreateApplePayPayment(
-          token = "random",
-          350000,
+          token = card.getId,
+          gatewayCustomerId = realStripeCustomerId,
           cartRef = refNum
       )
 
-      storefrontPaymentsApi.applePay
-        .post(payment)
-        .mustFailWith400(CustomerShouldPayExactAmount(30600, 350000))
-
-      storefrontPaymentsApi.applePay.post(payment.copy(amount = 31600)).mustBeOk()
+      storefrontPaymentsApi.applePay.post(payment).mustBeOk()
 
       val grandTotal = cartsApi(refNum).shippingMethod
         .update(UpdateShippingMethod(shipMethod.id))

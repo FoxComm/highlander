@@ -234,6 +234,8 @@ object Customer {
                 }
               }
             } ~
+//              pathPrefix(cordRefNumRegex) { refNum ⇒
+//              }
             pathPrefix("payment-methods" / "apple-pay") {
               (get & pathEnd) {
                 getOrFailures {
