@@ -17,7 +17,7 @@ import Billing from './billing/billing';
 import GuestAuth from './guest-auth/guest-auth';
 import Products from 'components/order-summary/product-table';
 import Header from 'components/header/header';
-import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
+import ErrorAlerts from 'ui/alerts/error-alerts';
 import Loader from 'ui/loader';
 import OrderTotals from 'components/order-summary/totals';
 import Button from 'ui/buttons';
