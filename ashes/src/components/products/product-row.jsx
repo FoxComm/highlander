@@ -11,6 +11,10 @@ import { activeStatus, isArchived } from 'paragons/common';
 // components
 import RoundedPill from '../rounded-pill/rounded-pill';
 import MultiSelectRow from '../table/multi-select-row';
+import { Button } from 'components/common/buttons';
+
+// styles
+import styles from './product-row.css';
 
 type Props = {
   product: Product,
@@ -28,7 +32,7 @@ function setCellContents(product, field, onCellClick) {
     case 'state':
       return <RoundedPill text={activeStatus(product)} />;
     case 'unlink':
-      return <button onClick={(event) => onCellClick(event, product) }>Unlink</button>;
+      return <Button onClick={(event) => onCellClick(event, product) }>Unlink</Button>;
     default:
       return _.get(product, field);
   }
@@ -47,7 +51,7 @@ const ProductRow = (props: Props) => {
     return <MultiSelectRow {...commonParams} />;
   }
 
-const onClick = () => transitionTo("product-details", {
+const onRowClick = () => transitionTo('product-details', {
   productId: product.productId,
   context: product.context
 });
@@ -55,7 +59,7 @@ const onClick = () => transitionTo("product-details", {
   return (
     <MultiSelectRow
       { ...commonParams }
-      onClick={onClick}
+      onClick={onRowClick}
       onCellClick={onCellClick}
     />
   );
