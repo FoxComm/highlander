@@ -9,7 +9,7 @@ import { connect } from 'react-redux';
 
 // actions
 import { actions } from 'modules/taxons/details/products-list';
-import { addProduct } from 'modules/taxons/details/taxon';
+import { addProduct, deleteProduct as unlinkProduct } from 'modules/taxons/details/taxon';
 
 // components
 import { SectionTitle } from 'components/section-title';
@@ -47,6 +47,7 @@ const tableColumns: Columns = [
   { field: 'title', text: 'Name' },
   { field: 'skus', text: 'SKUs' },
   { field: 'state', text: 'State' },
+  { field: 'unlink' },
 ];
 
 export class TaxonProductsPage extends Component {
@@ -87,8 +88,26 @@ export class TaxonProductsPage extends Component {
       .then(this.props.actions.fetch);
   }
 
+  @autobind
+  handleUnlinkProduct(event, product: Product) {
+    event.stopPropagation();
+    const { actions, params: { taxonId, context } } = this.props;
+
+    actions.unlinkProduct(product.productId, context, taxonId)
+      .then(this.props.actions.fetch);
+  }
+
+  @autobind
   renderRow(row: Product, index: number, columns: Columns, params: Object) {
-    return <ProductRow key={row.id} product={row} columns={columns} params={params} />;
+    return (
+      <ProductRow
+        key={row.id}
+        product={row}
+        columns={columns}
+        params={params}
+        onCellClick={this.handleUnlinkProduct}
+      />
+    )
   }
 
   render() {
@@ -143,6 +162,7 @@ const mapActions = dispatch => ({
   actions: {
     ...bindActionCreators(actions, dispatch),
     addProduct: bindActionCreators(addProduct, dispatch),
+    unlinkProduct: bindActionCreators(unlinkProduct, dispatch),
   },
 });
 
