@@ -319,12 +319,12 @@ case class Checkout(
       _ ← * <~ doOrMeh(gcTotal > 0,
                        LogActivity().gcFundsAuthorized(customer, cart, gcCodes, gcTotal))
 
-      // find Apple Pay payment
-      apPayments ← * <~ OrderPayments.findAllApplePayChargeByCordRef(cart.refNum).result
-      apTotal    ← * <~ apPayments.map { case (_, ap) ⇒ ap.amount }.sum // TODO refactor this
+      // auth for Apple Pay payment
+      apPaymentsCharge ← * <~ authApplePay(cart.grandTotal, gcTotal + scTotal)
 
       // Authorize funds on credit card
-      ccs ← * <~ authCreditCard(cart.grandTotal, gcTotal + scTotal + apTotal)
+      ccs ← * <~ authCreditCard(cart.grandTotal,
+                                gcTotal + scTotal + apPaymentsCharge.fold(0)(_.amount))
       mutatingResult = externalCalls.authPaymentsSuccess = true
     } yield {}
 
@@ -347,6 +347,34 @@ case class Checkout(
             ourCharge = CreditCardCharge.authFromStripe(card, pmt, stripeCharge, cart.currency)
             _       ← * <~ LogActivity().creditCardAuth(cart, ourCharge)
             created ← * <~ CreditCardCharges.create(ourCharge)
+          } yield created.some
+
+        case None ⇒
+          DbResultT.failure(GeneralFailure("not enough payment"))
+      }
+    } else DbResultT.none
+  }
+
+  // todo unify with CC Auth
+  private def authApplePay(orderTotal: Int,
+                           internalPaymentTotal: Int): DbResultT[Option[ApplePayCharge]] = {
+
+    val authAmount = orderTotal - internalPaymentTotal
+
+    if (authAmount > 0) {
+      (for {
+        op ← OrderPayments.findAllApplePayChargeByCordRef(cart.refNum)
+        ap ← op.applePayment
+      } yield (op, ap)).one.dbresult.flatMap {
+        case Some((pmt, ap)) ⇒
+          for {
+            stripeCharge ← * <~ apis.stripe.authorizeAmount(ap.gatewayCustomerId,
+                                                            ap.gatewayTokenId,
+                                                            authAmount,
+                                                            cart.currency)
+            ourCharge = ApplePayCharges.authFromStripe(ap, pmt, stripeCharge, cart.currency)
+            created ← * <~ ApplePayCharges.create(ourCharge)
+            // todo logs here
           } yield created.some
 
         case None ⇒

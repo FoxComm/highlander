@@ -33,10 +33,10 @@ case class OrderPayment(id: Int = 0,
 
   override def validate: ValidatedNel[Failure, OrderPayment] = {
     val amountOk = paymentMethodType match {
-      case PaymentMethod.StoreCredit | PaymentMethod.GiftCard | PaymentMethod.ApplePay ⇒
+      case PaymentMethod.StoreCredit | PaymentMethod.GiftCard ⇒
         validExpr(amount.getOrElse(0) > 0, s"amount must be > 0 for $paymentMethodType")
-      case PaymentMethod.CreditCard ⇒
-        validExpr(amount.isEmpty, "amount must be empty for creditCard")
+      case PaymentMethod.CreditCard | PaymentMethod.ApplePay ⇒
+        validExpr(amount.isEmpty, "amount must be empty for ExternalFunds")
     }
 
     amountOk.map(_ ⇒ this)
@@ -79,8 +79,9 @@ class OrderPayments(tag: Tag) extends FoxTable[OrderPayment](tag, "order_payment
     (id, cordRef, amount, currency, paymentMethodId, paymentMethodType) <> ((OrderPayment.apply _).tupled,
         OrderPayment.unapply)
 
-  def order      = foreignKey(Carts.tableName, cordRef, Carts)(_.referenceNumber)
-  def creditCard = foreignKey(CreditCards.tableName, paymentMethodId, CreditCards)(_.id)
+  def order        = foreignKey(Carts.tableName, cordRef, Carts)(_.referenceNumber)
+  def creditCard   = foreignKey(CreditCards.tableName, paymentMethodId, CreditCards)(_.id)
+  def applePayment = foreignKey(ApplePayments.tableName, paymentMethodId, ApplePayments)(_.id)
 }
 
 object OrderPayments
@@ -107,12 +108,7 @@ object OrderPayments
       sc   ← StoreCredits if sc.id === pmts.paymentMethodId
     } yield (pmts, sc)
 
-  def findAllApplePayChargeByCordRef(cordRef: String)
-    : Query[(OrderPayments, ApplePayCharges), (OrderPayment, ApplePayCharge), Seq] =
-    for {
-      pmts ← OrderPayments.filter(_.cordRef === cordRef)
-      ap   ← ApplePayCharges.filter(_.id === pmts.paymentMethodId)
-    } yield (pmts, ap)
+  def findAllApplePayChargeByCordRef(cordRef: String) = filter(_.cordRef === cordRef).applePays
 
   def findAllCreditCardsForOrder(cordRef: Rep[String]): QuerySeq =
     filter(_.cordRef === cordRef).creditCards

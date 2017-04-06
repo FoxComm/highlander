@@ -102,10 +102,7 @@ object PaymentPayloads {
 
   case class CreditCardPayment(creditCardId: Int)
 
-  case class CreateApplePayPayment(token: String,
-                                   amount: Int,
-                                   currency: Currency = Currency.USD,
-                                   cartRef: String)
+  case class CreateApplePayPayment(token: String, gatewayCustomerId: String, cartRef: String)
 
   case class CreateManualStoreCredit(amount: Int,
                                      currency: Currency = Currency.USD,
