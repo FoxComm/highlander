@@ -1,8 +1,8 @@
 // @flow
 
 // libs
-import { isEmpty, get } from 'lodash';
-import React, { Component } from 'react';
+import { differenceBy, isEmpty, get } from 'lodash';
+import React from 'react';
 
 // components
 import { Dropdown } from 'components/dropdown';
@@ -17,6 +17,7 @@ type ReduceResult = Array<DropdownItemType>;
 
 type Props = {
   taxonomy: Taxonomy,
+  linkedTaxonomy: LinkedTaxonomy,
   onTaxonClick: Function
 }
 
@@ -38,25 +39,22 @@ const buildTaxonsDropDownItems = (taxons: TaxonsTree, prefix: string, sep: strin
     return res;
   }, finale);
 
-export default class TaxonomyDropdown extends Component {
+export default (props: Props) => {
+  const { taxonomy, linkedTaxonomy = {}, onTaxonClick } = props;
 
-  props: Props;
+  const taxons = differenceBy(taxonomy.taxons, linkedTaxonomy.taxons, t => get(t, 'node.id') || get(t, 'id'));
 
-  render() {
-    const { taxonomy, onTaxonClick } = this.props;
+  const items = buildTaxonsDropDownItems(taxons, '');
 
-    const items = buildTaxonsDropDownItems(taxonomy.taxons, '');
-
-    return (
-      <Dropdown
-        className={s.dropdown}
-        name="taxons"
-        placeholder=""
-        items={items}
-        onChange={onTaxonClick}
-        noControls
-        editable
-      />
-    );
-  }
-}
+  return (
+    <Dropdown
+      className={s.dropdown}
+      name="taxons"
+      placeholder=""
+      items={items}
+      onChange={onTaxonClick}
+      noControls
+      editable
+    />
+  );
+};

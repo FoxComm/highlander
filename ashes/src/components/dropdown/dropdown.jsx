@@ -60,13 +60,14 @@ export default class Dropdown extends Component {
   };
 
   @autobind
-  handleInputChange({ target }: { target: HTMLInputElement }) {
-    this.setState({ token: target.value });
+  handleInputChange(value: string) {
+    this.setState({ token: value });
   }
 
   @autobind
   buildInput(value: string | number, title: string, props: Props, handleToggleClick: Function) {
     if (value === null) value = '';
+
     if (props.editable) {
       return (
         <div className="fc-dropdown__value">
@@ -77,6 +78,7 @@ export default class Dropdown extends Component {
             placeholder={props.placeholder}
             disabled={props.disabled}
             key={`${props.name}-${value}-selected`}
+            autoComplete="off"
           />
         </div>
       );
