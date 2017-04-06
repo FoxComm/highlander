@@ -8,7 +8,7 @@ import sanitizeAll from 'sanitizers';
 import { Form } from 'ui/forms';
 import Button from 'ui/buttons';
 import ActionLink from 'ui/action-link/action-link';
-import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
+import ErrorAlerts from 'ui/alerts/error-alerts';
 
 // styles
 import styles from './checkout-form.css';

@@ -94,9 +94,30 @@
   margin-top: 8px;
 }
 
+.facets {
+  margin-bottom: 30px;
+}
+
 @media (--medium) {
   .price {
     font-size: 22px;
+  }
+}
+
+@media (--large) {
+  .gallery {
+    width: 702px;
+    flex: none;
+  }
+
+  .details {
+    flex: 1;
+    padding: 12px 31px;
+  }
+
+  .title {
+    font-size: 41px;
+    letter-spacing: 2.7px;
   }
 }
 
@@ -107,7 +128,7 @@
 
   .item-title {
     width: 33%;
-    margin: 0px 4px;
+    margin: 0 4px;
     display: flex;
     justify-content: center;
   }

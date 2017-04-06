@@ -10,8 +10,7 @@ import { autobind } from 'core-decorators';
 // components
 import { Link, IndexLink } from '../link/index';
 
-const onServer = process.env.ON_SERVER;
-const rootPath = onServer ? '/admin' : '/';
+const rootPath = process.env.BEHIND_NGINX ? '/admin' : '/';
 
 export default class Breadcrumb extends React.Component {
 

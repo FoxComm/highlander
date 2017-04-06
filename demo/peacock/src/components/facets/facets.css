@@ -5,31 +5,60 @@
 }
 
 .facet {
-    margin-bottom: 22px;
+  margin-bottom: 22px;
+}
+
+@keyframes flash-animation {
+  from {
+    background-color: var(--baby-blue);
+  }
+  to {
+    background-color: transparent;
+  }
+}
+
+.facet-flash {
+  border-radius: 8px;
+  margin: -11px -15px;
+  padding: 11px 15px;
+  margin-bottom: calc(22px - 11px);
+  animation: flash-animation 2s ease-in;
+
+  &:last-child {
+    margin-bottom: -11px;
+  }
+}
+
+.facet-header {
+  margin-bottom: 17px;
+  display: flex;
+  align-items: baseline;
 }
 
 .facet-name {
-    width: 54px;
-    height: 20px;
-    font-size: 16px;
-    font-weight: 900;
-    line-height: 1.25;
-    color: var(--blackish);
-    margin-bottom: 17px;
+  height: 20px;
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 1.25;
+  color: var(--blackish);
+}
+
+.facet-message {
+  flex-grow: 1;
+  font-size: 15px;
+  line-height: 1.33;
+  color: var(--label-color);
+  margin-left: 17px;
 }
 
 .checkbox-facet {
 }
 
 .circle-facet {
-    display: flex;
-    flex-wrap: wrap;
+  display: flex;
+  flex-wrap: wrap;
 }
 
 .color-facet {
-    max-width: 200px;
-    display: flex;
-    flex-wrap: wrap;
-    lost-column: 11/12;
-    lost-offset: -0.5/12;
+  max-width: 200px;
 }
