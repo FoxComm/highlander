@@ -5,7 +5,7 @@
         "port": 8080,
         "checks": [
             {
-                "name": "HTTP API on port 8080",
+                "name": "Marathon HTTP API on port 8080",
                 "http": "http://localhost:8080",
                 "interval": "30s",
                 "status": "passing"

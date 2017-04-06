@@ -62,7 +62,6 @@
     - { role: ext/tpg/storefront }
     # Nginx
     - { role: dev/balancer }
-    - { role: hotfix/mesos_consul }
     - { role: hotfix/replace_mesos_consul }
     - { role: demo/balancer }
     # Seed
