@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import nock from 'nock';
 
 const { default: reducer, ...actions } = importSource('modules/reasons.js', [
   'reasonsRequested',
@@ -27,7 +26,6 @@ describe('reasons module', function() {
         isFetching: true,
         reasons: []
       };
-      const skus = [];
       const payload = reasonsPayload;
       const reasonType = 'donkeyResons';
 

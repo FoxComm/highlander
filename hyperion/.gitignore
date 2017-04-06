@@ -20,3 +20,5 @@ erl_crash.dump
 *.ez
 
 start.sh
+public_key.pem
+.env.dev

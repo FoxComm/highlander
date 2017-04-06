@@ -70,7 +70,7 @@ class EditAlbum extends Component {
       event.preventDefault();
       this.props.onSave(this.state.name);
     }
-  };
+  }
 
   render() {
     const title = this.props.isNew ? 'Add New Album' : 'Edit Album';

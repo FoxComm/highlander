@@ -1,0 +1,20 @@
+.dropdown {
+  max-width: none;
+}
+
+.dropdown :global .fc-pilled-input {
+  width: 100%;
+}
+
+.dropdown :global .fc-pilled-input__icon-wrapper {
+  height: 38px;
+}
+
+.dropdown :global .fc-dropdown__item {
+  font-weight: 600;
+  color: #363636;
+}
+
+.needle {
+  color: #3fc1ab;
+}

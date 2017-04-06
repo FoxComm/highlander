@@ -11,12 +11,12 @@ import utils.Validation
 case class FoxValidationException(failures: Failures) extends Exception
 
 object JsonSupport extends Json4sSupport {
-  private def validateData[A <: Validation[A]](data: A): Future[A] = data.validate match {
-    case Valid(v)          ⇒ Future.successful(v)
+  private def validateData[A <: Validation[_]](data: A): Future[A] = data.validate match {
+    case Valid(_)          ⇒ Future.successful(data)
     case Invalid(failures) ⇒ Future.failed(FoxValidationException(failures))
   }
 
-  implicit def json4sValidationUnmarshaller[A <: Validation[A]: Manifest](
+  implicit def json4sValidationUnmarshaller[A <: Validation[_]: Manifest](
       implicit serialization: Serialization,
       formats: Formats): FromEntityUnmarshaller[A] = {
     json4sUnmarshaller[A].flatMap(implicit ec ⇒ mat ⇒ validateData)

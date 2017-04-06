@@ -1,0 +1,35 @@
+@import "colors.css";
+
+.facets {
+  top: -17px;
+}
+
+.facet {
+    margin-bottom: 22px;
+}
+
+.facet-name {
+    width: 54px;
+    height: 20px;
+    font-size: 16px;
+    font-weight: 900;
+    line-height: 1.25;
+    color: var(--blackish);
+    margin-bottom: 17px;
+}
+
+.checkbox-facet {
+}
+
+.circle-facet {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.color-facet {
+    max-width: 200px;
+    display: flex;
+    flex-wrap: wrap;
+    lost-column: 11/12;
+    lost-offset: -0.5/12;
+}

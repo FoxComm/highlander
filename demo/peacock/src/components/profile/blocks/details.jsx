@@ -2,7 +2,6 @@
 import React, { Component } from 'react';
 import styles from '../profile.css';
 import { connect } from 'react-redux';
-import type { Promise as PromiseType } from 'types/promise';
 import { browserHistory } from 'lib/history';
 
 import Block from '../common/block';
@@ -31,7 +30,7 @@ type EmptyAccount = {
 
 type DetailsProps = {
   account: Account|EmptyAccount,
-  fetchAccount: () => PromiseType,
+  fetchAccount: () => Promise<*>,
 }
 
 class Details extends Component {

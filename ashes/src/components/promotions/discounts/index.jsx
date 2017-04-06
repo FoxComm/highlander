@@ -58,7 +58,11 @@ const QUALIFIERS = [
         widget: 'counter',
         template: (comp) => {
           return (
-            <div>Order <Counter onChange={comp.setValue} value={comp.qualifier.widgetValue}/> or more of the following items</div>
+            <div>
+              Order <Counter onChange={comp.setValue}
+                             value={comp.qualifier.widgetValue}/>
+              or more of the following items
+              </div>
           );
         }
       },
@@ -69,7 +73,11 @@ const QUALIFIERS = [
         widget: 'currency',
         template: (comp) => {
           return (
-            <div>Spend <Currency onChange={comp.setValue} value={comp.qualifier.widgetValue}/> or more on following items</div>
+            <div>
+              Spend <Currency onChange={comp.setValue}
+                              value={comp.qualifier.widgetValue}/>
+              or more on following items
+            </div>
           );
         }
       }
@@ -107,20 +115,20 @@ export default class Discounts extends Component {
     let discounts = this.props.discounts;
     this.qualifier = {
       ...discounts.qualifier,
-    }; 
+    };
     this.offer = {
       ...discounts.offer
-    }; 
+    };
   }
 
   componentWillReceiveProps(props) {
     let discounts = props.discounts;
     this.qualifier = {
       ...discounts.qualifier,
-    }; 
+    };
     this.offer = {
       ...discounts.offer
-    }; 
+    };
   }
 
   @autobind
@@ -189,7 +197,7 @@ export default class Discounts extends Component {
     let discountType = this.qualifier.discountType;
     let qualifierType = this.qualifier.qualifierType;
     let qualifierTypes = _.find(QUALIFIERS, i => i.discountType == discountType).qualifierTypes;
-    let renderWidget = _.find(qualifierTypes, i => i.type == qualifierType).template || function(){return null;};   
+    let renderWidget = _.find(qualifierTypes, i => i.type == qualifierType).template || function(){return null;};
     return renderWidget(comp);
   }
 
@@ -226,27 +234,27 @@ export default class Discounts extends Component {
         <div styleName="sub-title">Qualifier</div>
         <FormField
           className="fc-object-form__field">
-          <Checkbox id="isExGiftCardQual" 
-            inline 
-            checked={this.qualifier.exGiftCardQual} 
+          <Checkbox id="isExGiftCardQual"
+            inline
+            checked={this.qualifier.exGiftCardQual}
             onChange={this.toggleExGiftCardQual}>
             <label htmlFor="isExGiftCardQual">Exclude gift cards from quaifying criteria</label>
           </Checkbox>
         </FormField>
         {this.renderDiscount()}
-        {this.renderQualifier()}  
+        {this.renderQualifier()}
         <div className="inline-container">{this.renderQualWidget()}</div>
         <div styleName="sub-title">Offer</div>
         <FormField
           className="fc-object-form__field">
-          <Checkbox id="isExGiftCardOffer" 
-            inline 
-            checked={this.offer.exGiftCardOffer} 
+          <Checkbox id="isExGiftCardOffer"
+            inline
+            checked={this.offer.exGiftCardOffer}
             onChange={this.toggleExGiftCardOffer}>
             <label htmlFor="isExGiftCardOffer">Exclude gift cards from discounted items</label>
           </Checkbox>
         </FormField>
-        <Dropdown 
+        <Dropdown
           className="autowidth_dd"
           items={OFFER_TYPES}
           value={this.offer.offerType}

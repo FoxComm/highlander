@@ -103,15 +103,15 @@ class CouponPage extends ObjectPage {
   receiveNewObject(nextObject) {
     nextObject.promotion = Number(this.props.params.promotionId);
     nextObject.attributes.name = { // TO BE REMOVED WHEN COUPON NAME WILL BE REMOVED FROM COUPONS SCHEMA
-      t: "string",
-      v: "Coupon name"
+      t: 'string',
+      v: 'Coupon name',
     };
     this.setState({
       object: nextObject
     });
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(prevProps, prevState) { // CHECK IF NEEDED AFTER KANGAROOS MERGE
     return;
   }
 

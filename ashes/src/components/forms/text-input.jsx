@@ -40,7 +40,7 @@ export default class TextInput extends Component {
     } else {
       this.setState({value});
     }
-  };
+  }
 
   render() {
     const { className, placeholder, onChange, ...rest } = this.props;

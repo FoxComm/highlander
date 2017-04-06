@@ -1,8 +1,9 @@
 package testutils.apis
 
 import akka.http.scaladsl.model.HttpResponse
-
 import models.objects.ObjectForm
+import models.payment.PaymentMethod
+import models.returns.ReturnLineItem
 import payloads.ActivityTrailPayloads._
 import payloads.AddressPayloads._
 import payloads.AssignmentPayloads._
@@ -19,12 +20,14 @@ import payloads.NotePayloads._
 import payloads.OrderPayloads._
 import payloads.PaymentPayloads._
 import payloads.ProductPayloads._
-import payloads.PromotionPayloads.{CreatePromotion, UpdatePromotion}
+import payloads.PromotionPayloads._
+import payloads.ReturnPayloads._
 import payloads.SharedSearchPayloads._
 import payloads.SkuPayloads._
 import payloads.StoreAdminPayloads._
 import payloads.StoreCreditPayloads._
-import payloads.TaxonomyPayloads.{CreateTaxonPayload, CreateTaxonomyPayload, UpdateTaxonPayload, UpdateTaxonomyPayload}
+import payloads.TaxonomyPayloads._
+import payloads.TaxonPayloads._
 import payloads.UserPayloads._
 import payloads.VariantPayloads._
 import payloads._
@@ -107,13 +110,16 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
         def create(payload: CreateCreditCardFromTokenPayload): HttpResponse =
           POST(creditCardsPrefix, payload)
+
+        def unsetDefault(): HttpResponse =
+          DELETE(s"$creditCardsPrefix/default")
       }
 
       case class creditCard(id: Int) {
         val creditCardPath = s"${creditCards.creditCardsPrefix}/$id"
 
-        def toggleDefault(payload: ToggleDefaultCreditCard): HttpResponse =
-          POST(s"$creditCardPath/default", payload)
+        def setDefault(): HttpResponse =
+          POST(s"$creditCardPath/default")
 
         def edit(payload: EditCreditCard): HttpResponse =
           PATCH(creditCardPath, payload)
@@ -139,8 +145,16 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
           POST(s"$storeCreditPath/convert")
       }
     }
+
+    object groups {
+      val customerGroupsPath = s"$customerPath/customer-groups"
+
+      def syncGroups(payload: AddCustomerToGroups): HttpResponse =
+        POST(customerGroupsPath, payload)
+    }
   }
 
+  // todo delete me? not used anywhere @aafa
   object activityTrailsApi {
     val activityTrailPrefix = s"$rootPrefix/trails"
 
@@ -184,6 +198,77 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
       POST(s"$giftCardPath/convert/$customerId")
   }
 
+  object returnsApi {
+    val returnsPrefix = s"$rootPrefix/returns"
+
+    def create(payload: ReturnCreatePayload): HttpResponse =
+      POST(returnsPrefix, payload)
+
+    def get(): HttpResponse =
+      GET(returnsPrefix)
+
+    def getByCustomer(id: Int): HttpResponse =
+      GET(s"$returnsPrefix/customer/$id")
+
+    def getByOrder(ref: String): HttpResponse =
+      GET(s"$returnsPrefix/order/$ref")
+
+    object reasons {
+      val requestPath = s"$returnsPrefix/reasons"
+
+      def list(): HttpResponse = GET(requestPath)
+
+      def add(payload: ReturnReasonPayload): HttpResponse = POST(requestPath, payload)
+
+      def remove(id: Int) = DELETE(s"$requestPath/$id")
+    }
+  }
+
+  case class returnsApi(refNum: String) { returns ⇒
+    val requestPath = s"${returnsApi.returnsPrefix}/$refNum"
+
+    def update(payload: ReturnUpdateStatePayload): HttpResponse =
+      PATCH(requestPath, payload)
+
+    def get(): HttpResponse =
+      GET(requestPath)
+
+    def getLock(): HttpResponse =
+      GET(s"$requestPath/lock")
+
+    def lock(): HttpResponse =
+      POST(s"$requestPath/lock")
+
+    def unlock(): HttpResponse =
+      POST(s"$requestPath/unlock")
+
+    def message(payload: ReturnMessageToCustomerPayload) =
+      POST(s"$requestPath/message", payload)
+
+    object lineItems {
+      val requestPath = s"${returns.requestPath}/line-items"
+
+      def add(payload: ReturnLineItemPayload): HttpResponse =
+        POST(requestPath, payload)
+
+      def remove(lineItemId: Int): HttpResponse =
+        DELETE(s"$requestPath/$lineItemId")
+    }
+
+    object paymentMethods {
+      val requestPath = s"${returns.requestPath}/payment-methods"
+
+      def add(payload: ReturnPaymentsPayload): HttpResponse =
+        POST(requestPath, payload)
+
+      def add(paymentMethod: PaymentMethod.Type, payload: ReturnPaymentPayload): HttpResponse =
+        POST(s"$requestPath/${PaymentMethod.Type.show(paymentMethod)}", payload)
+
+      def remove(paymentMethod: PaymentMethod.Type): HttpResponse =
+        DELETE(s"$requestPath/${PaymentMethod.Type.show(paymentMethod)}")
+    }
+  }
+
   object ordersApi {
     val ordersPrefix = s"$rootPrefix/orders"
 
@@ -199,6 +284,9 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
   case class ordersApi(refNum: String) {
     val orderPath = s"${ordersApi.ordersPrefix}/$refNum"
+
+    def get(): HttpResponse =
+      GET(orderPath)
 
     def update(payload: UpdateOrderPayload): HttpResponse =
       PATCH(orderPath, payload)
@@ -343,13 +431,31 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
   }
 
   object customerGroupsApi {
-    val customerGroupsPrefix = s"$rootPrefix/groups"
+    val customerGroupsPrefix = s"$rootPrefix/customer-groups"
+
+    def create(payload: CustomerGroupPayload): HttpResponse =
+      POST(customerGroupsPrefix, payload)
+  }
+
+  object customerGroupTemplateApi {
+    val customerGroupTemplatePrefix = s"$rootPrefix/customer-groups/templates"
 
     def get(): HttpResponse =
-      GET(customerGroupsPrefix)
+      GET(customerGroupTemplatePrefix)
+  }
 
-    def create(payload: CustomerDynamicGroupPayload): HttpResponse =
-      POST(customerGroupsPrefix, payload)
+  case class customerGroupsMembersServiceApi(groupId: Int) {
+    val customerGroupMembersPrefix = s"$rootPrefix/service/customer-groups/$groupId"
+
+    def syncCustomers(payload: CustomerGroupMemberServiceSyncPayload): HttpResponse =
+      POST(s"$customerGroupMembersPrefix/customers", payload)
+  }
+
+  case class customerGroupsMembersApi(groupId: Int) {
+    val customerGroupMembersPrefix = s"$rootPrefix/customer-groups/$groupId/customers"
+
+    def syncCustomers(payload: CustomerGroupMemberSyncPayload): HttpResponse =
+      POST(s"$customerGroupMembersPrefix", payload)
   }
 
   case class customerGroupsApi(id: Int) {
@@ -358,8 +464,11 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
     def get(): HttpResponse =
       GET(customerGroupPath)
 
-    def update(payload: CustomerDynamicGroupPayload): HttpResponse =
+    def update(payload: CustomerGroupPayload): HttpResponse =
       PATCH(customerGroupPath, payload)
+
+    def delete: HttpResponse =
+      DELETE(customerGroupPath)
   }
 
   case class genericTreesApi(name: String) {
@@ -384,8 +493,22 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
   object shippingMethodsApi {
     val shippingMethodsPrefix = s"$rootPrefix/shipping-methods"
 
+    def active(): HttpResponse =
+      GET(shippingMethodsPrefix)
+
     def forCart(refNum: String): HttpResponse =
       GET(s"$shippingMethodsPrefix/$refNum")
+
+    def getDefault(): HttpResponse =
+      GET(s"$shippingMethodsPrefix/default")
+
+    def unsetDefault(): HttpResponse =
+      DELETE(s"$shippingMethodsPrefix/default")
+  }
+
+  case class shippingMethodsApi(id: Int) {
+    def setDefault(): HttpResponse =
+      POST(s"${shippingMethodsApi.shippingMethodsPrefix}/$id/default")
   }
 
   case object skusApi {
@@ -594,6 +717,9 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
   case class promotionsApi(formId: Int)(implicit ctx: OC) {
     val promotionPath = s"${promotionsApi.promotionsPrefix}/$formId"
 
+    def get(): HttpResponse =
+      GET(promotionPath)
+
     def delete(): HttpResponse =
       DELETE(promotionPath)
 
@@ -639,7 +765,7 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
     def delete = DELETE(s"v1/taxonomies/${ctx.name}/$taxonomyId")
     def get    = GET(s"v1/taxonomies/${ctx.name}/$taxonomyId")
     def createTaxon(payload: CreateTaxonPayload) =
-      POST(s"v1/taxonomies/${ctx.name}/$taxonomyId", payload)
+      POST(s"v1/taxonomies/${ctx.name}/$taxonomyId/taxons", payload)
   }
 
   case class taxonsApi(taxonId: Int)(implicit ctx: OC) {
@@ -662,6 +788,7 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
     case class storeAdmin(id: Int)  extends notesApiBase[Int]    { val prefix = "store-admins" }
     case class order(id: String)    extends notesApiBase[String] { val prefix = "order"        }
     case class giftCard(id: String) extends notesApiBase[String] { val prefix = "gift-card"    }
+    case class returns(id: String)  extends notesApiBase[String] { val prefix = "return"       }
 
     trait notesApiBase[A] {
       def id: A
@@ -696,6 +823,9 @@ trait PhoenixAdminApi extends HttpSupport { self: FoxSuite ⇒
 
   case class storeCreditsApi(id: Int) {
     val storeCreditPath = s"${storeCreditsApi.storeCreditsPrefix}/$id"
+
+    def get(): HttpResponse =
+      GET(storeCreditPath)
 
     def update(payload: StoreCreditUpdateStateByCsr): HttpResponse =
       PATCH(storeCreditPath, payload)

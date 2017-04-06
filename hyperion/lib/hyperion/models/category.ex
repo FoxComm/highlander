@@ -1,11 +1,9 @@
 defmodule Category do
-
   use Ecto.Schema
-  import Ecto.Changeset
   import Ecto.Query
-  alias Hyperion.Repo
 
-  @derive {Poison.Encoder, only: [:node_id, :node_path, :department, :item_type, :size_opts]}
+  @derive {Poison.Encoder, only: [:node_id, :node_path, :department, :item_type,
+                                  :size_opts, :category_name, :approve_needed]}
 
   schema "amazon_categories" do
     field :node_id, :integer
@@ -13,47 +11,36 @@ defmodule Category do
     field :department
     field :item_type
     field :size_opts
+    field :category_name
     field :object_schema_id, :integer
+    field :approve_needed, :boolean
 
     timestamps()
   end
 
-  def mapping do
-    %{mappings: %{
-      category: %{
-        properties: %{
-          node_path: %{type: "string", index: "not_analyzed" },
-          department: %{type: "string"},
-          item_type: %{type: "string", index: "not_analyzed"},
-          node_id: %{type: "integer"}
-        }
-      }
-    }
-  }
+  def get_category_data(node_id) do
+    case node_id do
+      nil -> []
+      _ -> fetch_data(node_id)
+    end
   end
 
-  def search(query_string, from \\ 0, size \\ 10) do
-    query = %{from: from, size: size,
-              query: %{simple_query_string: %{query: "*#{String.downcase(query_string)}*",
-                                              analyze_wildcard: true, default_operator: "AND"}}}
-    Elastic.Client.search(query, index_name, doc_type)
+  def fetch_data(node_id) do
+    q = from c in Category,
+        where: c.node_id in ^[node_id]
+    case Hyperion.Repo.all(q) do
+      [] -> []
+      x -> [department: hd(x).department, item_type: hd(x).item_type, category: hd(x).category_name]
+    end
   end
 
-  def index(entity) do
-    payload = [node_path: entity.node_path, department: entity.department,
-               item_type: entity.item_type, node_id: entity.node_id]
-    Elastic.Client.index_document(entity.id, index_name(), doc_type(), payload)
-  end
-
-  def elastic_url do
-    Application.fetch_env!(:tirexs, :elastic_uri)
-  end
-
-  def index_name do
-    "amazon_categories"
-  end
-
-  def doc_type do
-    "category"
+  def get_category_with_schema(node_id) do
+    q = from c in Category, where: c.node_id == ^node_id
+        and not is_nil(c.department) and not is_nil(c.item_type)
+    case Hyperion.Repo.one(q) do
+      nil -> nil
+      category -> %{category: category,
+                    schema: Hyperion.Repo.get(ObjectSchema, category.object_schema_id)}
+    end
   end
 end

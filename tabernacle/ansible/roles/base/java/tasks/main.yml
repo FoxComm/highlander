@@ -1,0 +1,4 @@
+---
+
+- name: Install Java
+  include: ../../languages/tasks/java.yml

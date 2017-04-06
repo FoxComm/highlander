@@ -4,8 +4,6 @@
 import React from 'react';
 import _ from 'lodash';
 
-import FAQSection from '../faqs/faq-section';
-
 // paragons
 import { fieldTypes } from 'paragons/cms';
 
@@ -60,21 +58,13 @@ const renderBlock = (block) => {
           {block.content}
         </a>
       );
-    case fieldTypes.FAQSECTION:
-      return (
-        <FAQSection
-          title={block.content.title}
-          faqs={block.content.faqs}
-          key={generateKey()}
-        />
-      );
     default:
       return block.content;
   }
 };
 
 const renderStatic = (blocks: Array<any>) => {
-  return _.map(blocks, block => {
+  return _.map(blocks, (block) => {
     return renderBlock(block);
   });
 };

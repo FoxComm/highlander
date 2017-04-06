@@ -80,9 +80,10 @@ export function fetchTypes() {
 const giftCardReducer = createReducer({
   [changeFormData]: (state, {name, value}) => {
     const newState = assoc(state, name, value);
+    const quantity = value ? newState.customers.length : Math.max(newState.customers.length, 1);
+
     switch (name) {
       case 'sendToCustomer':
-        const quantity = value ? newState.customers.length : Math.max(newState.customers.length, 1);
         return assoc(newState, 'quantity', quantity);
       default:
         return newState;

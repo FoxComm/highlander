@@ -13,27 +13,28 @@ import Typeahead from '../typeahead/typeahead';
 import PilledInput from '../pilled-search/pilled-input';
 import CustomerGroupRow from './customer-group-row';
 
-import { fetchCustomerGroups } from '../../modules/customer-groups/all';
+import { actions } from 'modules/customer-groups/list';
 
 type GroupType = {
-  name: string;
-  type: string;
-  id: number;
-}
+  name: string,
+  type: string,
+  id: number,
+};
 
 type Props = {
   updateSelectedIds: (groups: Array<number>) => any;
   groups: Array<GroupType>;
   selectedGroupIds: Array<number>;
   qualifyAll: boolean,
-  dispatch: (action: any) => any;
-  parent: string;
-  qualifyAllChange: Function
+  fetch: () => Promise<*>,
+  parent: string,
+  qualifyAllChange: Function,
 };
 
 type State = {
   term: string,
 };
+
 
 class SelectCustomerGroups extends Component {
   props: Props;
@@ -47,7 +48,7 @@ class SelectCustomerGroups extends Component {
   };
 
   componentDidMount() {
-    this.props.dispatch(fetchCustomerGroups());
+    this.props.fetch();
   }
 
   @autobind
@@ -59,8 +60,15 @@ class SelectCustomerGroups extends Component {
   get suggestedGroups(){
     const suggestions = _.filter(this.props.groups, (item) => {
       return _.includes(item.name.toLowerCase(), this.state.term.toLowerCase());
-    });   
+    });
     return suggestions;
+  }
+
+  get tableColumns(): Array<Object> {
+    return [
+      { field: 'name', text: 'Customer Group Name' },
+      { field: 'type', text: 'Type' },
+    ];
   }
 
   get customersGroups(): ?Element<*> {
@@ -78,7 +86,7 @@ class SelectCustomerGroups extends Component {
             hideOnBlur={true}
             onItemSelected={this.handleSelectItem}
           />
-        </div>);   
+        </div>);
   }
 
   setTerm(term: string) {
@@ -150,7 +158,8 @@ class SelectCustomerGroups extends Component {
   }
 }
 
-export default connect(
-  state => ({groups: state.customerGroups.all.groups}),
-  dispatch => ({dispatch})
-)(SelectCustomerGroups);
+const mapState = state => ({
+  groups: _.get(_.invoke(state, 'customerGroups.list.currentSearch'), 'results.rows', [])
+});
+
+export default connect(mapState, { fetch: actions.fetch })(SelectCustomerGroups);

@@ -2,21 +2,17 @@ package routes
 
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
-import akka.http.scaladsl.server._
-
-import utils.http.JsonSupport._
-import models.account.User
 import models.cord.Cord.cordRefNumRegex
 import models.inventory.Sku.skuCodeRegex
 import models.payment.giftcard.GiftCard
-import models.product.ProductReference
 import org.json4s.jackson.Serialization.{write ⇒ json}
 import payloads.AddressPayloads._
+import payloads.CartPayloads.CheckoutCart
 import payloads.CustomerPayloads._
 import payloads.LineItemPayloads.UpdateLineItemsPayload
 import payloads.PaymentPayloads._
 import payloads.UpdateShippingMethod
-import services.Authenticator.{AuthData, UserAuthenticator, requireCustomerAuth}
+import services.Authenticator.{UserAuthenticator, requireCustomerAuth}
 import services._
 import services.carts._
 import services.customers.CustomerManager
@@ -26,9 +22,10 @@ import utils.aliases._
 import utils.apis.Apis
 import utils.http.CustomDirectives._
 import utils.http.Http._
+import utils.http.JsonSupport._
 
 object Customer {
-  def routes(implicit ec: EC, es: ES, db: DB, auth: UserAuthenticator, apis: Apis): Route = {
+  def routes(implicit ec: EC, db: DB, auth: UserAuthenticator, apis: Apis): Route = {
 
     pathPrefix("my") {
       requireCustomerAuth(auth) { implicit auth ⇒
@@ -67,6 +64,11 @@ object Customer {
               (delete & path("coupon") & pathEnd) {
                 mutateOrFailures {
                   CartPromotionUpdater.detachCoupon(auth.model)
+                }
+              } ~
+              (post & path("checkout") & pathEnd & entity(as[CheckoutCart])) { payload ⇒
+                mutateOrFailures {
+                  Checkout.forCustomerOneClick(payload)
                 }
               } ~
               (post & path("checkout") & pathEnd) {
@@ -150,7 +152,8 @@ object Customer {
               pathPrefix("shipping-method") {
                 (patch & pathEnd & entity(as[UpdateShippingMethod])) { payload ⇒
                   mutateOrFailures {
-                    CartShippingMethodUpdater.updateShippingMethod(auth.model, payload)
+                    CartShippingMethodUpdater.updateShippingMethod(auth.model,
+                                                                   payload.shippingMethodId)
                   }
                 } ~
                 (delete & pathEnd) {
@@ -242,13 +245,10 @@ object Customer {
                   CreditCardManager.getByIdAndCustomer(creditCardId, auth.model)
                 }
               } ~
-              (post & path(IntNumber / "default") & pathEnd & entity(as[ToggleDefaultCreditCard])) {
-                (cardId, payload) ⇒
-                  mutateOrFailures {
-                    CreditCardManager.toggleCreditCardDefault(auth.account.id,
-                                                              cardId,
-                                                              payload.isDefault)
-                  }
+              (post & path(IntNumber / "default") & pathEnd) { cardId ⇒
+                mutateOrFailures {
+                  CreditCardManager.setDefaultCreditCard(auth.account.id, cardId)
+                }
               } ~
               (post & pathEnd & entity(as[CreateCreditCardFromTokenPayload])) { payload ⇒
                 mutateOrFailures {
@@ -264,6 +264,11 @@ object Customer {
               (delete & path(IntNumber) & pathEnd) { cardId ⇒
                 deleteOrFailures {
                   CreditCardManager.deleteCreditCard(auth.account.id, cardId)
+                }
+              } ~
+              (delete & path("default") & pathEnd) {
+                deleteOrFailures {
+                  CreditCardManager.removeDefaultCreditCard(auth.account.id)
                 }
               }
             } ~

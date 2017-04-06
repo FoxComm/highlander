@@ -85,7 +85,7 @@ class CustomProperty extends Component<void, Props, State> {
       event.preventDefault();
       this.props.onSave(this.state);
     }
-  };
+  }
 
   render() {
     return (

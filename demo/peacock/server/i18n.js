@@ -3,10 +3,10 @@ const path = require('path');
 
 const filePath = language => path.join(process.cwd(), `src/i18n/${language}.json`);
 
-function *getTranslation(language, defaultLanguage) {
+function* getTranslation(language, defaultLanguage) {
   const options = {encoding: 'utf8'};
 
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     fs.readFile(filePath(language), options, (err, data) => {
       const result = {};
       result.language = err ? defaultLanguage : language;
@@ -16,7 +16,7 @@ function *getTranslation(language, defaultLanguage) {
   });
 }
 
-function *loadI18n(next) {
+function* loadI18n(next) {
   const defaultLanguage = process.env.FIREBIRD_LANGUAGE;
   const preferredLanguage = this.request.header['accept-language'] || defaultLanguage;
 

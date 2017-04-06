@@ -1,10 +1,8 @@
 /* @flow */
 
-import React, { Component, Element } from 'react';
-import { Route, IndexRoute } from 'react-router';
+import React from 'react';
 
 import FoxRouter from 'lib/fox-router';
-import { frn } from 'lib/frn';
 
 // no productions pages, make sure these paths are included in `excludedList` in browserify.js
 if (process.env.NODE_ENV != 'production') {

@@ -38,7 +38,6 @@ object CreditCardManager {
       payload: CreateCreditCardFromTokenPayload,
       admin: Option[User] = None)(implicit ec: EC, db: DB, apis: Apis, ac: AC): DbResultT[Root] = {
     for {
-      _        ← * <~ payload.validate
       _        ← * <~ Regions.mustFindById400(payload.billingAddress.regionId)
       customer ← * <~ Users.mustFindByAccountId(accountId)
       customerToken ← * <~ CreditCards
@@ -94,7 +93,6 @@ object CreditCardManager {
       } yield (stripeId, address)
 
     for {
-      _                  ← * <~ payload.validate
       customer           ← * <~ Users.mustFindByAccountId(accountId)
       stripeIdAndAddress ← * <~ getExistingStripeIdAndAddress
       (stripeId, address) = stripeIdAndAddress
@@ -105,16 +103,17 @@ object CreditCardManager {
     } yield newCard
   }
 
-  def toggleCreditCardDefault(accountId: Int, cardId: Int, isDefault: Boolean)(
-      implicit ec: EC,
-      db: DB): DbResultT[Root] =
+  def setDefaultCreditCard(accountId: Int, cardId: Int)(implicit ec: EC, db: DB): DbResultT[Root] =
     for {
-      _  ← * <~ CreditCards.findDefaultByAccountId(accountId).map(_.isDefault).update(false)
+      _  ← * <~ removeDefaultCreditCard(accountId)
       cc ← * <~ CreditCards.mustFindByIdAndAccountId(cardId, accountId)
       default = cc.copy(isDefault = true)
       _      ← * <~ CreditCards.filter(_.id === cardId).map(_.isDefault).update(true)
       region ← * <~ Regions.findOneById(cc.address.regionId).safeGet
     } yield buildResponse(default, region)
+
+  def removeDefaultCreditCard(accountId: Int)(implicit ec: EC, db: DB): DbResultT[Unit] =
+    CreditCards.findDefaultByAccountId(accountId).map(_.isDefault).update(false).dbresult.void
 
   def deleteCreditCard(
       accountId: Int,
@@ -189,7 +188,6 @@ object CreditCardManager {
     } yield address.fold(creditCard)(creditCard.copyFromAddress)
 
     for {
-      _           ← * <~ payload.validate
       customer    ← * <~ Users.mustFindByAccountId(accountId)
       creditCard  ← * <~ getCardAndAddressChange
       updated     ← * <~ update(customer, creditCard)

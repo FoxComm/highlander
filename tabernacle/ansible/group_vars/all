@@ -29,7 +29,8 @@ docker_logs_host_dir: /var/log/docker
 
 # Google Cloud defaults
 gce_disk_size: 40
-gce_image: appliance-base-170207-004420
+gce_image: appliance-base-170328-215629
+
 gce_machine_type: n1-standard-4
 gce_project_id: "foxcomm-staging"
 gce_zone: "us-central1-a"
@@ -50,6 +51,7 @@ docker_tags:
     shipments_consumer: "{{ lookup('env', 'DOCKER_TAG_SHIPMENTS_CONSUMER') | default('master', true) }}"
     shipstation_consumer: "{{ lookup('env', 'DOCKER_TAG_SHIPSTATION_CONSUMER') | default('master', true) }}"
     stock_items_consumer: "{{ lookup('env', 'DOCKER_TAG_STOCK_ITEMS_CONSUMER') | default('master', true) }}"
+    customer_groups_consumer: "{{ lookup('env', 'DOCKER_TAG_CUSTOMER_GROUPS_CONSUMER') | default('master', true) }}"
     storefront_td: "{{ lookup('env', 'DOCKER_TAG_STOREFRONT_TOPDRAWER') | default('master', true) }}"
     storefront_tpg: "{{ lookup('env', 'DOCKER_TAG_STOREFRONT_TPG') | default('master', true) }}"
     hyperion: "{{ lookup('env', 'DOCKER_TAG_HYPERION') | default('master', true) }}"
@@ -59,6 +61,10 @@ docker_tags:
     river_rock: "{{ lookup('env', 'DOCKER_TAG_RIVER_ROCK') | default('master', true) }}"
     digger_sphex: "{{ lookup('env', 'DOCKER_TAG_DIGGER_SPHEX') | default('master', true) }}"
     orders_sphex: "{{ lookup('env', 'DOCKER_TAG_ORDERS_SPHEX') | default('master', true) }}"
+    orders_anthill: "{{ lookup('env', 'DOCKER_TAG_ORDERS_ANTHILL') | default('master', true) }}"
+    anthill: "{{ lookup('env', 'DOCKER_TAG_ANTHILL') | default('master', true) }}"
+    neo4j: "{{ lookup('env', 'DOCKER_TAG_NEO4J') | default('master', true) }}"
+    data_import: "{{ lookup('env', 'DOCKER_TAG_DATA_IMPORT') | default('master', true) }}"
 
 # Configurable Marathon re-deploys
 marathon_restart:
@@ -76,6 +82,7 @@ marathon_restart:
     shipments_consumer: "{{ lookup('env', 'MARATHON_SHIPMENTS_CONSUMER') | default(true, true) | bool }}"
     shipstation_consumer: "{{ lookup('env', 'MARATHON_SHIPSTATION_CONSUMER') | default(true, true) | bool }}"
     stock_items_consumer: "{{ lookup('env', 'MARATHON_STOCK_ITEMS_CONSUMER') | default(true, true) | bool }}"
+    customer_groups_consumer: "{{ lookup('env', 'MARATHON_CUSTOMER_GROUPS_CONSUMER') | default(true, true) | bool }}"
     marketplace: "{{ lookup('env', 'MARATHON_MARKETPLACE') | default(true, true) | bool }}"
     storefront_td: "{{ lookup('env', 'MARATHON_STOREFRONT_TD') | default(true, true) | bool }}"
     storefront_tpg: "{{ lookup('env', 'MARATHON_STOREFRONT_TPG') | default(true, true) | bool }}"
@@ -86,6 +93,9 @@ marathon_restart:
     river_rock: "{{ lookup('env', 'MARATHON_RIVER_ROCK') | default(true, true) | bool }}"
     digger_sphex: "{{ lookup('env', 'MARATHON_DIGGER_SPHEX') | default(true, true) | bool }}"
     orders_sphex: "{{ lookup('env', 'MARATHON_ORDERS_SPHEX') | default(true, true) | bool }}"
+    orders_anthill: "{{ lookup('env', 'MARATHON_ORDERS_ANTHILL') | default(true, true) | bool }}"
+    anthill: "{{ lookup('env', 'MARATHON_ANTHILL') | default(true, true) | bool }}"
+    neo4j: "{{ lookup('env', 'MARATHON_NEO4J') | default(true, true) | bool }}"
 
 # Should we use Intelligent Commerce
 with_ic: "{{ lookup('env', 'WITH_INTELLIGENT_COMMERCE') | default(true, true) | bool }}"
@@ -195,6 +205,12 @@ bottledwater_slot_phoenix: bottledwater_phoenix
 bottledwater_slot_middlewarehouse: bottledwater_middlewarehouse
 bottledwater_slot_marketplace: bottledwater_marketplace
 
+# Flyway
+flyway_vers: 4.0.3
+flyway_dir: "/usr/local/share/flyway-{{flyway_vers}}"
+flyway_url: "https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/{{flyway_vers}}/flyway-commandline-{{flyway_vers}}-linux-x64.tar.gz"
+flyway: "{{flyway_dir}}/flyway -locations=filesystem:sql/ -configFile=sql/flyway.conf"
+
 # Phoenix
 phoenix_version: 1.0
 phoenix_env: staging
@@ -241,11 +257,13 @@ hyperion_env: prod
 hyperion_src: ../../hyperion/
 hyperion_dir: /hyperion
 hyperion_db_name: hyperion_development
+hyperion_db_test_name: hyperion_test
 hyperion_db_user: hyperion
 hyperion_db_password: hyperion
 hyperion_db_host: "{{db_host}}"
 hyperion_db_connection_string: "postgresql://{{hyperion_db_user}}@{{hyperion_db_host}}/{{hyperion_db_name}}"
 hyperion_test_db_name: hyperion_test
+hyperion_push_check_interval: 5
 
 # Eggcreate
 eggcrate_host: "eggcrate.{{consul_suffix}}"
@@ -270,6 +288,18 @@ river_rock_server: "{{river_rock_host}}:{{river_rock_port}}"
 henhouse_host: "henhouse.{{consul_suffix}}"
 henhouse_server: "{{henhouse_host}}"
 
+# anthill
+anthill_host: "anthill.{{consul_suffix}}"
+anthill_server: "{{anthill_host}}"
+
+# neo4j
+neo4j_user: "neo4j"
+neo4j_pass: "password"
+neo4j_host: "neo4j.{{consul_suffix}}"
+neo4j_server: "{{neo4j_host}}"
+neo4j_port: "7687"
+neo4j_http_port: "7474"
+
 # Elasticsearch 2.x
 es_version: elasticsearch-2.1.2
 es_zip: "{{es_version}}.zip"
@@ -288,10 +318,13 @@ es5_jmx_port: 29111
 es5_max_file_descriptors: 65536
 es5_heap_size: 2048m
 
+# Consumers
+activities_topic: "scoped_activities"
+
 # Shipstation consumer
 shipstation_api_key: ""
 shipstation_api_secret: ""
-shipstation_topic: "scoped_activities"
+shipstation_topic: "{{activities_topic}}"
 shipstation_interval: "10s"
 
 # Firebrand variables
@@ -356,6 +389,33 @@ retailer_name: "FoxCommerce"
 contact_email: "pavel@foxcommerce.com"
 mailchimp_api_key: ""
 
+# Materialized views
+update_materialized_views_sql: "/usr/local/share/update_materialized_views.sql"
+update_materialized_views_cmd: "psql {{db_connection_string}} -f {{update_materialized_views_sql}}"
+
+# External analytics
+facebook_pixel_id: "433654337026546"
+ga_tracking_id: ""
+
+# S3
+s3_bucket: foxcomm-images
+s3_region: us-west-1
+
+# Imgix S3 source for products images
+imgix_products_source: ""
+imgix_s3_bucket_name: ""
+imgix_s3_bucket_prefix: ""
+
+# Data Import
+data_import_dir: "/data_import"
+data_import_s3_bucket: fc-dev-assets
+data_import_s3_region: us-west-2
+data_import_listings_path: "/sample_data/listings.json"
+data_import_products_path: "/sample_data/products.json"
+data_import_docker_url: "{{docker_registry}}:5000/data-import:{{docker_tags.data_import}}"
+data_import_cmd: both
+data_import_max_count: 100
+
 # Various flags
 first_run: false
 is_ci: false
@@ -370,3 +430,4 @@ with_base_seeds: true
 with_gatling_seeder: false
 with_mwh_seeder: true
 with_hyperion_seeder: true
+with_data_import: true

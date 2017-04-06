@@ -1,3 +1,4 @@
+update notes_search_view set scope='1.2';
 alter table notes_search_view alter column scope set not null;
 
 create or replace function update_notes_search_view_insert_fn() returns trigger as $$

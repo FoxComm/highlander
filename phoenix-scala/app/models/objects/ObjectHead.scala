@@ -2,7 +2,7 @@ package models.objects
 
 import java.time.Instant
 
-import failures.ObjectFailures.ObjectHeadCannotBeFoundByFormId
+import failures.ObjectFailures.{ObjectHeadCannotBeFoundByFormId, ObjectHeadCannotBeFoundForContext}
 import slick.lifted.Tag
 import utils.aliases.{EC, OC}
 import utils.db.ExPostgresDriver.api._
@@ -52,6 +52,10 @@ abstract class ObjectHeadsQueries[M <: ObjectHead[M], T <: ObjectHeads[M]](const
   def mustFindByFormId404(formId: ObjectForm#Id)(implicit oc: OC, ec: EC): DbResultT[M] =
     findOneByFormId(formId).mustFindOneOr(
         ObjectHeadCannotBeFoundByFormId(baseTableRow.tableName, formId, oc.name))
+
+  def mustFindByContextAndFormId404(contextId: Int, formId: Int)(implicit ec: EC): DbResultT[M] =
+    findOneByContextAndFormId(contextId, formId).mustFindOneOr(
+        ObjectHeadCannotBeFoundForContext(baseTableRow.tableName, formId, contextId))
 
   def findOneByFormId(formId: Int)(implicit oc: OC): QuerySeq =
     filter(_.contextId === oc.id).filter(_.formId === formId)

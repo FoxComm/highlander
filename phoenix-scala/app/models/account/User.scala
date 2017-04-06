@@ -6,6 +6,7 @@ import cats.data.{Validated, ValidatedNel, Xor}
 import cats.implicits._
 import failures.UserFailures._
 import failures._
+import models.customer.CustomersData
 import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils.Validation
@@ -118,6 +119,14 @@ object Users extends FoxTableQuery[User, Users](new Users(_)) with ReturningId[U
     filter(_.email === email)
   }
 
+  def findNonGuestByEmail(email: String): QuerySeq = {
+    findByEmail(email)
+      .joinLeft(CustomersData)
+      .on(_.accountId === _.accountId)
+      .filterNot { case (_, data) ⇒ data.map(_.isGuest).getOrElse(false) }
+      .map { case (user, _)       ⇒ user }
+  }
+
   def activeUserByEmail(email: Option[String]): QuerySeq =
     filter(c ⇒ c.email === email && !c.isBlacklisted && !c.isDisabled)
 
@@ -128,14 +137,11 @@ object Users extends FoxTableQuery[User, Users](new Users(_)) with ReturningId[U
   def findOneByAccountId(accountId: Int): DBIO[Option[User]] =
     filter(_.accountId === accountId).result.headOption
 
-  def findByAccountId(accountId: Int): QuerySeq =
-    filter(_.accountId === accountId)
-
   def mustFindByAccountId(accountId: Int)(implicit ec: EC): DbResultT[User] =
     filter(_.accountId === accountId).mustFindOneOr(UserWithAccountNotFound(accountId))
 
   def createEmailMustBeUnique(email: String)(implicit ec: EC): DbResultT[Unit] =
-    findByEmail(email).one.mustNotFindOr(UserEmailNotUnique)
+    findNonGuestByEmail(email).one.mustNotFindOr(UserEmailNotUnique)
 
   def updateEmailMustBeUnique(maybeEmail: Option[String], accountId: Int)(
       implicit ec: EC): DbResultT[Unit] =

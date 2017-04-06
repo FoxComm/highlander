@@ -89,14 +89,12 @@ object ImageManager {
     } yield AlbumResponse.build(album, images)
 
   def createAlbumInner(
-      createPayload: AlbumPayload,
+      payload: AlbumPayload,
       context: ObjectContext)(implicit ec: EC, db: DB, au: AU): DbResultT[FullAlbumWithImages] =
     for {
-      payload ← * <~ createPayload.validate
-
       album ← * <~ ObjectUtils.insertFullObject(
                  payload.formAndShadow,
-                 ins ⇒ createAlbumHeadFromInsert(context, ins, createPayload.scope))
+                 ins ⇒ createAlbumHeadFromInsert(context, ins, payload.scope))
       images ← * <~ (payload.images match {
                     case Some(imagesPayload) ⇒
                       createImagesForAlbum(album.model, imagesPayload, context)
@@ -213,13 +211,12 @@ object ImageManager {
       response ← * <~ updateAlbumInner(id, payload, context)
     } yield AlbumResponse.build(response)
 
-  def updateAlbumInner(id: ObjectForm#Id, updatePayload: AlbumPayload, context: ObjectContext)(
+  def updateAlbumInner(id: ObjectForm#Id, payload: AlbumPayload, context: ObjectContext)(
       implicit ec: EC,
       db: DB,
       au: AU): DbResultT[FullAlbumWithImages] =
     for {
-      payload ← * <~ updatePayload.validate
-      album   ← * <~ mustFindFullAlbumByFormIdAndContext404(id, context)
+      album ← * <~ mustFindFullAlbumByFormIdAndContext404(id, context)
       oldShadow                    = album.shadow
       (payloadForm, payloadShadow) = payload.formAndShadow.tupled
       mergedAtts                   = oldShadow.attributes.merge(payloadShadow.attributes)

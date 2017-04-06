@@ -1,8 +1,7 @@
 /* @flow */
 
 import _ from 'lodash';
-import { get, reduce } from 'lodash';
-import React, { Component } from 'react';
+import React, { Component, Element } from 'react';
 import styles from './auth.css';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
@@ -13,17 +12,16 @@ import { browserHistory } from 'lib/history';
 import localized from 'lib/i18n';
 import type { Localized } from 'lib/i18n';
 
-import { TextInput } from 'ui/inputs';
+import TextInput from 'ui/text-input/text-input';
 import ShowHidePassword from 'ui/forms/show-hide-password';
 import { FormField, Form } from 'ui/forms';
 import Button from 'ui/buttons';
-import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
+import ErrorAlerts from 'ui/alerts/error-alerts';
 
 import * as actions from 'modules/auth';
 import { authBlockTypes } from 'paragons/auth';
 import { fetch as fetchCart, saveLineItemsAndCoupons } from 'modules/cart';
 
-import type { HTMLElement } from 'types';
 import type { SignUpPayload } from 'modules/auth';
 
 type AuthState = {
@@ -41,7 +39,7 @@ type Props = Localized & {
   fetchCart: Function,
   saveLineItemsAndCoupons: Function,
   onLoginClick: Function,
-  title?: string|Element|null,
+  title?: string|Element<*>|null,
   mergeGuestCart: boolean,
   onAuthenticated?: Function,
 };
@@ -103,12 +101,12 @@ class Signup extends Component {
         this.props.saveLineItemsAndCoupons(this.props.mergeGuestCart);
       }
       browserHistory.push(this.props.getPath());
-    }).catch(err => {
-      const errors = get(err, ['responseJson', 'errors'], [err.toString()]);
+    }).catch((err) => {
+      const errors = _.get(err, ['responseJson', 'errors'], [err.toString()]);
       let emailError = false;
       let usernameError = false;
 
-      const restErrors = reduce(errors, (acc, error) => {
+      const restErrors = _.reduce(errors, (acc, error) => {
         if (error.indexOf('email') >= 0) {
           emailError = error;
         } else if (error.indexOf('name') >= 0) {
@@ -135,64 +133,73 @@ class Signup extends Component {
   get title() {
     const { t, title } = this.props;
     return title !== null
-      ? <div styleName="title">{title || t('SIGN UP')}</div>
+      ? <div styleName="title">{title || t('Sign up')}</div>
       : null;
   }
 
-  render(): HTMLElement {
-    const { email, password, username, emailError, usernameError } = this.state;
-    const { t, isLoading, getPath, onLoginClick } = this.props;
+  get bottomMessage() {
+    const { props } = this;
+    const { t } = props;
 
-    const loginLink = (
-      <Link to={getPath(authBlockTypes.LOGIN)} onClick={onLoginClick} styleName="link">
-        {t('Log in')}
-      </Link>
+    return (
+      <div styleName="bottom-message">
+        <Link to={props.getPath(authBlockTypes.LOGIN)} onClick={props.onLoginClick} styleName="link">
+          {t('Already have an account?')}
+        </Link>
+      </div>
     );
+  }
+
+  render(): Element<*> {
+    const { email, password, username, emailError, usernameError } = this.state;
+    const { t, isLoading } = this.props;
 
     return (
       <div>
         {this.title}
         <Form onSubmit={this.submitUser}>
-          <FormField key="username" styleName="form-field" error={usernameError}>
-            <TextInput
-              required
-              placeholder={t('FIRST & LAST NAME')}
-              name="username"
-              value={username}
-              onChange={this.onChangeUsername}
-            />
-          </FormField>
-          <FormField key="email" styleName="form-field" error={emailError}>
-            <TextInput
-              required
-              placeholder={t('EMAIL')}
-              name="email"
-              value={email}
-              type="email"
-              onChange={this.onChangeEmail}
-            />
-          </FormField>
-          <FormField key="passwd" styleName="form-field">
-            <ShowHidePassword
-              className={styles['form-field-input']}
-              placeholder={t('CREATE PASSWORD')}
-              name="password"
-              value={password}
-              onChange={this.onChangePassword}
-            />
-          </FormField>
-          <ErrorAlerts errors={this.state.generalErrors} />
+          <div styleName="inputs-body">
+            <ErrorAlerts errors={this.state.generalErrors} />
+            <FormField key="username" styleName="form-field" error={usernameError}>
+              <TextInput
+                pos="top"
+                required
+                placeholder={t('First & last name')}
+                name="username"
+                value={username}
+                onChange={this.onChangeUsername}
+              />
+            </FormField>
+            <FormField key="email" styleName="form-field" error={emailError}>
+              <TextInput
+                pos="middle-v"
+                required
+                placeholder={t('Email')}
+                name="email"
+                value={email}
+                type="email"
+                onChange={this.onChangeEmail}
+              />
+            </FormField>
+            <FormField key="passwd" styleName="form-field" required>
+              <ShowHidePassword
+                pos="bottom"
+                className={styles['form-field-input']}
+                placeholder={t('Create password')}
+                name="password"
+                value={password}
+                onChange={this.onChangePassword}
+              />
+            </FormField>
+          </div>
           <Button
             styleName="primary-button"
             isLoading={isLoading}
             type="submit"
-          >
-            {t('SIGN UP')}
-          </Button>
+            children={t('Sign up')}
+          />
+          {this.bottomMessage}
         </Form>
-        <div styleName="switch-stage">
-          {t('Already have an account?')} {loginLink}
-        </div>
       </div>
     );
   }

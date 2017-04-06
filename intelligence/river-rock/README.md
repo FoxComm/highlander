@@ -1,4 +1,4 @@
-#River Rock Proxy
+# River Rock Proxy
 
 This is a proxy which smooths over stones. 
 
@@ -14,6 +14,7 @@ in the future.
 
 | Directory                              | Description                                                                                                  |
 |:---------------------------------------|:-------------------------------------------------------------------------------------------------------------|
-| [proxy](proxy)                         | Main source for the proxy which implements the HTTP interface|
-| [clustering](clustering)               | Code to talk to bernardo and assign a request a cluster id|
+| [proxy](proxy)                         | Main source for the proxy which implements the HTTP interface |
+| [clustering](clustering)               | Code to talk to bernardo and assign a request a cluster id |
 | [selection](selection)                 | Implementation of the resource map and resource selection algorithm |
+| [utils](utils)                         | Misc utils |

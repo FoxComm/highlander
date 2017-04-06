@@ -1,13 +1,14 @@
-
 /* @flow */
 
+// libs
 import _ from 'lodash';
 import React, { Element } from 'react';
 
-import ContentBox from '../content-box/content-box';
-import { PrimaryButton } from '../common/buttons';
-import wrapModal from '../modal/wrapper';
-import ErrorAlerts from '../alerts/error-alerts';
+// components
+import ContentBox from 'components/content-box/content-box';
+import SaveCancel from 'components/common/save-cancel';
+import wrapModal from 'components/modal/wrapper';
+import ErrorAlerts from 'components/alerts/error-alerts';
 
 type Props = {
   body: string|Element<*>,
@@ -17,7 +18,7 @@ type Props = {
   icon?: string,
   onCancel: Function,
   confirmAction: Function,
-  asyncState?: AsyncState,
+  asyncState: AsyncState,
 };
 
 const ConfirmationDialog = (props: Props) => {
@@ -55,17 +56,14 @@ const ConfirmationDialog = (props: Props) => {
           <ErrorAlerts error={_.get(props.asyncState, 'err', null)} />
           {props.body}
         </div>
-        <div className='fc-modal-footer'>
-          <a id="fct-modal-cancel-btn" tabIndex="2" className='fc-modal-close' onClick={() => props.onCancel()}>
-            {props.cancel}
-          </a>
-          <PrimaryButton id="fct-modal-confirm-btn"
-                         tabIndex="1" autoFocus={true}
-                         isLoading={_.get(props.asyncState, 'inProgress', false)}
-                         onClick={() => props.confirmAction()}>
-            {props.confirm}
-          </PrimaryButton>
-        </div>
+
+        <SaveCancel
+          className="fc-modal-footer"
+          onCancel={props.onCancel}
+          onSave={props.confirmAction}
+          saveText={props.confirm}
+          isLoading={_.get(props.asyncState, 'inProgress', false)}
+        />
       </ContentBox>
     </div>
   );

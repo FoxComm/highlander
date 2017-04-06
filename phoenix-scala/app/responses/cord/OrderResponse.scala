@@ -67,7 +67,7 @@ object OrderResponse {
           lineItems = lineItems,
           lineItemAdjustments = lineItemAdj,
           promotion = promo.map { case (promotion, _) ⇒ promotion },
-          coupon = promo.map { case (_, coupon)       ⇒ coupon },
+          coupon = promo.flatMap { case (_, coupon)   ⇒ coupon },
           totals = OrderResponseTotals.build(order),
           customer = for {
             c  ← customer

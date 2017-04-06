@@ -1,0 +1,83 @@
+.root {
+  padding: 0 30px;
+}
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 20px 0;
+}
+.title {
+  margin: 0;
+  flex-grow: 1;
+}
+.suggesterWrapper {
+  margin-bottom: 20px;
+}
+.suggester {
+  flex: 1 1 auto;
+}
+.approve {
+  font-size: 12px;
+  padding: 2px 0;
+}
+.approveLink {
+  color: #3fc1ab;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+.fieldLabel {
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.set {
+  border: none;
+  background-color: #ccc;
+  color: #333;
+  cursor: pointer;
+}
+.set._disabled {
+  color: #999;
+  cursor: default;
+}
+
+.progressbar {
+  margin: 30px 0;
+}
+
+.form {
+  margin: 30px 0;
+}
+.mainForm {
+  overflow: hidden;
+  animation: appear .4s ease-in 1;
+}
+
+.table {
+  border: 1px solid #ccc;
+}
+
+.box {
+  margin: 20px 0;
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 30px 0;
+}
+
+@keyframes appear {
+  from {
+    max-height: 0;
+    opacity: 0;
+  }
+  to {
+    max-height: 4000px;
+    opacity: 1;
+  }
+}

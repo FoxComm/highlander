@@ -29,7 +29,7 @@ function serialize(data) {
 
   const params = [];
   for (let param in data) {
-    if (data.hasOwnProperty(param)) {
+    if (Object.prototype.hasOwnProperty.call(data, param)) {
       const value = data[param];
       if (value != null) {
         const asString = _.isObject(value) ? JSON.stringify(value) : value;

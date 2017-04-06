@@ -16,6 +16,9 @@ import CustomProperty from '../products/custom-property';
 import DatePicker from '../datepicker/datepicker';
 import RichTextEditor from '../rich-text-editor/rich-text-editor';
 import { Dropdown } from '../dropdown';
+import SwatchInput from '../forms/swatch-input';
+
+import type { AttrSchema } from 'paragons/object';
 
 type Props = {
   canAddProperty?: boolean,
@@ -24,6 +27,7 @@ type Props = {
   attributes: Attributes,
   onChange: (attributes: Attributes) => void,
   schema?: Object,
+  className?: string,
 };
 
 type State = {
@@ -31,18 +35,12 @@ type State = {
   errors: {[id:string]: any},
 };
 
-type AttrSchema = {
-  type: string,
-  title?: string,
-  widget?: string,
-  properties?: Object,
-}
-
 type AttrOptions = {
   required: boolean,
   label: string,
   isDefined: (value: any) => boolean,
-}
+  disabled?: boolean,
+};
 
 const inputClass = 'fc-object-form__field-value';
 
@@ -230,6 +228,7 @@ export default class ObjectFormInner extends Component {
         name={name}
         value={value || ''}
         onChange={onChange}
+        disabled={options.disabled}
       />
     );
 
@@ -289,6 +288,21 @@ export default class ObjectFormInner extends Component {
     return renderFormField(name, textInput, options);
   }
 
+  renderColor(name: string, value: string = '', options: AttrOptions) {
+    const label = _.upperFirst(options.label);
+    const onChange = v => this.handleChange(name, 'color', v);
+
+    return (
+      <div>
+        <label className="fc-object-form__field-label">{label}</label>
+          <SwatchInput
+            value={value}
+            onChange={onChange}
+          />
+      </div>
+    );
+  }
+
   shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
     const attributesChanged = !_.eq(this.props.attributes, nextProps.attributes);
     const stateChanged = !_.eq(this.state, nextState);
@@ -328,6 +342,7 @@ export default class ObjectFormInner extends Component {
       required: this.isRequired(name),
       label: schema && schema.title || formatLabel(name),
       isDefined: isDefined,
+      disabled: schema && schema.disabled,
     };
     if (schema && schema.widget == 'richText') {
       options.isDefined = value => isDefined(stripTags(value));
@@ -338,7 +353,7 @@ export default class ObjectFormInner extends Component {
 
   render() {
     const { props } = this;
-    const { attributes, schema } = props;
+    const { attributes, schema, className } = props;
     const fieldsToRender = _.isEmpty(props.fieldsToRender) ? Object.keys(attributes) : props.fieldsToRender;
 
     const renderedAttributes: Array<Element<*>> = _.map(fieldsToRender, name => {
@@ -352,7 +367,7 @@ export default class ObjectFormInner extends Component {
     });
 
     return (
-      <div className="fc-object-form">
+      <div className={classNames('fc-object-form', className)}>
         {renderedAttributes}
         {this.addCustomProperty}
         {this.customPropertyForm}

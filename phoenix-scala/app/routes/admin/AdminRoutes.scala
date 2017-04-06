@@ -25,13 +25,6 @@ object AdminRoutes {
 
     activityContext(auth) { implicit ac ⇒
       StoreCreditRoutes.storeCreditRoutes ~
-      pathPrefix("shipping-methods" / cordRefNumRegex) { refNum ⇒
-        (get & pathEnd) {
-          getOrFailures {
-            ShippingManager.getShippingMethodsForCart(refNum)
-          }
-        }
-      } ~
       pathPrefix("notes") {
         pathPrefix("order" / cordRefNumRegex) { refNum ⇒
           (get & pathEnd) {

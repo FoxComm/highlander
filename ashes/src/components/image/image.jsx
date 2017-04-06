@@ -11,6 +11,7 @@ import Transition from 'react-addons-css-transition-group';
 
 // components
 import WaitAnimation from '../common/wait-animation';
+import ProductImage from 'components/imgix/product-image';
 
 type Props = {
   id: number,
@@ -94,7 +95,14 @@ export default class ImageLoader extends Component {
   }
 
   get image(): ?Element<*> {
-    return this.state.ready ? <img src={this.state.src} key={this.props.id} /> : null;
+    return this.state.ready ? (
+      <ProductImage
+        src={this.state.src}
+        width={286}
+        height={286}
+        key={this.props.id}
+      />
+    ) : null;
   }
 
   wrapToTransition(img: ?Element<*>) {

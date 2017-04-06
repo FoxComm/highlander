@@ -10,10 +10,9 @@ import PromotionLink from '../base/promotion-link';
 import CouponLink from '../base/coupon-link';
 import Title from '../base/title';
 
-const notes_preference_types = ['order', 'giftCard', 'customer', 'return', 'product', 'sku',
-  'promotion', 'coupon', 'storeAdmin'];
-
 function linkForNoteTarget(data) {
+  const name = _.get(data, 'entity.attributes.title.v');
+  const attrs = data.entity.attributes;
 
   switch(data.note.referenceType) {
     case 'customer':
@@ -23,10 +22,8 @@ function linkForNoteTarget(data) {
     case 'giftCard':
       return <GiftCardLink code={data.entity.code}/>;
     case 'product':
-      const name = data.entity.attributes.title.v;
       return <ProductLink id={data.note.referenceId} context='default' name={name}/>;
     case 'sku':
-      const attrs = data.entity.attributes;
       return <SkuLink code={attrs.code.v} name={attrs.title.v}/>;
     case 'promotion':
       return <PromotionLink id={data.note.referenceId} name={data.entity.attributes.name.v}/>;

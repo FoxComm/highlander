@@ -1,8 +1,9 @@
 /* @flow */
 
+import React, { Component } from 'react';
+
 // libs
 import _ from 'lodash';
-import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { autobind } from 'core-decorators';
 import { browserHistory } from 'lib/history';
@@ -10,20 +11,21 @@ import * as tracking from 'lib/analytics';
 import { emailIsSet, isGuest } from 'paragons/auth';
 
 // components
-import Shipping from './01-shipping/shipping';
-import Delivery from './02-delivery/delivery';
-import Billing from './03-billing/billing';
-import GuestAuth from './05-guest-auth/guest-auth';
-import OrderSummary from '../../components/order-summary/order-summary';
-import Header from './header';
+import Shipping from './shipping/shipping';
+import Delivery from './delivery/delivery';
+import Billing from './billing/billing';
+import GuestAuth from './guest-auth/guest-auth';
+import Products from 'components/order-summary/product-table';
+import Header from 'components/header/header';
 import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
 import Loader from 'ui/loader';
+import OrderTotals from 'components/order-summary/totals';
+import Button from 'ui/buttons';
 
 // styles
 import styles from './checkout.css';
 
 // types
-import type { Promise as PromiseType } from 'types/promise';
 import type { CheckoutState, EditStage } from 'modules/checkout';
 import type { CheckoutActions } from './types';
 import type { AsyncStatus } from 'types/async-actions';
@@ -37,8 +39,8 @@ import { fetchUser } from 'modules/auth';
 
 type Props = CheckoutState & CheckoutActions & {
   setEditStage: (stage: EditStage) => Object,
-  hideCart: () => PromiseType,
-  fetchCart: () => PromiseType,
+  hideCart: () => Promise<*>,
+  fetchCart: () => Promise<*>,
   addresses: Array<any>,
   shippingMethods: Object,
   cart: Object,
@@ -50,34 +52,25 @@ type Props = CheckoutState & CheckoutActions & {
 };
 
 type State = {
-  isScrolled: boolean,
-  cart: Object,
+  shippingDone: boolean,
+  deliveryDone: boolean,
+  billingDone: boolean,
 }
 
 class Checkout extends Component {
   props: Props;
 
   state: State = {
-    isScrolled: false,
-    cart: this.props.cart,
+    shippingDone: false,
+    deliveryDone: false,
+    billingDone: false,
   };
 
   componentDidMount() {
     this.props.fetchCart().then(() => {
       const { cart } = this.props;
       tracking.checkoutStart(cart.lineItems);
-
-      let editStage = EditStages.SHIPPING;
-      if (!_.isEmpty(cart.shippingAddress)) {
-        editStage += 1;
-      }
-
-      this.props.setEditStage(editStage);
     });
-    this.props.hideCart();
-
-    this.checkScroll();
-    window.addEventListener('scroll', this.checkScroll);
 
     if (!this.isEmailSetForCheckout()) {
       this.props.fetchUser();
@@ -85,25 +78,43 @@ class Checkout extends Component {
   }
 
   componentWillUnmount() {
-    window.removeEventListener('scroll', this.checkScroll);
     this.props.clearCheckoutErrors();
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.cart != this.props.cart) {
-      this.setState({
-        cart: nextProps.cart,
-      });
+    const { creditCard, fetchCartState } = nextProps;
+    const { shippingAddress, shippingMethod, skus } = nextProps.cart;
+    const { billingDone, shippingDone, deliveryDone } = this.state;
+
+    if (_.isEmpty(skus) && fetchCartState.finished) {
+      browserHistory.push('/');
+      return;
     }
+
+    let billing = billingDone;
+    let shipping = shippingDone;
+    let delivery = deliveryDone;
+
+    if (_.isEmpty(creditCard) && billingDone) {
+      billing = false;
+    } else if (!_.isEmpty(creditCard) && !billingDone) {
+      billing = true;
+    }
+
+    if (_.isEmpty(shippingAddress) && shippingDone) {
+      shipping = false;
+    } else if (!_.isEmpty(shippingAddress) && !shippingDone) {
+      shipping = true;
+    }
+
+    if (_.isEmpty(shippingMethod) && deliveryDone) {
+      delivery = false;
+    } else if (!_.isEmpty(shippingMethod) && !deliveryDone) {
+      delivery = true;
+    }
+
+    this.setState({ billingDone: billing, shippingDone: shipping, deliveryDone: delivery });
   }
-
-  checkScroll = () => {
-    const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-    const checkoutHeaderHeight = 136;
-    const isScrolled = scrollTop > checkoutHeaderHeight;
-
-    this.setState({isScrolled});
-  };
 
   @autobind
   sanitizeError(error) {
@@ -117,18 +128,20 @@ class Checkout extends Component {
   }
 
   @autobind
-  setShippingStage() {
-    this.props.setEditStage(EditStages.SHIPPING);
+  setShipping() {
+    this.props.toggleShippingModal();
+    this.setState({ shippingDone: true });
   }
 
   @autobind
-  setDeliveryStage() {
-    return this.props.setEditStage(EditStages.DELIVERY);
+  setDelivery() {
+    this.props.toggleDeliveryModal();
+    this.setState({ deliveryDone: true });
   }
 
   @autobind
-  setBillingStage() {
-    return this.props.setEditStage(EditStages.BILLING);
+  setBilling() {
+    this.setState({ billingDone: true });
   }
 
   @autobind
@@ -141,7 +154,7 @@ class Checkout extends Component {
         .then(() => this.checkout());
     }
 
-    const giftCardPresent = _.some(paymentMethods, paymentMethod => {
+    const giftCardPresent = _.some(paymentMethods, (paymentMethod) => {
       return paymentMethod.type == 'giftCard';
     });
 
@@ -162,97 +175,111 @@ class Checkout extends Component {
   }
 
   @autobind
-  startShipping() {
-    return this.props.setEditStage(EditStages.SHIPPING);
-  }
-
-  @autobind
   isEmailSetForCheckout() {
     const user = _.get(this.props, ['auth', 'user'], null);
     return emailIsSet(user);
   }
 
-  @autobind
-  handleUpdateCart(cart) {
-    this.setState({
-      cart,
-    });
+  get orderTotals() {
+    const { cart } = this.props;
+    const { billingDone, shippingDone, deliveryDone } = this.state;
+    const disabled = billingDone && shippingDone && deliveryDone;
+
+    return (
+      <div styleName="total-cost">
+        <div styleName="totals-list">
+          <OrderTotals
+            totals={cart.totals}
+            paymentMethods={cart.paymentMethods}
+          />
+        </div>
+
+        <div styleName="place-order-block">
+          <Button
+            styleName="place-order-button"
+            onClick={this.placeOrder}
+            disabled={!disabled}
+            isLoading={this.props.checkoutState.inProgress}
+          >
+            Place order
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  get orderContent() {
+    return (
+      <div styleName="order-content">
+        <Products skus={this.props.cart.skus} />
+      </div>
+    );
   }
 
   get content() {
     const { props } = this;
     const isGuestMode = isGuest(_.get(props.auth, 'user'));
+    const cartFetched = props.fetchCartState.finished;
+
+    if (cartFetched) {
+      return (
+        <div styleName="wrapper">
+          <div styleName="column-1">
+            <div styleName="shipping">
+              <Shipping
+                isEditing={props.editStage}
+                onComplete={this.setShipping}
+                addresses={this.props.addresses}
+                fetchAddresses={this.props.fetchAddresses}
+                shippingAddress={_.get(this.props.cart, 'shippingAddress', {})}
+                auth={this.props.auth}
+                isGuestMode={isGuestMode}
+              />
+            </div>
+            <div styleName="delivery">
+              <Delivery
+                isEditing={props.editStage}
+                onComplete={this.setDelivery}
+                shippingMethods={props.shippingMethods}
+                cart={this.props.cart}
+                fetchShippingMethods={props.fetchShippingMethods}
+              />
+            </div>
+          </div>
+          <div styleName="payment">
+            <Billing
+              isGuestMode={isGuestMode}
+              paymentMethods={_.get(props.cart, 'paymentMethods', [])}
+              chooseCreditCard={this.props.chooseCreditCard}
+              onComplete={this.setBilling}
+            />
+          </div>
+          {this.orderTotals}
+          <div styleName="order-summary">
+            {this.orderContent}
+          </div>
+
+          <GuestAuth
+            isEditing={!this.isEmailSetForCheckout()}
+            location={this.props.location}
+          />
+        </div>
+      );
+    }
+
     return (
-      <div styleName="body">
-        <div styleName="summary">
-          <OrderSummary
-            isScrolled={this.state.isScrolled}
-            styleName="summary-content"
-            { ...props.cart }
-          />
-        </div>
-
-        <div styleName="forms">
-          <Shipping
-            isEditing={props.editStage == EditStages.SHIPPING}
-            collapsed={props.editStage < EditStages.SHIPPING}
-            editAction={this.setShippingStage}
-            onComplete={this.setDeliveryStage}
-            addresses={this.props.addresses}
-            fetchAddresses={this.props.fetchAddresses}
-            shippingAddress={_.get(this.props.cart, 'shippingAddress', {})}
-            auth={this.props.auth}
-            isGuestMode={isGuestMode}
-          />
-          <Delivery
-            isEditing={props.editStage == EditStages.DELIVERY}
-            editAllowed={props.editStage >= EditStages.DELIVERY}
-            collapsed={!props.isDeliveryDirty && props.editStage < EditStages.DELIVERY}
-            editAction={this.setDeliveryStage}
-            onComplete={this.setBillingStage}
-            shippingMethods={props.shippingMethods}
-            cart={this.state.cart}
-            onUpdateCart={this.handleUpdateCart}
-            fetchShippingMethods={props.fetchShippingMethods}
-          />
-          <Billing
-            isGuestMode={isGuestMode}
-            isEditing={props.editStage == EditStages.BILLING}
-            editAllowed={props.editStage >= EditStages.BILLING}
-            collapsed={!props.isBillingDirty && props.editStage < EditStages.BILLING}
-            editAction={this.setBillingStage}
-            continueAction={this.placeOrder}
-            paymentMethods={_.get(props.cart, 'paymentMethods', [])}
-          />
-        </div>
-
-        <GuestAuth
-          isEditing={!this.isEmailSetForCheckout()}
-          continueAction={this.startShipping}
-          location={this.props.location}
-        />
-      </div>
+      <Loader />
     );
   }
 
   render() {
     const props = this.props;
 
-    const setStates = {
-      setShippingStage: this.setShippingStage,
-      setDeliveryStage: this.setDeliveryStage,
-      setBillingStage: this.setBillingStage,
-    };
-
-    const body = props.fetchCartState.finished ? this.content : <Loader />;
-
     return (
       <section styleName="checkout">
         <Header
-          isScrolled={this.state.isScrolled}
-          isGuestAuth={props.editStage == EditStages.GUEST_AUTH}
-          currentStage={props.editStage}
-          {...setStates}
+          path={props.location.pathname}
+          query={props.location.query}
         />
 
         <div styleName="content">
@@ -260,7 +287,7 @@ class Checkout extends Component {
             sanitizeError={this.sanitizeError}
             error={props.checkoutState.err}
           />
-          {body}
+          {this.content}
         </div>
       </section>
     );

@@ -1,6 +1,6 @@
 const proxy = require('koa-proxy');
 
-const matchUriRegexp = new RegExp(`^/api/search/`);
+const matchUriRegexp = new RegExp('^/api/search/');
 
 function makeElasticProxy() {
   const host = process.env.API_URL;

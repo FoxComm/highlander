@@ -1,4 +1,5 @@
 // @flow
+/*eslint max-len: ["error", 1000]*/
 
 // libs
 import React, { PropTypes } from 'react';
@@ -29,11 +30,7 @@ const ActionBlock = (props) => {
       <g stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
         <g transform="translate(-485.000000, -557.000000)" fill="#000000">
           <g transform="translate(485.000000, 557.000000)">
-            <g>
-              <g>
-                <path d="M8.66317371,6.99940845 L13.6542723,2.00830986 C14.1137089,1.54887324 14.1137089,0.803981221 13.6542723,0.344610329 C13.1948357,-0.114826291 12.4500094,-0.114826291 11.9905728,0.344610329 L6.99940845,5.33577465 L2.00824413,0.344544601 C1.54880751,-0.114892019 0.803981221,-0.114892019 0.344544601,0.344544601 C-0.114826291,0.803981221 -0.114826291,1.54887324 0.344544601,2.00824413 L5.33570892,6.99934272 L0.344544601,11.990507 C-0.114826291,12.4499437 -0.114826291,13.1948357 0.344544601,13.6542066 C0.803981221,14.1136432 1.54880751,14.1136432 2.00824413,13.6542066 L6.99940845,8.66304225 L11.9905728,13.6542066 C12.4499437,14.1136432 13.1948357,14.1136432 13.6542723,13.6542066 C14.1137089,13.19477 14.1137089,12.4499437 13.6542723,11.990507 L8.66317371,6.99940845 Z" id="Shape"></path>
-              </g>
-            </g>
+            <path d="M8.66317371,6.99940845 L13.6542723,2.00830986 C14.1137089,1.54887324 14.1137089,0.803981221 13.6542723,0.344610329 C13.1948357,-0.114826291 12.4500094,-0.114826291 11.9905728,0.344610329 L6.99940845,5.33577465 L2.00824413,0.344544601 C1.54880751,-0.114892019 0.803981221,-0.114892019 0.344544601,0.344544601 C-0.114826291,0.803981221 -0.114826291,1.54887324 0.344544601,2.00824413 L5.33570892,6.99934272 L0.344544601,11.990507 C-0.114826291,12.4499437 -0.114826291,13.1948357 0.344544601,13.6542066 C0.803981221,14.1136432 1.54880751,14.1136432 2.00824413,13.6542066 L6.99940845,8.66304225 L11.9905728,13.6542066 C12.4499437,14.1136432 13.1948357,14.1136432 13.6542723,13.6542066 C14.1137089,13.19477 14.1137089,12.4499437 13.6542723,11.990507 L8.66317371,6.99940845 Z" id="Shape"></path>
           </g>
         </g>
       </g>
@@ -94,7 +91,7 @@ type Props = {
     },
   },
   questionBoxes: Array<QuestionBoxType>,
-  segments: Array<SegmentControlType>, 
+  segments: Array<SegmentControlType>,
 }
 
 // consts
@@ -156,12 +153,15 @@ export function
 percentDifferenceFromAvg(percentValue: number, avgPercentValue: number): number {
   if (avgPercentValue === 0) return 0;
   return _.round(((percentValue - avgPercentValue) / avgPercentValue) * 100, 0);
-};
+}
 
 @connect((state, props) => ({analytics: state.analytics}), AnalyticsActions)
 export default class Analytics extends React.Component {
 
-  static defaultProps: { questionBoxes: Array<QuestionBoxType>, segments: Array<SegmentControlType> } = {
+  static defaultProps: {
+    questionBoxes: Array<QuestionBoxType>,
+    segments: Array<SegmentControlType>
+  } = {
     questionBoxes: [
       {
         id: 'TotalRevenue',
@@ -201,20 +201,20 @@ export default class Analytics extends React.Component {
       },
     ],
     segments: [
-      { 
-        id: 0, 
-        title: segmentTitles.day, 
+      {
+        id: 0,
+        title: segmentTitles.day,
         onClick: _.noop,
-        isActive: true 
+        isActive: true
       },
-      { 
-        id: 1, 
+      {
+        id: 1,
         title: segmentTitles.week,
         onClick: _.noop,
       },
-      { 
-        id: 2, 
-        title: segmentTitles.month, 
+      {
+        id: 2,
+        title: segmentTitles.month,
         onClick: _.noop,
       },
     ],
@@ -239,7 +239,7 @@ export default class Analytics extends React.Component {
     super(props);
     this.state.question = _.head(props.questionBoxes);
     this.state.segment = _.head(props.segments);
-    this.state.dataFetchTimeSize = unixTimes.twoHour; 
+    this.state.dataFetchTimeSize = unixTimes.twoHour;
   }
 
   componentDidMount() {
@@ -333,7 +333,7 @@ export default class Analytics extends React.Component {
         newDataFetchTimeSize = unixTimes.month;
         break;
       default:
-        console.log('INVALID DATE RANGE');
+        console.info('INVALID DATE RANGE');
         displayText = moment().format(datePickerFormat);
         newDataFetchTimeSize = unixTimes.twoHour;
         break;
@@ -421,23 +421,19 @@ export default class Analytics extends React.Component {
 
   @autobind
   onQuestionBoxSelect(question: QuestionBoxType) {
+    const { dateRangeBegin, dateRangeEnd, dataFetchTimeSize, comparisonPeriod } = this.state;
+
     switch(question.title) {
       case questionTitles.TotalRevenue:
       case questionTitles.TotalOrders:
       case questionTitles.TotalPdPViews:
       case questionTitles.TotalInCarts:
-        const { dateRangeBegin, dateRangeEnd, dataFetchTimeSize } = this.state;
-
-        this.setState({ question: question },
+        this.setState({ question },
           this.fetchData(question, dateRangeBegin, dateRangeEnd, dataFetchTimeSize)
         );
         break;
       case questionTitles.ProductConversionRate:
-        const { comparisonPeriod } = this.state;
-
-        this.setState({
-          question: question
-        },
+        this.setState({ question },
           this.fetchData(
             question,
             comparisonPeriod.dateRangeBegin,
@@ -558,6 +554,11 @@ export default class Analytics extends React.Component {
           activeSegment={segment}
         />
       );
+      const comparisonCancelButtonVisibility = comparisonPeriod.dataFetchTimeSize > 0
+            ? 'visible'
+            : 'hidden';
+
+      let conversionComparison = {};
 
       switch (question.title) {
         case questionTitles.TotalRevenue:
@@ -565,7 +566,7 @@ export default class Analytics extends React.Component {
             <div>
               { segmentCtrlList }
               <TotalRevenueChart
-                jsonData={analytics.chartValues} 
+                jsonData={analytics.chartValues}
                 queryKey={analytics.keys}
                 segmentType={this.chartSegmentType}
                 currencyCode="USD"
@@ -586,11 +587,6 @@ export default class Analytics extends React.Component {
             </div>
           );
         case questionTitles.ProductConversionRate:
-          const comparisonCancelButtonVisibility = comparisonPeriod.dataFetchTimeSize > 0
-            ? 'visible'
-            : 'hidden';
-
-          let conversionComparison = {};
           if (_.has(analytics, 'chartValues.Comparison')) {
             conversionComparison = analytics.chartValues.Comparison;
             conversionComparison.Average = analytics.chartValues.Average;

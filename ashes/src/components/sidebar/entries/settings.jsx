@@ -1,14 +1,11 @@
 /* @flow */
 
-import React, { Element } from 'react';
+import React from 'react';
 
-import { anyPermitted, isPermitted } from 'lib/claims';
+import { anyPermitted } from 'lib/claims';
 import { frn, readAction } from 'lib/frn';
 
 import NavigationItem from '../navigation-item';
-import { IndexLink, Link } from 'components/link';
-
-import type { Claims } from 'lib/claims';
 
 import styles from './entries.css';
 
@@ -70,6 +67,16 @@ const SettingsEntry = ({ claims, routes }: TMenuEntry) => {
             expectedClaims={applicationClaims}
           />
         </li>
+        {/*<li>
+          <NavigationItem
+            to="channels"
+            icon="channels"
+            title="Channels"
+            routes={routes}
+            actualClaims='none'
+            expectedClaims='none'
+          />
+        </li>*/}
       </div>
     );
 };

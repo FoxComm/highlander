@@ -13,14 +13,14 @@ export default class PromoCouponsPage extends Component {
   @autobind
   addAction() {
     transitionTo('promotion-coupon-new', {promotionId: this.props.object.id});
-  };
+  }
 
   render() {
     const promotionId = this.props.object.id;
     const children = this.props.children;
     const applyType = this.props.object.applyType;
-    
-    if (applyType == "auto") return null;
+
+    if (applyType == 'auto') return null;
     return (
       <div styleName="promotion-coupons-page">
         <SectionTitle title="Coupons">
@@ -31,4 +31,4 @@ export default class PromoCouponsPage extends Component {
       </div>
     );
   }
-};
+}

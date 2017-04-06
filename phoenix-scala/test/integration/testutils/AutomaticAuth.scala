@@ -1,6 +1,5 @@
 package testutils
 
-import scala.concurrent.Future
 import akka.http.scaladsl.model.headers.HttpChallenge
 import akka.http.scaladsl.server.Directive1
 import akka.http.scaladsl.server.directives.AuthenticationResult
@@ -10,12 +9,15 @@ import akka.http.scaladsl.server.directives.SecurityDirectives._
 import models.account._
 import models.auth.UserToken
 import org.scalatest.SuiteMixin
-import org.scalatest.concurrent.ScalaFutures
-import services.Authenticator.{AuthData, UserAuthenticator}
+import services.Authenticator.{AuthData, JwtAuthenticator, UserAuthenticator}
+import services.account.AccountCreateContext
 import utils.seeds.Factories
+
+import scala.concurrent.Future
 
 abstract class FakeAuth extends UserAuthenticator {
   type C = String
+
   def readCredentials(): Directive1[Option[String]] = provide(Some("ok"))
 }
 
@@ -37,7 +39,7 @@ case class AuthAs(admin: User, customer: User) extends FakeAuth {
     val account = Account(id = customer.accountId)
     val token = UserToken.fromUserAccount(customer,
                                           account,
-                                          Account.ClaimSet(scope = "2",
+                                          Account.ClaimSet(scope = "1.2",
                                                            roles = List("customer"),
                                                            claims = Map("frn:fillme" → List("r"))))
     Future.successful(AuthenticationResult.success(AuthData[User](token, customer, account)))

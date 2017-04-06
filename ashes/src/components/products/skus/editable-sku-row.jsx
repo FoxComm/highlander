@@ -2,32 +2,31 @@
  * @flow
  */
 
+// libs
 import React, { Component, Element, PropTypes } from 'react';
 import { autobind } from 'core-decorators';
 import _ from 'lodash';
 import { connect } from 'react-redux';
 import { makeLocalStore, addAsyncReducer } from '@foxcomm/wings';
-import styles from './editable-sku-row.css';
+import classNames from 'classnames';
 
+// components
 import { FormField } from 'components/forms';
 import CurrencyInput from 'components/forms/currency-input';
 import MultiSelectRow from 'components/table/multi-select-row';
 import LoadingInputWrapper from 'components/forms/loading-input-wrapper';
 import { DeleteButton } from 'components/common/buttons';
+import ProductImage from 'components/imgix/product-image';
 
 import reducer, { suggestSkus } from 'modules/skus/suggest';
 import type { SuggestOptions } from 'modules/skus/suggest';
-import type { Sku } from 'modules/skus/details';
-import type { Sku as SearchViewSku } from 'modules/skus/list';
 import { skuId } from 'paragons/product';
 
-type Column = {
-  field: string,
-  text: string,
-};
+// styles
+import styles from './editable-sku-row.css';
 
 type Props = {
-  columns: Array<Column>,
+  columns: Columns,
   sku: Sku,
   index: number,
   params: Object,
@@ -38,7 +37,7 @@ type Props = {
   isFetchingSkus: boolean,
   variantsSkusIndex: Object,
   suggestSkus: (code: string, context?: SuggestOptions) => Promise<*>,
-  suggestedSkus: Array<SearchViewSku>,
+  suggestedSkus: SkuSearch,
   variants: Array<any>,
 };
 
@@ -59,7 +58,7 @@ function stop(event: SyntheticEvent) {
   event.stopPropagation();
 }
 
-function pickSkuAttrs(searchViewSku: SearchViewSku) {
+function pickSkuAttrs(searchViewSku: SkuSearchItem) {
   const sku = _.pick(searchViewSku, ['title', 'context']);
   sku.salePrice = {
     value: Number(searchViewSku.salePrice),
@@ -83,6 +82,10 @@ class EditableSkuRow extends Component {
 
   static contextTypes = {
     validationDispatcher: PropTypes.object,
+  };
+
+  static defaultProps = {
+    skuContext: 'default',
   };
 
   toggleBindToDispatcher(bind) {
@@ -147,12 +150,20 @@ class EditableSkuRow extends Component {
     );
   }
 
-  @autobind
   upcCell(sku: Sku): Element<*> {
-    const value = this.state.sku.upc || _.get(sku, 'attributes.upc.v');
+    const value = this.state.sku.upc || _.get(sku, 'attributes.upc.v') || '';
+
     return (
       <FormField>
-        <input type="text" value={value} onChange={this.handleUpdateUpc} />
+        <input
+          className="fc-text-input"
+          type="text"
+          value={value}
+          onChange={({ target: { value } }) => {
+            this.updateSku({ upc: value });
+          }}
+          placeholder="UPC"
+        />
       </FormField>
     );
   }
@@ -167,12 +178,12 @@ class EditableSkuRow extends Component {
     });
   }
 
-  updateAttrsBySearchViewSku(searchViewSku: SearchViewSku) {
+  updateAttrsBySearchViewSku(searchViewSku: SkuSearchItem) {
     this.updateSku(pickSkuAttrs(searchViewSku));
   }
 
   @autobind
-  handleSelectSku(searchViewSku: SearchViewSku) {
+  handleSelectSku(searchViewSku: SkuSearchItem) {
     this.closeSkusMenu(
       () => this.updateAttrsBySearchViewSku(searchViewSku)
     );
@@ -200,7 +211,7 @@ class EditableSkuRow extends Component {
   get menuItemsContent(): Array<Element<*>> {
     const items = this.props.suggestedSkus;
 
-    return items.map((sku: SearchViewSku) => {
+    return items.map((sku: SkuSearchItem) => {
       return (
         <li
           id={`fct-search-view-line__${sku.skuCode}`}
@@ -233,7 +244,6 @@ class EditableSkuRow extends Component {
   }
 
   skuCell(sku: Sku): Element<*> {
-    const code = _.get(this.props, 'sku.attributes.code.v');
     const { codeError } = this.state;
     const error = codeError ? `SKU Code violates constraint: ${codeError.keyword}` : void 0;
     return (
@@ -254,13 +264,54 @@ class EditableSkuRow extends Component {
     );
   }
 
+  inventoryCell(sku: Sku): Element<*> {
+    const value = this.state.sku.inventory || _.get(this.props, 'sku.attributes.inventory.v') || '';
+
+    return (
+      <FormField>
+        <input
+          className={classNames('fc-text-input', styles.inventory)}
+          type="text"
+          value={value}
+          onChange={({ target: { value } }) => {
+            this.updateSku({ inventory: value });
+          }}
+          placeholder="Inventory"
+        />
+      </FormField>
+    );
+  }
+
+  asinCell(sku: Sku): Element<*> {
+    const value = this.state.sku.asin || _.get(this.props, 'sku.attributes.asin.v') || '';
+
+    return (
+      <FormField>
+        <input
+          className="fc-text-input"
+          type="text"
+          value={value}
+          onChange={({ target: { value } }) => {
+            this.updateSku({ asin: value });
+          }}
+          placeholder="ASIN"
+        />
+      </FormField>
+    );
+  }
+
   imageCell(sku: Sku): Element<*> {
     const imageObject = _.get(sku, ['albums', 0, 'images', 0]);
 
     if (!_.isEmpty(imageObject)) {
       return (
         <div styleName="image-cell">
-          <img {...imageObject} styleName="cell-thumbnail" />
+          <ProductImage
+            {...imageObject}
+            styleName="cell-thumbnail"
+            width={60}
+            height={60}
+          />
         </div>
       );
     }
@@ -315,6 +366,10 @@ class EditableSkuRow extends Component {
         return this.imageCell(sku);
       case 'actions':
         return this.actionsCell(sku);
+      case 'inventory':
+        return this.inventoryCell(sku);
+      case 'asin':
+        return this.asinCell(sku);
       default:
         return this.variantCell(field, sku);
     }
@@ -352,15 +407,6 @@ class EditableSkuRow extends Component {
         currency,
         value: Number(value),
       },
-    });
-  }
-
-  @autobind
-  handleUpdateUpc({target}: Object) {
-    const value = target.value;
-
-    this.updateSku({
-      upc: value,
     });
   }
 

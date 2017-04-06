@@ -7,7 +7,7 @@ const Moment = ({utc, value, format, emptyValue}) => {
   if (!value) {
     return <span styleName="time">{emptyValue}</span>;
   }
-  
+
   const timeValue = utc ? moment.utc(value) : moment(value);
 
   return (

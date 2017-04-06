@@ -1,31 +1,30 @@
 package models.returns
 
 import java.time.Instant
-
-import models.shipping.{Shipment, Shipments}
 import shapeless._
 import slick.driver.PostgresDriver.api._
 import utils.db._
 
-case class ReturnLineItemShippingCost(id: Int = 0,
+case class ReturnLineItemShippingCost(id: Int,
                                       returnId: Int,
-                                      shipmentId: Int,
+                                      amount: Int,
                                       createdAt: Instant = Instant.now)
     extends FoxModel[ReturnLineItemShippingCost]
 
-object ReturnLineItemShippingCost {}
-
 class ReturnLineItemShippingCosts(tag: Tag)
-    extends FoxTable[ReturnLineItemShippingCost](tag, "return_line_item_shipments") {
-  def id         = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def returnId   = column[Int]("return_id")
-  def shipmentId = column[Int]("shipment_id")
-  def createdAt  = column[Instant]("created_at")
+    extends FoxTable[ReturnLineItemShippingCost](tag, "return_line_item_shipping_costs") {
+  def id        = column[Int]("id", O.PrimaryKey)
+  def returnId  = column[Int]("return_id")
+  def amount    = column[Int]("amount")
+  def createdAt = column[Instant]("created_at")
 
   def * =
-    (id, returnId, shipmentId, createdAt) <> ((ReturnLineItemShippingCost.apply _).tupled, ReturnLineItemShippingCost.unapply)
+    (id, returnId, amount, createdAt) <> ((ReturnLineItemShippingCost.apply _).tupled, ReturnLineItemShippingCost.unapply)
 
-  def shipment = foreignKey(Shipments.tableName, shipmentId, Shipments)(_.id)
+  def li =
+    foreignKey(ReturnLineItems.tableName, id, ReturnLineItems)(_.id,
+                                                               onDelete = ForeignKeyAction.Cascade)
+  def returns = foreignKey(Returns.tableName, returnId, Returns)(_.id)
 }
 
 object ReturnLineItemShippingCosts
@@ -35,14 +34,6 @@ object ReturnLineItemShippingCosts
 
   val returningLens: Lens[ReturnLineItemShippingCost, Int] = lens[ReturnLineItemShippingCost].id
 
-  def findByRmaId(returnId: Rep[Int]): QuerySeq =
+  def findByRmaId(returnId: Int): QuerySeq =
     filter(_.returnId === returnId)
-
-  def findLineItemsByRma(
-      rma: Return): Query[(Shipments, ReturnLineItems), (Shipment, ReturnLineItem), Seq] =
-    for {
-      liSc     ← findByRmaId(rma.id)
-      li       ← ReturnLineItems if li.originId === liSc.id
-      shipment ← Shipments if shipment.id === liSc.shipmentId
-    } yield (shipment, li)
 }
