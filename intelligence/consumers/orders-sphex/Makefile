@@ -1,8 +1,8 @@
 include ../../../makelib
 header = $(call baseheader, $(1), orders-sphex)
 export GOPATH = /tmp/go
-BUILD_ROOT_PATH=$(GOPATH)/src
-BUILD_PATH=$(CURDIR)
+BUILD_ROOT_PATH=$(GOPATH)/src/github.com/FoxComm/highlander
+BUILD_PATH=$(BUILD_ROOT_PATH)/intelligence/consumers/orders-sphex
 HIGHLANDER_PATH=$(CURDIR)/../../../
 
 DOCKER_REPO ?= $(DOCKER_STAGE_REPO)
@@ -12,15 +12,14 @@ DOCKER_TAG ?= master
 prepare:
 	$(call header, Prepare)
 	rm $(BUILD_ROOT_PATH) || true
-	mkdir -p $(GOPATH)
-	ln -s $(BUILD_PATH)/vendor/ $(BUILD_ROOT_PATH) || true
-	glide install
+	mkdir -p $(GOPATH)/src/github.com/FoxComm
+	ln -s $(HIGHLANDER_PATH) $(BUILD_ROOT_PATH) || true
+	cd $(BUILD_PATH) && glide install
 	rm -rf $(BUILD_PATH)/vendor/github.com/FoxComm/highlander
-	ln -s $(HIGHLANDER_PATH) $(BUILD_ROOT_PATH)/github.com/FoxComm/highlander || true
 
 build: prepare
 	$(call header, Building)
-	GOOS=linux CGO_ENABLED=0 go build -o orders-sphex ./*.go
+	cd $(BUILD_PATH) && GOOS=linux CGO_ENABLED=0 go build -o orders-sphex ./*.go
 
 test:
 	$(call header, Testing)
