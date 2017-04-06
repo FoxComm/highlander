@@ -20,6 +20,10 @@
       width: 100%;
       padding-left: 40px;
     }
+
+    & i {
+      display: block;
+    }
   }
 
   & table {
