@@ -14,70 +14,70 @@ const pluginClaims = readAction(frn.settings.plugin);
 const applicationClaims = readAction(frn.settings.application);
 
 const SettingsEntry = ({ claims, routes }: TMenuEntry) => {
-    const allClaims = { ...userClaims, ...pluginClaims, ...applicationClaims };
+  const allClaims = { ...userClaims, ...pluginClaims, ...applicationClaims };
 
-    if (!anyPermitted(allClaims, claims)) {
-      return (
-        <div styleName="fc-entries-wrapper">
-          <h3>SETTINGS</h3>
-          <li>
-            <NavigationItem
-              to='integrations'
-              icon='integrations'
-              title='Integrations'
-              routes={routes}
-              actualClaims='none'
-              expectedClaims='none'
-            />
-          </li>
-          </div>
-      );
-    }
-
+  if (!anyPermitted(allClaims, claims)) {
     return (
       <div styleName="fc-entries-wrapper">
         <h3>SETTINGS</h3>
         <li>
           <NavigationItem
-            to="users"
-            icon="customers"
-            title="Users"
-            routes={routes}
-            actualClaims={claims}
-            expectedClaims={userClaims}
-          />
-        </li>
-        <li>
-          <NavigationItem
-            to="plugins"
-            icon="plugins"
-            title="Plugins"
-            routes={routes}
-            actualClaims={claims}
-            expectedClaims={pluginClaims}
-          />
-        </li>
-        <li>
-          <NavigationItem
-            to="applications"
-            icon="applications"
-            title="Applications"
-            routes={routes}
-            actualClaims={claims}
-            expectedClaims={applicationClaims}
-          />
-        </li>
-        {/*<li>
-          <NavigationItem
-            to="channels"
-            icon="channels"
-            title="Channels"
+            to='integrations'
+            icon='integrations'
+            title='Integrations'
             routes={routes}
             actualClaims='none'
             expectedClaims='none'
           />
-        </li>*/}
-      </div>
+        </li>
+        </div>
     );
+  }
+
+  return (
+    <div styleName="fc-entries-wrapper">
+      <h3>SETTINGS</h3>
+      <li>
+        <NavigationItem
+          to="users"
+          icon="customers"
+          title="Users"
+          routes={routes}
+          actualClaims={claims}
+          expectedClaims={userClaims}
+        />
+      </li>
+      <li>
+        <NavigationItem
+          to="plugins"
+          icon="plugins"
+          title="Plugins"
+          routes={routes}
+          actualClaims={claims}
+          expectedClaims={pluginClaims}
+        />
+      </li>
+      <li>
+        <NavigationItem
+          to="applications"
+          icon="applications"
+          title="Applications"
+          routes={routes}
+          actualClaims={claims}
+          expectedClaims={applicationClaims}
+        />
+      </li>
+      {/*<li>
+        <NavigationItem
+          to="channels"
+          icon="channels"
+          title="Channels"
+          routes={routes}
+          actualClaims='none'
+          expectedClaims='none'
+        />
+      </li>*/}
+    </div>
+  );
 };
 export default SettingsEntry;

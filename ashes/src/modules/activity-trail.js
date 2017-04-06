@@ -70,9 +70,9 @@ export function fetchActivityTrail({dimension, objectId = null}, from) {
         const activities = processActivities(result.map(con => {
               //TODO Using connection id as activity id until activities get
               //real ids
-              let activity = con.activity;
-              activity.id = con.id;
-              return processActivity(activity);
+          let activity = con.activity;
+          activity.id = con.id;
+          return processActivity(activity);
         }));
         dispatch(receivedActivities(
           {

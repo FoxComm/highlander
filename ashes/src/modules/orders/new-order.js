@@ -28,21 +28,21 @@ function suggestCustomers(phrase, guest = false) {
   }
 
   const filters = [{
-      term: 'name',
-      operator: 'eq',
-      value: {
-        type: 'string',
-        value: phrase,
-      },
+    term: 'name',
+    operator: 'eq',
+    value: {
+      type: 'string',
+      value: phrase,
     },
-    {
-      term: 'email',
-      operator: 'eq',
-      value: {
-        type: 'string',
-        value: phrase,
-      },
-    }
+  },
+  {
+    term: 'email',
+    operator: 'eq',
+    value: {
+      type: 'string',
+      value: phrase,
+    },
+  }
   ];
 
   return quickSearch.actions.fetch('', filters, {atLeastOne: true});

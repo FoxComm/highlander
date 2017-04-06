@@ -105,14 +105,14 @@ export function toggleWatch(isDirectAction: bool): Function {
 }
 
 function deleteEntity(actions, ids, entityType): Function {
-    const prefix = pluralize(entityType);
-    return dispatch => {
-      dispatch(actions.bulkRequest());
-      for(let i=0; i<ids.length; i++){
-        let id = ids[i];
-        let url = `/${prefix}/default/${id}`;
+  const prefix = pluralize(entityType);
+  return dispatch => {
+    dispatch(actions.bulkRequest());
+    for(let i=0; i<ids.length; i++){
+      let id = ids[i];
+      let url = `/${prefix}/default/${id}`;
 
-        Api.delete(url)
+      Api.delete(url)
           .then(
             ({batch}) => {
               const errors = _.get(batch, `failures.${entityType}`);
@@ -122,8 +122,8 @@ function deleteEntity(actions, ids, entityType): Function {
               dispatch(actions.bulkError(error));
             }
           );
-      }
-    };
+    }
+  };
 }
 
 export const bulkActions = {

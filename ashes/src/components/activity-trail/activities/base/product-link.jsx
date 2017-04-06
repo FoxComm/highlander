@@ -12,9 +12,9 @@ const ProductLink = props => {
 };
 
 ProductLink.propTypes = {
-    context: PropTypes.string.isRequired,
-    id: PropTypes.number.isRequired,
-    name: PropTypes.string.isRequired
+  context: PropTypes.string.isRequired,
+  id: PropTypes.number.isRequired,
+  name: PropTypes.string.isRequired
 };
 
 export default ProductLink;

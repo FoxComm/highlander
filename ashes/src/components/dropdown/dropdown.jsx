@@ -58,11 +58,11 @@ export default class Dropdown extends Component {
   renderItems() {
     const { name, items } = this.props;
 
-      return _.map(items, ([value, title, isHidden]) => (
-        <DropdownItem value={value} key={`${name}-${value}`} isHidden={isHidden}>
-          {title}
-        </DropdownItem>
-      ));
+    return _.map(items, ([value, title, isHidden]) => (
+      <DropdownItem value={value} key={`${name}-${value}`} isHidden={isHidden}>
+        {title}
+      </DropdownItem>
+    ));
   }
 
   shouldComponentUpdate(nextProps: Props): boolean {

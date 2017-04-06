@@ -369,12 +369,11 @@ export default class Analytics extends React.Component {
       newDateRangeEnd, newDataFetchTimeSize } = this.onDateDropdownChange(selectionIndex);
 
     this.setState({
-        dateDisplay: displayText,
-        dateRangeBegin: newDateRangeBegin,
-        dateRangeEnd: newDateRangeEnd,
-        dataFetchTimeSize: newDataFetchTimeSize,
-      }
-    );
+      dateDisplay: displayText,
+      dateRangeBegin: newDateRangeBegin,
+      dateRangeEnd: newDateRangeEnd,
+      dataFetchTimeSize: newDataFetchTimeSize,
+    });
 
     if (question.title !== questionTitles.ProductConversionRate) {
       this.fetchData(question, newDateRangeBegin, newDateRangeEnd, newDataFetchTimeSize);
@@ -457,13 +456,13 @@ export default class Analytics extends React.Component {
         newDataFetchTimeSize = (dateRangeBegin === moment().startOf('day').unix())
           ? unixTimes.twoHour
           : unixTimes.day;
-      break;
+        break;
       case segmentTitles.week:
         newDataFetchTimeSize = unixTimes.week;
-      break;
+        break;
       case segmentTitles.month:
         newDataFetchTimeSize = unixTimes.month;
-      break;
+        break;
     }
 
     this.setState({
