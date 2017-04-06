@@ -264,6 +264,7 @@ hyperion_db_host: "{{db_host}}"
 hyperion_db_connection_string: "postgresql://{{hyperion_db_user}}@{{hyperion_db_host}}/{{hyperion_db_name}}"
 hyperion_test_db_name: hyperion_test
 hyperion_push_check_interval: 5
+hyperion_create_plugin_in_ashes_on_start: true
 
 # Eggcreate
 eggcrate_host: "eggcrate.{{consul_suffix}}"
