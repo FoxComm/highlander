@@ -52,34 +52,6 @@ class Search extends Component {
   }
 
   @autobind
-  search(): void {
-    if (!this.props.isActive) {
-      return;
-    }
-    const { term } = this.state;
-
-    if (term.length) {
-      if (this.props.onSearch) this.props.onSearch();
-      this.props.toggleActive();
-      this.setState({ term: '' });
-      // we do want make new request even if there is same term
-      this.props.forceSearch();
-
-      browserHistory.push(`/search/${term}`);
-    }
-  }
-
-  @autobind
-  handleClickSearch(): void {
-    if (!this.props.isActive) {
-      this.props.toggleActive();
-      this.refs.input.focus();
-    } else {
-      this.search();
-    }
-  }
-
-  @autobind
   onChange({ target }: any): void {
     this.setState({ term: target.value });
   }
