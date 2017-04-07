@@ -22,6 +22,7 @@ type Props = {
     updateAttributes: (ids: Array<RefId>, attributes: Attributes) => void;
     deleteEntity: (ids: Array<RefId>) => void;
   };
+  onDelete: () => void;
   children: Element<*>;
 };
 
@@ -51,14 +52,14 @@ const changeStateHandler = function(props: Props, isActivation: boolean): Functi
 };
 
 const deleteHandler = function(props: Props): Function {
-    return (allChecked, toggledIds) => {
+  return (allChecked, toggledIds) => {
     const {deleteEntity} = props.bulkActions;
 
     return (
       <DeleteModal
         count={toggledIds.length}
         stateTitle={'Delete'}
-        onConfirm={() => deleteEntity(toggledIds, props.entity)}
+        onConfirm={() => deleteEntity(toggledIds, props.entity, props.onDelete)}
       />
     );
   };
