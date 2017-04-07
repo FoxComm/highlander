@@ -17,6 +17,7 @@ import SelectableSearchList from 'components/list-page/selectable-search-list';
 import ProductRow from 'components/products/product-row';
 import { makeTotalCounter } from 'components/list-page';
 import { ProductsAddModal } from 'components/products-add';
+import { Button } from 'components/common/buttons';
 
 // helpers
 import { filterArchived } from 'elastic/archive';
@@ -41,15 +42,6 @@ type State = {
   modalVisible: boolean,
 }
 
-const tableColumns: Columns = [
-  { field: 'productId', text: 'ID' },
-  { field: 'image', text: 'Image', type: 'image' },
-  { field: 'title', text: 'Name' },
-  { field: 'skus', text: 'SKUs' },
-  { field: 'state', text: 'State' },
-  { field: 'unlink' },
-];
-
 export class TaxonProductsPage extends Component {
   props: Props;
 
@@ -64,6 +56,31 @@ export class TaxonProductsPage extends Component {
 
     this.props.actions.fetch();
   }
+
+  get tableColumns(): Columns {
+     return [
+      { field: 'productId', text: 'ID' },
+      { field: 'image', text: 'Image', type: 'image' },
+      { field: 'title', text: 'Name' },
+      { field: 'skus', text: 'SKUs' },
+      { field: 'state', text: 'State' },
+      { field: '', render: this.unlinkButton }
+    ];
+  }
+
+  @autobind
+  unlinkButton(children: any, row: Product) {
+    return (
+      <Button onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.handleUnlinkProduct(row);
+      }}>
+        Unlink
+      </Button>
+    );
+  }
+
 
   @autobind
   openModal() {
@@ -89,15 +106,13 @@ export class TaxonProductsPage extends Component {
   }
 
   @autobind
-  handleUnlinkProduct(event: SyntheticEvent, product: Product) {
-    event.stopPropagation();
+  handleUnlinkProduct(product: Product) {
     const { actions, params: { taxonId, context } } = this.props;
 
     actions.unlinkProduct(product.productId, context, taxonId)
       .then(this.props.actions.fetch);
   }
 
-  @autobind
   renderRow(row: Product, index: number, columns: Columns, params: Object) {
     return (
       <ProductRow
@@ -105,7 +120,6 @@ export class TaxonProductsPage extends Component {
         product={row}
         columns={columns}
         params={params}
-        onCellClick={this.handleUnlinkProduct}
       />
     );
   }
@@ -135,7 +149,7 @@ export class TaxonProductsPage extends Component {
           emptyMessage="No products found."
           list={list}
           renderRow={this.renderRow}
-          tableColumns={tableColumns}
+          tableColumns={this.tableColumns}
           searchOptions={{ singleSearch: true }}
           searchActions={searchActions}
           predicate={({ id }) => id}
