@@ -2,7 +2,7 @@
 @import "variables.css";
 @import "media-queries.css";
 
-.container {
+.row {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
@@ -126,7 +126,7 @@
 }
 
 @media (--large) {
-  .container {
+  .row {
     padding-top: var(--grid-margin);
     lost-center: 1080px;
   }
@@ -155,7 +155,7 @@
   }
 
   .short-description {
-    margin: 82px 0 0;
+    margin: 34px 0 0;
     font-size: 40px;
     font-weight: 900;
     line-height: 1.25;

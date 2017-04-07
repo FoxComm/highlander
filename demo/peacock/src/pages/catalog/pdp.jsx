@@ -347,42 +347,46 @@ class Pdp extends Component {
 
     return (
       <div styleName="container">
-        <div styleName="column-left">
-          {this.renderGallery()}
-        </div>
-        <div styleName="column-right">
-          <Breadcrumbs
-            routes={this.props.routes}
-            params={this.props.params}
-            styleName="breadcrumbs"
-          />
-          <ErrorAlerts error={this.state.error} />
-          <h1 styleName="title">{title}</h1>
-          {this.productForm}
-          <div styleName="cart-actions">
-            <AddToCartBtn
-              onClick={this.addToCart}
+        <div styleName="row">
+          <div styleName="column-left">
+            {this.renderGallery()}
+          </div>
+          <div styleName="column-right">
+            <Breadcrumbs
+              routes={this.props.routes}
+              params={this.props.params}
+              styleName="breadcrumbs"
             />
-            {/* <SecondaryButton styleName="one-click-checkout">1-click checkout</SecondaryButton> */}
+            <ErrorAlerts error={this.state.error} />
+            <h1 styleName="title">{title}</h1>
+            {this.productForm}
+            <div styleName="cart-actions">
+              <AddToCartBtn
+                onClick={this.addToCart}
+              />
+              {/* <SecondaryButton styleName="one-click-checkout">1-click checkout</SecondaryButton> */}
+            </div>
           </div>
         </div>
-        <div styleName="column-left">
-          {this.productView.shortDescription && (
-            <h2 styleName="short-description">{this.productView.shortDescription}</h2>
-          )}
+        <div styleName="row">
+          <div styleName="column-left">
+            {this.productView.shortDescription && (
+              <h2 styleName="short-description">{this.productView.shortDescription}</h2>
+            )}
+          </div>
+          <div styleName="column-right">
+            {this.productDetails}
+          </div>
+          {!_.isEmpty(relatedProducts) && relatedProducts.total ?
+            <RelatedProductsList
+              title="You might also like"
+              list={relatedProducts.result}
+              isLoading={isRelatedProductsLoading}
+              loadingBehavior={LoadingBehaviors.ShowWrapper}
+            />
+            : false
+          }
         </div>
-        <div styleName="column-right">
-          {this.productDetails}
-        </div>
-        {!_.isEmpty(relatedProducts) && relatedProducts.total ?
-          <RelatedProductsList
-            title="You might also like"
-            list={relatedProducts.result}
-            isLoading={isRelatedProductsLoading}
-            loadingBehavior={LoadingBehaviors.ShowWrapper}
-          />
-          : false
-        }
       </div>
     );
   }
