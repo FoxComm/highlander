@@ -25,7 +25,8 @@
     "PHOENIX_ORG": "{{phoenix_api_user_org}}",
     "PHOENIX_URL": "https://{{storefront_server_name}}",
     "PUBLIC_KEY": "{{public_keys_dest_dir}}/public_key.pem",
-    "PUSH_CHECK_INTERVAL": "{{hyperion_push_check_interval}}"
+    "PUSH_CHECK_INTERVAL": "{{hyperion_push_check_interval}}",
+    "CREATE_ASHES_PLUGIN": "{{hyperion_create_plugin_in_ashes_on_start}}"
   },
   "constraints": [["hostname", "UNIQUE"]],
   "container": {
