@@ -6,6 +6,7 @@ import React from 'react';
 
 // components
 import { Dropdown } from 'components/dropdown';
+import { AddButton } from 'components/common/buttons';
 
 // styles
 import s from './taxonomy-dropdown.css';
@@ -18,7 +19,8 @@ type ReduceResult = Array<DropdownItemType>;
 type Props = {
   taxonomy: Taxonomy,
   linkedTaxonomy: LinkedTaxonomy,
-  onTaxonClick: Function
+  onTaxonClick: Function,
+  onNewValueClick: (taxonomy: Taxonomy) => any,
 }
 
 const SEP = ' > ';
@@ -40,11 +42,24 @@ const buildTaxonsDropDownItems = (taxons: TaxonsTree, prefix: string, sep: strin
   }, finale);
 
 export default (props: Props) => {
-  const { taxonomy, linkedTaxonomy = {}, onTaxonClick } = props;
+  const { taxonomy, linkedTaxonomy = {}, onTaxonClick, onNewValueClick } = props;
 
   const taxons = differenceBy(taxonomy.taxons, linkedTaxonomy.taxons, t => get(t, 'node.id') || get(t, 'id'));
 
   const items = buildTaxonsDropDownItems(taxons, '');
+
+  const renderAddButton = (dropdownToggle: Function) => {
+    const handler = (e: MoseEvent) => {
+      dropdownToggle(e);
+      onNewValueClick(taxonomy);
+    };
+
+    return (
+      <AddButton className={s.newValueButton} onClick={handler}>
+        New Value
+      </AddButton>
+    );
+  };
 
   return (
     <Dropdown
@@ -53,6 +68,7 @@ export default (props: Props) => {
       placeholder=""
       items={items}
       onChange={onTaxonClick}
+      renderAppend={renderAddButton}
       emptyMessage="No items"
       noControls
       editable

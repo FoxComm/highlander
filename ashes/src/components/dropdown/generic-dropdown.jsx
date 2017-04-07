@@ -231,7 +231,7 @@ export default class GenericDropdown extends Component {
     if (!this.props.renderAppend) {
       return null;
     }
-    return this.props.renderAppend();
+    return this.props.renderAppend(this.handleToggleClick);
   }
 
   get optionsContainerClass(): string {
