@@ -46,6 +46,8 @@
   display: flex;
   align-items: flex-start;;
   justify-content: space-between;
+  lost-column: 10/11;
+  lost-offset: -1/11;
 }
 
 .facetted-container-mobile {
@@ -175,11 +177,6 @@
     padding-top: 0;
   }
 
-  .facetted-container {
-    lost-column: 10/11;
-    lost-offset: -1/11;
-  }
-
   .sidebar {
     lost-column: 4/11;
   }
@@ -190,11 +187,6 @@
 }
 
 @media ( --large ) {
-  .facetted-container {
-    lost-column: 10/11;
-    lost-offset: -1/11;
-  }
-
   .facetted-container-mobile {
     display: none;
   }

@@ -41,12 +41,8 @@
 
 .sidebar-mobile-dofilter {
   font-family: Lato;
-  font-size: 14px;10px
-  font-weight: normal;
-  font-style: normal;
-  font-stretch: normal;
-  line-height: normal;
-  letter-spacing: normal;
+  font-size: 14px;
+  cursor: pointer;
   color: #0b7ddc;
   color: var(--water-blue);
 }
