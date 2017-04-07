@@ -7,7 +7,6 @@ import _ from 'lodash';
 
 // components
 import LoadingInputWrapper from 'components/forms/loading-input-wrapper';
-import { INPUT_ATTRS } from 'paragons/common';
 
 // styles
 import s from './typeahead.css';
@@ -17,6 +16,18 @@ type Props = {
   className: string,
   isFetching?: boolean,
 };
+
+export const INPUT_ATTRS = [
+  'name',
+  'value',
+  'placeholder',
+  'disabled',
+  'autoComplete',
+  'onBlur',
+  'onChange',
+  'onFocus',
+  'onKeyUp',
+];
 
 const TypeaheadInput = ({ className, isFetching = false, ...rest }: Props) => {
   const attrs = _.pick(rest, INPUT_ATTRS);

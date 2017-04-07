@@ -1,11 +1,20 @@
+// @flow
+
 // libs
 import _ from 'lodash';
-import React, { PropTypes } from 'react';
+import React from 'react';
 
 // styles
 import s from './typeahead.css';
 
-const TypeaheadItems = props => {
+type Props = {
+  component: Function,
+  updating: boolean,
+  onItemSelected: Function,
+  items: Array<*>,
+};
+
+const TypeaheadItems = (props: Props) => {
   let innerContent = null;
 
   if (_.isEmpty(props.items)) {
@@ -27,13 +36,6 @@ const TypeaheadItems = props => {
       {innerContent}
     </ul>
   );
-};
-
-TypeaheadItems.propTypes = {
-  component: PropTypes.func.isRequired,
-  updating: PropTypes.bool,
-  onItemSelected: PropTypes.func,
-  items: PropTypes.array,
 };
 
 TypeaheadItems.defaultProps = {

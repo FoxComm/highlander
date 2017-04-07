@@ -1,44 +1,77 @@
+// @flow
+
 // libs
-import React, { PropTypes } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { debounce, autobind } from 'core-decorators';
-import { cloneElement } from '../../lib/react-utils';
 import _ from 'lodash';
 
 // components
 import TypeaheadItems from './items';
 import TypeaheadInput from './input';
-import { FormField } from 'components/forms';
-import Alert from 'components/alerts/alert';
+import { FormField } from 'ui/forms';
+import Alert from '@foxcomm/wings/lib/ui/alerts/alert';
 import LoadingInputWrapper from 'components/forms/loading-input-wrapper';
 
 // styles
 import s from './typeahead.css';
 
+type State = {
+  active: boolean,
+  showMenu: boolean,
+  showAlert: boolean,
+  query: string,
+};
+
+type Props = {
+  onBlur: ?Function, // blur handler
+  onChange: ?Function, // input keyup/change handler
+  onItemSelected: ?Function, // on item click/choose handler
+  // fetchItems if passed should return promise for results
+  fetchItems: ?Function, // triggers when text is changed and text is valid
+  hideOnBlur: boolean,
+  isFetching: boolean,
+  isAsync: boolean,
+  items: Array<Element<*>>, // Array of data for suggestion. Each element passed to `component`
+  label?: string, // title for input
+  name?: string, // name attr for default input
+  placeholder?: string, // placeholder attr for default input
+  className?: string, // additional cl for root element of Typeahead
+  component?: Function, // component of one item, props={model: item}
+  itemsElement?: Element<*>, // custom component for items as a list (not just for one item)
+  inputElement?: Element<*>, // custom component for input field, default is `TypeaheadInput`
+  minQueryLength: number, // if < then no fetching
+  autoComplete?: string, // autoComplete attr for default input
+  initialValue?: string, // value attr for default input
+  view?: string,
+};
+
+function mergeHandlers(...handlers) {
+  return (...args) => {
+    handlers.forEach(handler => handler(...args));
+  };
+}
+
+function mergeEventHandlers(child, newEventHandlers) {
+  return _.transform(newEventHandlers, (result, handler, type) => {
+    result[type] = child.props[type] ? mergeHandlers(handler, child.props[type]) : handler; // eslint-disable-line
+  });
+}
+
+function cloneElement(element, { props, handlers, defaultProps }, children) {
+  const newProps = {
+    ...defaultProps,
+    ...element.props,
+    ...props,
+    ...mergeEventHandlers(element, handlers),
+  };
+
+  return React.cloneElement(element, newProps, children);
+}
+
 export default class Typeahead extends React.Component {
 
-  static propTypes = {
-    onBlur: PropTypes.func, // blur handler
-    onChange: PropTypes.func, // input keyup/change handler
-    onItemSelected: PropTypes.func, // on item click/choose handler
-    // fetchItems if passed should return promise for results
-    fetchItems: PropTypes.func, // triggers when text is changed and text is valid
-    hideOnBlur: PropTypes.bool,
-    isFetching: PropTypes.bool,
-    isAsync: PropTypes.bool,
-    items: PropTypes.array, // Array of data for suggestion. Each element passed to `component`
-    label: PropTypes.string, // title for input
-    name: PropTypes.string, // name attr for default input
-    placeholder: PropTypes.string, // placeholder attr for default input
-    className: PropTypes.string, // additional cl for root element of Typeahead
-    component: PropTypes.func, // component of one item, props={model: item}
-    itemsElement: PropTypes.element, // custom component for items as a list (not just for one item)
-    inputElement: PropTypes.element, // custom component for input field, default is `TypeaheadInput`
-    minQueryLength: PropTypes.number, // if < then no fetching
-    autoComplete: PropTypes.string, // autoComplete attr for default input
-    initialValue: PropTypes.string, // value attr for default input
-    view: PropTypes.string,
-  };
+  props: Props;
 
   static defaultProps = {
     name: 'typeahead',
@@ -52,15 +85,15 @@ export default class Typeahead extends React.Component {
     isAsync: true,
   };
 
-  state = {
+  state: State = {
     active: false,
     showMenu: false,
     showAlert: false,
     query: this.props.initialValue,
   };
 
-  componentWillReceiveProps(nextProps) {
-    if(this.props.isAsync){
+  componentWillReceiveProps(nextProps: Props) {
+    if (this.props.isAsync) {
       if (this.props.isFetching && !nextProps.isFetching) {
         this.toggleVisibility(true);
       }
@@ -81,7 +114,7 @@ export default class Typeahead extends React.Component {
       const event = {
         preventHiding() {
           doHide = false;
-        }
+        },
       };
 
       this.props.onItemSelected(item, event);
@@ -135,11 +168,11 @@ export default class Typeahead extends React.Component {
 
   @autobind
   textChange({ target }) {
-    let value = target.value;
+    const value = target.value;
 
     this.setState({
       query: value,
-      showAlert: false
+      showAlert: false,
     });
     if (this.props.onChange) {
       this.props.onChange(value);
@@ -154,18 +187,17 @@ export default class Typeahead extends React.Component {
     }
 
     this.fetchItems(value);
-
   }
 
   toggleVisibility(show) {
     this.setState({
-      showMenu: show
+      showMenu: show,
     });
   }
 
   toggleAlert(show) {
     this.setState({
-      showAlert: show
+      showAlert: show,
     });
   }
 
@@ -193,14 +225,15 @@ export default class Typeahead extends React.Component {
 
     if (itemsElement) {
       return React.cloneElement(itemsElement, { ...ourProps, ...clearState });
-    } else {
-      return (
-        <TypeaheadItems {...ourProps}
-          component={this.props.component}
-          items={this.props.items}
-          onItemSelected={this.onItemSelected} />
-      );
     }
+    return (
+      <TypeaheadItems
+        {...ourProps}
+        component={this.props.component}
+        items={this.props.items}
+        onItemSelected={this.onItemSelected}
+      />
+    );
   }
 
   get inputContent() {
@@ -228,9 +261,8 @@ export default class Typeahead extends React.Component {
           {cloneElement(inputElement, { defaultProps, handlers })}
         </LoadingInputWrapper>
       );
-    } else {
-      return <TypeaheadInput {...defaultProps} {...handlers} />;
     }
+    return <TypeaheadInput {...defaultProps} {...handlers} />;
   }
 
   render() {

@@ -1,7 +1,6 @@
 /* flow */
 
 import React, { Component, Element } from 'react';
-import { browserHistory } from 'lib/history';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
 import { Product } from 'modules/products';
