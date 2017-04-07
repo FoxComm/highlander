@@ -61,13 +61,15 @@
 }
 
 .description {
-  font-size: 14px;
+  font-size: 16px;
+  line-height: 26px;
   color: var(--text-color);
   margin-bottom: 15px;
 }
 
 .description-list {
-  font-size: 14px;
+  font-size: 16px;
+  line-height: 26px;
 }
 
 .one-click-checkout {
