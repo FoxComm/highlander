@@ -33,12 +33,11 @@
 .action-link-add {
   composes: action-link from "ui/action-link/action-link.css";
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   margin-left: 15px;
   font-size: 14px;
 }
 
 .plus-icon {
   composes: plus-icon from "ui/css/plus-icon.css";
-  width: 13px;
 }

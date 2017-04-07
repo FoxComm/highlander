@@ -26,11 +26,12 @@
   composes: action-link from "ui/action-link/action-link.css";
   font-size: 14px;
   display: flex;
+  align-items: center;
 }
 
 .plus {
+  composes: plus-icon from "ui/css/plus-icon.css";
   margin-right: 8px;
-  width: 12px;
 }
 
 @media (--large) {

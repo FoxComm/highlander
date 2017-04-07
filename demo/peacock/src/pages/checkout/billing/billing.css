@@ -18,19 +18,20 @@
   composes: action-link from "ui/action-link/action-link.css";
   font-size: 14px;
   display: flex;
+  align-items: center;
 }
 
 .action-link-add-methods {
   composes: action-link from "ui/action-link/action-link.css";
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   font-size: 14px;
   margin-bottom: 15px;
 }
 
 .plus {
+  composes: plus-icon from "ui/css/plus-icon.css";
   margin-right: 8px;
-  width: 12px;
 }
 
 .credit-cards-list, .gc-coupon {
