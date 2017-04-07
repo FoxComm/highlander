@@ -144,6 +144,22 @@ defmodule Hyperion.Router.V1 do
           end
         end # find_by_asin
 
+        namespace :by_code do
+          desc "Search product by any code"
+          params do
+            requires :code, type: String
+            requires :values, type: String
+          end
+          get do
+            values = String.split(params[:values], ",")
+            case MWSClient.get_matching_product_for_id(params[:code], values, Credentials.mws_config(API.jwt(conn))) do
+              {:error, error} -> respond_with(conn, inspect(error), 422)
+              {:warn, warn} -> respond_with(conn, %{error: warn["ErrorResponse"]["Error"]["Message"]}, 400)
+              {_, resp} -> respond_with(conn, resp)
+            end
+          end
+        end # by_code
+
         namespace :categories do
           route_param :asin do
             desc "Returns categories for given asin"
