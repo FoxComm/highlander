@@ -45,6 +45,7 @@ type Actions = {
   couponsGenerationShowDialog: Function,
   couponsGenerationReset: Function,
   clearSubmitErrors: Function,
+  refresh: Function,
 };
 
 type Props = {
