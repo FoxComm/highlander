@@ -1,7 +1,7 @@
 /* @flow */
 
 import _ from 'lodash';
-import React, { PropTypes, Element, Component, Children } from 'react';
+import React, { Element, Component } from 'react';
 import createFragment from 'react-addons-create-fragment';
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';
@@ -330,16 +330,21 @@ export default class GenericDropdown extends Component {
 
   @autobind
   toggleMenu() {
+    console.log('toggle menu');
+
     this.setState({ open: !this.state.open, pointedValueIndex: -1 });
   }
 
   @autobind
   closeMenu() {
+    console.log('close menu');
     this.setState({ open: false, pointedValueIndex: -1 });
   }
 
   @autobind
   openMenu() {
+    console.log('open menu');
+
     this.setState({ open: true });
   }
 
@@ -384,6 +389,8 @@ export default class GenericDropdown extends Component {
   }
 
   get menu(): ?Element<*> {
+    console.log(`render menu. open state: ${this.state.open}`);
+
     if (!this.state.open) {
       return;
     }

@@ -148,13 +148,14 @@ class TaxonomyWidget extends Component {
   }
 
   get newValueModal() {
-    const { taxonomy, createTaxonState } = this.props;
+    const { context, taxonomy, createTaxonState } = this.props;
 
     return (
       <NewTaxonModal
         isVisible={this.state.showNewValueModal}
         onCancel={this.toggleShowModal}
         onConfirm={this.handleSaveTaxon}
+        context={context}
         taxonomy={taxonomy}
         asyncState={createTaxonState}
         key="modal"

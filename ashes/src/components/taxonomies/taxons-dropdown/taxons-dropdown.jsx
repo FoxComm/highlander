@@ -90,7 +90,7 @@ export default class TaxonsDropdown extends Component {
   }
 
   componentWillUpdate(nextProps: Props, nextState: State) {
-    if (this.state.token !== nextState.token) {
+    if (nextState.token.length > 0) {
       this._d.openMenu();
     }
   }
@@ -160,7 +160,7 @@ export default class TaxonsDropdown extends Component {
         pills={compact([parentName])}
         onPillClick={this.handlePillClick}
         onPillClose={() => this.handleParentSelect(null)}
-        onClick={handleToggleClick}
+        onFocus={handleToggleClick}
       />
     );
   }

@@ -1,7 +1,6 @@
 /* @flow */
 
 //libs
-import compact from 'lodash/compact';
 import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
 import React, { Component } from 'react';
@@ -9,6 +8,8 @@ import React, { Component } from 'react';
 // components
 import ConfirmationDialog from 'components/modal/confirmation-dialog';
 import ObjectFormInner from 'components/object-form/object-form-inner';
+import FormField from 'components/forms/formfield';
+import TaxonsDropdown from '../taxons-dropdown';
 
 // helpers
 import { createEmptyTaxon } from 'paragons/taxon';
@@ -17,8 +18,8 @@ import { createEmptyTaxon } from 'paragons/taxon';
 import s from './taxons.css';
 
 type Props = {
+  context: string,
   taxonomy: Taxonomy,
-  taxon: TaxonDraft,
   onConfirm: (taxon: TaxonDraft) => any,
 };
 
@@ -41,31 +42,64 @@ export default class NewTaxonModal extends Component {
   }
 
   @autobind
+  handleParentUpdate(id: ?number) {
+    this.setState({
+      taxon: assoc(this.state.taxon, ['location', 'parent'], id),
+    });
+  }
+
+  @autobind
   handleConfirm() {
     this.props.onConfirm(this.state.taxon);
   }
 
-  render() {
-    const { taxonomy, ...rest } = this.props;
+  get parentInput() {
+    if (!this.props.taxonomy.hierarchical) {
+      return null;
+    }
 
-    const fields = compact([
-      'name',
-      taxonomy.hierarchical ? 'parent' : null,
-    ]);
+    const taxon = {
+      ...this.state.taxon,
+      id: null,
+    };
 
-    const body = (
-      <ObjectFormInner
-        onChange={this.handleTaxonUpdate}
-        fieldsToRender={fields}
-        attributes={this.state.taxon.attributes}
-      />
+    return (
+      <FormField
+        className="fc-object-form__field"
+        labelClassName="fc-object-form__field-label"
+        label="Parent"
+      >
+        <TaxonsDropdown
+          context={this.props.context}
+          taxonomy={this.props.taxonomy}
+          taxon={taxon}
+          onChange={this.handleParentUpdate}
+        />
+      </FormField>
     );
+  }
+
+  get body() {
+    return (
+      <div>
+        <ObjectFormInner
+          onChange={this.handleTaxonUpdate}
+          fieldsToRender={['name']}
+          attributes={this.state.taxon.attributes}
+        />
+        {this.parentInput}
+      </div>
+    );
+  }
+
+  render() {
+    const { ...rest } = this.props;
 
     return (
       <ConfirmationDialog
         className={s.modal}
         header="New value"
-        body={body}
+        body={this.body}
         confirm="Save and Add Value"
         confirmAction={this.handleConfirm}
         {...rest}
