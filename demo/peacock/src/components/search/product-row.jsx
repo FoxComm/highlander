@@ -5,6 +5,7 @@ import React from 'react';
 
 import Currency from 'ui/currency';
 import ProductImage from 'components/image/image';
+import { Link } from 'react-router';
 
 import styles from './product-row.css';
 
@@ -17,12 +18,12 @@ export default (props) => {
         <ImagePlaceholder />;
 
   return (
-    <div styleName="box">
-      <div styleName="image">
-        {image}
-      </div>
-      <div styleName="container">
-        <div styleName="product">
+    <Link to="" styleName="link">
+      <div styleName="box">
+        <div styleName="image">
+          {image}
+        </div>
+        <div styleName="container">
           <div styleName="product-name">
             {model.title}
           </div>
@@ -31,6 +32,6 @@ export default (props) => {
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };

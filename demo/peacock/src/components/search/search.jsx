@@ -74,6 +74,7 @@ class Search extends Component {
     return (
       <div styleName="search">
         <Typeahead
+          className={styles['search-typeahead']}
           inputClassName={styles['search-input']}
           view="products"
           isFetching={_.get(this.props.suggestState, 'inProgress', false)}
