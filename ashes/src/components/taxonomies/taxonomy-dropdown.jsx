@@ -1,7 +1,7 @@
 // @flow
 
 // libs
-import { differenceBy, isEmpty, get } from 'lodash';
+import { differenceWith, isEmpty, get } from 'lodash';
 import React from 'react';
 
 // components
@@ -44,9 +44,13 @@ const buildTaxonsDropDownItems = (taxons: TaxonsTree, prefix: string, sep: strin
 export default (props: Props) => {
   const { taxonomy, linkedTaxonomy = {}, onTaxonClick, onNewValueClick } = props;
 
-  const taxons = differenceBy(taxonomy.taxons, linkedTaxonomy.taxons, t => get(t, 'node.id') || get(t, 'id'));
+  const items = buildTaxonsDropDownItems(taxonomy.taxons, '');
 
-  const items = buildTaxonsDropDownItems(taxons, '');
+  const diff = differenceWith(
+    items,
+    linkedTaxonomy.taxons,
+    (ddItem: DropdownItemType, linked: Taxon) => ddItem[0] === linked.id
+  );
 
   const renderAddButton = (dropdownToggle: Function) => {
     const handler = (e: MoseEvent) => {
@@ -66,7 +70,7 @@ export default (props: Props) => {
       className={s.dropdown}
       name="taxons"
       placeholder=""
-      items={items}
+      items={diff}
       onChange={onTaxonClick}
       renderAppend={renderAddButton}
       emptyMessage="No items"
