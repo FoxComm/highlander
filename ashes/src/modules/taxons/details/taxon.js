@@ -40,7 +40,7 @@ const _archiveTaxon = createAsyncActions(
 
 const _addProduct = createAsyncActions(
   'taxonAddProduct',
-  (taxonId: number, productId, context: string = defaultContext) =>
+  (productId, context: string = defaultContext, taxonId: number) =>
     Api.patch(`/taxons/${context}/${taxonId}/product/${productId}`)
 );
 
@@ -63,6 +63,8 @@ export const create = (taxonomyId: string) => _createTaxon.perform.bind(null, ta
 export const archive = _archiveTaxon.perform;
 export const update = _updateTaxon.perform;
 export const addProduct = _addProduct.perform;
+export const addProductCurried = (productId: number, context: string) =>
+  _addProduct.perform.bind(null, productId, context);
 export const deleteProduct = _deleteProduct.perform;
 export const deleteProductCurried = (productId: number, context: string) =>
   _deleteProduct.perform.bind(null, productId, context);

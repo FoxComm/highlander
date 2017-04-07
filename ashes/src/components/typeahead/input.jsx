@@ -22,7 +22,7 @@ const TypeaheadInput = ({ className, isFetching = false, ...rest }: Props) => {
   const attrs = _.pick(rest, INPUT_ATTRS);
 
   return (
-    <LoadingInputWrapper inProgress={isFetching}>
+    <LoadingInputWrapper className={className} inProgress={isFetching}>
       <i className={classNames(s['input-icon'], 'icon-search')} />
       <input
         className={classNames('fc-input', s.input)}
