@@ -347,10 +347,10 @@ class Pdp extends Component {
 
     return (
       <div styleName="container">
-        <div styleName="gallery">
+        <div styleName="column-left">
           {this.renderGallery()}
         </div>
-        <div styleName="details">
+        <div styleName="column-right">
           <Breadcrumbs
             routes={this.props.routes}
             params={this.props.params}
@@ -366,12 +366,12 @@ class Pdp extends Component {
             {/* <SecondaryButton styleName="one-click-checkout">1-click checkout</SecondaryButton> */}
           </div>
         </div>
-        <div styleName="gallery">
+        <div styleName="column-left">
           {this.productView.shortDescription && (
             <h2 styleName="short-description">{this.productView.shortDescription}</h2>
           )}
         </div>
-        <div styleName="details">
+        <div styleName="column-right">
           {this.productDetails}
         </div>
         {!_.isEmpty(relatedProducts) && relatedProducts.total ?
