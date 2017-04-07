@@ -67,7 +67,7 @@
 }
 
 .promo-line {
-  padding-bottom: 10px;
+  padding-top: 10px;
 }
 
 .cvc-field {
@@ -111,10 +111,5 @@
 @media (--large) {
   .action-link-payment {
     margin-right: 0;
-  }
-
-  .promo-line {
-    padding-bottom: 0;
-    padding-top: 10px;
   }
 }
