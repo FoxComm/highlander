@@ -34,19 +34,17 @@
 .price-and-quantity {
   display: flex;
   justify-content: space-between;
-  width: 50%;
   align-items: center;
   font-size: 12px;
+  margin: -12px;
 }
 
 .price-block {
-  flex-grow: 1;
-  text-align: center;
+  margin: 12px;
 }
 
 .qnt-block {
-  flex-grow: 1;
-  text-align: center;
+  margin: 12px;
 }
 
 .product-image {
@@ -93,16 +91,5 @@
 
   .price-and-quantity {
     justify-content: flex-start;
-  }
-
-  .qnt-block {
-    flex-grow: initial;
-    width: 30px;
-    text-align: left;
-  }
-
-  .price-block {
-    text-align: left;
-    padding-left: 20px;
   }
 }
