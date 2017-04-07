@@ -331,14 +331,27 @@ class Pdp extends Component {
     );
   }
 
+  get relatedProductsList(): ?Element<*> {
+    const { relatedProducts, isRelatedProductsLoading } = this.props;
+
+    if (_.isEmpty(relatedProducts) || relatedProducts.total < 1) return;
+
+    return (
+      <RelatedProductsList
+        title="You might also like"
+        list={relatedProducts.result}
+        isLoading={isRelatedProductsLoading}
+        loadingBehavior={LoadingBehaviors.ShowWrapper}
+      />
+    );
+  }
+
   render(): Element<any> {
     const {
       t,
       isLoading,
       notFound,
       fetchError,
-      isRelatedProductsLoading,
-      relatedProducts,
     } = this.props;
 
     if (isLoading) {
@@ -384,16 +397,8 @@ class Pdp extends Component {
           <div styleName="column-right product-details">
             {this.productDetails}
           </div>
-          {!_.isEmpty(relatedProducts) && relatedProducts.total ?
-            <RelatedProductsList
-              title="You might also like"
-              list={relatedProducts.result}
-              isLoading={isRelatedProductsLoading}
-              loadingBehavior={LoadingBehaviors.ShowWrapper}
-            />
-            : false
-          }
         </div>
+        {this.relatedProductsList}
       </div>
     );
   }
