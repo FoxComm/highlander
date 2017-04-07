@@ -29,7 +29,7 @@ function serialize(data) {
 
   const params = [];
   for (let param in data) {
-    if (data.hasOwnProperty(param)) {
+    if (Object.prototype.hasOwnProperty.call(data, param)) {
       const value = data[param];
       if (value != null) {
         const asString = _.isObject(value) ? JSON.stringify(value) : value;
@@ -73,7 +73,7 @@ export function request(method, uri, data, options = {}) {
   let error = null;
 
   const unauthorizedHandler = options.unauthorizedHandler ? options.unauthorizedHandler : () => {
-    window.location.href = '/admin/login';
+    window.location.href = process.env.BEHIND_NGINX ? '/admin/login' : '/login';
   };
 
   const abort = _.bind(result.abort, result);

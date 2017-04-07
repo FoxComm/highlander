@@ -5,7 +5,6 @@ Restart=always
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=zookeeper
-TimeoutStartSec=5m
 RestartSec=10
 
 [Install]

@@ -16,10 +16,10 @@ const cancelOrders = (actions, referenceNumbers, reasonId) =>
   dispatch => {
     dispatch(actions.bulkRequest());
     Api.patch('/orders', {
-        referenceNumbers,
-        reasonId,
-        state: 'canceled',
-      })
+      referenceNumbers,
+      reasonId,
+      state: 'canceled',
+    })
       .then(
         ({batch}) => {
           const errors = _.get(batch, 'failures.order');
@@ -35,9 +35,9 @@ const changeOrdersState = (actions, referenceNumbers, state) =>
   dispatch => {
     dispatch(actions.bulkRequest());
     Api.patch('/orders', {
-        referenceNumbers,
-        state,
-      })
+      referenceNumbers,
+      state,
+    })
       .then(
         ({batch}) => {
           const errors = _.get(batch, 'failures.order');

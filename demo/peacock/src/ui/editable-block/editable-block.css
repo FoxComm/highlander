@@ -1,0 +1,24 @@
+@import "colors.css";
+
+.editable-block {
+}
+
+.header {
+  display: flex;
+  align-items: baseline;
+}
+
+.title {
+  flex-grow: 1;
+  margin: 0;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.action {
+  composes: action-link from "ui/action-link/action-link.css";
+  font-size: 14px;
+  & + .action {
+    margin-left: 10px;
+  }
+}

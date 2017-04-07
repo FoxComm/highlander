@@ -6,6 +6,7 @@ import failures._
 import models.discount._
 import utils.ElasticsearchApi._
 import utils.aliases._
+import utils.apis.Apis
 import utils.db._
 
 case class ItemsNumUnitsQualifier(numUnits: Int, search: Seq[ProductSearch])
@@ -15,7 +16,7 @@ case class ItemsNumUnitsQualifier(numUnits: Int, search: Seq[ProductSearch])
 
   val qualifierType: QualifierType = ItemsNumUnits
 
-  def check(input: DiscountInput)(implicit db: DB, ec: EC, es: ES, au: AU): Result[Unit] =
+  def check(input: DiscountInput)(implicit db: DB, ec: EC, apis: Apis, au: AU): Result[Unit] =
     checkInner(input)(search)
 
   def matchXor(input: DiscountInput)(xor: Failures Xor Buckets): Failures Xor Unit = xor match {

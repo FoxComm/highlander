@@ -18,7 +18,13 @@
   },
   "container": {
     "type": "DOCKER",
-    "volumes": [],
+    "volumes": [
+      {
+        "containerPath": "{{docker_logs_dir}}",
+        "hostPath": "{{docker_logs_host_dir}}",
+        "mode": "RW"
+      }
+    ],
     "docker": {
       "image": "{{docker_registry}}:5000/digger-sphex:{{docker_tags.digger_sphex}}",
       "network": "HOST",

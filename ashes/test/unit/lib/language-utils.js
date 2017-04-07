@@ -4,7 +4,7 @@ const { default: formatCurrency, stringToCurrency } = requireSource('lib/languag
 
 describe('language utils', function () {
 
-  if ('codeToName should create proper string', function() {
+  it.skip('codeToName should create proper string', function() {
     const code = 'codeToName';
 
     expect(codeToName(code)).to.be.equal('Code To Name');

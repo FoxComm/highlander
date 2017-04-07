@@ -1,38 +1,26 @@
 /* @flow */
 
 // libs
-import React, { Component } from 'react';
-import { autobind } from 'core-decorators';
+import React, { Component, Element } from 'react';
 import _ from 'lodash';
+import classNames from 'classnames';
 
 // components
-import { TextInput } from 'ui/inputs';
-import Button from 'ui/buttons';
-import { FormField } from 'ui/forms';
 import ErrorAlerts from '@foxcomm/wings/lib/ui/alerts/error-alerts';
-import Currency from 'ui/currency';
-import Icon from 'ui/icon';
+import ActionLink from 'ui/action-link/action-link';
 
 // styles
 import styles from './promo-code.css';
 
 type Props = {
-  saveCode: Function,
-  removeCode: Function,
-  buttonLabel?: ?string,
+  removeCode?: () => Promise<*>,
   coupon?: ?Object,
   giftCards?: ?Array<Object>,
-  promotion?: ?Object,
-  discountValue?: ?number,
   allowDelete?: ?boolean,
-  disabled?: boolean,
-  placeholder?: string,
-  context: string,
-  editable: boolean,
+  className?: string,
 };
 
 type State = {
-  code: string,
   error: any,
 };
 
@@ -41,143 +29,89 @@ class PromoCode extends Component {
 
   static defaultProps = {
     allowDelete: true,
-    saveCode: _.noop,
-    removeCode: _.noop,
-    disabled: false,
-    context: 'light',
-    editable: true,
   };
 
   state: State = {
-    code: '', // input value
     error: false,
   };
 
-  get buttonLabel(): string {
-    return this.props.buttonLabel || 'Apply';
-  }
-
-  @autobind
-  changeCode({ target }: Object) {
-    this.setState({
-      code: target.value,
-      error: false,
-    });
-  }
-
-  @autobind
-  onKeyPress(e: Object) {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-
-      this.saveCode();
+  removeCode(code?: string) {
+    if (this.props.removeCode) {
+      this.props.removeCode(code)
+        .catch((error) => {
+          this.setState({ error });
+        });
     }
   }
 
-  @autobind
-  saveCode() {
-    const code = this.state.code.replace(/\s+/g, '');
-
-    this.props.saveCode(code)
-      .then(() => this.setState({ code: '', error: false }))
-      .catch(error => {
-        this.setState({ error });
-      });
-  }
-
-  removeCode(code?: string) {
-    this.props.removeCode(code)
-      .catch(error => {
-        this.setState({ error });
-      });
-  }
-
-  renderGiftCard(card: Object) {
-    const { code, amount: discountValue, currentBalance } = card;
+  getRemoveLink(code?: string): Element<*> | null {
+    if (!this.props.allowDelete) return null;
 
     return (
-      <div styleName="gift-card" key={card.code}>
-        <div styleName="gift-card-description">
-          <div styleName="gift-card-title">{`Gift Card ${code}`}</div>
-          <Currency styleName="gift-card-curr" prefix={'Current Balance: '} value={currentBalance} />
-        </div>
-        <Currency styleName="subtotal-price" value={discountValue} prefix={'– '} />
+      <ActionLink
+        title="Remove"
+        action={() => this.removeCode(code)}
+        styleName="action-link-remove"
+      />
+    );
+  }
 
-        {this.props.allowDelete &&
-          <Icon
-            onClick={() => this.removeCode(code)}
-            name="fc-close"
-            styleName="delete-promo-icon"
-            styleName="delete-promo-btn"
-          />
-        }
+  get renderGiftCards(): Array<Element<*>> | null {
+    if (_.isEmpty(this.props.giftCards)) return null;
+
+    const { className } = this.props;
+    const classes = classNames(styles['gift-card'], className);
+
+    return _.map(this.props.giftCards, (card) => {
+      const { code } = card;
+      const formattedCode = code.match(/.{1,4}/g).join(' ');
+
+      return (
+        <div className={classes} key={card.code}>
+          <div styleName="gift-card-info">
+            <div styleName="title">Gift Card</div>
+            <div>{formattedCode}</div>
+          </div>
+          {this.getRemoveLink(code)}
+        </div>
+      );
+    });
+  }
+
+  get renderCoupon(): Element<*> | null {
+    if (_.isEmpty(this.props.coupon)) return null;
+
+    const { className } = this.props;
+    const promoCode = _.get(this.props, 'coupon.code');
+    const classes = classNames(styles.coupon, className);
+
+    return (
+      <div className={classes}>
+        <div styleName="coupon-info">
+          <div styleName="title">Coupon Code</div>
+          <div styleName="coupon-code">{promoCode}</div>
+        </div>
+        {this.getRemoveLink()}
       </div>
     );
   }
 
-  renderAttachedCoupon() {
-    if (this.props.coupon) {
-      const promoCode = _.get(this.props, 'coupon.code');
-      const discountValue = this.props.discountValue;
+  get displayErrors(): Element<*> | null {
+    if (_.isEmpty(this.state.error)) return null;
 
-      return (
-        <div styleName="coupon">
-          <div styleName="coupon-code">{promoCode}</div>
-          <Currency styleName="subtotal-price" value={discountValue} prefix={'– '} />
-
-          {this.props.allowDelete &&
-            <Icon
-              name="fc-close"
-              styleName="delete-promo-icon"
-              styleName="delete-promo-btn"
-              onClick={() => this.removeCode()}
-            />
-          }
-        </div>
-      );
-    }
-
-    if (this.props.giftCards) {
-      return this.props.giftCards.map(card => this.renderGiftCard(card));
-    }
-
-    return null;
+    return (
+      <div styleName="error">
+        <ErrorAlerts error={this.state.error} />
+      </div>
+    );
   }
 
   render() {
-    const { placeholder, context, editable } = this.props;
-
     return (
-      <div styleName="root" className={styles[context]}>
-        {editable &&
-          <div styleName="fieldset">
-            <FormField styleName="code-field">
-              <TextInput
-                styleName="code"
-                placeholder={placeholder}
-                value={this.state.code}
-                onChange={this.changeCode}
-                onKeyPress={this.onKeyPress}
-              />
-            </FormField>
-            <Button
-              type="button"
-              styleName="submit"
-              onClick={this.saveCode}
-              disabled={this.props.disabled || !this.state.code}
-            >
-              {this.buttonLabel}
-            </Button>
-          </div>
-        }
-
-        {!!this.state.error &&
-          <div styleName="error">
-            <ErrorAlerts error={this.state.error} />
-          </div>
-        }
-
-        {this.renderAttachedCoupon()}
+      <div styleName="promo-code">
+        {this.displayErrors}
+        {this.renderGiftCards}
+        {this.renderCoupon}
       </div>
     );
   }

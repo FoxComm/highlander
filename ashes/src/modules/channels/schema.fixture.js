@@ -44,8 +44,11 @@ module.exports = {
         'bulletPoint4' : {
           'type': ['string', 'null']
         },
+        'bulletPoint5' : {
+          'type': ['string', 'null']
+        },
       },
-      'required': ['nodeId', 'code', 'brand', 'bulletPoint1', 'bulletPoint2', 'bulletPoint3', 'bulletPoint4']
+      'required': ['nodeId', 'code', 'brand', 'bulletPoint1']
     }
   }
 };

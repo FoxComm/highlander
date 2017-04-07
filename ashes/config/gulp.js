@@ -21,7 +21,7 @@ module.exports = function() {
       return fs.readdirSync(dir)
         .filter(function(file) {
           return fs.statSync(path.join(dir, file)).isDirectory();
-      });
+        });
     }
   };
 };

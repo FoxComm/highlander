@@ -1,15 +1,14 @@
 /* @flow  */
 
-import React, { Component } from 'react';
+import React, { Component, Element } from 'react';
 import { Link } from 'react-router';
 import { authBlockTypes } from 'paragons/auth';
 import { assoc, dissoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
 
 import styles from './auth.css';
-import type { HTMLElement } from 'types';
 
-import Icon from 'ui/icon';
+import Logo from '../logo/logo';
 import Login from './login';
 import Signup from './signup';
 import ResetPassword from './reset-password';
@@ -24,7 +23,7 @@ type Props = {
 class Auth extends Component {
   props: Props;
 
-  renderContent() {
+  get body() {
     const authProps = {
       getPath: this.getPath,
       path: this.props.path,
@@ -52,13 +51,13 @@ class Auth extends Component {
     return newType ? assoc(this.props.path, ['query', 'auth'], newType) : dissoc(this.props.path, ['query', 'auth']);
   }
 
-  render(): HTMLElement {
+  render(): Element<*> {
     return (
       <div styleName="auth-block">
-        <Link to={ this.props.path }>
-          <Icon styleName="logo" name="fc-logo" />
+        <Link to={this.props.path} styleName="logo">
+          <Logo />
         </Link>
-        {this.renderContent()}
+        {this.body}
       </div>
     );
   }

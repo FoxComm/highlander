@@ -5,7 +5,6 @@ import { Dropdown } from '../../dropdown';
 
 import Currency from './currency';
 import Counter from './counter';
-import Percent from './percent';
 import styles from './discounts.css';
 import { Checkbox } from '../../checkbox/checkbox';
 import { FormField } from '../../forms';

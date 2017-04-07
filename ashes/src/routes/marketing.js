@@ -1,5 +1,5 @@
 /* @flow */
-import React, { Component, Element } from 'react';
+import React from 'react';
 
 import FoxRouter from 'lib/fox-router';
 import { frn } from 'lib/frn';
@@ -20,13 +20,8 @@ import PromotionForm from 'components/promotions/promotion-form';
 import PromoCouponsPage from 'components/promotions/promotion-coupons';
 import PromoCouponNewModal from 'components/promotions/promotion-coupon-modal-new';
 
-import CouponsListPage from 'components/coupons/list';
-import Coupons from 'components/coupons/coupons';
 import CouponPage from 'components/coupons/page';
 import CouponForm from 'components/coupons/form';
-import CouponCodes from 'components/coupons/codes';
-
-import type { Claims } from 'lib/claims';
 
 const getRoutes = (jwt: Object) => {
   const router = new FoxRouter(jwt);
@@ -91,18 +86,10 @@ const getRoutes = (jwt: Object) => {
       ]),
     ]);
 
-  const couponRoutes =
-    router.read('coupons-base', { path: 'coupons', frn: frn.mkt.coupon }, [
-      router.read('coupon', { path: ':couponId', component: CouponPage }, [
-        router.read('coupon-details', { component: CouponForm, isIndex: true })
-      ]),
-    ]);
-
   return (
     <div>
       {giftCardRoutes}
       {promotionsRoutes}
-      {couponRoutes}
     </div>
   );
 };

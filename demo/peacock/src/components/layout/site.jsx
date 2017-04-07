@@ -1,22 +1,32 @@
-import React, { PropTypes, Component } from 'react';
+/* @flow */
+
+// libs
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { dissoc } from 'sprout-data';
 
-import * as actions from 'modules/auth';
-
-import styles from './site.css';
-
+// components
 import Overlay from '../overlay/overlay';
 import Auth from '../auth/auth';
+import Header from 'components/header/header';
+
+import * as actions from 'modules/auth';
+
+import type { RoutesParams } from 'types';
+
+import styles from './site.css';
 
 const mapState = state => ({
   isAuthBlockVisible: state.auth.isAuthBlockVisible,
 });
 
-/* ::`*/
-@connect(mapState, actions)
-/* ::`*/
+type Props = RoutesParams & {
+  children: Array<any>,
+};
+
 class Site extends Component {
+  props: Props;
+
   renderAuthBlock() {
     const auth = this.props.location.query.auth;
     const pathname = this.props.location.pathname;
@@ -24,7 +34,7 @@ class Site extends Component {
     const path = {pathname, query};
     return (
       <Overlay path={path}>
-        <Auth authBlockType={auth} path={path}/>
+        <Auth authBlockType={auth} path={path} />
       </Overlay>
     );
   }
@@ -32,17 +42,26 @@ class Site extends Component {
   render() {
     const isAuthBlockVisible = this.props.location.query && this.props.location.query.auth;
 
+    const childrenWithRoutes = React.Children.map(this.props.children,
+      child => React.cloneElement(child, {
+        routes: this.props.routes,
+        routerParams: this.props.params,
+      })
+    );
+
+    const { location } = this.props;
+
     return (
-      <div styleName="site">
+      <div styleName="site" id="site">
+        <Header
+          path={location.pathname}
+          query={location.query}
+        />
         {isAuthBlockVisible && this.renderAuthBlock()}
-        {this.props.children}
+        {childrenWithRoutes}
       </div>
     );
   }
 }
 
-Site.propTypes = {
-  children: PropTypes.node,
-};
-
-export default Site;
+export default connect(mapState, actions)(Site);

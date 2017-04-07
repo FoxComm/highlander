@@ -21,9 +21,6 @@ import { Dropdown } from '../dropdown';
 import { Button } from '../common/buttons';
 import s from './page.css';
 
-// types
-import type { Product } from 'paragons/product';
-
 type Props = {
   actions: {
     newEntity: () => void,

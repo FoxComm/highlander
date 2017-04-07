@@ -8,13 +8,14 @@ import payloads.CartPayloads.CreateCart
 import responses.cord.CartResponse
 import services._
 import utils.aliases._
+import utils.apis.Apis
 import utils.db._
 
 object CartCreator {
 
   def createCart(admin: User, payload: CreateCart)(implicit db: DB,
                                                    ec: EC,
-                                                   es: ES,
+                                                   apis: Apis,
                                                    ac: AC,
                                                    ctx: OC,
                                                    au: AU): DbResultT[CartResponse] = {
@@ -26,7 +27,8 @@ object CartCreator {
         case _                     ⇒ ??? // FIXME: the hell‽ @michalrus
       }
 
-    def createCartForCustomer(accountId: Int)(implicit ctx: OC, es: ES): DbResultT[CartResponse] =
+    def createCartForCustomer(accountId: Int)(implicit ctx: OC,
+                                              apis: Apis): DbResultT[CartResponse] =
       for {
         customer ← * <~ Users.mustFindByAccountId(accountId)
         fullCart ← * <~ CartQueries.findOrCreateCartByAccountInner(customer, Some(admin))

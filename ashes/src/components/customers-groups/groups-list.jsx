@@ -40,7 +40,7 @@ function setCellContents(group, field) {
   }
 
   return _.get(group, field);
-};
+}
 
 function renderRow(row, index, columns, params) {
   return (

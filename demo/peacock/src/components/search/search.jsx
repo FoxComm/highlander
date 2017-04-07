@@ -1,8 +1,6 @@
 /* flow */
 
-import React, { Component } from 'react';
-import classNames from 'classnames';
-import type { HTMLElement } from 'types';
+import React, { Component, Element } from 'react';
 import { browserHistory } from 'lib/history';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
@@ -11,8 +9,6 @@ import styles from './search.css';
 
 import localized from 'lib/i18n';
 import type { Localized } from 'lib/i18n';
-
-import Icon from 'ui/icon';
 
 import { toggleActive, forceSearch } from 'modules/search';
 
@@ -23,16 +19,19 @@ type SearchProps = Localized & {
   forceSearch: () => void,
   onSearch?: Function,
   isScrolled: boolean,
+  setFocus: ?Function,
 };
 
 type SearchState = {
   term: string,
+  focus: boolean,
 };
 
 class Search extends Component {
   props: SearchProps;
   state: SearchState = {
     term: '',
+    focus: false,
   };
 
   static defaultProps = {
@@ -85,30 +84,32 @@ class Search extends Component {
     this.setState({ term: target.value });
   }
 
-  render(): HTMLElement {
-    const searchStyle = this.props.isActive ? 'search-expanded' : 'search';
-
-    const cls = classNames({
-      _scrolled: this.props.isScrolled,
-    });
-
+  @autobind
+  setFocus() {
+    if (this.props.setFocus) {
+      this.props.setFocus(!this.state.focus);
+      this.setState({ focus: !this.state.focus });
+    }
+  }
+  render(): Element<*> {
     const { t } = this.props;
 
     return (
-      <div styleName={searchStyle} className={cls}>
+      <div styleName="search">
         <form action="." >
-          <input value={this.state.term}
+          <input
+            value={this.state.term}
             onChange={this.onChange}
             onKeyDown={this.onKeyDown}
+            onFocus={this.setFocus}
+            onBlur={this.setFocus}
             styleName="search-input"
             autoComplete="off"
-            placeholder={t('Search')}
+            placeholder={t('Search...')}
             ref="input"
             type="search"
           />
         </form>
-        <Icon styleName="head-icon" name="fc-magnifying-glass" onClick={this.handleClickSearch}/>
-        <Icon styleName="close-icon" name="fc-close" onClick={this.props.toggleActive}/>
       </div>
     );
   }

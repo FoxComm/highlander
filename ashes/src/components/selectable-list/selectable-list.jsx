@@ -107,7 +107,7 @@ export default class SelectableList extends Component {
       this.props.onSelect(this.selectedIds, event);
     }
     this.clearState();
-  };
+  }
 
   selectedItemsMap(): Object {
     return _.reduce(this.props.items, (itemsMap: Object, item: ItemType) => {

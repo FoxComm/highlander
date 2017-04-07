@@ -20,7 +20,7 @@ defmodule Hyperion.PhoenixScala.Client do
     params = Poison.encode!(%{email: email, password: password, org: org})
     case post("/api/v1/public/login", params, make_request_headers()) do
       {_, %{body: _, headers: headers, status_code: 200}} -> Keyword.take(headers, ["Jwt"]) |> hd |> elem(1)
-      {_, %{body: resp, headers: _, status_code: _}} -> raise hd(resp["errors"])
+      {_, %{body: resp, headers: _, status_code: _}} -> raise %PhoenixError{message: hd(resp["errors"])}
     end
   end
 
@@ -90,19 +90,53 @@ defmodule Hyperion.PhoenixScala.Client do
     end
   end
 
-  # private functions
-  defp parse_response({_status, r = %HTTPoison.Response{}}, token) do
-    jwt = if token do
-            token
-          else
-            r.headers
-            |> Keyword.take(["JWT"])
-            |> Enum.map(fn({k, v}) -> {String.to_atom(k), v} end)
-            |> hd |> elem(1)
-          end
-    %{body: r.body, jwt: jwt}
+  @doc """
+  Returns MWS credentials stored in Phoenix plugins
+  """
+  def get_credentials(token) do
+    {_, resp} = get("/api/v1/plugins/settings/AmazonMWS/detailed", make_request_headers(token))
+    case resp.status_code do
+      code when code in [200, 201] ->
+        resp.body["settings"]
+        |> Enum.reduce(%{}, fn({k, v}, acc) -> Map.put(acc, String.to_atom(k), v) end)
+      _ -> raise %AmazonCredentialsError{}
+    end
   end
 
+  @doc """
+  Creates Amazon MWS plugin in phoenix on Hyperion start
+  """
+  def create_amazon_plugin_in_ashes do
+    token = login()
+    params = %{
+      "name" => "AmazonMWS",
+      "description" => "Provides access to Amazon Marketplace Web Service (MWS)",
+      "version" => "1.0",
+      "schemaSettings" => [%{"default" => "", "name" => "seller_id",
+         "title" => "Amazon seller ID", "type" => "string"},
+       %{"default" => "", "name" => "mws_auth_token",
+         "title" => "Amazon MWS Auth Token", "type" => "string"}]
+    }
+    post("/api/v1/plugins/register", Poison.encode!(params), make_request_headers(token))
+    |> parse_response(token)
+  end
+
+  # private functions
+  defp parse_response({_status, r = %HTTPoison.Response{}}, token) do
+    case r.status_code do
+      c when c in [200, 201] ->
+        jwt = if token do
+                token
+              else
+                r.headers
+                |> Keyword.take(["JWT"])
+                |> Enum.map(fn({k, v}) -> {String.to_atom(k), v} end)
+                |> hd |> elem(1)
+              end
+        %{body: r.body, jwt: jwt}
+      _ -> raise %PhoenixError{message: hd(r.body["errors"])}
+    end
+  end
 
   defp make_request_headers(jwt \\ nil) do
     case jwt do

@@ -74,7 +74,7 @@ export default class NotificationItem extends React.Component {
     );
   }
 
-};
+}
 
 NotificationItem.propTypes = {
   item: PropTypes.shape({

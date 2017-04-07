@@ -64,6 +64,6 @@ export default class CouponForm extends ObjectDetails {
       <UsageRules {...(this.usageRules)} onChange={this.handleUsageRulesChange} />
     );
   }
-};
+}
 
 

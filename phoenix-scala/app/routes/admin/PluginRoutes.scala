@@ -13,7 +13,7 @@ import utils.http.Http._
 
 object PluginRoutes {
 
-  def routes(implicit ec: EC, db: DB, auth: AuthData[User]): Route = {
+  def routes(implicit ec: EC, db: DB, auth: AU): Route = {
     activityContext(auth) { implicit ac ⇒
       pathPrefix("plugins") {
         (get & pathEnd) {

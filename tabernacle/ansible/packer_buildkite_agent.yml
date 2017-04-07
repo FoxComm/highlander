@@ -16,3 +16,4 @@
     - { role: base/flyway }
     - { role: test/db }
     - { role: test/selenium }
+    - { role: hotfix/ci }

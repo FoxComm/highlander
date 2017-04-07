@@ -1,6 +1,4 @@
-import _ from 'lodash';
 import { assoc } from 'sprout-data';
-import nock from 'nock';
 
 const { toQuery } = requireSource('elastic/common.js');
 
@@ -167,7 +165,6 @@ describe('elastic.common', () => {
       const expectedQuery = {
         query: {
           bool: {
-            filter: void 0,
             filter: [{
               nested: {
                 path: 'customer',

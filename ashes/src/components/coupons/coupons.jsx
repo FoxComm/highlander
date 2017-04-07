@@ -22,9 +22,6 @@ import { actions } from 'modules/coupons/list';
 // helpers
 import { filterArchived } from 'elastic/archive';
 
-// types
-import type { SearchFilter } from 'elastic/common';
-
 type CouponsProps = {
   actions: Object,
   list: Object,
@@ -106,7 +103,7 @@ export default class Coupons extends Component {
 
     return (
       <div className="coupons">
-        <BulkWrapper entity="coupon">
+        <BulkWrapper hideAlertDetails entity="coupon">
           <SelectableSearchList
             entity="coupons.list"
             emptyMessage="No coupons found."

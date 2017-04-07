@@ -7,3 +7,9 @@ config :hyperion, Hyperion.Repo,
   database: System.get_env("HYPERION_DB_NAME"),
   hostname: System.get_env("HYPERION_DB_HOST"),
   pool_size: 10
+
+config :maru, Hyperion.API,
+  versioning: [
+    using: :path
+  ],
+  http: [port: 8880]

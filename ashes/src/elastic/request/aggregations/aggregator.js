@@ -18,10 +18,10 @@ export default class Aggregator extends Element {
 
   toRequest(): Object {
     return this._aggregations.reduce((res, aggregation) => {
-        res[aggregation.name] = aggregation.toRequest();
+      res[aggregation.name] = aggregation.toRequest();
 
-        return res;
-      }, {});
+      return res;
+    }, {});
   }
 
   add(aggregation: Aggregation): Aggregator {

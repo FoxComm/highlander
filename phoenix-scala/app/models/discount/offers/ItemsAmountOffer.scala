@@ -9,6 +9,7 @@ import models.discount._
 import models.discount.offers.Offer.OfferResult
 import utils.ElasticsearchApi._
 import utils.aliases._
+import utils.apis.Apis
 
 // Amount off all matched items in cart
 case class ItemsAmountOffer(discount: Int, search: Seq[ProductSearch])
@@ -20,7 +21,7 @@ case class ItemsAmountOffer(discount: Int, search: Seq[ProductSearch])
   val offerType: OfferType           = ItemsAmountOff
   val adjustmentType: AdjustmentType = LineItemAdjustment
 
-  def adjust(input: DiscountInput)(implicit db: DB, ec: EC, es: ES, au: AU): OfferResult =
+  def adjust(input: DiscountInput)(implicit db: DB, ec: EC, apis: Apis, au: AU): OfferResult =
     if (discount > 0) adjustInner(input)(search) else pureResult()
 
   def matchXor(input: DiscountInput)(

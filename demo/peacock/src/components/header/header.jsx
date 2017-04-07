@@ -3,89 +3,62 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router';
-import classNames from 'classnames';
 
+// actions
 import { toggleSidebar } from 'modules/sidebar';
 
-import styles from './header.css';
-
+// components
 import Icon from 'ui/icon';
-import Search from '../search/search';
-import UserTools from '../usertools/usertools';
-import Navigation from '../navigation/navigation';
-import TopBanner from '../top-banner/top-banner';
+import ActionLink from 'ui/action-link/action-link';
+import Search from 'components/search/search';
+import UserTools from 'components/usertools/usertools';
+import Navigation from 'components/navigation/navigation';
+import Cart from 'components/cart/cart';
+import Sidebar from 'components/sidebar/sidebar';
+
+import styles from './header.css';
 
 type Props = {
   toggleSidebar: Function,
   path: string,
   query: ?Object,
-  closeBanner: Function,
-  isBannerVisible: boolean,
 };
 
-type State = {
-  isScrolled: boolean,
-};
-
-class Header extends React.Component {
-  props: Props;
-
-  state: State = {
-    isScrolled: false,
-  };
-
-  componentDidMount() {
-    this.checkScroll();
-    window.addEventListener('scroll', this.checkScroll);
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('scroll', this.checkScroll);
-  }
-
-  checkScroll = () => {
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
-    const isScrolled = scrollTop > 136;
-
-    this.setState({isScrolled});
-  };
-
-  render() {
-    const headerStyle = this.state.isScrolled ? 'header-scrolled' : 'header';
-    const headerClass = classNames(styles[headerStyle], {
-      [styles['_without-banner']]: !this.props.isBannerVisible,
-    });
-
-    return (
-      <div>
-        <TopBanner
-          isVisible={this.props.isBannerVisible}
-          onClose={this.props.closeBanner}
-        />
-        <div className={headerClass}>
-          <div styleName="wrap">
-            <div styleName="hamburger" onClick={this.props.toggleSidebar}>
-              <Icon name="fc-hamburger" styleName="head-icon"/>
-            </div>
-            <div styleName="search">
-              <Search isScrolled={this.state.isScrolled}/>
-            </div>
+const Header = (props: Props) => {
+  return (
+    <div>
+      <div id="header" styleName="header">
+        <div styleName="wrap">
+          <ActionLink
+            action={props.toggleSidebar}
+            title="Menu"
+            styleName="action-link-menu"
+          />
+          <div styleName="nav-search-logo-wrapper">
             <Link to="/" styleName="logo-link">
-              <Icon styleName="logo" name="fc-logo"/>
+              <Icon styleName="logo" name="fc-logo" />
             </Link>
             <div styleName="navigation">
-              <Navigation path={this.props.path} />
+              <Navigation path={props.path} />
             </div>
-            <div styleName="tools">
-              <UserTools path={this.props.path} query={this.props.query}/>
+            <div styleName="search">
+              <Search />
             </div>
+          </div>
+          <div styleName="tools">
+            <UserTools path={props.path} query={props.query} />
           </div>
         </div>
       </div>
-    );
-  }
-}
 
+      <Cart />
+
+      <div styleName="mobile-sidebar">
+        <Sidebar path={props.path} />
+      </div>
+    </div>
+  );
+};
 
 export default connect(void 0, {
   toggleSidebar,

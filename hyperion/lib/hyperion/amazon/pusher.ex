@@ -6,7 +6,7 @@ defmodule Hyperion.Amazon.Pusher do
   def push(product_id, cfg, jwt, purge \\ false) do
     product = Client.get_product(product_id, jwt)
     result = get_submisstion_result(product_id, purge)
-    submit_product(product, cfg, purge, result.product_feed)
+    submit_product(product, cfg, false, result.product_feed)
     |> submit_variations(cfg, result.variations_feed)
     |> submit_price(cfg, result.price_feed)
     |> submit_inventory(cfg, result.inventory_feed)

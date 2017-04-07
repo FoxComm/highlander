@@ -14,11 +14,12 @@ prepare:
 	rm $(BUILD_ROOT_PATH) || true
 	mkdir -p $(GOPATH)/src/github.com/FoxComm
 	ln -s $(HIGHLANDER_PATH) $(BUILD_ROOT_PATH) || true
-	go get github.com/FoxComm/metamorphosis
+	cd $(BUILD_PATH) && glide install
+	rm -rf $(BUILD_PATH)/vendor/github.com/FoxComm/highlander
 
 build: prepare
 	$(call header, Building)
-	GOOS=linux CGO_ENABLED=0 go build -o orders-sphex ./*.go
+	cd $(BUILD_PATH) && GOOS=linux CGO_ENABLED=0 go build -o orders-sphex ./*.go
 
 test:
 	$(call header, Testing)

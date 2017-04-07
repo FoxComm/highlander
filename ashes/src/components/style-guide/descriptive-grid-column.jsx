@@ -13,11 +13,11 @@ export default class DescriptiveGridColumn extends React.Component {
 
   render() {
     return (
-        <div className={ this.clsName }>
-          <div className='content-box'>
-            { this.clsName }
-          </div>
+      <div className={ this.clsName }>
+        <div className='content-box'>
+          { this.clsName }
         </div>
-      );
+      </div>
+    );
   }
 }

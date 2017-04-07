@@ -32,7 +32,6 @@ export default class InlineField extends Component<void, Props, State> {
   }
 
   handleSave(contents: { [key:string]: any }) {
-    console.log(contents);
     this.setState({ isEditing: false });
   }
 

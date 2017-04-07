@@ -87,7 +87,7 @@ export default class Login extends Component {
 
   @autobind
   onForgotClick() {
-    console.log('todo: restore password');
+    // @todo: restore password
   }
 
   @autobind

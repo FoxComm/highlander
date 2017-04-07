@@ -15,9 +15,6 @@ import SwatchInput from 'components/forms/swatch-input';
 // styles
 import styles from './option-list.css';
 
-// types
-import type { Option, OptionValue } from 'paragons/product';
-
 type Props = {
   value: {
     id: string|number,

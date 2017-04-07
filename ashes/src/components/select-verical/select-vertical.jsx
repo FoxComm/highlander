@@ -1,10 +1,10 @@
 /* @flow */
 
 import _ from 'lodash';
-import React, { PropTypes, Component, Element } from 'react';
+import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';
-import { assoc, get, dissoc } from 'sprout-data';
+import { assoc, dissoc } from 'sprout-data';
 
 // components
 import Dropdown from '../dropdown/dropdown';

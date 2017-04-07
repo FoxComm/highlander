@@ -1,3 +1,6 @@
+.waiting {
+  margin: 40px auto;
+}
 
 .object-details {
   margin: 0 1.85%;
@@ -12,6 +15,10 @@
 
   & :global(.fc-content-box) + :global(.fc-content-box) {
     margin-top: 20px;
+  }
+
+  & :global(.fc-live-search) {
+    padding: 0;
   }
 }
 

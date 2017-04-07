@@ -16,9 +16,6 @@ import ValueEditDialog from './value-edit-dialog';
 // styles
 import styles from './option-list.css';
 
-// types
-import type { Option, OptionValue } from 'paragons/product';
-
 type Props = {
   id: number,
   option: ?Option,
@@ -111,7 +108,7 @@ class OptionEntry extends Component {
     const editValue = { id, value };
 
     this.setState({editValue});
-  };
+  }
 
   @autobind
   deleteValue(id: number): void {

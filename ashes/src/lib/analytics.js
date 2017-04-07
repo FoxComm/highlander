@@ -17,6 +17,8 @@ export function initTracker() {
     try {
       const userData = JSON.parse(userInfoStr);
       ga('set', 'userId', userData.id);
-    } catch (ex) {}
+    } catch (ex) {
+      // pass
+    }
   }
 }

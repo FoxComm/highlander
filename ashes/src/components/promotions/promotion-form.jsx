@@ -22,16 +22,8 @@ import Discounts from './discounts';
 import { setDiscountAttr } from 'paragons/promotion';
 const layout = require('./layout.json');
 
-type State = {
-  qualifiedCustomerGroupIds: Array<any>,
-};
-
 export default class PromotionForm extends ObjectDetails {
-  // $FlowFixMe: flow!
-  state: State = {
-    qualifyAll: true,
-    qualifiedCustomerGroupIds: [], // it's temporary state until qualified customer groups not implemented in backend!
-  };
+
   layout = layout;
 
   renderApplyType() {
@@ -126,25 +118,25 @@ export default class PromotionForm extends ObjectDetails {
     let discountChilds = [];
     const discounts = _.get(this.props.object, 'discounts', []);
     discounts.map((disc,index) => {
-        discountChilds.push(<div styleName="sub-title">Qualifier</div>),
-        discountChilds.push(<DiscountAttrs
-          blockId={'promo-qualifier-block-'+index}
-          dropdownId={'promo-qualifier-dd-'+index}
-          discount={disc}
-          attr="qualifier"
-          descriptions={qualifiers}
-          onChange={this.handleQualifierChange}
-        />);
-        discountChilds.push(<div styleName="sub-title">Offer</div>),
-        discountChilds.push(<DiscountAttrs
-          blockId={'promo-offer-block-'+index}
-          dropdownId={'promo-offer-dd-'+index}
-          discount={disc}
-          attr="offer"
-          descriptions={offers}
-          onChange={this.handleOfferChange}
-        />);
-      });
+      discountChilds.push(<div styleName="sub-title">Qualifier</div>),
+      discountChilds.push(<DiscountAttrs
+        blockId={'promo-qualifier-block-'+index}
+        dropdownId={'promo-qualifier-dd-'+index}
+        discount={disc}
+        attr="qualifier"
+        descriptions={qualifiers}
+        onChange={this.handleQualifierChange}
+      />);
+      discountChilds.push(<div styleName="sub-title">Offer</div>),
+      discountChilds.push(<DiscountAttrs
+        blockId={'promo-offer-block-'+index}
+        dropdownId={'promo-offer-dd-'+index}
+        discount={disc}
+        attr="offer"
+        descriptions={offers}
+        onChange={this.handleOfferChange}
+      />);
+    });
     return (
       <div>
         {discountChilds}
@@ -155,16 +147,15 @@ export default class PromotionForm extends ObjectDetails {
   @autobind
   handleQualifyAllChange(isAllQualify) {
     const promotion = this.props.object;
-    const arr = isAllQualify ? [] : promotion.qualifiedCustomerGroupIds;
-    const newPromotion1 = assoc(promotion, 'qualifyAll', isAllQualify);
-    const newPromotion2 = assoc(newPromotion1, 'qualifiedCustomerGroupIds', arr);
-    this.props.onUpdateObject(newPromotion2);
+    const arr = isAllQualify ? null : [];
+    const newPromotion = assoc(promotion, 'customerGroupIds', arr);
+    this.props.onUpdateObject(newPromotion);
   }
 
   @autobind
   handleQulifierGroupChange(ids){
     const promotion = this.props.object;
-    const newPromotion = assoc(promotion, 'qualifiedCustomerGroupIds', ids);
+    const newPromotion = assoc(promotion, 'customerGroupIds', ids);
     this.props.onUpdateObject(newPromotion);
   }
 
@@ -175,8 +166,8 @@ export default class PromotionForm extends ObjectDetails {
         <div styleName="sub-title" >Customers</div>
         <SelectCustomerGroups
           parent="Promotions"
-          selectedGroupIds={promotion.qualifiedCustomerGroupIds}
-          qualifyAll={promotion.qualifyAll}
+          selectedGroupIds={promotion.customerGroupIds}
+          qualifyAll={promotion.customerGroupIds == null}
           qualifyAllChange={this.handleQualifyAllChange}
           updateSelectedIds={this.handleQulifierGroupChange}
         />

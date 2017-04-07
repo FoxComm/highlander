@@ -84,6 +84,7 @@ class SelectAdminsModal extends Component {
               onSelect={this.handleAdminsSelected}
               label={props.bodyLabel}
               maxUsers={props.maxUsers}
+              view="modal"
             />
           </div>
         </ContentBox>

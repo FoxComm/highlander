@@ -1,6 +1,6 @@
 /* @flow */
 
-import React, { Element } from 'react';
+import React from 'react';
 import styles from './counter.css';
 
 import Counter from '../../forms/counter';

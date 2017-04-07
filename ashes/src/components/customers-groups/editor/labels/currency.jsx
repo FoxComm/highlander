@@ -1,7 +1,7 @@
 /* @flow */
 
 //libs
-import React, { Element } from 'react';
+import React from 'react';
 
 //helpers
 import { prefix } from 'lib/text-utils';

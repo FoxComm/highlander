@@ -16,6 +16,7 @@ const entityTitles = {
 
 const NoteRow = props => {
   const { note, columns, params, actions } = props;
+  let cell = null;
 
   const setCellContents = (note, field) => {
     switch(field) {
@@ -28,7 +29,6 @@ const NoteRow = props => {
           />
         );
       case 'transaction':
-        let cell = null;
         if (note.referenceType != 'customer') {
           cell = (
             <div>

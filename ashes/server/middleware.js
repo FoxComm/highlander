@@ -5,7 +5,6 @@ const jwt = require('jsonwebtoken');
 require('babel-polyfill');
 
 const htmlescape = require('htmlescape');
-const errors = require('./errors');
 
 const { isPathRequiredAuth } = require('../lib/route-rules');
 
@@ -51,7 +50,7 @@ module.exports = function(app) {
         });
       }
       if (!_.includes(token.roles, 'admin')) {
-        console.log('token.roles doesn\'t contain admin role', token.roles);
+        console.info('token.roles doesn\'t contain admin role', token.roles);
         return null; // only admins allowed to proceed
       }
       return token;

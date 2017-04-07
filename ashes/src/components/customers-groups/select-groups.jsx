@@ -64,6 +64,13 @@ class SelectCustomerGroups extends Component {
     return suggestions;
   }
 
+  get tableColumns(): Array<Object> {
+    return [
+      { field: 'name', text: 'Customer Group Name' },
+      { field: 'type', text: 'Type' },
+    ];
+  }
+
   get customersGroups(): ?Element<*> {
     if (this.props.qualifyAll !== false) return null;
     return (<div styleName="root">

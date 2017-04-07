@@ -1,0 +1,56 @@
+@import "colors.css";
+@import "media-queries.css";
+
+.modal {
+  visibility: hidden;
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.show {
+  visibility: visible;
+}
+
+.modal-wrapper {
+  z-index: 4;
+  height: 100%;
+  lost-column: 1/1;
+  background: var(--body-background);
+  position: fixed;
+}
+
+@media (--small-only), (--medium-only) {
+  .modal {
+    transition: visibility .3s ease;
+  }
+
+  .modal-wrapper {
+    transition: transform .3s ease;
+    transform: translateX(100%);
+  }
+
+  .show .modal-wrapper {
+    transform: translateX(0);
+  }
+}
+
+@media (--large) {
+  .show {
+    justify-content: center;
+    align-items: center;
+  }
+  .modal-wrapper {
+    display: none;
+    lost-column: 4/12;
+    height: 500px;
+    border-radius: 8px;
+  }
+
+  .show .modal-wrapper {
+    display: block;
+  }
+}

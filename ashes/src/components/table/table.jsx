@@ -26,10 +26,6 @@ export function tableMessage(message: Element<*>|string, inline: boolean = false
 
 type RowType = Object;
 type Rows = Array<RowType>;
-type Column = {
-  type: string,
-  field?: string,
-};
 
 export type Props = {
   data: {
@@ -162,7 +158,7 @@ export default class Table extends Component {
     const showLoading = props.showLoadingOnMount && props.isLoading === null || props.isLoading;
 
     if (showLoading) {
-      return tableMessage(<WaitAnimation />, this.loadingInline);
+      return tableMessage(<WaitAnimation className="fc-table__waiting" />, this.loadingInline);
     } else if (props.failed) {
       return tableMessage(props.errorMessage);
     } else if (isEmpty) {
@@ -225,4 +221,4 @@ export default class Table extends Component {
       </div>
     );
   }
-};
+}

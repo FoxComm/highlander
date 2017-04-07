@@ -5,6 +5,7 @@ import akka.http.scaladsl.server.Route
 import utils.http.JsonSupport._
 import models.account.User
 import payloads.TaxonomyPayloads._
+import payloads.TaxonPayloads._
 import services.Authenticator.AuthData
 import services.taxonomy.TaxonomyManager
 import utils.aliases._
@@ -37,13 +38,14 @@ object TaxonomyRoutes {
                 deleteOrFailures {
                   TaxonomyManager.archiveByContextAndId(taxonomyFormId)
                 }
-              }
-            } ~
-            (post & pathPrefix(IntNumber) & pathEnd & entity(as[CreateTaxonPayload])) {
-              (taxonFormId, payload) ⇒
-                mutateOrFailures {
-                  TaxonomyManager.createTaxon(taxonFormId, payload)
+              } ~
+              pathPrefix("taxons") {
+                (post & pathEnd & entity(as[CreateTaxonPayload])) { payload ⇒
+                  mutateOrFailures {
+                    TaxonomyManager.createTaxon(taxonomyFormId, payload)
+                  }
                 }
+              }
             }
           }
         }

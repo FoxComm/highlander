@@ -1,20 +1,16 @@
 package services
 
-import cats.data._
 import cats.implicits._
 import failures.ProductFailures.NoProductFoundForSku
 import models.cord.lineitems._
-import models.image.{AlbumImageLinks, Albums, Images}
+import models.image.Albums
 import models.inventory.Sku
 import models.objects._
 import models.product._
-import org.json4s.JsonAST.JString
 import services.image.ImageManager
 import services.inventory.SkuManager
-import services.objects.ObjectManager
 import services.product.ProductManager
 import slick.driver.PostgresDriver.api._
-import utils._
 import utils.aliases._
 import utils.db._
 
@@ -32,6 +28,12 @@ object LineItemManager {
       lineItems    ← * <~ OrderLineItems.filter(_.cordRef === refNum).result
       lineItemData ← * <~ lineItems.map(getOrderLineItem)
     } yield lineItemData
+
+  def getLineItemImage(sku: Sku)(implicit ec: EC, db: DB): DbResultT[Option[String]] =
+    for {
+      product ← * <~ getProductForSku(sku)
+      image   ← * <~ getLineItemImage(sku, product.model)
+    } yield image
 
   private def getCartLineItem(cartLineItem: CartLineItem)(implicit ec: EC, db: DB) =
     for {

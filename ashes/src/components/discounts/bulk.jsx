@@ -17,6 +17,7 @@ type RefId = string|number;
 
 type Props = {
   entity: string;
+  hideAlertDetails?: boolean;
   bulkActions: {
     changeState: (ids: Array<RefId>, isActivation: boolean) => void;
     updateAttributes: (ids: Array<RefId>, attributes: Attributes) => void;
@@ -94,7 +95,7 @@ const renderDetail = (props: Props) => (messages, id) => {
 };
 
 const BulkWrapper = (props: Props) => {
-  const { entity } = props;
+  const { entity, hideAlertDetails } = props;
   const module = `${entity}s`;
 
   const bulkActions = [
@@ -110,6 +111,7 @@ const BulkWrapper = (props: Props) => {
         storePath={`${module}.bulk`}
         module={module}
         entity={entity}
+        hideAlertDetails={hideAlertDetails}
         renderDetail={renderDetail(props)} />
       <BulkActions
         module={module}
@@ -123,4 +125,3 @@ const BulkWrapper = (props: Props) => {
 };
 
 export default connect(null, mapDispatchToProps)(BulkWrapper);
-

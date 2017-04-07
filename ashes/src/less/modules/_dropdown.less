@@ -20,6 +20,7 @@
   &__controls {
     overflow: hidden;
     display: flex;
+    flex: 1;
   }
 
   &__value {
@@ -70,7 +71,9 @@
     padding: 0 20px;
     cursor: pointer;
     white-space: nowrap;
+    transition: background .2s;
 
+    &._active,
     &:hover {
       background-color: @color-decor11;
     }
@@ -119,7 +122,6 @@
         .size(100%);
         padding: 0 10px;
         .colors(@color-control-standard-fg, @color-white);
-        border: none;
       }
     }
   }

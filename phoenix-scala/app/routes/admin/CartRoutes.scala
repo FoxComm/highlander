@@ -3,7 +3,6 @@ package routes.admin
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import cats.implicits._
-import utils.http.JsonSupport._
 import models.account.User
 import models.cord.Cord.cordRefNumRegex
 import models.payment.giftcard.GiftCard
@@ -19,10 +18,11 @@ import utils.aliases._
 import utils.apis.Apis
 import utils.http.CustomDirectives._
 import utils.http.Http._
+import utils.http.JsonSupport._
 
 object CartRoutes {
 
-  def routes(implicit ec: EC, es: ES, db: DB, auth: AuthData[User], apis: Apis): Route = {
+  def routes(implicit ec: EC, db: DB, auth: AuthData[User], apis: Apis): Route = {
 
     activityContext(auth) { implicit ac ⇒
       determineObjectContext(db, ec) { implicit ctx ⇒

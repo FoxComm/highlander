@@ -19,6 +19,7 @@ import services.carts.{CartPromotionUpdater, CartTotaler}
 import slick.driver.PostgresDriver.api._
 import utils.JsonFormatters
 import utils.aliases._
+import utils.apis.Apis
 import utils.db._
 
 object LineItemUpdater {
@@ -27,7 +28,7 @@ object LineItemUpdater {
 
   def updateQuantitiesOnCart(admin: User, refNum: String, payload: Seq[UpdateLineItemsPayload])(
       implicit ec: EC,
-      es: ES,
+      apis: Apis,
       db: DB,
       ac: AC,
       ctx: OC,
@@ -45,7 +46,7 @@ object LineItemUpdater {
 
   def updateOrderLineItems(admin: User, payload: Seq[UpdateOrderLineItemsPayload], refNum: String)(
       implicit ec: EC,
-      es: ES,
+      apis: Apis,
       db: DB,
       ac: AC,
       ctx: OC): DbResultT[OrderResponse] =
@@ -56,7 +57,7 @@ object LineItemUpdater {
     } yield orderResponse
 
   private def runOrderLineItemUpdates(payload: Seq[UpdateOrderLineItemsPayload])(implicit ec: EC,
-                                                                                 es: ES,
+                                                                                 apis: Apis,
                                                                                  db: DB,
                                                                                  ac: AC,
                                                                                  ctx: OC) =
@@ -75,7 +76,7 @@ object LineItemUpdater {
 
   def updateQuantitiesOnCustomersCart(customer: User, payload: Seq[UpdateLineItemsPayload])(
       implicit ec: EC,
-      es: ES,
+      apis: Apis,
       db: DB,
       ac: AC,
       ctx: OC,
@@ -98,7 +99,7 @@ object LineItemUpdater {
 
   def addQuantitiesOnCart(admin: User, refNum: String, payload: Seq[UpdateLineItemsPayload])(
       implicit ec: EC,
-      es: ES,
+      apis: Apis,
       db: DB,
       ac: AC,
       ctx: OC,
@@ -116,7 +117,7 @@ object LineItemUpdater {
 
   def addQuantitiesOnCustomersCart(customer: User, payload: Seq[UpdateLineItemsPayload])(
       implicit ec: EC,
-      es: ES,
+      apis: Apis,
       db: DB,
       ac: AC,
       ctx: OC,
@@ -140,7 +141,7 @@ object LineItemUpdater {
   def runUpdates(cart: Cart,
                  logAct: Option[(CartResponse, Map[String, Int]) ⇒ DbResultT[Activity]])(
       implicit ec: EC,
-      es: ES,
+      apis: Apis,
       db: DB,
       ctx: OC,
       au: AU): DbResultT[TheResponse[CartResponse]] =

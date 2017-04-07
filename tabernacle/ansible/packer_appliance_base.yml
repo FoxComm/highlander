@@ -26,6 +26,8 @@
     # Consul
     - { role: base/consul }
     - { role: base/consul_agent }
+    # Zookeeper
+    - { role: base/zookeeper }
     # Confluent Platform
     - { role: base/confluent_platform }
     # Mesosphere

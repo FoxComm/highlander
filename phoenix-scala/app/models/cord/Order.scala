@@ -76,8 +76,7 @@ case class Order(id: Int = 0,
 }
 
 object Order {
-  sealed trait State
-
+  sealed trait State extends Product with Serializable
   case object FraudHold          extends State
   case object RemorseHold        extends State
   case object ManualHold         extends State
@@ -183,6 +182,7 @@ object Orders
       orderLineItems ← * <~ lineItems.map { cli ⇒
                         val sku = skuMaps.get(cli.skuId).get
                         OrderLineItem(cordRef = cart.referenceNumber,
+                                      referenceNumber = cli.referenceNumber,
                                       skuId = sku.id,
                                       skuShadowId = sku.shadowId,
                                       state = OrderLineItem.Pending,
