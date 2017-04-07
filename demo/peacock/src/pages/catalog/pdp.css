@@ -126,9 +126,14 @@
 }
 
 @media (--large) {
-  .row {
+  .container {
     padding-top: var(--grid-margin);
-    lost-center: 1080px;
+  }
+
+  .row {
+    margin-top: 39px;
+    lost-column: 6/8;
+    lost-offset: -1/8;
   }
 
   .column-left {
@@ -154,8 +159,12 @@
     margin-bottom: 86px;
   }
 
+  .product-details {
+    padding-top: 43px;
+  }
+
   .short-description {
-    margin: 34px 0 0;
+    margin: 43px 0 0;
     font-size: 40px;
     font-weight: 900;
     line-height: 1.25;

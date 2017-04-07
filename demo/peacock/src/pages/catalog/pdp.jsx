@@ -374,7 +374,7 @@ class Pdp extends Component {
               <h2 styleName="short-description">{this.productView.shortDescription}</h2>
             )}
           </div>
-          <div styleName="column-right">
+          <div styleName="column-right product-details">
             {this.productDetails}
           </div>
           {!_.isEmpty(relatedProducts) && relatedProducts.total ?
