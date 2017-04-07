@@ -25,7 +25,7 @@ type Props = {
 };
 
 type State = {
-  taxon: ?TaxonDraft,
+  taxon: TaxonDraft,
 }
 
 const omitProps = [
@@ -38,7 +38,7 @@ export default class NewTaxonModal extends Component {
   props: Props;
 
   state: State = {
-    taxon: null,
+    taxon: createEmptyTaxon(),
   };
 
   componentWillReceiveProps(nextProps: Props) {
@@ -98,7 +98,7 @@ export default class NewTaxonModal extends Component {
         <ObjectFormInner
           onChange={this.handleTaxonUpdate}
           fieldsToRender={['name']}
-          attributes={get(this.state.taxon, 'attributes')}
+          attributes={this.state.taxon.attributes}
         />
         {this.parentInput}
       </div>

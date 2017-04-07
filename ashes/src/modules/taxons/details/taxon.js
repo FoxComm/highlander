@@ -94,7 +94,7 @@ const reducer = createReducer({
   [_fetchTaxon.succeeded]: (state, taxon) => taxon,
   [_createTaxon.succeeded]: (state, taxon) => taxon,
   [_updateTaxon.succeeded]: (state, taxon) => taxon,
-  [_archiveTaxon.succeeded]: (state, taxon) => taxon
+  [_archiveTaxon.succeeded]: () => initialState,
 }, initialState);
 
 export default reducer;

@@ -95,15 +95,15 @@ export default function withTaxonomy(options: Options = defaultOptions) {
       [fetch.succeeded]: (state, response) => ({ ...state, taxonomy: response }),
     });
 
-    const mapState = state => ({
+    const mapState = (state, props) => ({
       taxonomy: state.taxonomy,
       fetchState: get(state.asyncActions, 'fetchTaxonomy', {}),
     });
 
     return flow(
+      connect(options.mapState, options.mapActions),
       connect(mapState, { fetch: fetch.perform }),
       makeLocalStore(addAsyncReducer(reducer), { taxonomy: null }),
-      connect(options.mapState, options.mapActions)
     )(Wrapper);
   };
 }

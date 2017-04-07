@@ -167,9 +167,8 @@ class TaxonomyWidget extends Component {
   }
 
   get content() {
-    const { taxonomy, fetchState } = this.props;
-
-    if (!taxonomy || fetchState.inProgress && !fetchState.err) {
+    // show loading only when we have no taxonomy. do not show when taxonomy is fetched in bg
+    if (!this.props.taxonomy) {
       return <WaitAnimation className={styles.waiting} />;
     }
 
@@ -211,14 +210,14 @@ class TaxonomyWidget extends Component {
   }
 }
 
-const mapState = state => {
+const mapState = (state, props: Props) => {
   const createState = get(state, 'asyncActions.createTaxon', {});
   const linkState = get(state, 'asyncActions.taxonAddProduct', {});
 
   const createTaxonState = {
-    err: createState.err || linkState.err,
-    inProgress: createState.inProgress || linkState.inProgress,
-    finished: createState.finished && linkState.finished,
+    err: createState.err || linkState.err || props.fetchState.err,
+    inProgress: createState.inProgress || linkState.inProgress || props.fetchState.inProgress,
+    finished: createState.finished && linkState.finished || props.fetchState.finished,
   };
 
   return {
