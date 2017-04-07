@@ -42,12 +42,11 @@ object CordPaymentState {
   }
 
   def fromApState(apState: ApplePayCharge.State): State = {
-    import models.payment.applepay.ApplePayCharge._
-
     apState match {
-      case STATUS_SUCCESS ⇒ Auth
-      case STATUS_FAILURE ⇒ FailedCapture
-      case _              ⇒ Cart
+      case ApplePayCharge.Cart       ⇒ Cart
+      case ApplePayCharge.Auth       ⇒ Auth
+      case ApplePayCharge.FailedAuth ⇒ FailedCapture
+      case _                         ⇒ ExpiredAuth
     }
   }
 
