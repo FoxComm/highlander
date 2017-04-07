@@ -25,7 +25,7 @@ const TypeaheadItems = props => {
       </ul>
     );
   } else if (props.updating) {
-    return <div className={s.items}><WaitAnimation /></div>;
+    return <div className={classNames(s.items, s.preloader)}><WaitAnimation /></div>;
   }
 
   return <div className={classNames(s.items, s['not-found'])}>No results found.</div>;

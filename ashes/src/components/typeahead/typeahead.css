@@ -105,3 +105,8 @@
 .need-more-characters {
   margin-top: 0;
 }
+
+.preloader {
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
