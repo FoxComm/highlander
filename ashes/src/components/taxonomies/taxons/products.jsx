@@ -83,7 +83,7 @@ export class TaxonProductsPage extends Component {
   handleAddProduct(product: Product) {
     const { actions, params: { taxonId, context } } = this.props;
 
-    actions.addProduct(taxonId, product.productId, context)
+    actions.addProduct(product.productId, context, taxonId)
       .then(this.props.actions.fetch);
   }
 

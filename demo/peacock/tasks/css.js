@@ -11,6 +11,7 @@ module.exports = function(gulp, $) {
     'node_modules/react-image-gallery/styles/css/image-gallery.css',
     'node_modules/@foxcomm/wings/lib/bundle.css',
     'public/common.css',
+    'public/css/overrides.css',
     'build/bundle.css',
   ];
 

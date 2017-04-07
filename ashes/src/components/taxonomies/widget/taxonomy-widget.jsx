@@ -8,15 +8,25 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 
 // components
+import Transition from 'react-addons-css-transition-group';
 import WaitAnimation from 'components/common/wait-animation';
 import RoundedPill from 'components/rounded-pill/rounded-pill';
 import { withTaxonomy } from '../hoc';
+import TaxonomyDropdown from '../taxonomy-dropdown';
 
 // actions
 import { deleteProductCurried as unlinkProduct } from 'modules/taxons/details/taxon';
+import { addProductCurried as linkProduct } from 'modules/taxons/details/taxon';
+
+// helpers
+import { transitionToLazy } from 'browserHistory';
+import { getTransitionProps } from 'lib/react-utils';
 
 // style
 import styles from './taxonomy-widget.css';
+
+// types
+import type { Value } from 'components/rounded-pill/rounded-pill';
 
 type Props = {
   title: string,
@@ -25,58 +35,93 @@ type Props = {
   activeTaxonId: string,
   taxonomy: Taxonomy,
   fetchState: AsyncState,
-  unlinkState: AsyncState,
   unlinkProduct: (taxonId: number | string) => Promise<*>,
+  linkProduct: (taxonId: number | string) => Promise<*>,
   onChange: Function,
   linkedTaxonomy: LinkedTaxonomy,
 };
 
+type State = {
+  showInput: boolean,
+  linkingId: ?number,
+  unlinkingId: ?number,
+}
+
 const getName = (obj: any) => get(obj, 'attributes.name.v');
+
+const getTransitions = getTransitionProps(styles);
 
 class TaxonomyWidget extends Component {
   props: Props;
 
-  state = {
-    isFocused: false,
-    inputOpened: false
+  state: State = {
+    showInput: false,
+    // using local state for async actions as it is used per item in the list
+    linkingId: null,
+    unlinkingId: null,
   };
 
   @autobind
-  handleCloseClick(taxonId) {
-    this.props.unlinkProduct(taxonId)
-      .then(response => {
-        this.props.onChange(response);
-      });
+  handleDeleteClick(taxonId: Value) {
+    this.setState({ unlinkingId: parseInt(taxonId) }, () => {
+      this.props.unlinkProduct(taxonId)
+        .then(this.props.onChange)
+        .then(() => this.setState({ unlinkingId: null }));
+    });
   }
 
   @autobind
-  handleAddButton() {
-    this.setState({ inputOpened: !this.state.inputOpened });
+  handleShowDropdownClick() {
+    this.setState({ showInput: !this.state.showInput });
   }
 
-  get linkedTaxonomy() {
-    const { linkedTaxonomy, unlinkState } = this.props;
+  @autobind
+  handleLinkClick(taxonId: Value) {
+    this.setState({ linkingId: parseInt(taxonId) }, () => {
+      this.props.linkProduct(taxonId)
+        .then(this.props.onChange)
+        .then(() => this.setState({ linkingId: null }));
+    });
+  }
 
-    if (!linkedTaxonomy || !linkedTaxonomy.taxons) {
-      return null;
-    }
+  get linkedTaxons() {
+    const { taxonomy, linkedTaxonomy, context } = this.props;
 
     // temporary hack for hierarchical taxonomies
-    const taxons = linkedTaxonomy.hierarchical ?
-      sortedUniqBy(linkedTaxonomy.taxons, (item) => item.id) : linkedTaxonomy.taxons;
+    const taxons = sortedUniqBy(get(linkedTaxonomy, 'taxons', []), ({ id }) => id);
 
-    return taxons.map((taxon: Taxon) => {
-      return (
-        <RoundedPill
-          text={getName(taxon)}
-          onClose={this.handleCloseClick}
-          value={String(taxon.id)}
-          styleName="pill"
-          inProgress={unlinkState.inProgress}
-          key={taxon.id}
-        />
-      );
-    });
+    const transitionProps = getTransitions('pill', 200, true);
+
+    return (
+      <Transition {...transitionProps} key="pills">
+        {taxons.map((taxon: Taxon) => (
+          <RoundedPill
+            text={getName(taxon)}
+            onClick={transitionToLazy('taxon-details', { context, taxonomyId: taxonomy.id, taxonId: taxon.id })}
+            onClose={this.handleDeleteClick}
+            value={taxon.id}
+            className={styles.pill}
+            inProgress={this.state.unlinkingId === taxon.id}
+            key={taxon.id}
+          />
+        ))}
+      </Transition>
+    );
+  }
+
+  get dropdown() {
+    const transitionProps = getTransitions('dropdown', 100);
+
+    return (
+      <Transition {...transitionProps} key="dropdown">
+        {this.state.showInput &&
+        <TaxonomyDropdown
+          onTaxonClick={this.handleLinkClick}
+          taxonomy={this.props.taxonomy}
+          linkedTaxonomy={this.props.linkedTaxonomy}
+        />}
+      </Transition>
+    );
   }
 
   get content() {
@@ -86,25 +131,35 @@ class TaxonomyWidget extends Component {
       return <WaitAnimation className={styles.waiting} />;
     }
 
-    const opened = this.state.inputOpened;
-    const inputClass = classNames(styles.input, { [styles.opened]: opened });
+    return [
+      this.dropdown,
+      this.linkedTaxons,
+    ];
+  }
 
-    return (
-      <div>
-        <div className={inputClass}>
-        </div>
-        {this.linkedTaxonomy}
-      </div>
-    );
+  shouldComponentUpdate(nextProps: Props, nextState: State) {
+    const lengthPath = 'linkedTaxonomy.taxons.length';
+
+    const taxonsChanged = get(nextProps, lengthPath, 0) !== get(this.props, lengthPath);
+    const taxonomyChanged = nextProps.taxonomy !== this.props.taxonomy;
+    const localStateChanged = nextState !== this.state;
+
+    return taxonomyChanged || taxonsChanged || localStateChanged;
   }
 
   render() {
+    const cls = classNames(styles.taxonomies, {
+      [styles._open]: this.state.showInput,
+      [styles._loading]: this.state.linkingId,
+    });
+
     return (
-      <div styleName="root">
-        <div styleName="header">
-          <span styleName="title">
-            {this.props.title}
-          </span>
+      <div className={cls}>
+        <div className={styles.header}>
+          {this.props.title}
+          <button className={styles.button} onClick={this.handleShowDropdownClick}>
+            <i className="icon-add" />
+          </button>
         </div>
         {this.content}
       </div>
@@ -112,12 +167,9 @@ class TaxonomyWidget extends Component {
   }
 }
 
-const mapState = state => ({
-  unlinkState: get(state.asyncActions, 'taxonDeleteProduct', {}),
-});
-
 const mapActions = (dispatch, props) => ({
-  unlinkProduct: bindActionCreators(unlinkProduct(props.productId, props.context), dispatch)
+  unlinkProduct: bindActionCreators(unlinkProduct(props.productId, props.context), dispatch),
+  linkProduct: bindActionCreators(linkProduct(props.productId, props.context), dispatch)
 });
 
-export default withTaxonomy({ showLoader: false, mapState, mapActions })(TaxonomyWidget);
+export default withTaxonomy({ showLoader: false, mapActions })(TaxonomyWidget);

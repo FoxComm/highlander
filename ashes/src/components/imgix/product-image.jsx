@@ -15,6 +15,9 @@ type Props = {
     s3_bucket: string,
   },
   src: string,
+  className: ?string,
+  width: ?number,
+  height: ?number,
 };
 
 
