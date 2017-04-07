@@ -185,11 +185,7 @@ class TaxonomyWidget extends Component {
     const localStateChanged = nextState !== this.state;
     const createTaxonStateChanged = !isEqual(nextProps.createTaxonState, this.props.createTaxonState);
 
-    const sh = taxonomyChanged || taxonsChanged || localStateChanged || createTaxonStateChanged;
-
-    console.info(sh);
-
-    return sh;
+    return taxonomyChanged || taxonsChanged || localStateChanged || createTaxonStateChanged;
   }
 
   render() {

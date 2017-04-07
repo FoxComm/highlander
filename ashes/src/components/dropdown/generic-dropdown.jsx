@@ -272,6 +272,9 @@ export default class GenericDropdown extends Component {
       switch (e.keyCode) {
         // enter
         case 13:
+          e.stopPropagation();
+          e.preventDefault();
+
           if (currentIndex > -1) {
             this._items.children[currentIndex].click();
           }
@@ -330,21 +333,16 @@ export default class GenericDropdown extends Component {
 
   @autobind
   toggleMenu() {
-    console.log('toggle menu');
-
     this.setState({ open: !this.state.open, pointedValueIndex: -1 });
   }
 
   @autobind
   closeMenu() {
-    console.log('close menu');
     this.setState({ open: false, pointedValueIndex: -1 });
   }
 
   @autobind
   openMenu() {
-    console.log('open menu');
-
     this.setState({ open: true });
   }
 
@@ -389,8 +387,6 @@ export default class GenericDropdown extends Component {
   }
 
   get menu(): ?Element<*> {
-    console.log(`render menu. open state: ${this.state.open}`);
-
     if (!this.state.open) {
       return;
     }

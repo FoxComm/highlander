@@ -35,7 +35,7 @@ const buildTaxonsDropDownItems = (taxons: TaxonsTree, prefix: string, sep: strin
     res.push([node.node.id, path, false]);
 
     if (!isEmpty(node.children)) {
-      buildTaxonsDropDownItems(node.children, `${name}${sep}`, sep, res);
+      buildTaxonsDropDownItems(node.children, `${path}${sep}`, sep, res);
     }
 
     return res;

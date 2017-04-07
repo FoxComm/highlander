@@ -52,7 +52,7 @@ const buildTaxonsDropDownItems = (taxons: TaxonsTree, prefix: string, sep: strin
     res = assoc(res, node.node.id, { id: node.node.id, name, path });
 
     if (!isEmpty(node.children)) {
-      res = merge(res, buildTaxonsDropDownItems(node.children, `${name}${sep}`, sep, res));
+      res = merge(res, buildTaxonsDropDownItems(node.children, `${path}${sep}`, sep, res));
     }
 
     return res;
