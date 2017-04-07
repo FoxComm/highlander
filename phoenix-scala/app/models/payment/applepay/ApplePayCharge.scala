@@ -23,7 +23,9 @@ case class ApplePayCharge(id: Int = 0,
                           amount: Int = 0,
                           deletedAt: Option[Instant] = None,
                           createdAt: Instant = Instant.now())
-    extends FoxModel[ApplePayCharge] {}
+    extends FoxModel[ApplePayCharge] {
+  // todo FSM state transition
+}
 
 object ApplePayCharge {
   sealed trait State
@@ -84,8 +86,6 @@ object ApplePayCharges
                    state = Auth,
                    currency = currency,
                    amount = stripeCharge.getAmount.toInt)
-
-  def authorizedOrderPayments(p: Seq[Int]) = ???
 
   val returningLens: Lens[ApplePayCharge, Int] = lens[ApplePayCharge].id
 }

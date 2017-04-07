@@ -166,7 +166,7 @@ object ReturnPaymentManager {
     } yield ccRefund
 
   private def addApplePayment(returnId: Int, payment: OrderPayment, amount: Int) =
-    ??? // TODO implement
+    ??? // TODO implement @aafa
 
   private def addGiftCard(returnId: Int,
                           payment: OrderPayment,

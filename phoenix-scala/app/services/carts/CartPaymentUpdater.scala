@@ -212,10 +212,7 @@ object CartPaymentUpdater {
       resp  ← * <~ CartResponse.buildRefreshed(cart)
     } yield TheResponse.validated(resp, valid)
 
-  def deleteApplePayCharge(model: User) = ???
+  def deleteApplePayCharge(model: User) = ??? // todo implement
 
-  def getApplePayCharge(implicit ec: EC, db: DB, ac: AC): DbResultT[String] =
-    for {
-      r ← * <~ DbResultT.pure("1") // FIXME
-    } yield r
+  def getApplePayCharge = ??? // todo implement
 }
