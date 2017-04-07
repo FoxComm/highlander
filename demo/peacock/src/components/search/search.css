@@ -21,7 +21,9 @@
   }
 
   .search-input:focus{
-    width: 150px;
+    width: 380px;
+    border-bottom: 2px solid var(--input-focus-border-color);
+    height: 30px;
   }
 }
 @media (--small-only), (--medium-only) {

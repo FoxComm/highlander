@@ -36,7 +36,7 @@ const TypeaheadInput = ({ className, isFetching = false, ...rest }: Props) => {
     <LoadingInputWrapper inProgress={isFetching}>
       <i className={classNames(s['input-icon'], 'icon-search')} />
       <input
-        className={classNames('fc-input', s.input)}
+        className={classNames('fc-input', s.input, className)}
         type="text"
         {...attrs}
       />

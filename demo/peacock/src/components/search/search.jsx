@@ -1,5 +1,6 @@
 /* flow */
 
+import _ from 'lodash';
 import React, { Component, Element } from 'react';
 import { autobind } from 'core-decorators';
 import { connect } from 'react-redux';
@@ -8,6 +9,9 @@ import styles from './search.css';
 
 import localized from 'lib/i18n';
 import type { Localized } from 'lib/i18n';
+
+import Typeahead from 'components/typeahead/typeahead';
+import ProductRow from './product-row';
 
 import { toggleActive, forceSearch } from 'modules/search';
 
@@ -67,20 +71,19 @@ class Search extends Component {
 
     return (
       <div styleName="search">
-        <form action="." >
-          <input
-            value={this.state.term}
-            onChange={this.onChange}
-            onKeyDown={this.onKeyDown}
-            onFocus={this.setFocus}
-            onBlur={this.setFocus}
-            styleName="search-input"
-            autoComplete="off"
-            placeholder={t('Search...')}
-            ref="input"
-            type="search"
-          />
-        </form>
+        <Typeahead
+          inputClassName={styles['search-input']}
+          view="products"
+          isFetching={_.get(this.props.suggestState, 'inProgress', false)}
+          fetchItems={this.props.suggestUsers}
+          minQueryLength={3}
+          component={ProductRow}
+          items={this.props.suggested}
+          name="productsSelect"
+          hideOnBlur={this.hideOnBlur}
+          onItemSelected={this.handleSelectItem}
+          placeholder={t('Search...')}
+        />
       </div>
     );
   }

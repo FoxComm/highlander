@@ -37,6 +37,7 @@ type Props = {
   name?: string, // name attr for default input
   placeholder?: string, // placeholder attr for default input
   className?: string, // additional cl for root element of Typeahead
+  inputClassName?: string, // class for typeahead input
   component?: Function, // component of one item, props={model: item}
   itemsElement?: Element<*>, // custom component for items as a list (not just for one item)
   inputElement?: Element<*>, // custom component for input field, default is `TypeaheadInput`
@@ -237,14 +238,14 @@ export default class Typeahead extends React.Component {
   }
 
   get inputContent() {
-    const { isFetching, inputElement } = this.props;
+    const { isFetching, inputElement, inputClassName } = this.props;
 
     const defaultProps = {
       value: this.state.query,
       name: this.props.name,
       placeholder: this.props.placeholder,
       autoComplete: this.props.autoComplete,
-      className: s.input,
+      className: inputClassName ? inputClassName : s.input,
       isFetching,
     };
 
