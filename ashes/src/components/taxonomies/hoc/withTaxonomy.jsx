@@ -78,6 +78,7 @@ export default function withTaxonomy(options: Options = defaultOptions) {
         const props = {
           [get(options, 'taxonomyField', 'taxonomy')]: this.props.taxonomy,
           [get(options, 'fetchStateField', 'fetchState')]: this.props.fetchState,
+          [get(options, 'fetchField', 'fetchTaxonomy')]: this.props.fetch,
           ...omit(this.props, omitProps),
         };
 

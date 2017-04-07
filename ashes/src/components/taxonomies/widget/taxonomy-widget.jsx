@@ -39,6 +39,7 @@ type Props = {
   taxonomy: Taxonomy,
   fetchState: AsyncState,
   createTaxonState: AsyncState,
+  fetchTaxonomy: (id: number) => Promise<*>,
   unlinkProduct: (taxonId: number | string) => Promise<*>,
   linkProduct: (taxonId: number | string) => Promise<*>,
   createTaxon: (taxon: TaxonDraft, context: string) => Promise<*>,
@@ -99,10 +100,12 @@ class TaxonomyWidget extends Component {
 
   @autobind
   handleSaveTaxon(taxon: TaxonDraft) {
-    const { context, taxonomy, createTaxon, linkProduct } = this.props;
+    const { context, taxonomy, createTaxon, linkProduct, fetchTaxonomy } = this.props;
 
     createTaxon(taxon, context)
       .then((response: Taxon) => linkProduct(response.id))
+      .then(this.props.onChange)
+      .then(() => fetchTaxonomy(taxonomy.id, context))
       .then(() => this.setState({ showNewValueModal: false }));
   }
 

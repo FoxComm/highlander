@@ -1,6 +1,7 @@
 /* @flow */
 
 //libs
+import { get, omit } from 'lodash';
 import { assoc } from 'sprout-data';
 import { autobind } from 'core-decorators';
 import React, { Component } from 'react';
@@ -24,15 +25,27 @@ type Props = {
 };
 
 type State = {
-  taxon: TaxonDraft,
+  taxon: ?TaxonDraft,
 }
+
+const omitProps = [
+  'context',
+  'taxonomy',
+  'onConfirm',
+];
 
 export default class NewTaxonModal extends Component {
   props: Props;
 
   state: State = {
-    taxon: createEmptyTaxon(),
+    taxon: null,
   };
+
+  componentWillReceiveProps(nextProps: Props) {
+    if (nextProps.isVisible && !this.props.isVisible) {
+      this.state.taxon = createEmptyTaxon();
+    }
+  }
 
   @autobind
   handleTaxonUpdate(newAttributes: Attributes) {
@@ -85,7 +98,7 @@ export default class NewTaxonModal extends Component {
         <ObjectFormInner
           onChange={this.handleTaxonUpdate}
           fieldsToRender={['name']}
-          attributes={this.state.taxon.attributes}
+          attributes={get(this.state.taxon, 'attributes')}
         />
         {this.parentInput}
       </div>
@@ -93,7 +106,7 @@ export default class NewTaxonModal extends Component {
   }
 
   render() {
-    const { ...rest } = this.props;
+    const props = omit(this.props, omitProps);
 
     return (
       <ConfirmationDialog
@@ -102,7 +115,7 @@ export default class NewTaxonModal extends Component {
         body={this.body}
         confirm="Save and Add Value"
         confirmAction={this.handleConfirm}
-        {...rest}
+        {...props}
       />
     );
   }
