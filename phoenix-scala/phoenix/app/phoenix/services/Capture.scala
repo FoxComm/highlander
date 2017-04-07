@@ -150,6 +150,7 @@ case class Capture(payload: CapturePayloads.Capture)(implicit ec: EC, db: DB, ap
   private def externalCapture(total: Int, order: Order): DbResultT[Option[CreditCardCharge]] = {
     require(total >= 0)
 
+    // todo Apple Pay capture @aafa
     if (total > 0) {
       (for {
         pmt    ← OrderPayments.findAllCreditCardsForOrder(payload.order)

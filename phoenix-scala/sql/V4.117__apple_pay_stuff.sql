@@ -34,5 +34,3 @@ alter table order_payments drop constraint valid_payment_type;
 alter table order_payments add constraint valid_payment_type check
   (payment_method_type in ('creditCard', 'giftCard', 'storeCredit', 'applePay'));
 
--- todo
--- returns?

@@ -1,4 +1,3 @@
-import cats.implicits.none
 import failures.ShippingMethodFailures.ShippingMethodNotFoundByName
 import models.Reasons
 import models.inventory._
@@ -8,14 +7,12 @@ import payloads.LineItemPayloads._
 import payloads.PaymentPayloads.CreateApplePayPayment
 import payloads.UpdateShippingMethod
 import responses.cord._
-import services.{RealStripeApis, StripeTest}
+import services.StripeTest
 import slick.driver.PostgresDriver.api._
 import testutils._
 import testutils.apis.PhoenixStorefrontApi
 import testutils.fixtures.BakedFixtures
 import testutils.fixtures.api.ApiFixtureHelpers
-import utils.TestStripeSupport.createTokenForCard
-import utils.apis.StripeWrapper
 import utils.db._
 import utils.seeds.Factories
 
