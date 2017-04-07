@@ -53,7 +53,7 @@ export default (props: Props) => {
   );
 
   const renderAddButton = (dropdownToggle: Function) => {
-    const handler = (e: MoseEvent) => {
+    const handler = (e: MouseEvent) => {
       dropdownToggle(e);
       onNewValueClick(taxonomy);
     };

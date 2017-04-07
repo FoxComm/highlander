@@ -27,10 +27,9 @@ declare type TaxonomyResult = {
 };
 
 declare type TaxonLocation = {
-  parent?: number,
+  parent: ?number,
 }
 declare type TaxonDraft = {
-  parentId: ?number,
   location?: TaxonLocation,
   attributes: Attributes
 };
