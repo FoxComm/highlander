@@ -1,4 +1,4 @@
-import React, { Element } from 'react';
+import React from 'react';
 import styles from '../attrs-edit.css';
 
 import AppendInput from '../../forms/append-input';
