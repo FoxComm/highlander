@@ -13,7 +13,7 @@ import type { Localized } from 'lib/i18n';
 import Typeahead from 'components/typeahead/typeahead';
 import ProductRow from './product-row';
 
-import { toggleActive, forceSearch } from 'modules/search';
+import { toggleActive, forceSearch, searchProducts } from 'modules/search';
 
 type SearchProps = Localized & {
   isActive: boolean,
@@ -67,7 +67,9 @@ class Search extends Component {
     }
   }
   render(): Element<*> {
-    const { t } = this.props;
+    const { t, results } = this.props;
+    console.log(this.props);
+    const items = _.get(results, 'result', []);
 
     return (
       <div styleName="search">
@@ -75,12 +77,12 @@ class Search extends Component {
           inputClassName={styles['search-input']}
           view="products"
           isFetching={_.get(this.props.suggestState, 'inProgress', false)}
-          fetchItems={this.props.suggestUsers}
+          fetchItems={this.props.searchProducts}
           minQueryLength={3}
           component={ProductRow}
-          items={this.props.suggested}
+          items={items}
           name="productsSelect"
-          hideOnBlur={this.hideOnBlur}
+          hideOnBlur={false}
           onItemSelected={this.handleSelectItem}
           placeholder={t('Search...')}
         />
@@ -96,4 +98,4 @@ function mapState({ search }: Object, { isActive }: ?Object): Object {
   };
 }
 
-export default connect(mapState, { toggleActive, forceSearch })(localized(Search));
+export default connect(mapState, { toggleActive, forceSearch, searchProducts })(localized(Search));
