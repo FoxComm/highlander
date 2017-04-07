@@ -156,7 +156,7 @@ class ProductAmazonMain extends Component {
     const { product } = this.props;
     const title = _.get(product, 'attributes.title.v', '');
 
-    this.props.actions.fetchSuggest(title, text);
+    return this.props.actions.fetchSuggest(title, text);
   }
 
   render() {

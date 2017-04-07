@@ -154,9 +154,7 @@ export default class Typeahead extends React.Component {
       this.props.onChange(value);
     }
 
-    if (this._fetch && this._fetch.request && this._fetch.request.abort) {
-      this._fetch.request.abort();
-    }
+    _.invoke(this, '_fetch.request.abort');
 
     if (!this.state.showMenu) {
       this.toggleVisibility(true);
