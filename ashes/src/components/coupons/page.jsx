@@ -13,6 +13,13 @@ import SaveCancel from '../common/save-cancel';
 
 // actions
 import * as CouponActions from 'modules/coupons/details';
+import { actions } from 'modules/coupons/list';
+
+const refresh = actions.refresh;
+const combinedActions = {
+  ...CouponActions,
+  refresh,
+};
 
 type State = {
   promotionError?: boolean,
@@ -83,9 +90,8 @@ class CouponPage extends ObjectPage {
         }).then(() => {
           this.props.actions.couponsGenerationReset();
         }).then(() => {
+          this.props.actions.refresh();
           transitionTo('promotion-coupons',{promotionId: this.props.params.promotionId});
-        }).catch((err) => {
-          this.props.submitError(err.message);
         });
       }
 
@@ -182,6 +188,7 @@ class CouponPage extends ObjectPage {
       promotionError: this.state.promotionError,
       createCoupon: this.createCoupon,
       selectedPromotions: this.selectedPromotions,
+      refresh: this.props.actions.refresh,
     };
   }
 
@@ -190,4 +197,4 @@ class CouponPage extends ObjectPage {
   }
 }
 
-export default connectPage('coupon', CouponActions)(CouponPage);
+export default connectPage('coupon', combinedActions)(CouponPage);

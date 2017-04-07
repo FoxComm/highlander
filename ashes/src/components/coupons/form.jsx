@@ -28,6 +28,7 @@ type CouponFormProps = {
   onUpdateCouponCode: Function,
   fetchPromotions: Function,
   createCoupon: Function,
+  refresh: Function,
 };
 
 const layout = require('./layout.json');
@@ -54,6 +55,7 @@ export default class CouponForm extends ObjectDetails {
         createCoupon={this.props.createCoupon}
         promotionId={id}
         codeGeneration={this.props.codeGeneration}
+        refresh={this.props.refresh}
         isNew={this.props.isNew}
       />
     );
