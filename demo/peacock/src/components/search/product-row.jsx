@@ -17,8 +17,11 @@ export default (props) => {
         <ProductImage src={imagePath} width={50} height={50} /> :
         <ImagePlaceholder />;
 
+  const productSlug = model.slug != null && !_.isEmpty(model.slug) ? model.slug : model.id;
+  const link = `/products/${productSlug}`;
+
   return (
-    <Link to="" styleName="link">
+    <Link to={link} styleName="link">
       <div styleName="box">
         <div styleName="image">
           {image}
