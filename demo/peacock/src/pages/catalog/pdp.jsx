@@ -233,9 +233,9 @@ class Pdp extends Component {
   }
 
   get productShortDescription(): ?Element<*> {
-    const shortDescription = _.get(this.props.product, 'attributes.shortDescription.v', '');
+    const shortDescription = _.get(this.props.product, 'attributes.shortDescription.v');
 
-    if (shortDescription.length < 1) return null;
+    if (!shortDescription) return null;
 
     return (
       <h2 styleName="short-description">{shortDescription}</h2>
