@@ -48,8 +48,6 @@ class ApplePayIntegrationTest
         .totals
         .total
 
-      println(s"total price $grandTotal")
-
       cartsApi(refNum).checkout().as[OrderResponse].lineItems.skus.onlyElement must have(
           'sku (otherSku.code),
           'quantity (2)

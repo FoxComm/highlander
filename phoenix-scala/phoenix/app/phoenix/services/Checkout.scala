@@ -355,7 +355,7 @@ case class Checkout(
     } else DbResultT.none
   }
 
-  // todo unify with CC Auth
+  // todo unify with CC Auth @aafa
   private def authApplePay(orderTotal: Int,
                            internalPaymentTotal: Int): DbResultT[Option[ApplePayCharge]] = {
 
@@ -376,9 +376,7 @@ case class Checkout(
             created ← * <~ ApplePayCharges.create(ourCharge)
             // todo logs here
           } yield created.some
-
-        case None ⇒
-          DbResultT.failure(GeneralFailure("not enough payment"))
+        case _ ⇒ DbResultT.none // do nothing if apple pay is not there
       }
     } else DbResultT.none
   }
