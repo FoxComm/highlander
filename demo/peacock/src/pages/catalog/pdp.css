@@ -80,6 +80,11 @@
   line-height: 1.63;
 }
 
+.description-list  ul {
+  list-style: disc;
+  margin-left: 20px;
+}
+
 .one-click-checkout {
   margin-top: 8px;
 }
