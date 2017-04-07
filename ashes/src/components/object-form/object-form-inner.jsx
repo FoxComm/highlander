@@ -295,10 +295,10 @@ export default class ObjectFormInner extends Component {
     return (
       <div>
         <label className="fc-object-form__field-label">{label}</label>
-          <SwatchInput
-            value={value}
-            onChange={onChange}
-          />
+        <SwatchInput
+          value={value}
+          onChange={onChange}
+        />
       </div>
     );
   }

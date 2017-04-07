@@ -7,7 +7,6 @@ import { createReducer, createAction } from 'redux-act';
 // helpers
 import Api from 'lib/api';
 import * as search from 'lib/search';
-import { post } from 'lib/search';
 import criterions, { getCriterion, getWidget } from 'paragons/customer-groups/criterions';
 import { Request, aggregations } from 'elastic/request';
 import { createAsyncActions } from '@foxcomm/wings';

@@ -9,7 +9,6 @@ import { bindActionCreators } from 'redux';
 
 // components
 import Transition from 'react-addons-css-transition-group';
-import { AddButton } from 'components/common/buttons';
 import WaitAnimation from 'components/common/wait-animation';
 import RoundedPill from 'components/rounded-pill/rounded-pill';
 import { withTaxonomy } from '../hoc';

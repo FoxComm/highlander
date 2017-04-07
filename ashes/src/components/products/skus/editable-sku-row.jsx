@@ -276,7 +276,7 @@ class EditableSkuRow extends Component {
           onChange={({ target: { value } }) => {
             this.updateSku({ inventory: value });
           }}
-          placeholder="Inventory"
+          placeholder="QTY"
         />
       </FormField>
     );

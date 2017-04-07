@@ -1,10 +1,10 @@
 // @flow
 
 // libs
-import React, { Element } from 'react';
+import React from 'react';
 
 // helpers
-import { activeStatus, isArchived } from 'paragons/common';
+import { activeStatus } from 'paragons/common';
 
 // components
 import MultiSelectRow from 'components/table/multi-select-row';

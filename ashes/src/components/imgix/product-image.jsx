@@ -15,6 +15,9 @@ type Props = {
     s3_bucket: string,
   },
   src: string,
+  className: ?string,
+  width: ?number,
+  height: ?number,
 };
 
 
@@ -26,12 +29,19 @@ class ProductImage extends Component {
   }
 
   render() {
-    return (<ProductImageInner
-      imgixProductsSource={this.props.settings.cdn_prefix}
-      s3BucketName={this.props.settings.s3_bucket}
-      s3BucketPrefix={this.props.settings.s3_prefix}
-      src={this.props.src}
-    />);
+    const { src, width, height, className, settings: { cdn_prefix, s3_bucket, s3_prefix } } = this.props;
+
+    return (
+      <ProductImageInner
+        imgixProductsSource={cdn_prefix}
+        s3BucketName={s3_bucket}
+        s3BucketPrefix={s3_prefix}
+        src={src}
+        width={width}
+        height={height}
+        className={className}
+      />
+    );
   }
 }
 

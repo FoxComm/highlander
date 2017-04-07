@@ -97,7 +97,16 @@
   padding: 15px 20px;
 }
 
+.please { /* `Please type more` notification */
+  padding: 15px 20px;
+}
+
 /* @todo refactor Alert component */
 .need-more-characters {
   margin-top: 0;
+}
+
+.preloader {
+  padding-top: 15px;
+  padding-bottom: 15px;
 }
