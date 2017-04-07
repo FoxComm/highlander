@@ -225,12 +225,21 @@ class Pdp extends Component {
     return {
       title: _.get(attributes, 'title.v', ''),
       description: _.get(attributes, 'description.v', ''),
-      shortDescription: _.get(attributes, 'shortDescription.v', ''),
       images: imageUrls,
       currency: _.get(price, 'currency', 'USD'),
       price: _.get(price, 'value', 0),
       skus: this.sortedSkus,
     };
+  }
+
+  get productShortDescription(): ?Element<*> {
+    const shortDescription = _.get(this.props.product, 'attributes.shortDescription.v', '');
+
+    if (shortDescription.length < 1) return;
+
+    return (
+      <h2 styleName="short-description">{shortDescription}</h2>
+    );
   }
 
   isGiftCardRoute(props = this.props) {
@@ -370,9 +379,7 @@ class Pdp extends Component {
         </div>
         <div styleName="row">
           <div styleName="column-left">
-            {this.productView.shortDescription && (
-              <h2 styleName="short-description">{this.productView.shortDescription}</h2>
-            )}
+            {this.productShortDescription}
           </div>
           <div styleName="column-right product-details">
             {this.productDetails}
