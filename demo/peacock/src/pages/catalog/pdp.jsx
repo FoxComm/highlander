@@ -235,7 +235,7 @@ class Pdp extends Component {
   get productShortDescription(): ?Element<*> {
     const shortDescription = _.get(this.props.product, 'attributes.shortDescription.v', '');
 
-    if (shortDescription.length < 1) return;
+    if (shortDescription.length < 1) return null;
 
     return (
       <h2 styleName="short-description">{shortDescription}</h2>
@@ -334,7 +334,7 @@ class Pdp extends Component {
   get relatedProductsList(): ?Element<*> {
     const { relatedProducts, isRelatedProductsLoading } = this.props;
 
-    if (_.isEmpty(relatedProducts) || relatedProducts.total < 1) return;
+    if (_.isEmpty(relatedProducts) || relatedProducts.total < 1) return null;
 
     return (
       <RelatedProductsList
