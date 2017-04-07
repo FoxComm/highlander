@@ -10,6 +10,13 @@
   margin: 2px 5px;
 }
 
+.delimiter-icon {
+  width: 6px;
+  height: 6px;
+  line-height: 0;
+  margin: 0 2px 1px;
+}
+
 .link {
   text-decoration: none;
   color: var(--label-color);
