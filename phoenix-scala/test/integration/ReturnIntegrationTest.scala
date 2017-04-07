@@ -493,7 +493,8 @@ class ReturnIntegrationTest
         }
       }
 
-      "succeeds for more complex scenario" in new ReturnPaymentDefaults {
+      "bulk insert should override any existing payments, whilst single addition endpoint should append payment to existing ones" in
+      new ReturnPaymentDefaults {
         val api = returnsApi(rma.referenceNumber).paymentMethods
 
         api
