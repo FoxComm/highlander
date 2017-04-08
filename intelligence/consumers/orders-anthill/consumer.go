@@ -67,6 +67,7 @@ func (o OrderConsumer) parseData(data string) error {
 	act := Activity{}
 	jsonErr := json.Unmarshal([]byte(data), &act)
 	if jsonErr != nil {
+		log.Fatalf("Activity Parse Error %s", jsonErr.Error())
 		return jsonErr
 	}
 
@@ -86,10 +87,12 @@ func (o OrderConsumer) parseData(data string) error {
 func (o OrderConsumer) track(payload ProdProdPayload) error {
 	body, jsonErr := json.Marshal(payload)
 	if jsonErr != nil {
+		log.Fatalf("Payload marshal error: %s", jsonErr.Error())
 		return jsonErr
 	}
 	apiString, err1 := o.apiUrl()
 	if err1 != nil {
+		log.Fatalf("Api Url Error: %s", err1.Error())
 		return err1
 	}
 	_, err := http.Post(apiString, "application/json", bytes.NewBuffer(body))
@@ -126,7 +129,6 @@ func lookupSrv(host string) func() (string, error) {
 
 		srv := srvs[0]
 
-		host = srv.Target
 		port := strconv.Itoa(int(srv.Port))
 		anthillUrl := "http://" + host + ":" + port + "/prod-prod/train"
 
