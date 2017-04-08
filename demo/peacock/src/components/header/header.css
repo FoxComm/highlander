@@ -11,6 +11,7 @@
   background: var(--body-background);
   border-bottom: 1px solid var(--border-color);
   color: var(--text-color);
+  margin-top: 50px; /*TODO: fix mobile webkit smooth touch*/
 }
 
 .header {
