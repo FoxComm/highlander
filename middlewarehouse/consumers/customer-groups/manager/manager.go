@@ -228,11 +228,12 @@ func (m *GroupsManager) getCustomers(group *responses.CustomerGroupResponse) (ma
 				return nil, err
 			}
 
-			// Dirty hack: email isn't a required field. So, ignore the result if an email isn't returned.
 			email, err := getEsField(hit.Fields, "email")
-			if err == nil {
-				result[int(id.(float64))] = email.(string)
+			if err != nil {
+				email = ""
 			}
+
+			result[int(id.(float64))] = email.(string)
 		}
 
 		from += size
