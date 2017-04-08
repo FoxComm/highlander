@@ -275,6 +275,9 @@ package object db {
 
   def liftFuture[A](future: Future[A]): DBIO[A] = DBIO.from(future)
 
+  def ifElse[A](condition: Boolean, ifBranch: ⇒ DbResultT[A], elseBranch: ⇒ DbResultT[A]) =
+    if (condition) ifBranch else elseBranch
+
   def doOrMeh(condition: Boolean, action: DbResultT[_])(implicit ec: EC): DbResultT[Unit] =
     if (condition) action.meh else DbResultT.unit
 

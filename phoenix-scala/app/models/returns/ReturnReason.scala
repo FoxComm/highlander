@@ -1,11 +1,9 @@
 package models.returns
 
-import java.time.Instant
-
 import com.pellucid.sealerate
+import java.time.Instant
 import models.returns.Return._
 import models.returns.ReturnReason._
-import payloads.ReturnPayloads.ReturnReasonPayload
 import shapeless._
 import slick.ast.BaseTypedType
 import slick.driver.PostgresDriver.api._
@@ -51,6 +49,4 @@ object ReturnReasons
     with ReturningId[ReturnReason, ReturnReasons] {
 
   val returningLens: Lens[ReturnReason, Int] = lens[ReturnReason].id
-
-  def findOneByReasonType(reasonType: ReasonType = BaseReason) = {}
 }

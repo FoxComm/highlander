@@ -32,7 +32,7 @@ trait ReturnsFixtures
 
   trait OrderDefaults extends EmptyCartWithShipAddress_Baked with Reason_Baked {
     val shippingMethod: ShippingMethod =
-      ShippingMethods.create(Factories.shippingMethods.head).gimme
+      ShippingMethods.create(Factories.shippingMethods.last.copy(price = 300)).gimme
 
     val creditCard = {
       val cc = Factories.creditCard
@@ -89,10 +89,12 @@ trait ReturnsFixtures
 
     def createDefaultOrder(paymentMethods: Map[PaymentMethod.Type, Option[Int]] = Map(
                                PaymentMethod.CreditCard → None),
+                           items: List[UpdateLineItemsPayload] = List(
+                               UpdateLineItemsPayload(product.code, 1)),
                            transitionStates: List[Order.State] =
                              List(Order.FulfillmentStarted, Order.Shipped)): OrderResponse = {
       val initial = createOrder(
-          lineItems = List(UpdateLineItemsPayload(sku = product.code, quantity = 1)),
+          lineItems = items,
           paymentMethods = paymentMethods
       )
       val api = ordersApi(initial.referenceNumber)
@@ -145,6 +147,10 @@ trait ReturnsFixtures
     def createReturnLineItem(payload: ReturnLineItemPayload,
                              refNum: String)(implicit sl: SL, sf: SF): ReturnResponse.Root =
       returnsApi(refNum).lineItems.add(payload).as[ReturnResponse.Root]
+
+    def createReturnSkuLineItems(payloads: List[ReturnSkuLineItemPayload],
+                                 refNum: String)(implicit sl: SL, sf: SF): ReturnResponse.Root =
+      returnsApi(refNum).lineItems.addOrReplace(payloads).as[ReturnResponse.Root]
   }
 
   trait ReturnLineItemDefaults
@@ -164,10 +170,17 @@ trait ReturnsFixtures
   }
 
   trait ReturnPaymentFixture extends ReturnLineItemFixture {
-    def createReturnPayment(payments: Map[PaymentMethod.Type, Int],
-                            refNum: String)(implicit sl: SL, sf: SF): ReturnResponse.Root =
+    def createReturnPayments(payments: Map[PaymentMethod.Type, Int],
+                             refNum: String)(implicit sl: SL, sf: SF): ReturnResponse.Root =
       returnsApi(refNum).paymentMethods
-        .add(ReturnPaymentsPayload(payments))
+        .addOrReplace(ReturnPaymentsPayload(payments))
+        .as[ReturnResponse.Root]
+
+    def createReturnPayment(payment: PaymentMethod.Type, amount: Int, refNum: String)(
+        implicit sl: SL,
+        sf: SF): ReturnResponse.Root =
+      returnsApi(refNum).paymentMethods
+        .add(payment, ReturnPaymentPayload(amount))
         .as[ReturnResponse.Root]
 
     val paymentMethodTable = Table("paymentMethod",

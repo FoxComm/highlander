@@ -1,14 +1,13 @@
 package services
 
 import java.time.Instant
-
 import com.github.tminglei.slickpg.LTree
 import models.Assignment._
 import models.Note
 import models.account.User
 import models.activity.{Activities, Activity}
 import models.admin.AdminData
-import models.cord.{Cart, Order, OrderPayment}
+import models.cord.{Cart, Order}
 import models.coupon.{Coupon, CouponCode}
 import models.customer.CustomerGroup
 import models.location.Region
@@ -17,7 +16,7 @@ import models.payment.creditcard.{CreditCard, CreditCardCharge}
 import models.payment.giftcard.GiftCard
 import models.payment.storecredit.StoreCredit
 import models.returns.Return.State
-import models.returns.{Return, ReturnLineItem, ReturnPayment, ReturnReason}
+import models.returns._
 import models.sharedsearch.SharedSearch
 import models.shipping.ShippingMethod
 import payloads.GiftCardPayloads.GiftCardUpdateStateByCsr
@@ -467,12 +466,16 @@ case class LogActivity(implicit ac: AC) {
   def returnSkuLineItemDeleted(lineItem: ReturnLineItem)(implicit ec: EC): DbResultT[Activity] =
     Activities.log(ReturnSkuLineItemDeleted(lineItem))
 
-  def returnPaymentAdded(rma: ReturnResponse.Root, payment: OrderPayment)(
-      implicit ec: EC): DbResultT[Activity] = Activities.log(ReturnPaymentAdded(rma, payment))
-
-  def returnPaymentDeleted(rma: ReturnResponse.Root, paymentMethod: PaymentMethod.Type)(
+  def returnSkuLineItemsDropped(skus: List[ReturnLineItemSku])(
       implicit ec: EC): DbResultT[Activity] =
-    Activities.log(ReturnPaymentDeleted(rma, paymentMethod))
+    Activities.log(ReturnSkuLineItemsDropped(skus))
+
+  def returnPaymentsAdded(rma: ReturnResponse.Root, payments: List[PaymentMethod.Type])(
+      implicit ec: EC): DbResultT[Activity] = Activities.log(ReturnPaymentsAdded(rma, payments))
+
+  def returnPaymentsDeleted(rma: ReturnResponse.Root, payments: List[PaymentMethod.Type])(
+      implicit ec: EC): DbResultT[Activity] =
+    Activities.log(ReturnPaymentsDeleted(rma, payments))
 
   def issueCcRefund(rma: Return, payment: ReturnPayment)(implicit ec: EC): DbResultT[Activity] =
     Activities.log(ReturnIssueCcRefund(rma, payment))
