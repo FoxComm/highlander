@@ -1,9 +1,12 @@
 
+const _ = require('lodash');
 const path = require('path');
 const { fork } = require('child_process');
 
 const libDir = path.resolve(path.join(__dirname, '../lib'));
-process.env.NODE_PATH = `${process.env.NODE_PATH}:${libDir}`;
+process.env.NODE_PATH = _.compact([process.env.NODE_PATH, libDir]).join(':');
+
+require('./env_defaults');
 
 if (!process.env.GA_TRACKING_ID) {
   console.warn(

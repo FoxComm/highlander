@@ -17,6 +17,7 @@ const test = require('./conditional-use');
 const { renderReact } = require('../lib/server');
 
 const isProduction = process.env.NODE_ENV === 'production';
+const projectRoot = path.join(__dirname, '..');
 
 function timestamp() {
   return moment().format('D MMM H:mm:ss');
@@ -44,8 +45,8 @@ class App extends KoaApp {
     this
       // serve all static in dev mode through one middleware,
       // enable the second one to add cache headers to app*.js and app*.css
-      .use(test(mount(serve('public')), ctx => !shouldCacheForLongTime(ctx)))
-      .use(test(mount(serve('public'), { maxage: 31536000 }), shouldCacheForLongTime))
+      .use(test(mount(serve(path.join(projectRoot, 'public'))), ctx => !shouldCacheForLongTime(ctx)))
+      .use(test(mount(serve(path.join(projectRoot, 'public')), { maxage: 31536000 }), shouldCacheForLongTime))
       .use(log4js.koaLogger(log4js.getLogger('http'), { level: 'auto' }))
       .use(makeApiProxy())
       .use(makeElasticProxy())

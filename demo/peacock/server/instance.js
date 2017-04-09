@@ -1,5 +1,4 @@
 
-require('./env_defaults');
 require('../src/postcss.config').installHook();
 
 const App = require('./app');
