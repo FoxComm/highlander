@@ -1,8 +1,10 @@
 const crypto = require('crypto');
 const path = require('path');
 
+const projectRoot = path.resolve(path.join(__dirname, '..'));
+
 function generateLongName(exportedName, filepath) {
-  const sanitisedPath = path.relative(process.cwd(), filepath)
+  const sanitisedPath = path.relative(projectRoot, filepath)
     .replace('src/components', '')
     .replace('lib/components', '')
     .replace(/\.[^\.\/\\]+$/, '')
@@ -47,7 +49,7 @@ exports.installHook = function() {
   const map = require('../build/css-modules.json');
 
   require.extensions['.css'] = function(m, filename) {
-    const relativePath = path.relative(process.cwd(), filename);
+    const relativePath = path.relative(projectRoot, filename);
 
     const tokens = map[relativePath];
     return m._compile(`module.exports = ${JSON.stringify(tokens)}`, filename);

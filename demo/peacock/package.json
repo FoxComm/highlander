@@ -1,5 +1,5 @@
 {
-  "name": "peacock",
+  "name": "@foxcomm/storefront.js",
   "version": "1.0.0",
   "description": "FoxCommerce Demo Storefront",
   "main": "index.js",

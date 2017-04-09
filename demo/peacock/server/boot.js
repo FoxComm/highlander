@@ -1,10 +1,9 @@
 
 const path = require('path');
+const { fork } = require('child_process');
 
-process.env.NODE_PATH = `${process.env.NODE_PATH}:${path.resolve('./lib')}`;
-
-require('../src/postcss.config').installHook();
-require('./env_defaults');
+const libDir = path.resolve(path.join(__dirname, '../lib'));
+process.env.NODE_PATH = `${process.env.NODE_PATH}:${libDir}`;
 
 if (!process.env.GA_TRACKING_ID) {
   console.warn(
@@ -21,9 +20,4 @@ if (process.env.NODE_ENV == 'production' &&
   );
 }
 
-const App = require('./app');
-
-process.title = 'peacock-ui';
-
-const app = new App();
-app.start();
+fork(path.join(__dirname, 'instance.js'));
