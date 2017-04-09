@@ -1,9 +1,7 @@
 
 
 class Storefront {
-  constructor(config) {
-    // TODO: extend process.env by config ?
-  }
+  // TODO: extend process.env by config in constructor ?
 
   start() {
     require('./boot.js');
