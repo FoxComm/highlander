@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const filePath = language => path.join(process.cwd(), `src/i18n/${language}.json`);
+const filePath = language => path.join(__dirname, `../src/i18n/${language}.json`);
 
 function* getTranslation(language, defaultLanguage) {
   const options = {encoding: 'utf8'};
