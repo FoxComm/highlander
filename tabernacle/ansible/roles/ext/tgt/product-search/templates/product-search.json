@@ -8,7 +8,8 @@
   "labels": {
     "LAYER": "backend",
     "LANG": "go",
-    "TAG": "{{docker_tags.product_search}}"
+    "TAG": "{{docker_tags.product_search}}",
+    "consul": "product-search"
   },
   "env": {
     "PHOENIX_URL": "https://{{storefront_server_name}}",

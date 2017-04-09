@@ -1,7 +1,12 @@
 ---
 
 - name: Disable Mesos Consul
-  service: name=mesos_consul state=stopped enabled=no
+  systemd:
+    state: stopped
+    enabled: no
+    daemon_reload: yes
+    name: mesos_consul
+  when: stop_mesos_consul is defined and stop_mesos_consul
 
 - name: Remove "marathon" tag in consul for marathon
   template: src=../../../base/mesos_master/templates/marathon.json dest=/etc/consul.d/marathon.json

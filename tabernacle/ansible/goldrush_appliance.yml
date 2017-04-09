@@ -55,6 +55,7 @@
     # Marathon
     - { role: dev/seed_system }
     - { role: dev/marathon }
+    - { role: hotfix/replace_mesos_consul }
     - { role: base/marathon_consul }
     - { role: dev/marathon_consumers }
     - { role: dev/ic }
@@ -62,7 +63,7 @@
     - { role: ext/tpg/storefront }
     # Nginx
     - { role: dev/balancer }
-    - { role: hotfix/replace_mesos_consul }
+    - { role: hotfix/replace_mesos_consul, stop_mesos_consul: true }
     - { role: demo/balancer }
     # Seed
     - { role: dev/seeder }

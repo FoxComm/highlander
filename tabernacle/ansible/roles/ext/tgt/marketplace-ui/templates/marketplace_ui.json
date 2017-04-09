@@ -8,7 +8,8 @@
   "labels": {
     "LAYER": "frontend",
     "LANG": "js",
-    "TAG": "{{docker_tags.marketplace_ui}}"
+    "TAG": "{{docker_tags.marketplace_ui}}",
+    "consul": "marketplace-ui"
   },
   "env": {
     "API_URL": "https://{{storefront_server_name}}/api/v1/mkt",
