@@ -24,7 +24,7 @@ Current choices for `<step>` are
 - checkout
 
 ### productStats
-Use `GET /api/v1/stats/productStats/<channel>/:id` to get product statistics for specified product and average for all products.
+Use `GET /api/v1/stats/productStats/:channel/:id` to get product statistics for specified product and average for all products.
 additional params:
  - from - start of time range (unix time)
  - to - end of time range (unix time)
