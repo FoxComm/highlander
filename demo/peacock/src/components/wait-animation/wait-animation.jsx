@@ -10,7 +10,7 @@ type Props = {
 };
 
 const WaitAnimation = (props: Props) => {
-  const cls = classNames(s.root, s[`_size_${props.size}`], props.className);
+  const cls = classNames(props.className, s.root, s[`_size_${props.size}`]);
 
   return (
     <div className={cls}>

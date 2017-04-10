@@ -14,6 +14,7 @@ import Typeahead from 'components/typeahead/typeahead';
 import ProductRow from './product-row';
 
 import { toggleActive, forceSearch, searchProducts } from 'modules/search';
+import { toggleContentOverlay } from 'modules/content-overlay';
 
 type SearchProps = Localized & {
   isActive: boolean,
@@ -41,6 +42,12 @@ class Search extends Component {
     isScrolled: false,
   };
 
+  componentWillUpdate(nextProps: SearchProps, nextState: SearchState) {
+    if (nextState.focus != this.state.focus) {
+      toggleContentOverlay();
+    }
+  }
+
   @autobind
   onKeyDown({ keyCode }: any): void {
     if (keyCode === 13) {
@@ -61,14 +68,17 @@ class Search extends Component {
 
   @autobind
   setFocus() {
-    if (this.props.setFocus) {
-      this.props.setFocus(!this.state.focus);
-      this.setState({ focus: !this.state.focus });
-    }
+    this.setState({ focus: !this.state.focus });
   }
+
+  @autobind
+  onToggleVisibility(show: boolean) {
+    console.log('on toggle search');
+    this.props.toggleContentOverlay(show);
+  }
+
   render(): Element<*> {
     const { t, results } = this.props;
-    console.log(this.props);
     const items = _.get(results, 'result', []);
 
     return (
@@ -85,6 +95,7 @@ class Search extends Component {
           name="productsSelect"
           hideOnBlur={true}
           placeholder={t('Search...')}
+          onToggleVisibility={this.onToggleVisibility}
         />
       </div>
     );
@@ -99,4 +110,4 @@ function mapState({ search, asyncActions }: Object, { isActive }: ?Object): Obje
   };
 }
 
-export default connect(mapState, { toggleActive, forceSearch, searchProducts })(localized(Search));
+export default connect(mapState, { toggleContentOverlay, toggleActive, forceSearch, searchProducts })(localized(Search));

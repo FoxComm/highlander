@@ -13,8 +13,8 @@ export default (props) => {
   const { model } = props;
   const imagePath = _.get(model, ['albums', 0, 'images', 0, 'src']);
   const image = imagePath ?
-        <ProductImage src={imagePath} width={50} height={50} /> :
-        <ImagePlaceholder />;
+    <ProductImage src={imagePath} width={50} height={50} /> :
+    <ImagePlaceholder />;
 
   const productSlug = model.slug != null && !_.isEmpty(model.slug) ? model.slug : model.id;
   const link = `/products/${productSlug}`;

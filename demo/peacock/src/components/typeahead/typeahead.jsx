@@ -45,6 +45,7 @@ type Props = {
   autoComplete?: string, // autoComplete attr for default input
   initialValue?: string, // value attr for default input
   view?: string,
+  onToggleVisibility?: Function,
 };
 
 function mergeHandlers(...handlers) {
@@ -193,6 +194,10 @@ export default class Typeahead extends React.Component {
   toggleVisibility(show) {
     this.setState({
       showMenu: show,
+    }, () => {
+      if (this.props.onToggleVisibility) {
+        this.props.onToggleVisibility(show);
+      }
     });
   }
 
