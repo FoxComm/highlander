@@ -16,6 +16,7 @@ type Props = {
   fetch: Function,
   onClick?: ?Function,
   path: string,
+  toggleContentOverlay: Function,
 };
 
 const getState = state => ({...state.categories});

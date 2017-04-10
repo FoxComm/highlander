@@ -42,7 +42,6 @@ class Site extends Component {
   }
 
   render() {
-    console.log(this.props.isContentOverlayVisible);
     const isAuthBlockVisible = this.props.location.query && this.props.location.query.auth;
 
     const childrenWithRoutes = React.Children.map(this.props.children,

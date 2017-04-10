@@ -12,8 +12,8 @@ import LoadingInputWrapper from 'components/forms/loading-input-wrapper';
 import s from './typeahead.css';
 
 type Props = {
-  autoFocus: boolean,
-  className: string,
+  autoFocus?: boolean,
+  className?: string,
   isFetching?: boolean,
 };
 

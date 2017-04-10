@@ -38,7 +38,7 @@ function apiCall(
   selectedFacets: Object,
   loaded: number,
   { ignoreGiftCards = true } = {}): Promise<*> {
-  let payload = defaultSearch(context);
+  let payload = defaultSearch(String(context));
 
   _.forEach(_.compact(categoryNames), (cat) => {
     if (cat !== 'ALL' && cat !== GIFT_CARD_TAG) {

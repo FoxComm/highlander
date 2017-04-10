@@ -33,8 +33,7 @@ const StoreFront = (props: Props) => {
         {childrenWithRoutes}
       </div>
       <Footer />
-      <div className={overlayClass}>
-      </div>
+      <div className={overlayClass} />
     </div>
   );
 };

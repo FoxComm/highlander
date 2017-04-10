@@ -6,10 +6,20 @@ import React from 'react';
 import Currency from 'ui/currency';
 import ProductImage from 'components/image/image';
 import { Link } from 'react-router';
+import ImagePlaceholder from 'components/products-item/image-placeholder';
 
 import styles from './product-row.css';
 
-export default (props) => {
+type Product = {
+  model: {
+    slug: ?string,
+    id: number,
+    title: string,
+    retailPrice: number,
+  },
+};
+
+export default (props: Product) => {
   const { model } = props;
   const imagePath = _.get(model, ['albums', 0, 'images', 0, 'src']);
   const image = imagePath ?

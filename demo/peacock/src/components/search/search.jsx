@@ -73,7 +73,6 @@ class Search extends Component {
 
   @autobind
   onToggleVisibility(show: boolean) {
-    console.log('on toggle search');
     this.props.toggleContentOverlay(show);
   }
 
@@ -93,7 +92,7 @@ class Search extends Component {
           component={ProductRow}
           items={items}
           name="productsSelect"
-          hideOnBlur={true}
+          hideOnBlur
           placeholder={t('Search...')}
           onToggleVisibility={this.onToggleVisibility}
         />
@@ -110,4 +109,7 @@ function mapState({ search, asyncActions }: Object, { isActive }: ?Object): Obje
   };
 }
 
-export default connect(mapState, { toggleContentOverlay, toggleActive, forceSearch, searchProducts })(localized(Search));
+export default connect(
+  mapState,
+  { toggleContentOverlay, toggleActive, forceSearch, searchProducts }
+)(localized(Search));

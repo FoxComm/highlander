@@ -1,7 +1,7 @@
 // @flow
 
 // libs
-import React from 'react';
+import React, { Element, Component } from 'react';
 import classNames from 'classnames';
 import { debounce, autobind } from 'core-decorators';
 import _ from 'lodash';
@@ -24,11 +24,11 @@ type State = {
 };
 
 type Props = {
-  onBlur: ?Function, // blur handler
+  onBlur: Function, // blur handler
   onChange: ?Function, // input keyup/change handler
   onItemSelected: ?Function, // on item click/choose handler
   // fetchItems if passed should return promise for results
-  fetchItems: ?Function, // triggers when text is changed and text is valid
+  fetchItems: Function, // triggers when text is changed and text is valid
   hideOnBlur: boolean,
   isFetching: boolean,
   isAsync: boolean,
@@ -38,12 +38,12 @@ type Props = {
   placeholder?: string, // placeholder attr for default input
   className?: string, // additional cl for root element of Typeahead
   inputClassName?: string, // class for typeahead input
-  component?: Function, // component of one item, props={model: item}
+  component: Function, // component of one item, props={model: item}
   itemsElement?: Element<*>, // custom component for items as a list (not just for one item)
   inputElement?: Element<*>, // custom component for input field, default is `TypeaheadInput`
   minQueryLength: number, // if < then no fetching
   autoComplete?: string, // autoComplete attr for default input
-  initialValue?: string, // value attr for default input
+  initialValue: string, // value attr for default input
   view?: string,
   onToggleVisibility?: Function,
 };
@@ -60,7 +60,15 @@ function mergeEventHandlers(child, newEventHandlers) {
   });
 }
 
-function cloneElement(element, { props, handlers, defaultProps }, children) {
+type CloneProps = {
+  props?: Object,
+  handlers?: Object,
+  defaultProps?: Object,
+};
+
+function cloneElement(element: Element<*>,
+  { props, handlers, defaultProps }: CloneProps,
+  children?: Array<Element<*>>) {
   const newProps = {
     ...defaultProps,
     ...element.props,
@@ -71,7 +79,7 @@ function cloneElement(element, { props, handlers, defaultProps }, children) {
   return React.cloneElement(element, newProps, children);
 }
 
-export default class Typeahead extends React.Component {
+export default class Typeahead extends Component {
 
   props: Props;
 
@@ -94,6 +102,8 @@ export default class Typeahead extends React.Component {
     query: this.props.initialValue,
   };
 
+  _fetchRequest = null;
+
   componentWillReceiveProps(nextProps: Props) {
     if (this.props.isAsync) {
       if (this.props.isFetching && !nextProps.isFetching) {
@@ -109,7 +119,7 @@ export default class Typeahead extends React.Component {
   }
 
   @autobind
-  onItemSelected(item) {
+  onItemSelected(item: Object) {
     let doHide = true;
 
     if (this.props.onItemSelected) {
@@ -134,7 +144,7 @@ export default class Typeahead extends React.Component {
   }
 
   @autobind
-  onBlur(event) {
+  onBlur(event: SyntheticEvent) {
     this.setState({ active: false });
 
     if (this.props.hideOnBlur) {
@@ -153,14 +163,14 @@ export default class Typeahead extends React.Component {
   }
 
   @autobind
-  inputKeyUp({ key }) {
+  inputKeyUp({ key }: { key: string }) {
     if (key === 'Escape') {
       this.toggleVisibility(false);
     }
   }
 
   @debounce(400)
-  fetchItems(value) {
+  fetchItems(value: string) {
     if (value.length < this.props.minQueryLength) {
       return this.toggleAlert(true);
     }
@@ -169,7 +179,7 @@ export default class Typeahead extends React.Component {
   }
 
   @autobind
-  textChange({ target }) {
+  textChange({ target }: { target: { value: string }}) {
     const value = target.value;
 
     this.setState({
@@ -191,7 +201,7 @@ export default class Typeahead extends React.Component {
     this.fetchItems(value);
   }
 
-  toggleVisibility(show) {
+  toggleVisibility(show: boolean) {
     this.setState({
       showMenu: show,
     }, () => {
@@ -201,7 +211,7 @@ export default class Typeahead extends React.Component {
     });
   }
 
-  toggleAlert(show) {
+  toggleAlert(show: boolean) {
     this.setState({
       showAlert: show,
     });
@@ -250,7 +260,7 @@ export default class Typeahead extends React.Component {
       name: this.props.name,
       placeholder: this.props.placeholder,
       autoComplete: this.props.autoComplete,
-      className: inputClassName ? inputClassName : s.input,
+      className: inputClassName || s.input,
       isFetching,
     };
 
