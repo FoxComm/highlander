@@ -23,6 +23,7 @@ export const LoadingBehaviors = {
 type Props = {
   loadingBehavior?: 0|1,
   list: ?Array<Object>,
+  productsOrder: ?Array<number>,
   isLoading: ?boolean,
   title: string,
 };
@@ -39,13 +40,21 @@ class RelatedProductsList extends Component {
   _willUnmount: boolean = false;
 
   renderProducts() {
-    return _.map(this.props.list, (item, index) => {
+    const { list, productsOrder } = this.props;
+
+    let sortedProductsList = [];
+    _.forEach(productsOrder, function(productId) {
+      sortedProductsList = _.concat(sortedProductsList, _.find(list, { productId }));
+    });
+
+    const avoidKeyCollision = 9999;
+    return _.map(sortedProductsList, (item, index) => {
       return (
         <RelatedListItem
           {...item}
           index={index}
-          key={`product-${item.id}`}
-          ref={`product-${item.id}`}
+          key={`product-${_.get(item, 'id', _.random(avoidKeyCollision))}`}
+          ref={`product-${_.get(item, 'id', _.random(avoidKeyCollision))}`}
         />
       );
     });
@@ -93,6 +102,10 @@ class RelatedProductsList extends Component {
     const items = list && list.length > 0
       ? this.renderProducts()
       : false;
+
+    if (items === false) {
+      return false;
+    }
 
     return (
       <div styleName="list-wrapper">
