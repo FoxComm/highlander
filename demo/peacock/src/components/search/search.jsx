@@ -24,7 +24,7 @@ type SearchProps = Localized & {
   onSearch?: Function,
   isScrolled: boolean,
   setFocus: ?Function,
-  onItemSelected?: Function,
+  onItemSelected?: () => void,
 };
 
 type SearchState = {
@@ -50,7 +50,7 @@ class Search extends Component {
   }
 
   @autobind
-  onKeyDown({ keyCode }: any): void {
+  onKeyDown({ keyCode }: { keyCode: number }): void {
     if (keyCode === 13) {
       this.search();
       this.refs.input.blur();
@@ -63,7 +63,7 @@ class Search extends Component {
   }
 
   @autobind
-  onChange({ target }: any): void {
+  onChange({ target }: { target: { value: string }}): void {
     this.setState({ term: target.value });
   }
 
