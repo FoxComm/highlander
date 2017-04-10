@@ -47,7 +47,7 @@ resource "google_compute_firewall" "sinopia" {
 resource "google_compute_instance" "sinopia" {
   name         = "${var.datacenter}-sinopia"
   machine_type = "${var.instance_type}"
-  tags         = ["ssh", "no-ip", "${var.network}-sinopia"]
+  tags         = ["ssh", "${var.network}-sinopia", "http-server", "https-server"]
   zone         = "us-central1-a"
 
   disk {
