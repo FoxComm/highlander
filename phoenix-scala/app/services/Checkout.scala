@@ -369,8 +369,8 @@ case class Checkout(
       } yield (op, ap)).one.dbresult.flatMap {
         case Some((pmt, ap)) ⇒
           for {
-            stripeCharge ← * <~ apis.stripe.authorizeAmount(ap.gatewayCustomerId,
-                                                            ap.gatewayTokenId,
+            stripeCharge ← * <~ apis.stripe.authorizeAmount(ap.stripeCustomerId,
+                                                            ap.stripeTokenId,
                                                             authAmount,
                                                             cart.currency)
             ourCharge = ApplePayCharges.authFromStripe(ap, pmt, stripeCharge, cart.currency)

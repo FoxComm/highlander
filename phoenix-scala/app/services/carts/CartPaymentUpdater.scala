@@ -197,8 +197,8 @@ object CartPaymentUpdater {
       //    create apple charge
       applePayment ← * <~ ApplePayments.create(
                         ApplePayment(accountId = originator.id,
-                                     gatewayTokenId = payload.token,
-                                     gatewayCustomerId = payload.gatewayCustomerId))
+                                     stripeTokenId = payload.stripeToken,
+                                     stripeCustomerId = payload.stripeCustomerId))
 
       _ ← * <~ OrderPayments.create(
              OrderPayment(cordRef = cart.refNum,
@@ -211,7 +211,4 @@ object CartPaymentUpdater {
       resp  ← * <~ CartResponse.buildRefreshed(cart)
     } yield TheResponse.validated(resp, valid)
 
-  def deleteApplePayCharge(model: User) = ??? // todo implement
-
-  def getApplePayCharge = ??? // todo implement
 }

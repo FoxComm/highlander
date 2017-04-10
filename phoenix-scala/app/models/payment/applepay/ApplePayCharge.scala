@@ -15,9 +15,8 @@ import utils.aliases.stripe.StripeCharge
 import utils.db._
 
 case class ApplePayCharge(id: Int = 0,
-                          gatewayCustomerId: String,
                           orderPaymentId: Int,
-                          chargeId: String,
+                          stripeChargeId: String,
                           state: ApplePayCharge.State = ApplePayCharge.Cart,
                           currency: Currency = Currency.USD,
                           amount: Int = 0,
@@ -45,26 +44,17 @@ object ApplePayCharge {
 }
 
 class ApplePayCharges(tag: Tag) extends FoxTable[ApplePayCharge](tag, "apple_pay_charges") {
-  def id                = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def stripeCustomerId = column[String]("stripe_customer_id")
-  def orderPaymentId    = column[Int]("order_payment_id")
-  def chargeId          = column[String]("charge_id")
-  def state             = column[ApplePayCharge.State]("state")
-  def currency          = column[Currency]("currency")
-  def amount            = column[Int]("amount")
-  def deletedAt         = column[Option[Instant]]("deleted_at")
-  def createdAt         = column[Instant]("created_at")
+  def id             = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def orderPaymentId = column[Int]("order_payment_id")
+  def stripeChargeId = column[String]("stripe_charge_id")
+  def state          = column[ApplePayCharge.State]("state")
+  def currency       = column[Currency]("currency")
+  def amount         = column[Int]("amount")
+  def deletedAt      = column[Option[Instant]]("deleted_at")
+  def createdAt      = column[Instant]("created_at")
 
   def * =
-    (id,
-     stripeCustomerId,
-     orderPaymentId,
-     chargeId,
-     state,
-     currency,
-     amount,
-     deletedAt,
-     createdAt) <> ((ApplePayCharge.apply _).tupled, ApplePayCharge.unapply)
+    (id, orderPaymentId, stripeChargeId, state, currency, amount, deletedAt, createdAt) <> ((ApplePayCharge.apply _).tupled, ApplePayCharge.unapply)
 }
 
 object ApplePayCharges
@@ -77,8 +67,7 @@ object ApplePayCharges
                      stripeCharge: StripeCharge,
                      currency: Currency) =
     ApplePayCharge(orderPaymentId = pmt.id,
-                   chargeId = stripeCharge.getId,
-                   stripeCustomerId = stripeCharge.getCustomer,
+                   stripeChargeId = stripeCharge.getId,
                    state = Auth,
                    currency = currency,
                    amount = stripeCharge.getAmount.toInt)
