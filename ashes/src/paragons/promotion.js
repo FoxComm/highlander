@@ -35,9 +35,9 @@ export function createEmptyPromotion() {
       storefrontName: {
         t: 'richText',
         v: 'Storefront name'
-      }
+      },
+      customerGroupIds: null,
     },
-    customerGroupIds: null,
     discounts: [],
   };
 
