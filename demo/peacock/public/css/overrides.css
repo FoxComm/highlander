@@ -5,7 +5,7 @@ div#app {
   padding-top: 50px;
 }
 
-@supports (position: sticky) {
+@supports (position: sticky) or (position: -webkit-sticky)  {
   div#app {
     padding-top: 0;
   }

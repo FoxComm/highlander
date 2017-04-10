@@ -23,7 +23,7 @@
   padding: 0;
 }
 
-@supports (position: sticky) {
+@supports (position: sticky) or (position: -webkit-sticky) {
   .header-wrap {
     position: sticky;
   }
