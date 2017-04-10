@@ -4,3 +4,9 @@ div#app {
   height: 100vh;
   padding-top: 50px;
 }
+
+@supports (position: sticky) {
+  div#app {
+    padding-top: 0;
+  }
+}

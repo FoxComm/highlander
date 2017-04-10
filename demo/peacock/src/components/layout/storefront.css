@@ -12,7 +12,6 @@
 .content-container {
   flex: 1 1 auto;
   z-index: 0;
-  margin-top: 50px; /*TODO: fix mobile webkit smooth touch*/
 }
 
 .categories {
