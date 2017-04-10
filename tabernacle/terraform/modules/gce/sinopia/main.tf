@@ -23,31 +23,12 @@ variable "instance_type" {
 }
 
 ##############################################
-# Firewall Rule
-##############################################
-resource "google_compute_firewall" "sinopia" {
-  name    = "${var.network}-sinopia"
-  network = "${var.network}"
-
-  allow {
-    protocol = "icmp"
-  }
-
-  allow {
-    protocol = "tcp"
-    ports    = ["4873"]
-  }
-
-  source_ranges = ["0.0.0.0/0"]
-}
-
-##############################################
 # VM Instance
 ##############################################
 resource "google_compute_instance" "sinopia" {
   name         = "${var.datacenter}-sinopia"
   machine_type = "${var.instance_type}"
-  tags         = ["ssh", "${var.network}-sinopia", "http-server", "https-server"]
+  tags         = ["ssh", "sinopia", "http-server", "https-server"]
   zone         = "us-central1-a"
 
   disk {
