@@ -24,6 +24,7 @@ type SearchProps = Localized & {
   onSearch?: Function,
   isScrolled: boolean,
   setFocus: ?Function,
+  onItemSelected?: Function,
 };
 
 type SearchState = {
@@ -95,6 +96,7 @@ class Search extends Component {
           hideOnBlur
           placeholder={t('Search...')}
           onToggleVisibility={this.onToggleVisibility}
+          onItemSelected={this.props.onItemSelected}
         />
       </div>
     );

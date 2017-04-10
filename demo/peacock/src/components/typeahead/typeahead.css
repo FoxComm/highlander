@@ -1,4 +1,5 @@
 @import "colors.css";
+@import "media-queries";
 
 .block {
   position: relative;
@@ -100,4 +101,20 @@
 /* @todo refactor Alert component */
 .need-more-characters {
   margin-top: 0;
+}
+
+@media (--small-only), (--medium-only) {
+  .list {
+    width: 100%;
+    margin: 0;
+  }
+
+  .items {
+    height: 80vh;
+    max-height: none;
+  }
+
+  .list._modal .item {
+    width: 100%;
+  }
 }
