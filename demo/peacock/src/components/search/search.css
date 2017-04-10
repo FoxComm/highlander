@@ -3,7 +3,6 @@
 
 .search {
   position: relative;
-  display: none;
 }
 
 @media (--large){
