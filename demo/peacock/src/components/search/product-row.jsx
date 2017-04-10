@@ -10,7 +10,6 @@ import { Link } from 'react-router';
 import styles from './product-row.css';
 
 export default (props) => {
-  console.log(props);
   const { model } = props;
   const imagePath = _.get(model, ['albums', 0, 'images', 0, 'src']);
   const image = imagePath ?

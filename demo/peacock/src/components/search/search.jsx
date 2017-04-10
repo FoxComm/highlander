@@ -77,14 +77,13 @@ class Search extends Component {
           className={styles['search-typeahead']}
           inputClassName={styles['search-input']}
           view="products"
-          isFetching={_.get(this.props.suggestState, 'inProgress', false)}
+          isFetching={_.get(this.props.searchState, 'inProgress', false)}
           fetchItems={this.props.searchProducts}
           minQueryLength={3}
           component={ProductRow}
           items={items}
           name="productsSelect"
-          hideOnBlur={false}
-          onItemSelected={this.handleSelectItem}
+          hideOnBlur={true}
           placeholder={t('Search...')}
         />
       </div>
@@ -92,9 +91,10 @@ class Search extends Component {
   }
 }
 
-function mapState({ search }: Object, { isActive }: ?Object): Object {
+function mapState({ search, asyncActions }: Object, { isActive }: ?Object): Object {
   return {
     ...search,
+    searchState: _.get(asyncActions, 'search', {}),
     isActive: isActive || search.isActive,
   };
 }
