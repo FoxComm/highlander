@@ -127,6 +127,16 @@ export default class ObjectFormInner extends Component {
   }
 
   @autobind
+  handleDeleteProperty(name) {
+    const newAttributes = _.omit(this.props.attributes, name);
+
+    this.props.onChange(newAttributes);
+    this.setState({
+      isAddingProperty: false
+    });
+  }
+
+  @autobind
   handleChange(name: string, type: string, value: any) {
     const { attributes } = this.props;
     const newAttributes = {
