@@ -58,6 +58,8 @@ resource "google_compute_instance" "sinopia" {
 
   network_interface {
     network = "${var.network}"
+
+    access_config {}
   }
 
   connection {
@@ -80,7 +82,7 @@ resource "google_compute_instance" "sinopia" {
 resource "dnsimple_record" "sinopia-dns-record" {
   domain = "${var.domain}"
   name   = "${var.subdomain}"
-  value  = "${google_compute_instance.sinopia.network_interface.0.address}"
+  value  = "${google_compute_instance.sinopia.network_interface.0.access_config.0.assigned_nat_ip}"
   type   = "A"
   ttl    = 3600
 }
