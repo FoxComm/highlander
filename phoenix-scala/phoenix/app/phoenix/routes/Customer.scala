@@ -241,19 +241,9 @@ object Customer {
               }
             } ~
             pathPrefix("payment-methods" / "apple-pay") {
-              (get & pathEnd) {
-                getOrFailures {
-                  CartPaymentUpdater.getApplePayCharge
-                }
-              } ~
               (post & pathEnd & entity(as[CreateApplePayPayment])) { payload ⇒
                 mutateOrFailures {
                   CartPaymentUpdater.addApplePayCharge(auth.model, payload)
-                }
-              } ~
-              (delete & pathEnd) {
-                mutateOrFailures {
-                  CartPaymentUpdater.deleteApplePayCharge(auth.model)
                 }
               }
             } ~

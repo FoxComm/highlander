@@ -1,27 +1,27 @@
+create domain stripe_id_string text not null constraint valid_stripe_token check (length(value) > 0);
 
 create table apple_payments(
   id integer primary key,
   account_id integer null references accounts(id) on update restrict on delete restrict,
-  stripe_token_id text,
-  stripe_customer_id text,
+  stripe_token_id stripe_id_string,
+  stripe_customer_id stripe_id_string,
   deleted_at generic_timestamp,
-  created_at generic_timestamp,
+  created_at generic_timestamp not null,
   foreign key (id) references payment_methods(id) on update restrict on delete restrict
 );
 
-create domain ap_payment_state text constraint valid_ap_payment_state check (
+create domain applepay_payment_state text constraint valid_applepay_payment_state check (
   value in ('cart','auth','failedAuth','canceledAuth','failedCapture', 'fullCapture'));
 
 create table apple_pay_charges(
   id serial primary key,
-  stripe_customer_id text,
   order_payment_id int null references order_payments(id) on update restrict on delete restrict,
-  charge_id text,
-  state ap_payment_state,
+  stripe_charge_id stripe_id_string,
+  state applepay_payment_state,
   currency currency,
   amount int,
   deleted_at generic_timestamp,
-  created_at generic_timestamp
+  created_at generic_timestamp not null
 );
 
 create trigger set_payment_method_id_trg

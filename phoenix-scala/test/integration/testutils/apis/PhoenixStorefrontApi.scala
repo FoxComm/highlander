@@ -46,8 +46,8 @@ trait PhoenixStorefrontApi extends HttpSupport { self: FoxSuite ⇒
       val path = s"$paymentPath/apple-pay"
 
       def create(p: CreateApplePayPayment): HttpResponse = POST(path, p)
-      def get(): HttpResponse                          = GET(path)
-      def delete(): HttpResponse                       = DELETE(path)
+      def get(): HttpResponse                            = GET(path)
+      def delete(): HttpResponse                         = DELETE(path)
     }
 
     object creditCards {

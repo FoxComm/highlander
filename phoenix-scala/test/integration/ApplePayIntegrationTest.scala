@@ -32,8 +32,8 @@ class ApplePayIntegrationTest
 
       // test with cc token cause we can't create Apple Pay token, they act virtually the same tho
       private val payment = CreateApplePayPayment(
-          token = card.getId,
-          gatewayCustomerId = realStripeCustomerId,
+          stripeToken = card.getId,
+          stripeCustomerId = realStripeCustomerId,
           cartRef = refNum
       )
 
@@ -45,10 +45,10 @@ class ApplePayIntegrationTest
         .totals
         .total
 
-      cartsApi(refNum).checkout().as[OrderResponse].lineItems.skus.onlyElement must have(
-          'sku (otherSku.code),
-          'quantity (2)
-      )
+      private val skuInCart =
+        cartsApi(refNum).checkout().as[OrderResponse].lineItems.skus.onlyElement
+      skuInCart.sku must === (otherSku.code)
+      skuInCart.quantity must === (2)
 
     }
   }

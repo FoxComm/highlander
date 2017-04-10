@@ -218,13 +218,13 @@ class StripeTest extends IntegrationTestBase with RealStripeApi {
       import scala.collection.JavaConversions._
 
       "Stripe API should be able to provide allowed domains for Apple Pay" in {
-        val map = Map[String, AnyRef]("domain_name" → "stage-tpg.foxcommerce.com")
-        ApplePayDomain.create(mapAsJavaMap(map))
+        val domains = Map[String, AnyRef]("domain_name" → "stage-tpg.foxcommerce.com")
+        ApplePayDomain.create(mapAsJavaMap(domains))
       }
 
       "Random token should fail" in {
-        val gimme = stripe.retrieveToken("random").gimmeFailures
-        gimme.head.description must === ("No such token: random")
+        val randomToken = stripe.retrieveToken("random").gimmeFailures
+        randomToken.head.description must === ("No such token: random")
       }
 
       "Retrieve token and make sure it's valid" in {

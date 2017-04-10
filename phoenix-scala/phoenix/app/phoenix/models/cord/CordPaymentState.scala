@@ -41,7 +41,7 @@ object CordPaymentState {
     }
   }
 
-  def fromApState(apState: ApplePayCharge.State): State = {
+  def fromApplePayState(apState: ApplePayCharge.State): State = {
     apState match {
       case ApplePayCharge.Cart       ⇒ Cart
       case ApplePayCharge.Auth       ⇒ Auth
