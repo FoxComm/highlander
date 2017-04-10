@@ -1,6 +1,6 @@
 /* @flow */
 
-import React, { Component } from 'react';
+import React, { Component, Element } from 'react';
 
 // libs
 import _ from 'lodash';
@@ -56,6 +56,16 @@ class UserTools extends Component {
     );
   }
 
+  get cart(): ?Element<*> {
+    if (this.props.quantity === 0) return null;
+
+    return (
+      <div styleName="cart-quantity-wrapper">
+        <sup styleName="cart-quantity">{this.props.quantity}</sup>
+      </div>
+    );
+  }
+
   render() {
     return (
       <div styleName="tools">
@@ -67,9 +77,7 @@ class UserTools extends Component {
           title="My Cart"
           styleName="action-link-cart"
         >
-          <div styleName="cart-quantity-wrapper">
-            <sup styleName="cart-quantity">{this.props.quantity}</sup>
-          </div>
+          {this.cart}
         </ActionLink>
       </div>
     );
