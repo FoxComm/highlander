@@ -1,3 +1,7 @@
+
+require('../src/postcss.config').installHook();
+process.title = process.env.STOREFRONT_NAME || 'fox-storefront';
+
 const KoaApp = require('koa');
 const { makeApiProxy } = require('./routes/api');
 const { makeElasticProxy } = require('./routes/elastic');
@@ -80,3 +84,8 @@ class App extends KoaApp {
 }
 
 module.exports = App;
+
+if (require.main === module) {
+  const app = new App();
+  app.start();
+}

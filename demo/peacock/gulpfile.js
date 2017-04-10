@@ -13,6 +13,8 @@ const rev = require('gulp-rev');
 const revdel = require('gulp-rev-delete-original');
 const del = require('del');
 
+require('./server/setup_env');
+
 for (const task of fs.readdirSync('./tasks')) {
   const file = path.join('./tasks', task);
   const taskModule = require(path.resolve(file));

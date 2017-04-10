@@ -3,6 +3,7 @@
 const { spawn } = require('child_process');
 const watch = require('glob-watcher');
 const path = require('path');
+const fs = require('mz/fs');
 
 function runScript(name, cb = () => {}) {
   let child = spawn('yarn',
@@ -37,6 +38,7 @@ module.exports = function (gulp) {
   const babel = require('gulp-babel');
   const changed = require('gulp-changed');
   const through = require('through2');
+  const read = require('gulp-read');
 
   gulp.task('precompile.static', function () {
     return gulp.src(statics)
@@ -53,12 +55,16 @@ module.exports = function (gulp) {
   };
 
   gulp.task('precompile.source', function () {
-    return gulp.src('src/**/*.{jsx,js}')
+    const targetCwd = process.env.TARGET_CWD;
+
+    return gulp.src('src/**/*.{jsx,js}', {read: false})
       .pipe(changed('lib', {extension: '.js'}))
       .pipe(through.obj((file, enc, cb) => {
+        const willBeAlt = targetCwd ? fs.exists()
         logSrcToLib(file.path);
         cb(null, file);
       }))
+      .pipe(read())
       .pipe(babel())
       .pipe(gulp.dest('lib'));
   });
