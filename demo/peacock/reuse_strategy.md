@@ -31,9 +31,9 @@ For sustaining the modularity, the app must have:
 
 ## Reusability Mechanism
 
-To start off, let's look at the component's lifecycle.
+To start off, let's look at the module's lifecycle.
 
-Component:
+Module:
 
 1. Gets the data from API and processes it
 2. Renders the data
