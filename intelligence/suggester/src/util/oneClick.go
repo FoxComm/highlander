@@ -10,14 +10,19 @@ import (
 	"github.com/FoxComm/highlander/middlewarehouse/shared"
 )
 
-type OneClickProduct struct {
-	SKU      string `json:"sku"`
-	Quantity int    `json:"quantitiy"`
+type OneClickProducts struct {
+	Items []OneClickProduct `json:"items"`
 }
 
-func makePostRequestPayload(productSKU string) []OneClickProduct {
+type OneClickProduct struct {
+	SKU      string `json:"sku"`
+	Quantity int    `json:"quantity"`
+}
+
+func makePostRequestPayload(productSKU string) OneClickProducts {
 	oneClickProduct := OneClickProduct{SKU: productSKU, Quantity: 1}
-	return []OneClickProduct{oneClickProduct}
+	oneClickProducts := OneClickProducts{Items: []OneClickProduct{oneClickProduct}}
+	return oneClickProducts
 }
 
 func OneClickPurchase(customerID string, productSKU string) (string, error) {
