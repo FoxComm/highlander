@@ -228,10 +228,12 @@ class StripeTest extends RealStripeApis {
         ApplePayDomain.create(mapAsJavaMap(map))
       }
 
-      "Retrieve token and make sure it's valid" in {
+      "Random token should fail" in {
         val gimme = stripe.retrieveToken("random").gimmeFailures
         gimme.head.description must === ("No such token: random")
+      }
 
+      "Retrieve token and make sure it's valid" in {
         val token: Token = createToken(cardNumber = successfulCard,
                                        cvv = 123,
                                        expYear = okExpYear,

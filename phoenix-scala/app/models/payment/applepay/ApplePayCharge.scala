@@ -36,10 +36,6 @@ object ApplePayCharge {
   case object FailedCapture extends State
   case object FullCapture   extends State
 
-  // utilize this objects for response
-//  case object STATUS_SUCCESS extends State
-//  case object STATUS_FAILURE extends State
-
   object State extends ADT[State] {
     def types = sealerate.values[State]
   }
@@ -50,7 +46,7 @@ object ApplePayCharge {
 
 class ApplePayCharges(tag: Tag) extends FoxTable[ApplePayCharge](tag, "apple_pay_charges") {
   def id                = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def gatewayCustomerId = column[String]("gateway_customer_id")
+  def stripeCustomerId = column[String]("stripe_customer_id")
   def orderPaymentId    = column[Int]("order_payment_id")
   def chargeId          = column[String]("charge_id")
   def state             = column[ApplePayCharge.State]("state")
@@ -61,7 +57,7 @@ class ApplePayCharges(tag: Tag) extends FoxTable[ApplePayCharge](tag, "apple_pay
 
   def * =
     (id,
-     gatewayCustomerId,
+     stripeCustomerId,
      orderPaymentId,
      chargeId,
      state,
@@ -82,7 +78,7 @@ object ApplePayCharges
                      currency: Currency) =
     ApplePayCharge(orderPaymentId = pmt.id,
                    chargeId = stripeCharge.getId,
-                   gatewayCustomerId = stripeCharge.getCustomer,
+                   stripeCustomerId = stripeCharge.getCustomer,
                    state = Auth,
                    currency = currency,
                    amount = stripeCharge.getAmount.toInt)

@@ -37,7 +37,7 @@ class ApplePayIntegrationTest
           cartRef = refNum
       )
 
-      storefrontPaymentsApi.applePay.post(payment).mustBeOk()
+      storefrontPaymentsApi.applePay.create(payment).mustBeOk()
 
       val grandTotal = cartsApi(refNum).shippingMethod
         .update(UpdateShippingMethod(shipMethod.id))
