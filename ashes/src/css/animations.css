@@ -1,6 +1,6 @@
 
 .loading {
-  background-image: url(/admin/images/caramel.png);
+  background-image: url(../../public/admin/images/caramel.png);
   animation: caramel .5s linear infinite;
 }
 

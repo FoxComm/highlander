@@ -1,4 +1,3 @@
-
 const crypto = require('crypto');
 const path = require('path');
 
@@ -7,12 +6,14 @@ function generateLongName(exportedName, filepath) {
   const sanitisedPath = path.relative(process.cwd(), filepath)
     .replace('src/components', '')
     .replace('lib/components', '')
+    .replace('src/css', '')
     .replace(/\.[^\.\/\\]+$/, '')
     .replace(/^[\.\/\\]+/, '')
-    .replace(/^_|_$/g, '')
     .replace(/\//g, '⁄'); // http://www.fileformat.info/info/unicode/char/2044/browsertest.htm
 
-  return `${sanitisedPath}__${exportedName}`;
+  const sanitisedName = exportedName.replace(/^_+|_+$/g, '');
+
+  return `${sanitisedPath}__${sanitisedName}`;
 }
 
 function generateShortName(name, filename, css) {
@@ -47,10 +48,10 @@ const plugins = [
   }),
 ];
 
-exports.installHook = function() {
+exports.installHook = function () {
   const map = require('../build/css-modules.json');
 
-  require.extensions['.css'] = function(m, filename) {
+  require.extensions['.css'] = function (m, filename) {
     const relativePath = path.relative(process.cwd(), filename);
 
     const tokens = map[relativePath];

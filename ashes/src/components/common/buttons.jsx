@@ -1,107 +1,71 @@
+/* @flow */
+
 // libs
-import React, { PropTypes } from 'react';
 import classNames from 'classnames';
+import React, { Element } from 'react';
 
 // styles
 import s from './buttons.css';
 
-const Button = (props = {}) => {
-  const { icon, inline, docked, children, isLoading, ...restProps } = props;
+type Props = {
+  className?: string,
+  icon?: string,
+  isLoading?: boolean,
+  children: Element<*>,
+}
+
+export const Button = (props: Props = {}) => {
+  const { icon, children, isLoading, ...restProps } = props;
   const className = classNames(
-    'fc-btn',
-    s.block,
-    {
-      '_docked-left': docked === 'left',
-      '_docked-right': docked === 'right',
-      '_loading': isLoading,
-    },
-    props.className,
+    s.button,
+    { [s.loading]: isLoading },
+    props.className
   );
 
-  const content = children != null ? <span className={s.text}>{children}</span> : children;
+  const content = children ? <span className={s.text}>{children}</span> : null;
 
   return (
     <button {...restProps} className={className}>
-      {icon && <i className={`icon-${icon}`}/>}
+      {icon && <i className={`icon-${icon}`} />}
       {content}
     </button>
   );
 };
 
-Button.propTypes = {
-  className: PropTypes.string,
-  docked: PropTypes.oneOf([
-    'left',
-    'right',
-  ]),
-  icon: PropTypes.string,
-  children: PropTypes.node,
-  isLoading: PropTypes.bool,
-  inline: PropTypes.bool,
-};
-
-Button.defaultProps = {
-  inline: false,
-};
-
-const LeftButton = props => {
-  return <Button icon='chevron-left' {...props} />;
-};
-
-const RightButton = props => {
-  return <Button icon='chevron-right' {...props} />;
-};
-
-const DecrementButton = props => {
-  return <Button icon='chevron-down' {...props} />;
-};
-
-const IncrementButton = props => {
-  return <Button icon='chevron-up' {...props} />;
-};
-
-const DeleteButton = (props = {}) => {
-  return <Button icon='trash' {...props} className={ classNames('fc-btn-remove', props.className) } />;
-};
-
-DeleteButton.propTypes = {
-  className: PropTypes.string,
-};
-
-const EditButton = props => {
-  return <Button icon='edit' {...props} />;
-};
-
-const AddButton = props => {
-  return <Button icon='add' {...props} />;
-};
-
-const CloseButton = props => {
-  return <Button icon='close' {...props} />;
-};
-
-const PrimaryButton = (props = {}) => {
+export const PrimaryButton = ({ className, ...rest }: Props) => {
   return (
-    <Button {...props} className={ classNames('fc-btn-primary', props.className) }>
-      {props.children}
-    </Button>
+    <Button {...rest} className={classNames(s.primary, className)} />
   );
 };
 
-PrimaryButton.propTypes = {
-  children: PropTypes.node,
-  className: PropTypes.string,
+export const LeftButton = (props: Props) => {
+  return <Button icon='chevron-left' {...props} />;
 };
 
-export {
-  Button,
-  LeftButton,
-  RightButton,
-  DecrementButton,
-  IncrementButton,
-  DeleteButton,
-  EditButton,
-  AddButton,
-  CloseButton,
-  PrimaryButton,
+export const RightButton = (props: Props) => {
+  return <Button icon='chevron-right' {...props} />;
+};
+
+export const DecrementButton = (props: Props) => {
+  return <Button icon='chevron-down' {...props} />;
+};
+
+export const IncrementButton = (props: Props) => {
+  return <Button icon='chevron-up' {...props} />;
+};
+
+export const AddButton = (props: Props) => {
+  return <Button icon='add' {...props} />;
+};
+
+export const EditButton = (props: Props) => {
+  return <Button icon='edit' {...props} />;
+};
+
+export const DeleteButton = ({ className, ...rest }: Props) => {
+  return <Button icon='trash' {...rest} className={classNames(s.delete, className)} />;
+};
+
+export const CloseButton = ({ className, ...rest }: Props) => {
+  return <Button icon='close' {...rest} className={classNames(s.close, className)} />;
 };
