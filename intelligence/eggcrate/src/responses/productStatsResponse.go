@@ -17,3 +17,8 @@ type ProductStatsResponse struct {
 	Average               *AverageProductStatsResponse
 	ActiveProducts        int
 }
+
+type ProductStatsResponseWithTime struct {
+	Time  int64
+	Stats ProductStatsResponse
+}
