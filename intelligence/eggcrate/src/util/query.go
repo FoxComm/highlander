@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/FoxComm/highlander/intelligence/eggcrate/src/responses"
-	"log"
 	"net/http"
 	"os"
 )
@@ -67,7 +66,6 @@ func HenhouseValuesQuery(keys []string, payload []byte) (map[string]responses.Va
 	}
 
 	queryUrl := url + ":" + port + "/values?keys=" + key + "&xy&sum"
-	log.Printf("query HH: %s", queryUrl)
 	resp, reqErr := http.Post(queryUrl, "application/json", bytes.NewReader(payload))
 	if reqErr != nil {
 		return nil, reqErr

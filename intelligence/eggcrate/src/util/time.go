@@ -2,7 +2,6 @@ package util
 
 import (
 	"fmt"
-	"log"
 	"time"
 )
 
@@ -51,8 +50,7 @@ func (d days) NextTime(source time.Time) time.Time {
 	return source.AddDate(d.months, d.years, d.days)
 }
 
-func SliceRangeUnix(f Frequency, from time.Time, to time.Time) []int64 {
-	log.Printf("Slice for %d - %d with frequecy %v", from.Unix(), to.Unix(), f)
+func SliceRangeToUnixTime(f Frequency, from time.Time, to time.Time) []int64 {
 	slice := make([]int64, 0)
 
 	var currentTime *time.Time = &from
@@ -61,6 +59,5 @@ func SliceRangeUnix(f Frequency, from time.Time, to time.Time) []int64 {
 		next := f.NextTime(*currentTime)
 		currentTime = &next
 	}
-	slice = append(slice, currentTime.Unix())
-	return slice
+	return append(slice, currentTime.Unix())
 }

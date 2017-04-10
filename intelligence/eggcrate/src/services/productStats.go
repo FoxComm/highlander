@@ -8,7 +8,6 @@ import (
 	"github.com/FoxComm/highlander/intelligence/eggcrate/src/util"
 
 	"github.com/labstack/echo"
-	"log"
 	"strconv"
 	"time"
 )
@@ -43,7 +42,6 @@ func productStatKeys(id string, channel string) []string {
 }
 
 func frequencyToTimeSlices(a, b, frequency string) ([]int64, error) {
-	log.Printf("frequency:%s", frequency)
 	var unixFrom = int64(0)
 	var err error = nil
 	if a != "" {
@@ -67,10 +65,7 @@ func frequencyToTimeSlices(a, b, frequency string) ([]int64, error) {
 		if err != nil {
 			return nil, err
 		}
-
-		from := time.Unix(unixFrom, 0)
-		to := time.Unix(unixTo, 0)
-		return util.SliceRangeUnix(freq, from, to), nil
+		return util.SliceRangeToUnixTime(freq, time.Unix(unixFrom, 0), time.Unix(unixTo, 0)), nil
 	}
 }
 
@@ -99,17 +94,17 @@ func henhouseProductStatsWithFrequency(id, channel, a, b string, frequency strin
 	activeProducts := responses.GetSum("product.activated", activeResponse)
 
 	responseData := readHenhouseValues(valuesResponse, channel, id, activeProducts)
-	result := make([]responses.ProductStatsResponseWithTime, len(responseData))
+	result := make([]responses.ProductStatsResponseWithTime, len(responseData), len(responseData))
 
 	for i, item := range responseData {
 		result[i] = buildResponseItem(item)
 	}
 
-	if frequency != "" {
-		out, err := json.Marshal(&result)
+	if frequency == "" {
+		out, err := json.Marshal(&result[0].Stats)
 		return string(out), err
 	} else {
-		out, err := json.Marshal(&result[0].Stats)
+		out, err := json.Marshal(&result)
 		return string(out), err
 	}
 }
@@ -137,6 +132,7 @@ func readHenhouseValues(values map[string]responses.ValuePairs, channel string, 
 
 	var length *int = nil
 
+	//find min length of values among all keys.
 	for _, v := range values {
 		if length == nil {
 			var l = len(v)
