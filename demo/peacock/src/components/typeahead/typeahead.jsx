@@ -26,9 +26,9 @@ type State = {
 type Props = {
   onBlur: Function, // blur handler
   onChange: ?Function, // input keyup/change handler
-  onItemSelected: ?Function, // on item click/choose handler
+  onItemSelected: ?() => void, // on item click/choose handler
   // fetchItems if passed should return promise for results
-  fetchItems: Function, // triggers when text is changed and text is valid
+  fetchItems: () => void, // triggers when text is changed and text is valid
   hideOnBlur: boolean,
   isFetching: boolean,
   isAsync: boolean,
@@ -38,14 +38,14 @@ type Props = {
   placeholder?: string, // placeholder attr for default input
   className?: string, // additional cl for root element of Typeahead
   inputClassName?: string, // class for typeahead input
-  component: Function, // component of one item, props={model: item}
+  component: () => void, // component of one item, props={model: item}
   itemsElement?: Element<*>, // custom component for items as a list (not just for one item)
   inputElement?: Element<*>, // custom component for input field, default is `TypeaheadInput`
   minQueryLength: number, // if < then no fetching
   autoComplete?: string, // autoComplete attr for default input
   initialValue: string, // value attr for default input
   view?: string,
-  onToggleVisibility?: Function,
+  onToggleVisibility?: () => void,
 };
 
 function mergeHandlers(...handlers) {
