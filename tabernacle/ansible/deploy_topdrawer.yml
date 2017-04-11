@@ -1,0 +1,12 @@
+---
+
+- name: Deploy TopDrawer Storefront
+  hosts: localhost
+  connection: local
+  vars:
+    user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
+    git_branch: "{{ lookup('env', 'GIT_BRANCH') }}"
+    docker_tag: "{{ lookup('env', 'DOCKER_TAG') }}"
+    docker_repo: "{{ lookup('env', 'DOCKER_REPO') }}"
+  roles:
+    - { role: prod/topdrawer }

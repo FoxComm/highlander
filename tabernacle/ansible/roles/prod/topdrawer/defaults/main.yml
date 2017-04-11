@@ -1,0 +1,4 @@
+checkout_path: /tmp/topdrawer
+docker_repo: td-docker.foxcommerce.com:5000
+docker_tag: pavel-test
+git_repository: git@github.com:FoxComm/top-drawer.git
