@@ -166,8 +166,13 @@ object ReturnPaymentManager {
                                   paymentMethodType = PaymentMethod.CreditCard))
     } yield ccRefund
 
-  private def addApplePayment(returnId: Int, payment: OrderPayment, amount: Int) =
-    ??? // TODO implement @aafa
+  private def addApplePayment(returnId: Int, payment: OrderPayment, amount: Int)(implicit ec: EC,
+                                                                                 db: DB,
+                                                                                 au: AU) =
+    DbResultT.pure(
+        ReturnPayment(paymentMethodId = payment.id,
+                      amount = amount,
+                      paymentMethodType = PaymentMethod.ApplePay)) // TODO implement AP returns @aafa
 
   private def addGiftCard(returnId: Int,
                           payment: OrderPayment,
@@ -295,7 +300,8 @@ object ReturnPaymentManager {
     } yield somethingWasActuallyDeleted
   }
 
-  def deleteApPayment(returnId: Int): DbResultT[Boolean] = ??? // TODO implement
+  def deleteApPayment(returnId: Int)(implicit ec: EC): DbResultT[Boolean] =
+    DbResultT.pure(true) // TODO implement AP returns @aafa
 
   def issueRefunds(
       rma: Return)(implicit ec: EC, db: DB, au: AU, ac: AC, apis: Apis): DbResultT[Unit] = {
