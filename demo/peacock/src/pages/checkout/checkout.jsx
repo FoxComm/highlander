@@ -31,7 +31,8 @@ import type { CheckoutActions } from './types';
 import type { AsyncStatus } from 'types/async-actions';
 
 // actions
-import * as actions from 'modules/checkout';
+import  * as actions from 'modules/checkout';
+import { checkApplePay } from 'modules/checkout';
 import { EditStages } from 'modules/checkout';
 import { fetch as fetchCart, hideCart } from 'modules/cart';
 import { fetchUser } from 'modules/auth';
@@ -181,6 +182,16 @@ class Checkout extends Component {
     return emailIsSet(user);
   }
 
+  get applePayButton() {
+    if (!checkApplePay()) return null;
+
+    return (
+      <Button
+        styleName="apple-pay"
+      />
+    );
+  }
+
   get orderTotals() {
     const { cart } = this.props;
     const { billingDone, shippingDone, deliveryDone } = this.state;
@@ -204,6 +215,7 @@ class Checkout extends Component {
           >
             Place order
           </Button>
+          {this.applePayButton}
         </div>
       </div>
     );
