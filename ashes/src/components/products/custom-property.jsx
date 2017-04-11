@@ -26,11 +26,17 @@ const propertyTypes = {
 type Props = {
   onSave: (state: State) => void,
   onCancel: () => void,
+  property: {
+    name: string,
+    type: string,
+    value: string | number,
+  }
 };
 
 type State = {
   fieldLabel: string,
   propertyType: string,
+  fieldValue: string | number,
 };
 
 class CustomProperty extends Component<void, Props, State> {

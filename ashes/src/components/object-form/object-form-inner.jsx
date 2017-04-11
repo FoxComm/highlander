@@ -38,7 +38,11 @@ type Props = {
 
 type State = {
   isAddingProperty: boolean,
+  isEditingProperty: boolean,
   errors: {[id:string]: any},
+  name: string,
+  type: string,
+  value: string | number
 };
 
 type AttrOptions = {
@@ -87,7 +91,10 @@ export default class ObjectFormInner extends Component {
   state: State = {
     isAddingProperty: false,
     isEditingProperty: false,
-    errors: {}
+    errors: {},
+    name: '',
+    type: '',
+    value: '',
   };
 
   get addCustomProperty() {
@@ -154,7 +161,7 @@ export default class ObjectFormInner extends Component {
   }
 
   @autobind
-  handleEditProperty(property: { fieldLabel: string, propertyType: string, fieldValue: string }) {
+  handleEditProperty(property: { fieldLabel: string, propertyType: string, fieldValue: string | number }) {
     const { attributes } = this.props;
     const { name } = this.state;
     const { fieldLabel, propertyType, fieldValue } = property;
@@ -177,13 +184,13 @@ export default class ObjectFormInner extends Component {
   }
 
   @autobind
-  handleDeleteProperty(name) {
+  handleDeleteProperty(name: string) {
     const newAttributes = _.omit(this.props.attributes, name);
     this.setState({ isAddingProperty: false }, this.props.onChange(newAttributes));
   }
 
   @autobind
-  onEdit(name, type, value) {
+  onEdit(name: string, type: string, value: string | number) {
     this.setState({
       isEditingProperty: true,
       name,
@@ -369,7 +376,7 @@ export default class ObjectFormInner extends Component {
     return renderFormField(name, textInput, options);
   }
 
-  renderColor(name: string, value: string = '', options: AttrOptions) {
+  renderColor(name: string, value: any, options: AttrOptions) {
     const onChange = v => this.handleChange(name, 'color', v);
     const colorSwatch = (
       <div>
@@ -384,7 +391,7 @@ export default class ObjectFormInner extends Component {
     return renderFormField(name, colorSwatch, options);
   }
 
-  controlButtons(name, type, value, options) {
+  controlButtons(name: string, type: string, value: any, options: AttrOptions) {
     if (options.required) { return null; }
 
     const reservedNames = ['description', 'metatitle', 'metadescription'];
