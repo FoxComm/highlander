@@ -1,5 +1,6 @@
 import React from 'react';
 import { storiesOf, action } from '@kadira/storybook';
+import { WithNotes } from '@kadira/storybook-addon-notes';
 import {
   Button,
   LeftButton,
@@ -13,22 +14,11 @@ import {
   PrimaryButton,
 } from './index';
 
-import '!style!css!../../../css/app.css';
-
-const style = {
-  position: 'absolute',
-  top: '50%',
-  transform: 'translateY(-50%)',
-  width: '100%',
-  textAlign: 'center',
-};
-
 storiesOf('core.Button', module)
-  .addDecorator((story) => (
-    <div style={style}>{story()}</div>
-  ))
   .add('General Button', () => (
-    <Button onClick={action('clicked')}>General</Button>
+    <WithNotes notes={'We can add some notes to the story from the code'}>
+      <Button onClick={action('clicked')}>General</Button>
+    </WithNotes>
   ))
   .add('Empty Button', () => (
     <Button onClick={action('clicked')} />
