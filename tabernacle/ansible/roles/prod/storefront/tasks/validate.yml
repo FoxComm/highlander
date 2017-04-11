@@ -3,12 +3,13 @@
 - name: Debug Parameters
   debug:
     msg:
+        - "Step Build: {{step_build}}"
+        - "Step Deploy: {{step_deploy}}"
         - "Git Repository: {{git_repo}}"
         - "Git Branch: {{git_tag}}"
         - "Docker Registry: {{docker_registry}}"
         - "Docker Tag: {{docker_tag}}"
         - "Marathon App Name: {{marathon_app_name}}"
-        - "Marathon Deploy: {{marathon_deploy}}"
         - "Marathon IP: {{marathon_ip}}"
         - "Marathon Template Path: {{app_template_path}}"
 
