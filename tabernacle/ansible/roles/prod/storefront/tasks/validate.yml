@@ -13,17 +13,17 @@
         - "Marathon Template Path: {{app_template_path}}"
 
 - name: Fail Fast
-  fail: msg="ENV_API_URL not set"
+  fail: msg="API_URL not set"
   when: storefront_server_name == ""
 
 - name: Fail Fast
-  fail: msg="ENV_CONTACT_EMAIL not set"
+  fail: msg="CONTACT_EMAIL not set"
   when: contact_email == ""
 
 - name: Fail Fast
-  fail: msg="ENV_STRIPE_PUBLISHABLE_KEY not set"
+  fail: msg="STRIPE_PUBLISHABLE_KEY not set"
   when: stripe_publishable_key == ""
 
 - name: Fail Fast
-  fail: msg="ENV_MAILCHIMP_API_KEY not set"
+  fail: msg="MAILCHIMP_API_KEY not set"
   when: mailchimp_api_key == ""

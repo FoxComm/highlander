@@ -11,6 +11,7 @@
 - include: validate.yml
 
 - include: build.yml
+  when: step_build
 
 - include: deploy.yml
-  when: marathon_deploy
+  when: step_deploy

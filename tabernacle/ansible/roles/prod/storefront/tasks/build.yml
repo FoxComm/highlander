@@ -30,7 +30,7 @@
 - name: Push Application to Registry
   shell: "make docker-push"
   environment:
-    DOCKER_REPO: "{{docker_repo}}"
+    DOCKER_REPO: "{{docker_registry}}"
     DOCKER_TAG: "{{docker_tag}}"
   args:
     chdir: "{{checkout_path}}"
