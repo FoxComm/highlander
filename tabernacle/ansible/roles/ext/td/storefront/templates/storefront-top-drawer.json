@@ -8,8 +8,7 @@
   "labels": {
     "LAYER": "frontend",
     "LANG": "js",
-    "TAG": "{{docker_tags.storefront_td}}",
-    "DATETIME": "{{ansible_date_time.iso8601_micro}}"
+    "TAG": "{{docker_tags.storefront_td}}"
   },
   "env": {
     "API_URL": "https://{{storefront_server_name}}",
