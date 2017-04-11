@@ -10,7 +10,6 @@ import scala.reflect._
 import scala.util.{Failure, Success, Try}
 import shapeless._
 
-/*_*/
 sealed trait Environment {
   def isProd: Boolean = false
 }
@@ -128,6 +127,7 @@ object FoxConfig extends StrictLogging {
     ConfigFactory.systemProperties.withFallback(envConfig.withFallback(ConfigFactory.load()))
   }
 
+  /*_*/ // <- disable IDEA linting for the following fragment
   val app: Lens[FoxConfig, App] = lens[FoxConfig].app
 
   val auth: Lens[FoxConfig, Auth] = lens[FoxConfig].auth
@@ -148,6 +148,7 @@ object FoxConfig extends StrictLogging {
   val customer: Lens[Users, User]          = lens[Users].customer
   val admin: Lens[Users, User]             = lens[Users].admin
   val googleOauth: Lens[User, GoogleOauth] = lens[User].oauth.google
+  /*_*/
 
   def loadConfigWithEnv()(implicit env: Environment): Try[(FoxConfig, Config)] =
     for {
