@@ -151,34 +151,30 @@ export default class Notes extends React.Component {
   render() {
     const props = this.props;
     const cls = classNames('fc-notes', this.sectionClassName);
-    const jsxBody = <div>
-      <LiveSearchAdapter
-        searches={props.list}
-        searchActions={props.searchActions}
-        singleSearch={true}
-        placeholder="keyword search"
-        >
-        <TableView
-          emptyMessage="No notes found."
-          data={props.list.currentSearch().results}
-          renderRow={this.renderNoteRow}
-          columns={this.tableColumns}
-          processRows={this.injectAddingForm}
-        />
-      </LiveSearchAdapter>
-      <ConfirmationDialog
-        {...Notes.deleteOptions}
-        isVisible={this.props.noteIdToDelete != null}
-        confirmAction={() => this.props.deleteNote(this.props.noteIdToDelete)}
-        onCancel={() => this.props.stopDeletingNote(this.props.noteIdToDelete)}
-      />
-    </div>;
-    const body = props.isFetching ? <WaitAnimation/> : jsxBody;
-
     return (
       <div className={cls} >
         <SectionTitle className="fc-grid-gutter fc-notes-section-title" title="Notes">{this.controls}</SectionTitle>
-        {body}
+        <LiveSearchAdapter
+          searches={props.list}
+          searchActions={props.searchActions}
+          singleSearch={true}
+          placeholder="keyword search"
+          >
+          <TableView
+            isLoading={props.isFetching}
+            emptyMessage="No notes found."
+            data={props.list.currentSearch().results}
+            renderRow={this.renderNoteRow}
+            columns={this.tableColumns}
+            processRows={this.injectAddingForm}
+          />
+        </LiveSearchAdapter>
+        <ConfirmationDialog
+          {...Notes.deleteOptions}
+          isVisible={this.props.noteIdToDelete != null}
+          confirmAction={() => this.props.deleteNote(this.props.noteIdToDelete)}
+          onCancel={() => this.props.stopDeletingNote(this.props.noteIdToDelete)}
+          />
       </div>
     );
   }
