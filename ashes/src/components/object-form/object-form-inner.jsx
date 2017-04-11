@@ -119,6 +119,7 @@ export default class ObjectFormInner extends Component {
       const property = {
         name: this.state.name,
         type: this.state.type,
+        value: this.state.value
       };
 
       return (
@@ -153,17 +154,17 @@ export default class ObjectFormInner extends Component {
   }
 
   @autobind
-  handleEditProperty(property: { fieldLabel: string, propertyType: string }) {
+  handleEditProperty(property: { fieldLabel: string, propertyType: string, fieldValue: string }) {
     const { attributes } = this.props;
-    const { name, value } = this.state;
-    const { fieldLabel, propertyType } = property;
+    const { name } = this.state;
+    const { fieldLabel, propertyType, fieldValue } = property;
 
     const preparedObject = _.omit(attributes, name);
     const newAttributes = {
       ...preparedObject,
       [fieldLabel]: {
         t: propertyType,
-        v: value,
+        v: fieldValue,
       }
     };
 

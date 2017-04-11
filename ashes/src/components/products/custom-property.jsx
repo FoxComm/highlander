@@ -42,6 +42,7 @@ class CustomProperty extends Component<void, Props, State> {
     this.state = {
       fieldLabel: '',
       propertyType: '',
+      fieldValue: '',
     };
   }
 
@@ -55,7 +56,8 @@ class CustomProperty extends Component<void, Props, State> {
       this.setState({
         fieldLabel: this.props.property.name,
         propertyType: this.props.property.type,
-      })
+        fieldValue: this.props.property.value,
+      });
     }
   }
 
@@ -78,7 +80,10 @@ class CustomProperty extends Component<void, Props, State> {
 
   @autobind
   handleUpdateType(value) {
-    this.setState({ propertyType: value });
+    this.setState({
+      propertyType: value,
+      fieldValue: ''
+    });
   }
 
   @autobind
