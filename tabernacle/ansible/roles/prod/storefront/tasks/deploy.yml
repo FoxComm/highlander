@@ -4,7 +4,7 @@
   template: src={{app_template_path}} dest=/tmp
 
 - name: Update Application in Marathon
-  shell: 'curl -sS -XPUT -d@/tmp/{{marathon_template_file}}.json -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/{{marathon_app_name}}'
+  shell: 'curl -sS -XPUT -d@/tmp/{{marathon_template_file}} -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/{{marathon_app_name}}'
 
 - name: Restart Application in Marathon
   shell: 'curl -sS -XPOST http://{{marathon_server}}/v2/apps/{{marathon_app_name}}/restart'
@@ -15,6 +15,3 @@
   until: healthy_tasks_available.stdout == 'true'
   retries: "{{marathon_retries}}"
   delay: "{{marathon_delay}}"
-
-- name: Cleanup
-  file: path=/tmp/{{marathon_app_name}}.json state=absent
