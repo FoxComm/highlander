@@ -21,7 +21,7 @@ const _suggestSkus = createAsyncActions(
     let filters = [
       options.context ? dsl.termFilter('context', options.context) : void 0,
       options.omitArchived ? dsl.existsFilter('archivedAt', 'missing') : void 0,
-    ]
+    ];
     let titleMatch = [];
     if (options.useTitle) {
       titleMatch = [dsl.matchQuery('title', {
