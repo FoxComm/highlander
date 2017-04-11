@@ -7,7 +7,7 @@
   shell: 'curl -sS -XPUT -d@/tmp/{{marathon_template_file}} -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/{{marathon_app_name}}'
 
 - name: Restart Application in Marathon
-  shell: 'curl -sS -XPOST http://{{marathon_server}}/v2/apps/{{marathon_app_name}}/restart'
+  shell: 'curl -sS -XPOST http://{{marathon_server}}/v2/apps/{{marathon_app_name}}/restart?force=true'
 
 - name: Get Application Marathon tasks in `healthy` state
   shell: curl -sS -XGET http://{{marathon_server}}/v2/apps/{{marathon_app_name}} | jq '.app.tasksHealthy > 0'
