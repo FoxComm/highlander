@@ -22,7 +22,8 @@
   "labels": {
     "LAYER": "frontend",
     "LANG": "js",
-    "TAG": "{{docker_tags.storefront_tpg}}"
+    "TAG": "{{docker_tags.storefront_tpg}}",
+    "consul": "{{app_name}}"
   },
   "healthChecks": [
     {

@@ -8,7 +8,8 @@
   "labels": {
     "LAYER": "backend",
     "LANG": "python",
-    "TAG": "{{docker_tags.anthill}}"
+    "TAG": "{{docker_tags.anthill}}",
+    "consul": "anthill"
   },
   "container": {
     "type": "DOCKER",

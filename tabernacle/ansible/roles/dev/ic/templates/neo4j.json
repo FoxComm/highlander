@@ -7,7 +7,7 @@
   "instances": 1,
   "labels": {
     "LAYER": "backend",
-    "TAG": "{{docker_tags.neo4j}}"
+    "consul": "neo4j"
   },
   "container": {
     "type": "DOCKER",

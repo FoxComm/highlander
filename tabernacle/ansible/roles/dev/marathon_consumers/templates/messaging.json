@@ -8,7 +8,8 @@
   "labels": {
     "LAYER": "consumer",
     "LANG": "clojure",
-    "TAG": "{{docker_tags.messaging}}"
+    "TAG": "{{docker_tags.messaging}}",
+    "consul": "messaging"
   },
   "container": {
     "type": "DOCKER",

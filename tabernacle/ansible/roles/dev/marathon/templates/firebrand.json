@@ -8,6 +8,7 @@
   "labels": {
     "LAYER": "frontend",
     "LANG": "js",
+    "consul": "firebrand",
     "TAG": "{{docker_tags.firebrand}}"
   },
   "env": {
