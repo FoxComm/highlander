@@ -12,3 +12,4 @@ The projects are detailed below.
 | [eggcrate](eggcrate)                           | Service to provide nice semantic interface providing statistics on top of henhouse.                                       |
 | [user-simulation](user-simulation)             | Simulates users with various biases and personas.                                                                         |
 | [henhouse](https://github.com/FoxComm/henhouse)| Timeseries DB which stores counts for events collected from the consumers.                                                |
+| [suggester](suggester)                         | Service which accepts a customer ID and returns suggessted products for potential upsell.                                 |

@@ -2,10 +2,15 @@ from math import sqrt
 import numpy as np
 from scipy.sparse import csr_matrix
 
-class PPRecommend(object):
+class Prod_Prod(object):
+    """Prod_Prod
+    a recommender based on products which have been purchased
+    by the same customers
+    """
     def __init__(self):
         self.events = set()
         self.up_to_date = False
+        self.mat = csr_matrix(np.zeros(1))
 
     def add_point(self, cust_id, prod_id):
         """add_point
@@ -40,9 +45,14 @@ class PPRecommend(object):
         return len([prod for (_, prod) in self.events if prod == prod_id])
 
     def is_empty(self):
+        """is_empty
+        """
         return len(self.events) == 0
 
     def product_ids(self):
+        """prod_ids
+        returns a list of product ids which have been purchased
+        """
         return [prod_id for (_, prod_id) in self.events]
 
     def coords(self):
@@ -54,19 +64,23 @@ class PPRecommend(object):
             [prod_id for (_, prod_id) in self.events]
         )
 
-    def recommend(self, prod_id):
+    def recommend(self, prod_ids, excludes=[]):
         """recommend
         returns a list of (prod_id, similarityScore)
         sorted in descending order.
             worst = 0 <= similarityScore <= 1 = best
         """
-        if ~(self.up_to_date):
+        if not self.up_to_date:
             self.make_matrix()
 
-        v = self.mat[:, prod_id].toarray()
-        inds = np.argsort(v.T[0])[::-1]
-        out = {'products': [{'id': np.asscalar(x), 'score': np.asscalar(y)}
-                            for (x, y) in zip(inds, v[inds].T[0])
-                            if x != int(prod_id)]}
+        scores = self.mat[:, prod_ids].toarray().mean(1)
+        inds = np.argsort(scores)[::-1]
+        products = [
+            {'id': np.asscalar(x), 'score': np.asscalar(y)}
+            for (x, y) in zip(inds, scores[inds])
+            if x not in prod_ids
+            if x not in excludes
+            if y > 0
+        ]
 
-        return out
+        return {'products': products}
