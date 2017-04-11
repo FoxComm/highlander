@@ -1,0 +1,28 @@
+.block {
+  display: flex;
+}
+
+.item {
+  flex: 1 1 100%;
+  text-align: center;
+  color: #363636;
+  border: 1px solid #9ba3a7;
+  margin-right: 10px;
+
+  &:last-child {
+    margin-right: 0;
+  }
+}
+
+.header {
+  padding: 25px 0 0;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.content {
+  font-weight: 600;
+  font-size: 22px;
+  margin: 22px 10px;
+  word-break: break-word;
+}
