@@ -14,7 +14,7 @@
     docker_registry: "{{ lookup('env', 'DOCKER_REPO') | default('td-docker.foxcommerce.com:5000', true) }}"
     docker_tag: "{{ lookup('env', 'DOCKER_TAG') | default('dummy', true) }}"
     marathon_ip: "{{ lookup('env', 'MARATHON_IP') | default('10.0.0.19', true) }}"
-    marathon_template_path: "{{ lookup('env', 'MARATHON_TEMPLATE_PATH') | default('ext/td/storefront/template/storefront-top-drawer.json', true) }}"
+    marathon_template_path: "{{ lookup('env', 'MARATHON_TEMPLATE_PATH') | default('ext/td/storefront/templates/storefront-top-drawer.json', true) }}"
     # Environment variables for Docker container
     storefront_server_name: "{{ lookup('env', 'API_URL') }}"
     contact_email: "{{ lookup('env', 'CONTACT_EMAIL') }}"
