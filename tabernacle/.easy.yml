@@ -121,8 +121,8 @@ shortcuts:
 
   # Deploy
   - name: Deploy TopDrawer Storefront
-    alias: deploy_topdrawer.yml
-    target: ansible/deploy_topdrawer.yml
+    alias: deploy_storefront.yml
+    target: ansible/deploy_storefront.yml
 
 # Packer shortcuts
 - type: snowflake

@@ -1,0 +1,33 @@
+---
+
+- name: Debug Parameters
+  debug:
+    msg:
+        - "Git Repository: {{git_repo}}"
+        - "Git Branch: {{git_tag}}"
+        - "Docker Registry: {{docker_registry}}"
+        - "Docker Tag: {{docker_tag}}"
+        - "Marathon App Name: {{marathon_app_name}}"
+        - "Marathon Deploy: {{marathon_deploy}}"
+        - "Marathon IP: {{marathon_ip}}"
+        - "Marathon Template Path: {{app_template_path}}"
+
+- name: Fail Fast
+  fail: msg="ENV_API_URL not set"
+  when: storefront_server_name == ""
+
+- name: Fail Fast
+  fail: msg="ENV_CONTACT_EMAIL not set"
+  when: contact_email == ""
+
+- name: Fail Fast
+  fail: msg="ENV_STRIPE_PUBLISHABLE_KEY not set"
+  when: stripe_publishable_key == ""
+
+- name: Fail Fast
+  fail: msg="ENV_MAILCHIMP_API_KEY not set"
+  when: mailchimp_api_key == ""
+
+- name: Fail Fast
+  fail: msg="ENV_GA_TRACKING_ID not set"
+  when: ga_tracking_id == ""
