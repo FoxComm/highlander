@@ -7,7 +7,6 @@
   background: var(--body-background);
   border-bottom: 1px solid var(--border-color);
   color: var(--text-color);
-  overflow: hidden;
 }
 
 .header {
