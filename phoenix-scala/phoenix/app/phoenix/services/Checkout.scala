@@ -320,11 +320,11 @@ case class Checkout(
                        LogActivity().gcFundsAuthorized(customer, cart, gcCodes, gcTotal))
 
       // auth for Apple Pay payment
-      apPaymentsCharge ← * <~ authApplePay(cart.grandTotal, gcTotal + scTotal)
+      applePmtCharge ← * <~ authApplePay(cart.grandTotal, gcTotal + scTotal)
 
       // Authorize funds on credit card
       ccs ← * <~ authCreditCard(cart.grandTotal,
-                                gcTotal + scTotal + apPaymentsCharge.fold(0)(_.amount))
+                                gcTotal + scTotal + applePmtCharge.fold(0)(_.amount))
       mutatingResult = externalCalls.authPaymentsSuccess = true
     } yield {}
 
@@ -361,7 +361,7 @@ case class Checkout(
 
     val authAmount = orderTotal - internalPaymentTotal
 
-    if (authAmount > 0) {
+    if (authAmount > 0) { // todo move this check to the call site with doIf
       (for {
         op ← OrderPayments.findAllApplePayChargeByCordRef(cart.refNum)
         ap ← op.applePayment

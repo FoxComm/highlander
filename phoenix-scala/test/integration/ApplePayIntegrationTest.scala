@@ -1,37 +1,59 @@
-import failures.ShippingMethodFailures.ShippingMethodNotFoundByName
-import models.Reasons
-import models.inventory._
-import models.product.Mvp
+import cats.implicits._
+import faker.Lorem
+import models.location.Region
 import models.shipping._
+import payloads.AddressPayloads.CreateAddressPayload
+import payloads.CartPayloads.CreateCart
+import payloads.CustomerPayloads.CreateCustomerPayload
 import payloads.LineItemPayloads._
 import payloads.PaymentPayloads.CreateApplePayPayment
 import payloads.UpdateShippingMethod
+import responses.CustomerResponse
 import responses.cord._
 import services.StripeTest
-import slick.driver.PostgresDriver.api._
 import testutils._
 import testutils.apis.PhoenixStorefrontApi
-import testutils.fixtures.BakedFixtures
-import testutils.fixtures.api.ApiFixtureHelpers
-import utils.db._
-import utils.seeds.Factories
+import testutils.fixtures.api._
+import utils.MockedApis
+import utils.seeds.{Factories, ShipmentSeeds}
 
 class ApplePayIntegrationTest
     extends StripeTest
     with PhoenixStorefrontApi
-    with ApiFixtureHelpers
-    with AutomaticAuth
-    with BakedFixtures {
+    with ApiFixtures
+    with MockedApis
+    with AutomaticAuth {
 
   "POST v1/my/payment-methods/apple-pay" - {
-    "Apple pay checkout with funds authorized" in new EmptyCartWithShipAddress_Baked with Fixture {
+    "Apple pay checkout with funds authorized" in new ProductSku_ApiFixture with ShipmentSeeds {
+      val customer = customersApi
+        .create(CreateCustomerPayload(email = "test@bar.com"))
+        .as[CustomerResponse.Root]
+
+      val cart   = cartsApi.create(CreateCart(email = customer.email)).as[CartResponse]
       val refNum = cart.referenceNumber
 
-      private val lineItemsPayloads = List(UpdateLineItemsPayload(otherSku.code, 2))
+      // we don't have shipping method API creation as of PR #910
+      val shippingMethod: ShippingMethod = ShippingMethods
+        .create(
+            Factories.shippingMethods.head.copy(conditions = lowConditions.some,
+                                                adminDisplayName =
+                                                  ShippingMethod.expressShippingNameForAdmin))
+        .gimme
+
+      val randomAddress = CreateAddressPayload(regionId = Region.californiaId,
+                                               name = Lorem.letterify("???"),
+                                               address1 = Lorem.letterify("???"),
+                                               city = Lorem.letterify("???"),
+                                               zip = Lorem.numerify("#####"))
+
+      cartsApi(refNum).shippingAddress.create(randomAddress).mustBeOk()
+
+      val lineItemsPayloads = List(UpdateLineItemsPayload(skuCode, 2))
       cartsApi(refNum).lineItems.add(lineItemsPayloads).mustBeOk()
 
       // test with cc token cause we can't create Apple Pay token, they act virtually the same tho
-      private val payment = CreateApplePayPayment(
+      val payment = CreateApplePayPayment(
           stripeToken = card.getId,
           stripeCustomerId = realStripeCustomerId,
           cartRef = refNum
@@ -40,35 +62,16 @@ class ApplePayIntegrationTest
       storefrontPaymentsApi.applePay.create(payment).mustBeOk()
 
       val grandTotal = cartsApi(refNum).shippingMethod
-        .update(UpdateShippingMethod(shipMethod.id))
+        .update(UpdateShippingMethod(shippingMethod.id))
         .asTheResult[CartResponse]
         .totals
         .total
 
-      private val skuInCart =
-        cartsApi(refNum).checkout().as[OrderResponse].lineItems.skus.onlyElement
-      skuInCart.sku must === (otherSku.code)
+      val skuInCart = cartsApi(refNum).checkout().as[OrderResponse].lineItems.skus.onlyElement
+      skuInCart.sku must === (skuCode)
       skuInCart.quantity must === (2)
 
     }
-  }
-
-  trait Fixture extends StoreAdmin_Seed with CustomerAddress_Baked {
-    val (shipMethod, product, sku, reason) = (for {
-      _ ← * <~ Factories.shippingMethods.map(ShippingMethods.create)
-      shipMethodName = ShippingMethod.expressShippingNameForAdmin
-      shipMethod ← * <~ ShippingMethods
-                    .filter(_.adminDisplayName === shipMethodName)
-                    .mustFindOneOr(ShippingMethodNotFoundByName(shipMethodName))
-      product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.head)
-      sku     ← * <~ Skus.mustFindById404(product.skuId)
-      reason  ← * <~ Reasons.create(Factories.reason(storeAdmin.accountId))
-    } yield (shipMethod, product, sku, reason)).gimme
-
-    val otherSku = (for {
-      product ← * <~ Mvp.insertProduct(ctx.id, Factories.products.tail.head)
-      sku     ← * <~ Skus.mustFindById404(product.skuId)
-    } yield sku).gimme
   }
 
 }

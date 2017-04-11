@@ -186,7 +186,7 @@ object CartPaymentUpdater {
       _           ← * <~ LogActivity().orderPaymentMethodDeletedGc(originator, deleteRes, giftCard)
     } yield TheResponse.validated(deleteRes, validated)
 
-  def addApplePayCharge(originator: User, payload: CreateApplePayPayment)(
+  def addApplePayPayment(originator: User, payload: CreateApplePayPayment)(
       implicit ec: EC,
       db: DB,
       ac: AC,
@@ -198,7 +198,7 @@ object CartPaymentUpdater {
 
       //    create apple charge
       applePayment ← * <~ ApplePayments.create(
-                        ApplePayment(accountId = originator.id,
+                        ApplePayment(accountId = originator.accountId,
                                      stripeTokenId = payload.stripeToken,
                                      stripeCustomerId = payload.stripeCustomerId))
 
