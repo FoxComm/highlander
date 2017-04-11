@@ -1,3 +1,5 @@
+import 'babel-polyfill';
+
 import get from 'lodash/get';
 import React from 'react';
 import { render } from 'react-dom';

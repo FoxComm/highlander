@@ -6,7 +6,7 @@ import classNames from 'classnames';
 import { autobind } from 'core-decorators';
 
 // components
-import { Button } from '../common/buttons';
+import { Button } from 'components/core/button';
 
 export default class NotificationIndicator extends React.Component {
 

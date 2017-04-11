@@ -3,7 +3,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
-import { PrimaryButton } from 'components/common/buttons';
+import { PrimaryButton } from 'components/core/button';
 
 import * as CartActions from 'modules/carts/details';
 

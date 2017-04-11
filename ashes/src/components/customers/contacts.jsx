@@ -12,7 +12,7 @@ import ContentBox from '../content-box/content-box';
 import FormField from '../forms/formfield';
 import Form from '../forms/form';
 import ErrorAlerts from '../alerts/error-alerts';
-import { EditButton } from '../common/buttons';
+import { EditButton } from 'components/core/button';
 import SaveCancel from '../common/save-cancel';
 
 function mapDispatchToProps(dispatch, props) {

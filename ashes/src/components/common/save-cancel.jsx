@@ -6,7 +6,7 @@ import React, { Component } from 'react';
 import classNames from 'classnames';
 
 // components
-import { Button, PrimaryButton } from './buttons';
+import { Button, PrimaryButton } from 'components/core/button';
 import ButtonWithMenu from './button-with-menu';
 
 type Props = {

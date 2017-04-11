@@ -43,7 +43,7 @@ span + i[class*="icon-"] {
 }
 
 .loading {
-  composes: loading from '../../css/animations.css';
+  composes: loading from '../../../css/animations.css';
 }
 
 .button:focus {

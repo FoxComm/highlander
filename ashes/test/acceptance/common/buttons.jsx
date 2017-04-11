@@ -2,7 +2,7 @@
 import React from 'react';
 
 describe('Buttons', function() {
-  const Buttons = requireComponent('common/buttons.jsx', false);
+  const Buttons = requireComponent('core/button.jsx', false);
 
   it('should render Button', function() {
     const props = {

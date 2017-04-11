@@ -9,7 +9,7 @@ import classNames from 'classnames';
 
 import styles from './button-with-menu.css';
 
-import { PrimaryButton } from './buttons';
+import { PrimaryButton } from 'components/core/button';
 import { DropdownItem } from '../dropdown';
 
 type DropdownItemType = [any, string|Element<*>];

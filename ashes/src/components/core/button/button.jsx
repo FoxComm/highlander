@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import React, { Element } from 'react';
 
 // styles
-import s from './buttons.css';
+import s from './button.css';
 
 type Props = {
   className?: string,
