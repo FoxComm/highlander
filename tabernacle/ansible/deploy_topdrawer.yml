@@ -10,5 +10,6 @@
     docker_tag: "{{ lookup('env', 'DOCKER_TAG') | default('dummy', true) }}"
     docker_repo: "{{ lookup('env', 'DOCKER_REPO') | default('td-docker.foxcommerce.com:5000', true) }}"
     marathon_ip: "{{ lookup('env', 'MARATHON_IP') | default('10.0.0.19', true) }}"
+    marathon_deploy: "{{ lookup('env', 'MARATHON_DEPLOY') | default(false, true) }}"
   roles:
     - { role: prod/storefront }
