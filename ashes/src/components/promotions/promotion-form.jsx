@@ -148,14 +148,14 @@ export default class PromotionForm extends ObjectDetails {
   handleQualifyAllChange(isAllQualify) {
     const promotion = this.props.object;
     const arr = isAllQualify ? null : [];
-    const newPromotion = _.set(promotion, 'attributes.customerGroupIds', arr);
+    const newPromotion = _.set(promotion, 'attributes.customerGroupIds.v', arr);
     this.props.onUpdateObject(newPromotion);
   }
 
   @autobind
   handleQulifierGroupChange(ids){
     const promotion = this.props.object;
-    const newPromotion = _.set(promotion, 'attributes.customerGroupIds', ids);
+    const newPromotion = _.set(promotion, 'attributes.customerGroupIds.v', ids);
     this.props.onUpdateObject(newPromotion);
   }
 
@@ -166,8 +166,8 @@ export default class PromotionForm extends ObjectDetails {
         <div styleName="sub-title" >Customers</div>
         <SelectCustomerGroups
           parent="Promotions"
-          selectedGroupIds={promotion.attributes.customerGroupIds}
-          qualifyAll={promotion.attributes.customerGroupIds == null}
+          selectedGroupIds={promotion.attributes.customerGroupIds.v}
+          qualifyAll={promotion.attributes.customerGroupIds.v == null}
           qualifyAllChange={this.handleQualifyAllChange}
           updateSelectedIds={this.handleQulifierGroupChange}
         />
