@@ -10,7 +10,7 @@ import s from './typeahead.css';
 type Props = {
   component: Function,
   updating: boolean,
-  onItemSelected: Function,
+  onItemSelected: (item: Object) => void,
   items: Array<*>,
 };
 

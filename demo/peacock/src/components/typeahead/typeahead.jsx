@@ -24,9 +24,9 @@ type State = {
 };
 
 type Props = {
-  onBlur: Function, // blur handler
-  onChange: ?Function, // input keyup/change handler
-  onItemSelected: ?() => void, // on item click/choose handler
+  onBlur: () => void, // blur handler
+  onChange: ?() => void, // input keyup/change handler
+  onItemSelected: ?(item: Object) => void, // on item click/choose handler
   // fetchItems if passed should return promise for results
   fetchItems: () => void, // triggers when text is changed and text is valid
   hideOnBlur: boolean,
