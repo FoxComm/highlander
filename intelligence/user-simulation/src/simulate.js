@@ -66,7 +66,7 @@ async function simulate(context, stateFunctions) {
       }
       await f(context);
 
-      sleep.sleep(2);
+      sleep.sleep(Math.floor(Math.random() * 5.0) + 2);
 
       //transition
       let trans = transition(context.state, context.persona.states[context.state]);

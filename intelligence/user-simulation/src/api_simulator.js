@@ -66,10 +66,10 @@ async function category(c) {
 
   if(_.isNil(c.category)) 
     c.category = _.sample(c.args['select']);
-
-  let query = {"query":{"bool":{"filter":[{"term":{"context":"default"}},{"term":{"tags": c.category}}]}}};
+//{"query": { "function_score" : { "query" : { "match_all": {} }, "random_score" : {} }}}
+  let query = {"query":{ "function_score" : { "query": {"bool":{"filter":[{"term":{"context":"default"}},{"term":{"tags": c.category}}]}}, "random_score": {} }}};
   let products = await c.api.get(`/search/public/products_catalog_view/_search?size=100`,
-  '{"query": { "function_score" : { "query" : { "match_all": {} }, "random_score" : {} }}}');
+  query);
 
   _.forEach(products.result, async (product) => {
     await c.api.analytics.trackEvent({
