@@ -1,3 +1,5 @@
+/* @flow */
+
 // libs
 import _ from 'lodash';
 import React, { Component } from 'react';
@@ -18,13 +20,20 @@ type RequestParam = {
   objectId?: string | number,
 }
 
+type Activity = {
+  id: number,
+  kind: string,
+  createdAt: string,
+  data: Object,
+}
+
 type Props = {
   entity: {
     entityId: string | number,
     entityType: string,
   },
   trail: {
-    activities: Array<Object>,
+    activities: Array<Activity>,
     hasMore: boolean,
   },
   route: {
@@ -32,7 +41,7 @@ type Props = {
   },
   fetchState: AsyncState,
   resetActivities: () => void;
-  fetchActivityTrail: (params: RequestParam, from?: string) => Promise<*>,
+  fetchActivityTrail: (params: RequestParam, from?: Activity) => Promise<*>,
 };
 
 class ActivityTrailPage extends Component {
@@ -71,7 +80,7 @@ class ActivityTrailPage extends Component {
     };
 
     if (fetchState.err) {
-      return <ErrorAlerts error={err} />;
+      return <ErrorAlerts error={fetchState.err} />;
     }
 
     if (!activities.length && fetchState.inProgress) {

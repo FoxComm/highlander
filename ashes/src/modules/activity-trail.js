@@ -27,7 +27,7 @@ export function processActivities(activities) {
     if (activity.kind == types.CART_LINE_ITEMS_UPDATED_QUANTITIES) {
       const { oldQuantities, newQuantities, ...restData } = activity.data;
 
-      let newActivities = [];
+      const newActivities = [];
 
       _.each(newQuantities, (quantity, skuName) => {
         const oldQuantity = skuName in oldQuantities ? oldQuantities[skuName] : 0;
@@ -36,7 +36,7 @@ export function processActivities(activities) {
         const kind = oldQuantity > quantity ?
           derivedTypes.CART_LINE_ITEMS_REMOVED_SKU : derivedTypes.CART_LINE_ITEMS_ADDED_SKU;
 
-        newActivities = [...newActivities, {
+        newActivities.push({
           ...activity,
           kind,
           data: {
@@ -44,7 +44,7 @@ export function processActivities(activities) {
             skuName,
             difference: Math.abs(quantity - oldQuantity),
           }
-        }];
+        });
       });
 
       return newActivities;
@@ -52,35 +52,6 @@ export function processActivities(activities) {
 
     return activity;
   });
-}
-
-export function ___fetchActivityTrail({ dimension, objectId = null }, from) {
-  return dispatch => {
-    dispatch(startFetching());
-    searchActivities(from, {
-      dimension,
-      objectId
-    }).then(
-      response => {
-        // nginx sends empty object instead of empty array
-        const result = _.isEmpty(response.result) ? [] : response.result;
-        const activities = processActivities(result.map(con => {
-          //TODO Using connection id as activity id until activities get
-          //real ids
-          let activity = con.activity;
-          activity.id = con.id;
-          return processActivity(activity);
-        }));
-        dispatch(receivedActivities(
-          {
-            activities: activities,
-            hasMore: response.hasMore
-          }
-        ));
-      },
-      err => dispatch(fetchFailed(err))
-    );
-  };
 }
 
 export function mergeActivities(activities = [], newActivities) {

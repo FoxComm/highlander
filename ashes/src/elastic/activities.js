@@ -16,10 +16,10 @@ function buildRequest({ fromDate = null, untilDate = null, query = null, dimensi
     filter.push(dsl.termFilter('objectId', objectId));
   }
   if (fromDate) {
-    filter.push(dsl.rangeFilter('createdAt', { lt: untilDate }));
+    filter.push(dsl.rangeFilter('createdAt', { gt: fromDate }));
   }
   if (untilDate) {
-    filter.push(dsl.rangeFilter('createdAt', { gt: untilDate }));
+    filter.push(dsl.rangeFilter('createdAt', { lt: untilDate }));
   }
 
   return dsl.query({
@@ -70,9 +70,9 @@ export default function searchActivities(fromActivity = null, trailParams, days 
           // if not - fetch activities for last 2 days from latest activity
 
           const markerDate = now.diff(firstActivityDate, 'days', true) > days ? firstActivityDate : now;
-          const untilDate = markerDate.endOf('day').subtract(days, 'days');
+          const fromDate = markerDate.endOf('day').subtract(days, 'days');
 
-          return fetch({ ...trailParams, untilDate, query });
+          return fetch({ ...trailParams, fromDate, query });
         }
 
         return response;
@@ -92,8 +92,8 @@ export default function searchActivities(fromActivity = null, trailParams, days 
       if (result.length == 0) {
         hasMore = false;
       } else {
-        const fromDate = _.get(_.last(result), 'createdAt');
-        return fetch({ ...trailParams, fromDate, query }, true)
+        const untilDate = _.get(_.last(result), 'createdAt');
+        return fetch({ ...trailParams, untilDate, query }, true)
           .then(response => hasMore = response.count > 0);
       }
     })
