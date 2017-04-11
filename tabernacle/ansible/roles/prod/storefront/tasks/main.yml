@@ -6,7 +6,7 @@
 
 - name: Set Default Marathon Template Path
   set_fact:
-    app_template_path: "{{highlander_path_out.stdout}}/tabernacle/ansible/roles/{{marathon_template_path}}"
+    app_template_path: "{{highlander_path_out.stdout}}/tabernacle/ansible/roles/{{marathon_template_path}}/{{marathon_template_file}}"
 
 - include: validate.yml
 
