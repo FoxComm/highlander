@@ -32,6 +32,8 @@ export type CheckoutState = {
   billingAddress: ShippingAddress,
 };
 
+export const checkApplePay = () => foxApi.applePay.available();
+
 export const selectCreditCard = createAction('CHECKOUT_SET_CREDIT_CARD');
 export const setEditStage = createAction('CHECKOUT_SET_EDIT_STAGE');
 export const setBillingData = createAction('CHECKOUT_SET_BILLING_DATA', (key, value) => [key, value]);
