@@ -34,31 +34,18 @@ object AmazonOrder {
                 purchaseDate = payload.purchaseDate,
                 createdAt = Instant.now,
                 updatedAt = Instant.now)
-}
 
-class AmazonOrders(tag: Tag) extends FoxTable[AmazonOrder](tag, "amazon_orders") {
-  def id                  = column[Int]("id", O.PrimaryKey, O.AutoInc)
-  def amazonOrderId       = column[String]("amazon_order_id")
-  def orderTotal          = column[Int]("order_total")
-  def paymentMethodDetail = column[String]("payment_method_detail")
-  def orderType           = column[String]("order_type")
-  def currency            = column[Currency]("currency")
-  def orderStatus         = column[String]("order_status")
-  def purchaseDate        = column[Instant]("purchased_date")
-  def createdAt           = column[Instant]("created_at")
-  def updatedAt           = column[Instant]("updated_at")
-
-  def * =
-    (id,
-     amazonOrderId,
-     orderTotal,
-     paymentMethodDetail,
-     orderType,
-     currency,
-     orderStatus,
-     purchaseDate,
-     createdAt,
-     updatedAt) <> ((AmazonOrder.apply _).tupled, AmazonOrder.unapply)
+  def fromExistingAmazonOrder(existingOrder: AmazonOrder): AmazonOrder =
+    AmazonOrder(id = existingOrder.id,
+                amazonOrderId = existingOrder.amazonOrderId,
+                orderTotal = existingOrder.orderTotal,
+                paymentMethodDetail = existingOrder.paymentMethodDetail,
+                orderType = existingOrder.orderType,
+                currency = existingOrder.currency,
+                orderStatus = existingOrder.orderStatus,
+                purchaseDate = existingOrder.purchaseDate,
+                createdAt = existingOrder.createdAt,
+                updatedAt = existingOrder.updatedAt)
 }
 
 object AmazonOrders
@@ -74,4 +61,29 @@ object AmazonOrders
   def mustFindOneOr404(amazonOrderId: String)(implicit ec: EC): DbResultT[AmazonOrder] =
     findOneByAmazonOrderId(amazonOrderId).mustFindOr(
         NotFoundFailure404(s"Amazon order with id=$amazonOrderId not found"))
+}
+
+class AmazonOrders(tag: Tag) extends FoxTable[AmazonOrder](tag, "amazon_orders") {
+  def id                  = column[Int]("id", O.PrimaryKey, O.AutoInc)
+  def amazonOrderId       = column[String]("amazon_order_id")
+  def orderTotal          = column[Int]("order_total")
+  def paymentMethodDetail = column[String]("payment_method_detail")
+  def orderType           = column[String]("order_type")
+  def currency            = column[Currency]("currency")
+  def orderStatus         = column[String]("order_status")
+  def purchaseDate        = column[Instant]("purchase_date")
+  def createdAt           = column[Instant]("created_at")
+  def updatedAt           = column[Instant]("updated_at")
+
+  def * =
+    (id,
+     amazonOrderId,
+     orderTotal,
+     paymentMethodDetail,
+     orderType,
+     currency,
+     orderStatus,
+     purchaseDate,
+     createdAt,
+     updatedAt) <> ((AmazonOrder.apply _).tupled, AmazonOrder.unapply)
 }
