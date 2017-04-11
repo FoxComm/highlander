@@ -72,9 +72,6 @@ export function mergeActivities(activities = [], newActivities) {
 /**
  * Internal Actions
  */
-
-export const resetActivities = createAction('ACTIVITY_TRAIL_RESET');
-
 const _fetchActivityTrail = createAsyncActions(
   'fetchActivityTrail',
   ({ dimension, objectId = null }, from) =>
@@ -100,6 +97,8 @@ const _fetchActivityTrail = createAsyncActions(
 /**
  * Exported Actions
  */
+export const resetActivities = createAction('ACTIVITY_TRAIL_RESET');
+
 export const fetchActivityTrail = _fetchActivityTrail.perform;
 
 const initialState = {
