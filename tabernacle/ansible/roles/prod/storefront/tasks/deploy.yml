@@ -6,9 +6,6 @@
 - name: Update Application in Marathon
   shell: 'curl -sS -XPUT -d@/tmp/{{marathon_template_file}} -H "Content-Type: application/json" http://{{marathon_server}}/v2/apps/{{marathon_app_name}}?force=true'
 
-- name: Restart Application in Marathon
-  shell: 'curl -sS -XPOST http://{{marathon_server}}/v2/apps/{{marathon_app_name}}/restart'
-
 - name: Get Application Marathon tasks in `healthy` state
   shell: curl -sS -XGET http://{{marathon_server}}/v2/apps/{{marathon_app_name}} | jq '.app.tasksHealthy > 0'
   register: healthy_tasks_available
