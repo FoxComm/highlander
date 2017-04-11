@@ -11,10 +11,10 @@ type Props = {
   className?: string,
   icon?: string,
   isLoading?: boolean,
-  children: Element<*>,
+  children?: Element<*>,
 }
 
-export const Button = (props: Props = {}) => {
+export const Button = (props: Props) => {
   const { icon, children, isLoading, ...restProps } = props;
   const className = classNames(
     s.button,
