@@ -24,11 +24,9 @@ object AmazonOrderRoutes {
 //          }
 //        } ~
 
-        pathPrefix(Segment) { amazonOrderId ⇒
-          (post & pathEnd & entity(as[CreateAmazonOrderPayload])) { payload ⇒
-            mutateOrFailures {
-              createAmazonOrder(payload)
-            }
+        (post & pathEnd & entity(as[CreateAmazonOrderPayload])) { payload ⇒
+          mutateOrFailures {
+            createAmazonOrder(payload)
           }
         }
       }
