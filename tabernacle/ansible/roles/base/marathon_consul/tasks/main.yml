@@ -21,6 +21,18 @@
 
 - name: Copy Consul Service File
   template: src=marathon-consul.json dest="/etc/consul.d/marathon-consul.json"
+  
+- name: Reload consul
+  systemd:
+    name: consul_agent
+    state: restarted
+
+- name: Wait before marathon-consul.service.consul will be registered
+  shell: 'ping -c 1 marathon-consul.service.consul'
+  register: marathon_consul_host_ex
+  until: marathon_consul_host_ex.rc == 0
+  retries: "{{marathon_retries}}"
+  delay: 2
 
 - name: Subscribe marathon events to marathon-consul
   command: curl -X POST 'http://marathon.service.consul:8080/v2/eventSubscriptions?callbackUrl=http://marathon-consul.service.consul:4000/events'
