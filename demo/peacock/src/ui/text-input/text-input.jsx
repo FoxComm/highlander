@@ -1,7 +1,7 @@
 /* @flow */
 
 import React, { Element, Component, PropTypes } from 'react';
-
+import { autobind } from 'core-decorators';
 import classNames from 'classnames';
 
 import styles from './text-input.css';
@@ -30,10 +30,17 @@ type Props = {
   hasCard?: boolean,
   hasSymbol?: boolean,
   children?: any,
-}
+};
+
+type State = {
+  isFocused: boolean,
+};
 
 class TextInput extends Component {
   props: Props;
+  state: State = {
+    isFocused: false,
+  };
 
   static contextTypes = {
     error: PropTypes.string,
@@ -76,6 +83,11 @@ class TextInput extends Component {
     }
   }
 
+  @autobind
+  changeFocus(to: boolean) {
+    this.setState({ isFocused: to });
+  }
+
   render() {
     const { props } = this;
 
@@ -108,6 +120,7 @@ class TextInput extends Component {
       [styles.hasCard]: hasCard,
       [styles.hasSymbol]: hasSymbol,
       [styles.hasTopMessages]: showSmallPlaceholder || showErrorText,
+      [styles.focused]: this.state.isFocused,
     });
 
     let childrenWithProps;
@@ -122,7 +135,15 @@ class TextInput extends Component {
       });
     }
 
-    const content = childrenWithProps || <input className={inputClass} type={type} {...rest} />;
+    const content = childrenWithProps || (
+      <input
+        onFocus={() => this.changeFocus(true)}
+        onBlur={() => this.changeFocus(false)}
+        className={inputClass}
+        type={type}
+        {...rest}
+      />
+    );
 
     const errorClassName = classNames(styles.errorMessage, errorClass);
 

@@ -62,6 +62,7 @@
   --input-placeholder-color: var(--gray);
 
   --input-text-color: var(--blackish);
+  --input-focus-border-color: var(--water-blue);
   --input-active-border-color: var(--baby-blue);
 
   /* Text colors */
