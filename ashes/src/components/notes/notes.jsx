@@ -18,6 +18,7 @@ import TableCell from '../table/cell';
 import NoteForm from './form';
 import LiveSearchAdapter from '../live-search/live-search-adapter';
 import NoteRow from './note-row';
+import WaitAnimation from '../common/wait-animation';
 
 // redux
 import * as notesActions from '../../modules/notes';
@@ -150,30 +151,34 @@ export default class Notes extends React.Component {
   render() {
     const props = this.props;
     const cls = classNames('fc-notes', this.sectionClassName);
+    const jsxBody = <div>
+      <LiveSearchAdapter
+        searches={props.list}
+        searchActions={props.searchActions}
+        singleSearch={true}
+        placeholder="keyword search"
+        >
+        <TableView
+          emptyMessage="No notes found."
+          data={props.list.currentSearch().results}
+          renderRow={this.renderNoteRow}
+          columns={this.tableColumns}
+          processRows={this.injectAddingForm}
+        />
+      </LiveSearchAdapter>
+      <ConfirmationDialog
+        {...Notes.deleteOptions}
+        isVisible={this.props.noteIdToDelete != null}
+        confirmAction={() => this.props.deleteNote(this.props.noteIdToDelete)}
+        onCancel={() => this.props.stopDeletingNote(this.props.noteIdToDelete)}
+      />
+    </div>;
+    const body = props.isFetching ? <WaitAnimation/> : jsxBody;
 
     return (
       <div className={cls} >
         <SectionTitle className="fc-grid-gutter fc-notes-section-title" title="Notes">{this.controls}</SectionTitle>
-        <LiveSearchAdapter
-          searches={props.list}
-          searchActions={props.searchActions}
-          singleSearch={true}
-          placeholder="keyword search"
-          >
-          <TableView
-            emptyMessage="No notes found."
-            data={props.list.currentSearch().results}
-            renderRow={this.renderNoteRow}
-            columns={this.tableColumns}
-            processRows={this.injectAddingForm}
-          />
-        </LiveSearchAdapter>
-        <ConfirmationDialog
-          {...Notes.deleteOptions}
-          isVisible={this.props.noteIdToDelete != null}
-          confirmAction={() => this.props.deleteNote(this.props.noteIdToDelete)}
-          onCancel={() => this.props.stopDeletingNote(this.props.noteIdToDelete)}
-        />
+        {body}
       </div>
     );
   }
