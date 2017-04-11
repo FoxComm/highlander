@@ -237,7 +237,7 @@ object Customer {
             pathPrefix("payment-methods" / "apple-pay") {
               (post & pathEnd & entity(as[CreateApplePayPayment])) { payload ⇒
                 mutateOrFailures {
-                  CartPaymentUpdater.addApplePayCharge(auth.model, payload)
+                  CartPaymentUpdater.addApplePayPayment(auth.model, payload)
                 }
               }
             } ~

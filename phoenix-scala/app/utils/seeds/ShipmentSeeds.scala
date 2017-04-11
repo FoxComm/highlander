@@ -63,6 +63,17 @@ trait ShipmentSeeds {
                        conditions = Some(usOnly))
     )
 
+  def lowConditions: QueryStatement =
+    parse(
+        """
+      | {
+      |   "comparison": "and",
+      |   "conditions": [{
+      |     "rootObject": "Order", "field": "grandtotal", "operator": "greaterThan", "valInt": 25
+      |   }]
+      | }
+    """.stripMargin).extract[QueryStatement]
+
   def usOnly = parse(s"""
     | {
     |   "comparison": "and",
