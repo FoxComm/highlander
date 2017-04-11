@@ -348,8 +348,8 @@ storefront_default_language: en
 storefront_fixed_language: false
 
 # Url prefixes
-url_prefix_topdrawer: "/"
-url_prefix_perfectgourmet: "/"
+url_prefix_topdrawer: ""
+url_prefix_perfectgourmet: ""
 
 # JMX ports
 es_jmx_port: 29010

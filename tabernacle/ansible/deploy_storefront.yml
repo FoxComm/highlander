@@ -28,7 +28,5 @@
         storefront_td: "{{docker_tag}}"
         storefront_tpg: "{{docker_tag}}"
     marathon_server: "{{marathon_ip}}:8080"
-    url_prefix_topdrawer: ""
-    url_prefix_perfectgourmet: ""
   roles:
     - { role: prod/storefront }
