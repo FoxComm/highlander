@@ -1,12 +1,14 @@
 ---
 
-- name: Deploy TopDrawer Storefront
+- name: Deploy Storefront to Stage / Production
   hosts: localhost
   connection: local
   vars:
     user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
-    git_branch: "{{ lookup('env', 'GIT_BRANCH') }}"
-    docker_tag: "{{ lookup('env', 'DOCKER_TAG') }}"
-    docker_repo: "{{ lookup('env', 'DOCKER_REPO') }}"
+    git_repo: "{{ lookup('env', 'GIT_REPO') | default('git@github.com:FoxComm/top-drawer.git', true) }}"
+    git_tag: "{{ lookup('env', 'GIT_TAG') | default('td-docker.foxcommerce.com:5000', true) }}"
+    docker_tag: "{{ lookup('env', 'DOCKER_TAG') | default('dummy', true) }}"
+    docker_repo: "{{ lookup('env', 'DOCKER_REPO') | default('master', true) }}"
+    marathon_ip: "{{ lookup('env', 'MARATHON_IP') | default('10.0.0.19', true) }}"
   roles:
-    - { role: prod/topdrawer }
+    - { role: prod/storefront }
