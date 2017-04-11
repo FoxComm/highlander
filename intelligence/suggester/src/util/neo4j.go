@@ -46,6 +46,15 @@ func createNewDeclinedProductCypher(customerID string, productID string) string 
 	return matchCustomer + matchProduct + declinedRelation + returnRelation
 }
 
+func createNewPurchasedProductCypher(customerID string, productID string) string {
+	matchCustomer := fmt.Sprintf("MATCH (c:Customer {phoenix_id: %s})", customerID)
+	matchProduct := fmt.Sprintf("MATCH (p:Product {phoenix_id: %s})", productID)
+	purchasedRelation := "MERGE (c)-[r:PURCHASED]->(p)"
+	returnRelation := "RETURN r"
+
+	return matchCustomer + matchProduct + purchasedRelation + returnRelation
+}
+
 func querySuggestedProductForPurchaseCypher(customerID string) string {
 	matchCustomer := fmt.Sprintf("MATCH (c:Customer {phoenix_id: %s})-[r:SUGGEST]->(p)", customerID)
 	whereNotPurchased := "WHERE NOT (c)-[:PURCHASED]->(p:Product)"
@@ -111,6 +120,10 @@ func CreateNewSuggestProductRelation(customerID string, productID string, phoneN
 
 func CreateNewDeclinedProductRelation(customerID string, productID string) (string, error) {
 	return neo4jPostRequest(makeRestPayload(createNewDeclinedProductCypher(customerID, productID)))
+}
+
+func CreateNewPurchasedProductRelation(customerID string, productID string) (string, error) {
+	return neo4jPostRequest(makeRestPayload(createNewPurchasedProductCypher(customerID, productID)))
 }
 
 func FindCustomerAndProductFromPhoneNumber(phoneNumber string) (string, string, string, error) {
