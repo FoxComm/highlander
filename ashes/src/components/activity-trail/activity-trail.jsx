@@ -90,7 +90,7 @@ const ActivityTrail = props => {
   if (props.hasMore) {
     olderButton = (
       <li className="fc-activity-trail__load-more">
-        <Button onClick={props.fetchMore}>Older...</Button>
+        <Button onClick={props.fetchMore} isLoading={props.fetchState.inProgress}>Older...</Button>
       </li>
     );
   }

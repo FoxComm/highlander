@@ -1,16 +1,13 @@
-
 import _ from 'lodash';
-import {createAction, createReducer} from 'redux-act';
+import { createAction, createReducer } from 'redux-act';
 import { update, assoc } from 'sprout-data';
-import { updateItems } from './state-helpers';
-import OrderParagon from '../paragons/order';
-import searchActivities from '../elastic/activities';
+import { createAsyncActions } from '@foxcomm/wings';
+
+import OrderParagon from 'paragons/order';
+import searchActivities from 'elastic/activities';
 import types, { derivedTypes } from '../components/activity-trail/activities/base/types';
 
-const startFetching = createAction('ACTIVITY_TRAIL_START_FETCHING');
-const receivedActivities = createAction('ACTIVITY_TRAIL_RECEIVED');
-const fetchFailed = createAction('ACTIVITY_TRAIL_FETCH_FAILED');
-export const resetActivities = createAction('ACTIVITY_TRAIL_RESET');
+import { updateItems } from './state-helpers';
 
 export function processActivity(activity) {
   if (activity.data.order) {
@@ -57,7 +54,7 @@ export function processActivities(activities) {
   });
 }
 
-export function fetchActivityTrail({dimension, objectId = null}, from) {
+export function ___fetchActivityTrail({ dimension, objectId = null }, from) {
   return dispatch => {
     dispatch(startFetching());
     searchActivities(from, {
@@ -68,8 +65,8 @@ export function fetchActivityTrail({dimension, objectId = null}, from) {
         // nginx sends empty object instead of empty array
         const result = _.isEmpty(response.result) ? [] : response.result;
         const activities = processActivities(result.map(con => {
-              //TODO Using connection id as activity id until activities get
-              //real ids
+          //TODO Using connection id as activity id until activities get
+          //real ids
           let activity = con.activity;
           activity.id = con.id;
           return processActivity(activity);
@@ -101,24 +98,47 @@ export function mergeActivities(activities = [], newActivities) {
   });
 }
 
+/**
+ * Internal Actions
+ */
+
+export const resetActivities = createAction('ACTIVITY_TRAIL_RESET');
+
+const _fetchActivityTrail = createAsyncActions(
+  'fetchActivityTrail',
+  ({ dimension, objectId = null }, from) =>
+    searchActivities(from, { dimension, objectId })
+      .then(response => {
+        // nginx sends empty object instead of empty array
+        const result = _.isEmpty(response.result) ? [] : response.result;
+        const activities = processActivities(result.map(con => {
+          //TODO Using connection id as activity id until activities get
+          //real ids
+          let activity = con.activity;
+          activity.id = con.id;
+          return processActivity(activity);
+        }));
+
+        return {
+          activities,
+          hasMore: response.hasMore
+        };
+      })
+);
+
+/**
+ * Exported Actions
+ */
+export const fetchActivityTrail = _fetchActivityTrail.perform;
+
 const initialState = {
-  isFetching: null,
-  err: null,
   activities: [],
   hasMore: false,
 };
 
 const reducer = createReducer({
-  [startFetching]: state => {
-    return assoc(state,
-      ['isFetching'], true,
-      ['err'], null
-    );
-  },
-  [resetActivities]: () => {
-    return initialState;
-  },
-  [receivedActivities]: (state, data) => {
+  [resetActivities]: () => initialState,
+  [_fetchActivityTrail.succeeded]: (state, data) => {
     const updater = _.flow(
       _.partialRight(update, ['activities'], mergeActivities, data.activities),
       _.partialRight(assoc,
@@ -128,14 +148,6 @@ const reducer = createReducer({
     );
 
     return updater(state);
-  },
-  [fetchFailed]: (state, err) => {
-    console.error(err);
-
-    return assoc(state,
-      ['isFetching'], false,
-      ['err'], err
-    );
   },
 }, initialState);
 
