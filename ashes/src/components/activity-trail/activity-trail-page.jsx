@@ -64,8 +64,11 @@ class ActivityTrailPage extends Component {
     }
   }
 
-  componentDidMount() {
+  componentWillMount() {
     this.props.resetActivities();
+  }
+
+  componentDidMount() {
     this.props.fetchActivityTrail(this.trailParams);
   }
 
