@@ -1,0 +1,9 @@
+
+.controls {
+  position: absolute;
+  right: 21px;
+
+  & > i {
+    margin: 0 5px;
+  }
+}

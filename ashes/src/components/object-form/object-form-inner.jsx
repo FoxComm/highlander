@@ -2,6 +2,8 @@
  * @flow
  */
 
+
+// libs
 import React, { Component } from 'react';
 import _ from 'lodash';
 import { autobind } from 'core-decorators';
@@ -9,6 +11,7 @@ import classNames from 'classnames';
 import { stripTags } from 'lib/text-utils';
 import { isDefined } from 'lib/utils';
 
+// components
 import { FormField, FormFieldError } from '../forms';
 import { SliderCheckbox } from '../checkbox/checkbox';
 import CurrencyInput from '../forms/currency-input';
@@ -19,6 +22,9 @@ import { Dropdown } from '../dropdown';
 import SwatchInput from '../forms/swatch-input';
 
 import type { AttrSchema } from 'paragons/object';
+
+// style
+import s from './object-form-inner.css';
 
 type Props = {
   canAddProperty?: boolean,
@@ -147,7 +153,7 @@ export default class ObjectFormInner extends Component {
   }
 
   @autobind
-  handleEditProperty(property) {
+  handleEditProperty(property: { fieldLabel: string, propertyType: string }) {
     const { attributes } = this.props;
     const { name, value } = this.state;
     const { fieldLabel, propertyType } = property;
@@ -211,11 +217,14 @@ export default class ObjectFormInner extends Component {
   renderBoolean(name: string, value: boolean, options: AttrOptions) {
     const onChange = () => this.handleChange(name, 'bool', !value);
     const sliderCheckbox = (
-      <SliderCheckbox
-        id={name}
-        checked={value}
-        onChange={onChange}
-      />
+      <div>
+        {this.controlButtons(name, 'bool', value, options)}
+        <SliderCheckbox
+          id={name}
+          checked={value}
+          onChange={onChange}
+        />
+      </div>
     );
 
     return renderFormField(name, sliderCheckbox, options);
@@ -232,7 +241,12 @@ export default class ObjectFormInner extends Component {
   renderDate(name: string, value: string, options: AttrOptions) {
     const dateValue = new Date(value);
     const onChange = (v: Date) => this.handleChange(name, 'date', v.toISOString());
-    const dateInput = <DatePicker date={dateValue} onChange={onChange} />;
+    const dateInput = (
+      <div>
+        {this.controlButtons(name, 'string', value, options)}
+        <DatePicker date={dateValue} onChange={onChange} />
+      </div>
+    );
     return renderFormField(name, dateInput, options);
   }
 
@@ -244,12 +258,15 @@ export default class ObjectFormInner extends Component {
       value: Number(value)
     });
     const currencyInput = (
-      <CurrencyInput
-        inputClass={inputClass}
-        inputName={name}
-        value={priceValue}
-        onChange={onChange}
-      />
+      <div>
+        {this.controlButtons(name, 'price', value, options)}
+        <CurrencyInput
+          inputClass={inputClass}
+          inputName={name}
+          value={priceValue}
+          onChange={onChange}
+        />
+      </div>
     );
 
     return renderFormField(name, currencyInput, options);
@@ -265,6 +282,7 @@ export default class ObjectFormInner extends Component {
 
     return (
       <div className={classForContainer}>
+        {this.controlButtons(name, 'richText', value, options)}
         <RichTextEditor
           className={`fc-rich-text__name-${nameVal}`}
           label={options.label}
@@ -281,14 +299,17 @@ export default class ObjectFormInner extends Component {
       return this.handleChange(name, 'string', target.value);
     };
     const stringInput = (
-      <input
-        className={inputClass}
-        type="text"
-        name={name}
-        value={value || ''}
-        onChange={onChange}
-        disabled={options.disabled}
-      />
+      <div>
+        {this.controlButtons(name, 'string', value, options)}
+        <input
+          className={inputClass}
+          type="text"
+          name={name}
+          value={value || ''}
+          onChange={onChange}
+          disabled={options.disabled}
+        />
+      </div>
     );
 
     return renderFormField(name, stringInput, options);
@@ -348,16 +369,30 @@ export default class ObjectFormInner extends Component {
   }
 
   renderColor(name: string, value: string = '', options: AttrOptions) {
-    const label = _.upperFirst(options.label);
     const onChange = v => this.handleChange(name, 'color', v);
-
-    return (
+    const colorSwatch = (
       <div>
-        <label className="fc-object-form__field-label">{label}</label>
+        {this.controlButtons(name, 'color', value, options)}
         <SwatchInput
           value={value}
           onChange={onChange}
         />
+      </div>
+    );
+
+    return renderFormField(name, colorSwatch, options);
+  }
+
+  controlButtons(name, type, value, options) {
+    if (options.required) { return null; }
+
+    const reservedNames = ['description', 'metatitle', 'metadescription'];
+    if (reservedNames.includes(name.toLowerCase())) { return null; }
+
+    return (
+      <div className={s.controls}>
+        <i className="icon-edit" onClick={() => this.onEdit(name, type, value)}/>
+        <i className="icon-trash" onClick={() => this.handleDeleteProperty(name)}/>
       </div>
     );
   }
