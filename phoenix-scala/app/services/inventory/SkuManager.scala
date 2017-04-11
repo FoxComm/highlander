@@ -2,12 +2,16 @@ package services.inventory
 
 import java.time.Instant
 
+import cats._
 import cats.data._
+import cats.instances.all._
+import cats.syntax.all._
 import failures.ProductFailures._
 import failures.{Failures, GeneralFailure, NotFoundFailure400}
 import models.account._
 import models.inventory._
 import models.objects._
+import models.product.{Products, ProductId}
 import payloads.ImagePayloads.AlbumPayload
 import payloads.SkuPayloads._
 import responses.AlbumResponses.AlbumResponse.{Root ⇒ AlbumRoot}
@@ -18,6 +22,7 @@ import services.LogActivity
 import services.image.ImageManager
 import services.image.ImageManager.FullAlbumWithImages
 import services.objects.ObjectManager
+import services.product.ProductManager
 import slick.driver.PostgresDriver.api._
 import utils.JsonFormatters
 import utils.aliases._
@@ -86,12 +91,22 @@ object SkuManager {
                                       DbResultT.unit,
                                       id ⇒ NotFoundFailure400(ProductSkuLinks, id))
          }
+      _ ← * <~ archiveProductsWithNoSkus(productLinks.map(_.leftId).toSet)
     } yield
       SkuResponse.build(
           IlluminatedSku.illuminate(
               oc,
               FullObject(model = archivedSku, form = fullSku.form, shadow = fullSku.shadow)),
           albums)
+
+  private def archiveProductsWithNoSkus(
+      productIds: Set[Int])(implicit ec: EC, db: DB, oc: OC): DbResultT[Unit] =
+    for {
+      products ← * <~ Products.findAllByIds(productIds).result
+      withNoLinks ← * <~ products.toList.filterA(p ⇒
+                         ProductSkuLinks.filter(_.leftId === p.id).size.result.dbresult.map(_ == 0))
+      _ ← * <~ withNoLinks.map(p ⇒ ProductManager.archiveByContextAndId(ProductId(p.id)))
+    } yield ()
 
   def createSkuInner(
       context: ObjectContext,
