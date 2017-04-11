@@ -56,6 +56,7 @@ export class CartLineItemsFooter extends Component {
   suggestSkus(value: string): Promise<*> {
     return this.props.suggestSkus(value, {
       useTitle: true,
+      omitArchived: true,
     });
   }
 
