@@ -1,6 +1,7 @@
 /* @flow */
 
 import React, { Element, Component, PropTypes } from 'react';
+import _ from 'lodash';
 import { autobind } from 'core-decorators';
 import classNames from 'classnames';
 
@@ -113,6 +114,7 @@ class TextInput extends Component {
 
     const inputClass = classNames(styles.textInput, className, posClassNames, {
       [styles.error]: !!error,
+      [styles.empty]: !error && (!props.value || _.isEmpty(props.value)),
     });
 
     const blockClass = classNames(styles.block, posClassNames, {
@@ -129,6 +131,8 @@ class TextInput extends Component {
       childrenWithProps = React.Children.map(children, (child) => {
         return React.cloneElement(child, {
           className: inputClass,
+          onFocus: () => this.changeFocus(true),
+          onBlur: () => this.changeFocus(false),
           type,
           ...rest,
         });
