@@ -1,12 +1,12 @@
 ---
 
-- name: Find out Playbook path
-  shell: "pwd"
-  register: playbook_path_out
+- name: Find out Highlander path
+  shell: "dirname $(dirname $(pwd))"
+  register: highlander_path_out
 
 - name: Set Default Marathon Template Path
   set_fact:
-    app_template_path: "{{playbook_path_out.stdout}}/roles/{{marathon_template_path}}"
+    app_template_path: "{{highlander_path_out.stdout}}/tabernacle/ansible/roles/{{marathon_template_path}}"
 
 - include: validate.yml
 
